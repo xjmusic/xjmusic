@@ -215,7 +215,7 @@ public class ChunkFragmentM4sBuilder implements Mp4Builder {
         TrackFragmentHeaderBox tfhb = new TrackFragmentHeaderBox();
         tfhb.setTrackId(track.getTrackMetaData().getTrackId());
         tfhb.setBaseDataOffset(-1);
-        tfhb.setSampleDescriptionIndex(0);
+        tfhb.setSampleDescriptionIndex(sequenceNumber);
         tfhb.setDefaultSampleDuration(dspBufferSize);
         tfhb.setDefaultSampleSize(111);
         tfhb.setDurationIsEmpty(false);

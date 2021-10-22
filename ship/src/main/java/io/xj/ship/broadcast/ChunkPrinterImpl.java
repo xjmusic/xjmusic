@@ -63,12 +63,15 @@ public class ChunkPrinterImpl implements ChunkPrinter {
   private final String mp4InitFilePath;
   private final String streamBucket;
   private final String tempPlaylistPath;
-  private final String tempSegmentFilenameTemplate;
   private final String threadName;
   private final String wavFilePath;
   private final int bitrate;
   private final int shipChunkPrintTimeoutSeconds;
   private final int shipChunkSeconds;
+
+  // used to support mp4box operations
+  @SuppressWarnings({"unused", "FieldCanBeLocal"})
+  private final String tempSegmentFilenameTemplate;
 
   // PCM data
   private double[][] output;
@@ -200,7 +203,7 @@ public class ChunkPrinterImpl implements ChunkPrinter {
     LOG.debug("will encode AAC from WAV");
     chunkManager.put(chunk.setState(ChunkState.Encoding));
     try {
-      encodeAAC();
+      encodeAAC_ffmpeg();
       LOG.info("did encode AAC audio at {} to {}", bitrate, aacFilePath);
     } catch (Exception e) {
       LOG.error("Failed to encode AAC audio at {} to {}", bitrate, aacFilePath, e);
@@ -210,7 +213,7 @@ public class ChunkPrinterImpl implements ChunkPrinter {
     LOG.debug("will construct .m4s fragment from AAC");
     chunkManager.put(chunk.setState(ChunkState.Encoding));
     try {
-      constructM4S();
+      constructM4S_mp4parser();
       LOG.info("did construct M4S at {} to {}", bitrate, m4sFilePath);
     } catch (Exception e) {
       LOG.error("Failed to construct M4S at {} to {}", bitrate, m4sFilePath, e);
@@ -230,7 +233,7 @@ public class ChunkPrinterImpl implements ChunkPrinter {
     LOG.debug("will ship .mp4 initialization segment if necessary");
     if (!chunkManager.isInitialized(chunk.getShipKey()))
       try {
-        constructInitialMP4();
+        constructInitialMP4_mp4box();
         fileStoreProvider.putS3ObjectFromTempFile(mp4InitFilePath, streamBucket, mp4InitFileName);
         chunkManager.didInitialize(chunk.getShipKey());
         LOG.info("did ship {} bytes of {} initializer to s3://{}/{}", getFileSize(mp4InitFilePath), Values.k(bitrate), streamBucket, mp4InitFileName);
@@ -243,10 +246,9 @@ public class ChunkPrinterImpl implements ChunkPrinter {
     chunkManager.put(chunk.setState(ChunkState.Done));
   }
 
-  /**
+  /*
    run ffmpeg to create the initial segment for MPEG-DASH
-   */
-  @SuppressWarnings("unused")
+   *
   private void constructInitialMP4_ffmpeg() throws IOException, InterruptedException {
     Files.deleteIfExists(Path.of(mp4InitFilePath));
     execute("to construct initial MP4", List.of(
@@ -265,15 +267,17 @@ public class ChunkPrinterImpl implements ChunkPrinter {
       "-hls_time", "11",
       tempPlaylistPath));
   }
+   */
 
   /**
    run ffmpeg to create the initial segment for MPEG-DASH
    */
-  private void constructInitialMP4() throws IOException, InterruptedException {
+  private void constructInitialMP4_mp4box() throws IOException, InterruptedException {
     Files.deleteIfExists(Path.of(mp4InitFilePath));
     String adjSeqNum = String.valueOf(chunk.getSequenceNumber() - 1);
     execute("to construct initial MP4", List.of(
       "MP4Box",
+      "-single-traf",
       "-add", aacFilePath,
       "-dash", String.valueOf(chunk.getLengthSeconds() * MILLIS_PER_SECOND),
       "-frag", String.valueOf(chunk.getLengthSeconds() * MILLIS_PER_SECOND),
@@ -290,7 +294,7 @@ public class ChunkPrinterImpl implements ChunkPrinter {
   /**
    run ffmpeg for this chunk printing
    */
-  private void encodeAAC() throws IOException, InterruptedException {
+  private void encodeAAC_ffmpeg() throws IOException, InterruptedException {
     Files.deleteIfExists(Path.of(aacFilePath));
     execute("to encode AAC", List.of(
       "ffmpeg",
@@ -308,7 +312,7 @@ public class ChunkPrinterImpl implements ChunkPrinter {
 
    @throws IOException on failure
    */
-  private void constructM4S() throws IOException {
+  private void constructM4S_mp4parser() throws IOException {
     Files.deleteIfExists(Path.of(m4sFilePath));
     AACTrackImpl aacTrack = new AACTrackImpl(new FileDataSourceImpl(aacFilePath));
     Movie movie = new Movie();
@@ -323,6 +327,32 @@ public class ChunkPrinterImpl implements ChunkPrinter {
     mp4file.writeContainer(fc);
     fc.close();
   }
+
+  /*
+   Check the M4S output
+
+   @throws IOException on failure
+   *
+  private void constructM4S_mp4box() throws IOException, InterruptedException {
+    Files.deleteIfExists(Path.of(m4sFilePath));
+
+    // we provide the number before the one we want it to generate next
+    String adjSeqNum = String.valueOf(chunk.getSequenceNumber() - 1);
+
+    execute("to construct MP4", List.of(
+      "MP4Box",
+      "-add", aacFilePath,
+      "-dash", String.valueOf(chunk.getLengthSeconds() * MILLIS_PER_SECOND),
+      "-frag", String.valueOf(chunk.getLengthSeconds() * MILLIS_PER_SECOND),
+      "-idx", adjSeqNum,
+      "-moof-sn", adjSeqNum,
+      "-out", tempPlaylistPath,
+      "-profile", "live",
+      "-segment-name", String.format("%s-", chunk.getKey(bitrate)),
+      "-v",
+      "/tmp:period=%s", adjSeqNum));
+  }
+   */
 
   /**
    Whether all the source segments for this chunk are ready

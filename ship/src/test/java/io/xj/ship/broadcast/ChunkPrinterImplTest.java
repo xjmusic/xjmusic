@@ -26,8 +26,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.mp4parser.Box;
 import org.mp4parser.IsoFile;
+import org.mp4parser.boxes.iso14496.part12.TrackRunBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +36,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Collection;
-import java.util.List;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
@@ -48,6 +47,7 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import static org.mp4parser.tools.Path.getPath;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ChunkPrinterImplTest {
@@ -139,6 +139,8 @@ public class ChunkPrinterImplTest {
     logAllMp4Boxes("EXPECTED M4s", new InternalResource("chunk_reference_outputs/test5-128k-151304042.m4s").getFile().getAbsolutePath());
     logAllMp4Boxes("EXPECTED M4s (mp4box)", new InternalResource("chunk_reference_outputs/test5-128k-151304042-mp4box.m4s").getFile().getAbsolutePath());
     logAllMp4Boxes("ACTUAL M4S", subject.getM4sFilePath());
+    assertEquals("Samples in fragment", 468, ((TrackRunBox) getPath(getIsoFile(subject.getM4sFilePath()), "moof/traf/trun")).getEntries().size());
+    //
     logAllMp4Boxes("EXPECTED INIT MP4 (ffmpeg)", new InternalResource("chunk_reference_outputs/test5-128k-IS-ffmpeg.mp4").getFile().getAbsolutePath());
     logAllMp4Boxes("EXPECTED INIT MP4 (mp4box)", new InternalResource("chunk_reference_outputs/test5-128k-IS-mp4box.mp4").getFile().getAbsolutePath());
     logAllMp4Boxes("ACTUAL INIT MP4", subject.getMp4InitFilePath());
@@ -153,7 +155,7 @@ public class ChunkPrinterImplTest {
    */
   private void logAllMp4Boxes(String name, String path) throws IOException {
     LOG.info("----[ {} ]----", name);
-    for (var box : getMp4Boxes(path)) LOG.info("{}", box.toString());
+    for (var box : getIsoFile(path).getBoxes()) LOG.info("{}", box.toString());
     LOG.info("--------------");
   }
 
@@ -164,10 +166,9 @@ public class ChunkPrinterImplTest {
    @return mp4 boxes
    @throws IOException on failure
    */
-  private List<Box> getMp4Boxes(String path) throws IOException {
+  private IsoFile getIsoFile(String path) throws IOException {
     var dataSource = Files.newByteChannel(Path.of(path));
-    var isoFile = new IsoFile(dataSource);
-    return isoFile.getBoxes();
+    return new IsoFile(dataSource);
   }
 
   @Test
