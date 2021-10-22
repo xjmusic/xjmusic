@@ -52,7 +52,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   public void publish(long nowMillis) {
     String content = "";
     try {
-      content = playlistProvider.computeMpdXML(shipKey, shipTitle, shipSource, nowMillis);
+      content = playlistProvider.computeMediaPresentationDescriptionXML(shipKey, shipTitle, shipSource, nowMillis);
       fileStoreProvider.putS3ObjectFromString(content, streamBucket, playlistKey, mpdMimeType);
       LOG.info("did ship {} bytes to s3://{}/{}", content.length(), streamBucket, playlistKey);
     } catch (FileStoreException | IOException | ShipException | ValueException e) {

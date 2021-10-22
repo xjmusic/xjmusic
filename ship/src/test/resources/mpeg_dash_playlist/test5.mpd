@@ -4,7 +4,7 @@
     <Title>Test Stream 5</Title>
     <Source>XJ Music Testing</Source>
   </ProgramInformation>
-  <Period id="0" start="PT420289H50S">
+  <Period id="151304043" start="PT420289H50S">
     <AdaptationSet id="0" contentType="audio" segmentAlignment="true" bitstreamSwitching="true">
       <Representation id="128k" bandwidth="128000" codecs="mp4a.40.2" audioSamplingRate="128000" mimeType="audio/mp4">
         <AudioChannelConfiguration schemeIdUri="urn:mpeg:dash:23003:3:audio_channel_configuration:2011" value="2"/>

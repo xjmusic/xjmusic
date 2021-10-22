@@ -48,7 +48,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get -y install ffmpeg
-          sudo apt-get -y install gpac
           sudo apt-get -y install postgresql-client
           sudo apt-get -y install amazon-ecr-credential-helper
 

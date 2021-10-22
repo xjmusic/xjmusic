@@ -48,7 +48,7 @@ public class PlaylistProviderImpl implements PlaylistProvider {
   }
 
   @Override
-  public String computeMpdXML(String shipKey, String shipTitle, String shipSource, long nowMillis) throws IOException, ShipException {
+  public String computeMediaPresentationDescriptionXML(String shipKey, String shipTitle, String shipSource, long nowMillis) throws IOException, ShipException {
     var nowSeconds = chunkManager.computeFromSecondUTC(nowMillis);
     var startNumber = nowSeconds / shipChunkSeconds;
 
@@ -76,7 +76,7 @@ public class PlaylistProviderImpl implements PlaylistProvider {
           .build()))
       .withPeriods(List.of(
         Period.builder()
-          .withId("0")
+          .withId(String.valueOf(chunk.getSequenceNumber()))
           .withStart(Duration.ofSeconds(nowSeconds))
           .withAdaptationSet(
             AdaptationSet.builder()

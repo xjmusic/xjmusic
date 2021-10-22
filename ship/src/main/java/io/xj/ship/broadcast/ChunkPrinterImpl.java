@@ -38,7 +38,6 @@ import java.util.stream.Collectors;
 
 import static io.xj.lib.util.Files.getFileSize;
 import static io.xj.lib.util.Text.formatMultiline;
-import static org.joda.time.DateTimeConstants.MILLIS_PER_SECOND;
 
 /**
  Ship broadcast via HTTP Live Streaming #179453189
@@ -63,6 +62,7 @@ public class ChunkPrinterImpl implements ChunkPrinter {
   private final String mp4InitFilePath;
   private final String streamBucket;
   private final String tempPlaylistPath;
+  private final String tempSegmentFilenameTemplate;
   private final String threadName;
   private final String wavFilePath;
   private final int bitrate;
@@ -92,11 +92,12 @@ public class ChunkPrinterImpl implements ChunkPrinter {
     m4sFileName = String.format("%s.m4s", key);
     m4sFilePath = String.format("%s%s-1.m4s", env.getTempFilePathPrefix(), key);
     mp4InitFileName = String.format("%s-%s-IS.mp4", chunk.getShipKey(), Values.k(bitrate));
-    mp4InitFilePath = String.format("%s%s_init.mp4", env.getTempFilePathPrefix(), key);
+    mp4InitFilePath = String.format("%s%s", env.getTempFilePathPrefix(), mp4InitFileName);
     shipChunkPrintTimeoutSeconds = env.getShipChunkPrintTimeoutSeconds();
     shipChunkSeconds = env.getShipChunkSeconds();
     streamBucket = env.getStreamBucket();
-    tempPlaylistPath = String.format("%s%s", env.getTempFilePathPrefix(), key);
+    tempPlaylistPath = String.format("%s%s-temp.mpd", env.getTempFilePathPrefix(), key);
+    tempSegmentFilenameTemplate = String.format("%s-%s-temp-%%d.m4s", chunk.getShipKey(), Values.k(bitrate));
     threadName = String.format("CHUNK:%s", chunk.getKey());
     wavFilePath = String.format("%s%s.wav", env.getTempFilePathPrefix(), chunk.getKey());
   }
@@ -205,7 +206,7 @@ public class ChunkPrinterImpl implements ChunkPrinter {
       return;
     }
 
-    LOG.debug("will construct M4S from AAC");
+    LOG.debug("will construct .m4s fragment from AAC");
     chunkManager.put(chunk.setState(ChunkState.Encoding));
     try {
       constructM4S();
@@ -215,7 +216,7 @@ public class ChunkPrinterImpl implements ChunkPrinter {
       return;
     }
 
-    LOG.debug("encoded; will ship");
+    LOG.debug("will ship .m4s fragment");
     chunkManager.put(chunk.setState(ChunkState.Shipping));
     try {
       fileStoreProvider.putS3ObjectFromTempFile(m4sFilePath, streamBucket, m4sFileName);
@@ -224,8 +225,11 @@ public class ChunkPrinterImpl implements ChunkPrinter {
       LOG.error("Failed to ship audio", e);
       return;
     }
+
+    LOG.debug("will ship .mp4 initialization segment if necessary");
     if (!chunkManager.isInitialized(chunk.getShipKey()))
       try {
+        constructInitialMP4();
         fileStoreProvider.putS3ObjectFromTempFile(mp4InitFilePath, streamBucket, mp4InitFileName);
         chunkManager.didInitialize(chunk.getShipKey());
         LOG.info("did ship {} bytes of {} initializer to s3://{}/{}", getFileSize(mp4InitFilePath), Values.k(bitrate), streamBucket, mp4InitFileName);
@@ -239,7 +243,29 @@ public class ChunkPrinterImpl implements ChunkPrinter {
   }
 
   /**
-   Compute the command to run ffmpeg for this chunk printing
+   run ffmpeg to create the initial segment for MPEG-DASH
+   */
+  private void constructInitialMP4() throws IOException, InterruptedException {
+    Files.deleteIfExists(Path.of(mp4InitFilePath));
+    execute("to construct initial MP4", List.of(
+      "ffmpeg",
+      "-i", getWavFilePath(),
+      "-f", "hls",
+      "-ac", "2",
+      "-c:a", "aac",
+      "-b:a", Values.k(bitrate),
+      "-minrate", Values.k(bitrate),
+      "-maxrate", Values.k(bitrate),
+      "-start_number", String.valueOf((int) chunk.getSequenceNumber()),
+      "-hls_fmp4_init_filename", mp4InitFileName,
+      "-hls_segment_filename", tempSegmentFilenameTemplate,
+      "-hls_segment_type", "fmp4",
+      "-hls_time", "11",
+      tempPlaylistPath));
+  }
+
+  /**
+   run ffmpeg for this chunk printing
    */
   private void encodeAAC() throws IOException, InterruptedException {
     Files.deleteIfExists(Path.of(aacFilePath));
@@ -254,47 +280,22 @@ public class ChunkPrinterImpl implements ChunkPrinter {
       aacFilePath));
   }
 
-
   /**
    Check the M4S output
 
    @throws IOException on failure
    */
-  private void constructM4S() throws IOException, InterruptedException {
-    Files.deleteIfExists(Path.of(m4sFilePath));
-
-    // we provide the number before the one we want it to generate next
-    String adjSeqNum = String.valueOf(chunk.getSequenceNumber() - 1);
-
-    execute("to construct MP4", List.of(
-      "MP4Box",
-      "-add", aacFilePath,
-      "-dash", String.valueOf(chunk.getLengthSeconds() * MILLIS_PER_SECOND),
-      "-frag", String.valueOf(chunk.getLengthSeconds() * MILLIS_PER_SECOND),
-      "-idx", adjSeqNum,
-      "-moof-sn", adjSeqNum,
-      "-out", tempPlaylistPath,
-      "-profile", "live",
-      "-segment-name", String.format("%s-", chunk.getKey(bitrate)),
-      "-v",
-      "/tmp:period=%s", adjSeqNum));
-  }
-
-  /**
-   Check the M4S output
-   <p>
-   This vector reached a dead end, documented in
-   https://stackoverflow.com/questions/69625970/java-mp4parser-to-create-a-single-m4s-fragment
-
-   @throws IOException on failure
-   */
-  @SuppressWarnings("unused")
-  private void constructM4S_viaMp4Parser() throws IOException {
+  private void constructM4S() throws IOException {
     Files.deleteIfExists(Path.of(m4sFilePath));
     AACTrackImpl aacTrack = new AACTrackImpl(new FileDataSourceImpl(aacFilePath));
     Movie movie = new Movie();
     movie.addTrack(aacTrack);
-    Container mp4file = ChunkMp4Builder.newBuilder(chunk).build(movie);
+    Container mp4file = new CustomFragmentMp4Builder(
+      chunk.getTemplateConfig().getOutputFrameRate(),
+      chunk.getLengthSeconds(),
+      chunk.getSequenceNumber(),
+      chunk.getTemplateConfig().getMixerDspBufferSize()
+    ).build(movie);
     FileChannel fc = new FileOutputStream(m4sFilePath).getChannel();
     mp4file.writeContainer(fc);
     fc.close();

@@ -22,5 +22,5 @@ import java.io.IOException;
  - http://rdmedia.bbc.co.uk/dash/ondemand/bbb/
  */
 public interface PlaylistProvider {
-  String computeMpdXML(String shipKey, String shipTitle, String shipSource, long nowMillis) throws IOException, ShipException, ValueException;
+  String computeMediaPresentationDescriptionXML(String shipKey, String shipTitle, String shipSource, long nowMillis) throws IOException, ShipException, ValueException;
 }

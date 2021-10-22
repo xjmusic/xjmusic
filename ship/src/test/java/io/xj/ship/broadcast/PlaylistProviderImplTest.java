@@ -78,7 +78,7 @@ public class PlaylistProviderImplTest {
     when(chunkManager.computeFromSecondUTC(eq(1513040450000L))).thenReturn(1513040450L);
     when(chunkManager.getContiguousDone(eq(SHIP_KEY), eq(1513040450000L))).thenReturn(List.of(chunk0));
 
-    var result = subject.computeMpdXML(SHIP_KEY, SHIP_TITLE, SHIP_SOURCE, 1513040450000L);
+    var result = subject.computeMediaPresentationDescriptionXML(SHIP_KEY, SHIP_TITLE, SHIP_SOURCE, 1513040450000L);
 
     assertMatchesResourceFile(result, "mpeg_dash_playlist/test5.mpd");
   }
