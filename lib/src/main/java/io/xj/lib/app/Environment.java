@@ -96,6 +96,7 @@ public class Environment {
   private final int workJanitorCycleSeconds;
   private final int workLabHubLabPollSeconds;
   private final int workMedicCycleSeconds;
+  private final int workPrintCycleSeconds;
   private final int workPublishCycleSeconds;
   private final int workRehydrateFabricatedAheadThreshold;
   private final int workShipFabricatedAheadThresholdSeconds;
@@ -174,6 +175,7 @@ public class Environment {
     workMedicCycleSeconds = readInt(vars, "WORK_MEDIC_CYCLE_SECONDS", 30);
     workMedicEnabled = readBool(vars, "WORK_MEDIC_ENABLED", true);
     workPublishCycleSeconds = readInt(vars, "WORK_PUBLISH_CYCLE_SECONDS", 10);
+    workPrintCycleSeconds = readInt(vars, "WORK_PRINT_CYCLE_SECONDS", 2);
     workRehydrateFabricatedAheadThreshold = readInt(vars, "WORK_REHYDRATE_FABRICATED_AHEAD_THRESHOLD", 60);
     workShipFabricatedAheadThresholdSeconds = readInt(vars, "WORK_SHIP_FABRICATED_AHEAD_THRESHOLD_SECONDS", 60);
 
@@ -699,6 +701,13 @@ public class Environment {
   }
 
   /**
+   @return the ship fragment construction method
+   */
+  public String getShipFragmentConstructionMethod() {
+    return shipFragmentConstructionMethod;
+  }
+
+  /**
    @return ship segment load timeout seconds
    */
   public int getShipSegmentLoadTimeoutSeconds() {
@@ -839,6 +848,13 @@ public class Environment {
   }
 
   /**
+   @return the work print cycle seconds
+   */
+  public int getWorkPrintCycleSeconds() {
+    return workPrintCycleSeconds;
+  }
+
+  /**
    @return the work publish cycle seconds
    */
   public int getWorkPublishCycleSeconds() {
@@ -850,12 +866,5 @@ public class Environment {
    */
   public int getWorkRehydrateFabricatedAheadThreshold() {
     return workRehydrateFabricatedAheadThreshold;
-  }
-
-  /**
-   @return the ship fragment construction method
-   */
-  public String getShipFragmentConstructionMethod() {
-    return shipFragmentConstructionMethod;
   }
 }

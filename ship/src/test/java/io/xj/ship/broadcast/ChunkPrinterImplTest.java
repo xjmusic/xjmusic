@@ -12,7 +12,6 @@ import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.mixer.InternalResource;
-import io.xj.lib.util.ValueException;
 import io.xj.nexus.persistence.ChainManager;
 import io.xj.nexus.persistence.ManagerExistenceException;
 import io.xj.nexus.persistence.ManagerFatalException;
@@ -36,6 +35,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Map;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
@@ -55,7 +55,6 @@ public class ChunkPrinterImplTest {
   // Fixture
   private static final String SHIP_KEY = "test5";
   // Under Test
-  private ChunkPrinter subject;
   private Collection<SegmentAudio> segmentAudios;
   private Segment segment2;
   private SourceFactory source;
@@ -73,7 +72,7 @@ public class ChunkPrinterImplTest {
   private SegmentAudioManager segmentAudioManager;
 
   @Before
-  public void setUp() throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException {
+  public void setUp() {
     Account account1 = buildAccount("Testing");
     Template template1 = buildTemplate(account1, "fonds", "ABC");
     Chain chain1 = buildChain(
@@ -95,8 +94,85 @@ public class ChunkPrinterImplTest {
       120.0,
       "seg123.ogg",
       "wav");
+  }
 
-    var env = Environment.getDefault();
+  @Test
+  public void run() throws Exception {
+    var subject = buildSubject(Environment.getDefault());
+    var loader = ChunkPrinterImplTest.class.getClassLoader();
+    var input = loader.getResourceAsStream("ogg_decoding/coolair-1633586832900943.ogg");
+    segmentAudios.add(source.segmentAudio(SHIP_KEY, segment2).loadOggVorbis(input));
+
+    subject.print();
+
+    assertFileMatchesResourceFile("chunk_reference_outputs/test5-151304042.wav", subject.getWavFilePath());
+    logAllMp4Boxes("EXPECTED M4s", new InternalResource("chunk_reference_outputs/test5-128k-151304042.m4s").getFile().getAbsolutePath());
+    logAllMp4Boxes("EXPECTED M4s (mp4box)", new InternalResource("chunk_reference_outputs/test5-128k-151304042-mp4box.m4s").getFile().getAbsolutePath());
+    logAllMp4Boxes("ACTUAL M4S", subject.getM4sFilePath());
+    assertEquals("Samples in fragment", 470, ((TrackRunBox) getPath(getIsoFile(subject.getM4sFilePath()), "moof/traf/trun")).getEntries().size());
+    //
+    logAllMp4Boxes("EXPECTED INIT MP4 (ffmpeg)", new InternalResource("chunk_reference_outputs/test5-128k-IS-ffmpeg.mp4").getFile().getAbsolutePath());
+    logAllMp4Boxes("EXPECTED INIT MP4 (mp4box)", new InternalResource("chunk_reference_outputs/test5-128k-IS-mp4box.mp4").getFile().getAbsolutePath());
+    logAllMp4Boxes("ACTUAL INIT MP4", subject.getMp4InitFilePath());
+  }
+
+  @Test
+  public void run_mp4boxFragmentConstructionMethod() throws Exception {
+    var subject = buildSubject(Environment.from(Map.of("SHIP_FRAGMENT_CONSTRUCTION_METHOD", "mp4box")));
+    var loader = ChunkPrinterImplTest.class.getClassLoader();
+    var input = loader.getResourceAsStream("ogg_decoding/coolair-1633586832900943.ogg");
+    segmentAudios.add(source.segmentAudio(SHIP_KEY, segment2).loadOggVorbis(input));
+
+    subject.print();
+
+    assertFileMatchesResourceFile("chunk_reference_outputs/test5-151304042.wav", subject.getWavFilePath());
+    logAllMp4Boxes("EXPECTED M4s", new InternalResource("chunk_reference_outputs/test5-128k-151304042.m4s").getFile().getAbsolutePath());
+    logAllMp4Boxes("EXPECTED M4s (mp4box)", new InternalResource("chunk_reference_outputs/test5-128k-151304042-mp4box.m4s").getFile().getAbsolutePath());
+    logAllMp4Boxes("ACTUAL M4S", subject.getM4sFilePath());
+
+    // FUTURE: fix the mp4box method such that it outputs the whole mdat of 470 samples instead of just the 468 samples
+    assertEquals("Samples in fragment", 468, ((TrackRunBox) getPath(getIsoFile(subject.getM4sFilePath()), "moof/traf/trun")).getEntries().size());
+    //
+    logAllMp4Boxes("EXPECTED INIT MP4 (ffmpeg)", new InternalResource("chunk_reference_outputs/test5-128k-IS-ffmpeg.mp4").getFile().getAbsolutePath());
+    logAllMp4Boxes("EXPECTED INIT MP4 (mp4box)", new InternalResource("chunk_reference_outputs/test5-128k-IS-mp4box.mp4").getFile().getAbsolutePath());
+    logAllMp4Boxes("ACTUAL INIT MP4", subject.getMp4InitFilePath());
+  }
+
+  @Test
+  public void run_nothingFromNothing() throws Exception {
+    var subject = buildSubject(Environment.getDefault());
+
+    subject.print();
+
+    verify(chunkManager, never()).put(any());
+    assertNull(subject.getOutputPcmData());
+  }
+
+  @Test
+  public void run_nothingFromUnreadyAudio() throws Exception {
+    var subject = buildSubject(Environment.getDefault());
+    segmentAudios.add(source.segmentAudio(SHIP_KEY, segment2));
+
+    subject.print();
+
+    verify(chunkManager, never()).put(any());
+    assertNull(subject.getOutputPcmData());
+  }
+
+  @Test
+  public void getWavFilePath() throws Exception {
+    var subject = buildSubject(Environment.getDefault());
+
+    assertEquals("/tmp/test5-151304042.wav", subject.getWavFilePath());
+  }
+
+  /**
+   Build the test subject with the given environment
+
+   @param env with which to build
+   @return subject
+   */
+  private ChunkPrinter buildSubject(Environment env) throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException {
     var injector = Guice.createInjector(Modules.override(new ShipWorkModule()).with(new AbstractModule() {
       @Override
       protected void configure() {
@@ -124,26 +200,7 @@ public class ChunkPrinterImplTest {
 
     when(chunkManager.isInitialized(eq(SHIP_KEY))).thenReturn(false);
 
-    subject = broadcast.printer(chunk);
-  }
-
-  @Test
-  public void run() throws IOException, ValueException {
-    var loader = ChunkPrinterImplTest.class.getClassLoader();
-    var input = loader.getResourceAsStream("ogg_decoding/coolair-1633586832900943.ogg");
-    segmentAudios.add(source.segmentAudio(SHIP_KEY, segment2).loadOggVorbis(input));
-
-    subject.print();
-
-    assertFileMatchesResourceFile("chunk_reference_outputs/test5-151304042.wav", subject.getWavFilePath());
-    logAllMp4Boxes("EXPECTED M4s", new InternalResource("chunk_reference_outputs/test5-128k-151304042.m4s").getFile().getAbsolutePath());
-    logAllMp4Boxes("EXPECTED M4s (mp4box)", new InternalResource("chunk_reference_outputs/test5-128k-151304042-mp4box.m4s").getFile().getAbsolutePath());
-    logAllMp4Boxes("ACTUAL M4S", subject.getM4sFilePath());
-    assertEquals("Samples in fragment", 470, ((TrackRunBox) getPath(getIsoFile(subject.getM4sFilePath()), "moof/traf/trun")).getEntries().size());
-    //
-    logAllMp4Boxes("EXPECTED INIT MP4 (ffmpeg)", new InternalResource("chunk_reference_outputs/test5-128k-IS-ffmpeg.mp4").getFile().getAbsolutePath());
-    logAllMp4Boxes("EXPECTED INIT MP4 (mp4box)", new InternalResource("chunk_reference_outputs/test5-128k-IS-mp4box.mp4").getFile().getAbsolutePath());
-    logAllMp4Boxes("ACTUAL INIT MP4", subject.getMp4InitFilePath());
+    return broadcast.printer(chunk);
   }
 
   /**
@@ -170,28 +227,4 @@ public class ChunkPrinterImplTest {
     var dataSource = Files.newByteChannel(Path.of(path));
     return new IsoFile(dataSource);
   }
-
-  @Test
-  public void run_nothingFromNothing() {
-    subject.print();
-
-    verify(chunkManager, never()).put(any());
-    assertNull(subject.getOutputPcmData());
-  }
-
-  @Test
-  public void run_nothingFromUnreadyAudio() {
-    segmentAudios.add(source.segmentAudio(SHIP_KEY, segment2));
-
-    subject.print();
-
-    verify(chunkManager, never()).put(any());
-    assertNull(subject.getOutputPcmData());
-  }
-
-  @Test
-  public void getWavFilePath() {
-    assertEquals("/tmp/test5-151304042.wav", subject.getWavFilePath());
-  }
-
 }

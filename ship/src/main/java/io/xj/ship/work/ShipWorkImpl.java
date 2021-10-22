@@ -42,7 +42,8 @@ public class ShipWorkImpl implements ShipWork {
   private final int cycleMillis;
   private final int janitorCycleSeconds;
   private final int publishCycleSeconds;
-  private final int shipReloadSeconds;
+  private final int loadCycleSeconds;
+  private final int printCycleSeconds;
   private final long healthCycleStalenessThresholdMillis;
   @Nullable
   private final String shipKey;
@@ -51,6 +52,7 @@ public class ShipWorkImpl implements ShipWork {
   private long nextJanitorMillis = 0;
   private long nextPublishMillis = 0;
   private long nextShipReloadMillis = 0;
+  private long nextPrintMillis = 0;
 
   @Inject
   public ShipWorkImpl(
@@ -69,13 +71,14 @@ public class ShipWorkImpl implements ShipWork {
     shipKey = env.getBootstrapShipKeys().stream().findAny().orElse(null);
     this.broadcast = broadcast;
     state = new AtomicReference<>(State.Active);
-    shipReloadSeconds = env.getShipReloadSeconds();
+    loadCycleSeconds = env.getShipReloadSeconds();
 
     cycleMillis = env.getWorkCycleMillis();
     healthCycleStalenessThresholdMillis = env.getWorkHealthCycleStalenessThresholdSeconds() * MILLIS_PER_SECOND;
     janitorCycleSeconds = env.getWorkJanitorCycleSeconds();
     janitorEnabled = env.getWorkJanitorEnabled();
     publishCycleSeconds = env.getWorkPublishCycleSeconds();
+    printCycleSeconds = env.getWorkPrintCycleSeconds();
 
     if (Strings.isNullOrEmpty(shipKey)) {
       LOG.error("Cannot start with null or empty bootstrap ship key!");
@@ -136,6 +139,8 @@ public class ShipWorkImpl implements ShipWork {
    @param nowMillis current
    */
   private void doPrintCycle(long nowMillis) {
+    if (nowMillis < nextPrintMillis) return;
+    nextPrintMillis = nowMillis + printCycleSeconds * MILLIS_PER_SECOND;
     for (var chunk : chunkManager.getAll(shipKey, nowMillis)) broadcast.printer(chunk).print();
   }
 
@@ -146,7 +151,7 @@ public class ShipWorkImpl implements ShipWork {
    */
   private void doLoadCycle(long nowMillis) {
     if (nowMillis < nextShipReloadMillis) return;
-    nextShipReloadMillis = nowMillis + shipReloadSeconds * MILLIS_PER_SECOND;
+    nextShipReloadMillis = nowMillis + loadCycleSeconds * MILLIS_PER_SECOND;
     ForkJoinPool.commonPool().execute(sources.spawnChainBoss(shipKey,
       () -> state.set(State.Fail)
     ));

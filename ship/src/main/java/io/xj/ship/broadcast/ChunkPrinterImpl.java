@@ -53,7 +53,7 @@ public class ChunkPrinterImpl implements ChunkPrinter {
   private static final int AUDIO_CHANNELS = 2;
   private static final float QUALITY = 100;
   private final Chunk chunk;
-  private final ChunkFragmentMethod fragmentConstructionMethod;
+  private final ChunkFragmentConstructionMethod fragmentConstructionMethod;
   private final ChunkManager chunkManager;
   private final FileStoreProvider fileStoreProvider;
   private final SegmentAudioManager segmentAudioManager;
@@ -91,12 +91,16 @@ public class ChunkPrinterImpl implements ChunkPrinter {
     this.segmentAudioManager = segmentAudioManager;
 
     bitrate = env.getShipBitrateHigh();
-    fragmentConstructionMethod = ChunkFragmentMethod.fromString(env.getShipFragmentConstructionMethod());
+    fragmentConstructionMethod = ChunkFragmentConstructionMethod.fromString(env.getShipFragmentConstructionMethod());
     String key = chunk.getKey(bitrate);
 
     aacFilePath = String.format("%s%s.aac", env.getTempFilePathPrefix(), key);
     m4sFileName = String.format("%s.m4s", key);
-    m4sFilePath = String.format("%s%s.m4s", env.getTempFilePathPrefix(), key);
+    m4sFilePath = switch (fragmentConstructionMethod) {
+      case MANUAL -> String.format("%s%s.m4s", env.getTempFilePathPrefix(), key);
+      case MP4BOX -> String.format("%s%s-1.m4s", env.getTempFilePathPrefix(), key);
+    };
+
     mp4InitFileName = String.format("%s-%s-IS.mp4", chunk.getShipKey(), Values.k(bitrate));
     mp4InitFilePath = String.format("%s%s-temp_init.mp4", env.getTempFilePathPrefix(), key);
     shipChunkPrintTimeoutSeconds = env.getShipChunkPrintTimeoutSeconds();
@@ -346,13 +350,14 @@ public class ChunkPrinterImpl implements ChunkPrinter {
 
     execute("to construct MP4", List.of(
       "MP4Box",
+      "-profile", "live",
       "-add", aacFilePath,
       "-dash", String.valueOf(chunk.getLengthSeconds() * MILLIS_PER_SECOND),
       "-frag", String.valueOf(chunk.getLengthSeconds() * MILLIS_PER_SECOND),
       "-idx", adjSeqNum,
       "-moof-sn", adjSeqNum,
       "-out", tempPlaylistPath,
-      "-segment-name", String.format("%s", chunk.getKey(bitrate)),
+      "-segment-name", String.format("%s-", chunk.getKey(bitrate)),
       "-segment-ext", "m4s",
       "-single-traf",
       "-subsegs-per-sidx", "0",
