@@ -121,4 +121,12 @@ public interface ChainManager extends Manager<Chain> {
    @return chain that was put
    */
   Chain put(Chain chain) throws ManagerFatalException;
+
+  /**
+   Whether a chain exists in the store for the given ship key
+
+   @param shipKey for which to test
+   @return true if exists in store
+   */
+  boolean existsForShipKey(String shipKey);
 }

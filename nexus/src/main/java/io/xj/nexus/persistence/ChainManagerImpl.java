@@ -414,6 +414,18 @@ public class ChainManagerImpl extends ManagerImpl<Chain> implements ChainManager
     }
   }
 
+  @Override
+  public boolean existsForShipKey(String shipKey) {
+    String key = Text.toShipKey(shipKey);
+    try {
+      return store.getAllChains().stream()
+        .anyMatch(c -> key.equals(c.getShipKey()));
+    } catch (NexusException e) {
+      LOG.error("Failed to test if chain exists for ship key: {}", shipKey);
+      return false;
+    }
+  }
+
   /**
    Generate a Preview Chain ship key
 

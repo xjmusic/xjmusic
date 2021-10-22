@@ -56,6 +56,8 @@ public class ChunkManagerImplTest {
 
     when(chainManager.readOneByShipKey(eq(SHIP_KEY)))
       .thenReturn(buildChain(buildTemplate(buildAccount("Testing"), "Testing")));
+    when(chainManager.existsForShipKey(eq(SHIP_KEY)))
+      .thenReturn(true);
 
     subject = injector.getInstance(ChunkManager.class);
     broadcastFactory = injector.getInstance(BroadcastFactory.class);

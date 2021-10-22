@@ -8,6 +8,7 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.xj.lib.app.Environment;
+import io.xj.nexus.persistence.ChainManager;
 
 import java.time.Instant;
 import java.util.*;
@@ -25,16 +26,19 @@ public class ChunkManagerImpl implements ChunkManager {
   private final int shipAheadChunks;
   private final long shipAheadMillis;
   private final long shipChunkSeconds;
+  private final ChainManager chainManager;
   private final Set<String> initializedShipKeys;
 
   @Inject
   public ChunkManagerImpl(
     Environment env,
-    BroadcastFactory broadcastFactory
+    BroadcastFactory broadcastFactory,
+    ChainManager chainManager
   ) {
     broadcast = broadcastFactory;
     shipAheadChunks = env.getShipAheadChunks();
     shipChunkSeconds = env.getShipChunkSeconds();
+    this.chainManager = chainManager;
     shipAheadMillis = (shipAheadChunks - 1) * shipChunkSeconds * MILLIS_PER_SECOND;
     initializedShipKeys = Sets.newHashSet();
   }
@@ -50,6 +54,7 @@ public class ChunkManagerImpl implements ChunkManager {
 
   @Override
   public Collection<Chunk> getAll(String shipKey, long nowMillis) {
+    if (!chainManager.existsForShipKey(shipKey)) return List.of();
     var fromSecondsUTC = computeFromSecondUTC(nowMillis);
     return Stream.iterate(0, n -> n + 1)
       .limit(shipAheadChunks)
