@@ -326,11 +326,7 @@ public class ChunkPrinterImpl implements ChunkPrinter {
     AACTrackImpl aacTrack = new AACTrackImpl(new FileDataSourceImpl(aacFilePath));
     Movie movie = new Movie();
     movie.addTrack(aacTrack);
-    Container mp4file = new ChunkFragmentM4sBuilder(
-      chunk.getTemplateConfig().getOutputFrameRate(),
-      chunk.getLengthSeconds(),
-      chunk.getSequenceNumber()
-    ).build(movie);
+    Container mp4file = new ChunkFragmentM4sBuilder(chunk.getSequenceNumber()).build(movie);
     FileChannel fc = new FileOutputStream(m4sFilePath).getChannel();
     mp4file.writeContainer(fc);
     fc.close();

@@ -109,7 +109,7 @@ public class ChunkPrinterImplTest {
     logAllMp4Boxes("EXPECTED M4s", new InternalResource("chunk_reference_outputs/test5-128k-151304042.m4s").getFile().getAbsolutePath());
     logAllMp4Boxes("EXPECTED M4s (mp4box)", new InternalResource("chunk_reference_outputs/test5-128k-151304042-mp4box.m4s").getFile().getAbsolutePath());
     logAllMp4Boxes("ACTUAL M4S", subject.getM4sFilePath());
-    assertEquals("Samples in fragment", 470, ((TrackRunBox) getPath(getIsoFile(subject.getM4sFilePath()), "moof/traf/trun")).getEntries().size());
+    assertEquals("Samples in fragment", 469, ((TrackRunBox) getPath(getIsoFile(subject.getM4sFilePath()), "moof/traf/trun")).getEntries().size());
     //
     logAllMp4Boxes("EXPECTED INIT MP4 (ffmpeg)", new InternalResource("chunk_reference_outputs/test5-128k-IS-ffmpeg.mp4").getFile().getAbsolutePath());
     logAllMp4Boxes("EXPECTED INIT MP4 (mp4box)", new InternalResource("chunk_reference_outputs/test5-128k-IS-mp4box.mp4").getFile().getAbsolutePath());

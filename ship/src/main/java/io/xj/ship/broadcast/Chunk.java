@@ -34,8 +34,8 @@ public class Chunk {
   private final String shipKey;
   private final TemplateConfig templateConfig;
   private final int lengthSeconds;
-  private final long index;
-  private final long sequenceNumber;
+  private final int index;
+  private final int sequenceNumber;
 
   private ChunkState state;
   private Instant updated;
@@ -55,7 +55,7 @@ public class Chunk {
     lengthSeconds = env.getShipChunkSeconds();
     toInstant = fromInstant.plusSeconds(lengthSeconds);
     streamOutputKeys = Lists.newArrayList();
-    index = (long) (Math.floor((double) fromSecondsUTC / lengthSeconds));
+    index = (int) (Math.floor((double) fromSecondsUTC / lengthSeconds));
     sequenceNumber = index + 1;
   }
 
@@ -75,10 +75,6 @@ public class Chunk {
     this.state = state;
 
     return this;
-  }
-
-  public long getIndex() {
-    return index;
   }
 
   public String getKey(int bitrate) {
@@ -129,11 +125,7 @@ public class Chunk {
     return templateConfig;
   }
 
-  public long getSubsegmentDuration() {
-    return (long) templateConfig.getOutputFrameRate() * lengthSeconds;
-  }
-
-  public long getSequenceNumber() {
+  public int getSequenceNumber() {
     return sequenceNumber;
   }
 }

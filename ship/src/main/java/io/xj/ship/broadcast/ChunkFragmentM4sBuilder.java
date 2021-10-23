@@ -1,15 +1,37 @@
+/*
+ * Created in 2021 by Charney Kaye, California
+ * Original mp4parser work copyright 2012 Sebastian Annies, Hamburg
+ *
+ * Licensed under the Apache License, Version 2.0 (the License);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an AS IS BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.xj.ship.broadcast;
 
 import org.mp4parser.*;
 import org.mp4parser.boxes.iso14496.part12.*;
+import org.mp4parser.boxes.iso23001.part7.CencSampleAuxiliaryDataFormat;
+import org.mp4parser.boxes.iso23001.part7.SampleEncryptionBox;
+import org.mp4parser.boxes.iso23001.part7.TrackEncryptionBox;
+import org.mp4parser.boxes.sampleentry.SampleEntry;
+import org.mp4parser.boxes.samplegrouping.GroupEntry;
+import org.mp4parser.boxes.samplegrouping.SampleGroupDescriptionBox;
+import org.mp4parser.boxes.samplegrouping.SampleToGroupBox;
+import org.mp4parser.muxer.Edit;
 import org.mp4parser.muxer.Movie;
 import org.mp4parser.muxer.Sample;
 import org.mp4parser.muxer.Track;
-import org.mp4parser.muxer.builder.DefaultFragmenterImpl;
-import org.mp4parser.muxer.builder.Fragmenter;
 import org.mp4parser.muxer.builder.Mp4Builder;
+import org.mp4parser.muxer.tracks.encryption.CencEncryptedTrack;
 import org.mp4parser.tools.IsoTypeWriter;
-import org.mp4parser.tools.Offsets;
 import org.mp4parser.tools.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,417 +45,713 @@ import java.util.*;
 import static org.mp4parser.tools.CastUtils.l2i;
 
 /**
- Creates a plain MP4 file from a video. Plain as plain can be.
+ Creates a fragmented MP4 file.
  */
-public class ChunkFragmentM4sBuilder implements Mp4Builder {
-    private static final Logger LOG = LoggerFactory.getLogger(ChunkFragmentM4sBuilder.class);
-    private static final String BRAND_MSDH = "msdh";
-    private static final String BRAND_MSIX = "msix";
-    private final long subsegmentDuration;
-    private final int sampleRate;
-    private final long sequenceNumber;
-    private final int lengthSeconds;
-  Map<Track, StaticChunkOffsetBox> chunkOffsetBoxes = new HashMap<>();
-    Set<SampleAuxiliaryInformationOffsetsBox> sampleAuxiliaryInformationOffsetsBoxes = new HashSet<>();
-    HashMap<Track, List<Sample>> track2Sample = new HashMap<>();
-    HashMap<Track, long[]> track2SampleSizes = new HashMap<>();
-    private Fragmenter fragmenter;
+public record ChunkFragmentM4sBuilder(int sequenceNumber) implements Mp4Builder {
+  private static final Logger LOG = LoggerFactory.getLogger(ChunkFragmentM4sBuilder.class);
 
-    public ChunkFragmentM4sBuilder(
-      int sampleRate,
-      int lengthSeconds,
-      long sequenceNumber
-    ) {
-        this.sampleRate = sampleRate;
-        this.lengthSeconds = lengthSeconds;
-        this.sequenceNumber = sequenceNumber;
-      subsegmentDuration = (long) sampleRate * lengthSeconds;
+  private static long getTrackDuration(Movie movie, Track track) {
+    return (track.getDuration() * movie.getTimescale()) / track.getTrackMetaData().getTimescale();
+  }
+
+  public Date getDate() {
+    return new Date();
+  }
+
+  public ParsableBox createFtyp() {
+    List<String> minorBrands = new LinkedList<>();
+    minorBrands.add("mp42");
+    minorBrands.add("iso6");
+    minorBrands.add("avc1");
+    minorBrands.add("isom");
+    return new FileTypeBox("iso6", 1, minorBrands);
+  }
+
+  private List<Box> createMoofMdat(final Movie movie) {
+    List<Box> moofsMdats = new ArrayList<>();
+    HashMap<Track, Double> track2currentTime = new HashMap<>();
+
+    for (Track track : movie.getTracks()) {
+      track2currentTime.put(track, 0.0);
+
     }
 
-    private static long sum(int[] ls) {
-        long rc = 0;
-        for (long l : ls) {
-            rc += l;
+    Track earliestTrack = null;
+    double earliestTime = Double.MAX_VALUE;
+    for (Map.Entry<Track, Double> trackEntry : track2currentTime.entrySet()) {
+      if (trackEntry.getValue() < earliestTime) {
+        earliestTime = trackEntry.getValue();
+        earliestTrack = trackEntry.getKey();
+      }
+    }
+    assert earliestTrack != null;
+
+    long[] startSamples = new long[]{1};
+    long startSample = startSamples[0];
+    long endSample = earliestTrack.getSamples().size() + 1;
+
+    long[] times = earliestTrack.getSampleDurations();
+    long timescale = earliestTrack.getTrackMetaData().getTimescale();
+    for (long i = startSample; i < endSample; i++) {
+      earliestTime += (double) times[l2i(i - 1)] / timescale;
+    }
+    createFragment(moofsMdats, earliestTrack, earliestTrack.getSamples().size(), sequenceNumber);
+
+    return moofsMdats;
+  }
+
+  private void createFragment(List<Box> moofsMdats, Track track, long endSample, int sequence) {
+    moofsMdats.add(createMoof(endSample, track, sequence));
+    moofsMdats.add(createMdat(endSample, track));
+  }
+
+  /**
+   {@inheritDoc}
+   */
+  public Container build(Movie movie) {
+    LOG.debug("Creating movie " + movie);
+    BasicContainer isoFile = new BasicContainer();
+
+
+    isoFile.addBox(createFtyp());
+    isoFile.addBox(createMoov(movie));
+
+    for (Box box : createMoofMdat(movie)) {
+      isoFile.addBox(box);
+    }
+    isoFile.addBox(createMfra(movie, isoFile));
+
+    return isoFile;
+  }
+
+  private Box createMdat(final long endSample, final Track track) {
+
+    class Mdat implements Box {
+      long size_ = -1;
+
+      public long getSize() {
+        if (size_ != -1) return size_;
+        long size = 8; // I don't expect 2gig fragments
+        for (Sample sample : getSamples(endSample, track)) {
+          size += sample.getSize();
         }
-        return rc;
+        size_ = size;
+        return size;
+      }
+
+      public String getType() {
+        return "mdat";
+      }
+
+      public void getBox(WritableByteChannel writableByteChannel) throws IOException {
+        ByteBuffer header = ByteBuffer.allocate(8);
+        IsoTypeWriter.writeUInt32(header, l2i(getSize()));
+        header.put(IsoFile.fourCCtoBytes(getType()));
+        ((Buffer) header).rewind();
+        writableByteChannel.write(header);
+
+        List<Sample> samples = getSamples(endSample, track);
+        for (Sample sample : samples) {
+          sample.writeTo(writableByteChannel);
+        }
+
+
+      }
+
+
     }
 
-    /**
-     {@inheritDoc}
-     */
-    public Container build(Movie movie) {
-        if (fragmenter == null) {
-            fragmenter = new DefaultFragmenterImpl(lengthSeconds);
-        }
-        LOG.debug("Creating movie {}", movie);
-        for (Track track : movie.getTracks()) {
-            // getting the samples may be a time-consuming activity
-            List<Sample> samples = track.getSamples();
-            putSamples(track, samples);
-            long[] sizes = new long[samples.size()];
-            for (int i = 0; i < sizes.length; i++) {
-                Sample b = samples.get(i);
-                sizes[i] = b.getSize();
-            }
-            track2SampleSizes.put(track, sizes);
-        }
+    return new Mdat();
+  }
 
-        Map<Track, int[]> chunks = new HashMap<>();
-        for (Track track : movie.getTracks()) {
-            chunks.put(track, getChunkSizes(track));
-        }
-        ParsableBox moof = createMovieFragmentBox(movie);
-        List<TrackRunBox.Entry> entries = ((TrackRunBox) Path.getPath(moof, "traf/trun")).getEntries();
+  private void createTfhd(Track track, TrackFragmentBox parent) {
+    TrackFragmentHeaderBox tfhd = new TrackFragmentHeaderBox();
+    SampleFlags sf = new SampleFlags();
 
-        int contentSize = 0;
-        for (TrackRunBox.Entry traf : entries)
-            contentSize += traf.getSampleSize();
+    tfhd.setDefaultSampleFlags(sf);
+    tfhd.setBaseDataOffset(-1);
+    tfhd.setSampleDescriptionIndex(track.getSampleEntries().indexOf(track.getSamples().get(l2i(1)).getSampleEntry()) + 1);
+    tfhd.setTrackId(track.getTrackMetaData().getTrackId());
+    tfhd.setDefaultBaseIsMoof(true);
+    parent.addBox(tfhd);
+  }
 
-        LOG.debug("About to create mdat");
-        InterleaveChunkMdat mdat = new InterleaveChunkMdat(movie, chunks, contentSize);
+  private void createMfhd(int sequenceNumber, MovieFragmentBox parent) {
+    MovieFragmentHeaderBox mfhd = new MovieFragmentHeaderBox();
+    mfhd.setSequenceNumber(sequenceNumber);
+    parent.addBox(mfhd);
+  }
 
-        BasicContainer isoFile = new BasicContainer();
+  private void createTraf(long endSample, Track track, MovieFragmentBox parent) {
+    TrackFragmentBox traf = new TrackFragmentBox();
+    parent.addBox(traf);
+    createTfhd(track, traf);
+    createTfdt(traf);
+    createTrun(endSample, track, traf);
 
-        isoFile.addBox(createSegmentTypeBox());
-
-        isoFile.addBox(createSegmentIndexBox(contentSize));
-        isoFile.addBox(moof);
-        long dataOffset = 16;
-        for (Box lightBox : isoFile.getBoxes()) {
-            dataOffset += lightBox.getSize();
-        }
-        isoFile.addBox(mdat);
-        LOG.debug("mdat crated");
-
-        /*
-        dataOffset is where the first sample starts. In this special mdat the samples always start
-        at offset 16 so that we can use the same offset for large boxes and small boxes
-         */
-
-        for (StaticChunkOffsetBox chunkOffsetBox : chunkOffsetBoxes.values()) {
-            long[] offsets = chunkOffsetBox.getChunkOffsets();
-            for (int i = 0; i < offsets.length; i++) {
-                offsets[i] += dataOffset;
-            }
-        }
-        for (SampleAuxiliaryInformationOffsetsBox saio : sampleAuxiliaryInformationOffsetsBoxes) {
-            long offset = saio.getSize(); // the calculation is systematically wrong by 4, I don't want to debug why. Just a quick correction --san 14.May.13
-            offset += 4 + 4 + 4 + 4 + 4 + 24;
-            // size of all header we were missing otherwise (moov, trak, mdia, minf, stbl)
-            offset = Offsets.find(isoFile, saio, offset);
-
-            long[] saioOffsets = saio.getOffsets();
-            for (int i = 0; i < saioOffsets.length; i++) {
-                saioOffsets[i] = saioOffsets[i] + offset;
-
-            }
-            saio.setOffsets(saioOffsets);
-        }
-
-        return isoFile;
+    if (track instanceof CencEncryptedTrack) {
+      createSaiz(endSample, (CencEncryptedTrack) track, traf);
+      createSenc(endSample, (CencEncryptedTrack) track, traf);
+      createSaio(traf, parent);
     }
 
-    private SegmentIndexBox createSegmentIndexBox(int referencedSize) {
-        SegmentIndexBox sidx = new SegmentIndexBox();
-        sidx.setEntries(List.of(new SegmentIndexBox.Entry(
-                0,
-                referencedSize, // FUTURE what is the meaning of "referenced size" and how do we compute it?
-                subsegmentDuration,
-                true,
-                0,
-                0
-        )));
-        sidx.setTimeScale(getTimescale());
-        sidx.setReferenceId(1);
-        sidx.setEarliestPresentationTime(0);
-        sidx.setFirstOffset(0);
-        sidx.setReserved(0);
-        return sidx;
+
+    Map<String, List<GroupEntry>> groupEntryFamilies = new HashMap<>();
+    for (Map.Entry<GroupEntry, long[]> sg : track.getSampleGroups().entrySet()) {
+      String type = sg.getKey().getType();
+      List<GroupEntry> groupEntries = groupEntryFamilies.computeIfAbsent(type, k -> new ArrayList<>());
+      groupEntries.add(sg.getKey());
     }
 
-    protected void putSamples(Track track, List<Sample> samples) {
-        track2Sample.put(track, samples);
-    }
 
-    protected SegmentTypeBox createSegmentTypeBox() {
-        return new SegmentTypeBox(BRAND_MSDH, 0, List.of(
-                BRAND_MSDH, BRAND_MSIX
-        ));
-    }
-
-    protected MovieFragmentBox createMovieFragmentBox(Movie movie) {
-        MovieFragmentBox mfb = new MovieFragmentBox();
-        MovieFragmentHeaderBox mfhb = new MovieFragmentHeaderBox();
-
-        mfhb.setSequenceNumber(sequenceNumber);
-        long movieTimeScale = getTimescale();
-        long duration = 0;
-
-        for (Track track : movie.getTracks()) {
-            long tracksDuration;
-
-            tracksDuration = (track.getDuration() * movieTimeScale / track.getTrackMetaData().getTimescale());
-
-            if (tracksDuration > duration) {
-                duration = tracksDuration;
-            }
+    for (Map.Entry<String, List<GroupEntry>> sg : groupEntryFamilies.entrySet()) {
+      SampleGroupDescriptionBox sgpd = new SampleGroupDescriptionBox();
+      String type = sg.getKey();
+      sgpd.setGroupEntries(sg.getValue());
+      sgpd.setGroupingType(type);
+      SampleToGroupBox sbgp = new SampleToGroupBox();
+      sbgp.setGroupingType(type);
+      SampleToGroupBox.Entry last = null;
+      for (int i = l2i((long) 1 - 1); i < l2i(endSample - 1); i++) {
+        int index = 0;
+        for (int j = 0; j < sg.getValue().size(); j++) {
+          GroupEntry groupEntry = sg.getValue().get(j);
+          long[] sampleNums = track.getSampleGroups().get(groupEntry);
+          if (Arrays.binarySearch(sampleNums, i) >= 0) {
+            index = j + 0x10001;
+          }
         }
-
-        // find the next available trackId
-        long nextTrackId = 0;
-        for (Track track : movie.getTracks()) {
-            nextTrackId = Math.max(nextTrackId, track.getTrackMetaData().getTrackId());
+        if (last == null || last.getGroupDescriptionIndex() != index) {
+          last = new SampleToGroupBox.Entry(1, index);
+          sbgp.getEntries().add(last);
+        } else {
+          last.setSampleCount(last.getSampleCount() + 1);
         }
+      }
+      traf.addBox(sgpd);
+      traf.addBox(sbgp);
+    }
 
-        mfb.addBox(mfhb);
-        for (Track track : movie.getTracks()) {
-            mfb.addBox(createTrackFragmentBox(track));
+
+  }
+
+  private void createSenc(long endSample, CencEncryptedTrack track, TrackFragmentBox parent) {
+    SampleEncryptionBox senc = new SampleEncryptionBox();
+    senc.setSubSampleEncryption(track.hasSubSampleEncryption());
+    senc.setEntries(track.getSampleEncryptionEntries().subList(l2i((long) 1 - 1), l2i(endSample - 1)));
+    parent.addBox(senc);
+  }
+
+  private void createSaio(TrackFragmentBox parent, MovieFragmentBox moof) {
+
+    SampleAuxiliaryInformationOffsetsBox saio = new SampleAuxiliaryInformationOffsetsBox();
+    parent.addBox(saio);
+    assert parent.getBoxes(TrackRunBox.class).size() == 1 : "Don't know how to deal with multiple Track Run Boxes when encrypting";
+    saio.setAuxInfoType("cenc");
+    saio.setFlags(1);
+    long offset = 0;
+    offset += 8; // traf header till 1st child box
+    for (Box box : parent.getBoxes()) {
+      if (box instanceof SampleEncryptionBox) {
+        offset += ((SampleEncryptionBox) box).getOffsetToFirstIV();
+        break;
+      } else {
+        offset += box.getSize();
+      }
+    }
+    offset += 16; // traf header till 1st child box
+    for (Box box : moof.getBoxes()) {
+      if (box == parent) {
+        break;
+      } else {
+        offset += box.getSize();
+      }
+
+    }
+
+    saio.setOffsets(new long[]{offset});
+
+  }
+
+  private void createSaiz(long endSample, CencEncryptedTrack track, TrackFragmentBox parent) {
+    SampleEntry se = track.getSampleEntries().get(l2i(parent.getTrackFragmentHeaderBox().getSampleDescriptionIndex() - 1));
+
+    TrackEncryptionBox tenc = Path.getPath((Container) se, "sinf[0]/schi[0]/tenc[0]");
+
+    SampleAuxiliaryInformationSizesBox saiz = new SampleAuxiliaryInformationSizesBox();
+    saiz.setAuxInfoType("cenc");
+    saiz.setFlags(1);
+    if (track.hasSubSampleEncryption()) {
+      short[] sizes = new short[l2i(endSample - (long) 1)];
+      List<CencSampleAuxiliaryDataFormat> auxs =
+        track.getSampleEncryptionEntries().subList(l2i((long) 1 - 1), l2i(endSample - 1));
+      for (int i = 0; i < sizes.length; i++) {
+        sizes[i] = (short) auxs.get(i).getSize();
+      }
+      saiz.setSampleInfoSizes(sizes);
+    } else {
+      assert tenc != null;
+      saiz.setDefaultSampleInfoSize(tenc.getDefaultIvSize());
+      saiz.setSampleCount(l2i(endSample - (long) 1));
+    }
+    parent.addBox(saiz);
+  }
+
+  /**
+   Gets all samples starting with <code>startSample</code> (one based -&gt; one is the first) and
+   ending with <code>endSample</code> (exclusive).
+
+   @return a <code>List&lt;Sample&gt;</code> of raw samples
+   @param endSample   high endpoint (exclusive) of the sample sequence
+   @param track       source of the samples
+   */
+  private List<Sample> getSamples(long endSample, Track track) {
+    // since startSample and endSample are one-based subtract 1 before addressing list elements
+    return track.getSamples().subList(l2i(1) - 1, l2i(endSample) - 1);
+  }
+
+  /**
+   Gets the sizes of a sequence of samples.
+
+   @return the sample sizes in the given interval
+   @param endSample   high endpoint (exclusive) of the sample sequence
+   @param track       source of the samples
+   */
+  private long[] getSampleSizes(long endSample, Track track) {
+    List<Sample> samples = getSamples(endSample, track);
+
+    long[] sampleSizes = new long[samples.size()];
+    for (int i = 0; i < sampleSizes.length; i++) {
+      sampleSizes[i] = samples.get(i).getSize();
+    }
+    return sampleSizes;
+  }
+
+  private void createTfdt(TrackFragmentBox parent) {
+    TrackFragmentBaseMediaDecodeTimeBox tfdt = new TrackFragmentBaseMediaDecodeTimeBox();
+    tfdt.setVersion(1);
+    long startTime = 0;
+    tfdt.setBaseMediaDecodeTime(startTime);
+    parent.addBox(tfdt);
+  }
+
+  /**
+   Creates one or more track run boxes for a given sequence.@param endSample      high endpoint (exclusive) of the sample sequence
+
+   @param track  source of the samples
+   @param parent the created box must be added to this box
+   */
+  private void createTrun(long endSample, Track track, TrackFragmentBox parent) {
+    TrackRunBox trun = new TrackRunBox();
+    trun.setVersion(1);
+    long[] sampleSizes = getSampleSizes(endSample, track);
+
+    trun.setSampleDurationPresent(true);
+    trun.setSampleSizePresent(true);
+    List<TrackRunBox.Entry> entries = new ArrayList<>(l2i(endSample - (long) 1));
+
+
+    List<CompositionTimeToSample.Entry> compositionTimeEntries = track.getCompositionTimeEntries();
+    int compositionTimeQueueIndex = 0;
+    CompositionTimeToSample.Entry[] compositionTimeQueue =
+      compositionTimeEntries != null && compositionTimeEntries.size() > 0 ?
+        compositionTimeEntries.toArray(new CompositionTimeToSample.Entry[0]) : null;
+    long compositionTimeEntriesLeft = compositionTimeQueue != null ? compositionTimeQueue[compositionTimeQueueIndex].getCount() : -1;
+
+
+    trun.setSampleCompositionTimeOffsetPresent(compositionTimeEntriesLeft > 0);
+
+    // fast-forward composition stuff
+
+    boolean sampleFlagsRequired = (track.getSampleDependencies() != null && !track.getSampleDependencies().isEmpty() ||
+      track.getSyncSamples() != null && track.getSyncSamples().length != 0);
+
+    trun.setSampleFlagsPresent(sampleFlagsRequired);
+
+    for (int i = 0; i < sampleSizes.length; i++) {
+      TrackRunBox.Entry entry = new TrackRunBox.Entry();
+      entry.setSampleSize(sampleSizes[i]);
+      if (sampleFlagsRequired) {
+        //if (false) {
+        SampleFlags sflags = new SampleFlags();
+
+        if (track.getSampleDependencies() != null && !track.getSampleDependencies().isEmpty()) {
+          SampleDependencyTypeBox.Entry e = track.getSampleDependencies().get(i);
+          sflags.setSampleDependsOn(e.getSampleDependsOn());
+          sflags.setSampleIsDependedOn(e.getSampleIsDependedOn());
+          sflags.setSampleHasRedundancy(e.getSampleHasRedundancy());
         }
+        if (track.getSyncSamples() != null && track.getSyncSamples().length > 0) {
+          // we have to mark non-sync samples!
+          if (Arrays.binarySearch(track.getSyncSamples(), (long) 1 + i) >= 0) {
+            sflags.setSampleIsDifferenceSample(false);
+            sflags.setSampleDependsOn(2);
+          } else {
+            sflags.setSampleIsDifferenceSample(true);
+            sflags.setSampleDependsOn(1);
+          }
+        }
+        // i don't have sample degradation
+        entry.setSampleFlags(sflags);
 
-        return mfb;
+      }
+
+      entry.setSampleDuration(track.getSampleDurations()[l2i((long) 1 + i - 1)]);
+
+      if (compositionTimeQueue != null) {
+        entry.setSampleCompositionTimeOffset(compositionTimeQueue[compositionTimeQueueIndex].getOffset());
+        if (--compositionTimeEntriesLeft == 0 && (compositionTimeQueue.length - compositionTimeQueueIndex) > 1) {
+          compositionTimeQueueIndex++;
+          compositionTimeEntriesLeft = compositionTimeQueue[compositionTimeQueueIndex].getCount();
+        }
+      }
+      entries.add(entry);
     }
 
-    protected TrackFragmentBox createTrackFragmentBox(Track track) {
+    trun.setEntries(entries);
 
-        TrackFragmentBox tfb = new TrackFragmentBox();
-        tfb.addBox(computeTrackFragmentHeaderBox(track));
-        tfb.addBox(computeTrackFragmentBaseMediaDecodeTimeBox());
-        tfb.addBox(computeTrackRunBox(track));
+    parent.addBox(trun);
+  }
 
-        LOG.debug("did create box for track_{}", track.getTrackMetaData().getTrackId());
-        return tfb;
+  /**
+   Creates a 'moof' box for a given sequence of samples.
+
+   @param endSample      high endpoint (exclusive) of the sample sequence
+   @param track          source of the samples
+   @param sequenceNumber the fragment index of the requested list of samples
+   @return the list of TrackRun boxes.
+   */
+  private ParsableBox createMoof(long endSample, Track track, int sequenceNumber) {
+    MovieFragmentBox moof = new MovieFragmentBox();
+    createMfhd(sequenceNumber, moof);
+    createTraf(endSample, track, moof);
+
+    TrackRunBox firstTrun = moof.getTrackRunBoxes().get(0);
+    firstTrun.setDataOffset(1); // dummy to make size correct
+    firstTrun.setDataOffset((int) (8 + moof.getSize())); // mdat header + moof size
+
+    return moof;
+  }
+
+  /**
+   Creates a single 'mvhd' movie header box for a given movie.
+
+   @param movie the concerned movie
+   @return an 'mvhd' box
+   */
+  private ParsableBox createMvhd(Movie movie) {
+    MovieHeaderBox mvhd = new MovieHeaderBox();
+    mvhd.setVersion(1);
+    mvhd.setCreationTime(getDate());
+    mvhd.setModificationTime(getDate());
+    mvhd.setDuration(0);//no duration in moov for fragmented movies
+    long movieTimeScale = movie.getTimescale();
+    mvhd.setTimescale(movieTimeScale);
+    // find the next available trackId
+    long nextTrackId = 0;
+    for (Track track : movie.getTracks()) {
+      nextTrackId = Math.max(nextTrackId, track.getTrackMetaData().getTrackId());
+    }
+    mvhd.setNextTrackId(++nextTrackId);
+    return mvhd;
+  }
+
+  /**
+   Creates a fully populated 'moov' box with all child boxes. Child boxes are:
+   <ul>
+   <li>{@link #createMvhd(Movie) mvhd}</li>
+   <li>{@link #createMvex(Movie)  mvex}</li>
+   <li>a {@link #createTrak(Track, Movie)  trak} for every track</li>
+   </ul>
+
+   @param movie the concerned movie
+   @return fully populated 'moov'
+   */
+  private ParsableBox createMoov(Movie movie) {
+    MovieBox movieBox = new MovieBox();
+
+    movieBox.addBox(createMvhd(movie));
+    for (Track track : movie.getTracks()) {
+      movieBox.addBox(createTrak(track, movie));
+    }
+    movieBox.addBox(createMvex(movie));
+
+    // metadata here
+    return movieBox;
+  }
+
+  /**
+   Creates a 'tfra' - track fragment random access box for the given track with the isoFile.
+   The tfra contains a map of random access points with time as key and offset within the isofile
+   as value.
+
+   @param track   the concerned track
+   @param isoFile the track is contained in
+   @return a track fragment random access box.
+   */
+  private Box createTfra(Track track, Container isoFile) {
+    TrackFragmentRandomAccessBox tfra = new TrackFragmentRandomAccessBox();
+    tfra.setVersion(1); // use long offsets and times
+    List<TrackFragmentRandomAccessBox.Entry> offset2timeEntries = new LinkedList<>();
+
+    TrackExtendsBox trex = null;
+    List<TrackExtendsBox> trexs = Path.getPaths(isoFile, "moov/mvex/trex");
+    for (TrackExtendsBox innerTrex : trexs) {
+      if (innerTrex.getTrackId() == track.getTrackMetaData().getTrackId()) {
+        trex = innerTrex;
+      }
     }
 
-    public long getTimescale() {
-        return sampleRate;
-    }
+    long offset = 0;
+    long duration = 0;
 
-    private TrackFragmentHeaderBox computeTrackFragmentHeaderBox(Track track) {
-        TrackFragmentHeaderBox tfhb = new TrackFragmentHeaderBox();
-        tfhb.setTrackId(track.getTrackMetaData().getTrackId());
-        tfhb.setSampleDescriptionIndex(0);
-        tfhb.setDurationIsEmpty(false);
-        tfhb.setDefaultBaseIsMoof(true);
-        return tfhb;
-    }
+    for (Box box : isoFile.getBoxes()) {
+      if (box instanceof MovieFragmentBox) {
+        List<TrackFragmentBox> trafs = ((MovieFragmentBox) box).getBoxes(TrackFragmentBox.class);
+        for (int i = 0; i < trafs.size(); i++) {
+          TrackFragmentBox traf = trafs.get(i);
 
-    /**
-     Creates one or more track run boxes for a given sequence.
+          if (traf.getTrackFragmentHeaderBox().getTrackId() == track.getTrackMetaData().getTrackId()) {
 
-     @param track source of the samples
-     @return track run box
-     */
-    private TrackRunBox computeTrackRunBox(Track track) {
-        TrackRunBox trb = new TrackRunBox();
-        trb.setVersion(1);
-        long endSample = track.getSamples().size() - 1;
-        long[] sampleSizes = getSampleSizes(track);
-
-        trb.setSampleDurationPresent(true);
-        trb.setSampleSizePresent(true);
-        List<TrackRunBox.Entry> entries = new ArrayList<>(l2i(endSample));
-
-
-        List<CompositionTimeToSample.Entry> compositionTimeEntries = track.getCompositionTimeEntries();
-        int compositionTimeQueueIndex = 0;
-        CompositionTimeToSample.Entry[] compositionTimeQueue =
-                compositionTimeEntries != null && compositionTimeEntries.size() > 0 ?
-                        compositionTimeEntries.toArray(new CompositionTimeToSample.Entry[0]) : null;
-        long compositionTimeEntriesLeft = compositionTimeQueue != null ? compositionTimeQueue[compositionTimeQueueIndex].getCount() : -1;
-
-
-        trb.setSampleCompositionTimeOffsetPresent(compositionTimeEntriesLeft > 0);
-
-        // fast-forward composition stuff
-
-        boolean sampleFlagsRequired = (track.getSampleDependencies() != null && !track.getSampleDependencies().isEmpty() ||
-                track.getSyncSamples() != null && track.getSyncSamples().length != 0);
-
-        trb.setSampleFlagsPresent(sampleFlagsRequired);
-
-        for (int i = 0; i < sampleSizes.length; i++) {
-            TrackRunBox.Entry entry = new TrackRunBox.Entry();
-            entry.setSampleSize(sampleSizes[i]);
-            if (sampleFlagsRequired) {
-                //if (false) {
-                SampleFlags sf = new SampleFlags();
-
-                if (track.getSampleDependencies() != null && !track.getSampleDependencies().isEmpty()) {
-                    SampleDependencyTypeBox.Entry e = track.getSampleDependencies().get(i);
-                    sf.setSampleDependsOn(e.getSampleDependsOn());
-                    sf.setSampleIsDependedOn(e.getSampleIsDependedOn());
-                    sf.setSampleHasRedundancy(e.getSampleHasRedundancy());
+            // here we are at the offset required for the current entry.
+            List<TrackRunBox> truns = traf.getBoxes(TrackRunBox.class);
+            for (int j = 0; j < truns.size(); j++) {
+              List<TrackFragmentRandomAccessBox.Entry> offset2timeEntriesThisTrun = new LinkedList<>();
+              TrackRunBox trun = truns.get(j);
+              for (int k = 0; k < trun.getEntries().size(); k++) {
+                TrackRunBox.Entry trunEntry = trun.getEntries().get(k);
+                SampleFlags sf;
+                if (k == 0 && trun.isFirstSampleFlagsPresent()) {
+                  sf = trun.getFirstSampleFlags();
+                } else if (trun.isSampleFlagsPresent()) {
+                  sf = trunEntry.getSampleFlags();
+                } else {
+                  assert trex != null;
+                  sf = trex.getDefaultSampleFlags();
                 }
-                if (track.getSyncSamples() != null && track.getSyncSamples().length > 0) {
-                    // we have to mark non-sync samples!
-                    if (Arrays.binarySearch(track.getSyncSamples(), i) >= 0) {
-                        sf.setSampleIsDifferenceSample(false);
-                        sf.setSampleDependsOn(2);
-                    } else {
-                        sf.setSampleIsDifferenceSample(true);
-                        sf.setSampleDependsOn(1);
-                    }
+                if (sf == null && track.getHandler().equals("vide")) {
+                  throw new RuntimeException("Cannot find SampleFlags for video track but it's required to build tfra");
                 }
-                // i don't have sample degradation
-                entry.setSampleFlags(sf);
-
-            }
-
-            entry.setSampleDuration(track.getSampleDurations()[l2i(i)]);
-
-            if (compositionTimeQueue != null) {
-                entry.setSampleCompositionTimeOffset(compositionTimeQueue[compositionTimeQueueIndex].getOffset());
-                if (--compositionTimeEntriesLeft == 0 && (compositionTimeQueue.length - compositionTimeQueueIndex) > 1) {
-                    compositionTimeQueueIndex++;
-                    compositionTimeEntriesLeft = compositionTimeQueue[compositionTimeQueueIndex].getCount();
+                if (sf == null || sf.getSampleDependsOn() == 2) {
+                  offset2timeEntriesThisTrun.add(new TrackFragmentRandomAccessBox.Entry(
+                    duration,
+                    offset,
+                    i + 1, j + 1, k + 1));
                 }
+                duration += trunEntry.getSampleDuration();
+              }
+              if (offset2timeEntriesThisTrun.size() == trun.getEntries().size() && trun.getEntries().size() > 0) {
+                // Oops. every sample seems to be random access sample
+                // is this an audio track? I don't care.
+                // I just use the first for trun sample for tfra random access
+                offset2timeEntries.add(offset2timeEntriesThisTrun.get(0));
+              } else {
+                offset2timeEntries.addAll(offset2timeEntriesThisTrun);
+              }
             }
-            entries.add(entry);
+          }
         }
+      }
 
-        trb.setEntries(entries);
-        return trb;
+
+      offset += box.getSize();
+    }
+    tfra.setEntries(offset2timeEntries);
+    tfra.setTrackId(track.getTrackMetaData().getTrackId());
+    return tfra;
+  }
+
+  /**
+   Creates a 'mfra' - movie fragment random access box for the given movie in the given
+   isofile. Uses {@link #createTfra(Track, Container)}
+   to generate the child boxes.
+
+   @param movie   concerned movie
+   @param isoFile concerned isofile
+   @return a complete 'mfra' box
+   */
+  private ParsableBox createMfra(Movie movie, Container isoFile) {
+    MovieFragmentRandomAccessBox mfra = new MovieFragmentRandomAccessBox();
+    for (Track track : movie.getTracks()) {
+      mfra.addBox(createTfra(track, isoFile));
     }
 
-    /**
-     Gets the chunk sizes for the given track.
+    MovieFragmentRandomAccessOffsetBox mfro = new MovieFragmentRandomAccessOffsetBox();
+    mfra.addBox(mfro);
+    mfro.setMfraSize(mfra.getSize());
+    return mfra;
+  }
 
-     @param track the track we are talking about
-     @return the size of each chunk in number of samples
-     */
-    int[] getChunkSizes(Track track) {
-
-        long[] referenceChunkStarts = fragmenter.sampleNumbers(track);
-        int[] chunkSizes = new int[referenceChunkStarts.length];
-
-
-        for (int i = 0; i < referenceChunkStarts.length; i++) {
-            long start = referenceChunkStarts[i] - 1;
-            long end;
-            if (referenceChunkStarts.length == i + 1) {
-                end = track.getSamples().size();
-            } else {
-                end = referenceChunkStarts[i + 1] - 1;
-            }
-
-            chunkSizes[i] = l2i(end - start);
-        }
-        assert ChunkFragmentM4sBuilder.this.track2Sample.get(track).size() == sum(chunkSizes) : "The number of samples and the sum of all chunk lengths must be equal";
-        return chunkSizes;
+  private ParsableBox createTrex(Track track) {
+    TrackExtendsBox trex = new TrackExtendsBox();
+    trex.setTrackId(track.getTrackMetaData().getTrackId());
+    trex.setDefaultSampleDescriptionIndex(1);
+    trex.setDefaultSampleDuration(0);
+    trex.setDefaultSampleSize(0);
+    SampleFlags sf = new SampleFlags();
+    if ("soun".equals(track.getHandler()) || "subt".equals(track.getHandler())) {
+      // as far as I know there is no audio encoding
+      // where the sample are not self-contained.
+      // same seems to be true for subtitle tracks
+      sf.setSampleDependsOn(2);
+      sf.setSampleIsDependedOn(2);
     }
+    trex.setDefaultSampleFlags(sf);
+    return trex;
+  }
 
-    private long[] getSampleSizes(Track track) {
-        List<Sample> samples = track.getSamples();
+  /**
+   Creates a 'mvex' - movie extends box and populates it with 'trex' boxes
+   by calling {@link #createTrex(Track)}
+   for each track to generate them
 
-        long[] sampleSizes = new long[samples.size()];
-        for (int i = 0; i < sampleSizes.length; i++) {
-            sampleSizes[i] = samples.get(i).getSize();
-        }
-        return sampleSizes;
+   @param movie the source movie
+   @return a complete 'mvex'
+   */
+  private ParsableBox createMvex(Movie movie) {
+    MovieExtendsBox mvex = new MovieExtendsBox();
+    final MovieExtendsHeaderBox mved = new MovieExtendsHeaderBox();
+    mved.setVersion(1);
+    for (Track track : movie.getTracks()) {
+      final long trackDuration = getTrackDuration(movie, track);
+      if (mved.getFragmentDuration() < trackDuration) {
+        mved.setFragmentDuration(trackDuration);
+      }
     }
+    mvex.addBox(mved);
 
-    private TrackFragmentBaseMediaDecodeTimeBox computeTrackFragmentBaseMediaDecodeTimeBox() {
-        var tfbmdt = new TrackFragmentBaseMediaDecodeTimeBox();
-        tfbmdt.setBaseMediaDecodeTime(0);
-        return tfbmdt;
+    for (Track track : movie.getTracks()) {
+      mvex.addBox(createTrex(track));
     }
+    return mvex;
+  }
 
-    /**
-     Class for interleaved chunk mdat
-     */
-    private static class InterleaveChunkMdat implements Box {
-        List<Track> tracks;
-        List<List<Sample>> chunkList = new ArrayList<>();
+  private ParsableBox createTkhd(Track track) {
+    TrackHeaderBox tkhd = new TrackHeaderBox();
+    tkhd.setVersion(1);
+    tkhd.setFlags(7); // enabled, in movie, in preview, in poster
 
-        long contentSize;
+    tkhd.setAlternateGroup(track.getTrackMetaData().getGroup());
+    tkhd.setCreationTime(track.getTrackMetaData().getCreationTime());
+    // We need to take edit list box into account in track header duration
+    // but as long as I don't support edit list boxes it is sufficient to
+    // just translate media duration to movie timescale
+    tkhd.setDuration(0);//no duration in moov for fragmented movies
+    tkhd.setHeight(track.getTrackMetaData().getHeight());
+    tkhd.setWidth(track.getTrackMetaData().getWidth());
+    tkhd.setLayer(track.getTrackMetaData().getLayer());
+    tkhd.setModificationTime(getDate());
+    tkhd.setTrackId(track.getTrackMetaData().getTrackId());
+    tkhd.setVolume(track.getTrackMetaData().getVolume());
+    return tkhd;
+  }
 
-        private InterleaveChunkMdat(Movie movie, Map<Track, int[]> chunks, long contentSize) {
-            this.contentSize = contentSize;
-            this.tracks = movie.getTracks();
-            List<Track> tracks = new ArrayList<>(chunks.keySet());
-            tracks.sort((o1, o2) -> l2i(o1.getTrackMetaData().getTrackId() - o2.getTrackMetaData().getTrackId()));
-            Map<Track, Integer> trackToChunk = new HashMap<>();
-            Map<Track, Integer> trackToSample = new HashMap<>();
-            Map<Track, Double> trackToTime = new HashMap<>();
-            for (Track track : tracks) {
-                trackToChunk.put(track, 0);
-                trackToSample.put(track, 0);
-                trackToTime.put(track, 0.0);
-            }
+  private ParsableBox createMdhd(Track track) {
+    MediaHeaderBox mdhd = new MediaHeaderBox();
+    mdhd.setCreationTime(track.getTrackMetaData().getCreationTime());
+    mdhd.setModificationTime(getDate());
+    mdhd.setDuration(0);//no duration in moov for fragmented movies
+    mdhd.setTimescale(track.getTrackMetaData().getTimescale());
+    mdhd.setLanguage(track.getTrackMetaData().getLanguage());
+    return mdhd;
+  }
 
-            while (true) {
-                Track nextChunksTrack = null;
-                for (Track track : tracks) {
-                    if ((nextChunksTrack == null || trackToTime.get(track) < trackToTime.get(nextChunksTrack)) &&
-                            // either first OR track's next chunk's start time is smaller than nextTrack's next chunks start time
-                            // AND their need to be chunks left!
-                            (trackToChunk.get(track) < chunks.get(track).length)) {
-                        nextChunksTrack = track;
-                    }
-                }
-                if (nextChunksTrack == null) {
-                    break;
-                }
-                // found the next one
+  private ParsableBox createStbl(Track track) {
+    SampleTableBox stbl = new SampleTableBox();
 
-                int nextChunksIndex = trackToChunk.get(nextChunksTrack);
-                int numberOfSampleInNextChunk = chunks.get(nextChunksTrack)[nextChunksIndex];
-                int startSample = trackToSample.get(nextChunksTrack);
-                double time = trackToTime.get(nextChunksTrack);
-                for (int j = startSample; j < startSample + numberOfSampleInNextChunk; j++) {
-                    time += (double) nextChunksTrack.getSampleDurations()[j] / nextChunksTrack.getTrackMetaData().getTimescale();
-                }
-                chunkList.add(nextChunksTrack.getSamples().subList(startSample, startSample + numberOfSampleInNextChunk));
+    createStsd(track, stbl);
+    stbl.addBox(new TimeToSampleBox());
+    stbl.addBox(new SampleToChunkBox());
+    stbl.addBox(new SampleSizeBox());
+    stbl.addBox(new StaticChunkOffsetBox());
+    return stbl;
+  }
 
-                trackToChunk.put(nextChunksTrack, nextChunksIndex + 1);
-                trackToSample.put(nextChunksTrack, startSample + numberOfSampleInNextChunk);
-                trackToTime.put(nextChunksTrack, time);
-            }
-        }
+  private void createStsd(Track track, SampleTableBox stbl) {
+    SampleDescriptionBox stsd = new SampleDescriptionBox();
+    stsd.setBoxes(track.getSampleEntries());
+    stbl.addBox(stsd);
+  }
 
-        public String getType() {
-            return "mdat";
-        }
-
-        public long getSize() {
-            return 16 + contentSize;
-        }
-
-        private boolean isSmallBox(long contentSize) {
-            return (contentSize + 8) < 4294967296L;
-        }
-
-        public void getBox(WritableByteChannel writableByteChannel) throws IOException {
-            ByteBuffer bb = ByteBuffer.allocate(16);
-            long size = getSize();
-            if (isSmallBox(size)) {
-                IsoTypeWriter.writeUInt32(bb, size);
-            } else {
-                IsoTypeWriter.writeUInt32(bb, 1);
-            }
-            bb.put(IsoFile.fourCCtoBytes("mdat"));
-            if (isSmallBox(size)) {
-                bb.put(new byte[8]);
-            } else {
-                IsoTypeWriter.writeUInt64(bb, size);
-            }
-            ((Buffer) bb).rewind();
-            writableByteChannel.write(bb);
-            long writtenBytes = 0;
-            long writtenMegaBytes = 0;
-
-            LOG.debug("About to write {}", contentSize);
-            for (List<Sample> samples : chunkList) {
-                for (Sample sample : samples) {
-                    sample.writeTo(writableByteChannel);
-                    writtenBytes += sample.getSize();
-                    if (writtenBytes > 1024 * 1024) {
-                        writtenBytes -= 1024 * 1024;
-                        writtenMegaBytes++;
-                        LOG.debug("Written {} MB", writtenMegaBytes);
-                    }
-                }
-            }
-        }
+  private ParsableBox createMinf(Track track) {
+    MediaInformationBox minf = new MediaInformationBox();
+    if (track.getHandler().equals("vide")) {
+      minf.addBox(new VideoMediaHeaderBox());
+    } else if (track.getHandler().equals("soun")) {
+      minf.addBox(new SoundMediaHeaderBox());
+    } else if (track.getHandler().equals("text")) {
+      minf.addBox(new NullMediaHeaderBox());
+    } else if (track.getHandler().equals("subt")) {
+      minf.addBox(new SubtitleMediaHeaderBox());
+    } else if (track.getHandler().equals("hint")) {
+      minf.addBox(new HintMediaHeaderBox());
+    } else if (track.getHandler().equals("sbtl")) {
+      minf.addBox(new NullMediaHeaderBox());
     }
+    minf.addBox(createDinf());
+    minf.addBox(createStbl(track));
+    return minf;
+  }
+
+  private ParsableBox createMdiaHdlr(Track track) {
+    HandlerBox hdlr = new HandlerBox();
+    hdlr.setHandlerType(track.getHandler());
+    return hdlr;
+  }
+
+  private ParsableBox createMdia(Track track) {
+    MediaBox mdia = new MediaBox();
+    mdia.addBox(createMdhd(track));
+
+
+    mdia.addBox(createMdiaHdlr(track));
+
+
+    mdia.addBox(createMinf(track));
+    return mdia;
+  }
+
+  private ParsableBox createTrak(Track track, Movie movie) {
+    LOG.debug("Creating Track " + track);
+    TrackBox trackBox = new TrackBox();
+    trackBox.addBox(createTkhd(track));
+    ParsableBox edts = createEdts(track, movie);
+    if (edts != null) {
+      trackBox.addBox(edts);
+    }
+    trackBox.addBox(createMdia(track));
+    return trackBox;
+  }
+
+  private ParsableBox createEdts(Track track, Movie movie) {
+    if (track.getEdits() != null && track.getEdits().size() > 0) {
+      EditListBox elst = new EditListBox();
+      elst.setVersion(1);
+      List<EditListBox.Entry> entries = new ArrayList<>();
+
+      for (Edit edit : track.getEdits()) {
+        entries.add(new EditListBox.Entry(elst,
+          Math.round(edit.getSegmentDuration() * movie.getTimescale()),
+          edit.getMediaTime() * track.getTrackMetaData().getTimescale() / edit.getTimeScale(),
+          edit.getMediaRate()));
+      }
+
+      elst.setEntries(entries);
+      EditBox edts = new EditBox();
+      edts.addBox(elst);
+      return edts;
+    } else {
+      return null;
+    }
+  }
+
+  private DataInformationBox createDinf() {
+    DataInformationBox dinf = new DataInformationBox();
+    DataReferenceBox dref = new DataReferenceBox();
+    dinf.addBox(dref);
+    DataEntryUrlBox url = new DataEntryUrlBox();
+    url.setFlags(1);
+    dref.addBox(url);
+    return dinf;
+  }
 }

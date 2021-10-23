@@ -161,7 +161,7 @@ resource "kubernetes_deployment" "xj-prod-yard-coolair-ship" {
 
           env {
             name  = "SHIP_FRAGMENT_CONSTRUCTION_METHOD"
-            value = "mp4box"
+            value = "manual"
           }
 
           liveness_probe {
