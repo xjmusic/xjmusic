@@ -329,8 +329,7 @@ public class ChunkPrinterImpl implements ChunkPrinter {
     Container mp4file = new ChunkFragmentM4sBuilder(
       chunk.getTemplateConfig().getOutputFrameRate(),
       chunk.getLengthSeconds(),
-      chunk.getSequenceNumber(),
-      chunk.getTemplateConfig().getMixerDspBufferSize()
+      chunk.getSequenceNumber()
     ).build(movie);
     FileChannel fc = new FileOutputStream(m4sFilePath).getChannel();
     mp4file.writeContainer(fc);
