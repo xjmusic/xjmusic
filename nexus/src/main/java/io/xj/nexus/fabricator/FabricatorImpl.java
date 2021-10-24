@@ -232,7 +232,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public String getChainMetadataFullJson() throws NexusException {
+  public String getChainFullJson() throws NexusException {
     try {
       return computeChainMetadataJson(segmentManager.readMany(ImmutableList.of(chain.getId())));
 
@@ -242,12 +242,12 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public String getChainMetadataFullKey() {
+  public String getChainFullJsonOutputKey() {
     return Chains.getShipKey(Chains.getFullKey(computeChainBaseKey()), FileStoreProvider.EXTENSION_JSON);
   }
 
   @Override
-  public String getChainMetadataJson() throws NexusException {
+  public String getChainJson() throws NexusException {
     try {
       var now = Instant.now();
       var beforeThreshold = now.plusSeconds(workBufferAheadSeconds);
@@ -264,7 +264,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public String getChainMetadataKey() {
+  public String getChainJsonOutputKey() {
     return Chains.getShipKey(computeChainBaseKey(), FileStoreProvider.EXTENSION_JSON);
   }
 
@@ -718,7 +718,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public String getSegmentMetadataJson() throws NexusException {
+  public String getSegmentJson() throws NexusException {
     try {
       return jsonapiPayloadFactory.serialize(jsonapiPayloadFactory.newJsonapiPayload()
         .setDataOne(jsonapiPayloadFactory.toPayloadObject(workbench.getSegment()))
@@ -726,6 +726,7 @@ class FabricatorImpl implements Fabricator {
         .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentChoices()))
         .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentChords()))
         .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentMemes()))
+        .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentMetadatas()))
         .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentMessages())));
 
     } catch (JsonapiException e) {
@@ -734,7 +735,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public String getSegmentOutputMetadataKey() {
+  public String getSegmentJsonOutputKey() {
     return getSegmentShipKey(FileStoreProvider.EXTENSION_JSON);
   }
 

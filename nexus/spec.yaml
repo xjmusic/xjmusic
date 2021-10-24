@@ -150,6 +150,20 @@ components:
             Failed,
         ]
 
+    #
+    SegmentMetadata:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        segmentId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        value:
+          type: string
 
     #
     SegmentMessage:

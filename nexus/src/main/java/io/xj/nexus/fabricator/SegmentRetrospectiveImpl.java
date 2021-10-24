@@ -7,6 +7,7 @@ import com.google.inject.assistedinject.Assisted;
 import io.xj.api.Segment;
 import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentChoiceArrangementPick;
+import io.xj.api.SegmentMetadata;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.lib.entity.Entities;
@@ -107,6 +108,18 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
     Optional<Segment> seg = getPreviousSegment();
     if (seg.isEmpty()) return Optional.empty();
     return getPreviousChoiceOfType(seg.get(), type);
+  }
+
+  @Override
+  public Optional<String> getPreviousMetadataValue(String name) {
+    Optional<Segment> seg = getPreviousSegment();
+    if (seg.isEmpty()) return Optional.empty();
+    return
+      store.getAll(SegmentMetadata.class).stream()
+        .filter(c -> c.getSegmentId().equals(seg.get().getId())
+          && name.equals(c.getValue()))
+        .map(SegmentMetadata::getValue)
+        .findFirst();
   }
 
   @Override

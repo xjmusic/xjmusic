@@ -7,10 +7,7 @@ import io.xj.api.SegmentChoiceArrangementPick;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 /**
  Digest segments of the previous main program
@@ -62,6 +59,16 @@ public interface SegmentRetrospective {
    @return choice of given type
    */
   Optional<SegmentChoice> getPreviousChoiceOfType(ProgramType type);
+
+  /**
+   Get the value seen in previous segments for the given metadata name
+   <p>
+   Segment has Metadata to inform fabricator of subsequent segments #180059436
+
+   @return value seen in previous segments
+   @param name of metadata for which to search
+   */
+  Optional<String> getPreviousMetadataValue(String name);
 
   /**
    Get the previous-segment choices of a given instrument type

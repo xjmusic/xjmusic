@@ -8,6 +8,7 @@ import io.xj.lib.app.App;
 import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.nexus.NexusTopology;
 import io.xj.ship.api.ShipAppHealthEndpoint;
 import io.xj.ship.work.ShipWork;
 import org.slf4j.LoggerFactory;
@@ -60,7 +61,7 @@ public class ShipApp extends App {
     // Setup Entity topology
     EntityFactory entityFactory = injector.getInstance(EntityFactory.class);
     HubTopology.buildHubApiTopology(entityFactory);
-    ShipTopology.buildShipApiTopology(entityFactory);
+    NexusTopology.buildNexusApiTopology(entityFactory);
 
     // Register JAX-RS filter for reading access control token
     getResourceConfig()

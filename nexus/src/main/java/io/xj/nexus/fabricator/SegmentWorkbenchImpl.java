@@ -97,6 +97,11 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   }
 
   @Override
+  public Collection<SegmentMetadata> getSegmentMetadatas() {
+    return benchStore.getAll(SegmentMetadata.class);
+  }
+
+  @Override
   public Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks() {
     return benchStore.getAll(SegmentChoiceArrangementPick.class);
   }
@@ -123,8 +128,9 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
 
       segmentManager.update(getSegment().getId(), getSegment());
 
-      segmentManager.createAllSubEntities(benchStore.getAll(SegmentMessage.class));
       segmentManager.createAllSubEntities(benchStore.getAll(SegmentMeme.class));
+      segmentManager.createAllSubEntities(benchStore.getAll(SegmentMessage.class));
+      segmentManager.createAllSubEntities(benchStore.getAll(SegmentMetadata.class));
       segmentManager.createAllSubEntities(benchStore.getAll(SegmentChord.class));
       segmentManager.createAllSubEntities(benchStore.getAll(SegmentChordVoicing.class));
       segmentManager.createAllSubEntities(benchStore.getAll(SegmentChoice.class));

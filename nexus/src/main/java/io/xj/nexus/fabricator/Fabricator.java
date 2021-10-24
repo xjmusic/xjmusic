@@ -119,7 +119,7 @@ public interface Fabricator {
 
    @return JSON:API payload of the entire result of Chain Fabrication
    */
-  String getChainMetadataFullJson() throws NexusException;
+  String getChainFullJson() throws NexusException;
 
   /**
    Returns the ship key concatenated with JSON as its file extension
@@ -127,7 +127,7 @@ public interface Fabricator {
 
    @return Output Metadata Key
    */
-  String getChainMetadataFullKey();
+  String getChainFullJsonOutputKey();
 
   /**
    Get a JSON:API payload of the entire result of Chain Fabrication
@@ -135,7 +135,7 @@ public interface Fabricator {
 
    @return JSON:API payload of the entire result of Chain Fabrication
    */
-  String getChainMetadataJson() throws NexusException;
+  String getChainJson() throws NexusException;
 
   /**
    Returns the ship key concatenated with JSON as its file extension
@@ -143,7 +143,7 @@ public interface Fabricator {
 
    @return Output Metadata Key
    */
-  String getChainMetadataKey();
+  String getChainJsonOutputKey();
 
   /**
    Get choices for segment
@@ -479,14 +479,14 @@ public interface Fabricator {
 
    @return JSON:API payload of the entire result of Segment Fabrication
    */
-  String getSegmentMetadataJson() throws NexusException;
+  String getSegmentJson() throws NexusException;
 
   /**
    Returns the ship key concatenated with JSON as its file extension
 
    @return Output Metadata Key
    */
-  String getSegmentOutputMetadataKey();
+  String getSegmentJsonOutputKey();
 
   /**
    Returns the ship key concatenated with the output encoder as its file extension

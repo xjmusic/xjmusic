@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.nexus.NexusException;
+import io.xj.nexus.NexusTopology;
 import io.xj.nexus.persistence.NexusEntityStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,7 @@ public class ShipIntegrationTestProviderImpl implements ShipIntegrationTestProvi
     this.store = nexusEntityStore;
 
     // Build the Ship REST API payload topology
-    ShipTopology.buildShipApiTopology(entityFactory);
+    NexusTopology.buildNexusApiTopology(entityFactory);
 
     // Begin database prep
     LOG.debug("Will prepare integration database.");

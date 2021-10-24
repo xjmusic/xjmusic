@@ -3,6 +3,7 @@ package io.xj.nexus.persistence;
 
 import io.xj.api.Segment;
 import io.xj.api.SegmentMessage;
+import io.xj.api.SegmentMetadata;
 import io.xj.api.SegmentState;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 
@@ -25,6 +26,19 @@ public interface SegmentManager extends Manager<Segment> {
    @throws ManagerFatalException      on failure
    */
   SegmentMessage create(HubClientAccess access, SegmentMessage entity) throws ManagerValidationException, ManagerPrivilegeException, ManagerExistenceException, ManagerFatalException;
+
+  /**
+   Create a Metadata in a given Segment
+
+   @param access control
+   @param entity Segment Metadata, including belong-to Segment ID
+   @return newly created Segment metadata
+   @throws ManagerValidationException on failure
+   @throws ManagerPrivilegeException  on failure
+   @throws ManagerExistenceException  on failure
+   @throws ManagerFatalException      on failure
+   */
+  SegmentMetadata create(HubClientAccess access, SegmentMetadata entity) throws ManagerPrivilegeException, ManagerValidationException, ManagerFatalException;
 
   /**
    Fetch id for the Segment in a Chain at a given offset, if present

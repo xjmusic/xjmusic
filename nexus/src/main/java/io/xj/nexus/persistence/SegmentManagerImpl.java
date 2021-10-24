@@ -117,6 +117,17 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   @Override
+  public SegmentMetadata create(HubClientAccess access, SegmentMetadata entity) throws ManagerPrivilegeException, ManagerValidationException, ManagerFatalException {
+    try {
+      validate(entity);
+      return store.put(entity);
+
+    } catch (NexusException e) {
+      throw new ManagerFatalException(e);
+    }
+  }
+
+  @Override
   public Segment readOne(UUID id) throws ManagerExistenceException, ManagerFatalException {
     try {
       return store.getSegment(id)
@@ -177,12 +188,13 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
     try {
       Collection<Object> entities = Lists.newArrayList();
       for (UUID sId : segmentIds) {
-        entities.addAll(store.getAll(sId, SegmentMeme.class, Segment.class, segmentIds));
+        entities.addAll(store.getAll(sId, SegmentChoice.class, Segment.class, segmentIds));
+        entities.addAll(store.getAll(sId, SegmentChoiceArrangement.class, Segment.class, segmentIds));
         entities.addAll(store.getAll(sId, SegmentChord.class, Segment.class, segmentIds));
         entities.addAll(store.getAll(sId, SegmentChordVoicing.class, Segment.class, segmentIds));
-        entities.addAll(store.getAll(sId, SegmentChoice.class, Segment.class, segmentIds));
+        entities.addAll(store.getAll(sId, SegmentMeme.class, Segment.class, segmentIds));
         entities.addAll(store.getAll(sId, SegmentMessage.class, Segment.class, segmentIds));
-        entities.addAll(store.getAll(sId, SegmentChoiceArrangement.class, Segment.class, segmentIds));
+        entities.addAll(store.getAll(sId, SegmentMetadata.class, Segment.class, segmentIds));
         if (includePicks)
           entities.addAll(store.getAll(sId, SegmentChoiceArrangementPick.class, Segment.class, segmentIds));
       }
@@ -304,12 +316,13 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
       Segment segment = readOne(id);
 
       // Destroy child entities of segment-- but not the messages
-      store.deleteAll(id, SegmentChoiceArrangementPick.class);
-      store.deleteAll(id, SegmentChoiceArrangement.class);
       store.deleteAll(id, SegmentChoice.class);
-      store.deleteAll(id, SegmentMeme.class);
+      store.deleteAll(id, SegmentChoiceArrangement.class);
+      store.deleteAll(id, SegmentChoiceArrangementPick.class);
       store.deleteAll(id, SegmentChord.class);
+      store.deleteAll(id, SegmentMeme.class);
       store.deleteAll(id, SegmentMessage.class);
+      store.deleteAll(id, SegmentMetadata.class);
 
       update(id, segment);
 
@@ -377,6 +390,8 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
         validateSegmentMeme((SegmentMeme) entity);
       else if (entity instanceof SegmentMessage)
         validateSegmentMessage((SegmentMessage) entity);
+      else if (entity instanceof SegmentMetadata)
+        validateSegmentMetadata((SegmentMetadata) entity);
 
     } catch (ValueException e) {
       throw new ManagerValidationException(e);
@@ -387,6 +402,12 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
     Values.require(record.getSegmentId(), "Segment ID");
     Values.require(record.getType(), "Type");
     MessageEntity.validate(record);
+  }
+
+  private void validateSegmentMetadata(SegmentMetadata record) throws ValueException {
+    Values.require(record.getSegmentId(), "Segment ID");
+    Values.require(record.getName(), "Name");
+    Values.require(record.getValue(), "Value");
   }
 
   private void validateSegmentMeme(SegmentMeme record) throws ValueException {
