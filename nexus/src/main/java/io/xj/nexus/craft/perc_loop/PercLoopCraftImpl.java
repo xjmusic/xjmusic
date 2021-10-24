@@ -100,8 +100,8 @@ public class PercLoopCraftImpl extends RhythmCraftImpl implements PercLoopCraft 
 
     // Start at zero and keep laying down perc loops until we're out of here
     double pos = 0;
+    var audio = pickAudioForInstrument(instrumentId);
     while (pos < fabricator.getSegment().getTotal()) {
-      var audio = pickAudioForInstrument(instrumentId);
 
       // [#176373977] Should gracefully skip audio in unfulfilled by instrument
       if (audio.isEmpty()) return;
@@ -176,6 +176,10 @@ public class PercLoopCraftImpl extends RhythmCraftImpl implements PercLoopCraft 
    @return drum-type Instrument
    */
   private Optional<InstrumentAudio> pickAudioForInstrument(UUID instrumentId) {
+    var arr = fabricator.retrospective().getPreviousPicksForInstrument(instrumentId);
+    if (!arr.isEmpty())
+      return fabricator.sourceMaterial().getInstrumentAudio(arr.get(0).getInstrumentAudioId());
+
     EntityScorePicker<InstrumentAudio> superEntityScorePicker = new EntityScorePicker<>();
 
     for (InstrumentAudio audio : fabricator.sourceMaterial().getAudiosForInstrumentId(instrumentId))

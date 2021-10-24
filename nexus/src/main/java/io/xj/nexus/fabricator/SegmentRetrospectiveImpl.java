@@ -4,10 +4,7 @@ package io.xj.nexus.fabricator;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.api.Segment;
-import io.xj.api.SegmentChoice;
-import io.xj.api.SegmentChoiceArrangementPick;
-import io.xj.api.SegmentMetadata;
+import io.xj.api.*;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.lib.entity.Entities;
@@ -149,5 +146,39 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   @Override
   public Collection<SegmentChoice> getChoices() {
     return store.getAll(SegmentChoice.class);
+  }
+
+  @Override
+  public Optional<SegmentChoice> getPreviousChoiceForInstrument(UUID instrumentId) {
+    Optional<Segment> seg = getPreviousSegment();
+    if (seg.isEmpty()) return Optional.empty();
+    return
+      store.getAll(SegmentChoice.class).stream()
+        .filter(c -> c.getSegmentId().equals(seg.get().getId())
+          && Objects.nonNull(c.getInstrumentId())
+          && instrumentId.equals(c.getInstrumentId()))
+        .findFirst();
+  }
+
+  @Override
+  public List<SegmentChoiceArrangement> getPreviousArrangementsForInstrument(UUID instrumentId) {
+    var choice = getPreviousChoiceForInstrument(instrumentId);
+    if (choice.isEmpty()) return List.of();
+    return
+      store.getAll(SegmentChoiceArrangement.class).stream()
+        .filter(c -> c.getSegmentChoiceId().equals(choice.get().getId()))
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<SegmentChoiceArrangementPick> getPreviousPicksForInstrument(UUID instrumentId) {
+    var arr = getPreviousArrangementsForInstrument(instrumentId).stream()
+      .map(SegmentChoiceArrangement::getId)
+      .collect(Collectors.toSet());
+    if (arr.isEmpty()) return List.of();
+    return
+      store.getAll(SegmentChoiceArrangementPick.class).stream()
+        .filter(c -> arr.contains(c.getSegmentChoiceArrangementId()))
+        .collect(Collectors.toList());
   }
 }

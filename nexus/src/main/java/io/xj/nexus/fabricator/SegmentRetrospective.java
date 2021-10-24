@@ -3,11 +3,15 @@ package io.xj.nexus.fabricator;
 
 import io.xj.api.Segment;
 import io.xj.api.SegmentChoice;
+import io.xj.api.SegmentChoiceArrangement;
 import io.xj.api.SegmentChoiceArrangementPick;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  Digest segments of the previous main program
@@ -65,8 +69,8 @@ public interface SegmentRetrospective {
    <p>
    Segment has Metadata to inform fabricator of subsequent segments #180059436
 
-   @return value seen in previous segments
    @param name of metadata for which to search
+   @return value seen in previous segments
    */
   Optional<String> getPreviousMetadataValue(String name);
 
@@ -100,4 +104,28 @@ public interface SegmentRetrospective {
    @return all choices
    */
   Collection<SegmentChoice> getChoices();
+
+  /**
+   Get the previous segment choice for the given instrument
+
+   @param instrumentId for which to get choice
+   @return previous segment choice
+   */
+  Optional<SegmentChoice> getPreviousChoiceForInstrument(UUID instrumentId);
+
+  /**
+   Get the previous arrangements for the given instrument id
+
+   @param instrumentId for which to get arrangements
+   @return segment choice arrangements
+   */
+  List<SegmentChoiceArrangement> getPreviousArrangementsForInstrument(UUID instrumentId);
+
+  /**
+   Get the previous picks for the given instrument id
+
+   @param instrumentId for which to get picks
+   @return segment choice picks
+   */
+  List<SegmentChoiceArrangementPick> getPreviousPicksForInstrument(UUID instrumentId);
 }
