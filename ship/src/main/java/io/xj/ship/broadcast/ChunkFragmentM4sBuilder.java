@@ -25,7 +25,6 @@ import org.mp4parser.boxes.sampleentry.SampleEntry;
 import org.mp4parser.boxes.samplegrouping.GroupEntry;
 import org.mp4parser.boxes.samplegrouping.SampleGroupDescriptionBox;
 import org.mp4parser.boxes.samplegrouping.SampleToGroupBox;
-import org.mp4parser.muxer.Edit;
 import org.mp4parser.muxer.Movie;
 import org.mp4parser.muxer.Sample;
 import org.mp4parser.muxer.Track;
@@ -49,23 +48,6 @@ import static org.mp4parser.tools.CastUtils.l2i;
  */
 public record ChunkFragmentM4sBuilder(int sequenceNumber) implements Mp4Builder {
   private static final Logger LOG = LoggerFactory.getLogger(ChunkFragmentM4sBuilder.class);
-
-  private static long getTrackDuration(Movie movie, Track track) {
-    return (track.getDuration() * movie.getTimescale()) / track.getTrackMetaData().getTimescale();
-  }
-
-  public Date getDate() {
-    return new Date();
-  }
-
-  public ParsableBox createFtyp() {
-    List<String> minorBrands = new LinkedList<>();
-    minorBrands.add("mp42");
-    minorBrands.add("iso6");
-    minorBrands.add("avc1");
-    minorBrands.add("isom");
-    return new FileTypeBox("iso6", 1, minorBrands);
-  }
 
   private List<Box> createMoofMdat(final Movie movie) {
     List<Box> moofsMdats = new ArrayList<>();
@@ -113,8 +95,7 @@ public record ChunkFragmentM4sBuilder(int sequenceNumber) implements Mp4Builder 
     BasicContainer isoFile = new BasicContainer();
 
 
-    isoFile.addBox(createFtyp());
-    isoFile.addBox(createMoov(movie));
+    isoFile.addBox(createSegmentTypeBox());
 
     for (Box box : createMoofMdat(movie)) {
       isoFile.addBox(box);
@@ -122,6 +103,12 @@ public record ChunkFragmentM4sBuilder(int sequenceNumber) implements Mp4Builder 
     isoFile.addBox(createMfra(movie, isoFile));
 
     return isoFile;
+  }
+
+  private SegmentTypeBox createSegmentTypeBox() {
+    return new SegmentTypeBox("msdh", 0, List.of(
+      "msdh", "msix"
+    ));
   }
 
   private Box createMdat(final long endSample, final Track track) {
@@ -301,9 +288,9 @@ public record ChunkFragmentM4sBuilder(int sequenceNumber) implements Mp4Builder 
    Gets all samples starting with <code>startSample</code> (one based -&gt; one is the first) and
    ending with <code>endSample</code> (exclusive).
 
+   @param endSample high endpoint (exclusive) of the sample sequence
+   @param track     source of the samples
    @return a <code>List&lt;Sample&gt;</code> of raw samples
-   @param endSample   high endpoint (exclusive) of the sample sequence
-   @param track       source of the samples
    */
   private List<Sample> getSamples(long endSample, Track track) {
     // since startSample and endSample are one-based subtract 1 before addressing list elements
@@ -313,9 +300,9 @@ public record ChunkFragmentM4sBuilder(int sequenceNumber) implements Mp4Builder 
   /**
    Gets the sizes of a sequence of samples.
 
+   @param endSample high endpoint (exclusive) of the sample sequence
+   @param track     source of the samples
    @return the sample sizes in the given interval
-   @param endSample   high endpoint (exclusive) of the sample sequence
-   @param track       source of the samples
    */
   private long[] getSampleSizes(long endSample, Track track) {
     List<Sample> samples = getSamples(endSample, track);
@@ -434,53 +421,6 @@ public record ChunkFragmentM4sBuilder(int sequenceNumber) implements Mp4Builder 
   }
 
   /**
-   Creates a single 'mvhd' movie header box for a given movie.
-
-   @param movie the concerned movie
-   @return an 'mvhd' box
-   */
-  private ParsableBox createMvhd(Movie movie) {
-    MovieHeaderBox mvhd = new MovieHeaderBox();
-    mvhd.setVersion(1);
-    mvhd.setCreationTime(getDate());
-    mvhd.setModificationTime(getDate());
-    mvhd.setDuration(0);//no duration in moov for fragmented movies
-    long movieTimeScale = movie.getTimescale();
-    mvhd.setTimescale(movieTimeScale);
-    // find the next available trackId
-    long nextTrackId = 0;
-    for (Track track : movie.getTracks()) {
-      nextTrackId = Math.max(nextTrackId, track.getTrackMetaData().getTrackId());
-    }
-    mvhd.setNextTrackId(++nextTrackId);
-    return mvhd;
-  }
-
-  /**
-   Creates a fully populated 'moov' box with all child boxes. Child boxes are:
-   <ul>
-   <li>{@link #createMvhd(Movie) mvhd}</li>
-   <li>{@link #createMvex(Movie)  mvex}</li>
-   <li>a {@link #createTrak(Track, Movie)  trak} for every track</li>
-   </ul>
-
-   @param movie the concerned movie
-   @return fully populated 'moov'
-   */
-  private ParsableBox createMoov(Movie movie) {
-    MovieBox movieBox = new MovieBox();
-
-    movieBox.addBox(createMvhd(movie));
-    for (Track track : movie.getTracks()) {
-      movieBox.addBox(createTrak(track, movie));
-    }
-    movieBox.addBox(createMvex(movie));
-
-    // metadata here
-    return movieBox;
-  }
-
-  /**
    Creates a 'tfra' - track fragment random access box for the given track with the isoFile.
    The tfra contains a map of random access points with time as key and offset within the isofile
    as value.
@@ -493,14 +433,6 @@ public record ChunkFragmentM4sBuilder(int sequenceNumber) implements Mp4Builder 
     TrackFragmentRandomAccessBox tfra = new TrackFragmentRandomAccessBox();
     tfra.setVersion(1); // use long offsets and times
     List<TrackFragmentRandomAccessBox.Entry> offset2timeEntries = new LinkedList<>();
-
-    TrackExtendsBox trex = null;
-    List<TrackExtendsBox> trexs = Path.getPaths(isoFile, "moov/mvex/trex");
-    for (TrackExtendsBox innerTrex : trexs) {
-      if (innerTrex.getTrackId() == track.getTrackMetaData().getTrackId()) {
-        trex = innerTrex;
-      }
-    }
 
     long offset = 0;
     long duration = 0;
@@ -520,24 +452,10 @@ public record ChunkFragmentM4sBuilder(int sequenceNumber) implements Mp4Builder 
               TrackRunBox trun = truns.get(j);
               for (int k = 0; k < trun.getEntries().size(); k++) {
                 TrackRunBox.Entry trunEntry = trun.getEntries().get(k);
-                SampleFlags sf;
-                if (k == 0 && trun.isFirstSampleFlagsPresent()) {
-                  sf = trun.getFirstSampleFlags();
-                } else if (trun.isSampleFlagsPresent()) {
-                  sf = trunEntry.getSampleFlags();
-                } else {
-                  assert trex != null;
-                  sf = trex.getDefaultSampleFlags();
-                }
-                if (sf == null && track.getHandler().equals("vide")) {
-                  throw new RuntimeException("Cannot find SampleFlags for video track but it's required to build tfra");
-                }
-                if (sf == null || sf.getSampleDependsOn() == 2) {
-                  offset2timeEntriesThisTrun.add(new TrackFragmentRandomAccessBox.Entry(
-                    duration,
-                    offset,
-                    i + 1, j + 1, k + 1));
-                }
+                offset2timeEntriesThisTrun.add(new TrackFragmentRandomAccessBox.Entry(
+                  duration,
+                  offset,
+                  i + 1, j + 1, k + 1));
                 duration += trunEntry.getSampleDuration();
               }
               if (offset2timeEntriesThisTrun.size() == trun.getEntries().size() && trun.getEntries().size() > 0) {
@@ -582,176 +500,4 @@ public record ChunkFragmentM4sBuilder(int sequenceNumber) implements Mp4Builder 
     return mfra;
   }
 
-  private ParsableBox createTrex(Track track) {
-    TrackExtendsBox trex = new TrackExtendsBox();
-    trex.setTrackId(track.getTrackMetaData().getTrackId());
-    trex.setDefaultSampleDescriptionIndex(1);
-    trex.setDefaultSampleDuration(0);
-    trex.setDefaultSampleSize(0);
-    SampleFlags sf = new SampleFlags();
-    if ("soun".equals(track.getHandler()) || "subt".equals(track.getHandler())) {
-      // as far as I know there is no audio encoding
-      // where the sample are not self-contained.
-      // same seems to be true for subtitle tracks
-      sf.setSampleDependsOn(2);
-      sf.setSampleIsDependedOn(2);
-    }
-    trex.setDefaultSampleFlags(sf);
-    return trex;
-  }
-
-  /**
-   Creates a 'mvex' - movie extends box and populates it with 'trex' boxes
-   by calling {@link #createTrex(Track)}
-   for each track to generate them
-
-   @param movie the source movie
-   @return a complete 'mvex'
-   */
-  private ParsableBox createMvex(Movie movie) {
-    MovieExtendsBox mvex = new MovieExtendsBox();
-    final MovieExtendsHeaderBox mved = new MovieExtendsHeaderBox();
-    mved.setVersion(1);
-    for (Track track : movie.getTracks()) {
-      final long trackDuration = getTrackDuration(movie, track);
-      if (mved.getFragmentDuration() < trackDuration) {
-        mved.setFragmentDuration(trackDuration);
-      }
-    }
-    mvex.addBox(mved);
-
-    for (Track track : movie.getTracks()) {
-      mvex.addBox(createTrex(track));
-    }
-    return mvex;
-  }
-
-  private ParsableBox createTkhd(Track track) {
-    TrackHeaderBox tkhd = new TrackHeaderBox();
-    tkhd.setVersion(1);
-    tkhd.setFlags(7); // enabled, in movie, in preview, in poster
-
-    tkhd.setAlternateGroup(track.getTrackMetaData().getGroup());
-    tkhd.setCreationTime(track.getTrackMetaData().getCreationTime());
-    // We need to take edit list box into account in track header duration
-    // but as long as I don't support edit list boxes it is sufficient to
-    // just translate media duration to movie timescale
-    tkhd.setDuration(0);//no duration in moov for fragmented movies
-    tkhd.setHeight(track.getTrackMetaData().getHeight());
-    tkhd.setWidth(track.getTrackMetaData().getWidth());
-    tkhd.setLayer(track.getTrackMetaData().getLayer());
-    tkhd.setModificationTime(getDate());
-    tkhd.setTrackId(track.getTrackMetaData().getTrackId());
-    tkhd.setVolume(track.getTrackMetaData().getVolume());
-    return tkhd;
-  }
-
-  private ParsableBox createMdhd(Track track) {
-    MediaHeaderBox mdhd = new MediaHeaderBox();
-    mdhd.setCreationTime(track.getTrackMetaData().getCreationTime());
-    mdhd.setModificationTime(getDate());
-    mdhd.setDuration(0);//no duration in moov for fragmented movies
-    mdhd.setTimescale(track.getTrackMetaData().getTimescale());
-    mdhd.setLanguage(track.getTrackMetaData().getLanguage());
-    return mdhd;
-  }
-
-  private ParsableBox createStbl(Track track) {
-    SampleTableBox stbl = new SampleTableBox();
-
-    createStsd(track, stbl);
-    stbl.addBox(new TimeToSampleBox());
-    stbl.addBox(new SampleToChunkBox());
-    stbl.addBox(new SampleSizeBox());
-    stbl.addBox(new StaticChunkOffsetBox());
-    return stbl;
-  }
-
-  private void createStsd(Track track, SampleTableBox stbl) {
-    SampleDescriptionBox stsd = new SampleDescriptionBox();
-    stsd.setBoxes(track.getSampleEntries());
-    stbl.addBox(stsd);
-  }
-
-  private ParsableBox createMinf(Track track) {
-    MediaInformationBox minf = new MediaInformationBox();
-    if (track.getHandler().equals("vide")) {
-      minf.addBox(new VideoMediaHeaderBox());
-    } else if (track.getHandler().equals("soun")) {
-      minf.addBox(new SoundMediaHeaderBox());
-    } else if (track.getHandler().equals("text")) {
-      minf.addBox(new NullMediaHeaderBox());
-    } else if (track.getHandler().equals("subt")) {
-      minf.addBox(new SubtitleMediaHeaderBox());
-    } else if (track.getHandler().equals("hint")) {
-      minf.addBox(new HintMediaHeaderBox());
-    } else if (track.getHandler().equals("sbtl")) {
-      minf.addBox(new NullMediaHeaderBox());
-    }
-    minf.addBox(createDinf());
-    minf.addBox(createStbl(track));
-    return minf;
-  }
-
-  private ParsableBox createMdiaHdlr(Track track) {
-    HandlerBox hdlr = new HandlerBox();
-    hdlr.setHandlerType(track.getHandler());
-    return hdlr;
-  }
-
-  private ParsableBox createMdia(Track track) {
-    MediaBox mdia = new MediaBox();
-    mdia.addBox(createMdhd(track));
-
-
-    mdia.addBox(createMdiaHdlr(track));
-
-
-    mdia.addBox(createMinf(track));
-    return mdia;
-  }
-
-  private ParsableBox createTrak(Track track, Movie movie) {
-    LOG.debug("Creating Track " + track);
-    TrackBox trackBox = new TrackBox();
-    trackBox.addBox(createTkhd(track));
-    ParsableBox edts = createEdts(track, movie);
-    if (edts != null) {
-      trackBox.addBox(edts);
-    }
-    trackBox.addBox(createMdia(track));
-    return trackBox;
-  }
-
-  private ParsableBox createEdts(Track track, Movie movie) {
-    if (track.getEdits() != null && track.getEdits().size() > 0) {
-      EditListBox elst = new EditListBox();
-      elst.setVersion(1);
-      List<EditListBox.Entry> entries = new ArrayList<>();
-
-      for (Edit edit : track.getEdits()) {
-        entries.add(new EditListBox.Entry(elst,
-          Math.round(edit.getSegmentDuration() * movie.getTimescale()),
-          edit.getMediaTime() * track.getTrackMetaData().getTimescale() / edit.getTimeScale(),
-          edit.getMediaRate()));
-      }
-
-      elst.setEntries(entries);
-      EditBox edts = new EditBox();
-      edts.addBox(elst);
-      return edts;
-    } else {
-      return null;
-    }
-  }
-
-  private DataInformationBox createDinf() {
-    DataInformationBox dinf = new DataInformationBox();
-    DataReferenceBox dref = new DataReferenceBox();
-    dinf.addBox(dref);
-    DataEntryUrlBox url = new DataEntryUrlBox();
-    url.setFlags(1);
-    dref.addBox(url);
-    return dinf;
-  }
 }
