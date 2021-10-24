@@ -620,10 +620,10 @@ public class NexusIntegrationTestingFixtures {
     templateBinding1 = buildTemplateBinding(template1, library2);
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    user2 = IntegrationTestingFixtures.buildUser("john", "john@email.com", "http://pictures.com/john.gif", "Admin");
+    user2 = IntegrationTestingFixtures.buildUser("john", "john@email.com", "https://pictures.com/john.gif", "Admin");
 
     // Jenny has a "user" role and belongs to account "bananas"
-    user3 = IntegrationTestingFixtures.buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif", "User");
+    user3 = IntegrationTestingFixtures.buildUser("jenny", "jenny@email.com", "https://pictures.com/jenny.gif", "User");
     accountUser1a = IntegrationTestingFixtures.buildAccountUser(account1, user3);
 
     // "Tropical, Wild to Cozy" macro-program in house library
@@ -1031,7 +1031,7 @@ public class NexusIntegrationTestingFixtures {
     Collection<Object> entities = Lists.newArrayList();
 
     account1 = add(entities, IntegrationTestingFixtures.buildAccount("Generated"));
-    user1 = add(entities, IntegrationTestingFixtures.buildUser("generated", "generated@email.com", "http://pictures.com/generated.gif", "Admin"));
+    user1 = add(entities, IntegrationTestingFixtures.buildUser("generated", "generated@email.com", "https://pictures.com/generated.gif", "Admin"));
     library1 = add(entities, IntegrationTestingFixtures.buildLibrary(account1, "generated"));
 
     template1 = buildTemplate(account1, "Complex Library Test", "complex");

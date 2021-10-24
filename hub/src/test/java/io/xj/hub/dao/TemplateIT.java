@@ -57,9 +57,9 @@ public class TemplateIT {
 
     // Account "palm tree" has template "leaves" and template "coconuts"
     fake.account1 = test.insert(buildAccount("palm tree"));
-    fake.user2 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif", "Admin"));
+    fake.user2 = test.insert(buildUser("john", "john@email.com", "https://pictures.com/john.gif", "Admin"));
     test.insert(buildAccountUser(fake.account1, fake.user2));
-    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif", "User"));
+    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "https://pictures.com/jenny.gif", "User"));
     test.insert(buildAccountUser(fake.account1, fake.user3));
     template1a = test.insert(buildTemplate(fake.account1, "leaves", "embed5leaves"));
     template1b = test.insert(buildTemplate(fake.account1, "coconuts", "embed5coconuts"));

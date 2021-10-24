@@ -54,17 +54,17 @@ public class UserIT {
     fake.account1 = test.insert(buildAccount("bananas"));
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    fake.user2 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif", "User, Admin"));
+    fake.user2 = test.insert(buildUser("john", "john@email.com", "https://pictures.com/john.gif", "User, Admin"));
     test.insert(buildAccountUser(fake.account1, fake.user2));
     UserAuth userAuth = test.insert(buildUserAuth(fake.user2, UserAuthType.Google, "external_access_token_123", "external_refresh_token_123", "22222"));
     test.insert(buildUserAuthToken(userAuth, "this-is-my-actual-access-token"));
 
     // Jenny has a "user" role and belongs to account "bananas"
-    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif", "User"));
+    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "https://pictures.com/jenny.gif", "User"));
     test.insert(buildAccountUser(fake.account1, fake.user3));
 
     // Bill has a "user" role but no account membership
-    fake.user4 = test.insert(buildUser("bill", "bill@email.com", "http://pictures.com/bill.gif", "User"));
+    fake.user4 = test.insert(buildUser("bill", "bill@email.com", "https://pictures.com/bill.gif", "User"));
 
     // Instantiate the test subject
     subjectDAO = injector.getInstance(UserDAO.class);
@@ -83,7 +83,7 @@ public class UserIT {
       "accessToken123",
       "refreshToken456",
       "wayne",
-      "http://pictures.com/wayne.gif",
+      "https://pictures.com/wayne.gif",
       "shamu@email.com"
     );
 
@@ -108,7 +108,7 @@ public class UserIT {
     User user = subjectDAO.readOne(HubAccess.internal(), userAccessToken.getUserId());
     assertNotNull(user);
     assertEquals("wayne", user.getName());
-    assertEquals("http://pictures.com/wayne.gif", user.getAvatarUrl());
+    assertEquals("https://pictures.com/wayne.gif", user.getAvatarUrl());
     assertEquals("shamu@email.com", user.getEmail());
   }
 
@@ -120,7 +120,7 @@ public class UserIT {
       "accessToken123",
       "refreshToken456",
       "john wayne",
-      "http://pictures.com/john.gif",
+      "https://pictures.com/john.gif",
       "john@email.com"
     );
 
@@ -141,7 +141,7 @@ public class UserIT {
     assertNotNull(user);
     assertEquals(fake.user2.getId(), user.getId());
     assertEquals("john", user.getName());
-    assertEquals("http://pictures.com/john.gif", user.getAvatarUrl());
+    assertEquals("https://pictures.com/john.gif", user.getAvatarUrl());
     assertEquals("john@email.com", user.getEmail());
   }
 
@@ -154,7 +154,7 @@ public class UserIT {
     assertNotNull(result);
     assertEquals(fake.user2.getId(), result.getId());
     assertEquals("john@email.com", result.getEmail());
-    assertEquals("http://pictures.com/john.gif", result.getAvatarUrl());
+    assertEquals("https://pictures.com/john.gif", result.getAvatarUrl());
     assertEquals("john", result.getName());
     assertEquals("User, Admin", result.getRoles());
   }
@@ -190,7 +190,7 @@ public class UserIT {
     assertNotNull(result);
     assertEquals(fake.user3.getId(), result.getId());
     assertEquals("jenny@email.com", result.getEmail());
-    assertEquals("http://pictures.com/jenny.gif", result.getAvatarUrl());
+    assertEquals("https://pictures.com/jenny.gif", result.getAvatarUrl());
     assertEquals("jenny", result.getName());
     assertEquals("User", result.getRoles());
   }

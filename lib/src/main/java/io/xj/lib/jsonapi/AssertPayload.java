@@ -1,16 +1,12 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.jsonapi;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.util.ValueException;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static io.xj.lib.util.Assertion.*;
 
@@ -184,7 +180,7 @@ public class AssertPayload {
    @param resources    to assert
    @return this Payload assertion utility (for chaining methods)
    */
-  public <N> AssertPayload hasIncluded(String resourceType, ImmutableList<N> resources) throws JsonapiException {
+  public <N> AssertPayload hasIncluded(String resourceType, List<N> resources) throws JsonapiException {
     try {
       Collection<JsonapiPayloadObject> included = jsonapiPayload.getIncludedOfType(resourceType);
       assertEquality("same number of ids", resources.size(), included.size());

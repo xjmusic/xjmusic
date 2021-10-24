@@ -35,10 +35,10 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
-import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
-import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
+import static io.xj.hub.IntegrationTestingFixtures.*;
 import static io.xj.hub.access.HubAccess.CONTEXT_KEY;
 import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
 import static org.junit.Assert.assertEquals;
@@ -120,7 +120,7 @@ public class TemplateEndpointTest {
     Template template1 = buildTemplate(account1, "fonds", "ABC");
     when(templateDAO.readOne(same(hubAccess), eq(template1.getId()))).thenReturn(template1);
 
-    Response result = subject.readOne(crc, template1.getId().toString());
+    Response result = subject.readOne(crc, template1.getId().toString(), "");
 
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
@@ -130,12 +130,35 @@ public class TemplateEndpointTest {
   }
 
   @Test
+  public void readOne_includingBindingsAndPlaybacks() throws DAOException, IOException, JsonapiException {
+    when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
+    var account1 = buildAccount("bananas");
+    var user2 = buildUser("Amelie", "amelie@email.com", "https://pictures.com/amelie.gif", "Admin");
+    var library3 = buildLibrary(account1, "Test Library");
+    Template template4 = buildTemplate(account1, "fonds", "ABC");
+    var templateBinding43 = buildTemplateBinding(template4, library3);
+    var templatePlayback42 = buildTemplatePlayback(template4, user2);
+    when(templateDAO.readOne(same(hubAccess), eq(template4.getId()))).thenReturn(template4);
+    when(templateDAO.readChildEntities(same(hubAccess), eq(List.of(template4.getId())), eq(List.of("template-bindings", "template-playbacks"))))
+      .thenReturn(List.of(templateBinding43, templatePlayback42));
+
+    Response result = subject.readOne(crc, template4.getId().toString(), "template-bindings,template-playbacks");
+
+    assertEquals(200, result.getStatus());
+    assertTrue(result.hasEntity());
+    JsonapiPayload resultJsonapiPayload = new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class);
+    assertPayload(resultJsonapiPayload).hasDataOne("templates", template4.getId().toString());
+    assertPayload(resultJsonapiPayload).hasIncluded("template-bindings", List.of(templateBinding43));
+    assertPayload(resultJsonapiPayload).hasIncluded("template-playbacks", List.of(templatePlayback42));
+  }
+
+  @Test
   public void readOne_byShipKey() throws DAOException, IOException, JsonapiException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
     Template template1 = buildTemplate(account1, "fonds", "ABC");
     when(templateDAO.readOneByShipKey(same(hubAccess), eq("ABC"))).thenReturn(Optional.of(template1));
 
-    Response result = subject.readOne(crc, "ABC");
+    Response result = subject.readOne(crc, "ABC", "");
 
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());

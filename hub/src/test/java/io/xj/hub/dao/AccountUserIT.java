@@ -55,11 +55,11 @@ public class AccountUserIT {
     fake.account1 = test.insert(buildAccount("bananas"));
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    fake.user2 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif", "Admin"));
+    fake.user2 = test.insert(buildUser("john", "john@email.com", "https://pictures.com/john.gif", "Admin"));
     accountUser_1_2 = test.insert(buildAccountUser(fake.account1, fake.user2));
 
     // Jenny has a "user" role and belongs to account "bananas"
-    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif", "User"));
+    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "https://pictures.com/jenny.gif", "User"));
     test.insert(buildAccountUser(fake.account1, fake.user3));
 
     // Instantiate the test subject
@@ -74,7 +74,7 @@ public class AccountUserIT {
   @Test
   public void create() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    fake.user5 = test.insert(buildUser("Jim", "jim@email.com", "http://pictures.com/jim.gif", "Admin"));
+    fake.user5 = test.insert(buildUser("Jim", "jim@email.com", "https://pictures.com/jim.gif", "Admin"));
     var inputData = new AccountUser();
     inputData.setAccountId(fake.account1.getId());
     inputData.setUserId(fake.user5.getId());

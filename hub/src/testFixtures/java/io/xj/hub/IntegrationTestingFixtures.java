@@ -698,7 +698,7 @@ public class IntegrationTestingFixtures {
   public void insertFixtureA() throws HubException, JsonapiException {
     // account
     account1 = test.insert(buildAccount("testing"));
-    user101 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif", "Admin"));
+    user101 = test.insert(buildUser("john", "john@email.com", "https://pictures.com/john.gif", "Admin"));
 
     // Library content all created at this known time
     Instant at = Instant.parse("2014-08-12T12:17:02.527142Z");

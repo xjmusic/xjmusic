@@ -333,7 +333,7 @@ public class LibraryIT {
   @Test
   public void delete_FailsIfLibraryHasProgram() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    fake.user101 = test.insert(buildUser("bill", "bill@email.com", "http://pictures.com/bill.gif", "User"));
+    fake.user101 = test.insert(buildUser("bill", "bill@email.com", "https://pictures.com/bill.gif", "User"));
     test.insert(buildProgram(fake.library2b, ProgramType.Main, ProgramState.Published, "brilliant", "C#", 120.0f, 0.6f));
 
     try {
@@ -349,7 +349,7 @@ public class LibraryIT {
   @Test
   public void delete_FailsIfLibraryHasInstrument() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    fake.user101 = test.insert(buildUser("bill", "bill@email.com", "http://pictures.com/bill.gif", "Admin"));
+    fake.user101 = test.insert(buildUser("bill", "bill@email.com", "https://pictures.com/bill.gif", "Admin"));
     test.insert(buildInstrument(fake.library2b, InstrumentType.Drum, InstrumentState.Published, "brilliant"));
 
     try {

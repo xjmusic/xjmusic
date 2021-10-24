@@ -192,10 +192,10 @@ public class HubContentFixtures {
     library2 = buildLibrary(account1, "house");
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    user2 = buildUser("john", "john@email.com", "http://pictures.com/john.gif", "Admin");
+    user2 = buildUser("john", "john@email.com", "https://pictures.com/john.gif", "Admin");
 
     // Jenny has a "user" role and belongs to account "bananas"
-    user3 = buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif", "User");
+    user3 = buildUser("jenny", "jenny@email.com", "https://pictures.com/jenny.gif", "User");
     accountUser1a = buildAccountUser(account1, user3);
 
     // "Tropical, Wild to Cozy" macro-program in house library

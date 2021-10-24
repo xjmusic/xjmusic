@@ -6,6 +6,7 @@ import io.xj.hub.tables.pojos.Template;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  DAO for Templates
@@ -30,4 +31,14 @@ public interface TemplateDAO extends DAO<Template> {
    @return templates currently playing
    */
   Collection<Template> readAllPlaying(HubAccess hubAccess) throws DAOException;
+
+  /**
+   Read child entities of many templates
+
+   @param hubAccess  control
+   @param templateIds to read
+   @param types      of entities to include
+   @return collection of entities
+   */
+  Collection<Object> readChildEntities(HubAccess hubAccess, Collection<UUID> templateIds, Collection<String> types) throws DAOException;
 }

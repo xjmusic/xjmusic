@@ -2,12 +2,15 @@
 package io.xj.hub.dao;
 
 import com.google.api.client.util.Strings;
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.TemplateType;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.hub.tables.pojos.TemplatePlayback;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
@@ -107,6 +110,27 @@ public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
       .join(TEMPLATE_PLAYBACK).on(TEMPLATE.ID.eq(TEMPLATE_PLAYBACK.TEMPLATE_ID))
       .where(TEMPLATE_PLAYBACK.CREATED_AT.greaterThan(Timestamp.from(Instant.now().minusSeconds(playbackExpireSeconds))))
       .fetch());
+  }
+
+  @Override
+  public Collection<Object> readChildEntities(HubAccess hubAccess, Collection<UUID> templateIds, Collection<String> types) throws DAOException {
+    DSLContext db = dbProvider.getDSL();
+
+    requireRead(db, hubAccess, templateIds);
+
+    Collection<Object> entities = Lists.newArrayList();
+
+    // TemplateBinding
+    if (types.contains(Entities.toResourceType(TemplateBinding.class)))
+      entities.addAll(modelsFrom(TemplateBinding.class,
+        db.selectFrom(TEMPLATE_BINDING).where(TEMPLATE_BINDING.TEMPLATE_ID.in(templateIds))));
+
+    // TemplatePlayback
+    if (types.contains(Entities.toResourceType(TemplatePlayback.class)))
+      entities.addAll(modelsFrom(TemplatePlayback.class,
+        db.selectFrom(TEMPLATE_PLAYBACK).where(TEMPLATE_PLAYBACK.TEMPLATE_ID.in(templateIds))));
+
+    return entities;
   }
 
   @Override
@@ -230,6 +254,22 @@ public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
     } catch (ValueException e) {
       throw new DAOException(e);
     }
+  }
+
+  /**
+   Require read hubAccess
+
+   @param db          database context
+   @param hubAccess   control
+   @param templateIds to require hubAccess to
+   */
+  private void requireRead(DSLContext db, HubAccess hubAccess, Collection<UUID> templateIds) throws DAOException {
+    if (!hubAccess.isTopLevel())
+      for (UUID templateId : templateIds)
+        requireExists("hubAccess via account", db.selectCount().from(TEMPLATE)
+          .where(TEMPLATE.ID.eq(templateId))
+          .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .fetchOne(0, int.class));
   }
 
 }

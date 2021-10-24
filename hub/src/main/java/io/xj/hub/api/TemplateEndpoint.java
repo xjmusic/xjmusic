@@ -1,12 +1,15 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.api;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.dao.DAOException;
 import io.xj.hub.dao.TemplateDAO;
+import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.jsonapi.*;
+import io.xj.lib.util.CSV;
 
 import javax.annotation.Nullable;
 import javax.annotation.security.RolesAllowed;
@@ -14,6 +17,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -74,7 +79,7 @@ public class TemplateEndpoint extends HubJsonapiEndpoint {
   @GET
   @Path("templates/{id}")
   @RolesAllowed(USER)
-  public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String identifier) {
+  public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String identifier, @QueryParam("include") String include) {
     var access = HubAccess.fromContext(crc);
 
     @Nullable UUID uuid;
@@ -85,12 +90,22 @@ public class TemplateEndpoint extends HubJsonapiEndpoint {
     }
 
     try {
-      Object entity = Objects.isNull(uuid)
+      Template entity = Objects.isNull(uuid)
         ? dao.readOneByShipKey(access, identifier).orElseThrow(() -> new DAOException("not found"))
         : dao.readOne(access, uuid);
+      uuid = entity.getId();
 
       JsonapiPayload jsonapiPayload = new JsonapiPayload();
       jsonapiPayload.setDataOne(payloadFactory.toPayloadObject(entity));
+
+      // optionally specify a CSV of included types to read
+      if (Objects.nonNull(include)) {
+        List<JsonapiPayloadObject> list = new ArrayList<>();
+        for (Object included : dao().readChildEntities(access, ImmutableList.of(uuid), CSV.split(include)))
+          list.add(payloadFactory.toPayloadObject(included));
+        jsonapiPayload.setIncluded(list);
+      }
+
       return response.ok(jsonapiPayload);
 
     } catch (DAOException ignored) {
