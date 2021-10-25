@@ -317,20 +317,19 @@ public class IntegrationTestingFixtures {
     return buildTrack(programVoice, programVoice.getType().toString());
   }
 
-  public static ProgramSequencePattern buildPattern(ProgramSequence programSequence, ProgramVoice programVoice, ProgramSequencePatternType type, int total, String name) {
+  public static ProgramSequencePattern buildPattern(ProgramSequence programSequence, ProgramVoice programVoice, int total, String name) {
     var pattern = new ProgramSequencePattern();
     pattern.setId(UUID.randomUUID());
     pattern.setProgramId(programSequence.getProgramId());
     pattern.setProgramSequenceId(programSequence.getId());
     pattern.setProgramVoiceId(programVoice.getId());
-    pattern.setType(type);
     pattern.setTotal((short) total);
     pattern.setName(name);
     return pattern;
   }
 
-  public static ProgramSequencePattern buildPattern(ProgramSequence sequence, ProgramVoice voice, ProgramSequencePatternType type, int total) {
-    return buildPattern(sequence, voice, type, total, type.toString());
+  public static ProgramSequencePattern buildPattern(ProgramSequence sequence, ProgramVoice voice, int total) {
+    return buildPattern(sequence, voice, total, sequence.getName() + " pattern");
   }
 
   public static ProgramSequencePatternEvent buildEvent(ProgramSequencePattern pattern, ProgramVoiceTrack track, float position, float duration, String note, float velocity) {
@@ -629,13 +628,12 @@ public class IntegrationTestingFixtures {
     return programVoiceTrack;
   }
 
-  public static ProgramSequencePattern buildProgramSequencePattern(ProgramSequence programSequence, ProgramVoice programVoice, ProgramSequencePatternType type, int total, String name) {
+  public static ProgramSequencePattern buildProgramSequencePattern(ProgramSequence programSequence, ProgramVoice programVoice, int total, String name) {
     var programSequencePattern = new ProgramSequencePattern();
     programSequencePattern.setId(UUID.randomUUID());
     programSequencePattern.setProgramId(programSequence.getProgramId());
     programSequencePattern.setProgramSequenceId(programSequence.getId());
     programSequencePattern.setProgramVoiceId(programVoice.getId());
-    programSequencePattern.setType(type);
     programSequencePattern.setTotal((short) total);
     programSequencePattern.setName(name);
     return programSequencePattern;
@@ -695,7 +693,7 @@ public class IntegrationTestingFixtures {
   /**
    Library of Content A (shared test fixture)
    */
-  public void insertFixtureA() throws HubException, JsonapiException {
+  public void insertFixtureA() throws HubException {
     // account
     account1 = test.insert(buildAccount("testing"));
     user101 = test.insert(buildUser("john", "john@email.com", "https://pictures.com/john.gif", "Admin"));
@@ -751,7 +749,7 @@ public class IntegrationTestingFixtures {
     test.insert(buildProgramMeme(program702, "Ants"));
     program2_voice1 = test.insert(buildProgramVoice(program702, InstrumentType.Drum, "Drums"));
     var sequence702a = test.insert(buildProgramSequence(program702, (short) 16, "Base", 0.5f, "C", 110.3f));
-    var pattern901 = test.insert(buildProgramSequencePattern(sequence702a, program2_voice1, ProgramSequencePatternType.Loop, (short) 16, "growth"));
+    var pattern901 = test.insert(buildProgramSequencePattern(sequence702a, program2_voice1, (short) 16, "growth"));
     var trackBoom = test.insert(buildProgramVoiceTrack(program2_voice1, "BOOM"));
     var trackSmack = test.insert(buildProgramVoiceTrack(program2_voice1, "BOOM"));
     program702_pattern901_boomEvent = test.insert(buildProgramSequencePatternEvent(pattern901, trackBoom, 0.0f, 1.0f, "C", 1.0f));
@@ -773,7 +771,7 @@ public class IntegrationTestingFixtures {
     test.insert(buildProgramMeme(program751, "Ants"));
     var voiceGarbage = test.insert(buildProgramVoice(program751, InstrumentType.Drum, "Garbage"));
     var sequence751a = test.insert(buildProgramSequence(program751, (short) 16, "Base", 0.5f, "C", 110.3f));
-    var pattern951 = test.insert(buildProgramSequencePattern(sequence751a, voiceGarbage, ProgramSequencePatternType.Loop, (short) 16, "Garbage"));
+    var pattern951 = test.insert(buildProgramSequencePattern(sequence751a, voiceGarbage, (short) 16, "Garbage"));
     var trackGr = test.insert(buildProgramVoiceTrack(voiceGarbage, "GR"));
     var trackBag = test.insert(buildProgramVoiceTrack(voiceGarbage, "BAG"));
     test.insert(buildProgramSequencePatternEvent(pattern951, trackGr, 0.0f, 1.0f, "C", 1.0f));
@@ -830,7 +828,7 @@ public class IntegrationTestingFixtures {
    <p>
    [#165954673] Integration tests use shared scenario fixtures as much as possible
    */
-  public void insertFixtureB_Instruments() throws HubException, JsonapiException {
+  public void insertFixtureB_Instruments() throws HubException {
     instrument201 = test.insert(buildInstrument(library2, InstrumentType.Drum, InstrumentState.Published, "808 Drums"));
     test.insert(buildInstrumentMeme(instrument201, "Ants"));
     test.insert(buildInstrumentMeme(instrument201, "Mold"));

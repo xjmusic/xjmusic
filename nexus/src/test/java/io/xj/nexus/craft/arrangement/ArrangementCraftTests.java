@@ -15,7 +15,6 @@ import io.xj.api.SegmentChoiceArrangementPick;
 import io.xj.hub.HubTopology;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramSequencePatternType;
 import io.xj.hub.tables.pojos.*;
 import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
@@ -247,7 +246,6 @@ public class ArrangementCraftTests extends YamlTest {
     //noinspection unchecked
     for (Map<?, ?> pObj : (List<Map<?, ?>>) sObj.get("patterns")) {
       var pattern = IntegrationTestingFixtures.buildPattern(sequence, voice,
-        ProgramSequencePatternType.valueOf(getStr(pObj, "type")),
         Objects.requireNonNull(getInt(pObj, "total")));
       content.add(pattern);
       //noinspection unchecked

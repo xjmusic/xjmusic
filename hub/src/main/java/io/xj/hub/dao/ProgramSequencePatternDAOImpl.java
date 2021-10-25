@@ -59,7 +59,6 @@ public class ProgramSequencePatternDAOImpl extends DAOImpl<ProgramSequencePatter
 
       // Inherits parent's attributes if none specified
       entity.setTotal(from.getTotal());
-      entity.setType(from.getType());
       if (Values.isUnset(entity.getName())) entity.setName(from.getName());
       if (Values.isUnset(entity.getProgramId())) entity.setProgramId(from.getProgramId());
       if (Values.isUnset(entity.getProgramSequenceId())) entity.setProgramSequenceId(from.getProgramSequenceId());
@@ -222,7 +221,6 @@ public class ProgramSequencePatternDAOImpl extends DAOImpl<ProgramSequencePatter
       Values.require(record.getProgramSequenceId(), "Sequence ID");
       Values.require(record.getName(), "Name");
       Values.require(record.getTotal(), "Total");
-      Values.require(record.getType(), "Type");
       return record;
 
     } catch (ValueException e) {

@@ -6,7 +6,6 @@ import io.xj.hub.InstrumentConfig;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramSequencePatternType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.*;
 import io.xj.lib.music.Chord;
@@ -424,11 +423,10 @@ public interface Fabricator {
    <p>
    [#166481918] Rhythm fabrication composited of layered Patterns
 
-   @param patternType to select
    @return Pattern model, or null if no pattern of this type is found
    @throws NexusException on failure
    */
-  Optional<ProgramSequencePattern> getRandomlySelectedPatternOfSequenceByVoiceAndType(SegmentChoice choice, ProgramSequencePatternType patternType) throws NexusException;
+  Optional<ProgramSequencePattern> getRandomlySelectedPatternOfSequenceByVoiceAndType(SegmentChoice choice) throws NexusException;
 
   /**
    Randomly select any sequence binding at the given offset

@@ -82,8 +82,6 @@ public class ConfigEndpoint extends HubJsonapiEndpoint {
       .put("defaultTemplateConfig", Text.format(ConfigFactory.parseString(TemplateConfig.DEFAULT)))
       .put("instrumentStates", InstrumentState.values())
       .put("instrumentTypes", InstrumentType.values())
-      .put("patternDetailTypes", ProgramSequencePatternType.values())
-      .put("patternTypes", ProgramSequencePatternType.values())
       .put("playerBaseUrl", env.getPlayerBaseUrl())
       .put("programStates", ProgramState.values())
       .put("programTypes", ProgramType.values())

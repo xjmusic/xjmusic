@@ -12,7 +12,6 @@ import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramSequencePatternType;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.ingest.HubIngestModule;
@@ -166,7 +165,7 @@ public class ProgramSequenceIT {
     var voice = test.insert(buildProgramVoice(fake.program1, InstrumentType.Drum, "drums"));
     var track = test.insert(buildProgramVoiceTrack(voice, "Kick"));
     test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "D"));
-    var pattern = test.insert(buildProgramSequencePattern(fake.program1_sequence1, voice, ProgramSequencePatternType.Loop, 8, "jam"));
+    var pattern = test.insert(buildProgramSequencePattern(fake.program1_sequence1, voice, 8, "jam"));
     test.insert(buildProgramSequencePatternEvent(pattern, track, 0.0f, 1.0f, "C", 1.0f));
 
     DAOCloner<ProgramSequence> resultCloner = testDAO.clone(hubAccess, fake.program1_sequence1.getId(), inputData);
@@ -359,7 +358,7 @@ public class ProgramSequenceIT {
   public void destroy_succeedsEvenWhenHasPattern() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
     var programSequence = test.insert(buildProgramSequence(fake.program2, 16, "Ants", 0.6f, "C#", 120.0f));
-    test.insert(buildProgramSequencePattern(programSequence, fake.program2_voice1, ProgramSequencePatternType.Loop, 4, "Jam"));
+    test.insert(buildProgramSequencePattern(programSequence, fake.program2_voice1, 4, "Jam"));
 
     testDAO.destroy(hubAccess, programSequence.getId());
   }
@@ -377,7 +376,7 @@ public class ProgramSequenceIT {
     var programSequence = test.insert(buildProgramSequence(fake.program2, 16, "Ants", 0.6f, "C#", 120.0f));
     var programSequenceBinding = test.insert(buildProgramSequenceBinding(programSequence, 0));
     test.insert(buildProgramSequenceBindingMeme(programSequenceBinding, "chunk"));
-    var pattern = test.insert(buildProgramSequencePattern(programSequence, fake.program2_voice1, ProgramSequencePatternType.Loop, 4, "Jam"));
+    var pattern = test.insert(buildProgramSequencePattern(programSequence, fake.program2_voice1, 4, "Jam"));
     test.insert(buildProgramSequencePatternEvent(pattern, track, 0.0f, 1.0f, "C", 1.0f));
     var programSequenceChord = test.insert(buildProgramSequenceChord(programSequence, 0.0, "G"));
     test.insert(buildProgramSequenceChordVoicing(programSequenceChord, InstrumentType.Bass, "C5, Eb5, G5"));

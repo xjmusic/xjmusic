@@ -13,7 +13,6 @@ import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramSequencePatternType;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.ingest.HubIngestModule;
@@ -82,7 +81,7 @@ public class ProgramSequencePatternIT {
     fake.program1_sequence1 = test.insert(buildProgramSequence(fake.program1, 4, "Ants", 0.583f, "D minor", 120.0f));
     programVoice1 = test.insert(buildProgramVoice(fake.program1, InstrumentType.Drum, "Drums"));
     var programVoiceTrack1 = test.insert(buildProgramVoiceTrack(programVoice1, "KICK"));
-    fake.program2_sequence1_pattern1 = test.insert(buildProgramSequencePattern(fake.program1_sequence1, programVoice1, ProgramSequencePatternType.Loop, 4, "Beat"));
+    fake.program2_sequence1_pattern1 = test.insert(buildProgramSequencePattern(fake.program1_sequence1, programVoice1, 4, "Beat"));
     fake.program2_sequence1_pattern1_event0 = test.insert(buildProgramSequencePatternEvent(fake.program2_sequence1_pattern1, programVoiceTrack1, 0.0f, 1.0f, "X", 1.0f));
     fake.program2_sequence1_pattern1_event1 = test.insert(buildProgramSequencePatternEvent(fake.program2_sequence1_pattern1, programVoiceTrack1, 1.0f, 1.0f, "X", 1.0f));
     fake.program2 = test.insert(buildProgram(fake.library1, ProgramType.Rhythm, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f));
@@ -94,7 +93,7 @@ public class ProgramSequencePatternIT {
     fake.program3_sequence1 = test.insert(buildProgramSequence(fake.program3, 16, "Ants", 0.583f, "D minor", 120.0f));
     programVoice3 = test.insert(buildProgramVoice(fake.program3, InstrumentType.Drum, "Drums"));
     test.insert(buildProgramVoiceTrack(programVoice3, "KICK"));
-    test.insert(buildProgramSequencePattern(fake.program3_sequence1, programVoice3, ProgramSequencePatternType.Loop, 4, "Beat"));
+    test.insert(buildProgramSequencePattern(fake.program3_sequence1, programVoice3, 4, "Beat"));
     fake.program4 = test.insert(buildProgram(fake.library2, ProgramType.Detail, ProgramState.Published, "sail", "C#", 120.0f, 0.6f));
 
     // Instantiate the test subject
@@ -111,7 +110,6 @@ public class ProgramSequencePatternIT {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var subject = new ProgramSequencePattern();
     subject.setId(UUID.randomUUID());
-    subject.setType(ProgramSequencePatternType.Loop);
     subject.setTotal((short) 4);
     subject.setProgramId(fake.program3.getId());
     subject.setProgramVoiceId(programVoice3.getId());
@@ -136,7 +134,6 @@ public class ProgramSequencePatternIT {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var input = new ProgramSequencePattern();
     input.setId(UUID.randomUUID());
-    input.setType(ProgramSequencePatternType.Loop);
     input.setTotal((short) 4);
     input.setProgramId(fake.program3.getId());
     input.setProgramVoiceId(programVoice3.getId());
@@ -146,7 +143,6 @@ public class ProgramSequencePatternIT {
     DAOCloner<ProgramSequencePattern> result = subjectDAO.clone(hubAccess, fake.program2_sequence1_pattern1.getId(), input);
 
     assertNotNull(result);
-    assertEquals(ProgramSequencePatternType.Loop, result.getClone().getType());
     assertEquals(2, result.getChildClones().size());
     assertEquals(2, injector.getInstance(ProgramSequencePatternEventDAO.class)
       .readMany(HubAccess.internal(), ImmutableSet.of(result.getClone().getId()))
@@ -166,7 +162,6 @@ public class ProgramSequencePatternIT {
     input.setProgramId(fake.program3.getId());
     input.setProgramVoiceId(programVoice3.getId());
     input.setProgramSequenceId(fake.program3_sequence1.getId());
-    input.setType(ProgramSequencePatternType.Intro); // cannot be modified while cloning
     input.setTotal((short) 16); // cannot be modified while cloning
     input.setName("Jamming");
 
@@ -177,7 +172,6 @@ public class ProgramSequencePatternIT {
     assertEquals(programVoice3.getId(), result.getClone().getProgramVoiceId());
     assertEquals(fake.program3_sequence1.getId(), result.getClone().getProgramSequenceId());
     assertEquals("Jamming", result.getClone().getName());
-    assertEquals(ProgramSequencePatternType.Loop, result.getClone().getType()); // cannot be modified while cloning
     assertEquals(4, (int) result.getClone().getTotal()); // cannot be modified while cloning
   }
 
@@ -195,7 +189,6 @@ public class ProgramSequencePatternIT {
     assertEquals(fake.program1_sequence1.getProgramId(), result.getClone().getProgramId());
     assertEquals(fake.program1_sequence1.getId(), result.getClone().getProgramSequenceId());
     assertEquals(programVoice1.getId(), result.getClone().getProgramVoiceId());
-    assertEquals(ProgramSequencePatternType.Loop, result.getClone().getType());
     assertEquals(4, (int) result.getClone().getTotal());
     assertEquals("Beat", result.getClone().getName());
   }
@@ -209,7 +202,6 @@ public class ProgramSequencePatternIT {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var inputData = new ProgramSequencePattern();
     inputData.setId(UUID.randomUUID());
-    inputData.setType(ProgramSequencePatternType.Loop);
     inputData.setTotal((short) 4);
     inputData.setProgramId(fake.program3.getId());
     inputData.setProgramVoiceId(programVoice3.getId());

@@ -29,12 +29,10 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Instant;
-import java.util.Collection;
 import java.util.stream.Collectors;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -100,23 +98,6 @@ public class CraftRhythmProgramVoiceInitialTest {
     Segment result = store.getSegment(segment0.getId()).orElseThrow();
     assertFalse(store.getAll(result.getId(), SegmentChoice.class).isEmpty());
     // test vector for [#154014731] persist Audio pick in memory
-    int pickedKick = 0;
-    int pickedSnare = 0;
-    int pickedBleep = 0;
-    int pickedToot = 0;
-    Collection<SegmentChoiceArrangementPick> picks = fabricator.getPicks();
-    for (SegmentChoiceArrangementPick pick : picks) {
-      if (pick.getInstrumentAudioId().equals(fake.instrument8_audio8kick.getId()))
-        pickedKick++;
-      if (pick.getInstrumentAudioId().equals(fake.instrument8_audio8snare.getId()))
-        pickedSnare++;
-      if (pick.getInstrumentAudioId().equals(fake.instrument8_audio8bleep.getId()))
-        pickedBleep++;
-      if (pick.getInstrumentAudioId().equals(fake.instrument8_audio8toot.getId()))
-        pickedToot++;
-    }
-    assertEquals(16, pickedKick);
-    assertEquals(16, pickedSnare);
   }
 
   @Test

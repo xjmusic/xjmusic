@@ -8,7 +8,6 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import io.xj.api.*;
 import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramSequencePatternType;
 import io.xj.hub.tables.pojos.*;
 import io.xj.lib.music.AdjSymbol;
 import io.xj.lib.music.Chord;
@@ -349,13 +348,13 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     // choose intro pattern (if available)
     Optional<ProgramSequencePattern> introPattern =
       isIntroSegment(choice)
-        ? fabricator.getRandomlySelectedPatternOfSequenceByVoiceAndType(choice, ProgramSequencePatternType.Intro)
+        ? fabricator.getRandomlySelectedPatternOfSequenceByVoiceAndType(choice)
         : Optional.empty();
 
     // choose outro pattern (if available)
     Optional<ProgramSequencePattern> outroPattern =
       isOutroSegment(choice)
-        ? fabricator.getRandomlySelectedPatternOfSequenceByVoiceAndType(choice, ProgramSequencePatternType.Outro)
+        ? fabricator.getRandomlySelectedPatternOfSequenceByVoiceAndType(choice)
         : Optional.empty();
 
     // compute in and out points, and length # beats for which loop patterns will be required
@@ -371,7 +370,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     // choose loop patterns until arrive at the out point or end of segment
     while (curPos < loopOutPos) {
       Optional<ProgramSequencePattern> loopPattern =
-        fabricator.getRandomlySelectedPatternOfSequenceByVoiceAndType(choice, ProgramSequencePatternType.Loop);
+        fabricator.getRandomlySelectedPatternOfSequenceByVoiceAndType(choice);
       if (loopPattern.isPresent())
         curPos += craftPatternEvents(choice, loopPattern.get(), curPos, loopOutPos, range, defaultAtonal);
       else

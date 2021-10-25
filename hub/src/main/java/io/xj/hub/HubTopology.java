@@ -179,7 +179,6 @@ public enum HubTopology {
     // ProgramSequencePattern
     entityFactory.register(ProgramSequencePattern.class)
       .createdBy(ProgramSequencePattern::new)
-      .withAttribute("type")
       .withAttribute("total")
       .withAttribute("name")
       .belongsTo(Program.class)

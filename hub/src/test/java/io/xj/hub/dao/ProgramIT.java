@@ -12,7 +12,6 @@ import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramSequencePatternType;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.ingest.HubIngestModule;
@@ -159,7 +158,7 @@ public class ProgramIT {
     var track = test.insert(buildProgramVoiceTrack(voice, "Kick"));
     var programSequenceChord = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "D"));
     test.insert(buildProgramSequenceChordVoicing(programSequenceChord, InstrumentType.Sticky, "D2,F#2,A2"));
-    var pattern = test.insert(buildProgramSequencePattern(fake.program1_sequence1, voice, ProgramSequencePatternType.Loop, 8, "jam"));
+    var pattern = test.insert(buildProgramSequencePattern(fake.program1_sequence1, voice, 8, "jam"));
     test.insert(buildProgramSequencePatternEvent(pattern, track, 0.0f, 1.0f, "C", 1.0f));
 
     DAOCloner<Program> resultCloner = testDAO.clone(hubAccess, fake.program1.getId(), inputData);
@@ -280,7 +279,7 @@ public class ProgramIT {
     var track = test.insert(buildProgramVoiceTrack(voice, "Kick"));
     var programSequenceChord = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "D"));
     test.insert(buildProgramSequenceChordVoicing(programSequenceChord, InstrumentType.Sticky, "D2,F#2,A2"));
-    var pattern = test.insert(buildProgramSequencePattern(fake.program1_sequence1, voice, ProgramSequencePatternType.Loop, 8, "jam"));
+    var pattern = test.insert(buildProgramSequencePattern(fake.program1_sequence1, voice, 8, "jam"));
     test.insert(buildProgramSequencePatternEvent(pattern, track, 0.0f, 1.0f, "C", 1.0f));
 
     Collection<Object> results = testDAO.readManyWithChildEntities(hubAccess, ImmutableList.of(fake.program1.getId()));
@@ -472,7 +471,7 @@ public class ProgramIT {
     var voice = test.insert(buildProgramVoice(program, InstrumentType.Drum, "drums"));
     var track = test.insert(buildProgramVoiceTrack(voice, "Kick"));
     test.insert(buildProgramSequenceChord(programSequence, 0.0f, "D"));
-    var pattern = test.insert(buildProgramSequencePattern(programSequence, voice, ProgramSequencePatternType.Loop, 8, "jam"));
+    var pattern = test.insert(buildProgramSequencePattern(programSequence, voice, 8, "jam"));
     test.insert(buildProgramSequencePatternEvent(pattern, track, 0.0f, 1.0f, "C", 1.0f));
 
     testDAO.destroy(hubAccess, program.getId());

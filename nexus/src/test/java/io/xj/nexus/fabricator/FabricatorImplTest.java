@@ -10,7 +10,6 @@ import com.google.inject.util.Modules;
 import io.xj.api.*;
 import io.xj.hub.HubTopology;
 import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramSequencePatternType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
@@ -519,7 +518,7 @@ public class FabricatorImplTest {
     var voice = buildVoice(program, InstrumentType.Bass);
     var track = buildTrack(voice);
     var sequence = buildSequence(program, 4);
-    var pattern = buildPattern(sequence, voice, ProgramSequencePatternType.Loop, 4);
+    var pattern = buildPattern(sequence, voice, 4);
     sourceMaterial = new HubContent(ImmutableList.of(
       program,
       voice,
@@ -571,7 +570,7 @@ public class FabricatorImplTest {
     var voice = buildVoice(program, InstrumentType.Bass);
     var track = buildTrack(voice);
     var sequence = buildSequence(program, 4);
-    var pattern = buildPattern(sequence, voice, ProgramSequencePatternType.Loop, 4);
+    var pattern = buildPattern(sequence, voice, 4);
     sourceMaterial = new HubContent(ImmutableList.of(
       program,
       voice,

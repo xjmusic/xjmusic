@@ -14,7 +14,6 @@ import io.xj.hub.ProgramConfig;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.ContentBindingType;
 import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramSequencePatternType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.*;
 import io.xj.lib.app.Environment;
@@ -689,12 +688,11 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Optional<ProgramSequencePattern> getRandomlySelectedPatternOfSequenceByVoiceAndType(SegmentChoice choice, ProgramSequencePatternType patternType) {
+  public Optional<ProgramSequencePattern> getRandomlySelectedPatternOfSequenceByVoiceAndType(SegmentChoice choice) {
     EntityScorePicker<ProgramSequencePattern> rank = new EntityScorePicker<>();
     sourceMaterial.getAllProgramSequencePatterns().stream()
       .filter(pattern -> Objects.equals(pattern.getProgramSequenceId(), choice.getProgramSequenceId()))
       .filter(pattern -> Objects.equals(pattern.getProgramVoiceId(), choice.getProgramVoiceId()))
-      .filter(pattern -> pattern.getType() == patternType)
       .forEach(pattern ->
         rank.add(pattern, Chance.normallyAround(0.0, 1.0)));
     if (Objects.equals(0, rank.size()))

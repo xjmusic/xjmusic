@@ -9,7 +9,10 @@ import io.xj.api.*;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.LoremIpsum;
 import io.xj.hub.Users;
-import io.xj.hub.enums.*;
+import io.xj.hub.enums.InstrumentState;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramState;
+import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.*;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
@@ -204,19 +207,6 @@ public class NexusIntegrationTestingFixtures {
   public User user1;
   public User user2;
   public User user3;
-
-  /**
-   Random type of rhythm pattern
-
-   @return randomly selected rhythm pattern type
-   */
-  protected static ProgramSequencePatternType randomRhythmPatternType() {
-    return new ProgramSequencePatternType[]{
-      ProgramSequencePatternType.Intro,
-      ProgramSequencePatternType.Loop,
-      ProgramSequencePatternType.Outro
-    }[(int) StrictMath.floor(StrictMath.random() * 3)];
-  }
 
   /**
    List of N random values
@@ -680,13 +670,13 @@ public class NexusIntegrationTestingFixtures {
     program35_voice0_track3 = IntegrationTestingFixtures.buildTrack(program35_voice0, "SNARL");
     //
     program35_sequence0 = IntegrationTestingFixtures.buildSequence(program35, 16, "Base", 0.5f, "C", 110.3f);
-    program35_sequence0_pattern0 = IntegrationTestingFixtures.buildPattern(program35_sequence0, program35_voice0, ProgramSequencePatternType.Loop, 4, "Drop");
+    program35_sequence0_pattern0 = IntegrationTestingFixtures.buildPattern(program35_sequence0, program35_voice0, 4, "Drop");
     program35_sequence0_pattern0_event0 = IntegrationTestingFixtures.buildEvent(program35_sequence0_pattern0, program35_voice0_track0, 0.0f, 1.0f, "C2", 1.0f);
     program35_sequence0_pattern0_event1 = IntegrationTestingFixtures.buildEvent(program35_sequence0_pattern0, program35_voice0_track1, 1.0f, 1.0f, "G5", 0.8f);
     program35_sequence0_pattern0_event2 = IntegrationTestingFixtures.buildEvent(program35_sequence0_pattern0, program35_voice0_track2, 2.5f, 1.0f, "C2", 0.6f);
     program35_sequence0_pattern0_event3 = IntegrationTestingFixtures.buildEvent(program35_sequence0_pattern0, program35_voice0_track3, 3.0f, 1.0f, "G5", 0.9f);
     //
-    program35_sequence0_pattern1 = IntegrationTestingFixtures.buildPattern(program35_sequence0, program35_voice0, ProgramSequencePatternType.Loop, 4, "Drop Alt");
+    program35_sequence0_pattern1 = IntegrationTestingFixtures.buildPattern(program35_sequence0, program35_voice0, 4, "Drop Alt");
     program35_sequence0_pattern1_event0 = IntegrationTestingFixtures.buildEvent(program35_sequence0_pattern1, program35_voice0_track0, 0.0f, 1.0f, "B5", 0.9f);
     program35_sequence0_pattern1_event1 = IntegrationTestingFixtures.buildEvent(program35_sequence0_pattern1, program35_voice0_track1, 1.0f, 1.0f, "D2", 1.0f);
     program35_sequence0_pattern1_event2 = IntegrationTestingFixtures.buildEvent(program35_sequence0_pattern1, program35_voice0_track2, 2.5f, 1.0f, "E4", 0.7f);
@@ -861,25 +851,25 @@ public class NexusIntegrationTestingFixtures {
     //
     program9_sequence0 = IntegrationTestingFixtures.buildSequence(program9, 16, "Base", 0.5f, "C", 110.3f);
     //
-    program9_sequence0_pattern0 = IntegrationTestingFixtures.buildPattern(program9_sequence0, program9_voice0, ProgramSequencePatternType.Intro, 4, "Intro");
+    program9_sequence0_pattern0 = IntegrationTestingFixtures.buildPattern(program9_sequence0, program9_voice0, 4, "Intro");
     program9_sequence0_pattern0_event0 = IntegrationTestingFixtures.buildEvent(program9_sequence0_pattern0, program9_voice0_track0, 0, 1, "C2", 1.0f);
     program9_sequence0_pattern0_event1 = IntegrationTestingFixtures.buildEvent(program9_sequence0_pattern0, program9_voice0_track1, 1, 1, "G5", 0.8f);
     program9_sequence0_pattern0_event2 = IntegrationTestingFixtures.buildEvent(program9_sequence0_pattern0, program9_voice0_track2, 2.5f, 1, "C2", 0.6f);
     program9_sequence0_pattern0_event3 = IntegrationTestingFixtures.buildEvent(program9_sequence0_pattern0, program9_voice0_track3, 3, 1, "G5", 0.9f);
     //
-    program9_sequence0_pattern1 = IntegrationTestingFixtures.buildPattern(program9_sequence0, program9_voice0, ProgramSequencePatternType.Loop, 4, "Loop A");
+    program9_sequence0_pattern1 = IntegrationTestingFixtures.buildPattern(program9_sequence0, program9_voice0, 4, "Loop A");
     program9_sequence0_pattern1_event0 = IntegrationTestingFixtures.buildEvent(program9_sequence0_pattern1, program9_voice0_track4, 0, 1, "C2", 1.0f);
     program9_sequence0_pattern1_event1 = IntegrationTestingFixtures.buildEvent(program9_sequence0_pattern1, program9_voice0_track5, 1, 1, "G5", 0.8f);
     program9_sequence0_pattern1_event2 = IntegrationTestingFixtures.buildEvent(program9_sequence0_pattern1, program9_voice0_track6, 2.5f, 1, "C2", 0.6f);
     program9_sequence0_pattern1_event3 = IntegrationTestingFixtures.buildEvent(program9_sequence0_pattern1, program9_voice0_track7, 3, 1, "G5", 0.9f);
     //
-    program9_sequence0_pattern2 = IntegrationTestingFixtures.buildPattern(program9_sequence0, program9_voice0, ProgramSequencePatternType.Loop, 4, "Loop B");
+    program9_sequence0_pattern2 = IntegrationTestingFixtures.buildPattern(program9_sequence0, program9_voice0, 4, "Loop B");
     program9_sequence0_pattern2_event0 = IntegrationTestingFixtures.buildEvent(program9_sequence0_pattern2, program9_voice0_track8, 0, 1, "B5", 0.9f);
     program9_sequence0_pattern2_event1 = IntegrationTestingFixtures.buildEvent(program9_sequence0_pattern2, program9_voice0_track9, 1, 1, "D2", 1.0f);
     program9_sequence0_pattern2_event2 = IntegrationTestingFixtures.buildEvent(program9_sequence0_pattern2, program9_voice0_track10, 2.5f, 1, "E4", 0.7f);
     program9_sequence0_pattern2_event3 = IntegrationTestingFixtures.buildEvent(program9_sequence0_pattern2, program9_voice0_track11, 3, 1, "C3", 0.5f);
     //
-    program9_sequence0_pattern3 = IntegrationTestingFixtures.buildPattern(program9_sequence0, program9_voice0, ProgramSequencePatternType.Outro, 4, "Outro");
+    program9_sequence0_pattern3 = IntegrationTestingFixtures.buildPattern(program9_sequence0, program9_voice0, 4, "Outro");
     program9_sequence0_pattern3_event0 = IntegrationTestingFixtures.buildEvent(program9_sequence0_pattern3, program9_voice0_track12, 0, 1, "C2", 1.0f);
     program9_sequence0_pattern3_event1 = IntegrationTestingFixtures.buildEvent(program9_sequence0_pattern3, program9_voice0_track13, 1, 1, "G5", 0.8f);
     program9_sequence0_pattern3_event2 = IntegrationTestingFixtures.buildEvent(program9_sequence0_pattern3, program9_voice0_track14, 2.5f, 1, "C2", 0.6f);
@@ -959,25 +949,25 @@ public class NexusIntegrationTestingFixtures {
     //
     program10_sequence0 = IntegrationTestingFixtures.buildSequence(program10, 16, "Simple Walk", 0.5f, "C", 110.3f);
     //
-    program10_sequence0_pattern0 = IntegrationTestingFixtures.buildPattern(program10_sequence0, program10_voice0, ProgramSequencePatternType.Intro, 4, "Intro");
+    program10_sequence0_pattern0 = IntegrationTestingFixtures.buildPattern(program10_sequence0, program10_voice0, 4, "Intro");
     program10_sequence0_pattern0_event0 = IntegrationTestingFixtures.buildEvent(program10_sequence0_pattern0, program10_voice0_track0, 0, 1, "C2", 1.0f);
     program10_sequence0_pattern0_event1 = IntegrationTestingFixtures.buildEvent(program10_sequence0_pattern0, program10_voice0_track0, 1, 1, "G5", 0.8f);
     program10_sequence0_pattern0_event2 = IntegrationTestingFixtures.buildEvent(program10_sequence0_pattern0, program10_voice0_track0, 2, 1, "C2", 0.6f);
     program10_sequence0_pattern0_event3 = IntegrationTestingFixtures.buildEvent(program10_sequence0_pattern0, program10_voice0_track0, 3, 1, "G5", 0.9f);
     //
-    program10_sequence0_pattern1 = IntegrationTestingFixtures.buildPattern(program10_sequence0, program10_voice0, ProgramSequencePatternType.Loop, 4, "Loop A");
+    program10_sequence0_pattern1 = IntegrationTestingFixtures.buildPattern(program10_sequence0, program10_voice0, 4, "Loop A");
     program10_sequence0_pattern1_event0 = IntegrationTestingFixtures.buildEvent(program10_sequence0_pattern1, program10_voice0_track0, 0, 1, "C2", 1.0f);
     program10_sequence0_pattern1_event1 = IntegrationTestingFixtures.buildEvent(program10_sequence0_pattern1, program10_voice0_track0, 1, 1, "G5", 0.8f);
     program10_sequence0_pattern1_event2 = IntegrationTestingFixtures.buildEvent(program10_sequence0_pattern1, program10_voice0_track0, 2, 1, "C2", 0.6f);
     program10_sequence0_pattern1_event3 = IntegrationTestingFixtures.buildEvent(program10_sequence0_pattern1, program10_voice0_track0, 3, 1, "G5", 0.9f);
     //
-    program10_sequence0_pattern2 = IntegrationTestingFixtures.buildPattern(program10_sequence0, program10_voice0, ProgramSequencePatternType.Loop, 4, "Loop B");
+    program10_sequence0_pattern2 = IntegrationTestingFixtures.buildPattern(program10_sequence0, program10_voice0, 4, "Loop B");
     program10_sequence0_pattern2_event0 = IntegrationTestingFixtures.buildEvent(program10_sequence0_pattern2, program10_voice0_track0, 0, 1, "B5", 0.9f);
     program10_sequence0_pattern2_event1 = IntegrationTestingFixtures.buildEvent(program10_sequence0_pattern2, program10_voice0_track0, 1, 1, "D2", 1.0f);
     program10_sequence0_pattern2_event2 = IntegrationTestingFixtures.buildEvent(program10_sequence0_pattern2, program10_voice0_track0, 2, 1, "E4", 0.7f);
     program10_sequence0_pattern2_event3 = IntegrationTestingFixtures.buildEvent(program10_sequence0_pattern2, program10_voice0_track0, 3, 1, "C3", 0.5f);
     //
-    program10_sequence0_pattern3 = IntegrationTestingFixtures.buildPattern(program10_sequence0, program10_voice0, ProgramSequencePatternType.Outro, 4, "Outro");
+    program10_sequence0_pattern3 = IntegrationTestingFixtures.buildPattern(program10_sequence0, program10_voice0, 4, "Outro");
     program10_sequence0_pattern3_event0 = IntegrationTestingFixtures.buildEvent(program10_sequence0_pattern3, program10_voice0_track0, 0, 1, "C2", 1.0f);
     program10_sequence0_pattern3_event1 = IntegrationTestingFixtures.buildEvent(program10_sequence0_pattern3, program10_voice0_track0, 1, 1, "G5", 0.8f);
     program10_sequence0_pattern3_event2 = IntegrationTestingFixtures.buildEvent(program10_sequence0_pattern3, program10_voice0_track0, 2, 1, "C2", 0.6f);
@@ -1146,8 +1136,7 @@ public class NexusIntegrationTestingFixtures {
         int num = (int) StrictMath.floor(StrictMath.random() * N);
 
         // first pattern is always a Loop (because that's required) then the rest at random
-        ProgramSequencePatternType type = 0 == iP ? ProgramSequencePatternType.Loop : randomRhythmPatternType();
-        var pattern = add(entities, IntegrationTestingFixtures.buildPattern(sequenceBase, voices[num], type, total, String.format("%s %s %s", majorMemeName, type.toString(), random(LoremIpsum.ELEMENTS))));
+        var pattern = add(entities, IntegrationTestingFixtures.buildPattern(sequenceBase, voices[num], total, String.format("%s %s %s", majorMemeName, majorMemeName + " pattern", random(LoremIpsum.ELEMENTS))));
         for (int iPE = 0; iPE < N << 2; iPE++) {
           // always use first chord, then use more chords with more density
           if (0 == iPE || StrictMath.random() < density) {

@@ -245,13 +245,13 @@ public class HubContentFixtures {
     program35_voice0_track3 = buildProgramVoiceTrack(program35_voice0, "SNARL");
     //
     program3_sequence0 = buildProgramSequence(program35, (short) 16, "Base", 0.5f, "C", 110.3f);
-    program35_sequence0_pattern0 = buildProgramSequencePattern(program3_sequence0, program35_voice0, ProgramSequencePatternType.Loop, (short) 4, "Drop");
+    program35_sequence0_pattern0 = buildProgramSequencePattern(program3_sequence0, program35_voice0, (short) 4, "Drop");
     program35_sequence0_pattern0_event0 = buildProgramSequencePatternEvent(program35_sequence0_pattern0, program35_voice0_track0, 0.0f, 1.0f, "C2", 1.0f);
     program35_sequence0_pattern0_event1 = buildProgramSequencePatternEvent(program35_sequence0_pattern0, program35_voice0_track1, 1.0f, 1.0f, "G5", 0.8f);
     program35_sequence0_pattern0_event2 = buildProgramSequencePatternEvent(program35_sequence0_pattern0, program35_voice0_track2, 2.5f, 1.0f, "C2", 0.6f);
     program35_sequence0_pattern0_event3 = buildProgramSequencePatternEvent(program35_sequence0_pattern0, program35_voice0_track3, 3.0f, 1.0f, "G5", 0.9f);
     //
-    program35_sequence0_pattern1 = buildProgramSequencePattern(program3_sequence0, program35_voice0, ProgramSequencePatternType.Loop, (short) 4, "Drop Alt");
+    program35_sequence0_pattern1 = buildProgramSequencePattern(program3_sequence0, program35_voice0, (short) 4, "Drop Alt");
     program35_sequence0_pattern1_event0 = buildProgramSequencePatternEvent(program35_sequence0_pattern1, program35_voice0_track0, 0.0f, 1.0f, "B5", 0.9f);
     program35_sequence0_pattern1_event1 = buildProgramSequencePatternEvent(program35_sequence0_pattern1, program35_voice0_track1, 1.0f, 1.0f, "D2", 1.0f);
     program35_sequence0_pattern1_event2 = buildProgramSequencePatternEvent(program35_sequence0_pattern1, program35_voice0_track2, 2.5f, 1.0f, "E4", 0.7f);
@@ -429,25 +429,25 @@ public class HubContentFixtures {
     //
     program9_sequence0 = buildProgramSequence(program9, (short) 16, "Base", 0.5f, "C", 110.3f);
     //
-    program9_sequence0_pattern0 = buildProgramSequencePattern(program9_sequence0, program9_voice0, ProgramSequencePatternType.Intro, (short) 4, "Intro");
+    program9_sequence0_pattern0 = buildProgramSequencePattern(program9_sequence0, program9_voice0, (short) 4, "Intro");
     program9_sequence0_pattern0_event0 = buildProgramSequencePatternEvent(program9_sequence0_pattern0, program9_voice0_track0, 0, 1, "C2", 1.0f);
     program9_sequence0_pattern0_event1 = buildProgramSequencePatternEvent(program9_sequence0_pattern0, program9_voice0_track1, 1, 1, "G5", 0.8f);
     program9_sequence0_pattern0_event2 = buildProgramSequencePatternEvent(program9_sequence0_pattern0, program9_voice0_track2, 2.5f, 1, "C2", 0.6f);
     program9_sequence0_pattern0_event3 = buildProgramSequencePatternEvent(program9_sequence0_pattern0, program9_voice0_track3, 3, 1, "G5", 0.9f);
     //
-    program9_sequence0_pattern1 = buildProgramSequencePattern(program9_sequence0, program9_voice0, ProgramSequencePatternType.Loop, (short) 4, "Loop A");
+    program9_sequence0_pattern1 = buildProgramSequencePattern(program9_sequence0, program9_voice0, (short) 4, "Loop A");
     program9_sequence0_pattern1_event0 = buildProgramSequencePatternEvent(program9_sequence0_pattern1, program9_voice0_track4, 0, 1, "C2", 1.0f);
     program9_sequence0_pattern1_event1 = buildProgramSequencePatternEvent(program9_sequence0_pattern1, program9_voice0_track5, 1, 1, "G5", 0.8f);
     program9_sequence0_pattern1_event2 = buildProgramSequencePatternEvent(program9_sequence0_pattern1, program9_voice0_track6, 2.5f, 1, "C2", 0.6f);
     program9_sequence0_pattern1_event3 = buildProgramSequencePatternEvent(program9_sequence0_pattern1, program9_voice0_track7, 3, 1, "G5", 0.9f);
     //
-    program9_sequence0_pattern2 = buildProgramSequencePattern(program9_sequence0, program9_voice0, ProgramSequencePatternType.Loop, (short) 4, "Loop B");
+    program9_sequence0_pattern2 = buildProgramSequencePattern(program9_sequence0, program9_voice0, (short) 4, "Loop B");
     program9_sequence0_pattern2_event0 = buildProgramSequencePatternEvent(program9_sequence0_pattern2, program9_voice0_track8, 0, 1, "B5", 0.9f);
     program9_sequence0_pattern2_event1 = buildProgramSequencePatternEvent(program9_sequence0_pattern2, program9_voice0_track9, 1, 1, "D2", 1.0f);
     program9_sequence0_pattern2_event2 = buildProgramSequencePatternEvent(program9_sequence0_pattern2, program9_voice0_track10, 2.5f, 1, "E4", 0.7f);
     program9_sequence0_pattern2_event3 = buildProgramSequencePatternEvent(program9_sequence0_pattern2, program9_voice0_track11, 3, 1, "C3", 0.5f);
     //
-    program9_sequence0_pattern3 = buildProgramSequencePattern(program9_sequence0, program9_voice0, ProgramSequencePatternType.Outro, (short) 4, "Outro");
+    program9_sequence0_pattern3 = buildProgramSequencePattern(program9_sequence0, program9_voice0, (short) 4, "Outro");
     program9_sequence0_pattern3_event0 = buildProgramSequencePatternEvent(program9_sequence0_pattern3, program9_voice0_track12, 0, 1, "C2", 1.0f);
     program9_sequence0_pattern3_event1 = buildProgramSequencePatternEvent(program9_sequence0_pattern3, program9_voice0_track13, 1, 1, "G5", 0.8f);
     program9_sequence0_pattern3_event2 = buildProgramSequencePatternEvent(program9_sequence0_pattern3, program9_voice0_track14, 2.5f, 1, "C2", 0.6f);
