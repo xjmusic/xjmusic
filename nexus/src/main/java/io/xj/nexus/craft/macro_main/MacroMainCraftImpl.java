@@ -31,6 +31,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static io.xj.lib.util.Values.NANOS_PER_SECOND;
 import static java.lang.Math.PI;
 
 /**
@@ -42,7 +43,6 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
   private static final double SCORE_DIRECT = 10 * SCORE_MATCH;
   private static final double SCORE_MACRO_ENTROPY = 1.0;
   private static final double SCORE_MAIN_ENTROPY = 1.0;
-  private static final long NANOS_PER_SECOND = 1_000_000_000;
   private static final double DENSITY_FLOOR = 0.38;
   private static final double DENSITY_CEILING_DELTA = 1 - DENSITY_FLOOR;
   private final ApiUrlProvider apiUrlProvider;

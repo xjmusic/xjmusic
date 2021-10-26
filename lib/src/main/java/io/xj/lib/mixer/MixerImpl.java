@@ -15,10 +15,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
+import static io.xj.lib.util.Values.MICROS_PER_SECOND;
+import static io.xj.lib.util.Values.NANOS_PER_SECOND;
+
 class MixerImpl implements Mixer {
   private static final Logger log = LoggerFactory.getLogger(MixerImpl.class);
-  private static final float MICROS_PER_SECOND = 1000000;
-  private static final float NANOS_PER_SECOND = 1000 * MICROS_PER_SECOND;
   private static final int NORMALIZATION_GRAIN = 20;
   private static final int COMPRESSION_GRAIN = 20;
   // fields: output file
@@ -72,7 +73,7 @@ class MixerImpl implements Mixer {
       MathUtil.enforceMax(2, "output audio channels", outputChannels);
       outputFrameRate = config.getOutputFormat().getFrameRate();
       outputFrameSize = config.getOutputFormat().getFrameSize();
-      microsPerFrame = MICROS_PER_SECOND / outputFrameRate;
+      microsPerFrame = (float) (MICROS_PER_SECOND / outputFrameRate);
 
       log.debug(config.getLogPrefix() +
           "Did initialize mixer with " +
@@ -114,7 +115,7 @@ class MixerImpl implements Mixer {
   }
 
   @Override
-  public void mixToFile(OutputEncoder outputEncoder, String outputFilePath, Float quality) throws Exception {
+  public double mixToFile(OutputEncoder outputEncoder, String outputFilePath, Float quality) throws Exception {
     double totalSeconds = puts.values().stream()
       .map(Put::getStopAtMicros)
       .max(Long::compare)
@@ -175,6 +176,7 @@ class MixerImpl implements Mixer {
     log.debug(config.getLogPrefix() + "Will write {} bytes of output audio", totalBytes);
     new AudioStreamWriter(outBuf, quality).writeToFile(outputFilePath, config.getOutputFormat(), outputEncoder, totalFrames);
     log.debug(config.getLogPrefix() + "Did write {} OK in {}s", outputFilePath, String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
+    return totalSeconds;
   }
 
   /**
@@ -297,6 +299,7 @@ class MixerImpl implements Mixer {
 
    @param buf to normalize
    */
+  @SuppressWarnings("unused")
   private void applyNormalization(double[][] buf) {
     double normRatio = Math.min(config.getNormalizationBoostThreshold(), config.getNormalizationCeiling() / MathUtil.maxAbs(buf, NORMALIZATION_GRAIN));
     for (int i = 0; i < buf.length; i++)

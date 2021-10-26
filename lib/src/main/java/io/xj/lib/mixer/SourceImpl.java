@@ -3,16 +3,17 @@ package io.xj.lib.mixer;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.lib.util.Values;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sound.sampled.AudioFormat;
 import java.io.BufferedInputStream;
 
+import static io.xj.lib.util.Values.MICROS_PER_SECOND;
+
 /**
  models a single audio source
- Source stores a series of Samples in Channels across Time, for audio playback.
+ stores a series of Samples in Channels across Time, for audio playback.
  */
 class SourceImpl implements Source {
   private static final Logger LOG = LoggerFactory.getLogger(SourceImpl.class);
@@ -22,7 +23,6 @@ class SourceImpl implements Source {
   private final AudioFormat inputFormat;
   private final double[][] data;
   private final long inputLengthMicros;
-  private final int inputChannels;
   private final double microsPerFrame;
   private String state;
 
@@ -37,13 +37,13 @@ class SourceImpl implements Source {
     AudioStreamLoader stream = new AudioStreamLoader(inputStream);
     inputFormat = stream.getAudioFormat();
     frameRate = inputFormat.getFrameRate();
-    inputChannels = inputFormat.getChannels();
+    int inputChannels = inputFormat.getChannels();
     enforceMaxStereo(inputChannels);
-    microsPerFrame = Values.MICROS_IN_A_SECOND / frameRate;
+    microsPerFrame = MICROS_PER_SECOND / frameRate;
 
     state = LOADING;
     data = stream.loadFrames();
-    inputLengthMicros = (long) (Values.MICROS_IN_A_SECOND * stream.getActualFrames() / frameRate);
+    inputLengthMicros = (long) (MICROS_PER_SECOND * stream.getActualFrames() / frameRate);
 
     state = READY;
     LOG.debug("Did load source {}", sourceId);

@@ -17,7 +17,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import static io.xj.lib.util.Values.MICROS_IN_A_SECOND;
+import static io.xj.lib.util.Values.MICROS_PER_SECOND;
+import static io.xj.lib.util.Values.NANOS_PER_SECOND;
 
 /**
  An HTTP Live Streaming Media Segment
@@ -34,6 +35,8 @@ public class SegmentAudio {
   private final Segment segment;
   private final String shipKey;
   private final int shipSegmentLoadTimeoutMillis;
+  private final Instant endAt;
+  private final Instant beginAt;
   private Instant updated;
   private OGGVorbisDecoder ogg;
   private SegmentAudioState state;
@@ -48,6 +51,8 @@ public class SegmentAudio {
     this.segment = segment;
     shipSegmentLoadTimeoutMillis = env.getShipSegmentLoadTimeoutSeconds() * MILLIS_PER_SECOND;
     state = SegmentAudioState.Pending;
+    beginAt = Instant.parse(segment.getBeginAt()).minusNanos((long) (segment.getWaveformPreroll() * NANOS_PER_SECOND));
+    endAt = Instant.parse(segment.getEndAt()).plusNanos((long) (segment.getWaveformPostroll() * NANOS_PER_SECOND));
   }
 
   /**
@@ -69,7 +74,7 @@ public class SegmentAudio {
    */
   public boolean intersects(String shipKey, Instant from, Instant to) {
     if (!Objects.equals(shipKey, this.shipKey)) return false;
-    return from.isBefore(Instant.parse(segment.getEndAt())) && to.isAfter(Instant.parse(segment.getBeginAt()));
+    return from.isBefore(endAt) && to.isAfter(beginAt);
   }
 
   /**
@@ -108,11 +113,11 @@ public class SegmentAudio {
    @param of instant
    @return source audio frame for the specified instant
    */
-  public int getFrame(Instant of) {
+  public int getFrameIndex(Instant of) {
     return (int)
       Math.floor(getAudioFormat().getSampleRate() *
-        (Values.toEpochMicros(of) - Values.toEpochMicros(Instant.parse(segment.getBeginAt())))
-        / MICROS_IN_A_SECOND);
+        (Values.toEpochMicros(of) - Values.toEpochMicros(beginAt))
+        / MICROS_PER_SECOND);
   }
 
   /**

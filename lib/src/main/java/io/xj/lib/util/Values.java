@@ -18,11 +18,12 @@ import java.util.stream.Stream;
 public interface Values {
   double entityPositionDecimalPlaces = 2.0;
   double roundPositionMultiplier = StrictMath.pow(10.0, entityPositionDecimalPlaces);
-  float MICROS_IN_A_SECOND = 1000000;
   String K = "k";
   String EMPTY = "";
+  double MICROS_PER_SECOND = 1000000.0F;
+  double NANOS_PER_SECOND = 1000.0F * MICROS_PER_SECOND;
 
-  /**
+    /**
    Return the first value if it's non-null, else the second
 
    @param d1 to check if non-null and return

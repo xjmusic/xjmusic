@@ -19,10 +19,10 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
+import static io.xj.lib.util.Values.NANOS_PER_SECOND;
+
 class FileStoreProviderImpl implements FileStoreProvider {
   private static final Logger log = LoggerFactory.getLogger(FileStoreProviderImpl.class);
-  private static final float MICROS_PER_SECOND = 1000000.0F;
-  private static final float NANOS_PER_SECOND = 1000.0F * MICROS_PER_SECOND;
   private static final String NAME_SEPARATOR = "-";
   private final String awsDefaultRegion;
   private final String audioUploadUrl;

@@ -6,10 +6,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.api.SegmentChoiceArrangementPick;
-import io.xj.api.SegmentMessage;
-import io.xj.api.SegmentMessageType;
-import io.xj.api.SegmentType;
+import io.xj.api.*;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.mixer.Mixer;
 import io.xj.lib.mixer.MixerConfig;
@@ -21,16 +18,20 @@ import io.xj.nexus.fabricator.Fabricator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
+import static io.xj.lib.util.Values.MICROS_PER_SECOND;
+import static io.xj.lib.util.Values.NANOS_PER_SECOND;
+
 /**
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public class DubMasterImpl implements DubMaster {
-  private static final int MICROSECONDS_PER_SECOND = 1000000;
   private final Logger log = LoggerFactory.getLogger(DubMasterImpl.class);
   private final Fabricator fabricator;
   private final MixerFactory mixerFactory;
@@ -57,7 +58,7 @@ public class DubMasterImpl implements DubMaster {
    @return microseconds
    */
   private static Long toMicros(Double seconds) {
-    return (long) (seconds * MICROSECONDS_PER_SECOND);
+    return (long) (seconds * MICROS_PER_SECOND);
   }
 
   @Override
@@ -68,13 +69,16 @@ public class DubMasterImpl implements DubMaster {
       doMixerSourceLoading();
       double preroll = computePreroll();
       doMixerTargetSetting(preroll);
-      doMix();
+      var postroll = doMix() - computeLengthSeconds(fabricator.getSegment()) - preroll;
       reportWarnings();
       report();
 
       // write updated segment with waveform preroll
-      fabricator.updateSegment(fabricator.getSegment()
-        .waveformPreroll(preroll));
+      var segment =
+        fabricator.getSegment()
+          .waveformPreroll(preroll)
+          .waveformPostroll(postroll);
+      fabricator.updateSegment(segment);
       fabricator.done();
 
     } catch (Exception e) {
@@ -82,6 +86,16 @@ public class DubMasterImpl implements DubMaster {
         String.format("Failed to do %s-type MasterDub for segment #%s",
           type, fabricator.getSegment().getId()), e);
     }
+  }
+
+  /**
+   Compute the length of a segment, in seconds double floating-point
+
+   @param segment for which to compute length between start and end
+   @return length in seconds double floating-point
+   */
+  private double computeLengthSeconds(Segment segment) {
+    return Duration.between(Instant.parse(segment.getBeginAt()), Instant.parse(segment.getEndAt())).toNanos() / NANOS_PER_SECOND;
   }
 
   /**
@@ -169,11 +183,11 @@ public class DubMasterImpl implements DubMaster {
   }
 
   /**
-   MasterDub implements Mixer module to mix final output to waveform streamed directly to Amazon S3@param preroll
+   MasterDub implements Mixer module to mix final output to waveform streamed directly to Amazon S3@return
    */
-  private void doMix() throws Exception {
+  private double doMix() throws Exception {
     float quality = (float) fabricator.getTemplateConfig().getOutputEncodingQuality();
-    mixer().mixToFile(OutputEncoder.parse(fabricator.getTemplateConfig().getOutputContainer()), fabricator.getFullQualityAudioOutputFilePath(), quality);
+    return mixer().mixToFile(OutputEncoder.parse(fabricator.getTemplateConfig().getOutputContainer()), fabricator.getFullQualityAudioOutputFilePath(), quality);
   }
 
   /**

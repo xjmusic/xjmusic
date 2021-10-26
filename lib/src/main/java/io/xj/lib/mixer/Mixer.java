@@ -63,9 +63,10 @@ public interface Mixer {
 
    @param outputFilePath path
    @param quality        of output (if lossy encoding)
+   @return total # of seconds mixed (double floating-point)
    @throws MixerException if something goes wrong
    */
-  void mixToFile(OutputEncoder outputEncoder, String outputFilePath, Float quality) throws Exception;
+  double mixToFile(OutputEncoder outputEncoder, String outputFilePath, Float quality) throws Exception;
 
   /**
    Get the current count of all sources.

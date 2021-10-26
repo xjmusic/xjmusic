@@ -34,7 +34,6 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static io.xj.lib.util.Files.getFileSize;
 import static io.xj.lib.util.Text.formatMultiline;
@@ -161,38 +160,19 @@ public class ChunkPrinterImpl implements ChunkPrinter {
         break;
     }
 
-    if (!isSourceAudioReady()) return;
-
     var audios = getAllIntersectingAudios();
+    if (!areAllReady(audios)) return;
 
-    // fail if any of the source audios are not ready
-    var notReady = audios.stream()
-      .filter(audio -> !SegmentAudioState.Ready.equals(audio.getState()))
-      .map(SegmentAudio::getId)
-      .collect(Collectors.toList());
-    if (!notReady.isEmpty())
-      throw new ShipException(String.format("Segment%s[%s] %s not actually ready!",
-        1 < notReady.size() ? "s" : "",
-        CSV.from(notReady),
-        1 < notReady.size() ? "are" : "is"));
-
-    // use any segment to determine audio metadata
-    // NOTE: INCONSISTENCY AMONG SOURCE AUDIO RATES WILL RESULT IN A MALFORMED OUTPUT
-    var ref = audios.stream().findAny()
-      .orElseThrow(() -> new ShipException("No Segment Audio found!"))
-      .getAudioFormat();
-    int rate = (int) ref.getSampleRate();
-    int channels = ref.getChannels();
-    output = new double[rate * shipChunkSeconds][AUDIO_CHANNELS];
+    output = new double[chunk.getTemplateConfig().getOutputFrameRate() * shipChunkSeconds][AUDIO_CHANNELS];
 
     // get the buffer from each audio and lay it into the output buffer
     LOG.debug("will mix source audio to buffer");
     chunkManager.put(chunk.setState(ChunkState.Mixing));
     for (var audio : audios) {
-      var initialSourceFrame = audio.getFrame(chunk.getFromInstant());
-      for (int f = 0; f < rate * shipChunkSeconds; f++)
-        for (var c = 0; c < channels; c++)
-          output[f][c] += read(initialSourceFrame + f, c, audio);
+      var initialFrameIndex = audio.getFrameIndex(chunk.getFromInstant());
+      for (int f = 0; f < chunk.getTemplateConfig().getOutputFrameRate() * shipChunkSeconds; f++)
+        for (var c = 0; c < chunk.getTemplateConfig().getOutputChannels(); c++)
+          output[f][c] += read(initialFrameIndex + f, c, audio);
     }
 
     LOG.debug("will write mixing buffer to WAV");
@@ -367,13 +347,12 @@ public class ChunkPrinterImpl implements ChunkPrinter {
 
    @return true if all segments are ready
    */
-  private boolean isSourceAudioReady() {
+  private boolean areAllReady(Collection<SegmentAudio> audios) {
     List<String> ready = Lists.newArrayList();
     List<String> notReady = Lists.newArrayList();
-    var audios = getAllIntersectingAudios();
 
     if (audios.isEmpty()) {
-      LOG.warn("waiting on segments");
+      LOG.debug("waiting on segments");
       return false;
     }
 

@@ -45,6 +45,7 @@ public enum NexusTopology {
       .withAttribute("shipKey")
       .withAttribute("outputEncoder")
       .withAttribute("waveformPreroll")
+      .withAttribute("waveformPostroll")
       .withAttribute("type")
       .belongsTo(Chain.class)
       .hasMany(SegmentChoice.class)

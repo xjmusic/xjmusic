@@ -31,6 +31,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.*;
+import static io.xj.lib.util.Values.NANOS_PER_SECOND;
 
 /**
  [#165954673] Integration tests use shared scenario fixtures as much as possible
@@ -43,7 +44,6 @@ public class NexusIntegrationTestingFixtures {
   private static final Logger log = LoggerFactory.getLogger(NexusIntegrationTestingFixtures.class);
   private static final double RANDOM_VALUE_FROM = 0.3;
   private static final double RANDOM_VALUE_TO = 0.8;
-  private static final float NANOS_PER_SECOND = 1000000000;
 
   // These are fully exposed (no getters/setters) for ease of use in testing
   public Account account1;
@@ -346,6 +346,8 @@ public class NexusIntegrationTestingFixtures {
     segment.setDensity(density);
     segment.setTempo(tempo);
     segment.setStorageKey(shipKey);
+    segment.setWaveformPreroll(0.0);
+    segment.setWaveformPostroll(0.0);
 
     if (Objects.nonNull(endAt))
       segment.endAt(Values.formatIso8601UTC(endAt));

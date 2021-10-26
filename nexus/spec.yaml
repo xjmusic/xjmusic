@@ -116,6 +116,9 @@ components:
         waveformPreroll:
           type: number
           format: double
+        waveformPostroll:
+          type: number
+          format: double
         outputEncoder:
           type: string
         delta:

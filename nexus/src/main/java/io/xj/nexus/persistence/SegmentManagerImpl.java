@@ -453,6 +453,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
     Values.require(record.getChainId(), "Chain ID");
     Values.require(record.getOffset(), "Offset");
     if (Values.isEmpty(record.getWaveformPreroll())) record.setWaveformPreroll(0.0);
+    if (Values.isEmpty(record.getWaveformPostroll())) record.setWaveformPostroll(0.0);
     if (Values.isEmpty(record.getDelta())) record.setDelta(0);
     Values.require(record.getType(), "Type");
     Values.require(record.getState(), "State");

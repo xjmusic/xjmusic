@@ -45,6 +45,8 @@ public class SegmentAudioTest {
       120.0,
       "seg123.ogg",
       "wav");
+    segment1.setWaveformPreroll(1.7306228);
+    segment1.setWaveformPostroll(1.205893);
     var injector = Guice.createInjector(new SourceModule());
     factory = injector.getInstance(SourceFactory.class);
     subject = factory.segmentAudio(chain1.getShipKey(), segment1);
@@ -86,6 +88,10 @@ public class SegmentAudioTest {
     assertTrue(subject.intersects(chain1.getShipKey(), Instant.parse("2017-12-12T01:00:00.000000Z"), Instant.parse("2017-12-12T01:00:12.000000Z")));
     assertTrue(subject.intersects(chain1.getShipKey(), Instant.parse("2017-12-12T01:00:10.000000Z"), Instant.parse("2017-12-12T01:00:30.000000Z")));
     assertFalse(subject.intersects(chain1.getShipKey(), Instant.parse("2017-12-12T01:00:04.000000Z"), Instant.parse("2017-12-12T01:00:05.000000Z")));
-    assertFalse(subject.intersects(chain1.getShipKey(), Instant.parse("2017-12-12T01:00:17.000000Z"), Instant.parse("2017-12-12T01:00:21.000000Z")));
+    assertFalse(subject.intersects(chain1.getShipKey(), Instant.parse("2017-12-12T01:00:18.000000Z"), Instant.parse("2017-12-12T01:00:21.000000Z")));
+    // true because of waveform pre-roll
+    assertTrue(subject.intersects(chain1.getShipKey(), Instant.parse("2017-12-12T01:00:01.000000Z"), Instant.parse("2017-12-12T01:00:07.000000Z")));
+    // true because of waveform post-roll
+    assertTrue(subject.intersects(chain1.getShipKey(), Instant.parse("2017-12-12T01:00:17.000000Z"), Instant.parse("2017-12-12T01:00:26.000000Z")));
   }
 }

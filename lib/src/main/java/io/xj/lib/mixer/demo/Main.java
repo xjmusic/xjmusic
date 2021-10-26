@@ -15,9 +15,6 @@ import java.time.Duration;
 
  @author Charney Kaye */
 public interface Main {
-  long attackMicros = 10000;
-  long releaseMicros = 50000;
-
   Duration preRoll = Duration.ofSeconds(1);
 
   String outputFilePath = "/tmp/OUTPUT-MY-FILE.wav";
@@ -85,14 +82,14 @@ public interface Main {
         (outputChannels * outputSampleBits / 8), outputFrameRate, false)
     ));
 
-    // setup the sources
+    // set up the sources
     for (String sourceName : sources) {
       //Get file from resources folder
       InternalResource internalResource = new InternalResource(filePrefix + sourceName + fileSuffix);
       demoMixer.loadSource(sourceName, new BufferedInputStream(new FileInputStream(internalResource.getFile())));
     }
 
-    // setup the music
+    // set up the music
     int iL = demoSequence.length;
     for (int n = 0; loopTimes > n; n++) {
       for (int i = 0; i < iL; i++) {

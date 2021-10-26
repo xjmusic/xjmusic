@@ -39,12 +39,12 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static io.xj.lib.util.Values.NANOS_PER_SECOND;
+
 /**
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 class FabricatorImpl implements Fabricator {
-  private static final double MICROS_PER_SECOND = 1000000.0F;
-  private static final double NANOS_PER_SECOND = 1000.0F * MICROS_PER_SECOND;
   private static final String KEY_VOICE_NOTE_TEMPLATE = "voice-%s_note-%s";
   private static final String KEY_VOICE_TRACK_TEMPLATE = "voice-%s_track-%s";
   private static final String NAME_SEPARATOR = "-";
