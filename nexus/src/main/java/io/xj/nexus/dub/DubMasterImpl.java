@@ -199,27 +199,28 @@ public class DubMasterImpl implements DubMaster {
   private Mixer mixer() throws Exception {
     if (Objects.isNull(mixer)) {
       MixerConfig config = new MixerConfig(fabricator.getOutputAudioFormat())
-        .setLogPrefix(String.format("[segId=%s] ", fabricator.getSegment().getId()))
-        .setNormalizationCeiling(fabricator.getTemplateConfig().getMixerNormalizationCeiling())
-        .setDSPBufferSize(fabricator.getTemplateConfig().getMixerDspBufferSize())
-        .setNormalizationBoostThreshold(fabricator.getTemplateConfig().getMixerNormalizationBoostThreshold())
+        .setCompressAheadSeconds(fabricator.getTemplateConfig().getMixerCompressAheadSeconds())
+        .setCompressDecaySeconds(fabricator.getTemplateConfig().getMixerCompressDecaySeconds())
         .setCompressRatioMax(fabricator.getTemplateConfig().getMixerCompressRatioMax())
         .setCompressRatioMin(fabricator.getTemplateConfig().getMixerCompressRatioMin())
-        .setHighpassThresholdHz(fabricator.getTemplateConfig().getMixerHighpassThresholdHz())
-        .setLowpassThresholdHz(fabricator.getTemplateConfig().getMixerLowpassThresholdHz())
         .setCompressToAmplitude(fabricator.getTemplateConfig().getMixerCompressToAmplitude())
-        .setCompressAheadSeconds(fabricator.getTemplateConfig().getMixerCompressAheadSeconds())
-        .setCompressDecaySeconds(fabricator.getTemplateConfig().getMixerCompressDecaySeconds());
+        .setDSPBufferSize(fabricator.getTemplateConfig().getMixerDspBufferSize())
+        .setHighpassThresholdHz(fabricator.getTemplateConfig().getMixerHighpassThresholdHz())
+        .setLogPrefix(String.format("[segId=%s] ", fabricator.getSegment().getId()))
+        .setLowpassThresholdHz(fabricator.getTemplateConfig().getMixerLowpassThresholdHz())
+        .setNormalizationBoostThreshold(fabricator.getTemplateConfig().getMixerNormalizationBoostThreshold())
+        .setNormalizationCeiling(fabricator.getTemplateConfig().getMixerNormalizationCeiling());
 
       mixer = mixerFactory.createMixer(config);
     }
 
-    mixer.setBusLevel("Drum", fabricator.getTemplateConfig().getDubMasterVolumeInstrumentTypePercussive());
     mixer.setBusLevel("Bass", fabricator.getTemplateConfig().getDubMasterVolumeInstrumentTypeBass());
+    mixer.setBusLevel("Drum", fabricator.getTemplateConfig().getDubMasterVolumeInstrumentTypeDrum());
     mixer.setBusLevel("Pad", fabricator.getTemplateConfig().getDubMasterVolumeInstrumentTypePad());
+    mixer.setBusLevel("PercLoop", fabricator.getTemplateConfig().getDubMasterVolumeInstrumentTypePercLoop());
+    mixer.setBusLevel("Stab", fabricator.getTemplateConfig().getDubMasterVolumeInstrumentTypeStab());
     mixer.setBusLevel("Sticky", fabricator.getTemplateConfig().getDubMasterVolumeInstrumentTypeSticky());
     mixer.setBusLevel("Stripe", fabricator.getTemplateConfig().getDubMasterVolumeInstrumentTypeStripe());
-    mixer.setBusLevel("Stab", fabricator.getTemplateConfig().getDubMasterVolumeInstrumentTypeStab());
 
     return mixer;
   }

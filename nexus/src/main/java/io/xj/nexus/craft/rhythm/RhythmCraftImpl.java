@@ -72,7 +72,9 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
       .collect(Collectors.toList());
     precomputeDeltas(choiceFilter, choiceIndexProvider, programNames,
       fabricator.getTemplateConfig().getDeltaArcRhythmPlateauRatio(),
-      fabricator.getTemplateConfig().getDeltaArcRhythmPlateauShiftRatio());
+      fabricator.getTemplateConfig().getDeltaArcRhythmPlateauShiftRatio(),
+      fabricator.getTemplateConfig().getDeltaArcRhythmLayersIncoming(),
+      fabricator.getTemplateConfig().getDeltaArcRhythmLayersOutgoing());
 
     // rhythm sequence is selected at random of the current program
     // FUTURE: [#166855956] Rhythm Program with multiple Sequences

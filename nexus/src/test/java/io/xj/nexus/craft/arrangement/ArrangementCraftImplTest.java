@@ -79,7 +79,7 @@ public class ArrangementCraftImplTest {
     when(fabricator.getType()).thenReturn(SegmentType.NEXTMAIN);
     ArrangementCraftImpl.ChoiceIndexProvider choiceIndexProvider = SegmentChoice::getInstrumentType;
     Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> ProgramType.Detail.toString().equals(choice.getProgramType());
-    subject.precomputeDeltas(choiceFilter, choiceIndexProvider, DETAIL_INSTRUMENT_TYPES, 0.38, 0.62);
+    subject.precomputeDeltas(choiceFilter, choiceIndexProvider, DETAIL_INSTRUMENT_TYPES, 0.38, 0.62, 1, 1);
   }
 
   @Test

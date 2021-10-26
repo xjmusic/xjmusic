@@ -25,13 +25,18 @@ public class TemplateConfig {
   public static final String DEFAULT =
     """
       choiceDeltaEnabled = true
+      deltaArcDetailLayersIncoming = 2
+      deltaArcDetailLayersOutgoing = 2
       deltaArcDetailPlateauRatio = 0.38
       deltaArcDetailPlateauShiftRatio = 0.62
+      deltaArcRhythmLayersIncoming = 1
+      deltaArcRhythmLayersOutgoing = 1
       deltaArcRhythmPlateauRatio = 0.62
       deltaArcRhythmPlateauShiftRatio = 0.38
       dubMasterVolumeInstrumentTypeBass = 1.0
+      dubMasterVolumeInstrumentTypeDrum = 1.0
       dubMasterVolumeInstrumentTypePad = 1.0
-      dubMasterVolumeInstrumentTypePercussive = 1.0
+      dubMasterVolumeInstrumentTypePercLoop = 1.0
       dubMasterVolumeInstrumentTypeStab = 1.0
       dubMasterVolumeInstrumentTypeSticky = 1.0
       dubMasterVolumeInstrumentTypeStripe = 1.0
@@ -69,29 +74,34 @@ public class TemplateConfig {
   private final double deltaArcRhythmPlateauRatio;
   private final double deltaArcRhythmPlateauShiftRatio;
   private final double dubMasterVolumeInstrumentTypeBass;
+  private final double dubMasterVolumeInstrumentTypeDrum;
   private final double dubMasterVolumeInstrumentTypePad;
-  private final double dubMasterVolumeInstrumentTypePercussive;
+  private final double dubMasterVolumeInstrumentTypePercLoop;
   private final double dubMasterVolumeInstrumentTypeStab;
   private final double dubMasterVolumeInstrumentTypeSticky;
   private final double dubMasterVolumeInstrumentTypeStripe;
-  private final int mainProgramLengthMaxDelta;
   private final double mixerCompressAheadSeconds;
   private final double mixerCompressDecaySeconds;
   private final double mixerCompressRatioMax;
   private final double mixerCompressRatioMin;
   private final double mixerCompressToAmplitude;
-  private final int mixerDspBufferSize;
-  private final int mixerHighpassThresholdHz;
-  private final int mixerLowpassThresholdHz;
   private final double mixerNormalizationBoostThreshold;
   private final double mixerNormalizationCeiling;
   private final double outputEncodingQuality;
-  private final int percLoopFixedSizeBeats;
-  private final int percLoopLayerMax;
-  private final int percLoopLayerMin;
+  private final int deltaArcDetailLayersIncoming;
+  private final int deltaArcDetailLayersOutgoing;
+  private final int deltaArcRhythmLayersIncoming;
+  private final int deltaArcRhythmLayersOutgoing;
+  private final int mainProgramLengthMaxDelta;
+  private final int mixerDspBufferSize;
+  private final int mixerHighpassThresholdHz;
+  private final int mixerLowpassThresholdHz;
   private final int outputChannels;
   private final int outputFrameRate;
   private final int outputSampleBits;
+  private final int percLoopFixedSizeBeats;
+  private final int percLoopLayerMax;
+  private final int percLoopLayerMin;
 
   /**
    Get a template config from only the default config
@@ -126,13 +136,18 @@ public class TemplateConfig {
         ConfigFactory.parseString(DEFAULT) :
         ConfigFactory.parseString(configText).withFallback(ConfigFactory.parseString(DEFAULT));
       choiceDeltaEnabled = config.getBoolean("choiceDeltaEnabled");
+      deltaArcDetailLayersIncoming = config.getInt("deltaArcDetailLayersIncoming");
+      deltaArcDetailLayersOutgoing = config.getInt("deltaArcDetailLayersOutgoing");
       deltaArcDetailPlateauRatio = config.getDouble("deltaArcDetailPlateauRatio");
       deltaArcDetailPlateauShiftRatio = config.getDouble("deltaArcDetailPlateauShiftRatio");
+      deltaArcRhythmLayersIncoming = config.getInt("deltaArcRhythmLayersIncoming");
+      deltaArcRhythmLayersOutgoing = config.getInt("deltaArcRhythmLayersOutgoing");
       deltaArcRhythmPlateauRatio = config.getDouble("deltaArcRhythmPlateauRatio");
       deltaArcRhythmPlateauShiftRatio = config.getDouble("deltaArcRhythmPlateauShiftRatio");
       dubMasterVolumeInstrumentTypeBass = config.getDouble("dubMasterVolumeInstrumentTypeBass");
+      dubMasterVolumeInstrumentTypeDrum = config.getDouble("dubMasterVolumeInstrumentTypeDrum");
       dubMasterVolumeInstrumentTypePad = config.getDouble("dubMasterVolumeInstrumentTypePad");
-      dubMasterVolumeInstrumentTypePercussive = config.getDouble("dubMasterVolumeInstrumentTypePercussive");
+      dubMasterVolumeInstrumentTypePercLoop = config.getDouble("dubMasterVolumeInstrumentTypePercLoop");
       dubMasterVolumeInstrumentTypeStab = config.getDouble("dubMasterVolumeInstrumentTypeStab");
       dubMasterVolumeInstrumentTypeSticky = config.getDouble("dubMasterVolumeInstrumentTypeSticky");
       dubMasterVolumeInstrumentTypeStripe = config.getDouble("dubMasterVolumeInstrumentTypeStripe");
@@ -168,13 +183,18 @@ public class TemplateConfig {
   public String toString() {
     Map<String, String> config = Maps.newHashMap();
     config.put("choiceDeltaEnabled", String.valueOf(choiceDeltaEnabled));
+    config.put("deltaArcDetailLayersIncoming", String.valueOf(deltaArcDetailLayersIncoming));
+    config.put("deltaArcDetailLayersOutgoing", String.valueOf(deltaArcDetailLayersOutgoing));
     config.put("deltaArcDetailPlateauRatio", String.valueOf(deltaArcDetailPlateauRatio));
     config.put("deltaArcDetailPlateauShiftRatio", String.valueOf(deltaArcDetailPlateauShiftRatio));
+    config.put("deltaArcRhythmLayersIncoming", String.valueOf(deltaArcRhythmLayersIncoming));
+    config.put("deltaArcRhythmLayersOutgoing", String.valueOf(deltaArcRhythmLayersOutgoing));
     config.put("deltaArcRhythmPlateauRatio", String.valueOf(deltaArcRhythmPlateauRatio));
     config.put("deltaArcRhythmPlateauShiftRatio", String.valueOf(deltaArcRhythmPlateauShiftRatio));
     config.put("dubMasterVolumeInstrumentTypeBass", String.valueOf(dubMasterVolumeInstrumentTypeBass));
+    config.put("dubMasterVolumeInstrumentTypeDrum", String.valueOf(dubMasterVolumeInstrumentTypeDrum));
     config.put("dubMasterVolumeInstrumentTypePad", String.valueOf(dubMasterVolumeInstrumentTypePad));
-    config.put("dubMasterVolumeInstrumentTypePercussive", String.valueOf(dubMasterVolumeInstrumentTypePercussive));
+    config.put("dubMasterVolumeInstrumentTypePercLoop", String.valueOf(dubMasterVolumeInstrumentTypePercLoop));
     config.put("dubMasterVolumeInstrumentTypeStab", String.valueOf(dubMasterVolumeInstrumentTypeStab));
     config.put("dubMasterVolumeInstrumentTypeSticky", String.valueOf(dubMasterVolumeInstrumentTypeSticky));
     config.put("dubMasterVolumeInstrumentTypeStripe", String.valueOf(dubMasterVolumeInstrumentTypeStripe));
@@ -228,6 +248,20 @@ public class TemplateConfig {
   }
 
   /**
+   @return the number of delta arc detail layers incoming each segment
+   */
+  public int getDeltaArcDetailLayersIncoming() {
+    return deltaArcDetailLayersIncoming;
+  }
+
+  /**
+   @return the number of delta arc detail layers outgoing each segment
+   */
+  public int getDeltaArcDetailLayersOutgoing() {
+    return deltaArcDetailLayersOutgoing;
+  }
+
+  /**
    @return the plateau ratio of rhythm-layer detail arcs
    */
   public double getDeltaArcRhythmPlateauRatio() {
@@ -242,10 +276,17 @@ public class TemplateConfig {
   }
 
   /**
-   @return ratio of amplitude to dub audio for Drum-type instruments
+   @return the number of delta arc rhythm layers incoming each segment
    */
-  public double getDubMasterVolumeInstrumentTypePercussive() {
-    return dubMasterVolumeInstrumentTypePercussive;
+  public int getDeltaArcRhythmLayersIncoming() {
+    return deltaArcRhythmLayersIncoming;
+  }
+
+  /**
+   @return the number of delta arc rhythm layers outgoing each segment
+   */
+  public int getDeltaArcRhythmLayersOutgoing() {
+    return deltaArcRhythmLayersOutgoing;
   }
 
   /**
@@ -256,10 +297,31 @@ public class TemplateConfig {
   }
 
   /**
+   @return ratio of amplitude to dub audio for Drum-type instruments
+   */
+  public double getDubMasterVolumeInstrumentTypeDrum() {
+    return dubMasterVolumeInstrumentTypeDrum;
+  }
+
+  /**
    @return ratio of amplitude to dub audio for Pad-type instruments
    */
   public double getDubMasterVolumeInstrumentTypePad() {
     return dubMasterVolumeInstrumentTypePad;
+  }
+
+  /**
+   @return ratio of amplitude to dub audio for PercLoop-type instruments
+   */
+  public double getDubMasterVolumeInstrumentTypePercLoop() {
+    return dubMasterVolumeInstrumentTypePercLoop;
+  }
+
+  /**
+   @return ratio of amplitude to dub audio for Stab-type instruments
+   */
+  public double getDubMasterVolumeInstrumentTypeStab() {
+    return dubMasterVolumeInstrumentTypeStab;
   }
 
   /**
@@ -274,13 +336,6 @@ public class TemplateConfig {
    */
   public double getDubMasterVolumeInstrumentTypeStripe() {
     return dubMasterVolumeInstrumentTypeStripe;
-  }
-
-  /**
-   @return ratio of amplitude to dub audio for Stab-type instruments
-   */
-  public double getDubMasterVolumeInstrumentTypeStab() {
-    return dubMasterVolumeInstrumentTypeStab;
   }
 
   /**

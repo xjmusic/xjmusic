@@ -16,6 +16,7 @@ import io.xj.lib.music.NoteRange;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.TremendouslyRandom;
+import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.fabricator.EntityScorePicker;
 import io.xj.nexus.fabricator.FabricationWrapperImpl;
@@ -199,7 +200,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
    @throws NexusException on failure
    */
-  protected void precomputeDeltas(Predicate<SegmentChoice> choiceFilter, ChoiceIndexProvider choiceIndexProvider, Collection<String> indexes, double plateauRatio, double plateauShiftRatio) throws NexusException {
+  protected void precomputeDeltas(Predicate<SegmentChoice> choiceFilter, ChoiceIndexProvider choiceIndexProvider, Collection<String> indexes, double plateauRatio, double plateauShiftRatio, int numLayersIncoming, int numLayersOutgoing) throws NexusException {
     this.choiceIndexProvider = choiceIndexProvider;
     deltaIns.clear();
     deltaOuts.clear();
@@ -230,9 +231,9 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       }
 
       case INITIAL -> {
-        // randomly override one incoming (deltaIn unlimited) and one outgoing (deltaOut unlimited)
-        deltaIns.put(randomFrom(order), DELTA_UNLIMITED);
-        deltaOuts.put(randomFrom(order), DELTA_UNLIMITED);
+        // randomly override N incoming (deltaIn unlimited) and N outgoing (deltaOut unlimited)
+        Values.randomFrom(order, numLayersIncoming).forEach(layer -> deltaIns.put(layer, DELTA_UNLIMITED));
+        Values.randomFrom(order, numLayersOutgoing).forEach(layer -> deltaOuts.put(layer, DELTA_UNLIMITED));
       }
 
       case CONTINUE -> {
@@ -259,7 +260,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
       case NEXTMAIN, NEXTMACRO -> {
         // randomly override one outgoing (deltaOut unlimited)
-        deltaOuts.put(randomFrom(order), DELTA_UNLIMITED);
+        deltaOuts.put(Values.randomFrom(order), DELTA_UNLIMITED);
 
         // select one incoming (deltaIn unlimited) based on whichever was the outgoing (deltaOut unlimited) in the segments of the previous main program
         var priorOutgoing = fabricator.retrospective().getChoices().stream()
@@ -276,20 +277,10 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
         deltaIns.put(
           priorOutgoing.isPresent()
             ? choiceIndexProvider.get(priorOutgoing.get())
-            : randomFrom(order),
+            : Values.randomFrom(order),
           DELTA_UNLIMITED);
       }
     }
-  }
-
-  /**
-   Get a random string from the collection
-
-   @param from which to get random string
-   @return random string from collection
-   */
-  private String randomFrom(Collection<String> from) {
-    return (String) from.toArray()[TremendouslyRandom.zeroToLimit(from.size())];
   }
 
   /**

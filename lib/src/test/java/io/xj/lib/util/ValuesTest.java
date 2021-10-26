@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import org.junit.Test;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
@@ -129,5 +130,17 @@ public class ValuesTest {
   @Test
   public void k() {
     assertEquals("128k", Values.k(128000));
+  }
+
+  @Test
+  public void randomFrom() {
+    var input = List.of("A", "B", "C");
+    assertTrue(input.contains(Values.randomFrom(input)));
+  }
+
+  @Test
+  public void randomFrom_multiple() {
+    var input = List.of("A", "B", "C", "D", "E", "F", "G", "H", "I", "J");
+    assertTrue(input.containsAll(Values.randomFrom(input, 4)));
   }
 }

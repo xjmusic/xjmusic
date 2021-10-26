@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.util;
 
+import com.google.api.client.util.Lists;
 import com.google.common.base.Strings;
 
 import javax.annotation.Nullable;
@@ -8,10 +9,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -23,7 +21,7 @@ public interface Values {
   double MICROS_PER_SECOND = 1000000.0F;
   double NANOS_PER_SECOND = 1000.0F * MICROS_PER_SECOND;
 
-    /**
+  /**
    Return the first value if it's non-null, else the second
 
    @param d1 to check if non-null and return
@@ -291,7 +289,38 @@ public interface Values {
     return of.toEpochMilli() * 1000 + of.getNano() / 1000;
   }
 
-  static String k(int bitrate) {
-    return String.format("%d%s", (int) Math.floor((double) bitrate / 1000), K);
+  /**
+   Get the "kilos" representation of an integer, as in 128k for 128000
+
+   @param value for which to get kilos
+   @return kilos representation
+   */
+  static String k(int value) {
+    return String.format("%d%s", (int) Math.floor((double) value / 1000), K);
+  }
+
+  /**
+   Get a random string from the collection
+
+   @param from which to get random string
+   @return random string from collection
+   */
+  static String randomFrom(Collection<String> from) {
+    return (String) from.toArray()[TremendouslyRandom.zeroToLimit(from.size())];
+  }
+
+  /**
+   Get N number of the member strings from the collection.
+   Don't repeat a choice.
+
+   @param from which to get random strings
+   @param num  number of strings to get
+   @return random strings from collection
+   */
+  static List<String> randomFrom(Collection<String> from, int num) {
+    var working = Lists.newArrayList(from);
+    while (num < working.size())
+      working.remove((int) TremendouslyRandom.zeroToLimit(working.size()));
+    return working;
   }
 }
