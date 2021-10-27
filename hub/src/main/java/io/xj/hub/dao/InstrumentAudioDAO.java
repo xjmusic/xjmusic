@@ -13,12 +13,13 @@ public interface InstrumentAudioDAO extends DAO<InstrumentAudio> {
   /**
    Generate an Upload policy to upload the corresponding file to 3rd-party storage (e.g. Amazon S3)
 
-   @param hubAccess control
-   @param id        of audio
    @return retrieved record
    @throws DAOException on failure
+   @param hubAccess control
+   @param id        of audio
+   @param extension of audio file
    */
-  Map<String, String> authorizeUpload(HubAccess hubAccess, UUID id) throws DAOException, FileStoreException;
+  Map<String, String> authorizeUpload(HubAccess hubAccess, UUID id, String extension) throws DAOException, FileStoreException;
 
   /**
    Provide an entity containing some new properties, but otherwise clone everything of a source instrumentAudio, of new record, and return it.

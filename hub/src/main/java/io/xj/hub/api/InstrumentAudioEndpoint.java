@@ -73,9 +73,9 @@ public class InstrumentAudioEndpoint extends HubJsonapiEndpoint {
   @GET
   @Path("{id}/upload")
   @RolesAllowed(ARTIST)
-  public Response uploadOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response uploadOne(@Context ContainerRequestContext crc, @PathParam("id") String id, @QueryParam("extension") String extension) {
     try {
-      Map<String, String> result = dao().authorizeUpload(HubAccess.fromContext(crc), UUID.fromString(id));
+      Map<String, String> result = dao().authorizeUpload(HubAccess.fromContext(crc), UUID.fromString(id), extension);
       if (null != result) {
         return Response
           .accepted(payloadFactory.serialize(result))

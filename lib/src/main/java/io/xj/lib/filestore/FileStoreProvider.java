@@ -21,10 +21,11 @@ public interface FileStoreProvider {
    Generate a new key of an object in AWS file storage (S3)
    [#
 
-   @param prefix of the key
    @return key
+   @param prefix of the key
+   @param extension of the key
    */
-  String generateKey(String prefix);
+  String generateKey(String prefix, String extension);
 
   /**
    Get the URL to upload an object to AWS file storage (S3)

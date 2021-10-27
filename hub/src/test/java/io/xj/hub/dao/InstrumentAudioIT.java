@@ -106,7 +106,7 @@ public class InstrumentAudioIT {
 
     var result = testDAO.create(hubAccess, inputData);
 
-    verify(fileStoreProvider, times(0)).generateKey("instrument-" + fake.instrument202.getId() + "-audio");
+    verify(fileStoreProvider, times(0)).generateKey("instrument-" + fake.instrument202.getId() + "-audio", "wav");
     assertNotNull(result);
     assertEquals(fake.instrument201.getId(), result.getInstrumentId());
     assertEquals("maracas", result.getName());
@@ -140,7 +140,7 @@ public class InstrumentAudioIT {
     var result = testDAO.create(
       hubAccess, inputData);
 
-    verify(fileStoreProvider, times(0)).generateKey("instrument-" + fake.instrument202.getId() + "-audio");
+    verify(fileStoreProvider, times(0)).generateKey("instrument-" + fake.instrument202.getId() + "-audio", "wav");
     assertNull(result.getWaveformKey());
   }
 
@@ -184,7 +184,7 @@ public class InstrumentAudioIT {
 
     when(fileStoreProvider.generateAudioUploadPolicy())
       .thenReturn(new S3UploadPolicy("MyId", "MySecret", "bucket-owner-is-awesome", "xj-audio-test", "", 5));
-    when(fileStoreProvider.generateKey("instrument-" + fake.instrument202.getId() + "-audio"))
+    when(fileStoreProvider.generateKey("instrument-" + fake.instrument202.getId() + "-audio", "wav"))
       .thenReturn("instrument-" + fake.instrument202.getId() + "-audio-123456789.wav");
     when(fileStoreProvider.getUploadURL())
       .thenReturn("https://coconuts.com");
@@ -195,7 +195,7 @@ public class InstrumentAudioIT {
     when(fileStoreProvider.getAudioUploadACL())
       .thenReturn("bucket-owner-is-awesome");
 
-    Map<String, String> result = testDAO.authorizeUpload(hubAccess, fake.audio2.getId());
+    Map<String, String> result = testDAO.authorizeUpload(hubAccess, fake.audio2.getId(), "wav");
 
     assertNotNull(result);
     assertEquals("instrument-" + fake.instrument202.getId() + "-audio-123456789.wav", result.get("waveformKey"));

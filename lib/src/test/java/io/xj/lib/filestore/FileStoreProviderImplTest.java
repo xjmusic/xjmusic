@@ -53,9 +53,10 @@ public class FileStoreProviderImplTest {
 
   @Test
   public void generateKey() {
-    String url = fileStoreProvider.generateKey("file-name");
+    String result = fileStoreProvider.generateKey("file-name", "wav");
 
-    assertContains(url);
+    assertTrue("Contains file-name-", result.contains("file-name-"));
+    assertTrue("Contains .wav", result.contains(".wav"));
   }
 
   @Test
@@ -63,13 +64,6 @@ public class FileStoreProviderImplTest {
     String url = fileStoreProvider.getUploadURL();
 
     assertEquals("https://s3.amazonaws.com/test-bucket/", url);
-  }
-
-  /**
-   Assert result contains@param actual           result to search for contained
-   */
-  private void assertContains(String actual) {
-    assertTrue(String.format("Contains '%s'", "file-name-"), actual.contains("file-name-"));
   }
 
 }

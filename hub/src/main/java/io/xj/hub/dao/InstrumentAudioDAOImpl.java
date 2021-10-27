@@ -67,13 +67,13 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
   }
 
   @Override
-  public Map<String, String> authorizeUpload(HubAccess hubAccess, UUID id) throws DAOException, FileStoreException {
+  public Map<String, String> authorizeUpload(HubAccess hubAccess, UUID id, String extension) throws DAOException, FileStoreException {
     var entity = readOne(dbProvider.getDSL(), hubAccess, id);
 
     Map<String, String> uploadAuthorization = Maps.newConcurrentMap();
     S3UploadPolicy uploadPolicy = fileStoreProvider.generateAudioUploadPolicy();
 
-    uploadAuthorization.put(KEY_WAVEFORM_KEY, generateKey(entity.getInstrumentId()));
+    uploadAuthorization.put(KEY_WAVEFORM_KEY, generateKey(entity.getInstrumentId(), extension));
     uploadAuthorization.put(KEY_UPLOAD_URL, fileStoreProvider.getUploadURL());
     uploadAuthorization.put(KEY_UPLOAD_ACCESS_KEY, fileStoreProvider.getCredentialId());
     uploadAuthorization.put(KEY_UPLOAD_POLICY, uploadPolicy.getPolicyString());
@@ -164,14 +164,15 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
   }
 
   /**
-   General an Audio URL
+   General an Audio URL key
 
-   @param instrumentId to generate URL for
    @return URL as string
+   @param instrumentId to generate URL key for
+   @param extension of key to general
    */
-  private String generateKey(UUID instrumentId) {
+  private String generateKey(UUID instrumentId, String extension) {
     String prefix = String.format("instrument-%s-audio", instrumentId.toString());
-    return fileStoreProvider.generateKey(prefix);
+    return fileStoreProvider.generateKey(prefix, extension);
   }
 
   /**
