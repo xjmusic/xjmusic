@@ -64,6 +64,113 @@ COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UU
 
 
 --
+-- Name: content_binding_type; Type: TYPE; Schema: xj; Owner: postgres
+--
+
+CREATE TYPE xj.content_binding_type AS ENUM (
+    'Library',
+    'Program',
+    'Instrument'
+);
+
+
+ALTER TYPE xj.content_binding_type OWNER TO postgres;
+
+--
+-- Name: instrument_state; Type: TYPE; Schema: xj; Owner: postgres
+--
+
+CREATE TYPE xj.instrument_state AS ENUM (
+    'Draft',
+    'Published'
+);
+
+
+ALTER TYPE xj.instrument_state OWNER TO postgres;
+
+--
+-- Name: instrument_type; Type: TYPE; Schema: xj; Owner: postgres
+--
+
+CREATE TYPE xj.instrument_type AS ENUM (
+    'Drum',
+    'PercLoop',
+    'Bass',
+    'Pad',
+    'Sticky',
+    'Stripe',
+    'Stab'
+);
+
+
+ALTER TYPE xj.instrument_type OWNER TO postgres;
+
+--
+-- Name: program_state; Type: TYPE; Schema: xj; Owner: postgres
+--
+
+CREATE TYPE xj.program_state AS ENUM (
+    'Draft',
+    'Published'
+);
+
+
+ALTER TYPE xj.program_state OWNER TO postgres;
+
+--
+-- Name: program_type; Type: TYPE; Schema: xj; Owner: postgres
+--
+
+CREATE TYPE xj.program_type AS ENUM (
+    'Macro',
+    'Main',
+    'Rhythm',
+    'Detail'
+);
+
+
+ALTER TYPE xj.program_type OWNER TO postgres;
+
+--
+-- Name: template_type; Type: TYPE; Schema: xj; Owner: postgres
+--
+
+CREATE TYPE xj.template_type AS ENUM (
+    'Preview',
+    'Production'
+);
+
+
+ALTER TYPE xj.template_type OWNER TO postgres;
+
+--
+-- Name: user_auth_type; Type: TYPE; Schema: xj; Owner: postgres
+--
+
+CREATE TYPE xj.user_auth_type AS ENUM (
+    'Google'
+);
+
+
+ALTER TYPE xj.user_auth_type OWNER TO postgres;
+
+--
+-- Name: user_role_type; Type: TYPE; Schema: xj; Owner: postgres
+--
+
+CREATE TYPE xj.user_role_type AS ENUM (
+    'Internal',
+    'Admin',
+    'Engineer',
+    'Artist',
+    'User',
+    'Banned'
+);
+
+
+ALTER TYPE xj.user_role_type OWNER TO postgres;
+
+--
 -- Name: updated_at_now(); Type: FUNCTION; Schema: xj; Owner: postgres
 --
 
@@ -135,8 +242,8 @@ ALTER TABLE xj.flyway_schema_history OWNER TO postgres;
 CREATE TABLE xj.instrument (
     id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
     library_id uuid NOT NULL,
-    type character varying(255) NOT NULL,
-    state character varying(255) NOT NULL,
+    type xj.instrument_type NOT NULL,
+    state xj.instrument_state NOT NULL,
     name character varying(255) NOT NULL,
     density real NOT NULL,
     config text DEFAULT ''::text NOT NULL
@@ -167,6 +274,22 @@ CREATE TABLE xj.instrument_audio (
 ALTER TABLE xj.instrument_audio OWNER TO postgres;
 
 --
+-- Name: instrument_authorship; Type: TABLE; Schema: xj; Owner: postgres
+--
+
+CREATE TABLE xj.instrument_authorship (
+    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
+    instrument_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    hours real DEFAULT 0,
+    description text NOT NULL,
+    "timestamp" timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE xj.instrument_authorship OWNER TO postgres;
+
+--
 -- Name: instrument_meme; Type: TABLE; Schema: xj; Owner: postgres
 --
 
@@ -178,6 +301,21 @@ CREATE TABLE xj.instrument_meme (
 
 
 ALTER TABLE xj.instrument_meme OWNER TO postgres;
+
+--
+-- Name: instrument_message; Type: TABLE; Schema: xj; Owner: postgres
+--
+
+CREATE TABLE xj.instrument_message (
+    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
+    instrument_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    body text NOT NULL,
+    "timestamp" timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE xj.instrument_message OWNER TO postgres;
 
 --
 -- Name: library; Type: TABLE; Schema: xj; Owner: postgres
@@ -199,10 +337,10 @@ ALTER TABLE xj.library OWNER TO postgres;
 CREATE TABLE xj.program (
     id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
     library_id uuid NOT NULL,
-    state character varying(255) NOT NULL,
+    state xj.program_state NOT NULL,
     key character varying(255) NOT NULL,
     tempo real NOT NULL,
-    type character varying(255) NOT NULL,
+    type xj.program_type NOT NULL,
     name character varying(255) NOT NULL,
     density real NOT NULL,
     config text DEFAULT ''::text NOT NULL
@@ -210,6 +348,22 @@ CREATE TABLE xj.program (
 
 
 ALTER TABLE xj.program OWNER TO postgres;
+
+--
+-- Name: program_authorship; Type: TABLE; Schema: xj; Owner: postgres
+--
+
+CREATE TABLE xj.program_authorship (
+    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
+    program_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    hours real DEFAULT 0,
+    description text NOT NULL,
+    "timestamp" timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE xj.program_authorship OWNER TO postgres;
 
 --
 -- Name: program_meme; Type: TABLE; Schema: xj; Owner: postgres
@@ -223,6 +377,21 @@ CREATE TABLE xj.program_meme (
 
 
 ALTER TABLE xj.program_meme OWNER TO postgres;
+
+--
+-- Name: program_message; Type: TABLE; Schema: xj; Owner: postgres
+--
+
+CREATE TABLE xj.program_message (
+    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
+    program_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    body text NOT NULL,
+    "timestamp" timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE xj.program_message OWNER TO postgres;
 
 --
 -- Name: program_sequence; Type: TABLE; Schema: xj; Owner: postgres
@@ -292,7 +461,7 @@ CREATE TABLE xj.program_sequence_chord_voicing (
     id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
     program_id uuid NOT NULL,
     program_sequence_chord_id uuid NOT NULL,
-    type character varying(255) NOT NULL,
+    type xj.instrument_type NOT NULL,
     notes text NOT NULL
 );
 
@@ -309,7 +478,6 @@ CREATE TABLE xj.program_sequence_pattern (
     program_sequence_id uuid NOT NULL,
     program_voice_id uuid NOT NULL,
     name character varying(255) NOT NULL,
-    type character varying(255) NOT NULL,
     total smallint NOT NULL
 );
 
@@ -326,7 +494,7 @@ CREATE TABLE xj.program_sequence_pattern_event (
     program_sequence_pattern_id uuid NOT NULL,
     program_voice_track_id uuid NOT NULL,
     velocity real NOT NULL,
-    "position" double precision NOT NULL,
+    "position" real NOT NULL,
     duration real NOT NULL,
     note character varying(255) NOT NULL
 );
@@ -341,9 +509,9 @@ ALTER TABLE xj.program_sequence_pattern_event OWNER TO postgres;
 CREATE TABLE xj.program_voice (
     id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
     program_id uuid NOT NULL,
-    type character varying(255) NOT NULL,
+    type xj.instrument_type NOT NULL,
     name character varying(255) NOT NULL,
-    "order" double precision DEFAULT 1000.0
+    "order" real DEFAULT 1000.0
 );
 
 
@@ -358,7 +526,7 @@ CREATE TABLE xj.program_voice_track (
     program_id uuid NOT NULL,
     program_voice_id uuid NOT NULL,
     name character varying(255) NOT NULL,
-    "order" double precision DEFAULT 1000.0
+    "order" real DEFAULT 1000.0
 );
 
 
@@ -373,8 +541,8 @@ CREATE TABLE xj.template (
     account_id uuid NOT NULL,
     name character varying(255) NOT NULL,
     config text DEFAULT ''::text,
-    embed_key character varying(255) DEFAULT ''::character varying,
-    type character varying(255) DEFAULT 'Preview'::character varying
+    ship_key character varying(255) DEFAULT ''::character varying,
+    type xj.template_type
 );
 
 
@@ -386,7 +554,7 @@ ALTER TABLE xj.template OWNER TO postgres;
 
 CREATE TABLE xj.template_binding (
     id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    type character varying(255) NOT NULL,
+    type xj.content_binding_type NOT NULL,
     template_id uuid NOT NULL,
     target_id uuid NOT NULL
 );
@@ -416,7 +584,8 @@ CREATE TABLE xj."user" (
     id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
     name character varying(255) NOT NULL,
     email character varying(1023) DEFAULT NULL::character varying,
-    avatar_url character varying(1023) DEFAULT NULL::character varying
+    avatar_url character varying(1023) DEFAULT NULL::character varying,
+    roles character varying(255) DEFAULT 'User'::character varying NOT NULL
 );
 
 
@@ -428,7 +597,7 @@ ALTER TABLE xj."user" OWNER TO postgres;
 
 CREATE TABLE xj.user_auth (
     id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    type character varying(255) NOT NULL,
+    type xj.user_auth_type NOT NULL,
     external_access_token character varying(1023) NOT NULL,
     external_refresh_token character varying(1023) DEFAULT NULL::character varying,
     external_account character varying(1023) NOT NULL,
@@ -451,19 +620,6 @@ CREATE TABLE xj.user_auth_token (
 
 
 ALTER TABLE xj.user_auth_token OWNER TO postgres;
-
---
--- Name: user_role; Type: TABLE; Schema: xj; Owner: postgres
---
-
-CREATE TABLE xj.user_role (
-    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    type character varying(255) NOT NULL,
-    user_id uuid NOT NULL
-);
-
-
-ALTER TABLE xj.user_role OWNER TO postgres;
 
 --
 -- Name: account account_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
@@ -498,11 +654,27 @@ ALTER TABLE ONLY xj.instrument_audio
 
 
 --
+-- Name: instrument_authorship instrument_authorship_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.instrument_authorship
+    ADD CONSTRAINT instrument_authorship_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: instrument_meme instrument_meme_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.instrument_meme
     ADD CONSTRAINT instrument_meme_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: instrument_message instrument_message_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.instrument_message
+    ADD CONSTRAINT instrument_message_pkey PRIMARY KEY (id);
 
 
 --
@@ -522,11 +694,27 @@ ALTER TABLE ONLY xj.library
 
 
 --
+-- Name: program_authorship program_authorship_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.program_authorship
+    ADD CONSTRAINT program_authorship_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: program_meme program_meme_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_meme
     ADD CONSTRAINT program_meme_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: program_message program_message_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.program_message
+    ADD CONSTRAINT program_message_pkey PRIMARY KEY (id);
 
 
 --
@@ -658,14 +846,6 @@ ALTER TABLE ONLY xj."user"
 
 
 --
--- Name: user_role user_role_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.user_role
-    ADD CONSTRAINT user_role_pkey PRIMARY KEY (id);
-
-
---
 -- Name: flyway_schema_history_s_idx; Type: INDEX; Schema: xj; Owner: postgres
 --
 
@@ -711,6 +891,22 @@ ALTER TABLE ONLY xj.instrument_audio
 
 
 --
+-- Name: instrument_authorship instrument_authorship_instrument_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.instrument_authorship
+    ADD CONSTRAINT instrument_authorship_instrument_id_fkey FOREIGN KEY (instrument_id) REFERENCES xj.instrument(id);
+
+
+--
+-- Name: instrument_authorship instrument_authorship_user_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.instrument_authorship
+    ADD CONSTRAINT instrument_authorship_user_id_fkey FOREIGN KEY (user_id) REFERENCES xj."user"(id);
+
+
+--
 -- Name: instrument instrument_library_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
@@ -727,11 +923,43 @@ ALTER TABLE ONLY xj.instrument_meme
 
 
 --
+-- Name: instrument_message instrument_message_instrument_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.instrument_message
+    ADD CONSTRAINT instrument_message_instrument_id_fkey FOREIGN KEY (instrument_id) REFERENCES xj.instrument(id);
+
+
+--
+-- Name: instrument_message instrument_message_user_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.instrument_message
+    ADD CONSTRAINT instrument_message_user_id_fkey FOREIGN KEY (user_id) REFERENCES xj."user"(id);
+
+
+--
 -- Name: library library_account_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.library
     ADD CONSTRAINT library_account_id_fkey FOREIGN KEY (account_id) REFERENCES xj.account(id);
+
+
+--
+-- Name: program_authorship program_authorship_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.program_authorship
+    ADD CONSTRAINT program_authorship_program_id_fkey FOREIGN KEY (program_id) REFERENCES xj.program(id);
+
+
+--
+-- Name: program_authorship program_authorship_user_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.program_authorship
+    ADD CONSTRAINT program_authorship_user_id_fkey FOREIGN KEY (user_id) REFERENCES xj."user"(id);
 
 
 --
@@ -748,6 +976,22 @@ ALTER TABLE ONLY xj.program
 
 ALTER TABLE ONLY xj.program_meme
     ADD CONSTRAINT program_meme_program_id_fkey FOREIGN KEY (program_id) REFERENCES xj.program(id);
+
+
+--
+-- Name: program_message program_message_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.program_message
+    ADD CONSTRAINT program_message_program_id_fkey FOREIGN KEY (program_id) REFERENCES xj.program(id);
+
+
+--
+-- Name: program_message program_message_user_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.program_message
+    ADD CONSTRAINT program_message_user_id_fkey FOREIGN KEY (user_id) REFERENCES xj."user"(id);
 
 
 --
@@ -919,14 +1163,6 @@ ALTER TABLE ONLY xj.user_auth
 
 
 --
--- Name: user_role user_role_user_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.user_role
-    ADD CONSTRAINT user_role_user_id_fkey FOREIGN KEY (user_id) REFERENCES xj."user"(id);
-
-
---
 -- PostgreSQL database dump complete
 --
 
@@ -1006,6 +1242,11 @@ COPY xj.flyway_schema_history (installed_rank, version, description, type, scrip
 50	51	template playback stateless	SQL	V51__template_playback_stateless.sql	-1969369120	postgres	2021-10-18 19:58:36.424511	495	t
 51	52	template playback created at	SQL	V52__template_playback_created_at.sql	-155540697	postgres	2021-10-18 19:58:37.917238	795	t
 52	53	template type	SQL	V53__template_type.sql	1695445248	postgres	2021-10-18 19:58:39.774438	493	t
+53	54	refactor percussive to drum	SQL	V54__refactor_percussive_to_drum.sql	-912722638	postgres	2021-10-25 23:08:42.796371	901	t
+54	55	more jooq less swagger	SQL	V55__more_jooq_less_swagger.sql	-800589339	postgres	2021-10-25 23:08:45.108736	4510	t
+55	56	content authors	SQL	V56__content_authors.sql	286572797	postgres	2021-10-25 23:08:52.016268	1296	t
+56	57	ship key	SQL	V57__ship_key.sql	163079654	postgres	2021-10-25 23:08:54.609959	643	t
+57	58	no pattern types	SQL	V58__no_pattern_types.sql	739249340	postgres	2021-10-25 23:08:56.553642	979	t
 \.
 
 
