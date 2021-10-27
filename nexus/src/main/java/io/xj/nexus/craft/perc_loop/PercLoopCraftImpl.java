@@ -108,7 +108,7 @@ public class PercLoopCraftImpl extends RhythmCraftImpl implements PercLoopCraft 
 
       // Pick attributes are expressed "rendered" as actual seconds
       double startSeconds = fabricator.getSecondsAtPosition(pos);
-      double lengthSeconds = fabricator.getSecondsAtPosition(pos + fabricator.getTemplateConfig().getPercLoopFixedSizeBeats()) - startSeconds;
+      double lengthSeconds = fabricator.getSecondsAtPosition(pos + audio.get().getTotalBeats()) - startSeconds;
 
       // of pick
       var pick = new SegmentChoiceArrangementPick();
@@ -122,7 +122,7 @@ public class PercLoopCraftImpl extends RhythmCraftImpl implements PercLoopCraft 
       pick.setInstrumentAudioId(audio.get().getId());
       fabricator.add(pick);
 
-      pos += fabricator.getTemplateConfig().getPercLoopFixedSizeBeats();
+      pos += audio.get().getTotalBeats();
     }
   }
 

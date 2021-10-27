@@ -136,8 +136,8 @@ public class IntegrationTestingFixtures {
     instrumentAudio.setInstrumentId(instrument.getId());
     instrumentAudio.setName(name);
     instrumentAudio.setWaveformKey(waveformKey);
-    instrumentAudio.setStart(start);
-    instrumentAudio.setLength(length);
+    instrumentAudio.setTransientSeconds(start);
+    instrumentAudio.setTotalBeats(length);
     instrumentAudio.setTempo(tempo);
     instrumentAudio.setDensity(density);
     instrumentAudio.setVolume(volume);
@@ -152,8 +152,8 @@ public class IntegrationTestingFixtures {
     instrumentAudio.setInstrumentId(instrument.getId());
     instrumentAudio.setName(name);
     instrumentAudio.setWaveformKey("test123");
-    instrumentAudio.setStart(0.0f);
-    instrumentAudio.setLength(1.0f);
+    instrumentAudio.setTransientSeconds(0.0f);
+    instrumentAudio.setTotalBeats(1.0f);
     instrumentAudio.setTempo(120.0f);
     instrumentAudio.setDensity(1.0f);
     instrumentAudio.setVolume(1.0f);
@@ -401,8 +401,8 @@ public class IntegrationTestingFixtures {
     instrumentAudio.setInstrumentId(instrument.getId());
     instrumentAudio.setName(name);
     instrumentAudio.setWaveformKey(waveformKey);
-    instrumentAudio.setStart(start);
-    instrumentAudio.setLength(length);
+    instrumentAudio.setTransientSeconds(start);
+    instrumentAudio.setTotalBeats(length);
     instrumentAudio.setTempo(tempo);
     instrumentAudio.setDensity(density);
     instrumentAudio.setVolume(volume);

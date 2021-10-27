@@ -178,7 +178,7 @@ public class DubMasterImpl implements DubMaster {
       pickOffsetStart.put(pick.getId(),
         fabricator.sourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId())
           .orElseThrow(() -> new NexusException("compute offset start"))
-          .getStart());
+          .getTransientSeconds());
     return pickOffsetStart.get(pick.getId());
   }
 

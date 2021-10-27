@@ -59,7 +59,6 @@ public class TemplateConfig {
       outputEncodingQuality = 0.618
       outputFrameRate = 48000
       outputSampleBits = 16
-      percLoopFixedSizeBeats = 4
       percLoopLayerMax = 5
       percLoopLayerMin = 1
       """;
@@ -99,7 +98,6 @@ public class TemplateConfig {
   private final int outputChannels;
   private final int outputFrameRate;
   private final int outputSampleBits;
-  private final int percLoopFixedSizeBeats;
   private final int percLoopLayerMax;
   private final int percLoopLayerMin;
 
@@ -170,7 +168,6 @@ public class TemplateConfig {
       outputEncodingQuality = config.getDouble("outputEncodingQuality");
       outputFrameRate = config.getInt("outputFrameRate");
       outputSampleBits = config.getInt("outputSampleBits");
-      percLoopFixedSizeBeats = config.getInt("percLoopFixedSizeBeats");
       percLoopLayerMax = config.getInt("percLoopLayerMax");
       percLoopLayerMin = config.getInt("percLoopLayerMin");
     } catch (ConfigException e) {
@@ -217,7 +214,6 @@ public class TemplateConfig {
     config.put("outputEncodingQuality", String.valueOf(outputEncodingQuality));
     config.put("outputFrameRate", String.valueOf(outputFrameRate));
     config.put("outputSampleBits", String.valueOf(outputSampleBits));
-    config.put("percLoopFixedSizeBeats", String.valueOf(percLoopFixedSizeBeats));
     config.put("percLoopLayerMax", String.valueOf(percLoopLayerMax));
     config.put("percLoopLayerMin", String.valueOf(percLoopLayerMin));
     return Text.formatMultiline(config.entrySet().stream()
@@ -469,13 +465,6 @@ public class TemplateConfig {
    */
   public int getOutputSampleBits() {
     return outputSampleBits;
-  }
-
-  /**
-   @return the fixed size of a percussion loop, in # beats
-   */
-  public double getPercLoopFixedSizeBeats() {
-    return percLoopFixedSizeBeats;
   }
 
   /**

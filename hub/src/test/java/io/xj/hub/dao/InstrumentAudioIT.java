@@ -111,8 +111,8 @@ public class InstrumentAudioIT {
     assertEquals(fake.instrument201.getId(), result.getInstrumentId());
     assertEquals("maracas", result.getName());
     assertNull(result.getWaveformKey());
-    assertEquals(0.009, result.getStart(), 0.01);
-    assertEquals(0.21, result.getLength(), 0.01);
+    assertEquals(0.009, result.getTransientSeconds(), 0.01);
+    assertEquals(0.21, result.getTotalBeats(), 0.01);
     assertEquals(80.5, result.getTempo(), 0.01);
   }
 
@@ -158,8 +158,8 @@ public class InstrumentAudioIT {
     assertEquals(fake.instrument202.getId(), result.getInstrumentId());
     assertEquals("fake.audio5.wav", result.getWaveformKey());
     assertEquals(0.6, result.getDensity(), 0.01);
-    assertEquals(0.01, result.getStart(), 0.01);
-    assertEquals(2.0, result.getLength(), 0.01);
+    assertEquals(0.01, result.getTransientSeconds(), 0.01);
+    assertEquals(2.0, result.getTotalBeats(), 0.01);
     assertEquals(120.0, result.getTempo(), 0.01);
   }
 
@@ -173,8 +173,8 @@ public class InstrumentAudioIT {
     assertEquals(fake.instrument202.getId(), result.getInstrumentId());
     assertEquals("Test audio", result.getName());
     assertEquals("fake.audio5.wav", result.getWaveformKey());
-    assertEquals(0.0, result.getStart(), 0.01);
-    assertEquals(2.0, result.getLength(), 0.01);
+    assertEquals(0.0, result.getTransientSeconds(), 0.01);
+    assertEquals(2.0, result.getTotalBeats(), 0.01);
     assertEquals(120.0, result.getTempo(), 0.01);
   }
 
@@ -245,8 +245,8 @@ public class InstrumentAudioIT {
     inputData.setInstrumentId(UUID.randomUUID());
     inputData.setName("maracas");
     inputData.setWaveformKey("instrument" + File.separator + "percussion" + File.separator + "demo_source_audio/808" + File.separator + "maracas.wav");
-    inputData.setStart(0.009f);
-    inputData.setLength(0.21f);
+    inputData.setTransientSeconds(0.009f);
+    inputData.setTotalBeats(0.21f);
     inputData.setTempo(80.5f);
 
     failure.expect(DAOException.class);
@@ -278,8 +278,8 @@ public class InstrumentAudioIT {
     assertEquals(fake.instrument201.getId(), result.getInstrumentId());
     assertEquals("maracas", result.getName());
     assertEquals("fake.audio5.wav", result.getWaveformKey());
-    assertEquals(0.009, result.getStart(), 0.001);
-    assertEquals(0.21, result.getLength(), 0.001);
+    assertEquals(0.009, result.getTransientSeconds(), 0.001);
+    assertEquals(0.21, result.getTotalBeats(), 0.001);
     assertEquals(80.5, result.getTempo(), 0.001);
   }
 

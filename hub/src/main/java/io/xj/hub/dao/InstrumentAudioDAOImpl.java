@@ -242,11 +242,11 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
       if (Values.isEmpty(builder.getDensity()))
         builder.setDensity(0.5f);
 
-      if (Values.isEmpty(builder.getStart()))
-        builder.setStart(0.0f);
+      if (Values.isEmpty(builder.getTransientSeconds()))
+        builder.setTransientSeconds(0.0f);
 
-      if (Values.isEmpty(builder.getLength()))
-        builder.setLength(0.0f);
+      if (Values.isEmpty(builder.getTotalBeats()))
+        builder.setTotalBeats(1.0f);
 
       Values.require(builder.getTempo(), "Tempo");
       Values.requireNonZero(builder.getTempo(), "Tempo");
