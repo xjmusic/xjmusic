@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+
+./gradlew -Penvironment=production --info --no-daemon jib
+kubectl -n lab rollout restart deployment/hub deployment/nexus
+kubectl -n yard rollout restart deployment/coolair-nexus deployment/coolair-ship
