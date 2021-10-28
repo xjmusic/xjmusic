@@ -139,6 +139,21 @@ public class TemplatePlaybackIT {
     assertThrows(DAOException.class, () -> testDAO.readOne(hubAccess, priorPlayback.getId()));
   }
 
+  /**
+   Should be able to load template even if user is playing two templates, or two users are playing one template #180124281
+   */
+  @Test
+  public void create_archivesExistingForTemplate() throws Exception {
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+
+    var priorPlayback = test.insert(buildTemplatePlayback(fake.template1, fake.user3));
+    var subject = buildTemplatePlayback(fake.template1, fake.user2);
+
+    testDAO.create(hubAccess, subject);
+
+    assertThrows(DAOException.class, () -> testDAO.readOne(hubAccess, priorPlayback.getId()));
+  }
+
   @Test
   public void readOne() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");

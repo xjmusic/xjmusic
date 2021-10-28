@@ -63,6 +63,7 @@ public class TemplatePlaybackDAOImpl extends DAOImpl<TemplatePlayback> implement
     for (var prior : modelsFrom(TemplatePlayback.class,
       db.selectFrom(TEMPLATE_PLAYBACK)
         .where(TEMPLATE_PLAYBACK.USER_ID.eq(record.getUserId()))
+        .or(TEMPLATE_PLAYBACK.TEMPLATE_ID.eq(record.getTemplateId()))
         .fetch()))
       destroy(hubAccess, prior.getId());
     return modelFrom(TemplatePlayback.class, executeCreate(db, TEMPLATE_PLAYBACK, record));
