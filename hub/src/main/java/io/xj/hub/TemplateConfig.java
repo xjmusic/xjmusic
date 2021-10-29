@@ -27,11 +27,11 @@ public class TemplateConfig {
       choiceDeltaEnabled = true
       deltaArcDetailLayersIncoming = 2
       deltaArcDetailLayersOutgoing = 2
-      deltaArcDetailPlateauRatio = 0.38
+      deltaArcDetailPlateauRatio = 0.7
       deltaArcDetailPlateauShiftRatio = 0.62
       deltaArcRhythmLayersIncoming = 1
       deltaArcRhythmLayersOutgoing = 1
-      deltaArcRhythmPlateauRatio = 0.62
+      deltaArcRhythmPlateauRatio = 0.3
       deltaArcRhythmPlateauShiftRatio = 0.38
       dubMasterVolumeInstrumentTypeBass = 1.0
       dubMasterVolumeInstrumentTypeDrum = 1.0

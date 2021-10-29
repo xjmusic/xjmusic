@@ -146,10 +146,10 @@ public class NexusWorkImpl implements NexusWork {
       }
 
       // Fabricate all active chains
-      activeChains.forEach(chain -> {
+      for (Chain chain : activeChains) {
         ingestMaterialIfNecessary(chain);
         fabricateChain(chain);
-      });
+      }
 
       if (medicEnabled) doMedic();
       if (janitorEnabled) doJanitor();
@@ -217,17 +217,30 @@ public class NexusWorkImpl implements NexusWork {
         });
 
       // revive all stalled chains
-      for (UUID stalledChainId : stalledChainIds.keySet()) {
-        chainManager.revive(stalledChainId, stalledChainIds.get(stalledChainId));
-        // [#173968355] Nexus deletes entire chain when no current segments are left.
-        chainManager.destroy(stalledChainId);
-      }
+      for (UUID stalledChainId : stalledChainIds.keySet())
+        revive(stalledChainId, stalledChainIds.get(stalledChainId));
 
-      telemetryProvider.put(METRIC_CHAIN_REVIVED, StandardUnit.Count, stalledChainIds.size());
       LOG.info("Total elapsed time: {}", timer.totalsToString());
 
-    } catch (ManagerFatalException | ManagerPrivilegeException | ManagerValidationException | ManagerExistenceException e) {
+    } catch (ManagerFatalException | ManagerPrivilegeException e) {
       didFailWhile("Medic checking & reviving all", e);
+    }
+  }
+
+  /**
+   Revive a chain
+
+   @param chainId to revive
+   @param reason  this chain is being revived
+   */
+  private void revive(UUID chainId, String reason) {
+    try {
+      chainManager.revive(chainId, reason);
+      // [#173968355] Nexus deletes entire chain when no current segments are left.
+      chainManager.destroy(chainId);
+      telemetryProvider.put(METRIC_CHAIN_REVIVED, StandardUnit.Count, 1);
+    } catch (ManagerFatalException | ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException e) {
+      LOG.error("Failed to revive chain after fatal error!", e);
     }
   }
 
@@ -303,31 +316,15 @@ public class NexusWorkImpl implements NexusWork {
 
       Fabricator fabricator;
       timer.section("Prepare");
-      try {
-        LOG.debug("[segId={}] will prepare fabricator", segment.getId());
-        fabricator = fabricatorFactory.fabricate(chainSourceMaterial.get(chain.getId()), segment);
-      } catch (NexusException e) {
-        didFailWhile("creating fabricator", e, segment.getId(), Chains.getIdentifier(chain), chain.getType().toString());
-        return;
-      }
+      LOG.debug("[segId={}] will prepare fabricator", segment.getId());
+      fabricator = fabricatorFactory.fabricate(chainSourceMaterial.get(chain.getId()), segment);
 
       timer.section("Craft");
-      try {
-        LOG.debug("[segId={}] will do craft work", segment.getId());
-        segment = doCraftWork(fabricator, segment);
-      } catch (Exception e) {
-        didFailWhile("doing Craft work", e, segment.getId(), Chains.getIdentifier(chain), chain.getType().toString());
-        revert(chain, segment, fabricator);
-        return;
-      }
+      LOG.debug("[segId={}] will do craft work", segment.getId());
+      segment = doCraftWork(fabricator, segment);
 
       timer.section("Dub");
-      try {
-        segment = doDubMasterWork(fabricator, segment);
-      } catch (Exception e) {
-        didFailWhile("doing Dub Master work", e, segment.getId(), Chains.getIdentifier(chain), chain.getType().toString());
-        return;
-      }
+      segment = doDubMasterWork(fabricator, segment);
 
       // Update the chain fabricated-ahead seconds before shipping data
       var segmentLengthSeconds = Segments.getLengthSeconds(segment);
@@ -335,18 +332,8 @@ public class NexusWorkImpl implements NexusWork {
       chain = updateFabricatedAheadSeconds(chain, fabricatedAheadSeconds);
 
       timer.section("Ship");
-      try {
-        doDubShipWork(fabricator);
-      } catch (Exception e) {
-        didFailWhile("doing Dub Ship work", e, segment.getId(), Chains.getIdentifier(chain), chain.getType().toString());
-        return;
-      }
-
-      try {
-        finishWork(fabricator, segment);
-      } catch (Exception e) {
-        didFailWhile("finishing work", e, segment.getId(), Chains.getIdentifier(chain), chain.getType().toString());
-      }
+      doDubShipWork(fabricator);
+      finishWork(fabricator, segment);
 
       LOG.info("Chain[{}] offset={} Segment[{}] ahead {}s fabricated OK",
         Chains.getIdentifier(chain),
@@ -354,7 +341,7 @@ public class NexusWorkImpl implements NexusWork {
         Segments.getIdentifier(segment),
         fabricatedAheadSeconds);
 
-    } catch (ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException | ManagerFatalException e) {
+    } catch (ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException | ManagerFatalException | NexusException e) {
       var body = String.format("Failed to create Segment of Chain[%s] (%s) because %s\n\n%s",
         Chains.getIdentifier(chain),
         chain.getType(),
@@ -368,11 +355,7 @@ public class NexusWorkImpl implements NexusWork {
 
       LOG.error("Failed to created Segment in Chain[{}] reason={}", Chains.getIdentifier(chain), e.getMessage());
 
-      try {
-        chainManager.revive(chain.getId(), body);
-      } catch (ManagerFatalException | ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException e2) {
-        LOG.error("Failed to revive chain after fatal error!", e2);
-      }
+      revive(chain.getId(), body);
     }
   }
 
@@ -421,19 +404,6 @@ public class NexusWorkImpl implements NexusWork {
     return TemplateType.Production.toString().equals(chain.getType().toString()) ?
       (!Strings.isNullOrEmpty(chain.getShipKey()) ? chain.getShipKey() : DEFAULT_NAME_PRODUCTION) :
       DEFAULT_NAME_PREVIEW;
-  }
-
-  /**
-   [#158610991] Engineer wants a Segment to be reverted, and re-queued for Craft, in the event that such a Segment has just failed its Craft process, in order to ensure Chain fabrication fault tolerance
-   [#171553408] Remove all Queue mechanics in favor of a cycle happening in Main class for as long as the application is alive, that does nothing but search for active chains, search for segments that need work, and work on them. Zero need for a work queue-- that's what the Chain-Segment state machine is!@param segmentId
-   */
-  private void revert(Chain chain, Segment segment, Fabricator fabricator) {
-    try {
-      updateSegmentState(fabricator, segment, fabricator.getSegment().getState(), SegmentState.PLANNED);
-      segmentManager.revert(access, segment.getId());
-    } catch (ManagerFatalException | ManagerPrivilegeException | ManagerValidationException | ManagerExistenceException | NexusException e) {
-      didFailWhile("reverting and re-queueing segment", e, segment.getId(), Chains.getIdentifier(chain), chain.getType().toString());
-    }
   }
 
   /**
@@ -490,38 +460,6 @@ public class NexusWorkImpl implements NexusWork {
   /**
    Log and of segment message of error that job failed while (message)
 
-   @param message      phrased like "Doing work"
-   @param e            exception (optional)
-   @param segmentId    fabricating
-   @param chainId      fabricating
-   @param templateType fabricating
-   */
-  private void didFailWhile(String message, Exception e, UUID segmentId, String chainId, String templateType) {
-    var body = String.format("Failed while %s for Segment[%s] of Chain[%s] (%s) because %s",
-      message,
-      segmentId,
-      chainId,
-      templateType,
-      e.getMessage());
-
-    createSegmentErrorMessage(body, segmentId);
-
-    notification.publish(body,
-      String.format("%s-Chain[%s] Failure",
-        templateType,
-        chainId));
-
-    LOG.error("Failed while {} for Segment[{}] of Chain[{}] ({}) because {}",
-      message,
-      segmentId,
-      chainId,
-      templateType,
-      e);
-  }
-
-  /**
-   Log and of segment message of error that job failed while (message)
-
    @param message phrased like "Doing work"
    @param e       exception (optional)
    */
@@ -531,28 +469,6 @@ public class NexusWorkImpl implements NexusWork {
     LOG.error("Failed while {} because {}", message, detail, e);
 
     notification.publish(String.format("Failed while %s because %s\n\n%s", message, detail, Text.formatStackTrace(e)), "Failure");
-  }
-
-  /**
-   Create a segment error message
-   <p>
-   [#177522463] Chain fabrication: segment messages broadcast somewhere the whole music team can see
-
-   @param body      of message
-   @param segmentId fabricating
-   */
-  protected void createSegmentErrorMessage(String body, UUID segmentId) {
-    try {
-      var msg = new SegmentMessage();
-      msg.setId(UUID.randomUUID());
-      msg.setSegmentId(segmentId);
-      msg.setType(SegmentMessageType.ERROR);
-      msg.setBody(body);
-      segmentManager.create(access, msg);
-
-    } catch (ManagerValidationException | ManagerPrivilegeException | ManagerExistenceException | ManagerFatalException e) {
-      LOG.error("[segId={}] Could not create SegmentMessage, reason={}", segmentId, e.getMessage());
-    }
   }
 
   /**
