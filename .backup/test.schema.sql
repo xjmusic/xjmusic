@@ -261,8 +261,8 @@ CREATE TABLE xj.instrument_audio (
     instrument_id uuid NOT NULL,
     name character varying(255) NOT NULL,
     waveform_key character varying(2047),
-    start real NOT NULL,
-    length real NOT NULL,
+    transient_seconds real NOT NULL,
+    total_beats real NOT NULL,
     tempo real NOT NULL,
     density real NOT NULL,
     event character varying(255) DEFAULT NULL::character varying,
@@ -1247,6 +1247,7 @@ COPY xj.flyway_schema_history (installed_rank, version, description, type, scrip
 55	56	content authors	SQL	V56__content_authors.sql	286572797	postgres	2021-10-25 23:08:52.016268	1296	t
 56	57	ship key	SQL	V57__ship_key.sql	163079654	postgres	2021-10-25 23:08:54.609959	643	t
 57	58	no pattern types	SQL	V58__no_pattern_types.sql	739249340	postgres	2021-10-25 23:08:56.553642	979	t
+58	59	audio transient beats	SQL	V59__audio_transient_beats.sql	-1097739720	postgres	2021-10-28 15:15:59.987438	854	t
 \.
 
 
