@@ -22,7 +22,6 @@ import io.xj.nexus.NexusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -57,8 +56,6 @@ public class ChainManagerImpl extends ManagerImpl<Chain> implements ChainManager
   private final SegmentManager segmentManager;
   private final int previewLengthMaxHours;
   private final NotificationProvider pubSub;
-  private final int previewShipKeyLength;
-  private final SecureRandom secureRandom = new SecureRandom();
 
   // [#176375238] Chains should N seconds into the future
   private final int chainStartInFutureSeconds;
@@ -76,7 +73,6 @@ public class ChainManagerImpl extends ManagerImpl<Chain> implements ChainManager
     this.pubSub = notificationProvider;
 
     previewLengthMaxHours = env.getFabricationPreviewLengthMaxHours();
-    previewShipKeyLength = env.getFabricationPreviewShipKeyLength();
     chainStartInFutureSeconds = env.getChainStartInFutureSeconds();
   }
 
@@ -120,10 +116,7 @@ public class ChainManagerImpl extends ManagerImpl<Chain> implements ChainManager
       validate(entity);
 
       // Further logic based on Chain Type
-      switch (entity.getType()) {
-        case PRODUCTION -> requireUniqueShipKey(entity);
-        case PREVIEW -> entity.setShipKey(generatePreviewShipKey());
-      }
+      requireUniqueShipKey(entity);
 
       // store and return sanitized payload comprising only the valid Chain
       return store.put(entity);
@@ -424,18 +417,6 @@ public class ChainManagerImpl extends ManagerImpl<Chain> implements ChainManager
       LOG.error("Failed to test if chain exists for ship key: {}", shipKey);
       return false;
     }
-  }
-
-  /**
-   Generate a Preview Chain ship key
-
-   @return generated Preview Chain ship key
-   */
-  private String generatePreviewShipKey() {
-    byte[] L = new byte[previewShipKeyLength];
-    for (int i = 0; i < previewShipKeyLength; i++)
-      L[i] = (byte) (secureRandom.nextInt(26) + 'a');
-    return String.format("preview_%s", new String(L));
   }
 
   /**

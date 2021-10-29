@@ -187,7 +187,6 @@ public class ChainManagerImplTest {
     assertNotNull(result);
     assertEquals(account1.getId(), result.getAccountId());
     assertEquals("coconuts", result.getName());
-    assertEquals(28, Objects.requireNonNull(result.getShipKey()).length());
     assertEquals(ChainState.DRAFT, result.getState());
     assertEquals(ChainType.PREVIEW, result.getType());
   }
