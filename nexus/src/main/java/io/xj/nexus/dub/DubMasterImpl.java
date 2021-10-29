@@ -163,8 +163,19 @@ public class DubMasterImpl implements DubMaster {
       fabricator.sourceMaterial().getInstrumentTypeForAudioId(pick.getInstrumentAudioId()).toString(),
       pick.getInstrumentAudioId().toString(),
       toMicros(preroll + pick.getStart() - computeOffsetStart(pick)),
-      toMicros(preroll + pick.getStart() + pick.getLength()),
+      toMicros(preroll + pick.getStart() + computeLengthSeconds(pick)),
       pick.getAmplitude() * fabricator.getAudioVolume(pick));
+  }
+
+  /**
+   Compute the length of a pick
+
+   @param pick for which to compute length
+   @return length
+   */
+  private Double computeLengthSeconds(SegmentChoiceArrangementPick pick) {
+    if (Objects.nonNull(pick.getLength())) return pick.getLength();
+    return mixer.getSource(pick.getInstrumentAudioId().toString()).getLengthSeconds();
   }
 
   /**

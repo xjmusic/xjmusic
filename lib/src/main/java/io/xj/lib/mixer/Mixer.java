@@ -90,4 +90,11 @@ public interface Mixer {
    */
   boolean hasLoadedSource(String sourceKey);
 
+  /**
+   Get a source by id
+
+   @param sourceId to get
+   @return source
+   */
+  Source getSource(String sourceId);
 }

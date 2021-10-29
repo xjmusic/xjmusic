@@ -28,7 +28,7 @@ public class TemplateConfigTest {
   public void setFromDefaults() throws ValueException {
     var subject = new TemplateConfig(TemplateConfig.DEFAULT);
 
-    assertEquals(0.38, subject.getDeltaArcDetailPlateauRatio(), 0.01);
+    assertEquals(0.7, subject.getDeltaArcDetailPlateauRatio(), 0.01);
   }
 
   @Test

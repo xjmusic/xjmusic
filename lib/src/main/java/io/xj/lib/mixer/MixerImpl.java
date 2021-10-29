@@ -219,6 +219,11 @@ class MixerImpl implements Mixer {
     return sources.containsKey(sourceKey);
   }
 
+  @Override
+  public Source getSource(String sourceId) {
+    return sources.get(sourceId);
+  }
+
   /**
    apply original sources to mixing buffer
    addition of all sources into initial mixed source frames

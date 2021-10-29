@@ -427,8 +427,8 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
     Values.require(record.getProgramSequencePatternEventId(), "Pattern Event ID");
     Values.require(record.getInstrumentAudioId(), "Audio ID");
     Values.require(record.getStart(), "Start");
-    Values.require(record.getLength(), "Length");
-    Values.requireMinimum(LENGTH_MINIMUM, record.getLength(), "Length");
+    if (Objects.nonNull(record.getLength()))
+      Values.requireMinimum(LENGTH_MINIMUM, record.getLength(), "Length");
     Values.require(record.getAmplitude(), "Amplitude");
     Values.requireMinimum(AMPLITUDE_MINIMUM, record.getAmplitude(), "Amplitude");
     Values.require(record.getNote(), "Note");

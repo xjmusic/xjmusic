@@ -74,6 +74,7 @@ class FabricatorImpl implements Fabricator {
   private final Set<UUID> boundProgramIds;
   private final String workTempFilePathPrefix;
   private final Map<String, InstrumentAudio> preferredAudios;
+  private final Map<String, InstrumentConfig> instrumentConfigs;
   private SegmentType type;
 
   @AssistedInject
@@ -99,6 +100,7 @@ class FabricatorImpl implements Fabricator {
       // caches
       chordAtPosition = Maps.newHashMap();
       completeChordsForProgramSequence = Maps.newHashMap();
+      instrumentConfigs = Maps.newHashMap();
       rangeForChoice = Maps.newHashMap();
       rangeShiftOctave = Maps.newHashMap();
       sequenceForChoice = Maps.newHashMap();
@@ -333,7 +335,10 @@ class FabricatorImpl implements Fabricator {
   @Override
   public InstrumentConfig getInstrumentConfig(Instrument instrument) throws NexusException {
     try {
-      return new InstrumentConfig(instrument);
+      if (!instrumentConfigs.containsKey(instrument.getId().toString()))
+        instrumentConfigs.put(instrument.getId().toString(), new InstrumentConfig(instrument));
+      return instrumentConfigs.get(instrument.getId().toString());
+
     } catch (ValueException e) {
       throw new NexusException(e);
     }

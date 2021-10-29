@@ -320,6 +320,7 @@ components:
         length:
           type: number
           format: double
+          nullable: true
         amplitude:
           type: number
           format: double

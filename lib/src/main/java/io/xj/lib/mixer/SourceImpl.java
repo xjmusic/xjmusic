@@ -24,6 +24,7 @@ class SourceImpl implements Source {
   private final double[][] data;
   private final long inputLengthMicros;
   private final double microsPerFrame;
+  private final double lengthSeconds;
   private String state;
 
   @Inject
@@ -43,7 +44,8 @@ class SourceImpl implements Source {
 
     state = LOADING;
     data = stream.loadFrames();
-    inputLengthMicros = (long) (MICROS_PER_SECOND * stream.getActualFrames() / frameRate);
+    lengthSeconds = stream.getActualFrames() / frameRate;
+    inputLengthMicros = (long) (MICROS_PER_SECOND * lengthSeconds);
 
     state = READY;
     LOG.debug("Did load source {}", sourceId);
@@ -93,6 +95,11 @@ class SourceImpl implements Source {
   public double getValue(long atMicros, int c) {
     int f = frameAtMicros(atMicros);
     return f < data.length ? data[f][(c < data[f].length ? c : 0)] : 0;
+  }
+
+  @Override
+  public double getLengthSeconds() {
+    return lengthSeconds;
   }
 
   @Override

@@ -35,7 +35,7 @@ public class ProgramConfig {
       Config config = Strings.isNullOrEmpty(configText) ?
         ConfigFactory.parseString(DEFAULT) :
         ConfigFactory.parseString(configText).withFallback(ConfigFactory.parseString(DEFAULT));
-      doPatternRestartOnChord = getOptionalBoolean(config, "doPatternRestartOnChord");
+      doPatternRestartOnChord = config.getBoolean("doPatternRestartOnChord");
 
     } catch (ConfigException e) {
       throw new ValueException(e.getMessage());
@@ -61,19 +61,6 @@ public class ProgramConfig {
    */
   public ProgramConfig() throws ValueException {
     this("");
-  }
-
-  /**
-   If a boolean value is present in the config, return it, otherwise false
-
-   @param config to search for value at key
-   @param key    at which to search
-   @return value if present, else false
-   */
-  @SuppressWarnings("SameParameterValue")
-  private static Boolean getOptionalBoolean(Config config, String key) {
-    if (!config.hasPath(key)) return false;
-    return config.getBoolean(key);
   }
 
   @SuppressWarnings("DuplicatedCode")

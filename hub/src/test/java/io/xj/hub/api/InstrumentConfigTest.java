@@ -7,6 +7,8 @@ import io.xj.hub.tables.pojos.Instrument;
 import io.xj.lib.util.ValueException;
 import org.junit.Test;
 
+import java.util.List;
+
 import static org.junit.Assert.*;
 
 /**
@@ -21,14 +23,14 @@ public class InstrumentConfigTest {
 
     var subject = new InstrumentConfig(instrument);
 
-    assertTrue( subject.isMultiphonic());
+    assertTrue(subject.isMultiphonic());
   }
 
   @Test
   public void setFromDefaults() throws ValueException {
     var subject = new InstrumentConfig(InstrumentConfig.DEFAULT);
 
-    assertFalse( subject.isMultiphonic());
+    assertFalse(subject.isMultiphonic());
   }
 
   @Test
@@ -36,6 +38,26 @@ public class InstrumentConfigTest {
     var subject = new InstrumentConfig(InstrumentConfig.DEFAULT);
 
     assertEquals(InstrumentConfig.DEFAULT, subject.toString());
+  }
+
+  /**
+   Instruments have a config to play back as one-shots (ignore note-event lengths) #178307432
+   */
+  @Test
+  public void isOneShot() throws ValueException {
+    var subject = new InstrumentConfig("isOneShot=true");
+
+    assertTrue(subject.isOneShot());
+  }
+
+  /**
+   Instruments have a config to play back as one-shots (ignore note-event lengths) #178307432
+   */
+  @Test
+  public void oneShotCutoffs() throws ValueException {
+    var subject = new InstrumentConfig("oneShotCutoffs=[   bada ,     bIng, b    ooM ]");
+
+    assertEquals(List.of("BADA", "BING", "BOOM"), subject.getOneShotCutoffs());
   }
 
 }

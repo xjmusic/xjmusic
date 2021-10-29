@@ -449,12 +449,27 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
     // Pick attributes are expressed "rendered" as actual seconds
     double startSeconds = fabricator.getSecondsAtPosition(segmentPosition);
-    double lengthSeconds = fabricator.getSecondsAtPosition(segmentPosition + duration) - startSeconds;
+    @Nullable Double lengthSeconds = isOneShot(instrument, event)
+      ? null
+      : fabricator.getSecondsAtPosition(segmentPosition + duration) - startSeconds;
 
     // pick an audio for each note
     for (var note : notes)
       pickInstrumentAudio(note, instrument, event, arrangement, startSeconds, lengthSeconds,
         voicing.map(SegmentChordVoicing::getId).orElse(null), volRatio);
+  }
+
+  /**
+   Compute the length of an event for a given instrument
+
+   @param instrument for which to compute event length
+   @param event      for which to get length
+   @return true if this is a one-shot
+   @throws NexusException on failure
+   */
+  private boolean isOneShot(Instrument instrument, ProgramSequencePatternEvent event) throws NexusException {
+    return fabricator.getInstrumentConfig(instrument).isOneShot()
+      && !fabricator.getInstrumentConfig(instrument).getOneShotCutoffs().contains(fabricator.getTrackName(event));
   }
 
   /**
@@ -635,7 +650,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     ProgramSequencePatternEvent event,
     SegmentChoiceArrangement segmentChoiceArrangement,
     double startSeconds,
-    double lengthSeconds,
+    @Nullable Double lengthSeconds,
     @Nullable UUID segmentChordVoicingId,
     double volRatio
   ) throws NexusException {

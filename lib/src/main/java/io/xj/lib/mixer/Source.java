@@ -60,4 +60,13 @@ public interface Source {
    @return value
    */
   double getValue(long atMicros, int c);
+
+
+  /**
+   Get the length in seconds
+
+   @return length of source audio
+   */
+  double getLengthSeconds();
+
 }

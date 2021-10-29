@@ -122,4 +122,40 @@ public class SourceImplTest {
     assertEquals(44100, S16LSB_44100Hz_Mono.getFrameRate(), 0);
   }
 
+  @Test
+  public void enforceMaxStereo() throws SourceException {
+    SourceImpl.enforceMaxStereo(1);
+    SourceImpl.enforceMaxStereo(2);
+    assertThrows(SourceException.class, () -> SourceImpl.enforceMaxStereo(3));
+  }
+
+  @Test
+  public void lengthMicros() {
+    assertEquals(361750, F32LSB_48kHz_Stereo.lengthMicros());
+    assertEquals(865306, S16LSB_44100Hz_Mono.lengthMicros());
+  }
+
+  @Test
+  public void getInputFormat() {
+    assertEquals(AudioFormat.Encoding.PCM_FLOAT, F32LSB_48kHz_Stereo.getInputFormat().getEncoding());
+    assertEquals(AudioFormat.Encoding.PCM_SIGNED, S16LSB_44100Hz_Mono.getInputFormat().getEncoding());
+  }
+
+  @Test
+  public void getData() {
+    assertEquals(17364, F32LSB_48kHz_Stereo.getData().length);
+    assertEquals(38160, S16LSB_44100Hz_Mono.getData().length);
+  }
+
+  @Test
+  public void getValue() {
+    assertEquals(-0.04698127135634422, F32LSB_48kHz_Stereo.getValue(52454, 1), .01);
+    assertEquals(-0.868499755859375, S16LSB_44100Hz_Mono.getValue(52454, 1), .01);
+  }
+
+  @Test
+  public void getLengthSeconds() {
+    assertEquals(0.3617500066757202, F32LSB_48kHz_Stereo.getLengthSeconds(), .01);
+    assertEquals(0.8653061389923096, S16LSB_44100Hz_Mono.getLengthSeconds(), .01);
+  }
 }
