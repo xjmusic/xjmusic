@@ -318,8 +318,9 @@ public interface Values {
    @return random strings from collection
    */
   static List<String> randomFrom(Collection<String> from, int num) {
+    if (0 == num || from.isEmpty()) return List.of();
     var working = Lists.newArrayList(from);
-    while (num < working.size())
+    while (num < working.size() && 0 < working.size())
       working.remove((int) TremendouslyRandom.zeroToLimit(working.size()));
     return working;
   }

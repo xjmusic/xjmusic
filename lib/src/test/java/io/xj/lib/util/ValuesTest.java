@@ -153,4 +153,22 @@ public class ValuesTest {
     assertTrue(input.containsAll(result));
     assertEquals(3, input.size());
   }
+
+  @Test
+  public void randomFrom_noSource() {
+    assertEquals(List.of(), Values.randomFrom(List.of(), 5));
+  }
+
+  @Test
+  public void randomFrom_targetZero() {
+    var input = List.of("A", "B", "C");
+    assertEquals(List.of(), Values.randomFrom(input, 0));
+  }
+
+  @Test
+  public void randomFrom_zeroFromNoSource() {
+    assertEquals(List.of(), Values.randomFrom(List.of(), 0));
+  }
+
+
 }
