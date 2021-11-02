@@ -37,7 +37,6 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -184,9 +183,9 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
     Collection<Chain> chains;
     try {
       chains = ChainManager.readAllFabricating();
-      Set<UUID> chainTemplateIds = chains.stream().map(Chain::getTemplateId).collect(Collectors.toSet());
+      Set<String> chainShipKeys = chains.stream().map(Chain::getShipKey).collect(Collectors.toSet());
       for (Template template : templates)
-        if (!chainTemplateIds.contains(template.getId()))
+        if (!chainShipKeys.contains(template.getShipKey()))
           createChainForTemplate(template.getShipKey(), TemplateType.Preview);
     } catch (ManagerFatalException | ManagerPrivilegeException e) {
       LOG.error("Failed to start Chain(s) for playing Template(s)!", e);
@@ -194,10 +193,10 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
     }
 
     // Stop chains no longer playing
-    Set<UUID> templateIds = templates.stream().map(Template::getId).collect(Collectors.toSet());
+    Set<String> templateShipKeys = templates.stream().map(Template::getShipKey).collect(Collectors.toSet());
     try {
       for (var chain : chains)
-        if (!templateIds.contains(chain.getTemplateId())) {
+        if (!templateShipKeys.contains(chain.getShipKey())) {
           LOG.info("Will stop lab Chain[{}] for no-longer-playing Template", Chains.getIdentifier(chain));
           ChainManager.updateState(chain.getId(), ChainState.COMPLETE);
         }
