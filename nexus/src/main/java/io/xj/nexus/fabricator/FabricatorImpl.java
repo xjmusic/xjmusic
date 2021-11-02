@@ -94,8 +94,6 @@ class FabricatorImpl implements Fabricator {
       this.sourceMaterial = sourceMaterial;
 
       workTempFilePathPrefix = env.getTempFilePathPrefix();
-      workBufferAheadSeconds = env.getWorkBufferAheadSeconds();
-      workBufferBeforeSeconds = env.getWorkBufferBeforeSeconds();
 
       // caches
       chordAtPosition = Maps.newHashMap();
@@ -120,6 +118,10 @@ class FabricatorImpl implements Fabricator {
       LOG.debug("[segId={}] Chain {} configured with {} and bound to {} ", segment.getId(), chain.getId(),
         templateConfig,
         CSV.prettyFrom(templateBindings, "and"));
+
+      // Buffer times from template
+      workBufferAheadSeconds = templateConfig.getBufferAheadSeconds();
+      workBufferBeforeSeconds = templateConfig.getBufferBeforeSeconds();
 
       // set up the segment retrospective
       retrospective = fabricatorFactory.loadRetrospective(segment, sourceMaterial);

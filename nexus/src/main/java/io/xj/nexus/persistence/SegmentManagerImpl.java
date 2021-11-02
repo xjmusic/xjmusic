@@ -6,7 +6,6 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.xj.api.*;
-import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.ChordEntity;
 import io.xj.lib.entity.common.MessageEntity;
@@ -30,21 +29,16 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   public static final Double LENGTH_MINIMUM = 0.01; //
   public static final Double AMPLITUDE_MINIMUM = 0.0; //
   private final ChainManager chainManager;
-  private final int workBufferAheadSeconds;
-  private final int workBufferBeforeSeconds;
 
   @Inject
   public SegmentManagerImpl(
     EntityFactory entityFactory,
     NexusEntityStore nexusEntityStore,
-    ChainManager chainManager,
-    Environment env
+    ChainManager chainManager
   ) {
     super(entityFactory, nexusEntityStore);
     this.chainManager = chainManager;
 
-    workBufferAheadSeconds = env.getWorkBufferAheadSeconds();
-    workBufferBeforeSeconds = env.getWorkBufferBeforeSeconds();
   }
 
   /**
@@ -252,8 +246,9 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   public Collection<Segment> readManyFromSecondsUTC(HubClientAccess access, UUID chainId, Long fromSecondsUTC) throws ManagerFatalException {
     try {
       Instant from = Instant.ofEpochSecond(fromSecondsUTC);
-      Instant maxBeginAt = from.plusSeconds(workBufferAheadSeconds);
-      Instant minEndAt = from.minusSeconds(workBufferBeforeSeconds);
+      var templateConfig = chainManager.getTemplateConfig(chainId);
+      Instant maxBeginAt = from.plusSeconds(templateConfig.getBufferAheadSeconds());
+      Instant minEndAt = from.minusSeconds(templateConfig.getBufferBeforeSeconds());
       return store.getAllSegments(chainId)
         .stream()
         .filter(s -> Values.isSet(s.getEndAt()) &&
@@ -263,7 +258,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
         .sorted(Comparator.comparing(Segment::getOffset))
         .collect(Collectors.toList());
 
-    } catch (NexusException e) {
+    } catch (NexusException | ManagerExistenceException | ManagerPrivilegeException | ValueException e) {
       throw new ManagerFatalException(e);
     }
   }

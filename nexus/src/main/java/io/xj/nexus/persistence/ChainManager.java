@@ -4,7 +4,9 @@ package io.xj.nexus.persistence;
 import io.xj.api.Chain;
 import io.xj.api.ChainState;
 import io.xj.api.Segment;
+import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.TemplateType;
+import io.xj.lib.util.ValueException;
 import io.xj.nexus.NexusException;
 
 import java.time.Instant;
@@ -107,15 +109,6 @@ public interface ChainManager extends Manager<Chain> {
   Collection<Chain> readAll() throws NexusException;
 
   /**
-   Put all entities into the store, keyed by their individual type and id
-
-   @param <N>      types of entities
-   @param entities to put into the store
-   @return collection of entities just added to the store
-   */
-  <N> Collection<N> putAllEntities(Collection<N> entities) throws NexusException;
-
-  /**
    Put this chain in the store as-is@param chain to put
 
    @return chain that was put
@@ -129,4 +122,17 @@ public interface ChainManager extends Manager<Chain> {
    @return true if exists in store
    */
   boolean existsForShipKey(String shipKey);
+
+  /**
+   Get the template config for a given chain id
+
+   @param chainId for which to get chain id
+   @return template config
+   @throws ManagerFatalException     on failure
+   @throws ManagerExistenceException on failure
+   @throws ManagerPrivilegeException on failure
+   @throws ValueException            on failure
+   */
+  TemplateConfig getTemplateConfig(UUID chainId) throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, ValueException;
+
 }

@@ -8,7 +8,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import io.xj.api.*;
+import io.xj.api.Chain;
+import io.xj.api.ChainState;
+import io.xj.api.Segment;
+import io.xj.api.SegmentState;
 import io.xj.hub.enums.TemplateType;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
@@ -16,6 +19,7 @@ import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.MultiStopwatch;
 import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.lib.util.Text;
+import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.CraftFactory;
@@ -66,8 +70,6 @@ public class NexusWorkImpl implements NexusWork {
   private final TelemetryProvider telemetryProvider;
   private final boolean janitorEnabled;
   private final boolean medicEnabled;
-  private final int bufferPreviewSeconds;
-  private final int bufferProductionSeconds;
   private final int cycleMillis;
   private final int eraseSegmentsOlderThanSeconds;
   private final int ingestCycleSeconds;
@@ -108,8 +110,6 @@ public class NexusWorkImpl implements NexusWork {
     this.store = store;
     this.telemetryProvider = telemetryProvider;
 
-    bufferPreviewSeconds = env.getWorkBufferPreviewSeconds();
-    bufferProductionSeconds = env.getWorkBufferProductionSeconds();
     cycleMillis = env.getWorkCycleMillis();
     eraseSegmentsOlderThanSeconds = env.getWorkEraseSegmentsOlderThanSeconds();
     healthCycleStalenessThresholdMillis = env.getWorkHealthCycleStalenessThresholdSeconds() * MILLIS_PER_SECOND;
@@ -299,15 +299,13 @@ public class NexusWorkImpl implements NexusWork {
       timer.section("ComputeAhead");
       var fabricatedAheadSeconds = computeFabricatedAheadSeconds(chain);
       chain = updateFabricatedAheadSeconds(chain, fabricatedAheadSeconds);
-      if (TemplateType.Preview.toString().equals(chain.getType().toString())
-        && fabricatedAheadSeconds > bufferPreviewSeconds) return;
-      else if (fabricatedAheadSeconds > bufferProductionSeconds) return;
+      var templateConfig = chainManager.getTemplateConfig(chain.getId());
+      if (fabricatedAheadSeconds > templateConfig.getBufferAheadSeconds()) return;
 
       timer.section("BuildNext");
-      int workBufferSeconds = bufferSecondsFor(chain);
       Optional<Segment> nextSegment = chainManager.buildNextSegmentOrCompleteTheChain(chain,
-        Instant.now().plusSeconds(workBufferSeconds),
-        Instant.now().minusSeconds(workBufferSeconds));
+        Instant.now().plusSeconds(templateConfig.getBufferAheadSeconds()),
+        Instant.now().minusSeconds(templateConfig.getBufferAheadSeconds()));
       if (nextSegment.isEmpty()) return;
 
       Segment segment = segmentManager.create(nextSegment.get());
@@ -341,7 +339,7 @@ public class NexusWorkImpl implements NexusWork {
         Segments.getIdentifier(segment),
         fabricatedAheadSeconds);
 
-    } catch (ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException | ManagerFatalException | NexusException e) {
+    } catch (ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException | ManagerFatalException | NexusException | ValueException e) {
       var body = String.format("Failed to create Segment of Chain[%s] (%s) because %s\n\n%s",
         Chains.getIdentifier(chain),
         chain.getType(),
@@ -368,19 +366,6 @@ public class NexusWorkImpl implements NexusWork {
   @Override
   public void stop() {
     alive = false;
-  }
-
-  /**
-   Determine the buffer for a specified type of chain
-
-   @param chain to get buffer for, based on its type
-   @return buffer # of seconds this type of chain
-   */
-  private int bufferSecondsFor(Chain chain) {
-    return switch (chain.getType()) {
-      case PRODUCTION -> bufferProductionSeconds;
-      case PREVIEW -> bufferPreviewSeconds;
-    };
   }
 
   /**

@@ -70,7 +70,6 @@ public class Environment {
   private final int awsUploadExpireMinutes;
   private final int chainStartInFutureSeconds;
   private final int fabricationPreviewLengthMaxHours;
-  private final int fabricationPreviewShipKeyLength;
   private final int fabricationReviveChainFabricatedBehindSeconds;
   private final int fabricationReviveChainProductionGraceSeconds;
   private final int playbackExpireSeconds;
@@ -85,10 +84,6 @@ public class Environment {
   private final int shipChunkSeconds;
   private final int shipReloadSeconds;
   private final int shipSegmentLoadTimeoutSeconds;
-  private final int workBufferAheadSeconds;
-  private final int workBufferBeforeSeconds;
-  private final int workBufferPreviewSeconds;
-  private final int workBufferProductionSeconds;
   private final int workCycleMillis;
   private final int workEraseSegmentsOlderThanSeconds;
   private final int workHealthCycleStalenessThresholdSeconds;
@@ -134,7 +129,6 @@ public class Environment {
     bootstrapShipKeys = CSV.split(readStr(vars, "BOOTSTRAP_SHIP_KEYS", EMPTY));
     chainStartInFutureSeconds = readInt(vars, "CHAIN_START_IN_FUTURE_SECONDS", 0);
     fabricationPreviewLengthMaxHours = readInt(vars, "FABRICATION_PREVIEW_LENGTH_MAX_HOURS", 8);
-    fabricationPreviewShipKeyLength = readInt(vars, "FABRICATION_PREVIEW_SHIP_KEY_LENGTH", 20);
     fabricationReviveChainFabricatedBehindSeconds = readInt(vars, "FABRICATION_REVIVE_CHAIN_FABRICATED_BEHIND_SECONDS", 15);
     fabricationReviveChainProductionGraceSeconds = readInt(vars, "FABRICATION_REVIVE_CHAIN_PRODUCTION_GRACE_SECONDS", 15);
     hostname = readStr(vars, "HOSTNAME", "localhost");
@@ -160,16 +154,12 @@ public class Environment {
     streamBucket = readStr(vars, "STREAM_BUCKET", "xj-dev-stream");
     telemetryNamespace = readStr(vars, "TELEMETRY_NAMESPACE", "Lab/Hub");
     tempFilePathPrefix = readStr(vars, "TEMP_FILE_PATH_PREFIX", "/tmp/");
-    workBufferAheadSeconds = readInt(vars, "WORK_BUFFER_AHEAD_SECONDS", 90);
-    workBufferBeforeSeconds = readInt(vars, "WORK_BUFFER_BEFORE_SECONDS", 5);
-    workBufferPreviewSeconds = readInt(vars, "WORK_BUFFER_PREVIEW_SECONDS", 90);
-    workBufferProductionSeconds = readInt(vars, "WORK_BUFFER_PRODUCTION_SECONDS", 180);
     workChainManagementEnabled = readBool(vars, "WORK_CHAIN_MANAGEMENT_ENABLED", true);
     workCycleMillis = readInt(vars, "WORK_CYCLE_MILLIS", 1200);
     workEraseSegmentsOlderThanSeconds = readInt(vars, "WORK_ERASE_SEGMENTS_OLDER_THAN_SECONDS", 30);
     workHealthCycleStalenessThresholdSeconds = readInt(vars, "WORK_HEALTH_CYCLE_STALENESS_THRESHOLD_SECONDS", 30);
-    workIngestCycleSeconds = readInt(vars, "WORK_INGEST_CYCLE_SECONDS", 60);
-    workJanitorCycleSeconds = readInt(vars, "WORK_JANITOR_CYCLE_SECONDS", 90);
+    workIngestCycleSeconds = readInt(vars, "WORK_INGEST_CYCLE_SECONDS", 20);
+    workJanitorCycleSeconds = readInt(vars, "WORK_JANITOR_CYCLE_SECONDS", 60);
     workJanitorEnabled = readBool(vars, "WORK_JANITOR_ENABLED", true);
     workLabHubLabPollSeconds = readInt(vars, "WORK_LAB_HUB_LAB_POLL_SECONDS", 10);
     workMedicCycleSeconds = readInt(vars, "WORK_MEDIC_CYCLE_SECONDS", 30);
@@ -477,13 +467,6 @@ public class Environment {
   }
 
   /**
-   @return the fabrication preview ship key length
-   */
-  public int getFabricationPreviewShipKeyLength() {
-    return fabricationPreviewShipKeyLength;
-  }
-
-  /**
    @return the fabrication revive chain fabricated behind seconds
    */
   public int getFabricationReviveChainFabricatedBehindSeconds() {
@@ -754,34 +737,6 @@ public class Environment {
    */
   public int getWorkEraseSegmentsOlderThanSeconds() {
     return workEraseSegmentsOlderThanSeconds;
-  }
-
-  /**
-   @return the work buffer ahead seconds
-   */
-  public int getWorkBufferAheadSeconds() {
-    return workBufferAheadSeconds;
-  }
-
-  /**
-   @return the work buffer before seconds
-   */
-  public int getWorkBufferBeforeSeconds() {
-    return workBufferBeforeSeconds;
-  }
-
-  /**
-   @return the work buffer preview seconds
-   */
-  public int getWorkBufferPreviewSeconds() {
-    return workBufferPreviewSeconds;
-  }
-
-  /**
-   @return the work buffer production seconds
-   */
-  public int getWorkBufferProductionSeconds() {
-    return workBufferProductionSeconds;
   }
 
   /**

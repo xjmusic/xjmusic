@@ -306,6 +306,7 @@ public class NexusIntegrationTestingFixtures {
     chain.setName(name);
     chain.setType(type);
     chain.setState(state);
+    chain.setTemplateConfig(TEST_TEMPLATE_CONFIG);
     chain.startAt(Values.formatIso8601UTC(startAt));
     if (Objects.nonNull(stopAt))
       chain.stopAt(Values.formatIso8601UTC(stopAt));

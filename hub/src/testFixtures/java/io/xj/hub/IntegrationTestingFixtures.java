@@ -23,7 +23,7 @@ import java.util.UUID;
  as they are about testing all resources.
  */
 public class IntegrationTestingFixtures {
-  public static final String TEST_TEMPLATE_CONFIG = "outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n";
+  public static final String TEST_TEMPLATE_CONFIG = "bufferAheadSeconds=90\noutputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n";
   private final HubIntegrationTestProvider test;
 
   // These are fully exposed (no getters/setters) for ease of use in testing

@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.xj.api.*;
+import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.TemplateType;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityException;
@@ -393,11 +394,6 @@ public class ChainManagerImpl extends ManagerImpl<Chain> implements ChainManager
   }
 
   @Override
-  public <N> Collection<N> putAllEntities(Collection<N> entities) throws NexusException {
-    return store.putAll(entities);
-  }
-
-  @Override
   public Chain put(Chain entity) throws ManagerFatalException {
     try {
       return store.put(entity);
@@ -417,6 +413,11 @@ public class ChainManagerImpl extends ManagerImpl<Chain> implements ChainManager
       LOG.error("Failed to test if chain exists for ship key: {}", shipKey);
       return false;
     }
+  }
+
+  @Override
+  public TemplateConfig getTemplateConfig(UUID chainId) throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, ValueException {
+    return new TemplateConfig(readOne(chainId).getTemplateConfig());
   }
 
   /**

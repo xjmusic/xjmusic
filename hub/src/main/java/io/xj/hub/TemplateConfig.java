@@ -24,6 +24,8 @@ import java.util.Map;
 public class TemplateConfig {
   public static final String DEFAULT =
     """
+      bufferAheadSeconds = 180
+      bufferBeforeSeconds = 5
       deltaArcDetailLayersIncoming = 2
       deltaArcDetailLayersOutgoing = 2
       deltaArcDetailPlateauRatio = 0.7
@@ -87,6 +89,8 @@ public class TemplateConfig {
   private final double mixerNormalizationBoostThreshold;
   private final double mixerNormalizationCeiling;
   private final double outputEncodingQuality;
+  private final int bufferAheadSeconds;
+  private final int bufferBeforeSeconds;
   private final int deltaArcDetailLayersIncoming;
   private final int deltaArcDetailLayersOutgoing;
   private final int deltaArcRhythmLayersIncoming;
@@ -133,6 +137,8 @@ public class TemplateConfig {
       Config config = Strings.isNullOrEmpty(configText) ?
         ConfigFactory.parseString(DEFAULT) :
         ConfigFactory.parseString(configText).withFallback(ConfigFactory.parseString(DEFAULT));
+      bufferAheadSeconds = config.getInt("bufferAheadSeconds");
+      bufferBeforeSeconds = config.getInt("bufferBeforeSeconds");
       deltaArcDetailLayersIncoming = config.getInt("deltaArcDetailLayersIncoming");
       deltaArcDetailLayersOutgoing = config.getInt("deltaArcDetailLayersOutgoing");
       deltaArcDetailPlateauRatio = config.getDouble("deltaArcDetailPlateauRatio");
@@ -179,6 +185,8 @@ public class TemplateConfig {
   @Override
   public String toString() {
     Map<String, String> config = Maps.newHashMap();
+    config.put("bufferAheadSeconds", String.valueOf(bufferAheadSeconds));
+    config.put("bufferBeforeSeconds", String.valueOf(bufferBeforeSeconds));
     config.put("deltaArcDetailLayersIncoming", String.valueOf(deltaArcDetailLayersIncoming));
     config.put("deltaArcDetailLayersOutgoing", String.valueOf(deltaArcDetailLayersOutgoing));
     config.put("deltaArcDetailPlateauRatio", String.valueOf(deltaArcDetailPlateauRatio));
@@ -225,6 +233,7 @@ public class TemplateConfig {
   /**
    @return true if choice delta is enabled
    */
+  @SuppressWarnings("BooleanMethodIsAlwaysInverted")
   public boolean isDeltaArcEnabled() {
     return deltaArcEnabled;
   }
@@ -479,6 +488,20 @@ public class TemplateConfig {
    */
   public double getPercLoopLayerMin() {
     return percLoopLayerMin;
+  }
+
+  /**
+   @return the work buffer ahead seconds
+   */
+  public int getBufferAheadSeconds() {
+    return bufferAheadSeconds;
+  }
+
+  /**
+   @return the work buffer before seconds
+   */
+  public int getBufferBeforeSeconds() {
+    return bufferBeforeSeconds;
   }
 
 }
