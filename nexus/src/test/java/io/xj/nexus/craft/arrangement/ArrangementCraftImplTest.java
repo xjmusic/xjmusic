@@ -69,14 +69,12 @@ public class ArrangementCraftImplTest {
 
     TemplateConfig templateConfig = new TemplateConfig(template1);
     when(fabricator.getTemplateConfig()).thenReturn(templateConfig);
-    when(fabricator.retrospective()).thenReturn(retrospective);
     when(fabricator.getSegment()).thenReturn(segment0);
     subject = new ArrangementCraftImpl(fabricator);
   }
 
   @Test
   public void precomputeDeltas() throws NexusException {
-    when(fabricator.getType()).thenReturn(SegmentType.NEXTMAIN);
     ArrangementCraftImpl.ChoiceIndexProvider choiceIndexProvider = SegmentChoice::getInstrumentType;
     Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> ProgramType.Detail.toString().equals(choice.getProgramType());
     subject.precomputeDeltas(choiceFilter, choiceIndexProvider, DETAIL_INSTRUMENT_TYPES, 0.38, 0.62, 1, 1);

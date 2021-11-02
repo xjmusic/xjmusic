@@ -22,8 +22,6 @@ import io.xj.nexus.fabricator.EntityScorePicker;
 import io.xj.nexus.fabricator.FabricationWrapperImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.NameIsometry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -36,7 +34,6 @@ import static io.xj.nexus.persistence.Segments.DELTA_UNLIMITED;
  Arrangement of Segment Events is a common foundation for both Detail and Rhythm craft
  */
 public class ArrangementCraftImpl extends FabricationWrapperImpl {
-  private final Logger LOG = LoggerFactory.getLogger(ArrangementCraftImpl.class);
   private final Map<String, Integer> deltaIns = Maps.newHashMap();
   private final Map<String, Integer> deltaOuts = Maps.newHashMap();
   private ChoiceIndexProvider choiceIndexProvider = new DefaultChoiceIndexProvider();
@@ -127,11 +124,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @return delta in for given voice
    */
   protected int getDeltaIn(SegmentChoice choice) {
-    try {
-      return deltaIns.getOrDefault(choiceIndexProvider.get(choice), DELTA_UNLIMITED);
-    } catch (NexusException e) {
-      return DELTA_UNLIMITED;
-    }
+    return deltaIns.getOrDefault(choiceIndexProvider.get(choice), DELTA_UNLIMITED);
   }
 
   /**
@@ -141,11 +134,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @return delta out for given voice
    */
   protected int getDeltaOut(SegmentChoice choice) {
-    try {
-      return deltaOuts.getOrDefault(choiceIndexProvider.get(choice), DELTA_UNLIMITED);
-    } catch (NexusException e) {
-      return DELTA_UNLIMITED;
-    }
+    return deltaOuts.getOrDefault(choiceIndexProvider.get(choice), DELTA_UNLIMITED);
   }
 
   /**
@@ -213,17 +202,27 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     double bFadeInLayer = bFadeIn / indexes.size(); // space between transitions in
     double bFadeOutLayer = bFadeOut / indexes.size(); // space between transitions out
     double bPreFadeout = bTotal - bFadeOut;
-    var order = new ArrayList<>(indexes);
+    var layers = new ArrayList<>(indexes);
 
-    // everyone gets the same order at first-- wall-to-wall random deltas
+    // Ensure that we can bypass delta arcs using the template config
+    if (!fabricator.getTemplateConfig().isDeltaArcEnabled()) {
+      layers.forEach(layer -> {
+        deltaIns.put(layer, DELTA_UNLIMITED);
+        deltaOuts.put(layer, DELTA_UNLIMITED);
+      });
+      return;
+    }
+
+    // shuffle the layers into a random order, then step through them, assigning delta ins and then outs
     // random order in
-    Collections.shuffle(order);
-    for (int i = 0; i < order.size(); i++)
-      deltaIns.put(order.get(i), (int) Chance.normallyAround((i + 0.5) * bFadeInLayer, bFadeInLayer * 0.3));
+    Collections.shuffle(layers);
+    for (int i = 0; i < layers.size(); i++)
+      deltaIns.put(layers.get(i), (int) Chance.normallyAround((i + 0.5) * bFadeInLayer, bFadeInLayer * 0.3));
     // different random order out
-    Collections.shuffle(order);
-    for (int i = 0; i < order.size(); i++)
-      deltaOuts.put(order.get(i), (int) Chance.normallyAround(bPreFadeout + (i + 0.5) * bFadeOutLayer, bFadeOutLayer * 0.3));
+    Collections.shuffle(layers);
+    for (int i = 0; i < layers.size(); i++)
+      deltaOuts.put(layers.get(i), (int) Chance.normallyAround(bPreFadeout + (i + 0.5) * bFadeOutLayer, bFadeOutLayer * 0.3));
+
     // then we overwrite the wall-to-wall random values with more specific values depending on the situation
     switch (fabricator.getType()) {
       case PENDING -> {
@@ -232,53 +231,40 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
       case INITIAL -> {
         // randomly override N incoming (deltaIn unlimited) and N outgoing (deltaOut unlimited)
-        Values.randomFrom(order, numLayersIncoming).forEach(layer -> deltaIns.put(layer, DELTA_UNLIMITED));
-        Values.randomFrom(order, numLayersOutgoing).forEach(layer -> deltaOuts.put(layer, DELTA_UNLIMITED));
+        Values.randomFrom(layers, numLayersIncoming).forEach(layer -> deltaIns.put(layer, DELTA_UNLIMITED));
+        Values.randomFrom(layers, numLayersOutgoing).forEach(layer -> deltaOuts.put(layer, DELTA_UNLIMITED));
       }
 
       case CONTINUE -> {
         for (String index : indexes)
           fabricator.retrospective().getChoices().stream()
             .filter(choiceFilter)
-            .filter(choice -> {
-              try {
-                return Objects.equals(index, choiceIndexProvider.get(choice));
-              } catch (NexusException e) {
-                return false;
-              }
-            })
+            .filter(choice -> Objects.equals(index, choiceIndexProvider.get(choice)))
             .findAny()
             .ifPresent(choice -> {
-              try {
-                deltaIns.put(choiceIndexProvider.get(choice), choice.getDeltaIn());
-                deltaOuts.put(choiceIndexProvider.get(choice), choice.getDeltaOut());
-              } catch (NexusException e) {
-                LOG.warn("Failed to carry over outgoing delta because {}", e.getMessage());
-              }
+              deltaIns.put(choiceIndexProvider.get(choice), choice.getDeltaIn());
+              deltaOuts.put(choiceIndexProvider.get(choice), choice.getDeltaOut());
             });
       }
 
       case NEXTMAIN, NEXTMACRO -> {
-        // randomly override one outgoing (deltaOut unlimited)
-        deltaOuts.put(Values.randomFrom(order), DELTA_UNLIMITED);
+        // randomly override N outgoing (deltaOut unlimited)
+        Values.randomFrom(layers, numLayersOutgoing).forEach(layer -> deltaOuts.put(layer, DELTA_UNLIMITED));
 
-        // select one incoming (deltaIn unlimited) based on whichever was the outgoing (deltaOut unlimited) in the segments of the previous main program
-        var priorOutgoing = fabricator.retrospective().getChoices().stream()
+        // select N incoming (deltaIn unlimited) based on whichever was the outgoing (deltaOut unlimited) in the segments of the previous main program
+        var layersPriorOutgoing = fabricator.retrospective().getChoices().stream()
           .filter(choiceFilter)
           .filter(ArrangementCraftImpl::isUnlimitedOut)
-          .filter(choice -> {
-            try {
-              return indexes.contains(choiceIndexProvider.get(choice));
-            } catch (NexusException ignored) {
-              return false;
-            }
-          })
-          .findAny();
-        deltaIns.put(
-          priorOutgoing.isPresent()
-            ? choiceIndexProvider.get(priorOutgoing.get())
-            : Values.randomFrom(order),
-          DELTA_UNLIMITED);
+          .filter(choice -> indexes.contains(choiceIndexProvider.get(choice)))
+          .map(choiceIndexProvider::get)
+          .collect(Collectors.toList());
+
+        var numFromPrior = Math.max(layersPriorOutgoing.size(), numLayersIncoming);
+        Values.randomFrom(layersPriorOutgoing, numFromPrior).forEach(layer -> deltaIns.put(layer, DELTA_UNLIMITED));
+
+        var numNotPrior = numLayersIncoming - numFromPrior;
+        var layersNotPrior = layers.stream().filter(l -> !layersPriorOutgoing.contains(l)).collect(Collectors.toList());
+        Values.randomFrom(layersNotPrior, numNotPrior).forEach(layer -> deltaIns.put(layer, DELTA_UNLIMITED));
       }
     }
   }
@@ -805,7 +791,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    Class to get a comparable string index based on any given choice, e.g. it's voice name or instrument type
    */
   public interface ChoiceIndexProvider {
-    String get(SegmentChoice choice) throws NexusException;
+    String get(SegmentChoice choice);
   }
 
   /**
@@ -822,7 +808,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    */
   public static class DefaultChoiceIndexProvider implements ChoiceIndexProvider {
     @Override
-    public String get(SegmentChoice choice) throws NexusException {
+    public String get(SegmentChoice choice) {
       return choice.getId().toString();
     }
   }

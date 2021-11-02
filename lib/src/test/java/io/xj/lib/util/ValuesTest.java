@@ -143,4 +143,14 @@ public class ValuesTest {
     var input = List.of("A", "B", "C", "D", "E", "F", "G", "H", "I", "J");
     assertTrue(input.containsAll(Values.randomFrom(input, 4)));
   }
+
+  @Test
+  public void randomFrom_notEnough() {
+    var input = List.of("A", "B", "C");
+
+    var result = Values.randomFrom(input, 5);
+
+    assertTrue(input.containsAll(result));
+    assertEquals(3, input.size());
+  }
 }
