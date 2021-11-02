@@ -58,11 +58,11 @@ resource "kubernetes_deployment" "xj-prod-lab-nexus" {
 
           resources {
             requests = {
-              cpu    = "2000m"
+              cpu    = "3000m"
               memory = "4Gi"
             }
             limits = {
-              cpu    = "3000m"
+              cpu    = "4000m"
               memory = "8Gi"
             }
           }
