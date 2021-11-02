@@ -23,7 +23,7 @@ import java.util.UUID;
  as they are about testing all resources.
  */
 public class IntegrationTestingFixtures {
-  public static final String TEST_TEMPLATE_CONFIG = "outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\nchoiceDeltaEnabled = false\n";
+  public static final String TEST_TEMPLATE_CONFIG = "outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n";
   private final HubIntegrationTestProvider test;
 
   // These are fully exposed (no getters/setters) for ease of use in testing
@@ -456,7 +456,7 @@ public class IntegrationTestingFixtures {
 
   /**
    NOTE: it's crucial tht a test template configuration disable certain aleatory features,
-   e.g. `choiceDeltaEnabled = false` to disable choice delta randomness,
+   e.g. `deltaArcEnabled = false` to disable choice delta randomness,
    otherwise tests may sporadically fail.
    */
   public static Template buildTemplate(Account account1, TemplateType type, String name, String shipKey) {

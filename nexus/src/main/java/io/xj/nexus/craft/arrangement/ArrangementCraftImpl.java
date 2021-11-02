@@ -501,7 +501,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @return volume ratio
    */
   private double computeVolumeRatioForPickedNote(SegmentChoice choice, double segmentPosition, boolean topOfSegment, boolean fadeIn, boolean fadeOut) {
-    if (!fabricator.getTemplateConfig().isChoiceDeltaEnabled()) return 1.0;
+    if (!fabricator.getTemplateConfig().isDeltaArcEnabled()) return 1.0;
 
     // if deltaIn is before the beginning of this segment and deltaOut is after, include it
     if (isActiveEntireSegment(choice))

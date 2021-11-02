@@ -115,7 +115,7 @@ public class TemplateIT {
     assertNotNull(result);
     assertEquals(fake.account1.getId(), result.getAccountId());
     assertEquals("coconuts", result.getName());
-    assertTrue(result.getConfig().contains("choiceDeltaEnabled = true"));
+    assertTrue(result.getConfig().contains("deltaArcEnabled = true"));
   }
 
   @Test

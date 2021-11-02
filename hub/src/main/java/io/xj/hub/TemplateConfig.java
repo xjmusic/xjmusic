@@ -24,11 +24,11 @@ import java.util.Map;
 public class TemplateConfig {
   public static final String DEFAULT =
     """
-      choiceDeltaEnabled = true
       deltaArcDetailLayersIncoming = 2
       deltaArcDetailLayersOutgoing = 2
       deltaArcDetailPlateauRatio = 0.7
       deltaArcDetailPlateauShiftRatio = 0.62
+      deltaArcEnabled = true
       deltaArcRhythmLayersIncoming = 1
       deltaArcRhythmLayersOutgoing = 1
       deltaArcRhythmPlateauRatio = 0.3
@@ -67,7 +67,7 @@ public class TemplateConfig {
   private final String metaSource;
   private final String metaTitle;
   private final String outputContainer;
-  private final boolean choiceDeltaEnabled;
+  private final boolean deltaArcEnabled;
   private final double deltaArcDetailPlateauRatio;
   private final double deltaArcDetailPlateauShiftRatio;
   private final double deltaArcRhythmPlateauRatio;
@@ -133,11 +133,11 @@ public class TemplateConfig {
       Config config = Strings.isNullOrEmpty(configText) ?
         ConfigFactory.parseString(DEFAULT) :
         ConfigFactory.parseString(configText).withFallback(ConfigFactory.parseString(DEFAULT));
-      choiceDeltaEnabled = config.getBoolean("choiceDeltaEnabled");
       deltaArcDetailLayersIncoming = config.getInt("deltaArcDetailLayersIncoming");
       deltaArcDetailLayersOutgoing = config.getInt("deltaArcDetailLayersOutgoing");
       deltaArcDetailPlateauRatio = config.getDouble("deltaArcDetailPlateauRatio");
       deltaArcDetailPlateauShiftRatio = config.getDouble("deltaArcDetailPlateauShiftRatio");
+      deltaArcEnabled = config.getBoolean("deltaArcEnabled");
       deltaArcRhythmLayersIncoming = config.getInt("deltaArcRhythmLayersIncoming");
       deltaArcRhythmLayersOutgoing = config.getInt("deltaArcRhythmLayersOutgoing");
       deltaArcRhythmPlateauRatio = config.getDouble("deltaArcRhythmPlateauRatio");
@@ -179,11 +179,11 @@ public class TemplateConfig {
   @Override
   public String toString() {
     Map<String, String> config = Maps.newHashMap();
-    config.put("choiceDeltaEnabled", String.valueOf(choiceDeltaEnabled));
     config.put("deltaArcDetailLayersIncoming", String.valueOf(deltaArcDetailLayersIncoming));
     config.put("deltaArcDetailLayersOutgoing", String.valueOf(deltaArcDetailLayersOutgoing));
     config.put("deltaArcDetailPlateauRatio", String.valueOf(deltaArcDetailPlateauRatio));
     config.put("deltaArcDetailPlateauShiftRatio", String.valueOf(deltaArcDetailPlateauShiftRatio));
+    config.put("deltaArcEnabled", String.valueOf(deltaArcEnabled));
     config.put("deltaArcRhythmLayersIncoming", String.valueOf(deltaArcRhythmLayersIncoming));
     config.put("deltaArcRhythmLayersOutgoing", String.valueOf(deltaArcRhythmLayersOutgoing));
     config.put("deltaArcRhythmPlateauRatio", String.valueOf(deltaArcRhythmPlateauRatio));
@@ -225,8 +225,8 @@ public class TemplateConfig {
   /**
    @return true if choice delta is enabled
    */
-  public boolean isChoiceDeltaEnabled() {
-    return choiceDeltaEnabled;
+  public boolean isDeltaArcEnabled() {
+    return deltaArcEnabled;
   }
 
   /**
