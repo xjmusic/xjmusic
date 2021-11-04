@@ -37,16 +37,22 @@ import static io.xj.hub.tables.Account.ACCOUNT;
 public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
   private static final int GENERATED_SHIP_KEY_LENGTH = 9;
   private final long playbackExpireSeconds;
+  private final TemplateBindingDAO templateBindingDAO;
+  private final TemplatePlaybackDAO templatePlaybackDAO;
 
   @Inject
   public TemplateDAOImpl(
     EntityFactory entityFactory,
     Environment env,
     HubDatabaseProvider dbProvider,
-    JsonapiPayloadFactory payloadFactory
+    JsonapiPayloadFactory payloadFactory,
+    TemplateBindingDAO templateBindingDAO,
+    TemplatePlaybackDAO templatePlaybackDAO
   ) {
     super(payloadFactory, entityFactory);
     playbackExpireSeconds = env.getPlaybackExpireSeconds();
+    this.templateBindingDAO = templateBindingDAO;
+    this.templatePlaybackDAO = templatePlaybackDAO;
     this.dbProvider = dbProvider;
   }
 
@@ -122,13 +128,11 @@ public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
 
     // TemplateBinding
     if (types.contains(Entities.toResourceType(TemplateBinding.class)))
-      entities.addAll(modelsFrom(TemplateBinding.class,
-        db.selectFrom(TEMPLATE_BINDING).where(TEMPLATE_BINDING.TEMPLATE_ID.in(templateIds))));
+      entities.addAll(templateBindingDAO.readMany(hubAccess, templateIds));
 
     // TemplatePlayback
     if (types.contains(Entities.toResourceType(TemplatePlayback.class)))
-      entities.addAll(modelsFrom(TemplatePlayback.class,
-        db.selectFrom(TEMPLATE_PLAYBACK).where(TEMPLATE_PLAYBACK.TEMPLATE_ID.in(templateIds))));
+      entities.addAll(templatePlaybackDAO.readMany(hubAccess, templateIds));
 
     return entities;
   }

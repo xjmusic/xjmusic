@@ -218,6 +218,20 @@ public class TemplateIT {
   }
 
   @Test
+  public void readChildEntities() throws Exception {
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1, fake.account2), "User");
+    test.insert(buildTemplateBinding(template1a, buildProgram(buildLibrary(buildAccount("Test"), "test"), ProgramType.Detail, ProgramState.Published, "test", "C", 120.0f, 06f)));
+    test.insert(buildTemplatePlayback(template1a, buildUser("Test", "test@test.com", "test.jpg", "User")));
+    var legacy = buildTemplatePlayback(template1a, buildUser("Test2", "test2@test.com", "test2.jpg", "User"));
+    legacy.setCreatedAt(Timestamp.from(Instant.now().minusSeconds(60 * 60 * 24)));
+    test.insert(legacy);
+
+    Collection<Object> result = testDAO.readChildEntities(hubAccess, List.of(template1a.getId()), List.of("template-playbacks", "template-bindings"));
+
+    assertEquals(2L, result.size());
+  }
+
+  @Test
   public void readMany_fromAllAccounts() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1, fake.account2), "User");
 
