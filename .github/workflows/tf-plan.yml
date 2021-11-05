@@ -1,4 +1,4 @@
-name: "Terraform Apply"
+name: "Terraform Plan"
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
       - main
 
 jobs:
-  TerraformApply:
-    name: "Terraform Apply"
+  TerraformPlan:
+    name: "Terraform Plan"
     runs-on: ubuntu-latest
 
     steps:
@@ -42,7 +42,7 @@ jobs:
         run: terraform -chdir=.ops validate -no-color
         continue-on-error: false
 
-      - name: Terraform Apply
-        id: apply
-        run: terraform -chdir=.ops apply -auto-approve -no-color
+      - name: Terraform Plan
+        id: plan
+        run: terraform -chdir=.ops plan -no-color
         continue-on-error: false
