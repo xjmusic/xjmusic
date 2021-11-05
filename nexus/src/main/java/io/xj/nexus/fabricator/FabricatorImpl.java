@@ -898,6 +898,18 @@ class FabricatorImpl implements Fabricator {
     return sourceMaterial;
   }
 
+  @Override
+  public ProgramConfig getMainProgramConfig() throws NexusException {
+    try {
+      return new ProgramConfig(sourceMaterial
+        .getProgram(getCurrentMainChoice().orElseThrow(() -> new NexusException("No current main choice!")).getProgramId())
+        .orElseThrow(() -> new NexusException("Failed to retrieve current main program!")));
+
+    } catch (ValueException e) {
+      throw new NexusException(e);
+    }
+  }
+
   /**
    @return Chain base key
    */

@@ -171,4 +171,40 @@ public class ValuesTest {
   }
 
 
+  @Test
+  public void gcd() {
+    assertEquals(4, Values.gcd(4, 12));
+    assertEquals(3, Values.gcd(9, 12));
+  }
+
+  @Test
+  public void factors() {
+    assertArrayEquals(new int[]{2, 3, 4}, Values.factors(12, new int[]{2, 3, 4, 5, 7}));
+    assertArrayEquals(new int[]{2, 3, 4, 5}, Values.factors(60, new int[]{2, 3, 4, 5, 7}));
+    assertArrayEquals(new int[]{2, 3, 5, 7}, Values.factors(210, new int[]{2, 3, 4, 5, 7}));
+  }
+
+  @Test
+  public void div() {
+    assertEquals(2, Values.subDiv(2, 3));
+    assertEquals(4, Values.subDiv(4, 3));
+    assertEquals(4, Values.subDiv(12, 3));
+    assertEquals(3, Values.subDiv(12, 4));
+    assertEquals(4, Values.subDiv(16, 4));
+    assertEquals(4, Values.subDiv(24, 3));
+    assertEquals(3, Values.subDiv(24, 4));
+    assertEquals(4, Values.subDiv(48, 3));
+    assertEquals(3, Values.subDiv(48, 4));
+    assertEquals(4, Values.subDiv(64, 4));
+  }
+
+  @Test
+  public void multipleFloor() {
+    assertEquals(0, Values.multipleFloor(12, 11));
+    assertEquals(12, Values.multipleFloor(12, 20));
+    assertEquals(36, Values.multipleFloor(12, 38));
+    assertEquals(0, Values.multipleFloor(16, 11));
+    assertEquals(16, Values.multipleFloor(16, 20));
+    assertEquals(32, Values.multipleFloor(16, 34));
+  }
 }

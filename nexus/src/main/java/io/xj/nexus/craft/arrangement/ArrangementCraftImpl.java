@@ -9,10 +9,7 @@ import com.google.inject.Inject;
 import io.xj.api.*;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.*;
-import io.xj.lib.music.AdjSymbol;
-import io.xj.lib.music.Chord;
-import io.xj.lib.music.Note;
-import io.xj.lib.music.NoteRange;
+import io.xj.lib.music.*;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.TremendouslyRandom;
@@ -215,13 +212,14 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
     // shuffle the layers into a random order, then step through them, assigning delta ins and then outs
     // random order in
+    var deltaUnits = Bar.of(fabricator.getMainProgramConfig().getBarBeats()).computeSubsectionBeats(fabricator.getSegment().getTotal());
     Collections.shuffle(layers);
     for (int i = 0; i < layers.size(); i++)
-      deltaIns.put(layers.get(i), (int) Chance.normallyAround((i + 0.5) * bFadeInLayer, bFadeInLayer * 0.3));
+      deltaIns.put(layers.get(i), Values.multipleFloor(deltaUnits, Chance.normallyAround((i + 0.5) * bFadeInLayer, bFadeInLayer * 0.3)));
     // different random order out
     Collections.shuffle(layers);
     for (int i = 0; i < layers.size(); i++)
-      deltaOuts.put(layers.get(i), (int) Chance.normallyAround(bPreFadeout + (i + 0.5) * bFadeOutLayer, bFadeOutLayer * 0.3));
+      deltaOuts.put(layers.get(i), Values.multipleFloor(deltaUnits, Chance.normallyAround(bPreFadeout + (i + 0.5) * bFadeOutLayer, bFadeOutLayer * 0.3)));
 
     // then we overwrite the wall-to-wall random values with more specific values depending on the situation
     switch (fabricator.getType()) {

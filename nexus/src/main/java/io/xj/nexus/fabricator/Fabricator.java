@@ -11,6 +11,7 @@ import io.xj.hub.tables.pojos.*;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Key;
 import io.xj.lib.music.NoteRange;
+import io.xj.lib.util.ValueException;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.hub_client.client.HubContent;
 
@@ -652,4 +653,11 @@ public interface Fabricator {
    @return source material
    */
   HubContent sourceMaterial();
+
+  /**
+   Get the configuration of the current main program
+
+   @return main-program configuration
+   */
+  ProgramConfig getMainProgramConfig() throws NexusException;
 }

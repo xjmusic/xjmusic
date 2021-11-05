@@ -324,4 +324,68 @@ public interface Values {
       working.remove((int) TremendouslyRandom.zeroToLimit(working.size()));
     return working;
   }
+
+  /**
+   Greatest common denominator of two numbers
+
+   @param a from which to compute
+   @param b from which to compute
+   @return greatest common denominator
+   */
+  static long gcd(long a, long b) {
+    while (b > 0) {
+      long temp = b;
+      b = a % b; // % is remainder
+      a = temp;
+    }
+    return a;
+  }
+
+  /**
+   Get the values (filtered from the given set of test factors) which are factors of the target value
+
+   @param target      which we'll test values against
+   @param testFactors values to test
+   @return values that are indeed a factor of the target value
+   */
+  static int[] factors(long target, int[] testFactors) {
+    return Arrays.stream(testFactors)
+      .filter(tf -> target % tf == 0)
+      .toArray();
+  }
+
+  /**
+   Get the smallest subdivision within the total, e.g.
+   --- [12,3] = 4
+   --- [12,4] = 3
+   --- [16,4] = 4
+   --- [24,3] = 4
+   --- [24,4] = 3
+   --- [48,3] = 4
+   --- [48,4] = 3
+   --- [64,4] = 4
+
+   @param numerator   from which to compute
+   @param denominator from which to compute
+   */
+  static int subDiv(int numerator, int denominator) {
+    if (numerator % denominator != 0 || numerator <= denominator) return numerator;
+    var result = numerator;
+    while (result % denominator == 0 && result > denominator)
+      result = result / denominator;
+    while (result % 2 == 0 && result > denominator * 1.38)
+      result = result / 2;
+    return result;
+  }
+
+  /**
+   Round down to a multiple of the given factor
+
+   @param factor of which to get a multiple
+   @param value  source
+   @return floor of value
+   */
+  static int multipleFloor(int factor, double value) {
+    return (int) (Math.floor(value / factor) * factor);
+  }
 }

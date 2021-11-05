@@ -231,6 +231,20 @@ public class TemplateConfig {
   }
 
   /**
+   @return the work buffer ahead seconds
+   */
+  public int getBufferAheadSeconds() {
+    return bufferAheadSeconds;
+  }
+
+  /**
+   @return the work buffer before seconds
+   */
+  public int getBufferBeforeSeconds() {
+    return bufferBeforeSeconds;
+  }
+
+  /**
    @return true if choice delta is enabled
    */
   @SuppressWarnings("BooleanMethodIsAlwaysInverted")
@@ -488,20 +502,6 @@ public class TemplateConfig {
    */
   public double getPercLoopLayerMin() {
     return percLoopLayerMin;
-  }
-
-  /**
-   @return the work buffer ahead seconds
-   */
-  public int getBufferAheadSeconds() {
-    return bufferAheadSeconds;
-  }
-
-  /**
-   @return the work buffer before seconds
-   */
-  public int getBufferBeforeSeconds() {
-    return bufferBeforeSeconds;
   }
 
 }
