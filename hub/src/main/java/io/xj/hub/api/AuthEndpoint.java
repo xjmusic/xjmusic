@@ -10,8 +10,10 @@ import io.xj.hub.access.HubAccessControlProvider;
 import io.xj.hub.access.HubAccessException;
 import io.xj.hub.dao.DAOException;
 import io.xj.hub.dao.UserDAO;
+import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.tables.pojos.UserAuth;
 import io.xj.lib.app.Environment;
-import io.xj.lib.json.ApiUrlProvider;
+import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
@@ -34,9 +36,8 @@ import java.util.Objects;
  Current user authentication
  */
 @Path("auth")
-public class AuthEndpoint extends HubJsonapiEndpoint {
+public class AuthEndpoint extends HubJsonapiEndpoint<UserAuth> {
   private static final Logger log = LoggerFactory.getLogger(AuthEndpoint.class);
-  private final ApiUrlProvider apiUrlProvider;
   private final GoogleProvider authGoogleProvider;
   private final HubAccessControlProvider hubAccessControlProvider;
   private final JsonapiHttpResponseProvider httpResponseProvider;
@@ -49,17 +50,17 @@ public class AuthEndpoint extends HubJsonapiEndpoint {
    */
   @Inject
   public AuthEndpoint(
-    ApiUrlProvider apiUrlProvider,
+    EntityFactory entityFactory,
     Environment env,
     GoogleProvider authGoogleProvider,
     HubAccessControlProvider hubAccessControlProvider,
     JsonapiHttpResponseProvider httpResponseProvider,
+    HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
     UserDAO userDAO
   ) {
-    super(response, payloadFactory);
-    this.apiUrlProvider = apiUrlProvider;
+    super(dbProvider, response, payloadFactory, entityFactory);
     this.authGoogleProvider = authGoogleProvider;
     this.httpResponseProvider = httpResponseProvider;
     this.hubAccessControlProvider = hubAccessControlProvider;

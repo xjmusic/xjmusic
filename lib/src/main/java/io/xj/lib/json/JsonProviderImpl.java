@@ -3,30 +3,48 @@
 package io.xj.lib.json;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.xj.lib.entity.InstantDeserializer;
 import io.xj.lib.entity.InstantSerializer;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Singleton
 public class JsonProviderImpl implements JsonProvider {
-  private final ObjectMapper objectMapper = new ObjectMapper();
+  private final ObjectMapper mapper = new ObjectMapper();
 
   @Inject
   public JsonProviderImpl() {
-    SimpleModule module = new SimpleModule();
-    module.addSerializer(Instant.class, new InstantSerializer());
-    module.addDeserializer(Instant.class, new InstantDeserializer());
-    objectMapper.registerModule(module);
-    objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    mapper.registerModule(buildInstantSerDesModule());
+    mapper.registerModule(buildJavaTimeModule());
+    mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+    mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
   }
 
   @Override
-  public ObjectMapper getObjectMapper() {
-    return objectMapper;
+  public ObjectMapper getMapper() {
+    return mapper;
+  }
+
+  private Module buildInstantSerDesModule() {
+    SimpleModule mod = new SimpleModule();
+    mod.addSerializer(Instant.class, new InstantSerializer());
+    mod.addDeserializer(Instant.class, new InstantDeserializer());
+    return mod;
+  }
+
+  private Module buildJavaTimeModule() {
+    JavaTimeModule mod = new JavaTimeModule();
+    mod.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeFormatter.ISO_DATE_TIME));
+    return mod;
   }
 }

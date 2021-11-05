@@ -6,6 +6,9 @@ import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.dao.DAO;
 import io.xj.hub.dao.DAOException;
+import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubPersistenceServiceImpl;
+import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
@@ -21,7 +24,7 @@ import java.util.stream.Collectors;
 /**
  A JAX-RS resource
  */
-public class HubJsonapiEndpoint {
+public class HubJsonapiEndpoint<E> extends HubPersistenceServiceImpl<E> {
   public static final String ADMIN = "Admin";
   public static final String ARTIST = "Artist";
   //  public static final String BANNED = "Banned";
@@ -36,9 +39,12 @@ public class HubJsonapiEndpoint {
    */
   @Inject
   public HubJsonapiEndpoint(
+    HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
-    JsonapiPayloadFactory payloadFactory
+    JsonapiPayloadFactory payloadFactory,
+    EntityFactory entityFactory
   ) {
+    super(entityFactory, dbProvider);
     this.response = response;
     this.payloadFactory = payloadFactory;
   }

@@ -8,12 +8,13 @@ import io.xj.hub.InstrumentConfig;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubPersistenceServiceImpl;
+import io.xj.hub.tables.pojos.FeedbackInstrument;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.InstrumentMeme;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
@@ -28,16 +29,14 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static io.xj.hub.Tables.*;
 
-public class InstrumentDAOImpl extends DAOImpl<Instrument> implements InstrumentDAO {
+public class InstrumentDAOImpl extends HubPersistenceServiceImpl<Instrument> implements InstrumentDAO {
 
   @Inject
   public InstrumentDAOImpl(
-    JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory,
     HubDatabaseProvider dbProvider
   ) {
-    super(payloadFactory, entityFactory);
-    this.dbProvider = dbProvider;
+    super(entityFactory, dbProvider);
   }
 
   @Override
@@ -93,19 +92,8 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
         .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .fetchOne(0, int.class));
 
-    //
-    // [#170299297] Cannot delete Instruments that have a Meme-- otherwise, destroy all inner entities
-    //
-
-    requireNotExists("Instrument Memes", db.selectCount().from(INSTRUMENT_MEME)
-      .where(INSTRUMENT_MEME.INSTRUMENT_ID.eq(id))
-      .fetchOne(0, int.class));
-
-    db.deleteFrom(INSTRUMENT_AUDIO)
-      .where(INSTRUMENT_AUDIO.INSTRUMENT_ID.eq(id))
-      .execute();
-
-    db.deleteFrom(INSTRUMENT)
+    db.update(INSTRUMENT)
+      .set(INSTRUMENT.IS_DELETED, true)
       .where(INSTRUMENT.ID.eq(id))
       .execute();
   }
@@ -122,6 +110,7 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
         .from(INSTRUMENT)
         .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
         .where(LIBRARY.ACCOUNT_ID.eq(UUID.fromString(accountId)))
+        .and(INSTRUMENT.IS_DELETED.eq(false))
         .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
         .fetch());
     else
@@ -129,6 +118,7 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
         .from(INSTRUMENT)
         .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
         .where(LIBRARY.ACCOUNT_ID.in(Collections.singleton(accountId)))
+        .and(INSTRUMENT.IS_DELETED.eq(false))
         .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
         .fetch());
@@ -140,6 +130,7 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
       return modelsFrom(Instrument.class, dbProvider.getDSL().select(INSTRUMENT.fields())
         .from(INSTRUMENT)
         .where(INSTRUMENT.LIBRARY_ID.in(parentIds))
+        .and(INSTRUMENT.IS_DELETED.eq(false))
         .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
         .fetch());
     else
@@ -147,6 +138,7 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
         .from(INSTRUMENT)
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(INSTRUMENT.LIBRARY_ID.in(parentIds))
+        .and(INSTRUMENT.IS_DELETED.eq(false))
         .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
         .fetch());
@@ -161,6 +153,7 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
         requireExists("hubAccess via account", db.selectCount().from(INSTRUMENT)
           .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
           .where(INSTRUMENT.ID.eq(instrumentId))
+          .and(INSTRUMENT.IS_DELETED.eq(false))
           .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
           .fetchOne(0, int.class));
 
@@ -174,6 +167,9 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
     entities.addAll(modelsFrom(InstrumentAudio.class,
       db.selectFrom(INSTRUMENT_AUDIO)
         .where(INSTRUMENT_AUDIO.INSTRUMENT_ID.in(instrumentIds))));
+    entities.addAll(modelsFrom(FeedbackInstrument.class,
+      db.selectFrom(FEEDBACK_INSTRUMENT)
+        .where(FEEDBACK_INSTRUMENT.INSTRUMENT_ID.in(instrumentIds))));
     //noinspection unchecked
     return (Collection<N>) entities;
   }
@@ -183,6 +179,7 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
     if (hubAccess.isTopLevel())
       return modelsFrom(Instrument.class, dbProvider.getDSL().select(INSTRUMENT.fields())
         .from(INSTRUMENT)
+        .where(INSTRUMENT.IS_DELETED.eq(false))
         .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
         .fetch());
     else
@@ -190,6 +187,7 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
         .from(INSTRUMENT)
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(INSTRUMENT.IS_DELETED.eq(false))
         .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
         .fetch());
   }
@@ -200,6 +198,7 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
     return DAO.idsFrom(dbProvider.getDSL().select(INSTRUMENT.ID)
       .from(INSTRUMENT)
       .where(INSTRUMENT.LIBRARY_ID.in(parentIds))
+      .and(INSTRUMENT.IS_DELETED.eq(false))
       .and(INSTRUMENT.STATE.equal(InstrumentState.Published))
       .fetch());
   }
@@ -228,12 +227,14 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
     if (hubAccess.isTopLevel())
       return modelFrom(Instrument.class, db.selectFrom(INSTRUMENT)
         .where(INSTRUMENT.ID.eq(id))
+        .and(INSTRUMENT.IS_DELETED.eq(false))
         .fetchOne());
     else
       return modelFrom(Instrument.class, db.select(INSTRUMENT.fields())
         .from(INSTRUMENT)
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(INSTRUMENT.ID.eq(id))
+        .and(INSTRUMENT.IS_DELETED.eq(false))
         .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .fetchOne());
   }

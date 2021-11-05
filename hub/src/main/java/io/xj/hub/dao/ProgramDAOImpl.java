@@ -9,12 +9,12 @@ import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.UserRoleType;
 import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.*;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
@@ -28,15 +28,13 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static io.xj.hub.Tables.*;
 
-public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
+public class ProgramDAOImpl extends HubPersistenceServiceImpl<Program> implements ProgramDAO {
   @Inject
   public ProgramDAOImpl(
-    JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory,
     HubDatabaseProvider dbProvider
   ) {
-    super(payloadFactory, entityFactory);
-    this.dbProvider = dbProvider;
+    super(entityFactory, dbProvider);
   }
 
   @Override
@@ -128,12 +126,14 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
     if (hubAccess.isTopLevel())
       return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
         .where(PROGRAM.LIBRARY_ID.in(parentIds))
+        .and(PROGRAM.IS_DELETED.eq(false))
         .orderBy(PROGRAM.TYPE, PROGRAM.NAME)
         .fetch());
     else
       return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
         .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
         .where(PROGRAM.LIBRARY_ID.in(parentIds))
+        .and(PROGRAM.IS_DELETED.eq(false))
         .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .orderBy(PROGRAM.TYPE, PROGRAM.NAME)
         .fetch());
@@ -157,6 +157,7 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
     entities.addAll(modelsFrom(ProgramSequence.class, db.selectFrom(PROGRAM_SEQUENCE).where(PROGRAM_SEQUENCE.PROGRAM_ID.in(programIds))));
     entities.addAll(modelsFrom(ProgramVoiceTrack.class, db.selectFrom(PROGRAM_VOICE_TRACK).where(PROGRAM_VOICE_TRACK.PROGRAM_ID.in(programIds))));
     entities.addAll(modelsFrom(ProgramVoice.class, db.selectFrom(PROGRAM_VOICE).where(PROGRAM_VOICE.PROGRAM_ID.in(programIds))));
+    entities.addAll(modelsFrom(FeedbackProgram.class, db.selectFrom(FEEDBACK_PROGRAM).where(FEEDBACK_PROGRAM.PROGRAM_ID.in(programIds))));
     //noinspection unchecked
     return (Collection<N>) entities;
   }
@@ -219,6 +220,11 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
       entities.addAll(modelsFrom(ProgramVoice.class,
         db.selectFrom(PROGRAM_VOICE).where(PROGRAM_VOICE.PROGRAM_ID.in(programIds))));
 
+    // FeedbackProgram
+    if (types.contains(Entities.toResourceType(FeedbackProgram.class)))
+      entities.addAll(modelsFrom(FeedbackProgram.class,
+        db.selectFrom(FEEDBACK_PROGRAM).where(FEEDBACK_PROGRAM.PROGRAM_ID.in(programIds))));
+
     return entities;
   }
 
@@ -226,12 +232,14 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   public Collection<Program> readMany(HubAccess hubAccess) throws DAOException {
     if (hubAccess.isTopLevel())
       return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
+        .where(PROGRAM.IS_DELETED.eq(false))
         .orderBy(PROGRAM.TYPE, PROGRAM.NAME)
         .fetch());
     else
       return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
         .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(PROGRAM.IS_DELETED.eq(false))
         .orderBy(PROGRAM.TYPE, PROGRAM.NAME)
         .fetch());
   }
@@ -257,53 +265,11 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
         .join(LIBRARY).on(PROGRAM.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PROGRAM.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(PROGRAM.IS_DELETED.eq(false))
         .fetchOne(0, int.class));
 
-    //
-    // [#170299297] Cannot delete Programs that have a Meme-- otherwise, destroy all inner entities
-    //
-
-    requireNotExists("Program Memes", db.selectCount().from(PROGRAM_MEME)
-      .where(PROGRAM_MEME.PROGRAM_ID.eq(id))
-      .fetchOne(0, int.class));
-
-    db.deleteFrom(PROGRAM_SEQUENCE_PATTERN_EVENT)
-      .where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_ID.eq(id))
-      .execute();
-
-    db.deleteFrom(PROGRAM_SEQUENCE_PATTERN)
-      .where(PROGRAM_SEQUENCE_PATTERN.PROGRAM_ID.eq(id))
-      .execute();
-
-    db.deleteFrom(PROGRAM_SEQUENCE_BINDING_MEME)
-      .where(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID.eq(id))
-      .execute();
-
-    db.deleteFrom(PROGRAM_SEQUENCE_BINDING)
-      .where(PROGRAM_SEQUENCE_BINDING.PROGRAM_ID.eq(id))
-      .execute();
-
-    db.deleteFrom(PROGRAM_SEQUENCE_CHORD)
-      .where(PROGRAM_SEQUENCE_CHORD.PROGRAM_ID.eq(id))
-      .execute();
-
-    db.deleteFrom(PROGRAM_SEQUENCE_CHORD_VOICING)
-      .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_ID.eq(id))
-      .execute();
-
-    db.deleteFrom(PROGRAM_SEQUENCE)
-      .where(PROGRAM_SEQUENCE.PROGRAM_ID.eq(id))
-      .execute();
-
-    db.deleteFrom(PROGRAM_VOICE_TRACK)
-      .where(PROGRAM_VOICE_TRACK.PROGRAM_ID.eq(id))
-      .execute();
-
-    db.deleteFrom(PROGRAM_VOICE)
-      .where(PROGRAM_VOICE.PROGRAM_ID.eq(id))
-      .execute();
-
-    db.deleteFrom(PROGRAM)
+    db.update(PROGRAM)
+      .set(PROGRAM.IS_DELETED, true)
       .where(PROGRAM.ID.eq(id))
       .execute();
   }
@@ -319,12 +285,14 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
       return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
         .join(LIBRARY).on(PROGRAM.LIBRARY_ID.eq(LIBRARY.ID))
         .where(LIBRARY.ACCOUNT_ID.eq(UUID.fromString(accountId)))
+        .and(PROGRAM.IS_DELETED.eq(false))
         .orderBy(PROGRAM.TYPE, PROGRAM.NAME)
         .fetch());
     else
       return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
         .join(LIBRARY).on(PROGRAM.LIBRARY_ID.eq(LIBRARY.ID))
         .where(LIBRARY.ACCOUNT_ID.in(UUID.fromString(accountId)))
+        .and(PROGRAM.IS_DELETED.eq(false))
         .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .orderBy(PROGRAM.TYPE, PROGRAM.NAME)
         .fetch());
@@ -338,6 +306,7 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
     return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields())
       .from(PROGRAM)
       .where(PROGRAM.STATE.eq(state))
+      .and(PROGRAM.IS_DELETED.eq(false))
       .fetch());
   }
 
@@ -348,6 +317,7 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
       .from(PROGRAM)
       .where(PROGRAM.LIBRARY_ID.in(parentIds))
       .and(PROGRAM.STATE.equal(ProgramState.Published))
+      .and(PROGRAM.IS_DELETED.eq(false))
       .fetch());
   }
 
@@ -364,6 +334,7 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
         requireExists("hubAccess via account", db.selectCount().from(PROGRAM)
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM.ID.eq(programId))
+          .and(PROGRAM.IS_DELETED.eq(false))
           .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
           .fetchOne(0, int.class));
   }
@@ -382,6 +353,7 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
       return modelFrom(Program.class,
         db.selectFrom(PROGRAM)
           .where(PROGRAM.ID.eq(id))
+          .and(PROGRAM.IS_DELETED.eq(false))
           .fetchOne());
     else
       return modelFrom(Program.class,
@@ -389,6 +361,7 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
           .from(PROGRAM)
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM.ID.eq(id))
+          .and(PROGRAM.IS_DELETED.eq(false))
           .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
           .fetchOne());
   }

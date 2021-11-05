@@ -5,5 +5,5 @@ package io.xj.lib.json;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public interface JsonProvider {
-  ObjectMapper getObjectMapper();
+  ObjectMapper getMapper();
 }

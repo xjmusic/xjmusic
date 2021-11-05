@@ -6,7 +6,9 @@ import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.dao.DAOCloner;
 import io.xj.hub.dao.ProgramSequencePatternDAO;
+import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.*;
 
 import javax.annotation.security.RolesAllowed;
@@ -23,7 +25,7 @@ import java.util.UUID;
  ProgramSequencePattern endpoint
  */
 @Path("api/1/program-sequence-patterns")
-public class ProgramSequencePatternEndpoint extends HubJsonapiEndpoint {
+public class ProgramSequencePatternEndpoint extends HubJsonapiEndpoint<ProgramSequencePattern> {
   private final ProgramSequencePatternDAO dao;
 
   /**
@@ -32,10 +34,12 @@ public class ProgramSequencePatternEndpoint extends HubJsonapiEndpoint {
   @Inject
   public ProgramSequencePatternEndpoint(
     ProgramSequencePatternDAO dao,
+    HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
-    JsonapiPayloadFactory payloadFactory
+    JsonapiPayloadFactory payloadFactory,
+    EntityFactory entityFactory
   ) {
-    super(response, payloadFactory);
+    super(dbProvider, response, payloadFactory, entityFactory);
     this.dao = dao;
   }
 

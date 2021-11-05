@@ -191,7 +191,7 @@ public class TemplatePlaybackIT {
   public void readOneForUser_notIfOlderThanThreshold() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var olderPlayback = buildTemplatePlayback(fake.template1, fake.user3);
-    olderPlayback.setCreatedAt(Timestamp.from(Instant.now().minusSeconds(60 * 60 * 24)));
+    olderPlayback.setCreatedAt(Timestamp.from(Instant.now().minusSeconds(60 * 60 * 24)).toLocalDateTime());
     test.insert(olderPlayback);
 
     var result = testDAO.readOneForUser(hubAccess, fake.user3.getId());
@@ -233,7 +233,7 @@ public class TemplatePlaybackIT {
   public void readMany_seesNoneOlderThanThreshold() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
     var olderPlayback = buildTemplatePlayback(fake.template1, fake.user3);
-    olderPlayback.setCreatedAt(Timestamp.from(Instant.now().minusSeconds(60 * 60 * 24)));
+    olderPlayback.setCreatedAt(Timestamp.from(Instant.now().minusSeconds(60 * 60 * 24)).toLocalDateTime());
     test.insert(olderPlayback);
 
     Collection<TemplatePlayback> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.template1.getId()));

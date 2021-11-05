@@ -7,7 +7,9 @@ import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.dao.DAOException;
 import io.xj.hub.dao.TemplateDAO;
+import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.Template;
+import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.*;
 import io.xj.lib.util.CSV;
 
@@ -26,7 +28,7 @@ import java.util.UUID;
  Templates
  */
 @Path("api/1")
-public class TemplateEndpoint extends HubJsonapiEndpoint {
+public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
   private final TemplateDAO dao;
 
   /**
@@ -35,10 +37,12 @@ public class TemplateEndpoint extends HubJsonapiEndpoint {
   @Inject
   public TemplateEndpoint(
     TemplateDAO dao,
+    HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
-    JsonapiPayloadFactory payloadFactory
+    JsonapiPayloadFactory payloadFactory,
+    EntityFactory entityFactory
   ) {
-    super(response, payloadFactory);
+    super(dbProvider, response, payloadFactory, entityFactory);
     this.dao = dao;
   }
 

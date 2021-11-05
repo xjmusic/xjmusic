@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.*;
+import static io.xj.hub.tables.Program.PROGRAM;
 import static org.junit.Assert.*;
 
 // future test: permissions of different users to readMany vs. of vs. update or destroy programs
@@ -431,8 +432,9 @@ public class ProgramIT {
     testDAO.destroy(hubAccess, fake.program35.getId());
 
     assertEquals(Integer.valueOf(0), test.getDSL()
-      .selectCount().from(io.xj.hub.tables.Program.PROGRAM)
-      .where(io.xj.hub.tables.Program.PROGRAM.ID.eq(fake.program35.getId()))
+      .selectCount().from(PROGRAM)
+      .where(PROGRAM.ID.eq(fake.program35.getId()))
+      .and(PROGRAM.IS_DELETED.eq(false))
       .fetchOne(0, int.class));
   }
 
@@ -449,14 +451,13 @@ public class ProgramIT {
    [#170299297] Cannot delete Programs that have a Meme
    */
   @Test
-  public void destroy_failsIfHasMemes() throws Exception {
+  public void destroy_evenWithMemes() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
     Program program = test.insert(buildProgram(fake.library2, ProgramType.Main, ProgramState.Published, "fonds", "C#", 120.0f, 0.6f));
     test.insert(buildProgramMeme(program, "frozen"));
     test.insert(buildProgramMeme(program, "ham"));
 
-    var e = assertThrows(DAOException.class, () -> testDAO.destroy(hubAccess, program.getId()));
-    assertEquals("Found Program Memes", e.getMessage());
+    testDAO.destroy(hubAccess, program.getId());
   }
 
   /**
@@ -477,8 +478,9 @@ public class ProgramIT {
     testDAO.destroy(hubAccess, program.getId());
 
     assertEquals(Integer.valueOf(0), test.getDSL()
-      .selectCount().from(io.xj.hub.tables.Program.PROGRAM)
-      .where(io.xj.hub.tables.Program.PROGRAM.ID.eq(program.getId()))
+      .selectCount().from(PROGRAM)
+      .where(PROGRAM.ID.eq(program.getId()))
+      .and(PROGRAM.IS_DELETED.eq(false))
       .fetchOne(0, int.class));
   }
 

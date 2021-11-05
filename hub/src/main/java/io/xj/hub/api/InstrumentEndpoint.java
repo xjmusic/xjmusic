@@ -7,8 +7,10 @@ import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.dao.InstrumentDAO;
 import io.xj.hub.dao.InstrumentMemeDAO;
+import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.*;
 
 import javax.annotation.security.RolesAllowed;
@@ -25,7 +27,7 @@ import java.util.UUID;
  Instruments
  */
 @Path("api/1/instruments")
-public class InstrumentEndpoint extends HubJsonapiEndpoint {
+public class InstrumentEndpoint extends HubJsonapiEndpoint<Instrument> {
   private final InstrumentDAO dao;
   private final InstrumentMemeDAO instrumentMemeDAO;
 
@@ -36,10 +38,12 @@ public class InstrumentEndpoint extends HubJsonapiEndpoint {
   public InstrumentEndpoint(
     InstrumentDAO dao,
     InstrumentMemeDAO instrumentMemeDAO,
+    HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
-    JsonapiPayloadFactory payloadFactory
+    JsonapiPayloadFactory payloadFactory,
+    EntityFactory entityFactory
   ) {
-    super(response, payloadFactory);
+    super(dbProvider, response, payloadFactory, entityFactory);
     this.dao = dao;
     this.instrumentMemeDAO = instrumentMemeDAO;
   }

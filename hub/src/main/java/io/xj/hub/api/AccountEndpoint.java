@@ -5,6 +5,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.dao.AccountDAO;
+import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.tables.pojos.Account;
+import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
@@ -20,7 +23,7 @@ import javax.ws.rs.core.Response;
  Accounts
  */
 @Path("api/1/accounts")
-public class AccountEndpoint extends HubJsonapiEndpoint {
+public class AccountEndpoint extends HubJsonapiEndpoint<Account> {
   private final AccountDAO dao;
 
   /**
@@ -29,10 +32,12 @@ public class AccountEndpoint extends HubJsonapiEndpoint {
   @Inject
   public AccountEndpoint(
     AccountDAO dao,
+    HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
-    JsonapiPayloadFactory payloadFactory
+    JsonapiPayloadFactory payloadFactory,
+    EntityFactory entityFactory
   ) {
-    super(response, payloadFactory);
+    super(dbProvider, response, payloadFactory, entityFactory);
     this.dao = dao;
   }
 

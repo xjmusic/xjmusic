@@ -9,6 +9,7 @@ import io.xj.hub.access.HubAccessException;
 import io.xj.hub.enums.UserAuthType;
 import io.xj.hub.enums.UserRoleType;
 import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.AccountUser;
 import io.xj.hub.tables.pojos.User;
 import io.xj.hub.tables.pojos.UserAuth;
@@ -17,7 +18,6 @@ import io.xj.hub.tables.records.UserAuthRecord;
 import io.xj.hub.tables.records.UserAuthTokenRecord;
 import io.xj.hub.tables.records.UserRecord;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
@@ -39,19 +39,17 @@ import static io.xj.hub.Tables.*;
  <p>
  Conceptually, because being a User is a dependency of all other DAOs.
  */
-public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
+public class UserDAOImpl extends HubPersistenceServiceImpl<User> implements UserDAO {
   private static final Logger log = LoggerFactory.getLogger(UserDAOImpl.class);
   private final HubAccessControlProvider hubAccessControlProvider;
 
   @Inject
   public UserDAOImpl(
-    JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory,
     HubDatabaseProvider dbProvider,
     HubAccessControlProvider hubAccessControlProvider
   ) {
-    super(payloadFactory, entityFactory);
-    this.dbProvider = dbProvider;
+    super(entityFactory, dbProvider);
     this.hubAccessControlProvider = hubAccessControlProvider;
   }
 

@@ -4,12 +4,12 @@ package io.xj.hub.dao;
 import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
@@ -20,20 +20,16 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static io.xj.hub.Tables.LIBRARY;
-import static io.xj.hub.Tables.PROGRAM;
 import static io.xj.hub.tables.Account.ACCOUNT;
-import static io.xj.hub.tables.Instrument.INSTRUMENT;
 
-public class LibraryDAOImpl extends DAOImpl<Library> implements LibraryDAO {
+public class LibraryDAOImpl extends HubPersistenceServiceImpl<Library> implements LibraryDAO {
 
   @Inject
   public LibraryDAOImpl(
-    JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory,
     HubDatabaseProvider dbProvider
   ) {
-    super(payloadFactory, entityFactory);
-    this.dbProvider = dbProvider;
+    super(entityFactory, dbProvider);
   }
 
   @Override
@@ -55,11 +51,13 @@ public class LibraryDAOImpl extends DAOImpl<Library> implements LibraryDAO {
     if (hubAccess.isTopLevel())
       return modelFrom(Library.class, dbProvider.getDSL().selectFrom(LIBRARY)
         .where(LIBRARY.ID.eq(id))
+        .and(LIBRARY.IS_DELETED.eq(false))
         .fetchOne());
     else
       return modelFrom(Library.class, dbProvider.getDSL().select(LIBRARY.fields())
         .from(LIBRARY)
         .where(LIBRARY.ID.eq(id))
+        .and(LIBRARY.IS_DELETED.eq(false))
         .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .fetchOne());
 
@@ -72,22 +70,26 @@ public class LibraryDAOImpl extends DAOImpl<Library> implements LibraryDAO {
         return modelsFrom(Library.class, dbProvider.getDSL().select(LIBRARY.fields())
           .from(LIBRARY)
           .where(LIBRARY.ACCOUNT_ID.in(parentIds))
+          .and(LIBRARY.IS_DELETED.eq(false))
           .fetch());
       else
         return modelsFrom(Library.class, dbProvider.getDSL().select(LIBRARY.fields())
           .from(LIBRARY)
           .where(LIBRARY.ACCOUNT_ID.in(parentIds))
+          .and(LIBRARY.IS_DELETED.eq(false))
           .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
           .fetch());
     } else {
       if (hubAccess.isTopLevel())
         return modelsFrom(Library.class, dbProvider.getDSL().select(LIBRARY.fields())
           .from(LIBRARY)
+          .where(LIBRARY.IS_DELETED.eq(false))
           .fetch());
       else
         return modelsFrom(Library.class, dbProvider.getDSL().select(LIBRARY.fields())
           .from(LIBRARY)
           .where(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .and(LIBRARY.IS_DELETED.eq(false))
           .fetch());
     }
 
@@ -106,6 +108,7 @@ public class LibraryDAOImpl extends DAOImpl<Library> implements LibraryDAO {
       requireExists("Library",
         dbProvider.getDSL().selectCount().from(LIBRARY)
           .where(LIBRARY.ID.eq(id))
+          .and(LIBRARY.IS_DELETED.eq(false))
           .fetchOne(0, int.class));
       requireExists("Account",
         dbProvider.getDSL().selectCount().from(ACCOUNT)
@@ -113,9 +116,8 @@ public class LibraryDAOImpl extends DAOImpl<Library> implements LibraryDAO {
           .fetchOne(0, int.class));
     }
 
-    var library = record;
-    executeUpdate(dbProvider.getDSL(), LIBRARY, id, library);
-    return library;
+    executeUpdate(dbProvider.getDSL(), LIBRARY, id, record);
+    return record;
   }
 
   @Override
@@ -123,28 +125,9 @@ public class LibraryDAOImpl extends DAOImpl<Library> implements LibraryDAO {
     DSLContext db = dbProvider.getDSL();
     requireTopLevel(hubAccess);
 
-    requireNotExists("Program in Library", db.select(PROGRAM.ID)
-      .from(PROGRAM)
-      .where(PROGRAM.LIBRARY_ID.eq(id))
-      .fetch().into(PROGRAM));
-
-    requireNotExists("Instrument in Library", db.select(INSTRUMENT.ID)
-      .from(INSTRUMENT)
-      .where(INSTRUMENT.LIBRARY_ID.eq(id))
-      .fetch().into(INSTRUMENT));
-
-    db.deleteFrom(LIBRARY)
+    db.update(LIBRARY)
+      .set(LIBRARY.IS_DELETED, true)
       .where(LIBRARY.ID.eq(id))
-      .andNotExists(
-        db.select(PROGRAM.ID)
-          .from(PROGRAM)
-          .where(PROGRAM.LIBRARY_ID.eq(id))
-      )
-      .andNotExists(
-        db.select(INSTRUMENT.ID)
-          .from(INSTRUMENT)
-          .where(INSTRUMENT.LIBRARY_ID.eq(id))
-      )
       .execute();
   }
 

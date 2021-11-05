@@ -10,7 +10,9 @@ import io.xj.hub.InstrumentConfig;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.*;
+import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.lib.app.Environment;
+import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
@@ -30,7 +32,7 @@ import java.util.Map;
  Current platform configuration
  */
 @Path("config")
-public class ConfigEndpoint extends HubJsonapiEndpoint {
+public class ConfigEndpoint extends HubJsonapiEndpoint<Object> {
   private static final List<String> CHAIN_STATES = ImmutableList.of(
     "Draft",
     "Ready",
@@ -65,10 +67,12 @@ public class ConfigEndpoint extends HubJsonapiEndpoint {
   @Inject
   public ConfigEndpoint(
     Environment env,
+    HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
-    JsonapiPayloadFactory payloadFactory
+    JsonapiPayloadFactory payloadFactory,
+    EntityFactory entityFactory
   ) {
-    super(response, payloadFactory);
+    super(dbProvider, response, payloadFactory, entityFactory);
     configMap = ImmutableMap.<String, Object>builder()
       .put("apiBaseUrl", env.getAppBaseUrl())
       .put("audioBaseUrl", env.getAudioBaseUrl())

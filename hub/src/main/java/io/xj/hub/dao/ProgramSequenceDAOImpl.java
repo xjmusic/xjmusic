@@ -5,10 +5,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
@@ -24,16 +24,14 @@ import java.util.concurrent.atomic.AtomicReference;
 import static io.xj.hub.Tables.*;
 import static io.xj.hub.tables.ProgramSequenceChordVoicing.PROGRAM_SEQUENCE_CHORD_VOICING;
 
-public class ProgramSequenceDAOImpl extends DAOImpl<ProgramSequence> implements ProgramSequenceDAO {
+public class ProgramSequenceDAOImpl extends HubPersistenceServiceImpl<ProgramSequence> implements ProgramSequenceDAO {
 
   @Inject
   public ProgramSequenceDAOImpl(
-    JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory,
     HubDatabaseProvider dbProvider
   ) {
-    super(payloadFactory, entityFactory);
-    this.dbProvider = dbProvider;
+    super(entityFactory, dbProvider);
   }
 
   @Override
@@ -58,7 +56,7 @@ public class ProgramSequenceDAOImpl extends DAOImpl<ProgramSequence> implements 
       if (Objects.isNull(from))
         throw new DAOException("Can't clone nonexistent ProgramSequence");
 
-      // Inherits attributes if none specified
+      // Inherits these attributes if none specified
       if (Values.isEmpty(rawEntity.getTotal())) rawEntity.setTotal(from.getTotal());
       if (Values.isEmpty(rawEntity.getName())) rawEntity.setName(from.getName());
       if (Values.isEmpty(rawEntity.getTempo())) rawEntity.setTempo(from.getTempo());

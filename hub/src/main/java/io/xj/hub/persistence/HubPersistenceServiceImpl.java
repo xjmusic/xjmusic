@@ -1,17 +1,22 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.hub.dao;
+
+package io.xj.hub.persistence;
 
 import com.google.common.base.CaseFormat;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
+import io.xj.hub.dao.DAOException;
 import io.xj.hub.enums.UserRoleType;
-import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.tables.pojos.User;
+import io.xj.hub.tables.pojos.*;
+import io.xj.hub.tables.records.*;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.Values;
 import org.jooq.Record;
@@ -26,23 +31,228 @@ import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.xj.hub.Tables.LIBRARY;
-import static io.xj.hub.Tables.PROGRAM;
+import static io.xj.hub.Tables.*;
 
-public abstract class DAOImpl<E> implements DAO<E> {
-  private static final Logger log = LoggerFactory.getLogger(DAOImpl.class);
+public class HubPersistenceServiceImpl<E> {
+  private static final Logger log = LoggerFactory.getLogger(HubPersistenceServiceImpl.class);
   private static final String KEY_ID = "id";
-  protected final JsonapiPayloadFactory payloadFactory;
   protected final EntityFactory entityFactory;
-  protected HubDatabaseProvider dbProvider;
+  protected final HubDatabaseProvider dbProvider;
+  protected Map<Class<?>, Table<?>> tablesInSchemaConstructionOrder = ImmutableMap.<Class<?>, Table<?>>builder() // DELIBERATE ORDER
+    .put(io.xj.hub.tables.pojos.User.class, USER)
+    .put(UserAuth.class, USER_AUTH) // after user
+    .put(UserAuthToken.class, USER_AUTH_TOKEN) // after user
+    .put(Account.class, ACCOUNT) // after user
+    .put(AccountUser.class, ACCOUNT_USER) // after user
+    .put(Template.class, TEMPLATE) // after account
+    .put(TemplateBinding.class, TEMPLATE_BINDING) // after template
+    .put(TemplatePlayback.class, TEMPLATE_PLAYBACK) // after template
+    .put(Library.class, LIBRARY) // after account
+    .put(Program.class, PROGRAM) // after library
+    .put(ProgramMeme.class, PROGRAM_MEME)
+    .put(ProgramVoice.class, PROGRAM_VOICE)
+    .put(ProgramVoiceTrack.class, PROGRAM_VOICE_TRACK)
+    .put(ProgramSequence.class, PROGRAM_SEQUENCE)
+    .put(ProgramSequenceBinding.class, PROGRAM_SEQUENCE_BINDING)
+    .put(ProgramSequenceBindingMeme.class, PROGRAM_SEQUENCE_BINDING_MEME)
+    .put(ProgramSequenceChord.class, PROGRAM_SEQUENCE_CHORD)
+    .put(ProgramSequenceChordVoicing.class, PROGRAM_SEQUENCE_CHORD_VOICING)
+    .put(ProgramSequencePattern.class, PROGRAM_SEQUENCE_PATTERN)
+    .put(ProgramSequencePatternEvent.class, PROGRAM_SEQUENCE_PATTERN_EVENT)
+    .put(Instrument.class, INSTRUMENT) // after library
+    .put(InstrumentAudio.class, INSTRUMENT_AUDIO)
+    .put(InstrumentMeme.class, INSTRUMENT_MEME)
+    .put(Feedback.class, FEEDBACK) // after account
+    .put(FeedbackInstrument.class, FEEDBACK_INSTRUMENT) // after feedback, instrument
+    .put(FeedbackLibrary.class, FEEDBACK_LIBRARY) // after feedback, library
+    .put(FeedbackProgram.class, FEEDBACK_PROGRAM) // after feedback, program
+    .put(FeedbackTemplate.class, FEEDBACK_TEMPLATE) // after feedback, template
+    .build();
+  protected Map<Class<? extends Record>, Class<?>> modelsForRecords = ImmutableMap.<Class<? extends Record>, Class<?>>builder()
+    .put(UserRecord.class, User.class)
+    .put(UserAuthRecord.class, UserAuth.class)
+    .put(UserAuthTokenRecord.class, UserAuthToken.class)
+    .put(AccountRecord.class, Account.class)
+    .put(AccountUserRecord.class, AccountUser.class)
+    .put(TemplateRecord.class, Template.class)
+    .put(TemplateBindingRecord.class, TemplateBinding.class)
+    .put(TemplatePlaybackRecord.class, TemplatePlayback.class)
+    .put(LibraryRecord.class, Library.class)
+    .put(ProgramRecord.class, Program.class)
+    .put(ProgramMemeRecord.class, ProgramMeme.class)
+    .put(ProgramVoiceRecord.class, ProgramVoice.class)
+    .put(ProgramVoiceTrackRecord.class, ProgramVoiceTrack.class)
+    .put(ProgramSequenceRecord.class, ProgramSequence.class)
+    .put(ProgramSequenceBindingRecord.class, ProgramSequenceBinding.class)
+    .put(ProgramSequenceBindingMemeRecord.class, ProgramSequenceBindingMeme.class)
+    .put(ProgramSequenceChordRecord.class, ProgramSequenceChord.class)
+    .put(ProgramSequenceChordVoicingRecord.class, ProgramSequenceChordVoicing.class)
+    .put(ProgramSequencePatternRecord.class, ProgramSequencePattern.class)
+    .put(ProgramSequencePatternEventRecord.class, ProgramSequencePatternEvent.class)
+    .put(InstrumentRecord.class, Instrument.class)
+    .put(InstrumentAudioRecord.class, InstrumentAudio.class)
+    .put(InstrumentMemeRecord.class, InstrumentMeme.class)
+    .put(FeedbackRecord.class, Feedback.class)
+    .put(FeedbackInstrumentRecord.class, FeedbackInstrument.class)
+    .put(FeedbackLibraryRecord.class, FeedbackLibrary.class)
+    .put(FeedbackProgramRecord.class, FeedbackProgram.class)
+    .put(FeedbackTemplateRecord.class, FeedbackTemplate.class)
+    .build();
+  Collection<String> nullValueClasses = ImmutableList.of("Null", "JsonNull");
 
   @Inject
-  public DAOImpl(
-    JsonapiPayloadFactory payloadFactory,
-    EntityFactory entityFactory
-  ) {
-    this.payloadFactory = payloadFactory;
+  public HubPersistenceServiceImpl(EntityFactory entityFactory, HubDatabaseProvider dbProvider) {
     this.entityFactory = entityFactory;
+    this.dbProvider = dbProvider;
+  }
+
+  /**
+   Get a collection of records based ona collection of entities
+
+   @param db       to make new records in
+   @param table    to make new records in
+   @param entities to source number of rows and their values for new records
+   @param <R>      type of record (only one type in collection)
+   @param <N>      type of entity (only one type in collection)
+   @return collection of records
+   @throws DAOException on failure
+   */
+  protected <R extends TableRecord<?>, N> Collection<R> recordsFrom(DSLContext db, Table<?> table, Collection<N> entities) throws DAOException, JsonapiException {
+    Collection<R> records = Lists.newArrayList();
+    for (N e : entities) {
+      //noinspection unchecked
+      R record = (R) db.newRecord(table);
+      try {
+        UUID id = Entities.getId(e);
+        if (Objects.nonNull(id))
+          set(record, KEY_ID, id);
+
+      } catch (EntityException ignored) {
+
+      }
+      setAll(record, e);
+      records.add(record);
+    }
+    return records;
+  }
+
+  public <N, R extends Record> Collection<N> modelsFrom(Class<N> modelClass, Iterable<R> records) throws DAOException {
+    Collection<N> models = Lists.newArrayList();
+    for (R record : records) models.add(modelFrom(modelClass, record));
+    return models;
+  }
+
+  public <N, R extends Record> N modelFrom(R record) throws DAOException {
+    if (!modelsForRecords.containsKey(record.getClass()))
+      throw new DAOException(String.format("Unrecognized class of entity record: %s", record.getClass().getName()));
+
+    //noinspection unchecked
+    return modelFrom((Class<N>) modelsForRecords.get(record.getClass()), record);
+  }
+
+  /**
+   Transmogrify the field-value pairs of a jOOQ record and set values on the corresponding POJO entity.
+
+   @param modelClass to whose setters the values will be written
+   @param record     to source field-values of
+   @return entity after transmogrification
+   @throws DAOException on failure to transmogrify
+   */
+  protected <N, R extends Record> N modelFrom(Class<N> modelClass, R record) throws DAOException {
+    if (Objects.isNull(modelClass))
+      throw new DAOException("Will not transmogrify null modelClass");
+
+    // new instance of model
+    N model;
+    try {
+      model = entityFactory.getInstance(modelClass);
+    } catch (Exception e) {
+      throw new DAOException(String.format("Could not get a new instance create class %s because %s", modelClass, e));
+    }
+
+    // set all values
+    modelSetTransmogrified(record, model);
+
+    return model;
+  }
+
+  /**
+   Set all fields of an Entity using values transmogrified of a jOOQ Record
+
+   @param record to transmogrify values of
+   @param model  to set fields of
+   @throws DAOException on failure to set transmogrified values
+   */
+  protected <N, R extends Record> void modelSetTransmogrified(R record, N model) throws DAOException {
+    if (Objects.isNull(record))
+      throw new DAOException("Record does not exist");
+
+    Map<String, Object> fieldValues = record.intoMap();
+    for (Map.Entry<String, Object> field : fieldValues.entrySet())
+      if (Values.isNonNull(field.getValue())) try {
+        String attributeName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, field.getKey());
+        Entities.set(model, attributeName, field.getValue());
+      } catch (Exception e) {
+        log.error("Could not transmogrify key:{} val:{} because {}", field.getKey(), field.getValue(), e);
+        throw new DAOException(String.format("Could not transmogrify key:%s val:%s because %s", field.getKey(), field.getValue(), e));
+      }
+  }
+
+  /**
+   Get a table record for an entity
+
+   @param <N>    type of entity
+   @param db     database context
+   @param entity to get table record for
+   @return table record
+   @throws DAOException on failure
+   */
+  protected <N> UpdatableRecord<?> recordFor(DSLContext db, N entity) throws DAOException, JsonapiException {
+    Table<?> table = tablesInSchemaConstructionOrder.get(entity.getClass());
+    var raw = db.newRecord(table);
+    UpdatableRecord<?> record = (UpdatableRecord<?>) raw;
+
+    try {
+      UUID id = Entities.getId(entity);
+      if (Objects.nonNull(id))
+        set(record, KEY_ID, id);
+    } catch (EntityException ignored) {
+    }
+
+    setAll(record, entity);
+
+    return record;
+  }
+
+  /**
+   Insert entity to database
+
+   @param entity to insert
+   @param db     database context
+   @return the same entity (for chaining methods)
+   */
+  protected <N> N insert(DSLContext db, N entity) throws DAOException, JsonapiException {
+    UpdatableRecord<?> record = recordFor(db, entity);
+    record.store();
+
+    try {
+      UUID id = Entities.getId(entity);
+      if (Objects.nonNull(id)) Entities.setId(record, id);
+    } catch (EntityException ignored) {
+    }
+
+    return entity;
+  }
+
+
+  /**
+   Require has engineer-level access
+
+   @param access to validate
+   @throws DAOException if not engineer
+   */
+  protected void requireEngineer(HubAccess access) throws DAOException {
+    require(access, UserRoleType.Engineer);
   }
 
   /**
@@ -104,8 +314,8 @@ public abstract class DAOImpl<E> implements DAO<E> {
    @throws DAOException if result set is not empty.
    @throws DAOException if something goes wrong.
    */
-  protected void requireNotExists(String name, int count) throws DAOException {
-    if (0 < count) throw new DAOException("Found" + " " + name);
+  protected void requireNotExists(String name, @Nullable Integer count) throws DAOException {
+    if (Objects.isNull(count) || 0 < count) throw new DAOException("Found" + " " + name);
   }
 
   /**
@@ -137,8 +347,8 @@ public abstract class DAOImpl<E> implements DAO<E> {
    @param count to require existence of
    @throws DAOException if not isNonNull
    */
-  protected void requireExists(String name, int count) throws DAOException {
-    require(name, "does not exist", 0 < count);
+  protected void requireExists(String name, @Nullable Integer count) throws DAOException {
+    require(name, "does not exist", Objects.nonNull(count) && 0 < count);
   }
 
   /**
@@ -347,157 +557,6 @@ public abstract class DAOImpl<E> implements DAO<E> {
         throw new DAOException(String.format("Don't know how to set null value via %s", setter));
       }
     }
-  }
-
-  /**
-   Get a collection of records based ona collection of entities
-
-   @param db       to make new records in
-   @param table    to make new records in
-   @param entities to source number of rows and their values for new records
-   @param <R>      type of record (only one type in collection)
-   @param <N>      type of entity (only one type in collection)
-   @return collection of records
-   @throws DAOException on failure
-   */
-  protected <R extends TableRecord<?>, N> Collection<R> recordsFrom(DSLContext db, Table<?> table, Collection<N> entities) throws DAOException, JsonapiException {
-    Collection<R> records = Lists.newArrayList();
-    for (N e : entities) {
-      //noinspection unchecked
-      R record = (R) db.newRecord(table);
-      try {
-        UUID id = Entities.getId(e);
-        if (Objects.nonNull(id))
-          set(record, KEY_ID, id);
-
-      } catch (EntityException ignored) {
-
-      }
-      setAll(record, e);
-      records.add(record);
-    }
-    return records;
-  }
-
-  @Override
-  public <N, R extends Record> Collection<N> modelsFrom(Class<N> modelClass, Iterable<R> records) throws DAOException {
-    Collection<N> models = Lists.newArrayList();
-    for (R record : records) models.add(modelFrom(modelClass, record));
-    return models;
-  }
-
-  @Override
-  public <N, R extends Record> N modelFrom(R record) throws DAOException {
-    if (!modelsForRecords.containsKey(record.getClass()))
-      throw new DAOException(String.format("Unrecognized class of entity record: %s", record.getClass().getName()));
-
-    //noinspection unchecked
-    return modelFrom((Class<N>) modelsForRecords.get(record.getClass()), record);
-  }
-
-  /**
-   Transmogrify the field-value pairs of a jOOQ record and set values on the corresponding POJO entity.
-
-   @param modelClass to whose setters the values will be written
-   @param record     to source field-values of
-   @return entity after transmogrification
-   @throws DAOException on failure to transmogrify
-   */
-  protected <N, R extends Record> N modelFrom(Class<N> modelClass, R record) throws DAOException {
-    if (Objects.isNull(modelClass))
-      throw new DAOException("Will not transmogrify null modelClass");
-
-    // new instance of model
-    N model;
-    try {
-      model = entityFactory.getInstance(modelClass);
-    } catch (Exception e) {
-      throw new DAOException(String.format("Could not get a new instance create class %s because %s", modelClass, e));
-    }
-
-    // set all values
-    modelSetTransmogrified(record, model);
-
-    return model;
-  }
-
-  /**
-   Set all fields of an Entity using values transmogrified of a jOOQ Record
-
-   @param record to transmogrify values of
-   @param model  to set fields of
-   @throws DAOException on failure to set transmogrified values
-   */
-  protected <N, R extends Record> void modelSetTransmogrified(R record, N model) throws DAOException {
-    if (Objects.isNull(record))
-      throw new DAOException("Record does not exist");
-
-    Map<String, Object> fieldValues = record.intoMap();
-    for (Map.Entry<String, Object> field : fieldValues.entrySet())
-      if (Values.isNonNull(field.getValue())) try {
-        String attributeName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, field.getKey());
-        Entities.set(model, attributeName, field.getValue());
-      } catch (Exception e) {
-        log.error("Could not transmogrify key:{} val:{} because {}", field.getKey(), field.getValue(), e);
-        throw new DAOException(String.format("Could not transmogrify key:%s val:%s because %s", field.getKey(), field.getValue(), e));
-      }
-  }
-
-  /**
-   Get a table record for an entity
-
-   @param <N>    type of entity
-   @param db     database context
-   @param entity to get table record for
-   @return table record
-   @throws DAOException on failure
-   */
-  protected <N> UpdatableRecord<?> recordFor(DSLContext db, N entity) throws DAOException, JsonapiException {
-    Table<?> table = tablesInSchemaConstructionOrder.get(entity.getClass());
-    var raw = db.newRecord(table);
-    UpdatableRecord<?> record = (UpdatableRecord<?>) raw;
-
-    try {
-      UUID id = Entities.getId(entity);
-      if (Objects.nonNull(id))
-        set(record, KEY_ID, id);
-    } catch (EntityException ignored) {
-    }
-
-    setAll(record, entity);
-
-    return record;
-  }
-
-  /**
-   Insert entity to database
-
-   @param entity to insert
-   @param db     database context
-   @return the same entity (for chaining methods)
-   */
-  protected <N> N insert(DSLContext db, N entity) throws DAOException, JsonapiException {
-    UpdatableRecord<?> record = recordFor(db, entity);
-    record.store();
-
-    try {
-      UUID id = Entities.getId(entity);
-      if (Objects.nonNull(id)) Entities.setId(record, id);
-    } catch (EntityException ignored) {
-    }
-
-    return entity;
-  }
-
-
-  /**
-   Require has engineer-level access
-
-   @param access to validate
-   @throws DAOException if not engineer
-   */
-  protected void requireEngineer(HubAccess access) throws DAOException {
-    require(access, UserRoleType.Engineer);
   }
 
 }

@@ -7,7 +7,9 @@ import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.dao.DAOException;
 import io.xj.hub.dao.TemplatePlaybackDAO;
+import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.TemplatePlayback;
+import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.*;
 
 import javax.annotation.security.RolesAllowed;
@@ -23,7 +25,7 @@ import java.util.UUID;
  TemplatePlaybacks
  */
 @Path("api/1")
-public class TemplatePlaybackEndpoint extends HubJsonapiEndpoint {
+public class TemplatePlaybackEndpoint extends HubJsonapiEndpoint<TemplatePlayback> {
   private final TemplatePlaybackDAO dao;
 
   /**
@@ -32,10 +34,12 @@ public class TemplatePlaybackEndpoint extends HubJsonapiEndpoint {
   @Inject
   public TemplatePlaybackEndpoint(
     TemplatePlaybackDAO dao,
+    HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
-    JsonapiPayloadFactory payloadFactory
+    JsonapiPayloadFactory payloadFactory,
+    EntityFactory entityFactory
   ) {
-    super(response, payloadFactory);
+    super(dbProvider, response, payloadFactory, entityFactory);
     this.dao = dao;
   }
 

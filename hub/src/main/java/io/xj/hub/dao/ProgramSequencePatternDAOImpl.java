@@ -5,10 +5,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
@@ -22,16 +22,14 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static io.xj.hub.Tables.*;
 
-public class ProgramSequencePatternDAOImpl extends DAOImpl<ProgramSequencePattern> implements ProgramSequencePatternDAO {
+public class ProgramSequencePatternDAOImpl extends HubPersistenceServiceImpl<ProgramSequencePattern> implements ProgramSequencePatternDAO {
 
   @Inject
   public ProgramSequencePatternDAOImpl(
-    JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory,
     HubDatabaseProvider dbProvider
   ) {
-    super(payloadFactory, entityFactory);
-    this.dbProvider = dbProvider;
+    super(entityFactory, dbProvider);
   }
 
   @Override

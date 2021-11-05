@@ -4,6 +4,9 @@ package io.xj.hub.api;
 import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.dao.ProgramSequenceBindingMemeDAO;
+import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
+import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
@@ -19,7 +22,7 @@ import javax.ws.rs.core.Response;
  ProgramSequenceBindingMeme endpoint
  */
 @Path("api/1/program-sequence-binding-memes")
-public class ProgramSequenceBindingMemeEndpoint extends HubJsonapiEndpoint {
+public class ProgramSequenceBindingMemeEndpoint extends HubJsonapiEndpoint<ProgramSequenceBindingMeme> {
   private final ProgramSequenceBindingMemeDAO dao;
 
   /**
@@ -28,10 +31,12 @@ public class ProgramSequenceBindingMemeEndpoint extends HubJsonapiEndpoint {
   @Inject
   public ProgramSequenceBindingMemeEndpoint(
     ProgramSequenceBindingMemeDAO dao,
+    HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
-    JsonapiPayloadFactory payloadFactory
+    JsonapiPayloadFactory payloadFactory,
+    EntityFactory entityFactory
   ) {
-    super(response, payloadFactory);
+    super(dbProvider, response, payloadFactory, entityFactory);
     this.dao = dao;
   }
 

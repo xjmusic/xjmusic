@@ -4,10 +4,10 @@ package io.xj.hub.dao;
 import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.AccountUser;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 
@@ -16,16 +16,14 @@ import java.util.UUID;
 
 import static io.xj.hub.tables.AccountUser.ACCOUNT_USER;
 
-public class AccountUserDAOImpl extends DAOImpl<AccountUser> implements AccountUserDAO {
+public class AccountUserDAOImpl extends HubPersistenceServiceImpl<AccountUser> implements AccountUserDAO {
 
   @Inject
   public AccountUserDAOImpl(
-    JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory,
     HubDatabaseProvider dbProvider
   ) {
-    super(payloadFactory, entityFactory);
-    this.dbProvider = dbProvider;
+    super(entityFactory, dbProvider);
   }
 
   @Override

@@ -4,10 +4,10 @@ package io.xj.hub.dao;
 import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
@@ -19,17 +19,15 @@ import java.util.UUID;
 
 import static io.xj.hub.Tables.*;
 
-public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> implements ProgramVoiceTrackDAO {
+public class ProgramVoiceTrackDAOImpl extends HubPersistenceServiceImpl<ProgramVoiceTrack> implements ProgramVoiceTrackDAO {
   private static final float DEFAULT_ORDER_VALUE = 1000.0f;
 
   @Inject
   public ProgramVoiceTrackDAOImpl(
-    JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory,
     HubDatabaseProvider dbProvider
   ) {
-    super(payloadFactory, entityFactory);
-    this.dbProvider = dbProvider;
+    super(entityFactory, dbProvider);
   }
 
   @Override

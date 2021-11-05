@@ -4,6 +4,9 @@ package io.xj.hub.api;
 import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.dao.ProgramSequenceChordVoicingDAO;
+import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
+import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.*;
 
 import javax.annotation.security.RolesAllowed;
@@ -16,7 +19,7 @@ import javax.ws.rs.core.Response;
  ProgramSequenceChordVoicing endpoint
  */
 @Path("api/1/program-sequence-chord-voicings")
-public class ProgramSequenceChordVoicingEndpoint extends HubJsonapiEndpoint {
+public class ProgramSequenceChordVoicingEndpoint extends HubJsonapiEndpoint<ProgramSequenceChordVoicing> {
   private final ProgramSequenceChordVoicingDAO dao;
 
   /**
@@ -24,11 +27,13 @@ public class ProgramSequenceChordVoicingEndpoint extends HubJsonapiEndpoint {
    */
   @Inject
   public ProgramSequenceChordVoicingEndpoint(
-    ProgramSequenceChordVoicingDAO dao,
+    EntityFactory entityFactory,
+    HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
-    JsonapiPayloadFactory payloadFactory
+    JsonapiPayloadFactory payloadFactory,
+    ProgramSequenceChordVoicingDAO dao
   ) {
-    super(response, payloadFactory);
+    super(dbProvider, response, payloadFactory, entityFactory);
     this.dao = dao;
   }
 

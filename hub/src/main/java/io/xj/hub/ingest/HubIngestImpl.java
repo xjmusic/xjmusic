@@ -128,7 +128,7 @@ class HubIngestImpl implements HubIngest {
   @Override
   public String toJSON() throws JsonProcessingException {
     var entities = getAllEntities();
-    return jsonProvider.getObjectMapper().writeValueAsString(new HubContentPayload()
+    return jsonProvider.getMapper().writeValueAsString(new HubContentPayload()
       .setTemplates(entities.stream()
         .filter(ent -> Template.class.equals(ent.getClass()))
         .map(ent -> (Template) ent)

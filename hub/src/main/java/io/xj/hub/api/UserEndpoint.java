@@ -7,7 +7,9 @@ import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.dao.DAO;
 import io.xj.hub.dao.UserDAO;
+import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.User;
+import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
@@ -25,7 +27,7 @@ import java.util.UUID;
  Current user
  */
 @Path("api/1")
-public class UserEndpoint extends HubJsonapiEndpoint {
+public class UserEndpoint extends HubJsonapiEndpoint<User> {
   private final UserDAO dao;
 
   /**
@@ -34,10 +36,12 @@ public class UserEndpoint extends HubJsonapiEndpoint {
   @Inject
   public UserEndpoint(
     UserDAO dao,
+    HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
-    JsonapiPayloadFactory payloadFactory
+    JsonapiPayloadFactory payloadFactory,
+    EntityFactory entityFactory
   ) {
-    super(response, payloadFactory);
+    super(dbProvider, response, payloadFactory, entityFactory);
     this.dao = dao;
   }
 

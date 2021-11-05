@@ -9,6 +9,7 @@ import com.google.inject.util.Modules;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.dao.DAO;
 import io.xj.hub.dao.DAOException;
+import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
@@ -32,13 +33,19 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class HubEndpointTest {
+  private JsonapiPayloadFactory payloadFactory;
+
   @Mock
   ContainerRequestContext crc;
+
   @Mock
   DAO<Account> dao; // can be any class that, we picked a simple one with no belongs-to
+
+  @Mock
+  HubDatabaseProvider hubDatabaseProvider;
+
   //
-  HubJsonapiEndpoint subject;
-  private JsonapiPayloadFactory payloadFactory;
+  HubJsonapiEndpoint<?> subject;
 
   @Before
   public void setUp() throws Exception {
@@ -47,6 +54,7 @@ public class HubEndpointTest {
       @Override
       protected void configure() {
         bind(Environment.class).toInstance(env);
+        bind(HubDatabaseProvider.class).toInstance(hubDatabaseProvider);
       }
     }));
     payloadFactory = injector.getInstance(JsonapiPayloadFactory.class);

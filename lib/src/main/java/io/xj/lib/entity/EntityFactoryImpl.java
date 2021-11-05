@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 @Singleton
 public class EntityFactoryImpl implements EntityFactory {
   private static final Logger log = LoggerFactory.getLogger(EntityFactoryImpl.class);
-  private static final String ATTR_ID = "id";
+  private static final List<String> IGNORE_ATTRIBUTES = List.of("id", "class");
   private final JsonProviderImpl jsonProvider;
   Map<String, EntitySchema> schema = Maps.newConcurrentMap();
 
@@ -104,7 +104,7 @@ public class EntityFactoryImpl implements EntityFactory {
       ReflectionUtils.withParametersCount(0)).forEach(method -> {
       try {
         String attributeName = Entities.toAttributeName(method);
-        if (!Objects.equals(ATTR_ID, attributeName))
+        if (!IGNORE_ATTRIBUTES.contains(attributeName))
           Entities.get(target, method).ifPresentOrElse(value -> attributes.put(attributeName, value),
             () -> attributes.put(attributeName, null));
       } catch (Exception e) {
@@ -165,7 +165,7 @@ public class EntityFactoryImpl implements EntityFactory {
   @Override
   public <N> N deserialize(Class<N> valueType, String json) throws EntityException {
     try {
-      return jsonProvider.getObjectMapper().readValue(String.valueOf(json), valueType);
+      return jsonProvider.getMapper().readValue(String.valueOf(json), valueType);
     } catch (JsonProcessingException e) {
       throw new EntityException("Failed to deserialize JSON", e);
     }
@@ -174,7 +174,7 @@ public class EntityFactoryImpl implements EntityFactory {
   @Override
   public String serialize(Object obj) throws EntityException {
     try {
-      return jsonProvider.getObjectMapper().writeValueAsString(obj);
+      return jsonProvider.getMapper().writeValueAsString(obj);
     } catch (JsonProcessingException e) {
       throw new EntityException("Failed to serialize JSON", e);
     }

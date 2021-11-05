@@ -4,11 +4,11 @@ package io.xj.hub.dao;
 import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.EventEntity;
 import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 
@@ -18,16 +18,14 @@ import java.util.UUID;
 
 import static io.xj.hub.Tables.PROGRAM_SEQUENCE_PATTERN_EVENT;
 
-public class ProgramSequencePatternEventDAOImpl extends DAOImpl<ProgramSequencePatternEvent> implements ProgramSequencePatternEventDAO {
+public class ProgramSequencePatternEventDAOImpl extends HubPersistenceServiceImpl<ProgramSequencePatternEvent> implements ProgramSequencePatternEventDAO {
 
   @Inject
   public ProgramSequencePatternEventDAOImpl(
-    JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory,
     HubDatabaseProvider dbProvider
   ) {
-    super(payloadFactory, entityFactory);
-    this.dbProvider = dbProvider;
+    super(entityFactory, dbProvider);
   }
 
   @Override

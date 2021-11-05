@@ -239,19 +239,14 @@ public class InstrumentIT {
     }
   }
 
-  /**
-   [#170299297] Cannot delete Instruments that have a Meme
-   */
   @Test
-  public void destroy_failsIfHasMemes() throws Exception {
+  public void destroy_evenWithMemes() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
     Instrument instrument = test.insert(buildInstrument(fake.library1, InstrumentType.Pad, InstrumentState.Published, "sandwich"));
     test.insert(buildInstrumentMeme(instrument, "frozen"));
     test.insert(buildInstrumentMeme(instrument, "ham"));
 
-    var e = assertThrows(DAOException.class, () -> testDAO.destroy(hubAccess, instrument.getId()));
-    assertEquals("Found Instrument Memes", e.getMessage());
-
+    testDAO.destroy(hubAccess, instrument.getId());
   }
 
   /**

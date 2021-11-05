@@ -6,6 +6,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import io.xj.hub.HubTopology;
+import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.json.ApiUrlProvider;
@@ -24,13 +25,16 @@ import static org.junit.Assert.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigEndpointTest {
+  private ConfigEndpoint subject;
+
   @Mock
   ContainerRequestContext crc;
 
   @Mock
   ApiUrlProvider apiUrlProvider;
 
-  private ConfigEndpoint subject;
+  @Mock
+  HubDatabaseProvider hubDatabaseProvider;
 
   @Before
   public void setUp() throws AppException, JsonapiException {
@@ -39,6 +43,7 @@ public class ConfigEndpointTest {
       protected void configure() {
         super.configure();
         bind(ApiUrlProvider.class).toInstance(apiUrlProvider);
+        bind(HubDatabaseProvider.class).toInstance(hubDatabaseProvider);
       }
     }));
     HubTopology.buildHubApiTopology(injector.getInstance(EntityFactory.class));

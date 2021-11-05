@@ -6,13 +6,13 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.filestore.S3UploadPolicy;
 import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static io.xj.hub.Tables.*;
 
-public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements InstrumentAudioDAO {
+public class InstrumentAudioDAOImpl extends HubPersistenceServiceImpl<InstrumentAudio> implements InstrumentAudioDAO {
   private final FileStoreProvider fileStoreProvider;
   // key special resources (e.g. upload policy)
   String KEY_UPLOAD_ACCESS_KEY = "awsAccessKeyId";
@@ -41,14 +41,12 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
 
   @Inject
   public InstrumentAudioDAOImpl(
-    JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory,
     HubDatabaseProvider dbProvider,
     FileStoreProvider fileStoreProvider
   ) {
-    super(payloadFactory, entityFactory);
+    super(entityFactory, dbProvider);
     this.fileStoreProvider = fileStoreProvider;
-    this.dbProvider = dbProvider;
 
     // FUTURE [#170288602] Create instrument audio, provide waveform file extension as query parameter (checked by front-end after selecting the upload file)
 //    String waveformFileExtension = env.getAudioFileExtension();

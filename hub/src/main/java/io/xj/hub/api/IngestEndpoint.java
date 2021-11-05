@@ -5,6 +5,8 @@ import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.ingest.HubIngestFactory;
+import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import org.slf4j.Logger;
@@ -25,7 +27,7 @@ import java.util.UUID;
  [#154234716] Architect wants to ingest library contents, to modularize graph mathematics used during craft, and provide the Artist with useful insight for developing the library.
  */
 @Path("api/1/ingest")
-public class IngestEndpoint extends HubJsonapiEndpoint {
+public class IngestEndpoint extends HubJsonapiEndpoint<Object> {
   private static final Logger LOG = LoggerFactory.getLogger(IngestEndpoint.class);
   private final HubIngestFactory ingestFactory;
 
@@ -34,11 +36,13 @@ public class IngestEndpoint extends HubJsonapiEndpoint {
    */
   @Inject
   public IngestEndpoint(
+    EntityFactory entityFactory,
+    HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
     HubIngestFactory ingestFactory
   ) {
-    super(response, payloadFactory);
+    super(dbProvider, response, payloadFactory, entityFactory);
     this.ingestFactory = ingestFactory;
   }
 

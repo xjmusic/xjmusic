@@ -157,7 +157,7 @@ public class AccountIT {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
     fake.user1 = test.insert(buildUser("jim",
       "jim@jim.com",
-      "http://www.jim.com/jim.png",
+      "https://www.jim.com/jim.png",
       "User"));
     test.insert(buildAccountUser(fake.account1, fake.user1));
 

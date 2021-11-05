@@ -108,7 +108,7 @@ public class ChainLoaderImpl extends ChainLoader {
       LOG.info("will check for last shipped data");
       chainFullKey = Chains.getShipKey(Chains.getFullKey(shipKey), EXTENSION_JSON);
       chainStream = fileStoreProvider.streamS3Object(shipBucket, chainFullKey);
-      chainPayload = jsonProvider.getObjectMapper().readValue(chainStream, JsonapiPayload.class);
+      chainPayload = jsonProvider.getMapper().readValue(chainStream, JsonapiPayload.class);
       chain = jsonapiPayloadFactory.toOne(chainPayload);
       chainManager.put(chain);
     } catch (FileStoreException | JsonapiException | ClassCastException | IOException | ManagerFatalException e) {

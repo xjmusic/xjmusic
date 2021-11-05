@@ -8,15 +8,13 @@ import io.xj.hub.TemplateConfig;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.TemplateType;
 import io.xj.hub.persistence.HubDatabaseProvider;
-import io.xj.hub.tables.pojos.Template;
-import io.xj.hub.tables.pojos.TemplateBinding;
-import io.xj.hub.tables.pojos.TemplatePlayback;
+import io.xj.hub.persistence.HubPersistenceServiceImpl;
+import io.xj.hub.tables.pojos.*;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.TremendouslyRandom;
 import io.xj.lib.util.ValueException;
@@ -34,7 +32,7 @@ import java.util.UUID;
 import static io.xj.hub.Tables.*;
 import static io.xj.hub.tables.Account.ACCOUNT;
 
-public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
+public class TemplateDAOImpl extends HubPersistenceServiceImpl<Template> implements TemplateDAO {
   private static final int GENERATED_SHIP_KEY_LENGTH = 9;
   private final long playbackExpireSeconds;
   private final TemplateBindingDAO templateBindingDAO;
@@ -45,15 +43,13 @@ public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
     EntityFactory entityFactory,
     Environment env,
     HubDatabaseProvider dbProvider,
-    JsonapiPayloadFactory payloadFactory,
     TemplateBindingDAO templateBindingDAO,
     TemplatePlaybackDAO templatePlaybackDAO
   ) {
-    super(payloadFactory, entityFactory);
+    super(entityFactory, dbProvider);
     playbackExpireSeconds = env.getPlaybackExpireSeconds();
     this.templateBindingDAO = templateBindingDAO;
     this.templatePlaybackDAO = templatePlaybackDAO;
-    this.dbProvider = dbProvider;
   }
 
   @Override
@@ -71,6 +67,7 @@ public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
     requireNotExists("Template with same Ship key",
       db.selectCount().from(TEMPLATE)
         .where(TEMPLATE.SHIP_KEY.eq(entity.getShipKey()))
+        .and(TEMPLATE.IS_DELETED.eq(false))
         .fetchOne(0, int.class));
 
     return modelFrom(Template.class, executeCreate(dbProvider.getDSL(), TEMPLATE, record));
@@ -82,11 +79,13 @@ public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
     if (hubAccess.isTopLevel())
       return modelFrom(Template.class, dbProvider.getDSL().selectFrom(TEMPLATE)
         .where(TEMPLATE.ID.eq(id))
+        .and(TEMPLATE.IS_DELETED.eq(false))
         .fetchOne());
     else
       return modelFrom(Template.class, dbProvider.getDSL().select(TEMPLATE.fields())
         .from(TEMPLATE)
         .where(TEMPLATE.ID.eq(id))
+        .and(TEMPLATE.IS_DELETED.eq(false))
         .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .fetchOne());
   }
@@ -97,11 +96,13 @@ public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
     if (hubAccess.isTopLevel())
       return Optional.ofNullable(modelFrom(Template.class, dbProvider.getDSL().selectFrom(TEMPLATE)
         .where(TEMPLATE.SHIP_KEY.eq(key))
+        .and(TEMPLATE.IS_DELETED.eq(false))
         .fetchOne()));
     else
       return Optional.ofNullable(modelFrom(Template.class, dbProvider.getDSL().select(TEMPLATE.fields())
         .from(TEMPLATE)
         .where(TEMPLATE.SHIP_KEY.eq(key))
+        .and(TEMPLATE.IS_DELETED.eq(false))
         .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .fetchOne()));
   }
@@ -114,7 +115,8 @@ public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
     return modelsFrom(Template.class, db.select(TEMPLATE.fields())
       .from(TEMPLATE)
       .join(TEMPLATE_PLAYBACK).on(TEMPLATE.ID.eq(TEMPLATE_PLAYBACK.TEMPLATE_ID))
-      .where(TEMPLATE_PLAYBACK.CREATED_AT.greaterThan(Timestamp.from(Instant.now().minusSeconds(playbackExpireSeconds))))
+      .where(TEMPLATE_PLAYBACK.CREATED_AT.greaterThan(Timestamp.from(Instant.now().minusSeconds(playbackExpireSeconds)).toLocalDateTime()))
+      .and(TEMPLATE.IS_DELETED.eq(false))
       .fetch());
   }
 
@@ -134,6 +136,11 @@ public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
     if (types.contains(Entities.toResourceType(TemplatePlayback.class)))
       entities.addAll(templatePlaybackDAO.readMany(hubAccess, templateIds));
 
+    // FeedbackTemplate
+    if (types.contains(Entities.toResourceType(FeedbackTemplate.class)))
+      entities.addAll(modelsFrom(FeedbackTemplate.class,
+        db.selectFrom(FEEDBACK_TEMPLATE).where(FEEDBACK_TEMPLATE.TEMPLATE_ID.in(templateIds))));
+
     return entities;
   }
 
@@ -144,22 +151,26 @@ public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
         return modelsFrom(Template.class, dbProvider.getDSL().select(TEMPLATE.fields())
           .from(TEMPLATE)
           .where(TEMPLATE.ACCOUNT_ID.in(parentIds))
+          .and(TEMPLATE.IS_DELETED.eq(false))
           .fetch());
       else
         return modelsFrom(Template.class, dbProvider.getDSL().select(TEMPLATE.fields())
           .from(TEMPLATE)
           .where(TEMPLATE.ACCOUNT_ID.in(parentIds))
+          .and(TEMPLATE.IS_DELETED.eq(false))
           .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
           .fetch());
     } else {
       if (hubAccess.isTopLevel())
         return modelsFrom(Template.class, dbProvider.getDSL().select(TEMPLATE.fields())
           .from(TEMPLATE)
+          .where(TEMPLATE.IS_DELETED.eq(false))
           .fetch());
       else
         return modelsFrom(Template.class, dbProvider.getDSL().select(TEMPLATE.fields())
           .from(TEMPLATE)
           .where(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .and(TEMPLATE.IS_DELETED.eq(false))
           .fetch());
     }
 
@@ -180,6 +191,7 @@ public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
       requireExists("Template",
         db.selectCount().from(TEMPLATE)
           .where(TEMPLATE.ID.eq(id))
+          .and(TEMPLATE.IS_DELETED.eq(false))
           .fetchOne(0, int.class));
       requireExists("Account",
         db.selectCount().from(ACCOUNT)
@@ -191,6 +203,7 @@ public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
       db.selectCount().from(TEMPLATE)
         .where(TEMPLATE.SHIP_KEY.eq(record.getShipKey()))
         .and(TEMPLATE.ID.ne(record.getId()))
+        .and(TEMPLATE.IS_DELETED.eq(false))
         .fetchOne(0, int.class));
 
     executeUpdate(dbProvider.getDSL(), TEMPLATE, id, record);
@@ -202,15 +215,8 @@ public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
     DSLContext db = dbProvider.getDSL();
     requireTopLevel(hubAccess);
 
-    db.deleteFrom(TEMPLATE_BINDING)
-      .where(TEMPLATE_BINDING.TEMPLATE_ID.eq(id))
-      .execute();
-
-    db.deleteFrom(TEMPLATE_PLAYBACK)
-      .where(TEMPLATE_PLAYBACK.TEMPLATE_ID.eq(id))
-      .execute();
-
-    db.deleteFrom(TEMPLATE)
+    db.update(TEMPLATE)
+      .set(TEMPLATE.IS_DELETED, true)
       .where(TEMPLATE.ID.eq(id))
       .execute();
   }

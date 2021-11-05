@@ -75,7 +75,7 @@ public class HubClientImpl implements HubClient {
       // return content if successful.
       if (Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode())) {
         var json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
-        HubContentPayload content = jsonProvider.getObjectMapper().readValue(json, HubContentPayload.class);
+        HubContentPayload content = jsonProvider.getMapper().readValue(json, HubContentPayload.class);
         List<Object> entities = Lists.newArrayList();
         entities.addAll(content.getTemplates());
         entities.addAll(content.getTemplateBindings());
@@ -114,7 +114,7 @@ public class HubClientImpl implements HubClient {
     CloseableHttpResponse response;
     try {
       response = httpClient.execute(request);
-      access = jsonProvider.getObjectMapper().readValue(response.getEntity().getContent(), HubClientAccess.class);
+      access = jsonProvider.getMapper().readValue(response.getEntity().getContent(), HubClientAccess.class);
     } catch (IOException e) {
       throw new HubClientException("Failed to authenticate with Hub API", e);
     }

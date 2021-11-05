@@ -5,12 +5,12 @@ import com.google.inject.Inject;
 import io.xj.hub.Tables;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.AccountUser;
 import io.xj.hub.tables.Library;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
@@ -18,16 +18,14 @@ import org.jooq.DSLContext;
 import java.util.Collection;
 import java.util.UUID;
 
-public class AccountDAOImpl extends DAOImpl<Account> implements AccountDAO {
+public class AccountDAOImpl extends HubPersistenceServiceImpl<Account> implements AccountDAO {
 
   @Inject
   public AccountDAOImpl(
-    JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory,
     HubDatabaseProvider dbProvider
   ) {
-    super(payloadFactory, entityFactory);
-    this.dbProvider = dbProvider;
+    super(entityFactory, dbProvider);
   }
 
   @Override

@@ -5,7 +5,6 @@ package io.xj.hub;
 import com.google.common.collect.Lists;
 import io.xj.hub.enums.*;
 import io.xj.hub.tables.pojos.*;
-import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.CSV;
 
 import javax.annotation.Nullable;
@@ -13,6 +12,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -29,6 +29,14 @@ public class IntegrationTestingFixtures {
   // These are fully exposed (no getters/setters) for ease of use in testing
   public Account account1;
   public Account account2;
+  public Feedback feedback10000001;
+  public Feedback feedback10000002;
+  public Feedback feedback1;
+  public Feedback feedback1a;
+  public Feedback feedback1b;
+  public Feedback feedback2;
+  public Feedback feedback2a;
+  public Feedback feedback2b;
   public Instrument instrument201;
   public Instrument instrument202;
   public Instrument instrument251;
@@ -42,12 +50,6 @@ public class IntegrationTestingFixtures {
   public InstrumentAudio audio8snare;
   public InstrumentAudio audio8toot;
   public InstrumentAudio instrument201_audio402;
-  public InstrumentAuthorship instrumentAuthorship1;
-  public InstrumentAuthorship instrumentAuthorship35;
-  public InstrumentAuthorship instrumentAuthorship3;
-  public InstrumentMessage instrumentMessage1;
-  public InstrumentMessage instrumentMessage35;
-  public InstrumentMessage instrumentMessage3;
   public Library library10000001;
   public Library library10000002;
   public Library library1;
@@ -67,16 +69,10 @@ public class IntegrationTestingFixtures {
   public Program program703;
   public Program program751;
   public Program program9;
-  public ProgramAuthorship programAuthorship1;
-  public ProgramAuthorship programAuthorship35;
-  public ProgramAuthorship programAuthorship3;
   public ProgramMeme program701_meme0;
   public ProgramMeme programMeme1;
   public ProgramMeme programMeme35;
   public ProgramMeme programMeme3;
-  public ProgramMessage programMessage1;
-  public ProgramMessage programMessage35;
-  public ProgramMessage programMessage3;
   public ProgramSequence program1_sequence1;
   public ProgramSequence program3_sequence1;
   public ProgramSequence programSequence35;
@@ -94,6 +90,7 @@ public class IntegrationTestingFixtures {
   public ProgramVoiceTrack program2_voice1_track0;
   public ProgramVoiceTrack program2_voice1_track1;
   public Template template1;
+  public Template template2;
   public TemplateBinding templateBinding1;
   public User user101;
   public User user1;
@@ -447,6 +444,51 @@ public class IntegrationTestingFixtures {
     return library;
   }
 
+  public static Feedback buildFeedback(Account account, FeedbackType type, FeedbackSource source) {
+    var feedback = new Feedback();
+    feedback.setId(UUID.randomUUID());
+    feedback.setAccountId(account.getId());
+    feedback.setType(type);
+    feedback.setSource(source);
+    return feedback;
+  }
+
+  public static Feedback buildFeedback(Account account, FeedbackType type, FeedbackSource source, User user) {
+    var feedback = buildFeedback(account, type, source);
+    feedback.setUserId(user.getId());
+    return feedback;
+  }
+
+  public static FeedbackInstrument buildFeedbackInstrument(Feedback feedback, Instrument instrument) {
+    var feedbackInstrument = new FeedbackInstrument();
+    feedbackInstrument.setFeedbackId(feedback.getId());
+    feedbackInstrument.setInstrumentId(instrument.getId());
+    return feedbackInstrument;
+  }
+
+  public static FeedbackLibrary buildFeedbackLibrary(Feedback feedback, Library library) {
+    var feedbackLibrary = new FeedbackLibrary();
+    feedbackLibrary.setFeedbackId(feedback.getId());
+    feedbackLibrary.setLibraryId(library.getId());
+    return feedbackLibrary;
+  }
+
+  public static FeedbackProgram buildFeedbackProgram(Feedback feedback, Program program) {
+    var feedbackProgram = new FeedbackProgram();
+    feedbackProgram.setFeedbackId(feedback.getId());
+    feedbackProgram.setProgramId(program.getId());
+    return feedbackProgram;
+  }
+
+  public static FeedbackTemplate buildFeedbackTemplate(Feedback feedback, Template template, @Nullable String shipKey) {
+    var feedbackTemplate = new FeedbackTemplate();
+    feedbackTemplate.setFeedbackId(feedback.getId());
+    feedbackTemplate.setTemplateId(template.getId());
+    if (Objects.nonNull(shipKey)) feedbackTemplate.setSegmentKey(shipKey);
+    return feedbackTemplate;
+  }
+
+
   public static Account buildAccount(String name) {
     var account = new Account();
     account.setId(UUID.randomUUID());
@@ -516,7 +558,7 @@ public class IntegrationTestingFixtures {
     templatePlayback.setId(UUID.randomUUID());
     templatePlayback.setUserId(user.getId());
     templatePlayback.setTemplateId(template.getId());
-    templatePlayback.setCreatedAt(Timestamp.from(Instant.now()));
+    templatePlayback.setCreatedAt(Timestamp.from(Instant.now()).toLocalDateTime());
     return templatePlayback;
   }
 
@@ -539,25 +581,6 @@ public class IntegrationTestingFixtures {
     programMeme.setProgramId(program.getId());
     programMeme.setName(name);
     return programMeme;
-  }
-
-  public static ProgramMessage buildProgramMessage(Program program, User user, String body) {
-    var message = new ProgramMessage();
-    message.setId(UUID.randomUUID());
-    message.setProgramId(program.getId());
-    message.setUserId(user.getId());
-    message.setBody(body);
-    return message;
-  }
-
-  public static ProgramAuthorship buildProgramAuthorship(Program program, User user, String description, Float hours) {
-    var authorship = new ProgramAuthorship();
-    authorship.setId(UUID.randomUUID());
-    authorship.setProgramId(program.getId());
-    authorship.setUserId(user.getId());
-    authorship.setDescription(description);
-    authorship.setHours(hours);
-    return authorship;
   }
 
   public static ProgramSequence buildProgramSequence(Program program, int total, String name, float density, String key, float tempo) {
@@ -669,25 +692,6 @@ public class IntegrationTestingFixtures {
     instrumentMeme.setInstrumentId(instrument.getId());
     instrumentMeme.setName(name);
     return instrumentMeme;
-  }
-
-  public static InstrumentMessage buildInstrumentMessage(Instrument instrument, User user, String body) {
-    var message = new InstrumentMessage();
-    message.setId(UUID.randomUUID());
-    message.setInstrumentId(instrument.getId());
-    message.setUserId(user.getId());
-    message.setBody(body);
-    return message;
-  }
-
-  public static InstrumentAuthorship buildInstrumentAuthorship(Instrument instrument, User user, String description, Float hours) {
-    var authorship = new InstrumentAuthorship();
-    authorship.setId(UUID.randomUUID());
-    authorship.setInstrumentId(instrument.getId());
-    authorship.setUserId(user.getId());
-    authorship.setDescription(description);
-    authorship.setHours(hours);
-    return authorship;
   }
 
   /**

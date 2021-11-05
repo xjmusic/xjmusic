@@ -42,9 +42,7 @@ public enum HubTopology {
       .belongsTo(User.class)
       .belongsTo(Library.class)
       .hasMany(InstrumentAudio.class)
-      .hasMany(InstrumentAuthorship.class)
-      .hasMany(InstrumentMeme.class)
-      .hasMany(InstrumentMessage.class);
+      .hasMany(InstrumentMeme.class);
 
     // InstrumentAudio
     entityFactory.register(InstrumentAudio.class)
@@ -64,21 +62,6 @@ public enum HubTopology {
     entityFactory.register(InstrumentMeme.class)
       .createdBy(InstrumentMeme::new)
       .withAttribute("name")
-      .belongsTo(Instrument.class);
-
-    // InstrumentMessage
-    entityFactory.register(InstrumentMessage.class)
-      .createdBy(InstrumentMessage::new)
-      .withAttribute("body")
-      .belongsTo(User.class)
-      .belongsTo(Instrument.class);
-
-    // InstrumentAuthorship
-    entityFactory.register(InstrumentAuthorship.class)
-      .createdBy(InstrumentAuthorship::new)
-      .withAttribute("hours")
-      .withAttribute("description")
-      .belongsTo(User.class)
       .belongsTo(Instrument.class);
 
     // Library
@@ -115,21 +98,6 @@ public enum HubTopology {
     entityFactory.register(ProgramMeme.class)
       .createdBy(ProgramMeme::new)
       .withAttribute("name")
-      .belongsTo(Program.class);
-
-    // ProgramMessage
-    entityFactory.register(ProgramMessage.class)
-      .createdBy(ProgramMessage::new)
-      .withAttribute("body")
-      .belongsTo(User.class)
-      .belongsTo(Program.class);
-
-    // ProgramAuthorship
-    entityFactory.register(ProgramAuthorship.class)
-      .createdBy(ProgramAuthorship::new)
-      .withAttribute("hours")
-      .withAttribute("description")
-      .belongsTo(User.class)
       .belongsTo(Program.class);
 
     // ProgramSequence
@@ -223,11 +191,7 @@ public enum HubTopology {
       .withAttribute("email")
       .withAttribute("avatarUrl")
       .hasMany(UserAuth.class)
-      .hasMany(UserAuthToken.class)
-      .hasMany(InstrumentMessage.class)
-      .hasMany(InstrumentAuthorship.class)
-      .hasMany(ProgramMessage.class)
-      .hasMany(ProgramAuthorship.class);
+      .hasMany(UserAuthToken.class);
 
     // UserAuth
     entityFactory.register(UserAuth.class)
@@ -268,6 +232,44 @@ public enum HubTopology {
       .withAttribute("createdAt")
       .belongsTo(Template.class)
       .belongsTo(User.class);
+
+    // Feedback
+    entityFactory.register(Feedback.class)
+      .createdBy(Feedback::new)
+      .withAttribute("source")
+      .withAttribute("type")
+      .withAttribute("timestamp")
+      .withAttribute("account_id")
+      .withAttribute("body")
+      .belongsTo(User.class)
+      .belongsTo(Template.class)
+      .belongsTo(Program.class)
+      .belongsTo(Library.class)
+      .belongsTo(Instrument.class);
+
+    // Feedback
+    entityFactory.register(FeedbackInstrument.class)
+      .createdBy(FeedbackInstrument::new)
+      .belongsTo(Feedback.class)
+      .belongsTo(Instrument.class);
+
+    // Feedback
+    entityFactory.register(FeedbackLibrary.class)
+      .createdBy(FeedbackLibrary::new)
+      .belongsTo(Feedback.class)
+      .belongsTo(Library.class);
+
+    // Feedback
+    entityFactory.register(FeedbackProgram.class)
+      .createdBy(FeedbackProgram::new)
+      .belongsTo(Feedback.class)
+      .belongsTo(Program.class);
+
+    // Feedback
+    entityFactory.register(FeedbackTemplate.class)
+      .createdBy(FeedbackTemplate::new)
+      .belongsTo(Feedback.class)
+      .belongsTo(Template.class);
   }
 
 

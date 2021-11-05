@@ -4,10 +4,10 @@ package io.xj.hub.dao;
 import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
@@ -19,16 +19,14 @@ import java.util.UUID;
 
 import static io.xj.hub.Tables.*;
 
-public class ProgramSequenceChordVoicingDAOImpl extends DAOImpl<ProgramSequenceChordVoicing> implements ProgramSequenceChordVoicingDAO {
+public class ProgramSequenceChordVoicingDAOImpl extends HubPersistenceServiceImpl<ProgramSequenceChordVoicing> implements ProgramSequenceChordVoicingDAO {
 
   @Inject
   public ProgramSequenceChordVoicingDAOImpl(
-    JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory,
     HubDatabaseProvider dbProvider
   ) {
-    super(payloadFactory, entityFactory);
-    this.dbProvider = dbProvider;
+    super(entityFactory, dbProvider);
   }
 
   @Override

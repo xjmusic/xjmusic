@@ -5,12 +5,12 @@ import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.TemplateType;
 import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplatePlayback;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
@@ -26,18 +26,16 @@ import java.util.UUID;
 import static io.xj.hub.Tables.TEMPLATE;
 import static io.xj.hub.Tables.TEMPLATE_PLAYBACK;
 
-public class TemplatePlaybackDAOImpl extends DAOImpl<TemplatePlayback> implements TemplatePlaybackDAO {
+public class TemplatePlaybackDAOImpl extends HubPersistenceServiceImpl<TemplatePlayback> implements TemplatePlaybackDAO {
   private final long playbackExpireSeconds;
 
   @Inject
   public TemplatePlaybackDAOImpl(
-    JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory,
     HubDatabaseProvider dbProvider,
     Environment env
   ) {
-    super(payloadFactory, entityFactory);
-    this.dbProvider = dbProvider;
+    super(entityFactory, dbProvider);
 
     playbackExpireSeconds = env.getPlaybackExpireSeconds();
   }
@@ -82,14 +80,14 @@ public class TemplatePlaybackDAOImpl extends DAOImpl<TemplatePlayback> implement
       ?
       db.selectFrom(TEMPLATE_PLAYBACK)
         .where(TEMPLATE_PLAYBACK.USER_ID.eq(userId))
-        .and(TEMPLATE_PLAYBACK.CREATED_AT.greaterThan(Timestamp.from(Instant.now().minusSeconds(playbackExpireSeconds))))
+        .and(TEMPLATE_PLAYBACK.CREATED_AT.greaterThan(Timestamp.from(Instant.now().minusSeconds(playbackExpireSeconds)).toLocalDateTime()))
         .fetchOne()
       :
       db.select(TEMPLATE_PLAYBACK.fields())
         .from(TEMPLATE_PLAYBACK)
         .join(TEMPLATE).on(TEMPLATE.ID.eq(TEMPLATE_PLAYBACK.TEMPLATE_ID))
         .where(TEMPLATE_PLAYBACK.USER_ID.eq(userId))
-        .and(TEMPLATE_PLAYBACK.CREATED_AT.greaterThan(Timestamp.from(Instant.now().minusSeconds(playbackExpireSeconds))))
+        .and(TEMPLATE_PLAYBACK.CREATED_AT.greaterThan(Timestamp.from(Instant.now().minusSeconds(playbackExpireSeconds)).toLocalDateTime()))
         .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .fetchOne();
 
@@ -121,7 +119,7 @@ public class TemplatePlaybackDAOImpl extends DAOImpl<TemplatePlayback> implement
       return modelsFrom(TemplatePlayback.class, dbProvider.getDSL().select(TEMPLATE_PLAYBACK.fields())
         .from(TEMPLATE_PLAYBACK)
         .where(TEMPLATE_PLAYBACK.TEMPLATE_ID.in(parentIds))
-        .and(TEMPLATE_PLAYBACK.CREATED_AT.greaterThan(Timestamp.from(Instant.now().minusSeconds(playbackExpireSeconds))))
+        .and(TEMPLATE_PLAYBACK.CREATED_AT.greaterThan(Timestamp.from(Instant.now().minusSeconds(playbackExpireSeconds)).toLocalDateTime()))
         .orderBy(TEMPLATE_PLAYBACK.USER_ID)
         .fetch());
     else
@@ -130,7 +128,7 @@ public class TemplatePlaybackDAOImpl extends DAOImpl<TemplatePlayback> implement
         .join(TEMPLATE).on(TEMPLATE.ID.eq(TEMPLATE_PLAYBACK.TEMPLATE_ID))
         .where(TEMPLATE_PLAYBACK.TEMPLATE_ID.in(parentIds))
         .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
-        .and(TEMPLATE_PLAYBACK.CREATED_AT.greaterThan(Timestamp.from(Instant.now().minusSeconds(playbackExpireSeconds))))
+        .and(TEMPLATE_PLAYBACK.CREATED_AT.greaterThan(Timestamp.from(Instant.now().minusSeconds(playbackExpireSeconds)).toLocalDateTime()))
         .orderBy(TEMPLATE_PLAYBACK.USER_ID)
         .fetch());
   }

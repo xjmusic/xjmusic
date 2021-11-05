@@ -5,6 +5,9 @@ import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.dao.LibraryDAO;
+import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.tables.pojos.Library;
+import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
@@ -21,7 +24,7 @@ import java.util.Objects;
  Libraries
  */
 @Path("api/1/libraries")
-public class LibraryEndpoint extends HubJsonapiEndpoint {
+public class LibraryEndpoint extends HubJsonapiEndpoint<Library> {
   private final LibraryDAO dao;
 
   /**
@@ -30,10 +33,12 @@ public class LibraryEndpoint extends HubJsonapiEndpoint {
   @Inject
   public LibraryEndpoint(
     LibraryDAO dao,
+    HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
-    JsonapiPayloadFactory payloadFactory
+    JsonapiPayloadFactory payloadFactory,
+    EntityFactory entityFactory
   ) {
-    super(response, payloadFactory);
+    super(dbProvider, response, payloadFactory, entityFactory);
     this.dao = dao;
   }
 

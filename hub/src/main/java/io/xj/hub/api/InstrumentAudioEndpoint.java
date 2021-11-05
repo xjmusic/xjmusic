@@ -6,7 +6,9 @@ import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.dao.InstrumentAudioDAO;
+import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.*;
 
 import javax.annotation.security.RolesAllowed;
@@ -23,7 +25,7 @@ import java.util.UUID;
  InstrumentAudio endpoint
  */
 @Path("api/1/instrument-audios")
-public class InstrumentAudioEndpoint extends HubJsonapiEndpoint {
+public class InstrumentAudioEndpoint extends HubJsonapiEndpoint<InstrumentAudio> {
   private final InstrumentAudioDAO dao;
 
   /**
@@ -32,10 +34,12 @@ public class InstrumentAudioEndpoint extends HubJsonapiEndpoint {
   @Inject
   public InstrumentAudioEndpoint(
     InstrumentAudioDAO dao,
+    HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
-    JsonapiPayloadFactory payloadFactory
+    JsonapiPayloadFactory payloadFactory,
+    EntityFactory entityFactory
   ) {
-    super(response, payloadFactory);
+    super(dbProvider, response, payloadFactory, entityFactory);
     this.dao = dao;
   }
 

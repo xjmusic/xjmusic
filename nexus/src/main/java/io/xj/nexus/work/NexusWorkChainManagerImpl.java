@@ -261,7 +261,7 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
       LOG.debug("will check for last shipped data");
       shipKey = Chains.getShipKey(Chains.getFullKey(template.getShipKey()), EXTENSION_JSON);
       chainStream = fileStoreProvider.streamS3Object(shipBucket, shipKey);
-      chainPayload = jsonProvider.getObjectMapper().readValue(chainStream, JsonapiPayload.class);
+      chainPayload = jsonProvider.getMapper().readValue(chainStream, JsonapiPayload.class);
       chain = jsonapiPayloadFactory.toOne(chainPayload);
       entities.add(entityFactory.clone(chain));
     } catch (FileStoreException | JsonapiException | ClassCastException | IOException | EntityException e) {
@@ -299,7 +299,7 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
           try {
             var segmentShipKey = Segments.getStorageFilename(segment.getStorageKey(), EXTENSION_JSON);
             var segmentStream = fileStoreProvider.streamS3Object(shipBucket, segmentShipKey);
-            var segmentPayload = jsonProvider.getObjectMapper().readValue(segmentStream, JsonapiPayload.class);
+            var segmentPayload = jsonProvider.getMapper().readValue(segmentStream, JsonapiPayload.class);
             AtomicInteger childCount = new AtomicInteger();
             entities.add(entityFactory.clone(segment));
             segmentPayload.getIncluded()

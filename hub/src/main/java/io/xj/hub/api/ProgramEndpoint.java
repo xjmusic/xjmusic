@@ -6,8 +6,10 @@ import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.dao.*;
+import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.*;
 import io.xj.lib.util.CSV;
 
@@ -22,7 +24,7 @@ import java.util.*;
  Programs
  */
 @Path("api/1/programs")
-public class ProgramEndpoint extends HubJsonapiEndpoint {
+public class ProgramEndpoint extends HubJsonapiEndpoint<Program> {
   private final ProgramSequenceBindingMemeDAO programSequenceBindingMemeDAO;
   private final ProgramDAO dao;
   private final ProgramMemeDAO programMemeDAO;
@@ -35,10 +37,12 @@ public class ProgramEndpoint extends HubJsonapiEndpoint {
     ProgramDAO dao,
     ProgramSequenceBindingMemeDAO programSequenceBindingMemeDAO,
     ProgramMemeDAO programMemeDAO,
+    HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
-    JsonapiPayloadFactory payloadFactory
+    JsonapiPayloadFactory payloadFactory,
+    EntityFactory entityFactory
   ) {
-    super(response, payloadFactory);
+    super(dbProvider, response, payloadFactory, entityFactory);
     this.dao = dao;
     this.programSequenceBindingMemeDAO = programSequenceBindingMemeDAO;
     this.programMemeDAO = programMemeDAO;

@@ -8,15 +8,9 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlProvider;
-import io.xj.hub.dao.DAO;
 import io.xj.hub.dao.DAOException;
-import io.xj.hub.dao.DAOImpl;
-import io.xj.hub.persistence.HubDatabaseProvider;
-import io.xj.hub.persistence.HubMigration;
-import io.xj.hub.persistence.HubPersistenceException;
-import io.xj.hub.persistence.HubRedisProvider;
+import io.xj.hub.persistence.*;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import org.jooq.DSLContext;
 import org.jooq.Table;
 import org.jooq.TableRecord;
@@ -31,11 +25,10 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Singleton
-public class HubIntegrationTestProviderImpl<O> extends DAOImpl<O> implements HubIntegrationTestProvider {
+public class HubIntegrationTestProviderImpl<O> extends HubPersistenceServiceImpl<O> implements HubIntegrationTestProvider {
   private static final String SELECT_ALL_PATTERN = "*";
   final Logger log = LoggerFactory.getLogger(HubIntegrationTestProviderImpl.class);
   final Jedis redisConnection;
-  private final HubDatabaseProvider hubDatabaseProvider;
   private final HubAccessControlProvider hubAccessControlProvider;
 
   /**
@@ -44,14 +37,13 @@ public class HubIntegrationTestProviderImpl<O> extends DAOImpl<O> implements Hub
    */
   @Inject
   HubIntegrationTestProviderImpl(
-    HubDatabaseProvider hubDatabaseProvider,
+    HubDatabaseProvider dbProvider,
     HubRedisProvider hubRedisProvider,
     HubMigration hubMigration,
-    JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory,
-    HubAccessControlProvider hubAccessControlProvider) {
-    super(payloadFactory, entityFactory);
-    this.hubDatabaseProvider = hubDatabaseProvider;
+    HubAccessControlProvider hubAccessControlProvider
+  ) {
+    super(entityFactory, dbProvider);
     this.hubAccessControlProvider = hubAccessControlProvider;
 
     // Build the Hub REST API payload topology
@@ -84,7 +76,7 @@ public class HubIntegrationTestProviderImpl<O> extends DAOImpl<O> implements Hub
   @Override
   public void reset() throws HubException {
     try {
-      for (Table<?> table : Lists.reverse(ImmutableList.copyOf(DAO.tablesInSchemaConstructionOrder.values())))
+      for (Table<?> table : Lists.reverse(ImmutableList.copyOf(tablesInSchemaConstructionOrder.values())))
         reset(table);
 
       // Finally, all queues
@@ -99,15 +91,16 @@ public class HubIntegrationTestProviderImpl<O> extends DAOImpl<O> implements Hub
 
   @Override
   public void reset(Table<?> table) {
-    DSLContext db = hubDatabaseProvider.getDSL();
-    if (0 < db.selectCount().from(table).fetchOne(0, int.class))
+    DSLContext db = dbProvider.getDSL();
+    var count = db.selectCount().from(table).fetchOne(0, int.class);
+    if (Objects.nonNull(count) && 0 < count)
       db.deleteFrom(table).execute();
   }
 
   @Override
   public <N> N insert(N entity) throws HubException {
     try {
-      return insert(hubDatabaseProvider.getDSL(), entity);
+      return insert(dbProvider.getDSL(), entity);
     } catch (Exception e) {
       throw new HubException(e);
     }
@@ -116,9 +109,9 @@ public class HubIntegrationTestProviderImpl<O> extends DAOImpl<O> implements Hub
   @Override
   public <N> void batchInsert(Collection<N> entities) throws HubException {
     try {
-      DSLContext db = hubDatabaseProvider.getDSL();
+      DSLContext db = dbProvider.getDSL();
       Collection<? extends TableRecord<?>> records = Lists.newArrayList();
-      for (Map.Entry<Class<?>, Table<?>> entry : DAO.tablesInSchemaConstructionOrder.entrySet()) {
+      for (Map.Entry<Class<?>, Table<?>> entry : tablesInSchemaConstructionOrder.entrySet()) {
         Class<?> cls = entry.getKey();
         Table<?> table = entry.getValue();
         records.addAll(recordsFrom(db, table, filter(entities, cls)));
@@ -134,7 +127,7 @@ public class HubIntegrationTestProviderImpl<O> extends DAOImpl<O> implements Hub
   @Override
   public void shutdown() {
     try {
-      hubDatabaseProvider.shutdown();
+      dbProvider.shutdown();
     } catch (Exception e) {
       log.error("Failed to shutdown SQL connection", e);
     }
@@ -149,35 +142,29 @@ public class HubIntegrationTestProviderImpl<O> extends DAOImpl<O> implements Hub
 
   @Override
   public DSLContext getDSL() {
-    return hubDatabaseProvider.getDSL();
+    return dbProvider.getDSL();
   }
 
-  @Override
   public O create(HubAccess hubAccess, O entity) {
     return null;
   }
 
-  @Override
   public void destroy(HubAccess hubAccess, UUID id) {
 
   }
 
-  @Override
   public O newInstance() {
     return null;
   }
 
-  @Override
   public Collection<O> readMany(HubAccess hubAccess, Collection<UUID> parentIds) {
     return null;
   }
 
-  @Override
   public O readOne(HubAccess hubAccess, UUID id) {
     return null;
   }
 
-  @Override
   public O update(HubAccess hubAccess, UUID id, O entity) {
     // no op
     return entity;

@@ -4,10 +4,10 @@ package io.xj.hub.dao;
 import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.InstrumentMeme;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
@@ -18,16 +18,14 @@ import java.util.UUID;
 
 import static io.xj.hub.Tables.INSTRUMENT_MEME;
 
-public class InstrumentMemeDAOImpl extends DAOImpl<InstrumentMeme> implements InstrumentMemeDAO {
+public class InstrumentMemeDAOImpl extends HubPersistenceServiceImpl<InstrumentMeme> implements InstrumentMemeDAO {
 
   @Inject
   public InstrumentMemeDAOImpl(
-    JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory,
     HubDatabaseProvider dbProvider
   ) {
-    super(payloadFactory, entityFactory);
-    this.dbProvider = dbProvider;
+    super(entityFactory, dbProvider);
   }
 
   @Override

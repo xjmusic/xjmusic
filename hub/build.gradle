@@ -46,7 +46,7 @@ dependencies {
   testFixturesImplementation(project(":lib"))
   //
   // jOOq vendor
-  jooqRuntime 'org.postgresql:postgresql:42.2.24.jre7'
+  jooqGenerator 'org.postgresql:postgresql:42.2.14'
   // vendor
   compileOnly 'io.swagger:swagger-annotations:1.6.3'
   implementation 'ch.qos.logback:logback-classic:1.2.6'
@@ -55,6 +55,7 @@ dependencies {
   implementation 'com.amazonaws:aws-java-sdk-secretsmanager:1.12.90'
   implementation 'com.amazonaws:aws-java-sdk:1.12.90'
   implementation 'com.fasterxml.jackson.core:jackson-annotations:2.13.0'
+  implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.0'
   implementation 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.13.0'
   implementation 'com.fasterxml.jackson.module:jackson-module-guice:2.13.0'
   implementation 'com.github.axet:TarsosDSP:2.4-1'
@@ -64,24 +65,24 @@ dependencies {
   implementation 'com.google.guava:guava:31.0.1-jre'
   implementation 'com.google.inject.extensions:guice-assistedinject:5.0.1'
   implementation 'com.google.inject:guice:5.0.1'
-  implementation 'com.typesafe:config:1.4.0'
-  implementation 'com.zaxxer:HikariCP:3.4.1'
-  implementation 'commons-codec:commons-codec:1.10'
-  implementation 'commons-io:commons-io:2.6'
+  implementation 'com.typesafe:config:1.4.1'
+  implementation 'com.zaxxer:HikariCP:5.0.0'
+  implementation 'commons-codec:commons-codec:1.5'
+  implementation 'commons-io:commons-io:2.11.0'
   implementation 'io.confluent:rest-utils:5.4.0'
-  implementation 'io.swagger.core.v3:swagger-annotations:2.1.9'
-  implementation 'io.swagger.core.v3:swagger-jaxrs2:2.1.9'
-  implementation 'javax.activation:activation:1.1'
+  implementation 'io.swagger.core.v3:swagger-annotations:2.1.11'
+  implementation 'io.swagger.core.v3:swagger-jaxrs2:2.1.11'
+  implementation 'javax.activation:activation:1.1.1'
   implementation 'javax.activation:activation:1.1.1'
   implementation 'javax.annotation:javax.annotation-api:1.3.2'
   implementation 'javax.cache:cache-api:1.1.1'
   implementation 'javax.servlet:javax.servlet-api:4.0.1'
   implementation 'javax.ws.rs:javax.ws.rs-api:2.1.1'
-  implementation 'me.xdrop:fuzzywuzzy:1.1.9'
+  implementation 'me.xdrop:fuzzywuzzy:1.3.1'
   implementation 'net.logstash.logback:logstash-logback-encoder:6.6'
-  implementation 'org.apache.httpcomponents:httpclient:4.5.12'
-  implementation 'org.apache.httpcomponents:httpclient:4.5.8'
-  implementation 'org.apache.httpcomponents:httpcore:4.4.13'
+  implementation 'org.apache.httpcomponents:httpclient:4.5.13'
+  implementation 'org.apache.httpcomponents:httpclient:4.5.13'
+  implementation 'org.apache.httpcomponents:httpcore:4.4.14'
   implementation 'org.eclipse.jetty:jetty-server:9.4.26.v20200117'
   implementation 'org.eclipse.jetty:jetty-servlet:9.4.26.v20200117'
   implementation 'org.flywaydb:flyway-core:8.0.1'
@@ -92,76 +93,77 @@ dependencies {
   implementation 'org.glassfish.jersey.inject:jersey-hk2:2.33'
   implementation 'org.glassfish.jersey.media:jersey-media-json-jackson:2.33'
   implementation 'org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-simple:2.33'
-  implementation 'org.jooq:jooq-codegen:3.12.3'
-  implementation 'org.jooq:jooq:3.12.3'
-  implementation 'org.json:json:20160810'
-  implementation 'org.mockito:mockito-core:1.10.19'
+  implementation 'org.jooq:jooq-codegen:3.15.2'
+  implementation 'org.jooq:jooq:3.15.2'
+  implementation 'org.json:json:20210307'
+  implementation 'org.mockito:mockito-core:4.0.0'
   implementation 'org.postgresql:postgresql:42.2.24.jre7'
-  implementation 'org.reflections:reflections:0.9.11'
-  implementation 'org.slf4j:slf4j-api:1.7.30'
-  implementation 'org.yaml:snakeyaml:1.18'
-  implementation 'redis.clients:jedis:2.9.0'
-  implementation 'software.amazon.awssdk:cloudwatch:2.17.20'
+  implementation 'org.reflections:reflections:0.10.1'
+  implementation 'org.slf4j:slf4j-api:1.7.32'
+  implementation 'org.yaml:snakeyaml:1.29'
+  implementation 'redis.clients:jedis:3.6.3'
+  implementation 'software.amazon.awssdk:cloudwatch:2.17.61'
   testFixturesImplementation 'com.google.guava:guava:31.0.1-jre'
   testFixturesImplementation 'com.google.inject.extensions:guice-assistedinject:5.0.1'
   testFixturesImplementation 'com.google.inject:guice:5.0.1'
-  testFixturesImplementation 'com.typesafe:config:1.4.0'
-  testFixturesImplementation 'org.jooq:jooq:3.12.3'
-  testFixturesImplementation 'org.slf4j:slf4j-api:1.7.30'
-  testFixturesImplementation 'redis.clients:jedis:2.9.0'
-  testImplementation 'com.github.tomakehurst:wiremock-jre8:2.26.3'
-  testImplementation 'junit:junit:4.11'
-  testImplementation 'junit:junit:4.12'
-  testImplementation 'org.assertj:assertj-core:3.8.0'
+  testFixturesImplementation 'com.typesafe:config:1.4.1'
+  testFixturesImplementation 'org.jooq:jooq:3.15.2'
+  testFixturesImplementation 'org.slf4j:slf4j-api:1.7.32'
+  testFixturesImplementation 'redis.clients:jedis:3.6.3'
+  testImplementation 'com.github.tomakehurst:wiremock-jre8:2.31.0'
+  testImplementation 'junit:junit:4.13.2'
+  testImplementation 'junit:junit:4.13.2'
+  testImplementation 'org.assertj:assertj-core:3.21.0'
   testImplementation 'org.eclipse.jetty:jetty-client:9.4.26.v20200117'
-  testImplementation 'org.hamcrest:hamcrest-library:1.3'
-  testImplementation 'org.mockito:mockito-core:3.2.4'
+  testImplementation 'org.hamcrest:hamcrest-library:2.2'
+  testImplementation 'org.mockito:mockito-core:4.0.0'
 }
 
+
 jooq {
-  version = '3.12.3'
-  edition = 'OSS'
-  generateSchemaSourceOnCompilation = true
-  sample(sourceSets.main) {
-    jdbc {
-      driver = 'org.postgresql.Driver'
-      url = 'jdbc:postgresql://localhost:5432/xj_test'
-      user = 'postgres'
-      password = 'postgres'
-    }
-    generator {
-      name = 'org.jooq.codegen.DefaultGenerator'
-      strategy {
-        name = 'org.jooq.codegen.DefaultGeneratorStrategy'
-        // ...
-      }
-      database {
-        name = 'org.jooq.meta.postgres.PostgresDatabase'
-        inputSchema = 'xj'
-        includes = '.*'
-        // ...
-      }
-      generate {
-        relations = true
-        deprecated = false
-        records = true
-        pojos = true
-        interfaces = true
-        daos = true
-        immutablePojos = false
-        fluentSetters = false
-        // ...
-      }
-      target {
-        packageName = 'io.xj.hub'
-        directory = 'build/generated/sources/db'
-        // directory = ...
+  version = '3.15.1'  // default (can be omitted)
+  edition = nu.studer.gradle.jooq.JooqEdition.OSS  // default (can be omitted)
+
+  configurations {
+    main {  // name of the jOOQ configuration
+      generateSchemaSourceOnCompilation = true  // default (can be omitted)
+
+      generationTool {
+        jdbc {
+          driver = 'org.postgresql.Driver'
+          url = 'jdbc:postgresql://localhost:5432/xj_test'
+          user = 'postgres'
+          password = 'postgres'
+        }
+        generator {
+          name = 'org.jooq.codegen.DefaultGenerator'
+          database {
+            name = 'org.jooq.meta.postgres.PostgresDatabase'
+            inputSchema = 'xj'
+            includes = '.*'
+          }
+          generate {
+            relations = true
+            deprecated = false
+            records = true
+            pojos = true
+            interfaces = true
+            daos = true
+            immutablePojos = false
+            fluentSetters = false
+          }
+          target {
+            packageName = 'io.xj.hub'
+            directory = 'build/generated/sources/db'
+          }
+          strategy.name = 'org.jooq.codegen.DefaultGeneratorStrategy'
+        }
       }
     }
   }
 }
 
-generateSampleJooqSchemaSource.dependsOn(flywayMigrate)
+generateJooq.dependsOn(flywayMigrate)
 
 jar {
   manifest {
@@ -181,11 +183,6 @@ group = 'io.xj'
 version = '1.0'
 description = 'XJ Music Content Hub'
 sourceCompatibility = '16'
-
-tasks.withType(JavaCompile) {
-  options.encoding = 'UTF-8'
-  dependsOn generateSampleJooqSchemaSource
-}
 
 jacocoTestReport {
   reports {

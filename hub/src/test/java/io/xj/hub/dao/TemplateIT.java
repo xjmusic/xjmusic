@@ -223,7 +223,7 @@ public class TemplateIT {
     test.insert(buildTemplateBinding(template1a, buildProgram(buildLibrary(buildAccount("Test"), "test"), ProgramType.Detail, ProgramState.Published, "test", "C", 120.0f, 06f)));
     test.insert(buildTemplatePlayback(template1a, buildUser("Test", "test@test.com", "test.jpg", "User")));
     var legacy = buildTemplatePlayback(template1a, buildUser("Test2", "test2@test.com", "test2.jpg", "User"));
-    legacy.setCreatedAt(Timestamp.from(Instant.now().minusSeconds(60 * 60 * 24)));
+    legacy.setCreatedAt(Timestamp.from(Instant.now().minusSeconds(60 * 60 * 24)).toLocalDateTime());
     test.insert(legacy);
 
     Collection<Object> result = testDAO.readChildEntities(hubAccess, List.of(template1a.getId()), List.of("template-playbacks", "template-bindings"));
@@ -271,7 +271,7 @@ public class TemplateIT {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
     test.insert(buildTemplatePlayback(template1a, fake.user2));
     var later = buildTemplatePlayback(template1a, fake.user3);
-    later.setCreatedAt(Timestamp.from(Instant.now().minusSeconds(60 * 60 * 12)));
+    later.setCreatedAt(Timestamp.from(Instant.now().minusSeconds(60 * 60 * 12)).toLocalDateTime());
     test.insert(later);
 
     Collection<Template> result = testDAO.readAllPlaying(hubAccess);
