@@ -150,6 +150,18 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
+  public Instrument addMemes(Instrument p) throws NexusException {
+    for (InstrumentMeme meme : sourceMaterial().getMemes(p)) {
+      var segMeme = new SegmentMeme();
+      segMeme.setId(UUID.randomUUID());
+      segMeme.setSegmentId(getSegment().getId());
+      segMeme.setName(Text.toMeme(meme.getName()));
+      add(segMeme);
+    }
+    return p;
+  }
+
+  @Override
   public Program addMemes(Program p) throws NexusException {
     for (ProgramMeme meme : sourceMaterial().getMemes(p)) {
       var segMeme = new SegmentMeme();

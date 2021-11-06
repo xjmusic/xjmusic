@@ -49,30 +49,6 @@ public class MemeIsometryTest {
   }
 
   @Test
-  public void notMemes() {
-    subject = MemeIsometry.ofMemes(ImmutableList.of(
-      "Smooth",
-      "!Busy"
-    ));
-
-    assertArrayEquals(new String[]{"!BUSY", "SMOOTH"}, subject.getSources().stream().sorted().toArray());
-
-    assertEquals(1.0, subject.score(ImmutableList.of("Smooth")), 0.1);
-    assertEquals(-20, subject.score(ImmutableList.of("Busy")), 0.1);
-    assertEquals(1.0, subject.score(ImmutableList.of("!Busy")), 0.1);
-  }
-
-  @Test
-  public void uniqueMeme() {
-    subject = MemeIsometry.ofMemes(ImmutableList.of(
-      "$UNIQUE"
-    ));
-
-    assertEquals(-20, subject.score(ImmutableList.of("$UNIQUE")), 0.1);
-    assertEquals(0, subject.score(ImmutableList.of("UNIQUE")), 0.1);
-  }
-
-  @Test
   public void score() {
     subject = MemeIsometry.ofMemes(ImmutableList.of(
       "Smooth",
@@ -82,7 +58,6 @@ public class MemeIsometryTest {
     assertEquals(1.0, subject.score(ImmutableList.of("Smooth")), 0.1);
     assertEquals(1.0, subject.score(ImmutableList.of("Catlike")), 0.1);
     assertEquals(2.0, subject.score(ImmutableList.of("Smooth", "Catlike")), 0.1);
-    assertEquals(-20.0, subject.score(ImmutableList.of("!Smooth")), 0.1);
   }
 
   @Test
@@ -96,7 +71,6 @@ public class MemeIsometryTest {
     assertEquals(1.0, subject.score(ImmutableList.of("Smooth")), 0.1);
     assertEquals(1.0, subject.score(ImmutableList.of("Catlike")), 0.1);
     assertEquals(2.0, subject.score(ImmutableList.of("Smooth", "Catlike")), 0.1);
-    assertEquals(-20.0, subject.score(ImmutableList.of("!Smooth")), 0.1);
   }
 
 

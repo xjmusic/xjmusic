@@ -7,6 +7,7 @@ import io.xj.api.*;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.lib.entity.Entities;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.TremendouslyRandom;
 import io.xj.nexus.NexusException;
@@ -68,13 +69,21 @@ public class PercLoopCraftImpl extends RhythmCraftImpl implements PercLoopCraft 
     msg.setBody(String.format("Targeting %d layers of percussion loop", targetLayers));
     fabricator.add(msg);
 
-    if (instrumentIds.size() < targetLayers)
-      instrumentIds = withIdsAdded(instrumentIds, targetLayers - instrumentIds.size());
-    else if (instrumentIds.size() > targetLayers)
+    if (instrumentIds.size() > targetLayers)
       instrumentIds = withIdsRemoved(instrumentIds, instrumentIds.size() - targetLayers);
 
     for (UUID percLoopId : instrumentIds)
       craftPercLoop(percLoopId);
+
+    Optional<Instrument> chosen;
+    if (instrumentIds.size() < targetLayers)
+      for (int i = 0; i < targetLayers - instrumentIds.size(); i++) {
+        chosen = chooseFreshPercLoopInstrument(instrumentIds);
+        if (chosen.isPresent()) {
+          instrumentIds.add(chosen.get().getId());
+          craftPercLoop(chosen.get().getId());
+        }
+      }
 
     // Finally, update the segment with the crafted content
     fabricator.done();
@@ -86,6 +95,8 @@ public class PercLoopCraftImpl extends RhythmCraftImpl implements PercLoopCraft 
    @param instrumentId of percussion loop instrument to craft
    */
   private void craftPercLoop(UUID instrumentId) throws NexusException {
+    fabricator.addMemes(fabricator.sourceMaterial().getInstrument(instrumentId)
+      .orElseThrow(() -> new NexusException("Failed to get instrument!")));
     var choice = new SegmentChoice();
     choice.setId(UUID.randomUUID());
     choice.setSegmentId(fabricator.getSegment().getId());
@@ -127,21 +138,6 @@ public class PercLoopCraftImpl extends RhythmCraftImpl implements PercLoopCraft 
   }
 
   /**
-   Add some number of ids to the list
-
-   @param fromIds to begin with
-   @param count   number of ids to add
-   @return list including added ids
-   */
-  public List<UUID> withIdsAdded(List<UUID> fromIds, int count) {
-    var ids = new ArrayList<>(fromIds);
-    for (int i = 0; i < count; i++)
-      chooseFreshPercLoopInstrument(ids)
-        .ifPresent((instrument) -> ids.add(instrument.getId()));
-    return ids;
-  }
-
-  /**
    Choose drum instrument
    [#325] Possible to choose multiple instruments for different voices in the same program
 
@@ -151,16 +147,23 @@ public class PercLoopCraftImpl extends RhythmCraftImpl implements PercLoopCraft 
     EntityScorePicker<Instrument> superEntityScorePicker = new EntityScorePicker<>();
 
     // (2) retrieve instruments bound to chain
-    Collection<Instrument> sourceInstruments = fabricator.sourceMaterial().getInstrumentsOfType(InstrumentType.PercLoop);
+    Collection<Instrument> sourceInstruments =
+      fabricator.sourceMaterial().getInstrumentsOfType(InstrumentType.PercLoop)
+        .stream()
+        .filter(i -> !avoidInstrumentIds.contains(i.getId()))
+        .toList();
 
     // future: [#258] Instrument selection is based on Text Isometry between the voice name and the instrument name
     log.debug("[segId={}] not currently in use", fabricator.getSegment().getId());
 
     // (3) score each source instrument based on meme isometry
-    MemeIsometry percussiveIsometry = fabricator.getMemeIsometryOfSegment();
-    for (Instrument instrument : sourceInstruments)
-      if (!avoidInstrumentIds.contains(instrument.getId()))
-        superEntityScorePicker.add(instrument, scorePercussive(instrument, percussiveIsometry));
+    MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
+    Collection<String> memes;
+    for (Instrument instrument : sourceInstruments) {
+      memes = Entities.namesOf(fabricator.sourceMaterial().getMemes(instrument));
+      if (iso.isAllowed(memes))
+        superEntityScorePicker.add(instrument, scorePercussive(iso, instrument, memes));
+    }
 
     // report
     fabricator.putReport("percussiveChoice", superEntityScorePicker.report());

@@ -105,9 +105,13 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
 
     // (2) retrieve programs bound to chain and
     // (3) score each source program based on meme isometry
-    MemeIsometry rhythmIsometry = fabricator.getMemeIsometryOfSegment();
-    for (Program program : fabricator.sourceMaterial().getProgramsOfType(ProgramType.Rhythm))
-      superEntityScorePicker.add(program, scoreRhythm(program, rhythmIsometry));
+    MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
+    Collection<String> memes;
+    for (Program program : fabricator.sourceMaterial().getProgramsOfType(ProgramType.Rhythm)) {
+      memes = fabricator.sourceMaterial().getMemesAtBeginning(program);
+      if (iso.isAllowed(memes))
+        superEntityScorePicker.add(program, scoreRhythm(iso, program, memes));
+    }
 
     // report
     fabricator.putReport("rhythmChoice", superEntityScorePicker.report());
@@ -123,16 +127,16 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
    Returns ZERO if the program has no memes, in order to fix:
    [#162040109] Artist expects program with no memes will never be selected for chain craft.
 
-   @param program        to score
-   @param rhythmIsometry from which to score programs
+   @param iso     from which to score programs
+   @param program to score
+   @param memes   to score
    @return score, including +/- entropy; empty if this program has no memes, and isn't directly bound
    */
   @SuppressWarnings("DuplicatedCode")
-  private Double scoreRhythm(Program program, MemeIsometry rhythmIsometry) {
+  private Double scoreRhythm(MemeIsometry iso, Program program, Collection<String> memes) {
     double score = Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_RHYTHM);
-    Collection<String> memes = fabricator.sourceMaterial().getMemesAtBeginning(program);
     if (!memes.isEmpty())
-      score += rhythmIsometry.score(memes) * SCORE_MATCH_MEMES;
+      score += iso.score(memes) * SCORE_MATCH_MEMES;
 
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(program))
@@ -161,9 +165,13 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
     log.debug("[segId={}] not currently in use: {}", fabricator.getSegment().getId(), voice);
 
     // (3) score each source instrument based on meme isometry
-    MemeIsometry percussiveIsometry = fabricator.getMemeIsometryOfSegment();
-    for (Instrument instrument : sourceInstruments)
-      superEntityScorePicker.add(instrument, scorePercussive(instrument, percussiveIsometry));
+    MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
+    Collection<String> memes;
+    for (Instrument instrument : sourceInstruments) {
+      memes = Entities.namesOf(fabricator.sourceMaterial().getMemes(instrument));
+      if (iso.isAllowed(memes))
+        superEntityScorePicker.add(instrument, scorePercussive(iso, instrument, memes));
+    }
 
     switch (fabricator.getType()) {
       case CONTINUE ->
@@ -200,16 +208,16 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
   /**
    Score a candidate for drum instrument, given current fabricator
 
-   @param instrument         to score
-   @param percussiveIsometry from which to score drum instruments
+   @param iso        from which to score drum instruments
+   @param instrument to score
+   @param memes      to score
    @return score, including +/- entropy
    */
-  protected double scorePercussive(Instrument instrument, MemeIsometry percussiveIsometry) {
+  protected double scorePercussive(MemeIsometry iso, Instrument instrument, Collection<String> memes) {
     double score = Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_INSTRUMENT);
 
     // Score includes matching memes, previous segment to macro instrument first pattern
-    score += SCORE_MATCH_MEMES *
-      percussiveIsometry.score(Entities.namesOf(fabricator.sourceMaterial().getMemes(instrument)));
+    score += SCORE_MATCH_MEMES * iso.score(memes);
 
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(instrument))

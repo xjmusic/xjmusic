@@ -116,8 +116,13 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
       .collect(Collectors.toList());
 
     // (3) score each source program based on meme isometry
-    MemeIsometry detailIsometry = fabricator.getMemeIsometryOfSegment();
-    for (Program program : sourcePrograms) superEntityScorePicker.add(program, scoreDetail(program, detailIsometry));
+    MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
+    Collection<String> memes;
+    for (Program program : sourcePrograms) {
+      memes = Entities.namesOf(fabricator.sourceMaterial().getMemes(program));
+      if (iso.isAllowed(memes))
+        superEntityScorePicker.add(program, scoreDetail(iso, program, memes));
+    }
 
     // report
     fabricator.putReport("detailChoice", superEntityScorePicker.report());
@@ -141,9 +146,13 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
     Collection<Instrument> sourceInstruments = fabricator.sourceMaterial().getInstrumentsOfType(voice.getType());
 
     // (3) score each source instrument based on meme isometry
-    for (Instrument instrument : sourceInstruments)
-      if (instrument.getType().equals(voice.getType()))
-        superEntityScorePicker.add(instrument, scoreDetail(instrument));
+    MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
+    Collection<String> memes;
+    for (Instrument instrument : sourceInstruments) {
+      memes = Entities.namesOf(fabricator.sourceMaterial().getMemes(instrument));
+      if (iso.isAllowed(memes))
+        superEntityScorePicker.add(instrument, scoreDetail(iso, instrument, memes));
+    }
 
     switch (fabricator.getType()) {
       case CONTINUE ->
@@ -172,16 +181,15 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
   /**
    Score a candidate for detail instrument, given current fabricator
 
+   @param iso        isometry from which to score detail programs
    @param instrument to score
+   @param memes      to score
    @return score, including +/- entropy
    */
-  protected double scoreDetail(Instrument instrument) {
+  protected double scoreDetail(MemeIsometry iso, Instrument instrument, Collection<String> memes) {
     double score = Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_INSTRUMENT);
 
-    // Score includes matching memes, previous segment to macro instrument first pattern
-    score += SCORE_MATCH_MEMES *
-      fabricator.getMemeIsometryOfSegment().score(
-        Entities.namesOf(fabricator.sourceMaterial().getMemes(instrument)));
+    score += SCORE_MATCH_MEMES * iso.score(memes);
 
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(instrument))
@@ -199,16 +207,16 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    Returns ZERO if the program has no memes, in order to fix:
    [#162040109] Artist expects program with no memes will never be selected for chain craft.
 
-   @param program        to score
-   @param detailIsometry from which to score detail programs
+   @param iso     isometry from which to score detail programs
+   @param program to score
+   @param memes   to score
    @return score, including +/- entropy; empty if this program has no memes, and isn't directly bound
    */
   @SuppressWarnings("DuplicatedCode")
-  private Double scoreDetail(Program program, MemeIsometry detailIsometry) {
+  private Double scoreDetail(MemeIsometry iso, Program program, Collection<String> memes) {
     double score = Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_DETAIL);
-    Collection<String> memes = fabricator.sourceMaterial().getMemesAtBeginning(program);
-    if (!memes.isEmpty())
-      score += detailIsometry.score(memes) * SCORE_MATCH_MEMES;
+
+    score += SCORE_MATCH_MEMES * iso.score(memes);
 
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(program))

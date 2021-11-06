@@ -7,29 +7,35 @@ import io.xj.lib.entity.EntityException;
 import io.xj.lib.util.Text;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  Determine the isometry between a source and target group of Memes
  */
 public class MemeIsometry extends Isometry {
   private static final String KEY_NAME = "name";
-  private static final String NOT_PREFIX = "!";
-  private static final String UNIQUE_PREFIX = "$";
   private static final int WEIGHT_MATCH = 1;
-  private static final int WEIGHT_ANTI_MATCH = -20;
+  private final MemeStack stack;
+
+  /**
+   Construct a meme isometry from source memes
+
+   @param sourceMemes from which to construct isometry
+   */
+  public MemeIsometry(Collection<String> sourceMemes) {
+    for (String meme : sourceMemes) add(Text.toMeme(meme));
+    stack = MemeStack.from(getSources());
+  }
 
   /**
    Instantiate a new MemeIsometry of a group of source Memes,
-   as expressed in a a Result of jOOQ records.
+   as expressed in a Result of jOOQ records.
 
    @param sourceMemes to compare of
    @return MemeIsometry ready for comparison to target Memes
    */
   public static MemeIsometry ofMemes(Collection<String> sourceMemes) {
-    MemeIsometry result = new MemeIsometry();
-    for (String meme : sourceMemes)
-      result.add(Text.toMeme(meme));
-    return result;
+    return new MemeIsometry(sourceMemes);
   }
 
   /**
@@ -38,7 +44,7 @@ public class MemeIsometry extends Isometry {
    @return an empty MemeIsometry
    */
   public static MemeIsometry none() {
-    return new MemeIsometry();
+    return new MemeIsometry(List.of());
   }
 
   /**
@@ -50,27 +56,8 @@ public class MemeIsometry extends Isometry {
   public double score(Collection<String> targets) {
     return targets.stream()
       .map(Text::toMeme)
-      .flatMap(target -> sources.stream().map(source -> score(source, target)))
+      .flatMap(target -> sources.stream().map(source -> Objects.equal(source, target) ? WEIGHT_MATCH : 0))
       .reduce(0, Integer::sum);
-  }
-
-  /**
-   Score tallies a match (memes are equal) or anti-match (one meme is !not the other)
-
-   @param source meme
-   @param target meme
-   @return score
-   */
-  private int score(String source, String target) {
-    if (Objects.equal(source, target))
-      return
-        UNIQUE_PREFIX.equals(source.substring(0, 1)) && UNIQUE_PREFIX.equals(target.substring(0, 1)) ?
-          WEIGHT_ANTI_MATCH : WEIGHT_MATCH;
-    if (NOT_PREFIX.equals(source.substring(0, 1)) && source.substring(1).equals(target))
-      return WEIGHT_ANTI_MATCH;
-    if (NOT_PREFIX.equals(target.substring(0, 1)) && target.substring(1).equals(source))
-      return WEIGHT_ANTI_MATCH;
-    return 0;
   }
 
   /**
@@ -82,5 +69,9 @@ public class MemeIsometry extends Isometry {
         .ifPresent(name -> add(Text.toMeme(String.valueOf(name))));
     } catch (EntityException ignored) {
     }
+  }
+
+  public boolean isAllowed(Collection<String> memes) {
+    return stack.isAllowed(memes);
   }
 }

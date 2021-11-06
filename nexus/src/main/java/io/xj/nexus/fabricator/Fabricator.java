@@ -29,6 +29,15 @@ public interface Fabricator {
   <N> N add(N entity) throws NexusException;
 
   /**
+   Add all memes of this instrument to the workbench
+   <p>
+   [#179078533] Straightforward meme logic
+
+   @param p instrument for which to add memes
+   */
+  Instrument addMemes(Instrument p) throws NexusException;
+
+  /**
    Add all memes of this program to the workbench
    <p>
    [#179078533] Straightforward meme logic

@@ -26,6 +26,7 @@ import io.xj.nexus.persistence.Segments;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -313,9 +314,13 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
     // (1) retrieve programs bound to chain and
     // (3) score each source program
-    MemeIsometry macroIsometry = fabricator.getMemeIsometryOfNextSequenceInPreviousMacro();
-    for (Program program : fabricator.sourceMaterial().getProgramsOfType(ProgramType.Macro))
-      superEntityScorePicker.add(program, scoreMacro(program, macroIsometry));
+    MemeIsometry iso = fabricator.getMemeIsometryOfNextSequenceInPreviousMacro();
+    Collection<String> memes;
+    for (Program program : fabricator.sourceMaterial().getProgramsOfType(ProgramType.Macro)) {
+      memes = fabricator.sourceMaterial().getMemesAtBeginning(program);
+      if (iso.isAllowed(memes))
+        superEntityScorePicker.add(program, scoreMacro(iso, program, memes));
+    }
 
     // (3b) Avoid previous macro program
     if (previousMacroChoice.isPresent()) {
@@ -364,9 +369,13 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
     // (2) retrieve programs bound to chain and
     // (3) score each source program based on meme isometry
-    MemeIsometry mainIsometry = fabricator.getMemeIsometryOfSegment();
-    for (Program program : fabricator.sourceMaterial().getProgramsOfType(ProgramType.Main))
-      superEntityScorePicker.add(program, scoreMain(program, mainIsometry));
+    MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
+    Collection<String> memes;
+    for (Program program : fabricator.sourceMaterial().getProgramsOfType(ProgramType.Main)) {
+      memes = fabricator.sourceMaterial().getMemesAtBeginning(program);
+      if (iso.isAllowed(memes))
+        superEntityScorePicker.add(program, scoreMain(iso, program, memes));
+    }
 
     // report
     fabricator.putReport("mainChoice", superEntityScorePicker.report());
@@ -378,11 +387,12 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
   /**
    Score a candidate for next macro program, given current fabricator
 
-   @param program       to score
-   @param macroIsometry from which to score macro programs
+   @param iso     from which to score macro programs
+   @param program to score
+   @param memes   to score
    @return score, including +/- entropy
    */
-  private double scoreMacro(Program program, MemeIsometry macroIsometry) {
+  private double scoreMacro(MemeIsometry iso, Program program, Collection<String> memes) {
     double score = Chance.normallyAround(0, SCORE_MACRO_ENTROPY);
 
     if (fabricator.isInitialSegment()) {
@@ -390,7 +400,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
     }
 
     // Score includes matching memes to previous segment's macro-program's next pattern
-    score += macroIsometry.score(fabricator.sourceMaterial().getMemesAtBeginning(program)) * SCORE_MATCH;
+    score += iso.score(memes) * SCORE_MATCH;
 
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(program))
@@ -404,11 +414,12 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
   /**
    Score a candidate for next main program, given current fabricator
 
-   @param program      to score
-   @param mainIsometry from which to score main programs
+   @param iso     from which to score main programs
+   @param program to score
+   @param memes   to score
    @return score, including +/- entropy
    */
-  private double scoreMain(Program program, MemeIsometry mainIsometry) {
+  private double scoreMain(MemeIsometry iso, Program program, Collection<String> memes) {
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(program))
       return SCORE_DIRECT;
@@ -418,7 +429,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
     // Score includes matching memes, previous segment to macro program first pattern
     AtomicReference<Double> score = new AtomicReference<>(
       Chance.normallyAround(0, SCORE_MAIN_ENTROPY) + SCORE_MATCH *
-        mainIsometry.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
+        iso.score(memes));
 
     // Avoid previous main program
     if (!fabricator.isInitialSegment())
