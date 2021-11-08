@@ -1,5 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
+import org.jooq.meta.jaxb.Logging
+
 plugins {
   id 'application'
   id 'distribution'
@@ -129,6 +131,7 @@ jooq {
       generateSchemaSourceOnCompilation = true  // default (can be omitted)
 
       generationTool {
+        logging = Logging.WARN
         jdbc {
           driver = 'org.postgresql.Driver'
           url = 'jdbc:postgresql://localhost:5432/xj_test'
