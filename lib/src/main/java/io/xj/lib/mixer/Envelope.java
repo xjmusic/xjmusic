@@ -27,6 +27,7 @@ public enum Envelope {
    @return value at envelope position
    */
   public static double at(int delta, double value) {
+    if (delta < 0) return 0;
     return delta < exponential.length ? exponential[delta] * value : value;
   }
 }

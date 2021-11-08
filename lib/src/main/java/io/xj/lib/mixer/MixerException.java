@@ -13,5 +13,6 @@ public class MixerException extends Exception {
 
   public MixerException(String msg, Exception e) {
     super(msg, e);
+    setStackTrace(e.getStackTrace());
   }
 }

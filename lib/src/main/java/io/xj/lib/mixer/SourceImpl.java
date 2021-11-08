@@ -3,51 +3,65 @@ package io.xj.lib.mixer;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.IOException;
 
 import static io.xj.lib.util.Values.MICROS_PER_SECOND;
 
 /**
  models a single audio source
  stores a series of Samples in Channels across Time, for audio playback.
+ <p>
+ Dub mixes audio from disk (not memory) to avoid heap overflow #180206211
  */
 class SourceImpl implements Source {
   private static final Logger LOG = LoggerFactory.getLogger(SourceImpl.class);
+  private final AudioFormat audioFormat;
 
-  private final float frameRate;
+  private final String absolutePath;
+
   private final String sourceId;
-  private final AudioFormat inputFormat;
-  private final double[][] data;
-  private final long inputLengthMicros;
-  private final double microsPerFrame;
   private final double lengthSeconds;
-  private String state;
+  private final double microsPerFrame;
+  private final float frameRate;
+  private final int channels;
+  private final long frameLength;
+  private final long lengthMicros;
 
   @Inject
   public SourceImpl(
     @Assisted("sourceId") String sourceId,
-    @Assisted("inputStream") BufferedInputStream inputStream
+    @Assisted("absolutePath") String absolutePath
   ) throws Exception {
+    this.absolutePath = absolutePath;
     this.sourceId = sourceId;
 
-    state = STAGED;
-    AudioStreamLoader stream = new AudioStreamLoader(inputStream);
-    inputFormat = stream.getAudioFormat();
-    frameRate = inputFormat.getFrameRate();
-    int inputChannels = inputFormat.getChannels();
-    enforceMaxStereo(inputChannels);
-    microsPerFrame = MICROS_PER_SECOND / frameRate;
+    try (
+      var fileInputStream = FileUtils.openInputStream(new File(absolutePath));
+      var bufferedInputStream = new BufferedInputStream(fileInputStream);
+      var audioInputStream = AudioSystem.getAudioInputStream(bufferedInputStream)
+    ) {
+      audioFormat = audioInputStream.getFormat();
+      channels = audioFormat.getChannels();
+      frameRate = audioFormat.getFrameRate();
+      frameLength = audioInputStream.getFrameLength();
+      lengthSeconds = (frameLength + 0.0) / frameRate;
+      lengthMicros = (long) (MICROS_PER_SECOND * lengthSeconds);
+      microsPerFrame = MICROS_PER_SECOND / frameRate;
+      enforceMaxStereo(channels);
 
-    state = LOADING;
-    data = stream.loadFrames();
-    lengthSeconds = stream.getActualFrames() / frameRate;
-    inputLengthMicros = (long) (MICROS_PER_SECOND * lengthSeconds);
+    } catch (UnsupportedAudioFileException | IOException e) {
+      throw new MixerException(String.format("Failed to read audio from disk %s", absolutePath), e);
+    }
 
-    state = READY;
     LOG.debug("Did load source {}", sourceId);
   }
 
@@ -63,22 +77,23 @@ class SourceImpl implements Source {
   }
 
   @Override
-  public long lengthMicros() {
-    return inputLengthMicros;
-  }
-
-  public AudioFormat getInputFormat() {
-    return inputFormat;
+  public String getAbsolutePath() {
+    return absolutePath;
   }
 
   @Override
-  public String getState() {
-    return state;
+  public AudioFormat getAudioFormat() {
+    return audioFormat;
   }
 
   @Override
-  public String getSourceId() {
-    return sourceId;
+  public int getChannels() {
+    return channels;
+  }
+
+  @Override
+  public long getFrameLength() {
+    return frameLength;
   }
 
   @Override
@@ -87,14 +102,8 @@ class SourceImpl implements Source {
   }
 
   @Override
-  public double[][] getData() {
-    return data;
-  }
-
-  @Override
-  public double getValue(long atMicros, int c) {
-    int f = frameAtMicros(atMicros);
-    return f < data.length ? data[f][(c < data[f].length ? c : 0)] : 0;
+  public long getLengthMicros() {
+    return lengthMicros;
   }
 
   @Override
@@ -103,19 +112,23 @@ class SourceImpl implements Source {
   }
 
   @Override
+  public double getMicrosPerFrame() {
+    return microsPerFrame;
+  }
+
+  @Override
+  public int getSampleSize() {
+    return audioFormat.getFrameSize() / audioFormat.getChannels();
+  }
+
+  @Override
+  public String getSourceId() {
+    return sourceId;
+  }
+
+  @Override
   public String toString() {
-    return String.format("id[%s] frames[%d]", sourceId, data.length);
+    return String.format("id[%s] frames[%d]", sourceId, frameLength);
   }
-
-  /**
-   quick get frame at a particular duration in microseconds from beginning
-
-   @param atMicros at which to get frame number
-   @return frame number of micros
-   */
-  private int frameAtMicros(long atMicros) {
-    return (int) Math.floor(atMicros / microsPerFrame);
-  }
-
 }
 

@@ -12,7 +12,10 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Objects;
 
 /**
@@ -25,35 +28,31 @@ import java.util.Objects;
 public class DubAudioCacheItem {
   final Logger log = LoggerFactory.getLogger(DubAudioCacheItem.class);
   private final String key;
-  private final String path;
-  private final byte[] bytes;
+  private final String absolutePath;
   private int size; // # of bytes
 
   /**
    @param env               from environment
    @param fileStoreProvider from which to load files
    @param key               ot this item
-   @param path              to this item's waveform data on disk
+   @param absolutePath      to this item's waveform data on disk
    */
   @Inject
   public DubAudioCacheItem(
     Environment env,
     FileStoreProvider fileStoreProvider,
     @Assisted("key") String key,
-    @Assisted("path") String path
-  ) throws FileStoreException, IOException, NexusException {
+    @Assisted("path") String absolutePath
+  ) throws NexusException {
     this.key = key;
-    this.path = path;
+    this.absolutePath = absolutePath;
     String audioFileBucket = env.getAudioFileBucket();
     if (!existsOnDisk())
       try (InputStream stream = fileStoreProvider.streamS3Object(audioFileBucket, key)) {
         writeFrom(stream);
+      } catch (FileStoreException | IOException e) {
+        throw new NexusException(String.format("Failed to stream audio from s3://%s/%s", audioFileBucket, key), e);
       }
-
-    try (BufferedInputStream stream = new BufferedInputStream(FileUtils.openInputStream(new File(path)))) {
-      bytes = new byte[stream.available()];
-      size = stream.read(bytes);
-    }
   }
 
   /**
@@ -69,7 +68,7 @@ public class DubAudioCacheItem {
    @return true if this dub audio cache item exists (as audio waveform data) on disk
    */
   private boolean existsOnDisk() {
-    return new File(path).exists();
+    return new File(absolutePath).exists();
   }
 
   /**
@@ -80,11 +79,11 @@ public class DubAudioCacheItem {
    */
   public void writeFrom(InputStream data) throws IOException, NexusException {
     if (Objects.isNull(data))
-      throw new NexusException(String.format("Unable to write bytes to disk cache: %s", path));
+      throw new NexusException(String.format("Unable to write bytes to disk cache: %s", absolutePath));
 
-    try (OutputStream toFile = FileUtils.openOutputStream(new File(path))) {
+    try (OutputStream toFile = FileUtils.openOutputStream(new File(absolutePath))) {
       size = IOUtils.copy(data, toFile); // stores number of bytes copied
-      log.debug("Did write media item to disk cache: {} ({} bytes)", path, size);
+      log.debug("Did write media item to disk cache: {} ({} bytes)", absolutePath, size);
     }
   }
 
@@ -92,7 +91,7 @@ public class DubAudioCacheItem {
    @return path to stored data file
    */
   public String path() {
-    return path;
+    return absolutePath;
   }
 
   /**
@@ -103,9 +102,9 @@ public class DubAudioCacheItem {
   }
 
   /**
-   @return bytes of waveform audio loaded from disk into memory
+   @return absolute path to file in disk
    */
-  public BufferedInputStream getBytes() {
-    return new BufferedInputStream(new ByteArrayInputStream(bytes));
+  public String getAbsolutePath() {
+    return absolutePath;
   }
 }

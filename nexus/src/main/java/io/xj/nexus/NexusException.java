@@ -13,6 +13,7 @@ public class NexusException extends Exception {
 
   public NexusException(@Nullable String msg, Exception e) {
     super(String.format("%s%s\n%s", Strings.isNullOrEmpty(msg) ? "" : msg + " ", e.getMessage(), e));
+    setStackTrace(e.getStackTrace());
   }
 
   public NexusException(Throwable e) {

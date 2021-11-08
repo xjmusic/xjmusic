@@ -86,7 +86,7 @@ public interface Main {
     for (String sourceName : sources) {
       //Get file from resources folder
       InternalResource internalResource = new InternalResource(filePrefix + sourceName + fileSuffix);
-      demoMixer.loadSource(sourceName, new BufferedInputStream(new FileInputStream(internalResource.getFile())));
+      demoMixer.loadSource(sourceName, internalResource.getFile().getAbsolutePath());
     }
 
     // set up the music

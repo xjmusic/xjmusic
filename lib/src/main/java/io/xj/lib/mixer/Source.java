@@ -4,69 +4,59 @@ package io.xj.lib.mixer;
 import javax.sound.sampled.AudioFormat;
 
 /**
- models a single audio source
- Source stores a series of Samples in Channels across Time, for audio playback.
+ Models a single audio source.
+ Stores a series of Samples in Channels across Time, for audio playback.
+ <p>
+ Dub mixes audio from disk (not memory) to avoid heap overflow #180206211
  */
 public interface Source {
-  String STAGED = "staged";
-  String LOADING = "loading";
-  String READY = "ready";
-
   /**
-   lengthMicros of the source audio
-
-   @return lengthMicros
+   @return absolute path to audio file
    */
-  long lengthMicros();
+  String getAbsolutePath();
 
   /**
-   Audio file format of the source audio
+   @return source audio file format
    */
-  AudioFormat getInputFormat();
+  AudioFormat getAudioFormat();
 
   /**
-   Get state
-
-   @return state
+   @return # of channels in source audio
    */
-  String getState();
+  int getChannels();
 
   /**
-   Get reference source id
-
-   @return source id
+   @return # of available sample frames of source audio
    */
-  String getSourceId();
+  long getFrameLength();
 
   /**
-   Get frame rate
-
-   @return rate
+   @return source audio frame rate
    */
   float getFrameRate();
 
   /**
-   Get data, array of samples
-
-   @return samples[frame][channel]
+   @return length of the source audio, in microseconds
    */
-  double[][] getData();
+  long getLengthMicros();
 
   /**
-   Get the value for a given frame and channel
-
-   @param atMicros to get frame
-   @param c        channel
-   @return value
-   */
-  double getValue(long atMicros, int c);
-
-
-  /**
-   Get the length in seconds
-
-   @return length of source audio
+   @return length of source audio, in seconds
    */
   double getLengthSeconds();
 
+  /**
+   @return microseconds per sample frame
+   */
+  double getMicrosPerFrame();
+
+  /**
+   @return the sample size, in bytes
+   */
+  int getSampleSize();
+
+  /**
+   @return source id, for usage
+   */
+  String getSourceId();
 }

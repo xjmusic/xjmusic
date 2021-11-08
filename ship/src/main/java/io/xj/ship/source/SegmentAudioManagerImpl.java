@@ -66,8 +66,9 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
     put(segmentAudio);
 
     // Then we try to load the actual audio data
-    try (var input = fileStoreProvider.streamS3Object(shipBucket, Segments.getStorageFilename(segment))) {
-      segmentAudio.loadOggVorbis(new BufferedInputStream(input));
+    try (var inputStream = fileStoreProvider.streamS3Object(shipBucket, Segments.getStorageFilename(segment));
+         var bufferedInputStream = new BufferedInputStream(inputStream)) {
+      segmentAudio.loadOggVorbis(bufferedInputStream);
       put(segmentAudio);
 
     } catch (Exception e) {

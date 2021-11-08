@@ -6,8 +6,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.sound.sampled.AudioFormat;
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 
 import static org.junit.Assert.*;
 
@@ -21,70 +19,42 @@ public class SourceImplTest {
   public void setUp() throws Exception {
     F32LSB_48kHz_Stereo = mixerFactory.createSource(
       "F32LSB_48kHz_Stereo",
-      new BufferedInputStream(
-        new FileInputStream(
-          new InternalResource(
-            "test_audio/F32LSB_48kHz_Stereo.wav"
-          ).getFile())));
+      new InternalResource("test_audio/F32LSB_48kHz_Stereo.wav").getFile().getAbsolutePath());
 
     S16LSB_44100Hz_Mono = mixerFactory.createSource(
       "S16LSB_44100Hz_Mono",
-      new BufferedInputStream(
-        new FileInputStream(
-          new InternalResource(
-            "test_audio/S16LSB_44100Hz_Mono.wav"
-          ).getFile())));
+      new InternalResource("test_audio/S16LSB_44100Hz_Mono.wav").getFile().getAbsolutePath());
   }
 
   @Test(expected = SourceException.class)
   public void unsupported_over2channels() throws Exception {
     assertNotNull(mixerFactory.createSource(
       "F32LSB_48kHz_6ch",
-      new BufferedInputStream(
-        new FileInputStream(
-          new InternalResource(
-            "test_audio/F32LSB_48kHz_6ch.wav"
-          ).getFile()))));
+      new InternalResource("test_audio/F32LSB_48kHz_6ch.wav").getFile().getAbsolutePath()));
   }
 
   @Test
   public void load24BitSourceAudio() throws Exception {
     assertNotNull(mixerFactory.createSource(
       "S24LSB_44100Hz_Stereo",
-      new BufferedInputStream(
-        new FileInputStream(
-          new InternalResource(
-            "test_audio/S24LSB_44100Hz_Stereo.wav"
-          ).getFile()))));
-  }
-
-  @Test
-  public void frameAt_F32LSB_48kHz_Stereo() {
-    assertEquals(-0.0022547978442162275, F32LSB_48kHz_Stereo.getValue(243, 0), 0.00000001);
-    assertEquals(-0.0014804069651290774, F32LSB_48kHz_Stereo.getValue(243, 1), 0.00000001);
-  }
-
-  @Test
-  public void frameAt_S16LSB_44100Hz_Mono() {
-    assertEquals(0.001220703125, S16LSB_44100Hz_Mono.getValue(125, 0), 0.00000001);
-    assertEquals(0.001220703125, S16LSB_44100Hz_Mono.getValue(125, 1), 0.00000001);
+      new InternalResource("test_audio/S24LSB_44100Hz_Stereo.wav").getFile().getAbsolutePath()));
   }
 
   @Test
   public void lengthMicros_F32LSB_48kHz_Stereo() {
-    long lengthMicros = F32LSB_48kHz_Stereo.lengthMicros();
+    long lengthMicros = F32LSB_48kHz_Stereo.getLengthMicros();
     assertEquals(361750, lengthMicros);
   }
 
   @Test
   public void lengthMicros_S16LSB_44100Hz_Mono() {
-    long lengthMicros = S16LSB_44100Hz_Mono.lengthMicros();
+    long lengthMicros = S16LSB_44100Hz_Mono.getLengthMicros();
     assertEquals(865306, lengthMicros);
   }
 
   @Test
   public void getInputFormat_F32LSB_48kHz_Stereo() {
-    AudioFormat audioFormat = F32LSB_48kHz_Stereo.getInputFormat();
+    AudioFormat audioFormat = F32LSB_48kHz_Stereo.getAudioFormat();
     assertEquals(2, audioFormat.getChannels());
     assertEquals(48000, audioFormat.getSampleRate(), 0);
     assertEquals(48000, audioFormat.getFrameRate(), 0);
@@ -95,19 +65,13 @@ public class SourceImplTest {
 
   @Test
   public void getInputFormat_S16LSB_44100Hz_Mono() {
-    AudioFormat audioFormat = S16LSB_44100Hz_Mono.getInputFormat();
+    AudioFormat audioFormat = S16LSB_44100Hz_Mono.getAudioFormat();
     assertEquals(1, audioFormat.getChannels());
     assertEquals(44100, audioFormat.getSampleRate(), 0);
     assertEquals(44100, audioFormat.getFrameRate(), 0);
     assertEquals(16, audioFormat.getSampleSizeInBits());
     assertEquals(2, audioFormat.getFrameSize());
     assertFalse(audioFormat.isBigEndian());
-  }
-
-  @Test
-  public void getState() {
-    assertEquals(Source.READY, F32LSB_48kHz_Stereo.getState());
-    assertEquals(Source.READY, S16LSB_44100Hz_Mono.getState());
   }
 
   @Test
@@ -123,34 +87,15 @@ public class SourceImplTest {
   }
 
   @Test
-  public void enforceMaxStereo() throws SourceException {
-    SourceImpl.enforceMaxStereo(1);
-    SourceImpl.enforceMaxStereo(2);
-    assertThrows(SourceException.class, () -> SourceImpl.enforceMaxStereo(3));
-  }
-
-  @Test
   public void lengthMicros() {
-    assertEquals(361750, F32LSB_48kHz_Stereo.lengthMicros());
-    assertEquals(865306, S16LSB_44100Hz_Mono.lengthMicros());
+    assertEquals(361750, F32LSB_48kHz_Stereo.getLengthMicros());
+    assertEquals(865306, S16LSB_44100Hz_Mono.getLengthMicros());
   }
 
   @Test
   public void getInputFormat() {
-    assertEquals(AudioFormat.Encoding.PCM_FLOAT, F32LSB_48kHz_Stereo.getInputFormat().getEncoding());
-    assertEquals(AudioFormat.Encoding.PCM_SIGNED, S16LSB_44100Hz_Mono.getInputFormat().getEncoding());
-  }
-
-  @Test
-  public void getData() {
-    assertEquals(17364, F32LSB_48kHz_Stereo.getData().length);
-    assertEquals(38160, S16LSB_44100Hz_Mono.getData().length);
-  }
-
-  @Test
-  public void getValue() {
-    assertEquals(-0.04698127135634422, F32LSB_48kHz_Stereo.getValue(52454, 1), .01);
-    assertEquals(-0.868499755859375, S16LSB_44100Hz_Mono.getValue(52454, 1), .01);
+    assertEquals(AudioFormat.Encoding.PCM_FLOAT, F32LSB_48kHz_Stereo.getAudioFormat().getEncoding());
+    assertEquals(AudioFormat.Encoding.PCM_SIGNED, S16LSB_44100Hz_Mono.getAudioFormat().getEncoding());
   }
 
   @Test

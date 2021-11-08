@@ -12,6 +12,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -65,8 +66,10 @@ public class OGGVorbisDecoder {
     if (!pcmData.isEmpty())
       LOG.error("Cannot decode data twice!");
 
-    else try {
-      AudioInputStream in = AudioSystem.getAudioInputStream(inputStream);
+    else try (
+      var bufferedInputStream = new BufferedInputStream(inputStream);
+      var in = AudioSystem.getAudioInputStream(bufferedInputStream)
+    ) {
       if (in != null) {
         AudioFormat baseFormat = in.getFormat();
 

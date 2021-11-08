@@ -30,12 +30,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.time.Instant;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static io.xj.lib.util.Files.getResourceFile;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -80,9 +78,8 @@ public class DubDubMasterWaveformPrerollTest {
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
     when(mixerFactory.createMixer(any())).thenReturn(mixer);
-    when(dubAudioCache.get(any()))
-      .thenReturn(new BufferedInputStream(new FileInputStream(Objects.requireNonNull(
-        DubDubMasterWaveformPrerollTest.class.getClassLoader().getResource("source_audio/kick1.wav")).getFile())));
+    when(dubAudioCache.getAbsolutePath(any()))
+      .thenReturn(getResourceFile("source_audio/kick1.wav").getAbsolutePath());
 
     // Manipulate the underlying entity store; reset before each test
     store = injector.getInstance(NexusEntityStore.class);

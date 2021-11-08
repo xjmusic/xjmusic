@@ -10,6 +10,7 @@ import java.time.Duration;
 
 import static io.xj.lib.util.Assertion.assertFileMatchesResourceFile;
 import static io.xj.lib.util.Assertion.assertFileSizeToleranceFromResourceFile;
+import static io.xj.lib.util.Files.getResourceFile;
 import static org.junit.Assert.assertEquals;
 
 public class DemoIT {
@@ -56,13 +57,13 @@ public class DemoIT {
   /**
    assert mix output equals reference audio
 
-   @throws Exception on failure
    @param encoder       to output
    @param encoding      encoding
    @param frameRate     frame rate
    @param sampleBits    sample bits
    @param channels      channels
    @param referenceName name
+   @throws Exception on failure
    */
   private static void assertMixOutputEqualsReferenceAudio(OutputEncoder encoder, AudioFormat.Encoding encoding, int frameRate, int sampleBits, int channels, double seconds, String referenceName) throws Exception {
     String filename = io.xj.lib.util.Files.getUniqueTempFilename(referenceName);
@@ -92,7 +93,7 @@ public class DemoIT {
 
     // set up the sources
     for (String sourceName : sources)
-      demoMixer.loadSource(sourceName, io.xj.lib.util.Files.inputFile(filePrefix + sourceName + sourceFileSuffix));
+      demoMixer.loadSource(sourceName, getResourceFile(filePrefix + sourceName + sourceFileSuffix).getAbsolutePath());
 
     // set up the music
     int iL = demoSequence.length;
@@ -131,22 +132,22 @@ public class DemoIT {
    */
   @Test
   public void demo_48000Hz_Signed_32bit_2ch() throws Exception {
-    assertMixOutputEqualsReferenceAudio(OutputEncoder.WAV, AudioFormat.Encoding.PCM_SIGNED, 48000, 32, 2, 1.574, "48000Hz_Signed_32bit_2ch.wav");
+    assertMixOutputEqualsReferenceAudio(OutputEncoder.WAV, AudioFormat.Encoding.PCM_SIGNED, 48000, 32, 2, 2.231404, "48000Hz_Signed_32bit_2ch.wav");
   }
 
   @Test
   public void demo_48000Hz_Signed_16bit_2ch() throws Exception {
-    assertMixOutputEqualsReferenceAudio(OutputEncoder.WAV, AudioFormat.Encoding.PCM_SIGNED, 44100, 16, 2, 1.574, "44100Hz_Signed_16bit_2ch.wav");
+    assertMixOutputEqualsReferenceAudio(OutputEncoder.WAV, AudioFormat.Encoding.PCM_SIGNED, 44100, 16, 2, 2.231404, "44100Hz_Signed_16bit_2ch.wav");
   }
 
   @Test
   public void demo_48000Hz_Signed_8bit_1ch() throws Exception {
-    assertMixOutputEqualsReferenceAudio(OutputEncoder.WAV, AudioFormat.Encoding.PCM_SIGNED, 22000, 8, 1, 1.574, "22000Hz_Signed_8bit_1ch.wav");
+    assertMixOutputEqualsReferenceAudio(OutputEncoder.WAV, AudioFormat.Encoding.PCM_SIGNED, 22000, 8, 1, 2.231404, "22000Hz_Signed_8bit_1ch.wav");
   }
 
   @Test
   public void demo_48000Hz_2ch_OggVorbis() throws Exception {
-    assertMixOutputEqualsReferenceAudio(OutputEncoder.OGG, AudioFormat.Encoding.PCM_FLOAT, 48000, 32, 2, 1.574, "48000Hz_Float_32bit_2ch.ogg");
+    assertMixOutputEqualsReferenceAudio(OutputEncoder.OGG, AudioFormat.Encoding.PCM_FLOAT, 48000, 32, 2, 2.231404, "48000Hz_Float_32bit_2ch.ogg");
   }
 
 }

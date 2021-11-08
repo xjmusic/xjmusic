@@ -107,7 +107,7 @@ public class DubMasterImpl implements DubMaster {
       if (Strings.isNullOrEmpty(key)) continue;
 
       if (!mixer().hasLoadedSource(audio.getId().toString()))
-        mixer().loadSource(audio.getId().toString(), dubAudioCache.get(key));
+        mixer().loadSource(audio.getId().toString(), dubAudioCache.getAbsolutePath(key));
     }
   }
 

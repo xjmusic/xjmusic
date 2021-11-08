@@ -5,21 +5,28 @@ import com.google.api.client.util.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static io.xj.lib.util.Values.MICROS_PER_SECOND;
 import static io.xj.lib.util.Values.NANOS_PER_SECOND;
 
 class MixerImpl implements Mixer {
+  public static final int MAX_INT_LENGTH_ARRAY_SIZE = 2147483647;
   private static final Logger log = LoggerFactory.getLogger(MixerImpl.class);
+  private static final int READ_BUFFER_BYTE_SIZE = 1024;
   private static final int NORMALIZATION_GRAIN = 20;
   private static final int COMPRESSION_GRAIN = 20;
   // fields: output file
@@ -45,6 +52,12 @@ class MixerImpl implements Mixer {
   // fields: playback state-machine
   private MixerState state = MixerState.Ready;
   private int uniquePutId; // key for storage in map of Puts
+
+  /**
+   Note: these buffers can't be constructed until after the sources are Put, ergo defining the total buffer length.
+   */
+  private double[][][] busBuf; // buffer separated into busses like [bus][frame][channel]
+  private double[][] outBuf; // final output buffer like [bus][frame][channel]
 
   /**
    Instantiate a single Mix instance
@@ -105,12 +118,12 @@ class MixerImpl implements Mixer {
   }
 
   @Override
-  public void loadSource(String sourceId, BufferedInputStream inputStream) throws SourceException, FormatException, IOException {
+  public void loadSource(String sourceId, String pathToFile) throws SourceException, FormatException, IOException {
     if (sources.containsKey(sourceId)) {
       throw new SourceException(config.getLogPrefix() + "Already loaded source id '" + sourceId + "'");
     }
 
-    Source source = factory.createSource(sourceId, inputStream);
+    Source source = factory.createSource(sourceId, pathToFile);
     sources.put(sourceId, source);
   }
 
@@ -122,8 +135,8 @@ class MixerImpl implements Mixer {
       .orElse(0L) / MICROS_PER_SECOND;
     int totalFrames = (int) Math.floor(totalSeconds * outputFrameRate);
     int totalBytes = totalFrames * outputFrameSize;
-    double[][][] busBuf = new double[busIds.size()][totalFrames][outputChannels];
-    double[][] outBuf = new double[totalFrames][outputChannels];
+    busBuf = new double[busIds.size()][totalFrames][outputChannels];
+    outBuf = new double[totalFrames][outputChannels];
 
     if (!Objects.equals(state, MixerState.Ready))
       throw new MixerException(config.getLogPrefix() + "can't mix again; only one mix allowed per Mixer");
@@ -143,17 +156,17 @@ class MixerImpl implements Mixer {
     // Start with original sources summed up verbatim
     // Initial mix steps are done on individual busses
     // Multi-bus output with individual normalization REF https://www.pivotaltracker.com/story/show/179081795
-    applySources(busBuf);
+    applySources();
     for (int b = 0; b < busIds.size(); b++)
-      applyCompressor(outBuf);
-    mixOutputBus(busBuf, outBuf);
+      applyFinalOutputCompressor();
+    mixOutputBus();
 
     // The dynamic range is forced into gentle logarithmic decay.
     // This alters the relative amplitudes from the previous step, implicitly normalizing them well below amplitude 1.0
-    applyLogarithmicDynamicRange(outBuf);
+    applyLogarithmicDynamicRange();
 
     // Compression is more predictable within the logarithmic range
-    applyCompressor(outBuf);
+    applyFinalOutputCompressor();
 
     // NO NORMALIZATION! See #179257872
     // applyNormalization(outBuf);
@@ -180,16 +193,14 @@ class MixerImpl implements Mixer {
   }
 
   /**
-   Mix input buffers to output buffer@param inBufs buffers from which to read input
-
-   @param outBuf to which summed output will be written
+   Mix input buffers to output buffer
    */
-  private void mixOutputBus(final double[][][] inBufs, double[][] outBuf) {
+  private void mixOutputBus() {
     double[] level = busIds.stream().mapToDouble(b -> busLevel.getOrDefault(b, 1.0)).toArray();
-    IntStream.range(0, inBufs.length).forEach(b ->
-      IntStream.range(0, inBufs[0].length).forEach(f ->
-        IntStream.range(0, inBufs[0][0].length).forEach(c ->
-          outBuf[f][c] += inBufs[b][f][c] * level[b]
+    IntStream.range(0, busBuf.length).forEach(b ->
+      IntStream.range(0, busBuf[0].length).forEach(f ->
+        IntStream.range(0, busBuf[0][0].length).forEach(c ->
+          outBuf[f][c] += busBuf[b][f][c] * level[b]
         )));
   }
 
@@ -227,27 +238,98 @@ class MixerImpl implements Mixer {
   /**
    apply original sources to mixing buffer
    addition of all sources into initial mixed source frames
-   <p>
-   mix the 64-bit floating-point sample values for the next frame across all output channels.
-   <p>
-   the Put only has a reference to the source--
-   so the Mixer has to use that reference source id along with other variables from the Put,
-   in order to arrive at the final source output value at any given microsecond
-
-   @param busBuf is array[bus][frame][channel]
    */
-  private void applySources(double[][][] busBuf) {
-    puts.values().forEach(put -> {
-      int from = (int) (put.getStartAtMicros() / microsPerFrame);
-      var span = (int) (put.getStopAtMicros() / microsPerFrame) - from;
-      IntStream.range(0, span).forEach(f ->
-        IntStream.range(0, busBuf[0][0].length).forEach(c -> {
-          if (from + f < busBuf[0].length)
-            busBuf[put.getBus()][from + f][c] +=
-              Envelope.at(Math.min(f, span - f),
-                sources.get(put.getSourceId()).getValue((long) (f * microsPerFrame), c) * put.getVelocity());
-        }));
-    });
+  private void applySources() throws MixerException {
+    for (var source : sources.values()) applySource(source);
+  }
+
+  /**
+   apply one source to the mixing buffer
+
+   @param source to apply
+   */
+  private void applySource(Source source) throws MixerException {
+    int i; // iterating on frames
+    int sf = 0; // current source frame
+    int tf, otf = -1; // target output buffer frame, and cache the old value in order to skip frames, init at -1 to force initial frame
+    int ptf; // put target frame
+    int b, p; // iterators: byte, put
+    int tc; // iterators: source channel, target channel
+    double v, ev; // a single sample value, and the enveloped value
+
+    // steps to get requisite items stored plain arrays, for access speed
+    var srcPutList = puts.values().stream()
+      .filter(put -> source.getSourceId().equals(put.getSourceId()))
+      .collect(Collectors.toList());
+    Put[] srcPut = new Put[srcPutList.size()];
+    int[] srcPutSpan = new int[srcPut.length];
+    int[] srcPutFrom = new int[srcPut.length];
+    for (p = 0; p < srcPut.length; p++) {
+      srcPut[p] = srcPutList.get(p);
+      srcPutFrom[p] = (int) (srcPut[p].getStartAtMicros() / microsPerFrame);
+      srcPutSpan[p] = (int) ((srcPut[p].getStopAtMicros() - srcPut[p].getStartAtMicros()) / microsPerFrame);
+    }
+
+    // ratio of target frame rate to source frame rate
+    // e.g. mixing from 96hz source to 48hz target = 0.5
+    var fr = outputFrameRate / source.getFrameRate();
+
+    try (
+      var fileInputStream = FileUtils.openInputStream(new File(source.getAbsolutePath()));
+      var bufferedInputStream = new BufferedInputStream(fileInputStream);
+      var audioInputStream = AudioSystem.getAudioInputStream(bufferedInputStream)
+    ) {
+      var frameSize = source.getAudioFormat().getFrameSize();
+      var channels = source.getAudioFormat().getChannels();
+      var isStereo = 2 == channels;
+      var sampleSize = frameSize / channels;
+      var expectBytes = audioInputStream.available();
+
+      int expectFrames;
+      if (expectBytes == source.getFrameLength()) {
+        // this is a bug where AudioInputStream returns bytes (instead of frames which it claims)
+        expectFrames = expectBytes / source.getAudioFormat().getFrameSize();
+      } else {
+        expectFrames = (int) source.getFrameLength();
+      }
+
+      AudioSampleFormat sampleFormat = AudioSampleFormat.typeOfInput(source.getAudioFormat());
+
+      int numBytesReadToBuffer;
+      byte[] sampleBuffer = new byte[source.getSampleSize()];
+      byte[] readBuffer = new byte[READ_BUFFER_BYTE_SIZE];
+      while (-1 != (numBytesReadToBuffer = audioInputStream.read(readBuffer))) {
+        for (b = 0; b < numBytesReadToBuffer; b += frameSize) {
+          tf = (int) Math.floor(sf * fr); // compute the target frame (converted from source rate to target rate)
+          if (tf == otf) continue; // skip frame if unnecessary (source rate higher than target rate)
+          for (tc = 0; tc < outputChannels; tc++) {
+            System.arraycopy(readBuffer, b + (isStereo ? tc : 0) * sampleSize, sampleBuffer, 0, sampleSize);
+            v = AudioSampleFormat.fromBytes(sampleBuffer, sampleFormat);
+            for (p = 0; p < srcPut.length; p++) {
+              ev = Envelope.at(Math.min(sf, srcPutSpan[p] - sf), v * srcPut[p].getVelocity());
+              for (i = otf + 1; i <= tf; i++) {
+                ptf = srcPutFrom[p] + i;
+                if (ptf < 0 || ptf >= busBuf[0].length) continue;
+                busBuf[srcPut[p].getBus()][ptf][tc] += ev;
+              }
+            }
+          }
+          otf = tf;
+          sf++;
+        }
+      }
+
+      if (MAX_INT_LENGTH_ARRAY_SIZE <= expectBytes) { // max int-length array size
+        throw new MixerException("loading audio steams longer than 2,147,483,647 frames (max. value of signed 32-bit integer) is not supported");
+      }
+
+      if (AudioSystem.NOT_SPECIFIED == frameSize || AudioSystem.NOT_SPECIFIED == expectFrames) {
+        throw new MixerException("audio streams with unspecified frame size or length are unsupported");
+      }
+
+    } catch (UnsupportedAudioFileException | IOException | FormatException e) {
+      throw new MixerException(String.format("Failed to apply Source[%s]", source.getSourceId()), e);
+    }
   }
 
   /**
@@ -261,20 +343,20 @@ class MixerImpl implements Mixer {
    compression target uses a rate of change of rate of change
    to maintain inertia over time, required to preserve audio signal
    */
-  private void applyCompressor(double[][] buf) {
+  private void applyFinalOutputCompressor() {
     //
-    double compRatio = computeCompressorTarget(buf, 0, framesAhead);
+    double compRatio = computeCompressorTarget(outBuf, 0, framesAhead);
     double compRatioDelta = 0; // rate of change
     double targetCompRatio = compRatio;
-    for (int i = 0; i < buf.length; i++) {
+    for (int i = 0; i < outBuf.length; i++) {
       if (0 == i % dspBufferSize) {
-        targetCompRatio = computeCompressorTarget(buf, i, i + framesAhead);
+        targetCompRatio = computeCompressorTarget(outBuf, i, i + framesAhead);
       }
       double compRatioDeltaDelta = MathUtil.delta(compRatio, targetCompRatio) / framesDecay;
       compRatioDelta += MathUtil.delta(compRatioDelta, compRatioDeltaDelta) / dspBufferSize;
       compRatio += compRatioDelta;
       for (int k = 0; k < outputChannels; k++)
-        buf[i][k] *= compRatio;
+        outBuf[i][k] *= compRatio;
     }
   }
 
@@ -291,9 +373,9 @@ class MixerImpl implements Mixer {
   /**
    apply logarithmic dynamic range to mixing buffer
    */
-  private void applyLogarithmicDynamicRange(double[][] buf) {
-    for (int i = 0; i < buf.length; i++)
-      buf[i] = MathUtil.logarithmicCompression(buf[i]);
+  private void applyLogarithmicDynamicRange() {
+    for (int i = 0; i < outBuf.length; i++)
+      outBuf[i] = MathUtil.logarithmicCompression(outBuf[i]);
   }
 
   /**
@@ -301,15 +383,13 @@ class MixerImpl implements Mixer {
    <p>
    Previously: apply normalization to mixing buffer
    [#154112129] normalize final buffer to normalization threshold
-
-   @param buf to normalize
    */
   @SuppressWarnings("unused")
-  private void applyNormalization(double[][] buf) {
-    double normRatio = Math.min(config.getNormalizationBoostThreshold(), config.getNormalizationCeiling() / MathUtil.maxAbs(buf, NORMALIZATION_GRAIN));
-    for (int i = 0; i < buf.length; i++)
+  private void applyNormalization() {
+    double normRatio = Math.min(config.getNormalizationBoostThreshold(), config.getNormalizationCeiling() / MathUtil.maxAbs(outBuf, NORMALIZATION_GRAIN));
+    for (int i = 0; i < outBuf.length; i++)
       for (int k = 0; k < outputChannels; k++)
-        buf[i][k] *= normRatio;
+        outBuf[i][k] *= normRatio;
   }
 
   /**

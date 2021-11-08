@@ -3,7 +3,6 @@ package io.xj.nexus.dub;
 
 import io.xj.lib.filestore.FileStoreException;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 
 public interface DubAudioCache {
@@ -18,6 +17,6 @@ public interface DubAudioCache {
    @param key to retrieve
    @return stream if cached; null if not
    */
-  BufferedInputStream get(String key) throws FileStoreException, IOException;
+  String getAbsolutePath(String key) throws FileStoreException, IOException;
 
 }

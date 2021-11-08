@@ -11,7 +11,6 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 
@@ -45,8 +44,8 @@ class DubAudioCacheImpl implements DubAudioCache {
   }
 
   @Override
-  public BufferedInputStream get(String key) throws FileStoreException, IOException {
+  public String getAbsolutePath(String key) throws FileStoreException, IOException {
     if (Strings.isNullOrEmpty(key)) throw new FileStoreException("Can't load null or empty audio key!");
-    return dubAudioCacheItemFactory.load(key, String.format("%s%s", pathPrefix, key)).getBytes();
+    return dubAudioCacheItemFactory.load(key, String.format("%s%s", pathPrefix, key)).getAbsolutePath();
   }
 }

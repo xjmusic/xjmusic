@@ -7,8 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.sound.sampled.AudioFormat;
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 
 import static org.junit.Assert.*;
 
@@ -31,7 +29,7 @@ public class MixerImplTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
   }
 
   @Test(expected = MixerException.class)
@@ -72,14 +70,14 @@ public class MixerImplTest {
   @Test
   public void loadSource() throws Exception {
     InternalResource internalResource = new InternalResource("test_audio/F32LSB_48kHz_Stereo.wav");
-    testMixer.loadSource("F32LSB_48kHz_Stereo", new BufferedInputStream(new FileInputStream(internalResource.getFile())));
+    testMixer.loadSource("F32LSB_48kHz_Stereo", internalResource.getFile().getAbsolutePath());
     assertEquals(1, testMixer.getSourceCount());
   }
 
   @Test
   public void hasLoadedSource() throws Exception {
     InternalResource internalResource = new InternalResource("test_audio/F32LSB_48kHz_Stereo.wav");
-    testMixer.loadSource("F32LSB_48kHz_Stereo", new BufferedInputStream(new FileInputStream(internalResource.getFile())));
+    testMixer.loadSource("F32LSB_48kHz_Stereo", internalResource.getFile().getAbsolutePath());
 
     assertTrue(testMixer.hasLoadedSource("F32LSB_48kHz_Stereo"));
     assertFalse(testMixer.hasLoadedSource("bonkers"));
@@ -89,7 +87,7 @@ public class MixerImplTest {
   public void loadSource_failsIfMoreThan2InputChannels() throws Exception {
     try {
       InternalResource internalResource = new InternalResource("test_audio/F32LSB_48kHz_6ch.wav");
-      testMixer.loadSource("F32LSB_48kHz_6ch", new BufferedInputStream(new FileInputStream(internalResource.getFile())));
+      testMixer.loadSource("F32LSB_48kHz_6ch", internalResource.getFile().getAbsolutePath());
 
     } catch (Exception e) {
       assertTrue(e.getMessage().contains("more than 2 input audio channels not allowed"));

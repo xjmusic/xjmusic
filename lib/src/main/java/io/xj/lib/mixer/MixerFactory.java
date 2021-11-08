@@ -3,7 +3,6 @@ package io.xj.lib.mixer;
 
 import com.google.inject.assistedinject.Assisted;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 
 /**
@@ -52,7 +51,7 @@ public interface MixerFactory {
    attempt to source audio file from input stream
 
    @param sourceId    to reference source by
-   @param inputStream to read audio file from
+   @param absolutePath to read audio file from
    @return Source
    @throws SourceException if something is wrong with the source audio
    @throws FormatException on failure interpret format
@@ -60,6 +59,6 @@ public interface MixerFactory {
    */
   Source createSource(
     @Assisted("sourceId") String sourceId,
-    @Assisted("inputStream") BufferedInputStream inputStream
+    @Assisted("absolutePath") String absolutePath
   ) throws SourceException, FormatException, IOException;
 }
