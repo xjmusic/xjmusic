@@ -77,6 +77,34 @@ CREATE TYPE xj.content_binding_type AS ENUM (
 ALTER TYPE xj.content_binding_type OWNER TO postgres;
 
 --
+-- Name: feedback_source; Type: TYPE; Schema: xj; Owner: postgres
+--
+
+CREATE TYPE xj.feedback_source AS ENUM (
+    'Artist',
+    'Listener',
+    'Nexus'
+);
+
+
+ALTER TYPE xj.feedback_source OWNER TO postgres;
+
+--
+-- Name: feedback_type; Type: TYPE; Schema: xj; Owner: postgres
+--
+
+CREATE TYPE xj.feedback_type AS ENUM (
+    'Error',
+    'Negative',
+    'Neutral',
+    'Positive',
+    'Warning'
+);
+
+
+ALTER TYPE xj.feedback_type OWNER TO postgres;
+
+--
 -- Name: instrument_state; Type: TYPE; Schema: xj; Owner: postgres
 --
 
@@ -236,6 +264,73 @@ CREATE TABLE xj.account_user (
 ALTER TABLE xj.account_user OWNER TO postgres;
 
 --
+-- Name: feedback; Type: TABLE; Schema: xj; Owner: postgres
+--
+
+CREATE TABLE xj.feedback (
+    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
+    source xj.feedback_source NOT NULL,
+    type xj.feedback_type NOT NULL,
+    body text DEFAULT ''::text,
+    account_id uuid NOT NULL,
+    user_id uuid,
+    "timestamp" timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+ALTER TABLE xj.feedback OWNER TO postgres;
+
+--
+-- Name: feedback_instrument; Type: TABLE; Schema: xj; Owner: postgres
+--
+
+CREATE TABLE xj.feedback_instrument (
+    feedback_id uuid NOT NULL,
+    instrument_id uuid NOT NULL
+);
+
+
+ALTER TABLE xj.feedback_instrument OWNER TO postgres;
+
+--
+-- Name: feedback_library; Type: TABLE; Schema: xj; Owner: postgres
+--
+
+CREATE TABLE xj.feedback_library (
+    feedback_id uuid NOT NULL,
+    library_id uuid NOT NULL
+);
+
+
+ALTER TABLE xj.feedback_library OWNER TO postgres;
+
+--
+-- Name: feedback_program; Type: TABLE; Schema: xj; Owner: postgres
+--
+
+CREATE TABLE xj.feedback_program (
+    feedback_id uuid NOT NULL,
+    program_id uuid NOT NULL,
+    program_sequence_id uuid
+);
+
+
+ALTER TABLE xj.feedback_program OWNER TO postgres;
+
+--
+-- Name: feedback_template; Type: TABLE; Schema: xj; Owner: postgres
+--
+
+CREATE TABLE xj.feedback_template (
+    feedback_id uuid NOT NULL,
+    template_id uuid NOT NULL,
+    segment_key text
+);
+
+
+ALTER TABLE xj.feedback_template OWNER TO postgres;
+
+--
 -- Name: flyway_schema_history; Type: TABLE; Schema: xj; Owner: postgres
 --
 
@@ -266,7 +361,8 @@ CREATE TABLE xj.instrument (
     state xj.instrument_state NOT NULL,
     name character varying(255) NOT NULL,
     density real NOT NULL,
-    config text DEFAULT ''::text NOT NULL
+    config text DEFAULT ''::text NOT NULL,
+    is_deleted boolean DEFAULT false
 );
 
 
@@ -294,22 +390,6 @@ CREATE TABLE xj.instrument_audio (
 ALTER TABLE xj.instrument_audio OWNER TO postgres;
 
 --
--- Name: instrument_authorship; Type: TABLE; Schema: xj; Owner: postgres
---
-
-CREATE TABLE xj.instrument_authorship (
-    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    instrument_id uuid NOT NULL,
-    user_id uuid NOT NULL,
-    hours real DEFAULT 0,
-    description text NOT NULL,
-    "timestamp" timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE xj.instrument_authorship OWNER TO postgres;
-
---
 -- Name: instrument_meme; Type: TABLE; Schema: xj; Owner: postgres
 --
 
@@ -323,28 +403,14 @@ CREATE TABLE xj.instrument_meme (
 ALTER TABLE xj.instrument_meme OWNER TO postgres;
 
 --
--- Name: instrument_message; Type: TABLE; Schema: xj; Owner: postgres
---
-
-CREATE TABLE xj.instrument_message (
-    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    instrument_id uuid NOT NULL,
-    user_id uuid NOT NULL,
-    body text NOT NULL,
-    "timestamp" timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE xj.instrument_message OWNER TO postgres;
-
---
 -- Name: library; Type: TABLE; Schema: xj; Owner: postgres
 --
 
 CREATE TABLE xj.library (
     id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
     name character varying(255) NOT NULL,
-    account_id uuid NOT NULL
+    account_id uuid NOT NULL,
+    is_deleted boolean DEFAULT false
 );
 
 
@@ -363,27 +429,12 @@ CREATE TABLE xj.program (
     type xj.program_type NOT NULL,
     name character varying(255) NOT NULL,
     density real NOT NULL,
-    config text DEFAULT ''::text NOT NULL
+    config text DEFAULT ''::text NOT NULL,
+    is_deleted boolean DEFAULT false
 );
 
 
 ALTER TABLE xj.program OWNER TO postgres;
-
---
--- Name: program_authorship; Type: TABLE; Schema: xj; Owner: postgres
---
-
-CREATE TABLE xj.program_authorship (
-    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    program_id uuid NOT NULL,
-    user_id uuid NOT NULL,
-    hours real DEFAULT 0,
-    description text NOT NULL,
-    "timestamp" timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE xj.program_authorship OWNER TO postgres;
 
 --
 -- Name: program_meme; Type: TABLE; Schema: xj; Owner: postgres
@@ -397,21 +448,6 @@ CREATE TABLE xj.program_meme (
 
 
 ALTER TABLE xj.program_meme OWNER TO postgres;
-
---
--- Name: program_message; Type: TABLE; Schema: xj; Owner: postgres
---
-
-CREATE TABLE xj.program_message (
-    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    program_id uuid NOT NULL,
-    user_id uuid NOT NULL,
-    body text NOT NULL,
-    "timestamp" timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE xj.program_message OWNER TO postgres;
 
 --
 -- Name: program_sequence; Type: TABLE; Schema: xj; Owner: postgres
@@ -562,7 +598,8 @@ CREATE TABLE xj.template (
     name character varying(255) NOT NULL,
     config text DEFAULT ''::text,
     ship_key character varying(255) DEFAULT ''::character varying,
-    type xj.template_type
+    type xj.template_type,
+    is_deleted boolean DEFAULT false
 );
 
 
@@ -666,6 +703,46 @@ ALTER TABLE ONLY xj.account_user
 
 
 --
+-- Name: feedback_instrument feedback_instrument_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.feedback_instrument
+    ADD CONSTRAINT feedback_instrument_pkey PRIMARY KEY (feedback_id, instrument_id);
+
+
+--
+-- Name: feedback_library feedback_library_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.feedback_library
+    ADD CONSTRAINT feedback_library_pkey PRIMARY KEY (feedback_id, library_id);
+
+
+--
+-- Name: feedback feedback_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.feedback
+    ADD CONSTRAINT feedback_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: feedback_program feedback_program_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.feedback_program
+    ADD CONSTRAINT feedback_program_pkey PRIMARY KEY (feedback_id, program_id);
+
+
+--
+-- Name: feedback_template feedback_template_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.feedback_template
+    ADD CONSTRAINT feedback_template_pkey PRIMARY KEY (feedback_id, template_id);
+
+
+--
 -- Name: flyway_schema_history flyway_schema_history_pk; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
@@ -682,27 +759,11 @@ ALTER TABLE ONLY xj.instrument_audio
 
 
 --
--- Name: instrument_authorship instrument_authorship_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.instrument_authorship
-    ADD CONSTRAINT instrument_authorship_pkey PRIMARY KEY (id);
-
-
---
 -- Name: instrument_meme instrument_meme_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.instrument_meme
     ADD CONSTRAINT instrument_meme_pkey PRIMARY KEY (id);
-
-
---
--- Name: instrument_message instrument_message_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.instrument_message
-    ADD CONSTRAINT instrument_message_pkey PRIMARY KEY (id);
 
 
 --
@@ -722,27 +783,11 @@ ALTER TABLE ONLY xj.library
 
 
 --
--- Name: program_authorship program_authorship_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.program_authorship
-    ADD CONSTRAINT program_authorship_pkey PRIMARY KEY (id);
-
-
---
 -- Name: program_meme program_meme_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_meme
     ADD CONSTRAINT program_meme_pkey PRIMARY KEY (id);
-
-
---
--- Name: program_message program_message_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.program_message
-    ADD CONSTRAINT program_message_pkey PRIMARY KEY (id);
 
 
 --
@@ -918,27 +963,99 @@ ALTER TABLE ONLY xj.account_user
 
 
 --
+-- Name: feedback feedback_account_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.feedback
+    ADD CONSTRAINT feedback_account_id_fkey FOREIGN KEY (account_id) REFERENCES xj.account(id);
+
+
+--
+-- Name: feedback_instrument feedback_instrument_feedback_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.feedback_instrument
+    ADD CONSTRAINT feedback_instrument_feedback_id_fkey FOREIGN KEY (feedback_id) REFERENCES xj.feedback(id);
+
+
+--
+-- Name: feedback_instrument feedback_instrument_instrument_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.feedback_instrument
+    ADD CONSTRAINT feedback_instrument_instrument_id_fkey FOREIGN KEY (instrument_id) REFERENCES xj.instrument(id);
+
+
+--
+-- Name: feedback_library feedback_library_feedback_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.feedback_library
+    ADD CONSTRAINT feedback_library_feedback_id_fkey FOREIGN KEY (feedback_id) REFERENCES xj.feedback(id);
+
+
+--
+-- Name: feedback_library feedback_library_library_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.feedback_library
+    ADD CONSTRAINT feedback_library_library_id_fkey FOREIGN KEY (library_id) REFERENCES xj.library(id);
+
+
+--
+-- Name: feedback_program feedback_program_feedback_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.feedback_program
+    ADD CONSTRAINT feedback_program_feedback_id_fkey FOREIGN KEY (feedback_id) REFERENCES xj.feedback(id);
+
+
+--
+-- Name: feedback_program feedback_program_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.feedback_program
+    ADD CONSTRAINT feedback_program_program_id_fkey FOREIGN KEY (program_id) REFERENCES xj.program(id);
+
+
+--
+-- Name: feedback_program feedback_program_program_sequence_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.feedback_program
+    ADD CONSTRAINT feedback_program_program_sequence_id_fkey FOREIGN KEY (program_sequence_id) REFERENCES xj.program_sequence(id);
+
+
+--
+-- Name: feedback_template feedback_template_feedback_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.feedback_template
+    ADD CONSTRAINT feedback_template_feedback_id_fkey FOREIGN KEY (feedback_id) REFERENCES xj.feedback(id);
+
+
+--
+-- Name: feedback_template feedback_template_template_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.feedback_template
+    ADD CONSTRAINT feedback_template_template_id_fkey FOREIGN KEY (template_id) REFERENCES xj.template(id);
+
+
+--
+-- Name: feedback feedback_user_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.feedback
+    ADD CONSTRAINT feedback_user_id_fkey FOREIGN KEY (user_id) REFERENCES xj."user"(id);
+
+
+--
 -- Name: instrument_audio instrument_audio_instrument_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.instrument_audio
     ADD CONSTRAINT instrument_audio_instrument_id_fkey FOREIGN KEY (instrument_id) REFERENCES xj.instrument(id);
-
-
---
--- Name: instrument_authorship instrument_authorship_instrument_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.instrument_authorship
-    ADD CONSTRAINT instrument_authorship_instrument_id_fkey FOREIGN KEY (instrument_id) REFERENCES xj.instrument(id);
-
-
---
--- Name: instrument_authorship instrument_authorship_user_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.instrument_authorship
-    ADD CONSTRAINT instrument_authorship_user_id_fkey FOREIGN KEY (user_id) REFERENCES xj."user"(id);
 
 
 --
@@ -958,43 +1075,11 @@ ALTER TABLE ONLY xj.instrument_meme
 
 
 --
--- Name: instrument_message instrument_message_instrument_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.instrument_message
-    ADD CONSTRAINT instrument_message_instrument_id_fkey FOREIGN KEY (instrument_id) REFERENCES xj.instrument(id);
-
-
---
--- Name: instrument_message instrument_message_user_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.instrument_message
-    ADD CONSTRAINT instrument_message_user_id_fkey FOREIGN KEY (user_id) REFERENCES xj."user"(id);
-
-
---
 -- Name: library library_account_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.library
     ADD CONSTRAINT library_account_id_fkey FOREIGN KEY (account_id) REFERENCES xj.account(id);
-
-
---
--- Name: program_authorship program_authorship_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.program_authorship
-    ADD CONSTRAINT program_authorship_program_id_fkey FOREIGN KEY (program_id) REFERENCES xj.program(id);
-
-
---
--- Name: program_authorship program_authorship_user_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.program_authorship
-    ADD CONSTRAINT program_authorship_user_id_fkey FOREIGN KEY (user_id) REFERENCES xj."user"(id);
 
 
 --
@@ -1011,22 +1096,6 @@ ALTER TABLE ONLY xj.program
 
 ALTER TABLE ONLY xj.program_meme
     ADD CONSTRAINT program_meme_program_id_fkey FOREIGN KEY (program_id) REFERENCES xj.program(id);
-
-
---
--- Name: program_message program_message_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.program_message
-    ADD CONSTRAINT program_message_program_id_fkey FOREIGN KEY (program_id) REFERENCES xj.program(id);
-
-
---
--- Name: program_message program_message_user_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.program_message
-    ADD CONSTRAINT program_message_user_id_fkey FOREIGN KEY (user_id) REFERENCES xj."user"(id);
 
 
 --
@@ -1283,6 +1352,8 @@ COPY xj.flyway_schema_history (installed_rank, version, description, type, scrip
 56	57	ship key	SQL	V57__ship_key.sql	163079654	postgres	2021-09-18 22:31:46.588341	45	t
 57	58	no pattern types	SQL	V58__no_pattern_types.sql	739249340	postgres	2021-10-25 02:21:54.290671	52	t
 58	59	audio transient beats	SQL	V59__audio_transient_beats.sql	-1097739720	postgres	2021-10-27 04:14:32.968872	67	t
+59	60	feedback	SQL	V60__feedback.sql	-2095068615	postgres	2021-11-05 07:52:51.149202	307	t
+60	61	soft deletion	SQL	V61__soft_deletion.sql	970780052	postgres	2021-11-05 07:52:51.816645	8	t
 \.
 
 
