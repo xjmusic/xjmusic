@@ -11,7 +11,7 @@ resource "aws_lambda_function" "shipped_file_compressor_ogg_to_mp3" {
   s3_key        = "shipped_file_compressor.zip"
   role          = aws_iam_role.lambda_runner.arn
   handler       = "shipped_file_compressor.lambda_handler"
-  timeout       = 30
+  timeout       = 600
   runtime       = "python3.8"
 
   environment {
