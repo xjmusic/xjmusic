@@ -76,7 +76,7 @@ public abstract class FabricationWrapperImpl {
    @param type   of class that is missing
    @param detail of how missing entity was searched for
    */
-  protected void reportMissingInstrumentAudio(Class<?> type, String detail) {
+  protected void reportMissing(Class<?> type, String detail) {
     try {
       var msg = new SegmentMessage();
       msg.setId(UUID.randomUUID());
@@ -93,7 +93,7 @@ public abstract class FabricationWrapperImpl {
   /**
    Report a missing entity as a segment message@param traces of how missing entity was searched for
    */
-  protected void reportMissingInstrumentAudio(Map<String, String> traces) {
+  protected void reportMissing(Map<String, String> traces) {
     try {
       var msg = new SegmentMessage();
       msg.setId(UUID.randomUUID());

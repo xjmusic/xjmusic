@@ -33,7 +33,6 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.xj.lib.util.Values.NANOS_PER_SECOND;
-import static java.lang.Math.PI;
 
 /**
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
@@ -44,8 +43,6 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
   private static final double SCORE_DIRECT = 10 * SCORE_MATCH;
   private static final double SCORE_MACRO_ENTROPY = 1.0;
   private static final double SCORE_MAIN_ENTROPY = 1.0;
-  private static final double DENSITY_FLOOR = 0.38;
-  private static final double DENSITY_CEILING_DELTA = 1 - DENSITY_FLOOR;
   private final ApiUrlProvider apiUrlProvider;
 
   @Inject
@@ -111,12 +108,12 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
    @return density
    */
   private double computeSegmentDensity(Integer delta, @Nullable ProgramSequence macroSequence, @Nullable ProgramSequence mainSequence) throws NexusException {
-    return
-      Math.floor(
-        100 * (DENSITY_FLOOR + DENSITY_CEILING_DELTA * (0.5 + Math.cos(-PI + 2 * PI * delta / fabricator.getTemplateConfig().getMainProgramLengthMaxDelta()) / 2))
-          *
-          computeDensity(macroSequence, mainSequence)
-      ) / 100;
+    return Values.limitDecimalPrecision(Values.interpolate(
+      fabricator.getTemplateConfig().getDensityFloor(),
+      fabricator.getTemplateConfig().getDensityCeiling(),
+      (double) delta / fabricator.getTemplateConfig().getMainProgramLengthMaxDelta(),
+      computeDensity(macroSequence, mainSequence)
+    ));
   }
 
   /**

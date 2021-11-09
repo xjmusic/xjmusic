@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static io.xj.lib.util.Values.MICROS_PER_SECOND;
 import static io.xj.lib.util.Values.NANOS_PER_SECOND;
@@ -108,8 +107,8 @@ class MixerImpl implements Mixer {
   }
 
   @Override
-  public void put(String busId, String sourceId, long startAtMicros, long stopAtMicros, double velocity) throws PutException {
-    puts.put(nextPutId(), factory.createPut(getBusNumber(busId), sourceId, startAtMicros, stopAtMicros, velocity));
+  public void put(String busName, String sourceId, long startAtMicros, long stopAtMicros, double velocity) throws PutException {
+    puts.put(nextPutId(), factory.createPut(getAssignedBusNumber(busName), sourceId, startAtMicros, stopAtMicros, velocity));
   }
 
   @Override
@@ -197,11 +196,11 @@ class MixerImpl implements Mixer {
    */
   private void mixOutputBus() {
     double[] level = busIds.stream().mapToDouble(b -> busLevel.getOrDefault(b, 1.0)).toArray();
-    IntStream.range(0, busBuf.length).forEach(b ->
-      IntStream.range(0, busBuf[0].length).forEach(f ->
-        IntStream.range(0, busBuf[0][0].length).forEach(c ->
-          outBuf[f][c] += busBuf[b][f][c] * level[b]
-        )));
+    int b, f, c;
+    for (b = 0; b < busBuf.length; b++)
+      for (f = 0; f < busBuf[0].length; f++)
+        for (c = 0; c < busBuf[0][0].length; c++)
+          outBuf[f][c] += busBuf[b][f][c] * level[b];
   }
 
   @Override
@@ -301,7 +300,7 @@ class MixerImpl implements Mixer {
       while (-1 != (numBytesReadToBuffer = audioInputStream.read(readBuffer))) {
         for (b = 0; b < numBytesReadToBuffer; b += frameSize) {
           tf = (int) Math.floor(sf * fr); // compute the target frame (converted from source rate to target rate)
-          if (tf == otf) continue; // skip frame if unnecessary (source rate higher than target rate)
+          // FUTURE: skip frame if unnecessary (source rate higher than target rate)
           for (tc = 0; tc < outputChannels; tc++) {
             System.arraycopy(readBuffer, b + (isStereo ? tc : 0) * sampleSize, sampleBuffer, 0, sampleSize);
             v = AudioSampleFormat.fromBytes(sampleBuffer, sampleFormat);
@@ -413,15 +412,15 @@ class MixerImpl implements Mixer {
   }
 
   /**
-   Each new bus ID maps to a number
+   Each new bus name maps to a number
 
-   @param busId to get number for
+   @param busName to get number for
    @return number of bus id
    */
-  private int getBusNumber(String busId) {
-    if (!busIds.contains(busId))
-      busIds.add(busId);
-    return busIds.indexOf(busId);
+  private int getAssignedBusNumber(String busName) {
+    if (!busIds.contains(busName))
+      busIds.add(busName);
+    return busIds.indexOf(busName);
   }
 }
 

@@ -26,15 +26,13 @@ public class TemplateConfig {
     """
       bufferAheadSeconds = 180
       bufferBeforeSeconds = 5
-      deltaArcDetailLayersIncoming = 2
-      deltaArcDetailLayersOutgoing = 2
-      deltaArcDetailPlateauRatio = 0.7
-      deltaArcDetailPlateauShiftRatio = 0.62
+      deltaArcDetailLayersIncoming = 1
+      deltaArcDetailPlateauRatio = 0.62
       deltaArcEnabled = true
       deltaArcRhythmLayersIncoming = 1
-      deltaArcRhythmLayersOutgoing = 1
-      deltaArcRhythmPlateauRatio = 0.3
-      deltaArcRhythmPlateauShiftRatio = 0.38
+      deltaArcRhythmPlateauRatio = 0.38
+      densityCeiling = 0.9
+      densityFloor = 0.1
       dubMasterVolumeInstrumentTypeBass = 1.0
       dubMasterVolumeInstrumentTypeDrum = 1.0
       dubMasterVolumeInstrumentTypePad = 1.0
@@ -57,7 +55,7 @@ public class TemplateConfig {
       mixerNormalizationCeiling = 0.999
       outputChannels = 2
       outputContainer = "OGG"
-      outputEncoding = "PCM_FLOAT"
+      outputEncoding = "PCM_DOUBLE"
       outputEncodingQuality = 0.618
       outputFrameRate = 48000
       outputSampleBits = 16
@@ -71,9 +69,9 @@ public class TemplateConfig {
   private final String outputContainer;
   private final boolean deltaArcEnabled;
   private final double deltaArcDetailPlateauRatio;
-  private final double deltaArcDetailPlateauShiftRatio;
   private final double deltaArcRhythmPlateauRatio;
-  private final double deltaArcRhythmPlateauShiftRatio;
+  private final double densityCeiling;
+  private final double densityFloor;
   private final double dubMasterVolumeInstrumentTypeBass;
   private final double dubMasterVolumeInstrumentTypeDrum;
   private final double dubMasterVolumeInstrumentTypePad;
@@ -92,9 +90,7 @@ public class TemplateConfig {
   private final int bufferAheadSeconds;
   private final int bufferBeforeSeconds;
   private final int deltaArcDetailLayersIncoming;
-  private final int deltaArcDetailLayersOutgoing;
   private final int deltaArcRhythmLayersIncoming;
-  private final int deltaArcRhythmLayersOutgoing;
   private final int mainProgramLengthMaxDelta;
   private final int mixerDspBufferSize;
   private final int mixerHighpassThresholdHz;
@@ -140,14 +136,12 @@ public class TemplateConfig {
       bufferAheadSeconds = config.getInt("bufferAheadSeconds");
       bufferBeforeSeconds = config.getInt("bufferBeforeSeconds");
       deltaArcDetailLayersIncoming = config.getInt("deltaArcDetailLayersIncoming");
-      deltaArcDetailLayersOutgoing = config.getInt("deltaArcDetailLayersOutgoing");
       deltaArcDetailPlateauRatio = config.getDouble("deltaArcDetailPlateauRatio");
-      deltaArcDetailPlateauShiftRatio = config.getDouble("deltaArcDetailPlateauShiftRatio");
       deltaArcEnabled = config.getBoolean("deltaArcEnabled");
       deltaArcRhythmLayersIncoming = config.getInt("deltaArcRhythmLayersIncoming");
-      deltaArcRhythmLayersOutgoing = config.getInt("deltaArcRhythmLayersOutgoing");
       deltaArcRhythmPlateauRatio = config.getDouble("deltaArcRhythmPlateauRatio");
-      deltaArcRhythmPlateauShiftRatio = config.getDouble("deltaArcRhythmPlateauShiftRatio");
+      densityCeiling = config.getDouble("densityCeiling");
+      densityFloor = config.getDouble("densityFloor");
       dubMasterVolumeInstrumentTypeBass = config.getDouble("dubMasterVolumeInstrumentTypeBass");
       dubMasterVolumeInstrumentTypeDrum = config.getDouble("dubMasterVolumeInstrumentTypeDrum");
       dubMasterVolumeInstrumentTypePad = config.getDouble("dubMasterVolumeInstrumentTypePad");
@@ -188,14 +182,12 @@ public class TemplateConfig {
     config.put("bufferAheadSeconds", String.valueOf(bufferAheadSeconds));
     config.put("bufferBeforeSeconds", String.valueOf(bufferBeforeSeconds));
     config.put("deltaArcDetailLayersIncoming", String.valueOf(deltaArcDetailLayersIncoming));
-    config.put("deltaArcDetailLayersOutgoing", String.valueOf(deltaArcDetailLayersOutgoing));
     config.put("deltaArcDetailPlateauRatio", String.valueOf(deltaArcDetailPlateauRatio));
-    config.put("deltaArcDetailPlateauShiftRatio", String.valueOf(deltaArcDetailPlateauShiftRatio));
     config.put("deltaArcEnabled", String.valueOf(deltaArcEnabled));
     config.put("deltaArcRhythmLayersIncoming", String.valueOf(deltaArcRhythmLayersIncoming));
-    config.put("deltaArcRhythmLayersOutgoing", String.valueOf(deltaArcRhythmLayersOutgoing));
     config.put("deltaArcRhythmPlateauRatio", String.valueOf(deltaArcRhythmPlateauRatio));
-    config.put("deltaArcRhythmPlateauShiftRatio", String.valueOf(deltaArcRhythmPlateauShiftRatio));
+    config.put("densityCeiling", String.valueOf(densityCeiling));
+    config.put("densityFloor", String.valueOf(densityFloor));
     config.put("dubMasterVolumeInstrumentTypeBass", String.valueOf(dubMasterVolumeInstrumentTypeBass));
     config.put("dubMasterVolumeInstrumentTypeDrum", String.valueOf(dubMasterVolumeInstrumentTypeDrum));
     config.put("dubMasterVolumeInstrumentTypePad", String.valueOf(dubMasterVolumeInstrumentTypePad));
@@ -260,24 +252,10 @@ public class TemplateConfig {
   }
 
   /**
-   @return the delta arc detail plateau shift ratio
-   */
-  public double getDeltaArcDetailPlateauShiftRatio() {
-    return deltaArcDetailPlateauShiftRatio;
-  }
-
-  /**
    @return the number of delta arc detail layers incoming each segment
    */
   public int getDeltaArcDetailLayersIncoming() {
     return deltaArcDetailLayersIncoming;
-  }
-
-  /**
-   @return the number of delta arc detail layers outgoing each segment
-   */
-  public int getDeltaArcDetailLayersOutgoing() {
-    return deltaArcDetailLayersOutgoing;
   }
 
   /**
@@ -288,13 +266,6 @@ public class TemplateConfig {
   }
 
   /**
-   @return the delta arc rhythm plateau shift ratio
-   */
-  public double getDeltaArcRhythmPlateauShiftRatio() {
-    return deltaArcRhythmPlateauShiftRatio;
-  }
-
-  /**
    @return the number of delta arc rhythm layers incoming each segment
    */
   public int getDeltaArcRhythmLayersIncoming() {
@@ -302,10 +273,17 @@ public class TemplateConfig {
   }
 
   /**
-   @return the number of delta arc rhythm layers outgoing each segment
+   @return the density floor
    */
-  public int getDeltaArcRhythmLayersOutgoing() {
-    return deltaArcRhythmLayersOutgoing;
+  public double getDensityFloor() {
+    return densityFloor;
+  }
+
+  /**
+   @return the density ceiling
+   */
+  public double getDensityCeiling() {
+    return densityCeiling;
   }
 
   /**
@@ -503,5 +481,4 @@ public class TemplateConfig {
   public double getPercLoopLayerMin() {
     return percLoopLayerMin;
   }
-
 }

@@ -54,7 +54,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
 
     // [#176373977] Should gracefully skip voicing type if unfulfilled by detail program
     if (program.isEmpty()) {
-      reportMissingInstrumentAudio(Program.class, "Rhythm-type program");
+      reportMissing(Program.class, "Rhythm-type program");
       return;
     }
 
@@ -72,9 +72,8 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
       .collect(Collectors.toList());
     precomputeDeltas(choiceFilter, choiceIndexProvider, programNames,
       fabricator.getTemplateConfig().getDeltaArcRhythmPlateauRatio(),
-      fabricator.getTemplateConfig().getDeltaArcRhythmPlateauShiftRatio(),
-      fabricator.getTemplateConfig().getDeltaArcRhythmLayersIncoming(),
-      fabricator.getTemplateConfig().getDeltaArcRhythmLayersOutgoing());
+      fabricator.getTemplateConfig().getDeltaArcRhythmLayersIncoming()
+    );
 
     // rhythm sequence is selected at random of the current program
     // FUTURE: [#166855956] Rhythm Program with multiple Sequences
@@ -84,7 +83,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
     if (sequence.isPresent()) {
       var voices = fabricator.sourceMaterial().getVoices(program.get());
       if (voices.isEmpty())
-        reportMissingInstrumentAudio(ProgramVoice.class,
+        reportMissing(ProgramVoice.class,
           String.format("in Rhythm-choice Program[%s]", program.get().getId()));
 
       craftChoices(sequence.get(), voices, this::chooseFreshPercussiveInstrument, true);

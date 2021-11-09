@@ -57,6 +57,8 @@ class SourceImpl implements Source {
       lengthMicros = (long) (MICROS_PER_SECOND * lengthSeconds);
       microsPerFrame = MICROS_PER_SECOND / frameRate;
       enforceMaxStereo(channels);
+      LOG.debug("Loaded absolutePath: {}, sourceId: {}, audioFormat: {}, channels: {}, frameRate: {}, frameLength: {}, lengthSeconds: {}, lengthMicros: {}, microsPerFrame: {}",
+        absolutePath, sourceId, audioFormat, channels, frameRate, frameLength, lengthSeconds, lengthMicros, microsPerFrame);
 
     } catch (UnsupportedAudioFileException | IOException e) {
       throw new MixerException(String.format("Failed to read audio from disk %s", absolutePath), e);

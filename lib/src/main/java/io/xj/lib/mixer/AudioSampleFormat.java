@@ -10,6 +10,7 @@ import java.nio.ByteOrder;
  a double is a single value for a channel of a frame of some audio.
 
  @link https://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html */
+@SuppressWarnings("CommentedOutCode")
 public enum AudioSampleFormat {
 
   // sample types
@@ -132,28 +133,18 @@ public enum AudioSampleFormat {
    @return output bytes
    */
   public static byte[] toBytes(double value, AudioSampleFormat type) {
-    switch (type) {
-      case S8:
-        return toBytesS8(value);
-      case S16LSB:
-        return toBytesS16LSB(value);
-      case S16MSB:
-        return toBytesS16MSB(value);
-      case S32LSB:
-        return toBytesS32LSB(value);
-      case S32MSB:
-        return toBytesS32MSB(value);
-      case F32LSB:
-        return toBytesF32LSB(value);
-      case F32MSB:
-        return toBytesF32MSB(value);
-      case F64LSB:
-        return toBytesF64LSB(value);
-      case F64MSB:
-        return toBytesF64MSB(value);
-      default:
-        return new byte[0];
-    }
+    return switch (type) {
+      case S8 -> toBytesS8(value);
+      case S16LSB -> toBytesS16LSB(value);
+      case S16MSB -> toBytesS16MSB(value);
+      case S32LSB -> toBytesS32LSB(value);
+      case S32MSB -> toBytesS32MSB(value);
+      case F32LSB -> toBytesF32LSB(value);
+      case F32MSB -> toBytesF32MSB(value);
+      case F64LSB -> toBytesF64LSB(value);
+      case F64MSB -> toBytesF64MSB(value);
+      default -> new byte[0];
+    };
   }
 
   /**
@@ -164,38 +155,22 @@ public enum AudioSampleFormat {
    @return value
    */
   public static double fromBytes(byte[] value, AudioSampleFormat type) {
-    switch (type) {
-      case U8:
-        return fromBytesU8(value);
-      case S8:
-        return fromBytesS8(value);
-      case U16LSB:
-        return fromBytesU16LSB(value);
-      case U16MSB:
-        return fromBytesU16MSB(value);
-      case S16LSB:
-        return fromBytesS16LSB(value);
-      case S16MSB:
-        return fromBytesS16MSB(value);
-      case S24LSB:
-        return fromBytesS24LSB(value);
-      case S24MSB:
-        return fromBytesS24MSB(value);
-      case S32LSB:
-        return fromBytesS32LSB(value);
-      case S32MSB:
-        return fromBytesS32MSB(value);
-      case F32LSB:
-        return fromBytesF32LSB(value);
-      case F32MSB:
-        return fromBytesF32MSB(value);
-      case F64LSB:
-        return fromBytesF64LSB(value);
-      case F64MSB:
-        return fromBytesF64MSB(value);
-      default:
-        return -1;
-    }
+    return switch (type) {
+      case U8 -> fromBytesU8(value);
+      case S8 -> fromBytesS8(value);
+      case U16LSB -> fromBytesU16LSB(value);
+      case U16MSB -> fromBytesU16MSB(value);
+      case S16LSB -> fromBytesS16LSB(value);
+      case S16MSB -> fromBytesS16MSB(value);
+      case S24LSB -> fromBytesS24LSB(value);
+      case S24MSB -> fromBytesS24MSB(value);
+      case S32LSB -> fromBytesS32LSB(value);
+      case S32MSB -> fromBytesS32MSB(value);
+      case F32LSB -> fromBytesF32LSB(value);
+      case F32MSB -> fromBytesF32MSB(value);
+      case F64LSB -> fromBytesF64LSB(value);
+      case F64MSB -> fromBytesF64MSB(value);
+    };
   }
 
   /**

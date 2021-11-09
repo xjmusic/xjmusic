@@ -155,7 +155,7 @@ public class CraftFoundationContinueTest {
     assertEquals("2017-02-14T12:03:23.680157Z", result.getEndAt());
     assertEquals(Integer.valueOf(32), result.getTotal());
     assertEquals("WAV", result.getOutputEncoder());
-    assertEquals(0.2, result.getDensity(), 0.001);
+    assertEquals(0.14, result.getDensity(), 0.001);
     assertEquals("G minor", result.getKey());
     assertEquals(125, result.getTempo(), 0.001);
     assertEquals(SegmentType.CONTINUE, result.getType());

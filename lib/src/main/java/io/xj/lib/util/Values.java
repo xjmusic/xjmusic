@@ -388,4 +388,17 @@ public interface Values {
   static int multipleFloor(int factor, double value) {
     return (int) (Math.floor(value / factor) * factor);
   }
+
+  /**
+   Interpolate a value between the floor and ceiling
+
+   @param floor      bottom value
+   @param ceiling    top value
+   @param position   between 0 and 1 of value to interpolate between the floor and ceiling
+   @param multiplier of value (above ceiling)
+   @return interpolated value
+   */
+  static Double interpolate(double floor, double ceiling, double position, double multiplier) {
+    return floor + (ceiling - floor) * position * multiplier;
+  }
 }

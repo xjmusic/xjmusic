@@ -13,6 +13,8 @@ public class MemeStackTest {
   public void isAllowed() {
     assertTrue(MemeStack.from(List.of("APPLES", "ORANGES")).isAllowed(List.of("APPLES")));
     assertTrue(MemeStack.from(List.of("APPLES", "ORANGES")).isAllowed(List.of("BANANAS")));
+    assertTrue(MemeStack.from(List.of("APPLES", "ORANGES")).isAllowed(List.of()));
+    assertTrue(MemeStack.from(List.of()).isAllowed(List.of("BANANAS")));
   }
 
   @Test

@@ -6,7 +6,6 @@ import org.junit.Test;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
@@ -207,5 +206,12 @@ public class ValuesTest {
     assertEquals(0, Values.multipleFloor(16, 11));
     assertEquals(16, Values.multipleFloor(16, 20));
     assertEquals(32, Values.multipleFloor(16, 34));
+  }
+
+  @Test
+  public void interpolate() {
+    assertEquals(10, Values.interpolate(10, 20, 0, 1.0), 0.000001);
+    assertEquals(20, Values.interpolate(10, 20, 1, 1.0), 0.000001);
+    assertEquals(15, Values.interpolate(10, 20, 1, 0.5), 0.000001);
   }
 }

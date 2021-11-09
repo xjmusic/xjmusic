@@ -108,7 +108,7 @@ public class CraftFoundationInitialTest {
     assertEquals(SegmentType.INITIAL, result.getType());
     assertEquals("2017-02-14T12:01:07.384616Z", result.getEndAt());
     assertEquals(Integer.valueOf(16), result.getTotal());
-    assertEquals(0.2, result.getDensity(), 0.01);
+    assertEquals(0.1, result.getDensity(), 0.01);
     assertEquals("G major", result.getKey());
     assertEquals(130.0, result.getTempo(), 0.01);
     // assert memes

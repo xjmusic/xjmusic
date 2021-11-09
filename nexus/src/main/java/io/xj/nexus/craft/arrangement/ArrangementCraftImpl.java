@@ -12,7 +12,6 @@ import io.xj.hub.tables.pojos.*;
 import io.xj.lib.music.*;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Chance;
-import io.xj.lib.util.TremendouslyRandom;
 import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.fabricator.EntityScorePicker;
@@ -66,6 +65,21 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   }
 
   /**
+   Whether a position is in the given bounds
+
+   @param floor   of boundary
+   @param ceiling of boundary
+   @param value   to test for within bounds
+   @return true if value is within bounds (inclusive)
+   */
+  static boolean inBounds(Integer floor, Integer ceiling, double value) {
+    if (DELTA_UNLIMITED == floor && DELTA_UNLIMITED == ceiling) return true;
+    if (DELTA_UNLIMITED == floor && value <= ceiling) return true;
+    if (DELTA_UNLIMITED == ceiling && value >= floor) return true;
+    return value >= floor && value <= ceiling;
+  }
+
+  /**
    Segments have intensity arcs; automate mixer layers in and out of each main program
    https://www.pivotaltracker.com/story/show/178240332
 
@@ -102,7 +116,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
       var instrument = instrumentProvider.get(voice);
       if (instrument.isEmpty()) {
-        reportMissingInstrumentAudio(Instrument.class, String.format("%s-type instrument", voice.getType()));
+        reportMissing(Instrument.class, String.format("%s-type instrument", voice.getType()));
         continue;
       }
 
@@ -186,19 +200,14 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
    @throws NexusException on failure
    */
-  protected void precomputeDeltas(Predicate<SegmentChoice> choiceFilter, ChoiceIndexProvider choiceIndexProvider, Collection<String> indexes, double plateauRatio, double plateauShiftRatio, int numLayersIncoming, int numLayersOutgoing) throws NexusException {
+  protected void precomputeDeltas(Predicate<SegmentChoice> choiceFilter, ChoiceIndexProvider choiceIndexProvider, Collection<String> indexes, double plateauRatio, int numLayersIncoming) throws NexusException {
     this.choiceIndexProvider = choiceIndexProvider;
     deltaIns.clear();
     deltaOuts.clear();
-    var bTotal = fabricator.getTemplateConfig().getMainProgramLengthMaxDelta(); // total arc length
-    double bPlateau = bTotal * plateauRatio; // plateau section in middle with no transitions
-    double bFadesTotal = bTotal - bPlateau;
-    double bFadeShiftRatio = plateauShiftRatio + TremendouslyRandom.zeroToLimit(1 - plateauShiftRatio);
-    double bFadeIn = bFadeShiftRatio * bFadesTotal;
-    double bFadeOut = (1 - bFadeShiftRatio) * bFadesTotal;
-    double bFadeInLayer = bFadeIn / indexes.size(); // space between transitions in
-    double bFadeOutLayer = bFadeOut / indexes.size(); // space between transitions out
-    double bPreFadeout = bTotal - bFadeOut;
+    var beatsTotal = fabricator.getTemplateConfig().getMainProgramLengthMaxDelta(); // total arc length
+    double beatsPlateau = beatsTotal * plateauRatio; // plateau section in middle with no transitions
+    double beatsFadeIn = beatsTotal - beatsPlateau;
+    double beatsFadeInPerLayer = beatsFadeIn / indexes.size(); // space between transitions in
     var layers = new ArrayList<>(indexes);
 
     // Ensure that we can bypass delta arcs using the template config
@@ -214,12 +223,10 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     // random order in
     var deltaUnits = Bar.of(fabricator.getMainProgramConfig().getBarBeats()).computeSubsectionBeats(fabricator.getSegment().getTotal());
     Collections.shuffle(layers);
-    for (int i = 0; i < layers.size(); i++)
-      deltaIns.put(layers.get(i), Values.multipleFloor(deltaUnits, Chance.normallyAround((i + 0.5) * bFadeInLayer, bFadeInLayer * 0.3)));
-    // different random order out
-    Collections.shuffle(layers);
-    for (int i = 0; i < layers.size(); i++)
-      deltaOuts.put(layers.get(i), Values.multipleFloor(deltaUnits, Chance.normallyAround(bPreFadeout + (i + 0.5) * bFadeOutLayer, bFadeOutLayer * 0.3)));
+    for (int i = 0; i < layers.size(); i++) {
+      deltaIns.put(layers.get(i), Values.multipleFloor(deltaUnits, Chance.normallyAround((i + 0.5) * beatsFadeInPerLayer, beatsFadeInPerLayer * 0.3)));
+      deltaOuts.put(layers.get(i), DELTA_UNLIMITED); // all layers get delta out unlimited
+    }
 
     // then we overwrite the wall-to-wall random values with more specific values depending on the situation
     switch (fabricator.getType()) {
@@ -227,11 +234,8 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
         // No Op
       }
 
-      case INITIAL -> {
-        // randomly override N incoming (deltaIn unlimited) and N outgoing (deltaOut unlimited)
+      case INITIAL, NEXTMAIN, NEXTMACRO -> // randomly override N incoming (deltaIn unlimited) and N outgoing (deltaOut unlimited)
         Values.randomFrom(layers, numLayersIncoming).forEach(layer -> deltaIns.put(layer, DELTA_UNLIMITED));
-        Values.randomFrom(layers, numLayersOutgoing).forEach(layer -> deltaOuts.put(layer, DELTA_UNLIMITED));
-      }
 
       case CONTINUE -> {
         for (String index : indexes)
@@ -239,30 +243,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
             .filter(choiceFilter)
             .filter(choice -> Objects.equals(index, choiceIndexProvider.get(choice)))
             .findAny()
-            .ifPresent(choice -> {
-              deltaIns.put(choiceIndexProvider.get(choice), choice.getDeltaIn());
-              deltaOuts.put(choiceIndexProvider.get(choice), choice.getDeltaOut());
-            });
-      }
-
-      case NEXTMAIN, NEXTMACRO -> {
-        // randomly override N outgoing (deltaOut unlimited)
-        Values.randomFrom(layers, numLayersOutgoing).forEach(layer -> deltaOuts.put(layer, DELTA_UNLIMITED));
-
-        // select N incoming (deltaIn unlimited) based on whichever was the outgoing (deltaOut unlimited) in the segments of the previous main program
-        var layersPriorOutgoing = fabricator.retrospective().getChoices().stream()
-          .filter(choiceFilter)
-          .filter(ArrangementCraftImpl::isUnlimitedOut)
-          .filter(choice -> indexes.contains(choiceIndexProvider.get(choice)))
-          .map(choiceIndexProvider::get)
-          .collect(Collectors.toList());
-
-        var numFromPrior = Math.max(layersPriorOutgoing.size(), numLayersIncoming);
-        Values.randomFrom(layersPriorOutgoing, numFromPrior).forEach(layer -> deltaIns.put(layer, DELTA_UNLIMITED));
-
-        var numNotPrior = numLayersIncoming - numFromPrior;
-        var layersNotPrior = layers.stream().filter(l -> !layersPriorOutgoing.contains(l)).collect(Collectors.toList());
-        Values.randomFrom(layersNotPrior, numNotPrior).forEach(layer -> deltaIns.put(layer, DELTA_UNLIMITED));
+            .ifPresent(choice -> deltaIns.put(choiceIndexProvider.get(choice), choice.getDeltaIn()));
       }
     }
   }
@@ -464,54 +445,8 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @return volume ratio
    */
   private double computeVolumeRatioForPickedNote(SegmentChoice choice, double segmentPosition) {
-    return switch (InstrumentType.valueOf(choice.getInstrumentType())) {
-      case Drum, Stab -> computeVolumeRatioForPickedNote(choice, segmentPosition, false, false, true);
-      case Bass, Sticky, Stripe -> computeVolumeRatioForPickedNote(choice, segmentPosition, false, false, false);
-      case PercLoop -> computeVolumeRatioForPickedNote(choice, segmentPosition, true, false, false);
-      case Pad -> computeVolumeRatioForPickedNote(choice, segmentPosition, false, true, true);
-    };
-  }
-
-  /**
-   Compute the volume ratio of a picked note
-   <p>
-   [#178240332] Segments have intensity arcs; automate mixer layers in and out of each main program
-
-   @param choice          for which to compute volume ratio
-   @param segmentPosition at which to compute
-   @param topOfSegment    if it should appear at the top of the segment where its delta in appears
-   @param fadeIn          if deltaIn should fade in, else start right on cue
-   @param fadeOut         if deltaOut should fade out, else stop right on cue
-   @return volume ratio
-   */
-  private double computeVolumeRatioForPickedNote(SegmentChoice choice, double segmentPosition, boolean topOfSegment, boolean fadeIn, boolean fadeOut) {
     if (!fabricator.getTemplateConfig().isDeltaArcEnabled()) return 1.0;
-
-    // if deltaIn is before the beginning of this segment and deltaOut is after, include it
-    if (isActiveEntireSegment(choice))
-      return 1;
-
-    // if deltaIn is past the end of this segment, exclude
-    if (isSilentEntireSegment(choice))
-      return 0;
-
-    // If position is between the beginning of the segment at the deltaIn, either fade in or silence
-    if (isIntroSegment(choice) && fabricator.getSegment().getDelta() + segmentPosition < choice.getDeltaIn())
-      if (fadeIn)
-        return segmentPosition / (choice.getDeltaIn() - fabricator.getSegment().getDelta());
-      else if (topOfSegment)
-        return 1;
-      else
-        return 0;
-
-    // If position is between the deltaOut and the end of the segment, either fade out or leave it alone
-    if (isOutroSegment(choice) && fabricator.getSegment().getDelta() + segmentPosition > choice.getDeltaOut())
-      if (fadeOut)
-        return 1.0 - (segmentPosition - (choice.getDeltaOut() - fabricator.getSegment().getDelta())) / (fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal() - choice.getDeltaOut());
-      else
-        return 1.0;
-
-    return 1.0;
+    return inBounds(choice.getDeltaIn(), choice.getDeltaOut(), fabricator.getSegment().getDelta() + segmentPosition) ? 1.0 : 0.0;
   }
 
   /**
@@ -557,8 +492,8 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @return true if this choice is active the entire time
    */
   public boolean isActiveEntireSegment(SegmentChoice choice) {
-    return (choice.getDeltaIn() < fabricator.getSegment().getDelta())
-      && (choice.getDeltaOut() > fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal());
+    return (choice.getDeltaIn() <= fabricator.getSegment().getDelta())
+      && (choice.getDeltaOut() >= fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal());
   }
 
   /**
@@ -761,7 +696,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       .findAny();
 
     if (audio.isEmpty()) {
-      reportMissingInstrumentAudio(ImmutableMap.of(
+      reportMissing(ImmutableMap.of(
         "instrumentId", instrument.getId().toString(),
         "searchForNote", note,
         "availableNotes", CSV.from(instrumentAudios

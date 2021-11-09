@@ -17,21 +17,23 @@ public class DemoIT {
   private static final long bpm = 121;
   private static final Duration beat = Duration.ofMinutes(1).dividedBy(bpm);
   private static final Duration step = beat.dividedBy(4);
-  private static final String filePrefix = "demo_source_audio/808/";
+  private static final String filePrefix = "demo_source_audio/";
   private static final String sourceFileSuffix = ".wav";
-  private static final String kick1 = "kick1";
-  private static final String kick2 = "kick2";
-  private static final String marac = "maracas";
-  private static final String snare = "snare";
-  private static final String lotom = "tom1";
-  private static final String clhat = "cl_hihat";
+  private static final String kick1 = "808/kick1";
+  private static final String kick2 = "808/kick2";
+  private static final String marac = "808/maracas";
+  private static final String snare = "808/snare";
+  private static final String lotom = "808/tom1";
+  private static final String clhat = "808/cl_hihat";
+  private static final String ding = "instrument7-audio9-24bit-88200hz";
   private static final String[] sources = {
     kick1,
     kick2,
     marac,
     snare,
     lotom,
-    clhat
+    clhat,
+    ding
   };
   private static final String[] demoSequence = {
     kick2,
@@ -53,6 +55,7 @@ public class DemoIT {
   };
   private static final MixerFactory mixerFactory = Guice.createInjector(new MixerModule()).getInstance(MixerFactory.class);
   private static final String referenceAudioFilePrefix = "demo_reference_outputs/";
+  private static final String DEFAULT_BUS = "Default";
 
   /**
    assert mix output equals reference audio
@@ -65,6 +68,7 @@ public class DemoIT {
    @param referenceName name
    @throws Exception on failure
    */
+  @SuppressWarnings("SameParameterValue")
   private static void assertMixOutputEqualsReferenceAudio(OutputEncoder encoder, AudioFormat.Encoding encoding, int frameRate, int sampleBits, int channels, double seconds, String referenceName) throws Exception {
     String filename = io.xj.lib.util.Files.getUniqueTempFilename(referenceName);
     assertEquals("Mixed output length in seconds", seconds, mixAndWriteOutput(encoder, encoding, frameRate, sampleBits, channels, filename), 0.01);
@@ -98,7 +102,10 @@ public class DemoIT {
     // set up the music
     int iL = demoSequence.length;
     for (int i = 0; i < iL; i++)
-      demoMixer.put("Default", demoSequence[i], atMicros(i), atMicros(i + 3), 1.0);
+      demoMixer.put(DEFAULT_BUS, demoSequence[i], atMicros(i), atMicros(i + 3), 1.0);
+
+    // To also test high rate inputs being added to the mix
+    demoMixer.put(DEFAULT_BUS, ding, atMicros(0), atMicros(4), 1.0);
 
     // mix it
     return demoMixer.mixToFile(outputEncoder, outputFilePath, 1.0f);

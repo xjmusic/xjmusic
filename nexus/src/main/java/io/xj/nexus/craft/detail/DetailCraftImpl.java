@@ -53,9 +53,8 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
     Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> Objects.equals(ProgramType.Detail.toString(), choice.getProgramType());
     precomputeDeltas(choiceFilter, choiceIndexProvider, DETAIL_INSTRUMENT_TYPES,
       fabricator.getTemplateConfig().getDeltaArcDetailPlateauRatio(),
-      fabricator.getTemplateConfig().getDeltaArcDetailPlateauShiftRatio(),
-      fabricator.getTemplateConfig().getDeltaArcDetailLayersIncoming(),
-      fabricator.getTemplateConfig().getDeltaArcDetailLayersOutgoing());
+      fabricator.getTemplateConfig().getDeltaArcDetailLayersIncoming()
+    );
 
     for (InstrumentType voicingType : fabricator.getDistinctChordVoicingTypes()) {
       Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(voicingType);
@@ -67,7 +66,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
 
       // [#176373977] Should gracefully skip voicing type if unfulfilled by detail program
       if (program.isEmpty()) {
-        reportMissingInstrumentAudio(Program.class, String.format("Detail-type with voicing-type %s", voicingType));
+        reportMissing(Program.class, String.format("Detail-type with voicing-type %s", voicingType));
         continue;
       }
 
@@ -82,7 +81,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
       if (sequence.isPresent()) {
         var voices = fabricator.sourceMaterial().getVoices(program.get());
         if (voices.isEmpty())
-          reportMissingInstrumentAudio(ProgramVoice.class,
+          reportMissing(ProgramVoice.class,
             String.format("in Detail-choice Program[%s]", program.get().getId()));
         craftChoices(sequence.get(), voices, this::chooseFreshDetailInstrument, false);
       }
@@ -129,7 +128,6 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
 
     // (4) return the top choice
     return superEntityScorePicker.getTop();
-
   }
 
   /**

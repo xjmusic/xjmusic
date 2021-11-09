@@ -10,6 +10,7 @@ import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Template;
+import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.SegmentRetrospective;
@@ -77,7 +78,7 @@ public class ArrangementCraftImplTest {
   public void precomputeDeltas() throws NexusException {
     ArrangementCraftImpl.ChoiceIndexProvider choiceIndexProvider = SegmentChoice::getInstrumentType;
     Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> ProgramType.Detail.toString().equals(choice.getProgramType());
-    subject.precomputeDeltas(choiceFilter, choiceIndexProvider, DETAIL_INSTRUMENT_TYPES, 0.38, 0.62, 1, 1);
+    subject.precomputeDeltas(choiceFilter, choiceIndexProvider, DETAIL_INSTRUMENT_TYPES, 0.38, 1);
   }
 
   @Test
@@ -85,6 +86,20 @@ public class ArrangementCraftImplTest {
     assertTrue(subject.isIntroSegment(buildSegmentChoice(segment0, 132, 200, program1)));
     assertFalse(subject.isIntroSegment(buildSegmentChoice(segment0, 110, 200, program1)));
     assertFalse(subject.isIntroSegment(buildSegmentChoice(segment0, 200, 250, program1)));
+  }
+
+  @Test
+  public void inBounds() {
+    assertFalse(ArrangementCraftImpl.inBounds(DELTA_UNLIMITED, 17, 19));
+    assertFalse(ArrangementCraftImpl.inBounds(4, DELTA_UNLIMITED, 2));
+    assertFalse(ArrangementCraftImpl.inBounds(4, 17, 19));
+    assertFalse(ArrangementCraftImpl.inBounds(4, 17, 2));
+    assertTrue(ArrangementCraftImpl.inBounds(DELTA_UNLIMITED, DELTA_UNLIMITED, 799));
+    assertTrue(ArrangementCraftImpl.inBounds(DELTA_UNLIMITED, 17, 2));
+    assertTrue(ArrangementCraftImpl.inBounds(4, DELTA_UNLIMITED, 19));
+    assertTrue(ArrangementCraftImpl.inBounds(4, 17, 12));
+    assertTrue(ArrangementCraftImpl.inBounds(4, 17, 17));
+    assertTrue(ArrangementCraftImpl.inBounds(4, 17, 4));
   }
 
   @Test

@@ -28,7 +28,7 @@ public interface Mixer {
 
    @param velocity 0 to 1
    */
-  void put(String busId, String sourceId, long startAtMicros, long stopAtMicros, double velocity) throws PutException;
+  void put(String busName, String sourceId, long startAtMicros, long stopAtMicros, double velocity) throws PutException;
 
   /**
    Set the level for a given bus name
