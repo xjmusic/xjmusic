@@ -469,6 +469,11 @@ public interface Fabricator {
   Double getSecondsAtPosition(double p) throws NexusException;
 
   /**
+   @return the total number of seconds in the segment
+   */
+  double getTotalSeconds() throws NexusException;
+
+  /**
    The segment being fabricated
 
    @return Segment

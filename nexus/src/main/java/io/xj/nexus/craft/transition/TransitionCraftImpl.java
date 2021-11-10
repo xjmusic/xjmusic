@@ -3,14 +3,12 @@ package io.xj.nexus.craft.transition;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.api.SegmentChoice;
-import io.xj.api.SegmentChoiceArrangement;
-import io.xj.api.SegmentMessage;
-import io.xj.api.SegmentMessageType;
+import io.xj.api.*;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.entity.Entities;
+import io.xj.lib.music.Bar;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.TremendouslyRandom;
@@ -121,35 +119,38 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     arrangement.segmentChoiceId(choice.getId());
     fabricator.add(arrangement);
 
-    var audio = pickAudioForInstrument(instrumentId, NAME_SMALL);
+    var small = pickAudioForInstrument(instrumentId, NAME_SMALL);
+    var medium = pickAudioForInstrument(instrumentId, NAME_MEDIUM);
+    var big = pickAudioForInstrument(instrumentId, NAME_BIG);
 
-/*
-    // Start at zero and keep laying down perc loops until we're out of here
-    double pos = 0;
-    while (pos < fabricator.getSegment().getTotal()) {
-
-      // [#176373977] Should gracefully skip audio in unfulfilled by instrument
-      if (audio.isEmpty()) return;
-
-      // Pick attributes are expressed "rendered" as actual seconds
-      double startSeconds = fabricator.getSecondsAtPosition(pos);
-      double lengthSeconds = fabricator.getSecondsAtPosition(pos + audio.get().getTotalBeats()) - startSeconds;
-
-      // of pick
-      var pick = new SegmentChoiceArrangementPick();
-      pick.setId(UUID.randomUUID());
-      pick.setSegmentId(fabricator.getSegment().getId());
-      pick.setSegmentChoiceArrangementId(arrangement.getId());
-      pick.setStart(startSeconds);
-      pick.setLength(lengthSeconds);
-      pick.setAmplitude(1.0);
-      pick.setName("TRANSITION");
-      pick.setInstrumentAudioId(audio.get().getId());
-      fabricator.add(pick);
-
-      pos += audio.get().getTotalBeats();
+    switch (fabricator.getType()) {
+      case INITIAL, NEXTMAIN, NEXTMACRO -> {
+        if (big.isPresent()) pickTransition(arrangement, big.get(), 0, fabricator.getTotalSeconds(), NAME_BIG);
+      }
+      case CONTINUE -> {
+        if (medium.isPresent()) pickTransition(arrangement, medium.get(), 0, fabricator.getTotalSeconds(), NAME_MEDIUM);
+      }
     }
-*/
+
+    var deltaUnits = Bar.of(fabricator.getMainProgramConfig().getBarBeats()).computeSubsectionBeats(fabricator.getSegment().getTotal());
+    var pos = deltaUnits;
+    while (pos < fabricator.getSegment().getTotal()) {
+      if (small.isPresent()) pickTransition(arrangement, small.get(), pos, fabricator.getTotalSeconds(), NAME_SMALL);
+      pos += deltaUnits;
+    }
+  }
+
+  private void pickTransition(SegmentChoiceArrangement arrangement, InstrumentAudio audio, double startSeconds, double lengthSeconds, String name) throws NexusException {
+    var pick = new SegmentChoiceArrangementPick();
+    pick.setId(UUID.randomUUID());
+    pick.setSegmentId(fabricator.getSegment().getId());
+    pick.setSegmentChoiceArrangementId(arrangement.getId());
+    pick.setStart(startSeconds);
+    pick.setLength(lengthSeconds);
+    pick.setAmplitude(1.0);
+    pick.setName(name);
+    pick.setInstrumentAudioId(audio.getId());
+    fabricator.add(pick);
   }
 
   /**

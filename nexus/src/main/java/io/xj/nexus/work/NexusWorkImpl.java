@@ -413,6 +413,8 @@ public class NexusWorkImpl implements NexusWork {
     craftFactory.rhythm(fabricator).doWork();
     craftFactory.detail(fabricator).doWork();
     craftFactory.percLoop(fabricator).doWork();
+    craftFactory.transition(fabricator).doWork();
+    craftFactory.background(fabricator).doWork();
     return updated;
   }
 

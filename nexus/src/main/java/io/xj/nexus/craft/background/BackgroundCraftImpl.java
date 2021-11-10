@@ -65,7 +65,7 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
     msg.setId(UUID.randomUUID());
     msg.setSegmentId(fabricator.getSegment().getId());
     msg.setType(SegmentMessageType.INFO);
-    msg.setBody(String.format("Targeting %d layers of background background", targetLayers));
+    msg.setBody(String.format("Targeting %d layers of background", targetLayers));
     fabricator.add(msg);
 
     if (instrumentIds.size() > targetLayers)
@@ -109,36 +109,19 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
     fabricator.add(arrangement);
 
     // Start at zero and keep laying down perc loops until we're out of here
-    double pos = 0;
     var audio = pickAudioForInstrument(instrumentId);
+    if (audio.isEmpty()) return;
 
-    // FUTURE: implement background craft
-
-/*
-    while (pos < fabricator.getSegment().getTotal()) {
-
-      // [#176373977] Should gracefully skip audio in unfulfilled by instrument
-      if (audio.isEmpty()) return;
-
-      // Pick attributes are expressed "rendered" as actual seconds
-      double startSeconds = fabricator.getSecondsAtPosition(pos);
-      double lengthSeconds = fabricator.getSecondsAtPosition(pos + audio.get().getTotalBeats()) - startSeconds;
-
-      // of pick
-      var pick = new SegmentChoiceArrangementPick();
-      pick.setId(UUID.randomUUID());
-      pick.setSegmentId(fabricator.getSegment().getId());
-      pick.setSegmentChoiceArrangementId(arrangement.getId());
-      pick.setStart(startSeconds);
-      pick.setLength(lengthSeconds);
-      pick.setAmplitude(1.0);
-      pick.setName("BACKGROUND");
-      pick.setInstrumentAudioId(audio.get().getId());
-      fabricator.add(pick);
-
-      pos += audio.get().getTotalBeats();
-    }
-*/
+    var pick = new SegmentChoiceArrangementPick();
+    pick.setId(UUID.randomUUID());
+    pick.setSegmentId(fabricator.getSegment().getId());
+    pick.setSegmentChoiceArrangementId(arrangement.getId());
+    pick.setStart(0.0);
+    pick.setLength(fabricator.getTotalSeconds());
+    pick.setAmplitude(1.0);
+    pick.setName("BACKGROUND");
+    pick.setInstrumentAudioId(audio.get().getId());
+    fabricator.add(pick);
   }
 
   /**

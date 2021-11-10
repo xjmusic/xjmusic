@@ -3,6 +3,8 @@ package io.xj.nexus.craft;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
+import io.xj.nexus.craft.background.BackgroundCraft;
+import io.xj.nexus.craft.background.BackgroundCraftImpl;
 import io.xj.nexus.craft.detail.DetailCraft;
 import io.xj.nexus.craft.detail.DetailCraftImpl;
 import io.xj.nexus.craft.macro_main.MacroMainCraft;
@@ -11,6 +13,8 @@ import io.xj.nexus.craft.perc_loop.PercLoopCraft;
 import io.xj.nexus.craft.perc_loop.PercLoopCraftImpl;
 import io.xj.nexus.craft.rhythm.RhythmCraft;
 import io.xj.nexus.craft.rhythm.RhythmCraftImpl;
+import io.xj.nexus.craft.transition.TransitionCraft;
+import io.xj.nexus.craft.transition.TransitionCraftImpl;
 
 public class CraftModule extends AbstractModule {
 
@@ -19,6 +23,8 @@ public class CraftModule extends AbstractModule {
       .implement(MacroMainCraft.class, MacroMainCraftImpl.class)
       .implement(RhythmCraft.class, RhythmCraftImpl.class)
       .implement(DetailCraft.class, DetailCraftImpl.class)
+      .implement(TransitionCraft.class, TransitionCraftImpl.class)
+      .implement(BackgroundCraft.class, BackgroundCraftImpl.class)
       .implement(PercLoopCraft.class, PercLoopCraftImpl.class)
       .build(CraftFactory.class));
   }

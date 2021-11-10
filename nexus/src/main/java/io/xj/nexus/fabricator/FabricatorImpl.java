@@ -725,6 +725,11 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
+  public double getTotalSeconds() throws NexusException {
+    return getSecondsAtPosition(getSegment().getTotal());
+  }
+
+  @Override
   public Segment getSegment() {
     return workbench.getSegment();
   }

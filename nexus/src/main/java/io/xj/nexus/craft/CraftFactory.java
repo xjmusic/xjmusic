@@ -3,10 +3,12 @@ package io.xj.nexus.craft;
 
 import com.google.inject.assistedinject.Assisted;
 import io.xj.nexus.NexusException;
+import io.xj.nexus.craft.background.BackgroundCraft;
 import io.xj.nexus.craft.detail.DetailCraft;
 import io.xj.nexus.craft.macro_main.MacroMainCraft;
 import io.xj.nexus.craft.perc_loop.PercLoopCraft;
 import io.xj.nexus.craft.rhythm.RhythmCraft;
+import io.xj.nexus.craft.transition.TransitionCraft;
 import io.xj.nexus.fabricator.Fabricator;
 
 /**
@@ -68,5 +70,26 @@ public interface CraftFactory {
     @Assisted("basis") Fabricator fabricator
   ) throws NexusException;
 
+  /**
+   Create Transition Craft instance for a particular segment
+
+   @param fabricator of craft
+   @return TransitionCraft
+   @throws NexusException on failure
+   */
+  TransitionCraft transition(
+    @Assisted("basis") Fabricator fabricator
+  ) throws NexusException;
+
+  /**
+   Create Background Craft instance for a particular segment
+
+   @param fabricator of craft
+   @return BackgroundCraft
+   @throws NexusException on failure
+   */
+  BackgroundCraft background(
+    @Assisted("basis") Fabricator fabricator
+  ) throws NexusException;
 
 }
