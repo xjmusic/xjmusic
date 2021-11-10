@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.nexus.craft.arrangement;
+package io.xj.nexus.craft;
 
 import com.google.common.collect.Sets;
 import io.xj.lib.music.AdjSymbol;
@@ -48,7 +48,7 @@ public abstract class YamlTest {
 
   protected Map<?, ?> loadYaml(String filename) {
     Yaml yaml = new Yaml();
-    Map<?, ?> data = (Map<?, ?>) yaml.load(getClass()
+    Map<?, ?> data = yaml.load(getClass()
       .getResourceAsStream(String.format("%s%s", TEST_PATH_PREFIX, filename)));
     assertNotNull("Read Test YAML file", data);
     return data;

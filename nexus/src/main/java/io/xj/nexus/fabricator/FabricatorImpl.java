@@ -217,7 +217,7 @@ class FabricatorImpl implements Fabricator {
 
   @Override
   public Collection<SegmentChoiceArrangement> getArrangements() {
-    return workbench.getSegmentArrangements();
+    return workbench.getSegmentChoiceArrangements();
   }
 
   @Override
@@ -249,7 +249,7 @@ class FabricatorImpl implements Fabricator {
   @Override
   public String getChainFullJson() throws NexusException {
     try {
-      return computeChainMetadataJson(segmentManager.readMany(ImmutableList.of(chain.getId())));
+      return computeChainJson(segmentManager.readMany(ImmutableList.of(chain.getId())));
 
     } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException e) {
       throw new NexusException(e);
@@ -267,7 +267,7 @@ class FabricatorImpl implements Fabricator {
       var now = Instant.now();
       var beforeThreshold = now.plusSeconds(workBufferAheadSeconds);
       var afterThreshold = now.minusSeconds(workBufferBeforeSeconds);
-      return computeChainMetadataJson(segmentManager.readMany(ImmutableList.of(chain.getId())).stream()
+      return computeChainJson(segmentManager.readMany(ImmutableList.of(chain.getId())).stream()
         .filter(segment ->
           Instant.parse(segment.getBeginAt()).isBefore(beforeThreshold)
             && Instant.parse(segment.getEndAt()).isAfter(afterThreshold))
@@ -739,12 +739,13 @@ class FabricatorImpl implements Fabricator {
     try {
       return jsonapiPayloadFactory.serialize(jsonapiPayloadFactory.newJsonapiPayload()
         .setDataOne(jsonapiPayloadFactory.toPayloadObject(workbench.getSegment()))
-        .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentArrangements()))
+        .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentChoiceArrangementPicks()))
+        .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentChoiceArrangements()))
         .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentChoices()))
         .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentChords()))
         .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentMemes()))
-        .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentMetadatas()))
-        .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentMessages())));
+        .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentMessages()))
+        .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentMetadatas())));
 
     } catch (JsonapiException e) {
       throw new NexusException(e);
@@ -1017,7 +1018,7 @@ class FabricatorImpl implements Fabricator {
    @return metadata JSON
    @throws NexusException on failure
    */
-  private String computeChainMetadataJson(Collection<Segment> segments) throws NexusException {
+  private String computeChainJson(Collection<Segment> segments) throws NexusException {
     try {
       JsonapiPayload jsonapiPayload = new JsonapiPayload();
       jsonapiPayload.setDataOne(jsonapiPayloadFactory.toPayloadObject(chain));

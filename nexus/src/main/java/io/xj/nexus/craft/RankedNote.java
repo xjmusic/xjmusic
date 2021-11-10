@@ -1,6 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-package io.xj.nexus.craft.arrangement;
+package io.xj.nexus.craft;
 
 import io.xj.lib.music.Note;
 

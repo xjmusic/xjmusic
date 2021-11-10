@@ -16,7 +16,7 @@ import io.xj.lib.entity.Entities;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.craft.arrangement.ArrangementCraftImpl;
+import io.xj.nexus.craft.ArrangementCraftImpl;
 import io.xj.nexus.fabricator.EntityScorePicker;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.MemeIsometry;
@@ -120,7 +120,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
     for (Program program : sourcePrograms) {
       memes = Entities.namesOf(fabricator.sourceMaterial().getMemes(program));
       if (iso.isAllowed(memes))
-        superEntityScorePicker.add(program, scoreDetail(iso, program, memes));
+        superEntityScorePicker.add(program, score(iso, program, memes));
     }
 
     // report
@@ -149,7 +149,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
     for (Instrument instrument : sourceInstruments) {
       memes = Entities.namesOf(fabricator.sourceMaterial().getMemes(instrument));
       if (iso.isAllowed(memes))
-        superEntityScorePicker.add(instrument, scoreDetail(iso, instrument, memes));
+        superEntityScorePicker.add(instrument, score(iso, instrument, memes));
     }
 
     switch (fabricator.getType()) {
@@ -184,7 +184,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    @param memes      to score
    @return score, including +/- entropy
    */
-  protected double scoreDetail(MemeIsometry iso, Instrument instrument, Collection<String> memes) {
+  protected double score(MemeIsometry iso, Instrument instrument, Collection<String> memes) {
     double score = Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_INSTRUMENT);
 
     score += SCORE_MATCH_MEMES * iso.score(memes);
@@ -211,7 +211,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    @return score, including +/- entropy; empty if this program has no memes, and isn't directly bound
    */
   @SuppressWarnings("DuplicatedCode")
-  private Double scoreDetail(MemeIsometry iso, Program program, Collection<String> memes) {
+  private Double score(MemeIsometry iso, Program program, Collection<String> memes) {
     double score = Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_DETAIL);
 
     score += SCORE_MATCH_MEMES * iso.score(memes);
@@ -225,5 +225,4 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
     // score is above zero, else empty
     return score;
   }
-
 }

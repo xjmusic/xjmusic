@@ -33,7 +33,7 @@ public interface SegmentWorkbench {
   /**
    @return collection of all ChoiceArrangement in Segment
    */
-  Collection<SegmentChoiceArrangement> getSegmentArrangements();
+  Collection<SegmentChoiceArrangement> getSegmentChoiceArrangements();
 
   /**
    @return collection of all Choice in Segment

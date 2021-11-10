@@ -4,7 +4,6 @@ package io.xj.nexus.craft.rhythm;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.api.SegmentChoice;
-import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
@@ -169,7 +168,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
     for (Instrument instrument : sourceInstruments) {
       memes = Entities.namesOf(fabricator.sourceMaterial().getMemes(instrument));
       if (iso.isAllowed(memes))
-        superEntityScorePicker.add(instrument, scorePercussive(iso, instrument, memes));
+        superEntityScorePicker.add(instrument, score(iso, instrument, memes));
     }
 
     switch (fabricator.getType()) {
@@ -202,29 +201,6 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
 
     // (4) return the top choice
     return superEntityScorePicker.getTop();
-  }
-
-  /**
-   Score a candidate for drum instrument, given current fabricator
-
-   @param iso        from which to score drum instruments
-   @param instrument to score
-   @param memes      to score
-   @return score, including +/- entropy
-   */
-  protected double scorePercussive(MemeIsometry iso, Instrument instrument, Collection<String> memes) {
-    double score = Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_INSTRUMENT);
-
-    // Score includes matching memes, previous segment to macro instrument first pattern
-    score += SCORE_MATCH_MEMES * iso.score(memes);
-
-    // [#174435421] Chain bindings specify Program & Instrument within Library
-    if (fabricator.isDirectlyBound(instrument))
-      score += SCORE_DIRECTLY_BOUND;
-    else if (Objects.equals(instrument.getState(), InstrumentState.Draft))
-      score += SCORE_UNPUBLISHED;
-
-    return score;
   }
 
 }

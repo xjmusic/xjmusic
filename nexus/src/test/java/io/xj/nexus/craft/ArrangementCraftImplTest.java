@@ -1,6 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-package io.xj.nexus.craft.arrangement;
+package io.xj.nexus.craft;
 
 import io.xj.api.*;
 import io.xj.hub.TemplateConfig;
@@ -10,10 +10,8 @@ import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Template;
-import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.fabricator.Fabricator;
-import io.xj.nexus.fabricator.SegmentRetrospective;
 import io.xj.nexus.hub_client.client.HubContent;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,8 +36,6 @@ public class ArrangementCraftImplTest {
   public Fabricator fabricator;
   @Mock
   public HubContent hubContent;
-  @Mock
-  public SegmentRetrospective retrospective;
   private ArrangementCraftImpl subject;
   private Segment segment0;
   private Program program1;

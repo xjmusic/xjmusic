@@ -24,6 +24,8 @@ import java.util.Map;
 public class TemplateConfig {
   public static final String DEFAULT =
     """
+      backgroundLayerMax = 3
+      backgroundLayerMin = 0
       bufferAheadSeconds = 180
       bufferBeforeSeconds = 5
       deltaArcDetailLayersIncoming = 1
@@ -59,8 +61,10 @@ public class TemplateConfig {
       outputEncodingQuality = 0.618
       outputFrameRate = 48000
       outputSampleBits = 16
-      percLoopLayerMax = 5
-      percLoopLayerMin = 1
+      percLoopLayerMax = 8
+      percLoopLayerMin = 0
+      transitionLayerMax = 3
+      transitionLayerMin = 0
       """;
 
   private final AudioFormat.Encoding outputEncoding;
@@ -87,6 +91,8 @@ public class TemplateConfig {
   private final double mixerNormalizationBoostThreshold;
   private final double mixerNormalizationCeiling;
   private final double outputEncodingQuality;
+  private final int backgroundLayerMax;
+  private final int backgroundLayerMin;
   private final int bufferAheadSeconds;
   private final int bufferBeforeSeconds;
   private final int deltaArcDetailLayersIncoming;
@@ -100,6 +106,8 @@ public class TemplateConfig {
   private final int outputSampleBits;
   private final int percLoopLayerMax;
   private final int percLoopLayerMin;
+  private final int transitionLayerMax;
+  private final int transitionLayerMin;
 
   /**
    Get a template config from only the default config
@@ -133,6 +141,8 @@ public class TemplateConfig {
       Config config = Strings.isNullOrEmpty(configText) ?
         ConfigFactory.parseString(DEFAULT) :
         ConfigFactory.parseString(configText).withFallback(ConfigFactory.parseString(DEFAULT));
+      backgroundLayerMax = config.getInt("backgroundLayerMax");
+      backgroundLayerMin = config.getInt("backgroundLayerMin");
       bufferAheadSeconds = config.getInt("bufferAheadSeconds");
       bufferBeforeSeconds = config.getInt("bufferBeforeSeconds");
       deltaArcDetailLayersIncoming = config.getInt("deltaArcDetailLayersIncoming");
@@ -170,6 +180,8 @@ public class TemplateConfig {
       outputSampleBits = config.getInt("outputSampleBits");
       percLoopLayerMax = config.getInt("percLoopLayerMax");
       percLoopLayerMin = config.getInt("percLoopLayerMin");
+      transitionLayerMax = config.getInt("transitionLayerMax");
+      transitionLayerMin = config.getInt("transitionLayerMin");
     } catch (ConfigException e) {
       throw new ValueException(e.getMessage());
     }
@@ -179,6 +191,8 @@ public class TemplateConfig {
   @Override
   public String toString() {
     Map<String, String> config = Maps.newHashMap();
+    config.put("backgroundLayerMax", String.valueOf(backgroundLayerMax));
+    config.put("backgroundLayerMin", String.valueOf(backgroundLayerMin));
     config.put("bufferAheadSeconds", String.valueOf(bufferAheadSeconds));
     config.put("bufferBeforeSeconds", String.valueOf(bufferBeforeSeconds));
     config.put("deltaArcDetailLayersIncoming", String.valueOf(deltaArcDetailLayersIncoming));
@@ -216,10 +230,26 @@ public class TemplateConfig {
     config.put("outputSampleBits", String.valueOf(outputSampleBits));
     config.put("percLoopLayerMax", String.valueOf(percLoopLayerMax));
     config.put("percLoopLayerMin", String.valueOf(percLoopLayerMin));
+    config.put("transitionLayerMax", String.valueOf(transitionLayerMax));
+    config.put("transitionLayerMin", String.valueOf(transitionLayerMin));
     return Text.formatMultiline(config.entrySet().stream()
       .sorted(Map.Entry.comparingByKey())
       .map(pair -> String.format("%s = %s", pair.getKey(), pair.getValue()))
       .toArray());
+  }
+
+  /**
+   @return background layer min
+   */
+  public int getBackgroundLayerMin() {
+    return backgroundLayerMin;
+  }
+
+  /**
+   @return background layer max
+   */
+  public int getBackgroundLayerMax() {
+    return backgroundLayerMax;
   }
 
   /**
@@ -471,14 +501,28 @@ public class TemplateConfig {
   /**
    @return the maximum # of layers of percussive loops
    */
-  public double getPercLoopLayerMax() {
+  public int getPercLoopLayerMax() {
     return percLoopLayerMax;
   }
 
   /**
    @return the minimum # of layers of percussive loops
    */
-  public double getPercLoopLayerMin() {
+  public int getPercLoopLayerMin() {
     return percLoopLayerMin;
+  }
+
+  /**
+   @return transition layer min
+   */
+  public int getTransitionLayerMin() {
+    return transitionLayerMin;
+  }
+
+  /**
+   @return transition layer max
+   */
+  public int getTransitionLayerMax() {
+    return transitionLayerMax;
   }
 }

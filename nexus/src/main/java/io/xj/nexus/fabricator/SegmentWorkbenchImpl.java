@@ -60,7 +60,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   }
 
   @Override
-  public Collection<SegmentChoiceArrangement> getSegmentArrangements() {
+  public Collection<SegmentChoiceArrangement> getSegmentChoiceArrangements() {
     return benchStore.getAll(SegmentChoiceArrangement.class);
   }
 

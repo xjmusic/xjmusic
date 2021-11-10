@@ -1,17 +1,21 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.nexus.craft.perc_loop;
+package io.xj.nexus.craft.transition;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.api.*;
+import io.xj.api.SegmentChoice;
+import io.xj.api.SegmentChoiceArrangement;
+import io.xj.api.SegmentMessage;
+import io.xj.api.SegmentMessageType;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.util.Chance;
+import io.xj.lib.util.Text;
 import io.xj.lib.util.TremendouslyRandom;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.craft.rhythm.RhythmCraftImpl;
+import io.xj.nexus.craft.detail.DetailCraftImpl;
 import io.xj.nexus.fabricator.EntityScorePicker;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.MemeIsometry;
@@ -21,17 +25,20 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
+
 /**
- PercLoop craft for the current segment
- [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
+ Transition craft for the current segment
  <p>
- [#176625174] PercLoopCraftImpl extends DetailCraftImpl to leverage all detail craft enhancements
+ Transition-type Instrument #180059746
  */
-public class PercLoopCraftImpl extends RhythmCraftImpl implements PercLoopCraft {
-  private final Logger log = LoggerFactory.getLogger(PercLoopCraftImpl.class);
+public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCraft {
+  private static final String NAME_BIG = "BIG";
+  private static final String NAME_MEDIUM = "MEDIUM";
+  private static final String NAME_SMALL = "SMALL";
+  private final Logger log = LoggerFactory.getLogger(TransitionCraftImpl.class);
 
   @Inject
-  public PercLoopCraftImpl(
+  public TransitionCraftImpl(
     @Assisted("basis") Fabricator fabricator
   ) {
     super(fabricator);
@@ -53,35 +60,40 @@ public class PercLoopCraftImpl extends RhythmCraftImpl implements PercLoopCraft 
 
   @Override
   public void doWork() throws NexusException {
-    List<SegmentChoice> previousChoices = fabricator.retrospective().getPreviousChoicesOfType(InstrumentType.PercLoop);
-    List<UUID> instrumentIds = previousChoices.stream().map(SegmentChoice::getInstrumentId).collect(Collectors.toList());
+    var previousChoices = fabricator.retrospective().getPreviousChoicesOfType(InstrumentType.Transition);
+
+    var instrumentIds = previousChoices.stream()
+      .map(SegmentChoice::getInstrumentId)
+      .collect(Collectors.toList());
 
     int targetLayers = (int) Math.floor(
-      fabricator.getTemplateConfig().getPercLoopLayerMin() +
+      fabricator.getTemplateConfig().getTransitionLayerMin() +
         fabricator.getSegment().getDensity() *
-          (fabricator.getTemplateConfig().getPercLoopLayerMax() -
-            fabricator.getTemplateConfig().getPercLoopLayerMin()));
+          (fabricator.getTemplateConfig().getTransitionLayerMax() -
+            fabricator.getTemplateConfig().getTransitionLayerMin()));
 
     var msg = new SegmentMessage();
     msg.setId(UUID.randomUUID());
     msg.setSegmentId(fabricator.getSegment().getId());
     msg.setType(SegmentMessageType.INFO);
-    msg.setBody(String.format("Targeting %d layers of percussion loop", targetLayers));
+    msg.setBody(String.format("Targeting %d layers of transition", targetLayers));
     fabricator.add(msg);
 
     if (instrumentIds.size() > targetLayers)
       instrumentIds = withIdsRemoved(instrumentIds, instrumentIds.size() - targetLayers);
 
-    for (UUID percLoopId : instrumentIds)
-      craftPercLoop(percLoopId);
+    for (UUID id : instrumentIds) craftTransition(id);
 
     Optional<Instrument> chosen;
     if (instrumentIds.size() < targetLayers)
       for (int i = 0; i < targetLayers - instrumentIds.size(); i++) {
-        chosen = chooseFreshPercLoopInstrument(instrumentIds);
+        chosen = chooseFreshTransitionInstrument(instrumentIds);
         if (chosen.isPresent()) {
           instrumentIds.add(chosen.get().getId());
-          craftPercLoop(chosen.get().getId());
+
+          craftTransition(chosen.get().getId());
+
+
         }
       }
 
@@ -94,13 +106,13 @@ public class PercLoopCraftImpl extends RhythmCraftImpl implements PercLoopCraft 
 
    @param instrumentId of percussion loop instrument to craft
    */
-  private void craftPercLoop(UUID instrumentId) throws NexusException {
+  private void craftTransition(UUID instrumentId) throws NexusException {
     fabricator.addMemes(fabricator.sourceMaterial().getInstrument(instrumentId)
       .orElseThrow(() -> new NexusException("Failed to get instrument!")));
     var choice = new SegmentChoice();
     choice.setId(UUID.randomUUID());
     choice.setSegmentId(fabricator.getSegment().getId());
-    choice.setInstrumentType(InstrumentType.PercLoop.toString());
+    choice.setInstrumentType(InstrumentType.Transition.toString());
     choice.setInstrumentId(instrumentId);
     fabricator.add(choice);
     var arrangement = new SegmentChoiceArrangement();
@@ -109,9 +121,11 @@ public class PercLoopCraftImpl extends RhythmCraftImpl implements PercLoopCraft 
     arrangement.segmentChoiceId(choice.getId());
     fabricator.add(arrangement);
 
+    var audio = pickAudioForInstrument(instrumentId, NAME_SMALL);
+
+/*
     // Start at zero and keep laying down perc loops until we're out of here
     double pos = 0;
-    var audio = pickAudioForInstrument(instrumentId);
     while (pos < fabricator.getSegment().getTotal()) {
 
       // [#176373977] Should gracefully skip audio in unfulfilled by instrument
@@ -129,12 +143,13 @@ public class PercLoopCraftImpl extends RhythmCraftImpl implements PercLoopCraft 
       pick.setStart(startSeconds);
       pick.setLength(lengthSeconds);
       pick.setAmplitude(1.0);
-      pick.setName("PERCLOOP");
+      pick.setName("TRANSITION");
       pick.setInstrumentAudioId(audio.get().getId());
       fabricator.add(pick);
 
       pos += audio.get().getTotalBeats();
     }
+*/
   }
 
   /**
@@ -143,12 +158,12 @@ public class PercLoopCraftImpl extends RhythmCraftImpl implements PercLoopCraft 
 
    @return drum-type Instrument
    */
-  private Optional<Instrument> chooseFreshPercLoopInstrument(List<UUID> avoidInstrumentIds) {
+  private Optional<Instrument> chooseFreshTransitionInstrument(List<UUID> avoidInstrumentIds) {
     EntityScorePicker<Instrument> superEntityScorePicker = new EntityScorePicker<>();
 
     // (2) retrieve instruments bound to chain
     Collection<Instrument> sourceInstruments =
-      fabricator.sourceMaterial().getInstrumentsOfType(InstrumentType.PercLoop)
+      fabricator.sourceMaterial().getInstrumentsOfType(InstrumentType.Transition)
         .stream()
         .filter(i -> !avoidInstrumentIds.contains(i.getId()))
         .toList();
@@ -178,10 +193,13 @@ public class PercLoopCraftImpl extends RhythmCraftImpl implements PercLoopCraft 
 
    @return drum-type Instrument
    */
-  private Optional<InstrumentAudio> pickAudioForInstrument(UUID instrumentId) {
-    var pick = fabricator.retrospective().getPreviousPicksForInstrument(instrumentId).stream().findAny();
-    if (pick.isPresent())
-      return fabricator.sourceMaterial().getInstrumentAudio(pick.get().getInstrumentAudioId());
+  private Optional<InstrumentAudio> pickAudioForInstrument(UUID instrumentId, String name) {
+    var previous = fabricator.retrospective().getPreviousPicksForInstrument(instrumentId).stream()
+      .filter(pick -> Objects.equals(name, Text.toMeme(pick.getName())))
+      .findAny();
+
+    if (previous.isPresent())
+      return fabricator.sourceMaterial().getInstrumentAudio(previous.get().getInstrumentAudioId());
 
     EntityScorePicker<InstrumentAudio> superEntityScorePicker = new EntityScorePicker<>();
 
