@@ -127,7 +127,9 @@ CREATE TYPE xj.instrument_type AS ENUM (
     'Pad',
     'Sticky',
     'Stripe',
-    'Stab'
+    'Stab',
+    'Transition',
+    'Background'
 );
 
 
@@ -1354,6 +1356,7 @@ COPY xj.flyway_schema_history (installed_rank, version, description, type, scrip
 58	59	audio transient beats	SQL	V59__audio_transient_beats.sql	-1097739720	postgres	2021-10-27 04:14:32.968872	67	t
 59	60	feedback	SQL	V60__feedback.sql	-2095068615	postgres	2021-11-05 07:52:51.149202	307	t
 60	61	soft deletion	SQL	V61__soft_deletion.sql	970780052	postgres	2021-11-05 07:52:51.816645	8	t
+61	62	instrument transition ambient	SQL	V62__instrument_transition_ambient.sql	-1647046792	postgres	2021-11-10 07:07:15.169513	13	t
 \.
 
 
