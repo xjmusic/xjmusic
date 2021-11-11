@@ -132,7 +132,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     var deltaUnits = Bar.of(fabricator.getMainProgramConfig().getBarBeats()).computeSubsectionBeats(fabricator.getSegment().getTotal());
     var pos = deltaUnits;
     while (pos < fabricator.getSegment().getTotal()) {
-      if (small.isPresent()) pickTransition(arrangement, small.get(), pos, fabricator.getTotalSeconds(), NAME_SMALL);
+      if (small.isPresent()) pickTransition(arrangement, small.get(), fabricator.getSecondsAtPosition(pos), fabricator.getTotalSeconds(), NAME_SMALL);
       pos += deltaUnits;
     }
   }
