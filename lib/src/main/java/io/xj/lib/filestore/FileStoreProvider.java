@@ -21,9 +21,9 @@ public interface FileStoreProvider {
    Generate a new key of an object in AWS file storage (S3)
    [#
 
-   @return key
-   @param prefix of the key
+   @param prefix    of the key
    @param extension of the key
+   @return key
    */
   String generateKey(String prefix, String extension);
 
@@ -75,8 +75,19 @@ public interface FileStoreProvider {
    @param bucketName to stream of
    @param key        of object to stream
    @return stream of object data
+   @throws FileStoreException on failure
    */
   InputStream streamS3Object(String bucketName, String key) throws FileStoreException;
+
+  /**
+   Test if S3 object exists
+
+   @param bucketName in which to test
+   @param key        to test for existence
+   @return true if object exists
+   @throws FileStoreException on failure
+   */
+  Boolean doesS3ObjectExist(String bucketName, String key) throws FileStoreException;
 
   /**
    Put an object to S3 (from a temp file)

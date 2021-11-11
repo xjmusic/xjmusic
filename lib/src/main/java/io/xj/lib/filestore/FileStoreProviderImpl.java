@@ -118,6 +118,22 @@ class FileStoreProviderImpl implements FileStoreProvider {
   }
 
   @Override
+  public Boolean doesS3ObjectExist(String bucketName, String key) throws FileStoreException {
+    AmazonS3 client = s3Client();
+    int count = 0;
+    while (true) {
+      try {
+        return client.doesObjectExist(bucketName, key);
+
+      } catch (Exception e) {
+        ++count;
+        if (count == awsS3RetryLimit)
+          throw new FileStoreException("Failed to stream S3 object", e);
+      }
+    }
+  }
+
+  @Override
   public void putS3ObjectFromTempFile(String filePath, String bucket, String key) throws FileStoreException {
     try {
       long startedAt = System.nanoTime();

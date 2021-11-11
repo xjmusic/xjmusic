@@ -249,7 +249,6 @@ class MixerImpl implements Mixer {
    */
   private void applySource(Source source) throws MixerException {
     int i; // iterating on frames
-    int sf = 0; // current source frame
     int tf, otf = -1; // target output buffer frame, and cache the old value in order to skip frames, init at -1 to force initial frame
     int ptf; // put target frame
     int b, p; // iterators: byte, put
@@ -294,6 +293,7 @@ class MixerImpl implements Mixer {
 
       AudioSampleFormat sampleFormat = AudioSampleFormat.typeOfInput(source.getAudioFormat());
 
+      int sf = 0; // current source frame
       int numBytesReadToBuffer;
       byte[] sampleBuffer = new byte[source.getSampleSize()];
       byte[] readBuffer = new byte[READ_BUFFER_BYTE_SIZE];
@@ -305,7 +305,7 @@ class MixerImpl implements Mixer {
             System.arraycopy(readBuffer, b + (isStereo ? tc : 0) * sampleSize, sampleBuffer, 0, sampleSize);
             v = AudioSampleFormat.fromBytes(sampleBuffer, sampleFormat);
             for (p = 0; p < srcPut.length; p++) {
-              ev = Envelope.at(Math.min(sf, srcPutSpan[p] - sf), v * srcPut[p].getVelocity());
+              ev = Envelope.at((int) Math.min(sf, srcPutSpan[p] - sf * fr), v * srcPut[p].getVelocity());
               for (i = otf + 1; i <= tf; i++) {
                 ptf = srcPutFrom[p] + i;
                 if (ptf < 0 || ptf >= busBuf[0].length) continue;

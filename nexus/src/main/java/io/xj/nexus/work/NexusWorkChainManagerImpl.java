@@ -260,6 +260,10 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
     try {
       LOG.debug("will check for last shipped data");
       shipKey = Chains.getShipKey(Chains.getFullKey(template.getShipKey()), EXTENSION_JSON);
+      if (!fileStoreProvider.doesS3ObjectExist(shipBucket, shipKey)) {
+        LOG.info("Template[{}] has not been shipped; will not rehydrate.", template.getShipKey());
+        return false;
+      }
       chainStream = fileStoreProvider.streamS3Object(shipBucket, shipKey);
       chainPayload = jsonProvider.getMapper().readValue(chainStream, JsonapiPayload.class);
       chain = jsonapiPayloadFactory.toOne(chainPayload);

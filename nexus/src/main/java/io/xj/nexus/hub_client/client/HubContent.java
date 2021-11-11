@@ -265,9 +265,7 @@ public class HubContent {
    */
   public Collection<Instrument> getInstrumentsOfType(InstrumentType type) {
     return getAllInstruments().stream()
-      .filter(instrument -> {
-        return instrument.getType().equals(type);
-      })
+      .filter(instrument -> type.equals(instrument.getType()))
       .collect(Collectors.toList());
   }
 
@@ -302,7 +300,7 @@ public class HubContent {
    */
   public Collection<ProgramMeme> getProgramMemes(UUID programId) {
     return getAllProgramMemes().stream()
-      .filter(m -> m.getProgramId().equals(programId))
+      .filter(m -> programId.equals(m.getProgramId()))
       .collect(Collectors.toList());
   }
 
@@ -314,7 +312,7 @@ public class HubContent {
    */
   public Collection<ProgramSequencePatternEvent> getEvents(UUID programId) {
     return getAllProgramSequencePatternEvents().stream()
-      .filter(m -> m.getProgramId().equals(programId))
+      .filter(m -> programId.equals(m.getProgramId()))
       .collect(Collectors.toList());
   }
 
@@ -326,7 +324,7 @@ public class HubContent {
    */
   public Collection<ProgramSequencePatternEvent> getEvents(ProgramSequencePattern programPattern) {
     return getAllProgramSequencePatternEvents().stream()
-      .filter(m -> m.getProgramSequencePatternId().equals(programPattern.getId()))
+      .filter(m -> programPattern.getId().equals(m.getProgramSequencePatternId()))
       .sorted(Comparator.comparing(ProgramSequencePatternEvent::getPosition))
       .collect(Collectors.toList());
   }
@@ -339,7 +337,7 @@ public class HubContent {
    */
   public Collection<InstrumentMeme> getMemes(Instrument instrument) {
     return getAllInstrumentMemes().stream()
-      .filter(m -> m.getInstrumentId().equals(instrument.getId()))
+      .filter(m -> instrument.getId().equals(m.getInstrumentId()))
       .collect(Collectors.toList());
   }
 
@@ -351,7 +349,7 @@ public class HubContent {
    */
   public Collection<InstrumentAudio> getAudiosForInstrumentId(UUID id) {
     return getAllInstrumentAudios().stream()
-      .filter(a -> a.getInstrumentId().equals(id))
+      .filter(a -> id.equals(a.getInstrumentId()))
       .collect(Collectors.toList());
   }
 
@@ -373,7 +371,7 @@ public class HubContent {
    */
   public Collection<ProgramSequenceChord> getChords(ProgramSequence sequence) {
     return getAllProgramSequenceChords().stream()
-      .filter(e -> e.getProgramSequenceId().equals(sequence.getId()))
+      .filter(e -> sequence.getId().equals(e.getProgramSequenceId()))
       .collect(Collectors.toList());
   }
 
@@ -385,7 +383,7 @@ public class HubContent {
    */
   public Collection<ProgramSequenceChordVoicing> getVoicings(ProgramSequenceChord chord) {
     return getAllProgramSequenceChordVoicings().stream()
-      .filter(e -> e.getProgramSequenceChordId().equals(chord.getId()))
+      .filter(e -> chord.getId().equals(e.getProgramSequenceChordId()))
       .collect(Collectors.toList());
   }
 
@@ -397,7 +395,7 @@ public class HubContent {
    */
   public Collection<ProgramSequenceBindingMeme> getMemes(ProgramSequenceBinding programSequenceBinding) {
     return getAllProgramSequenceBindingMemes().stream()
-      .filter(m -> m.getProgramSequenceBindingId().equals(programSequenceBinding.getId()))
+      .filter(m -> programSequenceBinding.getId().equals(m.getProgramSequenceBindingId()))
       .collect(Collectors.toList());
   }
 

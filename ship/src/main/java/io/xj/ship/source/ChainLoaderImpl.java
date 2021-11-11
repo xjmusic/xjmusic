@@ -105,8 +105,15 @@ public class ChainLoaderImpl extends ChainLoader {
     JsonapiPayload chainPayload;
     Chain chain;
     try {
-      LOG.info("will check for last shipped data");
+      LOG.info("will check for shipped data");
       chainFullKey = Chains.getShipKey(Chains.getFullKey(shipKey), EXTENSION_JSON);
+
+      if (!fileStoreProvider.doesS3ObjectExist(shipBucket, shipKey)) {
+        LOG.error("Template data was not found at {}/{}", shipBucket, shipKey);
+        onFailure.run();
+        return;
+      }
+
       chainStream = fileStoreProvider.streamS3Object(shipBucket, chainFullKey);
       chainPayload = jsonProvider.getMapper().readValue(chainStream, JsonapiPayload.class);
       chain = jsonapiPayloadFactory.toOne(chainPayload);
