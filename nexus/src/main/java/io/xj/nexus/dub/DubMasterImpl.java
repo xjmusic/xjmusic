@@ -194,7 +194,9 @@ public class DubMasterImpl implements DubMaster {
   }
 
   /**
-   MasterDub implements Mixer module to mix final output to waveform streamed directly to Amazon S3@return
+   MasterDub implements Mixer module to mix final output to waveform streamed directly to Amazon S3
+
+   @return postroll seconds after mixing
    */
   private double doMix() throws Exception {
     float quality = (float) fabricator.getTemplateConfig().getOutputEncodingQuality();

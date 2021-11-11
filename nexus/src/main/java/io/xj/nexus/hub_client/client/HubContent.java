@@ -265,7 +265,9 @@ public class HubContent {
    */
   public Collection<Instrument> getInstrumentsOfType(InstrumentType type) {
     return getAllInstruments().stream()
-      .filter(instrument -> instrument.getType().equals(type))
+      .filter(instrument -> {
+        return instrument.getType().equals(type);
+      })
       .collect(Collectors.toList());
   }
 

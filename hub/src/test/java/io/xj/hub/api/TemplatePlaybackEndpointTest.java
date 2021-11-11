@@ -114,7 +114,6 @@ public class TemplatePlaybackEndpointTest {
       .hasDataOne("template-playbacks", templatePlayback1.getId().toString());
   }
 
-
   @Test
   public void readOneForUser_noneFound() throws DAOException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
@@ -125,4 +124,5 @@ public class TemplatePlaybackEndpointTest {
     assertEquals(204, result.getStatus());
     assertFalse(result.hasEntity());
   }
+
 }

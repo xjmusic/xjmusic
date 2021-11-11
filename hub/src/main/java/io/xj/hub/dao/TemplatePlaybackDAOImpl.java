@@ -99,9 +99,11 @@ public class TemplatePlaybackDAOImpl extends HubPersistenceServiceImpl<TemplateP
     DSLContext db = dbProvider.getDSL();
 
     if (!hubAccess.isTopLevel())
-      requireExists("TemplatePlayback belonging to you", db.selectCount().from(TEMPLATE_PLAYBACK)
-        .where(TEMPLATE_PLAYBACK.USER_ID.eq(hubAccess.getUserId()))
-        .fetchOne(0, int.class));
+      requireExists("Access to the template's account",
+        db.selectCount().from(TEMPLATE_PLAYBACK)
+          .join(TEMPLATE).on(TEMPLATE.ID.eq(TEMPLATE_PLAYBACK.TEMPLATE_ID))
+          .where(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .fetchOne(0, int.class));
 
     db.deleteFrom(TEMPLATE_PLAYBACK)
       .where(TEMPLATE_PLAYBACK.ID.eq(id))

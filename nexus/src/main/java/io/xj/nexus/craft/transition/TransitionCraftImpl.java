@@ -88,10 +88,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
         chosen = chooseFreshTransitionInstrument(instrumentIds);
         if (chosen.isPresent()) {
           instrumentIds.add(chosen.get().getId());
-
           craftTransition(chosen.get().getId());
-
-
         }
       }
 
