@@ -10,6 +10,16 @@ import io.xj.nexus.NexusException;
 import java.util.Collection;
 import java.util.Optional;
 
+/**
+ The SegmentWorkbench is a delegate to manipulate the segment currently in progress during the fabrication.
+ The pattern here is that all child entities of this segment are held in memory only within this delegate
+ until the very end of the process, when the trigger is pulled and all the entities are written to the database
+ using a special segment Manager method that does them all in one transaction.
+ <p>
+ SegmentWorkbench.done()
+ Called at the end of Segment fabrication.
+ Sends added records to segmentManager batch insert method
+ */
 public interface SegmentWorkbench {
 
   /**

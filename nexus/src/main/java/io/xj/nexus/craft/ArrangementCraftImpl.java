@@ -414,6 +414,10 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   ) throws NexusException {
     // Morph & Point attributes are expressed in beats
     double segmentPosition = fromSegmentPosition + event.getPosition();
+
+    // Should never place segment events outside of segment time range #180245354
+    if (segmentPosition < 0 || segmentPosition >= fabricator.getSegment().getTotal()) return;
+
     double duration = Math.min(event.getDuration(), toSegmentPosition - segmentPosition);
     var chord = fabricator.getChordAt(segmentPosition);
     Optional<SegmentChordVoicing> voicing = chord.isPresent()
