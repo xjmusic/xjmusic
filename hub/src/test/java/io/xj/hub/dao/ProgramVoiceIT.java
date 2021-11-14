@@ -179,21 +179,8 @@ public class ProgramVoiceIT {
   }
 
   @Test
-  public void destroy_failsIfHasChildEntity() throws Exception {
+  public void destroy_okWithChildEntities() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-
-    failure.expect(DAOException.class);
-    failure.expectMessage("Found Pattern in Voice");
-
-    testDAO.destroy(hubAccess, fake.program2_voice1.getId());
-  }
-
-  @Test
-  public void destroy_okWithNoChildEntities() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
-    injector.getInstance(ProgramSequencePatternDAO.class).destroy(HubAccess.internal(), fake.program2_sequence1_pattern1.getId());
-    injector.getInstance(ProgramVoiceTrackDAO.class).destroy(HubAccess.internal(), fake.program2_voice1_track0.getId());
-    injector.getInstance(ProgramVoiceTrackDAO.class).destroy(HubAccess.internal(), fake.program2_voice1_track1.getId());
 
     testDAO.destroy(hubAccess, fake.program2_voice1.getId());
 

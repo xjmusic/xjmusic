@@ -95,9 +95,13 @@ public class ProgramVoiceDAOImpl extends HubPersistenceServiceImpl<ProgramVoice>
 
     requireModification(db, hubAccess, id);
 
-    requireNotExists("Pattern in Voice", db.selectCount().from(PROGRAM_SEQUENCE_PATTERN)
+    db.deleteFrom(PROGRAM_SEQUENCE_PATTERN)
       .where(PROGRAM_SEQUENCE_PATTERN.PROGRAM_VOICE_ID.eq(id))
-      .fetchOne(0, int.class));
+      .execute();
+
+    db.deleteFrom(PROGRAM_VOICE_TRACK)
+      .where(PROGRAM_VOICE_TRACK.PROGRAM_VOICE_ID.eq(id))
+      .execute();
 
     db.deleteFrom(PROGRAM_VOICE)
       .where(PROGRAM_VOICE.ID.eq(id))
