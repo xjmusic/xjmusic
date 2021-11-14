@@ -108,8 +108,8 @@ public class ChainLoaderImpl extends ChainLoader {
       LOG.info("will check for shipped data");
       chainFullKey = Chains.getShipKey(Chains.getFullKey(shipKey), EXTENSION_JSON);
 
-      if (!fileStoreProvider.doesS3ObjectExist(shipBucket, shipKey)) {
-        LOG.error("Template data was not found at {}/{}", shipBucket, shipKey);
+      if (!fileStoreProvider.doesS3ObjectExist(shipBucket, chainFullKey)) {
+        LOG.error("Template data was not found at {}/{}", shipBucket, chainFullKey);
         onFailure.run();
         return;
       }
