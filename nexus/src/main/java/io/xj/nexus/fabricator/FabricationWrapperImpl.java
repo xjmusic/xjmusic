@@ -78,12 +78,7 @@ public abstract class FabricationWrapperImpl {
    */
   protected void reportMissing(Class<?> type, String detail) {
     try {
-      var msg = new SegmentMessage();
-      msg.setId(UUID.randomUUID());
-      msg.setSegmentId(fabricator.getSegment().getId());
-      msg.setType(SegmentMessageType.WARNING);
-      msg.body(String.format("%s not found %s", type.getSimpleName(), detail));
-      fabricator.add(msg);
+      fabricator.addWarningMessage(String.format("%s not found %s", type.getSimpleName(), detail));
 
     } catch (Exception e) {
       log.warn("Failed to create SegmentMessage", e);
@@ -95,12 +90,7 @@ public abstract class FabricationWrapperImpl {
    */
   protected void reportMissing(Map<String, String> traces) {
     try {
-      var msg = new SegmentMessage();
-      msg.setId(UUID.randomUUID());
-      msg.setSegmentId(fabricator.getSegment().getId());
-      msg.setType(SegmentMessageType.WARNING);
-      msg.body(String.format("%s not found! %s", InstrumentAudio.class.getSimpleName(), CSV.from(traces)));
-      fabricator.add(msg);
+      fabricator.addWarningMessage(String.format("%s not found! %s", InstrumentAudio.class.getSimpleName(), CSV.from(traces)));
 
     } catch (Exception e) {
       log.warn("Failed to create SegmentMessage", e);

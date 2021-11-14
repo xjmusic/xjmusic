@@ -6,7 +6,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.api.*;
+import io.xj.api.Segment;
+import io.xj.api.SegmentChoiceArrangementPick;
+import io.xj.api.SegmentType;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.mixer.Mixer;
 import io.xj.lib.mixer.MixerConfig;
@@ -257,12 +259,7 @@ public class DubMasterImpl implements DubMaster {
         body.append(String.format("%n%n%s", warning));
       }
 
-      var msg = new SegmentMessage();
-      msg.setId(UUID.randomUUID());
-      msg.setSegmentId(fabricator.getSegment().getId());
-      msg.setType(SegmentMessageType.WARNING);
-      msg.setBody(body.toString());
-      fabricator.add(msg);
+      fabricator.addWarningMessage(body.toString());
     } catch (Exception e1) {
       log.warn("Failed to create SegmentMessage", e1);
     }

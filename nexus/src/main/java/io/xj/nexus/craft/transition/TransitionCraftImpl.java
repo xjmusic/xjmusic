@@ -72,12 +72,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
           (fabricator.getTemplateConfig().getTransitionLayerMax() -
             fabricator.getTemplateConfig().getTransitionLayerMin()));
 
-    var msg = new SegmentMessage();
-    msg.setId(UUID.randomUUID());
-    msg.setSegmentId(fabricator.getSegment().getId());
-    msg.setType(SegmentMessageType.INFO);
-    msg.setBody(String.format("Targeting %d layers of transition", targetLayers));
-    fabricator.add(msg);
+    fabricator.addInfoMessage(String.format("Targeting %d layers of transition", targetLayers));
 
     if (instrumentIds.size() > targetLayers)
       instrumentIds = withIdsRemoved(instrumentIds, instrumentIds.size() - targetLayers);

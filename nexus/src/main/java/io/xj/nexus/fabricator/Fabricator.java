@@ -67,14 +67,21 @@ public interface Fabricator {
 
    @param body to include in message
    */
-  void addMessageError(String body) throws NexusException;
+  void addErrorMessage(String body) throws NexusException;
+
+  /**
+   Add an warning message to the segment, with the given body
+
+   @param body to include in message
+   */
+  void addWarningMessage(String body) throws NexusException;
 
   /**
    Add an info message to the segment, with the given body
 
    @param body to include in message
    */
-  void addMessageInfo(String body) throws NexusException;
+  void addInfoMessage(String body) throws NexusException;
 
   /**
    Update the original Segment submitted for craft,

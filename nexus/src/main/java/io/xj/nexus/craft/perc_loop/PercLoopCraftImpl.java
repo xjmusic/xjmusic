@@ -62,12 +62,7 @@ public class PercLoopCraftImpl extends RhythmCraftImpl implements PercLoopCraft 
           (fabricator.getTemplateConfig().getPercLoopLayerMax() -
             fabricator.getTemplateConfig().getPercLoopLayerMin()));
 
-    var msg = new SegmentMessage();
-    msg.setId(UUID.randomUUID());
-    msg.setSegmentId(fabricator.getSegment().getId());
-    msg.setType(SegmentMessageType.INFO);
-    msg.setBody(String.format("Targeting %d layers of percussion loop", targetLayers));
-    fabricator.add(msg);
+    fabricator.addInfoMessage(String.format("Targeting %d layers of percussion loop", targetLayers));
 
     if (instrumentIds.size() > targetLayers)
       instrumentIds = withIdsRemoved(instrumentIds, instrumentIds.size() - targetLayers);

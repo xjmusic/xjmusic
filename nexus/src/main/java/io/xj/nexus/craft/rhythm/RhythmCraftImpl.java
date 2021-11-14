@@ -13,7 +13,6 @@ import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Chance;
-import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.detail.DetailCraftImpl;
 import io.xj.nexus.fabricator.EntityScorePicker;
@@ -71,10 +70,14 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
     var programNames = fabricator.sourceMaterial().getVoices(program.get()).stream()
       .map(ProgramVoice::getName)
       .collect(Collectors.toList());
-    precomputeDeltas(choiceFilter, choiceIndexProvider, programNames,
+    precomputeDeltas(
+      choiceFilter,
+      choiceIndexProvider,
+      programNames,
+      CSV.split(fabricator.getTemplateConfig().getDeltaArcRhythmLayersToPrioritize()),
       fabricator.getTemplateConfig().getDeltaArcRhythmPlateauRatio(),
-      fabricator.getTemplateConfig().getDeltaArcRhythmLayersIncoming(),
-      Values.patternMatchingAny(CSV.split(fabricator.getTemplateConfig().getDeltaArcRhythmLayersToPrioritize())));
+      fabricator.getTemplateConfig().getDeltaArcRhythmLayersIncoming()
+    );
 
     // rhythm sequence is selected at random of the current program
     // FUTURE: [#166855956] Rhythm Program with multiple Sequences

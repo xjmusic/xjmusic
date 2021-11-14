@@ -23,7 +23,6 @@ import io.xj.nexus.fabricator.NameIsometry;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -203,7 +202,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
    @throws NexusException on failure
    */
-  protected void precomputeDeltas(Predicate<SegmentChoice> choiceFilter, ChoiceIndexProvider choiceIndexProvider, Collection<String> layers, double plateauRatio, int numLayersIncoming, @Nullable Pattern prioritizeLayers) throws NexusException {
+  protected void precomputeDeltas(Predicate<SegmentChoice> choiceFilter, ChoiceIndexProvider choiceIndexProvider, Collection<String> layers, Collection<String> layerPrioritizationSearches, double plateauRatio, int numLayersIncoming) throws NexusException {
     this.choiceIndexProvider = choiceIndexProvider;
     deltaIns.clear();
     deltaOuts.clear();
@@ -221,37 +220,40 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       return;
     }
 
-    // shuffle the layers into a random order, then step through them, assigning delta ins and then outs
-    // random order in
-    var deltaUnits = Bar.of(fabricator.getMainProgramConfig().getBarBeats()).computeSubsectionBeats(fabricator.getSegment().getTotal());
-
-    // Delta arcs can prioritize the presence of a layer by name, e.g. containing "kick" #180242564
-    // separate layers into primary and secondary, shuffle them separately, then concatenate
-    List<String> priLayers = Lists.newArrayList();
-    List<String> secLayers = Lists.newArrayList();
-    layers.forEach(layer -> {
-      if (Objects.nonNull(prioritizeLayers) && prioritizeLayers.matcher(layer).matches())
-        priLayers.add(layer);
-      else
-        secLayers.add(layer);
-    });
-    Collections.shuffle(priLayers);
-    Collections.shuffle(secLayers);
-    var orderedLayers = Stream.concat(priLayers.stream(), secLayers.stream()).collect(Collectors.toList());
-
-    for (int i = 0; i < orderedLayers.size(); i++) {
-      deltaIns.put(orderedLayers.get(i), Values.multipleFloor(deltaUnits, Chance.normallyAround((i + 0.5) * beatsFadeInPerLayer, beatsFadeInPerLayer * 0.3)));
-      deltaOuts.put(orderedLayers.get(i), DELTA_UNLIMITED); // all layers get delta out unlimited
-    }
-
     // then we overwrite the wall-to-wall random values with more specific values depending on the situation
     switch (fabricator.getType()) {
       case PENDING -> {
         // No Op
       }
 
-      case INITIAL, NEXTMAIN, NEXTMACRO -> // randomly override N incoming (deltaIn unlimited) and N outgoing (deltaOut unlimited)
+      case INITIAL, NEXTMAIN, NEXTMACRO -> {
+        // randomly override N incoming (deltaIn unlimited) and N outgoing (deltaOut unlimited)
+        // shuffle the layers into a random order, then step through them, assigning delta ins and then outs
+        // random order in
+        var deltaUnits = Bar.of(fabricator.getMainProgramConfig().getBarBeats()).computeSubsectionBeats(fabricator.getSegment().getTotal());
+
+        // Delta arcs can prioritize the presence of a layer by name, e.g. containing "kick" #180242564
+        // separate layers into primary and secondary, shuffle them separately, then concatenate
+        List<String> priLayers = Lists.newArrayList();
+        List<String> secLayers = Lists.newArrayList();
+        layers.forEach(layer -> {
+          if (layerPrioritizationSearches.stream().anyMatch(m -> layer.toLowerCase(Locale.ROOT).contains(m.toLowerCase(Locale.ROOT))))
+            priLayers.add(layer);
+          else
+            secLayers.add(layer);
+        });
+        Collections.shuffle(priLayers);
+        fabricator.addInfoMessage(String.format("Prioritized %s", CSV.join(priLayers)));
+        Collections.shuffle(secLayers);
+        var orderedLayers = Stream.concat(priLayers.stream(), secLayers.stream()).collect(Collectors.toList());
+
+        for (int i = 0; i < orderedLayers.size(); i++) {
+          deltaIns.put(orderedLayers.get(i), Values.multipleFloor(deltaUnits, Chance.normallyAround((i + 0.5) * beatsFadeInPerLayer, beatsFadeInPerLayer * 0.3)));
+          deltaOuts.put(orderedLayers.get(i), DELTA_UNLIMITED); // all layers get delta out unlimited
+        }
+
         Values.randomFrom(orderedLayers, numLayersIncoming).forEach(layer -> deltaIns.put(layer, DELTA_UNLIMITED));
+      }
 
       case CONTINUE -> {
         for (String index : layers)

@@ -61,12 +61,7 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
           (fabricator.getTemplateConfig().getBackgroundLayerMax() -
             fabricator.getTemplateConfig().getBackgroundLayerMin()));
 
-    var msg = new SegmentMessage();
-    msg.setId(UUID.randomUUID());
-    msg.setSegmentId(fabricator.getSegment().getId());
-    msg.setType(SegmentMessageType.INFO);
-    msg.setBody(String.format("Targeting %d layers of background", targetLayers));
-    fabricator.add(msg);
+    fabricator.addInfoMessage(String.format("Targeting %d layers of background", targetLayers));
 
     if (instrumentIds.size() > targetLayers)
       instrumentIds = withIdsRemoved(instrumentIds, instrumentIds.size() - targetLayers);

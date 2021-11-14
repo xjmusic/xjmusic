@@ -196,12 +196,17 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public void addMessageError(String body) throws NexusException {
+  public void addErrorMessage(String body) throws NexusException {
     addMessage(SegmentMessageType.ERROR, body);
   }
 
   @Override
-  public void addMessageInfo(String body) throws NexusException {
+  public void addWarningMessage(String body) throws NexusException {
+    addMessage(SegmentMessageType.WARNING, body);
+  }
+
+  @Override
+  public void addInfoMessage(String body) throws NexusException {
     addMessage(SegmentMessageType.INFO, body);
   }
 

@@ -51,10 +51,14 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
     // [#178240332] Segments have intensity arcs; automate mixer layers in and out of each main program
     ChoiceIndexProvider choiceIndexProvider = (SegmentChoice choice) -> Values.stringOrDefault(choice.getInstrumentType(), choice.getId().toString());
     Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> Objects.equals(ProgramType.Detail.toString(), choice.getProgramType());
-    precomputeDeltas(choiceFilter, choiceIndexProvider, DETAIL_INSTRUMENT_TYPES,
+    precomputeDeltas(
+      choiceFilter,
+      choiceIndexProvider,
+      DETAIL_INSTRUMENT_TYPES,
+      List.of(),
       fabricator.getTemplateConfig().getDeltaArcDetailPlateauRatio(),
-      fabricator.getTemplateConfig().getDeltaArcDetailLayersIncoming(),
-      null);
+      fabricator.getTemplateConfig().getDeltaArcDetailLayersIncoming()
+    );
 
     for (InstrumentType voicingType : fabricator.getDistinctChordVoicingTypes()) {
       Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(voicingType);
