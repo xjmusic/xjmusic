@@ -53,8 +53,8 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
     Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> Objects.equals(ProgramType.Detail.toString(), choice.getProgramType());
     precomputeDeltas(choiceFilter, choiceIndexProvider, DETAIL_INSTRUMENT_TYPES,
       fabricator.getTemplateConfig().getDeltaArcDetailPlateauRatio(),
-      fabricator.getTemplateConfig().getDeltaArcDetailLayersIncoming()
-    );
+      fabricator.getTemplateConfig().getDeltaArcDetailLayersIncoming(),
+      null);
 
     for (InstrumentType voicingType : fabricator.getDistinctChordVoicingTypes()) {
       Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(voicingType);

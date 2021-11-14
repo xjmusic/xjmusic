@@ -32,6 +32,7 @@ public class TemplateConfig {
       deltaArcDetailPlateauRatio = 0.62
       deltaArcEnabled = true
       deltaArcRhythmLayersIncoming = 1
+      deltaArcRhythmLayersToPrioritize = kick
       deltaArcRhythmPlateauRatio = 0.38
       densityCeiling = 0.9
       densityFloor = 0.1
@@ -72,6 +73,7 @@ public class TemplateConfig {
   private final String metaTitle;
   private final String outputContainer;
   private final boolean deltaArcEnabled;
+  private final String deltaArcRhythmLayersToPrioritize;
   private final double deltaArcDetailPlateauRatio;
   private final double deltaArcRhythmPlateauRatio;
   private final double densityCeiling;
@@ -149,6 +151,7 @@ public class TemplateConfig {
       deltaArcDetailPlateauRatio = config.getDouble("deltaArcDetailPlateauRatio");
       deltaArcEnabled = config.getBoolean("deltaArcEnabled");
       deltaArcRhythmLayersIncoming = config.getInt("deltaArcRhythmLayersIncoming");
+      deltaArcRhythmLayersToPrioritize = config.getString("deltaArcRhythmLayersToPrioritize");
       deltaArcRhythmPlateauRatio = config.getDouble("deltaArcRhythmPlateauRatio");
       densityCeiling = config.getDouble("densityCeiling");
       densityFloor = config.getDouble("densityFloor");
@@ -196,6 +199,7 @@ public class TemplateConfig {
     config.put("bufferAheadSeconds", String.valueOf(bufferAheadSeconds));
     config.put("bufferBeforeSeconds", String.valueOf(bufferBeforeSeconds));
     config.put("deltaArcDetailLayersIncoming", String.valueOf(deltaArcDetailLayersIncoming));
+    config.put("deltaArcRhythmLayersToPrioritize", String.valueOf(deltaArcRhythmLayersToPrioritize));
     config.put("deltaArcDetailPlateauRatio", String.valueOf(deltaArcDetailPlateauRatio));
     config.put("deltaArcEnabled", String.valueOf(deltaArcEnabled));
     config.put("deltaArcRhythmLayersIncoming", String.valueOf(deltaArcRhythmLayersIncoming));
@@ -300,6 +304,13 @@ public class TemplateConfig {
    */
   public int getDeltaArcRhythmLayersIncoming() {
     return deltaArcRhythmLayersIncoming;
+  }
+
+  /**
+   @return delta arc rhythm layer prioritization regexp
+   */
+  public String getDeltaArcRhythmLayersToPrioritize() {
+    return deltaArcRhythmLayersToPrioritize;
   }
 
   /**

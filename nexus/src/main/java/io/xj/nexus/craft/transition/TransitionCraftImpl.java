@@ -64,9 +64,11 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
       .map(SegmentChoice::getInstrumentId)
       .collect(Collectors.toList());
 
+    double targetDensity = isBigTransitionSegment() ? fabricator.getTemplateConfig().getDensityCeiling() : fabricator.getSegment().getDensity();
+
     int targetLayers = (int) Math.floor(
       fabricator.getTemplateConfig().getTransitionLayerMin() +
-        fabricator.getSegment().getDensity() *
+        targetDensity *
           (fabricator.getTemplateConfig().getTransitionLayerMax() -
             fabricator.getTemplateConfig().getTransitionLayerMin()));
 
@@ -94,6 +96,15 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
 
     // Finally, update the segment with the crafted content
     fabricator.done();
+  }
+
+  /**
+   Is this a big-transition segment? (next main or next macro)
+
+   @return true if it is a big transition segment
+   */
+  private boolean isBigTransitionSegment() throws NexusException {
+    return SegmentType.NEXTMACRO.equals(fabricator.getType()) || SegmentType.NEXTMAIN.equals(fabricator.getType());
   }
 
   /**

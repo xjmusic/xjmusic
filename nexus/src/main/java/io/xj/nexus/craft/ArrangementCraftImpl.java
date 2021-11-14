@@ -2,6 +2,7 @@
 
 package io.xj.nexus.craft;
 
+import com.google.api.client.util.Lists;
 import com.google.api.client.util.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -22,7 +23,9 @@ import io.xj.nexus.fabricator.NameIsometry;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.xj.nexus.persistence.Segments.DELTA_UNLIMITED;
 
@@ -200,15 +203,14 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
    @throws NexusException on failure
    */
-  protected void precomputeDeltas(Predicate<SegmentChoice> choiceFilter, ChoiceIndexProvider choiceIndexProvider, Collection<String> indexes, double plateauRatio, int numLayersIncoming) throws NexusException {
+  protected void precomputeDeltas(Predicate<SegmentChoice> choiceFilter, ChoiceIndexProvider choiceIndexProvider, Collection<String> layers, double plateauRatio, int numLayersIncoming, @Nullable Pattern prioritizeLayers) throws NexusException {
     this.choiceIndexProvider = choiceIndexProvider;
     deltaIns.clear();
     deltaOuts.clear();
     var beatsTotal = fabricator.getTemplateConfig().getMainProgramLengthMaxDelta(); // total arc length
     double beatsPlateau = beatsTotal * plateauRatio; // plateau section in middle with no transitions
     double beatsFadeIn = beatsTotal - beatsPlateau;
-    double beatsFadeInPerLayer = beatsFadeIn / indexes.size(); // space between transitions in
-    var layers = new ArrayList<>(indexes);
+    double beatsFadeInPerLayer = beatsFadeIn / layers.size(); // space between transitions in
 
     // Ensure that we can bypass delta arcs using the template config
     if (!fabricator.getTemplateConfig().isDeltaArcEnabled()) {
@@ -222,10 +224,24 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     // shuffle the layers into a random order, then step through them, assigning delta ins and then outs
     // random order in
     var deltaUnits = Bar.of(fabricator.getMainProgramConfig().getBarBeats()).computeSubsectionBeats(fabricator.getSegment().getTotal());
-    Collections.shuffle(layers);
-    for (int i = 0; i < layers.size(); i++) {
-      deltaIns.put(layers.get(i), Values.multipleFloor(deltaUnits, Chance.normallyAround((i + 0.5) * beatsFadeInPerLayer, beatsFadeInPerLayer * 0.3)));
-      deltaOuts.put(layers.get(i), DELTA_UNLIMITED); // all layers get delta out unlimited
+
+    // Delta arcs can prioritize the presence of a layer by name, e.g. containing "kick" #180242564
+    // separate layers into primary and secondary, shuffle them separately, then concatenate
+    List<String> priLayers = Lists.newArrayList();
+    List<String> secLayers = Lists.newArrayList();
+    layers.forEach(layer -> {
+      if (Objects.nonNull(prioritizeLayers) && prioritizeLayers.matcher(layer).matches())
+        priLayers.add(layer);
+      else
+        secLayers.add(layer);
+    });
+    Collections.shuffle(priLayers);
+    Collections.shuffle(secLayers);
+    var orderedLayers = Stream.concat(priLayers.stream(), secLayers.stream()).collect(Collectors.toList());
+
+    for (int i = 0; i < orderedLayers.size(); i++) {
+      deltaIns.put(orderedLayers.get(i), Values.multipleFloor(deltaUnits, Chance.normallyAround((i + 0.5) * beatsFadeInPerLayer, beatsFadeInPerLayer * 0.3)));
+      deltaOuts.put(orderedLayers.get(i), DELTA_UNLIMITED); // all layers get delta out unlimited
     }
 
     // then we overwrite the wall-to-wall random values with more specific values depending on the situation
@@ -235,10 +251,10 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       }
 
       case INITIAL, NEXTMAIN, NEXTMACRO -> // randomly override N incoming (deltaIn unlimited) and N outgoing (deltaOut unlimited)
-        Values.randomFrom(layers, numLayersIncoming).forEach(layer -> deltaIns.put(layer, DELTA_UNLIMITED));
+        Values.randomFrom(orderedLayers, numLayersIncoming).forEach(layer -> deltaIns.put(layer, DELTA_UNLIMITED));
 
       case CONTINUE -> {
-        for (String index : indexes)
+        for (String index : layers)
           fabricator.retrospective().getChoices().stream()
             .filter(choiceFilter)
             .filter(choice -> Objects.equals(index, choiceIndexProvider.get(choice)))

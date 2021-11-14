@@ -74,7 +74,7 @@ public class ArrangementCraftImplTest {
   public void precomputeDeltas() throws NexusException {
     ArrangementCraftImpl.ChoiceIndexProvider choiceIndexProvider = SegmentChoice::getInstrumentType;
     Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> ProgramType.Detail.toString().equals(choice.getProgramType());
-    subject.precomputeDeltas(choiceFilter, choiceIndexProvider, DETAIL_INSTRUMENT_TYPES, 0.38, 1);
+    subject.precomputeDeltas(choiceFilter, choiceIndexProvider, DETAIL_INSTRUMENT_TYPES, 0.38, 1, null);
   }
 
   @Test

@@ -10,6 +10,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -400,5 +401,15 @@ public interface Values {
    */
   static Double interpolate(double floor, double ceiling, double position, double multiplier) {
     return floor + (ceiling - floor) * position * multiplier;
+  }
+
+  /**
+   Build a Regex pattern to match any of the give collection of values
+
+   @param values for which to generate a regex pattern
+   @return regex pattern
+   */
+  static Pattern patternMatchingAny(Collection<String> values) {
+    return Pattern.compile(String.join("|", values), Pattern.CASE_INSENSITIVE);
   }
 }
