@@ -124,7 +124,7 @@ public class PercLoopCraftImpl extends RhythmCraftImpl implements PercLoopCraft 
       pick.setStart(startSeconds);
       pick.setLength(lengthSeconds);
       pick.setAmplitude(1.0);
-      pick.setName("PERCLOOP");
+      pick.setEvent("PERCLOOP");
       pick.setInstrumentAudioId(audio.get().getId());
       fabricator.add(pick);
 

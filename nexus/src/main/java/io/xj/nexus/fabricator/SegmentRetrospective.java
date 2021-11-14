@@ -65,16 +65,6 @@ public interface SegmentRetrospective {
   Optional<SegmentChoice> getPreviousChoiceOfType(ProgramType type);
 
   /**
-   Get the value seen in previous segments for the given metadata name
-   <p>
-   Segment has Metadata to inform fabricator of subsequent segments #180059436
-
-   @param name of metadata for which to search
-   @return value seen in previous segments
-   */
-  Optional<String> getPreviousMetadataValue(String name);
-
-  /**
    Get the previous-segment choices of a given instrument type
 
    @param instrumentType for which to get previous-segment choices

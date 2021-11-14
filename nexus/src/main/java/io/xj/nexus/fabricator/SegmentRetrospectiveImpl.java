@@ -109,18 +109,6 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public Optional<String> getPreviousMetadataValue(String name) {
-    Optional<Segment> seg = getPreviousSegment();
-    if (seg.isEmpty()) return Optional.empty();
-    return
-      store.getAll(SegmentMetadata.class).stream()
-        .filter(c -> c.getSegmentId().equals(seg.get().getId())
-          && name.equals(c.getValue()))
-        .map(SegmentMetadata::getValue)
-        .findFirst();
-  }
-
-  @Override
   public List<SegmentChoice> getPreviousChoicesOfType(InstrumentType instrumentType) {
     Optional<Segment> seg = getPreviousSegment();
     if (seg.isEmpty()) return List.of();

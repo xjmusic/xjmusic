@@ -152,7 +152,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     pick.setStart(startSeconds);
     pick.setLength(lengthSeconds);
     pick.setAmplitude(1.0);
-    pick.setName(name);
+    pick.setEvent(name);
     pick.setInstrumentAudioId(audio.getId());
     fabricator.add(pick);
   }
@@ -198,9 +198,9 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
 
    @return drum-type Instrument
    */
-  private Optional<InstrumentAudio> pickAudioForInstrument(UUID instrumentId, String name) {
+  private Optional<InstrumentAudio> pickAudioForInstrument(UUID instrumentId, String event) {
     var previous = fabricator.retrospective().getPreviousPicksForInstrument(instrumentId).stream()
-      .filter(pick -> Objects.equals(name, Text.toMeme(pick.getName())))
+      .filter(pick -> Objects.equals(event, Text.toMeme(pick.getEvent())))
       .findAny();
 
     if (previous.isPresent())
@@ -209,7 +209,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     EntityScorePicker<InstrumentAudio> superEntityScorePicker = new EntityScorePicker<>();
 
     for (InstrumentAudio audio : fabricator.sourceMaterial().getAudiosForInstrumentId(instrumentId)
-      .stream().filter(instrumentAudio -> name.equals(Text.toMeme(instrumentAudio.getName()))).collect(Collectors.toList()))
+      .stream().filter(instrumentAudio -> Text.toMeme(event).equals(Text.toMeme(instrumentAudio.getEvent()))).collect(Collectors.toList()))
       superEntityScorePicker.add(audio, Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_INSTRUMENT));
 
     return superEntityScorePicker.getTop();

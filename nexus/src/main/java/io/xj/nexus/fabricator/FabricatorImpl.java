@@ -426,7 +426,7 @@ class FabricatorImpl implements Fabricator {
         .map(UUID::toString)
         .orElse(UNKNOWN_KEY);
 
-    return String.format(KEY_VOICE_TRACK_TEMPLATE, key, pick.getName());
+    return String.format(KEY_VOICE_TRACK_TEMPLATE, key, pick.getEvent());
   }
 
   @Override
@@ -754,8 +754,7 @@ class FabricatorImpl implements Fabricator {
         .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentChoices()))
         .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentChords()))
         .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentMemes()))
-        .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentMessages()))
-        .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentMetadatas())));
+        .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentMessages())));
 
     } catch (JsonapiException e) {
       throw new NexusException(e);

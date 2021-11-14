@@ -311,7 +311,7 @@ components:
           format: double
         note:
           type: string
-        name:
+        event:
           type: string
 
     #

@@ -123,10 +123,4 @@ public interface SegmentWorkbench {
    */
   <N> N add(N entity) throws NexusException;
 
-  /**
-   Segment has Metadata to inform fabricator of subsequent segments #180059436
-
-   @return all the Segment Metadatas
-   */
-  Collection<SegmentMetadata> getSegmentMetadatas();
 }

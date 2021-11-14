@@ -26,19 +26,6 @@ public interface SegmentManager extends Manager<Segment> {
   SegmentMessage create(HubClientAccess access, SegmentMessage entity) throws ManagerValidationException, ManagerPrivilegeException, ManagerExistenceException, ManagerFatalException;
 
   /**
-   Create a Metadata in a given Segment
-
-   @param access control
-   @param entity Segment Metadata, including belong-to Segment ID
-   @return newly created Segment metadata
-   @throws ManagerValidationException on failure
-   @throws ManagerPrivilegeException  on failure
-   @throws ManagerExistenceException  on failure
-   @throws ManagerFatalException      on failure
-   */
-  SegmentMetadata create(HubClientAccess access, SegmentMetadata entity) throws ManagerPrivilegeException, ManagerValidationException, ManagerFatalException;
-
-  /**
    Fetch id for the Segment in a Chain at a given offset, if present
 
    @param chainId to fetch segment for

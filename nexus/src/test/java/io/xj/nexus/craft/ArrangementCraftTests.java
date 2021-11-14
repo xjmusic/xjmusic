@@ -324,7 +324,7 @@ public class ArrangementCraftTests extends YamlTest {
         (Objects.nonNull(length) ? String.format(" with length %fs", length) : "");
 
       var picks = fabricator.getPicks().stream()
-        .filter(pick -> pick.getName().equals(type.toString()) &&
+        .filter(pick -> pick.getEvent().equals(type.toString()) &&
           (Objects.isNull(start) || start.equals(pick.getStart().floatValue())) &&
           (Objects.isNull(length) || length.equals(pick.getLength().floatValue())))
         .map(SegmentChoiceArrangementPick::getNote)

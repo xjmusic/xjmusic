@@ -221,7 +221,7 @@ public class FabricatorImplTest {
         .segmentChoiceArrangementId(rhythmArrangement.getId())
         .programSequencePatternEventId(fake.program35_sequence0_pattern0_event0.getId())
         .instrumentAudioId(fake.instrument8_audio8kick.getId())
-        .name("CLANG")
+        .event("CLANG")
         .start(0.273)
         .length(1.571)
         .amplitude(0.8)

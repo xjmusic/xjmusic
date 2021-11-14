@@ -610,7 +610,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     pick.setSegmentChoiceArrangementId(segmentChoiceArrangement.getId());
     pick.setInstrumentAudioId(audio.get().getId());
     pick.setProgramSequencePatternEventId(event.getId());
-    pick.setName(fabricator.getTrackName(event));
+    pick.setEvent(fabricator.getTrackName(event));
     pick.setStart(startSeconds);
     pick.setLength(lengthSeconds);
     pick.setAmplitude(event.getVelocity() * volRatio);
