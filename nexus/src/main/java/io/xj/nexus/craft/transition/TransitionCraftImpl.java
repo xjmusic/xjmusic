@@ -132,7 +132,8 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     var deltaUnits = Bar.of(fabricator.getMainProgramConfig().getBarBeats()).computeSubsectionBeats(fabricator.getSegment().getTotal());
     var pos = deltaUnits;
     while (pos < fabricator.getSegment().getTotal()) {
-      if (small.isPresent()) pickTransition(arrangement, small.get(), fabricator.getSecondsAtPosition(pos), fabricator.getTotalSeconds(), NAME_SMALL);
+      if (small.isPresent())
+        pickTransition(arrangement, small.get(), fabricator.getSecondsAtPosition(pos), fabricator.getTotalSeconds(), NAME_SMALL);
       pos += deltaUnits;
     }
   }
@@ -201,7 +202,8 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
 
     EntityScorePicker<InstrumentAudio> superEntityScorePicker = new EntityScorePicker<>();
 
-    for (InstrumentAudio audio : fabricator.sourceMaterial().getAudiosForInstrumentId(instrumentId))
+    for (InstrumentAudio audio : fabricator.sourceMaterial().getAudiosForInstrumentId(instrumentId)
+      .stream().filter(instrumentAudio -> name.equals(Text.toMeme(instrumentAudio.getName()))).collect(Collectors.toList()))
       superEntityScorePicker.add(audio, Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_INSTRUMENT));
 
     return superEntityScorePicker.getTop();
