@@ -3,7 +3,9 @@ package io.xj.nexus.craft.transition;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.api.*;
+import io.xj.api.SegmentChoice;
+import io.xj.api.SegmentChoiceArrangement;
+import io.xj.api.SegmentChoiceArrangementPick;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
@@ -99,7 +101,10 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
    @return true if it is a big transition segment
    */
   private boolean isBigTransitionSegment() throws NexusException {
-    return SegmentType.NEXTMACRO.equals(fabricator.getType()) || SegmentType.NEXTMAIN.equals(fabricator.getType());
+    return switch (fabricator.getType()) {
+      case PENDING, CONTINUE -> false;
+      case INITIAL, NEXTMAIN, NEXTMACRO -> true;
+    };
   }
 
   /**
@@ -126,14 +131,10 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     var medium = pickAudioForInstrument(instrumentId, NAME_MEDIUM);
     var big = pickAudioForInstrument(instrumentId, NAME_BIG);
 
-    switch (fabricator.getType()) {
-      case INITIAL, NEXTMAIN, NEXTMACRO -> {
-        if (big.isPresent()) pickTransition(arrangement, big.get(), 0, fabricator.getTotalSeconds(), NAME_BIG);
-      }
-      case CONTINUE -> {
-        if (medium.isPresent()) pickTransition(arrangement, medium.get(), 0, fabricator.getTotalSeconds(), NAME_MEDIUM);
-      }
-    }
+    if (isBigTransitionSegment() && big.isPresent())
+      pickTransition(arrangement, big.get(), 0, fabricator.getTotalSeconds(), NAME_BIG);
+    else if (medium.isPresent())
+      pickTransition(arrangement, medium.get(), 0, fabricator.getTotalSeconds(), NAME_MEDIUM);
 
     var deltaUnits = Bar.of(fabricator.getMainProgramConfig().getBarBeats()).computeSubsectionBeats(fabricator.getSegment().getTotal());
     var pos = deltaUnits;
