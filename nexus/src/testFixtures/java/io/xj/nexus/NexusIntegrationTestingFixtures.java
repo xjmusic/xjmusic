@@ -99,6 +99,7 @@ public class NexusIntegrationTestingFixtures {
   public ProgramSequenceBinding program4_sequence2_binding0;
   public ProgramSequenceBinding program5_sequence0_binding0;
   public ProgramSequenceBinding program5_sequence1_binding0;
+  public ProgramSequenceBinding program5_sequence1_binding1;
   public ProgramSequenceBindingMeme program15_sequence0_binding0_meme0;
   public ProgramSequenceBindingMeme program15_sequence1_binding0_meme0;
   public ProgramSequenceBindingMeme program15_sequence1_binding0_meme1;
@@ -110,6 +111,7 @@ public class NexusIntegrationTestingFixtures {
   public ProgramSequenceBindingMeme program4_sequence2_binding0_meme0;
   public ProgramSequenceBindingMeme program5_sequence0_binding0_meme0;
   public ProgramSequenceBindingMeme program5_sequence1_binding0_meme0;
+  public ProgramSequenceBindingMeme program5_sequence1_binding1_meme0;
   public ProgramSequenceChord program15_sequence0_chord0;
   public ProgramSequenceChord program15_sequence0_chord1;
   public ProgramSequenceChord program15_sequence1_chord0;
@@ -662,6 +664,8 @@ public class NexusIntegrationTestingFixtures {
     program5_sequence1_chord1_voicing = IntegrationTestingFixtures.buildVoicing(InstrumentType.Bass, program5_sequence1_chord1, "Ab3, Db3, F4");
     program5_sequence1_binding0 = IntegrationTestingFixtures.buildBinding(program5_sequence1, 1);
     program5_sequence1_binding0_meme0 = IntegrationTestingFixtures.buildMeme(program5_sequence1_binding0, "Pessimism");
+    program5_sequence1_binding1 = IntegrationTestingFixtures.buildBinding(program5_sequence1, 1);
+    program5_sequence1_binding1_meme0 = IntegrationTestingFixtures.buildMeme(program5_sequence1_binding0, "Pessimism");
 
     // A basic beat
     program35 = IntegrationTestingFixtures.buildProgram(library2, ProgramType.Rhythm, ProgramState.Published, "Basic Beat", "C", 121, 0.6f);

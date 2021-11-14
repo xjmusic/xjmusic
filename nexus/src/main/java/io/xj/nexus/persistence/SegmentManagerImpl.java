@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.xj.api.*;
+import io.xj.hub.enums.ProgramType;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.ChordEntity;
 import io.xj.lib.entity.common.MessageEntity;
@@ -346,6 +347,21 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
     } catch (NexusException e) {
       throw new ManagerFatalException(e);
     }
+  }
+
+  @Override
+  public Optional<SegmentChoice> readChoice(UUID segmentId, ProgramType programType) throws ManagerFatalException {
+    try {
+      return store.getAll(segmentId, SegmentChoice.class)
+        .stream()
+        .filter(sc -> programType.toString().equals(sc.getProgramType()))
+        .findAny();
+
+    } catch (NexusException e) {
+      throw new ManagerFatalException(e);
+    }
+
+
   }
 
   @Override

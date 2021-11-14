@@ -1,10 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.persistence;
 
-import io.xj.api.Segment;
-import io.xj.api.SegmentMessage;
-import io.xj.api.SegmentMetadata;
-import io.xj.api.SegmentState;
+import io.xj.api.*;
+import io.xj.hub.enums.ProgramType;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 
 import java.time.Instant;
@@ -169,11 +167,19 @@ public interface SegmentManager extends Manager<Segment> {
   Optional<Segment> readLastDubbedSegment(HubClientAccess access, UUID chainId) throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException;
 
   /**
+   Read a choice for a given segment id and program type
+
+   @param segmentId   for which to get choice
+   @param programType to get
+   @return main choice
+   */
+  Optional<SegmentChoice> readChoice(UUID segmentId, ProgramType programType) throws ManagerFatalException;
+
+  /**
    Whether the given segment exists in the store
 
    @param id to test
    @return true if segment exists
    */
   boolean exists(UUID id);
-
 }
