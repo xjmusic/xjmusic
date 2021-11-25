@@ -34,14 +34,22 @@ public interface PlaylistPublisher {
   void publish(long nowMillis);
 
   /**
-   Compute the media presentation description XML
+   Compute content of the DASH .mpd (Media Presentation Description) file
 
-   @return XML
+   @return XML content
    @throws IOException    on failure
    @throws ShipException  on failure
    @throws ValueException on failure
    @param nowMillis  of stream
    */
-  String computeMediaPresentationDescriptionXML(long nowMillis) throws IOException, ShipException, ValueException, ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException;
+  String computeMPD(long nowMillis) throws IOException, ShipException, ValueException, ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException;
+
+  /**
+   Compute content of the HLS .m3u8 file
+
+   @return content
+   @param nowMillis of stream
+   */
+  String computeM3U8(long nowMillis);
 
 }

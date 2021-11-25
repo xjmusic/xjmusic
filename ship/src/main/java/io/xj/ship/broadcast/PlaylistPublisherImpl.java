@@ -2,6 +2,7 @@
 
 package io.xj.ship.broadcast;
 
+import com.google.api.client.util.Lists;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.lindstrom.mpd.MPDParser;
@@ -41,8 +42,10 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   private final ChunkManager chunks;
   private final FileStoreProvider fileStoreProvider;
   private final MPDParser parser;
-  private final String mpdMimeType;
-  private final String playlistKey;
+  private final String contentTypeM3U8;
+  private final String contentTypeMPD;
+  private final String playlistKeyM3U8;
+  private final String playlistKeyMPD;
   private final String shipKey;
   private final String streamBucket;
   private final int chunkSeconds;
@@ -61,30 +64,40 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     this.fileStoreProvider = fileStoreProvider;
     this.shipKey = shipKey;
 
-    chunkSeconds = env.getShipChunkSeconds();
-    mpdMimeType = env.getShipMpdMimeType();
     parser = new MPDParser();
-    playlistKey = String.format("%s.mpd", shipKey);
+
+    chunkSeconds = env.getShipChunkSeconds();
+    contentTypeM3U8 = env.getShipM3u8ContentType();
+    contentTypeMPD = env.getShipMpdMimeType();
+    playlistKeyM3U8 = String.format("%s.m3u8", shipKey);
+    playlistKeyMPD = String.format("%s.mpd", shipKey);
     shipBitrateHigh = env.getShipBitrateHigh();
     streamBucket = env.getStreamBucket();
   }
 
   @Override
   public void publish(long nowMillis) {
-    String content = "";
     try {
-      content = computeMediaPresentationDescriptionXML(nowMillis);
-      fileStoreProvider.putS3ObjectFromString(content, streamBucket, playlistKey, mpdMimeType);
+      publish(playlistKeyMPD, contentTypeMPD, computeMPD(nowMillis));
+      publish(playlistKeyM3U8, contentTypeM3U8, computeM3U8(nowMillis));
+
+    } catch (IOException | ShipException | ManagerFatalException | ManagerExistenceException | ManagerPrivilegeException | ValueException e) {
+      LOG.error("failed to publish stream for {} at {}", shipKey, nowMillis);
+    }
+  }
+
+  private void publish(String playlistKey, String contentType, String content) {
+    try {
+      fileStoreProvider.putS3ObjectFromString(content, streamBucket, playlistKey, contentType);
       LOG.info("did ship {} bytes to s3://{}/{}", content.length(), streamBucket, playlistKey);
-    } catch (FileStoreException | IOException | ShipException | ManagerFatalException | ManagerExistenceException | ManagerPrivilegeException | ValueException e) {
+    } catch (FileStoreException e) {
       LOG.error("failed to ship {} bytes to s3://{}/{}", content.length(), streamBucket, playlistKey);
     }
   }
 
   @Override
-  public String computeMediaPresentationDescriptionXML(long nowMillis) throws IOException, ShipException, ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, ValueException {
-
-    LOG.info("chunks {}",
+  public String computeMPD(long nowMillis) throws IOException, ShipException, ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, ValueException {
+    LOG.debug("chunks {}",
       chunks.getAll(shipKey, nowMillis).stream()
         .map(chunk -> String.format("%s(%s)", chunk.getKey(shipBitrateHigh), chunk.getState()))
         .collect(Collectors.joining(",")));
@@ -147,5 +160,26 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
 
     return String.format("%s%s", XML_HEADER, parser.writeAsString(mpd));
   }
+
+  @Override
+  public String computeM3U8(long nowMillis) {
+    List<String> lines = Lists.newArrayList();
+    lines.add("#EXTM3U");
+    lines.add(String.format("#EXT-X-TARGETDURATION:%d", chunkSeconds));
+    lines.add("#EXT-X-VERSION:4");
+    lines.add(String.format("#EXT-X-MEDIA-SEQUENCE:%d", chunks.computeFromSecondUTC(nowMillis) / chunkSeconds));
+    lines.add("#EXT-X-PLAYLIST-TYPE:EVENT");
+    LOG.debug("chunks {}",
+      chunks.getAll(shipKey, nowMillis).stream()
+        .map(chunk -> String.format("%s(%s)", chunk.getKey(), chunk.getState()))
+        .collect(Collectors.joining(",")));
+    for (var chunk : chunks.getContiguousDone(shipKey, nowMillis))
+      for (var key : chunk.getStreamOutputKeys()) {
+        lines.add(String.format("#EXTINF:%d.0,", chunkSeconds));
+        lines.add(key);
+      }
+    return String.join("\n", lines) + "\n";
+  }
+
 
 }

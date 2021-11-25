@@ -55,6 +55,7 @@ public class Environment {
   private final String redisSessionNamespace;
   private final String shipBaseUrl;
   private final String shipBucket;
+  private final String shipM3u8ContentType;
   private final String shipFragmentConstructionMethod;
   private final String shipMpdMimeType;
   private final String streamBaseURL;
@@ -146,6 +147,7 @@ public class Environment {
     shipBucket = readStr(vars, "SHIP_BUCKET", "xj-dev-ship");
     shipChunkPrintTimeoutSeconds = readInt(vars, "SHIP_CHUNK_PRINT_SECONDS", 5);
     shipChunkSeconds = readInt(vars, "SHIP_CHUNK_SECONDS", 10);
+    shipM3u8ContentType = readStr(vars, "SHIP_M3U8_CONTENT_TYPE", "application/x-mpegURL");
     shipFragmentConstructionMethod = readStr(vars, "SHIP_FRAGMENT_CONSTRUCTION_METHOD", "Manual");
     shipMpdMimeType = readStr(vars, "SHIP_MPD_MIME_TYPE", "application/dash+xml");
     shipReloadSeconds = readInt(vars, "SHIP_RELOAD_SECONDS", 15);
@@ -639,6 +641,13 @@ public class Environment {
    */
   public int getShipChunkSeconds() {
     return shipChunkSeconds;
+  }
+
+  /**
+   @return the ship .m3u8 playlist content-type
+   */
+  public String getShipM3u8ContentType() {
+    return shipM3u8ContentType;
   }
 
   /**

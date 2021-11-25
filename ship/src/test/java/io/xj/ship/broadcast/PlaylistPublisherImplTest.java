@@ -72,13 +72,23 @@ public class PlaylistPublisherImplTest {
   }
 
   @Test
-  public void computeMpdXML() throws IOException, ShipException, ValueException, ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException {
+  public void computeMPD() throws IOException, ShipException, ValueException, ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException {
     when(chunkManager.getAll(eq(SHIP_KEY), eq(1513040450000L))).thenReturn(List.of(chunk0));
     when(chunkManager.getContiguousDone(eq(SHIP_KEY), eq(1513040450000L))).thenReturn(List.of(chunk0));
 
-    var result = subject.computeMediaPresentationDescriptionXML(1513040450000L);
+    var result = subject.computeMPD(1513040450000L);
 
     assertMatchesResourceFile(result, "mpeg_dash_playlist/test5.mpd");
+  }
+
+  @Test
+  public void computeM3U8() throws IOException, ShipException, ValueException, ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException {
+    when(chunkManager.getAll(eq(SHIP_KEY), eq(1513040450000L))).thenReturn(List.of(chunk0));
+    when(chunkManager.getContiguousDone(eq(SHIP_KEY), eq(1513040450000L))).thenReturn(List.of(chunk0));
+
+    var result = subject.computeM3U8(1513040450000L);
+
+    assertMatchesResourceFile(result, "mpeg_dash_playlist/test5.m3u8");
   }
 
   /**
