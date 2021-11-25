@@ -18,8 +18,9 @@ public interface SourceFactory {
    */
   SegmentAudio segmentAudio(
     @Assisted("shipKey") String shipKey,
-    @Assisted("segment") Segment segment
-  );
+    @Assisted("segment") Segment segment,
+    @Assisted("absolutePath") String absolutePath
+    );
 
   /**
    Load the chain manifest, including all its chains

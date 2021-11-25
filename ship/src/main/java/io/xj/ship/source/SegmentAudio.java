@@ -6,19 +6,23 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.api.Segment;
 import io.xj.lib.app.Environment;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueException;
+import io.xj.ship.ShipException;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sound.sampled.AudioFormat;
-import java.io.InputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.IOException;
 import java.time.Instant;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import static io.xj.lib.util.Values.MICROS_PER_SECOND;
-import static io.xj.lib.util.Values.NANOS_PER_SECOND;
+import static io.xj.lib.util.Values.*;
 
 /**
  An HTTP Live Streaming Media Segment
@@ -33,26 +37,75 @@ public class SegmentAudio {
   private static final Logger LOG = LoggerFactory.getLogger(SegmentAudio.class);
   private static final int MILLIS_PER_SECOND = 1000;
   private final Segment segment;
+  private final String absolutePath;
   private final String shipKey;
   private final int shipSegmentLoadTimeoutMillis;
   private final Instant endAt;
   private final Instant beginAt;
+  private final AudioFormat audioFormat;
+  private final int channels;
+  private final float frameRate;
+  private final int frameSize;
+  private final int sampleSizeInBits;
   private Instant updated;
-  private OGGVorbisDecoder ogg;
   private SegmentAudioState state;
 
   @Inject
   public SegmentAudio(
+    @Assisted("absolutePath") String absolutePath,
     @Assisted("segment") Segment segment,
     @Assisted("shipKey") String shipKey,
     Environment env
-  ) {
+  ) throws ShipException {
+    this.absolutePath = absolutePath;
     this.shipKey = shipKey;
     this.segment = segment;
     shipSegmentLoadTimeoutMillis = env.getShipSegmentLoadTimeoutSeconds() * MILLIS_PER_SECOND;
     state = SegmentAudioState.Pending;
     beginAt = Instant.parse(segment.getBeginAt()).minusNanos((long) (segment.getWaveformPreroll() * NANOS_PER_SECOND));
     endAt = Instant.parse(segment.getEndAt()).plusNanos((long) (segment.getWaveformPostroll() * NANOS_PER_SECOND));
+
+    try (
+      var fileInputStream = FileUtils.openInputStream(new File(absolutePath));
+      var bufferedInputStream = new BufferedInputStream(fileInputStream);
+      var audioInputStream = AudioSystem.getAudioInputStream(bufferedInputStream)
+    ) {
+      audioFormat = audioInputStream.getFormat();
+      channels = audioFormat.getChannels();
+      frameRate = audioFormat.getFrameRate();
+      frameSize = audioFormat.getFrameSize();
+      long frameLength = audioInputStream.getFrameLength();
+      sampleSizeInBits = audioFormat.getSampleSizeInBits();
+      double lengthSeconds = (frameLength + 0.0) / frameRate;
+      enforceMaxStereo(channels);
+      state = SegmentAudioState.Ready;
+      LOG.debug("Loaded absolutePath: {}, sourceId: {}, audioFormat: {}, channels: {}, frameRate: {}, frameLength: {}, lengthSeconds: {}",
+        absolutePath, shipKey, audioFormat, channels, frameRate, frameLength, lengthSeconds);
+
+    } catch (UnsupportedAudioFileException | IOException | ValueException e) {
+      throw new ShipException(String.format("Failed to read audio from disk %s", absolutePath), e);
+    }
+  }
+
+  /**
+   @return channels of segment audio
+   */
+  public int getChannels() {
+    return channels;
+  }
+
+  /**
+   @return frameRate of segment audio
+   */
+  public float getFrameRate() {
+    return frameRate;
+  }
+
+  /**
+   @return frame size (in bytes) of segment audio
+   */
+  public int getFrameSize() {
+    return frameSize;
   }
 
   /**
@@ -61,7 +114,14 @@ public class SegmentAudio {
    @return info
    */
   public AudioFormat getAudioFormat() {
-    return ogg.getAudioFormat();
+    return audioFormat;
+  }
+
+  /**
+   @return sample size (in bits) of segment audio
+   */
+  public int getSampleSizeInBits() {
+    return sampleSizeInBits;
   }
 
   /**
@@ -75,20 +135,6 @@ public class SegmentAudio {
   public boolean intersects(String shipKey, Instant from, Instant to) {
     if (!Objects.equals(shipKey, this.shipKey)) return false;
     return from.isBefore(endAt) && to.isAfter(beginAt);
-  }
-
-  /**
-   Load OGG/Vorbis audio data into PCM buffer
-
-   @param inputStream from which to load
-   */
-  public SegmentAudio loadOggVorbis(InputStream inputStream) {
-    state = SegmentAudioState.Decoding;
-    ogg = OGGVorbisDecoder.decode(inputStream);
-    LOG.info("Decoded {} frames from OGG/Vorbis", getTotalPcmFrames());
-    state = SegmentAudioState.Ready;
-
-    return this;
   }
 
   public SegmentAudioState getState() {
@@ -108,19 +154,6 @@ public class SegmentAudio {
   }
 
   /**
-   Get the frame for a given instant
-
-   @param of instant
-   @return source audio frame for the specified instant
-   */
-  public int getFrameIndex(Instant of) {
-    return (int)
-      Math.floor(getAudioFormat().getSampleRate() *
-        (Values.toEpochMicros(of) - Values.toEpochMicros(beginAt))
-        / MICROS_PER_SECOND);
-  }
-
-  /**
    @return the ship key
    */
   public String getShipKey() {
@@ -129,23 +162,8 @@ public class SegmentAudio {
 
   /**
    Get the total number of frames in the pcm buffer
-
-   @return total number of frames
-   */
-  public int getTotalPcmFrames() {
-    return ogg.getPcmData().size();
-  }
-
-  /**
-   Get the PCM data
-
-   @return PCM data
-   */
-  public List<double[]> getPcmData() {
-    return ogg.getPcmData();
-  }
-
-  /**
+   <p>
+   /**
    Whether this segment audio is loading (within timeout of the given now millis) or ready
 
    @param nowMillis from which to test
@@ -166,5 +184,12 @@ public class SegmentAudio {
    */
   public void setUpdated(Instant updated) {
     this.updated = updated;
+  }
+
+  /**
+   @return absolut path to uncompressed WAV segment audio on disk
+   */
+  public String getAbsolutePath() {
+    return absolutePath;
   }
 }

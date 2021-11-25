@@ -43,7 +43,6 @@ import static io.xj.lib.util.Assertion.assertFileMatchesResourceFile;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -92,16 +91,15 @@ public class ChunkPrinterImplTest {
       32,
       0.6,
       120.0,
-      "seg123.ogg",
-      "wav");
+      "seg123",
+      "ogg");
   }
 
   @Test
   public void run() throws Exception {
     var subject = buildSubject(Environment.getDefault());
-    var loader = ChunkPrinterImplTest.class.getClassLoader();
-    var input = loader.getResourceAsStream("ogg_decoding/coolair-1633586832900943.ogg");
-    segmentAudios.add(source.segmentAudio(SHIP_KEY, segment2).loadOggVorbis(input));
+    String sourcePath = new InternalResource("ogg_decoding/coolair-1633586832900943.wav").getFile().getAbsolutePath();
+    segmentAudios.add(source.segmentAudio(SHIP_KEY, segment2, sourcePath));
 
     subject.print();
 
@@ -119,9 +117,8 @@ public class ChunkPrinterImplTest {
   @Test
   public void run_mp4boxFragmentConstructionMethod() throws Exception {
     var subject = buildSubject(Environment.from(Map.of("SHIP_FRAGMENT_CONSTRUCTION_METHOD", "mp4box")));
-    var loader = ChunkPrinterImplTest.class.getClassLoader();
-    var input = loader.getResourceAsStream("ogg_decoding/coolair-1633586832900943.ogg");
-    segmentAudios.add(source.segmentAudio(SHIP_KEY, segment2).loadOggVorbis(input));
+    String sourcePath = new InternalResource("ogg_decoding/coolair-1633586832900943.wav").getFile().getAbsolutePath();
+    segmentAudios.add(source.segmentAudio(SHIP_KEY, segment2, sourcePath));
 
     subject.print();
 
@@ -145,18 +142,6 @@ public class ChunkPrinterImplTest {
     subject.print();
 
     verify(chunkManager, never()).put(any());
-    assertNull(subject.getOutputPcmData());
-  }
-
-  @Test
-  public void run_nothingFromUnreadyAudio() throws Exception {
-    var subject = buildSubject(Environment.getDefault());
-    segmentAudios.add(source.segmentAudio(SHIP_KEY, segment2));
-
-    subject.print();
-
-    verify(chunkManager, never()).put(any());
-    assertNull(subject.getOutputPcmData());
   }
 
   @Test

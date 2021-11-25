@@ -323,10 +323,10 @@ public class NexusIntegrationTestingFixtures {
     return seg;
   }
 
-  public static Segment buildSegment(Chain chain, int offset, SegmentState state, Instant beginAt, @Nullable Instant endAt, String key, int total, double density, double tempo, String shipKey, String outputEncoder) {
+  public static Segment buildSegment(Chain chain, int offset, SegmentState state, Instant beginAt, @Nullable Instant endAt, String key, int total, double density, double tempo, String storageKey, String outputEncoder) {
     return buildSegment(chain,
       0 < offset ? SegmentType.CONTINUE : SegmentType.INITIAL,
-      offset, 0, state, beginAt, endAt, key, total, density, tempo, shipKey, outputEncoder);
+      offset, 0, state, beginAt, endAt, key, total, density, tempo, storageKey, outputEncoder);
   }
 
   public static Segment buildSegment(Chain chain, SegmentType type, int offset, int delta, SegmentState state, Instant beginAt, @Nullable Instant endAt, String key, int total, double density, double tempo, String shipKey) {
@@ -334,7 +334,7 @@ public class NexusIntegrationTestingFixtures {
 
   }
 
-  public static Segment buildSegment(Chain chain, SegmentType type, int offset, int delta, SegmentState state, Instant beginAt, @Nullable Instant endAt, String key, int total, double density, double tempo, String shipKey, String outputEncoder) {
+  public static Segment buildSegment(Chain chain, SegmentType type, int offset, int delta, SegmentState state, Instant beginAt, @Nullable Instant endAt, String key, int total, double density, double tempo, String storageKey, String outputEncoder) {
     var segment = new Segment();
     segment.setId(UUID.randomUUID());
     segment.setChainId(chain.getId());
@@ -348,7 +348,7 @@ public class NexusIntegrationTestingFixtures {
     segment.setTotal(total);
     segment.setDensity(density);
     segment.setTempo(tempo);
-    segment.setStorageKey(shipKey);
+    segment.setStorageKey(storageKey);
     segment.setWaveformPreroll(0.0);
     segment.setWaveformPostroll(0.0);
 

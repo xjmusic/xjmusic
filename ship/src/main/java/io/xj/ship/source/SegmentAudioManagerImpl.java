@@ -6,15 +6,15 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.xj.api.Segment;
-import io.xj.lib.app.Environment;
-import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.filestore.FileStoreException;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.Segments;
+import io.xj.ship.ShipException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Map;
@@ -29,23 +29,19 @@ import java.util.stream.Collectors;
 public class SegmentAudioManagerImpl implements SegmentAudioManager {
   private static final Logger LOG = LoggerFactory.getLogger(SegmentAudioManagerImpl.class);
   private final Map<UUID/* segmentId */, SegmentAudio> segmentAudios = Maps.newConcurrentMap();
-  private final FileStoreProvider fileStoreProvider;
-  private final String shipBucket;
   private final NexusEntityStore store;
+  private final SegmentAudioCache cache;
   private final SourceFactory sourceFactory;
 
   @Inject
   public SegmentAudioManagerImpl(
-    Environment env,
-    FileStoreProvider fileStoreProvider,
     NexusEntityStore store,
+    SegmentAudioCache cache,
     SourceFactory sourceFactory
   ) {
-    this.fileStoreProvider = fileStoreProvider;
-
-    shipBucket = env.getShipBucket();
-    this.store = store;
+    this.cache = cache;
     this.sourceFactory = sourceFactory;
+    this.store = store;
   }
 
   @Override
@@ -55,23 +51,15 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
   }
 
   @Override
-  public void createAndLoadAudio(String shipKey, Segment segment) {
-    // First we create this in Loading state as a placeholder
+  public void preload(String shipKey, Segment segment) throws ShipException {
     try {
       store.put(segment);
-    } catch (NexusException e) {
-      LOG.error("Failed to put Segment in store", e);
-    }
-    var segmentAudio = sourceFactory.segmentAudio(shipKey, segment);
-    put(segmentAudio);
-
-    // Then we try to load the actual audio data
-    try (var inputStream = fileStoreProvider.streamS3Object(shipBucket, Segments.getStorageFilename(segment));
-         var bufferedInputStream = new BufferedInputStream(inputStream)) {
-      segmentAudio.loadOggVorbis(bufferedInputStream);
+      var absolutePath = cache.getAbsolutePathToUncompressedAudio(segment);
+      var segmentAudio = sourceFactory.segmentAudio(shipKey, segment, absolutePath);
       put(segmentAudio);
 
-    } catch (Exception e) {
+    } catch (NexusException | FileStoreException | IOException | InterruptedException e) {
+      LOG.error("Failed to preload audio for Segment[{}]", Segments.getIdentifier(segment), e);
       collectGarbage(segment.getId());
     }
   }
@@ -90,6 +78,7 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
   @Override
   public void collectGarbage(UUID segmentId) {
     segmentAudios.remove(segmentId);
+    // TODO remove temp files on disk here too
     try {
       store.deleteSegment(segmentId);
     } catch (NexusException e) {
@@ -98,9 +87,9 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
   }
 
   @Override
-  public void retry(UUID segmentId) {
+  public void retry(UUID segmentId) throws ShipException {
     SegmentAudio audio = segmentAudios.get(segmentId);
-    createAndLoadAudio(audio.getShipKey(), audio.getSegment());
+    preload(audio.getShipKey(), audio.getSegment());
   }
 
   @Override

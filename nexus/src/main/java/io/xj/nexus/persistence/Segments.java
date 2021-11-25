@@ -9,6 +9,7 @@ import io.xj.api.SegmentChordVoicing;
 import io.xj.api.SegmentState;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
+import io.xj.lib.mixer.OutputEncoder;
 import io.xj.lib.music.Note;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Values;
@@ -143,12 +144,22 @@ public enum Segments {
   }
 
   /**
-   Get the full storage key for a segment
+   Get the full storage key for a segment audio
 
    @param segment for which to get storage key
    @return storage key for segment
    */
   public static String getStorageFilename(Segment segment) {
     return getStorageFilename(segment.getStorageKey(), segment.getOutputEncoder().toLowerCase(Locale.ENGLISH));
+  }
+
+  /**
+   Get the full storage key for an uncompressed segment audio
+
+   @param segment for which to get storage key
+   @return storage key for segment
+   */
+  public static String getUncompressedStorageFilename(Segment segment) {
+    return getStorageFilename(segment.getStorageKey(), OutputEncoder.WAV.name().toLowerCase(Locale.ENGLISH));
   }
 }

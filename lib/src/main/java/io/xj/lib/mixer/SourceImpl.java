@@ -3,6 +3,8 @@ package io.xj.lib.mixer;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import io.xj.lib.util.ValueException;
+import io.xj.lib.util.Values;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,9 +27,7 @@ import static io.xj.lib.util.Values.MICROS_PER_SECOND;
 class SourceImpl implements Source {
   private static final Logger LOG = LoggerFactory.getLogger(SourceImpl.class);
   private final AudioFormat audioFormat;
-
   private final String absolutePath;
-
   private final String sourceId;
   private final double lengthSeconds;
   private final double microsPerFrame;
@@ -56,26 +56,15 @@ class SourceImpl implements Source {
       lengthSeconds = (frameLength + 0.0) / frameRate;
       lengthMicros = (long) (MICROS_PER_SECOND * lengthSeconds);
       microsPerFrame = MICROS_PER_SECOND / frameRate;
-      enforceMaxStereo(channels);
+      Values.enforceMaxStereo(channels);
       LOG.debug("Loaded absolutePath: {}, sourceId: {}, audioFormat: {}, channels: {}, frameRate: {}, frameLength: {}, lengthSeconds: {}, lengthMicros: {}, microsPerFrame: {}",
         absolutePath, sourceId, audioFormat, channels, frameRate, frameLength, lengthSeconds, lengthMicros, microsPerFrame);
 
-    } catch (UnsupportedAudioFileException | IOException e) {
-      throw new MixerException(String.format("Failed to read audio from disk %s", absolutePath), e);
+    } catch (UnsupportedAudioFileException | IOException | ValueException e) {
+      throw new MixerException(e);
     }
 
     LOG.debug("Did load source {}", sourceId);
-  }
-
-  /**
-   Enforce a maximum
-
-   @param value actual
-   @throws SourceException if value greater than allowable
-   */
-  static void enforceMaxStereo(int value) throws SourceException {
-    if (value > 2)
-      throw new SourceException("more than 2 input audio channels not allowed");
   }
 
   @Override

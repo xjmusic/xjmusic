@@ -214,4 +214,10 @@ public class ValuesTest {
     assertEquals(20, Values.interpolate(10, 20, 1, 1.0), 0.000001);
     assertEquals(15, Values.interpolate(10, 20, 1, 0.5), 0.000001);
   }
+
+  @Test
+  public void enforceMaxStereo() {
+    assertThrows(ValueException.class, () -> Values.enforceMaxStereo(3));
+  }
+
 }

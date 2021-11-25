@@ -18,12 +18,12 @@ public class SourceModule extends AbstractModule {
   protected void configure() {
     bind(SegmentManager.class).to(SegmentManagerImpl.class);
     bind(SegmentAudioManager.class).to(SegmentAudioManagerImpl.class);
+    bind(SegmentAudioCache.class).to(SegmentAudioCacheImpl.class);
     install(new FactoryModuleBuilder()
       .implement(ChainLoader.class, ChainLoaderImpl.class)
       .implement(SegmentAudio.class, SegmentAudio.class)
       .implement(SegmentLoader.class, SegmentLoaderImpl.class)
       .build(SourceFactory.class));
-
     install(new JsonModule());
     install(new JsonapiModule());
     install(new EntityModule());

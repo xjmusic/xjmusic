@@ -130,8 +130,8 @@ public class FabricatorImplTest {
       8,
       0.6,
       120.0,
-      "seg123.ogg",
-      "wav"));
+      "seg123",
+      "ogg"));
     Segment segment = store.put(buildSegment(
       chain,
       2,
@@ -142,8 +142,8 @@ public class FabricatorImplTest {
       8,
       0.6,
       240.0,
-      "seg123.ogg",
-      "wav"));
+      "seg123",
+      "ogg"));
     when(mockFabricatorFactory.createTimeComputer(anyDouble(), anyDouble(), anyDouble()))
       .thenReturn(mockTimeComputer);
     when(mockTimeComputer.getSecondsAtPosition(anyDouble()))
@@ -186,8 +186,8 @@ public class FabricatorImplTest {
       8,
       0.6,
       120.0,
-      "seg123.ogg",
-      "wav"));
+      "seg123",
+      "ogg"));
     Segment segment = store.put(buildSegment(
       chain,
       2,
@@ -198,8 +198,8 @@ public class FabricatorImplTest {
       8,
       0.6,
       240.0,
-      "seg123.ogg",
-      "wav"));
+      "seg123",
+      "ogg"));
     store.put(buildSegmentChord(segment, 0.0, "A"));
     store.put(buildSegmentChoice(
       segment,
@@ -269,8 +269,8 @@ public class FabricatorImplTest {
       8,
       0.6,
       120.0,
-      "seg123.ogg",
-      "wav"));
+      "seg123",
+      "ogg"));
     Segment segment = store.put(buildSegment(
       chain,
       2,
@@ -281,8 +281,8 @@ public class FabricatorImplTest {
       8,
       0.6,
       240.0,
-      "seg123.ogg",
-      "wav"));
+      "seg123",
+      "ogg"));
     SegmentChoice mainChoice = store.put(buildSegmentChoice(
       segment,
       Segments.DELTA_UNLIMITED,
@@ -329,8 +329,8 @@ public class FabricatorImplTest {
       8,
       0.6,
       120.0,
-      "seg123.ogg",
-      "wav"));
+      "seg123",
+      "ogg"));
     var previousMacroChoice = // second-to-last sequence of macro program
       store.put(buildSegmentChoice(
         previousSegment,
@@ -355,8 +355,8 @@ public class FabricatorImplTest {
       8,
       0.6,
       240.0,
-      "seg123.ogg",
-      "wav"));
+      "seg123",
+      "ogg"));
     when(mockFabricatorFactory.loadRetrospective(any(), any()))
       .thenReturn(mockSegmentRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any()))
@@ -396,8 +396,8 @@ public class FabricatorImplTest {
       8,
       0.6,
       120.0,
-      "seg123.ogg",
-      "wav"));
+      "seg123",
+      "ogg"));
     var previousMacroChoice = // second-to-last sequence of macro program
       store.put(buildSegmentChoice(
         previousSegment,
@@ -421,8 +421,8 @@ public class FabricatorImplTest {
       8,
       0.6,
       240.0,
-      "seg123.ogg",
-      "wav"));
+      "seg123",
+      "ogg"));
     when(mockFabricatorFactory.loadRetrospective(any(), any()))
       .thenReturn(mockSegmentRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any()))
@@ -458,8 +458,8 @@ public class FabricatorImplTest {
       8,
       0.6,
       240.0,
-      "seg123.ogg",
-      "wav"));
+      "seg123",
+      "ogg"));
     when(mockFabricatorFactory.loadRetrospective(any(), any()))
       .thenReturn(mockSegmentRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any()))
@@ -505,8 +505,8 @@ public class FabricatorImplTest {
       8,
       0.6,
       240.0,
-      "seg123.ogg",
-      "wav"));
+      "seg123",
+      "ogg"));
     when(mockFabricatorFactory.loadRetrospective(any(), any()))
       .thenReturn(mockSegmentRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any()))
@@ -557,8 +557,8 @@ public class FabricatorImplTest {
       8,
       0.6,
       240.0,
-      "seg123.ogg",
-      "wav"));
+      "seg123",
+      "ogg"));
     when(mockFabricatorFactory.loadRetrospective(any(), any()))
       .thenReturn(mockSegmentRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any()))

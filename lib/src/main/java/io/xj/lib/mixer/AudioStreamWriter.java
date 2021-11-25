@@ -11,18 +11,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public class AudioStreamWriter {
-  private final double[][] stream;
-  private final float quality;
-
+public record AudioStreamWriter(double[][] stream, float quality) {
   /**
    of a new audio stream writer instance, with a specific quality setting
 
    @param stream to output
    */
-  public AudioStreamWriter(double[][] stream, float quality) {
-    this.stream = stream;
-    this.quality = quality;
+  public AudioStreamWriter {
   }
 
   /**

@@ -3,6 +3,7 @@ package io.xj.lib.util;
 
 import com.google.api.client.util.Lists;
 import com.google.common.base.Strings;
+import io.xj.lib.mixer.SourceException;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
@@ -10,7 +11,6 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -401,5 +401,16 @@ public interface Values {
    */
   static Double interpolate(double floor, double ceiling, double position, double multiplier) {
     return floor + (ceiling - floor) * position * multiplier;
+  }
+
+  /**
+   Enforce a maximum
+
+   @param value actual
+   @throws ValueException if value greater than allowable
+   */
+  static void enforceMaxStereo(int value) throws ValueException {
+    if (value > 2)
+      throw new ValueException("more than 2 input audio channels not allowed");
   }
 }

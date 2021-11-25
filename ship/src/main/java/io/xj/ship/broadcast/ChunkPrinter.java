@@ -13,13 +13,6 @@ public interface ChunkPrinter {
   void print();
 
   /**
-   Get the output PCM data
-
-   @return PCM data[frame][channel]
-   */
-  double[][] getOutputPcmData();
-
-  /**
    @return the .wav file path
    */
   String getWavFilePath();

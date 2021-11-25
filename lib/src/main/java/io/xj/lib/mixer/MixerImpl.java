@@ -23,8 +23,8 @@ import static io.xj.lib.util.Values.MICROS_PER_SECOND;
 import static io.xj.lib.util.Values.NANOS_PER_SECOND;
 
 class MixerImpl implements Mixer {
+  private static final Logger LOG = LoggerFactory.getLogger(MixerImpl.class);
   public static final int MAX_INT_LENGTH_ARRAY_SIZE = 2147483647;
-  private static final Logger log = LoggerFactory.getLogger(MixerImpl.class);
   private static final int READ_BUFFER_BYTE_SIZE = 1024;
   private static final int NORMALIZATION_GRAIN = 20;
   private static final int COMPRESSION_GRAIN = 20;
@@ -87,7 +87,7 @@ class MixerImpl implements Mixer {
       outputFrameSize = config.getOutputFormat().getFrameSize();
       microsPerFrame = (float) (MICROS_PER_SECOND / outputFrameRate);
 
-      log.debug(config.getLogPrefix() +
+      LOG.debug(config.getLogPrefix() +
           "Did initialize mixer with " +
           "outputChannels: {}, " +
           "outputFrameRate: {}, " +
@@ -145,7 +145,7 @@ class MixerImpl implements Mixer {
     long startedAt = System.nanoTime();
     var numInstances = puts.size();
     var numSources = sources.size();
-    log.debug(config.getLogPrefix() + "Will mix {} seconds of output audio at {} Hz frame rate from {} instances of {} sources",
+    LOG.debug(config.getLogPrefix() + "Will mix {} seconds of output audio at {} Hz frame rate from {} instances of {} sources",
       String.format("%.9f", totalSeconds),
       outputFrameRate,
       puts.size(),
@@ -172,7 +172,7 @@ class MixerImpl implements Mixer {
 
     //
     state = MixerState.Done;
-    log.debug(config.getLogPrefix() + "Did mix {} seconds of output audio at {} Hz from {} instances of {} sources in {}s",
+    LOG.debug(config.getLogPrefix() + "Did mix {} seconds of output audio at {} Hz from {} instances of {} sources in {}s",
       String.format("%.9f", totalSeconds),
       outputFrameRate,
       numInstances,
@@ -180,14 +180,14 @@ class MixerImpl implements Mixer {
       String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
 
     if (0 == outBuf.length) {
-      log.warn(config.getLogPrefix() + "Output buffer is empty!");
+      LOG.warn(config.getLogPrefix() + "Output buffer is empty!");
       outBuf = new double[][]{new double[]{0, 0}, new double[]{0, 0}};
     }
 
     startedAt = System.nanoTime();
-    log.debug(config.getLogPrefix() + "Will write {} bytes of output audio", totalBytes);
+    LOG.debug(config.getLogPrefix() + "Will write {} bytes of output audio", totalBytes);
     new AudioStreamWriter(outBuf, quality).writeToFile(outputFilePath, config.getOutputFormat(), outputEncoder, totalFrames);
-    log.debug(config.getLogPrefix() + "Did write {} OK in {}s", outputFilePath, String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
+    LOG.debug(config.getLogPrefix() + "Did write {} OK in {}s", outputFilePath, String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
     return totalSeconds;
   }
 
@@ -283,6 +283,9 @@ class MixerImpl implements Mixer {
       var sampleSize = frameSize / channels;
       var expectBytes = audioInputStream.available();
 
+      if (MAX_INT_LENGTH_ARRAY_SIZE <= expectBytes)
+        throw new MixerException("loading audio steams longer than 2,147,483,647 frames (max. value of signed 32-bit integer) is not supported");
+
       int expectFrames;
       if (expectBytes == source.getFrameLength()) {
         // this is a bug where AudioInputStream returns bytes (instead of frames which it claims)
@@ -290,6 +293,9 @@ class MixerImpl implements Mixer {
       } else {
         expectFrames = (int) source.getFrameLength();
       }
+
+      if (AudioSystem.NOT_SPECIFIED == frameSize || AudioSystem.NOT_SPECIFIED == expectFrames)
+        throw new MixerException("audio streams with unspecified frame size or length are unsupported");
 
       AudioSampleFormat sampleFormat = AudioSampleFormat.typeOfInput(source.getAudioFormat());
 
@@ -317,15 +323,6 @@ class MixerImpl implements Mixer {
           sf++;
         }
       }
-
-      if (MAX_INT_LENGTH_ARRAY_SIZE <= expectBytes) { // max int-length array size
-        throw new MixerException("loading audio steams longer than 2,147,483,647 frames (max. value of signed 32-bit integer) is not supported");
-      }
-
-      if (AudioSystem.NOT_SPECIFIED == frameSize || AudioSystem.NOT_SPECIFIED == expectFrames) {
-        throw new MixerException("audio streams with unspecified frame size or length are unsupported");
-      }
-
     } catch (UnsupportedAudioFileException | IOException | FormatException e) {
       throw new MixerException(String.format("Failed to apply Source[%s]", source.getSourceId()), e);
     }

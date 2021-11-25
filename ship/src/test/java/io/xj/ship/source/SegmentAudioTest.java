@@ -5,6 +5,7 @@ package io.xj.ship.source;
 import com.google.inject.Guice;
 import io.xj.api.*;
 import io.xj.hub.enums.TemplateType;
+import io.xj.lib.mixer.InternalResource;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,26 +44,28 @@ public class SegmentAudioTest {
       8,
       0.6,
       120.0,
-      "seg123.ogg",
-      "wav");
+      "seg123",
+      "ogg");
     segment1.setWaveformPreroll(1.7306228);
     segment1.setWaveformPostroll(1.205893);
     var injector = Guice.createInjector(new SourceModule());
     factory = injector.getInstance(SourceFactory.class);
-    subject = factory.segmentAudio(chain1.getShipKey(), segment1);
+    String sourcePath = new InternalResource("ogg_decoding/coolair-1633586832900943.wav").getFile().getAbsolutePath();
+    subject = factory.segmentAudio(chain1.getShipKey(), segment1, sourcePath);
   }
 
   @Test
   public void from() {
-    var result = factory.segmentAudio(chain1.getShipKey(), segment1);
+    String sourcePath = new InternalResource("ogg_decoding/coolair-1633586832900943.wav").getFile().getAbsolutePath();
+    var result = factory.segmentAudio(chain1.getShipKey(), segment1, sourcePath);
 
     assertEquals(result.getSegment(), subject.getSegment());
-    assertEquals(SegmentAudioState.Pending, result.getState());
+    assertEquals(SegmentAudioState.Ready, result.getState());
   }
 
   @Test
   public void getState() {
-    assertEquals(SegmentAudioState.Pending, subject.getState());
+    assertEquals(SegmentAudioState.Ready, subject.getState());
   }
 
   @Test

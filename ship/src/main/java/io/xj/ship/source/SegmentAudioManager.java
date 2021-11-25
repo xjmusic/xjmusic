@@ -27,12 +27,12 @@ public interface SegmentAudioManager {
   Optional<SegmentAudio> get(UUID segmentId);
 
   /**
-   Update the audio stream loader for a given segment id
+   Preload on disk an uncompressed version of the segment audio
 
-   @param shipKey of segment for which to update audio loader
-   @param segment audio data
+   @param shipKey of template for which to load audio
+   @param segment to load
    */
-  void createAndLoadAudio(String shipKey, Segment segment) throws ShipException, IOException, FormatException, FileStoreException;
+  void preload(String shipKey, Segment segment) throws ShipException, IOException, FormatException, FileStoreException;
 
   /**
    Put a Segment Audio in the store
@@ -53,7 +53,7 @@ public interface SegmentAudioManager {
 
    @param segmentId to retry
    */
-  void retry(UUID segmentId);
+  void retry(UUID segmentId) throws ShipException;
 
   /**
    Get all segments intersecting the specified time frame

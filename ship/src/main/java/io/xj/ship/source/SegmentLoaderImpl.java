@@ -52,7 +52,7 @@ public class SegmentLoaderImpl extends SegmentLoader {
         segmentAudioManager.get(segment.getId());
 
       if (audio.isEmpty()) {
-        segmentAudioManager.createAndLoadAudio(shipKey, segment);
+        segmentAudioManager.preload(shipKey, segment);
 
       } else switch (audio.get().getState()) {
         case Pending, Decoding, Ready -> {

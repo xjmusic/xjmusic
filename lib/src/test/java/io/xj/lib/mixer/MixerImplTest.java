@@ -2,6 +2,7 @@
 package io.xj.lib.mixer;
 
 import com.google.inject.Guice;
+import com.google.inject.ProvisionException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -83,15 +84,12 @@ public class MixerImplTest {
     assertFalse(testMixer.hasLoadedSource("bonkers"));
   }
 
-  @Test(expected = SourceException.class)
+  @Test
   public void loadSource_failsIfMoreThan2InputChannels() throws Exception {
-    try {
-      InternalResource internalResource = new InternalResource("test_audio/F32LSB_48kHz_6ch.wav");
-      testMixer.loadSource("F32LSB_48kHz_6ch", internalResource.getFile().getAbsolutePath());
+    InternalResource internalResource = new InternalResource("test_audio/F32LSB_48kHz_6ch.wav");
+    var e = assertThrows(ProvisionException.class,
+      () -> testMixer.loadSource("F32LSB_48kHz_6ch", internalResource.getFile().getAbsolutePath()));
 
-    } catch (Exception e) {
-      assertTrue(e.getMessage().contains("more than 2 input audio channels not allowed"));
-      throw e;
-    }
+    assertTrue(e.getMessage().contains("more than 2 input audio channels not allowed"));
   }
 }

@@ -2,6 +2,7 @@
 package io.xj.lib.mixer;
 
 import com.google.inject.Guice;
+import com.google.inject.ProvisionException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,11 +27,12 @@ public class SourceImplTest {
       new InternalResource("test_audio/S16LSB_44100Hz_Mono.wav").getFile().getAbsolutePath());
   }
 
-  @Test(expected = SourceException.class)
-  public void unsupported_over2channels() throws Exception {
-    assertNotNull(mixerFactory.createSource(
-      "F32LSB_48kHz_6ch",
-      new InternalResource("test_audio/F32LSB_48kHz_6ch.wav").getFile().getAbsolutePath()));
+  @Test
+  public void unsupported_over2channels() {
+    assertThrows(ProvisionException.class,
+      () -> mixerFactory.createSource(
+        "F32LSB_48kHz_6ch",
+        new InternalResource("test_audio/F32LSB_48kHz_6ch.wav").getFile().getAbsolutePath()));
   }
 
   @Test
