@@ -252,10 +252,14 @@ public class ChunkPrinterImpl implements ChunkPrinter {
   private void applySource(SegmentAudio source) throws ShipException {
     int i; // frame iterator
     int b; // bytes iterator
-    int tf, otf = -1; // target output buffer frame, and cache the old value in order to skip frames, init at -1 to force initial frame
-    int tc; // iterators: source channel, target channel
+    int tc; // target channel iterator
+    int sf = 0; // current source frame
+    int tf, otf = -1; // target output buffer frame, and cache the old value in order to skip non-advanced frames (upsampling), init at -1 to force initial frame
     int ptf; // put at frame iterator (in output)
     double v; // a single sample value, and the enveloped value
+
+    // source preroll frames (segment waveform preroll expressed in terms of source audio frame count)
+    var spf = (int) (source.getSegment().getWaveformPreroll() * source.getAudioFormat().getFrameRate());
 
     // actual microseconds-since-epoch to begin segment audio
     var sam = toEpochMicros(Instant.parse(source.getSegment().getBeginAt())) + source.getSegment().getWaveformPreroll() * MICROS_PER_SECOND;
@@ -298,13 +302,12 @@ public class ChunkPrinterImpl implements ChunkPrinter {
 
       AudioSampleFormat sampleFormat = AudioSampleFormat.typeOfInput(source.getAudioFormat());
 
-      int sf = 0; // current source frame
       int numBytesReadToBuffer;
       byte[] sampleBuffer = new byte[source.getSampleSizeInBits() / 8];
       byte[] readBuffer = new byte[READ_BUFFER_BYTE_SIZE];
       while (-1 != (numBytesReadToBuffer = audioInputStream.read(readBuffer))) {
         for (b = 0; b < numBytesReadToBuffer; b += frameSize) {
-          tf = (int) Math.floor(sf * fr); // compute the target frame (converted from source rate to target rate)
+          tf = (int) Math.floor((sf - spf) * fr); // compute the target frame (converted from source rate to target rate)
           // FUTURE: skip frame if unnecessary (source rate higher than target rate)
           for (tc = 0; tc < outputFormat.getChannels(); tc++) {
             System.arraycopy(readBuffer, b + (isStereo ? tc : 0) * sampleSize, sampleBuffer, 0, sampleSize);
