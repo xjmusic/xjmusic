@@ -54,7 +54,7 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
   public void preload(String shipKey, Segment segment) throws ShipException {
     try {
       store.put(segment);
-      var absolutePath = cache.getAbsolutePathToUncompressedAudio(segment);
+      var absolutePath = cache.downloadAndDecompress(segment);
       var segmentAudio = sourceFactory.segmentAudio(shipKey, segment, absolutePath);
       put(segmentAudio);
 
@@ -77,9 +77,9 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
 
   @Override
   public void collectGarbage(UUID segmentId) {
-    segmentAudios.remove(segmentId);
-    // TODO remove temp files on disk here too
     try {
+      segmentAudios.remove(segmentId);
+      store.getSegment(segmentId).ifPresent(cache::collectGarbage);
       store.deleteSegment(segmentId);
     } catch (NexusException e) {
       LOG.error("Failed to destroy Segment[{}]", segmentId);

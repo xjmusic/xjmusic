@@ -307,7 +307,7 @@ public class ChunkPrinterImpl implements ChunkPrinter {
       byte[] readBuffer = new byte[READ_BUFFER_BYTE_SIZE];
       while (-1 != (numBytesReadToBuffer = audioInputStream.read(readBuffer))) {
         for (b = 0; b < numBytesReadToBuffer; b += frameSize) {
-          tf = (int) Math.floor((sf - spf) * fr); // compute the target frame (converted from source rate to target rate)
+          tf = (int) Math.floor((sf + spf) * fr); // compute the target frame (converted from source rate to target rate)
           // FUTURE: skip frame if unnecessary (source rate higher than target rate)
           for (tc = 0; tc < outputFormat.getChannels(); tc++) {
             System.arraycopy(readBuffer, b + (isStereo ? tc : 0) * sampleSize, sampleBuffer, 0, sampleSize);
@@ -327,7 +327,6 @@ public class ChunkPrinterImpl implements ChunkPrinter {
       throw new ShipException(String.format("Failed to apply Source[%s]", source.getShipKey()), e);
     }
   }
-
 
   /*
    run ffmpeg to create the initial segment for MPEG-DASH

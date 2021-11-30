@@ -154,7 +154,7 @@ public class ArrangementCraftTests extends YamlTest {
         // Fabricate: Craft Arrangements for Choices
         var sourceMaterial = new HubContent(content);
         fabricator = fabrication.fabricate(sourceMaterial, segment);
-        ArrangementCraftImpl subject = new ArrangementCraftImpl(fabricator);
+        CraftImpl subject = new CraftImpl(fabricator);
         for (var choice : segmentChoices.values()) subject.craftArrangements(choice, false);
 
         // assert final picks

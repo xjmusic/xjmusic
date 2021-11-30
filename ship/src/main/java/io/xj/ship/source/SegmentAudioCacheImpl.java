@@ -27,7 +27,7 @@ import java.util.Objects;
 
 @Singleton
 class SegmentAudioCacheImpl implements SegmentAudioCache {
-  private final Logger log = LoggerFactory.getLogger(SegmentAudioCacheImpl.class);
+  private final Logger LOG = LoggerFactory.getLogger(SegmentAudioCacheImpl.class);
   private final String pathPrefix;
   private final String shipBucket;
   private final FileStoreProvider fileStoreProvider;
@@ -48,21 +48,22 @@ class SegmentAudioCacheImpl implements SegmentAudioCache {
       if (!dir.exists()) {
         FileUtils.forceMkdir(dir);
       }
-      log.debug("Initialized audio cache directory: {}", pathPrefix);
+      LOG.debug("Initialized audio cache directory: {}", pathPrefix);
 
     } catch (IOException e) {
-      log.error("Failed to initialize audio cache directory: {}", pathPrefix, e);
+      LOG.error("Failed to initialize audio cache directory: {}", pathPrefix, e);
     }
   }
 
   @Override
-  public String getAbsolutePathToUncompressedAudio(Segment segment) throws ShipException, IOException, InterruptedException {
+  public String downloadAndDecompress(Segment segment) throws ShipException, IOException, InterruptedException {
     if (Strings.isNullOrEmpty(segment.getStorageKey()))
       throw new ShipException("Can't load null or empty audio key!");
 
+    collectGarbage(segment);
+
     var pathOGG = downloadOriginal(segment);
-    var pathWAV = String.format("%s%s", pathPrefix, Segments.getUncompressedStorageFilename(segment));
-    java.nio.file.Files.deleteIfExists(Path.of(pathWAV));
+    var pathWAV = computeAbsolutePathToUncompressed(segment);
     Command.execute("to decode WAV from source OGG", List.of(
       "ffmpeg",
       "-i", pathOGG,
@@ -71,6 +72,16 @@ class SegmentAudioCacheImpl implements SegmentAudioCache {
     return pathWAV;
   }
 
+  @Override
+  public void collectGarbage(Segment segment) {
+    try {
+      java.nio.file.Files.deleteIfExists(Path.of(computeAbsolutePathToOriginal(segment)));
+      java.nio.file.Files.deleteIfExists(Path.of(computeAbsolutePathToUncompressed(segment)));
+
+    } catch (IOException e) {
+      LOG.error("Failed to collect garbage for Segment[{}]", Segments.getIdentifier(segment), e);
+    }
+  }
 
   /**
    Download the original audio from the segment
@@ -80,14 +91,14 @@ class SegmentAudioCacheImpl implements SegmentAudioCache {
    */
   private String downloadOriginal(Segment segment) throws ShipException {
     var key = Segments.getStorageFilename(segment);
-    var absolutePath = String.format("%s%s", pathPrefix, Segments.getStorageFilename(segment));
+    var absolutePath = computeAbsolutePathToOriginal(segment);
     try (InputStream stream = fileStoreProvider.streamS3Object(shipBucket, key)) {
       if (Objects.isNull(stream))
         throw new ShipException(String.format("Unable to write bytes to disk cache: %s", absolutePath));
 
       try (OutputStream toFile = FileUtils.openOutputStream(new File(absolutePath))) {
         var size = IOUtils.copy(stream, toFile); // stores number of bytes copied
-        log.debug("Did write original Segment Audio item to disk cache: {} ({} bytes)", absolutePath, size);
+        LOG.debug("Did write original Segment Audio item to disk cache: {} ({} bytes)", absolutePath, size);
       }
 
       return absolutePath;
@@ -95,5 +106,25 @@ class SegmentAudioCacheImpl implements SegmentAudioCache {
     } catch (FileStoreException | IOException e) {
       throw new ShipException(String.format("Failed to stream audio from s3://%s/%s", shipBucket, key), e);
     }
+  }
+
+  /**
+   Compute the absolute path to the original segment audio
+
+   @param segment for which to get audio path
+   @return absolute path
+   */
+  private String computeAbsolutePathToOriginal(Segment segment) {
+    return String.format("%s%s", pathPrefix, Segments.getStorageFilename(segment));
+  }
+
+  /**
+   Compute the absolute path to the uncompressed segment audio
+
+   @param segment for which to get audio path
+   @return absolute path
+   */
+  private String computeAbsolutePathToUncompressed(Segment segment) {
+    return String.format("%s%s", pathPrefix, Segments.getUncompressedStorageFilename(segment));
   }
 }

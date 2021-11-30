@@ -8,17 +8,18 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import io.xj.api.*;
+import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramState;
+import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.*;
+import io.xj.lib.entity.Entities;
 import io.xj.lib.music.*;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.fabricator.EntityScorePicker;
-import io.xj.nexus.fabricator.FabricationWrapperImpl;
-import io.xj.nexus.fabricator.Fabricator;
-import io.xj.nexus.fabricator.NameIsometry;
+import io.xj.nexus.fabricator.*;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -29,9 +30,9 @@ import java.util.stream.Stream;
 import static io.xj.nexus.persistence.Segments.DELTA_UNLIMITED;
 
 /**
- Arrangement of Segment Events is a common foundation for both Detail and Rhythm craft
+ Arrangement of Segment Events is a common foundation for all craft
  */
-public class ArrangementCraftImpl extends FabricationWrapperImpl {
+public class CraftImpl extends FabricationWrapperImpl {
   private final Map<String, Integer> deltaIns = Maps.newHashMap();
   private final Map<String, Integer> deltaOuts = Maps.newHashMap();
   private ChoiceIndexProvider choiceIndexProvider = new DefaultChoiceIndexProvider();
@@ -42,7 +43,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @param fabricator internal
    */
   @Inject
-  public ArrangementCraftImpl(Fabricator fabricator) {
+  public CraftImpl(Fabricator fabricator) {
     super(fabricator);
   }
 
@@ -733,6 +734,152 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     }
 
     return fabricator.sourceMaterial().getInstrumentAudio(audio.get().getId());
+  }
+
+  /**
+   Choose a fresh program based on a set of memes
+
+   @param programType to choose
+   @param voicingType for which to choose a program for-- and the program is required to have this type of voice
+   @return Program
+   */
+  protected Optional<Program> chooseFreshProgram(ProgramType programType, InstrumentType voicingType) {
+    EntityScorePicker<Program> superEntityScorePicker = new EntityScorePicker<>();
+
+    // Retrieve programs bound to chain having a voice of the specified type
+    Map<UUID/*ID*/, Program> programMap = fabricator.sourceMaterial()
+      .getProgramsOfType(programType).stream()
+      .collect(Collectors.toMap(Program::getId, program -> program));
+    Collection<Program> sourcePrograms = fabricator.sourceMaterial()
+      .getAllProgramVoices().stream()
+      .filter(programVoice -> voicingType.equals(programVoice.getType()) &&
+        programMap.containsKey(programVoice.getProgramId()))
+      .map(ProgramVoice::getProgramId)
+      .distinct()
+      .map(programMap::get)
+      .collect(Collectors.toList());
+
+    // (3) score each source program based on meme isometry
+    MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
+    Collection<String> memes;
+    for (Program program : sourcePrograms) {
+      memes = Entities.namesOf(fabricator.sourceMaterial().getMemes(program));
+      if (iso.isAllowed(memes))
+        superEntityScorePicker.add(program, score(iso, program, memes));
+    }
+
+    // report
+    fabricator.putReport(String.format("choiceOf%s%sProgram", voicingType, programType), superEntityScorePicker.report());
+
+    // (4) return the top choice
+    return superEntityScorePicker.getTop();
+  }
+
+  /**
+   Choose instrument
+   [#325] Possible to choose multiple instruments for different voices in the same program
+
+   @return Instrument
+   @param type                of instrument to choose
+   @param avoidIds   to avoid, or empty list
+   @param continueVoiceName if true, ensure that choices continue for each voice named in prior segments of this main program
+   */
+  protected Optional<Instrument> chooseFreshInstrument(InstrumentType type, List<UUID> avoidIds, @Nullable String continueVoiceName) throws NexusException {
+    EntityScorePicker<Instrument> superEntityScorePicker = new EntityScorePicker<>();
+
+    // (2) retrieve instruments bound to chain
+    Collection<Instrument> sourceInstruments =
+      fabricator.sourceMaterial().getInstrumentsOfType(type)
+        .stream()
+        .filter(i -> !avoidIds.contains(i.getId()))
+        .toList();
+
+    // (3) score each source instrument based on meme isometry
+    MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
+    Collection<String> memes;
+    for (Instrument instrument : sourceInstruments) {
+      memes = Entities.namesOf(fabricator.sourceMaterial().getMemes(instrument));
+      if (iso.isAllowed(memes))
+        superEntityScorePicker.add(instrument, score(iso, instrument, memes));
+    }
+
+    switch (fabricator.getType()) {
+      case CONTINUE ->
+        // Instrument choice inertia: prefer same instrument choices throughout a main program
+        // https://www.pivotaltracker.com/story/show/178442889
+        fabricator.retrospective().getChoices().stream()
+          .filter(candidate -> Objects.equals(candidate.getInstrumentType(), type.toString()))
+          .filter(candidate -> Objects.nonNull(continueVoiceName)
+            && fabricator.sourceMaterial().getProgramVoice(candidate.getProgramVoiceId())
+            .stream().map(pv -> Objects.equals(continueVoiceName, pv.getName()))
+            .findFirst()
+            .orElse(false))
+          .forEach(choice -> superEntityScorePicker.score(choice.getInstrumentId(), SCORE_MATCH_MAIN_PROGRAM));
+
+      case NEXTMAIN, NEXTMACRO ->
+        // Keep same instruments when carrying outgoing choices to incoming choices of next segment
+        // https://www.pivotaltracker.com/story/show/179126302
+        fabricator.retrospective().getChoices().stream()
+          .filter(candidate -> Objects.equals(candidate.getInstrumentType(), type.toString()))
+          .filter(CraftImpl::isUnlimitedOut)
+          .forEach(choice -> superEntityScorePicker.score(choice.getInstrumentId(), SCORE_MATCH_OUTGOING_TO_INCOMING));
+    }
+
+    // report
+    fabricator.putReport(String.format("choiceOf%sInstrument", type), superEntityScorePicker.report());
+
+    // (4) return the top choice
+    return superEntityScorePicker.getTop();
+  }
+
+  /**
+   Score a candidate for instrument, given current fabricator
+
+   @param iso        isometry from which to score programs
+   @param instrument to score
+   @param memes      to score
+   @return score, including +/- entropy
+   */
+  protected double score(MemeIsometry iso, Instrument instrument, Collection<String> memes) {
+    double score = Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_INSTRUMENT);
+
+    score += SCORE_MATCH_MEMES * iso.score(memes);
+
+    // [#174435421] Chain bindings specify Program & Instrument within Library
+    if (fabricator.isDirectlyBound(instrument))
+      score += SCORE_DIRECTLY_BOUND;
+    else if (instrument.getState().equals(InstrumentState.Draft))
+      score += SCORE_UNPUBLISHED;
+
+    return score;
+  }
+
+  /**
+   Score a candidate for program, given current fabricator
+   Score includes matching memes, previous segment to macro program first pattern
+   <p>
+   Returns ZERO if the program has no memes, in order to fix:
+   [#162040109] Artist expects program with no memes will never be selected for chain craft.
+
+   @param iso     isometry from which to score programs
+   @param program to score
+   @param memes   to score
+   @return score, including +/- entropy; empty if this program has no memes, and isn't directly bound
+   */
+  @SuppressWarnings("DuplicatedCode")
+  private Double score(MemeIsometry iso, Program program, Collection<String> memes) {
+    double score = Chance.normallyAround(0, SCORE_ENTROPY_CHOICE);
+
+    score += SCORE_MATCH_MEMES * iso.score(memes);
+
+    // [#174435421] Chain bindings specify Program & Instrument within Library
+    if (fabricator.isDirectlyBound(program))
+      score += SCORE_DIRECTLY_BOUND;
+    else if (program.getState().equals(ProgramState.Draft))
+      score += SCORE_UNPUBLISHED;
+
+    // score is above zero, else empty
+    return score;
   }
 
   /**

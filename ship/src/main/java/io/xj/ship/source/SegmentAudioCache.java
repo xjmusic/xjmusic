@@ -18,9 +18,15 @@ public interface SegmentAudioCache {
    [#176642679] Advanced audio caching during fabrication
    [#180243873] Refactor ship to mix from disk as well, to resolve heap overflows
 
-   @return stream if cached; null if not
    @param segment for which to cache audio
+   @return stream if cached; null if not
    */
-  String getAbsolutePathToUncompressedAudio(Segment segment) throws FileStoreException, IOException, ShipException, InterruptedException;
+  String downloadAndDecompress(Segment segment) throws FileStoreException, IOException, ShipException, InterruptedException;
 
+  /**
+   Cleanup audio files for the given segment
+
+   @param segment for which to collect garbage
+   */
+  void collectGarbage(Segment segment);
 }

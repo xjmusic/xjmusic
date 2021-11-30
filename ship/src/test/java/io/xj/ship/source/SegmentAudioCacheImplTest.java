@@ -80,7 +80,7 @@ public class SegmentAudioCacheImplTest {
       .thenAnswer((Answer<InputStream>) invocation -> new FileInputStream(Objects.requireNonNull(
         new InternalResource("ogg_decoding/coolair-1633586832900943.ogg").getFile())));
 
-    var result = subject.getAbsolutePathToUncompressedAudio(segment1);
+    var result = subject.downloadAndDecompress(segment1);
 
     assertEquals("/tmp/seg123.wav", result);
   }

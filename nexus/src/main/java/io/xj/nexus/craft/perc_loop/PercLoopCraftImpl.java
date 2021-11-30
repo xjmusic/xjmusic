@@ -3,22 +3,23 @@ package io.xj.nexus.craft.perc_loop;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.api.*;
+import io.xj.api.SegmentChoice;
+import io.xj.api.SegmentChoiceArrangement;
+import io.xj.api.SegmentChoiceArrangementPick;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.lib.entity.Entities;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.TremendouslyRandom;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.rhythm.RhythmCraftImpl;
 import io.xj.nexus.fabricator.EntityScorePicker;
 import io.xj.nexus.fabricator.Fabricator;
-import io.xj.nexus.fabricator.MemeIsometry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -28,8 +29,6 @@ import java.util.stream.Collectors;
  [#176625174] PercLoopCraftImpl extends DetailCraftImpl to leverage all detail craft enhancements
  */
 public class PercLoopCraftImpl extends RhythmCraftImpl implements PercLoopCraft {
-  private final Logger log = LoggerFactory.getLogger(PercLoopCraftImpl.class);
-
   @Inject
   public PercLoopCraftImpl(
     @Assisted("basis") Fabricator fabricator
@@ -73,7 +72,7 @@ public class PercLoopCraftImpl extends RhythmCraftImpl implements PercLoopCraft 
     Optional<Instrument> chosen;
     if (instrumentIds.size() < targetLayers)
       for (int i = 0; i < targetLayers - instrumentIds.size(); i++) {
-        chosen = chooseFreshPercLoopInstrument(instrumentIds);
+        chosen = chooseFreshInstrument(InstrumentType.PercLoop, instrumentIds, null);
         if (chosen.isPresent()) {
           instrumentIds.add(chosen.get().getId());
           craftPercLoop(chosen.get().getId());
@@ -89,6 +88,7 @@ public class PercLoopCraftImpl extends RhythmCraftImpl implements PercLoopCraft 
 
    @param instrumentId of percussion loop instrument to craft
    */
+  @SuppressWarnings("DuplicatedCode")
   private void craftPercLoop(UUID instrumentId) throws NexusException {
     fabricator.addMemes(fabricator.sourceMaterial().getInstrument(instrumentId)
       .orElseThrow(() -> new NexusException("Failed to get instrument!")));
@@ -130,41 +130,6 @@ public class PercLoopCraftImpl extends RhythmCraftImpl implements PercLoopCraft 
 
       pos += audio.get().getTotalBeats();
     }
-  }
-
-  /**
-   Choose drum instrument
-   [#325] Possible to choose multiple instruments for different voices in the same program
-
-   @return drum-type Instrument
-   */
-  private Optional<Instrument> chooseFreshPercLoopInstrument(List<UUID> avoidInstrumentIds) {
-    EntityScorePicker<Instrument> superEntityScorePicker = new EntityScorePicker<>();
-
-    // (2) retrieve instruments bound to chain
-    Collection<Instrument> sourceInstruments =
-      fabricator.sourceMaterial().getInstrumentsOfType(InstrumentType.PercLoop)
-        .stream()
-        .filter(i -> !avoidInstrumentIds.contains(i.getId()))
-        .toList();
-
-    // future: [#258] Instrument selection is based on Text Isometry between the voice name and the instrument name
-    log.debug("[segId={}] not currently in use", fabricator.getSegment().getId());
-
-    // (3) score each source instrument based on meme isometry
-    MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
-    Collection<String> memes;
-    for (Instrument instrument : sourceInstruments) {
-      memes = Entities.namesOf(fabricator.sourceMaterial().getMemes(instrument));
-      if (iso.isAllowed(memes))
-        superEntityScorePicker.add(instrument, score(iso, instrument, memes));
-    }
-
-    // report
-    fabricator.putReport("percussiveChoice", superEntityScorePicker.report());
-
-    // (4) return the top choice
-    return superEntityScorePicker.getTop();
   }
 
   /**

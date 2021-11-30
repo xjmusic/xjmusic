@@ -9,7 +9,6 @@ import io.xj.api.SegmentChoiceArrangementPick;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.lib.entity.Entities;
 import io.xj.lib.music.Bar;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.Text;
@@ -18,9 +17,6 @@ import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.detail.DetailCraftImpl;
 import io.xj.nexus.fabricator.EntityScorePicker;
 import io.xj.nexus.fabricator.Fabricator;
-import io.xj.nexus.fabricator.MemeIsometry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -35,7 +31,6 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
   private static final String NAME_BIG = "BIG";
   private static final String NAME_MEDIUM = "MEDIUM";
   private static final String NAME_SMALL = "SMALL";
-  private final Logger log = LoggerFactory.getLogger(TransitionCraftImpl.class);
 
   @Inject
   public TransitionCraftImpl(
@@ -84,7 +79,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     Optional<Instrument> chosen;
     if (instrumentIds.size() < targetLayers)
       for (int i = 0; i < targetLayers - instrumentIds.size(); i++) {
-        chosen = chooseFreshTransitionInstrument(instrumentIds);
+        chosen = chooseFreshInstrument(InstrumentType.Transition, instrumentIds, null);
         if (chosen.isPresent()) {
           instrumentIds.add(chosen.get().getId());
           craftTransition(chosen.get().getId());
@@ -112,6 +107,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
 
    @param instrumentId of percussion loop instrument to craft
    */
+  @SuppressWarnings("DuplicatedCode")
   private void craftTransition(UUID instrumentId) throws NexusException {
     fabricator.addMemes(fabricator.sourceMaterial().getInstrument(instrumentId)
       .orElseThrow(() -> new NexusException("Failed to get instrument!")));
@@ -145,6 +141,17 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     }
   }
 
+  /**
+   Pci the transition
+
+   @param arrangement   to pick
+   @param audio         to pick
+   @param startSeconds  to pick
+   @param lengthSeconds to pick
+   @param name          to pick
+   @throws NexusException on failure
+   */
+  @SuppressWarnings("DuplicatedCode")
   private void pickTransition(SegmentChoiceArrangement arrangement, InstrumentAudio audio, double startSeconds, double lengthSeconds, String name) throws NexusException {
     var pick = new SegmentChoiceArrangementPick();
     pick.setId(UUID.randomUUID());
@@ -156,41 +163,6 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     pick.setEvent(name);
     pick.setInstrumentAudioId(audio.getId());
     fabricator.add(pick);
-  }
-
-  /**
-   Choose drum instrument
-   [#325] Possible to choose multiple instruments for different voices in the same program
-
-   @return drum-type Instrument
-   */
-  private Optional<Instrument> chooseFreshTransitionInstrument(List<UUID> avoidInstrumentIds) {
-    EntityScorePicker<Instrument> superEntityScorePicker = new EntityScorePicker<>();
-
-    // (2) retrieve instruments bound to chain
-    Collection<Instrument> sourceInstruments =
-      fabricator.sourceMaterial().getInstrumentsOfType(InstrumentType.Transition)
-        .stream()
-        .filter(i -> !avoidInstrumentIds.contains(i.getId()))
-        .toList();
-
-    // future: [#258] Instrument selection is based on Text Isometry between the voice name and the instrument name
-    log.debug("[segId={}] not currently in use", fabricator.getSegment().getId());
-
-    // (3) score each source instrument based on meme isometry
-    MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
-    Collection<String> memes;
-    for (Instrument instrument : sourceInstruments) {
-      memes = Entities.namesOf(fabricator.sourceMaterial().getMemes(instrument));
-      if (iso.isAllowed(memes))
-        superEntityScorePicker.add(instrument, score(iso, instrument, memes));
-    }
-
-    // report
-    fabricator.putReport("percussiveChoice", superEntityScorePicker.report());
-
-    // (4) return the top choice
-    return superEntityScorePicker.getTop();
   }
 
   /**

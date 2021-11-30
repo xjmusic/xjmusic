@@ -32,12 +32,12 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ArrangementCraftImplTest {
+public class CraftImplTest {
   @Mock
   public Fabricator fabricator;
   @Mock
   public HubContent hubContent;
-  private ArrangementCraftImpl subject;
+  private CraftImpl subject;
   private Segment segment0;
   private Program program1;
 
@@ -68,12 +68,12 @@ public class ArrangementCraftImplTest {
     TemplateConfig templateConfig = new TemplateConfig(template1);
     when(fabricator.getTemplateConfig()).thenReturn(templateConfig);
     when(fabricator.getSegment()).thenReturn(segment0);
-    subject = new ArrangementCraftImpl(fabricator);
+    subject = new CraftImpl(fabricator);
   }
 
   @Test
   public void precomputeDeltas() throws NexusException {
-    ArrangementCraftImpl.ChoiceIndexProvider choiceIndexProvider = SegmentChoice::getInstrumentType;
+    CraftImpl.ChoiceIndexProvider choiceIndexProvider = SegmentChoice::getInstrumentType;
     Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> ProgramType.Detail.toString().equals(choice.getProgramType());
     subject.precomputeDeltas(choiceFilter, choiceIndexProvider, DETAIL_INSTRUMENT_TYPES, List.of(), 0.38, 1);
   }
@@ -87,16 +87,16 @@ public class ArrangementCraftImplTest {
 
   @Test
   public void inBounds() {
-    assertFalse(ArrangementCraftImpl.inBounds(DELTA_UNLIMITED, 17, 19));
-    assertFalse(ArrangementCraftImpl.inBounds(4, DELTA_UNLIMITED, 2));
-    assertFalse(ArrangementCraftImpl.inBounds(4, 17, 19));
-    assertFalse(ArrangementCraftImpl.inBounds(4, 17, 2));
-    assertTrue(ArrangementCraftImpl.inBounds(DELTA_UNLIMITED, DELTA_UNLIMITED, 799));
-    assertTrue(ArrangementCraftImpl.inBounds(DELTA_UNLIMITED, 17, 2));
-    assertTrue(ArrangementCraftImpl.inBounds(4, DELTA_UNLIMITED, 19));
-    assertTrue(ArrangementCraftImpl.inBounds(4, 17, 12));
-    assertTrue(ArrangementCraftImpl.inBounds(4, 17, 17));
-    assertTrue(ArrangementCraftImpl.inBounds(4, 17, 4));
+    assertFalse(CraftImpl.inBounds(DELTA_UNLIMITED, 17, 19));
+    assertFalse(CraftImpl.inBounds(4, DELTA_UNLIMITED, 2));
+    assertFalse(CraftImpl.inBounds(4, 17, 19));
+    assertFalse(CraftImpl.inBounds(4, 17, 2));
+    assertTrue(CraftImpl.inBounds(DELTA_UNLIMITED, DELTA_UNLIMITED, 799));
+    assertTrue(CraftImpl.inBounds(DELTA_UNLIMITED, 17, 2));
+    assertTrue(CraftImpl.inBounds(4, DELTA_UNLIMITED, 19));
+    assertTrue(CraftImpl.inBounds(4, 17, 12));
+    assertTrue(CraftImpl.inBounds(4, 17, 17));
+    assertTrue(CraftImpl.inBounds(4, 17, 4));
   }
 
   @Test
@@ -127,13 +127,13 @@ public class ArrangementCraftImplTest {
 
   @Test
   public void isUnlimitedIn() {
-    assertTrue(ArrangementCraftImpl.isUnlimitedIn(buildSegmentChoice(segment0, DELTA_UNLIMITED, 25, program1)));
-    assertFalse(ArrangementCraftImpl.isUnlimitedIn(buildSegmentChoice(segment0, 25, DELTA_UNLIMITED, program1)));
+    assertTrue(CraftImpl.isUnlimitedIn(buildSegmentChoice(segment0, DELTA_UNLIMITED, 25, program1)));
+    assertFalse(CraftImpl.isUnlimitedIn(buildSegmentChoice(segment0, 25, DELTA_UNLIMITED, program1)));
   }
 
   @Test
   public void isUnlimitedOut() {
-    assertFalse(ArrangementCraftImpl.isUnlimitedOut(buildSegmentChoice(segment0, DELTA_UNLIMITED, 25, program1)));
-    assertTrue(ArrangementCraftImpl.isUnlimitedOut(buildSegmentChoice(segment0, 25, DELTA_UNLIMITED, program1)));
+    assertFalse(CraftImpl.isUnlimitedOut(buildSegmentChoice(segment0, DELTA_UNLIMITED, 25, program1)));
+    assertTrue(CraftImpl.isUnlimitedOut(buildSegmentChoice(segment0, 25, DELTA_UNLIMITED, program1)));
   }
 }
