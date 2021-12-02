@@ -704,8 +704,7 @@ class FabricatorImpl implements Fabricator {
     EntityScorePicker<ProgramVoice> entityScorePicker = new EntityScorePicker<>();
     for (ProgramVoice sequenceBinding : sourceMaterial.getAllProgramVoices()
       .stream().filter(programVoice -> Objects.equals(programId, programVoice.getProgramId())
-        && !excludeVoiceIds.contains(programVoice.getId()))
-      .collect(Collectors.toList()))
+        && !excludeVoiceIds.contains(programVoice.getId())).toList())
       entityScorePicker.add(sequenceBinding, Chance.normallyAround(0.0, 1.0));
 
     return entityScorePicker.getTop();

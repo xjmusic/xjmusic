@@ -54,7 +54,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @return true if deltaIn is unlimited
    */
   protected static boolean isUnlimitedIn(SegmentChoice choice) {
-    return DELTA_UNLIMITED == choice.getDeltaIn();
+    return Objects.nonNull(choice.getDeltaIn()) && DELTA_UNLIMITED == choice.getDeltaIn();
   }
 
   /**
@@ -64,7 +64,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @return true if deltaOut is unlimited
    */
   protected static boolean isUnlimitedOut(SegmentChoice choice) {
-    return DELTA_UNLIMITED == choice.getDeltaOut();
+    return Objects.nonNull(choice.getDeltaOut()) && DELTA_UNLIMITED == choice.getDeltaOut();
   }
 
   /**
@@ -740,10 +740,10 @@ public class CraftImpl extends FabricationWrapperImpl {
    Choose a fresh program based on a set of memes
 
    @param programType to choose
-   @param voicingType for which to choose a program for-- and the program is required to have this type of voice
+   @param voicingType (optional) for which to choose a program for-- and the program is required to have this type of voice
    @return Program
    */
-  protected Optional<Program> chooseFreshProgram(ProgramType programType, InstrumentType voicingType) {
+  protected Optional<Program> chooseFreshProgram(ProgramType programType, @Nullable InstrumentType voicingType) {
     EntityScorePicker<Program> superEntityScorePicker = new EntityScorePicker<>();
 
     // Retrieve programs bound to chain having a voice of the specified type
@@ -752,12 +752,13 @@ public class CraftImpl extends FabricationWrapperImpl {
       .collect(Collectors.toMap(Program::getId, program -> program));
     Collection<Program> sourcePrograms = fabricator.sourceMaterial()
       .getAllProgramVoices().stream()
-      .filter(programVoice -> voicingType.equals(programVoice.getType()) &&
-        programMap.containsKey(programVoice.getProgramId()))
+      .filter(programVoice -> Objects.nonNull(voicingType)
+        && voicingType.equals(programVoice.getType())
+        && programMap.containsKey(programVoice.getProgramId()))
       .map(ProgramVoice::getProgramId)
       .distinct()
       .map(programMap::get)
-      .collect(Collectors.toList());
+      .toList();
 
     // (3) score each source program based on meme isometry
     MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
@@ -779,10 +780,10 @@ public class CraftImpl extends FabricationWrapperImpl {
    Choose instrument
    [#325] Possible to choose multiple instruments for different voices in the same program
 
-   @return Instrument
-   @param type                of instrument to choose
-   @param avoidIds   to avoid, or empty list
+   @param type              of instrument to choose
+   @param avoidIds          to avoid, or empty list
    @param continueVoiceName if true, ensure that choices continue for each voice named in prior segments of this main program
+   @return Instrument
    */
   protected Optional<Instrument> chooseFreshInstrument(InstrumentType type, List<UUID> avoidIds, @Nullable String continueVoiceName) throws NexusException {
     EntityScorePicker<Instrument> superEntityScorePicker = new EntityScorePicker<>();

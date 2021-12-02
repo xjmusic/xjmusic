@@ -253,21 +253,21 @@ public class ChunkPrinterImpl implements ChunkPrinter {
     int i; // frame iterator
     int b; // bytes iterator
     int tc; // target channel iterator
-    int sf = 0; // current source frame
     int tf, otf = -1; // target output buffer frame, and cache the old value in order to skip non-advanced frames (upsampling), init at -1 to force initial frame
     int ptf; // put at frame iterator (in output)
     double v; // a single sample value, and the enveloped value
 
-    // source preroll frames (segment waveform preroll expressed in terms of source audio frame count)
-    var spf = (int) (source.getSegment().getWaveformPreroll() * source.getAudioFormat().getFrameRate());
+    // source frame starts at negative number to compensate for segment preroll
+    var sf = (int) -(source.getSegment().getWaveformPreroll() * source.getAudioFormat().getFrameRate());
 
     // actual microseconds-since-epoch to begin segment audio
-    var sam = toEpochMicros(Instant.parse(source.getSegment().getBeginAt())) + source.getSegment().getWaveformPreroll() * MICROS_PER_SECOND;
+    // (not including waveform preroll- we factor that in above, during source audio reading)
+    var sam = toEpochMicros(Instant.parse(source.getSegment().getBeginAt()));
 
     // actual microseconds-since-epoch to begin this output chunk
     var oam = toEpochMicros(chunk.getFromInstant());
 
-    // calculate the starting frame (in output) to align with frame 0 of this source audio
+    // calculate the starting frame (in output buffer) to align with frame 0 of this source audio
     // compute which frame in output to align with 0 frame of source (this may be negative if source begins before output)
     var frf = (int) Math.floor(outputFormat.getSampleRate() * (sam - oam) / MICROS_PER_SECOND);
 
@@ -307,8 +307,7 @@ public class ChunkPrinterImpl implements ChunkPrinter {
       byte[] readBuffer = new byte[READ_BUFFER_BYTE_SIZE];
       while (-1 != (numBytesReadToBuffer = audioInputStream.read(readBuffer))) {
         for (b = 0; b < numBytesReadToBuffer; b += frameSize) {
-          tf = (int) Math.floor((sf + spf) * fr); // compute the target frame (converted from source rate to target rate)
-          // FUTURE: skip frame if unnecessary (source rate higher than target rate)
+          tf = (int) Math.floor((sf) * fr); // compute the target frame (converted from source rate to target rate)
           for (tc = 0; tc < outputFormat.getChannels(); tc++) {
             System.arraycopy(readBuffer, b + (isStereo ? tc : 0) * sampleSize, sampleBuffer, 0, sampleSize);
             v = AudioSampleFormat.fromBytes(sampleBuffer, sampleFormat);

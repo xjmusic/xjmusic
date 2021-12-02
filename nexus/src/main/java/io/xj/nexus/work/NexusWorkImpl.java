@@ -254,21 +254,21 @@ public class NexusWorkImpl implements NexusWork {
     timer.section("Janitor");
 
     // Seek segments to erase
-    Collection<UUID> segmentIdsToErase;
+    Collection<UUID> gcSegIds;
     try {
-      segmentIdsToErase = getSegmentIdsToErase();
+      gcSegIds = getSegmentIdsToErase();
     } catch (NexusException e) {
       didFailWhile("Checking for segments to erase", e);
       return;
     }
 
     // Erase segments if necessary
-    if (segmentIdsToErase.isEmpty())
+    if (gcSegIds.isEmpty())
       LOG.info("Found no segments to erase");
     else
-      LOG.info("Will erase {} segments", segmentIdsToErase.size());
+      LOG.info("Will garbage collect {} segments", gcSegIds.size());
 
-    for (UUID segmentId : segmentIdsToErase) {
+    for (UUID segmentId : gcSegIds) {
       try {
         segmentManager.destroy(segmentId);
         LOG.debug("collected garbage Segment[{}]", segmentId);
@@ -277,7 +277,7 @@ public class NexusWorkImpl implements NexusWork {
       }
     }
 
-    telemetryProvider.put(METRIC_SEGMENT_ERASED, StandardUnit.Count, segmentIdsToErase.size());
+    telemetryProvider.put(METRIC_SEGMENT_ERASED, StandardUnit.Count, gcSegIds.size());
   }
 
   /**
