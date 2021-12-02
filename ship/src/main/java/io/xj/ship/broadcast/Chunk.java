@@ -2,7 +2,6 @@
 
 package io.xj.ship.broadcast;
 
-import com.google.api.client.util.Lists;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.hub.TemplateConfig;
@@ -15,7 +14,6 @@ import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.ManagerPrivilegeException;
 
 import java.time.Instant;
-import java.util.List;
 
 /**
  An HTTP Live Streaming Media Chunk
@@ -29,14 +27,13 @@ import java.util.List;
 public class Chunk {
   private final Instant fromInstant;
   private final Instant toInstant;
-  private final List<String> streamOutputKeys;
   private final Long fromSecondsUTC;
   private final String shipKey;
   private final TemplateConfig templateConfig;
   private final int lengthSeconds;
   private final int index;
   private final int sequenceNumber;
-
+  private String streamOutputKey;
   private ChunkState state;
   private Instant updated;
 
@@ -54,7 +51,6 @@ public class Chunk {
     fromInstant = Instant.ofEpochSecond(fromSecondsUTC);
     lengthSeconds = env.getShipChunkSeconds();
     toInstant = fromInstant.plusSeconds(lengthSeconds);
-    streamOutputKeys = Lists.newArrayList();
     index = (int) (Math.floor((double) fromSecondsUTC / lengthSeconds));
     sequenceNumber = index + 1;
   }
@@ -94,8 +90,13 @@ public class Chunk {
     return toInstant;
   }
 
-  public List<String> getStreamOutputKeys() {
-    return streamOutputKeys;
+  public String getStreamOutputKey() {
+    return streamOutputKey;
+  }
+
+  public Chunk setStreamOutputKey(String value) {
+    streamOutputKey = value;
+    return this;
   }
 
   public Instant getUpdated() {
@@ -108,12 +109,7 @@ public class Chunk {
 
   public Chunk reset() {
     state = ChunkState.Pending;
-    streamOutputKeys.clear();
-    return this;
-  }
-
-  public Chunk addStreamOutputKey(String streamKey) {
-    streamOutputKeys.add(streamKey);
+    streamOutputKey = null;
     return this;
   }
 

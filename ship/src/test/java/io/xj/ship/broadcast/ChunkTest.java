@@ -75,7 +75,7 @@ public class ChunkTest {
   @Test
   public void addStreamOutputKey_getStreamOutputKeys() {
     assertEquals(ImmutableList.of("test63-128k-151304042.m4a"),
-      subject.addStreamOutputKey("test63-128k-151304042.m4a").getStreamOutputKeys());
+      subject.setStreamOutputKey("test63-128k-151304042.m4a").getStreamOutputKey());
   }
 
   @Test

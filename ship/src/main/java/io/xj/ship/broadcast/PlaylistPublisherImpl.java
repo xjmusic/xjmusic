@@ -165,19 +165,19 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   public String computeM3U8(long nowMillis) {
     List<String> lines = Lists.newArrayList();
     lines.add("#EXTM3U");
+    lines.add("#EXT-X-VERSION:7");
     lines.add(String.format("#EXT-X-TARGETDURATION:%d", chunkSeconds));
-    lines.add("#EXT-X-VERSION:4");
     lines.add(String.format("#EXT-X-MEDIA-SEQUENCE:%d", chunks.computeFromSecondUTC(nowMillis) / chunkSeconds));
     lines.add("#EXT-X-PLAYLIST-TYPE:EVENT");
+    lines.add(String.format("#EXT-X-MAP:URI=\"%s-%s-IS.mp4\"", shipKey, Values.k(shipBitrateHigh)));
     LOG.debug("chunks {}",
       chunks.getAll(shipKey, nowMillis).stream()
         .map(chunk -> String.format("%s(%s)", chunk.getKey(), chunk.getState()))
         .collect(Collectors.joining(",")));
-    for (var chunk : chunks.getContiguousDone(shipKey, nowMillis))
-      for (var key : chunk.getStreamOutputKeys()) {
-        lines.add(String.format("#EXTINF:%d.0,", chunkSeconds));
-        lines.add(key);
-      }
+    for (var chunk : chunks.getContiguousDone(shipKey, nowMillis)) {
+      lines.add(String.format("#EXTINF:%d.0,", chunkSeconds));
+      lines.add(chunk.getStreamOutputKey());
+    }
     return String.join("\n", lines) + "\n";
   }
 

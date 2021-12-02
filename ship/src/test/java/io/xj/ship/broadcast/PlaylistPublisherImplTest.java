@@ -66,7 +66,7 @@ public class PlaylistPublisherImplTest {
     when(chainManager.readOneByShipKey(eq(SHIP_KEY))).thenReturn(chain);
 
     chunk0 = injector.getInstance(BroadcastFactory.class)
-      .chunk(SHIP_KEY, 1513040420).setState(ChunkState.Done).addStreamOutputKey("test5-128000-151304042.m4a");
+      .chunk(SHIP_KEY, 1513040420).setState(ChunkState.Done).setStreamOutputKey("test5-128k-151304042.m4a");
 
     subject = injector.getInstance(BroadcastFactory.class).publisher(SHIP_KEY);
   }

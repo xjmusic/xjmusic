@@ -240,8 +240,9 @@ public class ChunkPrinterImpl implements ChunkPrinter {
         return;
       }
 
-    chunk.addStreamOutputKey(m4sFileName);
-    chunkManager.put(chunk.setState(ChunkState.Done));
+    chunk.setStreamOutputKey(m4sFileName);
+    chunk.setState(ChunkState.Done);
+    chunkManager.put(chunk);
   }
 
   /**
