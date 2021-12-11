@@ -1,29 +1,19 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.ship.broadcast;
 
+import io.xj.ship.ShipException;
+
 /**
  This process is run directly in the hard loop (not in a Fork/Join pool)
  <p>
  Ship broadcast via HTTP Live Streaming #179453189
  */
-public interface ChunkPrinter {
+public interface ChunkMixer {
   /**
    Invoke the recursive action
-   */
-  void print();
 
-  /**
-   @return the .wav file path
+   @param chunk to mix
+   @return mixed samples
    */
-  String getWavFilePath();
-
-  /**
-   @return the m4s file path
-   */
-  String getM4sFilePath();
-
-  /**
-   @return the mp4 init file path
-   */
-  String getMp4InitFilePath();
+  double[][] mix(Chunk chunk) throws ShipException;
 }

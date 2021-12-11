@@ -58,6 +58,7 @@ public class TemplateConfig {
       mixerNormalizationCeiling = 0.999
       outputChannels = 2
       outputContainer = "OGG"
+      outputContentType = "audio/ogg"
       outputEncoding = "PCM_DOUBLE"
       outputEncodingQuality = 0.618
       outputFrameRate = 48000
@@ -69,11 +70,12 @@ public class TemplateConfig {
       """;
 
   private final AudioFormat.Encoding outputEncoding;
+  private final String deltaArcRhythmLayersToPrioritize;
   private final String metaSource;
   private final String metaTitle;
   private final String outputContainer;
+  private final String outputContentType;
   private final boolean deltaArcEnabled;
-  private final String deltaArcRhythmLayersToPrioritize;
   private final double deltaArcDetailPlateauRatio;
   private final double deltaArcRhythmPlateauRatio;
   private final double densityCeiling;
@@ -177,6 +179,7 @@ public class TemplateConfig {
       mixerNormalizationCeiling = config.getDouble("mixerNormalizationCeiling");
       outputChannels = config.getInt("outputChannels");
       outputContainer = config.getString("outputContainer");
+      outputContentType = config.getString("outputContentType");
       outputEncoding = new AudioFormat.Encoding(config.getString("outputEncoding"));
       outputEncodingQuality = config.getDouble("outputEncodingQuality");
       outputFrameRate = config.getInt("outputFrameRate");
@@ -199,10 +202,10 @@ public class TemplateConfig {
     config.put("bufferAheadSeconds", String.valueOf(bufferAheadSeconds));
     config.put("bufferBeforeSeconds", String.valueOf(bufferBeforeSeconds));
     config.put("deltaArcDetailLayersIncoming", String.valueOf(deltaArcDetailLayersIncoming));
-    config.put("deltaArcRhythmLayersToPrioritize", String.valueOf(deltaArcRhythmLayersToPrioritize));
     config.put("deltaArcDetailPlateauRatio", String.valueOf(deltaArcDetailPlateauRatio));
     config.put("deltaArcEnabled", String.valueOf(deltaArcEnabled));
     config.put("deltaArcRhythmLayersIncoming", String.valueOf(deltaArcRhythmLayersIncoming));
+    config.put("deltaArcRhythmLayersToPrioritize", String.valueOf(deltaArcRhythmLayersToPrioritize));
     config.put("deltaArcRhythmPlateauRatio", String.valueOf(deltaArcRhythmPlateauRatio));
     config.put("densityCeiling", String.valueOf(densityCeiling));
     config.put("densityFloor", String.valueOf(densityFloor));
@@ -228,6 +231,7 @@ public class TemplateConfig {
     config.put("mixerNormalizationCeiling", String.valueOf(mixerNormalizationCeiling));
     config.put("outputChannels", String.valueOf(outputChannels));
     config.put("outputContainer", Text.doubleQuoted(outputContainer));
+    config.put("outputContentType", Text.doubleQuoted(outputContentType));
     config.put("outputEncoding", Text.doubleQuoted(outputEncoding.toString()));
     config.put("outputEncodingQuality", String.valueOf(outputEncodingQuality));
     config.put("outputFrameRate", String.valueOf(outputFrameRate));
@@ -482,6 +486,13 @@ public class TemplateConfig {
   }
 
   /**
+   @return Output content-type
+   */
+  public String getOutputContentType() {
+    return outputContentType;
+  }
+
+  /**
    @return Output Encoding
    */
   public AudioFormat.Encoding getOutputEncoding() {
@@ -536,4 +547,5 @@ public class TemplateConfig {
   public int getTransitionLayerMax() {
     return transitionLayerMax;
   }
+
 }

@@ -2,13 +2,10 @@
 
 package io.xj.ship.broadcast;
 
-import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
-import io.xj.hub.TemplateConfig;
 import io.xj.lib.app.Environment;
-import io.xj.lib.util.ValueException;
 import io.xj.nexus.persistence.ChainManager;
 import io.xj.nexus.persistence.ManagerExistenceException;
 import io.xj.nexus.persistence.ManagerFatalException;
@@ -19,7 +16,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static io.xj.hub.IntegrationTestingFixtures.*;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
@@ -62,24 +60,14 @@ public class ChunkTest {
   }
 
   @Test
-  public void setState_getState() {
-    subject.setState(ChunkState.Done);
-    assertEquals(ChunkState.Done, subject.getState());
-  }
-
-  @Test
   public void getKey() {
     assertEquals("test63-128k-151304042", subject.getKey(128000));
   }
 
+  // Used in ffmpeg parameter for generating an HLS stream
   @Test
-  public void addStreamOutputKey_getStreamOutputKeys() {
-    assertEquals(ImmutableList.of("test63-128k-151304042.m4a"),
-      subject.setStreamOutputKey("test63-128k-151304042.m4a").getStreamOutputKey());
+  public void getKeyTemplate() {
+    assertEquals("test63-128k-%d", subject.getKeyTemplate(128000));
   }
 
-  @Test
-  public void getConfig() throws ValueException {
-    assertEquals(new TemplateConfig(TEST_TEMPLATE_CONFIG).toString(), subject.getTemplateConfig().toString());
-  }
 }

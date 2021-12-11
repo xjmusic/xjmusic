@@ -68,7 +68,7 @@ resource "kubernetes_deployment" "xj-prod-yard-coolair-nexus" {
           }
 
           env {
-            name  = "BOOTSTRAP_SHIP_KEYS"
+            name  = "SHIP_KEY"
             value = "coolair"
           }
 
@@ -155,7 +155,7 @@ resource "kubernetes_deployment" "xj-prod-yard-coolair-ship" {
           }
 
           env {
-            name  = "BOOTSTRAP_SHIP_KEYS"
+            name  = "SHIP_KEY"
             value = "coolair"
           }
 

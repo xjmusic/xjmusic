@@ -9,7 +9,6 @@ import io.xj.lib.util.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,7 +36,6 @@ public class Environment {
   private final String awsSecretKey;
   private final String awsSecretName;
   private final String awsSnsTopicArn;
-  private final Collection<String> bootstrapShipKeys;
   private final String googleClientID;
   private final String googleClientSecret;
   private final String hostname;
@@ -55,13 +53,16 @@ public class Environment {
   private final String redisSessionNamespace;
   private final String shipBaseUrl;
   private final String shipBucket;
+  private final String shipFFmpegVerbosity;
+  private final String shipKey;
   private final String shipM3u8ContentType;
-  private final String shipFragmentConstructionMethod;
-  private final String shipMpdMimeType;
+  private final String shipTsContentType;
+  private final String shipMode;
   private final String streamBaseURL;
   private final String streamBucket;
   private final String telemetryNamespace;
   private final String tempFilePathPrefix;
+  private final boolean telemetryEnabled;
   private final boolean workChainManagementEnabled;
   private final boolean workJanitorEnabled;
   private final boolean workMedicEnabled;
@@ -73,6 +74,7 @@ public class Environment {
   private final int fabricationPreviewLengthMaxHours;
   private final int fabricationReviveChainFabricatedBehindSeconds;
   private final int fabricationReviveChainProductionGraceSeconds;
+  private final int hlsSegmentSegments;
   private final int playbackExpireSeconds;
   private final int postgresPoolSizeMax;
   private final int postgresPort;
@@ -81,7 +83,6 @@ public class Environment {
   private final int segmentComputeTimeResolutionHz;
   private final int shipAheadChunks;
   private final int shipBitrateHigh;
-  private final int shipChunkPrintTimeoutSeconds;
   private final int shipChunkSeconds;
   private final int shipReloadSeconds;
   private final int shipSegmentLoadTimeoutSeconds;
@@ -127,11 +128,12 @@ public class Environment {
     audioCacheFilePrefix = readStr(vars, "AUDIO_CACHE_FILE_PREFIX", "/tmp/");
     audioFileBucket = readStr(vars, "AUDIO_FILE_BUCKET", "xj-dev-audio");
     audioUploadURL = readStr(vars, "AUDIO_UPLOAD_URL", "https://xj-dev-audio.s3.amazonaws.com/");
-    bootstrapShipKeys = CSV.split(readStr(vars, "BOOTSTRAP_SHIP_KEYS", EMPTY));
+    shipKey = readStr(vars, "SHIP_KEY", EMPTY);
     chainStartInFutureSeconds = readInt(vars, "CHAIN_START_IN_FUTURE_SECONDS", 0);
     fabricationPreviewLengthMaxHours = readInt(vars, "FABRICATION_PREVIEW_LENGTH_MAX_HOURS", 8);
     fabricationReviveChainFabricatedBehindSeconds = readInt(vars, "FABRICATION_REVIVE_CHAIN_FABRICATED_BEHIND_SECONDS", 15);
     fabricationReviveChainProductionGraceSeconds = readInt(vars, "FABRICATION_REVIVE_CHAIN_PRODUCTION_GRACE_SECONDS", 15);
+    hlsSegmentSegments = readInt(vars, "HLS_SEGMENT_SECONDS", 10);
     hostname = readStr(vars, "HOSTNAME", "localhost");
     ingestTokenName = readStr(vars, "INGEST_TOKEN_NAME", "access_token");
     ingestTokenValue = readStr(vars, "INGEST_TOKEN_VALUE", EMPTY);
@@ -145,15 +147,16 @@ public class Environment {
     shipBaseUrl = readStr(vars, "SHIP_BASE_URL", "https://ship.dev.xj.io/");
     shipBitrateHigh = readInt(vars, "SHIP_BITRATE_HIGH", 128000);
     shipBucket = readStr(vars, "SHIP_BUCKET", "xj-dev-ship");
-    shipChunkPrintTimeoutSeconds = readInt(vars, "SHIP_CHUNK_PRINT_SECONDS", 5);
     shipChunkSeconds = readInt(vars, "SHIP_CHUNK_SECONDS", 10);
+    shipFFmpegVerbosity = readStr(vars, "SHIP_FFMPEG_VERBOSITY", "info");
     shipM3u8ContentType = readStr(vars, "SHIP_M3U8_CONTENT_TYPE", "application/x-mpegURL");
-    shipFragmentConstructionMethod = readStr(vars, "SHIP_FRAGMENT_CONSTRUCTION_METHOD", "Manual");
-    shipMpdMimeType = readStr(vars, "SHIP_MPD_MIME_TYPE", "application/dash+xml");
+    shipTsContentType = readStr(vars, "SHIP_TS_CONTENT_TYPE", "video/mp2t");;
+    shipMode = readStr(vars, "SHIP_MODE", "hls");
     shipReloadSeconds = readInt(vars, "SHIP_RELOAD_SECONDS", 15);
     shipSegmentLoadTimeoutSeconds = readInt(vars, "SHIP_SEGMENT_LOAD_TIMEOUT_SECONDS", 5);
     streamBaseURL = readStr(vars, "STREAM_BASE_URL", "https://stream.dev.xj.io/");
     streamBucket = readStr(vars, "STREAM_BUCKET", "xj-dev-stream");
+    telemetryEnabled = readBool(vars, "TELEMETRY_ENABLED", true);
     telemetryNamespace = readStr(vars, "TELEMETRY_NAMESPACE", "Lab/Hub");
     tempFilePathPrefix = readStr(vars, "TEMP_FILE_PATH_PREFIX", "/tmp/");
     workChainManagementEnabled = readBool(vars, "WORK_CHAIN_MANAGEMENT_ENABLED", true);
@@ -446,15 +449,6 @@ public class Environment {
   }
 
   /**
-   Ship broadcast via HTTP Live Streaming #179453189
-
-   @return the bootstrap ship key for this ship instance
-   */
-  public Collection<String> getBootstrapShipKeys() {
-    return bootstrapShipKeys;
-  }
-
-  /**
    @return chain start in future seconds
    */
   public int getChainStartInFutureSeconds() {
@@ -483,6 +477,27 @@ public class Environment {
   }
 
   /**
+   @return the Google client ID
+   */
+  public String getGoogleClientID() {
+    return googleClientID;
+  }
+
+  /**
+   @return the Google client secret
+   */
+  public String getGoogleClientSecret() {
+    return googleClientSecret;
+  }
+
+  /**
+   @return # of seconds per HLS media segment
+   */
+  public int getHlsSegmentSegments() {
+    return hlsSegmentSegments;
+  }
+
+  /**
    @return the application hostname, e.g. "localhost"
    */
   public String getHostname() {
@@ -508,20 +523,6 @@ public class Environment {
    */
   public String getIngestTokenValue() {
     return ingestTokenValue;
-  }
-
-  /**
-   @return the Google client ID
-   */
-  public String getGoogleClientID() {
-    return googleClientID;
-  }
-
-  /**
-   @return the Google client secret
-   */
-  public String getGoogleClientSecret() {
-    return googleClientSecret;
   }
 
   /**
@@ -644,6 +645,22 @@ public class Environment {
   }
 
   /**
+   @return verbosity of ffmpeg in ship process
+   */
+  public String getShipFFmpegVerbosity() {
+    return shipFFmpegVerbosity;
+  }
+
+  /**
+   Ship broadcast via HTTP Live Streaming #179453189
+
+   @return the ship key for this ship instance
+   */
+  public String getShipKey() {
+    return shipKey;
+  }
+
+  /**
    @return the ship .m3u8 playlist content-type
    */
   public String getShipM3u8ContentType() {
@@ -651,10 +668,17 @@ public class Environment {
   }
 
   /**
-   @return the ship .m3u8 playlist content-type
+   @return the ship .ts MPEG-TS content-type
    */
-  public String getShipMpdMimeType() {
-    return shipMpdMimeType;
+  public String getShipTsContentType() {
+    return shipTsContentType;
+  }
+
+  /**
+   @return ship mode
+   */
+  public String getShipMode() {
+    return shipMode;
   }
 
   /**
@@ -679,24 +703,10 @@ public class Environment {
   }
 
   /**
-   @return the ship chunk printer timeout seconds
-   */
-  public int getShipChunkPrintTimeoutSeconds() {
-    return shipChunkPrintTimeoutSeconds;
-  }
-
-  /**
    @return the ship MPEG2 TS bitrate
    */
   public int getShipBitrateHigh() {
     return shipBitrateHigh;
-  }
-
-  /**
-   @return the ship fragment construction method
-   */
-  public String getShipFragmentConstructionMethod() {
-    return shipFragmentConstructionMethod;
   }
 
   /**
@@ -718,6 +728,13 @@ public class Environment {
    */
   public String getStreamBucket() {
     return streamBucket;
+  }
+
+  /**
+   @return true if telemetry is enabled
+   */
+  public boolean isTelemetryEnabled() {
+    return telemetryEnabled;
   }
 
   /**
@@ -751,7 +768,7 @@ public class Environment {
   /**
    @return true if the work chain management enabled
    */
-  public boolean getWorkChainManagementEnabled() {
+  public boolean isWorkChainManagementEnabled() {
     return workChainManagementEnabled;
   }
 
@@ -786,7 +803,7 @@ public class Environment {
   /**
    @return true if the work janitor is enabled
    */
-  public boolean getWorkJanitorEnabled() {
+  public boolean isWorkJanitorEnabled() {
     return workJanitorEnabled;
   }
 
@@ -807,7 +824,7 @@ public class Environment {
   /**
    @return true if the work medic is enabled
    */
-  public boolean getWorkMedicEnabled() {
+  public boolean isWorkMedicEnabled() {
     return workMedicEnabled;
   }
 

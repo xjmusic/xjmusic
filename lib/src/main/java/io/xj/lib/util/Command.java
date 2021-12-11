@@ -3,6 +3,8 @@
 package io.xj.lib.util;
 
 import com.google.api.client.util.Lists;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,6 +15,7 @@ import static io.xj.lib.util.Text.formatMultiline;
 
 public enum Command {
   ;
+  private static final Logger LOG = LoggerFactory.getLogger(Command.class);
 
   /**
    Execute the given command
@@ -25,11 +28,13 @@ public enum Command {
     String cmd = String.join(" ", cmdParts);
     var proc = Runtime.getRuntime().exec(cmd);
     String line;
-    List<String> output = Lists.newArrayList();
+    List<String> outputLines = Lists.newArrayList();
     BufferedReader stdError = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
-    while ((line = stdError.readLine()) != null) output.add(line);
+    while ((line = stdError.readLine()) != null) outputLines.add(line);
+    var output = formatMultiline(outputLines.toArray());
     if (0 != proc.waitFor()) {
-      throw new IOException(String.format("Failed %s: %s\n\n%s", descriptiveInfinitive, cmd, formatMultiline(output.toArray())));
+      throw new IOException(String.format("Failed %s: %s\n\n%s", descriptiveInfinitive, cmd, output));
     }
+    LOG.debug("\n\n\nEXECUTE\n\n{}\n\n\nOUTPUT\n\n{}\n\n\n", cmd, output);
   }
 }

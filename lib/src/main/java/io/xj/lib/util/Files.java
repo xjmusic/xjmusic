@@ -39,26 +39,14 @@ public interface Files {
     float deviance = (float) f1.getTotalSpace() / f2.getTotalSpace();
     return (1 - (float) 0.02) < deviance && (1 + (float) 0.02) > deviance;
   }
-
   /**
-   Get file size
+   get the content of a file from java resources
 
-   @param path to get size of
-   @return size of file
+   @param filePath to get
+   @return File
    */
-  static long getFileSize(String path) {
-    return new File(path).getTotalSpace();
-  }
-
-  /**
-   Fetch new buffered input stream from file
-
-   @param filePath to fetch
-   @return buffered stream of file
-   @throws FileNotFoundException on failure
-   */
-  static BufferedInputStream inputFile(String filePath) throws FileNotFoundException {
-    return new BufferedInputStream(new FileInputStream(getResourceFile(filePath)));
+  static String getFileContent(String filePath) throws IOException {
+    return new String(new BufferedInputStream(new FileInputStream(filePath)).readAllBytes());
   }
 
   /**

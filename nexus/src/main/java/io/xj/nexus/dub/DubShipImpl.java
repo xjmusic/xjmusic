@@ -55,7 +55,8 @@ public class DubShipImpl implements DubShip {
     fileStore.putS3ObjectFromTempFile(
       fabricator.getFullQualityAudioOutputFilePath(),
       shipBucket,
-      fabricator.getSegmentOutputWaveformKey());
+      fabricator.getSegmentOutputWaveformKey(),
+      fabricator.getTemplateConfig().getOutputContentType());
   }
 
   /**

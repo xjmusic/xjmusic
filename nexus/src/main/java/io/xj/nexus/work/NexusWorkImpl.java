@@ -115,9 +115,9 @@ public class NexusWorkImpl implements NexusWork {
     healthCycleStalenessThresholdMillis = env.getWorkHealthCycleStalenessThresholdSeconds() * MILLIS_PER_SECOND;
     ingestCycleSeconds = env.getWorkIngestCycleSeconds();
     janitorCycleSeconds = env.getWorkJanitorCycleSeconds();
-    janitorEnabled = env.getWorkJanitorEnabled();
+    janitorEnabled = env.isWorkJanitorEnabled();
     medicCycleSeconds = env.getWorkMedicCycleSeconds();
-    medicEnabled = env.getWorkMedicEnabled();
+    medicEnabled = env.isWorkMedicEnabled();
     reviveChainFabricatedBehindSeconds = env.getFabricationReviveChainFabricatedBehindSeconds();
     reviveChainProductionGraceSeconds = env.getFabricationReviveChainProductionGraceSeconds();
     Executors.newSingleThreadScheduledExecutor();

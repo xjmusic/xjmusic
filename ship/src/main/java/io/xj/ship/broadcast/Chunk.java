@@ -33,8 +33,6 @@ public class Chunk {
   private final int lengthSeconds;
   private final int index;
   private final int sequenceNumber;
-  private String streamOutputKey;
-  private ChunkState state;
   private Instant updated;
 
   @Inject
@@ -47,7 +45,6 @@ public class Chunk {
     this.fromSecondsUTC = fromSecondsUTC;
     this.shipKey = shipKey;
     templateConfig = new TemplateConfig(chains.readOneByShipKey(shipKey).getTemplateConfig());
-    state = ChunkState.Pending;
     fromInstant = Instant.ofEpochSecond(fromSecondsUTC);
     lengthSeconds = env.getShipChunkSeconds();
     toInstant = fromInstant.plusSeconds(lengthSeconds);
@@ -63,24 +60,17 @@ public class Chunk {
     return shipKey;
   }
 
-  public ChunkState getState() {
-    return state;
-  }
-
-  public Chunk setState(ChunkState state) {
-    this.state = state;
-
-    return this;
-  }
-
   public String getKey(int bitrate) {
     return String.format("%s-%s-%d", shipKey, Values.k(bitrate), index);
+  }
+
+  public String getKeyTemplate(int bitrate) {
+    return String.format("%s-%s-%%d", shipKey, Values.k(bitrate));
   }
 
   public String getKey() {
     return String.format("%s-%d", shipKey, index);
   }
-
 
   public Instant getFromInstant() {
     return fromInstant;
@@ -90,38 +80,7 @@ public class Chunk {
     return toInstant;
   }
 
-  public String getStreamOutputKey() {
-    return streamOutputKey;
-  }
-
-  public Chunk setStreamOutputKey(String value) {
-    streamOutputKey = value;
-    return this;
-  }
-
-  public Instant getUpdated() {
-    return updated;
-  }
-
-  public void setUpdated(Instant updated) {
-    this.updated = updated;
-  }
-
-  public Chunk reset() {
-    state = ChunkState.Pending;
-    streamOutputKey = null;
-    return this;
-  }
-
-  public int getLengthSeconds() {
-    return lengthSeconds;
-  }
-
-  public TemplateConfig getTemplateConfig() {
-    return templateConfig;
-  }
-
-  public int getSequenceNumber() {
-    return sequenceNumber;
+  public int getIndex() {
+    return index;
   }
 }

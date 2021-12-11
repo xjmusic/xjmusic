@@ -8,8 +8,7 @@ import org.junit.Test;
 
 import java.time.Instant;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class TextTest {
 
@@ -221,5 +220,12 @@ public class TextTest {
         "HELLA", "BEANS"
       ),
       Text.parseEnvironmentVariableKeyPairs("YO=MA\nHELLA=BEANS"));
+  }
+
+  @Test
+  public void splitLines() {
+    assertArrayEquals(
+      new String[]{"One", "Two", "Three"},
+      Text.splitLines("One\nTwo\nThree"));
   }
 }

@@ -13,11 +13,12 @@ import io.xj.ship.source.SourceModule;
 public class BroadcastModule extends AbstractModule {
   @Override
   protected void configure() {
-    bind(ChunkManager.class).to(ChunkManagerImpl.class);
     install(new FactoryModuleBuilder()
       .implement(Chunk.class, Chunk.class)
-      .implement(ChunkPrinter.class, ChunkPrinterImpl.class)
-      .implement(PlaylistPublisher.class, PlaylistPublisherImpl.class)
+      .implement(ChunkMixer.class, ChunkMixerImpl.class)
+      .implement(StreamPublisher.class, StreamPublisherImpl.class)
+      .implement(StreamEncoder.class, StreamEncoderImpl.class)
+      .implement(StreamPlayer.class, StreamPlayerImpl.class)
       .build(BroadcastFactory.class));
     install(new SourceModule());
     install(new EntityModule());

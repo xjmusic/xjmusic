@@ -7,15 +7,21 @@ import com.google.inject.Singleton;
 import io.xj.lib.app.Environment;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.util.Text;
-import io.xj.ship.broadcast.BroadcastFactory;
-import io.xj.ship.broadcast.ChunkManager;
+import io.xj.nexus.persistence.ChainManager;
+import io.xj.ship.ShipException;
+import io.xj.ship.broadcast.*;
 import io.xj.ship.source.SourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import javax.sound.sampled.AudioFormat;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.xj.lib.telemetry.MultiStopwatch.MILLIS_PER_SECOND;
 
@@ -34,73 +40,100 @@ public class ShipWorkImpl implements ShipWork {
   private static final Logger LOG = LoggerFactory.getLogger(ShipWorkImpl.class);
   private final AtomicReference<State> state;
   private final BroadcastFactory broadcast;
-  private final ChunkManager chunkManager;
   private final Janitor janitor;
   private final NotificationProvider notification;
+  private final StreamPublisher publisher;
   private final SourceFactory sources;
   private final boolean janitorEnabled;
   private final int cycleMillis;
   private final int janitorCycleSeconds;
-  private final int publishCycleSeconds;
   private final int loadCycleSeconds;
   private final int printCycleSeconds;
+  private final int publishCycleSeconds;
   private final long healthCycleStalenessThresholdMillis;
   @Nullable
   private final String shipKey;
-  private boolean alive = true;
+  private final ChainManager chains;
+  private final int shipChunkSeconds;
+  private final long shipAheadMillis;
+  private final StreamPlayer player;
+  private final ChunkMixer mixer;
+  private final AudioFormat format;
+  private StreamEncoder stream;
+  private boolean active = true;
   private long nextCycleMillis = 0;
   private long nextJanitorMillis = 0;
+  private long nextPrintMillis = 0;
   private long nextPublishMillis = 0;
   private long nextShipReloadMillis = 0;
-  private long nextPrintMillis = 0;
+  private long doneUpToSecondsUTC;
 
   @Inject
   public ShipWorkImpl(
-    ChunkManager chunkManager,
     Environment env,
+    BroadcastFactory broadcast,
+    ChainManager chains,
     Janitor janitor,
     NotificationProvider notification,
-    SourceFactory sources,
-    BroadcastFactory broadcast
+    SourceFactory sources
   ) {
-    this.janitor = janitor;
-    this.sources = sources;
-    this.chunkManager = chunkManager;
-    this.notification = notification;
-
-    shipKey = env.getBootstrapShipKeys().stream().findAny().orElse(null);
+    this.chains = chains;
     this.broadcast = broadcast;
-    state = new AtomicReference<>(State.Active);
-    loadCycleSeconds = env.getShipReloadSeconds();
+    this.janitor = janitor;
+    this.notification = notification;
+    this.sources = sources;
+
+    shipKey = env.getShipKey();
+    if (Strings.isNullOrEmpty(shipKey)) {
+      LOG.error("Cannot start with null or empty ship key!");
+      active = false;
+    }
 
     cycleMillis = env.getWorkCycleMillis();
     healthCycleStalenessThresholdMillis = env.getWorkHealthCycleStalenessThresholdSeconds() * MILLIS_PER_SECOND;
     janitorCycleSeconds = env.getWorkJanitorCycleSeconds();
-    janitorEnabled = env.getWorkJanitorEnabled();
-    publishCycleSeconds = env.getWorkPublishCycleSeconds();
+    janitorEnabled = env.isWorkJanitorEnabled();
+    loadCycleSeconds = env.getShipReloadSeconds();
     printCycleSeconds = env.getWorkPrintCycleSeconds();
+    publishCycleSeconds = env.getWorkPublishCycleSeconds();
+    int shipAheadChunks = env.getShipAheadChunks();
+    shipChunkSeconds = env.getShipChunkSeconds();
+    shipAheadMillis = shipAheadChunks * shipChunkSeconds * MILLIS_PER_SECOND;
 
-    if (Strings.isNullOrEmpty(shipKey)) {
-      LOG.error("Cannot start with null or empty bootstrap ship key!");
-      alive = false;
-    }
+    format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
+      48000,
+      32,
+      2,
+      8,
+      48000,
+      false);
 
+    mixer = broadcast.mixer(shipKey, format);
+    player = broadcast.player(format);
+    publisher = broadcast.publisher(shipKey);
+
+    // This value will advance each time we compute more chunks
+    doneUpToSecondsUTC = computeChunkSecondsUTC(System.currentTimeMillis());
+
+    // updated on state change
+    state = new AtomicReference<>(State.Active);
     LOG.debug("Instantiated OK");
   }
 
   @Override
   public void work() {
-    while (alive) this.run();
+    while (active) this.run();
   }
 
   @Override
   public void stop() {
-    alive = false;
+    active = false;
+    player.close();
   }
 
   @Override
   public boolean isHealthy() {
-    return alive && !isCycleStale() && !State.Fail.equals(state.get());
+    return active && !isCycleStale() && !State.Fail.equals(state.get());
   }
 
   /**
@@ -122,7 +155,7 @@ public class ShipWorkImpl implements ShipWork {
     if (state.get() == State.Active)
       try {
         doLoadCycle(nowMillis);
-        doPrintCycle(nowMillis);
+        doMixCycle(nowMillis);
         doPublishCycle(nowMillis);
         doCleanupCycle(nowMillis);
 
@@ -138,10 +171,17 @@ public class ShipWorkImpl implements ShipWork {
 
    @param nowMillis current
    */
-  private void doPrintCycle(long nowMillis) {
+  private void doMixCycle(long nowMillis) throws ShipException {
     if (nowMillis < nextPrintMillis) return;
     nextPrintMillis = nowMillis + printCycleSeconds * MILLIS_PER_SECOND;
-    for (var chunk : chunkManager.getAll(shipKey, nowMillis)) broadcast.printer(chunk).print();
+    for (var chunk : computeNextChunks(nowMillis)) {
+
+      // Use the first chunk to initialize the stream
+      if (Objects.isNull(stream))
+        stream = broadcast.encoder(shipKey, format, chunk);
+
+      player.append(stream.append(mixer.mix(chunk)));
+    }
   }
 
   /**
@@ -177,10 +217,41 @@ public class ShipWorkImpl implements ShipWork {
   private void doPublishCycle(long nowMillis) {
     if (nowMillis < nextPublishMillis) return;
     nextPublishMillis = nowMillis + (publishCycleSeconds * MILLIS_PER_SECOND);
-    if (chunkManager.isAssembledFarEnoughAhead(shipKey, nowMillis))
-      broadcast.publisher(shipKey).publish(nowMillis);
+    publisher.publish(nowMillis);
   }
 
+
+  /**
+   Make the next chunk(s)
+
+   @param nowMillis for which to make chunks
+   @return chunks
+   */
+  public List<Chunk> computeNextChunks(long nowMillis) {
+    if (!chains.existsForShipKey(shipKey)) return List.of();
+    var computeToSecondsUTC = computeChunkSecondsUTC(nowMillis + shipAheadMillis);
+    if (doneUpToSecondsUTC == computeToSecondsUTC) return List.of();
+    var chunks = Stream.iterate(doneUpToSecondsUTC, n -> n + shipChunkSeconds)
+      .limit((computeToSecondsUTC - doneUpToSecondsUTC) / shipChunkSeconds)
+      .map(n -> broadcast.chunk(shipKey, n))
+      .collect(Collectors.toList());
+    doneUpToSecondsUTC = computeToSecondsUTC;
+    return chunks;
+  }
+
+  /**
+   Compute the from-seconds-utc for a given now (in milliseconds)
+
+   @param nowMillis current
+   @return seconds UTC
+   */
+  public long computeChunkSecondsUTC(long nowMillis) {
+    return (long) (Math.floor((double) (nowMillis / MILLIS_PER_SECOND) / shipChunkSeconds) * shipChunkSeconds);
+  }
+
+  /**
+   State of the ship work
+   */
   enum State {
     Active,
     Fail

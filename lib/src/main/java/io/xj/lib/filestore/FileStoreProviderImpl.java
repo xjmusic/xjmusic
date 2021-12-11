@@ -134,7 +134,7 @@ class FileStoreProviderImpl implements FileStoreProvider {
   }
 
   @Override
-  public void putS3ObjectFromTempFile(String filePath, String bucket, String key) throws FileStoreException {
+  public void putS3ObjectFromTempFile(String filePath, String bucket, String key, String contentType) throws FileStoreException {
     try {
       long startedAt = System.nanoTime();
       log.debug("Will ship {} to {}/{}", filePath, bucket, key);

@@ -3,6 +3,8 @@ package io.xj.ship.broadcast;
 
 import com.google.inject.assistedinject.Assisted;
 
+import javax.sound.sampled.AudioFormat;
+
 /**
  Ship broadcast via HTTP Live Streaming #179453189
  */
@@ -21,23 +23,47 @@ public interface BroadcastFactory {
   );
 
   /**
-   Publish the playlist for a ship key
+   Encode the stream for a ship key
 
-   @return playlist
-   @param shipKey to publish
+   @param shipKey to encode
+   @param format  of audio
+   @return stream
    */
-  PlaylistPublisher publisher(
-    @Assisted("shipKey") String shipKey
+  StreamEncoder encoder(
+    @Assisted("shipKey") String shipKey,
+    @Assisted("audioFormat") AudioFormat format,
+    @Assisted("firstChunk") Chunk firstChunk
   );
 
   /**
-   Print one media chunk
+   Mix one chunk of the stream
 
-   @param chunk to print
+   @param shipKey for which to print chunks
+   @param format  of audio
    @return media chunk printer
    */
-  ChunkPrinter printer(
-    @Assisted("chunk") Chunk chunk
+  ChunkMixer mixer(
+    @Assisted("shipKey") String shipKey,
+    @Assisted("audioFormat") AudioFormat format
   );
 
+  /**
+   Play the stream locally
+
+   @param format of audio
+   @return stream player
+   */
+  StreamPlayer player(
+    @Assisted("audioFormat") AudioFormat format
+  );
+
+  /**
+   Publish the stream for a ship key
+
+   @param shipKey to publish
+   @return playlist
+   */
+  StreamPublisher publisher(
+    @Assisted("shipKey") String shipKey
+  );
 }

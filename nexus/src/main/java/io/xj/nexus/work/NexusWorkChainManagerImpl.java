@@ -85,13 +85,13 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
     this.entityStore = entityStore;
     this.ChainManager = ChainManager;
 
-    shipKey = env.getBootstrapShipKeys().stream().findAny().orElse(null);
+    shipKey = env.getShipKey();
     mode = new AtomicReference<>(Objects.nonNull(shipKey) ? Mode.Yard : Mode.Lab);
     state = new AtomicReference<>(State.Init);
     shipBucket = env.getShipBucket();
     rehydrateFabricatedAheadThreshold = env.getWorkRehydrateFabricatedAheadThreshold();
     labPollSeconds = env.getWorkLabHubLabPollSeconds();
-    enabled = env.getWorkChainManagementEnabled();
+    enabled = env.isWorkChainManagementEnabled();
     labPollNext = new AtomicReference<>(Instant.now());
   }
 

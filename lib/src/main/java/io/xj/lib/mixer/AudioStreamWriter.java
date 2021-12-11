@@ -11,31 +11,20 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public record AudioStreamWriter(double[][] stream, float quality) {
-  /**
-   of a new audio stream writer instance, with a specific quality setting
-
-   @param stream to output
-   */
-  public AudioStreamWriter {
-  }
+public record AudioStreamWriter(double[][] samples, float quality) {
 
   /**
    Convert output values into a ByteBuffer
 
-   @param stream       output to convert
-   @param totalFrames  to output
-   @param outputFormat to wrote
+   @param fmt     to write
+   @param samples output to convert
    @return byte buffer of stream
    */
-  private static ByteBuffer byteBufferOf(double[][] stream, int totalFrames, AudioFormat outputFormat) throws FormatException {
-    ByteBuffer outputBytes = ByteBuffer.allocate(totalFrames * outputFormat.getFrameSize());
-    for (int offsetFrame = 0; offsetFrame < totalFrames; offsetFrame++) {
-      int streamLength = stream[offsetFrame].length;
-      for (int channel = 0; channel < streamLength; channel++) {
-        outputBytes.put(AudioSampleFormat.toBytes(stream[offsetFrame][channel], AudioSampleFormat.typeOfOutput(outputFormat)));
-      }
-    }
+  public static ByteBuffer byteBufferOf(AudioFormat fmt, double[][] samples) throws FormatException {
+    ByteBuffer outputBytes = ByteBuffer.allocate(samples.length * fmt.getFrameSize());
+    for (double[] sample : samples)
+      for (double v : sample)
+        outputBytes.put(AudioSampleFormat.toBytes(v, AudioSampleFormat.typeOfOutput(fmt)));
 
     return outputBytes;
   }
@@ -46,14 +35,13 @@ public record AudioStreamWriter(double[][] stream, float quality) {
    @param outputFilePath path
    @param specs          format
    @param outputEncoder  container, e.g. WAV or OGG
-   @param totalFrames    frames
    @throws IOException on failure
    */
-  public void writeToFile(String outputFilePath, AudioFormat specs, OutputEncoder outputEncoder, int totalFrames) throws IOException, FormatException {
+  public void writeToFile(String outputFilePath, AudioFormat specs, OutputEncoder outputEncoder) throws IOException, FormatException {
     File outputFile = new File(outputFilePath);
 
     switch (outputEncoder) {
-      case WAV -> writeWAV(outputFile, specs, totalFrames);
+      case WAV -> writeWAV(outputFile, specs);
       case OGG -> writeOggVorbis(outputFile, specs, quality);
       default -> throw new IOException("Invalid Output Container!");
     }
@@ -62,12 +50,11 @@ public record AudioStreamWriter(double[][] stream, float quality) {
   /**
    Write output bytes to WAV container
 
-   @param outputFile  to write output to
-   @param specs       of output
-   @param totalFrames to write
+   @param outputFile to write output to
+   @param specs      of output
    @throws IOException on failure
    */
-  private void writeWAV(File outputFile, AudioFormat specs, int totalFrames) throws IOException, FormatException {
+  private void writeWAV(File outputFile, AudioFormat specs) throws IOException, FormatException {
     switch (specs.getEncoding().toString()) {
       case "PCM_SIGNED":
       case "PCM_UNSIGNED":
@@ -78,11 +65,8 @@ public record AudioStreamWriter(double[][] stream, float quality) {
         throw new FormatException("unsupported .WAV encoding \"" + specs.getEncoding().toString() + "\" for AudioStreamWriter.writeToFile(...)");
     }
 
-    ByteBuffer outputBytes = byteBufferOf(stream, totalFrames, specs);
-    AudioInputStream ais = new AudioInputStream(
-      new ByteArrayInputStream(outputBytes.array()), specs,
-      totalFrames
-    );
+    ByteBuffer outputBytes = byteBufferOf(specs, samples);
+    AudioInputStream ais = new AudioInputStream(new ByteArrayInputStream(outputBytes.array()), specs, samples.length);
     AudioSystem.write(ais, AudioFileFormat.Type.WAVE, outputFile);
   }
 
@@ -94,7 +78,7 @@ public record AudioStreamWriter(double[][] stream, float quality) {
    @throws IOException on failure
    */
   private void writeOggVorbis(File outputFile, AudioFormat specs, float quality) throws IOException {
-    new VorbisEncoder(stream, (int) Math.floor(specs.getFrameRate()), quality).encode(new FileOutputStream(outputFile));
+    new VorbisEncoder(samples, (int) Math.floor(specs.getFrameRate()), quality).encode(new FileOutputStream(outputFile));
   }
 
 }

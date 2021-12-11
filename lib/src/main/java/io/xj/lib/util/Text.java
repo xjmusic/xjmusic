@@ -459,4 +459,14 @@ public interface Text {
   static String orEmptyQuotes(@Nullable String value) {
     return Strings.isNullOrEmpty(value) ? "\"\"" : value;
   }
+
+  /**
+   Split multiline text into an array of lines
+
+   @param content to split
+   @return split content
+   */
+  static String[] splitLines(String content) {
+    return content.split("\n");
+  }
 }

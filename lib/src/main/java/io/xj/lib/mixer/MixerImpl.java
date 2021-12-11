@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static io.xj.lib.util.Values.MICROS_PER_SECOND;
 import static io.xj.lib.util.Values.NANOS_PER_SECOND;
@@ -186,7 +185,7 @@ class MixerImpl implements Mixer {
 
     startedAt = System.nanoTime();
     LOG.debug(config.getLogPrefix() + "Will write {} bytes of output audio", totalBytes);
-    new AudioStreamWriter(outBuf, quality).writeToFile(outputFilePath, config.getOutputFormat(), outputEncoder, totalFrames);
+    new AudioStreamWriter(outBuf, quality).writeToFile(outputFilePath, config.getOutputFormat(), outputEncoder);
     LOG.debug(config.getLogPrefix() + "Did write {} OK in {}s", outputFilePath, String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
     return totalSeconds;
   }
@@ -257,8 +256,7 @@ class MixerImpl implements Mixer {
 
     // steps to get requisite items stored plain arrays, for access speed
     var srcPutList = puts.values().stream()
-      .filter(put -> source.getSourceId().equals(put.getSourceId()))
-      .collect(Collectors.toList());
+      .filter(put -> source.getSourceId().equals(put.getSourceId())).toList();
     Put[] srcPut = new Put[srcPutList.size()];
     int[] srcPutSpan = new int[srcPut.length];
     int[] srcPutFrom = new int[srcPut.length];

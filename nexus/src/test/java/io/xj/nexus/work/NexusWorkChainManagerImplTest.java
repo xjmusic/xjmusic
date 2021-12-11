@@ -18,6 +18,7 @@ import io.xj.lib.json.JsonModule;
 import io.xj.lib.jsonapi.JsonapiModule;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.hub_client.client.HubClient;
+import io.xj.nexus.hub_client.client.HubClientException;
 import io.xj.nexus.persistence.ChainManager;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusPersistenceModule;
@@ -32,8 +33,9 @@ import java.time.Instant;
 import static io.xj.hub.IntegrationTestingFixtures.*;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
-@SuppressWarnings("HttpUrlsUsage")
 @RunWith(MockitoJUnitRunner.class)
 public class NexusWorkChainManagerImplTest {
   private NexusEntityStore test;
@@ -52,7 +54,6 @@ public class NexusWorkChainManagerImplTest {
 
   @Mock
   private HubClient hubClient;
-
 
   @Before
   public void setUp() throws Exception {
@@ -89,11 +90,6 @@ public class NexusWorkChainManagerImplTest {
 
     // Instantiate the test subject
     subject = injector.getInstance(NexusWorkChainManager.class);
-  }
-
-  @Test
-  public void testPoll() {
-    subject.poll();
   }
 
   @Test

@@ -35,6 +35,7 @@ import static io.xj.lib.filestore.FileStoreProvider.EXTENSION_JSON;
 @SuppressWarnings("DuplicatedCode")
 public class ChainLoaderImpl extends ChainLoader {
   private static final Logger LOG = LoggerFactory.getLogger(ChainLoaderImpl.class);
+  private static final String THREAD_NAME = "chain";
   private final ChainManager chainManager;
   private final FileStoreProvider fileStoreProvider;
   private final int eraseSegmentsOlderThanSeconds;
@@ -47,7 +48,6 @@ public class ChainLoaderImpl extends ChainLoader {
   private final SegmentManager segmentManager;
   private final String shipBucket;
   private final String shipKey;
-  private final String threadName;
 
   @Inject
   public ChainLoaderImpl(
@@ -76,15 +76,13 @@ public class ChainLoaderImpl extends ChainLoader {
     shipFabricatedAheadThreshold = env.getWorkShipFabricatedAheadThresholdSeconds();
 
     shipBucket = env.getShipBucket();
-
-    threadName = String.format("CHAIN:%s", this.shipKey);
   }
 
   @Override
   public void compute() {
     final Thread currentThread = Thread.currentThread();
     final String oldName = currentThread.getName();
-    currentThread.setName(threadName);
+    currentThread.setName(THREAD_NAME);
     try {
       doWork();
     } finally {
