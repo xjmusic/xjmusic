@@ -147,7 +147,7 @@ public class Environment {
     shipBaseUrl = readStr(vars, "SHIP_BASE_URL", "https://ship.dev.xj.io/");
     shipBitrateHigh = readInt(vars, "SHIP_BITRATE_HIGH", 128000);
     shipBucket = readStr(vars, "SHIP_BUCKET", "xj-dev-ship");
-    shipChunkSeconds = readInt(vars, "SHIP_CHUNK_SECONDS", 10);
+    shipChunkSeconds = readInt(vars, "SHIP_CHUNK_SECONDS", 6);
     shipFFmpegVerbosity = readStr(vars, "SHIP_FFMPEG_VERBOSITY", "info");
     shipM3u8ContentType = readStr(vars, "SHIP_M3U8_CONTENT_TYPE", "application/x-mpegURL");
     shipTsContentType = readStr(vars, "SHIP_TS_CONTENT_TYPE", "video/mp2t");;
