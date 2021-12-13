@@ -56,8 +56,8 @@ public class Environment {
   private final String shipFFmpegVerbosity;
   private final String shipKey;
   private final String shipM3u8ContentType;
-  private final String shipTsContentType;
   private final String shipMode;
+  private final String shipTsContentType;
   private final String streamBaseURL;
   private final String streamBucket;
   private final String telemetryNamespace;
@@ -74,6 +74,7 @@ public class Environment {
   private final int fabricationPreviewLengthMaxHours;
   private final int fabricationReviveChainFabricatedBehindSeconds;
   private final int fabricationReviveChainProductionGraceSeconds;
+  private final int hlsListSize;
   private final int hlsSegmentSegments;
   private final int playbackExpireSeconds;
   private final int postgresPoolSizeMax;
@@ -83,7 +84,7 @@ public class Environment {
   private final int segmentComputeTimeResolutionHz;
   private final int shipAheadChunks;
   private final int shipBitrateHigh;
-  private final int shipChunkSeconds;
+  private final int shipMixChunkSeconds;
   private final int shipReloadSeconds;
   private final int shipSegmentLoadTimeoutSeconds;
   private final int workCycleMillis;
@@ -93,7 +94,7 @@ public class Environment {
   private final int workJanitorCycleSeconds;
   private final int workLabHubLabPollSeconds;
   private final int workMedicCycleSeconds;
-  private final int workPrintCycleSeconds;
+  private final int workMixCycleSeconds;
   private final int workPublishCycleSeconds;
   private final int workRehydrateFabricatedAheadThreshold;
   private final int workShipFabricatedAheadThresholdSeconds;
@@ -133,7 +134,8 @@ public class Environment {
     fabricationPreviewLengthMaxHours = readInt(vars, "FABRICATION_PREVIEW_LENGTH_MAX_HOURS", 8);
     fabricationReviveChainFabricatedBehindSeconds = readInt(vars, "FABRICATION_REVIVE_CHAIN_FABRICATED_BEHIND_SECONDS", 15);
     fabricationReviveChainProductionGraceSeconds = readInt(vars, "FABRICATION_REVIVE_CHAIN_PRODUCTION_GRACE_SECONDS", 15);
-    hlsSegmentSegments = readInt(vars, "HLS_SEGMENT_SECONDS", 10);
+    hlsListSize = readInt(vars, "HLS_LIST_SIZE", 10);
+    hlsSegmentSegments = readInt(vars, "HLS_SEGMENT_SECONDS", 6);
     hostname = readStr(vars, "HOSTNAME", "localhost");
     ingestTokenName = readStr(vars, "INGEST_TOKEN_NAME", "access_token");
     ingestTokenValue = readStr(vars, "INGEST_TOKEN_VALUE", EMPTY);
@@ -147,10 +149,10 @@ public class Environment {
     shipBaseUrl = readStr(vars, "SHIP_BASE_URL", "https://ship.dev.xj.io/");
     shipBitrateHigh = readInt(vars, "SHIP_BITRATE_HIGH", 128000);
     shipBucket = readStr(vars, "SHIP_BUCKET", "xj-dev-ship");
-    shipChunkSeconds = readInt(vars, "SHIP_CHUNK_SECONDS", 6);
+    shipMixChunkSeconds = readInt(vars, "SHIP_MIX_CHUNK_SECONDS", 10);
     shipFFmpegVerbosity = readStr(vars, "SHIP_FFMPEG_VERBOSITY", "info");
     shipM3u8ContentType = readStr(vars, "SHIP_M3U8_CONTENT_TYPE", "application/x-mpegURL");
-    shipTsContentType = readStr(vars, "SHIP_TS_CONTENT_TYPE", "video/mp2t");;
+    shipTsContentType = readStr(vars, "SHIP_TS_CONTENT_TYPE", "video/mp2t");
     shipMode = readStr(vars, "SHIP_MODE", "hls");
     shipReloadSeconds = readInt(vars, "SHIP_RELOAD_SECONDS", 15);
     shipSegmentLoadTimeoutSeconds = readInt(vars, "SHIP_SEGMENT_LOAD_TIMEOUT_SECONDS", 5);
@@ -170,7 +172,7 @@ public class Environment {
     workMedicCycleSeconds = readInt(vars, "WORK_MEDIC_CYCLE_SECONDS", 30);
     workMedicEnabled = readBool(vars, "WORK_MEDIC_ENABLED", true);
     workPublishCycleSeconds = readInt(vars, "WORK_PUBLISH_CYCLE_SECONDS", 10);
-    workPrintCycleSeconds = readInt(vars, "WORK_PRINT_CYCLE_SECONDS", 2);
+    workMixCycleSeconds = readInt(vars, "WORK_PRINT_CYCLE_SECONDS", 2);
     workRehydrateFabricatedAheadThreshold = readInt(vars, "WORK_REHYDRATE_FABRICATED_AHEAD_THRESHOLD", 60);
     workShipFabricatedAheadThresholdSeconds = readInt(vars, "WORK_SHIP_FABRICATED_AHEAD_THRESHOLD_SECONDS", 60);
 
@@ -491,6 +493,13 @@ public class Environment {
   }
 
   /**
+   @return HLS list size
+   */
+  public int getHlsListSize() {
+    return hlsListSize;
+  }
+
+  /**
    @return # of seconds per HLS media segment
    */
   public int getHlsSegmentSegments() {
@@ -640,8 +649,8 @@ public class Environment {
   /**
    @return the ship chunk seconds
    */
-  public int getShipChunkSeconds() {
-    return shipChunkSeconds;
+  public int getShipMixChunkSeconds() {
+    return shipMixChunkSeconds;
   }
 
   /**
@@ -831,8 +840,8 @@ public class Environment {
   /**
    @return the work print cycle seconds
    */
-  public int getWorkPrintCycleSeconds() {
-    return workPrintCycleSeconds;
+  public int getWorkMixCycleSeconds() {
+    return workMixCycleSeconds;
   }
 
   /**

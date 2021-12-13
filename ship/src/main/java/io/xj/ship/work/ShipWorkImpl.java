@@ -48,7 +48,7 @@ public class ShipWorkImpl implements ShipWork {
   private final int cycleMillis;
   private final int janitorCycleSeconds;
   private final int loadCycleSeconds;
-  private final int printCycleSeconds;
+  private final int mixCycleSeconds;
   private final int publishCycleSeconds;
   private final long healthCycleStalenessThresholdMillis;
   @Nullable
@@ -94,10 +94,10 @@ public class ShipWorkImpl implements ShipWork {
     janitorCycleSeconds = env.getWorkJanitorCycleSeconds();
     janitorEnabled = env.isWorkJanitorEnabled();
     loadCycleSeconds = env.getShipReloadSeconds();
-    printCycleSeconds = env.getWorkPrintCycleSeconds();
+    mixCycleSeconds = env.getWorkMixCycleSeconds();
     publishCycleSeconds = env.getWorkPublishCycleSeconds();
     int shipAheadChunks = env.getShipAheadChunks();
-    shipChunkSeconds = env.getShipChunkSeconds();
+    shipChunkSeconds = env.getShipMixChunkSeconds();
     shipAheadMillis = shipAheadChunks * shipChunkSeconds * MILLIS_PER_SECOND;
 
     format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
@@ -173,7 +173,7 @@ public class ShipWorkImpl implements ShipWork {
    */
   private void doMixCycle(long nowMillis) throws ShipException {
     if (nowMillis < nextPrintMillis) return;
-    nextPrintMillis = nowMillis + printCycleSeconds * MILLIS_PER_SECOND;
+    nextPrintMillis = nowMillis + mixCycleSeconds * MILLIS_PER_SECOND;
     for (var chunk : computeNextChunks(nowMillis)) {
 
       // Use the first chunk to initialize the stream

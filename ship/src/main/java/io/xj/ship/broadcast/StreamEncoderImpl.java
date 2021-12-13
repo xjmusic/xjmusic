@@ -35,6 +35,7 @@ public class StreamEncoderImpl implements StreamEncoder {
   private final String playlistPath;
   private final int bitrate;
   private final int hlsSegmentSeconds;
+  private final int hlsListSize;
   private Process ffmpeg;
   private volatile boolean active = true;
 
@@ -49,6 +50,7 @@ public class StreamEncoderImpl implements StreamEncoder {
 
     bitrate = env.getShipBitrateHigh();
     hlsSegmentSeconds = env.getHlsSegmentSegments();
+    hlsListSize = env.getHlsListSize();
     playlistPath = String.format("%s%s.m3u8", env.getTempFilePathPrefix(), shipKey);
 
     if (ShipMode.HLS.equals(env.getShipMode()))
@@ -70,6 +72,7 @@ public class StreamEncoderImpl implements StreamEncoder {
             "-hls_playlist_type", "event",
             "-hls_segment_filename", String.format("%s%s-%%d.ts", env.getTempFilePathPrefix(), shipKey),
             "-hls_time", String.valueOf(hlsSegmentSeconds),
+            "-hls_list_size", String.valueOf(hlsListSize),
             "-initial_offset", String.valueOf(firstChunk.getIndex()),
             "-start_number", String.valueOf(firstChunk.getIndex()),
             playlistPath

@@ -46,7 +46,7 @@ public class Chunk {
     this.shipKey = shipKey;
     templateConfig = new TemplateConfig(chains.readOneByShipKey(shipKey).getTemplateConfig());
     fromInstant = Instant.ofEpochSecond(fromSecondsUTC);
-    lengthSeconds = env.getShipChunkSeconds();
+    lengthSeconds = env.getShipMixChunkSeconds();
     toInstant = fromInstant.plusSeconds(lengthSeconds);
     index = (int) (Math.floor((double) fromSecondsUTC / lengthSeconds));
     sequenceNumber = index + 1;

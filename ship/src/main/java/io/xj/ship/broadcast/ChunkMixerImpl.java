@@ -57,7 +57,7 @@ public class ChunkMixerImpl implements ChunkMixer {
     this.segmentAudioManager = segmentAudioManager;
     this.format = format;
 
-    int shipChunkSeconds = env.getShipChunkSeconds();
+    int shipChunkSeconds = env.getShipMixChunkSeconds();
 
     buffer = new double[(int) (format.getFrameRate() * shipChunkSeconds)][format.getChannels()];
   }
