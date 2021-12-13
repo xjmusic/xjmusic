@@ -3,6 +3,7 @@
 package io.xj.nexus.work;
 
 import com.google.api.client.util.Lists;
+import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.xj.api.Chain;
@@ -35,7 +36,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.Collection;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -86,7 +86,7 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
     this.ChainManager = ChainManager;
 
     shipKey = env.getShipKey();
-    mode = new AtomicReference<>(Objects.nonNull(shipKey) ? Mode.Yard : Mode.Lab);
+    mode = new AtomicReference<>(Strings.isNullOrEmpty(shipKey) ? Mode.Lab : Mode.Yard);
     state = new AtomicReference<>(State.Init);
     shipBucket = env.getShipBucket();
     rehydrateFabricatedAheadThreshold = env.getWorkRehydrateFabricatedAheadThreshold();
@@ -185,7 +185,7 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
       chains = ChainManager.readAllFabricating();
       Set<String> chainShipKeys = chains.stream().map(Chain::getShipKey).collect(Collectors.toSet());
       for (Template template : templates)
-        if (!chainShipKeys.contains(template.getShipKey()))
+        if (!Strings.isNullOrEmpty(template.getShipKey()) && !chainShipKeys.contains(template.getShipKey()))
           createChainForTemplate(template.getShipKey(), TemplateType.Preview);
     } catch (ManagerFatalException | ManagerPrivilegeException e) {
       LOG.error("Failed to start Chain(s) for playing Template(s)!", e);

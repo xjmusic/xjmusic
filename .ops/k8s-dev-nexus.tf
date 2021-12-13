@@ -32,7 +32,7 @@ resource "kubernetes_deployment" "xj-dev-nexus" {
     }
   }
   spec {
-    replicas = 1
+    replicas = 0
 
     strategy {
       type = "Recreate"

@@ -38,11 +38,11 @@ resource "kubernetes_deployment" "xj-prod-yard-coolair-nexus" {
           resources {
             requests = {
               cpu    = "2000m"
-              memory = "3Gi"
+              memory = "2Gi"
             }
             limits = {
               cpu    = "3000m"
-              memory = "6Gi"
+              memory = "4Gi"
             }
           }
 
@@ -124,12 +124,12 @@ resource "kubernetes_deployment" "xj-prod-yard-coolair-ship" {
 
           resources {
             requests = {
-              cpu    = "1500m"
-              memory = "2Gi"
+              cpu    = "2000m"
+              memory = "1Gi"
             }
             limits = {
-              cpu    = "2000m"
-              memory = "3Gi"
+              cpu    = "4000m"
+              memory = "2Gi"
             }
           }
 
