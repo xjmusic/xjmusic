@@ -26,6 +26,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static io.xj.lib.mixer.AudioStreamWriter.byteBufferOf;
+import static io.xj.lib.telemetry.MultiStopwatch.MILLIS_PER_SECOND;
 
 public class StreamEncoderImpl implements StreamEncoder {
   private static final Logger LOG = LoggerFactory.getLogger(StreamEncoder.class);
@@ -43,13 +44,12 @@ public class StreamEncoderImpl implements StreamEncoder {
   public StreamEncoderImpl(
     @Assisted("shipKey") String shipKey,
     @Assisted("audioFormat") AudioFormat format,
-    @Assisted("firstChunk") Chunk firstChunk,
     Environment env
   ) {
     this.format = format;
 
     bitrate = env.getShipBitrateHigh();
-    hlsSegmentSeconds = env.getHlsSegmentSegments();
+    hlsSegmentSeconds = env.getHlsSegmentSeconds();
     hlsListSize = env.getHlsListSize();
     playlistPath = String.format("%s%s.m3u8", env.getTempFilePathPrefix(), shipKey);
 
@@ -59,6 +59,7 @@ public class StreamEncoderImpl implements StreamEncoder {
         final String oldName = currentThread.getName();
         currentThread.setName(THREAD_NAME);
         try {
+          int initialOffset = (int) (Math.floor((double) System.currentTimeMillis() / (MILLIS_PER_SECOND * hlsSegmentSeconds)));
           ProcessBuilder builder = new ProcessBuilder(List.of(
             "ffmpeg",
             "-v", env.getShipFFmpegVerbosity(),
@@ -67,14 +68,15 @@ public class StreamEncoderImpl implements StreamEncoder {
             "-ac", "2",
             "-c:a", "mp2",
             "-b:a", Values.k(bitrate),
-            "-minrate", Values.k(bitrate),
+            "-initial_offset", String.valueOf(initialOffset),
             "-maxrate", Values.k(bitrate),
+            "-minrate", Values.k(bitrate),
+            "-start_number", String.valueOf(initialOffset),
+            "-hls_flags", "delete_segments",
+            "-hls_list_size", String.valueOf(hlsListSize),
             "-hls_playlist_type", "event",
             "-hls_segment_filename", String.format("%s%s-%%d.ts", env.getTempFilePathPrefix(), shipKey),
             "-hls_time", String.valueOf(hlsSegmentSeconds),
-            "-hls_list_size", String.valueOf(hlsListSize),
-            "-initial_offset", String.valueOf(firstChunk.getIndex()),
-            "-start_number", String.valueOf(firstChunk.getIndex()),
             playlistPath
           ));
           builder.redirectErrorStream(true);
@@ -128,7 +130,8 @@ public class StreamEncoderImpl implements StreamEncoder {
 
   @Override
   public void close() {
-    ffmpeg.destroy();
+    if (Objects.nonNull(ffmpeg))
+      ffmpeg.destroy();
     active = false;
   }
 

@@ -92,7 +92,8 @@ public class StreamPlayerImpl implements StreamPlayer {
 
   @Override
   public void close() {
-    line.close();
+    if (Objects.nonNull(line))
+      line.close();
     active = false;
   }
 

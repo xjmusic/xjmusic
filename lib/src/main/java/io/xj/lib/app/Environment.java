@@ -75,7 +75,7 @@ public class Environment {
   private final int fabricationReviveChainFabricatedBehindSeconds;
   private final int fabricationReviveChainProductionGraceSeconds;
   private final int hlsListSize;
-  private final int hlsSegmentSegments;
+  private final int hlsSegmentSeconds;
   private final int playbackExpireSeconds;
   private final int postgresPoolSizeMax;
   private final int postgresPort;
@@ -135,7 +135,7 @@ public class Environment {
     fabricationReviveChainFabricatedBehindSeconds = readInt(vars, "FABRICATION_REVIVE_CHAIN_FABRICATED_BEHIND_SECONDS", 15);
     fabricationReviveChainProductionGraceSeconds = readInt(vars, "FABRICATION_REVIVE_CHAIN_PRODUCTION_GRACE_SECONDS", 15);
     hlsListSize = readInt(vars, "HLS_LIST_SIZE", 10);
-    hlsSegmentSegments = readInt(vars, "HLS_SEGMENT_SECONDS", 6);
+    hlsSegmentSeconds = readInt(vars, "HLS_SEGMENT_SECONDS", 6);
     hostname = readStr(vars, "HOSTNAME", "localhost");
     ingestTokenName = readStr(vars, "INGEST_TOKEN_NAME", "access_token");
     ingestTokenValue = readStr(vars, "INGEST_TOKEN_VALUE", EMPTY);
@@ -502,8 +502,8 @@ public class Environment {
   /**
    @return # of seconds per HLS media segment
    */
-  public int getHlsSegmentSegments() {
-    return hlsSegmentSegments;
+  public int getHlsSegmentSeconds() {
+    return hlsSegmentSeconds;
   }
 
   /**
