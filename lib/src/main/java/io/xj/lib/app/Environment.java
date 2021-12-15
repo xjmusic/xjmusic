@@ -136,7 +136,7 @@ public class Environment {
     fabricationPreviewLengthMaxHours = readInt(vars, "FABRICATION_PREVIEW_LENGTH_MAX_HOURS", 8);
     fabricationReviveChainFabricatedBehindSeconds = readInt(vars, "FABRICATION_REVIVE_CHAIN_FABRICATED_BEHIND_SECONDS", 15);
     fabricationReviveChainProductionGraceSeconds = readInt(vars, "FABRICATION_REVIVE_CHAIN_PRODUCTION_GRACE_SECONDS", 15);
-    hlsListSize = readInt(vars, "HLS_LIST_SIZE", 10);
+    hlsListSize = readInt(vars, "HLS_LIST_SIZE", 20);
     hlsSegmentSeconds = readInt(vars, "HLS_SEGMENT_SECONDS", 6);
     hostname = readStr(vars, "HOSTNAME", "localhost");
     ingestTokenName = readStr(vars, "INGEST_TOKEN_NAME", "access_token");
