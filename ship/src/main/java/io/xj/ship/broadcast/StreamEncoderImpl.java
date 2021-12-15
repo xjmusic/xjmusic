@@ -66,7 +66,7 @@ public class StreamEncoderImpl implements StreamEncoder {
             "-i", "pipe:0",
             "-f", "hls",
             "-ac", "2",
-            "-c:a", "mp2",
+            "-c:a", env.getShipFfmpegAudioCompressor(),
             "-b:a", Values.k(bitrate),
             "-initial_offset", String.valueOf(initialOffset),
             "-maxrate", Values.k(bitrate),
@@ -75,7 +75,7 @@ public class StreamEncoderImpl implements StreamEncoder {
             "-hls_flags", "delete_segments",
             "-hls_list_size", String.valueOf(hlsListSize),
             "-hls_playlist_type", "event",
-            "-hls_segment_filename", String.format("%s%s-%%d.ts", env.getTempFilePathPrefix(), shipKey),
+            "-hls_segment_filename", String.format("%s%s-%%d.%s", env.getTempFilePathPrefix(), shipKey, env.getShipFfmpegSegmentFilenameExtension()),
             "-hls_time", String.valueOf(hlsSegmentSeconds),
             playlistPath
           ));

@@ -54,10 +54,12 @@ public class Environment {
   private final String shipBaseUrl;
   private final String shipBucket;
   private final String shipFFmpegVerbosity;
+  private final String shipFfmpegAudioCompressor;
+  private final String shipFfmpegSegmentFilenameExtension;
   private final String shipKey;
   private final String shipM3u8ContentType;
   private final String shipMode;
-  private final String shipTsContentType;
+  private final String shipSegmentContentType;
   private final String streamBaseURL;
   private final String streamBucket;
   private final String telemetryNamespace;
@@ -150,11 +152,13 @@ public class Environment {
     shipBitrateHigh = readInt(vars, "SHIP_BITRATE_HIGH", 128000);
     shipBucket = readStr(vars, "SHIP_BUCKET", "xj-dev-ship");
     shipMixChunkSeconds = readInt(vars, "SHIP_MIX_CHUNK_SECONDS", 10);
+    shipFfmpegAudioCompressor = readStr(vars, "SHIP_FFMPEG_AUDIO_COMPRESSOR", "mp3");
+    shipFfmpegSegmentFilenameExtension = readStr(vars, "SHIP_FFMPEG_SEGMENT_FILENAME_EXTENSION", "mp3");
     shipFFmpegVerbosity = readStr(vars, "SHIP_FFMPEG_VERBOSITY", "info");
     shipM3u8ContentType = readStr(vars, "SHIP_M3U8_CONTENT_TYPE", "application/x-mpegURL");
-    shipTsContentType = readStr(vars, "SHIP_TS_CONTENT_TYPE", "video/mp2t");
     shipMode = readStr(vars, "SHIP_MODE", "hls");
     shipReloadSeconds = readInt(vars, "SHIP_RELOAD_SECONDS", 15);
+    shipSegmentContentType = readStr(vars, "SHIP_TS_CONTENT_TYPE", "audio/mp3");
     shipSegmentLoadTimeoutSeconds = readInt(vars, "SHIP_SEGMENT_LOAD_TIMEOUT_SECONDS", 5);
     streamBaseURL = readStr(vars, "STREAM_BASE_URL", "https://stream.dev.xj.io/");
     streamBucket = readStr(vars, "STREAM_BUCKET", "xj-dev-stream");
@@ -654,6 +658,19 @@ public class Environment {
   }
 
   /**
+   @return the ship ffmpeg audio compressor
+   */
+  public String getShipFfmpegAudioCompressor() {
+    return shipFfmpegAudioCompressor;
+  }
+
+  /**
+   @return the ship ffmpeg segment filename extension
+   */
+  public String getShipFfmpegSegmentFilenameExtension() {
+    return shipFfmpegSegmentFilenameExtension;
+  }
+  /**
    @return verbosity of ffmpeg in ship process
    */
   public String getShipFFmpegVerbosity() {
@@ -677,10 +694,10 @@ public class Environment {
   }
 
   /**
-   @return the ship .ts MPEG-TS content-type
+   @return the ship audio segment MPEG-TS content-type
    */
-  public String getShipTsContentType() {
-    return shipTsContentType;
+  public String getShipSegmentContentType() {
+    return shipSegmentContentType;
   }
 
   /**
@@ -857,4 +874,5 @@ public class Environment {
   public int getWorkRehydrateFabricatedAheadThreshold() {
     return workRehydrateFabricatedAheadThreshold;
   }
+
 }

@@ -25,15 +25,15 @@ import java.util.stream.Stream;
  */
 public class StreamPublisherImpl implements StreamPublisher {
   private static final Logger LOG = LoggerFactory.getLogger(StreamPublisherImpl.class);
-  private static final String TRANSPORT_STREAM_FILENAME_ENDS_WITH = ".ts";
-  private static final Pattern rgxTsFilenameSeqNum = Pattern.compile("-([0-9]*)\\.ts");
   private final FileStoreProvider fileStore;
-  private final Predicate<? super String> isTransportStreamFilename = m -> m.endsWith(TRANSPORT_STREAM_FILENAME_ENDS_WITH);
+  private final Pattern rgxTsFilenameSeqNum;
+  private final Predicate<? super String> isTransportStreamFilename;
   private final String bucket;
   private final String contentTypeM3U8;
   private final String contentTypeTS;
   private final String m3u8Key;
   private final String playlistPath;
+  private final String shipSegmentFilenameEndsWith;
   private final String tempFilePathPrefix;
   private final int hlsListSize;
   private final int hlsSegmentSeconds;
@@ -46,12 +46,15 @@ public class StreamPublisherImpl implements StreamPublisher {
     this.fileStore = fileStore;
 
     contentTypeM3U8 = env.getShipM3u8ContentType();
-    contentTypeTS = env.getShipTsContentType();
+    contentTypeTS = env.getShipSegmentContentType();
     tempFilePathPrefix = env.getTempFilePathPrefix();
     hlsListSize = env.getHlsListSize();
     hlsSegmentSeconds = env.getHlsSegmentSeconds();
     m3u8Key = String.format("%s.m3u8", shipKey);
     playlistPath = String.format("%s%s", tempFilePathPrefix, m3u8Key);
+    shipSegmentFilenameEndsWith = String.format(".%s", env.getShipFfmpegSegmentFilenameExtension());
+    rgxTsFilenameSeqNum = Pattern.compile(String.format("-([0-9]*)\\.%s", env.getShipFfmpegSegmentFilenameExtension()));
+    isTransportStreamFilename = m -> m.endsWith(shipSegmentFilenameEndsWith);
     bucket = env.getStreamBucket();
   }
 
@@ -66,16 +69,16 @@ public class StreamPublisherImpl implements StreamPublisher {
       var m3u8LmtLines = List.of(m3u8Lines)
         .subList(Math.max(0, m3u8Lines.length - 2 * hlsListSize), m3u8Lines.length);
 
-      // scan for .ts filenames and publish them
-      for (String ts : m3u8LmtLines.stream().filter(isTransportStreamFilename).toList())
-        stream(ts, contentTypeTS);
+      // scan for filenames and publish them
+      for (String fn : m3u8LmtLines.stream().filter(isTransportStreamFilename).toList())
+        stream(fn, contentTypeTS);
 
-      // determine the media sequence from the first TS key
+      // determine the media sequence from the first filename
       var firstTsKey = m3u8LmtLines.stream()
         .filter(isTransportStreamFilename)
-        .findFirst()
-        .orElseThrow(() -> new ShipException("Unable to get first TS key from limited playlist filenames!"));
-      var matcher = rgxTsFilenameSeqNum.matcher(firstTsKey);
+        .findFirst();
+      if (firstTsKey.isEmpty()) return;
+      var matcher = rgxTsFilenameSeqNum.matcher(firstTsKey.get());
       if (!matcher.find())
         throw new ShipException(String.format("Failed to match a media sequence number in filename: %s", firstTsKey));
       var mediaSequence = Integer.valueOf(matcher.group(1));
