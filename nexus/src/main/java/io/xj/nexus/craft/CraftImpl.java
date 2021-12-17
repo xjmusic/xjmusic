@@ -765,8 +765,9 @@ public class CraftImpl extends FabricationWrapperImpl {
     Collection<String> memes;
     for (Program program : sourcePrograms) {
       memes = Entities.namesOf(fabricator.sourceMaterial().getMemes(program));
+      // FUTURE consider meme isometry, but for now, just use the meme stack
       if (iso.isAllowed(memes))
-        superEntityScorePicker.add(program, score(iso, program, memes));
+        superEntityScorePicker.add(program, score(program));
     }
 
     // report
@@ -800,8 +801,9 @@ public class CraftImpl extends FabricationWrapperImpl {
     Collection<String> memes;
     for (Instrument instrument : sourceInstruments) {
       memes = Entities.namesOf(fabricator.sourceMaterial().getMemes(instrument));
+      // FUTURE consider meme isometry, but for now, just use the meme stack
       if (iso.isAllowed(memes))
-        superEntityScorePicker.add(instrument, score(iso, instrument, memes));
+        superEntityScorePicker.add(instrument, score(instrument));
     }
 
     switch (fabricator.getType()) {
@@ -836,15 +838,11 @@ public class CraftImpl extends FabricationWrapperImpl {
   /**
    Score a candidate for instrument, given current fabricator
 
-   @param iso        isometry from which to score programs
    @param instrument to score
-   @param memes      to score
    @return score, including +/- entropy
    */
-  protected double score(MemeIsometry iso, Instrument instrument, Collection<String> memes) {
+  protected double score(Instrument instrument) {
     double score = Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_INSTRUMENT);
-
-    score += SCORE_MATCH_MEMES * iso.score(memes);
 
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(instrument))
@@ -862,16 +860,12 @@ public class CraftImpl extends FabricationWrapperImpl {
    Returns ZERO if the program has no memes, in order to fix:
    [#162040109] Artist expects program with no memes will never be selected for chain craft.
 
-   @param iso     isometry from which to score programs
    @param program to score
-   @param memes   to score
    @return score, including +/- entropy; empty if this program has no memes, and isn't directly bound
    */
   @SuppressWarnings("DuplicatedCode")
-  private Double score(MemeIsometry iso, Program program, Collection<String> memes) {
+  private Double score(Program program) {
     double score = Chance.normallyAround(0, SCORE_ENTROPY_CHOICE);
-
-    score += SCORE_MATCH_MEMES * iso.score(memes);
 
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(program))
