@@ -10,12 +10,11 @@ import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.music.Bar;
-import io.xj.lib.util.Chance;
+import io.xj.lib.util.MarbleBag;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.TremendouslyRandom;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.detail.DetailCraftImpl;
-import io.xj.nexus.fabricator.EntityScorePicker;
 import io.xj.nexus.fabricator.Fabricator;
 
 import java.util.*;
@@ -179,13 +178,14 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     if (previous.isPresent())
       return fabricator.sourceMaterial().getInstrumentAudio(previous.get().getInstrumentAudioId());
 
-    EntityScorePicker<InstrumentAudio> superEntityScorePicker = new EntityScorePicker<>();
+    var bag = MarbleBag.empty();
 
     for (InstrumentAudio audio : fabricator.sourceMaterial().getAudiosForInstrumentId(instrumentId)
-      .stream().filter(instrumentAudio -> Text.toMeme(event).equals(Text.toMeme(instrumentAudio.getEvent()))).collect(Collectors.toList()))
-      superEntityScorePicker.add(audio, Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_INSTRUMENT));
+      .stream().filter(instrumentAudio -> Text.toMeme(event).equals(Text.toMeme(instrumentAudio.getEvent()))).toList())
+      bag.add(audio.getId());
 
-    return superEntityScorePicker.getTop();
+    if (bag.isEmpty()) return Optional.empty();
+    return fabricator.sourceMaterial().getInstrumentAudio(bag.pick());
   }
 
 }

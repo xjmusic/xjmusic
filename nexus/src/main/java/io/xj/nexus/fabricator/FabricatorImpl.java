@@ -682,45 +682,44 @@ class FabricatorImpl implements Fabricator {
 
   @Override
   public Optional<ProgramSequence> getRandomlySelectedSequence(Program program) {
-    EntityScorePicker<ProgramSequence> entityScorePicker = new EntityScorePicker<>();
+    var bag = MarbleBag.empty();
     sourceMaterial.getAllProgramSequences().stream()
       .filter(s -> Objects.equals(s.getProgramId(), program.getId()))
-      .forEach(sequence -> entityScorePicker.add(sequence, Chance.normallyAround(0.0, 1.0)));
-    return entityScorePicker.getTop();
+      .forEach(sequence -> bag.add(sequence.getId()));
+    if (bag.isEmpty()) return Optional.empty();
+    return sourceMaterial.getProgramSequence(bag.pick());
 
   }
 
   @Override
   public Optional<ProgramSequenceBinding> getRandomlySelectedSequenceBindingAtOffset(Program program, Integer offset) {
-    EntityScorePicker<ProgramSequenceBinding> entityScorePicker = new EntityScorePicker<>();
+    var bag = MarbleBag.empty();
     for (ProgramSequenceBinding sequenceBinding : sourceMaterial.getProgramSequenceBindingsAtOffset(program, offset))
-      entityScorePicker.add(sequenceBinding, Chance.normallyAround(0.0, 1.0));
-
-    return entityScorePicker.getTop();
+      bag.add(sequenceBinding.getId());
+    if (bag.isEmpty()) return Optional.empty();
+    return sourceMaterial.getProgramSequenceBinding(bag.pick());
   }
 
   @Override
   public Optional<ProgramVoice> getRandomlySelectedVoiceForProgramId(UUID programId, Collection<UUID> excludeVoiceIds) {
-    EntityScorePicker<ProgramVoice> entityScorePicker = new EntityScorePicker<>();
+    var bag = MarbleBag.empty();
     for (ProgramVoice sequenceBinding : sourceMaterial.getAllProgramVoices()
       .stream().filter(programVoice -> Objects.equals(programId, programVoice.getProgramId())
         && !excludeVoiceIds.contains(programVoice.getId())).toList())
-      entityScorePicker.add(sequenceBinding, Chance.normallyAround(0.0, 1.0));
-
-    return entityScorePicker.getTop();
+      bag.add(sequenceBinding.getId());
+    if (bag.isEmpty()) return Optional.empty();
+    return sourceMaterial.getProgramVoice(bag.pick());
   }
 
   @Override
   public Optional<ProgramSequencePattern> getRandomlySelectedPatternOfSequenceByVoiceAndType(SegmentChoice choice) {
-    EntityScorePicker<ProgramSequencePattern> rank = new EntityScorePicker<>();
+    var bag = MarbleBag.empty();
     sourceMaterial.getAllProgramSequencePatterns().stream()
       .filter(pattern -> Objects.equals(pattern.getProgramSequenceId(), choice.getProgramSequenceId()))
       .filter(pattern -> Objects.equals(pattern.getProgramVoiceId(), choice.getProgramVoiceId()))
-      .forEach(pattern ->
-        rank.add(pattern, Chance.normallyAround(0.0, 1.0)));
-    if (Objects.equals(0, rank.size()))
-      return Optional.empty();
-    return rank.getTop();
+      .forEach(pattern -> bag.add(pattern.getId()));
+    if (bag.isEmpty()) return Optional.empty();
+    return sourceMaterial.getProgramSequencePattern(bag.pick());
   }
 
   @Override

@@ -14,7 +14,6 @@ import java.util.List;
  */
 public class MemeIsometry extends Isometry {
   private static final String KEY_NAME = "name";
-  private static final int WEIGHT_MATCH = 1;
   private final MemeStack stack;
 
   /**
@@ -51,12 +50,12 @@ public class MemeIsometry extends Isometry {
    Score a CSV list of memes based on isometry to source memes
 
    @param targets comma-separated values to score against source meme names
-   @return score is between 0 (no matches) and 1 (all memes match)
+   @return score is between 0 (no matches) and the number of matching memes
    */
-  public double score(Collection<String> targets) {
+  public int score(Collection<String> targets) {
     return targets.stream()
       .map(Text::toMeme)
-      .flatMap(target -> sources.stream().map(source -> Objects.equal(source, target) ? WEIGHT_MATCH : 0))
+      .flatMap(target -> sources.stream().map(source -> Objects.equal(source, target) ? 1 : 0))
       .reduce(0, Integer::sum);
   }
 

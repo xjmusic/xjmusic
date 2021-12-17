@@ -29,14 +29,14 @@ public class NameIsometry extends Isometry {
    @param name2 to compare
    @return score
    */
-  public static double similarity(String name1, String name2) {
+  public static int similarity(String name1, String name2) {
     DoubleMetaphone dm = new DoubleMetaphone();
 
     // score includes double-metaphone phonetic fuzzy-match of name
-    return SIMILARITY_SCORE_MATCHING_NAME * FuzzySearch.ratio(
-      dm.doubleMetaphone(name1),
-      dm.doubleMetaphone(name2)
-    );
+    return (int) (SIMILARITY_SCORE_MATCHING_NAME * FuzzySearch.ratio(
+          dm.doubleMetaphone(name1),
+          dm.doubleMetaphone(name2)
+        ));
   }
 
   /**

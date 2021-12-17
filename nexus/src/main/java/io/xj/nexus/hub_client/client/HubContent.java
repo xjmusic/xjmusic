@@ -101,6 +101,16 @@ public class HubContent {
   }
 
   /**
+   get cached ProgramSequencePattern by id
+
+   @param id of ProgramSequencePattern to get
+   @return ProgramSequencePattern
+   */
+  public Optional<ProgramSequencePattern> getProgramSequencePattern(UUID id) {
+    return get(ProgramSequencePattern.class, id);
+  }
+
+  /**
    get cached ProgramSequence by id
 
    @param id of ProgramSequence to get
@@ -457,8 +467,7 @@ public class HubContent {
    */
   public Collection<ProgramSequenceBinding> getSequenceBindingsAtProgramOffset(UUID programId, Integer offset) {
     var candidates = getAllProgramSequenceBindings().stream()
-      .filter(psb -> Objects.equals(psb.getProgramId(), programId))
-      .collect(Collectors.toList());
+      .filter(psb -> Objects.equals(psb.getProgramId(), programId)).toList();
     var actualOffset = candidates.stream()
       .map(ProgramSequenceBinding::getOffset)
       .min(Comparator.comparing(psbOffset -> Math.abs(psbOffset - offset)));

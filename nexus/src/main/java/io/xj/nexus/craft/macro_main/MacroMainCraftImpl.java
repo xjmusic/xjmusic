@@ -15,10 +15,9 @@ import io.xj.hub.tables.pojos.ProgramSequenceChord;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Key;
-import io.xj.lib.util.Chance;
+import io.xj.lib.util.MarbleBag;
 import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.fabricator.EntityScorePicker;
 import io.xj.nexus.fabricator.FabricationWrapperImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.MemeIsometry;
@@ -30,7 +29,6 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static io.xj.lib.util.Values.NANOS_PER_SECOND;
 
@@ -38,11 +36,6 @@ import static io.xj.lib.util.Values.NANOS_PER_SECOND;
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroMainCraft {
-  private static final double SCORE_MATCH = 1000;
-  private static final double SCORE_AVOID = -SCORE_MATCH * 2;
-  private static final double SCORE_DIRECT = 10 * SCORE_MATCH;
-  private static final double SCORE_MACRO_ENTROPY = 1.0;
-  private static final double SCORE_MAIN_ENTROPY = 1.0;
   private final ApiUrlProvider apiUrlProvider;
 
   @Inject
@@ -307,43 +300,28 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
       return fabricator.getProgram(previousMacroChoice.get());
 
     // will rank all possibilities, and choose the next macro program
-    EntityScorePicker<Program> superEntityScorePicker = new EntityScorePicker<>();
+    var bag = MarbleBag.empty();
 
     // (1) retrieve programs bound to chain and
     // (3) score each source program
     MemeIsometry iso = fabricator.getMemeIsometryOfNextSequenceInPreviousMacro();
     Collection<String> memes;
-    for (Program program : fabricator.sourceMaterial().getProgramsOfType(ProgramType.Macro)) {
+    var sourcePrograms = fabricator.sourceMaterial().getProgramsOfType(ProgramType.Macro);
+    for (Program program :
+      sourcePrograms.stream().anyMatch(fabricator::isDirectlyBound)
+        ? sourcePrograms.stream().filter(fabricator::isDirectlyBound).toList()
+        : sourcePrograms.stream().filter(p -> ProgramState.Published.equals(p.getState())).toList()) {
       memes = fabricator.sourceMaterial().getMemesAtBeginning(program);
       if (iso.isAllowed(memes))
-        superEntityScorePicker.add(program, scoreMacro(iso, program, memes));
-    }
-
-    // (3b) Avoid previous macro program
-    if (previousMacroChoice.isPresent()) {
-      var program = fabricator.getProgram(previousMacroChoice.get());
-      program.ifPresent(value -> superEntityScorePicker.score(value.getId(), SCORE_AVOID));
+        bag.add(program.getId(), fabricator.isInitialSegment() ? 1 : iso.score(memes));
     }
 
     // report
-    fabricator.putReport("macroChoice", superEntityScorePicker.report());
+    fabricator.putReport("macroChoice", bag.toString());
 
     // (4) return the top choice
-    return superEntityScorePicker.getTop();
-  }
-
-  /**
-   Choose first macro program, completely at random
-
-   @return macro-type program
-   */
-  public Optional<Program> chooseRandomMacroProgram() {
-    EntityScorePicker<Program> superEntityScorePicker = new EntityScorePicker<>();
-
-    for (Program program : fabricator.sourceMaterial().getProgramsOfType(ProgramType.Macro))
-      superEntityScorePicker.add(program, Chance.normallyAround(0, SCORE_MACRO_ENTROPY));
-
-    return superEntityScorePicker.getTop();
+    if (bag.isEmpty()) return Optional.empty();
+    return fabricator.sourceMaterial().getProgram(bag.pick());
   }
 
   /**
@@ -362,81 +340,53 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
     // will rank all possibilities, and choose the next main program
     // future: only choose major programs for major keys, minor for minor! [#223] Key of first Pattern of chosen Main-Program must match the `minor` or `major` with the Key of the current Segment.
-    EntityScorePicker<Program> superEntityScorePicker = new EntityScorePicker<>();
+    var bag = MarbleBag.empty();
 
     // (2) retrieve programs bound to chain and
     // (3) score each source program based on meme isometry
     MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
     Collection<String> memes;
-    for (Program program : fabricator.sourceMaterial().getProgramsOfType(ProgramType.Main)) {
+    var sourcePrograms = fabricator.sourceMaterial().getProgramsOfType(ProgramType.Main);
+    for (Program program :
+      sourcePrograms.stream().anyMatch(fabricator::isDirectlyBound)
+        ? sourcePrograms.stream().filter(fabricator::isDirectlyBound).toList()
+        : sourcePrograms.stream().filter(p -> ProgramState.Published.equals(p.getState())).toList()) {
       memes = fabricator.sourceMaterial().getMemesAtBeginning(program);
       if (iso.isAllowed(memes))
-        superEntityScorePicker.add(program, scoreMain(iso, program, memes));
+        bag.add(program.getId(), 1 + iso.score(memes));
     }
 
     // report
-    fabricator.putReport("mainChoice", superEntityScorePicker.report());
+    fabricator.putReport("mainChoice", bag.toString());
 
     // (4) return the top choice
-    return superEntityScorePicker.getTop();
+    if (bag.isEmpty()) return Optional.empty();
+    return fabricator.sourceMaterial().getProgram(bag.pick());
   }
 
   /**
-   Score a candidate for next macro program, given current fabricator
+   Choose first macro program, completely at random
 
-   @param iso     from which to score macro programs
-   @param program to score
-   @param memes   to score
-   @return score, including +/- entropy
+   @return macro-type program
    */
-  private double scoreMacro(MemeIsometry iso, Program program, Collection<String> memes) {
-    double score = Chance.normallyAround(0, SCORE_MACRO_ENTROPY);
+  public Optional<Program> chooseRandomMacroProgram() {
+    var bag = MarbleBag.empty();
 
-    if (fabricator.isInitialSegment()) {
-      return score;
-    }
+    for (Program program : fabricator.sourceMaterial().getProgramsOfType(ProgramType.Macro))
+      bag.add(program.getId());
 
-    // Score includes matching memes to previous segment's macro-program's next pattern
-    score += iso.score(memes) * SCORE_MATCH;
-
-    // [#174435421] Chain bindings specify Program & Instrument within Library
-    if (fabricator.isDirectlyBound(program))
-      score += SCORE_DIRECT;
-    else if (program.getState().equals(ProgramState.Draft))
-      score += SCORE_UNPUBLISHED;
-
-    return score;
+    if (bag.isEmpty()) return Optional.empty();
+    return fabricator.sourceMaterial().getProgram(bag.pick());
   }
 
-  /**
-   Score a candidate for next main program, given current fabricator
-
-   @param iso     from which to score main programs
-   @param program to score
-   @param memes   to score
-   @return score, including +/- entropy
-   */
-  private double scoreMain(MemeIsometry iso, Program program, Collection<String> memes) {
-    // [#174435421] Chain bindings specify Program & Instrument within Library
-    if (fabricator.isDirectlyBound(program))
-      return SCORE_DIRECT;
-    else if (program.getState().equals(ProgramState.Draft))
-      return SCORE_UNPUBLISHED;
-
-    // Score includes matching memes, previous segment to macro program first pattern
-    AtomicReference<Double> score = new AtomicReference<>(
-      Chance.normallyAround(0, SCORE_MAIN_ENTROPY) + SCORE_MATCH *
-        iso.score(memes));
-
-    // Avoid previous main program
+  /*
+  // FUTURE (maybe) bring back avoiding previous main program
     if (!fabricator.isInitialSegment())
       fabricator.getMainChoiceOfPreviousSegment()
         .flatMap(previousMainChoice -> fabricator.getProgram(previousMainChoice))
         .filter(previousMainProgram -> Objects.equals(program.getId(), previousMainProgram.getId()))
         .map(previousMainProgram -> score.updateAndGet(v -> v + SCORE_AVOID));
-
-    return score.get();
-  }
+   */
 
   /**
    Get Segment length, in nanoseconds

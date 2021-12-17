@@ -3,8 +3,6 @@
 package io.xj.nexus.fabricator;
 
 import com.google.inject.Inject;
-import io.xj.api.SegmentMessage;
-import io.xj.api.SegmentMessageType;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.util.CSV;
 import io.xj.nexus.NexusException;
@@ -12,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
-import java.util.UUID;
 
 /**
  Fabrication wrapper is a common foundation for all craft
@@ -24,7 +21,7 @@ public abstract class FabricationWrapperImpl {
   protected static final double SCORE_ENTROPY_CHOICE_INSTRUMENT = 8.0;
   protected static final double SCORE_ENTROPY_CHOICE_RHYTHM = 8.0;
   protected static final double SCORE_MATCH_MEMES = 1.0;
-  protected static final double SCORE_MATCH_MAIN_PROGRAM = 15;
+  protected static final int SCORE_MATCH_MAIN_PROGRAM = 15;
   protected static final double SCORE_MATCH_OUTGOING_TO_INCOMING = 15;
   private final Logger log = LoggerFactory.getLogger(FabricationWrapperImpl.class);
   protected Fabricator fabricator;

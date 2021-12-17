@@ -9,11 +9,10 @@ import io.xj.api.SegmentChoiceArrangementPick;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.lib.util.Chance;
+import io.xj.lib.util.MarbleBag;
 import io.xj.lib.util.TremendouslyRandom;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.rhythm.RhythmCraftImpl;
-import io.xj.nexus.fabricator.EntityScorePicker;
 import io.xj.nexus.fabricator.Fabricator;
 
 import java.util.ArrayList;
@@ -143,12 +142,13 @@ public class PercLoopCraftImpl extends RhythmCraftImpl implements PercLoopCraft 
     if (pick.isPresent())
       return fabricator.sourceMaterial().getInstrumentAudio(pick.get().getInstrumentAudioId());
 
-    EntityScorePicker<InstrumentAudio> superEntityScorePicker = new EntityScorePicker<>();
+    var bag = MarbleBag.empty();
 
     for (InstrumentAudio audio : fabricator.sourceMaterial().getAudiosForInstrumentId(instrumentId))
-      superEntityScorePicker.add(audio, Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_INSTRUMENT));
+      bag.add(audio.getId());
 
-    return superEntityScorePicker.getTop();
+    if (bag.isEmpty()) return Optional.empty();
+    return fabricator.sourceMaterial().getInstrumentAudio(bag.pick());
   }
 
 }
