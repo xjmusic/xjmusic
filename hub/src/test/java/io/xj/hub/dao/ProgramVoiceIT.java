@@ -78,10 +78,12 @@ public class ProgramVoiceIT {
     fake.program1 = test.insert(buildProgram(fake.library1, ProgramType.Main, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f));
     fake.program1_sequence1 = test.insert(buildProgramSequence(fake.program1, 4, "Ants", 0.583f, "D minor", 120.0f));
     fake.program2 = test.insert(buildProgram(fake.library1, ProgramType.Rhythm, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f));
-    fake.program2_voice1 = test.insert(buildProgramVoice(fake.program2, InstrumentType.Drum, "Drums"));
-    fake.program2_sequence1_pattern1 = test.insert(buildProgramSequencePattern(fake.program1_sequence1, fake.program2_voice1, 4, "BOOMS"));
-    fake.program2_voice1_track0 = test.insert(buildProgramVoiceTrack(fake.program2_voice1, "KICK"));
-    fake.program2_voice1_track1 = test.insert(buildProgramVoiceTrack(fake.program2_voice1, "SNARE"));
+    fake.program702_voice1 = test.insert(buildProgramVoice(fake.program2, InstrumentType.Drum, "Drums"));
+    fake.program2_sequence1_pattern1 = test.insert(buildProgramSequencePattern(fake.program1_sequence1, fake.program702_voice1, 4, "BOOMS"));
+    fake.program2_voice1_track0 = test.insert(buildProgramVoiceTrack(fake.program702_voice1, "KICK"));
+    fake.program2_voice1_track1 = test.insert(buildProgramVoiceTrack(fake.program702_voice1, "SNARE"));
+    fake.program2_sequence1_pattern1_event0 = test.insert(buildProgramSequencePatternEvent(fake.program2_sequence1_pattern1, fake.program2_voice1_track1, 0, 1, "C", 1));
+    fake.program2_sequence1_pattern1_event1 = test.insert(buildProgramSequencePatternEvent(fake.program2_sequence1_pattern1, fake.program2_voice1_track1, 1, 1, "G", 1));
 
     // Library "boat" has a program "helm" and program "sail"
     fake.library2 = test.insert(buildLibrary(fake.account1, "boat"));
@@ -141,10 +143,10 @@ public class ProgramVoiceIT {
   public void readOne() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
 
-    var result = testDAO.readOne(hubAccess, fake.program2_voice1.getId());
+    var result = testDAO.readOne(hubAccess, fake.program702_voice1.getId());
 
     assertNotNull(result);
-    assertEquals(fake.program2_voice1.getId(), result.getId());
+    assertEquals(fake.program702_voice1.getId(), result.getId());
     assertEquals(fake.program2.getId(), result.getProgramId());
     assertEquals("Drums", result.getName());
   }
@@ -155,7 +157,7 @@ public class ProgramVoiceIT {
     failure.expect(DAOException.class);
     failure.expectMessage("does not exist");
 
-    testDAO.readOne(hubAccess, fake.program2_voice1.getId());
+    testDAO.readOne(hubAccess, fake.program702_voice1.getId());
   }
 
   @Test
@@ -182,11 +184,11 @@ public class ProgramVoiceIT {
   public void destroy_okWithChildEntities() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
 
-    testDAO.destroy(hubAccess, fake.program2_voice1.getId());
+    testDAO.destroy(hubAccess, fake.program702_voice1.getId());
 
     assertEquals(Integer.valueOf(0), test.getDSL()
       .selectCount().from(PROGRAM_VOICE)
-      .where(PROGRAM_VOICE.ID.eq(fake.program2_voice1.getId()))
+      .where(PROGRAM_VOICE.ID.eq(fake.program702_voice1.getId()))
       .fetchOne(0, int.class));
   }
 
@@ -197,11 +199,11 @@ public class ProgramVoiceIT {
     injector.getInstance(ProgramVoiceTrackDAO.class).destroy(HubAccess.internal(), fake.program2_voice1_track0.getId());
     injector.getInstance(ProgramVoiceTrackDAO.class).destroy(HubAccess.internal(), fake.program2_voice1_track1.getId());
 
-    testDAO.destroy(hubAccess, fake.program2_voice1.getId());
+    testDAO.destroy(hubAccess, fake.program702_voice1.getId());
 
     assertEquals(Integer.valueOf(0), test.getDSL()
       .selectCount().from(PROGRAM_VOICE)
-      .where(PROGRAM_VOICE.ID.eq(fake.program2_voice1.getId()))
+      .where(PROGRAM_VOICE.ID.eq(fake.program702_voice1.getId()))
       .fetchOne(0, int.class));
   }
 
@@ -216,7 +218,7 @@ public class ProgramVoiceIT {
     failure.expect(DAOException.class);
     failure.expectMessage("Voice in Program in Account you have hubAccess to does not exist");
 
-    testDAO.destroy(hubAccess, fake.program2_voice1.getId());
+    testDAO.destroy(hubAccess, fake.program702_voice1.getId());
   }
 
 }

@@ -85,7 +85,7 @@ public class IntegrationTestingFixtures {
   public ProgramSequencePatternEvent program2_sequence1_pattern1_event0;
   public ProgramSequencePatternEvent program2_sequence1_pattern1_event1;
   public ProgramSequencePatternEvent program702_pattern901_boomEvent;
-  public ProgramVoice program2_voice1;
+  public ProgramVoice program702_voice1;
   public ProgramVoice program2_voice2;
   public ProgramVoiceTrack program2_voice1_track0;
   public ProgramVoiceTrack program2_voice1_track1;
@@ -751,11 +751,11 @@ public class IntegrationTestingFixtures {
     // Program 702, rhythm-type, has unbound sequence with pattern with events
     program702 = test.insert(buildProgram(library10000001, ProgramType.Rhythm, ProgramState.Published, "coconuts", "F#", 110.3f, 0.6f));
     test.insert(buildProgramMeme(program702, "Ants"));
-    program2_voice1 = test.insert(buildProgramVoice(program702, InstrumentType.Drum, "Drums"));
+    program702_voice1 = test.insert(buildProgramVoice(program702, InstrumentType.Drum, "Drums"));
     var sequence702a = test.insert(buildProgramSequence(program702, (short) 16, "Base", 0.5f, "C", 110.3f));
-    var pattern901 = test.insert(buildProgramSequencePattern(sequence702a, program2_voice1, (short) 16, "growth"));
-    var trackBoom = test.insert(buildProgramVoiceTrack(program2_voice1, "BOOM"));
-    var trackSmack = test.insert(buildProgramVoiceTrack(program2_voice1, "BOOM"));
+    var pattern901 = test.insert(buildProgramSequencePattern(sequence702a, program702_voice1, (short) 16, "growth"));
+    var trackBoom = test.insert(buildProgramVoiceTrack(program702_voice1, "BOOM"));
+    var trackSmack = test.insert(buildProgramVoiceTrack(program702_voice1, "BOOM"));
     program702_pattern901_boomEvent = test.insert(buildProgramSequencePatternEvent(pattern901, trackBoom, 0.0f, 1.0f, "C", 1.0f));
     test.insert(buildProgramSequencePatternEvent(pattern901, trackSmack, 1.0f, 1.0f, "G", 0.8f));
     test.insert(buildProgramSequencePatternEvent(pattern901, trackBoom, 2.5f, 1.0f, "C", 0.6f));

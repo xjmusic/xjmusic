@@ -82,7 +82,7 @@ public class ProgramSequenceIT {
     test.insert(buildProgramSequenceBindingMeme(sequenceBinding1a_0, "chunk"));
     test.insert(buildProgramSequenceBindingMeme(sequenceBinding1a_0, "smooth"));
     fake.program2 = test.insert(buildProgram(fake.library1, ProgramType.Rhythm, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f));
-    fake.program2_voice1 = test.insert(buildProgramVoice(fake.program2, InstrumentType.Drum, "Drums"));
+    fake.program702_voice1 = test.insert(buildProgramVoice(fake.program2, InstrumentType.Drum, "Drums"));
 
     // Library "boat" has a program "helm" and program "sail"
     fake.library2 = test.insert(buildLibrary(fake.account1, "boat"));
@@ -358,7 +358,7 @@ public class ProgramSequenceIT {
   public void destroy_succeedsEvenWhenHasPattern() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
     var programSequence = test.insert(buildProgramSequence(fake.program2, 16, "Ants", 0.6f, "C#", 120.0f));
-    test.insert(buildProgramSequencePattern(programSequence, fake.program2_voice1, 4, "Jam"));
+    test.insert(buildProgramSequencePattern(programSequence, fake.program702_voice1, 4, "Jam"));
 
     testDAO.destroy(hubAccess, programSequence.getId());
   }
@@ -376,7 +376,7 @@ public class ProgramSequenceIT {
     var programSequence = test.insert(buildProgramSequence(fake.program2, 16, "Ants", 0.6f, "C#", 120.0f));
     var programSequenceBinding = test.insert(buildProgramSequenceBinding(programSequence, 0));
     test.insert(buildProgramSequenceBindingMeme(programSequenceBinding, "chunk"));
-    var pattern = test.insert(buildProgramSequencePattern(programSequence, fake.program2_voice1, 4, "Jam"));
+    var pattern = test.insert(buildProgramSequencePattern(programSequence, fake.program702_voice1, 4, "Jam"));
     test.insert(buildProgramSequencePatternEvent(pattern, track, 0.0f, 1.0f, "C", 1.0f));
     var programSequenceChord = test.insert(buildProgramSequenceChord(programSequence, 0.0, "G"));
     test.insert(buildProgramSequenceChordVoicing(programSequenceChord, InstrumentType.Bass, "C5, Eb5, G5"));
