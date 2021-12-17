@@ -3,7 +3,6 @@ package io.xj.lib.util;
 
 import com.google.api.client.util.Lists;
 import com.google.common.base.Strings;
-import io.xj.lib.mixer.SourceException;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
@@ -412,5 +411,16 @@ public interface Values {
   static void enforceMaxStereo(int value) throws ValueException {
     if (value > 2)
       throw new ValueException("more than 2 input audio channels not allowed");
+  }
+
+  /**
+   Get the key from a map, based on the highest value stored
+
+   @param map of key-value pairs
+   @return key of the highest value
+   */
+  static Optional<UUID> getKeyOfHighestValue(Map<UUID, Integer> map) {
+    var max = map.entrySet().stream().max(Map.Entry.comparingByValue());
+    return max.map(Map.Entry::getKey);
   }
 }

@@ -325,42 +325,18 @@ public class CraftImpl extends FabricationWrapperImpl {
     boolean defaultAtonal
   ) throws NexusException {
 
-    // choose intro pattern (if available)
-    Optional<ProgramSequencePattern> introPattern =
-      isIntroSegment(choice)
-        ? fabricator.getRandomlySelectedPatternOfSequenceByVoiceAndType(choice)
-        : Optional.empty();
-
-    // choose outro pattern (if available)
-    Optional<ProgramSequencePattern> outroPattern =
-      isOutroSegment(choice)
-        ? fabricator.getRandomlySelectedPatternOfSequenceByVoiceAndType(choice)
-        : Optional.empty();
-
-    // compute in and out points, and length # beats for which loop patterns will be required
-    double loopOutPos = maxPos - (outroPattern.map(ProgramSequencePattern::getTotal).orElse((short) 0));
-
     // begin at the beginning and fabricate events for the segment of beginning to end
     double curPos = fromPos;
 
-    // if intro pattern, fabricate those voice event first
-    if (introPattern.isPresent())
-      curPos += craftPatternEvents(choice, introPattern.get(), curPos, loopOutPos, range, defaultAtonal);
-
     // choose loop patterns until arrive at the out point or end of segment
-    while (curPos < loopOutPos) {
+    while (curPos < maxPos) {
       Optional<ProgramSequencePattern> loopPattern =
         fabricator.getRandomlySelectedPatternOfSequenceByVoiceAndType(choice);
       if (loopPattern.isPresent())
-        curPos += craftPatternEvents(choice, loopPattern.get(), curPos, loopOutPos, range, defaultAtonal);
+        curPos += craftPatternEvents(choice, loopPattern.get(), curPos, maxPos, range, defaultAtonal);
       else
-        curPos = loopOutPos;
+        curPos = maxPos;
     }
-
-    // if outro pattern, fabricate those voice event last
-    // [#161466708] compute how much to go for it in the outro
-    if (outroPattern.isPresent())
-      craftPatternEvents(choice, outroPattern.get(), curPos, maxPos, range, defaultAtonal);
   }
 
   /**
@@ -683,18 +659,22 @@ public class CraftImpl extends FabricationWrapperImpl {
     Instrument instrument,
     ProgramSequencePatternEvent event
   ) throws NexusException {
-    var bag = MarbleBag.empty();
+    Map<UUID, Integer> score = Maps.newHashMap();
+
+    // add all audio to chooser
+    fabricator.sourceMaterial().getAudios(instrument)
+      .forEach(a -> score.put(a.getId(), 0));
 
     // score each audio against the current voice event, with some variability
     for (InstrumentAudio audio : fabricator.sourceMaterial().getAudios(instrument))
       if (instrument.getType() == InstrumentType.Drum)
-        bag.add(audio.getId(), NameIsometry.similarity(fabricator.getTrackName(event), audio.getEvent()));
+        score.put(audio.getId(), NameIsometry.similarity(fabricator.getTrackName(event), audio.getEvent()));
       else
-        bag.add(audio.getId(), Note.of(audio.getNote()).sameAs(Note.of(event.getNote())) ? 10 : 0);
+        score.put(audio.getId(), Note.of(audio.getNote()).sameAs(Note.of(event.getNote())) ? 100 : 0);
 
     // final chosen audio event
-    if (bag.isEmpty()) return Optional.empty();
-    return fabricator.sourceMaterial().getInstrumentAudio(bag.pick());
+    var pickId = Values.getKeyOfHighestValue(score);
+    return pickId.isPresent() ? fabricator.sourceMaterial().getInstrumentAudio(pickId.get()) : Optional.empty();
   }
 
   /**
@@ -837,6 +817,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
   /**
    Filter only the directly bound programs (if any are directly bound) otherwise only the published
+
    @param programs to filter
    @return filtered programs
    */
@@ -848,6 +829,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
   /**
    Filter only the directly bound instruments (if any are directly bound) otherwise only the published
+
    @param instruments to filter
    @return filtered instruments
    */

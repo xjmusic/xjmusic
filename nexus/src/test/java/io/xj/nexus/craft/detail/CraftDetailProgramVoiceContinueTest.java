@@ -132,7 +132,7 @@ public class CraftDetailProgramVoiceContinueTest {
       if (pick.getInstrumentAudioId().equals(fake.instrument9_audio8.getId()))
         pickedBloop++;
     }
-    // FUTURE bring back this test assertEquals(16, pickedBloop);
+    assertEquals(16, pickedBloop);
   }
 
   @Test
