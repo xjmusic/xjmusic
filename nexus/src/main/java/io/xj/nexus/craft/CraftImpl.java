@@ -753,7 +753,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     Map<UUID/*ID*/, Program> programMap = fabricator.sourceMaterial()
       .getProgramsOfType(programType).stream()
       .collect(Collectors.toMap(Program::getId, program -> program));
-    Collection<Program> sourcePrograms = fabricator.sourceMaterial()
+    Collection<Program> candidates = fabricator.sourceMaterial()
       .getAllProgramVoices().stream()
       .filter(programVoice -> Objects.nonNull(voicingType)
         && voicingType.equals(programVoice.getType())
@@ -766,10 +766,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     // (3) score each source program based on meme isometry
     MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
     Collection<String> memes;
-    for (Program program :
-      sourcePrograms.stream().anyMatch(fabricator::isDirectlyBound)
-        ? sourcePrograms.stream().filter(fabricator::isDirectlyBound).toList()
-        : sourcePrograms.stream().filter(p -> ProgramState.Published.equals(p.getState())).toList()) {
+    for (Program program : programsDirectlyBoundElsePublished(candidates)) {
       memes = Entities.namesOf(fabricator.sourceMaterial().getMemes(program));
       // FUTURE consider meme isometry, but for now, just use the meme stack
       if (iso.isAllowed(memes))
@@ -797,7 +794,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     var bag = MarbleBag.empty();
 
     // (2) retrieve instruments bound to chain
-    Collection<Instrument> sourceInstruments =
+    Collection<Instrument> candidates =
       fabricator.sourceMaterial().getInstrumentsOfType(type)
         .stream()
         .filter(i -> !avoidIds.contains(i.getId()))
@@ -806,10 +803,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     // (3) score each source instrument based on meme isometry
     MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
     Collection<String> memes;
-    for (Instrument instrument :
-      sourceInstruments.stream().anyMatch(fabricator::isDirectlyBound)
-        ? sourceInstruments.stream().filter(fabricator::isDirectlyBound).toList()
-        : sourceInstruments.stream().filter(p -> InstrumentState.Published.equals(p.getState())).toList()) {
+    for (Instrument instrument : instrumentsDirectlyBoundElsePublished(candidates)) {
       memes = Entities.namesOf(fabricator.sourceMaterial().getMemes(instrument));
       // FUTURE consider meme isometry, but for now, just use the meme stack
 
@@ -839,6 +833,28 @@ public class CraftImpl extends FabricationWrapperImpl {
     // (4) return the top choice
     if (bag.isEmpty()) return Optional.empty();
     return fabricator.sourceMaterial().getInstrument(bag.pick());
+  }
+
+  /**
+   Filter only the directly bound programs (if any are directly bound) otherwise only the published
+   @param programs to filter
+   @return filtered programs
+   */
+  protected Collection<Program> programsDirectlyBoundElsePublished(Collection<Program> programs) {
+    return programs.stream().anyMatch(fabricator::isDirectlyBound)
+      ? programs.stream().filter(fabricator::isDirectlyBound).toList()
+      : programs.stream().filter(p -> ProgramState.Published.equals(p.getState())).toList();
+  }
+
+  /**
+   Filter only the directly bound instruments (if any are directly bound) otherwise only the published
+   @param instruments to filter
+   @return filtered instruments
+   */
+  protected Collection<Instrument> instrumentsDirectlyBoundElsePublished(Collection<Instrument> instruments) {
+    return instruments.stream().anyMatch(fabricator::isDirectlyBound)
+      ? instruments.stream().filter(fabricator::isDirectlyBound).toList()
+      : instruments.stream().filter(p -> InstrumentState.Published.equals(p.getState())).toList();
   }
 
   /**

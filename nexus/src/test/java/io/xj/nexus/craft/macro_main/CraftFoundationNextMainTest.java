@@ -133,10 +133,7 @@ public class CraftFoundationNextMainTest {
 
   @Test
   public void craftFoundationNextMain() throws Exception {
-    /*
-    FUTURE bring back this test
-
-        Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4);
 
     craftFactory.macroMain(fabricator).doWork();
 
@@ -165,9 +162,7 @@ public class CraftFoundationNextMainTest {
     SegmentChoice mainChoice = Segments.findFirstOfType(segmentChoices, ProgramType.Main);
     assertEquals(fake.program15_sequence0_binding0.getId(), mainChoice.getProgramSequenceBindingId());
     assertEquals(Integer.valueOf(0), fabricator.getSequenceBindingOffsetForChoice(mainChoice));
-
-     */
-}
+  }
 
   /**
    [#158610991] Engineer wants a Segment to be reverted, and re-queued for Craft, in the event that such a Segment has just failed its Craft process, in order to ensure Chain fabrication fault tolerance

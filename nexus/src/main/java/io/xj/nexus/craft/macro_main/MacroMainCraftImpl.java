@@ -7,7 +7,6 @@ import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentChord;
 import io.xj.api.SegmentChordVoicing;
 import io.xj.api.SegmentType;
-import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequence;
@@ -18,24 +17,21 @@ import io.xj.lib.music.Key;
 import io.xj.lib.util.MarbleBag;
 import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.fabricator.FabricationWrapperImpl;
+import io.xj.nexus.craft.CraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.MemeIsometry;
 import io.xj.nexus.persistence.Segments;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static io.xj.lib.util.Values.NANOS_PER_SECOND;
 
 /**
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
-public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroMainCraft {
+public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   private final ApiUrlProvider apiUrlProvider;
 
   @Inject
@@ -162,7 +158,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
     fabricator.add(macroChoice);
 
     // 2. Main
-    Program mainProgram = fabricator.addMemes(chooseMainProgram()
+    Program mainProgram = fabricator.addMemes(chooseNextMainProgram()
       .orElseThrow(() -> new NexusException(String.format(
         "Unable to choose main program based on macro Program \"%s\" at offset %s %s",
         macroProgram.getName(),
@@ -287,41 +283,63 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
   }
 
   /**
-   Choose macro program
+   will rank all possibilities, and choose the next macro program
 
    @return macro-type program
    */
   public Optional<Program> chooseNextMacroProgram() throws NexusException {
-    if (fabricator.isInitialSegment()) return chooseRandomMacroProgram();
+    var bag = MarbleBag.empty();
+    var candidates = fabricator.sourceMaterial().getProgramsOfType(ProgramType.Macro);
+
+    // initial segment is completely random
+    if (fabricator.isInitialSegment()) return chooseRandomProgram(candidates, List.of());
 
     // if continuing the macro program, use the same one
-    var previousMacroChoice = fabricator.getMacroChoiceOfPreviousSegment();
-    if (fabricator.isContinuationOfMacroProgram() && previousMacroChoice.isPresent())
-      return fabricator.getProgram(previousMacroChoice.get());
+    if (fabricator.isContinuationOfMacroProgram()
+      && fabricator.getMacroChoiceOfPreviousSegment().isPresent())
+      return fabricator.getProgram(fabricator.getMacroChoiceOfPreviousSegment().get());
 
-    // will rank all possibilities, and choose the next macro program
+    // add candidates to the bag
+    MemeIsometry iso = fabricator.getMemeIsometryOfNextSequenceInPreviousMacro();
+    var avoidProgramId = fabricator.getMacroChoiceOfPreviousSegment()
+      .map(SegmentChoice::getProgramId);
+    for (Program program : programsDirectlyBoundElsePublished(candidates))
+      if (avoidProgramId.isEmpty() || !avoidProgramId.get().equals(program.getId()))
+        bag.add(program.getId(), iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
+
+    // if the bag is empty, pick randomly
+    if (bag.isEmpty())
+      return chooseRandomProgram(candidates, avoidProgramId.stream().toList());
+
+    // report and pick
+    fabricator.putReport("macroChoice", bag.toString());
+    return fabricator.sourceMaterial().getProgram(bag.pick());
+  }
+
+  /**
+   Choose program completely at random
+
+   @param programs all from which to choose
+   @param avoid    to avoid
+   @return program
+   */
+  public Optional<Program> chooseRandomProgram(Collection<Program> programs, List<UUID> avoid) {
     var bag = MarbleBag.empty();
 
-    // (1) retrieve programs bound to chain and
-    // (3) score each source program
-    MemeIsometry iso = fabricator.getMemeIsometryOfNextSequenceInPreviousMacro();
-    Collection<String> memes;
-    var sourcePrograms = fabricator.sourceMaterial().getProgramsOfType(ProgramType.Macro);
-    for (Program program :
-      sourcePrograms.stream().anyMatch(fabricator::isDirectlyBound)
-        ? sourcePrograms.stream().filter(fabricator::isDirectlyBound).toList()
-        : sourcePrograms.stream().filter(p -> ProgramState.Published.equals(p.getState())).toList()) {
-      memes = fabricator.sourceMaterial().getMemesAtBeginning(program);
-      if (iso.isAllowed(memes))
-        bag.add(program.getId(), fabricator.isInitialSegment() ? 1 : iso.score(memes));
-    }
+    // select from directly bound (if any are directly bound) else published programs
+    for (Program program : programsDirectlyBoundElsePublished(programs))
+      if (!avoid.contains(program.getId()))
+        bag.add(program.getId());
+    if (bag.isPresent())
+      return fabricator.sourceMaterial().getProgram(bag.pick());
 
-    // report
-    fabricator.putReport("macroChoice", bag.toString());
+    // last chance to pick any program
+    for (Program program : programs)
+      bag.add(program.getId());
+    if (bag.isPresent())
+      return fabricator.sourceMaterial().getProgram(bag.pick());
 
-    // (4) return the top choice
-    if (bag.isEmpty()) return Optional.empty();
-    return fabricator.sourceMaterial().getProgram(bag.pick());
+    return Optional.empty();
   }
 
   /**
@@ -331,62 +349,35 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
    @return main-type Program
    */
-  private Optional<Program> chooseMainProgram() throws NexusException {
-    // if continuing the macro program, use the same one
-    var previousMainChoice = fabricator.getMainChoiceOfPreviousSegment();
-    if (SegmentType.CONTINUE == fabricator.getType())
-      if (previousMainChoice.isPresent())
-        return fabricator.getProgram(previousMainChoice.get());
-
-    // will rank all possibilities, and choose the next main program
-    // future: only choose major programs for major keys, minor for minor! [#223] Key of first Pattern of chosen Main-Program must match the `minor` or `major` with the Key of the current Segment.
+  private Optional<Program> chooseNextMainProgram() throws NexusException {
     var bag = MarbleBag.empty();
+    var candidates = fabricator.sourceMaterial().getProgramsOfType(ProgramType.Main);
 
-    // (2) retrieve programs bound to chain and
-    // (3) score each source program based on meme isometry
+    // if continuing the macro program, use the same one
+    if (SegmentType.CONTINUE == fabricator.getType()
+      && fabricator.getMainChoiceOfPreviousSegment().isPresent())
+      return fabricator.getProgram(fabricator.getMainChoiceOfPreviousSegment().get());
+
+    // add candidates to the bag
     MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
+    var avoidProgramId = fabricator.getMainChoiceOfPreviousSegment()
+      .map(SegmentChoice::getProgramId);
     Collection<String> memes;
-    var sourcePrograms = fabricator.sourceMaterial().getProgramsOfType(ProgramType.Main);
-    for (Program program :
-      sourcePrograms.stream().anyMatch(fabricator::isDirectlyBound)
-        ? sourcePrograms.stream().filter(fabricator::isDirectlyBound).toList()
-        : sourcePrograms.stream().filter(p -> ProgramState.Published.equals(p.getState())).toList()) {
+    for (Program program : programsDirectlyBoundElsePublished(candidates)) {
       memes = fabricator.sourceMaterial().getMemesAtBeginning(program);
-      if (iso.isAllowed(memes))
+      if (iso.isAllowed(memes)
+        && (avoidProgramId.isEmpty() || !avoidProgramId.get().equals(program.getId())))
         bag.add(program.getId(), 1 + iso.score(memes));
     }
 
-    // report
+    // if the bag is empty, pick randomly
+    if (bag.isEmpty())
+      return chooseRandomProgram(candidates, avoidProgramId.stream().toList());
+
+    // report and pick
     fabricator.putReport("mainChoice", bag.toString());
-
-    // (4) return the top choice
-    if (bag.isEmpty()) return Optional.empty();
     return fabricator.sourceMaterial().getProgram(bag.pick());
   }
-
-  /**
-   Choose first macro program, completely at random
-
-   @return macro-type program
-   */
-  public Optional<Program> chooseRandomMacroProgram() {
-    var bag = MarbleBag.empty();
-
-    for (Program program : fabricator.sourceMaterial().getProgramsOfType(ProgramType.Macro))
-      bag.add(program.getId());
-
-    if (bag.isEmpty()) return Optional.empty();
-    return fabricator.sourceMaterial().getProgram(bag.pick());
-  }
-
-  /*
-  // FUTURE (maybe) bring back avoiding previous main program
-    if (!fabricator.isInitialSegment())
-      fabricator.getMainChoiceOfPreviousSegment()
-        .flatMap(previousMainChoice -> fabricator.getProgram(previousMainChoice))
-        .filter(previousMainProgram -> Objects.equals(program.getId(), previousMainProgram.getId()))
-        .map(previousMainProgram -> score.updateAndGet(v -> v + SCORE_AVOID));
-   */
 
   /**
    Get Segment length, in nanoseconds

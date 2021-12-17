@@ -1,14 +1,45 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.craft.macro_main;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Streams;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.util.Modules;
+import io.xj.api.*;
+import io.xj.hub.HubTopology;
+import io.xj.hub.enums.ProgramType;
+import io.xj.lib.app.Environment;
+import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityFactory;
+import io.xj.nexus.NexusIntegrationTestingFixtures;
+import io.xj.nexus.NexusTopology;
+import io.xj.nexus.craft.CraftFactory;
+import io.xj.nexus.fabricator.FabricationWrapperImpl;
+import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.client.HubClient;
+import io.xj.nexus.hub_client.client.HubContent;
+import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.work.NexusWorkModule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.Instant;
+import java.util.stream.Collectors;
+
+import static io.xj.lib.util.Assertion.assertSameItems;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CraftSegmentPatternMemeTest {
+  private final Logger LOG = LoggerFactory.getLogger(CraftSegmentPatternMemeTest.class);
   private static final int TEST_REPEAT_ITERATIONS = 14;
 
   @Mock
@@ -23,9 +54,8 @@ public class CraftSegmentPatternMemeTest {
    */
   @Test
   public void craftSegment() throws Exception {
-/*
-  // FUTURE bring back this test
-    for (int i = 0; i < TEST_REPEAT_ITERATIONS; i++) {
+    for (int i = 1; i <= TEST_REPEAT_ITERATIONS; i++) {
+      LOG.info("ATTEMPT NUMBER {}", i);
       Environment env = Environment.getDefault();
       Injector injector = Guice.createInjector(Modules.override(new NexusWorkModule())
         .with(new AbstractModule() {
@@ -81,6 +111,5 @@ public class CraftSegmentPatternMemeTest {
       assertSameItems(Lists.newArrayList("REGRET", "HINDSIGHT", "CHUNKY", "TANGY"),
         Entities.namesOf(store.getAll(result.getId(), SegmentMeme.class)));
     }
-*/
   }
 }

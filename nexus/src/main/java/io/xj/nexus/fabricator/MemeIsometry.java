@@ -53,9 +53,11 @@ public class MemeIsometry extends Isometry {
    @return score is between 0 (no matches) and the number of matching memes
    */
   public int score(Collection<String> targets) {
+    if (!isAllowed(targets)) return 0;
     return targets.stream()
       .map(Text::toMeme)
-      .flatMap(target -> sources.stream().map(source -> Objects.equal(source, target) ? 1 : 0))
+      .flatMap(target -> sources.stream().map(source ->
+        Objects.equal(source, target) ? 1 : 0))
       .reduce(0, Integer::sum);
   }
 

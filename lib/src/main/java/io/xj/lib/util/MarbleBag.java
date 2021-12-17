@@ -45,11 +45,11 @@ public class MarbleBag {
    */
   public UUID pick() throws RuntimeException {
     var total = 0;
-    List<MarbleBlock> blocks = Lists.newArrayList();
+    List<Group> blocks = Lists.newArrayList();
 
     for (Map.Entry<UUID, Integer> entry : marbles.entrySet())
       if (0 < entry.getValue()) {
-        blocks.add(new MarbleBlock(entry.getKey(), total, total + entry.getValue()));
+        blocks.add(new Group(entry.getKey(), total, total + entry.getValue()));
         total += entry.getValue();
       }
 
@@ -61,7 +61,7 @@ public class MarbleBag {
 
     var pickIdx = generator.nextInt(total);
 
-    for (MarbleBlock block : blocks)
+    for (Group block : blocks)
       if (pickIdx >= block.from && pickIdx < block.to)
         return block.id;
 
@@ -121,15 +121,19 @@ public class MarbleBag {
     return 0 == size();
   }
 
+  public boolean isPresent() {
+    return 0 < size();
+  }
+
   /**
-   Block of marbles with a given id
+   Group of marbles with a given id
    */
-  private static class MarbleBlock {
+  private static class Group {
     UUID id;
     Integer from;
     Integer to;
 
-    public MarbleBlock(UUID id, int from, int to) {
+    public Group(UUID id, int from, int to) {
       this.id = id;
       this.from = from;
       this.to = to;

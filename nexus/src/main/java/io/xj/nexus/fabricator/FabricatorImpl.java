@@ -76,6 +76,10 @@ class FabricatorImpl implements Fabricator {
   private final Map<String, InstrumentAudio> preferredAudios;
   private final Map<String, InstrumentConfig> instrumentConfigs;
   private SegmentType type;
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+  private Optional<SegmentChoice> macroChoiceOfPreviousSegment;
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+  private Optional<SegmentChoice> mainChoiceOfPreviousSegment;
 
   @AssistedInject
   public FabricatorImpl(
@@ -445,12 +449,16 @@ class FabricatorImpl implements Fabricator {
 
   @Override
   public Optional<SegmentChoice> getMacroChoiceOfPreviousSegment() {
-    return retrospective.getPreviousChoiceOfType(ProgramType.Macro);
+    if (Objects.isNull(macroChoiceOfPreviousSegment))
+      macroChoiceOfPreviousSegment = retrospective.getPreviousChoiceOfType(ProgramType.Macro);
+    return macroChoiceOfPreviousSegment;
   }
 
   @Override
   public Optional<SegmentChoice> getMainChoiceOfPreviousSegment() {
-    return retrospective.getPreviousChoiceOfType(ProgramType.Main);
+    if (Objects.isNull(mainChoiceOfPreviousSegment))
+      mainChoiceOfPreviousSegment = retrospective.getPreviousChoiceOfType(ProgramType.Main);
+    return mainChoiceOfPreviousSegment;
   }
 
   @Override
