@@ -44,7 +44,7 @@ import static org.mockito.Mockito.*;
 // FUTURE: any test that
 
 @RunWith(MockitoJUnitRunner.class)
-public class InstrumentAudioIT {
+public class InstrumentAudioDAOTest {
   @Rule
   public ExpectedException failure = ExpectedException.none();
   @Mock

@@ -35,7 +35,7 @@ import static org.junit.Assert.*;
 // FUTURE: any test that
 
 @RunWith(MockitoJUnitRunner.class)
-public class TemplateBindingIT {
+public class TemplateBindingDAOTest {
   private TemplateBindingDAO testDAO;
   private HubIntegrationTestProvider test;
   private IntegrationTestingFixtures fake;

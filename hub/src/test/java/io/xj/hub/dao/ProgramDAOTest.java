@@ -32,11 +32,21 @@ import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.*;
 import static io.xj.hub.tables.Program.PROGRAM;
+import static io.xj.hub.tables.ProgramMeme.PROGRAM_MEME;
+import static io.xj.hub.tables.ProgramSequence.PROGRAM_SEQUENCE;
+import static io.xj.hub.tables.ProgramSequenceBinding.PROGRAM_SEQUENCE_BINDING;
+import static io.xj.hub.tables.ProgramSequenceBindingMeme.PROGRAM_SEQUENCE_BINDING_MEME;
+import static io.xj.hub.tables.ProgramSequenceChord.PROGRAM_SEQUENCE_CHORD;
+import static io.xj.hub.tables.ProgramSequenceChordVoicing.PROGRAM_SEQUENCE_CHORD_VOICING;
+import static io.xj.hub.tables.ProgramSequencePattern.PROGRAM_SEQUENCE_PATTERN;
+import static io.xj.hub.tables.ProgramSequencePatternEvent.PROGRAM_SEQUENCE_PATTERN_EVENT;
+import static io.xj.hub.tables.ProgramVoice.PROGRAM_VOICE;
+import static io.xj.hub.tables.ProgramVoiceTrack.PROGRAM_VOICE_TRACK;
 import static org.junit.Assert.*;
 
 // future test: permissions of different users to readMany vs. of vs. update or destroy programs
 @RunWith(MockitoJUnitRunner.class)
-public class ProgramIT {
+public class ProgramDAOTest {
   private ProgramDAO testDAO;
 
   private HubIntegrationTestProvider test;
@@ -176,71 +186,71 @@ public class ProgramIT {
     assertEquals(1, resultCloner.getChildClones().stream()
       .filter(e -> ProgramMeme.class.equals(e.getClass())).count());
     assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(io.xj.hub.tables.ProgramMeme.PROGRAM_MEME)
-      .where(io.xj.hub.tables.ProgramMeme.PROGRAM_MEME.PROGRAM_ID.eq(result.getId()))
+      .selectCount().from(PROGRAM_MEME)
+      .where(PROGRAM_MEME.PROGRAM_ID.eq(result.getId()))
       .fetchOne(0, int.class));
     // Cloned ProgramVoice
     assertEquals(1, resultCloner.getChildClones().stream()
       .filter(e -> ProgramVoice.class.equals(e.getClass())).count());
     assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(io.xj.hub.tables.ProgramVoice.PROGRAM_VOICE)
-      .where(io.xj.hub.tables.ProgramVoice.PROGRAM_VOICE.PROGRAM_ID.eq(result.getId()))
+      .selectCount().from(PROGRAM_VOICE)
+      .where(PROGRAM_VOICE.PROGRAM_ID.eq(result.getId()))
       .fetchOne(0, int.class));
     // Cloned ProgramVoiceTrack belongs to ProgramVoice
     assertEquals(1, resultCloner.getChildClones().stream()
       .filter(e -> ProgramVoiceTrack.class.equals(e.getClass())).count());
     assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(io.xj.hub.tables.ProgramVoiceTrack.PROGRAM_VOICE_TRACK)
-      .where(io.xj.hub.tables.ProgramVoiceTrack.PROGRAM_VOICE_TRACK.PROGRAM_ID.eq(result.getId()))
+      .selectCount().from(PROGRAM_VOICE_TRACK)
+      .where(PROGRAM_VOICE_TRACK.PROGRAM_ID.eq(result.getId()))
       .fetchOne(0, int.class));
     // Cloned ProgramSequence
     assertEquals(1, resultCloner.getChildClones().stream()
       .filter(e -> ProgramSequence.class.equals(e.getClass())).count());
     assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(io.xj.hub.tables.ProgramSequence.PROGRAM_SEQUENCE)
-      .where(io.xj.hub.tables.ProgramSequence.PROGRAM_SEQUENCE.PROGRAM_ID.eq(result.getId()))
+      .selectCount().from(PROGRAM_SEQUENCE)
+      .where(PROGRAM_SEQUENCE.PROGRAM_ID.eq(result.getId()))
       .fetchOne(0, int.class));
     // Cloned ProgramSequenceChord belongs to ProgramSequence
     assertEquals(1, resultCloner.getChildClones().stream()
       .filter(e -> ProgramSequenceChord.class.equals(e.getClass())).count());
     assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(io.xj.hub.tables.ProgramSequenceChord.PROGRAM_SEQUENCE_CHORD)
-      .where(io.xj.hub.tables.ProgramSequenceChord.PROGRAM_SEQUENCE_CHORD.PROGRAM_ID.eq(result.getId()))
+      .selectCount().from(PROGRAM_SEQUENCE_CHORD)
+      .where(PROGRAM_SEQUENCE_CHORD.PROGRAM_ID.eq(result.getId()))
       .fetchOne(0, int.class));
     // Cloned ProgramSequenceChordVoicing belongs to ProgramSequenceChord
     assertEquals(1, resultCloner.getChildClones().stream()
       .filter(e -> ProgramSequenceChordVoicing.class.equals(e.getClass())).count());
     assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(io.xj.hub.tables.ProgramSequenceChordVoicing.PROGRAM_SEQUENCE_CHORD_VOICING)
-      .where(io.xj.hub.tables.ProgramSequenceChordVoicing.PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_ID.eq(result.getId()))
+      .selectCount().from(PROGRAM_SEQUENCE_CHORD_VOICING)
+      .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_ID.eq(result.getId()))
       .fetchOne(0, int.class));
     // Cloned ProgramSequenceBinding belongs to ProgramSequence
     assertEquals(1, resultCloner.getChildClones().stream()
       .filter(e -> ProgramSequenceBinding.class.equals(e.getClass())).count());
     assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(io.xj.hub.tables.ProgramSequenceBinding.PROGRAM_SEQUENCE_BINDING)
-      .where(io.xj.hub.tables.ProgramSequenceBinding.PROGRAM_SEQUENCE_BINDING.PROGRAM_ID.eq(result.getId()))
+      .selectCount().from(PROGRAM_SEQUENCE_BINDING)
+      .where(PROGRAM_SEQUENCE_BINDING.PROGRAM_ID.eq(result.getId()))
       .fetchOne(0, int.class));
     // Cloned ProgramSequenceBindingMeme belongs to ProgramSequenceBinding
     assertEquals(2, resultCloner.getChildClones().stream()
       .filter(e -> ProgramSequenceBindingMeme.class.equals(e.getClass())).count());
     assertEquals(Integer.valueOf(2), test.getDSL()
-      .selectCount().from(io.xj.hub.tables.ProgramSequenceBindingMeme.PROGRAM_SEQUENCE_BINDING_MEME)
-      .where(io.xj.hub.tables.ProgramSequenceBindingMeme.PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID.eq(result.getId()))
+      .selectCount().from(PROGRAM_SEQUENCE_BINDING_MEME)
+      .where(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID.eq(result.getId()))
       .fetchOne(0, int.class));
     // Cloned ProgramSequencePattern belongs to ProgramSequence and ProgramVoice
     assertEquals(1, resultCloner.getChildClones().stream()
       .filter(e -> ProgramSequencePattern.class.equals(e.getClass())).count());
     assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(io.xj.hub.tables.ProgramSequencePattern.PROGRAM_SEQUENCE_PATTERN)
-      .where(io.xj.hub.tables.ProgramSequencePattern.PROGRAM_SEQUENCE_PATTERN.PROGRAM_ID.eq(result.getId()))
+      .selectCount().from(PROGRAM_SEQUENCE_PATTERN)
+      .where(PROGRAM_SEQUENCE_PATTERN.PROGRAM_ID.eq(result.getId()))
       .fetchOne(0, int.class));
     // Cloned ProgramSequencePatternEvent belongs to ProgramSequencePattern and ProgramVoiceTrack
     assertEquals(1, resultCloner.getChildClones().stream()
       .filter(e -> ProgramSequencePatternEvent.class.equals(e.getClass())).count());
     assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(io.xj.hub.tables.ProgramSequencePatternEvent.PROGRAM_SEQUENCE_PATTERN_EVENT)
-      .where(io.xj.hub.tables.ProgramSequencePatternEvent.PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_ID.eq(result.getId()))
+      .selectCount().from(PROGRAM_SEQUENCE_PATTERN_EVENT)
+      .where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_ID.eq(result.getId()))
       .fetchOne(0, int.class));
   }
 

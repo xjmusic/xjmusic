@@ -5,9 +5,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
+import io.xj.hub.dao.DAOCloner;
 import io.xj.hub.dao.DAOException;
 import io.xj.hub.dao.TemplateDAO;
 import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.*;
@@ -27,7 +29,7 @@ import java.util.UUID;
 /**
  Templates
  */
-@Path("api/1")
+@Path("api/1/templates")
 public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
   private final TemplateDAO dao;
 
@@ -52,7 +54,6 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
    @return application/json response.
    */
   @GET
-  @Path("templates")
   @RolesAllowed(USER)
   public Response readMany(@Context ContainerRequestContext crc, @QueryParam("accountId") String accountId) {
     if (Objects.nonNull(accountId))
@@ -63,16 +64,43 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
 
   /**
    Create new template
+   <p>
+   Or, clone sub-entities of template #180269382
 
    @param jsonapiPayload with which to update Template record.
    @return Response
    */
   @POST
-  @Path("templates")
   @Consumes(MediaType.APPLICATION_JSONAPI)
-  @RolesAllowed({ADMIN, ENGINEER})
-  public Response create(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc) {
-    return create(crc, dao(), jsonapiPayload);
+  @RolesAllowed(ARTIST)
+  public Response create(
+    JsonapiPayload jsonapiPayload,
+    @Context ContainerRequestContext crc,
+    @QueryParam("cloneId") String cloneId
+  ) {
+
+    try {
+      HubAccess hubAccess = HubAccess.fromContext(crc);
+      Template template = payloadFactory.consume(dao().newInstance(), jsonapiPayload);
+      JsonapiPayload responseJsonapiPayload = new JsonapiPayload();
+      if (Objects.nonNull(cloneId)) {
+        DAOCloner<Template> cloner = dao().clone(hubAccess, UUID.fromString(cloneId), template);
+        responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(cloner.getClone()));
+        List<JsonapiPayloadObject> list = new ArrayList<>();
+        for (Object entity : cloner.getChildClones()) {
+          JsonapiPayloadObject jsonapiPayloadObject = payloadFactory.toPayloadObject(entity);
+          list.add(jsonapiPayloadObject);
+        }
+        responseJsonapiPayload.setIncluded(list);
+      } else {
+        responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(dao().create(hubAccess, template)));
+      }
+
+      return response.create(responseJsonapiPayload);
+
+    } catch (Exception e) {
+      return response.notAcceptable(e);
+    }
   }
 
   /**
@@ -81,7 +109,7 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
    @return application/json response.
    */
   @GET
-  @Path("templates/{id}")
+  @Path("{id}")
   @RolesAllowed(USER)
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String identifier, @QueryParam("include") String include) {
     var access = HubAccess.fromContext(crc);
@@ -127,7 +155,7 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
    @return Response
    */
   @PATCH
-  @Path("templates/{id}")
+  @Path("{id}")
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed({ADMIN, ENGINEER})
   public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
@@ -140,7 +168,7 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
    @return Response
    */
   @DELETE
-  @Path("templates/{id}")
+  @Path("{id}")
   @RolesAllowed({ADMIN, ENGINEER})
   public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return delete(crc, dao(), id);
@@ -152,7 +180,7 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
    @return set of all templatePlaybacks
    */
   @GET
-  @Path("templates/playing")
+  @Path("playing")
   @RolesAllowed(USER)
   public Response readAllPlaying(
     @Context ContainerRequestContext crc

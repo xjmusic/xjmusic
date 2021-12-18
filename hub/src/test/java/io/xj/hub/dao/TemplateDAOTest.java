@@ -12,12 +12,11 @@ import io.xj.hub.HubIntegrationTestProvider;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
-import io.xj.hub.enums.ProgramState;
-import io.xj.hub.enums.ProgramType;
-import io.xj.hub.enums.TemplateType;
+import io.xj.hub.enums.*;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
@@ -31,9 +30,10 @@ import java.time.Instant;
 import java.util.*;
 
 import static io.xj.hub.IntegrationTestingFixtures.*;
+import static io.xj.hub.tables.TemplateBinding.TEMPLATE_BINDING;
 import static org.junit.Assert.*;
 
-public class TemplateIT {
+public class TemplateDAOTest {
   private TemplateDAO testDAO;
   private HubIntegrationTestProvider test;
   private IntegrationTestingFixtures fake;
@@ -184,6 +184,48 @@ public class TemplateIT {
     var e = assertThrows(DAOException.class, () -> testDAO.create(hubAccess, inputData));
     assertEquals("io.xj.lib.util.ValueException: Account ID is required.", e.getMessage());
   }
+
+  @Test
+  public void clone_includeBindings() throws Exception {
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    var boundLibrary = buildLibrary(fake.account1, "Test Library");
+    var boundProgram = buildProgram(boundLibrary, ProgramType.Main, ProgramState.Published, "Test", "C", 120.0f, 0.6f);
+    var boundInstrument = buildInstrument(boundLibrary, InstrumentType.Bass, InstrumentState.Published, "Test");
+    Template inputData = new Template();
+    inputData.setType(TemplateType.Preview);
+    inputData.setAccountId(fake.account1.getId());
+    inputData.setName("cannons fifty nine");
+    test.insert(buildTemplateBinding(template1a, boundLibrary));
+    test.insert(buildTemplateBinding(template1a, boundProgram));
+    test.insert(buildTemplateBinding(template1a, boundInstrument));
+
+    DAOCloner<Template> resultCloner = testDAO.clone(hubAccess, template1a.getId(), inputData);
+
+    Template result = resultCloner.getClone();
+    assertNotNull(result);
+    assertEquals("cannons fifty nine", result.getName());
+    assertEquals(fake.account1.getId(), result.getAccountId());
+    assertEquals(TemplateType.Preview, result.getType());
+    // Cloned TemplateBinding
+    assertEquals(3, resultCloner.getChildClones().stream()
+      .filter(e -> TemplateBinding.class.equals(e.getClass())).count());
+    assertEquals(Integer.valueOf(1), test.getDSL()
+      .selectCount().from(TEMPLATE_BINDING)
+      .where(TEMPLATE_BINDING.TEMPLATE_ID.eq(result.getId()))
+      .and(TEMPLATE_BINDING.TARGET_ID.eq(boundLibrary.getId()))
+      .fetchOne(0, int.class));
+    assertEquals(Integer.valueOf(1), test.getDSL()
+      .selectCount().from(TEMPLATE_BINDING)
+      .where(TEMPLATE_BINDING.TEMPLATE_ID.eq(result.getId()))
+      .and(TEMPLATE_BINDING.TARGET_ID.eq(boundProgram.getId()))
+      .fetchOne(0, int.class));
+    assertEquals(Integer.valueOf(1), test.getDSL()
+      .selectCount().from(TEMPLATE_BINDING)
+      .where(TEMPLATE_BINDING.TEMPLATE_ID.eq(result.getId()))
+      .and(TEMPLATE_BINDING.TARGET_ID.eq(boundInstrument.getId()))
+      .fetchOne(0, int.class));
+  }
+
 
   @Test
   public void readOne() throws Exception {

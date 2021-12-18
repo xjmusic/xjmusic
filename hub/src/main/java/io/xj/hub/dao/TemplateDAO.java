@@ -2,6 +2,7 @@
 package io.xj.hub.dao;
 
 import io.xj.hub.access.HubAccess;
+import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Template;
 
 import java.util.Collection;
@@ -14,6 +15,17 @@ import java.util.UUID;
  Templates: enhanced preview chain creation for artists in Lab UI #178457569
  */
 public interface TemplateDAO extends DAO<Template> {
+
+  /**
+   Provide an entity containing some new properties, but otherwise clone everything of a source template, of new record, and return it.
+   Clone sub-entities of template #180269382
+
+   @param hubAccess control
+   @param cloneId   of template to clone
+   @param entity    for the new Template
+   @return newly readMany record
+   */
+  DAOCloner<Template> clone(HubAccess hubAccess, UUID cloneId, Template entity) throws DAOException;
 
   /**
    Read one template by its ship key

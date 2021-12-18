@@ -37,7 +37,7 @@ import static org.junit.Assert.*;
 // FUTURE: any test that
 
 @RunWith(MockitoJUnitRunner.class)
-public class TemplatePlaybackIT {
+public class TemplatePlaybackDAOTest {
   private TemplatePlaybackDAO testDAO;
   private HubIntegrationTestProvider test;
   private IntegrationTestingFixtures fake;

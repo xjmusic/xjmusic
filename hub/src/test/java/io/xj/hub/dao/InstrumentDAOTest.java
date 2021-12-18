@@ -38,7 +38,7 @@ import static org.junit.Assert.*;
 // FUTURE: any test that
 
 @RunWith(MockitoJUnitRunner.class)
-public class InstrumentIT {
+public class InstrumentDAOTest {
   private InstrumentDAO testDAO;
   private HubIntegrationTestProvider test;
   private IntegrationTestingFixtures fake;

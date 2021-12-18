@@ -35,7 +35,7 @@ import java.util.Iterator;
 import static io.xj.hub.IntegrationTestingFixtures.*;
 import static org.junit.Assert.*;
 
-public class LibraryIT {
+public class LibraryDAOTest {
   @Rule
   public ExpectedException failure = ExpectedException.none();
   private LibraryDAO testDAO;

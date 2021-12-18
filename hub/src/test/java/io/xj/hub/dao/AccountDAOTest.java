@@ -30,7 +30,7 @@ import java.util.UUID;
 import static io.xj.hub.IntegrationTestingFixtures.*;
 import static org.junit.Assert.*;
 
-public class AccountIT {
+public class AccountDAOTest {
   @Rule
   public ExpectedException failure = ExpectedException.none();
   private AccountDAO testDAO;

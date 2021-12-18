@@ -2,6 +2,7 @@
 package io.xj.hub.dao;
 
 import com.google.api.client.util.Strings;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import io.xj.hub.TemplateConfig;
@@ -9,7 +10,10 @@ import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.TemplateType;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
-import io.xj.hub.tables.pojos.*;
+import io.xj.hub.tables.pojos.FeedbackTemplate;
+import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.hub.tables.pojos.TemplatePlayback;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
@@ -20,14 +24,15 @@ import io.xj.lib.util.TremendouslyRandom;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
+import org.jooq.impl.DSL;
 
-import javax.annotation.Nullable;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static io.xj.hub.Tables.*;
 import static io.xj.hub.tables.Account.ACCOUNT;
@@ -74,20 +79,41 @@ public class TemplateDAOImpl extends HubPersistenceServiceImpl<Template> impleme
   }
 
   @Override
-  @Nullable
   public Template readOne(HubAccess hubAccess, UUID id) throws DAOException {
-    if (hubAccess.isTopLevel())
-      return modelFrom(Template.class, dbProvider.getDSL().selectFrom(TEMPLATE)
-        .where(TEMPLATE.ID.eq(id))
-        .and(TEMPLATE.IS_DELETED.eq(false))
-        .fetchOne());
-    else
-      return modelFrom(Template.class, dbProvider.getDSL().select(TEMPLATE.fields())
-        .from(TEMPLATE)
-        .where(TEMPLATE.ID.eq(id))
-        .and(TEMPLATE.IS_DELETED.eq(false))
-        .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
-        .fetchOne());
+    return readOne(dbProvider.getDSL(), hubAccess, id);
+  }
+
+  @Override
+  public DAOCloner<Template> clone(HubAccess hubAccess, UUID rawCloneId, Template rawTemplate) throws DAOException {
+    requireArtist(hubAccess);
+    AtomicReference<Template> result = new AtomicReference<>();
+    AtomicReference<DAOCloner<Template>> cloner = new AtomicReference<>();
+    dbProvider.getDSL().transaction(ctx -> {
+      DSLContext db = DSL.using(ctx);
+
+      Template from = readOne(db, hubAccess, rawCloneId);
+      if (Objects.isNull(from))
+        throw new DAOException("Can't clone nonexistent Template");
+
+      // Inherits state, type if none specified
+      setIfProvided(from, rawTemplate, "libraryId");
+      setIfProvided(from, rawTemplate, "name");
+      Template template = validate(hubAccess, from);
+      requireParentExists(db, hubAccess, template);
+
+      // Create main entity
+      result.set(modelFrom(Template.class, executeCreate(db, TEMPLATE, template)));
+      UUID originalId = result.get().getId();
+
+      // Prepare to clone sub-entities
+      cloner.set(new DAOCloner<>(result.get(), this));
+
+      // DON'T clone TemplatePlayback- they are ephemeral, an indicator of playback state, non-existent initially
+
+      // Clone TemplateBinding
+      cloner.get().clone(db, TEMPLATE_BINDING, TEMPLATE_BINDING.ID, ImmutableSet.of(), TEMPLATE_BINDING.TEMPLATE_ID, rawCloneId, originalId);
+    });
+    return cloner.get();
   }
 
   @Override
@@ -233,7 +259,7 @@ public class TemplateDAOImpl extends HubPersistenceServiceImpl<Template> impleme
    @param record to validate
    @throws DAOException if invalid
    */
-  public Template validate(HubAccess access, Template record) throws DAOException {
+  private Template validate(HubAccess access, Template record) throws DAOException {
     try {
       Values.require(record.getAccountId(), "Account ID");
       Values.require(record.getName(), "Name");
@@ -267,6 +293,30 @@ public class TemplateDAOImpl extends HubPersistenceServiceImpl<Template> impleme
   }
 
   /**
+   Read one record
+
+   @param db        DSL context
+   @param hubAccess control
+   @param id        to read
+   @return record
+   @throws DAOException on failure
+   */
+  private Template readOne(DSLContext db, HubAccess hubAccess, UUID id) throws DAOException {
+    if (hubAccess.isTopLevel())
+      return modelFrom(Template.class, db.selectFrom(TEMPLATE)
+        .where(TEMPLATE.ID.eq(id))
+        .and(TEMPLATE.IS_DELETED.eq(false))
+        .fetchOne());
+    else
+      return modelFrom(Template.class, db.select(TEMPLATE.fields())
+        .from(TEMPLATE)
+        .where(TEMPLATE.ID.eq(id))
+        .and(TEMPLATE.IS_DELETED.eq(false))
+        .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .fetchOne());
+  }
+
+  /**
    Require read hubAccess
 
    @param db          database context
@@ -280,6 +330,26 @@ public class TemplateDAOImpl extends HubPersistenceServiceImpl<Template> impleme
           .where(TEMPLATE.ID.eq(templateId))
           .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
           .fetchOne(0, int.class));
+  }
+
+  /**
+   Require parent template exists of a given possible entity in a DSL context
+
+   @param db        DSL context
+   @param hubAccess control
+   @param entity    to validate
+   @throws DAOException if parent does not exist
+   */
+  private void requireParentExists(DSLContext db, HubAccess hubAccess, Template entity) throws DAOException {
+    if (hubAccess.isTopLevel())
+      requireExists("Account", db.selectCount().from(ACCOUNT)
+        .where(ACCOUNT.ID.eq(entity.getAccountId()))
+        .fetchOne(0, int.class));
+    else
+      requireExists("Account", db.selectCount().from(ACCOUNT)
+        .where(ACCOUNT.ID.in(hubAccess.getAccountIds()))
+        .and(ACCOUNT.ID.eq(entity.getAccountId()))
+        .fetchOne(0, int.class));
   }
 
 }

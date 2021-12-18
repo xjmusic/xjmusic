@@ -559,4 +559,22 @@ public class HubPersistenceServiceImpl<E> {
     }
   }
 
+  /**
+   Set a value on the builder if it's been provided in the source
+
+   @param builder to set values on
+   @param source  to check for source values
+   @param attr    name of attribute
+   @throws DAOException on failure
+   */
+  protected void setIfProvided(Object builder, Object source, String attr) throws DAOException {
+    try {
+      Optional<Object> value = Entities.get(source, attr);
+      if (value.isPresent() && Values.isSet(value.get()))
+        Entities.set(builder, attr, value.get());
+
+    } catch (EntityException e) {
+      throw new DAOException(e);
+    }
+  }
 }
