@@ -57,3 +57,6 @@ subprojects {
   }
 }
 
+if (!project.hasProperty("jibContainerRegistry")) {
+  ext.jibContainerRegistry = "localhost"
+}

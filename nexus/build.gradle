@@ -18,7 +18,7 @@ plugins {
 
 group = 'io.xj'
 version = '1.0'
-
+sourceCompatibility = '16'
 description = 'XJ Music platform backend services'
 
 tasks.withType(JavaCompile) {
@@ -120,10 +120,6 @@ application {
   mainClassName = 'io.xj.nexus.Main'
 }
 
-group = 'io.xj'
-description = 'nexus'
-version = '1.0'
-
 java {
   sourceCompatibility = JavaVersion.VERSION_16
   targetCompatibility = JavaVersion.VERSION_16
@@ -137,12 +133,6 @@ jacocoTestReport {
   reports {
     xml.enabled true
   }
-}
-
-jib {
-  to.image = (project.hasProperty('environment') && project.environment == 'production') ? '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/nexus' : '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/dev/nexus'
-  from.image = '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/base:latest'
-  container.jvmFlags = ["-Djava.library.path=/usr/lib/x86_64-linux-gnu"]
 }
 
 task generateNexusModels(type: GenerateTask) {
@@ -174,3 +164,12 @@ sourceSets {
 
 // Compilation depends on generating all specs
 compileJava.dependsOn tasks.generateNexusModels
+
+// Ship to multiple repositories #180684409
+jib {
+  container.jvmFlags = ["-Djava.library.path=/usr/lib/x86_64-linux-gnu"]
+  // set from CI command: (for building and pushing the image to multiple repositories)
+  to.image = project.jibContainerRegistry + '/' + name
+  from.image = project.jibContainerRegistry + '/' + 'base:latest'
+}
+

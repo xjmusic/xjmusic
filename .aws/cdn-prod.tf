@@ -465,9 +465,9 @@ resource "aws_cloudfront_distribution" "xj-prod-ship" {
       "OPTIONS",
     ]
     compress               = true
-    default_ttl            = 10
-    max_ttl                = 20
-    min_ttl                = 1
+    default_ttl            = 2
+    max_ttl                = 2
+    min_ttl                = 2
     target_origin_id       = "ship-prod-xj-io-s3-origin"
     viewer_protocol_policy = "redirect-to-https"
     forwarded_values {
@@ -496,9 +496,9 @@ resource "aws_cloudfront_distribution" "xj-prod-ship" {
       "OPTIONS"
     ]
     compress               = true
-    default_ttl            = 3600
-    max_ttl                = 86400
-    min_ttl                = 0
+    default_ttl            = 2
+    max_ttl                = 2
+    min_ttl                = 2
     path_pattern           = "*-*.*"
     target_origin_id       = "ship-prod-xj-io-s3-origin"
     viewer_protocol_policy = "redirect-to-https"

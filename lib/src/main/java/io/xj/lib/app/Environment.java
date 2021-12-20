@@ -36,6 +36,8 @@ public class Environment {
   private final String awsSecretKey;
   private final String awsSecretName;
   private final String awsSnsTopicArn;
+  private final String gcpProjectId;
+  private final String gcpSecretId;
   private final String googleClientID;
   private final String googleClientSecret;
   private final String hostname;
@@ -191,6 +193,8 @@ public class Environment {
     awsUploadExpireMinutes = readInt(vars, "AWS_UPLOAD_EXPIRE_MINUTES", 60);
 
     // Resource: Google
+    gcpProjectId = readStr(vars, "GCP_PROJECT_ID", EMPTY);
+    gcpSecretId = readStr(vars, "GCP_SECRET_ID", EMPTY);
     googleClientID = readStr(vars, "GOOGLE_CLIENT_ID", EMPTY);
     googleClientSecret = readStr(vars, "GOOGLE_CLIENT_SECRET", EMPTY);
 
@@ -483,6 +487,20 @@ public class Environment {
   }
 
   /**
+   @return GCP project id
+   */
+  public String getGcpProjectId() {
+    return gcpProjectId;
+  }
+
+  /**
+   @return GCP secret id
+   */
+  public String getGcpSecretId() {
+    return gcpSecretId;
+  }
+
+  /**
    @return the Google client ID
    */
   public String getGoogleClientID() {
@@ -670,6 +688,7 @@ public class Environment {
   public String getShipFfmpegSegmentFilenameExtension() {
     return shipFfmpegSegmentFilenameExtension;
   }
+
   /**
    @return verbosity of ffmpeg in ship process
    */

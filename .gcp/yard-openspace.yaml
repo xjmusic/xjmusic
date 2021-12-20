@@ -1,0 +1,127 @@
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        k8s-app: openspace-nexus
+      name: openspace-nexus
+      namespace: yard
+    spec:
+      progressDeadlineSeconds: 600
+      replicas: 1
+      selector:
+        matchLabels:
+          k8s-app: openspace-nexus
+      strategy:
+        type: Recreate
+      template:
+        metadata:
+          labels:
+            k8s-app: openspace-nexus
+        spec:
+          automountServiceAccountToken: true
+          containers:
+            - env:
+                - name: TELEMETRY_NAMESPACE
+                  value: Yard/Openspace/Nexus
+                - name: GCP_PROJECT_ID
+                  value: xj-vpc-host-prod
+                - name: GCP_SECRET_ID
+                  value: xj-services-prod-env
+                - name: INGEST_URL
+                  value: https://lab.xj.io/
+                - name: SHIP_KEY
+                  value: openspace
+              image: gcr.io/xj-vpc-host-prod/nexus:latest
+              imagePullPolicy: Always
+              livenessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: /healthz
+                  port: 3000
+                  scheme: HTTP
+                initialDelaySeconds: 20
+                periodSeconds: 5
+                successThreshold: 1
+                timeoutSeconds: 1
+              name: openspace-nexus
+              resources:
+                requests:
+                  cpu: "0.75"
+                  memory: 2500Mi
+                limits:
+                  cpu: "2"
+                  memory: 6Gi
+              terminationMessagePath: /dev/termination-log
+              terminationMessagePolicy: File
+          dnsPolicy: ClusterFirst
+          enableServiceLinks: true
+          restartPolicy: Always
+          schedulerName: default-scheduler
+          securityContext: {}
+          shareProcessNamespace: false
+          terminationGracePeriodSeconds: 30
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        k8s-app: openspace-ship
+      name: openspace-ship
+      namespace: yard
+    spec:
+      progressDeadlineSeconds: 600
+      replicas: 1
+      selector:
+        matchLabels:
+          k8s-app: openspace-ship
+      strategy:
+        type: Recreate
+      template:
+        metadata:
+          labels:
+            k8s-app: openspace-ship
+        spec:
+          automountServiceAccountToken: true
+          containers:
+            - env:
+                - name: TELEMETRY_NAMESPACE
+                  value: Yard/Openspace/Ship
+                - name: GCP_PROJECT_ID
+                  value: xj-vpc-host-prod
+                - name: GCP_SECRET_ID
+                  value: xj-services-prod-env
+                - name: INGEST_URL
+                  value: https://lab.xj.io/
+                - name: SHIP_KEY
+                  value: openspace
+              image: gcr.io/xj-vpc-host-prod/ship:latest
+              imagePullPolicy: Always
+              livenessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: /healthz
+                  port: 3000
+                  scheme: HTTP
+                initialDelaySeconds: 20
+                periodSeconds: 5
+                successThreshold: 1
+                timeoutSeconds: 1
+              name: openspace-ship
+              resources:
+                requests:
+                  cpu: "1"
+                  memory: 1Gi
+                limits:
+                  cpu: "2"
+                  memory: 2Gi
+              terminationMessagePath: /dev/termination-log
+              terminationMessagePolicy: File
+          dnsPolicy: ClusterFirst
+          enableServiceLinks: true
+          restartPolicy: Always
+          schedulerName: default-scheduler
+          securityContext: {}
+          shareProcessNamespace: false
+          terminationGracePeriodSeconds: 30

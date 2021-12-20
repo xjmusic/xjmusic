@@ -13,7 +13,8 @@ check() {
   fi
 }
 
-check .ops
+check .aws
+check .gcp
 check hub/src
 check lib/src
 check nexus/src

@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-# Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-
-./gradlew -Penvironment=development --info --no-daemon jib
-kubectl -n dev rollout restart deployment/hub deployment/hub-local deployment/nexus

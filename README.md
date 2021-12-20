@@ -2,6 +2,10 @@
 
 [![Production CI](https://github.com/xjmusic/services/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/xjmusic/services/actions/workflows/main.yml?branch=main)
 
+[![Base Container Image (AWS)](https://github.com/xjmusic/services/actions/workflows/base-image-aws.yaml/badge.svg)](https://github.com/xjmusic/services/actions/workflows/base-image-aws.yaml)
+
+[![Base Container Image (GCP)](https://github.com/xjmusic/services/actions/workflows/base-image-gcp.yaml/badge.svg)](https://github.com/xjmusic/services/actions/workflows/base-image-gcp.yaml)
+
 # XJ Music Backend (Java) Services
 
 *Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.*

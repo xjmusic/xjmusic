@@ -1,0 +1,48 @@
+name: Base Container Image (GCP)
+
+on:
+  push:
+    paths:
+      - 'Dockerfile'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push-image:
+    name: Base Container Image
+    runs-on: ubuntu-20.04
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+
+    steps:
+      - id: setup-gcloud-sdk
+        name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0.3.0
+        with:
+          service_account_key: ${{ secrets.GCP_CREDENTIALS }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          export_default_credentials: true
+
+      - name: Compute Release Target
+        run: |
+          echo "RELEASE_TARGET=${{ secrets.GCP_CONTAINER_REGISTRY }}/${{ secrets.CONTAINER_IMAGE }}:latest" >> $GITHUB_ENV
+
+      - name: Docker authentication helper
+        run: gcloud auth configure-docker -q
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Docker Image Build
+        id: dockerImageBuild
+        run: |
+          docker image build -t ${{env.RELEASE_TARGET}} .
+
+      - name: Docker Push
+        id: dockerPush
+        run: |
+          docker push ${{env.RELEASE_TARGET}}

@@ -1,4 +1,4 @@
-name: Base Container Image
+name: Base Container Image (AWS)
 
 on:
   push:
@@ -23,30 +23,30 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install amazon-ecr-credential-helper
 
-      - name: Configure AWS Credentials
+      - name: Configure Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Login to Amazon ECR
+      - name: Login to Elastic Container Registry (ECR)
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-
-      - name: Checkout repository
-        uses: actions/checkout@v2
 
       - name: Compute Release Target
         run: |
           echo "RELEASE_TARGET=${{ secrets.CONTAINER_REGISTRY }}/${{ secrets.CONTAINER_IMAGE }}:latest" >> $GITHUB_ENV
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
       - name: Docker Image Build
         id: dockerImageBuild
         run: |
           docker image build -t ${{env.RELEASE_TARGET}} .
 
-      - name: Docker Push Organization
-        id: dockerPushOrganization
+      - name: Docker Push
+        id: dockerPush
         run: |
           docker push ${{env.RELEASE_TARGET}}

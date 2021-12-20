@@ -1,6 +1,8 @@
 [![Apply](https://github.com/xjmusic/terraform/actions/workflows/apply.yml/badge.svg?branch=main)](https://github.com/xjmusic/terraform/actions/workflows/apply.yml)
 
-# Terraform
+# XJ service deployment on AWS
+
+## Terraform
 
 **the XJ Music Inc computing cluster on Amazon Web Services**
 
@@ -25,7 +27,7 @@ bin/kube/dashboard.sh
 Run the following command to retrieve the access credentials for your cluster and automatically configure kubectl.
 
 ```shell
-bin/kube/authorize.sh
+aws eks --region us-east-1 update-kubeconfig --name xj-prod-6VxY2MG3
 ```
 
 The Kubernetes cluster name and region correspond to the output variables showed after the successful Terraform run.

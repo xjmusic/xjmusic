@@ -1,0 +1,44 @@
+name: Apply Kubernetes Manifests (GCP)
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push-image:
+    name: Base Container Image
+    runs-on: ubuntu-20.04
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - id: setup-gcloud-sdk
+        name: Authenticate and setup Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0.3.0
+        with:
+          service_account_key: ${{ secrets.GCP_CREDENTIALS }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          export_default_credentials: true
+
+      - id: gke-credentials
+        name: Configure Kubernetes credentials for GKE
+        env:
+          GKE_CLUSTER: ${{ secrets.GKE_CLUSTER }}
+          GKE_REGION: ${{ secrets.GKE_REGION }}
+        run: |-
+          gcloud container clusters get-credentials "$GKE_CLUSTER" --region "$GKE_REGION"
+
+      - id: apply-kuberenetes-manifests
+        name: Apply Kubernetes Manifests
+        working-directory: .gcp
+        run: |-
+          kubectl apply -f .

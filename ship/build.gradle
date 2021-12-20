@@ -15,7 +15,7 @@ plugins {
 
 group = 'io.xj'
 version = '1.0'
-
+sourceCompatibility = '16'
 description = 'Ship Chain+Segment audio as HTTP Live Stream'
 
 tasks.withType(JavaCompile) {
@@ -125,10 +125,6 @@ application {
   mainClassName = 'io.xj.ship.Main'
 }
 
-group = 'io.xj'
-description = 'ship'
-version = '1.0'
-
 java {
   sourceCompatibility = JavaVersion.VERSION_16
   targetCompatibility = JavaVersion.VERSION_16
@@ -144,8 +140,10 @@ jacocoTestReport {
   }
 }
 
+// Ship to multiple repositories #180684409
 jib {
-  to.image = (project.hasProperty('environment') && project.environment == 'production') ? '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/ship' : '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/dev/ship'
-  from.image = '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/base:latest'
   container.jvmFlags = ["-Djava.library.path=/usr/lib/x86_64-linux-gnu"]
+  // set from CI command: (for building and pushing the image to multiple repositories)
+  to.image = project.jibContainerRegistry + '/' + name
+  from.image = project.jibContainerRegistry + '/' + 'base:latest'
 }
