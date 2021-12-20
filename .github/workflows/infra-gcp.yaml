@@ -11,7 +11,7 @@ env:
 
 jobs:
   build-and-push-image:
-    name: Base Container Image
+    name: Kubernetes Apply (GCP)
     runs-on: ubuntu-20.04
     permissions:
       contents: 'read'

@@ -1,10 +1,14 @@
-[![Development CI](https://github.com/xjmusic/services/actions/workflows/dev.yml/badge.svg?branch=dev)](https://github.com/xjmusic/services/actions/workflows/dev.yml?branch=dev)
+[![Production CI](https://github.com/xjmusic/services/actions/workflows/services-main.yml/badge.svg)](https://github.com/xjmusic/services/actions/workflows/services-main.yml)
 
-[![Production CI](https://github.com/xjmusic/services/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/xjmusic/services/actions/workflows/main.yml?branch=main)
+[![Development CI](https://github.com/xjmusic/services/actions/workflows/services-dev.yml/badge.svg)](https://github.com/xjmusic/services/actions/workflows/services-dev.yml)
 
-[![Base Container Image (AWS)](https://github.com/xjmusic/services/actions/workflows/base-image-aws.yaml/badge.svg)](https://github.com/xjmusic/services/actions/workflows/base-image-aws.yaml)
+[![Base Image (GCP)](https://github.com/xjmusic/services/actions/workflows/services-base-gcp.yaml/badge.svg)](https://github.com/xjmusic/services/actions/workflows/services-base-gcp.yaml)
 
-[![Base Container Image (GCP)](https://github.com/xjmusic/services/actions/workflows/base-image-gcp.yaml/badge.svg)](https://github.com/xjmusic/services/actions/workflows/base-image-gcp.yaml)
+[![Base Image (AWS)](https://github.com/xjmusic/services/actions/workflows/services-base-aws.yaml/badge.svg)](https://github.com/xjmusic/services/actions/workflows/services-base-aws.yaml)
+
+[![Kubernetes Apply (GCP)](https://github.com/xjmusic/services/actions/workflows/infra-gcp.yaml/badge.svg)](https://github.com/xjmusic/services/actions/workflows/infra-gcp.yaml)
+
+[![Terraform Apply (AWS)](https://github.com/xjmusic/services/actions/workflows/infra-aws.yml/badge.svg)](https://github.com/xjmusic/services/actions/workflows/infra-aws.yml)
 
 # XJ Music Backend (Java) Services
 
