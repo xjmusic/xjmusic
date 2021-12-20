@@ -112,10 +112,10 @@ items:
               resources:
                 requests:
                   cpu: "1"
-                  memory: 1Gi
+                  memory: 1500Mi
                 limits:
                   cpu: "2"
-                  memory: 2Gi
+                  memory: 3Gi
               terminationMessagePath: /dev/termination-log
               terminationMessagePolicy: File
           dnsPolicy: ClusterFirst

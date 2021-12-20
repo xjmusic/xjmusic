@@ -1,4 +1,4 @@
-name: Base Container Image (AWS)
+name: Base Image (AWS)
 
 on:
   push:

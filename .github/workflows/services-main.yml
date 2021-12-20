@@ -121,7 +121,7 @@ jobs:
           export_default_credentials: true
 
       - id: gke-credentials
-        name: Configure Kubernetes credentials for GKE
+        name: (GCP) Configure Kubernetes credentials for GKE
         env:
           GKE_CLUSTER: ${{ secrets.GKE_CLUSTER }}
           GKE_REGION: ${{ secrets.GKE_REGION }}

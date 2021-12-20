@@ -1,4 +1,4 @@
-name: "(AWS) Terraform Plan"
+name: "Terraform Apply (AWS)"
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   TerraformPlan:
-    name: "Terraform Plan"
+    name: "Terraform Plan (not actually apply; must have been applied locally, sorry)"
     runs-on: ubuntu-latest
 
     steps:

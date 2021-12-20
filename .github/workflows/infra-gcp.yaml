@@ -1,4 +1,4 @@
-name: Apply Kubernetes Manifests (GCP)
+name: Kubernetes Apply (GCP)
 
 on:
   push:

@@ -1,4 +1,4 @@
-name: Base Container Image (GCP)
+name: Base Image (GCP)
 
 on:
   push:
