@@ -8,6 +8,7 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.xj.lib.json.JsonProviderImpl;
+import io.xj.lib.util.Values;
 import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,6 +122,19 @@ public class EntityFactoryImpl implements EntityFactory {
         Entities.set(target, String.valueOf(name), attribute);
       } catch (EntityException e) {
         log.error("Failed to set {}", attribute, e);
+      }
+    });
+  }
+
+  @Override
+  public <N> void setAllEmptyAttributes(N source, N target) {
+    getResourceAttributes(source).forEach((Object name, Object value) -> {
+      try {
+        var tgtVal = Entities.get(target, String.valueOf(name));
+        if (tgtVal.isEmpty() || Values.isEmpty(tgtVal.get()))
+          Entities.set(target, String.valueOf(name), value);
+      } catch (EntityException e) {
+        log.error("Failed to set {}", value, e);
       }
     });
   }

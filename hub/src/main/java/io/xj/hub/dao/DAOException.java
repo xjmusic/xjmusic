@@ -11,7 +11,8 @@ public class DAOException extends Exception {
     super(msg, e);
   }
 
-  public DAOException(Throwable targetException) {
-    super(targetException);
+  public DAOException(Throwable e) {
+    super(e.getMessage(), e);
+    setStackTrace(e.getStackTrace());
   }
 }

@@ -106,6 +106,14 @@ public interface EntityFactory {
   <N> void setAllAttributes(N source, N target) throws EntityException;
 
   /**
+   Set all empty target values from a source Entity
+
+   @param source source Entity
+   @param target on which to set all resource attributes
+   */
+  <N> void setAllEmptyAttributes(N source, N target) throws EntityException;
+
+  /**
    Whether the specified type is a known schema
 
    @param entityName to check for known schema

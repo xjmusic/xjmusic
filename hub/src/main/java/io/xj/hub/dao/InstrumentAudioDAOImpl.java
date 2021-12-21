@@ -140,7 +140,7 @@ public class InstrumentAudioDAOImpl extends HubPersistenceServiceImpl<Instrument
   }
 
   @Override
-  public InstrumentAudio clone(HubAccess hubAccess, UUID rawCloneId, InstrumentAudio rawAudio) throws DAOException {
+  public InstrumentAudio clone(HubAccess hubAccess, UUID rawCloneId, InstrumentAudio to) throws DAOException {
     requireArtist(hubAccess);
     AtomicReference<InstrumentAudio> result = new AtomicReference<>();
     dbProvider.getDSL().transaction(ctx -> {
@@ -151,9 +151,8 @@ public class InstrumentAudioDAOImpl extends HubPersistenceServiceImpl<Instrument
         throw new DAOException("Can't clone nonexistent InstrumentAudio");
 
       // When not set, clone inherits attribute values from original record
-      if (Values.isEmpty(rawAudio.getWaveformKey())) rawAudio.setWaveformKey(from.getWaveformKey());
-      if (Values.isEmpty(rawAudio.getName())) rawAudio.setName(from.getName());
-      var audio = validate(rawAudio);
+      entityFactory.setAllEmptyAttributes(from, to);
+      var audio = validate(to);
       requireParentExists(db, hubAccess, audio);
 
       result.set(modelFrom(InstrumentAudio.class, executeCreate(db, INSTRUMENT_AUDIO, audio)));
@@ -164,9 +163,9 @@ public class InstrumentAudioDAOImpl extends HubPersistenceServiceImpl<Instrument
   /**
    General an Audio URL key
 
-   @return URL as string
    @param instrumentId to generate URL key for
-   @param extension of key to general
+   @param extension    of key to general
+   @return URL as string
    */
   private String generateKey(UUID instrumentId, String extension) {
     String prefix = String.format("instrument-%s-audio", instrumentId.toString());

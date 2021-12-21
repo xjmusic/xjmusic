@@ -182,7 +182,7 @@ public class TemplateDAOTest {
 
 
     var e = assertThrows(DAOException.class, () -> testDAO.create(hubAccess, inputData));
-    assertEquals("io.xj.lib.util.ValueException: Account ID is required.", e.getMessage());
+    assertEquals("Account ID is required.", e.getMessage());
   }
 
   @Test
@@ -329,7 +329,7 @@ public class TemplateDAOTest {
 
 
     var e = assertThrows(DAOException.class, () -> testDAO.update(hubAccess, template1a.getId(), inputData));
-    assertEquals("io.xj.lib.util.ValueException: Account ID is required.", e.getMessage());
+    assertEquals("Account ID is required.", e.getMessage());
   }
 
   @Test
@@ -395,7 +395,7 @@ public class TemplateDAOTest {
 
 
     var e = assertThrows(DAOException.class, () -> testDAO.update(hubAccess, template1a.getId(), inputData));
-    assertEquals("io.xj.lib.util.ValueException: Name is required.", e.getMessage());
+    assertEquals("Name is required.", e.getMessage());
   }
 
   /**

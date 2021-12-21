@@ -23,9 +23,7 @@ import io.xj.lib.filestore.S3UploadPolicy;
 import io.xj.lib.jsonapi.JsonapiModule;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -45,8 +43,6 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InstrumentAudioDAOTest {
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
   @Mock
   public FileStoreProvider fileStoreProvider;
   private InstrumentAudioDAO testDAO;
@@ -117,16 +113,14 @@ public class InstrumentAudioDAOTest {
   }
 
   @Test
-  public void create_FailsWithoutInstrumentID() throws Exception {
+  public void create_FailsWithoutInstrumentID() {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     var inputData = buildInstrumentAudio(fake.instrument201, "maracas", "instrument" + File.separator + "percussion" + File.separator + "demo_source_audio/808" + File.separator + "maracas.wav", 0.009f, 0.21f, 80.5f);
     inputData.setInstrumentId(null);
 
-    failure.expect(DAOException.class);
-    failure.expectMessage("Instrument ID is required");
+    var e = assertThrows(DAOException.class, () -> testDAO.create(hubAccess, inputData));
 
-    testDAO.create(
-      hubAccess, inputData);
+    assertEquals(e.getMessage(), "Instrument ID is required.");
   }
 
   /**
@@ -158,6 +152,26 @@ public class InstrumentAudioDAOTest {
     assertEquals(fake.instrument202.getId(), result.getInstrumentId());
     assertEquals("fake.audio5.wav", result.getWaveformKey());
     assertEquals(0.6, result.getDensity(), 0.01);
+    assertEquals(0.01, result.getTransientSeconds(), 0.01);
+    assertEquals(2.0, result.getTotalBeats(), 0.01);
+    assertEquals(120.0, result.getTempo(), 0.01);
+  }
+
+  /**
+   Error when cloning Audios in Instruments #180698009
+   */
+  @Test
+  public void clone_fromOriginal_noInputData() throws Exception {
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    var inputData = new InstrumentAudio();
+    inputData.setName("Clone of thing");
+
+    var result = testDAO.clone(hubAccess, fake.audio1.getId(), inputData);
+
+    assertEquals("Clone of thing", result.getName());
+    assertEquals(fake.instrument202.getId(), result.getInstrumentId());
+    assertEquals("fake.audio5.wav", result.getWaveformKey());
+    assertEquals(0.5, result.getDensity(), 0.01);
     assertEquals(0.01, result.getTransientSeconds(), 0.01);
     assertEquals(2.0, result.getTotalBeats(), 0.01);
     assertEquals(120.0, result.getTempo(), 0.01);
@@ -226,15 +240,14 @@ public class InstrumentAudioDAOTest {
   }
 
   @Test
-  public void update_FailsWithoutInstrumentID() throws Exception {
+  public void update_FailsWithoutInstrumentID() {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     var inputData = buildInstrumentAudio(fake.instrument201, "maracas", "instrument" + File.separator + "percussion" + File.separator + "demo_source_audio/808" + File.separator + "maracas.wav", 0.009f, 0.21f, 80.5f);
     inputData.setInstrumentId(null);
 
-    failure.expect(DAOException.class);
-    failure.expectMessage("Instrument ID is required");
+    var e = assertThrows(DAOException.class, () -> testDAO.update(hubAccess, fake.audio1.getId(), inputData));
 
-    testDAO.update(hubAccess, fake.audio1.getId(), inputData);
+    assertEquals(e.getMessage(), "Instrument ID is required.");
   }
 
   @Test
@@ -249,19 +262,13 @@ public class InstrumentAudioDAOTest {
     inputData.setTotalBeats(0.21f);
     inputData.setTempo(80.5f);
 
-    failure.expect(DAOException.class);
-    failure.expectMessage("Instrument does not exist");
+    var e = assertThrows(DAOException.class, () -> testDAO.update(hubAccess, fake.audio2.getId(), inputData));
 
-    try {
-      testDAO.update(hubAccess, fake.audio2.getId(), inputData);
-
-    } catch (Exception e) {
-      var result = testDAO.readOne(HubAccess.internal(), fake.audio2.getId());
-      assertNotNull(result);
-      assertEquals("Test audio2", result.getName());
-      assertEquals(fake.instrument202.getId(), result.getInstrumentId());
-      throw e;
-    }
+    assertEquals(e.getMessage(), "Instrument does not exist");
+    var result = testDAO.readOne(HubAccess.internal(), fake.audio2.getId());
+    assertNotNull(result);
+    assertEquals("Test audio2", result.getName());
+    assertEquals(fake.instrument202.getId(), result.getInstrumentId());
   }
 
 
@@ -289,10 +296,9 @@ public class InstrumentAudioDAOTest {
   public void destroy_failsIfNotInAccount() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(), "Artist");
 
-    failure.expect(DAOException.class);
-    failure.expectMessage("InstrumentAudio does not exist");
+    var e = assertThrows(DAOException.class, () -> testDAO.destroy(hubAccess, fake.audio1.getId()));
 
-    testDAO.destroy(hubAccess, fake.audio1.getId());
+    assertEquals(e.getMessage(), "InstrumentAudio does not exist");
   }
 
   @Test
