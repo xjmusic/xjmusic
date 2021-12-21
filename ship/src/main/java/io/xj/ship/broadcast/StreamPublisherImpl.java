@@ -22,6 +22,8 @@ import java.util.stream.Stream;
 
 /**
  Ship broadcast via HTTP Live Streaming #179453189
+ <p>
+ Ship #EXT-X-INDEPENDENT-SEGMENTS #180669689
  */
 public class StreamPublisherImpl implements StreamPublisher {
   private static final Logger LOG = LoggerFactory.getLogger(StreamPublisherImpl.class);
@@ -90,7 +92,8 @@ public class StreamPublisherImpl implements StreamPublisher {
         "#EXT-X-VERSION:3",
         String.format("#EXT-X-TARGETDURATION:%s", hlsSegmentSeconds),
         String.format("#EXT-X-MEDIA-SEQUENCE:%d", mediaSequence),
-        "#EXT-X-PLAYLIST-TYPE:EVENT"
+        "#EXT-X-PLAYLIST-TYPE:EVENT",
+        "#EXT-X-INDEPENDENT-SEGMENTS"
       ), m3u8LmtLines.stream()).toList();
 
       // publish custom .m3u8 file
