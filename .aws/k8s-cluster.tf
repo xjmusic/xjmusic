@@ -51,7 +51,7 @@ module "xj-prod-eks" {
       additional_security_group_ids = [
         aws_security_group.xj-prod-worker-mgmt.id,
       ]
-      asg_desired_capacity = 3
+      asg_desired_capacity = 1
     },
   ]
 }

@@ -59,8 +59,8 @@ resource "kubernetes_stateful_set" "xj-dev-postgres" {
       spec {
         container {
           name              = "postgres"
-          image             = "postgres:latest"
-          image_pull_policy = "IfNotPresent"
+          image             = "postgres:13"
+          image_pull_policy = "Always"
 
           env_from {
             config_map_ref {
