@@ -1,3 +1,7 @@
+# This is the base container for all Java services in this repository, built by CI when this file changes.
+# Build & ship to GCP: https://github.com/xjmusic/services/actions/workflows/services-base-gcp.yaml
+# Build & ship to AWS: https://github.com/xjmusic/services/actions/workflows/services-base-aws.yaml
+
 # Based on official
 FROM ubuntu:20.10
 
