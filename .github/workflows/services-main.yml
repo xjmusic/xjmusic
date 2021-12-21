@@ -107,9 +107,6 @@ jobs:
       - name: (AWS) Kubernetes rollout Lab/Hub
         run: "kubectl -n lab rollout restart deployment/hub"
 
-      - name: (AWS) Kubernetes rollout Lab/Nexus
-        run: "kubectl -n lab rollout restart deployment/nexus"
-
       - name: (GCP) Authenticate and setup Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v0.3.0
         with:
@@ -131,6 +128,9 @@ jobs:
             -PjibToImageRegistry=gcr.io/xj-vpc-host-prod \
             jib
         continue-on-error: false
+
+      - name: (GCP) Kubernetes rollout Lab/Nexus
+        run: "kubectl -n lab rollout restart deployment/nexus"
 
       - name: (GCP) Kubernetes rollout Yard/CoolAir/Nexus
         run: "kubectl -n yard rollout restart deployment/coolair-nexus"

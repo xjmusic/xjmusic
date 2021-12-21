@@ -47,7 +47,7 @@ module "xj-prod-eks" {
   worker_groups = [
     {
       name          = "general"
-      instance_type = "m5a.xlarge"
+      instance_type = "m5a.large"
       additional_security_group_ids = [
         aws_security_group.xj-prod-worker-mgmt.id,
       ]
