@@ -4,7 +4,8 @@
 aws eks --region us-east-1 update-kubeconfig --name xj-prod-6VxY2MG3
 
 ./gradlew --info --no-daemon \
-  -PjibContainerRegistry=027141088039.dkr.ecr.us-east-1.amazonaws.com/xj \
+  -PjibFromImage=027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/base:latest \
+  -PjibToImageRegistry=027141088039.dkr.ecr.us-east-1.amazonaws.com/xj \
   jib
 
 kubectl -n lab rollout restart deployment/hub deployment/nexus

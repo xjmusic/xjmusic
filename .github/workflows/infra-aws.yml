@@ -3,7 +3,6 @@ name: "Terraform Apply (AWS)"
 on:
   push:
     branches:
-      - dev
       - main
 
 jobs:

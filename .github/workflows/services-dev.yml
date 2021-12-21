@@ -77,7 +77,6 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Build & Run Tests
-        id: test
         run: "./gradlew --info --no-daemon build test"
         continue-on-error: false
 
@@ -89,17 +88,16 @@ jobs:
           aws-region: us-east-1
 
       - name: (AWS) Login to Elastic Container Registry (ECR)
-        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: (AWS) Authenticate with Elastic Kubernetes Service (EKS)
         run: aws eks --region ${{ secrets.AWS_DEFAULT_REGION }} update-kubeconfig --name ${{ secrets.CLUSTER_NAME }}
 
       - name: (AWS) Build & push Docker images
-        id: jib
         run: |
           ./gradlew --info --no-daemon \
-            -PjibContainerRegistry=027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/dev \
+            -PjibFromImage=027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/base:latest \
+            -PjibToImageRegistry=027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/dev \
             jib
         continue-on-error: false
 

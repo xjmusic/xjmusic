@@ -57,6 +57,10 @@ subprojects {
   }
 }
 
-if (!project.hasProperty("jibContainerRegistry")) {
-  ext.jibContainerRegistry = "localhost"
+if (!project.hasProperty("jibFromImage")) {
+  ext.jibFromImage = "localhost/base:latest"
+}
+
+if (!project.hasProperty("jibToImageRegistry")) {
+  ext.jibToImageRegistry = "localhost"
 }

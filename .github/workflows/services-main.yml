@@ -77,7 +77,6 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Build & Run Tests
-        id: test
         run: "./gradlew --info --no-daemon build test"
         continue-on-error: false
 
@@ -92,17 +91,16 @@ jobs:
           aws-region: us-east-1
 
       - name: (AWS) Login to Elastic Container Registry (ECR)
-        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: (AWS) Authenticate with Elastic Kubernetes Service (EKS)
         run: aws eks --region ${{ secrets.AWS_DEFAULT_REGION }} update-kubeconfig --name ${{ secrets.CLUSTER_NAME }}
 
       - name: (AWS) Build & push Docker images
-        id: jib
         run: |
           ./gradlew --info --no-daemon \
-            -PjibContainerRegistry=027141088039.dkr.ecr.us-east-1.amazonaws.com/xj \
+            -PjibFromImage=027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/base:latest \
+            -PjibToImageRegistry=027141088039.dkr.ecr.us-east-1.amazonaws.com/xj \
             jib
         continue-on-error: false
 
@@ -112,21 +110,27 @@ jobs:
       - name: (AWS) Kubernetes rollout Lab/Nexus
         run: "kubectl -n lab rollout restart deployment/nexus"
 
-      - id: setup-gcloud-sdk
-        name: (GCP) Authenticate and setup Google Cloud SDK
+      - name: (GCP) Authenticate and setup Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v0.3.0
         with:
           service_account_key: ${{ secrets.GCP_CREDENTIALS }}
           project_id: ${{ secrets.GCP_PROJECT_ID }}
           export_default_credentials: true
 
-      - id: gke-credentials
-        name: (GCP) Configure Kubernetes credentials for GKE
+      - name: (GCP) Configure Kubernetes credentials for GKE
         env:
           GKE_CLUSTER: ${{ secrets.GKE_CLUSTER }}
           GKE_REGION: ${{ secrets.GKE_REGION }}
         run: |-
           gcloud container clusters get-credentials "$GKE_CLUSTER" --region "$GKE_REGION"
+
+      - name: (GCP) Build & push Docker images
+        run: |
+          ./gradlew --info --no-daemon \
+            -PjibFromImage=gcr.io/xj-vpc-host-prod/base:latest \
+            -PjibToImageRegistry=gcr.io/xj-vpc-host-prod \
+            jib
+        continue-on-error: false
 
       - name: (GCP) Kubernetes rollout Yard/CoolAir/Nexus
         run: "kubectl -n yard rollout restart deployment/coolair-nexus"

@@ -169,7 +169,7 @@ compileJava.dependsOn tasks.generateNexusModels
 jib {
   container.jvmFlags = ["-Djava.library.path=/usr/lib/x86_64-linux-gnu"]
   // set from CI command: (for building and pushing the image to multiple repositories)
-  to.image = project.jibContainerRegistry + '/' + name
-  from.image = project.jibContainerRegistry + '/' + 'base:latest'
+  from.image = project.jibFromImage
+  to.image = project.jibToImageRegistry + '/' + name
 }
 
