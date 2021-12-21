@@ -49,8 +49,8 @@ items:
               name: openspace-nexus
               resources:
                 requests:
-                  cpu: "0.75"
-                  memory: 2500Mi
+                  cpu: "1"
+                  memory: 3Gi
                 limits:
                   cpu: "2"
                   memory: 6Gi

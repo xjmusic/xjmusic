@@ -49,8 +49,8 @@ items:
               name: coolair-nexus
               resources:
                 requests:
-                  cpu: "0.75"
-                  memory: 1500Mi
+                  cpu: "1"
+                  memory: 2Gi
                 limits:
                   cpu: "2"
                   memory: 3Gi
