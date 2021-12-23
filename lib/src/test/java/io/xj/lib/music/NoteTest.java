@@ -224,4 +224,12 @@ public class NoteTest {
     assertFalse(Note.isValid("abc"));
   }
 
+  @Test
+  public void containsAnyValidNotes() {
+    assertTrue(Note.containsAnyValidNotes("C, D, E"));
+    assertTrue(Note.containsAnyValidNotes("X")); // drum event note
+    assertTrue(Note.containsAnyValidNotes("C3, D3, E3"));
+    assertFalse(Note.containsAnyValidNotes("Y, Z"));
+    assertFalse(Note.containsAnyValidNotes("(None)")); // NC voicing
+  }
 }

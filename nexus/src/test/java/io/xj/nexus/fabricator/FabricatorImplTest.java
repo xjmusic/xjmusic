@@ -35,11 +35,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Instant;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.xj.hub.IntegrationTestingFixtures.*;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
@@ -251,7 +249,17 @@ public class FabricatorImplTest {
 
   @Test
   public void getDistinctChordVoicingTypes() throws Exception {
-    buildTemplateBinding(fake.template1, fake.library2);
+    sourceMaterial = new HubContent(Streams.concat(
+      fake.setupFixtureB1().stream(),
+      fake.setupFixtureB2().stream(),
+      fake.setupFixtureB3().stream(),
+      Stream.of(
+        buildVoicing(InstrumentType.Sticky, fake.program5_sequence0_chord0, "G4, B4, D4"),
+        buildVoicing(InstrumentType.Stripe, fake.program5_sequence0_chord0, "F5"),
+        buildVoicing(InstrumentType.Pad, fake.program5_sequence0_chord0, "(None)") // No voicing notes- doesn't count!
+      )
+    ).collect(Collectors.toList()));
+    store.put(buildTemplateBinding(fake.template1, fake.library2));
     var chain = store.put(buildChain(
       fake.account1,
       fake.template1,
@@ -259,28 +267,16 @@ public class FabricatorImplTest {
       ChainType.PRODUCTION,
       ChainState.FABRICATE,
       Instant.parse("2017-12-12T01:00:08.000000Z")));
-    store.put(buildSegment(
+    var segment = store.put(buildSegment(
       chain,
-      1,
-      SegmentState.CRAFTED,
+      0,
+      SegmentState.CRAFTING,
       Instant.parse("2017-12-12T01:00:08.000000Z"),
       Instant.parse("2017-12-12T01:00:16.000000Z"),
       "F major",
       8,
       0.6,
       120.0,
-      "seg123",
-      "ogg"));
-    Segment segment = store.put(buildSegment(
-      chain,
-      2,
-      SegmentState.CRAFTING,
-      Instant.parse("2017-12-12T01:00:16.000000Z"),
-      Instant.parse("2017-12-12T01:00:22.000000Z"),
-      "G major",
-      8,
-      0.6,
-      240.0,
       "seg123",
       "ogg"));
     SegmentChoice mainChoice = store.put(buildSegmentChoice(
@@ -299,10 +295,12 @@ public class FabricatorImplTest {
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
     subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory);
 
-    List<InstrumentType> result = subject.getDistinctChordVoicingTypes();
+    Set<InstrumentType> result = subject.getDistinctChordVoicingTypes();
 
-    assertEquals(ImmutableList.of(
-      InstrumentType.Bass
+    assertEquals(Set.of(
+      InstrumentType.Bass,
+      InstrumentType.Sticky,
+      InstrumentType.Stripe
     ), result);
   }
 

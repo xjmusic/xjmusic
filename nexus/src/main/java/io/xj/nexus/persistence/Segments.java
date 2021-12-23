@@ -11,7 +11,6 @@ import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.lib.mixer.OutputEncoder;
 import io.xj.lib.music.Note;
-import io.xj.lib.util.CSV;
 import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
 
@@ -123,12 +122,14 @@ public enum Segments {
     return String.format("%s%s%s", segmentKey, EXTENSION_SEPARATOR, extension);
   }
 
-  public static boolean containsAnyValidNotes(String notes) {
-    return CSV.split(notes).stream().anyMatch(Note::isValid);
-  }
+  /**
+   Whether a segment chord voicing contains any valid notes
 
+   @param voicing to test
+   @return true if contains any valid notes
+   */
   public static boolean containsAnyValidNotes(SegmentChordVoicing voicing) {
-    return containsAnyValidNotes(voicing.getNotes());
+    return Note.containsAnyValidNotes(voicing.getNotes());
   }
 
   /**

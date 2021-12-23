@@ -2,6 +2,7 @@
 package io.xj.lib.music;
 
 import com.google.api.client.util.Strings;
+import io.xj.lib.util.CSV;
 
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -97,6 +98,16 @@ public class Note {
    */
   public static boolean isValid(String name) {
     return rgxValidNote.matcher(name).find();
+  }
+
+  /**
+   Whether the CSV contains any valid notes
+
+   @param notes to test
+   @return true if contains any valid notes
+   */
+  public static boolean containsAnyValidNotes(String notes) {
+    return CSV.split(notes).stream().anyMatch(Note::isValid);
   }
 
   /**

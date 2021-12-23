@@ -7,6 +7,7 @@ import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.*;
 import io.xj.lib.entity.Entities;
+import io.xj.lib.music.Note;
 import io.xj.lib.util.Text;
 
 import java.util.*;
@@ -486,10 +487,10 @@ public class HubContent {
    @param programId to get sequence chord voicings of
    @return sequence chord voicings for program
    */
-  public List<ProgramSequenceChordVoicing> getProgramSequenceChordVoicings(UUID programId) {
-    var voicings = getAllProgramSequenceChordVoicings();
-    return voicings.stream()
-      .filter(voicing -> voicing.getProgramId().equals(programId))
+  public List<ProgramSequenceChordVoicing> getValidProgramSequenceChordVoicings(UUID programId) {
+    return getAllProgramSequenceChordVoicings().stream()
+      .filter(v -> v.getProgramId().equals(programId))
+      .filter(v -> Note.containsAnyValidNotes(v.getNotes()))
       .collect(Collectors.toList());
   }
 

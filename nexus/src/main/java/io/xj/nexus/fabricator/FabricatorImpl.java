@@ -334,15 +334,15 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public List<InstrumentType> getDistinctChordVoicingTypes() {
+  public Set<InstrumentType> getDistinctChordVoicingTypes() {
     var mainChoice = getCurrentMainChoice();
-    if (mainChoice.isEmpty()) return ImmutableList.of();
+    if (mainChoice.isEmpty()) return Set.of();
     var voicings = sourceMaterial
-      .getProgramSequenceChordVoicings(mainChoice.get().getProgramId());
+      .getValidProgramSequenceChordVoicings(mainChoice.get().getProgramId());
     return voicings.stream()
       .map(ProgramSequenceChordVoicing::getType)
       .distinct()
-      .collect(Collectors.toList());
+      .collect(Collectors.toSet());
   }
 
   @Override

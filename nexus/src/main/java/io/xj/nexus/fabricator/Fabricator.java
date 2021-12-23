@@ -11,7 +11,6 @@ import io.xj.hub.tables.pojos.*;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Key;
 import io.xj.lib.music.NoteRange;
-import io.xj.lib.util.ValueException;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.hub_client.client.HubContent;
 
@@ -203,7 +202,7 @@ public interface Fabricator {
 
    @return list of voicing (instrument) types
    */
-  List<InstrumentType> getDistinctChordVoicingTypes() throws NexusException;
+  Set<InstrumentType> getDistinctChordVoicingTypes() throws NexusException;
 
   /**
    @return Seconds elapsed since fabricator was instantiated
@@ -372,7 +371,7 @@ public interface Fabricator {
 
   /**
    Get the complete set of program sequence chords,
-   ignoring ghost chords* REF https://www.pivotaltracker.com/story/show/178420030
+   ignoring ghost chords* REF https://www.pivotaltracker.com/story/show/178420030 by choosing the voicings with largest # of notes at that position
    (caches results)
 
    @param programSequence for which to get complete do-ghosted set of chords
