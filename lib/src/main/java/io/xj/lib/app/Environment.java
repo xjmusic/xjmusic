@@ -139,7 +139,7 @@ public class Environment {
     fabricationReviveChainFabricatedBehindSeconds = readInt(vars, "FABRICATION_REVIVE_CHAIN_FABRICATED_BEHIND_SECONDS", 15);
     fabricationReviveChainProductionGraceSeconds = readInt(vars, "FABRICATION_REVIVE_CHAIN_PRODUCTION_GRACE_SECONDS", 15);
     hlsListSize = readInt(vars, "HLS_LIST_SIZE", 20);
-    hlsSegmentSeconds = readInt(vars, "HLS_SEGMENT_SECONDS", 6);
+    hlsSegmentSeconds = readInt(vars, "HLS_SEGMENT_SECONDS", 10);
     hostname = readStr(vars, "HOSTNAME", "localhost");
     ingestTokenName = readStr(vars, "INGEST_TOKEN_NAME", "access_token");
     ingestTokenValue = readStr(vars, "INGEST_TOKEN_VALUE", EMPTY);

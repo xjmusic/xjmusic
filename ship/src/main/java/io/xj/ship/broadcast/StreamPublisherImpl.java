@@ -2,6 +2,7 @@
 
 package io.xj.ship.broadcast;
 
+import com.google.api.client.util.Lists;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.lib.app.Environment;
@@ -27,7 +28,6 @@ import java.util.stream.Stream;
  */
 public class StreamPublisherImpl implements StreamPublisher {
   private static final Logger LOG = LoggerFactory.getLogger(StreamPublisherImpl.class);
-  private static final int FFMPEG_IGNORE_OUTPUT_M3U8_LINES = 5;
   private final FileStoreProvider fileStore;
   private final Pattern rgxFilenameSegSeqNum;
   private final Predicate<? super String> isSegmentFilename;
@@ -67,10 +67,18 @@ public class StreamPublisherImpl implements StreamPublisher {
       // test for existence of playlist file; skip if nonexistent
       if (!new File(playlistPath).exists()) return;
 
-      // read playlist file, but only publish the last N entries
-      var m3u8Lines = Text.splitLines(Files.getFileContent(playlistPath));
-      var m3u8LmtLines = List.of(m3u8Lines)
-        .subList(Math.max(FFMPEG_IGNORE_OUTPUT_M3U8_LINES, m3u8Lines.length - 2 * hlsListSize), m3u8Lines.length);
+      // read playlist file, then grab only the line pairs that are segment files
+      String[] m3u8Lines = Text.splitLines(Files.getFileContent(playlistPath));
+      List<String> m3u8FileLines = Lists.newArrayList();
+      for (int i = 1; i < m3u8Lines.length; i++)
+        if (isSegmentFilename.test(m3u8Lines[i])) {
+          m3u8FileLines.add(m3u8Lines[i - 1]);
+          m3u8FileLines.add(m3u8Lines[i]);
+        }
+
+      // only publish the last N entries
+      var m3u8LmtLines = m3u8FileLines
+        .subList(Math.max(0, m3u8FileLines.size() - 2 * hlsListSize), m3u8FileLines.size());
 
       // scan for filenames and publish them
       for (String fn : m3u8LmtLines.stream().filter(isSegmentFilename).toList())
@@ -91,6 +99,7 @@ public class StreamPublisherImpl implements StreamPublisher {
         "#EXTM3U",
         "#EXT-X-VERSION:3",
         String.format("#EXT-X-TARGETDURATION:%s", hlsSegmentSeconds),
+        "#EXT-X-DISCONTINUITY",
         String.format("#EXT-X-MEDIA-SEQUENCE:%d", mediaSequence),
         "#EXT-X-PLAYLIST-TYPE:EVENT",
         "#EXT-X-INDEPENDENT-SEGMENTS"
