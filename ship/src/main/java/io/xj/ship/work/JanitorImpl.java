@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  Ship broadcast via HTTP Live Streaming #179453189
@@ -109,8 +108,7 @@ public class JanitorImpl implements Janitor {
     Collection<UUID> segmentIds = Lists.newArrayList();
 
     for (UUID chainId : chainManager.readAll().stream()
-      .flatMap(Entities::flatMapIds)
-      .collect(Collectors.toList()))
+      .flatMap(Entities::flatMapIds).toList())
       store.getAllSegments(chainId)
         .stream()
         .filter(segment -> Segments.isBefore(segment, eraseBefore))

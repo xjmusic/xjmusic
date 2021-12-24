@@ -13,6 +13,7 @@ import io.xj.ship.source.SourceModule;
 public class BroadcastModule extends AbstractModule {
   @Override
   protected void configure() {
+    bind(M3U8PlaylistManager.class).to(M3U8PlaylistManagerImpl.class);
     install(new FactoryModuleBuilder()
       .implement(Chunk.class, Chunk.class)
       .implement(ChunkMixer.class, ChunkMixerImpl.class)

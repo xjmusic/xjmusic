@@ -19,6 +19,16 @@ package io.xj.ship.broadcast;
  - http://rdmedia.bbc.co.uk/dash/ondemand/bbb/
  */
 public interface StreamPublisher {
+
+  /**
+   Attempt to rehydrate ship from the last .m3u8 playlist that was uploaded for this ship key
+   <p>
+   Ship rehydrates from last shipped .m3u8 playlist file #180723357
+
+   @return true if the rehydration was successful
+   */
+  Boolean rehydratePlaylist();
+
   /**
    @param nowMillis at which to publish
    */

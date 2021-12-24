@@ -50,10 +50,10 @@ items:
               resources:
                 requests:
                   cpu: "1"
-                  memory: 4Gi
+                  memory: 4.5G
                 limits:
                   cpu: "3"
-                  memory: 8Gi
+                  memory: 8.5G
               terminationMessagePath: /dev/termination-log
               terminationMessagePolicy: File
           dnsPolicy: ClusterFirst
@@ -111,11 +111,11 @@ items:
               name: openspace-ship
               resources:
                 requests:
-                  cpu: "1"
-                  memory: 1500Mi
+                  cpu: "1.25"
+                  memory: 2G
                 limits:
-                  cpu: "2"
-                  memory: 3Gi
+                  cpu: "2.5"
+                  memory: 3.5G
               terminationMessagePath: /dev/termination-log
               terminationMessagePolicy: File
           dnsPolicy: ClusterFirst

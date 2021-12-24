@@ -122,6 +122,9 @@ public class ShipWorkImpl implements ShipWork {
 
   @Override
   public void work() {
+    // Ship rehydrates from last shipped .m3u8 playlist file #180723357
+    publisher.rehydratePlaylist();
+
     while (active) this.run();
   }
 

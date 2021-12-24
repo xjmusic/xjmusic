@@ -26,7 +26,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static io.xj.lib.mixer.AudioStreamWriter.byteBufferOf;
-import static io.xj.lib.telemetry.MultiStopwatch.MILLIS_PER_SECOND;
 
 public class StreamEncoderImpl implements StreamEncoder {
   private static final Logger LOG = LoggerFactory.getLogger(StreamEncoder.class);
@@ -37,6 +36,7 @@ public class StreamEncoderImpl implements StreamEncoder {
   private final int bitrate;
   private final int hlsSegmentSeconds;
   private final int hlsListSize;
+  private final M3U8PlaylistManager m3U8PlaylistManager;
   private Process ffmpeg;
   private volatile boolean active = true;
 
@@ -44,9 +44,11 @@ public class StreamEncoderImpl implements StreamEncoder {
   public StreamEncoderImpl(
     @Assisted("shipKey") String shipKey,
     @Assisted("audioFormat") AudioFormat format,
-    Environment env
+    Environment env,
+    M3U8PlaylistManager m3U8PlaylistManager
   ) {
     this.format = format;
+    this.m3U8PlaylistManager = m3U8PlaylistManager;
 
     bitrate = env.getShipBitrateHigh();
     hlsSegmentSeconds = env.getHlsSegmentSeconds();
@@ -59,7 +61,7 @@ public class StreamEncoderImpl implements StreamEncoder {
         final String oldName = currentThread.getName();
         currentThread.setName(THREAD_NAME);
         try {
-          int initialOffset = (int) (Math.floor((double) System.currentTimeMillis() / (MILLIS_PER_SECOND * hlsSegmentSeconds)));
+          int initialOffset = m3U8PlaylistManager.computeMediaSequence(System.currentTimeMillis());
           ProcessBuilder builder = new ProcessBuilder(List.of(
             "ffmpeg",
             "-v", env.getShipFFmpegVerbosity(),

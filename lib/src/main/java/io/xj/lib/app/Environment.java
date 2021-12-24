@@ -80,6 +80,7 @@ public class Environment {
   private final int fabricationReviveChainProductionGraceSeconds;
   private final int hlsListSize;
   private final int hlsSegmentSeconds;
+  private final int hlsStartPlaylistBehindSegments;
   private final int playbackExpireSeconds;
   private final int postgresPoolSizeMax;
   private final int postgresPort;
@@ -140,6 +141,7 @@ public class Environment {
     fabricationReviveChainProductionGraceSeconds = readInt(vars, "FABRICATION_REVIVE_CHAIN_PRODUCTION_GRACE_SECONDS", 15);
     hlsListSize = readInt(vars, "HLS_LIST_SIZE", 20);
     hlsSegmentSeconds = readInt(vars, "HLS_SEGMENT_SECONDS", 10);
+    hlsStartPlaylistBehindSegments = readInt(vars, "HLS_START_PLAYLIST_BEHIND_SEGMENTS", 5);
     hostname = readStr(vars, "HOSTNAME", "localhost");
     ingestTokenName = readStr(vars, "INGEST_TOKEN_NAME", "access_token");
     ingestTokenValue = readStr(vars, "INGEST_TOKEN_VALUE", EMPTY);
@@ -526,6 +528,13 @@ public class Environment {
    */
   public int getHlsSegmentSeconds() {
     return hlsSegmentSeconds;
+  }
+
+  /**
+   @return the # of segments before "now" which we should actually ship an .m3u8 beginning at
+   */
+  public int getHlsStartPlaylistBehindSegments() {
+    return hlsStartPlaylistBehindSegments;
   }
 
   /**
