@@ -55,12 +55,12 @@ public class Environment {
   private final String redisSessionNamespace;
   private final String shipBaseUrl;
   private final String shipBucket;
-  private final String shipFFmpegVerbosity;
   private final String shipChunkAudioEncoder;
+  private final String shipChunkContentType;
+  private final String shipFFmpegVerbosity;
   private final String shipKey;
   private final String shipM3u8ContentType;
   private final String shipMode;
-  private final String shipChunkContentType;
   private final String streamBaseURL;
   private final String streamBucket;
   private final String telemetryNamespace;
@@ -86,8 +86,8 @@ public class Environment {
   private final int redisPort;
   private final int segmentComputeTimeFramesPerBeat;
   private final int segmentComputeTimeResolutionHz;
-  private final int shipChunkPlaylistSize;
   private final int shipBitrateHigh;
+  private final int shipChunkPlaylistTargetSize;
   private final int shipChunkTargetDuration;
   private final int shipReloadSeconds;
   private final int shipSegmentLoadTimeoutSeconds;
@@ -134,8 +134,8 @@ public class Environment {
     audioFileBucket = readStr(vars, "AUDIO_FILE_BUCKET", "xj-dev-audio");
     audioUploadURL = readStr(vars, "AUDIO_UPLOAD_URL", "https://xj-dev-audio.s3.amazonaws.com/");
     chainStartInFutureSeconds = readInt(vars, "CHAIN_START_IN_FUTURE_SECONDS", 0);
-    fabricationPreviewLengthMaxHours = readInt(vars, "FABRICATION_PREVIEW_LENGTH_MAX_HOURS", 8);
     fabricationChainThresholdFabricatedBehindSeconds = readInt(vars, "FABRICATION_CHAIN_THRESHOLD_FABRICATED_BEHIND_SECONDS", 15);
+    fabricationPreviewLengthMaxHours = readInt(vars, "FABRICATION_PREVIEW_LENGTH_MAX_HOURS", 8);
     hlsSegmentSeconds = readInt(vars, "HLS_SEGMENT_SECONDS", 10);
     hlsStartPlaylistBehindSegments = readInt(vars, "HLS_START_PLAYLIST_BEHIND_SEGMENTS", 5);
     hostname = readStr(vars, "HOSTNAME", "localhost");
@@ -149,18 +149,18 @@ public class Environment {
     playerBaseURL = readStr(vars, "PLAYER_BASE_URL", "http://localhost/");
     segmentComputeTimeFramesPerBeat = readInt(vars, "SEGMENT_COMPUTE_TIME_FRAMES_PER_BEAT", 64);
     segmentComputeTimeResolutionHz = readInt(vars, "SEGMENT_COMPUTE_TIME_RESOLUTION_HZ", 1000000);
-    shipChunkPlaylistSize = readInt(vars, "SHIP_AHEAD_CHUNKS", 6);
     shipBaseUrl = readStr(vars, "SHIP_BASE_URL", "https://ship.dev.xj.io/");
     shipBitrateHigh = readInt(vars, "SHIP_BITRATE_HIGH", 128000);
     shipBucket = readStr(vars, "SHIP_BUCKET", "xj-dev-ship");
-    shipChunkAudioEncoder = readStr(vars, "SHIP_FFMPEG_AUDIO_COMPRESSOR", "aac");
+    shipChunkAudioEncoder = readStr(vars, "SHIP_CHUNK_AUDIO_ENCODER", "aac");
+    shipChunkContentType = readStr(vars, "SHIP_CHUNK_CONTENT_TYPE", "audio/aac");
+    shipChunkPlaylistTargetSize = readInt(vars, "SHIP_CHUNK_PLAYLIST_TARGET_SIZE", 10);
+    shipChunkTargetDuration = readInt(vars, "SHIP_CHUNK_TARGET_DURATION", 10);
     shipFFmpegVerbosity = readStr(vars, "SHIP_FFMPEG_VERBOSITY", "info");
     shipKey = readStr(vars, "SHIP_KEY", EMPTY);
     shipM3u8ContentType = readStr(vars, "SHIP_M3U8_CONTENT_TYPE", "application/x-mpegURL");
-    shipChunkTargetDuration = readInt(vars, "SHIP_MIX_CHUNK_SECONDS", 10);
     shipMode = readStr(vars, "SHIP_MODE", "hls");
     shipReloadSeconds = readInt(vars, "SHIP_RELOAD_SECONDS", 15);
-    shipChunkContentType = readStr(vars, "SHIP_TS_CONTENT_TYPE", "audio/aac");
     shipSegmentLoadTimeoutSeconds = readInt(vars, "SHIP_SEGMENT_LOAD_TIMEOUT_SECONDS", 5);
     streamBaseURL = readStr(vars, "STREAM_BASE_URL", "https://stream.dev.xj.io/");
     streamBucket = readStr(vars, "STREAM_BUCKET", "xj-dev-stream");
@@ -678,8 +678,8 @@ public class Environment {
   /**
    @return the number of chunks to keep in the playlist
    */
-  public int getShipChunkPlaylistSize() {
-    return shipChunkPlaylistSize;
+  public int getShipChunkPlaylistTargetSize() {
+    return shipChunkPlaylistTargetSize;
   }
 
   /**

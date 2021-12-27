@@ -96,7 +96,7 @@ public class ShipWorkImpl implements ShipWork {
     mixCycleSeconds = env.getWorkMixCycleSeconds();
     publishCycleSeconds = env.getWorkPublishCycleSeconds();
     chunkTargetDuration = env.getShipChunkTargetDuration();
-    shipAheadMillis = env.getShipChunkPlaylistSize() * chunkTargetDuration * MILLIS_PER_SECOND;
+    shipAheadMillis = env.getShipChunkPlaylistTargetSize() * chunkTargetDuration * MILLIS_PER_SECOND;
 
     audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
       48000,

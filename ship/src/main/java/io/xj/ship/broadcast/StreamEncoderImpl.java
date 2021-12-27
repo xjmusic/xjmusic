@@ -64,7 +64,7 @@ public class StreamEncoderImpl implements StreamEncoder {
     bitrate = env.getShipBitrateHigh();
     bucket = env.getStreamBucket();
     contentTypeSegment = env.getShipChunkContentType();
-    hlsListSize = env.getShipChunkPlaylistSize();
+    hlsListSize = env.getShipChunkPlaylistTargetSize();
     hlsSegmentSeconds = env.getHlsSegmentSeconds();
     tempFilePathPrefix = env.getTempFilePathPrefix();
 
