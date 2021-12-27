@@ -40,7 +40,7 @@ public class PlaylistManagerImplTest {
   public void get() {
     var item = broadcast.chunk("coolair", 164030295L, "mp3", null);
 
-    subject.put(item);
+    subject.putNext(item);
     assertSame(item, subject.get(164030295).orElseThrow());
   }
 
@@ -51,15 +51,15 @@ public class PlaylistManagerImplTest {
   public void put() {
     var item = broadcast.chunk("coolair", 164030295L, "mp3", null);
 
-    assertTrue(subject.put(item));
-    assertFalse(subject.put(item));
+    assertTrue(subject.putNext(item));
+    assertFalse(subject.putNext(item));
   }
 
   @Test
   public void collectGarbageBefore() {
     var item = broadcast.chunk("coolair", 164030295L, "mp3", null);
 
-    subject.put(item);
+    subject.putNext(item);
     subject.collectGarbageBefore(164030296);
     assertFalse(subject.get(164030295).isPresent());
   }
@@ -75,6 +75,9 @@ public class PlaylistManagerImplTest {
 
     var added = subject.parseAndLoadItems(reference_m3u8);
     assertEquals(20, added.size());
+
+    var reAdded = subject.parseAndLoadItems(reference_m3u8);
+    assertEquals(0, reAdded.size());
 
     assertEquals(reference_m3u8, subject.getPlaylistContent(164029638));
   }

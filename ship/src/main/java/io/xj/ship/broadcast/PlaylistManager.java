@@ -19,12 +19,13 @@ public interface PlaylistManager {
   Optional<Chunk> get(long mediaSequence);
 
   /**
-   Store a m3u8 playlist item, only if it is after the threshold
+   Store a m3u8 playlist item, only if it is after the threshold,
+   and only if it has a sequence number of exactly the largest known sequence number + 1
 
    @param m3U8Playlist to put
    @return true if this is a new media sequence number (playlist item not yet seen)
    */
-  boolean put(Chunk m3U8Playlist);
+  boolean putNext(Chunk m3U8Playlist);
 
   /**
    Delete playlist items with media sequence numbers before the threshold

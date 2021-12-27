@@ -78,7 +78,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     try {
       var mediaSequence = playlistManager.computeMediaSequence(System.currentTimeMillis()) - hlsStartPlaylistBehindSegments;
       fileStore.putS3ObjectFromString(playlistManager.getPlaylistContent(mediaSequence), bucket, m3u8Key, contentTypeM3U8);
-      LOG.info("Did stream {}/{} ({}) @ media sequence {}", bucket, m3u8Key, contentTypeM3U8, mediaSequence);
+      LOG.info("Shipped {}/{} ({}) @ media sequence {}", bucket, m3u8Key, contentTypeM3U8, mediaSequence);
 
     } catch (FileStoreException e) {
       throw new ShipException("Failed ot publish playlist!", e);

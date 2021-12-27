@@ -14,6 +14,7 @@ import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -33,6 +34,7 @@ public class PlaylistManagerImpl implements PlaylistManager {
   private final Pattern rgxFilename = Pattern.compile("([A-Za-z0-9]*)-([0-9]*)\\.([A-Za-z0-9]*)");
   private final Pattern rgxSecondsValue = Pattern.compile("#EXTINF:([0-9.]*)");
   private final DecimalFormat df;
+  private final AtomicLong maxSequenceNumber = new AtomicLong(0);
 
   @Inject
   public PlaylistManagerImpl(
@@ -58,9 +60,10 @@ public class PlaylistManagerImpl implements PlaylistManager {
   }
 
   @Override
-  public boolean put(Chunk item) {
-    if (items.containsKey(item.getSequenceNumber())) return false;
+  public boolean putNext(Chunk item) {
+    if (0 < maxSequenceNumber.get() && item.getSequenceNumber() != maxSequenceNumber.get() + 1) return false;
     items.put(item.getSequenceNumber(), item);
+    maxSequenceNumber.set(items.keySet().stream().max(Long::compare).get());
     return true;
   }
 
@@ -131,7 +134,8 @@ public class PlaylistManagerImpl implements PlaylistManager {
         ext = mF.group(3);
 
         item = broadcast.chunk(shipKey, seqNum, ext, actualDuration);
-        if (put(item)) added.add(item);
+
+        if (putNext(item)) added.add(item);
       }
 
     return added;

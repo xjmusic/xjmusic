@@ -55,7 +55,6 @@ public class Environment {
   private final String redisSessionNamespace;
   private final String shipBaseUrl;
   private final String shipBucket;
-  private final String shipChunkFilenameExtension;
   private final String shipFFmpegVerbosity;
   private final String shipChunkAudioEncoder;
   private final String shipKey;
@@ -154,15 +153,14 @@ public class Environment {
     shipBaseUrl = readStr(vars, "SHIP_BASE_URL", "https://ship.dev.xj.io/");
     shipBitrateHigh = readInt(vars, "SHIP_BITRATE_HIGH", 128000);
     shipBucket = readStr(vars, "SHIP_BUCKET", "xj-dev-ship");
-    shipChunkAudioEncoder = readStr(vars, "SHIP_FFMPEG_AUDIO_COMPRESSOR", "mp3");
+    shipChunkAudioEncoder = readStr(vars, "SHIP_FFMPEG_AUDIO_COMPRESSOR", "aac");
     shipFFmpegVerbosity = readStr(vars, "SHIP_FFMPEG_VERBOSITY", "info");
     shipKey = readStr(vars, "SHIP_KEY", EMPTY);
     shipM3u8ContentType = readStr(vars, "SHIP_M3U8_CONTENT_TYPE", "application/x-mpegURL");
     shipChunkTargetDuration = readInt(vars, "SHIP_MIX_CHUNK_SECONDS", 10);
     shipMode = readStr(vars, "SHIP_MODE", "hls");
     shipReloadSeconds = readInt(vars, "SHIP_RELOAD_SECONDS", 15);
-    shipChunkContentType = readStr(vars, "SHIP_TS_CONTENT_TYPE", "audio/mpeg");
-    shipChunkFilenameExtension = readStr(vars, "SHIP_SEGMENT_FILENAME_EXTENSION", "mp3");
+    shipChunkContentType = readStr(vars, "SHIP_TS_CONTENT_TYPE", "audio/aac");
     shipSegmentLoadTimeoutSeconds = readInt(vars, "SHIP_SEGMENT_LOAD_TIMEOUT_SECONDS", 5);
     streamBaseURL = readStr(vars, "STREAM_BASE_URL", "https://stream.dev.xj.io/");
     streamBucket = readStr(vars, "STREAM_BUCKET", "xj-dev-stream");
