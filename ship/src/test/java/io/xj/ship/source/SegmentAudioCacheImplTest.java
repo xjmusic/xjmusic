@@ -9,8 +9,12 @@ import io.xj.api.*;
 import io.xj.hub.enums.TemplateType;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.mixer.InternalResource;
 import io.xj.ship.ShipException;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,14 +38,21 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SegmentAudioCacheImplTest {
+  @Mock(lenient = true)
+  public HttpClientProvider httpClientProvider;
+  @Mock(lenient = true)
+  public CloseableHttpClient httpClient;
+  @Mock(lenient = true)
+  public CloseableHttpResponse httpResponse;
+  @Mock(lenient = true)
+  public HttpEntity httpResponseEntity;
   private Segment segment1;
   private SegmentAudioCache subject;
-
   @Mock
   private FileStoreProvider fileStoreProvider;
 
   @Before
-  public void setUp() {
+  public void setUp() throws IOException {
     var account1 = buildAccount("Test");
     var template1 = buildTemplate(account1, TemplateType.Production, "Test 123", "test123");
     Chain chain1 = buildChain(
@@ -69,14 +80,20 @@ public class SegmentAudioCacheImplTest {
       @Override
       protected void configure() {
         bind(FileStoreProvider.class).toInstance(fileStoreProvider);
+        bind(HttpClientProvider.class).toInstance(httpClientProvider);
       }
     }));
+
+    when(httpClientProvider.getClient()).thenReturn(httpClient);
+    when(httpClient.execute(any())).thenReturn(httpResponse);
+    when(httpResponse.getEntity()).thenReturn(httpResponseEntity);
+
     subject = injector.getInstance(SegmentAudioCache.class);
   }
 
   @Test
-  public void getAbsolutePathToUncompressedAudio() throws FileStoreException, ShipException, IOException, InterruptedException {
-    when(fileStoreProvider.streamS3Object(any(), any()))
+  public void downloadAndDecompress() throws FileStoreException, ShipException, IOException, InterruptedException {
+    when(httpResponseEntity.getContent())
       .thenAnswer((Answer<InputStream>) invocation -> new FileInputStream(Objects.requireNonNull(
         new InternalResource("ogg_decoding/coolair-1633586832900943.ogg").getFile())));
 

@@ -11,7 +11,6 @@ import io.xj.api.*;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.TemplateType;
 import io.xj.lib.app.Environment;
-import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.MessageType;
 import io.xj.lib.notification.NotificationProvider;
@@ -47,11 +46,6 @@ public class ChainManagerImpl extends ManagerImpl<Chain> implements ChainManager
   private static final Logger LOG = LoggerFactory.getLogger(ChainManagerImpl.class);
   private static final Set<ChainState> NOTIFY_ON_CHAIN_STATES = ImmutableSet.of(
     ChainState.FABRICATE,
-    ChainState.FAILED
-  );
-  private static final Set<ChainState> REVIVE_FROM_STATES_ALLOWED = ImmutableSet.of(
-    ChainState.FABRICATE,
-    ChainState.COMPLETE,
     ChainState.FAILED
   );
   private final SegmentManager segmentManager;
@@ -317,49 +311,6 @@ public class ChainManagerImpl extends ManagerImpl<Chain> implements ChainManager
 
     } catch (NexusException e) {
       throw new ManagerFatalException(e);
-    }
-  }
-
-  @Override
-  public Chain revive(UUID priorChainId, String reason) throws ManagerFatalException, ManagerPrivilegeException, ManagerExistenceException, ManagerValidationException {
-    try {
-      Chain prior = readOne(priorChainId);
-
-      if (!REVIVE_FROM_STATES_ALLOWED.contains(prior.getState()))
-        throw new ManagerPrivilegeException(String.format("Can't revive a Chain unless it's in %s state",
-          CSV.prettyFrom(REVIVE_FROM_STATES_ALLOWED, "or")));
-
-      // save the ship key to re-use on new chain
-      String shipKey = prior.getShipKey();
-
-      // update the prior chain to failed state and null ship key
-      prior.setState(ChainState.FAILED);
-      prior.setShipKey(null);
-      update(priorChainId, prior);
-
-      // of new chain with original properties (implicitly created in draft state)
-      var cloned = entityFactory.clone(prior);
-      cloned.setId(UUID.randomUUID()); // new id
-      cloned.setShipKey(shipKey);
-      // [#170273871] Revived chain should always start now
-      cloned.startAt(Values.formatIso8601UTC(Instant.now().plusSeconds(chainStartInFutureSeconds)));
-      // [#177191499] When chain is revived, reset its fabricatedAheadSeconds value
-      cloned.fabricatedAheadSeconds(0.0);
-      Chain created = create(cloned);
-
-      // update new chain into ready, then fabricate, which begins the new work
-      updateState(created.getId(), ChainState.READY);
-      updateState(created.getId(), ChainState.FABRICATE);
-      created.setState(ChainState.FABRICATE);
-
-      // publish a notification reporting the event
-      LOG.info("Revived Chain created {} from revived {} because {}", Chains.getIdentifier(created), created.getId(), reason);
-      pubSub.publish(String.format("Revived Chain created %s create from revived %s because %s", Chains.getIdentifier(created), created.getId(), reason), MessageType.Info.toString());
-
-      // return newly created chain
-      return created;
-    } catch (EntityException e) {
-      throw new ManagerFatalException("Failed to clone prior chain", e);
     }
   }
 

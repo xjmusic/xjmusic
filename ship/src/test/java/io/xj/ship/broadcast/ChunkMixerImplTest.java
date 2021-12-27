@@ -13,11 +13,7 @@ import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.mixer.InternalResource;
-import io.xj.lib.util.ValueException;
 import io.xj.nexus.persistence.ChainManager;
-import io.xj.nexus.persistence.ManagerExistenceException;
-import io.xj.nexus.persistence.ManagerFatalException;
-import io.xj.nexus.persistence.ManagerPrivilegeException;
 import io.xj.ship.source.SegmentAudio;
 import io.xj.ship.source.SegmentAudioManager;
 import io.xj.ship.source.SourceFactory;
@@ -47,7 +43,6 @@ public class ChunkMixerImplTest {
   private Collection<SegmentAudio> segmentAudios;
   private Segment segment2;
   private SourceFactory source;
-  private Chunk chunk;
   private ChunkMixer subject;
 
   @Mock
@@ -60,7 +55,7 @@ public class ChunkMixerImplTest {
   private SegmentAudioManager segmentAudioManager;
 
   @Before
-  public void setUp() throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException {
+  public void setUp() {
     Environment env = Environment.from(ImmutableMap.of("SHIP_KEY", "coolair"));
     Account account1 = buildAccount("Testing");
     Template template1 = buildTemplate(account1, "fonds", "ABC");
@@ -104,10 +99,7 @@ public class ChunkMixerImplTest {
     source = injector.getInstance(SourceFactory.class);
     BroadcastFactory broadcast = injector.getInstance(BroadcastFactory.class);
 
-    when(chainManager.readOneByShipKey(eq(SHIP_KEY)))
-      .thenReturn(buildChain(buildTemplate(buildAccount("Testing"), "Testing")));
-
-    chunk = broadcast.chunk(SHIP_KEY, 1513040420);
+    Chunk chunk = broadcast.chunk(SHIP_KEY, 151304042L, "mp3", null);
 
     segmentAudios = Lists.newArrayList();
 
@@ -117,7 +109,7 @@ public class ChunkMixerImplTest {
       eq(chunk.getToInstant())))
       .thenReturn(segmentAudios);
 
-    subject = broadcast.mixer(chunk.getShipKey(), format);
+    subject = broadcast.mixer(chunk, format);
   }
 
   @Test
@@ -125,14 +117,14 @@ public class ChunkMixerImplTest {
     String sourcePath = new InternalResource("ogg_decoding/coolair-1633586832900943.wav").getFile().getAbsolutePath();
     segmentAudios.add(source.segmentAudio(SHIP_KEY, segment2, sourcePath));
 
-    subject.mix(chunk);
+    subject.mix();
 
     // FUTURE assertFileMatchesResourceFile("chunk_reference_outputs/test5-151304042.wav", subject.getWavFilePath());
   }
 
   @Test
   public void run_nothingFromNothing() throws Exception {
-    subject.mix(chunk);
+    subject.mix();
 
     // FUTURE verify(chunkManager, never()).put(any());
   }

@@ -16,8 +16,9 @@ import java.io.IOException;
 import static io.xj.lib.util.Files.getResourceFileContent;
 import static org.junit.Assert.*;
 
-public class M3U8PlaylistManagerImplTest {
-  M3U8PlaylistManager subject;
+public class PlaylistManagerImplTest {
+  private PlaylistManager subject;
+  private BroadcastFactory broadcast;
 
   @Before
   public void setUp() {
@@ -30,12 +31,14 @@ public class M3U8PlaylistManagerImplTest {
       }
     }));
 
-    subject = injector.getInstance(M3U8PlaylistManager.class);
+    broadcast = injector.getInstance(BroadcastFactory.class);
+
+    subject = injector.getInstance(PlaylistManager.class);
   }
 
   @Test
   public void get() {
-    var item = new M3U8PlaylistItem(164030295, 10.0, "coolair-164030295.mp3");
+    var item = broadcast.chunk("coolair", 164030295L, "mp3", null);
 
     subject.put(item);
     assertSame(item, subject.get(164030295).orElseThrow());
@@ -46,7 +49,7 @@ public class M3U8PlaylistManagerImplTest {
    */
   @Test
   public void put() {
-    var item = new M3U8PlaylistItem(164030295, 10.0, "coolair-164030295.mp3");
+    var item = broadcast.chunk("coolair", 164030295L, "mp3", null);
 
     assertTrue(subject.put(item));
     assertFalse(subject.put(item));
@@ -54,7 +57,7 @@ public class M3U8PlaylistManagerImplTest {
 
   @Test
   public void collectGarbageBefore() {
-    var item = new M3U8PlaylistItem(164030295, 10.0, "coolair-164030295.mp3");
+    var item = broadcast.chunk("coolair", 164030295L, "mp3", null);
 
     subject.put(item);
     subject.collectGarbageBefore(164030296);

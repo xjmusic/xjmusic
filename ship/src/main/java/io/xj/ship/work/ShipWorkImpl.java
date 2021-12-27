@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.lib.telemetry.MultiStopwatch.MILLIS_PER_SECOND;
+import static io.xj.lib.util.Values.MILLIS_PER_SECOND;
 
 /**
  Ship Work Service Implementation
@@ -42,7 +42,7 @@ public class ShipWorkImpl implements ShipWork {
   private final BroadcastFactory broadcast;
   private final Janitor janitor;
   private final NotificationProvider notification;
-  private final StreamPublisher publisher;
+  private final PlaylistPublisher publisher;
   private final SourceFactory sources;
   private final boolean janitorEnabled;
   private final int cycleMillis;
@@ -54,11 +54,10 @@ public class ShipWorkImpl implements ShipWork {
   @Nullable
   private final String shipKey;
   private final ChainManager chains;
-  private final int shipChunkSeconds;
+  private final int chunkTargetDuration;
   private final long shipAheadMillis;
   private final StreamPlayer player;
-  private final ChunkMixer mixer;
-  private final AudioFormat format;
+  private final AudioFormat audioFormat;
   private StreamEncoder stream;
   private boolean active = true;
   private long nextCycleMillis = 0;
@@ -96,11 +95,10 @@ public class ShipWorkImpl implements ShipWork {
     loadCycleSeconds = env.getShipReloadSeconds();
     mixCycleSeconds = env.getWorkMixCycleSeconds();
     publishCycleSeconds = env.getWorkPublishCycleSeconds();
-    int shipAheadChunks = env.getShipAheadChunks();
-    shipChunkSeconds = env.getShipMixChunkSeconds();
-    shipAheadMillis = shipAheadChunks * shipChunkSeconds * MILLIS_PER_SECOND;
+    chunkTargetDuration = env.getShipChunkTargetDuration();
+    shipAheadMillis = env.getShipChunkPlaylistSize() * chunkTargetDuration * MILLIS_PER_SECOND;
 
-    format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
+    audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
       48000,
       32,
       2,
@@ -108,8 +106,7 @@ public class ShipWorkImpl implements ShipWork {
       48000,
       false);
 
-    mixer = broadcast.mixer(shipKey, format);
-    player = broadcast.player(format);
+    player = broadcast.player(audioFormat);
     publisher = broadcast.publisher(shipKey);
 
     // This value will advance each time we compute more chunks
@@ -179,11 +176,12 @@ public class ShipWorkImpl implements ShipWork {
     nextPrintMillis = nowMillis + mixCycleSeconds * MILLIS_PER_SECOND;
     for (var chunk : computeNextChunks(nowMillis)) {
 
-      // Use the first chunk to initialize the stream
+      // Use the first chunk to initialize the stream-- this is how we keep ffmpeg in sync with our chunk scheme
       if (Objects.isNull(stream))
-        stream = broadcast.encoder(shipKey, format, chunk);
+        stream = broadcast.encoder(shipKey, audioFormat);
 
-      player.append(stream.append(mixer.mix(chunk)));
+      // pass the mixed bytes through the various potential output busses
+      player.append(stream.append(broadcast.mixer(chunk, audioFormat).mix()));
     }
   }
 
@@ -217,10 +215,12 @@ public class ShipWorkImpl implements ShipWork {
 
    @param nowMillis current
    */
-  private void doPublishCycle(long nowMillis) {
+  private void doPublishCycle(long nowMillis) throws ShipException {
     if (nowMillis < nextPublishMillis) return;
     nextPublishMillis = nowMillis + (publishCycleSeconds * MILLIS_PER_SECOND);
     publisher.publish(nowMillis);
+    if (Objects.nonNull(stream))
+      stream.publish(nowMillis);
   }
 
 
@@ -234,9 +234,9 @@ public class ShipWorkImpl implements ShipWork {
     if (!chains.existsForShipKey(shipKey)) return List.of();
     var computeToSecondsUTC = computeChunkSecondsUTC(nowMillis + shipAheadMillis);
     if (doneUpToSecondsUTC == computeToSecondsUTC) return List.of();
-    var chunks = Stream.iterate(doneUpToSecondsUTC, n -> n + shipChunkSeconds)
-      .limit((computeToSecondsUTC - doneUpToSecondsUTC) / shipChunkSeconds)
-      .map(n -> broadcast.chunk(shipKey, n))
+    var chunks = Stream.iterate(doneUpToSecondsUTC, n -> n + chunkTargetDuration)
+      .limit((computeToSecondsUTC - doneUpToSecondsUTC) / chunkTargetDuration)
+      .map(fromSecondsUTC -> broadcast.chunk(shipKey, fromSecondsUTC / chunkTargetDuration, null, null))
       .collect(Collectors.toList());
     doneUpToSecondsUTC = computeToSecondsUTC;
     return chunks;
@@ -249,7 +249,7 @@ public class ShipWorkImpl implements ShipWork {
    @return seconds UTC
    */
   public long computeChunkSecondsUTC(long nowMillis) {
-    return (long) (Math.floor((double) (nowMillis / MILLIS_PER_SECOND) / shipChunkSeconds) * shipChunkSeconds);
+    return (long) (Math.floor((double) (nowMillis / MILLIS_PER_SECOND) / chunkTargetDuration) * chunkTargetDuration);
   }
 
   /**

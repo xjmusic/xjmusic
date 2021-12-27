@@ -68,7 +68,7 @@ public class TemplateConfig {
       transitionLayerMax = 3
       transitionLayerMin = 0
       """;
-
+  private static final int BITS_PER_BYTE = 8;
   private final AudioFormat.Encoding outputEncoding;
   private final String deltaArcRhythmLayersToPrioritize;
   private final String metaSource;
@@ -511,6 +511,13 @@ public class TemplateConfig {
    */
   public int getOutputFrameRate() {
     return outputFrameRate;
+  }
+
+  /**
+   @return the output frame size (bytes per frame including all channels)
+   */
+  public int getOutputFrameSize() {
+    return outputSampleBits * outputChannels / BITS_PER_BYTE;
   }
 
   /**

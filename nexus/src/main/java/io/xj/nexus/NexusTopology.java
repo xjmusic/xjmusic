@@ -26,7 +26,7 @@ public enum NexusTopology {
       .withAttribute("state")
       .withAttribute("startAt")
       .withAttribute("stopAt")
-      .withAttribute("fabricatedAheadSeconds")
+      .withAttribute("fabricatedAheadAt")
       .belongsTo(Account.class)
       .belongsTo(Template.class);
 

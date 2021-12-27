@@ -10,11 +10,20 @@ import io.xj.ship.ShipException;
 public interface StreamEncoder {
 
   /**
-   Publish a media segment to the output
+   Append audio to the encoder process
 
    @param samples of audio to append
+   @throws ShipException on failure
    */
   double[][] append(double[][] samples) throws ShipException;
+
+  /**
+   Publish any new generated media segments
+
+   @throws ShipException on failure
+   @param atMillis
+   */
+  void publish(long atMillis) throws ShipException;
 
   /**
    Close the encoder and release resources

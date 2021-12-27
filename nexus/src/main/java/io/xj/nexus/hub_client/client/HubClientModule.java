@@ -3,6 +3,7 @@
 package io.xj.nexus.hub_client.client;
 
 import com.google.inject.AbstractModule;
+import io.xj.lib.http.HttpClientModule;
 import io.xj.lib.jsonapi.JsonapiModule;
 
 /**
@@ -12,6 +13,7 @@ public class HubClientModule extends AbstractModule {
   @Override
   protected void configure() {
     install(new JsonapiModule());
+    install(new HttpClientModule());
     bind(HubClient.class).to(HubClientImpl.class);
   }
 }

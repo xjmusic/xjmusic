@@ -24,7 +24,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Instant;
 import java.util.Collection;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -721,103 +720,6 @@ public class ChainManagerImplTest {
     assertEquals(ChainState.COMPLETE, result.getState());
   }
 
-  /**
-   [#160299309] Engineer wants a *revived* action for a live production chain, in case the chain has become stuck, in order to ensure the Chain remains in an operable state.
-   [#170273871] Revived chain should always start now
-   */
-  @Test
-  public void revive() throws Exception {
-    var account2 = buildAccount();
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1, account2), "User,Admin,Artist,Engineer");
-
-    var chain = test.put(buildChain(account1, "school", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
-
-    var result = subject.revive(chain.getId(), "Testing");
-
-    assertNotNull(result);
-    assertTrue(1000 > Instant.now().toEpochMilli() - Instant.parse(result.getStartAt()).toEpochMilli()); // [#170273871] Revived chain should always start now
-    assertEquals("school", result.getName());
-    assertEquals("jabberwocky", result.getShipKey());
-    assertEquals(account1.getId(), result.getAccountId());
-    assertEquals(ChainState.FABRICATE, result.getState());
-    assertEquals(ChainType.PRODUCTION, result.getType());
-
-    var priorChain = subject.readOne(chain.getId());
-    assertNotNull(priorChain);
-    assertEquals(ChainState.FAILED, priorChain.getState());
-    assertNull(priorChain.getShipKey());
-//  FUTURE assert for real message sent about work  org.junit.Assert.assertEquals(1, injector.getInstance(PlatformMessageService.class).readManyPreviousDays(HubClientAccess.internal(), 1).size());
-  }
-
-  /**
-   [#160299309] Engineer wants a *revived* action, require existing to be revived, throws error if not found.
-   */
-  @Test
-  public void revive_failsIfNotExistPriorChain() {
-
-    Exception thrown = assertThrows(ManagerExistenceException.class, () ->
-      subject.revive(UUID.randomUUID(), "Testing"));
-
-    assertTrue(thrown.getMessage().contains("does not exist"));
-  }
-
-  /**
-   [#160299309] Engineer wants a *revived* action
-   [#174898524] Artist can revive a Chain of any type
-   */
-  @Test
-  public void revive_okOfAnyType() throws Exception {
-    var chain = test.put(buildChain(account1, "school", ChainType.PREVIEW, ChainState.FAILED, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
-
-    subject.revive(chain.getId(), "Testing");
-  }
-
-  /**
-   [#160299309] Engineer wants a *revived* action
-   [#175137186] Artist can only revive Chain in fabricate, failed, or completed state
-   */
-  @Test
-  public void revive_failsInDraftState() throws Exception {
-    var chain = test.put(buildChain(account1, "school", ChainType.PREVIEW, ChainState.DRAFT, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
-
-    Exception thrown = assertThrows(ManagerPrivilegeException.class, () ->
-      subject.revive(chain.getId(), "Testing"));
-
-    assertEquals("Can't revive a Chain unless it's in Fabricate, Complete, or Failed state", thrown.getMessage());
-  }
-
-  /**
-   [#160299309] Engineer wants a *revived* action
-   [#175137186] Artist can only revive Chain in fabricate, failed, or completed state
-   */
-  @Test
-  public void revive_failsInReadyState() throws Exception {
-    var chain = test.put(buildChain(account1, "school", ChainType.PREVIEW, ChainState.READY, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
-
-    Exception thrown = assertThrows(ManagerPrivilegeException.class, () ->
-      subject.revive(chain.getId(), "Testing"));
-
-    assertEquals("Can't revive a Chain unless it's in Fabricate, Complete, or Failed state", thrown.getMessage());
-  }
-
-  /**
-   [#160299309] Engineer wants a *revived* action, require engineer access or top level
-   */
-  @Test
-  public void revive_okayWithEngineerAccess() throws Exception {
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "Engineer");
-    var chain = test.put(buildChain(account1, "school", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
-
-    var result = subject.revive(chain.getId(), "Testing");
-
-    assertNotNull(result);
-    assertEquals("school", result.getName());
-    assertEquals("jabberwocky", result.getShipKey());
-    assertEquals(account1.getId(), result.getAccountId());
-    assertEquals(ChainState.FABRICATE, result.getState());
-    assertEquals(ChainType.PRODUCTION, result.getType());
-  }
-
   @Test
   public void buildNextSegmentOrComplete_chainWithSegmentsReadyForNextSegment() throws Exception {
     HubClientAccess access = buildHubClientAccess("Internal");
@@ -982,7 +884,6 @@ public class ChainManagerImplTest {
 
   @Test
   public void destroy() throws Exception {
-
     subject.destroy(chain1.getId());
 
     try {

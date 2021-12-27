@@ -5,7 +5,6 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.google.inject.Inject;
@@ -15,7 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
@@ -101,39 +99,6 @@ class FileStoreProviderImpl implements FileStoreProvider {
   }
 
   @Override
-  public InputStream streamS3Object(String bucketName, String key) throws FileStoreException {
-    AmazonS3 client = s3Client();
-    GetObjectRequest request = new GetObjectRequest(bucketName, key);
-    int count = 0;
-    while (true) {
-      try {
-        return client.getObject(request).getObjectContent();
-
-      } catch (Exception e) {
-        ++count;
-        if (count == awsS3RetryLimit)
-          throw new FileStoreException("Failed to stream S3 object", e);
-      }
-    }
-  }
-
-  @Override
-  public Boolean doesS3ObjectExist(String bucketName, String key) throws FileStoreException {
-    AmazonS3 client = s3Client();
-    int count = 0;
-    while (true) {
-      try {
-        return client.doesObjectExist(bucketName, key);
-
-      } catch (Exception e) {
-        ++count;
-        if (count == awsS3RetryLimit)
-          throw new FileStoreException("Failed to stream S3 object", e);
-      }
-    }
-  }
-
-  @Override
   public void putS3ObjectFromTempFile(String filePath, String bucket, String key, String contentType) throws FileStoreException {
     try {
       long startedAt = System.nanoTime();
@@ -162,26 +127,6 @@ class FileStoreProviderImpl implements FileStoreProvider {
 
     } catch (Exception e) {
       throw new FileStoreException("Failed to put S3 object", e);
-    }
-  }
-
-  @Override
-  public void deleteS3Object(String bucket, String key) throws FileStoreException {
-    try {
-      s3Client().deleteObject(bucket, key);
-
-    } catch (Exception e) {
-      throw new FileStoreException("Failed to delete S3 object", e);
-    }
-  }
-
-  @Override
-  public void copyS3Object(String sourceBucket, String sourceKey, String targetBucket, String targetKey) throws FileStoreException {
-    try {
-      s3Client().copyObject(sourceBucket, sourceKey, targetBucket, targetKey);
-
-    } catch (Exception e) {
-      throw new FileStoreException("Failed to revived S3 object", e);
     }
   }
 

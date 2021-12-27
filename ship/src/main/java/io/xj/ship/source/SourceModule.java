@@ -6,6 +6,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import io.xj.lib.entity.EntityModule;
 import io.xj.lib.filestore.FileStoreModule;
+import io.xj.lib.http.HttpClientModule;
 import io.xj.lib.json.JsonModule;
 import io.xj.lib.jsonapi.JsonapiModule;
 import io.xj.lib.notification.NotificationModule;
@@ -24,6 +25,7 @@ public class SourceModule extends AbstractModule {
       .implement(SegmentAudio.class, SegmentAudio.class)
       .implement(SegmentLoader.class, SegmentLoaderImpl.class)
       .build(SourceFactory.class));
+    install(new HttpClientModule());
     install(new JsonModule());
     install(new JsonapiModule());
     install(new EntityModule());

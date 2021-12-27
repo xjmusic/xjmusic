@@ -20,6 +20,12 @@ public interface Values {
   String EMPTY = "";
   double MICROS_PER_SECOND = 1000000.0F;
   double NANOS_PER_SECOND = 1000.0F * MICROS_PER_SECOND;
+  long SECONDS_PER_MINUTE = 60;
+  long MINUTES_PER_HOUR = 60;
+  long SECONDS_PER_HOUR = SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
+  long HOURS_PER_DAY = 24;
+  long SECONDS_PER_DAY = SECONDS_PER_HOUR * HOURS_PER_DAY;
+  long MILLIS_PER_SECOND = 1000;
 
   /**
    Return the first value if it's non-null, else the second
@@ -422,5 +428,15 @@ public interface Values {
   static Optional<UUID> getKeyOfHighestValue(Map<UUID, Integer> map) {
     var max = map.entrySet().stream().max(Map.Entry.comparingByValue());
     return max.map(Map.Entry::getKey);
+  }
+
+  /**
+   Compute the relative (to now) seconds of an instant
+
+   @param at to which we'll compute
+   @return seconds from now until instant (negative if instant is in the past)
+   */
+  static float computeRelativeSeconds(Instant at) {
+    return (float) (at.toEpochMilli() - Instant.now().toEpochMilli()) / MILLIS_PER_SECOND;
   }
 }

@@ -8,7 +8,7 @@ import java.util.Optional;
 /**
  Ship broadcast via HTTP Live Streaming #179453189
  */
-public interface M3U8PlaylistManager {
+public interface PlaylistManager {
 
   /**
    Get the m3u8 playlist item for a given media sequence number
@@ -16,7 +16,7 @@ public interface M3U8PlaylistManager {
    @param mediaSequence number for which to get playlist item
    @return playlist item if found
    */
-  Optional<M3U8PlaylistItem> get(long mediaSequence);
+  Optional<Chunk> get(long mediaSequence);
 
   /**
    Store a m3u8 playlist item, only if it is after the threshold
@@ -24,7 +24,7 @@ public interface M3U8PlaylistManager {
    @param m3U8Playlist to put
    @return true if this is a new media sequence number (playlist item not yet seen)
    */
-  boolean put(M3U8PlaylistItem m3U8Playlist);
+  boolean put(Chunk m3U8Playlist);
 
   /**
    Delete playlist items with media sequence numbers before the threshold
@@ -55,5 +55,5 @@ public interface M3U8PlaylistManager {
    @param m3u8Content to parse and load
    @return list of playlist items that were not previously in the store
    */
-  List<M3U8PlaylistItem> parseAndLoadItems(String m3u8Content);
+  List<Chunk> parseAndLoadItems(String m3u8Content);
 }

@@ -3,6 +3,7 @@ package io.xj.ship.broadcast;
 
 import com.google.inject.assistedinject.Assisted;
 
+import javax.annotation.Nullable;
 import javax.sound.sampled.AudioFormat;
 
 /**
@@ -11,39 +12,41 @@ import javax.sound.sampled.AudioFormat;
 public interface BroadcastFactory {
 
   /**
-   Build a chunk to represent a Fragmented MP4 Media Segment
+   Build a chunk to represent a Media Segment
 
    @param shipKey        for chunk
-   @param fromSecondsUTC for chunk
+   @param sequenceNumber for chunk
+   @param fileExtension  for chunk
+   @param actualDuration  for chunk
    @return chunk
    */
   Chunk chunk(
     @Assisted("shipKey") String shipKey,
-    @Assisted("fromSecondsUTC") long fromSecondsUTC
+    @Assisted("sequenceNumber") Long sequenceNumber,
+    @Nullable @Assisted("fileExtension") String fileExtension,
+    @Nullable @Assisted("actualDuration") Double actualDuration
   );
 
   /**
    Encode the stream for a ship key
 
-   @param shipKey to encode
-   @param format  of audio
+   @param format of audio
    @return stream
    */
   StreamEncoder encoder(
     @Assisted("shipKey") String shipKey,
-    @Assisted("audioFormat") AudioFormat format,
-    @Assisted("firstChunk") Chunk firstChunk
+    @Assisted("audioFormat") AudioFormat format
   );
 
   /**
    Mix one chunk of the stream
 
-   @param shipKey for which to print chunks
-   @param format  of audio
+   @param chunk  to mix
+   @param format of audio
    @return media chunk printer
    */
   ChunkMixer mixer(
-    @Assisted("shipKey") String shipKey,
+    @Assisted("chunk") Chunk chunk,
     @Assisted("audioFormat") AudioFormat format
   );
 
@@ -63,7 +66,7 @@ public interface BroadcastFactory {
    @param shipKey to publish
    @return playlist
    */
-  StreamPublisher publisher(
+  PlaylistPublisher publisher(
     @Assisted("shipKey") String shipKey
   );
 }

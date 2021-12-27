@@ -8,6 +8,7 @@ import com.google.inject.Singleton;
 import io.xj.hub.ingest.HubContentPayload;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.app.Environment;
+import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
@@ -16,7 +17,6 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,9 +39,9 @@ public class HubClientImpl implements HubClient {
   private static final String API_PATH_AUTH = "auth";
   private static final String HEADER_COOKIE = "Cookie";
   private final Logger LOG = LoggerFactory.getLogger(HubClientImpl.class);
-  private final CloseableHttpClient httpClient;
   private final String ingestUrl;
   private final String ingestTokenName;
+  private final HttpClientProvider httpClientProvider;
   private final JsonProviderImpl jsonProvider;
   private final JsonapiPayloadFactory jsonapiPayloadFactory;
   private final String ingestTokenValue;
@@ -49,12 +49,13 @@ public class HubClientImpl implements HubClient {
   @Inject
   public HubClientImpl(
     Environment env,
+    HttpClientProvider httpClientProvider,
     JsonProviderImpl jsonProvider,
     JsonapiPayloadFactory jsonapiPayloadFactory
   ) {
+    this.httpClientProvider = httpClientProvider;
     this.jsonProvider = jsonProvider;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
-    httpClient = HttpClients.createDefault();
 
     ingestUrl = env.getIngestURL();
     ingestTokenName = env.getIngestTokenName();
@@ -66,40 +67,34 @@ public class HubClientImpl implements HubClient {
 
   @Override
   public HubContent ingest(HubClientAccess access, UUID templateId) throws HubClientException {
-    try {
-      HttpGet request = new HttpGet(buildURI(String.format("%s%s",
-        API_PATH_INGEST_PREFIX, templateId.toString())));
-      setAccessCookie(request, ingestTokenValue);
-      CloseableHttpResponse response = httpClient.execute(request);
-
+    CloseableHttpClient client = httpClientProvider.getClient();
+    try (
+      CloseableHttpResponse response = client.execute(buildGetRequest(buildURI(String.format("%s%s", API_PATH_INGEST_PREFIX, templateId.toString())), ingestTokenValue))
+    ) {
       // return content if successful.
-      if (Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode())) {
-        var json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
-        HubContentPayload content = jsonProvider.getMapper().readValue(json, HubContentPayload.class);
-        List<Object> entities = Lists.newArrayList();
-        entities.addAll(content.getTemplates());
-        entities.addAll(content.getTemplateBindings());
-        entities.addAll(content.getInstruments());
-        entities.addAll(content.getInstrumentAudios());
-        entities.addAll(content.getInstrumentMemes());
-        entities.addAll(content.getPrograms());
-        entities.addAll(content.getProgramMemes());
-        entities.addAll(content.getProgramSequences());
-        entities.addAll(content.getProgramSequenceBindings());
-        entities.addAll(content.getProgramSequenceBindingMemes());
-        entities.addAll(content.getProgramSequenceChords());
-        entities.addAll(content.getProgramSequenceChordVoicings());
-        entities.addAll(content.getProgramSequencePatterns());
-        entities.addAll(content.getProgramSequencePatternEvents());
-        entities.addAll(content.getProgramVoices());
-        entities.addAll(content.getProgramVoiceTracks());
-        return new HubContent(entities);
-      }
+      if (!Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode()))
+        throw buildException(response);
 
-      // if we got here, it's a failure
-      LOG.error("Failed to request {} because {}", request.getURI(), response);
-      throw new HubClientException(String.format("Failed to request %s because %s",
-        request.getURI(), response.getStatusLine().getReasonPhrase()));
+      var json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
+      HubContentPayload content = jsonProvider.getMapper().readValue(json, HubContentPayload.class);
+      List<Object> entities = Lists.newArrayList();
+      entities.addAll(content.getTemplates());
+      entities.addAll(content.getTemplateBindings());
+      entities.addAll(content.getInstruments());
+      entities.addAll(content.getInstrumentAudios());
+      entities.addAll(content.getInstrumentMemes());
+      entities.addAll(content.getPrograms());
+      entities.addAll(content.getProgramMemes());
+      entities.addAll(content.getProgramSequences());
+      entities.addAll(content.getProgramSequenceBindings());
+      entities.addAll(content.getProgramSequenceBindingMemes());
+      entities.addAll(content.getProgramSequenceChords());
+      entities.addAll(content.getProgramSequenceChordVoicings());
+      entities.addAll(content.getProgramSequencePatterns());
+      entities.addAll(content.getProgramSequencePatternEvents());
+      entities.addAll(content.getProgramVoices());
+      entities.addAll(content.getProgramVoiceTracks());
+      return new HubContent(entities);
 
     } catch (IOException e) {
       throw new HubClientException(e);
@@ -108,35 +103,30 @@ public class HubClientImpl implements HubClient {
 
   @Override
   public HubClientAccess auth(String accessToken) throws HubClientException {
-    HttpGet request = new HttpGet(buildURI(API_PATH_AUTH));
-    setAccessCookie(request, accessToken);
-    HubClientAccess access;
-    CloseableHttpResponse response;
-    try {
-      response = httpClient.execute(request);
-      access = jsonProvider.getMapper().readValue(response.getEntity().getContent(), HubClientAccess.class);
+    CloseableHttpClient client = httpClientProvider.getClient();
+    try (
+      CloseableHttpResponse response = client.execute(buildGetRequest(buildURI(API_PATH_AUTH), accessToken))
+    ) {
+      return jsonProvider.getMapper().readValue(response.getEntity().getContent(), HubClientAccess.class);
     } catch (IOException e) {
       throw new HubClientException("Failed to authenticate with Hub API", e);
     }
-    return access;
   }
 
   @Override
   public Template readTemplate(String identifier) throws HubClientException {
-    try {
-      HttpGet request = new HttpGet(buildURI(String.format("%s%s", API_PATH_TEMPLATES_PREFIX, identifier)));
-      setAccessCookie(request, ingestTokenValue);
-      CloseableHttpResponse response = httpClient.execute(request);
+    CloseableHttpClient client = httpClientProvider.getClient();
+    try (
+      CloseableHttpResponse response = client.execute(buildGetRequest(buildURI(String.format("%s%s", API_PATH_TEMPLATES_PREFIX, identifier)), ingestTokenValue))
+    ) {
 
       // return template if found
-      if (Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode())) {
-        var json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
-        var payload = jsonapiPayloadFactory.deserialize(json);
-        return jsonapiPayloadFactory.toOne(payload);
-      }
+      if (!Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode()))
+        throw buildException(response);
 
-      throw new HubClientException(String.format("Failed to request %s because %s",
-        request.getURI(), response.getStatusLine().getReasonPhrase()));
+      var json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
+      var payload = jsonapiPayloadFactory.deserialize(json);
+      return jsonapiPayloadFactory.toOne(payload);
 
     } catch (IOException | JsonapiException e) {
       throw new HubClientException(e);
@@ -145,20 +135,16 @@ public class HubClientImpl implements HubClient {
 
   @Override
   public Collection<Template> readAllTemplatesPlaying() throws HubClientException {
-    try {
-      HttpGet request = new HttpGet(buildURI(API_PATH_TEMPLATES_PLAYING));
-      setAccessCookie(request, ingestTokenValue);
-      CloseableHttpResponse response = httpClient.execute(request);
+    CloseableHttpClient client = httpClientProvider.getClient();
+    try (
+      CloseableHttpResponse response = client.execute(buildGetRequest(buildURI(API_PATH_TEMPLATES_PLAYING), ingestTokenValue))
+    ) {
+      if (!Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode()))
+        throw buildException(response);
 
-      // return templates if OK
-      if (Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode())) {
-        var json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
-        var payload = jsonapiPayloadFactory.deserialize(json);
-        return jsonapiPayloadFactory.toMany(payload);
-      }
-
-      throw new HubClientException(String.format("Failed to request %s because %s",
-        request.getURI(), response.getStatusLine().getReasonPhrase()));
+      var json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
+      var payload = jsonapiPayloadFactory.deserialize(json);
+      return jsonapiPayloadFactory.toMany(payload);
 
     } catch (IOException | JsonapiException e) {
       throw new HubClientException(e);
@@ -168,11 +154,14 @@ public class HubClientImpl implements HubClient {
   /**
    Set the access token cookie header for a request to Hub
 
-   @param request to set cookie header for
-   @param value   to set
+   @param uri              of request
+   @param ingestTokenValue of request
+   @return http request
    */
-  private void setAccessCookie(HttpGet request, String value) {
-    request.setHeader(HEADER_COOKIE, String.format("%s=%s", ingestTokenName, value));
+  private HttpGet buildGetRequest(URI uri, String ingestTokenValue) {
+    var request = new HttpGet(uri);
+    request.setHeader(HEADER_COOKIE, String.format("%s=%s", ingestTokenName, ingestTokenValue));
+    return request;
   }
 
   /**
@@ -191,4 +180,14 @@ public class HubClientImpl implements HubClient {
     }
   }
 
+  /**
+   Log a failure message and returns a throwable exception based on a response
+
+   @param response to log and throw
+   */
+  private HubClientException buildException(CloseableHttpResponse response) throws HubClientException {
+    // if we got here, it's a failure
+    LOG.error("Request failed! response: {} {}", response.getAllHeaders(), response);
+    throw new HubClientException(String.format("Request failed with response Code %d %s", response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase()));
+  }
 }

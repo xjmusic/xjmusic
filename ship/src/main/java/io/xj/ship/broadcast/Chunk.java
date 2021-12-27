@@ -4,16 +4,18 @@ package io.xj.ship.broadcast;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.hub.TemplateConfig;
 import io.xj.lib.app.Environment;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
-import io.xj.nexus.persistence.ChainManager;
 import io.xj.nexus.persistence.ManagerExistenceException;
 import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.ManagerPrivilegeException;
 
+import javax.annotation.Nullable;
 import java.time.Instant;
+import java.util.Objects;
+
+import static io.xj.lib.util.Values.NANOS_PER_SECOND;
 
 /**
  An HTTP Live Streaming Media Chunk
@@ -29,58 +31,73 @@ public class Chunk {
   private final Instant toInstant;
   private final Long fromSecondsUTC;
   private final String shipKey;
-  private final TemplateConfig templateConfig;
-  private final int lengthSeconds;
-  private final int index;
-  private final int sequenceNumber;
-  private Instant updated;
+  private final long sequenceNumber;
+  private final String fileExtension;
+  private final double actualDuration;
 
   @Inject
   public Chunk(
     @Assisted("shipKey") String shipKey,
-    @Assisted("fromSecondsUTC") long fromSecondsUTC,
-    Environment env,
-    ChainManager chains
+    @Assisted("sequenceNumber") Long sequenceNumber,
+    @Nullable @Assisted("fileExtension") String fileExtension,
+    @Nullable @Assisted("actualDuration") Double actualDuration,
+    Environment env
   ) throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, ValueException {
-    this.fromSecondsUTC = fromSecondsUTC;
+    this.sequenceNumber = sequenceNumber;
+    this.fileExtension = Objects.nonNull(fileExtension)
+      ? fileExtension
+      : env.getShipChunkAudioEncoder();
     this.shipKey = shipKey;
-    templateConfig = new TemplateConfig(chains.readOneByShipKey(shipKey).getTemplateConfig());
+    this.actualDuration = Objects.nonNull(actualDuration)
+      ? actualDuration
+      : env.getShipChunkTargetDuration();
+
+    fromSecondsUTC = sequenceNumber * env.getShipChunkTargetDuration(); // seq num to time ratio always based on target duration, not actual
     fromInstant = Instant.ofEpochSecond(fromSecondsUTC);
-    lengthSeconds = env.getShipMixChunkSeconds();
-    toInstant = fromInstant.plusSeconds(lengthSeconds);
-    index = (int) (Math.floor((double) fromSecondsUTC / lengthSeconds));
-    sequenceNumber = index + 1;
-  }
-
-  public Long getFromSecondsUTC() {
-    return fromSecondsUTC;
-  }
-
-  public String getShipKey() {
-    return shipKey;
-  }
-
-  public String getKey(int bitrate) {
-    return String.format("%s-%s-%d", shipKey, Values.k(bitrate), index);
-  }
-
-  public String getKeyTemplate(int bitrate) {
-    return String.format("%s-%s-%%d", shipKey, Values.k(bitrate));
-  }
-
-  public String getKey() {
-    return String.format("%s-%d", shipKey, index);
+    toInstant = fromInstant.plusNanos((long) (this.actualDuration * NANOS_PER_SECOND));
   }
 
   public Instant getFromInstant() {
     return fromInstant;
   }
 
+  public Long getFromSecondsUTC() {
+    return fromSecondsUTC;
+  }
+
+  public String getKey() {
+    return String.format("%s-%d", shipKey, sequenceNumber);
+  }
+
+  public String getKey(int bitrate) {
+    return String.format("%s-%s-%d", shipKey, Values.k(bitrate), sequenceNumber);
+  }
+
+  public String getKeyTemplate(int bitrate) {
+    return String.format("%s-%s-%%d", shipKey, Values.k(bitrate));
+  }
+
   public Instant getToInstant() {
     return toInstant;
   }
 
-  public int getIndex() {
-    return index;
+  public String getFileExtension() {
+    return fileExtension;
+  }
+
+  public double getActualDuration() {
+    return actualDuration;
+  }
+
+  public long getSequenceNumber() {
+    return sequenceNumber;
+  }
+
+  public String getShipKey() {
+    return shipKey;
+  }
+
+  public String getFilename() {
+    return String.format("%s-%d.%s", shipKey, sequenceNumber, fileExtension);
   }
 }

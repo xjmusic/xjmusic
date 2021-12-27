@@ -37,9 +37,9 @@ import org.slf4j.LoggerFactory;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
-import static io.xj.lib.telemetry.MultiStopwatch.MILLIS_PER_SECOND;
+import static io.xj.lib.util.Values.MILLIS_PER_SECOND;
+import static io.xj.lib.util.Values.NANOS_PER_SECOND;
 
 /**
  The Lab Nexus Distributed Work Manager (Implementation)
@@ -54,7 +54,6 @@ public class NexusWorkImpl implements NexusWork {
   private static final String METRIC_CHAIN_FORMAT = "chain.%s.%s";
   private static final String METRIC_FABRICATED_AHEAD_SECONDS = "fabricated_ahead_seconds";
   private static final String METRIC_SEGMENT_CREATED = "segment_created";
-  private static final String METRIC_CHAIN_REVIVED = "chain_revived";
   private static final String METRIC_SEGMENT_ERASED = "segment_erased";
   private final NexusWorkChainManager nexusWorkChainManager;
   private final CraftFactory craftFactory;
@@ -75,15 +74,15 @@ public class NexusWorkImpl implements NexusWork {
   private final int ingestCycleSeconds;
   private final int janitorCycleSeconds;
   private final int medicCycleSeconds;
-  private final int reviveChainFabricatedBehindSeconds;
-  private final int reviveChainProductionGraceSeconds;
-  private final long healthCycleStalenessThresholdMillis;
+  private final int chainThresholdFabricatedBehindSeconds;
   private final ChainManager chainManager;
+  private final long healthCycleStalenessThresholdMillis;
   private MultiStopwatch timer;
   private long nextCycleMillis = 0;
   private long nextJanitorMillis = 0;
   private long nextMedicMillis = 0;
   private boolean alive = true;
+  private boolean allChainsFabricatedAhead = false;
 
   @Inject
   public NexusWorkImpl(
@@ -111,15 +110,14 @@ public class NexusWorkImpl implements NexusWork {
     this.telemetryProvider = telemetryProvider;
 
     cycleMillis = env.getWorkCycleMillis();
-    eraseSegmentsOlderThanSeconds = env.getWorkEraseSegmentsOlderThanSeconds();
     healthCycleStalenessThresholdMillis = env.getWorkHealthCycleStalenessThresholdSeconds() * MILLIS_PER_SECOND;
+    eraseSegmentsOlderThanSeconds = env.getWorkEraseSegmentsOlderThanSeconds();
     ingestCycleSeconds = env.getWorkIngestCycleSeconds();
     janitorCycleSeconds = env.getWorkJanitorCycleSeconds();
     janitorEnabled = env.isWorkJanitorEnabled();
     medicCycleSeconds = env.getWorkMedicCycleSeconds();
     medicEnabled = env.isWorkMedicEnabled();
-    reviveChainFabricatedBehindSeconds = env.getFabricationReviveChainFabricatedBehindSeconds();
-    reviveChainProductionGraceSeconds = env.getFabricationReviveChainProductionGraceSeconds();
+    chainThresholdFabricatedBehindSeconds = env.getFabricationChainThresholdFabricatedBehindSeconds();
     Executors.newSingleThreadScheduledExecutor();
 
     LOG.debug("Instantiated OK");
@@ -185,7 +183,7 @@ public class NexusWorkImpl implements NexusWork {
 
   /**
    [#158897383] Engineer wants platform heartbeat to check for any stale production chains in fabricate state,
-   and if found, *revive* it in order to ensure the Chain remains in an operable state.
+   and if found, send back a failure health check it in order to ensure the Chain remains in an operable state.
    <p>
    [#177021797] Medic relies on precomputed  telemetry of fabrication latency
    */
@@ -195,55 +193,28 @@ public class NexusWorkImpl implements NexusWork {
     timer.section("Medic");
 
     try {
-      // After a chain starts, it has N seconds before being judged stalled
-      Instant thresholdChainProductionStartedBefore = Instant.now().minusSeconds(reviveChainProductionGraceSeconds);
-
-      Map<UUID, String> stalledChainIds = Maps.newHashMap();
       var fabricatingChains = chainManager.readManyInState(ChainState.FABRICATE);
+      List<UUID> stalledChainIds = Lists.newArrayList();
       LOG.info("Medic will check {} fabricating {}",
         fabricatingChains.size(), 1 < fabricatingChains.size() ? "Chains" : "Chain");
       fabricatingChains
         .stream()
         .filter((chain) ->
-          TemplateType.Production.toString().equals(chain.getType().toString()) &&
-            Instant.parse(chain.getStartAt()).isBefore(thresholdChainProductionStartedBefore))
+          TemplateType.Production.toString().equals(chain.getType().toString()))
         .forEach(chain -> {
-          if (chain.getFabricatedAheadSeconds() < reviveChainFabricatedBehindSeconds) {
-            LOG.warn("Chain {} is stalled, fabricatedAheadSeconds={}",
-              Chains.getIdentifier(chain), chain.getFabricatedAheadSeconds());
-            stalledChainIds.put(chain.getId(),
-              String.format("fabricatedAheadSeconds=%s", chain.getFabricatedAheadSeconds()));
+          var aheadSeconds = Values.computeRelativeSeconds(Instant.parse(chain.getFabricatedAheadAt()));
+          if (aheadSeconds < chainThresholdFabricatedBehindSeconds) {
+            LOG.warn("Chain {} is stalled, fabricated ahead {}s", Chains.getIdentifier(chain), aheadSeconds);
+            stalledChainIds.add(chain.getId());
           }
         });
-
-      // revive all stalled chains
-      for (UUID stalledChainId : stalledChainIds.keySet())
-        revive(stalledChainId, stalledChainIds.get(stalledChainId));
-
+      allChainsFabricatedAhead = stalledChainIds.isEmpty();
       LOG.info("Total elapsed time: {}", timer.totalsToString());
 
     } catch (ManagerFatalException | ManagerPrivilegeException e) {
       didFailWhile("Medic checking & reviving all", e);
     }
   }
-
-  /**
-   Revive a chain
-
-   @param chainId to revive
-   @param reason  this chain is being revived
-   */
-  private void revive(UUID chainId, String reason) {
-    try {
-      chainManager.revive(chainId, reason);
-      // [#173968355] Nexus deletes entire chain when no current segments are left.
-      chainManager.destroy(chainId);
-      telemetryProvider.put(METRIC_CHAIN_REVIVED, StandardUnit.Count, 1);
-    } catch (ManagerFatalException | ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException e) {
-      LOG.error("Failed to revive chain after fatal error!", e);
-    }
-  }
-
 
   /**
    Do the work-- this is called by the underlying WorkerImpl run() hook
@@ -297,10 +268,13 @@ public class NexusWorkImpl implements NexusWork {
   public void fabricateChain(Chain chain) {
     try {
       timer.section("ComputeAhead");
-      var fabricatedAheadSeconds = computeFabricatedAheadSeconds(chain);
-      chain = updateFabricatedAheadSeconds(chain, fabricatedAheadSeconds);
+      var fabricatedAheadAt = computeFabricatedAheadAt(chain);
+      var aheadSeconds = Values.computeRelativeSeconds(fabricatedAheadAt);
+      chain = chainManager.update(chain.getId(), chain.fabricatedAheadAt(Values.formatIso8601UTC(fabricatedAheadAt)));
+      telemetryProvider.put(getChainMetricName(chain, METRIC_FABRICATED_AHEAD_SECONDS), StandardUnit.Seconds, aheadSeconds);
+
       var templateConfig = chainManager.getTemplateConfig(chain.getId());
-      if (fabricatedAheadSeconds > templateConfig.getBufferAheadSeconds()) return;
+      if (aheadSeconds > templateConfig.getBufferAheadSeconds()) return;
 
       timer.section("BuildNext");
       Optional<Segment> nextSegment = chainManager.buildNextSegmentOrCompleteTheChain(chain,
@@ -326,8 +300,10 @@ public class NexusWorkImpl implements NexusWork {
 
       // Update the chain fabricated-ahead seconds before shipping data
       var segmentLengthSeconds = Segments.getLengthSeconds(segment);
-      fabricatedAheadSeconds += segmentLengthSeconds;
-      chain = updateFabricatedAheadSeconds(chain, fabricatedAheadSeconds);
+      aheadSeconds += segmentLengthSeconds;
+      fabricatedAheadAt = fabricatedAheadAt.plusNanos((long) (segmentLengthSeconds * NANOS_PER_SECOND));
+      chain = chainManager.update(chain.getId(), chain.fabricatedAheadAt(Values.formatIso8601UTC(fabricatedAheadAt)));
+      telemetryProvider.put(getChainMetricName(chain, METRIC_FABRICATED_AHEAD_SECONDS), StandardUnit.Seconds, aheadSeconds);
 
       timer.section("Ship");
       doDubShipWork(fabricator);
@@ -337,7 +313,7 @@ public class NexusWorkImpl implements NexusWork {
         Chains.getIdentifier(chain),
         segment.getOffset(),
         Segments.getIdentifier(segment),
-        fabricatedAheadSeconds);
+        aheadSeconds);
 
     } catch (ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException | ManagerFatalException | NexusException | ValueException e) {
       var body = String.format("Failed to create Segment of Chain[%s] (%s) because %s\n\n%s",
@@ -352,8 +328,6 @@ public class NexusWorkImpl implements NexusWork {
           Chains.getIdentifier(chain)));
 
       LOG.error("Failed to created Segment in Chain[{}] reason={}", Chains.getIdentifier(chain), e.getMessage());
-
-      revive(chain.getId(), body);
     }
   }
 
@@ -499,8 +473,7 @@ public class NexusWorkImpl implements NexusWork {
     Instant eraseBefore = Instant.now().minusSeconds(eraseSegmentsOlderThanSeconds);
     Collection<UUID> segmentIds = Lists.newArrayList();
     for (UUID chainId : store.getAllChains().stream()
-      .flatMap(Entities::flatMapIds)
-      .collect(Collectors.toList()))
+      .flatMap(Entities::flatMapIds).toList())
       store.getAllSegments(chainId)
         .stream()
         .filter(segment -> isBefore(segment, eraseBefore))
@@ -511,25 +484,9 @@ public class NexusWorkImpl implements NexusWork {
 
   @Override
   public boolean isHealthy() {
-    return nexusWorkChainManager.isHealthy()
+    return allChainsFabricatedAhead
+      && nexusWorkChainManager.isHealthy()
       && nextCycleMillis > System.currentTimeMillis() - healthCycleStalenessThresholdMillis;
-  }
-
-  /**
-   Update a chain's fabricate ahead seconds
-
-   @param chain                  to update
-   @param fabricatedAheadSeconds value to set
-   @return updated chain
-   @throws ManagerFatalException      on failure
-   @throws ManagerPrivilegeException  on failure
-   @throws ManagerValidationException on failure
-   @throws ManagerExistenceException  on failure
-   */
-  private Chain updateFabricatedAheadSeconds(Chain chain, float fabricatedAheadSeconds) throws ManagerFatalException, ManagerPrivilegeException, ManagerValidationException, ManagerExistenceException {
-    telemetryProvider.put(getChainMetricName(chain, METRIC_FABRICATED_AHEAD_SECONDS), StandardUnit.Seconds, fabricatedAheadSeconds);
-
-    return chainManager.update(chain.getId(), chain.fabricatedAheadSeconds((double) fabricatedAheadSeconds));
   }
 
   /**
@@ -537,7 +494,7 @@ public class NexusWorkImpl implements NexusWork {
 
    @param chain fabricating
    */
-  private float computeFabricatedAheadSeconds(Chain chain) throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException {
-    return Chains.computeFabricatedAheadSeconds(chain, segmentManager.readMany(ImmutableList.of(chain.getId())));
+  private Instant computeFabricatedAheadAt(Chain chain) throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException {
+    return Chains.computeFabricatedAheadAt(chain, segmentManager.readMany(ImmutableList.of(chain.getId())));
   }
 }

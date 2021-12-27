@@ -55,13 +55,13 @@ public class Environment {
   private final String redisSessionNamespace;
   private final String shipBaseUrl;
   private final String shipBucket;
+  private final String shipChunkFilenameExtension;
   private final String shipFFmpegVerbosity;
-  private final String shipFfmpegAudioCompressor;
-  private final String shipFfmpegSegmentFilenameExtension;
+  private final String shipChunkAudioEncoder;
   private final String shipKey;
   private final String shipM3u8ContentType;
   private final String shipMode;
-  private final String shipSegmentContentType;
+  private final String shipChunkContentType;
   private final String streamBaseURL;
   private final String streamBucket;
   private final String telemetryNamespace;
@@ -75,21 +75,21 @@ public class Environment {
   private final int awsS3retryLimit;
   private final int awsUploadExpireMinutes;
   private final int chainStartInFutureSeconds;
+  private final int fabricationChainThresholdFabricatedBehindSeconds;
   private final int fabricationPreviewLengthMaxHours;
-  private final int fabricationReviveChainFabricatedBehindSeconds;
-  private final int fabricationReviveChainProductionGraceSeconds;
-  private final int hlsListSize;
   private final int hlsSegmentSeconds;
   private final int hlsStartPlaylistBehindSegments;
+  private final int httpClientPoolMaxPerRoute;
+  private final int httpClientPoolMaxTotal;
   private final int playbackExpireSeconds;
   private final int postgresPoolSizeMax;
   private final int postgresPort;
   private final int redisPort;
   private final int segmentComputeTimeFramesPerBeat;
   private final int segmentComputeTimeResolutionHz;
-  private final int shipAheadChunks;
+  private final int shipChunkPlaylistSize;
   private final int shipBitrateHigh;
-  private final int shipMixChunkSeconds;
+  private final int shipChunkTargetDuration;
   private final int shipReloadSeconds;
   private final int shipSegmentLoadTimeoutSeconds;
   private final int workCycleMillis;
@@ -134,15 +134,14 @@ public class Environment {
     audioCacheFilePrefix = readStr(vars, "AUDIO_CACHE_FILE_PREFIX", "/tmp/");
     audioFileBucket = readStr(vars, "AUDIO_FILE_BUCKET", "xj-dev-audio");
     audioUploadURL = readStr(vars, "AUDIO_UPLOAD_URL", "https://xj-dev-audio.s3.amazonaws.com/");
-    shipKey = readStr(vars, "SHIP_KEY", EMPTY);
     chainStartInFutureSeconds = readInt(vars, "CHAIN_START_IN_FUTURE_SECONDS", 0);
     fabricationPreviewLengthMaxHours = readInt(vars, "FABRICATION_PREVIEW_LENGTH_MAX_HOURS", 8);
-    fabricationReviveChainFabricatedBehindSeconds = readInt(vars, "FABRICATION_REVIVE_CHAIN_FABRICATED_BEHIND_SECONDS", 15);
-    fabricationReviveChainProductionGraceSeconds = readInt(vars, "FABRICATION_REVIVE_CHAIN_PRODUCTION_GRACE_SECONDS", 15);
-    hlsListSize = readInt(vars, "HLS_LIST_SIZE", 20);
+    fabricationChainThresholdFabricatedBehindSeconds = readInt(vars, "FABRICATION_CHAIN_THRESHOLD_FABRICATED_BEHIND_SECONDS", 15);
     hlsSegmentSeconds = readInt(vars, "HLS_SEGMENT_SECONDS", 10);
     hlsStartPlaylistBehindSegments = readInt(vars, "HLS_START_PLAYLIST_BEHIND_SEGMENTS", 5);
     hostname = readStr(vars, "HOSTNAME", "localhost");
+    httpClientPoolMaxPerRoute = readInt(vars, "HTTP_CLIENT_POOL_MAX_PER_ROUTE", 20);
+    httpClientPoolMaxTotal = readInt(vars, "HTTP_CLIENT_POOL_MAX_TOTAL", 200);
     ingestTokenName = readStr(vars, "INGEST_TOKEN_NAME", "access_token");
     ingestTokenValue = readStr(vars, "INGEST_TOKEN_VALUE", EMPTY);
     ingestURL = readStr(vars, "INGEST_URL", "http://localhost/");
@@ -151,18 +150,19 @@ public class Environment {
     playerBaseURL = readStr(vars, "PLAYER_BASE_URL", "http://localhost/");
     segmentComputeTimeFramesPerBeat = readInt(vars, "SEGMENT_COMPUTE_TIME_FRAMES_PER_BEAT", 64);
     segmentComputeTimeResolutionHz = readInt(vars, "SEGMENT_COMPUTE_TIME_RESOLUTION_HZ", 1000000);
-    shipAheadChunks = readInt(vars, "SHIP_AHEAD_CHUNKS", 6);
+    shipChunkPlaylistSize = readInt(vars, "SHIP_AHEAD_CHUNKS", 6);
     shipBaseUrl = readStr(vars, "SHIP_BASE_URL", "https://ship.dev.xj.io/");
     shipBitrateHigh = readInt(vars, "SHIP_BITRATE_HIGH", 128000);
     shipBucket = readStr(vars, "SHIP_BUCKET", "xj-dev-ship");
-    shipMixChunkSeconds = readInt(vars, "SHIP_MIX_CHUNK_SECONDS", 10);
-    shipFfmpegAudioCompressor = readStr(vars, "SHIP_FFMPEG_AUDIO_COMPRESSOR", "mp3");
-    shipFfmpegSegmentFilenameExtension = readStr(vars, "SHIP_FFMPEG_SEGMENT_FILENAME_EXTENSION", "mp3");
+    shipChunkAudioEncoder = readStr(vars, "SHIP_FFMPEG_AUDIO_COMPRESSOR", "mp3");
     shipFFmpegVerbosity = readStr(vars, "SHIP_FFMPEG_VERBOSITY", "info");
+    shipKey = readStr(vars, "SHIP_KEY", EMPTY);
     shipM3u8ContentType = readStr(vars, "SHIP_M3U8_CONTENT_TYPE", "application/x-mpegURL");
+    shipChunkTargetDuration = readInt(vars, "SHIP_MIX_CHUNK_SECONDS", 10);
     shipMode = readStr(vars, "SHIP_MODE", "hls");
     shipReloadSeconds = readInt(vars, "SHIP_RELOAD_SECONDS", 15);
-    shipSegmentContentType = readStr(vars, "SHIP_TS_CONTENT_TYPE", "audio/mp3");
+    shipChunkContentType = readStr(vars, "SHIP_TS_CONTENT_TYPE", "audio/mpeg");
+    shipChunkFilenameExtension = readStr(vars, "SHIP_SEGMENT_FILENAME_EXTENSION", "mp3");
     shipSegmentLoadTimeoutSeconds = readInt(vars, "SHIP_SEGMENT_LOAD_TIMEOUT_SECONDS", 5);
     streamBaseURL = readStr(vars, "STREAM_BASE_URL", "https://stream.dev.xj.io/");
     streamBucket = readStr(vars, "STREAM_BUCKET", "xj-dev-stream");
@@ -172,15 +172,15 @@ public class Environment {
     workChainManagementEnabled = readBool(vars, "WORK_CHAIN_MANAGEMENT_ENABLED", true);
     workCycleMillis = readInt(vars, "WORK_CYCLE_MILLIS", 1200);
     workEraseSegmentsOlderThanSeconds = readInt(vars, "WORK_ERASE_SEGMENTS_OLDER_THAN_SECONDS", 30);
-    workHealthCycleStalenessThresholdSeconds = readInt(vars, "WORK_HEALTH_CYCLE_STALENESS_THRESHOLD_SECONDS", 30);
+    workHealthCycleStalenessThresholdSeconds = readInt(vars, "WORK_HEALTH_CYCLE_STALENESS_THRESHOLD_SECONDS", 60);
     workIngestCycleSeconds = readInt(vars, "WORK_INGEST_CYCLE_SECONDS", 20);
     workJanitorCycleSeconds = readInt(vars, "WORK_JANITOR_CYCLE_SECONDS", 60);
     workJanitorEnabled = readBool(vars, "WORK_JANITOR_ENABLED", true);
     workLabHubLabPollSeconds = readInt(vars, "WORK_LAB_HUB_LAB_POLL_SECONDS", 10);
     workMedicCycleSeconds = readInt(vars, "WORK_MEDIC_CYCLE_SECONDS", 30);
     workMedicEnabled = readBool(vars, "WORK_MEDIC_ENABLED", true);
-    workPublishCycleSeconds = readInt(vars, "WORK_PUBLISH_CYCLE_SECONDS", 10);
     workMixCycleSeconds = readInt(vars, "WORK_PRINT_CYCLE_SECONDS", 2);
+    workPublishCycleSeconds = readInt(vars, "WORK_PUBLISH_CYCLE_SECONDS", 10);
     workRehydrateFabricatedAheadThreshold = readInt(vars, "WORK_REHYDRATE_FABRICATED_AHEAD_THRESHOLD", 60);
     workShipFabricatedAheadThresholdSeconds = readInt(vars, "WORK_SHIP_FABRICATED_AHEAD_THRESHOLD_SECONDS", 60);
 
@@ -475,17 +475,10 @@ public class Environment {
   }
 
   /**
-   @return the fabrication revive chain fabricated behind seconds
+   @return the threshold (in seconds) behind which a chain will be considered stale during fabrication
    */
-  public int getFabricationReviveChainFabricatedBehindSeconds() {
-    return fabricationReviveChainFabricatedBehindSeconds;
-  }
-
-  /**
-   @return the fabrication revive chain production grace seconds
-   */
-  public int getFabricationReviveChainProductionGraceSeconds() {
-    return fabricationReviveChainProductionGraceSeconds;
+  public int getFabricationChainThresholdFabricatedBehindSeconds() {
+    return fabricationChainThresholdFabricatedBehindSeconds;
   }
 
   /**
@@ -517,13 +510,6 @@ public class Environment {
   }
 
   /**
-   @return HLS list size
-   */
-  public int getHlsListSize() {
-    return hlsListSize;
-  }
-
-  /**
    @return # of seconds per HLS media segment
    */
   public int getHlsSegmentSeconds() {
@@ -542,6 +528,20 @@ public class Environment {
    */
   public String getHostname() {
     return hostname;
+  }
+
+  /**
+   @return the http client pool max # connections total
+   */
+  public int getHttpClientPoolMaxTotal() {
+    return httpClientPoolMaxTotal;
+  }
+
+  /**
+   @return the http client pool max # connections per route
+   */
+  public int getHttpClientPoolMaxPerRoute() {
+    return httpClientPoolMaxPerRoute;
   }
 
   /**
@@ -671,35 +671,28 @@ public class Environment {
   }
 
   /**
-   @return the ship ahead chunks
-   */
-  public int getShipAheadChunks() {
-    return shipAheadChunks;
-  }
-
-  /**
-   @return the ship chunk seconds
-   */
-  public int getShipMixChunkSeconds() {
-    return shipMixChunkSeconds;
-  }
-
-  /**
    @return the ship ffmpeg audio compressor
    */
-  public String getShipFfmpegAudioCompressor() {
-    return shipFfmpegAudioCompressor;
+  public String getShipChunkAudioEncoder() {
+    return shipChunkAudioEncoder;
   }
 
   /**
-   @return the ship ffmpeg segment filename extension
+   @return the number of chunks to keep in the playlist
    */
-  public String getShipFfmpegSegmentFilenameExtension() {
-    return shipFfmpegSegmentFilenameExtension;
+  public int getShipChunkPlaylistSize() {
+    return shipChunkPlaylistSize;
   }
 
   /**
-   @return verbosity of ffmpeg in ship process
+   @return the ship media segment target duration
+   */
+  public int getShipChunkTargetDuration() {
+    return shipChunkTargetDuration;
+  }
+
+  /**
+   @return ship ffmpeg verbosity
    */
   public String getShipFFmpegVerbosity() {
     return shipFFmpegVerbosity;
@@ -724,8 +717,8 @@ public class Environment {
   /**
    @return the ship audio segment MPEG-TS content-type
    */
-  public String getShipSegmentContentType() {
-    return shipSegmentContentType;
+  public String getShipChunkContentType() {
+    return shipChunkContentType;
   }
 
   /**
@@ -834,7 +827,7 @@ public class Environment {
   }
 
   /**
-   @return the work health cycle staleness threshold seconds
+   @return the threshold (in seconds) after which, if we haven't seen the work cycle happen, we're declaring this whole process dead
    */
   public int getWorkHealthCycleStalenessThresholdSeconds() {
     return workHealthCycleStalenessThresholdSeconds;
@@ -902,5 +895,4 @@ public class Environment {
   public int getWorkRehydrateFabricatedAheadThreshold() {
     return workRehydrateFabricatedAheadThreshold;
   }
-
 }

@@ -13,7 +13,7 @@ import io.xj.nexus.NexusTopology;
 import io.xj.nexus.persistence.ChainManager;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.ship.broadcast.BroadcastFactory;
-import io.xj.ship.broadcast.StreamPublisher;
+import io.xj.ship.broadcast.PlaylistPublisher;
 import io.xj.ship.source.SourceFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +39,7 @@ public class ShipWorkImplTest {
   @Mock
   SourceFactory source;
   @Mock
-  StreamPublisher publisher;
+  PlaylistPublisher publisher;
 
   private ShipWork subject;
 

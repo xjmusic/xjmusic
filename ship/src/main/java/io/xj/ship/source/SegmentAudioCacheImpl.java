@@ -6,20 +6,21 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.xj.api.Segment;
 import io.xj.lib.app.Environment;
-import io.xj.lib.filestore.FileStoreException;
-import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.util.Command;
 import io.xj.lib.util.Files;
 import io.xj.nexus.persistence.Segments;
 import io.xj.ship.ShipException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.List;
@@ -28,19 +29,22 @@ import java.util.Objects;
 @Singleton
 class SegmentAudioCacheImpl implements SegmentAudioCache {
   private final Logger LOG = LoggerFactory.getLogger(SegmentAudioCacheImpl.class);
+  private final HttpClientProvider httpClientProvider;
   private final String pathPrefix;
+  private final String shipBaseUrl;
   private final String shipBucket;
-  private final FileStoreProvider fileStoreProvider;
 
   @Inject
   SegmentAudioCacheImpl(
     Environment env,
-    FileStoreProvider fileStoreProvider) {
+    HttpClientProvider httpClientProvider
+  ) {
     shipBucket = env.getShipBucket();
+    shipBaseUrl = env.getShipBaseUrl();
     pathPrefix = 0 < env.getAudioCacheFilePrefix().length() ?
       env.getAudioCacheFilePrefix() :
       Files.getTempFilePathPrefix() + "cache" + File.separator;
-    this.fileStoreProvider = fileStoreProvider;
+    this.httpClientProvider = httpClientProvider;
 
     try {
       // make directory for cache files
@@ -92,18 +96,21 @@ class SegmentAudioCacheImpl implements SegmentAudioCache {
   private String downloadOriginal(Segment segment) throws ShipException {
     var key = Segments.getStorageFilename(segment);
     var absolutePath = computeAbsolutePathToOriginal(segment);
-    try (InputStream stream = fileStoreProvider.streamS3Object(shipBucket, key)) {
-      if (Objects.isNull(stream))
-        throw new ShipException(String.format("Unable to write bytes to disk cache: %s", absolutePath));
+    CloseableHttpClient client = httpClientProvider.getClient();
+    try (
+      CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", shipBaseUrl, key)))
+    ) {
+      if (Objects.isNull(response.getEntity().getContent()))
+        throw new ShipException(String.format("Unable to read segment audio: %s", absolutePath));
 
       try (OutputStream toFile = FileUtils.openOutputStream(new File(absolutePath))) {
-        var size = IOUtils.copy(stream, toFile); // stores number of bytes copied
+        var size = IOUtils.copy(response.getEntity().getContent(), toFile); // stores number of bytes copied
         LOG.debug("Did write original Segment Audio item to disk cache: {} ({} bytes)", absolutePath, size);
       }
 
       return absolutePath;
 
-    } catch (FileStoreException | IOException e) {
+    } catch (IOException e) {
       throw new ShipException(String.format("Failed to stream audio from s3://%s/%s", shipBucket, key), e);
     }
   }

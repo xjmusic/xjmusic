@@ -14,7 +14,6 @@ import javax.ws.rs.core.Response;
  */
 @Path("healthz")
 public class NexusAppHealthEndpoint {
-
   private final NexusWork nexusWork;
 
   @Inject

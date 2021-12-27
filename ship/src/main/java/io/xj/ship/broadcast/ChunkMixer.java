@@ -12,8 +12,7 @@ public interface ChunkMixer {
   /**
    Invoke the recursive action
 
-   @param chunk to mix
    @return mixed samples
    */
-  double[][] mix(Chunk chunk) throws ShipException;
+  double[][] mix() throws ShipException;
 }

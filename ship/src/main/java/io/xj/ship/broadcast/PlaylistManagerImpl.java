@@ -9,6 +9,8 @@ import com.google.inject.Singleton;
 import io.xj.lib.app.Environment;
 import io.xj.lib.util.Text;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -16,40 +18,49 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import static io.xj.lib.telemetry.MultiStopwatch.MILLIS_PER_SECOND;
+import static io.xj.lib.util.Values.MILLIS_PER_SECOND;
 
 /**
  Ship broadcast via HTTP Live Streaming #179453189
  */
 @Singleton
-public class M3U8PlaylistManagerImpl implements M3U8PlaylistManager {
-  private final Map<Long/* mediaSequence */, M3U8PlaylistItem> items = Maps.newConcurrentMap();
+public class PlaylistManagerImpl implements PlaylistManager {
+  private final Map<Long/* mediaSequence */, Chunk> items = Maps.newConcurrentMap();
+  private final BroadcastFactory broadcast;
   private final int hlsSegmentSeconds;
   private final String shipSegmentFilenameEndsWith;
   private final Predicate<? super String> isSegmentFilename;
-  private final Pattern rgxFilenameSegSeqNum;
+  private final Pattern rgxFilename = Pattern.compile("([A-Za-z0-9]*)-([0-9]*)\\.([A-Za-z0-9]*)");
   private final Pattern rgxSecondsValue = Pattern.compile("#EXTINF:([0-9.]*)");
+  private final DecimalFormat df;
 
   @Inject
-  public M3U8PlaylistManagerImpl(
+  public PlaylistManagerImpl(
+    BroadcastFactory broadcast,
     Environment env
   ) {
+    this.broadcast = broadcast;
     hlsSegmentSeconds = env.getHlsSegmentSeconds();
-    shipSegmentFilenameEndsWith = String.format(".%s", env.getShipFfmpegSegmentFilenameExtension());
+    shipSegmentFilenameEndsWith = String.format(".%s", env.getShipChunkAudioEncoder());
     isSegmentFilename = m -> m.endsWith(shipSegmentFilenameEndsWith);
-    rgxFilenameSegSeqNum = Pattern.compile(String.format("-([0-9]*)\\.%s", env.getShipFfmpegSegmentFilenameExtension()));
+
+    // Decimal format for writing seconds values in .m3u8 playlist line items
+    df = new DecimalFormat("#.######");
+    df.setRoundingMode(RoundingMode.FLOOR);
+    df.setMinimumFractionDigits(6);
+    df.setMaximumFractionDigits(6);
   }
 
   @Override
-  public Optional<M3U8PlaylistItem> get(long mediaSequence) {
+  public Optional<Chunk> get(long mediaSequence) {
     if (items.containsKey(mediaSequence)) return Optional.of(items.get(mediaSequence));
     return Optional.empty();
   }
 
   @Override
-  public boolean put(M3U8PlaylistItem item) {
-    if (items.containsKey(item.getMediaSequence())) return false;
-    items.put(item.getMediaSequence(), item);
+  public boolean put(Chunk item) {
+    if (items.containsKey(item.getSequenceNumber())) return false;
+    items.put(item.getSequenceNumber(), item);
     return true;
   }
 
@@ -77,12 +88,16 @@ public class M3U8PlaylistManagerImpl implements M3U8PlaylistManager {
         String.format("#EXT-X-TARGETDURATION:%s", hlsSegmentSeconds),
         "#EXT-X-DISCONTINUITY",
         String.format("#EXT-X-MEDIA-SEQUENCE:%d", mediaSequence),
-        "#EXT-X-PLAYLIST-TYPE:EVENT",
-        "#EXT-X-INDEPENDENT-SEGMENTS"
+        "#EXT-X-PLAYLIST-TYPE:EVENT"
       ),
+      // FUTURE: media sequence numbers need to be a continuous unbroken sequence of integers
       items.entrySet().stream()
         .sorted(Map.Entry.comparingByKey())
-        .flatMap(e -> e.getValue().toLines().stream())
+        .map(Map.Entry::getValue)
+        .flatMap(chunk -> Stream.of(
+          String.format("#EXTINF:%s,", df.format(chunk.getActualDuration())),
+          chunk.getFilename()
+        ))
     ).toList();
 
     // publish custom .m3u8 file
@@ -90,12 +105,14 @@ public class M3U8PlaylistManagerImpl implements M3U8PlaylistManager {
   }
 
   @Override
-  public List<M3U8PlaylistItem> parseAndLoadItems(String m3u8Content) {
-    List<M3U8PlaylistItem> added = Lists.newArrayList();
+  public List<Chunk> parseAndLoadItems(String m3u8Content) {
+    List<Chunk> added = Lists.newArrayList();
+    Chunk item;
+    String ext;
     String filename;
-    float seconds;
-    long mediaSequence;
-    M3U8PlaylistItem item;
+    String shipKey;
+    double actualDuration;
+    long seqNum;
 
     // read playlist file, then grab only the line pairs that are segment files
     String[] m3u8Lines = Text.splitLines(m3u8Content);
@@ -105,13 +122,15 @@ public class M3U8PlaylistManagerImpl implements M3U8PlaylistManager {
 
         var mS = rgxSecondsValue.matcher(m3u8Lines[i - 1]);
         if (!mS.find()) continue;
-        seconds = Float.parseFloat(mS.group(1));
+        actualDuration = Double.parseDouble(mS.group(1));
 
-        var mF = rgxFilenameSegSeqNum.matcher(filename);
+        var mF = rgxFilename.matcher(filename);
         if (!mF.find()) continue;
-        mediaSequence = Integer.parseInt(mF.group(1));
+        shipKey = mF.group(1);
+        seqNum = Integer.parseInt(mF.group(2));
+        ext = mF.group(3);
 
-        item = new M3U8PlaylistItem(mediaSequence, seconds, filename);
+        item = broadcast.chunk(shipKey, seqNum, ext, actualDuration);
         if (put(item)) added.add(item);
       }
 

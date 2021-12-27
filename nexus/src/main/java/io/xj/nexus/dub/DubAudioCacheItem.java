@@ -4,11 +4,13 @@ package io.xj.nexus.dub;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.lib.app.Environment;
-import io.xj.lib.filestore.FileStoreException;
-import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.http.HttpClientProvider;
 import io.xj.nexus.NexusException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,27 +34,29 @@ public class DubAudioCacheItem {
   private int size; // # of bytes
 
   /**
-   @param env               from environment
-   @param fileStoreProvider from which to load files
-   @param key               ot this item
-   @param absolutePath      to this item's waveform data on disk
+   @param env          from environment
+   @param key          ot this item
+   @param absolutePath to this item's waveform data on disk
    */
   @Inject
   public DubAudioCacheItem(
     Environment env,
-    FileStoreProvider fileStoreProvider,
+    HttpClientProvider httpClientProvider,
     @Assisted("key") String key,
     @Assisted("path") String absolutePath
   ) throws NexusException {
     this.key = key;
     this.absolutePath = absolutePath;
     String audioFileBucket = env.getAudioFileBucket();
-    if (!existsOnDisk())
-      try (InputStream stream = fileStoreProvider.streamS3Object(audioFileBucket, key)) {
-        writeFrom(stream);
-      } catch (FileStoreException | IOException e) {
-        throw new NexusException(String.format("Failed to stream audio from s3://%s/%s", audioFileBucket, key), e);
-      }
+    if (existsOnDisk()) return;
+    CloseableHttpClient client = httpClientProvider.getClient();
+    try (
+      CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", env.getAudioBaseUrl(), key)))
+    ) {
+      writeFrom(response.getEntity().getContent());
+    } catch (IOException e) {
+      throw new NexusException(String.format("Failed to stream audio from s3://%s/%s", audioFileBucket, key), e);
+    }
   }
 
   /**

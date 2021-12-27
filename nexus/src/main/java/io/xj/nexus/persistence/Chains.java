@@ -18,8 +18,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static io.xj.lib.telemetry.MultiStopwatch.MILLIS_PER_SECOND;
-
 /**
  Utilities for working with chains
  */
@@ -90,13 +88,11 @@ public enum Chains {
    @param segments for which to get fabricated-ahead seconds
    @return fabricated-ahead seconds for this collection of Segments
    */
-  public static float computeFabricatedAheadSeconds(Chain chain, Collection<Segment> segments) {
+  public static Instant computeFabricatedAheadAt(Chain chain, Collection<Segment> segments) {
     var lastDubbedSegment = Segments.getLastDubbed(segments);
-    var dubbedUntil = lastDubbedSegment.isPresent() ?
+    return lastDubbedSegment.isPresent() ?
       Instant.parse(lastDubbedSegment.get().getEndAt()) :
       Instant.parse(chain.getStartAt());
-    var now = Instant.now();
-    return (float) (dubbedUntil.toEpochMilli() - now.toEpochMilli()) / MILLIS_PER_SECOND;
   }
 
   /**

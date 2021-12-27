@@ -1,6 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.ship.broadcast;
 
+import io.xj.ship.ShipException;
+
 /**
  This process is run directly in the hard loop (not in a Fork/Join pool)
  <p>
@@ -18,20 +20,20 @@ package io.xj.ship.broadcast;
  - https://mpeg.chiariglione.org/standards/mpeg-dash/media-presentation-description-and-segment-formats
  - http://rdmedia.bbc.co.uk/dash/ondemand/bbb/
  */
-public interface StreamPublisher {
+public interface PlaylistPublisher {
 
   /**
    Attempt to rehydrate ship from the last .m3u8 playlist that was uploaded for this ship key
    <p>
    Ship rehydrates from last shipped .m3u8 playlist file #180723357
-
-   @return true if the rehydration was successful
    */
-  Boolean rehydratePlaylist();
+  void rehydratePlaylist();
 
   /**
-   @param nowMillis at which to publish
+   Publish the custom .m3u8 file
+
+   @param atMillis at which to publish (now, unless we're testing)
    */
-  void publish(long nowMillis);
+  void publish(long atMillis) throws ShipException;
 
 }

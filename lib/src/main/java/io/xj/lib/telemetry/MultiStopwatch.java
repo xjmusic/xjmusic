@@ -3,6 +3,7 @@
 package io.xj.lib.telemetry;
 
 import com.google.api.client.util.Maps;
+import io.xj.lib.util.Values;
 
 import javax.annotation.Nullable;
 import java.util.Comparator;
@@ -14,12 +15,6 @@ import java.util.stream.Collectors;
  Measures a series of named sections of time
  */
 public class MultiStopwatch {
-  public static final long SECONDS_PER_MINUTE = 60;
-  public static final long MINUTES_PER_HOUR = 60;
-  public static final long HOURS_PER_DAY = 24;
-  public static final long MILLIS_PER_SECOND = 1000;
-  public static final long SECONDS_PER_HOUR = SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
-  public static final long SECONDS_PER_DAY = SECONDS_PER_HOUR * HOURS_PER_DAY;
   public static final String STANDBY = "Standby";
   private final Map<String, Double> sectionLapSeconds = Maps.newHashMap();
   private final Map<String, Double> sectionTotalSeconds = Maps.newHashMap();
@@ -54,7 +49,7 @@ public class MultiStopwatch {
    */
   public void stop() {
     lap();
-    totalSeconds = (double) (System.currentTimeMillis() - startedMillis) / MILLIS_PER_SECOND;
+    totalSeconds = (double) (System.currentTimeMillis() - startedMillis) / Values.MILLIS_PER_SECOND;
   }
 
   /**
@@ -62,7 +57,7 @@ public class MultiStopwatch {
    */
   public void lap() {
     section(STANDBY);
-    lapTotalSeconds = (double) (System.currentTimeMillis() - lapStartedMillis) / MILLIS_PER_SECOND;
+    lapTotalSeconds = (double) (System.currentTimeMillis() - lapStartedMillis) / Values.MILLIS_PER_SECOND;
     lapStartedMillis = System.currentTimeMillis();
   }
 
@@ -72,7 +67,7 @@ public class MultiStopwatch {
    @return total seconds
    */
   public Double getTotalSeconds() {
-    return Objects.nonNull(totalSeconds) ? totalSeconds : (double) (System.currentTimeMillis() - startedMillis) / MILLIS_PER_SECOND;
+    return Objects.nonNull(totalSeconds) ? totalSeconds : (double) (System.currentTimeMillis() - startedMillis) / Values.MILLIS_PER_SECOND;
   }
 
   /**
@@ -91,7 +86,7 @@ public class MultiStopwatch {
    */
   public void section(String name) {
     if (Objects.nonNull(section)) {
-      var seconds = (double) (System.currentTimeMillis() - sectionStartedMillis) / MILLIS_PER_SECOND;
+      var seconds = (double) (System.currentTimeMillis() - sectionStartedMillis) / Values.MILLIS_PER_SECOND;
       sectionLapSeconds.put(section, sectionLapSeconds.containsKey(section) ? sectionLapSeconds.get(section) + seconds : seconds);
       sectionTotalSeconds.put(section, sectionTotalSeconds.containsKey(section) ? sectionTotalSeconds.get(section) + seconds : seconds);
     }
@@ -138,10 +133,10 @@ public class MultiStopwatch {
    @return formatted seconds
    */
   private String formatHoursMinutesFromSeconds(double total) {
-    int days = (int) Math.floor(total / SECONDS_PER_DAY);
-    int hours = (int) Math.floor((total - days * SECONDS_PER_DAY) / SECONDS_PER_HOUR);
-    int minutes = (int) Math.floor((total - days * SECONDS_PER_DAY - hours * SECONDS_PER_HOUR) / SECONDS_PER_MINUTE);
-    double seconds = total - days * SECONDS_PER_DAY - hours * SECONDS_PER_HOUR - minutes * SECONDS_PER_MINUTE;
+    int days = (int) Math.floor(total / Values.SECONDS_PER_DAY);
+    int hours = (int) Math.floor((total - days * Values.SECONDS_PER_DAY) / Values.SECONDS_PER_HOUR);
+    int minutes = (int) Math.floor((total - days * Values.SECONDS_PER_DAY - hours * Values.SECONDS_PER_HOUR) / Values.SECONDS_PER_MINUTE);
+    double seconds = total - days * Values.SECONDS_PER_DAY - hours * Values.SECONDS_PER_HOUR - minutes * Values.SECONDS_PER_MINUTE;
     if (0 < days) return String.format("%dd %dh %dm %ds", days, hours, minutes, (int) seconds);
     if (0 < hours) return String.format("%dh %dm %ds", hours, minutes, (int) seconds);
     if (0 < minutes) return String.format("%dm %ds", minutes, (int) seconds);

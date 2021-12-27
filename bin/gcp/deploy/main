@@ -8,4 +8,8 @@ gcloud container clusters get-credentials xj-prod-us-west-1 --region us-west1
   -PjibToImageRegistry=gcr.io/xj-vpc-host-prod \
   jib
 
+# Restart Open Space
 kubectl -n yard rollout restart deployment/openspace-nexus deployment/openspace-ship
+
+# Restart Cool Air
+kubectl -n yard rollout restart deployment/coolair-nexus deployment/coolair-ship

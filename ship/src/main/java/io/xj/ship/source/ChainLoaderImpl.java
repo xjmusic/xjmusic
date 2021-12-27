@@ -8,18 +8,20 @@ import io.xj.api.Chain;
 import io.xj.api.Segment;
 import io.xj.api.SegmentState;
 import io.xj.lib.app.Environment;
-import io.xj.lib.filestore.FileStoreException;
-import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.util.Values;
 import io.xj.nexus.persistence.*;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.Instant;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -37,17 +39,17 @@ public class ChainLoaderImpl extends ChainLoader {
   private static final Logger LOG = LoggerFactory.getLogger(ChainLoaderImpl.class);
   private static final String THREAD_NAME = "chain";
   private final ChainManager chainManager;
-  private final FileStoreProvider fileStoreProvider;
-  private final int eraseSegmentsOlderThanSeconds;
-  private final int shipFabricatedAheadThreshold;
+  private final HttpClientProvider httpClientProvider;
   private final JsonProvider jsonProvider;
   private final JsonapiPayloadFactory jsonapiPayloadFactory;
   private final Runnable onFailure;
   private final SegmentAudioManager segmentAudioManager;
-  private final SourceFactory source;
   private final SegmentManager segmentManager;
-  private final String shipBucket;
+  private final SourceFactory source;
+  private final String shipBaseUrl;
   private final String shipKey;
+  private final int eraseSegmentsOlderThanSeconds;
+  private final int shipFabricatedAheadThreshold;
 
   @Inject
   public ChainLoaderImpl(
@@ -55,7 +57,7 @@ public class ChainLoaderImpl extends ChainLoader {
     @Assisted("onFailure") Runnable onFailure,
     ChainManager chainManager,
     Environment env,
-    FileStoreProvider fileStoreProvider,
+    HttpClientProvider httpClientProvider,
     JsonProvider jsonProvider,
     JsonapiPayloadFactory jsonapiPayloadFactory,
     SegmentAudioManager segmentAudioManager,
@@ -63,7 +65,7 @@ public class ChainLoaderImpl extends ChainLoader {
     SourceFactory source
   ) {
     this.chainManager = chainManager;
-    this.fileStoreProvider = fileStoreProvider;
+    this.httpClientProvider = httpClientProvider;
     this.jsonProvider = jsonProvider;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     this.onFailure = onFailure;
@@ -73,9 +75,8 @@ public class ChainLoaderImpl extends ChainLoader {
     this.source = source;
 
     eraseSegmentsOlderThanSeconds = env.getWorkEraseSegmentsOlderThanSeconds();
+    shipBaseUrl = env.getShipBaseUrl();
     shipFabricatedAheadThreshold = env.getWorkShipFabricatedAheadThresholdSeconds();
-
-    shipBucket = env.getShipBucket();
   }
 
   @Override
@@ -98,25 +99,18 @@ public class ChainLoaderImpl extends ChainLoader {
     var success = new AtomicBoolean(true);
     var segmentSkipped = new AtomicInteger(0);
     var segmentLoaded = new AtomicInteger(0);
-    String chainFullKey;
-    InputStream chainStream;
     JsonapiPayload chainPayload;
     Chain chain;
-    try {
-      LOG.info("will check for shipped data");
-      chainFullKey = Chains.getShipKey(Chains.getFullKey(shipKey), EXTENSION_JSON);
-
-      if (!fileStoreProvider.doesS3ObjectExist(shipBucket, chainFullKey)) {
-        LOG.error("Template data was not found at {}/{}", shipBucket, chainFullKey);
-        onFailure.run();
-        return;
-      }
-
-      chainStream = fileStoreProvider.streamS3Object(shipBucket, chainFullKey);
-      chainPayload = jsonProvider.getMapper().readValue(chainStream, JsonapiPayload.class);
+    LOG.info("will check for shipped data");
+    var key = Chains.getShipKey(Chains.getFullKey(shipKey), EXTENSION_JSON);
+    CloseableHttpClient client = httpClientProvider.getClient();
+    try (
+      CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", shipBaseUrl, key)))
+    ) {
+      chainPayload = jsonProvider.getMapper().readValue(response.getEntity().getContent(), JsonapiPayload.class);
       chain = jsonapiPayloadFactory.toOne(chainPayload);
       chainManager.put(chain);
-    } catch (FileStoreException | JsonapiException | ClassCastException | IOException | ManagerFatalException e) {
+    } catch (JsonapiException | ClassCastException | IOException | ManagerFatalException e) {
       LOG.error("Failed to retrieve previously fabricated chain for Template[{}] because {}", shipKey, e.getMessage());
       onFailure.run();
       return;
@@ -171,30 +165,24 @@ public class ChainLoaderImpl extends ChainLoader {
     if (0 < segmentLoaded.get())
       LOG.info("will load {} Segments (skipped {})", segmentLoaded.get(), segmentSkipped.get());
     else
-      LOG.info("skipped  all {} Segments", segmentSkipped.get());
+      LOG.info("skipped all {} Segments", segmentSkipped.get());
 
     // Nexus with bootstrap won't rehydrate stale Chain
     // https://www.pivotaltracker.com/story/show/178727631
-    var fabricatedAheadSeconds = computeFabricatedAheadSeconds(chain);
-
-    if (fabricatedAheadSeconds >= shipFabricatedAheadThreshold) {
-      LOG.info("fabricated ahead {}s OK (> {}s)", fabricatedAheadSeconds, shipFabricatedAheadThreshold);
-    } else {
-      LOG.warn("stale, fabricated ahead {}s (not > {}s)", fabricatedAheadSeconds, shipFabricatedAheadThreshold);
-    }
-  }
-
-  private float computeFabricatedAheadSeconds(Chain chain) {
     try {
-      return Chains.computeFabricatedAheadSeconds(chain,
+      var aheadSeconds = Values.computeRelativeSeconds(Chains.computeFabricatedAheadAt(chain,
         segmentManager.readMany(ImmutableList.of(chain.getId())).stream()
           .filter(seg -> SegmentState.DUBBED.equals(seg.getState()))
-          .collect(Collectors.toList()));
+          .collect(Collectors.toList())));
+
+      if (aheadSeconds >= shipFabricatedAheadThreshold) {
+        LOG.info("fabricated ahead {}s OK (> {}s)", aheadSeconds, shipFabricatedAheadThreshold);
+      } else {
+        LOG.warn("stale, fabricated ahead {}s (not > {}s)", aheadSeconds, shipFabricatedAheadThreshold);
+      }
 
     } catch (ManagerFatalException | ManagerPrivilegeException | ManagerExistenceException e) {
-      LOG.error("Failed to get fabricated segments", e);
-      return 0;
+      e.printStackTrace();
     }
   }
-
 }

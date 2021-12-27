@@ -12,6 +12,7 @@ import io.xj.hub.HubTopology;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.nexus.NexusApp;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
@@ -20,6 +21,9 @@ import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.persistence.*;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,6 +56,14 @@ public class ComplexLibraryTest {
   public HubClient hubClient;
   @Mock(lenient = true)
   public FileStoreProvider fileStoreProvider;
+  @Mock(lenient = true)
+  public HttpClientProvider httpClientProvider;
+  @Mock(lenient = true)
+  public CloseableHttpClient httpClient;
+  @Mock(lenient = true)
+  public CloseableHttpResponse httpResponse;
+  @Mock(lenient = true)
+  public HttpEntity httpResponseEntity;
   @Mock
   public TelemetryProvider telemetryProvider;
   long startTime = System.currentTimeMillis();
@@ -74,6 +86,7 @@ public class ComplexLibraryTest {
         public void configure() {
           bind(Environment.class).toInstance(env);
           bind(FileStoreProvider.class).toInstance(fileStoreProvider);
+          bind(HttpClientProvider.class).toInstance(httpClientProvider);
           bind(HubClient.class).toInstance(hubClient);
           bind(TelemetryProvider.class).toInstance(telemetryProvider);
         }
@@ -93,6 +106,9 @@ public class ComplexLibraryTest {
     fake.library1 = buildLibrary(fake.account1, "test");
     var content = new HubContent(fake.generatedFixture(3));
     when(hubClient.ingest(any(), any())).thenReturn(content);
+    when(httpClientProvider.getClient()).thenReturn(httpClient);
+    when(httpClient.execute(any())).thenReturn(httpResponse);
+    when(httpResponse.getEntity()).thenReturn(httpResponseEntity);
 
     // Chain "Test Print #1" is ready to begin
     chain1 = test.put(buildChain(
@@ -112,7 +128,7 @@ public class ComplexLibraryTest {
   public void fabricatesManySegments() throws Exception {
     when(fileStoreProvider.generateKey(any(), any()))
       .thenReturn("chains-1-segments-12345.wav");
-    when(fileStoreProvider.streamS3Object(any(), any()))
+    when(httpResponseEntity.getContent())
       .thenAnswer((Answer<InputStream>) invocation -> new FileInputStream(Objects.requireNonNull(
         ComplexLibraryTest.class.getClassLoader().getResource("source_audio/kick1.wav")).getFile()));
 
@@ -147,7 +163,7 @@ public class ComplexLibraryTest {
   }
 
   /**
-   Does a specified Chain contain at least N segments?
+   Does the specified chain contain at least N segments?
 
    @param chainId to test
    @return true if it has at least N segments

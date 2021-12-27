@@ -51,9 +51,8 @@ components:
           type: string
         stopAt:
           type: string
-        fabricatedAheadSeconds:
-          type: number
-          format: double
+        fabricatedAheadAt:
+          type: string
         createdAt:
           type: string
         updatedAt:

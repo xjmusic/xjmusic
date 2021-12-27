@@ -4,7 +4,6 @@ package io.xj.ship.broadcast;
 import com.google.api.client.util.Lists;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.lib.app.Environment;
 import io.xj.lib.mixer.AudioSampleFormat;
 import io.xj.lib.mixer.FormatException;
 import io.xj.lib.util.CSV;
@@ -40,62 +39,51 @@ import static io.xj.lib.util.Values.toEpochMicros;
  referenced in the question I posted on Stack Overflow
  - https://stackoverflow.com/questions/69625970/java-mp4parser-to-create-a-single-m4s-fragment
  */
-public class ChunkMixerImpl implements ChunkMixer {
+class ChunkMixerImpl implements ChunkMixer {
   public static final int MAX_INT_LENGTH_ARRAY_SIZE = 2147483647;
   private static final Logger LOG = LoggerFactory.getLogger(ChunkMixerImpl.class);
   private static final int READ_BUFFER_BYTE_SIZE = 4096;
+  final double[][] buffer; // final output [frame][channel]
   private final AudioFormat format;
+  private final Chunk chunk;
   private final SegmentAudioManager segmentAudioManager;
-  private final double[][] buffer; // final output buffer like [frame][channel]
+
 
   @Inject
   public ChunkMixerImpl(
+    @Assisted("chunk") Chunk chunk,
     @Assisted("audioFormat") AudioFormat format,
-    Environment env,
     SegmentAudioManager segmentAudioManager
   ) {
+    this.chunk = chunk;
     this.segmentAudioManager = segmentAudioManager;
     this.format = format;
 
-    int shipChunkSeconds = env.getShipMixChunkSeconds();
-
-    buffer = new double[(int) (format.getFrameRate() * shipChunkSeconds)][format.getChannels()];
+    buffer = new double[(int) (format.getFrameRate() * chunk.getActualDuration())][format.getChannels()];
   }
 
   @Override
-  public double[][] mix(Chunk chunk) throws ShipException {
-    setBufferZeroes();
-
+  public double[][] mix() throws ShipException {
     var audios = getAllIntersectingAudios(chunk);
     if (!areAllReady(audios)) return buffer;
 
     // get the buffer from each audio and lay it into the output buffer
     LOG.debug("will mix source audio to buffer");
     for (var audio : audios)
-      applySource(chunk, audio);
-    LOG.info("Chunk[{}] mixed from audio of {}", chunk.getIndex(),
+      applySource(chunk, audio, buffer);
+    LOG.info("Chunk[{}] mixed from audio of {}", chunk.getSequenceNumber(),
       CSV.from(audios.stream().map(SegmentAudio::getSegment).map(Segments::getIdentifier).collect(Collectors.toList())));
 
     return buffer;
   }
 
   /**
-   Set buffer to zeroes
-   */
-  private void setBufferZeroes() {
-    int f, c;
-    for (f = 0; f < buffer.length; f++)
-      for (c = 0; c < buffer[f].length; c++)
-        buffer[f][c] = 0;
-  }
+   apply one source to the mixing buffer@param chunk  to mix
 
-  /**
-   apply one source to the mixing buffer
-
-   @param chunk  to mix
    @param source to apply
+   @param buffer to which we will add source
    */
-  private void applySource(Chunk chunk, SegmentAudio source) throws ShipException {
+  private void applySource(Chunk chunk, SegmentAudio source, double[][] buffer) throws ShipException {
     int i; // frame iterator
     int b; // bytes iterator
     int tc; // target channel iterator

@@ -3,6 +3,7 @@ package io.xj.nexus.fabricator;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
+import io.xj.lib.http.HttpClientModule;
 
 public class NexusFabricatorModule extends AbstractModule {
   @Override
@@ -13,5 +14,6 @@ public class NexusFabricatorModule extends AbstractModule {
       .implement(SegmentRetrospective.class, SegmentRetrospectiveImpl.class)
       .implement(TimeComputer.class, TimeComputerImpl.class)
       .build(FabricatorFactory.class));
+    install(new HttpClientModule());
   }
 }

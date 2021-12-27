@@ -5,7 +5,10 @@ package io.xj.ship.broadcast;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.lib.app.Environment;
+import io.xj.lib.filestore.FileStoreException;
+import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.mixer.FormatException;
+import io.xj.lib.util.Files;
 import io.xj.lib.util.StreamLogger;
 import io.xj.lib.util.Values;
 import io.xj.ship.ShipException;
@@ -18,6 +21,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -32,11 +36,16 @@ public class StreamEncoderImpl implements StreamEncoder {
   private static final String THREAD_NAME = "stream-encoder";
   private final AudioFormat format;
   private final ConcurrentLinkedQueue<ByteBuffer> queue = new ConcurrentLinkedQueue<>();
+  private final FileStoreProvider fileStore;
+  private final PlaylistManager playlistManager;
+  private final String bucket;
+  private final String contentTypeSegment;
   private final String playlistPath;
+  private final String tempFilePathPrefix;
   private final int bitrate;
-  private final int hlsSegmentSeconds;
   private final int hlsListSize;
-  private final M3U8PlaylistManager m3U8PlaylistManager;
+  private final int hlsSegmentSeconds;
+  private int initialSeqNum;
   private Process ffmpeg;
   private volatile boolean active = true;
 
@@ -45,15 +54,22 @@ public class StreamEncoderImpl implements StreamEncoder {
     @Assisted("shipKey") String shipKey,
     @Assisted("audioFormat") AudioFormat format,
     Environment env,
-    M3U8PlaylistManager m3U8PlaylistManager
+    FileStoreProvider fileStore,
+    PlaylistManager playlistManager
   ) {
     this.format = format;
-    this.m3U8PlaylistManager = m3U8PlaylistManager;
+    this.fileStore = fileStore;
+    this.playlistManager = playlistManager;
 
     bitrate = env.getShipBitrateHigh();
+    bucket = env.getStreamBucket();
+    contentTypeSegment = env.getShipChunkContentType();
+    hlsListSize = env.getShipChunkPlaylistSize();
     hlsSegmentSeconds = env.getHlsSegmentSeconds();
-    hlsListSize = env.getHlsListSize();
-    playlistPath = String.format("%s%s.m3u8", env.getTempFilePathPrefix(), shipKey);
+    tempFilePathPrefix = env.getTempFilePathPrefix();
+
+    String m3u8Key = String.format("%s.m3u8", shipKey);
+    playlistPath = String.format("%s%s", tempFilePathPrefix, m3u8Key);
 
     if (ShipMode.HLS.equals(env.getShipMode()))
       CompletableFuture.runAsync(() -> {
@@ -61,23 +77,25 @@ public class StreamEncoderImpl implements StreamEncoder {
         final String oldName = currentThread.getName();
         currentThread.setName(THREAD_NAME);
         try {
-          int initialOffset = m3U8PlaylistManager.computeMediaSequence(System.currentTimeMillis());
+          initialSeqNum = playlistManager.computeMediaSequence(System.currentTimeMillis());
           ProcessBuilder builder = new ProcessBuilder(List.of(
             "ffmpeg",
             "-v", env.getShipFFmpegVerbosity(),
             "-i", "pipe:0",
-            "-f", "hls",
             "-ac", "2",
-            "-c:a", env.getShipFfmpegAudioCompressor(),
+            "-c:a", env.getShipChunkAudioEncoder(),
             "-b:a", Values.k(bitrate),
-            "-initial_offset", String.valueOf(initialOffset),
             "-maxrate", Values.k(bitrate),
             "-minrate", Values.k(bitrate),
-            "-start_number", String.valueOf(initialOffset),
+            // HLS
+            "-f", "hls",
+            "-g", "10",
+            "-start_number", String.valueOf(initialSeqNum),
+            "-initial_offset", String.valueOf(initialSeqNum),
             "-hls_flags", "delete_segments",
             "-hls_list_size", String.valueOf(hlsListSize),
             "-hls_playlist_type", "event",
-            "-hls_segment_filename", String.format("%s%s-%%d.%s", env.getTempFilePathPrefix(), shipKey, env.getShipFfmpegSegmentFilenameExtension()),
+            "-hls_segment_filename", String.format("%s%s-%%d.%s", env.getTempFilePathPrefix(), shipKey, env.getShipChunkAudioEncoder()),
             "-hls_time", String.valueOf(hlsSegmentSeconds),
             playlistPath
           ));
@@ -131,10 +149,44 @@ public class StreamEncoderImpl implements StreamEncoder {
   }
 
   @Override
+  public void publish(long atMillis) throws ShipException {
+    try {
+      // test for existence of playlist file; skip if nonexistent
+      if (!new File(playlistPath).exists()) return;
+
+      // parse ffmpeg .m3u8 content into playlist manager
+      var added = playlistManager.parseAndLoadItems(Files.getFileContent(playlistPath));
+
+      // publish new filenames
+      for (Chunk item : added)
+        // skip the first generated media segment; it begins with priming samples
+        if (item.getSequenceNumber() > initialSeqNum)
+          uploadMediaSegment(item.getFilename(), contentTypeSegment);
+
+    } catch (IOException | FileStoreException e) {
+      throw new ShipException("Failed to publish media segment!", e);
+    }
+  }
+
+  @Override
   public void close() {
     if (Objects.nonNull(ffmpeg))
       ffmpeg.destroy();
     active = false;
+  }
+
+
+  /**
+   Stream a file from temp path to S3
+
+   @param key         of file (in temp folder and on S3 target)
+   @param contentType content-type
+   @throws FileStoreException on failure
+   */
+  private void uploadMediaSegment(String key, String contentType) throws FileStoreException {
+    var path = String.format("%s%s", tempFilePathPrefix, key);
+    fileStore.putS3ObjectFromTempFile(path, bucket, key, contentType);
+    LOG.info("Did stream {}/{} ({})", bucket, key, contentType);
   }
 
 }

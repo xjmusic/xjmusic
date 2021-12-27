@@ -32,7 +32,7 @@ public class ChunkTest {
   private ChainManager chainManager;
 
   @Before
-  public void setUp() throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException {
+  public void setUp() {
     var injector = Guice.createInjector(Modules.override(new BroadcastModule()).with(new AbstractModule() {
 
       @Override
@@ -42,11 +42,8 @@ public class ChunkTest {
       }
     }));
 
-    when(chainManager.readOneByShipKey(eq(SHIP_KEY)))
-      .thenReturn(buildChain(buildTemplate(buildAccount("Testing"), "Testing")));
-
     var broadcast = injector.getInstance(BroadcastFactory.class);
-    subject = broadcast.chunk(SHIP_KEY, 1513040420);
+    subject = broadcast.chunk(SHIP_KEY, 151304042L, "mp3", null);
   }
 
   @Test

@@ -78,16 +78,6 @@ public interface ChainManager extends Manager<Chain> {
   Optional<Segment> buildNextSegmentOrCompleteTheChain(Chain chain, Instant segmentBeginBefore, Instant chainStopCompleteAfter) throws ManagerFatalException, ManagerPrivilegeException, ManagerExistenceException, ManagerValidationException;
 
   /**
-   [#160299309] Engineer wants a *revived* action for a live production chain, in case the chain has become stuck, in order to ensure the Chain remains in an operable state.
-   [#170273871] Revived chain should always start now
-
-   @param priorChainId to revived
-   @param reason       provided description why we are reviving this chain
-   @return newly created revived chain
-   */
-  Chain revive(UUID priorChainId, String reason) throws ManagerFatalException, ManagerPrivilegeException, ManagerExistenceException, ManagerValidationException;
-
-  /**
    Read all chains in fabricating state
 
    @return all chains in fabricating state
