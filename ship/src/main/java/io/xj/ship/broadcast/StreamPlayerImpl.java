@@ -36,15 +36,15 @@ public class StreamPlayerImpl implements StreamPlayer {
 
     queue = new ConcurrentLinkedQueue<>();
 
-    DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
-    if (!AudioSystem.isLineSupported(info)) {
-      LOG.error("Line matching {} not supported.", info);
-      line = null;
-      return;
-    }
-
     if (ShipMode.Playback.equals(env.getShipMode()))
       try {
+        DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
+        if (!AudioSystem.isLineSupported(info)) {
+          LOG.error("Line matching {} not supported.", info);
+          line = null;
+          return;
+        }
+
         line = (SourceDataLine) AudioSystem.getLine(info);
         line.open(format);
         line.start();

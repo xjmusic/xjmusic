@@ -3,6 +3,8 @@ package io.xj.ship.broadcast;
 
 import io.xj.ship.ShipException;
 
+import java.util.Optional;
+
 /**
  This process is run directly in the hard loop (not in a Fork/Join pool)
  <p>
@@ -25,9 +27,10 @@ public interface PlaylistPublisher {
   /**
    Attempt to rehydrate ship from the last .m3u8 playlist that was uploaded for this ship key
    <p>
-   Ship rehydrates from last shipped .m3u8 playlist file #180723357
+   Ship rehydrates from last shipped .m3u8 playlist file #180723357@return
+
    */
-  void rehydratePlaylist();
+  Optional<Long> rehydratePlaylist();
 
   /**
    Publish the custom .m3u8 file

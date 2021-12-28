@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
 /**
  Ship broadcast via HTTP Live Streaming #179453189
@@ -32,7 +33,6 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   private final String m3u8Key;
   private final String streamBaseUrl;
   private final boolean active;
-  private final int hlsStartPlaylistBehindSegments;
 
   @Inject
   public PlaylistPublisherImpl(
@@ -49,14 +49,13 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     active = ShipMode.HLS.equals(env.getShipMode());
     bucket = env.getStreamBucket();
     contentTypeM3U8 = env.getShipM3u8ContentType();
-    hlsStartPlaylistBehindSegments = env.getHlsStartPlaylistBehindSegments();
     streamBaseUrl = env.getStreamBaseUrl();
 
     m3u8Key = String.format("%s.m3u8", shipKey);
   }
 
   @Override
-  public void rehydratePlaylist() {
+  public Optional<Long> rehydratePlaylist() {
     CloseableHttpClient client = httpClientProvider.getClient();
     try (
       CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", streamBaseUrl, m3u8Key)))
@@ -66,9 +65,11 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
       for (var item : added)
         LOG.info("Did rehydrate {}/{} @ media sequence {}", bucket, item.getFilename(), item.getSequenceNumber());
       LOG.info("Rehydrated {} items OK from playlist {}/{}", added.size(), bucket, m3u8Key);
+      return added.stream().map(Chunk::getSequenceNumber).max(Long::compare);
 
     } catch (ClassCastException | IOException e) {
       LOG.error("Failed to retrieve previously streamed playlist {}/{} because {}", bucket, m3u8Key, e.getMessage());
+      return Optional.empty();
     }
   }
 
@@ -76,7 +77,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   public void publish(long atMillis) throws ShipException {
     if (!active) return;
     try {
-      var mediaSequence = playlistManager.computeMediaSequence(System.currentTimeMillis()) - hlsStartPlaylistBehindSegments;
+      var mediaSequence = playlistManager.computeMediaSequence(System.currentTimeMillis());
       fileStore.putS3ObjectFromString(playlistManager.getPlaylistContent(mediaSequence), bucket, m3u8Key, contentTypeM3U8);
       LOG.info("Shipped {}/{} ({}) @ media sequence {}", bucket, m3u8Key, contentTypeM3U8, mediaSequence);
 

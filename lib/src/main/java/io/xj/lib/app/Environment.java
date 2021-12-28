@@ -76,8 +76,6 @@ public class Environment {
   private final int chainStartInFutureSeconds;
   private final int fabricationChainThresholdFabricatedBehindSeconds;
   private final int fabricationPreviewLengthMaxHours;
-  private final int hlsSegmentSeconds;
-  private final int hlsStartPlaylistBehindSegments;
   private final int httpClientPoolMaxPerRoute;
   private final int httpClientPoolMaxTotal;
   private final int playbackExpireSeconds;
@@ -88,6 +86,7 @@ public class Environment {
   private final int segmentComputeTimeResolutionHz;
   private final int shipBitrateHigh;
   private final int shipChunkTargetDuration;
+  private final int shipMixCycleSeconds;
   private final int shipPlaylistMinimumSize;
   private final int shipPlaylistTargetSize;
   private final int shipReloadSeconds;
@@ -99,7 +98,6 @@ public class Environment {
   private final int workJanitorCycleSeconds;
   private final int workLabHubLabPollSeconds;
   private final int workMedicCycleSeconds;
-  private final int workMixCycleSeconds;
   private final int workPublishCycleSeconds;
   private final int workRehydrateFabricatedAheadThreshold;
   private final int workShipFabricatedAheadThresholdSeconds;
@@ -137,8 +135,6 @@ public class Environment {
     chainStartInFutureSeconds = readInt(vars, "CHAIN_START_IN_FUTURE_SECONDS", 0);
     fabricationChainThresholdFabricatedBehindSeconds = readInt(vars, "FABRICATION_CHAIN_THRESHOLD_FABRICATED_BEHIND_SECONDS", 15);
     fabricationPreviewLengthMaxHours = readInt(vars, "FABRICATION_PREVIEW_LENGTH_MAX_HOURS", 8);
-    hlsSegmentSeconds = readInt(vars, "HLS_SEGMENT_SECONDS", 10);
-    hlsStartPlaylistBehindSegments = readInt(vars, "HLS_START_PLAYLIST_BEHIND_SEGMENTS", 5);
     hostname = readStr(vars, "HOSTNAME", "localhost");
     httpClientPoolMaxPerRoute = readInt(vars, "HTTP_CLIENT_POOL_MAX_PER_ROUTE", 20);
     httpClientPoolMaxTotal = readInt(vars, "HTTP_CLIENT_POOL_MAX_TOTAL", 200);
@@ -151,7 +147,7 @@ public class Environment {
     segmentComputeTimeFramesPerBeat = readInt(vars, "SEGMENT_COMPUTE_TIME_FRAMES_PER_BEAT", 64);
     segmentComputeTimeResolutionHz = readInt(vars, "SEGMENT_COMPUTE_TIME_RESOLUTION_HZ", 1000000);
     shipBaseUrl = readStr(vars, "SHIP_BASE_URL", "https://ship.dev.xj.io/");
-    shipBitrateHigh = readInt(vars, "SHIP_BITRATE_HIGH", 128000);
+    shipBitrateHigh = readInt(vars, "SHIP_BITRATE_HIGH", 320000);
     shipBucket = readStr(vars, "SHIP_BUCKET", "xj-dev-ship");
     shipChunkAudioEncoder = readStr(vars, "SHIP_CHUNK_AUDIO_ENCODER", "aac");
     shipChunkContentType = readStr(vars, "SHIP_CHUNK_CONTENT_TYPE", "audio/aac");
@@ -159,9 +155,10 @@ public class Environment {
     shipFFmpegVerbosity = readStr(vars, "SHIP_FFMPEG_VERBOSITY", "info");
     shipKey = readStr(vars, "SHIP_KEY", EMPTY);
     shipM3u8ContentType = readStr(vars, "SHIP_M3U8_CONTENT_TYPE", "application/x-mpegURL");
+    shipMixCycleSeconds = readInt(vars, "WORK_PRINT_CYCLE_SECONDS", 1);
     shipMode = readStr(vars, "SHIP_MODE", "hls");
-    shipPlaylistMinimumSize = readInt(vars, "SHIP_PLAYLIST_MINIMUM_SIZE", 5);
-    shipPlaylistTargetSize = readInt(vars, "SHIP_PLAYLIST_TARGET_SIZE", 20);
+    shipPlaylistMinimumSize = readInt(vars, "SHIP_PLAYLIST_MINIMUM_SIZE", 4);
+    shipPlaylistTargetSize = readInt(vars, "SHIP_PLAYLIST_TARGET_SIZE", 6);
     shipReloadSeconds = readInt(vars, "SHIP_RELOAD_SECONDS", 15);
     shipSegmentLoadTimeoutSeconds = readInt(vars, "SHIP_SEGMENT_LOAD_TIMEOUT_SECONDS", 5);
     streamBaseURL = readStr(vars, "STREAM_BASE_URL", "https://stream.dev.xj.io/");
@@ -171,7 +168,7 @@ public class Environment {
     tempFilePathPrefix = readStr(vars, "TEMP_FILE_PATH_PREFIX", "/tmp/");
     workChainManagementEnabled = readBool(vars, "WORK_CHAIN_MANAGEMENT_ENABLED", true);
     workCycleMillis = readInt(vars, "WORK_CYCLE_MILLIS", 1200);
-    workEraseSegmentsOlderThanSeconds = readInt(vars, "WORK_ERASE_SEGMENTS_OLDER_THAN_SECONDS", 30);
+    workEraseSegmentsOlderThanSeconds = readInt(vars, "WORK_ERASE_SEGMENTS_OLDER_THAN_SECONDS", 300);
     workHealthCycleStalenessThresholdSeconds = readInt(vars, "WORK_HEALTH_CYCLE_STALENESS_THRESHOLD_SECONDS", 60);
     workIngestCycleSeconds = readInt(vars, "WORK_INGEST_CYCLE_SECONDS", 20);
     workJanitorCycleSeconds = readInt(vars, "WORK_JANITOR_CYCLE_SECONDS", 60);
@@ -179,7 +176,6 @@ public class Environment {
     workLabHubLabPollSeconds = readInt(vars, "WORK_LAB_HUB_LAB_POLL_SECONDS", 10);
     workMedicCycleSeconds = readInt(vars, "WORK_MEDIC_CYCLE_SECONDS", 30);
     workMedicEnabled = readBool(vars, "WORK_MEDIC_ENABLED", true);
-    workMixCycleSeconds = readInt(vars, "WORK_PRINT_CYCLE_SECONDS", 2);
     workPublishCycleSeconds = readInt(vars, "WORK_PUBLISH_CYCLE_SECONDS", 10);
     workRehydrateFabricatedAheadThreshold = readInt(vars, "WORK_REHYDRATE_FABRICATED_AHEAD_THRESHOLD", 60);
     workShipFabricatedAheadThresholdSeconds = readInt(vars, "WORK_SHIP_FABRICATED_AHEAD_THRESHOLD_SECONDS", 60);
@@ -510,20 +506,6 @@ public class Environment {
   }
 
   /**
-   @return # of seconds per HLS media segment
-   */
-  public int getHlsSegmentSeconds() {
-    return hlsSegmentSeconds;
-  }
-
-  /**
-   @return the # of segments before "now" which we should actually ship an .m3u8 beginning at
-   */
-  public int getHlsStartPlaylistBehindSegments() {
-    return hlsStartPlaylistBehindSegments;
-  }
-
-  /**
    @return the application hostname, e.g. "localhost"
    */
   public String getHostname() {
@@ -671,6 +653,27 @@ public class Environment {
   }
 
   /**
+   @return the segment base URL
+   */
+  public String getShipBaseUrl() {
+    return shipBaseUrl;
+  }
+
+  /**
+   @return the ship MPEG2 TS bitrate
+   */
+  public int getShipBitrateHigh() {
+    return shipBitrateHigh;
+  }
+
+  /**
+   @return the segment file bucket
+   */
+  public String getShipBucket() {
+    return shipBucket;
+  }
+
+  /**
    @return the ship ffmpeg audio compressor
    */
   public String getShipChunkAudioEncoder() {
@@ -715,6 +718,20 @@ public class Environment {
   }
 
   /**
+   @return the work print cycle seconds
+   */
+  public int getShipMixCycleSeconds() {
+    return shipMixCycleSeconds;
+  }
+
+  /**
+   @return ship mode
+   */
+  public String getShipMode() {
+    return shipMode;
+  }
+
+  /**
    @return the minimum size of the HLS m3u8 playlist, below which we don't consider the process healthy
    */
   public int getShipPlaylistMinimumSize() {
@@ -729,38 +746,10 @@ public class Environment {
   }
 
   /**
-   @return ship mode
-   */
-  public String getShipMode() {
-    return shipMode;
-  }
-
-  /**
    @return the ship reload seconds
    */
   public int getShipReloadSeconds() {
     return shipReloadSeconds;
-  }
-
-  /**
-   @return the segment base URL
-   */
-  public String getShipBaseUrl() {
-    return shipBaseUrl;
-  }
-
-  /**
-   @return the segment file bucket
-   */
-  public String getShipBucket() {
-    return shipBucket;
-  }
-
-  /**
-   @return the ship MPEG2 TS bitrate
-   */
-  public int getShipBitrateHigh() {
-    return shipBitrateHigh;
   }
 
   /**
@@ -880,13 +869,6 @@ public class Environment {
    */
   public boolean isWorkMedicEnabled() {
     return workMedicEnabled;
-  }
-
-  /**
-   @return the work print cycle seconds
-   */
-  public int getWorkMixCycleSeconds() {
-    return workMixCycleSeconds;
   }
 
   /**

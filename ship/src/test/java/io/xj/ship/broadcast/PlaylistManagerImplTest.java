@@ -81,4 +81,16 @@ public class PlaylistManagerImplTest {
 
     assertEquals(reference_m3u8, subject.getPlaylistContent(164029638));
   }
+
+  @Test
+  public void collectGarbage_recomputesMaxSequence_resetsOnEmpty() throws IOException {
+    var added = subject.parseAndLoadItems(getResourceFileContent("coolair.m3u8"));
+    assertEquals(164029657, subject.getMaxSequenceNumber());
+
+    subject.collectGarbageBefore(164029651);
+    assertEquals(164029657, subject.getMaxSequenceNumber());
+
+    subject.collectGarbageBefore(164029659); // past end of playlist; will clear all
+    assertEquals(0, subject.getMaxSequenceNumber());
+  }
 }

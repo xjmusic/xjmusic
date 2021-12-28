@@ -63,7 +63,7 @@ class NotificationProviderImpl implements NotificationProvider {
   }
 
   @Override
-  public void publish(String message, String subject) {
+  public void publish(String subject, String message) {
     if (Objects.nonNull(topicArn))
       try {
         snsClient().publish(topicArn, message, subject);

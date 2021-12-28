@@ -16,12 +16,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.sound.sampled.AudioFormat;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static io.xj.lib.util.Values.MILLIS_PER_SECOND;
 
@@ -63,7 +60,7 @@ public class ShipWorkImpl implements ShipWork {
   private boolean active = true;
   private long nextCycleMillis = 0;
   private long nextJanitorMillis = 0;
-  private long nextPrintMillis = 0;
+  private long nextMixMillis = 0;
   private long nextPublishMillis = 0;
   private long nextShipReloadMillis = 0;
   private long doneUpToSecondsUTC;
@@ -96,7 +93,7 @@ public class ShipWorkImpl implements ShipWork {
     janitorCycleSeconds = env.getWorkJanitorCycleSeconds();
     janitorEnabled = env.isWorkJanitorEnabled();
     loadCycleSeconds = env.getShipReloadSeconds();
-    mixCycleSeconds = env.getWorkMixCycleSeconds();
+    mixCycleSeconds = env.getShipMixCycleSeconds();
     publishCycleSeconds = env.getWorkPublishCycleSeconds();
     chunkTargetDuration = env.getShipChunkTargetDuration();
     shipAheadMillis = env.getShipPlaylistTargetSize() * chunkTargetDuration * MILLIS_PER_SECOND;
@@ -123,7 +120,8 @@ public class ShipWorkImpl implements ShipWork {
   @Override
   public void work() {
     // Ship rehydrates from last shipped .m3u8 playlist file #180723357
-    publisher.rehydratePlaylist();
+    publisher.rehydratePlaylist()
+      .ifPresent(maxSeqNum -> doneUpToSecondsUTC = (maxSeqNum + 1) * chunkTargetDuration);
 
     while (active) this.run();
   }
@@ -136,12 +134,24 @@ public class ShipWorkImpl implements ShipWork {
 
   @Override
   public boolean isHealthy() {
-    return active
-      && !isCycleStale()
-      && !State.Fail.equals(state.get())
-      && Objects.nonNull(stream)
-      && stream.isHealthy()
-      && playlist.isHealthy();
+    if (!active) return notHealthy("Not Active!");
+    if (isCycleStale()) return notHealthy("Work cycle is stale!");
+    if (State.Fail.equals(state.get())) return notHealthy("Work entered a failure state!");
+    if (Objects.isNull(stream)) return notHealthy("Stream encoder has not yet started!");
+    if (!stream.isHealthy()) return notHealthy("Stream encoder is not healthy!");
+    if (!playlist.isHealthy()) return notHealthy("Playlist is not healthy!");
+    return true;
+  }
+
+  /**
+   Return false after logging a warning message
+
+   @param message to warn
+   @return false
+   */
+  private boolean notHealthy(String message) {
+    LOG.warn(message);
+    return false;
   }
 
   /**
@@ -170,7 +180,7 @@ public class ShipWorkImpl implements ShipWork {
       } catch (Exception e) {
         var detail = Strings.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
         LOG.error("Failed while running ship work because {}", detail, e);
-        notification.publish(String.format("Failed while running ship work because %s\n\n%s", detail, Text.formatStackTrace(e)), "Failure");
+        notification.publish("Failure", String.format("Failed while running ship work because %s\n\n%s", detail, Text.formatStackTrace(e)));
       }
   }
 
@@ -180,17 +190,32 @@ public class ShipWorkImpl implements ShipWork {
    @param nowMillis current
    */
   private void doMixCycle(long nowMillis) throws ShipException {
-    if (nowMillis < nextPrintMillis) return;
-    nextPrintMillis = nowMillis + mixCycleSeconds * MILLIS_PER_SECOND;
-    for (var chunk : computeNextChunks(nowMillis)) {
+    ChunkMixer mixer;
 
-      // Use the first chunk to initialize the stream-- this is how we keep ffmpeg in sync with our chunk scheme
-      if (Objects.isNull(stream))
-        stream = broadcast.encoder(shipKey, audioFormat);
+    if (nowMillis < nextMixMillis) return;
+    nextMixMillis = nowMillis + mixCycleSeconds * MILLIS_PER_SECOND;
 
-      // pass the mixed bytes through the various potential output busses
-      player.append(stream.append(broadcast.mixer(chunk, audioFormat).mix()));
-    }
+    // Compute next chunk
+    if (!chains.existsForShipKey(shipKey)) return;
+    var computeToSecondsUTC = computeChunkSecondsUTC(nowMillis + shipAheadMillis);
+    if (doneUpToSecondsUTC == computeToSecondsUTC) return;
+    var chunk = broadcast.chunk(shipKey, doneUpToSecondsUTC / chunkTargetDuration, null, null);
+
+    // Use the first chunk to initialize the stream-- this is how we keep ffmpeg in sync with our chunk scheme
+    if (Objects.isNull(stream))
+      stream = broadcast.encoder(shipKey, audioFormat);
+
+    // get the mixer for this chunk before pulling the trigger
+    mixer = broadcast.mixer(chunk, audioFormat);
+
+    // if this chunk isn't ready to be mixed, then quit the mix cycle for now. we won't update done-up-to any further this cycle
+    if (!mixer.isReadyToMix()) return;
+
+    // pass the mixed bytes through the various potential output busses
+    player.append(stream.append(mixer.mix()));
+
+    // having arrived here, we confirm that the chunks have been mixed up to here.
+    doneUpToSecondsUTC = chunk.getToSecondsUTC();
   }
 
   /**
@@ -229,25 +254,6 @@ public class ShipWorkImpl implements ShipWork {
     publisher.publish(nowMillis);
     if (Objects.nonNull(stream))
       stream.publish(nowMillis);
-  }
-
-
-  /**
-   Make the next chunk(s)
-
-   @param nowMillis for which to make chunks
-   @return chunks
-   */
-  public List<Chunk> computeNextChunks(long nowMillis) {
-    if (!chains.existsForShipKey(shipKey)) return List.of();
-    var computeToSecondsUTC = computeChunkSecondsUTC(nowMillis + shipAheadMillis);
-    if (doneUpToSecondsUTC == computeToSecondsUTC) return List.of();
-    var chunks = Stream.iterate(doneUpToSecondsUTC, n -> n + chunkTargetDuration)
-      .limit((computeToSecondsUTC - doneUpToSecondsUTC) / chunkTargetDuration)
-      .map(fromSecondsUTC -> broadcast.chunk(shipKey, fromSecondsUTC / chunkTargetDuration, null, null))
-      .collect(Collectors.toList());
-    doneUpToSecondsUTC = computeToSecondsUTC;
-    return chunks;
   }
 
   /**

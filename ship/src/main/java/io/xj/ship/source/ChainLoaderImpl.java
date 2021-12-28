@@ -101,7 +101,7 @@ public class ChainLoaderImpl extends ChainLoader {
     var segmentLoaded = new AtomicInteger(0);
     JsonapiPayload chainPayload;
     Chain chain;
-    LOG.info("will check for shipped data");
+    LOG.debug("will check for shipped data");
     var key = Chains.getShipKey(Chains.getFullKey(shipKey), EXTENSION_JSON);
     CloseableHttpClient client = httpClientProvider.getClient();
     try (
@@ -163,9 +163,9 @@ public class ChainLoaderImpl extends ChainLoader {
 
     // OK
     if (0 < segmentLoaded.get())
-      LOG.info("will load {} Segments (skipped {})", segmentLoaded.get(), segmentSkipped.get());
+      LOG.debug("Fetched data for {} Segments (skipped {})", segmentLoaded.get(), segmentSkipped.get());
     else
-      LOG.info("skipped all {} Segments", segmentSkipped.get());
+      LOG.debug("skipped all {} Segments", segmentSkipped.get());
 
     // Nexus with bootstrap won't rehydrate stale Chain
     // https://www.pivotaltracker.com/story/show/178727631

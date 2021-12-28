@@ -39,12 +39,12 @@ public class StreamLogger implements Runnable {
       br = new BufferedReader(isr);
       String line;
       while ((line = br.readLine()) != null) {
-        LOG.info("[{}] {}", name, line);
+        LOG.debug("[{}] {}", name, line);
       }
     } catch (IOException e) {
       LOG.error("[{}}] Failed to read from stream!", name, e);
     } finally {
-      LOG.info("[{}}] Done reading stream", name);
+      LOG.debug("[{}}] Done reading stream", name);
       close(isr);
       close(br);
       currentThread.setName(oldName);

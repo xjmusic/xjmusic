@@ -322,10 +322,10 @@ public class NexusWorkImpl implements NexusWork {
         e.getMessage(),
         Text.formatStackTrace(e));
 
-      notification.publish(body,
-        String.format("%s-Chain[%s] Failure",
-          chain.getType(),
-          Chains.getIdentifier(chain)));
+      notification.publish(String.format("%s-Chain[%s] Failure",
+        chain.getType(),
+        Chains.getIdentifier(chain)), body
+      );
 
       LOG.error("Failed to created Segment in Chain[{}] reason={}", Chains.getIdentifier(chain), e.getMessage());
     }
@@ -429,7 +429,7 @@ public class NexusWorkImpl implements NexusWork {
 
     LOG.error("Failed while {} because {}", message, detail, e);
 
-    notification.publish(String.format("Failed while %s because %s\n\n%s", message, detail, Text.formatStackTrace(e)), "Failure");
+    notification.publish("Failure", String.format("Failed while %s because %s\n\n%s", message, detail, Text.formatStackTrace(e)));
   }
 
   /**

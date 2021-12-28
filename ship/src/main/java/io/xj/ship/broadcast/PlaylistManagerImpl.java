@@ -8,6 +8,8 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.xj.lib.app.Environment;
 import io.xj.lib.util.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -26,16 +28,17 @@ import static io.xj.lib.util.Values.MILLIS_PER_SECOND;
  */
 @Singleton
 public class PlaylistManagerImpl implements PlaylistManager {
+  private static final Logger LOG = LoggerFactory.getLogger(PlaylistManagerImpl.class);
   private final Map<Long/* mediaSequence */, Chunk> items = Maps.newConcurrentMap();
   private final BroadcastFactory broadcast;
-  private final int hlsSegmentSeconds;
+  private final int chunkTargetDuration;
   private final String shipSegmentFilenameEndsWith;
   private final Predicate<? super String> isSegmentFilename;
   private final Pattern rgxFilename = Pattern.compile("([A-Za-z0-9]*)-([0-9]*)\\.([A-Za-z0-9]*)");
   private final Pattern rgxSecondsValue = Pattern.compile("#EXTINF:([0-9.]*)");
   private final DecimalFormat df;
   private final AtomicLong maxSequenceNumber = new AtomicLong(0);
-  private final int healthySizeThreshold;
+  private final int playlistMinimumSize;
 
   @Inject
   public PlaylistManagerImpl(
@@ -43,8 +46,9 @@ public class PlaylistManagerImpl implements PlaylistManager {
     Environment env
   ) {
     this.broadcast = broadcast;
-    hlsSegmentSeconds = env.getHlsSegmentSeconds();
-    healthySizeThreshold = env.getShipPlaylistMinimumSize();
+    chunkTargetDuration = env.getShipChunkTargetDuration();
+    playlistMinimumSize = env.getShipPlaylistMinimumSize();
+
     shipSegmentFilenameEndsWith = String.format(".%s", env.getShipChunkAudioEncoder());
     isSegmentFilename = m -> m.endsWith(shipSegmentFilenameEndsWith);
 
@@ -65,19 +69,24 @@ public class PlaylistManagerImpl implements PlaylistManager {
   public boolean putNext(Chunk item) {
     if (0 < maxSequenceNumber.get() && item.getSequenceNumber() != maxSequenceNumber.get() + 1) return false;
     items.put(item.getSequenceNumber(), item);
-    maxSequenceNumber.set(items.keySet().stream().max(Long::compare).get());
+    recomputeMaxSequenceNumber();
     return true;
+  }
+
+  private void recomputeMaxSequenceNumber() {
+    maxSequenceNumber.set(items.keySet().stream().max(Long::compare).orElse(0L));
   }
 
   @Override
   public void collectGarbageBefore(long mediaSequence) {
     List<Long> toRemove = items.keySet().stream().filter(ms -> ms < mediaSequence).toList();
     for (long ms : toRemove) items.remove(ms);
+    recomputeMaxSequenceNumber();
   }
 
   @Override
   public int computeMediaSequence(long epochMillis) {
-    return (int) (Math.floor((double) epochMillis / (MILLIS_PER_SECOND * hlsSegmentSeconds)));
+    return (int) (Math.floor((double) epochMillis / (MILLIS_PER_SECOND * chunkTargetDuration)));
   }
 
   @Override
@@ -89,10 +98,10 @@ public class PlaylistManagerImpl implements PlaylistManager {
     List<String> m3u8FinalLines = Stream.concat(
       Stream.of(
         "#EXTM3U",
-        "#EXT-X-VERSION:3",
-        String.format("#EXT-X-TARGETDURATION:%s", hlsSegmentSeconds),
-        "#EXT-X-DISCONTINUITY",
+        "#EXT-X-VERSION:7",
+        String.format("#EXT-X-TARGETDURATION:%s", chunkTargetDuration),
         String.format("#EXT-X-MEDIA-SEQUENCE:%d", mediaSequence),
+        String.format("#EXT-X-SERVER-CONTROL:HOLD-BACK=%d.0", playlistMinimumSize * chunkTargetDuration),
         "#EXT-X-PLAYLIST-TYPE:EVENT"
       ),
       // FUTURE: media sequence numbers need to be a continuous unbroken sequence of integers
@@ -145,7 +154,14 @@ public class PlaylistManagerImpl implements PlaylistManager {
 
   @Override
   public boolean isHealthy() {
-    return items.size() >= healthySizeThreshold;
+    if (items.size() >= playlistMinimumSize) return true;
+    LOG.warn("Size {} below threshold {}", items.size(), playlistMinimumSize);
+    return false;
+  }
+
+  @Override
+  public long getMaxSequenceNumber() {
+    return maxSequenceNumber.get();
   }
 }
 

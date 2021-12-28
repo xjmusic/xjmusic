@@ -32,7 +32,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import static io.xj.lib.mixer.AudioStreamWriter.byteBufferOf;
 
 public class StreamEncoderImpl implements StreamEncoder {
-  private static final Logger LOG = LoggerFactory.getLogger(StreamEncoder.class);
+  private static final Logger LOG = LoggerFactory.getLogger(StreamEncoderImpl.class);
   private static final String THREAD_NAME = "stream-encoder";
   private final AudioFormat format;
   private final ConcurrentLinkedQueue<ByteBuffer> queue = new ConcurrentLinkedQueue<>();
@@ -43,8 +43,8 @@ public class StreamEncoderImpl implements StreamEncoder {
   private final String playlistPath;
   private final String tempFilePathPrefix;
   private final int bitrate;
-  private final int hlsListSize;
-  private final int hlsSegmentSeconds;
+  private final int playlistTargetSize;
+  private final int chunkTargetDuration;
   private int initialSeqNum;
   private Process ffmpeg;
   private volatile boolean active = true;
@@ -64,8 +64,8 @@ public class StreamEncoderImpl implements StreamEncoder {
     bitrate = env.getShipBitrateHigh();
     bucket = env.getStreamBucket();
     contentTypeSegment = env.getShipChunkContentType();
-    hlsListSize = env.getShipPlaylistTargetSize();
-    hlsSegmentSeconds = env.getHlsSegmentSeconds();
+    playlistTargetSize = env.getShipPlaylistTargetSize();
+    chunkTargetDuration = env.getShipChunkTargetDuration();
     tempFilePathPrefix = env.getTempFilePathPrefix();
 
     String m3u8Key = String.format("%s.m3u8", shipKey);
@@ -89,14 +89,13 @@ public class StreamEncoderImpl implements StreamEncoder {
             "-minrate", Values.k(bitrate),
             // HLS
             "-f", "hls",
-            "-g", "10",
             "-start_number", String.valueOf(initialSeqNum),
             "-initial_offset", String.valueOf(initialSeqNum),
             "-hls_flags", "delete_segments",
-            "-hls_list_size", String.valueOf(hlsListSize),
+            "-hls_list_size", String.valueOf(playlistTargetSize),
             "-hls_playlist_type", "event",
             "-hls_segment_filename", String.format("%s%s-%%d.%s", env.getTempFilePathPrefix(), shipKey, env.getShipChunkAudioEncoder()),
-            "-hls_time", String.valueOf(hlsSegmentSeconds),
+            "-hls_time", String.valueOf(chunkTargetDuration),
             playlistPath
           ));
           builder.redirectErrorStream(true);
@@ -120,7 +119,7 @@ public class StreamEncoderImpl implements StreamEncoder {
             }
 
             ffmpeg.getOutputStream().write(bytes.array());
-            LOG.info("received {} bytes of audio data", bytes.array().length);
+            LOG.debug("received {} bytes of audio data", bytes.array().length);
           }
         } catch (IOException e) {
           LOG.error("Failed while streaming bytes to ffmpeg!", e);
@@ -177,7 +176,20 @@ public class StreamEncoderImpl implements StreamEncoder {
 
   @Override
   public boolean isHealthy() {
-    return active && ffmpeg.isAlive();
+    if (!active) return notHealthy("Not Active!");
+    if (!ffmpeg.isAlive()) return notHealthy("FFMPEG is not alive!");
+    return true;
+  }
+
+  /**
+   Return false after logging a warning message
+
+   @param message to warn
+   @return false
+   */
+  private boolean notHealthy(String message) {
+    LOG.warn(message);
+    return false;
   }
 
   /**

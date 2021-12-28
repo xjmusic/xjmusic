@@ -45,8 +45,8 @@ public interface PlaylistManager {
   /**
    Get the whole .m3u8 playlist content, including headers, as a string
 
-   @return playlist content
    @param mediaSequence at which to get playlist content
+   @return playlist content
    */
   String getPlaylistContent(long mediaSequence);
 
@@ -66,4 +66,11 @@ public interface PlaylistManager {
    @return true if healthy
    */
   boolean isHealthy();
+
+  /**
+   Get the maximum sequence number currently in the playlist
+
+   @return max sequence number
+   */
+  long getMaxSequenceNumber();
 }

@@ -9,6 +9,17 @@ import io.xj.ship.ShipException;
  Ship broadcast via HTTP Live Streaming #179453189
  */
 public interface ChunkMixer {
+
+  /**
+   Whether the Chunk is ready to mix
+   <p>
+   Ship should not upload empty media segment files! #180745353
+
+   @return true if ready
+   @throws ShipException on failure
+   */
+  boolean isReadyToMix() throws ShipException;
+
   /**
    Invoke the recursive action
 

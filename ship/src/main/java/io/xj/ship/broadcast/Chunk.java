@@ -29,11 +29,12 @@ import static io.xj.lib.util.Values.NANOS_PER_SECOND;
 public class Chunk {
   private final Instant fromInstant;
   private final Instant toInstant;
-  private final Long fromSecondsUTC;
-  private final String shipKey;
-  private final long sequenceNumber;
   private final String fileExtension;
+  private final String shipKey;
   private final double actualDuration;
+  private final long fromSecondsUTC;
+  private final long sequenceNumber;
+  private final long toSecondsUTC;
 
   @Inject
   public Chunk(
@@ -53,6 +54,7 @@ public class Chunk {
       : env.getShipChunkTargetDuration();
 
     fromSecondsUTC = sequenceNumber * env.getShipChunkTargetDuration(); // seq num to time ratio always based on target duration, not actual
+    toSecondsUTC = fromSecondsUTC + env.getShipChunkTargetDuration();
     fromInstant = Instant.ofEpochSecond(fromSecondsUTC);
     toInstant = fromInstant.plusNanos((long) (this.actualDuration * NANOS_PER_SECOND));
   }
@@ -81,10 +83,6 @@ public class Chunk {
     return toInstant;
   }
 
-  public String getFileExtension() {
-    return fileExtension;
-  }
-
   public double getActualDuration() {
     return actualDuration;
   }
@@ -99,5 +97,9 @@ public class Chunk {
 
   public String getFilename() {
     return String.format("%s-%d.%s", shipKey, sequenceNumber, fileExtension);
+  }
+
+  public long getToSecondsUTC() {
+    return toSecondsUTC;
   }
 }

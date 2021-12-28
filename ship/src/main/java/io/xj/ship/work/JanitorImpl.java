@@ -78,7 +78,7 @@ public class JanitorImpl implements Janitor {
     } catch (ShipException | ManagerFatalException | ManagerExistenceException | ManagerPrivilegeException | NexusException e) {
       var detail = Strings.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
       LOG.error("Failed while checking for segments to erase because {}", detail, e);
-      notification.publish(String.format("Failed while checking for segments to erase because %s\n\n%s", detail, Text.formatStackTrace(e)), "Failure");
+      notification.publish("Failure", String.format("Failed while checking for segments to erase because %s\n\n%s", detail, Text.formatStackTrace(e)));
       return;
     }
 
@@ -86,7 +86,7 @@ public class JanitorImpl implements Janitor {
     if (segmentIdsToErase.isEmpty())
       LOG.debug("found no segments to erase");
     else
-      LOG.info("will erase {} segments", segmentIdsToErase.size());
+      LOG.debug("will erase {} segments", segmentIdsToErase.size());
 
     for (UUID segmentId : segmentIdsToErase) {
       segmentAudioManager.collectGarbage(segmentId);

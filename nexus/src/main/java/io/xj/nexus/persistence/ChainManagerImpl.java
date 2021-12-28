@@ -248,7 +248,7 @@ public class ChainManagerImpl extends ManagerImpl<Chain> implements ChainManager
       store.put(chain);
       if (NOTIFY_ON_CHAIN_STATES.contains(chain.getState())) {
         LOG.info("Updated Chain {} to state {}", chain.getId(), chain.getState());
-        pubSub.publish(String.format("Updated Chain %s to state %s", chain.getId(), chain.getState()), MessageType.Info.toString());
+        pubSub.publish(MessageType.Info.toString(), String.format("Updated Chain %s to state %s", chain.getId(), chain.getState()));
       }
 
     } catch (NexusException e) {

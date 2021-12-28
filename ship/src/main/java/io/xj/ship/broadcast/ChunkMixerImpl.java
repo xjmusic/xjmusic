@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.lib.mixer.AudioSampleFormat;
 import io.xj.lib.mixer.FormatException;
+import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.util.CSV;
 import io.xj.nexus.persistence.Segments;
 import io.xj.ship.ShipException;
@@ -25,7 +26,6 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static io.xj.lib.util.Values.MICROS_PER_SECOND;
@@ -47,25 +47,57 @@ class ChunkMixerImpl implements ChunkMixer {
   private final AudioFormat format;
   private final Chunk chunk;
   private final SegmentAudioManager segmentAudioManager;
-
+  private final NotificationProvider notification;
 
   @Inject
   public ChunkMixerImpl(
-    @Assisted("chunk") Chunk chunk,
     @Assisted("audioFormat") AudioFormat format,
+    @Assisted("chunk") Chunk chunk,
+    NotificationProvider notification,
     SegmentAudioManager segmentAudioManager
   ) {
     this.chunk = chunk;
-    this.segmentAudioManager = segmentAudioManager;
     this.format = format;
+    this.notification = notification;
+    this.segmentAudioManager = segmentAudioManager;
 
     buffer = new double[(int) (format.getFrameRate() * chunk.getActualDuration())][format.getChannels()];
   }
 
   @Override
+  public boolean isReadyToMix() {
+    var audios = getAllIntersectingAudios(chunk);
+
+    if (audios.isEmpty()) {
+      LOG.warn("Not ready to mix Chunk[{}] while waiting on segments", chunk.getKey());
+      return false;
+    }
+
+    var notReady = anyNotReady(audios);
+    if (!notReady.isEmpty()) {
+      LOG.warn("Not ready to mix Chunk[{}] while waiting on audio from segments {}", chunk.getKey(), CSV.from(notReady));
+      return false;
+    }
+
+    return true;
+  }
+
+  @Override
   public double[][] mix() throws ShipException {
     var audios = getAllIntersectingAudios(chunk);
-    if (!areAllReady(audios)) return buffer;
+
+    if (audios.isEmpty()) {
+      LOG.error("Attempted to mix Chunk[{}] while waiting on segments", chunk.getKey());
+      notification.publish("Failure", String.format("Attempted to mix Chunk[%s] while waiting on segments", chunk.getKey()));
+      return buffer;
+    }
+
+    var notReady = anyNotReady(audios);
+    if (!notReady.isEmpty()) {
+      LOG.error("Attempted to mix Chunk[{}] while waiting on audio from segments {}", chunk.getKey(), CSV.from(notReady));
+      notification.publish("Failure", String.format("Attempted to mix Chunk[%s] while waiting on audio from segments %s", chunk.getKey(), CSV.from(notReady)));
+      return buffer;
+    }
 
     // get the buffer from each audio and lay it into the output buffer
     LOG.debug("will mix source audio to buffer");
@@ -166,14 +198,9 @@ class ChunkMixerImpl implements ChunkMixer {
 
    @return true if all segments are ready
    */
-  private boolean areAllReady(Collection<SegmentAudio> audios) {
+  private List<String> anyNotReady(Collection<SegmentAudio> audios) {
     List<String> ready = Lists.newArrayList();
     List<String> notReady = Lists.newArrayList();
-
-    if (audios.isEmpty()) {
-      LOG.debug("waiting on segments");
-      return false;
-    }
 
     for (var audio : audios)
       if (SegmentAudioState.Ready.equals(audio.getState()))
@@ -181,12 +208,7 @@ class ChunkMixerImpl implements ChunkMixer {
       else
         notReady.add(Segments.getIdentifier(audio.getSegment()));
 
-    if (notReady.isEmpty() && Objects.equals(ready.size(), audios.size())) {
-      return true;
-    }
-
-    LOG.warn("waiting on audio from segments {}", CSV.from(notReady));
-    return false;
+    return notReady;
   }
 
   /**
