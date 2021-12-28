@@ -21,7 +21,7 @@ public interface StreamEncoder {
    Publish any new generated media segments
 
    @throws ShipException on failure
-   @param atMillis
+   @param atMillis time at which to publish (now, unless testing)
    */
   void publish(long atMillis) throws ShipException;
 
@@ -29,4 +29,13 @@ public interface StreamEncoder {
    Close the encoder and release resources
    */
   void close();
+
+  /**
+   Check if the ship encoder process is healthy
+   <p>
+   Ship health check tests playlist length and ffmpeg liveness #180746583
+
+   @return true if healthy
+   */
+  boolean isHealthy();
 }

@@ -64,7 +64,7 @@ public class StreamEncoderImpl implements StreamEncoder {
     bitrate = env.getShipBitrateHigh();
     bucket = env.getStreamBucket();
     contentTypeSegment = env.getShipChunkContentType();
-    hlsListSize = env.getShipChunkPlaylistTargetSize();
+    hlsListSize = env.getShipPlaylistTargetSize();
     hlsSegmentSeconds = env.getHlsSegmentSeconds();
     tempFilePathPrefix = env.getTempFilePathPrefix();
 
@@ -175,6 +175,10 @@ public class StreamEncoderImpl implements StreamEncoder {
     active = false;
   }
 
+  @Override
+  public boolean isHealthy() {
+    return active && ffmpeg.isAlive();
+  }
 
   /**
    Stream a file from temp path to S3

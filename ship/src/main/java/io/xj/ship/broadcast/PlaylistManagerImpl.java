@@ -35,6 +35,7 @@ public class PlaylistManagerImpl implements PlaylistManager {
   private final Pattern rgxSecondsValue = Pattern.compile("#EXTINF:([0-9.]*)");
   private final DecimalFormat df;
   private final AtomicLong maxSequenceNumber = new AtomicLong(0);
+  private final int healthySizeThreshold;
 
   @Inject
   public PlaylistManagerImpl(
@@ -43,6 +44,7 @@ public class PlaylistManagerImpl implements PlaylistManager {
   ) {
     this.broadcast = broadcast;
     hlsSegmentSeconds = env.getHlsSegmentSeconds();
+    healthySizeThreshold = env.getShipPlaylistMinimumSize();
     shipSegmentFilenameEndsWith = String.format(".%s", env.getShipChunkAudioEncoder());
     isSegmentFilename = m -> m.endsWith(shipSegmentFilenameEndsWith);
 
@@ -139,6 +141,11 @@ public class PlaylistManagerImpl implements PlaylistManager {
       }
 
     return added;
+  }
+
+  @Override
+  public boolean isHealthy() {
+    return items.size() >= healthySizeThreshold;
   }
 }
 

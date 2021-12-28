@@ -87,8 +87,9 @@ public class Environment {
   private final int segmentComputeTimeFramesPerBeat;
   private final int segmentComputeTimeResolutionHz;
   private final int shipBitrateHigh;
-  private final int shipChunkPlaylistTargetSize;
   private final int shipChunkTargetDuration;
+  private final int shipPlaylistMinimumSize;
+  private final int shipPlaylistTargetSize;
   private final int shipReloadSeconds;
   private final int shipSegmentLoadTimeoutSeconds;
   private final int workCycleMillis;
@@ -154,12 +155,13 @@ public class Environment {
     shipBucket = readStr(vars, "SHIP_BUCKET", "xj-dev-ship");
     shipChunkAudioEncoder = readStr(vars, "SHIP_CHUNK_AUDIO_ENCODER", "aac");
     shipChunkContentType = readStr(vars, "SHIP_CHUNK_CONTENT_TYPE", "audio/aac");
-    shipChunkPlaylistTargetSize = readInt(vars, "SHIP_CHUNK_PLAYLIST_TARGET_SIZE", 10);
     shipChunkTargetDuration = readInt(vars, "SHIP_CHUNK_TARGET_DURATION", 10);
     shipFFmpegVerbosity = readStr(vars, "SHIP_FFMPEG_VERBOSITY", "info");
     shipKey = readStr(vars, "SHIP_KEY", EMPTY);
     shipM3u8ContentType = readStr(vars, "SHIP_M3U8_CONTENT_TYPE", "application/x-mpegURL");
     shipMode = readStr(vars, "SHIP_MODE", "hls");
+    shipPlaylistMinimumSize = readInt(vars, "SHIP_PLAYLIST_MINIMUM_SIZE", 5);
+    shipPlaylistTargetSize = readInt(vars, "SHIP_PLAYLIST_TARGET_SIZE", 20);
     shipReloadSeconds = readInt(vars, "SHIP_RELOAD_SECONDS", 15);
     shipSegmentLoadTimeoutSeconds = readInt(vars, "SHIP_SEGMENT_LOAD_TIMEOUT_SECONDS", 5);
     streamBaseURL = readStr(vars, "STREAM_BASE_URL", "https://stream.dev.xj.io/");
@@ -676,10 +678,10 @@ public class Environment {
   }
 
   /**
-   @return the number of chunks to keep in the playlist
+   @return the ship audio segment MPEG-TS content-type
    */
-  public int getShipChunkPlaylistTargetSize() {
-    return shipChunkPlaylistTargetSize;
+  public String getShipChunkContentType() {
+    return shipChunkContentType;
   }
 
   /**
@@ -713,10 +715,17 @@ public class Environment {
   }
 
   /**
-   @return the ship audio segment MPEG-TS content-type
+   @return the minimum size of the HLS m3u8 playlist, below which we don't consider the process healthy
    */
-  public String getShipChunkContentType() {
-    return shipChunkContentType;
+  public int getShipPlaylistMinimumSize() {
+    return shipPlaylistMinimumSize;
+  }
+
+  /**
+   @return the target size of the HLS m3u8 playlist
+   */
+  public int getShipPlaylistTargetSize() {
+    return shipPlaylistTargetSize;
   }
 
   /**

@@ -57,4 +57,13 @@ public interface PlaylistManager {
    @return list of playlist items that were not previously in the store
    */
   List<Chunk> parseAndLoadItems(String m3u8Content);
+
+  /**
+   Check if the ship encoder process is healthy
+   <p>
+   Ship health check tests playlist length and ffmpeg liveness #180746583
+
+   @return true if healthy
+   */
+  boolean isHealthy();
 }

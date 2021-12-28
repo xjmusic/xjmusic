@@ -17,6 +17,8 @@ public interface ShipWork {
 
   /**
    Whether the next cycle nanos is above threshold, compared to System.nanoTime();
+   <p>
+   Ship health check tests playlist length and ffmpeg liveness #180746583
 
    @return next cycle nanos
    */

@@ -53,6 +53,7 @@ public class ShipWorkImpl implements ShipWork {
   private final long healthCycleStalenessThresholdMillis;
   @Nullable
   private final String shipKey;
+  private final PlaylistManager playlist;
   private final ChainManager chains;
   private final int chunkTargetDuration;
   private final long shipAheadMillis;
@@ -69,17 +70,19 @@ public class ShipWorkImpl implements ShipWork {
 
   @Inject
   public ShipWorkImpl(
-    Environment env,
     BroadcastFactory broadcast,
     ChainManager chains,
+    Environment env,
     Janitor janitor,
     NotificationProvider notification,
+    PlaylistManager playlist,
     SourceFactory sources
   ) {
-    this.chains = chains;
     this.broadcast = broadcast;
+    this.chains = chains;
     this.janitor = janitor;
     this.notification = notification;
+    this.playlist = playlist;
     this.sources = sources;
 
     shipKey = env.getShipKey();
@@ -96,7 +99,7 @@ public class ShipWorkImpl implements ShipWork {
     mixCycleSeconds = env.getWorkMixCycleSeconds();
     publishCycleSeconds = env.getWorkPublishCycleSeconds();
     chunkTargetDuration = env.getShipChunkTargetDuration();
-    shipAheadMillis = env.getShipChunkPlaylistTargetSize() * chunkTargetDuration * MILLIS_PER_SECOND;
+    shipAheadMillis = env.getShipPlaylistTargetSize() * chunkTargetDuration * MILLIS_PER_SECOND;
 
     audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
       48000,
@@ -133,7 +136,12 @@ public class ShipWorkImpl implements ShipWork {
 
   @Override
   public boolean isHealthy() {
-    return active && !isCycleStale() && !State.Fail.equals(state.get());
+    return active
+      && !isCycleStale()
+      && !State.Fail.equals(state.get())
+      && Objects.nonNull(stream)
+      && stream.isHealthy()
+      && playlist.isHealthy();
   }
 
   /**
