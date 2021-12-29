@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.nexus.craft.rhythm;
+package io.xj.nexus.craft.beat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -44,7 +44,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CraftRhythmProgramVoiceNextMacroTest {
+public class CraftBeatProgramVoiceNextMacroTest {
   @Mock
   public HubClient hubClient;
   private Chain chain1;
@@ -138,18 +138,18 @@ public class CraftRhythmProgramVoiceNextMacroTest {
 
 
   @Test
-  public void craftRhythmVoiceNextMacro() throws Exception {
+  public void craftBeatVoiceNextMacro() throws Exception {
     insertSegments3and4(true);
     Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4);
 
-    craftFactory.rhythm(fabricator).doWork();
+    craftFactory.beat(fabricator).doWork();
 
-    // assert rhythm choice
+    // assert beat choice
     Collection<SegmentChoice> segmentChoices = fabricator.getChoices();
-    SegmentChoice rhythmChoice = segmentChoices.stream()
-      .filter(c -> ProgramType.Rhythm.toString().equals(c.getProgramType())).findFirst().orElseThrow();
+    SegmentChoice beatChoice = segmentChoices.stream()
+      .filter(c -> ProgramType.Beat.toString().equals(c.getProgramType())).findFirst().orElseThrow();
     assertTrue(fabricator.getArrangements()
-      .stream().anyMatch(a -> a.getSegmentChoiceId().equals(rhythmChoice.getId())));
+      .stream().anyMatch(a -> a.getSegmentChoiceId().equals(beatChoice.getId())));
     // test vector for [#154014731] persist Audio pick in memory
     int pickedKick = 0;
     int pickedSnare = 0;
@@ -165,19 +165,19 @@ public class CraftRhythmProgramVoiceNextMacroTest {
   }
 
   @Test
-  public void craftRhythmVoiceNextMacro_okIfNoRhythmChoice() throws Exception {
+  public void craftBeatVoiceNextMacro_okIfNoBeatChoice() throws Exception {
     insertSegments3and4(false);
     Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4);
 
-    craftFactory.rhythm(fabricator).doWork();
+    craftFactory.beat(fabricator).doWork();
   }
 
   /**
-   Insert fixture segments 3 and 4, including the rhythm choice for segment 3 only if specified
+   Insert fixture segments 3 and 4, including the beat choice for segment 3 only if specified
 
-   @param excludeRhythmChoiceForSegment3 if desired for the purpose of this test
+   @param excludeBeatChoiceForSegment3 if desired for the purpose of this test
    */
-  private void insertSegments3and4(boolean excludeRhythmChoiceForSegment3) throws NexusException {
+  private void insertSegments3and4(boolean excludeBeatChoiceForSegment3) throws NexusException {
     // Chain "Test Print #1" has this segment that was just crafted
     Segment segment3 = store.put(buildSegment(
       chain1,
@@ -204,7 +204,7 @@ public class CraftRhythmProgramVoiceNextMacroTest {
       Segments.DELTA_UNLIMITED,
       fake.program5,
       fake.program5_sequence1_binding0));
-    if (!excludeRhythmChoiceForSegment3)
+    if (!excludeBeatChoiceForSegment3)
       store.put(buildSegmentChoice(
         segment3,
         Segments.DELTA_UNLIMITED,

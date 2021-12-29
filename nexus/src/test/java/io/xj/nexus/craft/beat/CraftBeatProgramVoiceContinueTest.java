@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.nexus.craft.rhythm;
+package io.xj.nexus.craft.beat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -44,7 +44,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CraftRhythmProgramVoiceContinueTest {
+public class CraftBeatProgramVoiceContinueTest {
   @Mock
   public HubClient hubClient;
   private Chain chain1;
@@ -141,11 +141,11 @@ public class CraftRhythmProgramVoiceContinueTest {
   }
 
   @Test
-  public void craftRhythmVoiceContinue() throws Exception {
+  public void craftBeatVoiceContinue() throws Exception {
     insertSegments3and4(false);
     Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4);
 
-    craftFactory.rhythm(fabricator).doWork();
+    craftFactory.beat(fabricator).doWork();
 
     Segment result = store.getSegment(segment4.getId()).orElseThrow();
     assertFalse(store.getAll(result.getId(), SegmentChoice.class).isEmpty());
@@ -165,19 +165,19 @@ public class CraftRhythmProgramVoiceContinueTest {
   }
 
   @Test
-  public void craftRhythmVoiceContinue_okIfNoRhythmChoice() throws Exception {
+  public void craftBeatVoiceContinue_okIfNoBeatChoice() throws Exception {
     insertSegments3and4(true);
     Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4);
 
-    craftFactory.rhythm(fabricator).doWork();
+    craftFactory.beat(fabricator).doWork();
   }
 
   /**
-   Insert fixture segments 3 and 4, including the rhythm choice for segment 3 only if specified
+   Insert fixture segments 3 and 4, including the beat choice for segment 3 only if specified
 
-   @param excludeRhythmChoiceForSegment3 if desired for the purpose of this test
+   @param excludeBeatChoiceForSegment3 if desired for the purpose of this test
    */
-  private void insertSegments3and4(boolean excludeRhythmChoiceForSegment3) throws NexusException {
+  private void insertSegments3and4(boolean excludeBeatChoiceForSegment3) throws NexusException {
     // segment just crafted
     // Testing entities for reference
     Segment segment3 = store.put(buildSegment(
@@ -205,7 +205,7 @@ public class CraftRhythmProgramVoiceContinueTest {
       Segments.DELTA_UNLIMITED,
       fake.program5,
       fake.program5_sequence0_binding0));
-    if (!excludeRhythmChoiceForSegment3)
+    if (!excludeBeatChoiceForSegment3)
       store.put(buildSegmentChoice(
         segment3,
         Segments.DELTA_UNLIMITED,

@@ -748,8 +748,8 @@ public class IntegrationTestingFixtures {
     test.insert(buildProgramSequenceBindingMeme(binding902_3, "Fuzz"));
     test.insert(buildProgramSequenceBindingMeme(binding902_4, "Noise"));
 
-    // Program 702, rhythm-type, has unbound sequence with pattern with events
-    program702 = test.insert(buildProgram(library10000001, ProgramType.Rhythm, ProgramState.Published, "coconuts", "F#", 110.3f, 0.6f));
+    // Program 702, beat-type, has unbound sequence with pattern with events
+    program702 = test.insert(buildProgram(library10000001, ProgramType.Beat, ProgramState.Published, "coconuts", "F#", 110.3f, 0.6f));
     test.insert(buildProgramMeme(program702, "Ants"));
     program702_voice1 = test.insert(buildProgramVoice(program702, InstrumentType.Drum, "Drums"));
     var sequence702a = test.insert(buildProgramSequence(program702, (short) 16, "Base", 0.5f, "C", 110.3f));
@@ -771,7 +771,7 @@ public class IntegrationTestingFixtures {
     instrument251 = test.insert(buildInstrument(library10000002, InstrumentType.Drum, InstrumentState.Published, "Garbage Instrument"));
     test.insert(buildInstrumentMeme(instrument251, "Garbage MemeObject"));
     //
-    program751 = test.insert(buildProgram(library10000002, ProgramType.Rhythm, ProgramState.Published, "coconuts", "F#", 110.3f, 0.6f));
+    program751 = test.insert(buildProgram(library10000002, ProgramType.Beat, ProgramState.Published, "coconuts", "F#", 110.3f, 0.6f));
     test.insert(buildProgramMeme(program751, "Ants"));
     var voiceGarbage = test.insert(buildProgramVoice(program751, InstrumentType.Drum, "Garbage"));
     var sequence751a = test.insert(buildProgramSequence(program751, (short) 16, "Base", 0.5f, "C", 110.3f));
@@ -811,11 +811,11 @@ public class IntegrationTestingFixtures {
    <p>
    [#165954673] Integration tests use shared scenario fixtures as much as possible
    <p>
-   [#163158036] memes bound to sequence-pattern because sequence-binding is not considered for rhythm sequences, rhythm sequence patterns do not have memes.
+   [#163158036] memes bound to sequence-pattern because sequence-binding is not considered for beat sequences, beat sequence patterns do not have memes.
    <p>
-   [#165954619] Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (rhythm- and detail-type sequences)
+   [#165954619] Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (beat- and detail-type sequences)
    <p>
-   [#153976073] Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Rhythm or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment.
+   [#153976073] Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Beat or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment.
    + For this test, there's an Intro Pattern with all BLEEPS, multiple Loop Patterns with KICK and SNARE (2x each), and an Outro Pattern with all TOOTS.
    <p>
    [#150279647] Artist wants to of multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset.

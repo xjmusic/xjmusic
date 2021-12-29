@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.nexus.craft.rhythm;
+package io.xj.nexus.craft.beat;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -19,15 +19,15 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- Rhythm craft for the current segment
+ Beat craft for the current segment
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  <p>
- [#176625174] RhythmCraftImpl extends DetailCraftImpl to leverage all detail craft enhancements
+ [#176625174] BeatCraftImpl extends DetailCraftImpl to leverage all detail craft enhancements
  */
-public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
+public class BeatCraftImpl extends DetailCraftImpl implements BeatCraft {
 
   @Inject
-  public RhythmCraftImpl(
+  public BeatCraftImpl(
     @Assisted("basis") Fabricator fabricator
   ) {
     super(fabricator);
@@ -35,16 +35,16 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
 
   @Override
   public void doWork() throws NexusException {
-    Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(ProgramType.Rhythm);
+    Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(ProgramType.Beat);
 
     // Program is from prior choice, or freshly chosen
     Optional<Program> program = priorChoice.isPresent() ?
       fabricator.sourceMaterial().getProgram(priorChoice.get().getProgramId()) :
-      chooseFreshProgram(ProgramType.Rhythm, InstrumentType.Drum);
+      chooseFreshProgram(ProgramType.Beat, InstrumentType.Drum);
 
     // [#176373977] Should gracefully skip voicing type if unfulfilled by detail program
     if (program.isEmpty()) {
-      reportMissing(Program.class, "Rhythm-type program");
+      reportMissing(Program.class, "Beat-type program");
       return;
     }
 
@@ -56,7 +56,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
       fabricator.sourceMaterial().getProgramVoice(choice.getProgramVoiceId())
         .map(ProgramVoice::getName)
         .orElse("Unknown");
-    Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> ProgramType.Rhythm.toString().equals(choice.getProgramType());
+    Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> ProgramType.Beat.toString().equals(choice.getProgramType());
     var programNames = fabricator.sourceMaterial().getVoices(program.get()).stream()
       .map(ProgramVoice::getName)
       .collect(Collectors.toList());
@@ -64,13 +64,13 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
       choiceFilter,
       choiceIndexProvider,
       programNames,
-      CSV.split(fabricator.getTemplateConfig().getDeltaArcRhythmLayersToPrioritize()),
-      fabricator.getTemplateConfig().getDeltaArcRhythmPlateauRatio(),
-      fabricator.getTemplateConfig().getDeltaArcRhythmLayersIncoming()
+      CSV.split(fabricator.getTemplateConfig().getDeltaArcBeatLayersToPrioritize()),
+      fabricator.getTemplateConfig().getDeltaArcBeatPlateauRatio(),
+      fabricator.getTemplateConfig().getDeltaArcBeatLayersIncoming()
     );
 
-    // rhythm sequence is selected at random of the current program
-    // FUTURE: [#166855956] Rhythm Program with multiple Sequences
+    // beat sequence is selected at random of the current program
+    // FUTURE: [#166855956] Beat Program with multiple Sequences
     var sequence = fabricator.getRandomlySelectedSequence(program.get());
 
     // voice arrangements
@@ -78,7 +78,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
       var voices = fabricator.sourceMaterial().getVoices(program.get());
       if (voices.isEmpty())
         reportMissing(ProgramVoice.class,
-          String.format("in Rhythm-choice Program[%s]", program.get().getId()));
+          String.format("in Beat-choice Program[%s]", program.get().getId()));
 
       craftChoices(sequence.get(), voices, voice -> chooseFreshInstrument(voice.getType(), List.of(), voice.getName()), true);
     }

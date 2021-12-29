@@ -236,7 +236,7 @@ public class HubContentFixtures {
     program5_sequence1_binding1_meme0 = buildProgramSequenceBindingMeme(program5_sequence1_binding1, "Pessimism");
 
     // A basic beat
-    program35 = buildProgram(library2, ProgramType.Rhythm, ProgramState.Published, "Basic Beat", "C", 121f, 0.6f);
+    program35 = buildProgram(library2, ProgramType.Beat, ProgramState.Published, "Basic Beat", "C", 121f, 0.6f);
     program35_meme0 = buildProgramMeme(program35, "Basic");
     program35_voice0 = buildProgramVoice(program35, InstrumentType.Drum, "Drums");
     program35_voice0_track0 = buildProgramVoiceTrack(program35_voice0, "CLOCK");
@@ -395,18 +395,18 @@ public class HubContentFixtures {
    <p>
    [#165954673] Integration tests use shared scenario fixtures as much as possible
    <p>
-   [#163158036] memes bound to sequence-pattern because sequence-binding is not considered for rhythm sequences, rhythm sequence patterns do not have memes.
+   [#163158036] memes bound to sequence-pattern because sequence-binding is not considered for beat sequences, beat sequence patterns do not have memes.
    <p>
-   [#165954619] Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (rhythm- and detail-type sequences)
+   [#165954619] Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (beat- and detail-type sequences)
    <p>
-   [#153976073] Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Rhythm or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment.
+   [#153976073] Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Beat or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment.
    + For this test, there's an Intro Pattern with all BLEEPS, multiple Loop Patterns with KICK and SNARE (2x each), and an Outro Pattern with all TOOTS.
    <p>
    [#150279647] Artist wants to of multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset.
    */
   public Collection<Object> setupFixtureB3() {
     // A basic beat
-    program9 = buildProgram(library2, ProgramType.Rhythm, ProgramState.Published, "Basic Beat", "C", 121f, 0.6f);
+    program9 = buildProgram(library2, ProgramType.Beat, ProgramState.Published, "Basic Beat", "C", 121f, 0.6f);
     program9_meme0 = buildProgramMeme(program9, "Basic");
     //
     program9_voice0 = buildProgramVoice(program9, InstrumentType.Drum, "Drums");

@@ -204,19 +204,19 @@ public class FabricatorImplTest {
       Segments.DELTA_UNLIMITED,
       Segments.DELTA_UNLIMITED,
       fake.program5));
-    SegmentChoice rhythmChoice = store.put(buildSegmentChoice(
+    SegmentChoice beatChoice = store.put(buildSegmentChoice(
       segment,
       Segments.DELTA_UNLIMITED,
       Segments.DELTA_UNLIMITED,
       fake.program35,
       fake.program35_voice0,
       fake.instrument8));
-    SegmentChoiceArrangement rhythmArrangement = store.put(buildSegmentChoiceArrangement(rhythmChoice));
-    SegmentChoiceArrangementPick rhythmPick = store.put(
+    SegmentChoiceArrangement beatArrangement = store.put(buildSegmentChoiceArrangement(beatChoice));
+    SegmentChoiceArrangementPick beatPick = store.put(
       new SegmentChoiceArrangementPick()
         .id(UUID.randomUUID())
-        .segmentId(rhythmArrangement.getSegmentId())
-        .segmentChoiceArrangementId(rhythmArrangement.getId())
+        .segmentId(beatArrangement.getSegmentId())
+        .segmentChoiceArrangementId(beatArrangement.getId())
         .programSequencePatternEventId(fake.program35_sequence0_pattern0_event0.getId())
         .instrumentAudioId(fake.instrument8_audio8kick.getId())
         .event("CLANG")
@@ -231,14 +231,14 @@ public class FabricatorImplTest {
     when(mockSegmentWorkbench.getSegment())
       .thenReturn(segment);
     when(mockSegmentWorkbench.getSegmentChoiceArrangementPicks())
-      .thenReturn(ImmutableList.of(rhythmPick));
+      .thenReturn(ImmutableList.of(beatPick));
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
     subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory);
 
     Collection<SegmentChoiceArrangementPick> result = subject.getPicks();
 
     SegmentChoiceArrangementPick resultPick = result.iterator().next();
-    assertEquals(rhythmArrangement.getId(), resultPick.getSegmentChoiceArrangementId());
+    assertEquals(beatArrangement.getId(), resultPick.getSegmentChoiceArrangementId());
     assertEquals(fake.instrument8_audio8kick.getId(), resultPick.getInstrumentAudioId());
     assertEquals(0.273, resultPick.getStart(), 0.001);
     assertEquals(1.571, resultPick.getLength(), 0.001);

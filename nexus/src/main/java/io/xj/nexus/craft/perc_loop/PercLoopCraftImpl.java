@@ -12,7 +12,7 @@ import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.util.MarbleBag;
 import io.xj.lib.util.TremendouslyRandom;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.craft.rhythm.RhythmCraftImpl;
+import io.xj.nexus.craft.beat.BeatCraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
 
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  <p>
  [#176625174] PercLoopCraftImpl extends DetailCraftImpl to leverage all detail craft enhancements
  */
-public class PercLoopCraftImpl extends RhythmCraftImpl implements PercLoopCraft {
+public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
   @Inject
   public PercLoopCraftImpl(
     @Assisted("basis") Fabricator fabricator

@@ -325,12 +325,12 @@ class FabricatorImpl implements Fabricator {
 
   @Override
   public Collection<SegmentChoice> getCurrentDetailChoices() {
-    return workbench.getChoicesOfType(ProgramType.Rhythm);
+    return workbench.getChoicesOfType(ProgramType.Beat);
   }
 
   @Override
-  public Optional<SegmentChoice> getCurrentRhythmChoice() {
-    return workbench.getChoiceOfType(ProgramType.Rhythm);
+  public Optional<SegmentChoice> getCurrentBeatChoice() {
+    return workbench.getChoiceOfType(ProgramType.Beat);
   }
 
   @Override

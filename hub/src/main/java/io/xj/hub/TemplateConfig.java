@@ -28,12 +28,12 @@ public class TemplateConfig {
       backgroundLayerMin = 0
       bufferAheadSeconds = 180
       bufferBeforeSeconds = 5
+      deltaArcBeatLayersIncoming = 1
+      deltaArcBeatLayersToPrioritize = kick
+      deltaArcBeatPlateauRatio = 0.38
       deltaArcDetailLayersIncoming = 1
       deltaArcDetailPlateauRatio = 0.62
       deltaArcEnabled = true
-      deltaArcRhythmLayersIncoming = 1
-      deltaArcRhythmLayersToPrioritize = kick
-      deltaArcRhythmPlateauRatio = 0.38
       densityCeiling = 0.9
       densityFloor = 0.1
       dubMasterVolumeInstrumentTypeBass = 1.0
@@ -70,14 +70,14 @@ public class TemplateConfig {
       """;
   private static final int BITS_PER_BYTE = 8;
   private final AudioFormat.Encoding outputEncoding;
-  private final String deltaArcRhythmLayersToPrioritize;
+  private final String deltaArcBeatLayersToPrioritize;
   private final String metaSource;
   private final String metaTitle;
   private final String outputContainer;
   private final String outputContentType;
   private final boolean deltaArcEnabled;
   private final double deltaArcDetailPlateauRatio;
-  private final double deltaArcRhythmPlateauRatio;
+  private final double deltaArcBeatPlateauRatio;
   private final double densityCeiling;
   private final double densityFloor;
   private final double dubMasterVolumeInstrumentTypeBass;
@@ -100,7 +100,7 @@ public class TemplateConfig {
   private final int bufferAheadSeconds;
   private final int bufferBeforeSeconds;
   private final int deltaArcDetailLayersIncoming;
-  private final int deltaArcRhythmLayersIncoming;
+  private final int deltaArcBeatLayersIncoming;
   private final int mainProgramLengthMaxDelta;
   private final int mixerDspBufferSize;
   private final int mixerHighpassThresholdHz;
@@ -152,9 +152,9 @@ public class TemplateConfig {
       deltaArcDetailLayersIncoming = config.getInt("deltaArcDetailLayersIncoming");
       deltaArcDetailPlateauRatio = config.getDouble("deltaArcDetailPlateauRatio");
       deltaArcEnabled = config.getBoolean("deltaArcEnabled");
-      deltaArcRhythmLayersIncoming = config.getInt("deltaArcRhythmLayersIncoming");
-      deltaArcRhythmLayersToPrioritize = config.getString("deltaArcRhythmLayersToPrioritize");
-      deltaArcRhythmPlateauRatio = config.getDouble("deltaArcRhythmPlateauRatio");
+      deltaArcBeatLayersIncoming = config.getInt("deltaArcBeatLayersIncoming");
+      deltaArcBeatLayersToPrioritize = config.getString("deltaArcBeatLayersToPrioritize");
+      deltaArcBeatPlateauRatio = config.getDouble("deltaArcBeatPlateauRatio");
       densityCeiling = config.getDouble("densityCeiling");
       densityFloor = config.getDouble("densityFloor");
       dubMasterVolumeInstrumentTypeBass = config.getDouble("dubMasterVolumeInstrumentTypeBass");
@@ -204,9 +204,9 @@ public class TemplateConfig {
     config.put("deltaArcDetailLayersIncoming", String.valueOf(deltaArcDetailLayersIncoming));
     config.put("deltaArcDetailPlateauRatio", String.valueOf(deltaArcDetailPlateauRatio));
     config.put("deltaArcEnabled", String.valueOf(deltaArcEnabled));
-    config.put("deltaArcRhythmLayersIncoming", String.valueOf(deltaArcRhythmLayersIncoming));
-    config.put("deltaArcRhythmLayersToPrioritize", String.valueOf(deltaArcRhythmLayersToPrioritize));
-    config.put("deltaArcRhythmPlateauRatio", String.valueOf(deltaArcRhythmPlateauRatio));
+    config.put("deltaArcBeatLayersIncoming", String.valueOf(deltaArcBeatLayersIncoming));
+    config.put("deltaArcBeatLayersToPrioritize", String.valueOf(deltaArcBeatLayersToPrioritize));
+    config.put("deltaArcBeatPlateauRatio", String.valueOf(deltaArcBeatPlateauRatio));
     config.put("densityCeiling", String.valueOf(densityCeiling));
     config.put("densityFloor", String.valueOf(densityFloor));
     config.put("dubMasterVolumeInstrumentTypeBass", String.valueOf(dubMasterVolumeInstrumentTypeBass));
@@ -297,24 +297,24 @@ public class TemplateConfig {
   }
 
   /**
-   @return the plateau ratio of rhythm-layer detail arcs
+   @return the plateau ratio of beat-layer detail arcs
    */
-  public double getDeltaArcRhythmPlateauRatio() {
-    return deltaArcRhythmPlateauRatio;
+  public double getDeltaArcBeatPlateauRatio() {
+    return deltaArcBeatPlateauRatio;
   }
 
   /**
-   @return the number of delta arc rhythm layers incoming each segment
+   @return the number of delta arc beat layers incoming each segment
    */
-  public int getDeltaArcRhythmLayersIncoming() {
-    return deltaArcRhythmLayersIncoming;
+  public int getDeltaArcBeatLayersIncoming() {
+    return deltaArcBeatLayersIncoming;
   }
 
   /**
-   @return delta arc rhythm layer prioritization regexp
+   @return delta arc beat layer prioritization regexp
    */
-  public String getDeltaArcRhythmLayersToPrioritize() {
-    return deltaArcRhythmLayersToPrioritize;
+  public String getDeltaArcBeatLayersToPrioritize() {
+    return deltaArcBeatLayersToPrioritize;
   }
 
   /**

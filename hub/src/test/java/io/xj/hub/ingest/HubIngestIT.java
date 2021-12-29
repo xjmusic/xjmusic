@@ -97,13 +97,13 @@ public class HubIngestIT {
 
   @Test
   public void getProgramsOfType() throws Exception {
-    test.insert(buildProgram(fake.library10000001, ProgramType.Rhythm, ProgramState.Published, "cups", "B", 120.4f, 0.6f));
+    test.insert(buildProgram(fake.library10000001, ProgramType.Beat, ProgramState.Published, "cups", "B", 120.4f, 0.6f));
     test.insert(buildProgram(fake.library10000001, ProgramType.Main, ProgramState.Published, "plates", "Bb", 120.4f, 0.6f));
     test.insert(buildProgram(fake.library10000001, ProgramType.Detail, ProgramState.Published, "bowls", "A", 120.4f, 0.6f));
     HubIngest ingest = ingestFactory.ingest(HubAccess.internal(), fake.template1.getId());
 
     assertEquals(3, ingest.getProgramsOfType(ProgramType.Main).size());
-    assertEquals(2, ingest.getProgramsOfType(ProgramType.Rhythm).size());
+    assertEquals(2, ingest.getProgramsOfType(ProgramType.Beat).size());
     assertEquals(1, ingest.getProgramsOfType(ProgramType.Detail).size());
   }
 

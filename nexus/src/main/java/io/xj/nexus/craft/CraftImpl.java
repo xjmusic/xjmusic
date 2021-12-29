@@ -195,7 +195,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    Precompute all deltas for a given program. This is where deltaIns and deltaOuts values come from.
    <p>
    Precompute deltas dynamically based on whatever is extending the arranger--
-   Don't have anything in this class that's proprietary to rhythm or detail-- abstract that out into provider interfaces
+   Don't have anything in this class that's proprietary to beat or detail-- abstract that out into provider interfaces
    <p>
    Segments have intensity arcs; automate mixer layers in and out of each main program
    https://www.pivotaltracker.com/story/show/178240332

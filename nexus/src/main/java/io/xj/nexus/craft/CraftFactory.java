@@ -7,7 +7,7 @@ import io.xj.nexus.craft.background.BackgroundCraft;
 import io.xj.nexus.craft.detail.DetailCraft;
 import io.xj.nexus.craft.macro_main.MacroMainCraft;
 import io.xj.nexus.craft.perc_loop.PercLoopCraft;
-import io.xj.nexus.craft.rhythm.RhythmCraft;
+import io.xj.nexus.craft.beat.BeatCraft;
 import io.xj.nexus.craft.transition.TransitionCraft;
 import io.xj.nexus.fabricator.Fabricator;
 
@@ -19,7 +19,7 @@ import io.xj.nexus.fabricator.Fabricator;
  <p>
  Fabricator basis = basisFactory.fabricate(segment);
  craftFactory.macroMain(basis).craft();
- craftFactory.rhythm(basis).craft();
+ craftFactory.beat(basis).craft();
  craftFactory.voice(basis).craft();
  basis.putReport();
  */
@@ -38,13 +38,13 @@ public interface CraftFactory {
   ) throws NexusException;
 
   /**
-   Create Rhythm Craft instance for a particular segment
+   Create Beat Craft instance for a particular segment
 
    @param fabricator of craft
-   @return RhythmCraft
+   @return BeatCraft
    @throws NexusException on failure
    */
-  RhythmCraft rhythm(
+  BeatCraft beat(
     @Assisted("basis") Fabricator fabricator
   ) throws NexusException;
 

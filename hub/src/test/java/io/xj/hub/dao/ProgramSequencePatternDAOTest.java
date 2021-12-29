@@ -84,7 +84,7 @@ public class ProgramSequencePatternDAOTest {
     fake.program2_sequence1_pattern1 = test.insert(buildProgramSequencePattern(fake.program1_sequence1, programVoice1, 4, "Beat"));
     fake.program2_sequence1_pattern1_event0 = test.insert(buildProgramSequencePatternEvent(fake.program2_sequence1_pattern1, programVoiceTrack1, 0.0f, 1.0f, "X", 1.0f));
     fake.program2_sequence1_pattern1_event1 = test.insert(buildProgramSequencePatternEvent(fake.program2_sequence1_pattern1, programVoiceTrack1, 1.0f, 1.0f, "X", 1.0f));
-    fake.program2 = test.insert(buildProgram(fake.library1, ProgramType.Rhythm, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f));
+    fake.program2 = test.insert(buildProgram(fake.library1, ProgramType.Beat, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f));
     test.insert(buildProgramVoice(fake.program2, InstrumentType.Drum, "Drums"));
 
     // Library "boat" has a program "helm" and program "sail"

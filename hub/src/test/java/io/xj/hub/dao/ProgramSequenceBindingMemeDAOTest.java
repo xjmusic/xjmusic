@@ -80,7 +80,7 @@ public class ProgramSequenceBindingMemeDAOTest {
     sequenceBinding1a_0 = test.insert(buildProgramSequenceBinding(fake.program1_sequence1, 0));
     sequenceBinding1a_0_meme0 = test.insert(buildProgramSequenceBindingMeme(sequenceBinding1a_0, "chunk"));
     test.insert(buildProgramSequenceBindingMeme(sequenceBinding1a_0, "smooth"));
-    fake.program2 = test.insert(buildProgram(fake.library1, ProgramType.Rhythm, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f));
+    fake.program2 = test.insert(buildProgram(fake.library1, ProgramType.Beat, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f));
     fake.program702_voice1 = test.insert(buildProgramVoice(fake.program2, InstrumentType.Drum, "Drums"));
 
     // Library "boat" has a program "helm" and program "sail"

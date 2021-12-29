@@ -118,10 +118,10 @@ public class CraftDetailProgramVoiceNextMacroTest {
 
     // assert detail choice
     Collection<SegmentChoice> segmentChoices = fabricator.getChoices();
-    SegmentChoice rhythmChoice = segmentChoices.stream()
+    SegmentChoice beatChoice = segmentChoices.stream()
       .filter(c -> c.getProgramType().equals(ProgramType.Detail.toString())).findFirst().orElseThrow();
     assertTrue(fabricator.getArrangements()
-      .stream().anyMatch(a -> a.getSegmentChoiceId().equals(rhythmChoice.getId())));
+      .stream().anyMatch(a -> a.getSegmentChoiceId().equals(beatChoice.getId())));
     // test vector for [#154014731] persist Audio pick in memory
     int pickedBloop = 0;
     Collection<SegmentChoiceArrangementPick> picks = fabricator.getPicks();

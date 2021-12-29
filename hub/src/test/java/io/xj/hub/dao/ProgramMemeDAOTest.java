@@ -74,7 +74,7 @@ public class ProgramMemeDAOTest {
     fake.library1 = test.insert(buildLibrary(fake.account1, "palm tree"));
     fake.program1 = test.insert(buildProgram(fake.library1, ProgramType.Main, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f));
     fake.programMeme1 = test.insert(buildProgramMeme(fake.program1, "ANTS"));
-    fake.program2 = test.insert(buildProgram(fake.library1, ProgramType.Rhythm, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f));
+    fake.program2 = test.insert(buildProgram(fake.library1, ProgramType.Beat, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f));
     fake.program702_voice1 = test.insert(buildProgramVoice(fake.program2, InstrumentType.Drum, "Drums"));
 
     // Library "boat" has a program "helm" and program "sail"

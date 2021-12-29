@@ -82,7 +82,7 @@ public class ProgramDAOTest {
     var sequenceBinding1a_0 = test.insert(buildProgramSequenceBinding(fake.program1_sequence1, 0));
     test.insert(buildProgramSequenceBindingMeme(sequenceBinding1a_0, "chunk"));
     test.insert(buildProgramSequenceBindingMeme(sequenceBinding1a_0, "smooth"));
-    fake.program2 = test.insert(buildProgram(fake.library1, ProgramType.Rhythm, ProgramState.Published, "nuts", "C#", 120.0f, 0.6f));
+    fake.program2 = test.insert(buildProgram(fake.library1, ProgramType.Beat, ProgramState.Published, "nuts", "C#", 120.0f, 0.6f));
 
     // Library "boat" has a program "helm" and program "sail"
     fake.library2 = test.insert(buildLibrary(fake.account1, "boat"));
@@ -261,7 +261,7 @@ public class ProgramDAOTest {
     Program result = testDAO.readOne(hubAccess, fake.program2.getId());
 
     assertNotNull(result);
-    assertEquals(ProgramType.Rhythm, result.getType());
+    assertEquals(ProgramType.Beat, result.getType());
     assertEquals(ProgramState.Published, result.getState());
     assertEquals(fake.program2.getId(), result.getId());
     assertEquals(fake.library1.getId(), result.getLibraryId());
@@ -377,7 +377,7 @@ public class ProgramDAOTest {
   /**
    [#175789099] Artist should always be able to change program type
    <p>
-   DEPRECATES [#170390872] prevent user from changing the type of Rhythm program, when it has any Tracks and/or Voices.
+   DEPRECATES [#170390872] prevent user from changing the type of Beat program, when it has any Tracks and/or Voices.
    */
   @Test
   public void update_artistCanAlwaysChangeType() throws Exception {

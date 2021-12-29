@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.nexus.craft.rhythm;
+package io.xj.nexus.craft.beat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -43,10 +43,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 /**
- [#166481918] Rhythm fabrication composited of layered Patterns
+ [#166481918] Beat fabrication composited of layered Patterns
  */
 @RunWith(MockitoJUnitRunner.class)
-public class CraftRhythm_LayeredVoicesTest {
+public class CraftBeat_LayeredVoicesTest {
   @Mock
   public HubClient hubClient;
   private CraftFactory craftFactory;
@@ -180,7 +180,7 @@ public class CraftRhythm_LayeredVoicesTest {
     audioHihat = Entities.add(entities, buildAudio(instrument1, "Hihat", "iop0803k1k2l3h5a3s2d3f4g.wav", 0.01f, 1.5f, 120.0f, 0.6f, "HIHAT", "Ab", 1.0f));
 
     // A basic beat from scratch with layered voices
-    program42 = Entities.add(entities, buildProgram(fake.library2, ProgramType.Rhythm, ProgramState.Published, "Basic Beat", "C", 121f, 0.6f));
+    program42 = Entities.add(entities, buildProgram(fake.library2, ProgramType.Beat, ProgramState.Published, "Basic Beat", "C", 121f, 0.6f));
     Entities.add(entities, buildMeme(program42, "Basic"));
     ProgramVoice program42_locomotion = Entities.add(entities, buildVoice(program42, InstrumentType.Drum, "Locomotion"));
     ProgramVoice program42_kickSnare = Entities.add(entities, buildVoice(program42, InstrumentType.Drum, "BoomBap"));
@@ -210,10 +210,10 @@ public class CraftRhythm_LayeredVoicesTest {
   }
 
   @Test
-  public void craftRhythmVoiceContinue() throws Exception {
+  public void craftBeatVoiceContinue() throws Exception {
     Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4);
 
-    craftFactory.rhythm(fabricator).doWork();
+    craftFactory.beat(fabricator).doWork();
 
     Segment result = store.getSegment(segment4.getId()).orElseThrow();
     assertFalse(store.getAll(result.getId(), SegmentChoice.class).isEmpty());

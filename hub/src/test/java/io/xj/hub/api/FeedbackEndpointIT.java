@@ -123,7 +123,7 @@ public class FeedbackEndpointIT {
     var sequenceBinding1a_0 = test.insert(buildProgramSequenceBinding(fake.program1_sequence1, 0));
     test.insert(buildProgramSequenceBindingMeme(sequenceBinding1a_0, "chunk"));
     test.insert(buildProgramSequenceBindingMeme(sequenceBinding1a_0, "smooth"));
-    fake.program2 = test.insert(buildProgram(fake.library1, ProgramType.Rhythm, ProgramState.Published, "nuts", "C#", 120.0f, 0.6f));
+    fake.program2 = test.insert(buildProgram(fake.library1, ProgramType.Beat, ProgramState.Published, "nuts", "C#", 120.0f, 0.6f));
     test.insert(buildFeedbackProgram(fake.feedback1a, fake.program1));
     test.insert(buildFeedbackProgram(fake.feedback1b, fake.program2));
     when(context.getProperty(CONTEXT_KEY)).thenReturn(HubAccess.internal());

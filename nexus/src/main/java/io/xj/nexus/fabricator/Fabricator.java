@@ -191,11 +191,11 @@ public interface Fabricator {
   Collection<SegmentChoice> getCurrentDetailChoices();
 
   /**
-   fetch the rhythm-type choice for the current segment in the chain
+   fetch the beat-type choice for the current segment in the chain
 
-   @return rhythm-type segment choice
+   @return beat-type segment choice
    */
-  Optional<SegmentChoice> getCurrentRhythmChoice();
+  Optional<SegmentChoice> getCurrentBeatChoice();
 
   /**
    Get a list of unique voicing (instrument) types present in the voicings of the current main program's chords.
@@ -228,7 +228,7 @@ public interface Fabricator {
    Determine if a choice has been previously crafted
    in one of the previous segments of the current main sequence
    <p>
-   [#176468964] Rhythm and Detail choices are kept for an entire Main Program
+   [#176468964] Beat and Detail choices are kept for an entire Main Program
 
    @return choice if previously made, or null if none is found
    */
@@ -437,7 +437,7 @@ public interface Fabricator {
    <p>
    Caches the selection, so it will always return the same output for any given input.
    <p>
-   [#166481918] Rhythm fabrication composited of layered Patterns
+   [#166481918] Beat fabrication composited of layered Patterns
 
    @return Pattern model, or null if no pattern of this type is found
    @throws NexusException on failure
@@ -522,10 +522,10 @@ public interface Fabricator {
   String getSegmentShipKey(String extension);
 
   /**
-   [#165954619] Get the sequence for a Choice either directly (rhythm- and detail-type sequences), or by sequence-pattern (macro- or main-type sequences)
+   [#165954619] Get the sequence for a Choice either directly (beat- and detail-type sequences), or by sequence-pattern (macro- or main-type sequences)
    <p>
    [#166690830] Program model handles all of its own entities
-   Rhythm and Detail programs are allowed to have only one (default) sequence.
+   Beat and Detail programs are allowed to have only one (default) sequence.
 
    @param choice to get sequence for
    @return Sequence for choice
