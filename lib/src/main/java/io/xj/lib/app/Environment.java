@@ -89,6 +89,8 @@ public class Environment {
   private final int shipMixCycleSeconds;
   private final int shipPlaylistMinimumSize;
   private final int shipPlaylistTargetSize;
+  private final int shipSegmentIgnoreAfterSeconds;
+  private final int shipSegmentIgnoreBeforeSeconds;
   private final int shipSegmentLoadTimeoutSeconds;
   private final int workCycleMillis;
   private final int workEraseSegmentsOlderThanSeconds;
@@ -99,7 +101,6 @@ public class Environment {
   private final int workMedicCycleSeconds;
   private final int workPublishCycleSeconds;
   private final int workRehydrateFabricatedAheadThreshold;
-  private final int workShipFabricatedAheadThresholdSeconds;
   private final int workTelemetryCycleSeconds;
 
   // This must be set manually by the bootstrap before starting the application
@@ -164,6 +165,8 @@ public class Environment {
     shipMode = readStr(vars, "SHIP_MODE", "hls");
     shipPlaylistMinimumSize = readInt(vars, "SHIP_PLAYLIST_MINIMUM_SIZE", 3);
     shipPlaylistTargetSize = readInt(vars, "SHIP_PLAYLIST_TARGET_SIZE", 7);
+    shipSegmentIgnoreAfterSeconds = readInt(vars, "SHIP_SEGMENT_IGNORE_AFTER_SECONDS", 60);
+    shipSegmentIgnoreBeforeSeconds = readInt(vars, "SHIP_SEGMENT_IGNORE_BEFORE_SECONDS", 10);
     shipSegmentLoadTimeoutSeconds = readInt(vars, "SHIP_SEGMENT_LOAD_TIMEOUT_SECONDS", 5);
     streamBaseURL = readStr(vars, "STREAM_BASE_URL", "https://stream.dev.xj.io/");
     streamBucket = readStr(vars, "STREAM_BUCKET", "xj-dev-stream");
@@ -181,7 +184,6 @@ public class Environment {
     workMedicEnabled = readBool(vars, "WORK_MEDIC_ENABLED", true);
     workPublishCycleSeconds = readInt(vars, "WORK_PUBLISH_CYCLE_SECONDS", 10);
     workRehydrateFabricatedAheadThreshold = readInt(vars, "WORK_REHYDRATE_FABRICATED_AHEAD_THRESHOLD", 60);
-    workShipFabricatedAheadThresholdSeconds = readInt(vars, "WORK_SHIP_FABRICATED_AHEAD_THRESHOLD_SECONDS", 60);
     workTelemetryCycleSeconds = readInt(vars, "WORK_TELEMETRY_CYCLE_SECONDS", 2);
 
     // Resource: Amazon Web Services (AWS)
@@ -773,6 +775,20 @@ public class Environment {
   }
 
   /**
+   @return # of seconds after which Ship will ignore future segments
+   */
+  public int getShipSegmentIgnoreAfterSeconds() {
+    return shipSegmentIgnoreAfterSeconds;
+  }
+
+  /**
+   @return # of seconds before which Ship will ignore past segments
+   */
+  public int getShipSegmentIgnoreBeforeSeconds() {
+    return shipSegmentIgnoreBeforeSeconds;
+  }
+
+  /**
    @return ship segment load timeout seconds
    */
   public int getShipSegmentLoadTimeoutSeconds() {
@@ -805,13 +821,6 @@ public class Environment {
    */
   public String getTempFilePathPrefix() {
     return tempFilePathPrefix;
-  }
-
-  /**
-   @return ship fabricated ahead threshold seconds
-   */
-  public int getWorkShipFabricatedAheadThresholdSeconds() {
-    return workShipFabricatedAheadThresholdSeconds;
   }
 
   /**
@@ -904,4 +913,5 @@ public class Environment {
   public int getWorkRehydrateFabricatedAheadThreshold() {
     return workRehydrateFabricatedAheadThreshold;
   }
+
 }

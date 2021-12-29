@@ -42,7 +42,7 @@ public class ChainLoaderImpl extends ChainLoader {
   private final JsonapiPayloadFactory jsonapiPayloadFactory;
   private final Measure.MeasureLong CHAIN_LOADED;
   private final Measure.MeasureLong SEGMENT_LOADED;
-  private final Measure.MeasureLong SEGMENT_SKIPPED;
+  private final Measure.MeasureLong SEGMENT_IGNORED;
   private final Runnable onFailure;
   private final SegmentAudioManager segmentAudioManager;
   private final SegmentManager segmentManager;
@@ -50,7 +50,8 @@ public class ChainLoaderImpl extends ChainLoader {
   private final String shipBaseUrl;
   private final String shipKey;
   private final TelemetryProvider telemetryProvider;
-  private final int eraseSegmentsOlderThanSeconds;
+  private final int ignoreSegmentsBeforeSeconds;
+  private final int ignoreSegmentsAfterSeconds;
 
   @Inject
   public ChainLoaderImpl(
@@ -77,12 +78,13 @@ public class ChainLoaderImpl extends ChainLoader {
     this.source = source;
     this.telemetryProvider = telemetryProvider;
 
-    eraseSegmentsOlderThanSeconds = env.getWorkEraseSegmentsOlderThanSeconds();
+    ignoreSegmentsBeforeSeconds = env.getShipSegmentIgnoreBeforeSeconds();
+    ignoreSegmentsAfterSeconds = env.getShipSegmentIgnoreAfterSeconds();
     shipBaseUrl = env.getShipBaseUrl();
 
     CHAIN_LOADED = telemetryProvider.count("chain_loaded", "Chain Loaded", "");
     SEGMENT_LOADED = telemetryProvider.count("segment_loaded", "Segment Loaded", "");
-    SEGMENT_SKIPPED = telemetryProvider.count("segment_skipped", "Segment Skipped", "");
+    SEGMENT_IGNORED = telemetryProvider.count("segment_ignored", "Segment Ignored", "");
   }
 
   @Override
@@ -103,7 +105,9 @@ public class ChainLoaderImpl extends ChainLoader {
   private void doWork() {
     var nowMillis = Instant.now().toEpochMilli();
     var success = new AtomicBoolean(true);
-    var segmentSkipped = new AtomicInteger(0);
+    var segmentIgnoredPast = new AtomicInteger(0);
+    var segmentIgnoredFuture = new AtomicInteger(0);
+    var segmentIgnoredLoading = new AtomicInteger(0);
     var segmentLoaded = new AtomicInteger(0);
     JsonapiPayload chainPayload;
     Chain chain;
@@ -125,7 +129,8 @@ public class ChainLoaderImpl extends ChainLoader {
       return;
     }
 
-    Instant ignoreSegmentsBefore = Instant.now().minusSeconds(eraseSegmentsOlderThanSeconds);
+    Instant ignoreSegmentsBefore = Instant.now().minusSeconds(ignoreSegmentsBeforeSeconds);
+    Instant ignoreSegmentsAfter = Instant.now().plusSeconds(ignoreSegmentsAfterSeconds);
     //noinspection DuplicatedCode
     chainPayload.getIncluded().parallelStream()
       .filter(po -> po.isType(Segment.class))
@@ -142,12 +147,16 @@ public class ChainLoaderImpl extends ChainLoader {
       .forEach(segment -> {
         try {
           if (Segments.isBefore(segment, ignoreSegmentsBefore)) {
-            segmentSkipped.incrementAndGet();
-            LOG.debug("Skipped past Segment[{}]", Segments.getIdentifier(segment));
+            segmentIgnoredPast.incrementAndGet();
+            LOG.debug("Ignored past Segment[{}]", Segments.getIdentifier(segment));
+
+          } else if (Segments.isAfter(segment, ignoreSegmentsAfter)) {
+            segmentIgnoredFuture.incrementAndGet();
+            LOG.debug("Ignored future Segment[{}]", Segments.getIdentifier(segment));
 
           } else if (segmentAudioManager.isLoadingOrReady(segment.getId(), nowMillis)) {
-            segmentSkipped.incrementAndGet();
-            LOG.debug("Skipped existing Segment[{}] ({})", Segments.getIdentifier(segment),
+            segmentIgnoredLoading.incrementAndGet();
+            LOG.debug("Ignored existing Segment[{}] ({})", Segments.getIdentifier(segment),
               segmentManager.readOne(segment.getId()).getState());
 
           } else {
@@ -168,14 +177,20 @@ public class ChainLoaderImpl extends ChainLoader {
       return;
     }
 
-    // OK
-    if (0 < segmentLoaded.get()) {
-      LOG.info("Fetched data for {} Segments (skipped {})", segmentLoaded.get(), segmentSkipped.get());
-      telemetryProvider.put(SEGMENT_LOADED, segmentLoaded.longValue());
-      telemetryProvider.put(SEGMENT_SKIPPED, segmentSkipped.longValue());
-    } else {
-      LOG.info("skipped all {} Segments", segmentSkipped.get());
-      telemetryProvider.put(SEGMENT_SKIPPED, segmentSkipped.longValue());
-    }
+    // Telemetry
+    telemetryProvider.put(SEGMENT_LOADED, segmentLoaded.longValue());
+    telemetryProvider.put(SEGMENT_IGNORED, segmentIgnoredPast.longValue());
+    telemetryProvider.put(SEGMENT_IGNORED, segmentIgnoredFuture.longValue());
+    if (0 < segmentLoaded.get())
+      LOG.info("Fetched data for {} Segments. Ignored: {} Loading, {} Past, {} Future",
+        segmentLoaded.get(),
+        segmentIgnoredLoading.get(),
+        segmentIgnoredPast.get(),
+        segmentIgnoredFuture.get());
+    else
+      LOG.info("Ignored all segments: {} Loading, {} Past, {} Future",
+        segmentIgnoredLoading.get(),
+        segmentIgnoredPast.get(),
+        segmentIgnoredFuture.get());
   }
 }

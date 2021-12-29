@@ -135,13 +135,23 @@ public enum Segments {
   /**
    Whether this Segment is before a given threshold, first by end-at if available, else begin-at
 
-   @param eraseBefore threshold to filter before
+   @param before threshold to filter before
    @return true if segment is before threshold
    */
-  public static boolean isBefore(Segment segment, Instant eraseBefore) {
+  public static boolean isBefore(Segment segment, Instant before) {
     return Values.isSet(segment.getEndAt()) ?
-      Instant.parse(segment.getEndAt()).isBefore(eraseBefore) :
-      Instant.parse(segment.getBeginAt()).isBefore(eraseBefore);
+      Instant.parse(segment.getEndAt()).isBefore(before) :
+      Instant.parse(segment.getBeginAt()).isBefore(before);
+  }
+
+  /**
+   Whether this Segment is after a given threshold, first by end-at if available, else begin-at
+
+   @param after threshold to filter after
+   @return true if segment is after threshold
+   */
+  public static boolean isAfter(Segment segment, Instant after) {
+    return Instant.parse(segment.getBeginAt()).isAfter(after);
   }
 
   /**
