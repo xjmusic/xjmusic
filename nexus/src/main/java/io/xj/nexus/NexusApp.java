@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
  - Add shutdown hook that calls application stop()
  */
 public class NexusApp extends App {
-  private static final String APP_NAME = "nexus";
   private final org.slf4j.Logger LOG = LoggerFactory.getLogger(NexusApp.class);
   private final NexusWork work;
   private final String platformRelease;
@@ -51,7 +50,7 @@ public class NexusApp extends App {
     HubAccessTokenFilter hubAccessTokenFilter,
     NexusAppHealthEndpoint nexusAppHealthEndpoint
   ) {
-    super(APP_NAME, env);
+    super(env);
 
     // Configuration
     platformRelease = env.getPlatformEnvironment();

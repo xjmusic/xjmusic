@@ -2,6 +2,7 @@
 
 package io.xj.ship.broadcast;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
@@ -17,14 +18,16 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.io.IOException;
+
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
+import static io.xj.lib.util.Files.getResourceFileContent;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
+import static org.junit.Assert.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PlaylistPublisherImplTest {
-  // Fixtures
-  private static final String SHIP_KEY = "test5";
   // Under Test
   private PlaylistPublisher subject;
 
@@ -36,10 +39,11 @@ public class PlaylistPublisherImplTest {
 
   @Mock
   private FileStoreProvider fileStoreProvider;
+  private BroadcastFactory broadcast;
 
   @Before
   public void setUp() {
-    var env = Environment.getDefault();
+    Environment env = Environment.from(ImmutableMap.of("SHIP_KEY", "coolair"));
     var injector = Guice.createInjector(Modules.override(new ShipWorkModule()).with(new AbstractModule() {
       @Override
       protected void configure() {
@@ -53,11 +57,66 @@ public class PlaylistPublisherImplTest {
     var chain = buildChain(buildTemplate(buildAccount("Testing"), "Testing"));
     chain.setTemplateConfig("metaSource = \"XJ Music Testing\"\nmetaTitle = \"Test Stream 5\"");
 
-    subject = injector.getInstance(BroadcastFactory.class).publisher(SHIP_KEY);
+    broadcast = injector.getInstance(BroadcastFactory.class);
+
+    subject = injector.getInstance(PlaylistPublisher.class);
   }
 
   @Test
-  public void publish() throws ShipException {
-    subject.publish(System.currentTimeMillis());
+  public void get() throws ShipException {
+    var item = broadcast.chunk("coolair", 164030295L, "mp3", null);
+
+    subject.putNext(item);
+    assertSame(item, subject.get(164030295).orElseThrow());
+  }
+
+  /**
+   Second attempt returns false (already seen this item)
+   */
+  @Test
+  public void put() throws ShipException {
+    var item = broadcast.chunk("coolair", 164030295L, "mp3", null);
+
+    assertTrue(subject.putNext(item));
+    assertFalse(subject.putNext(item));
+  }
+
+  @Test
+  public void collectGarbageBefore() throws ShipException {
+    var item = broadcast.chunk("coolair", 164030295L, "mp3", null);
+
+    subject.putNext(item);
+    subject.collectGarbageBefore(164030296);
+    assertFalse(subject.get(164030295).isPresent());
+  }
+
+  @Test
+  public void computeMediaSequence() {
+    assertEquals(164030295, subject.computeMediaSequence(1640302958444L));
+  }
+
+  @Test
+  public void loadItemsFromPlaylist_getPlaylistContent() throws IOException, ShipException {
+    var reference_m3u8 = getResourceFileContent("coolair.m3u8");
+
+    var added = subject.parseAndLoadItems(reference_m3u8);
+    assertEquals(20, added.size());
+
+    var reAdded = subject.parseAndLoadItems(reference_m3u8);
+    assertEquals(0, reAdded.size());
+
+    assertEquals(reference_m3u8, subject.getPlaylistContent(164029638));
+  }
+
+  @Test
+  public void collectGarbage_recomputesMaxSequence_resetsOnEmpty() throws IOException, ShipException {
+    subject.parseAndLoadItems(getResourceFileContent("coolair.m3u8"));
+    assertEquals(164029657, subject.getMaxSequenceNumber());
+
+    subject.collectGarbageBefore(164029651);
+    assertEquals(164029657, subject.getMaxSequenceNumber());
+
+    subject.collectGarbageBefore(164029659); // past end of playlist; will clear all
+    assertEquals(0, subject.getMaxSequenceNumber());
   }
 }

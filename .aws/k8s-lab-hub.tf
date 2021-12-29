@@ -53,11 +53,6 @@ resource "kubernetes_deployment" "xj-prod-lab-hub" {
           image = "${aws_ecr_repository.xj-hub.repository_url}:latest"
 
           env {
-            name  = "TELEMETRY_NAMESPACE"
-            value = "Lab/Hub"
-          }
-
-          env {
             name  = "AWS_DEFAULT_REGION"
             value = local.aws-region
           }

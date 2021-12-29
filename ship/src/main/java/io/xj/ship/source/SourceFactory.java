@@ -10,26 +10,13 @@ import io.xj.api.Segment;
 public interface SourceFactory {
 
   /**
-   Create a Segment audio
-
-   @param shipKey to load
-   @param segment to load
-   @return segment audio
-   */
-  SegmentAudio segmentAudio(
-    @Assisted("shipKey") String shipKey,
-    @Assisted("segment") Segment segment,
-    @Assisted("absolutePath") String absolutePath
-    );
-
-  /**
    Load the chain manifest, including all its chains
 
    @param shipKey   to load
    @param onFailure callback
    @return chain manifest loader
    */
-  ChainLoader spawnChainBoss(
+  ChainLoader loadChain(
     @Assisted("shipKey") String shipKey,
     @Assisted("onFailure") Runnable onFailure
   );
@@ -49,9 +36,22 @@ public interface SourceFactory {
    @param segment to load
    @return segment audio loader
    */
-  SegmentLoader spawnSegmentLoader(
+  SegmentLoader loadSegment(
     @Assisted("shipKey") String shipKey,
     @Assisted("segment") Segment segment
+  );
+
+  /**
+   Create a Segment audio
+
+   @param shipKey to load
+   @param segment to load
+   @return segment audio
+   */
+  SegmentAudio loadSegmentAudio(
+    @Assisted("shipKey") String shipKey,
+    @Assisted("segment") Segment segment,
+    @Assisted("absolutePath") String absolutePath
   );
 
 }

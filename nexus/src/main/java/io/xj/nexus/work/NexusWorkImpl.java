@@ -1,13 +1,13 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.work;
 
-import com.amazonaws.services.cloudwatch.model.StandardUnit;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import io.opencensus.stats.Measure;
 import io.xj.api.Chain;
 import io.xj.api.ChainState;
 import io.xj.api.Segment;
@@ -49,12 +49,9 @@ import static io.xj.lib.util.Values.NANOS_PER_SECOND;
 @Singleton
 public class NexusWorkImpl implements NexusWork {
   private static final Logger LOG = LoggerFactory.getLogger(NexusWorkImpl.class);
-  private static final String DEFAULT_NAME_PREVIEW = "preview";
-  private static final String DEFAULT_NAME_PRODUCTION = "production";
-  private static final String METRIC_CHAIN_FORMAT = "chain.%s.%s";
-  private static final String METRIC_FABRICATED_AHEAD_SECONDS = "fabricated_ahead_seconds";
-  private static final String METRIC_SEGMENT_CREATED = "segment_created";
-  private static final String METRIC_SEGMENT_ERASED = "segment_erased";
+  private final Measure.MeasureDouble METRIC_FABRICATED_AHEAD_SECONDS;
+  private final Measure.MeasureLong METRIC_SEGMENT_CREATED;
+  private final Measure.MeasureLong METRIC_SEGMENT_GC;
   private final NexusWorkChainManager nexusWorkChainManager;
   private final CraftFactory craftFactory;
   private final DubFactory dubFactory;
@@ -120,6 +117,11 @@ public class NexusWorkImpl implements NexusWork {
     chainThresholdFabricatedBehindSeconds = env.getFabricationChainThresholdFabricatedBehindSeconds();
     Executors.newSingleThreadScheduledExecutor();
 
+    // Telemetry: # Segments Erased
+    METRIC_SEGMENT_GC = telemetryProvider.count("segment_gc", "Segment Garbage Collected", "");
+    METRIC_SEGMENT_CREATED = telemetryProvider.count("segment_created", "Segment Created", "");
+    METRIC_FABRICATED_AHEAD_SECONDS = telemetryProvider.gauge("fabricated_ahead_seconds", "Fabricated Ahead Seconds", "s");
+
     LOG.debug("Instantiated OK");
   }
 
@@ -152,7 +154,7 @@ public class NexusWorkImpl implements NexusWork {
       if (medicEnabled) doMedic();
       if (janitorEnabled) doJanitor();
     } catch (Exception e) {
-      didFailWhile("Running Nexus Work", e);
+      didFailWhile("Running Work", e);
     }
 
     // End lap & do telemetry on all fabricated chains
@@ -202,7 +204,7 @@ public class NexusWorkImpl implements NexusWork {
         .filter((chain) ->
           TemplateType.Production.toString().equals(chain.getType().toString()))
         .forEach(chain -> {
-          var aheadSeconds = Values.computeRelativeSeconds(Instant.parse(chain.getFabricatedAheadAt()));
+          var aheadSeconds = Math.floor(Values.computeRelativeSeconds(Instant.parse(chain.getFabricatedAheadAt())));
           if (aheadSeconds < chainThresholdFabricatedBehindSeconds) {
             LOG.warn("Chain {} is stalled, fabricated ahead {}s", Chains.getIdentifier(chain), aheadSeconds);
             stalledChainIds.add(chain.getId());
@@ -248,7 +250,7 @@ public class NexusWorkImpl implements NexusWork {
       }
     }
 
-    telemetryProvider.put(METRIC_SEGMENT_ERASED, StandardUnit.Count, gcSegIds.size());
+    telemetryProvider.put(METRIC_SEGMENT_GC, (long) gcSegIds.size());
   }
 
   /**
@@ -269,9 +271,9 @@ public class NexusWorkImpl implements NexusWork {
     try {
       timer.section("ComputeAhead");
       var fabricatedAheadAt = computeFabricatedAheadAt(chain);
-      var aheadSeconds = Values.computeRelativeSeconds(fabricatedAheadAt);
+      double aheadSeconds = Math.floor(Values.computeRelativeSeconds(fabricatedAheadAt));
       chain = chainManager.update(chain.getId(), chain.fabricatedAheadAt(Values.formatIso8601UTC(fabricatedAheadAt)));
-      telemetryProvider.put(getChainMetricName(chain, METRIC_FABRICATED_AHEAD_SECONDS), StandardUnit.Seconds, aheadSeconds);
+      telemetryProvider.put(METRIC_FABRICATED_AHEAD_SECONDS, aheadSeconds);
 
       var templateConfig = chainManager.getTemplateConfig(chain.getId());
       if (aheadSeconds > templateConfig.getBufferAheadSeconds()) return;
@@ -284,7 +286,7 @@ public class NexusWorkImpl implements NexusWork {
 
       Segment segment = segmentManager.create(nextSegment.get());
       LOG.debug("Created Segment {}", segment);
-      telemetryProvider.put(getChainMetricName(chain, METRIC_SEGMENT_CREATED), StandardUnit.Count, 1.0);
+      telemetryProvider.put(METRIC_SEGMENT_CREATED, 1L);
 
       Fabricator fabricator;
       timer.section("Prepare");
@@ -303,7 +305,7 @@ public class NexusWorkImpl implements NexusWork {
       aheadSeconds += segmentLengthSeconds;
       fabricatedAheadAt = fabricatedAheadAt.plusNanos((long) (segmentLengthSeconds * NANOS_PER_SECOND));
       chain = chainManager.update(chain.getId(), chain.fabricatedAheadAt(Values.formatIso8601UTC(fabricatedAheadAt)));
-      telemetryProvider.put(getChainMetricName(chain, METRIC_FABRICATED_AHEAD_SECONDS), StandardUnit.Seconds, aheadSeconds);
+      telemetryProvider.put(METRIC_FABRICATED_AHEAD_SECONDS, aheadSeconds);
 
       timer.section("Ship");
       doDubShipWork(fabricator);
@@ -340,29 +342,6 @@ public class NexusWorkImpl implements NexusWork {
   @Override
   public void stop() {
     alive = false;
-  }
-
-  /**
-   Get the name for a given chain and metric
-
-   @param chain      to get name for
-   @param metricName to get metric name for
-   @return name for the given chain and metric
-   */
-  private String getChainMetricName(Chain chain, String metricName) {
-    return String.format(METRIC_CHAIN_FORMAT, getChainName(chain), metricName);
-  }
-
-  /**
-   Get the name for a given chain
-
-   @param chain to get name for
-   @return name for the given chain
-   */
-  private String getChainName(Chain chain) {
-    return TemplateType.Production.toString().equals(chain.getType().toString()) ?
-      (!Strings.isNullOrEmpty(chain.getShipKey()) ? chain.getShipKey() : DEFAULT_NAME_PRODUCTION) :
-      DEFAULT_NAME_PREVIEW;
   }
 
   /**

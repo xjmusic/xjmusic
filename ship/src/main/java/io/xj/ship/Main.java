@@ -20,6 +20,7 @@ import java.util.Set;
  Ship service
  */
 public interface Main {
+  String APP_NAME = "ship";
   Set<Module> injectorModules = ImmutableSet.of(
     new JsonapiModule(),
     new ShipWorkModule()
@@ -33,6 +34,7 @@ public interface Main {
   @SuppressWarnings("DuplicatedCode")
   static void main(String[] args) throws AppException {
     final var env = Secrets.environment();
+    env.setAppName(APP_NAME);
 
     var injector = Guice.createInjector(Modules.override(injectorModules).with(new AbstractModule() {
       @Override

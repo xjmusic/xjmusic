@@ -6,5 +6,5 @@ import java.util.concurrent.RecursiveAction;
 /**
  Ship broadcast via HTTP Live Streaming #179453189
  */
-public abstract class ChainLoader extends RecursiveAction {
+public abstract class ChainLoader implements Runnable {
 }

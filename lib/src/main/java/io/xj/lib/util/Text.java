@@ -27,6 +27,7 @@ public interface Text {
   Pattern nonNote = Pattern.compile("[^#0-9a-zA-Z ]");
   Pattern isInteger = Pattern.compile("[0-9]+");
   String UNDERSCORE = "_";
+  String SPACE = " ";
   String NOTHING = "";
   char SINGLE_QUOTE = '\'';
   char DOUBLE_QUOTE = '"';

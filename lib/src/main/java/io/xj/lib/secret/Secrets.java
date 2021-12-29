@@ -37,7 +37,6 @@ public enum Secrets {
       env = Environment.augmentSystem(fetchGcpSecret(env.getGcpProjectId(), env.getGcpSecretId()));
 
     return env;
-
   }
 
   /**

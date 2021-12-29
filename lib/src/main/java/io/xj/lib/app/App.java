@@ -48,11 +48,9 @@ public class App {
 
   @Inject
   public App(
-    String name,
     Environment env
   ) {
-    this.name = name;
-
+    name = env.getAppName();
     hostname = computeInetHostname(env.getHostname());
     port = env.getAppPort();
 

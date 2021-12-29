@@ -10,6 +10,7 @@ import io.xj.lib.http.HttpClientModule;
 import io.xj.lib.json.JsonModule;
 import io.xj.lib.jsonapi.JsonapiModule;
 import io.xj.lib.notification.NotificationModule;
+import io.xj.lib.telemetry.TelemetryModule;
 import io.xj.nexus.persistence.NexusPersistenceModule;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.SegmentManagerImpl;
@@ -25,6 +26,7 @@ public class SourceModule extends AbstractModule {
       .implement(SegmentAudio.class, SegmentAudio.class)
       .implement(SegmentLoader.class, SegmentLoaderImpl.class)
       .build(SourceFactory.class));
+    install(new TelemetryModule());
     install(new HttpClientModule());
     install(new JsonModule());
     install(new JsonapiModule());

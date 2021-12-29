@@ -28,6 +28,7 @@ import java.util.Set;
  Nexus service
  */
 public interface Main {
+  String APP_NAME = "nexus";
   Set<Module> injectorModules = ImmutableSet.of(
     new CraftModule(),
     new HubClientModule(),
@@ -49,6 +50,7 @@ public interface Main {
   @SuppressWarnings("DuplicatedCode")
   static void main(String[] args) throws AppException, UnknownHostException {
     final var env = Secrets.environment();
+    env.setAppName(APP_NAME);
 
     var injector = Guice.createInjector(Modules.override(injectorModules).with(new AbstractModule() {
       @Override

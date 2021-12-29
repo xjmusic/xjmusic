@@ -99,6 +99,7 @@ public class HubAppTest {
   public void setUp() throws Exception {
     httpClient = HttpClients.createDefault();
     var env = Environment.from(ImmutableMap.of("APP_PORT", "1903"));
+    env.setAppName("hub");
     var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new JsonapiModule())).with(new AbstractModule() {
       @Override
       protected void configure() {

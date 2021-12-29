@@ -1,22 +1,69 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.telemetry;
 
-import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
-import com.amazonaws.services.cloudwatch.model.MetricDatum;
-import com.amazonaws.services.cloudwatch.model.PutMetricDataResult;
-import com.amazonaws.services.cloudwatch.model.StandardUnit;
+import io.opencensus.stats.Measure;
 
 /**
- Send custom telemetry to CloudWatch #179247968
+ Send telemetry to GCP #180741969
+ <p>
+ SEE: https://cloud.google.com/monitoring/custom-metrics/open-census
+ <p>
+ NOTE: This provider automatically prefixes all telemetry:
+ - names with "ship_app_" e.g. "coolair_nexus_xyz"
+ - descriptions with "Ship App" e.g. "Coolair Nexus Xyz"
  */
 public interface TelemetryProvider {
+  /**
+   Register a simple count aggregated measure
+
+   @param name        of measure
+   @param description of measure
+   @param unit        of measure
+   @return simple count view
+   */
+  Measure.MeasureLong count(
+    String name,
+    String description,
+    String unit
+  );
 
   /**
-   Put  metric datum
+   Register a simple gauge aggregated measure
 
-   @param name  of datum
-   @param unit  of datum
-   @param value of datum
+   @param name        of measure
+   @param description of measure
+   @param unit        of measure
+   @return simple gauge view
    */
-  void put(String name, StandardUnit unit, double value);
+  Measure.MeasureDouble gauge(String name, String description, String unit);
+
+  /**
+   Put a measure value, with a minimum of 0
+
+   @param measure to put
+   @param value   to put
+   */
+  void put(Measure.MeasureLong measure, Long value);
+
+  /**
+   Put a measure value, with a minimum of 0
+
+   @param measure to put
+   @param value   to put
+   */
+  void put(Measure.MeasureDouble measure, Double value);
+
+  /**
+   Prefix a name with "ship_app_" e.g. "coolair_nexus_xyz"
+
+   @return prefixed name, or original
+   */
+  String prefixedLowerSnake(String name);
+
+  /**
+   Prefix a description with "Ship App" e.g. "Coolair Nexus Xyz"
+
+   @return prefixed name, or original
+   */
+  String prefixedProperSpace(String desc);
 }

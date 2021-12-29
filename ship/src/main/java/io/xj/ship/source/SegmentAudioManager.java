@@ -66,6 +66,13 @@ public interface SegmentAudioManager {
   Collection<SegmentAudio> getAllIntersecting(String shipKey, Instant fromInstant, Instant toInstant);
 
   /**
+   Send telemetry about currently loaded source audio
+   <p>
+   Ship should not enter permanent failure state unable to load segments #180756082
+   */
+  void sendTelemetry();
+
+  /**
    Whether the segment audio for the given segment id is already loading or ready
 
    @param segmentId to test

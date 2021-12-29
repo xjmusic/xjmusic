@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.api.Segment;
 import io.xj.lib.app.Environment;
+import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.lib.util.ValueException;
 import io.xj.ship.ShipException;
 import org.apache.commons.io.FileUtils;
@@ -22,7 +23,8 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
-import static io.xj.lib.util.Values.*;
+import static io.xj.lib.util.Values.NANOS_PER_SECOND;
+import static io.xj.lib.util.Values.enforceMaxStereo;
 
 /**
  An HTTP Live Streaming Media Segment
@@ -55,6 +57,7 @@ public class SegmentAudio {
     @Assisted("absolutePath") String absolutePath,
     @Assisted("segment") Segment segment,
     @Assisted("shipKey") String shipKey,
+    TelemetryProvider telemetryProvider,
     Environment env
   ) throws ShipException {
     this.absolutePath = absolutePath;
@@ -64,6 +67,8 @@ public class SegmentAudio {
     state = SegmentAudioState.Pending;
     beginAt = Instant.parse(segment.getBeginAt()).minusNanos((long) (segment.getWaveformPreroll() * NANOS_PER_SECOND));
     endAt = Instant.parse(segment.getEndAt()).plusNanos((long) (segment.getWaveformPostroll() * NANOS_PER_SECOND));
+
+    var SEGMENT_AUDIO_LOADED_SECONDS = telemetryProvider.count("segment_audio_loaded_seconds", "Segment Audio Loaded Seconds", "s");
 
     try (
       var fileInputStream = FileUtils.openInputStream(new File(absolutePath));
@@ -81,6 +86,7 @@ public class SegmentAudio {
       state = SegmentAudioState.Ready;
       LOG.debug("Loaded absolutePath: {}, sourceId: {}, audioFormat: {}, channels: {}, frameRate: {}, frameLength: {}, lengthSeconds: {}",
         absolutePath, shipKey, audioFormat, channels, frameRate, frameLength, lengthSeconds);
+      telemetryProvider.put(SEGMENT_AUDIO_LOADED_SECONDS, (long) lengthSeconds);
 
     } catch (UnsupportedAudioFileException | IOException | ValueException e) {
       throw new ShipException(String.format("Failed to read audio from disk %s", absolutePath), e);

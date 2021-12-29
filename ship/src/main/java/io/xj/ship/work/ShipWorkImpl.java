@@ -10,6 +10,7 @@ import io.xj.lib.util.Text;
 import io.xj.nexus.persistence.ChainManager;
 import io.xj.ship.ShipException;
 import io.xj.ship.broadcast.*;
+import io.xj.ship.source.SegmentAudioManager;
 import io.xj.ship.source.SourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import javax.sound.sampled.AudioFormat;
 import java.util.Objects;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.xj.lib.util.Values.MILLIS_PER_SECOND;
@@ -28,7 +28,6 @@ import static io.xj.lib.util.Values.MILLIS_PER_SECOND;
  Ship broadcast via HTTP Live Streaming #179453189
  <p>
  SEE: https://www.nurkiewicz.com/2014/11/executorservice-10-tips-and-tricks.html
- SEE: https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ForkJoinPool.html
  <p>
  Work is performed by runnable executables in a cached thread pool, with callback functions for success and failure.
  */
@@ -36,34 +35,37 @@ import static io.xj.lib.util.Values.MILLIS_PER_SECOND;
 public class ShipWorkImpl implements ShipWork {
   private static final Logger LOG = LoggerFactory.getLogger(ShipWorkImpl.class);
   private final AtomicReference<State> state;
+  private final AudioFormat audioFormat;
   private final BroadcastFactory broadcast;
+  private final ChainManager chains;
   private final Janitor janitor;
   private final NotificationProvider notification;
-  private final PlaylistPublisher publisher;
+  private final PlaylistPublisher playlist;
+  private final SegmentAudioManager segmentAudios;
   private final SourceFactory sources;
+  private final StreamPlayer player;
   private final boolean janitorEnabled;
+  private final int chunkTargetDuration;
   private final int cycleMillis;
   private final int janitorCycleSeconds;
   private final int loadCycleSeconds;
   private final int mixCycleSeconds;
   private final int publishCycleSeconds;
+  private final int telemetryCycleSeconds;
   private final long healthCycleStalenessThresholdMillis;
+  private final long shipAheadMillis;
   @Nullable
   private final String shipKey;
-  private final PlaylistManager playlist;
-  private final ChainManager chains;
-  private final int chunkTargetDuration;
-  private final long shipAheadMillis;
-  private final StreamPlayer player;
-  private final AudioFormat audioFormat;
+  private final boolean telemetryEnabled;
   private StreamEncoder stream;
   private boolean active = true;
+  private long doneUpToSecondsUTC;
   private long nextCycleMillis = 0;
   private long nextJanitorMillis = 0;
+  private long nextTelemetryMillis = 0;
   private long nextMixMillis = 0;
   private long nextPublishMillis = 0;
-  private long nextShipReloadMillis = 0;
-  private long doneUpToSecondsUTC;
+  private long nextLoadMillis = 0;
 
   @Inject
   public ShipWorkImpl(
@@ -72,7 +74,8 @@ public class ShipWorkImpl implements ShipWork {
     Environment env,
     Janitor janitor,
     NotificationProvider notification,
-    PlaylistManager playlist,
+    PlaylistPublisher playlist,
+    SegmentAudioManager segmentAudios,
     SourceFactory sources
   ) {
     this.broadcast = broadcast;
@@ -80,6 +83,7 @@ public class ShipWorkImpl implements ShipWork {
     this.janitor = janitor;
     this.notification = notification;
     this.playlist = playlist;
+    this.segmentAudios = segmentAudios;
     this.sources = sources;
 
     shipKey = env.getShipKey();
@@ -88,15 +92,17 @@ public class ShipWorkImpl implements ShipWork {
       active = false;
     }
 
+    chunkTargetDuration = env.getShipChunkTargetDuration();
     cycleMillis = env.getWorkCycleMillis();
     healthCycleStalenessThresholdMillis = env.getWorkHealthCycleStalenessThresholdSeconds() * MILLIS_PER_SECOND;
     janitorCycleSeconds = env.getWorkJanitorCycleSeconds();
     janitorEnabled = env.isWorkJanitorEnabled();
-    loadCycleSeconds = env.getShipReloadSeconds();
+    loadCycleSeconds = env.getShipLoadCycleSeconds();
     mixCycleSeconds = env.getShipMixCycleSeconds();
     publishCycleSeconds = env.getWorkPublishCycleSeconds();
-    chunkTargetDuration = env.getShipChunkTargetDuration();
     shipAheadMillis = env.getShipPlaylistTargetSize() * chunkTargetDuration * MILLIS_PER_SECOND;
+    telemetryEnabled = env.isTelemetryEnabled();
+    telemetryCycleSeconds = env.getWorkTelemetryCycleSeconds();
 
     audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
       48000,
@@ -107,7 +113,6 @@ public class ShipWorkImpl implements ShipWork {
       false);
 
     player = broadcast.player(audioFormat);
-    publisher = broadcast.publisher(shipKey);
 
     // This value will advance each time we compute more chunks
     doneUpToSecondsUTC = computeChunkSecondsUTC(System.currentTimeMillis());
@@ -120,8 +125,17 @@ public class ShipWorkImpl implements ShipWork {
   @Override
   public void work() {
     // Ship rehydrates from last shipped .m3u8 playlist file #180723357
-    publisher.rehydratePlaylist()
+    playlist.rehydrate()
       .ifPresent(maxSeqNum -> doneUpToSecondsUTC = (maxSeqNum + 1) * chunkTargetDuration);
+
+    // Collect garbage before we begin
+    var nowSeqNum = playlist.computeMediaSequence(System.currentTimeMillis());
+    playlist.collectGarbageBefore(nowSeqNum);
+
+    // Check to see if in fact, this is a stale playlist and should be reset
+    if (playlist.isEmpty()) {
+      doneUpToSecondsUTC = (long) nowSeqNum * chunkTargetDuration;
+    }
 
     while (active) this.run();
   }
@@ -176,6 +190,7 @@ public class ShipWorkImpl implements ShipWork {
         doMixCycle(nowMillis);
         doPublishCycle(nowMillis);
         doCleanupCycle(nowMillis);
+        doTelemetryCycle(nowMillis);
 
       } catch (Exception e) {
         var detail = Strings.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
@@ -224,11 +239,9 @@ public class ShipWorkImpl implements ShipWork {
    @param nowMillis current
    */
   private void doLoadCycle(long nowMillis) {
-    if (nowMillis < nextShipReloadMillis) return;
-    nextShipReloadMillis = nowMillis + loadCycleSeconds * MILLIS_PER_SECOND;
-    ForkJoinPool.commonPool().execute(sources.spawnChainBoss(shipKey,
-      () -> state.set(State.Fail)
-    ));
+    if (nowMillis < nextLoadMillis) return;
+    nextLoadMillis = nowMillis + loadCycleSeconds * MILLIS_PER_SECOND;
+    sources.loadChain(shipKey, () -> state.set(State.Fail)).run();
   }
 
   /**
@@ -244,6 +257,19 @@ public class ShipWorkImpl implements ShipWork {
   }
 
   /**
+   Clean up every N milliseconds
+
+   @param nowMillis current
+   */
+  private void doTelemetryCycle(long nowMillis) {
+    if (!telemetryEnabled) return;
+    if (nowMillis < nextTelemetryMillis) return;
+    nextTelemetryMillis = nowMillis + (telemetryCycleSeconds * MILLIS_PER_SECOND);
+    segmentAudios.sendTelemetry();
+    playlist.sendTelemetry();
+  }
+
+  /**
    Publish the playlist every N milliseconds
 
    @param nowMillis current
@@ -251,7 +277,6 @@ public class ShipWorkImpl implements ShipWork {
   private void doPublishCycle(long nowMillis) throws ShipException {
     if (nowMillis < nextPublishMillis) return;
     nextPublishMillis = nowMillis + (publishCycleSeconds * MILLIS_PER_SECOND);
-    publisher.publish(nowMillis);
     if (Objects.nonNull(stream))
       stream.publish(nowMillis);
   }

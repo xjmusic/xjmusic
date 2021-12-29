@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
  - Add shutdown hook that calls application stop()
  */
 public class ShipApp extends App {
-  private static final String APP_NAME = "ship";
   private final org.slf4j.Logger LOG = LoggerFactory.getLogger(ShipApp.class);
   private final ShipWork shipWork;
   private final String platformRelease;
@@ -50,7 +49,7 @@ public class ShipApp extends App {
     Environment env,
     ShipAppHealthEndpoint shipAppHealthEndpoint
   ) {
-    super(APP_NAME, env);
+    super(env);
 
     // Configuration
     platformRelease = env.getPlatformEnvironment();

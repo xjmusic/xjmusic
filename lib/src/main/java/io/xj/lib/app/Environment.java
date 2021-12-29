@@ -63,7 +63,6 @@ public class Environment {
   private final String shipMode;
   private final String streamBaseURL;
   private final String streamBucket;
-  private final String telemetryNamespace;
   private final String tempFilePathPrefix;
   private final boolean telemetryEnabled;
   private final boolean workChainManagementEnabled;
@@ -86,10 +85,10 @@ public class Environment {
   private final int segmentComputeTimeResolutionHz;
   private final int shipBitrateHigh;
   private final int shipChunkTargetDuration;
+  private final int shipLoadCycleSeconds;
   private final int shipMixCycleSeconds;
   private final int shipPlaylistMinimumSize;
   private final int shipPlaylistTargetSize;
-  private final int shipReloadSeconds;
   private final int shipSegmentLoadTimeoutSeconds;
   private final int workCycleMillis;
   private final int workEraseSegmentsOlderThanSeconds;
@@ -101,6 +100,10 @@ public class Environment {
   private final int workPublishCycleSeconds;
   private final int workRehydrateFabricatedAheadThreshold;
   private final int workShipFabricatedAheadThresholdSeconds;
+  private final int workTelemetryCycleSeconds;
+
+  // This must be set manually by the bootstrap before starting the application
+  private String appName;
 
   /**
    Zero-argument construction defaults to system environment
@@ -127,6 +130,7 @@ public class Environment {
     apiUnauthorizedRedirectPath = readStr(vars, "API_UNAUTHORIZED_REDIRECT_PATH", "unauthorized");
     apiWelcomeRedirectPath = readStr(vars, "API_WELCOME_REDIRECT_PATH", "");
     appBaseURL = readStr(vars, "APP_BASE_URL", "http://localhost/");
+    appName = readStr(vars, "APP_NAME", "app");
     appPort = readInt(vars, "APP_PORT", 3000);
     audioBaseURL = readStr(vars, "AUDIO_BASE_URL", "https://audio.dev.xj.io/");
     audioCacheFilePrefix = readStr(vars, "AUDIO_CACHE_FILE_PREFIX", "/tmp/");
@@ -154,17 +158,16 @@ public class Environment {
     shipChunkTargetDuration = readInt(vars, "SHIP_CHUNK_TARGET_DURATION", 10);
     shipFFmpegVerbosity = readStr(vars, "SHIP_FFMPEG_VERBOSITY", "info");
     shipKey = readStr(vars, "SHIP_KEY", EMPTY);
+    shipLoadCycleSeconds = readInt(vars, "SHIP_LOAD_CYCLE_SECONDS", 20);
     shipM3u8ContentType = readStr(vars, "SHIP_M3U8_CONTENT_TYPE", "application/x-mpegURL");
     shipMixCycleSeconds = readInt(vars, "WORK_PRINT_CYCLE_SECONDS", 1);
     shipMode = readStr(vars, "SHIP_MODE", "hls");
-    shipPlaylistMinimumSize = readInt(vars, "SHIP_PLAYLIST_MINIMUM_SIZE", 4);
-    shipPlaylistTargetSize = readInt(vars, "SHIP_PLAYLIST_TARGET_SIZE", 6);
-    shipReloadSeconds = readInt(vars, "SHIP_RELOAD_SECONDS", 15);
+    shipPlaylistMinimumSize = readInt(vars, "SHIP_PLAYLIST_MINIMUM_SIZE", 3);
+    shipPlaylistTargetSize = readInt(vars, "SHIP_PLAYLIST_TARGET_SIZE", 7);
     shipSegmentLoadTimeoutSeconds = readInt(vars, "SHIP_SEGMENT_LOAD_TIMEOUT_SECONDS", 5);
     streamBaseURL = readStr(vars, "STREAM_BASE_URL", "https://stream.dev.xj.io/");
     streamBucket = readStr(vars, "STREAM_BUCKET", "xj-dev-stream");
-    telemetryEnabled = readBool(vars, "TELEMETRY_ENABLED", true);
-    telemetryNamespace = readStr(vars, "TELEMETRY_NAMESPACE", "Lab/Hub");
+    telemetryEnabled = readBool(vars, "TELEMETRY_ENABLED", false);
     tempFilePathPrefix = readStr(vars, "TEMP_FILE_PATH_PREFIX", "/tmp/");
     workChainManagementEnabled = readBool(vars, "WORK_CHAIN_MANAGEMENT_ENABLED", true);
     workCycleMillis = readInt(vars, "WORK_CYCLE_MILLIS", 1200);
@@ -179,6 +182,7 @@ public class Environment {
     workPublishCycleSeconds = readInt(vars, "WORK_PUBLISH_CYCLE_SECONDS", 10);
     workRehydrateFabricatedAheadThreshold = readInt(vars, "WORK_REHYDRATE_FABRICATED_AHEAD_THRESHOLD", 60);
     workShipFabricatedAheadThresholdSeconds = readInt(vars, "WORK_SHIP_FABRICATED_AHEAD_THRESHOLD_SECONDS", 60);
+    workTelemetryCycleSeconds = readInt(vars, "WORK_TELEMETRY_CYCLE_SECONDS", 2);
 
     // Resource: Amazon Web Services (AWS)
     awsAccessKeyID = readStr(vars, "AWS_ACCESS_KEY_ID", EMPTY);
@@ -363,6 +367,22 @@ public class Environment {
    */
   public String getAppBaseUrl() {
     return appBaseURL;
+  }
+
+  /**
+   @return the application name
+   */
+  public String getAppName() {
+    return appName;
+  }
+
+  /**
+   Set the app name
+
+   @param name to set
+   */
+  public void setAppName(String name) {
+    this.appName = name;
   }
 
   /**
@@ -748,8 +768,8 @@ public class Environment {
   /**
    @return the ship reload seconds
    */
-  public int getShipReloadSeconds() {
-    return shipReloadSeconds;
+  public int getShipLoadCycleSeconds() {
+    return shipLoadCycleSeconds;
   }
 
   /**
@@ -778,13 +798,6 @@ public class Environment {
    */
   public boolean isTelemetryEnabled() {
     return telemetryEnabled;
-  }
-
-  /**
-   @return the namespace
-   */
-  public String getTelemetryNamespace() {
-    return telemetryNamespace;
   }
 
   /**
@@ -876,6 +889,13 @@ public class Environment {
    */
   public int getWorkPublishCycleSeconds() {
     return workPublishCycleSeconds;
+  }
+
+  /**
+   @return the work telemetry cycle seconds
+   */
+  public int getWorkTelemetryCycleSeconds() {
+    return workTelemetryCycleSeconds;
   }
 
   /**

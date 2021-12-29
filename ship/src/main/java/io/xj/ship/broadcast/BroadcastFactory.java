@@ -17,7 +17,7 @@ public interface BroadcastFactory {
    @param shipKey        for chunk
    @param sequenceNumber for chunk
    @param fileExtension  for chunk
-   @param actualDuration  for chunk
+   @param actualDuration for chunk
    @return chunk
    */
   Chunk chunk(
@@ -58,15 +58,5 @@ public interface BroadcastFactory {
    */
   StreamPlayer player(
     @Assisted("audioFormat") AudioFormat format
-  );
-
-  /**
-   Publish the stream for a ship key
-
-   @param shipKey to publish
-   @return playlist
-   */
-  PlaylistPublisher publisher(
-    @Assisted("shipKey") String shipKey
   );
 }

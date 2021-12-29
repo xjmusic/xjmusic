@@ -22,7 +22,6 @@ import java.io.File;
 
 @SuppressWarnings("ALL")
 public class HubApp extends App {
-  private static final String APP_NAME = "hub";
   private final Logger log = LoggerFactory.getLogger(HubApp.class);
   private final String platformRelease;
   private final HubDatabaseProvider hubDatabaseProvider;
@@ -61,7 +60,7 @@ public class HubApp extends App {
     TemplatePlaybackEndpoint templatePlaybackEndpoint,
     UserEndpoint userEndpoint
   ) {
-    super(APP_NAME, env);
+    super(env);
 
     getResourceConfig().register(accountEndpoint);
     getResourceConfig().register(accountUserEndpoint);

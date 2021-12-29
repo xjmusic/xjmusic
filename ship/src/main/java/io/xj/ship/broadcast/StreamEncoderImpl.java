@@ -37,7 +37,7 @@ public class StreamEncoderImpl implements StreamEncoder {
   private final AudioFormat format;
   private final ConcurrentLinkedQueue<ByteBuffer> queue = new ConcurrentLinkedQueue<>();
   private final FileStoreProvider fileStore;
-  private final PlaylistManager playlistManager;
+  private final PlaylistPublisher playlist;
   private final String bucket;
   private final String contentTypeSegment;
   private final String playlistPath;
@@ -55,11 +55,11 @@ public class StreamEncoderImpl implements StreamEncoder {
     @Assisted("audioFormat") AudioFormat format,
     Environment env,
     FileStoreProvider fileStore,
-    PlaylistManager playlistManager
+    PlaylistPublisher playlist
   ) {
     this.format = format;
     this.fileStore = fileStore;
-    this.playlistManager = playlistManager;
+    this.playlist = playlist;
 
     bitrate = env.getShipBitrateHigh();
     bucket = env.getStreamBucket();
@@ -77,7 +77,7 @@ public class StreamEncoderImpl implements StreamEncoder {
         final String oldName = currentThread.getName();
         currentThread.setName(THREAD_NAME);
         try {
-          initialSeqNum = playlistManager.computeMediaSequence(System.currentTimeMillis());
+          initialSeqNum = playlist.computeMediaSequence(System.currentTimeMillis());
           ProcessBuilder builder = new ProcessBuilder(List.of(
             "ffmpeg",
             "-v", env.getShipFFmpegVerbosity(),
@@ -154,7 +154,7 @@ public class StreamEncoderImpl implements StreamEncoder {
       if (!new File(playlistPath).exists()) return;
 
       // parse ffmpeg .m3u8 content into playlist manager
-      var added = playlistManager.parseAndLoadItems(Files.getFileContent(playlistPath));
+      var added = playlist.parseAndLoadItems(Files.getFileContent(playlistPath));
 
       // publish new filenames
       for (Chunk item : added)
@@ -199,10 +199,11 @@ public class StreamEncoderImpl implements StreamEncoder {
    @param contentType content-type
    @throws FileStoreException on failure
    */
-  private void uploadMediaSegment(String key, String contentType) throws FileStoreException {
+  private void uploadMediaSegment(String key, String contentType) throws FileStoreException, ShipException {
     var path = String.format("%s%s", tempFilePathPrefix, key);
     fileStore.putS3ObjectFromTempFile(path, bucket, key, contentType);
     LOG.info("Shipped {}/{} ({})", bucket, key, contentType);
+    playlist.publish();
   }
 
 }

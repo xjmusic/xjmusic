@@ -41,7 +41,7 @@ import static io.xj.lib.util.Values.toEpochMicros;
  */
 class ChunkMixerImpl implements ChunkMixer {
   public static final int MAX_INT_LENGTH_ARRAY_SIZE = 2147483647;
-  private static final Logger LOG = LoggerFactory.getLogger(ChunkMixerImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ChunkMixer.class);
   private static final int READ_BUFFER_BYTE_SIZE = 4096;
   final double[][] buffer; // final output [frame][channel]
   private final AudioFormat format;
@@ -69,13 +69,13 @@ class ChunkMixerImpl implements ChunkMixer {
     var audios = getAllIntersectingAudios(chunk);
 
     if (audios.isEmpty()) {
-      LOG.warn("Not ready to mix Chunk[{}] while waiting on segments", chunk.getKey());
+      LOG.warn("Waiting to mix Chunk[{}]: loading segments", chunk.getKey());
       return false;
     }
 
     var notReady = anyNotReady(audios);
     if (!notReady.isEmpty()) {
-      LOG.warn("Not ready to mix Chunk[{}] while waiting on audio from segments {}", chunk.getKey(), CSV.from(notReady));
+      LOG.warn("Waiting to mix Chunk[{}]: loading audio for segments {}", chunk.getKey(), CSV.from(notReady));
       return false;
     }
 

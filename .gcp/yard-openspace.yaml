@@ -24,8 +24,8 @@ items:
           automountServiceAccountToken: true
           containers:
             - env:
-                - name: TELEMETRY_NAMESPACE
-                  value: Yard/Openspace/Nexus
+                - name: TELEMETRY_ENABLED
+                  value: "true"
                 - name: GCP_PROJECT_ID
                   value: xj-vpc-host-prod
                 - name: GCP_SECRET_ID
@@ -49,10 +49,10 @@ items:
               name: openspace-nexus
               resources:
                 requests:
-                  cpu: "1.5"
+                  cpu: "2.5"
                   memory: 4G
                 limits:
-                  cpu: "2.5"
+                  cpu: "3.5"
                   memory: 8G
               terminationMessagePath: /dev/termination-log
               terminationMessagePolicy: File
@@ -60,7 +60,7 @@ items:
           enableServiceLinks: true
           restartPolicy: Always
           schedulerName: default-scheduler
-          securityContext: {}
+          securityContext: { }
           shareProcessNamespace: false
           terminationGracePeriodSeconds: 30
   - apiVersion: apps/v1
@@ -86,8 +86,8 @@ items:
           automountServiceAccountToken: true
           containers:
             - env:
-                - name: TELEMETRY_NAMESPACE
-                  value: Yard/Openspace/Ship
+                - name: TELEMETRY_ENABLED
+                  value: "true"
                 - name: GCP_PROJECT_ID
                   value: xj-vpc-host-prod
                 - name: GCP_SECRET_ID
@@ -122,6 +122,6 @@ items:
           enableServiceLinks: true
           restartPolicy: Always
           schedulerName: default-scheduler
-          securityContext: {}
+          securityContext: { }
           shareProcessNamespace: false
           terminationGracePeriodSeconds: 30

@@ -22,8 +22,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertFalse;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ShipWorkImplTest {
@@ -52,6 +50,7 @@ public class ShipWorkImplTest {
         bind(BroadcastFactory.class).toInstance(broadcast);
         bind(ChainManager.class).toInstance(chains);
         bind(Janitor.class).toInstance(janitor);
+        bind(PlaylistPublisher.class).toInstance(publisher);
         bind(NotificationProvider.class).toInstance(notification);
         bind(SourceFactory.class).toInstance(source);
       }
@@ -63,8 +62,6 @@ public class ShipWorkImplTest {
     // Manipulate the underlying entity store
     NexusEntityStore test = injector.getInstance(NexusEntityStore.class);
     test.deleteAll();
-
-    when(broadcast.publisher(eq("coolair"))).thenReturn(publisher);
 
     // Instantiate the test subject
     subject = injector.getInstance(ShipWork.class);

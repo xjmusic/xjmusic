@@ -12,16 +12,22 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TelemetryProviderImplTest {
   @Mock
-  private TelemetryProvider telemetryProvider;
+  private TelemetryProvider subject;
 
   @Before
   public void setUp() {
-    var env = Environment.getDefault();
+    var env = Environment.from(Map.of(
+      "SHIP_KEY", "coolair",
+      "APP_NAME", "nexus"
+    ));
     var injector = Guice.createInjector(ImmutableSet.of(Modules.override(new TelemetryModule()).with(
       new AbstractModule() {
         @Override
@@ -29,12 +35,22 @@ public class TelemetryProviderImplTest {
           bind(Environment.class).toInstance(env);
         }
       })));
-    telemetryProvider = injector.getInstance(TelemetryProvider.class);
+    subject = injector.getInstance(TelemetryProvider.class);
   }
 
   @Test
   public void getStatsDClient() {
-    assertNotNull(telemetryProvider);
+    assertNotNull(subject);
+  }
+
+  @Test
+  public void prefixedLowerSnake() {
+    assertEquals("coolair_nexus_segments", subject.prefixedLowerSnake("segments"));
+  }
+
+  @Test
+  public void prefixedProperSpace() {
+    assertEquals("Coolair Nexus Segments", subject.prefixedProperSpace("segments"));
   }
 
 }

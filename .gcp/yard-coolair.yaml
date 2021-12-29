@@ -24,8 +24,8 @@ items:
           automountServiceAccountToken: true
           containers:
             - env:
-                - name: TELEMETRY_NAMESPACE
-                  value: Yard/Coolair/Nexus
+                - name: TELEMETRY_ENABLED
+                  value: "true"
                 - name: GCP_PROJECT_ID
                   value: xj-vpc-host-prod
                 - name: GCP_SECRET_ID
@@ -90,8 +90,8 @@ items:
           automountServiceAccountToken: true
           containers:
             - env:
-                - name: TELEMETRY_NAMESPACE
-                  value: Yard/Coolair/Ship
+                - name: TELEMETRY_ENABLED
+                  value: "true"
                 - name: GCP_PROJECT_ID
                   value: xj-vpc-host-prod
                 - name: GCP_SECRET_ID

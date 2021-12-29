@@ -57,11 +57,6 @@ resource "kubernetes_deployment" "xj-dev-nexus" {
           image = "${aws_ecr_repository.xj-dev-nexus.repository_url}:latest"
 
           env {
-            name  = "TELEMETRY_NAMESPACE"
-            value = "Dev/Nexus"
-          }
-
-          env {
             name  = "AWS_DEFAULT_REGION"
             value = local.aws-region
           }

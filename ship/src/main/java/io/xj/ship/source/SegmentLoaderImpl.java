@@ -32,7 +32,7 @@ public class SegmentLoaderImpl extends SegmentLoader {
   }
 
   @Override
-  public void compute() {
+  public void run() {
     final Thread currentThread = Thread.currentThread();
     final String oldName = currentThread.getName();
     currentThread.setName(threadName);

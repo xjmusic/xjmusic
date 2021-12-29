@@ -5,8 +5,11 @@ package io.xj.ship.source;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import io.opencensus.stats.Measure;
 import io.xj.api.Segment;
 import io.xj.lib.filestore.FileStoreException;
+import io.xj.lib.telemetry.TelemetryProvider;
+import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.Segments;
@@ -30,18 +33,24 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
   private static final Logger LOG = LoggerFactory.getLogger(SegmentAudioManagerImpl.class);
   private final Map<UUID/* segmentId */, SegmentAudio> segmentAudios = Maps.newConcurrentMap();
   private final NexusEntityStore store;
+  private final TelemetryProvider telemetryProvider;
   private final SegmentAudioCache cache;
   private final SourceFactory sourceFactory;
+  private final Measure.MeasureDouble SEGMENT_AUDIO_LOADED_AHEAD_SECONDS;
 
   @Inject
   public SegmentAudioManagerImpl(
     NexusEntityStore store,
     SegmentAudioCache cache,
-    SourceFactory sourceFactory
+    SourceFactory sourceFactory,
+    TelemetryProvider telemetryProvider
   ) {
     this.cache = cache;
     this.sourceFactory = sourceFactory;
     this.store = store;
+    this.telemetryProvider = telemetryProvider;
+
+    SEGMENT_AUDIO_LOADED_AHEAD_SECONDS = telemetryProvider.gauge("segment_audio_loaded_ahead_seconds", "Segment Audio Loaded Ahead Seconds", "s");
   }
 
   @Override
@@ -55,7 +64,7 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
     try {
       store.put(segment);
       var absolutePath = cache.downloadAndDecompress(segment);
-      var segmentAudio = sourceFactory.segmentAudio(shipKey, segment, absolutePath);
+      var segmentAudio = sourceFactory.loadSegmentAudio(shipKey, segment, absolutePath);
       put(segmentAudio);
 
     } catch (NexusException | FileStoreException | IOException | InterruptedException e) {
@@ -97,6 +106,16 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
     return segmentAudios.values().stream()
       .filter(sa -> sa.intersects(shipKey, fromInstant, toInstant))
       .collect(Collectors.toList());
+  }
+
+  @Override
+  public void sendTelemetry() {
+    telemetryProvider.put(SEGMENT_AUDIO_LOADED_AHEAD_SECONDS,
+      segmentAudios.values().stream()
+        .map(SegmentAudio::getSegment)
+        .mapToDouble(s -> Math.floor(Values.computeRelativeSeconds(Instant.parse(s.getEndAt()))))
+        .max()
+        .orElse(0));
   }
 
   @Override

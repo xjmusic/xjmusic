@@ -51,13 +51,13 @@ public class SegmentAudioTest {
     var injector = Guice.createInjector(new SourceModule());
     factory = injector.getInstance(SourceFactory.class);
     String sourcePath = new InternalResource("ogg_decoding/coolair-1633586832900943.wav").getFile().getAbsolutePath();
-    subject = factory.segmentAudio(chain1.getShipKey(), segment1, sourcePath);
+    subject = factory.loadSegmentAudio(chain1.getShipKey(), segment1, sourcePath);
   }
 
   @Test
   public void from() {
     String sourcePath = new InternalResource("ogg_decoding/coolair-1633586832900943.wav").getFile().getAbsolutePath();
-    var result = factory.segmentAudio(chain1.getShipKey(), segment1, sourcePath);
+    var result = factory.loadSegmentAudio(chain1.getShipKey(), segment1, sourcePath);
 
     assertEquals(result.getSegment(), subject.getSegment());
     assertEquals(SegmentAudioState.Ready, result.getState());

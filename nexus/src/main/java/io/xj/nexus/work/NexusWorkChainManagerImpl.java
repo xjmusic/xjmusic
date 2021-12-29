@@ -336,11 +336,12 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
 
       // Nexus with bootstrap won't rehydrate stale Chain
       // https://www.pivotaltracker.com/story/show/178727631
-      var aheadSeconds = Values.computeRelativeSeconds(Chains.computeFabricatedAheadAt(chain,
-        entities.stream()
-          .filter(e -> Entities.isType(e, Segment.class))
-          .map(e -> (Segment) e)
-          .collect(Collectors.toList())));
+      var aheadSeconds =
+        Math.floor(Values.computeRelativeSeconds(Chains.computeFabricatedAheadAt(chain,
+          entities.stream()
+            .filter(e -> Entities.isType(e, Segment.class))
+            .map(e -> (Segment) e)
+            .collect(Collectors.toList()))));
 
       if (aheadSeconds < rehydrateFabricatedAheadThreshold) {
         LOG.info("Will not rehydrate Chain[{}] fabricated ahead {}s (not > {}s)",

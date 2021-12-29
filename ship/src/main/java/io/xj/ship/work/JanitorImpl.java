@@ -1,10 +1,10 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.ship.work;
 
-import com.amazonaws.services.cloudwatch.model.StandardUnit;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
+import io.opencensus.stats.Measure;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.notification.NotificationProvider;
@@ -13,6 +13,7 @@ import io.xj.lib.util.Text;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.persistence.*;
 import io.xj.ship.ShipException;
+import io.xj.ship.broadcast.PlaylistPublisher;
 import io.xj.ship.source.SegmentAudioManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,11 +27,12 @@ import java.util.UUID;
  */
 public class JanitorImpl implements Janitor {
   private static final Logger LOG = LoggerFactory.getLogger(JanitorImpl.class);
-  private static final String METRIC_SEGMENT_ERASED = "segment_erased";
+  private final Measure.MeasureLong METRIC_SEGMENT_ERASED;
   private final ChainManager chainManager;
   private final int eraseSegmentsOlderThanSeconds;
   private final NexusEntityStore store;
   private final NotificationProvider notification;
+  private final PlaylistPublisher playlist;
   private final SegmentAudioManager segmentAudioManager;
   private final TelemetryProvider telemetryProvider;
   private final String threadName;
@@ -41,16 +43,20 @@ public class JanitorImpl implements Janitor {
     Environment env,
     NexusEntityStore store,
     NotificationProvider notification,
+    PlaylistPublisher playlist,
     SegmentAudioManager segmentAudioManager,
     TelemetryProvider telemetryProvider
   ) {
     this.chainManager = chainManager;
     this.notification = notification;
+    this.playlist = playlist;
     this.segmentAudioManager = segmentAudioManager;
     this.store = store;
     this.telemetryProvider = telemetryProvider;
 
     eraseSegmentsOlderThanSeconds = env.getWorkEraseSegmentsOlderThanSeconds();
+
+    METRIC_SEGMENT_ERASED = telemetryProvider.count("ship_segments_erased", "Ship Segments Erased", "");
 
     threadName = "Janitor";
   }
@@ -93,9 +99,10 @@ public class JanitorImpl implements Janitor {
       LOG.debug("collected garbage Segment[{}]", segmentId);
     }
 
-    // FUTURE garbage collect chunks
+    // Collect garbage from playlist-- when everything else stalls, this will ensure the health check fails the way we want it to
+    playlist.collectGarbageBefore(playlist.computeMediaSequence(System.currentTimeMillis()));
 
-    telemetryProvider.put(METRIC_SEGMENT_ERASED, StandardUnit.Count, segmentIdsToErase.size());
+    telemetryProvider.put(METRIC_SEGMENT_ERASED, Long.valueOf(segmentIdsToErase.size()));
   }
 
   /**

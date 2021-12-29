@@ -26,6 +26,7 @@ import java.util.Set;
  Hub service
  */
 public interface Main {
+  String APP_NAME = "hub";
   Set<Module> injectorModules = ImmutableSet.of(
     new FileStoreModule(),
     new EntityModule(),
@@ -44,6 +45,7 @@ public interface Main {
   @SuppressWarnings("DuplicatedCode")
   static void main(String[] args) throws AppException, UnknownHostException {
     final var env = Secrets.environment();
+    env.setAppName(APP_NAME);
 
     var injector = Guice.createInjector(Modules.override(injectorModules).with(new AbstractModule() {
       @Override

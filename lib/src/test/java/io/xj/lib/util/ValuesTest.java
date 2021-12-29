@@ -7,6 +7,7 @@ import org.junit.Test;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
 
@@ -219,5 +220,4 @@ public class ValuesTest {
   public void enforceMaxStereo() {
     assertThrows(ValueException.class, () -> Values.enforceMaxStereo(3));
   }
-
 }

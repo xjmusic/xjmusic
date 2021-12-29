@@ -1,9 +1,9 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.ship.source;
 
-import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import io.opencensus.stats.Measure;
 import io.xj.api.Chain;
 import io.xj.api.Segment;
 import io.xj.api.SegmentState;
@@ -13,7 +13,7 @@ import io.xj.lib.json.JsonProvider;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.util.Values;
+import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.nexus.persistence.*;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -23,10 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.xj.lib.filestore.FileStoreProvider.EXTENSION_JSON;
@@ -42,14 +40,17 @@ public class ChainLoaderImpl extends ChainLoader {
   private final HttpClientProvider httpClientProvider;
   private final JsonProvider jsonProvider;
   private final JsonapiPayloadFactory jsonapiPayloadFactory;
+  private final Measure.MeasureLong CHAIN_LOADED;
+  private final Measure.MeasureLong SEGMENT_LOADED;
+  private final Measure.MeasureLong SEGMENT_SKIPPED;
   private final Runnable onFailure;
   private final SegmentAudioManager segmentAudioManager;
   private final SegmentManager segmentManager;
   private final SourceFactory source;
   private final String shipBaseUrl;
   private final String shipKey;
+  private final TelemetryProvider telemetryProvider;
   private final int eraseSegmentsOlderThanSeconds;
-  private final int shipFabricatedAheadThreshold;
 
   @Inject
   public ChainLoaderImpl(
@@ -62,7 +63,8 @@ public class ChainLoaderImpl extends ChainLoader {
     JsonapiPayloadFactory jsonapiPayloadFactory,
     SegmentAudioManager segmentAudioManager,
     SegmentManager segmentManager,
-    SourceFactory source
+    SourceFactory source,
+    TelemetryProvider telemetryProvider
   ) {
     this.chainManager = chainManager;
     this.httpClientProvider = httpClientProvider;
@@ -73,14 +75,18 @@ public class ChainLoaderImpl extends ChainLoader {
     this.segmentManager = segmentManager;
     this.shipKey = shipKey;
     this.source = source;
+    this.telemetryProvider = telemetryProvider;
 
     eraseSegmentsOlderThanSeconds = env.getWorkEraseSegmentsOlderThanSeconds();
     shipBaseUrl = env.getShipBaseUrl();
-    shipFabricatedAheadThreshold = env.getWorkShipFabricatedAheadThresholdSeconds();
+
+    CHAIN_LOADED = telemetryProvider.count("chain_loaded", "Chain Loaded", "");
+    SEGMENT_LOADED = telemetryProvider.count("segment_loaded", "Segment Loaded", "");
+    SEGMENT_SKIPPED = telemetryProvider.count("segment_skipped", "Segment Skipped", "");
   }
 
   @Override
-  public void compute() {
+  public void run() {
     final Thread currentThread = Thread.currentThread();
     final String oldName = currentThread.getName();
     currentThread.setName(THREAD_NAME);
@@ -101,7 +107,7 @@ public class ChainLoaderImpl extends ChainLoader {
     var segmentLoaded = new AtomicInteger(0);
     JsonapiPayload chainPayload;
     Chain chain;
-    LOG.debug("will check for shipped data");
+    LOG.debug("will load chain");
     var key = Chains.getShipKey(Chains.getFullKey(shipKey), EXTENSION_JSON);
     CloseableHttpClient client = httpClientProvider.getClient();
     try (
@@ -110,17 +116,18 @@ public class ChainLoaderImpl extends ChainLoader {
       chainPayload = jsonProvider.getMapper().readValue(response.getEntity().getContent(), JsonapiPayload.class);
       chain = jsonapiPayloadFactory.toOne(chainPayload);
       chainManager.put(chain);
+      LOG.info("Loaded Chain[{}]", Chains.getIdentifier(chain));
+      telemetryProvider.put(CHAIN_LOADED, 1L);
+
     } catch (JsonapiException | ClassCastException | IOException | ManagerFatalException e) {
       LOG.error("Failed to retrieve previously fabricated chain for Template[{}] because {}", shipKey, e.getMessage());
       onFailure.run();
       return;
     }
 
-    LOG.debug("will load Chain");
-
     Instant ignoreSegmentsBefore = Instant.now().minusSeconds(eraseSegmentsOlderThanSeconds);
     //noinspection DuplicatedCode
-    chainPayload.getIncluded().stream()
+    chainPayload.getIncluded().parallelStream()
       .filter(po -> po.isType(Segment.class))
       .flatMap(po -> {
         try {
@@ -145,7 +152,7 @@ public class ChainLoaderImpl extends ChainLoader {
 
           } else {
             segmentLoaded.incrementAndGet();
-            ForkJoinPool.commonPool().execute(source.spawnSegmentLoader(shipKey, segment));
+            source.loadSegment(shipKey, segment).run();
           }
 
         } catch (Exception e) {
@@ -162,27 +169,13 @@ public class ChainLoaderImpl extends ChainLoader {
     }
 
     // OK
-    if (0 < segmentLoaded.get())
-      LOG.debug("Fetched data for {} Segments (skipped {})", segmentLoaded.get(), segmentSkipped.get());
-    else
-      LOG.debug("skipped all {} Segments", segmentSkipped.get());
-
-    // Nexus with bootstrap won't rehydrate stale Chain
-    // https://www.pivotaltracker.com/story/show/178727631
-    try {
-      var aheadSeconds = Values.computeRelativeSeconds(Chains.computeFabricatedAheadAt(chain,
-        segmentManager.readMany(ImmutableList.of(chain.getId())).stream()
-          .filter(seg -> SegmentState.DUBBED.equals(seg.getState()))
-          .collect(Collectors.toList())));
-
-      if (aheadSeconds >= shipFabricatedAheadThreshold) {
-        LOG.info("fabricated ahead {}s OK (> {}s)", aheadSeconds, shipFabricatedAheadThreshold);
-      } else {
-        LOG.warn("stale, fabricated ahead {}s (not > {}s)", aheadSeconds, shipFabricatedAheadThreshold);
-      }
-
-    } catch (ManagerFatalException | ManagerPrivilegeException | ManagerExistenceException e) {
-      e.printStackTrace();
+    if (0 < segmentLoaded.get()) {
+      LOG.info("Fetched data for {} Segments (skipped {})", segmentLoaded.get(), segmentSkipped.get());
+      telemetryProvider.put(SEGMENT_LOADED, segmentLoaded.longValue());
+      telemetryProvider.put(SEGMENT_SKIPPED, segmentSkipped.longValue());
+    } else {
+      LOG.info("skipped all {} Segments", segmentSkipped.get());
+      telemetryProvider.put(SEGMENT_SKIPPED, segmentSkipped.longValue());
     }
   }
 }

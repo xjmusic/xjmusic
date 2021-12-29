@@ -115,7 +115,7 @@ public class ChunkMixerImplTest {
   @Test
   public void run() throws Exception {
     String sourcePath = new InternalResource("ogg_decoding/coolair-1633586832900943.wav").getFile().getAbsolutePath();
-    segmentAudios.add(source.segmentAudio(SHIP_KEY, segment2, sourcePath));
+    segmentAudios.add(source.loadSegmentAudio(SHIP_KEY, segment2, sourcePath));
 
     subject.mix();
 
