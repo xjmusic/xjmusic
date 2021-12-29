@@ -297,8 +297,8 @@ bfd5a5d2-02de-11ec-ad7a-f77d2854066a	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLo
 12443efe-3170-11ec-83fa-a32cd647727d	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Published	Toca Shake	1	isMultiphonic = false\nisTonal = false\n	f
 158a6738-16eb-11ea-8a37-3706e5d25249	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Earth A (legacy)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
 166815c4-16eb-11ea-8a37-634bb3ccef01	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Electronic	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-8eb4a48c-3851-11ec-9896-63744694bdb8	7c68d172-3851-11ec-b687-9fcd389404cc	Sticky	Published	Molasses 01	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
 f68542aa-3456-11ec-af69-cbfe77aa6bbc	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	New Kit Organic Test - not deep house	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]\n	f
+8eb4a48c-3851-11ec-9896-63744694bdb8	7c68d172-3851-11ec-b687-9fcd389404cc	Sticky	Published	Molasses 01	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
 e83e508a-316b-11ec-942c-fbd97b259ec0	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Published	Synco Shake	1	isMultiphonic = false\nisTonal = false\n	f
 19ea21a6-16eb-11ea-8a37-cb712a6674d9	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Wind Small (Legacy)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
 55d46a34-6360-11ea-8872-97bb23901000	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	New Water Small	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
@@ -325,16 +325,15 @@ c2e9eefc-44a3-11ec-ab54-570591c44959	8980d7ee-41f5-11ec-a00e-3b9797f85fe8	Transi
 e623d174-3b4f-11ec-9094-a3c12170b9ad	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Acoustic	0.6	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
 ff0a519a-3b4f-11ec-9094-bf4e6b819c5e	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Acoustic2	0.6	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
 a7a1ab8e-3c5c-11ec-998a-3f2f55389775	8cd48902-3c5c-11ec-9e9c-8f35ed4d6333	Bass	Published	Open Space Shortbass 01	1	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	7c68d172-3851-11ec-b687-9fcd389404cc	Sticky	Published	Molasses 02	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
-c6ec5f4a-41cd-11ec-9e47-5b7fe0a3ed55	7c68d172-3851-11ec-b687-9fcd389404cc	Sticky	Published	Molasses 03	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
 8904dcee-428f-11ec-8193-17821b2deef9	7c68d172-3851-11ec-b687-9fcd389404cc	Sticky	Published	Molasses 04	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
+e2f1737c-442c-11ec-993c-3f77abd8c222	7c68d172-3851-11ec-b687-9fcd389404cc	Sticky	Published	Molasses 05	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
 d9dd91c6-c6c9-11ea-a21e-0bcae3c78831	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Water Large 2 Kit - not deep house	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]\n	f
 09e94f98-c6c7-11ea-b647-8766c0d05d20	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Water Small 1 Kit V2	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]\n	f
 6282d07a-4420-11ec-aa34-17f646babb39	8980d7ee-41f5-11ec-a00e-3b9797f85fe8	Transition	Published	FX Claps	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
 2d5c1180-41f6-11ec-a00e-0bf29a2af8e1	8980d7ee-41f5-11ec-a00e-3b9797f85fe8	Transition	Draft	Temp Crash Swells	1	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = []\n	f
 f58a20da-442a-11ec-8a5f-175152e4431c	8980d7ee-41f5-11ec-a00e-3b9797f85fe8	Transition	Published	Simmons Toms	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
 fd523c02-4430-11ec-b6c9-9f84f28410fd	8980d7ee-41f5-11ec-a00e-3b9797f85fe8	Transition	Published	Fuzzy Toms	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
-e2f1737c-442c-11ec-993c-3f77abd8c222	7c68d172-3851-11ec-b687-9fcd389404cc	Sticky	Published	Molasses 05	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
+f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	7c68d172-3851-11ec-b687-9fcd389404cc	Sticky	Published	Molasses 02	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
 30ea0a08-4cb1-11ec-b580-a7f5b798f28c	ffc49138-4caf-11ec-8589-1f396b37df87	Drum	Draft	AJ Hall Break 90 BPM (original)	0.85	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
 b720302a-5ddc-11ec-95c8-1fda9822e889	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Draft	Tabla Fuck All	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
 aaf7238e-5c84-11ec-bb68-0fe3399a4a77	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Draft	Live Sticky Guitar	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
@@ -344,12 +343,18 @@ f517ca3a-4cb3-11ec-8ccb-6b94ded234e4	ffc49138-4caf-11ec-8589-1f396b37df87	Drum	D
 1498ac94-5ddf-11ec-a75b-934b17bcdca1	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Draft	W.M.L.W Accapella	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
 a3f2d2fa-5de1-11ec-9972-4f254353a9fc	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Draft	Bullet Ricochet 	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
 090c7776-205e-11eb-bd64-431b46a4aa7b	460830b0-fb24-11eb-80a6-7b4f92dccaea	Sticky	Published	Wind Large Sticky V2	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
+c6ec5f4a-41cd-11ec-9e47-5b7fe0a3ed55	7c68d172-3851-11ec-b687-9fcd389404cc	Sticky	Published	Molasses 03	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
 6ac9115e-6153-11ec-99f6-8b04e8421e3e	5f2ecc9c-6150-11ec-aa86-0b19e7f877ac	Stripe	Published	Arpy 01	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
 2675e4aa-6153-11ec-a0d1-fbb7d16558a0	7c68d172-3851-11ec-b687-9fcd389404cc	Stripe	Published	Arpy 01	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	t
 2066165c-6207-11ec-8d73-27ac8071f315	5f2ecc9c-6150-11ec-aa86-0b19e7f877ac	Stripe	Draft	test sticky	0.5	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	t
-de939cd8-61f5-11ec-aa6d-8f62319d4097	5f2ecc9c-6150-11ec-aa86-0b19e7f877ac	Stripe	Published	Arpy 01 Clone	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
 d31b3b7c-6213-11ec-a7b8-6b12eae3858a	5f2ecc9c-6150-11ec-aa86-0b19e7f877ac	Stripe	Published	Arpy 01 Clone 2 test	0.6	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	t
-11d618f6-6213-11ec-a7b8-8fea81505b31	5f2ecc9c-6150-11ec-aa86-0b19e7f877ac	Stripe	Published	Warpy 01	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
+de939cd8-61f5-11ec-aa6d-8f62319d4097	5f2ecc9c-6150-11ec-aa86-0b19e7f877ac	Stripe	Published	Arpy 01 Clone	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	t
+073b85f6-62a5-11ec-b9f8-ff30d0c9d990	5f2ecc9c-6150-11ec-aa86-0b19e7f877ac	Stripe	Draft	Warpy 01 Clone	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
+11d618f6-6213-11ec-a7b8-8fea81505b31	5f2ecc9c-6150-11ec-aa86-0b19e7f877ac	Stripe	Published	Warpy 01.2	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
+04154b32-62a5-11ec-b9f8-371915c677aa	5f2ecc9c-6150-11ec-aa86-0b19e7f877ac	Stripe	Published	Arpy 02	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
+2759ebe0-6794-11ec-8195-cb2a67b54919	ffc49138-4caf-11ec-8589-1f396b37df87	Drum	Published	Kick One-Shots	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
+7c6ec88c-6797-11ec-9573-6f7ae5e370fc	ffc49138-4caf-11ec-8589-1f396b37df87	Drum	Draft	Snare One-Shots	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
+faeefd9c-6799-11ec-95d7-d74a28f5087f	ffc49138-4caf-11ec-8589-1f396b37df87	Drum	Draft	Hi-Hat One-Shots	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
 \.
 
 
@@ -737,7 +742,6 @@ a7c94338-176d-11ec-b333-73cac35448b1	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	
 7f17ce6a-3666-11ec-bf5f-7725193e2e0a	15085f36-16eb-11ea-8a37-57a336f886a8	Draft	test	8	Macro	test	9	doPatternRestartOnChord = false\n	f
 0ccddb82-3667-11ec-bf5f-abb76cf33b23	15085f36-16eb-11ea-8a37-57a336f886a8	Draft	gggg	1	Macro	fahad test	1	doPatternRestartOnChord = false\n	f
 9bc25e72-367f-11ec-b508-c3743584e88a	15085f36-16eb-11ea-8a37-57a336f886a8	Draft	test	1	Macro	testing	1	doPatternRestartOnChord = false\n	f
-17dd77aa-3683-11ec-9dbb-7f64deca2c31	15085f36-16eb-11ea-8a37-57a336f886a8	Draft	mitul	12	Macro	mitu,	42	doPatternRestartOnChord = false\n	f
 231147b2-368f-11ec-9136-27f8110016e5	15085f36-16eb-11ea-8a37-57a336f886a8	Draft	Key	5	Rhythm	Test	1	doPatternRestartOnChord = false\n	f
 f183d812-368f-11ec-9136-974300985780	15085f36-16eb-11ea-8a37-57a336f886a8	Draft	xczx	5	Macro	sdfsdsf	5	doPatternRestartOnChord = false\n	f
 22de85e4-373d-11ec-b884-83359bfcafaf	15085f36-16eb-11ea-8a37-57a336f886a8	Published	kry1	5	Main	new	50	doPatternRestartOnChord = false\n	f
@@ -745,7 +749,6 @@ f183d812-368f-11ec-9136-974300985780	15085f36-16eb-11ea-8a37-57a336f886a8	Draft	
 49e5213c-3749-11ec-b838-13e52eaf1e00	15085f36-16eb-11ea-8a37-57a336f886a8	Published	k	2	Macro	n	2	doPatternRestartOnChord = false\n	f
 0e385004-379a-11ec-8309-735d5344dc95	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	C	69	Main	Faulty Banget	0.6	doPatternRestartOnChord = false\n	f
 9bef4748-37f1-11ec-9497-2b565856cb27	15085f36-16eb-11ea-8a37-57a336f886a8	Draft	test	1212	Macro	test	1212	doPatternRestartOnChord = false\n	f
-a9223cd0-37f2-11ec-9497-9f5a12bd9053	15085f36-16eb-11ea-8a37-57a336f886a8	Draft	mitul	1	Macro	mitul	1	doPatternRestartOnChord = false\n	f
 a264df44-373c-11ec-b884-a7cd82f604de	15085f36-16eb-11ea-8a37-57a336f886a8	Draft	adf	23	Macro	gg	233	doPatternRestartOnChord = false\n	f
 3d54d7b6-3823-11ec-a6b2-df6b6d0c6e85	15085f36-16eb-11ea-8a37-57a336f886a8	Published	C	120	Macro	Deep, from Hot to Cool	0	doPatternRestartOnChord = false\n	f
 5446687c-3823-11ec-a6b2-0b2f665bfb95	15085f36-16eb-11ea-8a37-57a336f886a8	Published	G minor	120	Macro	Deep, from Cool to Hot12	0	doPatternRestartOnChord = false\n	f
@@ -771,7 +774,6 @@ e4510c98-4cae-11ec-8136-5775f1273e1a	d025f31e-4cae-11ec-8136-f79e3047a42f	Publis
 70ca832a-4255-11ec-b5d9-8f0f0cde43c8	5545dcfe-fb23-11eb-80a6-4372a28aca52	Published	E-	120	Detail	bass 22.0	0.5	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 ee4a30ca-4255-11ec-9768-2b27b368013f	5545dcfe-fb23-11eb-80a6-4372a28aca52	Published	E-	120	Detail	bass 22.00	0.5	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 a6866f5e-4257-11ec-b5d9-0f27f7472bae	1509102a-16eb-11ea-8a37-4764c2a771db	Published	F#-	120	Main	Fire Chyp	0.5	barBeats = 4\ndoPatternRestartOnChord = false\n	f
-4e814ce8-42b1-11ec-abab-2742c680e727	7f360a4e-383a-11ec-89ac-773fc53b2694	Published	C	30	Main	Mod Checkout	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 b9adee8a-59ca-11ea-84cb-77344de568df	9d966418-fb20-11eb-a2de-172ecc754afd	Draft	C	120	Rhythm	2-Step Beat Prototype	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 3fc96abe-ae96-11eb-8448-eff637ae1aad	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	F#	120	Main	Earth'm 2step	0.6	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 ca534762-ae97-11eb-9b5f-63a2c3b5aa6c	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	F#-	120	Main	Fireggio 2step	0.6	barBeats = 4\ndoPatternRestartOnChord = false\n	f
@@ -785,17 +787,21 @@ c45ed81a-4c00-11ec-b55f-0be4108efd8d	5545dcfe-fb23-11eb-80a6-4372a28aca52	Publis
 68211f6a-4cad-11ec-bde9-8be744da20c4	283820a6-4cad-11ec-adde-33cf0760bc7c	Published	C	90	Rhythm	Slap Proto A	1	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 b60ce576-507f-11ec-a732-0bce818af109	7f360a4e-383a-11ec-89ac-773fc53b2694	Published	C	15	Main	Modd Checkin	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 e4e3b348-511f-11ec-802a-a33932e4dccf	7f360a4e-383a-11ec-89ac-773fc53b2694	Published	C	30	Main	Op'n Spaec F2 Vo'V	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
-3cbc1970-5125-11ec-a67e-e7cebe93c5a8	758c188c-383d-11ec-a788-633bf1b83658	Published	C	30	Macro	Apples to Oranges (2LEMONS to 3LEMONS)	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
+933c8514-5125-11ec-a67e-cb835d735a29	758c188c-383d-11ec-a788-633bf1b83658	Published	C	30	Macro	Peaches to Lemons (1LEMONS to 4LEMONS)	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 f167f09e-39c2-11ec-9c10-479435b3ec2c	758c188c-383d-11ec-a788-633bf1b83658	Published	C	30	Macro	TroubleFruit 1LEMONS to 2LEMONS	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
-933c8514-5125-11ec-a67e-cb835d735a29	758c188c-383d-11ec-a788-633bf1b83658	Published	C	30	Macro	Peaches to Lemons (3LEMONS to 4LEMONS)	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
+a9223cd0-37f2-11ec-9497-9f5a12bd9053	15085f36-16eb-11ea-8a37-57a336f886a8	Draft	mitul	1	Macro	mitul	1	doPatternRestartOnChord = false\n	t
+3cbc1970-5125-11ec-a67e-e7cebe93c5a8	758c188c-383d-11ec-a788-633bf1b83658	Published	C	30	Macro	Apples to Oranges (2LEMONS to 1LEMONS)	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
+17dd77aa-3683-11ec-9dbb-7f64deca2c31	15085f36-16eb-11ea-8a37-57a336f886a8	Draft	mitul	12	Macro	mitu,	42	doPatternRestartOnChord = false\n	t
+4e814ce8-42b1-11ec-abab-2742c680e727	7f360a4e-383a-11ec-89ac-773fc53b2694	Draft	C	30	Main	Mod Checkout	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 b394015c-5125-11ec-a57d-f3fc5ca215e1	758c188c-383d-11ec-a788-633bf1b83658	Published	G	30	Macro	Lemons to Oranges 3LEMONS to 5LEMONS	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
+96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	7f360a4e-383a-11ec-89ac-773fc53b2694	Published	C	30	Main	Mod Checkup (Stripey Edition	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 c99452c6-5126-11ec-a2fe-df7e481fe1b1	53848598-3843-11ec-877d-039fbad7aa03	Published	A-	30	Detail	Open Space sticky higher	1	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 0ad708a8-514c-11ec-bc8b-47d5ada13a3c	7f360a4e-383a-11ec-89ac-773fc53b2694	Published	C	15	Main	Dr. Circle of Mr. 5 (9 Iron and Fold)	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 50b200fa-513b-11ec-8f1c-d7c2c767519b	7f360a4e-383a-11ec-89ac-773fc53b2694	Published	C	15	Main	 Oof 5ths	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
+456c8b60-64f1-11ec-bc31-d7572c6d3593	7f360a4e-383a-11ec-89ac-773fc53b2694	Published	C	30	Main	Fmaj7add9 zebras	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 b0936660-1a61-11eb-9428-3f783cd2858b	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Eb-	120	Main	Wind Home 4fl	0.5	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 a52ba238-383d-11ec-aa0e-c3568bce1199	758c188c-383d-11ec-a788-633bf1b83658	Published	C	30	Macro	Apples to Plums (4LEMONS to 5LEMONS)	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 63fa6eba-5125-11ec-b805-6388ea41c0c4	758c188c-383d-11ec-a788-633bf1b83658	Published	F	30	Macro	Plums to Peaches (5LEMONS to 1LEMONS)	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
-1f9a7e74-518c-11ec-89b3-efab3cbe63f4	758c188c-383d-11ec-a788-633bf1b83658	Published	F	30	Macro	Plums to Peaches 2 (5LEMONS to 3LEMONS)	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 53f4681a-518c-11ec-aa92-bf7cb5b75789	758c188c-383d-11ec-a788-633bf1b83658	Published	F	30	Macro	Plums to Peaches 3 (5LEMONS to 4LEMONS)	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 6dc4abd8-518c-11ec-a687-8f139a116f5c	758c188c-383d-11ec-a788-633bf1b83658	Published	C	30	Macro	Apples to Plums 2 (4LEMONS to 1LEMONS)	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 8e416bc6-518c-11ec-aa92-27c127cb0c58	758c188c-383d-11ec-a788-633bf1b83658	Published	C	30	Macro	TroubleFruit 2 (1LEMONS to 3LEMONS)	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
@@ -804,15 +810,22 @@ a7915a0c-5d51-11ec-99b5-afe8e7b279ec	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	
 0105b790-5d52-11ec-b7e4-43be91b9e59f	9d966418-fb20-11eb-a2de-172ecc754afd	Draft	C	120	Rhythm	drum me down like it's BD	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 e86ffb1a-5d55-11ec-869d-f311521b3467	ff8ce21c-fb22-11eb-981d-37143596a20d	Published	D-	120	Detail	4-note stabby stabbers 	0.5	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 5308e1f8-5d56-11ec-869d-d7241601e5ea	d124e460-fb22-11eb-b9ed-a36c2b39adb7	Published	C	120	Detail	3-note padman	0.5	barBeats = 4\ndoPatternRestartOnChord = true\n	f
+57bf3c88-61e3-11ec-8531-b780a7bb5110	7f360a4e-383a-11ec-89ac-773fc53b2694	Published	57bf3c88-61e3-11ec-8531-b780a7bb5110	30	Main	Stripe Man	0.6	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 71869822-5d57-11ec-869d-abb7a6400ad2	5545dcfe-fb23-11eb-80a6-4372a28aca52	Draft	NC	120	Detail	Bass 1zyw	0.5	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 e5095028-5d57-11ec-8543-8fd1b55c0a17	55461ec6-fb23-11eb-ad24-972f33ad9115	Draft	NC	120	Detail	Sticky 1qqq	0.5	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 8c594c64-5d50-11ec-98cd-1f14eb21376e	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	NC	120	Main	water me down like it's NBD	0.5	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 5f169850-611b-11ec-b5e9-93c7246a87ca	7f360a4e-383a-11ec-89ac-773fc53b2694	Published	C	15	Main	Pepper and Pibb	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
-57bf3c88-61e3-11ec-8531-b780a7bb5110	7f360a4e-383a-11ec-89ac-773fc53b2694	Published	C	60	Main	Stripe Man	0.6	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 a8210f7c-61e2-11ec-80f8-b31e1ea10db5	93a3d200-61e2-11ec-8bff-77a78a03c351	Published	a8210f7c-61e2-11ec-80f8-b31e1ea10db5	60	Detail	Stripe for the Taking	0.6	barBeats = 4\ndoPatternRestartOnChord = false\n	f
+b1992856-675e-11ec-bdf4-0bf01a0f4940	7f360a4e-383a-11ec-89ac-773fc53b2694	Draft	C	15	Main	Error Test	0.6	barBeats = 4\ndoPatternRestartOnChord = false\n	t
 abf58a2c-61e4-11ec-b046-c7256ab024eb	7f360a4e-383a-11ec-89ac-773fc53b2694	Published	C	30	Main	Sussy 01	0.6	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 a35d1a40-61f5-11ec-ab37-3bc2b2095eb6	93a3d200-61e2-11ec-8bff-77a78a03c351	Published	a8210f7c-61e2-11ec-80f8-b31e1ea10db5	60	Detail	Believe the Stripe	0.6	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 63523d2c-61ff-11ec-9054-bb8b4e94e6ac	5f2ecc9c-6150-11ec-aa86-0b19e7f877ac	Draft	C	120	Macro	test pr	0.6	barBeats = 4\ndoPatternRestartOnChord = false\n	t
+1f9a7e74-518c-11ec-89b3-efab3cbe63f4	758c188c-383d-11ec-a788-633bf1b83658	Published	F	30	Macro	PERKY PLUMS	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
+cada6c7e-63af-11ec-a4de-db023971ce96	7f360a4e-383a-11ec-89ac-773fc53b2694	Published	C	15	Main	Dr. Circle of Mr. 5 (Striped)	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
+bfe7c356-63b5-11ec-bf3d-039853d83069	93a3d200-61e2-11ec-8bff-77a78a03c351	Published	a8210f7c-61e2-11ec-80f8-b31e1ea10db5	60	Detail	Stripe away my tears	0.6	barBeats = 4\ndoPatternRestartOnChord = false\n	f
+f72f6b92-63c0-11ec-9eac-1b38d4c823f0	93a3d200-61e2-11ec-8bff-77a78a03c351	Published	a8210f7c-61e2-11ec-80f8-b31e1ea10db5	60	Detail	Vine Stripened	0.6	barBeats = 4\ndoPatternRestartOnChord = false\n	f
+2d546bc8-63c1-11ec-8b7b-f72fd5119922	93a3d200-61e2-11ec-8bff-77a78a03c351	Published	a8210f7c-61e2-11ec-80f8-b31e1ea10db5	60	Detail	Striper active	0.6	barBeats = 4\ndoPatternRestartOnChord = false\n	f
+6b5d8904-63c1-11ec-a761-ff02323fcc34	93a3d200-61e2-11ec-8bff-77a78a03c351	Published	a8210f7c-61e2-11ec-80f8-b31e1ea10db5	60	Detail	Corncob Stripe	0.6	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 \.
 
 
@@ -1373,8 +1386,6 @@ aa0055ce-383d-11ec-b3eb-c3ca369d8c48	a52ba238-383d-11ec-aa0e-c3568bce1199	Open S
 38d974be-11a4-4b24-81eb-2ae358014a8c	b60ce576-507f-11ec-a732-0bce818af109	Bb Power to Maj	C	0.6	64	15
 e3e7a0eb-ccc6-4112-b9fd-0a2a2a31aebb	c99452c6-5126-11ec-a2fe-df7e481fe1b1	EndSpace Hitown	A-	0.6	32	30
 e943bee1-a039-4d09-b360-d247ba595376	c99452c6-5126-11ec-a2fe-df7e481fe1b1	loose hitown spaceout	A-	0.6	32	30
-77675716-e730-445e-a3f9-873f1f83294d	50b200fa-513b-11ec-8f1c-d7c2c767519b	A-7add9	C	0.6	128	15
-47aed807-4d63-4677-b165-6e2e874e3beb	50b200fa-513b-11ec-8f1c-d7c2c767519b	Bb Stanley	C	0.6	128	15
 7992d364-513b-11ec-bf2a-7f86540d6839	50b200fa-513b-11ec-8f1c-d7c2c767519b	G5	C	0.6	32	15
 a11f9728-513b-11ec-9147-3335abb141d7	50b200fa-513b-11ec-8f1c-d7c2c767519b	D5	C	0.6	32	15
 9619f6b6-8f71-4ffb-b67c-512292f52a98	63fa6eba-5125-11ec-b805-6388ea41c0c4	Open Space Test Macro 2	F	0.6	16	30
@@ -1431,7 +1442,6 @@ a11c5497-b4e2-4886-94c3-dcf9ff9af5a2	5f169850-611b-11ec-b5e9-93c7246a87ca	F#5	C	
 38050477-bad2-4142-9722-01be8dda1c04	5f169850-611b-11ec-b5e9-93c7246a87ca	Cadd2 test	C	0.6	64	15
 b371fca3-3f14-4971-8511-cacc7e313af9	5f169850-611b-11ec-b5e9-93c7246a87ca	G#5	C	0.6	32	15
 4e2c5e16-ac68-4df1-86f9-8a6c4adccd91	5f169850-611b-11ec-b5e9-93c7246a87ca	A5add9	C	0.6	32	15
-8b0d87cd-8759-4b00-af20-407a4d35602b	5f169850-611b-11ec-b5e9-93c7246a87ca	B5add9	C	0.6	32	15
 4cf1ec18-9590-4c51-8e9e-f021807c4b3a	5f169850-611b-11ec-b5e9-93c7246a87ca	C#5add9	C	0.6	32	15
 52a0b5c3-c764-43b0-94a0-e88e84ac26cf	5f169850-611b-11ec-b5e9-93c7246a87ca	D#5add9	C	0.6	32	15
 ac74a54f-c9ca-48ab-89fe-1093fe781f64	5f169850-611b-11ec-b5e9-93c7246a87ca	D5add9	C	0.6	32	15
@@ -1442,6 +1452,29 @@ ac11a538-61e2-11ec-80f8-1f0316baebdd	a8210f7c-61e2-11ec-80f8-b31e1ea10db5	Windsh
 60156312-61e3-11ec-8531-bfefe794a137	57bf3c88-61e3-11ec-8531-b780a7bb5110	Cmaj7 add 2 test	C	0.6	32	30
 afe2b2e0-61e4-11ec-bb5b-b3f9f1ef0699	abf58a2c-61e4-11ec-b046-c7256ab024eb	C7sus-C7susadd2	C	0.6	64	30
 b1a2a406-a8b3-4e95-b3bd-7468ed3afb99	a35d1a40-61f5-11ec-ab37-3bc2b2095eb6	Windshield Striper	C	0.6	32	60
+2b2d8575-3b9e-438d-980a-8ae021c2e6ca	cada6c7e-63af-11ec-a4de-db023971ce96	G5	C	0.6	32	15
+253c9648-b48c-4e7f-904e-ee0e04b62dfa	cada6c7e-63af-11ec-a4de-db023971ce96	F#5	C	0.6	32	15
+a80a3f48-9b82-463f-8770-b43a922367a8	cada6c7e-63af-11ec-a4de-db023971ce96	Cadd2 test	C	0.6	64	15
+0c3c5acc-f79c-43a0-a760-37c94f58db79	cada6c7e-63af-11ec-a4de-db023971ce96	G#5	C	0.6	32	15
+dfe7e0b8-94d5-4e0b-aa6c-c9b931ee46e4	cada6c7e-63af-11ec-a4de-db023971ce96	A5add9	C	0.6	32	15
+bc9da4a8-521a-4791-b472-9141bdbf359e	cada6c7e-63af-11ec-a4de-db023971ce96	B5add9	C	0.6	32	15
+5774f6f8-a5a2-4f8b-b564-cc598b880727	cada6c7e-63af-11ec-a4de-db023971ce96	C#5add9	C	0.6	32	15
+2d7465d0-3868-47fa-8257-3146fa2a6e7a	cada6c7e-63af-11ec-a4de-db023971ce96	D#5add9	C	0.6	32	15
+03bd0997-4ef1-4c59-91be-2593439f2352	cada6c7e-63af-11ec-a4de-db023971ce96	D5add9	C	0.6	32	15
+63783657-3222-4a2e-9732-e0b9a6867751	cada6c7e-63af-11ec-a4de-db023971ce96	Bb5add9	C	0.6	32	15
+5e44c379-0898-4282-96f2-1249f1cb4d33	cada6c7e-63af-11ec-a4de-db023971ce96	E5add9	C	0.6	32	30
+af15d115-43bc-43f5-a82c-f448799e3ca7	cada6c7e-63af-11ec-a4de-db023971ce96	F5add9	C	0.6	32	60
+a6c98a80-e70c-4fb4-8683-a76328287ce1	bfe7c356-63b5-11ec-bf3d-039853d83069	Windshield Striper	C	0.6	32	60
+ebd152ea-63bd-11ec-a35b-17b770b91315	50b200fa-513b-11ec-8f1c-d7c2c767519b	F5	C	0.6	16	120
+650d6b91-6677-43d0-9dba-48bcd9604c68	f72f6b92-63c0-11ec-9eac-1b38d4c823f0	StriperSpace	C	0.6	32	60
+f3912cb8-8fcc-4e77-8cc4-f38d775cb897	2d546bc8-63c1-11ec-8b7b-f72fd5119922	Fff	C	0.6	32	60
+c9ddd5f8-1f5e-4df3-a098-133d362d57a5	6b5d8904-63c1-11ec-a761-ff02323fcc34	Fff	C	0.6	64	30
+4ea042b5-047d-479b-948c-a5109cb376ad	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	Modular	C	0.6	128	30
+3aad2b63-4220-487a-9e18-2f832c82ac0c	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	Cadd2 test	C	0.6	64	30
+12c98ab8-2527-47c1-a457-c60237c90123	456c8b60-64f1-11ec-bc31-d7572c6d3593	Fmaj7add9	C	0.6	64	30
+d1df3fdb-8a8f-4917-8704-5e753d0f658d	456c8b60-64f1-11ec-bc31-d7572c6d3593	Cadd2 test	C	0.6	64	30
+b56dc842-675e-11ec-a2d0-cfe4a17522a8	b1992856-675e-11ec-bdf4-0bf01a0f4940	Testers	C	0.6	16	15
+3baa3a04-6768-11ec-9c6b-2be5d4ebbfdc	b60ce576-507f-11ec-a732-0bce818af109	Fmaj	C	0.6	64	15
 \.
 
 
@@ -1467,11 +1500,11 @@ ad5a49a4-3c26-11ec-8f6e-03c01a5784c1	14e468ba-16eb-11ea-8a37-53e6360023c1	Vernon
 3c8cc5ec-4cae-11ec-b368-8f261f2e5462	14e58a74-16eb-11ea-8a37-27b15e9fd30c	Slaps	backgroundLayerMax = 3\nbackgroundLayerMin = 0\nbufferAheadSeconds = 180\nbufferBeforeSeconds = 5\ndeltaArcDetailLayersIncoming = 1\ndeltaArcDetailPlateauRatio = 0.62\ndeltaArcEnabled = true\ndeltaArcRhythmLayersIncoming = 1\ndeltaArcRhythmLayersToPrioritize = kick\ndeltaArcRhythmPlateauRatio = 0.38\ndensityCeiling = 0.9\ndensityFloor = 0.1\ndubMasterVolumeInstrumentTypeBass = 1.0\ndubMasterVolumeInstrumentTypeDrum = 1.0\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercLoop = 1.0\ndubMasterVolumeInstrumentTypeStab = 1.0\ndubMasterVolumeInstrumentTypeSticky = 1.0\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 280\nmetaSource = ""\nmetaTitle = ""\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 1.0\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30\nmixerLowpassThresholdHz = 15000\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputEncoding = "PCM_DOUBLE"\noutputEncodingQuality = 0.618\noutputFrameRate = 48000\noutputSampleBits = 16\npercLoopLayerMax = 8\npercLoopLayerMin = 0\ntransitionLayerMax = 3\ntransitionLayerMin = 0\n	slaps123	Preview	f
 556f65a6-36c9-11ec-9f26-5be130391ec5	14e6be4e-16eb-11ea-8a37-ab08baffb7a7	kaoke	choiceDeltaEnabled = true\ndeltaArcDetailLayersIncoming = 2\ndeltaArcDetailLayersOutgoing = 2\ndeltaArcDetailPlateauRatio = 0.38\ndeltaArcDetailPlateauShiftRatio = 0.62\ndeltaArcRhythmLayersIncoming = 1\ndeltaArcRhythmLayersOutgoing = 1\ndeltaArcRhythmPlateauRatio = 0.62\ndeltaArcRhythmPlateauShiftRatio = 0.38\ndubMasterVolumeInstrumentTypeBass = 1.0\ndubMasterVolumeInstrumentTypeDrum = 1.0\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercLoop = 1.0\ndubMasterVolumeInstrumentTypeStab = 1.0\ndubMasterVolumeInstrumentTypeSticky = 1.0\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 280\nmetaSource = ""\nmetaTitle = ""\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 1.0\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30\nmixerLowpassThresholdHz = 15000\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputEncoding = "PCM_FLOAT"\noutputEncodingQuality = 0.618\noutputFrameRate = 48000\noutputSampleBits = 16\npercLoopFixedSizeBeats = 4\npercLoopLayerMax = 5\npercLoopLayerMin = 1\n	egdefrfuo	Preview	f
 6c2fc6a4-36ca-11ec-97c9-d79c04250282	14e58a74-16eb-11ea-8a37-27b15e9fd30c	Mark Stewart's Preview Template	bufferAheadSeconds = 180\nbufferBeforeSeconds = 5\ndeltaArcDetailLayersIncoming = 2\ndeltaArcDetailPlateauRatio = 0.7\ndeltaArcEnabled = true\ndeltaArcRhythmLayersIncoming = 2\ndeltaArcRhythmPlateauRatio = 0.62\ndensityCeiling = 0.9\ndensityFloor = 0.1\ndubMasterVolumeInstrumentTypeBass = 1.0\ndubMasterVolumeInstrumentTypeDrum = 1.0\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercLoop = 1.0\ndubMasterVolumeInstrumentTypeStab = 1.0\ndubMasterVolumeInstrumentTypeSticky = 1.0\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 280\nmetaSource = ""\nmetaTitle = ""\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 1.0\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30\nmixerLowpassThresholdHz = 15000\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputEncoding = "PCM_FLOAT"\noutputEncodingQuality = 0.618\noutputFrameRate = 48000\noutputSampleBits = 16\npercLoopLayerMax = 3\npercLoopLayerMin = 1\n	chelp	Preview	f
-9ea9fe94-3510-11ec-a019-a3e3fba5cba1	14e58a74-16eb-11ea-8a37-27b15e9fd30c	Open Space	backgroundLayerMax = 3\nbackgroundLayerMin = 0\nbufferAheadSeconds = 700\nbufferBeforeSeconds = 5\ndeltaArcDetailLayersIncoming = 2\ndeltaArcDetailPlateauRatio = 0.38\ndeltaArcEnabled = false\ndeltaArcRhythmLayersIncoming = 1\ndeltaArcRhythmLayersToPrioritize = kick\ndeltaArcRhythmPlateauRatio = 0.62\ndensityCeiling = 0.9\ndensityFloor = 0.1\ndubMasterVolumeInstrumentTypeBass = 1.5\ndubMasterVolumeInstrumentTypeDrum = 1.0\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercLoop = 1.0\ndubMasterVolumeInstrumentTypeStab = 1.0\ndubMasterVolumeInstrumentTypeSticky = 0.8\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 280\nmetaSource = AIRCRAFT\nmetaTitle = Open Space\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 1.0\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30\nmixerLowpassThresholdHz = 15000\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputContentType = "audio/ogg"\noutputEncoding = "PCM_FLOAT"\noutputEncodingQuality = 0.618\noutputFrameRate = 48000\noutputSampleBits = 24\npercLoopLayerMax = 5\npercLoopLayerMin = 1\ntransitionLayerMax = 3\ntransitionLayerMin = 0\n	openspace	Production	f
-eb0cf5ce-09ba-11ec-8016-d72d36e2270c	14e58a74-16eb-11ea-8a37-27b15e9fd30c	Cool Air	backgroundLayerMax = 3\nbackgroundLayerMin = 1\nbufferAheadSeconds = 180\nbufferBeforeSeconds = 5\ndeltaArcDetailLayersIncoming = 2\ndeltaArcDetailPlateauRatio = 0.7\ndeltaArcEnabled = true\ndeltaArcRhythmLayersIncoming = 0\ndeltaArcRhythmLayersToPrioritize = kick\ndeltaArcRhythmPlateauRatio = 0.3\ndensityCeiling = 1.0\ndensityFloor = 0.0\ndubMasterVolumeInstrumentTypeBass = 1.0\ndubMasterVolumeInstrumentTypeDrum = 1.0\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercLoop = 1.0\ndubMasterVolumeInstrumentTypeStab = 0.8\ndubMasterVolumeInstrumentTypeSticky = 1.0\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 240\nmetaSource = AIRCRAFT\nmetaTitle = Cool Air\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 0.5\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30\nmixerLowpassThresholdHz = 15000\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputEncoding = "PCM_FLOAT"\noutputEncodingQuality = 1.0\noutputFrameRate = 48000\noutputSampleBits = 32\npercLoopLayerMax = 8\npercLoopLayerMin = 0\ntransitionLayerMax = 3\ntransitionLayerMin = 1\n	coolair	Production	f
+9ea9fe94-3510-11ec-a019-a3e3fba5cba1	14e58a74-16eb-11ea-8a37-27b15e9fd30c	Open Space	backgroundLayerMax = 3\nbackgroundLayerMin = 2\nbufferAheadSeconds = 700\nbufferBeforeSeconds = 5\ndeltaArcDetailLayersIncoming = 2\ndeltaArcDetailPlateauRatio = 0.38\ndeltaArcEnabled = false\ndeltaArcRhythmLayersIncoming = 1\ndeltaArcRhythmLayersToPrioritize = kick\ndeltaArcRhythmPlateauRatio = 0.62\ndensityCeiling = 0.9\ndensityFloor = 0.1\ndubMasterVolumeInstrumentTypeBass = 1.5\ndubMasterVolumeInstrumentTypeDrum = 1.0\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercLoop = 1.0\ndubMasterVolumeInstrumentTypeStab = 1.0\ndubMasterVolumeInstrumentTypeSticky = 0.5\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 280\nmetaSource = AIRCRAFT\nmetaTitle = Open Space\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.1\nmixerCompressToAmplitude = 1.0\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30\nmixerLowpassThresholdHz = 15000\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputContentType = "audio/ogg"\noutputEncoding = "PCM_FLOAT"\noutputEncodingQuality = 0.618\noutputFrameRate = 48000\noutputSampleBits = 24\npercLoopLayerMax = 5\npercLoopLayerMin = 1\ntransitionLayerMax = 3\ntransitionLayerMin = 0\n	openspace	Production	f
 adccb000-1cfc-11ec-a1a8-3bde1278bdd9	14e58a74-16eb-11ea-8a37-27b15e9fd30c	David Cole's Preview Template	backgroundLayerMax = 4\nbackgroundLayerMin = 0\nbufferAheadSeconds = 180\nbufferBeforeSeconds = 5\ndeltaArcDetailLayersIncoming = 0\ndeltaArcDetailPlateauRatio = 0.8\ndeltaArcEnabled = true\ndeltaArcRhythmLayersIncoming = 1\ndeltaArcRhythmLayersToPrioritize = kick\ndeltaArcRhythmPlateauRatio = 0.83\ndensityCeiling = 0.9\ndensityFloor = 0.1\ndubMasterVolumeInstrumentTypeBass = 1.0\ndubMasterVolumeInstrumentTypeDrum = 1.0\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercLoop = 1.0\ndubMasterVolumeInstrumentTypeStab = 1.0\ndubMasterVolumeInstrumentTypeSticky = 1.0\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 280\nmetaSource = ""\nmetaTitle = ""\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 1.0\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30\nmixerLowpassThresholdHz = 15000\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputContentType = "audio/ogg"\noutputEncoding = "PCM_FLOAT"\noutputEncodingQuality = 0.618\noutputFrameRate = 48000\noutputSampleBits = 16\npercLoopLayerMax = 7\npercLoopLayerMin = 1\ntransitionLayerMax = 4\ntransitionLayerMin = 0\n	pus6rpxpx	Preview	f
 aebdea96-5f83-11ec-9793-bfa21d39e8d9	14e58a74-16eb-11ea-8a37-27b15e9fd30c	Charney's Preview Template Clone	backgroundLayerMax = 3\nbackgroundLayerMin = 0\nbufferAheadSeconds = 180\nbufferBeforeSeconds = 5\ndeltaArcDetailLayersIncoming = 1\ndeltaArcDetailPlateauRatio = 0.62\ndeltaArcEnabled = true\ndeltaArcRhythmLayersIncoming = 1\ndeltaArcRhythmLayersToPrioritize = kick\ndeltaArcRhythmPlateauRatio = 0.38\ndensityCeiling = 0.9\ndensityFloor = 0.1\ndubMasterVolumeInstrumentTypeBass = 1.0\ndubMasterVolumeInstrumentTypeDrum = 1.0\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercLoop = 1.0\ndubMasterVolumeInstrumentTypeStab = 1.0\ndubMasterVolumeInstrumentTypeSticky = 1.0\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 280\nmetaSource = ""\nmetaTitle = ""\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 1.0\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30\nmixerLowpassThresholdHz = 15000\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputContentType = "audio/ogg"\noutputEncoding = "PCM_DOUBLE"\noutputEncodingQuality = 0.618\noutputFrameRate = 48000\noutputSampleBits = 16\npercLoopLayerMax = 8\npercLoopLayerMin = 0\ntransitionLayerMax = 3\ntransitionLayerMin = 0\n	sopftaosl	Preview	t
 d0b722f2-6041-11ec-9500-5fe747d99135	14e58a74-16eb-11ea-8a37-27b15e9fd30c	Charney's Preview Template doodoo	backgroundLayerMax = 3\nbackgroundLayerMin = 0\nbufferAheadSeconds = 180\nbufferBeforeSeconds = 5\ndeltaArcDetailLayersIncoming = 2\ndeltaArcDetailPlateauRatio = 0.7\ndeltaArcEnabled = true\ndeltaArcRhythmLayersIncoming = 1\ndeltaArcRhythmLayersToPrioritize = kick\ndeltaArcRhythmPlateauRatio = 0.3\ndensityCeiling = 0.9\ndensityFloor = 0.1\ndubMasterVolumeInstrumentTypeBass = 1.0\ndubMasterVolumeInstrumentTypeDrum = 1.0\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercLoop = 1.0\ndubMasterVolumeInstrumentTypeStab = 1.0\ndubMasterVolumeInstrumentTypeSticky = 1.0\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 280\nmetaSource = ""\nmetaTitle = ""\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 1.0\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30\nmixerLowpassThresholdHz = 15000\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputContentType = "audio/ogg"\noutputEncoding = "PCM_FLOAT"\noutputEncodingQuality = 0.618\noutputFrameRate = 48000\noutputSampleBits = 16\npercLoopLayerMax = 5\npercLoopLayerMin = 1\ntransitionLayerMax = 3\ntransitionLayerMin = 0\n	sknlgibpz	Preview	t
+eb0cf5ce-09ba-11ec-8016-d72d36e2270c	14e58a74-16eb-11ea-8a37-27b15e9fd30c	Cool Air	backgroundLayerMax = 3\nbackgroundLayerMin = 1\nbufferAheadSeconds = 200\nbufferBeforeSeconds = 5\ndeltaArcDetailLayersIncoming = 2\ndeltaArcDetailPlateauRatio = 0.7\ndeltaArcEnabled = true\ndeltaArcRhythmLayersIncoming = 0\ndeltaArcRhythmLayersToPrioritize = kick\ndeltaArcRhythmPlateauRatio = 0.3\ndensityCeiling = 1.0\ndensityFloor = 0.0\ndubMasterVolumeInstrumentTypeBass = 1.0\ndubMasterVolumeInstrumentTypeDrum = 1.0\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercLoop = 1.0\ndubMasterVolumeInstrumentTypeStab = 0.8\ndubMasterVolumeInstrumentTypeSticky = 1.0\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 240\nmetaSource = AIRCRAFT\nmetaTitle = Cool Air\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 0.5\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30\nmixerLowpassThresholdHz = 15000\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputContentType = "audio/ogg"\noutputEncoding = "PCM_FLOAT"\noutputEncodingQuality = 1.0\noutputFrameRate = 48000\noutputSampleBits = 32\npercLoopLayerMax = 8\npercLoopLayerMin = 0\ntransitionLayerMax = 3\ntransitionLayerMin = 1\n	coolair	Production	f
 \.
 
 
@@ -3253,11 +3286,12 @@ caa65b80-8d82-4120-bf3c-a199c9d403f2	d31b3b7c-6213-11ec-a7b8-6b12eae3858a	E5.1 	
 8fb34107-557b-48ef-b440-70175cfd7376	d31b3b7c-6213-11ec-a7b8-6b12eae3858a	B5.1	instrument-6ac9115e-6153-11ec-99f6-8b04e8421e3e-audio-13563022-2a76-4cea-9ee1-4b5b800ef863.wav	0	12	30	0.5	STRIPE	1	B5
 0ebb0b2c-26aa-4a32-9d0c-004991b6e68f	d31b3b7c-6213-11ec-a7b8-6b12eae3858a	G5.2	instrument-6ac9115e-6153-11ec-99f6-8b04e8421e3e-audio-6d2273d9-edc1-4a79-9f78-7e08b4da2355.wav	0	12	30	0.5	STRIPE	1	G5
 b95be4f5-2bb7-4f0d-b621-e8146fe81aed	d31b3b7c-6213-11ec-a7b8-6b12eae3858a	A#5.2	instrument-6ac9115e-6153-11ec-99f6-8b04e8421e3e-audio-8c27d855-156e-4f03-9c95-dd77d8511752.wav	0	12	30	0.5	STRIPE	1	A#5
-f3571ad2-6213-11ec-a7b8-a3f345d90cd7	11d618f6-6213-11ec-a7b8-8fea81505b31	D#4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-d1b88ead-a983-491c-a61c-0906ddb04c91.wav	0	8	60	0.5	STRIPE	1	D#4
-0450ed9a-6214-11ec-a7b8-cf5717129fa3	11d618f6-6213-11ec-a7b8-8fea81505b31	F4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-74f2c49f-68ad-4665-a869-a0abf804470d.wav	0	8	60	0.5	STRIPE	1	F4
-13cdca0e-6214-11ec-a7b8-3b326a1594f1	11d618f6-6213-11ec-a7b8-8fea81505b31	G4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-39c20016-1553-49a9-b89b-d8a1a1953419.wav	0	8	60	0.5	STRIPE	1	G4
-462b67ae-6214-11ec-a7b8-2b238f9e67b8	11d618f6-6213-11ec-a7b8-8fea81505b31	B4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-c1c9b91d-95fd-4da5-9859-e5dae708fda9.wav	0	8	60	0.5	STRIPE	1	B4
-51beceee-6214-11ec-a7b8-2fb57b7fe582	11d618f6-6213-11ec-a7b8-8fea81505b31	C5	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-8e3fac03-782b-434c-a6d7-322ecbe7e918.wav	0	8	60	0.5	STRIPE	1	C5
+f3571ad2-6213-11ec-a7b8-a3f345d90cd7	11d618f6-6213-11ec-a7b8-8fea81505b31	D#4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-aa573ea3-ad3d-4af9-84a8-cbb6a98d7bc2.wav	0	8	60	0.5	STRIPE	0.3	D#4
+0450ed9a-6214-11ec-a7b8-cf5717129fa3	11d618f6-6213-11ec-a7b8-8fea81505b31	F4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-689767a2-f9d0-45d3-b768-512154ca49dd.wav	0	8	60	0.5	STRIPE	0.3	F4
+13cdca0e-6214-11ec-a7b8-3b326a1594f1	11d618f6-6213-11ec-a7b8-8fea81505b31	G4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-e708b710-90ae-4b7a-bc45-f478c022da13.wav	0	8	60	0.5	STRIPE	0.3	G4
+462b67ae-6214-11ec-a7b8-2b238f9e67b8	11d618f6-6213-11ec-a7b8-8fea81505b31	B4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-b207e033-5784-4284-b6ed-485b19c49cb9.wav	0	8	60	0.5	STRIPE	0.3	B4
+51beceee-6214-11ec-a7b8-2fb57b7fe582	11d618f6-6213-11ec-a7b8-8fea81505b31	C5	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-41f046ca-adca-4ff8-824d-679f86bd91c3.wav	0	8	60	0.5	STRIPE	0.3	C5
+246c3f1a-c95b-49ab-815f-f46b1e06a645	04154b32-62a5-11ec-b9f8-371915c677aa	F#2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-a537c38b-3fba-4bc4-898b-df26e98b98f3.wav	0	12	30	0.5	STRIPE	1	F#2
 4c099cf8-3853-11ec-a5f8-1398c006633f	8eb4a48c-3851-11ec-9896-63744694bdb8	F1	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-0c4733b8-aae3-4a29-bed3-ad4cfdaff4e3.wav	0	16	30	0.5	STICKY	1	F1
 ad89e33e-3853-11ec-a5f8-f39419757cc3	8eb4a48c-3851-11ec-9896-63744694bdb8	F#1	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-7152d754-6ccd-405f-b159-fcbf8bc821eb.wav	0	16	30	0.5	STICKY	1	F#1
 1ea39f2a-3853-11ec-a5f8-6768173a160a	8eb4a48c-3851-11ec-9896-63744694bdb8	E2	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-d3df899b-ef86-49fe-acbe-8cd13776f904.wav	0	16	30	0.5	STICKY	1	E2
@@ -3266,15 +3300,24 @@ ad89e33e-3853-11ec-a5f8-f39419757cc3	8eb4a48c-3851-11ec-9896-63744694bdb8	F#1	in
 ebc78494-3853-11ec-a5f8-170037d6dd06	8eb4a48c-3851-11ec-9896-63744694bdb8	G3	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-1275e656-5853-4a58-8f5f-eac4a30afb92.wav	0	16	30	0.5	STICKY	1	G3
 1d75589a-3854-11ec-a5f8-2fcc26a74a12	8eb4a48c-3851-11ec-9896-63744694bdb8	G#3	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-7028b572-f4dd-45fe-9d0a-44ae0e1fb57e.wav	0	16	30	0.5	STICKY	1	G#3
 f485a6ec-3853-11ec-a5f8-97517162980e	8eb4a48c-3851-11ec-9896-63744694bdb8	G4	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-57b3e9d5-97dd-4d7b-83f8-fa03842b26ec.wav	0	16	30	0.5	STICKY	1	G4
+8a2828f3-b7ca-4c8e-8e91-25e429d2699c	04154b32-62a5-11ec-b9f8-371915c677aa	G#2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-27dc1936-b211-49c7-8557-906e9630cfad.wav	0	12	30	0.5	STRIPE	1	G#2
 ac5a7c48-3854-11ec-a5f8-6f385a4df509	8eb4a48c-3851-11ec-9896-63744694bdb8	B4	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-41259186-8349-4f06-8099-010ef0ce2287.wav	0	16	30	0.5	STICKY	1	B4
 e95e8406-3852-11ec-a5f8-73b992e03cd2	8eb4a48c-3851-11ec-9896-63744694bdb8	D#5	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-dcfff15f-20f7-4ace-b21b-bb98b59e5401.wav	0	16	30	0.5	STICKY	1	D#5
 3db8e14a-3853-11ec-a5f8-7fa3d5e61b8f	8eb4a48c-3851-11ec-9896-63744694bdb8	E5	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-bd6f30b4-1005-4db0-b158-9469ec58e644.wav	0	16	30	0.5	STICKY	1	E5
 2c7fe562-3854-11ec-a5f8-9fbed04d0f8e	8eb4a48c-3851-11ec-9896-63744694bdb8	G#5	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-ce7f809d-8b30-4a4c-a09a-2a6453ea5a0e.wav	0	16	30	0.5	STICKY	1	G#5
 8cbde7e4-3854-11ec-a5f8-7f136718c65b	8eb4a48c-3851-11ec-9896-63744694bdb8	A#5	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-6203d555-856d-46fc-a82b-e976b061fe80.wav	0	16	30	0.5	STICKY	1	A#5
+9204c874-a768-45b1-a932-5361b46ee70a	04154b32-62a5-11ec-b9f8-371915c677aa	A2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-553f7ee5-b8df-4f08-b427-ec8ddd53e3cc.wav	0	12	30	0.5	STRIPE	1	A2
 b77aee28-3854-11ec-a5f8-d3a029de1317	8eb4a48c-3851-11ec-9896-63744694bdb8	B5	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-aa04aa54-d0c3-4fd4-9d45-5efaaf94bb30.wav	0	16	30	0.5	STICKY	1	B5
 e81c4bb6-4430-11ec-a19f-9709b1824159	e2f1737c-442c-11ec-993c-3f77abd8c222	A#1_1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-d01feb50-77d1-4791-9550-8d984a0b931f.wav	0	16	30	0.5	STICKY	1	A#1
+98519c3d-a05b-4e8f-8f90-ec4d26636807	04154b32-62a5-11ec-b9f8-371915c677aa	A#2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-978fff49-0afa-4adc-8701-941662b4ac85.wav	0	12	30	0.5	STRIPE	1	A#2
+de4b330c-c154-439e-8bf5-549fdcb5d775	04154b32-62a5-11ec-b9f8-371915c677aa	C#3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-84b55725-633a-4b12-8c3d-c5b36565d1e9.wav	0	12	30	0.5	STRIPE	1	C#3
 c5400580-4433-11ec-83f9-e311687620ef	fd523c02-4430-11ec-b6c9-9f84f28410fd	Fuzzy Tom Med Fill 1 With Verb Tail	instrument-fd523c02-4430-11ec-b6c9-9f84f28410fd-audio-9bb169ef-65d5-45fe-b321-59534c36566e.wav	2	0	120	0.5	MEDIUM	1.3	X
+b303a910-97bf-4cb7-9b1f-0e74d4ce8e75	04154b32-62a5-11ec-b9f8-371915c677aa	D3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-d3a66c71-8f7b-41f9-9723-eb0dcb74bbc5.wav	0	12	30	0.5	STRIPE	1	D3
 bad7304c-91fd-4d48-b3f4-8f863e743ba3	1efc6726-1efb-11eb-aec8-83fff6175034	C4	instrument-1efc6726-1efb-11eb-aec8-83fff6175034-audio-1e3319a7-687c-4c2e-993c-a6ab5da5c4a7.wav	0	1	120	0.5	STICKY	0.5	C4
+c226ac87-35a7-4560-93ae-4f970048c327	04154b32-62a5-11ec-b9f8-371915c677aa	D#3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-8edc4f72-2f39-4d11-b785-3ee3ffc31ee2.wav	0	12	30	0.5	STRIPE	1	D#3
+4201304e-cd22-4cc1-b5e7-0e9659d42260	04154b32-62a5-11ec-b9f8-371915c677aa	E3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-7753ca6a-8bc2-4bda-9d2a-d2c795e95d06.wav	0	12	30	0.5	STRIPE	1	E3
+66cacc87-d563-4d03-b338-1c8b90e87cc0	04154b32-62a5-11ec-b9f8-371915c677aa	F3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-c097ce64-a618-4ea2-af1b-13dadca3ebf8.wav	0	12	30	0.5	STRIPE	1	F3
+362028a7-953c-4aed-873e-42e6c272d141	04154b32-62a5-11ec-b9f8-371915c677aa	G3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-56792e65-bd56-48e0-97aa-1eb7fb5ffabf.wav	0	12	30	0.5	STRIPE	1	G3
 15c32ccc-3853-11ec-bcb9-83f5060d07b9	8eb4a48c-3851-11ec-9896-63744694bdb8	E1	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-578156ee-2654-427a-92d2-75e7ad3d1e5a.wav	0	16	30	0.5	STICKY	1	E1
 da516b6c-3853-11ec-bcb9-5b1d659f6365	8eb4a48c-3851-11ec-9896-63744694bdb8	G1	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-36da749d-8aa6-450f-a676-e9cfa223416b.wav	0	16	30	0.5	STICKY	1	G1
 0c4bd5d0-3854-11ec-bcb9-cf3beb39d57d	8eb4a48c-3851-11ec-9896-63744694bdb8	G#1	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-28a9ed3d-9b69-4ab9-a6f9-101d691e34f5.wav	0	16	30	0.5	STICKY	1	G#1
@@ -3294,35 +3337,125 @@ d15d012e-3853-11ec-bcb9-ff8509f871c7	8eb4a48c-3851-11ec-9896-63744694bdb8	F#5	in
 fd1e6c8a-3853-11ec-bcb9-9f919d5790e1	8eb4a48c-3851-11ec-9896-63744694bdb8	G5	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-48f032a5-4e7c-49a2-ac2f-8999fa9a1aba.wav	0	16	30	0.5	STICKY	1	G5
 59eb824a-3854-11ec-bcb9-87960f03a6d1	8eb4a48c-3851-11ec-9896-63744694bdb8	A5	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-36b9ee7c-bd40-468c-8203-67e4940b0d69.wav	0	16	30	0.5	STICKY	1	A5
 f18ccafe-4430-11ec-a19f-ef7337462010	e2f1737c-442c-11ec-993c-3f77abd8c222	B1_1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-e811ad27-9753-43c3-9a73-0a0f7279b329.wav	0	16	30	0.5	STICKY	1	B1
+ec2260ca-a957-4fb9-88fe-544da789370f	04154b32-62a5-11ec-b9f8-371915c677aa	G#3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-fba1fad8-9a12-413e-babc-3877193eb90c.wav	0	12	30	0.5	STRIPE	1	G#3
+cc30874d-45c5-49fc-9d15-7e1c6f2c42a1	04154b32-62a5-11ec-b9f8-371915c677aa	A#3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-2c2d5e60-45e1-491d-a984-5ef35b11578c.wav	0	12	30	0.5	STRIPE	1	A#3
+56a3d5e3-8c37-4baf-a9d7-c292ef144815	04154b32-62a5-11ec-b9f8-371915c677aa	B3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-2e1a3851-0a3a-4619-a32a-468acb4c7d4a.wav	0	12	30	0.5	STRIPE	1	B3
+db273338-aed1-488f-bd7f-5dd529c9ee9e	04154b32-62a5-11ec-b9f8-371915c677aa	C4	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-26772de5-f506-45bc-bf42-380a50d1fdc9.wav	0	12	30	0.5	STRIPE	1	C4
 946b0e68-3854-11ec-8be1-1392477b057c	8eb4a48c-3851-11ec-9896-63744694bdb8	B1	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-15241287-a485-467b-9ee9-6d06bc3e01f0.wav	0	16	30	0.5	STICKY	1	B1
 5e14506e-3853-11ec-8be1-5b5a5cee9357	8eb4a48c-3851-11ec-9896-63744694bdb8	F2	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-193e5081-a8d4-43dc-9d4b-8518a13cde86.wav	0	16	30	0.5	STICKY	1	F2
 e348d6c4-3853-11ec-8be1-4333c774973c	8eb4a48c-3851-11ec-9896-63744694bdb8	G2	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-3e8bc9f5-72d8-40a5-af83-6d9b255e0082.wav	0	16	30	0.5	STICKY	1	G2
 83d9b928-3854-11ec-8be1-777ac5567368	8eb4a48c-3851-11ec-9896-63744694bdb8	A#4	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-c7421733-1b34-41b8-86f4-de4c119120ef.wav	0	16	30	0.5	STICKY	1	A#4
 fc48d0aa-4430-11ec-9663-9bf233f72c0a	e2f1737c-442c-11ec-993c-3f77abd8c222	C2_1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-648a178d-ddc3-4887-9804-c187a132adc9.wav	0	16	30	0.5	STICKY	1	C2
+46f8ed55-ab17-41be-b858-fd675288641d	04154b32-62a5-11ec-b9f8-371915c677aa	D2.1	instrument-6ac9115e-6153-11ec-99f6-8b04e8421e3e-audio-feac8676-f616-4529-ac52-ac7248256d26.wav	0	12	30	0.5	STRIPE	1	D2
+ac92b1f9-506a-4e25-aad6-cc3e922c5b77	04154b32-62a5-11ec-b9f8-371915c677aa	C2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-7a513887-fa2c-49c4-a606-e6ae37569478.wav	0	12	30	0.5	STRIPE	1	C2
+b4a8239c-bb48-47b7-95ed-dd63ee0ce089	04154b32-62a5-11ec-b9f8-371915c677aa	C#2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-e19dd124-980e-448d-9ebf-b02159bfd8ab.wav	0	12	30	0.5	STRIPE	1	C#2
+163a05a4-b4a1-4a09-8c00-db9c21eb6cb5	04154b32-62a5-11ec-b9f8-371915c677aa	D2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-18123eda-77a6-464f-a1c3-19b203fb097f.wav	0	12	30	0.5	STRIPE	1	D2
+a1c99bb8-80f0-4906-ac3c-6ec8b510d723	04154b32-62a5-11ec-b9f8-371915c677aa	D#2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-64c0c1d2-d081-4717-a4a1-aab8378a2a94.wav	0	12	30	0.5	STRIPE	1	D#2
+a9a1db52-6950-43ea-bf0a-7c04a492edd8	04154b32-62a5-11ec-b9f8-371915c677aa	E2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-2cbffa8d-6fc7-4ebf-8d73-e688a5b83d03.wav	0	12	30	0.5	STRIPE	1	E2
+eb7cb22f-111b-43e9-941b-3b326929992c	04154b32-62a5-11ec-b9f8-371915c677aa	F2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-8658eec1-5ea4-487e-87b8-2209e9a9bd47.wav	0	12	30	0.5	STRIPE	1	F2
+23cb3ce6-1bc0-46d7-85b9-13cfe9a8b421	04154b32-62a5-11ec-b9f8-371915c677aa	G2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-5e916f59-cc81-466d-9066-57c657751872.wav	0	12	30	0.5	STRIPE	1	G2
+b66b971f-d1fb-4f14-a3d1-38010d33a4db	04154b32-62a5-11ec-b9f8-371915c677aa	B2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-2c4b2a2e-5128-49d1-a06e-492cac5ab72b.wav	0	12	30	0.5	STRIPE	1	B2
+2c3f7b21-375e-41aa-b729-233b858216ab	04154b32-62a5-11ec-b9f8-371915c677aa	C3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-51f8819e-0718-40b3-9581-087da7c82955.wav	0	12	30	0.5	STRIPE	1	C3
+05b7d9f0-6740-4255-9db6-91df4f19de70	04154b32-62a5-11ec-b9f8-371915c677aa	F#3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-1fbe550c-3bd5-4bd8-b27f-c06aec865fa2.wav	0	12	30	0.5	STRIPE	1	F#3
+a547ee08-184b-49a6-b5d7-65f52da8403b	04154b32-62a5-11ec-b9f8-371915c677aa	A3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-34802f83-3c33-4c5e-987b-5fa5e7bfc216.wav	0	12	30	0.5	STRIPE	1	A3
+9df2def0-3349-4152-8ae2-4800b0dc9931	04154b32-62a5-11ec-b9f8-371915c677aa	C2.1	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-8240d9bb-5976-407c-8c71-1fa16eb50645.wav	0	12	30	0.5	STRIPE	1	C2
+05dc41fa-62cb-4ae5-9384-4e15d55a8316	04154b32-62a5-11ec-b9f8-371915c677aa	C#2.1	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-5e1c9727-4266-4450-9045-0c273ec6ccf9.wav	0	12	30	0.5	STRIPE	1	C#2
+2299ece7-0a9f-4bb9-a90d-629d15548f1c	04154b32-62a5-11ec-b9f8-371915c677aa	D#2.1	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-033e340c-9901-4c5f-8ea5-b0525aae63c4.wav	0	12	30	0.5	STRIPE	1	D#2
+d0d149b6-12f4-46fa-83e3-06cd388c5639	04154b32-62a5-11ec-b9f8-371915c677aa	E2.1	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-44dea9a3-adaf-4b6c-be2a-6f4550b4beb2.wav	0	12	30	0.5	STRIPE	1	E2
+dd5a67ae-7a55-4eec-b795-2e932029e29f	04154b32-62a5-11ec-b9f8-371915c677aa	F2.1	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-592e42ff-4394-4bdc-8dbd-cb0f9dbe0f98.wav	0	12	30	0.5	STRIPE	1	F2
+a0215618-348a-49d1-a5ef-979e9c811e3f	04154b32-62a5-11ec-b9f8-371915c677aa	F#2.1	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-c53c83e4-7c89-4515-9af4-c58c69ec0904.wav	0	12	30	0.5	STRIPE	1	F#2
 aec7f700-99f1-43fc-8a9d-ca3e5b0437ac	b65f643e-1eff-11eb-90fb-8b0472d1d3ed	D4	instrument-b65f643e-1eff-11eb-90fb-8b0472d1d3ed-audio-33b4ef8b-65d7-4868-b785-6237dc515f30.wav	0	1	120	0.5	STICKY	0.5	D4
+64b05457-dd8e-4add-ab63-f9d4438b981b	04154b32-62a5-11ec-b9f8-371915c677aa	E2.2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-4aee94c6-918b-4521-a393-8a96ec321b4b.wav	0	12	30	0.5	STRIPE	1	E2
 69b4ad28-3854-11ec-8002-cb9764bfa734	8eb4a48c-3851-11ec-9896-63744694bdb8	A#1	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-ddc8d614-1259-4c2e-bac0-df9ac1c86287.wav	0	16	30	0.5	STICKY	1	A#1
 9ba26528-3854-11ec-8002-d75afc225e63	8eb4a48c-3851-11ec-9896-63744694bdb8	B2	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-0b272a40-6c27-4c25-afbb-c282f4942db8.wav	0	16	30	0.5	STICKY	1	B2
 c8578252-3853-11ec-8002-87d2f54a71a7	8eb4a48c-3851-11ec-9896-63744694bdb8	F#4	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-95b12290-76fa-4b87-a523-a7e6b1467464.wav	0	16	30	0.5	STICKY	1	F#4
 4d7d178a-3854-11ec-8002-bf5a4ea7a74d	8eb4a48c-3851-11ec-9896-63744694bdb8	A4	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-2cc789df-2f75-4aeb-9582-3d1c776f69c6.wav	0	16	30	0.5	STICKY	1	A4
 1c7715ee-4431-11ec-a19f-b736230fc9b4	e2f1737c-442c-11ec-993c-3f77abd8c222	D#2_1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-f6e6cef9-6791-498f-b495-7d3172ec7c43.wav	0	16	30	0.5	STICKY	1	D#2
+bf302b51-db43-4a42-abb4-aac43b429ecd	04154b32-62a5-11ec-b9f8-371915c677aa	G2.1	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-49fa1552-29c8-42f9-991d-f41d88333a64.wav	0	12	30	0.5	STRIPE	1	G2
+b227a785-f456-45ee-8800-ea24f90f7b70	04154b32-62a5-11ec-b9f8-371915c677aa	D2.2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-542a42b9-4b52-47b9-b9d8-10b823fcb10f.wav	0	12	30	0.5	STRIPE	1	D2
+e8dec58b-d6be-4013-b617-a089be05c970	04154b32-62a5-11ec-b9f8-371915c677aa	F2.2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-09849433-d984-4f63-94ad-f5bde39b6f7b.wav	0	12	30	0.5	STRIPE	1	F2
+329a2fad-fb29-4fde-817c-6235b79b1aa1	04154b32-62a5-11ec-b9f8-371915c677aa	G#2.1	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-6f1dfe81-cdf4-4a1e-a50d-7a7c4ae8d6a8.wav	0	12	30	0.5	STRIPE	1	G#2
+fe0c6125-c1b8-4d7d-b767-f03fcaf0c7ed	04154b32-62a5-11ec-b9f8-371915c677aa	A2.1	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-532c3c15-c38a-4d38-9379-e879a05e816a.wav	0	12	30	0.5	STRIPE	1	A2
+d76b68eb-02cd-47ee-a961-bde74f6557b3	04154b32-62a5-11ec-b9f8-371915c677aa	A#2.1	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-05e9215f-dd5c-4fcf-89c2-69d5a7aa8995.wav	0	12	30	0.5	STRIPE	1	A#2
+6a6411e5-cebe-40b9-8912-79b0145ffc7c	04154b32-62a5-11ec-b9f8-371915c677aa	C3.1	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-a796953d-902c-473a-984c-d6a6a9ee3c9c.wav	0	12	30	0.5	STRIPE	1	C3
+84314692-cb7c-4572-bd84-dd274c1d8e94	04154b32-62a5-11ec-b9f8-371915c677aa	C#3.1	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-246fc6fa-cbb4-4e1c-9055-fd38743e7c13.wav	0	12	30	0.5	STRIPE	1	C#3
+8dc5a869-56fb-4cd8-89a6-e63db54c8f3e	04154b32-62a5-11ec-b9f8-371915c677aa	D#3.1	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-a3170986-2caa-4f23-ae50-74ff099a909a.wav	0	12	30	0.5	STRIPE	1	D#3
+d363fe55-ab7e-440d-bc8f-979b68d4db8f	04154b32-62a5-11ec-b9f8-371915c677aa	F#3.1	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-b28c9858-4485-4b8a-87bd-0a54e6a5eaa9.wav	0	30	30	0.5	STRIPE	12	F#3
+ff62e814-723c-4fab-a815-3eaed9d771c3	04154b32-62a5-11ec-b9f8-371915c677aa	G#3.1	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-bdcde9a3-df27-46d6-af29-ed43f97fbeca.wav	0	12	30	0.5	STRIPE	0	G#3
+e355642d-3352-4cb4-abae-b9002449902b	04154b32-62a5-11ec-b9f8-371915c677aa	A3.1	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-23106c17-f96f-40ab-b4cf-cb77bbb44461.wav	0	12	30	0.5	STRIPE	1	A3
+b1ce393b-d3ce-4753-89d5-b2b528e0712b	04154b32-62a5-11ec-b9f8-371915c677aa	A#3.1	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-77e134b4-0cbe-4ecb-8f8c-88e031c63083.wav	0	12	30	0.5	STRIPE	1	A#3
+795b169b-90ac-4171-87fc-1c0404b0d34c	04154b32-62a5-11ec-b9f8-371915c677aa	B3.1	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-3850909a-0c6b-4e40-a1b2-857405e2550d.wav	0	12	30	0.5	STRIPE	1	B3
+0c7aab98-2b84-41ad-82bb-e4de710d3c6b	04154b32-62a5-11ec-b9f8-371915c677aa	C4.1	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-45909778-f379-4bb7-bbe3-a099797297b7.wav	0	12	30	0.5	STRIPE	1	C4
+61e1bac1-fbe9-4925-86b9-7604b0e07477	04154b32-62a5-11ec-b9f8-371915c677aa	C2.2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-cf0ad045-c119-4e47-b38c-df724a8d8e0f.wav	0	12	30	0.5	STRIPE	1	C2
+833ab60d-3885-4e87-9b2b-d176041d7076	04154b32-62a5-11ec-b9f8-371915c677aa	C#2.2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-92806541-df35-4fe7-99b0-e42bbc23cb8a.wav	0	12	30	0.5	STRIPE	0	C#2
+02e87492-1471-4f65-8096-aee88f4dcbe4	04154b32-62a5-11ec-b9f8-371915c677aa	D#2.2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-f352dea6-fa1c-4fa7-8b94-ed80d1ab6df9.wav	0	12	30	0.5	STRIPE	1	D#2
+ed2173eb-3c13-43bd-8fd0-d981e84443f9	04154b32-62a5-11ec-b9f8-371915c677aa	F#2.2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-4a872657-a8a5-4311-b492-f9fe3e3e88b8.wav	0	12	30	0.5	STRIPE	1	F#2
+7149a0c9-e520-4f84-90b3-805fae863443	04154b32-62a5-11ec-b9f8-371915c677aa	G2.2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-17f8b3ed-62ee-4109-9a12-cf7c8182f815.wav	0	12	30	0.5	STRIPE	1	G2
+5f45fec9-76e8-4331-b904-4ff88054047d	04154b32-62a5-11ec-b9f8-371915c677aa	G#2.2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-b41c79b5-047e-4c3a-820d-a107bc7fb25e.wav	0	30	30	0.5	STRIPE	1	G#2
+728d6caf-673d-445b-a3c4-9c05b9ee15bd	04154b32-62a5-11ec-b9f8-371915c677aa	A2.2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-5782d523-b25c-43ef-9cf0-e172013dbc30.wav	0	12	30	0.5	STRIPE	1	A2
+28821c3c-ea88-4f44-933f-1a79cf0b4902	04154b32-62a5-11ec-b9f8-371915c677aa	A#2.2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-516a39a3-f25c-4d05-936f-0a30d514f6fb.wav	0	12	30	0.5	STRIPE	1	A#2
+f7f1c817-71bf-4c2d-8ec0-bea6ee35943a	04154b32-62a5-11ec-b9f8-371915c677aa	C3.2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-28488546-f88d-46e1-8f28-83022665d75e.wav	0	12	30	0.5	STRIPE	1	C3
+f898ff01-afa0-46c2-a228-405f00ac6a5a	04154b32-62a5-11ec-b9f8-371915c677aa	F3.2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-a08ae46f-2500-41fa-8c1c-37855fac2034.wav	0	12	30	0.5	STRIPE	1	F3
+c459be70-4a31-4566-aeeb-9ca807f6d02f	04154b32-62a5-11ec-b9f8-371915c677aa	G3.2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-0b8dea6d-e46c-48f0-966b-989bfb2ee308.wav	0	12	30	0.5	STRIPE	1	G3
+69a5741b-d0c3-4084-b1e9-33636be3b260	04154b32-62a5-11ec-b9f8-371915c677aa	A#3.2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-edbe7241-4eae-4d4f-956d-f8dfe99873f5.wav	0	12	30	0.5	STRIPE	1	A#3
+319588f4-a0a5-440f-b405-41e53c81c449	04154b32-62a5-11ec-b9f8-371915c677aa	C4.2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-9367c072-a06a-4c9c-b656-11036226d822.wav	0	12	30	0.5	STRIPE	1	C4
 99d7ca85-3309-4f24-b18b-2427a8ba6fab	b65f643e-1eff-11eb-90fb-8b0472d1d3ed	A#4	instrument-b65f643e-1eff-11eb-90fb-8b0472d1d3ed-audio-dd4ffd41-f5df-46f7-916b-c48be2dff97c.wav	0	1	120	0.5	STICKY	0.5	A#4
 a37efe5a-3854-11ec-b5a9-9fa0c8166628	8eb4a48c-3851-11ec-9896-63744694bdb8	B3	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-dd566112-9be8-44e9-97b4-dc0ccdfb84b0.wav	0	16	30	0.5	STICKY	1	B3
 25f04316-4431-11ec-a19f-532673dc8243	e2f1737c-442c-11ec-993c-3f77abd8c222	E2_1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-6d8fec0d-7581-4093-8eaf-a52b551f28c3.wav	0	16	30	0.5	STICKY	1	E2
 5655a29e-4431-11ec-a19f-a76a56c90aa9	e2f1737c-442c-11ec-993c-3f77abd8c222	G#2_1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-8cf6b04a-8896-46af-9a01-45e7533e8be9.wav	0	16	30	0.5	STICKY	1	G#2
 0be637a4-4432-11ec-905c-5f2cb735bd6f	e2f1737c-442c-11ec-993c-3f77abd8c222	C#4_1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-621107a0-214f-467b-9748-202f7af7e5d5.wav	0	16	30	0.5	STICKY	1	C#4
 94c1d9d4-4432-11ec-b6c9-033650272df8	e2f1737c-442c-11ec-993c-3f77abd8c222	C#5_1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-6e28aec3-79e6-4deb-86e4-46420c47439f.wav	0	16	30	0.5	STICKY	1	C#5
+beee0915-7220-406b-840f-f0ebbaecaec2	04154b32-62a5-11ec-b9f8-371915c677aa	B2.1	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-5a1cb676-b6c7-499d-a619-56b51abb0ac4.wav	0	12	30	0.5	STRIPE	1	B2
+769e2f6c-bd6c-49c9-a4bf-d52a2901cb6a	04154b32-62a5-11ec-b9f8-371915c677aa	D3.1	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-30d62d1b-bbd6-42c2-bd78-ae59ee431569.wav	0	12	30	0.5	STRIPE	1	D3
+da2abe75-1b06-4086-bdba-c27add30ac5e	04154b32-62a5-11ec-b9f8-371915c677aa	E3.1	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-33c85513-de80-460d-a428-184284045db6.wav	0	12	30	0.5	STRIPE	1	E3
+0d701d53-0bf0-46ab-a767-4514b93c846b	04154b32-62a5-11ec-b9f8-371915c677aa	F3.1	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-56ae18e6-cb2d-4b42-9ec0-d47c5a863fc7.wav	0	12	30	0.5	STRIPE	1	F3
+72a74a8e-6733-4c09-86bf-ce54a52b6e01	04154b32-62a5-11ec-b9f8-371915c677aa	G3.1	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-0f7b98eb-7856-4f23-9506-96340edcfc17.wav	0	12	30	0.5	STRIPE	1	G3
+06a5395f-e580-47ba-9264-f00ff2a19697	04154b32-62a5-11ec-b9f8-371915c677aa	B2.2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-23232e42-804c-4d94-a96f-d87bf858a257.wav	0	12	30	0.5	STRIPE	1	B2
+d8fc91f8-1062-489d-80ff-76bd63f2caf6	04154b32-62a5-11ec-b9f8-371915c677aa	C#3.2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-bd3ceaec-f274-40ce-95b0-a59b8ab44c43.wav	0	12	30	0.5	STRIPE	1	C#3
+be6b7845-39a9-4687-99bd-e5ba2f328f2b	04154b32-62a5-11ec-b9f8-371915c677aa	D3.2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-c4ff7024-0145-491c-82ed-edf39df47a67.wav	0	12	30	0.5	STRIPE	1	D3
+a043c7e2-3d89-4043-a48b-04106c9366ec	04154b32-62a5-11ec-b9f8-371915c677aa	D#3.2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-11d1e492-9c99-4d5b-bb24-4bf6aed3f68c.wav	0	12	30	0.5	STRIPE	1	D#3
+5168b13b-5b4b-4943-848e-1b805349cd97	04154b32-62a5-11ec-b9f8-371915c677aa	E3.2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-6e4c48aa-a4f9-42ab-836b-2f5e85b857e0.wav	0	12	30	0.5	STRIPE	1	E3
+86140f2e-afdb-4ca5-9da1-6b773dcf1bb1	04154b32-62a5-11ec-b9f8-371915c677aa	F#3.2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-c27fffdd-b0b8-4ed8-a575-a51142a7a696.wav	0	12	30	0.5	STRIPE	1	F#3
+a5900f8d-3cd7-4a7e-8ec9-1c777d8b8967	04154b32-62a5-11ec-b9f8-371915c677aa	G#3.2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-92f3a96f-c54f-49ff-958a-326a51c6df5d.wav	0	12	30	0.5	STRIPE	1	G#3
+c1349e47-76a2-4aa2-a0cd-1b2ac9f2160e	04154b32-62a5-11ec-b9f8-371915c677aa	A3.2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-58e9ce18-b9ef-48a1-8232-564acacfd305.wav	0	12	30	0.5	STRIPE	1	A3
+08c05f1c-d93c-4ebd-91ed-5a3b39dc6c6e	04154b32-62a5-11ec-b9f8-371915c677aa	B3.2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-f4769282-1ede-4277-91db-b31fde818d23.wav	0	12	30	0.5	STRIPE	1	B3
 402b3ffe-2062-11eb-a29a-8738d9231d64	92220d48-2061-11eb-a29a-9f2dfa197751	C4	instrument-92220d48-2061-11eb-a29a-9f2dfa197751-audio-b3690f8a-85b1-434f-b8c7-d61956fff184.wav	0	1	120	0.5	STICKY	1	C4
 44acf362-4431-11ec-a19f-c71c75fe06ba	e2f1737c-442c-11ec-993c-3f77abd8c222	G2_1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-3d8a496e-ac85-4298-b6eb-f3aa9a98f02d.wav	0	16	30	0.5	STICKY	1	G2
 7e1270a0-4431-11ec-905c-3f730a21f0f2	e2f1737c-442c-11ec-993c-3f77abd8c222	C3_1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-213f70f0-9968-470c-8d0c-cb4243105c76.wav	0	16	30	0.5	STICKY	1	C3
 83aa239c-4435-11ec-898d-8b0f897ef40a	fd523c02-4430-11ec-b6c9-9f84f28410fd	Fuzzy Tom Small Fill 1 w/ M/S Delay	instrument-fd523c02-4430-11ec-b6c9-9f84f28410fd-audio-7072cd8b-a650-4fe7-af0d-7d4724e1f996.wav	2	0	120	0.5	SMALL	1.1	X
 5a95d5ea-4431-11ec-a19f-176fa1a29b2f	fd523c02-4430-11ec-b6c9-9f84f28410fd	Fuzzy Tom Med Fill 1 with Whoosh	instrument-fd523c02-4430-11ec-b6c9-9f84f28410fd-audio-743d3f12-9c1e-43c6-9bdb-2ce715049a4f.wav	2	0	120	0.5	MEDIUM	1.1	X
 fd232fdf-297b-4b65-84ce-f150932b43c1	96041858-1bc4-11eb-834d-fb45b20d913f	C3	instrument-96041858-1bc4-11eb-834d-fb45b20d913f-audio-f9e1fa29-ecc8-45e8-a9a1-c429782f57c4.wav	0	1	120	0.5	PAD	1.8	C3
+9ca7c3ed-4fc3-415a-af6c-bc431bdc4973	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	D#4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-d1b88ead-a983-491c-a61c-0906ddb04c91.wav	0	8	60	0.5	STRIPE	1	D#4
+285c68d5-8d5f-4f1b-b8e8-7e57664b8f2c	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	F4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-74f2c49f-68ad-4665-a869-a0abf804470d.wav	0	8	60	0.5	STRIPE	1	F4
+e381fe42-e08a-45b2-8638-799680fe1030	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	G4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-39c20016-1553-49a9-b89b-d8a1a1953419.wav	0	8	60	0.5	STRIPE	1	G4
+59c6ad74-f298-478f-9aeb-a3250e224d98	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	B4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-c1c9b91d-95fd-4da5-9859-e5dae708fda9.wav	0	8	60	0.5	STRIPE	1	B4
+c785ecf7-8baf-429d-98ce-293c356d15c1	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	C5	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-8e3fac03-782b-434c-a6d7-322ecbe7e918.wav	0	8	60	0.5	STRIPE	1	C5
 5ff577eb-7b24-4553-9095-cb0c59c8e8a4	af8c6ba0-1baf-11eb-a1a3-7bbaed480f84	A#3	instrument-af8c6ba0-1baf-11eb-a1a3-7bbaed480f84-audio-dba24d3a-43d9-49fe-8153-e640f1e63ab9.wav	0	1	120	0.5	PAD	1.3	A#3
 86af5854-4431-11ec-905c-833aeee65dde	e2f1737c-442c-11ec-993c-3f77abd8c222	C#3_1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-3bee4fca-b73e-4fcd-a4c1-c08e5c596b19.wav	0	16	30	0.5	STICKY	1	C#3
 c57da712-4435-11ec-98f2-8b05e12168ea	fd523c02-4430-11ec-b6c9-9f84f28410fd	Fuzzy Tom Small Fill 1 w/ Ping-Pong Delay	instrument-fd523c02-4430-11ec-b6c9-9f84f28410fd-audio-4fb47ce9-7076-4334-872b-4a8b68c86d1f.wav	2	0	120	0.5	SMALL	1	X
 b04a2d60-4431-11ec-9663-47a377ba2da6	e2f1737c-442c-11ec-993c-3f77abd8c222	F3_1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-d9a477e2-1113-4b14-8295-edbdd2d8ae06.wav	0	16	30	0.5	STICKY	1	F3
 ce588310-4431-11ec-905c-f77ff14b2b0d	e2f1737c-442c-11ec-993c-3f77abd8c222	G3_1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-7bb8e4f2-230e-4cf9-b4ad-a5899d161dd2.wav	0	16	30	0.5	STICKY	1	G3
 ebaea1c2-9731-4a7c-b223-7b0b5df0ea43	96041858-1bc4-11eb-834d-fb45b20d913f	D#3	instrument-96041858-1bc4-11eb-834d-fb45b20d913f-audio-27fc0044-2d27-49d4-ac84-dd52ae6dee24.wav	0	1	120	0.5	PAD	1.8	D#3
+65fd7159-65f0-4aee-93ad-08d3c7c6310a	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	C3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-cb319981-d374-42c7-8872-82de2e70a305.wav	0	8	60	0.5	STRIPE	1	C3
+547938ac-ef38-45ba-baee-3c79114b1472	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	C#3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-214e57fe-c2ba-4be9-a574-31017d1b30a6.wav	0	8	60	0.5	STRIPE	1	C#3
+2e5d8b06-0029-419f-adb4-002a0225f355	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	D3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-79b17c3d-080c-4010-840a-91d85f08b8dc.wav	0	8	60	0.5	STRIPE	1	D3
+2d4adfcb-ed7d-4f91-9802-7dac72d2dc61	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	D#3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-f7ad7a8d-d582-421a-ab64-93c8294eaeaf.wav	0	8	60	0.5	STRIPE	1	D#3
+876f42bc-024f-434d-973d-bb9326a57c33	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	E3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-291c70a8-7447-4fa5-b793-ff5031c4ae2c.wav	0	8	60	0.5	STRIPE	1	E3
+e8850c89-7b8b-4e6c-9bc0-f2214333ec94	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	F3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-cce45144-0d5d-4268-bd46-a16cc3cfa3f5.wav	0	8	60	0.5	STRIPE	1	F3
+0787366f-dbd0-431b-b181-470fea75b1c5	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	G3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-7f689294-54db-435a-8c3c-6a4a1356916a.wav	0	8	60	0.5	STRIPE	1	G3
+dde86f94-dc55-4b8b-bb91-14f46c6ed825	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	G#3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-e176cc8d-ecc8-4cde-9004-be5ec1667051.wav	0	8	60	0.5	STRIPE	1	G#3
+bd95f36c-6d51-4938-a652-7b9e389a8706	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	A3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-63afa835-8871-430e-abfe-cd4df4a24df0.wav	0	8	60	0.5	STRIPE	1	A3
+6341c6f5-be6e-487e-9e2a-172276a33580	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	A#3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-9a8abc21-97e6-4a03-90a5-f91da81d554f.wav	0	8	60	0.5	STRIPE	1	A#3
+439da00d-dcfe-4859-b4ff-c2ce2f1d4dba	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	B3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-855c0302-7b90-43d4-8d06-eacf84ee5a6e.wav	0	8	60	0.5	STRIPE	1	B3
+617ed11d-e7e6-49ef-baa9-3b1485788838	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	F#3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-7732578e-ec95-405a-81c2-f7b9585d3f8c.wav	0	8	60	0.5	STRIPE	1	F#3
+086ec48a-f360-4bcf-803a-d6241356f401	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	C4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-21059316-ccf9-4b6f-845e-1927ed5bb91e.wav	0	8	8	0.5	STRIPE	1	C4
+dda09db2-ddd9-4d0b-9db2-3cdea6860f44	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	C#4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-afeb20ae-b97c-4dab-961b-d2d9343cd49c.wav	0	8	60	0.5	STRIPE	1	C#4
+02183bd5-c1e2-4ede-a8a4-d6b4083eafe9	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	D4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-2562b5ee-1b37-47ce-b82c-568ac99b3d5e.wav	0	8	60	0.5	STRIPE	1	D4
+22cfdcb4-9c65-4ac8-9353-940017759949	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	E4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-c23f5b5c-d6ed-4e06-a33a-02ab1cd45781.wav	0	8	60	0.5	STRIPE	1	E4
+ca278102-b282-4a38-872b-c5524ab69161	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	F#4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-02621963-6294-4ad4-b8b4-e4edfe687aa2.wav	0	8	60	0.5	STRIPE	1	F#4
+6abb2d25-f2e8-49ee-baed-a189530ba94d	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	G#4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-a471ed7f-ab00-4c68-939b-7bc9768c3a45.wav	0	8	60	0.5	STRIPE	1	G#4
+3a9f9def-50a4-4999-8a7d-e59eaa7c6366	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	A4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-93840094-9e32-480d-a705-8cc6acaf5e41.wav	0	8	60	0.5	STRIPE	1	A4
+bab497bc-ece7-4c37-b7d2-bbc13916075b	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	A#4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-2c1dc9a3-25f1-4d55-b48f-e57ed2c0b08c.wav	0	8	60	0.5	STRIPE	1	A#4
 17e03d3c-16eb-11ea-8a37-c3394c3f5fa5	17b34ca0-16eb-11ea-8a37-6b86e3816409	Brushy.Open.Hat	5ff42f3d-24cf-405c-9fa8-023198ecab2b-instrument-42-audio.wav	0	1	121	0.6	HIHATOPEN	1.5	D8
 c67fd3f8-7945-11eb-afef-8b7c59c365e6	28806cbc-64ec-11ea-acb5-7f27befb1aad	NewNewKickNewFireSmall	instrument-28806cbc-64ec-11ea-acb5-7f27befb1aad-audio-395aa0a4-52de-420d-a9c4-3ae36613d552.wav	0	1	120	0	KICK	1	X
 8fa8fa64-4431-11ec-905c-8389bc65781d	e2f1737c-442c-11ec-993c-3f77abd8c222	D3_1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-8b9fcab4-648d-4ee4-b450-de40729a4382.wav	0	16	30	0.5	STICKY	1	D3
@@ -3338,57 +3471,156 @@ a377929e-4431-11ec-9663-0f4a5d1a13f1	e2f1737c-442c-11ec-993c-3f77abd8c222	E3_1	i
 f53ab8b8-4431-11ec-905c-37a2284c6367	e2f1737c-442c-11ec-993c-3f77abd8c222	B3_1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-a4fd6ac8-ed92-4608-95f0-2e5d463b7297.wav	0	16	30	0.5	STICKY	1	B3
 2a3ebc26-4432-11ec-905c-7321b33124e9	e2f1737c-442c-11ec-993c-3f77abd8c222	E4_1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-edf1d3c8-6605-4d15-a2cf-df8e0ad6e7c9.wav	0	16	30	0.5	STICKY	1	E4
 6e9cacb6-4437-11ec-9255-9bbafa8410f6	fd523c02-4430-11ec-b6c9-9f84f28410fd	Fuzzy Tom Big Fill 1 w/ Subby Boy on the "1"	instrument-fd523c02-4430-11ec-b6c9-9f84f28410fd-audio-05b4366f-ce20-469a-b830-41b63443de0f.wav	2	0	120	0.5	BIG	1.3	X
+73fb64c8-6484-11ec-a02e-2b9cc523d55b	04154b32-62a5-11ec-b9f8-371915c677aa	C2.3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-0b58e2f8-e190-4106-8a21-c789caf583db.wav	0	12	30	0.5	STRIPE	1	C2
+ad2096e2-6484-11ec-a02e-332e6b643000	04154b32-62a5-11ec-b9f8-371915c677aa	C#2.3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-ea667e9b-635c-49c5-b8ba-37c9dc664f64.wav	0	12	30	0.5	STRIPE	0	C#2
+b83ad89e-6484-11ec-a02e-ff7778c03b2d	04154b32-62a5-11ec-b9f8-371915c677aa	D2.3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-c132b032-2f98-4c40-ac64-c17ae2a6b813.wav	0	12	30	0.5	STRIPE	1	D2
+c0cd0d60-6484-11ec-a02e-ab311c6c0acb	04154b32-62a5-11ec-b9f8-371915c677aa	D#2.3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-7a9af099-4c8f-48b4-b56d-7c35e7127ad2.wav	0	12	30	0.5	STRIPE	1	D#2
 2666003c-3852-11ec-b687-9786e31a0d1e	8eb4a48c-3851-11ec-9896-63744694bdb8	C4	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-259f8fd0-1505-459e-96a7-cf91f46fa056.wav	0	16	30	0.5	STICKY	1	C4
 ebd932c2-4431-11ec-a19f-6b0eed757e49	e2f1737c-442c-11ec-993c-3f77abd8c222	A#3_1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-b827e95b-bb9e-42c5-b845-4c45752318b3.wav	0	16	30	0.5	STICKY	1	A#3
 c1578dcc-4432-11ec-905c-539964e50511	e2f1737c-442c-11ec-993c-3f77abd8c222	F5_1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-310a98d4-cfce-4d8b-b053-47088b3510f0.wav	0	16	30	0.5	STICKY	1	F5
+cb3b6788-6484-11ec-a50d-0f079ca8872f	04154b32-62a5-11ec-b9f8-371915c677aa	E2.3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-3310626d-2049-4021-a206-702d0f787900.wav	0	12	30	0.5	STRIPE	1	E2
 fc58c354-3169-11ec-a2ba-5bf9b66c2bae	39582db6-02e0-11ec-9cd8-138a25e9d4dc	Triangle Pattern 5	instrument-d4db9df6-3169-11ec-9742-773d8b0ed3b9-audio-cee90488-907d-4dda-8fec-85d6ff853a77.wav	0	4	120	0.5	TRILOOP	0.25	X
 3ee171dc-4432-11ec-905c-ebba0a854d02	e2f1737c-442c-11ec-993c-3f77abd8c222	F#4_1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-aee4c2a2-89ea-4040-a437-c0f1cb765f97.wav	0	16	30	0.5	STICKY	1	F#4
 5f7180ea-4432-11ec-a19f-07bced91bf7c	e2f1737c-442c-11ec-993c-3f77abd8c222	A4_1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-1f8fc795-2db5-47b5-adb3-14a4c04fe334.wav	0	16	30	0.5	STICKY	1	A4
+a4499662-6485-11ec-a900-c3d5f5cb7bc4	04154b32-62a5-11ec-b9f8-371915c677aa	F2.3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-4f9a0318-ada5-475e-a138-12729dae5210.wav	0	12	30	0.5	STRIPE	1	F2
+ac0c10a0-6485-11ec-a900-0fc85285f0f4	04154b32-62a5-11ec-b9f8-371915c677aa	F#2.3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-d3f86339-98d5-4599-8f70-879fa5113435.wav	0	12	30	0.5	STRIPE	1	F#2
+b2d99b3c-6485-11ec-a900-b717f5d67fc7	04154b32-62a5-11ec-b9f8-371915c677aa	G2.3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-21f67845-ef31-4c11-93e0-38a971f6f534.wav	0	12	30	0.5	STRIPE	1	G2
+b955faaa-6485-11ec-a900-83e7aa633a70	04154b32-62a5-11ec-b9f8-371915c677aa	G#2.3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-3abe2916-452d-4fee-bef4-7069e1444ee9.wav	0	30	30	0.5	STRIPE	1	G#2
+e1506982-6485-11ec-a900-47f7baf213d8	04154b32-62a5-11ec-b9f8-371915c677aa	A2.3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-ef85c4d1-86cc-4e7e-88a4-e8e89c3dfb21.wav	0	12	30	0.5	STRIPE	1	A2
+eed8cfa4-6485-11ec-a900-d723d7a73828	04154b32-62a5-11ec-b9f8-371915c677aa	A#2.3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-f7621e85-0cdf-480a-b1ed-fcef9ac27482.wav	0	12	30	0.5	STRIPE	1	A#2
+fc4b5198-6485-11ec-a900-27024cbdabfa	04154b32-62a5-11ec-b9f8-371915c677aa	B2.3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-23ef0b53-80fc-47a1-bf15-c93f70aed216.wav	0	12	30	0.5	STRIPE	1	B2
+1ed3245c-6486-11ec-a900-ff6c714784bd	04154b32-62a5-11ec-b9f8-371915c677aa	C#3.3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-6f06fa12-41f2-433c-8527-44933af83254.wav	0	12	30	0.5	STRIPE	1	C#3
+39077e2c-6486-11ec-a900-d73265e2f75d	04154b32-62a5-11ec-b9f8-371915c677aa	D#3.3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-42c7c5d3-99bd-437b-9350-c5f743337c1e.wav	0	12	30	0.5	STRIPE	1	D#3
+464c8546-6486-11ec-a900-8fc4f4a23240	04154b32-62a5-11ec-b9f8-371915c677aa	E3.3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-33e16778-639f-41da-a469-a7b4ecc4098c.wav	0	12	30	0.5	STRIPE	1	E3
+6aafc57e-6486-11ec-a900-bbac2c3d5144	04154b32-62a5-11ec-b9f8-371915c677aa	F3.3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-bbab9a99-9d95-4011-993b-1db041808a23.wav	0	12	30	0.5	STRIPE	1	F3
+751f5e02-6486-11ec-a900-3f029d961071	04154b32-62a5-11ec-b9f8-371915c677aa	F#3.3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-4a9770df-a41e-481a-88e5-7bc339c56d49.wav	0	12	30	0.5	STRIPE	1	F#3
+9aaa25da-6486-11ec-a900-7be41920a238	04154b32-62a5-11ec-b9f8-371915c677aa	G#3.3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-166f8424-cb4b-486f-b2de-ef3e1d3be653.wav	0	12	30	0.5	STRIPE	1	G#3
+919c085a-6486-11ec-a900-0b71a6131543	04154b32-62a5-11ec-b9f8-371915c677aa	G3.3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-dc51fea3-1d7e-45a8-84a8-f735e9d74cc6.wav	0	12	30	0.5	STRIPE	1	G3
+b7a75d4c-6486-11ec-a900-2f9354636416	04154b32-62a5-11ec-b9f8-371915c677aa	A#3.3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-23c9f50d-27c0-4a52-827d-2297210ce08f.wav	0	12	30	0.5	STRIPE	1	A#3
+c48b199a-6486-11ec-a900-6b4155f83ff3	04154b32-62a5-11ec-b9f8-371915c677aa	B3.3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-844a89f0-8704-4ee0-a584-719b10aa9ad5.wav	0	12	30	0.5	STRIPE	1	B3
+df11f64e-6486-11ec-a900-2303c24e666f	04154b32-62a5-11ec-b9f8-371915c677aa	C4.3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-a0cd3db9-b422-415a-9fc7-5be4b1282645.wav	0	12	30	0.5	STRIPE	1	C4
 377bdc98-3852-11ec-8290-f3b7954698ec	8eb4a48c-3851-11ec-9896-63744694bdb8	C6	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-933d7b31-694f-4d39-8543-d54251689a9e.wav	0	16	30	0.5	STICKY	1	C6
 caa0bdb8-443c-11ec-8fbb-1bc1b7f14f05	f58a20da-442a-11ec-8a5f-175152e4431c	Sim Tom BIG Fill 3 w/ S&H'ish Finish	instrument-f58a20da-442a-11ec-8a5f-175152e4431c-audio-8724a270-29af-43c5-9a13-97e6fd29a806.wav	2	0	120	0.5	BIG	1	X
+06763dcc-6486-11ec-9589-2bcba659b9cd	04154b32-62a5-11ec-b9f8-371915c677aa	C3.3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-101b917a-b903-4f5d-90e7-3d1041b2180b.wav	0	12	30	0.5	STRIPE	1	C3
+2b0bbcc0-6486-11ec-9589-efc22fb6653d	04154b32-62a5-11ec-b9f8-371915c677aa	D3.3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-6f78770c-555c-4d4d-bc65-af226a73dc07.wav	0	12	30	0.5	STRIPE	1	D3
+ad5e9cf6-6486-11ec-9589-eb79e189aebc	04154b32-62a5-11ec-b9f8-371915c677aa	A3.3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-c1981c7b-7fbc-4f3c-b26f-ca47292f974b.wav	0	12	30	0.5	STRIPE	1	A3
 5eabcb2c-443f-11ec-8f30-cb426a8ac311	f58a20da-442a-11ec-8a5f-175152e4431c	Sim Tom Fill 3 Med	instrument-f58a20da-442a-11ec-8a5f-175152e4431c-audio-a09efa53-9c8a-4fe5-9c47-5ce50d997b2a.wav	2	2	120	0.5	MEDIUM	1	X
 5c49c4aa-3865-11ec-b982-afbd9acaf463	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Pattern 2	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-e5aca740-cc29-407d-b6f7-e7b3401c7125.wav	0	8	120	0.5	BONGOLOOP	0.8	X
+e7738b46-65ca-11ec-b0cf-6be886682fd6	3bbcc300-c6c8-11ea-9c5b-3fabd1ae6028	Hi-Hat Open	instrument-3bbcc300-c6c8-11ea-9c5b-3fabd1ae6028-audio-b0793e0d-2e8c-41e2-b4d6-d54e8f62377b.wav	0	1	120	0.5	HIHATOP	1	X
 fffe7ff6-443f-11ec-9263-97058fd2d88b	f58a20da-442a-11ec-8a5f-175152e4431c	Sim Tom Fill 3 Small	instrument-f58a20da-442a-11ec-8a5f-175152e4431c-audio-6b25e7c7-d077-43bf-aa12-ae0d923352bb.wav	2	0	120	0.5	SMALL	0.8	X
 fc63d54a-386d-11ec-86d9-e3cf9863b3e5	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Pattern 3	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-9214ae7d-bedf-472d-973e-52129b1712fe.wav	0	8	120	0.5	BONGOLOOP	0.8	X
 4f4954ec-386e-11ec-86d9-4b3a8c1cce18	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Pattern 6	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-68921151-4736-404a-a901-b8dba78fbfe8.wav	0	8	120	0.5	BONGOLOOP	0.8	X
 a18e53aa-386f-11ec-86d9-abca42ea6d4f	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Pattern 17	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-7ee5e6dc-32ad-4376-912d-1e790f0fbc34.wav	0	4	120	0.5	BONGOLOOP	0.8	X
+4064bc28-6794-11ec-b9b0-efd30504d5fe	2759ebe0-6794-11ec-8195-cb2a67b54919	KICK 1	instrument-2759ebe0-6794-11ec-8195-cb2a67b54919-audio-ca501589-355d-4137-a635-af8cc39b3b6c.wav	0	1	93	0.5	KICK	1	X
 aa89b5c6-4440-11ec-a707-53061c9a276b	f58a20da-442a-11ec-8a5f-175152e4431c	Sim Tom Pitchy Small Guy	instrument-f58a20da-442a-11ec-8a5f-175152e4431c-audio-b22f1e76-e844-4674-9a7b-2302b85893ad.wav	2	0	120	0.5	SMALL	1	X
 16a0f334-386e-11ec-b0d6-cf30b5d4e6c4	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Pattern 4	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-647253e8-dc80-495b-85d3-63b602232f93.wav	0	8	120	0.5	BONGOLOOP	0.8	X
 98ff0294-386e-11ec-b0d6-fba88ff8fb0f	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Pattern 8	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-8e89a200-6796-4708-b8b9-afd96d41d326.wav	0	8	120	0.5	BONGOLOOP	0.8	X
 2deaaeda-386f-11ec-b0d6-3383efc297e2	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Pattern 13	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-4d3820c9-3fde-4460-aeb0-61a660b8eba8.wav	0	4	120	0.5	BONGOLOOP	0.8	X
 8603b86e-386f-11ec-b0d6-57df6d4e49f8	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Pattern 16	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-0b86935d-42f5-4ff8-a134-a170bc7afd7e.wav	0	8	120	0.5	BONGOLOOP	0.8	X
 4c47abda-386f-11ec-b0d6-1785f6595ee5	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Pattern 14	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-95722580-5ae5-4077-9ee4-a463e8c22878.wav	0	4	120	0.5	BONGOLOOP	0.8	X
+74a07c5c-6794-11ec-80e5-9797f9aaa3f6	2759ebe0-6794-11ec-8195-cb2a67b54919	KICK 2	instrument-2759ebe0-6794-11ec-8195-cb2a67b54919-audio-a9c621a4-ff80-4d8a-86f7-e904830fc446.wav	0	1	93	0.5	KICK	1	X
+eb542a04-6796-11ec-9573-7fa37f645e4d	2759ebe0-6794-11ec-8195-cb2a67b54919	KICK 22	instrument-2759ebe0-6794-11ec-8195-cb2a67b54919-audio-bb567c43-cc87-406c-8de3-7bf0a752e80e.wav	0	1	93	0.5	KICK	1	X
 52608ed2-4446-11ec-9f7e-235dda34f02f	37095c04-4446-11ec-b0fb-e7e3c624dd72	Big 1 bar Rise w/ Release	instrument-37095c04-4446-11ec-b0fb-e7e3c624dd72-audio-994cfaf8-6eec-4d35-b710-0a7cb0129631.wav	2	0	120	0.5	BIG	1	X
+2256e3ac-6797-11ec-9573-db3fbeec2d8c	2759ebe0-6794-11ec-8195-cb2a67b54919	KICK 23	instrument-2759ebe0-6794-11ec-8195-cb2a67b54919-audio-59f13baf-af78-4f10-86f8-c1760c63c59a.wav	0	1	93	0.5	KICK	1	X
 33bd7f6e-386e-11ec-b18b-bf3ab967866b	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Pattern 5	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-12e9a41d-a762-45d6-a5fb-16293ad7c2d2.wav	0	8	120	0.5	BONGOLOOP	0.8	X
 664963bc-386e-11ec-b18b-8baf6656d90f	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Pattern 7	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-ec8f79d5-2dc1-49f7-890d-f456a1c834a8.wav	0	8	120	0.5	BONGOLOOP	0.8	X
 163dce66-386f-11ec-b18b-139aeddbb126	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Patter 12	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-ddb494ee-38da-4a52-bbd9-74175946ddd7.wav	0	8	120	0.5	BONGOLOOP	0.8	X
+e8684ad4-6794-11ec-9573-3b3161c4687f	2759ebe0-6794-11ec-8195-cb2a67b54919	KICK 4	instrument-2759ebe0-6794-11ec-8195-cb2a67b54919-audio-30439f92-aef8-4671-8619-f61a1a4e078b.wav	0	1	93	0.5	KICK	1	X
+ff5325a2-6794-11ec-9573-3fcff25cbc6b	2759ebe0-6794-11ec-8195-cb2a67b54919	KICK 5	instrument-2759ebe0-6794-11ec-8195-cb2a67b54919-audio-9d8cfbc8-2e26-45e8-9bdd-b2f373058a3c.wav	0	1	93	0.5	KICK 	1	X
+a6590a0c-6794-11ec-9573-f7fb76fa2036	2759ebe0-6794-11ec-8195-cb2a67b54919	KICK 3	instrument-2759ebe0-6794-11ec-8195-cb2a67b54919-audio-6642968e-8804-4bd8-804f-406cfadd4449.wav	0	1	93	0.5	KICK	1	X
+41b29090-6795-11ec-9573-2384ebbe55f6	2759ebe0-6794-11ec-8195-cb2a67b54919	KICK 6	instrument-2759ebe0-6794-11ec-8195-cb2a67b54919-audio-770b605e-890b-4d67-a567-25f19ed1d136.wav	0	1	93	0.5	KICK 	1	X
+826d9ea4-6795-11ec-9573-7776c9fc417a	2759ebe0-6794-11ec-8195-cb2a67b54919	KICK 8	instrument-2759ebe0-6794-11ec-8195-cb2a67b54919-audio-fe98f0cf-247d-4319-9d72-d80f81d74304.wav	0	1	93	0.5	KICK	1	X
+96f03972-6795-11ec-9573-e32c47be94b5	2759ebe0-6794-11ec-8195-cb2a67b54919	KICK 9	instrument-2759ebe0-6794-11ec-8195-cb2a67b54919-audio-c295e6ba-eb83-4a92-900c-8c4a1d49ce97.wav	0	1	93	0.5	KICK 	1	X
+bdea021a-6795-11ec-9573-576424796013	2759ebe0-6794-11ec-8195-cb2a67b54919	KICK 10	instrument-2759ebe0-6794-11ec-8195-cb2a67b54919-audio-383e4f54-a593-4139-baff-bb657745d0ce.wav	0	1	93	0.5	KICK 	1	X
+e65c44a6-6795-11ec-9573-9377fd773871	2759ebe0-6794-11ec-8195-cb2a67b54919	KICK 12	instrument-2759ebe0-6794-11ec-8195-cb2a67b54919-audio-bedccf63-98ae-4e3f-96f8-d760be30289d.wav	0	1	93	0.5	KICK	1	X
+fd4a8e16-6795-11ec-9573-1fa114043595	2759ebe0-6794-11ec-8195-cb2a67b54919	KICK 13	instrument-2759ebe0-6794-11ec-8195-cb2a67b54919-audio-20e434a8-6e95-4ba1-a1da-7b3c7d1a9fef.wav	0	1	93	0.5	KICK	1	X
+1423e312-6796-11ec-9573-9b8b8542eebe	2759ebe0-6794-11ec-8195-cb2a67b54919	KICK 14	instrument-2759ebe0-6794-11ec-8195-cb2a67b54919-audio-be7902e3-3d24-42ba-9616-ed88606ec24a.wav	0	1	93	0.5	KICK	1	X
+24990ec0-6796-11ec-9573-975f2bbbbc4d	2759ebe0-6794-11ec-8195-cb2a67b54919	KICK 15	instrument-2759ebe0-6794-11ec-8195-cb2a67b54919-audio-15434182-5499-4445-9c34-24af93b2d462.wav	0	1	93	0.5	KICK	1	X
+40000a60-6796-11ec-9573-bf79bab5ab3f	2759ebe0-6794-11ec-8195-cb2a67b54919	KICK 16	instrument-2759ebe0-6794-11ec-8195-cb2a67b54919-audio-719f2982-6cce-4da4-8769-74469344d08c.wav	0	1	93	0.5	KICK 	1	X
+b1f11e20-6796-11ec-9573-5f2f22cb0d42	2759ebe0-6794-11ec-8195-cb2a67b54919	KICK 19	instrument-2759ebe0-6794-11ec-8195-cb2a67b54919-audio-8759699c-d655-48ee-991b-3d541b54509a.wav	0	1	93	0.5	KICK	1	X
+c81f65b2-6796-11ec-9573-9ba4b697fc27	2759ebe0-6794-11ec-8195-cb2a67b54919	KICK 20	instrument-2759ebe0-6794-11ec-8195-cb2a67b54919-audio-23ecdd32-58f0-44dc-ba44-9b53eb975573.wav	0	1	93	0.5	KICK	1	X
+dc803e0a-6796-11ec-9573-fb69faf550a3	2759ebe0-6794-11ec-8195-cb2a67b54919	KICK 21	instrument-2759ebe0-6794-11ec-8195-cb2a67b54919-audio-21382c16-bc92-4599-9039-87dcaae2354e.wav	0	1	93	0.5	KICK 	1	X
+9db38dca-6797-11ec-9573-c3001f5d5650	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 2	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-8c8d2e79-e4f4-4ba1-bb85-1b664b31a9c7.wav	0	1	93	0.5	SNARE	1	X
+ddbb872e-6797-11ec-9573-a3744391044f	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 5	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-d2afe38c-6f93-4f73-925a-6348f400d8c4.wav	0	1	93	0.5	SNARE	1	X
+f14f999c-6797-11ec-9573-87fe3b338f41	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 6	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-25043395-910a-4a57-8679-46ec4c5d114b.wav	0	1	93	0.5	SNARE	1	X
+277bbe10-6798-11ec-9573-0bdf1db06ce1	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 9	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-dfdb4ed9-9f62-4c00-ae09-048cc6f24f35.wav	0	1	93	0.5	SNARE 	1	X
+490fb360-6798-11ec-9573-c705a3926bd1	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 11	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-7bc7cb8b-99d5-4e95-a55c-bdfdbab162fc.wav	0	1	93	0.5	SNARE 11	1	X
+be9577c4-6797-11ec-b3b2-5f03f97f0265	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 4	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-62d68aab-b90c-42fb-a9cd-e6f1a9c8cd42.wav	0	1	93	0.5	SNARE	1	X
+ae3a285c-6797-11ec-b3b2-3fb6f7f034ea	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 3	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-e497693e-3422-4304-a22e-40f2d06a1295.wav	0	1	93	0.5	SNARE	1	X
+89b4189e-6797-11ec-b3b2-7f5e809f1d64	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 1	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-eb6d889e-dc75-401a-b21d-068ef97eaaf6.wav	0	1	93	0.5	Snare	1	X
+098f4dea-6798-11ec-b3b2-f7cb94dc6cbd	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 7	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-03cb0a7f-dd56-479f-acd8-6219965bdf10.wav	0	1	93	0.5	SNARE 	1	X
+19ab60a6-6798-11ec-b3b2-57eaf53cce4e	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 8	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-9530070a-98f3-457f-ba8e-7012ab97ccd7.wav	0	1	93	0.5	SNARE	1	\N
+3b99e6b0-6798-11ec-b3b2-df9fd2ea2530	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 10	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-109fdef4-c4d2-4358-827a-544e5fbb196c.wav	0	1	93	0.5	SNARE	1	X
 e8e6fd52-4449-11ec-9d0c-23776633da21	37095c04-4446-11ec-b0fb-e7e3c624dd72	1/4 Note Jump Sweep Dly Variation 1	instrument-37095c04-4446-11ec-b0fb-e7e3c624dd72-audio-b8e0bd77-6596-4a14-b5e8-b75800276547.wav	0.5	0	120	0.5	SMALL	0.7	X
 2eb050e0-444a-11ec-9d0c-174857513b35	37095c04-4446-11ec-b0fb-e7e3c624dd72	1/4 Note Jump Sweep Dly Variation 2	instrument-37095c04-4446-11ec-b0fb-e7e3c624dd72-audio-5159a09f-9ba3-41c3-9a44-2ec6a8c6369b.wav	0.5	0	120	0.5	SMALL	0.7	X
 6977c92e-386f-11ec-a90f-0b618d01a7f5	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Pattern 15	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-9d0402c4-e4bc-48d2-b587-9e995744ea97.wav	0	4	120	0.5	BONGOLOOP	1	X
 b0dbb83a-386e-11ec-a90f-4bda9dd45651	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Pattern 9	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-bece3eae-05bb-4a10-b5ce-6de9ec4c947f.wav	0	8	120	0.5	BONGOLOOP	0.8	X
 ca42c8ae-386e-11ec-a90f-2fd42280a6e2	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Patter 10	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-79fe6c8b-9888-48b2-88f1-44ad728be899.wav	0	8	120	0.5	BONGOLOOP	0.8	X
 fbf36cc8-386e-11ec-a90f-d70c930ccb0b	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Pattern 11	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-725147fa-a8bd-4ed6-a83b-5a23402a3d78.wav	0	8	120	0.5	BONGOLOOP	0.8	X
+69c8a0f6-6795-11ec-b3b2-c35218dcc9d3	2759ebe0-6794-11ec-8195-cb2a67b54919	KICK 7	instrument-2759ebe0-6794-11ec-8195-cb2a67b54919-audio-734a76e4-ef73-49ad-b399-f8b802e681d7.wav	0	1	93	0.5	KICK	1	X
+d628c76c-6795-11ec-b3b2-332814a27384	2759ebe0-6794-11ec-8195-cb2a67b54919	KICK 11	instrument-2759ebe0-6794-11ec-8195-cb2a67b54919-audio-d4f84752-270e-4651-b004-ff2396c842b5.wav	0	1	93	0.5	KICK 	1	X
+67d550fe-6796-11ec-b3b2-33f6d30b76c1	2759ebe0-6794-11ec-8195-cb2a67b54919	KICK 17	instrument-2759ebe0-6794-11ec-8195-cb2a67b54919-audio-09fafa6c-ee45-479a-96e4-191036287a91.wav	0	1	90	0.5	KICK	1	X
+7e149bb8-6796-11ec-b3b2-9f82f18290d5	2759ebe0-6794-11ec-8195-cb2a67b54919	KICK 18	instrument-2759ebe0-6794-11ec-8195-cb2a67b54919-audio-5ede3eba-a3a6-44cc-afaa-eb929177cdb2.wav	0	1	93	0.5	KICK	1	X
 438e2cde-444b-11ec-bda3-5f614ed9b96f	37095c04-4446-11ec-b0fb-e7e3c624dd72	1/4 Note Jump Sweep Dly Variation 3	instrument-37095c04-4446-11ec-b0fb-e7e3c624dd72-audio-d48e63f2-02b4-4522-ba22-857bb14f564c.wav	0.5	0	120	0.5	SMALL	0.8	X
 b69561a8-386f-11ec-b55b-d35b0a38a9aa	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Pattern 18	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-4efd9aa1-cad5-450b-ad7f-135618ccb736.wav	0	4	120	0.5	BONGOLOOP	0.8	X
+9f176b4a-6798-11ec-b4ed-8f2f05262ef8	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 12	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-1420fade-143e-4828-bed1-857fc9df3e2d.wav	0	1	93	0.5	SNARE 	1	X
 1a586c2e-444d-11ec-9712-bf645dfd1d6d	37095c04-4446-11ec-b0fb-e7e3c624dd72	Rise & Shine Classic 2 Beat Style Flyboys	instrument-37095c04-4446-11ec-b0fb-e7e3c624dd72-audio-77069ca1-d1b2-48c7-993b-f71ef9001172.wav	1	0	120	0.5	MEDIUM	1	\N
 c9dc69a0-386f-11ec-b787-3f518e9081b7	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Pattern 19	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-9057c2cc-7196-4c22-a99e-1a336a9282a4.wav	0	8	120	0.5	BONGOLOOP	0.8	X
+ae5c1dbc-6798-11ec-b934-ab16f2529b03	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 13	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-d591ee83-e567-4c9c-9328-a54ba42c8e34.wav	0	1	93	0.5	SNARE	1	X
 d995ebd2-bd7c-11eb-97b1-9b3730388685	212cb21a-bd7c-11eb-b952-3b36714174d2	A2	instrument-212cb21a-bd7c-11eb-b952-3b36714174d2-audio-52ba0528-8409-4686-afa3-2cfb8e2558df.wav	0	1	120	0	BASS	1	A2
 eb796922-44a0-11ec-ae08-5fb0230d752f	f58a20da-442a-11ec-8a5f-175152e4431c	Delay Downward Tom 1	instrument-f58a20da-442a-11ec-8a5f-175152e4431c-audio-fefd036d-30c7-410c-96c6-f4abce3b3561.wav	2	0	120	0.5	SMALL	0.8	X
 8c0ec3c8-44a1-11ec-ae08-77236eef541e	f58a20da-442a-11ec-8a5f-175152e4431c	Delay Downward Tom 2	instrument-f58a20da-442a-11ec-8a5f-175152e4431c-audio-07e81551-ebe1-4489-9747-a0f4f9ed90ef.wav	2	0	120	0.5	SMALL	0.8	X
 e02e065a-386f-11ec-987c-efced32e1714	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Pattern 20	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-9abbd4e2-ebfe-441e-a801-d4dac95f70da.wav	0	8	120	0.5	BONGOLOOP	0.8	X
+c86ee2e8-6798-11ec-95d7-3fa43cc271bc	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 14	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-d53ef324-2c39-44f8-aff5-2890a99fde6c.wav	0	1	93	0.5	SNARE	1	X
+d8d5a374-6798-11ec-95d7-1bc8b0f2c090	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 15	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-4404c73a-d539-4309-914d-c25bd62e1822.wav	0	1	93	0.5	SNARE	1	X
+33ff7ca2-6799-11ec-95d7-c35665849df2	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 16	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-5e99f01c-03e9-49cc-bc04-986da0828adc.wav	0	1	93	0.5	SNARE	1	X
+428b0ac0-6799-11ec-95d7-b764ae282cdc	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 17	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-11ef9917-59af-4ed3-b106-8f5687c9a0d7.wav	0	1	93	0.5	SNARE	1	X
+52c38a02-6799-11ec-95d7-730138669cfb	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 18	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-554de32f-2541-4ce3-817e-3dc3ba7e1d9b.wav	0	1	93	0.5	SNARE 	1	X
+75941cf4-6799-11ec-95d7-8f2eb025a9a1	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 19	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-f3df2f64-3d86-463b-a5fe-cf2f8f973bf2.wav	0	1	93	0.5	SNARE 	1	X
+86aa3776-6799-11ec-95d7-bb3844d05e0f	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 20	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-84b0c1ce-5df3-428b-a059-f0ffa6b4b483.wav	0	1	93	0.5	SNARE 	1	X
+a70ac45e-6799-11ec-95d7-af08832b0d34	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 22	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-6a5af65e-ea46-4efb-bcc6-ad6bf7b0def4.wav	0	1	93	0.5	SNARE 	1	X
+b629e730-6799-11ec-95d7-af2e2c9bc5ee	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 23	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-aeb646ed-507a-467c-957e-3f5d6eec6f99.wav	0	1	93	0.5	SNARE 	1	X
+2cb17f4e-679a-11ec-95d7-bbac8ff47ec6	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 2	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-941b6ad1-c2ba-4b6e-8da1-55b5c816947d.wav	0	1	93	0.5	HI-HAT	1	X
+3d882322-679a-11ec-95d7-bb7f4b2c1f47	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 3	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-a7693d67-f568-465f-a2f1-9617356432c7.wav	0	1	93	0.5	HI-HAT	1	X
+9308cebe-679a-11ec-95d7-270be936ddd4	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 5	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-e6b25a88-5372-4779-a511-98e3bbd335ef.wav	0	1	93	0.5	HI-HAT	1	X
+c3c995d8-679a-11ec-95d7-ff4016a4f5f6	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 6	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-72fd8ecc-524b-49d6-808f-3fcc3fb0c9a3.wav	0	1	93	0.5	HI-HAT	1	X
 d7d542e4-44a3-11ec-870e-7fbeaf4ea351	c2e9eefc-44a3-11ec-ab54-570591c44959	"Hey!" Mid-Phrase w/ Delay	instrument-c2e9eefc-44a3-11ec-ab54-570591c44959-audio-15f1433c-9fdd-41f2-9e4d-e0333d2f5ac8.wav	4.5	0	120	0.5	SMALL	1.3	X
+970c9c26-6799-11ec-819d-ff66c6d2b00f	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 21	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-b2dfb392-eca3-4f1c-88b7-ad79da4a3c42.wav	0	1	93	0.5	SNARE 	1	X
+c87e886e-6799-11ec-819d-9b287db6e089	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 24	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-f87f3f49-b7ff-47c2-911f-95667bd9e7c9.wav	0	1	93	0.5	SNARE	1	X
+dc124500-6799-11ec-819d-2f509d128d2a	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 25	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-1f151e5b-e7f0-4d3a-abf0-0d3bdc94c449.wav	0	1	93	0.5	SNARE	1	X
+1de5964e-679a-11ec-819d-6b026cba09a4	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 1	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-cf3a7ffc-bd40-4de3-900e-ddeaf7e77101.wav	0	1	93	0.5	HI-HAT	1	X
+4dec4e96-679a-11ec-819d-fff7fd2ac7d9	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 4	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-53439494-41e0-46f0-938b-bc5bbf10d648.wav	0	1	93	0.5	HI-HAT	1	X
 667bae90-c6b8-11ea-bf1e-c7664d6ed818	430097b4-c6b8-11ea-bf1e-5f5392f83f6a	Wind.Small.2.Kick	instrument-430097b4-c6b8-11ea-bf1e-5f5392f83f6a-audio-0dbc9d3c-d0ff-4928-9329-3aec773a9451.wav	0	1	130	0.5	KICK	1	x
 7286e508-c6ca-11ea-b6c0-57c13b66ceeb	d9dd91c6-c6c9-11ea-a21e-0bcae3c78831	Water.Large.2.Snare	d8e5b433-1e3f-427a-a1e7-06d37b97c1b1-instrument-d9dd91c6-c6c9-11ea-a21e-0bcae3c78831-audio.wav	0	1	115	0.5	SNARE	0.5	x
 f7e92392-44a4-11ec-8c75-270209f0f4cd	c2e9eefc-44a3-11ec-ab54-570591c44959	"Huh!" Mod Mid-Phrase w/ Delay	instrument-c2e9eefc-44a3-11ec-ab54-570591c44959-audio-3cd15432-cb79-4fb7-bd1a-6bb9ba46a616.wav	4.5	0	120	0.5	SMALL	1.3	X
+86c29848-679e-11ec-9a7f-e38cf52d0c37	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 7	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-278d39a5-b46e-45a6-9710-4b7a5ae8181a.wav	0	1	93	0.5	HI-HAT	1	X
+271ec0aa-679f-11ec-9a7f-affcfcfa983c	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 13	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-b49e4852-355e-48ff-ae97-b100469f983a.wav	0	1	93	0.5	HI-HAT 	1	X
+68e14cb4-67a0-11ec-9a7f-5b4ed3c68944	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 15	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-d50e3bcf-3996-4165-86f1-bc1938a2ae24.wav	0	1	93	0.5	HI-HAT	1	X
 6e0a614c-2aa8-11ec-8789-8f0381cd5c71	1a866750-2aa8-11ec-8789-63165bbd43fe	D#5	instrument-1a866750-2aa8-11ec-8789-63165bbd43fe-audio-8747dcdd-c45a-43a1-9c4e-798099c0c008.wav	0	1	120	0.5	STRIPE	1	D#5
 8cc2cb3e-2ab6-11ec-9fa5-6fecae3ca0a3	5621abd6-2ab6-11ec-9fa5-1f15d94a00a5	D5	instrument-5621abd6-2ab6-11ec-9fa5-1f15d94a00a5-audio-4f2bb038-a9a7-416d-937f-3b723d2233bc.wav	9	1	120	0.5	STRIPE	1	D5
 1fd55bb8-ac07-4383-9003-b84791701f1c	b5901ace-1cae-11eb-bb72-1762d9f73e0c	C2	instrument-b5901ace-1cae-11eb-bb72-1762d9f73e0c-audio-cd1acd56-501c-4d92-860b-c7bc8993e5cb.wav	0	1	120	0.5	STAB	0.7	C2
 263a006c-44ab-11ec-a6e7-7bee76351bd6	c2e9eefc-44a3-11ec-ab54-570591c44959	Pitched Up "Aowe" w/ Delay	instrument-c2e9eefc-44a3-11ec-ab54-570591c44959-audio-af4c2267-c700-49bc-ace1-01b2968aaad8.wav	2	0	120	0.5	SMALL	1.3	X
+96c757d8-679e-11ec-959a-67aaa607a72c	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 8	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-b600452f-b9e3-4511-a9e0-264ded92d9a5.wav	0	1	93	0.5	HI-HAT	1	X
+a78fb34e-679e-11ec-959a-97ddb158f16a	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 9	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-1134e014-1ed7-452f-9275-81be19202f51.wav	0	1	93	0.5	HI-HAT	1	X
+bfc2364e-679e-11ec-959a-ff6437b90d9b	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 10	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-9d505b77-3cff-4b3d-8acf-f98aebfff0bb.wav	0	1	93	0.5	HI-HAT	1	X
+f3b8be6e-679e-11ec-959a-2f6879512bcc	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 11	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-0ea968d6-b689-49fd-b9fc-fd1325d88e45.wav	0	1	93	0.5	HI-HAT	1	X
+013a87e8-679f-11ec-959a-cf5769fdb96d	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 12	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-4587508a-3024-4b70-918e-0ed416c52999.wav	0	1	93	0.5	HI-HAT	1	X
+4ff7a284-67a0-11ec-959a-970e345984c1	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 14	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-44d040d3-8cdd-4086-8db6-04a17a91867c.wav	0	1	93	0.5	HI-HAT	1	X
+7a309402-67a0-11ec-959a-7b927e7bf26e	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 16	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-8d522a42-853a-4778-a525-fc0c17ca710e.wav	0	1	93	0.5	HI-HAT	1	X
 64f115e6-433e-4cbb-97d9-f21ba2c0bf77	b5901ace-1cae-11eb-bb72-1762d9f73e0c	D#2	instrument-b5901ace-1cae-11eb-bb72-1762d9f73e0c-audio-6a1dbc53-70ef-4dab-906d-33cc6bd0bbdf.wav	0	1	120	0.5	STAB	0.7	D#2
 e5bbec9c-2abc-11ec-a7e5-07161c23fa82	021885c2-2abc-11ec-8ed8-0fffe10df85e	D#6	instrument-021885c2-2abc-11ec-8ed8-0fffe10df85e-audio-0286adfd-5a9f-4569-b327-ac1fbfc97207.wav	0	1	120	0.5	STRIPE	1.5	D#6
 f1744f02-2abc-11ec-a7e5-1f59831bf87b	021885c2-2abc-11ec-8ed8-0fffe10df85e	E6	instrument-021885c2-2abc-11ec-8ed8-0fffe10df85e-audio-7e8bf2ae-968b-4a18-b238-e8595fc4bf3b.wav	0	1	120	0.5	STRIPE	1.5	E6
 c30e817f-7759-42bf-8210-39ba0a56d0c1	1efc6726-1efb-11eb-aec8-83fff6175034	C3	instrument-1efc6726-1efb-11eb-aec8-83fff6175034-audio-ae533ffd-a288-41b5-95c4-2da939523a89.wav	0	1	120	0.5	STICKY	0.5	C3
 c4009be9-9c00-4811-ab9e-defce7387cbf	1efc6726-1efb-11eb-aec8-83fff6175034	F4	instrument-1efc6726-1efb-11eb-aec8-83fff6175034-audio-ebaf9a5b-55da-4eea-89d8-144c7353ee8d.wav	0	1	120	0.5	STICKY	0.5	F4
+e9c063d2-67a1-11ec-b9ea-139352fd3f55	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 17	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-576cfb8d-516e-4b44-96ef-6d8e215eb7cb.wav	0	1	93	0.5	HI-HAT	1	X
+faf621fa-67a1-11ec-b9ea-9f3496b06def	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 18	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-486afa06-b439-45aa-a223-3cb52d31f514.wav	0	1	93	0.5	HI-HAT 	1	X
+0e381cb4-67a2-11ec-b9ea-6fa48eeb6de7	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 19	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-4876d873-3bad-4061-bbae-d71b3fe8003b.wav	0	1	93	0.5	HI-HAT	1	X
+1ceea872-67a2-11ec-b9ea-9b933f5e6f23	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 20	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-7180ffbc-bcf2-4e90-9b61-889dbcde994d.wav	0	1	93	0.5	HI-HAT	1	X
+2b9f0754-67a2-11ec-b9ea-8f57a35b1106	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 21	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-3bb171a8-5a1f-4584-9fd7-2bfc60fa5a8c.wav	0	1	93	0.5	HI-HAT	1	X
+397c2a5a-67a2-11ec-b9ea-3b174302786e	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 22	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-60f63783-daa6-49cb-a635-f0970f3b2c03.wav	0	1	93	0.5	HI-HAT	1	X
+57c87018-67a2-11ec-b9ea-bb911d539abe	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 24	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-283d5a8a-43c1-4ba9-bf10-f14c33275012.wav	0	1	93	0.5	HI-HAT	1	X
+68fc0124-67a2-11ec-b9ea-fb1323b5b85c	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 25	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-e3868c76-aa6e-4044-9ece-1373520a937b.wav	0	1	93	0.5	HI-HAT	0.5	X
+b1bf814c-67a2-11ec-b9ea-1f7094a60a0c	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 28	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-ea81ed0c-2cd1-4db0-92e4-f862b452dd07.wav	0	1	93	0.5	HI-HAT	1	X
 72684ffc-2ab6-11ec-9fa5-c334f0c7788c	5621abd6-2ab6-11ec-9fa5-1f15d94a00a5	C5	instrument-5621abd6-2ab6-11ec-9fa5-1f15d94a00a5-audio-679642d0-e767-4735-a6d3-cae52d7b08b2.wav	0	1	120	0.5	STRIPE	1	C5
 e156787a-316a-11ec-87bc-7bddb2e9f661	39582db6-02e0-11ec-9cd8-138a25e9d4dc	Triangle Pattern 9	instrument-d42b52f6-316a-11ec-ab3c-83abcf0260e8-audio-34af7e60-7eda-4443-a1d9-7d88b03d65c2.wav	0	4	120	0.5	TRILOOP	0.25	X
 8640caba-6818-40f5-bef4-3f493c193b62	b5901ace-1cae-11eb-bb72-1762d9f73e0c	E3	instrument-b5901ace-1cae-11eb-bb72-1762d9f73e0c-audio-4961dc34-2313-4222-8e76-014ef977f0b2.wav	0	1	120	0.5	STAB	0.7	E3
@@ -3404,6 +3636,9 @@ ffd1d502-2ae8-11ec-9694-5f28ce949900	021885c2-2abc-11ec-8ed8-0fffe10df85e	C#5	in
 a9773a8e-2abc-11ec-8ed8-a3a890232b53	021885c2-2abc-11ec-8ed8-0fffe10df85e	A#5	instrument-021885c2-2abc-11ec-8ed8-0fffe10df85e-audio-3d62340a-07ae-4284-b444-1faea672b9aa.wav	0	1	120	0.5	STRIPE	1.5	A#5
 bd0606f2-2abc-11ec-8ed8-0f840558a587	021885c2-2abc-11ec-8ed8-0fffe10df85e	C6	instrument-021885c2-2abc-11ec-8ed8-0fffe10df85e-audio-e3afae34-c40f-4ba7-9586-fe96760782fc.wav	0	1	120	0.5	STRIPE	1.5	C6
 db993d6e-2abc-11ec-a7e5-db0205562451	021885c2-2abc-11ec-8ed8-0fffe10df85e	D6	instrument-021885c2-2abc-11ec-8ed8-0fffe10df85e-audio-978fcfca-f229-47ef-acf3-0ced68b82e77.wav	0	1	120	0.5	STRIPE	1.5	D6
+467fcc48-67a2-11ec-9351-53941789ac70	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 23	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-7325c969-a192-4823-9c55-d5c8463278e7.wav	0	1	93	0.5	HI-HAT	1	X
+847fa70c-67a2-11ec-9351-6f65d152946c	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 26	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-07430f53-545f-4ede-8ac4-197c070b105a.wav	0	1	93	0.5	HI-HAT	1	X
+9460a702-67a2-11ec-9351-cf508eda59e8	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 27	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-950fedd6-d24c-4dc7-8ee8-643521f0dfc8.wav	0	1	93	0.5	HI-HAT	0.5	X
 cc61379a-0a72-11eb-a84c-47775e50759e	1860788a-16eb-11ea-8a37-87eb83753fe4	Test	instrument-1860788a-16eb-11ea-8a37-87eb83753fe4-audio-a7773a04-b8fd-483e-abf5-50fb9fa2e2d7.wav	0	1	120	0.5	\N	\N	\N
 02a5e168-1ef8-11eb-a4e2-57cf2d1fbcfb	7de67650-1ef6-11eb-8df3-bf5a46b7b953	G#2	instrument-7de67650-1ef6-11eb-8df3-bf5a46b7b953-audio-3fb5395f-a7e3-4ea2-8c6d-421dfa51147e.wav	0	1	120	0.5	STICKY	1.4	G#2
 8e701402-bd7c-11eb-97b1-1bae164af6a5	212cb21a-bd7c-11eb-b952-3b36714174d2	A1	instrument-212cb21a-bd7c-11eb-b952-3b36714174d2-audio-42040d0c-d5a5-4754-9db1-d8584c1bb7c3.wav	0	1	120	0	BASS	1	A1
@@ -4617,70 +4852,70 @@ db1e207a-c6c7-11ea-a618-d729d5df693d	09e94f98-c6c7-11ea-b647-8766c0d05d20	Water.
 84dcd3e6-5c85-11ec-bb68-73ae1d9266a0	aaf7238e-5c84-11ec-bb68-0fe3399a4a77	Live Sticky Guitar 5	instrument-aaf7238e-5c84-11ec-bb68-0fe3399a4a77-audio-6cd4ab26-4189-4c22-ad96-0d55cc8a1c2a.wav	0	8	120	0.5	STICKYLOOP	1	G3, A3, B3, D4, E4, G4
 5606c56a-c6ca-11ea-b6c0-c71a4b24363c	d9dd91c6-c6c9-11ea-a21e-0bcae3c78831	Water.Large.2.Kick	a77410a0-68d3-4fbf-b399-fdf33ec02c64-instrument-d9dd91c6-c6c9-11ea-a21e-0bcae3c78831-audio.wav	0	1	115	0.5	KICK	0.5	X
 3d95f702-c6c1-11ea-a4db-a391b1873215	a940a2c8-c6c0-11ea-a4db-27c57fde98ce	Fire.Large.1.HatOpen	8e88e600-b873-4ad0-98d1-f0f8f106a1bd-instrument-a940a2c8-c6c0-11ea-a4db-27c57fde98ce-audio.wav	0	1	120	0.5	HIHATOP	0.8	X
-4db1a93d-11c1-449c-a9a4-649de45e9466	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	F#1	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-1c869678-9945-4e4b-ae5d-e47a054a5ab7.wav	0	16	15	0.5	STICKY	1	F#1
-c484d1f3-73b7-431d-bbb2-9e45d0329bef	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	G1	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-6f445164-b188-48cd-ba04-c46d0dfee664.wav	0	16	15	0.5	STICKY	1	G1
-a5b84aee-35a8-49f4-9bc2-9ef997c2d6e2	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	G#1	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-b88bbeca-c2d9-403a-a26a-e6ecaf811b23.wav	0	16	15	0.5	STICKY	1	G#1
-55d36212-63f7-4b3f-9a33-f23c2760cda7	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	A1	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-3304936e-cbe5-46a6-aa9d-e4ce362d9926.wav	0	16	15	0.5	STICKY	1	A1
-75905000-567c-4d1b-9929-976dc53134a1	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	C#2	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-03ddc08d-9ce6-4227-b509-a12a884a44e2.wav	0	16	15	0.5	STICKY	1	C#2
-8c781425-edb0-4369-bf39-4f2e4d349cd8	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	D#2	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-dd772581-9c9f-45f4-a450-0c9b89a2cde7.wav	0	16	15	0.5	STICKY	1	D#2
-34baca36-1750-417d-a4f0-d3fa51e8b187	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	D#5	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-74e381eb-bead-43c2-9423-dadddddb95ff.wav	0	16	15	0.5	STICKY	0.7	D#5
-b308b249-dd29-4c87-8154-a46456ca4d57	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	D2	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-be51e627-4fde-4b6a-ab88-5e3bc28ccdb5.wav	0	16	15	0.5	STICKY	1	D2
-3941e521-412b-45bd-b415-a6779b413bee	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	E2	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-ebc26500-0689-4561-b9dd-0c391eb1c90c.wav	0	16	15	0.5	STICKY	1	E2
-ab00388e-d4d3-4527-8dd4-1f15e5dcfc0c	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	G#2	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-424ec255-c8de-4301-a795-e4e434a3fce2.wav	0	16	15	0.5	STICKY	1	G#2
-12da1b73-2f29-43a4-8713-8780d16d6484	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	F#2	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-73e48dd1-04d7-46b1-abee-e34c17505329.wav	0	16	15	0.5	STICKY	1	F#2
-f8272b69-e335-4776-9b2f-5736b9d75879	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	A2	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-9a88596f-5805-4e91-bb1e-7b59dc302fe7.wav	0	16	15	0.5	STICKY	1	A2
-a25dfe65-bff1-4b62-9e18-911d946ff4a1	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	A#2	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-270c7760-5222-4d26-bd22-4a0704c173c4.wav	0	16	15	0.5	STICKY	1	A#2
-f1e77d63-2119-491b-be8a-b0ae3b20c676	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	C3	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-b3e0cf53-3210-4f69-a3b5-e04a7e658189.wav	0	16	15	0.5	STICKY	1	C3
-9201d688-0566-4e8e-b09d-862249dd25c7	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	C#3	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-651f4335-2dae-44f3-99ed-3e11afc2831c.wav	0	16	15	0.5	STICKY	1	C#3
-73e790cb-d530-4eaa-abb0-92b6a3c3eab4	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	D3	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-075ac156-767a-4973-b3c7-76971f58ac0d.wav	0	16	15	0.5	STICKY	1	D3
-cec648d0-3719-4f30-87d8-e41682a938b5	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	D#3	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-422f06df-508c-482f-b313-b7e2c553135c.wav	0	16	15	0.5	STICKY	1	D#3
-59d1625d-b1ae-4dfc-be43-97c51812af57	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	E3	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-2ed83106-d62d-4e07-896e-eebbbfec298c.wav	0	16	15	0.5	STICKY	1	E3
-ae1bc34f-6475-49d1-bd53-d18508ebb34c	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	F3	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-914340fd-9c97-4a69-a8b0-4febbbb204a6.wav	0	16	15	0.5	STICKY	1	F3
-44f5f39a-4e4d-4438-9dac-a26c058c8f54	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	G3	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-66888573-910d-4ea5-b692-980edb533442.wav	0	16	15	0.5	STICKY	1	G3
-cffc041e-8da0-4624-b992-2984081a9424	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	G#3	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-c6035961-f0aa-458a-8d25-ea925bbf2838.wav	0	16	15	0.5	STICKY	1	G#3
-e7fd4c42-53e5-4c10-96cf-027df7f5d876	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	D4	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-d2cd778b-7e7f-4a6f-8952-f89b760fc882.wav	0	16	15	0.5	STICKY	0.7	D4
+c484d1f3-73b7-431d-bbb2-9e45d0329bef	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	G1	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-6f445164-b188-48cd-ba04-c46d0dfee664.wav	0	16	15	0.5	STICKY	0.7	G1
+a5b84aee-35a8-49f4-9bc2-9ef997c2d6e2	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	G#1	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-b88bbeca-c2d9-403a-a26a-e6ecaf811b23.wav	0	16	15	0.5	STICKY	0.7	G#1
+55d36212-63f7-4b3f-9a33-f23c2760cda7	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	A1	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-3304936e-cbe5-46a6-aa9d-e4ce362d9926.wav	0	16	15	0.5	STICKY	0.7	A1
+75905000-567c-4d1b-9929-976dc53134a1	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	C#2	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-03ddc08d-9ce6-4227-b509-a12a884a44e2.wav	0	16	15	0.5	STICKY	0.7	C#2
+b308b249-dd29-4c87-8154-a46456ca4d57	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	D2	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-be51e627-4fde-4b6a-ab88-5e3bc28ccdb5.wav	0	16	15	0.5	STICKY	0.7	D2
+3941e521-412b-45bd-b415-a6779b413bee	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	E2	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-ebc26500-0689-4561-b9dd-0c391eb1c90c.wav	0	16	15	0.5	STICKY	0.7	E2
+3068aa8e-1c1d-47a2-ba73-a65816b9f3d1	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	G#5	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-a2c5c134-7002-4c6a-ba5d-bfed8df19186.wav	0	16	15	0.5	STICKY	0.4	G#5
+8c781425-edb0-4369-bf39-4f2e4d349cd8	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	D#2	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-dd772581-9c9f-45f4-a450-0c9b89a2cde7.wav	0	16	15	0.5	STICKY	0.7	D#2
+12da1b73-2f29-43a4-8713-8780d16d6484	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	F#2	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-73e48dd1-04d7-46b1-abee-e34c17505329.wav	0	16	15	0.5	STICKY	0.7	F#2
+f8272b69-e335-4776-9b2f-5736b9d75879	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	A2	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-9a88596f-5805-4e91-bb1e-7b59dc302fe7.wav	0	16	15	0.5	STICKY	0.7	A2
+ab00388e-d4d3-4527-8dd4-1f15e5dcfc0c	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	G#2	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-424ec255-c8de-4301-a795-e4e434a3fce2.wav	0	16	15	0.5	STICKY	0.7	G#2
+a25dfe65-bff1-4b62-9e18-911d946ff4a1	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	A#2	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-270c7760-5222-4d26-bd22-4a0704c173c4.wav	0	16	15	0.5	STICKY	0.7	A#2
+f1e77d63-2119-491b-be8a-b0ae3b20c676	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	C3	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-b3e0cf53-3210-4f69-a3b5-e04a7e658189.wav	0	16	15	0.5	STICKY	0.7	C3
+9201d688-0566-4e8e-b09d-862249dd25c7	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	C#3	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-651f4335-2dae-44f3-99ed-3e11afc2831c.wav	0	16	15	0.5	STICKY	0.7	C#3
+73e790cb-d530-4eaa-abb0-92b6a3c3eab4	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	D3	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-075ac156-767a-4973-b3c7-76971f58ac0d.wav	0	16	15	0.5	STICKY	0.7	D3
+cec648d0-3719-4f30-87d8-e41682a938b5	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	D#3	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-422f06df-508c-482f-b313-b7e2c553135c.wav	0	16	15	0.5	STICKY	0.7	D#3
+59d1625d-b1ae-4dfc-be43-97c51812af57	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	E3	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-2ed83106-d62d-4e07-896e-eebbbfec298c.wav	0	16	15	0.5	STICKY	0.7	E3
+ae1bc34f-6475-49d1-bd53-d18508ebb34c	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	F3	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-914340fd-9c97-4a69-a8b0-4febbbb204a6.wav	0	16	15	0.5	STICKY	0.7	F3
+44f5f39a-4e4d-4438-9dac-a26c058c8f54	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	G3	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-66888573-910d-4ea5-b692-980edb533442.wav	0	16	15	0.5	STICKY	0.7	G3
+cffc041e-8da0-4624-b992-2984081a9424	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	G#3	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-c6035961-f0aa-458a-8d25-ea925bbf2838.wav	0	16	15	0.5	STICKY	0.7	G#3
+e7fd4c42-53e5-4c10-96cf-027df7f5d876	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	D4	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-d2cd778b-7e7f-4a6f-8952-f89b760fc882.wav	0	16	15	0.5	STICKY	0.4	D4
+6e501009-8bce-4b35-ae6c-08fba477c90c	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	D#4	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-003cf57e-3059-455f-89d5-9d5b7baa7b2f.wav	0	16	15	0.5	STICKY	0.4	D#4
 f38a7a68-2b36-4b7a-8692-17750515a312	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	C5	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-ced46158-5f57-457a-830f-bd222d3a6df6.wav	0	16	15	0.5	STICKY	0.6	C5
-3068aa8e-1c1d-47a2-ba73-a65816b9f3d1	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	G#5	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-a2c5c134-7002-4c6a-ba5d-bfed8df19186.wav	0	16	15	0.5	STICKY	0.7	G#5
-6e501009-8bce-4b35-ae6c-08fba477c90c	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	D#4	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-003cf57e-3059-455f-89d5-9d5b7baa7b2f.wav	0	16	15	0.5	STICKY	0.7	D#4
-e18758c6-9b2a-4d1d-87c7-dcfa609c3124	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	G4	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-1ba96cdd-6078-4106-a551-f8a6e023a109.wav	0	16	15	0.5	STICKY	0.8	G4
-cc46f22f-c5ab-4535-9333-4390cab74501	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	B4	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-67db9a1e-4289-413f-82c5-97e4480ab062.wav	0	16	15	0.5	STICKY	0.8	B4
-b6ccab46-4c79-4fd9-ac54-8311428626f6	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	E5	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-a6919422-83f6-4100-8473-c3da55f95271.wav	0	16	15	0.5	STICKY	0.7	E5
-962ee61e-454b-4609-b2b9-c4b00605e6ff	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	D5	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-ce25adf1-8804-47b5-a184-2aa185fd4df5.wav	0	16	15	0.5	STICKY	0.7	D5
-d645d25a-cb5d-4391-bd8d-0f3ba1bfc8fe	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	B5	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-a961f5be-199b-4c9d-bdca-30f773c30ea6.wav	0	16	15	0.5	STICKY	0.7	B5
-7940aa34-818e-4bf5-9c0c-1af5c875a297	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	A#5	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-7c8192d9-586b-4067-a4cf-a746840aacab.wav	0	16	15	0.5	STICKY	0.7	A#5
-2894b253-21e2-439c-ac77-867f724445fd	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	C#5	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-44e6a47d-65b4-4a7f-a5e0-4a7dc8a5fd70.wav	0	16	15	0.5	STICKY	0.7	C#5
-6f185a71-b60f-40cc-9aab-f02ee2bfd8ec	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	C#1	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-48ae0a57-8fbf-4de5-ab17-becbfd3cabd4.wav	0	16	15	0.5	STICKY	1	C#1
-1b53271c-7e47-4ff2-8b35-691935a1cdad	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	D1	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-580031f6-fbab-4652-8daa-1d9ef629dbe9.wav	0	16	15	0.5	STICKY	1	D1
-51895038-ce34-4d63-966d-bcde1f1eb1be	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	D#1	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-27fc3323-0cdb-4d71-84e0-84562391c567.wav	0	16	15	0.5	STICKY	1	D#1
-46a8ba2b-daa9-463c-a5c6-51da697bd637	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	F1	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-ba719692-a10d-4c0b-b4aa-31dce6d03377.wav	0	16	15	0.5	STICKY	1	F1
-99749ded-b942-4553-876c-84977c6c0e95	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	E1	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-958f2ef7-9043-428e-a997-0b0a459c0f47.wav	0	16	15	0.5	STICKY	1	E1
-f42923c4-3ccb-473c-9875-60af8eb67c54	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	A#3	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-56f64bfa-8e13-4836-8db3-47ac584044f4.wav	0	16	15	0.5	STICKY	1	A#3
+7940aa34-818e-4bf5-9c0c-1af5c875a297	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	A#5	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-7c8192d9-586b-4067-a4cf-a746840aacab.wav	0	16	15	0.5	STICKY	0.4	A#5
+2894b253-21e2-439c-ac77-867f724445fd	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	C#5	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-44e6a47d-65b4-4a7f-a5e0-4a7dc8a5fd70.wav	0	16	15	0.5	STICKY	0.5	C#5
+cc46f22f-c5ab-4535-9333-4390cab74501	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	B4	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-67db9a1e-4289-413f-82c5-97e4480ab062.wav	0	16	15	0.5	STICKY	0.5	B4
+962ee61e-454b-4609-b2b9-c4b00605e6ff	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	D5	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-ce25adf1-8804-47b5-a184-2aa185fd4df5.wav	0	16	15	0.5	STICKY	0.4	D5
+34baca36-1750-417d-a4f0-d3fa51e8b187	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	D#5	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-74e381eb-bead-43c2-9423-dadddddb95ff.wav	0	16	15	0.5	STICKY	0.4	D#5
+b6ccab46-4c79-4fd9-ac54-8311428626f6	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	E5	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-a6919422-83f6-4100-8473-c3da55f95271.wav	0	16	15	0.5	STICKY	0.4	E5
+d645d25a-cb5d-4391-bd8d-0f3ba1bfc8fe	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	B5	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-a961f5be-199b-4c9d-bdca-30f773c30ea6.wav	0	16	15	0.5	STICKY	0.4	B5
+e18758c6-9b2a-4d1d-87c7-dcfa609c3124	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	G4	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-1ba96cdd-6078-4106-a551-f8a6e023a109.wav	0	16	15	0.5	STICKY	0.5	G4
+6f185a71-b60f-40cc-9aab-f02ee2bfd8ec	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	C#1	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-48ae0a57-8fbf-4de5-ab17-becbfd3cabd4.wav	0	16	15	0.5	STICKY	0.7	C#1
+1b53271c-7e47-4ff2-8b35-691935a1cdad	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	D1	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-580031f6-fbab-4652-8daa-1d9ef629dbe9.wav	0	16	15	0.5	STICKY	0.7	D1
+51895038-ce34-4d63-966d-bcde1f1eb1be	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	D#1	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-27fc3323-0cdb-4d71-84e0-84562391c567.wav	0	16	15	0.5	STICKY	0.7	D#1
+99749ded-b942-4553-876c-84977c6c0e95	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	E1	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-958f2ef7-9043-428e-a997-0b0a459c0f47.wav	0	16	15	0.5	STICKY	0.7	E1
+4db1a93d-11c1-449c-a9a4-649de45e9466	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	F#1	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-1c869678-9945-4e4b-ae5d-e47a054a5ab7.wav	0	16	15	0.5	STICKY	0.7	F#1
+46a8ba2b-daa9-463c-a5c6-51da697bd637	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	F1	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-ba719692-a10d-4c0b-b4aa-31dce6d03377.wav	0	16	15	0.5	STICKY	0.7	F1
+b7b93bad-70a8-4eeb-9e2e-ea69b39af9c0	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	A#4	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-d863c720-3d77-4d5a-9135-dd3775d07a5e.wav	0	16	15	0.5	STICKY	0.5	A#4
 eac67f3a-c8b3-4a5d-9dcb-271175b33492	4a356e84-1bc6-11eb-b892-5b094429574c	A#3	instrument-4a356e84-1bc6-11eb-b892-5b094429574c-audio-eaf8c815-fd04-4b4d-9c11-3fbfb71651b7.wav	0	1	120	0.5	PAD	0.8	A#3
-550ec557-c764-46dc-8ec3-a19f96d83ddb	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	F#4	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-637fd216-f3f6-441c-a340-45a41cafca2e.wav	0	16	15	0.5	STICKY	0.8	F#4
-5f865c0a-da72-4584-b7c2-dd9066a908b8	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	B3	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-ab548896-0d7a-4d14-86eb-7f56ac531001.wav	0	16	15	0.5	STICKY	1	B3
-f89a0c94-76af-4c54-adc0-3ebf14660158	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	G#4	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-aa4c4071-56af-4e14-b65e-75d402a60fb8.wav	0	16	15	0.5	STICKY	0.8	G#4
-22f74b34-09d2-4592-83b8-fe834f8bc41d	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	A4	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-e2f17624-5caf-4c15-820e-caf0e64b6105.wav	0	16	15	0.5	STICKY	0.8	A4
+11269963-8e6f-455d-9557-fae1a8576b8a	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	F5	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-0eb6b919-ebbf-492a-b008-99a27662879d.wav	0	16	15	0.5	STICKY	0.4	F5
+97d368a5-598e-4580-a93b-0e97f750372c	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	G5	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-9826c78b-a305-4357-88df-1f7bee2f6838.wav	0	16	15	0.5	STICKY	0.4	G5
+b3d31932-bbcf-4d02-a42f-07cfda88f9a7	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	A5	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-8b1bf1e0-84f8-4c9a-84fa-d5f0ccba69c2.wav	0	16	15	0.5	STICKY	0.4	A5
+c880c8e0-760c-4092-9f60-0b872415a517	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	C6	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-c759c85e-50f4-43a0-8a71-c7c1b819ad8c.wav	0	16	15	0.5	STICKY	0.4	C6
 e023e672-5c85-11ec-bb68-d707c27a2217	aaf7238e-5c84-11ec-bb68-0fe3399a4a77	Live Sticky Guitar 6	instrument-aaf7238e-5c84-11ec-bb68-0fe3399a4a77-audio-e2467353-fa07-4d5e-88b5-22850a722fa7.wav	0	8	120	0.5	STICKYLOOP	1	D4
-b7b93bad-70a8-4eeb-9e2e-ea69b39af9c0	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	A#4	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-d863c720-3d77-4d5a-9135-dd3775d07a5e.wav	0	16	15	0.5	STICKY	0.8	A#4
-3082fe7f-6cbb-4562-85ce-da86ee9b218a	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	A#1	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-05c09fd3-b3ac-45bd-b1b0-4143becdcc9f.wav	0	16	15	0.5	STICKY	1	A#1
-f89a89aa-ab68-4d38-a000-efc036fabdb9	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	B1	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-199fb761-e01c-4267-b55b-dc34d63af4e4.wav	0	16	15	0.5	STICKY	1	B1
-770fb0e9-9145-4388-8e6e-46f76e147199	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	C2	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-378b0170-9897-4365-85bf-544f5399fd23.wav	0	16	15	0.5	STICKY	1	C2
-11269963-8e6f-455d-9557-fae1a8576b8a	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	F5	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-0eb6b919-ebbf-492a-b008-99a27662879d.wav	0	16	15	0.5	STICKY	0.7	F5
-1879dc85-b0f9-40f0-a01a-89f246a15b33	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	C#4	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-e9d317d4-28b7-467e-9a2b-11a5e529d134.wav	0	16	15	0.5	STICKY	0.8	C#4
+ae75ef0b-e640-4436-bf63-d3dad66b3844	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	C1	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-2485eb68-e52a-4023-95dc-d1022a5292e8.wav	0	16	15	0.5	STICKY	0.7	C1
+c80a6957-a987-409d-8c56-4d5d08baed6e	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	A3	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-bcdf21a5-78c9-4aa1-bb23-9e0c880509d0.wav	0	16	15	0.5	STICKY	0.7	A3
+f42923c4-3ccb-473c-9875-60af8eb67c54	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	A#3	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-56f64bfa-8e13-4836-8db3-47ac584044f4.wav	0	16	15	0.5	STICKY	0.7	A#3
+5f865c0a-da72-4584-b7c2-dd9066a908b8	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	B3	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-ab548896-0d7a-4d14-86eb-7f56ac531001.wav	0	16	15	0.5	STICKY	0.7	B3
+3082fe7f-6cbb-4562-85ce-da86ee9b218a	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	A#1	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-05c09fd3-b3ac-45bd-b1b0-4143becdcc9f.wav	0	16	15	0.5	STICKY	0.7	A#1
+f89a89aa-ab68-4d38-a000-efc036fabdb9	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	B1	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-199fb761-e01c-4267-b55b-dc34d63af4e4.wav	0	16	15	0.5	STICKY	0.7	B1
 33ffa719-9ff4-4765-ac39-44a64bf4ff23	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	F#5	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-8255b339-ba9d-4e3b-b295-0caab25b0a4f.wav	0	16	15	0.5	STICKY	0.7	F#5
-97d368a5-598e-4580-a93b-0e97f750372c	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	G5	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-9826c78b-a305-4357-88df-1f7bee2f6838.wav	0	16	15	0.5	STICKY	0.7	G5
-ae75ef0b-e640-4436-bf63-d3dad66b3844	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	C1	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-2485eb68-e52a-4023-95dc-d1022a5292e8.wav	0	16	15	0.5	STICKY	1	C1
-b3d31932-bbcf-4d02-a42f-07cfda88f9a7	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	A5	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-8b1bf1e0-84f8-4c9a-84fa-d5f0ccba69c2.wav	0	16	15	0.5	STICKY	0.7	A5
-c880c8e0-760c-4092-9f60-0b872415a517	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	C6	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-c759c85e-50f4-43a0-8a71-c7c1b819ad8c.wav	0	16	15	0.5	STICKY	0.7	C6
-dd5775e3-aff0-4131-b3b7-711f28a477a5	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	F2	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-10270a4b-72e0-4a74-9a87-c0afb4be09e2.wav	0	16	15	0.5	STICKY	1	F2
-0f49b309-10b1-4cf6-b7be-06db5f3fb397	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	G2	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-e52526cd-70ec-4937-a477-8d7525844ea3.wav	0	16	15	0.5	STICKY	1	G2
-d48f3dcc-baaa-4393-96bf-9e33c4971201	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	B2	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-a6b7da75-05c2-4c98-b64d-1e9cfb6cb465.wav	0	16	15	0.5	STICKY	1	B2
-fbe95ca3-d344-497f-8fa1-7b2b4d8c2cec	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	F#3	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-4a8cc4e6-7ca7-4b6e-8e42-d33865cf8663.wav	0	16	15	0.5	STICKY	1	F#3
-c80a6957-a987-409d-8c56-4d5d08baed6e	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	A3	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-bcdf21a5-78c9-4aa1-bb23-9e0c880509d0.wav	0	16	15	0.5	STICKY	1	A3
-099f0fc7-9455-4c9f-b131-49598672c3dc	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	E4	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-1d2980a6-f9bd-42e3-803c-ff4871d7dbb7.wav	0	16	15	0.5	STICKY	0.8	E4
-212567f7-39b7-49de-9f3d-4cf9cc01a103	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	C4	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-374d27d3-2904-4c55-9c51-d516e2c1827b.wav	0	16	15	0.5	STICKY	0.9	C4
-e699671e-8b5b-4aaf-93e6-f39d083fd2d7	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	F4	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-9d812201-70ea-4ca5-907a-a5a126835ab8.wav	0	16	15	0.5	STICKY	0.9	F4
+212567f7-39b7-49de-9f3d-4cf9cc01a103	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	C4	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-374d27d3-2904-4c55-9c51-d516e2c1827b.wav	0	16	15	0.5	STICKY	0.6	C4
+1879dc85-b0f9-40f0-a01a-89f246a15b33	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	C#4	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-e9d317d4-28b7-467e-9a2b-11a5e529d134.wav	0	16	15	0.5	STICKY	0.5	C#4
+099f0fc7-9455-4c9f-b131-49598672c3dc	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	E4	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-1d2980a6-f9bd-42e3-803c-ff4871d7dbb7.wav	0	16	15	0.5	STICKY	0.5	E4
+770fb0e9-9145-4388-8e6e-46f76e147199	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	C2	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-378b0170-9897-4365-85bf-544f5399fd23.wav	0	16	15	0.5	STICKY	0.7	C2
+e699671e-8b5b-4aaf-93e6-f39d083fd2d7	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	F4	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-9d812201-70ea-4ca5-907a-a5a126835ab8.wav	0	16	15	0.5	STICKY	0.6	F4
+550ec557-c764-46dc-8ec3-a19f96d83ddb	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	F#4	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-637fd216-f3f6-441c-a340-45a41cafca2e.wav	0	16	15	0.5	STICKY	0.5	F#4
+dd5775e3-aff0-4131-b3b7-711f28a477a5	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	F2	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-10270a4b-72e0-4a74-9a87-c0afb4be09e2.wav	0	16	15	0.5	STICKY	0.7	F2
+0f49b309-10b1-4cf6-b7be-06db5f3fb397	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	G2	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-e52526cd-70ec-4937-a477-8d7525844ea3.wav	0	16	15	0.5	STICKY	0.7	G2
+f89a0c94-76af-4c54-adc0-3ebf14660158	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	G#4	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-aa4c4071-56af-4e14-b65e-75d402a60fb8.wav	0	16	15	0.5	STICKY	0.5	G#4
+d48f3dcc-baaa-4393-96bf-9e33c4971201	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	B2	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-a6b7da75-05c2-4c98-b64d-1e9cfb6cb465.wav	0	16	15	0.5	STICKY	0.7	B2
 3531fed4-5c85-11ec-adf3-bb7b33865339	aaf7238e-5c84-11ec-bb68-0fe3399a4a77	Live Sticky Guitar 3	instrument-aaf7238e-5c84-11ec-bb68-0fe3399a4a77-audio-7a663c8b-114e-4a9f-8c2b-8a4e964d5c86.wav	0	8	120	0.5	STICKYLOOP	1	G3
+fbe95ca3-d344-497f-8fa1-7b2b4d8c2cec	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	F#3	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-4a8cc4e6-7ca7-4b6e-8e42-d33865cf8663.wav	0	16	15	0.5	STICKY	0.7	F#3
+22f74b34-09d2-4592-83b8-fe834f8bc41d	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	A4	instrument-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf-audio-e2f17624-5caf-4c15-820e-caf0e64b6105.wav	0	16	15	0.5	STICKY	0.5	A4
 3b18bf25-c19b-4974-9a4e-655da275fd6e	e623d174-3b4f-11ec-9094-a3c12170b9ad	Ugh	8c37b691-4b93-47e8-9bbf-3821bdaf1bbc-instrument-4-audio.wav	0	1	120	0.6	\N	\N	\N
 b0c99ffb-3d89-4660-bd11-7615673855d2	e623d174-3b4f-11ec-9094-a3c12170b9ad	Snare Rim 5	d404857a-6bf8-43c4-ad76-5259945d16fe-instrument-4-audio.wav	0	1	120	0.6	SNARE	1	x
 a3b73fcb-7a39-4094-bf2b-2281378e21ff	e623d174-3b4f-11ec-9094-a3c12170b9ad	Conga High	511f5a68-1eca-4ca3-9713-956a219d734c-instrument-4-audio.wav	0.002	1	120	0.6	TOM	1	x
@@ -5338,13 +5573,13 @@ f1e34ecd-3dc2-4c4e-b352-f9b4f6030de5	de939cd8-61f5-11ec-aa6d-8f62319d4097	F#5.1	
 6256ab93-6aa7-4e3f-96f5-02050b10af0d	de939cd8-61f5-11ec-aa6d-8f62319d4097	B5.1	instrument-6ac9115e-6153-11ec-99f6-8b04e8421e3e-audio-13563022-2a76-4cea-9ee1-4b5b800ef863.wav	0	12	30	0.5	STRIPE	1	B5
 32535c13-e95b-48de-a768-e9103c978e3e	de939cd8-61f5-11ec-aa6d-8f62319d4097	G5.2	instrument-6ac9115e-6153-11ec-99f6-8b04e8421e3e-audio-6d2273d9-edc1-4a79-9f78-7e08b4da2355.wav	0	12	30	0.5	STRIPE	1	G5
 3d553d45-9241-4a4e-b79c-15eff839b34d	de939cd8-61f5-11ec-aa6d-8f62319d4097	A#5.2	instrument-6ac9115e-6153-11ec-99f6-8b04e8421e3e-audio-8c27d855-156e-4f03-9c95-dd77d8511752.wav	0	12	30	0.5	STRIPE	1	A#5
-2c936504-6213-11ec-a7b8-0fe640f5cde7	11d618f6-6213-11ec-a7b8-8fea81505b31	C3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-cb319981-d374-42c7-8872-82de2e70a305.wav	0	8	60	0.5	STRIPE	1	C3
-3411828e-6213-11ec-a7b8-ab5c0b51b7e2	11d618f6-6213-11ec-a7b8-8fea81505b31	C#3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-214e57fe-c2ba-4be9-a574-31017d1b30a6.wav	0	8	60	0.5	STRIPE	1	C#3
-3d84ba2a-6213-11ec-a7b8-aba1effcb383	11d618f6-6213-11ec-a7b8-8fea81505b31	D3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-79b17c3d-080c-4010-840a-91d85f08b8dc.wav	0	8	60	0.5	STRIPE	1	D3
-468503be-6213-11ec-a7b8-5f99e597e29d	11d618f6-6213-11ec-a7b8-8fea81505b31	D#3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-f7ad7a8d-d582-421a-ab64-93c8294eaeaf.wav	0	8	60	0.5	STRIPE	1	D#3
-5479c61c-6213-11ec-a7b8-b3d46a85fdff	11d618f6-6213-11ec-a7b8-8fea81505b31	E3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-291c70a8-7447-4fa5-b793-ff5031c4ae2c.wav	0	8	60	0.5	STRIPE	1	E3
-5e1420be-6213-11ec-a7b8-cb7dc0bb525e	11d618f6-6213-11ec-a7b8-8fea81505b31	F3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-cce45144-0d5d-4268-bd46-a16cc3cfa3f5.wav	0	8	60	0.5	STRIPE	1	F3
-6d2061a8-6213-11ec-a7b8-ab81e6f40755	11d618f6-6213-11ec-a7b8-8fea81505b31	G3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-7f689294-54db-435a-8c3c-6a4a1356916a.wav	0	8	60	0.5	STRIPE	1	G3
+468503be-6213-11ec-a7b8-5f99e597e29d	11d618f6-6213-11ec-a7b8-8fea81505b31	D#3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-66a841ae-9f7a-4198-832d-d533136c6176.wav	0	8	60	0.5	STRIPE	0.3	D#3
+5479c61c-6213-11ec-a7b8-b3d46a85fdff	11d618f6-6213-11ec-a7b8-8fea81505b31	E3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-35046b84-f8ed-4102-8272-8e4d4cd13a59.wav	0	8	60	0.5	STRIPE	0.3	E3
+5e1420be-6213-11ec-a7b8-cb7dc0bb525e	11d618f6-6213-11ec-a7b8-8fea81505b31	F3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-9cdcf701-1dd3-483c-8d7f-ebaba90d02d7.wav	0	8	60	0.5	STRIPE	0.3	F3
+6d2061a8-6213-11ec-a7b8-ab81e6f40755	11d618f6-6213-11ec-a7b8-8fea81505b31	G3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-e84a0738-4ee5-4902-b724-f83110430a66.wav	0	8	60	0.5	STRIPE	0.3	G3
+7467304a-6213-11ec-a7b8-ef5da14b3f67	11d618f6-6213-11ec-a7b8-8fea81505b31	G#3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-671c3bab-7433-4fe4-a5d8-21fc40440a44.wav	0	8	60	0.5	STRIPE	0.3	G#3
+7c005566-6213-11ec-a7b8-a75216dd213b	11d618f6-6213-11ec-a7b8-8fea81505b31	A3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-62358a69-4a96-4be1-91b0-3b493a2a399c.wav	0	8	60	0.5	STRIPE	0.3	A3
+83de3262-6213-11ec-a7b8-f7e6389a278b	11d618f6-6213-11ec-a7b8-8fea81505b31	A#3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-338f69fe-081e-400c-8044-8c99b66e0edb.wav	0	8	60	0.5	STRIPE	0.3	A#3
 1091ca0e-442b-11ec-8a7c-1343b5cd70bc	f58a20da-442a-11ec-8a5f-175152e4431c	Sim Tom Fill 2	instrument-f58a20da-442a-11ec-8a5f-175152e4431c-audio-8b8ec392-f4b6-4c93-a9fd-1c9eea86f7e2.wav	2	0	120	0.5	MEDIUM	0.7	X
 b7a8c133-139a-4673-a0e9-6c2a03dc9338	d31b3b7c-6213-11ec-a7b8-6b12eae3858a	F#2	instrument-6ac9115e-6153-11ec-99f6-8b04e8421e3e-audio-dac7d89e-e3f0-4226-ae3d-ae634e5e0e13.wav	0	12	30	0.5	STRIPE	1	F#2
 e2507b65-6110-4ddf-8fb7-4922f943e3c0	d31b3b7c-6213-11ec-a7b8-6b12eae3858a	G#2	instrument-6ac9115e-6153-11ec-99f6-8b04e8421e3e-audio-60e88c0d-8bd8-4b8d-b4b2-0de1fcc0ce2e.wav	0	12	30	0.5	STRIPE	1	G#2
@@ -5372,21 +5607,21 @@ d41851ce-34aa-4ad5-ad14-f8676d4dc368	d31b3b7c-6213-11ec-a7b8-6b12eae3858a	D#5	in
 82c7ad1c-557d-47fc-870e-4ce97f44ffe1	d31b3b7c-6213-11ec-a7b8-6b12eae3858a	C#2	instrument-6ac9115e-6153-11ec-99f6-8b04e8421e3e-audio-6f665ee7-ac75-4b7e-8531-73e8c6bde50b.wav	0	12	30	0.5	STRIPE	1	C#2
 91144197-5080-408c-a36b-c82102e287ba	d31b3b7c-6213-11ec-a7b8-6b12eae3858a	D2	instrument-6ac9115e-6153-11ec-99f6-8b04e8421e3e-audio-5362788e-5502-4eb3-875d-33e54d2fde90.wav	0	12	30	0.5	STRIPE	1	D2
 cb318948-2b60-4ce7-8422-fd38362306fc	d31b3b7c-6213-11ec-a7b8-6b12eae3858a	D#2	instrument-6ac9115e-6153-11ec-99f6-8b04e8421e3e-audio-cd58e8ca-c8d5-49ef-a1bc-5364031d5aa7.wav	0	12	30	0.5	STRIPE	1	D#2
-7467304a-6213-11ec-a7b8-ef5da14b3f67	11d618f6-6213-11ec-a7b8-8fea81505b31	G#3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-e176cc8d-ecc8-4cde-9004-be5ec1667051.wav	0	8	60	0.5	STRIPE	1	G#3
-7c005566-6213-11ec-a7b8-a75216dd213b	11d618f6-6213-11ec-a7b8-8fea81505b31	A3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-63afa835-8871-430e-abfe-cd4df4a24df0.wav	0	8	60	0.5	STRIPE	1	A3
-83de3262-6213-11ec-a7b8-f7e6389a278b	11d618f6-6213-11ec-a7b8-8fea81505b31	A#3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-9a8abc21-97e6-4a03-90a5-f91da81d554f.wav	0	8	60	0.5	STRIPE	1	A#3
-8d029388-6213-11ec-a7b8-7becae423931	11d618f6-6213-11ec-a7b8-8fea81505b31	B3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-855c0302-7b90-43d4-8d06-eacf84ee5a6e.wav	0	8	60	0.5	STRIPE	1	B3
+8d029388-6213-11ec-a7b8-7becae423931	11d618f6-6213-11ec-a7b8-8fea81505b31	B3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-d964b86d-548f-4447-b3f7-bec1e8c8f98a.wav	0	8	60	0.5	STRIPE	0.3	B3
+2c936504-6213-11ec-a7b8-0fe640f5cde7	11d618f6-6213-11ec-a7b8-8fea81505b31	C3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-191392cd-f91d-4170-959d-6e21fad18d33.wav	0	8	60	0.5	STRIPE	0.3	C3
+3411828e-6213-11ec-a7b8-ab5c0b51b7e2	11d618f6-6213-11ec-a7b8-8fea81505b31	C#3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-18e2140d-780a-4fb0-a1f1-7c553e6cb14f.wav	0	8	60	0.5	STRIPE	0.3	C#3
+3d84ba2a-6213-11ec-a7b8-aba1effcb383	11d618f6-6213-11ec-a7b8-8fea81505b31	D3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-6dd4218e-8e19-4f9a-bc1f-c23803aaa19e.wav	0	8	60	0.5	STRIPE	0.3	D3
+65837908-6213-11ec-a04b-03ceeebbe0b2	11d618f6-6213-11ec-a7b8-8fea81505b31	F#3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-e32cef68-9626-4800-8510-c11ed6596cfa.wav	0	8	60	0.5	STRIPE	0.3	F#3
 40758666-442b-11ec-b842-4b1de0d849b0	f58a20da-442a-11ec-8a5f-175152e4431c	Sim Tom Fill 1	instrument-f58a20da-442a-11ec-8a5f-175152e4431c-audio-23a3a954-273c-4824-9f65-264cd78931d1.wav	2	0	120	0.5	MEDIUM	0.7	X
 843eb058-c6c7-11ea-b647-0b1d36567cd5	09e94f98-c6c7-11ea-b647-8766c0d05d20	Water.Small.1.Snare.V2	instrument-09e94f98-c6c7-11ea-b647-8766c0d05d20-audio-e19d5a93-f344-4a6d-a2d0-81695cafd035.wav	0	1	115	0.5	SNARE	1	X
-65837908-6213-11ec-a04b-03ceeebbe0b2	11d618f6-6213-11ec-a7b8-8fea81505b31	F#3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-7732578e-ec95-405a-81c2-f7b9585d3f8c.wav	0	8	60	0.5	STRIPE	1	F#3
-aabdc582-6213-11ec-a04b-2bcd5a3e0f5e	11d618f6-6213-11ec-a7b8-8fea81505b31	C4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-21059316-ccf9-4b6f-845e-1927ed5bb91e.wav	0	8	8	0.5	STRIPE	1	C4
-b2e659cc-6213-11ec-a04b-47b1f8dedbc9	11d618f6-6213-11ec-a7b8-8fea81505b31	C#4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-afeb20ae-b97c-4dab-961b-d2d9343cd49c.wav	0	8	60	0.5	STRIPE	1	C#4
-bded6b6c-6213-11ec-a04b-47694cc7a8ff	11d618f6-6213-11ec-a7b8-8fea81505b31	D4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-2562b5ee-1b37-47ce-b82c-568ac99b3d5e.wav	0	8	60	0.5	STRIPE	1	D4
-fba0a0e6-6213-11ec-a04b-6bf3c5689120	11d618f6-6213-11ec-a7b8-8fea81505b31	E4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-c23f5b5c-d6ed-4e06-a33a-02ab1cd45781.wav	0	8	60	0.5	STRIPE	1	E4
-0ba41d06-6214-11ec-a04b-f398f280d7c5	11d618f6-6213-11ec-a7b8-8fea81505b31	F#4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-02621963-6294-4ad4-b8b4-e4edfe687aa2.wav	0	8	60	0.5	STRIPE	1	F#4
-1c489f10-6214-11ec-a04b-77253b807a2e	11d618f6-6213-11ec-a7b8-8fea81505b31	G#4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-a471ed7f-ab00-4c68-939b-7bc9768c3a45.wav	0	8	60	0.5	STRIPE	1	G#4
-24395566-6214-11ec-a04b-2bec6fd9adbf	11d618f6-6213-11ec-a7b8-8fea81505b31	A4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-93840094-9e32-480d-a705-8cc6acaf5e41.wav	0	8	60	0.5	STRIPE	1	A4
-2de16db0-6214-11ec-a04b-eb10ca9e6f76	11d618f6-6213-11ec-a7b8-8fea81505b31	A#4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-2c1dc9a3-25f1-4d55-b48f-e57ed2c0b08c.wav	0	8	60	0.5	STRIPE	1	A#4
+aabdc582-6213-11ec-a04b-2bcd5a3e0f5e	11d618f6-6213-11ec-a7b8-8fea81505b31	C4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-37521ab1-fa6b-4c32-a96b-b153fb364123.wav	0	8	8	0.5	STRIPE	0.3	C4
+b2e659cc-6213-11ec-a04b-47b1f8dedbc9	11d618f6-6213-11ec-a7b8-8fea81505b31	C#4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-28b3383a-2b10-47ff-ab99-9ecbfc109b5f.wav	0	8	60	0.5	STRIPE	0.3	C#4
+bded6b6c-6213-11ec-a04b-47694cc7a8ff	11d618f6-6213-11ec-a7b8-8fea81505b31	D4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-f5c3edc0-f9d5-4796-ab31-5c89f372000c.wav	0	8	60	0.5	STRIPE	0.3	D4
+fba0a0e6-6213-11ec-a04b-6bf3c5689120	11d618f6-6213-11ec-a7b8-8fea81505b31	E4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-1d20d5f5-4ed1-4e39-9471-02cc0c5f8770.wav	0	8	60	0.5	STRIPE	0.3	E4
+0ba41d06-6214-11ec-a04b-f398f280d7c5	11d618f6-6213-11ec-a7b8-8fea81505b31	F#4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-2cc122c7-6b22-4bb4-9d38-543a561d8771.wav	0	8	60	0.5	STRIPE	0.3	F#4
+1c489f10-6214-11ec-a04b-77253b807a2e	11d618f6-6213-11ec-a7b8-8fea81505b31	G#4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-ba381e37-9a6f-4b5c-ae1e-16cfaf5a5de8.wav	0	8	60	0.5	STRIPE	0.3	G#4
+24395566-6214-11ec-a04b-2bec6fd9adbf	11d618f6-6213-11ec-a7b8-8fea81505b31	A4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-b935a82a-adda-4f9c-b5e3-715c45cf8290.wav	0	8	60	0.5	STRIPE	0.3	A4
+2de16db0-6214-11ec-a04b-eb10ca9e6f76	11d618f6-6213-11ec-a7b8-8fea81505b31	A#4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-476545fe-4129-4576-8d89-39404fbbdb17.wav	0	8	60	0.5	STRIPE	0.3	A#4
 ab02f5a3-e83f-45ef-ba96-3fbb6a2e94ad	e2f1737c-442c-11ec-993c-3f77abd8c222	C#1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-63e0b083-7fe6-4ea4-8d6e-1fda92e95b3a.wav	0	16	30	0.5	STICKY	1	C#1
 eb4f86a2-33ce-4afc-b823-9842160de834	e2f1737c-442c-11ec-993c-3f77abd8c222	D1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-87fe3010-7873-4ace-85c2-3f7017e7374e.wav	0	16	30	0.5	STICKY	1	D1
 c645080d-236f-4347-a348-3fa064c35dc4	e2f1737c-442c-11ec-993c-3f77abd8c222	D#1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-8ed22d4c-df59-4388-8f99-7c05f6b48c39.wav	0	16	30	0.5	STICKY	1	D#1
@@ -5466,7 +5701,6 @@ ddd2ab63-ffe2-488c-85a7-9ead37da2686	d31b3b7c-6213-11ec-a7b8-6b12eae3858a	G5	ins
 35afaf0d-472f-4866-9552-0180af098b94	d31b3b7c-6213-11ec-a7b8-6b12eae3858a	A5	instrument-6ac9115e-6153-11ec-99f6-8b04e8421e3e-audio-2c1d7761-74d3-4f3d-86d9-b2b326b6224c.wav	0	12	30	0.5	STRIPE	0.8	A5
 5140aa39-78b7-40b6-b3fc-bb2ee05f3296	d31b3b7c-6213-11ec-a7b8-6b12eae3858a	A#5	instrument-6ac9115e-6153-11ec-99f6-8b04e8421e3e-audio-924adb54-b1e4-4b36-ba4d-e99475cd29e8.wav	0	12	30	0.5	STRIPE	0.7	A#5
 66ce7907-f7a7-4552-9b04-8f290032aca8	e2f1737c-442c-11ec-993c-3f77abd8c222	C1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-554de07c-75ad-4f8c-80b5-adf1408b7e71.wav	0	16	30	0.5	STICKY	1	C1
-810fe158-c6c8-11ea-a21e-a777dfd048a6	3bbcc300-c6c8-11ea-9c5b-3fabd1ae6028	Water.Small.2.HatOpen	7beaca9a-369e-4422-8b96-f31135b18cb2-instrument-3bbcc300-c6c8-11ea-9c5b-3fabd1ae6028-audio.wav	0	1	115	0.5	HIHATOP	0.6	x
 3e2f6fc5-3feb-4fc7-bfe4-58a68ef78fef	d31b3b7c-6213-11ec-a7b8-6b12eae3858a	C6	instrument-6ac9115e-6153-11ec-99f6-8b04e8421e3e-audio-7929f38d-0be8-474e-8b5f-359bf0bb32b3.wav	0	12	30	0.5	STRIPE	0.7	C6
 9ce26f6a-e77c-4842-a233-63ce0f8c8388	d31b3b7c-6213-11ec-a7b8-6b12eae3858a	C2	instrument-6ac9115e-6153-11ec-99f6-8b04e8421e3e-audio-07b2e139-654a-49ff-bb06-a2dec3da011c.wav	0	12	30	0.5	STRIPE	1	C2
 a06ccfd9-c7d3-48b7-b3e4-4943259371f0	d31b3b7c-6213-11ec-a7b8-6b12eae3858a	F2	instrument-6ac9115e-6153-11ec-99f6-8b04e8421e3e-audio-7a0de984-5e1c-4bf5-a415-ff447692ad18.wav	0	12	30	0.5	STRIPE	1	F2
@@ -5772,30 +6006,22 @@ cf43d9af-710a-42a1-b4e0-bc1a47106557	ff0a519a-3b4f-11ec-9094-bf4e6b819c5e	Progre
 b0a8c42c-3c5e-11ec-aa3a-5358efd1c245	a7a1ab8e-3c5c-11ec-998a-3f2f55389775	SHORTBASS
 bda0aaa4-3f70-11ec-8ec2-b75fed4e4c89	bd273c54-c6b9-11ea-bf1e-6f4a50ee66c3	4STEP
 bbb2a55e-4253-11ec-b9b6-43887550d21c	158a6738-16eb-11ea-8a37-3706e5d25249	ASDASD
-cce3aa90-515c-11ec-bb78-ebd0982c8257	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	2LEMONS
-ca1944e0-5162-11ec-96f7-9bc14e1cf419	c6ec5f4a-41cd-11ec-9e47-5b7fe0a3ed55	3LEMONS
-9705d480-5165-11ec-bdda-7f66407e8914	8eb4a48c-3851-11ec-9896-63744694bdb8	1LEMONS
-a513bc86-5165-11ec-8b6a-d3d6167e77f5	8904dcee-428f-11ec-8193-17821b2deef9	4LEMONS
-ad7d3398-5165-11ec-bdda-7b1b6c21910b	e2f1737c-442c-11ec-993c-3f77abd8c222	5LEMONS
 70d6d0af-f2ef-42df-801f-0dd0352ad869	2675e4aa-6153-11ec-a0d1-fbb7d16558a0	3LEMONS
-7541aeab-4173-4be2-b68f-d2299cf8fbd9	6ac9115e-6153-11ec-99f6-8b04e8421e3e	3LEMONS
-9afc5f68-61f1-11ec-9945-07ad4e6312e5	6ac9115e-6153-11ec-99f6-8b04e8421e3e	4LEMONS
-9e19c2e4-61f1-11ec-a8fb-6b234304a01f	6ac9115e-6153-11ec-99f6-8b04e8421e3e	5LEMONS
 49a8c38d-e5ee-4708-ba98-68917ed72461	de939cd8-61f5-11ec-aa6d-8f62319d4097	3LEMONS
 67ed4732-3338-4a0f-b775-91be9d248cb3	de939cd8-61f5-11ec-aa6d-8f62319d4097	4LEMONS
 74fe8e1b-93c2-4655-86c6-db16df3a1c54	de939cd8-61f5-11ec-aa6d-8f62319d4097	5LEMONS
 a087cc46-6bd8-49d5-b15b-1dce63ede115	d31b3b7c-6213-11ec-a7b8-6b12eae3858a	3LEMONS
 7b1e4a3d-898b-441c-bc7f-6177abf37766	d31b3b7c-6213-11ec-a7b8-6b12eae3858a	4LEMONS
 aaab9483-a234-4fd0-94ca-f362f2310399	d31b3b7c-6213-11ec-a7b8-6b12eae3858a	5LEMONS
-4b2b5bcc-621b-11ec-a473-a3f69b106d9b	11d618f6-6213-11ec-a7b8-8fea81505b31	3LEMONS
-4d78e426-621b-11ec-a473-b785b4be128e	11d618f6-6213-11ec-a7b8-8fea81505b31	4LEMONS
-500dad98-621b-11ec-b499-1fac5204666c	11d618f6-6213-11ec-a7b8-8fea81505b31	5LEMONS
-51f6ad94-621b-11ec-b499-03741b826f25	11d618f6-6213-11ec-a7b8-8fea81505b31	1LEMONS
-5462e408-621b-11ec-a473-67c87dc122d0	11d618f6-6213-11ec-a7b8-8fea81505b31	2LEMONS
 699c246a-621b-11ec-a473-33fa7d13cd06	de939cd8-61f5-11ec-aa6d-8f62319d4097	1LEMONS
 6bb9b1b8-621b-11ec-a473-6308e4029fe2	de939cd8-61f5-11ec-aa6d-8f62319d4097	2LEMONS
-725cee54-621b-11ec-a473-0794940abe2c	6ac9115e-6153-11ec-99f6-8b04e8421e3e	1LEMONS
-75b00f96-621b-11ec-a473-bb402591f8fb	6ac9115e-6153-11ec-99f6-8b04e8421e3e	2LEMONS
+dd5661d2-676f-11ec-b9c6-37bfb53f640b	04154b32-62a5-11ec-b9f8-371915c677aa	$PERKY
+f1f98d44-676f-11ec-b9c6-c33d0f92cac3	e2f1737c-442c-11ec-993c-3f77abd8c222	$PERKY
+47e6b27e-677d-11ec-8421-63e07b70ad59	8eb4a48c-3851-11ec-9896-63744694bdb8	LEMONS
+57524462-677d-11ec-9d44-ab792b0a05b7	f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	ORANGES
+5f2fe59a-677d-11ec-b70c-77b3e71b8204	c6ec5f4a-41cd-11ec-9e47-5b7fe0a3ed55	APPLES
+680ffeca-677d-11ec-9d44-17b2d9f7f2a5	8904dcee-428f-11ec-8193-17821b2deef9	PEACHES
+70d26638-677d-11ec-8421-178253227b5d	e2f1737c-442c-11ec-993c-3f77abd8c222	PLUMS
 \.
 
 
@@ -6594,6 +6820,10 @@ efad2e9f-9573-48a7-a465-202659fd6880	OPEN	e86ffb1a-5d55-11ec-869d-f311521b3467
 0f7cc787-2a67-4cd2-9bde-e26ab67e27ff	OPEN	71869822-5d57-11ec-869d-abb7a6400ad2
 6483638a-61f8-11ec-97af-ffd5de6ec871	LEMONS	a35d1a40-61f5-11ec-ab37-3bc2b2095eb6
 7160ae82-61f8-11ec-97af-e3a74f7f2824	LEMONS	57bf3c88-61e3-11ec-8531-b780a7bb5110
+e75518fb-9690-4bdb-87d8-dbc67cd2fedd	SLOWBOY	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8
+d6aae9f3-219f-4465-8151-c8beaa13487e	APPLES	456c8b60-64f1-11ec-bc31-d7572c6d3593
+9c618f68-677d-11ec-8421-b3e1abf779f8	APPLES	a52ba238-383d-11ec-aa0e-c3568bce1199
+9f388606-677d-11ec-b70c-db89217df989	PLUMS	a52ba238-383d-11ec-aa0e-c3568bce1199
 \.
 
 
@@ -8250,10 +8480,7 @@ ae672c10-4cb4-11ec-8ccb-dbe3305034fb	2fc2f59c-4caf-11ec-b339-dfe4a5e4c4c9	10c9a2
 afa1d58a-4cb4-11ec-8ccb-837af4dd1705	2fc2f59c-4caf-11ec-b339-dfe4a5e4c4c9	10c9a2c2-18bb-4c69-8aee-0acee1b24749	1
 b7183f98-4cb4-11ec-b23e-ebc7f9c75357	e4510c98-4cae-11ec-8136-5775f1273e1a	ec6a683e-4cae-11ec-8136-eb4ad736a8fe	0
 b86a12fe-4cb4-11ec-962b-6bf68c490352	e4510c98-4cae-11ec-8136-5775f1273e1a	ec6a683e-4cae-11ec-8136-eb4ad736a8fe	1
-47f48f4d-1584-4f61-b56f-6c1be4b3c619	b60ce576-507f-11ec-a732-0bce818af109	38d974be-11a4-4b24-81eb-2ae358014a8c	0
 ced07445-ec66-497b-ae60-b557817dbe4e	b60ce576-507f-11ec-a732-0bce818af109	8c5cab57-5a8a-4680-840e-020ae6d4de90	2
-8f161a3a-d127-4da7-8e52-ae00575e660c	b60ce576-507f-11ec-a732-0bce818af109	8c5cab57-5a8a-4680-840e-020ae6d4de90	1
-d2df144d-ef10-42d1-819c-7704c20c1c69	e4e3b348-511f-11ec-802a-a33932e4dccf	ed4368ee-511f-11ec-a2ec-2779252d477b	2
 5c31076a-5121-11ec-802a-2fd9272fd031	e4e3b348-511f-11ec-802a-a33932e4dccf	6e3754ca-7ca3-4b2a-96e7-f9e55d4325b6	0
 90f5136a-5121-11ec-a2ec-6f2e0ea8602a	e4e3b348-511f-11ec-802a-a33932e4dccf	53dc28bc-9b5d-4bbc-ac80-1d2b08b0e6da	1
 2d8c076c-687e-4bb0-a2b7-ff19474ccad0	3cbc1970-5125-11ec-a67e-e7cebe93c5a8	8c55daed-f7ae-40b1-9b6e-52eacc395c8b	0
@@ -8331,6 +8558,30 @@ b80550dc-61e3-11ec-b134-9b1a479f2b30	57bf3c88-61e3-11ec-8531-b780a7bb5110	601563
 b98eb57e-61e3-11ec-b134-639e71ec87c1	57bf3c88-61e3-11ec-8531-b780a7bb5110	60156312-61e3-11ec-8531-bfefe794a137	2
 23c07120-61e5-11ec-bb5b-c7917e6e9006	abf58a2c-61e4-11ec-b046-c7256ab024eb	afe2b2e0-61e4-11ec-bb5b-b3f9f1ef0699	0
 24ad43a6-61e5-11ec-bb5b-33a253b910fa	abf58a2c-61e4-11ec-b046-c7256ab024eb	afe2b2e0-61e4-11ec-bb5b-b3f9f1ef0699	1
+a4fefa4f-3aeb-4d24-b956-d3ef5596b5a9	cada6c7e-63af-11ec-a4de-db023971ce96	a80a3f48-9b82-463f-8770-b43a922367a8	0
+e17b2113-c161-4d28-a5b8-121169d2a68d	cada6c7e-63af-11ec-a4de-db023971ce96	2b2d8575-3b9e-438d-980a-8ae021c2e6ca	1
+96157855-3cda-4720-b9c6-13f8ccddbe3b	cada6c7e-63af-11ec-a4de-db023971ce96	03bd0997-4ef1-4c59-91be-2593439f2352	2
+82c0c6bb-498b-443d-9e5c-e7584e50a8a3	cada6c7e-63af-11ec-a4de-db023971ce96	dfe7e0b8-94d5-4e0b-aa6c-c9b931ee46e4	3
+8b04fdf0-b302-4f7e-81f7-e68ab973d8a1	cada6c7e-63af-11ec-a4de-db023971ce96	5e44c379-0898-4282-96f2-1249f1cb4d33	4
+d54928f7-c1ae-48cb-989e-0e5ff485b242	cada6c7e-63af-11ec-a4de-db023971ce96	bc9da4a8-521a-4791-b472-9141bdbf359e	5
+4a97b78c-ce98-47d1-8be7-b79faf09ea6a	cada6c7e-63af-11ec-a4de-db023971ce96	253c9648-b48c-4e7f-904e-ee0e04b62dfa	6
+b975b01f-1a54-4ec5-8502-08d731f61a4a	cada6c7e-63af-11ec-a4de-db023971ce96	5774f6f8-a5a2-4f8b-b564-cc598b880727	7
+61eeaf8d-7b6f-4c5e-9d07-3b433cae4e0d	cada6c7e-63af-11ec-a4de-db023971ce96	0c3c5acc-f79c-43a0-a760-37c94f58db79	8
+0c534672-f4c4-4329-819a-2da2b6a56c8e	cada6c7e-63af-11ec-a4de-db023971ce96	2d7465d0-3868-47fa-8257-3146fa2a6e7a	9
+34ca731f-9163-4d12-a166-8efa998667d4	cada6c7e-63af-11ec-a4de-db023971ce96	63783657-3222-4a2e-9732-e0b9a6867751	10
+88ddf22c-0b95-43d1-b09c-6ae5fc4f8dc4	cada6c7e-63af-11ec-a4de-db023971ce96	af15d115-43bc-43f5-a82c-f448799e3ca7	11
+1e9f3a8e-63be-11ec-9eac-c357ab65a0f0	50b200fa-513b-11ec-8f1c-d7c2c767519b	ebd152ea-63bd-11ec-a35b-17b770b91315	11
+7e7eac5a-cc69-408d-998b-8fbeb2adcb59	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	3aad2b63-4220-487a-9e18-2f832c82ac0c	0
+9db19ad4-dfc0-4f8b-a73a-fa0d261bd9c2	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	3aad2b63-4220-487a-9e18-2f832c82ac0c	3
+81f476c5-3287-49c0-a5b9-8ff537e9f0f6	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	4ea042b5-047d-479b-948c-a5109cb376ad	2
+62f5f367-fe3a-4433-aad4-5c765d049eae	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	4ea042b5-047d-479b-948c-a5109cb376ad	1
+0d6ef12b-0207-4eec-959d-5541104ad1c7	456c8b60-64f1-11ec-bc31-d7572c6d3593	d1df3fdb-8a8f-4917-8704-5e753d0f658d	0
+f75d35fb-a465-4f03-81db-35cd5ec4c1ab	456c8b60-64f1-11ec-bc31-d7572c6d3593	12c98ab8-2527-47c1-a457-c60237c90123	2
+e770f113-e5ba-4a20-8aae-73623e6a5a66	456c8b60-64f1-11ec-bc31-d7572c6d3593	12c98ab8-2527-47c1-a457-c60237c90123	1
+8a422eb0-6768-11ec-b4ab-3f24d61d0e15	b60ce576-507f-11ec-a732-0bce818af109	3baa3a04-6768-11ec-9c6b-2be5d4ebbfdc	0
+8d930dd2-6768-11ec-9c6b-2b8bef56e36e	b60ce576-507f-11ec-a732-0bce818af109	38d974be-11a4-4b24-81eb-2ae358014a8c	1
+8faff31e-6768-11ec-b4ab-d70ea7a46a40	b60ce576-507f-11ec-a732-0bce818af109	8c5cab57-5a8a-4680-840e-020ae6d4de90	3
+92d87e62-6768-11ec-9c6b-cbdb2db49d14	b60ce576-507f-11ec-a732-0bce818af109	3baa3a04-6768-11ec-9c6b-2be5d4ebbfdc	4
 \.
 
 
@@ -9956,6 +10207,7 @@ e1a88b48-c267-462f-8fb0-3df2a91135f0	5446687c-3823-11ec-a6b2-0b2f665bfb95	681dc1
 b3441d9e-39c5-11ec-878e-739d3869b99b	0a11f69e-3513-11ec-8ba6-cb3dcefbf326	9f946ff2-3870-11ec-8a32-93897f61f5ba	NOHOW
 b5e2271c-39c5-11ec-b10f-d3c86d401e46	0a11f69e-3513-11ec-8ba6-cb3dcefbf326	a0f84242-3870-11ec-8a32-ab0b19c89722	NOWAY
 b878d0ca-39c5-11ec-b10f-e7f0a2637f79	0a11f69e-3513-11ec-8ba6-cb3dcefbf326	a2bb9dcc-3870-11ec-9ead-d710ca577c8e	NOHOW
+c8667812-5125-11ec-a487-37fe106bd7a5	b394015c-5125-11ec-a57d-f3fc5ca215e1	c693fbd7-92ce-465e-8e59-697eb4c38284	ORANGES
 04540420-10a7-4fc2-880a-eef9e80851a2	84ec56d2-3902-11ec-a0aa-b7f153f76846	56793b27-9322-4384-a09e-491f25bbc2f9	STEADY
 20571ca7-1cdc-44e7-803f-d631fdc573db	84ec56d2-3902-11ec-a0aa-b7f153f76846	b082db03-e428-4699-ac87-2f3c27912e97	STEADY
 24d480a3-96f4-4631-91e7-2458b922a3a0	84ec56d2-3902-11ec-a0aa-b7f153f76846	dd3718f2-3569-4502-8b31-1c613ee45007	STEADY
@@ -9983,28 +10235,23 @@ f9716df4-5652-4646-bcbc-be0aa4614b09	b8fbc69a-3b20-11ec-b7d8-1b5f6ab57124	244fdd
 7d7af563-a708-4d7f-950e-0246b6921394	b8fbc69a-3b20-11ec-b7d8-1b5f6ab57124	244fdd4b-14cf-45f8-9e63-998b4ce54782	XXX
 5a701ad0-3681-483f-b593-db1820a0b1ce	b8fbc69a-3b20-11ec-b7d8-1b5f6ab57124	244fdd4b-14cf-45f8-9e63-998b4ce54782	XXX
 5d7777fd-1006-42ac-aedf-8b346764dfc2	b8fbc69a-3b20-11ec-b7d8-1b5f6ab57124	c365cb35-7775-455b-9d7f-6d508f338383	XXX
-70377128-5125-11ec-b805-6b89186f156c	63fa6eba-5125-11ec-b805-6388ea41c0c4	5523345b-5c50-401d-b298-bf5a13dc066c	1LEMONS
-9a61d984-5125-11ec-a67e-e70fe862d39d	933c8514-5125-11ec-a67e-cb835d735a29	a4a4bfde-44a4-463c-b811-2db8ed0636be	3LEMONS
-3b523e22-38ff-11ec-8171-8f040d588a6d	a52ba238-383d-11ec-aa0e-c3568bce1199	32e818ce-38ff-11ec-bc98-4349634bcfba	5LEMONS
-b28ef624-5d59-47e2-8497-2af0641691e0	3cbc1970-5125-11ec-a67e-e7cebe93c5a8	2d8c076c-687e-4bb0-a2b7-ff19474ccad0	2LEMONS
+b28ef624-5d59-47e2-8497-2af0641691e0	3cbc1970-5125-11ec-a67e-e7cebe93c5a8	2d8c076c-687e-4bb0-a2b7-ff19474ccad0	APPLES
+9a61d984-5125-11ec-a67e-e70fe862d39d	933c8514-5125-11ec-a67e-cb835d735a29	a4a4bfde-44a4-463c-b811-2db8ed0636be	PEACHES
+eb6301b8-c3f1-4282-8dff-3b0c97b5222b	3cbc1970-5125-11ec-a67e-e7cebe93c5a8	3569a5c0-85d7-414b-864a-df80c39b20d0	ORANGES
 8ccdb3ae-ea13-4e89-843f-75e302ed10a1	d16de2c2-3da9-11ec-b4cf-6b358a8373c2	e74991de-cad9-4768-ade3-b8343c3a1a64	STEADY
 562df90c-3daa-11ec-a42d-7733a53abe9b	d16de2c2-3da9-11ec-b4cf-6b358a8373c2	54f267da-3daa-11ec-a42d-df8f0474573a	STEADY
-eb6301b8-c3f1-4282-8dff-3b0c97b5222b	3cbc1970-5125-11ec-a67e-e7cebe93c5a8	3569a5c0-85d7-414b-864a-df80c39b20d0	3LEMONS
-6ce7784c-5125-11ec-a487-033b4fb678c6	63fa6eba-5125-11ec-b805-6388ea41c0c4	2ac4b114-8424-4b81-a95c-da2a72328d7d	5LEMONS
-047ded8e-1ae8-4dc4-9a99-220dfb043ba8	e4e3b348-511f-11ec-802a-a33932e4dccf	d2df144d-ef10-42d1-819c-7704c20c1c69	STEADY
+70377128-5125-11ec-b805-6b89186f156c	63fa6eba-5125-11ec-b805-6388ea41c0c4	5523345b-5c50-401d-b298-bf5a13dc066c	PEACHES
+12d07a8c-3da9-11ec-a83a-bf16f84d5f87	a52ba238-383d-11ec-aa0e-c3568bce1199	b4085e2c-383d-11ec-8cb4-73d4c4850f20	APPLES
 f7147db5-6181-45e0-b026-4ed65f544889	4e814ce8-42b1-11ec-abab-2742c680e727	cb4c2189-afd9-4adf-bd06-0b4b27a923a4	PLUMS
 155baeb9-cd18-4587-b042-6499e3f312c7	4e814ce8-42b1-11ec-abab-2742c680e727	0ad8c54e-f7af-44a3-b8bb-2ce4b1a39a29	ORANGES
 061ff2ee-42b4-11ec-9457-63337699bd2e	4e814ce8-42b1-11ec-abab-2742c680e727	0543e79a-42b4-11ec-9c25-db258594d223	PEACHES
 08dc03e2-42b4-11ec-8b3e-d3d28320ad47	4e814ce8-42b1-11ec-abab-2742c680e727	ffd882c0-42b3-11ec-9639-3f179704ab53	PLUMS
-8d46ac7d-55d8-4066-88fb-4808de41e95f	933c8514-5125-11ec-a67e-cb835d735a29	049593ed-555e-4c20-9059-ca2709d4e95f	4LEMONS
-c8667812-5125-11ec-a487-37fe106bd7a5	b394015c-5125-11ec-a57d-f3fc5ca215e1	c693fbd7-92ce-465e-8e59-697eb4c38284	5LEMONS
-1b7a4c86-e152-4d9b-b260-b0f5c7557d1d	b60ce576-507f-11ec-a732-0bce818af109	47f48f4d-1584-4f61-b56f-6c1be4b3c619	PLUMS
-e81555ee-54b6-4363-8e45-c95f22228687	b60ce576-507f-11ec-a732-0bce818af109	8f161a3a-d127-4da7-8e52-ae00575e660c	PEACHES
-711e4da4-c410-455d-a8ee-d2749c3a48db	b60ce576-507f-11ec-a732-0bce818af109	ced07445-ec66-497b-ae60-b557817dbe4e	PLUMS
+3b523e22-38ff-11ec-8171-8f040d588a6d	a52ba238-383d-11ec-aa0e-c3568bce1199	32e818ce-38ff-11ec-bc98-4349634bcfba	PLUMS
 9624376c-5121-11ec-a2ec-27bbcd8f436e	e4e3b348-511f-11ec-802a-a33932e4dccf	5c31076a-5121-11ec-802a-2fd9272fd031	STEADY
 a0d31566-5121-11ec-802a-1ba1c6ee5a81	e4e3b348-511f-11ec-802a-a33932e4dccf	90f5136a-5121-11ec-a2ec-6f2e0ea8602a	STEADY
-c442545e-5125-11ec-a57d-578aa5f91156	b394015c-5125-11ec-a57d-f3fc5ca215e1	84766450-0de6-490e-b8c8-81aa84fb5bf4	3LEMONS
-12d07a8c-3da9-11ec-a83a-bf16f84d5f87	a52ba238-383d-11ec-aa0e-c3568bce1199	b4085e2c-383d-11ec-8cb4-73d4c4850f20	4LEMONS
+c442545e-5125-11ec-a57d-578aa5f91156	b394015c-5125-11ec-a57d-f3fc5ca215e1	84766450-0de6-490e-b8c8-81aa84fb5bf4	LEMONS
+8d46ac7d-55d8-4066-88fb-4808de41e95f	933c8514-5125-11ec-a67e-cb835d735a29	049593ed-555e-4c20-9059-ca2709d4e95f	LEMONS
+6ce7784c-5125-11ec-a487-033b4fb678c6	63fa6eba-5125-11ec-b805-6388ea41c0c4	2ac4b114-8424-4b81-a95c-da2a72328d7d	PLUMS
 1b379941-b943-41e5-988a-5e964440d9cf	50b200fa-513b-11ec-8f1c-d7c2c767519b	83353614-9231-474a-a0e5-8d19ca5706c6	PLUMS
 d9733b9c-513c-11ec-b8b6-cb02c2e6f65c	50b200fa-513b-11ec-8f1c-d7c2c767519b	d5e32cf8-513c-11ec-b5ba-674f648bff55	PLUMS
 f9636e68-513c-11ec-98b1-478a7ad862a0	50b200fa-513b-11ec-8f1c-d7c2c767519b	ef6da8b0-513c-11ec-b5ba-cb9929e7442b	PLUMS
@@ -10016,29 +10263,36 @@ f9636e68-513c-11ec-98b1-478a7ad862a0	50b200fa-513b-11ec-8f1c-d7c2c767519b	ef6da8
 908d5bfa-513d-11ec-b5ba-13d56bd4174e	50b200fa-513b-11ec-8f1c-d7c2c767519b	8f0e417c-513d-11ec-b8b6-a302a1bb5d44	LEMONS
 98334734-513d-11ec-b5ba-a35c5e7e3de2	50b200fa-513b-11ec-8f1c-d7c2c767519b	962b572e-513d-11ec-b5ba-cb6ed9bde2f0	ORANGES
 c3a49706-513d-11ec-b636-3319c444672e	50b200fa-513b-11ec-8f1c-d7c2c767519b	c255994a-513d-11ec-b5ba-6f6359deed76	ORANGES
-a747fc27-8092-4db2-97c2-196e6b179cdf	f167f09e-39c2-11ec-9c10-479435b3ec2c	71eba29a-3200-49fd-b1ae-e1e3834ae5df	1LEMONS
-4fbfaa78-5184-11ec-8338-7b1b9c3215f2	3cbc1970-5125-11ec-a67e-e7cebe93c5a8	4ece6c62-5184-11ec-9b61-8398b26f5949	3LEMONS
-65290666-5184-11ec-8338-d78f88042d4c	933c8514-5125-11ec-a67e-cb835d735a29	640319de-5184-11ec-964a-1f5fbd9c8c78	4LEMONS
-78935396-5184-11ec-8338-f7ab3d3a1af8	a52ba238-383d-11ec-aa0e-c3568bce1199	77451c5e-5184-11ec-9b61-a3e1e3da89d3	5LEMONS
-89e5917c-5184-11ec-9b61-53ef8b586ffa	63fa6eba-5125-11ec-b805-6388ea41c0c4	88db36a6-5184-11ec-8338-93c8e88ec78e	1LEMONS
-ad7d339c-515c-11ec-bb78-ff613ec658c3	f167f09e-39c2-11ec-9c10-479435b3ec2c	ac123980-515c-11ec-a7e8-f390a2d37c46	2LEMONS
-b0b23e22-5184-11ec-964a-c7dcd3979b4b	f167f09e-39c2-11ec-9c10-479435b3ec2c	af635ede-5184-11ec-8338-f37e81a04ae7	2LEMONS
-cc43e1ae-5184-11ec-8338-13868b158034	b394015c-5125-11ec-a57d-f3fc5ca215e1	ca8548d0-5184-11ec-9b61-4b66f373a2a0	5LEMONS
-2c1a91bb-ba21-46a5-b57e-b025ba2111ea	1f9a7e74-518c-11ec-89b3-efab3cbe63f4	1af591ce-554f-4983-8a1f-f5f2875e80f8	5LEMONS
-9de7dad9-17c2-411e-b91e-d3f7077fe92e	1f9a7e74-518c-11ec-89b3-efab3cbe63f4	303fd0e8-914d-44bd-86e2-29cf7bc25e51	3LEMONS
-7e3d744f-f749-4400-bbe7-eb2c2e1dae8e	1f9a7e74-518c-11ec-89b3-efab3cbe63f4	7b56e2f7-fbdf-4d5b-a54e-0a69b420038f	3LEMONS
 2935e611-ad19-4d92-b8a7-3149996ede70	53f4681a-518c-11ec-aa92-bf7cb5b75789	218c116b-0a2c-4610-b11e-6650e708eb98	5LEMONS
 0317b443-6031-4d9d-9640-3f6b5b2e5cc8	53f4681a-518c-11ec-aa92-bf7cb5b75789	1f8a92de-87d2-4c9a-977f-31f54b524902	4LEMONS
 3764069f-5f87-4ce2-ad7e-4a771119b38e	53f4681a-518c-11ec-aa92-bf7cb5b75789	56e4ee66-9125-42e9-9cec-b704c0a03ef2	4LEMONS
 8d505575-f461-42fd-beff-6d7bdce1bca8	6dc4abd8-518c-11ec-a687-8f139a116f5c	0373b4cc-c2d1-44cd-b518-2376a44090cb	4LEMONS
 a516d656-80ca-4151-9c58-82fffd60f3b0	6dc4abd8-518c-11ec-a687-8f139a116f5c	32c80966-9bdf-4b6e-b2ee-3aa6682990f6	1LEMONS
 9f9c39e7-fe76-4047-819f-643e62b32d59	6dc4abd8-518c-11ec-a687-8f139a116f5c	b7b138f2-8cfb-4892-acb2-de4c8711bd06	1LEMONS
-9df116c6-ed7c-47c9-ae91-c83408cd8263	8e416bc6-518c-11ec-aa92-27c127cb0c58	a4b9c781-def8-4a5c-896e-a6c915c9117b	1LEMONS
-a13613f7-fb3b-4dfc-82b8-343a8698d258	8e416bc6-518c-11ec-aa92-27c127cb0c58	64feb4dc-b22b-4db7-a5ed-c51e3671ecf5	3LEMONS
-1d3087d4-d7b8-42e2-b011-ba1130ada442	8e416bc6-518c-11ec-aa92-27c127cb0c58	57663ec1-c153-465d-8444-775c9e0be853	3LEMONS
 da029eed-8b03-4774-9ff8-76b063016848	af6f1d48-518c-11ec-a687-5bf917771250	044c3a49-d6a8-48c3-8ce5-04f0ca6fe10b	1LEMONS
 a7dac3df-5572-40f4-befe-64ab8140437f	af6f1d48-518c-11ec-a687-5bf917771250	dc083482-c335-47dd-8d33-ee926a44ab16	5LEMONS
 a1050350-4a8c-4cac-8aad-57662705a30d	af6f1d48-518c-11ec-a687-5bf917771250	f71ec000-4da9-4370-b014-56697b760941	5LEMONS
+22494ce2-63be-11ec-a79e-578d232a5bef	50b200fa-513b-11ec-8f1c-d7c2c767519b	1e9f3a8e-63be-11ec-9eac-c357ab65a0f0	ORANGES
+0d2ac169-30bb-4be7-b36d-5a08088403a4	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	7e7eac5a-cc69-408d-998b-8fbeb2adcb59	PLUMS
+262684bc-c5df-45d2-9570-fd312f55bc6a	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	9db19ad4-dfc0-4f8b-a73a-fa0d261bd9c2	ORANGES
+d007298c-a7ce-49b3-b6ca-ca02f0b8e698	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	62f5f367-fe3a-4433-aad4-5c765d049eae	PEACHES
+70ea2812-0a3e-467e-b0c2-b1b9a78ef878	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	81f476c5-3287-49c0-a5b9-8ff537e9f0f6	PLUMS
+96e0fbef-3d37-4f74-9fc6-d09ac9248087	456c8b60-64f1-11ec-bc31-d7572c6d3593	0d6ef12b-0207-4eec-959d-5541104ad1c7	STEADY
+561c7b09-6081-44eb-8a8b-56b871878968	456c8b60-64f1-11ec-bc31-d7572c6d3593	f75d35fb-a465-4f03-81db-35cd5ec4c1ab	STEADY
+4fbfaa78-5184-11ec-8338-7b1b9c3215f2	3cbc1970-5125-11ec-a67e-e7cebe93c5a8	4ece6c62-5184-11ec-9b61-8398b26f5949	ORANGES
+78935396-5184-11ec-8338-f7ab3d3a1af8	a52ba238-383d-11ec-aa0e-c3568bce1199	77451c5e-5184-11ec-9b61-a3e1e3da89d3	PLUMS
+cc43e1ae-5184-11ec-8338-13868b158034	b394015c-5125-11ec-a57d-f3fc5ca215e1	ca8548d0-5184-11ec-9b61-4b66f373a2a0	ORANGES
+65290666-5184-11ec-8338-d78f88042d4c	933c8514-5125-11ec-a67e-cb835d735a29	640319de-5184-11ec-964a-1f5fbd9c8c78	LEMONS
+89e5917c-5184-11ec-9b61-53ef8b586ffa	63fa6eba-5125-11ec-b805-6388ea41c0c4	88db36a6-5184-11ec-8338-93c8e88ec78e	PEACHES
+a747fc27-8092-4db2-97c2-196e6b179cdf	f167f09e-39c2-11ec-9c10-479435b3ec2c	71eba29a-3200-49fd-b1ae-e1e3834ae5df	APPLES
+ad7d339c-515c-11ec-bb78-ff613ec658c3	f167f09e-39c2-11ec-9c10-479435b3ec2c	ac123980-515c-11ec-a7e8-f390a2d37c46	PEACHES
+b0b23e22-5184-11ec-964a-c7dcd3979b4b	f167f09e-39c2-11ec-9c10-479435b3ec2c	af635ede-5184-11ec-8338-f37e81a04ae7	PLUMS
+9df116c6-ed7c-47c9-ae91-c83408cd8263	8e416bc6-518c-11ec-aa92-27c127cb0c58	a4b9c781-def8-4a5c-896e-a6c915c9117b	PLUMS
+a13613f7-fb3b-4dfc-82b8-343a8698d258	8e416bc6-518c-11ec-aa92-27c127cb0c58	64feb4dc-b22b-4db7-a5ed-c51e3671ecf5	ORANGES
+1d3087d4-d7b8-42e2-b011-ba1130ada442	8e416bc6-518c-11ec-aa92-27c127cb0c58	57663ec1-c153-465d-8444-775c9e0be853	LEMONS
+2c1a91bb-ba21-46a5-b57e-b025ba2111ea	1f9a7e74-518c-11ec-89b3-efab3cbe63f4	1af591ce-554f-4983-8a1f-f5f2875e80f8	PERKY
+9de7dad9-17c2-411e-b91e-d3f7077fe92e	1f9a7e74-518c-11ec-89b3-efab3cbe63f4	303fd0e8-914d-44bd-86e2-29cf7bc25e51	PERKY
+7e3d744f-f749-4400-bbe7-eb2c2e1dae8e	1f9a7e74-518c-11ec-89b3-efab3cbe63f4	7b56e2f7-fbdf-4d5b-a54e-0a69b420038f	PLUMS
 \.
 
 
@@ -10643,9 +10897,9 @@ d9a7cef8-425e-11ec-bf90-1fa8a42af2a2	a6866f5e-4257-11ec-b5d9-0f27f7472bae	abf017
 4deb761b-b969-43a5-ac42-01a32da6ccce	a9175b1a-39c1-11eb-8f04-2f80c84d572c	4667091d-575f-46ee-9279-c4794bb8544a	Csus2/G	8
 87a84659-c813-4b9f-9de2-b59c5b08a3cd	4e814ce8-42b1-11ec-abab-2742c680e727	91ebfc24-d18e-43a1-9035-bfd0cd521443	Cadd2	0
 18417adf-6202-4929-9b39-05563a2abaf2	4e814ce8-42b1-11ec-abab-2742c680e727	8971b0c2-42b1-11ec-a0d2-a7e06e0dd54c	Cadd2	0
-7168cfaa-42b2-11ec-aadb-7fc544fdbf38	4e814ce8-42b1-11ec-abab-2742c680e727	8971b0c2-42b1-11ec-a0d2-a7e06e0dd54c	Aadd9	56
 bfa7265e-42b1-11ec-b671-8354e2a72791	4e814ce8-42b1-11ec-abab-2742c680e727	8971b0c2-42b1-11ec-a0d2-a7e06e0dd54c	D-7	8
 03a77020-42b2-11ec-abab-ef5d4166ca65	4e814ce8-42b1-11ec-abab-2742c680e727	8971b0c2-42b1-11ec-a0d2-a7e06e0dd54c	Gsus	16
+7168cfaa-42b2-11ec-aadb-7fc544fdbf38	4e814ce8-42b1-11ec-abab-2742c680e727	8971b0c2-42b1-11ec-a0d2-a7e06e0dd54c	Asus2	56
 2473768f-3247-42a6-9ffb-18348173ca1b	366d6208-39c5-11ec-878e-6fff07b0d494	e6075902-458d-11ec-9ba7-87c5993385c6	Bbmaj7/9	0
 f749b8d6-4cae-11ec-ac66-ab137417cc8d	e4510c98-4cae-11ec-8136-5775f1273e1a	ec6a683e-4cae-11ec-8136-eb4ad736a8fe	D	0
 0dc554e4-4caf-11ec-ac66-93ab2df17fdb	e4510c98-4cae-11ec-8136-5775f1273e1a	ec6a683e-4cae-11ec-8136-eb4ad736a8fe	G	8
@@ -10655,7 +10909,6 @@ a0695dba-4438-11ec-89aa-9b8bddce534a	4e814ce8-42b1-11ec-abab-2742c680e727	8971b0
 5ff5cf30-99f3-4edd-a6f4-bfdfef17df37	b60ce576-507f-11ec-a732-0bce818af109	38d974be-11a4-4b24-81eb-2ae358014a8c	Bb5	0
 b26071f8-5d50-11ec-ad5c-6fd62d236640	8c594c64-5d50-11ec-98cd-1f14eb21376e	921e8b5a-5d50-11ec-98cd-6b5683573fab	NC	0
 00d2b25c-f6f4-44d8-abf4-9dde5bc9199f	0ad708a8-514c-11ec-bc8b-47d5ada13a3c	9ce1b620-611a-11ec-b159-13211dc1e883	E5add9	0
-0be50496-e5b7-4b10-b3e4-0de0a9ad5c24	5f169850-611b-11ec-b5e9-93c7246a87ca	19edd957-5226-46eb-93af-26a0879e2654	E5add9	0
 1bed87f5-f821-44f1-996a-95cb4de5746b	5f169850-611b-11ec-b5e9-93c7246a87ca	38050477-bad2-4142-9722-01be8dda1c04	Cadd2	0
 5b92c0c3-b70f-4984-86a9-44a8ef2b42d0	b60ce576-507f-11ec-a732-0bce818af109	8c5cab57-5a8a-4680-840e-020ae6d4de90	Bb 5	56
 10960570-6bcd-4fdf-891e-c4ca1b8f1d60	b60ce576-507f-11ec-a732-0bce818af109	8c5cab57-5a8a-4680-840e-020ae6d4de90	BbMaj7	0
@@ -10666,11 +10919,9 @@ ae6f095b-00d3-49d8-b870-fcba90f7d90d	b60ce576-507f-11ec-a732-0bce818af109	8c5cab
 e9bba6e8-c47d-473f-9a19-9941c3f417e5	e4e3b348-511f-11ec-802a-a33932e4dccf	53dc28bc-9b5d-4bbc-ac80-1d2b08b0e6da	Fmaj7add9	0
 d2010ba6-c6ff-4341-9a84-205eec9c9022	e4e3b348-511f-11ec-802a-a33932e4dccf	ed4368ee-511f-11ec-a2ec-2779252d477b	G#dim	0
 e70e85f5-427d-4b90-a8b1-0770e7ac6546	5f169850-611b-11ec-b5e9-93c7246a87ca	1ad52c52-8a85-4895-b6ae-b2024087ae03	Bbmaj7/9	0
-767728ba-5122-11ec-85ef-ef3d954eceb6	e4e3b348-511f-11ec-802a-a33932e4dccf	ed4368ee-511f-11ec-a2ec-2779252d477b	NC	16
+f7b8b411-0881-4f9b-a8d4-b8fbf54add6c	456c8b60-64f1-11ec-bc31-d7572c6d3593	d1df3fdb-8a8f-4917-8704-5e753d0f658d	Cadd2	0
 f59c3080-18f0-4893-b20a-bebc1f1ba19d	5f169850-611b-11ec-b5e9-93c7246a87ca	987192f7-642b-4753-8967-f64b4ee7703f	G5	0
 6a77abc5-b1ca-44d1-87cd-e561d652391c	50b200fa-513b-11ec-8f1c-d7c2c767519b	83ea4b62-dec9-442f-bfd6-b78750a5873b	Cadd2	0
-b92b7ecf-8353-46de-aa46-24ec2f462bdf	50b200fa-513b-11ec-8f1c-d7c2c767519b	77675716-e730-445e-a3f9-873f1f83294d	A-add2	0
-d0bc4f8a-7f2c-47d1-9f5f-25c14e4250f1	50b200fa-513b-11ec-8f1c-d7c2c767519b	47aed807-4d63-4677-b165-6e2e874e3beb	Bbmaj7/9	0
 c46a45c4-dc1d-4655-861c-93c9fe7310c4	50b200fa-513b-11ec-8f1c-d7c2c767519b	7992d364-513b-11ec-bf2a-7f86540d6839	G5	0
 f924d962-c306-4188-8552-e76c663d659b	50b200fa-513b-11ec-8f1c-d7c2c767519b	a11f9728-513b-11ec-9147-3335abb141d7	D5	0
 391d9a49-2349-4b56-8b61-b85f4e9fcfa1	50b200fa-513b-11ec-8f1c-d7c2c767519b	cd0246b0-513b-11ec-86f5-d7c20010c45c	A5	0
@@ -10700,8 +10951,8 @@ e75a1bb3-9b32-4251-b80d-ad64c9160914	0ad708a8-514c-11ec-bc8b-47d5ada13a3c	d7e1d8
 3d358502-518f-11ec-89b3-47760eba2852	b60ce576-507f-11ec-a732-0bce818af109	8c5cab57-5a8a-4680-840e-020ae6d4de90	Bbmaj7/F	46
 ba5f0b79-b3c9-44d0-946a-0f4598adb772	5f169850-611b-11ec-b5e9-93c7246a87ca	b371fca3-3f14-4971-8511-cacc7e313af9	G#5	0
 8d485929-f6f0-4cf1-859f-02153278638a	b60ce576-507f-11ec-a732-0bce818af109	8c5cab57-5a8a-4680-840e-020ae6d4de90	F/C	80
+0be50496-e5b7-4b10-b3e4-0de0a9ad5c24	5f169850-611b-11ec-b5e9-93c7246a87ca	19edd957-5226-46eb-93af-26a0879e2654	F5add9	0
 520d69d5-06dd-4d9e-8195-5570a85ae677	5f169850-611b-11ec-b5e9-93c7246a87ca	4e2c5e16-ac68-4df1-86f9-8a6c4adccd91	A5add9	0
-f73d4407-ab57-4123-a9d8-5c788f6491fd	5f169850-611b-11ec-b5e9-93c7246a87ca	8b0d87cd-8759-4b00-af20-407a4d35602b	B5add9	0
 be5ef212-bd63-4aa7-a9fb-c0885bd60291	5f169850-611b-11ec-b5e9-93c7246a87ca	4cf1ec18-9590-4c51-8e9e-f021807c4b3a	C#5add9	0
 2f27715f-9757-497f-9b66-0da019f08f4e	5f169850-611b-11ec-b5e9-93c7246a87ca	52a0b5c3-c764-43b0-94a0-e88e84ac26cf	D#5add9	0
 eb83d0c0-3b63-42fe-bfea-99d4f8247436	5f169850-611b-11ec-b5e9-93c7246a87ca	ac74a54f-c9ca-48ab-89fe-1093fe781f64	D5add9	0
@@ -10710,6 +10961,31 @@ e0cc0769-db80-4f69-a96f-513e2aa8a96e	5f169850-611b-11ec-b5e9-93c7246a87ca	d3742f
 6dd63ad0-61e3-11ec-b3d7-aba085b9339c	57bf3c88-61e3-11ec-8531-b780a7bb5110	60156312-61e3-11ec-8531-bfefe794a137	Cmaj7add2	0
 bf439240-61e4-11ec-bb5b-7bc27eb8bfb4	abf58a2c-61e4-11ec-b046-c7256ab024eb	afe2b2e0-61e4-11ec-bb5b-b3f9f1ef0699	C7sus	0
 d03d838a-61e4-11ec-bb5b-0f0d687d60b7	abf58a2c-61e4-11ec-b046-c7256ab024eb	afe2b2e0-61e4-11ec-bb5b-b3f9f1ef0699	C7susAdd2	32
+c901551f-b948-4eb7-86fc-9a951949a351	cada6c7e-63af-11ec-a4de-db023971ce96	a80a3f48-9b82-463f-8770-b43a922367a8	Cadd2	0
+ed8c7610-ebb6-4e26-a592-423bc3e6dab2	cada6c7e-63af-11ec-a4de-db023971ce96	2b2d8575-3b9e-438d-980a-8ae021c2e6ca	G5	0
+aa908e61-f819-419f-89d4-5e00d93cd528	cada6c7e-63af-11ec-a4de-db023971ce96	253c9648-b48c-4e7f-904e-ee0e04b62dfa	F#5	0
+70506b44-5aa9-48a2-8e48-bb4e518515fb	cada6c7e-63af-11ec-a4de-db023971ce96	0c3c5acc-f79c-43a0-a760-37c94f58db79	G#5	0
+02ec70cd-2b45-4cc0-be23-77ccc1ded03d	cada6c7e-63af-11ec-a4de-db023971ce96	dfe7e0b8-94d5-4e0b-aa6c-c9b931ee46e4	A5add9	0
+0fdb514f-d499-4e29-9aa5-af7fc213020c	cada6c7e-63af-11ec-a4de-db023971ce96	bc9da4a8-521a-4791-b472-9141bdbf359e	B5add9	0
+970ecde6-d5c1-4334-9237-ebb5a721285e	cada6c7e-63af-11ec-a4de-db023971ce96	5774f6f8-a5a2-4f8b-b564-cc598b880727	C#5add9	0
+814f0cd1-3540-458c-ab74-3c4164e2b725	cada6c7e-63af-11ec-a4de-db023971ce96	2d7465d0-3868-47fa-8257-3146fa2a6e7a	D#5add9	0
+0eff9d29-caf2-4af8-8ddc-e52a80d802a0	cada6c7e-63af-11ec-a4de-db023971ce96	03bd0997-4ef1-4c59-91be-2593439f2352	D5add9	0
+aa35e6c1-3256-46a0-b04e-88667ac3d98d	cada6c7e-63af-11ec-a4de-db023971ce96	5e44c379-0898-4282-96f2-1249f1cb4d33	E5add9	0
+34c07bbf-99df-49a3-b6d7-b30487a17bd8	cada6c7e-63af-11ec-a4de-db023971ce96	63783657-3222-4a2e-9732-e0b9a6867751	Bb5add9	0
+54342c52-fc4e-4dcf-a120-d2c58dc917d7	50b200fa-513b-11ec-8f1c-d7c2c767519b	ebd152ea-63bd-11ec-a35b-17b770b91315	F5	0
+dc86ddae-63b9-11ec-8246-d38528378306	e4e3b348-511f-11ec-802a-a33932e4dccf	53dc28bc-9b5d-4bbc-ac80-1d2b08b0e6da	NC	24
+767728ba-5122-11ec-85ef-ef3d954eceb6	e4e3b348-511f-11ec-802a-a33932e4dccf	ed4368ee-511f-11ec-a2ec-2779252d477b	NC	24
+c9a248c4-7d5b-42bf-a8e2-e0fa5d123942	456c8b60-64f1-11ec-bc31-d7572c6d3593	12c98ab8-2527-47c1-a457-c60237c90123	Fmaj7add9	0
+0debbfc1-44a7-4e39-8f84-a85345276d94	cada6c7e-63af-11ec-a4de-db023971ce96	af15d115-43bc-43f5-a82c-f448799e3ca7	F5	0
+55f7aee1-d09b-435b-bdbb-a411a84b369b	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	3aad2b63-4220-487a-9e18-2f832c82ac0c	Cadd2	0
+64bd1ca2-4e1b-4360-a0a3-799ac7035600	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	4ea042b5-047d-479b-948c-a5109cb376ad	Cadd2	0
+5aac3c6b-70fd-48e4-8b8e-315a3a754640	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	4ea042b5-047d-479b-948c-a5109cb376ad	Aadd9	56
+946b2ac3-7a6c-4f5f-946e-6c819253724e	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	4ea042b5-047d-479b-948c-a5109cb376ad	D-7	8
+1d844656-fe7b-41a0-b852-e9a6b9b48a10	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	4ea042b5-047d-479b-948c-a5109cb376ad	Gsus	16
+4f159425-bf37-40be-8a8c-0a0d6a19a78e	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	4ea042b5-047d-479b-948c-a5109cb376ad	D	80
+bdeefd74-675e-11ec-a2d0-f3824091cf9a	b1992856-675e-11ec-bdf4-0bf01a0f4940	b56dc842-675e-11ec-a2d0-cfe4a17522a8	XXX	0
+4efeffae-6768-11ec-b4ab-5397d3dcf7c0	b60ce576-507f-11ec-a732-0bce818af109	3baa3a04-6768-11ec-9c6b-2be5d4ebbfdc	Fmaj7	0
+7c72eba4-6771-11ec-b9c6-0b937b8a7a74	4e814ce8-42b1-11ec-abab-2742c680e727	8971b0c2-42b1-11ec-a0d2-a7e06e0dd54c	A	72
 \.
 
 
@@ -13505,7 +13781,6 @@ eb20fe70-3da9-11ec-8131-67843f8ca6fe	d16de2c2-3da9-11ec-b4cf-6b358a8373c2	eb1455
 4805d7ac-4258-11ec-84cb-8fa37bab52d9	a6866f5e-4257-11ec-b5d9-0f27f7472bae	08c97256-4258-11ec-a756-6be99bc32d9c	Sticky	C#3, F#3, B3, C#4, F#4, B4
 4abe0ab4-4258-11ec-919d-23c62bfcf4eb	a6866f5e-4257-11ec-b5d9-0f27f7472bae	f58dfaa4-4257-11ec-b5d9-bb30cd58e79b	Stripe	C#5, F#5, B5, C#6
 e4c08822-425c-11ec-8a74-9b18f116df1e	a6866f5e-4257-11ec-b5d9-0f27f7472bae	e4b3c2f4-425c-11ec-8a74-e33e9f7084f9	Stab	F#3, A3, B3, D4, F#4, A4, B4, D5, F#5, A5, B5
-7177f50c-42b2-11ec-8b3e-d3522396e350	4e814ce8-42b1-11ec-abab-2742c680e727	7168cfaa-42b2-11ec-aadb-7fc544fdbf38	Sticky	A2, E3, B3, C#4, E4, B4, E5
 e4c15acc-425c-11ec-bf90-1b1ce21b5ad1	a6866f5e-4257-11ec-b5d9-0f27f7472bae	e4b3c2f4-425c-11ec-8a74-e33e9f7084f9	Pad	F#3, A3, B3, D4, F#4, A4, B4, D5
 e4bdecac-425c-11ec-8a74-cbbb679ff375	a6866f5e-4257-11ec-b5d9-0f27f7472bae	e4b3c2f4-425c-11ec-8a74-e33e9f7084f9	Bass	D1, F#1, A1, B1, D2, E2, F#2, A2, B2, D3, E3, F#3
 e1d590c6-425c-11ec-8a74-8fbd9458795f	a6866f5e-4257-11ec-b5d9-0f27f7472bae	e1bf72dc-425c-11ec-8a74-1beccc6ea85c	Stab	F#3, A3, B3, E4, F#4, A4, B4, E5, F#5, A5, B5
@@ -13531,7 +13806,6 @@ cfe5dcd8-5c5f-11eb-b430-1fcd86e832fc	a9175b1a-39c1-11eb-8f04-2f80c84d572c	053d0b
 79fef868-447c-46e6-9b46-a6cee020d66d	4e814ce8-42b1-11ec-abab-2742c680e727	87a84659-c813-4b9f-9de2-b59c5b08a3cd	Bass	C1, C2, G2, C3, D3, G3, C4, D4
 0d7a1e72-ae9d-42a8-98f6-2e5a71bd03bd	4e814ce8-42b1-11ec-abab-2742c680e727	87a84659-c813-4b9f-9de2-b59c5b08a3cd	Pad	G2, C3, D3, G3, C4, D4, G4, C5, D5, G5, C6
 ef07933f-ea05-4f91-a8dc-8b7581aef46f	4e814ce8-42b1-11ec-abab-2742c680e727	87a84659-c813-4b9f-9de2-b59c5b08a3cd	Drum	(None)
-21acbc79-5225-477e-aa90-e0150a51081b	4e814ce8-42b1-11ec-abab-2742c680e727	87a84659-c813-4b9f-9de2-b59c5b08a3cd	Sticky	G2, C3, D3, E3, G3, B3, C4, D4, E4, G4, B4, C5, D5, E5, G5
 8984a218-42b1-11ec-b6c3-bb0adecf31da	4e814ce8-42b1-11ec-abab-2742c680e727	18417adf-6202-4929-9b39-05563a2abaf2	Drum	(None)
 8987498c-42b1-11ec-abab-5338c5cefb62	4e814ce8-42b1-11ec-abab-2742c680e727	18417adf-6202-4929-9b39-05563a2abaf2	Pad	(None)
 8986e988-42b1-11ec-ad6b-d7377d39b532	4e814ce8-42b1-11ec-abab-2742c680e727	18417adf-6202-4929-9b39-05563a2abaf2	Bass	(None)
@@ -13567,6 +13841,8 @@ a1e4e718-4961-431c-9557-caa084dc8918	b60ce576-507f-11ec-a732-0bce818af109	109605
 78acb129-4fa1-47bc-b0bd-b030fe402a29	b60ce576-507f-11ec-a732-0bce818af109	10960570-6bcd-4fdf-891e-c4ca1b8f1d60	Bass	(None)
 15d693b2-c709-4e68-bf4c-3974def99116	b60ce576-507f-11ec-a732-0bce818af109	5ff5cf30-99f3-4edd-a6f4-bfdfef17df37	Sticky	Bb1, F2, Bb2, F3, Bb3, F4, Bb4, F5
 a08274a8-4438-11ec-8acb-072a898367dd	4e814ce8-42b1-11ec-abab-2742c680e727	a0695dba-4438-11ec-89aa-9b8bddce534a	Sticky	D2, A2, D3, F#3, A3, D4, F#4
+21acbc79-5225-477e-aa90-e0150a51081b	4e814ce8-42b1-11ec-abab-2742c680e727	87a84659-c813-4b9f-9de2-b59c5b08a3cd	Sticky	G2, C3, D3, E3, G3, C4, D4, E4, G4, B4, C5, D5, E5, G5
+7177f50c-42b2-11ec-8b3e-d3522396e350	4e814ce8-42b1-11ec-abab-2742c680e727	7168cfaa-42b2-11ec-aadb-7fc544fdbf38	Sticky	A2, E3, B3, E4, B4, E5
 7ea78eb1-0156-4a64-a770-8f5fc8d6c818	b60ce576-507f-11ec-a732-0bce818af109	272856ae-eea6-4988-8b5e-cd014689113a	Bass	(None)
 162b33ed-7aad-40e8-aad5-508ab27f80d8	b60ce576-507f-11ec-a732-0bce818af109	272856ae-eea6-4988-8b5e-cd014689113a	Pad	(None)
 ee251ab0-f5af-457e-90db-aa77a2f26d21	b60ce576-507f-11ec-a732-0bce818af109	272856ae-eea6-4988-8b5e-cd014689113a	Drum	(None)
@@ -13588,32 +13864,20 @@ a8f1d8bf-b396-4983-a710-0a1ea899c201	b60ce576-507f-11ec-a732-0bce818af109	8d4859
 35a09236-5082-11ec-a24e-1f331a040178	b60ce576-507f-11ec-a732-0bce818af109	35919678-5082-11ec-a24e-1b475194a36e	Bass	(None)
 35a24f0e-5082-11ec-a24e-2f8f1811ce7c	b60ce576-507f-11ec-a732-0bce818af109	35919678-5082-11ec-a24e-1b475194a36e	Drum	(None)
 35a2b71e-5082-11ec-bbd1-f3ef4c0c87f2	b60ce576-507f-11ec-a732-0bce818af109	35919678-5082-11ec-a24e-1b475194a36e	Pad	(None)
-f090ccfa-41d2-44da-93fa-0f022793d6eb	50b200fa-513b-11ec-8f1c-d7c2c767519b	b92b7ecf-8353-46de-aa46-24ec2f462bdf	Drum	(None)
-5e6a8ed8-b6c9-4fac-8b86-53a8cedd88e4	50b200fa-513b-11ec-8f1c-d7c2c767519b	b92b7ecf-8353-46de-aa46-24ec2f462bdf	Bass	A1, E2, A2, C3, E3, G3, A3, C4
-4fb7e8cb-83b8-4ab8-b1f6-390c0a43ebb3	50b200fa-513b-11ec-8f1c-d7c2c767519b	b92b7ecf-8353-46de-aa46-24ec2f462bdf	Pad	A2, C3, E3, G3, A3, B3, C4, E4, G4, B4, C5, E5, G5
-9058fc98-14da-46d2-935f-6911982dfddf	50b200fa-513b-11ec-8f1c-d7c2c767519b	b92b7ecf-8353-46de-aa46-24ec2f462bdf	Sticky	A2, C3, E3, G3, A3, B3, C4, E4, G4, B4, C5, E5, G5, B5, C6
 b91d5d5a-745f-4cb6-a469-484726359a9e	b60ce576-507f-11ec-a732-0bce818af109	ae6f095b-00d3-49d8-b870-fcba90f7d90d	Sticky	G3, Bb3, D4, F4, Bb4, D5, F5
 50af6865-d4f2-44ee-af71-ff16171a42f6	50b200fa-513b-11ec-8f1c-d7c2c767519b	6a77abc5-b1ca-44d1-87cd-e561d652391c	Sticky	C2, G2, C3, D3, E3, G3, C4, D4, E4, G4, C5, D5, E5, G4, C6
 35a3d5cc-5082-11ec-a24e-bf3ef8470965	b60ce576-507f-11ec-a732-0bce818af109	35919678-5082-11ec-a24e-1b475194a36e	Sticky	G2, D3, A3, Bb3, D4, F4, A4, Bb4, D5, F5
-df291290-df02-4338-8831-67dc3ee89f1e	50b200fa-513b-11ec-8f1c-d7c2c767519b	d0bc4f8a-7f2c-47d1-9f5f-25c14e4250f1	Drum	(None)
 5c7b509e-2468-49fe-8e05-7cc0bbeff70c	b60ce576-507f-11ec-a732-0bce818af109	272856ae-eea6-4988-8b5e-cd014689113a	Sticky	A3, C4, E4, G4, C5, G5
 32510256-fe79-460a-8474-1f2a057819ea	b60ce576-507f-11ec-a732-0bce818af109	10960570-6bcd-4fdf-891e-c4ca1b8f1d60	Sticky	Bb1, F2, Bb2, F3, A3, D4, F4, A4
 f0d7928b-3508-4e77-a599-8e8ca537bf8a	e4e3b348-511f-11ec-802a-a33932e4dccf	2d0ca007-5e47-4764-b70a-5908a0368cd7	Drum	(None)
-1cd43bea-548e-4df8-942e-5fc7bc8da265	e4e3b348-511f-11ec-802a-a33932e4dccf	2d0ca007-5e47-4764-b70a-5908a0368cd7	Pad	A2, C3, E3, G3, A3, B3, C4, E4, G4, B4, C5, E5, G5
 cbf0bd2c-c50e-4734-8ed2-86352268e2cb	e4e3b348-511f-11ec-802a-a33932e4dccf	e9bba6e8-c47d-473f-9a19-9941c3f417e5	Drum	(None)
-de35cf9f-3a02-44e0-83fb-dc6d85a0c086	e4e3b348-511f-11ec-802a-a33932e4dccf	e9bba6e8-c47d-473f-9a19-9941c3f417e5	Pad	F2, A2, C3, E3, G3, A3, C4, E4, G4
 9816d331-951a-403a-a42d-52941899a044	e4e3b348-511f-11ec-802a-a33932e4dccf	e9bba6e8-c47d-473f-9a19-9941c3f417e5	Bass	F1, F2, A2, C3, E3, G3, A3, C4
 ed5deaac-511f-11ec-a2ec-d3320e42a9ab	e4e3b348-511f-11ec-802a-a33932e4dccf	d2010ba6-c6ff-4341-9a84-205eec9c9022	Drum	(None)
 ed6182de-511f-11ec-9cb6-7f04df9c2058	e4e3b348-511f-11ec-802a-a33932e4dccf	d2010ba6-c6ff-4341-9a84-205eec9c9022	Bass	(None)
-ed616254-511f-11ec-b482-4f084a13f741	e4e3b348-511f-11ec-802a-a33932e4dccf	d2010ba6-c6ff-4341-9a84-205eec9c9022	Pad	(None)
-48321c94-bf59-4d8f-a0eb-dcb05a142264	50b200fa-513b-11ec-8f1c-d7c2c767519b	d0bc4f8a-7f2c-47d1-9f5f-25c14e4250f1	Bass	(None)
 ed5e0b04-511f-11ec-802a-07f411ff54f3	e4e3b348-511f-11ec-802a-a33932e4dccf	d2010ba6-c6ff-4341-9a84-205eec9c9022	Sticky	G#2, D3, F3, G#3, B3, D4, F4, C5
 768b5b0a-5122-11ec-aadc-03dc3d6b801d	e4e3b348-511f-11ec-802a-a33932e4dccf	767728ba-5122-11ec-85ef-ef3d954eceb6	Drum	(None)
 768b92b4-5122-11ec-9d3b-c7ce903b6097	e4e3b348-511f-11ec-802a-a33932e4dccf	767728ba-5122-11ec-85ef-ef3d954eceb6	Bass	(None)
 768c15fe-5122-11ec-85ef-0782345a028b	e4e3b348-511f-11ec-802a-a33932e4dccf	767728ba-5122-11ec-85ef-ef3d954eceb6	Sticky	(None)
-768d2660-5122-11ec-9281-b791cfba10ed	e4e3b348-511f-11ec-802a-a33932e4dccf	767728ba-5122-11ec-85ef-ef3d954eceb6	Pad	(None)
-91a9bdc4-00b2-49fc-8c27-e2f8caa3f0b0	50b200fa-513b-11ec-8f1c-d7c2c767519b	d0bc4f8a-7f2c-47d1-9f5f-25c14e4250f1	Pad	(None)
-8fc38dc2-a9e3-45e3-a13a-8c73e040e2fa	50b200fa-513b-11ec-8f1c-d7c2c767519b	d0bc4f8a-7f2c-47d1-9f5f-25c14e4250f1	Sticky	Bb1, Bb2, D2, F3, A3, Bb3, C4, F4, A4
 694e01b0-5080-11ec-a732-4b7e932edf68	b60ce576-507f-11ec-a732-0bce818af109	69415bf4-5080-11ec-a732-a3e2ac850d25	Sticky	Bb1, F2, Bb2, F3, A3, Bb3, D4, E4, F4, A4, C5
 81ccb9d2-513b-11ec-bf2a-5fdf3970094d	50b200fa-513b-11ec-8f1c-d7c2c767519b	c46a45c4-dc1d-4655-861c-93c9fe7310c4	Drum	(None)
 a1ff8992-b3da-4490-8bc8-8dd6784c4ce4	e4e3b348-511f-11ec-802a-a33932e4dccf	e9bba6e8-c47d-473f-9a19-9941c3f417e5	Sticky	F1, F2, A2, C3, E3, G3, A3, C4, F4, G4, A4, C5, F5, G5
@@ -13740,7 +14004,6 @@ c2525359-f275-4df1-8928-5eace31f16ec	5f169850-611b-11ec-b5e9-93c7246a87ca	e70e85
 43e228b9-ce05-462b-a8c3-f1db71944793	5f169850-611b-11ec-b5e9-93c7246a87ca	f59c3080-18f0-4893-b20a-bebc1f1ba19d	Drum	(None)
 7d9a0aaf-e38e-42c7-afe8-dbc8ea258881	5f169850-611b-11ec-b5e9-93c7246a87ca	f59c3080-18f0-4893-b20a-bebc1f1ba19d	Bass	(None)
 dde9df2a-0c69-40af-a041-3cddf48dd4c2	5f169850-611b-11ec-b5e9-93c7246a87ca	f59c3080-18f0-4893-b20a-bebc1f1ba19d	Pad	(None)
-30f97e0e-e8f6-4c6a-a160-632398461c69	5f169850-611b-11ec-b5e9-93c7246a87ca	f59c3080-18f0-4893-b20a-bebc1f1ba19d	Sticky	G2, D3, G3, D4, G4, D5, G5, D6
 7da4817b-dfbb-40d7-b2da-880ce9eaa704	5f169850-611b-11ec-b5e9-93c7246a87ca	eb83d0c0-3b63-42fe-bfea-99d4f8247436	Drum	(None)
 a297f25d-9ac3-464e-89cc-4edc7b4ff53d	5f169850-611b-11ec-b5e9-93c7246a87ca	eb83d0c0-3b63-42fe-bfea-99d4f8247436	Bass	(None)
 0c3c9d8b-315b-4907-a416-c5fa42a5b02e	5f169850-611b-11ec-b5e9-93c7246a87ca	eb83d0c0-3b63-42fe-bfea-99d4f8247436	Pad	(None)
@@ -13750,9 +14013,6 @@ a87a8840-517a-4647-9100-86669acf85e7	5f169850-611b-11ec-b5e9-93c7246a87ca	520d69
 791ff927-c481-449e-8961-d9662542407e	5f169850-611b-11ec-b5e9-93c7246a87ca	e0cc0769-db80-4f69-a96f-513e2aa8a96e	Drum	(None)
 04859f42-392c-433d-89d5-ffc3910dbb92	5f169850-611b-11ec-b5e9-93c7246a87ca	e0cc0769-db80-4f69-a96f-513e2aa8a96e	Pad	(None)
 5baba6cb-d69c-4a0e-a545-f441099858ea	5f169850-611b-11ec-b5e9-93c7246a87ca	e0cc0769-db80-4f69-a96f-513e2aa8a96e	Bass	(None)
-9495864d-c878-4535-a675-6bb53dd7782c	5f169850-611b-11ec-b5e9-93c7246a87ca	f73d4407-ab57-4123-a9d8-5c788f6491fd	Drum	(None)
-e8f44c24-ac35-4616-a49e-ac18eabadf12	5f169850-611b-11ec-b5e9-93c7246a87ca	f73d4407-ab57-4123-a9d8-5c788f6491fd	Bass	(None)
-1f09a6de-543c-453b-a7f5-0ddc4e2ad156	5f169850-611b-11ec-b5e9-93c7246a87ca	f73d4407-ab57-4123-a9d8-5c788f6491fd	Pad	(None)
 0239bbde-bcea-40ef-83b1-73d7249db783	5f169850-611b-11ec-b5e9-93c7246a87ca	8fdde952-81f8-4bfd-ad26-4424afdc81d3	Drum	(None)
 d03870a6-cd3b-4729-817b-d18bcb87c1fb	5f169850-611b-11ec-b5e9-93c7246a87ca	8fdde952-81f8-4bfd-ad26-4424afdc81d3	Pad	(None)
 1edb6dfa-5c7d-48c5-8e45-423926c8a6c6	5f169850-611b-11ec-b5e9-93c7246a87ca	8fdde952-81f8-4bfd-ad26-4424afdc81d3	Bass	(None)
@@ -13771,7 +14031,6 @@ f89540ad-684e-4520-8b4e-7f778d782110	5f169850-611b-11ec-b5e9-93c7246a87ca	2f2771
 c204a047-5d4d-459a-9eb3-d76faaf609f5	5f169850-611b-11ec-b5e9-93c7246a87ca	31a8aee6-220c-4783-bb2a-c938dd409451	Bass	(None)
 4996eec6-a4d1-4b2b-8dc0-123fb58a6660	5f169850-611b-11ec-b5e9-93c7246a87ca	2f27715f-9757-497f-9b66-0da019f08f4e	Drum	(None)
 d009fb0a-68b5-4eb3-a3ef-a9ba4ce06df6	5f169850-611b-11ec-b5e9-93c7246a87ca	520d69d5-06dd-4d9e-8195-5570a85ae677	Sticky	A2, E3, A3, B3, E4, A4, B4, E5, A5, B5, E6, A6
-a977e2bb-a62a-4f3c-b560-27f3c041a790	5f169850-611b-11ec-b5e9-93c7246a87ca	f73d4407-ab57-4123-a9d8-5c788f6491fd	Sticky	B2, F#3, B3, C#4, F#4, B4, C#5, F#5, B5, C#6, F#6, B6
 6c833b9f-d130-48ca-b482-110ccefccd17	5f169850-611b-11ec-b5e9-93c7246a87ca	31a8aee6-220c-4783-bb2a-c938dd409451	Sticky	Bb2, F3, Bb3, C4, F4, Bb4, C5, F5, Bb5, C6, F6, Bb6
 bb172d7a-cef3-411b-9b40-9f657fc6d8c9	5f169850-611b-11ec-b5e9-93c7246a87ca	be5ef212-bd63-4aa7-a9fb-c0885bd60291	Sticky	C#2, G#2, C#3, D#3, G#3, C#4, D#4, G#4, C#5, D#5, G#5, C#6, D#6, G#6
 efa8561b-b27c-4893-b06a-8da00c8d11aa	5f169850-611b-11ec-b5e9-93c7246a87ca	2f27715f-9757-497f-9b66-0da019f08f4e	Sticky	D#2, A#2, D#3, F3, A#3, D#4, F4, A#4, D#5, F5, A#5, D#6, F6, A#6
@@ -13780,7 +14039,6 @@ efa8561b-b27c-4893-b06a-8da00c8d11aa	5f169850-611b-11ec-b5e9-93c7246a87ca	2f2771
 25f5fd04-2d6b-4a10-99cd-e0209fc7183b	5f169850-611b-11ec-b5e9-93c7246a87ca	0be50496-e5b7-4b10-b3e4-0de0a9ad5c24	Pad	(None)
 5c83ad4b-c564-4bd3-84b5-5d59d332f2ab	5f169850-611b-11ec-b5e9-93c7246a87ca	0be50496-e5b7-4b10-b3e4-0de0a9ad5c24	Bass	(None)
 f0bbaf80-b944-45f3-8547-ce04ed312cca	5f169850-611b-11ec-b5e9-93c7246a87ca	0be50496-e5b7-4b10-b3e4-0de0a9ad5c24	Drum	(None)
-ca5ddc4c-4960-4488-af4d-7e86e2935dff	5f169850-611b-11ec-b5e9-93c7246a87ca	0be50496-e5b7-4b10-b3e4-0de0a9ad5c24	Sticky	F2, C3, F3, G3, C4, F4, G4, C5, F5, G5, C6, F6, G6
 affecd76-61e5-11ec-b046-8b462fd0d100	366d6208-39c5-11ec-878e-6fff07b0d494	7ec996ce-2ee5-4450-8904-79097ab00f9d	Stab	A2, C3, E3, G3, A3, B3, C4, E4, G4, B4, C5, E5, G5
 73e7060c-61e3-11ec-b3d7-0bafcf0c3ad8	57bf3c88-61e3-11ec-8531-b780a7bb5110	6dd63ad0-61e3-11ec-b3d7-aba085b9339c	Stripe	C3, G3, B3, D4, E4, G4, C5
 d8033c40-61e4-11ec-bb5b-6b65dd7db7d2	abf58a2c-61e4-11ec-b046-c7256ab024eb	bf439240-61e4-11ec-bb5b-7bc27eb8bfb4	Sticky	C1, C2, G2, C3, F3, G3, Bb3, C4, F4, G4, Bb4, F5
@@ -13797,6 +14055,288 @@ ce8411f2-61e5-11ec-bb5b-278dea176659	366d6208-39c5-11ec-878e-6fff07b0d494	e0114d
 83456806-61f1-11ec-a8fb-e37dee77e4f9	57bf3c88-61e3-11ec-8531-b780a7bb5110	6dd63ad0-61e3-11ec-b3d7-aba085b9339c	Pad	(None)
 8427802e-61f1-11ec-a8fb-6b5ef5b52279	57bf3c88-61e3-11ec-8531-b780a7bb5110	6dd63ad0-61e3-11ec-b3d7-aba085b9339c	Stab	(None)
 8622ca50-61f1-11ec-a8fb-83d89902bb49	57bf3c88-61e3-11ec-8531-b780a7bb5110	6dd63ad0-61e3-11ec-b3d7-aba085b9339c	Sticky	(None)
+0af2510c-63ae-11ec-bd95-c7f2e688b985	b60ce576-507f-11ec-a732-0bce818af109	5b92c0c3-b70f-4984-86a9-44a8ef2b42d0	Stab	(None)
+0af2b232-63ae-11ec-9c85-4722756b3657	b60ce576-507f-11ec-a732-0bce818af109	ae6f095b-00d3-49d8-b870-fcba90f7d90d	Stab	(None)
+0af3dacc-63ae-11ec-b832-c71be03082fb	b60ce576-507f-11ec-a732-0bce818af109	8d485929-f6f0-4cf1-859f-02153278638a	Stab	(None)
+0af3165a-63ae-11ec-a699-5fc21e4ae5c5	b60ce576-507f-11ec-a732-0bce818af109	69415bf4-5080-11ec-a732-a3e2ac850d25	Stab	(None)
+0af2da46-63ae-11ec-b15f-bb2510552b47	b60ce576-507f-11ec-a732-0bce818af109	35919678-5082-11ec-a24e-1b475194a36e	Stab	(None)
+0af2e3b0-63ae-11ec-a4de-3f2bfa36c972	b60ce576-507f-11ec-a732-0bce818af109	272856ae-eea6-4988-8b5e-cd014689113a	Stab	(None)
+0af468a2-63ae-11ec-9bc8-7fdc6d98267a	b60ce576-507f-11ec-a732-0bce818af109	5ff5cf30-99f3-4edd-a6f4-bfdfef17df37	Stab	(None)
+0af4282e-63ae-11ec-bebe-7f0854d1c6b6	b60ce576-507f-11ec-a732-0bce818af109	10960570-6bcd-4fdf-891e-c4ca1b8f1d60	Stab	(None)
+ca5ddc4c-4960-4488-af4d-7e86e2935dff	5f169850-611b-11ec-b5e9-93c7246a87ca	0be50496-e5b7-4b10-b3e4-0de0a9ad5c24	Sticky	F1, F2, C3, F3, G3, C4, F4, G4, C5, F5, G5, C6, F6, G6
+30f97e0e-e8f6-4c6a-a160-632398461c69	5f169850-611b-11ec-b5e9-93c7246a87ca	f59c3080-18f0-4893-b20a-bebc1f1ba19d	Sticky	G1, G2, D3, G3, D4, G4, D5, G5, D6
+0af4a9a2-63ae-11ec-bd22-1f4ba545b901	b60ce576-507f-11ec-a732-0bce818af109	3d358502-518f-11ec-89b3-47760eba2852	Stab	(None)
+7f7fec5a-63ae-11ec-bd22-4fce0c158be7	d16de2c2-3da9-11ec-b4cf-6b358a8373c2	33519481-37a1-46e2-8114-84f86af45321	Stripe	C3, D3, G3, C4, D4, G4, C5, D5, G5
+0a5b8c44-63af-11ec-bd22-872f66c02478	e4e3b348-511f-11ec-802a-a33932e4dccf	e9bba6e8-c47d-473f-9a19-9941c3f417e5	Stripe	F2, A2, C3, E3, G3, A3, C4, F4, G4, A4, C5
+0e388e80-63ae-11ec-a4de-4773ea84f153	b60ce576-507f-11ec-a732-0bce818af109	272856ae-eea6-4988-8b5e-cd014689113a	Stripe	(None)
+0e3bca3c-63ae-11ec-a4de-87a52f05d80e	b60ce576-507f-11ec-a732-0bce818af109	ae6f095b-00d3-49d8-b870-fcba90f7d90d	Stripe	(None)
+7b5642c8-63ae-11ec-a4de-973a57347051	d16de2c2-3da9-11ec-b4cf-6b358a8373c2	33519481-37a1-46e2-8114-84f86af45321	Stab	(None)
+7f7f4c00-63ae-11ec-a4de-3f5941f9ee9f	d16de2c2-3da9-11ec-b4cf-6b358a8373c2	e671073f-0c77-4147-9e27-13affa1a9573	Stripe	A2, C3, E3, G3, A3, B3, C4, E4, G4, B4, C5, E5, G5
+662ca45d-138d-4ffe-b9a9-22b440ccca26	cada6c7e-63af-11ec-a4de-db023971ce96	c901551f-b948-4eb7-86fc-9a951949a351	Bass	C1, C2, G2, C3, D3, G3, C4, D4
+3ef55cba-1fa0-4243-aa6e-10156f954427	cada6c7e-63af-11ec-a4de-db023971ce96	c901551f-b948-4eb7-86fc-9a951949a351	Pad	G2, C3, D3, G3, C4, D4, G4, C5, D5, G5, C6
+5ed63df3-ff82-4f8e-ba23-65e20880d489	cada6c7e-63af-11ec-a4de-db023971ce96	c901551f-b948-4eb7-86fc-9a951949a351	Drum	(None)
+32c73aa3-6b15-437d-9376-c882e9385db1	cada6c7e-63af-11ec-a4de-db023971ce96	c901551f-b948-4eb7-86fc-9a951949a351	Sticky	C2, G2, C3, D3, E3, G3, C4, D4, E4, G4, C5, D5, E5, G4, C6
+ad70f379-452a-4b43-9b45-6011453240ca	cada6c7e-63af-11ec-a4de-db023971ce96	ed8c7610-ebb6-4e26-a592-423bc3e6dab2	Drum	(None)
+7b9f13e3-ffe1-4ea5-a4e5-1e6dc7f7617c	cada6c7e-63af-11ec-a4de-db023971ce96	ed8c7610-ebb6-4e26-a592-423bc3e6dab2	Bass	(None)
+2c8d2bf2-e3a7-4114-9def-eda6a474ace0	cada6c7e-63af-11ec-a4de-db023971ce96	ed8c7610-ebb6-4e26-a592-423bc3e6dab2	Pad	(None)
+f9bb86a3-3d71-4cf2-9903-fd19c27911d3	cada6c7e-63af-11ec-a4de-db023971ce96	ed8c7610-ebb6-4e26-a592-423bc3e6dab2	Sticky	G2, D3, G3, D4, G4, D5, G5, D6
+c9a166e5-b969-40d3-a84c-f0b73d07302f	cada6c7e-63af-11ec-a4de-db023971ce96	0eff9d29-caf2-4af8-8ddc-e52a80d802a0	Drum	(None)
+f688b7df-9724-40c1-b218-098a88db9c43	cada6c7e-63af-11ec-a4de-db023971ce96	0eff9d29-caf2-4af8-8ddc-e52a80d802a0	Bass	(None)
+dea9dd95-7f82-4dc6-9d90-7a25e0b0270e	cada6c7e-63af-11ec-a4de-db023971ce96	0eff9d29-caf2-4af8-8ddc-e52a80d802a0	Pad	(None)
+96757dab-2a99-447d-9fdb-e1eb986126b3	cada6c7e-63af-11ec-a4de-db023971ce96	02ec70cd-2b45-4cc0-be23-77ccc1ded03d	Drum	(None)
+e3425ebe-2374-4562-8361-69dfa177d172	cada6c7e-63af-11ec-a4de-db023971ce96	02ec70cd-2b45-4cc0-be23-77ccc1ded03d	Bass	(None)
+301a0811-c56e-45a0-a5b0-57a2ca0f800e	cada6c7e-63af-11ec-a4de-db023971ce96	02ec70cd-2b45-4cc0-be23-77ccc1ded03d	Pad	(None)
+1ec8e367-efdc-4e6f-aee5-8fb53834d06e	cada6c7e-63af-11ec-a4de-db023971ce96	aa35e6c1-3256-46a0-b04e-88667ac3d98d	Drum	(None)
+dbd13575-7f37-400a-9f2a-ba59ab452ee3	cada6c7e-63af-11ec-a4de-db023971ce96	aa35e6c1-3256-46a0-b04e-88667ac3d98d	Pad	(None)
+c39054e3-68c3-46fa-947e-0f92c6bc0e2e	cada6c7e-63af-11ec-a4de-db023971ce96	aa35e6c1-3256-46a0-b04e-88667ac3d98d	Bass	(None)
+a7c79f3a-65de-40b0-8e50-b6c2c41acddc	cada6c7e-63af-11ec-a4de-db023971ce96	0fdb514f-d499-4e29-9aa5-af7fc213020c	Drum	(None)
+8ad1ef0a-859f-47ab-a337-e5336920be0e	cada6c7e-63af-11ec-a4de-db023971ce96	0fdb514f-d499-4e29-9aa5-af7fc213020c	Bass	(None)
+1be97241-7c01-46e7-8d37-9d29c9db750a	cada6c7e-63af-11ec-a4de-db023971ce96	0fdb514f-d499-4e29-9aa5-af7fc213020c	Pad	(None)
+db300ace-289b-41c4-b212-6e8117093a20	cada6c7e-63af-11ec-a4de-db023971ce96	aa908e61-f819-419f-89d4-5e00d93cd528	Drum	(None)
+88984c8a-8686-49eb-b1e6-42e4f0220aae	cada6c7e-63af-11ec-a4de-db023971ce96	aa908e61-f819-419f-89d4-5e00d93cd528	Pad	(None)
+d35ed154-6691-42ad-b0b0-dfc7ee842fbc	cada6c7e-63af-11ec-a4de-db023971ce96	aa908e61-f819-419f-89d4-5e00d93cd528	Bass	(None)
+b8ae46de-70b2-4baa-849e-25196255e072	cada6c7e-63af-11ec-a4de-db023971ce96	970ecde6-d5c1-4334-9237-ebb5a721285e	Bass	(None)
+bb40eff1-95ad-42f3-845b-e3bddf80adbf	cada6c7e-63af-11ec-a4de-db023971ce96	aa908e61-f819-419f-89d4-5e00d93cd528	Sticky	F#2, C#3, F#3, C#4, F#4, C#5, F#5, C#6, F#6
+dda4a5f1-3ed5-4be9-9f2e-3d59fb4b624e	cada6c7e-63af-11ec-a4de-db023971ce96	970ecde6-d5c1-4334-9237-ebb5a721285e	Drum	(None)
+8e681a4d-4cca-4371-825a-ecc19941b7c3	cada6c7e-63af-11ec-a4de-db023971ce96	970ecde6-d5c1-4334-9237-ebb5a721285e	Pad	(None)
+658d87f2-9bdf-48b1-bbc4-6732fb06fdab	cada6c7e-63af-11ec-a4de-db023971ce96	70506b44-5aa9-48a2-8e48-bb4e518515fb	Drum	(None)
+54c14977-db1b-47fa-980e-c392a2379178	cada6c7e-63af-11ec-a4de-db023971ce96	70506b44-5aa9-48a2-8e48-bb4e518515fb	Pad	(None)
+0ddd353b-0e8e-4381-9beb-f889d737f72e	cada6c7e-63af-11ec-a4de-db023971ce96	34c07bbf-99df-49a3-b6d7-b30487a17bd8	Pad	(None)
+ebffabe1-6802-4b44-adc5-5715161970b7	cada6c7e-63af-11ec-a4de-db023971ce96	70506b44-5aa9-48a2-8e48-bb4e518515fb	Bass	(None)
+7baac7e4-d919-49e7-b9e9-356f5141c34e	cada6c7e-63af-11ec-a4de-db023971ce96	814f0cd1-3540-458c-ab74-3c4164e2b725	Bass	(None)
+74059e44-6185-4bac-bf53-70150069adc3	cada6c7e-63af-11ec-a4de-db023971ce96	34c07bbf-99df-49a3-b6d7-b30487a17bd8	Drum	(None)
+69d45465-d141-414c-8ace-7fd9de337112	cada6c7e-63af-11ec-a4de-db023971ce96	70506b44-5aa9-48a2-8e48-bb4e518515fb	Sticky	G#2, D#3, G#3, D#4, G#4, D#5, G#5, D#6, G#6
+df7bdfdb-e902-4543-9510-a4ef9a42e426	cada6c7e-63af-11ec-a4de-db023971ce96	814f0cd1-3540-458c-ab74-3c4164e2b725	Pad	(None)
+be623bd9-963f-4eb5-bd3b-72c7b2c17c3e	cada6c7e-63af-11ec-a4de-db023971ce96	34c07bbf-99df-49a3-b6d7-b30487a17bd8	Bass	(None)
+3a7d9543-a8d9-40a7-b709-411e6766bd26	cada6c7e-63af-11ec-a4de-db023971ce96	814f0cd1-3540-458c-ab74-3c4164e2b725	Drum	(None)
+5f56f527-4e42-4dc2-992d-18eedc71544f	cada6c7e-63af-11ec-a4de-db023971ce96	02ec70cd-2b45-4cc0-be23-77ccc1ded03d	Sticky	A2, E3, A3, B3, E4, A4, B4, E5, A5, B5, E6, A6
+4cca2e36-6d74-4d12-bf41-c7abdb14312a	cada6c7e-63af-11ec-a4de-db023971ce96	0fdb514f-d499-4e29-9aa5-af7fc213020c	Sticky	B2, F#3, B3, C#4, F#4, B4, C#5, F#5, B5, C#6, F#6, B6
+e3ae2130-1199-42cd-9dd7-a6d705b064c5	cada6c7e-63af-11ec-a4de-db023971ce96	34c07bbf-99df-49a3-b6d7-b30487a17bd8	Sticky	Bb2, F3, Bb3, C4, F4, Bb4, C5, F5, Bb5, C6, F6, Bb6
+46720343-61c8-476d-ae32-91614b709b34	cada6c7e-63af-11ec-a4de-db023971ce96	970ecde6-d5c1-4334-9237-ebb5a721285e	Sticky	C#2, G#2, C#3, D#3, G#3, C#4, D#4, G#4, C#5, D#5, G#5, C#6, D#6, G#6
+ef5d2409-16cb-4699-ab30-7a0358d21293	cada6c7e-63af-11ec-a4de-db023971ce96	814f0cd1-3540-458c-ab74-3c4164e2b725	Sticky	D#2, A#2, D#3, F3, A#3, D#4, F4, A#4, D#5, F5, A#5, D#6, F6, A#6
+4b2f9860-ed7b-4c1b-8754-41c9b6888ef1	cada6c7e-63af-11ec-a4de-db023971ce96	0eff9d29-caf2-4af8-8ddc-e52a80d802a0	Sticky	D2, A2, D3, E3, A3, D4, E4, A4, D5, E5, A5, D6, E6, A6
+935aa437-4b5f-47df-af31-fd2075af94be	cada6c7e-63af-11ec-a4de-db023971ce96	aa35e6c1-3256-46a0-b04e-88667ac3d98d	Sticky	E2, B2, E3, F#3, B3, E4, F#4, B4, E5, F#5, B5, E6, F#6, B6
+7719f260-0bed-40e5-9ef7-9b37cbfe3b87	cada6c7e-63af-11ec-a4de-db023971ce96	0debbfc1-44a7-4e39-8f84-a85345276d94	Pad	(None)
+421a8bb3-fec0-490d-ac83-6197278d6bff	cada6c7e-63af-11ec-a4de-db023971ce96	0debbfc1-44a7-4e39-8f84-a85345276d94	Bass	(None)
+a5c8bf3c-8e73-4ce1-bbe0-b126386652d2	cada6c7e-63af-11ec-a4de-db023971ce96	0debbfc1-44a7-4e39-8f84-a85345276d94	Drum	(None)
+260295de-4483-4167-b015-702a28018b8c	cada6c7e-63af-11ec-a4de-db023971ce96	0debbfc1-44a7-4e39-8f84-a85345276d94	Sticky	F2, C3, F3, G3, C4, F4, C5, F5, C6, F6
+0e395072-63ae-11ec-9c85-37b00c4274cf	b60ce576-507f-11ec-a732-0bce818af109	5ff5cf30-99f3-4edd-a6f4-bfdfef17df37	Stripe	Bb2, F3, Bb3, F4, Bb4, F5
+0e39a810-63ae-11ec-b15f-c700ea143fa5	b60ce576-507f-11ec-a732-0bce818af109	10960570-6bcd-4fdf-891e-c4ca1b8f1d60	Stripe	Bb1, F2, Bb2, F3, A3, D4, F4, A4
+0a68afa0-63af-11ec-b15f-cb1a9cb8ee82	e4e3b348-511f-11ec-802a-a33932e4dccf	d2010ba6-c6ff-4341-9a84-205eec9c9022	Stripe	G#2, D3, F3, G#3, B3, D4, F4
+0e3a4054-63ae-11ec-bd95-a3281ac2b164	b60ce576-507f-11ec-a732-0bce818af109	5b92c0c3-b70f-4984-86a9-44a8ef2b42d0	Stripe	(None)
+7f7fe020-63ae-11ec-bd95-a70eca71226c	d16de2c2-3da9-11ec-b4cf-6b358a8373c2	eb1455d0-3da9-11ec-a83a-937cebb7989b	Stripe	F2, A2, C3, E3, G3, A3, C4, E4, G4
+0e3a7484-63ae-11ec-b832-d7f93529341c	b60ce576-507f-11ec-a732-0bce818af109	69415bf4-5080-11ec-a732-a3e2ac850d25	Stripe	(None)
+0e3afeea-63ae-11ec-a699-a32b5e5f3ba6	b60ce576-507f-11ec-a732-0bce818af109	3d358502-518f-11ec-89b3-47760eba2852	Stripe	(None)
+7af5ecfc-63ae-11ec-a699-0b01be3eaea8	d16de2c2-3da9-11ec-b4cf-6b358a8373c2	eb1455d0-3da9-11ec-a83a-937cebb7989b	Stab	(None)
+0a5ba1ac-63af-11ec-a699-d3b8c7162fc4	e4e3b348-511f-11ec-802a-a33932e4dccf	767728ba-5122-11ec-85ef-ef3d954eceb6	Stripe	(None)
+0a59087a-63af-11ec-a699-b71767bd6ffb	e4e3b348-511f-11ec-802a-a33932e4dccf	2d0ca007-5e47-4764-b70a-5908a0368cd7	Stripe	A2, C3, E3, G3, A3, B3, C4, E4, G4, B4
+0e3b6d12-63ae-11ec-9bc8-0b3e8029793e	b60ce576-507f-11ec-a732-0bce818af109	35919678-5082-11ec-a24e-1b475194a36e	Stripe	(None)
+7af565ca-63ae-11ec-9bc8-c7a0deceacf7	d16de2c2-3da9-11ec-b4cf-6b358a8373c2	e671073f-0c77-4147-9e27-13affa1a9573	Stab	(None)
+0e3c7680-63ae-11ec-bebe-876d03402325	b60ce576-507f-11ec-a732-0bce818af109	8d485929-f6f0-4cf1-859f-02153278638a	Stripe	(None)
+f482c05a-63b2-11ec-8c2f-f3aac92b6157	cada6c7e-63af-11ec-a4de-db023971ce96	aa35e6c1-3256-46a0-b04e-88667ac3d98d	Stab	(None)
+f48388aa-63b2-11ec-b45c-833f122558f0	cada6c7e-63af-11ec-a4de-db023971ce96	0fdb514f-d499-4e29-9aa5-af7fc213020c	Stab	(None)
+f4839660-63b2-11ec-adde-7fd352e2df15	cada6c7e-63af-11ec-a4de-db023971ce96	34c07bbf-99df-49a3-b6d7-b30487a17bd8	Stab	(None)
+f4842ca6-63b2-11ec-859c-2324f842e1b6	cada6c7e-63af-11ec-a4de-db023971ce96	0debbfc1-44a7-4e39-8f84-a85345276d94	Stab	(None)
+f484f366-63b2-11ec-9fc5-3f647ac5be2f	cada6c7e-63af-11ec-a4de-db023971ce96	970ecde6-d5c1-4334-9237-ebb5a721285e	Stab	(None)
+f484e254-63b2-11ec-b438-ebf675d8ab3e	cada6c7e-63af-11ec-a4de-db023971ce96	c901551f-b948-4eb7-86fc-9a951949a351	Stab	(None)
+f4855798-63b2-11ec-91e5-57ce2163bb2e	cada6c7e-63af-11ec-a4de-db023971ce96	aa908e61-f819-419f-89d4-5e00d93cd528	Stab	(None)
+f48557de-63b2-11ec-8a50-4316b2b033b0	cada6c7e-63af-11ec-a4de-db023971ce96	814f0cd1-3540-458c-ab74-3c4164e2b725	Stab	(None)
+f4862ccc-63b2-11ec-8c2f-1be3ee706d9c	cada6c7e-63af-11ec-a4de-db023971ce96	ed8c7610-ebb6-4e26-a592-423bc3e6dab2	Stab	(None)
+f485a2e8-63b2-11ec-be4b-63d18185b812	cada6c7e-63af-11ec-a4de-db023971ce96	70506b44-5aa9-48a2-8e48-bb4e518515fb	Stab	(None)
+f485f98c-63b2-11ec-b88e-e3e96f2a0b0e	cada6c7e-63af-11ec-a4de-db023971ce96	0eff9d29-caf2-4af8-8ddc-e52a80d802a0	Stab	(None)
+f4861480-63b2-11ec-b817-3750b193485d	cada6c7e-63af-11ec-a4de-db023971ce96	02ec70cd-2b45-4cc0-be23-77ccc1ded03d	Stab	(None)
+55c33d36-63b3-11ec-b817-1769d0adfde1	50b200fa-513b-11ec-8f1c-d7c2c767519b	391d9a49-2349-4b56-8b61-b85f4e9fcfa1	Stab	(None)
+55c40d88-63b3-11ec-be4b-d7304bcbf9e3	50b200fa-513b-11ec-8f1c-d7c2c767519b	980d47e7-f705-4870-9d2f-6770d45a639d	Stab	(None)
+55c46062-63b3-11ec-8c2f-2fab2ed8b882	50b200fa-513b-11ec-8f1c-d7c2c767519b	f6f902fd-b9ea-4906-9989-bf1aaebb3ec5	Stab	(None)
+55c45752-63b3-11ec-a0cf-73b2185eef8f	50b200fa-513b-11ec-8f1c-d7c2c767519b	795d8625-d475-4d7f-ab87-6436abd7552f	Stab	(None)
+55c62938-63b3-11ec-91e5-737c82e6be00	50b200fa-513b-11ec-8f1c-d7c2c767519b	c84d84b8-23f5-4888-bbbb-2bb887b4019e	Stab	(None)
+55c683ba-63b3-11ec-8a50-7fdcee919ded	50b200fa-513b-11ec-8f1c-d7c2c767519b	b4622760-2f0e-40b8-a320-f847b6561af8	Stab	(None)
+55c70ae2-63b3-11ec-adde-bf3d7d4b587d	50b200fa-513b-11ec-8f1c-d7c2c767519b	f924d962-c306-4188-8552-e76c663d659b	Stab	(None)
+55c72e14-63b3-11ec-9fc5-5f022c154a64	50b200fa-513b-11ec-8f1c-d7c2c767519b	6a77abc5-b1ca-44d1-87cd-e561d652391c	Stab	(None)
+55c74930-63b3-11ec-b438-cb2eb57833c0	50b200fa-513b-11ec-8f1c-d7c2c767519b	9f40245e-33c6-4ae7-8330-b751834e3abc	Stab	(None)
+55c77586-63b3-11ec-b88e-cf1975851b99	50b200fa-513b-11ec-8f1c-d7c2c767519b	07ea7591-9667-42c1-8fc8-215b45d0054f	Stab	(None)
+55c7932c-63b3-11ec-b817-437565839b14	50b200fa-513b-11ec-8f1c-d7c2c767519b	c46a45c4-dc1d-4655-861c-93c9fe7310c4	Stab	(None)
+5b138c0a-63b3-11ec-adde-db10591141f2	50b200fa-513b-11ec-8f1c-d7c2c767519b	f6f902fd-b9ea-4906-9989-bf1aaebb3ec5	Stab	(None)
+5b14336c-63b3-11ec-859c-63df010e1d6b	50b200fa-513b-11ec-8f1c-d7c2c767519b	795d8625-d475-4d7f-ab87-6436abd7552f	Stab	(None)
+5b146ed6-63b3-11ec-8c2f-f72e1c257485	50b200fa-513b-11ec-8f1c-d7c2c767519b	980d47e7-f705-4870-9d2f-6770d45a639d	Stab	(None)
+5b149a64-63b3-11ec-a0cf-f381f7f459f1	50b200fa-513b-11ec-8f1c-d7c2c767519b	6a77abc5-b1ca-44d1-87cd-e561d652391c	Stab	(None)
+5b14c3f4-63b3-11ec-91e5-0f1db7371f0c	50b200fa-513b-11ec-8f1c-d7c2c767519b	07ea7591-9667-42c1-8fc8-215b45d0054f	Stab	(None)
+5b1564d0-63b3-11ec-b438-17afca958ee4	50b200fa-513b-11ec-8f1c-d7c2c767519b	391d9a49-2349-4b56-8b61-b85f4e9fcfa1	Stab	(None)
+5b1610c4-63b3-11ec-be4b-6f8c9d4bee85	50b200fa-513b-11ec-8f1c-d7c2c767519b	b4622760-2f0e-40b8-a320-f847b6561af8	Stab	(None)
+5b162294-63b3-11ec-8a50-9f93ccb9c0ee	50b200fa-513b-11ec-8f1c-d7c2c767519b	9f40245e-33c6-4ae7-8330-b751834e3abc	Stab	(None)
+5b162294-63b3-11ec-9fc5-476c97555cad	50b200fa-513b-11ec-8f1c-d7c2c767519b	f924d962-c306-4188-8552-e76c663d659b	Stab	(None)
+5b1630cc-63b3-11ec-adde-037f5e0a7153	50b200fa-513b-11ec-8f1c-d7c2c767519b	c46a45c4-dc1d-4655-861c-93c9fe7310c4	Stab	(None)
+5b165502-63b3-11ec-b817-b3f3bf5f5010	50b200fa-513b-11ec-8f1c-d7c2c767519b	c84d84b8-23f5-4888-bbbb-2bb887b4019e	Stab	(None)
+e00c0bfc-63b4-11ec-a43e-77e1b1be1f89	cada6c7e-63af-11ec-a4de-db023971ce96	aa35e6c1-3256-46a0-b04e-88667ac3d98d	Stripe	E2, B2, E3, F#3, B3, E4, F#4, B4, E5, F#5, B5
+e0049e26-63b4-11ec-8a50-e7b2bc68d7aa	cada6c7e-63af-11ec-a4de-db023971ce96	02ec70cd-2b45-4cc0-be23-77ccc1ded03d	Stripe	A2, E3, A3, B3, E4, A4, B4, E5
+e005ce5e-63b4-11ec-be4b-2b4e5d61e128	cada6c7e-63af-11ec-a4de-db023971ce96	0fdb514f-d499-4e29-9aa5-af7fc213020c	Stripe	B2, F#3, B3, C#4, F#4, B4, C#5, F#5, B5
+e006a662-63b4-11ec-b45c-8bb5a675f241	cada6c7e-63af-11ec-a4de-db023971ce96	34c07bbf-99df-49a3-b6d7-b30487a17bd8	Stripe	Bb2, F3, Bb3, C4, F4, Bb4, C5, F5, Bb5
+e00643d4-63b4-11ec-9293-47037811d335	cada6c7e-63af-11ec-a4de-db023971ce96	970ecde6-d5c1-4334-9237-ebb5a721285e	Stripe	C#2, G#2, C#3, D#3, G#3, C#4, D#4, G#4, C#5, D#5, G#5
+e0065658-63b4-11ec-9fc5-2f0da9003df1	cada6c7e-63af-11ec-a4de-db023971ce96	c901551f-b948-4eb7-86fc-9a951949a351	Stripe	G2, C3, D3, G3, C4, D4, G4, C5, D5, G5
+e00684f2-63b4-11ec-859c-17fb71d9bdd8	cada6c7e-63af-11ec-a4de-db023971ce96	aa908e61-f819-419f-89d4-5e00d93cd528	Stripe	F#2, C#3, F#3, C#4, F#4, C#5, F#5
+e0062fd4-63b4-11ec-a0cf-dbaf1f642b0d	cada6c7e-63af-11ec-a4de-db023971ce96	814f0cd1-3540-458c-ab74-3c4164e2b725	Stripe	D#2, A#2, D#3, F3, A#3, D#4, F4, A#4, D#5, F5, A#5
+e00a5c94-63b4-11ec-8bf6-1b766be16b49	cada6c7e-63af-11ec-a4de-db023971ce96	0debbfc1-44a7-4e39-8f84-a85345276d94	Stripe	F2, C3, F3, G3, C4, F4, G4, C5, F5, G5
+e005c47c-63b4-11ec-b438-631f8f7595ff	cada6c7e-63af-11ec-a4de-db023971ce96	0eff9d29-caf2-4af8-8ddc-e52a80d802a0	Stripe	D2, A2, D3, E3, A3, D4, E4, A4, D5, E5, A5
+e00af78a-63b4-11ec-a06a-eb3df8368821	cada6c7e-63af-11ec-a4de-db023971ce96	70506b44-5aa9-48a2-8e48-bb4e518515fb	Stripe	G#2, D#3, G#3, D#4, G#4, D#5, G#5
+e0080bc4-63b4-11ec-8a50-b73390ccfa10	cada6c7e-63af-11ec-a4de-db023971ce96	ed8c7610-ebb6-4e26-a592-423bc3e6dab2	Stripe	G2, D3, G3, D4, G4, D5, G5
+f7bf00a4-63b6-11ec-975e-8ffe6118d91b	4e814ce8-42b1-11ec-abab-2742c680e727	7168cfaa-42b2-11ec-aadb-7fc544fdbf38	Stab	(None)
+f7bf65da-63b6-11ec-bf3d-67b1f8436d19	4e814ce8-42b1-11ec-abab-2742c680e727	87a84659-c813-4b9f-9de2-b59c5b08a3cd	Stab	(None)
+f7c0f832-63b6-11ec-8b96-67e16c417c0b	4e814ce8-42b1-11ec-abab-2742c680e727	18417adf-6202-4929-9b39-05563a2abaf2	Stab	(None)
+f7c54414-63b6-11ec-bf2d-2b32f167a7ed	4e814ce8-42b1-11ec-abab-2742c680e727	a0695dba-4438-11ec-89aa-9b8bddce534a	Stab	(None)
+f7c60f48-63b6-11ec-a55c-c742e23fd986	4e814ce8-42b1-11ec-abab-2742c680e727	bfa7265e-42b1-11ec-b671-8354e2a72791	Stab	(None)
+f7c6300e-63b6-11ec-b6a3-db684d8ee757	4e814ce8-42b1-11ec-abab-2742c680e727	03a77020-42b2-11ec-abab-ef5d4166ca65	Stab	(None)
+f9977e06-63b6-11ec-8b96-eb70bb0816a1	4e814ce8-42b1-11ec-abab-2742c680e727	18417adf-6202-4929-9b39-05563a2abaf2	Stripe	C2, G2, D3, E3, G3, C4, E4
+f9979210-63b6-11ec-bf2d-a399a38b4cb4	4e814ce8-42b1-11ec-abab-2742c680e727	bfa7265e-42b1-11ec-b671-8354e2a72791	Stripe	D2, A2, C3, F3, A3, D4, F4, C5
+f99a6e5e-63b6-11ec-a55c-ff4706b78eab	4e814ce8-42b1-11ec-abab-2742c680e727	03a77020-42b2-11ec-abab-ef5d4166ca65	Stripe	G2, D3, C4, G4, C5
+f9968118-63b6-11ec-b6a3-3b7132a1e90b	4e814ce8-42b1-11ec-abab-2742c680e727	a0695dba-4438-11ec-89aa-9b8bddce534a	Stripe	D2, A2, D3, F#3, A3, D4, F#4
+dc94462e-63b9-11ec-a216-63fa4d84e28e	e4e3b348-511f-11ec-802a-a33932e4dccf	dc86ddae-63b9-11ec-8246-d38528378306	Drum	(None)
+dc949138-63b9-11ec-8246-0fc62200a9ad	e4e3b348-511f-11ec-802a-a33932e4dccf	dc86ddae-63b9-11ec-8246-d38528378306	Bass	(None)
+dc97b156-63b9-11ec-ba31-db6a45240db1	e4e3b348-511f-11ec-802a-a33932e4dccf	dc86ddae-63b9-11ec-8246-d38528378306	Sticky	(None)
+dc97b156-63b9-11ec-823e-c34604bc19cb	e4e3b348-511f-11ec-802a-a33932e4dccf	dc86ddae-63b9-11ec-8246-d38528378306	Stripe	(None)
+f996bce6-63b6-11ec-bf3d-37b28e56a34f	4e814ce8-42b1-11ec-abab-2742c680e727	87a84659-c813-4b9f-9de2-b59c5b08a3cd	Stripe	G2, C3, D3, G3, C4, D4, G4, C5, D5
+f9953b1e-63b6-11ec-975e-e796ba95a2f2	4e814ce8-42b1-11ec-abab-2742c680e727	7168cfaa-42b2-11ec-aadb-7fc544fdbf38	Stripe	A2, E3, B3, E4, B4, E5
+d6bd5780-63ba-11ec-8144-fb5d1d0aadd8	5f169850-611b-11ec-b5e9-93c7246a87ca	1bed87f5-f821-44f1-996a-95cb4de5746b	Stripe	C2, G2, C3, D3, E3, G3, C4, D4, E4, G4
+d6bdd822-63ba-11ec-a216-d3fe801cdca5	5f169850-611b-11ec-b5e9-93c7246a87ca	520d69d5-06dd-4d9e-8195-5570a85ae677	Stripe	(None)
+d6bd11f8-63ba-11ec-9251-efd0bceeb7ac	5f169850-611b-11ec-b5e9-93c7246a87ca	be5ef212-bd63-4aa7-a9fb-c0885bd60291	Stripe	(None)
+d6beaeaa-63ba-11ec-823e-6724fb372cd7	5f169850-611b-11ec-b5e9-93c7246a87ca	e0cc0769-db80-4f69-a96f-513e2aa8a96e	Stripe	(None)
+d6bdcfee-63ba-11ec-ba31-570e4ab71042	5f169850-611b-11ec-b5e9-93c7246a87ca	8fdde952-81f8-4bfd-ad26-4424afdc81d3	Stripe	(None)
+d6bdc648-63ba-11ec-8246-534bc19a554c	5f169850-611b-11ec-b5e9-93c7246a87ca	eb83d0c0-3b63-42fe-bfea-99d4f8247436	Stripe	(None)
+d6bdb7de-63ba-11ec-b91f-9ffdf2944619	5f169850-611b-11ec-b5e9-93c7246a87ca	e70e85f5-427d-4b90-a8b1-0770e7ac6546	Stripe	(None)
+d6bd0a8c-63ba-11ec-ac3c-b39a94d963db	5f169850-611b-11ec-b5e9-93c7246a87ca	2f27715f-9757-497f-9b66-0da019f08f4e	Stripe	(None)
+d6bd7cf6-63ba-11ec-9f49-5f4bb199e481	5f169850-611b-11ec-b5e9-93c7246a87ca	31a8aee6-220c-4783-bb2a-c938dd409451	Stripe	(None)
+d6bf1dc2-63ba-11ec-8b69-0f1cace19e50	5f169850-611b-11ec-b5e9-93c7246a87ca	ba5f0b79-b3c9-44d0-946a-0f4598adb772	Stripe	(None)
+d758e100-63ba-11ec-9f49-a768cc77c50c	5f169850-611b-11ec-b5e9-93c7246a87ca	f59c3080-18f0-4893-b20a-bebc1f1ba19d	Stab	(None)
+d75b66dc-63ba-11ec-8d62-b3da73107a50	5f169850-611b-11ec-b5e9-93c7246a87ca	f59c3080-18f0-4893-b20a-bebc1f1ba19d	Stab	(None)
+fc4ca8a0-6498-11ec-93f7-b37d51a54732	0ad708a8-514c-11ec-bc8b-47d5ada13a3c	c46f3525-a0b1-4411-9143-e33eaf5f1f01	Stripe	F#2, C#3, F#3, C#4, F#4
+fc4898fa-6498-11ec-b24f-aff9781dec12	0ad708a8-514c-11ec-bc8b-47d5ada13a3c	e75a1bb3-9b32-4251-b80d-ad64c9160914	Stripe	C#2, G#2, C#3, D#3, G#3, C#4, D#4, G#4
+d6bf80a0-63ba-11ec-861b-af2b662e9f30	5f169850-611b-11ec-b5e9-93c7246a87ca	f59c3080-18f0-4893-b20a-bebc1f1ba19d	Stripe	G2, D3, G3, D4, G4, D5
+ec5c8354-63ba-11ec-a216-1bfd17bac61d	5f169850-611b-11ec-b5e9-93c7246a87ca	528e4a61-8963-467d-b323-a742fe9ce69c	Stab	(None)
+ec5d6a44-63ba-11ec-9f49-d35be9d6145e	5f169850-611b-11ec-b5e9-93c7246a87ca	528e4a61-8963-467d-b323-a742fe9ce69c	Stab	(None)
+d6bbbf24-63ba-11ec-9930-df6dafc244ce	5f169850-611b-11ec-b5e9-93c7246a87ca	528e4a61-8963-467d-b323-a742fe9ce69c	Stripe	A2, C3, E3, G3, A3, B3, C4, E4, G4, B4, C5
+802e124e-63bd-11ec-b4dc-f7845c8d6b9e	50b200fa-513b-11ec-8f1c-d7c2c767519b	07ea7591-9667-42c1-8fc8-215b45d0054f	Stripe	(None)
+802fdade-63bd-11ec-939e-63a2f83a2c1a	50b200fa-513b-11ec-8f1c-d7c2c767519b	f6f902fd-b9ea-4906-9989-bf1aaebb3ec5	Stripe	(None)
+803091ea-63bd-11ec-9046-778bfd162b10	50b200fa-513b-11ec-8f1c-d7c2c767519b	c84d84b8-23f5-4888-bbbb-2bb887b4019e	Stripe	(None)
+8030cf98-63bd-11ec-b12e-6b7cfcb041a3	50b200fa-513b-11ec-8f1c-d7c2c767519b	f924d962-c306-4188-8552-e76c663d659b	Stripe	(None)
+8030fc7a-63bd-11ec-a35b-4b864ebc77b8	50b200fa-513b-11ec-8f1c-d7c2c767519b	b4622760-2f0e-40b8-a320-f847b6561af8	Stripe	(None)
+8031614c-63bd-11ec-8aa1-8fc36b07c96b	50b200fa-513b-11ec-8f1c-d7c2c767519b	c46a45c4-dc1d-4655-861c-93c9fe7310c4	Stripe	G2, D3, G3, D4, G4, D5
+802f7cc4-63bd-11ec-8b7b-eb2807c6baea	50b200fa-513b-11ec-8f1c-d7c2c767519b	391d9a49-2349-4b56-8b61-b85f4e9fcfa1	Stripe	A2, E3, A3, E4, A4, E5, A5
+8030b21a-63bd-11ec-83b3-e78ecee290c0	50b200fa-513b-11ec-8f1c-d7c2c767519b	980d47e7-f705-4870-9d2f-6770d45a639d	Stripe	B2, F#3, B3, F#4, B4, F#5
+802f9c04-63bd-11ec-b036-e30afb51be96	50b200fa-513b-11ec-8f1c-d7c2c767519b	795d8625-d475-4d7f-ab87-6436abd7552f	Stripe	C#2,G#2, C#3, G#3, C#4, G#4, C#5
+802caa80-63bd-11ec-a79e-03e530549f23	50b200fa-513b-11ec-8f1c-d7c2c767519b	9f40245e-33c6-4ae7-8330-b751834e3abc	Stripe	C#2,G#2, C#3, G#3, C#4, G#4, C#5
+ebee7f3c-63bd-11ec-a79e-4f1979ce3d02	50b200fa-513b-11ec-8f1c-d7c2c767519b	54342c52-fc4e-4dcf-a120-d2c58dc917d7	Drum	(None)
+ebef2d9c-63bd-11ec-8b7b-4bdcd2ac5092	50b200fa-513b-11ec-8f1c-d7c2c767519b	54342c52-fc4e-4dcf-a120-d2c58dc917d7	Bass	(None)
+ebefbee2-63bd-11ec-b12e-832179007034	50b200fa-513b-11ec-8f1c-d7c2c767519b	54342c52-fc4e-4dcf-a120-d2c58dc917d7	Pad	(None)
+ebf02db4-63bd-11ec-8aa1-9bd217ae2d17	50b200fa-513b-11ec-8f1c-d7c2c767519b	54342c52-fc4e-4dcf-a120-d2c58dc917d7	Sticky	(None)
+ebf105fe-63bd-11ec-b4dc-e75ca9978226	50b200fa-513b-11ec-8f1c-d7c2c767519b	54342c52-fc4e-4dcf-a120-d2c58dc917d7	Stab	(None)
+ebf1dab0-63bd-11ec-a79e-878a4c7d6e34	50b200fa-513b-11ec-8f1c-d7c2c767519b	54342c52-fc4e-4dcf-a120-d2c58dc917d7	Stab	(None)
+fc4ccb46-6498-11ec-85fa-b33342dc4ca6	0ad708a8-514c-11ec-bc8b-47d5ada13a3c	20afab43-80fb-4f2b-93fd-1ff94261eb14	Stripe	G#2, D#3, G#3, D#4, G#4, D#5
+ebf2667e-63bd-11ec-b036-73b141a1f238	50b200fa-513b-11ec-8f1c-d7c2c767519b	54342c52-fc4e-4dcf-a120-d2c58dc917d7	Stripe	F2, C3, F3, C4, F4, C5, F5
+8030ec76-63bd-11ec-9eac-43a9a34b06fa	50b200fa-513b-11ec-8f1c-d7c2c767519b	6a77abc5-b1ca-44d1-87cd-e561d652391c	Stripe	G2, C3, D3, G3, C4, D4, G4
+fa49e112-6498-11ec-af82-3bc60b139467	0ad708a8-514c-11ec-bc8b-47d5ada13a3c	2728c685-2b4f-4957-b5f3-88fe3bc200e3	Stab	(None)
+fa4b2a18-6498-11ec-85fa-6737bf6baa7a	0ad708a8-514c-11ec-bc8b-47d5ada13a3c	dc16a472-afbf-4c8b-b38f-2fe9e10417b3	Stab	(None)
+fa4e1746-6498-11ec-af82-e765f6756f78	0ad708a8-514c-11ec-bc8b-47d5ada13a3c	74c68ccd-8771-424b-8d41-b4a7eabff8b3	Stab	(None)
+fa4e4e96-6498-11ec-9d3d-93f2aa168fd8	0ad708a8-514c-11ec-bc8b-47d5ada13a3c	65232332-999b-47e5-af1a-654f6daa3f87	Stab	(None)
+fa508e90-6498-11ec-85fa-976dc6792eb5	0ad708a8-514c-11ec-bc8b-47d5ada13a3c	c46f3525-a0b1-4411-9143-e33eaf5f1f01	Stab	(None)
+fa4f819e-6498-11ec-be15-67ac483b0b18	0ad708a8-514c-11ec-bc8b-47d5ada13a3c	013ed1f0-0004-499a-8852-17643192740f	Stab	(None)
+fa4f9d3c-6498-11ec-a481-b3a54f2768ce	0ad708a8-514c-11ec-bc8b-47d5ada13a3c	7a8cba10-864a-46d6-bbc4-667d6f1d43ea	Stab	(None)
+fa501a46-6498-11ec-93f7-579837f9355a	0ad708a8-514c-11ec-bc8b-47d5ada13a3c	e75a1bb3-9b32-4251-b80d-ad64c9160914	Stab	(None)
+fa501f1e-6498-11ec-80fe-f71c1591c353	0ad708a8-514c-11ec-bc8b-47d5ada13a3c	8cbc8388-216e-43de-a8c2-ea58992f4aac	Stab	(None)
+fa51e1f0-6498-11ec-8a16-67398804db21	0ad708a8-514c-11ec-bc8b-47d5ada13a3c	43ce4d8e-17a3-4f36-b193-f67d73b13b8e	Stab	(None)
+fa51fb5e-6498-11ec-aa6e-27d819849ad6	0ad708a8-514c-11ec-bc8b-47d5ada13a3c	3b0756a3-e718-42be-b8cc-e219abfba7d5	Stab	(None)
+fa5245aa-6498-11ec-9c1c-77918354704d	0ad708a8-514c-11ec-bc8b-47d5ada13a3c	30abc0fd-63a8-4e98-92cf-b2cb3dfe7e5a	Stab	(None)
+fa52b1ac-6498-11ec-b24f-632ab46f2ba5	0ad708a8-514c-11ec-bc8b-47d5ada13a3c	00d2b25c-f6f4-44d8-abf4-9dde5bc9199f	Stab	(None)
+fa52c8ae-6498-11ec-9c09-1397688dbe03	0ad708a8-514c-11ec-bc8b-47d5ada13a3c	20afab43-80fb-4f2b-93fd-1ff94261eb14	Stab	(None)
+fc47619c-6498-11ec-93f7-1f61a558a536	0ad708a8-514c-11ec-bc8b-47d5ada13a3c	7a8cba10-864a-46d6-bbc4-667d6f1d43ea	Stripe	(None)
+fc47abe8-6498-11ec-85fa-a3ecf0f58bec	0ad708a8-514c-11ec-bc8b-47d5ada13a3c	dc16a472-afbf-4c8b-b38f-2fe9e10417b3	Stripe	(None)
+fc497b76-6498-11ec-be15-db72d8467503	0ad708a8-514c-11ec-bc8b-47d5ada13a3c	65232332-999b-47e5-af1a-654f6daa3f87	Stripe	(None)
+fc498e22-6498-11ec-9c09-af1e0372a680	0ad708a8-514c-11ec-bc8b-47d5ada13a3c	30abc0fd-63a8-4e98-92cf-b2cb3dfe7e5a	Stripe	(None)
+fc4acddc-6498-11ec-af82-3743358a1ca8	0ad708a8-514c-11ec-bc8b-47d5ada13a3c	00d2b25c-f6f4-44d8-abf4-9dde5bc9199f	Stripe	(None)
+fc4ade4e-6498-11ec-9d3d-c7b70dda7a64	0ad708a8-514c-11ec-bc8b-47d5ada13a3c	013ed1f0-0004-499a-8852-17643192740f	Stripe	(None)
+fc4b7944-6498-11ec-9c1c-e76bc7ef8340	0ad708a8-514c-11ec-bc8b-47d5ada13a3c	3b0756a3-e718-42be-b8cc-e219abfba7d5	Stripe	(None)
+fc4d7d3e-6498-11ec-8a16-3b6efa082671	0ad708a8-514c-11ec-bc8b-47d5ada13a3c	43ce4d8e-17a3-4f36-b193-f67d73b13b8e	Stripe	(None)
+fc4abbd0-6498-11ec-a481-7b01e7cc1205	0ad708a8-514c-11ec-bc8b-47d5ada13a3c	74c68ccd-8771-424b-8d41-b4a7eabff8b3	Stripe	D#2, A#2, D#3, F3, A#3, D#4, F4, A#4
+fc4d2c4e-6498-11ec-aa6e-0fcffd416b5d	0ad708a8-514c-11ec-bc8b-47d5ada13a3c	8cbc8388-216e-43de-a8c2-ea58992f4aac	Stripe	E2, B2, E3, F#3, B3, E4, F#4, B4
+54586a1a-649a-11ec-8666-ff56510f82b1	4ff2eb4e-39c5-11ec-b10f-3b0e6b36313b	e3109f98-012b-44ce-943b-c08602cce945	Stab	(None)
+fc499e9e-6498-11ec-80fe-fb349194dd05	0ad708a8-514c-11ec-bc8b-47d5ada13a3c	2728c685-2b4f-4957-b5f3-88fe3bc200e3	Stripe	B2, F#3, B3, C#4, F#4, B4
+5458912a-649a-11ec-849c-3fa726b045fa	4ff2eb4e-39c5-11ec-b10f-3b0e6b36313b	8228eb34-184f-4cdf-8421-10e709d774ff	Stab	(None)
+5645ae50-649a-11ec-8666-9bb9e5185f37	4ff2eb4e-39c5-11ec-b10f-3b0e6b36313b	e3109f98-012b-44ce-943b-c08602cce945	Stripe	A2, C3, E3, G3, A3, C4, E4, G4, B4
+56467966-649a-11ec-849c-239221dc8db0	4ff2eb4e-39c5-11ec-b10f-3b0e6b36313b	8228eb34-184f-4cdf-8421-10e709d774ff	Stripe	G2, C3, D3, G3, C4, D4, G4
+e3377f7e-b58f-422a-8ae7-89a46b01fbf9	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	4f159425-bf37-40be-8a8c-0a0d6a19a78e	Bass	(None)
+00de9fdc-a1c8-4f83-b66d-4e8ebb8fcd66	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	55f7aee1-d09b-435b-bdbb-a411a84b369b	Bass	C1, C2, G2, C3, D3, G3, C4, D4
+2a5f074a-52d4-4c28-a105-3d77b6c15da8	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	55f7aee1-d09b-435b-bdbb-a411a84b369b	Pad	G2, C3, D3, G3, C4, D4, G4, C5, D5, G5, C6
+c4fc1be8-dc75-42d6-b3ac-d9b73e261bff	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	55f7aee1-d09b-435b-bdbb-a411a84b369b	Drum	(None)
+5ba3efc4-3044-4136-9021-9dfb36c6f161	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	64bd1ca2-4e1b-4360-a0a3-799ac7035600	Drum	(None)
+6e74faac-2389-4b02-ac69-6bb6f83844c3	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	64bd1ca2-4e1b-4360-a0a3-799ac7035600	Pad	(None)
+145ffd46-d724-4abd-aa7d-fae7cf44092f	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	64bd1ca2-4e1b-4360-a0a3-799ac7035600	Bass	(None)
+b5edb616-80ad-4958-a412-b83e75e76663	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	946b2ac3-7a6c-4f5f-946e-6c819253724e	Bass	(None)
+3dc7022e-db5e-4b7c-8bf7-f9595690ba5e	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	946b2ac3-7a6c-4f5f-946e-6c819253724e	Pad	(None)
+2e0ef92b-0681-4770-8422-db17882c0bab	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	946b2ac3-7a6c-4f5f-946e-6c819253724e	Drum	(None)
+ae42af0e-120a-42a8-aa1f-f9e61a56d955	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	1d844656-fe7b-41a0-b852-e9a6b9b48a10	Drum	(None)
+67b5599a-8136-48af-bd38-2e847b53d578	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	946b2ac3-7a6c-4f5f-946e-6c819253724e	Sticky	0
+d7a06af7-394a-4867-b732-f8f8667a6103	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	64bd1ca2-4e1b-4360-a0a3-799ac7035600	Sticky	0
+44eff766-ccee-4967-9b7e-df4fcf31f63c	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	5aac3c6b-70fd-48e4-8b8e-315a3a754640	Sticky	0
+1176a5d7-d708-4d8e-a268-9208d241f10f	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	55f7aee1-d09b-435b-bdbb-a411a84b369b	Sticky	0
+d6c20ffa-63ba-11ec-bf5a-1b1f9af8ad8c	5f169850-611b-11ec-b5e9-93c7246a87ca	0be50496-e5b7-4b10-b3e4-0de0a9ad5c24	Stripe	F2, C3, F3, G3, C4, F4, G4
+31716491-b0d5-481a-905c-cb24f53998a7	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	1d844656-fe7b-41a0-b852-e9a6b9b48a10	Bass	(None)
+1b5c5975-2a0e-45f2-a03b-f2b750b8c199	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	1d844656-fe7b-41a0-b852-e9a6b9b48a10	Pad	(None)
+07775480-85a3-4d00-8bc7-320a33a0f067	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	5aac3c6b-70fd-48e4-8b8e-315a3a754640	Drum	(None)
+3dbe07b3-49c3-4999-9643-724c622a13fc	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	5aac3c6b-70fd-48e4-8b8e-315a3a754640	Pad	(None)
+719b05b8-30d3-4930-b595-19952bf7f4ab	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	5aac3c6b-70fd-48e4-8b8e-315a3a754640	Bass	(None)
+a7e0a73a-a1fb-4813-a6d5-482dff40574a	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	4f159425-bf37-40be-8a8c-0a0d6a19a78e	Drum	(None)
+92461382-ac9e-4e57-93fc-c7afced7d0b6	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	4f159425-bf37-40be-8a8c-0a0d6a19a78e	Pad	(None)
+ffe555df-5e6a-4cbd-a968-8a06f006f7e4	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	5aac3c6b-70fd-48e4-8b8e-315a3a754640	Stab	(None)
+f9646497-a83c-4bb0-a761-3810906defee	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	55f7aee1-d09b-435b-bdbb-a411a84b369b	Stab	(None)
+38d179a0-262f-469d-86af-7341658e1db7	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	64bd1ca2-4e1b-4360-a0a3-799ac7035600	Stab	(None)
+09f357fb-3b95-41b8-94ff-2dbfa11c32b3	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	4f159425-bf37-40be-8a8c-0a0d6a19a78e	Stab	(None)
+71593190-00f7-4fbf-b1f3-aa194e4fc451	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	946b2ac3-7a6c-4f5f-946e-6c819253724e	Stab	(None)
+b1da4590-7409-4d91-96cd-2acd18af62d2	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	1d844656-fe7b-41a0-b852-e9a6b9b48a10	Stab	(None)
+acdb3483-ae74-432f-862f-44b7442f7f77	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	55f7aee1-d09b-435b-bdbb-a411a84b369b	Stripe	G2, C3, D3, G3, C4, D4, G4, C5, D5, G5
+800cd453-2ed8-4c26-9c57-a8453cf52e0d	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	64bd1ca2-4e1b-4360-a0a3-799ac7035600	Stripe	C2, G2, D3, E3, G3, C4, E4
+9cffbb41-0da0-4068-9855-664432fc6efa	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	946b2ac3-7a6c-4f5f-946e-6c819253724e	Stripe	D2, A2, C3, F3, A3, D4, F4, C5
+89986860-913b-46bb-bad2-0c10f95ed811	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	1d844656-fe7b-41a0-b852-e9a6b9b48a10	Stripe	G2, D3, C4, G4, C5
+530dd721-444e-4e7a-b858-cb1da5e36c22	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	5aac3c6b-70fd-48e4-8b8e-315a3a754640	Stripe	A2, E3, B3, C#4, E4, B4, E5
+25234a60-be0d-4d67-8874-ffa57ce8dd0a	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	4f159425-bf37-40be-8a8c-0a0d6a19a78e	Stripe	D2, A2, D3, F#3, A3, D4, F#4
+77eb980a-99bf-4b93-b4d8-c6eac1b158ae	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	1d844656-fe7b-41a0-b852-e9a6b9b48a10	Sticky	0
+ded1d19c-a8ad-424f-9fc9-e346f88b2a36	96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	4f159425-bf37-40be-8a8c-0a0d6a19a78e	Sticky	0
+fba9878c-64e9-11ec-9b97-eb588c5d0e30	5f169850-611b-11ec-b5e9-93c7246a87ca	1bed87f5-f821-44f1-996a-95cb4de5746b	Stab	(None)
+fba9bc02-64e9-11ec-a7ab-d75d06d1fddf	5f169850-611b-11ec-b5e9-93c7246a87ca	1bed87f5-f821-44f1-996a-95cb4de5746b	Stab	(None)
+11a585ea-64ea-11ec-a7ab-8b16d6faa4bc	5f169850-611b-11ec-b5e9-93c7246a87ca	0be50496-e5b7-4b10-b3e4-0de0a9ad5c24	Stab	(None)
+11a74b82-64ea-11ec-8f27-032f1ce783e9	5f169850-611b-11ec-b5e9-93c7246a87ca	0be50496-e5b7-4b10-b3e4-0de0a9ad5c24	Stab	(None)
+24214f74-1b3d-4a60-aba6-aec86b8f2a4c	456c8b60-64f1-11ec-bc31-d7572c6d3593	f7b8b411-0881-4f9b-a8d4-b8fbf54add6c	Bass	C1, C2, G2, C3, D3, G3, C4, D4
+6dc47698-96cb-491b-872f-2344cf9187aa	456c8b60-64f1-11ec-bc31-d7572c6d3593	f7b8b411-0881-4f9b-a8d4-b8fbf54add6c	Pad	G2, C3, D3, G3, C4, D4, G4, C5, D5, G5, C6
+f3d08185-58fc-40f5-9ee7-9da62b8aa160	456c8b60-64f1-11ec-bc31-d7572c6d3593	f7b8b411-0881-4f9b-a8d4-b8fbf54add6c	Drum	(None)
+7406bc52-35b7-40db-abd4-4cf217809653	456c8b60-64f1-11ec-bc31-d7572c6d3593	c9a248c4-7d5b-42bf-a8e2-e0fa5d123942	Drum	(None)
+12e168e1-7912-4da9-8b26-e0dcd8af5c00	456c8b60-64f1-11ec-bc31-d7572c6d3593	c9a248c4-7d5b-42bf-a8e2-e0fa5d123942	Pad	F2, A2, C3, E3, G3, A3, C4, E4, G4
+a85ae62c-ac35-498b-8890-86e4b73c5772	456c8b60-64f1-11ec-bc31-d7572c6d3593	c9a248c4-7d5b-42bf-a8e2-e0fa5d123942	Bass	F1, F2, A2, C3, E3, G3, A3, C4
+1e6adc29-ff12-42d2-bf7c-7105a018ecc2	456c8b60-64f1-11ec-bc31-d7572c6d3593	f7b8b411-0881-4f9b-a8d4-b8fbf54add6c	Stripe	C3, D3, G3, C4, D4, G4, C5, D5, G5
+40269641-81da-47bc-a0e8-9e054387ed66	456c8b60-64f1-11ec-bc31-d7572c6d3593	f7b8b411-0881-4f9b-a8d4-b8fbf54add6c	Stab	(None)
+532d21be-1e7b-4344-9d1a-bfdf26ef82b0	456c8b60-64f1-11ec-bc31-d7572c6d3593	c9a248c4-7d5b-42bf-a8e2-e0fa5d123942	Stripe	F2, A2, C3, E3, G3, A3, C4, E4, G4
+1ca78d80-fb23-4816-8c44-dd3c2d092223	456c8b60-64f1-11ec-bc31-d7572c6d3593	c9a248c4-7d5b-42bf-a8e2-e0fa5d123942	Stab	(None)
+953df050-4b21-4477-b5c8-030c97c4167c	456c8b60-64f1-11ec-bc31-d7572c6d3593	c9a248c4-7d5b-42bf-a8e2-e0fa5d123942	Sticky	0
+9ca7327e-4167-4e4c-a747-1869881d04de	456c8b60-64f1-11ec-bc31-d7572c6d3593	f7b8b411-0881-4f9b-a8d4-b8fbf54add6c	Sticky	0
+e086329a-675d-11ec-b998-439526ab3e61	277fad9c-2f9d-11eb-9636-ef2c12e1d833	51019c4a-70dc-11eb-a9c7-0fb3a3e77f9e	Drum	(None)
+ca758dec-675e-11ec-bdf4-03d7269332dc	b1992856-675e-11ec-bdf4-0bf01a0f4940	bdeefd74-675e-11ec-a2d0-f3824091cf9a	Bass	(None)
+cb6e8bb8-675e-11ec-a2d0-57694809c349	b1992856-675e-11ec-bdf4-0bf01a0f4940	bdeefd74-675e-11ec-a2d0-f3824091cf9a	Drum	(None)
+cc286cea-675e-11ec-a2d0-9f67dd9b7f6a	b1992856-675e-11ec-bdf4-0bf01a0f4940	bdeefd74-675e-11ec-a2d0-f3824091cf9a	Pad	(None)
+cd3c7a04-675e-11ec-a2d0-cb63421bd3fd	b1992856-675e-11ec-bdf4-0bf01a0f4940	bdeefd74-675e-11ec-a2d0-f3824091cf9a	Stab	(None)
+ce5b0d56-675e-11ec-bdf4-733b9e63e761	b1992856-675e-11ec-bdf4-0bf01a0f4940	bdeefd74-675e-11ec-a2d0-f3824091cf9a	Sticky	(None)
+cfe8a91c-675e-11ec-bdf4-df1a89fc1fce	b1992856-675e-11ec-bdf4-0bf01a0f4940	bdeefd74-675e-11ec-a2d0-f3824091cf9a	Stripe	(None)
+e4169e6c-675e-11ec-a2d0-6f80d4dd60c6	5f169850-611b-11ec-b5e9-93c7246a87ca	520d69d5-06dd-4d9e-8195-5570a85ae677	Stab	(None)
+e41931ae-675e-11ec-bdf4-03fe5e453b80	5f169850-611b-11ec-b5e9-93c7246a87ca	520d69d5-06dd-4d9e-8195-5570a85ae677	Stab	(None)
+e72f97de-675e-11ec-a2d0-afcef9327b6e	5f169850-611b-11ec-b5e9-93c7246a87ca	eb83d0c0-3b63-42fe-bfea-99d4f8247436	Stab	(None)
+e72ffc60-675e-11ec-bdf4-13f41f8391d7	5f169850-611b-11ec-b5e9-93c7246a87ca	eb83d0c0-3b63-42fe-bfea-99d4f8247436	Stab	(None)
+4f54274a-6768-11ec-9c6b-9ff905823b04	b60ce576-507f-11ec-a732-0bce818af109	4efeffae-6768-11ec-b4ab-5397d3dcf7c0	Pad	(None)
+4f56282e-6768-11ec-b4ab-7f99eaa5df4c	b60ce576-507f-11ec-a732-0bce818af109	4efeffae-6768-11ec-b4ab-5397d3dcf7c0	Drum	(None)
+50b62c14-6768-11ec-b4ab-179e85dba04d	b60ce576-507f-11ec-a732-0bce818af109	4efeffae-6768-11ec-b4ab-5397d3dcf7c0	Stab	(None)
+4f39a5d2-6768-11ec-b896-d79d81080d3f	b60ce576-507f-11ec-a732-0bce818af109	4efeffae-6768-11ec-b4ab-5397d3dcf7c0	Bass	F1
+4f5c1130-6768-11ec-b4ab-67ed75f5cadb	b60ce576-507f-11ec-a732-0bce818af109	4efeffae-6768-11ec-b4ab-5397d3dcf7c0	Sticky	F2, C2, F3, A3, C4, E4, A4, C5
+50b64eb0-6768-11ec-9c6b-8747e3bdeaa0	b60ce576-507f-11ec-a732-0bce818af109	4efeffae-6768-11ec-b4ab-5397d3dcf7c0	Stripe	F2, C2, F3, A3, C4, E4, A4
+7ca0a544-6771-11ec-a79d-5b342e93cf0f	4e814ce8-42b1-11ec-abab-2742c680e727	7c72eba4-6771-11ec-b9c6-0b937b8a7a74	Drum	(None)
+7ca090d6-6771-11ec-b9c6-532f63a18568	4e814ce8-42b1-11ec-abab-2742c680e727	7c72eba4-6771-11ec-b9c6-0b937b8a7a74	Pad	(None)
+7ca27be4-6771-11ec-9e76-bbfe9a354d6d	4e814ce8-42b1-11ec-abab-2742c680e727	7c72eba4-6771-11ec-b9c6-0b937b8a7a74	Bass	(None)
+7ca355e6-6771-11ec-af09-c7ca140f37d5	4e814ce8-42b1-11ec-abab-2742c680e727	7c72eba4-6771-11ec-b9c6-0b937b8a7a74	Stab	(None)
+7ca3a190-6771-11ec-95be-3f9cc78f6f35	4e814ce8-42b1-11ec-abab-2742c680e727	7c72eba4-6771-11ec-b9c6-0b937b8a7a74	Stripe	(None)
+7ca3b02c-6771-11ec-aee1-dbdcd9178547	4e814ce8-42b1-11ec-abab-2742c680e727	7c72eba4-6771-11ec-b9c6-0b937b8a7a74	Sticky	A2, E3, C#4, E4, A4, C#5, E5
 \.
 
 
@@ -14187,6 +14727,14 @@ c1afb196-61e2-11ec-80f8-df0360fff71e	a8210f7c-61e2-11ec-80f8-b31e1ea10db5	Stripe
 10897310-61e3-11ec-8bff-b3dd189202c3	a8210f7c-61e2-11ec-80f8-b31e1ea10db5	Stripe	Xxx	1000
 57066228-cae1-4165-9c3e-a5bd948b2cd3	a35d1a40-61f5-11ec-ab37-3bc2b2095eb6	Stripe	Xxx	1000
 790cb09e-2357-4ef3-995f-f5129eea9c70	a35d1a40-61f5-11ec-ab37-3bc2b2095eb6	Stripe	Xxx	1000
+7bbce347-cb31-494e-a456-43173e8fd036	bfe7c356-63b5-11ec-bf3d-039853d83069	Stripe	Xxx	1000
+b98a8416-4306-433a-abf8-09a8fd3533a6	bfe7c356-63b5-11ec-bf3d-039853d83069	Stripe	Xxx	1000
+ea2e12bf-334f-446e-822b-7d534cbb7bd5	f72f6b92-63c0-11ec-9eac-1b38d4c823f0	Stripe	Xxx	1000
+7e871654-811a-4e3c-a905-1c6db4f9fa5e	f72f6b92-63c0-11ec-9eac-1b38d4c823f0	Stripe	Xxx	1000
+7800e359-a76f-4a08-8a13-6762e05b697b	2d546bc8-63c1-11ec-8b7b-f72fd5119922	Stripe	Xxx	1000
+ca44e3ce-1105-4bdc-939f-ca70c0e849a8	2d546bc8-63c1-11ec-8b7b-f72fd5119922	Stripe	Xxx	1000
+99054d35-d194-4635-85c7-af56235967d2	6b5d8904-63c1-11ec-a761-ff02323fcc34	Stripe	Xxx	1000
+55869935-04c1-4b03-a4f3-7ca4dcb35a7d	6b5d8904-63c1-11ec-a761-ff02323fcc34	Stripe	Xxx	1000
 \.
 
 
@@ -14632,6 +15180,14 @@ c6a9b386-61e2-11ec-80f8-333b2fb8b47a	a8210f7c-61e2-11ec-80f8-b31e1ea10db5	ac11a5
 1dc4f1bc-61e3-11ec-8bff-4b270a62ff25	a8210f7c-61e2-11ec-80f8-b31e1ea10db5	ac11a538-61e2-11ec-80f8-1f0316baebdd	10897310-61e3-11ec-8bff-b3dd189202c3	Xxxx	32
 0144475b-9b79-4356-8e65-26b01d162ada	a35d1a40-61f5-11ec-ab37-3bc2b2095eb6	b1a2a406-a8b3-4e95-b3bd-7468ed3afb99	57066228-cae1-4165-9c3e-a5bd948b2cd3	Xxx	32
 ecf91f3b-9afd-4459-b995-3d4933aad7f8	a35d1a40-61f5-11ec-ab37-3bc2b2095eb6	b1a2a406-a8b3-4e95-b3bd-7468ed3afb99	790cb09e-2357-4ef3-995f-f5129eea9c70	Xxxx	32
+10b04da3-1263-4ddd-8452-0e59a8d6312c	bfe7c356-63b5-11ec-bf3d-039853d83069	a6c98a80-e70c-4fb4-8683-a76328287ce1	7bbce347-cb31-494e-a456-43173e8fd036	Xxx	32
+e073f902-0da2-4bfc-ae3b-d4b84ee9c6cb	bfe7c356-63b5-11ec-bf3d-039853d83069	a6c98a80-e70c-4fb4-8683-a76328287ce1	b98a8416-4306-433a-abf8-09a8fd3533a6	Xxxx	32
+864fc68c-97b7-4233-9b6e-762865c03512	f72f6b92-63c0-11ec-9eac-1b38d4c823f0	650d6b91-6677-43d0-9dba-48bcd9604c68	ea2e12bf-334f-446e-822b-7d534cbb7bd5	Xxx	32
+739c8faa-f97a-4871-b20f-9885d6c80ac3	f72f6b92-63c0-11ec-9eac-1b38d4c823f0	650d6b91-6677-43d0-9dba-48bcd9604c68	7e871654-811a-4e3c-a905-1c6db4f9fa5e	Xxxx	32
+ece7844d-36de-47d6-9156-58d5a19b5c2c	2d546bc8-63c1-11ec-8b7b-f72fd5119922	f3912cb8-8fcc-4e77-8cc4-f38d775cb897	7800e359-a76f-4a08-8a13-6762e05b697b	Xxx	32
+bba39a55-1d98-40a4-a979-5b293606e477	2d546bc8-63c1-11ec-8b7b-f72fd5119922	f3912cb8-8fcc-4e77-8cc4-f38d775cb897	ca44e3ce-1105-4bdc-939f-ca70c0e849a8	Xxxx	32
+93372709-18c5-490a-894b-ef05a0734c7f	6b5d8904-63c1-11ec-a761-ff02323fcc34	c9ddd5f8-1f5e-4df3-a098-133d362d57a5	99054d35-d194-4635-85c7-af56235967d2	Xxx	64
+af887b8a-b799-4c02-b5f5-f305ad3ef53c	6b5d8904-63c1-11ec-a761-ff02323fcc34	c9ddd5f8-1f5e-4df3-a098-133d362d57a5	55869935-04c1-4b03-a4f3-7ca4dcb35a7d	Xxxx	64
 \.
 
 
@@ -15148,6 +15704,14 @@ a29cc5b7-b650-432a-a06a-38302e134a9f	0105b790-5d52-11ec-b7e4-43be91b9e59f	74f18e
 22998a72-61e3-11ec-8531-43d8f639ec21	a8210f7c-61e2-11ec-80f8-b31e1ea10db5	10897310-61e3-11ec-8bff-b3dd189202c3	XXX	1000
 9eb64cb8-0427-4b6e-9c81-6a2adbd21924	a35d1a40-61f5-11ec-ab37-3bc2b2095eb6	57066228-cae1-4165-9c3e-a5bd948b2cd3	XXX	1000
 409040e8-d225-4569-87ce-7a88b4095e14	a35d1a40-61f5-11ec-ab37-3bc2b2095eb6	790cb09e-2357-4ef3-995f-f5129eea9c70	XXX	1000
+421f7641-6956-443d-9810-5d27594947c4	bfe7c356-63b5-11ec-bf3d-039853d83069	7bbce347-cb31-494e-a456-43173e8fd036	XXX	1000
+bfe7cf9b-dce4-4a39-a733-e431fcd18ddb	bfe7c356-63b5-11ec-bf3d-039853d83069	b98a8416-4306-433a-abf8-09a8fd3533a6	XXX	1000
+dac14532-fd95-48fe-99d3-2827322069ba	f72f6b92-63c0-11ec-9eac-1b38d4c823f0	ea2e12bf-334f-446e-822b-7d534cbb7bd5	XXX	1000
+0974db37-4f3a-4175-9b80-3d21f6428943	f72f6b92-63c0-11ec-9eac-1b38d4c823f0	7e871654-811a-4e3c-a905-1c6db4f9fa5e	XXX	1000
+5a824de0-0906-4e1e-8ab6-7e9342d2faa3	2d546bc8-63c1-11ec-8b7b-f72fd5119922	7800e359-a76f-4a08-8a13-6762e05b697b	XXX	1000
+aa25cde4-e18a-43aa-a2fe-b8665224fe14	2d546bc8-63c1-11ec-8b7b-f72fd5119922	ca44e3ce-1105-4bdc-939f-ca70c0e849a8	XXX	1000
+b271f49a-877c-4226-81d7-fd75f4a33711	6b5d8904-63c1-11ec-a761-ff02323fcc34	99054d35-d194-4635-85c7-af56235967d2	XXX	1000
+b34c21e6-3f80-4735-82b3-7dd2c49fce98	6b5d8904-63c1-11ec-a761-ff02323fcc34	55869935-04c1-4b03-a4f3-7ca4dcb35a7d	XXX	1000
 \.
 
 
@@ -17652,7 +18216,6 @@ b311d60d-9ed8-4609-8673-27a3cdc7d784	17336fec-4c01-11ec-9800-67f41182219c	bf5d37
 0b31c72e-837b-4f51-9786-e9a33c3db39a	10740256-4c02-11ec-973e-b32060b725c7	4c46bae5-174c-4967-96e1-443beaf6eb9c	0ed52eff-f45d-48da-8c35-0dfb4c787e73	1	0.75	0.25	D1
 fcc54e68-3298-4dec-a4d1-59574b434e06	c99452c6-5126-11ec-a2fe-df7e481fe1b1	0070d389-a766-4887-9f97-556fc3c0fb29	df0d7818-39e3-4be4-a57b-9afce0a5e0a0	1	8	2	C4
 a5511786-ee9b-4a2a-8d4a-357854a1355c	0105b790-5d52-11ec-b7e4-43be91b9e59f	94f17acf-eced-4124-8750-e8910e0aec7a	275f75cb-e8ea-488e-996c-827053beb00b	0.1	1.67	0.25	X
-8df6a9cd-252b-474f-a27e-53201d9c7a5b	c99452c6-5126-11ec-a2fe-df7e481fe1b1	0070d389-a766-4887-9f97-556fc3c0fb29	df0d7818-39e3-4be4-a57b-9afce0a5e0a0	1	12	4	G4
 18a1dc82-9806-42ef-a0f1-9baaff2a3478	c99452c6-5126-11ec-a2fe-df7e481fe1b1	0070d389-a766-4887-9f97-556fc3c0fb29	df0d7818-39e3-4be4-a57b-9afce0a5e0a0	1	16	2	X
 890a15c8-0f22-4a9c-9b4f-46ab1706cd76	c99452c6-5126-11ec-a2fe-df7e481fe1b1	eb92dcea-c554-4830-9efd-6ad3c966175d	df0d7818-39e3-4be4-a57b-9afce0a5e0a0	1	25	4	A4
 c476e2b3-1cb4-4fc9-97d3-1509405663a1	0105b790-5d52-11ec-b7e4-43be91b9e59f	94f17acf-eced-4124-8750-e8910e0aec7a	275f75cb-e8ea-488e-996c-827053beb00b	0.4	1.95	0.25	X
@@ -17674,7 +18237,6 @@ c772c85f-36e0-4e10-9907-8284d84e16d9	c99452c6-5126-11ec-a2fe-df7e481fe1b1	eb92dc
 59595f2a-f0ab-4602-a541-93a3174fc05a	c99452c6-5126-11ec-a2fe-df7e481fe1b1	eb92dcea-c554-4830-9efd-6ad3c966175d	df0d7818-39e3-4be4-a57b-9afce0a5e0a0	1	13	4	E3
 b4bb0e19-991e-464a-baff-1876e682050d	c99452c6-5126-11ec-a2fe-df7e481fe1b1	eb92dcea-c554-4830-9efd-6ad3c966175d	df0d7818-39e3-4be4-a57b-9afce0a5e0a0	1	18.5	1	X
 be02bed4-5a40-11ec-9bdf-537eaa20ca25	68211f6a-4cad-11ec-bde9-8be744da20c4	bcd48e02-5a40-11ec-9bdf-6339ba1fa9ff	1c1e38dc-5a40-11ec-8501-fb2dc5976c8c	0.65	0	0.125	X
-e8e3c055-78d2-4278-bbb1-b7aa4d8b5bac	c99452c6-5126-11ec-a2fe-df7e481fe1b1	0070d389-a766-4887-9f97-556fc3c0fb29	df0d7818-39e3-4be4-a57b-9afce0a5e0a0	1	10	2	E5
 4d771b4c-20e8-4a39-a78b-f057838d9521	c99452c6-5126-11ec-a2fe-df7e481fe1b1	0070d389-a766-4887-9f97-556fc3c0fb29	df0d7818-39e3-4be4-a57b-9afce0a5e0a0	1	14	2	B5
 c9690e0c-3702-47ee-924f-b195b7ed8e50	c99452c6-5126-11ec-a2fe-df7e481fe1b1	0070d389-a766-4887-9f97-556fc3c0fb29	df0d7818-39e3-4be4-a57b-9afce0a5e0a0	1	24	4	E4
 a3bc9ac8-03e3-47a1-9b60-d46b77f4ea3a	c99452c6-5126-11ec-a2fe-df7e481fe1b1	0070d389-a766-4887-9f97-556fc3c0fb29	df0d7818-39e3-4be4-a57b-9afce0a5e0a0	1	28	1	C4
@@ -17769,26 +18331,62 @@ e18d8590-1cb8-4ddb-9e9c-34f668071af0	e5095028-5d57-11ec-8543-8fd1b55c0a17	cf57fa
 18367787-ee10-4c68-84d9-ab2c154d253d	e5095028-5d57-11ec-8543-8fd1b55c0a17	cf57fa7d-562e-44c7-a9b5-bda1bb950f14	0201799f-7675-4629-ab59-101aa442fd50	1	1.5	0.25	C4
 ad97970b-37b3-4b5e-a4a7-036078a08091	e5095028-5d57-11ec-8543-8fd1b55c0a17	cf57fa7d-562e-44c7-a9b5-bda1bb950f14	0201799f-7675-4629-ab59-101aa442fd50	1	0	0.25	x
 3c9e330b-6765-481c-bc0e-8b5ddaecdbef	e5095028-5d57-11ec-8543-8fd1b55c0a17	cf57fa7d-562e-44c7-a9b5-bda1bb950f14	0201799f-7675-4629-ab59-101aa442fd50	1	0.75	0.25	x
+b80c9cc4-63bf-11ec-b036-6b811a6cee28	a8210f7c-61e2-11ec-80f8-b31e1ea10db5	1dc4f1bc-61e3-11ec-8bff-4b270a62ff25	22998a72-61e3-11ec-8531-43d8f639ec21	1	1	2	X
 f017feb2-61e2-11ec-80f8-ef3e1ff9540d	a8210f7c-61e2-11ec-80f8-b31e1ea10db5	c6a9b386-61e2-11ec-80f8-333b2fb8b47a	c82fac9c-61e2-11ec-80f8-43a9d7dfb6ab	1	14	3	X
-eeb80012-61e2-11ec-80f8-ebbc4a4ac98a	a8210f7c-61e2-11ec-80f8-b31e1ea10db5	c6a9b386-61e2-11ec-80f8-333b2fb8b47a	c82fac9c-61e2-11ec-80f8-43a9d7dfb6ab	1	11	3	X
-ece716d8-61e2-11ec-8bff-1f81b00007a3	a8210f7c-61e2-11ec-80f8-b31e1ea10db5	c6a9b386-61e2-11ec-80f8-333b2fb8b47a	c82fac9c-61e2-11ec-80f8-43a9d7dfb6ab	1	8	3	X
+c4aa5b38-63bf-11ec-8aa1-c3b4e8d50da0	a8210f7c-61e2-11ec-80f8-b31e1ea10db5	1dc4f1bc-61e3-11ec-8bff-4b270a62ff25	22998a72-61e3-11ec-8531-43d8f639ec21	1	6	2	X
+ccd62c7e-63bf-11ec-b12e-ef44d7a95da5	a8210f7c-61e2-11ec-80f8-b31e1ea10db5	c6a9b386-61e2-11ec-80f8-333b2fb8b47a	c82fac9c-61e2-11ec-80f8-43a9d7dfb6ab	1	21	3	X
 d593ba40-61e2-11ec-8531-4bb4cb8a536f	a8210f7c-61e2-11ec-80f8-b31e1ea10db5	c6a9b386-61e2-11ec-80f8-333b2fb8b47a	c82fac9c-61e2-11ec-80f8-43a9d7dfb6ab	1	5	3	X
-05de05ca-61e3-11ec-80f8-93dcd8fce448	a8210f7c-61e2-11ec-80f8-b31e1ea10db5	c6a9b386-61e2-11ec-80f8-333b2fb8b47a	c82fac9c-61e2-11ec-80f8-43a9d7dfb6ab	1	25	3	X
 07ad67e2-61e3-11ec-80f8-efdcde45eaf3	a8210f7c-61e2-11ec-80f8-b31e1ea10db5	c6a9b386-61e2-11ec-80f8-333b2fb8b47a	c82fac9c-61e2-11ec-80f8-43a9d7dfb6ab	1	28	3	X
-0a27f32a-61e3-11ec-8bff-83e4b78dc934	a8210f7c-61e2-11ec-80f8-b31e1ea10db5	c6a9b386-61e2-11ec-80f8-333b2fb8b47a	c82fac9c-61e2-11ec-80f8-43a9d7dfb6ab	1	22	1	X
-0d92717a-61e3-11ec-8bff-1fdd8287064c	a8210f7c-61e2-11ec-80f8-b31e1ea10db5	c6a9b386-61e2-11ec-80f8-333b2fb8b47a	c82fac9c-61e2-11ec-80f8-43a9d7dfb6ab	1	23	1	X
-0e721316-61e3-11ec-8531-933b22259fa6	a8210f7c-61e2-11ec-80f8-b31e1ea10db5	c6a9b386-61e2-11ec-80f8-333b2fb8b47a	c82fac9c-61e2-11ec-80f8-43a9d7dfb6ab	1	24	1	X
+7b7ff312-13fd-481b-a3eb-d29a45eeafae	f72f6b92-63c0-11ec-9eac-1b38d4c823f0	864fc68c-97b7-4233-9b6e-762865c03512	dac14532-fd95-48fe-99d3-2827322069ba	1	21	3	X
+db75af2b-c74f-4a90-a870-be958ed79123	f72f6b92-63c0-11ec-9eac-1b38d4c823f0	864fc68c-97b7-4233-9b6e-762865c03512	dac14532-fd95-48fe-99d3-2827322069ba	1	5	3	X
 2437e630-61e3-11ec-8bff-cb85ba494e2b	a8210f7c-61e2-11ec-80f8-b31e1ea10db5	1dc4f1bc-61e3-11ec-8bff-4b270a62ff25	22998a72-61e3-11ec-8531-43d8f639ec21	1	15.5	11.25	X
 9df2e035-059c-4cc4-a602-18f6d9dc1981	a35d1a40-61f5-11ec-ab37-3bc2b2095eb6	0144475b-9b79-4356-8e65-26b01d162ada	9eb64cb8-0427-4b6e-9c81-6a2adbd21924	1	14	3	X
-7471a28d-8948-44f0-9d6e-e924fcd6137c	a35d1a40-61f5-11ec-ab37-3bc2b2095eb6	0144475b-9b79-4356-8e65-26b01d162ada	9eb64cb8-0427-4b6e-9c81-6a2adbd21924	1	11	3	X
-e0b3f9d0-5bde-426c-9fbb-130fa5f2ad7b	a35d1a40-61f5-11ec-ab37-3bc2b2095eb6	0144475b-9b79-4356-8e65-26b01d162ada	9eb64cb8-0427-4b6e-9c81-6a2adbd21924	1	8	3	X
 542d269c-b30f-477a-94ab-d124c9a4775c	a35d1a40-61f5-11ec-ab37-3bc2b2095eb6	0144475b-9b79-4356-8e65-26b01d162ada	9eb64cb8-0427-4b6e-9c81-6a2adbd21924	1	5	3	X
 7b8f3e71-4dc8-4718-9286-77acfb1a241e	a35d1a40-61f5-11ec-ab37-3bc2b2095eb6	0144475b-9b79-4356-8e65-26b01d162ada	9eb64cb8-0427-4b6e-9c81-6a2adbd21924	1	25	3	X
 98b60a99-8f09-4f52-a294-c79b00cd1447	a35d1a40-61f5-11ec-ab37-3bc2b2095eb6	0144475b-9b79-4356-8e65-26b01d162ada	9eb64cb8-0427-4b6e-9c81-6a2adbd21924	1	28	3	X
 ff68f8b7-9b9e-48fa-ac0b-cda4f7fb63ad	a35d1a40-61f5-11ec-ab37-3bc2b2095eb6	0144475b-9b79-4356-8e65-26b01d162ada	9eb64cb8-0427-4b6e-9c81-6a2adbd21924	1	22	1	X
-d18be2a5-4002-4a9f-99be-808eee962b57	a35d1a40-61f5-11ec-ab37-3bc2b2095eb6	0144475b-9b79-4356-8e65-26b01d162ada	9eb64cb8-0427-4b6e-9c81-6a2adbd21924	1	23	1	X
-fdd9c5da-70f1-4933-8198-17d2a6c30149	a35d1a40-61f5-11ec-ab37-3bc2b2095eb6	0144475b-9b79-4356-8e65-26b01d162ada	9eb64cb8-0427-4b6e-9c81-6a2adbd21924	1	24	1	X
 b29c37c7-bc42-4773-8a49-b441c95e98f6	a35d1a40-61f5-11ec-ab37-3bc2b2095eb6	ecf91f3b-9afd-4459-b995-3d4933aad7f8	409040e8-d225-4569-87ce-7a88b4095e14	1	15.5	11.25	X
+4e503a9d-224e-4ccc-980c-b1df878c0b32	bfe7c356-63b5-11ec-bf3d-039853d83069	10b04da3-1263-4ddd-8452-0e59a8d6312c	421f7641-6956-443d-9810-5d27594947c4	1	14	3	X
+96b63765-b20c-4f08-9381-540711fc2d9f	bfe7c356-63b5-11ec-bf3d-039853d83069	10b04da3-1263-4ddd-8452-0e59a8d6312c	421f7641-6956-443d-9810-5d27594947c4	1	5	3	X
+e26242a8-186e-4c08-b3f8-1f733d6a46e9	bfe7c356-63b5-11ec-bf3d-039853d83069	10b04da3-1263-4ddd-8452-0e59a8d6312c	421f7641-6956-443d-9810-5d27594947c4	1	28	3	X
+7f8afe19-0287-4a49-84aa-30169bd073d8	f72f6b92-63c0-11ec-9eac-1b38d4c823f0	864fc68c-97b7-4233-9b6e-762865c03512	dac14532-fd95-48fe-99d3-2827322069ba	1	28	3	X
+cb3a43c8-63b5-11ec-bf3d-8b3e0e5590a2	bfe7c356-63b5-11ec-bf3d-039853d83069	e073f902-0da2-4bfc-ae3b-d4b84ee9c6cb	bfe7cf9b-dce4-4a39-a733-e431fcd18ddb	1	0.5	0.625	X
+ceb73a92-63b5-11ec-bf3d-7b9147f501ea	bfe7c356-63b5-11ec-bf3d-039853d83069	e073f902-0da2-4bfc-ae3b-d4b84ee9c6cb	bfe7cf9b-dce4-4a39-a733-e431fcd18ddb	1	10.375	0.5	X
+1c4f3ba2-5fef-47c8-9285-cfc297e7dd42	f72f6b92-63c0-11ec-9eac-1b38d4c823f0	864fc68c-97b7-4233-9b6e-762865c03512	dac14532-fd95-48fe-99d3-2827322069ba	1	12	3	X
+d1604fe0-63b5-11ec-bf3d-47f0e5ccf6f8	bfe7c356-63b5-11ec-bf3d-039853d83069	10b04da3-1263-4ddd-8452-0e59a8d6312c	421f7641-6956-443d-9810-5d27594947c4	1	12.375	0.5	X
+07ee415f-3ed0-4626-8f90-cece08c53a27	f72f6b92-63c0-11ec-9eac-1b38d4c823f0	739c8faa-f97a-4871-b20f-9885d6c80ac3	0974db37-4f3a-4175-9b80-3d21f6428943	1	16	11.25	X
+d59eaea8-63b5-11ec-bf3d-93e95e228e67	bfe7c356-63b5-11ec-bf3d-039853d83069	10b04da3-1263-4ddd-8452-0e59a8d6312c	421f7641-6956-443d-9810-5d27594947c4	1	20	0.125	X
+ec9e10b6-62aa-44a1-8eb5-4cb88199b9dc	2d546bc8-63c1-11ec-8b7b-f72fd5119922	bba39a55-1d98-40a4-a979-5b293606e477	aa25cde4-e18a-43aa-a2fe-b8665224fe14	1	1	2	X
+821f877e-3748-4725-b8d0-b3d94071c884	2d546bc8-63c1-11ec-8b7b-f72fd5119922	ece7844d-36de-47d6-9156-58d5a19b5c2c	5a824de0-0906-4e1e-8ab6-7e9342d2faa3	1	14	3	X
+dd06826a-63b5-11ec-bf3d-734a9093a449	bfe7c356-63b5-11ec-bf3d-039853d83069	10b04da3-1263-4ddd-8452-0e59a8d6312c	421f7641-6956-443d-9810-5d27594947c4	1	2	0.5	X
+e3171480-63b5-11ec-975e-9bfb8f4ac33c	bfe7c356-63b5-11ec-bf3d-039853d83069	10b04da3-1263-4ddd-8452-0e59a8d6312c	421f7641-6956-443d-9810-5d27594947c4	1	24	0.5	X
+857dc710-ddb8-4132-aa25-811450832d09	bfe7c356-63b5-11ec-bf3d-039853d83069	e073f902-0da2-4bfc-ae3b-d4b84ee9c6cb	bfe7cf9b-dce4-4a39-a733-e431fcd18ddb	1	15.5	5.625	X
+ebc5eab6-63b5-11ec-bf3d-5bac6afaff20	bfe7c356-63b5-11ec-bf3d-039853d83069	e073f902-0da2-4bfc-ae3b-d4b84ee9c6cb	bfe7cf9b-dce4-4a39-a733-e431fcd18ddb	1	25.125	2.63	X
+9248db88-0235-4430-adb8-ea9db8c59755	2d546bc8-63c1-11ec-8b7b-f72fd5119922	bba39a55-1d98-40a4-a979-5b293606e477	aa25cde4-e18a-43aa-a2fe-b8665224fe14	1	15.5	11.25	X
+14e0f248-c185-4bee-8ffd-aa554aa028c9	2d546bc8-63c1-11ec-8b7b-f72fd5119922	ece7844d-36de-47d6-9156-58d5a19b5c2c	5a824de0-0906-4e1e-8ab6-7e9342d2faa3	1	2.5	3	X
+3488db44-b4fd-48d9-a94e-c6766fac054f	6b5d8904-63c1-11ec-a761-ff02323fcc34	93372709-18c5-490a-894b-ef05a0734c7f	b271f49a-877c-4226-81d7-fd75f4a33711	1	1.125	3	X
+184a13a4-e991-443c-9e52-2b3cbf3cd7d0	2d546bc8-63c1-11ec-8b7b-f72fd5119922	bba39a55-1d98-40a4-a979-5b293606e477	aa25cde4-e18a-43aa-a2fe-b8665224fe14	1	5	2	X
+e821a265-ebb9-4628-848d-780940580151	2d546bc8-63c1-11ec-8b7b-f72fd5119922	ece7844d-36de-47d6-9156-58d5a19b5c2c	5a824de0-0906-4e1e-8ab6-7e9342d2faa3	1	17	3	X
+33c24d4d-d0b2-4af0-b894-151a1e684d26	6b5d8904-63c1-11ec-a761-ff02323fcc34	af887b8a-b799-4c02-b5f5-f305ad3ef53c	b34c21e6-3f80-4735-82b3-7dd2c49fce98	1	11.375	2	X
+4cdff9bc-63c1-11ec-8aa1-e79f84f3e7f0	2d546bc8-63c1-11ec-8b7b-f72fd5119922	bba39a55-1d98-40a4-a979-5b293606e477	aa25cde4-e18a-43aa-a2fe-b8665224fe14	1	31.375	2.5	X
+cd9bb32e-3c9f-4dec-8286-537cb0f9e307	6b5d8904-63c1-11ec-a761-ff02323fcc34	93372709-18c5-490a-894b-ef05a0734c7f	b271f49a-877c-4226-81d7-fd75f4a33711	1	11.625	3	X
+b91c35be-63c1-11ec-981c-e7ee68f32919	6b5d8904-63c1-11ec-a761-ff02323fcc34	93372709-18c5-490a-894b-ef05a0734c7f	b271f49a-877c-4226-81d7-fd75f4a33711	1	53	2.25	X
+402b2ad1-86ca-4dbe-9485-893c5d7f68f5	6b5d8904-63c1-11ec-a761-ff02323fcc34	af887b8a-b799-4c02-b5f5-f305ad3ef53c	b34c21e6-3f80-4735-82b3-7dd2c49fce98	1	19.375	4.125	X
+356ead35-9d56-468a-a829-ec9c6d882dd7	6b5d8904-63c1-11ec-a761-ff02323fcc34	93372709-18c5-490a-894b-ef05a0734c7f	b271f49a-877c-4226-81d7-fd75f4a33711	1	19.875	3	X
+dc55fb4a-ce76-43f1-8c37-9354c5da3917	6b5d8904-63c1-11ec-a761-ff02323fcc34	93372709-18c5-490a-894b-ef05a0734c7f	b271f49a-877c-4226-81d7-fd75f4a33711	1	31.375	1.5	X
+0840355a-49c1-4d83-9d70-9fcebc2b48c7	6b5d8904-63c1-11ec-a761-ff02323fcc34	af887b8a-b799-4c02-b5f5-f305ad3ef53c	b34c21e6-3f80-4735-82b3-7dd2c49fce98	1	32	2.5	X
+564f46ec-63c1-11ec-b107-3fbe4c1a7e2c	2d546bc8-63c1-11ec-8b7b-f72fd5119922	ece7844d-36de-47d6-9156-58d5a19b5c2c	5a824de0-0906-4e1e-8ab6-7e9342d2faa3	1	29.75	1.5	X
+cd43b78e-97a1-4bc4-a592-311097d03046	2d546bc8-63c1-11ec-8b7b-f72fd5119922	ece7844d-36de-47d6-9156-58d5a19b5c2c	5a824de0-0906-4e1e-8ab6-7e9342d2faa3	1	27.5	2.25	X
+bb9f2652-63c1-11ec-981c-478d31ec3b08	6b5d8904-63c1-11ec-a761-ff02323fcc34	af887b8a-b799-4c02-b5f5-f305ad3ef53c	b34c21e6-3f80-4735-82b3-7dd2c49fce98	1	53.875	2.5	X
+561162cd-ccca-4524-b3ce-3c1440f57652	6b5d8904-63c1-11ec-a761-ff02323fcc34	93372709-18c5-490a-894b-ef05a0734c7f	b271f49a-877c-4226-81d7-fd75f4a33711	1	39	2.25	X
+ae418dd8-63c1-11ec-981c-cbc47a537216	6b5d8904-63c1-11ec-a761-ff02323fcc34	af887b8a-b799-4c02-b5f5-f305ad3ef53c	b34c21e6-3f80-4735-82b3-7dd2c49fce98	1	39.625	2.5	X
+b0e91d26-63c1-11ec-981c-3f4f66432b75	6b5d8904-63c1-11ec-a761-ff02323fcc34	93372709-18c5-490a-894b-ef05a0734c7f	b271f49a-877c-4226-81d7-fd75f4a33711	1	46	2.25	X
+b6a48d68-63c1-11ec-981c-3749d777f5aa	6b5d8904-63c1-11ec-a761-ff02323fcc34	af887b8a-b799-4c02-b5f5-f305ad3ef53c	b34c21e6-3f80-4735-82b3-7dd2c49fce98	1	46.75	2.5	X
+bde710d2-63c1-11ec-981c-6b072dbb5d8f	6b5d8904-63c1-11ec-a761-ff02323fcc34	93372709-18c5-490a-894b-ef05a0734c7f	b271f49a-877c-4226-81d7-fd75f4a33711	1	60	2.25	X
+bf9d3f64-63c1-11ec-981c-7f36f67efc9c	6b5d8904-63c1-11ec-a761-ff02323fcc34	af887b8a-b799-4c02-b5f5-f305ad3ef53c	b34c21e6-3f80-4735-82b3-7dd2c49fce98	1	61	2.5	X
+4192f886-e74b-49ec-b71f-42c5ebb28728	6b5d8904-63c1-11ec-a761-ff02323fcc34	af887b8a-b799-4c02-b5f5-f305ad3ef53c	b34c21e6-3f80-4735-82b3-7dd2c49fce98	1	1	2.5	X
+c6b4bc62-64ef-11ec-8d76-a3e68ea740cb	c99452c6-5126-11ec-a2fe-df7e481fe1b1	0070d389-a766-4887-9f97-556fc3c0fb29	df0d7818-39e3-4be4-a57b-9afce0a5e0a0	1	12	0.875	X
+cb67187c-64ef-11ec-825c-df945d08f197	c99452c6-5126-11ec-a2fe-df7e481fe1b1	0070d389-a766-4887-9f97-556fc3c0fb29	df0d7818-39e3-4be4-a57b-9afce0a5e0a0	1	10.5	0.875	X
 \.
 
 
@@ -17872,7 +18470,6 @@ ab0ef404-11bf-4050-a9c6-4c413980fd94	Library	d0b722f2-6041-11ec-9500-5fe747d9913
 592b74b2-0ed6-4b3e-9cd1-2daef00a9c91	Library	d0b722f2-6041-11ec-9500-5fe747d99135	1509102a-16eb-11ea-8a37-4764c2a771db
 54689507-0d2c-49c6-9434-5f19f1fff9d2	Library	d0b722f2-6041-11ec-9500-5fe747d99135	9d966418-fb20-11eb-a2de-172ecc754afd
 e9f1ebb2-bd66-4939-b981-7fb57df60b4f	Library	d0b722f2-6041-11ec-9500-5fe747d99135	c40012d4-fb20-11eb-a2de-278de10ba0a8
-d0fef0de-61e3-11ec-af24-5f1f74753c06	Program	9ea9fe94-3510-11ec-a019-a3e3fba5cba1	57bf3c88-61e3-11ec-8531-b780a7bb5110
 e47980e6-6203-11ec-bbcc-f7ce9fc6bef4	Library	5d7f23c6-105e-11ec-bee8-f7be79aa5352	53848598-3843-11ec-877d-039fbad7aa03
 ec09ef80-6203-11ec-bbcc-1f21216a1448	Library	5d7f23c6-105e-11ec-bee8-f7be79aa5352	758c188c-383d-11ec-a788-633bf1b83658
 f18db96e-6203-11ec-9fca-ef61b6118064	Library	5d7f23c6-105e-11ec-bee8-f7be79aa5352	0f8f0050-3511-11ec-8c04-5f7ccbf0cadf
@@ -17919,7 +18516,7 @@ e8682aa4-6203-11ec-866e-e76c804db13d	Library	5d7f23c6-105e-11ec-bee8-f7be79aa535
 eef6823a-6203-11ec-866e-7725dc8b86f0	Library	5d7f23c6-105e-11ec-bee8-f7be79aa5352	7f360a4e-383a-11ec-89ac-773fc53b2694
 f855c2b4-6203-11ec-866e-474fec6c8705	Library	5d7f23c6-105e-11ec-bee8-f7be79aa5352	7c68d172-3851-11ec-b687-9fcd389404cc
 078fefd4-6204-11ec-850c-4384d82f1a22	Program	5d7f23c6-105e-11ec-bee8-f7be79aa5352	57bf3c88-61e3-11ec-8531-b780a7bb5110
-c075e13c-621a-11ec-bdd1-ef112310a5a2	Program	9ea9fe94-3510-11ec-a019-a3e3fba5cba1	abf58a2c-61e4-11ec-b046-c7256ab024eb
+e51a69aa-62b4-11ec-9233-c35a1a002cd7	Program	5d7f23c6-105e-11ec-bee8-f7be79aa5352	abf58a2c-61e4-11ec-b046-c7256ab024eb
 9a376528-39bf-11ec-bf7f-afaa67af58a4	Library	9ea9fe94-3510-11ec-a019-a3e3fba5cba1	758c188c-383d-11ec-a788-633bf1b83658
 97a95280-39ce-11ec-97b9-eb9016e43c2f	Library	9ea9fe94-3510-11ec-a019-a3e3fba5cba1	7c68d172-3851-11ec-b687-9fcd389404cc
 957fbda8-3a02-11ec-9ca2-e389bfedeb9b	Library	9ea9fe94-3510-11ec-a019-a3e3fba5cba1	7f360a4e-383a-11ec-89ac-773fc53b2694
@@ -17936,9 +18533,8 @@ ca7888da-3be4-11ec-a771-bfd0e0ae262e	Program	e5e40250-14b8-11ec-a00e-d7a3b541c71
 --
 
 COPY xj.template_playback (id, template_id, user_id, created_at) FROM stdin;
-80ba5b54-5e14-11ec-b4ff-bf247d4fa1ec	adccb000-1cfc-11ec-a1a8-3bde1278bdd9	1b299a74-f187-11eb-8314-cf9697b34927	2021-12-16 02:04:29.368999
 7871b828-5f06-11ec-b733-5fdfd87390fa	3c8cc5ec-4cae-11ec-b368-8f261f2e5462	14e0e8c0-16eb-11ea-8a37-336eae21d833	2021-12-17 06:56:33.679707
-222d6f20-6118-11ec-a072-371527418fa2	9ea9fe94-3510-11ec-a019-a3e3fba5cba1	8a2439bc-a9ca-11ea-9cb5-33555a4054e4	2021-12-19 22:08:02.214975
+0608ac12-677e-11ec-8421-c3143cf4b43e	adccb000-1cfc-11ec-a1a8-3bde1278bdd9	8a2439bc-a9ca-11ea-9cb5-33555a4054e4	2021-12-28 01:32:30.641154
 \.
 
 
@@ -18015,10 +18611,12 @@ ef7211e4-5bb8-11ec-ad4d-33e7d2fb2851	488d266c-16ea-11ea-88e3-afea5aeef804	488ada
 989c0b8a-61fe-11ec-9054-c32a07f4a1bc	488d266c-16ea-11ea-88e3-afea5aeef804	488ada38-16ea-11ea-88e3-573050fbaae5	1640050665096-37c0659f-cfe6-4cb2-9687-c3a4e50d3bf6-074424711882
 cf63d7ba-61fe-11ec-9054-130b7a8a47b4	8a24f74e-a9ca-11ea-9cb5-eb23857bab60	8a2439bc-a9ca-11ea-9cb5-33555a4054e4	1640050757063-8c1da04d-3a88-4337-8ad5-b458c61222d3-584677480083
 368bf330-7652-11eb-84d4-e750d1677b81	5188959c-8514-11ea-962a-87e0456d6ec9	14c688fe-16eb-11ea-8a37-a798275d637c	1614138103561-7ba6b2ed-a8b2-41dc-80bf-cad83d99fe9b-150063601766061
+2c23f152-62b7-11ec-a9b4-2fcc5613d9e3	488d266c-16ea-11ea-88e3-afea5aeef804	488ada38-16ea-11ea-88e3-573050fbaae5	1640129940062-646b9cd9-9abc-48cd-ae67-d53c36f2090e-95401638036597
 8976e2d4-7941-11eb-b628-0339290dd2f8	8a24f74e-a9ca-11ea-9cb5-eb23857bab60	8a2439bc-a9ca-11ea-9cb5-33555a4054e4	1614460794800-de2af4d8-160b-4798-a943-62e15c7d837d-72145081921315
 450f75a6-8383-11eb-9f8d-33c66672c8bf	8a24f74e-a9ca-11ea-9cb5-eb23857bab60	8a2439bc-a9ca-11ea-9cb5-33555a4054e4	1615588538746-171c2437-703c-4c85-b0f4-5f17cc0de601-6610483686509711
 f404f8dc-8866-11eb-bdb9-4f529ce117e2	f3fabf34-8866-11eb-bdb9-fb546653409b	f3f84f10-8866-11eb-bdb9-131400c7c86d	1616126132629-9cedc54f-fc95-4156-9454-29be8b85d658-576092914774181
 3b13be6e-8ce7-11eb-b8f1-33824e77139a	5188959c-8514-11ea-962a-87e0456d6ec9	14c688fe-16eb-11ea-8a37-a798275d637c	1616621031920-6d24844a-2c27-48b6-9fac-63d30f00e58b-149483017673676
+747c1370-674f-11ec-bba5-b350d0fa9ed3	1b350d78-f187-11eb-8314-db91e69d556b	1b299a74-f187-11eb-8314-cf9697b34927	1640635149598-ec378ceb-fe1f-46ee-b188-012b4be6f118-964010026277485
 92bfeabc-9015-11eb-b8c8-2753a3916dd2	8a24f74e-a9ca-11ea-9cb5-eb23857bab60	8a2439bc-a9ca-11ea-9cb5-33555a4054e4	1616970789475-8209b9ae-2d1b-4ae5-bae8-0b68d300416d-068869041945841
 6daae79a-9281-11eb-8062-a339add3f49b	5188959c-8514-11ea-962a-87e0456d6ec9	14c688fe-16eb-11ea-8a37-a798275d637c	1617237015264-65415d30-74f6-4cbf-95b3-a07d90ae7bb8-12636012339015
 b20478e4-9690-11eb-8f31-8320a5687726	8a24f74e-a9ca-11ea-9cb5-eb23857bab60	8a2439bc-a9ca-11ea-9cb5-33555a4054e4	1617683377094-9b846b0a-158e-48f5-ad05-a49189095c32-257143051554794
@@ -18059,6 +18657,9 @@ b20071e6-fada-11eb-995b-ffdf92c5c9a2	8a24f74e-a9ca-11ea-9cb5-eb23857bab60	8a2439
 d9c43368-6117-11ec-9fbd-33142b514f95	8a24f74e-a9ca-11ea-9cb5-eb23857bab60	8a2439bc-a9ca-11ea-9cb5-33555a4054e4	1639951560685-e30b9f1b-a344-4871-a246-5ea98b65cb61-05130535826506841
 d0b59080-fb20-11eb-a2de-57e225ca7207	1b350d78-f187-11eb-8314-db91e69d556b	1b299a74-f187-11eb-8314-cf9697b34927	1628740392400-3769c2c1-2eb3-43d8-96b7-0a3515f5dd9b-9667688753149463
 5345fa90-fb25-11eb-ad24-7308e41df4fc	1b350d78-f187-11eb-8314-db91e69d556b	1b299a74-f187-11eb-8314-cf9697b34927	1628742329429-a9dbafb6-bbf2-48ba-b886-6fd992a022db-2894438060531563
+1b1d642c-623c-11ec-a5e4-3bde0f6f1104	488d266c-16ea-11ea-88e3-afea5aeef804	488ada38-16ea-11ea-88e3-573050fbaae5	1640077083355-4bcd8224-15c5-43a5-a3ad-7bb30ada886f-19196667360762
+5e680a60-66c0-11ec-aa0c-ab5a71c7d506	06920d56-8f3d-11ea-ab8d-979cef4f3286	06901f6e-8f3d-11ea-ab8d-836f6e9422f1	1640573694459-e92b1715-51e6-43dd-b8cb-fb0873bf7a2a-878235084713325
+7e3686c4-6827-11ec-b197-eb84c27b7620	4fec6b4e-60d6-11ea-85c7-e7e65109099b	14e0e8c0-16eb-11ea-8a37-336eae21d833	1640727937177-dcc705c4-2f67-4521-a395-823bdd0c41f3-590389891065776
 75f3bb14-01eb-11ec-8212-238be68fe303	4fec6b4e-60d6-11ea-85c7-e7e65109099b	14e0e8c0-16eb-11ea-8a37-336eae21d833	1629487134921-ec29a0ca-d114-470e-b796-bc350ca28eb0-1859800016516934
 e17d7874-01fb-11ec-b4ac-87da25aa3154	4fec6b4e-60d6-11ea-85c7-e7e65109099b	14e0e8c0-16eb-11ea-8a37-336eae21d833	1629494187314-255c3b4d-f22f-4e26-9db0-4d757ffd07e0-8673452948023044
 a71d45b6-053d-11ec-bab1-a79f27683d3f	4fec6b4e-60d6-11ea-85c7-e7e65109099b	14e0e8c0-16eb-11ea-8a37-336eae21d833	1629852289633-262882c7-34ba-4b9f-a30f-bc3c8bddac62-0102291081921674
@@ -18102,6 +18703,8 @@ d54250a8-4c23-11ec-bdb4-2f4c85639804	8a24f74e-a9ca-11ea-9cb5-eb23857bab60	8a2439
 1640c28a-50c8-11ec-ad2e-9f51f7aea8f8	4fec6b4e-60d6-11ea-85c7-e7e65109099b	14e0e8c0-16eb-11ea-8a37-336eae21d833	1638158083823-90370416-4da2-49e3-9f2d-925f2a3ca5ba-26392519958076031
 00736394-59c0-11ec-9246-67817ca2b1fa	f64b5cf4-366b-11ec-98a8-03a7852d6298	f648d056-366b-11ec-98a8-7365322bf1fa	1639144171739-a2d51bb3-370c-4645-853a-ed0015141f44-79670781929135041
 83a92672-5d21-11ec-8a35-af2816503677	4fec6b4e-60d6-11ea-85c7-e7e65109099b	14e0e8c0-16eb-11ea-8a37-336eae21d833	1639515906581-c4ce322b-4cde-4d06-a823-834d9fa86f24-91330205780942441
+083c6066-629f-11ec-8b36-7fac102d221b	4fec6b4e-60d6-11ea-85c7-e7e65109099b	14e0e8c0-16eb-11ea-8a37-336eae21d833	1640119571911-65aedb9e-0178-4707-8601-699a61c84ebf-89581923949196
+cf6e59f0-66eb-11ec-85e4-d799efb719f5	5188959c-8514-11ea-962a-87e0456d6ec9	14c688fe-16eb-11ea-8a37-a798275d637c	1640592352415-bf8386af-0eaf-42ce-abac-f6c9bd9bc79b-887500734579145
 \.
 
 
