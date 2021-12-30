@@ -77,11 +77,13 @@ items:
     spec:
       progressDeadlineSeconds: 600
       replicas: 1
+      strategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxSurge: 1
       selector:
         matchLabels:
           k8s-app: coolair-ship
-      strategy:
-        type: Recreate
       template:
         metadata:
           labels:
