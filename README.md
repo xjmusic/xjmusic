@@ -22,6 +22,9 @@ See the **/art** folder. By Accessing the contents of that folder, you agree to 
 > Please only read these files on your machine and then delete. Please do Not email that file anywhere, or upload it to
 > any other servers. These files are confidential property of XJ Music Inc.
 
+See specifically, the [XJ music User Guide](https://docs.google.com/document/d/1Jp1DT7jJ3Xn1pR5495Yh4TeStTGanvuCF1du0uEUy1A/)
+
+
 ### Architecture
 
 Here's the general architecture of the XJ Music platform backend services. [(Download PDF)](art/XJ
