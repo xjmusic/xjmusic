@@ -17,18 +17,18 @@ public class TemplateConfigTest {
   @Test
   public void setFromTemplate() throws ValueException {
     var template = new Template();
-    template.setConfig("deltaArcDetailPlateauRatio = 0.95");
+    template.setConfig("mixerCompressToAmplitude = 0.95");
 
     var subject = new TemplateConfig(template);
 
-    assertEquals(0.95, subject.getDeltaArcDetailPlateauRatio(), 0.01);
+    assertEquals(0.95, subject.getMixerCompressToAmplitude(), 0.01);
   }
 
   @Test
   public void setFromDefaults() throws ValueException {
     var subject = new TemplateConfig(TemplateConfig.DEFAULT);
 
-    assertEquals(0.62, subject.getDeltaArcDetailPlateauRatio(), 0.01);
+    assertEquals(1.0, subject.getMixerCompressToAmplitude(), 0.01);
   }
 
   @Test

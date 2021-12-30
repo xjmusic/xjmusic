@@ -9,6 +9,7 @@ import io.xj.lib.music.Note;
 import io.xj.lib.music.NoteRange;
 import io.xj.lib.music.PitchClass;
 
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,7 +25,7 @@ public class NotePicker {
   private final Set<Note> eventNotes;
   private final Set<Note> voicingNotes;
   private final Set<Note> pickedNotes;
-  private final SecureRandom random = new SecureRandom();
+  private final SecureRandom random = new SecureRandom(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
   private final Collection<InstrumentType> instrumentTypesToSeekInversions = ImmutableList.of(
     InstrumentType.Stripe,
     InstrumentType.Stab,

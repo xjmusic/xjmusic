@@ -5,10 +5,8 @@ package io.xj.lib.util;
 import com.google.api.client.util.Lists;
 import com.google.common.collect.Maps;
 
-import java.security.SecureRandom;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -24,7 +22,6 @@ import java.util.stream.Collectors;
  */
 public class MarbleBag {
   private final Map<UUID, Integer> marbles;
-  Random generator = new SecureRandom();  // need to randomize seed
 
   /**
    Construct a new Marble Bag
@@ -59,7 +56,7 @@ public class MarbleBag {
     if (0 == total)
       return blocks.get(0).id;
 
-    var pickIdx = generator.nextInt(total);
+    var pickIdx = TremendouslyRandom.zeroToLimit(total);
 
     for (Group block : blocks)
       if (pickIdx >= block.from && pickIdx < block.to)

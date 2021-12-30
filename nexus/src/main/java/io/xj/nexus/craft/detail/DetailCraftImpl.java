@@ -49,7 +49,6 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
       choiceIndexProvider,
       DETAIL_INSTRUMENT_TYPES,
       List.of(),
-      fabricator.getTemplateConfig().getDeltaArcDetailPlateauRatio(),
       fabricator.getTemplateConfig().getDeltaArcDetailLayersIncoming()
     );
 

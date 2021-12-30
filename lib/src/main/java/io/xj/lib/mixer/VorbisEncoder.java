@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.mixer;
 
+import io.xj.lib.util.TremendouslyRandom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xiph.libogg.ogg_packet;
@@ -10,8 +11,6 @@ import org.xiph.libvorbis.*;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.security.SecureRandom;
-import java.util.Random;
 
 /**
  [#159449508] Ops wants to ship Ogg/Vorbis format, in order avoid licensing issues, and leverage more mature open-source audio
@@ -34,7 +33,6 @@ public class VorbisEncoder {
    */
   public VorbisEncoder(double[][] stream, int frameRate, float quality) {
     this.stream = stream;
-    Random generator = new SecureRandom();  // need to randomize seed
 
     // structures that store all the vorbis bitstream settings
     vorbis_info vorbisInfo = new vorbis_info();
@@ -55,14 +53,14 @@ public class VorbisEncoder {
     block = new vorbis_block(dspState);
 
     // take physical pages, weld into a logical stream of packets
-    oggStreamState = new ogg_stream_state(generator.nextInt(256));
+    oggStreamState = new ogg_stream_state(TremendouslyRandom.zeroToLimit(256));
 
     // structures for building OGG packets
     ogg_packet header = new ogg_packet();
     ogg_packet header_comm = new ogg_packet();
     ogg_packet header_code = new ogg_packet();
 
-    // structures that stores all the user comments
+    // structures that store all the user comments
     vorbis_comment comment = new vorbis_comment();
     comment.vorbis_comment_add_tag("COPYRIGHT", "XJ Music Inc.");
     dspState.vorbis_analysis_headerout(comment, header, header_comm, header_code);

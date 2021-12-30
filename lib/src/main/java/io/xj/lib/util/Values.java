@@ -440,4 +440,10 @@ public interface Values {
     return (float) (at.toEpochMilli() - Instant.now().toEpochMilli()) / MILLIS_PER_SECOND;
   }
 
+  /**
+   Round value to the nearest positive multiple of N
+   */
+  static int roundToNearest(int N, int value) {
+    return (int) (Math.max(0, Math.floor((float) value / N)) * N);
+  }
 }

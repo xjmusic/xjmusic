@@ -16,8 +16,8 @@ import io.xj.hub.tables.pojos.*;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.music.*;
 import io.xj.lib.util.CSV;
-import io.xj.lib.util.Chance;
 import io.xj.lib.util.MarbleBag;
+import io.xj.lib.util.TremendouslyRandom;
 import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.fabricator.FabricationWrapperImpl;
@@ -208,14 +208,10 @@ public class CraftImpl extends FabricationWrapperImpl {
 
    @throws NexusException on failure
    */
-  protected void precomputeDeltas(Predicate<SegmentChoice> choiceFilter, ChoiceIndexProvider choiceIndexProvider, Collection<String> layers, Collection<String> layerPrioritizationSearches, double plateauRatio, int numLayersIncoming) throws NexusException {
+  protected void precomputeDeltas(Predicate<SegmentChoice> choiceFilter, ChoiceIndexProvider choiceIndexProvider, Collection<String> layers, Collection<String> layerPrioritizationSearches, int numLayersIncoming) throws NexusException {
     this.choiceIndexProvider = choiceIndexProvider;
     deltaIns.clear();
     deltaOuts.clear();
-    var beatsTotal = fabricator.getTemplateConfig().getMainProgramLengthMaxDelta(); // total arc length
-    double beatsPlateau = beatsTotal * plateauRatio; // plateau section in middle with no transitions
-    double beatsFadeIn = beatsTotal - beatsPlateau;
-    double beatsFadeInPerLayer = beatsFadeIn / layers.size(); // space between transitions in
 
     // Ensure that we can bypass delta arcs using the template config
     if (!fabricator.getTemplateConfig().isDeltaArcEnabled()) {
@@ -236,7 +232,8 @@ public class CraftImpl extends FabricationWrapperImpl {
         // randomly override N incoming (deltaIn unlimited) and N outgoing (deltaOut unlimited)
         // shuffle the layers into a random order, then step through them, assigning delta ins and then outs
         // random order in
-        var deltaUnits = Bar.of(fabricator.getMainProgramConfig().getBarBeats()).computeSubsectionBeats(fabricator.getSegment().getTotal());
+        var barBeats = fabricator.getMainProgramConfig().getBarBeats();
+        var deltaUnits = Bar.of(barBeats).computeSubsectionBeats(fabricator.getSegment().getTotal());
 
         // Delta arcs can prioritize the presence of a layer by name, e.g. containing "kick" #180242564
         // separate layers into primary and secondary, shuffle them separately, then concatenate
@@ -252,10 +249,11 @@ public class CraftImpl extends FabricationWrapperImpl {
         fabricator.addInfoMessage(String.format("Prioritized %s", CSV.join(priLayers)));
         Collections.shuffle(secLayers);
         var orderedLayers = Stream.concat(priLayers.stream(), secLayers.stream()).collect(Collectors.toList());
-
-        for (int i = 0; i < orderedLayers.size(); i++) {
-          deltaIns.put(orderedLayers.get(i), Values.multipleFloor(deltaUnits, Chance.normallyAround((i + 0.5) * beatsFadeInPerLayer, beatsFadeInPerLayer * 0.3)));
-          deltaOuts.put(orderedLayers.get(i), DELTA_UNLIMITED); // all layers get delta out unlimited
+        var delta = Values.roundToNearest(barBeats, TremendouslyRandom.zeroToLimit(deltaUnits) - deltaUnits / 2);
+        for (String orderedLayer : orderedLayers) {
+          deltaIns.put(orderedLayer, delta);
+          deltaOuts.put(orderedLayer, DELTA_UNLIMITED); // all layers get delta out unlimited
+          delta += Values.roundToNearest(barBeats, TremendouslyRandom.zeroToLimit(deltaUnits) - deltaUnits / 2);
         }
 
         Values.randomFrom(orderedLayers, numLayersIncoming).forEach(layer -> deltaIns.put(layer, DELTA_UNLIMITED));

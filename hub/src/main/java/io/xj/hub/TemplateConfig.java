@@ -30,9 +30,7 @@ public class TemplateConfig {
       bufferBeforeSeconds = 5
       deltaArcBeatLayersIncoming = 1
       deltaArcBeatLayersToPrioritize = kick
-      deltaArcBeatPlateauRatio = 0.38
       deltaArcDetailLayersIncoming = 1
-      deltaArcDetailPlateauRatio = 0.62
       deltaArcEnabled = true
       densityCeiling = 0.9
       densityFloor = 0.1
@@ -44,8 +42,6 @@ public class TemplateConfig {
       dubMasterVolumeInstrumentTypeSticky = 1.0
       dubMasterVolumeInstrumentTypeStripe = 1.0
       mainProgramLengthMaxDelta = 280
-      metaSource = ""
-      metaTitle = ""
       mixerCompressAheadSeconds = 0.05
       mixerCompressDecaySeconds = 0.125
       mixerCompressRatioMax = 1.0
@@ -68,16 +64,11 @@ public class TemplateConfig {
       transitionLayerMax = 3
       transitionLayerMin = 0
       """;
-  private static final int BITS_PER_BYTE = 8;
   private final AudioFormat.Encoding outputEncoding;
   private final String deltaArcBeatLayersToPrioritize;
-  private final String metaSource;
-  private final String metaTitle;
   private final String outputContainer;
   private final String outputContentType;
   private final boolean deltaArcEnabled;
-  private final double deltaArcDetailPlateauRatio;
-  private final double deltaArcBeatPlateauRatio;
   private final double densityCeiling;
   private final double densityFloor;
   private final double dubMasterVolumeInstrumentTypeBass;
@@ -150,11 +141,9 @@ public class TemplateConfig {
       bufferAheadSeconds = config.getInt("bufferAheadSeconds");
       bufferBeforeSeconds = config.getInt("bufferBeforeSeconds");
       deltaArcDetailLayersIncoming = config.getInt("deltaArcDetailLayersIncoming");
-      deltaArcDetailPlateauRatio = config.getDouble("deltaArcDetailPlateauRatio");
       deltaArcEnabled = config.getBoolean("deltaArcEnabled");
       deltaArcBeatLayersIncoming = config.getInt("deltaArcBeatLayersIncoming");
       deltaArcBeatLayersToPrioritize = config.getString("deltaArcBeatLayersToPrioritize");
-      deltaArcBeatPlateauRatio = config.getDouble("deltaArcBeatPlateauRatio");
       densityCeiling = config.getDouble("densityCeiling");
       densityFloor = config.getDouble("densityFloor");
       dubMasterVolumeInstrumentTypeBass = config.getDouble("dubMasterVolumeInstrumentTypeBass");
@@ -165,8 +154,6 @@ public class TemplateConfig {
       dubMasterVolumeInstrumentTypeSticky = config.getDouble("dubMasterVolumeInstrumentTypeSticky");
       dubMasterVolumeInstrumentTypeStripe = config.getDouble("dubMasterVolumeInstrumentTypeStripe");
       mainProgramLengthMaxDelta = config.getInt("mainProgramLengthMaxDelta");
-      metaSource = config.getString("metaSource");
-      metaTitle = config.getString("metaTitle");
       mixerCompressAheadSeconds = config.getDouble("mixerCompressAheadSeconds");
       mixerCompressDecaySeconds = config.getDouble("mixerCompressDecaySeconds");
       mixerCompressRatioMax = config.getDouble("mixerCompressRatioMax");
@@ -202,11 +189,9 @@ public class TemplateConfig {
     config.put("bufferAheadSeconds", String.valueOf(bufferAheadSeconds));
     config.put("bufferBeforeSeconds", String.valueOf(bufferBeforeSeconds));
     config.put("deltaArcDetailLayersIncoming", String.valueOf(deltaArcDetailLayersIncoming));
-    config.put("deltaArcDetailPlateauRatio", String.valueOf(deltaArcDetailPlateauRatio));
     config.put("deltaArcEnabled", String.valueOf(deltaArcEnabled));
     config.put("deltaArcBeatLayersIncoming", String.valueOf(deltaArcBeatLayersIncoming));
     config.put("deltaArcBeatLayersToPrioritize", String.valueOf(deltaArcBeatLayersToPrioritize));
-    config.put("deltaArcBeatPlateauRatio", String.valueOf(deltaArcBeatPlateauRatio));
     config.put("densityCeiling", String.valueOf(densityCeiling));
     config.put("densityFloor", String.valueOf(densityFloor));
     config.put("dubMasterVolumeInstrumentTypeBass", String.valueOf(dubMasterVolumeInstrumentTypeBass));
@@ -217,8 +202,6 @@ public class TemplateConfig {
     config.put("dubMasterVolumeInstrumentTypeSticky", String.valueOf(dubMasterVolumeInstrumentTypeSticky));
     config.put("dubMasterVolumeInstrumentTypeStripe", String.valueOf(dubMasterVolumeInstrumentTypeStripe));
     config.put("mainProgramLengthMaxDelta", String.valueOf(mainProgramLengthMaxDelta));
-    config.put("metaSource", Text.orEmptyQuotes(metaSource));
-    config.put("metaTitle", Text.orEmptyQuotes(metaTitle));
     config.put("mixerCompressAheadSeconds", String.valueOf(mixerCompressAheadSeconds));
     config.put("mixerCompressDecaySeconds", String.valueOf(mixerCompressDecaySeconds));
     config.put("mixerCompressRatioMax", String.valueOf(mixerCompressRatioMax));
@@ -283,24 +266,10 @@ public class TemplateConfig {
   }
 
   /**
-   @return the plateau ratio of detail-layer detail arcs
-   */
-  public double getDeltaArcDetailPlateauRatio() {
-    return deltaArcDetailPlateauRatio;
-  }
-
-  /**
    @return the number of delta arc detail layers incoming each segment
    */
   public int getDeltaArcDetailLayersIncoming() {
     return deltaArcDetailLayersIncoming;
-  }
-
-  /**
-   @return the plateau ratio of beat-layer detail arcs
-   */
-  public double getDeltaArcBeatPlateauRatio() {
-    return deltaArcBeatPlateauRatio;
   }
 
   /**
@@ -385,20 +354,6 @@ public class TemplateConfig {
    */
   public int getMainProgramLengthMaxDelta() {
     return mainProgramLengthMaxDelta;
-  }
-
-  /**
-   @return the meta source
-   */
-  public String getMetaSource() {
-    return metaSource;
-  }
-
-  /**
-   @return the meta title
-   */
-  public String getMetaTitle() {
-    return metaTitle;
   }
 
   /**
@@ -511,13 +466,6 @@ public class TemplateConfig {
    */
   public int getOutputFrameRate() {
     return outputFrameRate;
-  }
-
-  /**
-   @return the output frame size (bytes per frame including all channels)
-   */
-  public int getOutputFrameSize() {
-    return outputSampleBits * outputChannels / BITS_PER_BYTE;
   }
 
   /**

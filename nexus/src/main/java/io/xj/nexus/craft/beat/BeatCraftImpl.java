@@ -65,7 +65,6 @@ public class BeatCraftImpl extends DetailCraftImpl implements BeatCraft {
       choiceIndexProvider,
       programNames,
       CSV.split(fabricator.getTemplateConfig().getDeltaArcBeatLayersToPrioritize()),
-      fabricator.getTemplateConfig().getDeltaArcBeatPlateauRatio(),
       fabricator.getTemplateConfig().getDeltaArcBeatLayersIncoming()
     );
 
