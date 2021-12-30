@@ -32,7 +32,7 @@ public interface SegmentAudioManager {
    @param shipKey of template for which to load audio
    @param segment to load
    */
-  void preload(String shipKey, Segment segment) throws ShipException, IOException, FormatException, FileStoreException;
+  void load(String shipKey, Segment segment) throws ShipException, IOException, FormatException, FileStoreException;
 
   /**
    Put a Segment Audio in the store

@@ -22,26 +22,6 @@ public interface SourceFactory {
   );
 
   /**
-   Loads the audio for a segment. These requests are idempotent; there will be no effect of multiple requests to load
-   the same segment, because the Segment Audio Manager tracks each segment id as a state machine from the moment that
-   it is first encountered, updating its state when loading is complete or failed, so that it will be retried the next
-   time the load is requested.
-   <p>
-   - If the segment has never been encountered, create a new Segment Audio in LOADING state.
-   - If the segment id exists, check its state
-   - If the existing segment is in LOADING state, take no action
-   - If the existing segment is in FAILED state, retry
-   <p>
-
-   @param segment to load
-   @return segment audio loader
-   */
-  SegmentLoader loadSegment(
-    @Assisted("shipKey") String shipKey,
-    @Assisted("segment") Segment segment
-  );
-
-  /**
    Create a Segment audio
 
    @param shipKey to load

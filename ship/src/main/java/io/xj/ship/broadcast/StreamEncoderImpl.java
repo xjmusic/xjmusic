@@ -47,7 +47,7 @@ public class StreamEncoderImpl implements StreamEncoder {
   private final int chunkTargetDuration;
   private int initialSeqNum;
   private Process ffmpeg;
-  private volatile boolean active = true;
+  private volatile boolean active;
 
   @Inject
   public StreamEncoderImpl(
@@ -71,7 +71,9 @@ public class StreamEncoderImpl implements StreamEncoder {
     String m3u8Key = String.format("%s.m3u8", shipKey);
     playlistPath = String.format("%s%s", tempFilePathPrefix, m3u8Key);
 
-    if (ShipMode.HLS.equals(env.getShipMode()))
+    active = ShipMode.HLS.equals(env.getShipMode());
+
+    if (active)
       CompletableFuture.runAsync(() -> {
         final Thread currentThread = Thread.currentThread();
         final String oldName = currentThread.getName();
@@ -128,9 +130,6 @@ public class StreamEncoderImpl implements StreamEncoder {
           if (Objects.nonNull(ffmpeg)) ffmpeg.destroy();
         }
       });
-    else {
-      active = false;
-    }
   }
 
   @Override
@@ -149,22 +148,23 @@ public class StreamEncoderImpl implements StreamEncoder {
 
   @Override
   public void publish(long atMillis) throws ShipException {
-    try {
-      // test for existence of playlist file; skip if nonexistent
-      if (!new File(playlistPath).exists()) return;
+    if (active)
+      try {
+        // test for existence of playlist file; skip if nonexistent
+        if (!new File(playlistPath).exists()) return;
 
-      // parse ffmpeg .m3u8 content into playlist manager
-      var added = playlist.parseAndLoadItems(Files.getFileContent(playlistPath));
+        // parse ffmpeg .m3u8 content into playlist manager
+        var added = playlist.parseAndLoadItems(Files.getFileContent(playlistPath));
 
-      // publish new filenames
-      for (Chunk item : added)
-        // skip the first generated media segment; it begins with priming samples
-        if (item.getSequenceNumber() > initialSeqNum)
-          uploadMediaSegment(item.getFilename(), contentTypeSegment);
+        // publish new filenames
+        for (Chunk item : added)
+          // skip the first generated media segment; it begins with priming samples
+          if (item.getSequenceNumber() > initialSeqNum)
+            uploadMediaSegment(item.getFilename(), contentTypeSegment);
 
-    } catch (IOException | FileStoreException e) {
-      throw new ShipException("Failed to publish media segment!", e);
-    }
+      } catch (IOException | FileStoreException e) {
+        throw new ShipException("Failed to publish media segment!", e);
+      }
   }
 
   @Override

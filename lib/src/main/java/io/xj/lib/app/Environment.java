@@ -165,7 +165,7 @@ public class Environment {
     shipMode = readStr(vars, "SHIP_MODE", "hls");
     shipPlaylistMinimumSize = readInt(vars, "SHIP_PLAYLIST_MINIMUM_SIZE", 3);
     shipPlaylistTargetSize = readInt(vars, "SHIP_PLAYLIST_TARGET_SIZE", 6);
-    shipSegmentIgnoreAfterSeconds = readInt(vars, "SHIP_SEGMENT_IGNORE_AFTER_SECONDS", 60);
+    shipSegmentIgnoreAfterSeconds = readInt(vars, "SHIP_SEGMENT_IGNORE_AFTER_SECONDS", 120);
     shipSegmentIgnoreBeforeSeconds = readInt(vars, "SHIP_SEGMENT_IGNORE_BEFORE_SECONDS", 10);
     shipSegmentLoadTimeoutSeconds = readInt(vars, "SHIP_SEGMENT_LOAD_TIMEOUT_SECONDS", 5);
     streamBaseURL = readStr(vars, "STREAM_BASE_URL", "https://stream.dev.xj.io/");

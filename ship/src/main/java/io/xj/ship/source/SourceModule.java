@@ -24,7 +24,6 @@ public class SourceModule extends AbstractModule {
     install(new FactoryModuleBuilder()
       .implement(ChainLoader.class, ChainLoaderImpl.class)
       .implement(SegmentAudio.class, SegmentAudio.class)
-      .implement(SegmentLoader.class, SegmentLoaderImpl.class)
       .build(SourceFactory.class));
     install(new TelemetryModule());
     install(new HttpClientModule());

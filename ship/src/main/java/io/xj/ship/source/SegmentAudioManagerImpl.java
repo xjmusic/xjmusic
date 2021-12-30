@@ -60,7 +60,7 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
   }
 
   @Override
-  public void preload(String shipKey, Segment segment) throws ShipException {
+  public void load(String shipKey, Segment segment) throws ShipException {
     try {
       store.put(segment);
       var absolutePath = cache.downloadAndDecompress(segment);
@@ -98,7 +98,7 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
   @Override
   public void retry(UUID segmentId) throws ShipException {
     SegmentAudio audio = segmentAudios.get(segmentId);
-    preload(audio.getShipKey(), audio.getSegment());
+    load(audio.getShipKey(), audio.getSegment());
   }
 
   @Override

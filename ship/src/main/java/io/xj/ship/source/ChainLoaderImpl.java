@@ -46,7 +46,6 @@ public class ChainLoaderImpl extends ChainLoader {
   private final Runnable onFailure;
   private final SegmentAudioManager segmentAudioManager;
   private final SegmentManager segmentManager;
-  private final SourceFactory source;
   private final String shipBaseUrl;
   private final String shipKey;
   private final TelemetryProvider telemetryProvider;
@@ -64,7 +63,6 @@ public class ChainLoaderImpl extends ChainLoader {
     JsonapiPayloadFactory jsonapiPayloadFactory,
     SegmentAudioManager segmentAudioManager,
     SegmentManager segmentManager,
-    SourceFactory source,
     TelemetryProvider telemetryProvider
   ) {
     this.chainManager = chainManager;
@@ -75,7 +73,6 @@ public class ChainLoaderImpl extends ChainLoader {
     this.segmentAudioManager = segmentAudioManager;
     this.segmentManager = segmentManager;
     this.shipKey = shipKey;
-    this.source = source;
     this.telemetryProvider = telemetryProvider;
 
     ignoreSegmentsBeforeSeconds = env.getShipSegmentIgnoreBeforeSeconds();
@@ -161,11 +158,23 @@ public class ChainLoaderImpl extends ChainLoader {
 
           } else {
             segmentLoaded.incrementAndGet();
-            source.loadSegment(shipKey, segment).run();
+            var audio =
+              segmentAudioManager.get(segment.getId());
+
+            if (audio.isEmpty()) {
+              segmentAudioManager.load(shipKey, segment);
+
+            } else switch (audio.get().getState()) {
+              case Pending, Decoding, Ready -> {
+                // no op; if the segment spends too much time in this state, it'll time out
+              }
+              case Failed -> segmentAudioManager.retry(segment.getId());
+            }
           }
 
         } catch (Exception e) {
           LOG.error("Could not load Segment[{}]", Segments.getIdentifier(segment), e);
+          segmentAudioManager.collectGarbage(segment.getId());
           success.set(false);
         }
       });
