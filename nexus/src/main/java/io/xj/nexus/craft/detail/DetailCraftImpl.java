@@ -66,9 +66,6 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
         continue;
       }
 
-      // add memes of program to segment in order to affect further choice
-      fabricator.addMemes(program.get());
-
       // detail sequence is selected at random of the current program
       // FUTURE: [#166855956] Detail Program with multiple Sequences
       var sequence = fabricator.getRandomlySelectedSequence(program.get());
@@ -81,6 +78,10 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
             String.format("in Detail-choice Program[%s]", program.get().getId()));
         craftChoices(sequence.get(), voices, voice -> chooseFreshInstrument(voice.getType(), List.of(), null), false);
       }
+
+      // add memes of program to segment in order to affect further choice
+      // XJ should not add memes to Segment for program/instrument that was not successfully chosen #180468224
+      fabricator.addMemes(program.get());
     }
 
     // Finally, update the segment with the crafted content
