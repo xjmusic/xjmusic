@@ -158,9 +158,8 @@ public class StreamEncoderImpl implements StreamEncoder {
 
         // publish new filenames
         for (Chunk item : added)
-          // don't skip the first generated media segment, even though it begins with priming samples. we just start
-          // Ship should be able to recover from scratch much faster #180751780
-          if (item.getSequenceNumber() >= initialSeqNum)
+          // skip the first generated media segment; it begins with priming samples
+          if (item.getSequenceNumber() > initialSeqNum)
             uploadMediaSegment(item.getFilename(), contentTypeSegment);
 
       } catch (IOException | FileStoreException e) {
