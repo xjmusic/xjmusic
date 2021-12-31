@@ -255,7 +255,7 @@ public class CraftImpl extends FabricationWrapperImpl {
         for (String orderedLayer : orderedLayers) {
           deltaIns.put(orderedLayer, delta > 0 ? delta : DELTA_UNLIMITED);
           deltaOuts.put(orderedLayer, DELTA_UNLIMITED); // all layers get delta out unlimited
-          delta += Values.roundToNearest(deltaUnits, TremendouslyRandom.zeroToLimit(deltaUnits * 4));
+          delta += Values.roundToNearest(deltaUnits, TremendouslyRandom.zeroToLimit(deltaUnits * 5));
         }
       }
 
