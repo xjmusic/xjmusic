@@ -97,9 +97,11 @@ public class ProgramVoiceTrackDAOImpl extends HubPersistenceServiceImpl<ProgramV
     requireArtist(hubAccess);
     DSLContext db = dbProvider.getDSL();
     requireModification(db, hubAccess, id);
-    requireNotExists("Events in Track", db.selectCount().from(PROGRAM_SEQUENCE_PATTERN_EVENT)
+
+    db.deleteFrom(PROGRAM_SEQUENCE_PATTERN_EVENT)
       .where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_VOICE_TRACK_ID.eq(id))
-      .fetchOne(0, int.class));
+      .execute();
+
     db.deleteFrom(PROGRAM_VOICE_TRACK)
       .where(PROGRAM_VOICE_TRACK.ID.eq(id))
       .execute();

@@ -24,9 +24,7 @@ import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -35,14 +33,11 @@ import java.util.Iterator;
 import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 // future test: permissions of different users to readMany vs. of vs. update or destroy programs
 @RunWith(MockitoJUnitRunner.class)
 public class ProgramVoiceTrackDAOTest {
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
   private ProgramVoiceTrackDAO testDAO;
 
   private HubIntegrationTestProvider test;
@@ -158,10 +153,9 @@ public class ProgramVoiceTrackDAOTest {
   @Test
   public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
-    failure.expect(DAOException.class);
-    failure.expectMessage("does not exist");
 
-    testDAO.readOne(hubAccess, voiceTrack1a_0.getId());
+    var e = assertThrows(DAOException.class, () -> testDAO.readOne(hubAccess, voiceTrack1a_0.getId()));
+    assertEquals("Record does not exist", e.getMessage());
   }
 
   // future test: readManyInAccount vs readManyInLibraries, positive and negative cases
@@ -186,21 +180,12 @@ public class ProgramVoiceTrackDAOTest {
     assertEquals(0L, result.size());
   }
 
+  /**
+   Should be able to delete track with events in it #180769781
+   */
   @Test
-  public void destroy_failsIfHasChildEntity() throws Exception {
+  public void destroy_okWithChildEntities() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-
-    failure.expect(DAOException.class);
-    failure.expectMessage("Found Events in Track");
-
-    testDAO.destroy(hubAccess, voiceTrack1a_0.getId());
-  }
-
-  @Test
-  public void destroy_okWithNoChildEntities() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
-    injector.getInstance(ProgramSequencePatternEventDAO.class).destroy(HubAccess.internal(), voiceTrack1a_0_event0.getId());
-    injector.getInstance(ProgramSequencePatternEventDAO.class).destroy(HubAccess.internal(), voiceTrack1a_0_event1.getId());
 
     testDAO.destroy(hubAccess, voiceTrack1a_0.getId());
 
@@ -231,10 +216,8 @@ public class ProgramVoiceTrackDAOTest {
     injector.getInstance(ProgramSequencePatternEventDAO.class).destroy(HubAccess.internal(), voiceTrack1a_0_event0.getId());
     injector.getInstance(ProgramSequencePatternEventDAO.class).destroy(HubAccess.internal(), voiceTrack1a_0_event1.getId());
 
-    failure.expect(DAOException.class);
-    failure.expectMessage("Track in Voice in Program you have hubAccess to does not exist");
-
-    testDAO.destroy(hubAccess, voiceTrack1a_0.getId());
+    var e = assertThrows(DAOException.class, () -> testDAO.destroy(hubAccess, voiceTrack1a_0.getId()));
+    assertEquals("Track in Voice in Program you have hubAccess to does not exist", e.getMessage());
   }
 
   /**
