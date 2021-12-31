@@ -102,6 +102,7 @@ public class InstrumentDAOTest {
 
   /**
    [#170290553] Clone sub-entities of instruments
+   Cloning an Instrument should not reset its Parameters #180764355
    */
   @Test
   public void clone_fromOriginal() throws Exception {
@@ -110,6 +111,14 @@ public class InstrumentDAOTest {
     Instrument subject = new Instrument();
     subject.setId(UUID.randomUUID());
     subject.setLibraryId(fake.library1.getId());
+    subject.setConfig(
+      """
+      isMultiphonic = true
+      isOneShot = false
+      isTonal = false
+      oneShotCutoffs = [TEST]
+        """
+    );
     subject.setName("cannons fifty nine");
 
     Instrument result = testDAO.clone(hubAccess, fake.instrument202.getId(), subject);
@@ -118,6 +127,15 @@ public class InstrumentDAOTest {
     assertEquals(fake.library1.getId(), result.getLibraryId());
     assertEquals("cannons fifty nine", result.getName());
     assertEquals(InstrumentType.Drum, result.getType());
+    assertEquals(
+      """
+      isMultiphonic = true
+      isOneShot = false
+      isTonal = false
+      oneShotCutoffs = [TEST]
+        """,
+      result.getConfig()
+    );
     assertEquals(Integer.valueOf(1), test.getDSL()
       .selectCount().from(INSTRUMENT_MEME)
       .where(INSTRUMENT_MEME.INSTRUMENT_ID.eq(result.getId()))

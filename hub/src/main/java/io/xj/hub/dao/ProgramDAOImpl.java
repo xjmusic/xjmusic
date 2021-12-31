@@ -12,7 +12,6 @@ import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.*;
 import io.xj.lib.entity.Entities;
-import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
@@ -22,7 +21,6 @@ import org.jooq.impl.DSL;
 
 import java.util.Collection;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -45,7 +43,7 @@ public class ProgramDAOImpl extends HubPersistenceServiceImpl<Program> implement
   }
 
   @Override
-  public DAOCloner<Program> clone(HubAccess hubAccess, UUID rawCloneId, Program rawProgram) throws DAOException {
+  public DAOCloner<Program> clone(HubAccess hubAccess, UUID rawCloneId, Program to) throws DAOException {
     requireArtist(hubAccess);
     AtomicReference<Program> result = new AtomicReference<>();
     AtomicReference<DAOCloner<Program>> cloner = new AtomicReference<>();
@@ -56,10 +54,9 @@ public class ProgramDAOImpl extends HubPersistenceServiceImpl<Program> implement
       if (Objects.isNull(from))
         throw new DAOException("Can't clone nonexistent Program");
 
-      // Inherits state, type if none specified
-      setIfProvided(from, rawProgram, "libraryId");
-      setIfProvided(from, rawProgram, "name");
-      Program program = validate(from);
+      // When not set, clone inherits attribute values from original record
+      entityFactory.setAllEmptyAttributes(from, to);
+      Program program = validate(to);
       requireParentExists(db, hubAccess, program);
 
       // Create main entity

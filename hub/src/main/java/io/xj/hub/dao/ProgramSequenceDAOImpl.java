@@ -44,7 +44,7 @@ public class ProgramSequenceDAOImpl extends HubPersistenceServiceImpl<ProgramSeq
   }
 
   @Override
-  public DAOCloner<ProgramSequence> clone(HubAccess hubAccess, UUID cloneId, ProgramSequence rawEntity) throws DAOException {
+  public DAOCloner<ProgramSequence> clone(HubAccess hubAccess, UUID cloneId, ProgramSequence to) throws DAOException {
     requireArtist(hubAccess);
     AtomicReference<ProgramSequence> result = new AtomicReference<>();
     AtomicReference<DAOCloner<ProgramSequence>> cloner = new AtomicReference<>();
@@ -57,12 +57,9 @@ public class ProgramSequenceDAOImpl extends HubPersistenceServiceImpl<ProgramSeq
         throw new DAOException("Can't clone nonexistent ProgramSequence");
 
       // Inherits these attributes if none specified
-      if (Values.isEmpty(rawEntity.getTotal())) rawEntity.setTotal(from.getTotal());
-      if (Values.isEmpty(rawEntity.getName())) rawEntity.setName(from.getName());
-      if (Values.isEmpty(rawEntity.getTempo())) rawEntity.setTempo(from.getTempo());
-      if (Values.isEmpty(rawEntity.getDensity())) rawEntity.setDensity(from.getDensity());
-      if (Values.isEmpty(rawEntity.getKey())) rawEntity.setKey(from.getKey());
-      var record = validate(rawEntity);
+      // When not set, clone inherits attribute values from original record
+      entityFactory.setAllEmptyAttributes(from, to);
+      var record = validate(to);
       requireParentExists(db, hubAccess, record);
 
       // Create main entity

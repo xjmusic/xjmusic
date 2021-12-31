@@ -84,7 +84,7 @@ public class TemplateDAOImpl extends HubPersistenceServiceImpl<Template> impleme
   }
 
   @Override
-  public DAOCloner<Template> clone(HubAccess hubAccess, UUID rawCloneId, Template rawTemplate) throws DAOException {
+  public DAOCloner<Template> clone(HubAccess hubAccess, UUID rawCloneId, Template to) throws DAOException {
     requireArtist(hubAccess);
     AtomicReference<Template> result = new AtomicReference<>();
     AtomicReference<DAOCloner<Template>> cloner = new AtomicReference<>();
@@ -96,9 +96,9 @@ public class TemplateDAOImpl extends HubPersistenceServiceImpl<Template> impleme
         throw new DAOException("Can't clone nonexistent Template");
 
       // Inherits state, type if none specified
-      setIfProvided(from, rawTemplate, "libraryId");
-      setIfProvided(from, rawTemplate, "name");
-      Template template = validate(hubAccess, from);
+      // When not set, clone inherits attribute values from original record
+      entityFactory.setAllEmptyAttributes(from, to);
+      Template template = validate(hubAccess, to);
       requireParentExists(db, hubAccess, template);
 
       // Create main entity

@@ -49,7 +49,7 @@ public class InstrumentDAOImpl extends HubPersistenceServiceImpl<Instrument> imp
   }
 
   @Override
-  public Instrument clone(HubAccess hubAccess, UUID cloneId, Instrument rawInstrument) throws DAOException {
+  public Instrument clone(HubAccess hubAccess, UUID cloneId, Instrument to) throws DAOException {
     requireArtist(hubAccess);
     AtomicReference<Instrument> result = new AtomicReference<>();
     dbProvider.getDSL().transaction(ctx -> {
@@ -59,12 +59,9 @@ public class InstrumentDAOImpl extends HubPersistenceServiceImpl<Instrument> imp
       if (Objects.isNull(from))
         throw new DAOException("Can't clone nonexistent Instrument");
 
-      // Inherits state, type if none specified
-      if (Values.isEmpty(rawInstrument.getType())) rawInstrument.setType(from.getType());
-      if (Values.isEmpty(rawInstrument.getState())) rawInstrument.setState(from.getState());
-      if (Values.isEmpty(rawInstrument.getDensity())) rawInstrument.setDensity(from.getDensity());
-      if (Values.isEmpty(rawInstrument.getName())) rawInstrument.setName(from.getName());
-      Instrument instrument = validate(rawInstrument);
+      // When not set, clone inherits attribute values from original record
+      entityFactory.setAllEmptyAttributes(from, to);
+      Instrument instrument = validate(to);
       requireParentExists(db, hubAccess, instrument);
 
       result.set(modelFrom(Instrument.class, executeCreate(db, INSTRUMENT, instrument)));
