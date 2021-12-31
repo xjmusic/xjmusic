@@ -240,23 +240,23 @@ public class CraftImpl extends FabricationWrapperImpl {
         List<String> priLayers = Lists.newArrayList();
         List<String> secLayers = Lists.newArrayList();
         layers.forEach(layer -> {
-          if (layerPrioritizationSearches.stream().anyMatch(m -> layer.toLowerCase(Locale.ROOT).contains(m.toLowerCase(Locale.ROOT))))
+          var layerName = layer.toLowerCase(Locale.ROOT);
+          if (layerPrioritizationSearches.stream().anyMatch(m -> layerName.contains(m.toLowerCase(Locale.ROOT))))
             priLayers.add(layer);
           else
             secLayers.add(layer);
         });
         Collections.shuffle(priLayers);
-        fabricator.addInfoMessage(String.format("Prioritized %s", CSV.join(priLayers)));
+        if (!priLayers.isEmpty())
+          fabricator.addInfoMessage(String.format("Prioritized %s", CSV.join(priLayers)));
         Collections.shuffle(secLayers);
-        var orderedLayers = Stream.concat(priLayers.stream(), secLayers.stream()).collect(Collectors.toList());
-        var delta = Values.roundToNearest(barBeats, TremendouslyRandom.zeroToLimit(deltaUnits) - deltaUnits / 2);
+        var orderedLayers = Stream.concat(priLayers.stream(), secLayers.stream()).toList();
+        var delta = Values.roundToNearest(deltaUnits, TremendouslyRandom.zeroToLimit(deltaUnits * 4) - deltaUnits * 2 * numLayersIncoming);
         for (String orderedLayer : orderedLayers) {
-          deltaIns.put(orderedLayer, delta);
+          deltaIns.put(orderedLayer, delta > 0 ? delta : DELTA_UNLIMITED);
           deltaOuts.put(orderedLayer, DELTA_UNLIMITED); // all layers get delta out unlimited
-          delta += Values.roundToNearest(barBeats, TremendouslyRandom.zeroToLimit(deltaUnits) - deltaUnits / 2);
+          delta += Values.roundToNearest(deltaUnits, TremendouslyRandom.zeroToLimit(deltaUnits * 4));
         }
-
-        Values.randomFrom(orderedLayers, numLayersIncoming).forEach(layer -> deltaIns.put(layer, DELTA_UNLIMITED));
       }
 
       case CONTINUE -> {
