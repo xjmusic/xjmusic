@@ -128,6 +128,9 @@ public class CraftImpl extends FabricationWrapperImpl {
         continue;
       }
 
+      // XJ should take add instrument memes to segments after choice #180468554
+      fabricator.addMemes(instrument.get());
+
       // make new choices
       choice.setDeltaIn(getDeltaIn(choice));
       choice.setDeltaOut(getDeltaOut(choice));
