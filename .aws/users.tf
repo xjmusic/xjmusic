@@ -119,8 +119,6 @@ resource "aws_iam_user_policy" "xj-ci" {
           "${aws_s3_bucket.xj-dev.arn}/*",
           aws_s3_bucket.xj-io.arn,
           "${aws_s3_bucket.xj-io.arn}/*",
-          aws_s3_bucket.xj-docs.arn,
-          "${aws_s3_bucket.xj-docs.arn}/*",
           aws_s3_bucket.xj-play.arn,
           "${aws_s3_bucket.xj-play.arn}/*",
         ]

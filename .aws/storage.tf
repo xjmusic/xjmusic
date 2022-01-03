@@ -1,28 +1,6 @@
 # Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
-resource "aws_s3_bucket" "xj-docs" {
-  bucket = "docs.xj.io"
-  acl    = "public-read"
-  policy = jsonencode({
-    "Version" : "2008-10-17",
-    "Statement" : [
-      {
-        Sid       = "PublicReadGetObject",
-        Effect    = "Allow",
-        Principal = "*",
-        Action    = "s3:GetObject",
-        Resource  = "arn:aws:s3:::docs.xj.io/*"
-      }
-    ]
-  })
-
-  website {
-    index_document = "index.html"
-  }
-}
-
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
 resource "aws_s3_bucket" "xj-io" {
   bucket = "xj.io"
   acl    = "public-read"
