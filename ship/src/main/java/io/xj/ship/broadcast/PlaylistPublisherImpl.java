@@ -165,7 +165,6 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
         "#EXT-X-VERSION:7",
         String.format("#EXT-X-TARGETDURATION:%s", chunkTargetDuration),
         String.format("#EXT-X-MEDIA-SEQUENCE:%d", mediaSequence),
-        String.format("#EXT-X-SERVER-CONTROL:HOLD-BACK=%d.0", playlistMinimumSize * chunkTargetDuration),
         "#EXT-X-PLAYLIST-TYPE:EVENT"
       ),
       // FUTURE: media sequence numbers need to be a continuous unbroken sequence of integers
