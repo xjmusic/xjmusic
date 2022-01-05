@@ -18,7 +18,6 @@ import io.xj.lib.json.JsonModule;
 import io.xj.lib.jsonapi.JsonapiModule;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.hub_client.client.HubClient;
-import io.xj.nexus.hub_client.client.HubClientException;
 import io.xj.nexus.persistence.ChainManager;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusPersistenceModule;
@@ -33,13 +32,11 @@ import java.time.Instant;
 import static io.xj.hub.IntegrationTestingFixtures.*;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class NexusWorkChainManagerImplTest {
+public class NexusWorkImplTest {
   private NexusEntityStore test;
-  private NexusWorkChainManager subject;
+  private NexusWork subject;
   private Account account1;
   private Chain chain1;
   private Chain chain2;
@@ -89,7 +86,7 @@ public class NexusWorkChainManagerImplTest {
       Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), null));
 
     // Instantiate the test subject
-    subject = injector.getInstance(NexusWorkChainManager.class);
+    subject = injector.getInstance(NexusWork.class);
   }
 
   @Test

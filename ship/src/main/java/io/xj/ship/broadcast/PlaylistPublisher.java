@@ -57,11 +57,11 @@ public interface PlaylistPublisher {
   void publish() throws ShipException;
 
   /**
-   Delete playlist items with media sequence numbers before the threshold
+   Delete playlist before the threshold seconds before the given media sequence number
 
-   @param mediaSequence number before which to collect garbage
+   @param mediaSequence number before the threshold of which to collect garbage
    */
-  void collectGarbageBefore(long mediaSequence);
+  void collectGarbage(long mediaSequence);
 
   /**
    Get the media sequence number of a given time in milliseconds

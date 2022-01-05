@@ -2,17 +2,14 @@
 
 package io.xj.nexus.work;
 
-import io.xj.nexus.NexusApp;
-
 public class AppWorkThread extends Thread {
+  private final NexusWork work;
 
-  private final NexusApp app;
-
-  public AppWorkThread(NexusApp app) {
-    this.app = app;
+  public AppWorkThread(NexusWork work) {
+    this.work = work;
   }
 
   public void run() {
-    app.getWork().work();
+    work.start();
   }
 }

@@ -21,8 +21,11 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
@@ -49,8 +52,8 @@ public class ChainLoaderImpl extends ChainLoader {
   private final String shipBaseUrl;
   private final String shipKey;
   private final TelemetryProvider telemetryProvider;
-  private final int ignoreSegmentsBeforeSeconds;
-  private final int ignoreSegmentsAfterSeconds;
+  private final int loadBackSeconds;
+  private final int loadAheadSeconds;
 
   @Inject
   public ChainLoaderImpl(
@@ -75,8 +78,8 @@ public class ChainLoaderImpl extends ChainLoader {
     this.shipKey = shipKey;
     this.telemetryProvider = telemetryProvider;
 
-    ignoreSegmentsBeforeSeconds = env.getShipSegmentIgnoreBeforeSeconds();
-    ignoreSegmentsAfterSeconds = env.getShipSegmentIgnoreAfterSeconds();
+    loadAheadSeconds = env.getShipPlaylistAheadSeconds() + env.getShipSegmentLoadAheadSeconds();
+    loadBackSeconds = env.getShipPlaylistBackSeconds();
     shipBaseUrl = env.getShipBaseUrl();
 
     CHAIN_LOADED = telemetryProvider.count("chain_loaded", "Chain Loaded", "");
@@ -114,6 +117,12 @@ public class ChainLoaderImpl extends ChainLoader {
     try (
       CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", shipBaseUrl, key)))
     ) {
+      if (!Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode())) {
+        LOG.error("Failed to get previously fabricated chain for Template[{}] because {} {}", key, response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+        onFailure.run();
+        return;
+      }
+
       chainPayload = jsonProvider.getMapper().readValue(response.getEntity().getContent(), JsonapiPayload.class);
       chain = jsonapiPayloadFactory.toOne(chainPayload);
       chainManager.put(chain);
@@ -126,8 +135,8 @@ public class ChainLoaderImpl extends ChainLoader {
       return;
     }
 
-    Instant ignoreSegmentsBefore = Instant.now().minusSeconds(ignoreSegmentsBeforeSeconds);
-    Instant ignoreSegmentsAfter = Instant.now().plusSeconds(ignoreSegmentsAfterSeconds);
+    Instant ignoreSegmentsBefore = Instant.now().minusSeconds(loadBackSeconds);
+    Instant ignoreSegmentsAfter = Instant.now().plusSeconds(loadAheadSeconds);
     //noinspection DuplicatedCode
     chainPayload.getIncluded().parallelStream()
       .filter(po -> po.isType(Segment.class))

@@ -19,11 +19,11 @@ import java.util.UUID;
  [#165954673] Integration tests use shared scenario fixtures as much as possible
  <p>
  Testing the hypothesis that, while unit tests are all independent,
- integration tests ought be as much about testing all features around a consensus model of the platform
+ integration tests ought to be as much about testing all features around a consensus model of the platform
  as they are about testing all resources.
  */
 public class IntegrationTestingFixtures {
-  public static final String TEST_TEMPLATE_CONFIG = "bufferAheadSeconds=90\noutputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n";
+  public static final String TEST_TEMPLATE_CONFIG = "outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n";
   private final HubIntegrationTestProvider test;
 
   // These are fully exposed (no getters/setters) for ease of use in testing

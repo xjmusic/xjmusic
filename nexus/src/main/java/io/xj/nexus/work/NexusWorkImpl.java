@@ -12,12 +12,23 @@ import io.xj.api.Chain;
 import io.xj.api.ChainState;
 import io.xj.api.Segment;
 import io.xj.api.SegmentState;
+import io.xj.hub.dao.Templates;
 import io.xj.hub.enums.TemplateType;
+import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityException;
+import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.http.HttpClientProvider;
+import io.xj.lib.json.JsonProvider;
+import io.xj.lib.jsonapi.JsonapiException;
+import io.xj.lib.jsonapi.JsonapiPayload;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.MultiStopwatch;
 import io.xj.lib.telemetry.TelemetryProvider;
+import io.xj.lib.util.CSV;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
@@ -31,128 +42,175 @@ import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubClientException;
 import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.persistence.*;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
+import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static io.xj.lib.filestore.FileStoreProvider.EXTENSION_JSON;
 import static io.xj.lib.util.Values.MILLIS_PER_SECOND;
 import static io.xj.lib.util.Values.NANOS_PER_SECOND;
+import static io.xj.nexus.work.NexusWorkImpl.Mode.Lab;
 
-/**
- The Lab Nexus Distributed Work Manager (Implementation)
- <p>
- https://www.nurkiewicz.com/2014/11/executorservice-10-tips-and-tricks.html
- */
 @Singleton
 public class NexusWorkImpl implements NexusWork {
   private static final Logger LOG = LoggerFactory.getLogger(NexusWorkImpl.class);
+  private final ChainManager chainManager;
+  private final ChainManager chains;
+  private final CraftFactory craftFactory;
+  private final DubFactory dubFactory;
+  private final EntityFactory entityFactory;
+  private final FabricatorFactory fabricatorFactory;
+  private final HttpClientProvider httpClientProvider;
+  private final HubClient hubClient;
+  private final HubClientAccess access = HubClientAccess.internal();
+  private final JsonProvider jsonProvider;
+  private final JsonapiPayloadFactory jsonapiPayloadFactory;
+  private final Map<UUID, HubContent> chainSourceMaterial = Maps.newHashMap();
+  private final Map<UUID, Long> chainNextIngestMillis = Maps.newHashMap();
   private final Measure.MeasureDouble METRIC_FABRICATED_AHEAD_SECONDS;
   private final Measure.MeasureLong METRIC_SEGMENT_CREATED;
   private final Measure.MeasureLong METRIC_SEGMENT_GC;
-  private final NexusWorkChainManager nexusWorkChainManager;
-  private final CraftFactory craftFactory;
-  private final DubFactory dubFactory;
-  private final FabricatorFactory fabricatorFactory;
-  private final HubClient hubClient;
-  private final HubClientAccess access = HubClientAccess.internal();
-  private final Map<UUID, HubContent> chainSourceMaterial = Maps.newHashMap();
-  private final Map<UUID, Long> chainNextIngestMillis = Maps.newHashMap();
   private final NexusEntityStore store;
   private final NotificationProvider notification;
   private final SegmentManager segmentManager;
+  private final String shipBaseUrl;
   private final TelemetryProvider telemetryProvider;
   private final boolean janitorEnabled;
   private final boolean medicEnabled;
+  private final int chainThresholdFabricatedBehindSeconds;
   private final int cycleMillis;
   private final int eraseSegmentsOlderThanSeconds;
+  private final int ignoreSegmentsOlderThanSeconds;
   private final int ingestCycleSeconds;
   private final int janitorCycleSeconds;
+  private final int labPollSeconds;
   private final int medicCycleSeconds;
-  private final int chainThresholdFabricatedBehindSeconds;
-  private final ChainManager chainManager;
+  private final int rehydrateFabricatedAheadThreshold;
   private final long healthCycleStalenessThresholdMillis;
+  @Nullable
+  private final String shipKey;
+  private final NexusWorkImpl.Mode mode;
+  private final boolean isRehydrationEnabled;
+  private Instant labPollNext;
+  private NexusWorkImpl.State state;
   private MultiStopwatch timer;
-  private long nextCycleMillis = 0;
-  private long nextJanitorMillis = 0;
-  private long nextMedicMillis = 0;
   private boolean alive = true;
-  private boolean allChainsFabricatedAhead = false;
+  private boolean allChainsFabricatedAhead = true;
+  private long nextCycleMillis = System.currentTimeMillis();
+  private long nextJanitorMillis = System.currentTimeMillis();
+  private long nextMedicMillis = System.currentTimeMillis();
 
   @Inject
   public NexusWorkImpl(
     ChainManager chainManager,
-    Environment env,
+    ChainManager chains,
     CraftFactory craftFactory,
     DubFactory dubFactory,
+    EntityFactory entityFactory,
+    Environment env,
     FabricatorFactory fabricatorFactory,
+    HttpClientProvider httpClientProvider,
     HubClient hubClient,
+    JsonProvider jsonProvider,
+    JsonapiPayloadFactory jsonapiPayloadFactory,
     NexusEntityStore store,
-    NexusWorkChainManager nexusWorkChainManager,
     NotificationProvider notification,
     SegmentManager segmentManager,
     TelemetryProvider telemetryProvider
   ) {
     this.chainManager = chainManager;
-    this.nexusWorkChainManager = nexusWorkChainManager;
+    this.chains = chains;
     this.craftFactory = craftFactory;
     this.dubFactory = dubFactory;
+    this.entityFactory = entityFactory;
     this.fabricatorFactory = fabricatorFactory;
+    this.httpClientProvider = httpClientProvider;
     this.hubClient = hubClient;
+    this.jsonProvider = jsonProvider;
+    this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     this.notification = notification;
     this.segmentManager = segmentManager;
     this.store = store;
     this.telemetryProvider = telemetryProvider;
 
+    chainThresholdFabricatedBehindSeconds = env.getFabricationChainThresholdFabricatedBehindSeconds();
     cycleMillis = env.getWorkCycleMillis();
-    healthCycleStalenessThresholdMillis = env.getWorkHealthCycleStalenessThresholdSeconds() * MILLIS_PER_SECOND;
     eraseSegmentsOlderThanSeconds = env.getWorkEraseSegmentsOlderThanSeconds();
+    healthCycleStalenessThresholdMillis = env.getWorkHealthCycleStalenessThresholdSeconds() * MILLIS_PER_SECOND;
+    ignoreSegmentsOlderThanSeconds = env.getWorkEraseSegmentsOlderThanSeconds();
     ingestCycleSeconds = env.getWorkIngestCycleSeconds();
     janitorCycleSeconds = env.getWorkJanitorCycleSeconds();
     janitorEnabled = env.isWorkJanitorEnabled();
+    isRehydrationEnabled = env.isWorkRehydrationEnabled();
+    labPollSeconds = env.getWorkLabHubLabPollSeconds();
     medicCycleSeconds = env.getWorkMedicCycleSeconds();
     medicEnabled = env.isWorkMedicEnabled();
-    chainThresholdFabricatedBehindSeconds = env.getFabricationChainThresholdFabricatedBehindSeconds();
-    Executors.newSingleThreadScheduledExecutor();
+    rehydrateFabricatedAheadThreshold = env.getWorkRehydrateFabricatedAheadThreshold();
+    shipBaseUrl = env.getShipBaseUrl();
+    shipKey = env.getShipKey();
+
+    labPollNext = Instant.now();
+    mode = Strings.isNullOrEmpty(shipKey) ? Lab : NexusWorkImpl.Mode.Yard;
+    state = NexusWorkImpl.State.Init;
 
     // Telemetry: # Segments Erased
-    METRIC_SEGMENT_GC = telemetryProvider.count("segment_gc", "Segment Garbage Collected", "");
-    METRIC_SEGMENT_CREATED = telemetryProvider.count("segment_created", "Segment Created", "");
     METRIC_FABRICATED_AHEAD_SECONDS = telemetryProvider.gauge("fabricated_ahead_seconds", "Fabricated Ahead Seconds", "s");
+    METRIC_SEGMENT_CREATED = telemetryProvider.count("segment_created", "Segment Created", "");
+    METRIC_SEGMENT_GC = telemetryProvider.count("segment_gc", "Segment Garbage Collected", "");
+  }
 
-    LOG.debug("Instantiated OK");
+  @Override
+  public void start() {
+    timer = MultiStopwatch.start();
+    while (alive) runCycle();
+  }
+
+  @Override
+  public void finish() {
+    alive = false;
   }
 
   /**
-   Do the work-- this is called by the underlying WorkerImpl run() hook
+   This is the internal cycle that's run indefinitely
    */
-  public void run() {
+  private void runCycle() {
     if (System.currentTimeMillis() < nextCycleMillis) return;
     nextCycleMillis = System.currentTimeMillis() + cycleMillis;
 
-    // Poll the chain manager
-    nexusWorkChainManager.poll();
-
-    // Replace an empty list so there is no possibility of nonexistence
-    Collection<Chain> activeChains = Lists.newArrayList();
+    // Action based on state and mode
     try {
-      try {
-        activeChains.addAll(getActiveChains());
-      } catch (ManagerFatalException | ManagerPrivilegeException e) {
-        didFailWhile("Getting list of active chain IDs", e);
-        return;
+      switch (state) {
+        case Init -> {
+          switch (mode) {
+            case Lab -> state = State.Active;
+            case Yard -> loadYard();
+          }
+        }
+        case Loading -> {
+          // no op
+        }
+        case Active -> {
+          switch (mode) {
+            case Lab -> runLab();
+            case Yard -> runYard();
+          }
+        }
       }
-
-      // Fabricate all active chains
-      for (Chain chain : activeChains) {
-        ingestMaterialIfNecessary(chain);
-        fabricateChain(chain);
-      }
-
       if (medicEnabled) doMedic();
       if (janitorEnabled) doJanitor();
+
     } catch (Exception e) {
       didFailWhile("Running Work", e);
     }
@@ -161,6 +219,63 @@ public class NexusWorkImpl implements NexusWork {
     timer.lap();
     LOG.info("Lap time: {}", timer.lapToString());
     timer.clearLapSections();
+  }
+
+  /**
+   Run all work when this Nexus is a sidecar to a hub, as in the Lab
+   */
+  private void runLab() {
+    if (Instant.now().isAfter(labPollNext)) {
+      state = State.Loading;
+      labPollNext = Instant.now().plusSeconds(labPollSeconds);
+      if (maintainPreviewChains())
+        state = State.Active;
+      else
+        state = State.Fail;
+    }
+
+    // Replace an empty list so there is no possibility of nonexistence
+    Collection<Chain> activeChains = Lists.newArrayList();
+    try {
+      activeChains.addAll(new ArrayList<>(chainManager.readManyInState(ChainState.FABRICATE)));
+    } catch (ManagerFatalException | ManagerPrivilegeException e) {
+      didFailWhile("Getting list of active chain IDs", e);
+      return;
+    }
+
+    // Fabricate all active chains
+    for (Chain chain : activeChains) {
+      ingestMaterialIfNecessary(chain);
+      fabricateChain(chain);
+    }
+  }
+
+  /**
+   Load static content to run yard fabrication
+   <p>
+   Nexus production fabrication from static source (without Hub) #177020318
+   */
+  private void loadYard() {
+    try {
+      var material = hubClient.load(shipKey);
+      material.overrideTemplateShipKey(shipKey);
+      var chain = createChainForTemplate(material.getTemplate())
+        .orElseThrow(() -> new HubClientException(String.format("Failed to create chain for Template[%s]", shipKey)));
+      chainSourceMaterial.put(chain.getId(), material);
+      LOG.debug("Ingested {} entities of source material for Chain[{}]", material.size(), Chains.getIdentifier(chain));
+      state = State.Active;
+
+    } catch (HubClientException e) {
+      didFailWhile("Ingesting source material from Hub", e);
+      state = State.Fail;
+    }
+  }
+
+  /**
+   Run all work when this Nexus is in production, as in the Yard
+   */
+  private void runYard() throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException {
+    fabricateChain(chainManager.readOneByShipKey(shipKey));
   }
 
   /**
@@ -204,7 +319,7 @@ public class NexusWorkImpl implements NexusWork {
         .filter((chain) ->
           TemplateType.Production.toString().equals(chain.getType().toString()))
         .forEach(chain -> {
-          var aheadSeconds = Math.floor(Values.computeRelativeSeconds(Instant.parse(chain.getFabricatedAheadAt())));
+          var aheadSeconds = Strings.isNullOrEmpty(chain.getFabricatedAheadAt()) ? 0 : Math.floor(Values.computeRelativeSeconds(Instant.parse(chain.getFabricatedAheadAt())));
           if (aheadSeconds < chainThresholdFabricatedBehindSeconds) {
             LOG.warn("Chain {} is stalled, fabricated ahead {}s", Chains.getIdentifier(chain), aheadSeconds);
             stalledChainIds.add(chain.getId());
@@ -251,17 +366,6 @@ public class NexusWorkImpl implements NexusWork {
     }
 
     telemetryProvider.put(METRIC_SEGMENT_GC, (long) gcSegIds.size());
-  }
-
-  /**
-   Get the IDs of all Chains in the store whose state is currently in Fabricate
-
-   @return active Chain IDS
-   @throws ManagerPrivilegeException on access control failure
-   @throws ManagerFatalException     on internal failure
-   */
-  private List<Chain> getActiveChains() throws ManagerPrivilegeException, ManagerFatalException {
-    return new ArrayList<>(chainManager.readManyInState(ChainState.FABRICATE));
   }
 
   /**
@@ -331,17 +435,6 @@ public class NexusWorkImpl implements NexusWork {
 
       LOG.error("Failed to created Segment in Chain[{}] reason={}", Chains.getIdentifier(chain), e.getMessage());
     }
-  }
-
-  @Override
-  public void work() {
-    timer = MultiStopwatch.start();
-    while (alive) this.run();
-  }
-
-  @Override
-  public void stop() {
-    alive = false;
   }
 
   /**
@@ -464,7 +557,7 @@ public class NexusWorkImpl implements NexusWork {
   @Override
   public boolean isHealthy() {
     return allChainsFabricatedAhead
-      && nexusWorkChainManager.isHealthy()
+      && !State.Fail.equals(state)
       && nextCycleMillis > System.currentTimeMillis() - healthCycleStalenessThresholdMillis;
   }
 
@@ -476,4 +569,211 @@ public class NexusWorkImpl implements NexusWork {
   private Instant computeFabricatedAheadAt(Chain chain) throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException {
     return Chains.computeFabricatedAheadAt(chain, segmentManager.readMany(ImmutableList.of(chain.getId())));
   }
+
+  /**
+   Maintain a chain for each current hub template playback
+
+   @return true if all is well, false if something has failed
+   */
+  private boolean maintainPreviewChains() {
+    Collection<Template> templates;
+    try {
+      templates = hubClient.readAllTemplatesPlaying();
+    } catch (HubClientException e) {
+      LOG.error("Failed to read Template Playbacks from Hub!", e);
+      return false;
+    }
+
+    // Maintain chain for all templates
+    Collection<Chain> allFab;
+    try {
+      allFab = chains.readAllFabricating();
+      Set<String> chainShipKeys = allFab.stream().map(Chain::getShipKey).collect(Collectors.toSet());
+      for (Template template : templates)
+        if (!Strings.isNullOrEmpty(template.getShipKey()) && !chainShipKeys.contains(template.getShipKey()))
+          createChainForTemplate(template)
+            .orElseThrow(() -> new ManagerFatalException(String.format("Failed to create chain for Template[%s]", Templates.getIdentifier(template))));
+    } catch (ManagerFatalException | ManagerPrivilegeException e) {
+      LOG.error("Failed to start Chain(s) for playing Template(s)!", e);
+      return false;
+    }
+
+    // Stop chains no longer playing
+    Set<String> templateShipKeys = templates.stream().map(Template::getShipKey).collect(Collectors.toSet());
+    try {
+      for (var chain : allFab)
+        if (!templateShipKeys.contains(chain.getShipKey())) {
+          LOG.info("Will stop lab Chain[{}]- does not belong to playing Templates[{}]", Chains.getIdentifier(chain), CSV.join(templateShipKeys));
+          chains.updateState(chain.getId(), ChainState.COMPLETE);
+        }
+    } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException | ManagerValidationException e) {
+      LOG.error("Failed to stop non-playing Chain(s)!", e);
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   Bootstrap a chain from JSON chain bootstrap data,
+   first rehydrating store from last shipped JSON matching this ship key.
+   <p>
+   Nexus with bootstrap chain rehydrates store on startup from shipped JSON files #178718006
+   */
+  private Optional<Chain> createChainForTemplate(Template template) {
+    var chain = rehydrateTemplate(template);
+
+    // If rehydration was successful, return success
+    if (chain.isPresent()) return chain;
+
+    // If the template already exists, destroy it
+    chains.destroyIfExistsForShipKey(template.getShipKey());
+
+    // Only if rehydration was unsuccessful
+    try {
+      LOG.info("Will bootstrap Template[{}]", Templates.getIdentifier(template));
+      return Optional.of(chains.bootstrap(template.getType(), Chains.fromTemplate(template)));
+
+    } catch (ManagerFatalException | ManagerPrivilegeException | ManagerValidationException | ManagerExistenceException e) {
+      LOG.error("Failed to bootstrap Template[{}]!", Templates.getIdentifier(template), e);
+      return Optional.empty();
+    }
+  }
+
+  /**
+   Attempt to rehydrate the store from a bootstrap, and return true if successful, so we can skip other stuff
+
+   @param template from which to rehydrate
+   @return true if the rehydration was successful
+   */
+  private Optional<Chain> rehydrateTemplate(Template template) {
+    if (!isRehydrationEnabled) return Optional.empty();
+    var success = new AtomicBoolean(true);
+    Collection<Object> entities = com.google.api.client.util.Lists.newArrayList();
+    JsonapiPayload chainPayload;
+    Chain chain;
+
+    String key = Chains.getShipKey(Chains.getFullKey(template.getShipKey()), EXTENSION_JSON);
+
+    CloseableHttpClient client = httpClientProvider.getClient();
+    try (
+      CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", shipBaseUrl, key)))
+    ) {
+      if (!Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode())) {
+        LOG.error("Failed to get previously fabricated chain for Template[{}] because {} {}", template.getShipKey(), response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+        return Optional.empty();
+      }
+
+      LOG.debug("will check for last shipped data");
+      chainPayload = jsonProvider.getMapper().readValue(response.getEntity().getContent(), JsonapiPayload.class);
+      chain = jsonapiPayloadFactory.toOne(chainPayload);
+      entities.add(entityFactory.clone(chain));
+    } catch (JsonapiException | ClassCastException | IOException | EntityException e) {
+      LOG.error("Failed to rehydrate previously fabricated chain for Template[{}] because {}", template.getShipKey(), e.getMessage());
+      return Optional.empty();
+    }
+
+    try {
+      LOG.info("Will load Chain[{}] for ship key \"{}\"", chain.getId(), template.getShipKey());
+      chainPayload.getIncluded().stream()
+        .filter(po -> po.isType(TemplateBinding.class))
+        .forEach(templateBinding -> {
+          try {
+            entities.add(entityFactory.clone(jsonapiPayloadFactory.toOne(templateBinding)));
+          } catch (JsonapiException | EntityException | ClassCastException e) {
+            success.set(false);
+            LOG.error("Could not deserialize TemplateBinding from shipped Chain JSON because {}", e.getMessage());
+          }
+        });
+
+      Instant ignoreBefore = Instant.now().minusSeconds(ignoreSegmentsOlderThanSeconds);
+      //noinspection DuplicatedCode
+      chainPayload.getIncluded().parallelStream()
+        .filter(po -> po.isType(Segment.class))
+        .flatMap(po -> {
+          try {
+            return Stream.of((Segment) jsonapiPayloadFactory.toOne(po));
+          } catch (JsonapiException | ClassCastException e) {
+            LOG.error("Could not deserialize Segment from shipped Chain JSON because {}", e.getMessage());
+            success.set(false);
+            return Stream.empty();
+          }
+        })
+        .filter(seg -> SegmentState.DUBBED.equals(seg.getState()))
+        .filter(seg -> Instant.parse(seg.getEndAt()).isAfter(ignoreBefore))
+        .forEach(segment -> {
+          var segmentShipKey = Segments.getStorageFilename(segment.getStorageKey(), EXTENSION_JSON);
+          try (
+            CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", shipBaseUrl, segmentShipKey)))
+          ) {
+            if (!Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode())) {
+              LOG.error("Failed to get segment for Template[{}] because {} {}", template.getShipKey(), response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+              success.set(false);
+              return;
+            }
+            var segmentPayload = jsonProvider.getMapper().readValue(response.getEntity().getContent(), JsonapiPayload.class);
+            AtomicInteger childCount = new AtomicInteger();
+            entities.add(entityFactory.clone(segment));
+            segmentPayload.getIncluded()
+              .forEach(po -> {
+                try {
+                  var entity = jsonapiPayloadFactory.toOne(po);
+                  entities.add(entity);
+                  childCount.getAndIncrement();
+                } catch (Exception e) {
+                  LOG.error("Could not deserialize Segment from shipped Chain JSON", e);
+                  success.set(false);
+                }
+              });
+            LOG.info("Read Segment[{}] and {} child entities", Segments.getIdentifier(segment), childCount);
+
+          } catch (Exception e) {
+            LOG.error("Could not load Segment[{}]", Segments.getIdentifier(segment), e);
+            success.set(false);
+          }
+        });
+
+      // Quit if anything failed up to here
+      if (!success.get()) return Optional.empty();
+
+      // Nexus with bootstrap won't rehydrate stale Chain
+      // https://www.pivotaltracker.com/story/show/178727631
+      var aheadSeconds =
+        Math.floor(Values.computeRelativeSeconds(Chains.computeFabricatedAheadAt(chain,
+          entities.stream()
+            .filter(e -> Entities.isType(e, Segment.class))
+            .map(e -> (Segment) e)
+            .collect(Collectors.toList()))));
+
+      if (aheadSeconds < rehydrateFabricatedAheadThreshold) {
+        LOG.info("Will not rehydrate Chain[{}] fabricated ahead {}s (not > {}s)",
+          Chains.getIdentifier(chain), aheadSeconds, rehydrateFabricatedAheadThreshold);
+        chains.destroy(chain.getId());
+        return Optional.empty();
+      }
+
+      // Okay to rehydrate
+      store.putAll(entities);
+      LOG.info("Rehydrated {} entities OK. Chain[{}] is fabricated ahead {}s",
+        entities.size(), Chains.getIdentifier(chain), aheadSeconds);
+      return Optional.of(chain);
+
+    } catch (NexusException | ManagerFatalException | ManagerPrivilegeException | ManagerExistenceException e) {
+      LOG.error("Failed to rehydrate store because {}", e.getMessage());
+      return Optional.empty();
+    }
+  }
+
+  enum Mode {
+    Lab,
+    Yard,
+  }
+
+  enum State {
+    Init,
+    Loading,
+    Active,
+    Fail,
+  }
+
 }

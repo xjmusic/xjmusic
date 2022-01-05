@@ -8,12 +8,12 @@ public interface ShipWork {
   /**
    This method just does work until failure, blocks until interrupted
    */
-  void work();
+  void start();
 
   /**
    Stop work
    */
-  void stop();
+  void finish();
 
   /**
    Whether the next cycle nanos is above threshold, compared to System.nanoTime();

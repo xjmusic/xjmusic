@@ -9,7 +9,6 @@ import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.nexus.api.NexusAppHealthEndpoint;
-import io.xj.nexus.hub_client.client.HubAccessTokenFilter;
 import io.xj.nexus.work.NexusWork;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +46,6 @@ public class NexusApp extends App {
   public NexusApp(
     Injector injector,
     Environment env,
-    HubAccessTokenFilter hubAccessTokenFilter,
     NexusAppHealthEndpoint nexusAppHealthEndpoint
   ) {
     super(env);
@@ -65,7 +63,6 @@ public class NexusApp extends App {
 
     // Register JAX-RS filter for reading access control token
     getResourceConfig()
-      .register(hubAccessTokenFilter)
       .register(nexusAppHealthEndpoint);
   }
 
@@ -75,6 +72,7 @@ public class NexusApp extends App {
    */
   public void start() throws AppException {
     super.start();
+    work.start();
     LOG.info("{} ({}) is up at {}}", getName(), platformRelease, getBaseURI());
   }
 
@@ -92,7 +90,7 @@ public class NexusApp extends App {
    stop App Server
    */
   public void finish() {
-    work.stop();
+    work.finish();
     super.finish();
     LOG.info("{} ({}}) did exit OK at {}", getName(), platformRelease, getBaseURI());
   }

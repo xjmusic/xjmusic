@@ -65,9 +65,9 @@ public class Environment {
   private final String streamBucket;
   private final String tempFilePathPrefix;
   private final boolean telemetryEnabled;
-  private final boolean workChainManagementEnabled;
   private final boolean workJanitorEnabled;
   private final boolean workMedicEnabled;
+  private final boolean workRehydrationEnabled;
   private final int accessTokenMaxAgeSeconds;
   private final int appPort;
   private final int awsS3retryLimit;
@@ -87,10 +87,9 @@ public class Environment {
   private final int shipChunkTargetDuration;
   private final int shipLoadCycleSeconds;
   private final int shipMixCycleSeconds;
-  private final int shipPlaylistMinimumSize;
-  private final int shipPlaylistTargetSize;
-  private final int shipSegmentIgnoreAfterSeconds;
-  private final int shipSegmentIgnoreBeforeSeconds;
+  private final int shipPlaylistAheadSeconds;
+  private final int shipPlaylistBackSeconds;
+  private final int shipSegmentLoadAheadSeconds;
   private final int shipSegmentLoadTimeoutSeconds;
   private final int workCycleMillis;
   private final int workEraseSegmentsOlderThanSeconds;
@@ -163,16 +162,14 @@ public class Environment {
     shipM3u8ContentType = readStr(vars, "SHIP_M3U8_CONTENT_TYPE", "application/x-mpegURL");
     shipMixCycleSeconds = readInt(vars, "WORK_PRINT_CYCLE_SECONDS", 1);
     shipMode = readStr(vars, "SHIP_MODE", "hls");
-    shipPlaylistMinimumSize = readInt(vars, "SHIP_PLAYLIST_MINIMUM_SIZE", 3);
-    shipPlaylistTargetSize = readInt(vars, "SHIP_PLAYLIST_TARGET_SIZE", 6);
-    shipSegmentIgnoreAfterSeconds = readInt(vars, "SHIP_SEGMENT_IGNORE_AFTER_SECONDS", 120);
-    shipSegmentIgnoreBeforeSeconds = readInt(vars, "SHIP_SEGMENT_IGNORE_BEFORE_SECONDS", 10);
+    shipPlaylistAheadSeconds = readInt(vars, "SHIP_PLAYLIST_AHEAD_SECONDS", 20);
+    shipPlaylistBackSeconds = readInt(vars, "SHIP_PLAYLIST_BACK_SECONDS", 300);
+    shipSegmentLoadAheadSeconds = readInt(vars, "SHIP_SEGMENT_LOAD_AHEAD_SECONDS", 120);
     shipSegmentLoadTimeoutSeconds = readInt(vars, "SHIP_SEGMENT_LOAD_TIMEOUT_SECONDS", 5);
     streamBaseURL = readStr(vars, "STREAM_BASE_URL", "https://stream.dev.xj.io/");
     streamBucket = readStr(vars, "STREAM_BUCKET", "xj-dev-stream");
     telemetryEnabled = readBool(vars, "TELEMETRY_ENABLED", false);
     tempFilePathPrefix = readStr(vars, "TEMP_FILE_PATH_PREFIX", "/tmp/");
-    workChainManagementEnabled = readBool(vars, "WORK_CHAIN_MANAGEMENT_ENABLED", true);
     workCycleMillis = readInt(vars, "WORK_CYCLE_MILLIS", 1200);
     workEraseSegmentsOlderThanSeconds = readInt(vars, "WORK_ERASE_SEGMENTS_OLDER_THAN_SECONDS", 300);
     workHealthCycleStalenessThresholdSeconds = readInt(vars, "WORK_HEALTH_CYCLE_STALENESS_THRESHOLD_SECONDS", 60);
@@ -185,6 +182,7 @@ public class Environment {
     workPublishCycleSeconds = readInt(vars, "WORK_PUBLISH_CYCLE_SECONDS", 10);
     workRehydrateFabricatedAheadThreshold = readInt(vars, "WORK_REHYDRATE_FABRICATED_AHEAD_THRESHOLD", 60);
     workTelemetryCycleSeconds = readInt(vars, "WORK_TELEMETRY_CYCLE_SECONDS", 2);
+    workRehydrationEnabled = readBool(vars, "WORK_REHYDRATION_ENABLED", true);
 
     // Resource: Amazon Web Services (AWS)
     awsAccessKeyID = readStr(vars, "AWS_ACCESS_KEY_ID", EMPTY);
@@ -754,20 +752,6 @@ public class Environment {
   }
 
   /**
-   @return the minimum size of the HLS m3u8 playlist, below which we don't consider the process healthy
-   */
-  public int getShipPlaylistMinimumSize() {
-    return shipPlaylistMinimumSize;
-  }
-
-  /**
-   @return the target size of the HLS m3u8 playlist
-   */
-  public int getShipPlaylistTargetSize() {
-    return shipPlaylistTargetSize;
-  }
-
-  /**
    @return the ship reload seconds
    */
   public int getShipLoadCycleSeconds() {
@@ -775,17 +759,24 @@ public class Environment {
   }
 
   /**
-   @return # of seconds after which Ship will ignore future segments
+   @return # of seconds ahead of "now" we will endeavor to ship media segments up to
    */
-  public int getShipSegmentIgnoreAfterSeconds() {
-    return shipSegmentIgnoreAfterSeconds;
+  public int getShipPlaylistAheadSeconds() {
+    return shipPlaylistAheadSeconds;
   }
 
   /**
-   @return # of seconds before which Ship will ignore past segments
+   @return # of seconds back from "now" before we delete a media segment from the playlist
    */
-  public int getShipSegmentIgnoreBeforeSeconds() {
-    return shipSegmentIgnoreBeforeSeconds;
+  public int getShipPlaylistBackSeconds() {
+    return shipPlaylistBackSeconds;
+  }
+
+  /**
+   @return # of seconds after which Ship will ignore future segments
+   */
+  public int getShipSegmentLoadAheadSeconds() {
+    return shipSegmentLoadAheadSeconds;
   }
 
   /**
@@ -828,13 +819,6 @@ public class Environment {
    */
   public int getWorkEraseSegmentsOlderThanSeconds() {
     return workEraseSegmentsOlderThanSeconds;
-  }
-
-  /**
-   @return true if the work chain management enabled
-   */
-  public boolean isWorkChainManagementEnabled() {
-    return workChainManagementEnabled;
   }
 
   /**
@@ -914,4 +898,10 @@ public class Environment {
     return workRehydrateFabricatedAheadThreshold;
   }
 
+  /**
+   @return true if work rehydration is enabled
+   */
+  public boolean isWorkRehydrationEnabled() {
+    return workRehydrationEnabled;
+  }
 }

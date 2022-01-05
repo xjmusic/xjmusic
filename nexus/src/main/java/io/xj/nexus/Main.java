@@ -18,6 +18,7 @@ import io.xj.nexus.dub.DubModule;
 import io.xj.nexus.fabricator.NexusFabricatorModule;
 import io.xj.nexus.hub_client.client.HubClientModule;
 import io.xj.nexus.persistence.NexusPersistenceModule;
+import io.xj.nexus.work.NexusWork;
 import io.xj.nexus.work.NexusWorkModule;
 import org.slf4j.LoggerFactory;
 
@@ -67,16 +68,18 @@ public interface Main {
     lc.putProperty("host", env.getHostname());
     lc.putProperty("env", env.getPlatformEnvironment());
 
-    // Instantiate app
+    // Instantiate app + add its shutdown hook
     NexusApp app = injector.getInstance(NexusApp.class);
-
-    // Shutdown Hook
     Runtime.getRuntime().addShutdownHook(new Thread(app::finish));
 
-    // start
+    // Instantiate work + add its shutdown hook
+    NexusWork work = injector.getInstance(NexusWork.class);
+    Runtime.getRuntime().addShutdownHook(new Thread(work::finish));
+
+    // start app
     app.start();
 
-    // do work-- this blocks until work quits
-    app.getWork().work();
+    // start work-- this blocks until work quits
+    work.start();
   }
 }

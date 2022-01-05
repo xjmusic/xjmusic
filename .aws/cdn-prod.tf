@@ -465,9 +465,9 @@ resource "aws_cloudfront_distribution" "xj-prod-ship" {
       "OPTIONS",
     ]
     compress               = true
-    default_ttl            = 2
-    max_ttl                = 2
-    min_ttl                = 2
+    default_ttl            = 1
+    max_ttl                = 1
+    min_ttl                = 1
     target_origin_id       = "ship-prod-xj-io-s3-origin"
     viewer_protocol_policy = "redirect-to-https"
     forwarded_values {

@@ -11,6 +11,7 @@ import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
 import io.xj.lib.jsonapi.JsonapiModule;
 import io.xj.lib.secret.Secrets;
+import io.xj.ship.work.ShipWork;
 import io.xj.ship.work.ShipWorkModule;
 import org.slf4j.LoggerFactory;
 
@@ -51,16 +52,18 @@ public interface Main {
     lc.putProperty("host", env.getHostname());
     lc.putProperty("env", env.getPlatformEnvironment());
 
-    // Instantiate app
+    // Instantiate app + add its shutdown hook
     ShipApp app = injector.getInstance(ShipApp.class);
-
-    // Shutdown Hook
     Runtime.getRuntime().addShutdownHook(new Thread(app::finish));
 
-    // start
+    // Instantiate work + add its shutdown hook
+    ShipWork work = injector.getInstance(ShipWork.class);
+    Runtime.getRuntime().addShutdownHook(new Thread(work::finish));
+
+    // start app
     app.start();
 
-    // do work-- this blocks until work quits
-    app.getWork().work();
+    // start work-- this blocks until work quits
+    work.start();
   }
 }

@@ -43,7 +43,7 @@ public class StreamEncoderImpl implements StreamEncoder {
   private final String playlistPath;
   private final String tempFilePathPrefix;
   private final int bitrate;
-  private final int playlistTargetSize;
+  private final int playlistAheadSeconds;
   private final int chunkTargetDuration;
   private int initialSeqNum;
   private Process ffmpeg;
@@ -64,7 +64,7 @@ public class StreamEncoderImpl implements StreamEncoder {
     bitrate = env.getShipBitrateHigh();
     bucket = env.getStreamBucket();
     contentTypeSegment = env.getShipChunkContentType();
-    playlistTargetSize = env.getShipPlaylistTargetSize();
+    playlistAheadSeconds = env.getShipPlaylistAheadSeconds();
     chunkTargetDuration = env.getShipChunkTargetDuration();
     tempFilePathPrefix = env.getTempFilePathPrefix();
 
@@ -79,7 +79,7 @@ public class StreamEncoderImpl implements StreamEncoder {
         final String oldName = currentThread.getName();
         currentThread.setName(THREAD_NAME);
         try {
-          initialSeqNum = playlist.computeMediaSequence(System.currentTimeMillis());
+          initialSeqNum = playlist.computeMediaSequence(System.currentTimeMillis()) + (playlistAheadSeconds / chunkTargetDuration) - 1;
           ProcessBuilder builder = new ProcessBuilder(List.of(
             "ffmpeg",
             "-v", env.getShipFFmpegVerbosity(),
@@ -94,7 +94,6 @@ public class StreamEncoderImpl implements StreamEncoder {
             "-start_number", String.valueOf(initialSeqNum),
             "-initial_offset", String.valueOf(initialSeqNum),
             "-hls_flags", "delete_segments",
-            "-hls_list_size", String.valueOf(playlistTargetSize),
             "-hls_playlist_type", "event",
             "-hls_segment_filename", String.format("%s%s-%%d.%s", env.getTempFilePathPrefix(), shipKey, env.getShipChunkAudioEncoder()),
             "-hls_time", String.valueOf(chunkTargetDuration),

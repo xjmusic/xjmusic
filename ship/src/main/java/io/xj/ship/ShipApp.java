@@ -10,7 +10,6 @@ import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.nexus.NexusTopology;
 import io.xj.ship.api.ShipAppHealthEndpoint;
-import io.xj.ship.work.ShipWork;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -34,7 +33,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ShipApp extends App {
   private final org.slf4j.Logger LOG = LoggerFactory.getLogger(ShipApp.class);
-  private final ShipWork shipWork;
   private final String platformRelease;
 
   /**
@@ -53,9 +51,6 @@ public class ShipApp extends App {
 
     // Configuration
     platformRelease = env.getPlatformEnvironment();
-
-    // core delegates
-    shipWork = injector.getInstance(ShipWork.class);
 
     // Setup Entity topology
     EntityFactory entityFactory = injector.getInstance(EntityFactory.class);
@@ -77,20 +72,9 @@ public class ShipApp extends App {
   }
 
   /**
-   Get the current work manager
-
-   @return work manager
-   */
-  public ShipWork getWork() {
-    return shipWork;
-  }
-
-
-  /**
    stop App Server
    */
   public void finish() {
-    shipWork.stop();
     super.finish();
     LOG.info("{} ({}}) did exit OK at {}", getName(), platformRelease, getBaseURI());
   }

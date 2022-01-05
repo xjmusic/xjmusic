@@ -5,20 +5,17 @@ import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
-import io.xj.api.Chain;
-import io.xj.api.ChainState;
-import io.xj.api.ChainType;
 import io.xj.hub.HubTopology;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.telemetry.TelemetryProvider;
-import io.xj.nexus.NexusApp;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubClientAccess;
+import io.xj.nexus.hub_client.client.HubClientException;
 import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.persistence.*;
 import org.apache.http.HttpEntity;
@@ -35,13 +32,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.time.Instant;
 import java.util.Objects;
-import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -68,15 +62,27 @@ public class ComplexLibraryTest {
   public TelemetryProvider telemetryProvider;
   long startTime = System.currentTimeMillis();
   private AppWorkThread workThread;
-  private Chain chain1;
-  private NexusApp app;
+  private ChainManager chainManager;
   private SegmentManager segmentManager;
+  private NexusWork work;
+  private HubContent content;
 
   @Before
   public void setUp() throws Exception {
+    NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();
+    fake.account1 = buildAccount("fish");
+    fake.library1 = buildLibrary(fake.account1, "test");
+    content = new HubContent(fake.generatedFixture(3));
+
+    // NOTE: it's critical that the test template has config bufferAheadSeconds=9999 in order to ensure the test fabricates far ahead
+    var template = content.getTemplate();
+    template.setConfig("bufferAheadSeconds=9999\noutputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n");
+    content.put(template);
+
     Environment env = Environment.from(ImmutableMap.of(
       "APP_PORT", "9043",
-      "WORK_CHAIN_MANAGEMENT_ENABLED", "false",
+      "SHIP_KEY", content.getTemplate().getShipKey(),
+      "WORK_REHYDRATION_ENABLED", "false",
       "WORK_ERASE_SEGMENTS_OLDER_THAN_SECONDS", String.valueOf(MAXIMUM_TEST_WAIT_SECONDS + 300),
       "WORK_CYCLE_MILLIS", "50"
     ));
@@ -92,6 +98,7 @@ public class ComplexLibraryTest {
         }
       }));
     segmentManager = injector.getInstance(SegmentManager.class);
+    chainManager = injector.getInstance(ChainManager.class);
     var entityFactory = injector.getInstance(EntityFactory.class);
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
@@ -101,27 +108,14 @@ public class ComplexLibraryTest {
     test.deleteAll();
 
     // Mock request via HubClient returns fake generated library of hub content
-    NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();
-    fake.account1 = buildAccount("fish");
-    fake.library1 = buildLibrary(fake.account1, "test");
-    var content = new HubContent(fake.generatedFixture(3));
-    when(hubClient.ingest(any(), any())).thenReturn(content);
+    when(hubClient.load(any())).thenReturn(content);
     when(httpClientProvider.getClient()).thenReturn(httpClient);
     when(httpClient.execute(any())).thenReturn(httpResponse);
     when(httpResponse.getEntity()).thenReturn(httpResponseEntity);
 
-    // Chain "Test Print #1" is ready to begin
-    chain1 = test.put(buildChain(
-      fake.account1,
-      content.getTemplate(),
-      "Test Print #1",
-      ChainType.PREVIEW,
-      ChainState.FABRICATE,
-      Instant.now().minusSeconds(MAXIMUM_TEST_WAIT_SECONDS)));
+    work = injector.getInstance(NexusWork.class);
 
-    app = injector.getInstance(NexusApp.class);
-
-    workThread = new AppWorkThread(app);
+    workThread = new AppWorkThread(work);
   }
 
   @Test
@@ -133,13 +127,11 @@ public class ComplexLibraryTest {
         ComplexLibraryTest.class.getClassLoader().getResource("source_audio/kick1.wav")).getFile()));
 
     // Start app, wait for work, stop app
-    app.start();
     workThread.start();
-    while (!hasSegmentsDubbedPastMinimumOffset(chain1.getId()) && isWithinTimeLimit())
+    while (!hasSegmentsDubbedPastMinimumOffset() && isWithinTimeLimit())
       //noinspection BusyWait
       Thread.sleep(MILLIS_PER_SECOND);
-    app.finish();
-    workThread.interrupt();
+    work.finish();
 
     // assertions
     verify(fileStoreProvider, atLeast(MARATHON_NUMBER_OF_SEGMENTS))
@@ -147,7 +139,7 @@ public class ComplexLibraryTest {
     // FUTURE use a spy to assert actual json payload shipped to S3 for metadata
     verify(fileStoreProvider, atLeast(MARATHON_NUMBER_OF_SEGMENTS))
       .putS3ObjectFromString(any(), any(), any(), any());
-    assertTrue(hasSegmentsDubbedPastMinimumOffset(chain1.getId()));
+    assertTrue(hasSegmentsDubbedPastMinimumOffset());
   }
 
   /**
@@ -165,15 +157,15 @@ public class ComplexLibraryTest {
   /**
    Does the specified chain contain at least N segments?
 
-   @param chainId to test
    @return true if it has at least N segments
    */
-  private boolean hasSegmentsDubbedPastMinimumOffset(UUID chainId) {
+  private boolean hasSegmentsDubbedPastMinimumOffset() {
     try {
-      return segmentManager.readLastDubbedSegment(HubClientAccess.internal(), chainId)
+      var chain = chainManager.readOneByShipKey(content.getTemplate().getShipKey());
+      return segmentManager.readLastDubbedSegment(HubClientAccess.internal(), chain.getId())
         .filter(value -> MARATHON_NUMBER_OF_SEGMENTS <= value.getOffset()).isPresent();
 
-    } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException ignored) {
+    } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException | HubClientException ignored) {
       return false;
     }
   }

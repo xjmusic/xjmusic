@@ -100,7 +100,7 @@ public class ShipWorkImpl implements ShipWork {
     loadCycleSeconds = env.getShipLoadCycleSeconds();
     mixCycleSeconds = env.getShipMixCycleSeconds();
     publishCycleSeconds = env.getWorkPublishCycleSeconds();
-    shipAheadMillis = env.getShipPlaylistTargetSize() * chunkTargetDuration * MILLIS_PER_SECOND;
+    shipAheadMillis = env.getShipPlaylistAheadSeconds() * MILLIS_PER_SECOND;
     telemetryEnabled = env.isTelemetryEnabled();
     telemetryCycleSeconds = env.getWorkTelemetryCycleSeconds();
 
@@ -123,25 +123,25 @@ public class ShipWorkImpl implements ShipWork {
   }
 
   @Override
-  public void work() {
+  public void start() {
     // Ship rehydrates from last shipped .m3u8 playlist file #180723357
     playlist.rehydrate()
       .ifPresent(maxSeqNum -> doneUpToSecondsUTC = (maxSeqNum + 1) * chunkTargetDuration);
 
     // Collect garbage before we begin
     var nowSeqNum = playlist.computeMediaSequence(System.currentTimeMillis());
-    playlist.collectGarbageBefore(nowSeqNum);
+    playlist.collectGarbage(nowSeqNum);
 
     // Check to see if in fact, this is a stale playlist and should be reset
     if (playlist.isEmpty()) {
       doneUpToSecondsUTC = (long) nowSeqNum * chunkTargetDuration;
     }
 
-    while (active) this.run();
+    while (active) this.doCycle();
   }
 
   @Override
-  public void stop() {
+  public void finish() {
     active = false;
     player.close();
   }
@@ -179,7 +179,7 @@ public class ShipWorkImpl implements ShipWork {
   /**
    Run one work cycle
    */
-  private void run() {
+  private void doCycle() {
     var nowMillis = System.currentTimeMillis();
     if (nowMillis < nextCycleMillis) return;
     nextCycleMillis = nowMillis + cycleMillis;

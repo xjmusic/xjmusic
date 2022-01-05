@@ -5,8 +5,10 @@ import com.google.common.collect.*;
 import com.google.inject.Inject;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
+import io.xj.hub.ingest.HubContentPayload;
 import io.xj.hub.tables.pojos.*;
 import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityException;
 import io.xj.lib.music.Note;
 import io.xj.lib.util.Text;
 
@@ -26,14 +28,23 @@ public class HubContent {
     Collection<?> entities
   ) throws HubClientException {
     try {
-      for (Object entity : entities) {
-        store.putIfAbsent(entity.getClass(), Maps.newConcurrentMap());
-        store.get(entity.getClass()).put(Entities.getId(entity), entity);
-      }
+      for (Object entity : entities)
+        put(entity);
 
     } catch (Exception e) {
       throw new HubClientException(e);
     }
+  }
+
+  /**
+   Create a hub content object from a payload
+
+   @param payload from which to get content object
+   @return hub content
+   @throws HubClientException on failure
+   */
+  public static HubContent from(HubContentPayload payload) throws HubClientException {
+    return new HubContent(payload.getAllEntities());
   }
 
   /**
@@ -621,4 +632,31 @@ public class HubContent {
     return getAll(Template.class).stream().findFirst().orElseThrow(() -> new HubClientException("Has no Template"));
   }
 
+  /**
+   Override the ship key of a template we found-- in case a template is shipped to a different
+
+   @param shipKey new value
+   @throws HubClientException on failure
+   */
+  public void overrideTemplateShipKey(String shipKey) throws HubClientException {
+    try {
+      var template = getTemplate();
+      template.setShipKey(shipKey);
+      put(template);
+    } catch (EntityException e) {
+      throw new HubClientException(e);
+    }
+  }
+
+  /**
+   Put an object to the store
+
+   @param entity to store
+   @throws EntityException on failure
+   */
+  public HubContent put(Object entity) throws EntityException {
+    store.putIfAbsent(entity.getClass(), Maps.newConcurrentMap());
+    store.get(entity.getClass()).put(Entities.getId(entity), entity);
+    return this;
+  }
 }

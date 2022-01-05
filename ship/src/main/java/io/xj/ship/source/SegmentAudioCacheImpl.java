@@ -19,6 +19,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -100,6 +101,9 @@ class SegmentAudioCacheImpl implements SegmentAudioCache {
     try (
       CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", shipBaseUrl, key)))
     ) {
+      if (!Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode()))
+        throw new ShipException(String.format("Failed to get SegmentAudio[%s] because %d %s", key, response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase()));
+
       if (Objects.isNull(response.getEntity().getContent()))
         throw new ShipException(String.format("Unable to read segment audio: %s", absolutePath));
 

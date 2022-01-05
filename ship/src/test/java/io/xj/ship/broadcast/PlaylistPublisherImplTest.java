@@ -82,11 +82,11 @@ public class PlaylistPublisherImplTest {
   }
 
   @Test
-  public void collectGarbageBefore() throws ShipException {
+  public void collectGarbage() throws ShipException {
     var item = broadcast.chunk("coolair", 164030295L, "mp3", null);
 
     subject.putNext(item);
-    subject.collectGarbageBefore(164030296);
+    subject.collectGarbage(164030996);
     assertFalse(subject.get(164030295).isPresent());
   }
 
@@ -113,10 +113,10 @@ public class PlaylistPublisherImplTest {
     subject.parseAndLoadItems(getResourceFileContent("coolair.m3u8"));
     assertEquals(164029657, subject.getMaxSequenceNumber());
 
-    subject.collectGarbageBefore(164029651);
+    subject.collectGarbage(164029651);
     assertEquals(164029657, subject.getMaxSequenceNumber());
 
-    subject.collectGarbageBefore(164029659); // past end of playlist; will clear all
+    subject.collectGarbage(164029959); // past end of playlist; will clear all
     assertEquals(0, subject.getMaxSequenceNumber());
   }
 }

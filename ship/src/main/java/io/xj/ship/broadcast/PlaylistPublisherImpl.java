@@ -21,12 +21,14 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
@@ -48,7 +50,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   private final HttpClientProvider httpClientProvider;
   private final Map<Long/* mediaSequence */, Chunk> items = Maps.newConcurrentMap();
   private final Measure.MeasureDouble HLS_PLAYLIST_SIZE;
-  private final Pattern rgxFilename = Pattern.compile("([A-Za-z0-9]*)-([0-9]*)\\.([A-Za-z0-9]*)");
+  private final Pattern rgxFilename = Pattern.compile("^([A-Za-z0-9_]*)-([0-9]*)\\.([A-Za-z0-9]*)");
   private final Pattern rgxSecondsValue = Pattern.compile("#EXTINF:([0-9.]*)");
   private final Predicate<? super String> isSegmentFilename;
   private final String bucket;
@@ -59,7 +61,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   private final TelemetryProvider telemetryProvider;
   private final boolean active;
   private final int chunkTargetDuration;
-  private final int playlistMinimumSize;
+  private final int playlistBackSeconds;
 
   @Inject
   public PlaylistPublisherImpl(
@@ -79,7 +81,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     bucket = env.getStreamBucket();
     chunkTargetDuration = env.getShipChunkTargetDuration();
     contentTypeM3U8 = env.getShipM3u8ContentType();
-    playlistMinimumSize = env.getShipPlaylistMinimumSize();
+    playlistBackSeconds = env.getShipPlaylistBackSeconds();
     streamBaseUrl = env.getStreamBaseUrl();
 
     // Computed
@@ -103,6 +105,11 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     try (
       CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", streamBaseUrl, m3u8Key)))
     ) {
+      if (!Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode())) {
+        LOG.error("Failed to get previously playlist {} because {} {}", m3u8Key, response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+        return Optional.empty();
+      }
+
       LOG.debug("will check for last shipped playlist");
       var added = parseAndLoadItems(new String(response.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8));
       for (var item : added)
@@ -135,7 +142,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     if (active)
       try {
         var mediaSequence = computeMediaSequence(System.currentTimeMillis());
-        collectGarbageBefore(mediaSequence);
+        collectGarbage(mediaSequence);
         fileStore.putS3ObjectFromString(getPlaylistContent(mediaSequence), bucket, m3u8Key, contentTypeM3U8);
         LOG.debug("Shipped {}/{} ({}) @ {}", bucket, m3u8Key, contentTypeM3U8, mediaSequence);
 
@@ -145,8 +152,9 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   }
 
   @Override
-  public void collectGarbageBefore(long mediaSequence) {
-    List<Long> toRemove = items.keySet().stream().filter(ms -> ms < mediaSequence).toList();
+  public void collectGarbage(long mediaSequence) {
+    long floor = mediaSequence - playlistBackSeconds / chunkTargetDuration;
+    List<Long> toRemove = items.keySet().stream().filter(ms -> ms < floor).toList();
     for (long ms : toRemove) items.remove(ms);
     recomputeMaxSequenceNumber();
   }
@@ -158,13 +166,14 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
 
   @Override
   public String getPlaylistContent(long mediaSequence) {
+    var start = items.keySet().stream().min(Long::compare).orElseThrow();
     // build m3u8 header followed by the playlist item lines
     List<String> m3u8FinalLines = Stream.concat(
       Stream.of(
         "#EXTM3U",
         "#EXT-X-VERSION:7",
         String.format("#EXT-X-TARGETDURATION:%s", chunkTargetDuration),
-        String.format("#EXT-X-MEDIA-SEQUENCE:%d", mediaSequence),
+        String.format("#EXT-X-MEDIA-SEQUENCE:%d", start),
         "#EXT-X-PLAYLIST-TYPE:EVENT"
       ),
       // FUTURE: media sequence numbers need to be a continuous unbroken sequence of integers
@@ -217,8 +226,9 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
 
   @Override
   public boolean isHealthy() {
-    if (items.size() >= playlistMinimumSize) return true;
-    LOG.warn("Size {} below threshold {}", items.size(), playlistMinimumSize);
+    var threshold = computeMediaSequence(System.currentTimeMillis());
+    if (maxSequenceNumber.get() > threshold) return true;
+    LOG.warn("Max sequence number {} below threshold {}", maxSequenceNumber, threshold);
     return false;
   }
 

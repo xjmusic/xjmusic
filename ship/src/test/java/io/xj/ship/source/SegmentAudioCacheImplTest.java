@@ -13,6 +13,7 @@ import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.mixer.InternalResource;
 import io.xj.ship.ShipException;
 import org.apache.http.HttpEntity;
+import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.Before;
@@ -46,6 +47,8 @@ public class SegmentAudioCacheImplTest {
   public CloseableHttpResponse httpResponse;
   @Mock(lenient = true)
   public HttpEntity httpResponseEntity;
+  @Mock(lenient = true)
+  public StatusLine httpStatusLine;
   private Segment segment1;
   private SegmentAudioCache subject;
   @Mock
@@ -87,6 +90,7 @@ public class SegmentAudioCacheImplTest {
     when(httpClientProvider.getClient()).thenReturn(httpClient);
     when(httpClient.execute(any())).thenReturn(httpResponse);
     when(httpResponse.getEntity()).thenReturn(httpResponseEntity);
+    when(httpResponse.getStatusLine()).thenReturn(httpStatusLine);
 
     subject = injector.getInstance(SegmentAudioCache.class);
   }
@@ -96,6 +100,7 @@ public class SegmentAudioCacheImplTest {
     when(httpResponseEntity.getContent())
       .thenAnswer((Answer<InputStream>) invocation -> new FileInputStream(Objects.requireNonNull(
         new InternalResource("ogg_decoding/coolair-1633586832900943.ogg").getFile())));
+    when(httpStatusLine.getStatusCode()).thenReturn(200);
 
     var result = subject.downloadAndDecompress(segment1);
 

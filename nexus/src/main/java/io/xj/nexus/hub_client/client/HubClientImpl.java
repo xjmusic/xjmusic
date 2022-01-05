@@ -2,7 +2,6 @@
 
 package io.xj.nexus.hub_client.client;
 
-import com.google.api.client.util.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.xj.hub.ingest.HubContentPayload;
@@ -25,7 +24,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -34,9 +36,7 @@ import java.util.stream.Collectors;
 @Singleton
 public class HubClientImpl implements HubClient {
   private static final String API_PATH_INGEST_PREFIX = "api/1/ingest/";
-  private static final String API_PATH_TEMPLATES_PREFIX = "api/1/templates/";
   private static final String API_PATH_TEMPLATES_PLAYING = "api/1/templates/playing";
-  private static final String API_PATH_AUTH = "auth";
   private static final String HEADER_COOKIE = "Cookie";
   private final Logger LOG = LoggerFactory.getLogger(HubClientImpl.class);
   private final String ingestUrl;
@@ -45,6 +45,7 @@ public class HubClientImpl implements HubClient {
   private final JsonProviderImpl jsonProvider;
   private final JsonapiPayloadFactory jsonapiPayloadFactory;
   private final String ingestTokenValue;
+  private final String audioBaseUrl;
 
   @Inject
   public HubClientImpl(
@@ -60,6 +61,7 @@ public class HubClientImpl implements HubClient {
     ingestUrl = env.getIngestURL();
     ingestTokenName = env.getIngestTokenName();
     ingestTokenValue = env.getIngestTokenValue();
+    audioBaseUrl = env.getAudioBaseUrl();
 
     String obscuredSecret = Arrays.stream(ingestTokenValue.split("")).map(c -> "*").collect(Collectors.joining());
     LOG.info("Will connect to Hub at {} with token '{}' value '{}'", ingestUrl, ingestTokenName, obscuredSecret);
@@ -75,60 +77,10 @@ public class HubClientImpl implements HubClient {
       if (!Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode()))
         throw buildException(response);
 
-      var json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
-      HubContentPayload content = jsonProvider.getMapper().readValue(json, HubContentPayload.class);
-      List<Object> entities = Lists.newArrayList();
-      entities.addAll(content.getTemplates());
-      entities.addAll(content.getTemplateBindings());
-      entities.addAll(content.getInstruments());
-      entities.addAll(content.getInstrumentAudios());
-      entities.addAll(content.getInstrumentMemes());
-      entities.addAll(content.getPrograms());
-      entities.addAll(content.getProgramMemes());
-      entities.addAll(content.getProgramSequences());
-      entities.addAll(content.getProgramSequenceBindings());
-      entities.addAll(content.getProgramSequenceBindingMemes());
-      entities.addAll(content.getProgramSequenceChords());
-      entities.addAll(content.getProgramSequenceChordVoicings());
-      entities.addAll(content.getProgramSequencePatterns());
-      entities.addAll(content.getProgramSequencePatternEvents());
-      entities.addAll(content.getProgramVoices());
-      entities.addAll(content.getProgramVoiceTracks());
-      return new HubContent(entities);
+      String json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
+      return HubContent.from(jsonProvider.getMapper().readValue(json, HubContentPayload.class));
 
     } catch (IOException e) {
-      throw new HubClientException(e);
-    }
-  }
-
-  @Override
-  public HubClientAccess auth(String accessToken) throws HubClientException {
-    CloseableHttpClient client = httpClientProvider.getClient();
-    try (
-      CloseableHttpResponse response = client.execute(buildGetRequest(buildURI(API_PATH_AUTH), accessToken))
-    ) {
-      return jsonProvider.getMapper().readValue(response.getEntity().getContent(), HubClientAccess.class);
-    } catch (IOException e) {
-      throw new HubClientException("Failed to authenticate with Hub API", e);
-    }
-  }
-
-  @Override
-  public Template readTemplate(String identifier) throws HubClientException {
-    CloseableHttpClient client = httpClientProvider.getClient();
-    try (
-      CloseableHttpResponse response = client.execute(buildGetRequest(buildURI(String.format("%s%s", API_PATH_TEMPLATES_PREFIX, identifier)), ingestTokenValue))
-    ) {
-
-      // return template if found
-      if (!Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode()))
-        throw buildException(response);
-
-      var json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
-      var payload = jsonapiPayloadFactory.deserialize(json);
-      return jsonapiPayloadFactory.toOne(payload);
-
-    } catch (IOException | JsonapiException e) {
       throw new HubClientException(e);
     }
   }
@@ -147,6 +99,24 @@ public class HubClientImpl implements HubClient {
       return jsonapiPayloadFactory.toMany(payload);
 
     } catch (IOException | JsonapiException e) {
+      throw new HubClientException(e);
+    }
+  }
+
+  @Override
+  public HubContent load(String shipKey) throws HubClientException {
+    CloseableHttpClient client = httpClientProvider.getClient();
+    try (
+      CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s.json", audioBaseUrl, shipKey)))
+    ) {
+      // return content if successful.
+      if (!Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode()))
+        throw buildException(response);
+
+      String json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
+      return HubContent.from(jsonProvider.getMapper().readValue(json, HubContentPayload.class));
+
+    } catch (IOException e) {
       throw new HubClientException(e);
     }
   }

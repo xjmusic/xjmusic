@@ -19,6 +19,5 @@ public class NexusWorkModule extends AbstractModule {
     install(new NexusPersistenceModule());
     install(new NexusFabricatorModule());
     bind(NexusWork.class).to(NexusWorkImpl.class);
-    bind(NexusWorkChainManager.class).to(NexusWorkChainManagerImpl.class);
   }
 }

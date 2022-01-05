@@ -464,7 +464,8 @@ public class SegmentManagerImplTest {
     int numSegmentsToGenerate = 50;
     int total = 16;
     int tempo = 120;
-    chain5 = store.put(buildChain(account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, beginAt, null, "barnacles"));
+    chain5 = store.put(buildChain(account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, beginAt, null, "barnacles")
+      .templateConfig("bufferAheadSeconds=90\noutputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n"));
     for (int offset = 0; offset < numSegmentsToGenerate; offset++) {
       Instant endAt = beginAt.plusMillis(1000 * total * 60 / tempo);
       store.put(buildSegment(chain5, offset, SegmentState.DUBBED,

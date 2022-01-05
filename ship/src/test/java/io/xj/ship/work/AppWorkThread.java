@@ -2,17 +2,15 @@
 
 package io.xj.ship.work;
 
-import io.xj.ship.ShipApp;
-
 public class AppWorkThread extends Thread {
 
-  private final ShipApp app;
+  private final ShipWork work;
 
-  public AppWorkThread(ShipApp app) {
-    this.app = app;
+  public AppWorkThread(ShipWork work) {
+    this.work = work;
   }
 
   public void run() {
-    app.getWork().work();
+    work.start();
   }
 }

@@ -27,28 +27,19 @@ public interface HubClient {
   HubContent ingest(HubClientAccess access, UUID templateId) throws HubClientException;
 
   /**
-   Retrieve a HubClientAccess entity from Hub via the /auth endpoint
-   <p>
-   Nexus service is able to retrieve HubAccess from its request context, by requesting access for a specified cookie from the Hub service
-
-   @param accessToken to get HubClientAccess for
-   @return HubClientAccess for given auth token
-   @throws HubClientException on failure to authenticate
-   */
-  HubClientAccess auth(String accessToken) throws HubClientException;
-
-  /**
-   Read a Template from Hub by uuid or ship key
-
-   @return template if found
-   @param identifier to read, either a UUID or a ship key (string)
-   */
-  Template readTemplate(String identifier) throws HubClientException;
-
-  /**
    Read all Templates playing from Hub
 
    @return Templates currently playing
    */
   Collection<Template> readAllTemplatesPlaying() throws HubClientException;
+
+  /**
+   Load shipped content from a static file
+   <p>
+   Nexus production fabrication from static source (without Hub) #177020318
+
+   @param shipKey to load
+   @return hub content
+   */
+  HubContent load(String shipKey) throws HubClientException;
 }

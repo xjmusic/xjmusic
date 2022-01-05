@@ -2,8 +2,10 @@
 
 package io.xj.hub.ingest;
 
+import com.google.api.client.util.Lists;
 import io.xj.hub.tables.pojos.*;
 
+import java.util.Collection;
 import java.util.List;
 
 public class HubContentPayload {
@@ -167,5 +169,26 @@ public class HubContentPayload {
   public HubContentPayload setTemplateBindings(List<TemplateBinding> templateBindings) {
     this.templateBindings = templateBindings;
     return this;
+  }
+
+  public Collection<Object> getAllEntities() {
+    List<Object> entities = Lists.newArrayList();
+    entities.addAll(templates);
+    entities.addAll(templateBindings);
+    entities.addAll(instruments);
+    entities.addAll(instrumentAudios);
+    entities.addAll(instrumentMemes);
+    entities.addAll(programs);
+    entities.addAll(programMemes);
+    entities.addAll(programSequences);
+    entities.addAll(programSequenceBindings);
+    entities.addAll(programSequenceBindingMemes);
+    entities.addAll(programSequenceChords);
+    entities.addAll(programSequenceChordVoicings);
+    entities.addAll(programSequencePatterns);
+    entities.addAll(programSequencePatternEvents);
+    entities.addAll(programVoices);
+    entities.addAll(programVoiceTracks);
+    return entities;
   }
 }
