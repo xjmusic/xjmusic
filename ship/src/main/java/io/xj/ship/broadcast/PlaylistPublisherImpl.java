@@ -242,7 +242,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   @Override
   public boolean isHealthy() {
     var threshold = computeInitialMediaSeqNum(System.currentTimeMillis());
-    if (maxSequenceNumber.get() > threshold) return true;
+    if (maxSequenceNumber.get() >= threshold) return true;
     LOG.warn("Max sequence number {} below threshold {}", maxSequenceNumber, threshold);
     return false;
   }
