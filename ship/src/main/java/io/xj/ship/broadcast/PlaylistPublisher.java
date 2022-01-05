@@ -28,9 +28,11 @@ public interface PlaylistPublisher {
   /**
    Attempt to rehydrate ship from the last .m3u8 playlist that was uploaded for this ship key
    <p>
-   Ship rehydrates from last shipped .m3u8 playlist file #180723357@return
+   Ship rehydrates from last shipped .m3u8 playlist file #180723357
+
+   @param initialSeqNum threshold .m3u8 playlist must be ahead of, else it will be considered stale
    */
-  Optional<Long> rehydrate();
+  Optional<Long> rehydrate(long initialSeqNum);
 
   /**
    Get the m3u8 playlist item for a given media sequence number
@@ -44,10 +46,10 @@ public interface PlaylistPublisher {
    Store a m3u8 playlist item, only if it is after the threshold,
    and only if it has a sequence number of exactly the largest known sequence number + 1
 
-   @param m3U8Playlist to put
+   @param chunk to put
    @return true if this is a new media sequence number (playlist item not yet seen)
    */
-  boolean putNext(Chunk m3U8Playlist) throws ShipException;
+  boolean putNext(Chunk chunk) throws ShipException;
 
   /**
    Publish the playlist after a new file is pushed
@@ -69,7 +71,17 @@ public interface PlaylistPublisher {
    @param epochMillis for which to get media sequence number
    @return media sequence number
    */
-  int computeMediaSequence(long epochMillis);
+  int computeMediaSeqNum(long epochMillis);
+
+  /**
+   Compute the initial media sequence number to begin shipping for any moment in time.
+   <p>
+   This will be slight in the past to adjust for ffmpeg needing to catch up.
+
+   @param epochMillis for which to get media sequence number
+   @return initial media sequence number
+   */
+  int computeInitialMediaSeqNum(long epochMillis);
 
   /**
    Get the whole .m3u8 playlist content, including headers, as a string
@@ -85,7 +97,7 @@ public interface PlaylistPublisher {
    @param m3u8Content to parse and load
    @return list of playlist items that were not previously in the store
    */
-  List<Chunk> parseAndLoadItems(String m3u8Content) throws ShipException;
+  List<Chunk> parseItems(String m3u8Content) throws ShipException;
 
   /**
    Check if the ship encoder process is healthy

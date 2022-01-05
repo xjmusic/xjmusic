@@ -85,6 +85,7 @@ public class Environment {
   private final int segmentComputeTimeResolutionHz;
   private final int shipBitrateHigh;
   private final int shipChunkTargetDuration;
+  private final int shipInitialMediaSequenceNumberOffset;
   private final int shipLoadCycleSeconds;
   private final int shipMixCycleSeconds;
   private final int shipPlaylistAheadSeconds;
@@ -157,12 +158,13 @@ public class Environment {
     shipChunkContentType = readStr(vars, "SHIP_CHUNK_CONTENT_TYPE", "audio/aac");
     shipChunkTargetDuration = readInt(vars, "SHIP_CHUNK_TARGET_DURATION", 10);
     shipFFmpegVerbosity = readStr(vars, "SHIP_FFMPEG_VERBOSITY", "info");
+    shipInitialMediaSequenceNumberOffset = readInt(vars, "SHIP_INITIAL_MEDIA_SEQUENCE_NUMBER_OFFSET", 3);
     shipKey = readStr(vars, "SHIP_KEY", EMPTY);
     shipLoadCycleSeconds = readInt(vars, "SHIP_LOAD_CYCLE_SECONDS", 20);
     shipM3u8ContentType = readStr(vars, "SHIP_M3U8_CONTENT_TYPE", "application/x-mpegURL");
     shipMixCycleSeconds = readInt(vars, "WORK_PRINT_CYCLE_SECONDS", 1);
     shipMode = readStr(vars, "SHIP_MODE", "hls");
-    shipPlaylistAheadSeconds = readInt(vars, "SHIP_PLAYLIST_AHEAD_SECONDS", 20);
+    shipPlaylistAheadSeconds = readInt(vars, "SHIP_PLAYLIST_AHEAD_SECONDS", 30);
     shipPlaylistBackSeconds = readInt(vars, "SHIP_PLAYLIST_BACK_SECONDS", 300);
     shipSegmentLoadAheadSeconds = readInt(vars, "SHIP_SEGMENT_LOAD_AHEAD_SECONDS", 120);
     shipSegmentLoadTimeoutSeconds = readInt(vars, "SHIP_SEGMENT_LOAD_TIMEOUT_SECONDS", 5);
@@ -181,8 +183,8 @@ public class Environment {
     workMedicEnabled = readBool(vars, "WORK_MEDIC_ENABLED", true);
     workPublishCycleSeconds = readInt(vars, "WORK_PUBLISH_CYCLE_SECONDS", 10);
     workRehydrateFabricatedAheadThreshold = readInt(vars, "WORK_REHYDRATE_FABRICATED_AHEAD_THRESHOLD", 60);
-    workTelemetryCycleSeconds = readInt(vars, "WORK_TELEMETRY_CYCLE_SECONDS", 2);
     workRehydrationEnabled = readBool(vars, "WORK_REHYDRATION_ENABLED", true);
+    workTelemetryCycleSeconds = readInt(vars, "WORK_TELEMETRY_CYCLE_SECONDS", 2);
 
     // Resource: Amazon Web Services (AWS)
     awsAccessKeyID = readStr(vars, "AWS_ACCESS_KEY_ID", EMPTY);
@@ -721,6 +723,12 @@ public class Environment {
     return shipFFmpegVerbosity;
   }
 
+  /**
+   @return the offset before now (now minus N media segments) where ship should begin on startup
+   */
+  public int getShipInitialMediaSequenceNumberOffset() {
+    return shipInitialMediaSequenceNumberOffset;
+  }
   /**
    Ship broadcast via HTTP Live Streaming #179453189
 

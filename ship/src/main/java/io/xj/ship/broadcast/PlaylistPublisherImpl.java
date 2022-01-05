@@ -56,12 +56,12 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   private final String bucket;
   private final String contentTypeM3U8;
   private final String m3u8Key;
-  private final String shipSegmentFilenameEndsWith;
   private final String streamBaseUrl;
   private final TelemetryProvider telemetryProvider;
   private final boolean active;
   private final int chunkTargetDuration;
   private final int playlistBackSeconds;
+  private final int initialMediaSeqNumOffset;
 
   @Inject
   public PlaylistPublisherImpl(
@@ -85,9 +85,9 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     streamBaseUrl = env.getStreamBaseUrl();
 
     // Computed
+    initialMediaSeqNumOffset = env.getShipInitialMediaSequenceNumberOffset();
+    isSegmentFilename = m -> m.endsWith(String.format(".%s", env.getShipChunkAudioEncoder()));
     m3u8Key = String.format("%s.m3u8", env.getShipKey());
-    shipSegmentFilenameEndsWith = String.format(".%s", env.getShipChunkAudioEncoder());
-    isSegmentFilename = m -> m.endsWith(shipSegmentFilenameEndsWith);
 
     // Decimal format for writing seconds values in .m3u8 playlist line items
     df = new DecimalFormat("#.######");
@@ -100,7 +100,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   }
 
   @Override
-  public Optional<Long> rehydrate() {
+  public Optional<Long> rehydrate(long initialSeqNum) {
     CloseableHttpClient client = httpClientProvider.getClient();
     try (
       CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", streamBaseUrl, m3u8Key)))
@@ -111,11 +111,21 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
       }
 
       LOG.debug("will check for last shipped playlist");
-      var added = parseAndLoadItems(new String(response.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8));
-      for (var item : added)
-        LOG.info("Did rehydrate {}/{} @ media sequence {}", bucket, item.getFilename(), item.getSequenceNumber());
-      LOG.info("Rehydrated {} items OK from playlist {}/{}", added.size(), bucket, m3u8Key);
-      return added.stream().map(Chunk::getSequenceNumber).max(Long::compare);
+      var chunks = parseItems(new String(response.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8));
+      var maxSeqNum = chunks.stream().map(Chunk::getSequenceNumber).max(Long::compare).orElseThrow();
+      if (initialSeqNum > maxSeqNum) {
+        LOG.warn("Will not rehydrate from stale playlist with last sequence number {} (< {})", maxSeqNum, initialSeqNum);
+        return Optional.empty();
+      }
+      for (var item : chunks)
+        if (putNext(item))
+          LOG.info("Did rehydrate {}/{} @ media sequence {}", bucket, item.getFilename(), item.getSequenceNumber());
+        else
+          LOG.warn("Skipped {}/{} @ media sequence {}", bucket, item.getFilename(), item.getSequenceNumber());
+
+      Long actualMaxSeqNum = items.keySet().stream().max(Long::compare).orElseThrow();
+      LOG.info("Rehydrated {} items OK to media sequence {} from playlist {}/{}", items.size(), actualMaxSeqNum, bucket, m3u8Key);
+      return Optional.of(actualMaxSeqNum);
 
     } catch (ClassCastException | IOException | ShipException e) {
       LOG.error("Failed to retrieve previously streamed playlist {}/{} because {}", bucket, m3u8Key, e.getMessage());
@@ -141,7 +151,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   public void publish() throws ShipException {
     if (active)
       try {
-        var mediaSequence = computeMediaSequence(System.currentTimeMillis());
+        var mediaSequence = computeMediaSeqNum(System.currentTimeMillis());
         collectGarbage(mediaSequence);
         fileStore.putS3ObjectFromString(getPlaylistContent(mediaSequence), bucket, m3u8Key, contentTypeM3U8);
         LOG.debug("Shipped {}/{} ({}) @ {}", bucket, m3u8Key, contentTypeM3U8, mediaSequence);
@@ -160,13 +170,18 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   }
 
   @Override
-  public int computeMediaSequence(long epochMillis) {
+  public int computeMediaSeqNum(long epochMillis) {
     return (int) (Math.floor((double) epochMillis / (MILLIS_PER_SECOND * chunkTargetDuration)));
   }
 
   @Override
+  public int computeInitialMediaSeqNum(long epochMillis) {
+    return computeMediaSeqNum(System.currentTimeMillis()) - initialMediaSeqNumOffset;
+  }
+
+  @Override
   public String getPlaylistContent(long mediaSequence) {
-    var start = items.keySet().stream().min(Long::compare).orElseThrow();
+    var start = items.keySet().stream().min(Long::compare).orElse(mediaSequence);
     // build m3u8 header followed by the playlist item lines
     List<String> m3u8FinalLines = Stream.concat(
       Stream.of(
@@ -191,8 +206,8 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   }
 
   @Override
-  public List<Chunk> parseAndLoadItems(String m3u8Content) throws ShipException {
-    List<Chunk> added = Lists.newArrayList();
+  public List<Chunk> parseItems(String m3u8Content) throws ShipException {
+    List<Chunk> chunks = Lists.newArrayList();
     Chunk item;
     String ext;
     String filename;
@@ -218,15 +233,15 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
 
         item = broadcast.chunk(shipKey, seqNum, ext, actualDuration);
 
-        if (putNext(item)) added.add(item);
+        chunks.add(item);
       }
 
-    return added;
+    return chunks;
   }
 
   @Override
   public boolean isHealthy() {
-    var threshold = computeMediaSequence(System.currentTimeMillis());
+    var threshold = computeInitialMediaSeqNum(System.currentTimeMillis());
     if (maxSequenceNumber.get() > threshold) return true;
     LOG.warn("Max sequence number {} below threshold {}", maxSequenceNumber, threshold);
     return false;

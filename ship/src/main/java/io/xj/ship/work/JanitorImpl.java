@@ -100,7 +100,7 @@ public class JanitorImpl implements Janitor {
     }
 
     // Collect garbage from playlist-- when everything else stalls, this will ensure the health check fails the way we want it to
-    playlist.collectGarbage(playlist.computeMediaSequence(System.currentTimeMillis()));
+    playlist.collectGarbage(playlist.computeMediaSeqNum(System.currentTimeMillis()));
 
     telemetryProvider.put(METRIC_SEGMENT_ERASED, Long.valueOf(segmentIdsToErase.size()));
   }

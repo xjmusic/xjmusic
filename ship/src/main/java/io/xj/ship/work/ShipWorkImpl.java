@@ -57,6 +57,7 @@ public class ShipWorkImpl implements ShipWork {
   @Nullable
   private final String shipKey;
   private final boolean telemetryEnabled;
+  private final long initialSeqNum;
   private StreamEncoder stream;
   private boolean active = true;
   private long doneUpToSecondsUTC;
@@ -114,8 +115,16 @@ public class ShipWorkImpl implements ShipWork {
 
     player = broadcast.player(audioFormat);
 
+    // Snap this once to avoid the edge case of a difference between subsequently computed values
+    var nowMillis = System.currentTimeMillis();
+
+    // This is the initial sequence number when the entire ship process was started-
+    // necessary to coordinate between mixing, encoding, and playlist publishing
+    initialSeqNum = playlist.computeInitialMediaSeqNum(nowMillis);
+    LOG.info("Initial media sequence number {}", initialSeqNum);
+
     // This value will advance each time we compute more chunks
-    doneUpToSecondsUTC = computeChunkSecondsUTC(System.currentTimeMillis());
+    doneUpToSecondsUTC = initialSeqNum * chunkTargetDuration;
 
     // updated on state change
     state = new AtomicReference<>(State.Active);
@@ -125,11 +134,11 @@ public class ShipWorkImpl implements ShipWork {
   @Override
   public void start() {
     // Ship rehydrates from last shipped .m3u8 playlist file #180723357
-    playlist.rehydrate()
+    playlist.rehydrate(initialSeqNum)
       .ifPresent(maxSeqNum -> doneUpToSecondsUTC = (maxSeqNum + 1) * chunkTargetDuration);
 
     // Collect garbage before we begin
-    var nowSeqNum = playlist.computeMediaSequence(System.currentTimeMillis());
+    var nowSeqNum = playlist.computeMediaSeqNum(System.currentTimeMillis());
     playlist.collectGarbage(nowSeqNum);
 
     // Check to see if in fact, this is a stale playlist and should be reset
@@ -218,7 +227,7 @@ public class ShipWorkImpl implements ShipWork {
 
     // Use the first chunk to initialize the stream-- this is how we keep ffmpeg in sync with our chunk scheme
     if (Objects.isNull(stream))
-      stream = broadcast.encoder(shipKey, audioFormat);
+      stream = broadcast.encoder(shipKey, audioFormat, initialSeqNum);
 
     // get the mixer for this chunk before pulling the trigger
     mixer = broadcast.mixer(chunk, audioFormat);

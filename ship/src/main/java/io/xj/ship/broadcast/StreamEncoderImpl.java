@@ -43,9 +43,7 @@ public class StreamEncoderImpl implements StreamEncoder {
   private final String playlistPath;
   private final String tempFilePathPrefix;
   private final int bitrate;
-  private final int playlistAheadSeconds;
   private final int chunkTargetDuration;
-  private int initialSeqNum;
   private Process ffmpeg;
   private volatile boolean active;
 
@@ -53,18 +51,18 @@ public class StreamEncoderImpl implements StreamEncoder {
   public StreamEncoderImpl(
     @Assisted("shipKey") String shipKey,
     @Assisted("audioFormat") AudioFormat format,
+    @Assisted("initialSeqNum") Long initialSeqNum,
     Environment env,
     FileStoreProvider fileStore,
     PlaylistPublisher playlist
   ) {
-    this.format = format;
     this.fileStore = fileStore;
+    this.format = format;
     this.playlist = playlist;
 
     bitrate = env.getShipBitrateHigh();
     bucket = env.getStreamBucket();
     contentTypeSegment = env.getShipChunkContentType();
-    playlistAheadSeconds = env.getShipPlaylistAheadSeconds();
     chunkTargetDuration = env.getShipChunkTargetDuration();
     tempFilePathPrefix = env.getTempFilePathPrefix();
 
@@ -79,7 +77,6 @@ public class StreamEncoderImpl implements StreamEncoder {
         final String oldName = currentThread.getName();
         currentThread.setName(THREAD_NAME);
         try {
-          initialSeqNum = playlist.computeMediaSequence(System.currentTimeMillis()) + (playlistAheadSeconds / chunkTargetDuration) - 1;
           ProcessBuilder builder = new ProcessBuilder(List.of(
             "ffmpeg",
             "-v", env.getShipFFmpegVerbosity(),
@@ -152,14 +149,13 @@ public class StreamEncoderImpl implements StreamEncoder {
         // test for existence of playlist file; skip if nonexistent
         if (!new File(playlistPath).exists()) return;
 
-        // parse ffmpeg .m3u8 content into playlist manager
-        var added = playlist.parseAndLoadItems(Files.getFileContent(playlistPath));
-
-        // publish new filenames
-        for (Chunk item : added)
-          // skip the first generated media segment; it begins with priming samples
-          if (item.getSequenceNumber() > initialSeqNum)
-            uploadMediaSegment(item.getFilename(), contentTypeSegment);
+        // parse ffmpeg .m3u8 content
+        var chunks = playlist.parseItems(Files.getFileContent(playlistPath));
+        for (var chunk : chunks)
+          if (playlist.putNext(chunk)) {
+            uploadMediaSegment(chunk.getFilename(), contentTypeSegment);
+          } else
+            LOG.debug("Skipped Chunk[{}]", chunk.getKey());
 
       } catch (IOException | FileStoreException e) {
         throw new ShipException("Failed to publish media segment!", e);

@@ -5,21 +5,21 @@ items:
     kind: Deployment
     metadata:
       labels:
-        k8s-app: openspace-nexus
-      name: openspace-nexus
+        k8s-app: coolair2-nexus
+      name: coolair2-nexus
       namespace: yard
     spec:
       progressDeadlineSeconds: 600
       replicas: 1
       selector:
         matchLabels:
-          k8s-app: openspace-nexus
+          k8s-app: coolair2-nexus
       strategy:
         type: Recreate
       template:
         metadata:
           labels:
-            k8s-app: openspace-nexus
+            k8s-app: coolair2-nexus
         spec:
           automountServiceAccountToken: true
           containers:
@@ -33,8 +33,12 @@ items:
                 - name: INGEST_URL
                   value: https://lab.xj.io/
                 - name: SHIP_KEY
-                  value: openspace
-              image: gcr.io/xj-vpc-host-prod/nexus:latest
+                  value: coolair_9807bhj31hg
+                - name: SHIP_CHUNK_AUDIO_ENCODER
+                  value: mp3
+                - name: SHIP_CHUNK_CONTENT_TYPE
+                  value: audio/mpeg
+              image: gcr.io/xj-vpc-host-prod/dev/nexus:latest
               imagePullPolicy: Always
               livenessProbe:
                 failureThreshold: 3
@@ -42,18 +46,18 @@ items:
                   path: /healthz
                   port: 3000
                   scheme: HTTP
-                initialDelaySeconds: 90
+                initialDelaySeconds: 60
                 periodSeconds: 5
                 successThreshold: 1
                 timeoutSeconds: 1
-              name: openspace-nexus
+              name: coolair2-nexus
               resources:
                 requests:
-                  cpu: "2.5"
+                  cpu: "1.5"
                   memory: 4G
                 limits:
-                  cpu: "3.5"
-                  memory: 8G
+                  cpu: "2.5"
+                  memory: 6G
               terminationMessagePath: /dev/termination-log
               terminationMessagePolicy: File
           dnsPolicy: ClusterFirst
@@ -67,23 +71,23 @@ items:
     kind: Deployment
     metadata:
       labels:
-        k8s-app: openspace-ship
-      name: openspace-ship
+        k8s-app: coolair2-ship
+      name: coolair2-ship
       namespace: yard
     spec:
       progressDeadlineSeconds: 600
       replicas: 1
-      selector:
-        matchLabels:
-          k8s-app: openspace-ship
       strategy:
         type: RollingUpdate
         rollingUpdate:
           maxSurge: 1
+      selector:
+        matchLabels:
+          k8s-app: coolair2-ship
       template:
         metadata:
           labels:
-            k8s-app: openspace-ship
+            k8s-app: coolair2-ship
         spec:
           automountServiceAccountToken: true
           containers:
@@ -97,8 +101,8 @@ items:
                 - name: INGEST_URL
                   value: https://lab.xj.io/
                 - name: SHIP_KEY
-                  value: openspace
-              image: gcr.io/xj-vpc-host-prod/ship:latest
+                  value: coolair_9807bhj31hg
+              image: gcr.io/xj-vpc-host-prod/dev/ship:latest
               imagePullPolicy: Always
               livenessProbe:
                 failureThreshold: 3
@@ -110,14 +114,14 @@ items:
                 periodSeconds: 5
                 successThreshold: 1
                 timeoutSeconds: 1
-              name: openspace-ship
+              name: coolair2-ship
               resources:
                 requests:
                   cpu: "1.25"
                   memory: 3G
                 limits:
                   cpu: "2.5"
-                  memory: 5G
+                  memory: 5Gi
               terminationMessagePath: /dev/termination-log
               terminationMessagePolicy: File
           dnsPolicy: ClusterFirst

@@ -110,7 +110,7 @@ items:
                   path: /healthz
                   port: 3000
                   scheme: HTTP
-                initialDelaySeconds: 20
+                initialDelaySeconds: 30
                 periodSeconds: 5
                 successThreshold: 1
                 timeoutSeconds: 1

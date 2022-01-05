@@ -35,7 +35,8 @@ public interface BroadcastFactory {
    */
   StreamEncoder encoder(
     @Assisted("shipKey") String shipKey,
-    @Assisted("audioFormat") AudioFormat format
+    @Assisted("audioFormat") AudioFormat format,
+    @Assisted("initialSeqNum") Long initialSeqNum
   );
 
   /**

@@ -107,5 +107,24 @@ jobs:
       - name: (AWS) Kubernetes rollout Dev/HubLocal
         run: "kubectl -n dev rollout restart deployment/hub-local"
 
-      - name: (AWS) Kubernetes rollout Dev/Nexus
-        run: "kubectl -n dev rollout restart deployment/nexus"
+      - name: (GCP) Authenticate and setup Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0.3.0
+        with:
+          service_account_key: ${{ secrets.GCP_CREDENTIALS }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          export_default_credentials: true
+
+      - name: (GCP) Configure Kubernetes credentials for GKE
+        env:
+          GKE_CLUSTER: ${{ secrets.GKE_CLUSTER }}
+          GKE_REGION: ${{ secrets.GKE_REGION }}
+        run: |-
+          gcloud container clusters get-credentials "$GKE_CLUSTER" --region "$GKE_REGION"
+
+      - name: (GCP) Build & push Docker images
+        run: |
+          ./gradlew --info --no-daemon \
+            -PjibFromImage=gcr.io/xj-vpc-host-prod/base:latest \
+            -PjibToImageRegistry=gcr.io/xj-vpc-host-prod/dev \
+            jib
+        continue-on-error: false

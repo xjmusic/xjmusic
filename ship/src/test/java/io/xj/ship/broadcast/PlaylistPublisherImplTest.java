@@ -92,25 +92,27 @@ public class PlaylistPublisherImplTest {
 
   @Test
   public void computeMediaSequence() {
-    assertEquals(164030295, subject.computeMediaSequence(1640302958444L));
+    assertEquals(164030295, subject.computeMediaSeqNum(1640302958444L));
   }
 
   @Test
   public void loadItemsFromPlaylist_getPlaylistContent() throws IOException, ShipException {
     var reference_m3u8 = getResourceFileContent("coolair.m3u8");
 
-    var added = subject.parseAndLoadItems(reference_m3u8);
+    var added = subject.parseItems(reference_m3u8);
+    for (var chunk : added) assertTrue(subject.putNext(chunk));
     assertEquals(20, added.size());
 
-    var reAdded = subject.parseAndLoadItems(reference_m3u8);
-    assertEquals(0, reAdded.size());
+    var reAdded = subject.parseItems(reference_m3u8);
+    for (var chunk : reAdded) assertFalse(subject.putNext(chunk));
 
     assertEquals(reference_m3u8, subject.getPlaylistContent(164029638));
   }
 
   @Test
   public void collectGarbage_recomputesMaxSequence_resetsOnEmpty() throws IOException, ShipException {
-    subject.parseAndLoadItems(getResourceFileContent("coolair.m3u8"));
+    var chunks = subject.parseItems(getResourceFileContent("coolair.m3u8"));
+    for (var chunk : chunks) assertTrue(subject.putNext(chunk));
     assertEquals(164029657, subject.getMaxSequenceNumber());
 
     subject.collectGarbage(164029651);

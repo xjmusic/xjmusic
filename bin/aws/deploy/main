@@ -8,5 +8,4 @@ aws eks --region us-east-1 update-kubeconfig --name xj-prod-6VxY2MG3
   -PjibToImageRegistry=027141088039.dkr.ecr.us-east-1.amazonaws.com/xj \
   jib
 
-kubectl -n lab rollout restart deployment/hub deployment/nexus
-kubectl -n yard rollout restart deployment/coolair-nexus deployment/coolair-ship
+kubectl -n lab rollout restart deployment/hub

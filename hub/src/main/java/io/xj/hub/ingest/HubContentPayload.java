@@ -2,6 +2,7 @@
 
 package io.xj.hub.ingest;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.api.client.util.Lists;
 import io.xj.hub.tables.pojos.*;
 
@@ -171,6 +172,7 @@ public class HubContentPayload {
     return this;
   }
 
+  @JsonIgnore
   public Collection<Object> getAllEntities() {
     List<Object> entities = Lists.newArrayList();
     entities.addAll(templates);
