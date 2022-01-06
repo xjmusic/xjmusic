@@ -138,7 +138,7 @@ public class ComplexLibraryTest {
       .putS3ObjectFromTempFile(any(), any(), any(), any());
     // FUTURE use a spy to assert actual json payload shipped to S3 for metadata
     verify(fileStoreProvider, atLeast(MARATHON_NUMBER_OF_SEGMENTS))
-      .putS3ObjectFromString(any(), any(), any(), any());
+      .putS3ObjectFromString(any(), any(), any(), any(), any());
     assertTrue(hasSegmentsDubbedPastMinimumOffset());
   }
 

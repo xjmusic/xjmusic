@@ -1,6 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.filestore;
 
+import javax.annotation.Nullable;
+
 /**
  Requires these typesafe configurations to be set:
  - aws.defaultRegion
@@ -78,12 +80,13 @@ public interface FileStoreProvider {
 
   /**
    Put an object to S3 from a string
-   [#162223929] Ship Segment data JSON with audio@param content path to file for upload
-
-   @param bucket      to put file to
+   [#162223929] Ship Segment data JSON with audio@param content path to file for upload@param bucket      to put file to
    @param key         to put file at
    @param contentType header for file
+   @param expiresInSeconds
+
+
    */
-  void putS3ObjectFromString(String content, String bucket, String key, String contentType) throws FileStoreException;
+  void putS3ObjectFromString(String content, String bucket, String key, String contentType, @Nullable Integer expiresInSeconds) throws FileStoreException;
 
 }

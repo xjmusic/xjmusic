@@ -12,9 +12,13 @@ import io.xj.lib.app.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.Date;
+import java.util.Objects;
 import java.util.UUID;
 
 import static io.xj.lib.util.Values.NANOS_PER_SECOND;
@@ -113,15 +117,18 @@ class FileStoreProviderImpl implements FileStoreProvider {
   }
 
   @Override
-  public void putS3ObjectFromString(String content, String bucket, String key, String contentType) throws FileStoreException {
+  public void putS3ObjectFromString(String content, String bucket, String key, String contentType, @Nullable Integer expiresInSeconds) throws FileStoreException {
     try {
       long startedAt = System.nanoTime();
       log.debug("Will ship {} bytes of content to {}/{}", content.length(), bucket, key);
 
-
       ObjectMetadata metadata = new ObjectMetadata();
       metadata.setContentLength(content.length());
       metadata.setContentType(contentType);
+      if (Objects.nonNull(expiresInSeconds)) {
+        metadata.setExpirationTime(Date.from(Instant.now().plusSeconds(expiresInSeconds)));
+        metadata.setCacheControl(String.format("max-age=%d", expiresInSeconds));
+      }
       s3Client().putObject(new PutObjectRequest(bucket, key, new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)), metadata));
       log.debug("Did ship {} bytes to {}/{} OK in {}s", content.length(), bucket, key, String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
 

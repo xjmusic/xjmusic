@@ -54,14 +54,15 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   private final Pattern rgxSecondsValue = Pattern.compile("#EXTINF:([0-9.]*)");
   private final Predicate<? super String> isSegmentFilename;
   private final String bucket;
-  private final String contentTypeM3U8;
+  private final String m3u8ContentType;
   private final String m3u8Key;
   private final String streamBaseUrl;
   private final TelemetryProvider telemetryProvider;
   private final boolean active;
   private final int chunkTargetDuration;
-  private final int playlistBackSeconds;
   private final int initialMediaSeqNumOffset;
+  private final int m3u8MaxAgeSeconds;
+  private final int playlistBackSeconds;
 
   @Inject
   public PlaylistPublisherImpl(
@@ -80,7 +81,8 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     active = ShipMode.HLS.equals(env.getShipMode());
     bucket = env.getStreamBucket();
     chunkTargetDuration = env.getShipChunkTargetDuration();
-    contentTypeM3U8 = env.getShipM3u8ContentType();
+    m3u8ContentType = env.getShipM3u8ContentType();
+    m3u8MaxAgeSeconds = env.getShipM3u8MaxAgeSeconds();
     playlistBackSeconds = env.getShipPlaylistBackSeconds();
     streamBaseUrl = env.getStreamBaseUrl();
 
@@ -153,8 +155,8 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
       try {
         var mediaSequence = computeMediaSeqNum(System.currentTimeMillis());
         collectGarbage(mediaSequence);
-        fileStore.putS3ObjectFromString(getPlaylistContent(mediaSequence), bucket, m3u8Key, contentTypeM3U8);
-        LOG.debug("Shipped {}/{} ({}) @ {}", bucket, m3u8Key, contentTypeM3U8, mediaSequence);
+        fileStore.putS3ObjectFromString(getPlaylistContent(mediaSequence), bucket, m3u8Key, m3u8ContentType, m3u8MaxAgeSeconds);
+        LOG.debug("Shipped {}/{} ({}) @ {}", bucket, m3u8Key, m3u8ContentType, mediaSequence);
 
       } catch (FileStoreException e) {
         throw new ShipException("Failed ot publish playlist!", e);

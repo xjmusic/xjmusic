@@ -18,6 +18,7 @@ public class DubShipImpl implements DubShip {
   private final Fabricator fabricator;
   private final FileStoreProvider fileStore;
   private final String shipBucket;
+  private final int chainJsonMaxAgeSeconds;
 
   @Inject
   public DubShipImpl(
@@ -28,6 +29,7 @@ public class DubShipImpl implements DubShip {
     this.fabricator = fabricator;
     this.fileStore = fileStore;
 
+    chainJsonMaxAgeSeconds = env.getShipChainJsonMaxAgeSeconds();
     shipBucket = env.getShipBucket();
   }
 
@@ -67,7 +69,7 @@ public class DubShipImpl implements DubShip {
       fabricator.getSegmentJson(),
       shipBucket,
       fabricator.getSegmentJsonOutputKey(),
-      MediaType.APPLICATION_JSONAPI);
+      MediaType.APPLICATION_JSONAPI, null);
   }
 
   /**
@@ -78,7 +80,8 @@ public class DubShipImpl implements DubShip {
       fabricator.getChainFullJson(),
       shipBucket,
       fabricator.getChainFullJsonOutputKey(),
-      MediaType.APPLICATION_JSONAPI);
+      MediaType.APPLICATION_JSONAPI,
+      chainJsonMaxAgeSeconds);
   }
 
   /**
@@ -89,7 +92,8 @@ public class DubShipImpl implements DubShip {
       fabricator.getChainJson(),
       shipBucket,
       fabricator.getChainJsonOutputKey(),
-      MediaType.APPLICATION_JSONAPI);
+      MediaType.APPLICATION_JSONAPI,
+      chainJsonMaxAgeSeconds);
   }
 
 }

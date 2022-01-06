@@ -562,17 +562,17 @@ resource "aws_cloudfront_distribution" "xj-prod-stream" {
     allowed_methods = [
       "GET",
       "HEAD",
-      "OPTIONS",
+      "OPTIONS"
     ]
     cached_methods = [
       "GET",
       "HEAD",
-      "OPTIONS",
+      "OPTIONS"
     ]
     compress               = true
-    default_ttl            = 1
-    max_ttl                = 1
-    min_ttl                = 1
+    default_ttl            = 3600
+    max_ttl                = 86400
+    min_ttl                = 0
     target_origin_id       = "stream-prod-xj-io-s3-origin"
     viewer_protocol_policy = "redirect-to-https"
     forwarded_values {
@@ -601,10 +601,10 @@ resource "aws_cloudfront_distribution" "xj-prod-stream" {
       "OPTIONS"
     ]
     compress               = true
-    default_ttl            = 3600
-    max_ttl                = 86400
+    default_ttl            = 0
+    max_ttl                = 0
     min_ttl                = 0
-    path_pattern           = "*-*.*"
+    path_pattern           = "*.m3u8"
     target_origin_id       = "stream-prod-xj-io-s3-origin"
     viewer_protocol_policy = "redirect-to-https"
     forwarded_values {

@@ -84,9 +84,11 @@ public class Environment {
   private final int segmentComputeTimeFramesPerBeat;
   private final int segmentComputeTimeResolutionHz;
   private final int shipBitrateHigh;
+  private final int shipChainJsonMaxAgeSeconds;
   private final int shipChunkTargetDuration;
   private final int shipInitialMediaSequenceNumberOffset;
   private final int shipLoadCycleSeconds;
+  private final int shipM3u8MaxAgeSeconds;
   private final int shipMixCycleSeconds;
   private final int shipPlaylistAheadSeconds;
   private final int shipPlaylistBackSeconds;
@@ -154,6 +156,7 @@ public class Environment {
     shipBaseUrl = readStr(vars, "SHIP_BASE_URL", "https://ship.dev.xj.io/");
     shipBitrateHigh = readInt(vars, "SHIP_BITRATE_HIGH", 320000);
     shipBucket = readStr(vars, "SHIP_BUCKET", "xj-dev-ship");
+    shipChainJsonMaxAgeSeconds = readInt(vars, "SHIP_CHAIN_JSON_MAX_AGE_SECONDS", 15);
     shipChunkAudioEncoder = readStr(vars, "SHIP_CHUNK_AUDIO_ENCODER", "aac");
     shipChunkContentType = readStr(vars, "SHIP_CHUNK_CONTENT_TYPE", "audio/aac");
     shipChunkTargetDuration = readInt(vars, "SHIP_CHUNK_TARGET_DURATION", 10);
@@ -162,6 +165,7 @@ public class Environment {
     shipKey = readStr(vars, "SHIP_KEY", EMPTY);
     shipLoadCycleSeconds = readInt(vars, "SHIP_LOAD_CYCLE_SECONDS", 20);
     shipM3u8ContentType = readStr(vars, "SHIP_M3U8_CONTENT_TYPE", "application/vnd.apple.mpegurl");
+    shipM3u8MaxAgeSeconds = readInt(vars, "SHIP_M3U8_MAX_AGE_SECONDS", 5);
     shipMixCycleSeconds = readInt(vars, "WORK_PRINT_CYCLE_SECONDS", 1);
     shipMode = readStr(vars, "SHIP_MODE", "hls");
     shipPlaylistAheadSeconds = readInt(vars, "SHIP_PLAYLIST_AHEAD_SECONDS", 30);
@@ -696,6 +700,13 @@ public class Environment {
   }
 
   /**
+   @return chain json max-age seconds for cache control http header
+   */
+  public int getShipChainJsonMaxAgeSeconds() {
+    return shipChainJsonMaxAgeSeconds;
+  }
+
+  /**
    @return the ship ffmpeg audio compressor
    */
   public String getShipChunkAudioEncoder() {
@@ -729,6 +740,7 @@ public class Environment {
   public int getShipInitialMediaSequenceNumberOffset() {
     return shipInitialMediaSequenceNumberOffset;
   }
+
   /**
    Ship broadcast via HTTP Live Streaming #179453189
 
@@ -743,6 +755,13 @@ public class Environment {
    */
   public String getShipM3u8ContentType() {
     return shipM3u8ContentType;
+  }
+
+  /**
+   @return the ship .m3u8 playlist max-age seconds for cache control http header
+   */
+  public int getShipM3u8MaxAgeSeconds() {
+    return shipM3u8MaxAgeSeconds;
   }
 
   /**
