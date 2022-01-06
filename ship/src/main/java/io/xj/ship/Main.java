@@ -52,18 +52,16 @@ public interface Main {
     lc.putProperty("host", env.getHostname());
     lc.putProperty("env", env.getPlatformEnvironment());
 
-    // Instantiate app + add its shutdown hook
+    // Instantiate app, add its shutdown hook, and start it
     ShipApp app = injector.getInstance(ShipApp.class);
     Runtime.getRuntime().addShutdownHook(new Thread(app::finish));
+    app.start();
 
-    // Instantiate work + add its shutdown hook
+    // Instantiate work, add its shutdown hook
     ShipWork work = injector.getInstance(ShipWork.class);
     Runtime.getRuntime().addShutdownHook(new Thread(work::finish));
 
-    // start app
-    app.start();
-
-    // start work-- this blocks until work quits
+    // Start work. This blocks until a graceful exit on interrupt signal
     work.start();
   }
 }
