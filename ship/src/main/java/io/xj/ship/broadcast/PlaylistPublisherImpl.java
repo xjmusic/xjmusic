@@ -190,11 +190,10 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     List<String> m3u8FinalLines = Stream.concat(
       Stream.of(
         "#EXTM3U",
-        "#EXT-X-VERSION:7",
+        "#EXT-X-VERSION:4",
         String.format("#EXT-X-TARGETDURATION:%s", chunkTargetDuration),
         String.format("#EXT-X-MEDIA-SEQUENCE:%d", start),
-        String.format("#EXT-X-SERVER-CONTROL:HOLD-BACK=%d.0", m3u8ServerControlHoldBackSeconds),
-        "#EXT-X-PLAYLIST-TYPE:EVENT"
+        String.format("#EXT-X-SERVER-CONTROL:HOLD-BACK=%d.0", m3u8ServerControlHoldBackSeconds)
       ),
       // FUTURE: media sequence numbers need to be a continuous unbroken sequence of integers
       items.entrySet().stream()
