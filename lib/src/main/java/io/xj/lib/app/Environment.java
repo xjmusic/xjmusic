@@ -161,7 +161,7 @@ public class Environment {
     shipInitialMediaSequenceNumberOffset = readInt(vars, "SHIP_INITIAL_MEDIA_SEQUENCE_NUMBER_OFFSET", 3);
     shipKey = readStr(vars, "SHIP_KEY", EMPTY);
     shipLoadCycleSeconds = readInt(vars, "SHIP_LOAD_CYCLE_SECONDS", 20);
-    shipM3u8ContentType = readStr(vars, "SHIP_M3U8_CONTENT_TYPE", "application/x-mpegURL");
+    shipM3u8ContentType = readStr(vars, "SHIP_M3U8_CONTENT_TYPE", "application/vnd.apple.mpegurl");
     shipMixCycleSeconds = readInt(vars, "WORK_PRINT_CYCLE_SECONDS", 1);
     shipMode = readStr(vars, "SHIP_MODE", "hls");
     shipPlaylistAheadSeconds = readInt(vars, "SHIP_PLAYLIST_AHEAD_SECONDS", 30);
