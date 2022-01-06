@@ -63,6 +63,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   private final int initialMediaSeqNumOffset;
   private final int m3u8MaxAgeSeconds;
   private final int playlistBackSeconds;
+  private final int m3u8ServerControlHoldBackSeconds;
 
   @Inject
   public PlaylistPublisherImpl(
@@ -83,6 +84,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     chunkTargetDuration = env.getShipChunkTargetDuration();
     m3u8ContentType = env.getShipM3u8ContentType();
     m3u8MaxAgeSeconds = env.getShipM3u8MaxAgeSeconds();
+    m3u8ServerControlHoldBackSeconds = 3 * chunkTargetDuration + env.getShipM3u8ServerControlHoldBackExtraSeconds();
     playlistBackSeconds = env.getShipPlaylistBackSeconds();
     streamBaseUrl = env.getStreamBaseUrl();
 
@@ -191,6 +193,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
         "#EXT-X-VERSION:7",
         String.format("#EXT-X-TARGETDURATION:%s", chunkTargetDuration),
         String.format("#EXT-X-MEDIA-SEQUENCE:%d", start),
+        String.format("#EXT-X-SERVER-CONTROL:HOLD-BACK=%d.0", m3u8ServerControlHoldBackSeconds),
         "#EXT-X-PLAYLIST-TYPE:EVENT"
       ),
       // FUTURE: media sequence numbers need to be a continuous unbroken sequence of integers

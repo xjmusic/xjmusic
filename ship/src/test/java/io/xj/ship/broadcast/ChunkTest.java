@@ -2,26 +2,19 @@
 
 package io.xj.ship.broadcast;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import io.xj.lib.app.Environment;
 import io.xj.nexus.persistence.ChainManager;
-import io.xj.nexus.persistence.ManagerExistenceException;
-import io.xj.nexus.persistence.ManagerFatalException;
-import io.xj.nexus.persistence.ManagerPrivilegeException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
-import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ChunkTest {
@@ -33,11 +26,15 @@ public class ChunkTest {
 
   @Before
   public void setUp() {
+    Environment env = Environment.from(ImmutableMap.of(
+      "SHIP_CHUNK_TARGET_DURATION", "10",
+      "SHIP_KEY", "coolair"
+    ));
     var injector = Guice.createInjector(Modules.override(new BroadcastModule()).with(new AbstractModule() {
 
       @Override
       protected void configure() {
-        bind(Environment.class).toInstance(Environment.getDefault());
+        bind(Environment.class).toInstance(env);
         bind(ChainManager.class).toInstance(chainManager);
       }
     }));

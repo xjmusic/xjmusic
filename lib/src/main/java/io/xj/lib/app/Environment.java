@@ -89,6 +89,7 @@ public class Environment {
   private final int shipInitialMediaSequenceNumberOffset;
   private final int shipLoadCycleSeconds;
   private final int shipM3u8MaxAgeSeconds;
+  private final int shipM3u8ServerControlHoldBackExtraSeconds;
   private final int shipMixCycleSeconds;
   private final int shipPlaylistAheadSeconds;
   private final int shipPlaylistBackSeconds;
@@ -165,6 +166,7 @@ public class Environment {
     shipKey = readStr(vars, "SHIP_KEY", EMPTY);
     shipLoadCycleSeconds = readInt(vars, "SHIP_LOAD_CYCLE_SECONDS", 20);
     shipM3u8ContentType = readStr(vars, "SHIP_M3U8_CONTENT_TYPE", "application/vnd.apple.mpegurl");
+    shipM3u8ServerControlHoldBackExtraSeconds = readInt(vars, "SHIP_M3U8_SERVER_CONTROL_HOLD_BACK_SECONDS", 10);
     shipM3u8MaxAgeSeconds = readInt(vars, "SHIP_M3U8_MAX_AGE_SECONDS", 0);
     shipMixCycleSeconds = readInt(vars, "WORK_PRINT_CYCLE_SECONDS", 1);
     shipMode = readStr(vars, "SHIP_MODE", "hls");
@@ -762,6 +764,16 @@ public class Environment {
    */
   public int getShipM3u8MaxAgeSeconds() {
     return shipM3u8MaxAgeSeconds;
+  }
+
+  /**
+   @return # of Extra seconds that an HLS player should "hold back" from the end of the playlist
+   where Extra = more than the minimum required 3X target duration
+   <p>
+   See: https://datatracker.ietf.org/doc/html/draft-pantos-hls-rfc8216bis#section-4.4.3.8
+   */
+  public int getShipM3u8ServerControlHoldBackExtraSeconds() {
+    return shipM3u8ServerControlHoldBackExtraSeconds;
   }
 
   /**

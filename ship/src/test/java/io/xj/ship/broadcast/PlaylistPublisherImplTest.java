@@ -43,7 +43,10 @@ public class PlaylistPublisherImplTest {
 
   @Before
   public void setUp() {
-    Environment env = Environment.from(ImmutableMap.of("SHIP_KEY", "coolair"));
+    Environment env = Environment.from(ImmutableMap.of(
+      "SHIP_CHUNK_TARGET_DURATION", "10",
+      "SHIP_KEY", "coolair"
+    ));
     var injector = Guice.createInjector(Modules.override(new ShipWorkModule()).with(new AbstractModule() {
       @Override
       protected void configure() {
