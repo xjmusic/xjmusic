@@ -159,7 +159,7 @@ public class Environment {
     shipChainJsonMaxAgeSeconds = readInt(vars, "SHIP_CHAIN_JSON_MAX_AGE_SECONDS", 15);
     shipChunkAudioEncoder = readStr(vars, "SHIP_CHUNK_AUDIO_ENCODER", "aac");
     shipChunkContentType = readStr(vars, "SHIP_CHUNK_CONTENT_TYPE", "audio/aac");
-    shipChunkTargetDuration = readInt(vars, "SHIP_CHUNK_TARGET_DURATION", 10);
+    shipChunkTargetDuration = readInt(vars, "SHIP_CHUNK_TARGET_DURATION", 6);
     shipFFmpegVerbosity = readStr(vars, "SHIP_FFMPEG_VERBOSITY", "info");
     shipInitialMediaSequenceNumberOffset = readInt(vars, "SHIP_INITIAL_MEDIA_SEQUENCE_NUMBER_OFFSET", 3);
     shipKey = readStr(vars, "SHIP_KEY", EMPTY);
