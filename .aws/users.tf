@@ -189,12 +189,12 @@ resource "aws_iam_role" "xj-eks" {
       {
         Effect = "Allow",
         Principal = {
-          "Federated" : "arn:aws:iam::${local.aws-account-id}}:oidc-provider/oidc.eks.${local.aws-region}.amazonaws.com/id/${module.xj-prod-eks.cluster_id}"
+          "Federated" : "arn:aws:iam::${local.aws-account-id}}:oidc-provider/oidc.eks.${local.aws-region}.amazonaws.com/id/xj-prod-6VxY2MG3"
         },
         Action = "sts:AssumeRoleWithWebIdentity",
         Condition = {
           "StringEquals" : {
-            "oidc.eks.${local.aws-region}.amazonaws.com/id/${module.xj-prod-eks.cluster_id}:sub" : "system:serviceaccount:kube-system:efs-csi-controller-sa"
+            "oidc.eks.${local.aws-region}.amazonaws.com/id/xj-prod-6VxY2MG3:sub" : "system:serviceaccount:kube-system:efs-csi-controller-sa"
           }
         }
       }
@@ -407,4 +407,45 @@ resource "aws_iam_user_policy" "xj-dev" {
       }
     ]
   })
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule
+resource "aws_security_group_rule" "xj-prod-eks-efs" {
+  type              = "ingress"
+  from_port         = 2049
+  to_port           = 2049
+  protocol          = "tcp"
+  cidr_blocks       = module.xj-prod-vpc.private_subnets_cidr_blocks
+  ipv6_cidr_blocks  = []
+  security_group_id = module.xj-prod-vpc.default_security_group_id
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment
+resource "aws_iam_role_policy" "xj-eks-SecretsManager" {
+  role = "xj-prod-6VxY2MG320210617212643701200000001"
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        Sid    = "GetSecretValue",
+        Effect = "Allow",
+        Action = [
+          "secretsmanager:GetSecretValue",
+        ],
+        Resource = "*"
+      },
+    ]
+  })
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret
+resource "aws_secretsmanager_secret" "xj-prod-env" {
+  name        = "xj-prod-env"
+  description = "Name of AWS secret comprising environment KEY=VALUE lines, for production"
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret
+resource "aws_secretsmanager_secret" "xj-dev-env" {
+  name        = "xj-dev-env"
+  description = "Name of AWS secret comprising environment KEY=VALUE lines, for development"
 }

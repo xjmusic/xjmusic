@@ -45,8 +45,7 @@ resource "aws_cloudfront_distribution" "xj-lab" {
 
   origin {
     // noinspection HILUnresolvedReference
-    domain_name = kubernetes_service.xj-prod-lab-hub.status.0.load_balancer.0.ingress.0.hostname
-    // domain_name = "ec2-54-92-183-119.compute-1.amazonaws.com"
+    domain_name = "a4d3206b24ba3444d8470f29e93fe44d-1980008227.us-east-1.elb.amazonaws.com"
     origin_id   = "xj-lab-hub-origin"
     origin_path = ""
     custom_origin_config {

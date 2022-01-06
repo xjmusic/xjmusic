@@ -29,8 +29,7 @@ resource "aws_cloudfront_distribution" "xj-dev" {
 
   origin {
     // noinspection HILUnresolvedReference
-    domain_name = kubernetes_service.xj-dev-hub.status.0.load_balancer.0.ingress.0.hostname
-    // domain_name = "ec2-54-92-183-119.compute-1.amazonaws.com"
+    domain_name = "ae4e7b4ec1c20491b88a46dd9ece0308-328336479.us-east-1.elb.amazonaws.com"
     origin_id   = "xj-dev-hub-origin"
     origin_path = ""
     custom_origin_config {
@@ -258,8 +257,7 @@ resource "aws_cloudfront_distribution" "xj-dev-local" {
 
   origin {
     // noinspection HILUnresolvedReference
-    domain_name = kubernetes_service.xj-dev-hub-local.status.0.load_balancer.0.ingress.0.hostname
-    // domain_name = "ec2-54-92-183-119.compute-1.amazonaws.com"
+    domain_name = "a198fa20233514fdd89cfe8efbab3aec-1592877423.us-east-1.elb.amazonaws.com"
     origin_id   = "xj-dev-local-hub-origin"
     origin_path = ""
     custom_origin_config {
