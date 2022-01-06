@@ -154,7 +154,7 @@ ALTER TYPE xj.program_state OWNER TO postgres;
 CREATE TYPE xj.program_type AS ENUM (
     'Macro',
     'Main',
-    'Rhythm',
+    'Beat',
     'Detail'
 );
 
@@ -1357,6 +1357,7 @@ COPY xj.flyway_schema_history (installed_rank, version, description, type, scrip
 59	60	feedback	SQL	V60__feedback.sql	-2095068615	postgres	2021-11-05 07:52:51.149202	307	t
 60	61	soft deletion	SQL	V61__soft_deletion.sql	970780052	postgres	2021-11-05 07:52:51.816645	8	t
 61	62	instrument transition ambient	SQL	V62__instrument_transition_ambient.sql	-1647046792	postgres	2021-11-10 07:07:15.169513	13	t
+62	63	program type beat	SQL	V63__program_type_beat.sql	1314367548	postgres	2021-12-29 01:00:42.858408	14	t
 \.
 
 
