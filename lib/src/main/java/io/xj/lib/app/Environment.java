@@ -165,7 +165,7 @@ public class Environment {
     shipKey = readStr(vars, "SHIP_KEY", EMPTY);
     shipLoadCycleSeconds = readInt(vars, "SHIP_LOAD_CYCLE_SECONDS", 20);
     shipM3u8ContentType = readStr(vars, "SHIP_M3U8_CONTENT_TYPE", "application/vnd.apple.mpegurl");
-    shipM3u8MaxAgeSeconds = readInt(vars, "SHIP_M3U8_MAX_AGE_SECONDS", 1);
+    shipM3u8MaxAgeSeconds = readInt(vars, "SHIP_M3U8_MAX_AGE_SECONDS", 0);
     shipMixCycleSeconds = readInt(vars, "WORK_PRINT_CYCLE_SECONDS", 1);
     shipMode = readStr(vars, "SHIP_MODE", "hls");
     shipPlaylistAheadSeconds = readInt(vars, "SHIP_PLAYLIST_AHEAD_SECONDS", 30);
