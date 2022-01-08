@@ -747,11 +747,21 @@ public class CraftImpl extends FabricationWrapperImpl {
     // (3) score each source program based on meme isometry
     MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
     Collection<String> memes;
-    for (Program program : programsDirectlyBoundElsePublished(candidates)) {
+
+    // Phase 1: Directly Bound Programs
+    for (Program program : programsDirectlyBound(candidates)) {
       memes = Entities.namesOf(fabricator.sourceMaterial().getMemes(program));
       // FUTURE consider meme isometry, but for now, just use the meme stack
       if (iso.isAllowed(memes))
-        bag.add(program.getId(), 1 + iso.score(memes));
+        bag.add(1, program.getId(), 1 + iso.score(memes));
+    }
+
+    // Phase 2: All Published Programs
+    for (Program program : programsPublished(candidates)) {
+      memes = Entities.namesOf(fabricator.sourceMaterial().getMemes(program));
+      // FUTURE consider meme isometry, but for now, just use the meme stack
+      if (iso.isAllowed(memes))
+        bag.add(2, program.getId(), 1 + iso.score(memes));
     }
 
     // report
@@ -784,12 +794,19 @@ public class CraftImpl extends FabricationWrapperImpl {
     // (3) score each source instrument based on meme isometry
     MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
     Collection<String> memes;
-    for (Instrument instrument : instrumentsDirectlyBoundElsePublished(candidates)) {
-      memes = Entities.namesOf(fabricator.sourceMaterial().getMemes(instrument));
-      // FUTURE consider meme isometry, but for now, just use the meme stack
 
+    // Phase 1: Directly Bound Instruments
+    for (Instrument instrument : instrumentsDirectlyBound(candidates)) {
+      memes = Entities.namesOf(fabricator.sourceMaterial().getMemes(instrument));
       if (iso.isAllowed(memes))
-        bag.add(instrument.getId(), 1 + iso.score(memes));
+        bag.add(1, instrument.getId(), 1 + iso.score(memes));
+    }
+
+    // Phase 2: All Published Instruments
+    for (Instrument instrument : instrumentsPublished(candidates)) {
+      memes = Entities.namesOf(fabricator.sourceMaterial().getMemes(instrument));
+      if (iso.isAllowed(memes))
+        bag.add(2, instrument.getId(), 1 + iso.score(memes));
     }
 
     // Instrument choice inertia: prefer same instrument choices throughout a main program
@@ -817,27 +834,43 @@ public class CraftImpl extends FabricationWrapperImpl {
   }
 
   /**
-   Filter only the directly bound programs (if any are directly bound) otherwise only the published
+   Filter only the directly bound programs
 
    @param programs to filter
    @return filtered programs
    */
-  protected Collection<Program> programsDirectlyBoundElsePublished(Collection<Program> programs) {
-    return programs.stream().anyMatch(fabricator::isDirectlyBound)
-      ? programs.stream().filter(fabricator::isDirectlyBound).toList()
-      : programs.stream().filter(p -> ProgramState.Published.equals(p.getState())).toList();
+  protected Collection<Program> programsDirectlyBound(Collection<Program> programs) {
+    return programs.stream().filter(fabricator::isDirectlyBound).toList();
   }
 
   /**
-   Filter only the directly bound instruments (if any are directly bound) otherwise only the published
+   Filter only the published programs
+
+   @param programs to filter
+   @return filtered programs
+   */
+  protected Collection<Program> programsPublished(Collection<Program> programs) {
+    return programs.stream().filter(p -> ProgramState.Published.equals(p.getState())).toList();
+  }
+
+  /**
+   Filter only the directly bound instruments
 
    @param instruments to filter
    @return filtered instruments
    */
-  protected Collection<Instrument> instrumentsDirectlyBoundElsePublished(Collection<Instrument> instruments) {
-    return instruments.stream().anyMatch(fabricator::isDirectlyBound)
-      ? instruments.stream().filter(fabricator::isDirectlyBound).toList()
-      : instruments.stream().filter(p -> InstrumentState.Published.equals(p.getState())).toList();
+  protected Collection<Instrument> instrumentsDirectlyBound(Collection<Instrument> instruments) {
+    return instruments.stream().filter(fabricator::isDirectlyBound).toList();
+  }
+
+  /**
+   Filter only the published instruments
+
+   @param instruments to filter
+   @return filtered instruments
+   */
+  protected Collection<Instrument> instrumentsPublished(Collection<Instrument> instruments) {
+    return instruments.stream().filter(p -> InstrumentState.Published.equals(p.getState())).toList();
   }
 
   /**

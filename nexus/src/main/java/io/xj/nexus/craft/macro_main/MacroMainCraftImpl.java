@@ -303,13 +303,35 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     MemeIsometry iso = fabricator.getMemeIsometryOfNextSequenceInPreviousMacro();
     var avoidProgramId = fabricator.getMacroChoiceOfPreviousSegment()
       .map(SegmentChoice::getProgramId);
-    for (Program program : programsDirectlyBoundElsePublished(candidates))
-      if (avoidProgramId.isEmpty() || !avoidProgramId.get().equals(program.getId()))
-        bag.add(program.getId(), iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
 
-    // if the bag is empty, pick randomly
+    // Phase 1: Directly Bound Programs besides any that should be avoided, with a meme match
+    // Phase 3: Any Directly Bound Programs besides any that should be avoided, meme match is a bonus
+    // Phase 5: Any Directly Bound Programs
+    for (Program program : programsDirectlyBound(candidates)) {
+      if (avoidProgramId.isEmpty() || !avoidProgramId.get().equals(program.getId())) {
+        bag.add(1, program.getId(), iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
+        bag.add(3, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
+      }
+      bag.add(5, program.getId());
+    }
+
+    // Phase 2: All Published Programs with a meme match, besides any that should be avoided
+    // Phase 4: Any Published Programs, meme match is a bonus
+    for (Program program : programsPublished(candidates)) {
+      if (avoidProgramId.isEmpty() || !avoidProgramId.get().equals(program.getId())) {
+        bag.add(2, program.getId(), iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
+        bag.add(4, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
+      }
+      bag.add(6, program.getId());
+    }
+
+    // Phase 7: Literally Any Programs
+    for (Program program : candidates)
+      bag.add(5, program.getId());
+
+    // if the bag is empty, problems
     if (bag.isEmpty())
-      return chooseRandomProgram(candidates, avoidProgramId.stream().toList());
+      throw new NexusException("Failed to choose any next macro program. No candidates available!");
 
     // report and pick
     fabricator.putReport("macroChoice", bag.toString());
@@ -326,16 +348,26 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   public Optional<Program> chooseRandomProgram(Collection<Program> programs, List<UUID> avoid) {
     var bag = MarbleBag.empty();
 
-    // select from directly bound (if any are directly bound) else published programs
-    for (Program program : programsDirectlyBoundElsePublished(programs))
+    // Phase 1: Directly Bound Programs, besides those we should avoid
+    // Phase 3: Any Directly Bound Programs
+    for (Program program : programsDirectlyBound(programs)) {
       if (!avoid.contains(program.getId()))
-        bag.add(program.getId());
-    if (bag.isPresent())
-      return fabricator.sourceMaterial().getProgram(bag.pick());
+        bag.add(1, program.getId());
+      bag.add(3, program.getId());
+    }
 
-    // last chance to pick any program
+    // Phase 2: All Published Programs, besides those we should avoid
+    // Phase 3: Any Published Programs
+    for (Program program : programsPublished(programs)) {
+      if (!avoid.contains(program.getId()))
+        bag.add(2, program.getId());
+      bag.add(4, program.getId());
+    }
+
+    // Phase 5: Any Program
     for (Program program : programs)
-      bag.add(program.getId());
+      bag.add(5, program.getId());
+
     if (bag.isPresent())
       return fabricator.sourceMaterial().getProgram(bag.pick());
 
@@ -363,16 +395,34 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     var avoidProgramId = fabricator.getMainChoiceOfPreviousSegment()
       .map(SegmentChoice::getProgramId);
     Collection<String> memes;
-    for (Program program : programsDirectlyBoundElsePublished(candidates)) {
+
+    // Phase 1: Directly Bound Programs, memes allowed, bonus for meme match, besides any that should be avoided
+    // Phase 3: Any Directly Bound Programs, memes allowed, bonus for meme match
+    for (Program program : programsDirectlyBound(candidates)) {
       memes = fabricator.sourceMaterial().getMemesAtBeginning(program);
-      if (iso.isAllowed(memes)
-        && (avoidProgramId.isEmpty() || !avoidProgramId.get().equals(program.getId())))
-        bag.add(program.getId(), 1 + iso.score(memes));
+      if (!iso.isAllowed(memes)) continue;
+      if (avoidProgramId.isEmpty() || !avoidProgramId.get().equals(program.getId()))
+        bag.add(1, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
+      bag.add(3, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
     }
 
-    // if the bag is empty, pick randomly
+    // Phase 2: All Published Programs, memes allowed, bonus for meme match, besides any that should be avoided
+    // Phase 4: Any Published Programs, memes allowed, bonus for meme match
+    for (Program program : programsPublished(candidates)) {
+      memes = fabricator.sourceMaterial().getMemesAtBeginning(program);
+      if (!iso.isAllowed(memes)) continue;
+      if (avoidProgramId.isEmpty() || !avoidProgramId.get().equals(program.getId()))
+        bag.add(2, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
+      bag.add(4, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
+    }
+
+    // Phase 5: Literally Any Programs
+    for (Program program : candidates)
+      bag.add(5, program.getId());
+
+    // if the bag is empty, problems
     if (bag.isEmpty())
-      return chooseRandomProgram(candidates, avoidProgramId.stream().toList());
+      throw new NexusException("Failed to choose any next main program. No candidates available!");
 
     // report and pick
     fabricator.putReport("mainChoice", bag.toString());

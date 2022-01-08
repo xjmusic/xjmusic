@@ -11,8 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  Choices should be random #180669293
@@ -33,7 +32,7 @@ public class MarbleBagTest {
   @Test
   public void addAll() {
     var bag = MarbleBag.empty();
-    bag.addAll(Map.of(
+    bag.addAll(1, Map.of(
       frogId, 1000,
       bearId, 30,
       zebraId, 5));
@@ -41,21 +40,48 @@ public class MarbleBagTest {
   }
 
   /**
-   adds marbles to bag, picks 100 marbles into another bag, logs that resulting bag
+   adds marbles to bag, picks 100 times and asserts allowed results
    */
   @Test
-  public void add_pick() throws ValueException {
+  public void add_pick() {
     var bag = MarbleBag.empty();
-    bag.add(frogId, 1000);
-    bag.add(bearId, 30);
-    bag.add(zebraId, 5);
+    bag.add(1, frogId, 1000);
+    bag.add(1, bearId, 30);
+    bag.add(1, zebraId, 5);
     LOG.info("will pick 100 marbles from {}", bag);
     var result = MarbleBag.empty();
     var allowed = Set.of(frogId, bearId, zebraId);
     for (var i = 0; i < 100; i++) {
       var pick = bag.pick();
       assertTrue(allowed.contains(pick));
-      result.add(pick);
+      result.add(1, pick);
+    }
+    LOG.info("picked {}", result);
+  }
+
+  /**
+   adds marbles to bag in multiple phases, picks 100 times and asserts allowed results
+   <p>
+   Marble bag has phases #180832650
+   <p>
+   This will consolidate the logic around "choose this if available, else that, else that"
+   XJ’s marble bag is actually divided into phases. When a marble is put into the bag, it is assigned a phase.
+   For example, if the phase 1 bag contains any marbles, we will pick from only the phase 1 bag and skip phases 2 and beyond.
+   This supports functionality such as “XJ always chooses a directly-bound program or instrument when available”
+   */
+  @Test
+  public void pick_phaseLowerPreferred() {
+    var bag = MarbleBag.empty();
+    bag.add(1, frogId, 1000);
+    bag.add(1, bearId, 30);
+    bag.add(2, zebraId, 5);
+    LOG.info("will pick 100 marbles from {}", bag);
+    var result = MarbleBag.empty();
+    var allowed = Set.of(frogId, bearId);
+    for (var i = 0; i < 100; i++) {
+      var pick = bag.pick();
+      assertTrue(allowed.contains(pick));
+      result.add(1, pick);
     }
     LOG.info("picked {}", result);
   }
@@ -66,10 +92,27 @@ public class MarbleBagTest {
   @Test
   public void size() {
     var bag = MarbleBag.empty();
-    bag.add(frogId, 1000);
-    bag.add(bearId, 30);
-    bag.add(zebraId, 5);
+    bag.add(1, frogId, 1000);
+    bag.add(1, bearId, 30);
+    bag.add(1, zebraId, 5);
     assertEquals(1035, bag.size());
+  }
+
+  @Test
+  public void isEmpty() {
+    var bag = MarbleBag.empty();
+    assertTrue(bag.isEmpty());
+    bag.add(1, frogId, 1000);
+    assertFalse(bag.isEmpty());
+  }
+
+  @Test
+  public void isEmpty_notIfAnyPhasesHaveMarbles() {
+    var bag = MarbleBag.empty();
+    assertTrue(bag.isEmpty());
+    bag.add(1, bearId, 0);
+    bag.add(2, frogId, 1000);
+    assertFalse(bag.isEmpty());
   }
 
 }

@@ -182,7 +182,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
 
     for (InstrumentAudio audio : fabricator.sourceMaterial().getAudiosForInstrumentId(instrumentId)
       .stream().filter(instrumentAudio -> Text.toMeme(event).equals(Text.toMeme(instrumentAudio.getEvent()))).toList())
-      bag.add(audio.getId());
+      bag.add(1, audio.getId());
 
     if (bag.isEmpty()) return Optional.empty();
     return fabricator.sourceMaterial().getInstrumentAudio(bag.pick());

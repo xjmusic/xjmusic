@@ -133,7 +133,7 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
     var bag = MarbleBag.empty();
 
     for (InstrumentAudio audio : fabricator.sourceMaterial().getAudiosForInstrumentId(instrumentId))
-      bag.add(audio.getId());
+      bag.add(1, audio.getId());
 
     if (bag.isEmpty()) return Optional.empty();
     return fabricator.sourceMaterial().getInstrumentAudio(bag.pick());

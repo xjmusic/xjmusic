@@ -693,17 +693,16 @@ class FabricatorImpl implements Fabricator {
     var bag = MarbleBag.empty();
     sourceMaterial.getAllProgramSequences().stream()
       .filter(s -> Objects.equals(s.getProgramId(), program.getId()))
-      .forEach(sequence -> bag.add(sequence.getId()));
+      .forEach(sequence -> bag.add(1, sequence.getId()));
     if (bag.isEmpty()) return Optional.empty();
     return sourceMaterial.getProgramSequence(bag.pick());
-
   }
 
   @Override
   public Optional<ProgramSequenceBinding> getRandomlySelectedSequenceBindingAtOffset(Program program, Integer offset) {
     var bag = MarbleBag.empty();
     for (ProgramSequenceBinding sequenceBinding : sourceMaterial.getProgramSequenceBindingsAtOffset(program, offset))
-      bag.add(sequenceBinding.getId());
+      bag.add(1, sequenceBinding.getId());
     if (bag.isEmpty()) return Optional.empty();
     return sourceMaterial.getProgramSequenceBinding(bag.pick());
   }
@@ -714,7 +713,7 @@ class FabricatorImpl implements Fabricator {
     for (ProgramVoice sequenceBinding : sourceMaterial.getAllProgramVoices()
       .stream().filter(programVoice -> Objects.equals(programId, programVoice.getProgramId())
         && !excludeVoiceIds.contains(programVoice.getId())).toList())
-      bag.add(sequenceBinding.getId());
+      bag.add(1, sequenceBinding.getId());
     if (bag.isEmpty()) return Optional.empty();
     return sourceMaterial.getProgramVoice(bag.pick());
   }
@@ -725,7 +724,7 @@ class FabricatorImpl implements Fabricator {
     sourceMaterial.getAllProgramSequencePatterns().stream()
       .filter(pattern -> Objects.equals(pattern.getProgramSequenceId(), choice.getProgramSequenceId()))
       .filter(pattern -> Objects.equals(pattern.getProgramVoiceId(), choice.getProgramVoiceId()))
-      .forEach(pattern -> bag.add(pattern.getId()));
+      .forEach(pattern -> bag.add(1, pattern.getId()));
     if (bag.isEmpty()) return Optional.empty();
     return sourceMaterial.getProgramSequencePattern(bag.pick());
   }
