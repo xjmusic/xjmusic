@@ -101,10 +101,6 @@ jar {
   }
 }
 
-applicationDefaultJvmArgs = [
-  "-Xmx3500m"
-]
-
 application {
   mainClassName = 'io.xj.lib.Main'
 }

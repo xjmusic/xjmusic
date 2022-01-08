@@ -117,10 +117,6 @@ jar {
   }
 }
 
-applicationDefaultJvmArgs = [
-  "-Xmx3500m"
-]
-
 application {
   mainClassName = 'io.xj.ship.Main'
 }
@@ -142,7 +138,7 @@ jacocoTestReport {
 
 // Ship to multiple repositories #180684409
 jib {
-  container.jvmFlags = ["-Djava.library.path=/usr/lib/x86_64-linux-gnu"]
+  container.jvmFlags = ["-Djava.library.path=/usr/lib/x86_64-linux-gnu", "-Xmx3500m"]
   // set from CI command: (for building and pushing the image to multiple repositories)
   from.image = project.jibFromImage
   to.image = project.jibToImageRegistry + '/' + name
