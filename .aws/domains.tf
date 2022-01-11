@@ -242,6 +242,24 @@ resource "aws_route53_record" "xj-hub" {
   }
 }
 
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
+resource "aws_route53_record" "xj-faq" {
+  name    = "help.xj.io"
+  type    = "CNAME"
+  ttl     = 5
+  zone_id = aws_route53_zone.xj-io.zone_id
+  records = ["custom.crisp.help."]
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
+resource "aws_route53_record" "xj-faq-verification" {
+  name    = "_crisp.help.xj.io"
+  type    = "TXT"
+  ttl     = 5
+  zone_id = aws_route53_zone.xj-io.zone_id
+  records = ["crisp-website-id=d7d13bad-bc2b-4546-a18e-547f16ef6ab2"]
+}
+
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_zone
 resource "aws_route53_zone" "xjplatform-com" {
   name = "xjplatform.com"
