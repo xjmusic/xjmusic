@@ -123,6 +123,20 @@ public interface PlaylistPublisher {
   boolean isEmpty();
 
   /**
+   Get the # of seconds ahead of now, for the chunk in the playlist with the maximum sequence number
+
+   @return seconds ahead of now
+   */
+  Integer getAheadSeconds();
+
+  /**
+   Get the end at epoch seconds UTC for the chunk in the playlist with the maximum sequence number
+
+   @return end at epoch seconds UTC
+   */
+  Integer getMaxToSecondsUTC();
+
+  /**
    Send telemetry about current hls playlist
    <p>
    Ship should not enter permanent failure state unable to load segments #180756082

@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -49,6 +50,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   private final FileStoreProvider fileStore;
   private final HttpClientProvider httpClientProvider;
   private final Map<Long/* mediaSequence */, Chunk> items = Maps.newConcurrentMap();
+  private final Measure.MeasureDouble HLS_PLAYLIST_AHEAD_SECONDS;
   private final Measure.MeasureDouble HLS_PLAYLIST_SIZE;
   private final Pattern rgxFilename = Pattern.compile("^([A-Za-z0-9_]*)-([0-9]*)\\.([A-Za-z0-9]*)");
   private final Pattern rgxSecondsValue = Pattern.compile("#EXTINF:([0-9.]*)");
@@ -60,10 +62,10 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   private final TelemetryProvider telemetryProvider;
   private final boolean active;
   private final int chunkTargetDuration;
-  private final int initialMediaSeqNumOffset;
+  private final int mediaSeqNumOffset;
   private final int m3u8MaxAgeSeconds;
-  private final int playlistBackSeconds;
   private final int m3u8ServerControlHoldBackSeconds;
+  private final int playlistBackSeconds;
 
   @Inject
   public PlaylistPublisherImpl(
@@ -89,7 +91,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     streamBaseUrl = env.getStreamBaseUrl();
 
     // Computed
-    initialMediaSeqNumOffset = env.getShipInitialMediaSequenceNumberOffset();
+    mediaSeqNumOffset = env.getShipMediaSequenceNumberOffset();
     isSegmentFilename = m -> m.endsWith(String.format(".%s", env.getShipChunkAudioEncoder()));
     m3u8Key = String.format("%s.m3u8", env.getShipKey());
 
@@ -101,6 +103,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
 
     // Telemetry
     HLS_PLAYLIST_SIZE = telemetryProvider.gauge("hls_playlist_size", "HLS Playlist Size", "");
+    HLS_PLAYLIST_AHEAD_SECONDS = telemetryProvider.gauge("hls_playlist_ahead_seconds", "HLS Playlist Ahead Seconds", "s");
   }
 
   @Override
@@ -180,7 +183,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
 
   @Override
   public int computeInitialMediaSeqNum(long epochMillis) {
-    return computeMediaSeqNum(System.currentTimeMillis()) - initialMediaSeqNumOffset;
+    return computeMediaSeqNum(System.currentTimeMillis()) - mediaSeqNumOffset;
   }
 
   @Override
@@ -264,6 +267,17 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   @Override
   public void sendTelemetry() {
     telemetryProvider.put(HLS_PLAYLIST_SIZE, (double) items.size());
+    telemetryProvider.put(HLS_PLAYLIST_AHEAD_SECONDS, (double) Math.max(0, getAheadSeconds()));
+  }
+
+  @Override
+  public Integer getAheadSeconds() {
+    return Math.toIntExact(getMaxToSecondsUTC() + (long) mediaSeqNumOffset * chunkTargetDuration - Instant.now().getEpochSecond());
+  }
+
+  @Override
+  public Integer getMaxToSecondsUTC() {
+    return Math.toIntExact(items.values().stream().max(Chunk::compare).map(Chunk::getToSecondsUTC).orElse(0L));
   }
 
   private void recomputeMaxSequenceNumber() {

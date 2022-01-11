@@ -102,4 +102,8 @@ public class Chunk {
   public long getToSecondsUTC() {
     return toSecondsUTC;
   }
+
+  public int compare(Chunk chunk) {
+    return Long.compare(sequenceNumber, chunk.getSequenceNumber());
+  }
 }

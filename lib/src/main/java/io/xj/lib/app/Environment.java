@@ -86,7 +86,7 @@ public class Environment {
   private final int shipBitrateHigh;
   private final int shipChainJsonMaxAgeSeconds;
   private final int shipChunkTargetDuration;
-  private final int shipInitialMediaSequenceNumberOffset;
+  private final int shipMediaSequenceNumberOffset;
   private final int shipLoadCycleSeconds;
   private final int shipM3u8MaxAgeSeconds;
   private final int shipM3u8ServerControlHoldBackExtraSeconds;
@@ -162,7 +162,7 @@ public class Environment {
     shipChunkContentType = readStr(vars, "SHIP_CHUNK_CONTENT_TYPE", "audio/aac");
     shipChunkTargetDuration = readInt(vars, "SHIP_CHUNK_TARGET_DURATION", 6);
     shipFFmpegVerbosity = readStr(vars, "SHIP_FFMPEG_VERBOSITY", "info");
-    shipInitialMediaSequenceNumberOffset = readInt(vars, "SHIP_INITIAL_MEDIA_SEQUENCE_NUMBER_OFFSET", 3);
+    shipMediaSequenceNumberOffset = readInt(vars, "SHIP_MEDIA_SEQUENCE_NUMBER_OFFSET", 3);
     shipKey = readStr(vars, "SHIP_KEY", EMPTY);
     shipLoadCycleSeconds = readInt(vars, "SHIP_LOAD_CYCLE_SECONDS", 20);
     shipM3u8ContentType = readStr(vars, "SHIP_M3U8_CONTENT_TYPE", "application/vnd.apple.mpegurl");
@@ -739,8 +739,8 @@ public class Environment {
   /**
    @return the offset before now (now minus N media segments) where ship should begin on startup
    */
-  public int getShipInitialMediaSequenceNumberOffset() {
-    return shipInitialMediaSequenceNumberOffset;
+  public int getShipMediaSequenceNumberOffset() {
+    return shipMediaSequenceNumberOffset;
   }
 
   /**

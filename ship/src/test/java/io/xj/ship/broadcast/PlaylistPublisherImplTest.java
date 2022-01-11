@@ -124,4 +124,15 @@ public class PlaylistPublisherImplTest {
     subject.collectGarbage(164029959); // past end of playlist; will clear all
     assertEquals(0, subject.getMaxSequenceNumber());
   }
+
+  @Test
+  public void getMaxToSecondsUTC() throws IOException, ShipException {
+    var reference_m3u8 = getResourceFileContent("coolair.m3u8");
+
+    var added = subject.parseItems(reference_m3u8);
+    for (var chunk : added) assertTrue(subject.putNext(chunk));
+
+    assertEquals(1640296580, (int) subject.getMaxToSecondsUTC());
+  }
+
 }
