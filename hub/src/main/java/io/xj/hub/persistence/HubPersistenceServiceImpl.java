@@ -16,7 +16,6 @@ import io.xj.hub.tables.records.*;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.Values;
 import org.jooq.Record;
@@ -117,7 +116,7 @@ public class HubPersistenceServiceImpl<E> {
    @return collection of records
    @throws DAOException on failure
    */
-  protected <R extends TableRecord<?>, N> Collection<R> recordsFrom(DSLContext db, Table<?> table, Collection<N> entities) throws DAOException, JsonapiException {
+  protected <R extends TableRecord<?>, N> Collection<R> recordsFrom(DSLContext db, Table<?> table, Collection<N> entities) throws DAOException {
     Collection<R> records = Lists.newArrayList();
     for (N e : entities) {
       //noinspection unchecked
@@ -126,11 +125,14 @@ public class HubPersistenceServiceImpl<E> {
         UUID id = Entities.getId(e);
         if (Objects.nonNull(id))
           set(record, KEY_ID, id);
-
       } catch (EntityException ignored) {
-
+        // no op
       }
-      setAll(record, e);
+      try {
+        setAll(record, e);
+      } catch (HubPersistenceException e2) {
+        throw new DAOException(e2);
+      }
       records.add(record);
     }
     return records;
@@ -207,7 +209,7 @@ public class HubPersistenceServiceImpl<E> {
    @return table record
    @throws DAOException on failure
    */
-  protected <N> UpdatableRecord<?> recordFor(DSLContext db, N entity) throws DAOException, JsonapiException {
+  protected <N> UpdatableRecord<?> recordFor(DSLContext db, N entity) throws DAOException {
     Table<?> table = tablesInSchemaConstructionOrder.get(entity.getClass());
     var raw = db.newRecord(table);
     UpdatableRecord<?> record = (UpdatableRecord<?>) raw;
@@ -217,9 +219,14 @@ public class HubPersistenceServiceImpl<E> {
       if (Objects.nonNull(id))
         set(record, KEY_ID, id);
     } catch (EntityException ignored) {
+      // no op
     }
 
-    setAll(record, entity);
+    try {
+      setAll(record, entity);
+    } catch (HubPersistenceException e) {
+      throw new DAOException(e);
+    }
 
     return record;
   }
@@ -231,7 +238,7 @@ public class HubPersistenceServiceImpl<E> {
    @param db     database context
    @return the same entity (for chaining methods)
    */
-  protected <N> N insert(DSLContext db, N entity) throws DAOException, JsonapiException {
+  protected <N> N insert(DSLContext db, N entity) throws DAOException {
     UpdatableRecord<?> record = recordFor(db, entity);
     record.store();
 
@@ -264,11 +271,11 @@ public class HubPersistenceServiceImpl<E> {
    @param entity to of
    @return record
    */
-  protected <R extends UpdatableRecord<R>> R executeCreate(DSLContext db, Table<R> table, E entity) throws DAOException, JsonapiException {
+  protected <R extends UpdatableRecord<R>> R executeCreate(DSLContext db, Table<R> table, E entity) throws DAOException {
     R record = db.newRecord(table);
-    setAll(record, entity);
 
     try {
+      setAll(record, entity);
       record.store();
     } catch (Exception e) {
       log.error("Cannot create record because {}", e.getMessage());
@@ -285,10 +292,19 @@ public class HubPersistenceServiceImpl<E> {
    @param table to update
    @param id    of record to update
    */
-  protected <R extends UpdatableRecord<R>> void executeUpdate(DSLContext db, Table<R> table, UUID id, E entity) throws DAOException, JsonapiException {
+  protected <R extends UpdatableRecord<R>> void executeUpdate(DSLContext db, Table<R> table, UUID id, E entity) throws DAOException {
     R record = db.newRecord(table);
-    setAll(record, entity);
+    try {
+      setAll(record, entity);
+    } catch (HubPersistenceException e) {
+      throw new DAOException("Failure to serialize");
+    }
     set(record, KEY_ID, id);
+    try {
+      Entities.set(entity, KEY_ID, id);
+    } catch (EntityException e) {
+      throw new DAOException("Failure to ensure correct id is returned");
+    }
 
     if (0 == db.executeUpdate(record))
       throw new DAOException("No records updated.");
@@ -452,9 +468,9 @@ public class HubPersistenceServiceImpl<E> {
    @param source to get value from
    @param <R>    type of record
    @param <N>    type of entity
-   @throws JsonapiException on a REST API payload related failure to parse
+   @throws HubPersistenceException on a REST API payload related failure to parse
    */
-  protected <R extends Record, N> void setAll(R target, N source) throws JsonapiException {
+  protected <R extends Record, N> void setAll(R target, N source) throws HubPersistenceException {
     try {
       // start with all the entity resource attributes and their values
       Map<String, Object> attributes = entityFactory.getResourceAttributes(source);
@@ -476,7 +492,7 @@ public class HubPersistenceServiceImpl<E> {
         }
       }
     } catch (EntityException e) {
-      throw new JsonapiException(e);
+      throw new HubPersistenceException(e);
     }
   }
 
@@ -556,25 +572,6 @@ public class HubPersistenceServiceImpl<E> {
         log.error(String.format("Don't know how to set null value via %s on\n%s", setter, target));
         throw new DAOException(String.format("Don't know how to set null value via %s", setter));
       }
-    }
-  }
-
-  /**
-   Set a value on the builder if it's been provided in the source
-
-   @param builder to set values on
-   @param source  to check for source values
-   @param attr    name of attribute
-   @throws DAOException on failure
-   */
-  protected void setIfProvided(Object builder, Object source, String attr) throws DAOException {
-    try {
-      Optional<Object> value = Entities.get(source, attr);
-      if (value.isPresent() && Values.isSet(value.get()))
-        Entities.set(builder, attr, value.get());
-
-    } catch (EntityException e) {
-      throw new DAOException(e);
     }
   }
 }

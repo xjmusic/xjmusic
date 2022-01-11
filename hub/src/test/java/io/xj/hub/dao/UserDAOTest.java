@@ -30,7 +30,7 @@ import java.util.Collection;
 import static io.xj.hub.IntegrationTestingFixtures.*;
 import static org.junit.Assert.*;
 
-public class UserIT {
+public class UserDAOTest {
   private UserDAO subjectDAO;
 
   private HubIntegrationTestProvider test;
@@ -143,6 +143,21 @@ public class UserIT {
     assertEquals("john", user.getName());
     assertEquals("https://pictures.com/john.gif", user.getAvatarUrl());
     assertEquals("john@email.com", user.getEmail());
+  }
+
+  @Test
+  public void update() throws Exception {
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin,User");
+    User update = buildUser("Timmy", "timmy@email.com", "https://pictures.com/timmy.jpg", "User,Artist,Engineer,Admin");
+
+    User result = subjectDAO.update(hubAccess, fake.user2.getId(), update);
+
+    assertNotNull(result);
+    assertEquals(fake.user2.getId(), result.getId());
+    assertEquals("timmy@email.com", result.getEmail());
+    assertEquals("https://pictures.com/timmy.jpg", result.getAvatarUrl());
+    assertEquals("Timmy", result.getName());
+    assertEquals("Admin, Engineer, Artist, User", result.getRoles());
   }
 
   @Test

@@ -2,6 +2,7 @@
 package io.xj.hub.dao;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlProvider;
@@ -30,7 +31,9 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static io.xj.hub.Tables.*;
 
@@ -293,12 +296,30 @@ public class UserDAOImpl extends HubPersistenceServiceImpl<User> implements User
 
   @Override
   public User update(HubAccess access, UUID id, User entity) throws DAOException {
-    try {
-      updateUserRolesAndDestroyTokens(access, id, entity);
-      return entity;
-    } catch (ValueException e) {
-      throw new DAOException("Cannot update User record.", e);
-    }
+    // FUTURE figure out how to make this all a rollback-able transaction in the new getDataSource() context: dataSource.commit(); and dataSource.setAutoCommit(false);
+    requireTopLevel(access);
+    validate(entity);// Prepare key entity
+    Collection<String> rawRoles = CSV.splitProperSlug(entity.getRoles());
+
+    // First check all provided roles for validity.
+    Set<UserRoleType> validRoles = Sets.newHashSet();
+    for (String checkRole : rawRoles)
+      try {
+        validRoles.add(UserRoleType.valueOf(checkRole));
+      } catch (NullPointerException | IllegalArgumentException e) {
+        throw new DAOException(e);
+      }
+    require("At least one valid role", !validRoles.isEmpty());
+    entity.setRoles(validRoles.stream()
+      .sorted(Enum::compareTo)
+      .map(UserRoleType::toString)
+      .collect(Collectors.joining(", ")));
+
+    // Update the user record, and destroy all tokens
+    DSLContext db = dbProvider.getDSL();
+    executeUpdate(db, USER, id, entity);
+    destroyAllTokens(db, id);
+    return entity;
   }
 
   @Override
@@ -334,29 +355,6 @@ public class UserDAOImpl extends HubPersistenceServiceImpl<User> implements User
   @Override
   public void destroyAllTokens(UUID userId) throws DAOException {
     destroyAllTokens(dbProvider.getDSL(), userId);
-  }
-
-  @Override
-  public void updateUserRolesAndDestroyTokens(HubAccess hubAccess, UUID userId, User entity) throws DAOException, ValueException {
-    // FUTURE figure out how to make this all a rollback-able transaction in the new getDataSource() context: dataSource.commit(); and dataSource.setAutoCommit(false);
-    requireTopLevel(hubAccess);
-    validate(entity);// Prepare key entity
-    Collection<String> newRoles = CSV.splitProperSlug(entity.getRoles());
-
-    // First check all provided roles for validity.
-    boolean foundValidRole = false;
-    for (String checkRole : newRoles)
-      try {
-        UserRoleType.valueOf(checkRole);
-        foundValidRole = true;
-      } catch (NullPointerException | IllegalArgumentException e) {
-        throw new ValueException(e);
-      }
-    require("Valid Role", foundValidRole);
-
-    DSLContext db = dbProvider.getDSL();
-
-    destroyAllTokens(db, userId);
   }
 
   /**

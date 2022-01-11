@@ -43,14 +43,6 @@ public interface UserDAO extends DAO<User> {
   void destroyAllTokens(UUID userId) throws DAOException;
 
   /**
-   (ADMIN ONLY)
-   Update a specified User's roles, and destroy all their tokens.@param userId of specific User to update.
-
-   @param entity for the updated User.
-   */
-  void updateUserRolesAndDestroyTokens(HubAccess hubAccess, UUID userId, User entity) throws DAOException, ValueException;
-
-  /**
    (ADMIN ONLY) read one user hubAccess token
 
    @param hubAccess   control

@@ -82,9 +82,11 @@ public interface DAO<E> {
   E readOne(HubAccess hubAccess, UUID id) throws DAOException;
 
   /**
-   Update a specified Entity@param hubAccess control@param id     of specific Entity to update.
+   Update a specified Entity
 
-   @param entity for the updated Entity.
+   @param hubAccess control
+   @param id        of specific Entity to update.
+   @param entity    for the updated Entity.
    */
   E update(HubAccess hubAccess, UUID id, E entity) throws DAOException, JsonapiException, ValueException;
 
