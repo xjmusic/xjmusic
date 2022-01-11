@@ -71,7 +71,7 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
     Optional<Instrument> chosen;
     if (instrumentIds.size() < targetLayers)
       for (int i = 0; i < targetLayers - instrumentIds.size(); i++) {
-        chosen = chooseFreshInstrument(InstrumentType.PercLoop, instrumentIds, null);
+        chosen = chooseFreshInstrument(InstrumentType.PercLoop, instrumentIds, null, List.of());
         if (chosen.isPresent()) {
           instrumentIds.add(chosen.get().getId());
           craftPercLoop(chosen.get().getId());

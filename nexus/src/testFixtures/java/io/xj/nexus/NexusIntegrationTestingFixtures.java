@@ -654,10 +654,10 @@ public class NexusIntegrationTestingFixtures {
     //
     program5_sequence1 = buildSequence(program5, 32, "Drop", 0.5f, "G minor", 135.0f);
     program5_sequence1_chord0 = buildChord(program5_sequence1, 0.0, "C major");
-
+    //
     program5_sequence1_chord0_voicing = buildVoicing(InstrumentType.Bass, program5_sequence1_chord0, "Ab3, Db3, F4");
     program5_sequence1_chord1 = buildChord(program5_sequence1, 8.0, "Bb minor");
-
+    //
     program5_sequence1_chord1_voicing = buildVoicing(InstrumentType.Bass, program5_sequence1_chord1, "Ab3, Db3, F4");
     program5_sequence1_binding0 = buildBinding(program5_sequence1, 1);
     program5_sequence1_binding0_meme0 = buildMeme(program5_sequence1_binding0, "Pessimism");

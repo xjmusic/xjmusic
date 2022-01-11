@@ -71,7 +71,7 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
     Optional<Instrument> chosen;
     if (instrumentIds.size() < targetLayers)
       for (int i = 0; i < targetLayers - instrumentIds.size(); i++) {
-        chosen = chooseFreshInstrument(InstrumentType.Background, instrumentIds, null);
+        chosen = chooseFreshInstrument(InstrumentType.Background, instrumentIds, null, List.of());
         if (chosen.isPresent()) {
           instrumentIds.add(chosen.get().getId());
           craftBackground(chosen.get().getId());

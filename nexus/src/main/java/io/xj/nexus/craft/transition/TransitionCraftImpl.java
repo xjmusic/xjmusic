@@ -78,7 +78,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     Optional<Instrument> chosen;
     if (instrumentIds.size() < targetLayers)
       for (int i = 0; i < targetLayers - instrumentIds.size(); i++) {
-        chosen = chooseFreshInstrument(InstrumentType.Transition, instrumentIds, null);
+        chosen = chooseFreshInstrument(InstrumentType.Transition, instrumentIds, null, List.of());
         if (chosen.isPresent()) {
           instrumentIds.add(chosen.get().getId());
           craftTransition(chosen.get().getId());

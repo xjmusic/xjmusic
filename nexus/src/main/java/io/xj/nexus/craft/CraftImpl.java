@@ -775,13 +775,16 @@ public class CraftImpl extends FabricationWrapperImpl {
   /**
    Choose instrument
    [#325] Possible to choose multiple instruments for different voices in the same program
+   <p>
+   Choose drum instrument to fulfill beat program event names #180803311
 
+   @return Instrument
    @param type              of instrument to choose
    @param avoidIds          to avoid, or empty list
-   @param continueVoiceName if true, ensure that choices continue for each voice named in prior segments of this main program
-   @return Instrument
+   @param continueVoiceName if present, ensure that choices continue for each voice named in prior segments of this main program
+   @param requireEventNames instrument candidates are required to have event names #180803311
    */
-  protected Optional<Instrument> chooseFreshInstrument(InstrumentType type, List<UUID> avoidIds, @Nullable String continueVoiceName) throws NexusException {
+  protected Optional<Instrument> chooseFreshInstrument(InstrumentType type, List<UUID> avoidIds, @Nullable String continueVoiceName, List<String> requireEventNames) throws NexusException {
     var bag = MarbleBag.empty();
 
     // (2) retrieve instruments bound to chain
@@ -789,6 +792,7 @@ public class CraftImpl extends FabricationWrapperImpl {
       fabricator.sourceMaterial().getInstrumentsOfType(type)
         .stream()
         .filter(i -> !avoidIds.contains(i.getId()))
+        .filter(i -> instrumentContainsAudioEventsLike(i, requireEventNames))
         .toList();
 
     // (3) score each source instrument based on meme isometry
@@ -831,6 +835,24 @@ public class CraftImpl extends FabricationWrapperImpl {
     // (4) return the top choice
     if (bag.isEmpty()) return Optional.empty();
     return fabricator.sourceMaterial().getInstrument(bag.pick());
+  }
+
+  /**
+   Test if an instrument contains audios named like N
+   <p>
+   Choose drum instrument to fulfill beat program event names #180803311
+
+   @param instrument        to test
+   @param requireEvents N
+   @return true if instrument contains audios named like N or required event names list is empty
+   */
+  private boolean instrumentContainsAudioEventsLike(Instrument instrument, List<String> requireEvents) {
+    if (requireEvents.isEmpty()) return true;
+    for (var name : requireEvents)
+      if (fabricator.sourceMaterial().getAudiosForInstrumentId(instrument.getId()).stream()
+        .noneMatch(a -> 100 < NameIsometry.similarity(name, a.getEvent())))
+        return false;
+    return true;
   }
 
   /**

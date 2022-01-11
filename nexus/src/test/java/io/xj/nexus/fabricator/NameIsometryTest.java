@@ -7,6 +7,7 @@ import org.junit.Test;
 import java.util.Set;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 public class NameIsometryTest {
 
@@ -39,6 +40,14 @@ public class NameIsometryTest {
     )).getSources();
 
     assertArrayEquals(new String[]{"TM", "TMH", "TML"}, result.stream().sorted().toArray());
+  }
+
+  @Test
+  public void similarity() {
+    assertEquals(300.0, NameIsometry.similarity("KICK", "KICK"), 0.1);
+    assertEquals(300.0, NameIsometry.similarity("KICK", "KCK"), 0.1);
+    assertEquals(300.0, NameIsometry.similarity("HIHATCLOSED", "HIHATCL"), 0.1);
+    assertEquals(0.0, NameIsometry.similarity("ONE", "TWO"), 0.1);
   }
 
 }

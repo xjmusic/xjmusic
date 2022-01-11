@@ -76,7 +76,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
         if (voices.isEmpty())
           reportMissing(ProgramVoice.class,
             String.format("in Detail-choice Program[%s]", program.get().getId()));
-        craftChoices(sequence.get(), voices, voice -> chooseFreshInstrument(voice.getType(), List.of(), null), false);
+        craftChoices(sequence.get(), voices, voice -> chooseFreshInstrument(voice.getType(), List.of(), null, List.of()), false);
       }
 
       // add memes of program to segment in order to affect further choice

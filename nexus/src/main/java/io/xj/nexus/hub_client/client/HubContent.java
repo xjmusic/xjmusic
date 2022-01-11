@@ -315,6 +315,19 @@ public class HubContent {
   }
 
   /**
+   Get all track names for a given program voice
+
+   @param voice for which to get track names
+   @return names of tracks for the given voice
+   */
+  public List<String> getTrackNames(ProgramVoice voice) {
+    return getAll(ProgramVoiceTrack.class).stream()
+      .filter(t -> voice.getId().equals(t.getProgramVoiceId()))
+      .map(ProgramVoiceTrack::getName)
+      .toList();
+  }
+
+  /**
    Get memes of program
 
    @param programId to get memes for
@@ -659,4 +672,6 @@ public class HubContent {
     store.get(entity.getClass()).put(Entities.getId(entity), entity);
     return this;
   }
+
+
 }
