@@ -131,15 +131,3 @@ jobs:
 
       - name: (GCP) Kubernetes rollout Lab/Nexus
         run: "kubectl -n lab rollout restart deployment/nexus"
-
-      - name: (GCP) Kubernetes rollout Yard/CoolAir/Nexus
-        run: "kubectl -n yard rollout restart deployment/coolair-nexus"
-
-      - name: (GCP) Kubernetes rollout Yard/CoolAir/Ship
-        run: "kubectl -n yard rollout restart deployment/coolair-ship"
-
-      - name: (GCP) Kubernetes rollout Yard/OpenSpace/Nexus
-        run: "kubectl -n yard rollout restart deployment/openspace-nexus"
-
-      - name: (GCP) Kubernetes rollout Yard/OpenSpace/Ship
-        run: "kubectl -n yard rollout restart deployment/openspace-ship"
