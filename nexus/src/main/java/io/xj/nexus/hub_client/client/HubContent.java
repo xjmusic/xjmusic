@@ -3,6 +3,7 @@ package io.xj.nexus.hub_client.client;
 
 import com.google.common.collect.*;
 import com.google.inject.Inject;
+import io.xj.api.SegmentChoice;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.ingest.HubContentPayload;
@@ -673,5 +674,18 @@ public class HubContent {
     return this;
   }
 
+  /**
+   Get the sequence for a given choice
 
+   @param choice for which to get sequence
+   @return sequence of choice
+   */
+  public Optional<ProgramSequence> getProgramSequence(SegmentChoice choice) {
+    if (Objects.nonNull(choice.getProgramSequenceId()))
+      return getProgramSequence(choice.getProgramSequenceId());
+    if (Objects.isNull(choice.getProgramSequenceBindingId())) return Optional.empty();
+    var psb = getProgramSequenceBinding(choice.getProgramSequenceBindingId());
+    if (psb.isEmpty()) return Optional.empty();
+    return getProgramSequence(psb.get().getProgramSequenceId());
+  }
 }

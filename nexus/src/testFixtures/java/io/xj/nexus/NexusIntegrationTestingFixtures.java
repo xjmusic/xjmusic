@@ -388,6 +388,18 @@ public class NexusIntegrationTestingFixtures {
     return segmentChoice;
   }
 
+  public static SegmentChoice buildSegmentChoice(Segment segment, ProgramType programType, ProgramSequence programSequence) {
+    var segmentChoice = new SegmentChoice();
+    segmentChoice.setId(UUID.randomUUID());
+    segmentChoice.setSegmentId(segment.getId());
+    segmentChoice.setDeltaIn(Segments.DELTA_UNLIMITED);
+    segmentChoice.setDeltaOut(Segments.DELTA_UNLIMITED);
+    segmentChoice.setProgramId(programSequence.getProgramId());
+    segmentChoice.setProgramSequenceId(programSequence.getId());
+    segmentChoice.setProgramType(programType.toString());
+    return segmentChoice;
+  }
+
   public static SegmentChoice buildSegmentChoice(Segment segment, int deltaIn, int deltaOut, Program program, InstrumentType instrumentType) {
     var segmentChoice = new SegmentChoice();
     segmentChoice.setId(UUID.randomUUID());

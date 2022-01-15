@@ -6,11 +6,11 @@ on:
       - dev
 
 jobs:
-  Gradle:
+  CI:
     env:
       CI_BOT_TOKEN: ${{ secrets.CI_BOT_TOKEN }}
       CI_BOT_USERNAME: ${{ secrets.CI_BOT_USERNAME }}
-    name: Gradle
+    name: Development CI
     runs-on: ubuntu-20.04
 
     #
@@ -59,6 +59,7 @@ jobs:
           java-package: jdk
 
       - name: Create Postgres databases
+        # while ! nc -vzw 5 localhost 5432; do sleep 1; done
         run: |
           createdb -h localhost -p 5432 -U postgres xj_test
         env:

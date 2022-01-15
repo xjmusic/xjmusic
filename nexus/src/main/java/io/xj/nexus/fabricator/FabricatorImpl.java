@@ -461,6 +461,20 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
+  public Optional<ProgramSequence> getCurrentMainSequence() {
+    var mc = getCurrentMainChoice();
+    if (mc.isEmpty()) return Optional.empty();
+    return sourceMaterial.getProgramSequence(mc.get());
+  }
+
+  @Override
+  public Optional<ProgramSequence> getPreviousMainSequence() {
+    var mc = getMainChoiceOfPreviousSegment();
+    if (mc.isEmpty()) return Optional.empty();
+    return sourceMaterial.getProgramSequence(mc.get());
+  }
+
+  @Override
   public MemeIsometry getMemeIsometryOfNextSequenceInPreviousMacro() {
     try {
       var previousMacroChoice =

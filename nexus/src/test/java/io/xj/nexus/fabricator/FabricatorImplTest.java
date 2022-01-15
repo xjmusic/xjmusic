@@ -203,7 +203,7 @@ public class FabricatorImplTest {
       240.0,
       "seg123",
       "ogg"));
-    var choice = store.put(buildSegmentChoice(segment, -1, -1, fake.program9, fake.program9_voice0, fake.instrument8));
+    var choice = store.put(buildSegmentChoice(segment, Segments.DELTA_UNLIMITED, Segments.DELTA_UNLIMITED, fake.program9, fake.program9_voice0, fake.instrument8));
     var arrangement = store.put(buildSegmentChoiceArrangement(choice));
     var pick = store.put(buildSegmentChoiceArrangementPick(arrangement, fake.program9_sequence0_pattern0_event0, fake.instrument8_audio8kick, "KICK"));
     when(mockFabricatorFactory.loadRetrospective(any(), any()))

@@ -286,6 +286,20 @@ public interface Fabricator {
   Optional<SegmentChoice> getMainChoiceOfPreviousSegment();
 
   /**
+   Get the sequence targeted by the current main choice
+
+   @return current main sequence
+   */
+  Optional<ProgramSequence> getCurrentMainSequence();
+
+  /**
+   Get the sequence targeted by the previous main choice
+
+   @return previous main sequence
+   */
+  Optional<ProgramSequence> getPreviousMainSequence();
+
+  /**
    Get meme isometry for the next offset in the previous segment's macro-choice
 
    @return MemeIsometry for previous macro-choice
@@ -682,4 +696,5 @@ public interface Fabricator {
    @return main-program configuration
    */
   ProgramConfig getMainProgramConfig() throws NexusException;
+
 }

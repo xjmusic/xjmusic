@@ -102,6 +102,21 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
   }
 
   /**
+   Is this a medium-transition segment? (not the same sequence as the previous segment)
+   <p>
+   Transition craft uses Small (instead of Medium) when a sequence repeats for more than 1 segment #180921714
+
+   @return true if it is a medium transition segment
+   */
+  private boolean isMediumTransitionSegment() throws NexusException {
+    return switch (fabricator.getType()) {
+      case PENDING, INITIAL, NEXTMAIN, NEXTMACRO -> false;
+      case CONTINUE -> !fabricator.getCurrentMainSequence().orElseThrow().getId()
+        .equals(fabricator.getPreviousMainSequence().orElseThrow().getId());
+    };
+  }
+
+  /**
    Craft percussion loop
 
    @param instrumentId of percussion loop instrument to craft
@@ -128,8 +143,10 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
 
     if (isBigTransitionSegment() && big.isPresent())
       pickTransition(arrangement, big.get(), 0, fabricator.getTotalSeconds(), NAME_BIG);
-    else if (medium.isPresent())
+    else if (isMediumTransitionSegment() && medium.isPresent())
       pickTransition(arrangement, medium.get(), 0, fabricator.getTotalSeconds(), NAME_MEDIUM);
+    else if (small.isPresent())
+      pickTransition(arrangement, small.get(), 0, fabricator.getTotalSeconds(), NAME_SMALL);
 
     var deltaUnits = Bar.of(fabricator.getMainProgramConfig().getBarBeats()).computeSubsectionBeats(fabricator.getSegment().getTotal());
     var pos = deltaUnits;
