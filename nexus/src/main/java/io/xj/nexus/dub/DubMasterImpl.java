@@ -166,7 +166,7 @@ public class DubMasterImpl implements DubMaster {
       pick.getInstrumentAudioId().toString(),
       toMicros(preroll + pick.getStart() - computeOffsetStart(pick)),
       toMicros(preroll + pick.getStart() + computeLengthSeconds(pick)),
-      pick.getAmplitude() * fabricator.getAudioVolume(pick));
+      pick.getAmplitude() * fabricator.computeAudioVolume(pick));
   }
 
   /**

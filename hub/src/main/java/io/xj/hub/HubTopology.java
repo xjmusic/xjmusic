@@ -37,6 +37,7 @@ public enum HubTopology {
       .withAttribute("state")
       .withAttribute("type")
       .withAttribute("name")
+      .withAttribute("volume")
       .withAttribute("density")
       .withAttribute("config")
       .belongsTo(User.class)

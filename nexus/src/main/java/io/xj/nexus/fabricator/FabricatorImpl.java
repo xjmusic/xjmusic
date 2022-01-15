@@ -238,9 +238,9 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public double getAudioVolume(SegmentChoiceArrangementPick pick) {
-    return sourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId())
-      .stream().map(InstrumentAudio::getVolume)
+  public double computeAudioVolume(SegmentChoiceArrangementPick pick) {
+    return sourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId()).stream()
+      .map(audio -> audio.getVolume() * sourceMaterial().getInstrument(audio.getInstrumentId()).orElseThrow().getVolume())
       .findAny()
       .orElse(1.0f);
   }
@@ -341,7 +341,6 @@ class FabricatorImpl implements Fabricator {
       .getValidProgramSequenceChordVoicings(mainChoice.get().getProgramId());
     return voicings.stream()
       .map(ProgramSequenceChordVoicing::getType)
-      .distinct()
       .collect(Collectors.toSet());
   }
 

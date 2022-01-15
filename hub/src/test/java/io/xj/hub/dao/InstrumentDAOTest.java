@@ -87,6 +87,7 @@ public class InstrumentDAOTest {
     subject.setId(UUID.randomUUID());
     subject.setLibraryId(fake.library1.getId());
     subject.setName("shimmy");
+    subject.setVolume(0.54f);
     subject.setDensity(0.6f);
     subject.setState(InstrumentState.Published);
     subject.setType(InstrumentType.Drum);
@@ -97,7 +98,22 @@ public class InstrumentDAOTest {
     assertNotNull(result);
     assertEquals(fake.library1.getId(), result.getLibraryId());
     assertEquals("shimmy", result.getName());
+    assertEquals(0.54f, result.getVolume(), 0.01);
     assertEquals(InstrumentType.Drum, result.getType());
+  }
+
+  /**
+   Overall volume parameter defaults to 1.0 #179215413
+   */
+  @Test
+  public void create_defaultVolume() throws Exception {
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    Instrument subject = buildInstrument(fake.library1, InstrumentType.Drum, InstrumentState.Published, "shimmy");
+
+    Instrument result = testDAO.create(
+      hubAccess, subject);
+
+    assertEquals(1.0f, result.getVolume(), 0.01);
   }
 
   /**
@@ -113,11 +129,11 @@ public class InstrumentDAOTest {
     subject.setLibraryId(fake.library1.getId());
     subject.setConfig(
       """
-      isMultiphonic = true
-      isOneShot = false
-      isTonal = false
-      oneShotCutoffs = [TEST]
-        """
+        isMultiphonic = true
+        isOneShot = false
+        isTonal = false
+        oneShotCutoffs = [TEST]
+          """
     );
     subject.setName("cannons fifty nine");
 
@@ -129,11 +145,11 @@ public class InstrumentDAOTest {
     assertEquals(InstrumentType.Drum, result.getType());
     assertEquals(
       """
-      isMultiphonic = true
-      isOneShot = false
-      isTonal = false
-      oneShotCutoffs = [TEST]
-        """,
+        isMultiphonic = true
+        isOneShot = false
+        isTonal = false
+        oneShotCutoffs = [TEST]
+          """,
       result.getConfig()
     );
     assertEquals(Integer.valueOf(1), test.getDSL()
@@ -209,22 +225,18 @@ public class InstrumentDAOTest {
     }
   }
 
+  /**
+   change volume parameter #179215413
+   */
   @Test
-  public void update_Name() throws Exception {
+  public void update_volume() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
-    Instrument subject = new Instrument();
-    subject.setId(UUID.randomUUID());
-    subject.setLibraryId(fake.library1.getId());
-    subject.setName("shimmy");
-    subject.setState(InstrumentState.Published);
-    subject.setType(InstrumentType.Drum);
+    fake.instrument201.setVolume(0.74f);
 
-    testDAO.update(hubAccess, fake.instrument201.getId(), subject);
+    testDAO.update(hubAccess, fake.instrument201.getId(), fake.instrument201);
 
     Instrument result = testDAO.readOne(HubAccess.internal(), fake.instrument201.getId());
-    assertNotNull(result);
-    assertEquals("shimmy", result.getName());
-    assertEquals(fake.library1.getId(), result.getLibraryId());
+    assertEquals(0.74f, result.getVolume(), 0.01f);
   }
 
   @Test

@@ -269,8 +269,12 @@ public class InstrumentDAOImpl extends HubPersistenceServiceImpl<Instrument> imp
       Values.require(record.getType(), "Type");
       Values.require(record.getState(), "State");
 
-      // [#175347578] validate TypeSafe chain config
-      // [#177129498] Artist saves Instrument, Instrument, or Template config, validate & combine with defaults.
+      // overall volume parameter defaults to 1.0 #179215413
+      if (Values.isUnsetOrZero(record.getVolume()))
+        record.setVolume(1.0f);
+
+      // validate TypeSafe chain config #175347578
+      // Artist saves Instrument, Instrument, or Template config, validate & combine with defaults #177129498
       if (Objects.isNull(record.getConfig()))
         record.setConfig(new InstrumentConfig().toString());
       else

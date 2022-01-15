@@ -35,7 +35,10 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -163,6 +166,59 @@ public class FabricatorImplTest {
     verify(mockFabricatorFactory).createTimeComputer(8.0, 120, 240.0);
   }
 
+  /**
+   Instrument has overall volume parameter #179215413
+   */
+  @Test
+  public void computeAudioVolume() throws Exception {
+    buildTemplateBinding(fake.template1, fake.library2);
+    var chain = store.put(buildChain(
+      fake.account1,
+      fake.template1,
+      "test",
+      ChainType.PRODUCTION,
+      ChainState.FABRICATE,
+      Instant.parse("2017-12-12T01:00:08.000000Z")));
+    Segment previousSegment = store.put(buildSegment(
+      chain,
+      1,
+      SegmentState.CRAFTED,
+      Instant.parse("2017-12-12T01:00:08.000000Z"),
+      Instant.parse("2017-12-12T01:00:16.000000Z"),
+      "F major",
+      8,
+      0.6,
+      120.0,
+      "seg123",
+      "ogg"));
+    Segment segment = store.put(buildSegment(
+      chain,
+      2,
+      SegmentState.CRAFTING,
+      Instant.parse("2017-12-12T01:00:16.000000Z"),
+      Instant.parse("2017-12-12T01:00:22.000000Z"),
+      "G major",
+      8,
+      0.6,
+      240.0,
+      "seg123",
+      "ogg"));
+    var choice = store.put(buildSegmentChoice(segment, -1, -1, fake.program9, fake.program9_voice0, fake.instrument8));
+    var arrangement = store.put(buildSegmentChoiceArrangement(choice));
+    var pick = store.put(buildSegmentChoiceArrangementPick(arrangement, fake.program9_sequence0_pattern0_event0, fake.instrument8_audio8kick, "KICK"));
+    when(mockFabricatorFactory.loadRetrospective(any(), any()))
+      .thenReturn(mockSegmentRetrospective);
+    when(mockFabricatorFactory.setupWorkbench(any(), any()))
+      .thenReturn(mockSegmentWorkbench);
+    when(mockSegmentWorkbench.getSegment())
+      .thenReturn(segment);
+    when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory);
+
+    double result = subject.computeAudioVolume(pick); // instantiates a time computer; see expectation above
+
+    assertEquals(0.76, result, 0.01);
+  }
 
   @Test
   public void pick_returned_by_picks() throws Exception {

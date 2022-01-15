@@ -106,12 +106,14 @@ public interface Fabricator {
   Collection<SegmentChoiceArrangement> getArrangements(Collection<SegmentChoice> choices);
 
   /**
-   The the audio volume for a given pick
+   Compute the audio volume for a given pick
+   <p>
+   Instrument has overall volume parameter #179215413
 
    @param pick for which to get audio volume
    @return audio volume of pick
    */
-  double getAudioVolume(SegmentChoiceArrangementPick pick);
+  double computeAudioVolume(SegmentChoiceArrangementPick pick);
 
   /**
    Get the Chain

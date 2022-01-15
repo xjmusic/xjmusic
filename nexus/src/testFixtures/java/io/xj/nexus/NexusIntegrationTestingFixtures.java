@@ -881,6 +881,7 @@ public class NexusIntegrationTestingFixtures {
 
     // Instrument "808"
     instrument8 = buildInstrument(library2, InstrumentType.Drum, InstrumentState.Published, "808 Drums");
+    instrument8.setVolume(0.76f); // For testing: Instrument has overall volume parameter #179215413
     instrument8_meme0 = buildMeme(instrument8, "heavy");
     instrument8_audio8kick = buildAudio(instrument8, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.62f, "KICK", "Eb", 1.0f);
     instrument8_audio8snare = buildAudio(instrument8, "Snare", "975898198017350afghjkjhaskjdfjhk.wav", 0.01f, 1.5f, 120.0f, 0.62f, "SNARE", "Ab", 0.8f);
