@@ -86,15 +86,16 @@ public class Environment {
   private final int shipBitrateHigh;
   private final int shipChainJsonMaxAgeSeconds;
   private final int shipChunkTargetDuration;
-  private final int shipMediaSequenceNumberOffset;
   private final int shipLoadCycleSeconds;
   private final int shipM3u8MaxAgeSeconds;
   private final int shipM3u8ServerControlHoldBackExtraSeconds;
+  private final int shipMediaSequenceNumberOffset;
   private final int shipMixCycleSeconds;
   private final int shipPlaylistAheadSeconds;
   private final int shipPlaylistBackSeconds;
   private final int shipSegmentLoadAheadSeconds;
   private final int shipSegmentLoadTimeoutSeconds;
+  private final int templatePublicationCacheExpireSeconds;
   private final int workCycleMillis;
   private final int workEraseSegmentsOlderThanSeconds;
   private final int workHealthCycleStalenessThresholdSeconds;
@@ -162,12 +163,12 @@ public class Environment {
     shipChunkContentType = readStr(vars, "SHIP_CHUNK_CONTENT_TYPE", "audio/aac");
     shipChunkTargetDuration = readInt(vars, "SHIP_CHUNK_TARGET_DURATION", 6);
     shipFFmpegVerbosity = readStr(vars, "SHIP_FFMPEG_VERBOSITY", "info");
-    shipMediaSequenceNumberOffset = readInt(vars, "SHIP_MEDIA_SEQUENCE_NUMBER_OFFSET", 3);
     shipKey = readStr(vars, "SHIP_KEY", EMPTY);
     shipLoadCycleSeconds = readInt(vars, "SHIP_LOAD_CYCLE_SECONDS", 20);
     shipM3u8ContentType = readStr(vars, "SHIP_M3U8_CONTENT_TYPE", "application/vnd.apple.mpegurl");
-    shipM3u8ServerControlHoldBackExtraSeconds = readInt(vars, "SHIP_M3U8_SERVER_CONTROL_HOLD_BACK_SECONDS", 10);
     shipM3u8MaxAgeSeconds = readInt(vars, "SHIP_M3U8_MAX_AGE_SECONDS", 0);
+    shipM3u8ServerControlHoldBackExtraSeconds = readInt(vars, "SHIP_M3U8_SERVER_CONTROL_HOLD_BACK_SECONDS", 10);
+    shipMediaSequenceNumberOffset = readInt(vars, "SHIP_MEDIA_SEQUENCE_NUMBER_OFFSET", 3);
     shipMixCycleSeconds = readInt(vars, "WORK_PRINT_CYCLE_SECONDS", 1);
     shipMode = readStr(vars, "SHIP_MODE", "hls");
     shipPlaylistAheadSeconds = readInt(vars, "SHIP_PLAYLIST_AHEAD_SECONDS", 30);
@@ -178,6 +179,7 @@ public class Environment {
     streamBucket = readStr(vars, "STREAM_BUCKET", "xj-dev-stream");
     telemetryEnabled = readBool(vars, "TELEMETRY_ENABLED", false);
     tempFilePathPrefix = readStr(vars, "TEMP_FILE_PATH_PREFIX", "/tmp/");
+    templatePublicationCacheExpireSeconds = readInt(vars, "TEMPLATE_PUBLICATION_CACHE_EXPIRE_SECONDS", 900);
     workCycleMillis = readInt(vars, "WORK_CYCLE_MILLIS", 1200);
     workEraseSegmentsOlderThanSeconds = readInt(vars, "WORK_ERASE_SEGMENTS_OLDER_THAN_SECONDS", 300);
     workHealthCycleStalenessThresholdSeconds = readInt(vars, "WORK_HEALTH_CYCLE_STALENESS_THRESHOLD_SECONDS", 60);
@@ -854,6 +856,13 @@ public class Environment {
   }
 
   /**
+   @return # of seconds until a published template content cdn cache is expired
+   */
+  public int getTemplatePublicationCacheExpireSeconds() {
+    return templatePublicationCacheExpireSeconds;
+  }
+
+  /**
    @return erase segments older than seconds
    */
   public int getWorkEraseSegmentsOlderThanSeconds() {
@@ -943,4 +952,5 @@ public class Environment {
   public boolean isWorkRehydrationEnabled() {
     return workRehydrationEnabled;
   }
+
 }
