@@ -3,7 +3,7 @@ name: Kubernetes Apply (GCP)
 on:
   push:
     branches:
-      - main
+      - prod
 
 env:
   REGISTRY: ghcr.io
