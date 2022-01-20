@@ -24,8 +24,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -67,9 +65,9 @@ public class TemplatePublicationDAOTest {
     test.insert(buildAccountUser(fake.account1, fake.user3));
 
     // Template "sandwich" has templatePublication "jams" and templatePublication "buns"
-    fake.template1 = test.insert(buildTemplate(fake.account1, TemplateType.Preview, "sandwich", "sandwich55"));
+    fake.template1 = test.insert(buildTemplate(fake.account1, TemplateType.Production, "sandwich", "sandwich55"));
 
-    test.insert(buildTemplate(fake.account1, TemplateType.Preview, "Test Template", UUID.randomUUID().toString()));
+    test.insert(buildTemplate(fake.account1, TemplateType.Production, "Test Template", UUID.randomUUID().toString()));
     templatePublication201 = test.insert(buildTemplatePublication(fake.template1, fake.user2));
 
     // Instantiate the test subject
@@ -110,12 +108,12 @@ public class TemplatePublicationDAOTest {
   @Test
   public void create_cannotPublicationProductionChain() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
-    var template5 = test.insert(buildTemplate(fake.account1, TemplateType.Production, "test", UUID.randomUUID().toString()));
+    var template5 = test.insert(buildTemplate(fake.account1, TemplateType.Preview, "test", UUID.randomUUID().toString()));
 
     TemplatePublication subject = buildTemplatePublication(template5, fake.user3); // user will be overridden by hub access user id
 
     var e = assertThrows(DAOException.class, () -> testDAO.create(hubAccess, subject));
-    assertEquals("Preview-type Template is required", e.getMessage());
+    assertEquals("Production-type Template is required", e.getMessage());
   }
 
   @Test

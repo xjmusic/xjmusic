@@ -48,7 +48,7 @@ public class TemplatePublicationDAOImpl extends HubPersistenceServiceImpl<Templa
     var template = modelFrom(Template.class, dbProvider.getDSL().selectFrom(TEMPLATE)
       .where(TEMPLATE.ID.eq(record.getTemplateId()))
       .fetchOne());
-    require("Preview-type Template", TemplateType.Preview.equals(template.getType()));
+    require("Production-type Template", TemplateType.Production.equals(template.getType()));
 
     for (var prior : modelsFrom(TemplatePublication.class,
       db.selectFrom(TEMPLATE_PUBLICATION)
