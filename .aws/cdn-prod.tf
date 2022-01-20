@@ -408,6 +408,38 @@ resource "aws_cloudfront_distribution" "xj-prod-audio" {
     max_ttl                = 86400
   }
 
+  # Cache behavior with precedence 1
+  ordered_cache_behavior {
+    allowed_methods = [
+      "GET",
+      "HEAD",
+      "OPTIONS"
+    ]
+    cached_methods = [
+      "GET",
+      "HEAD",
+      "OPTIONS"
+    ]
+    compress               = true
+    default_ttl            = 60
+    max_ttl                = 60
+    min_ttl                = 60
+    path_pattern           = "*.json"
+    target_origin_id       = "audio-prod-xj-io-s3-origin"
+    viewer_protocol_policy = "redirect-to-https"
+    forwarded_values {
+      headers = [
+        "Origin",
+        "Access-Control-Request-Method",
+        "Access-Control-Request-Headers",
+      ]
+      query_string = false
+      cookies {
+        forward = "none"
+      }
+    }
+  }
+
   restrictions {
     geo_restriction {
       restriction_type = "none"
