@@ -165,6 +165,7 @@ public class NexusWorkImpl implements NexusWork {
     yardPollSeconds = env.getWorkYardPollSeconds();
 
     labPollNext = Instant.now();
+    yardPollNext = Instant.now();
     mode = Strings.isNullOrEmpty(shipKey) ? Lab : NexusWorkImpl.Mode.Yard;
     state = NexusWorkImpl.State.Init;
 
