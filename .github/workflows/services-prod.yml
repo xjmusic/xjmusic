@@ -3,7 +3,7 @@ name: "Production CI"
 on:
   push:
     branches:
-      - main
+      - prod
 
 jobs:
   CI:
@@ -106,7 +106,7 @@ jobs:
         continue-on-error: false
 
       - name: (AWS) Kubernetes rollout Lab/Hub
-        run: "kubectl -n lab rollout restart deployment/hub"
+        run: kubectl -n lab rollout restart deployment/hub
 
       - name: (GCP) Authenticate and setup Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v0.3.0
@@ -131,4 +131,10 @@ jobs:
         continue-on-error: false
 
       - name: (GCP) Kubernetes rollout Lab/Nexus
-        run: "kubectl -n lab rollout restart deployment/nexus"
+        run: kubectl -n lab rollout restart deployment/nexus
+
+      - name: (GCP) Kubernetes rollout Lab/OpenSpace
+        run: kubectl -n yard rollout restart deployment/openspace-nexus deployment/openspace-ship
+
+      - name: (GCP) Kubernetes rollout Lab/CoolAir
+        run: kubectl -n yard rollout restart deployment/coolair-nexus deployment/coolair-ship

@@ -103,10 +103,10 @@ jobs:
         continue-on-error: false
 
       - name: (AWS) Kubernetes rollout Dev/Hub
-        run: "kubectl -n dev rollout restart deployment/hub"
+        run: kubectl -n dev rollout restart deployment/hub
 
       - name: (AWS) Kubernetes rollout Dev/HubLocal
-        run: "kubectl -n dev rollout restart deployment/hub-local"
+        run: kubectl -n dev rollout restart deployment/hub-local
 
       - name: (GCP) Authenticate and setup Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v0.3.0
