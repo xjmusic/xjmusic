@@ -58,6 +58,7 @@ public class HubApp extends App {
     TemplateEndpoint templateEndpoint,
     TemplateBindingEndpoint templateBindingEndpoint,
     TemplatePlaybackEndpoint templatePlaybackEndpoint,
+    TemplatePublicationEndpoint templatePublicationEndpoint,
     UserEndpoint userEndpoint
   ) {
     super(env);
@@ -86,6 +87,7 @@ public class HubApp extends App {
     getResourceConfig().register(templateEndpoint);
     getResourceConfig().register(templateBindingEndpoint);
     getResourceConfig().register(templatePlaybackEndpoint);
+    getResourceConfig().register(templatePublicationEndpoint);
     getResourceConfig().register(userEndpoint);
 
     // Configuration
