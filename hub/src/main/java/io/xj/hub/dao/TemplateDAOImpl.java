@@ -10,10 +10,7 @@ import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.TemplateType;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
-import io.xj.hub.tables.pojos.FeedbackTemplate;
-import io.xj.hub.tables.pojos.Template;
-import io.xj.hub.tables.pojos.TemplateBinding;
-import io.xj.hub.tables.pojos.TemplatePlayback;
+import io.xj.hub.tables.pojos.*;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
@@ -42,6 +39,7 @@ public class TemplateDAOImpl extends HubPersistenceServiceImpl<Template> impleme
   private final long playbackExpireSeconds;
   private final TemplateBindingDAO templateBindingDAO;
   private final TemplatePlaybackDAO templatePlaybackDAO;
+  private final TemplatePublicationDAO templatePublicationDAO;
 
   @Inject
   public TemplateDAOImpl(
@@ -49,12 +47,14 @@ public class TemplateDAOImpl extends HubPersistenceServiceImpl<Template> impleme
     Environment env,
     HubDatabaseProvider dbProvider,
     TemplateBindingDAO templateBindingDAO,
-    TemplatePlaybackDAO templatePlaybackDAO
+    TemplatePlaybackDAO templatePlaybackDAO,
+    TemplatePublicationDAO templatePublicationDAO
   ) {
     super(entityFactory, dbProvider);
     playbackExpireSeconds = env.getPlaybackExpireSeconds();
     this.templateBindingDAO = templateBindingDAO;
     this.templatePlaybackDAO = templatePlaybackDAO;
+    this.templatePublicationDAO = templatePublicationDAO;
   }
 
   @Override
@@ -147,7 +147,7 @@ public class TemplateDAOImpl extends HubPersistenceServiceImpl<Template> impleme
   }
 
   @Override
-  public Collection<Object> readChildEntities(HubAccess hubAccess, Collection<UUID> templateIds, Collection<String> types) throws DAOException {
+  public Collection<Object> readChildEntities(HubAccess hubAccess, Collection<UUID> templateIds, Collection<String> includeTypes) throws DAOException {
     DSLContext db = dbProvider.getDSL();
 
     requireRead(db, hubAccess, templateIds);
@@ -155,15 +155,19 @@ public class TemplateDAOImpl extends HubPersistenceServiceImpl<Template> impleme
     Collection<Object> entities = Lists.newArrayList();
 
     // TemplateBinding
-    if (types.contains(Entities.toResourceType(TemplateBinding.class)))
+    if (includeTypes.contains(Entities.toResourceType(TemplateBinding.class)))
       entities.addAll(templateBindingDAO.readMany(hubAccess, templateIds));
 
     // TemplatePlayback
-    if (types.contains(Entities.toResourceType(TemplatePlayback.class)))
+    if (includeTypes.contains(Entities.toResourceType(TemplatePlayback.class)))
       entities.addAll(templatePlaybackDAO.readMany(hubAccess, templateIds));
 
+    // TemplatePublication
+    if (includeTypes.contains(Entities.toResourceType(TemplatePublication.class)))
+      entities.addAll(templatePublicationDAO.readMany(hubAccess, templateIds));
+
     // FeedbackTemplate
-    if (types.contains(Entities.toResourceType(FeedbackTemplate.class)))
+    if (includeTypes.contains(Entities.toResourceType(FeedbackTemplate.class)))
       entities.addAll(modelsFrom(FeedbackTemplate.class,
         db.selectFrom(FEEDBACK_TEMPLATE).where(FEEDBACK_TEMPLATE.TEMPLATE_ID.in(templateIds))));
 

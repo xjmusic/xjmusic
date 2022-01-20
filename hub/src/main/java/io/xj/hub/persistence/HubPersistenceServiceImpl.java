@@ -46,6 +46,7 @@ public class HubPersistenceServiceImpl<E> {
     .put(Template.class, TEMPLATE) // after account
     .put(TemplateBinding.class, TEMPLATE_BINDING) // after template
     .put(TemplatePlayback.class, TEMPLATE_PLAYBACK) // after template
+    .put(TemplatePublication.class, TEMPLATE_PUBLICATION) // after template
     .put(Library.class, LIBRARY) // after account
     .put(Program.class, PROGRAM) // after library
     .put(ProgramMeme.class, PROGRAM_MEME)
@@ -76,6 +77,7 @@ public class HubPersistenceServiceImpl<E> {
     .put(TemplateRecord.class, Template.class)
     .put(TemplateBindingRecord.class, TemplateBinding.class)
     .put(TemplatePlaybackRecord.class, TemplatePlayback.class)
+    .put(TemplatePublicationRecord.class, TemplatePublication.class)
     .put(LibraryRecord.class, Library.class)
     .put(ProgramRecord.class, Program.class)
     .put(ProgramMemeRecord.class, ProgramMeme.class)

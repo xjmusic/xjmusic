@@ -129,8 +129,11 @@ public class TemplateEndpointTest {
       .hasDataOne("templates", template1.getId().toString());
   }
 
+  /**
+   Hub can publish content for production fabrication #180805580
+   */
   @Test
-  public void readOne_includingBindingsAndPlaybacks() throws DAOException, IOException, JsonapiException {
+  public void readOne_includingBindingsAndPlaybacksAndPublications() throws DAOException, IOException, JsonapiException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
     var account1 = buildAccount("bananas");
     var user2 = buildUser("Amelie", "amelie@email.com", "https://pictures.com/amelie.gif", "Admin");
@@ -138,11 +141,12 @@ public class TemplateEndpointTest {
     Template template4 = buildTemplate(account1, "fonds", "ABC");
     var templateBinding43 = buildTemplateBinding(template4, library3);
     var templatePlayback42 = buildTemplatePlayback(template4, user2);
+    var templatePublication67 = buildTemplatePublication(template4, user2);
     when(templateDAO.readOne(same(hubAccess), eq(template4.getId()))).thenReturn(template4);
-    when(templateDAO.readChildEntities(same(hubAccess), eq(List.of(template4.getId())), eq(List.of("template-bindings", "template-playbacks"))))
-      .thenReturn(List.of(templateBinding43, templatePlayback42));
+    when(templateDAO.readChildEntities(same(hubAccess), eq(List.of(template4.getId())), eq(List.of("template-bindings", "template-playbacks", "template-publications"))))
+      .thenReturn(List.of(templateBinding43, templatePlayback42, templatePublication67));
 
-    Response result = subject.readOne(crc, template4.getId().toString(), "template-bindings,template-playbacks");
+    Response result = subject.readOne(crc, template4.getId().toString(), "template-bindings,template-playbacks,template-publications");
 
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
@@ -150,6 +154,7 @@ public class TemplateEndpointTest {
     assertPayload(resultJsonapiPayload).hasDataOne("templates", template4.getId().toString());
     assertPayload(resultJsonapiPayload).hasIncluded("template-bindings", List.of(templateBinding43));
     assertPayload(resultJsonapiPayload).hasIncluded("template-playbacks", List.of(templatePlayback42));
+    assertPayload(resultJsonapiPayload).hasIncluded("template-publications", List.of(templatePublication67));
   }
 
   @Test

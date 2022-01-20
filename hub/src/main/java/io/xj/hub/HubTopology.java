@@ -218,7 +218,9 @@ public enum HubTopology {
       .withAttribute("config")
       .withAttribute("shipKey")
       .belongsTo(Account.class)
-      .hasMany(TemplateBinding.class);
+      .hasMany(TemplateBinding.class)
+      .hasMany(TemplatePlayback.class)
+      .hasMany(TemplatePublication.class);
 
     // TemplateBinding
     entityFactory.register(TemplateBinding.class)
@@ -227,9 +229,16 @@ public enum HubTopology {
       .withAttribute("targetId")
       .belongsTo(Template.class);
 
-    // TemplateBinding
+    // TemplatePlayback
     entityFactory.register(TemplatePlayback.class)
       .createdBy(TemplatePlayback::new)
+      .withAttribute("createdAt")
+      .belongsTo(Template.class)
+      .belongsTo(User.class);
+
+    // TemplatePublication
+    entityFactory.register(TemplatePublication.class)
+      .createdBy(TemplatePublication::new)
       .withAttribute("createdAt")
       .belongsTo(Template.class)
       .belongsTo(User.class);
