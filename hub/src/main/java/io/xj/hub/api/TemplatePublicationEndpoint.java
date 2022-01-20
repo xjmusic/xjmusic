@@ -117,7 +117,7 @@ public class TemplatePublicationEndpoint extends HubJsonapiEndpoint<TemplatePubl
       var access = HubAccess.fromContext(crc);
       TemplatePublication templatePublication = payloadFactory.consume(dao().newInstance(), jsonapiPayload);
       Template template = templateDAO.readOne(access, templatePublication.getTemplateId());
-      String publicationKey = fileStoreProvider.generateKey(template.getShipKey(), FileStoreProvider.EXTENSION_JSON);
+      String publicationKey = String.format("%s.%s", template.getShipKey(), FileStoreProvider.EXTENSION_JSON);
       String content = ingestFactory.ingest(access, templatePublication.getTemplateId()).toJSON();
 
       LOG.debug("Will upload {} bytes to s3://{}/{}", content.length(), audioBucket, publicationKey);
