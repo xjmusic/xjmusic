@@ -26,6 +26,7 @@ public class DAOModule extends AbstractModule {
     bind(TemplateBindingDAO.class).to(TemplateBindingDAOImpl.class);
     bind(TemplateDAO.class).to(TemplateDAOImpl.class);
     bind(TemplatePlaybackDAO.class).to(TemplatePlaybackDAOImpl.class);
+    bind(TemplatePublicationDAO.class).to(TemplatePublicationDAOImpl.class);
     bind(UserDAO.class).to(UserDAOImpl.class);
   }
 

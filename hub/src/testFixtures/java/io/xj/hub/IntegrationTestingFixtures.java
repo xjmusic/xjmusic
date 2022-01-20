@@ -562,6 +562,15 @@ public class IntegrationTestingFixtures {
     return templatePlayback;
   }
 
+  public static TemplatePublication buildTemplatePublication(Template template, User user) {
+    var templatePublication = new TemplatePublication();
+    templatePublication.setId(UUID.randomUUID());
+    templatePublication.setUserId(user.getId());
+    templatePublication.setTemplateId(template.getId());
+    templatePublication.setCreatedAt(Timestamp.from(Instant.now()).toLocalDateTime());
+    return templatePublication;
+  }
+
   public static Program buildProgram(Library library, ProgramType type, ProgramState state, String name, String key, Float tempo, Float density) {
     var program = new Program();
     program.setId(UUID.randomUUID());

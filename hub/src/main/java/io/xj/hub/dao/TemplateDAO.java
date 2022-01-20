@@ -49,8 +49,8 @@ public interface TemplateDAO extends DAO<Template> {
 
    @param hubAccess  control
    @param templateIds to read
-   @param types      of entities to include
+   @param includeTypes      of entities to include
    @return collection of entities
    */
-  Collection<Object> readChildEntities(HubAccess hubAccess, Collection<UUID> templateIds, Collection<String> types) throws DAOException;
+  Collection<Object> readChildEntities(HubAccess hubAccess, Collection<UUID> templateIds, Collection<String> includeTypes) throws DAOException;
 }
