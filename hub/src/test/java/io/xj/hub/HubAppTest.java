@@ -16,6 +16,7 @@ import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.persistence.HubMigration;
 import io.xj.lib.app.App;
 import io.xj.lib.app.Environment;
+import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.jsonapi.JsonapiModule;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -87,6 +88,8 @@ public class HubAppTest {
   @Mock
   public TemplatePlaybackDAO templatePlaybackDAO;
   @Mock
+  public TemplatePublicationDAO templatePublicationDAO;
+  @Mock
   public UserDAO userDAO;
   @Mock
   private GoogleProvider googleProvider;
@@ -94,6 +97,8 @@ public class HubAppTest {
   private HikariDataSource mockDataSource;
   @Mock
   private HubMigration hubMigration;
+  @Mock
+  private FileStoreProvider fileStoreProvider;
 
   @Before
   public void setUp() throws Exception {
@@ -104,6 +109,7 @@ public class HubAppTest {
       @Override
       protected void configure() {
         bind(Environment.class).toInstance(env);
+        bind(FileStoreProvider.class).toInstance(fileStoreProvider);
         bind(HubDatabaseProvider.class).toInstance(hubDatabaseProvider);
         bind(HubAccessControlProvider.class).toInstance(hubAccessControlProvider);
         bind(HubMigration.class).toInstance(hubMigration);
@@ -117,6 +123,7 @@ public class HubAppTest {
         bind(TemplateDAO.class).toInstance(templateDAO);
         bind(TemplateBindingDAO.class).toInstance(templateBindingDAO);
         bind(TemplatePlaybackDAO.class).toInstance(templatePlaybackDAO);
+        bind(TemplatePublicationDAO.class).toInstance(templatePublicationDAO);
         bind(ProgramDAO.class).toInstance(programDAO);
         bind(ProgramSequencePatternEventDAO.class).toInstance(programSequencePatternEventDAO);
         bind(ProgramMemeDAO.class).toInstance(programMemeDAO);
