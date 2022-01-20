@@ -96,6 +96,7 @@ public class NexusWorkImpl implements NexusWork {
   private final int ingestCycleSeconds;
   private final int janitorCycleSeconds;
   private final int labPollSeconds;
+  private final int yardPollSeconds;
   private final int medicCycleSeconds;
   private final int rehydrateFabricatedAheadThreshold;
   private final long healthCycleStalenessThresholdMillis;
@@ -104,6 +105,7 @@ public class NexusWorkImpl implements NexusWork {
   private final NexusWorkImpl.Mode mode;
   private final boolean isRehydrationEnabled;
   private Instant labPollNext;
+  private Instant yardPollNext;
   private NexusWorkImpl.State state;
   private MultiStopwatch timer;
   private boolean alive = true;
@@ -160,6 +162,7 @@ public class NexusWorkImpl implements NexusWork {
     rehydrateFabricatedAheadThreshold = env.getWorkRehydrateFabricatedAheadThreshold();
     shipBaseUrl = env.getShipBaseUrl();
     shipKey = env.getShipKey();
+    yardPollSeconds = env.getWorkYardPollSeconds();
 
     labPollNext = Instant.now();
     mode = Strings.isNullOrEmpty(shipKey) ? Lab : NexusWorkImpl.Mode.Yard;
@@ -275,6 +278,11 @@ public class NexusWorkImpl implements NexusWork {
    Run all work when this Nexus is in production, as in the Yard
    */
   private void runYard() throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException {
+    if (Instant.now().isAfter(yardPollNext)) {
+      yardPollNext = Instant.now().plusSeconds(yardPollSeconds);
+      loadYard();
+    }
+
     fabricateChain(chainManager.readOneByShipKey(shipKey));
   }
 

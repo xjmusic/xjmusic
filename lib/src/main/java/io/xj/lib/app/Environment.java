@@ -106,6 +106,7 @@ public class Environment {
   private final int workPublishCycleSeconds;
   private final int workRehydrateFabricatedAheadThreshold;
   private final int workTelemetryCycleSeconds;
+  private final int workYardPollSeconds;
 
   // This must be set manually by the bootstrap before starting the application
   private String appName;
@@ -193,6 +194,7 @@ public class Environment {
     workRehydrateFabricatedAheadThreshold = readInt(vars, "WORK_REHYDRATE_FABRICATED_AHEAD_THRESHOLD", 60);
     workRehydrationEnabled = readBool(vars, "WORK_REHYDRATION_ENABLED", true);
     workTelemetryCycleSeconds = readInt(vars, "WORK_TELEMETRY_CYCLE_SECONDS", 2);
+    workYardPollSeconds = readInt(vars, "WORK_YARD_POLL_SECONDS", 300);
 
     // Resource: Amazon Web Services (AWS)
     awsAccessKeyID = readStr(vars, "AWS_ACCESS_KEY_ID", EMPTY);
@@ -953,4 +955,10 @@ public class Environment {
     return workRehydrationEnabled;
   }
 
+  /**
+   @return work yard poll seconds
+   */
+  public int getWorkYardPollSeconds() {
+    return workYardPollSeconds;
+  }
 }
