@@ -364,7 +364,8 @@ CREATE TABLE xj.instrument (
     name character varying(255) NOT NULL,
     density real NOT NULL,
     config text DEFAULT ''::text NOT NULL,
-    is_deleted boolean DEFAULT false
+    is_deleted boolean DEFAULT false,
+    volume real DEFAULT 1.0
 );
 
 
@@ -636,6 +637,20 @@ CREATE TABLE xj.template_playback (
 ALTER TABLE xj.template_playback OWNER TO postgres;
 
 --
+-- Name: template_publication; Type: TABLE; Schema: xj; Owner: postgres
+--
+
+CREATE TABLE xj.template_publication (
+    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
+    template_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE xj.template_publication OWNER TO postgres;
+
+--
 -- Name: user; Type: TABLE; Schema: xj; Owner: postgres
 --
 
@@ -894,6 +909,14 @@ ALTER TABLE ONLY xj.template
 
 ALTER TABLE ONLY xj.template_playback
     ADD CONSTRAINT template_playback_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: template_publication template_publication_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.template_publication
+    ADD CONSTRAINT template_publication_pkey PRIMARY KEY (id);
 
 
 --
@@ -1358,6 +1381,8 @@ COPY xj.flyway_schema_history (installed_rank, version, description, type, scrip
 60	61	soft deletion	SQL	V61__soft_deletion.sql	970780052	postgres	2021-11-05 07:52:51.816645	8	t
 61	62	instrument transition ambient	SQL	V62__instrument_transition_ambient.sql	-1647046792	postgres	2021-11-10 07:07:15.169513	13	t
 62	63	program type beat	SQL	V63__program_type_beat.sql	1314367548	postgres	2021-12-29 01:00:42.858408	14	t
+63	64	instrument volume	SQL	V64__instrument_volume.sql	773430791	postgres	2022-01-15 04:01:07.001452	94	t
+64	65	template publication	SQL	V65__template_publication.sql	1713007390	postgres	2022-01-20 09:23:19.28495	263	t
 \.
 
 

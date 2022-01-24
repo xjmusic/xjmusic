@@ -201,171 +201,171 @@ fecebd38-fb26-11eb-8bbd-df3edf17a61b	Cool Program Beat (not deep house)	14e58a74
 -- Data for Name: instrument; Type: TABLE DATA; Schema: xj; Owner: postgres
 --
 
-COPY xj.instrument (id, library_id, type, state, name, density, config, is_deleted) FROM stdin;
-af8c6ba0-1baf-11eb-a1a3-7bbaed480f84	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Pad	Published	Fire Large Pad	0.6	isTonal=true\nisMultiphonic=true	f
-15162544-16eb-11ea-8a37-5f8791ecc0c1	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Pad	Draft	Fire String Hits	0.6	isTonal=true	f
-96041858-1bc4-11eb-834d-fb45b20d913f	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Pad	Published	Fire Small Pad	0.6	isTonal=true\nisMultiphonic=true	f
-faf05330-1efd-11eb-90fb-c334b746da1c	460830b0-fb24-11eb-80a6-7b4f92dccaea	Sticky	Draft	Fire Small Sticky V1	0.6	isTonal=true\nisMultiphonic=true	f
-17c32bc4-1bb4-11eb-9d42-ab105d1d2821	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Earth Small Bass	0.6	isTonal=true\nisMultiphonic=true	f
-0acbe1d8-1bbc-11eb-ba62-876a9ec11059	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Water Large Bass	0.6	isTonal=true\nisMultiphonic=true\n	f
-c285e3a8-1ba0-11eb-aab8-1f13fdf1284f	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Earth Large Bass	0.6	isMultiphonic=true\nisTonal=true	f
-e694d3ac-1bbf-11eb-a4ae-afa8e30b1947	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Wind Large Bass	0.6	isTonal=true\nisMultiphonic=true\n	f
-c2eb3bea-1bb9-11eb-8d30-3bee4bcc082d	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Fire Small Bass V2	0.6	isMultiphonic = true\nisTonal = true	f
-92220d48-2061-11eb-a29a-9f2dfa197751	460830b0-fb24-11eb-80a6-7b4f92dccaea	Sticky	Draft	Water Large Sticky	0.6	isMultiphonic = true\nisTonal = true	f
-1efc6726-1efb-11eb-aec8-83fff6175034	460830b0-fb24-11eb-80a6-7b4f92dccaea	Sticky	Published	Earth Small Sticky V2	0.6	isMultiphonic = true\nisTonal = true	f
-ae01c97a-1bd6-11eb-8fc1-bb9e8af14f4c	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Pad	Published	Water Small Pad	0.6	isTonal=true\nisMultiphonic=true	f
-391b1c64-1bdc-11eb-b0f8-c72c947963aa	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Pad	Published	Wind Small Pad	0.6	isTonal=true\nisMultiphonic=true	f
-150bc66c-16eb-11ea-8a37-83d91cc4d60b	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Pad	Draft	Earth Bass Pad	0.6	isTonal=true\nisMultiphonic=true\n	f
-35657db2-1ba5-11eb-a9a2-c3b8f00bc440	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Pad	Draft	Earth Large Pad	0.6	isTonal=true\nisMultiphonic=true\n	f
-be236c0e-205f-11eb-85b7-07de329489e7	460830b0-fb24-11eb-80a6-7b4f92dccaea	Sticky	Draft	Nope'd Wind Small Sticky not cool	0.6	isMultiphonic = true\nisTonal = true	f
-5994cdd0-1bd9-11eb-ac93-ff6d32f9237a	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Pad	Draft	Wind Large Pad	0.6	isMultiphonic = true\nisTonal = true	f
-c0c58ade-0b31-11eb-a297-d313824ce482	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Pad	Published	Earth Small Pad	0.6	isMultiphonic = true\nisOneShot = false\nisTonal = true\noneShotCutoffs = []\n	f
-7c47b8e0-a263-11eb-8588-5b6871eb97fd	2f621894-fb24-11eb-80a6-63ed42857ac1	Stripe	Draft	Earth Small Stripe (noped)	0.6	isMultiphonic = true\nisTonal = true	f
-49ca559c-a4bd-11eb-ac38-43a17d38efc7	2f621894-fb24-11eb-80a6-63ed42857ac1	Stripe	Draft	Wind Large Stripe (nope'd -- tinnitus)	0.6	isMultiphonic = true\nisTonal = true	f
-29f5f3fc-a260-11eb-9e28-9b4bd96ed334	2f621894-fb24-11eb-80a6-63ed42857ac1	Stripe	Draft	Fire Small Stripe (Nope'd -- Tinnitus)	0.6	isMultiphonic = true\nisTonal = true	f
-e0e9ae3e-a4b1-11eb-857e-139fcc7a11c0	2f621894-fb24-11eb-80a6-63ed42857ac1	Stripe	Draft	Water Large Stripe -- nope, tinnitus	0.6	isMultiphonic = true\nisTonal = true	f
-0a238524-a267-11eb-922c-436bac5de8b9	2f621894-fb24-11eb-80a6-63ed42857ac1	Stripe	Draft	Fire Large Stripe -- nope, tinnitus	0.6	isMultiphonic = true\nisTonal = true	f
-0e95b4fa-911f-11eb-8796-6b1d83452226	2f621894-fb24-11eb-80a6-63ed42857ac1	Stripe	Draft	Water Small Stripe- nope, tinnitus	0.6	isMultiphonic = true\nisTonal = true	f
-6ba84742-bc9f-11eb-b95a-13a04796bd38	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Fire Long Bass 01	0.6	isMultiphonic = true\nisTonal = true	f
-278d6566-bc99-11eb-917f-f39b401bb6cf	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Earth Long Bass 01	0.6	isMultiphonic = true\nisTonal = true	f
-a56f2b06-bc9c-11eb-9497-770cf9c404c0	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Earth Long Bass 02	0.6	isMultiphonic = true\nisTonal = true	f
-e372870e-bcd3-11eb-a28c-c30235bba0f5	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Fire Long Bass 02	0.6	isMultiphonic = true\nisTonal = true	f
-b640f744-bcd7-11eb-b822-3f7e40a8dddb	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Wind Long Bass 01	0.6	isMultiphonic = true\nisTonal = true	f
-d87afd76-bcde-11eb-8a1a-7b06cdef172a	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Wind Long Bass 02	0.6	isMultiphonic = true\nisTonal = true	f
-64c05f1c-bd78-11eb-84d8-df6d40a217ce	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Water Long Bass 01	0.6	isMultiphonic = true\nisTonal = true	f
-212cb21a-bd7c-11eb-b952-3b36714174d2	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Water Long Bass 02	0.6	isMultiphonic = true\nisTonal = true	f
-c806a4fe-1bc1-11eb-aba2-53552d52758d	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Wind Small Bass V2	0.6	isMultiphonic = true\nisTonal = true	f
-e26c67f4-1bb5-11eb-92b0-8bc1117eadc7	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Fire Large Bass V2	0.6	isMultiphonic = true\nisTonal = true	f
-3f48ab02-a4c0-11eb-998b-0b5596347fa9	2f621894-fb24-11eb-80a6-63ed42857ac1	Stripe	Draft	Earth Large Stripe - nope, too high	0.6	isMultiphonic = true\nisTonal = true	f
-15cd8374-16eb-11ea-8a37-8f22eedc54b2	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Earth B (legacy)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-169ea38c-16eb-11ea-8a37-b799503ae436	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Fire A  (legacy)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-17af4286-16eb-11ea-8a37-7f9963e0dfa2	1509b610-16eb-11ea-8a37-731d17ba5549	Drum	Published	Flammy Clap	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-17e50f74-16eb-11ea-8a37-e3561e92fad1	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Pots & Pans	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-1860788a-16eb-11ea-8a37-87eb83753fe4	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Water B (legacy)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-1884dbb2-16eb-11ea-8a37-077ec33cd155	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Water Basic X	0	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-4646f998-1caa-11eb-9a3f-c798c68ee101	ede3b224-fb23-11eb-ad24-1bf1b475662e	Stab	Published	Earth Large Stab	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
-6626894e-1ca1-11eb-9e9e-f3ce37e87351	ede3b224-fb23-11eb-ad24-1bf1b475662e	Stab	Published	Earth Small Stab	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
-1ee1a7f0-1bbe-11eb-8d9a-7bc94346144d	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Water Small Bass	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
-a8653b5e-1efc-11eb-9680-37ebbadae3e5	460830b0-fb24-11eb-80a6-7b4f92dccaea	Sticky	Published	Fire Large Sticky V3 tune'd de-Nope'd	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
-5664b972-1d7d-11eb-97b8-bf1fe264fa42	ede3b224-fb23-11eb-ad24-1bf1b475662e	Stab	Published	Water Small Stab	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
-7feedf90-1ee8-11eb-b203-cbc619cdff40	ede3b224-fb23-11eb-ad24-1bf1b475662e	Stab	Published	Wind Large Stab	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
-b5901ace-1cae-11eb-bb72-1762d9f73e0c	ede3b224-fb23-11eb-ad24-1bf1b475662e	Stab	Draft	Fire Small Stab - temp drafted, re-doing	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
-66939308-1cac-11eb-9a3f-0bc98d47fa1c	ede3b224-fb23-11eb-ad24-1bf1b475662e	Stab	Draft	Fire Large Stab - Drafted, too wobbly	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
-d4fd5280-1eef-11eb-8ac6-9bc4d83225a1	ede3b224-fb23-11eb-ad24-1bf1b475662e	Stab	Published	Wind Small Stab	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
-b65f643e-1eff-11eb-90fb-8b0472d1d3ed	460830b0-fb24-11eb-80a6-7b4f92dccaea	Sticky	Published	Water Small Sticky	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
-22262638-69b7-11eb-ab7b-b3c6668ecf65	460830b0-fb24-11eb-80a6-7b4f92dccaea	Sticky	Published	Fire Small Sticky V3 last ditch	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
-dc63114c-3b48-11ec-92ab-8f8aed08d244	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Draft	sample 1	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
-e3183eaa-c6bd-11ea-9c82-57f1aff96cac	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Earth Large 1 Kit	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-193a8eee-16eb-11ea-8a37-4f72c68eb48d	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Wind A (legacy)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-196d485c-16eb-11ea-8a37-3b9fc50a2c86	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Wind B (legacy)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-40766298-60de-11ea-a612-43b1bb19e32a	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Draft	Earth Large Kit A	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-06121a8e-60d4-11ea-ba4d-8786ea357f01	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Earth Large (Archive)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-eacd388c-c6b6-11ea-ac95-d3dfd467468b	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Wind Large 2 Kit	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-054f4b0e-c6bd-11ea-8d9b-d3bfd03b9b0f	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Earth Small 2 Kit	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-3d18232e-c6bf-11ea-8d9b-03b3b304f97b	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Earth Large 2 Kit	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-234c30f8-60d4-11ea-b41e-3fc9fed63772	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Earth Small (Archive)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-2616bad8-60d4-11ea-b41e-0f5122693b78	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Fire Large (Archive)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-290c072a-60d4-11ea-b41e-9f5b206a8b5e	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Fire Small (Archive)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-2b9945b6-60d4-11ea-b41e-db0695b1e9a0	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Water Large (Archive)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-2e0447e2-60d4-11ea-b41e-8bb683db6049	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Water Small (Archive)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-30933234-60d4-11ea-b41e-af865edbb83e	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Wind Large (Archive)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-337d06d2-60d4-11ea-b41e-4fbf8d13a55a	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Wind Small (Archive)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-c7699edc-bb51-11ea-9785-2f49dfce551e	5b300b6a-ab94-11ea-8655-67738fabcb32	Drum	Draft	Wind Large 1	1	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-a24a029a-62a4-11eb-bf98-9b95e451e8fc	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Draft	Test failure instrument	0	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-8120e618-7953-11eb-a1df-cb852fd6a755	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Draft	Wind Small 1 Kit sandbox	0	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-e5dba318-7953-11eb-9e16-ffa577a6f380	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Draft	New Wind Small Sandbox	0	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-19138e3e-16eb-11ea-8a37-0b2895a9ceb9	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Water Small (Legacy)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-18860e06-16eb-11ea-8a37-1fe3e47ff5a8	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Water Large (Legacy)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-1787297c-16eb-11ea-8a37-6f3014c0a6fc	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Fire Small (Legacy)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-16c8d008-16eb-11ea-8a37-dbdfe140dd35	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Fire Large (Legacy)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-1637e066-16eb-11ea-8a37-c7f42ae039d6	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Earth Small (Legacy)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-15f4f92c-16eb-11ea-8a37-2f529693f38a	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Earth Large (Legacy)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-199a5e8c-16eb-11ea-8a37-0f841ec0351d	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Wind Large (Legacy)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-bd273c54-c6b9-11ea-bf1e-6f4a50ee66c3	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Wind Small 1 Kit - not deep house	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]\n	f
-021885c2-2abc-11ec-8ed8-0fffe10df85e	2f621894-fb24-11eb-80a6-63ed42857ac1	Stripe	Published	New Stripe 04	0.6	isMultiphonic = true\nisOneShot = false\nisTonal = true\noneShotCutoffs = []\n	f
-00d18760-c6bb-11ea-bf1e-db7a46faf8c4	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Earth Small 1 Kit - not deep house	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]\n	f
-5621abd6-2ab6-11ec-9fa5-1f15d94a00a5	2f621894-fb24-11eb-80a6-63ed42857ac1	Stripe	Published	New Stripe 03	0.6	isMultiphonic = true\nisOneShot = false\nisTonal = true\noneShotCutoffs = []\n	f
-1a866750-2aa8-11ec-8789-63165bbd43fe	2f621894-fb24-11eb-80a6-63ed42857ac1	Stripe	Published	New Stripe 02	0.6	isMultiphonic = true\nisOneShot = false\nisTonal = true\noneShotCutoffs = []\n	f
-227cba9c-2a24-11ec-b6d8-0ffe8873a511	2f621894-fb24-11eb-80a6-63ed42857ac1	Stripe	Published	New Stripe 01	0.6	isMultiphonic = true\nisOneShot = false\nisTonal = true\noneShotCutoffs = []\n	f
-1f23f66e-02db-11ec-aff9-cf63193f1099	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Published	Tamborine Swung	1	isMultiphonic = false\nisTonal = false	f
-5a6cd782-1423-11ec-8481-a37481c91127	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Published	Tamborine Straight	1	isMultiphonic = false\nisTonal = false	f
-bfd5a5d2-02de-11ec-ad7a-f77d2854066a	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Published	Snaps BackBeat	1	isMultiphonic = false\nisTonal = false	f
-04940888-02dc-11ec-aff9-0fbc509153f6	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Published	Claps Backbeat	1	isMultiphonic = false\nisTonal = false	f
-8b3d1b0c-1422-11ec-ab32-3b6ef042d0ea	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Published	Shaker Backbeat Accents	1	isMultiphonic = false\nisTonal = false	f
-30b0600e-fb22-11eb-ac21-3fdc6eba2bf0	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Published	Shaker Straight No Accents	1	isMultiphonic = false\nisTonal = false	f
-93f987f8-1422-11ec-8481-630f6d4a1556	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Published	Shaker Upbeat 1/8th Note Accents	1	isMultiphonic = false\nisTonal = false	f
-76de8b1c-02e0-11ec-9cd8-e764c2cad43d	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Published	Go-go Bell Pattern 1	1	isMultiphonic = false\nisTonal = false	f
-946fcb02-9123-11eb-898d-cf1fe7240de3	ede3b224-fb23-11eb-ad24-1bf1b475662e	Stripe	Draft	Wind Small Stripe - nope, too high and distorted	0.6	isMultiphonic = true\nisTonal = true	f
-39582db6-02e0-11ec-9cd8-138a25e9d4dc	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Published	Triangle Pattern	1	isMultiphonic = false\nisTonal = false\n	f
-5994a4de-02df-11ec-9cd8-83626e718f0f	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Published	Bongos	1	isMultiphonic = false\nisTonal = false\n	f
-12443efe-3170-11ec-83fa-a32cd647727d	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Published	Toca Shake	1	isMultiphonic = false\nisTonal = false\n	f
-158a6738-16eb-11ea-8a37-3706e5d25249	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Earth A (legacy)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-166815c4-16eb-11ea-8a37-634bb3ccef01	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Electronic	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-f68542aa-3456-11ec-af69-cbfe77aa6bbc	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	New Kit Organic Test - not deep house	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]\n	f
-8eb4a48c-3851-11ec-9896-63744694bdb8	7c68d172-3851-11ec-b687-9fcd389404cc	Sticky	Published	Molasses 01	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
-e83e508a-316b-11ec-942c-fbd97b259ec0	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Published	Synco Shake	1	isMultiphonic = false\nisTonal = false\n	f
-19ea21a6-16eb-11ea-8a37-cb712a6674d9	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Wind Small (Legacy)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-55d46a34-6360-11ea-8872-97bb23901000	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	New Water Small	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-d247d096-c6c1-11ea-a4db-538e1ac4667f	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Fire Large 2 Kit	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-430097b4-c6b8-11ea-bf1e-5f5392f83f6a	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Wind Small 2 Kit	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-a940a2c8-c6c0-11ea-a4db-27c57fde98ce	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Fire Large 1 Kit	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-8e5f051e-c6c3-11ea-a4db-cfa29022f878	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Fire Small 1 Kit	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-f61b228a-c6c5-11ea-b647-03bc49b60069	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Fire Small 2 Kit	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-e73c6d52-c6c8-11ea-a21e-570912a399b6	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Water Large 1 Kit	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-e2f1737c-442c-11ec-993c-3f77abd8c222	5f2ecc9c-6150-11ec-aa86-0b19e7f877ac	Stripe	Published	Molasses 05	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
-37095c04-4446-11ec-b0fb-e7e3c624dd72	8980d7ee-41f5-11ec-a00e-3b9797f85fe8	Transition	Published	Risers	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
-6989f332-4cbb-11ec-a678-9f12e972d03b	ffc49138-4caf-11ec-8589-1f396b37df87	Drum	Draft	Splice Break 90bpm clone	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
-34c05028-696f-11ea-b45e-6b770285d799	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	New Wind Small	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-28806cbc-64ec-11ea-acb5-7f27befb1aad	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	New Fire Small	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-17b34ca0-16eb-11ea-8a37-6b86e3816409	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	New Earth Large	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-0c668776-64d5-11ea-acd9-c772fe2ee43d	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	New Fire Large	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-d8de4aec-6317-11ea-a6db-9f44c189845f	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	New Water Large - drafted, need to re-asses	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f
-707f4994-1cb0-11eb-bb72-9fa0d813a844	ede3b224-fb23-11eb-ad24-1bf1b475662e	Stab	Published	Water Large Stab	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
-7de67650-1ef6-11eb-8df3-bf5a46b7b953	460830b0-fb24-11eb-80a6-7b4f92dccaea	Sticky	Published	Earth Large Sticky	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
-c2e9eefc-44a3-11ec-ab54-570591c44959	8980d7ee-41f5-11ec-a00e-3b9797f85fe8	Transition	Published	Vox Stabs	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
-4a356e84-1bc6-11eb-b892-5b094429574c	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Pad	Published	Water Large Pad	0.6	isMultiphonic = true\nisOneShot = false\nisTonal = true\noneShotCutoffs = []\n	f
-3e55da8a-bb55-11ea-bec8-83d3620b01db	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Wind Large 1 Kit - not deep house	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]\n	f
-152fbc70-16eb-11ea-8a37-2f91c79f438d	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Acoustic	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]\n	f
-e623d174-3b4f-11ec-9094-a3c12170b9ad	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Acoustic	0.6	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
-ff0a519a-3b4f-11ec-9094-bf4e6b819c5e	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Acoustic2	0.6	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
-a7a1ab8e-3c5c-11ec-998a-3f2f55389775	8cd48902-3c5c-11ec-9e9c-8f35ed4d6333	Bass	Published	Open Space Shortbass 01	1	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
-8904dcee-428f-11ec-8193-17821b2deef9	7c68d172-3851-11ec-b687-9fcd389404cc	Sticky	Published	Molasses 04	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
-836089a4-50c8-11ec-8558-4be4c6903560	ffc49138-4caf-11ec-8589-1f396b37df87	Drum	Published	Fire Test 1	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	t
-3bbcc300-c6c8-11ea-9c5b-3fabd1ae6028	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Water Small 2 Kit	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOP]\n	f
-d9dd91c6-c6c9-11ea-a21e-0bcae3c78831	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Water Large 2 Kit - not deep house	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]\n	f
-09e94f98-c6c7-11ea-b647-8766c0d05d20	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Water Small 1 Kit V2	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]\n	f
-6282d07a-4420-11ec-aa34-17f646babb39	8980d7ee-41f5-11ec-a00e-3b9797f85fe8	Transition	Published	FX Claps	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
-2d5c1180-41f6-11ec-a00e-0bf29a2af8e1	8980d7ee-41f5-11ec-a00e-3b9797f85fe8	Transition	Draft	Temp Crash Swells	1	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = []\n	f
-f58a20da-442a-11ec-8a5f-175152e4431c	8980d7ee-41f5-11ec-a00e-3b9797f85fe8	Transition	Published	Simmons Toms	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
-fd523c02-4430-11ec-b6c9-9f84f28410fd	8980d7ee-41f5-11ec-a00e-3b9797f85fe8	Transition	Published	Fuzzy Toms	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
-f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	7c68d172-3851-11ec-b687-9fcd389404cc	Sticky	Published	Molasses 02	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
-30ea0a08-4cb1-11ec-b580-a7f5b798f28c	ffc49138-4caf-11ec-8589-1f396b37df87	Drum	Draft	AJ Hall Break 90 BPM (original)	0.85	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
-b720302a-5ddc-11ec-95c8-1fda9822e889	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Draft	Tabla Fuck All	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
-aaf7238e-5c84-11ec-bb68-0fe3399a4a77	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Draft	Live Sticky Guitar	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
-f517ca3a-4cb3-11ec-8ccb-6b94ded234e4	ffc49138-4caf-11ec-8589-1f396b37df87	Drum	Draft	AJ Hall Break 90 BPM	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
-3a756c5a-4cb3-11ec-9567-6b0ad22a25ab	ffc49138-4caf-11ec-8589-1f396b37df87	Drum	Draft	Splice Break 90bpm	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
-1498ac94-5ddf-11ec-a75b-934b17bcdca1	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Draft	W.M.L.W Accapella	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
-a3f2d2fa-5de1-11ec-9972-4f254353a9fc	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Draft	Bullet Ricochet 	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
-090c7776-205e-11eb-bd64-431b46a4aa7b	460830b0-fb24-11eb-80a6-7b4f92dccaea	Sticky	Published	Wind Large Sticky V2	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
-c6ec5f4a-41cd-11ec-9e47-5b7fe0a3ed55	7c68d172-3851-11ec-b687-9fcd389404cc	Sticky	Published	Molasses 03	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
-6ac9115e-6153-11ec-99f6-8b04e8421e3e	5f2ecc9c-6150-11ec-aa86-0b19e7f877ac	Stripe	Published	Arpy 01	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
-2675e4aa-6153-11ec-a0d1-fbb7d16558a0	7c68d172-3851-11ec-b687-9fcd389404cc	Stripe	Published	Arpy 01	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	t
-853af94e-69dc-11ec-9b86-333e262a163f	0c9a7e88-6905-11ec-ad48-178089708562	Stab	Draft	test	0.6	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	t
-2066165c-6207-11ec-8d73-27ac8071f315	5f2ecc9c-6150-11ec-aa86-0b19e7f877ac	Stripe	Draft	test sticky	0.5	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	t
-ded69d74-6cdd-11ec-86f2-77f943a6f121	5f2ecc9c-6150-11ec-aa86-0b19e7f877ac	Stripe	Published	Arpy 01 Clone	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
-04154b32-62a5-11ec-b9f8-371915c677aa	5f2ecc9c-6150-11ec-aa86-0b19e7f877ac	Stripe	Draft	Arpy 02	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
-d31b3b7c-6213-11ec-a7b8-6b12eae3858a	5f2ecc9c-6150-11ec-aa86-0b19e7f877ac	Stripe	Published	Arpy 01 Clone 2 test	0.6	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	t
-de939cd8-61f5-11ec-aa6d-8f62319d4097	5f2ecc9c-6150-11ec-aa86-0b19e7f877ac	Stripe	Published	Arpy 01 Clone	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	t
-073b85f6-62a5-11ec-b9f8-ff30d0c9d990	5f2ecc9c-6150-11ec-aa86-0b19e7f877ac	Stripe	Draft	Warpy 01 Clone	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
-11d618f6-6213-11ec-a7b8-8fea81505b31	5f2ecc9c-6150-11ec-aa86-0b19e7f877ac	Stripe	Published	Warpy 01.2	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
-faeefd9c-6799-11ec-95d7-d74a28f5087f	ffc49138-4caf-11ec-8589-1f396b37df87	Drum	Draft	Hi-Hat One-Shots	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
-2759ebe0-6794-11ec-8195-cb2a67b54919	ffc49138-4caf-11ec-8589-1f396b37df87	Drum	Draft	Kick One-Shots	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
-7c6ec88c-6797-11ec-9573-6f7ae5e370fc	ffc49138-4caf-11ec-8589-1f396b37df87	Drum	Draft	Snare One-Shots	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
-67373a22-6d18-11ec-93d4-3f10ed0a219e	ffc49138-4caf-11ec-8589-1f396b37df87	Drum	Published	Boom Bap 1	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f
-21a061b4-6f4d-11ec-acf4-a3494cfac08f	7c68d172-3851-11ec-b687-9fcd389404cc	Sticky	Published	Molasses 04 Clone	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	t
-f4a78e4c-6904-11ec-a444-8f8732ea1803	0c9a7e88-6905-11ec-ad48-178089708562	Stab	Published	Stabby Patty	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
-52b3f59e-690e-11ec-bd68-0fba0a7fa6f7	0c9a7e88-6905-11ec-ad48-178089708562	Stab	Published	Stabby Patty Clone	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f
-3272b4f4-69d2-11ec-962b-53a2ef331cde	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Drum	Draft	test	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	t
+COPY xj.instrument (id, library_id, type, state, name, density, config, is_deleted, volume) FROM stdin;
+af8c6ba0-1baf-11eb-a1a3-7bbaed480f84	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Pad	Published	Fire Large Pad	0.6	isTonal=true\nisMultiphonic=true	f	1
+15162544-16eb-11ea-8a37-5f8791ecc0c1	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Pad	Draft	Fire String Hits	0.6	isTonal=true	f	1
+96041858-1bc4-11eb-834d-fb45b20d913f	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Pad	Published	Fire Small Pad	0.6	isTonal=true\nisMultiphonic=true	f	1
+faf05330-1efd-11eb-90fb-c334b746da1c	460830b0-fb24-11eb-80a6-7b4f92dccaea	Sticky	Draft	Fire Small Sticky V1	0.6	isTonal=true\nisMultiphonic=true	f	1
+17c32bc4-1bb4-11eb-9d42-ab105d1d2821	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Earth Small Bass	0.6	isTonal=true\nisMultiphonic=true	f	1
+0acbe1d8-1bbc-11eb-ba62-876a9ec11059	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Water Large Bass	0.6	isTonal=true\nisMultiphonic=true\n	f	1
+e694d3ac-1bbf-11eb-a4ae-afa8e30b1947	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Wind Large Bass	0.6	isTonal=true\nisMultiphonic=true\n	f	1
+c2eb3bea-1bb9-11eb-8d30-3bee4bcc082d	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Fire Small Bass V2	0.6	isMultiphonic = true\nisTonal = true	f	1
+92220d48-2061-11eb-a29a-9f2dfa197751	460830b0-fb24-11eb-80a6-7b4f92dccaea	Sticky	Draft	Water Large Sticky	0.6	isMultiphonic = true\nisTonal = true	f	1
+1efc6726-1efb-11eb-aec8-83fff6175034	460830b0-fb24-11eb-80a6-7b4f92dccaea	Sticky	Published	Earth Small Sticky V2	0.6	isMultiphonic = true\nisTonal = true	f	1
+ae01c97a-1bd6-11eb-8fc1-bb9e8af14f4c	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Pad	Published	Water Small Pad	0.6	isTonal=true\nisMultiphonic=true	f	1
+391b1c64-1bdc-11eb-b0f8-c72c947963aa	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Pad	Published	Wind Small Pad	0.6	isTonal=true\nisMultiphonic=true	f	1
+150bc66c-16eb-11ea-8a37-83d91cc4d60b	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Pad	Draft	Earth Bass Pad	0.6	isTonal=true\nisMultiphonic=true\n	f	1
+35657db2-1ba5-11eb-a9a2-c3b8f00bc440	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Pad	Draft	Earth Large Pad	0.6	isTonal=true\nisMultiphonic=true\n	f	1
+be236c0e-205f-11eb-85b7-07de329489e7	460830b0-fb24-11eb-80a6-7b4f92dccaea	Sticky	Draft	Nope'd Wind Small Sticky not cool	0.6	isMultiphonic = true\nisTonal = true	f	1
+5994cdd0-1bd9-11eb-ac93-ff6d32f9237a	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Pad	Draft	Wind Large Pad	0.6	isMultiphonic = true\nisTonal = true	f	1
+c0c58ade-0b31-11eb-a297-d313824ce482	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Pad	Published	Earth Small Pad	0.6	isMultiphonic = true\nisOneShot = false\nisTonal = true\noneShotCutoffs = []\n	f	1
+7c47b8e0-a263-11eb-8588-5b6871eb97fd	2f621894-fb24-11eb-80a6-63ed42857ac1	Stripe	Draft	Earth Small Stripe (noped)	0.6	isMultiphonic = true\nisTonal = true	f	1
+49ca559c-a4bd-11eb-ac38-43a17d38efc7	2f621894-fb24-11eb-80a6-63ed42857ac1	Stripe	Draft	Wind Large Stripe (nope'd -- tinnitus)	0.6	isMultiphonic = true\nisTonal = true	f	1
+29f5f3fc-a260-11eb-9e28-9b4bd96ed334	2f621894-fb24-11eb-80a6-63ed42857ac1	Stripe	Draft	Fire Small Stripe (Nope'd -- Tinnitus)	0.6	isMultiphonic = true\nisTonal = true	f	1
+e0e9ae3e-a4b1-11eb-857e-139fcc7a11c0	2f621894-fb24-11eb-80a6-63ed42857ac1	Stripe	Draft	Water Large Stripe -- nope, tinnitus	0.6	isMultiphonic = true\nisTonal = true	f	1
+0a238524-a267-11eb-922c-436bac5de8b9	2f621894-fb24-11eb-80a6-63ed42857ac1	Stripe	Draft	Fire Large Stripe -- nope, tinnitus	0.6	isMultiphonic = true\nisTonal = true	f	1
+0e95b4fa-911f-11eb-8796-6b1d83452226	2f621894-fb24-11eb-80a6-63ed42857ac1	Stripe	Draft	Water Small Stripe- nope, tinnitus	0.6	isMultiphonic = true\nisTonal = true	f	1
+6ba84742-bc9f-11eb-b95a-13a04796bd38	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Fire Long Bass 01	0.6	isMultiphonic = true\nisTonal = true	f	1
+278d6566-bc99-11eb-917f-f39b401bb6cf	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Earth Long Bass 01	0.6	isMultiphonic = true\nisTonal = true	f	1
+a56f2b06-bc9c-11eb-9497-770cf9c404c0	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Earth Long Bass 02	0.6	isMultiphonic = true\nisTonal = true	f	1
+e372870e-bcd3-11eb-a28c-c30235bba0f5	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Fire Long Bass 02	0.6	isMultiphonic = true\nisTonal = true	f	1
+b640f744-bcd7-11eb-b822-3f7e40a8dddb	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Wind Long Bass 01	0.6	isMultiphonic = true\nisTonal = true	f	1
+d87afd76-bcde-11eb-8a1a-7b06cdef172a	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Wind Long Bass 02	0.6	isMultiphonic = true\nisTonal = true	f	1
+64c05f1c-bd78-11eb-84d8-df6d40a217ce	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Water Long Bass 01	0.6	isMultiphonic = true\nisTonal = true	f	1
+212cb21a-bd7c-11eb-b952-3b36714174d2	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Water Long Bass 02	0.6	isMultiphonic = true\nisTonal = true	f	1
+c806a4fe-1bc1-11eb-aba2-53552d52758d	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Wind Small Bass V2	0.6	isMultiphonic = true\nisTonal = true	f	1
+e26c67f4-1bb5-11eb-92b0-8bc1117eadc7	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Fire Large Bass V2	0.6	isMultiphonic = true\nisTonal = true	f	1
+3f48ab02-a4c0-11eb-998b-0b5596347fa9	2f621894-fb24-11eb-80a6-63ed42857ac1	Stripe	Draft	Earth Large Stripe - nope, too high	0.6	isMultiphonic = true\nisTonal = true	f	1
+15cd8374-16eb-11ea-8a37-8f22eedc54b2	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Earth B (legacy)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+169ea38c-16eb-11ea-8a37-b799503ae436	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Fire A  (legacy)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+17af4286-16eb-11ea-8a37-7f9963e0dfa2	1509b610-16eb-11ea-8a37-731d17ba5549	Drum	Published	Flammy Clap	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+17e50f74-16eb-11ea-8a37-e3561e92fad1	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Pots & Pans	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+1860788a-16eb-11ea-8a37-87eb83753fe4	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Water B (legacy)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+1884dbb2-16eb-11ea-8a37-077ec33cd155	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Water Basic X	0	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+4646f998-1caa-11eb-9a3f-c798c68ee101	ede3b224-fb23-11eb-ad24-1bf1b475662e	Stab	Published	Earth Large Stab	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f	1
+6626894e-1ca1-11eb-9e9e-f3ce37e87351	ede3b224-fb23-11eb-ad24-1bf1b475662e	Stab	Published	Earth Small Stab	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f	1
+1ee1a7f0-1bbe-11eb-8d9a-7bc94346144d	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Water Small Bass	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f	1
+a8653b5e-1efc-11eb-9680-37ebbadae3e5	460830b0-fb24-11eb-80a6-7b4f92dccaea	Sticky	Published	Fire Large Sticky V3 tune'd de-Nope'd	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f	1
+5664b972-1d7d-11eb-97b8-bf1fe264fa42	ede3b224-fb23-11eb-ad24-1bf1b475662e	Stab	Published	Water Small Stab	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f	1
+7feedf90-1ee8-11eb-b203-cbc619cdff40	ede3b224-fb23-11eb-ad24-1bf1b475662e	Stab	Published	Wind Large Stab	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f	1
+b5901ace-1cae-11eb-bb72-1762d9f73e0c	ede3b224-fb23-11eb-ad24-1bf1b475662e	Stab	Draft	Fire Small Stab - temp drafted, re-doing	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f	1
+66939308-1cac-11eb-9a3f-0bc98d47fa1c	ede3b224-fb23-11eb-ad24-1bf1b475662e	Stab	Draft	Fire Large Stab - Drafted, too wobbly	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f	1
+d4fd5280-1eef-11eb-8ac6-9bc4d83225a1	ede3b224-fb23-11eb-ad24-1bf1b475662e	Stab	Published	Wind Small Stab	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f	1
+b65f643e-1eff-11eb-90fb-8b0472d1d3ed	460830b0-fb24-11eb-80a6-7b4f92dccaea	Sticky	Published	Water Small Sticky	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f	1
+22262638-69b7-11eb-ab7b-b3c6668ecf65	460830b0-fb24-11eb-80a6-7b4f92dccaea	Sticky	Published	Fire Small Sticky V3 last ditch	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f	1
+dc63114c-3b48-11ec-92ab-8f8aed08d244	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Draft	sample 1	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f	1
+c285e3a8-1ba0-11eb-aab8-1f13fdf1284f	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Earth Large Bass	0.6	isMultiphonic = true\nisOneShot = false\nisTonal = true\noneShotCutoffs = []\n	f	1
+e3183eaa-c6bd-11ea-9c82-57f1aff96cac	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Earth Large 1 Kit	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+193a8eee-16eb-11ea-8a37-4f72c68eb48d	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Wind A (legacy)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+196d485c-16eb-11ea-8a37-3b9fc50a2c86	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Wind B (legacy)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+40766298-60de-11ea-a612-43b1bb19e32a	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Draft	Earth Large Kit A	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+06121a8e-60d4-11ea-ba4d-8786ea357f01	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Earth Large (Archive)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+eacd388c-c6b6-11ea-ac95-d3dfd467468b	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Wind Large 2 Kit	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+054f4b0e-c6bd-11ea-8d9b-d3bfd03b9b0f	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Earth Small 2 Kit	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+3d18232e-c6bf-11ea-8d9b-03b3b304f97b	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Earth Large 2 Kit	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+234c30f8-60d4-11ea-b41e-3fc9fed63772	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Earth Small (Archive)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+2616bad8-60d4-11ea-b41e-0f5122693b78	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Fire Large (Archive)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+290c072a-60d4-11ea-b41e-9f5b206a8b5e	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Fire Small (Archive)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+2b9945b6-60d4-11ea-b41e-db0695b1e9a0	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Water Large (Archive)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+2e0447e2-60d4-11ea-b41e-8bb683db6049	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Water Small (Archive)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+30933234-60d4-11ea-b41e-af865edbb83e	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Wind Large (Archive)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+337d06d2-60d4-11ea-b41e-4fbf8d13a55a	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Wind Small (Archive)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+c7699edc-bb51-11ea-9785-2f49dfce551e	5b300b6a-ab94-11ea-8655-67738fabcb32	Drum	Draft	Wind Large 1	1	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+a24a029a-62a4-11eb-bf98-9b95e451e8fc	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Draft	Test failure instrument	0	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+8120e618-7953-11eb-a1df-cb852fd6a755	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Draft	Wind Small 1 Kit sandbox	0	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+e5dba318-7953-11eb-9e16-ffa577a6f380	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Draft	New Wind Small Sandbox	0	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+19138e3e-16eb-11ea-8a37-0b2895a9ceb9	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Water Small (Legacy)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+18860e06-16eb-11ea-8a37-1fe3e47ff5a8	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Water Large (Legacy)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+1787297c-16eb-11ea-8a37-6f3014c0a6fc	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Fire Small (Legacy)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+16c8d008-16eb-11ea-8a37-dbdfe140dd35	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Fire Large (Legacy)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+1637e066-16eb-11ea-8a37-c7f42ae039d6	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Earth Small (Legacy)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+15f4f92c-16eb-11ea-8a37-2f529693f38a	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Earth Large (Legacy)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+199a5e8c-16eb-11ea-8a37-0f841ec0351d	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Wind Large (Legacy)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+bd273c54-c6b9-11ea-bf1e-6f4a50ee66c3	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Wind Small 1 Kit - not deep house	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]\n	f	1
+021885c2-2abc-11ec-8ed8-0fffe10df85e	2f621894-fb24-11eb-80a6-63ed42857ac1	Stripe	Published	New Stripe 04	0.6	isMultiphonic = true\nisOneShot = false\nisTonal = true\noneShotCutoffs = []\n	f	1
+00d18760-c6bb-11ea-bf1e-db7a46faf8c4	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Earth Small 1 Kit - not deep house	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]\n	f	1
+5621abd6-2ab6-11ec-9fa5-1f15d94a00a5	2f621894-fb24-11eb-80a6-63ed42857ac1	Stripe	Published	New Stripe 03	0.6	isMultiphonic = true\nisOneShot = false\nisTonal = true\noneShotCutoffs = []\n	f	1
+1a866750-2aa8-11ec-8789-63165bbd43fe	2f621894-fb24-11eb-80a6-63ed42857ac1	Stripe	Published	New Stripe 02	0.6	isMultiphonic = true\nisOneShot = false\nisTonal = true\noneShotCutoffs = []\n	f	1
+227cba9c-2a24-11ec-b6d8-0ffe8873a511	2f621894-fb24-11eb-80a6-63ed42857ac1	Stripe	Published	New Stripe 01	0.6	isMultiphonic = true\nisOneShot = false\nisTonal = true\noneShotCutoffs = []\n	f	1
+1f23f66e-02db-11ec-aff9-cf63193f1099	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Published	Tamborine Swung	1	isMultiphonic = false\nisTonal = false	f	1
+5a6cd782-1423-11ec-8481-a37481c91127	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Published	Tamborine Straight	1	isMultiphonic = false\nisTonal = false	f	1
+bfd5a5d2-02de-11ec-ad7a-f77d2854066a	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Published	Snaps BackBeat	1	isMultiphonic = false\nisTonal = false	f	1
+04940888-02dc-11ec-aff9-0fbc509153f6	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Published	Claps Backbeat	1	isMultiphonic = false\nisTonal = false	f	1
+8b3d1b0c-1422-11ec-ab32-3b6ef042d0ea	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Published	Shaker Backbeat Accents	1	isMultiphonic = false\nisTonal = false	f	1
+30b0600e-fb22-11eb-ac21-3fdc6eba2bf0	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Published	Shaker Straight No Accents	1	isMultiphonic = false\nisTonal = false	f	1
+93f987f8-1422-11ec-8481-630f6d4a1556	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Published	Shaker Upbeat 1/8th Note Accents	1	isMultiphonic = false\nisTonal = false	f	1
+76de8b1c-02e0-11ec-9cd8-e764c2cad43d	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Published	Go-go Bell Pattern 1	1	isMultiphonic = false\nisTonal = false	f	1
+946fcb02-9123-11eb-898d-cf1fe7240de3	ede3b224-fb23-11eb-ad24-1bf1b475662e	Stripe	Draft	Wind Small Stripe - nope, too high and distorted	0.6	isMultiphonic = true\nisTonal = true	f	1
+39582db6-02e0-11ec-9cd8-138a25e9d4dc	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Published	Triangle Pattern	1	isMultiphonic = false\nisTonal = false\n	f	1
+5994a4de-02df-11ec-9cd8-83626e718f0f	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Published	Bongos	1	isMultiphonic = false\nisTonal = false\n	f	1
+12443efe-3170-11ec-83fa-a32cd647727d	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Published	Toca Shake	1	isMultiphonic = false\nisTonal = false\n	f	1
+158a6738-16eb-11ea-8a37-3706e5d25249	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Earth A (legacy)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+166815c4-16eb-11ea-8a37-634bb3ccef01	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Electronic	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+f68542aa-3456-11ec-af69-cbfe77aa6bbc	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	New Kit Organic Test - not deep house	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]\n	f	1
+8eb4a48c-3851-11ec-9896-63744694bdb8	7c68d172-3851-11ec-b687-9fcd389404cc	Sticky	Published	Molasses 01	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f	1
+e83e508a-316b-11ec-942c-fbd97b259ec0	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Published	Synco Shake	1	isMultiphonic = false\nisTonal = false\n	f	1
+19ea21a6-16eb-11ea-8a37-cb712a6674d9	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Wind Small (Legacy)	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+55d46a34-6360-11ea-8872-97bb23901000	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	New Water Small	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+d247d096-c6c1-11ea-a4db-538e1ac4667f	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Fire Large 2 Kit	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+430097b4-c6b8-11ea-bf1e-5f5392f83f6a	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Wind Small 2 Kit	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+a940a2c8-c6c0-11ea-a4db-27c57fde98ce	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Fire Large 1 Kit	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+8e5f051e-c6c3-11ea-a4db-cfa29022f878	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Fire Small 1 Kit	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+f61b228a-c6c5-11ea-b647-03bc49b60069	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Fire Small 2 Kit	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+e73c6d52-c6c8-11ea-a21e-570912a399b6	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Water Large 1 Kit	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+e2f1737c-442c-11ec-993c-3f77abd8c222	5f2ecc9c-6150-11ec-aa86-0b19e7f877ac	Stripe	Published	Molasses 05	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f	1
+37095c04-4446-11ec-b0fb-e7e3c624dd72	8980d7ee-41f5-11ec-a00e-3b9797f85fe8	Transition	Published	Risers	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f	1
+6989f332-4cbb-11ec-a678-9f12e972d03b	ffc49138-4caf-11ec-8589-1f396b37df87	Drum	Draft	Splice Break 90bpm clone	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f	1
+34c05028-696f-11ea-b45e-6b770285d799	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	New Wind Small	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+28806cbc-64ec-11ea-acb5-7f27befb1aad	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	New Fire Small	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+17b34ca0-16eb-11ea-8a37-6b86e3816409	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	New Earth Large	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+0c668776-64d5-11ea-acd9-c772fe2ee43d	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	New Fire Large	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+d8de4aec-6317-11ea-a6db-9f44c189845f	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	New Water Large - drafted, need to re-asses	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]	f	1
+707f4994-1cb0-11eb-bb72-9fa0d813a844	ede3b224-fb23-11eb-ad24-1bf1b475662e	Stab	Published	Water Large Stab	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f	1
+c2e9eefc-44a3-11ec-ab54-570591c44959	8980d7ee-41f5-11ec-a00e-3b9797f85fe8	Transition	Published	Vox Stabs	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f	1
+4a356e84-1bc6-11eb-b892-5b094429574c	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Pad	Published	Water Large Pad	0.6	isMultiphonic = true\nisOneShot = false\nisTonal = true\noneShotCutoffs = []\n	f	1
+3e55da8a-bb55-11ea-bec8-83d3620b01db	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Wind Large 1 Kit - not deep house	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]\n	f	1
+152fbc70-16eb-11ea-8a37-2f91c79f438d	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Acoustic	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]\n	f	1
+e623d174-3b4f-11ec-9094-a3c12170b9ad	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Acoustic	0.6	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f	1
+ff0a519a-3b4f-11ec-9094-bf4e6b819c5e	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Acoustic2	0.6	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f	1
+a7a1ab8e-3c5c-11ec-998a-3f2f55389775	8cd48902-3c5c-11ec-9e9c-8f35ed4d6333	Bass	Published	Open Space Shortbass 01	1	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f	1
+8904dcee-428f-11ec-8193-17821b2deef9	7c68d172-3851-11ec-b687-9fcd389404cc	Sticky	Published	Molasses 04	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f	1
+836089a4-50c8-11ec-8558-4be4c6903560	ffc49138-4caf-11ec-8589-1f396b37df87	Drum	Published	Fire Test 1	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	t	1
+3bbcc300-c6c8-11ea-9c5b-3fabd1ae6028	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Water Small 2 Kit	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOP]\n	f	1
+d9dd91c6-c6c9-11ea-a21e-0bcae3c78831	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Water Large 2 Kit - not deep house	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]\n	f	1
+09e94f98-c6c7-11ea-b647-8766c0d05d20	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Water Small 1 Kit V2	0.6	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = [HIHATOPEN]\n	f	1
+6282d07a-4420-11ec-aa34-17f646babb39	8980d7ee-41f5-11ec-a00e-3b9797f85fe8	Transition	Published	FX Claps	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f	1
+2d5c1180-41f6-11ec-a00e-0bf29a2af8e1	8980d7ee-41f5-11ec-a00e-3b9797f85fe8	Transition	Draft	Temp Crash Swells	1	isMultiphonic = false\nisOneShot = true\nisTonal = false\noneShotCutoffs = []\n	f	1
+f58a20da-442a-11ec-8a5f-175152e4431c	8980d7ee-41f5-11ec-a00e-3b9797f85fe8	Transition	Published	Simmons Toms	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f	1
+fd523c02-4430-11ec-b6c9-9f84f28410fd	8980d7ee-41f5-11ec-a00e-3b9797f85fe8	Transition	Published	Fuzzy Toms	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f	1
+f4e41bd2-3939-11ec-8a9f-63ac24b9b8cf	7c68d172-3851-11ec-b687-9fcd389404cc	Sticky	Published	Molasses 02	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f	1
+30ea0a08-4cb1-11ec-b580-a7f5b798f28c	ffc49138-4caf-11ec-8589-1f396b37df87	Drum	Draft	AJ Hall Break 90 BPM (original)	0.85	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f	1
+b720302a-5ddc-11ec-95c8-1fda9822e889	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Draft	Tabla Fuck All	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f	1
+aaf7238e-5c84-11ec-bb68-0fe3399a4a77	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Draft	Live Sticky Guitar	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f	1
+f517ca3a-4cb3-11ec-8ccb-6b94ded234e4	ffc49138-4caf-11ec-8589-1f396b37df87	Drum	Draft	AJ Hall Break 90 BPM	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f	1
+090c7776-205e-11eb-bd64-431b46a4aa7b	460830b0-fb24-11eb-80a6-7b4f92dccaea	Sticky	Draft	Wind Large Sticky V2	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f	1
+3a756c5a-4cb3-11ec-9567-6b0ad22a25ab	ffc49138-4caf-11ec-8589-1f396b37df87	Drum	Draft	Splice Break 90bpm	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f	1
+1498ac94-5ddf-11ec-a75b-934b17bcdca1	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Draft	W.M.L.W Accapella	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f	1
+a3f2d2fa-5de1-11ec-9972-4f254353a9fc	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Draft	Bullet Ricochet 	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f	1
+7de67650-1ef6-11eb-8df3-bf5a46b7b953	460830b0-fb24-11eb-80a6-7b4f92dccaea	Sticky	Published	Earth Large Sticky	0.6	isMultiphonic = true\nisOneShot = false\nisTonal = true\noneShotCutoffs = []\n	f	1
+c6ec5f4a-41cd-11ec-9e47-5b7fe0a3ed55	7c68d172-3851-11ec-b687-9fcd389404cc	Sticky	Published	Molasses 03	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f	1
+6ac9115e-6153-11ec-99f6-8b04e8421e3e	5f2ecc9c-6150-11ec-aa86-0b19e7f877ac	Stripe	Published	Arpy 01	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f	1
+2675e4aa-6153-11ec-a0d1-fbb7d16558a0	7c68d172-3851-11ec-b687-9fcd389404cc	Stripe	Published	Arpy 01	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	t	1
+853af94e-69dc-11ec-9b86-333e262a163f	0c9a7e88-6905-11ec-ad48-178089708562	Stab	Draft	test	0.6	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	t	1
+2066165c-6207-11ec-8d73-27ac8071f315	5f2ecc9c-6150-11ec-aa86-0b19e7f877ac	Stripe	Draft	test sticky	0.5	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	t	1
+ded69d74-6cdd-11ec-86f2-77f943a6f121	5f2ecc9c-6150-11ec-aa86-0b19e7f877ac	Stripe	Published	Arpy 01 Clone	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f	1
+04154b32-62a5-11ec-b9f8-371915c677aa	5f2ecc9c-6150-11ec-aa86-0b19e7f877ac	Stripe	Draft	Arpy 02	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f	1
+d31b3b7c-6213-11ec-a7b8-6b12eae3858a	5f2ecc9c-6150-11ec-aa86-0b19e7f877ac	Stripe	Published	Arpy 01 Clone 2 test	0.6	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	t	1
+de939cd8-61f5-11ec-aa6d-8f62319d4097	5f2ecc9c-6150-11ec-aa86-0b19e7f877ac	Stripe	Published	Arpy 01 Clone	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	t	1
+073b85f6-62a5-11ec-b9f8-ff30d0c9d990	5f2ecc9c-6150-11ec-aa86-0b19e7f877ac	Stripe	Draft	Warpy 01 Clone	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f	1
+11d618f6-6213-11ec-a7b8-8fea81505b31	5f2ecc9c-6150-11ec-aa86-0b19e7f877ac	Stripe	Published	Warpy 01.2	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f	1
+faeefd9c-6799-11ec-95d7-d74a28f5087f	ffc49138-4caf-11ec-8589-1f396b37df87	Drum	Draft	Hi-Hat One-Shots	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f	1
+2759ebe0-6794-11ec-8195-cb2a67b54919	ffc49138-4caf-11ec-8589-1f396b37df87	Drum	Draft	Kick One-Shots	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f	1
+7c6ec88c-6797-11ec-9573-6f7ae5e370fc	ffc49138-4caf-11ec-8589-1f396b37df87	Drum	Draft	Snare One-Shots	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f	1
+67373a22-6d18-11ec-93d4-3f10ed0a219e	ffc49138-4caf-11ec-8589-1f396b37df87	Drum	Published	Boom Bap 1	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	f	1
+21a061b4-6f4d-11ec-acf4-a3494cfac08f	7c68d172-3851-11ec-b687-9fcd389404cc	Sticky	Published	Molasses 04 Clone	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	t	1
+f4a78e4c-6904-11ec-a444-8f8732ea1803	0c9a7e88-6905-11ec-ad48-178089708562	Stab	Published	Stabby Patty	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f	1
+52b3f59e-690e-11ec-bd68-0fba0a7fa6f7	0c9a7e88-6905-11ec-ad48-178089708562	Stab	Published	Stabby Patty Clone	0.6	isMultiphonic = true\nisOneShot = true\nisTonal = true\noneShotCutoffs = []\n	f	1
+3272b4f4-69d2-11ec-962b-53a2ef331cde	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Drum	Draft	test	1	isMultiphonic = false\nisOneShot = false\nisTonal = false\noneShotCutoffs = []\n	t	1
 \.
 
 
@@ -432,7 +432,6 @@ a97c5986-5ab2-11eb-a9c1-d3cf24cd4a43	5545dcfe-fb23-11eb-80a6-4372a28aca52	Publis
 f5004dc2-5ab2-11eb-94a3-772b877091c6	5545dcfe-fb23-11eb-80a6-4372a28aca52	Published	A-	120	Detail	Bass 12	0.5	doPatternRestartOnChord=false\ndoTranspose=false	f
 c318a68c-5ab3-11eb-951c-ab219a4685e4	5545dcfe-fb23-11eb-80a6-4372a28aca52	Published	A-	120	Detail	Bass 12.1	0.5	doPatternRestartOnChord=false\ndoTranspose=false	f
 64acb164-5ab4-11eb-b4a3-6b51222eb621	5545dcfe-fb23-11eb-80a6-4372a28aca52	Published	A-	120	Detail	Bass 13	0.5	doPatternRestartOnChord=false\ndoTranspose=false	f
-2298444a-16eb-11ea-8a37-5389fe5c6d7c	15085f36-16eb-11ea-8a37-57a336f886a8	Published	C	120	Beat	2-Step Shuffle Beat	0	doTranspose=false	f
 b97a467e-adb8-11ea-bbbf-cb98d9349728	15085f36-16eb-11ea-8a37-57a336f886a8	Draft	Cm	120	Beat	Test Harmonic Detail	0.6	doTranspose=false	f
 8e09d454-4e91-11ea-b949-5bb81903f1a1	4d439966-4d45-11ea-bc7b-1fe29a7f7cd5	Published	C	120	Beat	House Beat Prototype	0	doTranspose=false	f
 e5153ede-0901-11eb-b8a3-a3ea52d7a535	15085f36-16eb-11ea-8a37-57a336f886a8	Draft	C	120	Detail	Test Detail	0.6	doTranspose=false	f
@@ -448,6 +447,7 @@ afd37900-6321-11eb-b49d-cff3a0428d0d	d124e460-fb22-11eb-b9ed-a36c2b39adb7	Draft	
 8932862c-8b82-11eb-89e0-7b9b1e113989	d124e460-fb22-11eb-b9ed-a36c2b39adb7	Draft	C	120	Detail	3-note pad G	0.5	doPatternRestartOnChord = true	t
 5b88344e-8b8f-11eb-aefd-cf3a97f68f65	d124e460-fb22-11eb-b9ed-a36c2b39adb7	Draft	D-	120	Detail	4-note pad F	0.5	doPatternRestartOnChord = true	t
 af4ef964-8b8f-11eb-a328-03ce790c3297	d124e460-fb22-11eb-b9ed-a36c2b39adb7	Draft	D-	120	Detail	4-note pad H	0.5	doPatternRestartOnChord = true	t
+2298444a-16eb-11ea-8a37-5389fe5c6d7c	1ad5dad8-3b38-11ec-8c6a-cf7b32eb3f78	Published	C	120	Beat	2-Step Shuffle Beat	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 30689664-5ac5-11eb-8ed4-07fef51d8934	5545dcfe-fb23-11eb-80a6-4372a28aca52	Published	A-	120	Detail	Bass 17	0.5	doPatternRestartOnChord=false\ndoTranspose=false	f
 f0d3fba8-2f8e-11eb-8407-f7dd07c90258	5545dcfe-fb23-11eb-80a6-4372a28aca52	Published	A-	120	Detail	Bass Footballs	0.5	doPatternRestartOnChord = true	f
 60c90b92-3381-11eb-ae86-2b36c07884a8	5545dcfe-fb23-11eb-80a6-4372a28aca52	Published	A-	120	Detail	Bass short 8ths	0.5	doPatternRestartOnChord = true	f
@@ -719,9 +719,9 @@ f35c7ba0-c0ef-11eb-a5d3-afca8fc0a72f	fecebd38-fb26-11eb-8bbd-df3edf17a61b	Draft	
 216131b8-227e-11ec-b96c-03cecff6e964	15085f36-16eb-11ea-8a37-57a336f886a8	Published	G minor	120	Macro	Deep, from Cool to Hot	0	doPatternRestartOnChord = false	f
 f62e6a7c-2798-11ec-a1cc-b3d0a2e72f1b	5545dcfe-fb23-11eb-80a6-4372a28aca52	Draft	A-	120	Detail	Bass 1 test 	0.5	doPatternRestartOnChord = false	f
 cecbffca-3117-11ec-8f3b-1b19bd391007	15085f36-16eb-11ea-8a37-57a336f886a8	Draft	test	1	Macro	test	1	doPatternRestartOnChord = false	f
-08001fb2-2eaa-11ec-9931-6f6edc32eadd	15085f36-16eb-11ea-8a37-57a336f886a8	Published	G minor	120	Macro	Deep, from Cool to Hot	0	doPatternRestartOnChord = false	f
 c3725926-04a3-11ec-958a-ff4b062221e7	fecebd38-fb26-11eb-8bbd-df3edf17a61b	Draft	C	120	Beat	Shoulders Moretti	1	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 cbe9bd48-35c6-11ec-9bc4-a77aaeda4979	15085f36-16eb-11ea-8a37-57a336f886a8	Draft	test	9	Macro	test	10	doPatternRestartOnChord = false\n	f
+08001fb2-2eaa-11ec-9931-6f6edc32eadd	15085f36-16eb-11ea-8a37-57a336f886a8	Published	G minor	120	Macro	Deep, from Cool to Hot	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 2baa6902-35cd-11ec-a2ba-1b114b4c8b69	15085f36-16eb-11ea-8a37-57a336f886a8	Draft	test	89	Macro	test	8	doPatternRestartOnChord = false\n	f
 676216c8-35d4-11ec-9420-a7a4e27d039e	15085f36-16eb-11ea-8a37-57a336f886a8	Draft	test	1	Macro	test	1	doPatternRestartOnChord = false\n	f
 41bf5814-35ce-11ec-a2ba-27bd6d6d2f4e	15085f36-16eb-11ea-8a37-57a336f886a8	Draft	test	1	Detail	test	1	doPatternRestartOnChord = false\n	f
@@ -771,7 +771,6 @@ fe87331e-41d0-11ec-8f53-b7f7a6d484e4	5545dcfe-fb23-11eb-80a6-4372a28aca52	Publis
 10740256-4c02-11ec-973e-b32060b725c7	5545dcfe-fb23-11eb-80a6-4372a28aca52	Published	D-	120	Detail	bass 23.5	0.5	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 d9f7a522-4254-11ec-9500-f735cd609792	5545dcfe-fb23-11eb-80a6-4372a28aca52	Published	E-	120	Detail	bass 22	0.5	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 64f2e4d2-3843-11ec-b53e-7b3066ffdccf	53848598-3843-11ec-877d-039fbad7aa03	Published	A-	15	Detail	Open Space Sticky Test	0.6	doPatternRestartOnChord = false\n	f
-69b8b2ce-4cae-11ec-a53b-6b81fddc17bd	5211effa-4cae-11ec-b368-8bd6693fd5e3	Published	G	90	Macro	Mackrow	1	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 e1422298-3b1b-11ec-844c-6779f8e2d68f	15085f36-16eb-11ea-8a37-57a336f886a8	Published	G minor	120	Macro	Deep, from Cool to Hot	0	doPatternRestartOnChord = false\n	f
 19b27c3c-3b20-11ec-b7d8-d386772a31cb	15085f36-16eb-11ea-8a37-57a336f886a8	Published	G minor	120	Macro	Deep, from Cool to Hot1	0	doPatternRestartOnChord = false\n	f
 b8fbc69a-3b20-11ec-b7d8-1b5f6ab57124	15085f36-16eb-11ea-8a37-57a336f886a8	Published	G minor	120	Macro	Deep, from Cool to Hot - check 1	0	doPatternRestartOnChord = false\n	f
@@ -787,6 +786,7 @@ b6c63d38-ae99-11eb-8edf-8f91d49629d5	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	
 885e458e-ae9a-11eb-9b00-733f26cf2b94	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	Eb-	120	Main	Wind Tramp 2step	0.5	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 c45ed81a-4c00-11ec-b55f-0be4108efd8d	5545dcfe-fb23-11eb-80a6-4372a28aca52	Published	D-	120	Detail	bass 23	0.5	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 e4510c98-4cae-11ec-8136-5775f1273e1a	d025f31e-4cae-11ec-8136-f79e3047a42f	Published	e4510c98-4cae-11ec-8136-5775f1273e1a	90	Main	Donuts	1	barBeats = 4\ndoPatternRestartOnChord = false\n	f
+69b8b2ce-4cae-11ec-a53b-6b81fddc17bd	5211effa-4cae-11ec-b368-8bd6693fd5e3	Published	G	93	Macro	Mackrow	1	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 b60ce576-507f-11ec-a732-0bce818af109	7f360a4e-383a-11ec-89ac-773fc53b2694	Published	C	15	Main	Modd Checkin	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 e4e3b348-511f-11ec-802a-a33932e4dccf	7f360a4e-383a-11ec-89ac-773fc53b2694	Published	C	30	Main	Op'n Spaec F2 Vo'V	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 933c8514-5125-11ec-a67e-cb835d735a29	758c188c-383d-11ec-a788-633bf1b83658	Published	C	30	Macro	Peaches to Lemons (1LEMONS to 4LEMONS)	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
@@ -841,12 +841,14 @@ ee3e4664-7349-11ec-9c36-27de6edb97f6	5545dcfe-fb23-11eb-80a6-4372a28aca52	Publis
 96fe0c10-64e7-11ec-afc2-bb1dc018bfe8	7f360a4e-383a-11ec-89ac-773fc53b2694	Draft	C	30	Main	Mod Checkup (Stripey Edition	0	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 f8c22f4e-6f23-11ec-b6e0-8baed39b3aec	758c188c-383d-11ec-a788-633bf1b83658	Draft	C	30	Macro	MACRO CHECKOUT	0.6	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 50b200fa-513b-11ec-8f1c-d7c2c767519b	7f360a4e-383a-11ec-89ac-773fc53b2694	Published	50b200fa-513b-11ec-8f1c-d7c2c767519b	15	Main	 Oof 5ths	0.6	barBeats = 4\ndoPatternRestartOnChord = false\n	f
-dc238c8c-7119-11ec-9048-d720c96f3d80	283820a6-4cad-11ec-adde-33cf0760bc7c	Published	C	84	Beat	Funky Drummer Clone	1	barBeats = 4\ndoPatternRestartOnChord = false\n	f
+70f724c0-7815-11ec-b642-eb7d95c349bf	ff8ce21c-fb22-11eb-981d-37143596a20d	Published	C	120	Detail	3-note stab DD	0.5	barBeats = 4\ndoPatternRestartOnChord = true\n	f
 b1abe56a-71ac-11ec-ae64-531f4855bbbe	5545dcfe-fb23-11eb-80a6-4372a28aca52	Draft	A-	120	Detail	Bass 6.0 Chole	0.5	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 6038c7e0-726d-11ec-bf0c-07ce60f0b15a	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C#-	120	Main	Fire Fure	0.6	barBeats = 4\ndoPatternRestartOnChord = false\n	f
 5308e1f8-5d56-11ec-869d-d7241601e5ea	d124e460-fb22-11eb-b9ed-a36c2b39adb7	Draft	C	120	Detail	3-note padman	0.5	barBeats = 4\ndoPatternRestartOnChord = true\n	f
 97b5e290-8b8f-11eb-a328-538abf851e44	d124e460-fb22-11eb-b9ed-a36c2b39adb7	Draft	D-	120	Detail	4-note pad G	0.5	doPatternRestartOnChord = true	t
 bc470856-6ab8-11ec-98df-9f324a1a9e14	5545dcfe-fb23-11eb-80a6-4372a28aca52	Published	G-	120	Detail	bass 24	0.5	barBeats = 4\ndoPatternRestartOnChord = false\n	f
+dc238c8c-7119-11ec-9048-d720c96f3d80	283820a6-4cad-11ec-adde-33cf0760bc7c	Published	C	84	Beat	Greek Yoburt	1	barBeats = 4\ndoPatternRestartOnChord = false\n	f
+a4caff1a-7815-11ec-b068-5f93325e94ab	ff8ce21c-fb22-11eb-981d-37143596a20d	Published	D-	120	Detail	4-note stab CC	0.5	barBeats = 4\ndoPatternRestartOnChord = true\n	f
 \.
 
 
@@ -1507,6 +1509,8 @@ f3c900d4-abf4-4f50-a868-655eb42385d4	b1abe56a-71ac-11ec-ae64-531f4855bbbe	New Se
 1a112b51-4841-40c7-a66f-8f0cc7c11bc0	6038c7e0-726d-11ec-bf0c-07ce60f0b15a	A	C#-	0.6	32	120
 c59ce0e2-6ab8-11ec-98df-ef94be0f51df	bc470856-6ab8-11ec-98df-9f324a1a9e14	New Sequence	C-	0.6	8	120
 02196b5a-734a-11ec-9c36-bb009146271c	ee3e4664-7349-11ec-9c36-27de6edb97f6	New Sequence	C	0.6	8	120
+0bc8f5ca-1592-4039-bd8f-e1c0320f2684	70f724c0-7815-11ec-b642-eb7d95c349bf	New	C	0.6	8	120
+99b7491b-0149-4ace-b89f-c87c04fe38df	a4caff1a-7815-11ec-b068-5f93325e94ab	New Sequence	D-	0.6	16	120
 \.
 
 
@@ -1531,10 +1535,10 @@ a5ffa7a2-09be-11ec-b9a9-0b37c89ec993	14e58a74-16eb-11ea-8a37-27b15e9fd30c	Charne
 ad5a49a4-3c26-11ec-8f6e-03c01a5784c1	14e468ba-16eb-11ea-8a37-53e6360023c1	Vernon Grant's Preview Template1	bufferAheadSeconds = 180\nbufferBeforeSeconds = 5\ndeltaArcDetailLayersIncoming = 2\ndeltaArcDetailLayersOutgoing = 2\ndeltaArcDetailPlateauRatio = 0.7\ndeltaArcDetailPlateauShiftRatio = 0.62\ndeltaArcEnabled = true\ndeltaArcRhythmLayersIncoming = 1\ndeltaArcRhythmLayersOutgoing = 1\ndeltaArcRhythmPlateauRatio = 0.3\ndeltaArcRhythmPlateauShiftRatio = 0.38\ndubMasterVolumeInstrumentTypeBass = 1.0\ndubMasterVolumeInstrumentTypeDrum = 1.0\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercLoop = 1.0\ndubMasterVolumeInstrumentTypeStab = 1.0\ndubMasterVolumeInstrumentTypeSticky = 1.0\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 280\nmetaSource = ""\nmetaTitle = ""\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 1.0\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30\nmixerLowpassThresholdHz = 15000\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputEncoding = "PCM_FLOAT"\noutputEncodingQuality = 0.618\noutputFrameRate = 48000\noutputSampleBits = 16\npercLoopLayerMax = 5\npercLoopLayerMin = 1\n	1ocdct25l	Preview	f
 3c8cc5ec-4cae-11ec-b368-8f261f2e5462	14e58a74-16eb-11ea-8a37-27b15e9fd30c	Slaps	backgroundLayerMax = 3\nbackgroundLayerMin = 0\nbufferAheadSeconds = 180\nbufferBeforeSeconds = 5\ndeltaArcBeatLayersIncoming = 1\ndeltaArcBeatLayersToPrioritize = kick\ndeltaArcDetailLayersIncoming = 1\ndeltaArcEnabled = false\ndensityCeiling = 0.9\ndensityFloor = 0.1\ndubMasterVolumeInstrumentTypeBass = 1.0\ndubMasterVolumeInstrumentTypeDrum = 1.0\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercLoop = 1.0\ndubMasterVolumeInstrumentTypeStab = 1.0\ndubMasterVolumeInstrumentTypeSticky = 1.0\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 280\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 1.0\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30\nmixerLowpassThresholdHz = 15000\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputContentType = "audio/ogg"\noutputEncoding = "PCM_DOUBLE"\noutputEncodingQuality = 0.618\noutputFrameRate = 48000\noutputSampleBits = 16\npercLoopLayerMax = 8\npercLoopLayerMin = 0\ntransitionLayerMax = 3\ntransitionLayerMin = 0\n	slaps123	Preview	f
 556f65a6-36c9-11ec-9f26-5be130391ec5	14e6be4e-16eb-11ea-8a37-ab08baffb7a7	kaoke	choiceDeltaEnabled = true\ndeltaArcDetailLayersIncoming = 2\ndeltaArcDetailLayersOutgoing = 2\ndeltaArcDetailPlateauRatio = 0.38\ndeltaArcDetailPlateauShiftRatio = 0.62\ndeltaArcRhythmLayersIncoming = 1\ndeltaArcRhythmLayersOutgoing = 1\ndeltaArcRhythmPlateauRatio = 0.62\ndeltaArcRhythmPlateauShiftRatio = 0.38\ndubMasterVolumeInstrumentTypeBass = 1.0\ndubMasterVolumeInstrumentTypeDrum = 1.0\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercLoop = 1.0\ndubMasterVolumeInstrumentTypeStab = 1.0\ndubMasterVolumeInstrumentTypeSticky = 1.0\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 280\nmetaSource = ""\nmetaTitle = ""\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 1.0\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30\nmixerLowpassThresholdHz = 15000\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputEncoding = "PCM_FLOAT"\noutputEncodingQuality = 0.618\noutputFrameRate = 48000\noutputSampleBits = 16\npercLoopFixedSizeBeats = 4\npercLoopLayerMax = 5\npercLoopLayerMin = 1\n	egdefrfuo	Preview	f
-6c2fc6a4-36ca-11ec-97c9-d79c04250282	14e58a74-16eb-11ea-8a37-27b15e9fd30c	Mark Stewart's Preview Template	bufferAheadSeconds = 180\nbufferBeforeSeconds = 5\ndeltaArcDetailLayersIncoming = 2\ndeltaArcDetailPlateauRatio = 0.7\ndeltaArcEnabled = true\ndeltaArcRhythmLayersIncoming = 2\ndeltaArcRhythmPlateauRatio = 0.62\ndensityCeiling = 0.9\ndensityFloor = 0.1\ndubMasterVolumeInstrumentTypeBass = 1.0\ndubMasterVolumeInstrumentTypeDrum = 1.0\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercLoop = 1.0\ndubMasterVolumeInstrumentTypeStab = 1.0\ndubMasterVolumeInstrumentTypeSticky = 1.0\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 280\nmetaSource = ""\nmetaTitle = ""\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 1.0\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30\nmixerLowpassThresholdHz = 15000\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputEncoding = "PCM_FLOAT"\noutputEncodingQuality = 0.618\noutputFrameRate = 48000\noutputSampleBits = 16\npercLoopLayerMax = 3\npercLoopLayerMin = 1\n	chelp	Preview	f
+6c2fc6a4-36ca-11ec-97c9-d79c04250282	14e58a74-16eb-11ea-8a37-27b15e9fd30c	Mark Stewart's Preview Template	backgroundLayerMax = 3\nbackgroundLayerMin = 0\nbufferAheadSeconds = 180\nbufferBeforeSeconds = 5\ndeltaArcBeatLayersIncoming = 1\ndeltaArcBeatLayersToPrioritize = kick\ndeltaArcDetailLayersIncoming = 2\ndeltaArcEnabled = false\ndensityCeiling = 0.9\ndensityFloor = 0.1\ndubMasterVolumeInstrumentTypeBass = 1.0\ndubMasterVolumeInstrumentTypeDrum = 1.0\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercLoop = 1.0\ndubMasterVolumeInstrumentTypeStab = 1.0\ndubMasterVolumeInstrumentTypeSticky = 2.0\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 280\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 1.0\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30\nmixerLowpassThresholdHz = 15000\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputContentType = "audio/ogg"\noutputEncoding = "PCM_FLOAT"\noutputEncodingQuality = 0.618\noutputFrameRate = 48000\noutputSampleBits = 16\npercLoopLayerMax = 3\npercLoopLayerMin = 1\ntransitionLayerMax = 3\ntransitionLayerMin = 0\n	chelpoo	Preview	f
 9ea9fe94-3510-11ec-a019-a3e3fba5cba1	14e58a74-16eb-11ea-8a37-27b15e9fd30c	Open Space	backgroundLayerMax = 3\nbackgroundLayerMin = 2\nbufferAheadSeconds = 700\nbufferBeforeSeconds = 5\ndeltaArcBeatLayersIncoming = 1\ndeltaArcBeatLayersToPrioritize = kick\ndeltaArcDetailLayersIncoming = 2\ndeltaArcEnabled = false\ndensityCeiling = 0.9\ndensityFloor = 0.1\ndubMasterVolumeInstrumentTypeBass = 1.5\ndubMasterVolumeInstrumentTypeDrum = 1.0\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercLoop = 1.0\ndubMasterVolumeInstrumentTypeStab = 1.5\ndubMasterVolumeInstrumentTypeSticky = 0.8\ndubMasterVolumeInstrumentTypeStripe = 1.3\nmainProgramLengthMaxDelta = 280\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.1\nmixerCompressToAmplitude = 1.0\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30\nmixerLowpassThresholdHz = 15000\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputContentType = "audio/ogg"\noutputEncoding = "PCM_FLOAT"\noutputEncodingQuality = 0.618\noutputFrameRate = 48000\noutputSampleBits = 24\npercLoopLayerMax = 5\npercLoopLayerMin = 1\ntransitionLayerMax = 3\ntransitionLayerMin = 0\n	openspace	Production	f
 eb0cf5ce-09ba-11ec-8016-d72d36e2270c	14e58a74-16eb-11ea-8a37-27b15e9fd30c	Cool Air	backgroundLayerMax = 2\nbackgroundLayerMin = 0\nbufferAheadSeconds = 200\nbufferBeforeSeconds = 5\ndeltaArcBeatLayersIncoming = 1\ndeltaArcBeatLayersToPrioritize = kick\ndeltaArcDetailLayersIncoming = 2\ndeltaArcEnabled = true\ndensityCeiling = 1.0\ndensityFloor = 0.0\ndubMasterVolumeInstrumentTypeBass = 1.0\ndubMasterVolumeInstrumentTypeDrum = 1.0\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercLoop = 1.0\ndubMasterVolumeInstrumentTypeStab = 0.8\ndubMasterVolumeInstrumentTypeSticky = 1.0\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 240\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 0.5\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30\nmixerLowpassThresholdHz = 15000\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputContentType = "audio/ogg"\noutputEncoding = "PCM_FLOAT"\noutputEncodingQuality = 1.0\noutputFrameRate = 48000\noutputSampleBits = 32\npercLoopLayerMax = 8\npercLoopLayerMin = 0\ntransitionLayerMax = 3\ntransitionLayerMin = 1\n	coolair	Production	f
-adccb000-1cfc-11ec-a1a8-3bde1278bdd9	14e58a74-16eb-11ea-8a37-27b15e9fd30c	David Cole's Preview Template	backgroundLayerMax = 4\nbackgroundLayerMin = 0\nbufferAheadSeconds = 180\nbufferBeforeSeconds = 5\ndeltaArcDetailLayersIncoming = 0\ndeltaArcDetailPlateauRatio = 0.8\ndeltaArcEnabled = true\ndeltaArcRhythmLayersIncoming = 1\ndeltaArcRhythmLayersToPrioritize = kick\ndeltaArcRhythmPlateauRatio = 0.83\ndensityCeiling = 0.9\ndensityFloor = 0.1\ndubMasterVolumeInstrumentTypeBass = 1.0\ndubMasterVolumeInstrumentTypeDrum = 1.0\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercLoop = 1.0\ndubMasterVolumeInstrumentTypeStab = 1.0\ndubMasterVolumeInstrumentTypeSticky = 1.0\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 280\nmetaSource = ""\nmetaTitle = ""\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 1.0\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30\nmixerLowpassThresholdHz = 15000\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputContentType = "audio/ogg"\noutputEncoding = "PCM_FLOAT"\noutputEncodingQuality = 0.618\noutputFrameRate = 48000\noutputSampleBits = 16\npercLoopLayerMax = 7\npercLoopLayerMin = 1\ntransitionLayerMax = 4\ntransitionLayerMin = 0\n	pus6rpxpx	Preview	f
+adccb000-1cfc-11ec-a1a8-3bde1278bdd9	14e58a74-16eb-11ea-8a37-27b15e9fd30c	David Cole's Preview Template	backgroundLayerMax = 4\nbackgroundLayerMin = 0\nbufferAheadSeconds = 180\nbufferBeforeSeconds = 5\ndeltaArcBeatLayersIncoming = 1\ndeltaArcBeatLayersToPrioritize = kick\ndeltaArcDetailLayersIncoming = 0\ndeltaArcEnabled = true\ndensityCeiling = 0.9\ndensityFloor = 0.1\ndubMasterVolumeInstrumentTypeBass = 1.0\ndubMasterVolumeInstrumentTypeDrum = 1.0\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercLoop = 1.0\ndubMasterVolumeInstrumentTypeStab = 1.0\ndubMasterVolumeInstrumentTypeSticky = 1.0\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 280\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 1.0\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30\nmixerLowpassThresholdHz = 15000\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputContentType = "audio/ogg"\noutputEncoding = "PCM_FLOAT"\noutputEncodingQuality = 0.618\noutputFrameRate = 48000\noutputSampleBits = 16\npercLoopLayerMax = 7\npercLoopLayerMin = 1\ntransitionLayerMax = 4\ntransitionLayerMin = 0\n	pus6rpxpx	Preview	f
 aebdea96-5f83-11ec-9793-bfa21d39e8d9	14e58a74-16eb-11ea-8a37-27b15e9fd30c	Charney's Preview Template Clone	backgroundLayerMax = 3\nbackgroundLayerMin = 0\nbufferAheadSeconds = 180\nbufferBeforeSeconds = 5\ndeltaArcDetailLayersIncoming = 1\ndeltaArcDetailPlateauRatio = 0.62\ndeltaArcEnabled = true\ndeltaArcRhythmLayersIncoming = 1\ndeltaArcRhythmLayersToPrioritize = kick\ndeltaArcRhythmPlateauRatio = 0.38\ndensityCeiling = 0.9\ndensityFloor = 0.1\ndubMasterVolumeInstrumentTypeBass = 1.0\ndubMasterVolumeInstrumentTypeDrum = 1.0\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercLoop = 1.0\ndubMasterVolumeInstrumentTypeStab = 1.0\ndubMasterVolumeInstrumentTypeSticky = 1.0\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 280\nmetaSource = ""\nmetaTitle = ""\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 1.0\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30\nmixerLowpassThresholdHz = 15000\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputContentType = "audio/ogg"\noutputEncoding = "PCM_DOUBLE"\noutputEncodingQuality = 0.618\noutputFrameRate = 48000\noutputSampleBits = 16\npercLoopLayerMax = 8\npercLoopLayerMin = 0\ntransitionLayerMax = 3\ntransitionLayerMin = 0\n	sopftaosl	Preview	t
 d0b722f2-6041-11ec-9500-5fe747d99135	14e58a74-16eb-11ea-8a37-27b15e9fd30c	Charney's Preview Template doodoo	backgroundLayerMax = 3\nbackgroundLayerMin = 0\nbufferAheadSeconds = 180\nbufferBeforeSeconds = 5\ndeltaArcDetailLayersIncoming = 2\ndeltaArcDetailPlateauRatio = 0.7\ndeltaArcEnabled = true\ndeltaArcRhythmLayersIncoming = 1\ndeltaArcRhythmLayersToPrioritize = kick\ndeltaArcRhythmPlateauRatio = 0.3\ndensityCeiling = 0.9\ndensityFloor = 0.1\ndubMasterVolumeInstrumentTypeBass = 1.0\ndubMasterVolumeInstrumentTypeDrum = 1.0\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercLoop = 1.0\ndubMasterVolumeInstrumentTypeStab = 1.0\ndubMasterVolumeInstrumentTypeSticky = 1.0\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 280\nmetaSource = ""\nmetaTitle = ""\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 1.0\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30\nmixerLowpassThresholdHz = 15000\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputContentType = "audio/ogg"\noutputEncoding = "PCM_FLOAT"\noutputEncodingQuality = 0.618\noutputFrameRate = 48000\noutputSampleBits = 16\npercLoopLayerMax = 5\npercLoopLayerMin = 1\ntransitionLayerMax = 3\ntransitionLayerMin = 0\n	sknlgibpz	Preview	t
 \.
@@ -3338,13 +3342,13 @@ b77aee28-3854-11ec-a5f8-d3a029de1317	8eb4a48c-3851-11ec-9896-63744694bdb8	B5	ins
 e81c4bb6-4430-11ec-a19f-9709b1824159	e2f1737c-442c-11ec-993c-3f77abd8c222	A#1_1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-d01feb50-77d1-4791-9550-8d984a0b931f.wav	0	16	30	0.5	STICKY	1	A#1
 98519c3d-a05b-4e8f-8f90-ec4d26636807	04154b32-62a5-11ec-b9f8-371915c677aa	A#2	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-978fff49-0afa-4adc-8701-941662b4ac85.wav	0	12	30	0.5	STRIPE	1	A#2
 de4b330c-c154-439e-8bf5-549fdcb5d775	04154b32-62a5-11ec-b9f8-371915c677aa	C#3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-84b55725-633a-4b12-8c3d-c5b36565d1e9.wav	0	12	30	0.5	STRIPE	1	C#3
-c5400580-4433-11ec-83f9-e311687620ef	fd523c02-4430-11ec-b6c9-9f84f28410fd	Fuzzy Tom Med Fill 1 With Verb Tail	instrument-fd523c02-4430-11ec-b6c9-9f84f28410fd-audio-9bb169ef-65d5-45fe-b321-59534c36566e.wav	2	0	120	0.5	MEDIUM	1.3	X
 b303a910-97bf-4cb7-9b1f-0e74d4ce8e75	04154b32-62a5-11ec-b9f8-371915c677aa	D3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-d3a66c71-8f7b-41f9-9723-eb0dcb74bbc5.wav	0	12	30	0.5	STRIPE	1	D3
 bad7304c-91fd-4d48-b3f4-8f863e743ba3	1efc6726-1efb-11eb-aec8-83fff6175034	C4	instrument-1efc6726-1efb-11eb-aec8-83fff6175034-audio-1e3319a7-687c-4c2e-993c-a6ab5da5c4a7.wav	0	1	120	0.5	STICKY	0.5	C4
 c226ac87-35a7-4560-93ae-4f970048c327	04154b32-62a5-11ec-b9f8-371915c677aa	D#3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-8edc4f72-2f39-4d11-b785-3ee3ffc31ee2.wav	0	12	30	0.5	STRIPE	1	D#3
 4201304e-cd22-4cc1-b5e7-0e9659d42260	04154b32-62a5-11ec-b9f8-371915c677aa	E3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-7753ca6a-8bc2-4bda-9d2a-d2c795e95d06.wav	0	12	30	0.5	STRIPE	1	E3
 66cacc87-d563-4d03-b338-1c8b90e87cc0	04154b32-62a5-11ec-b9f8-371915c677aa	F3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-c097ce64-a618-4ea2-af1b-13dadca3ebf8.wav	0	12	30	0.5	STRIPE	1	F3
 362028a7-953c-4aed-873e-42e6c272d141	04154b32-62a5-11ec-b9f8-371915c677aa	G3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-56792e65-bd56-48e0-97aa-1eb7fb5ffabf.wav	0	12	30	0.5	STRIPE	1	G3
+c5400580-4433-11ec-83f9-e311687620ef	fd523c02-4430-11ec-b6c9-9f84f28410fd	Fuzzy Tom Med Fill 1 With Verb Tail	instrument-fd523c02-4430-11ec-b6c9-9f84f28410fd-audio-9bb169ef-65d5-45fe-b321-59534c36566e.wav	2	0	120	0.5	BIG	1.3	X
 15c32ccc-3853-11ec-bcb9-83f5060d07b9	8eb4a48c-3851-11ec-9896-63744694bdb8	E1	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-578156ee-2654-427a-92d2-75e7ad3d1e5a.wav	0	16	30	0.5	STICKY	1	E1
 da516b6c-3853-11ec-bcb9-5b1d659f6365	8eb4a48c-3851-11ec-9896-63744694bdb8	G1	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-36da749d-8aa6-450f-a676-e9cfa223416b.wav	0	16	30	0.5	STICKY	1	G1
 0c4bd5d0-3854-11ec-bcb9-cf3beb39d57d	8eb4a48c-3851-11ec-9896-63744694bdb8	G#1	instrument-8eb4a48c-3851-11ec-9896-63744694bdb8-audio-28a9ed3d-9b69-4ab9-a6f9-101d691e34f5.wav	0	16	30	0.5	STICKY	1	G#1
@@ -3449,16 +3453,15 @@ c1349e47-76a2-4aa2-a0cd-1b2ac9f2160e	04154b32-62a5-11ec-b9f8-371915c677aa	A3.2	i
 402b3ffe-2062-11eb-a29a-8738d9231d64	92220d48-2061-11eb-a29a-9f2dfa197751	C4	instrument-92220d48-2061-11eb-a29a-9f2dfa197751-audio-b3690f8a-85b1-434f-b8c7-d61956fff184.wav	0	1	120	0.5	STICKY	1	C4
 44acf362-4431-11ec-a19f-c71c75fe06ba	e2f1737c-442c-11ec-993c-3f77abd8c222	G2_1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-3d8a496e-ac85-4298-b6eb-f3aa9a98f02d.wav	0	16	30	0.5	STICKY	1	G2
 7e1270a0-4431-11ec-905c-3f730a21f0f2	e2f1737c-442c-11ec-993c-3f77abd8c222	C3_1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-213f70f0-9968-470c-8d0c-cb4243105c76.wav	0	16	30	0.5	STICKY	1	C3
-83aa239c-4435-11ec-898d-8b0f897ef40a	fd523c02-4430-11ec-b6c9-9f84f28410fd	Fuzzy Tom Small Fill 1 w/ M/S Delay	instrument-fd523c02-4430-11ec-b6c9-9f84f28410fd-audio-7072cd8b-a650-4fe7-af0d-7d4724e1f996.wav	2	0	120	0.5	SMALL	1.1	X
-5a95d5ea-4431-11ec-a19f-176fa1a29b2f	fd523c02-4430-11ec-b6c9-9f84f28410fd	Fuzzy Tom Med Fill 1 with Whoosh	instrument-fd523c02-4430-11ec-b6c9-9f84f28410fd-audio-743d3f12-9c1e-43c6-9bdb-2ce715049a4f.wav	2	0	120	0.5	MEDIUM	1.1	X
 fd232fdf-297b-4b65-84ce-f150932b43c1	96041858-1bc4-11eb-834d-fb45b20d913f	C3	instrument-96041858-1bc4-11eb-834d-fb45b20d913f-audio-59941109-317b-4ed7-85af-058c05a151c0.wav	0	32	120	0.5	PAD	1.8	C3
 9ca7c3ed-4fc3-415a-af6c-bc431bdc4973	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	D#4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-d1b88ead-a983-491c-a61c-0906ddb04c91.wav	0	8	60	0.5	STRIPE	1	D#4
 285c68d5-8d5f-4f1b-b8e8-7e57664b8f2c	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	F4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-74f2c49f-68ad-4665-a869-a0abf804470d.wav	0	8	60	0.5	STRIPE	1	F4
 e381fe42-e08a-45b2-8638-799680fe1030	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	G4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-39c20016-1553-49a9-b89b-d8a1a1953419.wav	0	8	60	0.5	STRIPE	1	G4
 59c6ad74-f298-478f-9aeb-a3250e224d98	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	B4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-c1c9b91d-95fd-4da5-9859-e5dae708fda9.wav	0	8	60	0.5	STRIPE	1	B4
 c785ecf7-8baf-429d-98ce-293c356d15c1	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	C5	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-8e3fac03-782b-434c-a6d7-322ecbe7e918.wav	0	8	60	0.5	STRIPE	1	C5
+5a95d5ea-4431-11ec-a19f-176fa1a29b2f	fd523c02-4430-11ec-b6c9-9f84f28410fd	Fuzzy Tom Med Fill 1 with Whoosh	instrument-fd523c02-4430-11ec-b6c9-9f84f28410fd-audio-743d3f12-9c1e-43c6-9bdb-2ce715049a4f.wav	2	0	120	0.5	BIG	1.1	X
+83aa239c-4435-11ec-898d-8b0f897ef40a	fd523c02-4430-11ec-b6c9-9f84f28410fd	Fuzzy Tom Small Fill 1 w/ M/S Delay	instrument-fd523c02-4430-11ec-b6c9-9f84f28410fd-audio-7072cd8b-a650-4fe7-af0d-7d4724e1f996.wav	2	0	120	0.5	MEDIUM	1.1	X
 86af5854-4431-11ec-905c-833aeee65dde	e2f1737c-442c-11ec-993c-3f77abd8c222	C#3_1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-3bee4fca-b73e-4fcd-a4c1-c08e5c596b19.wav	0	16	30	0.5	STICKY	1	C#3
-c57da712-4435-11ec-98f2-8b05e12168ea	fd523c02-4430-11ec-b6c9-9f84f28410fd	Fuzzy Tom Small Fill 1 w/ Ping-Pong Delay	instrument-fd523c02-4430-11ec-b6c9-9f84f28410fd-audio-4fb47ce9-7076-4334-872b-4a8b68c86d1f.wav	2	0	120	0.5	SMALL	1	X
 b04a2d60-4431-11ec-9663-47a377ba2da6	e2f1737c-442c-11ec-993c-3f77abd8c222	F3_1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-d9a477e2-1113-4b14-8295-edbdd2d8ae06.wav	0	16	30	0.5	STICKY	1	F3
 ce588310-4431-11ec-905c-f77ff14b2b0d	e2f1737c-442c-11ec-993c-3f77abd8c222	G3_1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-7bb8e4f2-230e-4cf9-b4ad-a5899d161dd2.wav	0	16	30	0.5	STICKY	1	G3
 65fd7159-65f0-4aee-93ad-08d3c7c6310a	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	C3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-cb319981-d374-42c7-8872-82de2e70a305.wav	0	8	60	0.5	STRIPE	1	C3
@@ -3483,6 +3486,7 @@ ca278102-b282-4a38-872b-c5524ab69161	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	F#4	in
 bab497bc-ece7-4c37-b7d2-bbc13916075b	073b85f6-62a5-11ec-b9f8-ff30d0c9d990	A#4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-2c1dc9a3-25f1-4d55-b48f-e57ed2c0b08c.wav	0	8	60	0.5	STRIPE	1	A#4
 5ff577eb-7b24-4553-9095-cb0c59c8e8a4	af8c6ba0-1baf-11eb-a1a3-7bbaed480f84	A#3	instrument-af8c6ba0-1baf-11eb-a1a3-7bbaed480f84-audio-a5067055-e926-4293-b9d4-574b10bbc1fb.wav	0	32	120	0.5	PAD	1.3	A#3
 ebaea1c2-9731-4a7c-b223-7b0b5df0ea43	96041858-1bc4-11eb-834d-fb45b20d913f	D#3	instrument-96041858-1bc4-11eb-834d-fb45b20d913f-audio-b8b80d4e-e6f1-4933-a9af-8f2ae62172c5.wav	0	32	120	0.5	PAD	1.8	D#3
+c57da712-4435-11ec-98f2-8b05e12168ea	fd523c02-4430-11ec-b6c9-9f84f28410fd	Fuzzy Tom Small Fill 1 w/ Ping-Pong Delay	instrument-fd523c02-4430-11ec-b6c9-9f84f28410fd-audio-4fb47ce9-7076-4334-872b-4a8b68c86d1f.wav	2	0	120	0.5	MEDIUM	1	X
 17e03d3c-16eb-11ea-8a37-c3394c3f5fa5	17b34ca0-16eb-11ea-8a37-6b86e3816409	Brushy.Open.Hat	5ff42f3d-24cf-405c-9fa8-023198ecab2b-instrument-42-audio.wav	0	1	121	0.6	HIHATOPEN	1.5	D8
 c67fd3f8-7945-11eb-afef-8b7c59c365e6	28806cbc-64ec-11ea-acb5-7f27befb1aad	NewNewKickNewFireSmall	instrument-28806cbc-64ec-11ea-acb5-7f27befb1aad-audio-395aa0a4-52de-420d-a9c4-3ae36613d552.wav	0	1	120	0	KICK	1	X
 8fa8fa64-4431-11ec-905c-8389bc65781d	e2f1737c-442c-11ec-993c-3f77abd8c222	D3_1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-8b9fcab4-648d-4ee4-b450-de40729a4382.wav	0	16	30	0.5	STICKY	1	D3
@@ -3531,14 +3535,14 @@ caa0bdb8-443c-11ec-8fbb-1bc1b7f14f05	f58a20da-442a-11ec-8a5f-175152e4431c	Sim To
 06763dcc-6486-11ec-9589-2bcba659b9cd	04154b32-62a5-11ec-b9f8-371915c677aa	C3.3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-101b917a-b903-4f5d-90e7-3d1041b2180b.wav	0	12	30	0.5	STRIPE	1	C3
 2b0bbcc0-6486-11ec-9589-efc22fb6653d	04154b32-62a5-11ec-b9f8-371915c677aa	D3.3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-6f78770c-555c-4d4d-bc65-af226a73dc07.wav	0	12	30	0.5	STRIPE	1	D3
 ad5e9cf6-6486-11ec-9589-eb79e189aebc	04154b32-62a5-11ec-b9f8-371915c677aa	A3.3	instrument-04154b32-62a5-11ec-b9f8-371915c677aa-audio-c1981c7b-7fbc-4f3c-b26f-ca47292f974b.wav	0	12	30	0.5	STRIPE	1	A3
-5eabcb2c-443f-11ec-8f30-cb426a8ac311	f58a20da-442a-11ec-8a5f-175152e4431c	Sim Tom Fill 3 Med	instrument-f58a20da-442a-11ec-8a5f-175152e4431c-audio-a09efa53-9c8a-4fe5-9c47-5ce50d997b2a.wav	2	2	120	0.5	MEDIUM	1	X
 5c49c4aa-3865-11ec-b982-afbd9acaf463	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Pattern 2	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-e5aca740-cc29-407d-b6f7-e7b3401c7125.wav	0	8	120	0.5	BONGOLOOP	0.8	X
 e7738b46-65ca-11ec-b0cf-6be886682fd6	3bbcc300-c6c8-11ea-9c5b-3fabd1ae6028	Hi-Hat Open	instrument-3bbcc300-c6c8-11ea-9c5b-3fabd1ae6028-audio-b0793e0d-2e8c-41e2-b4d6-d54e8f62377b.wav	0	1	120	0.5	HIHATOP	0.5	X
-fffe7ff6-443f-11ec-9263-97058fd2d88b	f58a20da-442a-11ec-8a5f-175152e4431c	Sim Tom Fill 3 Small	instrument-f58a20da-442a-11ec-8a5f-175152e4431c-audio-6b25e7c7-d077-43bf-aa12-ae0d923352bb.wav	2	0	120	0.5	SMALL	0.8	X
+5eabcb2c-443f-11ec-8f30-cb426a8ac311	f58a20da-442a-11ec-8a5f-175152e4431c	Sim Tom Fill 3 Med	instrument-f58a20da-442a-11ec-8a5f-175152e4431c-audio-a09efa53-9c8a-4fe5-9c47-5ce50d997b2a.wav	2	2	120	0.5	BIG	1	X
 fc63d54a-386d-11ec-86d9-e3cf9863b3e5	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Pattern 3	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-9214ae7d-bedf-472d-973e-52129b1712fe.wav	0	8	120	0.5	BONGOLOOP	0.8	X
 4f4954ec-386e-11ec-86d9-4b3a8c1cce18	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Pattern 6	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-68921151-4736-404a-a901-b8dba78fbfe8.wav	0	8	120	0.5	BONGOLOOP	0.8	X
 a18e53aa-386f-11ec-86d9-abca42ea6d4f	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Pattern 17	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-7ee5e6dc-32ad-4376-912d-1e790f0fbc34.wav	0	4	120	0.5	BONGOLOOP	0.8	X
 4064bc28-6794-11ec-b9b0-efd30504d5fe	2759ebe0-6794-11ec-8195-cb2a67b54919	KICK 1	instrument-2759ebe0-6794-11ec-8195-cb2a67b54919-audio-ca501589-355d-4137-a635-af8cc39b3b6c.wav	0	1	93	0.5	KICK	1	X
+fffe7ff6-443f-11ec-9263-97058fd2d88b	f58a20da-442a-11ec-8a5f-175152e4431c	Sim Tom Fill 3 Small	instrument-f58a20da-442a-11ec-8a5f-175152e4431c-audio-6b25e7c7-d077-43bf-aa12-ae0d923352bb.wav	2	0	120	0.5	MEDIUM	0.8	X
 aa89b5c6-4440-11ec-a707-53061c9a276b	f58a20da-442a-11ec-8a5f-175152e4431c	Sim Tom Pitchy Small Guy	instrument-f58a20da-442a-11ec-8a5f-175152e4431c-audio-b22f1e76-e844-4674-9a7b-2302b85893ad.wav	2	0	120	0.5	SMALL	1	X
 16a0f334-386e-11ec-b0d6-cf30b5d4e6c4	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Pattern 4	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-647253e8-dc80-495b-85d3-63b602232f93.wav	0	8	120	0.5	BONGOLOOP	0.8	X
 98ff0294-386e-11ec-b0d6-fba88ff8fb0f	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Pattern 8	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-8e89a200-6796-4708-b8b9-afd96d41d326.wav	0	8	120	0.5	BONGOLOOP	0.8	X
@@ -3578,8 +3582,8 @@ ae3a285c-6797-11ec-b3b2-3fb6f7f034ea	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 
 098f4dea-6798-11ec-b3b2-f7cb94dc6cbd	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 7	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-03cb0a7f-dd56-479f-acd8-6219965bdf10.wav	0	1	93	0.5	SNARE 	1	X
 19ab60a6-6798-11ec-b3b2-57eaf53cce4e	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 8	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-9530070a-98f3-457f-ba8e-7012ab97ccd7.wav	0	1	93	0.5	SNARE	1	\N
 3b99e6b0-6798-11ec-b3b2-df9fd2ea2530	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 10	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-109fdef4-c4d2-4358-827a-544e5fbb196c.wav	0	1	93	0.5	SNARE	1	X
+2eb050e0-444a-11ec-9d0c-174857513b35	37095c04-4446-11ec-b0fb-e7e3c624dd72	1/4 Note Jump Sweep Dly Variation 2	instrument-37095c04-4446-11ec-b0fb-e7e3c624dd72-audio-5159a09f-9ba3-41c3-9a44-2ec6a8c6369b.wav	0.5	0	120	0.5	MEDIUM	0.7	X
 e8e6fd52-4449-11ec-9d0c-23776633da21	37095c04-4446-11ec-b0fb-e7e3c624dd72	1/4 Note Jump Sweep Dly Variation 1	instrument-37095c04-4446-11ec-b0fb-e7e3c624dd72-audio-b8e0bd77-6596-4a14-b5e8-b75800276547.wav	0.5	0	120	0.5	SMALL	0.7	X
-2eb050e0-444a-11ec-9d0c-174857513b35	37095c04-4446-11ec-b0fb-e7e3c624dd72	1/4 Note Jump Sweep Dly Variation 2	instrument-37095c04-4446-11ec-b0fb-e7e3c624dd72-audio-5159a09f-9ba3-41c3-9a44-2ec6a8c6369b.wav	0.5	0	120	0.5	SMALL	0.7	X
 6977c92e-386f-11ec-a90f-0b618d01a7f5	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Pattern 15	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-9d0402c4-e4bc-48d2-b587-9e995744ea97.wav	0	4	120	0.5	BONGOLOOP	1	X
 b0dbb83a-386e-11ec-a90f-4bda9dd45651	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Pattern 9	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-bece3eae-05bb-4a10-b5ce-6de9ec4c947f.wav	0	8	120	0.5	BONGOLOOP	0.8	X
 ca42c8ae-386e-11ec-a90f-2fd42280a6e2	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Patter 10	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-79fe6c8b-9888-48b2-88f1-44ad728be899.wav	0	8	120	0.5	BONGOLOOP	0.8	X
@@ -3588,14 +3592,13 @@ fbf36cc8-386e-11ec-a90f-d70c930ccb0b	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo 
 d628c76c-6795-11ec-b3b2-332814a27384	2759ebe0-6794-11ec-8195-cb2a67b54919	KICK 11	instrument-2759ebe0-6794-11ec-8195-cb2a67b54919-audio-d4f84752-270e-4651-b004-ff2396c842b5.wav	0	1	93	0.5	KICK 	1	X
 67d550fe-6796-11ec-b3b2-33f6d30b76c1	2759ebe0-6794-11ec-8195-cb2a67b54919	KICK 17	instrument-2759ebe0-6794-11ec-8195-cb2a67b54919-audio-09fafa6c-ee45-479a-96e4-191036287a91.wav	0	1	90	0.5	KICK	1	X
 7e149bb8-6796-11ec-b3b2-9f82f18290d5	2759ebe0-6794-11ec-8195-cb2a67b54919	KICK 18	instrument-2759ebe0-6794-11ec-8195-cb2a67b54919-audio-5ede3eba-a3a6-44cc-afaa-eb929177cdb2.wav	0	1	93	0.5	KICK	1	X
-438e2cde-444b-11ec-bda3-5f614ed9b96f	37095c04-4446-11ec-b0fb-e7e3c624dd72	1/4 Note Jump Sweep Dly Variation 3	instrument-37095c04-4446-11ec-b0fb-e7e3c624dd72-audio-d48e63f2-02b4-4522-ba22-857bb14f564c.wav	0.5	0	120	0.5	SMALL	0.8	X
 b69561a8-386f-11ec-b55b-d35b0a38a9aa	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Pattern 18	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-4efd9aa1-cad5-450b-ad7f-135618ccb736.wav	0	4	120	0.5	BONGOLOOP	0.8	X
 9f176b4a-6798-11ec-b4ed-8f2f05262ef8	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 12	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-1420fade-143e-4828-bed1-857fc9df3e2d.wav	0	1	93	0.5	SNARE 	1	X
-1a586c2e-444d-11ec-9712-bf645dfd1d6d	37095c04-4446-11ec-b0fb-e7e3c624dd72	Rise & Shine Classic 2 Beat Style Flyboys	instrument-37095c04-4446-11ec-b0fb-e7e3c624dd72-audio-77069ca1-d1b2-48c7-993b-f71ef9001172.wav	1	0	120	0.5	MEDIUM	1	\N
+438e2cde-444b-11ec-bda3-5f614ed9b96f	37095c04-4446-11ec-b0fb-e7e3c624dd72	1/4 Note Jump Sweep Dly Variation 3	instrument-37095c04-4446-11ec-b0fb-e7e3c624dd72-audio-d48e63f2-02b4-4522-ba22-857bb14f564c.wav	0.5	0	120	0.5	MEDIUM	0.8	X
 c9dc69a0-386f-11ec-b787-3f518e9081b7	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Pattern 19	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-9057c2cc-7196-4c22-a99e-1a336a9282a4.wav	0	8	120	0.5	BONGOLOOP	0.8	X
 ae5c1dbc-6798-11ec-b934-ab16f2529b03	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 13	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-d591ee83-e567-4c9c-9328-a54ba42c8e34.wav	0	1	93	0.5	SNARE	1	X
+1a586c2e-444d-11ec-9712-bf645dfd1d6d	37095c04-4446-11ec-b0fb-e7e3c624dd72	Rise & Shine Classic 2 Beat Style Flyboys	instrument-37095c04-4446-11ec-b0fb-e7e3c624dd72-audio-77069ca1-d1b2-48c7-993b-f71ef9001172.wav	1	0	120	0.5	BIG	1	\N
 d995ebd2-bd7c-11eb-97b1-9b3730388685	212cb21a-bd7c-11eb-b952-3b36714174d2	A2	instrument-212cb21a-bd7c-11eb-b952-3b36714174d2-audio-52ba0528-8409-4686-afa3-2cfb8e2558df.wav	0	1	120	0	BASS	1	A2
-eb796922-44a0-11ec-ae08-5fb0230d752f	f58a20da-442a-11ec-8a5f-175152e4431c	Delay Downward Tom 1	instrument-f58a20da-442a-11ec-8a5f-175152e4431c-audio-fefd036d-30c7-410c-96c6-f4abce3b3561.wav	2	0	120	0.5	SMALL	0.8	X
 8c0ec3c8-44a1-11ec-ae08-77236eef541e	f58a20da-442a-11ec-8a5f-175152e4431c	Delay Downward Tom 2	instrument-f58a20da-442a-11ec-8a5f-175152e4431c-audio-07e81551-ebe1-4489-9747-a0f4f9ed90ef.wav	2	0	120	0.5	SMALL	0.8	X
 e02e065a-386f-11ec-987c-efced32e1714	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Pattern 20	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-9abbd4e2-ebfe-441e-a801-d4dac95f70da.wav	0	8	120	0.5	BONGOLOOP	0.8	X
 c86ee2e8-6798-11ec-95d7-3fa43cc271bc	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 14	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-d53ef324-2c39-44f8-aff5-2890a99fde6c.wav	0	1	93	0.5	SNARE	1	X
@@ -3611,6 +3614,7 @@ b629e730-6799-11ec-95d7-af2e2c9bc5ee	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 
 3d882322-679a-11ec-95d7-bb7f4b2c1f47	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 3	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-a7693d67-f568-465f-a2f1-9617356432c7.wav	0	1	93	0.5	HI-HAT	1	X
 9308cebe-679a-11ec-95d7-270be936ddd4	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 5	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-e6b25a88-5372-4779-a511-98e3bbd335ef.wav	0	1	93	0.5	HI-HAT	1	X
 c3c995d8-679a-11ec-95d7-ff4016a4f5f6	faeefd9c-6799-11ec-95d7-d74a28f5087f	HI-HAT 6	instrument-faeefd9c-6799-11ec-95d7-d74a28f5087f-audio-72fd8ecc-524b-49d6-808f-3fcc3fb0c9a3.wav	0	1	93	0.5	HI-HAT	1	X
+eb796922-44a0-11ec-ae08-5fb0230d752f	f58a20da-442a-11ec-8a5f-175152e4431c	Delay Downward Tom 1	instrument-f58a20da-442a-11ec-8a5f-175152e4431c-audio-fefd036d-30c7-410c-96c6-f4abce3b3561.wav	2	0	120	0.5	MEDIUM	0.8	X
 d7d542e4-44a3-11ec-870e-7fbeaf4ea351	c2e9eefc-44a3-11ec-ab54-570591c44959	"Hey!" Mid-Phrase w/ Delay	instrument-c2e9eefc-44a3-11ec-ab54-570591c44959-audio-15f1433c-9fdd-41f2-9e4d-e0333d2f5ac8.wav	4.5	0	120	0.5	SMALL	1.3	X
 970c9c26-6799-11ec-819d-ff66c6d2b00f	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 21	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-b2dfb392-eca3-4f1c-88b7-ad79da4a3c42.wav	0	1	93	0.5	SNARE 	1	X
 c87e886e-6799-11ec-819d-9b287db6e089	7c6ec88c-6797-11ec-9573-6f7ae5e370fc	SNARE 24	instrument-7c6ec88c-6797-11ec-9573-6f7ae5e370fc-audio-f87f3f49-b7ff-47c2-911f-95667bd9e7c9.wav	0	1	93	0.5	SNARE	1	X
@@ -5066,9 +5070,9 @@ e2af78f4-5ddc-11ec-8270-cfab01684726	b720302a-5ddc-11ec-95c8-1fda9822e889	Tabla 
 97e961ac-690a-11ec-a7a5-436d62e9eb17	f4a78e4c-6904-11ec-a444-8f8732ea1803	D#5	instrument-f4a78e4c-6904-11ec-a444-8f8732ea1803-audio-4b027bad-a62c-4ba8-9118-a7ec851f1698.wav	0	4	30	0.5	STAB	1	D#5
 26c5fe1a-3c5d-11ec-8952-bb507a67e25f	a7a1ab8e-3c5c-11ec-998a-3f2f55389775	C1	instrument-a7a1ab8e-3c5c-11ec-998a-3f2f55389775-audio-7387f6bd-89db-4792-941f-5a0b245aad0b.wav	0	2	90	0.5	BASS	1	C1
 cf2393d1-5f52-4fb1-8a8a-2b3f1512f151	a8653b5e-1efc-11eb-9680-37ebbadae3e5	C#3	instrument-a8653b5e-1efc-11eb-9680-37ebbadae3e5-audio-85b593ff-f578-4766-8230-4e0c87c4a7f5.wav	0	1	120	0.5	STICKY	1.5	C#3
-bce2b3de-5de1-11ec-9972-efd01569beaa	a3f2d2fa-5de1-11ec-9972-4f254353a9fc	Bullet Ricochet	instrument-a3f2d2fa-5de1-11ec-9972-4f254353a9fc-audio-43f39ce9-1b61-4659-97be-895efd56bc7a.wav	0	32	120	0.5	GUNTIME	2	X
 3287e60c-5ddf-11ec-9972-9f6f51fc1b51	1498ac94-5ddf-11ec-a75b-934b17bcdca1	W.M.L.W	instrument-1498ac94-5ddf-11ec-a75b-934b17bcdca1-audio-9c9043fe-380b-4331-aeae-7cb645b3b1c9.wav	0	88	120	0.5	ACCAPELLA	0.6	X
 a2fde1c6-690a-11ec-a7a5-7fae67f91aa2	f4a78e4c-6904-11ec-a444-8f8732ea1803	C4	instrument-f4a78e4c-6904-11ec-a444-8f8732ea1803-audio-b91cd660-3e48-4d26-8058-81ca7469e641.wav	0	4	30	0.5	STAB	1	C4
+bce2b3de-5de1-11ec-9972-efd01569beaa	a3f2d2fa-5de1-11ec-9972-4f254353a9fc	Bullet Ricochet	instrument-a3f2d2fa-5de1-11ec-9972-4f254353a9fc-audio-43f39ce9-1b61-4659-97be-895efd56bc7a.wav	0	32	120	0.5	GUNTIME	1	X
 4cd04e08-3c5d-11ec-998a-ebcc97fc0b6c	a7a1ab8e-3c5c-11ec-998a-3f2f55389775	C#1	instrument-a7a1ab8e-3c5c-11ec-998a-3f2f55389775-audio-ce1f5f74-e2aa-4e22-abe3-741d0f2c3751.wav	0	2	90	0.5	BASS	1	C#1
 d6d5f242-4cb1-11ec-aa11-eb04824cd0eb	30ea0a08-4cb1-11ec-b580-a7f5b798f28c	AJ HALL Break Beat 1	instrument-30ea0a08-4cb1-11ec-b580-a7f5b798f28c-audio-a19da679-1dd0-4e1a-b856-36f9c4dfbe72.wav	0	1	90	0.5	BOOM	1	X
 0889da28-e812-4229-8e27-00e3c4f80065	2675e4aa-6153-11ec-a0d1-fbb7d16558a0	D1	instrument-c6ec5f4a-41cd-11ec-9e47-5b7fe0a3ed55-audio-e516b0c7-701b-4a83-9bcb-ef57275afd32.wav	0	16	15	0.5	STICKY	1	D1
@@ -5905,7 +5909,6 @@ f1e34ecd-3dc2-4c4e-b352-f9b4f6030de5	de939cd8-61f5-11ec-aa6d-8f62319d4097	F#5.1	
 7467304a-6213-11ec-a7b8-ef5da14b3f67	11d618f6-6213-11ec-a7b8-8fea81505b31	G#3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-671c3bab-7433-4fe4-a5d8-21fc40440a44.wav	0	8	60	0.5	STRIPE	0.3	G#3
 7c005566-6213-11ec-a7b8-a75216dd213b	11d618f6-6213-11ec-a7b8-8fea81505b31	A3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-62358a69-4a96-4be1-91b0-3b493a2a399c.wav	0	8	60	0.5	STRIPE	0.3	A3
 83de3262-6213-11ec-a7b8-f7e6389a278b	11d618f6-6213-11ec-a7b8-8fea81505b31	A#3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-338f69fe-081e-400c-8044-8c99b66e0edb.wav	0	8	60	0.5	STRIPE	0.3	A#3
-1091ca0e-442b-11ec-8a7c-1343b5cd70bc	f58a20da-442a-11ec-8a5f-175152e4431c	Sim Tom Fill 2	instrument-f58a20da-442a-11ec-8a5f-175152e4431c-audio-8b8ec392-f4b6-4c93-a9fd-1c9eea86f7e2.wav	2	0	120	0.5	MEDIUM	0.7	X
 b7a8c133-139a-4673-a0e9-6c2a03dc9338	d31b3b7c-6213-11ec-a7b8-6b12eae3858a	F#2	instrument-6ac9115e-6153-11ec-99f6-8b04e8421e3e-audio-dac7d89e-e3f0-4226-ae3d-ae634e5e0e13.wav	0	12	30	0.5	STRIPE	1	F#2
 e2507b65-6110-4ddf-8fb7-4922f943e3c0	d31b3b7c-6213-11ec-a7b8-6b12eae3858a	G#2	instrument-6ac9115e-6153-11ec-99f6-8b04e8421e3e-audio-60e88c0d-8bd8-4b8d-b4b2-0de1fcc0ce2e.wav	0	12	30	0.5	STRIPE	1	G#2
 d60b0bf8-4b11-4886-ba2d-9d6a926d15e7	d31b3b7c-6213-11ec-a7b8-6b12eae3858a	A2	instrument-6ac9115e-6153-11ec-99f6-8b04e8421e3e-audio-0cfb5ef9-aca1-4e7a-ae35-716eec9a9205.wav	0	12	30	0.5	STRIPE	1	A2
@@ -5933,11 +5936,11 @@ d41851ce-34aa-4ad5-ad14-f8676d4dc368	d31b3b7c-6213-11ec-a7b8-6b12eae3858a	D#5	in
 91144197-5080-408c-a36b-c82102e287ba	d31b3b7c-6213-11ec-a7b8-6b12eae3858a	D2	instrument-6ac9115e-6153-11ec-99f6-8b04e8421e3e-audio-5362788e-5502-4eb3-875d-33e54d2fde90.wav	0	12	30	0.5	STRIPE	1	D2
 cb318948-2b60-4ce7-8422-fd38362306fc	d31b3b7c-6213-11ec-a7b8-6b12eae3858a	D#2	instrument-6ac9115e-6153-11ec-99f6-8b04e8421e3e-audio-cd58e8ca-c8d5-49ef-a1bc-5364031d5aa7.wav	0	12	30	0.5	STRIPE	1	D#2
 8d029388-6213-11ec-a7b8-7becae423931	11d618f6-6213-11ec-a7b8-8fea81505b31	B3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-d964b86d-548f-4447-b3f7-bec1e8c8f98a.wav	0	8	60	0.5	STRIPE	0.3	B3
+1091ca0e-442b-11ec-8a7c-1343b5cd70bc	f58a20da-442a-11ec-8a5f-175152e4431c	Sim Tom Fill 2	instrument-f58a20da-442a-11ec-8a5f-175152e4431c-audio-8b8ec392-f4b6-4c93-a9fd-1c9eea86f7e2.wav	2	0	120	0.5	BIG	0.7	X
 2c936504-6213-11ec-a7b8-0fe640f5cde7	11d618f6-6213-11ec-a7b8-8fea81505b31	C3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-191392cd-f91d-4170-959d-6e21fad18d33.wav	0	8	60	0.5	STRIPE	0.3	C3
 3411828e-6213-11ec-a7b8-ab5c0b51b7e2	11d618f6-6213-11ec-a7b8-8fea81505b31	C#3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-18e2140d-780a-4fb0-a1f1-7c553e6cb14f.wav	0	8	60	0.5	STRIPE	0.3	C#3
 3d84ba2a-6213-11ec-a7b8-aba1effcb383	11d618f6-6213-11ec-a7b8-8fea81505b31	D3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-6dd4218e-8e19-4f9a-bc1f-c23803aaa19e.wav	0	8	60	0.5	STRIPE	0.3	D3
 65837908-6213-11ec-a04b-03ceeebbe0b2	11d618f6-6213-11ec-a7b8-8fea81505b31	F#3	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-e32cef68-9626-4800-8510-c11ed6596cfa.wav	0	8	60	0.5	STRIPE	0.3	F#3
-40758666-442b-11ec-b842-4b1de0d849b0	f58a20da-442a-11ec-8a5f-175152e4431c	Sim Tom Fill 1	instrument-f58a20da-442a-11ec-8a5f-175152e4431c-audio-23a3a954-273c-4824-9f65-264cd78931d1.wav	2	0	120	0.5	MEDIUM	0.7	X
 843eb058-c6c7-11ea-b647-0b1d36567cd5	09e94f98-c6c7-11ea-b647-8766c0d05d20	Water.Small.1.Snare.V2	instrument-09e94f98-c6c7-11ea-b647-8766c0d05d20-audio-e19d5a93-f344-4a6d-a2d0-81695cafd035.wav	0	1	115	0.5	SNARE	1	X
 aabdc582-6213-11ec-a04b-2bcd5a3e0f5e	11d618f6-6213-11ec-a7b8-8fea81505b31	C4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-37521ab1-fa6b-4c32-a96b-b153fb364123.wav	0	8	8	0.5	STRIPE	0.3	C4
 b2e659cc-6213-11ec-a04b-47b1f8dedbc9	11d618f6-6213-11ec-a7b8-8fea81505b31	C#4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-28b3383a-2b10-47ff-ab99-9ecbfc109b5f.wav	0	8	60	0.5	STRIPE	0.3	C#4
@@ -5948,6 +5951,7 @@ fba0a0e6-6213-11ec-a04b-6bf3c5689120	11d618f6-6213-11ec-a7b8-8fea81505b31	E4	ins
 24395566-6214-11ec-a04b-2bec6fd9adbf	11d618f6-6213-11ec-a7b8-8fea81505b31	A4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-b935a82a-adda-4f9c-b5e3-715c45cf8290.wav	0	8	60	0.5	STRIPE	0.3	A4
 2de16db0-6214-11ec-a04b-eb10ca9e6f76	11d618f6-6213-11ec-a7b8-8fea81505b31	A#4	instrument-11d618f6-6213-11ec-a7b8-8fea81505b31-audio-476545fe-4129-4576-8d89-39404fbbdb17.wav	0	8	60	0.5	STRIPE	0.3	A#4
 8c59bd4a-33d2-4360-b057-6039dce92a21	ae01c97a-1bd6-11eb-8fc1-bb9e8af14f4c	F#3	instrument-ae01c97a-1bd6-11eb-8fc1-bb9e8af14f4c-audio-1ba5e622-1156-4809-9425-b039177786bd.wav	0	32	120	0.5	PAD	0.7	F#3
+40758666-442b-11ec-b842-4b1de0d849b0	f58a20da-442a-11ec-8a5f-175152e4431c	Sim Tom Fill 1	instrument-f58a20da-442a-11ec-8a5f-175152e4431c-audio-23a3a954-273c-4824-9f65-264cd78931d1.wav	2	0	120	0.5	MEDIUM	0.7	X
 ab02f5a3-e83f-45ef-ba96-3fbb6a2e94ad	e2f1737c-442c-11ec-993c-3f77abd8c222	C#1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-63e0b083-7fe6-4ea4-8d6e-1fda92e95b3a.wav	0	16	30	0.5	STICKY	1	C#1
 eb4f86a2-33ce-4afc-b823-9842160de834	e2f1737c-442c-11ec-993c-3f77abd8c222	D1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-87fe3010-7873-4ace-85c2-3f7017e7374e.wav	0	16	30	0.5	STICKY	1	D1
 c645080d-236f-4347-a348-3fa064c35dc4	e2f1737c-442c-11ec-993c-3f77abd8c222	D#1	instrument-e2f1737c-442c-11ec-993c-3f77abd8c222-audio-8ed22d4c-df59-4388-8f99-7c05f6b48c39.wav	0	16	30	0.5	STICKY	1	D#1
@@ -6355,6 +6359,8 @@ f1f98d44-676f-11ec-b9c6-c33d0f92cac3	e2f1737c-442c-11ec-993c-3f77abd8c222	$PERKY
 0c877982-6d1a-11ec-95e0-4f2fb209bacb	67373a22-6d18-11ec-93d4-3f10ed0a219e	BOOMBAP
 aec24f28-6f23-11ec-9387-731568298d80	04154b32-62a5-11ec-b9f8-371915c677aa	APRICOTS
 91db97ef-c242-4d59-b26a-6815e16a00f0	21a061b4-6f4d-11ec-acf4-a3494cfac08f	PEACHES
+cda90dbe-74dc-11ec-be02-e7418664789d	f58a20da-442a-11ec-8a5f-175152e4431c	$TOMFILL
+d6c0778e-74dc-11ec-be02-93d7de73bf29	fd523c02-4430-11ec-b6c9-9f84f28410fd	$TOMFILL
 \.
 
 
@@ -7169,7 +7175,6 @@ f2920d88-6f50-11ec-8322-e3eaec4fc94c	PEACHES	0ad708a8-514c-11ec-bc8b-47d5ada13a3
 3e4508cb-0b14-4d72-a288-c66c31a7de82	93BPM	edbddc7e-7112-11ec-bacf-6bfb24b0fd6e
 09ffd40b-ff70-4cdc-8a5d-67c4bbec7d09	SWUNG	edbddc7e-7112-11ec-bacf-6bfb24b0fd6e
 d34568d2-2a76-4648-9748-eae8422eb952	BOOMBAP	dc238c8c-7119-11ec-9048-d720c96f3d80
-67bdc4bf-a45f-477f-ad76-254bc62f5e99	93BPM	dc238c8c-7119-11ec-9048-d720c96f3d80
 d3c54f98-e8f2-42e6-b02e-d431761f974f	SWUNG	dc238c8c-7119-11ec-9048-d720c96f3d80
 6d86ae99-43ff-4581-bd68-e4cd2434855f	WIDEOPEN	b1abe56a-71ac-11ec-ae64-531f4855bbbe
 a49da1c5-d57e-45ae-a8ca-518cc618144f	OPEN	b1abe56a-71ac-11ec-ae64-531f4855bbbe
@@ -7179,6 +7184,17 @@ a49da1c5-d57e-45ae-a8ca-518cc618144f	OPEN	b1abe56a-71ac-11ec-ae64-531f4855bbbe
 ed7b3440-905a-4acf-8f76-5550746f9604	4NOTE	6038c7e0-726d-11ec-bf0c-07ce60f0b15a
 2b4758a0-734c-11ec-9c36-a7c1b7670539	OPEN	ee3e4664-7349-11ec-9c36-27de6edb97f6
 2d7b6170-734c-11ec-b063-a333132fc267	WIDEOPEN	ee3e4664-7349-11ec-9c36-27de6edb97f6
+1a0c8448-768f-11ec-975d-cbb8fadab604	84BPM	dc238c8c-7119-11ec-9048-d720c96f3d80
+57bb9acf-794d-4845-b783-6b11f1c0000b	3NOTE	70f724c0-7815-11ec-b642-eb7d95c349bf
+2e34737f-08e2-4d62-9502-296ee5d112f7	WIDEOPEN	70f724c0-7815-11ec-b642-eb7d95c349bf
+175f27ea-6991-4941-847b-5a507abb6a4f	STRAIGHT	70f724c0-7815-11ec-b642-eb7d95c349bf
+730c8f59-6ee0-4208-a953-80e8118d974c	OPEN	70f724c0-7815-11ec-b642-eb7d95c349bf
+21749220-7fa2-476d-99b7-04ef0cfb5457	4NOTE	a4caff1a-7815-11ec-b068-5f93325e94ab
+83fbcf5e-9c16-4257-a80e-9c1d0ad9b499	WIDEOPEN	a4caff1a-7815-11ec-b068-5f93325e94ab
+777a04de-c875-415a-bc81-b47d8d99d422	OPEN	a4caff1a-7815-11ec-b068-5f93325e94ab
+9f6df2b8-88b2-4030-ba04-2d07d3acd0c7	STRAIGHT	a4caff1a-7815-11ec-b068-5f93325e94ab
+ddad4dc8-b3b1-4568-8fb2-44052314bf49	ROOTSY	a4caff1a-7815-11ec-b068-5f93325e94ab
+cead25e2-667b-4661-8ae3-17496e0354bc	ROOTSY2	a4caff1a-7815-11ec-b068-5f93325e94ab
 \.
 
 
@@ -15137,6 +15153,8 @@ b7c98ef4-61a2-4a61-90c8-12ff7f24fe96	edbddc7e-7112-11ec-bacf-6bfb24b0fd6e	Drum	H
 cf46f9e7-c9c8-4712-8642-54700e7fde9e	dc238c8c-7119-11ec-9048-d720c96f3d80	Drum	Hi Hats	1000
 eaf1cf64-2e7e-4bac-8470-71ac4bd55912	b1abe56a-71ac-11ec-ae64-531f4855bbbe	Bass	New Voice	1000
 04c828dc-734a-11ec-9b6b-131d6e7ae920	ee3e4664-7349-11ec-9c36-27de6edb97f6	Bass	Xxx	1000
+97cffb40-cb6f-4f32-a726-9e7c61436e04	70f724c0-7815-11ec-b642-eb7d95c349bf	Stab	New	1000
+4ff3a1fa-b59c-454d-8d56-eef7475be08b	a4caff1a-7815-11ec-b068-5f93325e94ab	Stab	New Voice	0
 \.
 
 
@@ -15600,6 +15618,8 @@ e1e40da8-8d9a-4665-b2d8-b1d90640820a	dc238c8c-7119-11ec-9048-d720c96f3d80	74797c
 86445c39-9d3d-4f00-9489-660ab79e8c33	dc238c8c-7119-11ec-9048-d720c96f3d80	74797cf4-f707-46db-bb21-f0f3d63cbd9d	9f0f4ece-f771-4c94-ab2b-dffbfe8ac7ec	Loop	8
 7d58eff3-91a6-4052-a70a-1d94a2fadc37	b1abe56a-71ac-11ec-ae64-531f4855bbbe	f3c900d4-abf4-4f50-a868-655eb42385d4	eaf1cf64-2e7e-4bac-8470-71ac4bd55912	New Pattern	8
 0a49cc0c-734a-11ec-9394-e7aaa7dad63a	ee3e4664-7349-11ec-9c36-27de6edb97f6	02196b5a-734a-11ec-9c36-bb009146271c	04c828dc-734a-11ec-9b6b-131d6e7ae920	Xxx	8
+bcd63bda-5f22-44c1-a78d-f7f32720deb7	70f724c0-7815-11ec-b642-eb7d95c349bf	0bc8f5ca-1592-4039-bd8f-e1c0320f2684	97cffb40-cb6f-4f32-a726-9e7c61436e04	New	8
+6105c10a-1d27-440c-a68e-e989724b946f	a4caff1a-7815-11ec-b068-5f93325e94ab	99b7491b-0149-4ace-b89f-c87c04fe38df	4ff3a1fa-b59c-454d-8d56-eef7475be08b	New Pattern	16
 \.
 
 
@@ -16136,6 +16156,8 @@ dd9d1f37-48a2-4189-8403-5e5dcbdfde3f	dc238c8c-7119-11ec-9048-d720c96f3d80	9f0f4e
 94efab84-6929-4e22-95e3-bb6f5733d10e	dc238c8c-7119-11ec-9048-d720c96f3d80	cf46f9e7-c9c8-4712-8642-54700e7fde9e	HIHATCL	1000
 859bce1a-9369-4486-a769-795ef3caaf41	b1abe56a-71ac-11ec-ae64-531f4855bbbe	eaf1cf64-2e7e-4bac-8470-71ac4bd55912	NEWTRACK	1000
 088aa44a-734a-11ec-9b6b-9fdf2dbb06b3	ee3e4664-7349-11ec-9c36-27de6edb97f6	04c828dc-734a-11ec-9b6b-131d6e7ae920	XXX	1000
+412bfa43-a1c6-4889-909e-72baa3fb8462	70f724c0-7815-11ec-b642-eb7d95c349bf	97cffb40-cb6f-4f32-a726-9e7c61436e04	NEW	1000
+66d09256-b90e-4429-bc7d-059f13f4b510	a4caff1a-7815-11ec-b068-5f93325e94ab	4ff3a1fa-b59c-454d-8d56-eef7475be08b	NEWTRACK	0
 \.
 
 
@@ -17642,7 +17664,6 @@ ccaa1438-3999-4753-859c-6d4ed9201755	e1678252-9046-11eb-9b02-1bf31b2dc705	abd2ff
 fc1abdbe-1239-467f-a154-2c8653e37a31	0782d9ee-8b8f-11eb-a328-0ff788e4df7c	228be58f-5845-467c-af02-9afa7dd1a184	4e35c645-5692-4f3b-a704-26b39fe89684	1	0	8	C4, D4, F4, A4
 86b0dec3-afc0-4089-b8c1-8a6691a2b957	ca270e4e-8b84-11eb-bd29-bb7187eca6a1	47828a98-b25a-4f96-945c-b30a6bb4127a	fc6ffc72-e881-4781-9132-d4f4656d719f	1	1	0.5	E5, G5, C6
 46911f0c-aace-4f5f-9415-b1d9c207bf55	bac70b5c-8b84-11eb-861a-dbed6314b9ec	186ecff3-5aed-49ee-b522-da91e88c5de2	e9061f7f-cf68-4667-80e3-e2f25103b3b5	1	3.5	0.5	C5, E5, G5
-55dfca0e-e004-4493-806f-82578d65d61a	76b2d680-8b84-11eb-a8eb-9f8096c04ed9	3e89f04c-fa87-4cf6-82f2-7150fe073e17	90d4df76-b447-46ee-8681-c48ca8cc925f	1	0.5	0.5	E4, G4, C5
 d52092b5-cc2f-428f-b423-372878ad8013	a24c2ab8-8d22-11eb-8799-872ef8bc2bd4	f4f33f52-1871-4697-947d-9784abaecbed	89160f64-ac78-4aae-8c29-e164b427bffb	1	4.75	0.25	A4, C5, D5, F5
 ba2d9a25-a7b5-44bd-81a4-a3b14a56cec5	8f11973a-8d22-11eb-8799-3f4a68845047	07d84c98-522a-4cf9-a330-0eb104eeb731	38c49e11-f666-4a0c-90ed-52438b328f82	1	2.5	0.5	F4, A4, C5, D5
 c5d1a8c2-7413-4998-aab0-4e233d306a85	811b3bc2-8d22-11eb-8a95-8717befeaca6	79c4ae75-bb1e-4cf7-882e-d63a46c293b3	a809c30c-0bbd-48db-b33f-908447161372	1	3.5	0.5	D4, F4, A4, C5
@@ -17847,7 +17868,6 @@ ea4f52f6-b1ba-11eb-bd26-ebc216fbe483	c3fb82c6-8b83-11eb-89e0-ab4acb03d2bd	6fee1d
 ef91c8a2-b1ba-11eb-aa1f-7387eff38054	c3fb82c6-8b83-11eb-89e0-ab4acb03d2bd	6fee1d04-e9cd-4da8-b707-ec210c37c6b1	071eb6ab-184a-47f2-9def-43069d6ab20f	1	5	0.25	G3, C4, E4
 4b3110be-b1bb-11eb-aa1f-efd834f369b7	811b3bc2-8d22-11eb-8a95-8717befeaca6	79c4ae75-bb1e-4cf7-882e-d63a46c293b3	a809c30c-0bbd-48db-b33f-908447161372	1	7	0.5	D4, F4, A4, C5
 49a2eff6-b1bb-11eb-aa1f-83023d68204c	811b3bc2-8d22-11eb-8a95-8717befeaca6	79c4ae75-bb1e-4cf7-882e-d63a46c293b3	a809c30c-0bbd-48db-b33f-908447161372	1	3	0.5	C4, D4, F4, A4
-b39e3558-b1bd-11eb-bdc6-5bbb93dbee53	76b2d680-8b84-11eb-a8eb-9f8096c04ed9	3e89f04c-fa87-4cf6-82f2-7150fe073e17	90d4df76-b447-46ee-8681-c48ca8cc925f	1	1.25	0.25	G3, C4, E4
 d5b9b5fe-b1bd-11eb-adaf-1f3a4ea56bfe	76b2d680-8b84-11eb-a8eb-9f8096c04ed9	3e89f04c-fa87-4cf6-82f2-7150fe073e17	90d4df76-b447-46ee-8681-c48ca8cc925f	1	5.75	0.25	G3, C4, E4
 71bb45d6-b61d-11eb-847a-9b0a208ea8e0	ba139ae8-a233-11eb-be01-3b6e8914c26d	870bb616-a243-11eb-a91a-bbe6500107a7	82b804b6-a243-11eb-a91a-e76a8627bd93	1	0	0.125	X
 723c950a-b61d-11eb-847a-6f97b11cdf83	ba139ae8-a233-11eb-be01-3b6e8914c26d	870bb616-a243-11eb-a91a-bbe6500107a7	82b804b6-a243-11eb-a91a-e76a8627bd93	1	1	0.125	X
@@ -18887,32 +18907,10 @@ ff637ea8-7116-11ec-82b4-a3ef9a0334ed	edbddc7e-7112-11ec-bacf-6bfb24b0fd6e	d6fc7d
 36b82db8-7117-11ec-b2a6-4fa37398d888	edbddc7e-7112-11ec-bacf-6bfb24b0fd6e	d6fc7d75-c7d5-4570-8784-bbc36e9faa19	5d60d889-6659-4673-934e-8546246c0fd7	0.25	7.875	0.125	X
 258d1274-7117-11ec-89b6-5f5765faef1f	edbddc7e-7112-11ec-bacf-6bfb24b0fd6e	d6fc7d75-c7d5-4570-8784-bbc36e9faa19	c36949ac-11d1-41f2-a11b-9630dd85aead	0.3	7.375	0.5	X
 4ac27e26-7117-11ec-82ad-1b4a909a7667	edbddc7e-7112-11ec-bacf-6bfb24b0fd6e	d6fc7d75-c7d5-4570-8784-bbc36e9faa19	c36949ac-11d1-41f2-a11b-9630dd85aead	0.3	3.375	0.5	X
-6ce9006b-034d-4c4e-86c5-c19459b7db10	dc238c8c-7119-11ec-9048-d720c96f3d80	86445c39-9d3d-4f00-9489-660ab79e8c33	155ccfd4-cfd0-4436-a17c-c853aa2d1598	0.4	0.5	0.5	X
 ca4f76fc-0c91-4007-8e33-cc54bfa0d81e	dc238c8c-7119-11ec-9048-d720c96f3d80	86445c39-9d3d-4f00-9489-660ab79e8c33	dd9d1f37-48a2-4189-8403-5e5dcbdfde3f	1	1	0.5	X
 0cd0f41d-34bd-43c7-9b1d-a8e90cf916e6	dc238c8c-7119-11ec-9048-d720c96f3d80	86445c39-9d3d-4f00-9489-660ab79e8c33	155ccfd4-cfd0-4436-a17c-c853aa2d1598	1	0	0.5	X
-dc9b222f-fabf-4ebd-a998-9660c673c94e	dc238c8c-7119-11ec-9048-d720c96f3d80	e1e40da8-8d9a-4665-b2d8-b1d90640820a	94efab84-6929-4e22-95e3-bb6f5733d10e	0.6	0	0.125	X
-1cdbc395-5100-4f7e-b798-5c35eea990bd	dc238c8c-7119-11ec-9048-d720c96f3d80	e1e40da8-8d9a-4665-b2d8-b1d90640820a	94efab84-6929-4e22-95e3-bb6f5733d10e	0.15	0.5	0.125	X
-a41110f3-59ae-4127-80e3-192998eb212a	dc238c8c-7119-11ec-9048-d720c96f3d80	e1e40da8-8d9a-4665-b2d8-b1d90640820a	94efab84-6929-4e22-95e3-bb6f5733d10e	0.55	1	0.125	X
-1c0d7740-c36b-4238-969e-31f1f5b19130	dc238c8c-7119-11ec-9048-d720c96f3d80	e1e40da8-8d9a-4665-b2d8-b1d90640820a	94efab84-6929-4e22-95e3-bb6f5733d10e	0.3	1.5	0.125	X
-2e583f81-ca53-4cf0-83e8-ee3a9fb606c5	dc238c8c-7119-11ec-9048-d720c96f3d80	e1e40da8-8d9a-4665-b2d8-b1d90640820a	94efab84-6929-4e22-95e3-bb6f5733d10e	0.6	2	0.125	X
-98d8f291-3694-46b7-bee6-9b00d4c7dd3b	dc238c8c-7119-11ec-9048-d720c96f3d80	e1e40da8-8d9a-4665-b2d8-b1d90640820a	94efab84-6929-4e22-95e3-bb6f5733d10e	0.15	2.5	0.125	X
-21ca7d5b-c2b2-43e3-ab56-6b87a9b14834	dc238c8c-7119-11ec-9048-d720c96f3d80	e1e40da8-8d9a-4665-b2d8-b1d90640820a	94efab84-6929-4e22-95e3-bb6f5733d10e	0.5	3	0.125	X
-8982e345-68df-445e-9c20-57d8faccadb9	dc238c8c-7119-11ec-9048-d720c96f3d80	e1e40da8-8d9a-4665-b2d8-b1d90640820a	94efab84-6929-4e22-95e3-bb6f5733d10e	0.2	3.5	0.125	X
-775ff126-53a5-4d50-a9aa-980e6cd66ef5	dc238c8c-7119-11ec-9048-d720c96f3d80	86445c39-9d3d-4f00-9489-660ab79e8c33	dd9d1f37-48a2-4189-8403-5e5dcbdfde3f	0.25	1.875	0.125	X
-aa26d55d-d8cb-4faa-9610-4c63416e79db	dc238c8c-7119-11ec-9048-d720c96f3d80	86445c39-9d3d-4f00-9489-660ab79e8c33	dd9d1f37-48a2-4189-8403-5e5dcbdfde3f	1	3	0.5	X
-510bbe90-c52e-4985-b1a6-de8d84d3247a	dc238c8c-7119-11ec-9048-d720c96f3d80	86445c39-9d3d-4f00-9489-660ab79e8c33	dd9d1f37-48a2-4189-8403-5e5dcbdfde3f	0.25	3.875	0.125	X
-a568bd91-7643-4ca3-be3d-2dd74fcf33a1	dc238c8c-7119-11ec-9048-d720c96f3d80	86445c39-9d3d-4f00-9489-660ab79e8c33	155ccfd4-cfd0-4436-a17c-c853aa2d1598	1	2	0.5	X
-ae7ffe37-b0f3-43db-9bf9-7e078ba0e615	dc238c8c-7119-11ec-9048-d720c96f3d80	86445c39-9d3d-4f00-9489-660ab79e8c33	155ccfd4-cfd0-4436-a17c-c853aa2d1598	0.4	2.5	0.5	X
-6d4b3bcc-8632-452a-b60b-942af7e3d79e	dc238c8c-7119-11ec-9048-d720c96f3d80	86445c39-9d3d-4f00-9489-660ab79e8c33	155ccfd4-cfd0-4436-a17c-c853aa2d1598	1	4	0.5	X
-a08276e8-f874-4a25-952b-373dcd83d376	dc238c8c-7119-11ec-9048-d720c96f3d80	86445c39-9d3d-4f00-9489-660ab79e8c33	155ccfd4-cfd0-4436-a17c-c853aa2d1598	0.4	4.5	0.5	X
 0c8ec77e-8b9f-4647-b2b3-468ada541e71	dc238c8c-7119-11ec-9048-d720c96f3d80	86445c39-9d3d-4f00-9489-660ab79e8c33	dd9d1f37-48a2-4189-8403-5e5dcbdfde3f	1	5	0.5	X
-f788f3e2-f0ca-4974-8317-4da5f2d72dec	dc238c8c-7119-11ec-9048-d720c96f3d80	86445c39-9d3d-4f00-9489-660ab79e8c33	dd9d1f37-48a2-4189-8403-5e5dcbdfde3f	0.25	5.875	0.125	X
-a251f580-4318-47e8-bbff-98494e2f7547	dc238c8c-7119-11ec-9048-d720c96f3d80	86445c39-9d3d-4f00-9489-660ab79e8c33	155ccfd4-cfd0-4436-a17c-c853aa2d1598	1	6	0.5	X
-78cf15ac-4bce-456c-81c5-734d6015b779	dc238c8c-7119-11ec-9048-d720c96f3d80	86445c39-9d3d-4f00-9489-660ab79e8c33	155ccfd4-cfd0-4436-a17c-c853aa2d1598	0.4	6.5	0.5	X
 a55a33d6-e217-4c09-9ff1-5c55af5dec03	dc238c8c-7119-11ec-9048-d720c96f3d80	86445c39-9d3d-4f00-9489-660ab79e8c33	dd9d1f37-48a2-4189-8403-5e5dcbdfde3f	1	7	0.5	X
-f7c1caca-89bc-433e-af11-b3954cb8d92f	dc238c8c-7119-11ec-9048-d720c96f3d80	86445c39-9d3d-4f00-9489-660ab79e8c33	dd9d1f37-48a2-4189-8403-5e5dcbdfde3f	0.25	7.875	0.125	X
-739b4b65-c6e9-4986-adab-56b634b6371e	dc238c8c-7119-11ec-9048-d720c96f3d80	86445c39-9d3d-4f00-9489-660ab79e8c33	155ccfd4-cfd0-4436-a17c-c853aa2d1598	0.3	7.375	0.5	X
-72535317-ea07-46d8-8841-0b74b0f15908	dc238c8c-7119-11ec-9048-d720c96f3d80	86445c39-9d3d-4f00-9489-660ab79e8c33	155ccfd4-cfd0-4436-a17c-c853aa2d1598	0.3	3.375	0.5	X
 89e67d56-f5b1-494a-8535-f762ee55fc42	b1abe56a-71ac-11ec-ae64-531f4855bbbe	7d58eff3-91a6-4052-a70a-1d94a2fadc37	859bce1a-9369-4486-a769-795ef3caaf41	1	1.75	0.25	A1
 9431c44a-0805-454f-8892-543b73149bc3	b1abe56a-71ac-11ec-ae64-531f4855bbbe	7d58eff3-91a6-4052-a70a-1d94a2fadc37	859bce1a-9369-4486-a769-795ef3caaf41	1	0	0.25	A2
 4a52e232-078e-4981-a6f4-952574b393b2	b1abe56a-71ac-11ec-ae64-531f4855bbbe	7d58eff3-91a6-4052-a70a-1d94a2fadc37	859bce1a-9369-4486-a769-795ef3caaf41	1	0.5	0.5	A1
@@ -18939,9 +18937,24 @@ c0c430ac-71ac-11ec-9804-63cd10c18dd5	b1abe56a-71ac-11ec-ae64-531f4855bbbe	db8860
 2ed56c48-734a-11ec-9b6b-77c0870f3920	ee3e4664-7349-11ec-9c36-27de6edb97f6	0a49cc0c-734a-11ec-9394-e7aaa7dad63a	088aa44a-734a-11ec-9b6b-9fdf2dbb06b3	1	2.25	0.25	E2
 2f966498-734a-11ec-9394-9f8582dc350d	ee3e4664-7349-11ec-9c36-27de6edb97f6	0a49cc0c-734a-11ec-9394-e7aaa7dad63a	088aa44a-734a-11ec-9b6b-9fdf2dbb06b3	1	2.5	0.25	A1
 3069d81e-734a-11ec-9b6b-57dd64e6cc34	ee3e4664-7349-11ec-9c36-27de6edb97f6	0a49cc0c-734a-11ec-9394-e7aaa7dad63a	088aa44a-734a-11ec-9b6b-9fdf2dbb06b3	1	2.75	0.25	A1
+dc9b222f-fabf-4ebd-a998-9660c673c94e	dc238c8c-7119-11ec-9048-d720c96f3d80	e1e40da8-8d9a-4665-b2d8-b1d90640820a	94efab84-6929-4e22-95e3-bb6f5733d10e	0.6	0	0.5	X
+2e583f81-ca53-4cf0-83e8-ee3a9fb606c5	dc238c8c-7119-11ec-9048-d720c96f3d80	e1e40da8-8d9a-4665-b2d8-b1d90640820a	94efab84-6929-4e22-95e3-bb6f5733d10e	0.5	2	0.5	X
+a41110f3-59ae-4127-80e3-192998eb212a	dc238c8c-7119-11ec-9048-d720c96f3d80	e1e40da8-8d9a-4665-b2d8-b1d90640820a	94efab84-6929-4e22-95e3-bb6f5733d10e	0.75	1	0.5	X
+aa26d55d-d8cb-4faa-9610-4c63416e79db	dc238c8c-7119-11ec-9048-d720c96f3d80	86445c39-9d3d-4f00-9489-660ab79e8c33	dd9d1f37-48a2-4189-8403-5e5dcbdfde3f	1	3	0.5	X
+21ca7d5b-c2b2-43e3-ab56-6b87a9b14834	dc238c8c-7119-11ec-9048-d720c96f3d80	e1e40da8-8d9a-4665-b2d8-b1d90640820a	94efab84-6929-4e22-95e3-bb6f5733d10e	0.7	3	0.5	X
+6d4b3bcc-8632-452a-b60b-942af7e3d79e	dc238c8c-7119-11ec-9048-d720c96f3d80	86445c39-9d3d-4f00-9489-660ab79e8c33	155ccfd4-cfd0-4436-a17c-c853aa2d1598	1	4	0.5	X
+a251f580-4318-47e8-bbff-98494e2f7547	dc238c8c-7119-11ec-9048-d720c96f3d80	86445c39-9d3d-4f00-9489-660ab79e8c33	155ccfd4-cfd0-4436-a17c-c853aa2d1598	0.25	5.25	0.25	X
 3399de8a-734a-11ec-9b6b-37c50aa6f6ea	ee3e4664-7349-11ec-9c36-27de6edb97f6	0a49cc0c-734a-11ec-9394-e7aaa7dad63a	088aa44a-734a-11ec-9b6b-9fdf2dbb06b3	1	7.25	0.25	X
 36da3392-734a-11ec-9b6b-cf933fc004e3	ee3e4664-7349-11ec-9c36-27de6edb97f6	0a49cc0c-734a-11ec-9394-e7aaa7dad63a	088aa44a-734a-11ec-9b6b-9fdf2dbb06b3	1	7.75	0.25	G1
 35edd4ac-734a-11ec-9c36-e37538ea9171	ee3e4664-7349-11ec-9c36-27de6edb97f6	0a49cc0c-734a-11ec-9394-e7aaa7dad63a	088aa44a-734a-11ec-9b6b-9fdf2dbb06b3	1	7.5	0.25	G2
+65236014-768f-11ec-975d-7761b6865c58	dc238c8c-7119-11ec-9048-d720c96f3d80	86445c39-9d3d-4f00-9489-660ab79e8c33	155ccfd4-cfd0-4436-a17c-c853aa2d1598	0.4	1.25	0.25	X
+fd0306c8-768f-11ec-bc93-471a0b569fd3	dc238c8c-7119-11ec-9048-d720c96f3d80	86445c39-9d3d-4f00-9489-660ab79e8c33	155ccfd4-cfd0-4436-a17c-c853aa2d1598	1	7.875	0.1276	X
+b57725ef-c4f2-4bf5-985d-4a2ff0ffd3a5	70f724c0-7815-11ec-b642-eb7d95c349bf	bcd63bda-5f22-44c1-a78d-f7f32720deb7	412bfa43-a1c6-4889-909e-72baa3fb8462	1	0.5	0.5	E4, G4, C5
+ca4bc19a-0b31-40b1-8283-13523d15db19	70f724c0-7815-11ec-b642-eb7d95c349bf	bcd63bda-5f22-44c1-a78d-f7f32720deb7	412bfa43-a1c6-4889-909e-72baa3fb8462	1	1.25	0.25	G3, C4, E4
+54378db7-4fd8-431d-880f-63e348e6d0bd	70f724c0-7815-11ec-b642-eb7d95c349bf	bcd63bda-5f22-44c1-a78d-f7f32720deb7	412bfa43-a1c6-4889-909e-72baa3fb8462	1	5.75	0.25	G3, C4, E4
+afcc48b9-0452-4f84-a74b-c8f404eb0e10	a4caff1a-7815-11ec-b068-5f93325e94ab	6105c10a-1d27-440c-a68e-e989724b946f	66d09256-b90e-4429-bc7d-059f13f4b510	1	0	0.75	C4, D4, F4, A4
+acbe0622-7815-11ec-b068-3b772363f290	6cbcef0e-8d22-11eb-8799-0ff393d74652	cb458ee0-83c4-497c-b94e-a0a7b15ba162	9581b489-937e-4d05-ba6d-c00588ec5638	1	13.5	0.25	A3, C4, D4, F4
+e6555eda-7815-11ec-b068-c3ffe7e49eab	6cbcef0e-8d22-11eb-8799-0ff393d74652	cb458ee0-83c4-497c-b94e-a0a7b15ba162	9581b489-937e-4d05-ba6d-c00588ec5638	1	13.75	0.5	C4, D4, F4, A4
 \.
 
 
@@ -19031,14 +19044,10 @@ fc5bd222-6203-11ec-9fca-bf21acb11390	Library	5d7f23c6-105e-11ec-bee8-f7be79aa535
 6e6291c0-2e16-11ec-b891-23aa10a293b0	Library	adccb000-1cfc-11ec-a1a8-3bde1278bdd9	d124e460-fb22-11eb-b9ed-a36c2b39adb7
 1bb15598-3513-11ec-8ba6-bfd1903415df	Library	9ea9fe94-3510-11ec-a019-a3e3fba5cba1	0f8f0050-3511-11ec-8c04-5f7ccbf0cadf
 41fd8718-362f-11ec-a897-fb5a11016c30	Library	a5ffa7a2-09be-11ec-b9a9-0b37c89ec993	c40012d4-fb20-11eb-a2de-278de10ba0a8
-89aa8968-3791-11ec-bd46-136a6dd0ff89	Library	6c2fc6a4-36ca-11ec-97c9-d79c04250282	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef
-8da49e1e-3791-11ec-bd46-1731fc33f795	Library	6c2fc6a4-36ca-11ec-97c9-d79c04250282	53b95f54-fb24-11eb-ad24-8f1c28086c69
 9044f786-3791-11ec-bceb-5febb7d85f68	Library	6c2fc6a4-36ca-11ec-97c9-d79c04250282	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe
 931d3888-3791-11ec-bceb-934d0941cfdb	Library	6c2fc6a4-36ca-11ec-97c9-d79c04250282	ede3b224-fb23-11eb-ad24-1bf1b475662e
 99e5be06-3791-11ec-b908-37b369e0bb1b	Library	6c2fc6a4-36ca-11ec-97c9-d79c04250282	460830b0-fb24-11eb-80a6-7b4f92dccaea
 9cc60b76-3791-11ec-b908-cff5890fc7db	Library	6c2fc6a4-36ca-11ec-97c9-d79c04250282	2f621894-fb24-11eb-80a6-63ed42857ac1
-a0a23760-3791-11ec-b908-731fc9454c63	Library	6c2fc6a4-36ca-11ec-97c9-d79c04250282	5545dcfe-fb23-11eb-80a6-4372a28aca52
-a34ed162-3791-11ec-b908-234f7f76f449	Library	6c2fc6a4-36ca-11ec-97c9-d79c04250282	d124e460-fb22-11eb-b9ed-a36c2b39adb7
 a75e0cfa-3791-11ec-b908-8fb57583d811	Library	6c2fc6a4-36ca-11ec-97c9-d79c04250282	ff8ce21c-fb22-11eb-981d-37143596a20d
 ae89b128-3791-11ec-b908-a707810a7604	Library	6c2fc6a4-36ca-11ec-97c9-d79c04250282	55461ec6-fb23-11eb-ad24-972f33ad9115
 b24f6a8c-3791-11ec-b45b-b7855dddf8f6	Library	6c2fc6a4-36ca-11ec-97c9-d79c04250282	ff8def18-fb22-11eb-928c-2b02f39362fc
@@ -19055,11 +19064,8 @@ b2c74368-5c76-11ec-9d51-7f452b1d6fbb	Library	adccb000-1cfc-11ec-a1a8-3bde1278bdd
 b7f3de0a-5c76-11ec-9d51-af5b344786bf	Library	adccb000-1cfc-11ec-a1a8-3bde1278bdd9	5545dcfe-fb23-11eb-80a6-4372a28aca52
 66cebc38-4cb4-11ec-8ccb-ff4ca713e059	Library	3c8cc5ec-4cae-11ec-b368-8f261f2e5462	ffc49138-4caf-11ec-8589-1f396b37df87
 14657988-4cb8-11ec-9f41-8f954968f6f4	Library	3c8cc5ec-4cae-11ec-b368-8f261f2e5462	d025f31e-4cae-11ec-8136-f79e3047a42f
-785407ac-5d52-11ec-8815-5ba26ca5066e	Program	6c2fc6a4-36ca-11ec-97c9-d79c04250282	8c594c64-5d50-11ec-98cd-1f14eb21376e
-86721c7a-5d52-11ec-8815-b33692995b81	Program	6c2fc6a4-36ca-11ec-97c9-d79c04250282	0105b790-5d52-11ec-b7e4-43be91b9e59f
 44c4c602-5d56-11ec-869d-4f9ca1cd54b4	Program	adccb000-1cfc-11ec-a1a8-3bde1278bdd9	e86ffb1a-5d55-11ec-869d-f311521b3467
 007e4b2c-38fc-11ec-a63d-e71f2671b51b	Library	9ea9fe94-3510-11ec-a019-a3e3fba5cba1	53848598-3843-11ec-877d-039fbad7aa03
-7a95fcf6-5d56-11ec-869d-b7892b28fb0e	Program	adccb000-1cfc-11ec-a1a8-3bde1278bdd9	5308e1f8-5d56-11ec-869d-d7241601e5ea
 10781e3e-5d57-11ec-869d-6f188436304e	Library	adccb000-1cfc-11ec-a1a8-3bde1278bdd9	55461ec6-fb23-11eb-ad24-972f33ad9115
 f930819e-5d5b-11ec-914d-2fffe8946975	Program	adccb000-1cfc-11ec-a1a8-3bde1278bdd9	71869822-5d57-11ec-869d-abb7a6400ad2
 cd4343ec-5de1-11ec-9972-675ce1f5ee9c	Instrument	adccb000-1cfc-11ec-a1a8-3bde1278bdd9	a3f2d2fa-5de1-11ec-9972-4f254353a9fc
@@ -19080,7 +19086,9 @@ c7a05386-3be4-11ec-b140-ebfd9b111762	Library	e5e40250-14b8-11ec-a00e-d7a3b541c71
 ca7888da-3be4-11ec-a771-bfd0e0ae262e	Program	e5e40250-14b8-11ec-a00e-d7a3b541c710	2298444a-16eb-11ea-8a37-5389fe5c6d7c
 60c0cbc8-3c25-11ec-8f6e-47a6bc603535	Library	1f97c3de-1e22-11ec-aa95-9b3828fb2748	15085f36-16eb-11ea-8a37-57a336f886a8
 79067854-3c25-11ec-8f6e-939e63e9a72a	Library	1f97c3de-1e22-11ec-aa95-9b3828fb2748	1ad5dad8-3b38-11ec-8c6a-cf7b32eb3f78
-646ab5f0-7117-11ec-83d5-dfc6a7365d24	Program	3c8cc5ec-4cae-11ec-b368-8f261f2e5462	edbddc7e-7112-11ec-bacf-6bfb24b0fd6e
+19fe2ee0-78d1-11ec-9d4b-c3acdc1f6f86	Program	adccb000-1cfc-11ec-a1a8-3bde1278bdd9	5308e1f8-5d56-11ec-869d-d7241601e5ea
+b25fc428-78d1-11ec-96b1-9321dfa3f5f6	Instrument	adccb000-1cfc-11ec-a1a8-3bde1278bdd9	1498ac94-5ddf-11ec-a75b-934b17bcdca1
+c89987da-78d4-11ec-986f-e3e0ff30c4be	Instrument	6c2fc6a4-36ca-11ec-97c9-d79c04250282	7de67650-1ef6-11eb-8df3-bf5a46b7b953
 \.
 
 
@@ -19089,8 +19097,18 @@ ca7888da-3be4-11ec-a771-bfd0e0ae262e	Program	e5e40250-14b8-11ec-a00e-d7a3b541c71
 --
 
 COPY xj.template_playback (id, template_id, user_id, created_at) FROM stdin;
-7f8e213e-6904-11ec-ad48-13f80a9e3e36	adccb000-1cfc-11ec-a1a8-3bde1278bdd9	14c688fe-16eb-11ea-8a37-a798275d637c	2021-12-30 00:07:38.244719
-6b5261ec-7117-11ec-83d5-779fd1127f66	3c8cc5ec-4cae-11ec-b368-8f261f2e5462	14e0e8c0-16eb-11ea-8a37-336eae21d833	2022-01-09 06:43:14.038826
+cc83853a-78d4-11ec-9509-6f48583df723	6c2fc6a4-36ca-11ec-97c9-d79c04250282	8a2439bc-a9ca-11ea-9cb5-33555a4054e4	2022-01-19 03:06:30.120787
+e03f9460-78b1-11ec-9019-f7ace786a845	3c8cc5ec-4cae-11ec-b368-8f261f2e5462	14e0e8c0-16eb-11ea-8a37-336eae21d833	2022-01-18 22:56:30.844482
+\.
+
+
+--
+-- Data for Name: template_publication; Type: TABLE DATA; Schema: xj; Owner: postgres
+--
+
+COPY xj.template_publication (id, template_id, user_id, created_at) FROM stdin;
+46841346-79d3-11ec-9429-5f2342ee4c82	eb0cf5ce-09ba-11ec-8016-d72d36e2270c	488ada38-16ea-11ea-88e3-573050fbaae5	2022-01-20 09:28:06.976159
+fe0dcbb6-79ff-11ec-86ff-57ea546f08f7	9ea9fe94-3510-11ec-a019-a3e3fba5cba1	8a2439bc-a9ca-11ea-9cb5-33555a4054e4	2022-01-20 14:48:12.757479
 \.
 
 
@@ -19181,6 +19199,8 @@ f404f8dc-8866-11eb-bdb9-4f529ce117e2	f3fabf34-8866-11eb-bdb9-fb546653409b	f3f84f
 b20478e4-9690-11eb-8f31-8320a5687726	8a24f74e-a9ca-11ea-9cb5-eb23857bab60	8a2439bc-a9ca-11ea-9cb5-33555a4054e4	1617683377094-9b846b0a-158e-48f5-ad05-a49189095c32-257143051554794
 ec1c04e6-9b3d-11eb-bdcc-bfe909d60df5	8a24f74e-a9ca-11ea-9cb5-eb23857bab60	8a2439bc-a9ca-11ea-9cb5-33555a4054e4	1618197581965-c7316f39-0d1c-4dd3-90a4-533017da74b6-9837612200661101
 5a2c5db4-abb0-11eb-846a-0bb31b7d2716	5188959c-8514-11ea-962a-87e0456d6ec9	14c688fe-16eb-11ea-8a37-a798275d637c	1620005948018-6ac5d8c4-908f-48c5-8ad6-44508038f798-3990028507994301
+82e1a71e-75a9-11ec-a566-9fd81a37062a	488d266c-16ea-11ea-88e3-afea5aeef804	488ada38-16ea-11ea-88e3-573050fbaae5	1642213144653-ff4a6b10-c9fa-40ed-80ee-f6e4ac252ac8-7170194767672612
+78fd54e0-796a-11ec-9e6e-8b7fdee419b5	488d266c-16ea-11ea-88e3-afea5aeef804	488ada38-16ea-11ea-88e3-573050fbaae5	1642625874491-b1540a4a-4c29-4369-b919-084d37fdbcc4-4489822157945752
 de2518c6-ac97-11eb-80b0-1b1d64e9e53d	5188959c-8514-11ea-962a-87e0456d6ec9	14c688fe-16eb-11ea-8a37-a798275d637c	1620105383177-1b7d0a56-0716-4ccc-8ff7-2102a042cb2e-67049893135629
 fc1f3988-adcd-11eb-9687-1723cd29e510	5188959c-8514-11ea-962a-87e0456d6ec9	14c688fe-16eb-11ea-8a37-a798275d637c	1620238577450-bd045492-bf33-46ad-97f3-6582c35f2aa9-939360314748522
 413f2c58-adf1-11eb-99c9-2b74e262ac8c	8a24f74e-a9ca-11ea-9cb5-eb23857bab60	8a2439bc-a9ca-11ea-9cb5-33555a4054e4	1620253725828-8c1df647-6ecb-4ae6-aa87-5f797615ba0e-111855197599042
@@ -19225,6 +19245,8 @@ e17d7874-01fb-11ec-b4ac-87da25aa3154	4fec6b4e-60d6-11ea-85c7-e7e65109099b	14e0e8
 a71d45b6-053d-11ec-bab1-a79f27683d3f	4fec6b4e-60d6-11ea-85c7-e7e65109099b	14e0e8c0-16eb-11ea-8a37-336eae21d833	1629852289633-262882c7-34ba-4b9f-a30f-bc3c8bddac62-0102291081921674
 4d9bb0a0-6a3b-11ec-bb96-efd1670c8001	4d99cd76-6a3b-11ec-bb96-f3224237e082	4d9822be-6a3b-11ec-bb96-430f410df4fa	1640956347927-80943498-b741-4df1-8f5a-ce65e0dd6e97-631822849079509
 e02702dc-0788-11ec-a7fd-e7c0cf032d9e	5188959c-8514-11ea-962a-87e0456d6ec9	14c688fe-16eb-11ea-8a37-a798275d637c	1630104499917-8577b820-25ad-49b2-b76a-0b70a8da0609-4383455802053105
+ee9d0dc2-78b0-11ec-b69b-a3f3e2d0d996	4fec6b4e-60d6-11ea-85c7-e7e65109099b	14e0e8c0-16eb-11ea-8a37-336eae21d833	1642546185401-c53e97a9-9aee-4eb1-a3a0-fe526161c31f-4582042248085942
+b89d7894-7985-11ec-af18-a7302433a40f	8a24f74e-a9ca-11ea-9cb5-eb23857bab60	8a2439bc-a9ca-11ea-9cb5-33555a4054e4	1642637577653-f743ddcd-a535-463f-b390-65d58c2a4606-4488244760027852
 0505afe8-0b28-11ec-9c0e-63b920c4d5e0	05030824-0b28-11ec-9c0e-8f376cd129c5	04fd1aae-0b28-11ec-9c0e-a3439b9d83f3	1630502705242-e70d9ea5-534e-48ad-b080-da5e7bda2c79-9095270246271145
 ca43b634-0bfe-11ec-899a-dfd5c7d492cd	05030824-0b28-11ec-9c0e-8f376cd129c5	04fd1aae-0b28-11ec-9c0e-a3439b9d83f3	1630594948462-8cd00e25-9c39-4248-aa2d-4754b3f9185b-4369560469693055
 d7d77ab0-0bfe-11ec-849f-4793d55dbe2f	d7d542d6-0bfe-11ec-849f-7b7688400ab0	d7d1932a-0bfe-11ec-849f-cba5043dcd83	1630594971240-0559bca8-0a30-4aae-83e0-55f0424f3380-9940639142993055
@@ -19268,6 +19290,7 @@ d54250a8-4c23-11ec-bdb4-2f4c85639804	8a24f74e-a9ca-11ea-9cb5-eb23857bab60	8a2439
 cf6e59f0-66eb-11ec-85e4-d799efb719f5	5188959c-8514-11ea-962a-87e0456d6ec9	14c688fe-16eb-11ea-8a37-a798275d637c	1640592352415-bf8386af-0eaf-42ce-abac-f6c9bd9bc79b-887500734579145
 6b9dd4ee-6904-11ec-ad48-0321a14c4ff1	5188959c-8514-11ea-962a-87e0456d6ec9	14c688fe-16eb-11ea-8a37-a798275d637c	1640822824663-c378d3ac-f92a-4021-bead-d3e4e0c715c9-262823586744277
 f466de64-6dd3-11ec-8831-739a312eaa33	06920d56-8f3d-11ea-ab8d-979cef4f3286	06901f6e-8f3d-11ea-ab8d-836f6e9422f1	1641351764720-a96f11a6-d47b-4dab-820d-3c89142d320c-4801931477831031
+9b083c9a-78ce-11ec-9978-3b3aecc11694	8a24f74e-a9ca-11ea-9cb5-eb23857bab60	8a2439bc-a9ca-11ea-9cb5-33555a4054e4	1642558930118-ee2eba64-3b52-45b3-b9c4-5e3b613bbe5c-3329129313558052
 \.
 
 
