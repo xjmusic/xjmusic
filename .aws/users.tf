@@ -111,16 +111,20 @@ resource "aws_iam_user_policy" "xj-ci" {
           "s3:Put*"
         ],
         Resource = [
-          aws_s3_bucket.xj-lab.arn,
-          "${aws_s3_bucket.xj-lab.arn}/*",
-          aws_s3_bucket.xj-lab-mk1.arn,
-          "${aws_s3_bucket.xj-lab-mk1.arn}/*",
-          aws_s3_bucket.xj-dev.arn,
-          "${aws_s3_bucket.xj-dev.arn}/*",
+          # Production
           aws_s3_bucket.xj-io.arn,
           "${aws_s3_bucket.xj-io.arn}/*",
           aws_s3_bucket.xj-play.arn,
           "${aws_s3_bucket.xj-play.arn}/*",
+          aws_s3_bucket.xj-lab.arn,
+          "${aws_s3_bucket.xj-lab.arn}/*",
+          aws_s3_bucket.xj-lab-mk1.arn,
+          "${aws_s3_bucket.xj-lab-mk1.arn}/*",
+          # Development
+          aws_s3_bucket.xj-dev.arn,
+          "${aws_s3_bucket.xj-dev.arn}/*",
+          aws_s3_bucket.xj-dev-lab.arn,
+          "${aws_s3_bucket.xj-dev-lab.arn}/*",
         ]
       },
       {

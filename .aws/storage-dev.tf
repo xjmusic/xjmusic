@@ -275,4 +275,30 @@ resource "aws_s3_bucket" "xj-dev" {
   }
 }
 
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+resource "aws_s3_bucket" "xj-dev-lab" {
+  bucket = "lab.dev.xj.io"
+  acl    = "public-read"
+  policy = jsonencode({
+    "Version" : "2008-10-17",
+    "Statement" : [
+      {
+        Sid       = "PublicReadGetObject",
+        Effect    = "Allow",
+        Principal = "*",
+        Action    = "s3:GetObject",
+        Resource = [
+          "arn:aws:s3:::lab.dev.xj.io/*",
+          "arn:aws:s3:::lab.dev.xj.io",
+        ]
+      }
+    ]
+  })
+
+  website {
+    index_document = "index.html"
+    error_document = "index.html"
+  }
+}
+
 
