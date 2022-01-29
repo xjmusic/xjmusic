@@ -20,4 +20,9 @@ public interface StreamWriter {
    Close the writer and release resources
    */
   void close();
+
+  /**
+   @return true if the writer is enabled and done writing
+   */
+  boolean enabledAndDoneWithOutput();
 }

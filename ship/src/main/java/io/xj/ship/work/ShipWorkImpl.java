@@ -240,9 +240,13 @@ public class ShipWorkImpl implements ShipWork {
     // if this chunk isn't ready to be mixed, then quit the mix cycle for now. we won't update done-up-to any further this cycle
     if (!mixer.isReadyToMix()) return;
 
-    // pass the mixed bytes through the various potential output busses
-    player.append(stream.append(mixer.mix()));
-    writer.append(stream.append(mixer.mix()));
+    // pass the mixed bytes through the various potential output busses, to avoid memory storage of the actual mixed bytes
+    player.append(
+      writer.append(
+        stream.append(
+          mixer.mix())));
+
+    if (writer.enabledAndDoneWithOutput()) active = false;
 
     // having arrived here, we confirm that the chunks have been mixed up to here.
     doneUpToSecondsUTC = chunk.getToSecondsUTC();

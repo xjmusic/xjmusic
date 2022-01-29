@@ -21,7 +21,7 @@ import static io.xj.lib.mixer.AudioStreamWriter.byteBufferOf;
 
 public class StreamPlayerImpl implements StreamPlayer {
   private static final Logger LOG = LoggerFactory.getLogger(StreamPlayer.class);
-  private static final String THREAD_NAME = StreamPlayer.class.getName();
+  private static final String THREAD_NAME = "StreamPlayer";
   private final AudioFormat format;
   private final SourceDataLine line;
   private final ConcurrentLinkedQueue<ByteBuffer> queue;
