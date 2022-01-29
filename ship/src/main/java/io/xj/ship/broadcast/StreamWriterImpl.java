@@ -8,6 +8,7 @@ import com.google.inject.assistedinject.Assisted;
 import io.xj.lib.app.Environment;
 import io.xj.lib.mixer.FormatException;
 import io.xj.lib.util.Files;
+import io.xj.lib.util.Text;
 import io.xj.ship.ShipException;
 import io.xj.ship.ShipMode;
 import org.apache.commons.io.FileUtils;
@@ -52,7 +53,7 @@ public class StreamWriterImpl implements StreamWriter {
   ) throws ShipException {
     this.format = format;
     outPath = env.getShipWavPath();
-    tempPath = Files.getUniqueTempFilename("stream.wav");
+    tempPath = Files.getUniqueTempFilename("stream.pcm");
     int outSeconds = env.getShipWavSeconds();
     targetByteCount = (long) (outSeconds * format.getFrameRate() * format.getFrameSize());
 
@@ -86,7 +87,8 @@ public class StreamWriterImpl implements StreamWriter {
                 tempOut.flush();
                 tempOut.close();
                 appendedByteCount.addAndGet(lastBytes.array().length);
-                LOG.info("Did write last {} bytes, adding up to {} out of {} target bytes", lastBytes.array().length, appendedByteCount.get(), targetByteCount);
+                LOG.info("Did write last {} bytes, adding up to {} out of {} target bytes ({})",
+                  lastBytes.array().length, appendedByteCount.get(), targetByteCount, Text.percentage((float) appendedByteCount.get() / targetByteCount));
                 //
                 File outputFile = new File(outPath);
                 var fileInputStream = FileUtils.openInputStream(new File(tempPath));
@@ -98,7 +100,8 @@ public class StreamWriterImpl implements StreamWriter {
               } else {
                 this.tempOut.write(bytes.array(), 0, bytes.array().length);
                 appendedByteCount.addAndGet(bytes.array().length);
-                LOG.info("Did write next {} bytes, adding up to {} out of {} target bytes", bytes.array().length, appendedByteCount.get(), targetByteCount);
+                LOG.info("Did write next {} bytes, adding up to {} out of {} target bytes ({})",
+                  bytes.array().length, appendedByteCount.get(), targetByteCount, Text.percentage((float) appendedByteCount.get() / targetByteCount));
                 tempOut.flush();
               }
             }

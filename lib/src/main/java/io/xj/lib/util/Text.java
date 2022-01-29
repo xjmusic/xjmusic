@@ -470,4 +470,14 @@ public interface Text {
   static String[] splitLines(String content) {
     return content.split("\n");
   }
+
+  /**
+   Get the percentage of a ratio, e.g. "53%" for 0.53f
+
+   @param ratio input
+   @return formatted percentage
+   */
+  static String percentage(float ratio) {
+    return String.format("%d%%", (int) Math.floor(100 * ratio));
+  }
 }
