@@ -39,6 +39,7 @@ public class ShipWorkImpl implements ShipWork {
   private final BroadcastFactory broadcast;
   private final ChainManager chains;
   private final Janitor janitor;
+  private final MediaSeqNumProvider mediaSeqNumProvider;
   private final NotificationProvider notification;
   private final PlaylistPublisher playlist;
   private final SegmentAudioManager segmentAudios;
@@ -58,6 +59,7 @@ public class ShipWorkImpl implements ShipWork {
   private final String shipKey;
   private final boolean telemetryEnabled;
   private final long initialSeqNum;
+  private final StreamWriter writer;
   private StreamEncoder stream;
   private boolean active = true;
   private long doneUpToSecondsUTC;
@@ -74,6 +76,7 @@ public class ShipWorkImpl implements ShipWork {
     ChainManager chains,
     Environment env,
     Janitor janitor,
+    MediaSeqNumProvider mediaSeqNumProvider,
     NotificationProvider notification,
     PlaylistPublisher playlist,
     SegmentAudioManager segmentAudios,
@@ -82,6 +85,7 @@ public class ShipWorkImpl implements ShipWork {
     this.broadcast = broadcast;
     this.chains = chains;
     this.janitor = janitor;
+    this.mediaSeqNumProvider = mediaSeqNumProvider;
     this.notification = notification;
     this.playlist = playlist;
     this.segmentAudios = segmentAudios;
@@ -114,13 +118,14 @@ public class ShipWorkImpl implements ShipWork {
       false);
 
     player = broadcast.player(audioFormat);
+    writer = broadcast.writer(audioFormat);
 
     // Snap this once to avoid the edge case of a difference between subsequently computed values
     var nowMillis = System.currentTimeMillis();
 
     // This is the initial sequence number when the entire ship process was started-
     // necessary to coordinate between mixing, encoding, and playlist publishing
-    initialSeqNum = playlist.computeInitialMediaSeqNum(nowMillis);
+    initialSeqNum = mediaSeqNumProvider.computeInitialMediaSeqNum(nowMillis);
     LOG.info("Initial media sequence number {}", initialSeqNum);
 
     // This value will advance each time we compute more chunks
@@ -133,12 +138,11 @@ public class ShipWorkImpl implements ShipWork {
 
   @Override
   public void start() {
-    // Ship rehydrates from last shipped .m3u8 playlist file #180723357
-    playlist.rehydrate(initialSeqNum)
+    playlist.start(initialSeqNum)
       .ifPresent(maxSeqNum -> doneUpToSecondsUTC = (maxSeqNum + 1) * chunkTargetDuration);
 
     // Collect garbage before we begin
-    var nowSeqNum = playlist.computeMediaSeqNum(System.currentTimeMillis());
+    var nowSeqNum = mediaSeqNumProvider.computeMediaSeqNum(System.currentTimeMillis());
     playlist.collectGarbage(nowSeqNum);
 
     // Check to see if in fact, this is a stale playlist and should be reset
@@ -153,6 +157,7 @@ public class ShipWorkImpl implements ShipWork {
   public void finish() {
     active = false;
     player.close();
+    writer.close();
   }
 
   @Override
@@ -237,6 +242,7 @@ public class ShipWorkImpl implements ShipWork {
 
     // pass the mixed bytes through the various potential output busses
     player.append(stream.append(mixer.mix()));
+    writer.append(stream.append(mixer.mix()));
 
     // having arrived here, we confirm that the chunks have been mixed up to here.
     doneUpToSecondsUTC = chunk.getToSecondsUTC();

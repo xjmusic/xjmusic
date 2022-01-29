@@ -31,6 +31,7 @@ public interface PlaylistPublisher {
    Ship rehydrates from last shipped .m3u8 playlist file #180723357
 
    @param initialSeqNum threshold .m3u8 playlist must be ahead of, else it will be considered stale
+   @return max sequence number from rehydrated playlist, if found
    */
   Optional<Long> rehydrate(long initialSeqNum);
 
@@ -64,24 +65,6 @@ public interface PlaylistPublisher {
    @param mediaSequence number before the threshold of which to collect garbage
    */
   void collectGarbage(long mediaSequence);
-
-  /**
-   Get the media sequence number of a given time in milliseconds
-
-   @param epochMillis for which to get media sequence number
-   @return media sequence number
-   */
-  int computeMediaSeqNum(long epochMillis);
-
-  /**
-   Compute the initial media sequence number to begin shipping for any moment in time.
-   <p>
-   This will be slight in the past to adjust for ffmpeg needing to catch up.
-
-   @param epochMillis for which to get media sequence number
-   @return initial media sequence number
-   */
-  int computeInitialMediaSeqNum(long epochMillis);
 
   /**
    Get the whole .m3u8 playlist content, including headers, as a string
@@ -142,4 +125,12 @@ public interface PlaylistPublisher {
    Ship should not enter permanent failure state unable to load segments #180756082
    */
   void sendTelemetry();
+
+  /**
+   Start the playlist publisher
+
+   @param initialSeqNum initial sequence number
+   @return max sequence number from rehydrated playlist, if found
+   */
+  Optional<Long> start(long initialSeqNum);
 }

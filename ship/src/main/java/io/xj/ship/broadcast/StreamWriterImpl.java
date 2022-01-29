@@ -2,6 +2,7 @@
 
 package io.xj.ship.broadcast;
 
+import com.google.api.client.util.Strings;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.lib.app.Environment;
@@ -11,7 +12,10 @@ import io.xj.ship.ShipMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.sound.sampled.*;
+import javax.sound.sampled.AudioFormat;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -19,36 +23,30 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static io.xj.lib.mixer.AudioStreamWriter.byteBufferOf;
 
-public class StreamPlayerImpl implements StreamPlayer {
-  private static final Logger LOG = LoggerFactory.getLogger(StreamPlayer.class);
-  private static final String THREAD_NAME = StreamPlayer.class.getName();
+public class StreamWriterImpl implements StreamWriter {
+  private static final Logger LOG = LoggerFactory.getLogger(StreamWriter.class);
+  private static final String THREAD_NAME = StreamWriter.class.getName();
   private final AudioFormat format;
-  private final SourceDataLine line;
   private final ConcurrentLinkedQueue<ByteBuffer> queue;
+  private BufferedWriter outFile;
   private volatile boolean active = true;
 
   @Inject
-  public StreamPlayerImpl(
+  public StreamWriterImpl(
     @Assisted("audioFormat") AudioFormat format,
     Environment env
   ) throws ShipException {
     this.format = format;
+    String outFilePath = env.getShipToWavPath();
 
     queue = new ConcurrentLinkedQueue<>();
 
-    if (ShipMode.Playback.equals(env.getShipMode()))
+    if (ShipMode.WAV.equals(env.getShipMode()))
       try {
-        DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
-        if (!AudioSystem.isLineSupported(info)) {
-          LOG.error("Line matching {} not supported.", info);
-          line = null;
-          return;
-        }
-
-        line = (SourceDataLine) AudioSystem.getLine(info);
-        line.open(format);
-        line.start();
-        LOG.info("Did open audio system line out: {}", info);
+        if (Strings.isNullOrEmpty(outFilePath))
+          throw new ShipException("Cannot write stream without path to output file!");
+        outFile = new BufferedWriter(new FileWriter(outFilePath, true));
+        LOG.info("Did open output file path for writing: {}", outFilePath);
 
         CompletableFuture.supplyAsync(() -> {
           final Thread currentThread = Thread.currentThread();
@@ -58,20 +56,30 @@ public class StreamPlayerImpl implements StreamPlayer {
             while (active) {
               var bytes = queue.poll();
               if (Objects.isNull(bytes)) continue;
-              LOG.info("Playing next {} bytes", bytes.array().length);
-              line.write(bytes.array(), 0, bytes.array().length);
+              LOG.info("Writing next {} bytes", bytes.array().length);
+              this.outFile.write(bytes.asCharBuffer().array(), 0, bytes.array().length);
             }
+          } catch (IOException e) {
+            LOG.error("Failed to write bytes to output file!", e);
+
+            outFile = null;
+            active = false;
           } finally {
+            try {
+              if (Objects.nonNull(outFile)) outFile.close();
+            } catch (IOException e) {
+              LOG.error("Failed to close output file stream!", e);
+            }
             currentThread.setName(oldName);
           }
           return false;
         });
 
-      } catch (LineUnavailableException e) {
+      } catch (IOException e) {
         throw new ShipException("Failed to initialize!", e);
       }
     else {
-      line = null;
+      outFile = null;
       active = false;
     }
   }
@@ -92,8 +100,13 @@ public class StreamPlayerImpl implements StreamPlayer {
 
   @Override
   public void close() {
-    if (Objects.nonNull(line))
-      line.close();
+    if (Objects.nonNull(outFile)) {
+      try {
+        outFile.close();
+      } catch (IOException e) {
+        LOG.error("Failed to close output file stream!", e);
+      }
+    }
     active = false;
   }
 

@@ -13,6 +13,7 @@ import io.xj.lib.util.Text;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.persistence.*;
 import io.xj.ship.ShipException;
+import io.xj.ship.broadcast.MediaSeqNumProvider;
 import io.xj.ship.broadcast.PlaylistPublisher;
 import io.xj.ship.source.SegmentAudioManager;
 import org.slf4j.Logger;
@@ -36,11 +37,13 @@ public class JanitorImpl implements Janitor {
   private final SegmentAudioManager segmentAudioManager;
   private final TelemetryProvider telemetryProvider;
   private final String threadName;
+  private MediaSeqNumProvider mediaSeqNumProvider;
 
   @Inject
   public JanitorImpl(
     ChainManager chainManager,
     Environment env,
+    MediaSeqNumProvider mediaSeqNumProvider,
     NexusEntityStore store,
     NotificationProvider notification,
     PlaylistPublisher playlist,
@@ -57,6 +60,7 @@ public class JanitorImpl implements Janitor {
     eraseSegmentsOlderThanSeconds = env.getWorkEraseSegmentsOlderThanSeconds();
 
     METRIC_SEGMENT_ERASED = telemetryProvider.count("ship_segments_erased", "Ship Segments Erased", "");
+    this.mediaSeqNumProvider = mediaSeqNumProvider;
 
     threadName = "Janitor";
   }
@@ -100,7 +104,7 @@ public class JanitorImpl implements Janitor {
     }
 
     // Collect garbage from playlist-- when everything else stalls, this will ensure the health check fails the way we want it to
-    playlist.collectGarbage(playlist.computeMediaSeqNum(System.currentTimeMillis()));
+    playlist.collectGarbage(mediaSeqNumProvider.computeMediaSeqNum(System.currentTimeMillis()));
 
     telemetryProvider.put(METRIC_SEGMENT_ERASED, Long.valueOf(segmentIdsToErase.size()));
   }
