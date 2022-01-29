@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 public class ShipApp extends App {
   private final org.slf4j.Logger LOG = LoggerFactory.getLogger(ShipApp.class);
   private final String platformRelease;
+  private final String shipMode;
 
   /**
    Construct a new application by providing
@@ -51,6 +52,7 @@ public class ShipApp extends App {
 
     // Configuration
     platformRelease = env.getPlatformEnvironment();
+    shipMode = env.getShipMode();
 
     // Setup Entity topology
     EntityFactory entityFactory = injector.getInstance(EntityFactory.class);
@@ -68,7 +70,7 @@ public class ShipApp extends App {
    */
   public void start() throws AppException {
     super.start();
-    LOG.info("{} ({}) is up at {}}", getName(), platformRelease, getBaseURI());
+    LOG.info("{} ({}) is up at {} in {} mode", getName(), platformRelease, getBaseURI(), shipMode);
   }
 
   /**

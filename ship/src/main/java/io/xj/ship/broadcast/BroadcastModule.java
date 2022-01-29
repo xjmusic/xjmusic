@@ -19,6 +19,7 @@ public class BroadcastModule extends AbstractModule {
       .implement(ChunkMixer.class, ChunkMixerImpl.class)
       .implement(StreamEncoder.class, StreamEncoderImpl.class)
       .implement(StreamPlayer.class, StreamPlayerImpl.class)
+      .implement(StreamWriter.class, StreamWriterImpl.class)
       .build(BroadcastFactory.class));
     bind(PlaylistPublisher.class).to(PlaylistPublisherImpl.class);
     install(new TelemetryModule());

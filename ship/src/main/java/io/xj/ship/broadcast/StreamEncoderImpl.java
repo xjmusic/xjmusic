@@ -33,7 +33,7 @@ import static io.xj.lib.mixer.AudioStreamWriter.byteBufferOf;
 
 public class StreamEncoderImpl implements StreamEncoder {
   private static final Logger LOG = LoggerFactory.getLogger(StreamEncoderImpl.class);
-  private static final String THREAD_NAME = "stream-encoder";
+  private static final String THREAD_NAME = "StreamEncoder";
   private final AudioFormat format;
   private final ConcurrentLinkedQueue<ByteBuffer> queue = new ConcurrentLinkedQueue<>();
   private final FileStoreProvider fileStore;

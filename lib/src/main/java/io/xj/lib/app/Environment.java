@@ -61,6 +61,7 @@ public class Environment {
   private final String shipKey;
   private final String shipM3u8ContentType;
   private final String shipMode;
+  private final String shipWavPath;
   private final String streamBaseURL;
   private final String streamBucket;
   private final String tempFilePathPrefix;
@@ -95,6 +96,7 @@ public class Environment {
   private final int shipPlaylistBackSeconds;
   private final int shipSegmentLoadAheadSeconds;
   private final int shipSegmentLoadTimeoutSeconds;
+  private final int shipWavSeconds;
   private final int templatePublicationCacheExpireSeconds;
   private final int workCycleMillis;
   private final int workEraseSegmentsOlderThanSeconds;
@@ -172,6 +174,8 @@ public class Environment {
     shipMediaSequenceNumberOffset = readInt(vars, "SHIP_MEDIA_SEQUENCE_NUMBER_OFFSET", 3);
     shipMixCycleSeconds = readInt(vars, "WORK_PRINT_CYCLE_SECONDS", 1);
     shipMode = readStr(vars, "SHIP_MODE", "hls");
+    shipWavPath = readStr(vars, "SHIP_WAV_PATH", "");
+    shipWavSeconds = readInt(vars, "SHIP_WAV_SECONDS", 0);
     shipPlaylistAheadSeconds = readInt(vars, "SHIP_PLAYLIST_AHEAD_SECONDS", 30);
     shipPlaylistBackSeconds = readInt(vars, "SHIP_PLAYLIST_BACK_SECONDS", 300);
     shipSegmentLoadAheadSeconds = readInt(vars, "SHIP_SEGMENT_LOAD_AHEAD_SECONDS", 120);
@@ -799,6 +803,20 @@ public class Environment {
    */
   public int getShipLoadCycleSeconds() {
     return shipLoadCycleSeconds;
+  }
+
+  /**
+   @return path to the output file (e.g. .wav file for Ship in WAV mode)
+   */
+  public String getShipWavPath() {
+    return shipWavPath;
+  }
+
+  /**
+   @return # of seconds for output wav file
+   */
+  public int getShipWavSeconds() {
+    return shipWavSeconds;
   }
 
   /**

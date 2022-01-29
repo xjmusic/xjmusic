@@ -60,4 +60,16 @@ public interface BroadcastFactory {
   StreamPlayer player(
     @Assisted("audioFormat") AudioFormat format
   );
+
+  /**
+   Write the stream to a local .WAV file
+   <p>
+   Ship service can be used to write N seconds to local .WAV file #181082015
+
+   @param format of audio
+   @return stream writer
+   */
+  StreamWriter writer(
+    @Assisted("audioFormat") AudioFormat format
+  );
 }

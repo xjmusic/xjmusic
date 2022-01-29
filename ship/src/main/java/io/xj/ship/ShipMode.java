@@ -10,7 +10,8 @@ import java.util.Optional;
 
 public enum ShipMode {
   Playback,
-  HLS;
+  HLS,
+  WAV;
 
   public static Optional<ShipMode> from(String value) {
     return Arrays.stream(values())
