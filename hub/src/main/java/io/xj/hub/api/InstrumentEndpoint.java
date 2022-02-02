@@ -5,9 +5,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.dao.DAOException;
-import io.xj.hub.dao.InstrumentDAO;
-import io.xj.hub.dao.InstrumentMemeDAO;
+import io.xj.hub.manager.ManagerException;
+import io.xj.hub.manager.InstrumentManager;
+import io.xj.hub.manager.InstrumentMemeManager;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.lib.entity.Entities;
@@ -27,24 +27,24 @@ import java.util.*;
  */
 @Path("api/1/instruments")
 public class InstrumentEndpoint extends HubJsonapiEndpoint<Instrument> {
-  private final InstrumentDAO dao;
-  private final InstrumentMemeDAO instrumentMemeDAO;
+  private final InstrumentManager manager;
+  private final InstrumentMemeManager instrumentMemeManager;
 
   /**
    Constructor
    */
   @Inject
   public InstrumentEndpoint(
-    InstrumentDAO dao,
-    InstrumentMemeDAO instrumentMemeDAO,
+    InstrumentManager manager,
+    InstrumentMemeManager instrumentMemeManager,
     HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory
   ) {
     super(dbProvider, response, payloadFactory, entityFactory);
-    this.dao = dao;
-    this.instrumentMemeDAO = instrumentMemeDAO;
+    this.manager = manager;
+    this.instrumentMemeManager = instrumentMemeManager;
   }
 
   /**
@@ -70,11 +70,11 @@ public class InstrumentEndpoint extends HubJsonapiEndpoint<Instrument> {
 
       // how we source instruments depends on the query parameters
       if (null != libraryId && !libraryId.isEmpty())
-        instruments = dao().readMany(hubAccess, ImmutableList.of(UUID.fromString(libraryId)));
+        instruments = manager().readMany(hubAccess, ImmutableList.of(UUID.fromString(libraryId)));
       else if (null != accountId && !accountId.isEmpty())
-        instruments = dao().readManyInAccount(hubAccess, accountId);
+        instruments = manager().readManyInAccount(hubAccess, accountId);
       else
-        instruments = dao().readMany(hubAccess);
+        instruments = manager().readMany(hubAccess);
 
       // add instruments as plural data in payload
       for (Instrument instrument : instruments) jsonapiPayload.addData(payloadFactory.toPayloadObject(instrument));
@@ -83,7 +83,7 @@ public class InstrumentEndpoint extends HubJsonapiEndpoint<Instrument> {
       // if detailed, add Instrument Memes
       if (Objects.nonNull(detailed) && detailed)
         jsonapiPayload.addAllToIncluded(payloadFactory.toPayloadObjects(
-          instrumentMemeDAO.readMany(hubAccess, instrumentIds)));
+          instrumentMemeManager.readMany(hubAccess, instrumentIds)));
 
       return response.ok(jsonapiPayload);
 
@@ -104,15 +104,15 @@ public class InstrumentEndpoint extends HubJsonapiEndpoint<Instrument> {
   public Response create(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @QueryParam("cloneId") String cloneId) {
 
     try {
-      Instrument instrument = payloadFactory.consume(dao().newInstance(), jsonapiPayload);
+      Instrument instrument = payloadFactory.consume(manager().newInstance(), jsonapiPayload);
       Instrument created;
       if (Objects.nonNull(cloneId))
-        created = dao().clone(
+        created = manager().clone(
           HubAccess.fromContext(crc),
           UUID.fromString(cloneId),
           instrument);
       else
-        created = dao().create(
+        created = manager().create(
           HubAccess.fromContext(crc),
           instrument);
 
@@ -137,12 +137,12 @@ public class InstrumentEndpoint extends HubJsonapiEndpoint<Instrument> {
       HubAccess hubAccess = HubAccess.fromContext(crc);
       var uuid = UUID.fromString(id);
 
-      JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(dao().readOne(hubAccess, uuid)));
+      JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(manager().readOne(hubAccess, uuid)));
 
       // optionally specify a CSV of included types to read
       if (Objects.nonNull(include)) {
         List<JsonapiPayloadObject> list = new ArrayList<>();
-        for (Object entity : dao().readChildEntities(hubAccess, ImmutableList.of(uuid), CSV.split(include))) {
+        for (Object entity : manager().readChildEntities(hubAccess, ImmutableList.of(uuid), CSV.split(include))) {
           JsonapiPayloadObject jsonapiPayloadObject = payloadFactory.toPayloadObject(entity);
           list.add(jsonapiPayloadObject);
         }
@@ -152,8 +152,8 @@ public class InstrumentEndpoint extends HubJsonapiEndpoint<Instrument> {
 
       return response.ok(jsonapiPayload);
 
-    } catch (DAOException ignored) {
-      return response.notFound(dao.newInstance().getClass(), id);
+    } catch (ManagerException ignored) {
+      return response.notFound(manager.newInstance().getClass(), id);
 
     } catch (Exception e) {
       return response.failure(e);
@@ -171,7 +171,7 @@ public class InstrumentEndpoint extends HubJsonapiEndpoint<Instrument> {
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
   public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return update(crc, dao(), id, jsonapiPayload);
+    return update(crc, manager(), id, jsonapiPayload);
   }
 
   /**
@@ -183,15 +183,15 @@ public class InstrumentEndpoint extends HubJsonapiEndpoint<Instrument> {
   @Path("{id}")
   @RolesAllowed(ARTIST)
   public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return delete(crc, dao(), id);
+    return delete(crc, manager(), id);
   }
 
   /**
-   Get DAO of injector
+   Get Manager of injector
 
-   @return DAO
+   @return Manager
    */
-  private InstrumentDAO dao() {
-    return dao;
+  private InstrumentManager manager() {
+    return manager;
   }
 }

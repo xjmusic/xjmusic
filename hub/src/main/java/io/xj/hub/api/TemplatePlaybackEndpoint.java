@@ -5,8 +5,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.dao.DAOException;
-import io.xj.hub.dao.TemplatePlaybackDAO;
+import io.xj.hub.manager.ManagerException;
+import io.xj.hub.manager.TemplatePlaybackManager;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.TemplatePlayback;
 import io.xj.lib.entity.EntityFactory;
@@ -26,21 +26,21 @@ import java.util.UUID;
  */
 @Path("api/1")
 public class TemplatePlaybackEndpoint extends HubJsonapiEndpoint<TemplatePlayback> {
-  private final TemplatePlaybackDAO dao;
+  private final TemplatePlaybackManager manager;
 
   /**
    Constructor
    */
   @Inject
   public TemplatePlaybackEndpoint(
-    TemplatePlaybackDAO dao,
+    TemplatePlaybackManager manager,
     HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory
   ) {
     super(dbProvider, response, payloadFactory, entityFactory);
-    this.dao = dao;
+    this.manager = manager;
   }
 
   /**
@@ -62,7 +62,7 @@ public class TemplatePlaybackEndpoint extends HubJsonapiEndpoint<TemplatePlaybac
       Collection<TemplatePlayback> templatePlaybacks;
 
       // how we source templatePlaybacks depends on the query parameters
-      templatePlaybacks = dao().readMany(hubAccess, ImmutableList.of(UUID.fromString(templateId)));
+      templatePlaybacks = manager().readMany(hubAccess, ImmutableList.of(UUID.fromString(templateId)));
 
       // add templatePlaybacks as plural data in payload
       for (TemplatePlayback templatePlayback : templatePlaybacks)
@@ -88,9 +88,9 @@ public class TemplatePlaybackEndpoint extends HubJsonapiEndpoint<TemplatePlaybac
   public Response create(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc) {
 
     try {
-      TemplatePlayback templatePlayback = payloadFactory.consume(dao().newInstance(), jsonapiPayload);
+      TemplatePlayback templatePlayback = payloadFactory.consume(manager().newInstance(), jsonapiPayload);
       TemplatePlayback created;
-      created = dao().create(
+      created = manager().create(
         HubAccess.fromContext(crc),
         templatePlayback);
 
@@ -112,15 +112,15 @@ public class TemplatePlaybackEndpoint extends HubJsonapiEndpoint<TemplatePlaybac
   @RolesAllowed(ARTIST)
   public Response readOneForUser(@Context ContainerRequestContext crc, @PathParam("userId") String userId) {
     try {
-      Optional<TemplatePlayback> playback = dao.readOneForUser(HubAccess.fromContext(crc), UUID.fromString(String.valueOf(userId)));
+      Optional<TemplatePlayback> playback = manager.readOneForUser(HubAccess.fromContext(crc), UUID.fromString(String.valueOf(userId)));
       if (playback.isEmpty())
         return response.noContent();
       JsonapiPayload jsonapiPayload = new JsonapiPayload();
       jsonapiPayload.setDataOne(payloadFactory.toPayloadObject(playback.get()));
       return response.ok(jsonapiPayload);
 
-    } catch (DAOException ignored) {
-      return response.notFound(dao.newInstance().getClass(), UUID.fromString(String.valueOf(userId)));
+    } catch (ManagerException ignored) {
+      return response.notFound(manager.newInstance().getClass(), UUID.fromString(String.valueOf(userId)));
 
     } catch (Exception e) {
       return response.failure(e);
@@ -138,7 +138,7 @@ public class TemplatePlaybackEndpoint extends HubJsonapiEndpoint<TemplatePlaybac
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
   public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return update(crc, dao(), id, jsonapiPayload);
+    return update(crc, manager(), id, jsonapiPayload);
   }
 
   /**
@@ -150,15 +150,15 @@ public class TemplatePlaybackEndpoint extends HubJsonapiEndpoint<TemplatePlaybac
   @Path("template-playbacks/{id}")
   @RolesAllowed(ARTIST)
   public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return delete(crc, dao(), id);
+    return delete(crc, manager(), id);
   }
 
   /**
-   Get DAO of injector
+   Get Manager of injector
 
-   @return DAO
+   @return Manager
    */
-  private TemplatePlaybackDAO dao() {
-    return dao;
+  private TemplatePlaybackManager manager() {
+    return manager;
   }
 }

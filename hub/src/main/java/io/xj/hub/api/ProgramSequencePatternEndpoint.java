@@ -4,8 +4,8 @@ package io.xj.hub.api;
 import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.dao.DAOCloner;
-import io.xj.hub.dao.ProgramSequencePatternDAO;
+import io.xj.hub.manager.ManagerCloner;
+import io.xj.hub.manager.ProgramSequencePatternManager;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.lib.entity.EntityFactory;
@@ -26,21 +26,21 @@ import java.util.UUID;
  */
 @Path("api/1/program-sequence-patterns")
 public class ProgramSequencePatternEndpoint extends HubJsonapiEndpoint<ProgramSequencePattern> {
-  private final ProgramSequencePatternDAO dao;
+  private final ProgramSequencePatternManager manager;
 
   /**
    Constructor
    */
   @Inject
   public ProgramSequencePatternEndpoint(
-    ProgramSequencePatternDAO dao,
+    ProgramSequencePatternManager manager,
     HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory
   ) {
     super(dbProvider, response, payloadFactory, entityFactory);
-    this.dao = dao;
+    this.manager = manager;
   }
 
   /**
@@ -59,10 +59,10 @@ public class ProgramSequencePatternEndpoint extends HubJsonapiEndpoint<ProgramSe
   ) {
     try {
       HubAccess hubAccess = HubAccess.fromContext(crc);
-      var programSequencePattern = payloadFactory.consume(dao().newInstance(), jsonapiPayload);
+      var programSequencePattern = payloadFactory.consume(manager().newInstance(), jsonapiPayload);
       JsonapiPayload responseJsonapiPayload = new JsonapiPayload();
       if (Objects.nonNull(cloneId)) {
-        DAOCloner<ProgramSequencePattern> cloner = dao().clone(hubAccess, UUID.fromString(cloneId), programSequencePattern);
+        ManagerCloner<ProgramSequencePattern> cloner = manager().clone(hubAccess, UUID.fromString(cloneId), programSequencePattern);
         responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(cloner.getClone()));
         List<JsonapiPayloadObject> list = new ArrayList<>();
         for (Object entity : cloner.getChildClones()) {
@@ -71,7 +71,7 @@ public class ProgramSequencePatternEndpoint extends HubJsonapiEndpoint<ProgramSe
         }
         responseJsonapiPayload.setIncluded(list);
       } else {
-        responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(dao().create(hubAccess, programSequencePattern)));
+        responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(manager().create(hubAccess, programSequencePattern)));
       }
 
       return response.create(responseJsonapiPayload);
@@ -90,7 +90,7 @@ public class ProgramSequencePatternEndpoint extends HubJsonapiEndpoint<ProgramSe
   @Path("{id}")
   @RolesAllowed(ARTIST)
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return readOne(crc, dao(), id);
+    return readOne(crc, manager(), id);
   }
 
   /**
@@ -101,7 +101,7 @@ public class ProgramSequencePatternEndpoint extends HubJsonapiEndpoint<ProgramSe
   @GET
   @RolesAllowed(ARTIST)
   public Response readMany(@Context ContainerRequestContext crc, @QueryParam("programSequenceId") String programSequenceId) {
-    return readMany(crc, dao(), programSequenceId);
+    return readMany(crc, manager(), programSequenceId);
   }
 
   /**
@@ -115,7 +115,7 @@ public class ProgramSequencePatternEndpoint extends HubJsonapiEndpoint<ProgramSe
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
   public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return update(crc, dao(), id, jsonapiPayload);
+    return update(crc, manager(), id, jsonapiPayload);
   }
 
   /**
@@ -127,16 +127,16 @@ public class ProgramSequencePatternEndpoint extends HubJsonapiEndpoint<ProgramSe
   @Path("{id}")
   @RolesAllowed(ARTIST)
   public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return delete(crc, dao(), id);
+    return delete(crc, manager(), id);
   }
 
   /**
-   Get DAO of injector
+   Get Manager of injector
 
-   @return DAO
+   @return Manager
    */
-  private ProgramSequencePatternDAO dao() {
-    return dao;
+  private ProgramSequencePatternManager manager() {
+    return manager;
   }
 
 }

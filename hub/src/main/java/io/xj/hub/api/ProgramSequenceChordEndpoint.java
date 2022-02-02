@@ -3,7 +3,7 @@ package io.xj.hub.api;
 
 import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
-import io.xj.hub.dao.ProgramSequenceChordDAO;
+import io.xj.hub.manager.ProgramSequenceChordManager;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.ProgramSequenceChord;
 import io.xj.lib.entity.EntityFactory;
@@ -23,21 +23,21 @@ import javax.ws.rs.core.Response;
  */
 @Path("api/1/program-sequence-chords")
 public class ProgramSequenceChordEndpoint extends HubJsonapiEndpoint<ProgramSequenceChord> {
-  private final ProgramSequenceChordDAO dao;
+  private final ProgramSequenceChordManager manager;
 
   /**
    Constructor
    */
   @Inject
   public ProgramSequenceChordEndpoint(
-    ProgramSequenceChordDAO dao,
+    ProgramSequenceChordManager manager,
     HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory
   ) {
     super(dbProvider, response, payloadFactory, entityFactory);
-    this.dao = dao;
+    this.manager = manager;
   }
 
   /**
@@ -50,7 +50,7 @@ public class ProgramSequenceChordEndpoint extends HubJsonapiEndpoint<ProgramSequ
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
   public Response create(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc) {
-    return create(crc, dao(), jsonapiPayload);
+    return create(crc, manager(), jsonapiPayload);
   }
 
   /**
@@ -62,7 +62,7 @@ public class ProgramSequenceChordEndpoint extends HubJsonapiEndpoint<ProgramSequ
   @Path("{id}")
   @RolesAllowed(ARTIST)
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return readOne(crc, dao(), id);
+    return readOne(crc, manager(), id);
   }
 
   /**
@@ -73,7 +73,7 @@ public class ProgramSequenceChordEndpoint extends HubJsonapiEndpoint<ProgramSequ
   @GET
   @RolesAllowed(ARTIST)
   public Response readMany(@Context ContainerRequestContext crc, @QueryParam("programSequenceId") String programSequenceId) {
-    return readMany(crc, dao(), programSequenceId);
+    return readMany(crc, manager(), programSequenceId);
   }
 
   /**
@@ -87,7 +87,7 @@ public class ProgramSequenceChordEndpoint extends HubJsonapiEndpoint<ProgramSequ
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
   public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return update(crc, dao(), id, jsonapiPayload);
+    return update(crc, manager(), id, jsonapiPayload);
   }
 
   /**
@@ -99,16 +99,16 @@ public class ProgramSequenceChordEndpoint extends HubJsonapiEndpoint<ProgramSequ
   @Path("{id}")
   @RolesAllowed(ARTIST)
   public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return delete(crc, dao(), id);
+    return delete(crc, manager(), id);
   }
 
   /**
-   Get DAO of injector
+   Get Manager of injector
 
-   @return DAO
+   @return Manager
    */
-  private ProgramSequenceChordDAO dao() {
-    return dao;
+  private ProgramSequenceChordManager manager() {
+    return manager;
   }
 
 }

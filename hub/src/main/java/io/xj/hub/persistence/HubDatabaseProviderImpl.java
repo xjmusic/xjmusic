@@ -4,7 +4,7 @@ package io.xj.hub.persistence;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.zaxxer.hikari.HikariDataSource;
-import io.xj.hub.dao.DAO;
+import io.xj.hub.manager.Manager;
 import io.xj.lib.app.Environment;
 import org.jooq.DSLContext;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ class HubDatabaseProviderImpl implements HubDatabaseProvider {
 
   @Override
   public DSLContext getDSL() {
-    return DAO.DSL(getDataSource());
+    return Manager.DSL(getDataSource());
   }
 
   @Override

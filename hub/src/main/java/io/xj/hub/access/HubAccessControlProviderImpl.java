@@ -5,7 +5,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.services.plus.model.Person;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
-import io.xj.hub.dao.UserDAO;
+import io.xj.hub.manager.UserManager;
 import io.xj.hub.enums.UserAuthType;
 import io.xj.hub.persistence.HubRedisProvider;
 import io.xj.hub.tables.pojos.AccountUser;
@@ -29,7 +29,7 @@ class HubAccessControlProviderImpl implements HubAccessControlProvider {
   private final HubRedisProvider hubRedisProvider;
   private final HubAccessTokenGenerator hubAccessTokenGenerator;
   private final GoogleProvider googleProvider;
-  private final UserDAO userDAO;
+  private final UserManager userManager;
 
   private final String tokenName;
   private final String tokenDomain;
@@ -43,14 +43,14 @@ class HubAccessControlProviderImpl implements HubAccessControlProvider {
     HubRedisProvider hubRedisProvider,
     HubAccessTokenGenerator hubAccessTokenGenerator,
     GoogleProvider googleProvider,
-    UserDAO userDAO,
+    UserManager userManager,
     Environment env,
     EntityFactory entityFactory
   ) {
     this.hubRedisProvider = hubRedisProvider;
     this.hubAccessTokenGenerator = hubAccessTokenGenerator;
     this.googleProvider = googleProvider;
-    this.userDAO = userDAO;
+    this.userManager = userManager;
 
     redisSessionNamespace = env.getRedisSessionNamespace();
     tokenName = env.getAccessTokenName();
@@ -146,7 +146,7 @@ class HubAccessControlProviderImpl implements HubAccessControlProvider {
       throw new HubAccessException("Authentication failed", e);
     }
 
-    return userDAO.authenticate(
+    return userManager.authenticate(
       UserAuthType.Google,
       person.getId(),
       externalAccessToken,

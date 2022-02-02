@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.dao.*;
+import io.xj.hub.manager.*;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.lib.entity.Entities;
@@ -25,27 +25,27 @@ import java.util.*;
  */
 @Path("api/1/programs")
 public class ProgramEndpoint extends HubJsonapiEndpoint<Program> {
-  private final ProgramSequenceBindingMemeDAO programSequenceBindingMemeDAO;
-  private final ProgramDAO dao;
-  private final ProgramMemeDAO programMemeDAO;
+  private final ProgramSequenceBindingMemeManager programSequenceBindingMemeManager;
+  private final ProgramManager manager;
+  private final ProgramMemeManager programMemeManager;
 
   /**
    Constructor
    */
   @Inject
   public ProgramEndpoint(
-    ProgramDAO dao,
-    ProgramSequenceBindingMemeDAO programSequenceBindingMemeDAO,
-    ProgramMemeDAO programMemeDAO,
+    ProgramManager manager,
+    ProgramSequenceBindingMemeManager programSequenceBindingMemeManager,
+    ProgramMemeManager programMemeManager,
     HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory
   ) {
     super(dbProvider, response, payloadFactory, entityFactory);
-    this.dao = dao;
-    this.programSequenceBindingMemeDAO = programSequenceBindingMemeDAO;
-    this.programMemeDAO = programMemeDAO;
+    this.manager = manager;
+    this.programSequenceBindingMemeManager = programSequenceBindingMemeManager;
+    this.programMemeManager = programMemeManager;
   }
 
   /**
@@ -71,11 +71,11 @@ public class ProgramEndpoint extends HubJsonapiEndpoint<Program> {
 
       // how we source programs depends on the query parameters
       if (null != libraryId && !libraryId.isEmpty())
-        programs = dao().readMany(hubAccess, ImmutableList.of(UUID.fromString(libraryId)));
+        programs = manager().readMany(hubAccess, ImmutableList.of(UUID.fromString(libraryId)));
       else if (null != accountId && !accountId.isEmpty())
-        programs = dao().readManyInAccount(hubAccess, accountId);
+        programs = manager().readManyInAccount(hubAccess, accountId);
       else
-        programs = dao().readMany(hubAccess);
+        programs = manager().readMany(hubAccess);
 
       // add programs as plural data in payload
       for (Program program : programs) jsonapiPayload.addData(payloadFactory.toPayloadObject(program));
@@ -84,12 +84,12 @@ public class ProgramEndpoint extends HubJsonapiEndpoint<Program> {
       // if detailed, add Program Memes
       if (Objects.nonNull(detailed) && detailed)
         jsonapiPayload.addAllToIncluded(payloadFactory.toPayloadObjects(
-          programMemeDAO.readMany(hubAccess, programIds)));
+          programMemeManager.readMany(hubAccess, programIds)));
 
       // if detailed, add Program Sequence Binding Memes
       if (Objects.nonNull(detailed) && detailed)
         jsonapiPayload.addAllToIncluded(payloadFactory.toPayloadObjects(
-          programSequenceBindingMemeDAO.readMany(hubAccess, programIds)));
+          programSequenceBindingMemeManager.readMany(hubAccess, programIds)));
 
       return response.ok(jsonapiPayload);
 
@@ -115,10 +115,10 @@ public class ProgramEndpoint extends HubJsonapiEndpoint<Program> {
 
     try {
       HubAccess hubAccess = HubAccess.fromContext(crc);
-      Program program = payloadFactory.consume(dao().newInstance(), jsonapiPayload);
+      Program program = payloadFactory.consume(manager().newInstance(), jsonapiPayload);
       JsonapiPayload responseJsonapiPayload = new JsonapiPayload();
       if (Objects.nonNull(cloneId)) {
-        DAOCloner<Program> cloner = dao().clone(hubAccess, UUID.fromString(cloneId), program);
+        ManagerCloner<Program> cloner = manager().clone(hubAccess, UUID.fromString(cloneId), program);
         responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(cloner.getClone()));
         List<JsonapiPayloadObject> list = new ArrayList<>();
         for (Object entity : cloner.getChildClones()) {
@@ -127,7 +127,7 @@ public class ProgramEndpoint extends HubJsonapiEndpoint<Program> {
         }
         responseJsonapiPayload.setIncluded(list);
       } else {
-        responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(dao().create(hubAccess, program)));
+        responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(manager().create(hubAccess, program)));
       }
 
       return response.create(responseJsonapiPayload);
@@ -150,12 +150,12 @@ public class ProgramEndpoint extends HubJsonapiEndpoint<Program> {
       HubAccess hubAccess = HubAccess.fromContext(crc);
       var uuid = UUID.fromString(id);
 
-      JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(dao().readOne(hubAccess, uuid)));
+      JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(manager().readOne(hubAccess, uuid)));
 
       // optionally specify a CSV of included types to read
       if (Objects.nonNull(include)) {
         List<JsonapiPayloadObject> list = new ArrayList<>();
-        for (Object entity : dao().readChildEntities(hubAccess, ImmutableList.of(uuid), CSV.split(include))) {
+        for (Object entity : manager().readChildEntities(hubAccess, ImmutableList.of(uuid), CSV.split(include))) {
           JsonapiPayloadObject jsonapiPayloadObject = payloadFactory.toPayloadObject(entity);
           list.add(jsonapiPayloadObject);
         }
@@ -165,8 +165,8 @@ public class ProgramEndpoint extends HubJsonapiEndpoint<Program> {
 
       return response.ok(jsonapiPayload);
 
-    } catch (DAOException ignored) {
-      return response.notFound(dao.newInstance().getClass(), id);
+    } catch (ManagerException ignored) {
+      return response.notFound(manager.newInstance().getClass(), id);
 
     } catch (Exception e) {
       return response.failure(e);
@@ -184,7 +184,7 @@ public class ProgramEndpoint extends HubJsonapiEndpoint<Program> {
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
   public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return update(crc, dao(), id, jsonapiPayload);
+    return update(crc, manager(), id, jsonapiPayload);
   }
 
   /**
@@ -197,7 +197,7 @@ public class ProgramEndpoint extends HubJsonapiEndpoint<Program> {
   @RolesAllowed(ARTIST)
   public Response destroy(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     try {
-      dao().destroy(HubAccess.fromContext(crc), UUID.fromString(id));
+      manager().destroy(HubAccess.fromContext(crc), UUID.fromString(id));
       return response.noContent();
 
     } catch (Exception e) {
@@ -206,11 +206,11 @@ public class ProgramEndpoint extends HubJsonapiEndpoint<Program> {
   }
 
   /**
-   Get DAO of injector
+   Get Manager of injector
 
-   @return DAO
+   @return Manager
    */
-  private ProgramDAO dao() {
-    return dao;
+  private ProgramManager manager() {
+    return manager;
   }
 }

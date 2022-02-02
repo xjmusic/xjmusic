@@ -8,7 +8,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlProvider;
-import io.xj.hub.dao.DAOException;
+import io.xj.hub.manager.ManagerException;
 import io.xj.hub.persistence.*;
 import io.xj.lib.entity.EntityFactory;
 import org.jooq.DSLContext;
@@ -118,7 +118,7 @@ public class HubIntegrationTestProviderImpl<O> extends HubPersistenceServiceImpl
       }
       int[] rows = db.batchInsert(records).execute();
       if (!Objects.equals(rows.length, entities.size()))
-        throw new DAOException(String.format("Only inserted %d of %d intended rows", rows.length, entities.size()));
+        throw new ManagerException(String.format("Only inserted %d of %d intended rows", rows.length, entities.size()));
     } catch (Exception e) {
       throw new HubException(e);
     }

@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
-import io.xj.hub.dao.DAOModule;
+import io.xj.hub.manager.ManagerModule;
 import io.xj.hub.enums.UserRoleType;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
@@ -62,7 +62,7 @@ public class RedisHubAccessTokenTest {
       "ACCESS_TOKEN_PATH", "/dough",
       "REDIS_SESSION_NAMESPACE", "xj_session_test"
     ));
-    var injector = Guice.createInjector(Modules.override(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule()).with(
+    var injector = Guice.createInjector(Modules.override(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {

@@ -12,7 +12,7 @@ import io.xj.api.Chain;
 import io.xj.api.ChainState;
 import io.xj.api.Segment;
 import io.xj.api.SegmentState;
-import io.xj.hub.dao.Templates;
+import io.xj.hub.manager.Templates;
 import io.xj.hub.enums.TemplateType;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;

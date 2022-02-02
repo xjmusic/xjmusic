@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
-import io.xj.hub.dao.DAOModule;
+import io.xj.hub.manager.ManagerModule;
 import io.xj.hub.enums.UserRoleType;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
@@ -64,7 +64,7 @@ public class HubAccessTest {
   public void serialize() throws JsonapiException {
     var env = Environment.getDefault();
     var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(),
-      new DAOModule(),
+      new ManagerModule(),
       new HubIngestModule(),
       new HubPersistenceModule(),
       new JsonapiModule(),

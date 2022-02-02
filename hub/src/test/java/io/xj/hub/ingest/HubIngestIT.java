@@ -11,7 +11,7 @@ import io.xj.hub.HubIntegrationTestProvider;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
-import io.xj.hub.dao.DAOModule;
+import io.xj.hub.manager.ManagerModule;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramState;
@@ -53,7 +53,7 @@ public class HubIngestIT {
   @Before
   public void setUp() throws Exception {
     var env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule(), new HubIntegrationTestModule())).with(new AbstractModule() {
+    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule(), new HubIntegrationTestModule())).with(new AbstractModule() {
       @Override
       protected void configure() {
         bind(Environment.class).toInstance(env);

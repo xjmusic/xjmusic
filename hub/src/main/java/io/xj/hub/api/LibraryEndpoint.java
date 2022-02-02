@@ -4,7 +4,7 @@ package io.xj.hub.api;
 import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.dao.LibraryDAO;
+import io.xj.hub.manager.LibraryManager;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.lib.entity.EntityFactory;
@@ -25,21 +25,21 @@ import java.util.Objects;
  */
 @Path("api/1/libraries")
 public class LibraryEndpoint extends HubJsonapiEndpoint<Library> {
-  private final LibraryDAO dao;
+  private final LibraryManager manager;
 
   /**
    Constructor
    */
   @Inject
   public LibraryEndpoint(
-    LibraryDAO dao,
+    LibraryManager manager,
     HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory
   ) {
     super(dbProvider, response, payloadFactory, entityFactory);
-    this.dao = dao;
+    this.manager = manager;
   }
 
   /**
@@ -51,9 +51,9 @@ public class LibraryEndpoint extends HubJsonapiEndpoint<Library> {
   @RolesAllowed(USER)
   public Response readMany(@Context ContainerRequestContext crc, @QueryParam("accountId") String accountId) {
     if (Objects.nonNull(accountId))
-      return readMany(crc, dao(), accountId);
+      return readMany(crc, manager(), accountId);
     else
-      return readMany(crc, dao(), HubAccess.fromContext(crc).getAccountIds());
+      return readMany(crc, manager(), HubAccess.fromContext(crc).getAccountIds());
   }
 
   /**
@@ -66,7 +66,7 @@ public class LibraryEndpoint extends HubJsonapiEndpoint<Library> {
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed({ADMIN, ENGINEER})
   public Response create(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc) {
-    return create(crc, dao(), jsonapiPayload);
+    return create(crc, manager(), jsonapiPayload);
   }
 
   /**
@@ -78,7 +78,7 @@ public class LibraryEndpoint extends HubJsonapiEndpoint<Library> {
   @Path("{id}")
   @RolesAllowed(USER)
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return readOne(crc, dao(), id);
+    return readOne(crc, manager(), id);
   }
 
   /**
@@ -92,7 +92,7 @@ public class LibraryEndpoint extends HubJsonapiEndpoint<Library> {
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed({ADMIN, ENGINEER})
   public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return update(crc, dao(), id, jsonapiPayload);
+    return update(crc, manager(), id, jsonapiPayload);
   }
 
   /**
@@ -104,15 +104,15 @@ public class LibraryEndpoint extends HubJsonapiEndpoint<Library> {
   @Path("{id}")
   @RolesAllowed({ADMIN, ENGINEER})
   public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return delete(crc, dao(), id);
+    return delete(crc, manager(), id);
   }
 
   /**
-   Get DAO of injector
+   Get Manager of injector
 
-   @return DAO
+   @return Manager
    */
-  private LibraryDAO dao() {
-    return dao;
+  private LibraryManager manager() {
+    return manager;
   }
 }

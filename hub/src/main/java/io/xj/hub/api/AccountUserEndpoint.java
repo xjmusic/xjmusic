@@ -3,7 +3,7 @@ package io.xj.hub.api;
 
 import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
-import io.xj.hub.dao.AccountUserDAO;
+import io.xj.hub.manager.AccountUserManager;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.AccountUser;
 import io.xj.lib.entity.EntityFactory;
@@ -23,21 +23,21 @@ import javax.ws.rs.core.Response;
  */
 @Path("api/1/account-users")
 public class AccountUserEndpoint extends HubJsonapiEndpoint<AccountUser> {
-  private final AccountUserDAO dao;
+  private final AccountUserManager manager;
 
   /**
    Constructor
    */
   @Inject
   public AccountUserEndpoint(
-    AccountUserDAO dao,
+    AccountUserManager manager,
     HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory
   ) {
     super(dbProvider, response, payloadFactory, entityFactory);
-    this.dao = dao;
+    this.manager = manager;
   }
 
   /**
@@ -48,7 +48,7 @@ public class AccountUserEndpoint extends HubJsonapiEndpoint<AccountUser> {
   @GET
   @RolesAllowed(USER)
   public Response readMany(@Context ContainerRequestContext crc, @QueryParam("accountId") String accountId) {
-    return readMany(crc, dao(), accountId);
+    return readMany(crc, manager(), accountId);
   }
 
   /**
@@ -61,7 +61,7 @@ public class AccountUserEndpoint extends HubJsonapiEndpoint<AccountUser> {
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ADMIN)
   public Response create(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc) {
-    return create(crc, dao(), jsonapiPayload);
+    return create(crc, manager(), jsonapiPayload);
   }
 
   /**
@@ -73,7 +73,7 @@ public class AccountUserEndpoint extends HubJsonapiEndpoint<AccountUser> {
   @Path("{id}")
   @RolesAllowed(USER)
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return readOne(crc, dao(), id);
+    return readOne(crc, manager(), id);
   }
 
   /**
@@ -85,16 +85,16 @@ public class AccountUserEndpoint extends HubJsonapiEndpoint<AccountUser> {
   @Path("{id}")
   @RolesAllowed(ADMIN)
   public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return delete(crc, dao(), id);
+    return delete(crc, manager(), id);
   }
 
   /**
-   Get DAO of injector
+   Get Manager of injector
 
-   @return DAO
+   @return Manager
    */
-  private AccountUserDAO dao() {
-    return dao;
+  private AccountUserManager manager() {
+    return manager;
   }
 
 }

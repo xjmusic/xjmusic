@@ -8,7 +8,7 @@ import com.google.inject.Guice;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import io.xj.hub.access.HubAccessControlModule;
-import io.xj.hub.dao.DAOModule;
+import io.xj.hub.manager.ManagerModule;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.lib.app.AppException;
@@ -32,7 +32,7 @@ public interface Main {
     new EntityModule(),
     new JsonapiModule(),
     new HubAccessControlModule(),
-    new DAOModule(),
+    new ManagerModule(),
     new HubIngestModule(),
     new HubPersistenceModule()
   );

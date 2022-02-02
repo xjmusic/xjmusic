@@ -3,7 +3,7 @@ package io.xj.hub.api;
 
 import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
-import io.xj.hub.dao.ProgramSequenceBindingMemeDAO;
+import io.xj.hub.manager.ProgramSequenceBindingMemeManager;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
 import io.xj.lib.entity.EntityFactory;
@@ -23,21 +23,21 @@ import javax.ws.rs.core.Response;
  */
 @Path("api/1/program-sequence-binding-memes")
 public class ProgramSequenceBindingMemeEndpoint extends HubJsonapiEndpoint<ProgramSequenceBindingMeme> {
-  private final ProgramSequenceBindingMemeDAO dao;
+  private final ProgramSequenceBindingMemeManager manager;
 
   /**
    Constructor
    */
   @Inject
   public ProgramSequenceBindingMemeEndpoint(
-    ProgramSequenceBindingMemeDAO dao,
+    ProgramSequenceBindingMemeManager manager,
     HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory
   ) {
     super(dbProvider, response, payloadFactory, entityFactory);
-    this.dao = dao;
+    this.manager = manager;
   }
 
   /**
@@ -50,7 +50,7 @@ public class ProgramSequenceBindingMemeEndpoint extends HubJsonapiEndpoint<Progr
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
   public Response create(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc) {
-    return create(crc, dao(), jsonapiPayload);
+    return create(crc, manager(), jsonapiPayload);
   }
 
   /**
@@ -62,7 +62,7 @@ public class ProgramSequenceBindingMemeEndpoint extends HubJsonapiEndpoint<Progr
   @Path("{id}")
   @RolesAllowed(ARTIST)
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return readOne(crc, dao(), id);
+    return readOne(crc, manager(), id);
   }
 
   /**
@@ -73,7 +73,7 @@ public class ProgramSequenceBindingMemeEndpoint extends HubJsonapiEndpoint<Progr
   @GET
   @RolesAllowed(ARTIST)
   public Response readMany(@Context ContainerRequestContext crc, @QueryParam("programSequenceBindingId") String programSequenceBindingId) {
-    return readMany(crc, dao(), programSequenceBindingId);
+    return readMany(crc, manager(), programSequenceBindingId);
   }
 
   /**
@@ -87,7 +87,7 @@ public class ProgramSequenceBindingMemeEndpoint extends HubJsonapiEndpoint<Progr
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
   public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return update(crc, dao(), id, jsonapiPayload);
+    return update(crc, manager(), id, jsonapiPayload);
   }
 
   /**
@@ -99,16 +99,16 @@ public class ProgramSequenceBindingMemeEndpoint extends HubJsonapiEndpoint<Progr
   @Path("{id}")
   @RolesAllowed(ARTIST)
   public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return delete(crc, dao(), id);
+    return delete(crc, manager(), id);
   }
 
   /**
-   Get DAO of injector
+   Get Manager of injector
 
-   @return DAO
+   @return Manager
    */
-  private ProgramSequenceBindingMemeDAO dao() {
-    return dao;
+  private ProgramSequenceBindingMemeManager manager() {
+    return manager;
   }
 
 }

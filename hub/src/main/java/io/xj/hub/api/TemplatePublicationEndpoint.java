@@ -5,8 +5,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.dao.TemplateDAO;
-import io.xj.hub.dao.TemplatePublicationDAO;
+import io.xj.hub.manager.TemplateManager;
+import io.xj.hub.manager.TemplatePublicationManager;
 import io.xj.hub.ingest.HubIngestFactory;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.Template;
@@ -38,8 +38,8 @@ import static io.xj.lib.jsonapi.MediaType.APPLICATION_JSONAPI;
 public class TemplatePublicationEndpoint extends HubJsonapiEndpoint<TemplatePublication> {
   private final Logger LOG = LoggerFactory.getLogger(TemplatePublicationEndpoint.class);
   private final FileStoreProvider fileStoreProvider;
-  private final TemplateDAO templateDAO;
-  private final TemplatePublicationDAO dao;
+  private final TemplateManager templateManager;
+  private final TemplatePublicationManager manager;
   private final HubIngestFactory ingestFactory;
   private final int templatePublicationCacheExpireSeconds;
   private final String audioBucket;
@@ -56,18 +56,18 @@ public class TemplatePublicationEndpoint extends HubJsonapiEndpoint<TemplatePubl
     HubIngestFactory ingestFactory,
     JsonapiHttpResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
-    TemplateDAO templateDAO,
-    TemplatePublicationDAO dao
+    TemplateManager templateManager,
+    TemplatePublicationManager manager
   ) {
     super(dbProvider, response, payloadFactory, entityFactory);
 
     templatePublicationCacheExpireSeconds = env.getTemplatePublicationCacheExpireSeconds();
     audioBucket = env.getAudioFileBucket();
 
-    this.dao = dao;
+    this.manager = manager;
     this.fileStoreProvider = fileStoreProvider;
     this.ingestFactory = ingestFactory;
-    this.templateDAO = templateDAO;
+    this.templateManager = templateManager;
   }
 
   /**
@@ -89,7 +89,7 @@ public class TemplatePublicationEndpoint extends HubJsonapiEndpoint<TemplatePubl
       Collection<TemplatePublication> templatePublications;
 
       // how we source templatePublications depends on the query parameters
-      templatePublications = dao().readMany(hubAccess, ImmutableList.of(UUID.fromString(templateId)));
+      templatePublications = manager().readMany(hubAccess, ImmutableList.of(UUID.fromString(templateId)));
 
       // add templatePublications as plural data in payload
       for (TemplatePublication templatePublication : templatePublications)
@@ -115,8 +115,8 @@ public class TemplatePublicationEndpoint extends HubJsonapiEndpoint<TemplatePubl
   public Response create(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc) {
     try {
       var access = HubAccess.fromContext(crc);
-      TemplatePublication templatePublication = payloadFactory.consume(dao().newInstance(), jsonapiPayload);
-      Template template = templateDAO.readOne(access, templatePublication.getTemplateId());
+      TemplatePublication templatePublication = payloadFactory.consume(manager().newInstance(), jsonapiPayload);
+      Template template = templateManager.readOne(access, templatePublication.getTemplateId());
       String publicationKey = String.format("%s.%s", template.getShipKey(), FileStoreProvider.EXTENSION_JSON);
       String content = ingestFactory.ingest(access, templatePublication.getTemplateId()).toJSON();
 
@@ -124,7 +124,7 @@ public class TemplatePublicationEndpoint extends HubJsonapiEndpoint<TemplatePubl
       fileStoreProvider.putS3ObjectFromString(content, audioBucket, publicationKey, APPLICATION_JSONAPI, templatePublicationCacheExpireSeconds);
       LOG.info("Did upload {} bytes to s3://{}/{}", content.length(), audioBucket, publicationKey);
 
-      TemplatePublication created = dao().create(
+      TemplatePublication created = manager().create(
         HubAccess.fromContext(crc),
         templatePublication);
 
@@ -137,11 +137,11 @@ public class TemplatePublicationEndpoint extends HubJsonapiEndpoint<TemplatePubl
   }
 
   /**
-   Get DAO of injector
+   Get Manager of injector
 
-   @return DAO
+   @return Manager
    */
-  private TemplatePublicationDAO dao() {
-    return dao;
+  private TemplatePublicationManager manager() {
+    return manager;
   }
 }

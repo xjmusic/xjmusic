@@ -8,7 +8,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import io.xj.hub.HubJsonapiEndpoint;
-import io.xj.hub.dao.DAOModule;
+import io.xj.hub.manager.ManagerModule;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.lib.app.Environment;
@@ -55,7 +55,7 @@ public class HubAccessTokenAuthFilterImplTest {
       "GOOGLE_CLIENT_ID", "my-google-id",
       "GOOGLE_CLIENT_SECRET", "my-google-secret"
     ));
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new FileStoreModule(), new JsonapiModule())).with(new AbstractModule() {
+    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new FileStoreModule(), new JsonapiModule())).with(new AbstractModule() {
       @Override
       protected void configure() {
         bind(Environment.class).toInstance(env);

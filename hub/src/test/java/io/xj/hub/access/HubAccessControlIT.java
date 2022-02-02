@@ -9,7 +9,7 @@ import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import io.xj.hub.HubIntegrationTestModule;
 import io.xj.hub.HubIntegrationTestProvider;
-import io.xj.hub.dao.DAOModule;
+import io.xj.hub.manager.ManagerModule;
 import io.xj.hub.enums.UserAuthType;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
@@ -45,7 +45,7 @@ public class HubAccessControlIT {
       "REDIS_SESSION_NAMESPACE", "xj_session_test"
     ));
 
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new FileStoreModule(), new JsonapiModule(), new HubIntegrationTestModule())).with(new AbstractModule() {
+    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new FileStoreModule(), new JsonapiModule(), new HubIntegrationTestModule())).with(new AbstractModule() {
       @Override
       protected void configure() {
         bind(Environment.class).toInstance(env);

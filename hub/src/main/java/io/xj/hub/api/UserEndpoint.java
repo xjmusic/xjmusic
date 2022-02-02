@@ -5,8 +5,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.dao.DAO;
-import io.xj.hub.dao.UserDAO;
+import io.xj.hub.manager.Manager;
+import io.xj.hub.manager.UserManager;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.User;
 import io.xj.lib.entity.EntityFactory;
@@ -28,21 +28,21 @@ import java.util.UUID;
  */
 @Path("api/1")
 public class UserEndpoint extends HubJsonapiEndpoint<User> {
-  private final UserDAO dao;
+  private final UserManager manager;
 
   /**
    Constructor
    */
   @Inject
   public UserEndpoint(
-    UserDAO dao,
+    UserManager manager,
     HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory
   ) {
     super(dbProvider, response, payloadFactory, entityFactory);
-    this.dao = dao;
+    this.manager = manager;
   }
 
   /**
@@ -54,7 +54,7 @@ public class UserEndpoint extends HubJsonapiEndpoint<User> {
   @Path("users")
   @RolesAllowed(USER)
   public Response readMany(@Context ContainerRequestContext crc) {
-    return readMany(crc, dao(), ImmutableList.of());
+    return readMany(crc, manager(), ImmutableList.of());
   }
 
   /**
@@ -66,7 +66,7 @@ public class UserEndpoint extends HubJsonapiEndpoint<User> {
   @Path("users/{id}")
   @RolesAllowed(USER)
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return readOne(crc, dao(), id);
+    return readOne(crc, manager(), id);
   }
 
   /**
@@ -80,7 +80,7 @@ public class UserEndpoint extends HubJsonapiEndpoint<User> {
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ADMIN)
   public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return update(crc, dao(), id, jsonapiPayload);
+    return update(crc, manager(), id, jsonapiPayload);
   }
 
   /**
@@ -95,15 +95,15 @@ public class UserEndpoint extends HubJsonapiEndpoint<User> {
     UUID userId;
     userId = HubAccess.fromContext(crc).getUserId();
 
-    return readOne(crc, dao(), Objects.requireNonNull(userId).toString());
+    return readOne(crc, manager(), Objects.requireNonNull(userId).toString());
   }
 
   /**
-   Get DAO of injector
+   Get Manager of injector
 
-   @return DAO
+   @return Manager
    */
-  private DAO<User> dao() {
-    return dao;
+  private Manager<User> manager() {
+    return manager;
   }
 }

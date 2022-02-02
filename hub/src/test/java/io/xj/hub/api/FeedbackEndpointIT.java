@@ -12,8 +12,8 @@ import io.xj.hub.HubIntegrationTestProvider;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
-import io.xj.hub.dao.DAOException;
-import io.xj.hub.dao.DAOModule;
+import io.xj.hub.manager.ManagerException;
+import io.xj.hub.manager.ManagerModule;
 import io.xj.hub.enums.*;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
@@ -52,7 +52,7 @@ public class FeedbackEndpointIT {
   @Before
   public void setUp() throws Exception {
     var env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule(), new HubIntegrationTestModule())).with(new AbstractModule() {
+    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule(), new HubIntegrationTestModule())).with(new AbstractModule() {
       @Override
       protected void configure() {
         bind(Environment.class).toInstance(env);
@@ -84,7 +84,7 @@ public class FeedbackEndpointIT {
   }
 
   @Test
-  public void readMany() throws DAOException, IOException, JsonapiException {
+  public void readMany() throws ManagerException, IOException, JsonapiException {
     when(context.getProperty(CONTEXT_KEY)).thenReturn(HubAccess.internal());
 
     Response result = subject.readMany(context, fake.account1.getId(), null, null, null, null, null);
@@ -169,7 +169,7 @@ public class FeedbackEndpointIT {
   }
 
   @Test
-  public void create() throws DAOException, IOException, JsonapiException {
+  public void create() throws ManagerException, IOException, JsonapiException {
     var toCreate = buildFeedback(fake.account1, FeedbackType.Positive, FeedbackSource.Artist, fake.user1);
     var input = jsonapiPayloadFactory.from(toCreate);
     when(context.getProperty(CONTEXT_KEY)).thenReturn(HubAccess.internal());

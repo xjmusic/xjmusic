@@ -8,7 +8,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.dao.DAOException;
+import io.xj.hub.manager.ManagerException;
 import io.xj.hub.enums.UserRoleType;
 import io.xj.hub.tables.pojos.User;
 import io.xj.hub.tables.pojos.*;
@@ -116,9 +116,9 @@ public class HubPersistenceServiceImpl<E> {
    @param <R>      type of record (only one type in collection)
    @param <N>      type of entity (only one type in collection)
    @return collection of records
-   @throws DAOException on failure
+   @throws ManagerException on failure
    */
-  protected <R extends TableRecord<?>, N> Collection<R> recordsFrom(DSLContext db, Table<?> table, Collection<N> entities) throws DAOException {
+  protected <R extends TableRecord<?>, N> Collection<R> recordsFrom(DSLContext db, Table<?> table, Collection<N> entities) throws ManagerException {
     Collection<R> records = Lists.newArrayList();
     for (N e : entities) {
       //noinspection unchecked
@@ -133,22 +133,22 @@ public class HubPersistenceServiceImpl<E> {
       try {
         setAll(record, e);
       } catch (HubPersistenceException e2) {
-        throw new DAOException(e2);
+        throw new ManagerException(e2);
       }
       records.add(record);
     }
     return records;
   }
 
-  public <N, R extends Record> Collection<N> modelsFrom(Class<N> modelClass, Iterable<R> records) throws DAOException {
+  public <N, R extends Record> Collection<N> modelsFrom(Class<N> modelClass, Iterable<R> records) throws ManagerException {
     Collection<N> models = Lists.newArrayList();
     for (R record : records) models.add(modelFrom(modelClass, record));
     return models;
   }
 
-  public <N, R extends Record> N modelFrom(R record) throws DAOException {
+  public <N, R extends Record> N modelFrom(R record) throws ManagerException {
     if (!modelsForRecords.containsKey(record.getClass()))
-      throw new DAOException(String.format("Unrecognized class of entity record: %s", record.getClass().getName()));
+      throw new ManagerException(String.format("Unrecognized class of entity record: %s", record.getClass().getName()));
 
     //noinspection unchecked
     return modelFrom((Class<N>) modelsForRecords.get(record.getClass()), record);
@@ -160,18 +160,18 @@ public class HubPersistenceServiceImpl<E> {
    @param modelClass to whose setters the values will be written
    @param record     to source field-values of
    @return entity after transmogrification
-   @throws DAOException on failure to transmogrify
+   @throws ManagerException on failure to transmogrify
    */
-  protected <N, R extends Record> N modelFrom(Class<N> modelClass, R record) throws DAOException {
+  protected <N, R extends Record> N modelFrom(Class<N> modelClass, R record) throws ManagerException {
     if (Objects.isNull(modelClass))
-      throw new DAOException("Will not transmogrify null modelClass");
+      throw new ManagerException("Will not transmogrify null modelClass");
 
     // new instance of model
     N model;
     try {
       model = entityFactory.getInstance(modelClass);
     } catch (Exception e) {
-      throw new DAOException(String.format("Could not get a new instance create class %s because %s", modelClass, e));
+      throw new ManagerException(String.format("Could not get a new instance create class %s because %s", modelClass, e));
     }
 
     // set all values
@@ -185,11 +185,11 @@ public class HubPersistenceServiceImpl<E> {
 
    @param record to transmogrify values of
    @param model  to set fields of
-   @throws DAOException on failure to set transmogrified values
+   @throws ManagerException on failure to set transmogrified values
    */
-  protected <N, R extends Record> void modelSetTransmogrified(R record, N model) throws DAOException {
+  protected <N, R extends Record> void modelSetTransmogrified(R record, N model) throws ManagerException {
     if (Objects.isNull(record))
-      throw new DAOException("Record does not exist");
+      throw new ManagerException("Record does not exist");
 
     Map<String, Object> fieldValues = record.intoMap();
     for (Map.Entry<String, Object> field : fieldValues.entrySet())
@@ -198,7 +198,7 @@ public class HubPersistenceServiceImpl<E> {
         Entities.set(model, attributeName, field.getValue());
       } catch (Exception e) {
         log.error("Could not transmogrify key:{} val:{} because {}", field.getKey(), field.getValue(), e);
-        throw new DAOException(String.format("Could not transmogrify key:%s val:%s because %s", field.getKey(), field.getValue(), e));
+        throw new ManagerException(String.format("Could not transmogrify key:%s val:%s because %s", field.getKey(), field.getValue(), e));
       }
   }
 
@@ -209,9 +209,9 @@ public class HubPersistenceServiceImpl<E> {
    @param db     database context
    @param entity to get table record for
    @return table record
-   @throws DAOException on failure
+   @throws ManagerException on failure
    */
-  protected <N> UpdatableRecord<?> recordFor(DSLContext db, N entity) throws DAOException {
+  protected <N> UpdatableRecord<?> recordFor(DSLContext db, N entity) throws ManagerException {
     Table<?> table = tablesInSchemaConstructionOrder.get(entity.getClass());
     var raw = db.newRecord(table);
     UpdatableRecord<?> record = (UpdatableRecord<?>) raw;
@@ -227,7 +227,7 @@ public class HubPersistenceServiceImpl<E> {
     try {
       setAll(record, entity);
     } catch (HubPersistenceException e) {
-      throw new DAOException(e);
+      throw new ManagerException(e);
     }
 
     return record;
@@ -240,7 +240,7 @@ public class HubPersistenceServiceImpl<E> {
    @param db     database context
    @return the same entity (for chaining methods)
    */
-  protected <N> N insert(DSLContext db, N entity) throws DAOException {
+  protected <N> N insert(DSLContext db, N entity) throws ManagerException {
     UpdatableRecord<?> record = recordFor(db, entity);
     record.store();
 
@@ -258,9 +258,9 @@ public class HubPersistenceServiceImpl<E> {
    Require has engineer-level access
 
    @param access to validate
-   @throws DAOException if not engineer
+   @throws ManagerException if not engineer
    */
-  protected void requireEngineer(HubAccess access) throws DAOException {
+  protected void requireEngineer(HubAccess access) throws ManagerException {
     require(access, UserRoleType.Engineer);
   }
 
@@ -273,7 +273,7 @@ public class HubPersistenceServiceImpl<E> {
    @param entity to of
    @return record
    */
-  protected <R extends UpdatableRecord<R>> R executeCreate(DSLContext db, Table<R> table, E entity) throws DAOException {
+  protected <R extends UpdatableRecord<R>> R executeCreate(DSLContext db, Table<R> table, E entity) throws ManagerException {
     R record = db.newRecord(table);
 
     try {
@@ -281,7 +281,7 @@ public class HubPersistenceServiceImpl<E> {
       record.store();
     } catch (Exception e) {
       log.error("Cannot create record because {}", e.getMessage());
-      throw new DAOException(String.format("Cannot create record because %s", e.getMessage()));
+      throw new ManagerException(String.format("Cannot create record because %s", e.getMessage()));
     }
 
     return record;
@@ -294,22 +294,22 @@ public class HubPersistenceServiceImpl<E> {
    @param table to update
    @param id    of record to update
    */
-  protected <R extends UpdatableRecord<R>> void executeUpdate(DSLContext db, Table<R> table, UUID id, E entity) throws DAOException {
+  protected <R extends UpdatableRecord<R>> void executeUpdate(DSLContext db, Table<R> table, UUID id, E entity) throws ManagerException {
     R record = db.newRecord(table);
     try {
       setAll(record, entity);
     } catch (HubPersistenceException e) {
-      throw new DAOException("Failure to serialize");
+      throw new ManagerException("Failure to serialize");
     }
     set(record, KEY_ID, id);
     try {
       Entities.set(entity, KEY_ID, id);
     } catch (EntityException e) {
-      throw new DAOException("Failure to ensure correct id is returned");
+      throw new ManagerException("Failure to ensure correct id is returned");
     }
 
     if (0 == db.executeUpdate(record))
-      throw new DAOException("No records updated.");
+      throw new ManagerException("No records updated.");
   }
 
   /**
@@ -317,11 +317,11 @@ public class HubPersistenceServiceImpl<E> {
 
    @param name   to require
    @param result to check.
-   @throws DAOException if result set is not empty.
-   @throws DAOException if something goes wrong.
+   @throws ManagerException if result set is not empty.
+   @throws ManagerException if something goes wrong.
    */
-  protected <R extends Record> void requireNotExists(String name, Collection<R> result) throws DAOException {
-    if (Values.isNonNull(result) && !result.isEmpty()) throw new DAOException("Found" + " " + name);
+  protected <R extends Record> void requireNotExists(String name, Collection<R> result) throws ManagerException {
+    if (Values.isNonNull(result) && !result.isEmpty()) throw new ManagerException("Found" + " " + name);
   }
 
   /**
@@ -329,11 +329,11 @@ public class HubPersistenceServiceImpl<E> {
 
    @param name  to require
    @param count to check.
-   @throws DAOException if result set is not empty.
-   @throws DAOException if something goes wrong.
+   @throws ManagerException if result set is not empty.
+   @throws ManagerException if something goes wrong.
    */
-  protected void requireNotExists(String name, @Nullable Integer count) throws DAOException {
-    if (Objects.isNull(count) || 0 < count) throw new DAOException("Found" + " " + name);
+  protected void requireNotExists(String name, @Nullable Integer count) throws ManagerException {
+    if (Objects.isNull(count) || 0 < count) throw new ManagerException("Found" + " " + name);
   }
 
   /**
@@ -341,9 +341,9 @@ public class HubPersistenceServiceImpl<E> {
 
    @param name   name of record (for error message)
    @param record to require existence of
-   @throws DAOException if not isNonNull
+   @throws ManagerException if not isNonNull
    */
-  protected <R extends Record> void requireExists(String name, R record) throws DAOException {
+  protected <R extends Record> void requireExists(String name, R record) throws ManagerException {
     require(name, "does not exist", Values.isNonNull(record));
   }
 
@@ -352,9 +352,9 @@ public class HubPersistenceServiceImpl<E> {
 
    @param name   name of entity (for error message)
    @param entity to require existence of
-   @throws DAOException if not isNonNull
+   @throws ManagerException if not isNonNull
    */
-  protected void requireExists(String name, E entity) throws DAOException {
+  protected void requireExists(String name, E entity) throws ManagerException {
     require(name, "does not exist", Values.isNonNull(entity));
   }
 
@@ -363,9 +363,9 @@ public class HubPersistenceServiceImpl<E> {
 
    @param name  name of record (for error message)
    @param count to require existence of
-   @throws DAOException if not isNonNull
+   @throws ManagerException if not isNonNull
    */
-  protected void requireExists(String name, @Nullable Integer count) throws DAOException {
+  protected void requireExists(String name, @Nullable Integer count) throws ManagerException {
     require(name, "does not exist", Objects.nonNull(count) && 0 < count);
   }
 
@@ -373,9 +373,9 @@ public class HubPersistenceServiceImpl<E> {
    Require user has admin hubAccess
 
    @param hubAccess control
-   @throws DAOException if not admin
+   @throws ManagerException if not admin
    */
-  protected void requireTopLevel(HubAccess hubAccess) throws DAOException {
+  protected void requireTopLevel(HubAccess hubAccess) throws ManagerException {
     require("top-level hubAccess", hubAccess.isTopLevel());
   }
 
@@ -384,9 +384,9 @@ public class HubPersistenceServiceImpl<E> {
    Require library-level hubAccess to an entity
 
    @param hubAccess control
-   @throws DAOException if we do not have hub access
+   @throws ManagerException if we do not have hub access
    */
-  protected void requireArtist(HubAccess hubAccess) throws DAOException {
+  protected void requireArtist(HubAccess hubAccess) throws ManagerException {
     require(hubAccess, UserRoleType.Artist);
   }
 
@@ -397,9 +397,9 @@ public class HubPersistenceServiceImpl<E> {
 
    @param hubAccess    to validate
    @param allowedRoles to require
-   @throws DAOException if hubAccess does not have any one of the specified roles
+   @throws ManagerException if hubAccess does not have any one of the specified roles
    */
-  protected void require(HubAccess hubAccess, UserRoleType... allowedRoles) throws DAOException {
+  protected void require(HubAccess hubAccess, UserRoleType... allowedRoles) throws ManagerException {
     if (hubAccess.isTopLevel()) return;
     if (3 < allowedRoles.length)
       require(
@@ -414,7 +414,7 @@ public class HubPersistenceServiceImpl<E> {
     else if (0 < allowedRoles.length)
       require(String.format("%s role", allowedRoles[0]),
         hubAccess.isAllowed(allowedRoles));
-    else throw new DAOException("No roles allowed.");
+    else throw new ManagerException("No roles allowed.");
   }
 
   /**
@@ -422,9 +422,9 @@ public class HubPersistenceServiceImpl<E> {
 
    @param name       name of condition (for error message)
    @param mustBeTrue to require true
-   @throws DAOException if not true
+   @throws ManagerException if not true
    */
-  protected void require(String name, Boolean mustBeTrue) throws DAOException {
+  protected void require(String name, Boolean mustBeTrue) throws ManagerException {
     require(name, "is required", mustBeTrue);
   }
 
@@ -434,10 +434,10 @@ public class HubPersistenceServiceImpl<E> {
    @param message    condition (for error message)
    @param mustBeTrue to require true
    @param condition  to append
-   @throws DAOException if not true
+   @throws ManagerException if not true
    */
-  protected void require(String message, String condition, Boolean mustBeTrue) throws DAOException {
-    if (!mustBeTrue) throw new DAOException(message + " " + condition);
+  protected void require(String message, String condition, Boolean mustBeTrue) throws ManagerException {
+    if (!mustBeTrue) throw new ManagerException(message + " " + condition);
   }
 
   /**
@@ -446,9 +446,9 @@ public class HubPersistenceServiceImpl<E> {
    @param db        context
    @param hubAccess control
    @param id        of entity to require modification hubAccess to
-   @throws DAOException on invalid permissions
+   @throws ManagerException on invalid permissions
    */
-  protected void requireProgramModification(DSLContext db, HubAccess hubAccess, UUID id) throws DAOException {
+  protected void requireProgramModification(DSLContext db, HubAccess hubAccess, UUID id) throws ManagerException {
     requireArtist(hubAccess);
 
     if (hubAccess.isTopLevel())
@@ -489,7 +489,7 @@ public class HubPersistenceServiceImpl<E> {
         Object value = entry.getValue();
         try {
           set(target, name, value);
-        } catch (DAOException e) {
+        } catch (ManagerException e) {
           log.error(String.format("Unable to set record %s attribute %s to value %s", target, name, value), e);
         }
       }
@@ -503,9 +503,9 @@ public class HubPersistenceServiceImpl<E> {
 
    @param attributeName of attribute to get
    @return value
-   @throws DAOException on failure to get
+   @throws ManagerException on failure to get
    */
-  protected <R extends Record> Optional<Object> get(R target, String attributeName) throws DAOException {
+  protected <R extends Record> Optional<Object> get(R target, String attributeName) throws ManagerException {
     String getterName = Entities.toGetterName(attributeName);
 
     for (Method method : target.getClass().getMethods())
@@ -514,7 +514,7 @@ public class HubPersistenceServiceImpl<E> {
           return Entities.get(target, method);
 
         } catch (EntityException e) {
-          throw new DAOException(String.format("Failed to %s.%s(), reason: %s", Text.getSimpleName(target), getterName, e.getMessage()));
+          throw new ManagerException(String.format("Failed to %s.%s(), reason: %s", Text.getSimpleName(target), getterName, e.getMessage()));
         }
 
     return Optional.empty();
@@ -526,7 +526,7 @@ public class HubPersistenceServiceImpl<E> {
    @param attributeName of attribute for which to find setter method
    @param value         to set
    */
-  protected <R extends Record> void set(R target, String attributeName, Object value) throws DAOException {
+  protected <R extends Record> void set(R target, String attributeName, Object value) throws ManagerException {
     if (Objects.isNull(value)) return;
 
     String setterName = Entities.toSetterName(attributeName);
@@ -541,13 +541,13 @@ public class HubPersistenceServiceImpl<E> {
           return;
 
         } catch (EntityException e) {
-          throw new DAOException(String.format("Failed to %s.%s(), reason: %s", Text.getSimpleName(target), setterName, e.getMessage()));
+          throw new ManagerException(String.format("Failed to %s.%s(), reason: %s", Text.getSimpleName(target), setterName, e.getMessage()));
 
         } catch (IllegalAccessException e) {
-          throw new DAOException(String.format("Could not access %s.%s(), reason: %s", Text.getSimpleName(target), setterName, e.getMessage()));
+          throw new ManagerException(String.format("Could not access %s.%s(), reason: %s", Text.getSimpleName(target), setterName, e.getMessage()));
 
         } catch (InvocationTargetException e) {
-          throw new DAOException(String.format("Cannot invoke target %s.%s(), reason: %s", Text.getSimpleName(target), setterName, e.getMessage()));
+          throw new ManagerException(String.format("Cannot invoke target %s.%s(), reason: %s", Text.getSimpleName(target), setterName, e.getMessage()));
         }
 
     // no op if setter does not exist
@@ -561,7 +561,7 @@ public class HubPersistenceServiceImpl<E> {
    @throws InvocationTargetException on failure to invoke setter
    @throws IllegalAccessException    on failure to access setter
    */
-  protected <R extends Record> void setNull(R target, Method setter) throws InvocationTargetException, IllegalAccessException, DAOException {
+  protected <R extends Record> void setNull(R target, Method setter) throws InvocationTargetException, IllegalAccessException, ManagerException {
     if (Objects.nonNull(setter.getAnnotation(Nullable.class)))
       setter.invoke(null);
 
@@ -572,7 +572,7 @@ public class HubPersistenceServiceImpl<E> {
       case "Timestamp" -> setter.invoke(target, (Timestamp) null);
       default -> {
         log.error(String.format("Don't know how to set null value via %s on\n%s", setter, target));
-        throw new DAOException(String.format("Don't know how to set null value via %s", setter));
+        throw new ManagerException(String.format("Don't know how to set null value via %s", setter));
       }
     }
   }

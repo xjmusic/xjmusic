@@ -11,9 +11,9 @@ import com.google.inject.util.Modules;
 import io.xj.hub.HubTopology;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
-import io.xj.hub.dao.DAOException;
-import io.xj.hub.dao.DAOModule;
-import io.xj.hub.dao.InstrumentDAO;
+import io.xj.hub.manager.ManagerException;
+import io.xj.hub.manager.ManagerModule;
+import io.xj.hub.manager.InstrumentManager;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.ingest.HubIngestModule;
@@ -55,7 +55,7 @@ public class InstrumentEndpointTest {
   @Mock
   ContainerRequestContext crc;
   @Mock
-  InstrumentDAO instrumentDAO;
+  InstrumentManager instrumentManager;
   private HubAccess hubAccess;
   private InstrumentEndpoint subject;
   private Library library25;
@@ -64,11 +64,11 @@ public class InstrumentEndpointTest {
   @Before
   public void setUp() throws AppException {
     var env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule())).with(new AbstractModule() {
+    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule())).with(new AbstractModule() {
       @Override
       protected void configure() {
         bind(Environment.class).toInstance(env);
-        bind(InstrumentDAO.class).toInstance(instrumentDAO);
+        bind(InstrumentManager.class).toInstance(instrumentManager);
       }
     }));
 
@@ -82,7 +82,7 @@ public class InstrumentEndpointTest {
   }
 
   @Test
-  public void readMany() throws DAOException, IOException, JsonapiException {
+  public void readMany() throws ManagerException, IOException, JsonapiException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
     Instrument instrument1 = new Instrument();
     instrument1.setId(UUID.randomUUID());
@@ -99,12 +99,12 @@ public class InstrumentEndpointTest {
     instrument2.setName("trunk");
     instrument2.setDensity(0.6f);
     Collection<Instrument> instruments = ImmutableList.of(instrument1, instrument2);
-    when(instrumentDAO.readMany(same(hubAccess), eq(ImmutableList.of(library25.getId()))))
+    when(instrumentManager.readMany(same(hubAccess), eq(ImmutableList.of(library25.getId()))))
       .thenReturn(instruments);
 
     Response result = subject.readMany(crc, null, library25.getId().toString(), false);
 
-    verify(instrumentDAO).readMany(same(hubAccess), eq(ImmutableList.of(library25.getId())));
+    verify(instrumentManager).readMany(same(hubAccess), eq(ImmutableList.of(library25.getId())));
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
     assertPayload(new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class))
@@ -112,7 +112,7 @@ public class InstrumentEndpointTest {
   }
 
   @Test
-  public void readOne() throws DAOException, IOException, JsonapiException {
+  public void readOne() throws ManagerException, IOException, JsonapiException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
     Instrument instrument1 = new Instrument();
     instrument1.setId(UUID.randomUUID());
@@ -121,7 +121,7 @@ public class InstrumentEndpointTest {
     instrument1.setState(InstrumentState.Published);
     instrument1.setName("fonds");
     instrument1.setDensity(0.6f);
-    when(instrumentDAO.readOne(same(hubAccess), eq(instrument1.getId()))).thenReturn(instrument1);
+    when(instrumentManager.readOne(same(hubAccess), eq(instrument1.getId()))).thenReturn(instrument1);
 
     Response result = subject.readOne(crc, instrument1.getId().toString(), "");
 

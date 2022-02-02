@@ -5,7 +5,7 @@ import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessException;
-import io.xj.hub.dao.DAOException;
+import io.xj.hub.manager.ManagerException;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.Feedback;
 import io.xj.lib.entity.EntityFactory;
@@ -102,7 +102,7 @@ public class FeedbackEndpoint extends HubJsonapiEndpoint<Feedback> {
     } catch (JsonapiException e) {
       return response.notAcceptable(e);
 
-    } catch (DAOException e) {
+    } catch (ManagerException e) {
       return response.failure(e);
     }
   }
@@ -134,7 +134,7 @@ public class FeedbackEndpoint extends HubJsonapiEndpoint<Feedback> {
     } catch (JsonapiException | ValueException e) {
       return response.notAcceptable(e);
 
-    } catch (DAOException e) {
+    } catch (ManagerException e) {
       return response.failure(e);
     }
   }
