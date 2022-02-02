@@ -56,4 +56,14 @@ public interface InstrumentDAO extends DAO<Instrument> {
    @return collection of entities
    */
   <N> Collection<N> readManyWithChildEntities(HubAccess hubAccess, Collection<UUID> instrumentIds) throws DAOException;
+
+  /**
+   Read child entities of many instruments
+
+   @param hubAccess  control
+   @param instrumentIds to read
+   @param types      of entities to include
+   @return collection of entities
+   */
+  Collection<Object> readChildEntities(HubAccess hubAccess, Collection<UUID> instrumentIds, Collection<String> types) throws DAOException;
 }

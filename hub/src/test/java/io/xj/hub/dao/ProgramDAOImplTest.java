@@ -46,7 +46,7 @@ import static org.junit.Assert.*;
 
 // future test: permissions of different users to readMany vs. of vs. update or destroy programs
 @RunWith(MockitoJUnitRunner.class)
-public class ProgramDAOTest {
+public class ProgramDAOImplTest {
   private ProgramDAO testDAO;
 
   private HubIntegrationTestProvider test;

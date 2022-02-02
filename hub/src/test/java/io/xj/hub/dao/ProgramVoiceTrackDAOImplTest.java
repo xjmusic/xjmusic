@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import io.xj.hub.HubIntegrationTestModule;
 import io.xj.hub.HubIntegrationTestProvider;
@@ -16,8 +17,8 @@ import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
-import io.xj.hub.tables.pojos.ProgramSequenceChord;
-import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
@@ -36,19 +37,21 @@ import static org.junit.Assert.*;
 
 // future test: permissions of different users to readMany vs. of vs. update or destroy programs
 @RunWith(MockitoJUnitRunner.class)
-public class ProgramSequenceChordVoicingDAOTest {
-  private ProgramSequenceChordVoicingDAO testDAO;
+public class ProgramVoiceTrackDAOImplTest {
+  private ProgramVoiceTrackDAO testDAO;
 
   private HubIntegrationTestProvider test;
   private IntegrationTestingFixtures fake;
 
-  private ProgramSequenceChord sequenceChord1a_0;
-  private ProgramSequenceChordVoicing sequenceChord1a_0_voicing0;
+  private ProgramVoiceTrack voiceTrack1a_0;
+  private ProgramSequencePatternEvent voiceTrack1a_0_event0;
+  private ProgramSequencePatternEvent voiceTrack1a_0_event1;
+  private Injector injector;
 
   @Before
   public void setUp() throws Exception {
     var env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule(), new HubIntegrationTestModule())).with(new AbstractModule() {
+    injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule(), new HubIntegrationTestModule())).with(new AbstractModule() {
       @Override
       protected void configure() {
         bind(Environment.class).toInstance(env);
@@ -72,21 +75,22 @@ public class ProgramSequenceChordVoicingDAOTest {
     fake.library1 = test.insert(buildLibrary(fake.account1, "palm tree"));
     fake.program1 = test.insert(buildProgram(fake.library1, ProgramType.Main, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f));
     fake.program1_sequence1 = test.insert(buildProgramSequence(fake.program1, 4, "Ants", 0.583f, "D minor", 120.0f));
-    sequenceChord1a_0 = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "C minor"));
-    sequenceChord1a_0_voicing0 = test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, InstrumentType.Bass, "C5, Eb5, G5"));
-    test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, InstrumentType.Bass, "G,B,Db,F"));
     fake.program2 = test.insert(buildProgram(fake.library1, ProgramType.Beat, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f));
     fake.program702_voice1 = test.insert(buildProgramVoice(fake.program2, InstrumentType.Drum, "Drums"));
+    fake.program2_sequence1_pattern1 = test.insert(buildProgramSequencePattern(fake.program1_sequence1, fake.program702_voice1, 4, "BOOMS"));
+    voiceTrack1a_0 = test.insert(buildProgramVoiceTrack(fake.program702_voice1, "JAMS"));
+    voiceTrack1a_0_event0 = test.insert(buildProgramSequencePatternEvent(fake.program2_sequence1_pattern1, voiceTrack1a_0, 0.0f, 1.0f, "C", 1.0f));
+    voiceTrack1a_0_event1 = test.insert(buildProgramSequencePatternEvent(fake.program2_sequence1_pattern1, voiceTrack1a_0, 1.0f, 1.0f, "C", 1.0f));
 
     // Library "boat" has a program "helm" and program "sail"
     fake.library2 = test.insert(buildLibrary(fake.account1, "boat"));
     fake.program3 = test.insert(buildProgram(fake.library2, ProgramType.Macro, ProgramState.Published, "helm", "C#", 120.0f, 0.6f));
     fake.program3_sequence1 = test.insert(buildProgramSequence(fake.program3, 16, "Ants", 0.583f, "D minor", 120.0f));
-    fake.program3_chord1 = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "G7 flat 6"));
+    test.insert(buildProgramSequenceBinding(fake.program3_sequence1, 0));
     fake.program4 = test.insert(buildProgram(fake.library2, ProgramType.Detail, ProgramState.Published, "sail", "C#", 120.0f, 0.6f));
 
     // Instantiate the test subject
-    testDAO = injector.getInstance(ProgramSequenceChordVoicingDAO.class);
+    testDAO = injector.getInstance(ProgramVoiceTrackDAO.class);
   }
 
   @After
@@ -97,85 +101,60 @@ public class ProgramSequenceChordVoicingDAOTest {
   @Test
   public void create() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
-    var subject = new ProgramSequenceChordVoicing();
+    var subject = new ProgramVoiceTrack();
     subject.setId(UUID.randomUUID());
     subject.setProgramId(fake.program3.getId());
-    subject.setProgramSequenceChordId(fake.program3_chord1.getId());
-    subject.setType(InstrumentType.Pad);
-    subject.setNotes("C5, Eb5, G5");
+    subject.setProgramVoiceId(fake.program702_voice1.getId());
+    subject.setName("Jams");
 
     var result = testDAO.create(
       hubAccess, subject);
 
     assertNotNull(result);
     assertEquals(fake.program3.getId(), result.getProgramId());
-    assertEquals(fake.program3_chord1.getId(), result.getProgramSequenceChordId());
-    assertEquals(InstrumentType.Pad, result.getType());
-    assertEquals("C5, Eb5, G5", result.getNotes());
+    assertEquals(fake.program702_voice1.getId(), result.getProgramVoiceId());
+    assertEquals("JAMS", result.getName());
   }
 
   /**
-   [#176162975] Endpoint to batch update ProgramSequenceChordVoicing
-   */
-  @Test
-  public void update() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
-    sequenceChord1a_0_voicing0.setType(InstrumentType.Sticky);
-    sequenceChord1a_0_voicing0.setNotes("G1,G2,G3");
-
-    testDAO.update(hubAccess, sequenceChord1a_0_voicing0.getId(), sequenceChord1a_0_voicing0);
-
-    var result = testDAO.readOne(hubAccess, sequenceChord1a_0_voicing0.getId());
-    assertNotNull(result);
-    assertEquals(sequenceChord1a_0_voicing0.getId(), result.getId());
-    assertEquals(InstrumentType.Sticky, result.getType());
-    assertEquals("G1,G2,G3", result.getNotes());
-  }
-
-  /**
-   [#156144567] Artist expects to of a Main-type programSequenceChordVoicing without crashing the entire platform
+   [#156144567] Artist expects to of a Main-type programVoiceTrack without crashing the entire platform
    NOTE: This simple test fails to invoke the complexity of database call that is/was creating this issue in production.
    */
   @Test
   public void create_asArtist() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
-    var inputData = new ProgramSequenceChordVoicing();
+    var inputData = new ProgramVoiceTrack();
     inputData.setId(UUID.randomUUID());
     inputData.setProgramId(fake.program3.getId());
-    inputData.setProgramSequenceChordId(fake.program3_chord1.getId());
-    inputData.setType(InstrumentType.Bass);
-    inputData.setNotes("C5, Eb5, G5");
+    inputData.setProgramVoiceId(fake.program702_voice1.getId());
+    inputData.setName("Jams");
 
     var result = testDAO.create(
       hubAccess, inputData);
 
     assertNotNull(result);
     assertEquals(fake.program3.getId(), result.getProgramId());
-    assertEquals(fake.program3_chord1.getId(), result.getProgramSequenceChordId());
-    assertEquals(InstrumentType.Bass, result.getType());
-    assertEquals("C5, Eb5, G5", result.getNotes());
+    assertEquals(fake.program702_voice1.getId(), result.getProgramVoiceId());
+    assertEquals("JAMS", result.getName());
   }
 
   @Test
   public void readOne() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
 
-    var result = testDAO.readOne(hubAccess, sequenceChord1a_0_voicing0.getId());
+    var result = testDAO.readOne(hubAccess, voiceTrack1a_0.getId());
 
     assertNotNull(result);
-    assertEquals(sequenceChord1a_0_voicing0.getId(), result.getId());
-    assertEquals(fake.program1.getId(), result.getProgramId());
-    assertEquals(sequenceChord1a_0.getId(), result.getProgramSequenceChordId());
-    assertEquals(InstrumentType.Bass, result.getType());
-    assertEquals("C5, Eb5, G5", result.getNotes());
+    assertEquals(voiceTrack1a_0.getId(), result.getId());
+    assertEquals(fake.program2.getId(), result.getProgramId());
+    assertEquals("JAMS", result.getName());
   }
 
   @Test
   public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
 
-    var e = assertThrows(DAOException.class,
-      () -> testDAO.readOne(hubAccess, sequenceChord1a_0_voicing0.getId()));
+    var e = assertThrows(DAOException.class, () -> testDAO.readOne(hubAccess, voiceTrack1a_0.getId()));
     assertEquals("Record does not exist", e.getMessage());
   }
 
@@ -183,33 +162,77 @@ public class ProgramSequenceChordVoicingDAOTest {
 
   @Test
   public void readMany() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
 
-    Collection<ProgramSequenceChordVoicing> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.program1.getId()));
+    Collection<ProgramVoiceTrack> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.program702_voice1.getId()));
 
-    assertEquals(2L, result.size());
-    Iterator<ProgramSequenceChordVoicing> resultIt = result.iterator();
-    assertEquals("C5, Eb5, G5", resultIt.next().getNotes());
-    assertEquals("G,B,Db,F", resultIt.next().getNotes());
+    assertEquals(1L, result.size());
+    Iterator<ProgramVoiceTrack> resultIt = result.iterator();
+    assertEquals("JAMS", resultIt.next().getName());
   }
 
   @Test
   public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
 
-    Collection<ProgramSequenceChordVoicing> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.program1.getId()));
+    Collection<ProgramVoiceTrack> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.program702_voice1.getId()));
 
     assertEquals(0L, result.size());
+  }
+
+  /**
+   Should be able to delete track with events in it #180769781
+   */
+  @Test
+  public void destroy_okWithChildEntities() throws Exception {
+    HubAccess hubAccess = HubAccess.create("Admin");
+
+    testDAO.destroy(hubAccess, voiceTrack1a_0.getId());
+
+    assertEquals(Integer.valueOf(0), test.getDSL()
+      .selectCount().from(io.xj.hub.tables.ProgramVoiceTrack.PROGRAM_VOICE_TRACK)
+      .where(io.xj.hub.tables.ProgramVoiceTrack.PROGRAM_VOICE_TRACK.ID.eq(voiceTrack1a_0.getId()))
+      .fetchOne(0, int.class));
+  }
+
+  @Test
+  public void destroy_asArtist() throws Exception {
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    injector.getInstance(ProgramSequencePatternEventDAO.class).destroy(HubAccess.internal(), voiceTrack1a_0_event0.getId());
+    injector.getInstance(ProgramSequencePatternEventDAO.class).destroy(HubAccess.internal(), voiceTrack1a_0_event1.getId());
+
+    testDAO.destroy(hubAccess, voiceTrack1a_0.getId());
+
+    assertEquals(Integer.valueOf(0), test.getDSL()
+      .selectCount().from(io.xj.hub.tables.ProgramVoiceTrack.PROGRAM_VOICE_TRACK)
+      .where(io.xj.hub.tables.ProgramVoiceTrack.PROGRAM_VOICE_TRACK.ID.eq(voiceTrack1a_0.getId()))
+      .fetchOne(0, int.class));
   }
 
   @Test
   public void destroy_failsIfNotInAccount() throws Exception {
     fake.account2 = buildAccount("Testing");
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account2), "Artist");
+    injector.getInstance(ProgramSequencePatternEventDAO.class).destroy(HubAccess.internal(), voiceTrack1a_0_event0.getId());
+    injector.getInstance(ProgramSequencePatternEventDAO.class).destroy(HubAccess.internal(), voiceTrack1a_0_event1.getId());
 
-    var e = assertThrows(DAOException.class,
-      () -> testDAO.destroy(hubAccess, sequenceChord1a_0_voicing0.getId()));
-    assertEquals("Voicing belongs to Program in Account you have hubAccess to does not exist", e.getMessage());
+    var e = assertThrows(DAOException.class, () -> testDAO.destroy(hubAccess, voiceTrack1a_0.getId()));
+    assertEquals("Track in Voice in Program you have hubAccess to does not exist", e.getMessage());
+  }
+
+  /**
+   [#175423724] Update ProgramVoiceTrack to belong to a different ProgramVoice
+   */
+  @Test
+  public void update_moveToDifferentVoice() throws Exception {
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    fake.program2_voice2 = test.insert(buildProgramVoice(fake.program2, InstrumentType.Drum, "Cans"));
+    voiceTrack1a_0.setProgramVoiceId(fake.program2_voice2.getId());
+
+    testDAO.update(hubAccess, voiceTrack1a_0.getId(), voiceTrack1a_0);
+
+    var result = testDAO.readOne(hubAccess, voiceTrack1a_0.getId());
+    assertEquals(fake.program2_voice2.getId(), result.getProgramVoiceId());
   }
 
 }

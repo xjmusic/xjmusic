@@ -330,7 +330,7 @@ public class TemplateDAOImpl extends HubPersistenceServiceImpl<Template> impleme
   private void requireRead(DSLContext db, HubAccess hubAccess, Collection<UUID> templateIds) throws DAOException {
     if (!hubAccess.isTopLevel())
       for (UUID templateId : templateIds)
-        requireExists("hubAccess via account", db.selectCount().from(TEMPLATE)
+        requireExists("Template", db.selectCount().from(TEMPLATE)
           .where(TEMPLATE.ID.eq(templateId))
           .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
           .fetchOne(0, int.class));

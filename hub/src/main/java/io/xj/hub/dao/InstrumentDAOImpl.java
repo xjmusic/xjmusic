@@ -13,6 +13,7 @@ import io.xj.hub.tables.pojos.FeedbackInstrument;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.InstrumentMeme;
+import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
@@ -21,10 +22,7 @@ import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 
 import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.xj.hub.Tables.*;
@@ -147,7 +145,7 @@ public class InstrumentDAOImpl extends HubPersistenceServiceImpl<Instrument> imp
 
     if (!hubAccess.isTopLevel())
       for (UUID instrumentId : instrumentIds)
-        requireExists("hubAccess via account", db.selectCount().from(INSTRUMENT)
+        requireExists("Instrument", db.selectCount().from(INSTRUMENT)
           .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
           .where(INSTRUMENT.ID.eq(instrumentId))
           .and(INSTRUMENT.IS_DELETED.eq(false))
@@ -169,6 +167,32 @@ public class InstrumentDAOImpl extends HubPersistenceServiceImpl<Instrument> imp
         .where(FEEDBACK_INSTRUMENT.INSTRUMENT_ID.in(instrumentIds))));
     //noinspection unchecked
     return (Collection<N>) entities;
+  }
+
+  @Override
+  public Collection<Object> readChildEntities(HubAccess hubAccess, Collection<UUID> instrumentIds, Collection<String> types) throws DAOException {
+    DSLContext db = dbProvider.getDSL();
+
+    requireRead(db, hubAccess, instrumentIds);
+
+    Collection<Object> entities = Lists.newArrayList();
+
+    // InstrumentMeme
+    if (types.contains(Entities.toResourceType(InstrumentMeme.class)))
+      entities.addAll(modelsFrom(InstrumentMeme.class,
+        db.selectFrom(INSTRUMENT_MEME).where(INSTRUMENT_MEME.INSTRUMENT_ID.in(instrumentIds))));
+
+    // InstrumentAudio
+    if (types.contains(Entities.toResourceType(InstrumentAudio.class)))
+      entities.addAll(modelsFrom(InstrumentAudio.class,
+        db.selectFrom(INSTRUMENT_AUDIO).where(INSTRUMENT_AUDIO.INSTRUMENT_ID.in(instrumentIds))));
+
+    // FeedbackInstrument
+    if (types.contains(Entities.toResourceType(FeedbackInstrument.class)))
+      entities.addAll(modelsFrom(FeedbackInstrument.class,
+        db.selectFrom(FEEDBACK_INSTRUMENT).where(FEEDBACK_INSTRUMENT.INSTRUMENT_ID.in(instrumentIds))));
+
+    return entities;
   }
 
   @Override
@@ -212,6 +236,24 @@ public class InstrumentDAOImpl extends HubPersistenceServiceImpl<Instrument> imp
   }
 
   /**
+   Require read hubAccess
+
+   @param db         database context
+   @param hubAccess  control
+   @param instrumentIds to require hubAccess to
+   */
+  private void requireRead(DSLContext db, HubAccess hubAccess, Collection<UUID> instrumentIds) throws DAOException {
+    if (!hubAccess.isTopLevel())
+      for (UUID instrumentId : instrumentIds)
+        requireExists("Instrument", db.selectCount().from(INSTRUMENT)
+          .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
+          .where(INSTRUMENT.ID.eq(instrumentId))
+          .and(INSTRUMENT.IS_DELETED.eq(false))
+          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .fetchOne(0, int.class));
+  }
+
+  /**
    Read one record
 
    @param db        DSL context
@@ -221,19 +263,11 @@ public class InstrumentDAOImpl extends HubPersistenceServiceImpl<Instrument> imp
    @throws DAOException on failure
    */
   private Instrument readOne(DSLContext db, HubAccess hubAccess, UUID id) throws DAOException {
-    if (hubAccess.isTopLevel())
-      return modelFrom(Instrument.class, db.selectFrom(INSTRUMENT)
-        .where(INSTRUMENT.ID.eq(id))
-        .and(INSTRUMENT.IS_DELETED.eq(false))
-        .fetchOne());
-    else
-      return modelFrom(Instrument.class, db.select(INSTRUMENT.fields())
-        .from(INSTRUMENT)
-        .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
-        .where(INSTRUMENT.ID.eq(id))
-        .and(INSTRUMENT.IS_DELETED.eq(false))
-        .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
-        .fetchOne());
+    requireRead(db, hubAccess, List.of(id));
+    return modelFrom(Instrument.class, db.selectFrom(INSTRUMENT)
+      .where(INSTRUMENT.ID.eq(id))
+      .and(INSTRUMENT.IS_DELETED.eq(false))
+      .fetchOne());
   }
 
   /**

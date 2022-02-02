@@ -38,7 +38,7 @@ import static org.junit.Assert.*;
 // FUTURE: any test that
 
 @RunWith(MockitoJUnitRunner.class)
-public class InstrumentDAOTest {
+public class InstrumentDAOImplTest {
   private InstrumentDAO testDAO;
   private HubIntegrationTestProvider test;
   private IntegrationTestingFixtures fake;
@@ -182,7 +182,7 @@ public class InstrumentDAOTest {
     ), "User");
 
     var e = assertThrows(DAOException.class, () -> testDAO.readOne(hubAccess, fake.instrument201.getId()));
-    assertEquals("Record does not exist", e.getMessage());
+    assertEquals("Instrument does not exist", e.getMessage());
   }
 
   // future test: readManyInAccount vs readManyInLibraries, positive and negative cases

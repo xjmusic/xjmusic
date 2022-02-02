@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
+import io.xj.hub.dao.DAOException;
 import io.xj.hub.dao.InstrumentDAO;
 import io.xj.hub.dao.InstrumentMemeDAO;
 import io.xj.hub.persistence.HubDatabaseProvider;
@@ -12,16 +13,14 @@ import io.xj.hub.tables.pojos.Instrument;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.*;
+import io.xj.lib.util.CSV;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  Instruments
@@ -53,7 +52,7 @@ public class InstrumentEndpoint extends HubJsonapiEndpoint<Instrument> {
 
    @param accountId to get instruments for
    @param libraryId to get instruments for
-   @param detailed  whether to include memes
+   @param detailed  whether to include memes and bindings
    @return set of all instruments
    */
   @GET
@@ -81,7 +80,7 @@ public class InstrumentEndpoint extends HubJsonapiEndpoint<Instrument> {
       for (Instrument instrument : instruments) jsonapiPayload.addData(payloadFactory.toPayloadObject(instrument));
       Set<UUID> instrumentIds = Entities.idsOf(instruments);
 
-      // if detailed, seek and add events to payload
+      // if detailed, add Instrument Memes
       if (Objects.nonNull(detailed) && detailed)
         jsonapiPayload.addAllToIncluded(payloadFactory.toPayloadObjects(
           instrumentMemeDAO.readMany(hubAccess, instrumentIds)));
@@ -126,15 +125,39 @@ public class InstrumentEndpoint extends HubJsonapiEndpoint<Instrument> {
 
 
   /**
-   Get one instrument.
+   Get one instrument with included child entities
 
    @return application/json response.
    */
   @GET
   @Path("{id}")
   @RolesAllowed(USER)
-  public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return readOne(crc, dao(), id);
+  public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id, @QueryParam("include") String include) {
+    try {
+      HubAccess hubAccess = HubAccess.fromContext(crc);
+      var uuid = UUID.fromString(id);
+
+      JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(dao().readOne(hubAccess, uuid)));
+
+      // optionally specify a CSV of included types to read
+      if (Objects.nonNull(include)) {
+        List<JsonapiPayloadObject> list = new ArrayList<>();
+        for (Object entity : dao().readChildEntities(hubAccess, ImmutableList.of(uuid), CSV.split(include))) {
+          JsonapiPayloadObject jsonapiPayloadObject = payloadFactory.toPayloadObject(entity);
+          list.add(jsonapiPayloadObject);
+        }
+        jsonapiPayload.setIncluded(
+          list);
+      }
+
+      return response.ok(jsonapiPayload);
+
+    } catch (DAOException ignored) {
+      return response.notFound(dao.newInstance().getClass(), id);
+
+    } catch (Exception e) {
+      return response.failure(e);
+    }
   }
 
   /**

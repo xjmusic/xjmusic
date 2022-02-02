@@ -42,7 +42,7 @@ import static org.mockito.Mockito.*;
 // FUTURE: any test that
 
 @RunWith(MockitoJUnitRunner.class)
-public class InstrumentAudioDAOTest {
+public class InstrumentAudioDAOImplTest {
   @Mock
   public FileStoreProvider fileStoreProvider;
   private InstrumentAudioDAO testDAO;

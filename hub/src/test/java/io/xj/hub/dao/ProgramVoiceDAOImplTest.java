@@ -40,7 +40,7 @@ import static org.junit.Assert.assertNotNull;
 
 // future test: permissions of different users to readMany vs. of vs. update or destroy programs
 @RunWith(MockitoJUnitRunner.class)
-public class ProgramVoiceDAOTest {
+public class ProgramVoiceDAOImplTest {
   @Rule
   public ExpectedException failure = ExpectedException.none();
   private ProgramVoiceDAO testDAO;

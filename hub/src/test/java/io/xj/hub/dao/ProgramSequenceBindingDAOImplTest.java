@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import io.xj.hub.HubIntegrationTestModule;
 import io.xj.hub.HubIntegrationTestProvider;
@@ -16,7 +17,8 @@ import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
-import io.xj.hub.tables.pojos.ProgramMeme;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
@@ -38,18 +40,23 @@ import static org.junit.Assert.assertNotNull;
 
 // future test: permissions of different users to readMany vs. of vs. update or destroy programs
 @RunWith(MockitoJUnitRunner.class)
-public class ProgramMemeDAOTest {
+public class ProgramSequenceBindingDAOImplTest {
   @Rule
   public ExpectedException failure = ExpectedException.none();
-  private ProgramMemeDAO testDAO;
+  private ProgramSequenceBindingDAO testDAO;
 
   private HubIntegrationTestProvider test;
   private IntegrationTestingFixtures fake;
 
+  private ProgramSequenceBinding sequenceBinding1a_0;
+  private ProgramSequenceBindingMeme sequenceBinding1a_0_meme0;
+  private ProgramSequenceBindingMeme sequenceBinding1a_0_meme1;
+  private Injector injector;
+
   @Before
   public void setUp() throws Exception {
     var env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule(), new HubIntegrationTestModule())).with(new AbstractModule() {
+    injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule(), new HubIntegrationTestModule())).with(new AbstractModule() {
       @Override
       protected void configure() {
         bind(Environment.class).toInstance(env);
@@ -62,29 +69,32 @@ public class ProgramMemeDAOTest {
 
     // Account "bananas"
     fake.account1 = test.insert(buildAccount("bananas"));
-
-    // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
+// John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     fake.user2 = test.insert(buildUser("john", "john@email.com", "https://pictures.com/john.gif", "Admin"));
 
     // Jenny has a "user" role and belongs to account "bananas"
     fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "https://pictures.com/jenny.gif", "User"));
     test.insert(buildAccountUser(fake.account1, fake.user3));
 
-    // Library "palm tree" has a program "ANTS" and program "ANTS"
+    // Library "palm tree" has a program "Ants" and program "Ants"
     fake.library1 = test.insert(buildLibrary(fake.account1, "palm tree"));
     fake.program1 = test.insert(buildProgram(fake.library1, ProgramType.Main, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f));
-    fake.programMeme1 = test.insert(buildProgramMeme(fake.program1, "ANTS"));
+    fake.program1_sequence1 = test.insert(buildProgramSequence(fake.program1, 4, "Ants", 0.583f, "D minor", 120.0f));
+    sequenceBinding1a_0 = test.insert(buildProgramSequenceBinding(fake.program1_sequence1, 0));
+    sequenceBinding1a_0_meme0 = test.insert(buildProgramSequenceBindingMeme(sequenceBinding1a_0, "chunk"));
+    sequenceBinding1a_0_meme1 = test.insert(buildProgramSequenceBindingMeme(sequenceBinding1a_0, "smooth"));
     fake.program2 = test.insert(buildProgram(fake.library1, ProgramType.Beat, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f));
     fake.program702_voice1 = test.insert(buildProgramVoice(fake.program2, InstrumentType.Drum, "Drums"));
 
     // Library "boat" has a program "helm" and program "sail"
     fake.library2 = test.insert(buildLibrary(fake.account1, "boat"));
     fake.program3 = test.insert(buildProgram(fake.library2, ProgramType.Macro, ProgramState.Published, "helm", "C#", 120.0f, 0.6f));
-    fake.programMeme3 = test.insert(buildProgramMeme(fake.program3, "ANTS"));
+    fake.program3_sequence1 = test.insert(buildProgramSequence(fake.program3, 16, "Ants", 0.583f, "D minor", 120.0f));
+    test.insert(buildProgramSequenceBinding(fake.program3_sequence1, 0));
     fake.program4 = test.insert(buildProgram(fake.library2, ProgramType.Detail, ProgramState.Published, "sail", "C#", 120.0f, 0.6f));
 
     // Instantiate the test subject
-    testDAO = injector.getInstance(ProgramMemeDAO.class);
+    testDAO = injector.getInstance(ProgramSequenceBindingDAO.class);
   }
 
   @After
@@ -95,88 +105,53 @@ public class ProgramMemeDAOTest {
   @Test
   public void create() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
-    var subject = new ProgramMeme();
+    var subject = new ProgramSequenceBinding();
     subject.setId(UUID.randomUUID());
     subject.setProgramId(fake.program3.getId());
-    subject.setName("cannons");
+    subject.setProgramSequenceId(fake.program3_sequence1.getId());
+    subject.setOffset(4);
 
     var result = testDAO.create(
       hubAccess, subject);
 
     assertNotNull(result);
     assertEquals(fake.program3.getId(), result.getProgramId());
-    assertEquals("CANNONS", result.getName());
+    assertEquals(fake.program3_sequence1.getId(), result.getProgramSequenceId());
+    assertEquals(Integer.valueOf(4), result.getOffset());
   }
 
   /**
-   [#177587964] Artist can use numerals in meme name
-   */
-  @Test
-  public void create_numerals() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
-    var subject = new ProgramMeme();
-    subject.setId(UUID.randomUUID());
-    subject.setProgramId(fake.program3.getId());
-    subject.setName("3note");
-
-    var result = testDAO.create(
-      hubAccess, subject);
-
-    assertNotNull(result);
-    assertEquals(fake.program3.getId(), result.getProgramId());
-    assertEquals("3NOTE", result.getName());
-  }
-
-  /**
-   [#176474073] Artist can add !MEME values into Programs
-   */
-  @Test
-  public void create_notMeme() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
-    var subject = new ProgramMeme();
-    subject.setId(UUID.randomUUID());
-    subject.setProgramId(fake.program3.getId());
-    subject.setName("!busy");
-
-    var result = testDAO.create(
-      hubAccess, subject);
-
-    assertNotNull(result);
-    assertEquals(fake.program3.getId(), result.getProgramId());
-    assertEquals("!BUSY", result.getName());
-  }
-
-  /**
-   [#156144567] Artist expects to of a Main-type programMeme without crashing the entire platform
+   [#156144567] Artist expects to of a Main-type programSequenceBinding without crashing the entire platform
    NOTE: This simple test fails to invoke the complexity of database call that is/was creating this issue in production.
    */
   @Test
   public void create_asArtist() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
-    var inputData = new ProgramMeme();
+    var inputData = new ProgramSequenceBinding();
     inputData.setId(UUID.randomUUID());
     inputData.setProgramId(fake.program3.getId());
-    inputData.setName("cannons");
+    inputData.setProgramSequenceId(fake.program3_sequence1.getId());
+    inputData.setOffset(4);
 
     var result = testDAO.create(
       hubAccess, inputData);
 
     assertNotNull(result);
     assertEquals(fake.program3.getId(), result.getProgramId());
-    assertEquals("CANNONS", result.getName());
+    assertEquals(fake.program3_sequence1.getId(), result.getProgramSequenceId());
+    assertEquals(Integer.valueOf(4), result.getOffset());
   }
-
 
   @Test
   public void readOne() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
 
-    var result = testDAO.readOne(hubAccess, fake.programMeme3.getId());
+    var result = testDAO.readOne(hubAccess, sequenceBinding1a_0.getId());
 
     assertNotNull(result);
-    assertEquals(fake.programMeme3.getId(), result.getId());
-    assertEquals(fake.program3.getId(), result.getProgramId());
-    assertEquals("ANTS", result.getName());
+    assertEquals(sequenceBinding1a_0.getId(), result.getId());
+    assertEquals(fake.program1.getId(), result.getProgramId());
+    assertEquals(Integer.valueOf(0), result.getOffset());
   }
 
   @Test
@@ -185,7 +160,7 @@ public class ProgramMemeDAOTest {
     failure.expect(DAOException.class);
     failure.expectMessage("does not exist");
 
-    testDAO.readOne(hubAccess, fake.programMeme3.getId());
+    testDAO.readOne(hubAccess, sequenceBinding1a_0.getId());
   }
 
   // future test: readManyInAccount vs readManyInLibraries, positive and negative cases
@@ -194,83 +169,57 @@ public class ProgramMemeDAOTest {
   public void readMany() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
 
-    Collection<ProgramMeme> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.program3.getId()));
+    Collection<ProgramSequenceBinding> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.program1.getId()));
 
     assertEquals(1L, result.size());
-    Iterator<ProgramMeme> resultIt = result.iterator();
-    assertEquals("ANTS", resultIt.next().getName());
+    Iterator<ProgramSequenceBinding> resultIt = result.iterator();
+    assertEquals(Integer.valueOf(0), resultIt.next().getOffset());
   }
 
   @Test
   public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
 
-    Collection<ProgramMeme> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.program3.getId()));
+    Collection<ProgramSequenceBinding> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.program3.getId()));
 
     assertEquals(0L, result.size());
   }
 
   @Test
-  public void update_cannotChangeProgram() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
-    var subject = new ProgramMeme();
-    subject.setId(UUID.randomUUID());
-    subject.setName("cannons");
-    subject.setProgramId(UUID.randomUUID());
+  public void destroy_failsIfHasChildEntity() throws Exception {
+    HubAccess hubAccess = HubAccess.create("Admin");
 
-    testDAO.update(hubAccess, fake.programMeme3.getId(), subject);
+    failure.expect(DAOException.class);
+    failure.expectMessage("Found Meme on Sequence Binding");
 
-    var result = testDAO.readOne(HubAccess.internal(), fake.programMeme3.getId());
-    assertNotNull(result);
-    assertEquals("CANNONS", result.getName());
-    assertEquals(fake.program3.getId(), result.getProgramId());
+    testDAO.destroy(hubAccess, sequenceBinding1a_0.getId());
   }
 
   @Test
-  public void update_Name() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
-    var subject = new ProgramMeme();
-    subject.setId(fake.programMeme3.getId());
-    subject.setProgramId(fake.program3.getId());
-    subject.setName("cannons");
+  public void destroy_okWithNoChildEntities() throws Exception {
+    HubAccess hubAccess = HubAccess.create("Admin");
+    injector.getInstance(ProgramSequenceBindingMemeDAO.class).destroy(HubAccess.internal(), sequenceBinding1a_0_meme0.getId());
+    injector.getInstance(ProgramSequenceBindingMemeDAO.class).destroy(HubAccess.internal(), sequenceBinding1a_0_meme1.getId());
 
-    testDAO.update(hubAccess, fake.programMeme3.getId(), subject);
+    testDAO.destroy(hubAccess, sequenceBinding1a_0.getId());
 
-    var result = testDAO.readOne(HubAccess.internal(), fake.programMeme3.getId());
-    assertNotNull(result);
-    assertEquals("CANNONS", result.getName());
-    assertEquals(fake.program3.getId(), result.getProgramId());
-  }
-
-  /**
-   [#156030760] Artist expects owner of ProgramMeme or Instrument to always remain the same as when it was ofd, even after being updated by another user.
-   DEPRECATED, future will be replaced by [#166724453] Instruments and Programs have author history
-   */
-  @Test
-  public void update_Name_PreservesOriginalOwner() throws Exception {
-    // John will edit a programMeme originally belonging to Jenny
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
-    var subject = new ProgramMeme();
-    subject.setId(fake.programMeme3.getId());
-    subject.setProgramId(fake.program3.getId());
-    subject.setName("cannons");
-
-    testDAO.update(hubAccess, fake.programMeme3.getId(), subject);
-
-    var result = testDAO.readOne(HubAccess.internal(), fake.programMeme3.getId());
-    assertNotNull(result);
+    assertEquals(Integer.valueOf(0), test.getDSL()
+      .selectCount().from(io.xj.hub.tables.ProgramSequenceBinding.PROGRAM_SEQUENCE_BINDING)
+      .where(io.xj.hub.tables.ProgramSequenceBinding.PROGRAM_SEQUENCE_BINDING.ID.eq(sequenceBinding1a_0.getId()))
+      .fetchOne(0, int.class));
   }
 
   @Test
   public void destroy_asArtist() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
-    fake.programMeme35 = test.insert(buildProgramMeme(fake.program2, "ANTS"));
+    injector.getInstance(ProgramSequenceBindingMemeDAO.class).destroy(HubAccess.internal(), sequenceBinding1a_0_meme0.getId());
+    injector.getInstance(ProgramSequenceBindingMemeDAO.class).destroy(HubAccess.internal(), sequenceBinding1a_0_meme1.getId());
 
-    testDAO.destroy(hubAccess, fake.programMeme35.getId());
+    testDAO.destroy(hubAccess, sequenceBinding1a_0.getId());
 
     assertEquals(Integer.valueOf(0), test.getDSL()
-      .selectCount().from(io.xj.hub.tables.ProgramMeme.PROGRAM_MEME)
-      .where(io.xj.hub.tables.ProgramMeme.PROGRAM_MEME.ID.eq(fake.programMeme35.getId()))
+      .selectCount().from(io.xj.hub.tables.ProgramSequenceBinding.PROGRAM_SEQUENCE_BINDING)
+      .where(io.xj.hub.tables.ProgramSequenceBinding.PROGRAM_SEQUENCE_BINDING.ID.eq(sequenceBinding1a_0.getId()))
       .fetchOne(0, int.class));
   }
 
@@ -278,11 +227,13 @@ public class ProgramMemeDAOTest {
   public void destroy_failsIfNotInAccount() throws Exception {
     fake.account2 = buildAccount("Testing");
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account2), "Artist");
+    injector.getInstance(ProgramSequenceBindingMemeDAO.class).destroy(HubAccess.internal(), sequenceBinding1a_0_meme0.getId());
+    injector.getInstance(ProgramSequenceBindingMemeDAO.class).destroy(HubAccess.internal(), sequenceBinding1a_0_meme1.getId());
 
     failure.expect(DAOException.class);
-    failure.expectMessage("Meme in Program in Account you have hubAccess to does not exist");
+    failure.expectMessage("Sequence Binding in Program in Account you have hubAccess to does not exist");
 
-    testDAO.destroy(hubAccess, fake.programMeme3.getId());
+    testDAO.destroy(hubAccess, sequenceBinding1a_0.getId());
   }
 
 }

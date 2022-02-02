@@ -29,7 +29,7 @@ import static io.xj.hub.IntegrationTestingFixtures.*;
 import static org.junit.Assert.*;
 
 // future test: permissions of different users to readMany vs. of vs. update or delete account users
-public class AccountUserDAOTest {
+public class AccountUserDAOImplTest {
   @Rule
   public ExpectedException failure = ExpectedException.none();
   private AccountUserDAO testDAO;

@@ -328,7 +328,7 @@ public class ProgramDAOImpl extends HubPersistenceServiceImpl<Program> implement
   private void requireRead(DSLContext db, HubAccess hubAccess, Collection<UUID> programIds) throws DAOException {
     if (!hubAccess.isTopLevel())
       for (UUID programId : programIds)
-        requireExists("hubAccess via account", db.selectCount().from(PROGRAM)
+        requireExists("Program", db.selectCount().from(PROGRAM)
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM.ID.eq(programId))
           .and(PROGRAM.IS_DELETED.eq(false))
