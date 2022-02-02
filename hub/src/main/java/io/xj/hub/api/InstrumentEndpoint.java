@@ -5,9 +5,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.manager.ManagerException;
 import io.xj.hub.manager.InstrumentManager;
 import io.xj.hub.manager.InstrumentMemeManager;
+import io.xj.hub.manager.ManagerException;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.lib.entity.Entities;
@@ -146,8 +146,7 @@ public class InstrumentEndpoint extends HubJsonapiEndpoint<Instrument> {
           JsonapiPayloadObject jsonapiPayloadObject = payloadFactory.toPayloadObject(entity);
           list.add(jsonapiPayloadObject);
         }
-        jsonapiPayload.setIncluded(
-          list);
+        jsonapiPayload.setIncluded(list);
       }
 
       return response.ok(jsonapiPayload);

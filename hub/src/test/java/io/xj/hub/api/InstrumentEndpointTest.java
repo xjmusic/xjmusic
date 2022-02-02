@@ -11,12 +11,12 @@ import com.google.inject.util.Modules;
 import io.xj.hub.HubTopology;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
-import io.xj.hub.manager.ManagerException;
-import io.xj.hub.manager.ManagerModule;
-import io.xj.hub.manager.InstrumentManager;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.ingest.HubIngestModule;
+import io.xj.hub.manager.InstrumentManager;
+import io.xj.hub.manager.ManagerException;
+import io.xj.hub.manager.ManagerModule;
 import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
@@ -37,10 +37,10 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
-import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
-import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
+import static io.xj.hub.IntegrationTestingFixtures.*;
 import static io.xj.hub.access.HubAccess.CONTEXT_KEY;
 import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
 import static org.junit.Assert.assertEquals;
@@ -130,5 +130,25 @@ public class InstrumentEndpointTest {
     JsonapiPayload resultJsonapiPayload = new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class);
     assertPayload(resultJsonapiPayload)
       .hasDataOne("instruments", instrument1.getId().toString());
+  }
+
+  /**
+   Lab UI should load memes when directly visiting an instrument #181129203
+   */
+  @Test
+  public void readOne_includingMemes() throws ManagerException, IOException, JsonapiException {
+    when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
+    var instrument1 = buildInstrument(library1, InstrumentType.Drum, InstrumentState.Published, "test");
+    var instrumentMeme1 = buildInstrumentMeme(instrument1, "RED");
+    when(instrumentManager.readOne(same(hubAccess), eq(instrument1.getId()))).thenReturn(instrument1);
+    when(instrumentManager.readChildEntities(same(hubAccess), eq(List.of(instrument1.getId())), eq(List.of("instrument-meme")))).thenReturn(List.of(instrumentMeme1));
+
+    Response result = subject.readOne(crc, instrument1.getId().toString(), "instrument-meme");
+
+    assertEquals(200, result.getStatus());
+    assertTrue(result.hasEntity());
+    JsonapiPayload resultJsonapiPayload = new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class);
+    assertPayload(resultJsonapiPayload).hasDataOne("instruments", instrument1.getId().toString());
+    assertPayload(resultJsonapiPayload).hasIncluded("instrument-memes", List.of(instrumentMeme1));
   }
 }
