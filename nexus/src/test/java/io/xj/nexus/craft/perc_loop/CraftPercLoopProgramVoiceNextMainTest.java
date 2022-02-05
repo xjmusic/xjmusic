@@ -9,6 +9,7 @@ import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import io.xj.api.*;
 import io.xj.hub.HubTopology;
+import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Instrument;
@@ -127,7 +128,7 @@ public class CraftPercLoopProgramVoiceNextMainTest {
 
     // Instrument "808"
     Instrument instrument1 = Entities.add(entities,
-      buildInstrument(fake.library2, InstrumentType.PercLoop, InstrumentState.Published, "Bongo Loop"));
+      buildInstrument(fake.library2, InstrumentType.PercLoop, InstrumentMode.Events, InstrumentState.Published, "Bongo Loop"));
     Entities.add(entities, buildInstrumentMeme(instrument1, "heavy"));
     //
     audioKick = Entities.add(entities, buildInstrumentAudio(

@@ -11,6 +11,7 @@ import io.xj.hub.HubIntegrationTestProvider;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
+import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.ingest.HubIngestModule;
@@ -67,8 +68,8 @@ public class InstrumentManagerImplTest {
 
     // Library "sandwich" has instruments "jams" and instrument "buns"
     fake.library1 = test.insert(buildLibrary(fake.account1, "sandwich"));
-    fake.instrument201 = test.insert(buildInstrument(fake.library1, InstrumentType.Pad, InstrumentState.Published, "buns"));
-    fake.instrument202 = test.insert(buildInstrument(fake.library1, InstrumentType.Drum, InstrumentState.Published, "jams"));
+    fake.instrument201 = test.insert(buildInstrument(fake.library1, InstrumentType.Pad, InstrumentMode.Events, InstrumentState.Published, "buns"));
+    fake.instrument202 = test.insert(buildInstrument(fake.library1, InstrumentType.Drum, InstrumentMode.Events, InstrumentState.Published, "jams"));
     fake.audio1 = test.insert(buildInstrumentAudio(fake.instrument202, "Test audio", "fake.audio5.wav", 0.0f, 2.0f, 120.0f));
 
     // Instantiate the test subject
@@ -90,6 +91,7 @@ public class InstrumentManagerImplTest {
     subject.setVolume(0.54f);
     subject.setDensity(0.6f);
     subject.setState(InstrumentState.Published);
+    subject.setMode(InstrumentMode.Events);
     subject.setType(InstrumentType.Drum);
 
     Instrument result = testManager.create(
@@ -100,6 +102,7 @@ public class InstrumentManagerImplTest {
     assertEquals("shimmy", result.getName());
     assertEquals(0.54f, result.getVolume(), 0.01);
     assertEquals(InstrumentType.Drum, result.getType());
+    assertEquals(InstrumentMode.Events, result.getMode());
   }
 
   /**
@@ -108,7 +111,7 @@ public class InstrumentManagerImplTest {
   @Test
   public void create_defaultVolume() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
-    Instrument subject = buildInstrument(fake.library1, InstrumentType.Drum, InstrumentState.Published, "shimmy");
+    Instrument subject = buildInstrument(fake.library1, InstrumentType.Drum, InstrumentMode.Events, InstrumentState.Published, "shimmy");
 
     Instrument result = testManager.create(
       hubAccess, subject);
@@ -242,7 +245,7 @@ public class InstrumentManagerImplTest {
   @Test
   public void update_addAudio() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
-    Instrument subject = test.insert(buildInstrument(fake.library1, InstrumentType.Drum, InstrumentState.Published, "shimmy"));
+    Instrument subject = test.insert(buildInstrument(fake.library1, InstrumentType.Drum, InstrumentMode.Events, InstrumentState.Published, "shimmy"));
     test.insert(buildInstrumentAudio(subject, "Test audio", "fake.audio5.wav", 0.0f, 20.f, 120.0f));
 
     testManager.update(hubAccess, fake.instrument201.getId(), subject);
@@ -257,7 +260,7 @@ public class InstrumentManagerImplTest {
   @Test
   public void destroy() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    fake.instrument251 = test.insert(buildInstrument(fake.library1, InstrumentType.Pad, InstrumentState.Published, "jub"));
+    fake.instrument251 = test.insert(buildInstrument(fake.library1, InstrumentType.Pad, InstrumentMode.Events, InstrumentState.Published, "jub"));
 
     testManager.destroy(hubAccess, fake.instrument251.getId());
 
@@ -272,7 +275,7 @@ public class InstrumentManagerImplTest {
   @Test
   public void destroy_evenWithMemes() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    Instrument instrument = test.insert(buildInstrument(fake.library1, InstrumentType.Pad, InstrumentState.Published, "sandwich"));
+    Instrument instrument = test.insert(buildInstrument(fake.library1, InstrumentType.Pad, InstrumentMode.Events, InstrumentState.Published, "sandwich"));
     test.insert(buildInstrumentMeme(instrument, "frozen"));
     test.insert(buildInstrumentMeme(instrument, "ham"));
 
@@ -285,7 +288,7 @@ public class InstrumentManagerImplTest {
   @Test
   public void destroy_succeedsWithInnerEntitiesButNoMemes() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    Instrument instrument = test.insert(buildInstrument(fake.library1, InstrumentType.Pad, InstrumentState.Published, "sandwich"));
+    Instrument instrument = test.insert(buildInstrument(fake.library1, InstrumentType.Pad, InstrumentMode.Events, InstrumentState.Published, "sandwich"));
     test.insert(buildInstrumentAudio(instrument, "drums", "drums.wav", 0.0f, 1.0f, 120.0f, 0.6f, "bing", "D", 1.0f));
 
     testManager.destroy(hubAccess, instrument.getId());

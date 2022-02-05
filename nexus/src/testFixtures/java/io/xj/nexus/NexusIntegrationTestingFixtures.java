@@ -6,13 +6,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.xj.api.*;
-import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.LoremIpsum;
 import io.xj.hub.Users;
-import io.xj.hub.enums.InstrumentState;
-import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramState;
-import io.xj.hub.enums.ProgramType;
+import io.xj.hub.enums.*;
 import io.xj.hub.tables.pojos.*;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
@@ -892,7 +888,7 @@ public class NexusIntegrationTestingFixtures {
     program9_sequence0_pattern3_event3 = buildEvent(program9_sequence0_pattern3, program9_voice0_track15, 3, 1, "G5", 0.9f);
 
     // Instrument "808"
-    instrument8 = buildInstrument(library2, InstrumentType.Drum, InstrumentState.Published, "808 Drums");
+    instrument8 = buildInstrument(library2, InstrumentType.Drum, InstrumentMode.Events, InstrumentState.Published, "808 Drums");
     instrument8.setVolume(0.76f); // For testing: Instrument has overall volume parameter #179215413
     instrument8_meme0 = buildMeme(instrument8, "heavy");
     instrument8_audio8kick = buildAudio(instrument8, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.62f, "KICK", "Eb", 1.0f);
@@ -991,7 +987,7 @@ public class NexusIntegrationTestingFixtures {
     program10_sequence0_pattern3_event3 = buildEvent(program10_sequence0_pattern3, program10_voice0_track0, 3, 1, "G5", 0.9f);
 
     // Instrument "Bass"
-    instrument9 = buildInstrument(library2, InstrumentType.Bass, InstrumentState.Published, "Bass");
+    instrument9 = buildInstrument(library2, InstrumentType.Bass, InstrumentMode.Events, InstrumentState.Published, "Bass");
     instrument9_meme0 = buildMeme(instrument9, "heavy");
     instrument9_audio8 = buildAudio(instrument9, "bass", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.62f, "BLOOP", "Eb", 1.0f);
 
@@ -1055,7 +1051,7 @@ public class NexusIntegrationTestingFixtures {
       String majorMemeName = majorMemeNames[i];
       String minorMemeName = random(minorMemeNames);
       //
-      Instrument instrument = add(entities, buildInstrument(library1, InstrumentType.Drum, InstrumentState.Published, String.format("%s Drums", majorMemeName)));
+      Instrument instrument = add(entities, buildInstrument(library1, InstrumentType.Drum, InstrumentMode.Events, InstrumentState.Published, String.format("%s Drums", majorMemeName)));
       add(entities, buildInstrumentMeme(instrument, majorMemeName));
       add(entities, buildInstrumentMeme(instrument, minorMemeName));
       // audios of instrument
@@ -1067,7 +1063,7 @@ public class NexusIntegrationTestingFixtures {
 
     // Generate Perc Loop Instruments
     for (int i = 0; i < N; i++) {
-      Instrument instrument = add(entities, buildInstrument(library1, InstrumentType.PercLoop, InstrumentState.Published, "Perc Loop"));
+      Instrument instrument = add(entities, buildInstrument(library1, InstrumentType.PercLoop, InstrumentMode.Events, InstrumentState.Published, "Perc Loop"));
       log.debug("Generated PercLoop-type Instrument id={}", instrument.getId());
     }
 

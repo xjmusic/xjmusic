@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import io.xj.hub.InstrumentConfig;
 import io.xj.hub.access.HubAccess;
+import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
@@ -301,6 +302,7 @@ public class InstrumentManagerImpl extends HubPersistenceServiceImpl<Instrument>
       Values.require(record.getLibraryId(), "Library ID");
       Values.require(record.getName(), "Name");
       Values.require(record.getType(), "Type");
+      Values.require(record.getType(), "Mode");
       Values.require(record.getState(), "State");
 
       // overall volume parameter defaults to 1.0 #179215413

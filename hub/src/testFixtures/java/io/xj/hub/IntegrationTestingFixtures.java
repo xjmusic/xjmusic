@@ -684,11 +684,12 @@ public class IntegrationTestingFixtures {
     return programSequencePatternEvent;
   }
 
-  public static Instrument buildInstrument(Library library, InstrumentType type, InstrumentState state, String name) {
+  public static Instrument buildInstrument(Library library, InstrumentType type, InstrumentMode mode, InstrumentState state, String name) {
     var instrument = new Instrument();
     instrument.setId(UUID.randomUUID());
     instrument.setLibraryId(library.getId());
     instrument.setType(type);
+    instrument.setMode(mode);
     instrument.setState(state);
     instrument.setDensity(0.6f);
     instrument.setName(name);
@@ -720,7 +721,7 @@ public class IntegrationTestingFixtures {
     templateBinding1 = test.insert(buildTemplateBinding(template1, library10000001));
 
     // Instrument 201
-    instrument201 = test.insert(buildInstrument(library10000001, InstrumentType.Drum, InstrumentState.Published, "808 Drums"));
+    instrument201 = test.insert(buildInstrument(library10000001, InstrumentType.Drum, InstrumentMode.Events, InstrumentState.Published, "808 Drums"));
     test.insert(buildInstrumentMeme(instrument201, "Ants"));
     test.insert(buildInstrumentMeme(instrument201, "Mold"));
     //
@@ -729,7 +730,7 @@ public class IntegrationTestingFixtures {
     var audio401 = test.insert(buildInstrumentAudio(instrument201, "Beat", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.62f, "KICK", "Eb", 1.0f));
 
     // Instrument 202
-    instrument202 = test.insert(buildInstrument(library10000001, InstrumentType.Drum, InstrumentState.Published, "909 Drums"));
+    instrument202 = test.insert(buildInstrument(library10000001, InstrumentType.Drum, InstrumentMode.Events, InstrumentState.Published, "909 Drums"));
     test.insert(buildInstrumentMeme(instrument202, "Peel"));
 
     // Program 701, main-type, has sequence with chords, bound to many offsets
@@ -777,7 +778,7 @@ public class IntegrationTestingFixtures {
     // DELIBERATELY UNUSED stuff that should not get used because it's in a different library
     library10000002 = test.insert(buildLibrary(account1, "Garbage Library"));
     //
-    instrument251 = test.insert(buildInstrument(library10000002, InstrumentType.Drum, InstrumentState.Published, "Garbage Instrument"));
+    instrument251 = test.insert(buildInstrument(library10000002, InstrumentType.Drum, InstrumentMode.Events, InstrumentState.Published, "Garbage Instrument"));
     test.insert(buildInstrumentMeme(instrument251, "Garbage MemeObject"));
     //
     program751 = test.insert(buildProgram(library10000002, ProgramType.Beat, ProgramState.Published, "coconuts", "F#", 110.3f, 0.6f));
@@ -842,7 +843,7 @@ public class IntegrationTestingFixtures {
    [#165954673] Integration tests use shared scenario fixtures as much as possible
    */
   public void insertFixtureB_Instruments() throws HubException {
-    instrument201 = test.insert(buildInstrument(library2, InstrumentType.Drum, InstrumentState.Published, "808 Drums"));
+    instrument201 = test.insert(buildInstrument(library2, InstrumentType.Drum, InstrumentMode.Events, InstrumentState.Published, "808 Drums"));
     test.insert(buildInstrumentMeme(instrument201, "Ants"));
     test.insert(buildInstrumentMeme(instrument201, "Mold"));
     //

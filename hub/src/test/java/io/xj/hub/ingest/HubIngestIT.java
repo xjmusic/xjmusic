@@ -11,11 +11,8 @@ import io.xj.hub.HubIntegrationTestProvider;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
+import io.xj.hub.enums.*;
 import io.xj.hub.manager.ManagerModule;
-import io.xj.hub.enums.InstrumentState;
-import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramState;
-import io.xj.hub.enums.ProgramType;
 import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreModule;
@@ -142,7 +139,7 @@ public class HubIngestIT {
 
   @Test
   public void getInstrumentsOfType() throws Exception {
-    test.insert(buildInstrument(fake.library10000001, InstrumentType.Pad, InstrumentState.Published, "Dreamy"));
+    test.insert(buildInstrument(fake.library10000001, InstrumentType.Pad, InstrumentMode.Events, InstrumentState.Published, "Dreamy"));
     HubIngest ingest = ingestFactory.ingest(HubAccess.internal(), fake.template1.getId());
 
     assertEquals(2, ingest.getInstrumentsOfType(InstrumentType.Drum).size());

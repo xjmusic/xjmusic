@@ -9,6 +9,7 @@ import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import io.xj.api.*;
 import io.xj.hub.HubTopology;
+import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Instrument;
@@ -130,7 +131,7 @@ public class CraftBeatProgramVoiceNextMainTest {
     Instrument instrument1 = Entities.add(entities, buildInstrument(
       fake.library2,
       InstrumentType.Drum,
-      InstrumentState.Published,
+            InstrumentMode.Events, InstrumentState.Published,
       "808 Drums"));
     Entities.add(entities, buildInstrumentMeme(instrument1, "heavy"));
     //

@@ -12,10 +12,7 @@ import io.xj.hub.HubIntegrationTestProvider;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
-import io.xj.hub.enums.InstrumentState;
-import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramState;
-import io.xj.hub.enums.ProgramType;
+import io.xj.hub.enums.*;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.hub.tables.pojos.Library;
@@ -350,7 +347,7 @@ public class LibraryManagerImplTest {
   public void delete_FailsIfLibraryHasInstrument() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
     fake.user101 = test.insert(buildUser("bill", "bill@email.com", "https://pictures.com/bill.gif", "Admin"));
-    test.insert(buildInstrument(fake.library2b, InstrumentType.Drum, InstrumentState.Published, "brilliant"));
+    test.insert(buildInstrument(fake.library2b, InstrumentType.Drum, InstrumentMode.Events, InstrumentState.Published, "brilliant"));
 
     try {
       testManager.destroy(hubAccess, fake.library2b.getId());
