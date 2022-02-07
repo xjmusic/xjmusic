@@ -228,4 +228,13 @@ public class TextTest {
       new String[]{"One", "Two", "Three"},
       Text.splitLines("One\nTwo\nThree"));
   }
+
+  @Test
+  public void incrementIntegerSuffix() {
+    assertEquals("b5", Text.incrementIntegerSuffix("b4"));
+    assertEquals("b2", Text.incrementIntegerSuffix("b"));
+    assertEquals("coolair125", Text.incrementIntegerSuffix("coolair124"));
+    assertEquals("2", Text.incrementIntegerSuffix(""));
+    assertEquals("2", Text.incrementIntegerSuffix(null));
+  }
 }

@@ -205,6 +205,7 @@ public class TemplateManagerImplTest {
     assertNotNull(result);
     assertEquals("cannons fifty nine", result.getName());
     assertEquals(fake.account1.getId(), result.getAccountId());
+    assertNotEquals(template1a.getShipKey(), result.getShipKey());
     assertEquals(TemplateType.Preview, result.getType());
     // Cloned TemplateBinding
     assertEquals(3, resultCloner.getChildClones().stream()
@@ -226,6 +227,48 @@ public class TemplateManagerImplTest {
       .fetchOne(0, int.class));
   }
 
+  /**
+   Lab cloned template is always Preview-type and has new ship key if unspecified #181054239
+   */
+  @Test
+  public void clone_alwaysPreviewWithNewShipKey() throws Exception {
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    Template inputData = new Template();
+    inputData.setType(TemplateType.Production);
+    inputData.setAccountId(fake.account1.getId());
+    inputData.setName("cannons fifty nine");
+
+    ManagerCloner<Template> resultCloner = testManager.clone(hubAccess, template1a.getId(), inputData);
+
+    Template result = resultCloner.getClone();
+    assertNotNull(result);
+    assertEquals("cannons fifty nine", result.getName());
+    assertEquals("embed5leaves2", result.getShipKey());
+    assertEquals(fake.account1.getId(), result.getAccountId());
+    assertEquals(TemplateType.Preview, result.getType());
+  }
+
+  /**
+   Lab cloned template has specified ship key #181054239
+   */
+  @Test
+  public void clone_hasSpecifiedShipKey() throws Exception {
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    Template inputData = new Template();
+    inputData.setType(TemplateType.Production);
+    inputData.setShipKey("new2ship5key");
+    inputData.setAccountId(fake.account1.getId());
+    inputData.setName("cannons fifty nine");
+
+    ManagerCloner<Template> resultCloner = testManager.clone(hubAccess, template1a.getId(), inputData);
+
+    Template result = resultCloner.getClone();
+    assertNotNull(result);
+    assertEquals("cannons fifty nine", result.getName());
+    assertEquals("new2ship5key", result.getShipKey());
+    assertEquals(fake.account1.getId(), result.getAccountId());
+    assertEquals(TemplateType.Preview, result.getType());
+  }
 
   @Test
   public void readOne() throws Exception {

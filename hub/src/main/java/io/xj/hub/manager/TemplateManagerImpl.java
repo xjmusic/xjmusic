@@ -95,9 +95,16 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl<Template> imp
       if (Objects.isNull(from))
         throw new ManagerException("Can't clone nonexistent Template");
 
+      // Lab cloned template is always Preview-type and has new ship key if unspecified #181054239
+      to.setType(TemplateType.Preview);
+      if (Strings.isNullOrEmpty(to.getShipKey()))
+        to.setShipKey(Text.incrementIntegerSuffix(from.getShipKey()));
+
       // Inherits state, type if none specified
       // When not set, clone inherits attribute values from original record
       entityFactory.setAllEmptyAttributes(from, to);
+
+      // Validate template
       Template template = validate(hubAccess, to);
       requireParentExists(db, hubAccess, template);
 

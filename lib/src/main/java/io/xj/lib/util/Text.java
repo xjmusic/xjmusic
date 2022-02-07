@@ -26,6 +26,7 @@ public interface Text {
   Pattern nonScored = Pattern.compile("[^a-zA-Z0-9_]");
   Pattern nonNote = Pattern.compile("[^#0-9a-zA-Z ]");
   Pattern isInteger = Pattern.compile("[0-9]+");
+  Pattern integerSuffix = Pattern.compile(".*([0-9]+)$");
   String UNDERSCORE = "_";
   String SPACE = " ";
   String NOTHING = "";
@@ -479,5 +480,19 @@ public interface Text {
    */
   static String percentage(float ratio) {
     return String.format("%d%%", (int) Math.floor(100 * ratio));
+  }
+
+  /**
+   Increment the integer suffix of a given string, or start at 2
+
+   @param value of which to scan suffix and increment
+   @return value with incremented integer suffix
+   */
+  static String incrementIntegerSuffix(String value) {
+    if (Strings.isNullOrEmpty(value)) return "2";
+    var m = integerSuffix.matcher(value);
+    return String.format("%s%d",
+      value.substring(0, value.length() - (m.matches() ? m.group(1).length() : 0)),
+      m.matches() ? Integer.parseInt(m.group(1)) + 1 : 2);
   }
 }
