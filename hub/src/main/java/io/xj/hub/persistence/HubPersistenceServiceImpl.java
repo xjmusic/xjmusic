@@ -8,8 +8,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.manager.ManagerException;
 import io.xj.hub.enums.UserRoleType;
+import io.xj.hub.manager.ManagerException;
 import io.xj.hub.tables.pojos.User;
 import io.xj.hub.tables.pojos.*;
 import io.xj.hub.tables.records.*;
@@ -315,13 +315,13 @@ public class HubPersistenceServiceImpl<E> {
   /**
    Require empty Result
 
-   @param name   to require
+   @param message   to require
    @param result to check.
    @throws ManagerException if result set is not empty.
    @throws ManagerException if something goes wrong.
    */
-  protected <R extends Record> void requireNotExists(String name, Collection<R> result) throws ManagerException {
-    if (Values.isNonNull(result) && !result.isEmpty()) throw new ManagerException("Found" + " " + name);
+  protected <R extends Record> void requireNotExists(String message, Collection<R> result) throws ManagerException {
+    if (Values.isNonNull(result) && !result.isEmpty()) throw new ManagerException(message);
   }
 
   /**
@@ -376,7 +376,7 @@ public class HubPersistenceServiceImpl<E> {
    @throws ManagerException if not admin
    */
   protected void requireTopLevel(HubAccess hubAccess) throws ManagerException {
-    require("top-level hubAccess", hubAccess.isTopLevel());
+    require("top-level access", hubAccess.isTopLevel());
   }
 
   /**

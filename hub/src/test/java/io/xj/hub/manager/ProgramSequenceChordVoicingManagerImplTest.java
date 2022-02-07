@@ -37,7 +37,7 @@ import static org.junit.Assert.*;
 // future test: permissions of different users to readMany vs. of vs. update or destroy programs
 @RunWith(MockitoJUnitRunner.class)
 public class ProgramSequenceChordVoicingManagerImplTest {
-  private ProgramSequenceChordVoicingManager testManager;
+  private ProgramSequenceChordVoicingManager subject;
 
   private HubIntegrationTestProvider test;
   private IntegrationTestingFixtures fake;
@@ -85,8 +85,8 @@ public class ProgramSequenceChordVoicingManagerImplTest {
     fake.program3_chord1 = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "G7 flat 6"));
     fake.program4 = test.insert(buildProgram(fake.library2, ProgramType.Detail, ProgramState.Published, "sail", "C#", 120.0f, 0.6f));
 
-    // Instantiate the test subject
-    testManager = injector.getInstance(ProgramSequenceChordVoicingManager.class);
+    // Instantiate the test entity
+    subject = injector.getInstance(ProgramSequenceChordVoicingManager.class);
   }
 
   @After
@@ -97,21 +97,36 @@ public class ProgramSequenceChordVoicingManagerImplTest {
   @Test
   public void create() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
-    var subject = new ProgramSequenceChordVoicing();
-    subject.setId(UUID.randomUUID());
-    subject.setProgramId(fake.program3.getId());
-    subject.setProgramSequenceChordId(fake.program3_chord1.getId());
-    subject.setType(InstrumentType.Pad);
-    subject.setNotes("C5, Eb5, G5");
+    var entity = new ProgramSequenceChordVoicing();
+    entity.setId(UUID.randomUUID());
+    entity.setProgramId(fake.program3.getId());
+    entity.setProgramSequenceChordId(fake.program3_chord1.getId());
+    entity.setType(InstrumentType.Pad);
+    entity.setNotes("C5, Eb5, G5");
 
-    var result = testManager.create(
-      hubAccess, subject);
+    var result = subject.create(
+      hubAccess, entity);
 
     assertNotNull(result);
     assertEquals(fake.program3.getId(), result.getProgramId());
     assertEquals(fake.program3_chord1.getId(), result.getProgramSequenceChordId());
     assertEquals(InstrumentType.Pad, result.getType());
     assertEquals("C5, Eb5, G5", result.getNotes());
+  }
+
+  /**
+   Cannot create another voicing for a chord with the same type as an existing voicing for that chord #181159558
+   */
+  @Test
+  public void create_cannotCreateAnotherForExistingInstrumentType() throws Exception {
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    var voicing1a = buildProgramSequenceChordVoicing(fake.program3_chord1, InstrumentType.Pad, "C5, Eb5, G5");
+    var voicing1b = buildProgramSequenceChordVoicing(fake.program3_chord1, InstrumentType.Pad, "A4, C5, E5");
+    subject.create(hubAccess, voicing1a);
+
+    var e = assertThrows(ManagerException.class, () -> subject.create(hubAccess, voicing1b));
+
+    assertEquals("Can't create another Pad-type voicing for this chord!", e.getMessage());
   }
 
   /**
@@ -123,13 +138,30 @@ public class ProgramSequenceChordVoicingManagerImplTest {
     sequenceChord1a_0_voicing0.setType(InstrumentType.Sticky);
     sequenceChord1a_0_voicing0.setNotes("G1,G2,G3");
 
-    testManager.update(hubAccess, sequenceChord1a_0_voicing0.getId(), sequenceChord1a_0_voicing0);
+    subject.update(hubAccess, sequenceChord1a_0_voicing0.getId(), sequenceChord1a_0_voicing0);
 
-    var result = testManager.readOne(hubAccess, sequenceChord1a_0_voicing0.getId());
+    var result = subject.readOne(hubAccess, sequenceChord1a_0_voicing0.getId());
     assertNotNull(result);
     assertEquals(sequenceChord1a_0_voicing0.getId(), result.getId());
     assertEquals(InstrumentType.Sticky, result.getType());
     assertEquals("G1,G2,G3", result.getNotes());
+  }
+
+  /**
+   Cannot update this voicing to a type that already exists for that chord #181159558
+   */
+  @Test
+  public void update_cannotUpdateToTypeOfExistingVoicing() throws Exception {
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    var voicing1a = buildProgramSequenceChordVoicing(fake.program3_chord1, InstrumentType.Pad, "C5, Eb5, G5");
+    var voicing1b = buildProgramSequenceChordVoicing(fake.program3_chord1, InstrumentType.Drum, "A4, C5, E5");
+    subject.create(hubAccess, voicing1a);
+    subject.create(hubAccess, voicing1b);
+    voicing1b.setType(InstrumentType.Pad);
+
+    var e = assertThrows(ManagerException.class, () -> subject.update(hubAccess, voicing1b.getId(), voicing1b));
+
+    assertEquals("Can't change to Pad-type voicing for this chord because it already exists!", e.getMessage());
   }
 
   /**
@@ -146,7 +178,7 @@ public class ProgramSequenceChordVoicingManagerImplTest {
     inputData.setType(InstrumentType.Bass);
     inputData.setNotes("C5, Eb5, G5");
 
-    var result = testManager.create(
+    var result = subject.create(
       hubAccess, inputData);
 
     assertNotNull(result);
@@ -160,7 +192,7 @@ public class ProgramSequenceChordVoicingManagerImplTest {
   public void readOne() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
 
-    var result = testManager.readOne(hubAccess, sequenceChord1a_0_voicing0.getId());
+    var result = subject.readOne(hubAccess, sequenceChord1a_0_voicing0.getId());
 
     assertNotNull(result);
     assertEquals(sequenceChord1a_0_voicing0.getId(), result.getId());
@@ -175,7 +207,7 @@ public class ProgramSequenceChordVoicingManagerImplTest {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
 
     var e = assertThrows(ManagerException.class,
-      () -> testManager.readOne(hubAccess, sequenceChord1a_0_voicing0.getId()));
+      () -> subject.readOne(hubAccess, sequenceChord1a_0_voicing0.getId()));
     assertEquals("Record does not exist", e.getMessage());
   }
 
@@ -185,7 +217,7 @@ public class ProgramSequenceChordVoicingManagerImplTest {
   public void readMany() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
 
-    Collection<ProgramSequenceChordVoicing> result = testManager.readMany(hubAccess, ImmutableList.of(fake.program1.getId()));
+    Collection<ProgramSequenceChordVoicing> result = subject.readMany(hubAccess, ImmutableList.of(fake.program1.getId()));
 
     assertEquals(2L, result.size());
     Iterator<ProgramSequenceChordVoicing> resultIt = result.iterator();
@@ -197,7 +229,7 @@ public class ProgramSequenceChordVoicingManagerImplTest {
   public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
 
-    Collection<ProgramSequenceChordVoicing> result = testManager.readMany(hubAccess, ImmutableList.of(fake.program1.getId()));
+    Collection<ProgramSequenceChordVoicing> result = subject.readMany(hubAccess, ImmutableList.of(fake.program1.getId()));
 
     assertEquals(0L, result.size());
   }
@@ -208,7 +240,7 @@ public class ProgramSequenceChordVoicingManagerImplTest {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account2), "Artist");
 
     var e = assertThrows(ManagerException.class,
-      () -> testManager.destroy(hubAccess, sequenceChord1a_0_voicing0.getId()));
+      () -> subject.destroy(hubAccess, sequenceChord1a_0_voicing0.getId()));
     assertEquals("Voicing belongs to Program in Account you have hubAccess to does not exist", e.getMessage());
   }
 

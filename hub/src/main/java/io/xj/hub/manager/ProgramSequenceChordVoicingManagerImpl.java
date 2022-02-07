@@ -35,6 +35,12 @@ public class ProgramSequenceChordVoicingManagerImpl extends HubPersistenceServic
     validate(entity);
     requireArtist(hubAccess);
     requireProgramModification(db, hubAccess, entity.getProgramId());
+    requireNotExists(String.format("Can't create another %s-type voicing for this chord!", entity.getType()),
+      db.select(PROGRAM_SEQUENCE_CHORD_VOICING.ID)
+        .from(PROGRAM_SEQUENCE_CHORD_VOICING)
+        .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID.eq(entity.getProgramSequenceChordId()))
+        .and(PROGRAM_SEQUENCE_CHORD_VOICING.TYPE.eq(entity.getType()))
+        .fetch());
 
     return modelFrom(ProgramSequenceChordVoicing.class,
       executeCreate(db, PROGRAM_SEQUENCE_CHORD_VOICING, entity));
@@ -85,6 +91,13 @@ public class ProgramSequenceChordVoicingManagerImpl extends HubPersistenceServic
     validate(entity);
     requireArtist(hubAccess);
     requireProgramModification(db, hubAccess, entity.getProgramId());
+    requireNotExists(String.format("Can't change to %s-type voicing for this chord because it already exists!", entity.getType()),
+      db.select(PROGRAM_SEQUENCE_CHORD_VOICING.ID)
+        .from(PROGRAM_SEQUENCE_CHORD_VOICING)
+        .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID.eq(entity.getProgramSequenceChordId()))
+        .and(PROGRAM_SEQUENCE_CHORD_VOICING.TYPE.eq(entity.getType()))
+        .and(PROGRAM_SEQUENCE_CHORD_VOICING.ID.notEqual(id))
+        .fetch());
     executeUpdate(db, PROGRAM_SEQUENCE_CHORD_VOICING, id, entity);
     return entity;
   }

@@ -109,7 +109,7 @@ public class AccountUserManagerImplTest {
     inputData.setUserId(fake.user2.getId());
 
     failure.expect(ManagerException.class);
-    failure.expectMessage("top-level hubAccess is required");
+    failure.expectMessage("top-level access is required");
 
     testManager.create(
       hubAccess, inputData);
@@ -209,7 +209,7 @@ public class AccountUserManagerImplTest {
     HubAccess hubAccess = HubAccess.create("User");
 
     failure.expect(ManagerException.class);
-    failure.expectMessage("top-level hubAccess is required");
+    failure.expectMessage("top-level access is required");
 
     testManager.destroy(hubAccess, accountUser_1_2.getId());
   }

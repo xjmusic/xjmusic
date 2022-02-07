@@ -80,12 +80,12 @@ public class AccountManagerImpl extends HubPersistenceServiceImpl<Account> imple
 
     requireTopLevel(hubAccess);
 
-    requireNotExists("Library in Account", db.select(Library.LIBRARY.ID)
+    requireNotExists("Account still has libraries!", db.select(Library.LIBRARY.ID)
       .from(Library.LIBRARY)
       .where(Library.LIBRARY.ACCOUNT_ID.eq(id))
       .fetch());
 
-    requireNotExists("User in Account", db.select(AccountUser.ACCOUNT_USER.ID)
+    requireNotExists("Account still has user access!", db.select(AccountUser.ACCOUNT_USER.ID)
       .from(AccountUser.ACCOUNT_USER)
       .where(AccountUser.ACCOUNT_USER.ACCOUNT_ID.eq(id))
       .fetch());
