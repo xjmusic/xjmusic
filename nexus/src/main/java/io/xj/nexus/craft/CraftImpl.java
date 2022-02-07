@@ -40,6 +40,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   private final Map<String, Integer> deltaIns = Maps.newHashMap();
   private final Map<String, Integer> deltaOuts = Maps.newHashMap();
   private ChoiceIndexProvider choiceIndexProvider = new DefaultChoiceIndexProvider();
+  private final Set<InstrumentType> finalizeAudioLengthsForInstrumentTypes;
 
   /**
    Must extend this class and inject
@@ -47,8 +48,12 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param fabricator internal
    */
   @Inject
-  public CraftImpl(Fabricator fabricator) {
+  public CraftImpl(
+    Fabricator fabricator
+  ) {
     super(fabricator);
+
+    finalizeAudioLengthsForInstrumentTypes = fabricator.getTemplateConfig().getInstrumentTypesForAudioLengthFinalization();
   }
 
   /**
@@ -118,7 +123,7 @@ public class CraftImpl extends FabricationWrapperImpl {
         choice.setDeltaIn(priorChoice.get().getDeltaIn());
         choice.setDeltaOut(priorChoice.get().getDeltaOut());
         choice.setInstrumentId(priorChoice.get().getInstrumentId());
-        this.craftArrangements(fabricator.add(choice), defaultAtonal);
+        this.craftArrangements(fabricator.put(choice), defaultAtonal);
         continue;
       }
 
@@ -135,7 +140,7 @@ public class CraftImpl extends FabricationWrapperImpl {
       choice.setDeltaIn(getDeltaIn(choice));
       choice.setDeltaOut(getDeltaOut(choice));
       choice.setInstrumentId(instrument.get().getId());
-      this.craftArrangements(fabricator.add(choice), defaultAtonal);
+      this.craftArrangements(fabricator.put(choice), defaultAtonal);
     }
   }
 
@@ -171,6 +176,9 @@ public class CraftImpl extends FabricationWrapperImpl {
    a question of whether the choices will be followed or whether the inertia will be followed**
    thus the new choices have been made, we know *where* we're going next,
    but we aren't actually using them yet until we hit the next main program in full, N segments later.
+   <p>
+   Ends with a final pass to set the actual length of one-shot audio picks
+   One-shot instruments cut off when other notes played with same instrument, or at end of segment #180245315
 
    @param choice        to craft arrangements for
    @param defaultAtonal whether to default to a single atonal note, if no voicings are available
@@ -192,6 +200,9 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     else
       craftArrangementForVoiceSection(choice, 0, fabricator.getSegment().getTotal(), range, defaultAtonal);
+
+    // Final pass to set the actual length of one-shot audio picks
+    finalizeLengthsOfOneShotInstrumentAudioPicks(choice);
   }
 
   /**
@@ -368,7 +379,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     arrangement.setSegmentId(choice.getSegmentId());
     arrangement.segmentChoiceId(choice.getId());
     arrangement.setProgramSequencePatternId(pattern.getId());
-    fabricator.add(arrangement);
+    fabricator.put(arrangement);
 
     var instrument = fabricator.sourceMaterial().getInstrument(choice.getInstrumentId())
       .orElseThrow(() -> new NexusException("Failed to retrieve instrument"));
@@ -419,7 +430,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     // Pick attributes are expressed "rendered" as actual seconds
     double startSeconds = fabricator.getSecondsAtPosition(segmentPosition);
-    @Nullable Double lengthSeconds = isOneShot(instrument, event)
+    @Nullable Double lengthSeconds = fabricator.isOneShot(instrument, fabricator.getTrackName(event))
       ? null
       : fabricator.getSecondsAtPosition(segmentPosition + duration) - startSeconds;
 
@@ -430,16 +441,58 @@ public class CraftImpl extends FabricationWrapperImpl {
   }
 
   /**
-   Compute the length of an event for a given instrument
+   Ends with a final pass to set the actual length of one-shot audio picks
+   One-shot instruments cut off when other notes played with same instrument, or at end of segment #180245315
 
-   @param instrument for which to compute event length
-   @param event      for which to get length
-   @return true if this is a one-shot
-   @throws NexusException on failure
+   @param choice for which to finalize length of one-shot audio picks
    */
-  private boolean isOneShot(Instrument instrument, ProgramSequencePatternEvent event) throws NexusException {
-    return fabricator.getInstrumentConfig(instrument).isOneShot()
-      && !fabricator.getInstrumentConfig(instrument).getOneShotCutoffs().contains(fabricator.getTrackName(event));
+  private void finalizeLengthsOfOneShotInstrumentAudioPicks(SegmentChoice choice) throws NexusException {
+    var instrument = fabricator.sourceMaterial().getInstrument(choice.getInstrumentId())
+      .orElseThrow(() -> new NexusException("Failed to get instrument from source material for segment choice!"));
+
+    // skip instruments that are not one-shot
+    if (!fabricator.isOneShot(instrument))
+      return;
+
+    // skip instruments that are not on the list
+    if (!finalizeAudioLengthsForInstrumentTypes.contains(instrument.getType()))
+      return;
+
+    // get all the picks, ordered chronologically, and skip the rest of this process if there are none
+    List<SegmentChoiceArrangementPick> picks = fabricator.getPicks(choice);
+    if (picks.isEmpty()) return;
+
+    // build an ordered unique list of the moments in time when the one-shot will be cut off
+    List<Double> cutoffs = picks.stream()
+      .map(SegmentChoiceArrangementPick::getStart)
+      .collect(Collectors.toSet()).stream()
+      .sorted()
+      .toList();
+
+    // iterate and set lengths of all picks in series
+    for (SegmentChoiceArrangementPick pick : picks) {
+
+      // Skip picks that already have their end length set
+      if (Objects.nonNull(pick.getLength())) continue;
+
+      var nextCutoff = cutoffs.stream()
+        .filter(c -> c > pick.getStart())
+        .findFirst();
+
+      if (nextCutoff.isPresent()) {
+        pick.setLength(nextCutoff.get() - pick.getStart());
+        fabricator.put(pick);
+        continue;
+      }
+
+      if (pick.getStart() < fabricator.getTotalSeconds()) {
+        pick.setLength(fabricator.getTotalSeconds() - pick.getStart());
+        fabricator.put(pick);
+        continue;
+      }
+
+      fabricator.delete(pick);
+    }
   }
 
   /**
@@ -600,7 +653,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     pick.setNote(fabricator.getInstrumentConfig(instrument).isTonal() ? note : Note.ATONAL);
     if (Objects.nonNull(segmentChordVoicingId))
       pick.setSegmentChordVoicingId(segmentChordVoicingId);
-    fabricator.add(pick);
+    fabricator.put(pick);
   }
 
   /**
@@ -778,11 +831,11 @@ public class CraftImpl extends FabricationWrapperImpl {
    <p>
    Choose drum instrument to fulfill beat program event names #180803311
 
-   @return Instrument
    @param type              of instrument to choose
    @param avoidIds          to avoid, or empty list
    @param continueVoiceName if present, ensure that choices continue for each voice named in prior segments of this main program
    @param requireEventNames instrument candidates are required to have event names #180803311
+   @return Instrument
    */
   protected Optional<Instrument> chooseFreshInstrument(InstrumentType type, List<UUID> avoidIds, @Nullable String continueVoiceName, List<String> requireEventNames) throws NexusException {
     var bag = MarbleBag.empty();
@@ -842,7 +895,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    <p>
    Choose drum instrument to fulfill beat program event names #180803311
 
-   @param instrument        to test
+   @param instrument    to test
    @param requireEvents N
    @return true if instrument contains audios named like N or required event names list is empty
    */

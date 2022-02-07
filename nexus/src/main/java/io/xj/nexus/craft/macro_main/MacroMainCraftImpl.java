@@ -155,7 +155,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     macroChoice.setDeltaOut(Segments.DELTA_UNLIMITED);
     macroChoice.setProgramType(ProgramType.Macro.toString());
     macroChoice.setProgramSequenceBindingId(macroSequenceBinding.getId());
-    fabricator.add(macroChoice);
+    fabricator.put(macroChoice);
 
     // 2. Main
     Program mainProgram = fabricator.addMemes(chooseNextMainProgram()
@@ -182,7 +182,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     mainChoice.setDeltaOut(Segments.DELTA_UNLIMITED);
     mainChoice.setProgramType(ProgramType.Main.toString());
     mainChoice.setProgramSequenceBindingId(mainSequenceBinding.getId());
-    fabricator.add(mainChoice);
+    fabricator.put(mainChoice);
 
     // 3. Chords and voicings
     if (mainSequence.isPresent())
@@ -198,7 +198,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
           chord.setSegmentId(fabricator.getSegment().getId());
           chord.setPosition(sequenceChord.getPosition());
           chord.setName(name);
-          fabricator.add(chord);
+          fabricator.put(chord);
           for (var voicing : fabricator.sourceMaterial().getVoicings(sequenceChord)) {
             var segmentChordVoicing = new SegmentChordVoicing();
             segmentChordVoicing.setId(UUID.randomUUID());
@@ -206,7 +206,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
             segmentChordVoicing.segmentChordId(chord.getId());
             segmentChordVoicing.type(voicing.getType().toString());
             segmentChordVoicing.setNotes(voicing.getNotes());
-            fabricator.add(segmentChordVoicing);
+            fabricator.put(segmentChordVoicing);
           }
         }
       }

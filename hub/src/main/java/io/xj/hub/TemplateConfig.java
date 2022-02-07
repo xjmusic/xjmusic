@@ -7,12 +7,15 @@ import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
+import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.ValueException;
 
 import javax.sound.sampled.AudioFormat;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  Parse a TypeSafe `config` value for a Template's configuration, overriding values from top-level default.conf--
@@ -41,6 +44,7 @@ public class TemplateConfig {
       dubMasterVolumeInstrumentTypeStab = 1.0
       dubMasterVolumeInstrumentTypeSticky = 1.0
       dubMasterVolumeInstrumentTypeStripe = 1.0
+      instrumentTypesForAudioLengthFinalization = ["Bass","Pad","Stab","Sticky","Stripe"]
       mainProgramLengthMaxDelta = 280
       mixerCompressAheadSeconds = 0.05
       mixerCompressDecaySeconds = 0.125
@@ -65,6 +69,7 @@ public class TemplateConfig {
       transitionLayerMin = 0
       """;
   private final AudioFormat.Encoding outputEncoding;
+  private final Set<InstrumentType> instrumentTypesForAudioLengthFinalization;
   private final String deltaArcBeatLayersToPrioritize;
   private final String outputContainer;
   private final String outputContentType;
@@ -90,8 +95,8 @@ public class TemplateConfig {
   private final int backgroundLayerMin;
   private final int bufferAheadSeconds;
   private final int bufferBeforeSeconds;
-  private final int deltaArcDetailLayersIncoming;
   private final int deltaArcBeatLayersIncoming;
+  private final int deltaArcDetailLayersIncoming;
   private final int mainProgramLengthMaxDelta;
   private final int mixerDspBufferSize;
   private final int mixerHighpassThresholdHz;
@@ -153,6 +158,8 @@ public class TemplateConfig {
       dubMasterVolumeInstrumentTypeStab = config.getDouble("dubMasterVolumeInstrumentTypeStab");
       dubMasterVolumeInstrumentTypeSticky = config.getDouble("dubMasterVolumeInstrumentTypeSticky");
       dubMasterVolumeInstrumentTypeStripe = config.getDouble("dubMasterVolumeInstrumentTypeStripe");
+      instrumentTypesForAudioLengthFinalization = config.getStringList("instrumentTypesForAudioLengthFinalization").stream()
+        .map(InstrumentType::valueOf).collect(Collectors.toSet());
       mainProgramLengthMaxDelta = config.getInt("mainProgramLengthMaxDelta");
       mixerCompressAheadSeconds = config.getDouble("mixerCompressAheadSeconds");
       mixerCompressDecaySeconds = config.getDouble("mixerCompressDecaySeconds");
@@ -201,6 +208,13 @@ public class TemplateConfig {
     config.put("dubMasterVolumeInstrumentTypeStab", String.valueOf(dubMasterVolumeInstrumentTypeStab));
     config.put("dubMasterVolumeInstrumentTypeSticky", String.valueOf(dubMasterVolumeInstrumentTypeSticky));
     config.put("dubMasterVolumeInstrumentTypeStripe", String.valueOf(dubMasterVolumeInstrumentTypeStripe));
+    config.put("instrumentTypesForAudioLengthFinalization",
+      String.format("[%s]",
+        instrumentTypesForAudioLengthFinalization.stream()
+          .map(InstrumentType::toString)
+          .map(Text::doubleQuoted)
+          .sorted()
+          .collect(Collectors.joining(","))));
     config.put("mainProgramLengthMaxDelta", String.valueOf(mainProgramLengthMaxDelta));
     config.put("mixerCompressAheadSeconds", String.valueOf(mixerCompressAheadSeconds));
     config.put("mixerCompressDecaySeconds", String.valueOf(mixerCompressDecaySeconds));
@@ -347,6 +361,13 @@ public class TemplateConfig {
    */
   public double getDubMasterVolumeInstrumentTypeStripe() {
     return dubMasterVolumeInstrumentTypeStripe;
+  }
+
+  /**
+   @return list o
+   */
+  public Set<InstrumentType> getInstrumentTypesForAudioLengthFinalization() {
+    return instrumentTypesForAudioLengthFinalization;
   }
 
   /**
@@ -502,5 +523,4 @@ public class TemplateConfig {
   public int getTransitionLayerMax() {
     return transitionLayerMax;
   }
-
 }

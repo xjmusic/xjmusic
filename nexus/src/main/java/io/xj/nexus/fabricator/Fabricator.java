@@ -20,12 +20,19 @@ import java.util.*;
 public interface Fabricator {
 
   /**
-   Add a new Entity
+   Put a new Entity by type and id
 
-   @param entity to add
-   @return entity added
+   @param entity to put
+   @return entity successfully put
    */
-  <N> N add(N entity) throws NexusException;
+  <N> N put(N entity) throws NexusException;
+
+  /**
+   Remove an Entity by type and id
+
+   @param entity to delete
+   */
+  <N> void delete(N entity) throws NexusException;
 
   /**
    Add all memes of this instrument to the workbench
@@ -354,6 +361,14 @@ public interface Fabricator {
   Collection<SegmentChoiceArrangementPick> getPicks();
 
   /**
+   Get the picks for a given choice, in order of position ascending from beginning of segment
+
+   @param choice for which to get picks
+   @return picks
+   */
+  List<SegmentChoiceArrangementPick> getPicks(SegmentChoice choice);
+
+  /**
    Get preferred (previously chosen) instrument audios
 
    @return preferred audios
@@ -558,12 +573,20 @@ public interface Fabricator {
   Integer getSequenceBindingOffsetForChoice(SegmentChoice choice);
 
   /**
-   Get the Voice ID of a given event
+   Get the track name for a give program sequence pattern event
 
-   @param event to get voice String of
+   @param event for which to get track name
    @return Track name
    */
   String getTrackName(ProgramSequencePatternEvent event) throws NexusException;
+
+  /**
+   Get the track name for a give segment choice arrangement pick
+
+   @param pick for which to get track name
+   @return Track name
+   */
+  String getTrackName(SegmentChoiceArrangementPick pick) throws NexusException;
 
   /**
    Determine type of content, e.g. initial segment in chain, or next macro-sequence
@@ -631,6 +654,25 @@ public interface Fabricator {
    @return true if Program is directly bound to chain
    */
   boolean isDirectlyBound(Program program);
+
+  /**
+   Test if a given instrument and track name is a one-shot sample hit
+
+   @param instrument to test
+   @param trackName  to test
+   @return true if this is a one-shot instrument and track name
+   @throws NexusException on failure
+   */
+  boolean isOneShot(Instrument instrument, String trackName) throws NexusException;
+
+  /**
+   Test if a given instrument is a one-shot instrument
+
+   @param instrument to test
+   @return true if this is a one-shot instrument
+   @throws NexusException on failure
+   */
+  boolean isOneShot(Instrument instrument) throws NexusException;
 
   /**
    is initial segment?
