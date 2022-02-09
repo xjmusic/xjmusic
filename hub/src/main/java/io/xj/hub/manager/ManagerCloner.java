@@ -9,10 +9,7 @@ import org.jooq.Table;
 import org.jooq.TableField;
 import org.jooq.TableRecord;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 /**
  Utility to do a bunch of cloning,
@@ -125,5 +122,15 @@ public class ManagerCloner<E> {
    */
   public Collection<Object> getChildClones() {
     return childClones;
+  }
+
+  /**
+   Add some child clones that were made externally
+   e.g. Library manager clone manually creates sub-cloners for programs & instruments, then adds results to its cloner
+
+   @param entities to add
+   */
+  public void addChildClones(Collection<Object> entities) {
+    childClones.addAll(entities);
   }
 }

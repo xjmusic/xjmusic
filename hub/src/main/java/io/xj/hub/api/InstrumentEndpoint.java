@@ -7,9 +7,11 @@ import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.manager.InstrumentManager;
 import io.xj.hub.manager.InstrumentMemeManager;
+import io.xj.hub.manager.ManagerCloner;
 import io.xj.hub.manager.ManagerException;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.Program;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.*;
@@ -93,7 +95,7 @@ public class InstrumentEndpoint extends HubJsonapiEndpoint<Instrument> {
   }
 
   /**
-   Create new instrument
+   Create new instrument, potentially cloning an existing instrument
 
    @param jsonapiPayload with which to update Instrument record.
    @return Response
@@ -101,28 +103,35 @@ public class InstrumentEndpoint extends HubJsonapiEndpoint<Instrument> {
   @POST
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
-  public Response create(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @QueryParam("cloneId") String cloneId) {
+  public Response create(
+    JsonapiPayload jsonapiPayload,
+    @Context ContainerRequestContext crc,
+    @QueryParam("cloneId") String cloneId
+  ) {
 
     try {
+      HubAccess hubAccess = HubAccess.fromContext(crc);
       Instrument instrument = payloadFactory.consume(manager().newInstance(), jsonapiPayload);
-      Instrument created;
-      if (Objects.nonNull(cloneId))
-        created = manager().clone(
-          HubAccess.fromContext(crc),
-          UUID.fromString(cloneId),
-          instrument);
-      else
-        created = manager().create(
-          HubAccess.fromContext(crc),
-          instrument);
+      JsonapiPayload responseJsonapiPayload = new JsonapiPayload();
+      if (Objects.nonNull(cloneId)) {
+        ManagerCloner<Instrument> cloner = manager().clone(hubAccess, UUID.fromString(cloneId), instrument);
+        responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(cloner.getClone()));
+        List<JsonapiPayloadObject> list = new ArrayList<>();
+        for (Object entity : cloner.getChildClones()) {
+          JsonapiPayloadObject jsonapiPayloadObject = payloadFactory.toPayloadObject(entity);
+          list.add(jsonapiPayloadObject);
+        }
+        responseJsonapiPayload.setIncluded(list);
+      } else {
+        responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(manager().create(hubAccess, instrument)));
+      }
 
-      return response.create(new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(created)));
+      return response.create(responseJsonapiPayload);
 
     } catch (Exception e) {
       return response.notAcceptable(e);
     }
   }
-
 
   /**
    Get one instrument with included child entities

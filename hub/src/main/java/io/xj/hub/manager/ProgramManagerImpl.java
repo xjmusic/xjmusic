@@ -12,6 +12,7 @@ import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.*;
 import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
@@ -43,75 +44,83 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
   }
 
   @Override
-  public ManagerCloner<Program> clone(HubAccess hubAccess, UUID rawCloneId, Program to) throws ManagerException {
-    requireArtist(hubAccess);
-    AtomicReference<Program> result = new AtomicReference<>();
-    AtomicReference<ManagerCloner<Program>> cloner = new AtomicReference<>();
-    dbProvider.getDSL().transaction(ctx -> {
-      DSLContext db = DSL.using(ctx);
+  public ManagerCloner<Program> clone(HubAccess access, UUID cloneId, Program to) throws ManagerException {
+    requireArtist(access);
+    AtomicReference<ManagerCloner<Program>> result = new AtomicReference<>();
+    dbProvider.getDSL().transaction(ctx -> result.set(clone(DSL.using(ctx), access, cloneId, to)));
+    return result.get();
+  }
 
-      Program from = readOne(db, hubAccess, rawCloneId);
+  @Override
+  public ManagerCloner<Program> clone(DSLContext db, HubAccess access, UUID cloneId, Program to) throws ManagerException {
+    try {
+      Program from = readOne(db, access, cloneId);
       if (Objects.isNull(from))
         throw new ManagerException("Can't clone nonexistent Program");
 
       // When not set, clone inherits attribute values from original record
       entityFactory.setAllEmptyAttributes(from, to);
       Program program = validate(to);
-      requireParentExists(db, hubAccess, program);
+      requireParentExists(db, access, program);
 
       // Create main entity
-      result.set(modelFrom(Program.class, executeCreate(db, PROGRAM, program)));
-      UUID originalId = result.get().getId();
+      var result = modelFrom(Program.class, executeCreate(db, PROGRAM, program));
+      UUID originalId = result.getId();
 
       // Prepare to clone sub-entities
-      cloner.set(new ManagerCloner<>(result.get(), this));
+      var cloner = new ManagerCloner<>(result, this);
 
       // Clone ProgramMeme
-      cloner.get().clone(db, PROGRAM_MEME, PROGRAM_MEME.ID, ImmutableSet.of(), PROGRAM_MEME.PROGRAM_ID, rawCloneId, originalId);
+      cloner.clone(db, PROGRAM_MEME, PROGRAM_MEME.ID, ImmutableSet.of(), PROGRAM_MEME.PROGRAM_ID, cloneId, originalId);
 
       // Clone ProgramVoice
-      cloner.get().clone(db, PROGRAM_VOICE, PROGRAM_VOICE.ID, ImmutableSet.of(), PROGRAM_VOICE.PROGRAM_ID, rawCloneId, originalId);
+      cloner.clone(db, PROGRAM_VOICE, PROGRAM_VOICE.ID, ImmutableSet.of(), PROGRAM_VOICE.PROGRAM_ID, cloneId, originalId);
 
       // Clone ProgramVoiceTrack belongs to ProgramVoice
-      cloner.get().clone(db, PROGRAM_VOICE_TRACK, PROGRAM_VOICE_TRACK.ID,
+      cloner.clone(db, PROGRAM_VOICE_TRACK, PROGRAM_VOICE_TRACK.ID,
         ImmutableSet.of(PROGRAM_VOICE_TRACK.PROGRAM_VOICE_ID),
-        PROGRAM_VOICE_TRACK.PROGRAM_ID, rawCloneId, originalId);
+        PROGRAM_VOICE_TRACK.PROGRAM_ID, cloneId, originalId);
 
       // Clone ProgramSequence
-      cloner.get().clone(db, PROGRAM_SEQUENCE, PROGRAM_SEQUENCE.ID, ImmutableSet.of(), PROGRAM_SEQUENCE.PROGRAM_ID, rawCloneId, originalId);
+      cloner.clone(db, PROGRAM_SEQUENCE, PROGRAM_SEQUENCE.ID, ImmutableSet.of(), PROGRAM_SEQUENCE.PROGRAM_ID, cloneId, originalId);
 
       // Clone ProgramSequenceChord belongs to ProgramSequence
-      cloner.get().clone(db, PROGRAM_SEQUENCE_CHORD, PROGRAM_SEQUENCE_CHORD.ID,
+      cloner.clone(db, PROGRAM_SEQUENCE_CHORD, PROGRAM_SEQUENCE_CHORD.ID,
         ImmutableSet.of(PROGRAM_SEQUENCE_CHORD.PROGRAM_SEQUENCE_ID),
-        PROGRAM_SEQUENCE_CHORD.PROGRAM_ID, rawCloneId, originalId);
+        PROGRAM_SEQUENCE_CHORD.PROGRAM_ID, cloneId, originalId);
 
       // Clone ProgramSequenceChordVoiding belongs to ProgramSequenceChord
-      cloner.get().clone(db, PROGRAM_SEQUENCE_CHORD_VOICING, PROGRAM_SEQUENCE_CHORD_VOICING.ID,
+      cloner.clone(db, PROGRAM_SEQUENCE_CHORD_VOICING, PROGRAM_SEQUENCE_CHORD_VOICING.ID,
         ImmutableSet.of(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID),
-        PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_ID, rawCloneId, originalId);
+        PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_ID, cloneId, originalId);
 
       // Clone ProgramSequenceBinding belongs to ProgramSequence
-      cloner.get().clone(db, PROGRAM_SEQUENCE_BINDING, PROGRAM_SEQUENCE_BINDING.ID,
+      cloner.clone(db, PROGRAM_SEQUENCE_BINDING, PROGRAM_SEQUENCE_BINDING.ID,
         ImmutableSet.of(PROGRAM_SEQUENCE_BINDING.PROGRAM_SEQUENCE_ID),
-        PROGRAM_SEQUENCE_BINDING.PROGRAM_ID, rawCloneId, originalId);
+        PROGRAM_SEQUENCE_BINDING.PROGRAM_ID, cloneId, originalId);
 
       // Clone ProgramSequenceBindingMeme belongs to ProgramSequenceBinding
-      cloner.get().clone(db, PROGRAM_SEQUENCE_BINDING_MEME, PROGRAM_SEQUENCE_BINDING_MEME.ID,
+      cloner.clone(db, PROGRAM_SEQUENCE_BINDING_MEME, PROGRAM_SEQUENCE_BINDING_MEME.ID,
         ImmutableSet.of(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_SEQUENCE_BINDING_ID),
-        PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID, rawCloneId, originalId);
+        PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID, cloneId, originalId);
 
       // Clone ProgramSequencePattern belongs to ProgramSequence and ProgramVoice
-      cloner.get().clone(db, PROGRAM_SEQUENCE_PATTERN, PROGRAM_SEQUENCE_PATTERN.ID,
+      cloner.clone(db, PROGRAM_SEQUENCE_PATTERN, PROGRAM_SEQUENCE_PATTERN.ID,
         ImmutableSet.of(PROGRAM_SEQUENCE_PATTERN.PROGRAM_SEQUENCE_ID, PROGRAM_SEQUENCE_PATTERN.PROGRAM_VOICE_ID),
-        PROGRAM_SEQUENCE_PATTERN.PROGRAM_ID, rawCloneId, originalId);
+        PROGRAM_SEQUENCE_PATTERN.PROGRAM_ID, cloneId, originalId);
 
       // Clone ProgramSequencePatternEvent belongs to ProgramSequencePattern and ProgramVoiceTrack
-      cloner.get().clone(db, PROGRAM_SEQUENCE_PATTERN_EVENT, PROGRAM_SEQUENCE_PATTERN_EVENT.ID,
+      cloner.clone(db, PROGRAM_SEQUENCE_PATTERN_EVENT, PROGRAM_SEQUENCE_PATTERN_EVENT.ID,
         ImmutableSet.of(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_SEQUENCE_PATTERN_ID, PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_VOICE_TRACK_ID),
-        PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_ID, rawCloneId, originalId);
-    });
-    return cloner.get();
+        PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_ID, cloneId, originalId);
+
+      return cloner;
+
+    } catch (EntityException e) {
+      throw new ManagerException("Failed to clone Program!", e);
+    }
   }
+
 
   @Override
   public Program readOne(HubAccess hubAccess, UUID id) throws ManagerException {
@@ -137,10 +146,10 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
   }
 
   @Override
-  public <N> Collection<N> readManyWithChildEntities(HubAccess hubAccess, Collection<UUID> programIds) throws ManagerException {
+  public <N> Collection<N> readManyWithChildEntities(HubAccess access, Collection<UUID> programIds) throws ManagerException {
     DSLContext db = dbProvider.getDSL();
 
-    requireRead(db, hubAccess, programIds);
+    requireRead(db, access, programIds);
 
     Collection<Object> entities = Lists.newArrayList();
     entities.addAll(modelsFrom(Program.class, db.selectFrom(PROGRAM).where(PROGRAM.ID.in(programIds)).fetch()));
@@ -160,10 +169,10 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
   }
 
   @Override
-  public Collection<Object> readChildEntities(HubAccess hubAccess, Collection<UUID> programIds, Collection<String> types) throws ManagerException {
+  public Collection<Object> readChildEntities(HubAccess access, Collection<UUID> programIds, Collection<String> types) throws ManagerException {
     DSLContext db = dbProvider.getDSL();
 
-    requireRead(db, hubAccess, programIds);
+    requireRead(db, access, programIds);
 
     Collection<Object> entities = Lists.newArrayList();
 
@@ -226,8 +235,8 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
   }
 
   @Override
-  public Collection<Program> readMany(HubAccess hubAccess) throws ManagerException {
-    if (hubAccess.isTopLevel())
+  public Collection<Program> readMany(HubAccess access) throws ManagerException {
+    if (access.isTopLevel())
       return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
         .where(PROGRAM.IS_DELETED.eq(false))
         .orderBy(PROGRAM.TYPE, PROGRAM.NAME)
@@ -235,7 +244,7 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
     else
       return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
         .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
-        .where(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .and(PROGRAM.IS_DELETED.eq(false))
         .orderBy(PROGRAM.TYPE, PROGRAM.NAME)
         .fetch());
@@ -277,8 +286,8 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
   }
 
   @Override
-  public Collection<Program> readManyInAccount(HubAccess hubAccess, String accountId) throws ManagerException {
-    if (hubAccess.isTopLevel())
+  public Collection<Program> readManyInAccount(HubAccess access, String accountId) throws ManagerException {
+    if (access.isTopLevel())
       return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
         .join(LIBRARY).on(PROGRAM.LIBRARY_ID.eq(LIBRARY.ID))
         .where(LIBRARY.ACCOUNT_ID.eq(UUID.fromString(accountId)))
@@ -290,14 +299,14 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
         .join(LIBRARY).on(PROGRAM.LIBRARY_ID.eq(LIBRARY.ID))
         .where(LIBRARY.ACCOUNT_ID.in(UUID.fromString(accountId)))
         .and(PROGRAM.IS_DELETED.eq(false))
-        .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(PROGRAM.TYPE, PROGRAM.NAME)
         .fetch());
   }
 
   @Override
-  public Collection<Program> readManyInState(HubAccess hubAccess, ProgramState state) throws ManagerException {
-    require(hubAccess, UserRoleType.Admin, UserRoleType.Engineer);
+  public Collection<Program> readManyInState(HubAccess access, ProgramState state) throws ManagerException {
+    require(access, UserRoleType.Admin, UserRoleType.Engineer);
     // FUTURE: engineer should only see programs in account?
 
     return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields())
@@ -308,8 +317,8 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
   }
 
   @Override
-  public Collection<UUID> readIdsInLibraries(HubAccess hubAccess, Collection<UUID> parentIds) throws ManagerException {
-    requireArtist(hubAccess);
+  public Collection<UUID> readIdsInLibraries(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
+    requireArtist(access);
     return Manager.idsFrom(dbProvider.getDSL().select(PROGRAM.ID)
       .from(PROGRAM)
       .where(PROGRAM.LIBRARY_ID.in(parentIds))

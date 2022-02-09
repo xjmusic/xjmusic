@@ -5,20 +5,21 @@ import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.manager.LibraryManager;
+import io.xj.hub.manager.ManagerCloner;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
-import io.xj.lib.jsonapi.JsonapiPayload;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.jsonapi.MediaType;
+import io.xj.lib.jsonapi.*;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  Libraries
@@ -57,16 +58,42 @@ public class LibraryEndpoint extends HubJsonapiEndpoint<Library> {
   }
 
   /**
-   Create new library
+   Create new library, potentially cloning an existing library
 
    @param jsonapiPayload with which to update Library record.
    @return Response
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSONAPI)
-  @RolesAllowed({ADMIN, ENGINEER})
-  public Response create(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc) {
-    return create(crc, manager(), jsonapiPayload);
+  @RolesAllowed(ARTIST)
+  public Response create(
+    JsonapiPayload jsonapiPayload,
+    @Context ContainerRequestContext crc,
+    @QueryParam("cloneId") String cloneId
+  ) {
+
+    try {
+      HubAccess hubAccess = HubAccess.fromContext(crc);
+      Library library = payloadFactory.consume(manager().newInstance(), jsonapiPayload);
+      JsonapiPayload responseJsonapiPayload = new JsonapiPayload();
+      if (Objects.nonNull(cloneId)) {
+        ManagerCloner<Library> cloner = manager().clone(hubAccess, UUID.fromString(cloneId), library);
+        responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(cloner.getClone()));
+        List<JsonapiPayloadObject> list = new ArrayList<>();
+        for (Object entity : cloner.getChildClones()) {
+          JsonapiPayloadObject jsonapiPayloadObject = payloadFactory.toPayloadObject(entity);
+          list.add(jsonapiPayloadObject);
+        }
+        responseJsonapiPayload.setIncluded(list);
+      } else {
+        responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(manager().create(hubAccess, library)));
+      }
+
+      return response.create(responseJsonapiPayload);
+
+    } catch (Exception e) {
+      return response.notAcceptable(e);
+    }
   }
 
   /**

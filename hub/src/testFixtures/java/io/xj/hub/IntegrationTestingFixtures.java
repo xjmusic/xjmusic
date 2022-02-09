@@ -571,6 +571,11 @@ public class IntegrationTestingFixtures {
     return templatePublication;
   }
 
+  public static Program buildProgram(Library library, ProgramType type, String name) {
+    return buildProgram(library, type, ProgramState.Published, name, "C", 120.0f, 0.62f);
+  }
+
+
   public static Program buildProgram(Library library, ProgramType type, ProgramState state, String name, String key, Float tempo, Float density) {
     var program = new Program();
     program.setId(UUID.randomUUID());

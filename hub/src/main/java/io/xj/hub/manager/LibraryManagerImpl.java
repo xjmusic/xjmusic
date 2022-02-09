@@ -13,60 +13,54 @@ import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
+import org.jooq.impl.DSL;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static io.xj.hub.Tables.LIBRARY;
 import static io.xj.hub.tables.Account.ACCOUNT;
 
 public class LibraryManagerImpl extends HubPersistenceServiceImpl<Library> implements LibraryManager {
+  private final InstrumentManager instrumentManager;
+  private final ProgramManager programManager;
 
   @Inject
   public LibraryManagerImpl(
     EntityFactory entityFactory,
-    HubDatabaseProvider dbProvider
+    HubDatabaseProvider dbProvider,
+    InstrumentManager instrumentManager,
+    ProgramManager programManager
   ) {
     super(entityFactory, dbProvider);
+    this.instrumentManager = instrumentManager;
+    this.programManager = programManager;
   }
 
   @Override
-  public Library create(HubAccess hubAccess, Library entity) throws ManagerException, JsonapiException, ValueException {
+  public Library create(HubAccess access, Library entity) throws ManagerException, JsonapiException, ValueException {
     Library record = validate(entity);
+    var db = dbProvider.getDSL();
 
-    if (!hubAccess.isTopLevel())
-      requireExists("Account",
-        dbProvider.getDSL().selectCount().from(ACCOUNT)
-          .where(ACCOUNT.ID.in(hubAccess.getAccountIds()))
-          .fetchOne(0, int.class));
+    requireParentExists(db, access, entity);
 
-    return modelFrom(Library.class, executeCreate(dbProvider.getDSL(), LIBRARY, record));
+    return modelFrom(Library.class, executeCreate(db, LIBRARY, record));
   }
 
   @Override
   @Nullable
-  public Library readOne(HubAccess hubAccess, UUID id) throws ManagerException {
-    if (hubAccess.isTopLevel())
-      return modelFrom(Library.class, dbProvider.getDSL().selectFrom(LIBRARY)
-        .where(LIBRARY.ID.eq(id))
-        .and(LIBRARY.IS_DELETED.eq(false))
-        .fetchOne());
-    else
-      return modelFrom(Library.class, dbProvider.getDSL().select(LIBRARY.fields())
-        .from(LIBRARY)
-        .where(LIBRARY.ID.eq(id))
-        .and(LIBRARY.IS_DELETED.eq(false))
-        .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
-        .fetchOne());
-
+  public Library readOne(HubAccess access, UUID id) throws ManagerException {
+    return readOne(dbProvider.getDSL(), access, id);
   }
 
   @Override
-  public Collection<Library> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws ManagerException {
+  public Collection<Library> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
     if (Objects.nonNull(parentIds) && !parentIds.isEmpty()) {
-      if (hubAccess.isTopLevel())
+      if (access.isTopLevel())
         return modelsFrom(Library.class, dbProvider.getDSL().select(LIBRARY.fields())
           .from(LIBRARY)
           .where(LIBRARY.ACCOUNT_ID.in(parentIds))
@@ -77,10 +71,10 @@ public class LibraryManagerImpl extends HubPersistenceServiceImpl<Library> imple
           .from(LIBRARY)
           .where(LIBRARY.ACCOUNT_ID.in(parentIds))
           .and(LIBRARY.IS_DELETED.eq(false))
-          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
           .fetch());
     } else {
-      if (hubAccess.isTopLevel())
+      if (access.isTopLevel())
         return modelsFrom(Library.class, dbProvider.getDSL().select(LIBRARY.fields())
           .from(LIBRARY)
           .where(LIBRARY.IS_DELETED.eq(false))
@@ -88,7 +82,7 @@ public class LibraryManagerImpl extends HubPersistenceServiceImpl<Library> imple
       else
         return modelsFrom(Library.class, dbProvider.getDSL().select(LIBRARY.fields())
           .from(LIBRARY)
-          .where(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
           .and(LIBRARY.IS_DELETED.eq(false))
           .fetch());
     }
@@ -96,7 +90,7 @@ public class LibraryManagerImpl extends HubPersistenceServiceImpl<Library> imple
   }
 
   @Override
-  public Library update(HubAccess hubAccess, UUID id, Library rawLibrary) throws ManagerException, JsonapiException, ValueException {
+  public Library update(HubAccess access, UUID id, Library rawLibrary) throws ManagerException, JsonapiException, ValueException {
     Library record = validate(rawLibrary);
     try {
       Entities.setId(record, id); //prevent changing id
@@ -104,7 +98,7 @@ public class LibraryManagerImpl extends HubPersistenceServiceImpl<Library> imple
       throw new ManagerException(e);
     }
 
-    if (!hubAccess.isTopLevel()) {
+    if (!access.isTopLevel()) {
       requireExists("Library",
         dbProvider.getDSL().selectCount().from(LIBRARY)
           .where(LIBRARY.ID.eq(id))
@@ -112,7 +106,7 @@ public class LibraryManagerImpl extends HubPersistenceServiceImpl<Library> imple
           .fetchOne(0, int.class));
       requireExists("Account",
         dbProvider.getDSL().selectCount().from(ACCOUNT)
-          .where(ACCOUNT.ID.in(hubAccess.getAccountIds()))
+          .where(ACCOUNT.ID.in(access.getAccountIds()))
           .fetchOne(0, int.class));
     }
 
@@ -121,9 +115,9 @@ public class LibraryManagerImpl extends HubPersistenceServiceImpl<Library> imple
   }
 
   @Override
-  public void destroy(HubAccess hubAccess, UUID id) throws ManagerException {
+  public void destroy(HubAccess access, UUID id) throws ManagerException {
     DSLContext db = dbProvider.getDSL();
-    requireTopLevel(hubAccess);
+    requireTopLevel(access);
 
     db.update(LIBRARY)
       .set(LIBRARY.IS_DELETED, true)
@@ -151,6 +145,75 @@ public class LibraryManagerImpl extends HubPersistenceServiceImpl<Library> imple
     } catch (ValueException e) {
       throw new ManagerException(e);
     }
+  }
+
+  @Override
+  public ManagerCloner<Library> clone(HubAccess access, UUID cloneId, Library to) throws ManagerException {
+    var programs = programManager.readMany(access, List.of(cloneId));
+    var instruments = instrumentManager.readMany(access, List.of(cloneId));
+
+    requireArtist(access);
+    AtomicReference<Library> result = new AtomicReference<>();
+    AtomicReference<ManagerCloner<Library>> cloner = new AtomicReference<>();
+    dbProvider.getDSL().transaction(ctx -> {
+      DSLContext db = DSL.using(ctx);
+
+      Library from = readOne(db, access, cloneId);
+      if (Objects.isNull(from))
+        throw new ManagerException("Can't clone nonexistent Library");
+
+      // When not set, clone inherits attribute values from original record
+      entityFactory.setAllEmptyAttributes(from, to);
+      Library library = validate(to);
+      requireParentExists(db, access, library);
+
+      // Create main entity
+      result.set(modelFrom(Library.class, executeCreate(db, LIBRARY, library)));
+      UUID newLibraryId = result.get().getId();
+
+      // Prepare to clone sub-entities
+      cloner.set(new ManagerCloner<>(result.get(), this));
+
+      for (var program : programs) {
+        program.setLibraryId(newLibraryId);
+        var programCloner = programManager.clone(db, access, program.getId(), program);
+        cloner.get().addChildClones(List.of(programCloner.getClone()));
+        cloner.get().addChildClones(programCloner.getChildClones());
+      }
+
+      for (var instrument : instruments) {
+        instrument.setLibraryId(newLibraryId);
+        var instrumentCloner = instrumentManager.clone(db, access, instrument.getId(), instrument);
+        cloner.get().addChildClones(List.of(instrumentCloner.getClone()));
+        cloner.get().addChildClones(instrumentCloner.getChildClones());
+      }
+    });
+    return cloner.get();
+  }
+
+  private void requireParentExists(DSLContext db, HubAccess access, Library library) throws ManagerException {
+    if (!access.isTopLevel())
+      requireExists("Account",
+        db.selectCount().from(ACCOUNT)
+          .where(ACCOUNT.ID.in(access.getAccountIds()))
+          .and(ACCOUNT.ID.eq(library.getAccountId()))
+          .fetchOne(0, int.class));
+  }
+
+  private Library readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+    if (access.isTopLevel())
+      return modelFrom(Library.class, db.selectFrom(LIBRARY)
+        .where(LIBRARY.ID.eq(id))
+        .and(LIBRARY.IS_DELETED.eq(false))
+        .fetchOne());
+    else
+      return modelFrom(Library.class, db.select(LIBRARY.fields())
+        .from(LIBRARY)
+        .where(LIBRARY.ID.eq(id))
+        .and(LIBRARY.IS_DELETED.eq(false))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetchOne());
+
   }
 
 }

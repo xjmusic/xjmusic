@@ -99,7 +99,7 @@ public class ProgramEndpoint extends HubJsonapiEndpoint<Program> {
   }
 
   /**
-   Create new program
+   Create new program, potentially cloning an existing program
 
    @param jsonapiPayload with which to update Program record.
    @return Response

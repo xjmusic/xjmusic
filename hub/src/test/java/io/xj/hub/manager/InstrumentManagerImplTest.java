@@ -140,12 +140,12 @@ public class InstrumentManagerImplTest {
     );
     subject.setName("cannons fifty nine");
 
-    Instrument result = testManager.clone(hubAccess, fake.instrument202.getId(), subject);
+    ManagerCloner<Instrument> result = testManager.clone(hubAccess, fake.instrument202.getId(), subject);
 
     assertNotNull(result);
-    assertEquals(fake.library1.getId(), result.getLibraryId());
-    assertEquals("cannons fifty nine", result.getName());
-    assertEquals(InstrumentType.Drum, result.getType());
+    assertEquals(fake.library1.getId(), result.getClone().getLibraryId());
+    assertEquals("cannons fifty nine", result.getClone().getName());
+    assertEquals(InstrumentType.Drum, result.getClone().getType());
     assertEquals(
       """
         isMultiphonic = true
@@ -153,15 +153,15 @@ public class InstrumentManagerImplTest {
         isTonal = false
         oneShotCutoffs = [TEST]
           """,
-      result.getConfig()
+      result.getClone().getConfig()
     );
     assertEquals(Integer.valueOf(1), test.getDSL()
       .selectCount().from(INSTRUMENT_MEME)
-      .where(INSTRUMENT_MEME.INSTRUMENT_ID.eq(result.getId()))
+      .where(INSTRUMENT_MEME.INSTRUMENT_ID.eq(result.getClone().getId()))
       .fetchOne(0, int.class));
     assertEquals(Integer.valueOf(1), test.getDSL()
       .selectCount().from(INSTRUMENT_AUDIO)
-      .where(INSTRUMENT_AUDIO.INSTRUMENT_ID.eq(result.getId()))
+      .where(INSTRUMENT_AUDIO.INSTRUMENT_ID.eq(result.getClone().getId()))
       .fetchOne(0, int.class));
   }
 

@@ -6,7 +6,6 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import io.xj.hub.InstrumentConfig;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
@@ -15,6 +14,7 @@ import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.InstrumentMeme;
 import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
@@ -48,27 +48,36 @@ public class InstrumentManagerImpl extends HubPersistenceServiceImpl<Instrument>
   }
 
   @Override
-  public Instrument clone(HubAccess hubAccess, UUID cloneId, Instrument to) throws ManagerException {
-    requireArtist(hubAccess);
-    AtomicReference<Instrument> result = new AtomicReference<>();
-    dbProvider.getDSL().transaction(ctx -> {
-      DSLContext db = DSL.using(ctx);
+  public ManagerCloner<Instrument> clone(HubAccess access, UUID cloneId, Instrument to) throws ManagerException {
+    requireArtist(access);
+    AtomicReference<ManagerCloner<Instrument>> result = new AtomicReference<>();
+    dbProvider.getDSL().transaction(ctx -> result.set(clone(DSL.using(ctx), access, cloneId, to)));
+    return result.get();
+  }
 
-      Instrument from = readOne(db, hubAccess, cloneId);
+  @Override
+  public ManagerCloner<Instrument> clone(DSLContext db, HubAccess access, UUID cloneId, Instrument to) throws ManagerException {
+    try {
+      requireArtist(access);
+
+      Instrument from = readOne(db, access, cloneId);
       if (Objects.isNull(from))
         throw new ManagerException("Can't clone nonexistent Instrument");
 
       // When not set, clone inherits attribute values from original record
       entityFactory.setAllEmptyAttributes(from, to);
       Instrument instrument = validate(to);
-      requireParentExists(db, hubAccess, instrument);
+      requireParentExists(db, access, instrument);
 
-      result.set(modelFrom(Instrument.class, executeCreate(db, INSTRUMENT, instrument)));
-      ManagerCloner<Object> cloner = new ManagerCloner<>(result.get(), this);
-      cloner.clone(db, INSTRUMENT_MEME, INSTRUMENT_MEME.ID, ImmutableSet.of(), INSTRUMENT_MEME.INSTRUMENT_ID, cloneId, result.get().getId());
-      cloner.clone(db, INSTRUMENT_AUDIO, INSTRUMENT_AUDIO.ID, ImmutableSet.of(), INSTRUMENT_AUDIO.INSTRUMENT_ID, cloneId, result.get().getId());
-    });
-    return result.get();
+      var result = modelFrom(Instrument.class, executeCreate(db, INSTRUMENT, instrument));
+      ManagerCloner<Instrument> cloner = new ManagerCloner<>(result, this);
+      cloner.clone(db, INSTRUMENT_MEME, INSTRUMENT_MEME.ID, ImmutableSet.of(), INSTRUMENT_MEME.INSTRUMENT_ID, cloneId, result.getId());
+      cloner.clone(db, INSTRUMENT_AUDIO, INSTRUMENT_AUDIO.ID, ImmutableSet.of(), INSTRUMENT_AUDIO.INSTRUMENT_ID, cloneId, result.getId());
+      return cloner;
+
+    } catch (EntityException e) {
+      throw new ManagerException("Failed to clone Instrument!", e);
+    }
   }
 
   @Override
@@ -100,8 +109,8 @@ public class InstrumentManagerImpl extends HubPersistenceServiceImpl<Instrument>
   }
 
   @Override
-  public Collection<Instrument> readManyInAccount(HubAccess hubAccess, String accountId) throws ManagerException {
-    if (hubAccess.isTopLevel())
+  public Collection<Instrument> readManyInAccount(HubAccess access, String accountId) throws ManagerException {
+    if (access.isTopLevel())
       return modelsFrom(Instrument.class, dbProvider.getDSL().select(INSTRUMENT.fields())
         .from(INSTRUMENT)
         .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
@@ -115,7 +124,7 @@ public class InstrumentManagerImpl extends HubPersistenceServiceImpl<Instrument>
         .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
         .where(LIBRARY.ACCOUNT_ID.in(Collections.singleton(accountId)))
         .and(INSTRUMENT.IS_DELETED.eq(false))
-        .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
         .fetch());
   }
@@ -141,16 +150,16 @@ public class InstrumentManagerImpl extends HubPersistenceServiceImpl<Instrument>
   }
 
   @Override
-  public <N> Collection<N> readManyWithChildEntities(HubAccess hubAccess, Collection<UUID> instrumentIds) throws ManagerException {
+  public <N> Collection<N> readManyWithChildEntities(HubAccess access, Collection<UUID> instrumentIds) throws ManagerException {
     DSLContext db = dbProvider.getDSL();
 
-    if (!hubAccess.isTopLevel())
+    if (!access.isTopLevel())
       for (UUID instrumentId : instrumentIds)
         requireExists("Instrument", db.selectCount().from(INSTRUMENT)
           .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
           .where(INSTRUMENT.ID.eq(instrumentId))
           .and(INSTRUMENT.IS_DELETED.eq(false))
-          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
           .fetchOne(0, int.class));
 
     Collection<Object> entities = Lists.newArrayList();
@@ -171,10 +180,10 @@ public class InstrumentManagerImpl extends HubPersistenceServiceImpl<Instrument>
   }
 
   @Override
-  public Collection<Object> readChildEntities(HubAccess hubAccess, Collection<UUID> instrumentIds, Collection<String> types) throws ManagerException {
+  public Collection<Object> readChildEntities(HubAccess access, Collection<UUID> instrumentIds, Collection<String> types) throws ManagerException {
     DSLContext db = dbProvider.getDSL();
 
-    requireRead(db, hubAccess, instrumentIds);
+    requireRead(db, access, instrumentIds);
 
     Collection<Object> entities = Lists.newArrayList();
 
@@ -197,8 +206,8 @@ public class InstrumentManagerImpl extends HubPersistenceServiceImpl<Instrument>
   }
 
   @Override
-  public Collection<Instrument> readMany(HubAccess hubAccess) throws ManagerException {
-    if (hubAccess.isTopLevel())
+  public Collection<Instrument> readMany(HubAccess access) throws ManagerException {
+    if (access.isTopLevel())
       return modelsFrom(Instrument.class, dbProvider.getDSL().select(INSTRUMENT.fields())
         .from(INSTRUMENT)
         .where(INSTRUMENT.IS_DELETED.eq(false))
@@ -208,15 +217,15 @@ public class InstrumentManagerImpl extends HubPersistenceServiceImpl<Instrument>
       return modelsFrom(Instrument.class, dbProvider.getDSL().select(INSTRUMENT.fields())
         .from(INSTRUMENT)
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
-        .where(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .and(INSTRUMENT.IS_DELETED.eq(false))
         .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
         .fetch());
   }
 
   @Override
-  public Collection<UUID> readIdsInLibraries(HubAccess hubAccess, Collection<UUID> parentIds) throws ManagerException {
-    requireArtist(hubAccess);
+  public Collection<UUID> readIdsInLibraries(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
+    requireArtist(access);
     return Manager.idsFrom(dbProvider.getDSL().select(INSTRUMENT.ID)
       .from(INSTRUMENT)
       .where(INSTRUMENT.LIBRARY_ID.in(parentIds))
@@ -239,8 +248,8 @@ public class InstrumentManagerImpl extends HubPersistenceServiceImpl<Instrument>
   /**
    Require read hubAccess
 
-   @param db         database context
-   @param hubAccess  control
+   @param db            database context
+   @param hubAccess     control
    @param instrumentIds to require hubAccess to
    */
   private void requireRead(DSLContext db, HubAccess hubAccess, Collection<UUID> instrumentIds) throws ManagerException {
