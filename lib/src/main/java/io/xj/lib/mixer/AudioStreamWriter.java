@@ -17,7 +17,7 @@ public record AudioStreamWriter(double[][] samples, float quality) {
    Convert output values into a ByteBuffer
 
    @param fmt     to write
-   @param samples output to convert
+   @param samples [frame][channel] output to convert
    @return byte buffer of stream
    */
   public static ByteBuffer byteBufferOf(AudioFormat fmt, double[][] samples) throws FormatException {

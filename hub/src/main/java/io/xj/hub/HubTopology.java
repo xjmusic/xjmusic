@@ -36,6 +36,7 @@ public enum HubTopology {
       .createdBy(Instrument::new)
       .withAttribute("state")
       .withAttribute("type")
+      .withAttribute("mode")
       .withAttribute("name")
       .withAttribute("volume")
       .withAttribute("density")

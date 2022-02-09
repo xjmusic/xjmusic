@@ -11,9 +11,9 @@ import com.google.inject.util.Modules;
 import io.xj.hub.HubTopology;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
-import io.xj.hub.dao.DAOException;
-import io.xj.hub.dao.DAOModule;
-import io.xj.hub.dao.TemplateDAO;
+import io.xj.hub.manager.ManagerException;
+import io.xj.hub.manager.ManagerModule;
+import io.xj.hub.manager.TemplateManager;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.hub.tables.pojos.Account;
@@ -53,7 +53,7 @@ public class TemplateEndpointTest {
   @Mock
   ContainerRequestContext crc;
   @Mock
-  TemplateDAO templateDAO;
+  TemplateManager templateManager;
   private HubAccess hubAccess;
   private TemplateEndpoint subject;
   private Account account25;
@@ -62,11 +62,11 @@ public class TemplateEndpointTest {
   @Before
   public void setUp() throws AppException {
     var env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule())).with(new AbstractModule() {
+    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule())).with(new AbstractModule() {
       @Override
       protected void configure() {
         bind(Environment.class).toInstance(env);
-        bind(TemplateDAO.class).toInstance(templateDAO);
+        bind(TemplateManager.class).toInstance(templateManager);
       }
     }));
 
@@ -79,17 +79,17 @@ public class TemplateEndpointTest {
   }
 
   @Test
-  public void readMany() throws DAOException, IOException, JsonapiException {
+  public void readMany() throws ManagerException, IOException, JsonapiException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
     Template template1 = buildTemplate(account25, "fonds", "ABC");
     Template template2 = buildTemplate(account25, "trunk", "DEF");
     Collection<Template> templates = ImmutableList.of(template1, template2);
-    when(templateDAO.readMany(same(hubAccess), eq(ImmutableList.of(account25.getId()))))
+    when(templateManager.readMany(same(hubAccess), eq(ImmutableList.of(account25.getId()))))
       .thenReturn(templates);
 
     Response result = subject.readMany(crc, account25.getId().toString());
 
-    verify(templateDAO).readMany(same(hubAccess), eq(ImmutableList.of(account25.getId())));
+    verify(templateManager).readMany(same(hubAccess), eq(ImmutableList.of(account25.getId())));
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
     assertPayload(new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class))
@@ -97,17 +97,17 @@ public class TemplateEndpointTest {
   }
 
   @Test
-  public void readMany_forTemplateAndUser() throws DAOException, IOException, JsonapiException {
+  public void readMany_forTemplateAndUser() throws ManagerException, IOException, JsonapiException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
     Template template1 = buildTemplate(account25, "fonds", "ABC");
     Template template2 = buildTemplate(account25, "trunk", "DEF");
     Collection<Template> templates = ImmutableList.of(template1, template2);
-    when(templateDAO.readMany(same(hubAccess), eq(ImmutableList.of(account25.getId()))))
+    when(templateManager.readMany(same(hubAccess), eq(ImmutableList.of(account25.getId()))))
       .thenReturn(templates);
 
     Response result = subject.readMany(crc, account25.getId().toString());
 
-    verify(templateDAO).readMany(same(hubAccess), eq(ImmutableList.of(account25.getId())));
+    verify(templateManager).readMany(same(hubAccess), eq(ImmutableList.of(account25.getId())));
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
     assertPayload(new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class))
@@ -115,10 +115,10 @@ public class TemplateEndpointTest {
   }
 
   @Test
-  public void readOne() throws DAOException, IOException, JsonapiException {
+  public void readOne() throws ManagerException, IOException, JsonapiException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
     Template template1 = buildTemplate(account1, "fonds", "ABC");
-    when(templateDAO.readOne(same(hubAccess), eq(template1.getId()))).thenReturn(template1);
+    when(templateManager.readOne(same(hubAccess), eq(template1.getId()))).thenReturn(template1);
 
     Response result = subject.readOne(crc, template1.getId().toString(), "");
 
@@ -133,7 +133,7 @@ public class TemplateEndpointTest {
    Hub can publish content for production fabrication #180805580
    */
   @Test
-  public void readOne_includingBindingsAndPlaybacksAndPublications() throws DAOException, IOException, JsonapiException {
+  public void readOne_includingBindingsAndPlaybacksAndPublications() throws ManagerException, IOException, JsonapiException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
     var account1 = buildAccount("bananas");
     var user2 = buildUser("Amelie", "amelie@email.com", "https://pictures.com/amelie.gif", "Admin");
@@ -142,8 +142,8 @@ public class TemplateEndpointTest {
     var templateBinding43 = buildTemplateBinding(template4, library3);
     var templatePlayback42 = buildTemplatePlayback(template4, user2);
     var templatePublication67 = buildTemplatePublication(template4, user2);
-    when(templateDAO.readOne(same(hubAccess), eq(template4.getId()))).thenReturn(template4);
-    when(templateDAO.readChildEntities(same(hubAccess), eq(List.of(template4.getId())), eq(List.of("template-bindings", "template-playbacks", "template-publications"))))
+    when(templateManager.readOne(same(hubAccess), eq(template4.getId()))).thenReturn(template4);
+    when(templateManager.readChildEntities(same(hubAccess), eq(List.of(template4.getId())), eq(List.of("template-bindings", "template-playbacks", "template-publications"))))
       .thenReturn(List.of(templateBinding43, templatePlayback42, templatePublication67));
 
     Response result = subject.readOne(crc, template4.getId().toString(), "template-bindings,template-playbacks,template-publications");
@@ -158,10 +158,10 @@ public class TemplateEndpointTest {
   }
 
   @Test
-  public void readOne_byShipKey() throws DAOException, IOException, JsonapiException {
+  public void readOne_byShipKey() throws ManagerException, IOException, JsonapiException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
     Template template1 = buildTemplate(account1, "fonds", "ABC");
-    when(templateDAO.readOneByShipKey(same(hubAccess), eq("ABC"))).thenReturn(Optional.of(template1));
+    when(templateManager.readOneByShipKey(same(hubAccess), eq("ABC"))).thenReturn(Optional.of(template1));
 
     Response result = subject.readOne(crc, "ABC", "");
 

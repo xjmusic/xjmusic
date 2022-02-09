@@ -96,12 +96,12 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
     choice.setSegmentId(fabricator.getSegment().getId());
     choice.setInstrumentType(InstrumentType.Background.toString());
     choice.setInstrumentId(instrumentId);
-    fabricator.add(choice);
+    fabricator.put(choice);
     var arrangement = new SegmentChoiceArrangement();
     arrangement.setId(UUID.randomUUID());
     arrangement.setSegmentId(fabricator.getSegment().getId());
     arrangement.segmentChoiceId(choice.getId());
-    fabricator.add(arrangement);
+    fabricator.put(arrangement);
 
     // Start at zero and keep laying down perc loops until we're out of here
     var audio = pickAudioForInstrument(instrumentId);
@@ -116,7 +116,7 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
     pick.setAmplitude(1.0);
     pick.setEvent("BACKGROUND");
     pick.setInstrumentAudioId(audio.get().getId());
-    fabricator.add(pick);
+    fabricator.put(pick);
   }
 
   /**

@@ -96,12 +96,12 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
     choice.setSegmentId(fabricator.getSegment().getId());
     choice.setInstrumentType(InstrumentType.PercLoop.toString());
     choice.setInstrumentId(instrumentId);
-    fabricator.add(choice);
+    fabricator.put(choice);
     var arrangement = new SegmentChoiceArrangement();
     arrangement.setId(UUID.randomUUID());
     arrangement.setSegmentId(fabricator.getSegment().getId());
     arrangement.segmentChoiceId(choice.getId());
-    fabricator.add(arrangement);
+    fabricator.put(arrangement);
 
     // Start at zero and keep laying down perc loops until we're out of here
     double pos = 0;
@@ -125,7 +125,7 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
       pick.setAmplitude(1.0);
       pick.setEvent("PERCLOOP");
       pick.setInstrumentAudioId(audio.get().getId());
-      fabricator.add(pick);
+      fabricator.put(pick);
 
       pos += audio.get().getTotalBeats();
     }

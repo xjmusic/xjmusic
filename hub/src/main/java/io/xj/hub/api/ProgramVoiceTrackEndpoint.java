@@ -3,7 +3,7 @@ package io.xj.hub.api;
 
 import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
-import io.xj.hub.dao.ProgramVoiceTrackDAO;
+import io.xj.hub.manager.ProgramVoiceTrackManager;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.lib.entity.EntityFactory;
@@ -23,21 +23,21 @@ import javax.ws.rs.core.Response;
  */
 @Path("api/1/program-voice-tracks")
 public class ProgramVoiceTrackEndpoint extends HubJsonapiEndpoint<ProgramVoiceTrack> {
-  private final ProgramVoiceTrackDAO dao;
+  private final ProgramVoiceTrackManager manager;
 
   /**
    Constructor
    */
   @Inject
   public ProgramVoiceTrackEndpoint(
-    ProgramVoiceTrackDAO dao,
+    ProgramVoiceTrackManager manager,
     HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory
   ) {
     super(dbProvider, response, payloadFactory, entityFactory);
-    this.dao = dao;
+    this.manager = manager;
   }
 
   /**
@@ -50,7 +50,7 @@ public class ProgramVoiceTrackEndpoint extends HubJsonapiEndpoint<ProgramVoiceTr
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
   public Response create(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc) {
-    return create(crc, dao(), jsonapiPayload);
+    return create(crc, manager(), jsonapiPayload);
   }
 
   /**
@@ -62,7 +62,7 @@ public class ProgramVoiceTrackEndpoint extends HubJsonapiEndpoint<ProgramVoiceTr
   @Path("{id}")
   @RolesAllowed(ARTIST)
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return readOne(crc, dao(), id);
+    return readOne(crc, manager(), id);
   }
 
   /**
@@ -73,7 +73,7 @@ public class ProgramVoiceTrackEndpoint extends HubJsonapiEndpoint<ProgramVoiceTr
   @GET
   @RolesAllowed(ARTIST)
   public Response readMany(@Context ContainerRequestContext crc, @QueryParam("programVoiceId") String programVoiceId) {
-    return readMany(crc, dao(), programVoiceId);
+    return readMany(crc, manager(), programVoiceId);
   }
 
   /**
@@ -87,7 +87,7 @@ public class ProgramVoiceTrackEndpoint extends HubJsonapiEndpoint<ProgramVoiceTr
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
   public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return update(crc, dao(), id, jsonapiPayload);
+    return update(crc, manager(), id, jsonapiPayload);
   }
 
   /**
@@ -99,16 +99,16 @@ public class ProgramVoiceTrackEndpoint extends HubJsonapiEndpoint<ProgramVoiceTr
   @Path("{id}")
   @RolesAllowed(ARTIST)
   public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return delete(crc, dao(), id);
+    return delete(crc, manager(), id);
   }
 
   /**
-   Get DAO of injector
+   Get Manager of injector
 
-   @return DAO
+   @return Manager
    */
-  private ProgramVoiceTrackDAO dao() {
-    return dao;
+  private ProgramVoiceTrackManager manager() {
+    return manager;
   }
 
 }

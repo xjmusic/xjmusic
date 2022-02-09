@@ -11,9 +11,9 @@ import com.google.inject.util.Modules;
 import io.xj.hub.HubTopology;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
-import io.xj.hub.dao.DAOException;
-import io.xj.hub.dao.DAOModule;
-import io.xj.hub.dao.TemplatePublicationDAO;
+import io.xj.hub.manager.ManagerException;
+import io.xj.hub.manager.ManagerModule;
+import io.xj.hub.manager.TemplatePublicationManager;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.hub.tables.pojos.Account;
@@ -56,7 +56,7 @@ public class TemplatePublicationEndpointTest {
   @Mock
   ContainerRequestContext crc;
   @Mock
-  TemplatePublicationDAO templatePublicationDAO;
+  TemplatePublicationManager templatePublicationManager;
   private HubAccess hubAccess;
   private TemplatePublicationEndpoint subject;
   private Template template25;
@@ -65,11 +65,11 @@ public class TemplatePublicationEndpointTest {
   @Before
   public void setUp() throws AppException {
     var env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule())).with(new AbstractModule() {
+    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule())).with(new AbstractModule() {
       @Override
       protected void configure() {
         bind(Environment.class).toInstance(env);
-        bind(TemplatePublicationDAO.class).toInstance(templatePublicationDAO);
+        bind(TemplatePublicationManager.class).toInstance(templatePublicationManager);
       }
     }));
 
@@ -83,17 +83,17 @@ public class TemplatePublicationEndpointTest {
   }
 
   @Test
-  public void readManyForTemplate() throws DAOException, IOException, JsonapiException {
+  public void readManyForTemplate() throws ManagerException, IOException, JsonapiException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
     TemplatePublication templatePublication1 = buildTemplatePublication(template25, user1);
     TemplatePublication templatePublication2 = buildTemplatePublication(template25, user1);
     Collection<TemplatePublication> templatePublications = ImmutableList.of(templatePublication1, templatePublication2);
-    when(templatePublicationDAO.readMany(same(hubAccess), eq(ImmutableList.of(template25.getId()))))
+    when(templatePublicationManager.readMany(same(hubAccess), eq(ImmutableList.of(template25.getId()))))
       .thenReturn(templatePublications);
 
     Response result = subject.readManyForTemplate(crc, template25.getId().toString());
 
-    verify(templatePublicationDAO).readMany(same(hubAccess), eq(ImmutableList.of(template25.getId())));
+    verify(templatePublicationManager).readMany(same(hubAccess), eq(ImmutableList.of(template25.getId())));
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
     assertPayload(new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class))

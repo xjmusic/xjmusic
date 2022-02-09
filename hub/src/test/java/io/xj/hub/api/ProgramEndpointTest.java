@@ -11,9 +11,9 @@ import com.google.inject.util.Modules;
 import io.xj.hub.HubTopology;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
-import io.xj.hub.dao.DAOException;
-import io.xj.hub.dao.DAOModule;
-import io.xj.hub.dao.ProgramDAO;
+import io.xj.hub.manager.ManagerException;
+import io.xj.hub.manager.ManagerModule;
+import io.xj.hub.manager.ProgramManager;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.ingest.HubIngestModule;
@@ -55,7 +55,7 @@ public class ProgramEndpointTest {
   @Mock
   ContainerRequestContext crc;
   @Mock
-  ProgramDAO programDAO;
+  ProgramManager programManager;
   private HubAccess hubAccess;
   private ProgramEndpoint subject;
   private Library library25;
@@ -64,11 +64,11 @@ public class ProgramEndpointTest {
   @Before
   public void setUp() throws AppException {
     var env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule())).with(new AbstractModule() {
+    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule())).with(new AbstractModule() {
       @Override
       protected void configure() {
         bind(Environment.class).toInstance(env);
-        bind(ProgramDAO.class).toInstance(programDAO);
+        bind(ProgramManager.class).toInstance(programManager);
       }
     }));
 
@@ -82,7 +82,7 @@ public class ProgramEndpointTest {
   }
 
   @Test
-  public void readMany() throws DAOException, IOException, JsonapiException {
+  public void readMany() throws ManagerException, IOException, JsonapiException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
     Program program1 = new Program();
     program1.setId(UUID.randomUUID());
@@ -103,12 +103,12 @@ public class ProgramEndpointTest {
     program2.setTempo(120.0f);
     program2.setDensity(0.6f);
     Collection<Program> programs = ImmutableList.of(program1, program2);
-    when(programDAO.readMany(same(hubAccess), eq(ImmutableList.of(library25.getId()))))
+    when(programManager.readMany(same(hubAccess), eq(ImmutableList.of(library25.getId()))))
       .thenReturn(programs);
 
     Response result = subject.readMany(crc, null, library25.getId().toString(), false);
 
-    verify(programDAO).readMany(same(hubAccess), eq(ImmutableList.of(library25.getId())));
+    verify(programManager).readMany(same(hubAccess), eq(ImmutableList.of(library25.getId())));
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
     assertPayload(new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class))
@@ -116,7 +116,7 @@ public class ProgramEndpointTest {
   }
 
   @Test
-  public void readOne() throws DAOException, IOException, JsonapiException {
+  public void readOne() throws ManagerException, IOException, JsonapiException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
     Program program1 = new Program();
     program1.setId(UUID.randomUUID());
@@ -127,7 +127,7 @@ public class ProgramEndpointTest {
     program1.setKey("C#");
     program1.setTempo(120.0f);
     program1.setDensity(0.6f);
-    when(programDAO.readOne(same(hubAccess), eq(program1.getId()))).thenReturn(program1);
+    when(programManager.readOne(same(hubAccess), eq(program1.getId()))).thenReturn(program1);
 
     Response result = subject.readOne(crc, program1.getId().toString(), "");
 

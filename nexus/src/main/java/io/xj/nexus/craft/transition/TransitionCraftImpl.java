@@ -130,12 +130,12 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     choice.setSegmentId(fabricator.getSegment().getId());
     choice.setInstrumentType(InstrumentType.Transition.toString());
     choice.setInstrumentId(instrumentId);
-    fabricator.add(choice);
+    fabricator.put(choice);
     var arrangement = new SegmentChoiceArrangement();
     arrangement.setId(UUID.randomUUID());
     arrangement.setSegmentId(fabricator.getSegment().getId());
     arrangement.segmentChoiceId(choice.getId());
-    fabricator.add(arrangement);
+    fabricator.put(arrangement);
 
     var small = pickAudioForInstrument(instrumentId, NAME_SMALL);
     var medium = pickAudioForInstrument(instrumentId, NAME_MEDIUM);
@@ -178,7 +178,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     pick.setAmplitude(1.0);
     pick.setEvent(name);
     pick.setInstrumentAudioId(audio.getId());
-    fabricator.add(pick);
+    fabricator.put(pick);
   }
 
   /**

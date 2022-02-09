@@ -8,8 +8,8 @@ import io.xj.hub.access.GoogleProvider;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlProvider;
 import io.xj.hub.access.HubAccessException;
-import io.xj.hub.dao.DAOException;
-import io.xj.hub.dao.UserDAO;
+import io.xj.hub.manager.ManagerException;
+import io.xj.hub.manager.UserManager;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.UserAuth;
 import io.xj.lib.app.Environment;
@@ -43,7 +43,7 @@ public class AuthEndpoint extends HubJsonapiEndpoint<UserAuth> {
   private final JsonapiHttpResponseProvider httpResponseProvider;
   private final String appPathUnauthorized;
   private final String appPathWelcome;
-  private final UserDAO userDAO;
+  private final UserManager userManager;
 
   /**
    Constructor
@@ -58,13 +58,13 @@ public class AuthEndpoint extends HubJsonapiEndpoint<UserAuth> {
     HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
-    UserDAO userDAO
+    UserManager userManager
   ) {
     super(dbProvider, response, payloadFactory, entityFactory);
     this.authGoogleProvider = authGoogleProvider;
     this.httpResponseProvider = httpResponseProvider;
     this.hubAccessControlProvider = hubAccessControlProvider;
-    this.userDAO = userDAO;
+    this.userManager = userManager;
 
     appPathUnauthorized = env.getApiUnauthorizedRedirectPath();
     appPathWelcome = env.getApiWelcomeRedirectPath();
@@ -101,7 +101,7 @@ public class AuthEndpoint extends HubJsonapiEndpoint<UserAuth> {
 
     if (hubAccess.isValid()) {
       try {
-        userDAO.destroyAllTokens(hubAccess.getUserId());
+        userManager.destroyAllTokens(hubAccess.getUserId());
         return response.internalRedirectWithCookie("", hubAccessControlProvider.newExpiredCookie());
 
       } catch (Exception e) {
@@ -157,7 +157,7 @@ public class AuthEndpoint extends HubJsonapiEndpoint<UserAuth> {
     String accessToken;
     try {
       accessToken = hubAccessControlProvider.authenticate(authResponse.getCode());
-    } catch (DAOException e) {
+    } catch (ManagerException e) {
       return errorResponse("Authentication failed:" + e.getMessage());
     } catch (Exception e) {
       return errorResponse("Unknown error with authenticating access code", e);

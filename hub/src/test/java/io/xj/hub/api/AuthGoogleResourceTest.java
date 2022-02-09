@@ -9,7 +9,7 @@ import com.google.inject.util.Modules;
 import io.xj.hub.HubApp;
 import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.access.HubAccessControlProvider;
-import io.xj.hub.dao.DAOModule;
+import io.xj.hub.manager.ManagerModule;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.persistence.HubPersistenceModule;
@@ -63,7 +63,7 @@ public class AuthGoogleResourceTest {
       "APP_BASE_URL", "https://xj.io/",
       "APP_PORT", "1903"
     ));
-    var injector = Guice.createInjector(ImmutableSet.of(Modules.override(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule()).with(
+    var injector = Guice.createInjector(ImmutableSet.of(Modules.override(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {

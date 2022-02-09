@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.dao.InstrumentAudioDAO;
+import io.xj.hub.manager.InstrumentAudioManager;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.entity.EntityFactory;
@@ -26,21 +26,21 @@ import java.util.UUID;
  */
 @Path("api/1/instrument-audios")
 public class InstrumentAudioEndpoint extends HubJsonapiEndpoint<InstrumentAudio> {
-  private final InstrumentAudioDAO dao;
+  private final InstrumentAudioManager manager;
 
   /**
    Constructor
    */
   @Inject
   public InstrumentAudioEndpoint(
-    InstrumentAudioDAO dao,
+    InstrumentAudioManager manager,
     HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory
   ) {
     super(dbProvider, response, payloadFactory, entityFactory);
-    this.dao = dao;
+    this.manager = manager;
   }
 
   /**
@@ -55,12 +55,12 @@ public class InstrumentAudioEndpoint extends HubJsonapiEndpoint<InstrumentAudio>
   public Response create(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @QueryParam("cloneId") String cloneId) {
     try {
       HubAccess hubAccess = HubAccess.fromContext(crc);
-      var instrumentAudio = payloadFactory.consume(dao().newInstance(), jsonapiPayload);
+      var instrumentAudio = payloadFactory.consume(manager().newInstance(), jsonapiPayload);
       InstrumentAudio created;
       if (Objects.nonNull(cloneId))
-        created = dao().clone(hubAccess, UUID.fromString(cloneId), instrumentAudio);
+        created = manager().clone(hubAccess, UUID.fromString(cloneId), instrumentAudio);
       else
-        created = dao().create(hubAccess, instrumentAudio);
+        created = manager().create(hubAccess, instrumentAudio);
 
       return response.create(new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(created)));
 
@@ -79,14 +79,14 @@ public class InstrumentAudioEndpoint extends HubJsonapiEndpoint<InstrumentAudio>
   @RolesAllowed(ARTIST)
   public Response uploadOne(@Context ContainerRequestContext crc, @PathParam("id") String id, @QueryParam("extension") String extension) {
     try {
-      Map<String, String> result = dao().authorizeUpload(HubAccess.fromContext(crc), UUID.fromString(id), extension);
+      Map<String, String> result = manager().authorizeUpload(HubAccess.fromContext(crc), UUID.fromString(id), extension);
       if (null != result) {
         return Response
           .accepted(payloadFactory.serialize(result))
           .type(MediaType.APPLICATION_JSON)
           .build();
       } else {
-        return response.notFound(dao.newInstance().getClass(), id);
+        return response.notFound(manager.newInstance().getClass(), id);
       }
 
 
@@ -104,7 +104,7 @@ public class InstrumentAudioEndpoint extends HubJsonapiEndpoint<InstrumentAudio>
   @Path("{id}")
   @RolesAllowed(ARTIST)
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return readOne(crc, dao(), id);
+    return readOne(crc, manager(), id);
   }
 
   /**
@@ -122,7 +122,7 @@ public class InstrumentAudioEndpoint extends HubJsonapiEndpoint<InstrumentAudio>
   ) {
     try {
       JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataType(PayloadDataType.Many);
-      Collection<InstrumentAudio> instrumentAudios = dao.readMany(HubAccess.fromContext(crc), ImmutableList.of(UUID.fromString(instrumentId)));
+      Collection<InstrumentAudio> instrumentAudios = manager.readMany(HubAccess.fromContext(crc), ImmutableList.of(UUID.fromString(instrumentId)));
 
       // add instrumentAudios as plural data in payload
       for (InstrumentAudio instrumentAudio : instrumentAudios)
@@ -147,7 +147,7 @@ public class InstrumentAudioEndpoint extends HubJsonapiEndpoint<InstrumentAudio>
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
   public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return update(crc, dao(), id, jsonapiPayload);
+    return update(crc, manager(), id, jsonapiPayload);
   }
 
   /**
@@ -159,16 +159,16 @@ public class InstrumentAudioEndpoint extends HubJsonapiEndpoint<InstrumentAudio>
   @Path("{id}")
   @RolesAllowed(ARTIST)
   public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return delete(crc, dao(), id);
+    return delete(crc, manager(), id);
   }
 
   /**
-   Get DAO of injector
+   Get Manager of injector
 
-   @return DAO
+   @return Manager
    */
-  private InstrumentAudioDAO dao() {
-    return dao;
+  private InstrumentAudioManager manager() {
+    return manager;
   }
 
 }

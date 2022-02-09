@@ -94,11 +94,6 @@ public class PlaylistPublisherImplTest {
   }
 
   @Test
-  public void computeMediaSequence() {
-    assertEquals(164030295, subject.computeMediaSeqNum(1640302958444L));
-  }
-
-  @Test
   public void loadItemsFromPlaylist_getPlaylistContent() throws IOException, ShipException {
     var reference_m3u8 = getResourceFileContent("coolair.m3u8");
 

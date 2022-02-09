@@ -114,13 +114,22 @@ public interface SegmentWorkbench {
   Chain getChain();
 
   /**
-   Add an Entity
+   Put an Entity by type and id
 
-   @param entity to add
+   @param entity to put
    @param <N>    type of Entity
    @return entity that was added
    @throws NexusException on failure
    */
-  <N> N add(N entity) throws NexusException;
+  <N> N put(N entity) throws NexusException;
+
+  /**
+   Remove an Entity by type and id
+
+   @param entity to remove
+   @param <N>    type of Entity
+   @throws NexusException on failure
+   */
+  <N> void delete(N entity) throws NexusException;
 
 }

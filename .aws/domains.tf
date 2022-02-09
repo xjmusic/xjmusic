@@ -178,6 +178,19 @@ resource "aws_route53_record" "xj-dev" {
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
+resource "aws_route53_record" "xj-dev-lab" {
+  name    = "lab.dev.xj.io"
+  type    = "A"
+  zone_id = aws_route53_zone.xj-io.zone_id
+
+  alias {
+    name                   = aws_cloudfront_distribution.xj-dev-lab.domain_name
+    zone_id                = aws_cloudfront_distribution.xj-dev-lab.hosted_zone_id
+    evaluate_target_health = false
+  }
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
 resource "aws_route53_record" "xj-dev-local" {
   name    = "local.dev.xj.io"
   type    = "A"

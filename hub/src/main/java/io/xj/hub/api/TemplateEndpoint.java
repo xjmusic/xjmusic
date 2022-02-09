@@ -5,11 +5,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.dao.DAOCloner;
-import io.xj.hub.dao.DAOException;
-import io.xj.hub.dao.TemplateDAO;
+import io.xj.hub.manager.ManagerCloner;
+import io.xj.hub.manager.ManagerException;
+import io.xj.hub.manager.TemplateManager;
 import io.xj.hub.persistence.HubDatabaseProvider;
-import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.*;
@@ -31,21 +30,21 @@ import java.util.UUID;
  */
 @Path("api/1/templates")
 public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
-  private final TemplateDAO dao;
+  private final TemplateManager manager;
 
   /**
    Constructor
    */
   @Inject
   public TemplateEndpoint(
-    TemplateDAO dao,
+    TemplateManager manager,
     HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory
   ) {
     super(dbProvider, response, payloadFactory, entityFactory);
-    this.dao = dao;
+    this.manager = manager;
   }
 
   /**
@@ -57,9 +56,9 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
   @RolesAllowed(USER)
   public Response readMany(@Context ContainerRequestContext crc, @QueryParam("accountId") String accountId) {
     if (Objects.nonNull(accountId))
-      return readMany(crc, dao(), accountId);
+      return readMany(crc, manager(), accountId);
     else
-      return readMany(crc, dao(), HubAccess.fromContext(crc).getAccountIds());
+      return readMany(crc, manager(), HubAccess.fromContext(crc).getAccountIds());
   }
 
   /**
@@ -81,10 +80,10 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
 
     try {
       HubAccess hubAccess = HubAccess.fromContext(crc);
-      Template template = payloadFactory.consume(dao().newInstance(), jsonapiPayload);
+      Template template = payloadFactory.consume(manager().newInstance(), jsonapiPayload);
       JsonapiPayload responseJsonapiPayload = new JsonapiPayload();
       if (Objects.nonNull(cloneId)) {
-        DAOCloner<Template> cloner = dao().clone(hubAccess, UUID.fromString(cloneId), template);
+        ManagerCloner<Template> cloner = manager().clone(hubAccess, UUID.fromString(cloneId), template);
         responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(cloner.getClone()));
         List<JsonapiPayloadObject> list = new ArrayList<>();
         for (Object entity : cloner.getChildClones()) {
@@ -93,7 +92,7 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
         }
         responseJsonapiPayload.setIncluded(list);
       } else {
-        responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(dao().create(hubAccess, template)));
+        responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(manager().create(hubAccess, template)));
       }
 
       return response.create(responseJsonapiPayload);
@@ -123,8 +122,8 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
 
     try {
       Template entity = Objects.isNull(uuid)
-        ? dao.readOneByShipKey(access, identifier).orElseThrow(() -> new DAOException("not found"))
-        : dao.readOne(access, uuid);
+        ? manager.readOneByShipKey(access, identifier).orElseThrow(() -> new ManagerException("not found"))
+        : manager.readOne(access, uuid);
       uuid = entity.getId();
 
       JsonapiPayload jsonapiPayload = new JsonapiPayload();
@@ -133,15 +132,15 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
       // optionally specify a CSV of included types to read
       if (Objects.nonNull(include)) {
         List<JsonapiPayloadObject> list = new ArrayList<>();
-        for (Object included : dao().readChildEntities(access, ImmutableList.of(uuid), CSV.split(include)))
+        for (Object included : manager().readChildEntities(access, ImmutableList.of(uuid), CSV.split(include)))
           list.add(payloadFactory.toPayloadObject(included));
         jsonapiPayload.setIncluded(list);
       }
 
       return response.ok(jsonapiPayload);
 
-    } catch (DAOException ignored) {
-      return response.notFound(dao.newInstance().getClass(), identifier);
+    } catch (ManagerException ignored) {
+      return response.notFound(manager.newInstance().getClass(), identifier);
 
     } catch (Exception e) {
       return response.failure(e);
@@ -159,7 +158,7 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed({ADMIN, ENGINEER})
   public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return update(crc, dao(), id, jsonapiPayload);
+    return update(crc, manager(), id, jsonapiPayload);
   }
 
   /**
@@ -171,7 +170,7 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
   @Path("{id}")
   @RolesAllowed({ADMIN, ENGINEER})
   public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return delete(crc, dao(), id);
+    return delete(crc, manager(), id);
   }
 
   /**
@@ -190,7 +189,7 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
       JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataType(PayloadDataType.Many);
 
       // add templatePlaybacks as plural data in payload
-      for (var template : dao().readAllPlaying(hubAccess))
+      for (var template : manager().readAllPlaying(hubAccess))
         jsonapiPayload.addData(payloadFactory.toPayloadObject(template));
 
       return response.ok(jsonapiPayload);
@@ -202,11 +201,11 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
 
 
   /**
-   Get DAO of injector
+   Get Manager of injector
 
-   @return DAO
+   @return Manager
    */
-  private TemplateDAO dao() {
-    return dao;
+  private TemplateManager manager() {
+    return manager;
   }
 }

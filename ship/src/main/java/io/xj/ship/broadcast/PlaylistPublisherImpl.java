@@ -36,8 +36,6 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import static io.xj.lib.util.Values.MILLIS_PER_SECOND;
-
 /**
  Ship broadcast via HTTP Live Streaming #179453189
  */
@@ -59,6 +57,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   private final String m3u8ContentType;
   private final String m3u8Key;
   private final String streamBaseUrl;
+  private final MediaSeqNumProvider mediaSeqNumProvider;
   private final TelemetryProvider telemetryProvider;
   private final boolean active;
   private final int chunkTargetDuration;
@@ -73,11 +72,13 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     Environment env,
     FileStoreProvider fileStore,
     HttpClientProvider httpClientProvider,
+    MediaSeqNumProvider mediaSeqNumProvider,
     TelemetryProvider telemetryProvider
   ) {
     this.broadcast = broadcast;
     this.fileStore = fileStore;
     this.httpClientProvider = httpClientProvider;
+    this.mediaSeqNumProvider = mediaSeqNumProvider;
     this.telemetryProvider = telemetryProvider;
 
     // Environment
@@ -158,7 +159,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   public void publish() throws ShipException {
     if (active)
       try {
-        var mediaSequence = computeMediaSeqNum(System.currentTimeMillis());
+        var mediaSequence = mediaSeqNumProvider.computeMediaSeqNum(System.currentTimeMillis());
         collectGarbage(mediaSequence);
         fileStore.putS3ObjectFromString(getPlaylistContent(mediaSequence), bucket, m3u8Key, m3u8ContentType, m3u8MaxAgeSeconds);
         LOG.debug("Shipped {}/{} ({}) @ {}", bucket, m3u8Key, m3u8ContentType, mediaSequence);
@@ -174,16 +175,6 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     List<Long> toRemove = items.keySet().stream().filter(ms -> ms < floor).toList();
     for (long ms : toRemove) items.remove(ms);
     recomputeMaxSequenceNumber();
-  }
-
-  @Override
-  public int computeMediaSeqNum(long epochMillis) {
-    return (int) (Math.floor((double) epochMillis / (MILLIS_PER_SECOND * chunkTargetDuration)));
-  }
-
-  @Override
-  public int computeInitialMediaSeqNum(long epochMillis) {
-    return computeMediaSeqNum(System.currentTimeMillis()) - mediaSeqNumOffset;
   }
 
   @Override
@@ -248,7 +239,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
 
   @Override
   public boolean isHealthy() {
-    var threshold = computeInitialMediaSeqNum(System.currentTimeMillis());
+    var threshold = mediaSeqNumProvider.computeInitialMediaSeqNum(System.currentTimeMillis());
     if (maxSequenceNumber.get() >= threshold) return true;
     LOG.warn("Max sequence number {} below threshold {}", maxSequenceNumber, threshold);
     return false;
@@ -268,6 +259,14 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   public void sendTelemetry() {
     telemetryProvider.put(HLS_PLAYLIST_SIZE, (double) items.size());
     telemetryProvider.put(HLS_PLAYLIST_AHEAD_SECONDS, (double) Math.max(0, getAheadSeconds()));
+  }
+
+  @Override
+  public Optional<Long> start(long initialSeqNum) {
+    if (!active)
+      return Optional.empty();
+
+    return rehydrate(initialSeqNum);
   }
 
   @Override

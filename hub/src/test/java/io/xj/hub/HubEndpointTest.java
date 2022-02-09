@@ -7,8 +7,8 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.dao.DAO;
-import io.xj.hub.dao.DAOException;
+import io.xj.hub.manager.Manager;
+import io.xj.hub.manager.ManagerException;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.lib.app.Environment;
@@ -39,7 +39,7 @@ public class HubEndpointTest {
   ContainerRequestContext crc;
 
   @Mock
-  DAO<Account> dao; // can be any class that, we picked a simple one with no belongs-to
+  Manager<Account> manager; // can be any class that, we picked a simple one with no belongs-to
 
   @Mock
   HubDatabaseProvider hubDatabaseProvider;
@@ -64,21 +64,21 @@ public class HubEndpointTest {
   }
 
   @Test
-  public void create() throws JsonapiException, ValueException, DAOException {
+  public void create() throws JsonapiException, ValueException, ManagerException {
     HubAccess hubAccess = HubAccess.internal();
     JsonapiPayload jsonapiPayload = payloadFactory.newJsonapiPayload()
       .setDataOne(payloadFactory.newPayloadObject()
         .setType(Account.class)
         .setAttribute("name", "test5"));
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
-    when(dao.newInstance()).thenReturn(buildAccount("Testing"));
+    when(manager.newInstance()).thenReturn(buildAccount("Testing"));
     var createdAccount = buildAccount("Testing");
     createdAccount.setName("test5");
-    when(dao.create(same(hubAccess), any(Account.class))).thenReturn(createdAccount);
+    when(manager.create(same(hubAccess), any(Account.class))).thenReturn(createdAccount);
 
-    Response result = subject.create(crc, dao, jsonapiPayload);
+    Response result = subject.create(crc, manager, jsonapiPayload);
 
-    verify(dao, times(1)).create(same(hubAccess), any(Account.class));
+    verify(manager, times(1)).create(same(hubAccess), any(Account.class));
     assertEquals(201, result.getStatus());
     JsonapiPayload resultJsonapiPayload = payloadFactory.deserialize(String.valueOf(result.getEntity()));
     (new AssertPayload(resultJsonapiPayload)).hasDataOne(createdAccount);

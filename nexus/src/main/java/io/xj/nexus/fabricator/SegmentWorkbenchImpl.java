@@ -7,6 +7,8 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.api.*;
 import io.xj.hub.enums.ProgramType;
+import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.jsonapi.JsonapiException;
@@ -146,12 +148,23 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   }
 
   @Override
-  public <N> N add(N entity) throws NexusException {
+  public <N> N put(N entity) throws NexusException {
     try {
-      // [#179078453] Segment shouldn't have two of the same meme
+
+      // Segment shouldn't have two of the same meme #179078453
       if (SegmentMeme.class.equals(entity.getClass()) && alreadyHasMeme((SegmentMeme) entity)) return entity;
+
       return benchStore.put(entity);
     } catch (EntityStoreException e) {
+      throw new NexusException(e);
+    }
+  }
+
+  @Override
+  public <N> void delete(N entity) throws NexusException {
+    try {
+      benchStore.delete(entity.getClass(), Entities.getId(entity));
+    } catch (EntityException e) {
       throw new NexusException(e);
     }
   }
@@ -166,7 +179,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
     msg.setSegmentId(segment.getId());
     msg.setType(SegmentMessageType.DEBUG);
     msg.setBody(reported);
-    add(msg);
+    this.put(msg);
     report.clear();
   }
 

@@ -10,7 +10,7 @@ import com.google.inject.util.Modules;
 import com.zaxxer.hikari.HikariDataSource;
 import io.xj.hub.access.GoogleProvider;
 import io.xj.hub.access.HubAccessControlProvider;
-import io.xj.hub.dao.*;
+import io.xj.hub.manager.*;
 import io.xj.hub.ingest.HubIngestFactory;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.persistence.HubMigration;
@@ -48,49 +48,49 @@ public class HubAppTest {
   @Mock
   public HubIngestFactory hubIngestFactory;
   @Mock
-  public AccountDAO accountDAO;
+  public AccountManager accountManager;
   @Mock
-  public AccountUserDAO accountUserDAO;
+  public AccountUserManager accountUserManager;
   @Mock
-  public InstrumentDAO instrumentDAO;
+  public InstrumentManager instrumentManager;
   @Mock
-  public InstrumentAudioDAO instrumentAudioDAO;
+  public InstrumentAudioManager instrumentAudioManager;
   @Mock
-  public InstrumentMemeDAO instrumentMemeDAO;
+  public InstrumentMemeManager instrumentMemeManager;
   @Mock
-  public LibraryDAO libraryDAO;
+  public LibraryManager libraryManager;
   @Mock
-  public ProgramDAO programDAO;
+  public ProgramManager programManager;
   @Mock
-  public ProgramSequencePatternEventDAO programSequencePatternEventDAO;
+  public ProgramSequencePatternEventManager programSequencePatternEventManager;
   @Mock
-  public ProgramMemeDAO programMemeDAO;
+  public ProgramMemeManager programMemeManager;
   @Mock
-  public ProgramSequencePatternDAO programSequencePatternDAO;
+  public ProgramSequencePatternManager programSequencePatternManager;
   @Mock
-  public ProgramSequenceDAO programSequenceDAO;
+  public ProgramSequenceManager programSequenceManager;
   @Mock
-  public ProgramSequenceBindingDAO programSequenceBindingDAO;
+  public ProgramSequenceBindingManager programSequenceBindingManager;
   @Mock
-  public ProgramSequenceBindingMemeDAO programSequenceBindingMemeDAO;
+  public ProgramSequenceBindingMemeManager programSequenceBindingMemeManager;
   @Mock
-  public ProgramSequenceChordDAO programSequenceChordDAO;
+  public ProgramSequenceChordManager programSequenceChordManager;
   @Mock
-  public ProgramSequenceChordVoicingDAO programSequenceChordVoicingDAO;
+  public ProgramSequenceChordVoicingManager programSequenceChordVoicingManager;
   @Mock
-  public ProgramVoiceTrackDAO programVoiceTrackDAO;
+  public ProgramVoiceTrackManager programVoiceTrackManager;
   @Mock
-  public ProgramVoiceDAO programVoiceDAO;
+  public ProgramVoiceManager programVoiceManager;
   @Mock
-  public TemplateDAO templateDAO;
+  public TemplateManager templateManager;
   @Mock
-  public TemplateBindingDAO templateBindingDAO;
+  public TemplateBindingManager templateBindingManager;
   @Mock
-  public TemplatePlaybackDAO templatePlaybackDAO;
+  public TemplatePlaybackManager templatePlaybackManager;
   @Mock
-  public TemplatePublicationDAO templatePublicationDAO;
+  public TemplatePublicationManager templatePublicationManager;
   @Mock
-  public UserDAO userDAO;
+  public UserManager userManager;
   @Mock
   private GoogleProvider googleProvider;
   @Mock
@@ -114,28 +114,28 @@ public class HubAppTest {
         bind(HubAccessControlProvider.class).toInstance(hubAccessControlProvider);
         bind(HubMigration.class).toInstance(hubMigration);
         bind(HubIngestFactory.class).toInstance(hubIngestFactory);
-        bind(AccountDAO.class).toInstance(accountDAO);
-        bind(AccountUserDAO.class).toInstance(accountUserDAO);
-        bind(InstrumentDAO.class).toInstance(instrumentDAO);
-        bind(InstrumentAudioDAO.class).toInstance(instrumentAudioDAO);
-        bind(InstrumentMemeDAO.class).toInstance(instrumentMemeDAO);
-        bind(LibraryDAO.class).toInstance(libraryDAO);
-        bind(TemplateDAO.class).toInstance(templateDAO);
-        bind(TemplateBindingDAO.class).toInstance(templateBindingDAO);
-        bind(TemplatePlaybackDAO.class).toInstance(templatePlaybackDAO);
-        bind(TemplatePublicationDAO.class).toInstance(templatePublicationDAO);
-        bind(ProgramDAO.class).toInstance(programDAO);
-        bind(ProgramSequencePatternEventDAO.class).toInstance(programSequencePatternEventDAO);
-        bind(ProgramMemeDAO.class).toInstance(programMemeDAO);
-        bind(ProgramSequencePatternDAO.class).toInstance(programSequencePatternDAO);
-        bind(ProgramSequenceDAO.class).toInstance(programSequenceDAO);
-        bind(ProgramSequenceBindingDAO.class).toInstance(programSequenceBindingDAO);
-        bind(ProgramSequenceBindingMemeDAO.class).toInstance(programSequenceBindingMemeDAO);
-        bind(ProgramSequenceChordDAO.class).toInstance(programSequenceChordDAO);
-        bind(ProgramSequenceChordVoicingDAO.class).toInstance(programSequenceChordVoicingDAO);
-        bind(ProgramVoiceTrackDAO.class).toInstance(programVoiceTrackDAO);
-        bind(ProgramVoiceDAO.class).toInstance(programVoiceDAO);
-        bind(UserDAO.class).toInstance(userDAO);
+        bind(AccountManager.class).toInstance(accountManager);
+        bind(AccountUserManager.class).toInstance(accountUserManager);
+        bind(InstrumentManager.class).toInstance(instrumentManager);
+        bind(InstrumentAudioManager.class).toInstance(instrumentAudioManager);
+        bind(InstrumentMemeManager.class).toInstance(instrumentMemeManager);
+        bind(LibraryManager.class).toInstance(libraryManager);
+        bind(TemplateManager.class).toInstance(templateManager);
+        bind(TemplateBindingManager.class).toInstance(templateBindingManager);
+        bind(TemplatePlaybackManager.class).toInstance(templatePlaybackManager);
+        bind(TemplatePublicationManager.class).toInstance(templatePublicationManager);
+        bind(ProgramManager.class).toInstance(programManager);
+        bind(ProgramSequencePatternEventManager.class).toInstance(programSequencePatternEventManager);
+        bind(ProgramMemeManager.class).toInstance(programMemeManager);
+        bind(ProgramSequencePatternManager.class).toInstance(programSequencePatternManager);
+        bind(ProgramSequenceManager.class).toInstance(programSequenceManager);
+        bind(ProgramSequenceBindingManager.class).toInstance(programSequenceBindingManager);
+        bind(ProgramSequenceBindingMemeManager.class).toInstance(programSequenceBindingMemeManager);
+        bind(ProgramSequenceChordManager.class).toInstance(programSequenceChordManager);
+        bind(ProgramSequenceChordVoicingManager.class).toInstance(programSequenceChordVoicingManager);
+        bind(ProgramVoiceTrackManager.class).toInstance(programVoiceTrackManager);
+        bind(ProgramVoiceManager.class).toInstance(programVoiceManager);
+        bind(UserManager.class).toInstance(userManager);
         bind(GoogleProvider.class).toInstance(googleProvider);
       }
     }));

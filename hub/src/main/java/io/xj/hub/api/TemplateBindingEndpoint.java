@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.dao.TemplateBindingDAO;
+import io.xj.hub.manager.TemplateBindingManager;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.lib.entity.EntityFactory;
@@ -24,21 +24,21 @@ import java.util.UUID;
  */
 @Path("api/1/template-bindings")
 public class TemplateBindingEndpoint extends HubJsonapiEndpoint<TemplateBinding> {
-  private final TemplateBindingDAO dao;
+  private final TemplateBindingManager manager;
 
   /**
    Constructor
    */
   @Inject
   public TemplateBindingEndpoint(
-    TemplateBindingDAO dao,
+    TemplateBindingManager manager,
     HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory
   ) {
     super(dbProvider, response, payloadFactory, entityFactory);
-    this.dao = dao;
+    this.manager = manager;
   }
 
   /**
@@ -63,7 +63,7 @@ public class TemplateBindingEndpoint extends HubJsonapiEndpoint<TemplateBinding>
       Collection<TemplateBinding> templateBindings;
 
       // how we source templateBindings depends on the query parameters
-      templateBindings = dao().readMany(hubAccess, ImmutableList.of(UUID.fromString(templateId)));
+      templateBindings = manager().readMany(hubAccess, ImmutableList.of(UUID.fromString(templateId)));
 
       // add templateBindings as plural data in payload
       for (TemplateBinding templateBinding : templateBindings)
@@ -88,9 +88,9 @@ public class TemplateBindingEndpoint extends HubJsonapiEndpoint<TemplateBinding>
   public Response create(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc) {
 
     try {
-      TemplateBinding templateBinding = payloadFactory.consume(dao().newInstance(), jsonapiPayload);
+      TemplateBinding templateBinding = payloadFactory.consume(manager().newInstance(), jsonapiPayload);
       TemplateBinding created;
-      created = dao().create(
+      created = manager().create(
         HubAccess.fromContext(crc),
         templateBinding);
 
@@ -111,7 +111,7 @@ public class TemplateBindingEndpoint extends HubJsonapiEndpoint<TemplateBinding>
   @Path("{id}")
   @RolesAllowed(ARTIST)
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return readOne(crc, dao(), id);
+    return readOne(crc, manager(), id);
   }
 
   /**
@@ -125,7 +125,7 @@ public class TemplateBindingEndpoint extends HubJsonapiEndpoint<TemplateBinding>
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
   public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return update(crc, dao(), id, jsonapiPayload);
+    return update(crc, manager(), id, jsonapiPayload);
   }
 
   /**
@@ -137,15 +137,15 @@ public class TemplateBindingEndpoint extends HubJsonapiEndpoint<TemplateBinding>
   @Path("{id}")
   @RolesAllowed(ARTIST)
   public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return delete(crc, dao(), id);
+    return delete(crc, manager(), id);
   }
 
   /**
-   Get DAO of injector
+   Get Manager of injector
 
-   @return DAO
+   @return Manager
    */
-  private TemplateBindingDAO dao() {
-    return dao;
+  private TemplateBindingManager manager() {
+    return manager;
   }
 }

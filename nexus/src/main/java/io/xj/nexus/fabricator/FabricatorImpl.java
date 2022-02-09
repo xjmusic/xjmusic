@@ -66,6 +66,7 @@ class FabricatorImpl implements Fabricator {
   private final Map<String, Integer> rangeShiftOctave;
   private final Map<String, Integer> targetShift;
   private final Map<String, NoteRange> rangeForChoice;
+  private final Map<UUID, List<SegmentChoiceArrangementPick>> picksForChoice;
   private final Map<String, Set<String>> preferredNotes;
   private final SegmentManager segmentManager;
   private final SegmentRetrospective retrospective;
@@ -103,6 +104,7 @@ class FabricatorImpl implements Fabricator {
       chordAtPosition = Maps.newHashMap();
       completeChordsForProgramSequence = Maps.newHashMap();
       instrumentConfigs = Maps.newHashMap();
+      picksForChoice = Maps.newHashMap();
       rangeForChoice = Maps.newHashMap();
       rangeShiftOctave = Maps.newHashMap();
       sequenceForChoice = Maps.newHashMap();
@@ -149,8 +151,13 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public <N> N add(N entity) throws NexusException {
-    return workbench.add(entity);
+  public <N> N put(N entity) throws NexusException {
+    return workbench.put(entity);
+  }
+
+  @Override
+  public <N> void delete(N entity) throws NexusException {
+    workbench.delete(entity);
   }
 
   @Override
@@ -160,7 +167,7 @@ class FabricatorImpl implements Fabricator {
       segMeme.setId(UUID.randomUUID());
       segMeme.setSegmentId(getSegment().getId());
       segMeme.setName(Text.toMeme(meme.getName()));
-      add(segMeme);
+      put(segMeme);
     }
     return p;
   }
@@ -172,7 +179,7 @@ class FabricatorImpl implements Fabricator {
       segMeme.setId(UUID.randomUUID());
       segMeme.setSegmentId(getSegment().getId());
       segMeme.setName(Text.toMeme(meme.getName()));
-      add(segMeme);
+      put(segMeme);
     }
     return p;
   }
@@ -184,7 +191,7 @@ class FabricatorImpl implements Fabricator {
       segMeme.setId(UUID.randomUUID());
       segMeme.setSegmentId(getSegment().getId());
       segMeme.setName(Text.toMeme(meme.getName()));
-      add(segMeme);
+      put(segMeme);
     }
     return psb;
   }
@@ -196,7 +203,7 @@ class FabricatorImpl implements Fabricator {
     msg.setSegmentId(getSegment().getId());
     msg.setType(messageType);
     msg.setBody(body);
-    add(msg);
+    put(msg);
   }
 
   @Override
@@ -563,6 +570,21 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
+  public List<SegmentChoiceArrangementPick> getPicks(SegmentChoice choice) {
+    if (!picksForChoice.containsKey(choice.getId())) {
+      var arrangementIds = workbench.getSegmentChoiceArrangements().stream()
+        .filter(a -> a.getSegmentChoiceId().equals(choice.getId()))
+        .map(SegmentChoiceArrangement::getId)
+        .toList();
+      picksForChoice.put(choice.getId(), workbench.getSegmentChoiceArrangementPicks().stream()
+        .filter(p -> arrangementIds.contains(p.getSegmentChoiceArrangementId()))
+        .sorted(Comparator.comparing(SegmentChoiceArrangementPick::getStart))
+        .toList());
+    }
+    return picksForChoice.get(choice.getId());
+  }
+
+  @Override
   public Optional<InstrumentAudio> getPreferredAudio(ProgramSequencePatternEvent event, String note) {
     String key = String.format(KEY_VOICE_NOTE_TEMPLATE, event.getProgramVoiceTrackId(), note);
 
@@ -827,6 +849,14 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
+  public String getTrackName(SegmentChoiceArrangementPick pick) throws NexusException {
+    return sourceMaterial().getTrack(sourceMaterial.getProgramSequencePatternEvent(pick.getProgramSequencePatternEventId())
+        .orElseThrow(() -> new NexusException("Failed to get event from source material for pick!")))
+      .map(ProgramVoiceTrack::getName)
+      .orElse(UNKNOWN_KEY);
+  }
+
+  @Override
   public SegmentType getType() throws NexusException {
     if (Values.isEmpty(type))
       type = computeType();
@@ -881,6 +911,17 @@ class FabricatorImpl implements Fabricator {
   @Override
   public boolean isDirectlyBound(Program program) {
     return boundProgramIds.contains(program.getId());
+  }
+
+  @Override
+  public boolean isOneShot(Instrument instrument, String trackName) throws NexusException {
+    return isOneShot(instrument)
+      && !getInstrumentConfig(instrument).getOneShotCutoffs().contains(trackName);
+  }
+
+  @Override
+  public boolean isOneShot(Instrument instrument) throws NexusException {
+    return getInstrumentConfig(instrument).isOneShot();
   }
 
   @Override

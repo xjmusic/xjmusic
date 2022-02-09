@@ -151,7 +151,6 @@ jooq {
             records = true
             pojos = true
             interfaces = true
-            daos = true
             immutablePojos = false
             fluentSetters = false
           }

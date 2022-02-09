@@ -21,10 +21,10 @@ import static io.xj.lib.mixer.AudioStreamWriter.byteBufferOf;
 
 public class StreamPlayerImpl implements StreamPlayer {
   private static final Logger LOG = LoggerFactory.getLogger(StreamPlayer.class);
+  private static final String THREAD_NAME = "StreamPlayer";
   private final AudioFormat format;
   private final SourceDataLine line;
   private final ConcurrentLinkedQueue<ByteBuffer> queue;
-  private final String THREAD_NAME = "playback";
   private volatile boolean active = true;
 
   @Inject

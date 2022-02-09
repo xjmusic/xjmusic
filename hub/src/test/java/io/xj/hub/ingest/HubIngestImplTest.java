@@ -5,7 +5,7 @@ package io.xj.hub.ingest;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.dao.*;
+import io.xj.hub.manager.*;
 import io.xj.hub.enums.TemplateType;
 import io.xj.hub.tables.pojos.Template;
 import org.junit.Test;
@@ -25,32 +25,32 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class HubIngestImplTest {
   @Mock
-  InstrumentDAO instrumentDAO;
+  InstrumentManager instrumentManager;
   @Mock
-  ProgramDAO programDAO;
+  ProgramManager programManager;
   @Mock
-  TemplateDAO templateDAO;
+  TemplateManager templateManager;
   @Mock
-  TemplateBindingDAO templateBindingDAO;
+  TemplateBindingManager templateBindingManager;
   @Mock
-  TemplatePlaybackDAO templatePlaybackDAO;
+  TemplatePlaybackManager templatePlaybackManager;
 
   @Test
   public void instantiateWithUUIDs() throws Exception {
     var injector = Guice.createInjector(new HubIngestModule(), new AbstractModule() {
       @Override
       protected void configure() {
-        bind(InstrumentDAO.class).toInstance(instrumentDAO);
-        bind(ProgramDAO.class).toInstance(programDAO);
-        bind(TemplateDAO.class).toInstance(templateDAO);
-        bind(TemplateBindingDAO.class).toInstance(templateBindingDAO);
-        bind(TemplatePlaybackDAO.class).toInstance(templatePlaybackDAO);
+        bind(InstrumentManager.class).toInstance(instrumentManager);
+        bind(ProgramManager.class).toInstance(programManager);
+        bind(TemplateManager.class).toInstance(templateManager);
+        bind(TemplateBindingManager.class).toInstance(templateBindingManager);
+        bind(TemplatePlaybackManager.class).toInstance(templatePlaybackManager);
       }
     });
     Template template = buildTemplate(buildAccount("Test"), TemplateType.Preview, "Test", "key123");
-    when(templateDAO.readOne(any(), eq(template.getId())))
+    when(templateManager.readOne(any(), eq(template.getId())))
       .thenReturn(template);
-    when(templateBindingDAO.readMany(any(), eq(List.of(template.getId()))))
+    when(templateBindingManager.readMany(any(), eq(List.of(template.getId()))))
       .thenReturn(List.of());
 
     HubIngest subject = injector.getInstance(HubIngestFactory.class).ingest(HubAccess.internal(), template.getId());

@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.dao.*;
+import io.xj.hub.manager.*;
 import io.xj.hub.enums.ContentBindingType;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
@@ -34,18 +34,18 @@ class HubIngestImpl implements HubIngest {
     @Assisted("hubAccess") HubAccess hubAccess,
     @Assisted("templateId") UUID templateId,
     EntityStore entityStore,
-    InstrumentDAO instrumentDAO,
+    InstrumentManager instrumentManager,
     JsonProvider jsonProvider,
-    ProgramDAO programDAO,
-    TemplateDAO templateDAO,
-    TemplateBindingDAO templateBindingDAO
+    ProgramManager programManager,
+    TemplateManager templateManager,
+    TemplateBindingManager templateBindingManager
   ) throws HubIngestException {
     store = entityStore;
     this.jsonProvider = jsonProvider;
     this.hubAccess = hubAccess;
     try {
-      store.put(templateDAO.readOne(hubAccess, templateId));
-      var bindings = store.putAll(templateBindingDAO.readMany(hubAccess, ImmutableList.of(templateId)));
+      store.put(templateManager.readOne(hubAccess, templateId));
+      var bindings = store.putAll(templateBindingManager.readMany(hubAccess, ImmutableList.of(templateId)));
       List<UUID> libraryIds = bindings.stream()
         .filter(b -> ContentBindingType.Library.equals(b.getType()))
         .map(TemplateBinding::getTargetId)
@@ -60,19 +60,19 @@ class HubIngestImpl implements HubIngest {
         .collect(Collectors.toList());
 
       // library ids -> program and instrument ids; disregard library ids after this
-      Values.put(programIds, programDAO.readIdsInLibraries(hubAccess, libraryIds));
-      Values.put(instrumentIds, instrumentDAO.readIdsInLibraries(hubAccess, libraryIds));
+      Values.put(programIds, programManager.readIdsInLibraries(hubAccess, libraryIds));
+      Values.put(instrumentIds, instrumentManager.readIdsInLibraries(hubAccess, libraryIds));
       libraryIds.clear();
 
       // ingest programs
-      for (Object o : programDAO.readManyWithChildEntities(hubAccess, programIds))
+      for (Object o : programManager.readManyWithChildEntities(hubAccess, programIds))
         store.put(o);
 
       // ingest instruments
-      for (Object n : instrumentDAO.readManyWithChildEntities(hubAccess, instrumentIds))
+      for (Object n : instrumentManager.readManyWithChildEntities(hubAccess, instrumentIds))
         store.put(n);
 
-    } catch (DAOException | EntityStoreException e) {
+    } catch (ManagerException | EntityStoreException e) {
       throw new HubIngestException(e);
     }
   }
