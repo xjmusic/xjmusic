@@ -197,7 +197,7 @@ resource "aws_route53_record" "xj-help" {
   ttl     = 5
   zone_id = aws_route53_zone.xj-io.zone_id
   records = ["custom.crisp.help."]
-  # TODO ditch this for the self-hosted ones when ready
+  # FUTURE ditch this for the self-hosted ones when ready
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
@@ -216,7 +216,7 @@ resource "aws_route53_record" "xj-status" {
   ttl     = 5
   zone_id = aws_route53_zone.xj-io.zone_id
   records = ["custom.crisp.watch."]
-  # TODO ditch this for the self-hosted ones when ready
+  # FUTURE ditch this for the self-hosted ones when ready
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
