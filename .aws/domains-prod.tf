@@ -152,17 +152,17 @@ resource "aws_route53_record" "xj-play" {
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
-#resource "aws_route53_record" "xj-help" {
-#  name    = "help.xj.io"
-#  type    = "A"
-#  zone_id = aws_route53_zone.xj-io.zone_id
-#
-#  alias {
-#    name                   = aws_cloudfront_distribution.xj-help.domain_name
-#    zone_id                = aws_cloudfront_distribution.xj-help.hosted_zone_id
-#    evaluate_target_health = false
-#  }
-#}
+resource "aws_route53_record" "xj-help" {
+  name    = "help.xj.io"
+  type    = "A"
+  zone_id = aws_route53_zone.xj-io.zone_id
+
+  alias {
+    name                   = aws_cloudfront_distribution.xj-help.domain_name
+    zone_id                = aws_cloudfront_distribution.xj-help.hosted_zone_id
+    evaluate_target_health = false
+  }
+}
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
 #resource "aws_route53_record" "xj-status" {
@@ -188,25 +188,6 @@ resource "aws_route53_record" "xj-hub" {
     zone_id                = aws_cloudfront_distribution.xj-lab-redirect.hosted_zone_id
     evaluate_target_health = false
   }
-}
-
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
-resource "aws_route53_record" "xj-help" {
-  name    = "help.xj.io"
-  type    = "CNAME"
-  ttl     = 5
-  zone_id = aws_route53_zone.xj-io.zone_id
-  records = ["custom.crisp.help."]
-  # FUTURE ditch this for the self-hosted ones when ready
-}
-
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
-resource "aws_route53_record" "xj-help-verification" {
-  name    = "_crisp.help.xj.io"
-  type    = "TXT"
-  ttl     = 5
-  zone_id = aws_route53_zone.xj-io.zone_id
-  records = ["crisp-website-id=d7d13bad-bc2b-4546-a18e-547f16ef6ab2"]
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
