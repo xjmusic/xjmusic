@@ -39,8 +39,8 @@ import static io.xj.nexus.persistence.Segments.DELTA_UNLIMITED;
 public class CraftImpl extends FabricationWrapperImpl {
   private final Map<String, Integer> deltaIns = Maps.newHashMap();
   private final Map<String, Integer> deltaOuts = Maps.newHashMap();
-  private ChoiceIndexProvider choiceIndexProvider = new DefaultChoiceIndexProvider();
   private final Set<InstrumentType> finalizeAudioLengthsForInstrumentTypes;
+  private ChoiceIndexProvider choiceIndexProvider = new DefaultChoiceIndexProvider();
 
   /**
    Must extend this class and inject
@@ -202,7 +202,7 @@ public class CraftImpl extends FabricationWrapperImpl {
       craftArrangementForVoiceSection(choice, 0, fabricator.getSegment().getTotal(), range, defaultAtonal);
 
     // Final pass to set the actual length of one-shot audio picks
-    finalizeLengthsOfOneShotInstrumentAudioPicks(choice);
+    finalizeCutoffsOfOneShotInstrumentAudioPicks(choice);
   }
 
   /**
@@ -446,12 +446,16 @@ public class CraftImpl extends FabricationWrapperImpl {
 
    @param choice for which to finalize length of one-shot audio picks
    */
-  private void finalizeLengthsOfOneShotInstrumentAudioPicks(SegmentChoice choice) throws NexusException {
+  private void finalizeCutoffsOfOneShotInstrumentAudioPicks(SegmentChoice choice) throws NexusException {
     var instrument = fabricator.sourceMaterial().getInstrument(choice.getInstrumentId())
       .orElseThrow(() -> new NexusException("Failed to get instrument from source material for segment choice!"));
 
     // skip instruments that are not one-shot
     if (!fabricator.isOneShot(instrument))
+      return;
+
+    // skip instruments that are do not have one-shot cutoff enabled #181211927
+    if (!fabricator.isOneShotCutoffEnabled(instrument))
       return;
 
     // skip instruments that are not on the list

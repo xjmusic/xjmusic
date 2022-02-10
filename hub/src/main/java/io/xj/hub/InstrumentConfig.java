@@ -26,13 +26,16 @@ public class InstrumentConfig {
     """
       isMultiphonic = false
       isOneShot = false
+      isOneShotCutoffEnabled = true
       isTonal = false
-      oneShotCutoffs = []
+      oneShotObserveLengthOfEvents = []
       """;
   private final Boolean isMultiphonic;
   private final Boolean isOneShot;
   private final Boolean isTonal;
-  private final Collection<String> oneShotCutoffs;
+  private final Collection<String> oneShotObserveLengthOfEvents;
+
+  private final Boolean isOneShotCutoffEnabled;
 
   /**
    Instantiate an Instrument configuration from a string of typesafe config.
@@ -66,10 +69,11 @@ public class InstrumentConfig {
       Config config = Strings.isNullOrEmpty(configText) ?
         ConfigFactory.parseString(DEFAULT) :
         ConfigFactory.parseString(configText).withFallback(ConfigFactory.parseString(DEFAULT));
-      oneShotCutoffs = config.getStringList("oneShotCutoffs").stream().map(Text::toMeme).collect(Collectors.toList());
       isMultiphonic = config.getBoolean("isMultiphonic");
       isOneShot = config.getBoolean("isOneShot");
+      isOneShotCutoffEnabled = config.getBoolean("isOneShotCutoffEnabled");
       isTonal = config.getBoolean("isTonal");
+      oneShotObserveLengthOfEvents = config.getStringList("oneShotObserveLengthOfEvents").stream().map(Text::toMeme).collect(Collectors.toList());
 
     } catch (ConfigException e) {
       throw new ValueException(e.getMessage());
@@ -80,10 +84,11 @@ public class InstrumentConfig {
   @Override
   public String toString() {
     Map<String, String> config = Maps.newHashMap();
-    config.put("oneShotCutoffs", String.format("[%s]", CSV.join(oneShotCutoffs)));
     config.put("isMultiphonic", isMultiphonic.toString());
     config.put("isOneShot", isOneShot.toString());
+    config.put("isOneShotCutoffEnabled", isOneShotCutoffEnabled.toString());
     config.put("isTonal", isTonal.toString());
+    config.put("oneShotObserveLengthOfEvents", String.format("[%s]", CSV.join(oneShotObserveLengthOfEvents)));
     return Text.formatMultiline(config.entrySet().stream()
       .sorted(Map.Entry.comparingByKey())
       .map(pair -> String.format("%s = %s", pair.getKey(), pair.getValue()))
@@ -107,14 +112,21 @@ public class InstrumentConfig {
   /**
    @return true if instrument is one-shot (samples play til end, regardless of note length)
    */
-  public boolean isOneShot() {
+  public Boolean isOneShot() {
     return isOneShot;
   }
 
   /**
    @return a list of event types that will ignore one-shot, if instrument is one-shot
    */
-  public Collection<String> getOneShotCutoffs() {
-    return oneShotCutoffs;
+  public Collection<String> getOneShotObserveLengthOfEvents() {
+    return oneShotObserveLengthOfEvents;
+  }
+
+  /**
+   @return true if this instrument's one-shot cutoff are enabled
+   */
+  public Boolean isOneShotCutoffEnabled() {
+    return isOneShotCutoffEnabled;
   }
 }

@@ -135,7 +135,7 @@ public class InstrumentManagerImplTest {
         isMultiphonic = true
         isOneShot = false
         isTonal = false
-        oneShotCutoffs = [TEST]
+        oneShotObserveLengthOfEvents = [TEST]
           """
     );
     subject.setName("cannons fifty nine");
@@ -150,8 +150,9 @@ public class InstrumentManagerImplTest {
       """
         isMultiphonic = true
         isOneShot = false
+        isOneShotCutoffEnabled = true
         isTonal = false
-        oneShotCutoffs = [TEST]
+        oneShotObserveLengthOfEvents = [TEST]
           """,
       result.getClone().getConfig()
     );

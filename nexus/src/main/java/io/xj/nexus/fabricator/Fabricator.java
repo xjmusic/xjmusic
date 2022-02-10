@@ -666,13 +666,22 @@ public interface Fabricator {
   boolean isOneShot(Instrument instrument, String trackName) throws NexusException;
 
   /**
-   Test if a given instrument is a one-shot instrument
+   Test if a given instrument is one-shot
 
    @param instrument to test
    @return true if this is a one-shot instrument
    @throws NexusException on failure
    */
   boolean isOneShot(Instrument instrument) throws NexusException;
+
+  /**
+   Test if a given one-shot instrument has its cutoffs enable
+
+   @param instrument to test
+   @return true if a given one-shot instrument has its cutoffs enable
+   @throws NexusException on failure
+   */
+  boolean isOneShotCutoffEnabled(Instrument instrument) throws NexusException;
 
   /**
    is initial segment?
