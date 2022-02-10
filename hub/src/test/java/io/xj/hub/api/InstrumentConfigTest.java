@@ -54,10 +54,21 @@ public class InstrumentConfigTest {
    Instruments have a config to play back as one-shots (ignore note-event lengths) #178307432
    */
   @Test
-  public void oneShotCutoffs() throws ValueException {
-    var subject = new InstrumentConfig("oneShotCutoffs=[   bada ,     bIng, b    ooM ]");
+  public void oneShotObserveLengthOfEvents() throws ValueException {
+    var subject = new InstrumentConfig("oneShotObserveLengthOfEvents=[   bada ,     bIng, b    ooM ]");
 
-    assertEquals(List.of("BADA", "BING", "BOOM"), subject.getOneShotCutoffs());
+    assertEquals(List.of("BADA", "BING", "BOOM"), subject.getOneShotObserveLengthOfEvents());
   }
+
+  /**
+   InstrumentConfig to disable note cutoffs for one-shot instruments #181211927
+   */
+  @Test
+  public void isOneShotCutoffEnabled() throws ValueException {
+    var subject = new InstrumentConfig("");
+
+    assertTrue(subject.isOneShotCutoffEnabled());
+  }
+
 
 }

@@ -315,6 +315,152 @@ resource "aws_cloudfront_distribution" "xj-dev-lab" {
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_distribution
+resource "aws_cloudfront_distribution" "xj-dev-help" {
+  enabled             = true
+  is_ipv6_enabled     = true
+  comment             = "help.dev.xj.io"
+  default_root_object = "index.html"
+  http_version        = "http2"
+  price_class         = "PriceClass_100"
+  aliases = [
+    "help.dev.xj.io"
+  ]
+
+  origin {
+    domain_name = aws_s3_bucket.xj-dev-help.bucket_regional_domain_name
+    origin_id   = "xj-dev-help-s3-origin"
+    origin_path = ""
+    custom_origin_config {
+      http_port              = 80
+      https_port             = 443
+      origin_protocol_policy = "http-only"
+      origin_ssl_protocols = [
+        "TLSv1",
+        "TLSv1.1",
+        "TLSv1.2"
+      ]
+    }
+  }
+
+  default_cache_behavior {
+    allowed_methods = [
+      "GET",
+      "HEAD",
+    ]
+    cached_methods = [
+      "GET",
+      "HEAD"
+    ]
+    target_origin_id = "xj-dev-help-s3-origin"
+
+    forwarded_values {
+      query_string = false
+      cookies {
+        forward = "none"
+      }
+      headers = []
+    }
+
+    viewer_protocol_policy = "redirect-to-https"
+    min_ttl                = 0
+    default_ttl            = 3600
+    max_ttl                = 86400
+  }
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "blacklist"
+      locations = [
+        "CN"
+      ]
+    }
+  }
+
+  viewer_certificate {
+    acm_certificate_arn      = aws_acm_certificate.xj-environments.arn
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2019"
+  }
+
+  tags = {
+    Environment = "prod"
+  }
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_distribution
+resource "aws_cloudfront_distribution" "xj-dev-status" {
+  enabled             = true
+  is_ipv6_enabled     = true
+  comment             = "status.dev.xj.io"
+  default_root_object = "index.html"
+  http_version        = "http2"
+  price_class         = "PriceClass_100"
+  aliases = [
+    "status.dev.xj.io"
+  ]
+
+  origin {
+    domain_name = aws_s3_bucket.xj-dev-status.bucket_regional_domain_name
+    origin_id   = "xj-dev-status-s3-origin"
+    origin_path = ""
+    custom_origin_config {
+      http_port              = 80
+      https_port             = 443
+      origin_protocol_policy = "http-only"
+      origin_ssl_protocols = [
+        "TLSv1",
+        "TLSv1.1",
+        "TLSv1.2"
+      ]
+    }
+  }
+
+  default_cache_behavior {
+    allowed_methods = [
+      "GET",
+      "HEAD",
+    ]
+    cached_methods = [
+      "GET",
+      "HEAD"
+    ]
+    target_origin_id = "xj-dev-status-s3-origin"
+
+    forwarded_values {
+      query_string = false
+      cookies {
+        forward = "none"
+      }
+      headers = []
+    }
+
+    viewer_protocol_policy = "redirect-to-https"
+    min_ttl                = 0
+    default_ttl            = 3600
+    max_ttl                = 86400
+  }
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "blacklist"
+      locations = [
+        "CN"
+      ]
+    }
+  }
+
+  viewer_certificate {
+    acm_certificate_arn      = aws_acm_certificate.xj-environments.arn
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2019"
+  }
+
+  tags = {
+    Environment = "prod"
+  }
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_distribution
 resource "aws_cloudfront_distribution" "xj-dev-local" {
   enabled         = true
   is_ipv6_enabled = true

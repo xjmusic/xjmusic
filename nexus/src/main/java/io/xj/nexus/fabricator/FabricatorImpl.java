@@ -916,12 +916,17 @@ class FabricatorImpl implements Fabricator {
   @Override
   public boolean isOneShot(Instrument instrument, String trackName) throws NexusException {
     return isOneShot(instrument)
-      && !getInstrumentConfig(instrument).getOneShotCutoffs().contains(trackName);
+      && !getInstrumentConfig(instrument).getOneShotObserveLengthOfEvents().contains(trackName);
   }
 
   @Override
   public boolean isOneShot(Instrument instrument) throws NexusException {
     return getInstrumentConfig(instrument).isOneShot();
+  }
+
+  @Override
+  public boolean isOneShotCutoffEnabled(Instrument instrument) throws NexusException {
+    return getInstrumentConfig(instrument).isOneShotCutoffEnabled();
   }
 
   @Override
