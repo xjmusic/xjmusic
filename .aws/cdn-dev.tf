@@ -327,7 +327,7 @@ resource "aws_cloudfront_distribution" "xj-dev-help" {
   ]
 
   origin {
-    domain_name = aws_s3_bucket.xj-dev-help.bucket_regional_domain_name
+    domain_name = "${aws_s3_bucket.xj-dev-help.bucket}.s3-website-${local.aws-region}.amazonaws.com"
     origin_id   = "xj-dev-help-s3-origin"
     origin_path = ""
     custom_origin_config {
@@ -400,7 +400,7 @@ resource "aws_cloudfront_distribution" "xj-dev-status" {
   ]
 
   origin {
-    domain_name = aws_s3_bucket.xj-dev-status.bucket_regional_domain_name
+    domain_name = "${aws_s3_bucket.xj-dev-status.bucket}.s3-website-${local.aws-region}.amazonaws.com"
     origin_id   = "xj-dev-status-s3-origin"
     origin_path = ""
     custom_origin_config {
