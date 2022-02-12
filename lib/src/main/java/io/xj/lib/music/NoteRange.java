@@ -20,28 +20,56 @@ public class NoteRange {
   @Nullable
   Note high;
 
-  public NoteRange(Collection<String> notes) {
-    low = notes.stream().map(Note::of).min(Note::compareTo).orElse(null);
-    high = notes.stream().map(Note::of).max(Note::compareTo).orElse(null);
-  }
-
-  public NoteRange() {
+  private NoteRange() {
     low = null;
     high = null;
   }
 
-  public NoteRange(@Nullable Note low, @Nullable Note high) {
+  private NoteRange(@Nullable Note low, @Nullable Note high) {
     this.low = low;
     this.high = high;
   }
 
-  public NoteRange(@Nullable String low, @Nullable String high) {
+  private NoteRange(@Nullable String low, @Nullable String high) {
     this.low = Objects.nonNull(low) ? Note.of(low) : null;
     this.high = Objects.nonNull(high) ? Note.of(high) : null;
   }
 
+  public static NoteRange from(@Nullable Note low, @Nullable Note high) {
+    return new NoteRange(low, high);
+  }
+
+  public static NoteRange from(@Nullable String low, @Nullable String high) {
+    return new NoteRange(low, high);
+  }
+
   public static NoteRange copyOf(NoteRange range) {
     return new NoteRange(range.low, range.high);
+  }
+
+  public static NoteRange ofNotes(Collection<Note> notes) {
+    return new NoteRange(
+      notes.stream().min(Note::compareTo).orElse(null),
+      notes.stream().max(Note::compareTo).orElse(null)
+    );
+  }
+
+  public static NoteRange ofStrings(Collection<String> notes) {
+    return new NoteRange(
+      notes.stream().map(Note::of).min(Note::compareTo).orElse(null),
+      notes.stream().map(Note::of).max(Note::compareTo).orElse(null)
+    );
+  }
+
+  public static NoteRange median(NoteRange r1, NoteRange r2) {
+    return new NoteRange(
+      Note.median(r1.getLow().orElse(null), r2.getLow().orElse(null)),
+      Note.median(r1.getHigh().orElse(null), r2.getHigh().orElse(null))
+    );
+  }
+
+  public static NoteRange empty() {
+    return new NoteRange();
   }
 
   public Optional<Note> getLow() {
@@ -62,7 +90,7 @@ public class NoteRange {
     return UNKNOWN;
   }
 
-  public void expand(Set<Note> notes) {
+  public void expand(Collection<Note> notes) {
     for (var note : notes) expand(note);
   }
 
@@ -74,5 +102,31 @@ public class NoteRange {
   public void expand(NoteRange range) {
     if (Objects.nonNull(range.low)) expand(range.low);
     if (Objects.nonNull(range.high)) expand(range.high);
+  }
+
+  public int getDeltaSemitones(NoteRange target) {
+    var s = getMedianNote();
+    var t = target.getMedianNote();
+    if (Objects.isNull(s) || Objects.isNull(t)) return 0;
+    return s.delta(t);
+  }
+
+  public @Nullable
+  Note getMedianNote() {
+    if (Objects.isNull(low) && Objects.isNull(high)) return null;
+    if (Objects.isNull(low)) return high;
+    if (Objects.isNull(high)) return low;
+    return low.shift(low.delta(high) / 2);
+  }
+
+  public NoteRange shifted(int inc) {
+    return new NoteRange(
+      Objects.nonNull(low) ? low.shift(inc) : null,
+      Objects.nonNull(high) ? high.shift(inc) : null
+    );
+  }
+
+  public boolean isEmpty() {
+    return Objects.isNull(low) && Objects.isNull(high);
   }
 }

@@ -7,6 +7,9 @@ import com.google.common.collect.ImmutableSet;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
+
+import static io.xj.lib.music.NoteTest.assertNote;
 import static org.junit.Assert.*;
 
 public class NoteRangeTest {
@@ -14,7 +17,7 @@ public class NoteRangeTest {
 
   @Before
   public void setUp() {
-    subject = new NoteRange(ImmutableList.of(
+    subject = NoteRange.ofStrings(ImmutableList.of(
       "C3",
       "E3",
       "D4",
@@ -35,7 +38,7 @@ public class NoteRangeTest {
 
   @Test
   public void rangeFromNotes() {
-    subject = new NoteRange(Note.of("C3"), Note.of("C4"));
+    subject = NoteRange.from(Note.of("C3"), Note.of("C4"));
 
     assertTrue(Note.of("C3").sameAs(subject.getLow().orElseThrow()));
     assertTrue(Note.of("C4").sameAs(subject.getHigh().orElseThrow()));
@@ -43,7 +46,7 @@ public class NoteRangeTest {
 
   @Test
   public void rangeFromNotes_lowIsOptional() {
-    subject = new NoteRange(null, Note.of("C4"));
+    subject = NoteRange.from(null, Note.of("C4"));
 
     assertFalse(subject.getLow().isPresent());
     assertTrue(Note.of("C4").sameAs(subject.getHigh().orElseThrow()));
@@ -51,7 +54,7 @@ public class NoteRangeTest {
 
   @Test
   public void rangeFromNotes_highIsOptional() {
-    subject = new NoteRange(Note.of("C4"), null);
+    subject = NoteRange.from(Note.of("C4"), null);
 
     assertTrue(Note.of("C4").sameAs(subject.getLow().orElseThrow()));
     assertFalse(subject.getHigh().isPresent());
@@ -59,7 +62,7 @@ public class NoteRangeTest {
 
   @Test
   public void rangeFromStrings() {
-    subject = new NoteRange("C3", "C4");
+    subject = NoteRange.from("C3", "C4");
 
     assertTrue(Note.of("C3").sameAs(subject.getLow().orElseThrow()));
     assertTrue(Note.of("C4").sameAs(subject.getHigh().orElseThrow()));
@@ -67,7 +70,7 @@ public class NoteRangeTest {
 
   @Test
   public void rangeFromStrings_lowOptional() {
-    subject = new NoteRange(null, "C4");
+    subject = NoteRange.from(null, "C4");
 
     assertFalse(subject.getLow().isPresent());
     assertTrue(Note.of("C4").sameAs(subject.getHigh().orElseThrow()));
@@ -75,7 +78,7 @@ public class NoteRangeTest {
 
   @Test
   public void rangeFromStrings_highOptional() {
-    subject = new NoteRange("C4", null);
+    subject = NoteRange.from("C4", null);
 
     assertTrue(Note.of("C4").sameAs(subject.getLow().orElseThrow()));
     assertFalse(subject.getHigh().isPresent());
@@ -115,7 +118,7 @@ public class NoteRangeTest {
 
   @Test
   public void expandWithAnotherRange() {
-    subject.expand(new NoteRange(ImmutableSet.of(
+    subject.expand(NoteRange.ofStrings(ImmutableSet.of(
       "G2",
       "G6"
     )));
@@ -123,4 +126,61 @@ public class NoteRangeTest {
     assertTrue(Note.of("G2").sameAs(subject.getLow().orElseThrow()));
     assertTrue(Note.of("G6").sameAs(subject.getHigh().orElseThrow()));
   }
+
+  @Test
+  public void median() {
+    var fromNulls = NoteRange.median(NoteRange.ofStrings(List.of()), NoteRange.ofStrings(List.of()));
+    assertTrue(fromNulls.getLow().isEmpty());
+    assertTrue(fromNulls.getHigh().isEmpty());
+
+    var emptyHigh = NoteRange.median(NoteRange.ofStrings(List.of("C5")), NoteRange.ofStrings(List.of()));
+    assertNote("C5", emptyHigh.getLow().orElseThrow());
+    assertNote("C5", emptyHigh.getHigh().orElseThrow());
+
+    var emptyLow = NoteRange.median(NoteRange.ofStrings(List.of()), NoteRange.ofStrings(List.of("G#5")));
+    assertNote("G#5", emptyLow.getLow().orElseThrow());
+    assertNote("G#5", emptyLow.getHigh().orElseThrow());
+
+    var normal = NoteRange.median(NoteRange.ofStrings(List.of("C5", "G5")), NoteRange.ofStrings(List.of("G#5", "B5")));
+    assertNote("E5", normal.getLow().orElseThrow());
+    assertNote("A5", normal.getHigh().orElseThrow());
+  }
+
+  @Test
+  public void getDeltaSemitones() {
+    assertEquals(0, NoteRange.from("C5", "G5").getDeltaSemitones(NoteRange.from("C5", "G5")));
+    assertEquals(0, NoteRange.from("C5", "G5").getDeltaSemitones(NoteRange.from("D5", "F5")));
+    assertEquals(1, NoteRange.from("C5", "G5").getDeltaSemitones(NoteRange.from("E5", "F5")));
+    assertEquals(-1, NoteRange.from("C5", "G5").getDeltaSemitones(NoteRange.from("D5", "Eb5")));
+    assertEquals(2, NoteRange.from("C5", "G5").getDeltaSemitones(NoteRange.from("F5", "F#5")));
+    assertEquals(-2, NoteRange.from("C5", "G5").getDeltaSemitones(NoteRange.from("Db5", "D5")));
+  }
+
+  @Test
+  public void getMedianNote() {
+    assertNote("D#5", NoteRange.from("C5", "G5").getMedianNote());
+    assertNote("G5", NoteRange.from(null, "G5").getMedianNote());
+    assertNote("C5", NoteRange.from("C5", null).getMedianNote());
+    assertNull(NoteRange.empty().getMedianNote());
+  }
+
+  @Test
+  public void shifted() {
+    var input = NoteRange.from("C5", "G5");
+
+    var result = input.shifted(2);
+
+    assertNote("D5", result.getLow().orElseThrow());
+    assertNote("A5", result.getHigh().orElseThrow());
+    // input not modified
+    assertNote("C5", input.getLow().orElseThrow());
+    assertNote("G5", input.getHigh().orElseThrow());
+  }
+
+  @Test
+  public void isEmpty() {
+    assertTrue(NoteRange.empty().isEmpty());
+    assertFalse(NoteRange.from("C5", "G5").isEmpty());
+  }
+
 }

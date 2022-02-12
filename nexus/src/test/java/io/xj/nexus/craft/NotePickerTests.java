@@ -30,22 +30,22 @@ public class NotePickerTests extends YamlTest {
 
   @Test
   public void notePicker4a() {
-    loadAndRunTest("note_picker_4a.yaml");
+    loadAndRunTest("arrangement_4_5_notes_one.yaml");
   }
 
   @Test
   public void notePicker4b() {
-    loadAndRunTest("note_picker_4b.yaml");
+    loadAndRunTest("arrangement_4_5_notes_two.yaml");
   }
 
   @Test
   public void notePicker4c() {
-    loadAndRunTest("note_picker_4c.yaml");
+    loadAndRunTest("arrangement_4_5_notes_three.yaml");
   }
 
   @Test
   public void notePicker6a() {
-    loadAndRunTest("note_picker_6a.yaml");
+    loadAndRunTest("arrangement_6_notes.yaml");
   }
 
   /**
@@ -98,8 +98,8 @@ public class NotePickerTests extends YamlTest {
 
   private NoteRange getOptionalNoteRange(Map<?, ?> obj) {
     Map<?, ?> rObj = (Map<?, ?>) obj.get("range");
-    if (Objects.isNull(rObj)) return new NoteRange();
-    return new NoteRange(getStr(rObj, "from"), getStr(rObj, "to"));
+    if (Objects.isNull(rObj)) return NoteRange.empty();
+    return NoteRange.from(getStr(rObj, "from"), getStr(rObj, "to"));
   }
 
   private void loadAndPerformAssertions(Map<?, ?> data) throws Exception {

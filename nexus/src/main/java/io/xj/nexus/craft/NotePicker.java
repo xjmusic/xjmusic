@@ -12,7 +12,6 @@ import io.xj.lib.music.PitchClass;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  In order to pick exactly one optimal voicing note for each of the source event notes.
@@ -27,14 +26,16 @@ public class NotePicker {
   private final Set<Note> pickedNotes;
   private final SecureRandom random = new SecureRandom(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
   private final Collection<InstrumentType> instrumentTypesToSeekInversions = ImmutableList.of(
-    InstrumentType.Stripe,
-    InstrumentType.Stab,
     InstrumentType.Pad,
-    InstrumentType.Sticky
+    InstrumentType.Stab,
+    InstrumentType.Sticky,
+    InstrumentType.Stripe
   );
 
   /**
-   Build a NotePicker from the given optimal target range,@param instrumentType for which to pick notes
+   Build a NotePicker from the given optimal target range
+
+   @param instrumentType for which to pick notes
 
    @param chord        for prioritizing notes especially
    @param range        optimally picks will be within
@@ -55,7 +56,7 @@ public class NotePicker {
    */
   public void pick() {
     // Pick the notes
-    for (var eN : eventNotes.stream().sorted(Note::compareTo).collect(Collectors.toList())) {
+    for (var eN : eventNotes.stream().sorted(Note::compareTo).toList()) {
       if (PitchClass.None.equals(eN.getPitchClass()))
         pickRandom(voicingNotes)
           .ifPresent(this::pick);
