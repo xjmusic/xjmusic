@@ -4,6 +4,7 @@ package io.xj.lib.music;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
+import javax.annotation.Nullable;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -131,7 +132,8 @@ public class NoteTest {
     assertNote("G6", Note.of("G#6").conformedTo(Chord.of("C major 7")));
   }
 
-  private void assertNote(String expect, Note actual) {
+  public static void assertNote(String expect, @Nullable Note actual) {
+    assertNotNull(actual);
     assertEquals(Note.of(expect).getPitchClass(), actual.getPitchClass());
     assertEquals(Note.of(expect).getOctave(), actual.getOctave());
   }
@@ -231,5 +233,13 @@ public class NoteTest {
     assertTrue(Note.containsAnyValidNotes("C3, D3, E3"));
     assertFalse(Note.containsAnyValidNotes("Y, Z"));
     assertFalse(Note.containsAnyValidNotes("(None)")); // NC voicing
+  }
+
+  @Test
+  public void median() {
+    assertNull(Note.median(null, null));
+    assertNote("C5", Note.median(Note.of("C5"), null));
+    assertNote("G#5", Note.median(null, Note.of("G#5")));
+    assertNote("E5", Note.median(Note.of("C5"), Note.of("G#5")));
   }
 }

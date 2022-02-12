@@ -187,7 +187,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   protected void craftArrangements(SegmentChoice choice, boolean defaultAtonal) throws NexusException {
     // this is used to invert voicings into the tightest possible range
     // passed to each iteration of note voicing arrangement in order to move as little as possible from the previous
-    NoteRange range = new NoteRange();
+    NoteRange range = NoteRange.empty();
 
     var programConfig = fabricator.getProgramConfig(fabricator.getProgram(choice)
       .orElseThrow(() -> new NexusException("Can't get program config")));
@@ -592,12 +592,15 @@ public class CraftImpl extends FabricationWrapperImpl {
     var voicingNotes = fabricator.getNotes(voicing).stream()
       .flatMap(Note::ofValid)
       .collect(Collectors.toList());
+    var eventNotes = CSV.split(event.getNote())
+      .stream()
+      .map(n -> Note.of(n).shift(targetShiftSemitones + 12 * targetShiftOctaves))
+      .collect(Collectors.toList());
+    var eventDeltaSemitones = sourceRange.shifted(targetShiftSemitones).getDeltaSemitones(NoteRange.ofNotes(eventNotes));
+    if (range.isEmpty())
+      range.expand(NoteRange.ofNotes(eventNotes).shifted(eventDeltaSemitones));
 
-    var notePicker = new NotePicker(instrumentType, chord, range, voicingNotes,
-      CSV.split(event.getNote())
-        .stream()
-        .map(n -> Note.of(n).shift(targetShiftSemitones + 12 * targetShiftOctaves))
-        .collect(Collectors.toList()));
+    var notePicker = new NotePicker(instrumentType, chord, range.shifted(eventDeltaSemitones), voicingNotes, eventNotes);
 
     notePicker.pick();
     range.expand(notePicker.getRange());

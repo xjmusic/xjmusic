@@ -38,7 +38,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
@@ -48,7 +47,7 @@ import static org.junit.Assert.assertEquals;
  [#176696738] XJ has a serviceable voicing algorithm
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ArrangementCraftTests extends YamlTest {
+public class ArrangementTests extends YamlTest {
   private static final int REPEAT_EACH_TEST_TIMES = 7;
   private static final Set<InstrumentType> INSTRUMENT_TYPES = ImmutableSet.of(
     InstrumentType.Bass,
@@ -85,38 +84,43 @@ public class ArrangementCraftTests extends YamlTest {
   }
 
   @Test
-  public void arrangementCraft1() {
-    loadAndRunTest("arrangement_craft_1.yaml");
+  public void arrangement1() {
+    loadAndRunTest("arrangement_1.yaml");
   }
 
   @Test
-  public void arrangementCraft2() {
-    loadAndRunTest("arrangement_craft_2.yaml");
+  public void arrangement2() {
+    loadAndRunTest("arrangement_2.yaml");
   }
 
   @Test
-  public void arrangementCraft3() {
-    loadAndRunTest("arrangement_craft_3.yaml");
+  public void arrangement3() {
+    loadAndRunTest("arrangement_3.yaml");
   }
 
   @Test
-  public void arrangementCraft4() {
-    loadAndRunTest("arrangement_craft_4.yaml");
+  public void arrangement4() {
+    loadAndRunTest("arrangement_4.yaml");
   }
 
   @Test
-  public void arrangementCraft5() {
-    loadAndRunTest("arrangement_craft_5.yaml");
+  public void arrangement5() {
+    loadAndRunTest("arrangement_5.yaml");
   }
 
   @Test
-  public void arrangementCraft6() {
-    loadAndRunTest("arrangement_craft_6.yaml");
+  public void arrangement6() {
+    loadAndRunTest("arrangement_6.yaml");
   }
 
   @Test
-  public void arrangementCraft7NoChordSections() {
-    loadAndRunTest("arrangement_craft_7_no_chord_sections.yaml");
+  public void arrangement7() {
+    loadAndRunTest("arrangement_7.yaml");
+  }
+
+  @Test
+  public void arrangement0_NoChordSections() {
+    loadAndRunTest("arrangement_0_no_chord_sections.yaml");
   }
 
   @Before
@@ -132,7 +136,9 @@ public class ArrangementCraftTests extends YamlTest {
   }
 
   /**
-   Load the specified test YAML file and run it repeatedly.@param filename of test YAML file
+   Load the specified test YAML file and run it repeatedly.
+
+   @param filename of test YAML file
    */
   private void loadAndRunTest(String filename) {
     for (int i = 0; i < REPEAT_EACH_TEST_TIMES; i++)
@@ -327,8 +333,7 @@ public class ArrangementCraftTests extends YamlTest {
         .filter(pick -> pick.getEvent().equals(type.toString()) &&
           (Objects.isNull(start) || start.equals(pick.getStart().floatValue())) &&
           (Objects.isNull(length) || length.equals(pick.getLength().floatValue())))
-        .map(SegmentChoiceArrangementPick::getNote)
-        .collect(Collectors.toList());
+        .map(SegmentChoiceArrangementPick::getNote).toList();
 
       if (Objects.nonNull(count))
         assertSame(String.format("Count %d %s", count, assertionName),

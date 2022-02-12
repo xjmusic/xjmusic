@@ -4,6 +4,8 @@ package io.xj.lib.music;
 import com.google.api.client.util.Strings;
 import io.xj.lib.util.CSV;
 
+import javax.annotation.Nullable;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -108,6 +110,21 @@ public class Note {
    */
   public static boolean containsAnyValidNotes(String notes) {
     return CSV.split(notes).stream().anyMatch(Note::isValid);
+  }
+
+  /**
+   Return the median note between the two given notes, or just one if the other is null
+
+   @param n1 note 1
+   @param n2 note 2
+   @return median note between the given two
+   */
+  public static @Nullable
+  Note median(@Nullable Note n1, @Nullable Note n2) {
+    if (Objects.isNull(n1) && Objects.isNull(n2)) return null;
+    if (Objects.isNull(n1)) return n2;
+    if (Objects.isNull(n2)) return n1;
+    return n1.shift(n1.delta(n2)/2);
   }
 
   /**

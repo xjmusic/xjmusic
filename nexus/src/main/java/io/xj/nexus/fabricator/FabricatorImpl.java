@@ -647,7 +647,7 @@ class FabricatorImpl implements Fabricator {
 
     if (!rangeForChoice.containsKey(key)) {
       rangeForChoice.put(key,
-        new NoteRange(
+        NoteRange.ofStrings(
           sourceMaterial.getEvents(programId)
             .stream()
             .filter(event ->
@@ -712,7 +712,7 @@ class FabricatorImpl implements Fabricator {
   @Override
   public NoteRange getProgramVoicingNoteRange(InstrumentType type) {
     if (!voicingNoteRange.containsKey(type)) {
-      voicingNoteRange.put(type, new NoteRange(workbench.getSegmentChordVoicings()
+      voicingNoteRange.put(type, NoteRange.ofStrings(workbench.getSegmentChordVoicings()
         .stream()
         .filter(Segments::containsAnyValidNotes)
         .filter(segmentChordVoicing -> Objects.equals(segmentChordVoicing.getType(), type.toString()))
