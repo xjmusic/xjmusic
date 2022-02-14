@@ -122,8 +122,6 @@ resource "aws_iam_user_policy" "xj-ci" {
           "${aws_s3_bucket.xj-status.arn}/*",
           aws_s3_bucket.xj-lab.arn,
           "${aws_s3_bucket.xj-lab.arn}/*",
-          aws_s3_bucket.xj-lab-mk1.arn,
-          "${aws_s3_bucket.xj-lab-mk1.arn}/*",
           # Development
           aws_s3_bucket.xj-dev.arn,
           "${aws_s3_bucket.xj-dev.arn}/*",

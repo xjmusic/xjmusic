@@ -395,22 +395,6 @@ resource "aws_cloudfront_distribution" "xj-lab" {
   }
 
   origin {
-    domain_name = "${aws_s3_bucket.xj-lab-mk1.bucket}.s3-website-${local.aws-region}.amazonaws.com"
-    origin_id   = "xj-lab-mk1-s3-origin"
-    origin_path = ""
-    custom_origin_config {
-      http_port              = 80
-      https_port             = 443
-      origin_protocol_policy = "http-only"
-      origin_ssl_protocols = [
-        "TLSv1",
-        "TLSv1.1",
-        "TLSv1.2"
-      ]
-    }
-  }
-
-  origin {
     // noinspection HILUnresolvedReference
     domain_name = "a4d3206b24ba3444d8470f29e93fe44d-1980008227.us-east-1.elb.amazonaws.com"
     origin_id   = "xj-lab-hub-origin"
@@ -564,32 +548,6 @@ resource "aws_cloudfront_distribution" "xj-lab" {
         whitelisted_names = [
           "access_token"
         ]
-      }
-    }
-  }
-
-  ordered_cache_behavior {
-    path_pattern = "mk1/*"
-    allowed_methods = [
-      "GET",
-      "HEAD",
-      "OPTIONS"
-    ]
-    cached_methods = [
-      "GET",
-      "HEAD",
-    ]
-    compress               = true
-    default_ttl            = 86400
-    max_ttl                = 31536000
-    min_ttl                = 1
-    target_origin_id       = "xj-lab-mk1-s3-origin"
-    viewer_protocol_policy = "redirect-to-https"
-    forwarded_values {
-      headers      = []
-      query_string = false
-      cookies {
-        forward = "none"
       }
     }
   }
