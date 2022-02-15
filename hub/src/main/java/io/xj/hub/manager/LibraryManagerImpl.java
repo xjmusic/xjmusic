@@ -3,6 +3,7 @@ package io.xj.hub.manager;
 
 import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
+import io.xj.hub.enums.UserRoleType;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.Library;
@@ -117,7 +118,8 @@ public class LibraryManagerImpl extends HubPersistenceServiceImpl<Library> imple
   @Override
   public void destroy(HubAccess access, UUID id) throws ManagerException {
     DSLContext db = dbProvider.getDSL();
-    requireTopLevel(access);
+
+    requireAny(access, UserRoleType.Artist, UserRoleType.Engineer);
 
     db.update(LIBRARY)
       .set(LIBRARY.IS_DELETED, true)

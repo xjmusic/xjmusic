@@ -83,10 +83,10 @@ public class TemplatePlaybackManagerImplTest {
 
   @Test
   public void create_alwaysTakesUserFromHubAccess() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     TemplatePlayback subject = buildTemplatePlayback(fake.template1, fake.user3); // user will be overridden by hub access user id
 
-    TemplatePlayback result = testManager.create(hubAccess, subject);
+    TemplatePlayback result = testManager.create(access, subject);
 
     assertNotNull(result);
     assertEquals(fake.template1.getId(), result.getTemplateId());
@@ -95,12 +95,12 @@ public class TemplatePlaybackManagerImplTest {
 
   @Test
   public void create_withoutSpecifyingUser() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     TemplatePlayback subject = new TemplatePlayback();
     subject.setId(UUID.randomUUID());
     subject.setTemplateId(fake.template1.getId());
 
-    TemplatePlayback result = testManager.create(hubAccess, subject);
+    TemplatePlayback result = testManager.create(access, subject);
 
     assertNotNull(result);
     assertEquals(fake.template1.getId(), result.getTemplateId());
@@ -109,34 +109,34 @@ public class TemplatePlaybackManagerImplTest {
 
   @Test
   public void create_cannotPlaybackProductionChain() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var template5 = test.insert(buildTemplate(fake.account1, TemplateType.Production, "test", UUID.randomUUID().toString()));
 
     TemplatePlayback subject = buildTemplatePlayback(template5, fake.user3); // user will be overridden by hub access user id
 
-    var e = assertThrows(ManagerException.class, () -> testManager.create(hubAccess, subject));
+    var e = assertThrows(ManagerException.class, () -> testManager.create(access, subject));
     assertEquals("Preview-type Template is required", e.getMessage());
   }
 
   @Test
   public void update_notAllowed() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     TemplatePlayback subject = test.insert(buildTemplatePlayback(fake.template1, fake.user2));
 
-    assertThrows(ManagerException.class, () -> testManager.update(hubAccess, subject.getId(), subject));
+    assertThrows(ManagerException.class, () -> testManager.update(access, subject.getId(), subject));
   }
 
   @Test
   public void create_archivesExistingForUser() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var priorTemplate = test.insert(buildTemplate(fake.account1, TemplateType.Preview, "Prior", UUID.randomUUID().toString()));
 
     var priorPlayback = test.insert(buildTemplatePlayback(priorTemplate, fake.user2));
     var subject = buildTemplatePlayback(fake.template1, fake.user2);
 
-    testManager.create(hubAccess, subject);
+    testManager.create(access, subject);
 
-    assertThrows(ManagerException.class, () -> testManager.readOne(hubAccess, priorPlayback.getId()));
+    assertThrows(ManagerException.class, () -> testManager.readOne(access, priorPlayback.getId()));
   }
 
   /**
@@ -144,21 +144,21 @@ public class TemplatePlaybackManagerImplTest {
    */
   @Test
   public void create_archivesExistingForTemplate() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
 
     var priorPlayback = test.insert(buildTemplatePlayback(fake.template1, fake.user3));
     var subject = buildTemplatePlayback(fake.template1, fake.user2);
 
-    testManager.create(hubAccess, subject);
+    testManager.create(access, subject);
 
-    assertThrows(ManagerException.class, () -> testManager.readOne(hubAccess, priorPlayback.getId()));
+    assertThrows(ManagerException.class, () -> testManager.readOne(access, priorPlayback.getId()));
   }
 
   @Test
   public void readOne() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
 
-    TemplatePlayback result = testManager.readOne(hubAccess, templatePlayback201.getId());
+    TemplatePlayback result = testManager.readOne(access, templatePlayback201.getId());
 
     assertNotNull(result);
     assertEquals(templatePlayback201.getId(), result.getId());
@@ -167,9 +167,9 @@ public class TemplatePlaybackManagerImplTest {
 
   @Test
   public void readOneForUser() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
 
-    var result = testManager.readOneForUser(hubAccess, fake.user2.getId());
+    var result = testManager.readOneForUser(access, fake.user2.getId());
 
     assertTrue(result.isPresent());
     assertEquals(templatePlayback201.getId(), result.get().getId());
@@ -178,10 +178,10 @@ public class TemplatePlaybackManagerImplTest {
 
   @Test
   public void readOneForUser_justCreated() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     test.insert(buildTemplatePlayback(fake.template1, fake.user3));
 
-    var result = testManager.readOneForUser(hubAccess, fake.user3.getId());
+    var result = testManager.readOneForUser(access, fake.user3.getId());
 
     assertTrue(result.isPresent());
     assertEquals(fake.user3.getId(), result.get().getUserId());
@@ -189,22 +189,22 @@ public class TemplatePlaybackManagerImplTest {
 
   @Test
   public void readOneForUser_notIfOlderThanThreshold() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var olderPlayback = buildTemplatePlayback(fake.template1, fake.user3);
     olderPlayback.setCreatedAt(Timestamp.from(Instant.now().minusSeconds(60 * 60 * 24)).toLocalDateTime());
     test.insert(olderPlayback);
 
-    var result = testManager.readOneForUser(hubAccess, fake.user3.getId());
+    var result = testManager.readOneForUser(access, fake.user3.getId());
 
     assertTrue(result.isEmpty());
   }
 
   @Test
   public void readOne_FailsWhenUserIsNotInTemplate() {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")
+    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")
     ), "User");
 
-    var e = assertThrows(ManagerException.class, () -> testManager.readOne(hubAccess, templatePlayback201.getId()));
+    var e = assertThrows(ManagerException.class, () -> testManager.readOne(access, templatePlayback201.getId()));
     assertEquals("Record does not exist", e.getMessage());
   }
 
@@ -212,50 +212,50 @@ public class TemplatePlaybackManagerImplTest {
 
   @Test
   public void readMany() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
 
-    Collection<TemplatePlayback> result = testManager.readMany(hubAccess, ImmutableList.of(fake.template1.getId()));
+    Collection<TemplatePlayback> result = testManager.readMany(access, ImmutableList.of(fake.template1.getId()));
 
     assertEquals(1L, result.size());
   }
 
   @Test
   public void readMany_seesAdditional() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
     test.insert(buildTemplatePlayback(fake.template1, fake.user3));
 
-    Collection<TemplatePlayback> result = testManager.readMany(hubAccess, ImmutableList.of(fake.template1.getId()));
+    Collection<TemplatePlayback> result = testManager.readMany(access, ImmutableList.of(fake.template1.getId()));
 
     assertEquals(2L, result.size());
   }
 
   @Test
   public void readMany_seesNoneOlderThanThreshold() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
     var olderPlayback = buildTemplatePlayback(fake.template1, fake.user3);
     olderPlayback.setCreatedAt(Timestamp.from(Instant.now().minusSeconds(60 * 60 * 24)).toLocalDateTime());
     test.insert(olderPlayback);
 
-    Collection<TemplatePlayback> result = testManager.readMany(hubAccess, ImmutableList.of(fake.template1.getId()));
+    Collection<TemplatePlayback> result = testManager.readMany(access, ImmutableList.of(fake.template1.getId()));
 
     assertEquals(1L, result.size());
   }
 
   @Test
   public void readMany_SeesNothingOutsideOfTemplate() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User");
+    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User");
 
-    Collection<TemplatePlayback> result = testManager.readMany(hubAccess, ImmutableList.of(fake.template1.getId()));
+    Collection<TemplatePlayback> result = testManager.readMany(access, ImmutableList.of(fake.template1.getId()));
 
     assertEquals(0L, result.size());
   }
 
   @Test
   public void destroy() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     TemplatePlayback templatePlayback251 = buildTemplatePlayback(fake.template1, fake.user2);
 
-    testManager.destroy(hubAccess, templatePlayback251.getId());
+    testManager.destroy(access, templatePlayback251.getId());
 
     try {
       testManager.readOne(HubAccess.internal(), templatePlayback251.getId());

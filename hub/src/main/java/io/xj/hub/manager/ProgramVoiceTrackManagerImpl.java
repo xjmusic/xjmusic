@@ -113,7 +113,7 @@ public class ProgramVoiceTrackManagerImpl extends HubPersistenceServiceImpl<Prog
   }
 
   /**
-   Require modification hubAccess to an entity
+   Require modification access to an entity
 
    @param db        context
    @param hubAccess control
@@ -127,7 +127,7 @@ public class ProgramVoiceTrackManagerImpl extends HubPersistenceServiceImpl<Prog
           .where(PROGRAM_VOICE_TRACK.ID.eq(id))
           .fetchOne(0, int.class));
     else
-      requireExists("Track in Voice in Program you have hubAccess to",
+      requireExists("Track in Voice in Program you have access to",
         db.selectCount().from(PROGRAM_VOICE_TRACK)
           .join(PROGRAM_VOICE).on(PROGRAM_VOICE.ID.eq(PROGRAM_VOICE_TRACK.PROGRAM_VOICE_ID))
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_VOICE.PROGRAM_ID))

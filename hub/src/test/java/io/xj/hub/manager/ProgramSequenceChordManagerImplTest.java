@@ -96,7 +96,7 @@ public class ProgramSequenceChordManagerImplTest {
 
   @Test
   public void create() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var subject = new ProgramSequenceChord();
     subject.setId(UUID.randomUUID());
     subject.setProgramSequenceId(fake.program3_sequence1.getId());
@@ -105,7 +105,7 @@ public class ProgramSequenceChordManagerImplTest {
     subject.setPosition(2.0);
 
     var result = testManager.create(
-      hubAccess, subject);
+      access, subject);
 
     assertNotNull(result);
     assertEquals(fake.program3.getId(), result.getProgramId());
@@ -115,7 +115,7 @@ public class ProgramSequenceChordManagerImplTest {
 
   @Test
   public void create_asArtist() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var inputData = new ProgramSequenceChord();
     inputData.setId(UUID.randomUUID());
     inputData.setProgramSequenceId(fake.program3_sequence1.getId());
@@ -124,7 +124,7 @@ public class ProgramSequenceChordManagerImplTest {
     inputData.setPosition(2.0);
 
     var result = testManager.create(
-      hubAccess, inputData);
+      access, inputData);
 
     assertNotNull(result);
     assertEquals(fake.program3.getId(), result.getProgramId());
@@ -134,9 +134,9 @@ public class ProgramSequenceChordManagerImplTest {
 
   @Test
   public void readOne() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
 
-    var result = testManager.readOne(hubAccess, sequenceChord1a_0.getId());
+    var result = testManager.readOne(access, sequenceChord1a_0.getId());
 
     assertNotNull(result);
     assertEquals(fake.program1.getId(), result.getProgramId());
@@ -146,20 +146,20 @@ public class ProgramSequenceChordManagerImplTest {
 
   @Test
   public void readMany() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
 
-    Collection<ProgramSequenceChord> result = testManager.readMany(hubAccess, ImmutableList.of(fake.program1.getId()));
+    Collection<ProgramSequenceChord> result = testManager.readMany(access, ImmutableList.of(fake.program1.getId()));
 
     assertEquals(1L, result.size());
   }
 
   @Test
   public void destroy() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
 
-    testManager.destroy(hubAccess, sequenceChord1a_0.getId());
+    testManager.destroy(access, sequenceChord1a_0.getId());
 
-    assertEquals(0L, testManager.readMany(hubAccess, ImmutableList.of(fake.program1.getId())).size());
+    assertEquals(0L, testManager.readMany(access, ImmutableList.of(fake.program1.getId())).size());
   }
 
   /**
@@ -169,11 +169,11 @@ public class ProgramSequenceChordManagerImplTest {
   public void destroy_afterHasVoicing() throws Exception {
     test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, InstrumentType.Pad, "C5, Eb5, G5"));
 
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
 
-    testManager.destroy(hubAccess, sequenceChord1a_0.getId());
+    testManager.destroy(access, sequenceChord1a_0.getId());
 
-    assertEquals(0L, testManager.readMany(hubAccess, ImmutableList.of(fake.program1.getId())).size());
+    assertEquals(0L, testManager.readMany(access, ImmutableList.of(fake.program1.getId())).size());
   }
 
 }

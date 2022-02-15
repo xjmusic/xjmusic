@@ -82,7 +82,7 @@ public class ProgramSequenceBindingMemeManagerImpl extends HubPersistenceService
   @Override
   public ProgramSequenceBindingMeme update(HubAccess hubAccess, UUID id, ProgramSequenceBindingMeme rawMeme) throws ManagerException, JsonapiException, ValueException {
     DSLContext db = dbProvider.getDSL();
-    require("Same id", Objects.equals(id, rawMeme.getId()));
+    requireAny("Same id", Objects.equals(id, rawMeme.getId()));
     var meme = validate(rawMeme);
     requireArtist(hubAccess);
     requireProgramModification(db, hubAccess, meme.getProgramId());
@@ -97,7 +97,7 @@ public class ProgramSequenceBindingMemeManagerImpl extends HubPersistenceService
     requireArtist(hubAccess);
 
     if (!hubAccess.isTopLevel())
-      requireExists("Meme belongs to Program in Account you have hubAccess to", db.selectCount()
+      requireExists("Meme belongs to Program in Account you have access to", db.selectCount()
         .from(PROGRAM_SEQUENCE_BINDING_MEME)
         .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))

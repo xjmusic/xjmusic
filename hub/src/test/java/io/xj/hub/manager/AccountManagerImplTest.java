@@ -66,9 +66,9 @@ public class AccountManagerImplTest {
 
   @Test
   public void readOne_asSetToModel() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
 
-    var result = subject.readOne(hubAccess, fake.account1.getId());
+    var result = subject.readOne(access, fake.account1.getId());
 
     assertNotNull(result);
     assertEquals(fake.account1.getId(), result.getId());
@@ -77,9 +77,9 @@ public class AccountManagerImplTest {
 
   @Test
   public void readMany() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
 
-    Collection<Account> results = subject.readMany(hubAccess, Lists.newArrayList());
+    Collection<Account> results = subject.readMany(access, Lists.newArrayList());
 
     assertNotNull(results);
     assertEquals(1L, results.size());
@@ -90,12 +90,12 @@ public class AccountManagerImplTest {
 
   @Test
   public void update() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
     var entity = new Account();
     entity.setId(UUID.randomUUID());
     entity.setName("jammers");
 
-    subject.update(hubAccess, fake.account1.getId(), entity);
+    subject.update(access, fake.account1.getId(), entity);
 
     var result = subject.readOne(HubAccess.internal(), fake.account1.getId());
     assertNotNull(result);
@@ -104,21 +104,21 @@ public class AccountManagerImplTest {
 
   @Test
   public void update_failsIfNotAdmin() {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
     var entity = new Account();
     entity.setId(UUID.randomUUID());
     entity.setName("jammers");
 
     var e = assertThrows(ManagerException.class,
-      () -> subject.update(hubAccess, fake.account1.getId(), entity));
+      () -> subject.update(access, fake.account1.getId(), entity));
     assertEquals("top-level access is required", e.getMessage());
   }
 
   @Test
   public void delete() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
 
-    subject.destroy(hubAccess, fake.account1.getId());
+    subject.destroy(access, fake.account1.getId());
 
     var e = assertThrows(ManagerException.class,
       () -> subject.readOne(HubAccess.internal(), fake.account1.getId()));
@@ -127,26 +127,26 @@ public class AccountManagerImplTest {
 
   @Test
   public void delete_failsIfNotAdmin() {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
 
     var e = assertThrows(ManagerException.class,
-      () -> subject.destroy(hubAccess, fake.account1.getId()));
+      () -> subject.destroy(access, fake.account1.getId()));
     assertEquals("top-level access is required", e.getMessage());
   }
 
   @Test
   public void delete_failsIfHasLibrary() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
     test.insert(buildLibrary(fake.account1, "Testing"));
 
     var e = assertThrows(ManagerException.class, () ->
-      subject.destroy(hubAccess, fake.account1.getId()));
+      subject.destroy(access, fake.account1.getId()));
     assertEquals("Account still has libraries!", e.getMessage());
   }
 
   @Test
   public void delete_failsIfHasAccountUser() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
     fake.user1 = test.insert(buildUser("jim",
       "jim@jim.com",
       "https://www.jim.com/jim.png",
@@ -154,7 +154,7 @@ public class AccountManagerImplTest {
     test.insert(buildAccountUser(fake.account1, fake.user1));
 
     var e = assertThrows(ManagerException.class,
-      () -> subject.destroy(hubAccess, fake.account1.getId()));
+      () -> subject.destroy(access, fake.account1.getId()));
     assertEquals("Account still has user access!", e.getMessage());
   }
 

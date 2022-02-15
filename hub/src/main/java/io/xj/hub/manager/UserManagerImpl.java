@@ -304,7 +304,7 @@ public class UserManagerImpl extends HubPersistenceServiceImpl<User> implements 
       } catch (NullPointerException | IllegalArgumentException e) {
         throw new ManagerException(e);
       }
-    require("At least one valid role", !validRoles.isEmpty());
+    requireAny("At least one valid role", !validRoles.isEmpty());
     entity.setRoles(validRoles.stream()
       .sorted(Enum::compareTo)
       .map(UserRoleType::toString)

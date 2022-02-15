@@ -98,10 +98,10 @@ public class InstrumentAudioManagerImplTest {
    */
   @Test
   public void create() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     var inputData = buildInstrumentAudio(fake.instrument201, "maracas", null, 0.009f, 0.21f, 80.5f);
 
-    var result = testManager.create(hubAccess, inputData);
+    var result = testManager.create(access, inputData);
 
     verify(fileStoreProvider, times(0)).generateKey("instrument-" + fake.instrument202.getId() + "-audio", "wav");
     assertNotNull(result);
@@ -115,11 +115,11 @@ public class InstrumentAudioManagerImplTest {
 
   @Test
   public void create_FailsWithoutInstrumentID() {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     var inputData = buildInstrumentAudio(fake.instrument201, "maracas", "instrument" + File.separator + "percussion" + File.separator + "demo_source_audio/808" + File.separator + "maracas.wav", 0.009f, 0.21f, 80.5f);
     inputData.setInstrumentId(null);
 
-    var e = assertThrows(ManagerException.class, () -> testManager.create(hubAccess, inputData));
+    var e = assertThrows(ManagerException.class, () -> testManager.create(access, inputData));
 
     assertEquals(e.getMessage(), "Instrument ID is required.");
   }
@@ -129,11 +129,11 @@ public class InstrumentAudioManagerImplTest {
    */
   @Test
   public void create_SucceedsWithoutWaveformKey() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     var inputData = buildInstrumentAudio(fake.instrument202, "maracas", null, 0.009f, 0.21f, 80.5f);
 
     var result = testManager.create(
-      hubAccess, inputData);
+      access, inputData);
 
     verify(fileStoreProvider, times(0)).generateKey("instrument-" + fake.instrument202.getId() + "-audio", "wav");
     assertNull(result.getWaveformKey());
@@ -144,10 +144,10 @@ public class InstrumentAudioManagerImplTest {
    */
   @Test
   public void clone_fromOriginal() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     var inputData = buildInstrumentAudio(fake.instrument202, "cannons fifty nine", "fake.audio5.wav", 0.01f, 2.0f, 120.0f);
 
-    var result = testManager.clone(hubAccess, fake.audio1.getId(), inputData);
+    var result = testManager.clone(access, fake.audio1.getId(), inputData);
 
     assertEquals("cannons fifty nine", result.getName());
     assertEquals(fake.instrument202.getId(), result.getInstrumentId());
@@ -163,11 +163,11 @@ public class InstrumentAudioManagerImplTest {
    */
   @Test
   public void clone_fromOriginal_noInputData() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     var inputData = new InstrumentAudio();
     inputData.setName("Clone of thing");
 
-    var result = testManager.clone(hubAccess, fake.audio1.getId(), inputData);
+    var result = testManager.clone(access, fake.audio1.getId(), inputData);
 
     assertEquals("Clone of thing", result.getName());
     assertEquals(fake.instrument202.getId(), result.getInstrumentId());
@@ -180,9 +180,9 @@ public class InstrumentAudioManagerImplTest {
 
   @Test
   public void readOne() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
 
-    var result = testManager.readOne(hubAccess, fake.audio1.getId());
+    var result = testManager.readOne(access, fake.audio1.getId());
 
     assertNotNull(result);
     assertEquals(fake.instrument202.getId(), result.getInstrumentId());
@@ -195,7 +195,7 @@ public class InstrumentAudioManagerImplTest {
 
   @Test
   public void uploadOne() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
 
     when(fileStoreProvider.generateAudioUploadPolicy())
       .thenReturn(new S3UploadPolicy("MyId", "MySecret", "bucket-owner-is-awesome", "xj-audio-test", "", 5));
@@ -210,7 +210,7 @@ public class InstrumentAudioManagerImplTest {
     when(fileStoreProvider.getAudioUploadACL())
       .thenReturn("bucket-owner-is-awesome");
 
-    Map<String, String> result = testManager.authorizeUpload(hubAccess, fake.audio2.getId(), "wav");
+    Map<String, String> result = testManager.authorizeUpload(access, fake.audio2.getId(), "wav");
 
     assertNotNull(result);
     assertEquals("instrument-" + fake.instrument202.getId() + "-audio-123456789.wav", result.get("waveformKey"));
@@ -224,36 +224,36 @@ public class InstrumentAudioManagerImplTest {
 
   @Test
   public void readMany() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
 
-    Collection<InstrumentAudio> result = testManager.readMany(hubAccess, ImmutableList.of(fake.instrument202.getId()));
+    Collection<InstrumentAudio> result = testManager.readMany(access, ImmutableList.of(fake.instrument202.getId()));
 
     assertEquals(2L, result.size());
   }
 
   @Test
   public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(), "Artist");
 
-    Collection<InstrumentAudio> result = testManager.readMany(hubAccess, ImmutableList.of(fake.instrument202.getId()));
+    Collection<InstrumentAudio> result = testManager.readMany(access, ImmutableList.of(fake.instrument202.getId()));
 
     assertEquals(0L, result.size());
   }
 
   @Test
   public void update_FailsWithoutInstrumentID() {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     var inputData = buildInstrumentAudio(fake.instrument201, "maracas", "instrument" + File.separator + "percussion" + File.separator + "demo_source_audio/808" + File.separator + "maracas.wav", 0.009f, 0.21f, 80.5f);
     inputData.setInstrumentId(null);
 
-    var e = assertThrows(ManagerException.class, () -> testManager.update(hubAccess, fake.audio1.getId(), inputData));
+    var e = assertThrows(ManagerException.class, () -> testManager.update(access, fake.audio1.getId(), inputData));
 
     assertEquals(e.getMessage(), "Instrument ID is required.");
   }
 
   @Test
   public void update_FailsUpdatingToNonexistentInstrument() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     var inputData = new InstrumentAudio();
     inputData.setId(UUID.randomUUID());
     inputData.setInstrumentId(UUID.randomUUID());
@@ -263,7 +263,7 @@ public class InstrumentAudioManagerImplTest {
     inputData.setTotalBeats(0.21f);
     inputData.setTempo(80.5f);
 
-    var e = assertThrows(ManagerException.class, () -> testManager.update(hubAccess, fake.audio2.getId(), inputData));
+    var e = assertThrows(ManagerException.class, () -> testManager.update(access, fake.audio2.getId(), inputData));
 
     assertEquals(e.getMessage(), "Instrument does not exist");
     var result = testManager.readOne(HubAccess.internal(), fake.audio2.getId());
@@ -276,10 +276,10 @@ public class InstrumentAudioManagerImplTest {
   // [#162361785] InstrumentAudio can be moved to a different Instrument
   @Test
   public void update() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     var inputData = buildInstrumentAudio(fake.instrument201, "maracas", "fake.audio5.wav", 0.009f, 0.21f, 80.5f);
 
-    testManager.update(hubAccess, fake.audio1.getId(), inputData);
+    testManager.update(access, fake.audio1.getId(), inputData);
 
     var result = testManager.readOne(HubAccess.internal(), fake.audio1.getId());
     assertNotNull(result);
@@ -295,19 +295,19 @@ public class InstrumentAudioManagerImplTest {
 
   @Test
   public void destroy_failsIfNotInAccount() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(), "Artist");
 
-    var e = assertThrows(ManagerException.class, () -> testManager.destroy(hubAccess, fake.audio1.getId()));
+    var e = assertThrows(ManagerException.class, () -> testManager.destroy(access, fake.audio1.getId()));
 
     assertEquals(e.getMessage(), "InstrumentAudio does not exist");
   }
 
   @Test
   public void destroy_SucceedsEvenWithChildren() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
 
     try {
-      testManager.destroy(hubAccess, fake.audio1.getId());
+      testManager.destroy(access, fake.audio1.getId());
 
     } catch (Exception e) {
       var result = testManager.readOne(HubAccess.internal(), fake.audio1.getId());
@@ -318,9 +318,9 @@ public class InstrumentAudioManagerImplTest {
 
   @Test
   public void destroy() throws Exception {
-    HubAccess hubAccess = HubAccess.internal();
+    HubAccess access = HubAccess.internal();
 
-    testManager.destroy(hubAccess, fake.audio1.getId());
+    testManager.destroy(access, fake.audio1.getId());
 
     try {
       testManager.readOne(HubAccess.internal(), fake.audio1.getId());

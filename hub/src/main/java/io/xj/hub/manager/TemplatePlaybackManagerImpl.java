@@ -56,7 +56,7 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl<Templ
     var template = modelFrom(Template.class, dbProvider.getDSL().selectFrom(TEMPLATE)
       .where(TEMPLATE.ID.eq(record.getTemplateId()))
       .fetchOne());
-    require("Preview-type Template", TemplateType.Preview.equals(template.getType()));
+    requireAny("Preview-type Template", TemplateType.Preview.equals(template.getType()));
 
     for (var prior : modelsFrom(TemplatePlayback.class,
       db.selectFrom(TEMPLATE_PLAYBACK)

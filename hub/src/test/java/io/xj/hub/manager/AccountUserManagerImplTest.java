@@ -73,14 +73,14 @@ public class AccountUserManagerImplTest {
 
   @Test
   public void create() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     fake.user5 = test.insert(buildUser("Jim", "jim@email.com", "https://pictures.com/jim.gif", "Admin"));
     var inputData = new AccountUser();
     inputData.setAccountId(fake.account1.getId());
     inputData.setUserId(fake.user5.getId());
 
     var result = testManager.create(
-      hubAccess, inputData);
+      access, inputData);
 
     assertNotNull(result);
     assertEquals(fake.account1.getId(), result.getAccountId());
@@ -89,7 +89,7 @@ public class AccountUserManagerImplTest {
 
   @Test
   public void create_FailIfAlreadyExists() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     var inputData = new AccountUser();
     inputData.setAccountId(fake.account1.getId());
     inputData.setUserId(fake.user2.getId());
@@ -98,12 +98,12 @@ public class AccountUserManagerImplTest {
     failure.expectMessage("Account User already exists!");
 
     testManager.create(
-      hubAccess, inputData);
+      access, inputData);
   }
 
   @Test
   public void create_FailIfNotAdmin() throws Exception {
-    HubAccess hubAccess = HubAccess.create("User");
+    HubAccess access = HubAccess.create("User");
     var inputData = new AccountUser();
     inputData.setAccountId(fake.account1.getId());
     inputData.setUserId(fake.user2.getId());
@@ -112,12 +112,12 @@ public class AccountUserManagerImplTest {
     failure.expectMessage("top-level access is required");
 
     testManager.create(
-      hubAccess, inputData);
+      access, inputData);
   }
 
   @Test
   public void create_FailsWithoutAccountID() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     var inputData = new AccountUser();
     inputData.setUserId(fake.user2.getId());
 
@@ -125,12 +125,12 @@ public class AccountUserManagerImplTest {
     failure.expectMessage("Account ID is required");
 
     testManager.create(
-      hubAccess, inputData);
+      access, inputData);
   }
 
   @Test
   public void create_FailsWithoutUserId() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     var inputData = new AccountUser();
     inputData.setAccountId(fake.account1.getId());
 
@@ -138,14 +138,14 @@ public class AccountUserManagerImplTest {
     failure.expectMessage("User ID is required");
 
     testManager.create(
-      hubAccess, inputData);
+      access, inputData);
   }
 
   @Test
   public void readOne() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
 
-    var result = testManager.readOne(hubAccess, accountUser_1_2.getId());
+    var result = testManager.readOne(access, accountUser_1_2.getId());
 
     assertNotNull(result);
     assertEquals(fake.account1.getId(), result.getAccountId());
@@ -154,37 +154,37 @@ public class AccountUserManagerImplTest {
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "Artist");
     failure.expect(ManagerException.class);
     failure.expectMessage("does not exist");
 
-    testManager.readOne(hubAccess, accountUser_1_2.getId());
+    testManager.readOne(access, accountUser_1_2.getId());
   }
 
   @Test
   public void readMany_Admin() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
 
-    Collection<AccountUser> result = testManager.readMany(hubAccess, ImmutableList.of(fake.account1.getId()));
+    Collection<AccountUser> result = testManager.readMany(access, ImmutableList.of(fake.account1.getId()));
 
     assertEquals(2L, result.size());
   }
 
   @Test
   public void readMany_UserCanSeeInsideOwnAccount() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
 
-    Collection<AccountUser> result = testManager.readMany(hubAccess, ImmutableList.of(fake.account1.getId()));
+    Collection<AccountUser> result = testManager.readMany(access, ImmutableList.of(fake.account1.getId()));
 
     assertEquals(2L, result.size());
   }
 
   @Test
   public void readMany_SeesNothingOutsideOfAccount() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")
+    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")
     ), "Artist");
 
-    Collection<AccountUser> result = testManager.readMany(hubAccess, ImmutableList.of(fake.account1.getId()));
+    Collection<AccountUser> result = testManager.readMany(access, ImmutableList.of(fake.account1.getId()));
 
     assertNotNull(result);
     assertEquals(0L, result.size());
@@ -192,9 +192,9 @@ public class AccountUserManagerImplTest {
 
   @Test
   public void delete() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
 
-    testManager.destroy(hubAccess, accountUser_1_2.getId());
+    testManager.destroy(access, accountUser_1_2.getId());
 
     try {
       testManager.readOne(HubAccess.internal(), accountUser_1_2.getId());
@@ -206,11 +206,11 @@ public class AccountUserManagerImplTest {
 
   @Test
   public void delete_FailIfNotAdmin() throws Exception {
-    HubAccess hubAccess = HubAccess.create("User");
+    HubAccess access = HubAccess.create("User");
 
     failure.expect(ManagerException.class);
     failure.expectMessage("top-level access is required");
 
-    testManager.destroy(hubAccess, accountUser_1_2.getId());
+    testManager.destroy(access, accountUser_1_2.getId());
   }
 }

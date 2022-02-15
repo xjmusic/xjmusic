@@ -83,12 +83,12 @@ public class LibraryManagerImplTest {
 
   @Test
   public void create() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     Library inputData = new Library();
     inputData.setName("coconuts");
     inputData.setAccountId(fake.account1.getId());
 
-    Library result = subject.create(hubAccess, inputData);
+    Library result = subject.create(access, inputData);
 
     assertNotNull(result);
     assertEquals(fake.account1.getId(), result.getAccountId());
@@ -100,12 +100,12 @@ public class LibraryManagerImplTest {
    */
   @Test
   public void create_asEngineer() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Engineer");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Engineer");
     Library inputData = new Library();
     inputData.setName("coconuts");
     inputData.setAccountId(fake.account1.getId());
 
-    Library result = subject.create(hubAccess, inputData);
+    Library result = subject.create(access, inputData);
 
     assertNotNull(result);
     assertEquals(fake.account1.getId(), result.getAccountId());
@@ -117,30 +117,30 @@ public class LibraryManagerImplTest {
    */
   @Test
   public void create_asEngineer_failsWithoutAccountAccess() {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "Engineer");
+    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "Engineer");
     Library inputData = new Library();
     inputData.setName("coconuts");
     inputData.setAccountId(fake.account1.getId());
 
-    var e = assertThrows(ManagerException.class, () -> subject.create(hubAccess, inputData));
+    var e = assertThrows(ManagerException.class, () -> subject.create(access, inputData));
 
     assertEquals("Account does not exist", e.getMessage());
   }
 
   @Test
   public void create_FailsWithoutAccountID() {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     Library inputData = new Library();
     inputData.setName("coconuts");
 
-    var e = assertThrows(ManagerException.class, () -> subject.create(hubAccess, inputData));
+    var e = assertThrows(ManagerException.class, () -> subject.create(access, inputData));
 
     assertEquals("Account ID is required.", e.getMessage());
   }
 
   @Test
   public void clone_includesProgramsAndLibraries() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     var library = new Library();
     library.setName("no longer coconuts");
     library.setAccountId(fake.account1.getId());
@@ -162,7 +162,7 @@ public class LibraryManagerImplTest {
     test.insert(buildInstrumentMeme(fake.instrument202, "chunk"));
     fake.audio1 = test.insert(buildInstrumentAudio(fake.instrument202, "Test audio", "fake.audio5.wav", 0.0f, 2.0f, 120.0f));
 
-    ManagerCloner<Library> resultCloner = subject.clone(hubAccess, fake.library1a.getId(), library);
+    ManagerCloner<Library> resultCloner = subject.clone(access, fake.library1a.getId(), library);
 
     assertNotNull(resultCloner);
     assertEquals(fake.account1.getId(), resultCloner.getClone().getAccountId());
@@ -269,9 +269,9 @@ public class LibraryManagerImplTest {
 
   @Test
   public void readOne() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
 
-    Library result = subject.readOne(hubAccess, fake.library1b.getId());
+    Library result = subject.readOne(access, fake.library1b.getId());
 
     assertNotNull(result);
     assertEquals(fake.library1b.getId(), result.getId());
@@ -281,18 +281,18 @@ public class LibraryManagerImplTest {
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User");
+    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User");
 
-    var e = assertThrows(ManagerException.class, () -> subject.readOne(hubAccess, fake.account1.getId()));
+    var e = assertThrows(ManagerException.class, () -> subject.readOne(access, fake.account1.getId()));
 
     assertEquals("Record does not exist", e.getMessage());
   }
 
   @Test
   public void readMany() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
 
-    Collection<Library> result = subject.readMany(hubAccess, ImmutableList.of(fake.account1.getId()));
+    Collection<Library> result = subject.readMany(access, ImmutableList.of(fake.account1.getId()));
 
     assertEquals(2L, result.size());
     Iterator<Library> resultIt = result.iterator();
@@ -302,9 +302,9 @@ public class LibraryManagerImplTest {
 
   @Test
   public void readMany_fromAllAccounts() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1, fake.account2), "User");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1, fake.account2), "User");
 
-    Collection<Library> result = subject.readMany(hubAccess, Lists.newArrayList());
+    Collection<Library> result = subject.readMany(access, Lists.newArrayList());
 
     assertEquals(4L, result.size());
     Iterator<Library> it = result.iterator();
@@ -316,43 +316,43 @@ public class LibraryManagerImplTest {
 
   @Test
   public void readMany_SeesNothingOutsideOfAccount() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User");
+    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User");
 
-    Collection<Library> result = subject.readMany(hubAccess, ImmutableList.of(fake.account1.getId()));
+    Collection<Library> result = subject.readMany(access, ImmutableList.of(fake.account1.getId()));
 
     assertEquals(0L, result.size());
   }
 
   @Test
   public void update_FailsWithoutAccountID() {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     Library inputData = new Library();
     inputData.setName("cannons");
 
-    var e = assertThrows(ManagerException.class, () -> subject.update(hubAccess, fake.library1a.getId(), inputData));
+    var e = assertThrows(ManagerException.class, () -> subject.update(access, fake.library1a.getId(), inputData));
 
     assertEquals("Account ID is required.", e.getMessage());
   }
 
   @Test
   public void update_FailsWithoutName() {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     Library inputData = new Library();
     inputData.setAccountId(fake.account1.getId());
 
-    var e = assertThrows(ManagerException.class, () -> subject.update(hubAccess, fake.library1a.getId(), inputData));
+    var e = assertThrows(ManagerException.class, () -> subject.update(access, fake.library1a.getId(), inputData));
 
     assertEquals("Name is required.", e.getMessage());
   }
 
   @Test
   public void update() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     Library inputData = new Library();
     inputData.setName("cannons");
     inputData.setAccountId(fake.account1.getId());
 
-    subject.update(hubAccess, fake.library1a.getId(), inputData);
+    subject.update(access, fake.library1a.getId(), inputData);
 
     Library result = subject.readOne(HubAccess.internal(), fake.library1a.getId());
     assertNotNull(result);
@@ -365,12 +365,12 @@ public class LibraryManagerImplTest {
    */
   @Test
   public void update_asEngineer() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Engineer");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Engineer");
     Library inputData = new Library();
     inputData.setName("cannons");
     inputData.setAccountId(fake.account1.getId());
 
-    subject.update(hubAccess, fake.library1a.getId(), inputData);
+    subject.update(access, fake.library1a.getId(), inputData);
 
     Library result = subject.readOne(HubAccess.internal(), fake.library1a.getId());
     assertNotNull(result);
@@ -383,24 +383,24 @@ public class LibraryManagerImplTest {
    */
   @Test
   public void update_asEngineer_failsWithoutAccountAccess() {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "Engineer");
+    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "Engineer");
     Library inputData = new Library();
     inputData.setName("cannons");
     inputData.setAccountId(fake.account1.getId());
 
-    var e = assertThrows(ManagerException.class, () -> subject.update(hubAccess, fake.library1a.getId(), inputData));
+    var e = assertThrows(ManagerException.class, () -> subject.update(access, fake.library1a.getId(), inputData));
 
     assertEquals("Account does not exist", e.getMessage());
   }
 
   @Test
   public void update_FailsUpdatingToNonexistentAccount() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     Library inputData = new Library();
     inputData.setName("cannons");
     inputData.setAccountId(UUID.randomUUID());
 
-    assertThrows(DataAccessException.class, () -> subject.update(hubAccess, fake.library1a.getId(), inputData));
+    assertThrows(DataAccessException.class, () -> subject.update(access, fake.library1a.getId(), inputData));
 
     Library result = subject.readOne(HubAccess.internal(), fake.library1a.getId());
     assertNotNull(result);
@@ -410,12 +410,12 @@ public class LibraryManagerImplTest {
 
   @Test
   public void update_Name() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     Library inputData = new Library();
     inputData.setName("cannons");
     inputData.setAccountId(fake.account2.getId());
 
-    subject.update(hubAccess, fake.library2a.getId(), inputData);
+    subject.update(access, fake.library2a.getId(), inputData);
 
     Library result = subject.readOne(HubAccess.internal(), fake.library2a.getId());
     assertNotNull(result);
@@ -425,12 +425,12 @@ public class LibraryManagerImplTest {
 
   @Test
   public void update_NameAndAccount() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     Library inputData = new Library();
     inputData.setName("trunk");
     inputData.setAccountId(fake.account1.getId());
 
-    subject.update(hubAccess, fake.library1a.getId(), inputData);
+    subject.update(access, fake.library1a.getId(), inputData);
 
     Library result = subject.readOne(HubAccess.internal(), fake.library1a.getId());
     assertNotNull(result);
@@ -440,9 +440,19 @@ public class LibraryManagerImplTest {
 
   @Test
   public void delete() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
 
-    subject.destroy(hubAccess, fake.library1a.getId());
+    subject.destroy(access, fake.library1a.getId());
+
+    var e = assertThrows(ManagerException.class, () -> subject.readOne(HubAccess.internal(), fake.library1a.getId()));
+    assertTrue("Record should not exist", e.getMessage().contains("does not exist"));
+  }
+
+  @Test
+  public void delete_artistCanDelete() throws Exception {
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User,Artist");
+
+    subject.destroy(access, fake.library1a.getId());
 
     var e = assertThrows(ManagerException.class, () -> subject.readOne(HubAccess.internal(), fake.library1a.getId()));
     assertTrue("Record should not exist", e.getMessage().contains("does not exist"));
@@ -450,11 +460,11 @@ public class LibraryManagerImplTest {
 
   @Test
   public void delete_noProblemIfLibraryHasProgram() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     fake.user101 = test.insert(buildUser("bill", "bill@email.com", "https://pictures.com/bill.gif", "User"));
     test.insert(buildProgram(fake.library2b, ProgramType.Main, ProgramState.Published, "brilliant", "C#", 120.0f, 0.6f));
 
-    subject.destroy(hubAccess, fake.library2b.getId());
+    subject.destroy(access, fake.library2b.getId());
 
     var e = assertThrows(ManagerException.class, () -> subject.readOne(HubAccess.internal(), fake.library2b.getId()));
     assertTrue("Record should not exist", e.getMessage().contains("does not exist"));
@@ -462,11 +472,11 @@ public class LibraryManagerImplTest {
 
   @Test
   public void delete_noProblemIfLibraryHasInstrument() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     fake.user101 = test.insert(buildUser("bill", "bill@email.com", "https://pictures.com/bill.gif", "Admin"));
     test.insert(buildInstrument(fake.library2b, InstrumentType.Drum, InstrumentMode.Events, InstrumentState.Published, "brilliant"));
 
-    subject.destroy(hubAccess, fake.library2b.getId());
+    subject.destroy(access, fake.library2b.getId());
 
     var e = assertThrows(ManagerException.class, () -> subject.readOne(HubAccess.internal(), fake.library2b.getId()));
     assertTrue("Record should not exist", e.getMessage().contains("does not exist"));

@@ -119,11 +119,11 @@ public class ProgramMemeManagerImpl extends HubPersistenceServiceImpl<ProgramMem
   }
 
   /**
-   Require hubAccess to modification of a Program Meme
+   Require access to modification of a Program Meme
 
    @param db        context
    @param hubAccess control
-   @param id        to validate hubAccess to
+   @param id        to validate access to
    @throws ManagerException if no hubAccess
    */
   private void requireModification(DSLContext db, HubAccess hubAccess, UUID id) throws ManagerException {
@@ -133,7 +133,7 @@ public class ProgramMemeManagerImpl extends HubPersistenceServiceImpl<ProgramMem
         .where(PROGRAM_MEME.ID.eq(id))
         .fetchOne(0, int.class));
     else
-      requireExists("Meme in Program in Account you have hubAccess to", db.selectCount().from(PROGRAM_MEME)
+      requireExists("Meme in Program in Account you have access to", db.selectCount().from(PROGRAM_MEME)
         .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_MEME.PROGRAM_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
         .where(PROGRAM_MEME.ID.eq(id))

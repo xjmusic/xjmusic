@@ -22,9 +22,7 @@ import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -33,14 +31,11 @@ import java.util.Iterator;
 import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 // future test: permissions of different users to readMany vs. of vs. update or destroy programs
 @RunWith(MockitoJUnitRunner.class)
 public class ProgramMemeManagerImplTest {
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
   private ProgramMemeManager testManager;
 
   private HubIntegrationTestProvider test;
@@ -94,14 +89,14 @@ public class ProgramMemeManagerImplTest {
 
   @Test
   public void create() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var subject = new ProgramMeme();
     subject.setId(UUID.randomUUID());
     subject.setProgramId(fake.program3.getId());
     subject.setName("cannons");
 
     var result = testManager.create(
-      hubAccess, subject);
+      access, subject);
 
     assertNotNull(result);
     assertEquals(fake.program3.getId(), result.getProgramId());
@@ -113,14 +108,14 @@ public class ProgramMemeManagerImplTest {
    */
   @Test
   public void create_numerals() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var subject = new ProgramMeme();
     subject.setId(UUID.randomUUID());
     subject.setProgramId(fake.program3.getId());
     subject.setName("3note");
 
     var result = testManager.create(
-      hubAccess, subject);
+      access, subject);
 
     assertNotNull(result);
     assertEquals(fake.program3.getId(), result.getProgramId());
@@ -132,14 +127,14 @@ public class ProgramMemeManagerImplTest {
    */
   @Test
   public void create_notMeme() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var subject = new ProgramMeme();
     subject.setId(UUID.randomUUID());
     subject.setProgramId(fake.program3.getId());
     subject.setName("!busy");
 
     var result = testManager.create(
-      hubAccess, subject);
+      access, subject);
 
     assertNotNull(result);
     assertEquals(fake.program3.getId(), result.getProgramId());
@@ -152,14 +147,14 @@ public class ProgramMemeManagerImplTest {
    */
   @Test
   public void create_asArtist() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var inputData = new ProgramMeme();
     inputData.setId(UUID.randomUUID());
     inputData.setProgramId(fake.program3.getId());
     inputData.setName("cannons");
 
     var result = testManager.create(
-      hubAccess, inputData);
+      access, inputData);
 
     assertNotNull(result);
     assertEquals(fake.program3.getId(), result.getProgramId());
@@ -169,9 +164,9 @@ public class ProgramMemeManagerImplTest {
 
   @Test
   public void readOne() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
 
-    var result = testManager.readOne(hubAccess, fake.programMeme3.getId());
+    var result = testManager.readOne(access, fake.programMeme3.getId());
 
     assertNotNull(result);
     assertEquals(fake.programMeme3.getId(), result.getId());
@@ -181,20 +176,19 @@ public class ProgramMemeManagerImplTest {
 
   @Test
   public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
-    failure.expect(ManagerException.class);
-    failure.expectMessage("does not exist");
+    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
 
-    testManager.readOne(hubAccess, fake.programMeme3.getId());
+    var e = assertThrows(ManagerException.class, () -> testManager.readOne(access, fake.programMeme3.getId()));
+    assertEquals("Record does not exist", e.getMessage());
   }
 
   // future test: readManyInAccount vs readManyInLibraries, positive and negative cases
 
   @Test
   public void readMany() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
 
-    Collection<ProgramMeme> result = testManager.readMany(hubAccess, ImmutableList.of(fake.program3.getId()));
+    Collection<ProgramMeme> result = testManager.readMany(access, ImmutableList.of(fake.program3.getId()));
 
     assertEquals(1L, result.size());
     Iterator<ProgramMeme> resultIt = result.iterator();
@@ -203,22 +197,22 @@ public class ProgramMemeManagerImplTest {
 
   @Test
   public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
 
-    Collection<ProgramMeme> result = testManager.readMany(hubAccess, ImmutableList.of(fake.program3.getId()));
+    Collection<ProgramMeme> result = testManager.readMany(access, ImmutableList.of(fake.program3.getId()));
 
     assertEquals(0L, result.size());
   }
 
   @Test
   public void update_cannotChangeProgram() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
     var subject = new ProgramMeme();
     subject.setId(UUID.randomUUID());
     subject.setName("cannons");
     subject.setProgramId(UUID.randomUUID());
 
-    testManager.update(hubAccess, fake.programMeme3.getId(), subject);
+    testManager.update(access, fake.programMeme3.getId(), subject);
 
     var result = testManager.readOne(HubAccess.internal(), fake.programMeme3.getId());
     assertNotNull(result);
@@ -228,13 +222,13 @@ public class ProgramMemeManagerImplTest {
 
   @Test
   public void update_Name() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var subject = new ProgramMeme();
     subject.setId(fake.programMeme3.getId());
     subject.setProgramId(fake.program3.getId());
     subject.setName("cannons");
 
-    testManager.update(hubAccess, fake.programMeme3.getId(), subject);
+    testManager.update(access, fake.programMeme3.getId(), subject);
 
     var result = testManager.readOne(HubAccess.internal(), fake.programMeme3.getId());
     assertNotNull(result);
@@ -249,13 +243,13 @@ public class ProgramMemeManagerImplTest {
   @Test
   public void update_Name_PreservesOriginalOwner() throws Exception {
     // John will edit a programMeme originally belonging to Jenny
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var subject = new ProgramMeme();
     subject.setId(fake.programMeme3.getId());
     subject.setProgramId(fake.program3.getId());
     subject.setName("cannons");
 
-    testManager.update(hubAccess, fake.programMeme3.getId(), subject);
+    testManager.update(access, fake.programMeme3.getId(), subject);
 
     var result = testManager.readOne(HubAccess.internal(), fake.programMeme3.getId());
     assertNotNull(result);
@@ -263,10 +257,10 @@ public class ProgramMemeManagerImplTest {
 
   @Test
   public void destroy_asArtist() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     fake.programMeme35 = test.insert(buildProgramMeme(fake.program2, "ANTS"));
 
-    testManager.destroy(hubAccess, fake.programMeme35.getId());
+    testManager.destroy(access, fake.programMeme35.getId());
 
     assertEquals(Integer.valueOf(0), test.getDSL()
       .selectCount().from(io.xj.hub.tables.ProgramMeme.PROGRAM_MEME)
@@ -277,12 +271,11 @@ public class ProgramMemeManagerImplTest {
   @Test
   public void destroy_failsIfNotInAccount() throws Exception {
     fake.account2 = buildAccount("Testing");
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account2), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account2), "Artist");
 
-    failure.expect(ManagerException.class);
-    failure.expectMessage("Meme in Program in Account you have hubAccess to does not exist");
+    var e = assertThrows(ManagerException.class, () -> testManager.destroy(access, fake.programMeme3.getId()));
 
-    testManager.destroy(hubAccess, fake.programMeme3.getId());
+    assertEquals("Meme in Program in Account you have access to does not exist", e.getMessage());
   }
 
 }

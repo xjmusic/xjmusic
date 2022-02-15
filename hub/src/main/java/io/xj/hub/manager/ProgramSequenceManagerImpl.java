@@ -193,7 +193,7 @@ public class ProgramSequenceManagerImpl extends HubPersistenceServiceImpl<Progra
 
    @param db        context
    @param hubAccess control
-   @param id        of entity to require modification hubAccess to
+   @param id        of entity to require modification access to
    @throws ManagerException on invalid permissions
    */
   private void requireModification(DSLContext db, HubAccess hubAccess, UUID id) throws ManagerException {
@@ -204,7 +204,7 @@ public class ProgramSequenceManagerImpl extends HubPersistenceServiceImpl<Progra
         .where(PROGRAM_SEQUENCE.ID.eq(id))
         .fetchOne(0, int.class));
     else
-      requireExists("Sequence in Program in Account you have hubAccess to", db.selectCount().from(PROGRAM_SEQUENCE)
+      requireExists("Sequence in Program in Account you have access to", db.selectCount().from(PROGRAM_SEQUENCE)
         .join(PROGRAM).on(PROGRAM_SEQUENCE.PROGRAM_ID.eq(PROGRAM.ID))
         .join(LIBRARY).on(PROGRAM.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PROGRAM_SEQUENCE.ID.eq(id))

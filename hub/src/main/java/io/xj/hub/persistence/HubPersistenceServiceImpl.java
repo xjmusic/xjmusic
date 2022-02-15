@@ -261,7 +261,7 @@ public class HubPersistenceServiceImpl<E> {
    @throws ManagerException if not engineer
    */
   protected void requireEngineer(HubAccess access) throws ManagerException {
-    require(access, UserRoleType.Engineer);
+    requireAny(access, UserRoleType.Engineer);
   }
 
   /**
@@ -315,8 +315,8 @@ public class HubPersistenceServiceImpl<E> {
   /**
    Require empty Result
 
-   @param message   to require
-   @param result to check.
+   @param message to require
+   @param result  to check.
    @throws ManagerException if result set is not empty.
    @throws ManagerException if something goes wrong.
    */
@@ -344,7 +344,7 @@ public class HubPersistenceServiceImpl<E> {
    @throws ManagerException if not isNonNull
    */
   protected <R extends Record> void requireExists(String name, R record) throws ManagerException {
-    require(name, "does not exist", Values.isNonNull(record));
+    requireAny(name, "does not exist", Values.isNonNull(record));
   }
 
   /**
@@ -355,7 +355,7 @@ public class HubPersistenceServiceImpl<E> {
    @throws ManagerException if not isNonNull
    */
   protected void requireExists(String name, E entity) throws ManagerException {
-    require(name, "does not exist", Values.isNonNull(entity));
+    requireAny(name, "does not exist", Values.isNonNull(entity));
   }
 
   /**
@@ -366,7 +366,7 @@ public class HubPersistenceServiceImpl<E> {
    @throws ManagerException if not isNonNull
    */
   protected void requireExists(String name, @Nullable Integer count) throws ManagerException {
-    require(name, "does not exist", Objects.nonNull(count) && 0 < count);
+    requireAny(name, "does not exist", Objects.nonNull(count) && 0 < count);
   }
 
   /**
@@ -376,18 +376,18 @@ public class HubPersistenceServiceImpl<E> {
    @throws ManagerException if not admin
    */
   protected void requireTopLevel(HubAccess hubAccess) throws ManagerException {
-    require("top-level access", hubAccess.isTopLevel());
+    requireAny("top-level access", hubAccess.isTopLevel());
   }
 
   /**
    ASSUMED an entity.parentId() is a libraryId for this class of entity
-   Require library-level hubAccess to an entity
+   Require library-level access to an entity
 
    @param hubAccess control
    @throws ManagerException if we do not have hub access
    */
   protected void requireArtist(HubAccess hubAccess) throws ManagerException {
-    require(hubAccess, UserRoleType.Artist);
+    requireAny(hubAccess, UserRoleType.Artist);
   }
 
   /**
@@ -399,22 +399,15 @@ public class HubPersistenceServiceImpl<E> {
    @param allowedRoles to require
    @throws ManagerException if hubAccess does not have any one of the specified roles
    */
-  protected void require(HubAccess hubAccess, UserRoleType... allowedRoles) throws ManagerException {
+  protected void requireAny(HubAccess hubAccess, UserRoleType... allowedRoles) throws ManagerException {
     if (hubAccess.isTopLevel()) return;
-    if (3 < allowedRoles.length)
-      require(
-        String.format("%s role", Arrays.stream(allowedRoles).map(Enum::toString).collect(Collectors.joining("/"))),
-        hubAccess.isAllowed(allowedRoles));
-    else if (2 < allowedRoles.length)
-      require(String.format("%s/%s/%s role", allowedRoles[0], allowedRoles[1], allowedRoles[2]),
-        hubAccess.isAllowed(allowedRoles));
-    else if (1 < allowedRoles.length)
-      require(String.format("%s/%s role", allowedRoles[0], allowedRoles[1]),
-        hubAccess.isAllowed(allowedRoles));
-    else if (0 < allowedRoles.length)
-      require(String.format("%s role", allowedRoles[0]),
-        hubAccess.isAllowed(allowedRoles));
-    else throw new ManagerException("No roles allowed.");
+
+    if (0 == allowedRoles.length)
+      throw new ManagerException("No roles allowed.");
+
+    requireAny(
+      String.format("%s role", Arrays.stream(allowedRoles).map(Enum::toString).collect(Collectors.joining("/"))),
+      hubAccess.isAnyAllowed(allowedRoles));
   }
 
   /**
@@ -424,8 +417,8 @@ public class HubPersistenceServiceImpl<E> {
    @param mustBeTrue to require true
    @throws ManagerException if not true
    */
-  protected void require(String name, Boolean mustBeTrue) throws ManagerException {
-    require(name, "is required", mustBeTrue);
+  protected void requireAny(String name, Boolean mustBeTrue) throws ManagerException {
+    requireAny(name, "is required", mustBeTrue);
   }
 
   /**
@@ -436,7 +429,7 @@ public class HubPersistenceServiceImpl<E> {
    @param condition  to append
    @throws ManagerException if not true
    */
-  protected void require(String message, String condition, Boolean mustBeTrue) throws ManagerException {
+  protected void requireAny(String message, String condition, Boolean mustBeTrue) throws ManagerException {
     if (!mustBeTrue) throw new ManagerException(message + " " + condition);
   }
 
@@ -445,7 +438,7 @@ public class HubPersistenceServiceImpl<E> {
 
    @param db        context
    @param hubAccess control
-   @param id        of entity to require modification hubAccess to
+   @param id        of entity to require modification access to
    @throws ManagerException on invalid permissions
    */
   protected void requireProgramModification(DSLContext db, HubAccess hubAccess, UUID id) throws ManagerException {
@@ -456,7 +449,7 @@ public class HubPersistenceServiceImpl<E> {
         .where(PROGRAM.ID.eq(id))
         .fetchOne(0, int.class));
     else
-      requireExists("Program in Account you have hubAccess to", db.selectCount().from(PROGRAM)
+      requireExists("Program in Account you have access to", db.selectCount().from(PROGRAM)
         .join(LIBRARY).on(PROGRAM.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PROGRAM.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))

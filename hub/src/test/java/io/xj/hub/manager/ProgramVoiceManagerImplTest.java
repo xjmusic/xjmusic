@@ -103,7 +103,7 @@ public class ProgramVoiceManagerImplTest {
 
   @Test
   public void create() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var subject = new ProgramVoice();
     subject.setId(UUID.randomUUID());
     subject.setProgramId(fake.program3.getId());
@@ -111,7 +111,7 @@ public class ProgramVoiceManagerImplTest {
     subject.setName("Jams");
 
     var result = testManager.create(
-      hubAccess, subject);
+      access, subject);
 
     assertNotNull(result);
     assertEquals(fake.program3.getId(), result.getProgramId());
@@ -124,7 +124,7 @@ public class ProgramVoiceManagerImplTest {
    */
   @Test
   public void create_asArtist() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var inputData = new ProgramVoice();
     inputData.setId(UUID.randomUUID());
     inputData.setProgramId(fake.program3.getId());
@@ -132,7 +132,7 @@ public class ProgramVoiceManagerImplTest {
     inputData.setName("Jams");
 
     var result = testManager.create(
-      hubAccess, inputData);
+      access, inputData);
 
     assertNotNull(result);
     assertEquals(fake.program3.getId(), result.getProgramId());
@@ -141,9 +141,9 @@ public class ProgramVoiceManagerImplTest {
 
   @Test
   public void readOne() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
 
-    var result = testManager.readOne(hubAccess, fake.program702_voice1.getId());
+    var result = testManager.readOne(access, fake.program702_voice1.getId());
 
     assertNotNull(result);
     assertEquals(fake.program702_voice1.getId(), result.getId());
@@ -153,18 +153,18 @@ public class ProgramVoiceManagerImplTest {
 
   @Test
   public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
     failure.expect(ManagerException.class);
     failure.expectMessage("does not exist");
 
-    testManager.readOne(hubAccess, fake.program702_voice1.getId());
+    testManager.readOne(access, fake.program702_voice1.getId());
   }
 
   @Test
   public void readMany() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
 
-    Collection<ProgramVoice> result = testManager.readMany(hubAccess, ImmutableList.of(fake.program2.getId()));
+    Collection<ProgramVoice> result = testManager.readMany(access, ImmutableList.of(fake.program2.getId()));
 
     assertEquals(1L, result.size());
     Iterator<ProgramVoice> resultIt = result.iterator();
@@ -173,18 +173,18 @@ public class ProgramVoiceManagerImplTest {
 
   @Test
   public void readMany_seesNothingOutsideOfLibrary() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
 
-    Collection<ProgramVoice> result = testManager.readMany(hubAccess, ImmutableList.of(fake.program2.getId()));
+    Collection<ProgramVoice> result = testManager.readMany(access, ImmutableList.of(fake.program2.getId()));
 
     assertEquals(0L, result.size());
   }
 
   @Test
   public void destroy_okWithChildEntities() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
 
-    testManager.destroy(hubAccess, fake.program702_voice1.getId());
+    testManager.destroy(access, fake.program702_voice1.getId());
 
     assertEquals(Integer.valueOf(0), test.getDSL()
       .selectCount().from(PROGRAM_VOICE)
@@ -194,12 +194,12 @@ public class ProgramVoiceManagerImplTest {
 
   @Test
   public void destroy_asArtist() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     injector.getInstance(ProgramSequencePatternManager.class).destroy(HubAccess.internal(), fake.program2_sequence1_pattern1.getId());
     injector.getInstance(ProgramVoiceTrackManager.class).destroy(HubAccess.internal(), fake.program2_voice1_track0.getId());
     injector.getInstance(ProgramVoiceTrackManager.class).destroy(HubAccess.internal(), fake.program2_voice1_track1.getId());
 
-    testManager.destroy(hubAccess, fake.program702_voice1.getId());
+    testManager.destroy(access, fake.program702_voice1.getId());
 
     assertEquals(Integer.valueOf(0), test.getDSL()
       .selectCount().from(PROGRAM_VOICE)
@@ -210,15 +210,15 @@ public class ProgramVoiceManagerImplTest {
   @Test
   public void destroy_failsIfNotInAccount() throws Exception {
     fake.account2 = buildAccount("Testing");
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account2), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account2), "Artist");
     injector.getInstance(ProgramSequencePatternManager.class).destroy(HubAccess.internal(), fake.program2_sequence1_pattern1.getId());
     injector.getInstance(ProgramVoiceTrackManager.class).destroy(HubAccess.internal(), fake.program2_voice1_track0.getId());
     injector.getInstance(ProgramVoiceTrackManager.class).destroy(HubAccess.internal(), fake.program2_voice1_track1.getId());
 
     failure.expect(ManagerException.class);
-    failure.expectMessage("Voice in Program in Account you have hubAccess to does not exist");
+    failure.expectMessage("Voice in Program in Account you have access to does not exist");
 
-    testManager.destroy(hubAccess, fake.program702_voice1.getId());
+    testManager.destroy(access, fake.program702_voice1.getId());
   }
 
 }

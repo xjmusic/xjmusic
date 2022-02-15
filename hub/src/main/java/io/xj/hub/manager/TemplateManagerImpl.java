@@ -236,6 +236,11 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl<Template> imp
           .fetchOne(0, int.class));
     }
 
+    requireExists("Account",
+      db.selectCount().from(ACCOUNT)
+        .where(ACCOUNT.ID.eq(record.getAccountId()))
+        .fetchOne(0, int.class));
+
     requireNotExists("Template with same Ship key",
       db.selectCount().from(TEMPLATE)
         .where(TEMPLATE.SHIP_KEY.eq(record.getShipKey()))
@@ -250,7 +255,10 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl<Template> imp
   @Override
   public void destroy(HubAccess hubAccess, UUID id) throws ManagerException {
     DSLContext db = dbProvider.getDSL();
-    requireTopLevel(hubAccess);
+
+    Template exists = readOne(db, hubAccess, id);
+    if (!TemplateType.Preview.equals(exists.getType()))
+      requireTopLevel(hubAccess);
 
     db.update(TEMPLATE)
       .set(TEMPLATE.IS_DELETED, true)
@@ -332,7 +340,7 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl<Template> imp
 
    @param db          database context
    @param hubAccess   control
-   @param templateIds to require hubAccess to
+   @param templateIds to require access to
    */
   private void requireRead(DSLContext db, HubAccess hubAccess, Collection<UUID> templateIds) throws ManagerException {
     if (!hubAccess.isTopLevel())
