@@ -308,10 +308,8 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     // Phase 3: Any Directly Bound Programs besides any that should be avoided, meme match is a bonus
     // Phase 5: Any Directly Bound Programs
     for (Program program : programsDirectlyBound(candidates)) {
-      if (avoidProgramId.isEmpty() || !avoidProgramId.get().equals(program.getId())) {
-        bag.add(1, program.getId(), iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
-        bag.add(3, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
-      }
+      bag.add(1, program.getId(), iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
+      bag.add(3, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
       bag.add(5, program.getId());
     }
 
@@ -401,8 +399,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     for (Program program : programsDirectlyBound(candidates)) {
       memes = fabricator.sourceMaterial().getMemesAtBeginning(program);
       if (!iso.isAllowed(memes)) continue;
-      if (avoidProgramId.isEmpty() || !avoidProgramId.get().equals(program.getId()))
-        bag.add(1, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
+      bag.add(1, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
       bag.add(3, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
     }
 
