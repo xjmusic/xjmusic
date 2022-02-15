@@ -39,7 +39,7 @@ import static io.xj.nexus.persistence.Segments.DELTA_UNLIMITED;
 public class CraftImpl extends FabricationWrapperImpl {
   private final Map<String, Integer> deltaIns = Maps.newHashMap();
   private final Map<String, Integer> deltaOuts = Maps.newHashMap();
-  private final Set<InstrumentType> finalizeAudioLengthsForInstrumentTypes;
+  private final List<InstrumentType> finalizeAudioLengthsForInstrumentTypes;
   private ChoiceIndexProvider choiceIndexProvider = new DefaultChoiceIndexProvider();
 
   /**

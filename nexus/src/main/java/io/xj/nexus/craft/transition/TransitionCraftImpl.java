@@ -17,7 +17,10 @@ import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.detail.DetailCraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -27,15 +30,23 @@ import java.util.stream.Collectors;
  Transition-type Instrument #180059746
  */
 public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCraft {
-  private static final String NAME_BIG = "BIG";
+  private static final String NAME_LARGE = "BIG";
   private static final String NAME_MEDIUM = "MEDIUM";
   private static final String NAME_SMALL = "SMALL";
+
+  private final List<String> smallNames;
+  private final List<String> mediumNames;
+  private final List<String> largeNames;
 
   @Inject
   public TransitionCraftImpl(
     @Assisted("basis") Fabricator fabricator
   ) {
     super(fabricator);
+
+    smallNames = fabricator.getTemplateConfig().getTransitionEventNamesSmall();
+    mediumNames = fabricator.getTemplateConfig().getTransitionEventNamesMedium();
+    largeNames = fabricator.getTemplateConfig().getTransitionEventNamesLarge();
   }
 
   /**
@@ -137,16 +148,16 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     arrangement.segmentChoiceId(choice.getId());
     fabricator.put(arrangement);
 
-    var small = pickAudioForInstrument(instrumentId, NAME_SMALL);
-    var medium = pickAudioForInstrument(instrumentId, NAME_MEDIUM);
-    var big = pickAudioForInstrument(instrumentId, NAME_BIG);
+    var small = pickAudioForInstrument(instrumentId, smallNames);
+    var medium = pickAudioForInstrument(instrumentId, mediumNames);
+    var big = pickAudioForInstrument(instrumentId, largeNames);
 
-    if (isBigTransitionSegment() && big.isPresent())
-      pickTransition(arrangement, big.get(), 0, fabricator.getTotalSeconds(), NAME_BIG);
+    if (small.isPresent())
+      pickTransition(arrangement, small.get(), 0, fabricator.getTotalSeconds(), smallNames.get(0));
     else if (isMediumTransitionSegment() && medium.isPresent())
-      pickTransition(arrangement, medium.get(), 0, fabricator.getTotalSeconds(), NAME_MEDIUM);
-    else if (small.isPresent())
-      pickTransition(arrangement, small.get(), 0, fabricator.getTotalSeconds(), NAME_SMALL);
+      pickTransition(arrangement, medium.get(), 0, fabricator.getTotalSeconds(), mediumNames.get(0));
+    else if (isBigTransitionSegment() && big.isPresent())
+      pickTransition(arrangement, big.get(), 0, fabricator.getTotalSeconds(), largeNames.get(0));
 
     var deltaUnits = Bar.of(fabricator.getMainProgramConfig().getBarBeats()).computeSubsectionBeats(fabricator.getSegment().getTotal());
     var pos = deltaUnits;
@@ -187,9 +198,9 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
 
    @return drum-type Instrument
    */
-  private Optional<InstrumentAudio> pickAudioForInstrument(UUID instrumentId, String event) {
+  private Optional<InstrumentAudio> pickAudioForInstrument(UUID instrumentId, List<String> names) {
     var previous = fabricator.retrospective().getPreviousPicksForInstrument(instrumentId).stream()
-      .filter(pick -> Objects.equals(event, Text.toMeme(pick.getEvent())))
+      .filter(pick -> names.contains(Text.toMeme(pick.getEvent())))
       .findAny();
 
     if (previous.isPresent())
@@ -198,7 +209,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     var bag = MarbleBag.empty();
 
     for (InstrumentAudio audio : fabricator.sourceMaterial().getAudiosForInstrumentId(instrumentId)
-      .stream().filter(instrumentAudio -> Text.toMeme(event).equals(Text.toMeme(instrumentAudio.getEvent()))).toList())
+      .stream().filter(instrumentAudio -> names.contains(Text.toMeme(instrumentAudio.getEvent()))).toList())
       bag.add(1, audio.getId());
 
     if (bag.isEmpty()) return Optional.empty();
