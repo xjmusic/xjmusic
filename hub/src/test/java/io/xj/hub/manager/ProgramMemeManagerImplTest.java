@@ -37,7 +37,6 @@ import static org.junit.Assert.*;
 @RunWith(MockitoJUnitRunner.class)
 public class ProgramMemeManagerImplTest {
   private ProgramMemeManager testManager;
-
   private HubIntegrationTestProvider test;
   private IntegrationTestingFixtures fake;
 
@@ -279,4 +278,3 @@ public class ProgramMemeManagerImplTest {
   }
 
 }
-

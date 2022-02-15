@@ -13,8 +13,8 @@ import io.xj.lib.util.Text;
 import io.xj.lib.util.ValueException;
 
 import javax.sound.sampled.AudioFormat;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -65,11 +65,14 @@ public class TemplateConfig {
       outputSampleBits = 16
       percLoopLayerMax = 8
       percLoopLayerMin = 0
+      transitionEventNamesLarge = ["LARGE","BIG"]
+      transitionEventNamesMedium = ["MEDIUM","REGULAR"]
+      transitionEventNamesSmall = ["SMALL","LITTLE"]
       transitionLayerMax = 3
       transitionLayerMin = 0
       """;
   private final AudioFormat.Encoding outputEncoding;
-  private final Set<InstrumentType> instrumentTypesForAudioLengthFinalization;
+  private final List<InstrumentType> instrumentTypesForAudioLengthFinalization;
   private final String deltaArcBeatLayersToPrioritize;
   private final String outputContainer;
   private final String outputContentType;
@@ -108,6 +111,9 @@ public class TemplateConfig {
   private final int percLoopLayerMin;
   private final int transitionLayerMax;
   private final int transitionLayerMin;
+  private final List<String> transitionEventNamesSmall;
+  private final List<String> transitionEventNamesMedium;
+  private final List<String> transitionEventNamesLarge;
 
   /**
    Get a template config from only the default config
@@ -158,8 +164,10 @@ public class TemplateConfig {
       dubMasterVolumeInstrumentTypeStab = config.getDouble("dubMasterVolumeInstrumentTypeStab");
       dubMasterVolumeInstrumentTypeSticky = config.getDouble("dubMasterVolumeInstrumentTypeSticky");
       dubMasterVolumeInstrumentTypeStripe = config.getDouble("dubMasterVolumeInstrumentTypeStripe");
-      instrumentTypesForAudioLengthFinalization = config.getStringList("instrumentTypesForAudioLengthFinalization").stream()
-        .map(InstrumentType::valueOf).collect(Collectors.toSet());
+      instrumentTypesForAudioLengthFinalization =
+        requireAtLeastOne("instrumentTypesForAudioLengthFinalization",
+          config.getStringList("instrumentTypesForAudioLengthFinalization").stream()
+            .map(InstrumentType::valueOf).toList());
       mainProgramLengthMaxDelta = config.getInt("mainProgramLengthMaxDelta");
       mixerCompressAheadSeconds = config.getDouble("mixerCompressAheadSeconds");
       mixerCompressDecaySeconds = config.getDouble("mixerCompressDecaySeconds");
@@ -182,9 +190,27 @@ public class TemplateConfig {
       percLoopLayerMin = config.getInt("percLoopLayerMin");
       transitionLayerMax = config.getInt("transitionLayerMax");
       transitionLayerMin = config.getInt("transitionLayerMin");
+      transitionEventNamesSmall =
+        requireAtLeastOne("transitionEventNamesSmall",
+          config.getStringList("transitionEventNamesSmall").stream()
+            .map(Text::toMeme).toList());
+      transitionEventNamesMedium =
+        requireAtLeastOne("transitionEventNamesMedium",
+          config.getStringList("transitionEventNamesMedium").stream()
+            .map(Text::toMeme).toList());
+      transitionEventNamesLarge =
+        requireAtLeastOne("transitionEventNamesLarge",
+          config.getStringList("transitionEventNamesLarge").stream()
+            .map(Text::toMeme).toList());
     } catch (ConfigException e) {
       throw new ValueException(e.getMessage());
     }
+  }
+
+  private <N> List<N> requireAtLeastOne(String description, List<N> values) throws ValueException {
+    if (values.isEmpty())
+      throw new ValueException(String.format("Template Config requires non-empty list for %s", description));
+    return values;
   }
 
   @SuppressWarnings("DuplicatedCode")
@@ -208,13 +234,7 @@ public class TemplateConfig {
     config.put("dubMasterVolumeInstrumentTypeStab", String.valueOf(dubMasterVolumeInstrumentTypeStab));
     config.put("dubMasterVolumeInstrumentTypeSticky", String.valueOf(dubMasterVolumeInstrumentTypeSticky));
     config.put("dubMasterVolumeInstrumentTypeStripe", String.valueOf(dubMasterVolumeInstrumentTypeStripe));
-    config.put("instrumentTypesForAudioLengthFinalization",
-      String.format("[%s]",
-        instrumentTypesForAudioLengthFinalization.stream()
-          .map(InstrumentType::toString)
-          .map(Text::doubleQuoted)
-          .sorted()
-          .collect(Collectors.joining(","))));
+    config.put("instrumentTypesForAudioLengthFinalization", formatTypesafeQuoted(instrumentTypesForAudioLengthFinalization));
     config.put("mainProgramLengthMaxDelta", String.valueOf(mainProgramLengthMaxDelta));
     config.put("mixerCompressAheadSeconds", String.valueOf(mixerCompressAheadSeconds));
     config.put("mixerCompressDecaySeconds", String.valueOf(mixerCompressDecaySeconds));
@@ -237,10 +257,27 @@ public class TemplateConfig {
     config.put("percLoopLayerMin", String.valueOf(percLoopLayerMin));
     config.put("transitionLayerMax", String.valueOf(transitionLayerMax));
     config.put("transitionLayerMin", String.valueOf(transitionLayerMin));
+    config.put("transitionEventNamesSmall", formatTypesafeQuoted(transitionEventNamesSmall));
+    config.put("transitionEventNamesMedium", formatTypesafeQuoted(transitionEventNamesMedium));
+    config.put("transitionEventNamesLarge", formatTypesafeQuoted(transitionEventNamesLarge));
     return Text.formatMultiline(config.entrySet().stream()
       .sorted(Map.Entry.comparingByKey())
       .map(pair -> String.format("%s = %s", pair.getKey(), pair.getValue()))
       .toArray());
+  }
+
+  /**
+   Convert a list of objects in a quoted list of strings in a set of brackets, for inclusion in a typesafe config
+
+   @param values to format
+   @return typesafe array of quoted values
+   */
+  private <N> String formatTypesafeQuoted(List<N> values) {
+    return String.format("[%s]",
+      values.stream()
+        .map(N::toString)
+        .map(Text::doubleQuoted)
+        .collect(Collectors.joining(",")));
   }
 
   /**
@@ -364,9 +401,9 @@ public class TemplateConfig {
   }
 
   /**
-   @return list o
+   @return list of instrument types for which we'll finalize audio lengths, as in one-shot instrument audios
    */
-  public Set<InstrumentType> getInstrumentTypesForAudioLengthFinalization() {
+  public List<InstrumentType> getInstrumentTypesForAudioLengthFinalization() {
     return instrumentTypesForAudioLengthFinalization;
   }
 
@@ -522,5 +559,26 @@ public class TemplateConfig {
    */
   public int getTransitionLayerMax() {
     return transitionLayerMax;
+  }
+
+  /**
+   @return names of small transitions
+   */
+  public List<String> getTransitionEventNamesSmall() {
+    return transitionEventNamesSmall;
+  }
+
+  /**
+   @return names of medium transitions
+   */
+  public List<String> getTransitionEventNamesMedium() {
+    return transitionEventNamesMedium;
+  }
+
+  /**
+   @return names of large transitions
+   */
+  public List<String> getTransitionEventNamesLarge() {
+    return transitionEventNamesLarge;
   }
 }
