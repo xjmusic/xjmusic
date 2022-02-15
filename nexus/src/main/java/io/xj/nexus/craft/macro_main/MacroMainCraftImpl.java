@@ -59,27 +59,14 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   /**
    Compute the final tempo of the current segment
 
-   @param macroSequence of which to compute segment tempo
-   @param mainSequence  of which to compute segment tempo
    @return tempo
+   @param mainSequence  of which to compute segment tempo
    */
-  private double computeSegmentTempo(@Nullable ProgramSequence macroSequence, @Nullable ProgramSequence mainSequence) throws NexusException {
-    @Nullable Float macroTempo =
-      Objects.nonNull(macroSequence) ?
-        (Objects.nonNull(macroSequence.getTempo()) ?
-          macroSequence.getTempo()
-          : fabricator.sourceMaterial().getProgram(macroSequence.getProgramId()).orElseThrow().getTempo())
-        : null;
+  private double computeSegmentTempo(@Nullable ProgramSequence mainSequence) throws NexusException {
     @Nullable Float mainTempo =
       Objects.nonNull(mainSequence) ?
-        (Objects.nonNull(mainSequence.getTempo()) ?
-          mainSequence.getTempo()
-          : fabricator.sourceMaterial().getProgram(mainSequence.getProgramId()).orElseThrow().getTempo())
+        fabricator.sourceMaterial().getProgram(mainSequence.getProgramId()).orElseThrow().getTempo()
         : null;
-    if (Objects.nonNull(macroTempo) && Objects.nonNull(mainTempo))
-      return (macroTempo + mainTempo) / 2;
-    if (Objects.nonNull(macroTempo))
-      return macroTempo;
     if (Objects.nonNull(mainTempo))
       return mainTempo;
     throw new NexusException("Failed to compute Segment Tempo!");
@@ -216,7 +203,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
       var seg = fabricator.getSegment();
       seg.setType(fabricator.getType());
       seg.setOutputEncoder(fabricator.getTemplateConfig().getOutputContainer());
-      seg.setTempo(computeSegmentTempo(macroSequence.get(), mainSequence.get()));
+      seg.setTempo(computeSegmentTempo(mainSequence.get()));
       seg.setKey(computeSegmentKey(mainSequence.get()).strip());
       seg.setTotal(Integer.valueOf(mainSequence.get().getTotal()));
       fabricator.updateSegment(seg);

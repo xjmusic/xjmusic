@@ -22,9 +22,7 @@ import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -44,8 +42,6 @@ import static org.junit.Assert.*;
 // future test: permissions of different users to readMany vs. of vs. update or destroy programs
 @RunWith(MockitoJUnitRunner.class)
 public class ProgramSequenceManagerImplTest {
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
   private ProgramSequenceManager testManager;
 
   private HubIntegrationTestProvider test;
@@ -77,7 +73,7 @@ public class ProgramSequenceManagerImplTest {
     // Library "palm tree" has a program "Ants" and program "Ants"
     fake.library1 = test.insert(buildLibrary(fake.account1, "palm tree"));
     fake.program1 = test.insert(buildProgram(fake.library1, ProgramType.Main, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f));
-    fake.program1_sequence1 = test.insert(buildProgramSequence(fake.program1, 4, "Ants", 0.583f, "D minor", 120.0f));
+    fake.program1_sequence1 = test.insert(buildProgramSequence(fake.program1, 4, "Ants", 0.583f, "D minor"));
     var sequenceBinding1a_0 = test.insert(buildProgramSequenceBinding(fake.program1_sequence1, 0));
     test.insert(buildProgramSequenceBindingMeme(sequenceBinding1a_0, "chunk"));
     test.insert(buildProgramSequenceBindingMeme(sequenceBinding1a_0, "smooth"));
@@ -87,7 +83,7 @@ public class ProgramSequenceManagerImplTest {
     // Library "boat" has a program "helm" and program "sail"
     fake.library2 = test.insert(buildLibrary(fake.account1, "boat"));
     fake.program3 = test.insert(buildProgram(fake.library2, ProgramType.Macro, ProgramState.Published, "helm", "C#", 120.0f, 0.6f));
-    fake.program3_sequence1 = test.insert(buildProgramSequence(fake.program3, 16, "Ants", 0.583f, "D minor", 120.0f));
+    fake.program3_sequence1 = test.insert(buildProgramSequence(fake.program3, 16, "Ants", 0.583f, "D minor"));
     test.insert(buildProgramSequenceBinding(fake.program3_sequence1, 0));
     fake.program4 = test.insert(buildProgram(fake.library2, ProgramType.Detail, ProgramState.Published, "sail", "C#", 120.0f, 0.6f));
 
@@ -108,7 +104,6 @@ public class ProgramSequenceManagerImplTest {
     subject.setKey("G minor 7");
     subject.setProgramId(fake.program3.getId());
     subject.setName("cannons");
-    subject.setTempo(129.4f);
     subject.setTotal((short) 4);
     subject.setDensity(0.6f);
 
@@ -119,7 +114,6 @@ public class ProgramSequenceManagerImplTest {
     assertEquals("G minor 7", result.getKey());
     assertEquals(fake.program3.getId(), result.getProgramId());
     assertEquals("cannons", result.getName());
-    assertEquals(129.4, result.getTempo(), 0.1);
   }
 
   /**
@@ -134,7 +128,6 @@ public class ProgramSequenceManagerImplTest {
     inputData.setKey("G minor 7");
     inputData.setProgramId(fake.program3.getId());
     inputData.setName("cannons");
-    inputData.setTempo(129.4f);
     inputData.setTotal((short) 4f);
     inputData.setDensity(0.6f);
 
@@ -145,7 +138,6 @@ public class ProgramSequenceManagerImplTest {
     assertEquals("G minor 7", result.getKey());
     assertEquals(fake.program3.getId(), result.getProgramId());
     assertEquals("cannons", result.getName());
-    assertEquals(129.4, result.getTempo(), 0.1);
   }
 
   /**
@@ -158,7 +150,6 @@ public class ProgramSequenceManagerImplTest {
     inputData.setId(UUID.randomUUID());
     inputData.setProgramId(fake.program3.getId());
     inputData.setDensity(0.583f);
-    inputData.setTempo(120.0f);
     inputData.setKey("C#");
     inputData.setName("cannons fifty nine");
     test.insert(buildProgramMeme(fake.program1, "cinnamon"));
@@ -176,7 +167,6 @@ public class ProgramSequenceManagerImplTest {
     assertEquals("C#", result.getKey());
     assertEquals(fake.program3.getId(), result.getProgramId());
     assertEquals("cannons fifty nine", result.getName());
-    assertEquals(120, result.getTempo(), 0.1);
     // Cloned ProgramSequence
     assertEquals(Integer.valueOf(1), test.getDSL()
       .selectCount().from(PROGRAM_SEQUENCE)
@@ -236,10 +226,10 @@ public class ProgramSequenceManagerImplTest {
   @Test
   public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
-    failure.expect(ManagerException.class);
-    failure.expectMessage("does not exist");
 
-    testManager.readOne(access, fake.program3_sequence1.getId());
+    var e = assertThrows(ManagerException.class, () -> testManager.readOne(access, fake.program3_sequence1.getId()));
+
+    assertEquals("Record does not exist", e.getMessage());
   }
 
   // future test: readManyInAccount vs readManyInLibraries, positive and negative cases
@@ -272,16 +262,13 @@ public class ProgramSequenceManagerImplTest {
     subject.setName("cannons");
     subject.setProgramId(UUID.randomUUID());
 
-    try {
-      testManager.update(access, fake.program3_sequence1.getId(), subject);
+    var e = assertThrows(ManagerException.class, () -> testManager.update(access, fake.program3_sequence1.getId(), subject));
 
-    } catch (Exception e) {
-      var result = testManager.readOne(HubAccess.internal(), fake.program3_sequence1.getId());
-      assertNotNull(result);
-      assertEquals("Ants", result.getName());
-      assertEquals(fake.program3.getId(), result.getProgramId());
-      assertSame(ManagerException.class, e.getClass());
-    }
+    var result = testManager.readOne(HubAccess.internal(), fake.program3_sequence1.getId());
+    assertNotNull(result);
+    assertEquals("Ants", result.getName());
+    assertEquals(fake.program3.getId(), result.getProgramId());
+    assertSame(ManagerException.class, e.getClass());
   }
 
   @Test
@@ -294,7 +281,6 @@ public class ProgramSequenceManagerImplTest {
     subject.setProgramId(fake.program3.getId());
     subject.setName("cannons");
     subject.setTotal((short) 4);
-    subject.setTempo(129.4f);
 
     testManager.update(access, fake.program3_sequence1.getId(), subject);
 
@@ -319,7 +305,6 @@ public class ProgramSequenceManagerImplTest {
     subject.setProgramId(fake.program3.getId());
     subject.setTotal((short) 4);
     subject.setName("cannons");
-    subject.setTempo(129.4f);
 
     testManager.update(access, fake.program3_sequence1.getId(), subject);
 
@@ -330,7 +315,7 @@ public class ProgramSequenceManagerImplTest {
   @Test
   public void destroy_asArtist() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
-    fake.programSequence35 = test.insert(buildProgramSequence(fake.program2, 16, "Ants", 0.6f, "C#", 120.0f));
+    fake.programSequence35 = test.insert(buildProgramSequence(fake.program2, 16, "Ants", 0.6f, "C#"));
 
     testManager.destroy(access, fake.programSequence35.getId());
 
@@ -345,10 +330,9 @@ public class ProgramSequenceManagerImplTest {
     fake.account2 = buildAccount("Testing");
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account2), "Artist");
 
-    failure.expect(ManagerException.class);
-    failure.expectMessage("Sequence in Program in Account you have access to does not exist");
+    var e = assertThrows(ManagerException.class, () -> testManager.destroy(access, fake.program3_sequence1.getId()));
 
-    testManager.destroy(access, fake.program3_sequence1.getId());
+    assertEquals("Sequence in Program in Account you have access to does not exist", e.getMessage());
   }
 
   /**
@@ -357,7 +341,7 @@ public class ProgramSequenceManagerImplTest {
   @Test
   public void destroy_succeedsEvenWhenHasPattern() throws Exception {
     HubAccess access = HubAccess.create("Admin");
-    var programSequence = test.insert(buildProgramSequence(fake.program2, 16, "Ants", 0.6f, "C#", 120.0f));
+    var programSequence = test.insert(buildProgramSequence(fake.program2, 16, "Ants", 0.6f, "C#"));
     test.insert(buildProgramSequencePattern(programSequence, fake.program702_voice1, 4, "Jam"));
 
     testManager.destroy(access, programSequence.getId());
@@ -373,7 +357,7 @@ public class ProgramSequenceManagerImplTest {
     HubAccess access = HubAccess.create("Admin");
     var programVoice = test.insert(buildProgramVoice(fake.program3, InstrumentType.Drum, "Drums"));
     var track = test.insert(buildProgramVoiceTrack(programVoice, "KICK"));
-    var programSequence = test.insert(buildProgramSequence(fake.program2, 16, "Ants", 0.6f, "C#", 120.0f));
+    var programSequence = test.insert(buildProgramSequence(fake.program2, 16, "Ants", 0.6f, "C#"));
     var programSequenceBinding = test.insert(buildProgramSequenceBinding(programSequence, 0));
     test.insert(buildProgramSequenceBindingMeme(programSequenceBinding, "chunk"));
     var pattern = test.insert(buildProgramSequencePattern(programSequence, fake.program702_voice1, 4, "Jam"));

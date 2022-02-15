@@ -4,7 +4,6 @@ on:
   pull_request:
     # Ignore branches having their own workflows
     branches-ignore:
-      - 'dev'
       - 'prod'
 
 jobs:

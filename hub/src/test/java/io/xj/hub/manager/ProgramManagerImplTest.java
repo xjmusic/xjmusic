@@ -78,7 +78,7 @@ public class ProgramManagerImplTest {
     // Library "palm tree" has a program "fonds" and program "nuts"
     fake.library1 = test.insert(buildLibrary(fake.account1, "palm tree"));
     fake.program1 = test.insert(buildProgram(fake.library1, ProgramType.Main, ProgramState.Published, "fonds", "C#", 120.0f, 0.6f));
-    fake.program1_sequence1 = test.insert(buildProgramSequence(fake.program1, 4, "Ants", 0.583f, "D minor", 120.0f));
+    fake.program1_sequence1 = test.insert(buildProgramSequence(fake.program1, 4, "Ants", 0.583f, "D minor"));
     var sequenceBinding1a_0 = test.insert(buildProgramSequenceBinding(fake.program1_sequence1, 0));
     test.insert(buildProgramSequenceBindingMeme(sequenceBinding1a_0, "chunk"));
     test.insert(buildProgramSequenceBindingMeme(sequenceBinding1a_0, "smooth"));
@@ -87,7 +87,7 @@ public class ProgramManagerImplTest {
     // Library "boat" has a program "helm" and program "sail"
     fake.library2 = test.insert(buildLibrary(fake.account1, "boat"));
     fake.program3 = test.insert(buildProgram(fake.library2, ProgramType.Macro, ProgramState.Published, "helm", "C#", 120.0f, 0.6f));
-    fake.program3_sequence1 = test.insert(buildProgramSequence(fake.program3, 16, "Ants", 0.583f, "D minor", 120.0f));
+    fake.program3_sequence1 = test.insert(buildProgramSequence(fake.program3, 16, "Ants", 0.583f, "D minor"));
     test.insert(buildProgramSequenceBinding(fake.program3_sequence1, 0));
     fake.program4 = test.insert(buildProgram(fake.library2, ProgramType.Detail, ProgramState.Published, "sail", "C#", 120.0f, 0.6f));
 
@@ -477,7 +477,7 @@ public class ProgramManagerImplTest {
   public void destroy_succeedsWithInnerEntitiesButNoMemes() throws Exception {
     HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     Program program = test.insert(buildProgram(fake.library1, ProgramType.Main, ProgramState.Published, "fonds", "C#", 120.0f, 0.6f));
-    var programSequence = test.insert(buildProgramSequence(program, 4, "Ants", 0.583f, "D minor", 120.0f));
+    var programSequence = test.insert(buildProgramSequence(program, 4, "Ants", 0.583f, "D minor"));
     test.insert(buildProgramSequenceBinding(programSequence, 0));
     var voice = test.insert(buildProgramVoice(program, InstrumentType.Drum, "drums"));
     var track = test.insert(buildProgramVoiceTrack(voice, "Kick"));

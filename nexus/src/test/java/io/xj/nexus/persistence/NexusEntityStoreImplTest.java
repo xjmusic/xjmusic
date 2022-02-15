@@ -214,7 +214,7 @@ public class NexusEntityStoreImplTest {
       null,
       "key123"));
     var program = buildProgram(ProgramType.Macro, "C", 120.0f, 0.6f);
-    var programSequence = buildProgramSequence(program, 8, "Hay", 0.6f, "G", 120.0f);
+    var programSequence = buildProgramSequence(program, 8, "Hay", 0.6f, "G");
     var programSequenceBinding = buildProgramSequenceBinding(programSequence, 0);
     subject.put(buildSegment(chain2,
       12,
