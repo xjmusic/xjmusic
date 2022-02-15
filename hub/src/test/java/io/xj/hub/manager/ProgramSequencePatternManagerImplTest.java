@@ -78,7 +78,7 @@ public class ProgramSequencePatternManagerImplTest {
     // Library "palm tree" has a program "Ants" and program "Ants"
     fake.library1 = test.insert(buildLibrary(fake.account1, "palm tree"));
     fake.program1 = test.insert(buildProgram(fake.library1, ProgramType.Main, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f));
-    fake.program1_sequence1 = test.insert(buildProgramSequence(fake.program1, 4, "Ants", 0.583f, "D minor", 120.0f));
+    fake.program1_sequence1 = test.insert(buildProgramSequence(fake.program1, 4, "Ants", 0.583f, "D minor"));
     programVoice1 = test.insert(buildProgramVoice(fake.program1, InstrumentType.Drum, "Drums"));
     var programVoiceTrack1 = test.insert(buildProgramVoiceTrack(programVoice1, "KICK"));
     fake.program2_sequence1_pattern1 = test.insert(buildProgramSequencePattern(fake.program1_sequence1, programVoice1, 4, "Beat"));
@@ -90,7 +90,7 @@ public class ProgramSequencePatternManagerImplTest {
     // Library "boat" has a program "helm" and program "sail"
     fake.library2 = test.insert(buildLibrary(fake.account1, "boat"));
     fake.program3 = test.insert(buildProgram(fake.library2, ProgramType.Macro, ProgramState.Published, "helm", "C#", 120.0f, 0.6f));
-    fake.program3_sequence1 = test.insert(buildProgramSequence(fake.program3, 16, "Ants", 0.583f, "D minor", 120.0f));
+    fake.program3_sequence1 = test.insert(buildProgramSequence(fake.program3, 16, "Ants", 0.583f, "D minor"));
     programVoice3 = test.insert(buildProgramVoice(fake.program3, InstrumentType.Drum, "Drums"));
     test.insert(buildProgramVoiceTrack(programVoice3, "KICK"));
     test.insert(buildProgramSequencePattern(fake.program3_sequence1, programVoice3, 4, "Beat"));

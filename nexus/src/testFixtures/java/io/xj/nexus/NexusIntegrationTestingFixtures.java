@@ -633,16 +633,16 @@ public class NexusIntegrationTestingFixtures {
     program4 = buildProgram(library2, ProgramType.Macro, ProgramState.Published, "Tropical, Wild to Cozy", "C", 120.0f, 0.6f);
     program4_meme0 = buildMeme(program4, "Tropical");
     //
-    program4_sequence0 = buildSequence(program4, 0, "Start Wild", 0.6f, "C", 125.0f);
+    program4_sequence0 = buildSequence(program4, 0, "Start Wild", 0.6f, "C");
     program4_sequence0_binding0 = buildBinding(program4_sequence0, 0);
     program4_sequence0_binding0_meme0 = buildMeme(program4_sequence0_binding0, "Wild");
     //
-    program4_sequence1 = buildSequence(program4, 0, "Intermediate", 0.4f, "Bb minor", 115.0f);
+    program4_sequence1 = buildSequence(program4, 0, "Intermediate", 0.4f, "Bb minor");
     program4_sequence1_binding0 = buildBinding(program4_sequence1, 1);
     program4_sequence1_binding0_meme0 = buildMeme(program4_sequence1_binding0, "Cozy");
     program4_sequence1_binding0_meme1 = buildMeme(program4_sequence1_binding0, "Wild");
     //
-    program4_sequence2 = buildSequence(program4, 0, "Finish Cozy", 0.4f, "Ab minor", 125.0f);
+    program4_sequence2 = buildSequence(program4, 0, "Finish Cozy", 0.4f, "Ab minor");
     program4_sequence2_binding0 = buildBinding(program4_sequence2, 2);
     program4_sequence2_binding0_meme0 = buildMeme(program4_sequence2_binding0, "Cozy");
 
@@ -650,7 +650,7 @@ public class NexusIntegrationTestingFixtures {
     program5 = buildProgram(library2, ProgramType.Main, ProgramState.Published, "Main Jam", "C minor", 140, 0.6f);
     program5_meme0 = buildMeme(program5, "Outlook");
     //
-    program5_sequence0 = buildSequence(program5, 16, "Intro", 0.5f, "G major", 135.0f);
+    program5_sequence0 = buildSequence(program5, 16, "Intro", 0.5f, "G major");
     program5_sequence0_chord0 = buildChord(program5_sequence0, 0.0, "G major");
     program5_sequence0_chord0_voicing = buildVoicing(InstrumentType.Bass, program5_sequence0_chord0, "G3, B3, D4");
     program5_sequence0_chord1 = buildChord(program5_sequence0, 8.0, "Ab minor");
@@ -660,7 +660,7 @@ public class NexusIntegrationTestingFixtures {
     program5_sequence0_binding0 = buildBinding(program5_sequence0, 0);
     program5_sequence0_binding0_meme0 = buildMeme(program5_sequence0_binding0, "Optimism");
     //
-    program5_sequence1 = buildSequence(program5, 32, "Drop", 0.5f, "G minor", 135.0f);
+    program5_sequence1 = buildSequence(program5, 32, "Drop", 0.5f, "G minor");
     program5_sequence1_chord0 = buildChord(program5_sequence1, 0.0, "C major");
     //
     program5_sequence1_chord0_voicing = buildVoicing(InstrumentType.Bass, program5_sequence1_chord0, "Ab3, Db3, F4");
@@ -681,7 +681,7 @@ public class NexusIntegrationTestingFixtures {
     program35_voice0_track2 = buildTrack(program35_voice0, "KICK");
     program35_voice0_track3 = buildTrack(program35_voice0, "SNARL");
     //
-    program35_sequence0 = buildSequence(program35, 16, "Base", 0.5f, "C", 110.3f);
+    program35_sequence0 = buildSequence(program35, 16, "Base", 0.5f, "C");
     program35_sequence0_pattern0 = buildPattern(program35_sequence0, program35_voice0, 4, "Drop");
     program35_sequence0_pattern0_event0 = buildEvent(program35_sequence0_pattern0, program35_voice0_track0, 0.0f, 1.0f, "C2", 1.0f);
     program35_sequence0_pattern0_event1 = buildEvent(program35_sequence0_pattern0, program35_voice0_track1, 1.0f, 1.0f, "G5", 0.8f);
@@ -765,11 +765,11 @@ public class NexusIntegrationTestingFixtures {
     program3 = buildProgram(library2, ProgramType.Macro, ProgramState.Published, "Tangy, Chunky to Smooth", "G minor", 120.0f, 0.6f);
     program3_meme0 = buildMeme(program3, "Tangy");
     //
-    program3_sequence0 = buildSequence(program3, 0, "Start Chunky", 0.4f, "G minor", 115.0f);
+    program3_sequence0 = buildSequence(program3, 0, "Start Chunky", 0.4f, "G minor");
     program3_sequence0_binding0 = buildBinding(program3_sequence0, 0);
     program3_sequence0_binding0_meme0 = buildMeme(program3_sequence0_binding0, "Chunky");
     //
-    program3_sequence1 = buildSequence(program3, 0, "Finish Smooth", 0.6f, "C", 125.0f);
+    program3_sequence1 = buildSequence(program3, 0, "Finish Smooth", 0.6f, "C");
     program3_sequence1_binding0 = buildBinding(program3_sequence1, 1);
     program3_sequence1_binding0_meme0 = buildMeme(program3_sequence1_binding0, "Smooth");
 
@@ -777,7 +777,7 @@ public class NexusIntegrationTestingFixtures {
     program15 = buildProgram(library2, ProgramType.Main, ProgramState.Published, "Next Jam", "Db minor", 140, 0.6f);
     program15_meme0 = buildMeme(program15, "Hindsight");
     //
-    program15_sequence0 = buildSequence(program15, 16, "Intro", 0.5f, "G minor", 135.0f);
+    program15_sequence0 = buildSequence(program15, 16, "Intro", 0.5f, "G minor");
     program15_sequence0_chord0 = buildChord(program15_sequence0, 0.0, "G minor");
     program15_sequence0_chord0_voicing = buildVoicing(InstrumentType.Bass, program15_sequence0_chord0, "G3, Bb3, D4");
     program15_sequence0_chord1 = buildChord(program15_sequence0, 8.0, "Ab minor");
@@ -785,7 +785,7 @@ public class NexusIntegrationTestingFixtures {
     program15_sequence0_binding0 = buildBinding(program15_sequence0, 0);
     program15_sequence0_binding0_meme0 = buildMeme(program15_sequence0_binding0, "Regret");
     //
-    program15_sequence1 = buildSequence(program15, 32, "Outro", 0.5f, "A major", 135.0f);
+    program15_sequence1 = buildSequence(program15, 32, "Outro", 0.5f, "A major");
     program15_sequence1_chord0 = buildChord(program15_sequence1, 0.0, "C major");
     program15_sequence1_chord0_voicing = buildVoicing(InstrumentType.Bass, program15_sequence0_chord0, "E3, G3, C4");
     program15_sequence1_chord1 = buildChord(program15_sequence1, 8.0, "Bb major");
@@ -861,7 +861,7 @@ public class NexusIntegrationTestingFixtures {
     program9_voice0_track14 = buildTrack(program9_voice0, "TOOTE");
     program9_voice0_track15 = buildTrack(program9_voice0, "TOUT");
     //
-    program9_sequence0 = buildSequence(program9, 16, "Base", 0.5f, "C", 110.3f);
+    program9_sequence0 = buildSequence(program9, 16, "Base", 0.5f, "C");
     //
     program9_sequence0_pattern0 = buildPattern(program9_sequence0, program9_voice0, 4, "Intro");
     program9_sequence0_pattern0_event0 = buildEvent(program9_sequence0_pattern0, program9_voice0_track0, 0, 1, "C2", 1.0f);
@@ -960,7 +960,7 @@ public class NexusIntegrationTestingFixtures {
     program10_voice0 = buildVoice(program10, InstrumentType.Bass, "Dirty Bass");
     program10_voice0_track0 = buildTrack(program10_voice0, "BUM");
     //
-    program10_sequence0 = buildSequence(program10, 16, "Simple Walk", 0.5f, "C", 110.3f);
+    program10_sequence0 = buildSequence(program10, 16, "Simple Walk", 0.5f, "C");
     //
     program10_sequence0_pattern0 = buildPattern(program10_sequence0, program10_voice0, 4, "Intro");
     program10_sequence0_pattern0_event0 = buildEvent(program10_sequence0_pattern0, program10_voice0_track0, 0, 1, "C2", 1.0f);
@@ -1082,13 +1082,13 @@ public class NexusIntegrationTestingFixtures {
       Program program = add(entities, buildProgram(library1, ProgramType.Macro, ProgramState.Published, String.format("%s, create %s to %s", minorMemeName, majorMemeFromName, majorMemeToName), keyFrom, tempoFrom, 0.6f));
       add(entities, buildProgramMeme(program, minorMemeName));
       // of offset 0
-      var sequence0 = add(entities, buildSequence(program, 0, String.format("Start %s", majorMemeFromName), densityFrom, keyFrom, tempoFrom));
+      var sequence0 = add(entities, buildSequence(program, 0, String.format("Start %s", majorMemeFromName), densityFrom, keyFrom));
       var binding0 = add(entities, buildProgramSequenceBinding(sequence0, 0));
       add(entities, buildProgramSequenceBindingMeme(binding0, majorMemeFromName));
       // to offset 1
       float densityTo = random(0.3, 0.9);
       float tempoTo = random(803, 120);
-      var sequence1 = add(entities, buildSequence(program, 0, String.format("Finish %s", majorMemeToName), densityTo, keyTo, tempoTo));
+      var sequence1 = add(entities, buildSequence(program, 0, String.format("Finish %s", majorMemeToName), densityTo, keyTo));
       var binding1 = add(entities, buildProgramSequenceBinding(sequence1, 1));
       add(entities, buildProgramSequenceBindingMeme(binding1, majorMemeToName));
       //
@@ -1109,7 +1109,7 @@ public class NexusIntegrationTestingFixtures {
       // sequences of program
       for (int iP = 0; iP < N; iP++) {
         Integer total = random(LoremIpsum.SEQUENCE_TOTALS);
-        sequences[iP] = add(entities, buildSequence(program, total, String.format("%s in %s", majorMemeName, sequenceNames[iP]), subDensities[iP], subKeys[iP], tempo));
+        sequences[iP] = add(entities, buildSequence(program, total, String.format("%s in %s", majorMemeName, sequenceNames[iP]), subDensities[iP], subKeys[iP]));
         for (int iPC = 0; iPC < N << 2; iPC++) {
           // always use first chord, then use more chords with more density
           if (0 == iPC || StrictMath.random() < subDensities[iP]) {
@@ -1142,7 +1142,7 @@ public class NexusIntegrationTestingFixtures {
       for (int iV = 0; iV < N; iV++) {
         voices[iV] = add(entities, buildVoice(program, InstrumentType.Drum, String.format("%s %s", majorMemeName, percussiveNames[iV])));
       }
-      var sequenceBase = add(entities, buildSequence(program, random(LoremIpsum.SEQUENCE_TOTALS), "Base", density, key, tempo));
+      var sequenceBase = add(entities, buildSequence(program, random(LoremIpsum.SEQUENCE_TOTALS), "Base", density, key));
       // patterns of program
       for (int iP = 0; iP < N << 1; iP++) {
         Integer total = random(LoremIpsum.PATTERN_TOTALS);

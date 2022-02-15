@@ -184,7 +184,7 @@ public class CraftBeat_LayeredVoicesTest {
     Entities.add(entities, buildMeme(program42, "Basic"));
     ProgramVoice program42_locomotion = Entities.add(entities, buildVoice(program42, InstrumentType.Drum, "Locomotion"));
     ProgramVoice program42_kickSnare = Entities.add(entities, buildVoice(program42, InstrumentType.Drum, "BoomBap"));
-    var sequence35a = Entities.add(entities, buildSequence(program42, 16, "Base", 0.5f, "C", 110.3f));
+    var sequence35a = Entities.add(entities, buildSequence(program42, 16, "Base", 0.5f, "C"));
     //
     var pattern35a1 = Entities.add(entities, buildPattern(sequence35a, program42_locomotion, 1, "Hi-hat"));
     var trackHihat = Entities.add(entities, buildTrack(program42_locomotion, "HIHAT"));

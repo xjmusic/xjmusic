@@ -270,7 +270,6 @@ public class ProgramSequenceManagerImpl extends HubPersistenceServiceImpl<Progra
       Values.require(record.getKey(), "Key");
       Values.require(record.getDensity(), "Density");
       if (Values.isEmpty(record.getTotal())) record.setTotal((short) 0);
-      Values.require(record.getTempo(), "Tempo");
       return record;
 
     } catch (ValueException e) {

@@ -109,7 +109,6 @@ public enum HubTopology {
       .withAttribute("key")
       .withAttribute("density")
       .withAttribute("total")
-      .withAttribute("tempo")
       .belongsTo(Program.class)
       .hasMany(ProgramSequencePattern.class)
       .hasMany(ProgramSequenceBinding.class)

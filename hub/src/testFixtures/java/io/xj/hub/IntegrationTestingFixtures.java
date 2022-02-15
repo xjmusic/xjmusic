@@ -229,14 +229,13 @@ public class IntegrationTestingFixtures {
     return meme;
   }
 
-  public static ProgramSequence buildSequence(Program program, int total, String name, float density, String key, float tempo) {
+  public static ProgramSequence buildSequence(Program program, int total, String name, float density, String key) {
     var sequence = new ProgramSequence();
     sequence.setId(UUID.randomUUID());
     sequence.setProgramId(program.getId());
     sequence.setTotal((short) total);
     sequence.setName(name);
     sequence.setKey(key);
-    sequence.setTempo(tempo);
     sequence.setDensity(density);
     return sequence;
   }
@@ -597,14 +596,13 @@ public class IntegrationTestingFixtures {
     return programMeme;
   }
 
-  public static ProgramSequence buildProgramSequence(Program program, int total, String name, float density, String key, float tempo) {
+  public static ProgramSequence buildProgramSequence(Program program, int total, String name, float density, String key) {
     var programSequence = new ProgramSequence();
     programSequence.setId(UUID.randomUUID());
     programSequence.setProgramId(program.getId());
     programSequence.setTotal((short) total);
     programSequence.setName(name);
     programSequence.setKey(key);
-    programSequence.setTempo(tempo);
     programSequence.setDensity(density);
     return programSequence;
   }
@@ -741,7 +739,7 @@ public class IntegrationTestingFixtures {
     // Program 701, main-type, has sequence with chords, bound to many offsets
     program701 = test.insert(buildProgram(library10000001, ProgramType.Main, ProgramState.Published, "leaves", "C#", 120.4f, 0.6f));
     program701_meme0 = test.insert(buildProgramMeme(program701, "Ants"));
-    var sequence902 = test.insert(buildProgramSequence(program701, (short) 16, "decay", 0.25f, "F#", 110.3f));
+    var sequence902 = test.insert(buildProgramSequence(program701, (short) 16, "decay", 0.25f, "F#"));
     test.insert(buildProgramSequenceChord(sequence902, 0.0, "G minor"));
     test.insert(buildProgramSequenceChord(sequence902, 4.0, "C major"));
     test.insert(buildProgramSequenceChord(sequence902, 8.0, "F7"));
@@ -767,7 +765,7 @@ public class IntegrationTestingFixtures {
     program702 = test.insert(buildProgram(library10000001, ProgramType.Beat, ProgramState.Published, "coconuts", "F#", 110.3f, 0.6f));
     test.insert(buildProgramMeme(program702, "Ants"));
     program702_voice1 = test.insert(buildProgramVoice(program702, InstrumentType.Drum, "Drums"));
-    var sequence702a = test.insert(buildProgramSequence(program702, (short) 16, "Base", 0.5f, "C", 110.3f));
+    var sequence702a = test.insert(buildProgramSequence(program702, (short) 16, "Base", 0.5f, "C"));
     var pattern901 = test.insert(buildProgramSequencePattern(sequence702a, program702_voice1, (short) 16, "growth"));
     var trackBoom = test.insert(buildProgramVoiceTrack(program702_voice1, "BOOM"));
     var trackSmack = test.insert(buildProgramVoiceTrack(program702_voice1, "BOOM"));
@@ -789,7 +787,7 @@ public class IntegrationTestingFixtures {
     program751 = test.insert(buildProgram(library10000002, ProgramType.Beat, ProgramState.Published, "coconuts", "F#", 110.3f, 0.6f));
     test.insert(buildProgramMeme(program751, "Ants"));
     var voiceGarbage = test.insert(buildProgramVoice(program751, InstrumentType.Drum, "Garbage"));
-    var sequence751a = test.insert(buildProgramSequence(program751, (short) 16, "Base", 0.5f, "C", 110.3f));
+    var sequence751a = test.insert(buildProgramSequence(program751, (short) 16, "Base", 0.5f, "C"));
     var pattern951 = test.insert(buildProgramSequencePattern(sequence751a, voiceGarbage, (short) 16, "Garbage"));
     var trackGr = test.insert(buildProgramVoiceTrack(voiceGarbage, "GR"));
     var trackBag = test.insert(buildProgramVoiceTrack(voiceGarbage, "BAG"));

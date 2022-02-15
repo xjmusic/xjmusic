@@ -147,7 +147,7 @@ public class LibraryManagerImplTest {
     //
     fake.program1 = test.insert(buildProgram(fake.library1a, ProgramType.Beat, "cannons fifty nine"));
     test.insert(buildProgramMeme(fake.program1, "cinnamon"));
-    fake.program1_sequence1 = test.insert(buildProgramSequence(fake.program1, 4, "Ants", 0.583f, "D minor", 120.0f));
+    fake.program1_sequence1 = test.insert(buildProgramSequence(fake.program1, 4, "Ants", 0.583f, "D minor"));
     var sequenceBinding1a_0 = test.insert(buildProgramSequenceBinding(fake.program1_sequence1, 0));
     test.insert(buildProgramSequenceBindingMeme(sequenceBinding1a_0, "chunk"));
     test.insert(buildProgramSequenceBindingMeme(sequenceBinding1a_0, "smooth"));

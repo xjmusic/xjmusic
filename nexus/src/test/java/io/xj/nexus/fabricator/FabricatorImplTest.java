@@ -163,7 +163,7 @@ public class FabricatorImplTest {
     Double result = subject.getSecondsAtPosition(0); // instantiates a time computer; see expectation above
 
     assertEquals(Double.valueOf(0), result);
-    verify(mockFabricatorFactory).createTimeComputer(8.0, 120, 240.0);
+    verify(mockFabricatorFactory).createTimeComputer(8.0, 120, 120.0);
   }
 
   /**
