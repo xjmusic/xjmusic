@@ -35,10 +35,10 @@ public class HubAccessTest {
   public void matchRoles() {
     HubAccess hubAccess = HubAccess.create("User,Artist");
 
-    assertTrue(hubAccess.isAllowed(UserRoleType.User));
-    assertTrue(hubAccess.isAllowed(UserRoleType.Artist));
-    assertTrue(hubAccess.isAllowed(UserRoleType.User, UserRoleType.Artist));
-    assertFalse(hubAccess.isAllowed(UserRoleType.Admin));
+    assertTrue(hubAccess.isAnyAllowed(UserRoleType.User));
+    assertTrue(hubAccess.isAnyAllowed(UserRoleType.Artist));
+    assertTrue(hubAccess.isAnyAllowed(UserRoleType.User, UserRoleType.Artist));
+    assertFalse(hubAccess.isAnyAllowed(UserRoleType.Admin));
   }
 
   @Test

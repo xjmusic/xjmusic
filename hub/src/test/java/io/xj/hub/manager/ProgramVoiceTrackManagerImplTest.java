@@ -100,7 +100,7 @@ public class ProgramVoiceTrackManagerImplTest {
 
   @Test
   public void create() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var subject = new ProgramVoiceTrack();
     subject.setId(UUID.randomUUID());
     subject.setProgramId(fake.program3.getId());
@@ -108,7 +108,7 @@ public class ProgramVoiceTrackManagerImplTest {
     subject.setName("Jams");
 
     var result = testManager.create(
-      hubAccess, subject);
+      access, subject);
 
     assertNotNull(result);
     assertEquals(fake.program3.getId(), result.getProgramId());
@@ -122,7 +122,7 @@ public class ProgramVoiceTrackManagerImplTest {
    */
   @Test
   public void create_asArtist() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var inputData = new ProgramVoiceTrack();
     inputData.setId(UUID.randomUUID());
     inputData.setProgramId(fake.program3.getId());
@@ -130,7 +130,7 @@ public class ProgramVoiceTrackManagerImplTest {
     inputData.setName("Jams");
 
     var result = testManager.create(
-      hubAccess, inputData);
+      access, inputData);
 
     assertNotNull(result);
     assertEquals(fake.program3.getId(), result.getProgramId());
@@ -140,9 +140,9 @@ public class ProgramVoiceTrackManagerImplTest {
 
   @Test
   public void readOne() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
 
-    var result = testManager.readOne(hubAccess, voiceTrack1a_0.getId());
+    var result = testManager.readOne(access, voiceTrack1a_0.getId());
 
     assertNotNull(result);
     assertEquals(voiceTrack1a_0.getId(), result.getId());
@@ -152,9 +152,9 @@ public class ProgramVoiceTrackManagerImplTest {
 
   @Test
   public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
 
-    var e = assertThrows(ManagerException.class, () -> testManager.readOne(hubAccess, voiceTrack1a_0.getId()));
+    var e = assertThrows(ManagerException.class, () -> testManager.readOne(access, voiceTrack1a_0.getId()));
     assertEquals("Record does not exist", e.getMessage());
   }
 
@@ -162,9 +162,9 @@ public class ProgramVoiceTrackManagerImplTest {
 
   @Test
   public void readMany() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
 
-    Collection<ProgramVoiceTrack> result = testManager.readMany(hubAccess, ImmutableList.of(fake.program702_voice1.getId()));
+    Collection<ProgramVoiceTrack> result = testManager.readMany(access, ImmutableList.of(fake.program702_voice1.getId()));
 
     assertEquals(1L, result.size());
     Iterator<ProgramVoiceTrack> resultIt = result.iterator();
@@ -173,9 +173,9 @@ public class ProgramVoiceTrackManagerImplTest {
 
   @Test
   public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
 
-    Collection<ProgramVoiceTrack> result = testManager.readMany(hubAccess, ImmutableList.of(fake.program702_voice1.getId()));
+    Collection<ProgramVoiceTrack> result = testManager.readMany(access, ImmutableList.of(fake.program702_voice1.getId()));
 
     assertEquals(0L, result.size());
   }
@@ -185,9 +185,9 @@ public class ProgramVoiceTrackManagerImplTest {
    */
   @Test
   public void destroy_okWithChildEntities() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
 
-    testManager.destroy(hubAccess, voiceTrack1a_0.getId());
+    testManager.destroy(access, voiceTrack1a_0.getId());
 
     assertEquals(Integer.valueOf(0), test.getDSL()
       .selectCount().from(io.xj.hub.tables.ProgramVoiceTrack.PROGRAM_VOICE_TRACK)
@@ -197,11 +197,11 @@ public class ProgramVoiceTrackManagerImplTest {
 
   @Test
   public void destroy_asArtist() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     injector.getInstance(ProgramSequencePatternEventManager.class).destroy(HubAccess.internal(), voiceTrack1a_0_event0.getId());
     injector.getInstance(ProgramSequencePatternEventManager.class).destroy(HubAccess.internal(), voiceTrack1a_0_event1.getId());
 
-    testManager.destroy(hubAccess, voiceTrack1a_0.getId());
+    testManager.destroy(access, voiceTrack1a_0.getId());
 
     assertEquals(Integer.valueOf(0), test.getDSL()
       .selectCount().from(io.xj.hub.tables.ProgramVoiceTrack.PROGRAM_VOICE_TRACK)
@@ -212,12 +212,12 @@ public class ProgramVoiceTrackManagerImplTest {
   @Test
   public void destroy_failsIfNotInAccount() throws Exception {
     fake.account2 = buildAccount("Testing");
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account2), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account2), "Artist");
     injector.getInstance(ProgramSequencePatternEventManager.class).destroy(HubAccess.internal(), voiceTrack1a_0_event0.getId());
     injector.getInstance(ProgramSequencePatternEventManager.class).destroy(HubAccess.internal(), voiceTrack1a_0_event1.getId());
 
-    var e = assertThrows(ManagerException.class, () -> testManager.destroy(hubAccess, voiceTrack1a_0.getId()));
-    assertEquals("Track in Voice in Program you have hubAccess to does not exist", e.getMessage());
+    var e = assertThrows(ManagerException.class, () -> testManager.destroy(access, voiceTrack1a_0.getId()));
+    assertEquals("Track in Voice in Program you have access to does not exist", e.getMessage());
   }
 
   /**
@@ -225,13 +225,13 @@ public class ProgramVoiceTrackManagerImplTest {
    */
   @Test
   public void update_moveToDifferentVoice() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     fake.program2_voice2 = test.insert(buildProgramVoice(fake.program2, InstrumentType.Drum, "Cans"));
     voiceTrack1a_0.setProgramVoiceId(fake.program2_voice2.getId());
 
-    testManager.update(hubAccess, voiceTrack1a_0.getId(), voiceTrack1a_0);
+    testManager.update(access, voiceTrack1a_0.getId(), voiceTrack1a_0);
 
-    var result = testManager.readOne(hubAccess, voiceTrack1a_0.getId());
+    var result = testManager.readOne(access, voiceTrack1a_0.getId());
     assertEquals(fake.program2_voice2.getId(), result.getProgramVoiceId());
   }
 

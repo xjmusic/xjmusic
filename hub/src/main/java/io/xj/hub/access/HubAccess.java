@@ -204,7 +204,7 @@ public class HubAccess {
    */
   @SafeVarargs
   @JsonIgnore
-  public final <T> boolean isAllowed(T... matchRoles) {
+  public final <T> boolean isAnyAllowed(T... matchRoles) {
     return Arrays.stream(matchRoles)
       .anyMatch(matchRole -> roleTypes.stream()
         .anyMatch(userRoleType -> userRoleType == UserRoleType.valueOf(matchRole.toString())));
@@ -280,7 +280,7 @@ public class HubAccess {
    */
   @JsonIgnore
   public Boolean isTopLevel() {
-    return isAllowed(topLevelRoles);
+    return isAnyAllowed(topLevelRoles);
   }
 
   /**

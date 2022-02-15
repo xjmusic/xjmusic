@@ -87,7 +87,7 @@ public class ProgramSequenceChordVoicingManagerImpl extends HubPersistenceServic
   @Override
   public ProgramSequenceChordVoicing update(HubAccess hubAccess, UUID id, ProgramSequenceChordVoicing entity) throws ManagerException, JsonapiException, ValueException {
     DSLContext db = dbProvider.getDSL();
-    require("Same id", Objects.equals(id, entity.getId()));
+    requireAny("Same id", Objects.equals(id, entity.getId()));
     validate(entity);
     requireArtist(hubAccess);
     requireProgramModification(db, hubAccess, entity.getProgramId());
@@ -108,7 +108,7 @@ public class ProgramSequenceChordVoicingManagerImpl extends HubPersistenceServic
     requireArtist(hubAccess);
 
     if (!hubAccess.isTopLevel())
-      requireExists("Voicing belongs to Program in Account you have hubAccess to", db.selectCount()
+      requireExists("Voicing belongs to Program in Account you have access to", db.selectCount()
         .from(PROGRAM_SEQUENCE_CHORD_VOICING)
         .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))

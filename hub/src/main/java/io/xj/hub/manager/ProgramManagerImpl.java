@@ -306,7 +306,7 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
 
   @Override
   public Collection<Program> readManyInState(HubAccess access, ProgramState state) throws ManagerException {
-    require(access, UserRoleType.Admin, UserRoleType.Engineer);
+    requireAny(access, UserRoleType.Admin, UserRoleType.Engineer);
     // FUTURE: engineer should only see programs in account?
 
     return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields())
@@ -332,7 +332,7 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
 
    @param db         database context
    @param hubAccess  control
-   @param programIds to require hubAccess to
+   @param programIds to require access to
    */
   private void requireRead(DSLContext db, HubAccess hubAccess, Collection<UUID> programIds) throws ManagerException {
     if (!hubAccess.isTopLevel())

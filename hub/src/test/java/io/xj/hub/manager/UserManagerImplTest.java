@@ -147,10 +147,10 @@ public class UserManagerImplTest {
 
   @Test
   public void update() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin,User");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin,User");
     User update = buildUser("Timmy", "timmy@email.com", "https://pictures.com/timmy.jpg", "User,Artist,Engineer,Admin");
 
-    User result = subjectManager.update(hubAccess, fake.user2.getId(), update);
+    User result = subjectManager.update(access, fake.user2.getId(), update);
 
     assertNotNull(result);
     assertEquals(fake.user2.getId(), result.getId());
@@ -162,9 +162,9 @@ public class UserManagerImplTest {
 
   @Test
   public void readOne() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin,User");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin,User");
 
-    User result = subjectManager.readOne(hubAccess, fake.user2.getId());
+    User result = subjectManager.readOne(access, fake.user2.getId());
 
     assertNotNull(result);
     assertEquals(fake.user2.getId(), result.getId());
@@ -178,9 +178,9 @@ public class UserManagerImplTest {
   public void readOne_inMultipleAccounts() throws Exception {
     fake.account2 = test.insert(buildAccount("too bananas"));
     test.insert(buildAccountUser(fake.account2, fake.user3));
-    HubAccess hubAccess = HubAccess.create(fake.user3, ImmutableList.of(fake.account1, fake.account2));
+    HubAccess access = HubAccess.create(fake.user3, ImmutableList.of(fake.account1, fake.account2));
 
-    User result = subjectManager.readOne(hubAccess, fake.user3.getId());
+    User result = subjectManager.readOne(access, fake.user3.getId());
 
     assertNotNull(result);
     assertEquals(fake.user3.getId(), result.getId());
@@ -188,19 +188,19 @@ public class UserManagerImplTest {
 
   @Test
   public void readOne_UserCannotSeeUserWithoutCommonAccountMembership() {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
 
     var e = assertThrows(ManagerException.class, () ->
-      subjectManager.readOne(hubAccess, fake.user4.getId()));
+      subjectManager.readOne(access, fake.user4.getId()));
 
     assertEquals("Record does not exist", e.getMessage());
   }
 
   @Test
   public void readOne_UserSeesAnotherUserWithCommonAccountMembership() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
 
-    User result = subjectManager.readOne(hubAccess, fake.user3.getId());
+    User result = subjectManager.readOne(access, fake.user3.getId());
 
     assertNotNull(result);
     assertEquals(fake.user3.getId(), result.getId());
@@ -212,9 +212,9 @@ public class UserManagerImplTest {
 
   @Test
   public void readOne_UserWithNoAccountMembershipCanStillSeeSelf() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user4, "User");
+    HubAccess access = HubAccess.create(fake.user4, "User");
 
-    User result = subjectManager.readOne(hubAccess, fake.user4.getId());
+    User result = subjectManager.readOne(access, fake.user4.getId());
 
     assertNotNull(result);
     assertEquals("bill", result.getName());
@@ -222,18 +222,18 @@ public class UserManagerImplTest {
 
   @Test
   public void readMany() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User,Admin");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User,Admin");
 
-    Collection<User> result = subjectManager.readMany(hubAccess, Lists.newArrayList());
+    Collection<User> result = subjectManager.readMany(access, Lists.newArrayList());
 
     assertEquals(3L, result.size());
   }
 
   @Test
   public void readMany_UserSeesSelfAndOtherUsersInSameAccount() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
 
-    Collection<User> result = subjectManager.readMany(hubAccess, Lists.newArrayList());
+    Collection<User> result = subjectManager.readMany(access, Lists.newArrayList());
 
     assertEquals(2L, result.size());
   }
@@ -241,9 +241,9 @@ public class UserManagerImplTest {
   @Test
   public void readMany_UserWithoutAccountMembershipSeesOnlySelf() throws Exception {
     // Bill is in no accounts
-    HubAccess hubAccess = HubAccess.create(fake.user4, "User");
+    HubAccess access = HubAccess.create(fake.user4, "User");
 
-    Collection<User> result = subjectManager.readMany(hubAccess, Lists.newArrayList());
+    Collection<User> result = subjectManager.readMany(access, Lists.newArrayList());
 
     assertNotNull(result);
     assertEquals(1L, result.size());

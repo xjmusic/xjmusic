@@ -48,7 +48,7 @@ public class TemplatePublicationManagerImpl extends HubPersistenceServiceImpl<Te
     var template = modelFrom(Template.class, dbProvider.getDSL().selectFrom(TEMPLATE)
       .where(TEMPLATE.ID.eq(record.getTemplateId()))
       .fetchOne());
-    require("Production-type Template", TemplateType.Production.equals(template.getType()));
+    requireAny("Production-type Template", TemplateType.Production.equals(template.getType()));
 
     for (var prior : modelsFrom(TemplatePublication.class,
       db.selectFrom(TEMPLATE_PUBLICATION)

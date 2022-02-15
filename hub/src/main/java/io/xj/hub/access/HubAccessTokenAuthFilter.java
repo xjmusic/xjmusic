@@ -109,7 +109,7 @@ public class HubAccessTokenAuthFilter implements ContainerRequestFilter {
       else
         return "invalid hub access token";
 
-    if (!hubAccess.isTopLevel() && Objects.isNull(aPermitAll) && !hubAccess.isAllowed(aRolesAllowed.value()))
+    if (!hubAccess.isTopLevel() && Objects.isNull(aPermitAll) && !hubAccess.isAnyAllowed(aRolesAllowed.value()))
       return "user has no accessible role";
 
     // set AccessControl in context for use by resource

@@ -80,37 +80,37 @@ public class TemplateManagerImplTest {
 
   @Test
   public void create_shipKeyConvertedToLowercase() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     Template inputData = new Template();
     inputData.setName("coconuts");
     inputData.setShipKey("dXUZhm");
     inputData.setAccountId(fake.account1.getId());
 
-    Template result = testManager.create(hubAccess, inputData);
+    Template result = testManager.create(access, inputData);
 
     assertEquals("dxuzhm", result.getShipKey());
   }
 
   @Test
   public void create_shipKeyGeneratedLowercase() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     Template inputData = new Template();
     inputData.setName("coconuts");
     inputData.setAccountId(fake.account1.getId());
 
-    Template result = testManager.create(hubAccess, inputData);
+    Template result = testManager.create(access, inputData);
 
     assertEquals(result.getShipKey(), result.getShipKey().toLowerCase(Locale.ROOT));
   }
 
   @Test
   public void create_hasDefaultTemplateConfig() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     Template inputData = new Template();
     inputData.setName("coconuts");
     inputData.setAccountId(fake.account1.getId());
 
-    Template result = testManager.create(hubAccess, inputData);
+    Template result = testManager.create(access, inputData);
 
     assertNotNull(result);
     assertEquals(fake.account1.getId(), result.getAccountId());
@@ -120,12 +120,12 @@ public class TemplateManagerImplTest {
 
   @Test
   public void create_hasGeneratedShipKey() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     Template inputData = new Template();
     inputData.setName("coconuts");
     inputData.setAccountId(fake.account1.getId());
 
-    Template result = testManager.create(hubAccess, inputData);
+    Template result = testManager.create(access, inputData);
 
     assertNotNull(result);
     assertEquals(9, result.getShipKey().length());
@@ -133,11 +133,11 @@ public class TemplateManagerImplTest {
 
   @Test
   public void create_cantHaveSameShipKeyAsExistingTemplate() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     test.insert(buildTemplate(fake.account1, "Prior", "key55"));
     Template inputData = buildTemplate(fake.account1, "New", "key55");
 
-    var e = assertThrows(ManagerException.class, () -> testManager.create(hubAccess, inputData));
+    var e = assertThrows(ManagerException.class, () -> testManager.create(access, inputData));
     assertEquals("Found Template with same Ship key", e.getMessage());
   }
 
@@ -146,13 +146,13 @@ public class TemplateManagerImplTest {
    */
   @Test
   public void create_asEngineer() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Engineer");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Engineer");
     Template inputData = new Template();
     inputData.setName("coconuts");
     inputData.setAccountId(fake.account1.getId());
 
     Template result = testManager.create(
-      hubAccess, inputData);
+      access, inputData);
 
     assertNotNull(result);
     assertEquals(fake.account1.getId(), result.getAccountId());
@@ -164,30 +164,30 @@ public class TemplateManagerImplTest {
    */
   @Test
   public void create_asEngineer_failsWithoutAccountAccess() {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "Engineer");
+    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "Engineer");
     Template inputData = new Template();
     inputData.setName("coconuts");
     inputData.setAccountId(fake.account1.getId());
 
 
-    var e = assertThrows(ManagerException.class, () -> testManager.create(hubAccess, inputData));
+    var e = assertThrows(ManagerException.class, () -> testManager.create(access, inputData));
     assertEquals("Account does not exist", e.getMessage());
   }
 
   @Test
   public void create_FailsWithoutAccountID() {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     Template inputData = new Template();
     inputData.setName("coconuts");
 
 
-    var e = assertThrows(ManagerException.class, () -> testManager.create(hubAccess, inputData));
+    var e = assertThrows(ManagerException.class, () -> testManager.create(access, inputData));
     assertEquals("Account ID is required.", e.getMessage());
   }
 
   @Test
   public void clone_includeBindings() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var boundLibrary = buildLibrary(fake.account1, "Test Library");
     var boundProgram = buildProgram(boundLibrary, ProgramType.Main, ProgramState.Published, "Test", "C", 120.0f, 0.6f);
     var boundInstrument = buildInstrument(boundLibrary, InstrumentType.Bass, InstrumentMode.Events, InstrumentState.Published, "Test");
@@ -199,7 +199,7 @@ public class TemplateManagerImplTest {
     test.insert(buildTemplateBinding(template1a, boundProgram));
     test.insert(buildTemplateBinding(template1a, boundInstrument));
 
-    ManagerCloner<Template> resultCloner = testManager.clone(hubAccess, template1a.getId(), inputData);
+    ManagerCloner<Template> resultCloner = testManager.clone(access, template1a.getId(), inputData);
 
     Template result = resultCloner.getClone();
     assertNotNull(result);
@@ -232,13 +232,13 @@ public class TemplateManagerImplTest {
    */
   @Test
   public void clone_alwaysPreviewWithNewShipKey() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     Template inputData = new Template();
     inputData.setType(TemplateType.Production);
     inputData.setAccountId(fake.account1.getId());
     inputData.setName("cannons fifty nine");
 
-    ManagerCloner<Template> resultCloner = testManager.clone(hubAccess, template1a.getId(), inputData);
+    ManagerCloner<Template> resultCloner = testManager.clone(access, template1a.getId(), inputData);
 
     Template result = resultCloner.getClone();
     assertNotNull(result);
@@ -253,14 +253,14 @@ public class TemplateManagerImplTest {
    */
   @Test
   public void clone_hasSpecifiedShipKey() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     Template inputData = new Template();
     inputData.setType(TemplateType.Production);
     inputData.setShipKey("new2ship5key");
     inputData.setAccountId(fake.account1.getId());
     inputData.setName("cannons fifty nine");
 
-    ManagerCloner<Template> resultCloner = testManager.clone(hubAccess, template1a.getId(), inputData);
+    ManagerCloner<Template> resultCloner = testManager.clone(access, template1a.getId(), inputData);
 
     Template result = resultCloner.getClone();
     assertNotNull(result);
@@ -272,9 +272,9 @@ public class TemplateManagerImplTest {
 
   @Test
   public void readOne() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
 
-    Template result = testManager.readOne(hubAccess, template1b.getId());
+    Template result = testManager.readOne(access, template1b.getId());
 
     assertNotNull(result);
     assertEquals(template1b.getId(), result.getId());
@@ -284,17 +284,17 @@ public class TemplateManagerImplTest {
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User");
+    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User");
 
-    var e = assertThrows(ManagerException.class, () -> testManager.readOne(hubAccess, fake.account1.getId()));
+    var e = assertThrows(ManagerException.class, () -> testManager.readOne(access, fake.account1.getId()));
     assertEquals("Record does not exist", e.getMessage());
   }
 
   @Test
   public void readMany() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
 
-    Collection<Template> result = testManager.readMany(hubAccess, ImmutableList.of(fake.account1.getId()));
+    Collection<Template> result = testManager.readMany(access, ImmutableList.of(fake.account1.getId()));
 
     assertEquals(2L, result.size());
     Iterator<Template> resultIt = result.iterator();
@@ -304,23 +304,23 @@ public class TemplateManagerImplTest {
 
   @Test
   public void readChildEntities() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1, fake.account2), "User");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1, fake.account2), "User");
     test.insert(buildTemplateBinding(template1a, buildProgram(buildLibrary(buildAccount("Test"), "test"), ProgramType.Detail, ProgramState.Published, "test", "C", 120.0f, 06f)));
     test.insert(buildTemplatePlayback(template1a, buildUser("Test", "test@test.com", "test.jpg", "User")));
     var legacy = buildTemplatePlayback(template1a, buildUser("Test2", "test2@test.com", "test2.jpg", "User"));
     legacy.setCreatedAt(Timestamp.from(Instant.now().minusSeconds(60 * 60 * 24)).toLocalDateTime());
     test.insert(legacy);
 
-    Collection<Object> result = testManager.readChildEntities(hubAccess, List.of(template1a.getId()), List.of("template-playbacks", "template-bindings"));
+    Collection<Object> result = testManager.readChildEntities(access, List.of(template1a.getId()), List.of("template-playbacks", "template-bindings"));
 
     assertEquals(2L, result.size());
   }
 
   @Test
   public void readMany_fromAllAccounts() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1, fake.account2), "User");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1, fake.account2), "User");
 
-    Collection<Template> result = testManager.readMany(hubAccess, Lists.newArrayList());
+    Collection<Template> result = testManager.readMany(access, Lists.newArrayList());
 
     assertEquals(4L, result.size());
     Iterator<Template> it = result.iterator();
@@ -332,9 +332,9 @@ public class TemplateManagerImplTest {
 
   @Test
   public void readMany_SeesNothingOutsideOfAccount() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User");
+    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User");
 
-    Collection<Template> result = testManager.readMany(hubAccess, ImmutableList.of(fake.account1.getId()));
+    Collection<Template> result = testManager.readMany(access, ImmutableList.of(fake.account1.getId()));
 
     assertEquals(0L, result.size());
   }
@@ -342,48 +342,48 @@ public class TemplateManagerImplTest {
 
   @Test
   public void readAllPlaying() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
     test.insert(buildTemplatePlayback(template1a, fake.user3));
     test.insert(buildTemplatePlayback(template1a, fake.user2));
 
-    Collection<Template> result = testManager.readAllPlaying(hubAccess);
+    Collection<Template> result = testManager.readAllPlaying(access);
 
     assertEquals(2L, result.size());
   }
 
   @Test
   public void readAllPlaying_noneOlderThanThreshold() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
     test.insert(buildTemplatePlayback(template1a, fake.user2));
     var later = buildTemplatePlayback(template1a, fake.user3);
     later.setCreatedAt(Timestamp.from(Instant.now().minusSeconds(60 * 60 * 12)).toLocalDateTime());
     test.insert(later);
 
-    Collection<Template> result = testManager.readAllPlaying(hubAccess);
+    Collection<Template> result = testManager.readAllPlaying(access);
 
     assertEquals(1L, result.size());
   }
 
   @Test
   public void update_FailsWithoutAccountID() {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     Template inputData = new Template();
     inputData.setName("cannons");
 
 
-    var e = assertThrows(ManagerException.class, () -> testManager.update(hubAccess, template1a.getId(), inputData));
+    var e = assertThrows(ManagerException.class, () -> testManager.update(access, template1a.getId(), inputData));
     assertEquals("Account ID is required.", e.getMessage());
   }
 
   @Test
   public void update() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     Template inputData = new Template();
     inputData.setName("cannons");
     inputData.setShipKey("embed5leaves");
     inputData.setAccountId(fake.account1.getId());
 
-    testManager.update(hubAccess, template1a.getId(), inputData);
+    testManager.update(access, template1a.getId(), inputData);
 
     Template result = testManager.readOne(HubAccess.internal(), template1a.getId());
     assertNotNull(result);
@@ -393,14 +393,14 @@ public class TemplateManagerImplTest {
 
   @Test
   public void update_toProductionTypeChain_asAdmin() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     Template inputData = new Template();
     inputData.setName("cannons");
     inputData.setType(TemplateType.Production);
     inputData.setShipKey("embed5leaves");
     inputData.setAccountId(fake.account1.getId());
 
-    testManager.update(hubAccess, template1a.getId(), inputData);
+    testManager.update(access, template1a.getId(), inputData);
 
     Template result = testManager.readOne(HubAccess.internal(), template1a.getId());
     assertNotNull(result);
@@ -409,35 +409,35 @@ public class TemplateManagerImplTest {
 
   @Test
   public void update_toProductionTypeChain_cannotWithoutAdmin() {
-    HubAccess hubAccess = HubAccess.create(fake.user3, List.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user3, List.of(fake.account1));
     Template inputData = new Template();
     inputData.setName("cannons");
     inputData.setType(TemplateType.Production);
     inputData.setShipKey("embed5leaves");
     inputData.setAccountId(fake.account1.getId());
 
-    var e = assertThrows(ManagerException.class, () -> testManager.update(hubAccess, template1a.getId(), inputData));
+    var e = assertThrows(ManagerException.class, () -> testManager.update(access, template1a.getId(), inputData));
     assertEquals("Engineer role is required", e.getMessage());
   }
 
   @Test
   public void update_cantHaveSameShipKeyAsExistingTemplate() throws HubException {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     test.insert(buildTemplate(fake.account1, "Prior", "key55"));
     Template inputData = buildTemplate(fake.account1, "New", "key55");
 
-    var e = assertThrows(ManagerException.class, () -> testManager.update(hubAccess, template1a.getId(), inputData));
+    var e = assertThrows(ManagerException.class, () -> testManager.update(access, template1a.getId(), inputData));
     assertEquals("Found Template with same Ship key", e.getMessage());
   }
 
   @Test
   public void update_FailsWithoutName() {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     Template inputData = new Template();
     inputData.setAccountId(fake.account1.getId());
 
 
-    var e = assertThrows(ManagerException.class, () -> testManager.update(hubAccess, template1a.getId(), inputData));
+    var e = assertThrows(ManagerException.class, () -> testManager.update(access, template1a.getId(), inputData));
     assertEquals("Name is required.", e.getMessage());
   }
 
@@ -446,12 +446,12 @@ public class TemplateManagerImplTest {
    */
   @Test
   public void update_asEngineer() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Engineer");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Engineer");
     Template inputData = new Template();
     inputData.setName("cannons");
     inputData.setAccountId(fake.account1.getId());
 
-    testManager.update(hubAccess, template1a.getId(), inputData);
+    testManager.update(access, template1a.getId(), inputData);
 
     Template result = testManager.readOne(HubAccess.internal(), template1a.getId());
     assertNotNull(result);
@@ -464,43 +464,38 @@ public class TemplateManagerImplTest {
    */
   @Test
   public void update_asEngineer_failsWithoutAccountAccess() {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "Engineer");
+    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "Engineer");
     Template inputData = new Template();
     inputData.setName("cannons");
     inputData.setAccountId(fake.account1.getId());
 
 
-    var e = assertThrows(ManagerException.class, () -> testManager.update(hubAccess, template1a.getId(), inputData));
+    var e = assertThrows(ManagerException.class, () -> testManager.update(access, template1a.getId(), inputData));
     assertEquals("Account does not exist", e.getMessage());
   }
 
   @Test
   public void update_FailsUpdatingToNonexistentAccount() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     Template inputData = new Template();
     inputData.setName("cannons");
-    inputData.setAccountId(fake.account1.getId());
+    inputData.setAccountId(UUID.randomUUID());
 
-    try {
-      testManager.update(hubAccess, template1a.getId(), inputData);
+    var e = assertThrows(ManagerException.class, () -> testManager.update(access, template1a.getId(), inputData));
 
-    } catch (Exception e) {
-      Template result = testManager.readOne(HubAccess.internal(), template1a.getId());
-      assertNotNull(result);
-      assertEquals("helm", result.getName());
-      assertEquals(template1a.getId(), result.getAccountId());
-      assertSame(HubException.class, e.getClass());
-    }
+    Template result = testManager.readOne(HubAccess.internal(), template1a.getId());
+    assertNotNull(result);
+    assertEquals(fake.account1.getId(), result.getAccountId());
   }
 
   @Test
   public void update_Name() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     Template inputData = new Template();
     inputData.setName("cannons");
     inputData.setAccountId(fake.account2.getId());
 
-    testManager.update(hubAccess, template2a.getId(), inputData);
+    testManager.update(access, template2a.getId(), inputData);
 
     Template result = testManager.readOne(HubAccess.internal(), template2a.getId());
     assertNotNull(result);
@@ -510,12 +505,12 @@ public class TemplateManagerImplTest {
 
   @Test
   public void update_NameAndAccount() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     Template inputData = new Template();
     inputData.setName("trunk");
     inputData.setAccountId(fake.account1.getId());
 
-    testManager.update(hubAccess, template1a.getId(), inputData);
+    testManager.update(access, template1a.getId(), inputData);
 
     Template result = testManager.readOne(HubAccess.internal(), template1a.getId());
     assertNotNull(result);
@@ -525,32 +520,55 @@ public class TemplateManagerImplTest {
 
   @Test
   public void delete() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
 
-    testManager.destroy(hubAccess, template1a.getId());
+    testManager.destroy(access, template1a.getId());
 
-    try {
-      testManager.readOne(HubAccess.internal(), template1a.getId());
-      fail();
-    } catch (ManagerException e) {
-      assertTrue("Record should not exist", e.getMessage().contains("does not exist"));
-    }
+    var e = assertThrows(ManagerException.class, () -> testManager.readOne(HubAccess.internal(), template1a.getId()));
+    assertTrue("Record should not exist", e.getMessage().contains("does not exist"));
   }
 
   @Test
   public void delete_okayEvenWithBindingsAndPlayback() throws Exception {
     test.insert(buildTemplateBinding(template1b, buildProgram(buildLibrary(buildAccount("Test"), "test"), ProgramType.Detail, ProgramState.Published, "test", "C", 120.0f, 06f)));
     test.insert(buildTemplatePlayback(template1a, buildUser("Test", "test@test.com", "test.jpg", "User")));
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
 
-    testManager.destroy(hubAccess, template1a.getId());
+    testManager.destroy(access, template1a.getId());
 
-    try {
-      testManager.readOne(HubAccess.internal(), template1a.getId());
-      fail();
-    } catch (ManagerException e) {
-      assertTrue("Record should not exist", e.getMessage().contains("does not exist"));
-    }
+    var e = assertThrows(ManagerException.class, () -> testManager.readOne(HubAccess.internal(), template1a.getId()));
+    assertTrue("Record should not exist", e.getMessage().contains("does not exist"));
+  }
+
+  /**
+   Artist should be able to delete Preview Templates #181227134
+
+   @throws Exception on failure
+   */
+  @Test
+  public void delete_artistHasPermissionForPreviewTemplate() throws Exception {
+    test.insert(buildTemplateBinding(template1b, buildProgram(buildLibrary(buildAccount("Test"), "test"), ProgramType.Detail, ProgramState.Published, "test", "C", 120.0f, 06f)));
+    test.insert(buildTemplatePlayback(template1a, buildUser("Test", "test@test.com", "test.jpg", "User")));
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User,Artist");
+
+    testManager.destroy(access, template1a.getId());
+
+    var e = assertThrows(ManagerException.class, () -> testManager.readOne(HubAccess.internal(), template1a.getId()));
+    assertTrue("Record should not exist", e.getMessage().contains("does not exist"));
+  }
+
+  /**
+   Artist should NOT be able to delete Production Templates #181227134
+
+   @throws Exception on failure
+   */
+  @Test
+  public void delete_artistCannotDeleteProductionTemplate() throws Exception {
+    var productionTemplate = test.insert(buildTemplate(fake.account1, TemplateType.Production, "can't touch this", "no_touching"));
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User,Artist");
+
+    var e = assertThrows(ManagerException.class, () -> testManager.destroy(access, productionTemplate.getId()));
+    assertEquals("top-level access is required", e.getMessage());
   }
 
 }

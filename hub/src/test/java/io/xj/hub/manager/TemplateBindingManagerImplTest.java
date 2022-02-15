@@ -81,11 +81,11 @@ public class TemplateBindingManagerImplTest {
 
   @Test
   public void create() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var otherLibrary = buildLibrary(fake.account1, "Another");
     TemplateBinding subject = buildTemplateBinding(fake.template1, otherLibrary);
 
-    TemplateBinding result = testManager.create(hubAccess, subject);
+    TemplateBinding result = testManager.create(access, subject);
 
     assertNotNull(result);
     assertEquals(fake.template1.getId(), result.getTemplateId());
@@ -96,18 +96,18 @@ public class TemplateBindingManagerImplTest {
   @Test
   public void create_cantBindSameContentTwice() throws Exception {
     test.insert(buildTemplateBinding(fake.template1, targetLibrary));
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     TemplateBinding subject = buildTemplateBinding(fake.template1, targetLibrary);
 
-    var e = assertThrows(ManagerException.class, () -> testManager.create(hubAccess, subject));
+    var e = assertThrows(ManagerException.class, () -> testManager.create(access, subject));
     assertEquals("Found same content already bound to template", e.getMessage());
   }
 
   @Test
   public void readOne() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
 
-    TemplateBinding result = testManager.readOne(hubAccess, templateBinding201.getId());
+    TemplateBinding result = testManager.readOne(access, templateBinding201.getId());
 
     assertNotNull(result);
     assertEquals(ContentBindingType.Library, result.getType());
@@ -117,45 +117,45 @@ public class TemplateBindingManagerImplTest {
 
   @Test
   public void readOne_FailsWhenUserIsNotInTemplate() {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")
+    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")
     ), "User");
 
-    var e = assertThrows(ManagerException.class, () -> testManager.readOne(hubAccess, templateBinding201.getId()));
+    var e = assertThrows(ManagerException.class, () -> testManager.readOne(access, templateBinding201.getId()));
     assertEquals("Record does not exist", e.getMessage());
   }
 
   @Test
   public void readMany() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
 
-    Collection<TemplateBinding> result = testManager.readMany(hubAccess, ImmutableList.of(fake.template1.getId()));
+    Collection<TemplateBinding> result = testManager.readMany(access, ImmutableList.of(fake.template1.getId()));
 
     assertEquals(1L, result.size());
   }
 
   @Test
   public void readMany_SeesNothingOutsideOfTemplate() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User");
+    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User");
 
-    Collection<TemplateBinding> result = testManager.readMany(hubAccess, ImmutableList.of(fake.template1.getId()));
+    Collection<TemplateBinding> result = testManager.readMany(access, ImmutableList.of(fake.template1.getId()));
 
     assertEquals(0L, result.size());
   }
 
   @Test
   public void update_notAllowed() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     TemplateBinding subject = test.insert(buildTemplateBinding(fake.template1, targetLibrary));
 
-    assertThrows(ManagerException.class, () -> testManager.update(hubAccess, subject.getId(), subject));
+    assertThrows(ManagerException.class, () -> testManager.update(access, subject.getId(), subject));
   }
 
   @Test
   public void destroy() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     TemplateBinding templateBinding251 = buildTemplateBinding(fake.template1, targetLibrary);
 
-    testManager.destroy(hubAccess, templateBinding251.getId());
+    testManager.destroy(access, templateBinding251.getId());
 
     try {
       testManager.readOne(HubAccess.internal(), templateBinding251.getId());

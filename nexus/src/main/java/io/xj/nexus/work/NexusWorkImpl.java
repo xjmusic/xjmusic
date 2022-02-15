@@ -571,7 +571,7 @@ public class NexusWorkImpl implements NexusWork {
   }
 
   /**
-   [#177072936] Mk1 UI each chain shows current fabrication latency
+   [#177072936] chain shows current fabrication latency
 
    @param chain fabricating
    */

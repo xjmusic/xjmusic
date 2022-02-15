@@ -250,7 +250,7 @@ public class InstrumentManagerImpl extends HubPersistenceServiceImpl<Instrument>
 
    @param db            database context
    @param hubAccess     control
-   @param instrumentIds to require hubAccess to
+   @param instrumentIds to require access to
    */
   private void requireRead(DSLContext db, HubAccess hubAccess, Collection<UUID> instrumentIds) throws ManagerException {
     if (!hubAccess.isTopLevel())

@@ -104,7 +104,7 @@ public class ProgramSequenceBindingManagerImplTest {
 
   @Test
   public void create() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var subject = new ProgramSequenceBinding();
     subject.setId(UUID.randomUUID());
     subject.setProgramId(fake.program3.getId());
@@ -112,7 +112,7 @@ public class ProgramSequenceBindingManagerImplTest {
     subject.setOffset(4);
 
     var result = testManager.create(
-      hubAccess, subject);
+      access, subject);
 
     assertNotNull(result);
     assertEquals(fake.program3.getId(), result.getProgramId());
@@ -126,7 +126,7 @@ public class ProgramSequenceBindingManagerImplTest {
    */
   @Test
   public void create_asArtist() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var inputData = new ProgramSequenceBinding();
     inputData.setId(UUID.randomUUID());
     inputData.setProgramId(fake.program3.getId());
@@ -134,7 +134,7 @@ public class ProgramSequenceBindingManagerImplTest {
     inputData.setOffset(4);
 
     var result = testManager.create(
-      hubAccess, inputData);
+      access, inputData);
 
     assertNotNull(result);
     assertEquals(fake.program3.getId(), result.getProgramId());
@@ -144,9 +144,9 @@ public class ProgramSequenceBindingManagerImplTest {
 
   @Test
   public void readOne() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
 
-    var result = testManager.readOne(hubAccess, sequenceBinding1a_0.getId());
+    var result = testManager.readOne(access, sequenceBinding1a_0.getId());
 
     assertNotNull(result);
     assertEquals(sequenceBinding1a_0.getId(), result.getId());
@@ -156,20 +156,20 @@ public class ProgramSequenceBindingManagerImplTest {
 
   @Test
   public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
     failure.expect(ManagerException.class);
     failure.expectMessage("does not exist");
 
-    testManager.readOne(hubAccess, sequenceBinding1a_0.getId());
+    testManager.readOne(access, sequenceBinding1a_0.getId());
   }
 
   // future test: readManyInAccount vs readManyInLibraries, positive and negative cases
 
   @Test
   public void readMany() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
 
-    Collection<ProgramSequenceBinding> result = testManager.readMany(hubAccess, ImmutableList.of(fake.program1.getId()));
+    Collection<ProgramSequenceBinding> result = testManager.readMany(access, ImmutableList.of(fake.program1.getId()));
 
     assertEquals(1L, result.size());
     Iterator<ProgramSequenceBinding> resultIt = result.iterator();
@@ -178,30 +178,30 @@ public class ProgramSequenceBindingManagerImplTest {
 
   @Test
   public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
 
-    Collection<ProgramSequenceBinding> result = testManager.readMany(hubAccess, ImmutableList.of(fake.program3.getId()));
+    Collection<ProgramSequenceBinding> result = testManager.readMany(access, ImmutableList.of(fake.program3.getId()));
 
     assertEquals(0L, result.size());
   }
 
   @Test
   public void destroy_failsIfHasChildEntity() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
 
     failure.expect(ManagerException.class);
     failure.expectMessage("Found Meme on Sequence Binding");
 
-    testManager.destroy(hubAccess, sequenceBinding1a_0.getId());
+    testManager.destroy(access, sequenceBinding1a_0.getId());
   }
 
   @Test
   public void destroy_okWithNoChildEntities() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     injector.getInstance(ProgramSequenceBindingMemeManager.class).destroy(HubAccess.internal(), sequenceBinding1a_0_meme0.getId());
     injector.getInstance(ProgramSequenceBindingMemeManager.class).destroy(HubAccess.internal(), sequenceBinding1a_0_meme1.getId());
 
-    testManager.destroy(hubAccess, sequenceBinding1a_0.getId());
+    testManager.destroy(access, sequenceBinding1a_0.getId());
 
     assertEquals(Integer.valueOf(0), test.getDSL()
       .selectCount().from(io.xj.hub.tables.ProgramSequenceBinding.PROGRAM_SEQUENCE_BINDING)
@@ -211,11 +211,11 @@ public class ProgramSequenceBindingManagerImplTest {
 
   @Test
   public void destroy_asArtist() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     injector.getInstance(ProgramSequenceBindingMemeManager.class).destroy(HubAccess.internal(), sequenceBinding1a_0_meme0.getId());
     injector.getInstance(ProgramSequenceBindingMemeManager.class).destroy(HubAccess.internal(), sequenceBinding1a_0_meme1.getId());
 
-    testManager.destroy(hubAccess, sequenceBinding1a_0.getId());
+    testManager.destroy(access, sequenceBinding1a_0.getId());
 
     assertEquals(Integer.valueOf(0), test.getDSL()
       .selectCount().from(io.xj.hub.tables.ProgramSequenceBinding.PROGRAM_SEQUENCE_BINDING)
@@ -226,14 +226,14 @@ public class ProgramSequenceBindingManagerImplTest {
   @Test
   public void destroy_failsIfNotInAccount() throws Exception {
     fake.account2 = buildAccount("Testing");
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account2), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account2), "Artist");
     injector.getInstance(ProgramSequenceBindingMemeManager.class).destroy(HubAccess.internal(), sequenceBinding1a_0_meme0.getId());
     injector.getInstance(ProgramSequenceBindingMemeManager.class).destroy(HubAccess.internal(), sequenceBinding1a_0_meme1.getId());
 
     failure.expect(ManagerException.class);
-    failure.expectMessage("Sequence Binding in Program in Account you have hubAccess to does not exist");
+    failure.expectMessage("Sequence Binding in Program in Account you have access to does not exist");
 
-    testManager.destroy(hubAccess, sequenceBinding1a_0.getId());
+    testManager.destroy(access, sequenceBinding1a_0.getId());
   }
 
 }

@@ -81,10 +81,10 @@ public class TemplatePublicationManagerImplTest {
 
   @Test
   public void create_alwaysTakesUserFromHubAccess() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     TemplatePublication subject = buildTemplatePublication(fake.template1, fake.user3); // user will be overridden by hub access user id
 
-    TemplatePublication result = testManager.create(hubAccess, subject);
+    TemplatePublication result = testManager.create(access, subject);
 
     assertNotNull(result);
     assertEquals(fake.template1.getId(), result.getTemplateId());
@@ -93,12 +93,12 @@ public class TemplatePublicationManagerImplTest {
 
   @Test
   public void create_withoutSpecifyingUser() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     TemplatePublication subject = new TemplatePublication();
     subject.setId(UUID.randomUUID());
     subject.setTemplateId(fake.template1.getId());
 
-    TemplatePublication result = testManager.create(hubAccess, subject);
+    TemplatePublication result = testManager.create(access, subject);
 
     assertNotNull(result);
     assertEquals(fake.template1.getId(), result.getTemplateId());
@@ -107,21 +107,21 @@ public class TemplatePublicationManagerImplTest {
 
   @Test
   public void create_cannotPublicationProductionChain() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var template5 = test.insert(buildTemplate(fake.account1, TemplateType.Preview, "test", UUID.randomUUID().toString()));
 
     TemplatePublication subject = buildTemplatePublication(template5, fake.user3); // user will be overridden by hub access user id
 
-    var e = assertThrows(ManagerException.class, () -> testManager.create(hubAccess, subject));
+    var e = assertThrows(ManagerException.class, () -> testManager.create(access, subject));
     assertEquals("Production-type Template is required", e.getMessage());
   }
 
   @Test
   public void update_notAllowed() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     TemplatePublication subject = test.insert(buildTemplatePublication(fake.template1, fake.user2));
 
-    assertThrows(ManagerException.class, () -> testManager.update(hubAccess, subject.getId(), subject));
+    assertThrows(ManagerException.class, () -> testManager.update(access, subject.getId(), subject));
   }
 
   /**
@@ -129,21 +129,21 @@ public class TemplatePublicationManagerImplTest {
    */
   @Test
   public void create_archivesExistingForTemplate() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
 
     var priorPublication = test.insert(buildTemplatePublication(fake.template1, fake.user3));
     var subject = buildTemplatePublication(fake.template1, fake.user2);
 
-    testManager.create(hubAccess, subject);
+    testManager.create(access, subject);
 
-    assertThrows(ManagerException.class, () -> testManager.readOne(hubAccess, priorPublication.getId()));
+    assertThrows(ManagerException.class, () -> testManager.readOne(access, priorPublication.getId()));
   }
 
   @Test
   public void readOne() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
 
-    TemplatePublication result = testManager.readOne(hubAccess, templatePublication201.getId());
+    TemplatePublication result = testManager.readOne(access, templatePublication201.getId());
 
     assertNotNull(result);
     assertEquals(templatePublication201.getId(), result.getId());
@@ -152,9 +152,9 @@ public class TemplatePublicationManagerImplTest {
 
   @Test
   public void readOneForUser() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
 
-    var result = testManager.readOneForUser(hubAccess, fake.user2.getId());
+    var result = testManager.readOneForUser(access, fake.user2.getId());
 
     assertTrue(result.isPresent());
     assertEquals(templatePublication201.getId(), result.get().getId());
@@ -163,10 +163,10 @@ public class TemplatePublicationManagerImplTest {
 
   @Test
   public void readOneForUser_justCreated() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     test.insert(buildTemplatePublication(fake.template1, fake.user3));
 
-    var result = testManager.readOneForUser(hubAccess, fake.user3.getId());
+    var result = testManager.readOneForUser(access, fake.user3.getId());
 
     assertTrue(result.isPresent());
     assertEquals(fake.user3.getId(), result.get().getUserId());
@@ -174,10 +174,10 @@ public class TemplatePublicationManagerImplTest {
 
   @Test
   public void readOne_FailsWhenUserIsNotInTemplate() {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")
+    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")
     ), "User");
 
-    var e = assertThrows(ManagerException.class, () -> testManager.readOne(hubAccess, templatePublication201.getId()));
+    var e = assertThrows(ManagerException.class, () -> testManager.readOne(access, templatePublication201.getId()));
     assertEquals("Record does not exist", e.getMessage());
   }
 
@@ -185,38 +185,38 @@ public class TemplatePublicationManagerImplTest {
 
   @Test
   public void readMany() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
 
-    Collection<TemplatePublication> result = testManager.readMany(hubAccess, ImmutableList.of(fake.template1.getId()));
+    Collection<TemplatePublication> result = testManager.readMany(access, ImmutableList.of(fake.template1.getId()));
 
     assertEquals(1L, result.size());
   }
 
   @Test
   public void readMany_seesAdditional() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
     test.insert(buildTemplatePublication(fake.template1, fake.user3));
 
-    Collection<TemplatePublication> result = testManager.readMany(hubAccess, ImmutableList.of(fake.template1.getId()));
+    Collection<TemplatePublication> result = testManager.readMany(access, ImmutableList.of(fake.template1.getId()));
 
     assertEquals(2L, result.size());
   }
 
   @Test
   public void readMany_SeesNothingOutsideOfTemplate() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User");
+    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User");
 
-    Collection<TemplatePublication> result = testManager.readMany(hubAccess, ImmutableList.of(fake.template1.getId()));
+    Collection<TemplatePublication> result = testManager.readMany(access, ImmutableList.of(fake.template1.getId()));
 
     assertEquals(0L, result.size());
   }
 
   @Test
   public void destroy() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create("Admin");
     TemplatePublication templatePublication251 = buildTemplatePublication(fake.template1, fake.user2);
 
-    var e = assertThrows(ManagerException.class, () -> testManager.destroy(hubAccess, templatePublication251.getId()));
+    var e = assertThrows(ManagerException.class, () -> testManager.destroy(access, templatePublication251.getId()));
     assertEquals("Cannot delete template publication!", e.getMessage());
   }
 

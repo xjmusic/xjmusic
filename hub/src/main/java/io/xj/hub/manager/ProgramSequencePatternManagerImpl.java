@@ -181,11 +181,11 @@ public class ProgramSequencePatternManagerImpl extends HubPersistenceServiceImpl
   }
 
   /**
-   Require hubAccess to modification of a Program Sequence Pattern
+   Require access to modification of a Program Sequence Pattern
 
    @param db        context
    @param hubAccess control
-   @param id        to validate hubAccess to
+   @param id        to validate access to
    @throws ManagerException if no hubAccess
    */
   private void requireModification(DSLContext db, HubAccess hubAccess, UUID id) throws ManagerException {
@@ -195,7 +195,7 @@ public class ProgramSequencePatternManagerImpl extends HubPersistenceServiceImpl
         .where(PROGRAM_SEQUENCE_PATTERN.ID.eq(id))
         .fetchOne(0, int.class));
     else
-      requireExists("Sequence Pattern in Program in Account you have hubAccess to", db.selectCount().from(PROGRAM_SEQUENCE_PATTERN)
+      requireExists("Sequence Pattern in Program in Account you have access to", db.selectCount().from(PROGRAM_SEQUENCE_PATTERN)
         .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_PATTERN.PROGRAM_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
         .where(PROGRAM_SEQUENCE_PATTERN.ID.eq(id))

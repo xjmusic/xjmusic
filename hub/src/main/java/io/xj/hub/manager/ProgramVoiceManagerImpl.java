@@ -125,7 +125,7 @@ public class ProgramVoiceManagerImpl extends HubPersistenceServiceImpl<ProgramVo
 
    @param db        context
    @param hubAccess control
-   @param id        of entity to require modification hubAccess to
+   @param id        of entity to require modification access to
    @throws ManagerException on invalid permissions
    */
   private void requireModification(DSLContext db, HubAccess hubAccess, UUID id) throws ManagerException {
@@ -136,7 +136,7 @@ public class ProgramVoiceManagerImpl extends HubPersistenceServiceImpl<ProgramVo
         .where(PROGRAM_VOICE.ID.eq(id))
         .fetchOne(0, int.class));
     else
-      requireExists("Voice in Program in Account you have hubAccess to", db.selectCount().from(PROGRAM_VOICE)
+      requireExists("Voice in Program in Account you have access to", db.selectCount().from(PROGRAM_VOICE)
         .join(PROGRAM).on(PROGRAM_VOICE.PROGRAM_ID.eq(PROGRAM.ID))
         .join(LIBRARY).on(PROGRAM.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PROGRAM_VOICE.ID.eq(id))
