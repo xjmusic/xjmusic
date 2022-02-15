@@ -1135,7 +1135,9 @@ class FabricatorImpl implements Fabricator {
     if (0 == totalBeats) throw new NexusException("Can't instantiate time computer with zero total beats!");
     if (0 == fromTempo) throw new NexusException("Can't instantiate time computer from zero tempo!");
     if (0 == toTempo) throw new NexusException("Can't instantiate time computer to zero tempo!");
-    return fabricatorFactory.createTimeComputer(totalBeats, fromTempo, toTempo);
+
+    // IGNORE to-tempo, see: Tempo Behavior v2 #180416708
+    return fabricatorFactory.createTimeComputer(totalBeats, fromTempo, fromTempo);
   }
 
   /**

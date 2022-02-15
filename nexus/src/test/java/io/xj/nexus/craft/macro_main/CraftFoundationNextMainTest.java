@@ -139,12 +139,12 @@ public class CraftFoundationNextMainTest {
 
     Segment result = store.getSegment(segment4.getId()).orElseThrow();
     assertEquals(SegmentType.NEXTMAIN, result.getType());
-    assertEquals("2017-02-14T12:03:15.840157Z", result.getEndAt());
+    assertEquals("2017-02-14T12:03:16.000001Z", result.getEndAt());
     assertEquals(Integer.valueOf(16), result.getTotal());
     assertEquals("WAV", result.getOutputEncoder());
     assertEquals(0.1, result.getDensity(), 0.01);
     assertEquals("G minor", result.getKey());
-    assertEquals(125, result.getTempo(), 0.01);
+    assertEquals(140, result.getTempo(), 0.01);
     // assert memes
     assertSameItems(Lists.newArrayList("HINDSIGHT", "TROPICAL", "COZY", "WILD", "REGRET"),
       Entities.namesOf(store.getAll(result.getId(), SegmentMeme.class)));

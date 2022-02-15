@@ -152,12 +152,12 @@ public class CraftFoundationContinueTest {
 
     Segment result = store.getSegment(segment4.getId()).orElseThrow();
     assertEquals(SegmentType.CONTINUE, result.getType());
-    assertEquals("2017-02-14T12:03:23.680157Z", result.getEndAt());
+    assertEquals("2017-02-14T12:03:24.000001Z", result.getEndAt());
     assertEquals(Integer.valueOf(32), result.getTotal());
     assertEquals("WAV", result.getOutputEncoder());
     assertEquals(0.14, result.getDensity(), 0.001);
     assertEquals("G minor", result.getKey());
-    assertEquals(125, result.getTempo(), 0.001);
+    assertEquals(140, result.getTempo(), 0.001);
     assertEquals(SegmentType.CONTINUE, result.getType());
     // assert memes
     assertSameItems(

@@ -202,16 +202,16 @@ public class HubContentFixtures {
     program4 = buildProgram(library2, ProgramType.Macro, ProgramState.Published, "Tropical, Wild to Cozy", "C", 120.0f, 0.6f);
     program4_meme0 = buildProgramMeme(program4, "Tropical");
     //
-    program4_sequence0 = buildProgramSequence(program4, (short) 0, "Start Wild", 0.6f, "C", 125.0f);
+    program4_sequence0 = buildProgramSequence(program4, (short) 0, "Start Wild", 0.6f, "C");
     program3_sequence0_binding0 = buildProgramSequenceBinding(program4_sequence0, 0);
     program4_sequence0_binding0_meme0 = buildProgramSequenceBindingMeme(program3_sequence0_binding0, "Wild");
     //
-    program4_sequence1 = buildProgramSequence(program4, (short) 0, "Intermediate", 0.4f, "Bb minor", 115.0f);
+    program4_sequence1 = buildProgramSequence(program4, (short) 0, "Intermediate", 0.4f, "Bb minor");
     program4_sequence1_binding0 = buildProgramSequenceBinding(program4_sequence1, 1);
     program4_sequence1_binding0_meme0 = buildProgramSequenceBindingMeme(program4_sequence1_binding0, "Cozy");
     program4_sequence1_binding0_meme1 = buildProgramSequenceBindingMeme(program4_sequence1_binding0, "Wild");
     //
-    program4_sequence2 = buildProgramSequence(program4, (short) 0, "Finish Cozy", 0.4f, "Ab minor", 125.0f);
+    program4_sequence2 = buildProgramSequence(program4, (short) 0, "Finish Cozy", 0.4f, "Ab minor");
     program4_sequence2_binding0 = buildProgramSequenceBinding(program4_sequence2, 2);
     program4_sequence2_binding0_meme0 = buildProgramSequenceBindingMeme(program4_sequence2_binding0, "Cozy");
 
@@ -219,7 +219,7 @@ public class HubContentFixtures {
     program5 = buildProgram(library2, ProgramType.Main, ProgramState.Published, "Main Jam", "C minor", 140f, 0.6f);
     program5_meme0 = buildProgramMeme(program5, "Outlook");
     //
-    program5_sequence0 = buildProgramSequence(program5, (short) 16, "Intro", 0.5f, "G major", 135.0f);
+    program5_sequence0 = buildProgramSequence(program5, (short) 16, "Intro", 0.5f, "G major");
     program5_sequence0_chord0 = buildProgramSequenceChord(program5_sequence0, 0.0, "G major");
     program5_sequence0_chord0_voicing = buildProgramSequenceChordVoicing(program5_sequence0_chord0, InstrumentType.Pad, "G3, B3, D4");
     program5_sequence0_chord1 = buildProgramSequenceChord(program5_sequence0, 8.0, "Ab minor");
@@ -229,7 +229,7 @@ public class HubContentFixtures {
     program5_sequence0_binding0 = buildProgramSequenceBinding(program5_sequence0, 0);
     program5_sequence0_binding0_meme0 = buildProgramSequenceBindingMeme(program5_sequence0_binding0, "Optimism");
     //
-    program5_sequence1 = buildProgramSequence(program5, (short) 32, "Drop", 0.5f, "G minor", 135.0f);
+    program5_sequence1 = buildProgramSequence(program5, (short) 32, "Drop", 0.5f, "G minor");
     program5_sequence1_chord0 = buildProgramSequenceChord(program5_sequence1, 0.0, "C major");
     program5_sequence1_chord1 = buildProgramSequenceChord(program5_sequence1, 8.0, "Bb minor");
     program5_sequence1_binding1 = buildProgramSequenceBinding(program5_sequence1, 1);
@@ -244,7 +244,7 @@ public class HubContentFixtures {
     program35_voice0_track2 = buildProgramVoiceTrack(program35_voice0, "KICK");
     program35_voice0_track3 = buildProgramVoiceTrack(program35_voice0, "SNARL");
     //
-    program3_sequence0 = buildProgramSequence(program35, (short) 16, "Base", 0.5f, "C", 110.3f);
+    program3_sequence0 = buildProgramSequence(program35, (short) 16, "Base", 0.5f, "C");
     program35_sequence0_pattern0 = buildProgramSequencePattern(program3_sequence0, program35_voice0, (short) 4, "Drop");
     program35_sequence0_pattern0_event0 = buildProgramSequencePatternEvent(program35_sequence0_pattern0, program35_voice0_track0, 0.0f, 1.0f, "C2", 1.0f);
     program35_sequence0_pattern0_event1 = buildProgramSequencePatternEvent(program35_sequence0_pattern0, program35_voice0_track1, 1.0f, 1.0f, "G5", 0.8f);
@@ -339,11 +339,11 @@ public class HubContentFixtures {
     program3 = buildProgram(library2, ProgramType.Macro, ProgramState.Published, "Tangy, Chunky to Smooth", "G minor", 120.0f, 0.6f);
     program3_meme0 = buildProgramMeme(program3, "Tangy");
     //
-    program3_sequence0 = buildProgramSequence(program3, (short) 0, "Start Chunky", 0.4f, "G minor", 115.0f);
+    program3_sequence0 = buildProgramSequence(program3, (short) 0, "Start Chunky", 0.4f, "G minor");
     program3_sequence0_binding0 = buildProgramSequenceBinding(program3_sequence0, 0);
     program3_sequence0_binding0_meme0 = buildProgramSequenceBindingMeme(program3_sequence0_binding0, "Chunky");
     //
-    program3_sequence1 = buildProgramSequence(program3, (short) 0, "Finish Smooth", 0.6f, "C", 125.0f);
+    program3_sequence1 = buildProgramSequence(program3, (short) 0, "Finish Smooth", 0.6f, "C");
     program3_sequence1_binding0 = buildProgramSequenceBinding(program3_sequence1, 1);
     program3_sequence1_binding0_meme0 = buildProgramSequenceBindingMeme(program3_sequence1_binding0, "Smooth");
 
@@ -351,13 +351,13 @@ public class HubContentFixtures {
     program15 = buildProgram(library2, ProgramType.Main, ProgramState.Published, "Next Jam", "Db minor", 140f, 0.6f);
     program15_meme0 = buildProgramMeme(program15, "Hindsight");
     //
-    program15_sequence0 = buildProgramSequence(program15, (short) 16, "Intro", 0.5f, "G minor", 135.0f);
+    program15_sequence0 = buildProgramSequence(program15, (short) 16, "Intro", 0.5f, "G minor");
     program15_sequence0_chord0 = buildProgramSequenceChord(program15_sequence0, 0.0, "G minor");
     program15_sequence0_chord1 = buildProgramSequenceChord(program15_sequence0, 8.0, "Ab minor");
     program15_sequence0_binding0 = buildProgramSequenceBinding(program15_sequence0, 0);
     program15_sequence0_binding0_meme0 = buildProgramSequenceBindingMeme(program15_sequence0_binding0, "Regret");
     //
-    program15_sequence1 = buildProgramSequence(program15, (short) 32, "Outro", 0.5f, "A major", 135.0f);
+    program15_sequence1 = buildProgramSequence(program15, (short) 32, "Outro", 0.5f, "A major");
     program15_sequence1_chord0 = buildProgramSequenceChord(program15_sequence1, 0.0, "C major");
     program15_sequence1_chord1 = buildProgramSequenceChord(program15_sequence1, 8.0, "Bb major");
     program15_sequence1_binding0 = buildProgramSequenceBinding(program15_sequence1, 1);
@@ -427,7 +427,7 @@ public class HubContentFixtures {
     program9_voice0_track14 = buildProgramVoiceTrack(program9_voice0, "TOOTE");
     program9_voice0_track15 = buildProgramVoiceTrack(program9_voice0, "TOUT");
     //
-    program9_sequence0 = buildProgramSequence(program9, (short) 16, "Base", 0.5f, "C", 110.3f);
+    program9_sequence0 = buildProgramSequence(program9, (short) 16, "Base", 0.5f, "C");
     //
     program9_sequence0_pattern0 = buildProgramSequencePattern(program9_sequence0, program9_voice0, (short) 4, "Intro");
     program9_sequence0_pattern0_event0 = buildProgramSequencePatternEvent(program9_sequence0_pattern0, program9_voice0_track0, 0, 1, "C2", 1.0f);
