@@ -9,7 +9,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- Anti-Memes
+ Meme Matcher for Anti-Memes
+ <p>
+ Parse any meme to test if it's valid, and extract its features
  <p>
  Artist can add !MEME values into Programs #176474073
  */

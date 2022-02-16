@@ -9,7 +9,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- Parse any meme to test if it's a numeric meme, and extract its features
+ Meme Matcher for Numeric Memes
+ <p>
+ Parse any meme to test if it's valid, and extract its features
  <p>
  Numeric memes with common letters and different integer prefix (e.g. 2STEP vs 4STEP) are known to be exclusive #180125852
  */

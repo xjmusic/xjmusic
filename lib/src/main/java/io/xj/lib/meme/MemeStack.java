@@ -37,7 +37,7 @@ public class MemeStack {
   }
 
   /**
-   FUTURE: could be more efficient by skipping tests of the same meme pair in reverse order
+   Test whether an incoming set of memes is allowed by this meme
 
    @param targets memes to test
    @return true if the specified set of memes is allowed into this meme stack
