@@ -4,6 +4,7 @@ package io.xj.nexus.fabricator;
 import com.google.common.base.Objects;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
+import io.xj.lib.meme.MemeStack;
 import io.xj.lib.util.Text;
 
 import java.util.Collection;
