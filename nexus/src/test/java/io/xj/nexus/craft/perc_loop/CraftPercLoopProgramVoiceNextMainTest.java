@@ -128,7 +128,7 @@ public class CraftPercLoopProgramVoiceNextMainTest {
 
     // Instrument "808"
     Instrument instrument1 = Entities.add(entities,
-      buildInstrument(fake.library2, InstrumentType.PercLoop, InstrumentMode.Events, InstrumentState.Published, "Bongo Loop"));
+      buildInstrument(fake.library2, InstrumentType.PercLoop, InstrumentMode.NoteEvent, InstrumentState.Published, "Bongo Loop"));
     Entities.add(entities, buildInstrumentMeme(instrument1, "heavy"));
     //
     audioKick = Entities.add(entities, buildInstrumentAudio(

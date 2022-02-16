@@ -139,7 +139,7 @@ public class HubIngestIT {
 
   @Test
   public void getInstrumentsOfType() throws Exception {
-    test.insert(buildInstrument(fake.library10000001, InstrumentType.Pad, InstrumentMode.Events, InstrumentState.Published, "Dreamy"));
+    test.insert(buildInstrument(fake.library10000001, InstrumentType.Pad, InstrumentMode.NoteEvent, InstrumentState.Published, "Dreamy"));
     HubIngest ingest = ingestFactory.ingest(HubAccess.internal(), fake.template1.getId());
 
     assertEquals(2, ingest.getInstrumentsOfType(InstrumentType.Drum).size());

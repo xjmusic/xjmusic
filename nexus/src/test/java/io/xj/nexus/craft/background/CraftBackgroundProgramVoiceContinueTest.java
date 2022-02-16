@@ -124,7 +124,7 @@ public class CraftBackgroundProgramVoiceContinueTest {
     Collection<Object> entities = Lists.newArrayList();
 
     // Instrument "808"
-    Instrument instrument1 = Entities.add(entities, IntegrationTestingFixtures.buildInstrument(fake.library2, InstrumentType.Background, InstrumentMode.Events, InstrumentState.Published, "Bongo Loop"));
+    Instrument instrument1 = Entities.add(entities, IntegrationTestingFixtures.buildInstrument(fake.library2, InstrumentType.Background, InstrumentMode.NoteEvent, InstrumentState.Published, "Bongo Loop"));
     Entities.add(entities, IntegrationTestingFixtures.buildMeme(instrument1, "heavy"));
     //
     audioKick = Entities.add(entities, IntegrationTestingFixtures.buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.6f, "KICK", "Eb", 1.0f));
