@@ -105,6 +105,22 @@ CREATE TYPE xj.feedback_type AS ENUM (
 ALTER TYPE xj.feedback_type OWNER TO postgres;
 
 --
+-- Name: instrument_mode; Type: TYPE; Schema: xj; Owner: postgres
+--
+
+CREATE TYPE xj.instrument_mode AS ENUM (
+    'NoteEvent',
+    'VoicingEvent',
+    'ChordEvent',
+    'VoicingPart',
+    'ChordPart',
+    'MainPart'
+);
+
+
+ALTER TYPE xj.instrument_mode OWNER TO postgres;
+
+--
 -- Name: instrument_state; Type: TYPE; Schema: xj; Owner: postgres
 --
 
@@ -365,7 +381,8 @@ CREATE TABLE xj.instrument (
     density real NOT NULL,
     config text DEFAULT ''::text NOT NULL,
     is_deleted boolean DEFAULT false,
-    volume real DEFAULT 1.0
+    volume real DEFAULT 1.0,
+    mode xj.instrument_mode DEFAULT 'NoteEvent'::xj.instrument_mode
 );
 
 
@@ -462,8 +479,7 @@ CREATE TABLE xj.program_sequence (
     name character varying(255) NOT NULL,
     key character varying(255) NOT NULL,
     density real NOT NULL,
-    total smallint NOT NULL,
-    tempo real NOT NULL
+    total smallint NOT NULL
 );
 
 
@@ -1383,6 +1399,9 @@ COPY xj.flyway_schema_history (installed_rank, version, description, type, scrip
 62	63	program type beat	SQL	V63__program_type_beat.sql	1314367548	postgres	2021-12-29 01:00:42.858408	14	t
 63	64	instrument volume	SQL	V64__instrument_volume.sql	773430791	postgres	2022-01-15 04:01:07.001452	94	t
 64	65	template publication	SQL	V65__template_publication.sql	1713007390	postgres	2022-01-20 09:23:19.28495	263	t
+65	66	instrument mode	SQL	V66__instrument_mode.sql	-1860015340	postgres	2022-02-09 23:28:51.201581	69	t
+66	67	tempo v2	SQL	V67__tempo_v2.sql	463621531	postgres	2022-02-15 08:46:45.652711	31	t
+67	68	instrument mode	SQL	V68__instrument_mode.sql	-1753693622	postgres	2022-02-17 00:28:20.795213	66	t
 \.
 
 

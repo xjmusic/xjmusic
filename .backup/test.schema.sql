@@ -105,6 +105,19 @@ CREATE TYPE xj.feedback_type AS ENUM (
 ALTER TYPE xj.feedback_type OWNER TO postgres;
 
 --
+-- Name: instrument_mode; Type: TYPE; Schema: xj; Owner: postgres
+--
+
+CREATE TYPE xj.instrument_mode AS ENUM (
+    'Events',
+    'ChordPart',
+    'MainPart'
+);
+
+
+ALTER TYPE xj.instrument_mode OWNER TO postgres;
+
+--
 -- Name: instrument_state; Type: TYPE; Schema: xj; Owner: postgres
 --
 
@@ -154,7 +167,7 @@ ALTER TYPE xj.program_state OWNER TO postgres;
 CREATE TYPE xj.program_type AS ENUM (
     'Macro',
     'Main',
-    'Rhythm',
+    'Beat',
     'Detail'
 );
 
@@ -344,7 +357,9 @@ CREATE TABLE xj.instrument (
     name character varying(255) NOT NULL,
     density real NOT NULL,
     config text DEFAULT ''::text NOT NULL,
-    is_deleted boolean DEFAULT false
+    is_deleted boolean DEFAULT false,
+    volume real DEFAULT 1.0,
+    mode xj.instrument_mode DEFAULT 'Events'::xj.instrument_mode
 );
 
 
@@ -616,6 +631,20 @@ CREATE TABLE xj.template_playback (
 ALTER TABLE xj.template_playback OWNER TO postgres;
 
 --
+-- Name: template_publication; Type: TABLE; Schema: xj; Owner: postgres
+--
+
+CREATE TABLE xj.template_publication (
+    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
+    template_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE xj.template_publication OWNER TO postgres;
+
+--
 -- Name: user; Type: TABLE; Schema: xj; Owner: postgres
 --
 
@@ -866,6 +895,14 @@ ALTER TABLE ONLY xj.template
 
 ALTER TABLE ONLY xj.template_playback
     ADD CONSTRAINT template_playback_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: template_publication template_publication_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.template_publication
+    ADD CONSTRAINT template_publication_pkey PRIMARY KEY (id);
 
 
 --
@@ -1322,6 +1359,10 @@ COPY xj.flyway_schema_history (installed_rank, version, description, type, scrip
 59	60	feedback	SQL	V60__feedback.sql	-2095068615	postgres	2021-11-24 20:42:13.297976	2098	t
 60	61	soft deletion	SQL	V61__soft_deletion.sql	970780052	postgres	2021-11-24 20:42:16.752804	868	t
 61	62	instrument transition ambient	SQL	V62__instrument_transition_ambient.sql	-1647046792	postgres	2021-11-24 20:42:18.566655	536	t
+62	63	program type beat	SQL	V63__program_type_beat.sql	1314367548	postgres	2022-02-06 18:04:49.953238	495	t
+63	64	instrument volume	SQL	V64__instrument_volume.sql	773430791	postgres	2022-02-06 18:04:51.518395	544	t
+64	65	template publication	SQL	V65__template_publication.sql	1713007390	postgres	2022-02-06 18:04:53.039446	593	t
+65	66	instrument mode	SQL	V66__instrument_mode.sql	-1860015340	postgres	2022-02-06 18:04:54.616122	574	t
 \.
 
 
