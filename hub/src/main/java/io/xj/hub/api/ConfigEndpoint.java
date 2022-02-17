@@ -62,7 +62,6 @@ public class ConfigEndpoint extends HubJsonapiEndpoint<Object> {
       .put("programTypes", ProgramType.values())
       .put("shipBaseUrl", env.getShipBaseUrl())
       .put("templateTypes", TemplateType.values())
-      .put("voiceTypes", InstrumentType.values())
       .build();
   }
 
