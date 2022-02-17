@@ -78,8 +78,8 @@ public class InstrumentAudioManagerImplTest {
 
     // Library "sandwich" has instruments "jams" and instrument "buns"
     fake.library1 = test.insert(buildLibrary(fake.account1, "sandwich"));
-    fake.instrument201 = test.insert(buildInstrument(fake.library1, InstrumentType.Pad, InstrumentMode.Events, InstrumentState.Published, "buns"));
-    fake.instrument202 = test.insert(buildInstrument(fake.library1, InstrumentType.Drum, InstrumentMode.Events, InstrumentState.Published, "jams"));
+    fake.instrument201 = test.insert(buildInstrument(fake.library1, InstrumentType.Pad, InstrumentMode.NoteEvent, InstrumentState.Published, "buns"));
+    fake.instrument202 = test.insert(buildInstrument(fake.library1, InstrumentType.Drum, InstrumentMode.NoteEvent, InstrumentState.Published, "jams"));
     test.insert(buildInstrumentMeme(fake.instrument202, "smooth"));
     fake.audio1 = test.insert(buildInstrumentAudio(fake.instrument202, "Test audio", "fake.audio5.wav", 0.0f, 2.0f, 120.0f, 0.5f, "bing", "D", 1.0f));
     fake.audio2 = test.insert(buildInstrumentAudio(fake.instrument202, "Test audio2", "fake.audio5222.wav", 0.0f, 2.0f, 120.0f, 0.5f, "bang", "E", 1.0f));

@@ -9,7 +9,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- Unique Memes
+ Meme Matcher for Unique-Memes
+ <p>
+ Parse any meme to test if it's valid, and extract its features
  <p>
  Artist can add `$MEME` so only one is chosen #179078760
  */

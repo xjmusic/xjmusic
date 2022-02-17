@@ -139,7 +139,7 @@ public class InstrumentEndpointTest {
   @Test
   public void readOne_includingMemes() throws ManagerException, IOException, JsonapiException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
-    var instrument1 = buildInstrument(library1, InstrumentType.Drum, InstrumentMode.Events, InstrumentState.Published, "test");
+    var instrument1 = buildInstrument(library1, InstrumentType.Drum, InstrumentMode.NoteEvent, InstrumentState.Published, "test");
     var instrumentMeme1 = buildInstrumentMeme(instrument1, "RED");
     when(instrumentManager.readOne(same(hubAccess), eq(instrument1.getId()))).thenReturn(instrument1);
     when(instrumentManager.readChildEntities(same(hubAccess), eq(List.of(instrument1.getId())), eq(List.of("instrument-meme")))).thenReturn(List.of(instrumentMeme1));

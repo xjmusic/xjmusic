@@ -8,7 +8,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- Parse any meme to test if it's a strong meme, and extract its features
+ Meme Matcher for Strong-Memes
+ <p>
+ Parse any meme to test if it's valid, and extract its features
  <p>
  Strong-meme like LEMONS! should always favor LEMONS #180468772
  */

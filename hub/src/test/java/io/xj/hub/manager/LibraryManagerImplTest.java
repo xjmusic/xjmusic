@@ -158,7 +158,7 @@ public class LibraryManagerImplTest {
     var pattern = test.insert(buildProgramSequencePattern(fake.program1_sequence1, voice, 8, "jam"));
     test.insert(buildProgramSequencePatternEvent(pattern, track, 0.0f, 1.0f, "C", 1.0f));
     //
-    fake.instrument202 = test.insert(buildInstrument(fake.library1a, InstrumentType.Drum, InstrumentMode.Events, InstrumentState.Published, "cannons fifty nine"));
+    fake.instrument202 = test.insert(buildInstrument(fake.library1a, InstrumentType.Drum, InstrumentMode.NoteEvent, InstrumentState.Published, "cannons fifty nine"));
     test.insert(buildInstrumentMeme(fake.instrument202, "chunk"));
     fake.audio1 = test.insert(buildInstrumentAudio(fake.instrument202, "Test audio", "fake.audio5.wav", 0.0f, 2.0f, 120.0f));
 
@@ -474,7 +474,7 @@ public class LibraryManagerImplTest {
   public void delete_noProblemIfLibraryHasInstrument() throws Exception {
     HubAccess access = HubAccess.create("Admin");
     fake.user101 = test.insert(buildUser("bill", "bill@email.com", "https://pictures.com/bill.gif", "Admin"));
-    test.insert(buildInstrument(fake.library2b, InstrumentType.Drum, InstrumentMode.Events, InstrumentState.Published, "brilliant"));
+    test.insert(buildInstrument(fake.library2b, InstrumentType.Drum, InstrumentMode.NoteEvent, InstrumentState.Published, "brilliant"));
 
     subject.destroy(access, fake.library2b.getId());
 
