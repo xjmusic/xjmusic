@@ -19,9 +19,7 @@ import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import java.util.Collection;
 
@@ -30,8 +28,6 @@ import static org.junit.Assert.*;
 
 // future test: permissions of different users to readMany vs. of vs. update or delete account users
 public class AccountUserManagerImplTest {
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
   private AccountUserManager testManager;
   private AccountUser accountUser_1_2;
   private HubIntegrationTestProvider test;
@@ -79,8 +75,7 @@ public class AccountUserManagerImplTest {
     inputData.setAccountId(fake.account1.getId());
     inputData.setUserId(fake.user5.getId());
 
-    var result = testManager.create(
-      access, inputData);
+    var result = testManager.create(access, inputData);
 
     assertNotNull(result);
     assertEquals(fake.account1.getId(), result.getAccountId());
@@ -88,57 +83,49 @@ public class AccountUserManagerImplTest {
   }
 
   @Test
-  public void create_FailIfAlreadyExists() throws Exception {
+  public void create_FailIfAlreadyExists() {
     HubAccess access = HubAccess.create("Admin");
     var inputData = new AccountUser();
     inputData.setAccountId(fake.account1.getId());
     inputData.setUserId(fake.user2.getId());
 
-    failure.expect(ManagerException.class);
-    failure.expectMessage("Account User already exists!");
+    var e = assertThrows(ManagerException.class, () -> testManager.create(access, inputData));
 
-    testManager.create(
-      access, inputData);
+    assertEquals("Account User already exists!", e.getMessage());
   }
 
   @Test
-  public void create_FailIfNotAdmin() throws Exception {
+  public void create_FailIfNotAdmin() {
     HubAccess access = HubAccess.create("User");
     var inputData = new AccountUser();
     inputData.setAccountId(fake.account1.getId());
     inputData.setUserId(fake.user2.getId());
 
-    failure.expect(ManagerException.class);
-    failure.expectMessage("top-level access is required");
+    var e = assertThrows(ManagerException.class, () -> testManager.create(access, inputData));
 
-    testManager.create(
-      access, inputData);
+    assertEquals("top-level access is required", e.getMessage());
   }
 
   @Test
-  public void create_FailsWithoutAccountID() throws Exception {
+  public void create_FailsWithoutAccountID() {
     HubAccess access = HubAccess.create("Admin");
     var inputData = new AccountUser();
     inputData.setUserId(fake.user2.getId());
 
-    failure.expect(ManagerException.class);
-    failure.expectMessage("Account ID is required");
+    var e = assertThrows(ManagerException.class, () -> testManager.create(access, inputData));
 
-    testManager.create(
-      access, inputData);
+    assertEquals("Account ID is required.", e.getMessage());
   }
 
   @Test
-  public void create_FailsWithoutUserId() throws Exception {
+  public void create_FailsWithoutUserId() {
     HubAccess access = HubAccess.create("Admin");
     var inputData = new AccountUser();
     inputData.setAccountId(fake.account1.getId());
 
-    failure.expect(ManagerException.class);
-    failure.expectMessage("User ID is required");
+    var e = assertThrows(ManagerException.class, () -> testManager.create(access, inputData));
 
-    testManager.create(
-      access, inputData);
+    assertEquals("User ID is required.", e.getMessage());
   }
 
   @Test
@@ -153,12 +140,11 @@ public class AccountUserManagerImplTest {
   }
 
   @Test
-  public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
+  public void readOne_FailsWhenUserIsNotInAccount() {
     HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "Artist");
-    failure.expect(ManagerException.class);
-    failure.expectMessage("does not exist");
+    var e = assertThrows(ManagerException.class, () -> testManager.readOne(access, accountUser_1_2.getId()));
 
-    testManager.readOne(access, accountUser_1_2.getId());
+    assertEquals("Record does not exist", e.getMessage());
   }
 
   @Test
@@ -181,8 +167,7 @@ public class AccountUserManagerImplTest {
 
   @Test
   public void readMany_SeesNothingOutsideOfAccount() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")
-    ), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "Artist");
 
     Collection<AccountUser> result = testManager.readMany(access, ImmutableList.of(fake.account1.getId()));
 
@@ -205,12 +190,11 @@ public class AccountUserManagerImplTest {
   }
 
   @Test
-  public void delete_FailIfNotAdmin() throws Exception {
+  public void delete_FailIfNotAdmin() {
     HubAccess access = HubAccess.create("User");
 
-    failure.expect(ManagerException.class);
-    failure.expectMessage("top-level access is required");
+    var e = assertThrows(ManagerException.class, () -> testManager.destroy(access, accountUser_1_2.getId()));
 
-    testManager.destroy(access, accountUser_1_2.getId());
+    assertEquals("top-level access is required", e.getMessage());
   }
 }

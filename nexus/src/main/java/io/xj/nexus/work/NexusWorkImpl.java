@@ -262,7 +262,7 @@ public class NexusWorkImpl implements NexusWork {
   private void loadYard() {
     try {
       var material = hubClient.load(shipKey);
-      material.overrideTemplateShipKey(shipKey);
+      material.setTemplateShipKey(shipKey);
       var chain = createChainForTemplate(material.getTemplate())
         .orElseThrow(() -> new HubClientException(String.format("Failed to create chain for Template[%s]", shipKey)));
       chainSourceMaterial.put(chain.getId(), material);

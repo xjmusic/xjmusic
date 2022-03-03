@@ -6,7 +6,6 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  Represent a note range
@@ -107,16 +106,15 @@ public class NoteRange {
   public int getDeltaSemitones(NoteRange target) {
     var s = getMedianNote();
     var t = target.getMedianNote();
-    if (Objects.isNull(s) || Objects.isNull(t)) return 0;
-    return s.delta(t);
+    if (s.isEmpty() || t.isEmpty()) return 0;
+    return s.get().delta(t.get());
   }
 
-  public @Nullable
-  Note getMedianNote() {
-    if (Objects.isNull(low) && Objects.isNull(high)) return null;
-    if (Objects.isNull(low)) return high;
-    if (Objects.isNull(high)) return low;
-    return low.shift(low.delta(high) / 2);
+  public Optional<Note> getMedianNote() {
+    if (Objects.isNull(low) && Objects.isNull(high)) return Optional.empty();
+    if (Objects.isNull(low)) return Optional.of(high);
+    if (Objects.isNull(high)) return Optional.of(low);
+    return Optional.of(low.shift(low.delta(high) / 2));
   }
 
   public NoteRange shifted(int inc) {
@@ -127,6 +125,18 @@ public class NoteRange {
   }
 
   public boolean isEmpty() {
-    return Objects.isNull(low) && Objects.isNull(high);
+    return Objects.isNull(low) ||
+      Objects.isNull(high) ||
+      PitchClass.None.equals(low.getPitchClass()) ||
+      PitchClass.None.equals(high.getPitchClass());
+  }
+
+  public Optional<Note> getNoteNearestMedian(PitchClass root) {
+    var median = getMedianNote();
+    if (median.isEmpty()) return Optional.empty();
+    if (Objects.equals(root, median.get().getPitchClass())) return median;
+    var up = median.get().nextUp(root);
+    var down = median.get().nextDown(root);
+    return down.delta(median.get()) < median.get().delta(up) ? Optional.of(down) : Optional.of(up);
   }
 }

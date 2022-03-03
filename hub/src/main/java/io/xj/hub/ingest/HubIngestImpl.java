@@ -6,10 +6,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.manager.*;
 import io.xj.hub.enums.ContentBindingType;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
+import io.xj.hub.manager.*;
 import io.xj.hub.tables.pojos.*;
 import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreException;
@@ -205,12 +205,8 @@ class HubIngestImpl implements HubIngest {
    @throws HubIngestException if no such entity exists
    */
   private <N> N getOrThrow(Class<N> type, UUID id) throws HubIngestException {
-    try {
-      return store.get(type, id)
-        .orElseThrow(() -> new HubIngestException(String.format("No such %s[%s]",
-          type.getSimpleName(), id)));
-    } catch (EntityStoreException e) {
-      throw new HubIngestException(e);
-    }
+    return store.get(type, id)
+      .orElseThrow(() -> new HubIngestException(String.format("No such %s[%s]",
+        type.getSimpleName(), id)));
   }
 }

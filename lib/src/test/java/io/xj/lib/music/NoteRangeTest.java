@@ -45,6 +45,13 @@ public class NoteRangeTest {
   }
 
   @Test
+  public void rangeOfNoteX_isEmpty() {
+    subject = NoteRange.ofNotes(List.of(Note.of("X")));
+
+    assertTrue(subject.isEmpty());
+  }
+
+  @Test
   public void rangeFromNotes_lowIsOptional() {
     subject = NoteRange.from(null, Note.of("C4"));
 
@@ -157,11 +164,18 @@ public class NoteRangeTest {
   }
 
   @Test
+  public void getNoteNearestMedian() {
+    assertNote("C5", NoteRange.from("C3", "G6").getNoteNearestMedian(PitchClass.C).orElseThrow());
+    assertNote("C5", NoteRange.from("C3", "G7").getNoteNearestMedian(PitchClass.C).orElseThrow());
+    assertNote("C4", NoteRange.from("C2", "G6").getNoteNearestMedian(PitchClass.C).orElseThrow());
+  }
+
+  @Test
   public void getMedianNote() {
-    assertNote("D#5", NoteRange.from("C5", "G5").getMedianNote());
-    assertNote("G5", NoteRange.from(null, "G5").getMedianNote());
-    assertNote("C5", NoteRange.from("C5", null).getMedianNote());
-    assertNull(NoteRange.empty().getMedianNote());
+    assertNote("D#5", NoteRange.from("C5", "G5").getMedianNote().orElseThrow());
+    assertNote("G5", NoteRange.from(null, "G5").getMedianNote().orElseThrow());
+    assertNote("C5", NoteRange.from("C5", null).getMedianNote().orElseThrow());
+    assertTrue(NoteRange.empty().getMedianNote().isEmpty());
   }
 
   @Test

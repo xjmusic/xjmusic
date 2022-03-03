@@ -5,6 +5,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.xj.lib.util.Values;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Map;
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
  Chains, ChainBindings, TemplateConfigs, Segments and all Segment content sub-entities persisted in JSON:API record stored keyed by chain or segment id in memory
  */
 public class EntityStoreImpl implements EntityStore {
+  private static final Logger LOG = LoggerFactory.getLogger(EntityStoreImpl.class);
   private final Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>> store = Maps.newConcurrentMap();
 
   @Override
@@ -50,7 +53,7 @@ public class EntityStoreImpl implements EntityStore {
   }
 
   @Override
-  public <N> Optional<N> get(Class<N> type, UUID id) throws EntityStoreException {
+  public <N> Optional<N> get(Class<N> type, UUID id) {
     try {
       if (!store.containsKey(type)) return Optional.empty();
       if (!store.get(type).containsKey(id)) return Optional.empty();
@@ -58,7 +61,8 @@ public class EntityStoreImpl implements EntityStore {
       return (Optional<N>) Optional.of(store.get(type).get(id));
 
     } catch (Exception e) {
-      throw new EntityStoreException(e);
+      LOG.error("Failed to get {}[{}}", type.getSimpleName(), id);
+      return Optional.empty();
     }
   }
 

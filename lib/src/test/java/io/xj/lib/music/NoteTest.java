@@ -11,6 +11,12 @@ import static org.junit.Assert.*;
 
 public class NoteTest {
 
+  public static void assertNote(String expect, @Nullable Note actual) {
+    assertNotNull(actual);
+    assertEquals(Note.of(expect).getPitchClass(), actual.getPitchClass());
+    assertEquals(Note.of(expect).getOctave(), actual.getOctave());
+  }
+
   /**
    [#303] Craft calculates drum audio pitch to conform to the allowable note closest to the original note, slightly favoring down-pitching versus up-pitching.
    */
@@ -34,7 +40,6 @@ public class NoteTest {
     assertFalse(Note.of("C#5").sameAs(Note.of("Db6")));
     assertFalse(Note.of("C#5").sameAs(Note.of("Eb5")));
   }
-
 
   @Test
   public void delta() {
@@ -130,12 +135,6 @@ public class NoteTest {
     assertNote("G6", Note.of("F#6").conformedTo(Chord.of("C major 7")));
     assertNote("G6", Note.of("G6").conformedTo(Chord.of("C major 7")));
     assertNote("G6", Note.of("G#6").conformedTo(Chord.of("C major 7")));
-  }
-
-  public static void assertNote(String expect, @Nullable Note actual) {
-    assertNotNull(actual);
-    assertEquals(Note.of(expect).getPitchClass(), actual.getPitchClass());
-    assertEquals(Note.of(expect).getOctave(), actual.getOctave());
   }
 
   @Test
@@ -242,4 +241,18 @@ public class NoteTest {
     assertNote("G#5", Note.median(null, Note.of("G#5")));
     assertNote("E5", Note.median(Note.of("C5"), Note.of("G#5")));
   }
+
+  @Test
+  public void nextUp() {
+    assertEquals(PitchClass.None, Note.of("X").nextUp(PitchClass.C).getPitchClass());
+    assertNote("C4", Note.of("B3").nextUp(PitchClass.C));
+  }
+
+  @Test
+  public void nextDown() {
+    assertEquals(PitchClass.None, Note.of("X").nextDown(PitchClass.C).getPitchClass());
+    assertNote("C4", Note.of("D4").nextDown(PitchClass.C));
+  }
+
+
 }

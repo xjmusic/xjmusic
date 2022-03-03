@@ -276,7 +276,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    */
   public Optional<Program> chooseNextMacroProgram() throws NexusException {
     var bag = MarbleBag.empty();
-    var candidates = fabricator.sourceMaterial().getProgramsOfType(ProgramType.Macro);
+    var candidates = fabricator.sourceMaterial().getPrograms(ProgramType.Macro);
 
     // initial segment is completely random
     if (fabricator.isInitialSegment()) return chooseRandomProgram(candidates, List.of());
@@ -368,7 +368,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    */
   private Optional<Program> chooseNextMainProgram() throws NexusException {
     var bag = MarbleBag.empty();
-    var candidates = fabricator.sourceMaterial().getProgramsOfType(ProgramType.Main);
+    var candidates = fabricator.sourceMaterial().getPrograms(ProgramType.Main);
 
     // if continuing the macro program, use the same one
     if (SegmentType.CONTINUE == fabricator.getType()

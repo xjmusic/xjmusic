@@ -8,12 +8,11 @@ import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.*;
-import io.xj.lib.music.Chord;
-import io.xj.lib.music.Key;
-import io.xj.lib.music.NoteRange;
+import io.xj.lib.music.*;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.hub_client.client.HubContent;
 
+import javax.annotation.Nullable;
 import javax.sound.sampled.AudioFormat;
 import java.util.*;
 
@@ -277,6 +276,14 @@ public interface Fabricator {
    @throws NexusException if unable to determine key of choice
    */
   Key getKeyForChoice(SegmentChoice choice) throws NexusException;
+
+  /**
+   Get the sequence for a given choice
+
+   @param choice for which to get sequence
+   @return sequence of choice
+   */
+  Optional<ProgramSequence> getProgramSequence(SegmentChoice choice);
 
   /**
    fetch the macro-type choice for the previous segment in the chain
@@ -702,12 +709,11 @@ public interface Fabricator {
   /**
    Remember which notes were picked for a given event
 
-   @param programSequencePatternEventId to remember notes picked for
-   @param chordName                     to remember notes picked for
-   @param notes                         to remember were picked
-   @return notes to pass  through for chaining method calls
+   @param event     for which to remember picked notes
+   @param chordName to remember notes picked for
+   @param notes     to remember were picked
    */
-  Set<String> rememberPickedNotes(UUID programSequencePatternEventId, String chordName, Set<String> notes);
+  void rememberPickedNotesForChord(ProgramSequencePatternEvent event, String chordName, Set<String> notes);
 
   /**
    Set the Segment.
@@ -748,4 +754,33 @@ public interface Fabricator {
    */
   ProgramConfig getMainProgramConfig() throws NexusException;
 
+  /**
+   Sticky buns v2 #179153822 persisted for each randomly selected note in the series for any given pattern
+   - key on program-sequence-pattern-event id, persisting only the first value seen for any given event
+   - super-key on program-sequence-pattern id, measuring delta from the first event seen in that pattern
+
+   @param patternId for super-key
+   @return sticky bun if present
+   */
+  Optional<StickyBun> getStickyBun(UUID patternId);
+
+  /**
+   Get the root note from an available set of voicings and a given chord
+
+   @param voicingNotes available voicing notes
+   @param chord        for which to seek root note among available voicings
+   @return root note
+   */
+  Optional<Note> getRootNote(String voicingNotes, Chord chord);
+
+  /**
+   Sticky buns v2 #179153822 persisted for each randomly selected note in the series for any given pattern
+   - key on program-sequence-pattern-event id, persisting only the first value seen for any given event
+   - super-key on program-sequence-pattern id, measuring delta from the first event seen in that pattern@param eventId  member id-- if this is null, the sticky bun will be ignored
+
+   @param root
+   @param position of note
+   @param note     to put
+   */
+  void putStickyBun(@Nullable UUID eventId, Note root, Double position, Note note);
 }
