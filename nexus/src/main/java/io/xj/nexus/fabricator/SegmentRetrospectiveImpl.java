@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.fabricator;
 
+import com.google.api.client.util.Maps;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -24,6 +25,8 @@ import java.util.stream.Collectors;
 class SegmentRetrospectiveImpl implements SegmentRetrospective {
   private final Logger LOG = LoggerFactory.getLogger(SegmentRetrospectiveImpl.class);
   private final EntityStore store;
+  private final Map<UUID, Map<Double, Optional<SegmentChord>>> chordAtPosition;
+  private final Map<UUID, List<SegmentChord>> segmentChords;
   private Segment previousSegment;
 
   @Inject
@@ -33,6 +36,9 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
     EntityStore entityStore
   ) throws NexusException {
     this.store = entityStore;
+
+    chordAtPosition = Maps.newHashMap();
+    segmentChords = Maps.newHashMap();
 
     // begin by getting the previous segment
     // only can build retrospective if there is at least one previous segment
@@ -169,5 +175,69 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
       store.getAll(SegmentChoiceArrangementPick.class).stream()
         .filter(c -> arr.contains(c.getSegmentChoiceArrangementId()))
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public InstrumentType getInstrumentType(SegmentChoiceArrangementPick pick) throws NexusException {
+    return InstrumentType.valueOf(getChoice(getArrangement(pick)).getInstrumentType());
+  }
+
+  @Override
+  public SegmentChoiceArrangement getArrangement(SegmentChoiceArrangementPick pick) throws NexusException {
+    return store.get(SegmentChoiceArrangement.class, pick.getSegmentChoiceArrangementId())
+      .orElseThrow(() -> new NexusException(String.format("Failed to get arrangement for SegmentChoiceArrangementPick[%s]", pick.getId())));
+  }
+
+  @Override
+  public SegmentChoice getChoice(SegmentChoiceArrangement arrangement) throws NexusException {
+    return store.get(SegmentChoice.class, arrangement.getSegmentChoiceId())
+      .orElseThrow(() -> new NexusException(String.format("Failed to get choice for SegmentChoiceArrangement[%s]", arrangement.getId())));
+  }
+
+  @Override
+  public Optional<SegmentChord> getChord(SegmentChoiceArrangementPick pick) {
+    return getSegmentChord(pick.getSegmentId(), pick.getStart());
+  }
+
+  @Override
+  public Optional<SegmentChord> getSegmentChord(UUID segmentId, Double position) {
+    if (!(chordAtPosition.containsKey(segmentId) && chordAtPosition.get(segmentId).containsKey(position))) {
+      if (!chordAtPosition.containsKey(segmentId)) chordAtPosition.put(segmentId, Maps.newHashMap());
+      Optional<SegmentChord> foundChord = Optional.empty();
+      Double foundPosition = null;
+
+      // we assume that these entities are in order of position ascending
+      for (SegmentChord segmentChord : getSegmentChords(segmentId)) {
+        // if it's a better match (or no match has yet been found) then use it
+        if (Objects.isNull(foundPosition) || (segmentChord.getPosition() > foundPosition && segmentChord.getPosition() <= position)) {
+          foundPosition = segmentChord.getPosition();
+          foundChord = Optional.of(segmentChord);
+        }
+      }
+      chordAtPosition.get(segmentId).put(position, foundChord);
+    }
+
+    return chordAtPosition.get(segmentId).get(position);
+  }
+
+  @Override
+  public Optional<SegmentChordVoicing> getSegmentChordVoicing(UUID segmentChordId, InstrumentType instrumentType) {
+    return store.getAll(SegmentChordVoicing.class).stream()
+      .filter(voicing -> segmentChordId.equals(voicing.getSegmentChordId()) && instrumentType.toString().equals(voicing.getType()))
+      .findFirst();
+  }
+
+  @Override
+  public List<SegmentChord> getSegmentChords(UUID segmentId) {
+    if (!segmentChords.containsKey(segmentId)) {
+      segmentChords.put(segmentId,
+        store.getAll(SegmentChord.class)
+          .stream()
+          .filter(chord -> Objects.equals(segmentId, chord.getSegmentId()))
+          .sorted(Comparator.comparing((SegmentChord::getPosition)))
+          .collect(Collectors.toList()));
+    }
+
+    return segmentChords.get(segmentId);
   }
 }

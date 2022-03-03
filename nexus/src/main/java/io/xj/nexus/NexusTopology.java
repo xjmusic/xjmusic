@@ -98,6 +98,7 @@ public enum NexusTopology {
       .withAttribute("name")
       .withAttribute("position")
       .hasMany(SegmentChordVoicing.class)
+      .belongsTo(ProgramSequenceChord.class)
       .belongsTo(Segment.class);
 
     // SegmentChordVoicing

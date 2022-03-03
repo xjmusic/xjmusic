@@ -124,7 +124,7 @@ public class Note {
     if (Objects.isNull(n1) && Objects.isNull(n2)) return null;
     if (Objects.isNull(n1)) return n2;
     if (Objects.isNull(n2)) return n1;
-    return n1.shift(n1.delta(n2)/2);
+    return n1.shift(n1.delta(n2) / 2);
   }
 
   /**
@@ -320,5 +320,46 @@ public class Note {
    */
   public boolean isAtonal() {
     return PitchClass.None.equals(pitchClass);
+  }
+
+  /**
+   Get the first occurrence of the given pitch class up from the current note
+
+   @param target pitch class to seek
+   @return first note with given pitch class up from this
+   */
+  public Note nextUp(PitchClass target) {
+    return next(target, 1);
+  }
+
+  /**
+   Get the first occurrence of the given pitch class down from the current note
+
+   @param target pitch class to seek
+   @return first note with given pitch class down from this
+   */
+  public Note nextDown(PitchClass target) {
+    return next(target, -1);
+  }
+
+  /**
+   Get the first occurrence of the given pitch class in the given direction from the current note
+
+   @param target pitch class to seek
+   @param delta  direction (1 or -1) in which to seek
+   @return first note with given pitch class from this
+   */
+  private Note next(PitchClass target, int delta) {
+    if (isAtonal() || Objects.equals(pitchClass, target))
+      return this;
+
+    Note n;
+    for (var i = 1; Math.abs(i) < MAX_DELTA_SEMITONES; i += delta) {
+      n = this.shift(i);
+      if (Objects.equals(n.getPitchClass(), target))
+        return n;
+    }
+
+    throw new RuntimeException(String.format("Unable to determine first occurrence of %s from here!", target));
   }
 }

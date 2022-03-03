@@ -39,7 +39,7 @@ public interface EntityStore {
    @return N of given type and id
    @throws EntityStoreException on failure to retrieve the requested key
    */
-  <N> Optional<N> get(Class<N> type, UUID id) throws EntityStoreException;
+  <N> Optional<N> get(Class<N> type, UUID id);
 
   /**
    Get all entities by type from the store
