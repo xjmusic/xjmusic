@@ -23,6 +23,7 @@ import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.meme.MemeStack;
 import io.xj.lib.music.*;
 import io.xj.lib.util.*;
 import io.xj.nexus.NexusException;
@@ -38,6 +39,7 @@ import javax.sound.sampled.AudioFormat;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.xj.lib.util.Values.NANOS_PER_SECOND;
 
@@ -147,53 +149,6 @@ class FabricatorImpl implements Fabricator {
     }
   }
 
-
-  @Override
-  public <N> N put(N entity) throws NexusException {
-    return workbench.put(entity);
-  }
-
-  @Override
-  public <N> void delete(N entity) throws NexusException {
-    workbench.delete(entity);
-  }
-
-  @Override
-  public Instrument addMemes(Instrument p) throws NexusException {
-    for (InstrumentMeme meme : sourceMaterial().getMemes(p)) {
-      var segMeme = new SegmentMeme();
-      segMeme.setId(UUID.randomUUID());
-      segMeme.setSegmentId(getSegment().getId());
-      segMeme.setName(Text.toMeme(meme.getName()));
-      put(segMeme);
-    }
-    return p;
-  }
-
-  @Override
-  public Program addMemes(Program p) throws NexusException {
-    for (ProgramMeme meme : sourceMaterial().getMemes(p)) {
-      var segMeme = new SegmentMeme();
-      segMeme.setId(UUID.randomUUID());
-      segMeme.setSegmentId(getSegment().getId());
-      segMeme.setName(Text.toMeme(meme.getName()));
-      put(segMeme);
-    }
-    return p;
-  }
-
-  @Override
-  public ProgramSequenceBinding addMemes(ProgramSequenceBinding psb) throws NexusException {
-    for (ProgramSequenceBindingMeme meme : sourceMaterial().getMemes(psb)) {
-      var segMeme = new SegmentMeme();
-      segMeme.setId(UUID.randomUUID());
-      segMeme.setSegmentId(getSegment().getId());
-      segMeme.setName(Text.toMeme(meme.getName()));
-      put(segMeme);
-    }
-    return psb;
-  }
-
   @Override
   public void addMessage(SegmentMessageType messageType, String body) throws NexusException {
     var msg = new SegmentMessage();
@@ -220,6 +175,11 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
+  public <N> void delete(N entity) throws NexusException {
+    workbench.delete(entity);
+  }
+
+  @Override
   public void done() throws NexusException {
     try {
       workbench.setSegment(workbench.getSegment().type(getType()));
@@ -241,7 +201,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public double computeAudioVolume(SegmentChoiceArrangementPick pick) {
+  public double getAudioVolume(SegmentChoiceArrangementPick pick) {
     return sourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId()).stream().map(audio -> audio.getVolume() * sourceMaterial().getInstrument(audio.getInstrumentId()).orElseThrow().getVolume()).findAny().orElse(1.0f);
   }
 
@@ -445,6 +405,16 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
+  public ProgramConfig getMainProgramConfig() throws NexusException {
+    try {
+      return new ProgramConfig(sourceMaterial.getProgram(getCurrentMainChoice().orElseThrow(() -> new NexusException("No current main choice!")).getProgramId()).orElseThrow(() -> new NexusException("Failed to retrieve current main program!")));
+
+    } catch (ValueException e) {
+      throw new NexusException(e);
+    }
+  }
+
+  @Override
   public Optional<ProgramSequence> getCurrentMainSequence() {
     var mc = getCurrentMainChoice();
     if (mc.isEmpty()) return Optional.empty();
@@ -466,7 +436,7 @@ class FabricatorImpl implements Fabricator {
 
       var nextSequenceBinding = sourceMaterial().getBindingsAtOffset(previousMacroChoice.getProgramId(), previousSequenceBinding.getOffset() + 1);
 
-      return MemeIsometry.ofMemes(Streams.concat(sourceMaterial.getProgramMemes(previousMacroChoice.getProgramId()).stream().map(ProgramMeme::getName), nextSequenceBinding.stream().flatMap(programSequenceBinding -> sourceMaterial.getMemes(programSequenceBinding).stream().map(ProgramSequenceBindingMeme::getName))).collect(Collectors.toList()));
+      return MemeIsometry.ofMemes(Streams.concat(sourceMaterial.getProgramMemes(previousMacroChoice.getProgramId()).stream().map(ProgramMeme::getName), nextSequenceBinding.stream().flatMap(programSequenceBinding -> sourceMaterial.getMemesForProgramSequenceBindingId(programSequenceBinding.getId()).stream().map(ProgramSequenceBindingMeme::getName))).collect(Collectors.toList()));
 
     } catch (NexusException e) {
       LOG.warn("Could not get meme isometry of next sequence in previous macro", e);
@@ -677,6 +647,18 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
+  public Optional<Note> getRootNoteMidRange(String voicingNotes, Chord chord) {
+    return rootNotesByVoicingAndChord.computeIfAbsent(String.format("%s_%s", voicingNotes, chord.getName()),
+      (String key) -> NoteRange.ofStrings(CSV.split(voicingNotes)).getNoteNearestMedian(chord.getSlashRoot()));
+  }
+
+  @Override
+  public Optional<StickyBun> getStickyBun(UUID patternId) {
+    if (!stickyBunsByPatternId.containsKey(patternId)) return Optional.empty();
+    return Optional.of(stickyBunsByPatternId.get(patternId));
+  }
+
+  @Override
   public Double getSecondsAtPosition(double p) throws NexusException {
     return buildTimeComputer().getSecondsAtPosition(p);
   }
@@ -692,8 +674,13 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Collection<SegmentChord> getSegmentChords() {
+  public List<SegmentChord> getSegmentChords() {
     return workbench.getSegmentChords();
+  }
+
+  @Override
+  public Collection<SegmentMeme> getSegmentMemes() {
+    return workbench.getSegmentMemes();
   }
 
   @Override
@@ -827,7 +814,19 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public void rememberPickedNotesForChord(ProgramSequencePatternEvent event, String chordName, Set<String> notes) {
+  public <N> N put(N entity) throws NexusException {
+    // For a SegmentChoice, add memes from program, program sequence binding, and instrument if present
+    if (SegmentChoice.class.equals(entity.getClass()))
+      if (!addMemes((SegmentChoice) entity))
+        return entity;
+
+    workbench.put(entity);
+
+    return entity;
+  }
+
+  @Override
+  public void putNotesPickedForChord(ProgramSequencePatternEvent event, String chordName, Set<String> notes) {
     try {
       preferredNotesByChordEvent.put(computeNoteChordEventKey(event.getId(), chordName), new HashSet<>(notes));
     } catch (NexusException | EntityStoreException e) {
@@ -836,12 +835,19 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
+  public void putPreferredAudio(ProgramSequencePatternEvent event, String note, InstrumentAudio instrumentAudio) {
+    String key = String.format(KEY_VOICE_NOTE_TEMPLATE, event.getProgramVoiceTrackId(), note);
+
+    preferredAudios.put(key, instrumentAudio);
+  }
+
+  @Override
   public void putReport(String key, Object value) {
     workbench.putReport(key, value);
   }
 
   @Override
-  public void updateSegment(Segment segment) {
+  public void putSegment(Segment segment) {
     try {
       segmentManager.update(segment.getId(), segment);
       workbench.setSegment(segment);
@@ -852,30 +858,27 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
+  public void putStickyBun(@Nullable UUID eventId, Note rootNote, Double position, Note note) {
+    if (Objects.nonNull(eventId))
+      try {
+        var patternId = sourceMaterial.getPatternIdForEventId(eventId);
+        if (!stickyBunsByPatternId.containsKey(patternId))
+          stickyBunsByPatternId.put(patternId, new StickyBun(patternId, rootNote));
+        stickyBunsByPatternId.get(patternId).put(eventId, position, note);
+
+      } catch (HubClientException e) {
+        LOG.warn("Failed to persist sticky bun because {}", e.getMessage());
+      }
+  }
+
+  @Override
   public SegmentRetrospective retrospective() {
     return retrospective;
   }
 
   @Override
-  public void setPreferredAudio(ProgramSequencePatternEvent event, String note, InstrumentAudio instrumentAudio) {
-    String key = String.format(KEY_VOICE_NOTE_TEMPLATE, event.getProgramVoiceTrackId(), note);
-
-    preferredAudios.put(key, instrumentAudio);
-  }
-
-  @Override
   public HubContent sourceMaterial() {
     return sourceMaterial;
-  }
-
-  @Override
-  public ProgramConfig getMainProgramConfig() throws NexusException {
-    try {
-      return new ProgramConfig(sourceMaterial.getProgram(getCurrentMainChoice().orElseThrow(() -> new NexusException("No current main choice!")).getProgramId()).orElseThrow(() -> new NexusException("Failed to retrieve current main program!")));
-
-    } catch (ValueException e) {
-      throw new NexusException(e);
-    }
   }
 
   /**
@@ -1140,29 +1143,44 @@ class FabricatorImpl implements Fabricator {
     }
   }
 
-  @Override
-  public Optional<Note> getRootNoteMidRange(String voicingNotes, Chord chord) {
-    return rootNotesByVoicingAndChord.computeIfAbsent(String.format("%s_%s", voicingNotes, chord.getName()),
-      (String key) -> NoteRange.ofStrings(CSV.split(voicingNotes)).getNoteNearestMedian(chord.getSlashRoot()));
-  }
+  /**
+   For a SegmentChoice, add memes from program, program sequence binding, and instrument if present #181336704
 
-  @Override
-  public void putStickyBun(@Nullable UUID eventId, Note root, Double position, Note note) {
-    if (Objects.nonNull(eventId))
-      try {
-        var patternId = sourceMaterial.getPatternIdForEventId(eventId);
-        if (!stickyBunsByPatternId.containsKey(patternId))
-          stickyBunsByPatternId.put(patternId, new StickyBun(patternId, root));
-        stickyBunsByPatternId.get(patternId).put(eventId, position, note);
+   @param choice for which to add memes
+   @return true if adding memes was successful
+   */
+  private boolean addMemes(SegmentChoice choice) throws NexusException {
+    Set<String> names = Sets.newHashSet();
 
-      } catch (HubClientException e) {
-        LOG.warn("Failed to persist sticky bun because {}", e.getMessage());
-      }
-  }
+    if (Objects.nonNull(choice.getProgramId()))
+      sourceMaterial().getMemesForProgramId(choice.getProgramId())
+        .forEach(meme -> names.add(Text.toMeme(meme.getName())));
 
-  @Override
-  public Optional<StickyBun> getStickyBun(UUID patternId) {
-    if (!stickyBunsByPatternId.containsKey(patternId)) return Optional.empty();
-    return Optional.of(stickyBunsByPatternId.get(patternId));
+    if (Objects.nonNull(choice.getProgramSequenceBindingId()))
+      sourceMaterial().getMemesForProgramSequenceBindingId(choice.getProgramSequenceBindingId())
+        .forEach(meme -> names.add(Text.toMeme(meme.getName())));
+
+    if (Objects.nonNull(choice.getInstrumentId()))
+      sourceMaterial().getMemesForInstrumentId(choice.getInstrumentId())
+        .forEach(meme -> names.add(Text.toMeme(meme.getName())));
+
+    if (!MemeStack.from(Stream.concat(
+      names.stream(),
+      getSegmentMemes().stream().map(SegmentMeme::toString)
+    ).collect(Collectors.toSet())).isValid()) {
+      addMessage(SegmentMessageType.ERROR, String.format("Refused to add Choice[%s] because the segment meme theorem would be violated by its additional Memes[%s]",
+        Segments.describe(choice), CSV.join(names)));
+      return false;
+    }
+
+    for (String name : names) {
+      var segMeme = new SegmentMeme();
+      segMeme.setId(UUID.randomUUID());
+      segMeme.setSegmentId(getSegment().getId());
+      segMeme.setName(name);
+      put(segMeme);
+    }
+
+    return true;
   }
 }

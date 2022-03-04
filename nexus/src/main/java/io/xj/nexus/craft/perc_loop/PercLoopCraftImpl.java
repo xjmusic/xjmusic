@@ -89,8 +89,6 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
    */
   @SuppressWarnings("DuplicatedCode")
   private void craftPercLoop(UUID instrumentId) throws NexusException {
-    fabricator.addMemes(fabricator.sourceMaterial().getInstrument(instrumentId)
-      .orElseThrow(() -> new NexusException("Failed to get instrument!")));
     var choice = new SegmentChoice();
     choice.setId(UUID.randomUUID());
     choice.setSegmentId(fabricator.getSegment().getId());

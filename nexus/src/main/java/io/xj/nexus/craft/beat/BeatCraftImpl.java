@@ -79,10 +79,6 @@ public class BeatCraftImpl extends DetailCraftImpl implements BeatCraft {
       craftChoices(sequence.get(), voices, voice -> chooseFreshInstrument(voice.getType(), List.of(), voice.getName(), fabricator.sourceMaterial().getTrackNames(voice)), true);
     }
 
-    // add memes of program to segment in order to affect further choice
-    // XJ should not add memes to Segment for program/instrument that was not successfully chosen #180468224
-    fabricator.addMemes(program.get());
-
     // Finally, update the segment with the crafted content
     fabricator.done();
   }

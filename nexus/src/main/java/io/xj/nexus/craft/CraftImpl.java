@@ -135,9 +135,6 @@ public class CraftImpl extends FabricationWrapperImpl {
           continue;
         }
 
-        // XJ should take add instrument memes to segments after choice #180468554
-        fabricator.addMemes(instrument.get());
-
         // make new choices
         choice.setDeltaIn(getDeltaIn(choice));
         choice.setDeltaOut(getDeltaOut(choice));
@@ -626,7 +623,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     var notes = notePicker.getPickedNotes().stream()
       .map(n -> n.toString(chord.getAdjSymbol())).collect(Collectors.toSet());
 
-    fabricator.rememberPickedNotesForChord(event, chord.getName(), notes);
+    fabricator.putNotesPickedForChord(event, chord.getName(), notes);
 
     // Sticky buns v2 #179153822 persisted for each randomly selected note in the series for any given pattern
     if (rootNote.isPresent())
@@ -705,7 +702,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   ) {
     if (fabricator.getPreferredAudio(event, note).isEmpty()) {
       var audio = selectNewMultiphonicInstrumentAudio(instrument, note);
-      audio.ifPresent(instrumentAudio -> fabricator.setPreferredAudio(event, note, instrumentAudio));
+      audio.ifPresent(instrumentAudio -> fabricator.putPreferredAudio(event, note, instrumentAudio));
     }
 
     return fabricator.getPreferredAudio(event, note);
@@ -728,7 +725,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   ) throws NexusException {
     if (fabricator.getPreferredAudio(event, event.getNote()).isEmpty()) {
       var audio = selectNewInstrumentAudio(instrument, event);
-      audio.ifPresent(instrumentAudio -> fabricator.setPreferredAudio(event, event.getNote(), instrumentAudio));
+      audio.ifPresent(instrumentAudio -> fabricator.putPreferredAudio(event, event.getNote(), instrumentAudio));
     }
 
     return fabricator.getPreferredAudio(event, event.getNote());
@@ -835,7 +832,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     // Phase 1: Directly Bound Programs
     for (Program program : programsDirectlyBound(candidates)) {
-      memes = Entities.namesOf(fabricator.sourceMaterial().getMemes(program));
+      memes = Entities.namesOf(fabricator.sourceMaterial().getMemesForProgramId(program.getId()));
       // FUTURE consider meme isometry, but for now, just use the meme stack
       if (iso.isAllowed(memes))
         bag.add(1, program.getId(), 1 + iso.score(memes));
@@ -843,7 +840,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     // Phase 2: All Published Programs
     for (Program program : programsPublished(candidates)) {
-      memes = Entities.namesOf(fabricator.sourceMaterial().getMemes(program));
+      memes = Entities.namesOf(fabricator.sourceMaterial().getMemesForProgramId(program.getId()));
       // FUTURE consider meme isometry, but for now, just use the meme stack
       if (iso.isAllowed(memes))
         bag.add(2, program.getId(), 1 + iso.score(memes));
@@ -886,14 +883,14 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     // Phase 1: Directly Bound Instruments
     for (Instrument instrument : instrumentsDirectlyBound(candidates)) {
-      memes = Entities.namesOf(fabricator.sourceMaterial().getMemes(instrument));
+      memes = Entities.namesOf(fabricator.sourceMaterial().getMemesForInstrumentId(instrument.getId()));
       if (iso.isAllowed(memes))
         bag.add(1, instrument.getId(), 1 + iso.score(memes));
     }
 
     // Phase 2: All Published Instruments
     for (Instrument instrument : instrumentsPublished(candidates)) {
-      memes = Entities.namesOf(fabricator.sourceMaterial().getMemes(instrument));
+      memes = Entities.namesOf(fabricator.sourceMaterial().getMemesForInstrumentId(instrument.getId()));
       if (iso.isAllowed(memes))
         bag.add(2, instrument.getId(), 1 + iso.score(memes));
     }

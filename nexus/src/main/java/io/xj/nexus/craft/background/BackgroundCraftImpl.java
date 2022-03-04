@@ -89,8 +89,6 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
    */
   @SuppressWarnings("DuplicatedCode")
   private void craftBackground(UUID instrumentId) throws NexusException {
-    fabricator.addMemes(fabricator.sourceMaterial().getInstrument(instrumentId)
-      .orElseThrow(() -> new NexusException("Failed to get instrument!")));
     var choice = new SegmentChoice();
     choice.setId(UUID.randomUUID());
     choice.setSegmentId(fabricator.getSegment().getId());

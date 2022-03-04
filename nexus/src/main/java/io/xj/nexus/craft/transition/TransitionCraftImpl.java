@@ -134,8 +134,6 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
    */
   @SuppressWarnings("DuplicatedCode")
   private void craftTransition(UUID instrumentId) throws NexusException {
-    fabricator.addMemes(fabricator.sourceMaterial().getInstrument(instrumentId)
-      .orElseThrow(() -> new NexusException("Failed to get instrument!")));
     var choice = new SegmentChoice();
     choice.setId(UUID.randomUUID());
     choice.setSegmentId(fabricator.getSegment().getId());

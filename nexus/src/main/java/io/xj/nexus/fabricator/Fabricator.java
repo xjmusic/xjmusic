@@ -19,48 +19,6 @@ import java.util.*;
 public interface Fabricator {
 
   /**
-   Put a new Entity by type and id
-
-   @param entity to put
-   @return entity successfully put
-   */
-  <N> N put(N entity) throws NexusException;
-
-  /**
-   Remove an Entity by type and id
-
-   @param entity to delete
-   */
-  <N> void delete(N entity) throws NexusException;
-
-  /**
-   Add all memes of this instrument to the workbench
-   <p>
-   [#179078533] Straightforward meme logic
-
-   @param p instrument for which to add memes
-   */
-  Instrument addMemes(Instrument p) throws NexusException;
-
-  /**
-   Add all memes of this program to the workbench
-   <p>
-   [#179078533] Straightforward meme logic
-
-   @param p program for which to add memes
-   */
-  Program addMemes(Program p) throws NexusException;
-
-  /**
-   Add all memes of this program sequence binding to the workbench
-   <p>
-   [#179078533] Straightforward meme logic
-
-   @param psb program sequence binding for which to add memes
-   */
-  ProgramSequenceBinding addMemes(ProgramSequenceBinding psb) throws NexusException;
-
-  /**
    Add a message of the given type to the segment, with the given body
 
    @param body to include in message
@@ -87,6 +45,13 @@ public interface Fabricator {
    @param body to include in message
    */
   void addInfoMessage(String body) throws NexusException;
+
+  /**
+   Remove an Entity by type and id
+
+   @param entity to delete
+   */
+  <N> void delete(N entity) throws NexusException;
 
   /**
    Update the original Segment submitted for craft,
@@ -119,7 +84,7 @@ public interface Fabricator {
    @param pick for which to get audio volume
    @return audio volume of pick
    */
-  double computeAudioVolume(SegmentChoiceArrangementPick pick);
+  double getAudioVolume(SegmentChoiceArrangementPick pick);
 
   /**
    Get the Chain
@@ -176,6 +141,32 @@ public interface Fabricator {
   Collection<SegmentChoice> getChoices();
 
   /**
+   Determine if a choice has been previously crafted
+   in one of the previous segments of the current main sequence
+   <p>
+   [#176468964] Beat and Detail choices are kept for an entire Main Program
+
+   @return choice if previously made, or null if none is found
+   */
+  Optional<SegmentChoice> getChoiceIfContinued(ProgramVoice voice);
+
+  /**
+   Determine if a choice has been previously crafted
+   in one of the previous segments of the current main sequence
+
+   @return choice if previously made, or null if none is found
+   */
+  Optional<SegmentChoice> getChoiceIfContinued(ProgramType programType);
+
+  /**
+   Determine if a choice has been previously crafted
+   in one of the previous segments of the current main sequence
+
+   @return choice if previously made, or null if none is found
+   */
+  Optional<SegmentChoice> getChoiceIfContinued(InstrumentType instrumentType);
+
+  /**
    Get current ChordEntity for any position in Segment.
    Defaults to returning a chord based on the segment key, if nothing else is found
 
@@ -190,6 +181,13 @@ public interface Fabricator {
    @return main-type segment choice
    */
   Optional<SegmentChoice> getCurrentMainChoice();
+
+  /**
+   Get the sequence targeted by the current main choice
+
+   @return current main sequence
+   */
+  Optional<ProgramSequence> getCurrentMainSequence();
 
   /**
    fetch the detail-type choice for the current segment in the chain
@@ -233,32 +231,6 @@ public interface Fabricator {
   InstrumentConfig getInstrumentConfig(Instrument instrument) throws NexusException;
 
   /**
-   Determine if a choice has been previously crafted
-   in one of the previous segments of the current main sequence
-   <p>
-   [#176468964] Beat and Detail choices are kept for an entire Main Program
-
-   @return choice if previously made, or null if none is found
-   */
-  Optional<SegmentChoice> getChoiceIfContinued(ProgramVoice voice);
-
-  /**
-   Determine if a choice has been previously crafted
-   in one of the previous segments of the current main sequence
-
-   @return choice if previously made, or null if none is found
-   */
-  Optional<SegmentChoice> getChoiceIfContinued(ProgramType programType);
-
-  /**
-   Determine if a choice has been previously crafted
-   in one of the previous segments of the current main sequence
-
-   @return choice if previously made, or null if none is found
-   */
-  Optional<SegmentChoice> getChoiceIfContinued(InstrumentType instrumentType);
-
-  /**
    Key for any pick designed to collide at same voice id + name
 
    @param pick to get key of
@@ -278,14 +250,6 @@ public interface Fabricator {
   Key getKeyForChoice(SegmentChoice choice) throws NexusException;
 
   /**
-   Get the sequence for a given choice
-
-   @param choice for which to get sequence
-   @return sequence of choice
-   */
-  Optional<ProgramSequence> getProgramSequence(SegmentChoice choice);
-
-  /**
    fetch the macro-type choice for the previous segment in the chain
 
    @return macro-type segment choice, null if none found
@@ -300,11 +264,11 @@ public interface Fabricator {
   Optional<SegmentChoice> getMainChoiceOfPreviousSegment();
 
   /**
-   Get the sequence targeted by the current main choice
+   Get the configuration of the current main program
 
-   @return current main sequence
+   @return main-program configuration
    */
-  Optional<ProgramSequence> getCurrentMainSequence();
+  ProgramConfig getMainProgramConfig() throws NexusException;
 
   /**
    Get the sequence targeted by the previous main choice
@@ -439,6 +403,14 @@ public interface Fabricator {
   int getProgramRangeShiftOctaves(InstrumentType type, NoteRange sourceRange, NoteRange targetRange) throws NexusException;
 
   /**
+   Get the sequence for a given choice
+
+   @param choice for which to get sequence
+   @return sequence of choice
+   */
+  Optional<ProgramSequence> getProgramSequence(SegmentChoice choice);
+
+  /**
    Compute the target shift from a key toward a chord
 
    @param fromKey to compute shift from
@@ -500,6 +472,15 @@ public interface Fabricator {
   Optional<ProgramVoice> getRandomlySelectedVoiceForProgramId(UUID programId, Collection<UUID> excludeVoiceIds);
 
   /**
+   Get the root note from an available set of voicings and a given chord
+
+   @param voicingNotes available voicing notes
+   @param chord        for which to seek root note among available voicings
+   @return root note
+   */
+  Optional<Note> getRootNoteMidRange(String voicingNotes, Chord chord);
+
+  /**
    Compute using an integral
    the seconds of start for any given position in beats
    Velocity of Segment meter (beats per minute) increases linearly of the beginning of the Segment (at the previous Segment's tempo) to the end of the Segment (arriving at the current Segment's tempo, only at its end)
@@ -529,7 +510,14 @@ public interface Fabricator {
 
    @return segment chords
    */
-  Collection<SegmentChord> getSegmentChords();
+  List<SegmentChord> getSegmentChords();
+
+  /**
+   Get all segment memes
+
+   @return segment memes
+   */
+  Collection<SegmentMeme> getSegmentMemes();
 
   /**
    Get a JSON:API payload of the entire result of Segment Fabrication
@@ -578,6 +566,16 @@ public interface Fabricator {
    @return sequence pattern offset
    */
   Integer getSequenceBindingOffsetForChoice(SegmentChoice choice);
+
+  /**
+   Sticky buns v2 #179153822 persisted for each randomly selected note in the series for any given pattern
+   - key on program-sequence-pattern-event id, persisting only the first value seen for any given event
+   - super-key on program-sequence-pattern id, measuring delta from the first event seen in that pattern
+
+   @param patternId for super-key
+   @return sticky bun if present
+   */
+  Optional<StickyBun> getStickyBun(UUID patternId);
 
   /**
    Get the track name for a give program sequence pattern event
@@ -698,6 +696,40 @@ public interface Fabricator {
   Boolean isInitialSegment();
 
   /**
+   Put a new Entity by type and id
+   <p>
+   If it's a SegmentChoice...
+   Should add meme from ALL program and instrument types! #181336704
+   - Add memes of choices to segment in order to affect further choices.
+   - Add all memes of this choice to the workbench, from target program, program sequence binding, or instrument if present
+   - Enhances: Straightforward meme logic #179078533
+   - Enhances: XJ should not add memes to Segment for program/instrument that was not successfully chosen #180468224
+   <p>
+
+   @param entity to put
+   @return entity successfully put
+   */
+  <N> N put(N entity) throws NexusException;
+
+  /**
+   Remember which notes were picked for a given event
+
+   @param event     for which to remember picked notes
+   @param chordName to remember notes picked for
+   @param notes     to remember were picked
+   */
+  void putNotesPickedForChord(ProgramSequencePatternEvent event, String chordName, Set<String> notes);
+
+  /**
+   Set the preferred audio for a key
+
+   @param event           for which to set
+   @param note            for which to set
+   @param instrumentAudio value to set
+   */
+  void putPreferredAudio(ProgramSequencePatternEvent event, String note, InstrumentAudio instrumentAudio);
+
+  /**
    Put a key-value pair into the report
    [#162999779] only exports data as a sub-field of the standard content JSON
 
@@ -707,22 +739,24 @@ public interface Fabricator {
   void putReport(String key, Object value);
 
   /**
-   Remember which notes were picked for a given event
-
-   @param event     for which to remember picked notes
-   @param chordName to remember notes picked for
-   @param notes     to remember were picked
-   */
-  void rememberPickedNotesForChord(ProgramSequencePatternEvent event, String chordName, Set<String> notes);
-
-  /**
    Set the Segment.
    Any modifications to the Segment must be re-written to here
    because protobuf instances are immutable
 
    @param segment to set
    */
-  void updateSegment(Segment segment) throws NexusException;
+  void putSegment(Segment segment) throws NexusException;
+
+  /**
+   Sticky buns v2 #179153822 persisted for each randomly selected note in the series for any given pattern
+   - key on program-sequence-pattern-event id, persisting only the first value seen for any given event
+   - super-key on program-sequence-pattern id, measuring delta from the first event seen in that pattern@param eventId  member id-- if this is null, the sticky bun will be ignored
+
+   @param rootNote     note of current chord
+   @param position of note
+   @param note     to put
+   */
+  void putStickyBun(@Nullable UUID eventId, Note rootNote, Double position, Note note);
 
   /**
    Get the Segment Retrospective
@@ -732,55 +766,9 @@ public interface Fabricator {
   SegmentRetrospective retrospective();
 
   /**
-   Set the preferred audio for a key
-
-   @param event           for which to set
-   @param note            for which to set
-   @param instrumentAudio value to set
-   */
-  void setPreferredAudio(ProgramSequencePatternEvent event, String note, InstrumentAudio instrumentAudio);
-
-  /**
    Get the ingested source material for fabrication
 
    @return source material
    */
   HubContent sourceMaterial();
-
-  /**
-   Get the configuration of the current main program
-
-   @return main-program configuration
-   */
-  ProgramConfig getMainProgramConfig() throws NexusException;
-
-  /**
-   Sticky buns v2 #179153822 persisted for each randomly selected note in the series for any given pattern
-   - key on program-sequence-pattern-event id, persisting only the first value seen for any given event
-   - super-key on program-sequence-pattern id, measuring delta from the first event seen in that pattern
-
-   @param patternId for super-key
-   @return sticky bun if present
-   */
-  Optional<StickyBun> getStickyBun(UUID patternId);
-
-  /**
-   Get the root note from an available set of voicings and a given chord
-
-   @param voicingNotes available voicing notes
-   @param chord        for which to seek root note among available voicings
-   @return root note
-   */
-  Optional<Note> getRootNoteMidRange(String voicingNotes, Chord chord);
-
-  /**
-   Sticky buns v2 #179153822 persisted for each randomly selected note in the series for any given pattern
-   - key on program-sequence-pattern-event id, persisting only the first value seen for any given event
-   - super-key on program-sequence-pattern id, measuring delta from the first event seen in that pattern@param eventId  member id-- if this is null, the sticky bun will be ignored
-
-   @param root
-   @param position of note
-   @param note     to put
-   */
-  void putStickyBun(@Nullable UUID eventId, Note root, Double position, Note note);
 }

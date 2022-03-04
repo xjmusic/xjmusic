@@ -59,8 +59,8 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   /**
    Compute the final tempo of the current segment
 
+   @param mainSequence of which to compute segment tempo
    @return tempo
-   @param mainSequence  of which to compute segment tempo
    */
   private double computeSegmentTempo(@Nullable ProgramSequence mainSequence) throws NexusException {
     @Nullable Float mainTempo =
@@ -123,15 +123,15 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
   @Override
   public void doWork() throws NexusException {
-    var macroProgram = fabricator.addMemes(chooseNextMacroProgram()
-      .orElseThrow(() -> new NexusException("Failed to choose a Macro-program by any means!")));
+    var macroProgram = chooseNextMacroProgram()
+      .orElseThrow(() -> new NexusException("Failed to choose a Macro-program by any means!"));
     Integer macroSequenceBindingOffset = computeMacroProgramSequenceBindingOffset();
-    var macroSequenceBinding = fabricator.addMemes(fabricator.getRandomlySelectedSequenceBindingAtOffset(macroProgram, macroSequenceBindingOffset)
+    var macroSequenceBinding = fabricator.getRandomlySelectedSequenceBindingAtOffset(macroProgram, macroSequenceBindingOffset)
       .orElseThrow(() -> new NexusException(String.format(
         "Unable to determine sequence binding offset for macro Program \"%s\" %s",
         macroProgram.getName(),
         apiUrlProvider.getAppUrl(String.format("/programs/%s", macroProgram.getId()))
-      ))));
+      )));
     var macroSequence = fabricator.sourceMaterial().getProgramSequence(macroSequenceBinding);
     var macroChoice = new SegmentChoice();
     macroChoice.setId(UUID.randomUUID());
@@ -145,21 +145,20 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     fabricator.put(macroChoice);
 
     // 2. Main
-    Program mainProgram = fabricator.addMemes(chooseNextMainProgram()
+    Program mainProgram = chooseNextMainProgram()
       .orElseThrow(() -> new NexusException(String.format(
         "Unable to choose main program based on macro Program \"%s\" at offset %s %s",
         macroProgram.getName(),
         macroSequenceBindingOffset,
         apiUrlProvider.getAppUrl(String.format("/programs/%s", macroProgram.getId()))
-      ))));
-    fabricator.addMemes(macroProgram); // [#179078533] Straightforward meme logic
+      )));
     Integer mainSequenceBindingOffset = computeMainProgramSequenceBindingOffset();
-    var mainSequenceBinding = fabricator.addMemes(fabricator.getRandomlySelectedSequenceBindingAtOffset(mainProgram, mainSequenceBindingOffset)
+    var mainSequenceBinding = fabricator.getRandomlySelectedSequenceBindingAtOffset(mainProgram, mainSequenceBindingOffset)
       .orElseThrow(() -> new NexusException(String.format(
         "Unable to determine sequence binding offset for main Program \"%s\" %s",
         mainProgram.getName(),
         apiUrlProvider.getAppUrl(String.format("/programs/%s", mainProgram.getId()))
-      ))));
+      )));
     var mainSequence = fabricator.sourceMaterial().getProgramSequence(mainSequenceBinding);
     var mainChoice = new SegmentChoice();
     mainChoice.setId(UUID.randomUUID());
@@ -206,12 +205,12 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
       seg.setTempo(computeSegmentTempo(mainSequence.get()));
       seg.setKey(computeSegmentKey(mainSequence.get()).strip());
       seg.setTotal(Integer.valueOf(mainSequence.get().getTotal()));
-      fabricator.updateSegment(seg);
+      fabricator.putSegment(seg);
     }
 
     // then, set the end-at time.
     if (mainSequence.isPresent())
-      fabricator.updateSegment(fabricator.getSegment()
+      fabricator.putSegment(fabricator.getSegment()
         .endAt(Values.formatIso8601UTC(segmentEndInstant(mainSequence.get()))));
 
     // If the type is not Continue, we will reset the offset main
@@ -221,7 +220,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     else
       segment.setDelta(0);
     segment.density(computeSegmentDensity(segment.getDelta(), macroSequence.orElse(null), mainSequence.orElse(null)));
-    fabricator.updateSegment(segment);
+    fabricator.putSegment(segment);
 
     // done
     fabricator.done();

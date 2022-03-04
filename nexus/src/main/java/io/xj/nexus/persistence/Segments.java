@@ -2,6 +2,7 @@
 
 package io.xj.nexus.persistence;
 
+import com.google.api.client.util.Lists;
 import com.google.common.base.Strings;
 import io.xj.api.Segment;
 import io.xj.api.SegmentChoice;
@@ -11,6 +12,7 @@ import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.lib.mixer.OutputEncoder;
 import io.xj.lib.music.Note;
+import io.xj.lib.util.CSV;
 import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
 
@@ -172,5 +174,25 @@ public enum Segments {
    */
   public static String getUncompressedStorageFilename(Segment segment) {
     return getStorageFilename(segment.getStorageKey(), OutputEncoder.WAV.name().toLowerCase(Locale.ENGLISH));
+  }
+
+  /**
+   @param choice to describe
+   @return description of choice
+   */
+  public static String describe(SegmentChoice choice) {
+    List<String> pieces = Lists.newArrayList();
+    if (Objects.nonNull(choice.getInstrumentId())) pieces.add(String.format("instrument:%s", choice.getInstrumentId()));
+    if (Objects.nonNull(choice.getInstrumentType()))
+      pieces.add(String.format("instrumentType:%s", choice.getInstrumentType()));
+    if (Objects.nonNull(choice.getProgramId())) pieces.add(String.format("program:%s", choice.getProgramId()));
+    if (Objects.nonNull(choice.getProgramSequenceBindingId()))
+      pieces.add(String.format("programSequenceBinding:%s", choice.getProgramSequenceBindingId()));
+    if (Objects.nonNull(choice.getProgramSequenceId()))
+      pieces.add(String.format("programSequence:%s", choice.getProgramSequenceId()));
+    if (Objects.nonNull(choice.getProgramType())) pieces.add(String.format("programType:%s", choice.getProgramType()));
+    if (Objects.nonNull(choice.getProgramVoiceId()))
+      pieces.add(String.format("programVoice:%s", choice.getProgramVoiceId()));
+    return CSV.join(pieces);
   }
 }

@@ -253,34 +253,34 @@ public class HubContent {
   /**
    Get memes of instrument
 
-   @param instrument to get memes for
    @return memes of instrument
+   @param instrumentId to get memes for
    */
-  public Collection<InstrumentMeme> getMemes(Instrument instrument) {
+  public Collection<InstrumentMeme> getMemesForInstrumentId(UUID instrumentId) {
     return getInstrumentMemes().stream()
-      .filter(m -> instrument.getId().equals(m.getInstrumentId()))
+      .filter(m -> instrumentId.equals(m.getInstrumentId()))
       .collect(Collectors.toList());
   }
 
   /**
    Get memes of program
 
-   @param program to get memes for
    @return memes of program
+   @param programId to get memes for
    */
-  public Collection<ProgramMeme> getMemes(Program program) {
-    return getProgramMemes(program.getId());
+  public Collection<ProgramMeme> getMemesForProgramId(UUID programId) {
+    return getProgramMemes(programId);
   }
 
   /**
    Get all program sequence binding memes for program sequence binding
 
-   @param programSequenceBinding to get memes for
    @return memes
+   @param programSequenceBindingId to get memes for
    */
-  public Collection<ProgramSequenceBindingMeme> getMemes(ProgramSequenceBinding programSequenceBinding) {
+  public Collection<ProgramSequenceBindingMeme> getMemesForProgramSequenceBindingId(UUID programSequenceBindingId) {
     return getProgramSequenceBindingMemes().stream()
-      .filter(m -> programSequenceBinding.getId().equals(m.getProgramSequenceBindingId()))
+      .filter(m -> programSequenceBindingId.equals(m.getProgramSequenceBindingId()))
       .collect(Collectors.toList());
   }
 
@@ -293,12 +293,12 @@ public class HubContent {
     Map<String, Boolean> memes = Maps.newHashMap();
 
     // add sequence memes
-    getMemes(program).forEach((meme ->
+    getMemesForProgramId(program.getId()).forEach((meme ->
       memes.put(meme.getName(), true)));
 
     // add sequence binding memes
     for (ProgramSequenceBinding sequenceBinding : getBindingsAtOffset(program, 0))
-      for (ProgramSequenceBindingMeme meme : getMemes(sequenceBinding))
+      for (ProgramSequenceBindingMeme meme : getMemesForProgramSequenceBindingId(sequenceBinding.getId()))
         memes.put(meme.getName(), true);
 
     return memes.keySet();

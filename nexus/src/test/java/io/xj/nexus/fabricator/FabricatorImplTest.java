@@ -33,6 +33,8 @@ import io.xj.nexus.work.NexusWorkModule;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -46,8 +48,7 @@ import static io.xj.lib.music.NoteTest.assertNote;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  FUTURE: [#170035559] Split the FabricatorImplTest into separate tests of the FabricatorImpl, SegmentWorkbenchImpl, SegmentRetrospectiveImpl, and IngestImpl
@@ -75,10 +76,13 @@ public class FabricatorImplTest {
   public SegmentManager mockSegmentManager;
   @Mock
   public JsonapiPayloadFactory mockJsonapiPayloadFactory;
+  @Captor
+  ArgumentCaptor<Object> entityCaptor;
   private FabricatorImpl subject;
   private HubContent sourceMaterial;
   private NexusEntityStore store;
   private NexusIntegrationTestingFixtures fake;
+  private Segment segment;
 
   @Before
   public void setUp() throws Exception {
@@ -120,7 +124,7 @@ public class FabricatorImplTest {
       ChainType.PRODUCTION,
       ChainState.FABRICATE,
       Instant.parse("2017-12-12T01:00:08.000000Z")));
-    Segment segment = store.put(buildSegment(
+    segment = store.put(buildSegment(
       chain,
       2,
       SegmentState.CRAFTING,
@@ -164,7 +168,7 @@ public class FabricatorImplTest {
       120.0,
       "seg123",
       "ogg"));
-    Segment segment = store.put(buildSegment(
+    segment = store.put(buildSegment(
       chain,
       2,
       SegmentState.CRAFTING,
@@ -222,7 +226,7 @@ public class FabricatorImplTest {
       120.0,
       "seg123",
       "ogg"));
-    Segment segment = store.put(buildSegment(
+    segment = store.put(buildSegment(
       chain,
       2,
       SegmentState.CRAFTING,
@@ -246,7 +250,7 @@ public class FabricatorImplTest {
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
     subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory);
 
-    double result = subject.computeAudioVolume(pick); // instantiates a time computer; see expectation above
+    double result = subject.getAudioVolume(pick); // instantiates a time computer; see expectation above
 
     assertEquals(0.76, result, 0.01);
   }
@@ -273,7 +277,7 @@ public class FabricatorImplTest {
       120.0,
       "seg123",
       "ogg"));
-    Segment segment = store.put(buildSegment(
+    segment = store.put(buildSegment(
       chain,
       2,
       SegmentState.CRAFTING,
@@ -354,7 +358,7 @@ public class FabricatorImplTest {
       ChainType.PRODUCTION,
       ChainState.FABRICATE,
       Instant.parse("2017-12-12T01:00:08.000000Z")));
-    var segment = store.put(buildSegment(
+    segment = store.put(buildSegment(
       chain,
       0,
       SegmentState.CRAFTING,
@@ -430,7 +434,7 @@ public class FabricatorImplTest {
         Segments.DELTA_UNLIMITED,
         fake.program5,
         fake.program5_sequence1_binding0));
-    Segment segment = store.put(buildSegment(
+    segment = store.put(buildSegment(
       chain,
       2,
       SegmentState.CRAFTING,
@@ -496,7 +500,7 @@ public class FabricatorImplTest {
       Segments.DELTA_UNLIMITED,
       fake.program5,
       fake.program5_sequence1_binding0));
-    Segment segment = store.put(buildSegment(
+    segment = store.put(buildSegment(
       chain,
       2,
       SegmentState.CRAFTING,
@@ -533,7 +537,7 @@ public class FabricatorImplTest {
       ChainType.PRODUCTION,
       ChainState.FABRICATE,
       Instant.parse("2017-12-12T01:00:08.000000Z")));
-    Segment segment = store.put(buildSegment(
+    segment = store.put(buildSegment(
       chain,
       2,
       SegmentState.CRAFTING,
@@ -580,7 +584,7 @@ public class FabricatorImplTest {
       ChainType.PRODUCTION,
       ChainState.FABRICATE,
       Instant.parse("2017-12-12T01:00:08.000000Z")));
-    Segment segment = store.put(buildSegment(
+    segment = store.put(buildSegment(
       chain,
       2,
       SegmentState.CRAFTING,
@@ -632,7 +636,7 @@ public class FabricatorImplTest {
       ChainType.PRODUCTION,
       ChainState.FABRICATE,
       Instant.parse("2017-12-12T01:00:08.000000Z")));
-    Segment segment = store.put(buildSegment(
+    segment = store.put(buildSegment(
       chain,
       2,
       SegmentState.CRAFTING,
@@ -681,7 +685,7 @@ public class FabricatorImplTest {
     var account1 = buildAccount("fish");
     Template template1 = buildTemplate(account1, "Test Template 1", "test1");
     var chain = store.put(NexusIntegrationTestingFixtures.buildChain(template1));
-    var segment = store.put(buildSegment(
+    segment = store.put(buildSegment(
       chain,
       SegmentType.CONTINUE,
       17,
@@ -720,7 +724,7 @@ public class FabricatorImplTest {
     var account1 = buildAccount("fish");
     Template template1 = buildTemplate(account1, "Test Template 1", "test1");
     var chain = store.put(NexusIntegrationTestingFixtures.buildChain(template1));
-    var segment = store.put(buildSegment(
+    segment = store.put(buildSegment(
       chain,
       SegmentType.CONTINUE,
       17,
@@ -775,5 +779,25 @@ public class FabricatorImplTest {
   @Test
   public void getRootNote() {
     assertNote("C4", subject.getRootNoteMidRange("C3,E3,G3,A#3,C4,E4,G4", Chord.of("Cm")).orElseThrow());
+  }
+
+  /**
+   Should add meme from ALL program and instrument types! #181336704
+   */
+  @Test
+  public void put_addsMemesForChoice() throws NexusException {
+    subject.put(buildSegmentChoice(segment, Segments.DELTA_UNLIMITED, Segments.DELTA_UNLIMITED, fake.program9, fake.program9_voice0, fake.instrument8));
+    subject.put(buildSegmentChoice(segment, Segments.DELTA_UNLIMITED, Segments.DELTA_UNLIMITED, fake.program4, fake.program4_sequence1_binding0));
+
+    verify(mockSegmentWorkbench, times(7)).put(entityCaptor.capture());
+    List<Object> results = entityCaptor.getAllValues();
+    assertEquals("HEAVY", ((SegmentMeme) results.get(0)).getName());
+    assertEquals("BASIC", ((SegmentMeme) results.get(1)).getName());
+    assertEquals(fake.instrument8.getId(), ((SegmentChoice) results.get(2)).getInstrumentId());
+    assertEquals("WILD", ((SegmentMeme) results.get(3)).getName());
+    assertEquals("COZY", ((SegmentMeme) results.get(4)).getName());
+    assertEquals("TROPICAL", ((SegmentMeme) results.get(5)).getName());
+    assertEquals(fake.program4.getId(), ((SegmentChoice) results.get(6)).getProgramId());
+    assertEquals(fake.program4_sequence1_binding0.getId(), ((SegmentChoice) results.get(6)).getProgramSequenceBindingId());
   }
 }

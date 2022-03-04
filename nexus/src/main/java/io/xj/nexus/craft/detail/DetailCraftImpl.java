@@ -78,10 +78,6 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
             String.format("in Detail-choice Program[%s]", program.get().getId()));
         craftChoices(sequence.get(), voices, voice -> chooseFreshInstrument(voice.getType(), List.of(), null, List.of()), false);
       }
-
-      // add memes of program to segment in order to affect further choice
-      // XJ should not add memes to Segment for program/instrument that was not successfully chosen #180468224
-      fabricator.addMemes(program.get());
     }
 
     // Finally, update the segment with the crafted content

@@ -8,6 +8,7 @@ import io.xj.lib.util.ValueException;
 import io.xj.nexus.NexusException;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -53,7 +54,7 @@ public interface SegmentWorkbench {
   /**
    @return collection of all Chord in Segment, guaranteed to be in order of position ascending
    */
-  Collection<SegmentChord> getSegmentChords();
+  List<SegmentChord> getSegmentChords();
 
   /**
    @return collection of all ChordVoicing in Segment
