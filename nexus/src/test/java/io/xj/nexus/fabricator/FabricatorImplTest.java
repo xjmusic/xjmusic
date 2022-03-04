@@ -18,6 +18,7 @@ import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.mixer.MixerModule;
+import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.Tuning;
 import io.xj.nexus.NexusException;
@@ -41,6 +42,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.xj.hub.IntegrationTestingFixtures.*;
+import static io.xj.lib.music.NoteTest.assertNote;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -765,5 +767,13 @@ public class FabricatorImplTest {
     subject.putStickyBun(fake.program35_sequence0_pattern0_event0.getId(), Note.of("C3"), 0.0, Note.of("F3"));
 
     assertEquals(List.of(0, 7, 5), subject.getStickyBun(fake.program35_sequence0_pattern0.getId()).orElseThrow().getOffsets(fake.program35_sequence0_pattern0_event0.getId()));
+  }
+
+  /**
+   Sticky buns v2 #179153822 use slash root when available
+   */
+  @Test
+  public void getRootNote() {
+    assertNote("C4", subject.getRootNoteMidRange("C3,E3,G3,A#3,C4,E4,G4", Chord.of("Cm")).orElseThrow());
   }
 }

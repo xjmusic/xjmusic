@@ -771,7 +771,7 @@ public interface Fabricator {
    @param chord        for which to seek root note among available voicings
    @return root note
    */
-  Optional<Note> getRootNote(String voicingNotes, Chord chord);
+  Optional<Note> getRootNoteMidRange(String voicingNotes, Chord chord);
 
   /**
    Sticky buns v2 #179153822 persisted for each randomly selected note in the series for any given pattern

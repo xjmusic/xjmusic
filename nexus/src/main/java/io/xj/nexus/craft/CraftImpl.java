@@ -601,7 +601,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     var voicingNotes = fabricator.getNotes(voicing).stream()
       .flatMap(Note::ofValid)
       .collect(Collectors.toList());
-    var rootNote = fabricator.getRootNote(voicing.getNotes(), chord);
+    var rootNote = fabricator.getRootNoteMidRange(voicing.getNotes(), chord);
 
     // Event notes are either computed from sticky bun or interpreted from program, potentially at random
     List<Note> eventNotes = CSV.split(event.getNote())
