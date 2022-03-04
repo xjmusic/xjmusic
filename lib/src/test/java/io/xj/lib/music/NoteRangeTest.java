@@ -168,6 +168,7 @@ public class NoteRangeTest {
     assertNote("C5", NoteRange.from("C3", "G6").getNoteNearestMedian(PitchClass.C).orElseThrow());
     assertNote("C5", NoteRange.from("C3", "G7").getNoteNearestMedian(PitchClass.C).orElseThrow());
     assertNote("C4", NoteRange.from("C2", "G6").getNoteNearestMedian(PitchClass.C).orElseThrow());
+    assertTrue( NoteRange.from("C3", "G6").getNoteNearestMedian(PitchClass.None).isEmpty());
   }
 
   @Test

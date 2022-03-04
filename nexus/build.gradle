@@ -46,10 +46,11 @@ repositories {
 dependencies {
   implementation project(":hub")
   implementation project(":lib")
-  testImplementation(testFixtures(project(":hub")))
-  testFixturesImplementation(project(":lib"))
   testFixturesImplementation(project(":hub"))
+  testFixturesImplementation(project(":lib"))
   testFixturesImplementation(testFixtures(project(":hub")))
+  testImplementation(project(':lib').sourceSets.test.output)
+  testImplementation(testFixtures(project(":hub")))
   //
   implementation 'ch.qos.logback:logback-classic:1.2.6'
   implementation 'com.amazonaws:aws-java-sdk-secretsmanager:1.12.90'

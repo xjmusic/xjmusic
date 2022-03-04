@@ -132,6 +132,7 @@ public class NoteRange {
   }
 
   public Optional<Note> getNoteNearestMedian(PitchClass root) {
+    if (PitchClass.None.equals(root)) return Optional.empty();
     var median = getMedianNote();
     if (median.isEmpty()) return Optional.empty();
     if (Objects.equals(root, median.get().getPitchClass())) return median;

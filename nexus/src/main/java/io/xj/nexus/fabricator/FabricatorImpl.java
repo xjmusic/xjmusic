@@ -1126,7 +1126,7 @@ class FabricatorImpl implements Fabricator {
         continue;
       }
 
-      rootNote = getRootNote(voicing.get().getNotes(), Chord.of(chord.get().getName()));
+      rootNote = getRootNoteMidRange(voicing.get().getNotes(), Chord.of(chord.get().getName()));
       if (rootNote.isEmpty()) {
         LOG.debug("No root note for Voicing[{}] and Chord[{}]", voicing.get().getNotes(), Chord.of(chord.get().getName()));
         continue;
@@ -1141,9 +1141,9 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Optional<Note> getRootNote(String voicingNotes, Chord chord) {
+  public Optional<Note> getRootNoteMidRange(String voicingNotes, Chord chord) {
     return rootNotesByVoicingAndChord.computeIfAbsent(String.format("%s_%s", voicingNotes, chord.getName()),
-      (String key) -> NoteRange.ofStrings(CSV.split(voicingNotes)).getNoteNearestMedian(chord.getRoot()));
+      (String key) -> NoteRange.ofStrings(CSV.split(voicingNotes)).getNoteNearestMedian(chord.getSlashRoot()));
   }
 
   @Override
