@@ -615,10 +615,11 @@ public class CraftImpl extends FabricationWrapperImpl {
     var eventRange = NoteRange.ofNotes(eventNotes).shifted(eventDeltaSemitones);
     if (range.isEmpty() && !eventRange.isEmpty()) range.expand(eventRange);
 
-    var notePicker = new NotePicker(instrumentType, chord, range.shifted(eventDeltaSemitones), voicingNotes, eventNotes);
+    var notePicker = new NotePicker(range.shifted(eventDeltaSemitones), voicingNotes, eventNotes,
+      fabricator.getTemplateConfig().getInstrumentTypesForInversionSeeking().contains(instrumentType));
 
     notePicker.pick();
-    range.expand(notePicker.getRange());
+    range.expand(notePicker.getTargetRange());
 
     var notes = notePicker.getPickedNotes().stream()
       .map(n -> n.toString(chord.getAdjSymbol())).collect(Collectors.toSet());

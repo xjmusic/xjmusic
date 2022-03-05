@@ -167,5 +167,6 @@ public class ChordTest {
     assertEquals(PitchClass.Cs, Chord.of("C#m7").getSlashRoot());
     assertEquals(PitchClass.G, Chord.of("Cm7/G").getSlashRoot());
     assertEquals(PitchClass.Gs, Chord.of("C#m7/G#").getSlashRoot());
+    assertEquals(PitchClass.A, Chord.of("Gsus4/A").getSlashRoot());
   }
 }

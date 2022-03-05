@@ -52,6 +52,9 @@ jobs:
           sudo apt-get -y install postgresql-client
           sudo apt-get -y install amazon-ecr-credential-helper
 
+      - name: Ensure Postgres started OK
+        run: sudo docker start $(docker ps -a -q)
+
       - name: Setup JDK 16
         uses: actions/setup-java@v1
         with:
