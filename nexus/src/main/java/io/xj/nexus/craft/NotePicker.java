@@ -2,9 +2,6 @@
 
 package io.xj.nexus.craft;
 
-import com.google.common.collect.ImmutableList;
-import io.xj.hub.enums.InstrumentType;
-import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.NoteRange;
 import io.xj.lib.music.PitchClass;
@@ -17,37 +14,28 @@ import java.util.*;
  In order to pick exactly one optimal voicing note for each of the source event notes.
  */
 public class NotePicker {
-  private static final int WEIGHT_MATCH_SLASH_ROOT = 10;
-  private final InstrumentType instrumentType;
-  private final Chord chord;
-  private final NoteRange range;
+  private final NoteRange targetRange;
   private final Set<Note> eventNotes;
   private final Set<Note> voicingNotes;
   private final Set<Note> pickedNotes;
+  private final boolean seekInversions;
   private final SecureRandom random = new SecureRandom(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
-  private final Collection<InstrumentType> instrumentTypesToSeekInversions = ImmutableList.of(
-    InstrumentType.Pad,
-    InstrumentType.Stab,
-    InstrumentType.Sticky,
-    InstrumentType.Stripe
-  );
+  private final NoteRange voicingRange;
 
   /**
    Build a NotePicker from the given optimal target range
 
-   @param instrumentType for which to pick notes
-
-   @param chord        for prioritizing notes especially
-   @param range        optimally picks will be within
-   @param voicingNotes to pick from, at most once each
-   @param eventNotes   for which to pick exactly one voicing note each
+   @param targetRange          optimally picks will be within
+   @param voicingNotes   to pick from, at most once each
+   @param eventNotes     for which to pick exactly one voicing note each
+   @param seekInversions whether to seek inversions
    */
-  public NotePicker(InstrumentType instrumentType, Chord chord, NoteRange range, Collection<Note> voicingNotes, Collection<Note> eventNotes) {
-    this.instrumentType = instrumentType;
-    this.chord = chord;
-    this.range = NoteRange.copyOf(range);
+  public NotePicker(NoteRange targetRange, Collection<Note> voicingNotes, Collection<Note> eventNotes, boolean seekInversions) {
+    this.targetRange = NoteRange.copyOf(targetRange);
     this.eventNotes = new HashSet<>(eventNotes);
     this.voicingNotes = new HashSet<>(voicingNotes);
+    this.voicingRange = NoteRange.ofNotes(voicingNotes);
+    this.seekInversions = seekInversions;
     pickedNotes = new HashSet<>();
   }
 
@@ -55,20 +43,21 @@ public class NotePicker {
    Pick all voicing notes for event notes
    */
   public void pick() {
+
     // Pick the notes
-    for (var eN : eventNotes.stream().sorted(Note::compareTo).toList()) {
+    for (var eN : eventNotes.stream()
+      .map(voicingRange::toAvailableOctave)
+      .sorted(Note::compareTo)
+      .toList()) {
       if (PitchClass.None.equals(eN.getPitchClass()))
-        pickRandom(voicingNotes)
-          .ifPresent(this::pick);
+        pickRandom(voicingNotes).ifPresent(this::pick);
       else
         voicingNotes.stream()
           .sorted(Note::compareTo)
-          .map(vN -> new RankedNote(vN,
-            Math.abs(vN.delta(eN))
-              - weightIfMatchSlashRoot(instrumentType, vN, chord)))
+          .map(vN -> new RankedNote(vN, Math.abs(vN.delta(eN))))
           .min(Comparator.comparing(RankedNote::getDelta))
           .map(RankedNote::getNote)
-          .map(voicingNote -> seekInversion(voicingNote, range, voicingNotes))
+          .map(voicingNote -> seekInversion(voicingNote, targetRange, voicingNotes))
           .ifPresent(this::pick);
     }
 
@@ -76,14 +65,14 @@ public class NotePicker {
     if (pickedNotes.isEmpty()) pickedNotes.add(Note.of(Note.ATONAL));
 
     // Keep track of the total range of notes selected, to keep voicing in the tightest possible range
-    range.expand(pickedNotes);
+    targetRange.expand(pickedNotes);
   }
 
   /**
    @return range of picked notes (updated after picking)
    */
-  public NoteRange getRange() {
-    return range;
+  public NoteRange getTargetRange() {
+    return targetRange;
   }
 
   /**
@@ -111,7 +100,7 @@ public class NotePicker {
    @param options from which to select better notes
    */
   private Note seekInversion(Note source, NoteRange range, Collection<Note> options) {
-    if (!instrumentTypesToSeekInversions.contains(instrumentType)) return source;
+    if (!seekInversions) return source;
 
     if (range.getHigh().isPresent() && range.getHigh()
       .orElseThrow(() -> new RuntimeException("Can't get high end of range"))
@@ -156,22 +145,4 @@ public class NotePicker {
       .sorted(Comparator.comparing((s) -> random.nextFloat()))
       .findAny();
   }
-
-  /**
-   Weight a note if it matches the slash chord root
-
-   @param instrumentType mode of weighing
-   @param note           to weigh
-   @param chord          to weigh against
-   @return weight
-   */
-  @SuppressWarnings("SwitchStatementWithTooFewBranches")
-  private int weightIfMatchSlashRoot(InstrumentType instrumentType, Note note, Chord chord) {
-    return switch (instrumentType) {
-      case Bass -> chord.getSlashRoot().equals(note.getPitchClass()) ? WEIGHT_MATCH_SLASH_ROOT : 0;
-      default -> 0;
-    };
-  }
-
-
 }

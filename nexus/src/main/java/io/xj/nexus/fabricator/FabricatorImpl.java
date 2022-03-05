@@ -1056,7 +1056,6 @@ class FabricatorImpl implements Fabricator {
       .orElse(0);
   }
 
-
   /**
    Digest all previously picked events for the same main program
 

@@ -12,6 +12,7 @@ import java.util.Optional;
  */
 public class NoteRange {
   private static final String UNKNOWN = "Unknown";
+  private static final int MAX_SEEK_OCTAVES = 3;
 
   @Nullable
   Note low;
@@ -139,5 +140,44 @@ public class NoteRange {
     var up = median.get().nextUp(root);
     var down = median.get().nextDown(root);
     return down.delta(median.get()) < median.get().delta(up) ? Optional.of(down) : Optional.of(up);
+  }
+
+  /**
+   Change the octave of a note such that it is within this range
+
+   @param note source
+   @return note moved to available octave
+   */
+  public Note toAvailableOctave(Note note) {
+    if (Objects.isNull(low) || Objects.isNull(high)) return note;
+
+    int d = 0;
+    Note x = note;
+
+    while (!includes(x) && d < MAX_SEEK_OCTAVES) {
+      if (low.isHigher(x)) {
+        x = x.shiftOctave(1);
+        d++;
+      } else if (high.isLower(x)) {
+        x = x.shiftOctave(-1);
+        d++;
+      }
+    }
+
+    return x;
+  }
+
+  /**
+   Whether the given note is within this range
+
+   @param note to test
+   @return true if note is within this range
+   */
+  public boolean includes(Note note) {
+    if (Objects.isNull(low) && Objects.isNull(high)) return false;
+    if (Objects.isNull(low) && high.sameAs(note)) return true;
+    if (Objects.isNull(high) && low.sameAs(note)) return true;
+    if (Objects.isNull(low) || Objects.isNull(high)) return false;
+    return !low.isHigher(note) && !high.isLower(note);
   }
 }

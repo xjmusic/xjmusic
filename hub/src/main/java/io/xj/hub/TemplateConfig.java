@@ -45,6 +45,7 @@ public class TemplateConfig {
       dubMasterVolumeInstrumentTypeSticky = 1.0
       dubMasterVolumeInstrumentTypeStripe = 1.0
       instrumentTypesForAudioLengthFinalization = ["Bass","Pad","Stab","Sticky","Stripe"]
+      instrumentTypesForInversionSeeking = ["Pad","Stab","Sticky","Stripe"]
       mainProgramLengthMaxDelta = 280
       mixerCompressAheadSeconds = 0.05
       mixerCompressDecaySeconds = 0.125
@@ -73,6 +74,7 @@ public class TemplateConfig {
       """;
   private final AudioFormat.Encoding outputEncoding;
   private final List<InstrumentType> instrumentTypesForAudioLengthFinalization;
+  private final List<InstrumentType> instrumentTypesForInversionSeeking;
   private final String deltaArcBeatLayersToPrioritize;
   private final String outputContainer;
   private final String outputContentType;
@@ -168,6 +170,10 @@ public class TemplateConfig {
         requireAtLeastOne("instrumentTypesForAudioLengthFinalization",
           config.getStringList("instrumentTypesForAudioLengthFinalization").stream()
             .map(InstrumentType::valueOf).toList());
+      instrumentTypesForInversionSeeking =
+        requireAtLeastOne("instrumentTypesForInversionSeeking",
+          config.getStringList("instrumentTypesForInversionSeeking").stream()
+            .map(InstrumentType::valueOf).toList());
       mainProgramLengthMaxDelta = config.getInt("mainProgramLengthMaxDelta");
       mixerCompressAheadSeconds = config.getDouble("mixerCompressAheadSeconds");
       mixerCompressDecaySeconds = config.getDouble("mixerCompressDecaySeconds");
@@ -235,6 +241,7 @@ public class TemplateConfig {
     config.put("dubMasterVolumeInstrumentTypeSticky", String.valueOf(dubMasterVolumeInstrumentTypeSticky));
     config.put("dubMasterVolumeInstrumentTypeStripe", String.valueOf(dubMasterVolumeInstrumentTypeStripe));
     config.put("instrumentTypesForAudioLengthFinalization", formatTypesafeQuoted(instrumentTypesForAudioLengthFinalization));
+    config.put("instrumentTypesForInversionSeeking", formatTypesafeQuoted(instrumentTypesForInversionSeeking));
     config.put("mainProgramLengthMaxDelta", String.valueOf(mainProgramLengthMaxDelta));
     config.put("mixerCompressAheadSeconds", String.valueOf(mixerCompressAheadSeconds));
     config.put("mixerCompressDecaySeconds", String.valueOf(mixerCompressDecaySeconds));
@@ -405,6 +412,13 @@ public class TemplateConfig {
    */
   public List<InstrumentType> getInstrumentTypesForAudioLengthFinalization() {
     return instrumentTypesForAudioLengthFinalization;
+  }
+
+  /**
+   @return list of instrument types for which we'll seek inversions, as in note picking for chords
+   */
+  public List<InstrumentType> getInstrumentTypesForInversionSeeking() {
+    return instrumentTypesForInversionSeeking;
   }
 
   /**

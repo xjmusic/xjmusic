@@ -253,6 +253,4 @@ public class NoteTest {
     assertEquals(PitchClass.None, Note.of("X").nextDown(PitchClass.C).getPitchClass());
     assertNote("C4", Note.of("D4").nextDown(PitchClass.C));
   }
-
-
 }

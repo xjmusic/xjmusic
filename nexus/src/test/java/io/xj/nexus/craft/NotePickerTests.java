@@ -1,12 +1,13 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.craft;
 
+import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.lib.music.AdjSymbol;
-import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.NoteRange;
 import io.xj.lib.util.CSV;
+import io.xj.lib.util.ValueException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -26,7 +27,12 @@ import static org.junit.Assert.assertEquals;
 @RunWith(MockitoJUnitRunner.class)
 public class NotePickerTests extends YamlTest {
   private static final int REPEAT_EACH_TEST_TIMES = 7;
+  private final TemplateConfig templateConfig;
   private NotePicker subject;
+
+  public NotePickerTests() throws ValueException {
+    templateConfig = new TemplateConfig();
+  }
 
   @Test
   public void notePicker4a() {
@@ -85,15 +91,14 @@ public class NotePickerTests extends YamlTest {
     var instrumentType =
       InstrumentType.valueOf(Objects.requireNonNull(getStr(obj, "instrumentType")));
 
-    var chord = Chord.of(Objects.requireNonNull(getStr(obj, "chord")));
-
     var voicingNotes = CSV.split(Objects.requireNonNull(getStr(obj, "voicingNotes"))).stream()
       .map(Note::of).collect(Collectors.toSet());
 
     var eventNotes = CSV.split(Objects.requireNonNull(getStr(obj, "eventNotes"))).stream()
       .map(Note::of).collect(Collectors.toSet());
 
-    subject = new NotePicker(instrumentType, chord, range, voicingNotes, eventNotes);
+    subject = new NotePicker(range, voicingNotes, eventNotes,
+      templateConfig.getInstrumentTypesForInversionSeeking().contains(instrumentType));
   }
 
   private NoteRange getOptionalNoteRange(Map<?, ?> obj) {
@@ -110,10 +115,10 @@ public class NotePickerTests extends YamlTest {
     var range = getOptionalNoteRange(obj);
 
     range.getLow().ifPresent(note ->
-      assertSame("Range Low-end", note, subject.getRange().getLow().orElseThrow()));
+      assertSame("Range Low-end", note, subject.getTargetRange().getLow().orElseThrow()));
 
     range.getHigh().ifPresent(note ->
-      assertSame("Range High-end", note, subject.getRange().getHigh().orElseThrow()));
+      assertSame("Range High-end", note, subject.getTargetRange().getHigh().orElseThrow()));
 
     var picked = subject.getPickedNotes().stream()
       .map(n -> n.toString(AdjSymbol.Sharp))

@@ -168,7 +168,7 @@ public class NoteRangeTest {
     assertNote("C5", NoteRange.from("C3", "G6").getNoteNearestMedian(PitchClass.C).orElseThrow());
     assertNote("C5", NoteRange.from("C3", "G7").getNoteNearestMedian(PitchClass.C).orElseThrow());
     assertNote("C4", NoteRange.from("C2", "G6").getNoteNearestMedian(PitchClass.C).orElseThrow());
-    assertTrue( NoteRange.from("C3", "G6").getNoteNearestMedian(PitchClass.None).isEmpty());
+    assertTrue(NoteRange.from("C3", "G6").getNoteNearestMedian(PitchClass.None).isEmpty());
   }
 
   @Test
@@ -198,4 +198,34 @@ public class NoteRangeTest {
     assertFalse(NoteRange.from("C5", "G5").isEmpty());
   }
 
+  @Test
+  public void includes() {
+    assertTrue(NoteRange.from(Note.of("C4"), Note.of("G4")).includes(Note.of("C4")));
+    assertTrue(NoteRange.from(Note.of("C4"), Note.of("G4")).includes(Note.of("G4")));
+    assertFalse(NoteRange.from(Note.of("C4"), Note.of("G4")).includes(Note.of("B3")));
+    assertFalse(NoteRange.from(Note.of("C4"), Note.of("G4")).includes(Note.of("G#4")));
+    assertTrue(NoteRange.from(Note.of("C4"), null).includes(Note.of("C4")));
+    assertFalse(NoteRange.from(Note.of("C4"), null).includes(Note.of("B3")));
+    assertFalse(NoteRange.from(Note.of("C4"), null).includes(Note.of("D4")));
+    assertTrue(NoteRange.from(null, Note.of("C4")).includes(Note.of("C4")));
+    assertFalse(NoteRange.from(null, Note.of("C4")).includes(Note.of("B3")));
+    assertFalse(NoteRange.from(null, Note.of("C4")).includes(Note.of("D4")));
+    assertFalse(NoteRange.empty().includes(Note.of("C4")));
+  }
+
+  @Test
+  public void toAvailableOctave() {
+    assertNote("C4", NoteRange.from(Note.of("C4"), Note.of("C6")).toAvailableOctave(Note.of("C4")));
+    assertNote("C5", NoteRange.from(Note.of("C4"), Note.of("C6")).toAvailableOctave(Note.of("C5")));
+    assertNote("C6", NoteRange.from(Note.of("C4"), Note.of("C6")).toAvailableOctave(Note.of("C6")));
+    assertNote("D5", NoteRange.from(Note.of("C4"), Note.of("C6")).toAvailableOctave(Note.of("D6")));
+    assertNote("D4", NoteRange.from(Note.of("C4"), Note.of("C6")).toAvailableOctave(Note.of("D3")));
+    assertNote("C4", NoteRange.from(Note.of("C4"), null).toAvailableOctave(Note.of("C4")));
+    assertNote("B3", NoteRange.from(Note.of("C4"), null).toAvailableOctave(Note.of("B3")));
+    assertNote("D4", NoteRange.from(Note.of("C4"), null).toAvailableOctave(Note.of("D4")));
+    assertNote("C4", NoteRange.from(null, Note.of("C4")).toAvailableOctave(Note.of("C4")));
+    assertNote("B3", NoteRange.from(null, Note.of("C4")).toAvailableOctave(Note.of("B3")));
+    assertNote("D4", NoteRange.from(null, Note.of("C4")).toAvailableOctave(Note.of("D4")));
+    assertNote("C4", NoteRange.empty().toAvailableOctave(Note.of("C4")));
+  }
 }
