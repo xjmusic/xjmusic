@@ -27,7 +27,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   private final Map<String, Object> report = Maps.newConcurrentMap();
   private final EntityStore benchStore;
   private Segment segment;
-  private Collection<SegmentChord> segmentChords;
+  private List<SegmentChord> segmentChords;
 
   @Inject
   public SegmentWorkbenchImpl(
@@ -62,7 +62,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   }
 
   @Override
-  public Collection<SegmentChord> getSegmentChords() {
+  public List<SegmentChord> getSegmentChords() {
     if (Objects.isNull(segmentChords)) {
       segmentChords = benchStore.getAll(SegmentChord.class)
         .stream()
@@ -150,7 +150,6 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   @Override
   public <N> N put(N entity) throws NexusException {
     try {
-
       // Segment shouldn't have two of the same meme #179078453
       if (SegmentMeme.class.equals(entity.getClass()) && alreadyHasMeme((SegmentMeme) entity)) return entity;
 

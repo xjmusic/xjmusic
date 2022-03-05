@@ -76,7 +76,18 @@ public class MemeStackTest {
     assertTrue(MmStrong.fromString("LEMONS!").isValid);
     assertFalse(MmStrong.fromString("LEMONS").isValid);
     assertTrue(MemeStack.from(List.of("JAMS", "LEMONS!")).isAllowed(List.of("4NOTE", "LEMONS")));
-    assertFalse(MemeStack.from(List.of("JAMS", "LEMONS!")).isAllowed(List.of("4NOTE", "ORANGES")));
+    assertFalse(MemeStack.from(List.of("JAMS", "ORANGES")).isAllowed(List.of("4NOTE", "LEMONS!")));
+    assertTrue(MemeStack.from(List.of("JAMS", "LEMONS!")).isAllowed(List.of("4NOTE", "ORANGES")));
+  }
+
+  /**
+   Refuse to make a choice that violates the meme stack #181466514
+   */
+  @Test
+  public void isValid() {
+    assertTrue(MemeStack.from(List.of("APPLES", "!ORANGES", "$BANANAS", "APPLES!", "5LEMONS", "12MONKEYS")).isValid());
+    assertFalse(MemeStack.from(List.of("APPLES", "!APPLES", "$BANANAS", "APPLES!", "5LEMONS", "12MONKEYS")).isValid());
+    assertFalse(MemeStack.from(List.of("APPLES", "!ORANGES", "$BANANAS", "APPLES!", "5LEMONS", "12LEMONS")).isValid());
   }
 
 }
