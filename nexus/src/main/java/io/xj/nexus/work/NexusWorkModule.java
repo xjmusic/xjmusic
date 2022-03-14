@@ -6,7 +6,7 @@ import io.xj.lib.telemetry.TelemetryModule;
 import io.xj.nexus.craft.CraftModule;
 import io.xj.nexus.dub.DubModule;
 import io.xj.nexus.fabricator.NexusFabricatorModule;
-import io.xj.nexus.hub_client.client.HubClientModule;
+import io.xj.hub.client.HubClientModule;
 import io.xj.nexus.persistence.NexusPersistenceModule;
 
 public class NexusWorkModule extends AbstractModule {

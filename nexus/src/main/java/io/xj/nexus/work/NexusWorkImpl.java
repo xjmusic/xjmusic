@@ -37,10 +37,10 @@ import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.dub.DubFactory;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.nexus.hub_client.client.HubClient;
-import io.xj.nexus.hub_client.client.HubClientAccess;
-import io.xj.nexus.hub_client.client.HubClientException;
-import io.xj.nexus.hub_client.client.HubContent;
+import io.xj.hub.client.HubClient;
+import io.xj.hub.client.HubClientAccess;
+import io.xj.hub.client.HubClientException;
+import io.xj.hub.client.HubContent;
 import io.xj.nexus.persistence.*;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -608,7 +608,7 @@ public class NexusWorkImpl implements NexusWork {
     }
 
     // Stop chains no longer playing
-    Set<String> templateShipKeys = templates.stream().map(Template::getShipKey).collect(Collectors.toSet());
+    List<String> templateShipKeys = templates.stream().map(Template::getShipKey).toList();
     try {
       for (var chain : allFab)
         if (!templateShipKeys.contains(chain.getShipKey())) {

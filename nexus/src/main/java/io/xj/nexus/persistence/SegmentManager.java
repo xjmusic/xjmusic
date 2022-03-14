@@ -3,7 +3,7 @@ package io.xj.nexus.persistence;
 
 import io.xj.api.*;
 import io.xj.hub.enums.ProgramType;
-import io.xj.nexus.hub_client.client.HubClientAccess;
+import io.xj.hub.client.HubClientAccess;
 
 import java.time.Instant;
 import java.util.Collection;

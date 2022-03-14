@@ -12,7 +12,7 @@ import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.fabricator.Fabricator;
-import io.xj.nexus.hub_client.client.HubContent;
+import io.xj.hub.client.HubContent;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

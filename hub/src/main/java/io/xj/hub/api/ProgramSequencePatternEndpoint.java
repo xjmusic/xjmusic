@@ -58,11 +58,11 @@ public class ProgramSequencePatternEndpoint extends HubJsonapiEndpoint<ProgramSe
     @QueryParam("cloneId") String cloneId
   ) {
     try {
-      HubAccess hubAccess = HubAccess.fromContext(crc);
+      HubAccess access = HubAccess.fromContext(crc);
       var programSequencePattern = payloadFactory.consume(manager().newInstance(), jsonapiPayload);
       JsonapiPayload responseJsonapiPayload = new JsonapiPayload();
       if (Objects.nonNull(cloneId)) {
-        ManagerCloner<ProgramSequencePattern> cloner = manager().clone(hubAccess, UUID.fromString(cloneId), programSequencePattern);
+        ManagerCloner<ProgramSequencePattern> cloner = manager().clone(access, UUID.fromString(cloneId), programSequencePattern);
         responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(cloner.getClone()));
         List<JsonapiPayloadObject> list = new ArrayList<>();
         for (Object entity : cloner.getChildClones()) {
@@ -71,7 +71,7 @@ public class ProgramSequencePatternEndpoint extends HubJsonapiEndpoint<ProgramSe
         }
         responseJsonapiPayload.setIncluded(list);
       } else {
-        responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(manager().create(hubAccess, programSequencePattern)));
+        responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(manager().create(access, programSequencePattern)));
       }
 
       return response.create(responseJsonapiPayload);

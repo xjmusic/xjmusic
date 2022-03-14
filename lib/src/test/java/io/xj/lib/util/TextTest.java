@@ -204,6 +204,15 @@ public class TextTest {
   }
 
   @Test
+  public void toEvent() {
+    assertEquals("JAMMYBNS", Text.toEvent("jaMMy b#!ns"));
+    assertEquals("JAMMY", Text.toEvent("jaMMy"));
+    assertEquals("JAMMY", Text.toEvent("jaMMy55"));
+    assertEquals("P", Text.toEvent("%&(#p"));
+    assertEquals("", Text.toEvent("%&(#"));
+  }
+
+  @Test
   public void formatConfig() {
     String result = Text.format(ConfigFactory.empty()
       .withValue("outputFrameRate", ConfigValueFactory.fromAnyRef(35))

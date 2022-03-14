@@ -8,7 +8,7 @@ import io.xj.lib.mixer.MixerModule;
 import io.xj.nexus.craft.CraftModule;
 import io.xj.nexus.dub.DubModule;
 import io.xj.nexus.fabricator.NexusFabricatorModule;
-import io.xj.nexus.hub_client.client.HubClientModule;
+import io.xj.hub.client.HubClientModule;
 import io.xj.nexus.persistence.NexusPersistenceModule;
 import io.xj.nexus.work.NexusWorkModule;
 

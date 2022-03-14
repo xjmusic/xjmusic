@@ -8,8 +8,9 @@ import com.google.inject.Guice;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import io.xj.hub.access.HubAccessControlModule;
-import io.xj.hub.manager.ManagerModule;
+import io.xj.hub.analysis.HubAnalysisModule;
 import io.xj.hub.ingest.HubIngestModule;
+import io.xj.hub.manager.ManagerModule;
 import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
@@ -32,6 +33,7 @@ public interface Main {
     new EntityModule(),
     new JsonapiModule(),
     new HubAccessControlModule(),
+    new HubAnalysisModule(),
     new ManagerModule(),
     new HubIngestModule(),
     new HubPersistenceModule()

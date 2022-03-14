@@ -31,20 +31,20 @@ public class ProgramVoiceTrackManagerImpl extends HubPersistenceServiceImpl<Prog
   }
 
   @Override
-  public ProgramVoiceTrack create(HubAccess hubAccess, ProgramVoiceTrack entity) throws ManagerException, JsonapiException, ValueException {
+  public ProgramVoiceTrack create(HubAccess access, ProgramVoiceTrack entity) throws ManagerException, JsonapiException, ValueException {
     var record = validate(entity);
-    requireArtist(hubAccess);
+    requireArtist(access);
     DSLContext db = dbProvider.getDSL();
-    requireProgramModification(db, hubAccess, record.getProgramId());
+    requireProgramModification(db, access, record.getProgramId());
     return modelFrom(ProgramVoiceTrack.class,
       executeCreate(db, PROGRAM_VOICE_TRACK, record));
   }
 
   @Override
   @Nullable
-  public ProgramVoiceTrack readOne(HubAccess hubAccess, UUID id) throws ManagerException {
-    requireArtist(hubAccess);
-    if (hubAccess.isTopLevel())
+  public ProgramVoiceTrack readOne(HubAccess access, UUID id) throws ManagerException {
+    requireArtist(access);
+    if (access.isTopLevel())
       return modelFrom(ProgramVoiceTrack.class,
         dbProvider.getDSL().selectFrom(PROGRAM_VOICE_TRACK)
           .where(PROGRAM_VOICE_TRACK.ID.eq(id))
@@ -56,15 +56,15 @@ public class ProgramVoiceTrackManagerImpl extends HubPersistenceServiceImpl<Prog
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_VOICE.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM_VOICE_TRACK.ID.eq(id))
-          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
           .fetchOne());
   }
 
   @Override
   @Nullable
-  public Collection<ProgramVoiceTrack> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws ManagerException {
-    requireArtist(hubAccess);
-    if (hubAccess.isTopLevel())
+  public Collection<ProgramVoiceTrack> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
+    requireArtist(access);
+    if (access.isTopLevel())
       return modelsFrom(ProgramVoiceTrack.class,
         dbProvider.getDSL().selectFrom(PROGRAM_VOICE_TRACK)
           .where(PROGRAM_VOICE_TRACK.PROGRAM_VOICE_ID.in(parentIds))
@@ -77,26 +77,26 @@ public class ProgramVoiceTrackManagerImpl extends HubPersistenceServiceImpl<Prog
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_VOICE.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM_VOICE_TRACK.PROGRAM_VOICE_ID.in(parentIds))
-          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
           .orderBy(PROGRAM_VOICE_TRACK.ORDER.asc())
           .fetch());
   }
 
   @Override
-  public ProgramVoiceTrack update(HubAccess hubAccess, UUID id, ProgramVoiceTrack entity) throws ManagerException, JsonapiException, ValueException {
+  public ProgramVoiceTrack update(HubAccess access, UUID id, ProgramVoiceTrack entity) throws ManagerException, JsonapiException, ValueException {
     var record = validate(entity);
-    requireArtist(hubAccess);
+    requireArtist(access);
     DSLContext db = dbProvider.getDSL();
-    requireModification(db, hubAccess, id);
+    requireModification(db, access, id);
     executeUpdate(db, PROGRAM_VOICE_TRACK, id, record);
     return record;
   }
 
   @Override
-  public void destroy(HubAccess hubAccess, UUID id) throws ManagerException {
-    requireArtist(hubAccess);
+  public void destroy(HubAccess access, UUID id) throws ManagerException {
+    requireArtist(access);
     DSLContext db = dbProvider.getDSL();
-    requireModification(db, hubAccess, id);
+    requireModification(db, access, id);
 
     db.deleteFrom(PROGRAM_SEQUENCE_PATTERN_EVENT)
       .where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_VOICE_TRACK_ID.eq(id))
@@ -116,12 +116,12 @@ public class ProgramVoiceTrackManagerImpl extends HubPersistenceServiceImpl<Prog
    Require modification access to an entity
 
    @param db        context
-   @param hubAccess control
+   @param access control
    @param id        of entity to read
-   @throws ManagerException if none exists or no hubAccess
+   @throws ManagerException if none exists or no access
    */
-  private void requireModification(DSLContext db, HubAccess hubAccess, UUID id) throws ManagerException {
-    if (hubAccess.isTopLevel())
+  private void requireModification(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+    if (access.isTopLevel())
       requireExists("Track",
         db.selectCount().from(PROGRAM_VOICE_TRACK)
           .where(PROGRAM_VOICE_TRACK.ID.eq(id))
@@ -133,7 +133,7 @@ public class ProgramVoiceTrackManagerImpl extends HubPersistenceServiceImpl<Prog
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_VOICE.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM_VOICE_TRACK.ID.eq(id))
-          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
           .fetchOne(0, int.class));
   }
 
@@ -149,7 +149,7 @@ public class ProgramVoiceTrackManagerImpl extends HubPersistenceServiceImpl<Prog
       Values.require(track.getProgramId(), "Program ID");
       Values.require(track.getProgramVoiceId(), "Voice ID");
       Values.require(track.getName(), "Name");
-      track.setName(Text.toMeme(track.getName()));
+      track.setName(Text.toEvent(track.getName()));
       return track;
 
     } catch (ValueException e) {

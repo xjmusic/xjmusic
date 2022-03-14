@@ -19,12 +19,12 @@ public interface TemplateManager extends Manager<Template> {
    Provide an entity containing some new properties, but otherwise clone everything of a source template, of new record, and return it.
    Clone sub-entities of template #180269382
 
-   @param hubAccess control
+   @param access control
    @param cloneId   of template to clone
    @param entity    for the new Template
    @return newly readMany record
    */
-  ManagerCloner<Template> clone(HubAccess hubAccess, UUID cloneId, Template entity) throws ManagerException;
+  ManagerCloner<Template> clone(HubAccess access, UUID cloneId, Template entity) throws ManagerException;
 
   /**
    Read one template by its ship key
@@ -38,18 +38,18 @@ public interface TemplateManager extends Manager<Template> {
   /**
    Read all Templates having an active template playback
 
-   @param hubAccess control
+   @param access control
    @return templates currently playing
    */
-  Collection<Template> readAllPlaying(HubAccess hubAccess) throws ManagerException;
+  Collection<Template> readAllPlaying(HubAccess access) throws ManagerException;
 
   /**
    Read child entities of many templates
 
-   @param hubAccess  control
+   @param access  control
    @param templateIds to read
    @param includeTypes      of entities to include
    @return collection of entities
    */
-  Collection<Object> readChildEntities(HubAccess hubAccess, Collection<UUID> templateIds, Collection<String> includeTypes) throws ManagerException;
+  Collection<Object> readChildEntities(HubAccess access, Collection<UUID> templateIds, Collection<String> includeTypes) throws ManagerException;
 }

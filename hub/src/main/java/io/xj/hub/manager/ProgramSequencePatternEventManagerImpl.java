@@ -29,9 +29,9 @@ public class ProgramSequencePatternEventManagerImpl extends HubPersistenceServic
   }
 
   @Override
-  public ProgramSequencePatternEvent create(HubAccess hubAccess, ProgramSequencePatternEvent entity) throws ManagerException, JsonapiException, ValueException {
+  public ProgramSequencePatternEvent create(HubAccess access, ProgramSequencePatternEvent entity) throws ManagerException, JsonapiException, ValueException {
     var record = validate(entity);
-    requireArtist(hubAccess);
+    requireArtist(access);
     return modelFrom(ProgramSequencePatternEvent.class,
       executeCreate(dbProvider.getDSL(), PROGRAM_SEQUENCE_PATTERN_EVENT, record));
 
@@ -39,8 +39,8 @@ public class ProgramSequencePatternEventManagerImpl extends HubPersistenceServic
 
   @Override
   @Nullable
-  public ProgramSequencePatternEvent readOne(HubAccess hubAccess, UUID id) throws ManagerException {
-    requireArtist(hubAccess);
+  public ProgramSequencePatternEvent readOne(HubAccess access, UUID id) throws ManagerException {
+    requireArtist(access);
     return modelFrom(ProgramSequencePatternEvent.class,
       dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_PATTERN_EVENT)
         .where(PROGRAM_SEQUENCE_PATTERN_EVENT.ID.eq(id))
@@ -49,8 +49,8 @@ public class ProgramSequencePatternEventManagerImpl extends HubPersistenceServic
 
   @Override
   @Nullable
-  public Collection<ProgramSequencePatternEvent> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws ManagerException {
-    requireArtist(hubAccess);
+  public Collection<ProgramSequencePatternEvent> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
+    requireArtist(access);
     return modelsFrom(ProgramSequencePatternEvent.class,
       dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_PATTERN_EVENT)
         .where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_SEQUENCE_PATTERN_ID.in(parentIds))
@@ -58,16 +58,16 @@ public class ProgramSequencePatternEventManagerImpl extends HubPersistenceServic
   }
 
   @Override
-  public ProgramSequencePatternEvent update(HubAccess hubAccess, UUID id, ProgramSequencePatternEvent entity) throws ManagerException, JsonapiException, ValueException {
+  public ProgramSequencePatternEvent update(HubAccess access, UUID id, ProgramSequencePatternEvent entity) throws ManagerException, JsonapiException, ValueException {
     var record = validate(entity);
-    requireArtist(hubAccess);
+    requireArtist(access);
     executeUpdate(dbProvider.getDSL(), PROGRAM_SEQUENCE_PATTERN_EVENT, id, record);
     return record;
   }
 
   @Override
-  public void destroy(HubAccess hubAccess, UUID id) throws ManagerException {
-    requireArtist(hubAccess);
+  public void destroy(HubAccess access, UUID id) throws ManagerException {
+    requireArtist(access);
     dbProvider.getDSL().deleteFrom(PROGRAM_SEQUENCE_PATTERN_EVENT)
       .where(PROGRAM_SEQUENCE_PATTERN_EVENT.ID.eq(id))
       .execute();

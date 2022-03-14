@@ -39,11 +39,11 @@ public class InstrumentManagerImpl extends HubPersistenceServiceImpl<Instrument>
   }
 
   @Override
-  public Instrument create(HubAccess hubAccess, Instrument rawInstrument) throws ManagerException, JsonapiException, ValueException {
+  public Instrument create(HubAccess access, Instrument rawInstrument) throws ManagerException, JsonapiException, ValueException {
     DSLContext db = dbProvider.getDSL();
     Instrument instrument = validate(rawInstrument);
-    requireArtist(hubAccess);
-    requireParentExists(db, hubAccess, instrument); // This entity's parent is a Library
+    requireArtist(access);
+    requireParentExists(db, access, instrument); // This entity's parent is a Library
     return modelFrom(Instrument.class, executeCreate(db, INSTRUMENT, instrument));
   }
 
@@ -82,19 +82,19 @@ public class InstrumentManagerImpl extends HubPersistenceServiceImpl<Instrument>
 
   @Override
   @Nullable
-  public Instrument readOne(HubAccess hubAccess, UUID id) throws ManagerException {
-    return readOne(dbProvider.getDSL(), hubAccess, id);
+  public Instrument readOne(HubAccess access, UUID id) throws ManagerException {
+    return readOne(dbProvider.getDSL(), access, id);
   }
 
   @Override
-  public void destroy(HubAccess hubAccess, UUID id) throws ManagerException {
+  public void destroy(HubAccess access, UUID id) throws ManagerException {
     DSLContext db = dbProvider.getDSL();
 
-    if (!hubAccess.isTopLevel())
+    if (!access.isTopLevel())
       requireExists("Instrument belonging to you", db.selectCount().from(INSTRUMENT)
         .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
         .where(INSTRUMENT.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
 
     db.update(INSTRUMENT)
@@ -130,8 +130,8 @@ public class InstrumentManagerImpl extends HubPersistenceServiceImpl<Instrument>
   }
 
   @Override
-  public Collection<Instrument> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws ManagerException {
-    if (hubAccess.isTopLevel())
+  public Collection<Instrument> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
+    if (access.isTopLevel())
       return modelsFrom(Instrument.class, dbProvider.getDSL().select(INSTRUMENT.fields())
         .from(INSTRUMENT)
         .where(INSTRUMENT.LIBRARY_ID.in(parentIds))
@@ -144,7 +144,7 @@ public class InstrumentManagerImpl extends HubPersistenceServiceImpl<Instrument>
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(INSTRUMENT.LIBRARY_ID.in(parentIds))
         .and(INSTRUMENT.IS_DELETED.eq(false))
-        .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
         .fetch());
   }
@@ -235,31 +235,31 @@ public class InstrumentManagerImpl extends HubPersistenceServiceImpl<Instrument>
   }
 
   @Override
-  public Instrument update(HubAccess hubAccess, UUID id, Instrument rawInstrument) throws ManagerException, JsonapiException, ValueException {
+  public Instrument update(HubAccess access, UUID id, Instrument rawInstrument) throws ManagerException, JsonapiException, ValueException {
     DSLContext db = dbProvider.getDSL();
     rawInstrument.setId(id); // prevent changing id
     Instrument instrument = validate(rawInstrument);
-    requireArtist(hubAccess);
-    requireParentExists(db, hubAccess, instrument);
+    requireArtist(access);
+    requireParentExists(db, access, instrument);
     executeUpdate(db, INSTRUMENT, id, instrument);
     return instrument;
   }
 
   /**
-   Require read hubAccess
+   Require read access
 
    @param db            database context
-   @param hubAccess     control
+   @param access     control
    @param instrumentIds to require access to
    */
-  private void requireRead(DSLContext db, HubAccess hubAccess, Collection<UUID> instrumentIds) throws ManagerException {
-    if (!hubAccess.isTopLevel())
+  private void requireRead(DSLContext db, HubAccess access, Collection<UUID> instrumentIds) throws ManagerException {
+    if (!access.isTopLevel())
       for (UUID instrumentId : instrumentIds)
         requireExists("Instrument", db.selectCount().from(INSTRUMENT)
           .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
           .where(INSTRUMENT.ID.eq(instrumentId))
           .and(INSTRUMENT.IS_DELETED.eq(false))
-          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
           .fetchOne(0, int.class));
   }
 
@@ -267,13 +267,13 @@ public class InstrumentManagerImpl extends HubPersistenceServiceImpl<Instrument>
    Read one record
 
    @param db        DSL context
-   @param hubAccess control
+   @param access control
    @param id        to read
    @return record
    @throws ManagerException on failure
    */
-  private Instrument readOne(DSLContext db, HubAccess hubAccess, UUID id) throws ManagerException {
-    requireRead(db, hubAccess, List.of(id));
+  private Instrument readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+    requireRead(db, access, List.of(id));
     return modelFrom(Instrument.class, db.selectFrom(INSTRUMENT)
       .where(INSTRUMENT.ID.eq(id))
       .and(INSTRUMENT.IS_DELETED.eq(false))
@@ -284,18 +284,18 @@ public class InstrumentManagerImpl extends HubPersistenceServiceImpl<Instrument>
    Require parent instrument exists of a given possible entity in a DSL context
 
    @param db        DSL context
-   @param hubAccess control
+   @param access control
    @param entity    to validate
    @throws ManagerException if parent does not exist
    */
-  private void requireParentExists(DSLContext db, HubAccess hubAccess, Instrument entity) throws ManagerException {
-    if (hubAccess.isTopLevel())
+  private void requireParentExists(DSLContext db, HubAccess access, Instrument entity) throws ManagerException {
+    if (access.isTopLevel())
       requireExists("Library", db.selectCount().from(LIBRARY)
         .where(LIBRARY.ID.eq(entity.getLibraryId()))
         .fetchOne(0, int.class));
     else
       requireExists("Library", db.selectCount().from(LIBRARY)
-        .where(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .and(LIBRARY.ID.eq(entity.getLibraryId()))
         .fetchOne(0, int.class));
   }

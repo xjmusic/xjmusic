@@ -10,6 +10,7 @@ import com.google.inject.util.Modules;
 import com.zaxxer.hikari.HikariDataSource;
 import io.xj.hub.access.GoogleProvider;
 import io.xj.hub.access.HubAccessControlProvider;
+import io.xj.hub.analysis.HubAnalysisModule;
 import io.xj.hub.manager.*;
 import io.xj.hub.ingest.HubIngestFactory;
 import io.xj.hub.persistence.HubDatabaseProvider;
@@ -105,7 +106,7 @@ public class HubAppTest {
     httpClient = HttpClients.createDefault();
     var env = Environment.from(ImmutableMap.of("APP_PORT", "1903"));
     env.setAppName("hub");
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new JsonapiModule())).with(new AbstractModule() {
+    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new JsonapiModule(), new HubAnalysisModule())).with(new AbstractModule() {
       @Override
       protected void configure() {
         bind(Environment.class).toInstance(env);

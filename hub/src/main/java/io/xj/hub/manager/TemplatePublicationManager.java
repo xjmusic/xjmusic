@@ -17,10 +17,10 @@ public interface TemplatePublicationManager extends Manager<TemplatePublication>
   /**
    Read the one template publication for a given user
 
-   @param hubAccess control
+   @param access control
    @param userId    for which to read publication
    @return template publication
    @throws ManagerException on failure to read
    */
-  Optional<TemplatePublication> readOneForUser(HubAccess hubAccess, UUID userId) throws ManagerException;
+  Optional<TemplatePublication> readOneForUser(HubAccess access, UUID userId) throws ManagerException;
 }

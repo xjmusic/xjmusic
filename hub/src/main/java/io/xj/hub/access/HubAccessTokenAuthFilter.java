@@ -93,9 +93,9 @@ public class HubAccessTokenAuthFilter implements ContainerRequestFilter {
     if (Objects.nonNull(aPermitAll) && Objects.isNull(accessTokenCookie))
       return null; // allowed
 
-    HubAccess hubAccess;
+    HubAccess access;
     try {
-      hubAccess = hubAccessControlProvider.get(accessTokenCookie.getValue());
+      access = hubAccessControlProvider.get(accessTokenCookie.getValue());
     } catch (HubAccessException ignored) {
       if (Objects.nonNull(aPermitAll))
         return null; // allowed to supply bad hub access token for a permit-all route
@@ -103,17 +103,17 @@ public class HubAccessTokenAuthFilter implements ContainerRequestFilter {
         return "cannot get hub access token";
     }
 
-    if (!hubAccess.isValid())
+    if (!access.isValid())
       if (Objects.nonNull(aPermitAll))
         return null; // allowed to have invalid hub access for a permit-all route
       else
         return "invalid hub access token";
 
-    if (!hubAccess.isTopLevel() && Objects.isNull(aPermitAll) && !hubAccess.isAnyAllowed(aRolesAllowed.value()))
+    if (!access.isTopLevel() && Objects.isNull(aPermitAll) && !access.isAnyAllowed(aRolesAllowed.value()))
       return "user has no accessible role";
 
     // set AccessControl in context for use by resource
-    hubAccess.toContext(context);
+    access.toContext(context);
     return null; // authenticated
   }
 

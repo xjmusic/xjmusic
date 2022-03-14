@@ -100,7 +100,7 @@ public interface HubIngest {
 
    @return access
    */
-  HubAccess getHubAccess();
+  HubAccess getAccess();
 
   /**
    Get a collection of all instruments of a particular type for ingest

@@ -43,16 +43,16 @@ public interface Manager<E> {
    <p>
    [#175213519] Expect new Audios to have no waveform
 
-   @param hubAccess control
+   @param access control
    @param entity    for the new Record
    @return newly readMany record
    */
-  E create(HubAccess hubAccess, E entity) throws ManagerException, JsonapiException, ValueException;
+  E create(HubAccess access, E entity) throws ManagerException, JsonapiException, ValueException;
 
   /**
-   Delete a specified Entity@param hubAccess control@param id of specific Entity to delete.
+   Delete a specified Entity@param access control@param id of specific Entity to delete.
    */
-  void destroy(HubAccess hubAccess, UUID id) throws ManagerException;
+  void destroy(HubAccess access, UUID id) throws ManagerException;
 
   /**
    Create a new instance of this type of Entity
@@ -64,31 +64,31 @@ public interface Manager<E> {
   /**
    Fetch many records for many parents by id, if accessible
 
-   @param hubAccess control
+   @param access control
    @param parentIds to fetch records for.
    @return collection of retrieved records
    @throws ManagerException on failure
    */
-  Collection<E> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws ManagerException;
+  Collection<E> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException;
 
   /**
    Fetch one record  if accessible
 
-   @param hubAccess control
+   @param access control
    @param id        of record to fetch
    @return retrieved record
    @throws ManagerException on failure
    */
-  E readOne(HubAccess hubAccess, UUID id) throws ManagerException;
+  E readOne(HubAccess access, UUID id) throws ManagerException;
 
   /**
    Update a specified Entity
 
-   @param hubAccess control
+   @param access control
    @param id        of specific Entity to update.
    @param entity    for the updated Entity.
    */
-  E update(HubAccess hubAccess, UUID id, E entity) throws ManagerException, JsonapiException, ValueException;
+  E update(HubAccess access, UUID id, E entity) throws ManagerException, JsonapiException, ValueException;
 
   /**
    Transmogrify a jOOQ Result set into a Collection of POJO entities

@@ -27,8 +27,8 @@ import io.xj.lib.meme.MemeStack;
 import io.xj.lib.music.*;
 import io.xj.lib.util.*;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.hub_client.client.HubClientException;
-import io.xj.nexus.hub_client.client.HubContent;
+import io.xj.hub.client.HubClientException;
+import io.xj.hub.client.HubContent;
 import io.xj.nexus.persistence.*;
 import org.glassfish.jersey.internal.guava.Sets;
 import org.slf4j.Logger;
@@ -1168,7 +1168,7 @@ class FabricatorImpl implements Fabricator {
       getSegmentMemes().stream().map(SegmentMeme::toString)
     ).collect(Collectors.toSet())).isValid()) {
       addMessage(SegmentMessageType.ERROR, String.format("Refused to add Choice[%s] because the segment meme theorem would be violated by its additional Memes[%s]",
-        Segments.describe(choice), CSV.join(names)));
+        Segments.describe(choice), CSV.join(names.stream().toList())));
       return false;
     }
 

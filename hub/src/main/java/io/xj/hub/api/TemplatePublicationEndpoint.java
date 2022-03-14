@@ -84,12 +84,12 @@ public class TemplatePublicationEndpoint extends HubJsonapiEndpoint<TemplatePubl
     @PathParam("templateId") String templateId
   ) {
     try {
-      HubAccess hubAccess = HubAccess.fromContext(crc);
+      HubAccess access = HubAccess.fromContext(crc);
       JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataType(PayloadDataType.Many);
       Collection<TemplatePublication> templatePublications;
 
       // how we source templatePublications depends on the query parameters
-      templatePublications = manager().readMany(hubAccess, ImmutableList.of(UUID.fromString(templateId)));
+      templatePublications = manager().readMany(access, ImmutableList.of(UUID.fromString(templateId)));
 
       // add templatePublications as plural data in payload
       for (TemplatePublication templatePublication : templatePublications)

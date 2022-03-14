@@ -54,7 +54,7 @@ public class TemplatePlaybackEndpointTest {
   ContainerRequestContext crc;
   @Mock
   TemplatePlaybackManager templatePlaybackManager;
-  private HubAccess hubAccess;
+  private HubAccess access;
   private TemplatePlaybackEndpoint subject;
   private Template template25;
   private Template template1;
@@ -74,7 +74,7 @@ public class TemplatePlaybackEndpointTest {
     HubTopology.buildHubApiTopology(injector.getInstance(EntityFactory.class));
     Account account1 = buildAccount("Testing");
     user1 = buildUser("Joe", "joe@email.com", "joe.jpg", "User,Artist");
-    hubAccess = HubAccess.create(user1, ImmutableList.of(account1));
+    access = HubAccess.create(user1, ImmutableList.of(account1));
     template25 = buildTemplate(account1, "Testing");
     template1 = buildTemplate(account1, "Testing");
     subject = injector.getInstance(TemplatePlaybackEndpoint.class);
@@ -83,16 +83,16 @@ public class TemplatePlaybackEndpointTest {
 
   @Test
   public void readManyForTemplate() throws ManagerException, IOException, JsonapiException {
-    when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
+    when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
     TemplatePlayback templatePlayback1 = buildTemplatePlayback(template25, user1);
     TemplatePlayback templatePlayback2 = buildTemplatePlayback(template25, user1);
     Collection<TemplatePlayback> templatePlaybacks = ImmutableList.of(templatePlayback1, templatePlayback2);
-    when(templatePlaybackManager.readMany(same(hubAccess), eq(ImmutableList.of(template25.getId()))))
+    when(templatePlaybackManager.readMany(same(access), eq(ImmutableList.of(template25.getId()))))
       .thenReturn(templatePlaybacks);
 
     Response result = subject.readManyForTemplate(crc, template25.getId().toString());
 
-    verify(templatePlaybackManager).readMany(same(hubAccess), eq(ImmutableList.of(template25.getId())));
+    verify(templatePlaybackManager).readMany(same(access), eq(ImmutableList.of(template25.getId())));
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
     assertPayload(new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class))
@@ -101,9 +101,9 @@ public class TemplatePlaybackEndpointTest {
 
   @Test
   public void readOneForUser() throws ManagerException, IOException, JsonapiException {
-    when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
+    when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
     TemplatePlayback templatePlayback1 = buildTemplatePlayback(template1, user1);
-    when(templatePlaybackManager.readOneForUser(same(hubAccess), eq(user1.getId()))).thenReturn(Optional.of(templatePlayback1));
+    when(templatePlaybackManager.readOneForUser(same(access), eq(user1.getId()))).thenReturn(Optional.of(templatePlayback1));
 
     Response result = subject.readOneForUser(crc, user1.getId().toString());
 
@@ -116,8 +116,8 @@ public class TemplatePlaybackEndpointTest {
 
   @Test
   public void readOneForUser_noneFound() throws ManagerException {
-    when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
-    when(templatePlaybackManager.readOneForUser(same(hubAccess), eq(user1.getId()))).thenReturn(Optional.empty());
+    when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
+    when(templatePlaybackManager.readOneForUser(same(access), eq(user1.getId()))).thenReturn(Optional.empty());
 
     Response result = subject.readOneForUser(crc, user1.getId().toString());
 

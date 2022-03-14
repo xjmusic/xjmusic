@@ -731,7 +731,7 @@ public enum Entities {
    @return CSV of uuids
    */
   public static String csvOf(Collection<UUID> accountIds) {
-    return CSV.join(accountIds.stream().map(UUID::toString).collect(Collectors.toSet()));
+    return CSV.join(accountIds.stream().map(UUID::toString).toList());
   }
 
 }

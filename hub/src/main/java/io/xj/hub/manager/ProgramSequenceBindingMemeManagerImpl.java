@@ -31,11 +31,11 @@ public class ProgramSequenceBindingMemeManagerImpl extends HubPersistenceService
   }
 
   @Override
-  public ProgramSequenceBindingMeme create(HubAccess hubAccess, ProgramSequenceBindingMeme rawMeme) throws ManagerException, JsonapiException, ValueException {
+  public ProgramSequenceBindingMeme create(HubAccess access, ProgramSequenceBindingMeme rawMeme) throws ManagerException, JsonapiException, ValueException {
     DSLContext db = dbProvider.getDSL();
     var meme = validate(rawMeme);
-    requireArtist(hubAccess);
-    requireProgramModification(db, hubAccess, meme.getProgramId());
+    requireArtist(access);
+    requireProgramModification(db, access, meme.getProgramId());
 
     return modelFrom(ProgramSequenceBindingMeme.class,
       executeCreate(db, PROGRAM_SEQUENCE_BINDING_MEME, meme));
@@ -43,9 +43,9 @@ public class ProgramSequenceBindingMemeManagerImpl extends HubPersistenceService
 
   @Override
   @Nullable
-  public ProgramSequenceBindingMeme readOne(HubAccess hubAccess, UUID id) throws ManagerException {
-    requireArtist(hubAccess);
-    if (hubAccess.isTopLevel())
+  public ProgramSequenceBindingMeme readOne(HubAccess access, UUID id) throws ManagerException {
+    requireArtist(access);
+    if (access.isTopLevel())
       return modelFrom(ProgramSequenceBindingMeme.class,
         dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_BINDING_MEME)
           .where(PROGRAM_SEQUENCE_BINDING_MEME.ID.eq(id))
@@ -56,15 +56,15 @@ public class ProgramSequenceBindingMemeManagerImpl extends HubPersistenceService
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM_SEQUENCE_BINDING_MEME.ID.eq(id))
-          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
           .fetchOne());
   }
 
   @Override
   @Nullable
-  public Collection<ProgramSequenceBindingMeme> readMany(HubAccess hubAccess, Collection<UUID> programIds) throws ManagerException {
-    requireArtist(hubAccess);
-    if (hubAccess.isTopLevel())
+  public Collection<ProgramSequenceBindingMeme> readMany(HubAccess access, Collection<UUID> programIds) throws ManagerException {
+    requireArtist(access);
+    if (access.isTopLevel())
       return modelsFrom(ProgramSequenceBindingMeme.class,
         dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_BINDING_MEME)
           .where(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID.in(programIds))
@@ -75,34 +75,34 @@ public class ProgramSequenceBindingMemeManagerImpl extends HubPersistenceService
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID.in(programIds))
-          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
           .fetch());
   }
 
   @Override
-  public ProgramSequenceBindingMeme update(HubAccess hubAccess, UUID id, ProgramSequenceBindingMeme rawMeme) throws ManagerException, JsonapiException, ValueException {
+  public ProgramSequenceBindingMeme update(HubAccess access, UUID id, ProgramSequenceBindingMeme rawMeme) throws ManagerException, JsonapiException, ValueException {
     DSLContext db = dbProvider.getDSL();
     requireAny("Same id", Objects.equals(id, rawMeme.getId()));
     var meme = validate(rawMeme);
-    requireArtist(hubAccess);
-    requireProgramModification(db, hubAccess, meme.getProgramId());
+    requireArtist(access);
+    requireProgramModification(db, access, meme.getProgramId());
 
     executeUpdate(db, PROGRAM_SEQUENCE_BINDING_MEME, id, meme);
     return meme;
   }
 
   @Override
-  public void destroy(HubAccess hubAccess, UUID id) throws ManagerException {
+  public void destroy(HubAccess access, UUID id) throws ManagerException {
     DSLContext db = dbProvider.getDSL();
-    requireArtist(hubAccess);
+    requireArtist(access);
 
-    if (!hubAccess.isTopLevel())
+    if (!access.isTopLevel())
       requireExists("Meme belongs to Program in Account you have access to", db.selectCount()
         .from(PROGRAM_SEQUENCE_BINDING_MEME)
         .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
         .where(PROGRAM_SEQUENCE_BINDING_MEME.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
 
     db.deleteFrom(PROGRAM_SEQUENCE_BINDING_MEME)

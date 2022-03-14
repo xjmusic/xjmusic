@@ -65,20 +65,20 @@ public class HubEndpointTest {
 
   @Test
   public void create() throws JsonapiException, ValueException, ManagerException {
-    HubAccess hubAccess = HubAccess.internal();
+    HubAccess access = HubAccess.internal();
     JsonapiPayload jsonapiPayload = payloadFactory.newJsonapiPayload()
       .setDataOne(payloadFactory.newPayloadObject()
         .setType(Account.class)
         .setAttribute("name", "test5"));
-    when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
+    when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
     when(manager.newInstance()).thenReturn(buildAccount("Testing"));
     var createdAccount = buildAccount("Testing");
     createdAccount.setName("test5");
-    when(manager.create(same(hubAccess), any(Account.class))).thenReturn(createdAccount);
+    when(manager.create(same(access), any(Account.class))).thenReturn(createdAccount);
 
     Response result = subject.create(crc, manager, jsonapiPayload);
 
-    verify(manager, times(1)).create(same(hubAccess), any(Account.class));
+    verify(manager, times(1)).create(same(access), any(Account.class));
     assertEquals(201, result.getStatus());
     JsonapiPayload resultJsonapiPayload = payloadFactory.deserialize(String.valueOf(result.getEntity()));
     (new AssertPayload(resultJsonapiPayload)).hasDataOne(createdAccount);

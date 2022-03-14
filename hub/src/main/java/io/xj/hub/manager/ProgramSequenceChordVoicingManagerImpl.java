@@ -30,11 +30,11 @@ public class ProgramSequenceChordVoicingManagerImpl extends HubPersistenceServic
   }
 
   @Override
-  public ProgramSequenceChordVoicing create(HubAccess hubAccess, ProgramSequenceChordVoicing entity) throws ManagerException, JsonapiException, ValueException {
+  public ProgramSequenceChordVoicing create(HubAccess access, ProgramSequenceChordVoicing entity) throws ManagerException, JsonapiException, ValueException {
     DSLContext db = dbProvider.getDSL();
     validate(entity);
-    requireArtist(hubAccess);
-    requireProgramModification(db, hubAccess, entity.getProgramId());
+    requireArtist(access);
+    requireProgramModification(db, access, entity.getProgramId());
     requireNotExists(String.format("Can't create another %s-type voicing for this chord!", entity.getType()),
       db.select(PROGRAM_SEQUENCE_CHORD_VOICING.ID)
         .from(PROGRAM_SEQUENCE_CHORD_VOICING)
@@ -48,9 +48,9 @@ public class ProgramSequenceChordVoicingManagerImpl extends HubPersistenceServic
 
   @Override
   @Nullable
-  public ProgramSequenceChordVoicing readOne(HubAccess hubAccess, UUID id) throws ManagerException {
-    requireArtist(hubAccess);
-    if (hubAccess.isTopLevel())
+  public ProgramSequenceChordVoicing readOne(HubAccess access, UUID id) throws ManagerException {
+    requireArtist(access);
+    if (access.isTopLevel())
       return modelFrom(ProgramSequenceChordVoicing.class,
         dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_CHORD_VOICING)
           .where(PROGRAM_SEQUENCE_CHORD_VOICING.ID.eq(id))
@@ -61,15 +61,15 @@ public class ProgramSequenceChordVoicingManagerImpl extends HubPersistenceServic
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM_SEQUENCE_CHORD_VOICING.ID.eq(id))
-          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
           .fetchOne());
   }
 
   @Override
   @Nullable
-  public Collection<ProgramSequenceChordVoicing> readMany(HubAccess hubAccess, Collection<UUID> programIds) throws ManagerException {
-    requireArtist(hubAccess);
-    if (hubAccess.isTopLevel())
+  public Collection<ProgramSequenceChordVoicing> readMany(HubAccess access, Collection<UUID> programIds) throws ManagerException {
+    requireArtist(access);
+    if (access.isTopLevel())
       return modelsFrom(ProgramSequenceChordVoicing.class,
         dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_CHORD_VOICING)
           .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_ID.in(programIds))
@@ -80,17 +80,17 @@ public class ProgramSequenceChordVoicingManagerImpl extends HubPersistenceServic
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_ID.in(programIds))
-          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
           .fetch());
   }
 
   @Override
-  public ProgramSequenceChordVoicing update(HubAccess hubAccess, UUID id, ProgramSequenceChordVoicing entity) throws ManagerException, JsonapiException, ValueException {
+  public ProgramSequenceChordVoicing update(HubAccess access, UUID id, ProgramSequenceChordVoicing entity) throws ManagerException, JsonapiException, ValueException {
     DSLContext db = dbProvider.getDSL();
     requireAny("Same id", Objects.equals(id, entity.getId()));
     validate(entity);
-    requireArtist(hubAccess);
-    requireProgramModification(db, hubAccess, entity.getProgramId());
+    requireArtist(access);
+    requireProgramModification(db, access, entity.getProgramId());
     requireNotExists(String.format("Can't change to %s-type voicing for this chord because it already exists!", entity.getType()),
       db.select(PROGRAM_SEQUENCE_CHORD_VOICING.ID)
         .from(PROGRAM_SEQUENCE_CHORD_VOICING)
@@ -103,17 +103,17 @@ public class ProgramSequenceChordVoicingManagerImpl extends HubPersistenceServic
   }
 
   @Override
-  public void destroy(HubAccess hubAccess, UUID id) throws ManagerException {
+  public void destroy(HubAccess access, UUID id) throws ManagerException {
     DSLContext db = dbProvider.getDSL();
-    requireArtist(hubAccess);
+    requireArtist(access);
 
-    if (!hubAccess.isTopLevel())
+    if (!access.isTopLevel())
       requireExists("Voicing belongs to Program in Account you have access to", db.selectCount()
         .from(PROGRAM_SEQUENCE_CHORD_VOICING)
         .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
         .where(PROGRAM_SEQUENCE_CHORD_VOICING.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
 
     db.deleteFrom(PROGRAM_SEQUENCE_CHORD_VOICING)

@@ -57,7 +57,7 @@ public class InstrumentEndpointTest {
   ContainerRequestContext crc;
   @Mock
   InstrumentManager instrumentManager;
-  private HubAccess hubAccess;
+  private HubAccess access;
   private InstrumentEndpoint subject;
   private Library library25;
   private Library library1;
@@ -75,7 +75,7 @@ public class InstrumentEndpointTest {
 
     HubTopology.buildHubApiTopology(injector.getInstance(EntityFactory.class));
     var account1 = buildAccount("Testing");
-    hubAccess = HubAccess.create(ImmutableList.of(account1), "User,Artist");
+    access = HubAccess.create(ImmutableList.of(account1), "User,Artist");
     library25 = buildLibrary(account1, "Test 25");
     library1 = buildLibrary(account1, "Test 1");
     subject = injector.getInstance(InstrumentEndpoint.class);
@@ -84,7 +84,7 @@ public class InstrumentEndpointTest {
 
   @Test
   public void readMany() throws ManagerException, IOException, JsonapiException {
-    when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
+    when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
     Instrument instrument1 = new Instrument();
     instrument1.setId(UUID.randomUUID());
     instrument1.setLibraryId(library25.getId());
@@ -100,12 +100,12 @@ public class InstrumentEndpointTest {
     instrument2.setName("trunk");
     instrument2.setDensity(0.6f);
     Collection<Instrument> instruments = ImmutableList.of(instrument1, instrument2);
-    when(instrumentManager.readMany(same(hubAccess), eq(ImmutableList.of(library25.getId()))))
+    when(instrumentManager.readMany(same(access), eq(ImmutableList.of(library25.getId()))))
       .thenReturn(instruments);
 
     Response result = subject.readMany(crc, null, library25.getId().toString(), false);
 
-    verify(instrumentManager).readMany(same(hubAccess), eq(ImmutableList.of(library25.getId())));
+    verify(instrumentManager).readMany(same(access), eq(ImmutableList.of(library25.getId())));
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
     assertPayload(new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class))
@@ -114,7 +114,7 @@ public class InstrumentEndpointTest {
 
   @Test
   public void readOne() throws ManagerException, IOException, JsonapiException {
-    when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
+    when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
     Instrument instrument1 = new Instrument();
     instrument1.setId(UUID.randomUUID());
     instrument1.setLibraryId(library1.getId());
@@ -122,7 +122,7 @@ public class InstrumentEndpointTest {
     instrument1.setState(InstrumentState.Published);
     instrument1.setName("fonds");
     instrument1.setDensity(0.6f);
-    when(instrumentManager.readOne(same(hubAccess), eq(instrument1.getId()))).thenReturn(instrument1);
+    when(instrumentManager.readOne(same(access), eq(instrument1.getId()))).thenReturn(instrument1);
 
     Response result = subject.readOne(crc, instrument1.getId().toString(), "");
 
@@ -138,11 +138,11 @@ public class InstrumentEndpointTest {
    */
   @Test
   public void readOne_includingMemes() throws ManagerException, IOException, JsonapiException {
-    when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
+    when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
     var instrument1 = buildInstrument(library1, InstrumentType.Drum, InstrumentMode.NoteEvent, InstrumentState.Published, "test");
     var instrumentMeme1 = buildInstrumentMeme(instrument1, "RED");
-    when(instrumentManager.readOne(same(hubAccess), eq(instrument1.getId()))).thenReturn(instrument1);
-    when(instrumentManager.readChildEntities(same(hubAccess), eq(List.of(instrument1.getId())), eq(List.of("instrument-meme")))).thenReturn(List.of(instrumentMeme1));
+    when(instrumentManager.readOne(same(access), eq(instrument1.getId()))).thenReturn(instrument1);
+    when(instrumentManager.readChildEntities(same(access), eq(List.of(instrument1.getId())), eq(List.of("instrument-meme")))).thenReturn(List.of(instrumentMeme1));
 
     Response result = subject.readOne(crc, instrument1.getId().toString(), "instrument-meme");
 

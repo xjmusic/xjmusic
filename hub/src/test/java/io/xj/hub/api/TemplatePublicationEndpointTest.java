@@ -57,7 +57,7 @@ public class TemplatePublicationEndpointTest {
   ContainerRequestContext crc;
   @Mock
   TemplatePublicationManager templatePublicationManager;
-  private HubAccess hubAccess;
+  private HubAccess access;
   private TemplatePublicationEndpoint subject;
   private Template template25;
   private User user1;
@@ -76,7 +76,7 @@ public class TemplatePublicationEndpointTest {
     HubTopology.buildHubApiTopology(injector.getInstance(EntityFactory.class));
     Account account1 = buildAccount("Testing");
     user1 = buildUser("Joe", "joe@email.com", "joe.jpg", "User,Artist");
-    hubAccess = HubAccess.create(user1, ImmutableList.of(account1));
+    access = HubAccess.create(user1, ImmutableList.of(account1));
     template25 = buildTemplate(account1, "Testing");
     subject = injector.getInstance(TemplatePublicationEndpoint.class);
     injector.injectMembers(subject);
@@ -84,16 +84,16 @@ public class TemplatePublicationEndpointTest {
 
   @Test
   public void readManyForTemplate() throws ManagerException, IOException, JsonapiException {
-    when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
+    when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
     TemplatePublication templatePublication1 = buildTemplatePublication(template25, user1);
     TemplatePublication templatePublication2 = buildTemplatePublication(template25, user1);
     Collection<TemplatePublication> templatePublications = ImmutableList.of(templatePublication1, templatePublication2);
-    when(templatePublicationManager.readMany(same(hubAccess), eq(ImmutableList.of(template25.getId()))))
+    when(templatePublicationManager.readMany(same(access), eq(ImmutableList.of(template25.getId()))))
       .thenReturn(templatePublications);
 
     Response result = subject.readManyForTemplate(crc, template25.getId().toString());
 
-    verify(templatePublicationManager).readMany(same(hubAccess), eq(ImmutableList.of(template25.getId())));
+    verify(templatePublicationManager).readMany(same(access), eq(ImmutableList.of(template25.getId())));
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
     assertPayload(new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class))

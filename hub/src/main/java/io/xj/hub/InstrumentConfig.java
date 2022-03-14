@@ -88,7 +88,7 @@ public class InstrumentConfig {
     config.put("isOneShot", isOneShot.toString());
     config.put("isOneShotCutoffEnabled", isOneShotCutoffEnabled.toString());
     config.put("isTonal", isTonal.toString());
-    config.put("oneShotObserveLengthOfEvents", String.format("[%s]", CSV.join(oneShotObserveLengthOfEvents)));
+    config.put("oneShotObserveLengthOfEvents", String.format("[%s]", CSV.join(oneShotObserveLengthOfEvents.stream().sorted().toList())));
     return Text.formatMultiline(config.entrySet().stream()
       .sorted(Map.Entry.comparingByKey())
       .map(pair -> String.format("%s = %s", pair.getKey(), pair.getValue()))

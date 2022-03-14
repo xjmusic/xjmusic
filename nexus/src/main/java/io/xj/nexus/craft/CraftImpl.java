@@ -24,7 +24,7 @@ import io.xj.nexus.fabricator.FabricationWrapperImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.MemeIsometry;
 import io.xj.nexus.fabricator.NameIsometry;
-import io.xj.nexus.hub_client.client.HubClientException;
+import io.xj.hub.client.HubClientException;
 
 import javax.annotation.Nullable;
 import java.util.*;

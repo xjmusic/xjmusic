@@ -54,7 +54,7 @@ public class TemplateEndpointTest {
   ContainerRequestContext crc;
   @Mock
   TemplateManager templateManager;
-  private HubAccess hubAccess;
+  private HubAccess access;
   private TemplateEndpoint subject;
   private Account account25;
   private Account account1;
@@ -72,7 +72,7 @@ public class TemplateEndpointTest {
 
     HubTopology.buildHubApiTopology(injector.getInstance(EntityFactory.class));
     account1 = buildAccount("Testing Account 1");
-    hubAccess = HubAccess.create(ImmutableList.of(account1), "User,Artist");
+    access = HubAccess.create(ImmutableList.of(account1), "User,Artist");
     account25 = buildAccount("Testing Account 25");
     subject = injector.getInstance(TemplateEndpoint.class);
     injector.injectMembers(subject);
@@ -80,16 +80,16 @@ public class TemplateEndpointTest {
 
   @Test
   public void readMany() throws ManagerException, IOException, JsonapiException {
-    when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
+    when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
     Template template1 = buildTemplate(account25, "fonds", "ABC");
     Template template2 = buildTemplate(account25, "trunk", "DEF");
     Collection<Template> templates = ImmutableList.of(template1, template2);
-    when(templateManager.readMany(same(hubAccess), eq(ImmutableList.of(account25.getId()))))
+    when(templateManager.readMany(same(access), eq(ImmutableList.of(account25.getId()))))
       .thenReturn(templates);
 
     Response result = subject.readMany(crc, account25.getId().toString());
 
-    verify(templateManager).readMany(same(hubAccess), eq(ImmutableList.of(account25.getId())));
+    verify(templateManager).readMany(same(access), eq(ImmutableList.of(account25.getId())));
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
     assertPayload(new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class))
@@ -98,16 +98,16 @@ public class TemplateEndpointTest {
 
   @Test
   public void readMany_forTemplateAndUser() throws ManagerException, IOException, JsonapiException {
-    when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
+    when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
     Template template1 = buildTemplate(account25, "fonds", "ABC");
     Template template2 = buildTemplate(account25, "trunk", "DEF");
     Collection<Template> templates = ImmutableList.of(template1, template2);
-    when(templateManager.readMany(same(hubAccess), eq(ImmutableList.of(account25.getId()))))
+    when(templateManager.readMany(same(access), eq(ImmutableList.of(account25.getId()))))
       .thenReturn(templates);
 
     Response result = subject.readMany(crc, account25.getId().toString());
 
-    verify(templateManager).readMany(same(hubAccess), eq(ImmutableList.of(account25.getId())));
+    verify(templateManager).readMany(same(access), eq(ImmutableList.of(account25.getId())));
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
     assertPayload(new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class))
@@ -116,9 +116,9 @@ public class TemplateEndpointTest {
 
   @Test
   public void readOne() throws ManagerException, IOException, JsonapiException {
-    when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
+    when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
     Template template1 = buildTemplate(account1, "fonds", "ABC");
-    when(templateManager.readOne(same(hubAccess), eq(template1.getId()))).thenReturn(template1);
+    when(templateManager.readOne(same(access), eq(template1.getId()))).thenReturn(template1);
 
     Response result = subject.readOne(crc, template1.getId().toString(), "");
 
@@ -134,7 +134,7 @@ public class TemplateEndpointTest {
    */
   @Test
   public void readOne_includingBindingsAndPlaybacksAndPublications() throws ManagerException, IOException, JsonapiException {
-    when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
+    when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
     var account1 = buildAccount("bananas");
     var user2 = buildUser("Amelie", "amelie@email.com", "https://pictures.com/amelie.gif", "Admin");
     var library3 = buildLibrary(account1, "Test Library");
@@ -142,8 +142,8 @@ public class TemplateEndpointTest {
     var templateBinding43 = buildTemplateBinding(template4, library3);
     var templatePlayback42 = buildTemplatePlayback(template4, user2);
     var templatePublication67 = buildTemplatePublication(template4, user2);
-    when(templateManager.readOne(same(hubAccess), eq(template4.getId()))).thenReturn(template4);
-    when(templateManager.readChildEntities(same(hubAccess), eq(List.of(template4.getId())), eq(List.of("template-bindings", "template-playbacks", "template-publications"))))
+    when(templateManager.readOne(same(access), eq(template4.getId()))).thenReturn(template4);
+    when(templateManager.readChildEntities(same(access), eq(List.of(template4.getId())), eq(List.of("template-bindings", "template-playbacks", "template-publications"))))
       .thenReturn(List.of(templateBinding43, templatePlayback42, templatePublication67));
 
     Response result = subject.readOne(crc, template4.getId().toString(), "template-bindings,template-playbacks,template-publications");
@@ -159,9 +159,9 @@ public class TemplateEndpointTest {
 
   @Test
   public void readOne_byShipKey() throws ManagerException, IOException, JsonapiException {
-    when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
+    when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
     Template template1 = buildTemplate(account1, "fonds", "ABC");
-    when(templateManager.readOneByShipKey(same(hubAccess), eq("ABC"))).thenReturn(Optional.of(template1));
+    when(templateManager.readOneByShipKey(same(access), eq("ABC"))).thenReturn(Optional.of(template1));
 
     Response result = subject.readOne(crc, "ABC", "");
 

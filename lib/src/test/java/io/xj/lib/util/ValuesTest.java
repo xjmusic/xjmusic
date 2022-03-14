@@ -62,6 +62,12 @@ public class ValuesTest {
   }
 
   @Test
+  public void formatRfc1123UTC() {
+    assertEquals("Tue, 12 Aug 2014 12:17:02 GMT",
+      Values.formatRfc1123UTC(Instant.parse("2014-08-12T12:17:02.527142Z")));
+  }
+
+  @Test
   public void without() {
     assertArrayEquals(new String[]{"A", "B", "C"}, Values.without("D", new String[]{"A", "B", "C", "D"}));
   }

@@ -73,11 +73,11 @@ public class LibraryEndpoint extends HubJsonapiEndpoint<Library> {
   ) {
 
     try {
-      HubAccess hubAccess = HubAccess.fromContext(crc);
+      HubAccess access = HubAccess.fromContext(crc);
       Library library = payloadFactory.consume(manager().newInstance(), jsonapiPayload);
       JsonapiPayload responseJsonapiPayload = new JsonapiPayload();
       if (Objects.nonNull(cloneId)) {
-        ManagerCloner<Library> cloner = manager().clone(hubAccess, UUID.fromString(cloneId), library);
+        ManagerCloner<Library> cloner = manager().clone(access, UUID.fromString(cloneId), library);
         responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(cloner.getClone()));
         List<JsonapiPayloadObject> list = new ArrayList<>();
         for (Object entity : cloner.getChildClones()) {
@@ -86,7 +86,7 @@ public class LibraryEndpoint extends HubJsonapiEndpoint<Library> {
         }
         responseJsonapiPayload.setIncluded(list);
       } else {
-        responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(manager().create(hubAccess, library)));
+        responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(manager().create(access, library)));
       }
 
       return response.create(responseJsonapiPayload);

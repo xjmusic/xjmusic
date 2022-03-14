@@ -60,8 +60,8 @@ public class HubJsonapiEndpoint<E> extends HubPersistenceServiceImpl<E> {
    */
   public <N> Response create(ContainerRequestContext crc, Manager<N> manager, JsonapiPayload jsonapiPayload) {
     try {
-      HubAccess hubAccess = HubAccess.fromContext(crc);
-      N createdEntity = manager.create(hubAccess, payloadFactory.consume(manager.newInstance(), jsonapiPayload));
+      HubAccess access = HubAccess.fromContext(crc);
+      N createdEntity = manager.create(access, payloadFactory.consume(manager.newInstance(), jsonapiPayload));
 
       JsonapiPayload responseData = new JsonapiPayload();
       responseData.setDataOne(payloadFactory.toPayloadObject(createdEntity));
@@ -147,8 +147,8 @@ public class HubJsonapiEndpoint<E> extends HubPersistenceServiceImpl<E> {
    */
   public <N> Response update(ContainerRequestContext crc, Manager<N> manager, String id, JsonapiPayload jsonapiPayload) {
     try {
-      HubAccess hubAccess = HubAccess.fromContext(crc);
-      N updated = manager.update(hubAccess, UUID.fromString(id), payloadFactory.consume(manager.readOne(hubAccess, UUID.fromString(id)), jsonapiPayload));
+      HubAccess access = HubAccess.fromContext(crc);
+      N updated = manager.update(access, UUID.fromString(id), payloadFactory.consume(manager.readOne(access, UUID.fromString(id)), jsonapiPayload));
       return response.ok(new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(updated)));
 
     } catch (Exception e) {
@@ -167,11 +167,11 @@ public class HubJsonapiEndpoint<E> extends HubPersistenceServiceImpl<E> {
    */
   public <N> Response updateMany(ContainerRequestContext crc, Manager<N> manager, JsonapiPayload jsonapiPayload) {
     try {
-      HubAccess hubAccess = HubAccess.fromContext(crc);
+      HubAccess access = HubAccess.fromContext(crc);
       var result = new JsonapiPayload().setDataType(PayloadDataType.Many);
       for (var toUpdate : jsonapiPayload.getDataMany()) {
-        N updated = payloadFactory.consume(manager.readOne(hubAccess, UUID.fromString(toUpdate.getId())), toUpdate);
-        manager.update(hubAccess, UUID.fromString(toUpdate.getId()), updated);
+        N updated = payloadFactory.consume(manager.readOne(access, UUID.fromString(toUpdate.getId())), toUpdate);
+        manager.update(access, UUID.fromString(toUpdate.getId()), updated);
         result.addData(payloadFactory.toPayloadObject(updated));
       }
       return response.ok(result);

@@ -45,7 +45,7 @@ public interface ProgramManager extends Manager<Program> {
   Collection<Object> readChildEntities(HubAccess access, Collection<UUID> programIds, Collection<String> types) throws ManagerException;
 
   /**
-   Fetch all program visible to given hubAccess
+   Fetch all program visible to given access
 
    @param access control
    @return JSONArray of programs.

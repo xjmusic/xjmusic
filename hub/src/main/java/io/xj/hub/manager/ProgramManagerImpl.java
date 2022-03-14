@@ -37,9 +37,9 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
   }
 
   @Override
-  public Program create(HubAccess hubAccess, Program rawProgram) throws ManagerException, JsonapiException, ValueException {
+  public Program create(HubAccess access, Program rawProgram) throws ManagerException, JsonapiException, ValueException {
     var program = validate(rawProgram);
-    requireArtist(hubAccess);
+    requireArtist(access);
     return modelFrom(Program.class, executeCreate(dbProvider.getDSL(), PROGRAM, program));
   }
 
@@ -123,13 +123,13 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
 
 
   @Override
-  public Program readOne(HubAccess hubAccess, UUID id) throws ManagerException {
-    return readOne(dbProvider.getDSL(), hubAccess, id);
+  public Program readOne(HubAccess access, UUID id) throws ManagerException {
+    return readOne(dbProvider.getDSL(), access, id);
   }
 
   @Override
-  public Collection<Program> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws ManagerException {
-    if (hubAccess.isTopLevel())
+  public Collection<Program> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
+    if (access.isTopLevel())
       return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
         .where(PROGRAM.LIBRARY_ID.in(parentIds))
         .and(PROGRAM.IS_DELETED.eq(false))
@@ -140,7 +140,7 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
         .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
         .where(PROGRAM.LIBRARY_ID.in(parentIds))
         .and(PROGRAM.IS_DELETED.eq(false))
-        .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(PROGRAM.TYPE, PROGRAM.NAME)
         .fetch());
   }
@@ -251,26 +251,26 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
   }
 
   @Override
-  public Program update(HubAccess hubAccess, UUID id, Program rawProgram) throws ManagerException, JsonapiException, ValueException {
+  public Program update(HubAccess access, UUID id, Program rawProgram) throws ManagerException, JsonapiException, ValueException {
     var builder = validate(rawProgram);
 
-    requireArtist(hubAccess);
+    requireArtist(access);
     DSLContext db = dbProvider.getDSL();
-    readOne(db, hubAccess, id);
+    readOne(db, access, id);
 
     executeUpdate(db, PROGRAM, id, builder);
     return builder;
   }
 
   @Override
-  public void destroy(HubAccess hubAccess, UUID id) throws ManagerException {
+  public void destroy(HubAccess access, UUID id) throws ManagerException {
     DSLContext db = dbProvider.getDSL();
 
-    if (!hubAccess.isTopLevel())
+    if (!access.isTopLevel())
       requireExists("Program belonging to you", db.selectCount().from(PROGRAM)
         .join(LIBRARY).on(PROGRAM.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PROGRAM.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .and(PROGRAM.IS_DELETED.eq(false))
         .fetchOne(0, int.class));
 
@@ -328,20 +328,20 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
   }
 
   /**
-   Require read hubAccess
+   Require read access
 
    @param db         database context
-   @param hubAccess  control
+   @param access  control
    @param programIds to require access to
    */
-  private void requireRead(DSLContext db, HubAccess hubAccess, Collection<UUID> programIds) throws ManagerException {
-    if (!hubAccess.isTopLevel())
+  private void requireRead(DSLContext db, HubAccess access, Collection<UUID> programIds) throws ManagerException {
+    if (!access.isTopLevel())
       for (UUID programId : programIds)
         requireExists("Program", db.selectCount().from(PROGRAM)
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM.ID.eq(programId))
           .and(PROGRAM.IS_DELETED.eq(false))
-          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
           .fetchOne(0, int.class));
   }
 
@@ -349,13 +349,13 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
    Read one record
 
    @param db        DSL context
-   @param hubAccess control
+   @param access control
    @param id        to read
    @return record
    @throws ManagerException on failure
    */
-  private Program readOne(DSLContext db, HubAccess hubAccess, UUID id) throws ManagerException {
-    if (hubAccess.isTopLevel())
+  private Program readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+    if (access.isTopLevel())
       return modelFrom(Program.class,
         db.selectFrom(PROGRAM)
           .where(PROGRAM.ID.eq(id))
@@ -368,7 +368,7 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM.ID.eq(id))
           .and(PROGRAM.IS_DELETED.eq(false))
-          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
           .fetchOne());
   }
 
@@ -376,18 +376,18 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
    Require parent program exists of a given possible entity in a DSL context
 
    @param db        DSL context
-   @param hubAccess control
+   @param access control
    @param entity    to validate
    @throws ManagerException if parent does not exist
    */
-  private void requireParentExists(DSLContext db, HubAccess hubAccess, Program entity) throws ManagerException {
-    if (hubAccess.isTopLevel())
+  private void requireParentExists(DSLContext db, HubAccess access, Program entity) throws ManagerException {
+    if (access.isTopLevel())
       requireExists("Library", db.selectCount().from(LIBRARY)
         .where(LIBRARY.ID.eq(entity.getLibraryId()))
         .fetchOne(0, int.class));
     else
       requireExists("Library", db.selectCount().from(LIBRARY)
-        .where(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .and(LIBRARY.ID.eq(entity.getLibraryId()))
         .fetchOne(0, int.class));
   }

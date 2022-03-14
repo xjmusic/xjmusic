@@ -42,20 +42,20 @@ public interface UserManager extends Manager<User> {
   void destroyAllTokens(UUID userId) throws ManagerException;
 
   /**
-   (ADMIN ONLY) read one user hubAccess token
+   (ADMIN ONLY) read one user access token
 
-   @param hubAccess   control
+   @param access   control
    @param accessToken to read
    @return model
    */
-  UserAuthToken readOneAuthToken(HubAccess hubAccess, String accessToken) throws ManagerException;
+  UserAuthToken readOneAuthToken(HubAccess access, String accessToken) throws ManagerException;
 
   /**
    (ADMIN ONLY) read one user auth
 
-   @param hubAccess  control
+   @param access  control
    @param userAuthId to read
    @return model
    */
-  UserAuth readOneAuth(HubAccess hubAccess, UUID userAuthId) throws ManagerException;
+  UserAuth readOneAuth(HubAccess access, UUID userAuthId) throws ManagerException;
 }

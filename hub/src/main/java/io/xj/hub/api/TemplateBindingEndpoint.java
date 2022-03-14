@@ -58,12 +58,12 @@ public class TemplateBindingEndpoint extends HubJsonapiEndpoint<TemplateBinding>
     @QueryParam("detailed") Boolean detailed
   ) {
     try {
-      HubAccess hubAccess = HubAccess.fromContext(crc);
+      HubAccess access = HubAccess.fromContext(crc);
       JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataType(PayloadDataType.Many);
       Collection<TemplateBinding> templateBindings;
 
       // how we source templateBindings depends on the query parameters
-      templateBindings = manager().readMany(hubAccess, ImmutableList.of(UUID.fromString(templateId)));
+      templateBindings = manager().readMany(access, ImmutableList.of(UUID.fromString(templateId)));
 
       // add templateBindings as plural data in payload
       for (TemplateBinding templateBinding : templateBindings)

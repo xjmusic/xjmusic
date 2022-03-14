@@ -13,7 +13,7 @@ import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.nexus.NexusTopology;
-import io.xj.nexus.hub_client.client.HubClientAccess;
+import io.xj.hub.client.HubClientAccess;
 import io.xj.nexus.persistence.*;
 import org.junit.Before;
 import org.junit.Test;

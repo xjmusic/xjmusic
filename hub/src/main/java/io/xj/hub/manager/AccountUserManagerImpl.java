@@ -27,9 +27,9 @@ public class AccountUserManagerImpl extends HubPersistenceServiceImpl<AccountUse
   }
 
   @Override
-  public AccountUser create(HubAccess hubAccess, AccountUser entity) throws ManagerException, JsonapiException, ValueException {
+  public AccountUser create(HubAccess access, AccountUser entity) throws ManagerException, JsonapiException, ValueException {
     validate(entity);
-    requireTopLevel(hubAccess);
+    requireTopLevel(access);
 
     if (null != dbProvider.getDSL().selectFrom(ACCOUNT_USER)
       .where(ACCOUNT_USER.ACCOUNT_ID.eq(entity.getAccountId()))
@@ -41,39 +41,39 @@ public class AccountUserManagerImpl extends HubPersistenceServiceImpl<AccountUse
   }
 
   @Override
-  public AccountUser readOne(HubAccess hubAccess, UUID id) throws ManagerException {
-    if (hubAccess.isTopLevel())
+  public AccountUser readOne(HubAccess access, UUID id) throws ManagerException {
+    if (access.isTopLevel())
       return modelFrom(AccountUser.class, dbProvider.getDSL().selectFrom(ACCOUNT_USER)
         .where(ACCOUNT_USER.ID.eq(id))
         .fetchOne());
     else
       return modelFrom(AccountUser.class, dbProvider.getDSL().selectFrom(ACCOUNT_USER)
         .where(ACCOUNT_USER.ID.eq(id))
-        .and(ACCOUNT_USER.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(ACCOUNT_USER.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne());
   }
 
   @Override
-  public Collection<AccountUser> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws ManagerException {
-    if (hubAccess.isTopLevel())
+  public Collection<AccountUser> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
+    if (access.isTopLevel())
       return modelsFrom(AccountUser.class, dbProvider.getDSL().selectFrom(ACCOUNT_USER)
         .where(ACCOUNT_USER.ACCOUNT_ID.in(parentIds))
         .fetch());
     else
       return modelsFrom(AccountUser.class, dbProvider.getDSL().selectFrom(ACCOUNT_USER)
         .where(ACCOUNT_USER.ACCOUNT_ID.in(parentIds))
-        .and(ACCOUNT_USER.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(ACCOUNT_USER.ACCOUNT_ID.in(access.getAccountIds()))
         .fetch());
   }
 
   @Override
-  public AccountUser update(HubAccess hubAccess, UUID id, AccountUser entity) throws ManagerException {
+  public AccountUser update(HubAccess access, UUID id, AccountUser entity) throws ManagerException {
     throw new ManagerException("Not allowed to update AccountUser record.");
   }
 
   @Override
-  public void destroy(HubAccess hubAccess, UUID id) throws ManagerException {
-    requireTopLevel(hubAccess);
+  public void destroy(HubAccess access, UUID id) throws ManagerException {
+    requireTopLevel(access);
     dbProvider.getDSL().deleteFrom(ACCOUNT_USER)
       .where(ACCOUNT_USER.ID.eq(id))
       .execute();

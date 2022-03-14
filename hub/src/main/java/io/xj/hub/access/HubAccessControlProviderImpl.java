@@ -64,10 +64,10 @@ class HubAccessControlProviderImpl implements HubAccessControlProvider {
   @Override
   public String create(User user, UserAuth userAuth, Collection<AccountUser> accountUsers) throws HubAccessException {
     String accessToken = hubAccessTokenGenerator.generate();
-    HubAccess hubAccess = HubAccess.create(user, userAuth, accountUsers.stream().map(AccountUser::getAccountId).collect(Collectors.toList()));
+    HubAccess access = HubAccess.create(user, userAuth, accountUsers.stream().map(AccountUser::getAccountId).collect(Collectors.toList()));
     Jedis client = hubRedisProvider.getClient();
     try {
-      client.set(computeKey(accessToken), entityFactory.serialize(hubAccess));
+      client.set(computeKey(accessToken), entityFactory.serialize(access));
       client.close();
     } catch (Exception e) {
       client.close();
@@ -96,10 +96,10 @@ class HubAccessControlProviderImpl implements HubAccessControlProvider {
 
     Jedis client = hubRedisProvider.getClient();
     try {
-      HubAccess hubAccess = entityFactory.deserialize(HubAccess.class, client.get(computeKey(token)));
+      HubAccess access = entityFactory.deserialize(HubAccess.class, client.get(computeKey(token)));
       client.close();
-      if (Objects.isNull(hubAccess)) throw new HubAccessException("Token does not exist!");
-      return hubAccess;
+      if (Objects.isNull(access)) throw new HubAccessException("Token does not exist!");
+      return access;
     } catch (Exception e) {
       client.close();
       throw new HubAccessException("Redis error(" + e.getClass().getName() + ")", e);

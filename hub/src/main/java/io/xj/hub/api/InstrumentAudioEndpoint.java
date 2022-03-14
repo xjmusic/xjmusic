@@ -54,13 +54,13 @@ public class InstrumentAudioEndpoint extends HubJsonapiEndpoint<InstrumentAudio>
   @RolesAllowed(ARTIST)
   public Response create(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @QueryParam("cloneId") String cloneId) {
     try {
-      HubAccess hubAccess = HubAccess.fromContext(crc);
+      HubAccess access = HubAccess.fromContext(crc);
       var instrumentAudio = payloadFactory.consume(manager().newInstance(), jsonapiPayload);
       InstrumentAudio created;
       if (Objects.nonNull(cloneId))
-        created = manager().clone(hubAccess, UUID.fromString(cloneId), instrumentAudio);
+        created = manager().clone(access, UUID.fromString(cloneId), instrumentAudio);
       else
-        created = manager().create(hubAccess, instrumentAudio);
+        created = manager().create(access, instrumentAudio);
 
       return response.create(new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(created)));
 

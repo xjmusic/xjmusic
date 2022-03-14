@@ -45,8 +45,8 @@ public class HubAccess {
    @return access control
    */
   public static HubAccess fromContext(ContainerRequestContext crc) {
-    HubAccess hubAccess = (HubAccess) crc.getProperty(CONTEXT_KEY);
-    if (Objects.nonNull(hubAccess)) return hubAccess;
+    HubAccess access = (HubAccess) crc.getProperty(CONTEXT_KEY);
+    if (Objects.nonNull(access)) return access;
     else return unauthenticated();
   }
 

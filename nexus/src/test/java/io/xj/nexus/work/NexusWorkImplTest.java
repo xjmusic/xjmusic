@@ -17,7 +17,7 @@ import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.json.JsonModule;
 import io.xj.lib.jsonapi.JsonapiModule;
 import io.xj.nexus.NexusTopology;
-import io.xj.nexus.hub_client.client.HubClient;
+import io.xj.hub.client.HubClient;
 import io.xj.nexus.persistence.ChainManager;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusPersistenceModule;

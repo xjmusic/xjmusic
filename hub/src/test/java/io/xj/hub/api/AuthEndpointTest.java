@@ -38,7 +38,7 @@ import static org.mockito.Mockito.when;
 public class AuthEndpointTest {
   @Mock
   ContainerRequestContext crc;
-  private HubAccess hubAccess;
+  private HubAccess access;
   private AuthEndpoint subject;
 
   @Before
@@ -52,14 +52,14 @@ public class AuthEndpointTest {
     }));
     HubTopology.buildHubApiTopology(injector.getInstance(EntityFactory.class));
     Account account1 = buildAccount("Testing");
-    hubAccess = HubAccess.create(ImmutableList.of(account1), "User,Artist");
+    access = HubAccess.create(ImmutableList.of(account1), "User,Artist");
     subject = injector.getInstance(AuthEndpoint.class);
     injector.injectMembers(subject);
   }
 
   @Test
   public void getCurrentAuthentication() {
-    when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
+    when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
 
     Response result = subject.getCurrentAuthentication(crc);
 

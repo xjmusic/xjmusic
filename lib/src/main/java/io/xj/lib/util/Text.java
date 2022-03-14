@@ -23,6 +23,7 @@ public interface Text {
   Pattern nonNumeric = Pattern.compile("[^0-9.\\-]"); // include decimal and sign
   Pattern nonSlug = Pattern.compile("[^a-zA-Z0-9]");
   Pattern nonMeme = Pattern.compile("[^a-zA-Z0-9!$]");
+  Pattern nonEvent = Pattern.compile("[^a-zA-Z]");
   Pattern nonScored = Pattern.compile("[^a-zA-Z0-9_]");
   Pattern nonNote = Pattern.compile("[^#0-9a-zA-Z ]");
   Pattern isInteger = Pattern.compile("[0-9]+");
@@ -390,7 +391,19 @@ public interface Text {
   }
 
   /**
-   Conform to Upper-slug (e.g. "BUN")
+   Conform to Upper-slug non-numeric and strip special characters, e.g. "BUN"
+
+   @param raw input
+   @return purified
+   */
+  static String toEvent(String raw) {
+    return nonEvent.matcher(raw)
+      .replaceAll(NOTHING)
+      .toUpperCase(Locale.ENGLISH);
+  }
+
+  /**
+   Conform to Upper-slug including some special characters, e.g. "BUN!"
 
    @param raw input
    @return purified
