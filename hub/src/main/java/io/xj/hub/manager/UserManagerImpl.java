@@ -232,29 +232,29 @@ public class UserManagerImpl extends HubPersistenceServiceImpl<User> implements 
   }
 
   @Override
-  public User create(HubAccess hubAccess, User entity) throws ManagerException {
+  public User create(HubAccess access, User entity) throws ManagerException {
     throw new ManagerException("Not allowed to create a User record (must implement 'authenticate' method).");
 
   }
 
   @Override
-  public User readOne(HubAccess hubAccess, UUID id) throws ManagerException {
+  public User readOne(HubAccess access, UUID id) throws ManagerException {
     DSLContext db = dbProvider.getDSL();
-    if (hubAccess.isTopLevel()) {
+    if (access.isTopLevel()) {
       return modelFrom(User.class, select(db)
         .from(USER)
         .where(USER.ID.eq(id))
         .fetchOne());
-    } else if (!hubAccess.getAccountIds().isEmpty()) {
+    } else if (!access.getAccountIds().isEmpty()) {
       return modelFrom(User.class, db.select(USER.fields())
         .from(USER)
         .join(ACCOUNT_USER).on(ACCOUNT_USER.USER_ID.eq(id))
         .where(USER.ID.eq(id))
-        .and(ACCOUNT_USER.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(ACCOUNT_USER.ACCOUNT_ID.in(access.getAccountIds()))
         .limit(1)
         .fetchOne());
     } else {
-      if (Objects.equals(hubAccess.getUserId(), id)) {
+      if (Objects.equals(access.getUserId(), id)) {
         return modelFrom(User.class, select(db)
           .from(USER)
           .where(USER.ID.eq(id))
@@ -267,24 +267,24 @@ public class UserManagerImpl extends HubPersistenceServiceImpl<User> implements 
 
   @Override
   @Nullable
-  public Collection<User> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws ManagerException {
+  public Collection<User> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
     DSLContext db = dbProvider.getDSL();
-    if (hubAccess.isTopLevel()) {
+    if (access.isTopLevel()) {
       return modelsFrom(User.class, select(db)
         .from(USER)
         .fetch());
 
-    } else if (!hubAccess.getAccountIds().isEmpty()) {
+    } else if (!access.getAccountIds().isEmpty()) {
       return modelsFrom(User.class, select(db)
         .from(USER)
         .join(ACCOUNT_USER).on(ACCOUNT_USER.USER_ID.eq(USER.ID))
-        .where(ACCOUNT_USER.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .where(ACCOUNT_USER.ACCOUNT_ID.in(access.getAccountIds()))
         .groupBy(USER.ID)
         .fetch());
 
     } else return modelsFrom(User.class, select(db)
       .from(USER)
-      .where(USER.ID.eq(Objects.requireNonNull(hubAccess.getUserId())))
+      .where(USER.ID.eq(Objects.requireNonNull(access.getUserId())))
       .groupBy(USER.ID)
       .fetch());
   }
@@ -318,7 +318,7 @@ public class UserManagerImpl extends HubPersistenceServiceImpl<User> implements 
   }
 
   @Override
-  public void destroy(HubAccess hubAccess, UUID id) throws ManagerException {
+  public void destroy(HubAccess access, UUID id) throws ManagerException {
     throw new ManagerException("Not allowed to destroy User record.");
   }
 
@@ -328,8 +328,8 @@ public class UserManagerImpl extends HubPersistenceServiceImpl<User> implements 
   }
 
   @Override
-  public UserAuthToken readOneAuthToken(HubAccess hubAccess, String accessToken) throws ManagerException {
-    requireTopLevel(hubAccess);
+  public UserAuthToken readOneAuthToken(HubAccess access, String accessToken) throws ManagerException {
+    requireTopLevel(access);
 
     return modelFrom(UserAuthToken.class, dbProvider.getDSL().select(USER_AUTH_TOKEN.fields())
       .from(USER_AUTH_TOKEN)
@@ -338,8 +338,8 @@ public class UserManagerImpl extends HubPersistenceServiceImpl<User> implements 
   }
 
   @Override
-  public UserAuth readOneAuth(HubAccess hubAccess, UUID userAuthId) throws ManagerException {
-    requireTopLevel(hubAccess);
+  public UserAuth readOneAuth(HubAccess access, UUID userAuthId) throws ManagerException {
+    requireTopLevel(access);
 
     return modelFrom(UserAuth.class, dbProvider.getDSL().select(USER_AUTH.fields())
       .from(USER_AUTH)

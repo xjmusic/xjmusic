@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.nexus.hub_client.client;
+package io.xj.hub.client;
 
 public class HubClientException extends Exception {
 

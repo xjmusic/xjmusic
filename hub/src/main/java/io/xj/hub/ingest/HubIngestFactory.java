@@ -18,12 +18,12 @@ public interface HubIngestFactory {
    <p>
    Templates: enhanced preview chain creation for artists in Lab UI #178457569
 
-   @param hubAccess control
+   @param access control
    @return entities to be evaluated
    @throws HubIngestException on failure to of target entities
    */
   HubIngest ingest(
-    @Assisted("hubAccess") HubAccess hubAccess,
+    @Assisted("access") HubAccess access,
     @Assisted("templateId") UUID templateId
   ) throws HubIngestException;
 }

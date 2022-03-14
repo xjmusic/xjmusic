@@ -36,6 +36,7 @@ public class HubApp extends App {
     HubMigration hubMigration,
     AccountEndpoint accountEndpoint,
     AccountUserEndpoint accountUserEndpoint,
+    AnalysisEndpoint analysisEndpoint,
     AuthEndpoint authEndpoint,
     ConfigEndpoint configEndpoint,
     HealthEndpoint healthEndpoint,
@@ -65,6 +66,7 @@ public class HubApp extends App {
 
     getResourceConfig().register(accountEndpoint);
     getResourceConfig().register(accountUserEndpoint);
+    getResourceConfig().register(analysisEndpoint);
     getResourceConfig().register(authEndpoint);
     getResourceConfig().register(configEndpoint);
     getResourceConfig().register(healthEndpoint);

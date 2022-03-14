@@ -29,17 +29,17 @@ public class AccountManagerImpl extends HubPersistenceServiceImpl<Account> imple
   }
 
   @Override
-  public Account create(HubAccess hubAccess, Account entity) throws ManagerException, JsonapiException, ValueException {
+  public Account create(HubAccess access, Account entity) throws ManagerException, JsonapiException, ValueException {
     validate(entity);
-    requireTopLevel(hubAccess);
+    requireTopLevel(access);
 
     return modelFrom(Account.class,
       executeCreate(dbProvider.getDSL(), Tables.ACCOUNT, entity));
   }
 
   @Override
-  public Account readOne(HubAccess hubAccess, UUID id) throws ManagerException {
-    if (hubAccess.isTopLevel())
+  public Account readOne(HubAccess access, UUID id) throws ManagerException {
+    if (access.isTopLevel())
       return modelFrom(Account.class,
         dbProvider.getDSL().selectFrom(Tables.ACCOUNT)
           .where(Tables.ACCOUNT.ID.eq(id))
@@ -49,36 +49,36 @@ public class AccountManagerImpl extends HubPersistenceServiceImpl<Account> imple
         dbProvider.getDSL().select(Tables.ACCOUNT.fields())
           .from(Tables.ACCOUNT)
           .where(Tables.ACCOUNT.ID.eq(id))
-          .and(Tables.ACCOUNT.ID.in(hubAccess.getAccountIds()))
+          .and(Tables.ACCOUNT.ID.in(access.getAccountIds()))
           .fetchOne());
   }
 
   @Override
-  public Collection<Account> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws ManagerException {
-    if (hubAccess.isTopLevel())
+  public Collection<Account> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
+    if (access.isTopLevel())
       return modelsFrom(Account.class,
         dbProvider.getDSL().selectFrom(Tables.ACCOUNT)
           .fetch());
     else
       return modelsFrom(Account.class,
         dbProvider.getDSL().selectFrom(Tables.ACCOUNT)
-          .where(Tables.ACCOUNT.ID.in(hubAccess.getAccountIds()))
+          .where(Tables.ACCOUNT.ID.in(access.getAccountIds()))
           .fetch());
   }
 
   @Override
-  public Account update(HubAccess hubAccess, UUID id, Account entity) throws ManagerException, JsonapiException, ValueException {
-    requireTopLevel(hubAccess);
+  public Account update(HubAccess access, UUID id, Account entity) throws ManagerException, JsonapiException, ValueException {
+    requireTopLevel(access);
     validate(entity);
     executeUpdate(dbProvider.getDSL(), Tables.ACCOUNT, id, entity);
     return entity;
   }
 
   @Override
-  public void destroy(HubAccess hubAccess, UUID id) throws ManagerException {
+  public void destroy(HubAccess access, UUID id) throws ManagerException {
     DSLContext db = dbProvider.getDSL();
 
-    requireTopLevel(hubAccess);
+    requireTopLevel(access);
 
     requireNotExists("Account still has libraries!", db.select(Library.LIBRARY.ID)
       .from(Library.LIBRARY)

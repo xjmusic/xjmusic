@@ -145,11 +145,11 @@ public class HubIntegrationTestProviderImpl<O> extends HubPersistenceServiceImpl
     return dbProvider.getDSL();
   }
 
-  public O create(HubAccess hubAccess, O entity) {
+  public O create(HubAccess access, O entity) {
     return null;
   }
 
-  public void destroy(HubAccess hubAccess, UUID id) {
+  public void destroy(HubAccess access, UUID id) {
 
   }
 
@@ -157,15 +157,15 @@ public class HubIntegrationTestProviderImpl<O> extends HubPersistenceServiceImpl
     return null;
   }
 
-  public Collection<O> readMany(HubAccess hubAccess, Collection<UUID> parentIds) {
+  public Collection<O> readMany(HubAccess access, Collection<UUID> parentIds) {
     return null;
   }
 
-  public O readOne(HubAccess hubAccess, UUID id) {
+  public O readOne(HubAccess access, UUID id) {
     return null;
   }
 
-  public O update(HubAccess hubAccess, UUID id, O entity) {
+  public O update(HubAccess access, UUID id, O entity) {
     // no op
     return entity;
   }

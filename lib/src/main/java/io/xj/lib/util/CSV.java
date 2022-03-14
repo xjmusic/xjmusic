@@ -26,8 +26,8 @@ public interface CSV {
     return slugs;
   }
 
-  static String join(Collection<String> parts) {
-    return String.join(COMMA, parts);
+  static String join(List<?> parts) {
+    return parts.stream().map(Object::toString).collect(Collectors.joining(COMMA));
   }
 
   @SafeVarargs
@@ -66,7 +66,7 @@ public interface CSV {
    @return CSV string
    */
   static String from(Map<String, String> properties) {
-    Collection<String> pieces = Lists.newArrayList();
+    List<String> pieces = Lists.newArrayList();
     properties.forEach((key, value) -> pieces.add(String.format("%s=%s", key, value)));
     return join(pieces);
   }

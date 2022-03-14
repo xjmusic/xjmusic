@@ -33,20 +33,20 @@ public class HubAccessTest {
 
   @Test
   public void matchRoles() {
-    HubAccess hubAccess = HubAccess.create("User,Artist");
+    HubAccess access = HubAccess.create("User,Artist");
 
-    assertTrue(hubAccess.isAnyAllowed(UserRoleType.User));
-    assertTrue(hubAccess.isAnyAllowed(UserRoleType.Artist));
-    assertTrue(hubAccess.isAnyAllowed(UserRoleType.User, UserRoleType.Artist));
-    assertFalse(hubAccess.isAnyAllowed(UserRoleType.Admin));
+    assertTrue(access.isAnyAllowed(UserRoleType.User));
+    assertTrue(access.isAnyAllowed(UserRoleType.Artist));
+    assertTrue(access.isAnyAllowed(UserRoleType.User, UserRoleType.Artist));
+    assertFalse(access.isAnyAllowed(UserRoleType.Admin));
   }
 
   @Test
   public void getUserId() {
     UUID id = UUID.randomUUID();
-    HubAccess hubAccess = new HubAccess().setUserId(id);
+    HubAccess access = new HubAccess().setUserId(id);
 
-    assertEquals(id, hubAccess.getUserId());
+    assertEquals(id, access.getUserId());
   }
 
   @Test
@@ -78,11 +78,11 @@ public class HubAccessTest {
 
     var userId = UUID.randomUUID();
     var accountId = UUID.randomUUID();
-    HubAccess hubAccess = HubAccess.create("User,Artist")
+    HubAccess access = HubAccess.create("User,Artist")
       .setUserId(userId)
       .setAccountIds(ImmutableList.of(accountId));
 
-    assertEquals(String.format("{\"roleTypes\":[\"User\",\"Artist\"],\"accountIds\":[\"%s\"],\"userId\":\"%s\"}", accountId, userId), payloadFactory.serialize(hubAccess));
+    assertEquals(String.format("{\"roleTypes\":[\"User\",\"Artist\"],\"accountIds\":[\"%s\"],\"userId\":\"%s\"}", accountId, userId), payloadFactory.serialize(access));
   }
 
   @Test
@@ -90,34 +90,34 @@ public class HubAccessTest {
     UUID id1 = UUID.randomUUID();
     UUID id2 = UUID.randomUUID();
     UUID id3 = UUID.randomUUID();
-    HubAccess hubAccess = new HubAccess()
+    HubAccess access = new HubAccess()
       .setAccountIds(ImmutableSet.of(id1, id2, id3));
 
-    assertArrayEquals(new UUID[]{id1, id2, id3}, hubAccess.getAccountIds().toArray());
+    assertArrayEquals(new UUID[]{id1, id2, id3}, access.getAccountIds().toArray());
   }
 
   @Test
   public void isAdmin() {
-    HubAccess hubAccess = HubAccess.create("User,Admin");
+    HubAccess access = HubAccess.create("User,Admin");
 
-    assertTrue(hubAccess.isTopLevel());
+    assertTrue(access.isTopLevel());
   }
 
   @Test
   public void isAdmin_Not() {
-    HubAccess hubAccess = HubAccess.create("User,Artist");
+    HubAccess access = HubAccess.create("User,Artist");
 
-    assertFalse(hubAccess.isTopLevel());
+    assertFalse(access.isTopLevel());
   }
 
   @Test
   public void valid() {
-    HubAccess hubAccess = HubAccess.create("User,Artist")
+    HubAccess access = HubAccess.create("User,Artist")
       .setUserId(UUID.randomUUID())
       .setUserAuthId(UUID.randomUUID())
       .setAccountIds(ImmutableList.of(UUID.randomUUID()));
 
-    assertTrue(hubAccess.isValid());
+    assertTrue(access.isValid());
   }
 
   /**
@@ -125,21 +125,21 @@ public class HubAccessTest {
    */
   @Test
   public void valid_evenWithNoAccounts() {
-    HubAccess hubAccess = HubAccess.create("User,Artist")
+    HubAccess access = HubAccess.create("User,Artist")
       .setUserId(UUID.randomUUID())
       .setUserAuthId(UUID.randomUUID());
 
-    assertTrue(hubAccess.isValid());
+    assertTrue(access.isValid());
   }
 
   @Test
   public void valid_not() {
-    HubAccess hubAccess = new HubAccess()
+    HubAccess access = new HubAccess()
       .setUserId(UUID.randomUUID())
       .setUserAuthId(UUID.randomUUID())
       .setAccountIds(ImmutableList.of(UUID.randomUUID()));
 
-    assertFalse(hubAccess.isValid());
+    assertFalse(access.isValid());
   }
 
 }

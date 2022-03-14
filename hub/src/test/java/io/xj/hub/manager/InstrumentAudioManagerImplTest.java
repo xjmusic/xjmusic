@@ -95,11 +95,13 @@ public class InstrumentAudioManagerImplTest {
 
   /**
    [#175213519] Expect new Audios to have no waveform
+   <p>
+   Expect audio event to be formatted
    */
   @Test
   public void create() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
-    var inputData = buildInstrumentAudio(fake.instrument201, "maracas", null, 0.009f, 0.21f, 80.5f);
+    var inputData = buildInstrumentAudio(fake.instrument201, "maracas", null, 0.009f, 0.21f, 80.5f,0.6f, "b 5a !nG", "X", 1.0f);
 
     var result = testManager.create(access, inputData);
 
@@ -107,6 +109,7 @@ public class InstrumentAudioManagerImplTest {
     assertNotNull(result);
     assertEquals(fake.instrument201.getId(), result.getInstrumentId());
     assertEquals("maracas", result.getName());
+    assertEquals("BANG", result.getEvent()); // cleaned up from original value: formatted as EVENT
     assertNull(result.getWaveformKey());
     assertEquals(0.009, result.getTransientSeconds(), 0.01);
     assertEquals(0.21, result.getTotalBeats(), 0.01);

@@ -30,9 +30,9 @@ public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl<P
   }
 
   @Override
-  public ProgramSequenceChord create(HubAccess hubAccess, ProgramSequenceChord entity) throws ManagerException, JsonapiException, ValueException {
+  public ProgramSequenceChord create(HubAccess access, ProgramSequenceChord entity) throws ManagerException, JsonapiException, ValueException {
     validate(entity);
-    requireArtist(hubAccess);
+    requireArtist(access);
     return modelFrom(ProgramSequenceChord.class,
       executeCreate(dbProvider.getDSL(), PROGRAM_SEQUENCE_CHORD, entity));
 
@@ -40,8 +40,8 @@ public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl<P
 
   @Override
   @Nullable
-  public ProgramSequenceChord readOne(HubAccess hubAccess, UUID id) throws ManagerException {
-    requireArtist(hubAccess);
+  public ProgramSequenceChord readOne(HubAccess access, UUID id) throws ManagerException {
+    requireArtist(access);
     return modelFrom(ProgramSequenceChord.class,
       dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_CHORD)
         .where(PROGRAM_SEQUENCE_CHORD.ID.eq(id))
@@ -50,8 +50,8 @@ public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl<P
 
   @Override
   @Nullable
-  public Collection<ProgramSequenceChord> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws ManagerException {
-    requireArtist(hubAccess);
+  public Collection<ProgramSequenceChord> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
+    requireArtist(access);
     return modelsFrom(ProgramSequenceChord.class,
       dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_CHORD)
         .where(PROGRAM_SEQUENCE_CHORD.PROGRAM_ID.in(parentIds))
@@ -59,16 +59,16 @@ public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl<P
   }
 
   @Override
-  public ProgramSequenceChord update(HubAccess hubAccess, UUID id, ProgramSequenceChord entity) throws ManagerException, JsonapiException, ValueException {
+  public ProgramSequenceChord update(HubAccess access, UUID id, ProgramSequenceChord entity) throws ManagerException, JsonapiException, ValueException {
     validate(entity);
-    requireArtist(hubAccess);
+    requireArtist(access);
     executeUpdate(dbProvider.getDSL(), PROGRAM_SEQUENCE_CHORD, id, entity);
     return entity;
   }
 
   @Override
-  public void destroy(HubAccess hubAccess, UUID id) throws ManagerException {
-    requireArtist(hubAccess);
+  public void destroy(HubAccess access, UUID id) throws ManagerException {
+    requireArtist(access);
     dbProvider.getDSL().deleteFrom(PROGRAM_SEQUENCE_CHORD_VOICING)
       .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID.eq(id))
       .execute();

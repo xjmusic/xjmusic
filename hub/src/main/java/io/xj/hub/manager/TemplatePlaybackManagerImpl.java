@@ -41,16 +41,16 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl<Templ
   }
 
   @Override
-  public TemplatePlayback create(HubAccess hubAccess, TemplatePlayback raw) throws ManagerException, JsonapiException, ValueException {
+  public TemplatePlayback create(HubAccess access, TemplatePlayback raw) throws ManagerException, JsonapiException, ValueException {
     DSLContext db = dbProvider.getDSL();
-    raw.setUserId(hubAccess.getUserId());
+    raw.setUserId(access.getUserId());
     TemplatePlayback record = validate(raw);
-    requireArtist(hubAccess);
+    requireArtist(access);
 
-    if (!hubAccess.isTopLevel())
+    if (!access.isTopLevel())
       requireExists("Access to template", db.selectCount().from(TEMPLATE)
         .where(TEMPLATE.ID.eq(record.getTemplateId()))
-        .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
 
     var template = modelFrom(Template.class, dbProvider.getDSL().selectFrom(TEMPLATE)
@@ -63,20 +63,20 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl<Templ
         .where(TEMPLATE_PLAYBACK.USER_ID.eq(record.getUserId()))
         .or(TEMPLATE_PLAYBACK.TEMPLATE_ID.eq(record.getTemplateId()))
         .fetch()))
-      destroy(hubAccess, prior.getId());
+      destroy(access, prior.getId());
     return modelFrom(TemplatePlayback.class, executeCreate(db, TEMPLATE_PLAYBACK, record));
   }
 
   @Override
   @Nullable
-  public TemplatePlayback readOne(HubAccess hubAccess, UUID id) throws ManagerException {
-    return readOne(dbProvider.getDSL(), hubAccess, id);
+  public TemplatePlayback readOne(HubAccess access, UUID id) throws ManagerException {
+    return readOne(dbProvider.getDSL(), access, id);
   }
 
   @Override
-  public Optional<TemplatePlayback> readOneForUser(HubAccess hubAccess, UUID userId) throws ManagerException {
+  public Optional<TemplatePlayback> readOneForUser(HubAccess access, UUID userId) throws ManagerException {
     DSLContext db = dbProvider.getDSL();
-    var playbackRecord = hubAccess.isTopLevel()
+    var playbackRecord = access.isTopLevel()
       ?
       db.selectFrom(TEMPLATE_PLAYBACK)
         .where(TEMPLATE_PLAYBACK.USER_ID.eq(userId))
@@ -88,21 +88,21 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl<Templ
         .join(TEMPLATE).on(TEMPLATE.ID.eq(TEMPLATE_PLAYBACK.TEMPLATE_ID))
         .where(TEMPLATE_PLAYBACK.USER_ID.eq(userId))
         .and(TEMPLATE_PLAYBACK.CREATED_AT.greaterThan(Timestamp.from(Instant.now().minusSeconds(playbackExpireSeconds)).toLocalDateTime()))
-        .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne();
 
     return Objects.nonNull(playbackRecord) ? Optional.of(modelFrom(TemplatePlayback.class, playbackRecord)) : Optional.empty();
   }
 
   @Override
-  public void destroy(HubAccess hubAccess, UUID id) throws ManagerException {
+  public void destroy(HubAccess access, UUID id) throws ManagerException {
     DSLContext db = dbProvider.getDSL();
 
-    if (!hubAccess.isTopLevel())
+    if (!access.isTopLevel())
       requireExists("Access to the template's account",
         db.selectCount().from(TEMPLATE_PLAYBACK)
           .join(TEMPLATE).on(TEMPLATE.ID.eq(TEMPLATE_PLAYBACK.TEMPLATE_ID))
-          .where(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .where(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
           .fetchOne(0, int.class));
 
     db.deleteFrom(TEMPLATE_PLAYBACK)
@@ -116,8 +116,8 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl<Templ
   }
 
   @Override
-  public Collection<TemplatePlayback> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws ManagerException {
-    if (hubAccess.isTopLevel())
+  public Collection<TemplatePlayback> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
+    if (access.isTopLevel())
       return modelsFrom(TemplatePlayback.class, dbProvider.getDSL().select(TEMPLATE_PLAYBACK.fields())
         .from(TEMPLATE_PLAYBACK)
         .where(TEMPLATE_PLAYBACK.TEMPLATE_ID.in(parentIds))
@@ -129,14 +129,14 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl<Templ
         .from(TEMPLATE_PLAYBACK)
         .join(TEMPLATE).on(TEMPLATE.ID.eq(TEMPLATE_PLAYBACK.TEMPLATE_ID))
         .where(TEMPLATE_PLAYBACK.TEMPLATE_ID.in(parentIds))
-        .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
         .and(TEMPLATE_PLAYBACK.CREATED_AT.greaterThan(Timestamp.from(Instant.now().minusSeconds(playbackExpireSeconds)).toLocalDateTime()))
         .orderBy(TEMPLATE_PLAYBACK.USER_ID)
         .fetch());
   }
 
   @Override
-  public TemplatePlayback update(HubAccess hubAccess, UUID id, TemplatePlayback rawTemplatePlayback) throws ManagerException, JsonapiException, ValueException {
+  public TemplatePlayback update(HubAccess access, UUID id, TemplatePlayback rawTemplatePlayback) throws ManagerException, JsonapiException, ValueException {
     throw new ManagerException("Can't update a Template Playback");
   }
 
@@ -144,13 +144,13 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl<Templ
    Read one record
 
    @param db        DSL context
-   @param hubAccess control
+   @param access control
    @param id        to read
    @return record
    @throws ManagerException on failure
    */
-  private TemplatePlayback readOne(DSLContext db, HubAccess hubAccess, UUID id) throws ManagerException {
-    if (hubAccess.isTopLevel())
+  private TemplatePlayback readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+    if (access.isTopLevel())
       return modelFrom(TemplatePlayback.class, db.selectFrom(TEMPLATE_PLAYBACK)
         .where(TEMPLATE_PLAYBACK.ID.eq(id))
         .fetchOne());
@@ -159,7 +159,7 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl<Templ
         .from(TEMPLATE_PLAYBACK)
         .join(TEMPLATE).on(TEMPLATE.ID.eq(TEMPLATE_PLAYBACK.TEMPLATE_ID))
         .where(TEMPLATE_PLAYBACK.ID.eq(id))
-        .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne());
   }
 

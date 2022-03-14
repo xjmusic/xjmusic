@@ -57,12 +57,12 @@ public class TemplatePlaybackEndpoint extends HubJsonapiEndpoint<TemplatePlaybac
     @PathParam("templateId") String templateId
   ) {
     try {
-      HubAccess hubAccess = HubAccess.fromContext(crc);
+      HubAccess access = HubAccess.fromContext(crc);
       JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataType(PayloadDataType.Many);
       Collection<TemplatePlayback> templatePlaybacks;
 
       // how we source templatePlaybacks depends on the query parameters
-      templatePlaybacks = manager().readMany(hubAccess, ImmutableList.of(UUID.fromString(templateId)));
+      templatePlaybacks = manager().readMany(access, ImmutableList.of(UUID.fromString(templateId)));
 
       // add templatePlaybacks as plural data in payload
       for (TemplatePlayback templatePlayback : templatePlaybacks)

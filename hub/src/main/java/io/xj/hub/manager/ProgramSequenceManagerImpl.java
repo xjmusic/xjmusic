@@ -35,24 +35,24 @@ public class ProgramSequenceManagerImpl extends HubPersistenceServiceImpl<Progra
   }
 
   @Override
-  public ProgramSequence create(HubAccess hubAccess, ProgramSequence entity) throws ManagerException, JsonapiException, ValueException {
+  public ProgramSequence create(HubAccess access, ProgramSequence entity) throws ManagerException, JsonapiException, ValueException {
     ProgramSequence builder = validate(entity);
     DSLContext db = dbProvider.getDSL();
-    requireProgramModification(db, hubAccess, builder.getProgramId());
+    requireProgramModification(db, access, builder.getProgramId());
     return modelFrom(ProgramSequence.class,
       executeCreate(dbProvider.getDSL(), PROGRAM_SEQUENCE, builder));
   }
 
   @Override
-  public ManagerCloner<ProgramSequence> clone(HubAccess hubAccess, UUID cloneId, ProgramSequence to) throws ManagerException {
-    requireArtist(hubAccess);
+  public ManagerCloner<ProgramSequence> clone(HubAccess access, UUID cloneId, ProgramSequence to) throws ManagerException {
+    requireArtist(access);
     AtomicReference<ProgramSequence> result = new AtomicReference<>();
     AtomicReference<ManagerCloner<ProgramSequence>> cloner = new AtomicReference<>();
     dbProvider.getDSL().transaction(ctx -> {
       DSLContext db = DSL.using(ctx);
-      requireModification(db, hubAccess, cloneId);
+      requireModification(db, access, cloneId);
 
-      var from = readOne(db, hubAccess, cloneId);
+      var from = readOne(db, access, cloneId);
       if (Objects.isNull(from))
         throw new ManagerException("Can't clone nonexistent ProgramSequence");
 
@@ -60,7 +60,7 @@ public class ProgramSequenceManagerImpl extends HubPersistenceServiceImpl<Progra
       // When not set, clone inherits attribute values from original record
       entityFactory.setAllEmptyAttributes(from, to);
       var record = validate(to);
-      requireParentExists(db, hubAccess, record);
+      requireParentExists(db, access, record);
 
       // Create main entity
       result.set(modelFrom(ProgramSequence.class, executeCreate(db, PROGRAM_SEQUENCE, record)));
@@ -103,16 +103,16 @@ public class ProgramSequenceManagerImpl extends HubPersistenceServiceImpl<Progra
 
   @Override
   @Nullable
-  public ProgramSequence readOne(HubAccess hubAccess, UUID id) throws ManagerException {
-    requireArtist(hubAccess);
-    return readOne(dbProvider.getDSL(), hubAccess, id);
+  public ProgramSequence readOne(HubAccess access, UUID id) throws ManagerException {
+    requireArtist(access);
+    return readOne(dbProvider.getDSL(), access, id);
   }
 
   @Override
   @Nullable
-  public Collection<ProgramSequence> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws ManagerException {
-    requireArtist(hubAccess);
-    if (hubAccess.isTopLevel())
+  public Collection<ProgramSequence> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
+    requireArtist(access);
+    if (access.isTopLevel())
       return modelsFrom(ProgramSequence.class,
         dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE)
           .where(PROGRAM_SEQUENCE.PROGRAM_ID.in(parentIds))
@@ -123,23 +123,23 @@ public class ProgramSequenceManagerImpl extends HubPersistenceServiceImpl<Progra
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM_SEQUENCE.PROGRAM_ID.in(parentIds))
-          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
           .fetch());
   }
 
   @Override
-  public ProgramSequence update(HubAccess hubAccess, UUID id, ProgramSequence ramProgramSequence) throws ManagerException, JsonapiException, ValueException {
+  public ProgramSequence update(HubAccess access, UUID id, ProgramSequence ramProgramSequence) throws ManagerException, JsonapiException, ValueException {
     ProgramSequence builder = validate(ramProgramSequence);
     DSLContext db = dbProvider.getDSL();
-    requireModification(db, hubAccess, id);
+    requireModification(db, access, id);
     executeUpdate(db, PROGRAM_SEQUENCE, id, builder);
     return builder;
   }
 
   @Override
-  public void destroy(HubAccess hubAccess, UUID id) throws ManagerException {
+  public void destroy(HubAccess access, UUID id) throws ManagerException {
     DSLContext db = dbProvider.getDSL();
-    requireModification(db, hubAccess, id);
+    requireModification(db, access, id);
 
     // Delete all ProgramSequenceBindingMeme
     db.deleteFrom(PROGRAM_SEQUENCE_BINDING_MEME)
@@ -192,14 +192,14 @@ public class ProgramSequenceManagerImpl extends HubPersistenceServiceImpl<Progra
    Require permission to modify the specified program sequence
 
    @param db        context
-   @param hubAccess control
+   @param access control
    @param id        of entity to require modification access to
    @throws ManagerException on invalid permissions
    */
-  private void requireModification(DSLContext db, HubAccess hubAccess, UUID id) throws ManagerException {
-    requireArtist(hubAccess);
+  private void requireModification(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+    requireArtist(access);
 
-    if (hubAccess.isTopLevel())
+    if (access.isTopLevel())
       requireExists("Sequence", db.selectCount().from(PROGRAM_SEQUENCE)
         .where(PROGRAM_SEQUENCE.ID.eq(id))
         .fetchOne(0, int.class));
@@ -208,7 +208,7 @@ public class ProgramSequenceManagerImpl extends HubPersistenceServiceImpl<Progra
         .join(PROGRAM).on(PROGRAM_SEQUENCE.PROGRAM_ID.eq(PROGRAM.ID))
         .join(LIBRARY).on(PROGRAM.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PROGRAM_SEQUENCE.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
   }
 
@@ -216,19 +216,19 @@ public class ProgramSequenceManagerImpl extends HubPersistenceServiceImpl<Progra
    Require parent ProgramSequence exists of a given possible entity in a DSL context
 
    @param db        DSL context
-   @param hubAccess control
+   @param access control
    @param entity    to validate
    @throws ManagerException if parent does not exist
    */
-  private void requireParentExists(DSLContext db, HubAccess hubAccess, ProgramSequence entity) throws ManagerException {
-    if (hubAccess.isTopLevel())
+  private void requireParentExists(DSLContext db, HubAccess access, ProgramSequence entity) throws ManagerException {
+    if (access.isTopLevel())
       requireExists("Program", db.selectCount().from(PROGRAM)
         .where(PROGRAM.ID.eq(entity.getProgramId()))
         .fetchOne(0, int.class));
     else
       requireExists("Program", db.selectCount().from(PROGRAM)
         .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
-        .where(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .and(PROGRAM.ID.eq(entity.getProgramId()))
         .fetchOne(0, int.class));
   }
@@ -237,12 +237,12 @@ public class ProgramSequenceManagerImpl extends HubPersistenceServiceImpl<Progra
    Read one Program Sequence
 
    @param db        context
-   @param hubAccess control
+   @param access control
    @param id        of entity to read
    @return program sequence
    */
-  private ProgramSequence readOne(DSLContext db, HubAccess hubAccess, UUID id) throws ManagerException {
-    if (hubAccess.isTopLevel())
+  private ProgramSequence readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+    if (access.isTopLevel())
       return modelFrom(ProgramSequence.class,
         db.selectFrom(PROGRAM_SEQUENCE)
           .where(PROGRAM_SEQUENCE.ID.eq(id))
@@ -253,7 +253,7 @@ public class ProgramSequenceManagerImpl extends HubPersistenceServiceImpl<Progra
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM_SEQUENCE.ID.eq(id))
-          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
           .fetchOne());
   }
 

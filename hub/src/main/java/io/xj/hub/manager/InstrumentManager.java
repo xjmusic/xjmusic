@@ -43,7 +43,7 @@ public interface InstrumentManager extends Manager<Instrument> {
   Collection<Instrument> readManyInAccount(HubAccess access, String accountId) throws ManagerException;
 
   /**
-   Fetch all instrument visible to given hubAccess
+   Fetch all instrument visible to given access
 
    @param access control
    @return Collection of instruments.

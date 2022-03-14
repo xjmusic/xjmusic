@@ -17,10 +17,10 @@ public interface TemplatePlaybackManager extends Manager<TemplatePlayback> {
   /**
    Read the one template playback for a given user
 
-   @param hubAccess control
+   @param access control
    @param userId    for which to read playback
    @return template playback
    @throws ManagerException on failure to read
    */
-  Optional<TemplatePlayback> readOneForUser(HubAccess hubAccess, UUID userId) throws ManagerException;
+  Optional<TemplatePlayback> readOneForUser(HubAccess access, UUID userId) throws ManagerException;
 }

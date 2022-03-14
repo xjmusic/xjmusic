@@ -15,21 +15,21 @@ public interface InstrumentAudioManager extends Manager<InstrumentAudio> {
 
    @return retrieved record
    @throws ManagerException on failure
-   @param hubAccess control
+   @param access control
    @param id        of audio
    @param extension of audio file
    */
-  Map<String, String> authorizeUpload(HubAccess hubAccess, UUID id, String extension) throws ManagerException, FileStoreException;
+  Map<String, String> authorizeUpload(HubAccess access, UUID id, String extension) throws ManagerException, FileStoreException;
 
   /**
    Provide an entity containing some new properties, but otherwise clone everything of a source instrumentAudio, of new record, and return it.
    [#170290553] Clone sub-entities of instruments
 
-   @param hubAccess control
+   @param access control
    @param cloneId   of instrumentAudio to clone
    @param entity    for the new InstrumentAudio
    @return newly readMany record
    */
-  InstrumentAudio clone(HubAccess hubAccess, UUID cloneId, InstrumentAudio entity) throws ManagerException;
+  InstrumentAudio clone(HubAccess access, UUID cloneId, InstrumentAudio entity) throws ManagerException;
 
 }

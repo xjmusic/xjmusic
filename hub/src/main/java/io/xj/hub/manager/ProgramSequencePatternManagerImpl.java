@@ -33,25 +33,25 @@ public class ProgramSequencePatternManagerImpl extends HubPersistenceServiceImpl
   }
 
   @Override
-  public ProgramSequencePattern create(HubAccess hubAccess, ProgramSequencePattern entity) throws ManagerException, JsonapiException, ValueException {
+  public ProgramSequencePattern create(HubAccess access, ProgramSequencePattern entity) throws ManagerException, JsonapiException, ValueException {
     ProgramSequencePattern builder = validate(entity);
     DSLContext db = dbProvider.getDSL();
-    requireProgramModification(db, hubAccess, builder.getProgramId());
+    requireProgramModification(db, access, builder.getProgramId());
     return modelFrom(ProgramSequencePattern.class,
       executeCreate(db, PROGRAM_SEQUENCE_PATTERN, builder));
 
   }
 
   @Override
-  public ManagerCloner<ProgramSequencePattern> clone(HubAccess hubAccess, UUID cloneId, ProgramSequencePattern to) throws ManagerException {
-    requireArtist(hubAccess);
+  public ManagerCloner<ProgramSequencePattern> clone(HubAccess access, UUID cloneId, ProgramSequencePattern to) throws ManagerException {
+    requireArtist(access);
     AtomicReference<ProgramSequencePattern> result = new AtomicReference<>();
     AtomicReference<ManagerCloner<ProgramSequencePattern>> cloner = new AtomicReference<>();
     dbProvider.getDSL().transaction(ctx -> {
       DSLContext db = DSL.using(ctx);
-      requireModification(db, hubAccess, cloneId);
+      requireModification(db, access, cloneId);
 
-      var from = readOne(db, hubAccess, cloneId);
+      var from = readOne(db, access, cloneId);
       if (Objects.isNull(from))
         throw new ManagerException("Can't clone nonexistent ProgramSequencePattern");
 
@@ -59,7 +59,7 @@ public class ProgramSequencePatternManagerImpl extends HubPersistenceServiceImpl
       entityFactory.setAllEmptyAttributes(from, to);
       to.setTotal(from.getTotal()); // total cannot be modified while cloning
       var record = validate(to);
-      requireParentExists(db, hubAccess, record);
+      requireParentExists(db, access, record);
 
       // Create main entity
       result.set(modelFrom(ProgramSequencePattern.class, executeCreate(db, PROGRAM_SEQUENCE_PATTERN, record)));
@@ -79,15 +79,15 @@ public class ProgramSequencePatternManagerImpl extends HubPersistenceServiceImpl
 
   @Override
   @Nullable
-  public ProgramSequencePattern readOne(HubAccess hubAccess, UUID id) throws ManagerException {
-    return readOne(dbProvider.getDSL(), hubAccess, id);
+  public ProgramSequencePattern readOne(HubAccess access, UUID id) throws ManagerException {
+    return readOne(dbProvider.getDSL(), access, id);
   }
 
   @Override
   @Nullable
-  public Collection<ProgramSequencePattern> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws ManagerException {
-    requireArtist(hubAccess);
-    if (hubAccess.isTopLevel())
+  public Collection<ProgramSequencePattern> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
+    requireArtist(access);
+    if (access.isTopLevel())
       return modelsFrom(ProgramSequencePattern.class,
         dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_PATTERN)
           .where(PROGRAM_SEQUENCE_PATTERN.PROGRAM_SEQUENCE_ID.in(parentIds))
@@ -98,26 +98,26 @@ public class ProgramSequencePatternManagerImpl extends HubPersistenceServiceImpl
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_PATTERN.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM_SEQUENCE_PATTERN.PROGRAM_SEQUENCE_ID.in(parentIds))
-          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
           .fetch());
 
   }
 
   @Override
-  public ProgramSequencePattern update(HubAccess hubAccess, UUID id, ProgramSequencePattern rawProgramSequencePattern) throws ManagerException, JsonapiException, ValueException {
+  public ProgramSequencePattern update(HubAccess access, UUID id, ProgramSequencePattern rawProgramSequencePattern) throws ManagerException, JsonapiException, ValueException {
     ProgramSequencePattern builder = validate(rawProgramSequencePattern);
-    requireArtist(hubAccess);
+    requireArtist(access);
     DSLContext db = dbProvider.getDSL();
-    requireModification(db, hubAccess, id);
+    requireModification(db, access, id);
     executeUpdate(db, PROGRAM_SEQUENCE_PATTERN, id, builder);
     return builder;
   }
 
   @Override
-  public void destroy(HubAccess hubAccess, UUID id) throws ManagerException {
-    requireArtist(hubAccess);
+  public void destroy(HubAccess access, UUID id) throws ManagerException {
+    requireArtist(access);
     DSLContext db = dbProvider.getDSL();
-    requireModification(db, hubAccess, id);
+    requireModification(db, access, id);
 
     db.deleteFrom(PROGRAM_SEQUENCE_PATTERN_EVENT)
       .where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_SEQUENCE_PATTERN_ID.eq(id))
@@ -137,13 +137,13 @@ public class ProgramSequencePatternManagerImpl extends HubPersistenceServiceImpl
    Read one Program Sequence Pattern
 
    @param db        context
-   @param hubAccess control
+   @param access control
    @param id        of entity to read
    @return program sequence pattern
    */
-  private ProgramSequencePattern readOne(DSLContext db, HubAccess hubAccess, UUID id) throws ManagerException {
-    requireArtist(hubAccess);
-    if (hubAccess.isTopLevel())
+  private ProgramSequencePattern readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+    requireArtist(access);
+    if (access.isTopLevel())
       return modelFrom(ProgramSequencePattern.class,
         db.selectFrom(PROGRAM_SEQUENCE_PATTERN)
           .where(PROGRAM_SEQUENCE_PATTERN.ID.eq(id))
@@ -154,7 +154,7 @@ public class ProgramSequencePatternManagerImpl extends HubPersistenceServiceImpl
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_PATTERN.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM_SEQUENCE_PATTERN.ID.eq(id))
-          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
           .fetchOne());
   }
 
@@ -162,12 +162,12 @@ public class ProgramSequencePatternManagerImpl extends HubPersistenceServiceImpl
    Require parent ProgramSequence exists of a given possible entity in a DSL context
 
    @param db        DSL context
-   @param hubAccess control
+   @param access control
    @param entity    to validate
    @throws ManagerException if parent does not exist
    */
-  private void requireParentExists(DSLContext db, HubAccess hubAccess, ProgramSequencePattern entity) throws ManagerException {
-    if (hubAccess.isTopLevel())
+  private void requireParentExists(DSLContext db, HubAccess access, ProgramSequencePattern entity) throws ManagerException {
+    if (access.isTopLevel())
       requireExists("Program Sequence", db.selectCount().from(PROGRAM_SEQUENCE)
         .where(PROGRAM_SEQUENCE.ID.eq(entity.getProgramSequenceId()))
         .fetchOne(0, int.class));
@@ -175,7 +175,7 @@ public class ProgramSequencePatternManagerImpl extends HubPersistenceServiceImpl
       requireExists("Program Sequence", db.selectCount().from(PROGRAM_SEQUENCE)
         .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE.PROGRAM_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
-        .where(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .and(PROGRAM_SEQUENCE.ID.eq(entity.getProgramSequenceId()))
         .fetchOne(0, int.class));
   }
@@ -184,13 +184,13 @@ public class ProgramSequencePatternManagerImpl extends HubPersistenceServiceImpl
    Require access to modification of a Program Sequence Pattern
 
    @param db        context
-   @param hubAccess control
+   @param access control
    @param id        to validate access to
-   @throws ManagerException if no hubAccess
+   @throws ManagerException if no access
    */
-  private void requireModification(DSLContext db, HubAccess hubAccess, UUID id) throws ManagerException {
-    requireArtist(hubAccess);
-    if (hubAccess.isTopLevel())
+  private void requireModification(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+    requireArtist(access);
+    if (access.isTopLevel())
       requireExists("Program Sequence Pattern", db.selectCount().from(PROGRAM_SEQUENCE_PATTERN)
         .where(PROGRAM_SEQUENCE_PATTERN.ID.eq(id))
         .fetchOne(0, int.class));
@@ -199,7 +199,7 @@ public class ProgramSequencePatternManagerImpl extends HubPersistenceServiceImpl
         .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_PATTERN.PROGRAM_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
         .where(PROGRAM_SEQUENCE_PATTERN.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
   }
 

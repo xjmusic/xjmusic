@@ -212,6 +212,17 @@ public interface Values {
   }
 
   /**
+   Format an Instant as ISO-8601 UTC
+
+   @param instant to format
+   @return formatted ISO-8601 UTC from instant
+   */
+  static String formatRfc1123UTC(Instant instant) {
+    return ZonedDateTime.ofInstant(instant, ZoneOffset.UTC)
+      .format(DateTimeFormatter.RFC_1123_DATE_TIME);
+  }
+
+  /**
    Whether a value is non-null and non-empty
 
    @param value to test

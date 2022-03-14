@@ -1,7 +1,9 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-package io.xj.nexus.hub_client.client;
+package io.xj.hub.client;
 
+import io.xj.hub.client.HubClientException;
+import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.*;
 import io.xj.hub.tables.pojos.*;
 import org.junit.Before;

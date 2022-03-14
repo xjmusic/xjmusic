@@ -66,17 +66,17 @@ public class InstrumentEndpoint extends HubJsonapiEndpoint<Instrument> {
     @QueryParam("detailed") Boolean detailed
   ) {
     try {
-      HubAccess hubAccess = HubAccess.fromContext(crc);
+      HubAccess access = HubAccess.fromContext(crc);
       JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataType(PayloadDataType.Many);
       Collection<Instrument> instruments;
 
       // how we source instruments depends on the query parameters
       if (null != libraryId && !libraryId.isEmpty())
-        instruments = manager().readMany(hubAccess, ImmutableList.of(UUID.fromString(libraryId)));
+        instruments = manager().readMany(access, ImmutableList.of(UUID.fromString(libraryId)));
       else if (null != accountId && !accountId.isEmpty())
-        instruments = manager().readManyInAccount(hubAccess, accountId);
+        instruments = manager().readManyInAccount(access, accountId);
       else
-        instruments = manager().readMany(hubAccess);
+        instruments = manager().readMany(access);
 
       // add instruments as plural data in payload
       for (Instrument instrument : instruments) jsonapiPayload.addData(payloadFactory.toPayloadObject(instrument));
@@ -85,7 +85,7 @@ public class InstrumentEndpoint extends HubJsonapiEndpoint<Instrument> {
       // if detailed, add Instrument Memes
       if (Objects.nonNull(detailed) && detailed)
         jsonapiPayload.addAllToIncluded(payloadFactory.toPayloadObjects(
-          instrumentMemeManager.readMany(hubAccess, instrumentIds)));
+          instrumentMemeManager.readMany(access, instrumentIds)));
 
       return response.ok(jsonapiPayload);
 
@@ -110,11 +110,11 @@ public class InstrumentEndpoint extends HubJsonapiEndpoint<Instrument> {
   ) {
 
     try {
-      HubAccess hubAccess = HubAccess.fromContext(crc);
+      HubAccess access = HubAccess.fromContext(crc);
       Instrument instrument = payloadFactory.consume(manager().newInstance(), jsonapiPayload);
       JsonapiPayload responseJsonapiPayload = new JsonapiPayload();
       if (Objects.nonNull(cloneId)) {
-        ManagerCloner<Instrument> cloner = manager().clone(hubAccess, UUID.fromString(cloneId), instrument);
+        ManagerCloner<Instrument> cloner = manager().clone(access, UUID.fromString(cloneId), instrument);
         responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(cloner.getClone()));
         List<JsonapiPayloadObject> list = new ArrayList<>();
         for (Object entity : cloner.getChildClones()) {
@@ -123,7 +123,7 @@ public class InstrumentEndpoint extends HubJsonapiEndpoint<Instrument> {
         }
         responseJsonapiPayload.setIncluded(list);
       } else {
-        responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(manager().create(hubAccess, instrument)));
+        responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(manager().create(access, instrument)));
       }
 
       return response.create(responseJsonapiPayload);
@@ -143,15 +143,15 @@ public class InstrumentEndpoint extends HubJsonapiEndpoint<Instrument> {
   @RolesAllowed(USER)
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id, @QueryParam("include") String include) {
     try {
-      HubAccess hubAccess = HubAccess.fromContext(crc);
+      HubAccess access = HubAccess.fromContext(crc);
       var uuid = UUID.fromString(id);
 
-      JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(manager().readOne(hubAccess, uuid)));
+      JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(manager().readOne(access, uuid)));
 
       // optionally specify a CSV of included types to read
       if (Objects.nonNull(include)) {
         List<JsonapiPayloadObject> list = new ArrayList<>();
-        for (Object entity : manager().readChildEntities(hubAccess, ImmutableList.of(uuid), CSV.split(include))) {
+        for (Object entity : manager().readChildEntities(access, ImmutableList.of(uuid), CSV.split(include))) {
           JsonapiPayloadObject jsonapiPayloadObject = payloadFactory.toPayloadObject(entity);
           list.add(jsonapiPayloadObject);
         }

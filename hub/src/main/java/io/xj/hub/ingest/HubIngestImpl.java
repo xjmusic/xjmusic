@@ -25,13 +25,13 @@ import java.util.stream.Collectors;
  [#154350346] to ingest any combination of Programs, Instruments, or Libraries (with their Programs and Instruments)
  */
 class HubIngestImpl implements HubIngest {
-  private final HubAccess hubAccess;
+  private final HubAccess access;
   private final EntityStore store;
   private final JsonProvider jsonProvider;
 
   @Inject
   public HubIngestImpl(
-    @Assisted("hubAccess") HubAccess hubAccess,
+    @Assisted("access") HubAccess access,
     @Assisted("templateId") UUID templateId,
     EntityStore entityStore,
     InstrumentManager instrumentManager,
@@ -42,10 +42,10 @@ class HubIngestImpl implements HubIngest {
   ) throws HubIngestException {
     store = entityStore;
     this.jsonProvider = jsonProvider;
-    this.hubAccess = hubAccess;
+    this.access = access;
     try {
-      store.put(templateManager.readOne(hubAccess, templateId));
-      var bindings = store.putAll(templateBindingManager.readMany(hubAccess, ImmutableList.of(templateId)));
+      store.put(templateManager.readOne(access, templateId));
+      var bindings = store.putAll(templateBindingManager.readMany(access, ImmutableList.of(templateId)));
       List<UUID> libraryIds = bindings.stream()
         .filter(b -> ContentBindingType.Library.equals(b.getType()))
         .map(TemplateBinding::getTargetId)
@@ -60,16 +60,16 @@ class HubIngestImpl implements HubIngest {
         .collect(Collectors.toList());
 
       // library ids -> program and instrument ids; disregard library ids after this
-      Values.put(programIds, programManager.readIdsInLibraries(hubAccess, libraryIds));
-      Values.put(instrumentIds, instrumentManager.readIdsInLibraries(hubAccess, libraryIds));
+      Values.put(programIds, programManager.readIdsInLibraries(access, libraryIds));
+      Values.put(instrumentIds, instrumentManager.readIdsInLibraries(access, libraryIds));
       libraryIds.clear();
 
       // ingest programs
-      for (Object o : programManager.readManyWithChildEntities(hubAccess, programIds))
+      for (Object o : programManager.readManyWithChildEntities(access, programIds))
         store.put(o);
 
       // ingest instruments
-      for (Object n : instrumentManager.readManyWithChildEntities(hubAccess, instrumentIds))
+      for (Object n : instrumentManager.readManyWithChildEntities(access, instrumentIds))
         store.put(n);
 
     } catch (ManagerException | EntityStoreException e) {
@@ -109,8 +109,8 @@ class HubIngestImpl implements HubIngest {
   }
 
   @Override
-  public HubAccess getHubAccess() {
-    return hubAccess;
+  public HubAccess getAccess() {
+    return access;
   }
 
   @Override

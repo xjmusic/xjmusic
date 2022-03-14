@@ -5,7 +5,7 @@ import com.google.inject.assistedinject.Assisted;
 import io.xj.api.Chain;
 import io.xj.api.Segment;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.hub_client.client.HubContent;
+import io.xj.hub.client.HubContent;
 
 /**
  Fabricator content = contentFactory.fabricate(segment);

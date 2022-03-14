@@ -370,44 +370,44 @@ public class HubPersistenceServiceImpl<E> {
   }
 
   /**
-   Require user has admin hubAccess
+   Require user has admin access
 
-   @param hubAccess control
+   @param access control
    @throws ManagerException if not admin
    */
-  protected void requireTopLevel(HubAccess hubAccess) throws ManagerException {
-    requireAny("top-level access", hubAccess.isTopLevel());
+  protected void requireTopLevel(HubAccess access) throws ManagerException {
+    requireAny("top-level access", access.isTopLevel());
   }
 
   /**
    ASSUMED an entity.parentId() is a libraryId for this class of entity
    Require library-level access to an entity
 
-   @param hubAccess control
+   @param access control
    @throws ManagerException if we do not have hub access
    */
-  protected void requireArtist(HubAccess hubAccess) throws ManagerException {
-    requireAny(hubAccess, UserRoleType.Artist);
+  protected void requireArtist(HubAccess access) throws ManagerException {
+    requireAny(access, UserRoleType.Artist);
   }
 
   /**
-   Require hubAccess has one of the specified roles
+   Require access has one of the specified roles
    <p>
    Uses static formats to improve efficiency of method calls with less than 3 allowed roles
 
-   @param hubAccess    to validate
+   @param access    to validate
    @param allowedRoles to require
-   @throws ManagerException if hubAccess does not have any one of the specified roles
+   @throws ManagerException if access does not have any one of the specified roles
    */
-  protected void requireAny(HubAccess hubAccess, UserRoleType... allowedRoles) throws ManagerException {
-    if (hubAccess.isTopLevel()) return;
+  protected void requireAny(HubAccess access, UserRoleType... allowedRoles) throws ManagerException {
+    if (access.isTopLevel()) return;
 
     if (0 == allowedRoles.length)
       throw new ManagerException("No roles allowed.");
 
     requireAny(
       String.format("%s role", Arrays.stream(allowedRoles).map(Enum::toString).collect(Collectors.joining("/"))),
-      hubAccess.isAnyAllowed(allowedRoles));
+      access.isAnyAllowed(allowedRoles));
   }
 
   /**
@@ -437,14 +437,14 @@ public class HubPersistenceServiceImpl<E> {
    Require permission to modify the specified program
 
    @param db        context
-   @param hubAccess control
+   @param access control
    @param id        of entity to require modification access to
    @throws ManagerException on invalid permissions
    */
-  protected void requireProgramModification(DSLContext db, HubAccess hubAccess, UUID id) throws ManagerException {
-    requireArtist(hubAccess);
+  protected void requireProgramModification(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+    requireArtist(access);
 
-    if (hubAccess.isTopLevel())
+    if (access.isTopLevel())
       requireExists("Program", db.selectCount().from(PROGRAM)
         .where(PROGRAM.ID.eq(id))
         .fetchOne(0, int.class));
@@ -452,7 +452,7 @@ public class HubPersistenceServiceImpl<E> {
       requireExists("Program in Account you have access to", db.selectCount().from(PROGRAM)
         .join(LIBRARY).on(PROGRAM.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PROGRAM.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
   }
 

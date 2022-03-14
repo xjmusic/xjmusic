@@ -10,7 +10,7 @@ import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.*;
 import io.xj.lib.music.*;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.hub_client.client.HubContent;
+import io.xj.hub.client.HubContent;
 
 import javax.annotation.Nullable;
 import javax.sound.sampled.AudioFormat;

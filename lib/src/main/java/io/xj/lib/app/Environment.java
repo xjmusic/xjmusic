@@ -127,7 +127,7 @@ public class Environment {
    @param vars to build environment from
    */
   public Environment(Map<String, String> vars) {
-    LOG.debug("Received values for {} keys: {}", vars.size(), CSV.join(vars.keySet()));
+    LOG.debug("Received values for {} keys: {}", vars.size(), CSV.join(vars.keySet().stream().toList()));
 
     // Application
     accessLogFilename = readStr(vars, "ACCESS_LOG_FILENAME", "/tmp/access.log");
@@ -270,7 +270,7 @@ public class Environment {
     var pairs = Text.parseEnvironmentVariableKeyPairs(secretKeyValueLines);
     vars.putAll(pairs);
     if (0 < pairs.size())
-      LOG.info("Augmented system environment with {} secrets having keys {}", pairs.size(), CSV.join(pairs.keySet()));
+      LOG.info("Augmented system environment with {} secrets having keys {}", pairs.size(), CSV.join(pairs.keySet().stream().toList()));
     else
       LOG.warn("Did not parse any secrets with which to augment system environment.");
     return from(vars);

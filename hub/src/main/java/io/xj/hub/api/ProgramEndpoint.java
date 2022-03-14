@@ -65,17 +65,17 @@ public class ProgramEndpoint extends HubJsonapiEndpoint<Program> {
     @QueryParam("detailed") Boolean detailed
   ) {
     try {
-      HubAccess hubAccess = HubAccess.fromContext(crc);
+      HubAccess access = HubAccess.fromContext(crc);
       JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataType(PayloadDataType.Many);
       Collection<Program> programs;
 
       // how we source programs depends on the query parameters
       if (null != libraryId && !libraryId.isEmpty())
-        programs = manager().readMany(hubAccess, ImmutableList.of(UUID.fromString(libraryId)));
+        programs = manager().readMany(access, ImmutableList.of(UUID.fromString(libraryId)));
       else if (null != accountId && !accountId.isEmpty())
-        programs = manager().readManyInAccount(hubAccess, accountId);
+        programs = manager().readManyInAccount(access, accountId);
       else
-        programs = manager().readMany(hubAccess);
+        programs = manager().readMany(access);
 
       // add programs as plural data in payload
       for (Program program : programs) jsonapiPayload.addData(payloadFactory.toPayloadObject(program));
@@ -84,12 +84,12 @@ public class ProgramEndpoint extends HubJsonapiEndpoint<Program> {
       // if detailed, add Program Memes
       if (Objects.nonNull(detailed) && detailed)
         jsonapiPayload.addAllToIncluded(payloadFactory.toPayloadObjects(
-          programMemeManager.readMany(hubAccess, programIds)));
+          programMemeManager.readMany(access, programIds)));
 
       // if detailed, add Program Sequence Binding Memes
       if (Objects.nonNull(detailed) && detailed)
         jsonapiPayload.addAllToIncluded(payloadFactory.toPayloadObjects(
-          programSequenceBindingMemeManager.readMany(hubAccess, programIds)));
+          programSequenceBindingMemeManager.readMany(access, programIds)));
 
       return response.ok(jsonapiPayload);
 
@@ -114,11 +114,11 @@ public class ProgramEndpoint extends HubJsonapiEndpoint<Program> {
   ) {
 
     try {
-      HubAccess hubAccess = HubAccess.fromContext(crc);
+      HubAccess access = HubAccess.fromContext(crc);
       Program program = payloadFactory.consume(manager().newInstance(), jsonapiPayload);
       JsonapiPayload responseJsonapiPayload = new JsonapiPayload();
       if (Objects.nonNull(cloneId)) {
-        ManagerCloner<Program> cloner = manager().clone(hubAccess, UUID.fromString(cloneId), program);
+        ManagerCloner<Program> cloner = manager().clone(access, UUID.fromString(cloneId), program);
         responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(cloner.getClone()));
         List<JsonapiPayloadObject> list = new ArrayList<>();
         for (Object entity : cloner.getChildClones()) {
@@ -127,7 +127,7 @@ public class ProgramEndpoint extends HubJsonapiEndpoint<Program> {
         }
         responseJsonapiPayload.setIncluded(list);
       } else {
-        responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(manager().create(hubAccess, program)));
+        responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(manager().create(access, program)));
       }
 
       return response.create(responseJsonapiPayload);
@@ -147,15 +147,15 @@ public class ProgramEndpoint extends HubJsonapiEndpoint<Program> {
   @RolesAllowed(USER)
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id, @QueryParam("include") String include) {
     try {
-      HubAccess hubAccess = HubAccess.fromContext(crc);
+      HubAccess access = HubAccess.fromContext(crc);
       var uuid = UUID.fromString(id);
 
-      JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(manager().readOne(hubAccess, uuid)));
+      JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(manager().readOne(access, uuid)));
 
       // optionally specify a CSV of included types to read
       if (Objects.nonNull(include)) {
         List<JsonapiPayloadObject> list = new ArrayList<>();
-        for (Object entity : manager().readChildEntities(hubAccess, ImmutableList.of(uuid), CSV.split(include))) {
+        for (Object entity : manager().readChildEntities(access, ImmutableList.of(uuid), CSV.split(include))) {
           JsonapiPayloadObject jsonapiPayloadObject = payloadFactory.toPayloadObject(entity);
           list.add(jsonapiPayloadObject);
         }

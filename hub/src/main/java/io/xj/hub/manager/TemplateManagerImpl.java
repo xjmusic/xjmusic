@@ -79,19 +79,19 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl<Template> imp
   }
 
   @Override
-  public Template readOne(HubAccess hubAccess, UUID id) throws ManagerException {
-    return readOne(dbProvider.getDSL(), hubAccess, id);
+  public Template readOne(HubAccess access, UUID id) throws ManagerException {
+    return readOne(dbProvider.getDSL(), access, id);
   }
 
   @Override
-  public ManagerCloner<Template> clone(HubAccess hubAccess, UUID rawCloneId, Template to) throws ManagerException {
-    requireArtist(hubAccess);
+  public ManagerCloner<Template> clone(HubAccess access, UUID rawCloneId, Template to) throws ManagerException {
+    requireArtist(access);
     AtomicReference<Template> result = new AtomicReference<>();
     AtomicReference<ManagerCloner<Template>> cloner = new AtomicReference<>();
     dbProvider.getDSL().transaction(ctx -> {
       DSLContext db = DSL.using(ctx);
 
-      Template from = readOne(db, hubAccess, rawCloneId);
+      Template from = readOne(db, access, rawCloneId);
       if (Objects.isNull(from))
         throw new ManagerException("Can't clone nonexistent Template");
 
@@ -105,8 +105,8 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl<Template> imp
       entityFactory.setAllEmptyAttributes(from, to);
 
       // Validate template
-      Template template = validate(hubAccess, to);
-      requireParentExists(db, hubAccess, template);
+      Template template = validate(access, to);
+      requireParentExists(db, access, template);
 
       // Create main entity
       result.set(modelFrom(Template.class, executeCreate(db, TEMPLATE, template)));
@@ -124,9 +124,9 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl<Template> imp
   }
 
   @Override
-  public Optional<Template> readOneByShipKey(HubAccess hubAccess, String rawShipKey) throws ManagerException {
+  public Optional<Template> readOneByShipKey(HubAccess access, String rawShipKey) throws ManagerException {
     String key = Text.toShipKey(rawShipKey);
-    if (hubAccess.isTopLevel())
+    if (access.isTopLevel())
       return Optional.ofNullable(modelFrom(Template.class, dbProvider.getDSL().selectFrom(TEMPLATE)
         .where(TEMPLATE.SHIP_KEY.eq(key))
         .and(TEMPLATE.IS_DELETED.eq(false))
@@ -136,13 +136,13 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl<Template> imp
         .from(TEMPLATE)
         .where(TEMPLATE.SHIP_KEY.eq(key))
         .and(TEMPLATE.IS_DELETED.eq(false))
-        .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne()));
   }
 
   @Override
-  public Collection<Template> readAllPlaying(HubAccess hubAccess) throws ManagerException {
-    requireTopLevel(hubAccess);
+  public Collection<Template> readAllPlaying(HubAccess access) throws ManagerException {
+    requireTopLevel(access);
     DSLContext db = dbProvider.getDSL();
 
     return modelsFrom(Template.class, db.select(TEMPLATE.fields())
@@ -154,24 +154,24 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl<Template> imp
   }
 
   @Override
-  public Collection<Object> readChildEntities(HubAccess hubAccess, Collection<UUID> templateIds, Collection<String> includeTypes) throws ManagerException {
+  public Collection<Object> readChildEntities(HubAccess access, Collection<UUID> templateIds, Collection<String> includeTypes) throws ManagerException {
     DSLContext db = dbProvider.getDSL();
 
-    requireRead(db, hubAccess, templateIds);
+    requireRead(db, access, templateIds);
 
     Collection<Object> entities = Lists.newArrayList();
 
     // TemplateBinding
     if (includeTypes.contains(Entities.toResourceType(TemplateBinding.class)))
-      entities.addAll(templateBindingManager.readMany(hubAccess, templateIds));
+      entities.addAll(templateBindingManager.readMany(access, templateIds));
 
     // TemplatePlayback
     if (includeTypes.contains(Entities.toResourceType(TemplatePlayback.class)))
-      entities.addAll(templatePlaybackManager.readMany(hubAccess, templateIds));
+      entities.addAll(templatePlaybackManager.readMany(access, templateIds));
 
     // TemplatePublication
     if (includeTypes.contains(Entities.toResourceType(TemplatePublication.class)))
-      entities.addAll(templatePublicationManager.readMany(hubAccess, templateIds));
+      entities.addAll(templatePublicationManager.readMany(access, templateIds));
 
     // FeedbackTemplate
     if (includeTypes.contains(Entities.toResourceType(FeedbackTemplate.class)))
@@ -182,9 +182,9 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl<Template> imp
   }
 
   @Override
-  public Collection<Template> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws ManagerException {
+  public Collection<Template> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
     if (Objects.nonNull(parentIds) && !parentIds.isEmpty()) {
-      if (hubAccess.isTopLevel())
+      if (access.isTopLevel())
         return modelsFrom(Template.class, dbProvider.getDSL().select(TEMPLATE.fields())
           .from(TEMPLATE)
           .where(TEMPLATE.ACCOUNT_ID.in(parentIds))
@@ -195,10 +195,10 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl<Template> imp
           .from(TEMPLATE)
           .where(TEMPLATE.ACCOUNT_ID.in(parentIds))
           .and(TEMPLATE.IS_DELETED.eq(false))
-          .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
           .fetch());
     } else {
-      if (hubAccess.isTopLevel())
+      if (access.isTopLevel())
         return modelsFrom(Template.class, dbProvider.getDSL().select(TEMPLATE.fields())
           .from(TEMPLATE)
           .where(TEMPLATE.IS_DELETED.eq(false))
@@ -206,7 +206,7 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl<Template> imp
       else
         return modelsFrom(Template.class, dbProvider.getDSL().select(TEMPLATE.fields())
           .from(TEMPLATE)
-          .where(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .where(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
           .and(TEMPLATE.IS_DELETED.eq(false))
           .fetch());
     }
@@ -253,12 +253,12 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl<Template> imp
   }
 
   @Override
-  public void destroy(HubAccess hubAccess, UUID id) throws ManagerException {
+  public void destroy(HubAccess access, UUID id) throws ManagerException {
     DSLContext db = dbProvider.getDSL();
 
-    Template exists = readOne(db, hubAccess, id);
+    Template exists = readOne(db, access, id);
     if (!TemplateType.Preview.equals(exists.getType()))
-      requireTopLevel(hubAccess);
+      requireTopLevel(access);
 
     db.update(TEMPLATE)
       .set(TEMPLATE.IS_DELETED, true)
@@ -315,13 +315,13 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl<Template> imp
    Read one record
 
    @param db        DSL context
-   @param hubAccess control
+   @param access control
    @param id        to read
    @return record
    @throws ManagerException on failure
    */
-  private Template readOne(DSLContext db, HubAccess hubAccess, UUID id) throws ManagerException {
-    if (hubAccess.isTopLevel())
+  private Template readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+    if (access.isTopLevel())
       return modelFrom(Template.class, db.selectFrom(TEMPLATE)
         .where(TEMPLATE.ID.eq(id))
         .and(TEMPLATE.IS_DELETED.eq(false))
@@ -331,23 +331,23 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl<Template> imp
         .from(TEMPLATE)
         .where(TEMPLATE.ID.eq(id))
         .and(TEMPLATE.IS_DELETED.eq(false))
-        .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne());
   }
 
   /**
-   Require read hubAccess
+   Require read access
 
    @param db          database context
-   @param hubAccess   control
+   @param access   control
    @param templateIds to require access to
    */
-  private void requireRead(DSLContext db, HubAccess hubAccess, Collection<UUID> templateIds) throws ManagerException {
-    if (!hubAccess.isTopLevel())
+  private void requireRead(DSLContext db, HubAccess access, Collection<UUID> templateIds) throws ManagerException {
+    if (!access.isTopLevel())
       for (UUID templateId : templateIds)
         requireExists("Template", db.selectCount().from(TEMPLATE)
           .where(TEMPLATE.ID.eq(templateId))
-          .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
           .fetchOne(0, int.class));
   }
 
@@ -355,18 +355,18 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl<Template> imp
    Require parent template exists of a given possible entity in a DSL context
 
    @param db        DSL context
-   @param hubAccess control
+   @param access control
    @param entity    to validate
    @throws ManagerException if parent does not exist
    */
-  private void requireParentExists(DSLContext db, HubAccess hubAccess, Template entity) throws ManagerException {
-    if (hubAccess.isTopLevel())
+  private void requireParentExists(DSLContext db, HubAccess access, Template entity) throws ManagerException {
+    if (access.isTopLevel())
       requireExists("Account", db.selectCount().from(ACCOUNT)
         .where(ACCOUNT.ID.eq(entity.getAccountId()))
         .fetchOne(0, int.class));
     else
       requireExists("Account", db.selectCount().from(ACCOUNT)
-        .where(ACCOUNT.ID.in(hubAccess.getAccountIds()))
+        .where(ACCOUNT.ID.in(access.getAccountIds()))
         .and(ACCOUNT.ID.eq(entity.getAccountId()))
         .fetchOne(0, int.class));
   }

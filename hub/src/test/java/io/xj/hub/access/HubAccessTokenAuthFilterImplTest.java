@@ -76,9 +76,9 @@ public class HubAccessTokenAuthFilterImplTest {
       @GET
       @RolesAllowed(HubJsonapiEndpoint.USER)
       public Response get(@Context ContainerRequestContext crc) throws JsonapiException {
-        HubAccess hubAccess = HubAccess.fromContext(crc);
+        HubAccess access = HubAccess.fromContext(crc);
         return Response
-          .accepted(payloadFactory.serialize(hubAccess))
+          .accepted(payloadFactory.serialize(access))
           .type(MediaType.APPLICATION_JSON)
           .build();
       }
@@ -107,9 +107,9 @@ public class HubAccessTokenAuthFilterImplTest {
       @GET
       @PermitAll
       public Response get(@Context ContainerRequestContext crc) throws JsonapiException {
-        HubAccess hubAccess = HubAccess.fromContext(crc);
+        HubAccess access = HubAccess.fromContext(crc);
         return Response
-          .accepted(payloadFactory.serialize(hubAccess))
+          .accepted(payloadFactory.serialize(access))
           .type(MediaType.APPLICATION_JSON)
           .build();
       }
@@ -138,9 +138,9 @@ public class HubAccessTokenAuthFilterImplTest {
       @GET
       @RolesAllowed(HubJsonapiEndpoint.USER)
       public Response get(@Context ContainerRequestContext crc) throws JsonapiException {
-        HubAccess hubAccess = HubAccess.fromContext(crc);
+        HubAccess access = HubAccess.fromContext(crc);
         return Response
-          .accepted(payloadFactory.serialize(hubAccess))
+          .accepted(payloadFactory.serialize(access))
           .type(MediaType.APPLICATION_JSON)
           .build();
       }
@@ -170,9 +170,9 @@ public class HubAccessTokenAuthFilterImplTest {
       @GET
       @PermitAll
       public Response get(@Context ContainerRequestContext crc) throws JsonapiException {
-        HubAccess hubAccess = HubAccess.fromContext(crc);
+        HubAccess access = HubAccess.fromContext(crc);
         return Response
-          .accepted(payloadFactory.serialize(hubAccess))
+          .accepted(payloadFactory.serialize(access))
           .type(MediaType.APPLICATION_JSON)
           .build();
       }

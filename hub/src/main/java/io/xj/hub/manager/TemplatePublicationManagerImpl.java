@@ -33,16 +33,16 @@ public class TemplatePublicationManagerImpl extends HubPersistenceServiceImpl<Te
   }
 
   @Override
-  public TemplatePublication create(HubAccess hubAccess, TemplatePublication raw) throws ManagerException, JsonapiException, ValueException {
+  public TemplatePublication create(HubAccess access, TemplatePublication raw) throws ManagerException, JsonapiException, ValueException {
     DSLContext db = dbProvider.getDSL();
-    raw.setUserId(hubAccess.getUserId());
+    raw.setUserId(access.getUserId());
     TemplatePublication record = validate(raw);
-    requireArtist(hubAccess);
+    requireArtist(access);
 
-    if (!hubAccess.isTopLevel())
+    if (!access.isTopLevel())
       requireExists("Access to template", db.selectCount().from(TEMPLATE)
         .where(TEMPLATE.ID.eq(record.getTemplateId()))
-        .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
 
     var template = modelFrom(Template.class, dbProvider.getDSL().selectFrom(TEMPLATE)
@@ -62,14 +62,14 @@ public class TemplatePublicationManagerImpl extends HubPersistenceServiceImpl<Te
 
   @Override
   @Nullable
-  public TemplatePublication readOne(HubAccess hubAccess, UUID id) throws ManagerException {
-    return readOne(dbProvider.getDSL(), hubAccess, id);
+  public TemplatePublication readOne(HubAccess access, UUID id) throws ManagerException {
+    return readOne(dbProvider.getDSL(), access, id);
   }
 
   @Override
-  public Optional<TemplatePublication> readOneForUser(HubAccess hubAccess, UUID userId) throws ManagerException {
+  public Optional<TemplatePublication> readOneForUser(HubAccess access, UUID userId) throws ManagerException {
     DSLContext db = dbProvider.getDSL();
-    var publicationRecord = hubAccess.isTopLevel()
+    var publicationRecord = access.isTopLevel()
       ?
       db.selectFrom(TEMPLATE_PUBLICATION)
         .where(TEMPLATE_PUBLICATION.USER_ID.eq(userId))
@@ -79,14 +79,14 @@ public class TemplatePublicationManagerImpl extends HubPersistenceServiceImpl<Te
         .from(TEMPLATE_PUBLICATION)
         .join(TEMPLATE).on(TEMPLATE.ID.eq(TEMPLATE_PUBLICATION.TEMPLATE_ID))
         .where(TEMPLATE_PUBLICATION.USER_ID.eq(userId))
-        .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne();
 
     return Objects.nonNull(publicationRecord) ? Optional.of(modelFrom(TemplatePublication.class, publicationRecord)) : Optional.empty();
   }
 
   @Override
-  public void destroy(HubAccess hubAccess, UUID id) throws ManagerException {
+  public void destroy(HubAccess access, UUID id) throws ManagerException {
     throw new ManagerException("Cannot delete template publication!");
   }
 
@@ -96,8 +96,8 @@ public class TemplatePublicationManagerImpl extends HubPersistenceServiceImpl<Te
   }
 
   @Override
-  public Collection<TemplatePublication> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws ManagerException {
-    if (hubAccess.isTopLevel())
+  public Collection<TemplatePublication> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
+    if (access.isTopLevel())
       return modelsFrom(TemplatePublication.class, dbProvider.getDSL().select(TEMPLATE_PUBLICATION.fields())
         .from(TEMPLATE_PUBLICATION)
         .where(TEMPLATE_PUBLICATION.TEMPLATE_ID.in(parentIds))
@@ -108,13 +108,13 @@ public class TemplatePublicationManagerImpl extends HubPersistenceServiceImpl<Te
         .from(TEMPLATE_PUBLICATION)
         .join(TEMPLATE).on(TEMPLATE.ID.eq(TEMPLATE_PUBLICATION.TEMPLATE_ID))
         .where(TEMPLATE_PUBLICATION.TEMPLATE_ID.in(parentIds))
-        .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(TEMPLATE_PUBLICATION.USER_ID)
         .fetch());
   }
 
   @Override
-  public TemplatePublication update(HubAccess hubAccess, UUID id, TemplatePublication rawTemplatePublication) throws ManagerException, JsonapiException, ValueException {
+  public TemplatePublication update(HubAccess access, UUID id, TemplatePublication rawTemplatePublication) throws ManagerException, JsonapiException, ValueException {
     throw new ManagerException("Can't update a Template Publication");
   }
 
@@ -122,13 +122,13 @@ public class TemplatePublicationManagerImpl extends HubPersistenceServiceImpl<Te
    Read one record
 
    @param db        DSL context
-   @param hubAccess control
+   @param access control
    @param id        to read
    @return record
    @throws ManagerException on failure
    */
-  private TemplatePublication readOne(DSLContext db, HubAccess hubAccess, UUID id) throws ManagerException {
-    if (hubAccess.isTopLevel())
+  private TemplatePublication readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+    if (access.isTopLevel())
       return modelFrom(TemplatePublication.class, db.selectFrom(TEMPLATE_PUBLICATION)
         .where(TEMPLATE_PUBLICATION.ID.eq(id))
         .fetchOne());
@@ -137,7 +137,7 @@ public class TemplatePublicationManagerImpl extends HubPersistenceServiceImpl<Te
         .from(TEMPLATE_PUBLICATION)
         .join(TEMPLATE).on(TEMPLATE.ID.eq(TEMPLATE_PUBLICATION.TEMPLATE_ID))
         .where(TEMPLATE_PUBLICATION.ID.eq(id))
-        .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne());
   }
 

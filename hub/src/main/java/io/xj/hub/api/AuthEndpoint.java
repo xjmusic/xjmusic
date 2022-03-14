@@ -97,11 +97,11 @@ public class AuthEndpoint extends HubJsonapiEndpoint<UserAuth> {
   @Path("no")
   @PermitAll
   public Response nullifyAuthentication(@Context ContainerRequestContext crc) {
-    HubAccess hubAccess = HubAccess.fromContext(crc);
+    HubAccess access = HubAccess.fromContext(crc);
 
-    if (hubAccess.isValid()) {
+    if (access.isValid()) {
       try {
-        userManager.destroyAllTokens(hubAccess.getUserId());
+        userManager.destroyAllTokens(access.getUserId());
         return response.internalRedirectWithCookie("", hubAccessControlProvider.newExpiredCookie());
 
       } catch (Exception e) {

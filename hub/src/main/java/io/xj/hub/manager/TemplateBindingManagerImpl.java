@@ -30,11 +30,11 @@ public class TemplateBindingManagerImpl extends HubPersistenceServiceImpl<Templa
   }
 
   @Override
-  public TemplateBinding create(HubAccess hubAccess, TemplateBinding rawTemplateBinding) throws ManagerException, JsonapiException, ValueException {
+  public TemplateBinding create(HubAccess access, TemplateBinding rawTemplateBinding) throws ManagerException, JsonapiException, ValueException {
     DSLContext db = dbProvider.getDSL();
     TemplateBinding record = validate(rawTemplateBinding);
-    requireArtist(hubAccess);
-    requireParentExists(db, hubAccess, record); // This entity's parent is a Template
+    requireArtist(access);
+    requireParentExists(db, access, record); // This entity's parent is a Template
     requireNotExists("same content already bound to template",
       db.selectCount().from(TEMPLATE_BINDING)
         .where(TEMPLATE_BINDING.TEMPLATE_ID.eq(record.getTemplateId()))
@@ -45,19 +45,19 @@ public class TemplateBindingManagerImpl extends HubPersistenceServiceImpl<Templa
 
   @Override
   @Nullable
-  public TemplateBinding readOne(HubAccess hubAccess, UUID id) throws ManagerException {
-    return readOne(dbProvider.getDSL(), hubAccess, id);
+  public TemplateBinding readOne(HubAccess access, UUID id) throws ManagerException {
+    return readOne(dbProvider.getDSL(), access, id);
   }
 
   @Override
-  public void destroy(HubAccess hubAccess, UUID id) throws ManagerException {
+  public void destroy(HubAccess access, UUID id) throws ManagerException {
     DSLContext db = dbProvider.getDSL();
 
-    if (!hubAccess.isTopLevel())
+    if (!access.isTopLevel())
       requireExists("TemplateBinding belonging to you", db.selectCount().from(TEMPLATE_BINDING)
         .join(TEMPLATE).on(TEMPLATE_BINDING.TEMPLATE_ID.eq(TEMPLATE.ID))
         .where(TEMPLATE_BINDING.ID.eq(id))
-        .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
 
     //
@@ -75,8 +75,8 @@ public class TemplateBindingManagerImpl extends HubPersistenceServiceImpl<Templa
   }
 
   @Override
-  public Collection<TemplateBinding> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws ManagerException {
-    if (hubAccess.isTopLevel())
+  public Collection<TemplateBinding> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
+    if (access.isTopLevel())
       return modelsFrom(TemplateBinding.class, dbProvider.getDSL().select(TEMPLATE_BINDING.fields())
         .from(TEMPLATE_BINDING)
         .where(TEMPLATE_BINDING.TEMPLATE_ID.in(parentIds))
@@ -87,13 +87,13 @@ public class TemplateBindingManagerImpl extends HubPersistenceServiceImpl<Templa
         .from(TEMPLATE_BINDING)
         .join(TEMPLATE).on(TEMPLATE.ID.eq(TEMPLATE_BINDING.TEMPLATE_ID))
         .where(TEMPLATE_BINDING.TEMPLATE_ID.in(parentIds))
-        .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(TEMPLATE_BINDING.TYPE)
         .fetch());
   }
 
   @Override
-  public TemplateBinding update(HubAccess hubAccess, UUID id, TemplateBinding rawTemplateBinding) throws ManagerException, JsonapiException, ValueException {
+  public TemplateBinding update(HubAccess access, UUID id, TemplateBinding rawTemplateBinding) throws ManagerException, JsonapiException, ValueException {
     throw new ManagerException("Can't update a Template Playback");
   }
 
@@ -101,13 +101,13 @@ public class TemplateBindingManagerImpl extends HubPersistenceServiceImpl<Templa
    Read one record
 
    @param db        DSL context
-   @param hubAccess control
+   @param access control
    @param id        to read
    @return record
    @throws ManagerException on failure
    */
-  private TemplateBinding readOne(DSLContext db, HubAccess hubAccess, UUID id) throws ManagerException {
-    if (hubAccess.isTopLevel())
+  private TemplateBinding readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+    if (access.isTopLevel())
       return modelFrom(TemplateBinding.class, db.selectFrom(TEMPLATE_BINDING)
         .where(TEMPLATE_BINDING.ID.eq(id))
         .fetchOne());
@@ -116,7 +116,7 @@ public class TemplateBindingManagerImpl extends HubPersistenceServiceImpl<Templa
         .from(TEMPLATE_BINDING)
         .join(TEMPLATE).on(TEMPLATE.ID.eq(TEMPLATE_BINDING.TEMPLATE_ID))
         .where(TEMPLATE_BINDING.ID.eq(id))
-        .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne());
   }
 
@@ -124,18 +124,18 @@ public class TemplateBindingManagerImpl extends HubPersistenceServiceImpl<Templa
    Require parent templateBinding exists of a given possible entity in a DSL context
 
    @param db        DSL context
-   @param hubAccess control
+   @param access control
    @param entity    to validate
    @throws ManagerException if parent does not exist
    */
-  private void requireParentExists(DSLContext db, HubAccess hubAccess, TemplateBinding entity) throws ManagerException {
-    if (hubAccess.isTopLevel())
+  private void requireParentExists(DSLContext db, HubAccess access, TemplateBinding entity) throws ManagerException {
+    if (access.isTopLevel())
       requireExists("Template", db.selectCount().from(TEMPLATE)
         .where(TEMPLATE.ID.eq(entity.getTemplateId()))
         .fetchOne(0, int.class));
     else
       requireExists("Template", db.selectCount().from(TEMPLATE)
-        .where(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .where(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
         .and(TEMPLATE.ID.eq(entity.getTemplateId()))
         .fetchOne(0, int.class));
   }

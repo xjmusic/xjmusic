@@ -79,11 +79,11 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
   ) {
 
     try {
-      HubAccess hubAccess = HubAccess.fromContext(crc);
+      HubAccess access = HubAccess.fromContext(crc);
       Template template = payloadFactory.consume(manager().newInstance(), jsonapiPayload);
       JsonapiPayload responseJsonapiPayload = new JsonapiPayload();
       if (Objects.nonNull(cloneId)) {
-        ManagerCloner<Template> cloner = manager().clone(hubAccess, UUID.fromString(cloneId), template);
+        ManagerCloner<Template> cloner = manager().clone(access, UUID.fromString(cloneId), template);
         responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(cloner.getClone()));
         List<JsonapiPayloadObject> list = new ArrayList<>();
         for (Object entity : cloner.getChildClones()) {
@@ -92,7 +92,7 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
         }
         responseJsonapiPayload.setIncluded(list);
       } else {
-        responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(manager().create(hubAccess, template)));
+        responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(manager().create(access, template)));
       }
 
       return response.create(responseJsonapiPayload);
@@ -185,11 +185,11 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
     @Context ContainerRequestContext crc
   ) {
     try {
-      HubAccess hubAccess = HubAccess.fromContext(crc);
+      HubAccess access = HubAccess.fromContext(crc);
       JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataType(PayloadDataType.Many);
 
       // add templatePlaybacks as plural data in payload
-      for (var template : manager().readAllPlaying(hubAccess))
+      for (var template : manager().readAllPlaying(access))
         jsonapiPayload.addData(payloadFactory.toPayloadObject(template));
 
       return response.ok(jsonapiPayload);

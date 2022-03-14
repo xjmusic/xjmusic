@@ -14,7 +14,7 @@ import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.Values;
-import io.xj.nexus.hub_client.client.HubClientAccess;
+import io.xj.hub.client.HubClientAccess;
 import io.xj.nexus.persistence.Segments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

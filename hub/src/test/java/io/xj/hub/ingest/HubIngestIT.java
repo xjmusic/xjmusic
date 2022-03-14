@@ -106,10 +106,10 @@ public class HubIngestIT {
 
   @Test
   public void access() throws Exception {
-    HubAccess hubAccess = HubAccess.internal();
+    HubAccess access = HubAccess.internal();
     HubIngest ingest = ingestFactory.ingest(HubAccess.internal(), fake.template1.getId());
 
-    assertArrayEquals(hubAccess.getRoleTypes().toArray(), ingest.getHubAccess().getRoleTypes().toArray());
+    assertArrayEquals(access.getRoleTypes().toArray(), ingest.getAccess().getRoleTypes().toArray());
   }
 
   @Test

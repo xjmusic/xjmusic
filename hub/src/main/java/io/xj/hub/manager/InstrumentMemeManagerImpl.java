@@ -29,17 +29,17 @@ public class InstrumentMemeManagerImpl extends HubPersistenceServiceImpl<Instrum
   }
 
   @Override
-  public InstrumentMeme create(HubAccess hubAccess, InstrumentMeme rawMeme) throws ManagerException, JsonapiException, ValueException {
+  public InstrumentMeme create(HubAccess access, InstrumentMeme rawMeme) throws ManagerException, JsonapiException, ValueException {
     var meme = validate(rawMeme);
-    requireArtist(hubAccess);
+    requireArtist(access);
     return modelFrom(InstrumentMeme.class,
       executeCreate(dbProvider.getDSL(), INSTRUMENT_MEME, meme));
   }
 
   @Override
   @Nullable
-  public InstrumentMeme readOne(HubAccess hubAccess, UUID id) throws ManagerException {
-    requireArtist(hubAccess);
+  public InstrumentMeme readOne(HubAccess access, UUID id) throws ManagerException {
+    requireArtist(access);
     return modelFrom(InstrumentMeme.class,
       dbProvider.getDSL().selectFrom(INSTRUMENT_MEME)
         .where(INSTRUMENT_MEME.ID.eq(id))
@@ -48,8 +48,8 @@ public class InstrumentMemeManagerImpl extends HubPersistenceServiceImpl<Instrum
 
   @Override
   @Nullable
-  public Collection<InstrumentMeme> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws ManagerException {
-    requireArtist(hubAccess);
+  public Collection<InstrumentMeme> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
+    requireArtist(access);
     return modelsFrom(InstrumentMeme.class,
       dbProvider.getDSL().selectFrom(INSTRUMENT_MEME)
         .where(INSTRUMENT_MEME.INSTRUMENT_ID.in(parentIds))
@@ -57,16 +57,16 @@ public class InstrumentMemeManagerImpl extends HubPersistenceServiceImpl<Instrum
   }
 
   @Override
-  public InstrumentMeme update(HubAccess hubAccess, UUID id, InstrumentMeme rawMeme) throws ManagerException, JsonapiException, ValueException {
+  public InstrumentMeme update(HubAccess access, UUID id, InstrumentMeme rawMeme) throws ManagerException, JsonapiException, ValueException {
     var meme = validate(rawMeme);
-    requireArtist(hubAccess);
+    requireArtist(access);
     executeUpdate(dbProvider.getDSL(), INSTRUMENT_MEME, id, meme);
     return meme;
   }
 
   @Override
-  public void destroy(HubAccess hubAccess, UUID id) throws ManagerException {
-    requireArtist(hubAccess);
+  public void destroy(HubAccess access, UUID id) throws ManagerException {
+    requireArtist(access);
     dbProvider.getDSL().deleteFrom(INSTRUMENT_MEME)
       .where(INSTRUMENT_MEME.ID.eq(id))
       .execute();

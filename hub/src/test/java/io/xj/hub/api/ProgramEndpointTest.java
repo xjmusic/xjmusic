@@ -56,7 +56,7 @@ public class ProgramEndpointTest {
   ContainerRequestContext crc;
   @Mock
   ProgramManager programManager;
-  private HubAccess hubAccess;
+  private HubAccess access;
   private ProgramEndpoint subject;
   private Library library25;
   private Library library1;
@@ -74,7 +74,7 @@ public class ProgramEndpointTest {
 
     HubTopology.buildHubApiTopology(injector.getInstance(EntityFactory.class));
     var account1 = buildAccount("Testing");
-    hubAccess = HubAccess.create(ImmutableList.of(account1), "User,Artist");
+    access = HubAccess.create(ImmutableList.of(account1), "User,Artist");
     library25 = buildLibrary(account1, "Test 25");
     library1 = buildLibrary(account1, "Test 1");
     subject = injector.getInstance(ProgramEndpoint.class);
@@ -83,7 +83,7 @@ public class ProgramEndpointTest {
 
   @Test
   public void readMany() throws ManagerException, IOException, JsonapiException {
-    when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
+    when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
     Program program1 = new Program();
     program1.setId(UUID.randomUUID());
     program1.setLibraryId(library25.getId());
@@ -103,12 +103,12 @@ public class ProgramEndpointTest {
     program2.setTempo(120.0f);
     program2.setDensity(0.6f);
     Collection<Program> programs = ImmutableList.of(program1, program2);
-    when(programManager.readMany(same(hubAccess), eq(ImmutableList.of(library25.getId()))))
+    when(programManager.readMany(same(access), eq(ImmutableList.of(library25.getId()))))
       .thenReturn(programs);
 
     Response result = subject.readMany(crc, null, library25.getId().toString(), false);
 
-    verify(programManager).readMany(same(hubAccess), eq(ImmutableList.of(library25.getId())));
+    verify(programManager).readMany(same(access), eq(ImmutableList.of(library25.getId())));
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
     assertPayload(new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class))
@@ -117,7 +117,7 @@ public class ProgramEndpointTest {
 
   @Test
   public void readOne() throws ManagerException, IOException, JsonapiException {
-    when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
+    when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
     Program program1 = new Program();
     program1.setId(UUID.randomUUID());
     program1.setLibraryId(library1.getId());
@@ -127,7 +127,7 @@ public class ProgramEndpointTest {
     program1.setKey("C#");
     program1.setTempo(120.0f);
     program1.setDensity(0.6f);
-    when(programManager.readOne(same(hubAccess), eq(program1.getId()))).thenReturn(program1);
+    when(programManager.readOne(same(access), eq(program1.getId()))).thenReturn(program1);
 
     Response result = subject.readOne(crc, program1.getId().toString(), "");
 

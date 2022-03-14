@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.nexus.hub_client.client;
+package io.xj.hub.client;
 
 import com.google.common.collect.*;
 import com.google.inject.Inject;
@@ -192,6 +192,30 @@ public class HubContent {
   }
 
   /**
+   Get all instrument audios for the given instrument id
+
+   @param instrumentId for which to get tracks
+   @return tracks for instrument
+   */
+  public Collection<InstrumentAudio> getInstrumentAudios(UUID instrumentId) {
+    return getAll(InstrumentAudio.class).stream()
+      .filter(track -> Objects.equals(instrumentId, track.getInstrumentId()))
+      .toList();
+  }
+
+  /**
+   Get all instrument audios for the given instrument type
+
+   @param type of instrument
+   @return all audios for instrument type
+   */
+  public Collection<InstrumentAudio> getInstrumentAudios(InstrumentType type) {
+    return getInstruments(type).stream()
+      .flatMap(instrument -> getInstrumentAudios(instrument.getId()).stream())
+      .toList();
+  }
+
+  /**
    get all cached InstrumentMemes
 
    @return cached InstrumentMemes
@@ -253,8 +277,8 @@ public class HubContent {
   /**
    Get memes of instrument
 
-   @return memes of instrument
    @param instrumentId to get memes for
+   @return memes of instrument
    */
   public Collection<InstrumentMeme> getMemesForInstrumentId(UUID instrumentId) {
     return getInstrumentMemes().stream()
@@ -265,8 +289,8 @@ public class HubContent {
   /**
    Get memes of program
 
-   @return memes of program
    @param programId to get memes for
+   @return memes of program
    */
   public Collection<ProgramMeme> getMemesForProgramId(UUID programId) {
     return getProgramMemes(programId);
@@ -275,8 +299,8 @@ public class HubContent {
   /**
    Get all program sequence binding memes for program sequence binding
 
-   @return memes
    @param programSequenceBindingId to get memes for
+   @return memes
    */
   public Collection<ProgramSequenceBindingMeme> getMemesForProgramSequenceBindingId(UUID programSequenceBindingId) {
     return getProgramSequenceBindingMemes().stream()
@@ -344,6 +368,15 @@ public class HubContent {
     return getPrograms().stream()
       .filter(program -> program.getType().equals(type))
       .collect(Collectors.toList());
+  }
+
+  /**
+   Get all program memes
+
+   @return memes of program
+   */
+  public Collection<ProgramMeme> getProgramMemes() {
+    return getAll(ProgramMeme.class);
   }
 
   /**
@@ -473,21 +506,6 @@ public class HubContent {
   }
 
   /**
-   Get the program sequence chord voicing for the given program sequence chord and instrument type
-
-   @param programSequenceChordId chord
-   @param instrumentType         type of instrument
-   @return voicing if present
-   */
-  public Optional<ProgramSequenceChordVoicing> getProgramSequenceChordVoicing(UUID programSequenceChordId, InstrumentType instrumentType) {
-    return getAll(ProgramSequenceChordVoicing.class).stream()
-      .filter(v -> Objects.equals(programSequenceChordId, v.getProgramSequenceChordId()))
-      .filter(v -> Objects.equals(instrumentType, v.getType()))
-      .filter(v -> Note.containsAnyValidNotes(v.getNotes()))
-      .findFirst();
-  }
-
-  /**
    Get program sequence chord voicings
 
    @param programId to get sequence chord voicings of
@@ -527,6 +545,30 @@ public class HubContent {
    */
   public Optional<ProgramVoiceTrack> getProgramVoiceTrack(UUID id) {
     return get(ProgramVoiceTrack.class, id);
+  }
+
+  /**
+   Get all program voice tracks for the given program id
+
+   @param programId for which to get tracks
+   @return tracks for program
+   */
+  public Collection<ProgramVoiceTrack> getProgramVoiceTracks(UUID programId) {
+    return getAll(ProgramVoiceTrack.class).stream()
+      .filter(track -> Objects.equals(programId, track.getProgramId()))
+      .toList();
+  }
+
+  /**
+   Get all program voice tracks for the given program type
+
+   @param type of program
+   @return all voice tracks for program type
+   */
+  public Collection<ProgramVoiceTrack> getProgramVoiceTracks(ProgramType type) {
+    return getPrograms(type).stream()
+      .flatMap(program -> getProgramVoiceTracks(program.getId()).stream())
+      .toList();
   }
 
   /**
@@ -694,5 +736,4 @@ public class HubContent {
       return (Collection<E>) store.get(type).values();
     return ImmutableList.of();
   }
-
 }

@@ -1,6 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-package io.xj.nexus.hub_client.client;
+package io.xj.hub.client;
 
 import com.google.inject.AbstractModule;
 import io.xj.lib.http.HttpClientModule;

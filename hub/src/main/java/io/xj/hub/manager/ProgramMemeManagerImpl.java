@@ -30,11 +30,11 @@ public class ProgramMemeManagerImpl extends HubPersistenceServiceImpl<ProgramMem
   }
 
   @Override
-  public ProgramMeme create(HubAccess hubAccess, ProgramMeme rawMeme) throws ManagerException, JsonapiException, ValueException {
+  public ProgramMeme create(HubAccess access, ProgramMeme rawMeme) throws ManagerException, JsonapiException, ValueException {
     var meme = validate(rawMeme);
-    requireArtist(hubAccess);
+    requireArtist(access);
     DSLContext db = dbProvider.getDSL();
-    requireProgramModification(db, hubAccess, meme.getProgramId());
+    requireProgramModification(db, access, meme.getProgramId());
     return modelFrom(ProgramMeme.class,
       executeCreate(db, PROGRAM_MEME, meme));
 
@@ -42,17 +42,17 @@ public class ProgramMemeManagerImpl extends HubPersistenceServiceImpl<ProgramMem
 
   @Override
   @Nullable
-  public ProgramMeme readOne(HubAccess hubAccess, UUID id) throws ManagerException {
-    requireArtist(hubAccess);
+  public ProgramMeme readOne(HubAccess access, UUID id) throws ManagerException {
+    requireArtist(access);
     DSLContext db = dbProvider.getDSL();
-    return readOne(db, hubAccess, id);
+    return readOne(db, access, id);
   }
 
   @Override
   @Nullable
-  public Collection<ProgramMeme> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws ManagerException {
-    requireArtist(hubAccess);
-    if (hubAccess.isTopLevel())
+  public Collection<ProgramMeme> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
+    requireArtist(access);
+    if (access.isTopLevel())
       return modelsFrom(ProgramMeme.class,
         dbProvider.getDSL().selectFrom(PROGRAM_MEME)
           .where(PROGRAM_MEME.PROGRAM_ID.in(parentIds))
@@ -63,26 +63,26 @@ public class ProgramMemeManagerImpl extends HubPersistenceServiceImpl<ProgramMem
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_MEME.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM_MEME.PROGRAM_ID.in(parentIds))
-          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
           .fetch());
   }
 
   @Override
-  public ProgramMeme update(HubAccess hubAccess, UUID id, ProgramMeme rawMeme) throws ManagerException, JsonapiException, ValueException {
+  public ProgramMeme update(HubAccess access, UUID id, ProgramMeme rawMeme) throws ManagerException, JsonapiException, ValueException {
     var meme = validate(rawMeme);
-    requireArtist(hubAccess);
+    requireArtist(access);
     DSLContext db = dbProvider.getDSL();
-    var original = readOne(db, hubAccess, id);
+    var original = readOne(db, access, id);
     meme.setProgramId(original.getProgramId());
     executeUpdate(db, PROGRAM_MEME, id, meme);
     return meme;
   }
 
   @Override
-  public void destroy(HubAccess hubAccess, UUID id) throws ManagerException {
-    requireArtist(hubAccess);
+  public void destroy(HubAccess access, UUID id) throws ManagerException {
+    requireArtist(access);
     DSLContext db = dbProvider.getDSL();
-    requireModification(db, hubAccess, id);
+    requireModification(db, access, id);
     db.deleteFrom(PROGRAM_MEME)
       .where(PROGRAM_MEME.ID.eq(id))
       .execute();
@@ -97,13 +97,13 @@ public class ProgramMemeManagerImpl extends HubPersistenceServiceImpl<ProgramMem
    Read one Program Meme that have permissions to
 
    @param db        context
-   @param hubAccess control
+   @param access control
    @param id        of entity to read
    @return Program Meme
    @throws ManagerException on failure
    */
-  private ProgramMeme readOne(DSLContext db, HubAccess hubAccess, UUID id) throws ManagerException {
-    if (hubAccess.isTopLevel())
+  private ProgramMeme readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+    if (access.isTopLevel())
       return modelFrom(ProgramMeme.class,
         db.selectFrom(PROGRAM_MEME)
           .where(PROGRAM_MEME.ID.eq(id))
@@ -114,7 +114,7 @@ public class ProgramMemeManagerImpl extends HubPersistenceServiceImpl<ProgramMem
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_MEME.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM_MEME.ID.eq(id))
-          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
           .fetchOne());
   }
 
@@ -122,13 +122,13 @@ public class ProgramMemeManagerImpl extends HubPersistenceServiceImpl<ProgramMem
    Require access to modification of a Program Meme
 
    @param db        context
-   @param hubAccess control
+   @param access control
    @param id        to validate access to
-   @throws ManagerException if no hubAccess
+   @throws ManagerException if no access
    */
-  private void requireModification(DSLContext db, HubAccess hubAccess, UUID id) throws ManagerException {
-    requireArtist(hubAccess);
-    if (hubAccess.isTopLevel())
+  private void requireModification(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+    requireArtist(access);
+    if (access.isTopLevel())
       requireExists("Program Meme", db.selectCount().from(PROGRAM_MEME)
         .where(PROGRAM_MEME.ID.eq(id))
         .fetchOne(0, int.class));
@@ -137,7 +137,7 @@ public class ProgramMemeManagerImpl extends HubPersistenceServiceImpl<ProgramMem
         .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_MEME.PROGRAM_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
         .where(PROGRAM_MEME.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
   }
 
