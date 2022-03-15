@@ -2,38 +2,23 @@
 
 package io.xj.hub.analysis;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import io.xj.hub.access.HubAccess;
+import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.*;
-import io.xj.hub.ingest.HubIngest;
-import io.xj.hub.ingest.HubIngestFactory;
 import io.xj.hub.tables.pojos.*;
+import io.xj.lib.app.Environment;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
 
 import static io.xj.hub.IntegrationTestingFixtures.*;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
-@RunWith(MockitoJUnitRunner.class)
-public class HubAnalysisTest {
-  @Mock
-  HubIngestFactory hubIngestFactory;
-  @Mock
-  HubIngest hubIngest;
-  private Template template;
-  private HubAccess access;
-  private Injector injector;
+public class ReportDrumInstrumentEventsTest {
+  private AnalyzeDrumInstrumentEvents subject;
+  private Program program2;
+  private Instrument instrument1;
 
   @Before
   public void setUp() throws Exception {
@@ -44,11 +29,11 @@ public class HubAnalysisTest {
     Library library1 = buildLibrary(account1, "leaves");
 
     // Templates: enhanced preview chain creation for artists in Lab UI #178457569
-    template = buildTemplate(buildAccount("Test"), TemplateType.Preview, "Test", "key123");
+    Template template = buildTemplate(buildAccount("Test"), TemplateType.Preview, "Test", "key123");
     TemplateBinding templateBinding_library1 = buildTemplateBinding(template, library1);
 
     // Instrument 201
-    Instrument instrument1 = buildInstrument(library1, InstrumentType.Drum, InstrumentMode.NoteEvent, InstrumentState.Published, "808 Drums");
+    instrument1 = buildInstrument(library1, InstrumentType.Drum, InstrumentMode.NoteEvent, InstrumentState.Published, "808 Drums");
     InstrumentMeme instrument1_meme1 = buildInstrumentMeme(instrument1, "Ants");
     InstrumentAudio instrument1_audio1 = buildInstrumentAudio(instrument1, "Chords Cm to D", "a0b9f74kf9b4h8d9e0g73k107s09f7-g0e73982.wav", 0.01f, 2.123f, 120.0f, 0.62f, "KICK", "X", 1.0f);
 
@@ -62,7 +47,7 @@ public class HubAnalysisTest {
     ProgramSequenceBindingMeme program1_binding1_meme0 = buildProgramSequenceBindingMeme(program1_binding1, "Gravel");
 
     // Program 702, beat-type, has unbound sequence with pattern with events
-    Program program2 = buildProgram(library1, ProgramType.Beat, ProgramState.Published, "coconuts", "F#", 110.3f, 0.6f);
+    program2 = buildProgram(library1, ProgramType.Beat, ProgramState.Published, "coconuts", "F#", 110.3f, 0.6f);
     ProgramMeme program2_meme1 = buildProgramMeme(program2, "Ants");
     ProgramVoice program2_voice1 = buildProgramVoice(program2, InstrumentType.Drum, "Drums");
     ProgramSequence program2_sequence1 = buildProgramSequence(program2, (short) 16, "Base", 0.5f, "C");
@@ -95,46 +80,13 @@ public class HubAnalysisTest {
       program2_voice1
     );
 
-    access = HubAccess.internal();
-
-    injector = Guice.createInjector(new HubAnalysisModule(), new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(HubIngestFactory.class).toInstance(hubIngestFactory);
-      }
-    });
-    when(hubIngestFactory.ingest(same(access), eq(template.getId()))).thenReturn(hubIngest);
-    when(hubIngest.getAllEntities()).thenReturn(entities);
+    subject = new AnalyzeDrumInstrumentEvents(new HubContent(entities), Environment.getDefault());
   }
 
   @Test
-  public void analysis_allCompTypes_toHTML() throws Exception {
-    HubAnalysis subject = injector.getInstance(HubAnalysisFactory.class).analysis(access, template.getId(), List.of(Report.Type.values()));
-
-    var result = subject.toHTML();
-
-    assertTrue(result.contains("<!DOCTYPE html>"));
-    assertTrue(result.contains("<html lang=\"en\">"));
-    assertTrue(result.contains("<meta charset=\"UTF-8\">"));
-    assertTrue(result.contains("<title>Content Analysis</title>"));
-    assertTrue(result.contains("Drum Events"));
-    assertTrue(result.contains("Main Chords"));
-    assertTrue(result.contains("Memes"));
+  public void analysis() {
+    assertEquals(2, subject.getEventHistogram().size());
+    assertArrayEquals(List.of(program2.getId()).toArray(), subject.getEventHistogram().get("BOOM").getProgramIds().toArray());
+    assertArrayEquals(List.of(instrument1.getId()).toArray(), subject.getEventHistogram().get("KICK").getInstrumentIds().toArray());
   }
-
-  @Test
-  public void analysis_oneCompType_toHTML() throws Exception {
-    HubAnalysis subject = injector.getInstance(HubAnalysisFactory.class).analysis(access, template.getId(), List.of(Report.Type.Memes));
-
-    var result = subject.toHTML();
-
-    assertTrue(result.contains("<!DOCTYPE html>"));
-    assertTrue(result.contains("<html lang=\"en\">"));
-    assertTrue(result.contains("<meta charset=\"UTF-8\">"));
-    assertTrue(result.contains("<title>Content Analysis</title>"));
-    assertTrue(result.contains("Memes"));
-    assertFalse(result.contains("Drum Events"));
-    assertFalse(result.contains("Main Chords"));
-  }
-
 }

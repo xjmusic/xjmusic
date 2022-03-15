@@ -24,6 +24,6 @@ public interface HubAnalysisFactory {
   HubAnalysis analysis(
     @Assisted("access") HubAccess access,
     @Assisted("templateId") UUID templateId,
-    @Assisted("analyze") Collection<Analyze.Type> compTypes
+    @Assisted("analyze") Collection<Report.Type> compTypes
   ) throws HubAnalysisException;
 }

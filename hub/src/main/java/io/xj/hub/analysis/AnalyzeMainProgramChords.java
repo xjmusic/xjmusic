@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 /**
  Template content Analysis #161199945
  */
-public class AnalyzeMainProgramChords extends Analyze {
+public class AnalyzeMainProgramChords extends Report {
   private final ChordHistogram mainProgramChords;
 
   public AnalyzeMainProgramChords(HubContent content, Environment env) {
@@ -32,7 +32,7 @@ public class AnalyzeMainProgramChords extends Analyze {
         .map(e -> TR(
           TD(e.getValue().total.toString()),
           TD(e.getKey()),
-          TD(e.getValue().programIds.stream().map(this::renderHtmlLinkToProgram).collect(Collectors.joining("\n")))
+          TD(e.getValue().programIds.stream().map(this::programRef).collect(Collectors.joining("\n")))
         ))
         .collect(Collectors.joining()));
   }

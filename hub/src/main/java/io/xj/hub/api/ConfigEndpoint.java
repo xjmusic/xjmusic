@@ -8,7 +8,7 @@ import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.InstrumentConfig;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.TemplateConfig;
-import io.xj.hub.analysis.Analyze;
+import io.xj.hub.analysis.Report;
 import io.xj.hub.enums.*;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.lib.app.Environment;
@@ -49,7 +49,7 @@ public class ConfigEndpoint extends HubJsonapiEndpoint<Object> {
   ) {
     super(dbProvider, response, payloadFactory, entityFactory);
     configMap = ImmutableMap.<String, Object>builder()
-      .put("analysisTypes", Arrays.stream(Analyze.Type.values()).collect(Collectors.toMap(Analyze.Type::toString, Analyze.Type::getName)))
+      .put("analysisTypes", Arrays.stream(Report.Type.values()).collect(Collectors.toMap(Report.Type::toString, Report.Type::getName)))
       .put("apiBaseUrl", env.getAppBaseUrl())
       .put("audioBaseUrl", env.getAudioBaseUrl())
       .put("streamBaseUrl", env.getStreamBaseUrl())

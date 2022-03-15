@@ -16,28 +16,28 @@ import java.util.stream.Collectors;
 /**
  Template content Analysis #161199945
  */
-public class AnalyzeDrumInstrumentEvents extends Analyze {
-  private final EventHistogram events;
+public class AnalyzeDrumInstrumentEvents extends Report {
+  private final EventHistogram eventHistogram;
 
   public AnalyzeDrumInstrumentEvents(HubContent content, Environment env) {
     super(content, env);
 
-    events = new EventHistogram();
-    content.getInstrumentAudios(InstrumentType.Drum).forEach(audio -> events.addInstrumentId(audio.getEvent(), audio.getInstrumentId()));
-    content.getProgramVoiceTracks(ProgramType.Beat).forEach(track -> events.addProgramId(track.getName(), track.getProgramId()));
+    eventHistogram = new EventHistogram();
+    content.getInstrumentAudios(InstrumentType.Drum).forEach(audio -> eventHistogram.addInstrumentId(audio.getEvent(), audio.getInstrumentId()));
+    content.getProgramVoiceTracks(ProgramType.Beat).forEach(track -> eventHistogram.addProgramId(track.getName(), track.getProgramId()));
   }
 
   @SuppressWarnings("DuplicatedCode")
   @Override
   String toHTML() {
     return TABLE(TR(TD("Total"), TD("Event"), TD("Programs"), TD("Instruments")),
-      events.histogram.entrySet().stream()
+      eventHistogram.histogram.entrySet().stream()
         .sorted((c1, c2) -> c2.getValue().total.compareTo(c1.getValue().total))
         .map(e -> TR(
           TD(e.getValue().total.toString()),
           TD(e.getKey()),
-          TD(e.getValue().programIds.stream().map(this::renderHtmlLinkToProgram).collect(Collectors.joining("\n"))),
-          TD(e.getValue().instrumentIds.stream().map(this::renderHtmlLinkToInstrument).collect(Collectors.joining("\n")))
+          TD(e.getValue().programIds.stream().map(this::programRef).collect(Collectors.joining("\n"))),
+          TD(e.getValue().instrumentIds.stream().map(this::instrumentRef).collect(Collectors.joining("\n")))
         ))
         .collect(Collectors.joining()));
   }
@@ -48,13 +48,32 @@ public class AnalyzeDrumInstrumentEvents extends Analyze {
   }
 
   /**
+   Get the histogram
+
+   @return event histogram
+   */
+  public EventHistogram getEventHistogram() {
+    return eventHistogram;
+  }
+
+  /**
    Representation of the construction of a histogram of usage of all events
    */
-  private static class EventHistogram {
+  public static class EventHistogram {
     Map<String, EventCount> histogram;
 
     public EventHistogram() {
       histogram = Maps.newHashMap();
+    }
+
+    public EventCount get(String raw) {
+      var name = Text.toEvent(raw);
+      if (!histogram.containsKey(name)) throw new RuntimeException(String.format("Unknown event: %s", name));
+      return histogram.get(name);
+    }
+
+    public int size() {
+      return histogram.size();
     }
 
     public void addInstrumentId(String raw, UUID instrumentId) {
@@ -73,7 +92,7 @@ public class AnalyzeDrumInstrumentEvents extends Analyze {
   /**
    Representation of the count of usages for one event
    */
-  private static class EventCount {
+  public static class EventCount {
     Set<UUID> programIds;
     Set<UUID> instrumentIds;
     Integer total;
@@ -82,6 +101,18 @@ public class AnalyzeDrumInstrumentEvents extends Analyze {
       total = 0;
       programIds = Sets.newHashSet();
       instrumentIds = Sets.newHashSet();
+    }
+
+    public Set<UUID> getProgramIds() {
+      return programIds;
+    }
+
+    public Set<UUID> getInstrumentIds() {
+      return instrumentIds;
+    }
+
+    public Integer getTotal() {
+      return total;
     }
 
     public void addInstrumentId(UUID instrumentId) {
