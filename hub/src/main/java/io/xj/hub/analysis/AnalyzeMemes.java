@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 /**
  Template content Analysis #161199945
  */
-public class AnalyzeMemes extends Analyze {
+public class AnalyzeMemes extends Report {
   private final MemeHistogram memes;
 
   public AnalyzeMemes(HubContent content, Environment env) {
@@ -34,8 +34,8 @@ public class AnalyzeMemes extends Analyze {
         .map(e -> TR(
           TD(e.getValue().total.toString()),
           TD(e.getKey()),
-          TD(e.getValue().programIds.stream().map(this::renderHtmlLinkToProgram).collect(Collectors.joining("\n"))),
-          TD(e.getValue().instrumentIds.stream().map(this::renderHtmlLinkToInstrument).collect(Collectors.joining("\n")))
+          TD(e.getValue().programIds.stream().map(this::programRef).collect(Collectors.joining("\n"))),
+          TD(e.getValue().instrumentIds.stream().map(this::instrumentRef).collect(Collectors.joining("\n")))
         ))
         .collect(Collectors.joining()));
   }

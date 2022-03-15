@@ -19,6 +19,9 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static io.xj.hub.analysis.Report.H1;
+import static io.xj.hub.analysis.Report.H2;
+
 /**
  Template content Analysis #161199945
  */
@@ -29,7 +32,7 @@ class HubAnalysisImpl implements HubAnalysis {
   private static final String title = "Content Analysis";
   private final Environment env;
   private final HubAccess access;
-  private final Collection<Analyze.Type> compTypes;
+  private final Collection<Report.Type> compTypes;
   private final HubContent content;
 
   @Inject
@@ -37,7 +40,7 @@ class HubAnalysisImpl implements HubAnalysis {
     Environment env,
     @Assisted("access") HubAccess access,
     @Assisted("templateId") UUID templateId,
-    @Assisted("analyze") Collection<Analyze.Type> compTypes,
+    @Assisted("analyze") Collection<Report.Type> compTypes,
     HubIngestFactory hubIngestFactory
   ) throws HubAnalysisException {
     this.env = env;
@@ -73,7 +76,7 @@ class HubAnalysisImpl implements HubAnalysis {
   }
 
   private String renderHeaderHTML() throws HubClientException {
-    return String.format("<h1>%s</h1>\n%s\n%s", content.getTemplate().getName(), renderTimestampHTML(), renderTocHTML());
+    return String.join("\n", H1(content.getTemplate().getName(), "headline"), renderTimestampHTML(), renderTocHTML());
   }
 
   private String renderTocHTML() {
@@ -98,8 +101,8 @@ class HubAnalysisImpl implements HubAnalysis {
       .collect(Collectors.joining("\n"));
   }
 
-  private String renderCompHTML(Analyze analyzer) {
-    return String.format("<h2 id=\"%s\">%s</h2>\n%s", analyzer.getType().toString(), analyzer.getType().getName(), analyzer.toHTML());
+  private String renderCompHTML(Report analyzer) {
+    return String.join("\n", H2(analyzer.getType().getName(), analyzer.getType().toString()), analyzer.toHTML());
   }
 
   /**
@@ -108,7 +111,7 @@ class HubAnalysisImpl implements HubAnalysis {
    @param type of comp
    @return comp
    */
-  private Analyze getComp(Analyze.Type type) {
+  private Report getComp(Report.Type type) {
     return switch (type) {
       case Memes -> new AnalyzeMemes(content, env);
       case MainProgramChords -> new AnalyzeMainProgramChords(content, env);

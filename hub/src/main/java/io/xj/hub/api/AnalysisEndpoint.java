@@ -4,7 +4,7 @@ package io.xj.hub.api;
 import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.analysis.Analyze;
+import io.xj.hub.analysis.Report;
 import io.xj.hub.analysis.HubAnalysisFactory;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.lib.entity.EntityFactory;
@@ -66,7 +66,7 @@ public class AnalysisEndpoint extends HubJsonapiEndpoint<Object> {
         .ok(analysisFactory.analysis(
           HubAccess.fromContext(crc),
           UUID.fromString(templateId),
-          Analyze.Type.fromValues(CSV.split(analysisTypes))
+          Report.Type.fromValues(CSV.split(analysisTypes))
         ).toHTML())
         .type(MediaType.TEXT_HTML_TYPE)
         .build();
