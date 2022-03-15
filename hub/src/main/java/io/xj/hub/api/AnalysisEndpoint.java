@@ -4,8 +4,8 @@ package io.xj.hub.api;
 import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.analysis.Report;
 import io.xj.hub.analysis.HubAnalysisFactory;
+import io.xj.hub.analysis.Report;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
@@ -55,7 +55,7 @@ public class AnalysisEndpoint extends HubJsonapiEndpoint<Object> {
    */
   @GET
   @Path("{templateId}")
-  @RolesAllowed(INTERNAL)
+  @RolesAllowed(ARTIST)
   public Response analysis(
     @Context ContainerRequestContext crc,
     @PathParam("templateId") String templateId,
