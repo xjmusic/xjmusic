@@ -16,7 +16,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 public class ReportDrumInstrumentEventsTest {
-  private AnalyzeDrumInstrumentEvents subject;
+  private ReportDrumInstrumentEvents subject;
   private Program program2;
   private Instrument instrument1;
 
@@ -80,7 +80,7 @@ public class ReportDrumInstrumentEventsTest {
       program2_voice1
     );
 
-    subject = new AnalyzeDrumInstrumentEvents(new HubContent(entities), Environment.getDefault());
+    subject = new ReportDrumInstrumentEvents(new HubContent(entities), Environment.getDefault());
   }
 
   @Test

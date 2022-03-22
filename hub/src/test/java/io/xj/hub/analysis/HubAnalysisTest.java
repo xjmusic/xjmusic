@@ -19,7 +19,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.List;
 
 import static io.xj.hub.IntegrationTestingFixtures.*;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
@@ -108,23 +107,8 @@ public class HubAnalysisTest {
   }
 
   @Test
-  public void analysis_allCompTypes_toHTML() throws Exception {
-    HubAnalysis subject = injector.getInstance(HubAnalysisFactory.class).analysis(access, template.getId(), List.of(Report.Type.values()));
-
-    var result = subject.toHTML();
-
-    assertTrue(result.contains("<!DOCTYPE html>"));
-    assertTrue(result.contains("<html lang=\"en\">"));
-    assertTrue(result.contains("<meta charset=\"UTF-8\">"));
-    assertTrue(result.contains("<title>Content Analysis</title>"));
-    assertTrue(result.contains("Drum Events"));
-    assertTrue(result.contains("Main Chords"));
-    assertTrue(result.contains("Memes"));
-  }
-
-  @Test
-  public void analysis_oneCompType_toHTML() throws Exception {
-    HubAnalysis subject = injector.getInstance(HubAnalysisFactory.class).analysis(access, template.getId(), List.of(Report.Type.Memes));
+  public void analysis_toHTML() throws Exception {
+    Report subject = injector.getInstance(HubAnalysisFactory.class).report(access, template.getId(), Report.Type.Memes);
 
     var result = subject.toHTML();
 
@@ -133,8 +117,6 @@ public class HubAnalysisTest {
     assertTrue(result.contains("<meta charset=\"UTF-8\">"));
     assertTrue(result.contains("<title>Content Analysis</title>"));
     assertTrue(result.contains("Memes"));
-    assertFalse(result.contains("Drum Events"));
-    assertFalse(result.contains("Main Chords"));
   }
 
 }

@@ -12,6 +12,8 @@ import io.xj.api.*;
 import io.xj.hub.InstrumentConfig;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.TemplateConfig;
+import io.xj.hub.client.HubClientException;
+import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.ContentBindingType;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
@@ -27,8 +29,6 @@ import io.xj.lib.meme.MemeStack;
 import io.xj.lib.music.*;
 import io.xj.lib.util.*;
 import io.xj.nexus.NexusException;
-import io.xj.hub.client.HubClientException;
-import io.xj.hub.client.HubContent;
 import io.xj.nexus.persistence.*;
 import org.glassfish.jersey.internal.guava.Sets;
 import org.slf4j.Logger;
@@ -1104,7 +1104,7 @@ class FabricatorImpl implements Fabricator {
    --+ if this is the first pick for this instrument type, record the first note
    --+ if this is a subsequent note in the series, record it's # semitones from first note
    */
-  private void persistStickyBuns() throws NexusException {
+  private void persistStickyBuns() {
     Optional<SegmentChord> chord;
     Optional<SegmentChordVoicing> voicing;
     Optional<Note> rootNote;
@@ -1114,32 +1114,35 @@ class FabricatorImpl implements Fabricator {
           .orElseThrow(() -> new RuntimeException("Failed to obtain previous segment"))
           .getId(), pick.getSegmentId()))
         .sorted(Comparator.comparing(SegmentChoiceArrangementPick::getStart))
-        .toList()) {
+        .toList())
+      try {
 
-      chord = retrospective.getChord(pick);
-      if (chord.isEmpty()) {
-        LOG.warn("Unable to obtain ProgramSequenceChord for SegmentChoiceArrangementPick[{}]", pick.getId());
-        continue;
+        chord = retrospective.getChord(pick);
+        if (chord.isEmpty()) {
+          LOG.warn("Unable to obtain ProgramSequenceChord for SegmentChoiceArrangementPick[{}]", pick.getId());
+          continue;
+        }
+
+        voicing = retrospective.getSegmentChordVoicing(chord.get().getId(), retrospective.getInstrumentType(pick));
+        if (voicing.isEmpty()) {
+          LOG.debug("No voicing for {}-type voicing of SegmentChord[{}]", retrospective.getInstrumentType(pick), chord.get().getId());
+          continue;
+        }
+
+        rootNote = getRootNoteMidRange(voicing.get().getNotes(), Chord.of(chord.get().getName()));
+        if (rootNote.isEmpty()) {
+          LOG.debug("No root note for Voicing[{}] and Chord[{}]", voicing.get().getNotes(), Chord.of(chord.get().getName()));
+          continue;
+        }
+
+        putStickyBun(
+          pick.getProgramSequencePatternEventId(),
+          rootNote.get(),
+          pick.getStart(),
+          Note.of(pick.getNote()));
+      } catch (Exception e) {
+        LOG.warn("Failed to persist sticky buns", e);
       }
-
-      voicing = retrospective.getSegmentChordVoicing(chord.get().getId(), retrospective.getInstrumentType(pick));
-      if (voicing.isEmpty()) {
-        LOG.debug("No voicing for {}-type voicing of SegmentChord[{}]", retrospective.getInstrumentType(pick), chord.get().getId());
-        continue;
-      }
-
-      rootNote = getRootNoteMidRange(voicing.get().getNotes(), Chord.of(chord.get().getName()));
-      if (rootNote.isEmpty()) {
-        LOG.debug("No root note for Voicing[{}] and Chord[{}]", voicing.get().getNotes(), Chord.of(chord.get().getName()));
-        continue;
-      }
-
-      putStickyBun(
-        pick.getProgramSequencePatternEventId(),
-        rootNote.get(),
-        pick.getStart(),
-        Note.of(pick.getNote()));
-    }
   }
 
   /**

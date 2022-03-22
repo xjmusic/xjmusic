@@ -14,8 +14,6 @@ public class HubAnalysisModule extends AbstractModule {
   protected void configure() {
     install(new EntityModule());
     install(new JsonModule());
-    install(new FactoryModuleBuilder()
-      .implement(HubAnalysis.class, HubAnalysisImpl.class)
-      .build(HubAnalysisFactory.class));
+    bind(HubAnalysisFactory.class).to(HubAnalysisFactoryImpl.class);
   }
 }

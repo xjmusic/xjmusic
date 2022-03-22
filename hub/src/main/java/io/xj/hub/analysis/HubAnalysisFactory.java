@@ -4,7 +4,6 @@ package io.xj.hub.analysis;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.hub.access.HubAccess;
 
-import java.util.Collection;
 import java.util.UUID;
 
 /**
@@ -19,11 +18,11 @@ public interface HubAnalysisFactory {
    @return entities to be evaluated
    @throws HubAnalysisException on failure to of target entities
    @param access control
-   @param compTypes types of analysis to perform
+   @param type type of report to generate
    */
-  HubAnalysis analysis(
+  Report report(
     @Assisted("access") HubAccess access,
     @Assisted("templateId") UUID templateId,
-    @Assisted("analyze") Collection<Report.Type> compTypes
+    @Assisted("analyze") Report.Type type
   ) throws HubAnalysisException;
 }
