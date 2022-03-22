@@ -3,21 +3,21 @@ package io.xj.hub.analysis;
 import com.google.api.client.util.Maps;
 import com.google.api.client.util.Sets;
 import io.xj.hub.client.HubContent;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.Program;
 import io.xj.lib.app.Environment;
 import io.xj.lib.util.Text;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  Template content Analysis #161199945
  */
-public class AnalyzeMemes extends Report {
+public class ReportMemes extends Report {
   private final MemeHistogram memes;
 
-  public AnalyzeMemes(HubContent content, Environment env) {
+  public ReportMemes(HubContent content, Environment env) {
     super(content, env);
 
     memes = new MemeHistogram();
@@ -26,22 +26,33 @@ public class AnalyzeMemes extends Report {
     content.getProgramSequenceBindingMemes().forEach(meme -> memes.addProgramId(meme.getName(), meme.getProgramId()));
   }
 
+  @SuppressWarnings("DuplicatedCode")
   @Override
-  String toHTML() {
+  public String renderContentHTML() {
     return TABLE(TR(TD("Total"), TD("Name"), TD("Programs"), TD("Instruments")),
       memes.histogram.entrySet().stream()
         .sorted((c1, c2) -> c2.getValue().total.compareTo(c1.getValue().total))
         .map(e -> TR(
           TD(e.getValue().total.toString()),
           TD(e.getKey()),
-          TD(e.getValue().programIds.stream().map(this::programRef).collect(Collectors.joining("\n"))),
-          TD(e.getValue().instrumentIds.stream().map(this::instrumentRef).collect(Collectors.joining("\n")))
+          TD(e.getValue().programIds.stream()
+            .map(content::getProgram)
+            .map(Optional::orElseThrow)
+            .sorted(Comparator.comparing(Program::getName))
+            .map(this::programRef)
+            .collect(Collectors.joining("\n"))),
+          TD(e.getValue().instrumentIds.stream()
+            .map(content::getInstrument)
+            .map(Optional::orElseThrow)
+            .sorted(Comparator.comparing(Instrument::getName))
+            .map(this::instrumentRef)
+            .collect(Collectors.joining("\n")))
         ))
         .collect(Collectors.joining()));
   }
 
   @Override
-  Type getType() {
+  public Type getType() {
     return Type.Memes;
   }
 

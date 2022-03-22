@@ -10,7 +10,6 @@ import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.util.CSV;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +17,6 @@ import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -54,19 +52,19 @@ public class AnalysisEndpoint extends HubJsonapiEndpoint<Object> {
    @return text/html response.
    */
   @GET
-  @Path("{templateId}")
+  @Path("{templateId}/{type}")
   @RolesAllowed(ARTIST)
   public Response analysis(
     @Context ContainerRequestContext crc,
     @PathParam("templateId") String templateId,
-    @QueryParam("analyze") String analysisTypes
+    @PathParam("type") String type
   ) {
     try {
       return Response
-        .ok(analysisFactory.analysis(
+        .ok(analysisFactory.report(
           HubAccess.fromContext(crc),
           UUID.fromString(templateId),
-          Report.Type.fromValues(CSV.split(analysisTypes))
+          Report.Type.valueOf(type)
         ).toHTML())
         .type(MediaType.TEXT_HTML_TYPE)
         .build();
