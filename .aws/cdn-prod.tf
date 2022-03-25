@@ -83,6 +83,7 @@ resource "aws_cloudfront_distribution" "xj-redirect" {
 
   aliases = [
     "w.xj.io",
+    "docs.xj.io",
     "www.xj.io",
     "www.xjplatform.com",
     "xj.outright.io",

@@ -61,6 +61,19 @@ resource "aws_route53_record" "xj-io-w" {
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
+resource "aws_route53_record" "xj-io-docs" {
+  name    = "docs.xj.io"
+  type    = "A"
+  zone_id = aws_route53_zone.xj-io.zone_id
+
+  alias {
+    name                   = aws_cloudfront_distribution.xj-redirect.domain_name
+    zone_id                = aws_cloudfront_distribution.xj-redirect.hosted_zone_id
+    evaluate_target_health = false
+  }
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
 resource "aws_route53_record" "xj-io-app" {
   name    = "app.xj.io"
   type    = "A"
