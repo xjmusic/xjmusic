@@ -43,7 +43,7 @@ import static io.xj.hub.tables.ProgramVoice.PROGRAM_VOICE;
 import static io.xj.hub.tables.ProgramVoiceTrack.PROGRAM_VOICE_TRACK;
 import static org.junit.Assert.*;
 
-public class LibraryManagerImplTest {
+public class LibraryManagerDbTest {
   private LibraryManager subject;
   private HubIntegrationTestProvider test;
   private IntegrationTestingFixtures fake;

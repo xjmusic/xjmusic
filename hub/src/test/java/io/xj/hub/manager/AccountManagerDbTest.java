@@ -28,7 +28,7 @@ import java.util.UUID;
 import static io.xj.hub.IntegrationTestingFixtures.*;
 import static org.junit.Assert.*;
 
-public class AccountManagerImplTest {
+public class AccountManagerDbTest {
   private AccountManager subject;
   private HubIntegrationTestProvider test;
   private IntegrationTestingFixtures fake;

@@ -41,7 +41,7 @@ import static org.junit.Assert.*;
 
 // future test: permissions of different users to readMany vs. of vs. update or destroy programs
 @RunWith(MockitoJUnitRunner.class)
-public class ProgramSequenceManagerImplTest {
+public class ProgramSequenceManagerDbTest {
   private ProgramSequenceManager testManager;
 
   private HubIntegrationTestProvider test;

@@ -33,7 +33,7 @@ import static io.xj.hub.IntegrationTestingFixtures.*;
 import static io.xj.hub.tables.TemplateBinding.TEMPLATE_BINDING;
 import static org.junit.Assert.*;
 
-public class TemplateManagerImplTest {
+public class TemplateManagerDbTest {
   private TemplateManager testManager;
   private HubIntegrationTestProvider test;
   private IntegrationTestingFixtures fake;

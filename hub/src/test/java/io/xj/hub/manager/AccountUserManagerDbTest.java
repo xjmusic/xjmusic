@@ -27,7 +27,7 @@ import static io.xj.hub.IntegrationTestingFixtures.*;
 import static org.junit.Assert.*;
 
 // future test: permissions of different users to readMany vs. of vs. update or delete account users
-public class AccountUserManagerImplTest {
+public class AccountUserManagerDbTest {
   private AccountUserManager testManager;
   private AccountUser accountUser_1_2;
   private HubIntegrationTestProvider test;

@@ -35,7 +35,7 @@ import static org.junit.Assert.*;
 // FUTURE: any test that
 
 @RunWith(MockitoJUnitRunner.class)
-public class TemplatePublicationManagerImplTest {
+public class TemplatePublicationManagerDbTest {
   private TemplatePublicationManager testManager;
   private HubIntegrationTestProvider test;
   private IntegrationTestingFixtures fake;

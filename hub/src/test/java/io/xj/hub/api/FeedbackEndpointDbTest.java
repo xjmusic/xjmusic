@@ -41,7 +41,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class FeedbackEndpointIT {
+public class FeedbackEndpointDbTest {
   @Mock
   ContainerRequestContext context;
   private FeedbackEndpoint subject;

@@ -30,7 +30,7 @@ import java.util.Collection;
 import static io.xj.hub.IntegrationTestingFixtures.*;
 import static org.junit.Assert.*;
 
-public class UserManagerImplTest {
+public class UserManagerDbTest {
   private UserManager subjectManager;
 
   private HubIntegrationTestProvider test;
