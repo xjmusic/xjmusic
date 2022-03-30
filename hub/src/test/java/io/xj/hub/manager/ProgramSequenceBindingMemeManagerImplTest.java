@@ -119,7 +119,7 @@ public class ProgramSequenceBindingMemeManagerImplTest {
   }
 
   /**
-   [#177587964] Artist can use numerals in meme name
+   https://www.pivotaltracker.com/story/show/177587964 Artist can use numerals in meme name
    */
   @Test
   public void create_numerals() throws Exception {
@@ -141,7 +141,7 @@ public class ProgramSequenceBindingMemeManagerImplTest {
   }
 
   /**
-   [#176474073] Artist can add !MEME values into Programs
+   https://www.pivotaltracker.com/story/show/176474073 Artist can add !MEME values into Programs
    */
   @Test
   public void create_notMeme() throws Exception {
@@ -163,7 +163,7 @@ public class ProgramSequenceBindingMemeManagerImplTest {
   }
 
   /**
-   [#156144567] Artist expects to of a Main-type programSequenceBindingMeme without crashing the entire platform
+   https://www.pivotaltracker.com/story/show/156144567 Artist expects to of a Main-type programSequenceBindingMeme without crashing the entire platform
    NOTE: This simple test fails to invoke the complexity of database call that is/was creating this issue in production.
    */
   @Test

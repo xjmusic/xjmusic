@@ -79,7 +79,7 @@ public class MemeStack {
   /**
    Test whether all of our own memes are allowed, while avoiding testing any meme against itself
    <p>
-   Refuse to make a choice that violates the meme stack #181466514
+   Refuse to make a choice that violates the meme stack https://www.pivotaltracker.com/story/show/181466514
 
    @return true if the theorem is valid
    */

@@ -81,7 +81,7 @@ public interface SegmentRetrospective {
   /**
    Get the picks of any previous segments which selected the same main sequence
    <p>
-   [#175947230] Artist writing detail program expects 'X' note value to result in random part creation from available Voicings
+   https://www.pivotaltracker.com/story/show/175947230 Artist writing detail program expects 'X' note value to result in random part creation from available Voicings
 
    @return map of all previous segment meme constellations (as keys) to a collection of choices made
    */

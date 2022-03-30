@@ -209,7 +209,7 @@ public class Chord extends IntervalPitchGroup {
   }
 
   /**
-   [#154985948] Architect wants to determine tonal similarity (% of shared pitch classes) between two Chords, in order to perform fuzzy matching operations.
+   https://www.pivotaltracker.com/story/show/154985948 Architect wants to determine tonal similarity (% of shared pitch classes) between two Chords, in order to perform fuzzy matching operations.
 
    @param other chord to compare with
    @return ratio (0 to 1) of similarity.
@@ -219,7 +219,7 @@ public class Chord extends IntervalPitchGroup {
   }
 
   /**
-   [#154985948] Architect wants to determine tonal similarity (% of shared pitch classes) between two Chords, in order to perform fuzzy matching operations.
+   https://www.pivotaltracker.com/story/show/154985948 Architect wants to determine tonal similarity (% of shared pitch classes) between two Chords, in order to perform fuzzy matching operations.
 
    @param other chord to compare with
    @return ratio (0 to 1) of similarity.
@@ -236,7 +236,7 @@ public class Chord extends IntervalPitchGroup {
   }
 
   /**
-   [#154985948] Architect wants to determine tonal similarity (% of shared pitch classes) between two Chords, in order to perform fuzzy matching operations.
+   https://www.pivotaltracker.com/story/show/154985948 Architect wants to determine tonal similarity (% of shared pitch classes) between two Chords, in order to perform fuzzy matching operations.
 
    @param other chord to compare with
    @return ratio (0 to 1) of similarity.

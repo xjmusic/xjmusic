@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 import javax.sound.sampled.AudioFormat;
 
 /**
- Ship broadcast via HTTP Live Streaming #179453189
+ Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
  */
 public interface BroadcastFactory {
 
@@ -64,7 +64,7 @@ public interface BroadcastFactory {
   /**
    Write the stream to a local .WAV file
    <p>
-   Ship service can be used to write N seconds to local .WAV file #181082015
+   Ship service can be used to write N seconds to local .WAV file https://www.pivotaltracker.com/story/show/181082015
 
    @param format of audio
    @return stream writer

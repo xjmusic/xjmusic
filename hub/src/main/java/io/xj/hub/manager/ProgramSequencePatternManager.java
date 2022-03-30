@@ -8,10 +8,10 @@ import java.util.UUID;
 
 public interface ProgramSequencePatternManager extends Manager<ProgramSequencePattern> {
   /**
-   [#171617769] Artist editing Program clones a pattern
-   [#173912361] Hub API create pattern cloning existing pattern
+   https://www.pivotaltracker.com/story/show/171617769 Artist editing Program clones a pattern
+   https://www.pivotaltracker.com/story/show/173912361 Hub API create pattern cloning existing pattern
    <p>
-   FIX [#176352798] Clone API for Artist editing a Program can clone a pattern including its events
+   FIX https://www.pivotaltracker.com/story/show/176352798 Clone API for Artist editing a Program can clone a pattern including its events
    due to constraints of serializing and deserializing the empty JSON payload for cloning an object
    without setting values (we will do this better in the future)--
    when cloning a pattern, `type` and `total` will always be set from the source pattern, and cannot be overridden.

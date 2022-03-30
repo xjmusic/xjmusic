@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.UUID;
 
 /**
- [#154350346] Architect wants a universal HubIngest Factory, to modularize graph mathematics used during craft to ingest any combination of Library, Sequence, and Instrument for any purpose.
+ https://www.pivotaltracker.com/story/show/154350346 Architect wants a universal HubIngest Factory, to modularize graph mathematics used during craft to ingest any combination of Library, Sequence, and Instrument for any purpose.
  <p>
  # Component
  <p>

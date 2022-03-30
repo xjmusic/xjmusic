@@ -12,7 +12,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- Sticky buns v2 #179153822 persisted for each randomly selected note in the series for any given pattern
+ Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822 persisted for each randomly selected note in the series for any given pattern
  - key on program-sequence-pattern-event id, persisting only the first value seen for any given event
  - super-key on program-sequence-pattern id, measuring delta from the first event seen in that pattern
  */

@@ -134,7 +134,7 @@ public class InstrumentEndpointTest {
   }
 
   /**
-   Lab UI should load memes when directly visiting an instrument #181129203
+   Lab UI should load memes when directly visiting an instrument https://www.pivotaltracker.com/story/show/181129203
    */
   @Test
   public void readOne_includingMemes() throws ManagerException, IOException, JsonapiException {

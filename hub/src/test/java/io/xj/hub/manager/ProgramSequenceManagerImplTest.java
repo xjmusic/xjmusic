@@ -117,7 +117,7 @@ public class ProgramSequenceManagerImplTest {
   }
 
   /**
-   [#156144567] Artist expects to of a Main-type programSequence without crashing the entire platform
+   https://www.pivotaltracker.com/story/show/156144567 Artist expects to of a Main-type programSequence without crashing the entire platform
    NOTE: This simple test fails to invoke the complexity of database call that is/was creating this issue in production.
    */
   @Test
@@ -141,7 +141,7 @@ public class ProgramSequenceManagerImplTest {
   }
 
   /**
-   [#170290553] Clone sub-entities of programSequence
+   https://www.pivotaltracker.com/story/show/170290553 Clone sub-entities of programSequence
    */
   @Test
   public void clone_fromOriginal() throws Exception {
@@ -291,8 +291,8 @@ public class ProgramSequenceManagerImplTest {
   }
 
   /**
-   [#156030760] Artist expects owner of ProgramSequence or Instrument to always remain the same as when it was ofd, even after being updated by another user.
-   DEPRECATED, future will be replaced by [#166724453] Instruments and Programs have author history
+   https://www.pivotaltracker.com/story/show/156030760 Artist expects owner of ProgramSequence or Instrument to always remain the same as when it was ofd, even after being updated by another user.
+   DEPRECATED, future will be replaced by https://www.pivotaltracker.com/story/show/166724453 Instruments and Programs have author history
    */
   @Test
   public void update_Name_PreservesOriginalOwner() throws Exception {
@@ -336,7 +336,7 @@ public class ProgramSequenceManagerImplTest {
   }
 
   /**
-   [#170390872] Delete a **Sequence** even if it has children, as long as it has no sequence bindings
+   https://www.pivotaltracker.com/story/show/170390872 Delete a **Sequence** even if it has children, as long as it has no sequence bindings
    */
   @Test
   public void destroy_succeedsEvenWhenHasPattern() throws Exception {
@@ -348,9 +348,9 @@ public class ProgramSequenceManagerImplTest {
   }
 
   /**
-   [#175693261] Artist editing program should be able to delete sequences
+   https://www.pivotaltracker.com/story/show/175693261 Artist editing program should be able to delete sequences
    <p>
-   DEPRECATES [#170390872] Delete a **Sequence** even if it has children, as long as it has no sequence bindings
+   DEPRECATES https://www.pivotaltracker.com/story/show/170390872 Delete a **Sequence** even if it has children, as long as it has no sequence bindings
    */
   @Test
   public void destroy_succeedsEvenWithChildren() throws Exception {

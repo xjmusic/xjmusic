@@ -115,7 +115,7 @@ public class ProgramSequenceChordVoicingManagerImplTest {
   }
 
   /**
-   Cannot create another voicing for a chord with the same type as an existing voicing for that chord #181159558
+   Cannot create another voicing for a chord with the same type as an existing voicing for that chord https://www.pivotaltracker.com/story/show/181159558
    */
   @Test
   public void create_cannotCreateAnotherForExistingInstrumentType() throws Exception {
@@ -130,7 +130,7 @@ public class ProgramSequenceChordVoicingManagerImplTest {
   }
 
   /**
-   [#176162975] Endpoint to batch update ProgramSequenceChordVoicing
+   https://www.pivotaltracker.com/story/show/176162975 Endpoint to batch update ProgramSequenceChordVoicing
    */
   @Test
   public void update() throws Exception {
@@ -148,7 +148,7 @@ public class ProgramSequenceChordVoicingManagerImplTest {
   }
 
   /**
-   Cannot update this voicing to a type that already exists for that chord #181159558
+   Cannot update this voicing to a type that already exists for that chord https://www.pivotaltracker.com/story/show/181159558
    */
   @Test
   public void update_cannotUpdateToTypeOfExistingVoicing() throws Exception {
@@ -165,7 +165,7 @@ public class ProgramSequenceChordVoicingManagerImplTest {
   }
 
   /**
-   [#156144567] Artist expects to of a Main-type programSequenceChordVoicing without crashing the entire platform
+   https://www.pivotaltracker.com/story/show/156144567 Artist expects to of a Main-type programSequenceChordVoicing without crashing the entire platform
    NOTE: This simple test fails to invoke the complexity of database call that is/was creating this issue in production.
    */
   @Test

@@ -163,7 +163,7 @@ public class ProgramSequenceChordManagerImplTest {
   }
 
   /**
-   [#175703981] Artist editing main program deletes voicing along with chord
+   https://www.pivotaltracker.com/story/show/175703981 Artist editing main program deletes voicing along with chord
    */
   @Test
   public void destroy_afterHasVoicing() throws Exception {

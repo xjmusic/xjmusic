@@ -116,7 +116,7 @@ public class ChordTest {
   }
 
   /**
-   [#154985948] Architect wants to determine tonal similarity (% of shared pitch classes) between two Chords, in order to perform fuzzy matching operations.
+   https://www.pivotaltracker.com/story/show/154985948 Architect wants to determine tonal similarity (% of shared pitch classes) between two Chords, in order to perform fuzzy matching operations.
    */
   @Test
   public void similarity() {
@@ -159,7 +159,7 @@ public class ChordTest {
   }
 
   /**
-   [#176728338] XJ understands the root of a slash chord
+   https://www.pivotaltracker.com/story/show/176728338 XJ understands the root of a slash chord
    */
   @Test
   public void getSlashRoot() {

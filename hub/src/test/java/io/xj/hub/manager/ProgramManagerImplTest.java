@@ -124,7 +124,7 @@ public class ProgramManagerImplTest {
   }
 
   /**
-   [#156144567] Artist expects to of a Main-type program without crashing the entire platform
+   https://www.pivotaltracker.com/story/show/156144567 Artist expects to of a Main-type program without crashing the entire platform
    NOTE: This simple test fails to invoke the complexity of database call that is/was creating this issue in production.
    */
   @Test
@@ -152,11 +152,11 @@ public class ProgramManagerImplTest {
   }
 
   /**
-   [#170290553] Clone sub-entities of program
+   https://www.pivotaltracker.com/story/show/170290553 Clone sub-entities of program
    <p>
-   [#175808105] Cloned Program should have same Voices and Chord Voicings
+   https://www.pivotaltracker.com/story/show/175808105 Cloned Program should have same Voices and Chord Voicings
    <p>
-   [#175947247] Artist expects to be able to clone Program without error
+   https://www.pivotaltracker.com/story/show/175947247 Artist expects to be able to clone Program without error
    */
   @Test
   public void clone_fromOriginal() throws Exception {
@@ -279,7 +279,7 @@ public class ProgramManagerImplTest {
   // future test: readManyInAccount vs readManyInLibraries, positive and negative cases
 
   /**
-   [#176372189] Fabricator should get distinct Chord Voicing Types
+   https://www.pivotaltracker.com/story/show/176372189 Fabricator should get distinct Chord Voicing Types
    */
   @Test
   public void readManyWithChildEntities() throws Exception {
@@ -375,9 +375,9 @@ public class ProgramManagerImplTest {
   }
 
   /**
-   [#175789099] Artist should always be able to change program type
+   https://www.pivotaltracker.com/story/show/175789099 Artist should always be able to change program type
    <p>
-   DEPRECATES [#170390872] prevent user from changing the type of Beat program, when it has any Tracks and/or Voices.
+   DEPRECATES https://www.pivotaltracker.com/story/show/170390872 prevent user from changing the type of Beat program, when it has any Tracks and/or Voices.
    */
   @Test
   public void update_artistCanAlwaysChangeType() throws Exception {
@@ -397,8 +397,8 @@ public class ProgramManagerImplTest {
   }
 
   /**
-   [#156030760] Artist expects owner of Program or Instrument to always remain the same as when it was ofd, even after being updated by another user.
-   DEPRECATED, future will be replaced by [#166724453] Instruments and Programs have author history
+   https://www.pivotaltracker.com/story/show/156030760 Artist expects owner of Program or Instrument to always remain the same as when it was ofd, even after being updated by another user.
+   DEPRECATED, future will be replaced by https://www.pivotaltracker.com/story/show/166724453 Instruments and Programs have author history
    */
   @Test
   public void update_Name_PreservesOriginalOwner() throws Exception {
@@ -458,7 +458,7 @@ public class ProgramManagerImplTest {
   }
 
   /**
-   [#170299297] Cannot delete Programs that have a Meme
+   https://www.pivotaltracker.com/story/show/170299297 Cannot delete Programs that have a Meme
    */
   @Test
   public void destroy_evenWithMemes() throws Exception {
@@ -471,7 +471,7 @@ public class ProgramManagerImplTest {
   }
 
   /**
-   [#170299297] As long as program has no meme, destroy all other inner entities
+   https://www.pivotaltracker.com/story/show/170299297 As long as program has no meme, destroy all other inner entities
    */
   @Test
   public void destroy_succeedsWithInnerEntitiesButNoMemes() throws Exception {

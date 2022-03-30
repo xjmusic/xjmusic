@@ -10,7 +10,7 @@ import java.util.UUID;
 /**
  Manager for Template Publication
  <p>
- Templates: enhanced preview chain creation for artists in Lab UI #178457569
+ Templates: enhanced preview chain creation for artists in Lab UI https://www.pivotaltracker.com/story/show/178457569
  */
 public interface TemplatePublicationManager extends Manager<TemplatePublication> {
 

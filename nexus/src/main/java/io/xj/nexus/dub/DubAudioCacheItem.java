@@ -25,7 +25,7 @@ import java.util.Objects;
  <p>
  NO LONGER using Caffeine in-memory caching-- just caching on disk originally loading from S3
  <p>
- [#176642679] Advanced audio caching during fabrication
+ https://www.pivotaltracker.com/story/show/176642679 Advanced audio caching during fabrication
  */
 public class DubAudioCacheItem {
   final Logger log = LoggerFactory.getLogger(DubAudioCacheItem.class);

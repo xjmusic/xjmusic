@@ -16,7 +16,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- Template content Analysis #161199945
+ Template content Analysis https://www.pivotaltracker.com/story/show/161199945
  */
 public abstract class Report {
   private static final String REPORT_HTML_RESOURCE_PATH = "analysis/report.html";

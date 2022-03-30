@@ -44,7 +44,7 @@ import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
 import static org.junit.Assert.assertEquals;
 
 /**
- [#176696738] XJ has a serviceable voicing algorithm
+ https://www.pivotaltracker.com/story/show/176696738 XJ has a serviceable voicing algorithm
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ArrangementTests extends YamlTest {

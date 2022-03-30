@@ -121,7 +121,7 @@ public class ProgramSequenceBindingManagerImplTest {
   }
 
   /**
-   [#156144567] Artist expects to of a Main-type programSequenceBinding without crashing the entire platform
+   https://www.pivotaltracker.com/story/show/156144567 Artist expects to of a Main-type programSequenceBinding without crashing the entire platform
    NOTE: This simple test fails to invoke the complexity of database call that is/was creating this issue in production.
    */
   @Test

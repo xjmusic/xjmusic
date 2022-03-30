@@ -165,7 +165,7 @@ public class CraftFoundationNextMainTest {
   }
 
   /**
-   [#158610991] Engineer wants a Segment to be reverted, and re-queued for Craft, in the event that such a Segment has just failed its Craft process, in order to ensure Chain fabrication fault tolerance
+   https://www.pivotaltracker.com/story/show/158610991 Engineer wants a Segment to be reverted, and re-queued for Craft, in the event that such a Segment has just failed its Craft process, in order to ensure Chain fabrication fault tolerance
    */
   @Test
   public void craftFoundationNextMain_revertsAndRequeueOnFailure() throws Exception {

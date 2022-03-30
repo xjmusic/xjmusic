@@ -24,7 +24,7 @@ import static io.xj.lib.util.Values.NANOS_PER_SECOND;
  <p>
  SEE: https://developer.apple.com/documentation/http_live_streaming/hls_authoring_specification_for_apple_devices
  <p>
- Ship broadcast via HTTP Live Streaming #179453189
+ Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
  */
 public class Chunk {
   private final Instant fromInstant;

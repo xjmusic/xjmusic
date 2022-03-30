@@ -56,8 +56,8 @@ public interface Fabricator {
   /**
    Update the original Segment submitted for craft,
    cache it in the internal in-memory object, and persisted in the database
-   [#162361525] ALWAYS persist Segment content as JSON when work is performed
-   [#162361534] musical evolution depends on segments that continue the use of a main sequence
+   https://www.pivotaltracker.com/story/show/162361525 ALWAYS persist Segment content as JSON when work is performed
+   https://www.pivotaltracker.com/story/show/162361534 musical evolution depends on segments that continue the use of a main sequence
    */
   void done() throws NexusException;
 
@@ -79,7 +79,7 @@ public interface Fabricator {
   /**
    Compute the audio volume for a given pick
    <p>
-   Instrument has overall volume parameter #179215413
+   Instrument has overall volume parameter https://www.pivotaltracker.com/story/show/179215413
 
    @param pick for which to get audio volume
    @return audio volume of pick
@@ -144,7 +144,7 @@ public interface Fabricator {
    Determine if a choice has been previously crafted
    in one of the previous segments of the current main sequence
    <p>
-   [#176468964] Beat and Detail choices are kept for an entire Main Program
+   https://www.pivotaltracker.com/story/show/176468964 Beat and Detail choices are kept for an entire Main Program
 
    @return choice if previously made, or null if none is found
    */
@@ -241,7 +241,7 @@ public interface Fabricator {
   /**
    Get the Key for any given Choice, preferring its Sequence Key (bound), defaulting to the Program Key.
    <p>
-   [#176474164] If Sequence has no key/tempo/density inherit from Program
+   https://www.pivotaltracker.com/story/show/176474164 If Sequence has no key/tempo/density inherit from Program
 
    @param choice to get key for
    @return key of specified sequence/program via choice
@@ -391,7 +391,7 @@ public interface Fabricator {
   NoteRange getProgramRange(UUID programId, InstrumentType instrumentType) throws NexusException;
 
   /**
-   [#176696738] Detail craft shifts source program events into the target range
+   https://www.pivotaltracker.com/story/show/176696738 Detail craft shifts source program events into the target range
    <p>
    via average of delta from source low to target low, and from source high to target high, rounded to octave
 
@@ -443,11 +443,11 @@ public interface Fabricator {
   Optional<ProgramSequence> getRandomlySelectedSequence(Program program);
 
   /**
-   [#165954619] Selects one (at random) of all available patterns of a given type within a sequence.
+   https://www.pivotaltracker.com/story/show/165954619 Selects one (at random) of all available patterns of a given type within a sequence.
    <p>
    Caches the selection, so it will always return the same output for any given input.
    <p>
-   [#166481918] Beat fabrication composited of layered Patterns
+   https://www.pivotaltracker.com/story/show/166481918 Beat fabrication composited of layered Patterns
 
    @return Pattern model, or null if no pattern of this type is found
    @throws NexusException on failure
@@ -485,8 +485,8 @@ public interface Fabricator {
    the seconds of start for any given position in beats
    Velocity of Segment meter (beats per minute) increases linearly of the beginning of the Segment (at the previous Segment's tempo) to the end of the Segment (arriving at the current Segment's tempo, only at its end)
    <p>
-   [#166370833] Segment should *never* be fabricated longer than its total beats.
-   [#153542275] Segment wherein tempo changes expect perfectly smooth sound of previous segment through to following segment
+   https://www.pivotaltracker.com/story/show/166370833 Segment should *never* be fabricated longer than its total beats.
+   https://www.pivotaltracker.com/story/show/153542275 Segment wherein tempo changes expect perfectly smooth sound of previous segment through to following segment
 
    @param p position in beats
    @return seconds of start
@@ -548,9 +548,9 @@ public interface Fabricator {
   String getSegmentShipKey(String extension);
 
   /**
-   [#165954619] Get the sequence for a Choice either directly (beat- and detail-type sequences), or by sequence-pattern (macro- or main-type sequences)
+   https://www.pivotaltracker.com/story/show/165954619 Get the sequence for a Choice either directly (beat- and detail-type sequences), or by sequence-pattern (macro- or main-type sequences)
    <p>
-   [#166690830] Program model handles all of its own entities
+   https://www.pivotaltracker.com/story/show/166690830 Program model handles all of its own entities
    Beat and Detail programs are allowed to have only one (default) sequence.
 
    @param choice to get sequence for
@@ -568,7 +568,7 @@ public interface Fabricator {
   Integer getSequenceBindingOffsetForChoice(SegmentChoice choice);
 
   /**
-   Sticky buns v2 #179153822 persisted for each randomly selected note in the series for any given pattern
+   Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822 persisted for each randomly selected note in the series for any given pattern
    - key on program-sequence-pattern-event id, persisting only the first value seen for any given event
    - super-key on program-sequence-pattern id, measuring delta from the first event seen in that pattern
 
@@ -699,11 +699,11 @@ public interface Fabricator {
    Put a new Entity by type and id
    <p>
    If it's a SegmentChoice...
-   Should add meme from ALL program and instrument types! #181336704
+   Should add meme from ALL program and instrument types! https://www.pivotaltracker.com/story/show/181336704
    - Add memes of choices to segment in order to affect further choices.
    - Add all memes of this choice to the workbench, from target program, program sequence binding, or instrument if present
-   - Enhances: Straightforward meme logic #179078533
-   - Enhances: XJ should not add memes to Segment for program/instrument that was not successfully chosen #180468224
+   - Enhances: Straightforward meme logic https://www.pivotaltracker.com/story/show/179078533
+   - Enhances: XJ should not add memes to Segment for program/instrument that was not successfully chosen https://www.pivotaltracker.com/story/show/180468224
    <p>
 
    @param entity to put
@@ -731,7 +731,7 @@ public interface Fabricator {
 
   /**
    Put a key-value pair into the report
-   [#162999779] only exports data as a sub-field of the standard content JSON
+   https://www.pivotaltracker.com/story/show/162999779 only exports data as a sub-field of the standard content JSON
 
    @param key   to put
    @param value to put
@@ -748,7 +748,7 @@ public interface Fabricator {
   void putSegment(Segment segment) throws NexusException;
 
   /**
-   Sticky buns v2 #179153822 persisted for each randomly selected note in the series for any given pattern
+   Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822 persisted for each randomly selected note in the series for any given pattern
    - key on program-sequence-pattern-event id, persisting only the first value seen for any given event
    - super-key on program-sequence-pattern id, measuring delta from the first event seen in that pattern@param eventId  member id-- if this is null, the sticky bun will be ignored
 

@@ -23,7 +23,7 @@ public interface InstrumentAudioManager extends Manager<InstrumentAudio> {
 
   /**
    Provide an entity containing some new properties, but otherwise clone everything of a source instrumentAudio, of new record, and return it.
-   [#170290553] Clone sub-entities of instruments
+   https://www.pivotaltracker.com/story/show/170290553 Clone sub-entities of instruments
 
    @param access control
    @param cloneId   of instrumentAudio to clone

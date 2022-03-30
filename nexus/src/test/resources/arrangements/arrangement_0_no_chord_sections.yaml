@@ -1,4 +1,4 @@
-#  Attempt to reproduce #179409784
+#  Attempt to reproduce https://www.pivotaltracker.com/story/show/179409784
 #  Should never hear instrumentation for non-existent chord voicings, e.g. NC or deliberately not voicing one or more layers
 #
 #  This test is to demonstrate that no notes will be chosen for instruments with no voicings, e.g. an NC section.

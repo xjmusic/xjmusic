@@ -12,7 +12,7 @@ import static io.xj.lib.music.NoteTest.assertNote;
 import static org.junit.Assert.*;
 
 /**
- Sticky buns v2 #179153822 persisted for each randomly selected note in the series for any given pattern
+ Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822 persisted for each randomly selected note in the series for any given pattern
  */
 public class StickyBunTest {
   private final UUID patternId = UUID.randomUUID();

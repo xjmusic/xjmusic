@@ -95,7 +95,7 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl<Template> imp
       if (Objects.isNull(from))
         throw new ManagerException("Can't clone nonexistent Template");
 
-      // Lab cloned template is always Preview-type and has new ship key if unspecified #181054239
+      // Lab cloned template is always Preview-type and has new ship key if unspecified https://www.pivotaltracker.com/story/show/181054239
       to.setType(TemplateType.Preview);
       if (Strings.isNullOrEmpty(to.getShipKey()))
         to.setShipKey(Text.incrementIntegerSuffix(from.getShipKey()));
@@ -293,14 +293,14 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl<Template> imp
       if (Objects.isNull(record.getType()))
         record.setType(TemplateType.Preview);
 
-      // [#175347578] validate TypeSafe chain config
-      // [#177129498] Artist saves Template, Instrument, or Template config, validate & combine with defaults.
+      // https://www.pivotaltracker.com/story/show/175347578 validate TypeSafe chain config
+      // https://www.pivotaltracker.com/story/show/177129498 Artist saves Template, Instrument, or Template config, validate & combine with defaults.
       if (Objects.isNull(record.getConfig()))
         record.setConfig(new TemplateConfig().toString());
       else
         record.setConfig(new TemplateConfig(record).toString());
 
-      // [#178457569] Only Engineer can set template to Production type, or modify a Production-type template
+      // https://www.pivotaltracker.com/story/show/178457569 Only Engineer can set template to Production type, or modify a Production-type template
       if (TemplateType.Production.equals(record.getType()))
         requireEngineer(access);
 

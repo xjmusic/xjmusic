@@ -33,7 +33,7 @@ import java.util.stream.Stream;
 import static io.xj.lib.filestore.FileStoreProvider.EXTENSION_JSON;
 
 /**
- Ship broadcast via HTTP Live Streaming #179453189
+ Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
  */
 @SuppressWarnings("DuplicatedCode")
 public class ChainLoaderImpl extends ChainLoader {

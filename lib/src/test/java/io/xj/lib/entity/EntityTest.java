@@ -14,9 +14,9 @@ public class EntityTest {
   }
 
   /**
-   [#175602029] EventEntity Position persists exact floating point
+   https://www.pivotaltracker.com/story/show/175602029 EventEntity Position persists exact floating point
    <p>
-   DEPRECATED: [#154976066] Architect wants to limit the floating point precision of chord and event position, in order to limit obsession over the position of things.
+   DEPRECATED: https://www.pivotaltracker.com/story/show/154976066 Architect wants to limit the floating point precision of chord and event position, in order to limit obsession over the position of things.
    */
   @Test
   public void exactPosition() {

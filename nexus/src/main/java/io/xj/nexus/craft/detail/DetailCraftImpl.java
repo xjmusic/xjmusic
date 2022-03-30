@@ -41,7 +41,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
 
   @Override
   public void doWork() throws NexusException {
-    // [#178240332] Segments have intensity arcs; automate mixer layers in and out of each main program
+    // https://www.pivotaltracker.com/story/show/178240332 Segments have intensity arcs; automate mixer layers in and out of each main program
     ChoiceIndexProvider choiceIndexProvider = (SegmentChoice choice) -> Values.stringOrDefault(choice.getInstrumentType(), choice.getId().toString());
     Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> Objects.equals(ProgramType.Detail.toString(), choice.getProgramType());
     precomputeDeltas(
@@ -60,14 +60,14 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
         fabricator.sourceMaterial().getProgram(priorChoice.get().getProgramId()) :
         chooseFreshProgram(ProgramType.Detail, voicingType);
 
-      // [#176373977] Should gracefully skip voicing type if unfulfilled by detail program
+      // https://www.pivotaltracker.com/story/show/176373977 Should gracefully skip voicing type if unfulfilled by detail program
       if (program.isEmpty()) {
         reportMissing(Program.class, String.format("Detail-type with voicing-type %s", voicingType));
         continue;
       }
 
       // detail sequence is selected at random of the current program
-      // FUTURE: [#166855956] Detail Program with multiple Sequences
+      // FUTURE: https://www.pivotaltracker.com/story/show/166855956 Detail Program with multiple Sequences
       var sequence = fabricator.getRandomlySelectedSequence(program.get());
 
       // voice arrangements

@@ -16,7 +16,7 @@ import static io.xj.lib.util.Text.SPACE;
 import static io.xj.lib.util.Text.UNDERSCORE;
 
 /**
- Send telemetry to GCP #180741969
+ Send telemetry to GCP https://www.pivotaltracker.com/story/show/180741969
  <p>
  SEE: https://cloud.google.com/monitoring/custom-metrics/open-census
  <p>

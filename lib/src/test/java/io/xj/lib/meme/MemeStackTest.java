@@ -23,7 +23,7 @@ public class MemeStackTest {
   /**
    Anti-Memes
    <p>
-   Artist can add !MEME values into Programs #176474073
+   Artist can add !MEME values into Programs https://www.pivotaltracker.com/story/show/176474073
    */
   @Test
   public void antiMemes() {
@@ -40,7 +40,7 @@ public class MemeStackTest {
   /**
    Unique Memes
    <p>
-   Artist can add `$MEME` so only one is chosen #179078760
+   Artist can add `$MEME` so only one is chosen https://www.pivotaltracker.com/story/show/179078760
    */
   @Test
   public void uniqueMemes() {
@@ -51,7 +51,7 @@ public class MemeStackTest {
   }
 
   /**
-   Numeric memes with common letters and different integer prefix (e.g. 2STEP vs 4STEP) are known to be exclusive #180125852
+   Numeric memes with common letters and different integer prefix (e.g. 2STEP vs 4STEP) are known to be exclusive https://www.pivotaltracker.com/story/show/180125852
    */
   @Test
   public void numericMemes() {
@@ -68,7 +68,7 @@ public class MemeStackTest {
   }
 
   /**
-   Strong-meme like LEMONS! should always favor LEMONS #180468772
+   Strong-meme like LEMONS! should always favor LEMONS https://www.pivotaltracker.com/story/show/180468772
    */
   @Test
   public void strongMemes() {
@@ -81,7 +81,7 @@ public class MemeStackTest {
   }
 
   /**
-   Refuse to make a choice that violates the meme stack #181466514
+   Refuse to make a choice that violates the meme stack https://www.pivotaltracker.com/story/show/181466514
    */
   @Test
   public void isValid() {

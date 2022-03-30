@@ -15,7 +15,7 @@ import java.io.IOException;
  A source is loaded then used many times with different velocity.
  Each usage of a source is known as a Put.
  <p>
- Dub mixes audio from disk (not memory) to avoid heap overflow #180206211
+ Dub mixes audio from disk (not memory) to avoid heap overflow https://www.pivotaltracker.com/story/show/180206211
  */
 public interface Mixer {
 

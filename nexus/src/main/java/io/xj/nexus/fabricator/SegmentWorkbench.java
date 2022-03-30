@@ -78,7 +78,7 @@ public interface SegmentWorkbench {
 
   /**
    Put a key-value pair into the report
-   [#162999779] only exports data as a sub-field of the standard content JSON
+   https://www.pivotaltracker.com/story/show/162999779 only exports data as a sub-field of the standard content JSON
 
    @param key   to put
    @param value to put

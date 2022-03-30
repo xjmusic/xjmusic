@@ -181,7 +181,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    but we aren't actually using them yet until we hit the next main program in full, N segments later.
    <p>
    Ends with a final pass to set the actual length of one-shot audio picks
-   One-shot instruments cut off when other notes played with same instrument, or at end of segment #180245315
+   One-shot instruments cut off when other notes played with same instrument, or at end of segment https://www.pivotaltracker.com/story/show/180245315
 
    @param choice        to craft arrangements for
    @param defaultAtonal whether to default to a single atonal note, if no voicings are available
@@ -252,7 +252,7 @@ public class CraftImpl extends FabricationWrapperImpl {
         var barBeats = fabricator.getMainProgramConfig().getBarBeats();
         var deltaUnits = Bar.of(barBeats).computeSubsectionBeats(fabricator.getSegment().getTotal());
 
-        // Delta arcs can prioritize the presence of a layer by name, e.g. containing "kick" #180242564
+        // Delta arcs can prioritize the presence of a layer by name, e.g. containing "kick" https://www.pivotaltracker.com/story/show/180242564
         // separate layers into primary and secondary, shuffle them separately, then concatenate
         List<String> priLayers = Lists.newArrayList();
         List<String> secLayers = Lists.newArrayList();
@@ -290,7 +290,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   /**
    Iterate through all the chords of a sequence and arrange events per each chord
    <p>
-   [#176468993] Detail programs can be made to repeat every chord change
+   https://www.pivotaltracker.com/story/show/176468993 Detail programs can be made to repeat every chord change
 
    @param choice        from which to craft events
    @param range         used to keep voicing in the tightest range possible
@@ -356,7 +356,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
   /**
    Craft the voice events of a single pattern.
-   [#161601279] Artist during craft audio selection wants randomness of outro audio selection to gently ramp of zero to N over the course of the outro.
+   https://www.pivotaltracker.com/story/show/161601279 Artist during craft audio selection wants randomness of outro audio selection to gently ramp of zero to N over the course of the outro.
 
    @param pattern             to source events
    @param fromSegmentPosition to write events to segment
@@ -415,7 +415,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     // Morph & Point attributes are expressed in beats
     double segmentPosition = fromSegmentPosition + event.getPosition();
 
-    // Should never place segment events outside of segment time range #180245354
+    // Should never place segment events outside of segment time range https://www.pivotaltracker.com/story/show/180245354
     if (segmentPosition < 0 || segmentPosition >= fabricator.getSegment().getTotal()) return;
 
     double duration = Math.min(event.getDuration(), toSegmentPosition - segmentPosition);
@@ -446,7 +446,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
   /**
    Ends with a final pass to set the actual length of one-shot audio picks
-   One-shot instruments cut off when other notes played with same instrument, or at end of segment #180245315
+   One-shot instruments cut off when other notes played with same instrument, or at end of segment https://www.pivotaltracker.com/story/show/180245315
 
    @param choice for which to finalize length of one-shot audio picks
    */
@@ -458,7 +458,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     if (!fabricator.isOneShot(instrument))
       return;
 
-    // skip instruments that are do not have one-shot cutoff enabled #181211927
+    // skip instruments that are do not have one-shot cutoff enabled https://www.pivotaltracker.com/story/show/181211927
     if (!fabricator.isOneShotCutoffEnabled(instrument))
       return;
 
@@ -565,7 +565,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   /**
    Pick final note based on instrument type, voice event, transposition and current chord
    <p>
-   [#176695166] XJ should choose correct instrument note based on detail program note
+   https://www.pivotaltracker.com/story/show/176695166 XJ should choose correct instrument note based on detail program note
 
    @param instrumentType  comprising audios
    @param choice          for reference
@@ -606,7 +606,7 @@ public class CraftImpl extends FabricationWrapperImpl {
       .map(n -> Note.of(n).shift(targetShiftSemitones + 12 * targetShiftOctaves))
       .collect(Collectors.toList());
 
-    // Sticky buns v2 #179153822 uses this alternate path for note selection of random ("X") note events
+    // Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822 uses this alternate path for note selection of random ("X") note events
     var bun = fabricator.getStickyBun(event.getProgramSequencePatternId());
     if (bun.isPresent() && bun.get().isTonal(event.getId()) && rootNote.isPresent())
       eventNotes = bun.get().replaceAtonal(event.getId(), rootNote.get(), eventNotes);
@@ -626,7 +626,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     fabricator.putNotesPickedForChord(event, chord.getName(), notes);
 
-    // Sticky buns v2 #179153822 persisted for each randomly selected note in the series for any given pattern
+    // Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822 persisted for each randomly selected note in the series for any given pattern
     if (rootNote.isPresent())
       for (var note : notes.stream().map(Note::of).toList())
         fabricator.putStickyBun(event.getId(), rootNote.get(), segmentPosition, note);
@@ -635,9 +635,9 @@ public class CraftImpl extends FabricationWrapperImpl {
   }
 
   /**
-   [#176696738] XJ has a serviceable voicing algorithm
+   https://www.pivotaltracker.com/story/show/176696738 XJ has a serviceable voicing algorithm
    <p>
-   [#176474113] Artist can edit comma-separated notes into detail program events
+   https://www.pivotaltracker.com/story/show/176474113 Artist can edit comma-separated notes into detail program events
    <p>
    of a pick of instrument-audio for each event, where events are conformed to entities/scales based on the master segment entities
    pick instrument audio for one event, in a voice in a pattern, belonging to an arrangement
@@ -666,7 +666,7 @@ public class CraftImpl extends FabricationWrapperImpl {
         ? selectMultiphonicInstrumentAudio(instrument, event, note)
         : selectInstrumentAudio(instrument, event);
 
-    // [#176373977] Should gracefully skip audio in unfulfilled by instrument
+    // https://www.pivotaltracker.com/story/show/176373977 Should gracefully skip audio in unfulfilled by instrument
     if (audio.isEmpty()) return;
 
     // of pick
@@ -689,7 +689,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   /**
    Select audio from a multiphonic instrument
    <p>
-   [#176649593] Sampler obeys isMultiphonic from Instrument config
+   https://www.pivotaltracker.com/story/show/176649593 Sampler obeys isMultiphonic from Instrument config
 
    @param instrument of which to score available audios, and make a selection
    @param event      for caching reference
@@ -764,7 +764,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   /**
    Select a new random instrument audio based on a pattern event
    <p>
-   [#176649593] Sampler obeys isMultiphonic from Instrument config
+   https://www.pivotaltracker.com/story/show/176649593 Sampler obeys isMultiphonic from Instrument config
 
    @param instrument of which to score available audios, and make a selection
    @param note       to match
@@ -859,12 +859,12 @@ public class CraftImpl extends FabricationWrapperImpl {
    Choose instrument
    [#325] Possible to choose multiple instruments for different voices in the same program
    <p>
-   Choose drum instrument to fulfill beat program event names #180803311
+   Choose drum instrument to fulfill beat program event names https://www.pivotaltracker.com/story/show/180803311
 
    @param type              of instrument to choose
    @param avoidIds          to avoid, or empty list
    @param continueVoiceName if present, ensure that choices continue for each voice named in prior segments of this main program
-   @param requireEventNames instrument candidates are required to have event names #180803311
+   @param requireEventNames instrument candidates are required to have event names https://www.pivotaltracker.com/story/show/180803311
    @return Instrument
    */
   protected Optional<Instrument> chooseFreshInstrument(InstrumentType type, List<UUID> avoidIds, @Nullable String continueVoiceName, List<String> requireEventNames) throws NexusException {
@@ -923,7 +923,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   /**
    Test if an instrument contains audios named like N
    <p>
-   Choose drum instrument to fulfill beat program event names #180803311
+   Choose drum instrument to fulfill beat program event names https://www.pivotaltracker.com/story/show/180803311
 
    @param instrument    to test
    @param requireEvents N

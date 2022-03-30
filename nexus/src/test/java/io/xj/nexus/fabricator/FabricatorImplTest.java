@@ -51,7 +51,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 /**
- FUTURE: [#170035559] Split the FabricatorImplTest into separate tests of the FabricatorImpl, SegmentWorkbenchImpl, SegmentRetrospectiveImpl, and IngestImpl
+ FUTURE: https://www.pivotaltracker.com/story/show/170035559 Split the FabricatorImplTest into separate tests of the FabricatorImpl, SegmentWorkbenchImpl, SegmentRetrospectiveImpl, and IngestImpl
  */
 @RunWith(MockitoJUnitRunner.class)
 public class FabricatorImplTest {
@@ -202,7 +202,7 @@ public class FabricatorImplTest {
   }
 
   /**
-   Instrument has overall volume parameter #179215413
+   Instrument has overall volume parameter https://www.pivotaltracker.com/story/show/179215413
    */
   @Test
   public void computeAudioVolume() throws Exception {
@@ -397,7 +397,7 @@ public class FabricatorImplTest {
 
 
   /**
-   [#176728582] Choose next Macro program based on the memes of the last sequence from the previous Macro program
+   https://www.pivotaltracker.com/story/show/176728582 Choose next Macro program based on the memes of the last sequence from the previous Macro program
    */
   @Test
   public void getType() throws NexusException, ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException {
@@ -760,7 +760,7 @@ public class FabricatorImplTest {
   }
 
   /**
-   Sticky buns v2 #179153822 persisted for each randomly selected note in the series for any given pattern
+   Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822 persisted for each randomly selected note in the series for any given pattern
    - key on program-sequence-pattern-event id, persisting only the first value seen for any given event
    - super-key on program-sequence-pattern id, measuring delta from the first event seen in that pattern
    */
@@ -774,7 +774,7 @@ public class FabricatorImplTest {
   }
 
   /**
-   Sticky buns v2 #179153822 use slash root when available
+   Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822 use slash root when available
    */
   @Test
   public void getRootNote() {
@@ -782,7 +782,7 @@ public class FabricatorImplTest {
   }
 
   /**
-   Should add meme from ALL program and instrument types! #181336704
+   Should add meme from ALL program and instrument types! https://www.pivotaltracker.com/story/show/181336704
    */
   @Test
   public void put_addsMemesForChoice() throws NexusException {

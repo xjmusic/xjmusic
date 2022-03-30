@@ -7,13 +7,13 @@ import io.xj.hub.access.HubAccess;
 import java.util.UUID;
 
 /**
- Template content Analysis #161199945
+ Template content Analysis https://www.pivotaltracker.com/story/show/161199945
  */
 @FunctionalInterface
 public interface HubAnalysisFactory {
 
   /**
-   Template content Analysis #161199945
+   Template content Analysis https://www.pivotaltracker.com/story/show/161199945
 
    @return entities to be evaluated
    @throws HubAnalysisException on failure to of target entities

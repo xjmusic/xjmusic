@@ -106,7 +106,7 @@ public class InstrumentManagerImplTest {
   }
 
   /**
-   Overall volume parameter defaults to 1.0 #179215413
+   Overall volume parameter defaults to 1.0 https://www.pivotaltracker.com/story/show/179215413
    */
   @Test
   public void create_defaultVolume() throws Exception {
@@ -120,8 +120,8 @@ public class InstrumentManagerImplTest {
   }
 
   /**
-   [#170290553] Clone sub-entities of instruments
-   Cloning an Instrument should not reset its Parameters #180764355
+   https://www.pivotaltracker.com/story/show/170290553 Clone sub-entities of instruments
+   Cloning an Instrument should not reset its Parameters https://www.pivotaltracker.com/story/show/180764355
    */
   @Test
   public void clone_fromOriginal() throws Exception {
@@ -230,7 +230,7 @@ public class InstrumentManagerImplTest {
   }
 
   /**
-   change volume parameter #179215413
+   change volume parameter https://www.pivotaltracker.com/story/show/179215413
    */
   @Test
   public void update_volume() throws Exception {
@@ -284,7 +284,7 @@ public class InstrumentManagerImplTest {
   }
 
   /**
-   [#170299297] As long as instrument has no meme, destroy all other inner entities
+   https://www.pivotaltracker.com/story/show/170299297 As long as instrument has no meme, destroy all other inner entities
    */
   @Test
   public void destroy_succeedsWithInnerEntitiesButNoMemes() throws Exception {

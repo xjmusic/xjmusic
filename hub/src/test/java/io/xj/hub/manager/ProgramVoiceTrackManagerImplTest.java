@@ -117,7 +117,7 @@ public class ProgramVoiceTrackManagerImplTest {
   }
 
   /**
-   [#156144567] Artist expects to of a Main-type programVoiceTrack without crashing the entire platform
+   https://www.pivotaltracker.com/story/show/156144567 Artist expects to of a Main-type programVoiceTrack without crashing the entire platform
    NOTE: This simple test fails to invoke the complexity of database call that is/was creating this issue in production.
    */
   @Test
@@ -181,7 +181,7 @@ public class ProgramVoiceTrackManagerImplTest {
   }
 
   /**
-   Should be able to delete track with events in it #180769781
+   Should be able to delete track with events in it https://www.pivotaltracker.com/story/show/180769781
    */
   @Test
   public void destroy_okWithChildEntities() throws Exception {
@@ -221,7 +221,7 @@ public class ProgramVoiceTrackManagerImplTest {
   }
 
   /**
-   [#175423724] Update ProgramVoiceTrack to belong to a different ProgramVoice
+   https://www.pivotaltracker.com/story/show/175423724 Update ProgramVoiceTrack to belong to a different ProgramVoice
    */
   @Test
   public void update_moveToDifferentVoice() throws Exception {

@@ -36,7 +36,7 @@ public interface HubClient {
   /**
    Load shipped content from a static file
    <p>
-   Nexus production fabrication from static source (without Hub) #177020318
+   Nexus production fabrication from static source (without Hub) https://www.pivotaltracker.com/story/show/177020318
 
    @param shipKey to load
    @return hub content

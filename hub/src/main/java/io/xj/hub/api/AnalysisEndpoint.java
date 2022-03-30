@@ -24,7 +24,7 @@ import javax.ws.rs.core.Response;
 import java.util.UUID;
 
 /**
- Template content Analysis #161199945
+ Template content Analysis https://www.pivotaltracker.com/story/show/161199945
  */
 @Path("api/1/analysis")
 public class AnalysisEndpoint extends HubJsonapiEndpoint<Object> {

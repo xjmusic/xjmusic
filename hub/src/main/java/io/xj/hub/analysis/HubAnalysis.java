@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.UUID;
 
 /**
- Template content Analysis #161199945
+ Template content Analysis https://www.pivotaltracker.com/story/show/161199945
  */
 public interface HubAnalysis {
 

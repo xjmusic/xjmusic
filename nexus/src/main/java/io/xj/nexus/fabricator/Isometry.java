@@ -89,7 +89,7 @@ public class Isometry {
    Compute a unique constellation for any set of Memes,
    for the purpose of identifying unique constellations.
    <p>
-   [#161736024] for each unique sequence-pattern-meme constellation within the main sequence
+   https://www.pivotaltracker.com/story/show/161736024 for each unique sequence-pattern-meme constellation within the main sequence
 
    @return unique constellation for this set of strings.
    */

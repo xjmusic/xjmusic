@@ -22,7 +22,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- [#154350346] to ingest any combination of Programs, Instruments, or Libraries (with their Programs and Instruments)
+ https://www.pivotaltracker.com/story/show/154350346 to ingest any combination of Programs, Instruments, or Libraries (with their Programs and Instruments)
  */
 class HubIngestImpl implements HubIngest {
   private final HubAccess access;

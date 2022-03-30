@@ -94,7 +94,7 @@ public class InstrumentAudioManagerImplTest {
   }
 
   /**
-   [#175213519] Expect new Audios to have no waveform
+   https://www.pivotaltracker.com/story/show/175213519 Expect new Audios to have no waveform
    <p>
    Expect audio event to be formatted
    */
@@ -128,7 +128,7 @@ public class InstrumentAudioManagerImplTest {
   }
 
   /**
-   [#175213519] Expect new Audios to have no waveform
+   https://www.pivotaltracker.com/story/show/175213519 Expect new Audios to have no waveform
    */
   @Test
   public void create_SucceedsWithoutWaveformKey() throws Exception {
@@ -143,7 +143,7 @@ public class InstrumentAudioManagerImplTest {
   }
 
   /**
-   [#170290553] Clone sub-entities of instrument audios
+   https://www.pivotaltracker.com/story/show/170290553 Clone sub-entities of instrument audios
    */
   @Test
   public void clone_fromOriginal() throws Exception {
@@ -162,7 +162,7 @@ public class InstrumentAudioManagerImplTest {
   }
 
   /**
-   Error when cloning Audios in Instruments #180698009
+   Error when cloning Audios in Instruments https://www.pivotaltracker.com/story/show/180698009
    */
   @Test
   public void clone_fromOriginal_noInputData() throws Exception {
@@ -276,7 +276,7 @@ public class InstrumentAudioManagerImplTest {
   }
 
 
-  // [#162361785] InstrumentAudio can be moved to a different Instrument
+  // https://www.pivotaltracker.com/story/show/162361785 InstrumentAudio can be moved to a different Instrument
   @Test
   public void update() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");

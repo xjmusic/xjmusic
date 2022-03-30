@@ -22,7 +22,7 @@ import static io.xj.lib.util.Values.MICROS_PER_SECOND;
  models a single audio source
  stores a series of Samples in Channels across Time, for audio playback.
  <p>
- Dub mixes audio from disk (not memory) to avoid heap overflow #180206211
+ Dub mixes audio from disk (not memory) to avoid heap overflow https://www.pivotaltracker.com/story/show/180206211
  */
 class SourceImpl implements Source {
   private static final Logger LOG = LoggerFactory.getLogger(SourceImpl.class);

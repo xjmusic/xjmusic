@@ -752,7 +752,7 @@ public class Environment {
   }
 
   /**
-   Ship broadcast via HTTP Live Streaming #179453189
+   Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
 
    @return the ship key for this ship instance
    */

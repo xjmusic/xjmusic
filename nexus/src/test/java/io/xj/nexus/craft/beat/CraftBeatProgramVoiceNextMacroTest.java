@@ -151,7 +151,7 @@ public class CraftBeatProgramVoiceNextMacroTest {
       .filter(c -> ProgramType.Beat.toString().equals(c.getProgramType())).findFirst().orElseThrow();
     assertTrue(fabricator.getArrangements()
       .stream().anyMatch(a -> a.getSegmentChoiceId().equals(beatChoice.getId())));
-    // test vector for [#154014731] persist Audio pick in memory
+    // test vector for https://www.pivotaltracker.com/story/show/154014731 persist Audio pick in memory
     int pickedKick = 0;
     int pickedSnare = 0;
     Collection<SegmentChoiceArrangementPick> picks = fabricator.getPicks();

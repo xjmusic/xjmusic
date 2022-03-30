@@ -12,7 +12,7 @@ public interface InstrumentManager extends Manager<Instrument> {
 
   /**
    Clone an Instrument into a new Instrument
-   [#170290553] Clone sub-entities of instruments
+   https://www.pivotaltracker.com/story/show/170290553 Clone sub-entities of instruments
 
    @param access control
    @param cloneId   of instrument to clone
@@ -23,7 +23,7 @@ public interface InstrumentManager extends Manager<Instrument> {
 
   /**
    INSIDE ANOTHER DATABASE TRANSACTION
-   When a library is cloned, also clone all instruments within it #181196881
+   When a library is cloned, also clone all instruments within it https://www.pivotaltracker.com/story/show/181196881
 
    @return newly readMany record
    @param access control

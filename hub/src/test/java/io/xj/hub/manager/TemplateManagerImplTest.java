@@ -142,7 +142,7 @@ public class TemplateManagerImplTest {
   }
 
   /**
-   [#155089641] Engineer expects to be able to of and update a Template.
+   https://www.pivotaltracker.com/story/show/155089641 Engineer expects to be able to of and update a Template.
    */
   @Test
   public void create_asEngineer() throws Exception {
@@ -160,7 +160,7 @@ public class TemplateManagerImplTest {
   }
 
   /**
-   [#155089641] Engineer expects to be able to of and update a Template.
+   https://www.pivotaltracker.com/story/show/155089641 Engineer expects to be able to of and update a Template.
    */
   @Test
   public void create_asEngineer_failsWithoutAccountAccess() {
@@ -228,7 +228,7 @@ public class TemplateManagerImplTest {
   }
 
   /**
-   Lab cloned template is always Preview-type and has new ship key if unspecified #181054239
+   Lab cloned template is always Preview-type and has new ship key if unspecified https://www.pivotaltracker.com/story/show/181054239
    */
   @Test
   public void clone_alwaysPreviewWithNewShipKey() throws Exception {
@@ -249,7 +249,7 @@ public class TemplateManagerImplTest {
   }
 
   /**
-   Lab cloned template has specified ship key #181054239
+   Lab cloned template has specified ship key https://www.pivotaltracker.com/story/show/181054239
    */
   @Test
   public void clone_hasSpecifiedShipKey() throws Exception {
@@ -442,7 +442,7 @@ public class TemplateManagerImplTest {
   }
 
   /**
-   [#155089641] Engineer expects to be able to of and update a Template.
+   https://www.pivotaltracker.com/story/show/155089641 Engineer expects to be able to of and update a Template.
    */
   @Test
   public void update_asEngineer() throws Exception {
@@ -460,7 +460,7 @@ public class TemplateManagerImplTest {
   }
 
   /**
-   [#155089641] Engineer expects to be able to of and update a Template.
+   https://www.pivotaltracker.com/story/show/155089641 Engineer expects to be able to of and update a Template.
    */
   @Test
   public void update_asEngineer_failsWithoutAccountAccess() {
@@ -541,7 +541,7 @@ public class TemplateManagerImplTest {
   }
 
   /**
-   Artist should be able to delete Preview Templates #181227134
+   Artist should be able to delete Preview Templates https://www.pivotaltracker.com/story/show/181227134
 
    @throws Exception on failure
    */
@@ -558,7 +558,7 @@ public class TemplateManagerImplTest {
   }
 
   /**
-   Artist should NOT be able to delete Production Templates #181227134
+   Artist should NOT be able to delete Production Templates https://www.pivotaltracker.com/story/show/181227134
 
    @throws Exception on failure
    */

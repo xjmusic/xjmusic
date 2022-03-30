@@ -96,7 +96,7 @@ public class LibraryManagerImplTest {
   }
 
   /**
-   [#155089641] Engineer expects to be able to of and update a Library.
+   https://www.pivotaltracker.com/story/show/155089641 Engineer expects to be able to of and update a Library.
    */
   @Test
   public void create_asEngineer() throws Exception {
@@ -113,7 +113,7 @@ public class LibraryManagerImplTest {
   }
 
   /**
-   [#155089641] Engineer expects to be able to of and update a Library.
+   https://www.pivotaltracker.com/story/show/155089641 Engineer expects to be able to of and update a Library.
    */
   @Test
   public void create_asEngineer_failsWithoutAccountAccess() {
@@ -361,7 +361,7 @@ public class LibraryManagerImplTest {
   }
 
   /**
-   [#155089641] Engineer expects to be able to of and update a Library.
+   https://www.pivotaltracker.com/story/show/155089641 Engineer expects to be able to of and update a Library.
    */
   @Test
   public void update_asEngineer() throws Exception {
@@ -379,7 +379,7 @@ public class LibraryManagerImplTest {
   }
 
   /**
-   [#155089641] Engineer expects to be able to of and update a Library.
+   https://www.pivotaltracker.com/story/show/155089641 Engineer expects to be able to of and update a Library.
    */
   @Test
   public void update_asEngineer_failsWithoutAccountAccess() {

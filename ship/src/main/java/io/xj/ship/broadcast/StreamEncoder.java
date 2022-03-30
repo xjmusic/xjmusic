@@ -5,7 +5,7 @@ package io.xj.ship.broadcast;
 import io.xj.ship.ShipException;
 
 /**
- Ship competent HTTP Live Stream #180419462
+ Ship competent HTTP Live Stream https://www.pivotaltracker.com/story/show/180419462
  */
 public interface StreamEncoder {
 
@@ -33,7 +33,7 @@ public interface StreamEncoder {
   /**
    Check if the ship encoder process is healthy
    <p>
-   Ship health check tests playlist length and ffmpeg liveness #180746583
+   Ship health check tests playlist length and ffmpeg liveness https://www.pivotaltracker.com/story/show/180746583
 
    @return true if healthy
    */

@@ -103,7 +103,7 @@ public class ProgramMemeManagerImplTest {
   }
 
   /**
-   [#177587964] Artist can use numerals in meme name
+   https://www.pivotaltracker.com/story/show/177587964 Artist can use numerals in meme name
    */
   @Test
   public void create_numerals() throws Exception {
@@ -122,7 +122,7 @@ public class ProgramMemeManagerImplTest {
   }
 
   /**
-   [#176474073] Artist can add !MEME values into Programs
+   https://www.pivotaltracker.com/story/show/176474073 Artist can add !MEME values into Programs
    */
   @Test
   public void create_notMeme() throws Exception {
@@ -141,7 +141,7 @@ public class ProgramMemeManagerImplTest {
   }
 
   /**
-   [#156144567] Artist expects to of a Main-type programMeme without crashing the entire platform
+   https://www.pivotaltracker.com/story/show/156144567 Artist expects to of a Main-type programMeme without crashing the entire platform
    NOTE: This simple test fails to invoke the complexity of database call that is/was creating this issue in production.
    */
   @Test
@@ -236,8 +236,8 @@ public class ProgramMemeManagerImplTest {
   }
 
   /**
-   [#156030760] Artist expects owner of ProgramMeme or Instrument to always remain the same as when it was ofd, even after being updated by another user.
-   DEPRECATED, future will be replaced by [#166724453] Instruments and Programs have author history
+   https://www.pivotaltracker.com/story/show/156030760 Artist expects owner of ProgramMeme or Instrument to always remain the same as when it was ofd, even after being updated by another user.
+   DEPRECATED, future will be replaced by https://www.pivotaltracker.com/story/show/166724453 Instruments and Programs have author history
    */
   @Test
   public void update_Name_PreservesOriginalOwner() throws Exception {

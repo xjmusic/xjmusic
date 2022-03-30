@@ -7,7 +7,7 @@ import io.xj.lib.entity.EntityModule;
 import io.xj.lib.json.JsonModule;
 
 /**
- Template content Analysis #161199945
+ Template content Analysis https://www.pivotaltracker.com/story/show/161199945
  */
 public class HubAnalysisModule extends AbstractModule {
   @Override

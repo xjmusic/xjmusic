@@ -218,7 +218,7 @@ public class HubClientAccess {
 
   /**
    Validation
-   [#154580129] valid with no accounts, because User expects to login without having access to any accounts.
+   https://www.pivotaltracker.com/story/show/154580129 valid with no accounts, because User expects to login without having access to any accounts.
    */
   @JsonIgnore
   public boolean isValid() {

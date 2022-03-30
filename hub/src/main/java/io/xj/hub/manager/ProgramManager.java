@@ -14,7 +14,7 @@ public interface ProgramManager extends Manager<Program> {
 
   /**
    Provide an entity containing some new properties, but otherwise clone everything of a source program, of new record, and return it.
-   [#170290553] Clone sub-entities of program
+   https://www.pivotaltracker.com/story/show/170290553 Clone sub-entities of program
 
    @param access control
    @param cloneId   of program to clone
@@ -25,7 +25,7 @@ public interface ProgramManager extends Manager<Program> {
 
   /**
    INSIDE ANOTHER DATABASE TRANSACTION
-   When a library is cloned, also clone all programs within it #181196881
+   When a library is cloned, also clone all programs within it https://www.pivotaltracker.com/story/show/181196881
 
    @return newly readMany record
    @param access control

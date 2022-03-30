@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- Ship broadcast via HTTP Live Streaming #179453189
+ Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
  */
 public interface SegmentAudioManager {
 
@@ -68,7 +68,7 @@ public interface SegmentAudioManager {
   /**
    Send telemetry about currently loaded source audio
    <p>
-   Ship should not enter permanent failure state unable to load segments #180756082
+   Ship should not enter permanent failure state unable to load segments https://www.pivotaltracker.com/story/show/180756082
    */
   void sendTelemetry();
 

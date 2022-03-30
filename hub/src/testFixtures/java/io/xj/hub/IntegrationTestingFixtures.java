@@ -16,7 +16,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- [#165954673] Integration tests use shared scenario fixtures as much as possible
+ https://www.pivotaltracker.com/story/show/165954673 Integration tests use shared scenario fixtures as much as possible
  <p>
  Testing the hypothesis that, while unit tests are all independent,
  integration tests ought to be as much about testing all features around a consensus model of the platform
@@ -719,7 +719,7 @@ public class IntegrationTestingFixtures {
     Instant at = Instant.parse("2014-08-12T12:17:02.527142Z");
     library10000001 = test.insert(buildLibrary(account1, "leaves"));
 
-    // Templates: enhanced preview chain creation for artists in Lab UI #178457569
+    // Templates: enhanced preview chain creation for artists in Lab UI https://www.pivotaltracker.com/story/show/178457569
     template1 = test.insert(buildTemplate(account1, "test", UUID.randomUUID().toString()));
     templateBinding1 = test.insert(buildTemplateBinding(template1, library10000001));
 
@@ -810,7 +810,7 @@ public class IntegrationTestingFixtures {
   /**
    Library of Content B-1 (shared test fixture)
    <p>
-   [#165954673] Integration tests use shared scenario fixtures as much as possible
+   https://www.pivotaltracker.com/story/show/165954673 Integration tests use shared scenario fixtures as much as possible
    */
   public void insertFixtureB2() throws HubException {
     Collection<Object> entities = content.setupFixtureB2();
@@ -822,16 +822,16 @@ public class IntegrationTestingFixtures {
   /**
    Library of Content B-3 (shared test fixture)
    <p>
-   [#165954673] Integration tests use shared scenario fixtures as much as possible
+   https://www.pivotaltracker.com/story/show/165954673 Integration tests use shared scenario fixtures as much as possible
    <p>
-   [#163158036] memes bound to sequence-pattern because sequence-binding is not considered for beat sequences, beat sequence patterns do not have memes.
+   https://www.pivotaltracker.com/story/show/163158036 memes bound to sequence-pattern because sequence-binding is not considered for beat sequences, beat sequence patterns do not have memes.
    <p>
-   [#165954619] Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (beat- and detail-type sequences)
+   https://www.pivotaltracker.com/story/show/165954619 Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (beat- and detail-type sequences)
    <p>
-   [#153976073] Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Beat or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment.
+   https://www.pivotaltracker.com/story/show/153976073 Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Beat or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment.
    + For this test, there's an Intro Pattern with all BLEEPS, multiple Loop Patterns with KICK and SNARE (2x each), and an Outro Pattern with all TOOTS.
    <p>
-   [#150279647] Artist wants to of multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset.
+   https://www.pivotaltracker.com/story/show/150279647 Artist wants to of multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset.
    */
   public void insertFixtureB3() throws HubException {
     Collection<Object> entities = content.setupFixtureB3();
@@ -843,7 +843,7 @@ public class IntegrationTestingFixtures {
   /**
    Library of Content B: Instruments (shared test fixture)
    <p>
-   [#165954673] Integration tests use shared scenario fixtures as much as possible
+   https://www.pivotaltracker.com/story/show/165954673 Integration tests use shared scenario fixtures as much as possible
    */
   public void insertFixtureB_Instruments() throws HubException {
     instrument201 = test.insert(buildInstrument(library2, InstrumentType.Drum, InstrumentMode.NoteEvent, InstrumentState.Published, "808 Drums"));

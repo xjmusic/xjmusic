@@ -8,7 +8,7 @@ import java.util.UUID;
 /**
  Nexus base Manager interface
  <p>
- [#171553408] XJ Lab Distributed Architecture
+ https://www.pivotaltracker.com/story/show/171553408 XJ Lab Distributed Architecture
  Chains, ChainBindings, TemplateConfigs, Segments and all Segment content sub-entities persisted in memory
  */
 public interface Manager<E> {

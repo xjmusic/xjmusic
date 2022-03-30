@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  PercLoop craft for the current segment
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  <p>
- [#176625174] PercLoopCraftImpl extends DetailCraftImpl to leverage all detail craft enhancements
+ https://www.pivotaltracker.com/story/show/176625174 PercLoopCraftImpl extends DetailCraftImpl to leverage all detail craft enhancements
  */
 public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
   @Inject
@@ -106,7 +106,7 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
     var audio = pickAudioForInstrument(instrumentId);
     while (pos < fabricator.getSegment().getTotal()) {
 
-      // [#176373977] Should gracefully skip audio in unfulfilled by instrument
+      // https://www.pivotaltracker.com/story/show/176373977 Should gracefully skip audio in unfulfilled by instrument
       if (audio.isEmpty()) return;
 
       // Pick attributes are expressed "rendered" as actual seconds

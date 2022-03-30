@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 /**
  Implementation of Object Store
  <p>
- [#171553408] XJ Lab Distributed Architecture
+ https://www.pivotaltracker.com/story/show/171553408 XJ Lab Distributed Architecture
  Chains, ChainBindings, TemplateConfigs, Segments and all Segment content sub-entities persisted in JSON:API record stored keyed by chain or segment id in memory
  */
 public class EntityStoreImpl implements EntityStore {

@@ -51,7 +51,7 @@ public class ConfigEndpointTest {
   }
 
   /**
-   [#175771083] Enums should not have unrecognized values
+   https://www.pivotaltracker.com/story/show/175771083 Enums should not have unrecognized values
    */
   @Test
   public void getConfig() {

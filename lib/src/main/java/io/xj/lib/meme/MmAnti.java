@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
  <p>
  Parse any meme to test if it's valid, and extract its features
  <p>
- Artist can add !MEME values into Programs #176474073
+ Artist can add !MEME values into Programs https://www.pivotaltracker.com/story/show/176474073
  */
 class MmAnti {
   private static final Pattern rgx = Pattern.compile("^!(.+)$");

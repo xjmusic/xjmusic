@@ -111,7 +111,7 @@ public interface SegmentManager extends Manager<Segment> {
    Read all Segments that are accessible, by Chain Ship key, starting at a particular time in seconds UTC since epoch.
    limit buffer ahead seconds readable at once in environment configuration
    <p>
-   [#150279540] Unauthenticated public Client wants to access a Chain by ship key (as alias for chain id) in order to provide data for playback.
+   https://www.pivotaltracker.com/story/show/150279540 Unauthenticated public Client wants to access a Chain by ship key (as alias for chain id) in order to provide data for playback.
 
    @param access         control
    @param shipKey        to read all segments of
@@ -125,7 +125,7 @@ public interface SegmentManager extends Manager<Segment> {
 
   /**
    Reverts a segment in Planned state, by destroying all its child entities. Only the segment messages remain, for purposes of debugging.
-   [#158610991] Engineer wants a Segment to be reverted, and re-queued for fabrication, in the event that such a Segment has just failed its fabrication process, in order to ensure Chain fabrication fault tolerance
+   https://www.pivotaltracker.com/story/show/158610991 Engineer wants a Segment to be reverted, and re-queued for fabrication, in the event that such a Segment has just failed its fabrication process, in order to ensure Chain fabrication fault tolerance
 
    @param access control
    @param id     of segment to revert

@@ -11,13 +11,13 @@ import java.util.UUID;
 /**
  Manager for Templates
  <p>
- Templates: enhanced preview chain creation for artists in Lab UI #178457569
+ Templates: enhanced preview chain creation for artists in Lab UI https://www.pivotaltracker.com/story/show/178457569
  */
 public interface TemplateManager extends Manager<Template> {
 
   /**
    Provide an entity containing some new properties, but otherwise clone everything of a source template, of new record, and return it.
-   Clone sub-entities of template #180269382
+   Clone sub-entities of template https://www.pivotaltracker.com/story/show/180269382
 
    @param access control
    @param cloneId   of template to clone

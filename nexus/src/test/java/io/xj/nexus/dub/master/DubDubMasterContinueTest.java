@@ -157,7 +157,7 @@ public class DubDubMasterContinueTest {
     store.put(NexusIntegrationTestingFixtures.buildSegmentChord(segment4, 8.0, "D major"));
     store.put(NexusIntegrationTestingFixtures.buildSegmentChoiceArrangement(choice1));
 
-    // FUTURE: determine new test vector for [#154014731] persist Audio pick in memory
+    // FUTURE: determine new test vector for https://www.pivotaltracker.com/story/show/154014731 persist Audio pick in memory
   }
 
   @After

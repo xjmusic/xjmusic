@@ -52,7 +52,7 @@ public class ChainManagerImpl extends ManagerImpl<Chain> implements ChainManager
   private final int previewLengthMaxHours;
   private final NotificationProvider pubSub;
 
-  // [#176375238] Chains should N seconds into the future
+  // https://www.pivotaltracker.com/story/show/176375238 Chains should N seconds into the future
   private final int chainStartInFutureSeconds;
 
   @Inject
@@ -197,7 +197,7 @@ public class ChainManagerImpl extends ManagerImpl<Chain> implements ChainManager
       if (existing.getType() != chain.getType())
         throw new ManagerValidationException("Cannot modify Chain Type");
 
-      // [#174153691] Cannot change stop-at time or Ship key of Preview chain
+      // https://www.pivotaltracker.com/story/show/174153691 Cannot change stop-at time or Ship key of Preview chain
       if (ChainType.PREVIEW == existing.getType()) {
         chain.setStopAt(existing.getStopAt());
         chain.setShipKey(existing.getShipKey());
@@ -418,7 +418,7 @@ public class ChainManagerImpl extends ManagerImpl<Chain> implements ChainManager
         chain.startAt(Values.formatIso8601UTC(Instant.now().plusSeconds(chainStartInFutureSeconds)));
         if (ChainType.PREVIEW.equals(chain.getType())) {
           chain.setStopAt(Values.formatIso8601UTC(
-            Instant.parse(chain.getStartAt()).plus(previewLengthMaxHours, HOURS))); // [#174153691]
+            Instant.parse(chain.getStartAt()).plus(previewLengthMaxHours, HOURS))); // https://www.pivotaltracker.com/story/show/174153691
         }
       case COMPLETE:
       case FAILED:

@@ -5,7 +5,7 @@ package io.xj.ship.broadcast;
 import io.xj.ship.ShipException;
 
 /**
- Ship service can be used to write N seconds to local .WAV file #181082015
+ Ship service can be used to write N seconds to local .WAV file https://www.pivotaltracker.com/story/show/181082015
  */
 public interface StreamWriter {
 

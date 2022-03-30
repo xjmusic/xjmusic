@@ -12,9 +12,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- [#175880468] NexusEntityStore segments and child entities partitioned by segment id for rapid addressing
+ https://www.pivotaltracker.com/story/show/175880468 NexusEntityStore segments and child entities partitioned by segment id for rapid addressing
  <p>
- [#171553408] XJ Lab Distributed Architecture
+ https://www.pivotaltracker.com/story/show/171553408 XJ Lab Distributed Architecture
  Chains, ChainBindings, TemplateConfigs, Segments and all Segment content sub-entities persisted in memory
  */
 public interface NexusEntityStore {

@@ -153,7 +153,7 @@ public class SegmentManagerImplTest {
   }
 
   /**
-   [#162361712] Segment waveform_key is set by fabricator (which knows the chain configuration) NOT on creation
+   https://www.pivotaltracker.com/story/show/162361712 Segment waveform_key is set by fabricator (which knows the chain configuration) NOT on creation
    */
   @Test
   public void create() throws Exception {
@@ -190,7 +190,7 @@ public class SegmentManagerImplTest {
   }
 
   /**
-   [#162361712] Segment waveform_key is set by fabricator (which knows the chain configuration) NOT on creation
+   https://www.pivotaltracker.com/story/show/162361712 Segment waveform_key is set by fabricator (which knows the chain configuration) NOT on creation
    [#126] Segments are always readMany in PLANNED state
    */
   @Test
@@ -311,7 +311,7 @@ public class SegmentManagerImplTest {
   }
 
   /**
-   [#173806948] List of Segments returned should not be more than a dozen or so
+   https://www.pivotaltracker.com/story/show/173806948 List of Segments returned should not be more than a dozen or so
    */
   @Test
   public void readMany_hasNoLimit() throws Exception {
@@ -454,7 +454,7 @@ public class SegmentManagerImplTest {
   }
 
   /**
-   [#170299748] Player should always load what it needs next--
+   https://www.pivotaltracker.com/story/show/170299748 Player should always load what it needs next--
    currently possible to load too far into the future, causing playback delay
    */
   @Test
@@ -622,7 +622,7 @@ public class SegmentManagerImplTest {
   }
 
   /**
-   [#162361525] persist Segment content as JSON, then read prior Segment JSON
+   https://www.pivotaltracker.com/story/show/162361525 persist Segment content as JSON, then read prior Segment JSON
    */
   @Test
   public void persistPriorSegmentContent() throws Exception {

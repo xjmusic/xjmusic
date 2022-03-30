@@ -81,7 +81,7 @@ public interface FileStoreProvider {
 
   /**
    Put an object to S3 from a string
-   [#162223929] Ship Segment data JSON with audio
+   https://www.pivotaltracker.com/story/show/162223929 Ship Segment data JSON with audio
 
    @param content          path to file for upload
    @param bucket           to put file to

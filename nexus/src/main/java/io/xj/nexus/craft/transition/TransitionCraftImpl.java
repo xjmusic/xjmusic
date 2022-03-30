@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 /**
  Transition craft for the current segment
  <p>
- Transition-type Instrument #180059746
+ Transition-type Instrument https://www.pivotaltracker.com/story/show/180059746
  */
 public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCraft {
   private static final String NAME_LARGE = "BIG";
@@ -115,7 +115,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
   /**
    Is this a medium-transition segment? (not the same sequence as the previous segment)
    <p>
-   Transition craft uses Small (instead of Medium) when a sequence repeats for more than 1 segment #180921714
+   Transition craft uses Small (instead of Medium) when a sequence repeats for more than 1 segment https://www.pivotaltracker.com/story/show/180921714
 
    @return true if it is a medium transition segment
    */

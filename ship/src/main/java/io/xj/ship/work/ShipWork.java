@@ -2,7 +2,7 @@
 package io.xj.ship.work;
 
 /**
- Ship broadcast via HTTP Live Streaming #179453189
+ Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
  */
 public interface ShipWork {
   /**
@@ -18,7 +18,7 @@ public interface ShipWork {
   /**
    Whether the next cycle nanos is above threshold, compared to System.nanoTime();
    <p>
-   Ship health check tests playlist length and ffmpeg liveness #180746583
+   Ship health check tests playlist length and ffmpeg liveness https://www.pivotaltracker.com/story/show/180746583
 
    @return next cycle nanos
    */

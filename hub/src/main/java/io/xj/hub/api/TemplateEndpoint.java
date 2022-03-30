@@ -64,7 +64,7 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
   /**
    Create new template
    <p>
-   Or, clone sub-entities of template #180269382
+   Or, clone sub-entities of template https://www.pivotaltracker.com/story/show/180269382
 
    @param jsonapiPayload with which to update Template record.
    @return Response

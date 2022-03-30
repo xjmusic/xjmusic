@@ -21,9 +21,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- [#175880468] NexusEntityStore segments and child entities partitioned by segment id for rapid addressing
+ https://www.pivotaltracker.com/story/show/175880468 NexusEntityStore segments and child entities partitioned by segment id for rapid addressing
  <p>
- [#171553408] XJ Lab Distributed Architecture
+ https://www.pivotaltracker.com/story/show/171553408 XJ Lab Distributed Architecture
  Chains, ChainBindings, TemplateConfigs, Segments and all Segment content sub-entities persisted in JSON:API record stored keyed by chain or segment id in memory
  */
 @Singleton

@@ -166,7 +166,7 @@ class MixerImpl implements Mixer {
     // Compression is more predictable within the logarithmic range
     applyFinalOutputCompressor();
 
-    // NO NORMALIZATION! See #179257872
+    // NO NORMALIZATION! See https://www.pivotaltracker.com/story/show/179257872
     // applyNormalization(outBuf);
 
     //
@@ -329,7 +329,7 @@ class MixerImpl implements Mixer {
   /**
    apply compressor to mixing buffer
    <p>
-   [#154112129] lookahead-attack compressor compresses entire buffer towards target amplitude
+   https://www.pivotaltracker.com/story/show/154112129 lookahead-attack compressor compresses entire buffer towards target amplitude
    <p>
    only each major cycle, compute the new target compression ratio,
    but modify the compression ratio *every* frame for max smoothness
@@ -355,7 +355,7 @@ class MixerImpl implements Mixer {
   }
 
   /*
-   [#161670248] Engineer wants high-pass and low-pass filters with gradual thresholds, in order to be optimally heard but not listened to.
+   https://www.pivotaltracker.com/story/show/161670248 Engineer wants high-pass and low-pass filters with gradual thresholds, in order to be optimally heard but not listened to.
    The lowpass filter ensures there are no screeching extra-high tones in the mix.
    The highpass filter ensures there are no distorting ultra-low tones in the mix.
    *
@@ -373,10 +373,10 @@ class MixerImpl implements Mixer {
   }
 
   /**
-   NO NORMALIZATION! See #179257872
+   NO NORMALIZATION! See https://www.pivotaltracker.com/story/show/179257872
    <p>
    Previously: apply normalization to mixing buffer
-   [#154112129] normalize final buffer to normalization threshold
+   https://www.pivotaltracker.com/story/show/154112129 normalize final buffer to normalization threshold
    */
   @SuppressWarnings("unused")
   private void applyNormalization() {
@@ -387,7 +387,7 @@ class MixerImpl implements Mixer {
   }
 
   /**
-   [#154112129] lookahead-attack compressor compresses entire buffer towards target amplitude
+   https://www.pivotaltracker.com/story/show/154112129 lookahead-attack compressor compresses entire buffer towards target amplitude
 
    @return target amplitude
    */

@@ -136,7 +136,7 @@ jacocoTestReport {
   }
 }
 
-// Ship to multiple repositories #180684409
+// Ship to multiple repositories https://www.pivotaltracker.com/story/show/180684409
 jib {
   container.jvmFlags = ["-Djava.library.path=/usr/lib/x86_64-linux-gnu"]
   // set from CI command: (for building and pushing the image to multiple repositories)

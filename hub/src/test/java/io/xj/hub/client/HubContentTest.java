@@ -30,7 +30,7 @@ public class HubContentTest {
     // Library content all created at this known time
     Library library10000001 = buildLibrary(account1, "leaves");
 
-    // Templates: enhanced preview chain creation for artists in Lab UI #178457569
+    // Templates: enhanced preview chain creation for artists in Lab UI https://www.pivotaltracker.com/story/show/178457569
     Template template1 = buildTemplate(account1, "test", UUID.randomUUID().toString());
     TemplateBinding templateBinding1 = buildTemplateBinding(template1, library10000001);
 

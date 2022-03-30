@@ -105,7 +105,7 @@ public class JsonapiHttpResponseProviderImplTest {
   }
 
   /**
-   [#175985762] 406 not-acceptable errors surface underlying causes
+   https://www.pivotaltracker.com/story/show/175985762 406 not-acceptable errors surface underlying causes
    */
   @Test
   public void notAcceptable_surfacesUnderlyingCauses() {

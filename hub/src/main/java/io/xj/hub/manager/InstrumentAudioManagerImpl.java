@@ -50,7 +50,7 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl<Instru
     super(entityFactory, dbProvider);
     this.fileStoreProvider = fileStoreProvider;
 
-    // FUTURE [#170288602] Create instrument audio, provide waveform file extension as query parameter (checked by front-end after selecting the upload file)
+    // FUTURE https://www.pivotaltracker.com/story/show/170288602 Create instrument audio, provide waveform file extension as query parameter (checked by front-end after selecting the upload file)
 //    String waveformFileExtension = env.getAudioFileExtension();
   }
 

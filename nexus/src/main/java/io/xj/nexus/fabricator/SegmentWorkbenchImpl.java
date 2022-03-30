@@ -150,7 +150,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   @Override
   public <N> N put(N entity) throws NexusException {
     try {
-      // Segment shouldn't have two of the same meme #179078453
+      // Segment shouldn't have two of the same meme https://www.pivotaltracker.com/story/show/179078453
       if (SegmentMeme.class.equals(entity.getClass()) && alreadyHasMeme((SegmentMeme) entity)) return entity;
 
       return benchStore.put(entity);

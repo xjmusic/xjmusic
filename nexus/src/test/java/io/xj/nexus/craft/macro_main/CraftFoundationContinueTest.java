@@ -142,7 +142,7 @@ public class CraftFoundationContinueTest {
   }
 
   /**
-   [#162361525] persist Segment basis as JSON, then read basis JSON during fabrication of any segment that continues a main sequence
+   https://www.pivotaltracker.com/story/show/162361525 persist Segment basis as JSON, then read basis JSON during fabrication of any segment that continues a main sequence
    */
   @Test
   public void craftFoundationContinue() throws Exception {

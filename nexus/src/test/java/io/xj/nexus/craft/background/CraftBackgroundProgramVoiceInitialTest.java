@@ -99,7 +99,7 @@ public class CraftBackgroundProgramVoiceInitialTest {
 
 //    Segment result = store.getSegment(segment0.getId()).orElseThrow();
 //    assertFalse(store.getAll(result.getId(), SegmentChoice.class).isEmpty());
-//    // test vector for [#154014731] persist Audio pick in memory
+//    // test vector for https://www.pivotaltracker.com/story/show/154014731 persist Audio pick in memory
 //    int pickedKick = 0;
 //    int pickedSnare = 0;
 //    int pickedBleep = 0;

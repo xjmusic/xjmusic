@@ -125,7 +125,7 @@ public class TemplatePublicationManagerImplTest {
   }
 
   /**
-   Should be able to load template even if user is playing two templates, or two users are playing one template #180124281
+   Should be able to load template even if user is playing two templates, or two users are playing one template https://www.pivotaltracker.com/story/show/180124281
    */
   @Test
   public void create_archivesExistingForTemplate() throws Exception {
