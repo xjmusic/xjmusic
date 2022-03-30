@@ -41,7 +41,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-import static io.xj.hub.IntegrationTestingFixtures.*;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrument;
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrumentMeme;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
 import static io.xj.hub.access.HubAccess.CONTEXT_KEY;
 import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
 import static org.junit.Assert.assertEquals;
@@ -103,7 +106,7 @@ public class InstrumentEndpointTest {
     when(instrumentManager.readMany(same(access), eq(ImmutableList.of(library25.getId()))))
       .thenReturn(instruments);
 
-    Response result = subject.readMany(crc, null, library25.getId().toString(), false);
+    Response result = subject.readMany(crc, null, library25.getId(), false);
 
     verify(instrumentManager).readMany(same(access), eq(ImmutableList.of(library25.getId())));
     assertEquals(200, result.getStatus());

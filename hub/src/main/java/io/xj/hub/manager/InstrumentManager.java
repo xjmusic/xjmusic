@@ -40,7 +40,7 @@ public interface InstrumentManager extends Manager<Instrument> {
    @return Collection of instruments.
    @throws ManagerException on failure
    */
-  Collection<Instrument> readManyInAccount(HubAccess access, String accountId) throws ManagerException;
+  Collection<Instrument> readManyInAccount(HubAccess access, UUID accountId) throws ManagerException;
 
   /**
    Fetch all instrument visible to given access

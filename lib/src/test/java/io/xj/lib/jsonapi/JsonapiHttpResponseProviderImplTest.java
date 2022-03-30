@@ -114,7 +114,7 @@ public class JsonapiHttpResponseProviderImplTest {
     Response result = subject.notAcceptable(e);
 
     assertEquals(406, result.getStatus());
-    assertEquals("{\"errors\":[{\"code\":\"406\",\"title\":\"I am the outer cause: I am the real cause\"}]}", result.getEntity());
+    assertEquals("{\"errors\":[{\"code\":\"406\",\"title\":\"I am the real cause\"}]}", result.getEntity());
   }
 
   @Test

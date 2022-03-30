@@ -109,12 +109,12 @@ public class InstrumentManagerImpl extends HubPersistenceServiceImpl<Instrument>
   }
 
   @Override
-  public Collection<Instrument> readManyInAccount(HubAccess access, String accountId) throws ManagerException {
+  public Collection<Instrument> readManyInAccount(HubAccess access, UUID accountId) throws ManagerException {
     if (access.isTopLevel())
       return modelsFrom(Instrument.class, dbProvider.getDSL().select(INSTRUMENT.fields())
         .from(INSTRUMENT)
         .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
-        .where(LIBRARY.ACCOUNT_ID.eq(UUID.fromString(accountId)))
+        .where(LIBRARY.ACCOUNT_ID.eq(accountId))
         .and(INSTRUMENT.IS_DELETED.eq(false))
         .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
         .fetch());
