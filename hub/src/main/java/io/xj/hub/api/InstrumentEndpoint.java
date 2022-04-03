@@ -11,18 +11,34 @@ import io.xj.hub.manager.ManagerCloner;
 import io.xj.hub.manager.ManagerException;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.Instrument;
-import io.xj.hub.tables.pojos.Program;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.*;
+import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
+import io.xj.lib.jsonapi.JsonapiPayload;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.JsonapiPayloadObject;
+import io.xj.lib.jsonapi.MediaType;
+import io.xj.lib.jsonapi.PayloadDataType;
 import io.xj.lib.util.CSV;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  Instruments
@@ -61,8 +77,8 @@ public class InstrumentEndpoint extends HubJsonapiEndpoint<Instrument> {
   @RolesAllowed(USER)
   public Response readMany(
     @Context ContainerRequestContext crc,
-    @QueryParam("accountId") String accountId,
-    @QueryParam("libraryId") String libraryId,
+    @QueryParam("accountId") UUID accountId,
+    @QueryParam("libraryId") UUID libraryId,
     @QueryParam("detailed") Boolean detailed
   ) {
     try {
@@ -71,9 +87,9 @@ public class InstrumentEndpoint extends HubJsonapiEndpoint<Instrument> {
       Collection<Instrument> instruments;
 
       // how we source instruments depends on the query parameters
-      if (null != libraryId && !libraryId.isEmpty())
-        instruments = manager().readMany(access, ImmutableList.of(UUID.fromString(libraryId)));
-      else if (null != accountId && !accountId.isEmpty())
+      if (Objects.nonNull(libraryId))
+        instruments = manager().readMany(access, ImmutableList.of(libraryId));
+      else if (Objects.nonNull(accountId))
         instruments = manager().readManyInAccount(access, accountId);
       else
         instruments = manager().readMany(access);
@@ -104,9 +120,9 @@ public class InstrumentEndpoint extends HubJsonapiEndpoint<Instrument> {
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
   public Response create(
-    JsonapiPayload jsonapiPayload,
     @Context ContainerRequestContext crc,
-    @QueryParam("cloneId") String cloneId
+    JsonapiPayload jsonapiPayload,
+    @QueryParam("cloneId") UUID cloneId
   ) {
 
     try {
@@ -114,7 +130,7 @@ public class InstrumentEndpoint extends HubJsonapiEndpoint<Instrument> {
       Instrument instrument = payloadFactory.consume(manager().newInstance(), jsonapiPayload);
       JsonapiPayload responseJsonapiPayload = new JsonapiPayload();
       if (Objects.nonNull(cloneId)) {
-        ManagerCloner<Instrument> cloner = manager().clone(access, UUID.fromString(cloneId), instrument);
+        ManagerCloner<Instrument> cloner = manager().clone(access, cloneId, instrument);
         responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(cloner.getClone()));
         List<JsonapiPayloadObject> list = new ArrayList<>();
         for (Object entity : cloner.getChildClones()) {

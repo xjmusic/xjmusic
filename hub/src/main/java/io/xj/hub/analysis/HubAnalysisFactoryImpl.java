@@ -12,7 +12,7 @@ import io.xj.lib.app.Environment;
 import java.util.UUID;
 
 /**
- Template content Analysis #161199945
+ Template content Analysis https://www.pivotaltracker.com/story/show/161199945
  */
 class HubAnalysisFactoryImpl implements HubAnalysisFactory {
   private final Environment env;

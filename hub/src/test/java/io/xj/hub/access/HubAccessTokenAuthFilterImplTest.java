@@ -68,7 +68,7 @@ public class HubAccessTokenAuthFilterImplTest {
   }
 
   /**
-   [#154580129] User expects to log in without having access to any accounts.
+   https://www.pivotaltracker.com/story/show/154580129 User expects to log in without having access to any accounts.
    */
   @Test
   public void filter_allowedWithNoAccounts() throws Exception {
@@ -99,7 +99,7 @@ public class HubAccessTokenAuthFilterImplTest {
   }
 
   /**
-   [#154580129] User expects to log in without having access to any accounts.
+   https://www.pivotaltracker.com/story/show/154580129 User expects to log in without having access to any accounts.
    */
   @Test
   public void filter_allowedPermitAllRoute_withAccessToken() throws Exception {
@@ -130,7 +130,7 @@ public class HubAccessTokenAuthFilterImplTest {
   }
 
   /**
-   [#154580129] User expects to log in without having access to any accounts.
+   https://www.pivotaltracker.com/story/show/154580129 User expects to log in without having access to any accounts.
    */
   @Test
   public void filter_nullHubAccessToken() throws Exception {
@@ -162,7 +162,7 @@ public class HubAccessTokenAuthFilterImplTest {
   }
 
   /**
-   [#154580129] User expects to log in without having access to any accounts.
+   https://www.pivotaltracker.com/story/show/154580129 User expects to log in without having access to any accounts.
    */
   @Test
   public void filter_nullHubAccessToken_OkayIfPermitAll() throws Exception {

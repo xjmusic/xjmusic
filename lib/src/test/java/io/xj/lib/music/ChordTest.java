@@ -116,34 +116,34 @@ public class ChordTest {
   }
 
   /**
-   [#154985948] Architect wants to determine tonal similarity (% of shared pitch classes) between two Chords, in order to perform fuzzy matching operations.
+   https://www.pivotaltracker.com/story/show/154985948 Architect wants to determine tonal similarity (% of shared pitch classes) between two Chords, in order to perform fuzzy matching operations.
    */
   @Test
   public void similarity() {
-    assertEquals(1.0000,
-      Chord.of("Cm nondominant -5 +6 +7 +9").similarity(
-        Chord.of("Cm nondominant -5 +6 +7 +9")), 0.001);
+    assertEquals(1.0000, Chord.of("Cm nondominant -5 +6 +7 +9").similarity(Chord.of("Cm nondominant -5 +6 +7 +9")), 0.001);
+    assertEquals(0.2499, Chord.of("Cm nondominant -5 +6 +7 +9").similarity(Chord.of("Gm nondominant -5 +6 +7 +9")), 0.001);
+    assertEquals(0.3125, Chord.of("Cm nondominant -5 +6 +7 +9").similarity(Chord.of("D7 minor")), 0.001);
+    assertEquals(0.1042, Chord.of("Cm nondominant -5 +6 +7 +9").similarity(Chord.of("C major")), 0.001);
+    assertEquals(0.6250, Chord.of("C minor 7").similarity(Chord.of("C major 7")), 0.001);
+    assertEquals(0.7792, Chord.of("C minor 7").similarity(Chord.of("C major m7")), 0.001);
+  }
 
-    assertEquals(0.2499,
-      Chord.of("Cm nondominant -5 +6 +7 +9").similarity(
-        Chord.of("Gm nondominant -5 +6 +7 +9")), 0.001);
+  /**
+   ChordPart instrument mode
+   https://www.pivotaltracker.com/story/show/181631275
+   */
+  @Test
+  public void similarityAtAnyIntervals() {
+    assertEquals(1.00, Chord.of("C major").similarityAtAnyIntervals(Chord.of("G sus -5 +6 /C")), 0.001);
+  }
 
-    assertEquals(0.3125,
-      Chord.of("Cm nondominant -5 +6 +7 +9").similarity(
-        Chord.of("D7 minor")), 0.001);
-
-    assertEquals(0.1042,
-      Chord.of("Cm nondominant -5 +6 +7 +9").similarity(
-        Chord.of("C major")), 0.001);
-
-    assertEquals(0.6250,
-      Chord.of("C minor 7").similarity(
-        Chord.of("C major 7")), 0.001);
-
-    assertEquals(0.7792,
-      Chord.of("C minor 7").similarity(
-        Chord.of("C major m7")), 0.001);
-
+  /**
+   ChordPart instrument mode
+   https://www.pivotaltracker.com/story/show/181631275
+   */
+  @Test
+  public void hasSamePitchClasses() {
+    assertTrue( Chord.of("C major").hasSamePitchClasses(Chord.of("G sus -5 +6 /C")));
   }
 
   @Test
@@ -159,7 +159,7 @@ public class ChordTest {
   }
 
   /**
-   [#176728338] XJ understands the root of a slash chord
+   https://www.pivotaltracker.com/story/show/176728338 XJ understands the root of a slash chord
    */
   @Test
   public void getSlashRoot() {

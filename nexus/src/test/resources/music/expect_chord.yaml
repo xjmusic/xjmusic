@@ -357,7 +357,7 @@ chords:
       5: Gb
       7: Bb
 
-  G7b9: #-- [#154310658] Artist expects chords "G7b9" to parse as "G7 flat 9" *not* "G7 add 9"
+  G7b9: #-- https://www.pivotaltracker.com/story/show/154310658 Artist expects chords "G7b9" to parse as "G7 flat 9" *not* "G7 add 9"
     root: G
     pitches:
       1: G
@@ -366,7 +366,7 @@ chords:
       7: F
       9: Ab
 
-  Ebmb6: #-- [#154310658] Artist expects chord "Ebmb6" to parse as "Eb minor flat 6" *not* "Eb minor add 6."
+  Ebmb6: #-- https://www.pivotaltracker.com/story/show/154310658 Artist expects chord "Ebmb6" to parse as "Eb minor flat 6" *not* "Eb minor add 6."
     root: Eb
     pitches:
       1: Eb

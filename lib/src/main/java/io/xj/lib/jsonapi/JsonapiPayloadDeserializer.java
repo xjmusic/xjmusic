@@ -41,41 +41,36 @@ public class JsonapiPayloadDeserializer extends StdDeserializer<JsonapiPayload> 
     JsonapiPayload jsonapiPayload = new JsonapiPayload();
 
     JsonNode data = node.get(JsonapiPayload.KEY_DATA);
-    switch (data.getNodeType()) {
-      //
-      case ARRAY:
-        jsonapiPayload.setDataType(PayloadDataType.Many);
-        data.forEach(dataNode -> {
-          try {
-            jsonapiPayload.addData(dataNode.traverse(jp.getCodec()).readValueAs(JsonapiPayloadObject.class));
-          } catch (IOException e) {
-            log.warn("Unable to add resource object create node!", e);
-          }
-        });
-        break;
-      //
-      case OBJECT:
-        jsonapiPayload.setDataType(PayloadDataType.One);
-        try {
-          jsonapiPayload.setDataOne(data.traverse(jp.getCodec()).readValueAs(JsonapiPayloadObject.class));
-        } catch (IOException e) {
-          log.warn("Unable to set resource object create node!", e);
+    if (Objects.nonNull(data))
+      switch (data.getNodeType()) {
+        //
+        case ARRAY -> {
+          jsonapiPayload.setDataType(PayloadDataType.Many);
+          data.forEach(dataNode -> {
+            try {
+              jsonapiPayload.addData(dataNode.traverse(jp.getCodec()).readValueAs(JsonapiPayloadObject.class));
+            } catch (IOException e) {
+              log.warn("Unable to add resource object create node!", e);
+            }
+          });
         }
-        break;
-      //
-      case NULL:
-        jsonapiPayload.setDataType(PayloadDataType.One);
-        break;
-      //
-      case BINARY:
-      case BOOLEAN:
-      case MISSING:
-      case NUMBER:
-      case POJO:
-      case STRING:
-        log.warn("Unable to parse data create node type: {}", data.getNodeType());
-        break;
-    }
+        //
+        case OBJECT -> {
+          jsonapiPayload.setDataType(PayloadDataType.One);
+          try {
+            jsonapiPayload.setDataOne(data.traverse(jp.getCodec()).readValueAs(JsonapiPayloadObject.class));
+          } catch (IOException e) {
+            log.warn("Unable to set resource object create node!", e);
+          }
+        }
+        //
+        case NULL -> jsonapiPayload.setDataType(PayloadDataType.One);
+
+        //
+        case BINARY, BOOLEAN, MISSING, NUMBER, POJO, STRING -> log.warn("Unable to parse data create node type: {}", data.getNodeType());
+      }
+    else
+      jsonapiPayload.setDataType(PayloadDataType.One);
 
     JsonNode included = node.get(JsonapiPayload.KEY_INCLUDED);
     if (Objects.nonNull(included) && JsonNodeType.ARRAY == included.getNodeType())
@@ -91,6 +86,7 @@ public class JsonapiPayloadDeserializer extends StdDeserializer<JsonapiPayload> 
     if (Objects.nonNull(links) && JsonNodeType.OBJECT == links.getNodeType())
       links.forEach(includeNode -> {
         try {
+          //noinspection unchecked
           jsonapiPayload.getLinks().putAll(includeNode.traverse(jp.getCodec()).readValueAs(Map.class));
         } catch (IOException e) {
           log.warn("Unable to put link create node!", e);

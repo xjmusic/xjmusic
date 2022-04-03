@@ -89,7 +89,7 @@ public class HubAccessTokenAuthFilter implements ContainerRequestFilter {
     // permit-all is exactly that (but overridden by deny-all)
     // BUT if an hub access token was provided, we're going to treat this as a user auth
     // Required, for example, to implement an idempotent /logout endpoint that redirects somewhere, never returning a 401, whether or not the user is auth'd
-    // [#153110625] Logout, expect redirect to logged-out home view
+    // https://www.pivotaltracker.com/story/show/153110625 Logout, expect redirect to logged-out home view
     if (Objects.nonNull(aPermitAll) && Objects.isNull(accessTokenCookie))
       return null; // allowed
 

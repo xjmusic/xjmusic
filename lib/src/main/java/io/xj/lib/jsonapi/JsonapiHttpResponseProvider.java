@@ -119,7 +119,7 @@ public interface JsonapiHttpResponseProvider {
   /**
    Return a response of an exception during a Create operation
    <p>
-   [#175985762] 406 not-acceptable errors surface underlying causes
+   https://www.pivotaltracker.com/story/show/175985762 406 not-acceptable errors surface underlying causes
 
    @param e Exception
    @return Response

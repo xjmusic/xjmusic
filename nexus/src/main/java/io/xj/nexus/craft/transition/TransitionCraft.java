@@ -4,7 +4,7 @@ package io.xj.nexus.craft.transition;
 import io.xj.nexus.NexusException;
 
 /**
- Transition-type Instrument #180059746
+ Transition-type Instrument https://www.pivotaltracker.com/story/show/180059746
  */
 public interface TransitionCraft {
 

@@ -34,7 +34,7 @@ import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
 import static org.junit.Assert.assertEquals;
 
 /**
- [#176728582] Choose next Macro program based on the memes of the last sequence from the previous Macro program
+ https://www.pivotaltracker.com/story/show/176728582 Choose next Macro program based on the memes of the last sequence from the previous Macro program
  */
 @SuppressWarnings("ALL")
 @RunWith(MockitoJUnitRunner.class)

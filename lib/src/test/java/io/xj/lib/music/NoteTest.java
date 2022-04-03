@@ -202,7 +202,7 @@ public class NoteTest {
   }
 
   /**
-   NC sections should not cache notes from the previous section #179409784
+   NC sections should not cache notes from the previous section https://www.pivotaltracker.com/story/show/179409784
    */
   @Test
   public void onlyValid() {
@@ -214,7 +214,7 @@ public class NoteTest {
   }
 
   /**
-   NC sections should not cache notes from the previous section #179409784
+   NC sections should not cache notes from the previous section https://www.pivotaltracker.com/story/show/179409784
    */
   @Test
   public void isValid() {

@@ -9,7 +9,7 @@ import java.util.Optional;
 /**
  This process is run directly in the hard loop (not in a Fork/Join pool)
  <p>
- Ship broadcast via HTTP Live Streaming #179453189
+ Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
  <p>
  MPEG-DASH Media Presentation Description
  <p>
@@ -28,7 +28,7 @@ public interface PlaylistPublisher {
   /**
    Attempt to rehydrate ship from the last .m3u8 playlist that was uploaded for this ship key
    <p>
-   Ship rehydrates from last shipped .m3u8 playlist file #180723357
+   Ship rehydrates from last shipped .m3u8 playlist file https://www.pivotaltracker.com/story/show/180723357
 
    @param initialSeqNum threshold .m3u8 playlist must be ahead of, else it will be considered stale
    @return max sequence number from rehydrated playlist, if found
@@ -85,7 +85,7 @@ public interface PlaylistPublisher {
   /**
    Check if the ship encoder process is healthy
    <p>
-   Ship health check tests playlist length and ffmpeg liveness #180746583
+   Ship health check tests playlist length and ffmpeg liveness https://www.pivotaltracker.com/story/show/180746583
 
    @return true if healthy
    */
@@ -122,7 +122,7 @@ public interface PlaylistPublisher {
   /**
    Send telemetry about current hls playlist
    <p>
-   Ship should not enter permanent failure state unable to load segments #180756082
+   Ship should not enter permanent failure state unable to load segments https://www.pivotaltracker.com/story/show/180756082
    */
   void sendTelemetry();
 

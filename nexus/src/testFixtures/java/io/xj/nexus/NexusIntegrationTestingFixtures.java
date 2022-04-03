@@ -30,7 +30,7 @@ import static io.xj.hub.IntegrationTestingFixtures.*;
 import static io.xj.lib.util.Values.NANOS_PER_SECOND;
 
 /**
- [#165954673] Integration tests use shared scenario fixtures as much as possible
+ https://www.pivotaltracker.com/story/show/165954673 Integration tests use shared scenario fixtures as much as possible
  <p>
  Testing the hypothesis that, while unit tests are all independent,
  integration tests ought be as much about testing all features around a consensus model of the platform
@@ -655,7 +655,7 @@ public class NexusIntegrationTestingFixtures {
     program5_sequence0_chord0_voicing = buildVoicing(InstrumentType.Bass, program5_sequence0_chord0, "G3, B3, D4");
     program5_sequence0_chord1 = buildChord(program5_sequence0, 8.0, "Ab minor");
     program5_sequence0_chord1_voicing = buildVoicing(InstrumentType.Bass, program5_sequence0_chord1, "Ab3, Db3, F4");
-    program5_sequence0_chord2 = buildChord(program5_sequence0, 75.0, "G-9"); // [#154090557] this ChordEntity should be ignored, because it's past the end of the main-pattern total
+    program5_sequence0_chord2 = buildChord(program5_sequence0, 75.0, "G-9"); // https://www.pivotaltracker.com/story/show/154090557 this ChordEntity should be ignored, because it's past the end of the main-pattern total
     program5_sequence0_chord2_voicing = buildVoicing(InstrumentType.Bass, program5_sequence0_chord2, "G3, Bb3, D4, A4");
     program5_sequence0_binding0 = buildBinding(program5_sequence0, 0);
     program5_sequence0_binding0_meme0 = buildMeme(program5_sequence0_binding0, "Optimism");
@@ -758,7 +758,7 @@ public class NexusIntegrationTestingFixtures {
   /**
    Library of Content B-2 (shared test fixture)
    <p>
-   [#165954673] Integration tests use shared scenario fixtures as much as possible
+   https://www.pivotaltracker.com/story/show/165954673 Integration tests use shared scenario fixtures as much as possible
    */
   public Collection<Object> setupFixtureB2() {
     // "Tangy, Chunky to Smooth" macro-program in house library
@@ -827,16 +827,16 @@ public class NexusIntegrationTestingFixtures {
   /**
    Library of Content B-3 (shared test fixture)
    <p>
-   [#165954673] Integration tests use shared scenario fixtures as much as possible
+   https://www.pivotaltracker.com/story/show/165954673 Integration tests use shared scenario fixtures as much as possible
    <p>
-   [#163158036] memes bound to sequence-pattern because sequence-binding is not considered for beat sequences, beat sequence patterns do not have memes.
+   https://www.pivotaltracker.com/story/show/163158036 memes bound to sequence-pattern because sequence-binding is not considered for beat sequences, beat sequence patterns do not have memes.
    <p>
-   [#165954619] Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (beat- and detail-type sequences)
+   https://www.pivotaltracker.com/story/show/165954619 Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (beat- and detail-type sequences)
    <p>
-   [#153976073] Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Beat or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment.
+   https://www.pivotaltracker.com/story/show/153976073 Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Beat or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment.
    + For this test, there's an Intro Pattern with all BLEEPS, multiple Loop Patterns with KICK and SNARE (2x each), and an Outro Pattern with all TOOTS.
    <p>
-   [#150279647] Artist wants to of multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset.
+   https://www.pivotaltracker.com/story/show/150279647 Artist wants to of multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset.
    */
   public Collection<Object> setupFixtureB3() {
     // A basic beat
@@ -889,7 +889,7 @@ public class NexusIntegrationTestingFixtures {
 
     // Instrument "808"
     instrument8 = buildInstrument(library2, InstrumentType.Drum, InstrumentMode.NoteEvent, InstrumentState.Published, "808 Drums");
-    instrument8.setVolume(0.76f); // For testing: Instrument has overall volume parameter #179215413
+    instrument8.setVolume(0.76f); // For testing: Instrument has overall volume parameter https://www.pivotaltracker.com/story/show/179215413
     instrument8_meme0 = buildMeme(instrument8, "heavy");
     instrument8_audio8kick = buildAudio(instrument8, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.62f, "KICK", "Eb", 1.0f);
     instrument8_audio8snare = buildAudio(instrument8, "Snare", "975898198017350afghjkjhaskjdfjhk.wav", 0.01f, 1.5f, 120.0f, 0.62f, "SNARE", "Ab", 0.8f);
@@ -950,7 +950,7 @@ public class NexusIntegrationTestingFixtures {
   /**
    Library of Content B-4 (shared test fixture)
    <p>
-   [#154464276] Detail Craft v1
+   https://www.pivotaltracker.com/story/show/154464276 Detail Craft v1
    */
   public Collection<Object> setupFixtureB4_DetailBass() {
     // A basic bass pattern

@@ -257,7 +257,7 @@ public class NexusWorkImpl implements NexusWork {
   /**
    Load static content to run yard fabrication
    <p>
-   Nexus production fabrication from static source (without Hub) #177020318
+   Nexus production fabrication from static source (without Hub) https://www.pivotaltracker.com/story/show/177020318
    */
   private void loadYard() {
     try {
@@ -308,10 +308,10 @@ public class NexusWorkImpl implements NexusWork {
   }
 
   /**
-   [#158897383] Engineer wants platform heartbeat to check for any stale production chains in fabricate state,
+   https://www.pivotaltracker.com/story/show/158897383 Engineer wants platform heartbeat to check for any stale production chains in fabricate state,
    and if found, send back a failure health check it in order to ensure the Chain remains in an operable state.
    <p>
-   [#177021797] Medic relies on precomputed  telemetry of fabrication latency
+   https://www.pivotaltracker.com/story/show/177021797 Medic relies on precomputed  telemetry of fabrication latency
    */
   private void doMedic() {
     if (System.currentTimeMillis() < nextMedicMillis) return;
@@ -571,7 +571,7 @@ public class NexusWorkImpl implements NexusWork {
   }
 
   /**
-   [#177072936] chain shows current fabrication latency
+   https://www.pivotaltracker.com/story/show/177072936 chain shows current fabrication latency
 
    @param chain fabricating
    */
@@ -627,7 +627,7 @@ public class NexusWorkImpl implements NexusWork {
    Bootstrap a chain from JSON chain bootstrap data,
    first rehydrating store from last shipped JSON matching this ship key.
    <p>
-   Nexus with bootstrap chain rehydrates store on startup from shipped JSON files #178718006
+   Nexus with bootstrap chain rehydrates store on startup from shipped JSON files https://www.pivotaltracker.com/story/show/178718006
    */
   private Optional<Chain> createChainForTemplate(Template template) {
     var chain = rehydrateTemplate(template);

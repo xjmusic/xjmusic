@@ -10,7 +10,7 @@ public interface LibraryManager extends Manager<Library> {
 
   /**
    Provide an entity containing some new properties, but otherwise clone everything of a source library, of new record, and return it.
-   When a library is cloned, also clone all programs/instruments within it #181196881
+   When a library is cloned, also clone all programs/instruments within it https://www.pivotaltracker.com/story/show/181196881
 
    @param access control
    @param cloneId   of library to clone

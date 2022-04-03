@@ -12,7 +12,7 @@ import io.xj.hub.client.HubContent;
  ... do things with this content, like craft or dub ...
  content.putReport();
  <p>
- [#176625033] Unify guice factory with explicit methods to construct components from Fabricator
+ https://www.pivotaltracker.com/story/show/176625033 Unify guice factory with explicit methods to construct components from Fabricator
  */
 public interface FabricatorFactory {
   /**
@@ -48,7 +48,7 @@ public interface FabricatorFactory {
   /**
    Configure a TimeComputer instance for a segment
    <p>
-   [#153542275] Segment wherein velocity changes expect perfectly smooth sound of previous segment through to following segment
+   https://www.pivotaltracker.com/story/show/153542275 Segment wherein velocity changes expect perfectly smooth sound of previous segment through to following segment
 
    @param totalBeats of the segment
    @param fromTempo  at the beginning of the segment (in Beats Per Minute)

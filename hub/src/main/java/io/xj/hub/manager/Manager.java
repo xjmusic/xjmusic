@@ -41,7 +41,7 @@ public interface Manager<E> {
   /**
    Create a new Record
    <p>
-   [#175213519] Expect new Audios to have no waveform
+   https://www.pivotaltracker.com/story/show/175213519 Expect new Audios to have no waveform
 
    @param access control
    @param entity    for the new Record

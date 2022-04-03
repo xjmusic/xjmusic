@@ -43,7 +43,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 /**
- [#166481918] Beat fabrication composited of layered Patterns
+ https://www.pivotaltracker.com/story/show/166481918 Beat fabrication composited of layered Patterns
  */
 @RunWith(MockitoJUnitRunner.class)
 public class CraftBeat_LayeredVoicesTest {
@@ -217,7 +217,7 @@ public class CraftBeat_LayeredVoicesTest {
 
     Segment result = store.getSegment(segment4.getId()).orElseThrow();
     assertFalse(store.getAll(result.getId(), SegmentChoice.class).isEmpty());
-    // test vector for [#154014731] persist Audio pick in memory
+    // test vector for https://www.pivotaltracker.com/story/show/154014731 persist Audio pick in memory
     int pickedKick = 0;
     int pickedSnare = 0;
     int pickedHihat = 0;

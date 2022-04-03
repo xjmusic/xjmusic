@@ -6,14 +6,14 @@ import io.xj.ship.ShipException;
 /**
  This process is run directly in the hard loop (not in a Fork/Join pool)
  <p>
- Ship broadcast via HTTP Live Streaming #179453189
+ Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
  */
 public interface ChunkMixer {
 
   /**
    Whether the Chunk is ready to mix
    <p>
-   Ship should not upload empty media segment files! #180745353
+   Ship should not upload empty media segment files! https://www.pivotaltracker.com/story/show/180745353
 
    @return true if ready
    @throws ShipException on failure

@@ -170,7 +170,7 @@ class JsonapiHttpResponseProviderImpl implements JsonapiHttpResponseProvider {
   @Override
   public Response notAcceptable(Exception e) {
     if (Objects.nonNull(e.getCause()) && !e.getCause().equals(e))
-      return notAcceptable(String.format("%s: %s", e.getMessage(), e.getCause().getMessage()));
+      return notAcceptable(String.format("%s", e.getCause().getMessage()));
     return notAcceptable(e.getMessage());
   }
 

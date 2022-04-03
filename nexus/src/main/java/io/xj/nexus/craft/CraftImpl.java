@@ -7,16 +7,33 @@ import com.google.api.client.util.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
-import io.xj.api.*;
+import io.xj.api.SegmentChoice;
+import io.xj.api.SegmentChoiceArrangement;
+import io.xj.api.SegmentChoiceArrangementPick;
+import io.xj.api.SegmentChord;
+import io.xj.api.SegmentChordVoicing;
+import io.xj.api.SegmentType;
+import io.xj.hub.client.HubClientException;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.*;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.lib.entity.Entities;
-import io.xj.lib.music.*;
+import io.xj.lib.music.AdjSymbol;
+import io.xj.lib.music.Bar;
+import io.xj.lib.music.Chord;
+import io.xj.lib.music.Note;
+import io.xj.lib.music.NoteRange;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.MarbleBag;
+import io.xj.lib.util.Text;
 import io.xj.lib.util.TremendouslyRandom;
 import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
@@ -24,10 +41,18 @@ import io.xj.nexus.fabricator.FabricationWrapperImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.MemeIsometry;
 import io.xj.nexus.fabricator.NameIsometry;
-import io.xj.hub.client.HubClientException;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -102,7 +127,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param defaultAtonal      whether to default to a single atonal note, if no voicings are available
    @throws NexusException on failure
    */
-  protected void craftChoices(ProgramSequence sequence, Collection<ProgramVoice> voices, InstrumentProvider instrumentProvider, boolean defaultAtonal) throws NexusException {
+  protected void craftNoteEvents(ProgramSequence sequence, Collection<ProgramVoice> voices, InstrumentProvider instrumentProvider, boolean defaultAtonal) throws NexusException {
     // Craft each voice into choice
     try {
       for (ProgramVoice voice : voices) {
@@ -125,7 +150,7 @@ public class CraftImpl extends FabricationWrapperImpl {
           choice.setDeltaIn(priorChoice.get().getDeltaIn());
           choice.setDeltaOut(priorChoice.get().getDeltaOut());
           choice.setInstrumentId(priorChoice.get().getInstrumentId());
-          this.craftArrangements(fabricator.put(choice), defaultAtonal);
+          this.craftNoteEventArrangements(fabricator.put(choice), defaultAtonal);
           continue;
         }
 
@@ -136,10 +161,10 @@ public class CraftImpl extends FabricationWrapperImpl {
         }
 
         // make new choices
-        choice.setDeltaIn(getDeltaIn(choice));
-        choice.setDeltaOut(getDeltaOut(choice));
+        choice.setDeltaIn(computeDeltaIn(choice));
+        choice.setDeltaOut(computeDeltaOut(choice));
         choice.setInstrumentId(instrument.get().getId());
-        this.craftArrangements(fabricator.put(choice), defaultAtonal);
+        this.craftNoteEventArrangements(fabricator.put(choice), defaultAtonal);
       }
 
     } catch (HubClientException e) {
@@ -148,12 +173,100 @@ public class CraftImpl extends FabricationWrapperImpl {
   }
 
   /**
+   ChordPart instrument mode
+   https://www.pivotaltracker.com/story/show/181631275
+
+   @param instrument for which to craft choices
+   @throws NexusException on failure
+   */
+  protected void craftChordParts(Instrument instrument) throws NexusException {
+    // Craft each voice into choice
+    var choice = new SegmentChoice();
+
+    choice.setId(UUID.randomUUID());
+    choice.setInstrumentType(instrument.getType().toString());
+    choice.setInstrumentId(instrument.getId());
+    choice.setSegmentId(fabricator.getSegment().getId());
+
+    // Whether there is a prior choice for this voice
+    Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(instrument.getType());
+
+    if (priorChoice.isPresent()) {
+      choice.setDeltaIn(priorChoice.get().getDeltaIn());
+      choice.setDeltaOut(priorChoice.get().getDeltaOut());
+      choice.setInstrumentId(priorChoice.get().getInstrumentId());
+      this.craftChordParts(instrument, fabricator.put(choice));
+      return;
+    }
+
+    // make new choices
+    choice.setDeltaIn(computeDeltaIn(choice));
+    choice.setDeltaOut(computeDeltaOut(choice));
+    choice.setInstrumentId(instrument.getId());
+    this.craftChordParts(instrument, fabricator.put(choice));
+  }
+
+  /**
+   ChordPart instrument mode
+   https://www.pivotaltracker.com/story/show/181631275
+
+   @param instrument chosen
+   @param choice     for which to craft chord parts
+   @throws NexusException on failure
+   */
+  protected void craftChordParts(Instrument instrument, SegmentChoice choice) throws NexusException {
+    if (fabricator.getSegmentChords().isEmpty())
+      return;
+
+    // Arrangement
+    var arrangement = new SegmentChoiceArrangement();
+    arrangement.setId(UUID.randomUUID());
+    arrangement.setSegmentId(choice.getSegmentId());
+    arrangement.segmentChoiceId(choice.getId());
+    fabricator.put(arrangement);
+
+    // Pick for each section
+    for (var section : computeSections()) {
+      var audio =
+        selectChordPartInstrumentAudio(instrument, Chord.of(section.chord.getName()));
+
+      // https://www.pivotaltracker.com/story/show/176373977 Should gracefully skip audio in unfulfilled by instrument
+      if (audio.isEmpty()) return;
+
+      // Pick attributes are expressed "rendered" as actual seconds
+      double startSeconds = fabricator.getSecondsAtPosition(section.fromPos);
+      @Nullable Double lengthSeconds = fabricator.isOneShot(instrument)
+        ? null
+        : fabricator.getSecondsAtPosition(section.toPos) - startSeconds;
+
+      // Volume ratio
+      var volRatio = computeVolumeRatioForPickedNote(choice, section.fromPos);
+      if (0 >= volRatio) continue;
+
+      // Pick
+      var pick = new SegmentChoiceArrangementPick();
+      pick.setId(UUID.randomUUID());
+      pick.setSegmentId(choice.getSegmentId());
+      pick.setSegmentChoiceArrangementId(arrangement.getId());
+      pick.setInstrumentAudioId(audio.get().getId());
+      pick.setNote(section.chord.getName());
+      pick.setEvent(Text.toEvent(instrument.getType().toString()));
+      pick.setLength(lengthSeconds);
+      pick.setAmplitude(volRatio);
+      fabricator.put(pick);
+    }
+
+    // Final pass to set the actual length of one-shot audio picks
+    finalizeNoteEventCutoffsOfOneShotInstrumentAudioPicks(choice);
+  }
+
+  /**
    Get the delta in for the given voice
 
    @param choice for which to get delta in
    @return delta in for given voice
    */
-  protected int getDeltaIn(SegmentChoice choice) {
+  protected int computeDeltaIn(SegmentChoice choice) {
     return deltaIns.getOrDefault(choiceIndexProvider.get(choice), DELTA_UNLIMITED);
   }
 
@@ -163,7 +276,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param choice for which to get delta out
    @return delta out for given voice
    */
-  protected int getDeltaOut(SegmentChoice choice) {
+  protected int computeDeltaOut(SegmentChoice choice) {
     return deltaOuts.getOrDefault(choiceIndexProvider.get(choice), DELTA_UNLIMITED);
   }
 
@@ -181,13 +294,13 @@ public class CraftImpl extends FabricationWrapperImpl {
    but we aren't actually using them yet until we hit the next main program in full, N segments later.
    <p>
    Ends with a final pass to set the actual length of one-shot audio picks
-   One-shot instruments cut off when other notes played with same instrument, or at end of segment #180245315
+   One-shot instruments cut off when other notes played with same instrument, or at end of segment https://www.pivotaltracker.com/story/show/180245315
 
    @param choice        to craft arrangements for
    @param defaultAtonal whether to default to a single atonal note, if no voicings are available
    @throws NexusException on failure
    */
-  protected void craftArrangements(SegmentChoice choice, boolean defaultAtonal) throws NexusException, HubClientException {
+  protected void craftNoteEventArrangements(SegmentChoice choice, boolean defaultAtonal) throws NexusException, HubClientException {
     // this is used to invert voicings into the tightest possible range
     // passed to each iteration of note voicing arrangement in order to move as little as possible from the previous
     NoteRange range = NoteRange.empty();
@@ -196,16 +309,16 @@ public class CraftImpl extends FabricationWrapperImpl {
       .orElseThrow(() -> new NexusException("Can't get program config")));
 
     if (fabricator.getSegmentChords().isEmpty())
-      craftArrangementForVoiceSection(choice, 0, fabricator.getSegment().getTotal(), range, defaultAtonal);
+      craftNoteEventSection(choice, 0, fabricator.getSegment().getTotal(), range, defaultAtonal);
 
     else if (programConfig.doPatternRestartOnChord())
-      craftArrangementForVoiceSectionRestartingEachChord(choice, range, defaultAtonal);
+      craftNoteEventSectionRestartingEachChord(choice, range, defaultAtonal);
 
     else
-      craftArrangementForVoiceSection(choice, 0, fabricator.getSegment().getTotal(), range, defaultAtonal);
+      craftNoteEventSection(choice, 0, fabricator.getSegment().getTotal(), range, defaultAtonal);
 
     // Final pass to set the actual length of one-shot audio picks
-    finalizeCutoffsOfOneShotInstrumentAudioPicks(choice);
+    finalizeNoteEventCutoffsOfOneShotInstrumentAudioPicks(choice);
   }
 
   /**
@@ -252,7 +365,7 @@ public class CraftImpl extends FabricationWrapperImpl {
         var barBeats = fabricator.getMainProgramConfig().getBarBeats();
         var deltaUnits = Bar.of(barBeats).computeSubsectionBeats(fabricator.getSegment().getTotal());
 
-        // Delta arcs can prioritize the presence of a layer by name, e.g. containing "kick" #180242564
+        // Delta arcs can prioritize the presence of a layer by name, e.g. containing "kick" https://www.pivotaltracker.com/story/show/180242564
         // separate layers into primary and secondary, shuffle them separately, then concatenate
         List<String> priLayers = Lists.newArrayList();
         List<String> secLayers = Lists.newArrayList();
@@ -290,18 +403,28 @@ public class CraftImpl extends FabricationWrapperImpl {
   /**
    Iterate through all the chords of a sequence and arrange events per each chord
    <p>
-   [#176468993] Detail programs can be made to repeat every chord change
+   https://www.pivotaltracker.com/story/show/176468993 Detail programs can be made to repeat every chord change
 
    @param choice        from which to craft events
    @param range         used to keep voicing in the tightest range possible
    @param defaultAtonal whether to default to a single atonal note, if no voicings are available
    @throws NexusException on failure
    */
-  private void craftArrangementForVoiceSectionRestartingEachChord(
+  private void craftNoteEventSectionRestartingEachChord(
     SegmentChoice choice,
     NoteRange range,
     boolean defaultAtonal
   ) throws NexusException {
+    for (var section : computeSections())
+      craftNoteEventSection(choice, section.fromPos, section.toPos, range, defaultAtonal);
+  }
+
+  /**
+   Compute the segment chord sections
+
+   @return sections in order of position ascending
+   */
+  private List<Section> computeSections() {
     // guaranteed to be in order of position ascending
     SegmentChord[] chords = new SegmentChord[fabricator.getSegmentChords().size()];
     var i = 0;
@@ -318,8 +441,7 @@ public class CraftImpl extends FabricationWrapperImpl {
         ? chords[i + 1].getPosition()
         : fabricator.getSegment().getTotal();
     }
-    for (var section : sections)
-      craftArrangementForVoiceSection(choice, section.fromPos, section.toPos, range, defaultAtonal);
+    return Arrays.stream(sections).toList();
   }
 
   /**
@@ -332,7 +454,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param defaultAtonal whether to default to a single atonal note, if no voicings are available
    @throws NexusException on failure
    */
-  private void craftArrangementForVoiceSection(
+  private void craftNoteEventSection(
     SegmentChoice choice,
     double fromPos,
     double maxPos,
@@ -356,7 +478,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
   /**
    Craft the voice events of a single pattern.
-   [#161601279] Artist during craft audio selection wants randomness of outro audio selection to gently ramp of zero to N over the course of the outro.
+   https://www.pivotaltracker.com/story/show/161601279 Artist during craft audio selection wants randomness of outro audio selection to gently ramp of zero to N over the course of the outro.
 
    @param pattern             to source events
    @param fromSegmentPosition to write events to segment
@@ -415,7 +537,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     // Morph & Point attributes are expressed in beats
     double segmentPosition = fromSegmentPosition + event.getPosition();
 
-    // Should never place segment events outside of segment time range #180245354
+    // Should never place segment events outside of segment time range https://www.pivotaltracker.com/story/show/180245354
     if (segmentPosition < 0 || segmentPosition >= fabricator.getSegment().getTotal()) return;
 
     double duration = Math.min(event.getDuration(), toSegmentPosition - segmentPosition);
@@ -446,11 +568,11 @@ public class CraftImpl extends FabricationWrapperImpl {
 
   /**
    Ends with a final pass to set the actual length of one-shot audio picks
-   One-shot instruments cut off when other notes played with same instrument, or at end of segment #180245315
+   One-shot instruments cut off when other notes played with same instrument, or at end of segment https://www.pivotaltracker.com/story/show/180245315
 
    @param choice for which to finalize length of one-shot audio picks
    */
-  private void finalizeCutoffsOfOneShotInstrumentAudioPicks(SegmentChoice choice) throws NexusException {
+  private void finalizeNoteEventCutoffsOfOneShotInstrumentAudioPicks(SegmentChoice choice) throws NexusException {
     var instrument = fabricator.sourceMaterial().getInstrument(choice.getInstrumentId())
       .orElseThrow(() -> new NexusException("Failed to get instrument from source material for segment choice!"));
 
@@ -458,7 +580,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     if (!fabricator.isOneShot(instrument))
       return;
 
-    // skip instruments that are do not have one-shot cutoff enabled #181211927
+    // skip instruments that are do not have one-shot cutoff enabled https://www.pivotaltracker.com/story/show/181211927
     if (!fabricator.isOneShotCutoffEnabled(instrument))
       return;
 
@@ -565,7 +687,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   /**
    Pick final note based on instrument type, voice event, transposition and current chord
    <p>
-   [#176695166] XJ should choose correct instrument note based on detail program note
+   https://www.pivotaltracker.com/story/show/176695166 XJ should choose correct instrument note based on detail program note
 
    @param instrumentType  comprising audios
    @param choice          for reference
@@ -606,7 +728,7 @@ public class CraftImpl extends FabricationWrapperImpl {
       .map(n -> Note.of(n).shift(targetShiftSemitones + 12 * targetShiftOctaves))
       .collect(Collectors.toList());
 
-    // Sticky buns v2 #179153822 uses this alternate path for note selection of random ("X") note events
+    // Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822 uses this alternate path for note selection of random ("X") note events
     var bun = fabricator.getStickyBun(event.getProgramSequencePatternId());
     if (bun.isPresent() && bun.get().isTonal(event.getId()) && rootNote.isPresent())
       eventNotes = bun.get().replaceAtonal(event.getId(), rootNote.get(), eventNotes);
@@ -626,7 +748,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     fabricator.putNotesPickedForChord(event, chord.getName(), notes);
 
-    // Sticky buns v2 #179153822 persisted for each randomly selected note in the series for any given pattern
+    // Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822 persisted for each randomly selected note in the series for any given pattern
     if (rootNote.isPresent())
       for (var note : notes.stream().map(Note::of).toList())
         fabricator.putStickyBun(event.getId(), rootNote.get(), segmentPosition, note);
@@ -635,9 +757,9 @@ public class CraftImpl extends FabricationWrapperImpl {
   }
 
   /**
-   [#176696738] XJ has a serviceable voicing algorithm
+   https://www.pivotaltracker.com/story/show/176696738 XJ has a serviceable voicing algorithm
    <p>
-   [#176474113] Artist can edit comma-separated notes into detail program events
+   https://www.pivotaltracker.com/story/show/176474113 Artist can edit comma-separated notes into detail program events
    <p>
    of a pick of instrument-audio for each event, where events are conformed to entities/scales based on the master segment entities
    pick instrument audio for one event, in a voice in a pattern, belonging to an arrangement
@@ -664,9 +786,9 @@ public class CraftImpl extends FabricationWrapperImpl {
     var audio =
       fabricator.getInstrumentConfig(instrument).isMultiphonic()
         ? selectMultiphonicInstrumentAudio(instrument, event, note)
-        : selectInstrumentAudio(instrument, event);
+        : selectNoteEventInstrumentAudio(instrument, event);
 
-    // [#176373977] Should gracefully skip audio in unfulfilled by instrument
+    // https://www.pivotaltracker.com/story/show/176373977 Should gracefully skip audio in unfulfilled by instrument
     if (audio.isEmpty()) return;
 
     // of pick
@@ -689,7 +811,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   /**
    Select audio from a multiphonic instrument
    <p>
-   [#176649593] Sampler obeys isMultiphonic from Instrument config
+   https://www.pivotaltracker.com/story/show/176649593 Sampler obeys isMultiphonic from Instrument config
 
    @param instrument of which to score available audios, and make a selection
    @param event      for caching reference
@@ -701,12 +823,12 @@ public class CraftImpl extends FabricationWrapperImpl {
     ProgramSequencePatternEvent event,
     String note
   ) {
-    if (fabricator.getPreferredAudio(event, note).isEmpty()) {
+    if (fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), note).isEmpty()) {
       var audio = selectNewMultiphonicInstrumentAudio(instrument, note);
-      audio.ifPresent(instrumentAudio -> fabricator.putPreferredAudio(event, note, instrumentAudio));
+      audio.ifPresent(instrumentAudio -> fabricator.putPreferredAudio(event.getProgramVoiceTrackId().toString(), note, instrumentAudio));
     }
 
-    return fabricator.getPreferredAudio(event, note);
+    return fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), note);
   }
 
   /**
@@ -720,16 +842,38 @@ public class CraftImpl extends FabricationWrapperImpl {
    @return matched new audio
    @throws NexusException on failure
    */
-  private Optional<InstrumentAudio> selectInstrumentAudio(
+  private Optional<InstrumentAudio> selectNoteEventInstrumentAudio(
     Instrument instrument,
     ProgramSequencePatternEvent event
   ) throws NexusException {
-    if (fabricator.getPreferredAudio(event, event.getNote()).isEmpty()) {
-      var audio = selectNewInstrumentAudio(instrument, event);
-      audio.ifPresent(instrumentAudio -> fabricator.putPreferredAudio(event, event.getNote(), instrumentAudio));
+    if (fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getNote()).isEmpty()) {
+      var audio = selectNewNoteEventInstrumentAudio(instrument, event);
+      audio.ifPresent(instrumentAudio -> fabricator.putPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getNote(), instrumentAudio));
     }
 
-    return fabricator.getPreferredAudio(event, event.getNote());
+    return fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getNote());
+  }
+
+  /**
+   ChordPart instrument mode
+   https://www.pivotaltracker.com/story/show/181631275
+   <p>
+   If never encountered, default to new selection and cache that.
+
+   @param instrument of which to score available audios, and make a selection
+   @param chord      to match selection
+   @return matched new audio
+   */
+  private Optional<InstrumentAudio> selectChordPartInstrumentAudio(
+    Instrument instrument,
+    Chord chord
+  ) {
+    if (fabricator.getPreferredAudio(instrument.getId().toString(), chord.getName()).isEmpty()) {
+      var audio = selectNewChordPartInstrumentAudio(instrument, chord);
+      audio.ifPresent(instrumentAudio -> fabricator.putPreferredAudio(instrument.getId().toString(), chord.getName(), instrumentAudio));
+    }
+
+    return fabricator.getPreferredAudio(instrument.getId().toString(), chord.getName());
   }
 
   /**
@@ -739,7 +883,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param event      to match
    @return matched new audio
    */
-  private Optional<InstrumentAudio> selectNewInstrumentAudio(
+  private Optional<InstrumentAudio> selectNewNoteEventInstrumentAudio(
     Instrument instrument,
     ProgramSequencePatternEvent event
   ) throws NexusException {
@@ -763,8 +907,35 @@ public class CraftImpl extends FabricationWrapperImpl {
 
   /**
    Select a new random instrument audio based on a pattern event
+
+   @param instrument of which to score available audios, and make a selection
+   @param chord      to match
+   @return matched new audio
+   */
+  private Optional<InstrumentAudio> selectNewChordPartInstrumentAudio(
+    Instrument instrument,
+    Chord chord
+  ) {
+    var bag = MarbleBag.empty();
+
+    Chord audioChord;
+    for (var a : fabricator.sourceMaterial().getAudios(instrument)) {
+      audioChord = Chord.of(a.getNote());
+      if (audioChord.equals(chord))
+        bag.add(0, a.getId());
+      else if (audioChord.hasSamePitchClasses(chord))
+        bag.add(1, a.getId());
+    }
+
+    if (bag.isEmpty()) return Optional.empty();
+
+    return fabricator.sourceMaterial().getInstrumentAudio(bag.pick());
+  }
+
+  /**
+   Select a new random instrument audio based on a pattern event
    <p>
-   [#176649593] Sampler obeys isMultiphonic from Instrument config
+   https://www.pivotaltracker.com/story/show/176649593 Sampler obeys isMultiphonic from Instrument config
 
    @param instrument of which to score available audios, and make a selection
    @param note       to match
@@ -859,12 +1030,12 @@ public class CraftImpl extends FabricationWrapperImpl {
    Choose instrument
    [#325] Possible to choose multiple instruments for different voices in the same program
    <p>
-   Choose drum instrument to fulfill beat program event names #180803311
+   Choose drum instrument to fulfill beat program event names https://www.pivotaltracker.com/story/show/180803311
 
    @param type              of instrument to choose
    @param avoidIds          to avoid, or empty list
    @param continueVoiceName if present, ensure that choices continue for each voice named in prior segments of this main program
-   @param requireEventNames instrument candidates are required to have event names #180803311
+   @param requireEventNames instrument candidates are required to have event names https://www.pivotaltracker.com/story/show/180803311
    @return Instrument
    */
   protected Optional<Instrument> chooseFreshInstrument(InstrumentType type, List<UUID> avoidIds, @Nullable String continueVoiceName, List<String> requireEventNames) throws NexusException {
@@ -923,7 +1094,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   /**
    Test if an instrument contains audios named like N
    <p>
-   Choose drum instrument to fulfill beat program event names #180803311
+   Choose drum instrument to fulfill beat program event names https://www.pivotaltracker.com/story/show/180803311
 
    @param instrument    to test
    @param requireEvents N

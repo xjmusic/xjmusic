@@ -124,7 +124,7 @@ public class CraftDetailProgramVoiceContinueTest {
 
     store.getSegment(segment4.getId()).orElseThrow();
     assertFalse(fabricator.getChoices().isEmpty());
-    // test vector for [#154014731] persist Audio pick in memory
+    // test vector for https://www.pivotaltracker.com/story/show/154014731 persist Audio pick in memory
     int pickedBloop = 0;
     Collection<SegmentChoiceArrangementPick> picks = fabricator.getPicks();
 

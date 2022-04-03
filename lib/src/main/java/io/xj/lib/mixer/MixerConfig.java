@@ -6,7 +6,7 @@ import javax.sound.sampled.AudioFormat;
 /**
  Configuration for mixer
  <p>
- [#154112129] Engineer wants final Segment audio mastered with a lookahead-attack compressor
+ https://www.pivotaltracker.com/story/show/154112129 Engineer wants final Segment audio mastered with a lookahead-attack compressor
  */
 public class MixerConfig {
   private AudioFormat outputFormat;

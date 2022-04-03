@@ -14,7 +14,7 @@ import java.util.UUID;
 import static org.junit.Assert.*;
 
 /**
- Choices should be random #180669293
+ Choices should be random https://www.pivotaltracker.com/story/show/180669293
  */
 public class MarbleBagTest {
   private static final Logger LOG = LoggerFactory.getLogger(MarbleBagTest.class);
@@ -62,7 +62,7 @@ public class MarbleBagTest {
   /**
    adds marbles to bag in multiple phases, picks 100 times and asserts allowed results
    <p>
-   Marble bag has phases #180832650
+   Marble bag has phases https://www.pivotaltracker.com/story/show/180832650
    <p>
    This will consolidate the logic around "choose this if available, else that, else that"
    XJ’s marble bag is actually divided into phases. When a marble is put into the bag, it is assigned a phase.

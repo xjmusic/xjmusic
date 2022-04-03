@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 /**
  Background craft for the current segment
  <p>
- Background-type Instrument #180121388
+ Background-type Instrument https://www.pivotaltracker.com/story/show/180121388
  */
 public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCraft {
 

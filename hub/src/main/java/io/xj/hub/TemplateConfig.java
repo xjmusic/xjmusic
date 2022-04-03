@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  e.g.
  if the `config` value contains only `previewLengthMaxHours = 8`
  <p>
- [#177355683] Artist saves Template config, validate & combine with defaults.
+ https://www.pivotaltracker.com/story/show/177355683 Artist saves Template config, validate & combine with defaults.
  */
 public class TemplateConfig {
   public static final String DEFAULT =

@@ -83,7 +83,7 @@ public class Note {
   /**
    Only stream a valid note, else empty
    </>
-   NC sections should not cache notes from the previous section #179409784
+   NC sections should not cache notes from the previous section https://www.pivotaltracker.com/story/show/179409784
 
    @param name of note to test for validity
    @return valid note stream, or empty stream (if invalid)

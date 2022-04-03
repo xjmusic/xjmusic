@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  Beat craft for the current segment
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  <p>
- [#176625174] BeatCraftImpl extends DetailCraftImpl to leverage all detail craft enhancements
+ https://www.pivotaltracker.com/story/show/176625174 BeatCraftImpl extends DetailCraftImpl to leverage all detail craft enhancements
  */
 public class BeatCraftImpl extends DetailCraftImpl implements BeatCraft {
 
@@ -42,13 +42,13 @@ public class BeatCraftImpl extends DetailCraftImpl implements BeatCraft {
       fabricator.sourceMaterial().getProgram(priorChoice.get().getProgramId()) :
       chooseFreshProgram(ProgramType.Beat, InstrumentType.Drum);
 
-    // [#176373977] Should gracefully skip voicing type if unfulfilled by detail program
+    // https://www.pivotaltracker.com/story/show/176373977 Should gracefully skip voicing type if unfulfilled by detail program
     if (program.isEmpty()) {
       reportMissing(Program.class, "Beat-type program");
       return;
     }
 
-    // [#178240332] Segments have intensity arcs; automate mixer layers in and out of each main program
+    // https://www.pivotaltracker.com/story/show/178240332 Segments have intensity arcs; automate mixer layers in and out of each main program
     ChoiceIndexProvider choiceIndexProvider = (SegmentChoice choice) ->
       fabricator.sourceMaterial().getProgramVoice(choice.getProgramVoiceId())
         .map(ProgramVoice::getName)
@@ -66,7 +66,7 @@ public class BeatCraftImpl extends DetailCraftImpl implements BeatCraft {
     );
 
     // beat sequence is selected at random of the current program
-    // FUTURE: [#166855956] Beat Program with multiple Sequences
+    // FUTURE: https://www.pivotaltracker.com/story/show/166855956 Beat Program with multiple Sequences
     var sequence = fabricator.getRandomlySelectedSequence(program.get());
 
     // voice arrangements
@@ -76,7 +76,7 @@ public class BeatCraftImpl extends DetailCraftImpl implements BeatCraft {
         reportMissing(ProgramVoice.class,
           String.format("in Beat-choice Program[%s]", program.get().getId()));
 
-      craftChoices(sequence.get(), voices, voice -> chooseFreshInstrument(voice.getType(), List.of(), voice.getName(), fabricator.sourceMaterial().getTrackNames(voice)), true);
+      craftNoteEvents(sequence.get(), voices, voice -> chooseFreshInstrument(voice.getType(), List.of(), voice.getName(), fabricator.sourceMaterial().getTrackNames(voice)), true);
     }
 
     // Finally, update the segment with the crafted content

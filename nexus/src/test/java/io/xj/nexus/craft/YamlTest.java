@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- [#176696738] XJ has a serviceable voicing algorithm
+ https://www.pivotaltracker.com/story/show/176696738 XJ has a serviceable voicing algorithm
  */
 @RunWith(MockitoJUnitRunner.class)
 public abstract class YamlTest {

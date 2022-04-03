@@ -61,7 +61,7 @@ public class TemplateBindingManagerImpl extends HubPersistenceServiceImpl<Templa
         .fetchOne(0, int.class));
 
     //
-    // [#170299297] Cannot delete TemplateBindings that have a Meme-- otherwise, destroy all inner entities
+    // https://www.pivotaltracker.com/story/show/170299297 Cannot delete TemplateBindings that have a Meme-- otherwise, destroy all inner entities
     //
 
     db.deleteFrom(TEMPLATE_BINDING)

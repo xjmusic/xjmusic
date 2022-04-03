@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
  <p>
  Parse any meme to test if it's valid, and extract its features
  <p>
- Numeric memes with common letters and different integer prefix (e.g. 2STEP vs 4STEP) are known to be exclusive #180125852
+ Numeric memes with common letters and different integer prefix (e.g. 2STEP vs 4STEP) are known to be exclusive https://www.pivotaltracker.com/story/show/180125852
  */
 class MmNumeric {
   private static final Pattern rgx = Pattern.compile("^([0-9]+)(.+)$");

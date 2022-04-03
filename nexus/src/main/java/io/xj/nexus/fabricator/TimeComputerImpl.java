@@ -20,7 +20,7 @@ import java.util.Map;
  <p>
  Computations are done internally using Velocity, which is seconds-per-beat (NOT beats per minute)
  <p>
- [#153542275] Segment wherein velocity changes expect perfectly smooth sound of previous segment through to following segment
+ https://www.pivotaltracker.com/story/show/153542275 Segment wherein velocity changes expect perfectly smooth sound of previous segment through to following segment
  <p>
  FUTURE: instead of computing a fine grain map ahead of time, compute a coarser map and interpolate to requested position.
  */

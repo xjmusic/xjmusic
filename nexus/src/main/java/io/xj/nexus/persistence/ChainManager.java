@@ -28,7 +28,7 @@ public interface ChainManager extends Manager<Chain> {
   Collection<Chain> readManyInState(ChainState state) throws ManagerFatalException, ManagerPrivilegeException;
 
   /**
-   [#176285826] Nexus bootstraps Chains from JSON file on startup
+   https://www.pivotaltracker.com/story/show/176285826 Nexus bootstraps Chains from JSON file on startup
 
    @param type  of template
    @param chain to bootstrap
@@ -43,7 +43,7 @@ public interface ChainManager extends Manager<Chain> {
   ) throws ManagerFatalException, ManagerPrivilegeException, ManagerValidationException, ManagerExistenceException;
 
   /**
-   [#150279540] Unauthenticated or specifically-authenticated public Client wants to access a Chain by ship key (as alias for chain id) in order to provide data for playback.
+   https://www.pivotaltracker.com/story/show/150279540 Unauthenticated or specifically-authenticated public Client wants to access a Chain by ship key (as alias for chain id) in order to provide data for playback.
 
    @param shipKey of record to fetch
    @return retrieved record

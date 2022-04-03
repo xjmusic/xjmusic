@@ -130,7 +130,7 @@ public class TemplateEndpointTest {
   }
 
   /**
-   Hub can publish content for production fabrication #180805580
+   Hub can publish content for production fabrication https://www.pivotaltracker.com/story/show/180805580
    */
   @Test
   public void readOne_includingBindingsAndPlaybacksAndPublications() throws ManagerException, IOException, JsonapiException {

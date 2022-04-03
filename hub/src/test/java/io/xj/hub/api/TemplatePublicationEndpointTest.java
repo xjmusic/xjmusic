@@ -49,7 +49,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- Hub can publish content for production fabrication #180805580
+ Hub can publish content for production fabrication https://www.pivotaltracker.com/story/show/180805580
  */
 @RunWith(MockitoJUnitRunner.class)
 public class TemplatePublicationEndpointTest {

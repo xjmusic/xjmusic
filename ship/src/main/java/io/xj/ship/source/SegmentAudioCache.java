@@ -15,8 +15,8 @@ public interface SegmentAudioCache {
    <p>
    NO LONGER using Caffeine in-memory caching-- just caching on disk originally loading from S3
    <p>
-   [#176642679] Advanced audio caching during fabrication
-   [#180243873] Refactor ship to mix from disk as well, to resolve heap overflows
+   https://www.pivotaltracker.com/story/show/176642679 Advanced audio caching during fabrication
+   https://www.pivotaltracker.com/story/show/180243873 Refactor ship to mix from disk as well, to resolve heap overflows
 
    @param segment for which to cache audio
    @return stream if cached; null if not

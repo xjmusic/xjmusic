@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 /**
- Ship broadcast via HTTP Live Streaming #179453189
+ Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
  */
 @Singleton
 public class PlaylistPublisherImpl implements PlaylistPublisher {

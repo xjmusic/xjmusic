@@ -14,7 +14,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 /**
- [#153542275] Segment wherein velocity changes expect perfectly smooth sound of previous segment through to following segment
+ https://www.pivotaltracker.com/story/show/153542275 Segment wherein velocity changes expect perfectly smooth sound of previous segment through to following segment
  */
 public class TimeComputerTest {
   TimeComputer subject;

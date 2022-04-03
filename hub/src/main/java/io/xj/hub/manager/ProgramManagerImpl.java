@@ -408,8 +408,8 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
       Values.require(record.getType(), "Type");
       Values.require(record.getState(), "State");
 
-      // [#175347578] validate TypeSafe chain config
-      // [#177129498] Artist saves Program, Instrument, or Template config, validate & combine with defaults.
+      // https://www.pivotaltracker.com/story/show/175347578 validate TypeSafe chain config
+      // https://www.pivotaltracker.com/story/show/177129498 Artist saves Program, Instrument, or Template config, validate & combine with defaults.
       if (Objects.isNull(record.getConfig()))
         record.setConfig(new ProgramConfig().toString());
       else

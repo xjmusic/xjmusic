@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
  <p>
  Parse any meme to test if it's valid, and extract its features
  <p>
- Strong-meme like LEMONS! should always favor LEMONS #180468772
+ Strong-meme like LEMONS! should always favor LEMONS https://www.pivotaltracker.com/story/show/180468772
  */
 class MmStrong {
   private static final Pattern rgx = Pattern.compile("^(.+)!$");

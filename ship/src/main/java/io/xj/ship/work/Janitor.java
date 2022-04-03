@@ -2,7 +2,7 @@
 package io.xj.ship.work;
 
 /**
- Ship broadcast via HTTP Live Streaming #179453189
+ Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
  */
 public interface Janitor {
   void cleanup();

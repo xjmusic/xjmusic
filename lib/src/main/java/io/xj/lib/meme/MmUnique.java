@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
  <p>
  Parse any meme to test if it's valid, and extract its features
  <p>
- Artist can add `$MEME` so only one is chosen #179078760
+ Artist can add `$MEME` so only one is chosen https://www.pivotaltracker.com/story/show/179078760
  */
 class MmUnique {
   private static final Pattern rgx = Pattern.compile("^\\$(.+)$");

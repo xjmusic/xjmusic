@@ -24,7 +24,7 @@ import java.util.UUID;
 /**
  HubIngest
  <p>
- [#154234716] Architect wants to ingest library contents, to modularize graph mathematics used during craft, and provide the Artist with useful insight for developing the library.
+ https://www.pivotaltracker.com/story/show/154234716 Architect wants to ingest library contents, to modularize graph mathematics used during craft, and provide the Artist with useful insight for developing the library.
  */
 @Path("api/1/ingest")
 public class IngestEndpoint extends HubJsonapiEndpoint<Object> {

@@ -77,7 +77,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    future: Segment Density = average of macro and main-sequence patterns
    <p>
    Segment is assigned a density during macro-main craft. It's going to be used to determine a target # of perc loops
-   Percussion Loops Alpha #179534065
+   Percussion Loops Alpha https://www.pivotaltracker.com/story/show/179534065
 
    @param macroSequence of which to compute segment tempo
    @param mainSequence  of which to compute segment tempo
@@ -173,7 +173,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     // 3. Chords and voicings
     if (mainSequence.isPresent())
       for (ProgramSequenceChord sequenceChord : fabricator.getProgramSequenceChords(mainSequence.get())) {
-        // [#154090557] don't of chord past end of Segment
+        // https://www.pivotaltracker.com/story/show/154090557 don't of chord past end of Segment
         String name;
         if (sequenceChord.getPosition() < mainSequence.get().getTotal()) {
           // delta the chord name

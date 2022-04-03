@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 /**
- Deploy k8s cluster on GCP #180684409
+ Deploy k8s cluster on GCP https://www.pivotaltracker.com/story/show/180684409
  */
 public enum Secrets {
   ;

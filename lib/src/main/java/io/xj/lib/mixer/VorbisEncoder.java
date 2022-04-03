@@ -13,7 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
- [#159449508] Ops wants to ship Ogg/Vorbis format, in order avoid licensing issues, and leverage more mature open-source audio
+ https://www.pivotaltracker.com/story/show/159449508 Ops wants to ship Ogg/Vorbis format, in order avoid licensing issues, and leverage more mature open-source audio
  */
 public class VorbisEncoder {
   private static final Logger log = LoggerFactory.getLogger(VorbisEncoder.class);

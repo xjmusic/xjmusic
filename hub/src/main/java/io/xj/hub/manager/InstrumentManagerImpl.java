@@ -109,12 +109,12 @@ public class InstrumentManagerImpl extends HubPersistenceServiceImpl<Instrument>
   }
 
   @Override
-  public Collection<Instrument> readManyInAccount(HubAccess access, String accountId) throws ManagerException {
+  public Collection<Instrument> readManyInAccount(HubAccess access, UUID accountId) throws ManagerException {
     if (access.isTopLevel())
       return modelsFrom(Instrument.class, dbProvider.getDSL().select(INSTRUMENT.fields())
         .from(INSTRUMENT)
         .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
-        .where(LIBRARY.ACCOUNT_ID.eq(UUID.fromString(accountId)))
+        .where(LIBRARY.ACCOUNT_ID.eq(accountId))
         .and(INSTRUMENT.IS_DELETED.eq(false))
         .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
         .fetch());
@@ -314,12 +314,12 @@ public class InstrumentManagerImpl extends HubPersistenceServiceImpl<Instrument>
       Values.require(record.getType(), "Mode");
       Values.require(record.getState(), "State");
 
-      // overall volume parameter defaults to 1.0 #179215413
+      // overall volume parameter defaults to 1.0 https://www.pivotaltracker.com/story/show/179215413
       if (Values.isUnsetOrZero(record.getVolume()))
         record.setVolume(1.0f);
 
-      // validate TypeSafe chain config #175347578
-      // Artist saves Instrument, Instrument, or Template config, validate & combine with defaults #177129498
+      // validate TypeSafe chain config https://www.pivotaltracker.com/story/show/175347578
+      // Artist saves Instrument, Instrument, or Template config, validate & combine with defaults https://www.pivotaltracker.com/story/show/177129498
       if (Objects.isNull(record.getConfig()))
         record.setConfig(new InstrumentConfig().toString());
       else

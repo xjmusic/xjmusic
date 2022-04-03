@@ -220,9 +220,9 @@ public class Environment {
     postgresDatabase = readStr(vars, "POSTGRES_DATABASE", "xj_test");
     postgresHost = readStr(vars, "POSTGRES_HOST", "localhost");
     postgresPass = readStr(vars, "POSTGRES_PASS", "postgres");
-    postgresPoolSizeMax = readInt(vars, "postgres pool size max", 20);
+    postgresPoolSizeMax = readInt(vars, "POSTGRES_POOL_SIZE_MAX", 20);
     postgresPort = readInt(vars, "POSTGRES_PORT", 5432);
-    postgresSchemas = readStr(vars, "postgres schemas", "xj");
+    postgresSchemas = readStr(vars, "POSTGRES_SCHEMAS", "xj");
     postgresUser = readStr(vars, "POSTGRES_USER", "postgres");
 
     // Resource: Redis
@@ -752,7 +752,7 @@ public class Environment {
   }
 
   /**
-   Ship broadcast via HTTP Live Streaming #179453189
+   Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
 
    @return the ship key for this ship instance
    */

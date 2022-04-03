@@ -44,7 +44,7 @@ import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
 import static org.junit.Assert.assertEquals;
 
 /**
- [#176696738] XJ has a serviceable voicing algorithm
+ https://www.pivotaltracker.com/story/show/176696738 XJ has a serviceable voicing algorithm
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ArrangementTests extends YamlTest {
@@ -166,7 +166,7 @@ public class ArrangementTests extends YamlTest {
         var sourceMaterial = new HubContent(content);
         fabricator = fabrication.fabricate(sourceMaterial, segment);
         CraftImpl subject = new CraftImpl(fabricator);
-        for (var choice : segmentChoices.values()) subject.craftArrangements(choice, false);
+        for (var choice : segmentChoices.values()) subject.craftNoteEventArrangements(choice, false);
 
         // assert final picks
         loadAndPerformAssertions(data);

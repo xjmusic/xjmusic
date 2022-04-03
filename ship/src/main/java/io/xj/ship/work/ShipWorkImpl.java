@@ -25,7 +25,7 @@ import static io.xj.lib.util.Values.MILLIS_PER_SECOND;
 /**
  Ship Work Service Implementation
  <p>
- Ship broadcast via HTTP Live Streaming #179453189
+ Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
  <p>
  SEE: https://www.nurkiewicz.com/2014/11/executorservice-10-tips-and-tricks.html
  <p>

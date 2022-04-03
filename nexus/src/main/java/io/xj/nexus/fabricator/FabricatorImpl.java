@@ -137,7 +137,7 @@ class FabricatorImpl implements Fabricator {
       // get the current segment on the workbench
       workbench = fabricatorFactory.setupWorkbench(chain, segment);
 
-      // digest Sticky buns v2 #179153822 for all event series of previous segment
+      // digest Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822 for all event series of previous segment
       persistStickyBuns();
 
       // final pre-flight check
@@ -499,8 +499,8 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Optional<InstrumentAudio> getPreferredAudio(ProgramSequencePatternEvent event, String note) {
-    String key = String.format(KEY_VOICE_NOTE_TEMPLATE, event.getProgramVoiceTrackId(), note);
+  public Optional<InstrumentAudio> getPreferredAudio(String parentIdent, String ident) {
+    String key = String.format(KEY_VOICE_NOTE_TEMPLATE, parentIdent, ident);
 
     if (preferredAudios.containsKey(key)) return Optional.of(preferredAudios.get(key));
 
@@ -835,8 +835,8 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public void putPreferredAudio(ProgramSequencePatternEvent event, String note, InstrumentAudio instrumentAudio) {
-    String key = String.format(KEY_VOICE_NOTE_TEMPLATE, event.getProgramVoiceTrackId(), note);
+  public void putPreferredAudio(String parentIdent, String ident, InstrumentAudio instrumentAudio) {
+    String key = String.format(KEY_VOICE_NOTE_TEMPLATE, parentIdent, ident);
 
     preferredAudios.put(key, instrumentAudio);
   }
@@ -1004,7 +1004,7 @@ class FabricatorImpl implements Fabricator {
     if (0 == fromTempo) throw new NexusException("Can't instantiate time computer from zero tempo!");
     if (0 == toTempo) throw new NexusException("Can't instantiate time computer to zero tempo!");
 
-    // IGNORE to-tempo, see: Tempo Behavior v2 #180416708
+    // IGNORE to-tempo, see: Tempo Behavior v2 https://www.pivotaltracker.com/story/show/180416708
     return fabricatorFactory.createTimeComputer(totalBeats, fromTempo, fromTempo);
   }
 
@@ -1097,7 +1097,7 @@ class FabricatorImpl implements Fabricator {
   /**
    Digest sticky bun events from previous segment
    <p>
-   Sticky buns v2 #179153822
+   Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822
    <p>
    For each instrument type:
    + For each note in the series of picks for this instrument type:
@@ -1146,7 +1146,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   /**
-   For a SegmentChoice, add memes from program, program sequence binding, and instrument if present #181336704
+   For a SegmentChoice, add memes from program, program sequence binding, and instrument if present https://www.pivotaltracker.com/story/show/181336704
 
    @param choice for which to add memes
    @return true if adding memes was successful

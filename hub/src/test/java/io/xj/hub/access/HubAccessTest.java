@@ -121,7 +121,7 @@ public class HubAccessTest {
   }
 
   /**
-   [#154580129] User expects to log in without having access to any accounts.
+   https://www.pivotaltracker.com/story/show/154580129 User expects to log in without having access to any accounts.
    */
   @Test
   public void valid_evenWithNoAccounts() {

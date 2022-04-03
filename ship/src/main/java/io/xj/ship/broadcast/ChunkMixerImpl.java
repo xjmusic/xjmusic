@@ -32,7 +32,7 @@ import static io.xj.lib.util.Values.MICROS_PER_SECOND;
 import static io.xj.lib.util.Values.toEpochMicros;
 
 /**
- Ship broadcast via HTTP Live Streaming #179453189
+ Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
  <p>
  Side lab experiments done in
  - https://github.com/charneykaye/encode-fmp4-demo

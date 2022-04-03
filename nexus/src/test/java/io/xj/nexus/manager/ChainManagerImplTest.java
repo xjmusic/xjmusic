@@ -77,7 +77,7 @@ public class ChainManagerImplTest {
   }
 
   /**
-   [#176285826] Nexus bootstraps Chains from JSON file on startup
+   https://www.pivotaltracker.com/story/show/176285826 Nexus bootstraps Chains from JSON file on startup
    */
   @Test
   public void bootstrap() throws Exception {
@@ -307,7 +307,7 @@ public class ChainManagerImplTest {
   }
 
   /**
-   [#150279540] Unauthenticated or specifically-authenticated public Client wants to access a Chain by ship key (as alias for chain id) in order to provide data for playback.
+   https://www.pivotaltracker.com/story/show/150279540 Unauthenticated or specifically-authenticated public Client wants to access a Chain by ship key (as alias for chain id) in order to provide data for playback.
    */
   @Test
   public void readOne_byShipKey_unauthenticatedOk() throws Exception {

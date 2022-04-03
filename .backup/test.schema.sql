@@ -5,7 +5,7 @@
 --
 
 -- Dumped from database version 13.5 (Debian 13.5-1.pgdg110+1)
--- Dumped by pg_dump version 13.5 (Ubuntu 13.5-2.pgdg20.04+1)
+-- Dumped by pg_dump version 13.6 (Ubuntu 13.6-1.pgdg20.04+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1279,7 +1279,7 @@ ALTER TABLE ONLY xj.user_auth
 --
 
 -- Dumped from database version 13.5 (Debian 13.5-1.pgdg110+1)
--- Dumped by pg_dump version 13.5 (Ubuntu 13.5-2.pgdg20.04+1)
+-- Dumped by pg_dump version 13.6 (Ubuntu 13.6-1.pgdg20.04+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;

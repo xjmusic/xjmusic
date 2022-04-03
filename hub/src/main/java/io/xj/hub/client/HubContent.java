@@ -16,9 +16,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- [#154350346] to ingest any combination of Programs, Instruments, or Libraries (with their Programs and Instruments)
+ https://www.pivotaltracker.com/story/show/154350346 to ingest any combination of Programs, Instruments, or Libraries (with their Programs and Instruments)
  <p>
- Refactoring this class ala [#173803936] `HubContent` extends common `EntityStore` implementation
+ Refactoring this class ala https://www.pivotaltracker.com/story/show/173803936 `HubContent` extends common `EntityStore` implementation
  */
 public class HubContent {
   private final Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>> store = Maps.newConcurrentMap();
@@ -89,7 +89,7 @@ public class HubContent {
    If the target offset is not found in the chosen Main Program,
    we'll find the nearest matching offset, and return all bindings at that offset.
    <p>
-   [#177052278] Chain should always be able to determine main sequence binding offset
+   https://www.pivotaltracker.com/story/show/177052278 Chain should always be able to determine main sequence binding offset
 
    @param program to get sequence bindings for
    @param offset  to get sequence bindings at
@@ -104,7 +104,7 @@ public class HubContent {
    If the target offset is not found in the chosen Main Program,
    we'll find the nearest matching offset, and return all bindings at that offset.
    <p>
-   [#177052278] Chain should always be able to determine main sequence binding offset
+   https://www.pivotaltracker.com/story/show/177052278 Chain should always be able to determine main sequence binding offset
 
    @param programId to get sequence bindings for
    @param offset    to get sequence bindings at
@@ -584,7 +584,7 @@ public class HubContent {
   /**
    Get all template bindings
    <p>
-   Templates: enhanced preview chain creation for artists in Lab UI #178457569
+   Templates: enhanced preview chain creation for artists in Lab UI https://www.pivotaltracker.com/story/show/178457569
 
    @return all template bindings
    */

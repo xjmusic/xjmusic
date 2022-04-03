@@ -18,14 +18,14 @@ package io.xj.nexus.work;
  LAB_MODE: Runs as a sidecar to a Hub, maintaining a chain for each of its template playbacks.
  YARD_MODE: Runs in production, maintaining one specific chain.
  <p>
- - Templates: enhanced preview chain creation for artists in Lab UI #178457569
- - Nexus bootstraps Chains from JSON file on startup #176285826
+ - Templates: enhanced preview chain creation for artists in Lab UI https://www.pivotaltracker.com/story/show/178457569
+ - Nexus bootstraps Chains from JSON file on startup https://www.pivotaltracker.com/story/show/176285826
  <p>
- IMPLEMENTS [#171553408] XJ Lab Distributed Hub/Nexus Architecture, by removing all Queue mechanics in favor of a cycle happening in Main class for as long as the application is alive, that does nothing but search for active chains, search for segments that need work, and work on them. Zero need for a work queue-- that's what the Chain-Segment state machine is!
+ IMPLEMENTS https://www.pivotaltracker.com/story/show/171553408 XJ Lab Distributed Hub/Nexus Architecture, by removing all Queue mechanics in favor of a cycle happening in Main class for as long as the application is alive, that does nothing but search for active chains, search for segments that need work, and work on them. Zero need for a work queue-- that's what the Chain-Segment state machine is!
  <p>
- FUTURE: [#153266872] Admin wants Work tab in order to monitor current platform workload, and a Reinstate All Jobs button to ensure all jobs are up and running
+ FUTURE: https://www.pivotaltracker.com/story/show/153266872 Admin wants Work tab in order to monitor current platform workload, and a Reinstate All Jobs button to ensure all jobs are up and running
  <p>
- DEPRECATED: [#153266964] AWS cron job framework implemented in order to call the Reinstate All Jobs endpoint in production every 60 seconds.
+ DEPRECATED: https://www.pivotaltracker.com/story/show/153266964 AWS cron job framework implemented in order to call the Reinstate All Jobs endpoint in production every 60 seconds.
  <p>
  DEPRECATED: [#286] True Chain-Segment work management
  <p>
