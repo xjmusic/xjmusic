@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  Chord in a particular key
@@ -209,7 +210,8 @@ public class Chord extends IntervalPitchGroup {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/154985948 Architect wants to determine tonal similarity (% of shared pitch classes) between two Chords, in order to perform fuzzy matching operations.
+   Architect wants to determine tonal similarity (% of shared pitch classes) between two Chords, in order to perform fuzzy matching operations.
+   https://www.pivotaltracker.com/story/show/154985948
 
    @param other chord to compare with
    @return ratio (0 to 1) of similarity.
@@ -219,12 +221,13 @@ public class Chord extends IntervalPitchGroup {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/154985948 Architect wants to determine tonal similarity (% of shared pitch classes) between two Chords, in order to perform fuzzy matching operations.
+   Architect wants to determine tonal similarity (% of shared pitch classes) between two Chords, in order to perform fuzzy matching operations.
+   https://www.pivotaltracker.com/story/show/154985948
 
    @param other chord to compare with
    @return ratio (0 to 1) of similarity.
    */
-  private Double similarityAtSameIntervals(Chord other) {
+  public Double similarityAtSameIntervals(Chord other) {
     Map<Interval, Double> pcDeltas = Maps.newHashMap();
     getPitchClasses().forEach(((interval, pitchClass) -> {
       if (other.getPitchClasses().containsKey(interval))
@@ -236,12 +239,13 @@ public class Chord extends IntervalPitchGroup {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/154985948 Architect wants to determine tonal similarity (% of shared pitch classes) between two Chords, in order to perform fuzzy matching operations.
+   Architect wants to determine tonal similarity (% of shared pitch classes) between two Chords, in order to perform fuzzy matching operations.
+   https://www.pivotaltracker.com/story/show/154985948
 
    @param other chord to compare with
    @return ratio (0 to 1) of similarity.
    */
-  private Double similarityAtAnyIntervals(Chord other) {
+  public Double similarityAtAnyIntervals(Chord other) {
     Map<PitchClass, Integer> pcDeltas = Maps.newHashMap();
     getPitchClasses().values().forEach((pitchClass -> {
       if (other.getPitchClasses().containsValue(pitchClass))
@@ -272,5 +276,24 @@ public class Chord extends IntervalPitchGroup {
    */
   public Boolean isNoChord() {
     return Objects.equals(root, PitchClass.None);
+  }
+
+  /**
+   Whether this chord has the same pitch classes as another
+
+   @param other chord
+   @return true if same pitch classes
+   */
+  public boolean hasSamePitchClasses(Chord other) {
+    return new HashSet<>(getPitchClasses().values()).equals(new HashSet<>(other.getPitchClasses().values()));
+  }
+
+  /**
+   Whether one chord equals another
+   @param other chord to test
+   @return true if equal
+   */
+  public boolean equals(Chord other) {
+    return Objects.equals(other.name, name);
   }
 }

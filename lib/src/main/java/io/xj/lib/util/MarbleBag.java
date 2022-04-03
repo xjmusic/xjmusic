@@ -83,15 +83,15 @@ public class MarbleBag {
    Add a quantity of marbles to the bag; increments the count of the specified marble by the specified quantity.
 
    @param phase    of selection
-   @param marbleId of the marble to add
+   @param id of the marble to add
    @param qty      quantity of this marble to add
    */
-  public void add(Integer phase, UUID marbleId, Integer qty) {
+  public void add(Integer phase, UUID id, Integer qty) {
     if (!marbles.containsKey(phase))
       marbles.put(phase, Maps.newConcurrentMap());
-    if (marbles.get(phase).containsKey(marbleId))
-      marbles.get(phase).put(marbleId, marbles.get(phase).get(marbleId) + qty);
-    marbles.get(phase).put(marbleId, qty);
+    if (marbles.get(phase).containsKey(id))
+      marbles.get(phase).put(id, marbles.get(phase).get(id) + qty);
+    marbles.get(phase).put(id, qty);
   }
 
   /**

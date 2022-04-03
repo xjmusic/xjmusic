@@ -499,8 +499,8 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Optional<InstrumentAudio> getPreferredAudio(ProgramSequencePatternEvent event, String note) {
-    String key = String.format(KEY_VOICE_NOTE_TEMPLATE, event.getProgramVoiceTrackId(), note);
+  public Optional<InstrumentAudio> getPreferredAudio(String parentIdent, String ident) {
+    String key = String.format(KEY_VOICE_NOTE_TEMPLATE, parentIdent, ident);
 
     if (preferredAudios.containsKey(key)) return Optional.of(preferredAudios.get(key));
 
@@ -835,8 +835,8 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public void putPreferredAudio(ProgramSequencePatternEvent event, String note, InstrumentAudio instrumentAudio) {
-    String key = String.format(KEY_VOICE_NOTE_TEMPLATE, event.getProgramVoiceTrackId(), note);
+  public void putPreferredAudio(String parentIdent, String ident, InstrumentAudio instrumentAudio) {
+    String key = String.format(KEY_VOICE_NOTE_TEMPLATE, parentIdent, ident);
 
     preferredAudios.put(key, instrumentAudio);
   }

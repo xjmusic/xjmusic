@@ -344,7 +344,7 @@ public interface Fabricator {
 
    @return preferred audios
    */
-  Optional<InstrumentAudio> getPreferredAudio(ProgramSequencePatternEvent event, String note);
+  Optional<InstrumentAudio> getPreferredAudio(String parentIdent, String ident);
 
   /**
    Get preferred (previously chosen) notes
@@ -723,11 +723,11 @@ public interface Fabricator {
   /**
    Set the preferred audio for a key
 
-   @param event           for which to set
-   @param note            for which to set
+   @param parentIdent     for which to set
+   @param ident           for which to set
    @param instrumentAudio value to set
    */
-  void putPreferredAudio(ProgramSequencePatternEvent event, String note, InstrumentAudio instrumentAudio);
+  void putPreferredAudio(String parentIdent, String ident, InstrumentAudio instrumentAudio);
 
   /**
    Put a key-value pair into the report
@@ -752,7 +752,7 @@ public interface Fabricator {
    - key on program-sequence-pattern-event id, persisting only the first value seen for any given event
    - super-key on program-sequence-pattern id, measuring delta from the first event seen in that pattern@param eventId  member id-- if this is null, the sticky bun will be ignored
 
-   @param rootNote     note of current chord
+   @param rootNote note of current chord
    @param position of note
    @param note     to put
    */

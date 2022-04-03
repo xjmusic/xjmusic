@@ -76,7 +76,7 @@ public class BeatCraftImpl extends DetailCraftImpl implements BeatCraft {
         reportMissing(ProgramVoice.class,
           String.format("in Beat-choice Program[%s]", program.get().getId()));
 
-      craftChoices(sequence.get(), voices, voice -> chooseFreshInstrument(voice.getType(), List.of(), voice.getName(), fabricator.sourceMaterial().getTrackNames(voice)), true);
+      craftNoteEvents(sequence.get(), voices, voice -> chooseFreshInstrument(voice.getType(), List.of(), voice.getName(), fabricator.sourceMaterial().getTrackNames(voice)), true);
     }
 
     // Finally, update the segment with the crafted content
