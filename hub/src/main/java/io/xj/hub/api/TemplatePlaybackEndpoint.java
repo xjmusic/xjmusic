@@ -137,7 +137,7 @@ public class TemplatePlaybackEndpoint extends HubJsonapiEndpoint<TemplatePlaybac
   @Path("template-playbacks/{id}")
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
-  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") UUID id) {
     return update(crc, manager(), id, jsonapiPayload);
   }
 
@@ -149,7 +149,7 @@ public class TemplatePlaybackEndpoint extends HubJsonapiEndpoint<TemplatePlaybac
   @DELETE
   @Path("template-playbacks/{id}")
   @RolesAllowed(ARTIST)
-  public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response delete(@Context ContainerRequestContext crc, @PathParam("id") UUID id) {
     return delete(crc, manager(), id);
   }
 

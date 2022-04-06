@@ -16,8 +16,6 @@ import java.util.Collection;
 import java.util.UUID;
 
 public interface Manager<E> {
-  Logger log = LoggerFactory.getLogger(Manager.class);
-
   /**
    ids of a result set
 

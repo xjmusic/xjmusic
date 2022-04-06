@@ -54,7 +54,10 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
    */
   @GET
   @RolesAllowed(USER)
-  public Response readMany(@Context ContainerRequestContext crc, @QueryParam("accountId") String accountId) {
+  public Response readMany(
+    @Context ContainerRequestContext crc,
+    @Nullable @QueryParam("accountId") UUID accountId
+  ) {
     if (Objects.nonNull(accountId))
       return readMany(crc, manager(), accountId);
     else
@@ -75,7 +78,7 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
   public Response create(
     JsonapiPayload jsonapiPayload,
     @Context ContainerRequestContext crc,
-    @QueryParam("cloneId") String cloneId
+    @Nullable @QueryParam("cloneId") UUID cloneId
   ) {
 
     try {
@@ -83,7 +86,7 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
       Template template = payloadFactory.consume(manager().newInstance(), jsonapiPayload);
       JsonapiPayload responseJsonapiPayload = new JsonapiPayload();
       if (Objects.nonNull(cloneId)) {
-        ManagerCloner<Template> cloner = manager().clone(access, UUID.fromString(cloneId), template);
+        ManagerCloner<Template> cloner = manager().clone(access, cloneId, template);
         responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(cloner.getClone()));
         List<JsonapiPayloadObject> list = new ArrayList<>();
         for (Object entity : cloner.getChildClones()) {
@@ -108,9 +111,13 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
    @return application/json response.
    */
   @GET
-  @Path("{id}")
+  @Path("{identifier}")
   @RolesAllowed(USER)
-  public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String identifier, @QueryParam("include") String include) {
+  public Response readOne(
+    @Context ContainerRequestContext crc,
+    @PathParam("identifier") String identifier,
+    @Nullable @QueryParam("include") String include
+  ) {
     var access = HubAccess.fromContext(crc);
 
     @Nullable UUID uuid;
@@ -157,7 +164,7 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
   @Path("{id}")
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed({ADMIN, ENGINEER})
-  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") UUID id) {
     return update(crc, manager(), id, jsonapiPayload);
   }
 
@@ -169,7 +176,7 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
   @DELETE
   @Path("{id}")
   @RolesAllowed({ADMIN, ENGINEER})
-  public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response delete(@Context ContainerRequestContext crc, @PathParam("id") UUID id) {
     return delete(crc, manager(), id);
   }
 

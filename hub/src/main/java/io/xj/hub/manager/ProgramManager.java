@@ -61,18 +61,7 @@ public interface ProgramManager extends Manager<Program> {
    @return programs
    @throws ManagerException on failure
    */
-  Collection<Program> readManyInAccount(HubAccess access, String accountId) throws ManagerException;
-
-  /**
-   Fetch all Program in a certain state
-   [INTERNAL USE ONLY]
-
-   @param access control
-   @param state     to get programs in
-   @return Result of program records.
-   @throws ManagerException on failure
-   */
-  Collection<Program> readManyInState(HubAccess access, ProgramState state) throws ManagerException;
+  Collection<Program> readManyInAccount(HubAccess access, UUID accountId) throws ManagerException;
 
   /**
    Read all ids of Programs in the specified Library ids

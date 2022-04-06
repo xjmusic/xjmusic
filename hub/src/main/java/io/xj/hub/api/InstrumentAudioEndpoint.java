@@ -11,6 +11,7 @@ import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.*;
 
+import javax.annotation.Nullable;
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -52,13 +53,17 @@ public class InstrumentAudioEndpoint extends HubJsonapiEndpoint<InstrumentAudio>
   @POST
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
-  public Response create(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @QueryParam("cloneId") String cloneId) {
+  public Response create(
+    JsonapiPayload jsonapiPayload,
+    @Context ContainerRequestContext crc,
+    @Nullable @QueryParam("cloneId") UUID cloneId
+  ) {
     try {
       HubAccess access = HubAccess.fromContext(crc);
       var instrumentAudio = payloadFactory.consume(manager().newInstance(), jsonapiPayload);
       InstrumentAudio created;
       if (Objects.nonNull(cloneId))
-        created = manager().clone(access, UUID.fromString(cloneId), instrumentAudio);
+        created = manager().clone(access, cloneId, instrumentAudio);
       else
         created = manager().create(access, instrumentAudio);
 
@@ -77,9 +82,9 @@ public class InstrumentAudioEndpoint extends HubJsonapiEndpoint<InstrumentAudio>
   @GET
   @Path("{id}/upload")
   @RolesAllowed(ARTIST)
-  public Response uploadOne(@Context ContainerRequestContext crc, @PathParam("id") String id, @QueryParam("extension") String extension) {
+  public Response uploadOne(@Context ContainerRequestContext crc, @PathParam("id") UUID id, @QueryParam("extension") String extension) {
     try {
-      Map<String, String> result = manager().authorizeUpload(HubAccess.fromContext(crc), UUID.fromString(id), extension);
+      Map<String, String> result = manager().authorizeUpload(HubAccess.fromContext(crc), id, extension);
       if (null != result) {
         return Response
           .accepted(payloadFactory.serialize(result))
@@ -103,7 +108,7 @@ public class InstrumentAudioEndpoint extends HubJsonapiEndpoint<InstrumentAudio>
   @GET
   @Path("{id}")
   @RolesAllowed(ARTIST)
-  public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") UUID id) {
     return readOne(crc, manager(), id);
   }
 
@@ -146,7 +151,7 @@ public class InstrumentAudioEndpoint extends HubJsonapiEndpoint<InstrumentAudio>
   @Path("{id}")
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
-  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") UUID id) {
     return update(crc, manager(), id, jsonapiPayload);
   }
 
@@ -158,7 +163,7 @@ public class InstrumentAudioEndpoint extends HubJsonapiEndpoint<InstrumentAudio>
   @DELETE
   @Path("{id}")
   @RolesAllowed(ARTIST)
-  public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response delete(@Context ContainerRequestContext crc, @PathParam("id") UUID id) {
     return delete(crc, manager(), id);
   }
 

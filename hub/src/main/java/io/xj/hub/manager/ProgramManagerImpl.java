@@ -10,7 +10,18 @@ import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.UserRoleType;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
-import io.xj.hub.tables.pojos.*;
+import io.xj.hub.tables.pojos.FeedbackProgram;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramMeme;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
+import io.xj.hub.tables.pojos.ProgramSequenceChord;
+import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
@@ -25,7 +36,19 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.xj.hub.Tables.*;
+import static io.xj.hub.Tables.FEEDBACK_PROGRAM;
+import static io.xj.hub.Tables.LIBRARY;
+import static io.xj.hub.Tables.PROGRAM;
+import static io.xj.hub.Tables.PROGRAM_MEME;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_BINDING;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_BINDING_MEME;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_CHORD;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_CHORD_VOICING;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_PATTERN;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_PATTERN_EVENT;
+import static io.xj.hub.Tables.PROGRAM_VOICE;
+import static io.xj.hub.Tables.PROGRAM_VOICE_TRACK;
 
 public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> implements ProgramManager {
   @Inject
@@ -65,54 +88,54 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
 
       // Create main entity
       var result = modelFrom(Program.class, executeCreate(db, PROGRAM, program));
-      UUID originalId = result.getId();
+      UUID targetId = result.getId();
 
       // Prepare to clone sub-entities
       var cloner = new ManagerCloner<>(result, this);
 
       // Clone ProgramMeme
-      cloner.clone(db, PROGRAM_MEME, PROGRAM_MEME.ID, ImmutableSet.of(), PROGRAM_MEME.PROGRAM_ID, cloneId, originalId);
+      cloner.clone(db, PROGRAM_MEME, PROGRAM_MEME.ID, ImmutableSet.of(), PROGRAM_MEME.PROGRAM_ID, cloneId, targetId);
 
       // Clone ProgramVoice
-      cloner.clone(db, PROGRAM_VOICE, PROGRAM_VOICE.ID, ImmutableSet.of(), PROGRAM_VOICE.PROGRAM_ID, cloneId, originalId);
+      cloner.clone(db, PROGRAM_VOICE, PROGRAM_VOICE.ID, ImmutableSet.of(), PROGRAM_VOICE.PROGRAM_ID, cloneId, targetId);
 
       // Clone ProgramVoiceTrack belongs to ProgramVoice
       cloner.clone(db, PROGRAM_VOICE_TRACK, PROGRAM_VOICE_TRACK.ID,
         ImmutableSet.of(PROGRAM_VOICE_TRACK.PROGRAM_VOICE_ID),
-        PROGRAM_VOICE_TRACK.PROGRAM_ID, cloneId, originalId);
+        PROGRAM_VOICE_TRACK.PROGRAM_ID, cloneId, targetId);
 
       // Clone ProgramSequence
-      cloner.clone(db, PROGRAM_SEQUENCE, PROGRAM_SEQUENCE.ID, ImmutableSet.of(), PROGRAM_SEQUENCE.PROGRAM_ID, cloneId, originalId);
+      cloner.clone(db, PROGRAM_SEQUENCE, PROGRAM_SEQUENCE.ID, ImmutableSet.of(), PROGRAM_SEQUENCE.PROGRAM_ID, cloneId, targetId);
 
       // Clone ProgramSequenceChord belongs to ProgramSequence
       cloner.clone(db, PROGRAM_SEQUENCE_CHORD, PROGRAM_SEQUENCE_CHORD.ID,
         ImmutableSet.of(PROGRAM_SEQUENCE_CHORD.PROGRAM_SEQUENCE_ID),
-        PROGRAM_SEQUENCE_CHORD.PROGRAM_ID, cloneId, originalId);
+        PROGRAM_SEQUENCE_CHORD.PROGRAM_ID, cloneId, targetId);
 
       // Clone ProgramSequenceChordVoiding belongs to ProgramSequenceChord
       cloner.clone(db, PROGRAM_SEQUENCE_CHORD_VOICING, PROGRAM_SEQUENCE_CHORD_VOICING.ID,
         ImmutableSet.of(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID),
-        PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_ID, cloneId, originalId);
+        PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_ID, cloneId, targetId);
 
       // Clone ProgramSequenceBinding belongs to ProgramSequence
       cloner.clone(db, PROGRAM_SEQUENCE_BINDING, PROGRAM_SEQUENCE_BINDING.ID,
         ImmutableSet.of(PROGRAM_SEQUENCE_BINDING.PROGRAM_SEQUENCE_ID),
-        PROGRAM_SEQUENCE_BINDING.PROGRAM_ID, cloneId, originalId);
+        PROGRAM_SEQUENCE_BINDING.PROGRAM_ID, cloneId, targetId);
 
       // Clone ProgramSequenceBindingMeme belongs to ProgramSequenceBinding
       cloner.clone(db, PROGRAM_SEQUENCE_BINDING_MEME, PROGRAM_SEQUENCE_BINDING_MEME.ID,
         ImmutableSet.of(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_SEQUENCE_BINDING_ID),
-        PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID, cloneId, originalId);
+        PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID, cloneId, targetId);
 
       // Clone ProgramSequencePattern belongs to ProgramSequence and ProgramVoice
       cloner.clone(db, PROGRAM_SEQUENCE_PATTERN, PROGRAM_SEQUENCE_PATTERN.ID,
         ImmutableSet.of(PROGRAM_SEQUENCE_PATTERN.PROGRAM_SEQUENCE_ID, PROGRAM_SEQUENCE_PATTERN.PROGRAM_VOICE_ID),
-        PROGRAM_SEQUENCE_PATTERN.PROGRAM_ID, cloneId, originalId);
+        PROGRAM_SEQUENCE_PATTERN.PROGRAM_ID, cloneId, targetId);
 
       // Clone ProgramSequencePatternEvent belongs to ProgramSequencePattern and ProgramVoiceTrack
       cloner.clone(db, PROGRAM_SEQUENCE_PATTERN_EVENT, PROGRAM_SEQUENCE_PATTERN_EVENT.ID,
         ImmutableSet.of(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_SEQUENCE_PATTERN_ID, PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_VOICE_TRACK_ID),
-        PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_ID, cloneId, originalId);
+        PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_ID, cloneId, targetId);
 
       return cloner;
 
@@ -286,34 +309,22 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
   }
 
   @Override
-  public Collection<Program> readManyInAccount(HubAccess access, String accountId) throws ManagerException {
+  public Collection<Program> readManyInAccount(HubAccess access, UUID accountId) throws ManagerException {
     if (access.isTopLevel())
       return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
         .join(LIBRARY).on(PROGRAM.LIBRARY_ID.eq(LIBRARY.ID))
-        .where(LIBRARY.ACCOUNT_ID.eq(UUID.fromString(accountId)))
+        .where(LIBRARY.ACCOUNT_ID.eq(accountId))
         .and(PROGRAM.IS_DELETED.eq(false))
         .orderBy(PROGRAM.TYPE, PROGRAM.NAME)
         .fetch());
     else
       return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
         .join(LIBRARY).on(PROGRAM.LIBRARY_ID.eq(LIBRARY.ID))
-        .where(LIBRARY.ACCOUNT_ID.in(UUID.fromString(accountId)))
+        .where(LIBRARY.ACCOUNT_ID.in(accountId))
         .and(PROGRAM.IS_DELETED.eq(false))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(PROGRAM.TYPE, PROGRAM.NAME)
         .fetch());
-  }
-
-  @Override
-  public Collection<Program> readManyInState(HubAccess access, ProgramState state) throws ManagerException {
-    requireAny(access, UserRoleType.Admin, UserRoleType.Engineer);
-    // FUTURE: engineer should only see programs in account?
-
-    return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields())
-      .from(PROGRAM)
-      .where(PROGRAM.STATE.eq(state))
-      .and(PROGRAM.IS_DELETED.eq(false))
-      .fetch());
   }
 
   @Override
@@ -331,7 +342,7 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
    Require read access
 
    @param db         database context
-   @param access  control
+   @param access     control
    @param programIds to require access to
    */
   private void requireRead(DSLContext db, HubAccess access, Collection<UUID> programIds) throws ManagerException {
@@ -348,9 +359,9 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
   /**
    Read one record
 
-   @param db        DSL context
+   @param db     DSL context
    @param access control
-   @param id        to read
+   @param id     to read
    @return record
    @throws ManagerException on failure
    */
@@ -375,9 +386,9 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
   /**
    Require parent program exists of a given possible entity in a DSL context
 
-   @param db        DSL context
+   @param db     DSL context
    @param access control
-   @param entity    to validate
+   @param entity to validate
    @throws ManagerException if parent does not exist
    */
   private void requireParentExists(DSLContext db, HubAccess access, Program entity) throws ManagerException {

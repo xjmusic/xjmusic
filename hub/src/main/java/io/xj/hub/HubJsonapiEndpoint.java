@@ -128,9 +128,8 @@ public class HubJsonapiEndpoint<E> extends HubPersistenceServiceImpl<E> {
    @param <N>      type of Entity
    @return HTTP response comprising JSON:API payload
    */
-  public <N> Response readMany(ContainerRequestContext crc, Manager<N> manager, String parentId) {
-    if (Objects.isNull(parentId))
-      return response.notAcceptable("parent id is required");
+  public <N> Response readMany(ContainerRequestContext crc, Manager<N> manager, UUID parentId) {
+    if (Objects.isNull(parentId)) return response.notAcceptable("parent id is required");
 
     return readMany(crc, manager, ImmutableList.of(parentId));
   }
@@ -145,10 +144,10 @@ public class HubJsonapiEndpoint<E> extends HubPersistenceServiceImpl<E> {
    @param <N>            type of Entity
    @return HTTP response comprising JSON:API payload
    */
-  public <N> Response update(ContainerRequestContext crc, Manager<N> manager, String id, JsonapiPayload jsonapiPayload) {
+  public <N> Response update(ContainerRequestContext crc, Manager<N> manager, UUID id, JsonapiPayload jsonapiPayload) {
     try {
       HubAccess access = HubAccess.fromContext(crc);
-      N updated = manager.update(access, UUID.fromString(id), payloadFactory.consume(manager.readOne(access, UUID.fromString(id)), jsonapiPayload));
+      N updated = manager.update(access, id, payloadFactory.consume(manager.readOne(access, id), jsonapiPayload));
       return response.ok(new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(updated)));
 
     } catch (Exception e) {
@@ -190,9 +189,9 @@ public class HubJsonapiEndpoint<E> extends HubPersistenceServiceImpl<E> {
    @param <N> type of Entity
    @return HTTP response comprising JSON:API payload
    */
-  public <N> Response delete(ContainerRequestContext crc, Manager<N> manager, String id) {
+  public <N> Response delete(ContainerRequestContext crc, Manager<N> manager, UUID id) {
     try {
-      manager.destroy(HubAccess.fromContext(crc), UUID.fromString(id));
+      manager.destroy(HubAccess.fromContext(crc), id);
       return response.noContent();
 
     } catch (Exception e) {

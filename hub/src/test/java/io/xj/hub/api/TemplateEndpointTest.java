@@ -87,7 +87,7 @@ public class TemplateEndpointTest {
     when(templateManager.readMany(same(access), eq(ImmutableList.of(account25.getId()))))
       .thenReturn(templates);
 
-    Response result = subject.readMany(crc, account25.getId().toString());
+    Response result = subject.readMany(crc, account25.getId());
 
     verify(templateManager).readMany(same(access), eq(ImmutableList.of(account25.getId())));
     assertEquals(200, result.getStatus());
@@ -105,7 +105,7 @@ public class TemplateEndpointTest {
     when(templateManager.readMany(same(access), eq(ImmutableList.of(account25.getId()))))
       .thenReturn(templates);
 
-    Response result = subject.readMany(crc, account25.getId().toString());
+    Response result = subject.readMany(crc, account25.getId());
 
     verify(templateManager).readMany(same(access), eq(ImmutableList.of(account25.getId())));
     assertEquals(200, result.getStatus());

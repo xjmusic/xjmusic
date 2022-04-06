@@ -13,10 +13,18 @@ import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.MediaType;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.util.UUID;
 
 /**
  InstrumentMeme endpoint
@@ -61,7 +69,7 @@ public class InstrumentMemeEndpoint extends HubJsonapiEndpoint<InstrumentMeme> {
   @GET
   @Path("{id}")
   @RolesAllowed(ARTIST)
-  public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") UUID id) {
     return readOne(crc, manager(), id);
   }
 
@@ -72,7 +80,7 @@ public class InstrumentMemeEndpoint extends HubJsonapiEndpoint<InstrumentMeme> {
    */
   @GET
   @RolesAllowed(ARTIST)
-  public Response readMany(@Context ContainerRequestContext crc, @QueryParam("instrumentId") String instrumentId) {
+  public Response readMany(@Context ContainerRequestContext crc, @QueryParam("instrumentId") UUID instrumentId) {
     return readMany(crc, manager(), instrumentId);
   }
 
@@ -86,7 +94,7 @@ public class InstrumentMemeEndpoint extends HubJsonapiEndpoint<InstrumentMeme> {
   @Path("{id}")
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
-  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") UUID id) {
     return update(crc, manager(), id, jsonapiPayload);
   }
 
@@ -98,7 +106,7 @@ public class InstrumentMemeEndpoint extends HubJsonapiEndpoint<InstrumentMeme> {
   @DELETE
   @Path("{id}")
   @RolesAllowed(ARTIST)
-  public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response delete(@Context ContainerRequestContext crc, @PathParam("id") UUID id) {
     return delete(crc, manager(), id);
   }
 

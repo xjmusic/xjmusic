@@ -110,7 +110,7 @@ public class TemplateBindingEndpoint extends HubJsonapiEndpoint<TemplateBinding>
   @GET
   @Path("{id}")
   @RolesAllowed(ARTIST)
-  public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") UUID id) {
     return readOne(crc, manager(), id);
   }
 
@@ -124,7 +124,7 @@ public class TemplateBindingEndpoint extends HubJsonapiEndpoint<TemplateBinding>
   @Path("{id}")
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
-  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") UUID id) {
     return update(crc, manager(), id, jsonapiPayload);
   }
 
@@ -136,7 +136,7 @@ public class TemplateBindingEndpoint extends HubJsonapiEndpoint<TemplateBinding>
   @DELETE
   @Path("{id}")
   @RolesAllowed(ARTIST)
-  public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response delete(@Context ContainerRequestContext crc, @PathParam("id") UUID id) {
     return delete(crc, manager(), id);
   }
 

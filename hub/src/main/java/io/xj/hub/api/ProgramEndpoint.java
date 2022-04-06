@@ -13,6 +13,7 @@ import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.*;
 import io.xj.lib.util.CSV;
 
+import javax.annotation.Nullable;
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -60,9 +61,9 @@ public class ProgramEndpoint extends HubJsonapiEndpoint<Program> {
   @RolesAllowed(USER)
   public Response readMany(
     @Context ContainerRequestContext crc,
-    @QueryParam("accountId") String accountId,
-    @QueryParam("libraryId") String libraryId,
-    @QueryParam("detailed") Boolean detailed
+    @Nullable @QueryParam("accountId") UUID accountId,
+    @Nullable @QueryParam("libraryId") UUID libraryId,
+    @Nullable @QueryParam("detailed") Boolean detailed
   ) {
     try {
       HubAccess access = HubAccess.fromContext(crc);
@@ -70,9 +71,9 @@ public class ProgramEndpoint extends HubJsonapiEndpoint<Program> {
       Collection<Program> programs;
 
       // how we source programs depends on the query parameters
-      if (null != libraryId && !libraryId.isEmpty())
-        programs = manager().readMany(access, ImmutableList.of(UUID.fromString(libraryId)));
-      else if (null != accountId && !accountId.isEmpty())
+      if (Objects.nonNull(libraryId))
+        programs = manager().readMany(access, ImmutableList.of(libraryId));
+      else if (Objects.nonNull(accountId))
         programs = manager().readManyInAccount(access, accountId);
       else
         programs = manager().readMany(access);
@@ -110,7 +111,7 @@ public class ProgramEndpoint extends HubJsonapiEndpoint<Program> {
   public Response create(
     JsonapiPayload jsonapiPayload,
     @Context ContainerRequestContext crc,
-    @QueryParam("cloneId") String cloneId
+    @Nullable @QueryParam("cloneId") UUID cloneId
   ) {
 
     try {
@@ -118,7 +119,7 @@ public class ProgramEndpoint extends HubJsonapiEndpoint<Program> {
       Program program = payloadFactory.consume(manager().newInstance(), jsonapiPayload);
       JsonapiPayload responseJsonapiPayload = new JsonapiPayload();
       if (Objects.nonNull(cloneId)) {
-        ManagerCloner<Program> cloner = manager().clone(access, UUID.fromString(cloneId), program);
+        ManagerCloner<Program> cloner = manager().clone(access, cloneId, program);
         responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(cloner.getClone()));
         List<JsonapiPayloadObject> list = new ArrayList<>();
         for (Object entity : cloner.getChildClones()) {
@@ -145,17 +146,20 @@ public class ProgramEndpoint extends HubJsonapiEndpoint<Program> {
   @GET
   @Path("{id}")
   @RolesAllowed(USER)
-  public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id, @QueryParam("include") String include) {
+  public Response readOne(
+    @Context ContainerRequestContext crc,
+    @PathParam("id") UUID id,
+    @Nullable @QueryParam("include") String include
+  ) {
     try {
       HubAccess access = HubAccess.fromContext(crc);
-      var uuid = UUID.fromString(id);
 
-      JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(manager().readOne(access, uuid)));
+      JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(manager().readOne(access, id)));
 
       // optionally specify a CSV of included types to read
       if (Objects.nonNull(include)) {
         List<JsonapiPayloadObject> list = new ArrayList<>();
-        for (Object entity : manager().readChildEntities(access, ImmutableList.of(uuid), CSV.split(include))) {
+        for (Object entity : manager().readChildEntities(access, ImmutableList.of(id), CSV.split(include))) {
           JsonapiPayloadObject jsonapiPayloadObject = payloadFactory.toPayloadObject(entity);
           list.add(jsonapiPayloadObject);
         }
@@ -183,7 +187,7 @@ public class ProgramEndpoint extends HubJsonapiEndpoint<Program> {
   @Path("{id}")
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
-  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") UUID id) {
     return update(crc, manager(), id, jsonapiPayload);
   }
 
@@ -195,9 +199,9 @@ public class ProgramEndpoint extends HubJsonapiEndpoint<Program> {
   @DELETE
   @Path("{id}")
   @RolesAllowed(ARTIST)
-  public Response destroy(@Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response destroy(@Context ContainerRequestContext crc, @PathParam("id") UUID id) {
     try {
-      manager().destroy(HubAccess.fromContext(crc), UUID.fromString(id));
+      manager().destroy(HubAccess.fromContext(crc), id);
       return response.noContent();
 
     } catch (Exception e) {

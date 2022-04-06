@@ -18,6 +18,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.util.UUID;
 
 /**
  Accounts
@@ -73,7 +74,7 @@ public class AccountEndpoint extends HubJsonapiEndpoint<Account> {
   @GET
   @Path("{id}")
   @RolesAllowed(USER)
-  public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") UUID id) {
     return readOne(crc, manager(), id);
   }
 
@@ -87,7 +88,7 @@ public class AccountEndpoint extends HubJsonapiEndpoint<Account> {
   @Path("{id}")
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ADMIN)
-  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") UUID id) {
     return update(crc, manager(), id, jsonapiPayload);
   }
 
@@ -99,7 +100,7 @@ public class AccountEndpoint extends HubJsonapiEndpoint<Account> {
   @DELETE
   @Path("{id}")
   @RolesAllowed(ADMIN)
-  public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response delete(@Context ContainerRequestContext crc, @PathParam("id") UUID id) {
     return delete(crc, manager(), id);
   }
 

@@ -14,10 +14,13 @@ import org.jooq.DSLContext;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import static io.xj.hub.Tables.*;
+import static io.xj.hub.Tables.LIBRARY;
+import static io.xj.hub.Tables.PROGRAM;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_CHORD_VOICING;
 
 public class ProgramSequenceChordVoicingManagerImpl extends HubPersistenceServiceImpl<ProgramSequenceChordVoicing> implements ProgramSequenceChordVoicingManager {
 
@@ -80,6 +83,24 @@ public class ProgramSequenceChordVoicingManagerImpl extends HubPersistenceServic
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_ID.in(programIds))
+          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+          .fetch());
+  }
+
+  @Override
+  public Collection<ProgramSequenceChordVoicing> readManyForChords(HubAccess access, List<UUID> chordIds) throws ManagerException {
+    requireArtist(access);
+    if (access.isTopLevel())
+      return modelsFrom(ProgramSequenceChordVoicing.class,
+        dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_CHORD_VOICING)
+          .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID.in(chordIds))
+          .fetch());
+    else
+      return modelsFrom(ProgramSequenceChordVoicing.class,
+        dbProvider.getDSL().select(PROGRAM_SEQUENCE_CHORD_VOICING.fields()).from(PROGRAM_SEQUENCE_CHORD_VOICING)
+          .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_ID))
+          .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
+          .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID.in(chordIds))
           .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
           .fetch());
   }

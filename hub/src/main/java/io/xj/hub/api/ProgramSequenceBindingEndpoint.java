@@ -17,6 +17,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.util.UUID;
 
 /**
  ProgramSequenceBinding endpoint
@@ -61,7 +62,7 @@ public class ProgramSequenceBindingEndpoint extends HubJsonapiEndpoint<ProgramSe
   @GET
   @Path("{id}")
   @RolesAllowed(ARTIST)
-  public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") UUID id) {
     return readOne(crc, manager(), id);
   }
 
@@ -72,7 +73,7 @@ public class ProgramSequenceBindingEndpoint extends HubJsonapiEndpoint<ProgramSe
    */
   @GET
   @RolesAllowed(ARTIST)
-  public Response readMany(@Context ContainerRequestContext crc, @QueryParam("programSequenceId") String programSequenceId) {
+  public Response readMany(@Context ContainerRequestContext crc, @QueryParam("programSequenceId") UUID programSequenceId) {
     return readMany(crc, manager(), programSequenceId);
   }
 
@@ -86,7 +87,7 @@ public class ProgramSequenceBindingEndpoint extends HubJsonapiEndpoint<ProgramSe
   @Path("{id}")
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
-  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") UUID id) {
     return update(crc, manager(), id, jsonapiPayload);
   }
 
@@ -98,7 +99,7 @@ public class ProgramSequenceBindingEndpoint extends HubJsonapiEndpoint<ProgramSe
   @DELETE
   @Path("{id}")
   @RolesAllowed(ARTIST)
-  public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response delete(@Context ContainerRequestContext crc, @PathParam("id") UUID id) {
     return delete(crc, manager(), id);
   }
 
