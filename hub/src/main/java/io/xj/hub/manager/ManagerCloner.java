@@ -4,6 +4,7 @@ package io.xj.hub.manager;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
 import org.jooq.DSLContext;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -132,5 +133,13 @@ public class ManagerCloner<E> {
    */
   public void addChildClones(Collection<Object> entities) {
     childClones.addAll(entities);
+  }
+
+  /**
+   Add a child clone that was made externally
+   e.g. Chord manager clone manually clones voicings, then adds results to its cloner
+   */
+  public void addChildClone(Object entity) {
+    childClones.add(entity);
   }
 }

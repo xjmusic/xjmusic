@@ -39,7 +39,6 @@ public class ProgramSequencePatternManagerImpl extends HubPersistenceServiceImpl
     requireProgramModification(db, access, builder.getProgramId());
     return modelFrom(ProgramSequencePattern.class,
       executeCreate(db, PROGRAM_SEQUENCE_PATTERN, builder));
-
   }
 
   @Override

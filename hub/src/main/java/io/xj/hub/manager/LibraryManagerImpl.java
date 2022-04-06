@@ -215,7 +215,6 @@ public class LibraryManagerImpl extends HubPersistenceServiceImpl<Library> imple
         .and(LIBRARY.IS_DELETED.eq(false))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne());
-
   }
 
 }

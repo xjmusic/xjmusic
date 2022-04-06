@@ -17,6 +17,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.util.UUID;
 
 /**
  ProgramVoice endpoint
@@ -61,7 +62,7 @@ public class ProgramVoiceEndpoint extends HubJsonapiEndpoint<ProgramVoice> {
   @GET
   @Path("{id}")
   @RolesAllowed(ARTIST)
-  public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") UUID id) {
     return readOne(crc, manager(), id);
   }
 
@@ -72,7 +73,7 @@ public class ProgramVoiceEndpoint extends HubJsonapiEndpoint<ProgramVoice> {
    */
   @GET
   @RolesAllowed(ARTIST)
-  public Response readMany(@Context ContainerRequestContext crc, @QueryParam("programId") String programId) {
+  public Response readMany(@Context ContainerRequestContext crc, @QueryParam("programId") UUID programId) {
     return readMany(crc, manager(), programId);
   }
 
@@ -86,7 +87,7 @@ public class ProgramVoiceEndpoint extends HubJsonapiEndpoint<ProgramVoice> {
   @Path("{id}")
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
-  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") UUID id) {
     return update(crc, manager(), id, jsonapiPayload);
   }
 
@@ -98,7 +99,7 @@ public class ProgramVoiceEndpoint extends HubJsonapiEndpoint<ProgramVoice> {
   @DELETE
   @Path("{id}")
   @RolesAllowed(ARTIST)
-  public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response delete(@Context ContainerRequestContext crc, @PathParam("id") UUID id) {
     return delete(crc, manager(), id);
   }
 

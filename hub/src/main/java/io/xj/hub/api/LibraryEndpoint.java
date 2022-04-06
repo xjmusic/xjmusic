@@ -11,6 +11,7 @@ import io.xj.hub.tables.pojos.Library;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.*;
 
+import javax.annotation.Nullable;
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -50,7 +51,10 @@ public class LibraryEndpoint extends HubJsonapiEndpoint<Library> {
    */
   @GET
   @RolesAllowed(USER)
-  public Response readMany(@Context ContainerRequestContext crc, @QueryParam("accountId") String accountId) {
+  public Response readMany(
+    @Context ContainerRequestContext crc,
+    @Nullable @QueryParam("accountId") UUID accountId
+  ) {
     if (Objects.nonNull(accountId))
       return readMany(crc, manager(), accountId);
     else
@@ -69,7 +73,7 @@ public class LibraryEndpoint extends HubJsonapiEndpoint<Library> {
   public Response create(
     JsonapiPayload jsonapiPayload,
     @Context ContainerRequestContext crc,
-    @QueryParam("cloneId") String cloneId
+    @Nullable @QueryParam("cloneId") UUID cloneId
   ) {
 
     try {
@@ -77,7 +81,7 @@ public class LibraryEndpoint extends HubJsonapiEndpoint<Library> {
       Library library = payloadFactory.consume(manager().newInstance(), jsonapiPayload);
       JsonapiPayload responseJsonapiPayload = new JsonapiPayload();
       if (Objects.nonNull(cloneId)) {
-        ManagerCloner<Library> cloner = manager().clone(access, UUID.fromString(cloneId), library);
+        ManagerCloner<Library> cloner = manager().clone(access, cloneId, library);
         responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(cloner.getClone()));
         List<JsonapiPayloadObject> list = new ArrayList<>();
         for (Object entity : cloner.getChildClones()) {
@@ -104,7 +108,7 @@ public class LibraryEndpoint extends HubJsonapiEndpoint<Library> {
   @GET
   @Path("{id}")
   @RolesAllowed(USER)
-  public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") UUID id) {
     return readOne(crc, manager(), id);
   }
 
@@ -118,7 +122,7 @@ public class LibraryEndpoint extends HubJsonapiEndpoint<Library> {
   @Path("{id}")
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed({ADMIN, ENGINEER})
-  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") UUID id) {
     return update(crc, manager(), id, jsonapiPayload);
   }
 
@@ -130,7 +134,7 @@ public class LibraryEndpoint extends HubJsonapiEndpoint<Library> {
   @DELETE
   @Path("{id}")
   @RolesAllowed({ADMIN, ENGINEER})
-  public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response delete(@Context ContainerRequestContext crc, @PathParam("id") UUID id) {
     return delete(crc, manager(), id);
   }
 

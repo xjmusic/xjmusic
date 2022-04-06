@@ -106,7 +106,7 @@ public class ProgramEndpointTest {
     when(programManager.readMany(same(access), eq(ImmutableList.of(library25.getId()))))
       .thenReturn(programs);
 
-    Response result = subject.readMany(crc, null, library25.getId().toString(), false);
+    Response result = subject.readMany(crc, null, library25.getId(), false);
 
     verify(programManager).readMany(same(access), eq(ImmutableList.of(library25.getId())));
     assertEquals(200, result.getStatus());
@@ -129,7 +129,7 @@ public class ProgramEndpointTest {
     program1.setDensity(0.6f);
     when(programManager.readOne(same(access), eq(program1.getId()))).thenReturn(program1);
 
-    Response result = subject.readOne(crc, program1.getId().toString(), "");
+    Response result = subject.readOne(crc, program1.getId(), "");
 
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());

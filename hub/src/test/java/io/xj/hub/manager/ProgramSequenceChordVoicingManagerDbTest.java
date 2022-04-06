@@ -225,6 +225,19 @@ public class ProgramSequenceChordVoicingManagerDbTest {
     assertEquals("G,B,Db,F", resultIt.next().getNotes());
   }
 
+  /**
+   Chord Search while composing a main program
+   https://www.pivotaltracker.com/story/show/178921705
+   */
+  @Test
+  public void readMany_forChords() throws Exception {
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+
+    Collection<ProgramSequenceChordVoicing> result = subject.readManyForChords(access, ImmutableList.of(sequenceChord1a_0.getId()));
+
+    assertEquals(2L, result.size());
+  }
+
   @Test
   public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");

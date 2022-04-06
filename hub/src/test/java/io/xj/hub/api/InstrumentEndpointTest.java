@@ -127,7 +127,7 @@ public class InstrumentEndpointTest {
     instrument1.setDensity(0.6f);
     when(instrumentManager.readOne(same(access), eq(instrument1.getId()))).thenReturn(instrument1);
 
-    Response result = subject.readOne(crc, instrument1.getId().toString(), "");
+    Response result = subject.readOne(crc, instrument1.getId(), "");
 
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
@@ -147,7 +147,7 @@ public class InstrumentEndpointTest {
     when(instrumentManager.readOne(same(access), eq(instrument1.getId()))).thenReturn(instrument1);
     when(instrumentManager.readChildEntities(same(access), eq(List.of(instrument1.getId())), eq(List.of("instrument-meme")))).thenReturn(List.of(instrumentMeme1));
 
-    Response result = subject.readOne(crc, instrument1.getId().toString(), "instrument-meme");
+    Response result = subject.readOne(crc, instrument1.getId(), "instrument-meme");
 
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());

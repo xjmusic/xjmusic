@@ -11,6 +11,7 @@ import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.*;
 
+import javax.annotation.Nullable;
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -55,14 +56,14 @@ public class ProgramSequenceEndpoint extends HubJsonapiEndpoint<ProgramSequence>
   public Response create(
     JsonapiPayload jsonapiPayload,
     @Context ContainerRequestContext crc,
-    @QueryParam("cloneId") String cloneId
+    @Nullable @QueryParam("cloneId") UUID cloneId
   ) {
     try {
       HubAccess access = HubAccess.fromContext(crc);
       var programSequence = payloadFactory.consume(manager().newInstance(), jsonapiPayload);
       JsonapiPayload responseJsonapiPayload = new JsonapiPayload();
       if (Objects.nonNull(cloneId)) {
-        ManagerCloner<ProgramSequence> cloner = manager().clone(access, UUID.fromString(cloneId), programSequence);
+        ManagerCloner<ProgramSequence> cloner = manager().clone(access, cloneId, programSequence);
         responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(cloner.getClone()));
         List<JsonapiPayloadObject> list = new ArrayList<>();
         for (Object entity : cloner.getChildClones()) {
@@ -89,7 +90,7 @@ public class ProgramSequenceEndpoint extends HubJsonapiEndpoint<ProgramSequence>
   @GET
   @Path("{id}")
   @RolesAllowed(ARTIST)
-  public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") UUID id) {
     return readOne(crc, manager(), id);
   }
 
@@ -100,7 +101,7 @@ public class ProgramSequenceEndpoint extends HubJsonapiEndpoint<ProgramSequence>
    */
   @GET
   @RolesAllowed(ARTIST)
-  public Response readMany(@Context ContainerRequestContext crc, @QueryParam("programId") String programId) {
+  public Response readMany(@Context ContainerRequestContext crc, @QueryParam("programId") UUID programId) {
     return readMany(crc, manager(), programId);
   }
 
@@ -114,7 +115,7 @@ public class ProgramSequenceEndpoint extends HubJsonapiEndpoint<ProgramSequence>
   @Path("{id}")
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
-  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") UUID id) {
     return update(crc, manager(), id, jsonapiPayload);
   }
 
@@ -126,7 +127,7 @@ public class ProgramSequenceEndpoint extends HubJsonapiEndpoint<ProgramSequence>
   @DELETE
   @Path("{id}")
   @RolesAllowed(ARTIST)
-  public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response delete(@Context ContainerRequestContext crc, @PathParam("id") UUID id) {
     return delete(crc, manager(), id);
   }
 
