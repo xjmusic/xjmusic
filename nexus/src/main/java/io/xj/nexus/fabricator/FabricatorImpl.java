@@ -853,7 +853,7 @@ class FabricatorImpl implements Fabricator {
   public void putPreferredNotes(String parentIdent, String ident, Set<String> instrumentNotes) {
     try {
       preferredNotesByChordEvent.put(computeNoteChordEventKey(parentIdent, ident), instrumentNotes);
-    } catch (NexusException | EntityStoreException e ) {
+    } catch (NexusException | EntityStoreException e) {
       LOG.warn("Can't cache preferred notes", e);
     }
   }
@@ -1083,7 +1083,10 @@ class FabricatorImpl implements Fabricator {
 
     retrospective.getPicks().forEach(pick -> {
       try {
-        var key = computeNoteChordEventKey(pick.getProgramSequencePatternEventId().toString(), Objects.nonNull(pick.getSegmentChordVoicingId()) ? pick.getSegmentChordVoicingId().toString() : UNKNOWN_KEY);
+        var key = computeNoteChordEventKey(
+          Objects.nonNull(pick.getProgramSequencePatternEventId()) ? pick.getProgramSequencePatternEventId().toString() : UNKNOWN_KEY,
+          Objects.nonNull(pick.getSegmentChordVoicingId()) ? pick.getSegmentChordVoicingId().toString() : UNKNOWN_KEY
+        );
         if (!notes.containsKey(key)) notes.put(key, Sets.newHashSet());
         notes.get(key).add(pick.getNote());
 
