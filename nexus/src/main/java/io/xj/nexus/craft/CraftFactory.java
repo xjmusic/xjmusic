@@ -5,6 +5,7 @@ import com.google.inject.assistedinject.Assisted;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.background.BackgroundCraft;
 import io.xj.nexus.craft.detail.DetailCraft;
+import io.xj.nexus.craft.hook.HookCraft;
 import io.xj.nexus.craft.macro_main.MacroMainCraft;
 import io.xj.nexus.craft.perc_loop.PercLoopCraft;
 import io.xj.nexus.craft.beat.BeatCraft;
@@ -26,14 +27,13 @@ import io.xj.nexus.fabricator.Fabricator;
 public interface CraftFactory {
 
   /**
-   Create Foundation Craft instance for a particular segment
-   [#138] Foundation craft for Segment of a Chain
+   Create Background Craft instance for a particular segment
 
    @param fabricator of craft
-   @return MacroMainCraft
+   @return BackgroundCraft
    @throws NexusException on failure
    */
-  MacroMainCraft macroMain(
+  BackgroundCraft background(
     @Assisted("basis") Fabricator fabricator
   ) throws NexusException;
 
@@ -60,6 +60,29 @@ public interface CraftFactory {
   ) throws NexusException;
 
   /**
+   Create Hook Craft instance for a particular segment
+
+   @param fabricator of craft
+   @return HookCraft
+   @throws NexusException on failure
+   */
+  HookCraft hook(
+    @Assisted("basis") Fabricator fabricator
+  ) throws NexusException;
+
+  /**
+   Create Foundation Craft instance for a particular segment
+   [#138] Foundation craft for Segment of a Chain
+
+   @param fabricator of craft
+   @return MacroMainCraft
+   @throws NexusException on failure
+   */
+  MacroMainCraft macroMain(
+    @Assisted("basis") Fabricator fabricator
+  ) throws NexusException;
+
+  /**
    Create Percussion Loop Craft instance for a particular segment
 
    @param fabricator of craft
@@ -78,17 +101,6 @@ public interface CraftFactory {
    @throws NexusException on failure
    */
   TransitionCraft transition(
-    @Assisted("basis") Fabricator fabricator
-  ) throws NexusException;
-
-  /**
-   Create Background Craft instance for a particular segment
-
-   @param fabricator of craft
-   @return BackgroundCraft
-   @throws NexusException on failure
-   */
-  BackgroundCraft background(
     @Assisted("basis") Fabricator fabricator
   ) throws NexusException;
 

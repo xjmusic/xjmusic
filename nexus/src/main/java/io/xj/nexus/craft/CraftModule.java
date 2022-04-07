@@ -7,6 +7,8 @@ import io.xj.nexus.craft.background.BackgroundCraft;
 import io.xj.nexus.craft.background.BackgroundCraftImpl;
 import io.xj.nexus.craft.detail.DetailCraft;
 import io.xj.nexus.craft.detail.DetailCraftImpl;
+import io.xj.nexus.craft.hook.HookCraft;
+import io.xj.nexus.craft.hook.HookCraftImpl;
 import io.xj.nexus.craft.macro_main.MacroMainCraft;
 import io.xj.nexus.craft.macro_main.MacroMainCraftImpl;
 import io.xj.nexus.craft.perc_loop.PercLoopCraft;
@@ -20,12 +22,13 @@ public class CraftModule extends AbstractModule {
 
   protected void configure() {
     install(new FactoryModuleBuilder()
-      .implement(MacroMainCraft.class, MacroMainCraftImpl.class)
+      .implement(BackgroundCraft.class, BackgroundCraftImpl.class)
       .implement(BeatCraft.class, BeatCraftImpl.class)
       .implement(DetailCraft.class, DetailCraftImpl.class)
-      .implement(TransitionCraft.class, TransitionCraftImpl.class)
-      .implement(BackgroundCraft.class, BackgroundCraftImpl.class)
+      .implement(HookCraft.class, HookCraftImpl.class)
+      .implement(MacroMainCraft.class, MacroMainCraftImpl.class)
       .implement(PercLoopCraft.class, PercLoopCraftImpl.class)
+      .implement(TransitionCraft.class, TransitionCraftImpl.class)
       .build(CraftFactory.class));
   }
 }

@@ -8,6 +8,7 @@ import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.*;
+import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.music.*;
 import io.xj.nexus.NexusException;
 import io.xj.hub.client.HubContent;
@@ -231,6 +232,14 @@ public interface Fabricator {
   InstrumentConfig getInstrumentConfig(Instrument instrument) throws NexusException;
 
   /**
+   Get the range of available notes for a given instrument
+
+   @param instrumentId for which to get range
+   @return range
+   */
+  NoteRange getInstrumentRange(UUID instrumentId);
+
+  /**
    Key for any pick designed to collide at same voice id + name
 
    @param pick to get key of
@@ -349,11 +358,11 @@ public interface Fabricator {
   /**
    Get preferred (previously chosen) notes
 
-   @param eventId   of event
+   @param parentIdent   of event
    @param chordName of chord
    @return notes
    */
-  Optional<Set<String>> getPreferredNotes(UUID eventId, String chordName);
+  Optional<Set<String>> getPreferredNotes(String parentIdent, String chordName);
 
   /**
    Get Program for any given choice
@@ -730,6 +739,15 @@ public interface Fabricator {
   void putPreferredAudio(String parentIdent, String ident, InstrumentAudio instrumentAudio);
 
   /**
+   Set the preferred notes for a key
+
+   @param parentIdent     for which to set
+   @param ident           for which to set
+   @param instrumentNotes value to set
+   */
+  void putPreferredNotes(String parentIdent, String ident, Set<String> instrumentNotes);
+
+  /**
    Put a key-value pair into the report
    https://www.pivotaltracker.com/story/show/162999779 only exports data as a sub-field of the standard content JSON
 
@@ -771,4 +789,5 @@ public interface Fabricator {
    @return source material
    */
   HubContent sourceMaterial();
+
 }

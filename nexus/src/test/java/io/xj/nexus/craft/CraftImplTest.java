@@ -4,6 +4,7 @@ package io.xj.nexus.craft;
 
 import io.xj.api.*;
 import io.xj.hub.TemplateConfig;
+import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Account;
@@ -22,6 +23,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.time.Instant;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static io.xj.hub.IntegrationTestingFixtures.*;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
@@ -75,7 +77,7 @@ public class CraftImplTest {
   public void precomputeDeltas() throws NexusException {
     CraftImpl.ChoiceIndexProvider choiceIndexProvider = SegmentChoice::getInstrumentType;
     Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> ProgramType.Detail.toString().equals(choice.getProgramType());
-    subject.precomputeDeltas(choiceFilter, choiceIndexProvider, DETAIL_INSTRUMENT_TYPES, List.of(), 1);
+    subject.precomputeDeltas(choiceFilter, choiceIndexProvider, DETAIL_INSTRUMENT_TYPES.stream().map(InstrumentType::toString).collect(Collectors.toList()), List.of(), 1);
   }
 
   @Test

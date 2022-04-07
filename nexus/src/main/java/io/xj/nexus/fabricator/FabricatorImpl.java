@@ -319,6 +319,14 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
+  public NoteRange getInstrumentRange(UUID instrumentId) {
+    return NoteRange.ofNotes(sourceMaterial.getInstrumentAudios(instrumentId).stream()
+      .map(InstrumentAudio::getNote)
+      .map(Note::of)
+      .toList());
+  }
+
+  @Override
   public Optional<SegmentChoice> getChoiceIfContinued(ProgramVoice voice) {
     try {
       if (!Objects.equals(SegmentType.CONTINUE, getSegment().getType())) return Optional.empty();
@@ -508,14 +516,14 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Optional<Set<String>> getPreferredNotes(UUID eventId, String chordName) {
+  public Optional<Set<String>> getPreferredNotes(String parentIdent, String chordName) {
     try {
-      var key = computeNoteChordEventKey(eventId, chordName);
+      var key = computeNoteChordEventKey(parentIdent, chordName);
       if (preferredNotesByChordEvent.containsKey(key))
         return Optional.of(new HashSet<>(preferredNotesByChordEvent.get(key)));
 
     } catch (NexusException | EntityStoreException e) {
-      LOG.warn("Can't find chord of previous event and chord id", e);
+      LOG.debug("No notes cached for previous event and chord id", e);
     }
 
     return Optional.empty();
@@ -828,9 +836,9 @@ class FabricatorImpl implements Fabricator {
   @Override
   public void putNotesPickedForChord(ProgramSequencePatternEvent event, String chordName, Set<String> notes) {
     try {
-      preferredNotesByChordEvent.put(computeNoteChordEventKey(event.getId(), chordName), new HashSet<>(notes));
+      preferredNotesByChordEvent.put(computeNoteChordEventKey(event.getId().toString(), chordName), new HashSet<>(notes));
     } catch (NexusException | EntityStoreException e) {
-      LOG.warn("Can't find chord of previous event and chord id", e);
+      LOG.warn("Can't cache notes picked for chord", e);
     }
   }
 
@@ -839,6 +847,15 @@ class FabricatorImpl implements Fabricator {
     String key = String.format(KEY_VOICE_NOTE_TEMPLATE, parentIdent, ident);
 
     preferredAudios.put(key, instrumentAudio);
+  }
+
+  @Override
+  public void putPreferredNotes(String parentIdent, String ident, Set<String> instrumentNotes) {
+    try {
+      preferredNotesByChordEvent.put(computeNoteChordEventKey(parentIdent, ident), instrumentNotes);
+    } catch (NexusException | EntityStoreException e ) {
+      LOG.warn("Can't cache preferred notes", e);
+    }
   }
 
   @Override
@@ -979,12 +996,12 @@ class FabricatorImpl implements Fabricator {
   /**
    Key for a chord + event pairing
 
-   @param eventId   to get key for
-   @param chordName to get key for
+   @param parentIdent to get key for
+   @param chordName   to get key for
    @return key for chord + event
    */
-  private String computeNoteChordEventKey(@Nullable UUID eventId, @Nullable String chordName) throws NexusException, EntityStoreException {
-    return String.format("%s__%s", Strings.isNullOrEmpty(chordName) ? UNKNOWN_KEY : chordName, Objects.isNull(eventId) ? UNKNOWN_KEY : eventId.toString());
+  private String computeNoteChordEventKey(@Nullable String parentIdent, @Nullable String chordName) throws NexusException, EntityStoreException {
+    return String.format("%s__%s", Strings.isNullOrEmpty(chordName) ? UNKNOWN_KEY : chordName, Objects.isNull(parentIdent) ? UNKNOWN_KEY : parentIdent);
   }
 
   /**
@@ -1066,7 +1083,7 @@ class FabricatorImpl implements Fabricator {
 
     retrospective.getPicks().forEach(pick -> {
       try {
-        var key = computeNoteChordEventKey(pick.getProgramSequencePatternEventId(), Objects.nonNull(pick.getSegmentChordVoicingId()) ? pick.getSegmentChordVoicingId().toString() : UNKNOWN_KEY);
+        var key = computeNoteChordEventKey(pick.getProgramSequencePatternEventId().toString(), Objects.nonNull(pick.getSegmentChordVoicingId()) ? pick.getSegmentChordVoicingId().toString() : UNKNOWN_KEY);
         if (!notes.containsKey(key)) notes.put(key, Sets.newHashSet());
         notes.get(key).add(pick.getNote());
 
