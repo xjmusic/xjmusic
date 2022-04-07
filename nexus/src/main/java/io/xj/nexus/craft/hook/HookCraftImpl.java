@@ -36,7 +36,7 @@ public class HookCraftImpl extends CraftImpl implements HookCraft {
 
   @Override
   public void doWork() throws NexusException {
-    if (!fabricator.getTemplateConfig().isHookEnabled()) return;
+    if (!fabricator.sourceMaterial().hasInstruments(InstrumentType.Hook)) return;
 
     // Instrument is from prior choice, else freshly chosen
     Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(InstrumentType.Hook);

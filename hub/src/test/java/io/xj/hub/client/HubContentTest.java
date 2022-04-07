@@ -2,10 +2,28 @@
 
 package io.xj.hub.client;
 
-import io.xj.hub.client.HubClientException;
-import io.xj.hub.client.HubContent;
-import io.xj.hub.enums.*;
-import io.xj.hub.tables.pojos.*;
+import io.xj.hub.enums.InstrumentMode;
+import io.xj.hub.enums.InstrumentState;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramState;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.tables.pojos.Account;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.InstrumentMeme;
+import io.xj.hub.tables.pojos.Library;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramMeme;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
+import io.xj.hub.tables.pojos.ProgramSequenceChord;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
+import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplateBinding;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,8 +32,26 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.List;
 import java.util.UUID;
 
-import static io.xj.hub.IntegrationTestingFixtures.*;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrument;
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrumentAudio;
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrumentMeme;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramMeme;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequence;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceBinding;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceBindingMeme;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceChord;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequencePattern;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequencePatternEvent;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramVoice;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramVoiceTrack;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplateBinding;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
 public class HubContentTest {
@@ -87,5 +123,19 @@ public class HubContentTest {
   @Test
   public void getInstrumentTypeForEvent() throws HubClientException {
     assertEquals(InstrumentType.Drum, subject.getInstrumentTypeForEvent(program702_pattern901_boomEvent));
+  }
+
+  @Test
+  public void hasInstruments() {
+    assertTrue(subject.hasInstruments(InstrumentType.Drum));
+    assertFalse(subject.hasInstruments(InstrumentType.PercLoop));
+    assertFalse(subject.hasInstruments(InstrumentType.Bass));
+    assertFalse(subject.hasInstruments(InstrumentType.Pad));
+    assertFalse(subject.hasInstruments(InstrumentType.Sticky));
+    assertFalse(subject.hasInstruments(InstrumentType.Stripe));
+    assertFalse(subject.hasInstruments(InstrumentType.Stab));
+    assertFalse(subject.hasInstruments(InstrumentType.Transition));
+    assertFalse(subject.hasInstruments(InstrumentType.Background));
+    assertFalse(subject.hasInstruments(InstrumentType.Hook));
   }
 }

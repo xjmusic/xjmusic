@@ -736,4 +736,15 @@ public class HubContent {
       return (Collection<E>) store.get(type).values();
     return ImmutableList.of();
   }
+
+  /**
+   Whether the content contains instruments of the given type
+
+   @param type of instrument for which to search
+   @return true if present
+   */
+  public boolean hasInstruments(InstrumentType type) {
+    return getInstruments().stream()
+      .anyMatch(instrument -> type.equals(instrument.getType()));
+  }
 }

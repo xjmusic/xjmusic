@@ -44,7 +44,6 @@ public class TemplateConfig {
       dubMasterVolumeInstrumentTypeStab = 1.0
       dubMasterVolumeInstrumentTypeSticky = 1.0
       dubMasterVolumeInstrumentTypeStripe = 1.0
-      hookEnabled = false
       instrumentTypesForAudioLengthFinalization = ["Bass","Pad","Stab","Sticky","Stripe"]
       instrumentTypesForInversionSeeking = ["Pad","Stab","Sticky","Stripe"]
       mainProgramLengthMaxDelta = 280
@@ -80,7 +79,6 @@ public class TemplateConfig {
   private final String outputContainer;
   private final String outputContentType;
   private final boolean deltaArcEnabled;
-  private final boolean hookEnabled;
   private final double densityCeiling;
   private final double densityFloor;
   private final double dubMasterVolumeInstrumentTypeBass;
@@ -168,7 +166,6 @@ public class TemplateConfig {
       dubMasterVolumeInstrumentTypeStab = config.getDouble("dubMasterVolumeInstrumentTypeStab");
       dubMasterVolumeInstrumentTypeSticky = config.getDouble("dubMasterVolumeInstrumentTypeSticky");
       dubMasterVolumeInstrumentTypeStripe = config.getDouble("dubMasterVolumeInstrumentTypeStripe");
-      hookEnabled = config.getBoolean("hookEnabled");
       instrumentTypesForAudioLengthFinalization =
         requireAtLeastOne("instrumentTypesForAudioLengthFinalization",
           config.getStringList("instrumentTypesForAudioLengthFinalization").stream()
@@ -243,7 +240,6 @@ public class TemplateConfig {
     config.put("dubMasterVolumeInstrumentTypeStab", String.valueOf(dubMasterVolumeInstrumentTypeStab));
     config.put("dubMasterVolumeInstrumentTypeSticky", String.valueOf(dubMasterVolumeInstrumentTypeSticky));
     config.put("dubMasterVolumeInstrumentTypeStripe", String.valueOf(dubMasterVolumeInstrumentTypeStripe));
-    config.put("hookEnabled", String.valueOf(hookEnabled));
     config.put("instrumentTypesForAudioLengthFinalization", formatTypesafeQuoted(instrumentTypesForAudioLengthFinalization));
     config.put("instrumentTypesForInversionSeeking", formatTypesafeQuoted(instrumentTypesForInversionSeeking));
     config.put("mainProgramLengthMaxDelta", String.valueOf(mainProgramLengthMaxDelta));
@@ -409,13 +405,6 @@ public class TemplateConfig {
    */
   public double getDubMasterVolumeInstrumentTypeStripe() {
     return dubMasterVolumeInstrumentTypeStripe;
-  }
-
-  /**
-   @return true if hook-type instruments are enabled
-   */
-  public boolean isHookEnabled() {
-    return hookEnabled;
   }
 
   /**
