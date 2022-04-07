@@ -707,7 +707,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     SegmentChordVoicing voicing,
     NoteRange range
   ) throws NexusException {
-    var previous = fabricator.getPreferredNotes(event.getId(), segmentChord.getName());
+    var previous = fabricator.getPreferredNotes(event.getId().toString(), segmentChord.getName());
     if (previous.isPresent()) return previous.get();
 
     // Various computations to prepare for picking

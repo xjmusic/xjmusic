@@ -466,6 +466,7 @@ public class NexusWorkImpl implements NexusWork {
     var updated = updateSegmentState(fabricator, segment, SegmentState.PLANNED, SegmentState.CRAFTING);
     craftFactory.macroMain(fabricator).doWork();
     craftFactory.beat(fabricator).doWork();
+    craftFactory.hook(fabricator).doWork();
     craftFactory.detail(fabricator).doWork();
     craftFactory.percLoop(fabricator).doWork();
     craftFactory.transition(fabricator).doWork();

@@ -24,14 +24,14 @@ import java.util.stream.Collectors;
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public class DetailCraftImpl extends CraftImpl implements DetailCraft {
-  public static final List<String> DETAIL_INSTRUMENT_TYPES =
+  public static final List<InstrumentType> DETAIL_INSTRUMENT_TYPES =
     ImmutableList.of(
       InstrumentType.Bass,
       InstrumentType.Stripe,
       InstrumentType.Pad,
       InstrumentType.Sticky,
       InstrumentType.Stab
-    ).stream().map(InstrumentType::toString).collect(Collectors.toList());
+    );
 
   @Inject
   public DetailCraftImpl(
@@ -48,13 +48,14 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
     precomputeDeltas(
       choiceFilter,
       choiceIndexProvider,
-      DETAIL_INSTRUMENT_TYPES,
+      DETAIL_INSTRUMENT_TYPES.stream().map(InstrumentType::toString).collect(Collectors.toList()),
       List.of(),
       fabricator.getTemplateConfig().getDeltaArcDetailLayersIncoming()
     );
 
     // For each type of voicing present in the main sequence, choose instrument, then program if necessary
-    for (InstrumentType voicingType : fabricator.getDistinctChordVoicingTypes()) {
+    for (InstrumentType voicingType :
+      fabricator.getDistinctChordVoicingTypes().stream().filter(DETAIL_INSTRUMENT_TYPES::contains).toList()) {
 
       // Instrument is from prior choice, else freshly chosen
       Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(voicingType);
@@ -110,10 +111,9 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
         case ChordPart -> craftChordParts(instrument.get());
 
         // As-yet Unsupported Modes
-        case VoicingEvent, ChordEvent, VoicingPart, MainPart -> {
-          fabricator.addWarningMessage(String.format("Cannot craft unsupported mode %s for Instrument[%s]",
+        case VoicingEvent, ChordEvent, VoicingPart, MainPart -> fabricator.addWarningMessage(
+          String.format("Cannot craft unsupported mode %s for Instrument[%s]",
             instrument.get().getMode(), instrument.get().getId()));
-        }
       }
     }
 
