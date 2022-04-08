@@ -586,6 +586,9 @@ public interface Fabricator {
    Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822 persisted for each randomly selected note in the series for any given pattern
    - key on program-sequence-pattern-event id, persisting only the first value seen for any given event
    - super-key on program-sequence-pattern id, measuring delta from the first event seen in that pattern
+   <p>
+   TemplateConfig parameter stickyBunEnabled
+   https://www.pivotaltracker.com/story/show/181839489
 
    @param patternId for super-key
    @return sticky bun if present
@@ -774,13 +777,11 @@ public interface Fabricator {
   /**
    Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822 persisted for each randomly selected note in the series for any given pattern
    - key on program-sequence-pattern-event id, persisting only the first value seen for any given event
-   - super-key on program-sequence-pattern id, measuring delta from the first event seen in that pattern@param eventId  member id-- if this is null, the sticky bun will be ignored
+   - super-key on program-sequence-pattern id, measuring delta from the first event seen in that pattern@param eventId  member id-- if this is null, the sticky bun will be ignored@param rootNote note of current chord@param position of note
+   @param notes     to put
 
-   @param rootNote note of current chord
-   @param position of note
-   @param note     to put
    */
-  void putStickyBun(@Nullable UUID eventId, Note rootNote, Double position, Note note);
+  void putStickyBun(@Nullable UUID eventId, Note rootNote, Double position, List<Note> notes);
 
   /**
    Get the Segment Retrospective

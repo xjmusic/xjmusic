@@ -89,7 +89,15 @@ class FabricatorImpl implements Fabricator {
   private Double secondsPerBeat;
 
   @AssistedInject
-  public FabricatorImpl(@Assisted("sourceMaterial") HubContent sourceMaterial, @Assisted("segment") Segment segment, Environment env, ChainManager chainManager, FabricatorFactory fabricatorFactory, SegmentManager segmentManager, JsonapiPayloadFactory jsonapiPayloadFactory) throws NexusException {
+  public FabricatorImpl(
+    @Assisted("sourceMaterial") HubContent sourceMaterial,
+    @Assisted("segment") Segment segment,
+    Environment env,
+    ChainManager chainManager,
+    FabricatorFactory fabricatorFactory,
+    SegmentManager segmentManager,
+    JsonapiPayloadFactory jsonapiPayloadFactory
+  ) throws NexusException {
     this.segmentManager = segmentManager;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     try {
@@ -139,7 +147,7 @@ class FabricatorImpl implements Fabricator {
       workbench = fabricatorFactory.setupWorkbench(chain, segment);
 
       // digest Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822 for all event series of previous segment
-      persistStickyBuns();
+      if (templateConfig.isStickyBunEnabled()) persistStickyBuns();
 
       // final pre-flight check
       ensureShipKey();
@@ -672,6 +680,7 @@ class FabricatorImpl implements Fabricator {
 
   @Override
   public Optional<StickyBun> getStickyBun(UUID patternId) {
+    if (!templateConfig.isStickyBunEnabled()) return Optional.empty();
     if (!stickyBunsByPatternId.containsKey(patternId)) return Optional.empty();
     return Optional.of(stickyBunsByPatternId.get(patternId));
   }
@@ -885,17 +894,19 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public void putStickyBun(@Nullable UUID eventId, Note rootNote, Double position, Note note) {
-    if (Objects.nonNull(eventId))
-      try {
-        var patternId = sourceMaterial.getPatternIdForEventId(eventId);
-        if (!stickyBunsByPatternId.containsKey(patternId))
-          stickyBunsByPatternId.put(patternId, new StickyBun(patternId, rootNote));
-        stickyBunsByPatternId.get(patternId).put(eventId, position, note);
+  public void putStickyBun(@Nullable UUID eventId, Note rootNote, Double position, List<Note> notes) {
+    if (templateConfig.isStickyBunEnabled())
+      for (var note : notes)
+        if (Objects.nonNull(eventId))
+          try {
+            var patternId = sourceMaterial.getPatternIdForEventId(eventId);
+            if (!stickyBunsByPatternId.containsKey(patternId))
+              stickyBunsByPatternId.put(patternId, new StickyBun(patternId, rootNote));
+            stickyBunsByPatternId.get(patternId).put(eventId, position, note);
 
-      } catch (HubClientException e) {
-        LOG.warn("Failed to persist sticky bun because {}", e.getMessage());
-      }
+          } catch (HubClientException e) {
+            LOG.warn("Failed to persist sticky bun because {}", e.getMessage());
+          }
   }
 
   @Override
@@ -1159,7 +1170,7 @@ class FabricatorImpl implements Fabricator {
           pick.getProgramSequencePatternEventId(),
           rootNote.get(),
           pick.getStart(),
-          Note.of(pick.getNote()));
+          List.of(Note.of(pick.getNote())));
       } catch (Exception e) {
         LOG.warn("Failed to persist sticky buns", e);
       }

@@ -708,9 +708,11 @@ public class FabricatorImplTest {
    */
   @Test
   public void addStickyBun() {
-    subject.putStickyBun(fake.program35_sequence0_pattern0_event0.getId(), Note.of("C3"), 0.0, Note.of("C3"));
-    subject.putStickyBun(fake.program35_sequence0_pattern0_event0.getId(), Note.of("C3"), 0.0, Note.of("G3"));
-    subject.putStickyBun(fake.program35_sequence0_pattern0_event0.getId(), Note.of("C3"), 0.0, Note.of("F3"));
+    subject.putStickyBun(fake.program35_sequence0_pattern0_event0.getId(), Note.of("C3"), 0.0, List.of(
+      Note.of("C3"),
+      Note.of("G3"),
+      Note.of("F3")
+    ));
 
     assertEquals(List.of(0, 7, 5), subject.getStickyBun(fake.program35_sequence0_pattern0.getId()).orElseThrow().getOffsets(fake.program35_sequence0_pattern0_event0.getId()));
   }

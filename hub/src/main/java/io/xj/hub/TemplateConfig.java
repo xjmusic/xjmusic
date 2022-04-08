@@ -66,6 +66,7 @@ public class TemplateConfig {
       outputSampleBits = 16
       percLoopLayerMax = 8
       percLoopLayerMin = 0
+      stickyBunEnabled = true
       transitionEventNamesLarge = ["LARGE","BIG"]
       transitionEventNamesMedium = ["MEDIUM","REGULAR"]
       transitionEventNamesSmall = ["SMALL","LITTLE"]
@@ -79,6 +80,7 @@ public class TemplateConfig {
   private final String outputContainer;
   private final String outputContentType;
   private final boolean deltaArcEnabled;
+  private final boolean stickyBunEnabled;
   private final double densityCeiling;
   private final double densityFloor;
   private final double dubMasterVolumeInstrumentTypeBass;
@@ -194,6 +196,7 @@ public class TemplateConfig {
       outputSampleBits = config.getInt("outputSampleBits");
       percLoopLayerMax = config.getInt("percLoopLayerMax");
       percLoopLayerMin = config.getInt("percLoopLayerMin");
+      stickyBunEnabled = config.getBoolean("stickyBunEnabled");
       transitionLayerMax = config.getInt("transitionLayerMax");
       transitionLayerMin = config.getInt("transitionLayerMin");
       transitionEventNamesSmall =
@@ -262,6 +265,7 @@ public class TemplateConfig {
     config.put("outputSampleBits", String.valueOf(outputSampleBits));
     config.put("percLoopLayerMax", String.valueOf(percLoopLayerMax));
     config.put("percLoopLayerMin", String.valueOf(percLoopLayerMin));
+    config.put("stickyBunEnabled", String.valueOf(stickyBunEnabled));
     config.put("transitionLayerMax", String.valueOf(transitionLayerMax));
     config.put("transitionLayerMin", String.valueOf(transitionLayerMin));
     config.put("transitionEventNamesSmall", formatTypesafeQuoted(transitionEventNamesSmall));
@@ -559,6 +563,13 @@ public class TemplateConfig {
    */
   public int getPercLoopLayerMin() {
     return percLoopLayerMin;
+  }
+
+  /**
+   @return true if sticky bun behavior is enabled
+   */
+  public boolean isStickyBunEnabled() {
+    return stickyBunEnabled;
   }
 
   /**

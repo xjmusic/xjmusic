@@ -749,9 +749,8 @@ public class CraftImpl extends FabricationWrapperImpl {
     fabricator.putNotesPickedForChord(event, chord.getName(), notes);
 
     // Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822 persisted for each randomly selected note in the series for any given pattern
-    if (rootNote.isPresent())
-      for (var note : notes.stream().map(Note::of).toList())
-        fabricator.putStickyBun(event.getId(), rootNote.get(), segmentPosition, note);
+    rootNote.ifPresent(note ->
+      fabricator.putStickyBun(event.getId(), note, segmentPosition, notes.stream().map(Note::of).toList()));
 
     return notes;
   }
