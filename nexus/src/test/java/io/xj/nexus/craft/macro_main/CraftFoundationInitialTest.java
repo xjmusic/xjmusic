@@ -106,7 +106,7 @@ public class CraftFoundationInitialTest {
     assertEquals(segment6.getId(), result.getId());
     assertEquals("WAV", result.getOutputEncoder());
     assertEquals(SegmentType.INITIAL, result.getType());
-    assertEquals("2017-02-14T12:01:06.857143Z", result.getEndAt());
+    assertEquals("2017-02-14T12:01:06.857143857Z", result.getEndAt());
     assertEquals(Integer.valueOf(16), result.getTotal());
     assertEquals(0.1, result.getDensity(), 0.01);
     assertEquals("G major", result.getKey());

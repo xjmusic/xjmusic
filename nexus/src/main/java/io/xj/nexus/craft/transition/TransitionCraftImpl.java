@@ -157,7 +157,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     else if (isBigTransitionSegment() && big.isPresent())
       pickTransition(arrangement, big.get(), 0, fabricator.getTotalSeconds(), largeNames.get(0));
 
-    var deltaUnits = Bar.of(fabricator.getMainProgramConfig().getBarBeats()).computeSubsectionBeats(fabricator.getSegment().getTotal());
+    var deltaUnits = Bar.of(fabricator.getCurrentMainProgramConfig().getBarBeats()).computeSubsectionBeats(fabricator.getSegment().getTotal());
     var pos = deltaUnits;
     while (pos < fabricator.getSegment().getTotal()) {
       if (small.isPresent())

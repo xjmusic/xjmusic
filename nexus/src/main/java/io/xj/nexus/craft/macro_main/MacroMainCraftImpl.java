@@ -57,22 +57,6 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   }
 
   /**
-   Compute the final tempo of the current segment
-
-   @param mainSequence of which to compute segment tempo
-   @return tempo
-   */
-  private double computeSegmentTempo(@Nullable ProgramSequence mainSequence) throws NexusException {
-    @Nullable Float mainTempo =
-      Objects.nonNull(mainSequence) ?
-        fabricator.sourceMaterial().getProgram(mainSequence.getProgramId()).orElseThrow().getTempo()
-        : null;
-    if (Objects.nonNull(mainTempo))
-      return mainTempo;
-    throw new NexusException("Failed to compute Segment Tempo!");
-  }
-
-  /**
    Compute the final density of the current segment
    future: Segment Density = average of macro and main-sequence patterns
    <p>
@@ -202,7 +186,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
       var seg = fabricator.getSegment();
       seg.setType(fabricator.getType());
       seg.setOutputEncoder(fabricator.getTemplateConfig().getOutputContainer());
-      seg.setTempo(computeSegmentTempo(mainSequence.get()));
+      seg.setTempo(Double.valueOf(mainProgram.getTempo()));
       seg.setKey(computeSegmentKey(mainSequence.get()).strip());
       seg.setTotal(Integer.valueOf(mainSequence.get().getTotal()));
       fabricator.putSegment(seg);
@@ -257,7 +241,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
         return 0;
 
       case CONTINUE:
-        var previousMainChoice = fabricator.getMainChoiceOfPreviousSegment();
+        var previousMainChoice = fabricator.getPreviousMainChoice();
         if (previousMainChoice.isEmpty())
           throw new NexusException("Cannot get retrieve previous main choice");
         return fabricator.getNextSequenceBindingOffset(previousMainChoice.get());
@@ -371,12 +355,12 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
     // if continuing the macro program, use the same one
     if (SegmentType.CONTINUE == fabricator.getType()
-      && fabricator.getMainChoiceOfPreviousSegment().isPresent())
-      return fabricator.getProgram(fabricator.getMainChoiceOfPreviousSegment().get());
+      && fabricator.getPreviousMainChoice().isPresent())
+      return fabricator.getProgram(fabricator.getPreviousMainChoice().get());
 
     // add candidates to the bag
     MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
-    var avoidProgramId = fabricator.getMainChoiceOfPreviousSegment()
+    var avoidProgramId = fabricator.getPreviousMainChoice()
       .map(SegmentChoice::getProgramId);
     Collection<String> memes;
 

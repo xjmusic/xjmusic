@@ -130,7 +130,7 @@ public class CraftFoundationNextMacroTest {
 
       Segment result = store.getSegment(segment4.getId()).orElseThrow();
       assertEquals(SegmentType.NEXTMACRO, result.getType());
-      assertEquals("2017-02-14T12:03:16.000001Z", result.getEndAt());
+      assertEquals("2017-02-14T12:03:14.857143857Z", result.getEndAt());
       assertEquals(Integer.valueOf(16), result.getTotal());
       assertEquals("WAV", result.getOutputEncoder());
       assertEquals(0.1, result.getDensity(), 0.01);

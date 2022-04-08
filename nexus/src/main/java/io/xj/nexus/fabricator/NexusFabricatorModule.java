@@ -12,7 +12,6 @@ public class NexusFabricatorModule extends AbstractModule {
       .implement(Fabricator.class, FabricatorImpl.class)
       .implement(SegmentWorkbench.class, SegmentWorkbenchImpl.class)
       .implement(SegmentRetrospective.class, SegmentRetrospectiveImpl.class)
-      .implement(TimeComputer.class, TimeComputerImpl.class)
       .build(FabricatorFactory.class));
     install(new HttpClientModule());
   }

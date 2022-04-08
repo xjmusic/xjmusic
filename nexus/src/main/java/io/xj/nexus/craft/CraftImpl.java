@@ -362,7 +362,7 @@ public class CraftImpl extends FabricationWrapperImpl {
         // randomly override N incoming (deltaIn unlimited) and N outgoing (deltaOut unlimited)
         // shuffle the layers into a random order, then step through them, assigning delta ins and then outs
         // random order in
-        var barBeats = fabricator.getMainProgramConfig().getBarBeats();
+        var barBeats = fabricator.getCurrentMainProgramConfig().getBarBeats();
         var deltaUnits = Bar.of(barBeats).computeSubsectionBeats(fabricator.getSegment().getTotal());
 
         // Delta arcs can prioritize the presence of a layer by name, e.g. containing "kick" https://www.pivotaltracker.com/story/show/180242564

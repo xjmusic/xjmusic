@@ -61,8 +61,6 @@ public class FabricatorImplTest {
   @Mock
   public FabricatorFactory mockFabricatorFactory;
   @Mock
-  public TimeComputer mockTimeComputer;
-  @Mock
   public SegmentWorkbench mockSegmentWorkbench;
   @Mock
   public SegmentRetrospective mockSegmentRetrospective;
@@ -94,7 +92,6 @@ public class FabricatorImplTest {
           bind(Tuning.class).toInstance(mockTuning);
           bind(HubClient.class).toInstance(mockHubClient);
           bind(FabricatorFactory.class).toInstance(mockFabricatorFactory);
-          bind(TimeComputer.class).toInstance(mockTimeComputer);
           bind(SegmentWorkbench.class).toInstance(mockSegmentWorkbench);
           bind(SegmentRetrospective.class).toInstance(mockSegmentRetrospective);
         }
@@ -144,61 +141,6 @@ public class FabricatorImplTest {
       .thenReturn(segment);
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
     subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory);
-  }
-
-  @Test
-  public void usesTimeComputer() throws Exception {
-    buildTemplateBinding(fake.template1, fake.library2);
-    var chain = store.put(buildChain(
-      fake.account1,
-      fake.template1,
-      "test",
-      ChainType.PRODUCTION,
-      ChainState.FABRICATE,
-      Instant.parse("2017-12-12T01:00:08.000000Z")));
-    Segment previousSegment = store.put(buildSegment(
-      chain,
-      1,
-      SegmentState.CRAFTED,
-      Instant.parse("2017-12-12T01:00:08.000000Z"),
-      Instant.parse("2017-12-12T01:00:16.000000Z"),
-      "F major",
-      8,
-      0.6,
-      120.0,
-      "seg123",
-      "ogg"));
-    segment = store.put(buildSegment(
-      chain,
-      2,
-      SegmentState.CRAFTING,
-      Instant.parse("2017-12-12T01:00:16.000000Z"),
-      Instant.parse("2017-12-12T01:00:22.000000Z"),
-      "G major",
-      8,
-      0.6,
-      240.0,
-      "seg123",
-      "ogg"));
-    when(mockFabricatorFactory.createTimeComputer(anyDouble(), anyDouble(), anyDouble()))
-      .thenReturn(mockTimeComputer);
-    when(mockTimeComputer.getSecondsAtPosition(anyDouble()))
-      .thenReturn(Double.valueOf(0));
-    when(mockFabricatorFactory.loadRetrospective(any(), any()))
-      .thenReturn(mockSegmentRetrospective);
-    when(mockFabricatorFactory.setupWorkbench(any(), any()))
-      .thenReturn(mockSegmentWorkbench);
-    when(mockSegmentWorkbench.getSegment())
-      .thenReturn(segment);
-    when(mockSegmentRetrospective.getPreviousSegment())
-      .thenReturn(java.util.Optional.ofNullable(previousSegment));
-    when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory);
-
-    Double result = subject.getSecondsAtPosition(0); // instantiates a time computer; see expectation above
-
-    assertEquals(Double.valueOf(0), result);
-    verify(mockFabricatorFactory).createTimeComputer(8.0, 120, 120.0);
   }
 
   /**

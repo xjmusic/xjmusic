@@ -15,6 +15,8 @@ import io.xj.api.SegmentChoiceArrangementPick;
 import io.xj.hub.HubTopology;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramState;
+import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.*;
 import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
@@ -40,7 +42,10 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -72,6 +77,7 @@ public class ArrangementTests extends YamlTest {
   private Segment segment;
   private Map<InstrumentType, SegmentChoice> segmentChoices;
   private Injector injector;
+  private Program mainProgram1;
 
   @Test
   public void arrangementBaseline() {
@@ -165,6 +171,7 @@ public class ArrangementTests extends YamlTest {
         // Fabricate: Craft Arrangements for Choices
         var sourceMaterial = new HubContent(content);
         fabricator = fabrication.fabricate(sourceMaterial, segment);
+        fabricator.put(buildSegmentChoice(segment, mainProgram1));
         CraftImpl subject = new CraftImpl(fabricator);
         for (var choice : segmentChoices.values()) subject.craftNoteEventArrangements(choice, false);
 
@@ -191,10 +198,12 @@ public class ArrangementTests extends YamlTest {
 
     var account1 = buildAccount("fish");
     Template template1 = buildTemplate(account1, "Test Template 1", "test1");
+    var library1 = buildLibrary(account1, "palm tree");
+    mainProgram1 = buildProgram(library1, ProgramType.Main, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f);
     chain = store.put(NexusIntegrationTestingFixtures.buildChain(template1));
 
     // prepare list of all entities to return from Hub
-    content = Lists.newArrayList(template1);
+    content = Lists.newArrayList(template1, library1, mainProgram1);
 
     // prepare maps with specific entities that will reference each other
     instruments = Maps.newHashMap();
@@ -300,7 +309,7 @@ public class ArrangementTests extends YamlTest {
       if (detailPrograms.containsKey(instrument.getType()) &&
         detailProgramSequences.containsKey(instrument.getType()) &&
         detailProgramVoices.containsKey(instrument.getType()))
-        segmentChoices.put(instrument.getType(), store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment,
+        segmentChoices.put(instrument.getType(), store.put(buildSegmentChoice(segment,
           detailPrograms.get(instrument.getType()),
           detailProgramSequences.get(instrument.getType()),
           detailProgramVoices.get(instrument.getType()),

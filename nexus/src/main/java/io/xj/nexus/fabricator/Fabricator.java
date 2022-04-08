@@ -8,7 +8,6 @@ import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.*;
-import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.music.*;
 import io.xj.nexus.NexusException;
 import io.xj.hub.client.HubContent;
@@ -184,6 +183,13 @@ public interface Fabricator {
   Optional<SegmentChoice> getCurrentMainChoice();
 
   /**
+   Get the current main program
+
+   @return main program if present
+   */
+  Program getCurrentMainProgram() throws NexusException;
+
+  /**
    Get the sequence targeted by the current main choice
 
    @return current main sequence
@@ -270,14 +276,14 @@ public interface Fabricator {
 
    @return main-type segment choice, null if none found
    */
-  Optional<SegmentChoice> getMainChoiceOfPreviousSegment();
+  Optional<SegmentChoice> getPreviousMainChoice();
 
   /**
    Get the configuration of the current main program
 
    @return main-program configuration
    */
-  ProgramConfig getMainProgramConfig() throws NexusException;
+  ProgramConfig getCurrentMainProgramConfig() throws NexusException;
 
   /**
    Get the sequence targeted by the previous main choice

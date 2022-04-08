@@ -46,22 +46,6 @@ public interface FabricatorFactory {
   ) throws NexusException;
 
   /**
-   Configure a TimeComputer instance for a segment
-   <p>
-   https://www.pivotaltracker.com/story/show/153542275 Segment wherein velocity changes expect perfectly smooth sound of previous segment through to following segment
-
-   @param totalBeats of the segment
-   @param fromTempo  at the beginning of the segment (in Beats Per Minute)
-   @param toTempo    at the end of the segment  (in Beats Per Minute)
-   @return TimeComputer instance
-   */
-  TimeComputer createTimeComputer(
-    @Assisted("totalBeats") double totalBeats,
-    @Assisted("fromTempo") double fromTempo,
-    @Assisted("toTempo") double toTempo
-  );
-
-  /**
    Create a workbench to fabricate a particular segment
 
    @param segment Segment to be worked on

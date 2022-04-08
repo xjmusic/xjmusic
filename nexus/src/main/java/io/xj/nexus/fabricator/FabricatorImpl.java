@@ -55,7 +55,6 @@ class FabricatorImpl implements Fabricator {
   private final Chain chain;
   private final TemplateConfig templateConfig;
   private final Collection<TemplateBinding> templateBindings;
-  private final FabricatorFactory fabricatorFactory;
   private final HubContent sourceMaterial;
   private final int workBufferAheadSeconds;
   private final int workBufferBeforeSeconds;
@@ -86,12 +85,14 @@ class FabricatorImpl implements Fabricator {
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   private Optional<SegmentChoice> mainChoiceOfPreviousSegment;
 
+  @Nullable
+  private Double secondsPerBeat;
+
   @AssistedInject
   public FabricatorImpl(@Assisted("sourceMaterial") HubContent sourceMaterial, @Assisted("segment") Segment segment, Environment env, ChainManager chainManager, FabricatorFactory fabricatorFactory, SegmentManager segmentManager, JsonapiPayloadFactory jsonapiPayloadFactory) throws NexusException {
     this.segmentManager = segmentManager;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     try {
-      this.fabricatorFactory = fabricatorFactory;
       this.sourceMaterial = sourceMaterial;
 
       workTempFilePathPrefix = env.getTempFilePathPrefix();
@@ -406,20 +407,29 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Optional<SegmentChoice> getMainChoiceOfPreviousSegment() {
+  public Optional<SegmentChoice> getPreviousMainChoice() {
     if (Objects.isNull(mainChoiceOfPreviousSegment))
       mainChoiceOfPreviousSegment = retrospective.getPreviousChoiceOfType(ProgramType.Main);
     return mainChoiceOfPreviousSegment;
   }
 
   @Override
-  public ProgramConfig getMainProgramConfig() throws NexusException {
+  public ProgramConfig getCurrentMainProgramConfig() throws NexusException {
     try {
-      return new ProgramConfig(sourceMaterial.getProgram(getCurrentMainChoice().orElseThrow(() -> new NexusException("No current main choice!")).getProgramId()).orElseThrow(() -> new NexusException("Failed to retrieve current main program!")));
+      return new ProgramConfig(
+        sourceMaterial.getProgram(getCurrentMainChoice().orElseThrow(() -> new NexusException("No current main choice!")).getProgramId())
+          .orElseThrow(() -> new NexusException("Failed to retrieve current main program!")));
 
     } catch (ValueException e) {
       throw new NexusException(e);
     }
+  }
+
+  @Override
+  public Program getCurrentMainProgram() throws NexusException {
+    return
+      sourceMaterial.getProgram(getCurrentMainChoice().orElseThrow(() -> new NexusException("No current main choice!")).getProgramId())
+        .orElseThrow(() -> new NexusException("Failed to retrieve current main program!"));
   }
 
   @Override
@@ -431,7 +441,7 @@ class FabricatorImpl implements Fabricator {
 
   @Override
   public Optional<ProgramSequence> getPreviousMainSequence() {
-    var mc = getMainChoiceOfPreviousSegment();
+    var mc = getPreviousMainChoice();
     if (mc.isEmpty()) return Optional.empty();
     return getProgramSequence(mc.get());
   }
@@ -668,7 +678,7 @@ class FabricatorImpl implements Fabricator {
 
   @Override
   public Double getSecondsAtPosition(double p) throws NexusException {
-    return buildTimeComputer().getSecondsAtPosition(p);
+    return computeSecondsPerBeat() * p;
   }
 
   @Override
@@ -1005,24 +1015,14 @@ class FabricatorImpl implements Fabricator {
   }
 
   /**
-   Get a time computer, configured for the current segment.
-   Don't use it before this segment has enough choices to determine its time computer
+   Compute and cache the # of seconds per beat
 
-   @return Time Computer
+   @return seconds per beat
    */
-  private TimeComputer buildTimeComputer() throws NexusException {
-    double toTempo = workbench.getSegment().getTempo(); // velocity at current segment tempo
-    double fromTempo = retrospective.getPreviousSegment().isPresent() ? retrospective.getPreviousSegment().get().getTempo() : toTempo;
-    double totalBeats = workbench.getSegment().getTotal();
-    putReport("totalBeats", totalBeats);
-    putReport("fromTempo", fromTempo);
-    putReport("toTempo", toTempo);
-    if (0 == totalBeats) throw new NexusException("Can't instantiate time computer with zero total beats!");
-    if (0 == fromTempo) throw new NexusException("Can't instantiate time computer from zero tempo!");
-    if (0 == toTempo) throw new NexusException("Can't instantiate time computer to zero tempo!");
-
-    // IGNORE to-tempo, see: Tempo Behavior v2 https://www.pivotaltracker.com/story/show/180416708
-    return fabricatorFactory.createTimeComputer(totalBeats, fromTempo, fromTempo);
+  private Double computeSecondsPerBeat() throws NexusException {
+    if (Objects.isNull(secondsPerBeat))
+      secondsPerBeat = 60d / getCurrentMainProgram().getTempo();
+    return secondsPerBeat;
   }
 
   /**
@@ -1047,7 +1047,7 @@ class FabricatorImpl implements Fabricator {
       return SegmentType.INITIAL;
 
     // previous main choice having at least one more pattern?
-    var previousMainChoice = getMainChoiceOfPreviousSegment();
+    var previousMainChoice = getPreviousMainChoice();
 
     if (previousMainChoice.isPresent() && hasOneMoreSequenceBindingOffset(previousMainChoice.get())
       && getTemplateConfig().getMainProgramLengthMaxDelta() > getPreviousSegmentDelta())
