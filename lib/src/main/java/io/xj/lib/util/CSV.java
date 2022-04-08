@@ -12,14 +12,14 @@ public interface CSV {
   String COMMA = ", ";
   char SPACE = ' ';
 
-  static Collection<String> split(@Nullable String csv) {
+  static List<String> split(@Nullable String csv) {
     if (Strings.isNullOrEmpty(csv)) return List.of();
     return Arrays.stream(csv.split(","))
       .map(String::trim)
       .collect(Collectors.toList());
   }
 
-  static Collection<String> splitProperSlug(String csv) {
+  static List<String> splitProperSlug(String csv) {
     Collection<String> items = split(csv);
     List<String> slugs = Lists.newArrayList();
     items.stream().filter(item -> Objects.nonNull(item) && !item.isEmpty()).map(Text::toProperSlug).forEach(slugs::add);

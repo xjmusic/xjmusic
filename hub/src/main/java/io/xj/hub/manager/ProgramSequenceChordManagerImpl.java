@@ -4,6 +4,7 @@ package io.xj.hub.manager;
 import com.google.api.client.util.Strings;
 import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
+import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.ProgramSequenceChord;
@@ -19,11 +20,11 @@ import org.jooq.impl.DSL;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 import static io.xj.hub.Tables.LIBRARY;
 import static io.xj.hub.Tables.PROGRAM;
@@ -110,18 +111,12 @@ public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl<P
         .where(DSL.lower(PROGRAM_SEQUENCE_CHORD.NAME).like(String.format("%s%%", chordName).toLowerCase(Locale.ROOT)))
         .and(PROGRAM.LIBRARY_ID.eq(libraryId))
         .fetch())
-      // De-duplication
       .stream()
-      .collect(Collectors.toMap(
-        (chord) -> chord.getName().toLowerCase(Locale.ROOT),
-        (chord) -> chord,
-        (oldValue, newValue) -> newValue
-      ))
-      .values();
+      .toList();
   }
 
   @Override
-  public ManagerCloner<ProgramSequenceChord> clone(HubAccess access, UUID cloneId, ProgramSequenceChord entity) throws ManagerException {
+  public ManagerCloner<ProgramSequenceChord> clone(HubAccess access, UUID cloneId, ProgramSequenceChord entity, List<InstrumentType> voicingTypes) throws ManagerException {
     requireArtist(access);
     AtomicReference<ManagerCloner<ProgramSequenceChord>> result = new AtomicReference<>();
     DSLContext db = dbProvider.getDSL();
@@ -132,7 +127,7 @@ public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl<P
         .and(PROGRAM_SEQUENCE_CHORD.POSITION.eq(entity.getPosition()))
         .fetchOne(0, int.class));
 
-    db.transaction(ctx -> result.set(clone(DSL.using(ctx), access, cloneId, entity)));
+    db.transaction(ctx -> result.set(clone(DSL.using(ctx), access, cloneId, entity, voicingTypes)));
     return result.get();
   }
 
@@ -250,7 +245,7 @@ public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl<P
    @return cloner
    @throws ManagerException on failure
    */
-  private ManagerCloner<ProgramSequenceChord> clone(DSLContext db, HubAccess access, UUID cloneId, ProgramSequenceChord entity) throws ManagerException {
+  private ManagerCloner<ProgramSequenceChord> clone(DSLContext db, HubAccess access, UUID cloneId, ProgramSequenceChord entity, List<InstrumentType> voicingTypes) throws ManagerException {
     requireArtist(access);
 
     ProgramSequenceChord from = readOne(db, access, cloneId);
@@ -266,16 +261,17 @@ public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl<P
     ProgramSequenceChordVoicingRecord voicing;
     for (var vc : db.selectFrom(PROGRAM_SEQUENCE_CHORD_VOICING)
       .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID.eq(cloneId))
-      .fetch()) {
-      voicing = db.newRecord(PROGRAM_SEQUENCE_CHORD_VOICING);
-      voicing.setId(UUID.randomUUID());
-      voicing.setProgramId(target.getProgramId());
-      voicing.setProgramSequenceChordId(target.getId());
-      voicing.setNotes(vc.getNotes());
-      voicing.setType(vc.getType());
-      voicing.store();
-      cloner.addChildClone(modelFrom(ProgramSequenceChordVoicing.class, voicing));
-    }
+      .fetch())
+      if (voicingTypes.contains(vc.getType())) {
+        voicing = db.newRecord(PROGRAM_SEQUENCE_CHORD_VOICING);
+        voicing.setId(UUID.randomUUID());
+        voicing.setProgramId(target.getProgramId());
+        voicing.setProgramSequenceChordId(target.getId());
+        voicing.setNotes(vc.getNotes());
+        voicing.setType(vc.getType());
+        voicing.store();
+        cloner.addChildClone(modelFrom(ProgramSequenceChordVoicing.class, voicing));
+      }
 
     return cloner;
   }

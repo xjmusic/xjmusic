@@ -2,10 +2,11 @@
 package io.xj.hub.manager;
 
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.ProgramSequenceChord;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 public interface ProgramSequenceChordManager extends Manager<ProgramSequenceChord> {
@@ -25,10 +26,11 @@ public interface ProgramSequenceChordManager extends Manager<ProgramSequenceChor
    Clone an existing program sequence chord's voicings
    https://www.pivotaltracker.com/story/show/178921705
 
-   @param access control
-   @param cloneId   of chord to clone
-   @param entity    for the new chord
+   @param access       control
+   @param cloneId      of chord to clone
+   @param entity       for the new chord
+   @param voicingTypes to clone voicings along with chord
    @return newly readMany record
    */
-  ManagerCloner<ProgramSequenceChord> clone(HubAccess access, UUID cloneId, ProgramSequenceChord entity) throws ManagerException;
+  ManagerCloner<ProgramSequenceChord> clone(HubAccess access, UUID cloneId, ProgramSequenceChord entity, List<InstrumentType> voicingTypes) throws ManagerException;
 }

@@ -4,6 +4,8 @@ package io.xj.hub.api;
 import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
+import io.xj.hub.analysis.util.ChordVoicingDeduper;
+import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.manager.ManagerCloner;
 import io.xj.hub.manager.ProgramSequenceChordManager;
 import io.xj.hub.manager.ProgramSequenceChordVoicingManager;
@@ -16,6 +18,7 @@ import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadObject;
 import io.xj.lib.jsonapi.MediaType;
 import io.xj.lib.jsonapi.PayloadDataType;
+import io.xj.lib.util.CSV;
 
 import javax.annotation.Nullable;
 import javax.annotation.security.RolesAllowed;
@@ -72,14 +75,16 @@ public class ProgramSequenceChordEndpoint extends HubJsonapiEndpoint<ProgramSequ
   public Response create(
     @Context ContainerRequestContext crc,
     JsonapiPayload jsonapiPayload,
-    @Nullable @QueryParam("cloneId") UUID cloneId
+    @Nullable @QueryParam("cloneId") UUID cloneId,
+    @Nullable @QueryParam("voicingTypes") String voicingTypes
   ) {
     try {
       HubAccess access = HubAccess.fromContext(crc);
       ProgramSequenceChord programSequenceChord = payloadFactory.consume(manager().newInstance(), jsonapiPayload);
       JsonapiPayload responseJsonapiPayload = new JsonapiPayload();
       if (Objects.nonNull(cloneId)) {
-        ManagerCloner<ProgramSequenceChord> cloner = manager().clone(access, cloneId, programSequenceChord);
+        ManagerCloner<ProgramSequenceChord> cloner = manager().clone(access, cloneId, programSequenceChord,
+          Objects.nonNull(voicingTypes) ? CSV.split(voicingTypes).stream().map(InstrumentType::valueOf).toList() : List.of());
         responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(cloner.getClone()));
         List<JsonapiPayloadObject> list = new ArrayList<>();
         for (Object entity : cloner.getChildClones()) {
@@ -135,11 +140,12 @@ public class ProgramSequenceChordEndpoint extends HubJsonapiEndpoint<ProgramSequ
     try {
       HubAccess access = HubAccess.fromContext(crc);
       var chords = manager().search(access, libraryId, chordName);
-      var voicings = voicingManager.readManyForChords(access, chords.stream().map(ProgramSequenceChord::getId).toList());
+      var uniqueChordVoicings = new ChordVoicingDeduper(chords, voicingManager.readManyForChords(access, chords.stream().map(ProgramSequenceChord::getId).toList()));
 
       var result = new JsonapiPayload().setDataType(PayloadDataType.Many);
-      for (var chord : chords) result.addData(payloadFactory.toPayloadObject(chord));
-      for (var voicing : voicings) result.addToIncluded(payloadFactory.toPayloadObject(voicing));
+      for (var chord : uniqueChordVoicings.getChords()) result.addData(payloadFactory.toPayloadObject(chord));
+      for (var voicing : uniqueChordVoicings.getVoicings())
+        result.addToIncluded(payloadFactory.toPayloadObject(voicing));
       return response.ok(result);
 
     } catch (Exception e) {

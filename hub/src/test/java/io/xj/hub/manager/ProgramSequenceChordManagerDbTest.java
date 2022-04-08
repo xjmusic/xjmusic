@@ -153,6 +153,28 @@ public class ProgramSequenceChordManagerDbTest {
   }
 
   /**
+   In the chord search modal, click any voicing row (Bass, Stripe, etc.) to enable/disable whether that type of
+   voicing will be cloned with the chord. By default, Stripe and Sticky are disabled. The preference of which
+   voicings are cloned will be memorized for the program editor session. See attached preview.
+   https://www.pivotaltracker.com/story/show/178921705
+   */
+  @Test
+  public void cloneVoicings_onlyThoseSpecified() throws Exception {
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    var input = buildProgramSequenceChord(fake.program1_sequence1, 4.3f, "F- sus");
+    test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, InstrumentType.Bass, "G3, Bb3, D4"));
+    test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, InstrumentType.Stripe, "G5, Bb5, D6"));
+    test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, InstrumentType.Sticky, "G4, Bb4, D5"));
+
+    var result = subject.clone(access, sequenceChord1a_0.getId(), input, List.of(InstrumentType.Bass, InstrumentType.Stripe));
+
+    assertEquals(Integer.valueOf(2), test.getDSL()
+      .selectCount().from(PROGRAM_SEQUENCE_CHORD_VOICING)
+      .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID.eq(result.getClone().getId()))
+      .fetchOne(0, int.class));
+  }
+
+  /**
    Chord Search while composing a main program
    https://www.pivotaltracker.com/story/show/178921705
    */
@@ -164,7 +186,7 @@ public class ProgramSequenceChordManagerDbTest {
     test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, InstrumentType.Stripe, "G5, Bb5, D6"));
     test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, InstrumentType.Sticky, "G4, Bb4, D5"));
 
-    var result = subject.clone(access, sequenceChord1a_0.getId(), input);
+    var result = subject.clone(access, sequenceChord1a_0.getId(), input, List.of(InstrumentType.Bass, InstrumentType.Stripe, InstrumentType.Sticky));
 
     assertEquals(fake.program1.getId(), result.getClone().getProgramId());
     assertEquals(fake.program1_sequence1.getId(), result.getClone().getProgramSequenceId());
@@ -189,7 +211,7 @@ public class ProgramSequenceChordManagerDbTest {
     var program2_sequence1 = test.insert(buildProgramSequence(fake.program2, 4, "Ants", 0.583f, "D minor"));
     var input = buildProgramSequenceChord(program2_sequence1, 4.3f, "F- sus");
 
-    var result = subject.clone(access, sequenceChord1a_0.getId(), input);
+    var result = subject.clone(access, sequenceChord1a_0.getId(), input, List.of(InstrumentType.Bass, InstrumentType.Stripe, InstrumentType.Sticky));
 
     assertEquals(fake.program2.getId(), result.getClone().getProgramId());
     assertEquals(program2_sequence1.getId(), result.getClone().getProgramSequenceId());
@@ -214,7 +236,7 @@ public class ProgramSequenceChordManagerDbTest {
     HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var input = buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "F- sus");
 
-    var e = assertThrows(ManagerException.class, () -> subject.clone(access, sequenceChord1a_0.getId(), input));
+    var e = assertThrows(ManagerException.class, () -> subject.clone(access, sequenceChord1a_0.getId(), input, List.of(InstrumentType.Bass, InstrumentType.Stripe, InstrumentType.Sticky)));
 
     assertEquals("Found Chord in sequence at position 0.000000", e.getMessage());
   }
@@ -254,16 +276,24 @@ public class ProgramSequenceChordManagerDbTest {
     fake.library1 = test.insert(buildLibrary(fake.account1, "palm tree"));
     fake.program1 = test.insert(buildProgram(fake.library1, ProgramType.Main, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f));
     fake.program1_sequence1 = test.insert(buildProgramSequence(fake.program1, 4, "Ants", 0.583f, "D minor"));
-    for (String name : List.of(
-      "C",
-      "C minor",
-      "C major",
-      "C major", // should get ignored by de-duplication
-      "C7",
-      "G",
-      "D"
-    ))
-      test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, name));
+
+    var chordC = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "C"));
+    test.insert(buildProgramSequenceChordVoicing(chordC, InstrumentType.Bass, "G3, Bb3, D4"));
+
+    var chordCma1 = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "C major"));
+    test.insert(buildProgramSequenceChordVoicing(chordCma1, InstrumentType.Bass, "G3, Bb3, D4"));
+
+    var chordCmi1 = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "C minor"));
+    test.insert(buildProgramSequenceChordVoicing(chordCmi1, InstrumentType.Bass, "G3, Bb3, D4"));
+
+    var chordC7 = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "C7"));
+    test.insert(buildProgramSequenceChordVoicing(chordC7, InstrumentType.Bass, "G3, Bb3, D4"));
+
+    var chordG = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "G"));
+    test.insert(buildProgramSequenceChordVoicing(chordG, InstrumentType.Bass, "G3, Bb3, D4"));
+
+    var chordD = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "D"));
+    test.insert(buildProgramSequenceChordVoicing(chordD, InstrumentType.Bass, "G3, Bb3, D4"));
 
     assertEquals(4, subject.search(access, fake.library1.getId(), "c").size());
     assertEquals(4, subject.search(access, fake.library1.getId(), "C").size());

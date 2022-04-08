@@ -1,7 +1,7 @@
 package io.xj.hub.analysis;
 
 import com.google.api.client.util.Maps;
-import com.google.api.client.util.Sets;
+import io.xj.hub.analysis.util.ChordCount;
 import io.xj.hub.client.HubContent;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.lib.app.Environment;
@@ -28,11 +28,11 @@ public class ReportMainProgramChords extends Report {
   public String renderContentHTML() {
     return TABLE(TR(TD("Total"), TD("Name"), TD("Programs")),
       mainProgramChords.histogram.entrySet().stream()
-        .sorted((c1, c2) -> c2.getValue().total.compareTo(c1.getValue().total))
+        .sorted((c1, c2) -> c2.getValue().getTotal().compareTo(c1.getValue().getTotal()))
         .map(e -> TR(
-          TD(e.getValue().total.toString()),
+          TD(e.getValue().getTotal().toString()),
           TD(e.getKey()),
-          TD(e.getValue().programIds.stream()
+          TD(e.getValue().getProgramIds().stream()
             .map(content::getProgram)
             .map(Optional::orElseThrow)
             .sorted(Comparator.comparing(Program::getName))
@@ -61,26 +61,6 @@ public class ReportMainProgramChords extends Report {
       var name = Chord.of(raw).toString();
       if (!histogram.containsKey(name)) histogram.put(name, new ChordCount());
       histogram.get(name).addProgramId(programId);
-    }
-  }
-
-  /**
-   Representation of the count of usages for one chord
-   */
-  private static class ChordCount {
-    Set<UUID> programIds;
-    Set<UUID> instrumentIds;
-    Integer total;
-
-    public ChordCount() {
-      total = 0;
-      programIds = Sets.newHashSet();
-      instrumentIds = Sets.newHashSet();
-    }
-
-    public void addProgramId(UUID programId) {
-      programIds.add(programId);
-      total++;
     }
   }
 
