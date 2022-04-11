@@ -7,6 +7,9 @@ import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigRenderOptions;
+import com.typesafe.config.ConfigValue;
+import com.typesafe.config.ConfigValueFactory;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.meme.MemeTaxonomy;
@@ -52,7 +55,7 @@ public class TemplateConfig {
       instrumentTypesForAudioLengthFinalization = ["Bass","Pad","Stab","Sticky","Stripe"]
       instrumentTypesForInversionSeeking = ["Pad","Stab","Sticky","Stripe"]
       mainProgramLengthMaxDelta = 280
-      memeTaxonomy = "COLOR[RED,GREEN,BLUE];SEASON[WINTER,FALL,SPRING,SUMMER]"
+      memeTaxonomy = [{"memes":["RED","GREEN","BLUE"],"name":"COLOR"},{"memes":["WINTER","SPRING","SUMMER","FALL"],"name":"SEASON"}]
       mixerCompressAheadSeconds = 0.05
       mixerCompressDecaySeconds = 0.125
       mixerCompressRatioMax = 1.0
@@ -123,6 +126,10 @@ public class TemplateConfig {
   private final int percLoopLayerMin;
   private final int transitionLayerMax;
   private final int transitionLayerMin;
+  private final ConfigRenderOptions renderOptions =
+    ConfigRenderOptions.concise()
+      .setJson(true)
+      .setFormatted(false);
 
   /**
    Get a template config from only the default config
@@ -198,7 +205,7 @@ public class TemplateConfig {
           config.getStringList("instrumentTypesForInversionSeeking").stream()
             .map(InstrumentType::valueOf).toList());
       mainProgramLengthMaxDelta = config.getInt("mainProgramLengthMaxDelta");
-      memeTaxonomy = MemeTaxonomy.fromString(config.getString("memeTaxonomy"));
+      memeTaxonomy = MemeTaxonomy.fromList(config.getList("memeTaxonomy").stream().map(ConfigValue::unwrapped).toList());
       mixerCompressAheadSeconds = config.getDouble("mixerCompressAheadSeconds");
       mixerCompressDecaySeconds = config.getDouble("mixerCompressDecaySeconds");
       mixerCompressRatioMax = config.getDouble("mixerCompressRatioMax");
@@ -260,7 +267,7 @@ public class TemplateConfig {
     config.put("instrumentTypesForAudioLengthFinalization", formatTypesafeQuoted(instrumentTypesForAudioLengthFinalization));
     config.put("instrumentTypesForInversionSeeking", formatTypesafeQuoted(instrumentTypesForInversionSeeking));
     config.put("mainProgramLengthMaxDelta", String.valueOf(mainProgramLengthMaxDelta));
-    config.put("memeTaxonomy", Text.doubleQuoted(memeTaxonomy.toString()));
+    config.put("memeTaxonomy", ConfigValueFactory.fromIterable(memeTaxonomy.toList()).render(renderOptions));
     config.put("mixerCompressAheadSeconds", String.valueOf(mixerCompressAheadSeconds));
     config.put("mixerCompressDecaySeconds", String.valueOf(mixerCompressDecaySeconds));
     config.put("mixerCompressRatioMax", String.valueOf(mixerCompressRatioMax));

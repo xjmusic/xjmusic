@@ -1,5 +1,6 @@
 package io.xj.lib.meme;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 
 import java.util.List;
@@ -22,10 +23,34 @@ import static org.junit.Assert.*;
  */
 public class MemeTaxonomyTest {
   @Test
-  public void testToString() {
+  public void test_fromString_toString() {
     var subject = MemeTaxonomy.fromString("COLOR[RED,GREEN,BLUE];SIZE[LARGE,MEDIUM,SMALL]");
 
     assertEquals("COLOR[RED,GREEN,BLUE];SIZE[LARGE,MEDIUM,SMALL]", subject.toString());
+  }
+
+  @Test
+  public void test_fromListOfMaps_toListOfMaps() {
+    var subject = MemeTaxonomy.fromList(List.of(
+      ImmutableMap.of(
+        "name", "CO111LOR",
+        "memes", List.of("RED ", "GR333EEN", "BLUE#@")
+      ),
+      ImmutableMap.of(
+        "name", "SIZ$%@E",
+        "memes", List.of("L44A&*(RGE", "MED$IUM", "SMA)(&&LL")
+      )));
+
+    assertEquals(List.of(
+      ImmutableMap.of(
+        "name", "COLOR",
+        "memes", List.of("RED", "GREEN", "BLUE")
+      ),
+      ImmutableMap.of(
+        "name", "SIZE",
+        "memes", List.of("LARGE", "MEDIUM", "SMALL")
+      )
+    ), subject.toList());
   }
 
   @Test

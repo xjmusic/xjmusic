@@ -1,15 +1,18 @@
 package io.xj.lib.meme;
 
 import com.google.api.client.util.Strings;
+import com.google.common.collect.ImmutableMap;
 import io.xj.lib.util.Text;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  TemplateConfig has Meme categories
@@ -44,8 +47,26 @@ public class MemeTaxonomy {
         .toList();
   }
 
+  public MemeTaxonomy(List<Object> data) {
+    categories = data.stream()
+      .flatMap(d -> {
+        if (d instanceof Map<?, ?>) try {
+          //noinspection unchecked
+          return Stream.of(Category.fromMap((Map<String, Object>) d));
+        } catch (Exception ignored) {
+          //noop
+        }
+        return Stream.empty();
+      })
+      .collect(Collectors.toList());
+  }
+
   public static MemeTaxonomy fromString(@Nullable String raw) {
     return new MemeTaxonomy(raw);
+  }
+
+  public static MemeTaxonomy fromList(List<Object> data) {
+    return new MemeTaxonomy(data);
   }
 
   public static MemeTaxonomy empty() {
@@ -56,6 +77,12 @@ public class MemeTaxonomy {
     return categories.stream()
       .map(Category::toString)
       .collect(Collectors.joining(CATEGORY_SEPARATOR));
+  }
+
+  public List<Map<String, Object>> toList() {
+    return categories.stream()
+      .map(Category::toMap)
+      .toList();
   }
 
   public List<Category> getCategories() {
@@ -69,6 +96,8 @@ public class MemeTaxonomy {
   static class Category {
     private static final Pattern rgx = Pattern.compile("^([a-zA-Z\s]+)\\[([a-zA-Z,\s]+)]$");
     private static final String MEME_SEPARATOR = ",";
+    private static final String KEY_NAME = "name";
+    private static final String KEY_MEMES = "memes";
     private final String name;
     private final List<String> memes;
 
@@ -79,7 +108,7 @@ public class MemeTaxonomy {
         return;
       }
 
-      Matcher matcher = rgx.matcher(raw.trim().toUpperCase(Locale.ROOT));
+      Matcher matcher = rgx.matcher(raw.trim());
 
       if (!matcher.find()) {
         name = null;
@@ -93,7 +122,7 @@ public class MemeTaxonomy {
         memes = List.of();
         return;
       }
-      name = Text.toAlphabetical(pfx).toUpperCase(Locale.ROOT);
+      name = sanitize(Text.toAlphabetical(pfx));
 
       var body = matcher.group(2);
       if (java.util.Objects.isNull(body) || body.length() == 0) {
@@ -101,14 +130,31 @@ public class MemeTaxonomy {
         return;
       }
       memes = Arrays.stream(body.split(MEME_SEPARATOR))
-        .map(String::trim)
-        .map(Text::toAlphabetical)
-        .map(String::toUpperCase)
+        .map(this::sanitize)
         .toList();
+    }
+
+    public Category(Map<String, Object> data) {
+      name = data.containsKey(KEY_NAME) ? sanitize(String.valueOf(data.get(KEY_NAME))) : null;
+      memes = parseMemeList(data);
+    }
+
+    private List<String> parseMemeList(Map<String, Object> data) {
+      if (data.containsKey(KEY_MEMES) && data.get(KEY_MEMES) instanceof List<?>) try {
+        //noinspection unchecked
+        return ((List<String>) data.get(KEY_MEMES)).stream().map(this::sanitize).toList();
+      } catch (Exception ignored) {
+        //noop
+      }
+      return List.of();
     }
 
     public static Category fromString(@Nullable String raw) {
       return new Category(raw);
+    }
+
+    public static Category fromMap(Map<String, Object> data) {
+      return new Category(data);
     }
 
     public String toString() {
@@ -131,6 +177,17 @@ public class MemeTaxonomy {
 
     public boolean hasMemes() {
       return !memes.isEmpty();
+    }
+
+    public Map<String, Object> toMap() {
+      return ImmutableMap.of(
+        KEY_NAME, name,
+        KEY_MEMES, memes
+      );
+    }
+
+    private String sanitize(String raw) {
+      return Text.toAlphabetical(raw.trim()).toUpperCase(Locale.ROOT);
     }
   }
 }
