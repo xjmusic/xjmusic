@@ -88,6 +88,9 @@ class FabricatorImpl implements Fabricator {
   @Nullable
   private Double secondsPerBeat;
 
+  @Nullable
+  private Set<InstrumentType> distinctChordVoicingTypes;
+
   @AssistedInject
   public FabricatorImpl(
     @Assisted("sourceMaterial") HubContent sourceMaterial,
@@ -299,10 +302,14 @@ class FabricatorImpl implements Fabricator {
 
   @Override
   public Set<InstrumentType> getDistinctChordVoicingTypes() {
-    var mainChoice = getCurrentMainChoice();
-    if (mainChoice.isEmpty()) return Set.of();
-    var voicings = sourceMaterial.getProgramSequenceChordVoicings(mainChoice.get().getProgramId());
-    return voicings.stream().map(ProgramSequenceChordVoicing::getType).collect(Collectors.toSet());
+    if (Objects.isNull(distinctChordVoicingTypes)) {
+      var mainChoice = getCurrentMainChoice();
+      if (mainChoice.isEmpty()) return Set.of();
+      var voicings = sourceMaterial.getProgramSequenceChordVoicings(mainChoice.get().getProgramId());
+      distinctChordVoicingTypes = voicings.stream().map(ProgramSequenceChordVoicing::getType).collect(Collectors.toSet());
+    }
+
+    return distinctChordVoicingTypes;
   }
 
   @Override
@@ -1199,9 +1206,9 @@ class FabricatorImpl implements Fabricator {
 
     if (!MemeStack.from(templateConfig.getMemeTaxonomy(),
       Stream.concat(
-      names.stream(),
-      getSegmentMemes().stream().map(SegmentMeme::toString)
-    ).collect(Collectors.toSet())).isValid()) {
+        names.stream(),
+        getSegmentMemes().stream().map(SegmentMeme::toString)
+      ).collect(Collectors.toSet())).isValid()) {
       addMessage(SegmentMessageType.ERROR, String.format("Refused to add Choice[%s] because the segment meme theorem would be violated by its additional Memes[%s]",
         Segments.describe(choice), CSV.join(names.stream().toList())));
       return false;

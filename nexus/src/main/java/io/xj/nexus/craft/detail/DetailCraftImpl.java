@@ -24,15 +24,6 @@ import java.util.stream.Collectors;
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public class DetailCraftImpl extends CraftImpl implements DetailCraft {
-  public static final List<InstrumentType> DETAIL_INSTRUMENT_TYPES =
-    ImmutableList.of(
-      InstrumentType.Bass,
-      InstrumentType.Stripe,
-      InstrumentType.Pad,
-      InstrumentType.Sticky,
-      InstrumentType.Stab
-    );
-
   @Inject
   public DetailCraftImpl(
     @Assisted("basis") Fabricator fabricator
@@ -48,14 +39,14 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
     precomputeDeltas(
       choiceFilter,
       choiceIndexProvider,
-      DETAIL_INSTRUMENT_TYPES.stream().map(InstrumentType::toString).collect(Collectors.toList()),
+      fabricator.getTemplateConfig().getDetailLayerOrder().stream().map(InstrumentType::toString).collect(Collectors.toList()),
       List.of(),
       fabricator.getTemplateConfig().getDeltaArcDetailLayersIncoming()
     );
 
     // For each type of voicing present in the main sequence, choose instrument, then program if necessary
     for (InstrumentType voicingType :
-      fabricator.getDistinctChordVoicingTypes().stream().filter(DETAIL_INSTRUMENT_TYPES::contains).toList()) {
+      fabricator.getTemplateConfig().getDetailLayerOrder().stream().filter(fabricator.getDistinctChordVoicingTypes()::contains).toList()) {
 
       // Instrument is from prior choice, else freshly chosen
       Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(voicingType);

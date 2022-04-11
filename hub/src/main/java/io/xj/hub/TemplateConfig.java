@@ -38,6 +38,7 @@ public class TemplateConfig {
       deltaArcEnabled = true
       densityCeiling = 0.9
       densityFloor = 0.1
+      detailLayerOrder = ["Bass","Stripe","Pad","Sticky","Stab"]
       dubMasterVolumeInstrumentTypeBass = 1.0
       dubMasterVolumeInstrumentTypeDrum = 1.0
       dubMasterVolumeInstrumentTypePad = 1.0
@@ -76,8 +77,12 @@ public class TemplateConfig {
       transitionLayerMin = 0
       """;
   private final AudioFormat.Encoding outputEncoding;
+  private final List<InstrumentType> detailLayerOrder;
   private final List<InstrumentType> instrumentTypesForAudioLengthFinalization;
   private final List<InstrumentType> instrumentTypesForInversionSeeking;
+  private final List<String> transitionEventNamesLarge;
+  private final List<String> transitionEventNamesMedium;
+  private final List<String> transitionEventNamesSmall;
   private final MemeTaxonomy memeTaxonomy;
   private final String deltaArcBeatLayersToPrioritize;
   private final String outputContainer;
@@ -118,9 +123,6 @@ public class TemplateConfig {
   private final int percLoopLayerMin;
   private final int transitionLayerMax;
   private final int transitionLayerMin;
-  private final List<String> transitionEventNamesSmall;
-  private final List<String> transitionEventNamesMedium;
-  private final List<String> transitionEventNamesLarge;
 
   /**
    Get a template config from only the default config
@@ -164,6 +166,10 @@ public class TemplateConfig {
       deltaArcBeatLayersToPrioritize = config.getString("deltaArcBeatLayersToPrioritize");
       densityCeiling = config.getDouble("densityCeiling");
       densityFloor = config.getDouble("densityFloor");
+      detailLayerOrder =
+        requireAtLeastOne("detailLayerOrder",
+          config.getStringList("detailLayerOrder").stream()
+            .map(InstrumentType::valueOf).toList());
       dubMasterVolumeInstrumentTypeBass = config.getDouble("dubMasterVolumeInstrumentTypeBass");
       dubMasterVolumeInstrumentTypeDrum = config.getDouble("dubMasterVolumeInstrumentTypeDrum");
       dubMasterVolumeInstrumentTypePad = config.getDouble("dubMasterVolumeInstrumentTypePad");
@@ -240,6 +246,7 @@ public class TemplateConfig {
     config.put("deltaArcBeatLayersToPrioritize", String.valueOf(deltaArcBeatLayersToPrioritize));
     config.put("densityCeiling", String.valueOf(densityCeiling));
     config.put("densityFloor", String.valueOf(densityFloor));
+    config.put("detailLayerOrder", formatTypesafeQuoted(detailLayerOrder));
     config.put("dubMasterVolumeInstrumentTypeBass", String.valueOf(dubMasterVolumeInstrumentTypeBass));
     config.put("dubMasterVolumeInstrumentTypeDrum", String.valueOf(dubMasterVolumeInstrumentTypeDrum));
     config.put("dubMasterVolumeInstrumentTypePad", String.valueOf(dubMasterVolumeInstrumentTypePad));
@@ -365,6 +372,13 @@ public class TemplateConfig {
    */
   public double getDensityCeiling() {
     return densityCeiling;
+  }
+
+  /**
+   @return instrument layers in the intended order of craft
+   */
+  public List<InstrumentType> getDetailLayerOrder() {
+    return detailLayerOrder;
   }
 
   /**
