@@ -107,6 +107,18 @@ public interface Text {
   }
 
   /**
+   Alphanumeric characters only, no case modification
+
+   @param raw text to restrict to alphanumeric
+   @return alphanumeric-only string
+   */
+  static String toAlphanumericHyphenated(String raw) {
+    return
+      nonAlphanumeric.matcher(raw)
+        .replaceAll("-");
+  }
+
+  /**
    Alphabetical characters and underscore only, no case modification
 
    @param raw text to restrict to alphabetical and underscore

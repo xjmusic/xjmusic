@@ -54,6 +54,12 @@ public class TextTest {
   }
 
   @Test
+  public void toAlphanumericHyphenated() {
+    assertEquals("I-Love-My-Pajamas", Text.toAlphanumericHyphenated("I Love My Pajamas"));
+    assertEquals("I--Love--My--Pajamas-", Text.toAlphanumericHyphenated("I! Love! My! Pajamas!"));
+  }
+
+  @Test
   public void toAlphaSlug() {
     assertEquals("THIS_THING", Text.toAlphaSlug("--- ---  T@@@HIS_@THIN!4 G"));
   }

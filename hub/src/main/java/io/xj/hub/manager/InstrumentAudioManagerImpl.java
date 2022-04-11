@@ -27,7 +27,10 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.xj.hub.Tables.*;
+import static io.xj.hub.Tables.ACCOUNT;
+import static io.xj.hub.Tables.INSTRUMENT;
+import static io.xj.hub.Tables.INSTRUMENT_AUDIO;
+import static io.xj.hub.Tables.LIBRARY;
 
 public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl<InstrumentAudio> implements InstrumentAudioManager {
   private static final String DEFAULT_EVENT = "X";
@@ -68,12 +71,13 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl<Instru
 
   @Override
   public Map<String, String> authorizeUpload(HubAccess access, UUID id, String extension) throws ManagerException, FileStoreException {
-    var entity = readOne(dbProvider.getDSL(), access, id);
+    DSLContext db = dbProvider.getDSL();
+    var entity = readOne(db, access, id);
 
     Map<String, String> uploadAuthorization = Maps.newConcurrentMap();
     S3UploadPolicy uploadPolicy = fileStoreProvider.generateAudioUploadPolicy();
 
-    uploadAuthorization.put(KEY_WAVEFORM_KEY, generateKey(entity.getInstrumentId(), extension));
+    uploadAuthorization.put(KEY_WAVEFORM_KEY, computeKey(db, entity, extension));
     uploadAuthorization.put(KEY_UPLOAD_URL, fileStoreProvider.getUploadURL());
     uploadAuthorization.put(KEY_UPLOAD_ACCESS_KEY, fileStoreProvider.getCredentialId());
     uploadAuthorization.put(KEY_UPLOAD_POLICY, uploadPolicy.getPolicyString());
@@ -87,6 +91,25 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl<Instru
   @Nullable
   public InstrumentAudio readOne(HubAccess access, UUID id) throws ManagerException {
     return readOne(dbProvider.getDSL(), access, id);
+  }
+
+  @Override
+  public String computeKey(DSLContext db, InstrumentAudio instrumentAudio, String extension) throws ManagerException {
+    var fields = db.select(ACCOUNT.NAME, LIBRARY.NAME, INSTRUMENT.NAME)
+      .from(INSTRUMENT)
+      .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
+      .join(ACCOUNT).on(ACCOUNT.ID.eq(LIBRARY.ACCOUNT_ID))
+      .where(INSTRUMENT.ID.eq(instrumentAudio.getInstrumentId()))
+      .fetchOne();
+
+    if (Objects.isNull(fields))
+      throw new ManagerException(String.format("Failed to retrieve Account, Library, and Instrument[%s]", instrumentAudio.getInstrumentId()));
+
+    return fileStoreProvider.generateKey(String.format("%s-%s-%s-%s",
+      Text.toAlphanumericHyphenated((String) fields.get(0)),
+      Text.toAlphanumericHyphenated((String) fields.get(1)),
+      Text.toAlphanumericHyphenated((String) fields.get(2)),
+      Text.toAlphanumericHyphenated(instrumentAudio.getName())), extension);
   }
 
   @Override
@@ -163,23 +186,11 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl<Instru
   }
 
   /**
-   General an Audio URL key
-
-   @param instrumentId to generate URL key for
-   @param extension    of key to general
-   @return URL as string
-   */
-  private String generateKey(UUID instrumentId, String extension) {
-    String prefix = String.format("instrument-%s-audio", instrumentId.toString());
-    return fileStoreProvider.generateKey(prefix, extension);
-  }
-
-  /**
    Require parent instrument exists of a given possible entity in a DSL context
 
-   @param db        DSL context
+   @param db     DSL context
    @param access control
-   @param entity    to validate
+   @param entity to validate
    @throws ManagerException if parent does not exist
    */
   private void requireParentExists(DSLContext db, HubAccess access, InstrumentAudio entity) throws ManagerException {
@@ -199,9 +210,9 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl<Instru
    Read one record with the given DSL context,
    ensuring audio in instrument in library in access control account ids
 
-   @param db        DSL context
+   @param db     DSL context
    @param access control
-   @param id        of record to read
+   @param id     of record to read
    @return entity
    */
   private InstrumentAudio readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {

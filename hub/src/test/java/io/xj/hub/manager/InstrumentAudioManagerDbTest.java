@@ -101,7 +101,7 @@ public class InstrumentAudioManagerDbTest {
   @Test
   public void create() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
-    var inputData = buildInstrumentAudio(fake.instrument201, "maracas", null, 0.009f, 0.21f, 80.5f,0.6f, "b 5a !nG", "X", 1.0f);
+    var inputData = buildInstrumentAudio(fake.instrument201, "maracas", null, 0.009f, 0.21f, 80.5f, 0.6f, "b 5a !nG", "X", 1.0f);
 
     var result = testManager.create(access, inputData);
 
@@ -196,14 +196,27 @@ public class InstrumentAudioManagerDbTest {
     assertEquals(120.0, result.getTempo(), 0.01);
   }
 
+  /**
+   Instrument audio downloads with human-readable file name
+   https://www.pivotaltracker.com/story/show/181848232
+   */
   @Test
-  public void uploadOne() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+  public void computeKey() throws Exception {
+    when(fileStoreProvider.generateKey("bananas-sandwich-jams-Test-audio", "wav"))
+      .thenReturn("bananas-sandwich-jams-Test-audio-12345.wav");
 
+    var result = testManager.computeKey(test.getDSL(), fake.audio1, "wav");
+
+    assertEquals("bananas-sandwich-jams-Test-audio-12345.wav", result);
+  }
+
+  @Test
+  public void authorizeUpload() throws Exception {
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     when(fileStoreProvider.generateAudioUploadPolicy())
       .thenReturn(new S3UploadPolicy("MyId", "MySecret", "bucket-owner-is-awesome", "xj-audio-test", "", 5));
-    when(fileStoreProvider.generateKey("instrument-" + fake.instrument202.getId() + "-audio", "wav"))
-      .thenReturn("instrument-" + fake.instrument202.getId() + "-audio-123456789.wav");
+    when(fileStoreProvider.generateKey("bananas-sandwich-jams-Test-audio2", "wav"))
+      .thenReturn("bananas-sandwich-jams-Test-audio2-12345.wav");
     when(fileStoreProvider.getUploadURL())
       .thenReturn("https://coconuts.com");
     when(fileStoreProvider.getCredentialId())
@@ -216,7 +229,7 @@ public class InstrumentAudioManagerDbTest {
     Map<String, String> result = testManager.authorizeUpload(access, fake.audio2.getId(), "wav");
 
     assertNotNull(result);
-    assertEquals("instrument-" + fake.instrument202.getId() + "-audio-123456789.wav", result.get("waveformKey"));
+    assertEquals("bananas-sandwich-jams-Test-audio2-12345.wav", result.get("waveformKey"));
     assertEquals("xj-audio-test", result.get("bucketName"));
     assertNotNull(result.get("uploadPolicySignature"));
     assertEquals("https://coconuts.com", result.get("uploadUrl"));
