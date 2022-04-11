@@ -14,12 +14,12 @@ import java.util.regex.Pattern;
  <p>
  Strong-meme like LEMONS! should always favor LEMONS https://www.pivotaltracker.com/story/show/180468772
  */
-class MmStrong {
+class ParseStrong {
   private static final Pattern rgx = Pattern.compile("^(.+)!$");
   final String body;
   final boolean isValid;
 
-  private MmStrong(String raw) {
+  private ParseStrong(String raw) {
     Matcher matcher = rgx.matcher(raw);
 
     if (!matcher.find()) {
@@ -37,11 +37,11 @@ class MmStrong {
     isValid = true;
   }
 
-  public static MmStrong fromString(String raw) {
-    return new MmStrong(raw);
+  public static ParseStrong fromString(String raw) {
+    return new ParseStrong(raw);
   }
 
-  public boolean isAllowed(List<MmStrong> memes) {
+  public boolean isAllowed(List<ParseStrong> memes) {
     if (!isValid) return true;
     for (var meme : memes)
       if (Objects.equals(body, meme.body)) return true;

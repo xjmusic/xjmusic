@@ -462,7 +462,7 @@ class FabricatorImpl implements Fabricator {
 
       var nextSequenceBinding = sourceMaterial().getBindingsAtOffset(previousMacroChoice.getProgramId(), previousSequenceBinding.getOffset() + 1);
 
-      return MemeIsometry.ofMemes(Streams.concat(sourceMaterial.getProgramMemes(previousMacroChoice.getProgramId()).stream().map(ProgramMeme::getName), nextSequenceBinding.stream().flatMap(programSequenceBinding -> sourceMaterial.getMemesForProgramSequenceBindingId(programSequenceBinding.getId()).stream().map(ProgramSequenceBindingMeme::getName))).collect(Collectors.toList()));
+      return MemeIsometry.ofMemes(templateConfig.getMemeTaxonomy(), Streams.concat(sourceMaterial.getProgramMemes(previousMacroChoice.getProgramId()).stream().map(ProgramMeme::getName), nextSequenceBinding.stream().flatMap(programSequenceBinding -> sourceMaterial.getMemesForProgramSequenceBindingId(programSequenceBinding.getId()).stream().map(ProgramSequenceBindingMeme::getName))).collect(Collectors.toList()));
 
     } catch (NexusException e) {
       LOG.warn("Could not get meme isometry of next sequence in previous macro", e);
@@ -472,7 +472,7 @@ class FabricatorImpl implements Fabricator {
 
   @Override
   public MemeIsometry getMemeIsometryOfSegment() {
-    return MemeIsometry.ofMemes(Entities.namesOf(workbench.getSegmentMemes()));
+    return MemeIsometry.ofMemes(templateConfig.getMemeTaxonomy(), Entities.namesOf(workbench.getSegmentMemes()));
   }
 
   @Override
@@ -1197,7 +1197,8 @@ class FabricatorImpl implements Fabricator {
       sourceMaterial().getMemesForInstrumentId(choice.getInstrumentId())
         .forEach(meme -> names.add(Text.toMeme(meme.getName())));
 
-    if (!MemeStack.from(Stream.concat(
+    if (!MemeStack.from(templateConfig.getMemeTaxonomy(),
+      Stream.concat(
       names.stream(),
       getSegmentMemes().stream().map(SegmentMeme::toString)
     ).collect(Collectors.toSet())).isValid()) {

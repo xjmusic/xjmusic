@@ -3,6 +3,7 @@ package io.xj.nexus.fabricator;
 
 import com.google.common.collect.ImmutableList;
 import io.xj.hub.tables.pojos.ProgramMeme;
+import io.xj.lib.meme.MemeTaxonomy;
 import org.junit.Test;
 
 import java.util.Set;
@@ -16,7 +17,7 @@ public class MemeIsometryTest {
 
   @Test
   public void of_List() {
-    subject = MemeIsometry.ofMemes(ImmutableList.of(
+    subject = MemeIsometry.ofMemes(MemeTaxonomy.empty(), ImmutableList.of(
       "Smooth",
       "Catlike"
     ));
@@ -26,7 +27,7 @@ public class MemeIsometryTest {
 
   @Test
   public void add() {
-    subject = MemeIsometry.ofMemes(ImmutableList.of(
+    subject = MemeIsometry.ofMemes(MemeTaxonomy.empty(), ImmutableList.of(
       "Smooth"
     ));
     var meme = new ProgramMeme();
@@ -39,7 +40,7 @@ public class MemeIsometryTest {
 
   @Test
   public void doNotMutate() {
-    Set<String> subject = MemeIsometry.ofMemes(ImmutableList.of(
+    Set<String> subject = MemeIsometry.ofMemes(MemeTaxonomy.empty(), ImmutableList.of(
       "Intensity",
       "Cool",
       "Dark"
@@ -50,7 +51,7 @@ public class MemeIsometryTest {
 
   @Test
   public void score() {
-    subject = MemeIsometry.ofMemes(ImmutableList.of(
+    subject = MemeIsometry.ofMemes(MemeTaxonomy.empty(), ImmutableList.of(
       "Smooth",
       "Catlike"
     ));
@@ -62,7 +63,7 @@ public class MemeIsometryTest {
 
   @Test
   public void score_eliminatesDuplicates() {
-    subject = MemeIsometry.ofMemes(ImmutableList.of(
+    subject = MemeIsometry.ofMemes(MemeTaxonomy.empty(), ImmutableList.of(
       "Smooth",
       "Smooth",
       "Catlike"

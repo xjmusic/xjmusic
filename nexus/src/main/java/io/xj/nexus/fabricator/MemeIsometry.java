@@ -5,6 +5,7 @@ import com.google.common.base.Objects;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.meme.MemeStack;
+import io.xj.lib.meme.MemeTaxonomy;
 import io.xj.lib.util.Text;
 
 import java.util.Collection;
@@ -22,20 +23,21 @@ public class MemeIsometry extends Isometry {
 
    @param sourceMemes from which to construct isometry
    */
-  public MemeIsometry(Collection<String> sourceMemes) {
+  private MemeIsometry(MemeTaxonomy taxonomy, Collection<String> sourceMemes) {
     for (String meme : sourceMemes) add(Text.toMeme(meme));
-    stack = MemeStack.from(getSources());
+    stack = MemeStack.from(taxonomy, getSources());
   }
 
   /**
    Instantiate a new MemeIsometry of a group of source Memes,
    as expressed in a Result of jOOQ records.
 
-   @param sourceMemes to compare of
    @return MemeIsometry ready for comparison to target Memes
+   @param taxonomy context within which to measure isometry
+   @param sourceMemes to compare of
    */
-  public static MemeIsometry ofMemes(Collection<String> sourceMemes) {
-    return new MemeIsometry(sourceMemes);
+  public static MemeIsometry ofMemes(MemeTaxonomy taxonomy, Collection<String> sourceMemes) {
+    return new MemeIsometry(taxonomy, sourceMemes);
   }
 
   /**
@@ -44,7 +46,7 @@ public class MemeIsometry extends Isometry {
    @return an empty MemeIsometry
    */
   public static MemeIsometry none() {
-    return new MemeIsometry(List.of());
+    return new MemeIsometry(MemeTaxonomy.empty(), List.of());
   }
 
   /**

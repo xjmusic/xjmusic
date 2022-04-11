@@ -5,7 +5,10 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class MemeStackTest {
 
@@ -14,10 +17,10 @@ public class MemeStackTest {
    */
   @Test
   public void isAllowed() {
-    assertTrue(MemeStack.from(List.of("APPLES", "ORANGES")).isAllowed(List.of("APPLES")));
-    assertTrue(MemeStack.from(List.of("APPLES", "ORANGES")).isAllowed(List.of("BANANAS")));
-    assertTrue(MemeStack.from(List.of("APPLES", "ORANGES")).isAllowed(List.of()));
-    assertTrue(MemeStack.from(List.of()).isAllowed(List.of("BANANAS")));
+    assertTrue(MemeStack.from(MemeTaxonomy.empty(), List.of("APPLES", "ORANGES")).isAllowed(List.of("APPLES")));
+    assertTrue(MemeStack.from(MemeTaxonomy.empty(), List.of("APPLES", "ORANGES")).isAllowed(List.of("BANANAS")));
+    assertTrue(MemeStack.from(MemeTaxonomy.empty(), List.of("APPLES", "ORANGES")).isAllowed(List.of()));
+    assertTrue(MemeStack.from(MemeTaxonomy.empty(), List.of()).isAllowed(List.of("BANANAS")));
   }
 
   /**
@@ -27,14 +30,14 @@ public class MemeStackTest {
    */
   @Test
   public void antiMemes() {
-    assertTrue(MemeStack.from(List.of("!APPLES", "ORANGES")).isAllowed(List.of("!APPLES")));
-    assertTrue(MemeStack.from(List.of("!APPLES", "!ORANGES")).isAllowed(List.of("!APPLES", "!ORANGES", "BANANAS")));
-    assertFalse(MemeStack.from(List.of("APPLES", "ORANGES")).isAllowed(List.of("!APPLES")));
-    assertFalse(MemeStack.from(List.of("APPLES", "ORANGES")).isAllowed(List.of("!ORANGES")));
-    assertFalse(MemeStack.from(List.of("APPLES", "ORANGES")).isAllowed(List.of("!ORANGES", "APPLES")));
-    assertFalse(MemeStack.from(List.of("APPLES", "ORANGES")).isAllowed(List.of("ORANGES", "!APPLES")));
-    assertFalse(MemeStack.from(List.of("APPLES", "ORANGES")).isAllowed(List.of("!ORANGES", "!APPLES")));
-    assertFalse(MemeStack.from(List.of("!APPLES", "ORANGES")).isAllowed(List.of("!APPLES", "!ORANGES")));
+    assertTrue(MemeStack.from(MemeTaxonomy.empty(), List.of("!APPLES", "ORANGES")).isAllowed(List.of("!APPLES")));
+    assertTrue(MemeStack.from(MemeTaxonomy.empty(), List.of("!APPLES", "!ORANGES")).isAllowed(List.of("!APPLES", "!ORANGES", "BANANAS")));
+    assertFalse(MemeStack.from(MemeTaxonomy.empty(), List.of("APPLES", "ORANGES")).isAllowed(List.of("!APPLES")));
+    assertFalse(MemeStack.from(MemeTaxonomy.empty(), List.of("APPLES", "ORANGES")).isAllowed(List.of("!ORANGES")));
+    assertFalse(MemeStack.from(MemeTaxonomy.empty(), List.of("APPLES", "ORANGES")).isAllowed(List.of("!ORANGES", "APPLES")));
+    assertFalse(MemeStack.from(MemeTaxonomy.empty(), List.of("APPLES", "ORANGES")).isAllowed(List.of("ORANGES", "!APPLES")));
+    assertFalse(MemeStack.from(MemeTaxonomy.empty(), List.of("APPLES", "ORANGES")).isAllowed(List.of("!ORANGES", "!APPLES")));
+    assertFalse(MemeStack.from(MemeTaxonomy.empty(), List.of("!APPLES", "ORANGES")).isAllowed(List.of("!APPLES", "!ORANGES")));
   }
 
   /**
@@ -44,10 +47,10 @@ public class MemeStackTest {
    */
   @Test
   public void uniqueMemes() {
-    assertTrue(MemeStack.from(List.of("APPLES", "ORANGES")).isAllowed(List.of("$PELICANS")));
-    assertTrue(MemeStack.from(List.of("APPLES", "$PELICANS")).isAllowed(List.of("BANANAS")));
-    assertFalse(MemeStack.from(List.of("APPLES", "ORANGES", "$PELICANS")).isAllowed(List.of("$PELICANS")));
-    assertFalse(MemeStack.from(List.of("APPLES", "$PELICANS")).isAllowed(List.of("BANANAS", "$PELICANS")));
+    assertTrue(MemeStack.from(MemeTaxonomy.empty(), List.of("APPLES", "ORANGES")).isAllowed(List.of("$PELICANS")));
+    assertTrue(MemeStack.from(MemeTaxonomy.empty(), List.of("APPLES", "$PELICANS")).isAllowed(List.of("BANANAS")));
+    assertFalse(MemeStack.from(MemeTaxonomy.empty(), List.of("APPLES", "ORANGES", "$PELICANS")).isAllowed(List.of("$PELICANS")));
+    assertFalse(MemeStack.from(MemeTaxonomy.empty(), List.of("APPLES", "$PELICANS")).isAllowed(List.of("BANANAS", "$PELICANS")));
   }
 
   /**
@@ -55,16 +58,16 @@ public class MemeStackTest {
    */
   @Test
   public void numericMemes() {
-    assertEquals(5, (int) MmNumeric.fromString("5BEAT").prefix);
-    assertEquals("STEP", MmNumeric.fromString("2STEP").body);
-    assertTrue("STEP", MmNumeric.fromString("2STEP").isValid);
-    assertNull(MmNumeric.fromString("JAMMY").prefix);
-    assertNull(MmNumeric.fromString("JAMMY").body);
-    assertFalse(MmNumeric.fromString("JAMMY").isValid);
-    assertTrue(MemeStack.from(List.of("JAMS", "2STEP")).isAllowed(List.of("2STEP", "4NOTE")));
-    assertTrue(MemeStack.from(List.of("JAMS", "4NOTE", "2STEP")).isAllowed(List.of("2STEP", "4NOTE")));
-    assertFalse(MemeStack.from(List.of("JAMS", "2STEP")).isAllowed(List.of("4STEP", "4NOTE")));
-    assertFalse(MemeStack.from(List.of("JAMS", "2STEP", "4NOTE")).isAllowed(List.of("2STEP", "3NOTE")));
+    assertEquals(5, (int) ParseNumeric.fromString("5BEAT").prefix);
+    assertEquals("STEP", ParseNumeric.fromString("2STEP").body);
+    assertTrue("STEP", ParseNumeric.fromString("2STEP").isValid);
+    assertNull(ParseNumeric.fromString("JAMMY").prefix);
+    assertNull(ParseNumeric.fromString("JAMMY").body);
+    assertFalse(ParseNumeric.fromString("JAMMY").isValid);
+    assertTrue(MemeStack.from(MemeTaxonomy.empty(), List.of("JAMS", "2STEP")).isAllowed(List.of("2STEP", "4NOTE")));
+    assertTrue(MemeStack.from(MemeTaxonomy.empty(), List.of("JAMS", "4NOTE", "2STEP")).isAllowed(List.of("2STEP", "4NOTE")));
+    assertFalse(MemeStack.from(MemeTaxonomy.empty(), List.of("JAMS", "2STEP")).isAllowed(List.of("4STEP", "4NOTE")));
+    assertFalse(MemeStack.from(MemeTaxonomy.empty(), List.of("JAMS", "2STEP", "4NOTE")).isAllowed(List.of("2STEP", "3NOTE")));
   }
 
   /**
@@ -72,12 +75,37 @@ public class MemeStackTest {
    */
   @Test
   public void strongMemes() {
-    assertEquals("LEMONS", MmStrong.fromString("LEMONS!").body);
-    assertTrue(MmStrong.fromString("LEMONS!").isValid);
-    assertFalse(MmStrong.fromString("LEMONS").isValid);
-    assertTrue(MemeStack.from(List.of("JAMS", "LEMONS!")).isAllowed(List.of("4NOTE", "LEMONS")));
-    assertFalse(MemeStack.from(List.of("JAMS", "ORANGES")).isAllowed(List.of("4NOTE", "LEMONS!")));
-    assertTrue(MemeStack.from(List.of("JAMS", "LEMONS!")).isAllowed(List.of("4NOTE", "ORANGES")));
+    assertEquals("LEMONS", ParseStrong.fromString("LEMONS!").body);
+    assertTrue(ParseStrong.fromString("LEMONS!").isValid);
+    assertFalse(ParseStrong.fromString("LEMONS").isValid);
+    assertTrue(MemeStack.from(MemeTaxonomy.empty(), List.of("JAMS", "LEMONS!")).isAllowed(List.of("4NOTE", "LEMONS")));
+    assertFalse(MemeStack.from(MemeTaxonomy.empty(), List.of("JAMS", "ORANGES")).isAllowed(List.of("4NOTE", "LEMONS!")));
+    assertTrue(MemeStack.from(MemeTaxonomy.empty(), List.of("JAMS", "LEMONS!")).isAllowed(List.of("4NOTE", "ORANGES")));
+  }
+
+  /**
+   TemplateConfig has Meme categories
+   https://www.pivotaltracker.com/story/show/181801646
+   <p>
+   A template configuration has a field called `memeTaxonomy` which defines the taxonomy of memes.
+   <p>
+   For example, this might look like
+   <p>
+   ```
+   memeTaxonomy=CITY[CHICAGO,DENVER,PHILADELPHIA]
+   ```
+   <p>
+   That would tell XJ about the existence of a meme category called City with values `CHICAGO`, `DENVER`, and `PHILADELPHIA`. And these would function as exclusion like numeric memes, e.g. after content having `CHICAGO` is chosen, we can choose nothing with `DENVER` or `PHILADELPHIA`.
+   */
+  @Test
+  public void memeCategories() {
+    var taxonomy = MemeTaxonomy.fromString("CITY[CHICAGO,DENVER,PHILADELPHIA]");
+
+    assertTrue(MemeStack.from(taxonomy, List.of("CHICAGO", "ORANGES")).isAllowed(List.of("PEACHES")));
+    assertFalse(MemeStack.from(taxonomy, List.of("CHICAGO", "ORANGES")).isAllowed(List.of("DENVER")));
+    assertTrue(MemeStack.from(taxonomy, List.of("CHICAGO", "ORANGES")).isValid());
+    assertTrue(MemeStack.from(taxonomy, List.of("DENVER", "ORANGES")).isValid());
+    assertFalse(MemeStack.from(taxonomy, List.of("CHICAGO", "DENVER", "ORANGES")).isValid());
   }
 
   /**
@@ -85,9 +113,9 @@ public class MemeStackTest {
    */
   @Test
   public void isValid() {
-    assertTrue(MemeStack.from(List.of("APPLES", "!ORANGES", "$BANANAS", "APPLES!", "5LEMONS", "12MONKEYS")).isValid());
-    assertFalse(MemeStack.from(List.of("APPLES", "!APPLES", "$BANANAS", "APPLES!", "5LEMONS", "12MONKEYS")).isValid());
-    assertFalse(MemeStack.from(List.of("APPLES", "!ORANGES", "$BANANAS", "APPLES!", "5LEMONS", "12LEMONS")).isValid());
+    assertTrue(MemeStack.from(MemeTaxonomy.empty(), List.of("APPLES", "!ORANGES", "$BANANAS", "APPLES!", "5LEMONS", "12MONKEYS")).isValid());
+    assertFalse(MemeStack.from(MemeTaxonomy.empty(), List.of("APPLES", "!APPLES", "$BANANAS", "APPLES!", "5LEMONS", "12MONKEYS")).isValid());
+    assertFalse(MemeStack.from(MemeTaxonomy.empty(), List.of("APPLES", "!ORANGES", "$BANANAS", "APPLES!", "5LEMONS", "12LEMONS")).isValid());
   }
 
 }

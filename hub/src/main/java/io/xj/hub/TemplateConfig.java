@@ -9,6 +9,7 @@ import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Template;
+import io.xj.lib.meme.MemeTaxonomy;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.ValueException;
 
@@ -47,6 +48,7 @@ public class TemplateConfig {
       instrumentTypesForAudioLengthFinalization = ["Bass","Pad","Stab","Sticky","Stripe"]
       instrumentTypesForInversionSeeking = ["Pad","Stab","Sticky","Stripe"]
       mainProgramLengthMaxDelta = 280
+      memeTaxonomy = "COLOR[RED,GREEN,BLUE];SIZE[LARGE,MEDIUM,SMALL]"
       mixerCompressAheadSeconds = 0.05
       mixerCompressDecaySeconds = 0.125
       mixerCompressRatioMax = 1.0
@@ -76,6 +78,7 @@ public class TemplateConfig {
   private final AudioFormat.Encoding outputEncoding;
   private final List<InstrumentType> instrumentTypesForAudioLengthFinalization;
   private final List<InstrumentType> instrumentTypesForInversionSeeking;
+  private final MemeTaxonomy memeTaxonomy;
   private final String deltaArcBeatLayersToPrioritize;
   private final String outputContainer;
   private final String outputContentType;
@@ -177,6 +180,7 @@ public class TemplateConfig {
           config.getStringList("instrumentTypesForInversionSeeking").stream()
             .map(InstrumentType::valueOf).toList());
       mainProgramLengthMaxDelta = config.getInt("mainProgramLengthMaxDelta");
+      memeTaxonomy = MemeTaxonomy.fromString(config.getString("memeTaxonomy"));
       mixerCompressAheadSeconds = config.getDouble("mixerCompressAheadSeconds");
       mixerCompressDecaySeconds = config.getDouble("mixerCompressDecaySeconds");
       mixerCompressRatioMax = config.getDouble("mixerCompressRatioMax");
@@ -246,6 +250,7 @@ public class TemplateConfig {
     config.put("instrumentTypesForAudioLengthFinalization", formatTypesafeQuoted(instrumentTypesForAudioLengthFinalization));
     config.put("instrumentTypesForInversionSeeking", formatTypesafeQuoted(instrumentTypesForInversionSeeking));
     config.put("mainProgramLengthMaxDelta", String.valueOf(mainProgramLengthMaxDelta));
+    config.put("memeTaxonomy", Text.doubleQuoted(memeTaxonomy.toString()));
     config.put("mixerCompressAheadSeconds", String.valueOf(mixerCompressAheadSeconds));
     config.put("mixerCompressDecaySeconds", String.valueOf(mixerCompressDecaySeconds));
     config.put("mixerCompressRatioMax", String.valueOf(mixerCompressRatioMax));
@@ -430,6 +435,13 @@ public class TemplateConfig {
    */
   public int getMainProgramLengthMaxDelta() {
     return mainProgramLengthMaxDelta;
+  }
+
+  /**
+   @return meme taxonomy, categories of implicitly separate memes
+   */
+  public MemeTaxonomy getMemeTaxonomy() {
+    return memeTaxonomy;
   }
 
   /**

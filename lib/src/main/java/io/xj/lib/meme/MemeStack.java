@@ -8,36 +8,35 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  Meme Stack is a theorem which tests various axioms for validity when a new member is pending introduction.
-
+ <p>
  Concretely exclude meme combinations in violation of the given axioms:
  - Anti-Memes
  - Numeric Memes
  - Unique Memes
- */
+
+ <p>
+
+ @see MemeTaxonomy for how we parse categories of exclusive memes */
 public class MemeStack {
   private final Set<String> memes;
+  private final MemeTaxonomy taxonomy;
 
   /**
-   Constructor from memes
+   Constructor from taxonomy and memes
 
    @param from from which to create stack
    */
-  private MemeStack(Collection<String> from) {
+  private MemeStack(MemeTaxonomy taxonomy, Collection<String> from) {
+    this.taxonomy = taxonomy;
     memes = from.stream().map(Text::toMeme).collect(Collectors.toSet());
   }
 
-  /**
-   Instantiate a new MemeIsometry of a group of source Memes,
-   as expressed in a Result of jOOQ records.
-
-   @param memes to compare of
-   @return MemeIsometry ready for comparison to target Memes
-   */
-  public static MemeStack from(Collection<String> memes) {
-    return new MemeStack(memes);
+  public static MemeStack from(MemeTaxonomy taxonomy, Collection<String> memes) {
+    return new MemeStack(taxonomy, memes);
   }
 
   /**
@@ -60,20 +59,21 @@ public class MemeStack {
     // this axiom is applied from source to target
     for (var source : sources)
       if (
-        !MmAnti.fromString(source).isAllowed(targets.stream().map(MmAnti::fromString).toList())
+        !ParseAnti.fromString(source).isAllowed(targets.stream().map(ParseAnti::fromString).toList())
           ||
-          !MmNumeric.fromString(source).isAllowed(targets.stream().map(MmNumeric::fromString).toList())
+          !ParseNumeric.fromString(source).isAllowed(targets.stream().map(ParseNumeric::fromString).toList())
           ||
-          !MmUnique.fromString(source).isAllowed(targets.stream().map(MmUnique::fromString).toList())
+          !ParseUnique.fromString(source).isAllowed(targets.stream().map(ParseUnique::fromString).toList())
       ) return false;
 
     // this axiom is applied from target to source
     for (var target : targets)
       if (
-          !MmStrong.fromString(target).isAllowed(sources.stream().map(MmStrong::fromString).toList())
+        !ParseStrong.fromString(target).isAllowed(sources.stream().map(ParseStrong::fromString).toList())
       ) return false;
 
-    return true;
+    // meme categories https://www.pivotaltracker.com/story/show/181801646
+    return taxonomy.isAllowed(Stream.concat(sources.stream(), targets.stream()).toList());
   }
 
   /**
@@ -96,6 +96,7 @@ public class MemeStack {
           return false;
     }
 
-    return true;
+    // meme categories https://www.pivotaltracker.com/story/show/181801646
+    return taxonomy.isAllowed(targets);
   }
 }

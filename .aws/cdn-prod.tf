@@ -1,6 +1,5 @@
 # Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-# Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_distribution
 resource "aws_cloudfront_distribution" "xj-io" {
@@ -457,13 +456,14 @@ resource "aws_cloudfront_distribution" "xj-lab" {
     viewer_protocol_policy = "redirect-to-https"
     forwarded_values {
       headers = [
-        "Origin",
         "Accept",
-        "Cache-Control",
-        "Referer",
         "Accept-Language",
-        "Pragma",
+        "Cache-Control",
+        "Content-Length",
         "Content-Type",
+        "Origin",
+        "Pragma",
+        "Referer",
       ]
       query_string = true
       cookies {
@@ -494,13 +494,14 @@ resource "aws_cloudfront_distribution" "xj-lab" {
     viewer_protocol_policy = "redirect-to-https"
     forwarded_values {
       headers = [
-        "Origin",
         "Accept",
-        "Cache-Control",
-        "Referer",
         "Accept-Language",
-        "Pragma",
+        "Cache-Control",
+        "Content-Length",
         "Content-Type",
+        "Origin",
+        "Pragma",
+        "Referer",
       ]
       query_string = false
       cookies {
@@ -535,13 +536,14 @@ resource "aws_cloudfront_distribution" "xj-lab" {
     viewer_protocol_policy = "redirect-to-https"
     forwarded_values {
       headers = [
-        "Origin",
         "Accept",
-        "Cache-Control",
-        "Referer",
         "Accept-Language",
-        "Pragma",
+        "Cache-Control",
+        "Content-Length",
         "Content-Type",
+        "Origin",
+        "Pragma",
+        "Referer",
       ]
       query_string = true
       cookies {
@@ -576,13 +578,14 @@ resource "aws_cloudfront_distribution" "xj-lab" {
     viewer_protocol_policy = "redirect-to-https"
     forwarded_values {
       headers = [
-        "Origin",
         "Accept",
-        "Cache-Control",
-        "Referer",
         "Accept-Language",
-        "Pragma",
+        "Cache-Control",
+        "Content-Length",
         "Content-Type",
+        "Origin",
+        "Pragma",
+        "Referer",
       ]
       query_string = true
       cookies {
@@ -755,9 +758,11 @@ resource "aws_cloudfront_distribution" "xj-prod-audio" {
     viewer_protocol_policy = "redirect-to-https"
     forwarded_values {
       headers = [
-        "Origin",
-        "Access-Control-Request-Method",
         "Access-Control-Request-Headers",
+        "Access-Control-Request-Method",
+        "Content-Length",
+        "Content-Type",
+        "Origin",
       ]
       query_string = false
       cookies {
@@ -829,9 +834,11 @@ resource "aws_cloudfront_distribution" "xj-prod-ship" {
     viewer_protocol_policy = "redirect-to-https"
     forwarded_values {
       headers = [
-        "Origin",
-        "Access-Control-Request-Method",
         "Access-Control-Request-Headers",
+        "Access-Control-Request-Method",
+        "Content-Length",
+        "Content-Type",
+        "Origin",
       ]
       query_string = false
       cookies {
@@ -861,9 +868,11 @@ resource "aws_cloudfront_distribution" "xj-prod-ship" {
     viewer_protocol_policy = "redirect-to-https"
     forwarded_values {
       headers = [
-        "Origin",
-        "Access-Control-Request-Method",
         "Access-Control-Request-Headers",
+        "Access-Control-Request-Method",
+        "Content-Length",
+        "Content-Type",
+        "Origin",
       ]
       query_string = false
       cookies {
@@ -935,9 +944,11 @@ resource "aws_cloudfront_distribution" "xj-prod-stream" {
     viewer_protocol_policy = "redirect-to-https"
     forwarded_values {
       headers = [
-        "Origin",
-        "Access-Control-Request-Method",
         "Access-Control-Request-Headers",
+        "Access-Control-Request-Method",
+        "Content-Length",
+        "Content-Type",
+        "Origin",
       ]
       query_string = false
       cookies {
@@ -967,9 +978,11 @@ resource "aws_cloudfront_distribution" "xj-prod-stream" {
     viewer_protocol_policy = "redirect-to-https"
     forwarded_values {
       headers = [
-        "Origin",
-        "Access-Control-Request-Method",
         "Access-Control-Request-Headers",
+        "Access-Control-Request-Method",
+        "Content-Length",
+        "Content-Type",
+        "Origin",
       ]
       query_string = false
       cookies {

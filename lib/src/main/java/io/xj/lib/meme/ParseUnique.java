@@ -15,12 +15,12 @@ import java.util.regex.Pattern;
  <p>
  Artist can add `$MEME` so only one is chosen https://www.pivotaltracker.com/story/show/179078760
  */
-class MmUnique {
+class ParseUnique {
   private static final Pattern rgx = Pattern.compile("^\\$(.+)$");
   final String body;
   final boolean isValid;
 
-  private MmUnique(String raw) {
+  private ParseUnique(String raw) {
     Matcher matcher = rgx.matcher(raw);
 
     if (!matcher.find()) {
@@ -38,15 +38,15 @@ class MmUnique {
     isValid = true;
   }
 
-  public static MmUnique fromString(String raw) {
-    return new MmUnique(raw);
+  public static ParseUnique fromString(String raw) {
+    return new ParseUnique(raw);
   }
 
-  public boolean isViolatedBy(MmUnique target) {
+  public boolean isViolatedBy(ParseUnique target) {
     return isValid && target.isValid && Objects.equal(body, target.body);
   }
 
-  public boolean isAllowed(List<MmUnique> memes) {
+  public boolean isAllowed(List<ParseUnique> memes) {
     for (var meme : memes)
       if (isViolatedBy(meme)) return false;
     return true;

@@ -15,12 +15,12 @@ import java.util.regex.Pattern;
  <p>
  Artist can add !MEME values into Programs https://www.pivotaltracker.com/story/show/176474073
  */
-class MmAnti {
+class ParseAnti {
   private static final Pattern rgx = Pattern.compile("^!(.+)$");
   final String body;
   final boolean isValid;
 
-  private MmAnti(String raw) {
+  private ParseAnti(String raw) {
     Matcher matcher = rgx.matcher(raw);
 
     if (!matcher.find()) {
@@ -38,16 +38,16 @@ class MmAnti {
     isValid = true;
   }
 
-  public static MmAnti fromString(String raw) {
-    return new MmAnti(raw);
+  public static ParseAnti fromString(String raw) {
+    return new ParseAnti(raw);
   }
 
-  public boolean isViolatedBy(MmAnti target) {
+  public boolean isViolatedBy(ParseAnti target) {
     return (isValid && !target.isValid && Objects.equal(body, target.body)) ||
       (!isValid && target.isValid && Objects.equal(body, target.body));
   }
 
-  public boolean isAllowed(List<MmAnti> memes) {
+  public boolean isAllowed(List<ParseAnti> memes) {
     for (var meme : memes)
       if (isViolatedBy(meme)) return false;
     return true;
