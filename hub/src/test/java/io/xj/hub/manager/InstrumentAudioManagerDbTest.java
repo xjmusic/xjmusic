@@ -626,7 +626,7 @@ access, inputData);
     AudioEvent inputData = new AudioEvent()
       .setDuration(1.4);
       .setName("KICK");
-      .setNote("C");
+      .setTones("C");
       .setPosition(0.42);
       .setTonality(0.92)
       .setVelocity(0.72);
@@ -642,7 +642,7 @@ access, inputData);
     AudioEvent inputData = new AudioEvent()
       .setDuration(1.0);
       .setName("KICK");
-      .setNote("C");
+      .setTones("C");
       .setPosition(0.0);
       .setTonality(1.0)
       .setVelocity(1.0);
@@ -677,7 +677,7 @@ access, inputData);
     assertEquals(fake.audio1.getId(), result.getInstrumentAudioId());
     assertEquals(Double.valueOf(1.0), result.getDuration());
     assertEquals("SNARE", result.getName());
-    assertEquals("G", result.getNote());
+    assertEquals("G", result.getTones());
     assertEquals(Double.valueOf(1.0), result.getPosition());
     assertEquals(Double.valueOf(0.1), result.getTonality());
     assertEquals(Double.valueOf(0.8), result.getVelocity());
@@ -772,7 +772,7 @@ access, inputData);
     AudioEvent inputData = new AudioEvent()
       .setDuration(1.0);
       .setName("KICK");
-      .setNote("C");
+      .setTones("C");
       .setPosition(0.0);
       .setTonality(1.0)
       .setVelocity(1.0);
@@ -800,7 +800,7 @@ access, inputData);
     AudioEvent inputData = new AudioEvent()
       .setDuration(1.0);
       .setName("SNARE");
-      .setNote("C");
+      .setTones("C");
       .setPosition(0.0);
       .setTonality(1.0)
       .setVelocity(1.0);
@@ -824,7 +824,7 @@ access, inputData);
     AudioEvent inputData = new AudioEvent()
       .setDuration(1.2);
       .setName("POPPYCOCK");
-      .setNote("C");
+      .setTones("C");
       .setPosition(0.42);
       .setTonality(0.92)
       .setVelocity(0.72);

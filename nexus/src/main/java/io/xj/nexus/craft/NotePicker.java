@@ -56,7 +56,7 @@ public class NotePicker {
           .sorted(Note::compareTo)
           .map(vN -> new RankedNote(vN, Math.abs(vN.delta(eN))))
           .min(Comparator.comparing(RankedNote::getDelta))
-          .map(RankedNote::getNote)
+          .map(RankedNote::getTones)
           .map(voicingNote -> seekInversion(voicingNote, targetRange, voicingNotes))
           .ifPresent(this::pick);
     }
@@ -111,7 +111,7 @@ public class NotePicker {
         .map(o -> new RankedNote(o,
           Math.abs(o.delta(range.getHigh().get()))))
         .min(Comparator.comparing(RankedNote::getDelta))
-        .map(RankedNote::getNote);
+        .map(RankedNote::getTones);
       if (alt.isPresent()) return alt.get();
     }
 
@@ -124,7 +124,7 @@ public class NotePicker {
         .map(o -> new RankedNote(o,
           Math.abs(o.delta(range.getLow().get()))))
         .min(Comparator.comparing(RankedNote::getDelta))
-        .map(RankedNote::getNote);
+        .map(RankedNote::getTones);
       if (alt.isPresent()) return alt.get();
     }
 

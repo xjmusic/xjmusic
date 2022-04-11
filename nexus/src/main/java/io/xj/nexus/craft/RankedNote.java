@@ -20,7 +20,7 @@ public class RankedNote {
     this.delta = delta;
   }
 
-  public Note getNote() {
+  public Note getTones() {
     return note;
   }
 

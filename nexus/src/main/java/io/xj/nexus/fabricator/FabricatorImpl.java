@@ -330,7 +330,7 @@ class FabricatorImpl implements Fabricator {
   @Override
   public NoteRange getInstrumentRange(UUID instrumentId) {
     return NoteRange.ofNotes(sourceMaterial.getInstrumentAudios(instrumentId).stream()
-      .map(InstrumentAudio::getNote)
+      .map(InstrumentAudio::getTones)
       .map(Note::of)
       .toList());
   }
@@ -584,7 +584,7 @@ class FabricatorImpl implements Fabricator {
     var key = String.format("%s__%s", programId, instrumentType);
 
     if (!rangeForChoice.containsKey(key)) {
-      rangeForChoice.put(key, NoteRange.ofStrings(sourceMaterial.getEvents(programId).stream().filter(event -> sourceMaterial.getVoice(event).map(voice -> Objects.equals(voice.getType(), instrumentType)).orElse(false) && !Objects.equals(Note.of(event.getNote()).getPitchClass(), PitchClass.None)).flatMap(programSequencePatternEvent -> CSV.split(programSequencePatternEvent.getNote()).stream()).collect(Collectors.toList())));
+      rangeForChoice.put(key, NoteRange.ofStrings(sourceMaterial.getEvents(programId).stream().filter(event -> sourceMaterial.getVoice(event).map(voice -> Objects.equals(voice.getType(), instrumentType)).orElse(false) && !Objects.equals(Note.of(event.getTones()).getPitchClass(), PitchClass.None)).flatMap(programSequencePatternEvent -> CSV.split(programSequencePatternEvent.getTones()).stream()).collect(Collectors.toList())));
     }
 
     return rangeForChoice.get(key);
@@ -1099,7 +1099,7 @@ class FabricatorImpl implements Fabricator {
           Objects.nonNull(pick.getSegmentChordVoicingId()) ? pick.getSegmentChordVoicingId().toString() : UNKNOWN_KEY
         );
         if (!notes.containsKey(key)) notes.put(key, Sets.newHashSet());
-        notes.get(key).add(pick.getNote());
+        notes.get(key).add(pick.getTones());
 
       } catch (NexusException | EntityStoreException e) {
         LOG.warn("Can't find chord of previous event and chord id", e);
@@ -1170,7 +1170,7 @@ class FabricatorImpl implements Fabricator {
           pick.getProgramSequencePatternEventId(),
           rootNote.get(),
           pick.getStart(),
-          List.of(Note.of(pick.getNote())));
+          List.of(Note.of(pick.getTones())));
       } catch (Exception e) {
         LOG.warn("Failed to persist sticky buns", e);
       }

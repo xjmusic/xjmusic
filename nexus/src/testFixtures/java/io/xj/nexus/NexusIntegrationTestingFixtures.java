@@ -504,7 +504,7 @@ public class NexusIntegrationTestingFixtures {
     pick.setStart(Double.valueOf(event.getPosition()));
     pick.setLength(Double.valueOf(event.getDuration()));
     pick.setAmplitude(Double.valueOf(event.getVelocity()));
-    pick.setNote(event.getNote());
+    pick.setTones(event.getTones());
     pick.setEvent(name);
     return pick;
   }

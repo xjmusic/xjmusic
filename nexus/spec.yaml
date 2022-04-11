@@ -308,7 +308,7 @@ components:
         amplitude:
           type: number
           format: double
-        note:
+        tones:
           type: string
         event:
           type: string

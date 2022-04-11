@@ -273,7 +273,7 @@ public class ArrangementTests extends YamlTest {
         content.add(IntegrationTestingFixtures.buildEvent(pattern, track,
           Objects.requireNonNull(getFloat(eObj, "position")),
           Objects.requireNonNull(getFloat(eObj, "duration")),
-          getStr(eObj, "note")));
+          getStr(eObj, "tones")));
       }
     }
   }
@@ -347,7 +347,7 @@ public class ArrangementTests extends YamlTest {
         .filter(pick -> pick.getEvent().equals(type.toString()) &&
           (Objects.isNull(start) || start.equals(pick.getStart().floatValue())) &&
           (Objects.isNull(length) || length.equals(pick.getLength().floatValue())))
-        .map(SegmentChoiceArrangementPick::getNote).toList();
+        .map(SegmentChoiceArrangementPick::getTones).toList();
 
       if (Objects.nonNull(count))
         assertSame(String.format("Count %d %s", count, assertionName),

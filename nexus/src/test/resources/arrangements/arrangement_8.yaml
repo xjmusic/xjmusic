@@ -23,18 +23,18 @@ bassDetailProgram:
       - type: Loop
         total: 6
         events:
-          - { position: 0.0, duration: 0.5, note: "A2" }
-          - { position: 0.5, duration: 0.5, note: "A1" }
-          - { position: 1.0, duration: 0.5, note: "A1" }
-          - { position: 1.5, duration: 0.5, note: "C2" }
-          - { position: 2.0, duration: 0.5, note: "D2" }
-          - { position: 2.5, duration: 0.5, note: "E2" }
-          - { position: 3.0, duration: 0.5, note: "A2" }
-          - { position: 3.5, duration: 0.5, note: "C2" }
-          - { position: 4.0, duration: 0.5, note: "D2" }
-          - { position: 4.5, duration: 0.5, note: "E2" }
-          - { position: 5.0, duration: 0.5, note: "G2" }
-          - { position: 5.5, duration: 0.5, note: "C3" }
+          - { position: 0.0, duration: 0.5, tones: "A2" }
+          - { position: 0.5, duration: 0.5, tones: "A1" }
+          - { position: 1.0, duration: 0.5, tones: "A1" }
+          - { position: 1.5, duration: 0.5, tones: "C2" }
+          - { position: 2.0, duration: 0.5, tones: "D2" }
+          - { position: 2.5, duration: 0.5, tones: "E2" }
+          - { position: 3.0, duration: 0.5, tones: "A2" }
+          - { position: 3.5, duration: 0.5, tones: "C2" }
+          - { position: 4.0, duration: 0.5, tones: "D2" }
+          - { position: 4.5, duration: 0.5, tones: "E2" }
+          - { position: 5.0, duration: 0.5, tones: "G2" }
+          - { position: 5.5, duration: 0.5, tones: "C3" }
 
 segment:
   key: Bb-

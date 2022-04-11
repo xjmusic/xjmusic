@@ -8,7 +8,7 @@ import io.xj.lib.util.Values;
 
 public abstract class EventEntity {
   private Double duration;
-  private String note;
+  private String tones;
   private Double position;
   private Double velocity;
 
@@ -21,7 +21,7 @@ public abstract class EventEntity {
   public static void validate(Object event) throws ValueException {
     try {
       Values.require(Entities.get(event, "duration"), "Duration");
-      Values.require(Entities.get(event, "note"), "Note");
+      Values.require(Entities.get(event, "tones"), "Tones");
       Values.require(Entities.get(event, "position"), "Position");
       Values.require(Entities.get(event, "velocity"), "Velocity");
     } catch (EntityException e) {
@@ -54,18 +54,18 @@ public abstract class EventEntity {
 
    @return Note
    */
-  public String getNote() {
-    return note;
+  public String getTones() {
+    return tones;
   }
 
   /**
    set Note of EventEntity
 
-   @param note to set
+   @param tones to set
    @return this EventEntity (for chaining methods)
    */
-  public EventEntity setNote(String note) {
-    this.note = note;
+  public EventEntity setTones(String tones) {
+    this.tones = tones;
     return this;
   }
 

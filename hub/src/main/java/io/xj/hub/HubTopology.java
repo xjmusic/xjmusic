@@ -56,7 +56,7 @@ public enum HubTopology {
       .withAttribute("tempo")
       .withAttribute("density")
       .withAttribute("volume")
-      .withAttribute("note")
+      .withAttribute("tones")
       .withAttribute("event")
       .belongsTo(Instrument.class);
 
@@ -159,7 +159,7 @@ public enum HubTopology {
     entityFactory.register(ProgramSequencePatternEvent.class)
       .createdBy(ProgramSequencePatternEvent::new)
       .withAttribute("duration")
-      .withAttribute("note")
+      .withAttribute("tones")
       .withAttribute("position")
       .withAttribute("velocity")
       .belongsTo(Program.class)

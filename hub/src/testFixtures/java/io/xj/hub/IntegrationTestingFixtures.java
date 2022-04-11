@@ -138,7 +138,7 @@ public class IntegrationTestingFixtures {
     instrumentAudio.setTempo(tempo);
     instrumentAudio.setDensity(density);
     instrumentAudio.setVolume(volume);
-    instrumentAudio.setNote(note);
+    instrumentAudio.setTones(note);
     instrumentAudio.setEvent(event);
     return instrumentAudio;
   }
@@ -155,7 +155,7 @@ public class IntegrationTestingFixtures {
     instrumentAudio.setDensity(1.0f);
     instrumentAudio.setVolume(1.0f);
     instrumentAudio.setEvent("X");
-    instrumentAudio.setNote(note);
+    instrumentAudio.setTones(note);
     return instrumentAudio;
   }
 
@@ -336,7 +336,7 @@ public class IntegrationTestingFixtures {
     event.setProgramVoiceTrackId(track.getId());
     event.setPosition(position);
     event.setDuration(duration);
-    event.setNote(note);
+    event.setTones(note);
     event.setVelocity(velocity);
     return event;
   }
@@ -402,7 +402,7 @@ public class IntegrationTestingFixtures {
     instrumentAudio.setTempo(tempo);
     instrumentAudio.setDensity(density);
     instrumentAudio.setVolume(volume);
-    instrumentAudio.setNote(note);
+    instrumentAudio.setTones(note);
     instrumentAudio.setEvent(event);
     return instrumentAudio;
   }
@@ -682,7 +682,7 @@ public class IntegrationTestingFixtures {
     programSequencePatternEvent.setProgramVoiceTrackId(programVoiceTrack.getId());
     programSequencePatternEvent.setPosition(position);
     programSequencePatternEvent.setDuration(duration);
-    programSequencePatternEvent.setNote(note);
+    programSequencePatternEvent.setTones(note);
     programSequencePatternEvent.setVelocity(velocity);
     return programSequencePatternEvent;
   }

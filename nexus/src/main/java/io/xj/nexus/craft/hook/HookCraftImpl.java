@@ -147,7 +147,7 @@ public class HookCraftImpl extends CraftImpl implements HookCraft {
     var bag = MarbleBag.empty();
 
     for (InstrumentAudio audio : fabricator.sourceMaterial().getAudiosForInstrumentId(choice.getInstrumentId()))
-      if (Note.of(audio.getNote()).sameAs(note))
+      if (Note.of(audio.getTones()).sameAs(note))
         bag.add(1, audio.getId());
 
     if (bag.isEmpty()) return Optional.empty();

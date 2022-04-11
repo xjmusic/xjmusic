@@ -84,7 +84,7 @@ public class Tuning {
 
    @param pitch to get octave of
    */
-  public Note getNote(Double pitch) {
+  public Note getTones(Double pitch) {
     if (!_pitchNotes.containsKey(pitch))
       _pitchNotes.put(pitch,
         rootNote.shift(deltaFromRootPitch(pitch)));

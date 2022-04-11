@@ -35,14 +35,14 @@ bassDetailProgram:
       - type: Loop
         total: 4
         events:
-          - { position: 0.0, duration: 0.5, note: "C2" }
-          - { position: 0.5, duration: 0.5, note: "C2" }
-          - { position: 1.0, duration: 0.5, note: "C2" }
-          - { position: 1.5, duration: 0.5, note: "C2" }
-          - { position: 2.0, duration: 0.5, note: "C2" }
-          - { position: 2.5, duration: 0.5, note: "C2" }
-          - { position: 3.0, duration: 0.5, note: "C2" }
-          - { position: 3.5, duration: 0.5, note: "C2" }
+          - { position: 0.0, duration: 0.5, tones: "C2" }
+          - { position: 0.5, duration: 0.5, tones: "C2" }
+          - { position: 1.0, duration: 0.5, tones: "C2" }
+          - { position: 1.5, duration: 0.5, tones: "C2" }
+          - { position: 2.0, duration: 0.5, tones: "C2" }
+          - { position: 2.5, duration: 0.5, tones: "C2" }
+          - { position: 3.0, duration: 0.5, tones: "C2" }
+          - { position: 3.5, duration: 0.5, tones: "C2" }
 
 padDetailProgram:
   key: C
@@ -53,7 +53,7 @@ padDetailProgram:
       - type: Loop
         total: 4
         events:
-          - { position: 0.0, duration: 4.0, note: "F3, A3, C4, E4" }
+          - { position: 0.0, duration: 4.0, tones: "F3, A3, C4, E4" }
 
 stabDetailProgram:
   key: C
@@ -64,7 +64,7 @@ stabDetailProgram:
       - type: Loop
         total: 4
         events:
-          - { position: 0.0, duration: 0.5, note: "F3, A3, C4, E4" }
+          - { position: 0.0, duration: 0.5, tones: "F3, A3, C4, E4" }
 
 segment:
   key: A

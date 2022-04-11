@@ -256,7 +256,7 @@ public class FabricatorImplTest {
         .start(0.273)
         .length(1.571)
         .amplitude(0.8)
-        .note("A4"));
+        .tones("A4"));
     when(mockFabricatorFactory.loadRetrospective(any(), any()))
       .thenReturn(mockSegmentRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any()))
@@ -276,7 +276,7 @@ public class FabricatorImplTest {
     assertEquals(0.273, resultPick.getStart(), 0.001);
     assertEquals(1.571, resultPick.getLength(), 0.001);
     assertEquals(0.8, resultPick.getAmplitude(), 0.1);
-    assertEquals("A4", resultPick.getNote());
+    assertEquals("A4", resultPick.getTones());
   }
 
 

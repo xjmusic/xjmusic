@@ -249,7 +249,7 @@ public class CraftImpl extends FabricationWrapperImpl {
       pick.setSegmentId(choice.getSegmentId());
       pick.setSegmentChoiceArrangementId(arrangement.getId());
       pick.setInstrumentAudioId(audio.get().getId());
-      pick.setNote(section.chord.getName());
+      pick.setTones(section.chord.getName());
       pick.setEvent(Text.toEvent(instrument.getType().toString()));
       pick.setLength(lengthSeconds);
       pick.setAmplitude(volRatio);
@@ -723,7 +723,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     var rootNote = fabricator.getRootNoteMidRange(voicing.getNotes(), chord);
 
     // Event notes are either computed from sticky bun or interpreted from program, potentially at random
-    List<Note> eventNotes = CSV.split(event.getNote())
+    List<Note> eventNotes = CSV.split(event.getTones())
       .stream()
       .map(n -> Note.of(n).shift(targetShiftSemitones + 12 * targetShiftOctaves))
       .collect(Collectors.toList());
@@ -801,7 +801,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     pick.setStart(startSeconds);
     pick.setLength(lengthSeconds);
     pick.setAmplitude(event.getVelocity() * volRatio);
-    pick.setNote(fabricator.getInstrumentConfig(instrument).isTonal() ? note : Note.ATONAL);
+    pick.setTones(fabricator.getInstrumentConfig(instrument).isTonal() ? note : Note.ATONAL);
     if (Objects.nonNull(segmentChordVoicingId))
       pick.setSegmentChordVoicingId(segmentChordVoicingId);
     fabricator.put(pick);
@@ -845,12 +845,12 @@ public class CraftImpl extends FabricationWrapperImpl {
     Instrument instrument,
     ProgramSequencePatternEvent event
   ) throws NexusException {
-    if (fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getNote()).isEmpty()) {
+    if (fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones()).isEmpty()) {
       var audio = selectNewNoteEventInstrumentAudio(instrument, event);
-      audio.ifPresent(instrumentAudio -> fabricator.putPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getNote(), instrumentAudio));
+      audio.ifPresent(instrumentAudio -> fabricator.putPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones(), instrumentAudio));
     }
 
-    return fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getNote());
+    return fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones());
   }
 
   /**
@@ -897,7 +897,7 @@ public class CraftImpl extends FabricationWrapperImpl {
       if (instrument.getType() == InstrumentType.Drum)
         score.put(audio.getId(), NameIsometry.similarity(fabricator.getTrackName(event), audio.getEvent()));
       else
-        score.put(audio.getId(), Note.of(audio.getNote()).sameAs(Note.of(event.getNote())) ? 100 : 0);
+        score.put(audio.getId(), Note.of(audio.getTones()).sameAs(Note.of(event.getTones())) ? 100 : 0);
 
     // final chosen audio event
     var pickId = Values.getKeyOfHighestValue(score);
@@ -919,7 +919,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     Chord audioChord;
     for (var a : fabricator.sourceMaterial().getAudios(instrument)) {
-      audioChord = Chord.of(a.getNote());
+      audioChord = Chord.of(a.getTones());
       if (audioChord.equals(chord))
         bag.add(0, a.getId());
       else if (audioChord.hasSamePitchClasses(chord))
@@ -949,8 +949,8 @@ public class CraftImpl extends FabricationWrapperImpl {
     var audio = instrumentAudios
       .stream()
       .filter(candidate -> {
-        if (Objects.isNull(candidate) || Strings.isNullOrEmpty(candidate.getNote())) return false;
-        var b = Note.of(candidate.getNote());
+        if (Objects.isNull(candidate) || Strings.isNullOrEmpty(candidate.getTones())) return false;
+        var b = Note.of(candidate.getTones());
         return a.isAtonal() || b.isAtonal() || a.sameAs(b);
       })
       .findAny();
@@ -961,7 +961,7 @@ public class CraftImpl extends FabricationWrapperImpl {
         "searchForNote", note,
         "availableNotes", CSV.from(instrumentAudios
           .stream()
-          .map(InstrumentAudio::getNote)
+          .map(InstrumentAudio::getTones)
           .map(Note::of)
           .sorted(Note::compareTo)
           .map(N -> N.toString(AdjSymbol.Sharp))

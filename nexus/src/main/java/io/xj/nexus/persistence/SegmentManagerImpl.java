@@ -421,7 +421,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
       Values.requireMinimum(LENGTH_MINIMUM, record.getLength(), "Length");
     Values.require(record.getAmplitude(), "Amplitude");
     Values.requireMinimum(AMPLITUDE_MINIMUM, record.getAmplitude(), "Amplitude");
-    Values.require(record.getNote(), "Note");
+    Values.require(record.getTones(), "Note");
   }
 
   private void validateSegmentChoiceArrangement(SegmentChoiceArrangement record) throws ValueException {

@@ -85,7 +85,7 @@ public enum NexusTopology {
       .withAttribute("length")
       .withAttribute("amplitude")
       .withAttribute("name")
-      .withAttribute("note")
+      .withAttribute("tones")
       .belongsTo(Segment.class)
       .belongsTo(SegmentChordVoicing.class)
       .belongsTo(SegmentChoiceArrangement.class)
