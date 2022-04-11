@@ -23,6 +23,13 @@ import static org.junit.Assert.*;
  */
 public class MemeTaxonomyTest {
   @Test
+  public void testDefaultCategoryName() {
+    var subject = MemeTaxonomy.fromList(List.of(ImmutableMap.of("memes", List.of("WINTER", "SPRING", "SUMMER", "FALL"))));
+
+    assertEquals("CATEGORY", subject.getCategories().get(0).getName());
+  }
+
+  @Test
   public void test_fromString_toString() {
     var subject = MemeTaxonomy.fromString("COLOR[RED,GREEN,BLUE];SIZE[LARGE,MEDIUM,SMALL]");
 

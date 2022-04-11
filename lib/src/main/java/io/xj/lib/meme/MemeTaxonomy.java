@@ -98,12 +98,13 @@ public class MemeTaxonomy {
     private static final String MEME_SEPARATOR = ",";
     private static final String KEY_NAME = "name";
     private static final String KEY_MEMES = "memes";
+    private static final String DEFAULT_CATEGORY_NAME = "CATEGORY";
     private final String name;
     private final List<String> memes;
 
     private Category(@Nullable String raw) {
       if (Strings.isNullOrEmpty(raw)) {
-        name = null;
+        name = DEFAULT_CATEGORY_NAME;
         memes = List.of();
         return;
       }
@@ -111,31 +112,30 @@ public class MemeTaxonomy {
       Matcher matcher = rgx.matcher(raw.trim());
 
       if (!matcher.find()) {
-        name = null;
+        name = DEFAULT_CATEGORY_NAME;
         memes = List.of();
         return;
       }
 
       String pfx = matcher.group(1);
       if (java.util.Objects.isNull(pfx) || pfx.length() == 0) {
-        name = null;
+        name = DEFAULT_CATEGORY_NAME;
         memes = List.of();
         return;
       }
       name = sanitize(Text.toAlphabetical(pfx));
 
-      var body = matcher.group(2);
-      if (java.util.Objects.isNull(body) || body.length() == 0) {
+      String body = matcher.group(2);
+      if (java.util.Objects.isNull(body) || body.length() == 0)
         memes = List.of();
-        return;
-      }
-      memes = Arrays.stream(body.split(MEME_SEPARATOR))
-        .map(this::sanitize)
-        .toList();
+      else
+        memes = Arrays.stream(body.split(MEME_SEPARATOR))
+          .map(this::sanitize)
+          .toList();
     }
 
     public Category(Map<String, Object> data) {
-      name = data.containsKey(KEY_NAME) ? sanitize(String.valueOf(data.get(KEY_NAME))) : null;
+      name = data.containsKey(KEY_NAME) ? sanitize(String.valueOf(data.get(KEY_NAME))) : DEFAULT_CATEGORY_NAME;
       memes = parseMemeList(data);
     }
 
