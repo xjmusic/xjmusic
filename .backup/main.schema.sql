@@ -405,7 +405,7 @@ CREATE TABLE xj.instrument_audio (
     density real NOT NULL,
     event character varying(255) DEFAULT NULL::character varying,
     volume real,
-    note character varying(255) DEFAULT NULL::character varying
+    tones character varying(255) DEFAULT NULL::character varying
 );
 
 
@@ -573,7 +573,7 @@ CREATE TABLE xj.program_sequence_pattern_event (
     velocity real NOT NULL,
     "position" real NOT NULL,
     duration real NOT NULL,
-    note character varying(255) NOT NULL
+    tones character varying(255) NOT NULL
 );
 
 
@@ -1406,6 +1406,7 @@ COPY xj.flyway_schema_history (installed_rank, version, description, type, scrip
 67	68	instrument mode	SQL	V68__instrument_mode.sql	-1753693622	postgres	2022-02-17 00:28:20.795213	66	t
 68	69	hook instruments	SQL	V69__hook_instruments.sql	-647722380	postgres	2022-04-07 03:55:53.459428	14	t
 69	70	voicing loop instruments	SQL	V70__voicing_loop_instruments.sql	-86880693	postgres	2022-04-07 03:55:53.522426	8	t
+70	71	rename note to tones	SQL	V71__rename_note_to_tones.sql	1076040293	postgres	2022-04-11 03:34:19.886997	14	t
 \.
 
 
