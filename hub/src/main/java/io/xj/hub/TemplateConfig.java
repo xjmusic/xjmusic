@@ -48,7 +48,7 @@ public class TemplateConfig {
       instrumentTypesForAudioLengthFinalization = ["Bass","Pad","Stab","Sticky","Stripe"]
       instrumentTypesForInversionSeeking = ["Pad","Stab","Sticky","Stripe"]
       mainProgramLengthMaxDelta = 280
-      memeTaxonomy = "COLOR[RED,GREEN,BLUE];SIZE[LARGE,MEDIUM,SMALL]"
+      memeTaxonomy = "COLOR[RED,GREEN,BLUE];SEASON[WINTER,FALL,SPRING,SUMMER]"
       mixerCompressAheadSeconds = 0.05
       mixerCompressDecaySeconds = 0.125
       mixerCompressRatioMax = 1.0
