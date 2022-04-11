@@ -458,4 +458,17 @@ public interface Values {
     return (int) (Math.max(0, Math.floor((float) value / N)) * N);
   }
 
+  /**
+   Remove some number of ids from the list
+
+   @param fromIds to begin with
+   @param count   number of ids to add
+   @return list including added ids
+   */
+  static List<UUID> withIdsRemoved(List<UUID> fromIds, int count) {
+    var ids = new ArrayList<>(fromIds);
+    for (int i = 0; i < count; i++)
+      ids.remove((int) TremendouslyRandom.zeroToLimit(ids.size()));
+    return ids;
+  }
 }

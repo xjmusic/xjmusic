@@ -12,12 +12,11 @@ import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.music.Bar;
 import io.xj.lib.util.MarbleBag;
 import io.xj.lib.util.Text;
-import io.xj.lib.util.TremendouslyRandom;
+import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.detail.DetailCraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -30,10 +29,6 @@ import java.util.stream.Collectors;
  Transition-type Instrument https://www.pivotaltracker.com/story/show/180059746
  */
 public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCraft {
-  private static final String NAME_LARGE = "BIG";
-  private static final String NAME_MEDIUM = "MEDIUM";
-  private static final String NAME_SMALL = "SMALL";
-
   private final List<String> smallNames;
   private final List<String> mediumNames;
   private final List<String> largeNames;
@@ -44,23 +39,9 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
   ) {
     super(fabricator);
 
-    smallNames = fabricator.getTemplateConfig().getTransitionEventNamesSmall();
-    mediumNames = fabricator.getTemplateConfig().getTransitionEventNamesMedium();
-    largeNames = fabricator.getTemplateConfig().getTransitionEventNamesLarge();
-  }
-
-  /**
-   Remove some number of ids from the list
-
-   @param fromIds to begin with
-   @param count   number of ids to add
-   @return list including added ids
-   */
-  public static List<UUID> withIdsRemoved(List<UUID> fromIds, int count) {
-    var ids = new ArrayList<>(fromIds);
-    for (int i = 0; i < count; i++)
-      ids.remove((int) TremendouslyRandom.zeroToLimit(ids.size()));
-    return ids;
+    smallNames = fabricator.getTemplateConfig().getEventNamesSmall();
+    mediumNames = fabricator.getTemplateConfig().getEventNamesMedium();
+    largeNames = fabricator.getTemplateConfig().getEventNamesLarge();
   }
 
   @Override
@@ -82,7 +63,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     fabricator.addInfoMessage(String.format("Targeting %d layers of transition", targetLayers));
 
     if (instrumentIds.size() > targetLayers)
-      instrumentIds = withIdsRemoved(instrumentIds, instrumentIds.size() - targetLayers);
+      instrumentIds = Values.withIdsRemoved(instrumentIds, instrumentIds.size() - targetLayers);
 
     for (UUID id : instrumentIds) craftTransition(id);
 
@@ -161,7 +142,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     var pos = deltaUnits;
     while (pos < fabricator.getSegment().getTotal()) {
       if (small.isPresent())
-        pickTransition(arrangement, small.get(), fabricator.getSecondsAtPosition(pos), fabricator.getTotalSeconds(), NAME_SMALL);
+        pickTransition(arrangement, small.get(), fabricator.getSecondsAtPosition(pos), fabricator.getTotalSeconds(), smallNames.get(0));
       pos += deltaUnits;
     }
   }

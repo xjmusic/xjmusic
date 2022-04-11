@@ -46,6 +46,9 @@ public class TemplateConfig {
       dubMasterVolumeInstrumentTypeStab = 1.0
       dubMasterVolumeInstrumentTypeSticky = 1.0
       dubMasterVolumeInstrumentTypeStripe = 1.0
+      eventNamesLarge = ["LARGE","BIG"]
+      eventNamesMedium = ["MEDIUM","REGULAR"]
+      eventNamesSmall = ["SMALL","LITTLE"]
       instrumentTypesForAudioLengthFinalization = ["Bass","Pad","Stab","Sticky","Stripe"]
       instrumentTypesForInversionSeeking = ["Pad","Stab","Sticky","Stripe"]
       mainProgramLengthMaxDelta = 280
@@ -70,9 +73,6 @@ public class TemplateConfig {
       percLoopLayerMax = 8
       percLoopLayerMin = 0
       stickyBunEnabled = true
-      transitionEventNamesLarge = ["LARGE","BIG"]
-      transitionEventNamesMedium = ["MEDIUM","REGULAR"]
-      transitionEventNamesSmall = ["SMALL","LITTLE"]
       transitionLayerMax = 3
       transitionLayerMin = 0
       """;
@@ -80,9 +80,9 @@ public class TemplateConfig {
   private final List<InstrumentType> detailLayerOrder;
   private final List<InstrumentType> instrumentTypesForAudioLengthFinalization;
   private final List<InstrumentType> instrumentTypesForInversionSeeking;
-  private final List<String> transitionEventNamesLarge;
-  private final List<String> transitionEventNamesMedium;
-  private final List<String> transitionEventNamesSmall;
+  private final List<String> eventNamesLarge;
+  private final List<String> eventNamesMedium;
+  private final List<String> eventNamesSmall;
   private final MemeTaxonomy memeTaxonomy;
   private final String deltaArcBeatLayersToPrioritize;
   private final String outputContainer;
@@ -177,6 +177,18 @@ public class TemplateConfig {
       dubMasterVolumeInstrumentTypeStab = config.getDouble("dubMasterVolumeInstrumentTypeStab");
       dubMasterVolumeInstrumentTypeSticky = config.getDouble("dubMasterVolumeInstrumentTypeSticky");
       dubMasterVolumeInstrumentTypeStripe = config.getDouble("dubMasterVolumeInstrumentTypeStripe");
+      eventNamesSmall =
+        requireAtLeastOne("eventNamesSmall",
+          config.getStringList("eventNamesSmall").stream()
+            .map(Text::toMeme).toList());
+      eventNamesMedium =
+        requireAtLeastOne("eventNamesMedium",
+          config.getStringList("eventNamesMedium").stream()
+            .map(Text::toMeme).toList());
+      eventNamesLarge =
+        requireAtLeastOne("eventNamesLarge",
+          config.getStringList("eventNamesLarge").stream()
+            .map(Text::toMeme).toList());
       instrumentTypesForAudioLengthFinalization =
         requireAtLeastOne("instrumentTypesForAudioLengthFinalization",
           config.getStringList("instrumentTypesForAudioLengthFinalization").stream()
@@ -209,18 +221,6 @@ public class TemplateConfig {
       stickyBunEnabled = config.getBoolean("stickyBunEnabled");
       transitionLayerMax = config.getInt("transitionLayerMax");
       transitionLayerMin = config.getInt("transitionLayerMin");
-      transitionEventNamesSmall =
-        requireAtLeastOne("transitionEventNamesSmall",
-          config.getStringList("transitionEventNamesSmall").stream()
-            .map(Text::toMeme).toList());
-      transitionEventNamesMedium =
-        requireAtLeastOne("transitionEventNamesMedium",
-          config.getStringList("transitionEventNamesMedium").stream()
-            .map(Text::toMeme).toList());
-      transitionEventNamesLarge =
-        requireAtLeastOne("transitionEventNamesLarge",
-          config.getStringList("transitionEventNamesLarge").stream()
-            .map(Text::toMeme).toList());
     } catch (ConfigException e) {
       throw new ValueException(e.getMessage());
     }
@@ -254,6 +254,9 @@ public class TemplateConfig {
     config.put("dubMasterVolumeInstrumentTypeStab", String.valueOf(dubMasterVolumeInstrumentTypeStab));
     config.put("dubMasterVolumeInstrumentTypeSticky", String.valueOf(dubMasterVolumeInstrumentTypeSticky));
     config.put("dubMasterVolumeInstrumentTypeStripe", String.valueOf(dubMasterVolumeInstrumentTypeStripe));
+    config.put("eventNamesSmall", formatTypesafeQuoted(eventNamesSmall));
+    config.put("eventNamesMedium", formatTypesafeQuoted(eventNamesMedium));
+    config.put("eventNamesLarge", formatTypesafeQuoted(eventNamesLarge));
     config.put("instrumentTypesForAudioLengthFinalization", formatTypesafeQuoted(instrumentTypesForAudioLengthFinalization));
     config.put("instrumentTypesForInversionSeeking", formatTypesafeQuoted(instrumentTypesForInversionSeeking));
     config.put("mainProgramLengthMaxDelta", String.valueOf(mainProgramLengthMaxDelta));
@@ -280,9 +283,6 @@ public class TemplateConfig {
     config.put("stickyBunEnabled", String.valueOf(stickyBunEnabled));
     config.put("transitionLayerMax", String.valueOf(transitionLayerMax));
     config.put("transitionLayerMin", String.valueOf(transitionLayerMin));
-    config.put("transitionEventNamesSmall", formatTypesafeQuoted(transitionEventNamesSmall));
-    config.put("transitionEventNamesMedium", formatTypesafeQuoted(transitionEventNamesMedium));
-    config.put("transitionEventNamesLarge", formatTypesafeQuoted(transitionEventNamesLarge));
     return Text.formatMultiline(config.entrySet().stream()
       .sorted(Map.Entry.comparingByKey())
       .map(pair -> String.format("%s = %s", pair.getKey(), pair.getValue()))
@@ -428,6 +428,27 @@ public class TemplateConfig {
    */
   public double getDubMasterVolumeInstrumentTypeStripe() {
     return dubMasterVolumeInstrumentTypeStripe;
+  }
+
+  /**
+   @return names of small transitions
+   */
+  public List<String> getEventNamesSmall() {
+    return eventNamesSmall;
+  }
+
+  /**
+   @return names of medium transitions
+   */
+  public List<String> getEventNamesMedium() {
+    return eventNamesMedium;
+  }
+
+  /**
+   @return names of large transitions
+   */
+  public List<String> getEventNamesLarge() {
+    return eventNamesLarge;
   }
 
   /**
@@ -610,26 +631,5 @@ public class TemplateConfig {
    */
   public int getTransitionLayerMax() {
     return transitionLayerMax;
-  }
-
-  /**
-   @return names of small transitions
-   */
-  public List<String> getTransitionEventNamesSmall() {
-    return transitionEventNamesSmall;
-  }
-
-  /**
-   @return names of medium transitions
-   */
-  public List<String> getTransitionEventNamesMedium() {
-    return transitionEventNamesMedium;
-  }
-
-  /**
-   @return names of large transitions
-   */
-  public List<String> getTransitionEventNamesLarge() {
-    return transitionEventNamesLarge;
   }
 }

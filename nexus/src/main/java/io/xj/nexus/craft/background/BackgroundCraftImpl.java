@@ -11,6 +11,7 @@ import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.util.MarbleBag;
 import io.xj.lib.util.TremendouslyRandom;
+import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.detail.DetailCraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
@@ -35,20 +36,6 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
     super(fabricator);
   }
 
-  /**
-   Remove some number of ids from the list
-
-   @param fromIds to begin with
-   @param count   number of ids to add
-   @return list including added ids
-   */
-  public static List<UUID> withIdsRemoved(List<UUID> fromIds, int count) {
-    var ids = new ArrayList<>(fromIds);
-    for (int i = 0; i < count; i++)
-      ids.remove((int) TremendouslyRandom.zeroToLimit(ids.size()));
-    return ids;
-  }
-
   @Override
   public void doWork() throws NexusException {
     List<SegmentChoice> previousChoices = fabricator.retrospective().getPreviousChoicesOfType(InstrumentType.Background);
@@ -63,7 +50,7 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
     fabricator.addInfoMessage(String.format("Targeting %d layers of background", targetLayers));
 
     if (instrumentIds.size() > targetLayers)
-      instrumentIds = withIdsRemoved(instrumentIds, instrumentIds.size() - targetLayers);
+      instrumentIds = Values.withIdsRemoved(instrumentIds, instrumentIds.size() - targetLayers);
 
     for (UUID backgroundId : instrumentIds)
       craftBackground(backgroundId);

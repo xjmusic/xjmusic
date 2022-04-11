@@ -7,9 +7,13 @@ import org.junit.Test;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 public class ValuesTest {
   @Test
@@ -225,5 +229,10 @@ public class ValuesTest {
   @Test
   public void enforceMaxStereo() {
     assertThrows(ValueException.class, () -> Values.enforceMaxStereo(3));
+  }
+
+  @Test
+  public void withIdsRemoved() {
+    assertEquals(2, Values.withIdsRemoved(List.of(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()), 2).size());
   }
 }
