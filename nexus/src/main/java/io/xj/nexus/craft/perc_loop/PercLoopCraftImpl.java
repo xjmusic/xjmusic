@@ -84,18 +84,14 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
       case 0 -> fabricator.getTemplateConfig().getEventNamesLarge().stream()
         .map(Text::toEvent)
         .toList();
-      case 1 -> Streams.concat(
-          fabricator.getTemplateConfig().getEventNamesLarge().stream(),
-          fabricator.getTemplateConfig().getEventNamesMedium().stream())
+
+      case 1 -> fabricator.getTemplateConfig().getEventNamesMedium().stream()
         .map(Text::toEvent)
         .toList();
-      case 2 -> Streams.concat(
-          fabricator.getTemplateConfig().getEventNamesLarge().stream(),
-          fabricator.getTemplateConfig().getEventNamesMedium().stream(),
-          fabricator.getTemplateConfig().getEventNamesSmall().stream())
+
+      default -> fabricator.getTemplateConfig().getEventNamesSmall().stream()
         .map(Text::toEvent)
         .toList();
-      default -> List.of();
     };
   }
 
