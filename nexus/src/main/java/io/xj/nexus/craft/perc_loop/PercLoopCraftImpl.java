@@ -7,6 +7,7 @@ import com.google.inject.assistedinject.Assisted;
 import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentChoiceArrangement;
 import io.xj.api.SegmentChoiceArrangementPick;
+import io.xj.api.SegmentType;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.util.Text;
@@ -38,10 +39,13 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
 
   @Override
   public void doWork() throws NexusException {
-    Collection<UUID> audioIds = fabricator.retrospective().getPreviousChoicesOfType(InstrumentType.PercLoop).stream()
-      .flatMap(choice -> fabricator.retrospective().getPreviousPicksForInstrument(choice.getInstrumentId()).stream())
-      .map(SegmentChoiceArrangementPick::getInstrumentAudioId)
-      .collect(Collectors.toSet());
+    Collection<UUID> audioIds =
+      SegmentType.CONTINUE.equals(fabricator.getType()) ?
+        fabricator.retrospective().getPreviousChoicesOfType(InstrumentType.PercLoop).stream()
+          .flatMap(choice -> fabricator.retrospective().getPreviousPicksForInstrument(choice.getInstrumentId()).stream())
+          .map(SegmentChoiceArrangementPick::getInstrumentAudioId)
+          .collect(Collectors.toSet())
+        : List.of();
 
     int targetLayers = (int) Math.floor(
       fabricator.getTemplateConfig().getPercLoopLayerMin() +
