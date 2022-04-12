@@ -1,22 +1,22 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.craft.perc_loop;
 
+import com.google.common.collect.Streams;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentChoiceArrangement;
 import io.xj.api.SegmentChoiceArrangementPick;
 import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.lib.util.MarbleBag;
-import io.xj.lib.util.TremendouslyRandom;
+import io.xj.lib.util.Text;
 import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.beat.BeatCraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
 
-import java.util.ArrayList;
+import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -38,8 +38,10 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
 
   @Override
   public void doWork() throws NexusException {
-    List<SegmentChoice> previousChoices = fabricator.retrospective().getPreviousChoicesOfType(InstrumentType.PercLoop);
-    List<UUID> instrumentIds = previousChoices.stream().map(SegmentChoice::getInstrumentId).collect(Collectors.toList());
+    Collection<UUID> audioIds = fabricator.retrospective().getPreviousChoicesOfType(InstrumentType.PercLoop).stream()
+      .flatMap(choice -> fabricator.retrospective().getPreviousPicksForInstrument(choice.getInstrumentId()).stream())
+      .map(SegmentChoiceArrangementPick::getInstrumentAudioId)
+      .collect(Collectors.toSet());
 
     int targetLayers = (int) Math.floor(
       fabricator.getTemplateConfig().getPercLoopLayerMin() +
@@ -49,38 +51,66 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
 
     fabricator.addInfoMessage(String.format("Targeting %d layers of percussion loop", targetLayers));
 
-    if (instrumentIds.size() > targetLayers)
-      instrumentIds = Values.withIdsRemoved(instrumentIds, instrumentIds.size() - targetLayers);
+    if (audioIds.size() > targetLayers)
+      audioIds = Values.withIdsRemoved(audioIds, audioIds.size() - targetLayers);
 
-    for (UUID percLoopId : instrumentIds)
-      craftPercLoop(percLoopId);
-
-    Optional<Instrument> chosen;
-    if (instrumentIds.size() < targetLayers)
-      for (int i = 0; i < targetLayers - instrumentIds.size(); i++) {
-        chosen = chooseFreshInstrument(InstrumentType.PercLoop, instrumentIds, null, List.of());
+    else if (audioIds.size() < targetLayers)
+      for (int i = 0; i < targetLayers - audioIds.size(); i++) {
+        Optional<InstrumentAudio> chosen = chooseFreshInstrumentAudio(InstrumentType.PercLoop, audioIds, computePreferredEvents(audioIds.size()));
         if (chosen.isPresent()) {
-          instrumentIds.add(chosen.get().getId());
-          craftPercLoop(chosen.get().getId());
+          audioIds.add(chosen.get().getId());
         }
       }
+
+    for (InstrumentAudio audio : audioIds.stream()
+      .flatMap(audioId -> fabricator.sourceMaterial().getInstrumentAudio(audioId).stream())
+      .toList())
+      craftPercLoop(audio);
 
     // Finally, update the segment with the crafted content
     fabricator.done();
   }
 
   /**
+   PercLoop instrument audios are chosen in order of priority
+   https://www.pivotaltracker.com/story/show/181262545
+
+   @param after # of choices
+   @return required event name
+   */
+  @Nullable
+  private List<String> computePreferredEvents(int after) {
+    return switch (after) {
+      case 0 -> fabricator.getTemplateConfig().getEventNamesLarge().stream()
+        .map(Text::toEvent)
+        .toList();
+      case 1 -> Streams.concat(
+          fabricator.getTemplateConfig().getEventNamesLarge().stream(),
+          fabricator.getTemplateConfig().getEventNamesMedium().stream())
+        .map(Text::toEvent)
+        .toList();
+      case 2 -> Streams.concat(
+          fabricator.getTemplateConfig().getEventNamesLarge().stream(),
+          fabricator.getTemplateConfig().getEventNamesMedium().stream(),
+          fabricator.getTemplateConfig().getEventNamesSmall().stream())
+        .map(Text::toEvent)
+        .toList();
+      default -> List.of();
+    };
+  }
+
+  /**
    Craft percussion loop
 
-   @param instrumentId of percussion loop instrument to craft
+   @param audio for which to craft segment
    */
   @SuppressWarnings("DuplicatedCode")
-  private void craftPercLoop(UUID instrumentId) throws NexusException {
+  private void craftPercLoop(InstrumentAudio audio) throws NexusException {
     var choice = new SegmentChoice();
     choice.setId(UUID.randomUUID());
     choice.setSegmentId(fabricator.getSegment().getId());
     choice.setInstrumentType(InstrumentType.PercLoop.toString());
-    choice.setInstrumentId(instrumentId);
+    choice.setInstrumentId(audio.getInstrumentId());
     fabricator.put(choice);
     var arrangement = new SegmentChoiceArrangement();
     arrangement.setId(UUID.randomUUID());
@@ -90,15 +120,11 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
 
     // Start at zero and keep laying down perc loops until we're out of here
     double pos = 0;
-    var audio = pickAudioForInstrument(instrumentId);
     while (pos < fabricator.getSegment().getTotal()) {
-
-      // https://www.pivotaltracker.com/story/show/176373977 Should gracefully skip audio in unfulfilled by instrument
-      if (audio.isEmpty()) return;
 
       // Pick attributes are expressed "rendered" as actual seconds
       double startSeconds = fabricator.getSecondsAtPosition(pos);
-      double lengthSeconds = fabricator.getSecondsAtPosition(pos + audio.get().getTotalBeats()) - startSeconds;
+      double lengthSeconds = fabricator.getSecondsAtPosition(pos + audio.getTotalBeats()) - startSeconds;
 
       // of pick
       var pick = new SegmentChoiceArrangementPick();
@@ -109,31 +135,10 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
       pick.setLength(lengthSeconds);
       pick.setAmplitude(1.0);
       pick.setEvent("PERCLOOP");
-      pick.setInstrumentAudioId(audio.get().getId());
+      pick.setInstrumentAudioId(audio.getId());
       fabricator.put(pick);
 
-      pos += audio.get().getTotalBeats();
+      pos += audio.getTotalBeats();
     }
   }
-
-  /**
-   Choose drum instrument
-   [#325] Possible to choose multiple instruments for different voices in the same program
-
-   @return drum-type Instrument
-   */
-  private Optional<InstrumentAudio> pickAudioForInstrument(UUID instrumentId) {
-    var pick = fabricator.retrospective().getPreviousPicksForInstrument(instrumentId).stream().findAny();
-    if (pick.isPresent())
-      return fabricator.sourceMaterial().getInstrumentAudio(pick.get().getInstrumentAudioId());
-
-    var bag = MarbleBag.empty();
-
-    for (InstrumentAudio audio : fabricator.sourceMaterial().getAudiosForInstrumentId(instrumentId))
-      bag.add(1, audio.getId());
-
-    if (bag.isEmpty()) return Optional.empty();
-    return fabricator.sourceMaterial().getInstrumentAudio(bag.pick());
-  }
-
 }

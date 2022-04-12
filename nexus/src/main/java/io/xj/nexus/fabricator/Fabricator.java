@@ -670,6 +670,15 @@ public interface Fabricator {
   boolean isDirectlyBound(Instrument instrument);
 
   /**
+   Whether a given InstrumentAudio is directly bound to the Chain,
+   where "directly" means a level more specific than Library, e.g. Program or InstrumentAudio
+
+   @param instrumentAudio to test for direct binding
+   @return true if InstrumentAudio is directly bound to chain
+   */
+  boolean isDirectlyBound(InstrumentAudio instrumentAudio);
+
+  /**
    Whether a given Program is directly bound to the Chain,
    where "directly" means a level more specific than Library, e.g. Program or Instrument
 

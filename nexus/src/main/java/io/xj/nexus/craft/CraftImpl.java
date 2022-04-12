@@ -1037,7 +1037,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param requireEventNames instrument candidates are required to have event names https://www.pivotaltracker.com/story/show/180803311
    @return Instrument
    */
-  protected Optional<Instrument> chooseFreshInstrument(InstrumentType type, List<UUID> avoidIds, @Nullable String continueVoiceName, List<String> requireEventNames) throws NexusException {
+  protected Optional<Instrument> chooseFreshInstrument(InstrumentType type, Collection<UUID> avoidIds, @Nullable String continueVoiceName, List<String> requireEventNames) throws NexusException {
     var bag = MarbleBag.empty();
 
     // (2) retrieve instruments bound to chain
@@ -1088,6 +1088,54 @@ public class CraftImpl extends FabricationWrapperImpl {
     // (4) return the top choice
     if (bag.isEmpty()) return Optional.empty();
     return fabricator.sourceMaterial().getInstrument(bag.pick());
+  }
+
+  /**
+   PercLoop instrument audios are chosen in order of priority
+   https://www.pivotaltracker.com/story/show/181262545
+   <p>
+   Choose drum instrument to fulfill beat program event names https://www.pivotaltracker.com/story/show/180803311
+
+   @param type            of instrument to choose
+   @param avoidIds        to avoid, or empty list
+   @param preferredEvents instrument candidates are required to have event names https://www.pivotaltracker.com/story/show/180803311
+   @return Instrument
+   */
+  @SuppressWarnings("SameParameterValue")
+  protected Optional<InstrumentAudio> chooseFreshInstrumentAudio(InstrumentType type, Collection<UUID> avoidIds, List<String> preferredEvents) {
+    var bag = MarbleBag.empty();
+
+    // (2) retrieve instruments bound to chain
+    Collection<InstrumentAudio> candidates =
+      fabricator.sourceMaterial().getInstrumentAudios(type)
+        .stream()
+        .filter(a -> !avoidIds.contains(a.getId()))
+        .toList();
+
+    // (3) score each source instrument based on meme isometry
+    MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
+    Collection<String> memes;
+
+    // Phase 1: Directly Bound Audios (Preferred)
+    for (InstrumentAudio audio : audiosDirectlyBound(candidates)) {
+      memes = Entities.namesOf(fabricator.sourceMaterial().getMemesForInstrumentId(audio.getId()));
+      if (iso.isAllowed(memes))
+        bag.add(preferredEvents.contains(audio.getEvent()) ? 1 : 3, audio.getId(), 1 + iso.score(memes));
+    }
+
+    // Phase 2: All Published Audios (Preferred)
+    for (InstrumentAudio audio : audiosPublished(candidates)) {
+      memes = Entities.namesOf(fabricator.sourceMaterial().getMemesForInstrumentId(audio.getId()));
+      if (iso.isAllowed(memes))
+        bag.add(preferredEvents.contains(audio.getEvent()) ? 2 : 4, audio.getId(), 1 + iso.score(memes));
+    }
+
+    // report
+    fabricator.putReport(String.format("choiceOf%sInstrument", type), bag.toString());
+
+    // (4) return the top choice
+    if (bag.isEmpty()) return Optional.empty();
+    return fabricator.sourceMaterial().getInstrumentAudio(bag.pick());
   }
 
   /**
@@ -1146,6 +1194,26 @@ public class CraftImpl extends FabricationWrapperImpl {
    */
   protected Collection<Instrument> instrumentsPublished(Collection<Instrument> instruments) {
     return instruments.stream().filter(p -> InstrumentState.Published.equals(p.getState())).toList();
+  }
+
+  /**
+   Filter only the directly bound instrumentAudios
+
+   @param instrumentAudios to filter
+   @return filtered instrumentAudios
+   */
+  protected Collection<InstrumentAudio> audiosDirectlyBound(Collection<InstrumentAudio> instrumentAudios) {
+    return instrumentAudios.stream().filter(fabricator::isDirectlyBound).toList();
+  }
+
+  /**
+   Filter only the published instrumentAudios
+
+   @param instrumentAudios to filter
+   @return filtered instrumentAudios
+   */
+  protected Collection<InstrumentAudio> audiosPublished(Collection<InstrumentAudio> instrumentAudios) {
+    return instrumentAudios.stream().filter(a -> fabricator.sourceMaterial().getInstrument(a.getInstrumentId()).map(i -> InstrumentState.Published.equals(i.getState())).orElse(false)).toList();
   }
 
   /**

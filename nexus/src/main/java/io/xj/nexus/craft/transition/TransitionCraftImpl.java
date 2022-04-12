@@ -17,6 +17,7 @@ import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.detail.DetailCraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -48,7 +49,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
   public void doWork() throws NexusException {
     var previousChoices = fabricator.retrospective().getPreviousChoicesOfType(InstrumentType.Transition);
 
-    var instrumentIds = previousChoices.stream()
+    Collection<UUID> instrumentIds = previousChoices.stream()
       .map(SegmentChoice::getInstrumentId)
       .collect(Collectors.toList());
 

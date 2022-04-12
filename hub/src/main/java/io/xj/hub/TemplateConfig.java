@@ -49,9 +49,9 @@ public class TemplateConfig {
       dubMasterVolumeInstrumentTypeStab = 1.0
       dubMasterVolumeInstrumentTypeSticky = 1.0
       dubMasterVolumeInstrumentTypeStripe = 1.0
-      eventNamesLarge = ["LARGE","BIG"]
-      eventNamesMedium = ["MEDIUM","REGULAR"]
-      eventNamesSmall = ["SMALL","LITTLE"]
+      eventNamesLarge = ["LARGE","BIG","HIGH","PRIMARY"]
+      eventNamesMedium = ["MEDIUM","REGULAR","MIDDLE","SECONDARY"]
+      eventNamesSmall = ["SMALL","LITTLE","LOW"]
       instrumentTypesForAudioLengthFinalization = ["Bass","Pad","Stab","Sticky","Stripe"]
       instrumentTypesForInversionSeeking = ["Pad","Stab","Sticky","Stripe"]
       mainProgramLengthMaxDelta = 280

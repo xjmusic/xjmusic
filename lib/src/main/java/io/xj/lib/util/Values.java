@@ -465,7 +465,7 @@ public interface Values {
    @param count   number of ids to add
    @return list including added ids
    */
-  static List<UUID> withIdsRemoved(List<UUID> fromIds, int count) {
+  static Collection<UUID> withIdsRemoved(Collection<UUID> fromIds, int count) {
     var ids = new ArrayList<>(fromIds);
     for (int i = 0; i < count; i++)
       ids.remove((int) TremendouslyRandom.zeroToLimit(ids.size()));

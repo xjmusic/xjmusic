@@ -17,6 +17,7 @@ import io.xj.nexus.craft.detail.DetailCraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -39,7 +40,7 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
   @Override
   public void doWork() throws NexusException {
     List<SegmentChoice> previousChoices = fabricator.retrospective().getPreviousChoicesOfType(InstrumentType.Background);
-    List<UUID> instrumentIds = previousChoices.stream().map(SegmentChoice::getInstrumentId).collect(Collectors.toList());
+    Collection<UUID> instrumentIds = previousChoices.stream().map(SegmentChoice::getInstrumentId).collect(Collectors.toList());
 
     int targetLayers = (int) Math.floor(
       fabricator.getTemplateConfig().getBackgroundLayerMin() +

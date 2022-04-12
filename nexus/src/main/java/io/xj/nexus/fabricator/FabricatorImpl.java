@@ -843,6 +843,11 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
+  public boolean isDirectlyBound(InstrumentAudio instrumentAudio) {
+    return boundInstrumentIds.contains(instrumentAudio.getInstrumentId());
+  }
+
+  @Override
   public Boolean isInitialSegment() {
     return 0L == workbench.getSegment().getOffset();
   }
