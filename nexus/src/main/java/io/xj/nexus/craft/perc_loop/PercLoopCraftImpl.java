@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.craft.perc_loop;
 
-import com.google.common.collect.Streams;
+import com.google.api.client.util.Lists;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.api.SegmentChoice;
@@ -45,7 +45,7 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
           .flatMap(choice -> fabricator.retrospective().getPreviousPicksForInstrument(choice.getInstrumentId()).stream())
           .map(SegmentChoiceArrangementPick::getInstrumentAudioId)
           .collect(Collectors.toSet())
-        : List.of();
+        : Lists.newArrayList();
 
     int targetLayers = (int) Math.floor(
       fabricator.getTemplateConfig().getPercLoopLayerMin() +
