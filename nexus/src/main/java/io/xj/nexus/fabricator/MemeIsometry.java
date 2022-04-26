@@ -36,7 +36,7 @@ public class MemeIsometry extends Isometry {
    @param taxonomy context within which to measure isometry
    @param sourceMemes to compare of
    */
-  public static MemeIsometry ofMemes(MemeTaxonomy taxonomy, Collection<String> sourceMemes) {
+  public static MemeIsometry of(MemeTaxonomy taxonomy, Collection<String> sourceMemes) {
     return new MemeIsometry(taxonomy, sourceMemes);
   }
 

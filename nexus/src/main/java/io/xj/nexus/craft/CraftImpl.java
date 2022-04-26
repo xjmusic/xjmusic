@@ -1118,14 +1118,14 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     // Phase 1: Directly Bound Audios (Preferred)
     for (InstrumentAudio audio : audiosDirectlyBound(candidates)) {
-      memes = Entities.namesOf(fabricator.sourceMaterial().getMemesForInstrumentId(audio.getId()));
+      memes = Entities.namesOf(fabricator.sourceMaterial().getMemesForInstrumentId(audio.getInstrumentId()));
       if (iso.isAllowed(memes))
         bag.add(preferredEvents.contains(audio.getEvent()) ? 1 : 3, audio.getId(), 1 + iso.score(memes));
     }
 
     // Phase 2: All Published Audios (Preferred)
     for (InstrumentAudio audio : audiosPublished(candidates)) {
-      memes = Entities.namesOf(fabricator.sourceMaterial().getMemesForInstrumentId(audio.getId()));
+      memes = Entities.namesOf(fabricator.sourceMaterial().getMemesForInstrumentId(audio.getInstrumentId()));
       if (iso.isAllowed(memes))
         bag.add(preferredEvents.contains(audio.getEvent()) ? 2 : 4, audio.getId(), 1 + iso.score(memes));
     }
