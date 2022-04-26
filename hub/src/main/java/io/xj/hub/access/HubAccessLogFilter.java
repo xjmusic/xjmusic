@@ -13,7 +13,7 @@ import java.util.logging.SimpleFormatter;
 
 public class HubAccessLogFilter {
   private static LoggingFeature instance;
-  private final Logger log = LoggerFactory.getLogger(HubAccessLogFilter.class);
+  private final Logger LOG = LoggerFactory.getLogger(HubAccessLogFilter.class);
   private final String pathToWriteAccessLog;
 
   @Inject
@@ -53,9 +53,9 @@ public class HubAccessLogFilter {
     try {
       setup(pathToWriteAccessLog);
       resourceConfig.register(instance);
-      log.info("Will write access log to {}", pathToWriteAccessLog);
+      LOG.info("Will write access log to {}", pathToWriteAccessLog);
     } catch (IOException e) {
-      log.warn("Failed to registerTo access log writer!", e);
+      LOG.warn("Failed to registerTo access log writer!", e);
     }
   }
 }

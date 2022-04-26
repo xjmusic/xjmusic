@@ -14,6 +14,7 @@ import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentChoiceArrangementPick;
 import io.xj.hub.HubTopology;
 import io.xj.hub.IntegrationTestingFixtures;
+import io.xj.hub.access.HubAccessLogFilter;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
@@ -37,6 +38,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -53,6 +56,7 @@ import static org.junit.Assert.assertEquals;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ArrangementTests extends YamlTest {
+  private final Logger LOG = LoggerFactory.getLogger(YamlTest.class);
   private static final int REPEAT_EACH_TEST_TIMES = 7;
   private static final Set<InstrumentType> INSTRUMENT_TYPES = ImmutableSet.of(
     InstrumentType.Bass,
@@ -127,6 +131,11 @@ public class ArrangementTests extends YamlTest {
   @Test
   public void arrangement8() {
     loadAndRunTest("arrangement_8.yaml");
+  }
+
+  @Test
+  public void arrangement9() {
+    loadAndRunTest("arrangement_9.yaml");
   }
 
   @Test
@@ -332,6 +341,11 @@ public class ArrangementTests extends YamlTest {
     @SuppressWarnings("unchecked")
     List<Map<?, ?>> objs = (List<Map<?, ?>>) data.get(type.toString().toLowerCase(Locale.ROOT));
     if (Objects.isNull(objs)) return;
+
+    LOG.info("Picks: {}", fabricator.getPicks().stream()
+        .sorted(Comparator.comparing(SegmentChoiceArrangementPick::getStart))
+      .map(pick -> String.format("%s@%f", pick.getTones(), pick.getStart()))
+      .toList());
 
     for (var obj : objs) {
       Float start = getFloat(obj, "start");
