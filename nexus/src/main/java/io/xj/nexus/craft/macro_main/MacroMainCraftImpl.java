@@ -253,6 +253,42 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   }
 
   /**
+   Choose program completely at random
+
+   @param programs all from which to choose
+   @param avoid    to avoid
+   @return program
+   */
+  public Optional<Program> chooseRandomProgram(Collection<Program> programs, List<UUID> avoid) {
+    var bag = MarbleBag.empty();
+
+    // Phase 1: Directly Bound Programs, besides those we should avoid
+    // Phase 3: Any Directly Bound Programs
+    for (Program program : programsDirectlyBound(programs)) {
+      if (!avoid.contains(program.getId()))
+        bag.add(1, program.getId());
+      bag.add(3, program.getId());
+    }
+
+    // Phase 2: All Published Programs, besides those we should avoid
+    // Phase 3: Any Published Programs
+    for (Program program : programsPublished(programs)) {
+      if (!avoid.contains(program.getId()))
+        bag.add(2, program.getId());
+      bag.add(4, program.getId());
+    }
+
+    // Phase 5: Any Program
+    for (Program program : programs)
+      bag.add(5, program.getId());
+
+    if (bag.isPresent())
+      return fabricator.sourceMaterial().getProgram(bag.pick());
+
+    return Optional.empty();
+  }
+
+  /**
    will rank all possibilities, and choose the next macro program
 
    @return macro-type program
@@ -307,49 +343,13 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   }
 
   /**
-   Choose program completely at random
-
-   @param programs all from which to choose
-   @param avoid    to avoid
-   @return program
-   */
-  public Optional<Program> chooseRandomProgram(Collection<Program> programs, List<UUID> avoid) {
-    var bag = MarbleBag.empty();
-
-    // Phase 1: Directly Bound Programs, besides those we should avoid
-    // Phase 3: Any Directly Bound Programs
-    for (Program program : programsDirectlyBound(programs)) {
-      if (!avoid.contains(program.getId()))
-        bag.add(1, program.getId());
-      bag.add(3, program.getId());
-    }
-
-    // Phase 2: All Published Programs, besides those we should avoid
-    // Phase 3: Any Published Programs
-    for (Program program : programsPublished(programs)) {
-      if (!avoid.contains(program.getId()))
-        bag.add(2, program.getId());
-      bag.add(4, program.getId());
-    }
-
-    // Phase 5: Any Program
-    for (Program program : programs)
-      bag.add(5, program.getId());
-
-    if (bag.isPresent())
-      return fabricator.sourceMaterial().getProgram(bag.pick());
-
-    return Optional.empty();
-  }
-
-  /**
    Choose main program
    <p>
    ONLY CHOOSES ONCE, then returns that choice every time
 
    @return main-type Program
    */
-  private Optional<Program> chooseNextMainProgram() throws NexusException {
+  protected Optional<Program> chooseNextMainProgram() throws NexusException {
     var bag = MarbleBag.empty();
     var candidates = fabricator.sourceMaterial().getPrograms(ProgramType.Main);
 
@@ -360,15 +360,12 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
     // add candidates to the bag
     MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
-    var avoidProgramId = fabricator.getPreviousMainChoice()
-      .map(SegmentChoice::getProgramId);
-    Collection<String> memes;
+    var avoidProgramId = fabricator.getPreviousMainChoice().map(SegmentChoice::getProgramId);
 
     // Phase 1: Directly Bound Programs, memes allowed, bonus for meme match, besides any that should be avoided
     // Phase 3: Any Directly Bound Programs, memes allowed, bonus for meme match
     for (Program program : programsDirectlyBound(candidates)) {
-      memes = fabricator.sourceMaterial().getMemesAtBeginning(program);
-      if (!iso.isAllowed(memes)) continue;
+      if (!iso.isAllowed(fabricator.sourceMaterial().getMemesAtBeginning(program))) continue;
       bag.add(1, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
       bag.add(3, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
     }
@@ -376,16 +373,17 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     // Phase 2: All Published Programs, memes allowed, bonus for meme match, besides any that should be avoided
     // Phase 4: Any Published Programs, memes allowed, bonus for meme match
     for (Program program : programsPublished(candidates)) {
-      memes = fabricator.sourceMaterial().getMemesAtBeginning(program);
-      if (!iso.isAllowed(memes)) continue;
+      if (!iso.isAllowed(fabricator.sourceMaterial().getMemesAtBeginning(program))) continue;
       if (avoidProgramId.isEmpty() || !avoidProgramId.get().equals(program.getId()))
         bag.add(2, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
       bag.add(4, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
     }
 
     // Phase 5: Literally Any Programs
-    for (Program program : candidates)
-      bag.add(5, program.getId());
+    for (Program program : candidates) {
+      if (iso.isAllowed(fabricator.sourceMaterial().getMemesAtBeginning(program)))
+        bag.add(5, program.getId());
+    }
 
     // if the bag is empty, problems
     if (bag.isEmpty())
