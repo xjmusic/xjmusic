@@ -130,11 +130,11 @@ assertPicks:
     - { start: 7.75, length: 0.25, count: 1, notes: "D1" }
   pad:
     - { start: 0.00, length: 1.75, count: 4, notes: "C4, E4, G4, A4" }
-    - { start: 1.75, length: 2.00, count: 4, notes: "G3, C4, D4, G4" }
-    - { start: 3.75, length: 2.00, count: 4, notes: "G3, A3, C4, E4" }
-    - { start: 5.75, length: 2.25, count: 4, notes: "G3, C4, F4, G4" }
+    - { start: 1.75, length: 2.00, count: 4, notes: "C5, D5, G5, C6" }
+    - { start: 3.75, length: 2.00, count: 4, notes: "C4, E4, G4, A4" }
+    - { start: 5.75, length: 2.25, count: 4, notes: "C4, F4, G4, A4" }
   stab:
     - { start: 0.00, length: 0.25, count: 4, notes: "C4, E4, G4, A4" }
-    - { start: 1.75, length: 0.25, count: 4, notes: "G3, C4, D4, G4" }
-    - { start: 3.75, length: 0.25, count: 4, notes: "G3, A3, C4, E4" }
-    - { start: 5.75, length: 0.25, count: 4, notes: "G3, C4, F4, G4" }
+    - { start: 1.75, length: 0.25, count: 4, notes: "C5, D5, G5, C6" }
+    - { start: 3.75, length: 0.25, count: 4, notes: "C4, E4, G4, A4" }
+    - { start: 5.75, length: 0.25, count: 4, notes: "C4, F4, G4, A4" }

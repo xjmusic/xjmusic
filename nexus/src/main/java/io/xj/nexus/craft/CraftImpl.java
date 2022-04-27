@@ -716,7 +716,9 @@ public class CraftImpl extends FabricationWrapperImpl {
     var sourceRange = fabricator.getProgramRange(choice.getProgramId(), instrumentType);
     var targetRange = fabricator.getProgramVoicingNoteRange(instrumentType);
     var targetShiftSemitones = fabricator.getProgramTargetShift(sourceKey, Chord.of(chord.getName()));
-    var targetShiftOctaves = fabricator.getProgramRangeShiftOctaves(instrumentType, sourceRange, targetRange);
+    var targetShiftOctaves = fabricator.getProgramRangeShiftOctaves(instrumentType,
+      sourceRange.shifted(targetShiftSemitones), // take semitone shift into account before computing octave shift! https://www.pivotaltracker.com/story/show/181975107
+      targetRange);
     var voicingNotes = fabricator.getNotes(voicing).stream()
       .flatMap(Note::ofValid)
       .collect(Collectors.toList());
@@ -741,7 +743,6 @@ public class CraftImpl extends FabricationWrapperImpl {
       fabricator.getTemplateConfig().getInstrumentTypesForInversionSeeking().contains(instrumentType));
 
     notePicker.pick();
-    range.expand(notePicker.getTargetRange());
 
     var notes = notePicker.getPickedNotes().stream()
       .map(n -> n.toString(chord.getAdjSymbol())).collect(Collectors.toSet());
@@ -845,10 +846,10 @@ public class CraftImpl extends FabricationWrapperImpl {
     Instrument instrument,
     ProgramSequencePatternEvent event
   ) throws NexusException {
-    if (fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones()).isEmpty()) {
-      var audio = selectNewNoteEventInstrumentAudio(instrument, event);
-      audio.ifPresent(instrumentAudio -> fabricator.putPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones(), instrumentAudio));
-    }
+    if (fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones()).isEmpty())
+      fabricator.putPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones(),
+        selectNewNoteEventInstrumentAudio(instrument, event)
+          .orElseThrow(() -> new NexusException("Unable to select note event instrument audio!")));
 
     return fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones());
   }

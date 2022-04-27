@@ -14,10 +14,16 @@ import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentChoiceArrangementPick;
 import io.xj.hub.HubTopology;
 import io.xj.hub.IntegrationTestingFixtures;
+import io.xj.hub.client.HubClient;
+import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.*;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
@@ -28,8 +34,6 @@ import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.hub.client.HubClient;
-import io.xj.hub.client.HubContent;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.work.NexusWorkModule;
 import org.junit.Before;
@@ -37,9 +41,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
@@ -53,6 +66,7 @@ import static org.junit.Assert.assertEquals;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ArrangementTests extends YamlTest {
+  private final Logger LOG = LoggerFactory.getLogger(YamlTest.class);
   private static final int REPEAT_EACH_TEST_TIMES = 7;
   private static final Set<InstrumentType> INSTRUMENT_TYPES = ImmutableSet.of(
     InstrumentType.Bass,
@@ -127,6 +141,11 @@ public class ArrangementTests extends YamlTest {
   @Test
   public void arrangement8() {
     loadAndRunTest("arrangement_8.yaml");
+  }
+
+  @Test
+  public void arrangement9() {
+    loadAndRunTest("arrangement_9.yaml");
   }
 
   @Test
@@ -332,6 +351,11 @@ public class ArrangementTests extends YamlTest {
     @SuppressWarnings("unchecked")
     List<Map<?, ?>> objs = (List<Map<?, ?>>) data.get(type.toString().toLowerCase(Locale.ROOT));
     if (Objects.isNull(objs)) return;
+
+    LOG.info("Picks: {}", fabricator.getPicks().stream()
+        .sorted(Comparator.comparing(SegmentChoiceArrangementPick::getStart))
+      .map(pick -> String.format("%s@%f", pick.getTones(), pick.getStart()))
+      .toList());
 
     for (var obj : objs) {
       Float start = getFloat(obj, "start");
