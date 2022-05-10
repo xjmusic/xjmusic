@@ -42,3 +42,13 @@ resource "aws_acm_certificate" "xj-io-lab-redirect" {
   ]
   validation_method = "DNS"
 }
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate
+resource "aws_acm_certificate" "uxrg" {
+  domain_name = "uxresearchgroup.net"
+  subject_alternative_names = [
+    "*.uxresearchgroup.net",
+  ]
+  validation_method = "DNS"
+}
+

@@ -117,3 +117,16 @@ resource "aws_route53_record" "xj-dev-status" {
   }
 }
 
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
+resource "aws_route53_record" "uxrg-dev" {
+  name    = "dev.uxresearchgroup.net"
+  type    = "A"
+  zone_id = aws_route53_zone.uxrg-zone.zone_id
+
+  alias {
+    name                   = aws_cloudfront_distribution.uxrg-dev.domain_name
+    zone_id                = aws_cloudfront_distribution.uxrg-dev.hosted_zone_id
+    evaluate_target_health = false
+  }
+}
+

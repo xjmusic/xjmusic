@@ -345,4 +345,24 @@ resource "aws_s3_bucket" "xj-dev-status" {
   }
 }
 
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+resource "aws_s3_bucket" "uxrg-dev" {
+  bucket = "dev.uxresearchgroup.net"
+  acl    = "public-read"
+  policy = jsonencode({
+    "Version" : "2008-10-17",
+    "Statement" : [
+      {
+        Sid       = "PublicReadGetObject",
+        Effect    = "Allow",
+        Principal = "*",
+        Action    = "s3:GetObject",
+        Resource  = "arn:aws:s3:::dev.uxresearchgroup.net/*"
+      }
+    ]
+  })
 
+  website {
+    index_document = "index.html"
+  }
+}

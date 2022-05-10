@@ -233,3 +233,34 @@ resource "aws_route53_record" "xjplatform-com-www" {
     evaluate_target_health = false
   }
 }
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_zone
+resource "aws_route53_zone" "uxrg-zone" {
+  name = "uxresearchgroup.net"
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
+resource "aws_route53_record" "uxrg-prod" {
+  name    = "uxresearchgroup.net"
+  type    = "A"
+  zone_id = aws_route53_zone.uxrg-zone.zone_id
+
+  alias {
+    name                   = aws_cloudfront_distribution.uxrg-prod.domain_name
+    zone_id                = aws_cloudfront_distribution.uxrg-prod.hosted_zone_id
+    evaluate_target_health = false
+  }
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
+resource "aws_route53_record" "uxrg-prod-www" {
+  name    = "www.uxresearchgroup.net"
+  type    = "A"
+  zone_id = aws_route53_zone.uxrg-zone.zone_id
+
+  alias {
+    name                   = aws_cloudfront_distribution.uxrg-redirect.domain_name
+    zone_id                = aws_cloudfront_distribution.uxrg-redirect.hosted_zone_id
+    evaluate_target_health = false
+  }
+}

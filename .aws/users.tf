@@ -179,6 +179,73 @@ resource "aws_iam_user_policy" "xj-ci" {
   })
 }
 
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user_policy
+resource "aws_iam_user_policy" "xj-ci-extended" {
+  name = "xj-ci"
+  user = aws_iam_user.xj-ci.name
+
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        Sid    = "PublishStaticSites",
+        Effect = "Allow",
+        Action = [
+          "s3:Get*",
+          "s3:List*",
+          "s3:Put*"
+        ],
+        Resource = [
+          # Production
+          aws_s3_bucket.uxrg-prod.arn,
+          "${aws_s3_bucket.uxrg-prod.arn}/*",
+          # Development
+          aws_s3_bucket.uxrg-dev.arn,
+          "${aws_s3_bucket.uxrg-dev.arn}/*",
+        ]
+      },
+      {
+        Sid    = "InvalidateCDN",
+        Effect = "Allow",
+        Action = [
+          "cloudfront:CreateInvalidation",
+        ],
+        Resource = [
+          "*",
+        ]
+      },
+      {
+        Sid    = "ContainerRegistry",
+        Effect = "Allow",
+        Action = [
+          "ecr:GetAuthorizationToken",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage",
+          "ecr:CompleteLayerUpload",
+          "ecr:UploadLayerPart",
+          "ecr:InitiateLayerUpload",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:PutImage"
+        ],
+        Resource = [
+          "*"
+        ],
+      },
+      {
+        Sid    = "EKS",
+        Effect = "Allow",
+        Action = [
+          "eks:*",
+          "sts:GetCallerIdentity",
+        ],
+        Resource = [
+          "*"
+        ],
+      }
+    ]
+  })
+}
+
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role
 resource "aws_iam_role" "xj-eks" {
   name = "xj-eks"

@@ -404,3 +404,48 @@ resource "aws_s3_bucket" "xj-lab" {
     error_document = "index.html"
   }
 }
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+resource "aws_s3_bucket" "uxrg-prod" {
+  bucket = "uxresearchgroup.net"
+  acl    = "public-read"
+  policy = jsonencode({
+    "Version" : "2008-10-17",
+    "Statement" : [
+      {
+        Sid       = "PublicReadGetObject",
+        Effect    = "Allow",
+        Principal = "*",
+        Action    = "s3:GetObject",
+        Resource  = "arn:aws:s3:::uxresearchgroup.net/*"
+      }
+    ]
+  })
+
+  website {
+    index_document = "index.html"
+  }
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+resource "aws_s3_bucket" "uxrg-redirect" {
+  bucket = "redirect-to-uxresearchgroup-net"
+  acl    = "public-read"
+  policy = jsonencode({
+    "Version" : "2008-10-17",
+    "Statement" : [
+      {
+        Sid       = "PublicReadGetObject",
+        Effect    = "Allow",
+        Principal = "*",
+        Action    = "s3:GetObject",
+        Resource  = "arn:aws:s3:::redirect-to-uxresearchgroup-net/*"
+      }
+    ]
+  })
+
+  website {
+    redirect_all_requests_to = "https://uxresearchgroup.net"
+  }
+}
+
