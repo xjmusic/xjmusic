@@ -116,6 +116,8 @@ resource "aws_iam_user_policy" "xj-ci" {
           "${aws_s3_bucket.xj-io.arn}/*",
           aws_s3_bucket.xj-play.arn,
           "${aws_s3_bucket.xj-play.arn}/*",
+          aws_s3_bucket.xj-prod-stream.arn,
+          "${aws_s3_bucket.xj-prod-stream.arn}/*",
           aws_s3_bucket.xj-help.arn,
           "${aws_s3_bucket.xj-help.arn}/*",
           aws_s3_bucket.xj-status.arn,
@@ -131,6 +133,8 @@ resource "aws_iam_user_policy" "xj-ci" {
           "${aws_s3_bucket.xj-dev-help.arn}/*",
           aws_s3_bucket.xj-dev-status.arn,
           "${aws_s3_bucket.xj-dev-status.arn}/*",
+          aws_s3_bucket.xj-dev-stream.arn,
+          "${aws_s3_bucket.xj-dev-stream.arn}/*",
         ]
       },
       {
