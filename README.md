@@ -311,4 +311,3 @@ org.mp4parser.boxes.iso14496.part12.MediaDataBox@720c8f80
 # Base Docker Image for Nexus
 
 Base Container required to ship Nexus as a container via jib
-
