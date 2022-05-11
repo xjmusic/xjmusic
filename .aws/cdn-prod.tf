@@ -14,7 +14,7 @@ resource "aws_cloudfront_distribution" "xj-io" {
 
   origin {
     # AWS Cloudfront won't properly resolve /index.html files unless the full region is specified here:
-    domain_name = "${aws_s3_bucket.uxrg-prod.bucket}.s3-website-${local.aws-region}.amazonaws.com"
+    domain_name = "${aws_s3_bucket.xj-io.bucket}.s3-website-${local.aws-region}.amazonaws.com"
     origin_id   = "xj-io-s3-origin"
     origin_path = ""
     custom_origin_config {
