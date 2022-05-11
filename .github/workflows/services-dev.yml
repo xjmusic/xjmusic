@@ -97,6 +97,12 @@ jobs:
       - name: (AWS) Authenticate with Elastic Kubernetes Service (EKS)
         run: aws eks --region ${{ secrets.AWS_DEFAULT_REGION }} update-kubeconfig --name ${{ secrets.CLUSTER_NAME }}
 
+      - name: (AWS) Update the aws-cli (aws cli v1) to the version with a fix for
+        run: pip3 install awscli --upgrade --user
+
+      - name: (AWS) rewrite the kube-config
+        run: aws eks update-kubeconfig --name ${EKS_CLUSTER_NAME} --region ${REGION}
+
       - name: (AWS) Build & push Docker images
         run: |
           ./gradlew --info --no-daemon \
