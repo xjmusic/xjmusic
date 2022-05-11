@@ -103,41 +103,6 @@ resource "aws_iam_user_policy" "xj-ci" {
     "Version" : "2012-10-17",
     "Statement" : [
       {
-        Sid    = "PublishStaticSites",
-        Effect = "Allow",
-        Action = [
-          "s3:Get*",
-          "s3:List*",
-          "s3:Put*"
-        ],
-        Resource = [
-          # Production
-          aws_s3_bucket.xj-io.arn,
-          "${aws_s3_bucket.xj-io.arn}/*",
-          aws_s3_bucket.xj-play.arn,
-          "${aws_s3_bucket.xj-play.arn}/*",
-          aws_s3_bucket.xj-prod-stream.arn,
-          "${aws_s3_bucket.xj-prod-stream.arn}/*",
-          aws_s3_bucket.xj-help.arn,
-          "${aws_s3_bucket.xj-help.arn}/*",
-          aws_s3_bucket.xj-status.arn,
-          "${aws_s3_bucket.xj-status.arn}/*",
-          aws_s3_bucket.xj-lab.arn,
-          "${aws_s3_bucket.xj-lab.arn}/*",
-          # Development
-          aws_s3_bucket.xj-dev.arn,
-          "${aws_s3_bucket.xj-dev.arn}/*",
-          aws_s3_bucket.xj-dev-lab.arn,
-          "${aws_s3_bucket.xj-dev-lab.arn}/*",
-          aws_s3_bucket.xj-dev-help.arn,
-          "${aws_s3_bucket.xj-dev-help.arn}/*",
-          aws_s3_bucket.xj-dev-status.arn,
-          "${aws_s3_bucket.xj-dev-status.arn}/*",
-          aws_s3_bucket.xj-dev-stream.arn,
-          "${aws_s3_bucket.xj-dev-stream.arn}/*",
-        ]
-      },
-      {
         Sid    = "InvalidateCDN",
         Effect = "Allow",
         Action = [
@@ -180,15 +145,15 @@ resource "aws_iam_user_policy" "xj-ci" {
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user_policy
-resource "aws_iam_user_policy" "xj-ci-extended" {
-  name = "xj-ci"
+resource "aws_iam_user_policy" "xj-ci-prod" {
+  name = "xj-ci-prod"
   user = aws_iam_user.xj-ci.name
 
   policy = jsonencode({
     "Version" : "2012-10-17",
     "Statement" : [
       {
-        Sid    = "PublishStaticSites",
+        Sid    = "PublishProduction",
         Effect = "Allow",
         Action = [
           "s3:Get*",
@@ -196,52 +161,61 @@ resource "aws_iam_user_policy" "xj-ci-extended" {
           "s3:Put*"
         ],
         Resource = [
-          # Production
+          aws_s3_bucket.xj-io.arn,
+          "${aws_s3_bucket.xj-io.arn}/*",
+          aws_s3_bucket.xj-play.arn,
+          "${aws_s3_bucket.xj-play.arn}/*",
+          aws_s3_bucket.xj-prod-stream.arn,
+          "${aws_s3_bucket.xj-prod-stream.arn}/*",
+          aws_s3_bucket.xj-help.arn,
+          "${aws_s3_bucket.xj-help.arn}/*",
+          aws_s3_bucket.xj-content.arn,
+          "${aws_s3_bucket.xj-content.arn}/*",
+          aws_s3_bucket.xj-status.arn,
+          "${aws_s3_bucket.xj-status.arn}/*",
+          aws_s3_bucket.xj-lab.arn,
+          "${aws_s3_bucket.xj-lab.arn}/*",
           aws_s3_bucket.uxrg-prod.arn,
           "${aws_s3_bucket.uxrg-prod.arn}/*",
-          # Development
+        ]
+      },
+    ]
+  })
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user_policy
+resource "aws_iam_user_policy" "xj-ci-dev" {
+  name = "xj-ci-dev"
+  user = aws_iam_user.xj-ci.name
+
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        Sid    = "PublishDevelopment",
+        Effect = "Allow",
+        Action = [
+          "s3:Get*",
+          "s3:List*",
+          "s3:Put*"
+        ],
+        Resource = [
+          aws_s3_bucket.xj-dev.arn,
+          "${aws_s3_bucket.xj-dev.arn}/*",
+          aws_s3_bucket.xj-dev-lab.arn,
+          "${aws_s3_bucket.xj-dev-lab.arn}/*",
+          aws_s3_bucket.xj-dev-help.arn,
+          "${aws_s3_bucket.xj-dev-help.arn}/*",
+          aws_s3_bucket.xj-dev-content.arn,
+          "${aws_s3_bucket.xj-dev-content.arn}/*",
+          aws_s3_bucket.xj-dev-status.arn,
+          "${aws_s3_bucket.xj-dev-status.arn}/*",
+          aws_s3_bucket.xj-dev-stream.arn,
+          "${aws_s3_bucket.xj-dev-stream.arn}/*",
           aws_s3_bucket.uxrg-dev.arn,
           "${aws_s3_bucket.uxrg-dev.arn}/*",
         ]
       },
-      {
-        Sid    = "InvalidateCDN",
-        Effect = "Allow",
-        Action = [
-          "cloudfront:CreateInvalidation",
-        ],
-        Resource = [
-          "*",
-        ]
-      },
-      {
-        Sid    = "ContainerRegistry",
-        Effect = "Allow",
-        Action = [
-          "ecr:GetAuthorizationToken",
-          "ecr:GetDownloadUrlForLayer",
-          "ecr:BatchGetImage",
-          "ecr:CompleteLayerUpload",
-          "ecr:UploadLayerPart",
-          "ecr:InitiateLayerUpload",
-          "ecr:BatchCheckLayerAvailability",
-          "ecr:PutImage"
-        ],
-        Resource = [
-          "*"
-        ],
-      },
-      {
-        Sid    = "EKS",
-        Effect = "Allow",
-        Action = [
-          "eks:*",
-          "sts:GetCallerIdentity",
-        ],
-        Resource = [
-          "*"
-        ],
-      }
     ]
   })
 }

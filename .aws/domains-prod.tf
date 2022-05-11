@@ -178,6 +178,19 @@ resource "aws_route53_record" "xj-help" {
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
+resource "aws_route53_record" "xj-content" {
+  name    = "content.xj.io"
+  type    = "A"
+  zone_id = aws_route53_zone.xj-io.zone_id
+
+  alias {
+    name                   = aws_cloudfront_distribution.xj-content.domain_name
+    zone_id                = aws_cloudfront_distribution.xj-content.hosted_zone_id
+    evaluate_target_health = false
+  }
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
 resource "aws_route53_record" "xj-status" {
   name    = "status.xj.io"
   type    = "A"
