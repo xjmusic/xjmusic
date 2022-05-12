@@ -6,6 +6,7 @@ import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
+import io.xj.hub.tables.records.ProgramSequenceChordVoicingRecord;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
@@ -38,12 +39,16 @@ public class ProgramSequenceChordVoicingManagerImpl extends HubPersistenceServic
     validate(entity);
     requireArtist(access);
     requireProgramModification(db, access, entity.getProgramId());
-    requireNotExists(String.format("Can't create another %s-type voicing for this chord!", entity.getType()),
-      db.select(PROGRAM_SEQUENCE_CHORD_VOICING.ID)
-        .from(PROGRAM_SEQUENCE_CHORD_VOICING)
-        .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID.eq(entity.getProgramSequenceChordId()))
-        .and(PROGRAM_SEQUENCE_CHORD_VOICING.TYPE.eq(entity.getType()))
-        .fetch());
+
+    ProgramSequenceChordVoicingRecord existingOfType = db.selectFrom(PROGRAM_SEQUENCE_CHORD_VOICING)
+      .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID.eq(entity.getProgramSequenceChordId()))
+      .and(PROGRAM_SEQUENCE_CHORD_VOICING.TYPE.eq(entity.getType()))
+      .fetchOne();
+
+    if (Objects.nonNull(existingOfType))
+      db.deleteFrom(PROGRAM_SEQUENCE_CHORD_VOICING)
+        .where(PROGRAM_SEQUENCE_CHORD_VOICING.ID.eq(existingOfType.getId()))
+        .execute();
 
     return modelFrom(ProgramSequenceChordVoicing.class,
       executeCreate(db, PROGRAM_SEQUENCE_CHORD_VOICING, entity));
@@ -112,13 +117,18 @@ public class ProgramSequenceChordVoicingManagerImpl extends HubPersistenceServic
     validate(entity);
     requireArtist(access);
     requireProgramModification(db, access, entity.getProgramId());
-    requireNotExists(String.format("Can't change to %s-type voicing for this chord because it already exists!", entity.getType()),
-      db.select(PROGRAM_SEQUENCE_CHORD_VOICING.ID)
-        .from(PROGRAM_SEQUENCE_CHORD_VOICING)
-        .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID.eq(entity.getProgramSequenceChordId()))
-        .and(PROGRAM_SEQUENCE_CHORD_VOICING.TYPE.eq(entity.getType()))
-        .and(PROGRAM_SEQUENCE_CHORD_VOICING.ID.notEqual(id))
-        .fetch());
+
+    ProgramSequenceChordVoicingRecord existingOfType = db.selectFrom(PROGRAM_SEQUENCE_CHORD_VOICING)
+      .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID.eq(entity.getProgramSequenceChordId()))
+      .and(PROGRAM_SEQUENCE_CHORD_VOICING.TYPE.eq(entity.getType()))
+      .and(PROGRAM_SEQUENCE_CHORD_VOICING.ID.notEqual(id))
+      .fetchOne();
+
+    if (Objects.nonNull(existingOfType))
+      db.deleteFrom(PROGRAM_SEQUENCE_CHORD_VOICING)
+        .where(PROGRAM_SEQUENCE_CHORD_VOICING.ID.eq(existingOfType.getId()))
+        .execute();
+
     executeUpdate(db, PROGRAM_SEQUENCE_CHORD_VOICING, id, entity);
     return entity;
   }

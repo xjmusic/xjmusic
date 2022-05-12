@@ -115,18 +115,23 @@ public class ProgramSequenceChordVoicingManagerDbTest {
   }
 
   /**
-   Cannot create another voicing for a chord with the same type as an existing voicing for that chord https://www.pivotaltracker.com/story/show/181159558
+   Creating a voicing type deletes (overwrites) the previously existent voicing
+   Re: Lab should be able to create voicing for MP chord where there is none
+   https://www.pivotaltracker.com/story/show/182132495
+   <p>
+   PREVIOUS BEHAVIOR: Cannot create another voicing for a chord with the same type as an existing voicing for that chord https://www.pivotaltracker.com/story/show/181159558
    */
   @Test
   public void create_cannotCreateAnotherForExistingInstrumentType() throws Exception {
     HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
-    var voicing1a = buildProgramSequenceChordVoicing(fake.program3_chord1, InstrumentType.Pad, "C5, Eb5, G5");
+    var voicing1a = subject.create(access, buildProgramSequenceChordVoicing(fake.program3_chord1, InstrumentType.Pad, "C5, Eb5, G5"));
     var voicing1b = buildProgramSequenceChordVoicing(fake.program3_chord1, InstrumentType.Pad, "A4, C5, E5");
-    subject.create(access, voicing1a);
 
-    var e = assertThrows(ManagerException.class, () -> subject.create(access, voicing1b));
 
-    assertEquals("Can't create another Pad-type voicing for this chord!", e.getMessage());
+    subject.create(access, voicing1b);
+
+    var e = assertThrows(ManagerException.class, () -> subject.readOne(access, voicing1a.getId()));
+    assertEquals("Record does not exist", e.getMessage());
   }
 
   /**
@@ -148,20 +153,24 @@ public class ProgramSequenceChordVoicingManagerDbTest {
   }
 
   /**
-   Cannot update this voicing to a type that already exists for that chord https://www.pivotaltracker.com/story/show/181159558
+   Updating to an existing voicing type deletes (overwrites) the previously existent voicing
+   Re: Lab should be able to create voicing for MP chord where there is none
+   https://www.pivotaltracker.com/story/show/182132495
+   <p>
+   PREVIOUS BEHAVIOR: Cannot update this voicing to a type that already exists for that chord https://www.pivotaltracker.com/story/show/181159558
    */
   @Test
   public void update_cannotUpdateToTypeOfExistingVoicing() throws Exception {
     HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var voicing1a = buildProgramSequenceChordVoicing(fake.program3_chord1, InstrumentType.Pad, "C5, Eb5, G5");
-    var voicing1b = buildProgramSequenceChordVoicing(fake.program3_chord1, InstrumentType.Drum, "A4, C5, E5");
     subject.create(access, voicing1a);
-    subject.create(access, voicing1b);
+    ProgramSequenceChordVoicing voicing1b = subject.create(access, buildProgramSequenceChordVoicing(fake.program3_chord1, InstrumentType.Drum, "A4, C5, E5"));
     voicing1b.setType(InstrumentType.Pad);
 
-    var e = assertThrows(ManagerException.class, () -> subject.update(access, voicing1b.getId(), voicing1b));
+    subject.update(access, voicing1b.getId(), voicing1b);
 
-    assertEquals("Can't change to Pad-type voicing for this chord because it already exists!", e.getMessage());
+    var updated = subject.readOne(access, voicing1b.getId());
+    assertEquals(InstrumentType.Pad, updated.getType());
   }
 
   /**
