@@ -55,7 +55,16 @@ public class TemplateConfig {
       instrumentTypesForAudioLengthFinalization = ["Bass","Pad","Stab","Sticky","Stripe"]
       instrumentTypesForInversionSeeking = ["Pad","Stab","Sticky","Stripe"]
       mainProgramLengthMaxDelta = 280
-      memeTaxonomy = [{"memes":["RED","GREEN","BLUE"],"name":"COLOR"},{"memes":["WINTER","SPRING","SUMMER","FALL"],"name":"SEASON"}]
+      memeTaxonomy = [
+          {
+            "memes":["RED","GREEN","BLUE"],
+            "name":"COLOR"
+          },
+          {
+            "memes":["WINTER","SPRING","SUMMER","FALL"],
+            "name":"SEASON"
+          }
+        ]
       mixerCompressAheadSeconds = 0.05
       mixerCompressDecaySeconds = 0.125
       mixerCompressRatioMax = 1.0
@@ -267,7 +276,8 @@ public class TemplateConfig {
     config.put("instrumentTypesForAudioLengthFinalization", formatTypesafeQuoted(instrumentTypesForAudioLengthFinalization));
     config.put("instrumentTypesForInversionSeeking", formatTypesafeQuoted(instrumentTypesForInversionSeeking));
     config.put("mainProgramLengthMaxDelta", String.valueOf(mainProgramLengthMaxDelta));
-    config.put("memeTaxonomy", ConfigValueFactory.fromIterable(memeTaxonomy.toList()).render(renderOptions));
+// todo    config.put("memeTaxonomy", ConfigValueFactory.fromIterable(memeTaxonomy.toList()).render(renderOptions));
+    config.put("memeTaxonomy", computeStringValueMemeTaxonomy());
     config.put("mixerCompressAheadSeconds", String.valueOf(mixerCompressAheadSeconds));
     config.put("mixerCompressDecaySeconds", String.valueOf(mixerCompressDecaySeconds));
     config.put("mixerCompressRatioMax", String.valueOf(mixerCompressRatioMax));
@@ -294,6 +304,14 @@ public class TemplateConfig {
       .sorted(Map.Entry.comparingByKey())
       .map(pair -> String.format("%s = %s", pair.getKey(), pair.getValue()))
       .toArray());
+  }
+
+  private String computeStringValueMemeTaxonomy() {
+    return String.format("[%s\n  ]",
+      memeTaxonomy.getCategories().stream().map(category ->
+        String.format("\n    {\n      \"memes\":[%s],\n      \"name\":%s\n    }",
+          category.getMemes().stream().map(Text::doubleQuoted).collect(Collectors.joining(",")),
+          Text.doubleQuoted(category.getName()))).collect(Collectors.joining(",")));
   }
 
   /**

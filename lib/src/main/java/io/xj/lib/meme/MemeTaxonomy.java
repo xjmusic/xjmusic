@@ -93,7 +93,7 @@ public class MemeTaxonomy {
     return categories.stream().allMatch(category -> category.isAllowed(memes));
   }
 
-  static class Category {
+  public static class Category {
     private static final Pattern rgx = Pattern.compile("^([a-zA-Z\s]+)\\[([a-zA-Z,\s]+)]$");
     private static final String MEME_SEPARATOR = ",";
     private static final String KEY_NAME = "name";
