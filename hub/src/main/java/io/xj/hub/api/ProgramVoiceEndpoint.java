@@ -3,6 +3,8 @@ package io.xj.hub.api;
 
 import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
+import io.xj.hub.access.HubAccess;
+import io.xj.hub.manager.ProgramSequenceChordVoicingManager;
 import io.xj.hub.manager.ProgramVoiceManager;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.ProgramVoice;
@@ -25,6 +27,7 @@ import java.util.UUID;
 @Path("api/1/program-voices")
 public class ProgramVoiceEndpoint extends HubJsonapiEndpoint<ProgramVoice> {
   private final ProgramVoiceManager manager;
+  private final ProgramSequenceChordVoicingManager voicingManager;
 
   /**
    Constructor
@@ -32,6 +35,7 @@ public class ProgramVoiceEndpoint extends HubJsonapiEndpoint<ProgramVoice> {
   @Inject
   public ProgramVoiceEndpoint(
     ProgramVoiceManager manager,
+    ProgramSequenceChordVoicingManager voicingManager,
     HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
@@ -39,6 +43,7 @@ public class ProgramVoiceEndpoint extends HubJsonapiEndpoint<ProgramVoice> {
   ) {
     super(dbProvider, response, payloadFactory, entityFactory);
     this.manager = manager;
+    this.voicingManager = voicingManager;
   }
 
   /**
@@ -51,7 +56,18 @@ public class ProgramVoiceEndpoint extends HubJsonapiEndpoint<ProgramVoice> {
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
   public Response create(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc) {
-    return create(crc, manager(), jsonapiPayload);
+    try {
+      HubAccess access = HubAccess.fromContext(crc);
+      JsonapiPayload responseData = new JsonapiPayload();
+
+      ProgramVoice created = manager.create(access, payloadFactory.consume(manager.newInstance(), jsonapiPayload));
+      responseData.setDataOne(payloadFactory.toPayloadObject(created));
+      responseData.addAllToIncluded(payloadFactory.toPayloadObjects(voicingManager.createEmptyVoicings(access, created)));
+      return response.create(responseData);
+
+    } catch (Exception e) {
+      return response.notAcceptable(e);
+    }
   }
 
   /**

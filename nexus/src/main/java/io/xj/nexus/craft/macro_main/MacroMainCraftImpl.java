@@ -174,7 +174,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
             segmentChordVoicing.setId(UUID.randomUUID());
             segmentChordVoicing.setSegmentId(fabricator.getSegment().getId());
             segmentChordVoicing.segmentChordId(chord.getId());
-            segmentChordVoicing.type(voicing.getType().toString());
+            segmentChordVoicing.type(fabricator.getProgramVoiceType(voicing).toString());
             segmentChordVoicing.setNotes(voicing.getNotes());
             fabricator.put(segmentChordVoicing);
           }

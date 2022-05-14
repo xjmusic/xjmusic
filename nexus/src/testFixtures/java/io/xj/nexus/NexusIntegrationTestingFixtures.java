@@ -5,16 +5,51 @@ package io.xj.nexus;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import io.xj.api.*;
+import io.xj.api.Chain;
+import io.xj.api.ChainState;
+import io.xj.api.ChainType;
+import io.xj.api.Segment;
+import io.xj.api.SegmentChoice;
+import io.xj.api.SegmentChoiceArrangement;
+import io.xj.api.SegmentChoiceArrangementPick;
+import io.xj.api.SegmentChord;
+import io.xj.api.SegmentChordVoicing;
+import io.xj.api.SegmentMeme;
+import io.xj.api.SegmentState;
+import io.xj.api.SegmentType;
 import io.xj.hub.LoremIpsum;
 import io.xj.hub.Users;
-import io.xj.hub.enums.*;
-import io.xj.hub.tables.pojos.*;
+import io.xj.hub.client.HubClientAccess;
+import io.xj.hub.enums.InstrumentMode;
+import io.xj.hub.enums.InstrumentState;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramState;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.tables.pojos.Account;
+import io.xj.hub.tables.pojos.AccountUser;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.InstrumentMeme;
+import io.xj.hub.tables.pojos.Library;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramMeme;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
+import io.xj.hub.tables.pojos.ProgramSequenceChord;
+import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
+import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.hub.tables.pojos.User;
+import io.xj.hub.tables.pojos.UserAuth;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.Values;
-import io.xj.hub.client.HubClientAccess;
 import io.xj.nexus.persistence.Segments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +61,29 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-import static io.xj.hub.IntegrationTestingFixtures.*;
+import static io.xj.hub.IntegrationTestingFixtures.TEST_TEMPLATE_CONFIG;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildAudio;
+import static io.xj.hub.IntegrationTestingFixtures.buildBinding;
+import static io.xj.hub.IntegrationTestingFixtures.buildChord;
+import static io.xj.hub.IntegrationTestingFixtures.buildEvent;
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrument;
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrumentMeme;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
+import static io.xj.hub.IntegrationTestingFixtures.buildMeme;
+import static io.xj.hub.IntegrationTestingFixtures.buildPattern;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramMeme;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceBinding;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceBindingMeme;
+import static io.xj.hub.IntegrationTestingFixtures.buildSequence;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplateBinding;
+import static io.xj.hub.IntegrationTestingFixtures.buildTrack;
+import static io.xj.hub.IntegrationTestingFixtures.buildUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildVoice;
+import static io.xj.hub.IntegrationTestingFixtures.buildVoicing;
 import static io.xj.lib.util.Values.NANOS_PER_SECOND;
 
 /**
@@ -177,7 +234,12 @@ public class NexusIntegrationTestingFixtures {
   public ProgramSequencePatternEvent program9_sequence0_pattern3_event2;
   public ProgramSequencePatternEvent program9_sequence0_pattern3_event3;
   public ProgramVoice program10_voice0;
+  public ProgramVoice program15_voiceBass;
   public ProgramVoice program35_voice0;
+  public ProgramVoice program5_voiceBass;
+  public ProgramVoice program5_voicePad;
+  public ProgramVoice program5_voiceSticky;
+  public ProgramVoice program5_voiceStripe;
   public ProgramVoice program9_voice0;
   public ProgramVoiceTrack program10_voice0_track0;
   public ProgramVoiceTrack program35_voice0_track0;
@@ -648,25 +710,29 @@ public class NexusIntegrationTestingFixtures {
 
     // Main program
     program5 = buildProgram(library2, ProgramType.Main, ProgramState.Published, "Main Jam", "C minor", 140, 0.6f);
+    program5_voiceBass = buildVoice(program5, InstrumentType.Bass, "Bass");
+    program5_voiceSticky = buildVoice(program5, InstrumentType.Sticky, "Sticky");
+    program5_voiceStripe = buildVoice(program5, InstrumentType.Stripe, "Stripe");
+    program5_voicePad = buildVoice(program5, InstrumentType.Pad, "Pad");
     program5_meme0 = buildMeme(program5, "Outlook");
     //
     program5_sequence0 = buildSequence(program5, 16, "Intro", 0.5f, "G major");
     program5_sequence0_chord0 = buildChord(program5_sequence0, 0.0, "G major");
-    program5_sequence0_chord0_voicing = buildVoicing(InstrumentType.Bass, program5_sequence0_chord0, "G3, B3, D4");
+    program5_sequence0_chord0_voicing = buildVoicing(program5_sequence0_chord0, program5_voiceBass, "G3, B3, D4");
     program5_sequence0_chord1 = buildChord(program5_sequence0, 8.0, "Ab minor");
-    program5_sequence0_chord1_voicing = buildVoicing(InstrumentType.Bass, program5_sequence0_chord1, "Ab3, Db3, F4");
+    program5_sequence0_chord1_voicing = buildVoicing(program5_sequence0_chord1, program5_voiceBass, "Ab3, Db3, F4");
     program5_sequence0_chord2 = buildChord(program5_sequence0, 75.0, "G-9"); // https://www.pivotaltracker.com/story/show/154090557 this ChordEntity should be ignored, because it's past the end of the main-pattern total
-    program5_sequence0_chord2_voicing = buildVoicing(InstrumentType.Bass, program5_sequence0_chord2, "G3, Bb3, D4, A4");
+    program5_sequence0_chord2_voicing = buildVoicing(program5_sequence0_chord2, program5_voiceBass, "G3, Bb3, D4, A4");
     program5_sequence0_binding0 = buildBinding(program5_sequence0, 0);
     program5_sequence0_binding0_meme0 = buildMeme(program5_sequence0_binding0, "Optimism");
     //
     program5_sequence1 = buildSequence(program5, 32, "Drop", 0.5f, "G minor");
     program5_sequence1_chord0 = buildChord(program5_sequence1, 0.0, "C major");
     //
-    program5_sequence1_chord0_voicing = buildVoicing(InstrumentType.Bass, program5_sequence1_chord0, "Ab3, Db3, F4");
+    program5_sequence1_chord0_voicing = buildVoicing(program5_sequence1_chord0, program5_voiceBass, "Ab3, Db3, F4");
     program5_sequence1_chord1 = buildChord(program5_sequence1, 8.0, "Bb minor");
     //
-    program5_sequence1_chord1_voicing = buildVoicing(InstrumentType.Bass, program5_sequence1_chord1, "Ab3, Db3, F4");
+    program5_sequence1_chord1_voicing = buildVoicing(program5_sequence1_chord1, program5_voiceBass, "Ab3, Db3, F4");
     program5_sequence1_binding0 = buildBinding(program5_sequence1, 1);
     program5_sequence1_binding0_meme0 = buildMeme(program5_sequence1_binding0, "Pessimism");
     program5_sequence1_binding1 = buildBinding(program5_sequence1, 1);
@@ -733,6 +799,10 @@ public class NexusIntegrationTestingFixtures {
       program4_sequence2_binding0,
       program4_sequence2_binding0_meme0,
       program5,
+      program5_voiceBass,
+      program5_voiceSticky,
+      program5_voiceStripe,
+      program5_voicePad,
       program5_meme0,
       program5_sequence0,
       program5_sequence0_binding0,
@@ -775,21 +845,22 @@ public class NexusIntegrationTestingFixtures {
 
     // Main program
     program15 = buildProgram(library2, ProgramType.Main, ProgramState.Published, "Next Jam", "Db minor", 140, 0.6f);
+    program15_voiceBass = buildVoice(program5, InstrumentType.Bass, "Bass");
     program15_meme0 = buildMeme(program15, "Hindsight");
     //
     program15_sequence0 = buildSequence(program15, 16, "Intro", 0.5f, "G minor");
     program15_sequence0_chord0 = buildChord(program15_sequence0, 0.0, "G minor");
-    program15_sequence0_chord0_voicing = buildVoicing(InstrumentType.Bass, program15_sequence0_chord0, "G3, Bb3, D4");
+    program15_sequence0_chord0_voicing = buildVoicing(program15_sequence0_chord0, program15_voiceBass, "G3, Bb3, D4");
     program15_sequence0_chord1 = buildChord(program15_sequence0, 8.0, "Ab minor");
-    program15_sequence0_chord1_voicing = buildVoicing(InstrumentType.Bass, program15_sequence0_chord1, "Ab3, C3, Eb4");
+    program15_sequence0_chord1_voicing = buildVoicing(program15_sequence0_chord1, program15_voiceBass, "Ab3, C3, Eb4");
     program15_sequence0_binding0 = buildBinding(program15_sequence0, 0);
     program15_sequence0_binding0_meme0 = buildMeme(program15_sequence0_binding0, "Regret");
     //
     program15_sequence1 = buildSequence(program15, 32, "Outro", 0.5f, "A major");
     program15_sequence1_chord0 = buildChord(program15_sequence1, 0.0, "C major");
-    program15_sequence1_chord0_voicing = buildVoicing(InstrumentType.Bass, program15_sequence0_chord0, "E3, G3, C4");
+    program15_sequence1_chord0_voicing = buildVoicing(program15_sequence0_chord0, program15_voiceBass, "E3, G3, C4");
     program15_sequence1_chord1 = buildChord(program15_sequence1, 8.0, "Bb major");
-    program15_sequence1_chord1_voicing = buildVoicing(InstrumentType.Bass, program15_sequence0_chord1, "F3, Bb3, D4");
+    program15_sequence1_chord1_voicing = buildVoicing(program15_sequence0_chord1, program15_voiceBass, "F3, Bb3, D4");
     program15_sequence1_binding0 = buildBinding(program15_sequence1, 1);
     program15_sequence1_binding0_meme0 = buildMeme(program15_sequence1_binding0, "Pride");
     program15_sequence1_binding0_meme1 = buildMeme(program15_sequence1_binding0, "Shame");
@@ -805,6 +876,7 @@ public class NexusIntegrationTestingFixtures {
       program3_sequence1_binding0,
       program3_sequence1_binding0_meme0,
       program15,
+      program15_voiceBass,
       program15_meme0,
       program15_sequence0,
       program15_sequence0_chord0,

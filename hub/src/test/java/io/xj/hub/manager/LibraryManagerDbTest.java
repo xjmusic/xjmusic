@@ -146,6 +146,7 @@ public class LibraryManagerDbTest {
     library.setAccountId(fake.account1.getId());
     //
     fake.program1 = test.insert(buildProgram(fake.library1a, ProgramType.Beat, "cannons fifty nine"));
+    fake.program1_voiceSticky = test.insert(buildProgramVoice(fake.program1, InstrumentType.Sticky, "Sticky"));
     test.insert(buildProgramMeme(fake.program1, "cinnamon"));
     fake.program1_sequence1 = test.insert(buildProgramSequence(fake.program1, 4, "Ants", 0.583f, "D minor"));
     var sequenceBinding1a_0 = test.insert(buildProgramSequenceBinding(fake.program1_sequence1, 0));
@@ -154,7 +155,7 @@ public class LibraryManagerDbTest {
     var voice = test.insert(buildProgramVoice(fake.program1, InstrumentType.Drum, "drums"));
     var track = test.insert(buildProgramVoiceTrack(voice, "Kick"));
     var programSequenceChord = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "D"));
-    test.insert(buildProgramSequenceChordVoicing(programSequenceChord, InstrumentType.Sticky, "D2,F#2,A2"));
+    test.insert(buildProgramSequenceChordVoicing(programSequenceChord, fake.program1_voiceSticky, "D2,F#2,A2"));
     var pattern = test.insert(buildProgramSequencePattern(fake.program1_sequence1, voice, 8, "jam"));
     test.insert(buildProgramSequencePatternEvent(pattern, track, 0.0f, 1.0f, "C", 1.0f));
     //
@@ -187,9 +188,9 @@ public class LibraryManagerDbTest {
       .where(PROGRAM_MEME.PROGRAM_ID.eq(resultProgram.getId()))
       .fetchOne(0, int.class));
     // Cloned ProgramVoice
-    assertEquals(1, resultCloner.getChildClones().stream()
+    assertEquals(2, resultCloner.getChildClones().stream()
       .filter(e -> ProgramVoice.class.equals(e.getClass())).count());
-    assertEquals(Integer.valueOf(1), test.getDSL()
+    assertEquals(Integer.valueOf(2), test.getDSL()
       .selectCount().from(PROGRAM_VOICE)
       .where(PROGRAM_VOICE.PROGRAM_ID.eq(resultProgram.getId()))
       .fetchOne(0, int.class));

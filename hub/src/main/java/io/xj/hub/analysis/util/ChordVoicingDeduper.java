@@ -2,10 +2,13 @@ package io.xj.hub.analysis.util;
 
 import io.xj.hub.tables.pojos.ProgramSequenceChord;
 import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
+import io.xj.hub.tables.pojos.ProgramVoice;
 
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -14,30 +17,43 @@ import java.util.stream.Collectors;
  <p>
  Chord search results (backend) must include all unique combinations of chord & voicing
  */
-public record ChordVoicingDeduper(
-  Collection<ProgramSequenceChord> chords,
-  Collection<ProgramSequenceChordVoicing> voicings
-) {
+public class ChordVoicingDeduper {
+  private final Map<UUID, ProgramVoice> voicesById;
+  private final Collection<ProgramSequenceChord> chords;
+  private final Collection<ProgramSequenceChordVoicing> voicings;
+  private static final String FINGERPRINT_SEPARATOR_MINOR = "|---|";
+  private static final String FINGERPRINT_SEPARATOR_MAJOR = "|-----|";
 
   public ChordVoicingDeduper(
+    Collection<ProgramVoice> voices,
     Collection<ProgramSequenceChord> chords,
     Collection<ProgramSequenceChordVoicing> voicings
   ) {
-    var chordVoicings = chords.stream()
+    this.voicesById = voices.stream()
+      .collect(Collectors.toMap(ProgramVoice::getId, (v) -> v));
+
+    var uniqueVoicings = chords.stream()
       .map(chord -> new ChordVoicings(chord,
         voicings.stream()
           .filter(v -> chord.getId().equals(v.getProgramSequenceChordId()))
           .toList()))
       .collect(Collectors.toMap(
-        ChordVoicings::getFingerprint,
+        (cv) -> String.format("%s%s%s", cv.getChord().getName().toLowerCase(Locale.ROOT),
+          FINGERPRINT_SEPARATOR_MAJOR,
+          cv.getVoicings().stream()
+            .sorted(Comparator.comparing((v) -> voicesById.get(v.getProgramVoiceId()).getType()))
+            .map(ProgramSequenceChordVoicing::getNotes)
+            .map(String::toLowerCase)
+            .collect(Collectors.joining(FINGERPRINT_SEPARATOR_MINOR))),
         (cv) -> cv,
         (cv1, cv2) -> cv2
       ));
 
-    this.chords = chordVoicings.values().stream()
+    this.chords = uniqueVoicings.values().stream()
       .map(ChordVoicings::getChord)
       .toList();
-    this.voicings = chordVoicings.values().stream()
+
+    this.voicings = uniqueVoicings.values().stream()
       .flatMap(cv -> cv.getVoicings().stream())
       .toList();
   }
@@ -50,6 +66,7 @@ public record ChordVoicingDeduper(
     return voicings;
   }
 
+
   /**
    One chord and its voicings
    */
@@ -57,30 +74,12 @@ public record ChordVoicingDeduper(
     ProgramSequenceChord chord,
     Collection<ProgramSequenceChordVoicing> voicings
   ) {
-
-    private static final String FINGERPRINT_SEPARATOR_MINOR = "|---|";
-    private static final String FINGERPRINT_SEPARATOR_MAJOR = "|-----|";
-
     public ProgramSequenceChord getChord() {
       return chord;
     }
 
     public Collection<ProgramSequenceChordVoicing> getVoicings() {
       return voicings;
-    }
-
-    /**
-     @return the unique fingerprint of this chord and its voicings
-     */
-    public String getFingerprint() {
-      return String.format("%s%s%s",
-        chord.getName().toLowerCase(Locale.ROOT),
-        FINGERPRINT_SEPARATOR_MAJOR,
-        voicings.stream()
-          .sorted(Comparator.comparing(ProgramSequenceChordVoicing::getType))
-          .map(ProgramSequenceChordVoicing::getNotes)
-          .map(String::toLowerCase)
-          .collect(Collectors.joining(FINGERPRINT_SEPARATOR_MINOR)));
     }
   }
 

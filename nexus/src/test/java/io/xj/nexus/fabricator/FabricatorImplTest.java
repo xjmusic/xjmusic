@@ -287,9 +287,9 @@ public class FabricatorImplTest {
       fake.setupFixtureB2().stream(),
       fake.setupFixtureB3().stream(),
       Stream.of(
-        buildVoicing(InstrumentType.Sticky, fake.program5_sequence0_chord0, "G4, B4, D4"),
-        buildVoicing(InstrumentType.Stripe, fake.program5_sequence0_chord0, "F5"),
-        buildVoicing(InstrumentType.Pad, fake.program5_sequence0_chord0, "(None)") // No voicing notes- doesn't count!
+        buildVoicing(fake.program5_sequence0_chord0, fake.program5_voiceSticky, "G4, B4, D4"),
+        buildVoicing(fake.program5_sequence0_chord0, fake.program5_voiceStripe, "F5"),
+        buildVoicing(fake.program5_sequence0_chord0, fake.program5_voicePad, "(None)") // No voicing notes- doesn't count!
       )
     ).collect(Collectors.toList()));
     store.put(buildTemplateBinding(fake.template1, fake.library2));

@@ -3,6 +3,7 @@ package io.xj.hub.manager;
 
 import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
+import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.ProgramVoice;
@@ -34,8 +35,16 @@ public class ProgramVoiceManagerImpl extends HubPersistenceServiceImpl<ProgramVo
     var record = validate(entity);
     DSLContext db = dbProvider.getDSL();
     requireProgramModification(db, access, record.getProgramId());
-    return modelFrom(ProgramVoice.class,
-      executeCreate(db, PROGRAM_VOICE, record));
+    return modelFrom(ProgramVoice.class, executeCreate(db, PROGRAM_VOICE, record));
+  }
+
+  @Override
+  public ProgramVoice add(DSLContext db, UUID programId, InstrumentType type) throws ManagerException, JsonapiException, ValueException {
+    ProgramVoice entity = new ProgramVoice();
+    entity.setProgramId(programId);
+    entity.setType(type);
+    entity.setName(type.toString());
+    return modelFrom(ProgramVoice.class, executeCreate(db, PROGRAM_VOICE, entity));
   }
 
   @Override
@@ -59,12 +68,12 @@ public class ProgramVoiceManagerImpl extends HubPersistenceServiceImpl<ProgramVo
 
   @Override
   @Nullable
-  public Collection<ProgramVoice> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
+  public Collection<ProgramVoice> readMany(HubAccess access, Collection<UUID> programIds) throws ManagerException {
     requireArtist(access);
     if (access.isTopLevel())
       return modelsFrom(ProgramVoice.class,
         dbProvider.getDSL().selectFrom(PROGRAM_VOICE)
-          .where(PROGRAM_VOICE.PROGRAM_ID.in(parentIds))
+          .where(PROGRAM_VOICE.PROGRAM_ID.in(programIds))
           .orderBy(PROGRAM_VOICE.ORDER.asc())
           .fetch());
     else
@@ -72,7 +81,7 @@ public class ProgramVoiceManagerImpl extends HubPersistenceServiceImpl<ProgramVo
         dbProvider.getDSL().select(PROGRAM_VOICE.fields()).from(PROGRAM_VOICE)
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_VOICE.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
-          .where(PROGRAM_VOICE.PROGRAM_ID.in(parentIds))
+          .where(PROGRAM_VOICE.PROGRAM_ID.in(programIds))
           .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
           .orderBy(PROGRAM_VOICE.ORDER.asc())
           .fetch());
@@ -94,6 +103,10 @@ public class ProgramVoiceManagerImpl extends HubPersistenceServiceImpl<ProgramVo
     DSLContext db = dbProvider.getDSL();
 
     requireModification(db, access, id);
+
+    db.deleteFrom(PROGRAM_SEQUENCE_CHORD_VOICING)
+      .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_VOICE_ID.eq(id))
+      .execute();
 
     db.deleteFrom(PROGRAM_SEQUENCE_PATTERN_EVENT)
       .where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_SEQUENCE_PATTERN_ID.in(

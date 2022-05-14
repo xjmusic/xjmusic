@@ -80,6 +80,10 @@ public class ProgramSequenceChordManagerDbTest {
     // Library "palm tree" has a program "Ants" and program "Ants"
     fake.library1 = test.insert(buildLibrary(fake.account1, "palm tree"));
     fake.program1 = test.insert(buildProgram(fake.library1, ProgramType.Main, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f));
+    fake.program1_voiceBass = test.insert(buildProgramVoice(fake.program1, InstrumentType.Bass, "Bass"));
+    fake.program1_voicePad = test.insert(buildProgramVoice(fake.program1, InstrumentType.Pad, "Pad"));
+    fake.program1_voiceStripe = test.insert(buildProgramVoice(fake.program1, InstrumentType.Stripe, "Stripe"));
+    fake.program1_voiceSticky = test.insert(buildProgramVoice(fake.program1, InstrumentType.Sticky, "Sticky"));
     fake.program1_sequence1 = test.insert(buildProgramSequence(fake.program1, 4, "Ants", 0.583f, "D minor"));
     sequenceChord1a_0 = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "C minor"));
     test.insert(buildProgramSequenceChord(fake.program1_sequence1, 2.0f, "D minor"));
@@ -162,9 +166,9 @@ public class ProgramSequenceChordManagerDbTest {
   public void cloneVoicings_onlyThoseSpecified() throws Exception {
     HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var input = buildProgramSequenceChord(fake.program1_sequence1, 4.3f, "F- sus");
-    test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, InstrumentType.Bass, "G3, Bb3, D4"));
-    test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, InstrumentType.Stripe, "G5, Bb5, D6"));
-    test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, InstrumentType.Sticky, "G4, Bb4, D5"));
+    test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, fake.program1_voiceBass, "G3, Bb3, D4"));
+    test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, fake.program1_voiceStripe, "G5, Bb5, D6"));
+    test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, fake.program1_voiceSticky, "G4, Bb4, D5"));
 
     var result = subject.clone(access, sequenceChord1a_0.getId(), input, List.of(InstrumentType.Bass, InstrumentType.Stripe));
 
@@ -182,9 +186,9 @@ public class ProgramSequenceChordManagerDbTest {
   public void cloneVoicings() throws Exception {
     HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var input = buildProgramSequenceChord(fake.program1_sequence1, 4.3f, "F- sus");
-    test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, InstrumentType.Bass, "G3, Bb3, D4"));
-    test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, InstrumentType.Stripe, "G5, Bb5, D6"));
-    test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, InstrumentType.Sticky, "G4, Bb4, D5"));
+    test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, fake.program1_voiceBass, "G3, Bb3, D4"));
+    test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, fake.program1_voiceStripe, "G5, Bb5, D6"));
+    test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, fake.program1_voiceSticky, "G4, Bb4, D5"));
 
     var result = subject.clone(access, sequenceChord1a_0.getId(), input, List.of(InstrumentType.Bass, InstrumentType.Stripe, InstrumentType.Sticky));
 
@@ -205,9 +209,9 @@ public class ProgramSequenceChordManagerDbTest {
   @Test
   public void cloneVoicings_fromAnotherProgram() throws Exception {
     HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
-    test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, InstrumentType.Bass, "G3, Bb3, D4"));
-    test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, InstrumentType.Stripe, "G5, Bb5, D6"));
-    test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, InstrumentType.Sticky, "G4, Bb4, D5"));
+    test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, fake.program1_voiceBass, "G3, Bb3, D4"));
+    test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, fake.program1_voiceStripe, "G5, Bb5, D6"));
+    test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, fake.program1_voiceSticky, "G4, Bb4, D5"));
     var program2_sequence1 = test.insert(buildProgramSequence(fake.program2, 4, "Ants", 0.583f, "D minor"));
     var input = buildProgramSequenceChord(program2_sequence1, 4.3f, "F- sus");
 
@@ -275,25 +279,26 @@ public class ProgramSequenceChordManagerDbTest {
     fake.account1 = test.insert(buildAccount("bananas"));
     fake.library1 = test.insert(buildLibrary(fake.account1, "palm tree"));
     fake.program1 = test.insert(buildProgram(fake.library1, ProgramType.Main, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f));
+    fake.program1_voiceBass = test.insert(buildProgramVoice(fake.program1, InstrumentType.Bass, "Bass"));
     fake.program1_sequence1 = test.insert(buildProgramSequence(fake.program1, 4, "Ants", 0.583f, "D minor"));
 
     var chordC = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "C"));
-    test.insert(buildProgramSequenceChordVoicing(chordC, InstrumentType.Bass, "G3, Bb3, D4"));
+    test.insert(buildProgramSequenceChordVoicing(chordC, fake.program1_voiceBass, "G3, Bb3, D4"));
 
     var chordCma1 = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "C major"));
-    test.insert(buildProgramSequenceChordVoicing(chordCma1, InstrumentType.Bass, "G3, Bb3, D4"));
+    test.insert(buildProgramSequenceChordVoicing(chordCma1, fake.program1_voiceBass, "G3, Bb3, D4"));
 
     var chordCmi1 = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "C minor"));
-    test.insert(buildProgramSequenceChordVoicing(chordCmi1, InstrumentType.Bass, "G3, Bb3, D4"));
+    test.insert(buildProgramSequenceChordVoicing(chordCmi1, fake.program1_voiceBass, "G3, Bb3, D4"));
 
     var chordC7 = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "C7"));
-    test.insert(buildProgramSequenceChordVoicing(chordC7, InstrumentType.Bass, "G3, Bb3, D4"));
+    test.insert(buildProgramSequenceChordVoicing(chordC7, fake.program1_voiceBass, "G3, Bb3, D4"));
 
     var chordG = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "G"));
-    test.insert(buildProgramSequenceChordVoicing(chordG, InstrumentType.Bass, "G3, Bb3, D4"));
+    test.insert(buildProgramSequenceChordVoicing(chordG, fake.program1_voiceBass, "G3, Bb3, D4"));
 
     var chordD = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "D"));
-    test.insert(buildProgramSequenceChordVoicing(chordD, InstrumentType.Bass, "G3, Bb3, D4"));
+    test.insert(buildProgramSequenceChordVoicing(chordD, fake.program1_voiceBass, "G3, Bb3, D4"));
 
     assertEquals(4, subject.search(access, fake.library1.getId(), "c").size());
     assertEquals(4, subject.search(access, fake.library1.getId(), "C").size());
@@ -359,7 +364,7 @@ public class ProgramSequenceChordManagerDbTest {
    */
   @Test
   public void destroy_afterHasVoicing() throws Exception {
-    test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, InstrumentType.Pad, "C5, Eb5, G5"));
+    test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, fake.program1_voicePad, "C5, Eb5, G5"));
 
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
 

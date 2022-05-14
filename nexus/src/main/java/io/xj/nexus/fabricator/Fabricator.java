@@ -364,8 +364,8 @@ public interface Fabricator {
   /**
    Get preferred (previously chosen) notes
 
-   @param parentIdent   of event
-   @param chordName of chord
+   @param parentIdent of event
+   @param chordName   of chord
    @return notes
    */
   Optional<Set<String>> getPreferredNotes(String parentIdent, String chordName);
@@ -441,6 +441,18 @@ public interface Fabricator {
    @return program type
    */
   ProgramType getProgramType(ProgramVoice voice) throws NexusException;
+
+
+  /**
+   Get the voice type for the given voicing
+   <p>
+   Programs persist main chord/voicing structure sensibly
+   https://www.pivotaltracker.com/story/show/182220689
+
+   @param voicing for which to get voice type
+   @return type of voice for voicing
+   */
+  InstrumentType getProgramVoiceType(ProgramSequenceChordVoicing voicing) throws NexusException;
 
   /**
    Get the lowest note present in any voicing of all the segment chord voicings for this segment and instrument type
@@ -787,8 +799,8 @@ public interface Fabricator {
    Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822 persisted for each randomly selected note in the series for any given pattern
    - key on program-sequence-pattern-event id, persisting only the first value seen for any given event
    - super-key on program-sequence-pattern id, measuring delta from the first event seen in that pattern@param eventId  member id-- if this is null, the sticky bun will be ignored@param rootNote note of current chord@param position of note
-   @param notes     to put
 
+   @param notes to put
    */
   void putStickyBun(@Nullable UUID eventId, Note rootNote, Double position, List<Note> notes);
 
@@ -805,5 +817,4 @@ public interface Fabricator {
    @return source material
    */
   HubContent sourceMaterial();
-
 }

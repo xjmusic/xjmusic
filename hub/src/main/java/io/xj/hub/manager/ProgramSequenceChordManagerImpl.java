@@ -9,6 +9,7 @@ import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.ProgramSequenceChord;
 import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
+import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.tables.records.ProgramSequenceChordVoicingRecord;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.ChordEntity;
@@ -25,20 +26,26 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import static io.xj.hub.Tables.LIBRARY;
 import static io.xj.hub.Tables.PROGRAM;
 import static io.xj.hub.Tables.PROGRAM_SEQUENCE_CHORD;
 import static io.xj.hub.Tables.PROGRAM_SEQUENCE_CHORD_VOICING;
+import static io.xj.hub.Tables.PROGRAM_VOICE;
 
 public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl<ProgramSequenceChord> implements ProgramSequenceChordManager {
+
+  private final ProgramVoiceManager programVoiceManager;
 
   @Inject
   public ProgramSequenceChordManagerImpl(
     EntityFactory entityFactory,
+    ProgramVoiceManager programVoiceManager,
     HubDatabaseProvider dbProvider
   ) {
     super(entityFactory, dbProvider);
+    this.programVoiceManager = programVoiceManager;
   }
 
   @Override
@@ -245,7 +252,7 @@ public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl<P
    @return cloner
    @throws ManagerException on failure
    */
-  private ManagerCloner<ProgramSequenceChord> clone(DSLContext db, HubAccess access, UUID cloneId, ProgramSequenceChord entity, List<InstrumentType> voicingTypes) throws ManagerException {
+  private ManagerCloner<ProgramSequenceChord> clone(DSLContext db, HubAccess access, UUID cloneId, ProgramSequenceChord entity, List<InstrumentType> voicingTypes) throws ManagerException, ValueException, JsonapiException {
     requireArtist(access);
 
     ProgramSequenceChord from = readOne(db, access, cloneId);
@@ -255,22 +262,38 @@ public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl<P
     ProgramSequenceChord programSequenceChord = validate(entity);
     requireProgramModification(db, access, entity.getProgramId());
 
+    var fromVoicesById = modelsFrom(ProgramVoice.class,
+      db.selectFrom(PROGRAM_VOICE).where(PROGRAM_VOICE.PROGRAM_ID.eq(from.getProgramId()))).stream()
+      .collect(Collectors.toMap(ProgramVoice::getId, (v) -> v));
+
+    var targetVoicesByType = modelsFrom(ProgramVoice.class,
+      db.selectFrom(PROGRAM_VOICE).where(PROGRAM_VOICE.PROGRAM_ID.eq(entity.getProgramId()))).stream()
+      .collect(Collectors.toMap(ProgramVoice::getType, (v) -> v));
+
     var target = modelFrom(ProgramSequenceChord.class, executeCreate(db, PROGRAM_SEQUENCE_CHORD, programSequenceChord));
     ManagerCloner<ProgramSequenceChord> cloner = new ManagerCloner<>(target, this);
 
     ProgramSequenceChordVoicingRecord voicing;
+    InstrumentType voiceType;
     for (var vc : db.selectFrom(PROGRAM_SEQUENCE_CHORD_VOICING)
       .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID.eq(cloneId))
       .fetch())
-      if (voicingTypes.contains(vc.getType())) {
-        voicing = db.newRecord(PROGRAM_SEQUENCE_CHORD_VOICING);
-        voicing.setId(UUID.randomUUID());
-        voicing.setProgramId(target.getProgramId());
-        voicing.setProgramSequenceChordId(target.getId());
-        voicing.setNotes(vc.getNotes());
-        voicing.setType(vc.getType());
-        voicing.store();
-        cloner.addChildClone(modelFrom(ProgramSequenceChordVoicing.class, voicing));
+      if (fromVoicesById.containsKey(vc.getProgramVoiceId())) {
+        voiceType = fromVoicesById.get(vc.getProgramVoiceId()).getType();
+        if (voicingTypes.contains(voiceType)) {
+
+          if (!targetVoicesByType.containsKey(voiceType))
+            targetVoicesByType.put(voiceType, programVoiceManager.add(db, target.getProgramId(), voiceType));
+
+          voicing = db.newRecord(PROGRAM_SEQUENCE_CHORD_VOICING);
+          voicing.setId(UUID.randomUUID());
+          voicing.setProgramId(target.getProgramId());
+          voicing.setProgramSequenceChordId(target.getId());
+          voicing.setNotes(vc.getNotes());
+          voicing.setProgramVoiceId(targetVoicesByType.get(voiceType).getId());
+          voicing.store();
+          cloner.addChildClone(modelFrom(ProgramSequenceChordVoicing.class, voicing));
+        }
       }
 
     return cloner;

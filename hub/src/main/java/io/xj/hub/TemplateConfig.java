@@ -276,7 +276,6 @@ public class TemplateConfig {
     config.put("instrumentTypesForAudioLengthFinalization", formatTypesafeQuoted(instrumentTypesForAudioLengthFinalization));
     config.put("instrumentTypesForInversionSeeking", formatTypesafeQuoted(instrumentTypesForInversionSeeking));
     config.put("mainProgramLengthMaxDelta", String.valueOf(mainProgramLengthMaxDelta));
-// todo    config.put("memeTaxonomy", ConfigValueFactory.fromIterable(memeTaxonomy.toList()).render(renderOptions));
     config.put("memeTaxonomy", computeStringValueMemeTaxonomy());
     config.put("mixerCompressAheadSeconds", String.valueOf(mixerCompressAheadSeconds));
     config.put("mixerCompressDecaySeconds", String.valueOf(mixerCompressDecaySeconds));

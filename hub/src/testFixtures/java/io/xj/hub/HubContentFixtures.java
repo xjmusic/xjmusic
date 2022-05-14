@@ -3,15 +3,53 @@
 package io.xj.hub;
 
 import com.google.common.collect.ImmutableList;
-import io.xj.hub.enums.*;
-import io.xj.hub.tables.pojos.*;
+import io.xj.hub.enums.InstrumentMode;
+import io.xj.hub.enums.InstrumentState;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramState;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.tables.pojos.Account;
+import io.xj.hub.tables.pojos.AccountUser;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.InstrumentMeme;
+import io.xj.hub.tables.pojos.Library;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramMeme;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
+import io.xj.hub.tables.pojos.ProgramSequenceChord;
+import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
+import io.xj.hub.tables.pojos.User;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.hub.IntegrationTestingFixtures.*;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrument;
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrumentAudio;
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrumentMeme;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramMeme;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequence;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceBinding;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceBindingMeme;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceChord;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceChordVoicing;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequencePattern;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequencePatternEvent;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramVoice;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramVoiceTrack;
+import static io.xj.hub.IntegrationTestingFixtures.buildUser;
 
 /**
  https://www.pivotaltracker.com/story/show/165954673 Integration tests use shared scenario fixtures as much as possible
@@ -146,36 +184,6 @@ public class HubContentFixtures {
   public User user2;
   public User user3;
 
-  /**
-   Random value between A and B
-
-   @param A floor
-   @param B ceiling
-   @return A <= value <= B
-   */
-  protected static Double random(double A, double B) {
-    return A + StrictMath.random() * (B - A);
-  }
-
-  /**
-   Get random String of array
-
-   @param array to get String of
-   @return random String
-   */
-  protected static String random(String[] array) {
-    return array[(int) StrictMath.floor(StrictMath.random() * array.length)];
-  }
-
-  /**
-   Get random long of array
-
-   @param array to get long of
-   @return random long
-   */
-  protected static Integer random(Integer[] array) {
-    return array[(int) StrictMath.floor(StrictMath.random() * array.length)];
-  }
 
   /**
    A whole library of mock content
@@ -217,15 +225,16 @@ public class HubContentFixtures {
 
     // Main program
     program5 = buildProgram(library2, ProgramType.Main, ProgramState.Published, "Main Jam", "C minor", 140f, 0.6f);
+    ProgramVoice voice1 = buildProgramVoice(program1, InstrumentType.Pad, "Pad");
     program5_meme0 = buildProgramMeme(program5, "Outlook");
     //
     program5_sequence0 = buildProgramSequence(program5, (short) 16, "Intro", 0.5f, "G major");
     program5_sequence0_chord0 = buildProgramSequenceChord(program5_sequence0, 0.0, "G major");
-    program5_sequence0_chord0_voicing = buildProgramSequenceChordVoicing(program5_sequence0_chord0, InstrumentType.Pad, "G3, B3, D4");
+    program5_sequence0_chord0_voicing = buildProgramSequenceChordVoicing(program5_sequence0_chord0, voice1, "G3, B3, D4");
     program5_sequence0_chord1 = buildProgramSequenceChord(program5_sequence0, 8.0, "Ab minor");
-    program5_sequence0_chord1_voicing = buildProgramSequenceChordVoicing(program5_sequence0_chord1, InstrumentType.Pad, "Ab3, Db3, F4");
+    program5_sequence0_chord1_voicing = buildProgramSequenceChordVoicing(program5_sequence0_chord1, voice1, "Ab3, Db3, F4");
     program5_sequence0_chord2 = buildProgramSequenceChord(program5_sequence0, 75.0, "G-9"); // https://www.pivotaltracker.com/story/show/154090557 this ChordEntity should be ignored, because it's past the end of the main-pattern total
-    program5_sequence0_chord2_voicing = buildProgramSequenceChordVoicing(program5_sequence0_chord2, InstrumentType.Pad, "G3, Bb3, D4, A4");
+    program5_sequence0_chord2_voicing = buildProgramSequenceChordVoicing(program5_sequence0_chord2, voice1, "G3, Bb3, D4, A4");
     program5_sequence0_binding0 = buildProgramSequenceBinding(program5_sequence0, 0);
     program5_sequence0_binding0_meme0 = buildProgramSequenceBindingMeme(program5_sequence0_binding0, "Optimism");
     //

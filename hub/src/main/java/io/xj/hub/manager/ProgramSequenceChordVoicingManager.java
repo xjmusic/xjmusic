@@ -2,7 +2,9 @@
 package io.xj.hub.manager;
 
 import io.xj.hub.access.HubAccess;
+import io.xj.hub.tables.pojos.ProgramSequenceChord;
 import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
+import io.xj.hub.tables.pojos.ProgramVoice;
 
 import java.util.Collection;
 import java.util.List;
@@ -20,4 +22,22 @@ public interface ProgramSequenceChordVoicingManager extends Manager<ProgramSeque
    @return voicings for chords
    */
   Collection<ProgramSequenceChordVoicing> readManyForChords(HubAccess access, List<UUID> chordIds) throws ManagerException;
+
+  /**
+   Create all empty voicings implied by this chord and the voices in this program
+   @return voicings created
+   @throws ManagerException on failure
+   @param access control
+   @param chord for which to create empty voicings
+   */
+  Collection<ProgramSequenceChordVoicing> createEmptyVoicings(HubAccess access, ProgramSequenceChord chord) throws ManagerException;
+
+  /**
+   Create all empty voicings implied by this voice and the chords in this program
+   @return voicings created
+   @throws ManagerException on failure
+   @param access control
+   @param chord for which to create empty voicings
+   */
+  Collection<ProgramSequenceChordVoicing> createEmptyVoicings(HubAccess access, ProgramVoice chord) throws ManagerException;
 }

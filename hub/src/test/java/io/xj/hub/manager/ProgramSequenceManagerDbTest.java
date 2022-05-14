@@ -355,7 +355,7 @@ public class ProgramSequenceManagerDbTest {
   @Test
   public void destroy_succeedsEvenWithChildren() throws Exception {
     HubAccess access = HubAccess.create("Admin");
-    var programVoice = test.insert(buildProgramVoice(fake.program3, InstrumentType.Drum, "Drums"));
+    var programVoice = test.insert(buildProgramVoice(fake.program3, InstrumentType.Stripe, "Stripe"));
     var track = test.insert(buildProgramVoiceTrack(programVoice, "KICK"));
     var programSequence = test.insert(buildProgramSequence(fake.program2, 16, "Ants", 0.6f, "C#"));
     var programSequenceBinding = test.insert(buildProgramSequenceBinding(programSequence, 0));
@@ -363,7 +363,7 @@ public class ProgramSequenceManagerDbTest {
     var pattern = test.insert(buildProgramSequencePattern(programSequence, fake.program702_voice1, 4, "Jam"));
     test.insert(buildProgramSequencePatternEvent(pattern, track, 0.0f, 1.0f, "C", 1.0f));
     var programSequenceChord = test.insert(buildProgramSequenceChord(programSequence, 0.0, "G"));
-    test.insert(buildProgramSequenceChordVoicing(programSequenceChord, InstrumentType.Bass, "C5, Eb5, G5"));
+    test.insert(buildProgramSequenceChordVoicing(programSequenceChord, programVoice, "C5, Eb5, G5"));
 
     testManager.destroy(access, programSequence.getId());
   }

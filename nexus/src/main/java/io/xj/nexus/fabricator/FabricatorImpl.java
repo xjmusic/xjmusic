@@ -306,7 +306,14 @@ class FabricatorImpl implements Fabricator {
       var mainChoice = getCurrentMainChoice();
       if (mainChoice.isEmpty()) return Set.of();
       var voicings = sourceMaterial.getProgramSequenceChordVoicings(mainChoice.get().getProgramId());
-      distinctChordVoicingTypes = voicings.stream().map(ProgramSequenceChordVoicing::getType).collect(Collectors.toSet());
+      distinctChordVoicingTypes = voicings.stream().flatMap(voicing -> {
+        try {
+          return Stream.of(getProgramVoiceType(voicing));
+        } catch (NexusException e) {
+          LOG.error("Failed to get distinct chord voicing type!", e);
+          return Stream.empty();
+        }
+      }).collect(Collectors.toSet());
     }
 
     return distinctChordVoicingTypes;
@@ -634,6 +641,11 @@ class FabricatorImpl implements Fabricator {
   @Override
   public ProgramType getProgramType(ProgramVoice voice) throws NexusException {
     return sourceMaterial.getProgram(voice.getProgramId()).orElseThrow(() -> new NexusException("Could not get program!")).getType();
+  }
+
+  @Override
+  public InstrumentType getProgramVoiceType(ProgramSequenceChordVoicing voicing) throws NexusException {
+    return sourceMaterial.getProgramVoice(voicing.getProgramVoiceId()).orElseThrow(() -> new NexusException("Could not get voice!")).getType();
   }
 
   @Override

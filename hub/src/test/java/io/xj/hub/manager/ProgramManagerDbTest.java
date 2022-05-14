@@ -168,7 +168,7 @@ public class ProgramManagerDbTest {
     var voice = test.insert(buildProgramVoice(fake.program1, InstrumentType.Drum, "drums"));
     var track = test.insert(buildProgramVoiceTrack(voice, "Kick"));
     var programSequenceChord = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "D"));
-    test.insert(buildProgramSequenceChordVoicing(programSequenceChord, InstrumentType.Sticky, "D2,F#2,A2"));
+    test.insert(buildProgramSequenceChordVoicing(programSequenceChord, voice, "D2,F#2,A2"));
     var pattern = test.insert(buildProgramSequencePattern(fake.program1_sequence1, voice, 8, "jam"));
     test.insert(buildProgramSequencePatternEvent(pattern, track, 0.0f, 1.0f, "C", 1.0f));
 
@@ -289,7 +289,7 @@ public class ProgramManagerDbTest {
     var voice = test.insert(buildProgramVoice(fake.program1, InstrumentType.Drum, "drums"));
     var track = test.insert(buildProgramVoiceTrack(voice, "Kick"));
     var programSequenceChord = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "D"));
-    test.insert(buildProgramSequenceChordVoicing(programSequenceChord, InstrumentType.Sticky, "D2,F#2,A2"));
+    test.insert(buildProgramSequenceChordVoicing(programSequenceChord, voice, "D2,F#2,A2"));
     var pattern = test.insert(buildProgramSequencePattern(fake.program1_sequence1, voice, 8, "jam"));
     test.insert(buildProgramSequencePatternEvent(pattern, track, 0.0f, 1.0f, "C", 1.0f));
 

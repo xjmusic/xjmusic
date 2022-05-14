@@ -85,8 +85,12 @@ public class IntegrationTestingFixtures {
   public ProgramSequencePatternEvent program2_sequence1_pattern1_event0;
   public ProgramSequencePatternEvent program2_sequence1_pattern1_event1;
   public ProgramSequencePatternEvent program702_pattern901_boomEvent;
-  public ProgramVoice program702_voice1;
+  public ProgramVoice program1_voiceBass;
+  public ProgramVoice program1_voicePad;
+  public ProgramVoice program1_voiceSticky;
+  public ProgramVoice program1_voiceStripe;
   public ProgramVoice program2_voice2;
+  public ProgramVoice program702_voice1;
   public ProgramVoiceTrack program2_voice1_track0;
   public ProgramVoiceTrack program2_voice1_track1;
   public Template template1;
@@ -277,12 +281,12 @@ public class IntegrationTestingFixtures {
     return chord;
   }
 
-  public static ProgramSequenceChordVoicing buildVoicing(InstrumentType type, ProgramSequenceChord programSequenceChord, String notes) {
+  public static ProgramSequenceChordVoicing buildVoicing(ProgramSequenceChord programSequenceChord, ProgramVoice voice, String notes) {
     var voicing = new ProgramSequenceChordVoicing();
     voicing.setId(UUID.randomUUID());
     voicing.setProgramId(programSequenceChord.getProgramId());
     voicing.setProgramSequenceChordId(programSequenceChord.getId());
-    voicing.setType(type);
+    voicing.setProgramVoiceId(voice.getId());
     voicing.setNotes(notes);
     return voicing;
   }
@@ -635,12 +639,12 @@ public class IntegrationTestingFixtures {
     return programSequenceChord;
   }
 
-  public static ProgramSequenceChordVoicing buildProgramSequenceChordVoicing(ProgramSequenceChord programSequenceChord, InstrumentType type, String notes) {
+  public static ProgramSequenceChordVoicing buildProgramSequenceChordVoicing(ProgramSequenceChord programSequenceChord, ProgramVoice voice, String notes) {
     var programSequenceChordVoicing = new ProgramSequenceChordVoicing();
     programSequenceChordVoicing.setId(UUID.randomUUID());
     programSequenceChordVoicing.setProgramId(programSequenceChord.getProgramId());
     programSequenceChordVoicing.setProgramSequenceChordId(programSequenceChord.getId());
-    programSequenceChordVoicing.setType(type);
+    programSequenceChordVoicing.setProgramVoiceId(voice.getId());
     programSequenceChordVoicing.setNotes(notes);
     return programSequenceChordVoicing;
   }

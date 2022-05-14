@@ -30,6 +30,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static io.xj.hub.IntegrationTestingFixtures.*;
 import static org.junit.Assert.*;
@@ -61,7 +62,7 @@ public class ProgramSequenceChordVoicingManagerDbTest {
 
     // Account "bananas"
     fake.account1 = test.insert(buildAccount("bananas"));
-// John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
+    // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     fake.user2 = test.insert(buildUser("john", "john@email.com", "https://pictures.com/john.gif", "Admin"));
 
     // Jenny has a "user" role and belongs to account "bananas"
@@ -72,9 +73,11 @@ public class ProgramSequenceChordVoicingManagerDbTest {
     fake.library1 = test.insert(buildLibrary(fake.account1, "palm tree"));
     fake.program1 = test.insert(buildProgram(fake.library1, ProgramType.Main, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f));
     fake.program1_sequence1 = test.insert(buildProgramSequence(fake.program1, 4, "Ants", 0.583f, "D minor"));
+    fake.program1_voicePad = test.insert(buildProgramVoice(fake.program1, InstrumentType.Pad, "Pad"));
+    fake.program1_voiceBass = test.insert(buildProgramVoice(fake.program1, InstrumentType.Bass, "Bass"));
     sequenceChord1a_0 = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "C minor"));
-    sequenceChord1a_0_voicing0 = test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, InstrumentType.Bass, "C5, Eb5, G5"));
-    test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, InstrumentType.Bass, "G,B,Db,F"));
+    sequenceChord1a_0_voicing0 = test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, fake.program1_voiceBass, "C5, Eb5, G5"));
+    test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, fake.program1_voiceBass, "G,B,Db,F"));
     fake.program2 = test.insert(buildProgram(fake.library1, ProgramType.Beat, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f));
     fake.program702_voice1 = test.insert(buildProgramVoice(fake.program2, InstrumentType.Drum, "Drums"));
 
@@ -82,7 +85,7 @@ public class ProgramSequenceChordVoicingManagerDbTest {
     fake.library2 = test.insert(buildLibrary(fake.account1, "boat"));
     fake.program3 = test.insert(buildProgram(fake.library2, ProgramType.Macro, ProgramState.Published, "helm", "C#", 120.0f, 0.6f));
     fake.program3_sequence1 = test.insert(buildProgramSequence(fake.program3, 16, "Ants", 0.583f, "D minor"));
-    fake.program3_chord1 = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "G7 flat 6"));
+    fake.program3_chord1 = test.insert(buildProgramSequenceChord(fake.program3_sequence1, 0.0f, "G7 flat 6"));
     fake.program4 = test.insert(buildProgram(fake.library2, ProgramType.Detail, ProgramState.Published, "sail", "C#", 120.0f, 0.6f));
 
     // Instantiate the test entity
@@ -101,7 +104,7 @@ public class ProgramSequenceChordVoicingManagerDbTest {
     entity.setId(UUID.randomUUID());
     entity.setProgramId(fake.program3.getId());
     entity.setProgramSequenceChordId(fake.program3_chord1.getId());
-    entity.setType(InstrumentType.Pad);
+    entity.setProgramVoiceId(fake.program1_voiceBass.getId());
     entity.setNotes("C5, Eb5, G5");
 
     var result = subject.create(
@@ -110,11 +113,49 @@ public class ProgramSequenceChordVoicingManagerDbTest {
     assertNotNull(result);
     assertEquals(fake.program3.getId(), result.getProgramId());
     assertEquals(fake.program3_chord1.getId(), result.getProgramSequenceChordId());
-    assertEquals(InstrumentType.Pad, result.getType());
+    assertEquals(fake.program1_voiceBass.getId(), result.getProgramVoiceId());
     assertEquals("C5, Eb5, G5", result.getNotes());
   }
 
   /**
+   Creating a new chord creates `(None)` chord voicings for all program voices, and includes all created entities in API response
+   https://www.pivotaltracker.com/story/show/182220689
+   */
+  @Test
+  public void create_emptyForChord() throws Exception {
+    HubAccess access = HubAccess.internal();
+    var chord1 = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "C minor"));
+
+    var result = subject.createEmptyVoicings(access, chord1);
+
+    assertEquals(2, result.size());
+    var targetVoiceIds = result.stream().map(ProgramSequenceChordVoicing::getProgramVoiceId).collect(Collectors.toSet());
+    assertTrue("created empty pad voicing", targetVoiceIds.contains(fake.program1_voicePad.getId()));
+    assertTrue("created empty bass voicing", targetVoiceIds.contains(fake.program1_voiceBass.getId()));
+  }
+
+  /**
+   Creating a new program voice creates `(None)` chord voicings for all sequence chords, and includes all created entities in API response
+   https://www.pivotaltracker.com/story/show/182220689
+   */
+  @Test
+  public void create_emptyForVoice() throws Exception {
+    HubAccess access = HubAccess.internal();
+    var extraChord = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "C minor"));
+    var voiceStripe = test.insert(buildProgramVoice(fake.program1, InstrumentType.Stripe, "Main"));
+
+    var result = subject.createEmptyVoicings(access, voiceStripe);
+
+    assertEquals(2, result.size());
+    var targetChordIds = result.stream().map(ProgramSequenceChordVoicing::getProgramSequenceChordId).collect(Collectors.toSet());
+    assertTrue("created empty voicing for chord 1", targetChordIds.contains(sequenceChord1a_0.getId()));
+    assertTrue("created empty voicing for chord 2", targetChordIds.contains(extraChord.getId()));
+  }
+
+  /**
+   Cannot create/update a voicing to existing chord+voice
+   https://www.pivotaltracker.com/story/show/182220689
+   <p>
    Creating a voicing type deletes (overwrites) the previously existent voicing
    Re: Lab should be able to create voicing for MP chord where there is none
    https://www.pivotaltracker.com/story/show/182132495
@@ -122,16 +163,14 @@ public class ProgramSequenceChordVoicingManagerDbTest {
    PREVIOUS BEHAVIOR: Cannot create another voicing for a chord with the same type as an existing voicing for that chord https://www.pivotaltracker.com/story/show/181159558
    */
   @Test
-  public void create_cannotCreateAnotherForExistingInstrumentType() throws Exception {
+  public void create_cannotCreateAnotherForExistingChordAndVoice() throws Exception {
     HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
-    var voicing1a = subject.create(access, buildProgramSequenceChordVoicing(fake.program3_chord1, InstrumentType.Pad, "C5, Eb5, G5"));
-    var voicing1b = buildProgramSequenceChordVoicing(fake.program3_chord1, InstrumentType.Pad, "A4, C5, E5");
+    var voicing1a = subject.create(access, buildProgramSequenceChordVoicing(fake.program3_chord1, fake.program1_voicePad, "C5, Eb5, G5"));
+    var voicing1b = buildProgramSequenceChordVoicing(fake.program3_chord1, fake.program1_voicePad, "A4, C5, E5");
 
+    var e = assertThrows(ManagerException.class, () -> subject.create(access, voicing1b));
 
-    subject.create(access, voicing1b);
-
-    var e = assertThrows(ManagerException.class, () -> subject.readOne(access, voicing1a.getId()));
-    assertEquals("Record does not exist", e.getMessage());
+    assertEquals("Found existing voicing for this chord and voice", e.getMessage());
   }
 
   /**
@@ -140,7 +179,7 @@ public class ProgramSequenceChordVoicingManagerDbTest {
   @Test
   public void update() throws Exception {
     HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
-    sequenceChord1a_0_voicing0.setType(InstrumentType.Sticky);
+    sequenceChord1a_0_voicing0.setProgramVoiceId(fake.program1_voicePad.getId());
     sequenceChord1a_0_voicing0.setNotes("G1,G2,G3");
 
     subject.update(access, sequenceChord1a_0_voicing0.getId(), sequenceChord1a_0_voicing0);
@@ -148,11 +187,14 @@ public class ProgramSequenceChordVoicingManagerDbTest {
     var result = subject.readOne(access, sequenceChord1a_0_voicing0.getId());
     assertNotNull(result);
     assertEquals(sequenceChord1a_0_voicing0.getId(), result.getId());
-    assertEquals(InstrumentType.Sticky, result.getType());
+    assertEquals(fake.program1_voicePad.getId(), result.getProgramVoiceId());
     assertEquals("G1,G2,G3", result.getNotes());
   }
 
   /**
+   Cannot create/update a voicing to existing chord+voice
+   https://www.pivotaltracker.com/story/show/182220689
+   <p>
    Updating to an existing voicing type deletes (overwrites) the previously existent voicing
    Re: Lab should be able to create voicing for MP chord where there is none
    https://www.pivotaltracker.com/story/show/182132495
@@ -160,17 +202,16 @@ public class ProgramSequenceChordVoicingManagerDbTest {
    PREVIOUS BEHAVIOR: Cannot update this voicing to a type that already exists for that chord https://www.pivotaltracker.com/story/show/181159558
    */
   @Test
-  public void update_cannotUpdateToTypeOfExistingVoicing() throws Exception {
+  public void update_cannotUpdateToTypeOfExistingChordAndVoice() throws Exception {
     HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
-    var voicing1a = buildProgramSequenceChordVoicing(fake.program3_chord1, InstrumentType.Pad, "C5, Eb5, G5");
+    var voicing1a = buildProgramSequenceChordVoicing(fake.program3_chord1, fake.program1_voicePad, "C5, Eb5, G5");
     subject.create(access, voicing1a);
-    ProgramSequenceChordVoicing voicing1b = subject.create(access, buildProgramSequenceChordVoicing(fake.program3_chord1, InstrumentType.Drum, "A4, C5, E5"));
-    voicing1b.setType(InstrumentType.Pad);
+    ProgramSequenceChordVoicing voicing1b = subject.create(access, buildProgramSequenceChordVoicing(fake.program3_chord1, fake.program1_voiceBass, "A4, C5, E5"));
+    voicing1b.setProgramVoiceId(fake.program1_voicePad.getId());
 
-    subject.update(access, voicing1b.getId(), voicing1b);
+    var e = assertThrows(ManagerException.class, () -> subject.update(access, voicing1b.getId(), voicing1b));
 
-    var updated = subject.readOne(access, voicing1b.getId());
-    assertEquals(InstrumentType.Pad, updated.getType());
+    assertEquals("Found existing voicing for this chord and voice", e.getMessage());
   }
 
   /**
@@ -184,7 +225,7 @@ public class ProgramSequenceChordVoicingManagerDbTest {
     inputData.setId(UUID.randomUUID());
     inputData.setProgramId(fake.program3.getId());
     inputData.setProgramSequenceChordId(fake.program3_chord1.getId());
-    inputData.setType(InstrumentType.Bass);
+    inputData.setProgramVoiceId(fake.program1_voiceBass.getId());
     inputData.setNotes("C5, Eb5, G5");
 
     var result = subject.create(
@@ -193,7 +234,7 @@ public class ProgramSequenceChordVoicingManagerDbTest {
     assertNotNull(result);
     assertEquals(fake.program3.getId(), result.getProgramId());
     assertEquals(fake.program3_chord1.getId(), result.getProgramSequenceChordId());
-    assertEquals(InstrumentType.Bass, result.getType());
+    assertEquals(fake.program1_voiceBass.getId(), result.getProgramVoiceId());
     assertEquals("C5, Eb5, G5", result.getNotes());
   }
 
@@ -207,7 +248,7 @@ public class ProgramSequenceChordVoicingManagerDbTest {
     assertEquals(sequenceChord1a_0_voicing0.getId(), result.getId());
     assertEquals(fake.program1.getId(), result.getProgramId());
     assertEquals(sequenceChord1a_0.getId(), result.getProgramSequenceChordId());
-    assertEquals(InstrumentType.Bass, result.getType());
+    assertEquals(fake.program1_voiceBass.getId(), result.getProgramVoiceId());
     assertEquals("C5, Eb5, G5", result.getNotes());
   }
 

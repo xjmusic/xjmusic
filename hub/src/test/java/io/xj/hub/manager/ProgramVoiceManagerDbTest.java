@@ -16,16 +16,16 @@ import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.ingest.HubIngestModule;
+import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
+import org.jooq.DSLContext;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -33,21 +33,34 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.UUID;
 
-import static io.xj.hub.IntegrationTestingFixtures.*;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildChord;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequence;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceBinding;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequencePattern;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequencePatternEvent;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramVoice;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramVoiceTrack;
+import static io.xj.hub.IntegrationTestingFixtures.buildSequence;
+import static io.xj.hub.IntegrationTestingFixtures.buildUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildVoice;
+import static io.xj.hub.IntegrationTestingFixtures.buildVoicing;
 import static io.xj.hub.tables.ProgramVoice.PROGRAM_VOICE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 
 // future test: permissions of different users to readMany vs. of vs. update or destroy programs
 @RunWith(MockitoJUnitRunner.class)
 public class ProgramVoiceManagerDbTest {
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
-  private ProgramVoiceManager testManager;
+  private ProgramVoiceManager subject;
 
   private HubIntegrationTestProvider test;
   private IntegrationTestingFixtures fake;
-
+  private HubDatabaseProvider dbProvider;
   private Injector injector;
 
   @Before
@@ -60,6 +73,7 @@ public class ProgramVoiceManagerDbTest {
       }
     }));
     test = injector.getInstance(HubIntegrationTestProvider.class);
+    dbProvider = injector.getInstance(HubDatabaseProvider.class);
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
@@ -92,8 +106,8 @@ public class ProgramVoiceManagerDbTest {
     test.insert(buildProgramSequenceBinding(fake.program3_sequence1, 0));
     fake.program4 = test.insert(buildProgram(fake.library2, ProgramType.Detail, ProgramState.Published, "sail", "C#", 120.0f, 0.6f));
 
-    // Instantiate the test subject
-    testManager = injector.getInstance(ProgramVoiceManager.class);
+    // Instantiate the test entity
+    subject = injector.getInstance(ProgramVoiceManager.class);
   }
 
   @After
@@ -104,18 +118,30 @@ public class ProgramVoiceManagerDbTest {
   @Test
   public void create() throws Exception {
     HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
-    var subject = new ProgramVoice();
-    subject.setId(UUID.randomUUID());
-    subject.setProgramId(fake.program3.getId());
-    subject.setType(InstrumentType.Pad);
-    subject.setName("Jams");
+    var entity = new ProgramVoice();
+    entity.setId(UUID.randomUUID());
+    entity.setProgramId(fake.program3.getId());
+    entity.setType(InstrumentType.Pad);
+    entity.setName("Jams");
 
-    var result = testManager.create(
-      access, subject);
+    var result = subject.create(access, entity);
 
     assertNotNull(result);
     assertEquals(fake.program3.getId(), result.getProgramId());
     assertEquals("Jams", result.getName());
+  }
+
+  @Test
+  public void add() throws Exception {
+    DSLContext db = dbProvider.getDSL();
+
+    var result = subject.add(db, fake.program3.getId(), InstrumentType.Bass);
+
+    assertNotNull(result);
+    assertEquals(fake.program3.getId(), result.getProgramId());
+    assertEquals("Bass", result.getName());
+    var confirmed = subject.readOne(HubAccess.internal(), result.getId());
+    assertEquals(confirmed.getId(), result.getId());
   }
 
   /**
@@ -131,7 +157,7 @@ public class ProgramVoiceManagerDbTest {
     inputData.setType(InstrumentType.Pad);
     inputData.setName("Jams");
 
-    var result = testManager.create(
+    var result = subject.create(
       access, inputData);
 
     assertNotNull(result);
@@ -143,7 +169,7 @@ public class ProgramVoiceManagerDbTest {
   public void readOne() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
 
-    var result = testManager.readOne(access, fake.program702_voice1.getId());
+    var result = subject.readOne(access, fake.program702_voice1.getId());
 
     assertNotNull(result);
     assertEquals(fake.program702_voice1.getId(), result.getId());
@@ -154,17 +180,16 @@ public class ProgramVoiceManagerDbTest {
   @Test
   public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
-    failure.expect(ManagerException.class);
-    failure.expectMessage("does not exist");
 
-    testManager.readOne(access, fake.program702_voice1.getId());
+    var e = assertThrows(ManagerException.class, () -> subject.readOne(access, fake.program702_voice1.getId()));
+    assertEquals("Record does not exist", e.getMessage());
   }
 
   @Test
   public void readMany() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
 
-    Collection<ProgramVoice> result = testManager.readMany(access, ImmutableList.of(fake.program2.getId()));
+    Collection<ProgramVoice> result = subject.readMany(access, ImmutableList.of(fake.program2.getId()));
 
     assertEquals(1L, result.size());
     Iterator<ProgramVoice> resultIt = result.iterator();
@@ -175,7 +200,7 @@ public class ProgramVoiceManagerDbTest {
   public void readMany_seesNothingOutsideOfLibrary() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
 
-    Collection<ProgramVoice> result = testManager.readMany(access, ImmutableList.of(fake.program2.getId()));
+    Collection<ProgramVoice> result = subject.readMany(access, ImmutableList.of(fake.program2.getId()));
 
     assertEquals(0L, result.size());
   }
@@ -184,11 +209,32 @@ public class ProgramVoiceManagerDbTest {
   public void destroy_okWithChildEntities() throws Exception {
     HubAccess access = HubAccess.create("Admin");
 
-    testManager.destroy(access, fake.program702_voice1.getId());
+    subject.destroy(access, fake.program702_voice1.getId());
 
     assertEquals(Integer.valueOf(0), test.getDSL()
       .selectCount().from(PROGRAM_VOICE)
       .where(PROGRAM_VOICE.ID.eq(fake.program702_voice1.getId()))
+      .fetchOne(0, int.class));
+  }
+
+  @Test
+  public void destroy_okWithMainChordVoicings() throws Exception {
+    HubAccess access = HubAccess.internal();
+    var program5 = test.insert(buildProgram(fake.library1, ProgramType.Main, ProgramState.Published, "Main Jam", "C minor", 140, 0.6f));
+    var program5_voiceBass = test.insert(buildVoice(program5, InstrumentType.Bass, "Bass"));
+    var program5_sequence0 = test.insert(buildSequence(program5, 16, "Intro", 0.5f, "G major"));
+    var program5_sequence0_chord0 = test.insert(buildChord(program5_sequence0, 0.0, "G major"));
+    test.insert(buildVoicing(program5_sequence0_chord0, program5_voiceBass, "G3, B3, D4"));
+    var program5_sequence0_chord1 = test.insert(buildChord(program5_sequence0, 8.0, "Ab minor"));
+    test.insert(buildVoicing(program5_sequence0_chord1, program5_voiceBass, "Ab3, Db3, F4"));
+    var program5_sequence0_chord2 = test.insert(buildChord(program5_sequence0, 75.0, "G-9")); // https://www.pivotaltracker.com/story/show/154090557 this ChordEntity should be ignored, because it's past the end of the main-pattern total
+    test.insert(buildVoicing(program5_sequence0_chord2, program5_voiceBass, "G3, Bb3, D4, A4"));
+
+    subject.destroy(access, program5_voiceBass.getId());
+
+    assertEquals(Integer.valueOf(0), test.getDSL()
+      .selectCount().from(PROGRAM_VOICE)
+      .where(PROGRAM_VOICE.ID.eq(program5_voiceBass.getId()))
       .fetchOne(0, int.class));
   }
 
@@ -199,7 +245,7 @@ public class ProgramVoiceManagerDbTest {
     injector.getInstance(ProgramVoiceTrackManager.class).destroy(HubAccess.internal(), fake.program2_voice1_track0.getId());
     injector.getInstance(ProgramVoiceTrackManager.class).destroy(HubAccess.internal(), fake.program2_voice1_track1.getId());
 
-    testManager.destroy(access, fake.program702_voice1.getId());
+    subject.destroy(access, fake.program702_voice1.getId());
 
     assertEquals(Integer.valueOf(0), test.getDSL()
       .selectCount().from(PROGRAM_VOICE)
@@ -215,10 +261,8 @@ public class ProgramVoiceManagerDbTest {
     injector.getInstance(ProgramVoiceTrackManager.class).destroy(HubAccess.internal(), fake.program2_voice1_track0.getId());
     injector.getInstance(ProgramVoiceTrackManager.class).destroy(HubAccess.internal(), fake.program2_voice1_track1.getId());
 
-    failure.expect(ManagerException.class);
-    failure.expectMessage("Voice in Program in Account you have access to does not exist");
-
-    testManager.destroy(access, fake.program702_voice1.getId());
+    var e = assertThrows(ManagerException.class, () -> subject.destroy(access, fake.program702_voice1.getId()));
+    assertEquals("Voice in Program in Account you have access to does not exist", e.getMessage());
   }
 
 }
