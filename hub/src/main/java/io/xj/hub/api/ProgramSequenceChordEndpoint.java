@@ -91,9 +91,8 @@ public class ProgramSequenceChordEndpoint extends HubJsonapiEndpoint<ProgramSequ
       ProgramSequenceChord created;
       JsonapiPayload responseData = new JsonapiPayload();
       if (Objects.nonNull(cloneId)) {
-        ManagerCloner<ProgramSequenceChord> cloner = manager().clone(access, cloneId, entity,
-          Objects.nonNull(voicingTypes) ? CSV.split(voicingTypes).stream().map(InstrumentType::valueOf).toList() : List.of());
-        created =cloner.getClone();
+        ManagerCloner<ProgramSequenceChord> cloner = manager().clone(access, cloneId, entity, Objects.nonNull(voicingTypes) ? CSV.split(voicingTypes).stream().map(InstrumentType::valueOf).toList() : List.of());
+        created = cloner.getClone();
         responseData.setDataOne(payloadFactory.toPayloadObject(created));
         List<JsonapiPayloadObject> list = new ArrayList<>();
         for (Object obj : cloner.getChildClones()) {

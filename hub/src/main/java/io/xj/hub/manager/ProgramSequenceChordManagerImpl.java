@@ -296,6 +296,11 @@ public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl<P
         }
       }
 
+
+    // Creating a new chord via cloning, include created voices in response payload
+    // https://www.pivotaltracker.com/story/show/182254064
+    targetVoicesByType.values().forEach(cloner::addChildClone);
+
     return cloner;
   }
 }

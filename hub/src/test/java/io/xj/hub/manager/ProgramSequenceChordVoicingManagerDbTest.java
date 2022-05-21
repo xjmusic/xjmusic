@@ -165,7 +165,7 @@ public class ProgramSequenceChordVoicingManagerDbTest {
   @Test
   public void create_cannotCreateAnotherForExistingChordAndVoice() throws Exception {
     HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
-    var voicing1a = subject.create(access, buildProgramSequenceChordVoicing(fake.program3_chord1, fake.program1_voicePad, "C5, Eb5, G5"));
+    subject.create(access, buildProgramSequenceChordVoicing(fake.program3_chord1, fake.program1_voicePad, "C5, Eb5, G5"));
     var voicing1b = buildProgramSequenceChordVoicing(fake.program3_chord1, fake.program1_voicePad, "A4, C5, E5");
 
     var e = assertThrows(ManagerException.class, () -> subject.create(access, voicing1b));
