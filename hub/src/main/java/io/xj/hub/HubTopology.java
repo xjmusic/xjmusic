@@ -140,9 +140,9 @@ public enum HubTopology {
     // ProgramSequenceChordVoicing
     entityFactory.register(ProgramSequenceChordVoicing.class)
       .createdBy(ProgramSequenceChordVoicing::new)
-      .withAttribute("type")
       .withAttribute("notes")
       .belongsTo(Program.class)
+      .belongsTo(ProgramVoice.class)
       .belongsTo(ProgramSequenceChord.class);
 
     // ProgramSequencePattern
