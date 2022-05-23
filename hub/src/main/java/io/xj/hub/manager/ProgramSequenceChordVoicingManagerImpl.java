@@ -237,6 +237,7 @@ public class ProgramSequenceChordVoicingManagerImpl extends HubPersistenceServic
     requireNotExists("existing voicing for this chord and voice", db.selectCount().from(PROGRAM_SEQUENCE_CHORD_VOICING)
       .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID.eq(voicing.getProgramSequenceChordId()))
       .and(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_VOICE_ID.eq(voicing.getProgramVoiceId()))
+      .and(PROGRAM_SEQUENCE_CHORD_VOICING.ID.ne(voicing.getId()))
       .fetchOne(0, int.class));
   }
 }

@@ -77,7 +77,7 @@ public class ProgramSequenceChordVoicingManagerDbTest {
     fake.program1_voiceBass = test.insert(buildProgramVoice(fake.program1, InstrumentType.Bass, "Bass"));
     sequenceChord1a_0 = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "C minor"));
     sequenceChord1a_0_voicing0 = test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, fake.program1_voiceBass, "C5, Eb5, G5"));
-    test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, fake.program1_voiceBass, "G,B,Db,F"));
+    test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, fake.program1_voicePad, "G,B,Db,F"));
     fake.program2 = test.insert(buildProgram(fake.library1, ProgramType.Beat, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f));
     fake.program702_voice1 = test.insert(buildProgramVoice(fake.program2, InstrumentType.Drum, "Drums"));
 
@@ -179,7 +179,6 @@ public class ProgramSequenceChordVoicingManagerDbTest {
   @Test
   public void update() throws Exception {
     HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
-    sequenceChord1a_0_voicing0.setProgramVoiceId(fake.program1_voicePad.getId());
     sequenceChord1a_0_voicing0.setNotes("G1,G2,G3");
 
     subject.update(access, sequenceChord1a_0_voicing0.getId(), sequenceChord1a_0_voicing0);
@@ -187,7 +186,7 @@ public class ProgramSequenceChordVoicingManagerDbTest {
     var result = subject.readOne(access, sequenceChord1a_0_voicing0.getId());
     assertNotNull(result);
     assertEquals(sequenceChord1a_0_voicing0.getId(), result.getId());
-    assertEquals(fake.program1_voicePad.getId(), result.getProgramVoiceId());
+    assertEquals(fake.program1_voiceBass.getId(), result.getProgramVoiceId());
     assertEquals("G1,G2,G3", result.getNotes());
   }
 
