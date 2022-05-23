@@ -277,3 +277,20 @@ resource "aws_route53_record" "uxrg-prod-www" {
     evaluate_target_health = false
   }
 }
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
+resource "aws_route53_record" "uxrg-prod-mx" {
+  name    = aws_route53_zone.uxrg-zone.name
+  ttl     = 172800
+  type    = "MX"
+  zone_id = aws_route53_zone.uxrg-zone.zone_id
+
+  records = [
+    "1\tASPMX.L.GOOGLE.COM.",
+    "5\tALT1.ASPMX.L.GOOGLE.COM.",
+    "5\tALT2.ASPMX.L.GOOGLE.COM.",
+    "10\tALT3.ASPMX.L.GOOGLE.COM.",
+    "10\tALT4.ASPMX.L.GOOGLE.COM.",
+  ]
+}
+

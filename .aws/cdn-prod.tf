@@ -1229,9 +1229,7 @@ resource "aws_cloudfront_distribution" "uxrg-redirect" {
   price_class     = "PriceClass_100"
 
   aliases = [
-    "uxresearchgroup.net",
     "www.uxresearchgroup.net",
-    "dev.uxresearchgroup.net",
   ]
 
   origin {
