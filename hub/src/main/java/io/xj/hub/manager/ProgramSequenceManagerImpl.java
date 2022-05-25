@@ -69,9 +69,16 @@ public class ProgramSequenceManagerImpl extends HubPersistenceServiceImpl<Progra
       cloner.set(new ManagerCloner<>(result.get(), this));
 
       // Clone ProgramSequenceChord belongs to ProgramSequence
-      cloner.get().clone(db, PROGRAM_SEQUENCE_CHORD, PROGRAM_SEQUENCE_CHORD.ID,
+      Map<UUID, UUID> clonedProgramSequenceChords = cloner.get().clone(db, PROGRAM_SEQUENCE_CHORD, PROGRAM_SEQUENCE_CHORD.ID,
         ImmutableSet.of(PROGRAM_SEQUENCE_CHORD.PROGRAM_SEQUENCE_ID),
         PROGRAM_SEQUENCE_CHORD.PROGRAM_SEQUENCE_ID, cloneId, result.get().getId());
+
+      // Clone ProgramSequenceChordMeme belongs to newly cloned ProgramSequenceChords
+      for (UUID originalId : clonedProgramSequenceChords.keySet())
+        cloner.get().clone(db, PROGRAM_SEQUENCE_CHORD_VOICING, PROGRAM_SEQUENCE_CHORD_VOICING.ID,
+          ImmutableSet.of(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID),
+          PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID,
+          originalId, clonedProgramSequenceChords.get(originalId));
 
       // Clone ProgramSequenceBinding belongs to ProgramSequence
       Map<UUID, UUID> clonedProgramSequenceBindings = cloner.get().clone(db, PROGRAM_SEQUENCE_BINDING, PROGRAM_SEQUENCE_BINDING.ID,

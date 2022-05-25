@@ -35,6 +35,7 @@ import static io.xj.hub.tables.ProgramSequence.PROGRAM_SEQUENCE;
 import static io.xj.hub.tables.ProgramSequenceBinding.PROGRAM_SEQUENCE_BINDING;
 import static io.xj.hub.tables.ProgramSequenceBindingMeme.PROGRAM_SEQUENCE_BINDING_MEME;
 import static io.xj.hub.tables.ProgramSequenceChord.PROGRAM_SEQUENCE_CHORD;
+import static io.xj.hub.tables.ProgramSequenceChordVoicing.PROGRAM_SEQUENCE_CHORD_VOICING;
 import static io.xj.hub.tables.ProgramSequencePattern.PROGRAM_SEQUENCE_PATTERN;
 import static io.xj.hub.tables.ProgramSequencePatternEvent.PROGRAM_SEQUENCE_PATTERN_EVENT;
 import static org.junit.Assert.*;
@@ -141,6 +142,9 @@ public class ProgramSequenceManagerDbTest {
   }
 
   /**
+   Voicing Lists missing when cloning Main Program Sequence
+   https://www.pivotaltracker.com/story/show/182286657
+   <p>
    https://www.pivotaltracker.com/story/show/170290553 Clone sub-entities of programSequence
    */
   @Test
@@ -153,9 +157,10 @@ public class ProgramSequenceManagerDbTest {
     inputData.setKey("C#");
     inputData.setName("cannons fifty nine");
     test.insert(buildProgramMeme(fake.program1, "cinnamon"));
-    var voice = test.insert(buildProgramVoice(fake.program1, InstrumentType.Drum, "drums"));
-    var track = test.insert(buildProgramVoiceTrack(voice, "Kick"));
-    test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "D"));
+    var voice = test.insert(buildProgramVoice(fake.program1, InstrumentType.Pad, "Test"));
+    var track = test.insert(buildProgramVoiceTrack(voice, "Test"));
+    var chord = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "D"));
+    test.insert(buildProgramSequenceChordVoicing(chord,voice,"C3,E3,G3,C4,E4,G4"));
     var pattern = test.insert(buildProgramSequencePattern(fake.program1_sequence1, voice, 8, "jam"));
     test.insert(buildProgramSequencePatternEvent(pattern, track, 0.0f, 1.0f, "C", 1.0f));
 
@@ -177,6 +182,14 @@ public class ProgramSequenceManagerDbTest {
       .filter(e -> ProgramSequenceChord.class.equals(e.getClass())).count());
     assertEquals(Integer.valueOf(1), test.getDSL()
       .selectCount().from(PROGRAM_SEQUENCE_CHORD)
+      .where(PROGRAM_SEQUENCE_CHORD.PROGRAM_SEQUENCE_ID.eq(result.getId()))
+      .fetchOne(0, int.class));
+    // Cloned ProgramSequenceChordVoicing belongs to ProgramSequenceChord and ProgramVoice
+    assertEquals(1, resultCloner.getChildClones().stream()
+      .filter(e -> ProgramSequenceChordVoicing.class.equals(e.getClass())).count());
+    assertEquals(Integer.valueOf(1), test.getDSL()
+      .selectCount().from(PROGRAM_SEQUENCE_CHORD_VOICING)
+      .join(PROGRAM_SEQUENCE_CHORD).on(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID.eq(PROGRAM_SEQUENCE_CHORD.ID))
       .where(PROGRAM_SEQUENCE_CHORD.PROGRAM_SEQUENCE_ID.eq(result.getId()))
       .fetchOne(0, int.class));
     // Cloned ProgramSequenceBinding belongs to ProgramSequence
