@@ -97,11 +97,11 @@ jobs:
       - name: (AWS) Authenticate with Elastic Kubernetes Service (EKS)
         run: aws eks --region ${{ secrets.AWS_DEFAULT_REGION }} update-kubeconfig --name ${{ secrets.CLUSTER_NAME }}
 
-      - name: (AWS) Update the aws-cli (aws cli v1) to the version with a fix for
+      - name: (AWS) Update the aws-cli
         run: pip3 install awscli --upgrade --user
 
       - name: (AWS) rewrite the kube-config
-        run: aws eks update-kubeconfig --name ${EKS_CLUSTER_NAME} --region ${REGION}
+        run: aws eks update-kubeconfig --name ${{ secrets.CLUSTER_NAME }} --region ${{ secrets.AWS_DEFAULT_REGION }}
 
       - name: (AWS) Build & push Docker images
         run: |
@@ -129,7 +129,7 @@ jobs:
           GKE_CLUSTER: ${{ secrets.GKE_CLUSTER }}
           GKE_REGION: ${{ secrets.GKE_REGION }}
         run: |-
-          gcloud container clusters get-credentials "$GKE_CLUSTER" --region "$GKE_REGION"
+          gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER }} --region ${{ secrets.GKE_REGION }}
 
       - name: (GCP) Build & push Docker images
         run: |
