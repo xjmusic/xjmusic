@@ -54,7 +54,6 @@ segment:
   key: D-
   total: 4
   density: 1.0
-  tempo: 120.0
   chords:
     - position: 0.0
       name: D-7
@@ -64,8 +63,8 @@ segment:
 
 assertPicks:
   pad:
-    - { start: 0.00, length: 1.00, count: 4, notes: "F3, A3, C4, D4" }
-    - { start: 1.00, length: 1.00, count: 4, notes: "A3, C4, D4, F4" }
+    - { start: 0.0, length: 2.0, count: 4, notes: "F3, A3, C4, D4" }
+    - { start: 2.0, length: 2.0, count: 4, notes: "A3, C4, D4, F4" }
   stab:
-    - { start: 0.00, length: 1.00, count: 4, notes: "F3, A3, C4, D4" }
-    - { start: 1.00, length: 1.00, count: 4, notes: "A3, C4, D4, F4" }
+    - { start: 0.0, length: 2.0, count: 4, notes: "F3, A3, C4, D4" }
+    - { start: 2.0, length: 2.0, count: 4, notes: "A3, C4, D4, F4" }

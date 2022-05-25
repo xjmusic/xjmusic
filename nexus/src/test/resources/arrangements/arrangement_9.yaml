@@ -1,4 +1,4 @@
-#  Based on arrangement test #8
+#  Based on arrangement test #9
 #  https://docs.google.com/document/d/19PDEi9sbz2d1TC8q3S5WEK-pLYoYevqe0OvUB-mpO8A/
 #
 #  This test is specifically targeting the behavior of Cool Air’s Bass instrument.
@@ -29,7 +29,6 @@ segment:
   key: D-
   total: 8
   density: 1.0
-  tempo: 120.0
   chords:
     - position: 0.0
       name: D-
@@ -51,7 +50,7 @@ segment:
 assertPicks:
   bass:
     - { notes: "D2, E2" }
-    - { start: 0.00, length: 0.25, count: 1, notes: "D2" }
-    - { start: 1.00, length: 0.25, count: 1, notes: "E2" }
-    - { start: 2.00, length: 0.25, count: 1, notes: "E2" }
-    - { start: 3.00, length: 0.25, count: 1, notes: "D2" }
+    - { start: 0.0, length: 0.5, count: 1, notes: "D2" }
+    - { start: 2.0, length: 0.5, count: 1, notes: "E2" }
+    - { start: 4.0, length: 0.5, count: 1, notes: "E2" }
+    - { start: 6.0, length: 0.5, count: 1, notes: "D2" }

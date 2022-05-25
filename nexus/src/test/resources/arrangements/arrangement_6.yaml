@@ -41,7 +41,6 @@ segment:
   key: C
   total: 4
   density: 1.0
-  tempo: 120.0
   chords:
     - position: 0.0
       name: C
@@ -55,11 +54,11 @@ segment:
 
 assertPicks:
   bass:
-    - { start: 0.00, length: 0.25, count: 1, notes: "C1" }
-    - { start: 0.25, length: 0.25, count: 1, notes: "C2" }
-    - { start: 0.50, length: 0.25, count: 1, notes: "C1" }
-    - { start: 0.75, length: 0.25, count: 1 }
-    - { start: 1.00, length: 0.25, count: 1, notes: "F1" }
-    - { start: 1.25, length: 0.25, count: 1, notes: "F2" }
-    - { start: 1.50, length: 0.25, count: 1, notes: "F1" }
-    - { start: 1.75, length: 0.25, count: 1 }
+    - { start: 0.0, length: 0.5, count: 1, notes: "C1" }
+    - { start: 0.5, length: 0.5, count: 1, notes: "C2" }
+    - { start: 1.0, length: 0.5, count: 1, notes: "C1" }
+    - { start: 1.5, length: 0.5, count: 1 }
+    - { start: 2.0, length: 0.5, count: 1, notes: "F1" }
+    - { start: 2.5, length: 0.5, count: 1, notes: "F2" }
+    - { start: 3.0, length: 0.5, count: 1, notes: "F1" }
+    - { start: 3.5, length: 0.5, count: 1 }

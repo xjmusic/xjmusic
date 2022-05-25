@@ -149,6 +149,11 @@ public class ArrangementTests extends YamlTest {
   }
 
   @Test
+  public void arrangement10() {
+    loadAndRunTest("arrangement_10.yaml");
+  }
+
+  @Test
   public void arrangement0_NoChordSections() {
     loadAndRunTest("arrangement_0_no_chord_sections.yaml");
   }
@@ -218,7 +223,7 @@ public class ArrangementTests extends YamlTest {
     var account1 = buildAccount("fish");
     Template template1 = buildTemplate(account1, "Test Template 1", "test1");
     var library1 = buildLibrary(account1, "palm tree");
-    mainProgram1 = buildProgram(library1, ProgramType.Main, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f);
+    mainProgram1 = buildProgram(library1, ProgramType.Main, ProgramState.Published, "ANTS", "C#", 60.0f, 0.6f); // 60 BPM such that 1 beat = 1 second
     chain = store.put(NexusIntegrationTestingFixtures.buildChain(template1));
 
     // prepare list of all entities to return from Hub
@@ -309,7 +314,7 @@ public class ArrangementTests extends YamlTest {
       Objects.requireNonNull(getStr(obj, "key")),
       Objects.requireNonNull(getInt(obj, "total")),
       Objects.requireNonNull(getFloat(obj, "density")),
-      Objects.requireNonNull(getFloat(obj, "tempo"))));
+      60)); // 60 BPM such that 1 beat = 1 second
 
     //noinspection unchecked
     for (Map<?, ?> cObj : (List<Map<?, ?>>) obj.get("chords")) {

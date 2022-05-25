@@ -40,7 +40,6 @@ segment:
   key: Bb-
   total: 6
   density: 1.0
-  tempo: 120.0
   chords:
     - position: 0.0
       name: Bb-7
@@ -49,15 +48,15 @@ segment:
 
 assertPicks:
   bass:
-    - { start: 0.00, length: 0.25, count: 1, notes: "Bb2" }
-    - { start: 0.25, length: 0.25, count: 1, notes: "Bb1" }
-    - { start: 0.50, length: 0.25, count: 1, notes: "Bb1" }
-    - { start: 0.75, length: 0.25, count: 1, notes: "Db2" }
-    - { start: 1.00, length: 0.25, count: 1, notes: "Eb2" }
-    - { start: 1.25, length: 0.25, count: 1, notes: "F2" }
-    - { start: 1.50, length: 0.25, count: 1, notes: "Bb2" }
-    - { start: 1.75, length: 0.25, count: 1, notes: "Db2" }
-    - { start: 2.00, length: 0.25, count: 1, notes: "Eb2" }
-    - { start: 2.25, length: 0.25, count: 1, notes: "F2" }
-    - { start: 2.50, length: 0.25, count: 1, notes: "Ab2" }
-    - { start: 2.75, length: 0.25, count: 1, notes: "Db3" }
+    - { start: 0.0, length: 0.5, count: 1, notes: "Bb2" }
+    - { start: 0.5, length: 0.5, count: 1, notes: "Bb1" }
+    - { start: 1.0, length: 0.5, count: 1, notes: "Bb1" }
+    - { start: 1.5, length: 0.5, count: 1, notes: "Db2" }
+    - { start: 2.0, length: 0.5, count: 1, notes: "Eb2" }
+    - { start: 2.5, length: 0.5, count: 1, notes: "F2" }
+    - { start: 3.0, length: 0.5, count: 1, notes: "Bb2" }
+    - { start: 3.5, length: 0.5, count: 1, notes: "Db2" }
+    - { start: 4.0, length: 0.5, count: 1, notes: "Eb2" }
+    - { start: 4.5, length: 0.5, count: 1, notes: "F2" }
+    - { start: 5.0, length: 0.5, count: 1, notes: "Ab2" }
+    - { start: 5.5, length: 0.5, count: 1, notes: "Db3" }

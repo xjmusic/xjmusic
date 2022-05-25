@@ -66,7 +66,6 @@ segment:
   key: A
   total: 16
   density: 1.0
-  tempo: 120.0
   chords:
     - position: 0.0
       name: Fmaj7add9
@@ -96,45 +95,45 @@ segment:
 
 assertPicks:
   bass:
-    - { start: 0.00, length: 0.25, count: 1, notes: "F1" }
-    - { start: 0.25, length: 0.25, count: 1, notes: "F1" }
-    - { start: 0.50, length: 0.25, count: 1, notes: "F1" }
-    - { start: 0.75, length: 0.25, count: 1, notes: "F1" }
-    - { start: 1.00, length: 0.25, count: 1, notes: "F1" }
-    - { start: 1.25, length: 0.25, count: 1, notes: "F1" }
-    - { start: 1.50, length: 0.25, count: 1, notes: "F1" }
-    - { start: 1.75, length: 0.25, count: 1, notes: "A1" }
-    - { start: 2.00, length: 0.25, count: 1, notes: "A1" }
-    - { start: 2.25, length: 0.25, count: 1, notes: "A1" }
-    - { start: 2.50, length: 0.25, count: 1, notes: "A1" }
-    - { start: 2.75, length: 0.25, count: 1, notes: "A1" }
-    - { start: 3.00, length: 0.25, count: 1, notes: "A1" }
-    - { start: 3.25, length: 0.25, count: 1, notes: "A1" }
-    - { start: 3.50, length: 0.25, count: 1, notes: "A1" }
-    - { start: 3.75, length: 0.25, count: 1, notes: "C1" }
-    - { start: 4.00, length: 0.25, count: 1, notes: "C1" }
-    - { start: 4.25, length: 0.25, count: 1, notes: "C1" }
-    - { start: 4.50, length: 0.25, count: 1, notes: "C1" }
-    - { start: 4.75, length: 0.25, count: 1, notes: "C1" }
-    - { start: 5.00, length: 0.25, count: 1, notes: "C1" }
-    - { start: 5.25, length: 0.25, count: 1, notes: "C1" }
-    - { start: 5.50, length: 0.25, count: 1, notes: "C1" }
-    - { start: 5.75, length: 0.25, count: 1, notes: "D1" }
-    - { start: 6.00, length: 0.25, count: 1, notes: "D1" }
-    - { start: 6.25, length: 0.25, count: 1, notes: "D1" }
-    - { start: 6.50, length: 0.25, count: 1, notes: "D1" }
-    - { start: 6.75, length: 0.25, count: 1, notes: "D1" }
-    - { start: 7.00, length: 0.25, count: 1, notes: "D1" }
-    - { start: 7.25, length: 0.25, count: 1, notes: "D1" }
-    - { start: 7.50, length: 0.25, count: 1, notes: "D1" }
-    - { start: 7.75, length: 0.25, count: 1, notes: "D1" }
+    - { start: 0.0, length: 0.5, count: 1, notes: "F1" }
+    - { start: 0.5, length: 0.5, count: 1, notes: "F1" }
+    - { start: 1.0, length: 0.5, count: 1, notes: "F1" }
+    - { start: 1.5, length: 0.5, count: 1, notes: "F1" }
+    - { start: 2.0, length: 0.5, count: 1, notes: "F1" }
+    - { start: 2.5, length: 0.5, count: 1, notes: "F1" }
+    - { start: 3.0, length: 0.5, count: 1, notes: "F1" }
+    - { start: 3.5, length: 0.5, count: 1, notes: "A1" }
+    - { start: 4.0, length: 0.5, count: 1, notes: "A1" }
+    - { start: 4.5, length: 0.5, count: 1, notes: "A1" }
+    - { start: 5.0, length: 0.5, count: 1, notes: "A1" }
+    - { start: 5.5, length: 0.5, count: 1, notes: "A1" }
+    - { start: 6.0, length: 0.5, count: 1, notes: "A1" }
+    - { start: 6.5, length: 0.5, count: 1, notes: "A1" }
+    - { start: 7.0, length: 0.5, count: 1, notes: "A1" }
+    - { start: 7.5, length: 0.5, count: 1, notes: "C1" }
+    - { start: 8.0, length: 0.5, count: 1, notes: "C1" }
+    - { start: 8.5, length: 0.5, count: 1, notes: "C1" }
+    - { start: 9.0, length: 0.5, count: 1, notes: "C1" }
+    - { start: 9.5, length: 0.5, count: 1, notes: "C1" }
+    - { start: 10.0, length: 0.5, count: 1, notes: "C1" }
+    - { start: 10.5, length: 0.5, count: 1, notes: "C1" }
+    - { start: 11.0, length: 0.5, count: 1, notes: "C1" }
+    - { start: 11.5, length: 0.5, count: 1, notes: "D1" }
+    - { start: 12.0, length: 0.5, count: 1, notes: "D1" }
+    - { start: 12.5, length: 0.5, count: 1, notes: "D1" }
+    - { start: 13.0, length: 0.5, count: 1, notes: "D1" }
+    - { start: 13.5, length: 0.5, count: 1, notes: "D1" }
+    - { start: 14.0, length: 0.5, count: 1, notes: "D1" }
+    - { start: 14.5, length: 0.5, count: 1, notes: "D1" }
+    - { start: 15.0, length: 0.5, count: 1, notes: "D1" }
+    - { start: 15.5, length: 0.5, count: 1, notes: "D1" }
   pad:
-    - { start: 0.00, length: 1.75, count: 4, notes: "C4, E4, G4, A4" }
-    - { start: 1.75, length: 2.00, count: 4, notes: "C5, D5, G5, C6" }
-    - { start: 3.75, length: 2.00, count: 4, notes: "C4, E4, G4, A4" }
-    - { start: 5.75, length: 2.25, count: 4, notes: "C4, F4, G4, A4" }
+    - { start: 0.0, length: 3.5, count: 4, notes: "C4, E4, G4, A4" }
+    - { start: 3.5, length: 4.0, count: 4, notes: "C5, D5, G5, C6" }
+    - { start: 7.5, length: 4.0, count: 4, notes: "C4, E4, G4, A4" }
+    - { start: 11.5, length: 4.5, count: 4, notes: "C4, F4, G4, A4" }
   stab:
-    - { start: 0.00, length: 0.25, count: 4, notes: "C4, E4, G4, A4" }
-    - { start: 1.75, length: 0.25, count: 4, notes: "C5, D5, G5, C6" }
-    - { start: 3.75, length: 0.25, count: 4, notes: "C4, E4, G4, A4" }
-    - { start: 5.75, length: 0.25, count: 4, notes: "C4, F4, G4, A4" }
+    - { start: 0.0, length: 0.5, count: 4, notes: "C4, E4, G4, A4" }
+    - { start: 3.5, length: 0.5, count: 4, notes: "C5, D5, G5, C6" }
+    - { start: 7.5, length: 0.5, count: 4, notes: "C4, E4, G4, A4" }
+    - { start: 11.5, length: 0.5, count: 4, notes: "C4, F4, G4, A4" }

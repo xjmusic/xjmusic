@@ -70,7 +70,6 @@ segment:
   key: A
   total: 4
   density: 1.0
-  tempo: 120.0
   chords:
     - position: 0.0
       name: Gsus4/A
@@ -83,8 +82,8 @@ segment:
 
 assertPicks:
   bass:
-    - { length: 0.25, count: 8, notes: "A1" }
+    - { length: 0.5, count: 8, notes: "A1" }
   pad:
-    - { start: 0.0, length: 2.0, count: 4, notes: "D4, G4, C5, D5" }
+    - { start: 0.0, length: 4.0, count: 4, notes: "D4, G4, C5, D5" }
   stab:
-    - { start: 0.0, length: 0.25, count: 4, notes: "D4, G4, C5, D5" }
+    - { start: 0.0, length: 0.5, count: 4, notes: "D4, G4, C5, D5" }

@@ -63,7 +63,6 @@ segment:
   key: A
   total: 4
   density: 1.0
-  tempo: 120.0
   chords:
     - position: 0.0
       name: C
@@ -80,17 +79,17 @@ segment:
 
 assertPicks:
   bass:
-    - { start: 0.0, length: 0.25, notes: "C1", count: 1 }
-    - { start: 0.25, length: 0.25, notes: "C2", count: 1 }
-    - { start: 0.5, length: 0.25, notes: "C1", count: 1 }
-    - { start: 0.75, length: 0.25, notes: "C2", count: 1 }
-    - { start: 1.0, length: 0.25, count: 0 }
-    - { start: 1.25, length: 0.25, count: 0 }
-    - { start: 1.5, length: 0.25, count: 0 }
-    - { start: 1.75, length: 0.25, count: 0 }
+    - { start: 0.0, length: 0.5, notes: "C1", count: 1 }
+    - { start: 0.5, length: 0.5, notes: "C2", count: 1 }
+    - { start: 1.0, length: 0.5, notes: "C1", count: 1 }
+    - { start: 1.5, length: 0.5, notes: "C2", count: 1 }
+    - { start: 2.0, length: 0.5, count: 0 }
+    - { start: 2.5, length: 0.5, count: 0 }
+    - { start: 3.0, length: 0.5, count: 0 }
+    - { start: 3.5, length: 0.5, count: 0 }
   pad:
-    - { start: 0.0, length: 1.0, notes: "G3, C4, E4", count: 3 }
-    - { start: 1.0, length: 1.0, count: 0 }
+    - { start: 0.0, length: 2.0, notes: "G3, C4, E4", count: 3 }
+    - { start: 2.0, length: 2.0, count: 0 }
   stab:
-    - { start: 0.0, length: 0.25, notes: "G3, C4, E4", count: 3 }
-    - { start: 1.0, length: 0.25, count: 0 }
+    - { start: 0.0, length: 0.5, notes: "G3, C4, E4", count: 3 }
+    - { start: 2.0, length: 0.5, count: 0 }
