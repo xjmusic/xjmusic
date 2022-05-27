@@ -556,7 +556,7 @@ public class NexusIntegrationTestingFixtures {
     return segmentChoiceArrangement;
   }
 
-  public static SegmentChoiceArrangementPick buildSegmentChoiceArrangementPick(SegmentChoiceArrangement segmentChoiceArrangement, ProgramSequencePatternEvent event, InstrumentAudio instrumentAudio, String name) {
+  public static SegmentChoiceArrangementPick buildSegmentChoiceArrangementPick(SegmentChoiceArrangement segmentChoiceArrangement, ProgramSequencePatternEvent event, InstrumentAudio instrumentAudio, String pickEvent) {
     var pick = new SegmentChoiceArrangementPick();
     pick.setId(UUID.randomUUID());
     pick.setSegmentId(segmentChoiceArrangement.getSegmentId());
@@ -567,7 +567,13 @@ public class NexusIntegrationTestingFixtures {
     pick.setLength(Double.valueOf(event.getDuration()));
     pick.setAmplitude(Double.valueOf(event.getVelocity()));
     pick.setTones(event.getTones());
-    pick.setEvent(name);
+    pick.setEvent(pickEvent);
+    return pick;
+  }
+
+  public static SegmentChoiceArrangementPick buildSegmentChoiceArrangementPick(SegmentChoiceArrangement segmentChoiceArrangement, ProgramSequencePatternEvent event, InstrumentAudio instrumentAudio, String tones, String pickEvent) {
+    var pick = buildSegmentChoiceArrangementPick(segmentChoiceArrangement, event, instrumentAudio, pickEvent);
+    pick.setTones(tones);
     return pick;
   }
 

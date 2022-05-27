@@ -72,6 +72,29 @@ public class StickyBun {
   }
 
   /**
+   @return root note
+   */
+  public Note getRoot() {
+    return root;
+  }
+
+  /**
+   @return members keyed by id
+   */
+  public Map<UUID, Member> getMembers() {
+    return members;
+  }
+
+
+  /**
+   @return earliest position
+   */
+  @Nullable
+  public Double getEarliestPosition() {
+    return earliestPosition;
+  }
+
+  /**
    Replace the atonal notes in the given list with our offsets from the given target root note
 
    @param memberId to use
@@ -106,7 +129,7 @@ public class StickyBun {
   /**
    A sticky bun member is a group of notes at one position
    */
-  static class Member {
+  public static class Member {
     UUID id;
     List<Note> notes;
     @Nullable
