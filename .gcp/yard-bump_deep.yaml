@@ -102,6 +102,8 @@ items:
                   value: https://lab.xj.io/
                 - name: SHIP_KEY
                   value: bump_deep
+                - name: SHIP_KEY_ALIAS
+                  value: coolair
               image: gcr.io/xj-vpc-host-prod/ship:latest
               imagePullPolicy: Always
               livenessProbe:

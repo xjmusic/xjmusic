@@ -34,6 +34,8 @@ items:
                   value: https://lab.xj.io/
                 - name: SHIP_KEY
                   value: space_flow
+                - name: SHIP_KEY_ALIAS
+                  value: openspace
               image: gcr.io/xj-vpc-host-prod/nexus:latest
               imagePullPolicy: Always
               livenessProbe:

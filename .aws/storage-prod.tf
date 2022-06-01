@@ -324,28 +324,6 @@ resource "aws_s3_bucket" "xj-prod-stream" {
     }
   )
 
-  website {
-    index_document = "index.html"
-    error_document = "error.html"
-    routing_rules = <<EOF
-[{
-    "Condition": {
-        "KeyPrefixEquals": "coolair.m3u8"
-    },
-    "Redirect": {
-        "ReplaceKeyPrefixWith": "bump_deep.m3u8"
-    }
-},{
-    "Condition": {
-        "KeyPrefixEquals": "openspace.m3u8"
-    },
-    "Redirect": {
-        "ReplaceKeyPrefixWith": "space_flow.m3u8"
-    }
-}]
-EOF
-  }
-
   cors_rule {
     allowed_headers = [
       "*"

@@ -2,6 +2,7 @@
 
 package io.xj.lib.app;
 
+import com.google.api.client.util.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import io.xj.lib.util.CSV;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  All secrets from environment variables
@@ -59,6 +61,7 @@ public class Environment {
   private final String shipChunkContentType;
   private final String shipFFmpegVerbosity;
   private final String shipKey;
+  private final String shipKeyAlias;
   private final String shipM3u8ContentType;
   private final String shipMode;
   private final String shipWavPath;
@@ -167,6 +170,7 @@ public class Environment {
     shipChunkTargetDuration = readInt(vars, "SHIP_CHUNK_TARGET_DURATION", 6);
     shipFFmpegVerbosity = readStr(vars, "SHIP_FFMPEG_VERBOSITY", "info");
     shipKey = readStr(vars, "SHIP_KEY", EMPTY);
+    shipKeyAlias = readStr(vars, "SHIP_KEY_ALIAS", EMPTY);
     shipLoadCycleSeconds = readInt(vars, "SHIP_LOAD_CYCLE_SECONDS", 20);
     shipM3u8ContentType = readStr(vars, "SHIP_M3U8_CONTENT_TYPE", "application/vnd.apple.mpegurl");
     shipM3u8MaxAgeSeconds = readInt(vars, "SHIP_M3U8_MAX_AGE_SECONDS", 0);
@@ -758,6 +762,15 @@ public class Environment {
    */
   public String getShipKey() {
     return shipKey;
+  }
+
+  /**
+   Launch v1 streams https://www.pivotaltracker.com/story/show/182339422
+
+   @return the ship key alias for this ship instance
+   */
+  public Optional<String> getShipKeyAlias() {
+    return Strings.isNullOrEmpty(shipKeyAlias) ? Optional.empty() : Optional.of(shipKeyAlias);
   }
 
   /**

@@ -21,6 +21,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.math.RoundingMode;
@@ -66,6 +67,9 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   private final int m3u8ServerControlHoldBackSeconds;
   private final int playlistBackSeconds;
 
+  @Nullable
+  private final String m3u8KeyAlias;
+
   @Inject
   public PlaylistPublisherImpl(
     BroadcastFactory broadcast,
@@ -94,7 +98,8 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     // Computed
     mediaSeqNumOffset = env.getShipMediaSequenceNumberOffset();
     isSegmentFilename = m -> m.endsWith(String.format(".%s", env.getShipChunkAudioEncoder()));
-    m3u8Key = String.format("%s.m3u8", env.getShipKey());
+    m3u8Key = computeM3u8Key(env.getShipKey());
+    m3u8KeyAlias = env.getShipKeyAlias().map(this::computeM3u8Key).orElse(null);
 
     // Decimal format for writing seconds values in .m3u8 playlist line items
     df = new DecimalFormat("#.######");
@@ -163,6 +168,10 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
         collectGarbage(mediaSequence);
         fileStore.putS3ObjectFromString(getPlaylistContent(mediaSequence), bucket, m3u8Key, m3u8ContentType, m3u8MaxAgeSeconds);
         LOG.debug("Shipped {}/{} ({}) @ {}", bucket, m3u8Key, m3u8ContentType, mediaSequence);
+        if (Objects.nonNull(m3u8KeyAlias)) {
+          fileStore.putS3ObjectFromString(getPlaylistContent(mediaSequence), bucket, m3u8KeyAlias, m3u8ContentType, m3u8MaxAgeSeconds);
+          LOG.debug("Shipped alias {}/{} ({}) @ {}", bucket, m3u8KeyAlias, m3u8ContentType, mediaSequence);
+        }
 
       } catch (FileStoreException e) {
         throw new ShipException("Failed ot publish playlist!", e);
@@ -279,7 +288,19 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     return Math.toIntExact(items.values().stream().max(Chunk::compare).map(Chunk::getToSecondsUTC).orElse(0L));
   }
 
+  /**
+   Recompute the max sequence number given current items
+   */
   private void recomputeMaxSequenceNumber() {
     maxSequenceNumber.set(items.keySet().stream().max(Long::compare).orElse(0L));
+  }
+
+  /**
+   Compute an M3U8 file key
+   @param key for which to compute file key
+   @return file key
+   */
+  private String computeM3u8Key(String key) {
+    return String.format("%s.m3u8", key);
   }
 }
