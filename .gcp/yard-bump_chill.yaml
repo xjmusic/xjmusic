@@ -5,21 +5,21 @@ items:
     kind: Deployment
     metadata:
       labels:
-        k8s-app: bump_chill-nexus
-      name: bump_chill-nexus
+        k8s-app: bump-chill-nexus
+      name: bump-chill-nexus
       namespace: yard
     spec:
       progressDeadlineSeconds: 600
       replicas: 1
       selector:
         matchLabels:
-          k8s-app: bump_chill-nexus
+          k8s-app: bump-chill-nexus
       strategy:
         type: Recreate
       template:
         metadata:
           labels:
-            k8s-app: bump_chill-nexus
+            k8s-app: bump-chill-nexus
         spec:
           automountServiceAccountToken: true
           containers:
@@ -50,7 +50,7 @@ items:
                 periodSeconds: 5
                 successThreshold: 1
                 timeoutSeconds: 1
-              name: bump_chill-nexus
+              name: bump-chill-nexus
               resources:
                 requests:
                   cpu: "1.5"
@@ -71,8 +71,8 @@ items:
     kind: Deployment
     metadata:
       labels:
-        k8s-app: bump_chill-ship
-      name: bump_chill-ship
+        k8s-app: bump-chill-ship
+      name: bump-chill-ship
       namespace: yard
     spec:
       progressDeadlineSeconds: 600
@@ -83,11 +83,11 @@ items:
           maxSurge: 1
       selector:
         matchLabels:
-          k8s-app: bump_chill-ship
+          k8s-app: bump-chill-ship
       template:
         metadata:
           labels:
-            k8s-app: bump_chill-ship
+            k8s-app: bump-chill-ship
         spec:
           automountServiceAccountToken: true
           containers:
@@ -114,7 +114,7 @@ items:
                 periodSeconds: 5
                 successThreshold: 1
                 timeoutSeconds: 1
-              name: bump_chill-ship
+              name: bump-chill-ship
               resources:
                 requests:
                   cpu: "1.25"
