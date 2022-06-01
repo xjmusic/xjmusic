@@ -14,7 +14,7 @@ check() {
 }
 
 check .aws
-check .gcp
+check .gke
 check hub/src
 check lib/src
 check nexus/src

@@ -39,6 +39,6 @@ jobs:
 
       - id: apply-kuberenetes-manifests
         name: Apply Kubernetes Manifests
-        working-directory: .gcp
+        working-directory: .gke
         run: |-
           kubectl apply -f .
