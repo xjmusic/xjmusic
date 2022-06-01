@@ -142,8 +142,9 @@ jobs:
       - name: (GCP) Kubernetes rollout Lab/Nexus
         run: kubectl -n lab rollout restart deployment/nexus
 
-      - name: (GCP) Kubernetes rollout Lab/OpenSpace
-        run: kubectl -n yard rollout restart deployment/openspace-nexus deployment/openspace-ship
-
-      - name: (GCP) Kubernetes rollout Lab/CoolAir
-        run: kubectl -n yard rollout restart deployment/coolair-nexus deployment/coolair-ship
+      - name: (GCP) Kubernetes rollout Fabrication
+        run: |
+          kubectl -n yard rollout restart deployment/bump_chill-nexus deployment/bump_chill-ship
+          kubectl -n yard rollout restart deployment/bump_deep-nexus deployment/bump_deep-ship
+          kubectl -n yard rollout restart deployment/slaps_lofi-nexus deployment/slaps_lofi-ship
+          kubectl -n yard rollout restart deployment/space_flow-nexus deployment/space_flow-ship

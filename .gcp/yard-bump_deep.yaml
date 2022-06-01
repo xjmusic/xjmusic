@@ -5,21 +5,21 @@ items:
     kind: Deployment
     metadata:
       labels:
-        k8s-app: coolair-nexus
-      name: coolair-nexus
+        k8s-app: bump_deep-nexus
+      name: bump_deep-nexus
       namespace: yard
     spec:
       progressDeadlineSeconds: 600
       replicas: 1
       selector:
         matchLabels:
-          k8s-app: coolair-nexus
+          k8s-app: bump_deep-nexus
       strategy:
         type: Recreate
       template:
         metadata:
           labels:
-            k8s-app: coolair-nexus
+            k8s-app: bump_deep-nexus
         spec:
           automountServiceAccountToken: true
           containers:
@@ -33,7 +33,7 @@ items:
                 - name: INGEST_URL
                   value: https://lab.xj.io/
                 - name: SHIP_KEY
-                  value: coolair
+                  value: bump_deep
                 - name: SHIP_CHUNK_AUDIO_ENCODER
                   value: mp3
                 - name: SHIP_CHUNK_CONTENT_TYPE
@@ -50,7 +50,7 @@ items:
                 periodSeconds: 5
                 successThreshold: 1
                 timeoutSeconds: 1
-              name: coolair-nexus
+              name: bump_deep-nexus
               resources:
                 requests:
                   cpu: "1.5"
@@ -71,8 +71,8 @@ items:
     kind: Deployment
     metadata:
       labels:
-        k8s-app: coolair-ship
-      name: coolair-ship
+        k8s-app: bump_deep-ship
+      name: bump_deep-ship
       namespace: yard
     spec:
       progressDeadlineSeconds: 600
@@ -83,11 +83,11 @@ items:
           maxSurge: 1
       selector:
         matchLabels:
-          k8s-app: coolair-ship
+          k8s-app: bump_deep-ship
       template:
         metadata:
           labels:
-            k8s-app: coolair-ship
+            k8s-app: bump_deep-ship
         spec:
           automountServiceAccountToken: true
           containers:
@@ -101,7 +101,7 @@ items:
                 - name: INGEST_URL
                   value: https://lab.xj.io/
                 - name: SHIP_KEY
-                  value: coolair
+                  value: bump_deep
               image: gcr.io/xj-vpc-host-prod/ship:latest
               imagePullPolicy: Always
               livenessProbe:
@@ -114,7 +114,7 @@ items:
                 periodSeconds: 5
                 successThreshold: 1
                 timeoutSeconds: 1
-              name: coolair-ship
+              name: bump_deep-ship
               resources:
                 requests:
                   cpu: "1.25"
