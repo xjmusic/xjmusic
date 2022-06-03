@@ -132,9 +132,9 @@ public interface SegmentRetrospective {
 
    @return choices
    @param instrumentType for which to get previous-segment choices
-   @param instrumentModes for which to get previous-segment choices
+   @param instrumentMode for which to get previous-segment choices
    */
-  List<SegmentChoice> getPreviousChoicesOfTypeModes(InstrumentType instrumentType, Collection<InstrumentMode> instrumentModes);
+  List<SegmentChoice> getPreviousChoicesOfTypeMode(InstrumentType instrumentType, InstrumentMode instrumentModes);
 
   /**
    Get the previous-segment choice of a given voice by id

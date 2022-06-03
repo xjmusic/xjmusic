@@ -42,7 +42,7 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
   public void doWork() throws NexusException {
     Collection<UUID> audioIds =
       SegmentType.CONTINUE.equals(fabricator.getType()) ?
-        fabricator.retrospective().getPreviousChoicesOfTypeModes(InstrumentType.Percussion, List.of(InstrumentMode.Loop)).stream()
+        fabricator.retrospective().getPreviousChoicesOfTypeMode(InstrumentType.Percussion, InstrumentMode.Loop).stream()
           .flatMap(choice -> fabricator.retrospective().getPreviousPicksForInstrument(choice.getInstrumentId()).stream())
           .map(SegmentChoiceArrangementPick::getInstrumentAudioId)
           .collect(Collectors.toSet())

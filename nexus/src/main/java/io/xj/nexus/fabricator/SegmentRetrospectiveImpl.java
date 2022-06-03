@@ -140,7 +140,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public List<SegmentChoice> getPreviousChoicesOfTypeModes(InstrumentType instrumentType, Collection<InstrumentMode> instrumentModes) {
+  public List<SegmentChoice> getPreviousChoicesOfTypeMode(InstrumentType instrumentType, InstrumentMode instrumentMode) {
     Optional<Segment> seg = getPreviousSegment();
     if (seg.isEmpty()) return List.of();
     return
@@ -148,7 +148,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
         .filter(c -> c.getSegmentId().equals(seg.get().getId())
           && Objects.nonNull(c.getInstrumentType())
           && c.getInstrumentType().equals(instrumentType.toString())
-          && instrumentModes.contains(InstrumentMode.valueOf(c.getInstrumentMode())))
+          && c.getInstrumentMode().equals(instrumentMode.toString()))
         .collect(Collectors.toList());
   }
 
