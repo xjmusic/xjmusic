@@ -109,13 +109,11 @@ ALTER TYPE xj.feedback_type OWNER TO postgres;
 --
 
 CREATE TYPE xj.instrument_mode AS ENUM (
-    'NoteEvent',
-    'VoicingEvent',
-    'ChordEvent',
-    'VoicingPart',
-    'ChordPart',
-    'MainPart',
-    'VoicingLoop'
+    'Event',
+    'Chord',
+    'Loop',
+    'Transition',
+    'Background'
 );
 
 
@@ -138,16 +136,16 @@ ALTER TYPE xj.instrument_state OWNER TO postgres;
 --
 
 CREATE TYPE xj.instrument_type AS ENUM (
-    'Drum',
-    'PercLoop',
     'Bass',
+    'Drum',
+    'Hook',
+    'Noise',
     'Pad',
+    'Percussion',
+    'Stab',
     'Sticky',
     'Stripe',
-    'Stab',
-    'Transition',
-    'Background',
-    'Hook'
+    'Sweep'
 );
 
 
@@ -384,7 +382,7 @@ CREATE TABLE xj.instrument (
     config text DEFAULT ''::text NOT NULL,
     is_deleted boolean DEFAULT false,
     volume real DEFAULT 1.0,
-    mode xj.instrument_mode DEFAULT 'NoteEvent'::xj.instrument_mode
+    mode xj.instrument_mode
 );
 
 
@@ -538,8 +536,8 @@ CREATE TABLE xj.program_sequence_chord_voicing (
     id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
     program_id uuid NOT NULL,
     program_sequence_chord_id uuid NOT NULL,
-    type xj.instrument_type NOT NULL,
-    notes text NOT NULL
+    notes text NOT NULL,
+    program_voice_id uuid NOT NULL
 );
 
 
@@ -1206,6 +1204,14 @@ ALTER TABLE ONLY xj.program_sequence_chord_voicing
 
 
 --
+-- Name: program_sequence_chord_voicing program_sequence_chord_voicing_program_voice_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.program_sequence_chord_voicing
+    ADD CONSTRAINT program_sequence_chord_voicing_program_voice_id_fkey FOREIGN KEY (program_voice_id) REFERENCES xj.program_voice(id);
+
+
+--
 -- Name: program_sequence_pattern_event program_sequence_pattern_event_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
@@ -1407,6 +1413,8 @@ COPY xj.flyway_schema_history (installed_rank, version, description, type, scrip
 68	69	hook instruments	SQL	V69__hook_instruments.sql	-647722380	postgres	2022-04-07 03:55:53.459428	14	t
 69	70	voicing loop instruments	SQL	V70__voicing_loop_instruments.sql	-86880693	postgres	2022-04-07 03:55:53.522426	8	t
 70	71	rename note to tones	SQL	V71__rename_note_to_tones.sql	1076040293	postgres	2022-04-11 03:34:19.886997	14	t
+71	72	main program voice structure	SQL	V72__main_program_voice_structure.sql	-911811253	postgres	2022-05-21 20:08:26.862152	3056	t
+72	73	simpler instrument type mode	SQL	V73__simpler_instrument_type_mode.sql	-1552453620	postgres	2022-06-03 07:30:07.823205	977	t
 \.
 
 

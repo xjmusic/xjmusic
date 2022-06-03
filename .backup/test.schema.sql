@@ -109,9 +109,13 @@ ALTER TYPE xj.feedback_type OWNER TO postgres;
 --
 
 CREATE TYPE xj.instrument_mode AS ENUM (
-    'Events',
+    'NoteEvent',
+    'VoicingEvent',
+    'ChordEvent',
+    'VoicingPart',
     'ChordPart',
-    'MainPart'
+    'MainPart',
+    'VoicingLoop'
 );
 
 
@@ -142,7 +146,8 @@ CREATE TYPE xj.instrument_type AS ENUM (
     'Stripe',
     'Stab',
     'Transition',
-    'Background'
+    'Background',
+    'Hook'
 );
 
 
@@ -359,7 +364,7 @@ CREATE TABLE xj.instrument (
     config text DEFAULT ''::text NOT NULL,
     is_deleted boolean DEFAULT false,
     volume real DEFAULT 1.0,
-    mode xj.instrument_mode DEFAULT 'Events'::xj.instrument_mode
+    mode xj.instrument_mode DEFAULT 'NoteEvent'::xj.instrument_mode
 );
 
 
@@ -380,7 +385,7 @@ CREATE TABLE xj.instrument_audio (
     density real NOT NULL,
     event character varying(255) DEFAULT NULL::character varying,
     volume real,
-    note character varying(255) DEFAULT NULL::character varying
+    tones character varying(255) DEFAULT NULL::character varying
 );
 
 
@@ -456,8 +461,7 @@ CREATE TABLE xj.program_sequence (
     name character varying(255) NOT NULL,
     key character varying(255) NOT NULL,
     density real NOT NULL,
-    total smallint NOT NULL,
-    tempo real NOT NULL
+    total smallint NOT NULL
 );
 
 
@@ -514,8 +518,8 @@ CREATE TABLE xj.program_sequence_chord_voicing (
     id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
     program_id uuid NOT NULL,
     program_sequence_chord_id uuid NOT NULL,
-    type xj.instrument_type NOT NULL,
-    notes text NOT NULL
+    notes text NOT NULL,
+    program_voice_id uuid NOT NULL
 );
 
 
@@ -549,7 +553,7 @@ CREATE TABLE xj.program_sequence_pattern_event (
     velocity real NOT NULL,
     "position" real NOT NULL,
     duration real NOT NULL,
-    note character varying(255) NOT NULL
+    tones character varying(255) NOT NULL
 );
 
 
@@ -1167,6 +1171,14 @@ ALTER TABLE ONLY xj.program_sequence_chord_voicing
 
 
 --
+-- Name: program_sequence_chord_voicing program_sequence_chord_voicing_program_voice_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.program_sequence_chord_voicing
+    ADD CONSTRAINT program_sequence_chord_voicing_program_voice_id_fkey FOREIGN KEY (program_voice_id) REFERENCES xj.program_voice(id);
+
+
+--
 -- Name: program_sequence_pattern_event program_sequence_pattern_event_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
@@ -1363,6 +1375,12 @@ COPY xj.flyway_schema_history (installed_rank, version, description, type, scrip
 63	64	instrument volume	SQL	V64__instrument_volume.sql	773430791	postgres	2022-02-06 18:04:51.518395	544	t
 64	65	template publication	SQL	V65__template_publication.sql	1713007390	postgres	2022-02-06 18:04:53.039446	593	t
 65	66	instrument mode	SQL	V66__instrument_mode.sql	-1860015340	postgres	2022-02-06 18:04:54.616122	574	t
+66	67	tempo v2	SQL	V67__tempo_v2.sql	463621531	postgres	2022-05-19 16:43:25.543632	491	t
+67	68	instrument mode	SQL	V68__instrument_mode.sql	-1753693622	postgres	2022-05-19 16:43:27.127641	758	t
+68	69	hook instruments	SQL	V69__hook_instruments.sql	-647722380	postgres	2022-05-19 16:43:28.881575	491	t
+69	70	voicing loop instruments	SQL	V70__voicing_loop_instruments.sql	-86880693	postgres	2022-05-19 16:43:30.375833	490	t
+70	71	rename note to tones	SQL	V71__rename_note_to_tones.sql	1076040293	postgres	2022-05-19 16:43:31.862418	578	t
+71	72	main program voice structure	SQL	V72__main_program_voice_structure.sql	670886060	postgres	2022-05-19 16:43:33.442239	516	t
 \.
 
 
