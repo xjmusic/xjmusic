@@ -5,6 +5,7 @@ import io.xj.api.*;
 import io.xj.hub.InstrumentConfig;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.TemplateConfig;
+import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.*;
@@ -165,6 +166,14 @@ public interface Fabricator {
    @return choice if previously made, or null if none is found
    */
   Optional<SegmentChoice> getChoiceIfContinued(InstrumentType instrumentType);
+
+  /**
+   Determine if a choice has been previously crafted
+   in one of the previous segments of the current main sequence
+
+   @return choice if previously made, or null if none is found
+   */
+  Optional<SegmentChoice> getChoiceIfContinued(InstrumentType instrumentType, InstrumentMode instrumentMode);
 
   /**
    Get current ChordEntity for any position in Segment.

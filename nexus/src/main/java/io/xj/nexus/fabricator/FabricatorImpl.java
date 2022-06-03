@@ -15,6 +15,7 @@ import io.xj.hub.TemplateConfig;
 import io.xj.hub.client.HubClientException;
 import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.ContentBindingType;
+import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.*;
@@ -370,6 +371,20 @@ class FabricatorImpl implements Fabricator {
       return switch (getSegment().getType()) {
         case INITIAL, NEXTMAIN, NEXTMACRO, PENDING -> Optional.empty();
         case CONTINUE -> retrospective.getChoices().stream().filter(choice -> Objects.equals(instrumentType.toString(), choice.getInstrumentType())).findFirst();
+      };
+
+    } catch (Exception e) {
+      LOG.warn(formatLog(String.format("Could not get previous choice for instrumentType=%s", instrumentType)), e);
+      return Optional.empty();
+    }
+  }
+
+  @Override
+  public Optional<SegmentChoice> getChoiceIfContinued(InstrumentType instrumentType, InstrumentMode instrumentMode) {
+    try {
+      return switch (getSegment().getType()) {
+        case INITIAL, NEXTMAIN, NEXTMACRO, PENDING -> Optional.empty();
+        case CONTINUE -> retrospective.getChoices().stream().filter(choice -> Objects.equals(instrumentType.toString(), choice.getInstrumentType()) && Objects.equals(instrumentMode.toString(), choice.getInstrumentMode())).findFirst();
       };
 
     } catch (Exception e) {

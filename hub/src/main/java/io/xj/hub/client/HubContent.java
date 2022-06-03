@@ -774,4 +774,18 @@ public class HubContent {
     return getInstruments().stream()
       .anyMatch(instrument -> mode.equals(instrument.getMode()));
   }
+
+  /**
+   Whether the content contains instruments of the given type
+
+   @param type of instrument for which to search
+   @param mode of instrument for which to search
+   @return true if present
+   */
+  public boolean hasInstruments(InstrumentType type, InstrumentMode mode) {
+    return getInstruments().stream()
+      .anyMatch(instrument -> type.equals(instrument.getType()) && mode.equals(instrument.getMode()));
+  }
+
+
 }
