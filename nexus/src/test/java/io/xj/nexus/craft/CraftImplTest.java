@@ -172,22 +172,22 @@ public class CraftImplTest {
   public void chooseFreshInstrumentAudio() {
     Account account1 = buildAccount("testing");
     Library library1 = buildLibrary(account1, "leaves");
-    Instrument instrument1 = buildInstrument(library1, InstrumentType.PercLoop, InstrumentMode.NoteEvent, InstrumentState.Published, "Loop 75 beats per minute");
+    Instrument instrument1 = buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Event, InstrumentState.Published, "Loop 75 beats per minute");
     InstrumentMeme instrument1meme = buildInstrumentMeme(instrument1, "70BPM");
     InstrumentAudio instrument1audio = buildInstrumentAudio(instrument1, "slow loop", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f, "PRIMARY", "X", 1.0f);
-    Instrument instrument2 = buildInstrument(library1, InstrumentType.PercLoop, InstrumentMode.NoteEvent, InstrumentState.Published, "Loop 85 beats per minute");
+    Instrument instrument2 = buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Event, InstrumentState.Published, "Loop 85 beats per minute");
     InstrumentMeme instrument2meme = buildInstrumentMeme(instrument2, "90BPM");
     InstrumentAudio instrument2audio = buildInstrumentAudio(instrument2, "fast loop", "90bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f, "SECONDARY", "X", 1.0f);
     //
     when(sourceMaterial.getInstrument(eq(instrument1.getId()))).thenReturn(Optional.of(instrument1));
     when(sourceMaterial.getInstrument(eq(instrument2.getId()))).thenReturn(Optional.of(instrument2));
-    when(sourceMaterial.getInstrumentAudios(eq(InstrumentType.PercLoop))).thenReturn(List.of(instrument1audio, instrument2audio));
+    when(sourceMaterial.getInstrumentAudios(eq(List.of(InstrumentType.Percussion)), eq(List.of(InstrumentMode.Loop)))).thenReturn(List.of(instrument1audio, instrument2audio));
     when(fabricator.getMemeIsometryOfSegment()).thenReturn(MemeIsometry.of(MemeTaxonomy.empty(), List.of("70BPM")));
     when(sourceMaterial.getMemesForInstrumentId(eq(instrument1.getId()))).thenReturn(List.of(instrument1meme));
     when(sourceMaterial.getMemesForInstrumentId(eq(instrument2.getId()))).thenReturn(List.of(instrument2meme));
     when(sourceMaterial.getInstrumentAudio(eq(instrument1audio.getId()))).thenReturn(Optional.of(instrument1audio));
 
-    var result = subject.chooseFreshInstrumentAudio(InstrumentType.PercLoop, List.of(instrument1audio.getInstrumentId()), List.of("PRIMARY"));
+    var result = subject.chooseFreshInstrumentAudio(List.of(InstrumentType.Percussion), List.of(InstrumentMode.Loop), List.of(instrument1audio.getInstrumentId()), List.of("PRIMARY"));
 
     verify(sourceMaterial, times(1)).getMemesForInstrumentId(eq(instrument1.getId()));
     assertTrue(result.isPresent());

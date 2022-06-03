@@ -8,6 +8,7 @@ import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import io.xj.api.*;
 import io.xj.hub.HubTopology;
+import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
@@ -119,7 +120,7 @@ public class CraftPercLoopContinueTest {
 //    // assert choice of percLoop-type sequence
 //    Collection<SegmentChoice> segmentChoices =
 //      store.getAll(segment4.getId(), SegmentChoice.class);
-//    assertNotNull(Segments.findFirstOfType(segmentChoices, InstrumentType.PercLoop));
+//    assertNotNull(Segments.findFirstOfType(segmentChoices, InstrumentType.Percussion));
   }
 
   /**
@@ -160,7 +161,8 @@ public class CraftPercLoopContinueTest {
         Segments.DELTA_UNLIMITED,
         Segments.DELTA_UNLIMITED,
         fake.program35,
-        InstrumentType.PercLoop));
+        InstrumentType.Percussion,
+        InstrumentMode.Loop));
 
     // segment crafting
     segment4 = store.put(buildSegment(
@@ -205,7 +207,7 @@ public class CraftPercLoopContinueTest {
     // assert choice of percLoop-type sequence
     Collection<SegmentChoice> segmentChoices =
       store.getAll(segment4.getId(), SegmentChoice.class);
-    assertNotNull(Segments.findFirstOfType(segmentChoices, InstrumentType.PercLoop));
+    assertNotNull(Segments.findFirstOfType(segmentChoices, InstrumentType.Percussion));
 */
   }
 }

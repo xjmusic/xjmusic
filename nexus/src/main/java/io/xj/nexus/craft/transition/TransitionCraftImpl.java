@@ -6,7 +6,7 @@ import com.google.inject.assistedinject.Assisted;
 import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentChoiceArrangement;
 import io.xj.api.SegmentChoiceArrangementPick;
-import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.music.Bar;
@@ -47,7 +47,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
 
   @Override
   public void doWork() throws NexusException {
-    var previousChoices = fabricator.retrospective().getPreviousChoicesOfType(InstrumentType.Transition);
+    var previousChoices = fabricator.retrospective().getPreviousChoicesOfMode(InstrumentMode.Transition);
 
     Collection<UUID> instrumentIds = previousChoices.stream()
       .map(SegmentChoice::getInstrumentId)
@@ -71,7 +71,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     Optional<Instrument> chosen;
     if (instrumentIds.size() < targetLayers)
       for (int i = 0; i < targetLayers - instrumentIds.size(); i++) {
-        chosen = chooseFreshInstrument(InstrumentType.Transition, instrumentIds, null, List.of());
+        chosen = chooseFreshInstrument(List.of(), List.of(InstrumentMode.Transition), instrumentIds, null, List.of());
         if (chosen.isPresent()) {
           instrumentIds.add(chosen.get().getId());
           craftTransition(chosen.get().getId());
@@ -117,9 +117,12 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
   @SuppressWarnings("DuplicatedCode")
   private void craftTransition(UUID instrumentId) throws NexusException {
     var choice = new SegmentChoice();
+    var instrument = fabricator.sourceMaterial().getInstrument(instrumentId)
+      .orElseThrow(() -> new NexusException("Can't get Instrument Audio!"));
     choice.setId(UUID.randomUUID());
     choice.setSegmentId(fabricator.getSegment().getId());
-    choice.setInstrumentType(InstrumentType.Transition.toString());
+    choice.setInstrumentType(instrument.getType().toString());
+    choice.setInstrumentMode(instrument.getMode().toString());
     choice.setInstrumentId(instrumentId);
     fabricator.put(choice);
     var arrangement = new SegmentChoiceArrangement();

@@ -9,7 +9,6 @@ import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigRenderOptions;
 import com.typesafe.config.ConfigValue;
-import com.typesafe.config.ConfigValueFactory;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.meme.MemeTaxonomy;
@@ -44,11 +43,13 @@ public class TemplateConfig {
       detailLayerOrder = ["Bass","Stripe","Pad","Sticky","Stab"]
       dubMasterVolumeInstrumentTypeBass = 1.0
       dubMasterVolumeInstrumentTypeDrum = 1.0
+      dubMasterVolumeInstrumentTypeNoise = 1.0
       dubMasterVolumeInstrumentTypePad = 1.0
-      dubMasterVolumeInstrumentTypePercLoop = 1.0
+      dubMasterVolumeInstrumentTypePercussion = 1.0
       dubMasterVolumeInstrumentTypeStab = 1.0
       dubMasterVolumeInstrumentTypeSticky = 1.0
       dubMasterVolumeInstrumentTypeStripe = 1.0
+      dubMasterVolumeInstrumentTypeSweep = 1.0
       eventNamesLarge = ["LARGE","BIG","HIGH","PRIMARY"]
       eventNamesMedium = ["MEDIUM","REGULAR","MIDDLE","SECONDARY"]
       eventNamesSmall = ["SMALL","LITTLE","LOW"]
@@ -105,11 +106,13 @@ public class TemplateConfig {
   private final double densityFloor;
   private final double dubMasterVolumeInstrumentTypeBass;
   private final double dubMasterVolumeInstrumentTypeDrum;
+  private final double dubMasterVolumeInstrumentTypeNoise;
   private final double dubMasterVolumeInstrumentTypePad;
-  private final double dubMasterVolumeInstrumentTypePercLoop;
+  private final double dubMasterVolumeInstrumentTypePercussion;
   private final double dubMasterVolumeInstrumentTypeStab;
   private final double dubMasterVolumeInstrumentTypeSticky;
   private final double dubMasterVolumeInstrumentTypeStripe;
+  private final double dubMasterVolumeInstrumentTypeSweep;
   private final double mixerCompressAheadSeconds;
   private final double mixerCompressDecaySeconds;
   private final double mixerCompressRatioMax;
@@ -188,11 +191,13 @@ public class TemplateConfig {
             .map(InstrumentType::valueOf).toList());
       dubMasterVolumeInstrumentTypeBass = config.getDouble("dubMasterVolumeInstrumentTypeBass");
       dubMasterVolumeInstrumentTypeDrum = config.getDouble("dubMasterVolumeInstrumentTypeDrum");
+      dubMasterVolumeInstrumentTypeNoise = config.getDouble("dubMasterVolumeInstrumentTypeNoise");
       dubMasterVolumeInstrumentTypePad = config.getDouble("dubMasterVolumeInstrumentTypePad");
-      dubMasterVolumeInstrumentTypePercLoop = config.getDouble("dubMasterVolumeInstrumentTypePercLoop");
+      dubMasterVolumeInstrumentTypePercussion = config.getDouble("dubMasterVolumeInstrumentTypePercussion");
       dubMasterVolumeInstrumentTypeStab = config.getDouble("dubMasterVolumeInstrumentTypeStab");
       dubMasterVolumeInstrumentTypeSticky = config.getDouble("dubMasterVolumeInstrumentTypeSticky");
       dubMasterVolumeInstrumentTypeStripe = config.getDouble("dubMasterVolumeInstrumentTypeStripe");
+      dubMasterVolumeInstrumentTypeSweep = config.getDouble("dubMasterVolumeInstrumentTypeSweep");
       eventNamesSmall =
         requireAtLeastOne("eventNamesSmall",
           config.getStringList("eventNamesSmall").stream()
@@ -265,11 +270,13 @@ public class TemplateConfig {
     config.put("detailLayerOrder", formatTypesafeQuoted(detailLayerOrder));
     config.put("dubMasterVolumeInstrumentTypeBass", String.valueOf(dubMasterVolumeInstrumentTypeBass));
     config.put("dubMasterVolumeInstrumentTypeDrum", String.valueOf(dubMasterVolumeInstrumentTypeDrum));
+    config.put("dubMasterVolumeInstrumentTypeNoise", String.valueOf(dubMasterVolumeInstrumentTypeNoise));
     config.put("dubMasterVolumeInstrumentTypePad", String.valueOf(dubMasterVolumeInstrumentTypePad));
-    config.put("dubMasterVolumeInstrumentTypePercLoop", String.valueOf(dubMasterVolumeInstrumentTypePercLoop));
+    config.put("dubMasterVolumeInstrumentTypePercussion", String.valueOf(dubMasterVolumeInstrumentTypePercussion));
     config.put("dubMasterVolumeInstrumentTypeStab", String.valueOf(dubMasterVolumeInstrumentTypeStab));
     config.put("dubMasterVolumeInstrumentTypeSticky", String.valueOf(dubMasterVolumeInstrumentTypeSticky));
     config.put("dubMasterVolumeInstrumentTypeStripe", String.valueOf(dubMasterVolumeInstrumentTypeStripe));
+    config.put("dubMasterVolumeInstrumentTypeSweep", String.valueOf(dubMasterVolumeInstrumentTypeSweep));
     config.put("eventNamesSmall", formatTypesafeQuoted(eventNamesSmall));
     config.put("eventNamesMedium", formatTypesafeQuoted(eventNamesMedium));
     config.put("eventNamesLarge", formatTypesafeQuoted(eventNamesLarge));
@@ -427,10 +434,10 @@ public class TemplateConfig {
   }
 
   /**
-   @return ratio of amplitude to dub audio for PercLoop-type instruments
+   @return ratio of amplitude to dub audio for Percussion-type Loop-mode instruments
    */
-  public double getDubMasterVolumeInstrumentTypePercLoop() {
-    return dubMasterVolumeInstrumentTypePercLoop;
+  public double getDubMasterVolumeInstrumentTypePercussion() {
+    return dubMasterVolumeInstrumentTypePercussion;
   }
 
   /**
@@ -438,6 +445,20 @@ public class TemplateConfig {
    */
   public double getDubMasterVolumeInstrumentTypeStab() {
     return dubMasterVolumeInstrumentTypeStab;
+  }
+
+  /**
+   @return ratio of amplitude to dub audio for Noise-type instruments
+   */
+  public double getDubMasterVolumeInstrumentTypeNoise() {
+    return dubMasterVolumeInstrumentTypeNoise;
+  }
+
+  /**
+   @return ratio of amplitude to dub audio for Sweep-type instruments
+   */
+  public double getDubMasterVolumeInstrumentTypeSweep() {
+    return dubMasterVolumeInstrumentTypeSweep;
   }
 
   /**

@@ -120,7 +120,7 @@ public class CraftPercLoopNextMacroTest {
 //    // assert choice of percLoop-type sequence
 //    Collection<SegmentChoice> segmentChoices =
 //      store.getAll(segment4.getId(), SegmentChoice.class);
-//    assertNotNull(Segments.findFirstOfType(segmentChoices, InstrumentType.PercLoop));
+//    assertNotNull(Segments.findFirstOfType(segmentChoices, InstrumentType.Percussion));
   }
 
   /**

@@ -43,7 +43,7 @@ import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 
 /**
- https://www.pivotaltracker.com/story/show/166481918 PercLoop fabrication composited of layered Patterns
+ https://www.pivotaltracker.com/story/show/166481918 Percussion-type Loop-mode fabrication composited of layered Patterns
  */
 @RunWith(MockitoJUnitRunner.class)
 public class CraftPercLoop_LayeredVoicesTest {
@@ -167,7 +167,7 @@ public class CraftPercLoop_LayeredVoicesTest {
     Collection<Object> entities = Lists.newArrayList();
 
     // Instrument "808"
-    Instrument instrument1 = Entities.add(entities, IntegrationTestingFixtures.buildInstrument(fake.library2, InstrumentType.PercLoop, InstrumentMode.NoteEvent, InstrumentState.Published, "Bongo Loop"));
+    Instrument instrument1 = Entities.add(entities, IntegrationTestingFixtures.buildInstrument(fake.library2, InstrumentType.Percussion, InstrumentMode.Event, InstrumentState.Published, "Bongo Loop"));
     Entities.add(entities, buildMeme(instrument1, "heavy"));
     //
     Entities.add(entities, IntegrationTestingFixtures.buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.6f, "KICK", "Eb", 1.0f));

@@ -3,6 +3,7 @@ package io.xj.hub.analysis;
 import com.google.api.client.util.Maps;
 import com.google.api.client.util.Sets;
 import io.xj.hub.client.HubContent;
+import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Instrument;
@@ -23,7 +24,7 @@ public class ReportDrumInstrumentEvents extends Report {
     super(content, env);
 
     eventHistogram = new EventHistogram();
-    content.getInstrumentAudios(InstrumentType.Drum).forEach(audio -> eventHistogram.addInstrumentId(audio.getEvent(), audio.getInstrumentId()));
+    content.getInstrumentAudios(List.of(InstrumentType.Drum), List.of(InstrumentMode.Event)).forEach(audio -> eventHistogram.addInstrumentId(audio.getEvent(), audio.getInstrumentId()));
     content.getProgramVoiceTracks(ProgramType.Beat).forEach(track -> eventHistogram.addProgramId(track.getName(), track.getProgramId()));
   }
 

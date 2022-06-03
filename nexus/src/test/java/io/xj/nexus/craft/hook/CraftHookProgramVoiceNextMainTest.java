@@ -139,7 +139,7 @@ public class CraftHookProgramVoiceNextMainTest {
 
     // Instrument "808"
     Instrument instrument1 = Entities.add(entities,
-      buildInstrument(fake.library2, InstrumentType.Hook, InstrumentMode.NoteEvent, InstrumentState.Published, "Bongo Loop"));
+      buildInstrument(fake.library2, InstrumentType.Hook, InstrumentMode.Event, InstrumentState.Published, "Bongo Loop"));
     Entities.add(entities, buildInstrumentMeme(instrument1, "heavy"));
     //
     audioKick = Entities.add(entities, buildInstrumentAudio(

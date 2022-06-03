@@ -2,9 +2,9 @@
 package io.xj.nexus.fabricator;
 
 import io.xj.api.*;
+import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
 import io.xj.nexus.NexusException;
 
 import java.util.Collection;
@@ -118,6 +118,23 @@ public interface SegmentRetrospective {
    @return choices
    */
   List<SegmentChoice> getPreviousChoicesOfType(InstrumentType instrumentType);
+
+  /**
+   Get the previous-segment choices of a given instrument mode
+
+   @param instrumentMode for which to get previous-segment choices
+   @return choices
+   */
+  List<SegmentChoice> getPreviousChoicesOfMode(InstrumentMode instrumentMode);
+
+  /**
+   Get the previous-segment choices of a given instrument type
+
+   @return choices
+   @param instrumentType for which to get previous-segment choices
+   @param instrumentModes for which to get previous-segment choices
+   */
+  List<SegmentChoice> getPreviousChoicesOfTypeModes(InstrumentType instrumentType, Collection<InstrumentMode> instrumentModes);
 
   /**
    Get the previous-segment choice of a given voice by id

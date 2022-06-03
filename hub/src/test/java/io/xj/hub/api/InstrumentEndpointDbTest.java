@@ -75,8 +75,8 @@ public class InstrumentEndpointDbTest {
     // Account "palm tree" has instrument "leaves" and instrument InstrumentType.Negative
     fake.account1 = test.insert(buildAccount("palm tree"));
     fake.library1 = test.insert(buildLibrary(fake.account1, "sandwich"));
-    fake.instrument201 = test.insert(buildInstrument(fake.library1, InstrumentType.Pad, InstrumentMode.NoteEvent, InstrumentState.Published, "buns"));
-    fake.instrument202 = test.insert(buildInstrument(fake.library1, InstrumentType.Drum, InstrumentMode.NoteEvent, InstrumentState.Published, "jams"));
+    fake.instrument201 = test.insert(buildInstrument(fake.library1, InstrumentType.Pad, InstrumentMode.Event, InstrumentState.Published, "buns"));
+    fake.instrument202 = test.insert(buildInstrument(fake.library1, InstrumentType.Drum, InstrumentMode.Event, InstrumentState.Published, "jams"));
     //
     // User in account
     fake.user1 = test.insert(buildUser("jim", "jim@jim.com", "https://www.jim.com/jim.png", "User"));
@@ -122,7 +122,7 @@ public class InstrumentEndpointDbTest {
 
   @Test
   public void create() throws ManagerException, IOException, JsonapiException {
-    var toCreate = buildInstrument(fake.library1, InstrumentType.Drum, InstrumentMode.NoteEvent, InstrumentState.Published, "test");
+    var toCreate = buildInstrument(fake.library1, InstrumentType.Drum, InstrumentMode.Event, InstrumentState.Published, "test");
     var input = jsonapiPayloadFactory.from(toCreate);
     when(context.getProperty(CONTEXT_KEY)).thenReturn(HubAccess.internal());
 
@@ -139,7 +139,7 @@ public class InstrumentEndpointDbTest {
    */
   @Test
   public void create_invalidThrowsCleanErrorPayload() throws JsonapiException, IOException {
-    var toCreate = buildInstrument(fake.library1, InstrumentType.Drum, InstrumentMode.NoteEvent, InstrumentState.Published, ""); // empty name not allowed
+    var toCreate = buildInstrument(fake.library1, InstrumentType.Drum, InstrumentMode.Event, InstrumentState.Published, ""); // empty name not allowed
     var input = jsonapiPayloadFactory.from(toCreate);
     when(context.getProperty(CONTEXT_KEY)).thenReturn(HubAccess.internal());
 

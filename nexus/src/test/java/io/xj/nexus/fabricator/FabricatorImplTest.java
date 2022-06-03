@@ -21,6 +21,7 @@ import io.xj.hub.client.HubClient;
 import io.xj.hub.client.HubClientException;
 import io.xj.hub.client.HubClientModule;
 import io.xj.hub.client.HubContent;
+import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
@@ -447,7 +448,7 @@ public class FabricatorImplTest {
     var dpEvent2 = buildEvent(dpPattern, dpTrack, 1.0f, 1.0f, "X");
     var dpEvent3 = buildEvent(dpPattern, dpTrack, 2.0f, 1.0f, "X");
     var dpEvent4 = buildEvent(dpPattern, dpTrack, 3.0f, 1.0f, "X");
-    var bass = buildInstrument(InstrumentType.Bass, true, true);
+    var bass = buildInstrument(InstrumentType.Bass, InstrumentMode.Event, true, true);
     var bassAudioC1 = buildInstrumentAudio(bass, "C1", "bass-c1.wav", 0.0f, 1.0f, 60.0f);
     var bassAudioD1 = buildInstrumentAudio(bass, "D1", "bass-d1.wav", 0.0f, 1.0f, 60.0f);
     var bassAudioE1 = buildInstrumentAudio(bass, "E1", "bass-e1.wav", 0.0f, 1.0f, 60.0f);

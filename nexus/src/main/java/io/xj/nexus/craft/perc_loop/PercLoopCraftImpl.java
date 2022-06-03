@@ -8,6 +8,7 @@ import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentChoiceArrangement;
 import io.xj.api.SegmentChoiceArrangementPick;
 import io.xj.api.SegmentType;
+import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.util.Text;
@@ -24,7 +25,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- PercLoop craft for the current segment
+ Percussion-type Loop-mode craft for the current segment
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  <p>
  https://www.pivotaltracker.com/story/show/176625174 PercLoopCraftImpl extends DetailCraftImpl to leverage all detail craft enhancements
@@ -41,7 +42,7 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
   public void doWork() throws NexusException {
     Collection<UUID> audioIds =
       SegmentType.CONTINUE.equals(fabricator.getType()) ?
-        fabricator.retrospective().getPreviousChoicesOfType(InstrumentType.PercLoop).stream()
+        fabricator.retrospective().getPreviousChoicesOfTypeModes(InstrumentType.Percussion, List.of(InstrumentMode.Loop)).stream()
           .flatMap(choice -> fabricator.retrospective().getPreviousPicksForInstrument(choice.getInstrumentId()).stream())
           .map(SegmentChoiceArrangementPick::getInstrumentAudioId)
           .collect(Collectors.toSet())
@@ -60,7 +61,7 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
 
     else if (audioIds.size() < targetLayers)
       for (int i = 0; i < targetLayers - audioIds.size(); i++) {
-        Optional<InstrumentAudio> chosen = chooseFreshInstrumentAudio(InstrumentType.PercLoop, audioIds, computePreferredEvents(audioIds.size()));
+        Optional<InstrumentAudio> chosen = chooseFreshInstrumentAudio(List.of(InstrumentType.Percussion), List.of(InstrumentMode.Loop), audioIds, computePreferredEvents(audioIds.size()));
         if (chosen.isPresent()) {
           audioIds.add(chosen.get().getId());
         }
@@ -76,7 +77,7 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
   }
 
   /**
-   PercLoop instrument audios are chosen in order of priority
+   Percussion-type Loop-mode instrument audios are chosen in order of priority
    https://www.pivotaltracker.com/story/show/181262545
 
    @param after # of choices
@@ -107,9 +108,12 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
   @SuppressWarnings("DuplicatedCode")
   private void craftPercLoop(InstrumentAudio audio) throws NexusException {
     var choice = new SegmentChoice();
+    var instrument = fabricator.sourceMaterial().getInstrument(audio.getInstrumentId())
+      .orElseThrow(() -> new NexusException("Can't get Instrument Audio!"));
     choice.setId(UUID.randomUUID());
     choice.setSegmentId(fabricator.getSegment().getId());
-    choice.setInstrumentType(InstrumentType.PercLoop.toString());
+    choice.setInstrumentType(instrument.getType().toString());
+    choice.setInstrumentMode(instrument.getMode().toString());
     choice.setInstrumentId(audio.getInstrumentId());
     fabricator.put(choice);
     var arrangement = new SegmentChoiceArrangement();

@@ -123,7 +123,7 @@ public class CraftPercLoopProgramVoiceNextMacroTest {
     Collection<Object> entities = Lists.newArrayList();
 
     // Instrument "808"
-    Instrument instrument1 = Entities.add(entities, IntegrationTestingFixtures.buildInstrument(fake.library2, InstrumentType.PercLoop, InstrumentMode.NoteEvent, InstrumentState.Published, "Bongo Loop"));
+    Instrument instrument1 = Entities.add(entities, IntegrationTestingFixtures.buildInstrument(fake.library2, InstrumentType.Percussion, InstrumentMode.Event, InstrumentState.Published, "Bongo Loop"));
     Entities.add(entities, IntegrationTestingFixtures.buildMeme(instrument1, "heavy"));
     //
     audioKick = Entities.add(entities, IntegrationTestingFixtures.buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.6f, "KICK", "Eb", 1.0f));
@@ -144,7 +144,7 @@ public class CraftPercLoopProgramVoiceNextMacroTest {
 //    // assert percLoop choice
 //    Collection<SegmentChoice> segmentChoices = fabricator.getChoices();
 //    SegmentChoice percLoopChoice = segmentChoices.stream()
-//      .filter(c -> c.getInstrumentType().equals(InstrumentType.PercLoop)).findFirst().orElseThrow();
+//      .filter(c -> c.getInstrumentType().equals(InstrumentType.Percussion)).findFirst().orElseThrow();
 //    assertTrue(fabricator.getArrangements()
 //      .stream().anyMatch(a -> a.getSegmentChoiceId().equals(percLoopChoice.getId())));
 //    // test vector for https://www.pivotaltracker.com/story/show/154014731 persist Audio pick in memory
@@ -199,7 +199,8 @@ public class CraftPercLoopProgramVoiceNextMacroTest {
         Segments.DELTA_UNLIMITED,
         Segments.DELTA_UNLIMITED,
         fake.program35,
-        InstrumentType.PercLoop));
+        InstrumentType.Percussion,
+        InstrumentMode.Loop));
 
     // Chain "Test Print #1" has a segment in crafting state - Foundation is complete
     segment4 = store.put(buildSegment(

@@ -16,6 +16,7 @@ import io.xj.hub.HubTopology;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.client.HubClient;
 import io.xj.hub.client.HubContent;
+import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
@@ -66,7 +67,6 @@ import static org.junit.Assert.assertEquals;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ArrangementTests extends YamlTest {
-  private final Logger LOG = LoggerFactory.getLogger(YamlTest.class);
   private static final int REPEAT_EACH_TEST_TIMES = 7;
   private static final Set<InstrumentType> INSTRUMENT_TYPES = ImmutableSet.of(
     InstrumentType.Bass,
@@ -74,6 +74,7 @@ public class ArrangementTests extends YamlTest {
     InstrumentType.Stab,
     InstrumentType.Stripe
   );
+  private final Logger LOG = LoggerFactory.getLogger(YamlTest.class);
   // this is how we provide content for fabrication
   @Mock
   public HubClient hubClient;
@@ -238,9 +239,8 @@ public class ArrangementTests extends YamlTest {
   }
 
   /**
-   Load the instruments section of the test YAML file, for one type of Instrument
+   Load the instrument section of the test YAML file, for one type of Instrument@param data YAML file wrapper
 
-   @param data YAML file wrapper
    @param type of instrument to read
    */
   private void loadInstrument(Map<?, ?> data, InstrumentType type) {
@@ -249,6 +249,7 @@ public class ArrangementTests extends YamlTest {
 
     var instrument = IntegrationTestingFixtures.buildInstrument(
       type,
+      InstrumentMode.Event,
       getBool(obj, "isTonal"),
       getBool(obj, "isMultiphonic"));
     instruments.put(type, instrument);
@@ -333,16 +334,17 @@ public class ArrangementTests extends YamlTest {
       if (detailPrograms.containsKey(instrument.getType()) &&
         detailProgramSequences.containsKey(instrument.getType()) &&
         detailProgramVoices.containsKey(instrument.getType()))
-        segmentChoices.put(instrument.getType(), store.put(buildSegmentChoice(segment,
-          detailPrograms.get(instrument.getType()),
-          detailProgramSequences.get(instrument.getType()),
-          detailProgramVoices.get(instrument.getType()),
-          instrument)));
+        segmentChoices.put(instrument.getType(),
+          store.put(buildSegmentChoice(segment,
+            detailPrograms.get(instrument.getType()),
+            detailProgramSequences.get(instrument.getType()),
+            detailProgramVoices.get(instrument.getType()),
+            instrument)));
   }
 
   /**
    Load the assertions of picks section after a test has run
-   Load the instruments section of the test YAML file, for one type of Instrument@param data YAML file wrapper
+   Load the instrument section of the test YAML file, for one type of Instrument@param data YAML file wrapper
    */
   private void loadAndPerformAssertions(Map<?, ?> data) {
     @Nullable
@@ -358,7 +360,7 @@ public class ArrangementTests extends YamlTest {
     if (Objects.isNull(objs)) return;
 
     LOG.info("Picks: {}", fabricator.getPicks().stream()
-        .sorted(Comparator.comparing(SegmentChoiceArrangementPick::getStart))
+      .sorted(Comparator.comparing(SegmentChoiceArrangementPick::getStart))
       .map(pick -> String.format("%s@%f", pick.getTones(), pick.getStart()))
       .toList());
 

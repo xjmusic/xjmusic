@@ -71,7 +71,7 @@ public class HubContentTest {
     TemplateBinding templateBinding1 = buildTemplateBinding(template1, library10000001);
 
     // Instrument 201
-    Instrument instrument201 = buildInstrument(library10000001, InstrumentType.Drum, InstrumentMode.NoteEvent, InstrumentState.Published, "808 Drums");
+    Instrument instrument201 = buildInstrument(library10000001, InstrumentType.Drum, InstrumentMode.Event, InstrumentState.Published, "808 Drums");
     InstrumentMeme instrument201_meme0 = buildInstrumentMeme(instrument201, "Ants");
     InstrumentAudio instrument201_audio402 = buildInstrumentAudio(instrument201, "Chords Cm to D", "a0b9f74kf9b4h8d9e0g73k107s09f7-g0e73982.wav", 0.01f, 2.123f, 120.0f, 0.62f, "KICK", "Eb", 1.0f);
 
@@ -128,14 +128,14 @@ public class HubContentTest {
   @Test
   public void hasInstruments() {
     assertTrue(subject.hasInstruments(InstrumentType.Drum));
-    assertFalse(subject.hasInstruments(InstrumentType.PercLoop));
+    assertFalse(subject.hasInstruments(InstrumentType.Percussion));
     assertFalse(subject.hasInstruments(InstrumentType.Bass));
     assertFalse(subject.hasInstruments(InstrumentType.Pad));
     assertFalse(subject.hasInstruments(InstrumentType.Sticky));
     assertFalse(subject.hasInstruments(InstrumentType.Stripe));
     assertFalse(subject.hasInstruments(InstrumentType.Stab));
-    assertFalse(subject.hasInstruments(InstrumentType.Transition));
-    assertFalse(subject.hasInstruments(InstrumentType.Background));
+    assertFalse(subject.hasInstruments(InstrumentMode.Transition));
+    assertFalse(subject.hasInstruments(InstrumentMode.Background));
     assertFalse(subject.hasInstruments(InstrumentType.Hook));
   }
 }

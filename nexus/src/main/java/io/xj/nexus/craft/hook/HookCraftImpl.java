@@ -45,11 +45,11 @@ public class HookCraftImpl extends CraftImpl implements HookCraft {
     // https://www.pivotaltracker.com/story/show/181290857
     Optional<Instrument> instrument = priorChoice.isPresent() ?
       fabricator.sourceMaterial().getInstrument(priorChoice.get().getInstrumentId()) :
-      chooseFreshInstrument(InstrumentType.Hook, List.of(), null, List.of());
+      chooseFreshInstrument(List.of(InstrumentType.Hook), List.of(InstrumentMode.Loop), List.of(), null, List.of());
 
     // VoicingLoop instrument mode
     // https://www.pivotaltracker.com/story/show/181815619
-    if (instrument.isPresent() && InstrumentMode.VoicingLoop.equals(instrument.get().getMode()))
+    if (instrument.isPresent() && InstrumentMode.Loop.equals(instrument.get().getMode()))
       craftHook(instrument.get().getId());
 
     // Finally, update the segment with the crafted content
@@ -64,9 +64,12 @@ public class HookCraftImpl extends CraftImpl implements HookCraft {
   @SuppressWarnings("DuplicatedCode")
   private void craftHook(UUID instrumentId) throws NexusException {
     var choice = new SegmentChoice();
+    var instrument = fabricator.sourceMaterial().getInstrument(instrumentId)
+      .orElseThrow(() -> new NexusException("Can't get Instrument Audio!"));
     choice.setId(UUID.randomUUID());
     choice.setSegmentId(fabricator.getSegment().getId());
-    choice.setInstrumentType(InstrumentType.Hook.toString());
+    choice.setInstrumentType(instrument.getType().toString());
+    choice.setInstrumentMode(instrument.getMode().toString());
     choice.setInstrumentId(instrumentId);
     fabricator.put(choice);
     var arrangement = new SegmentChoiceArrangement();

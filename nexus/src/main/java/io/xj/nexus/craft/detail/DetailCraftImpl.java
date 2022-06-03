@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.craft.detail;
 
-import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.api.SegmentChoice;
@@ -15,7 +14,9 @@ import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.CraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -55,7 +56,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
       // https://www.pivotaltracker.com/story/show/181290857
       Optional<Instrument> instrument = priorChoice.isPresent() ?
         fabricator.sourceMaterial().getInstrument(priorChoice.get().getInstrumentId()) :
-        chooseFreshInstrument(voicingType, List.of(), null, List.of());
+        chooseFreshInstrument(List.of(voicingType), List.of(), List.of(), null, List.of());
 
       // Should gracefully skip voicing type if unfulfilled by detail instrument
       // https://www.pivotaltracker.com/story/show/176373977
@@ -68,26 +69,26 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
       // https://www.pivotaltracker.com/story/show/181134085
       switch (instrument.get().getMode()) {
 
-        // NoteEvent instrument mode takes over legacy behavior
+        // Event instrument mode takes over legacy behavior
         // https://www.pivotaltracker.com/story/show/181736854
-        case NoteEvent -> {
-          // NoteEvent Use prior chosen program or find a new one
+        case Event -> {
+          // Event Use prior chosen program or find a new one
           Optional<Program> program = priorChoice.isPresent() ?
             fabricator.sourceMaterial().getProgram(priorChoice.get().getProgramId()) :
             chooseFreshProgram(ProgramType.Detail, voicingType);
 
-          // NoteEvent Should gracefully skip voicing type if unfulfilled by detail program
+          // Event Should gracefully skip voicing type if unfulfilled by detail program
           // https://www.pivotaltracker.com/story/show/176373977
           if (program.isEmpty()) {
             reportMissing(Program.class, String.format("%s-type Program", voicingType));
             continue;
           }
 
-          // NoteEvent detail sequence is selected at random of the current instrument
+          // Event detail sequence is selected at random of the current instrument
           // FUTURE: https://www.pivotaltracker.com/story/show/166855956 Detail Instrument with multiple Sequences
           var sequence = fabricator.getRandomlySelectedSequence(program.get());
 
-          // NoteEvent voice arrangements
+          // Event voice arrangements
           if (sequence.isPresent()) {
             var voices = fabricator.sourceMaterial().getVoices(program.get());
             if (voices.isEmpty())
@@ -97,12 +98,12 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
           }
         }
 
-        // ChordPart instrument mode
+        // Chord instrument mode
         // https://www.pivotaltracker.com/story/show/181631275
-        case ChordPart -> craftChordParts(instrument.get());
+        case Chord -> craftChordParts(instrument.get());
 
         // As-yet Unsupported Modes
-        case VoicingEvent, ChordEvent, VoicingPart, MainPart -> fabricator.addWarningMessage(
+        default -> fabricator.addWarningMessage(
           String.format("Cannot craft unsupported mode %s for Instrument[%s]",
             instrument.get().getMode(), instrument.get().getId()));
       }

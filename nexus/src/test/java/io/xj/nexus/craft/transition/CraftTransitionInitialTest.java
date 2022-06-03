@@ -129,6 +129,6 @@ public class CraftTransitionInitialTest {
 //    // assert choice of transition-type sequence
 //    Collection<SegmentChoice> segmentChoices =
 //      store.getAll(segment6.getId(), SegmentChoice.class);
-//    assertNotNull(Segments.findFirstOfType(segmentChoices, InstrumentType.Transition));
+//    assertNotNull(Segments.findFirstOfType(segmentChoices, InstrumentType.Sweep, InstrumentMode.Transition));
   }
 }

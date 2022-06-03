@@ -8,6 +8,7 @@ import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import io.xj.api.*;
 import io.xj.hub.HubTopology;
+import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
@@ -160,7 +161,8 @@ public class CraftBackgroundContinueTest {
         Segments.DELTA_UNLIMITED,
         Segments.DELTA_UNLIMITED,
         fake.program35,
-        InstrumentType.Background));
+        InstrumentType.Noise,
+        InstrumentMode.Background));
 
     // segment crafting
     segment4 = store.put(buildSegment(

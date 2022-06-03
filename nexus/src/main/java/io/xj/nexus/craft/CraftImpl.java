@@ -14,6 +14,7 @@ import io.xj.api.SegmentChord;
 import io.xj.api.SegmentChordVoicing;
 import io.xj.api.SegmentType;
 import io.xj.hub.client.HubClientException;
+import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramState;
@@ -150,6 +151,7 @@ public class CraftImpl extends FabricationWrapperImpl {
           choice.setDeltaIn(priorChoice.get().getDeltaIn());
           choice.setDeltaOut(priorChoice.get().getDeltaOut());
           choice.setInstrumentId(priorChoice.get().getInstrumentId());
+          choice.setInstrumentMode(priorChoice.get().getInstrumentMode());
           this.craftNoteEventArrangements(fabricator.put(choice), defaultAtonal);
           continue;
         }
@@ -164,6 +166,7 @@ public class CraftImpl extends FabricationWrapperImpl {
         choice.setDeltaIn(computeDeltaIn(choice));
         choice.setDeltaOut(computeDeltaOut(choice));
         choice.setInstrumentId(instrument.get().getId());
+        choice.setInstrumentMode(instrument.get().getMode().toString());
         this.craftNoteEventArrangements(fabricator.put(choice), defaultAtonal);
       }
 
@@ -173,7 +176,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   }
 
   /**
-   ChordPart instrument mode
+   Chord instrument mode
    https://www.pivotaltracker.com/story/show/181631275
 
    @param instrument for which to craft choices
@@ -185,6 +188,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     choice.setId(UUID.randomUUID());
     choice.setInstrumentType(instrument.getType().toString());
+    choice.setInstrumentMode(instrument.getMode().toString());
     choice.setInstrumentId(instrument.getId());
     choice.setSegmentId(fabricator.getSegment().getId());
 
@@ -207,7 +211,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   }
 
   /**
-   ChordPart instrument mode
+   Chord instrument mode
    https://www.pivotaltracker.com/story/show/181631275
 
    @param instrument chosen
@@ -855,7 +859,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   }
 
   /**
-   ChordPart instrument mode
+   Chord instrument mode
    https://www.pivotaltracker.com/story/show/181631275
    <p>
    If never encountered, default to new selection and cache that.
@@ -1032,18 +1036,19 @@ public class CraftImpl extends FabricationWrapperImpl {
    <p>
    Choose drum instrument to fulfill beat program event names https://www.pivotaltracker.com/story/show/180803311
 
-   @param type              of instrument to choose
+   @param types             of instrument to choose from
+   @param modes             of instrument to choose from
    @param avoidIds          to avoid, or empty list
    @param continueVoiceName if present, ensure that choices continue for each voice named in prior segments of this main program
    @param requireEventNames instrument candidates are required to have event names https://www.pivotaltracker.com/story/show/180803311
    @return Instrument
    */
-  protected Optional<Instrument> chooseFreshInstrument(InstrumentType type, Collection<UUID> avoidIds, @Nullable String continueVoiceName, List<String> requireEventNames) throws NexusException {
+  protected Optional<Instrument> chooseFreshInstrument(Collection<InstrumentType> types, Collection<InstrumentMode> modes, Collection<UUID> avoidIds, @Nullable String continueVoiceName, Collection<String> requireEventNames) throws NexusException {
     var bag = MarbleBag.empty();
 
     // (2) retrieve instruments bound to chain
     Collection<Instrument> candidates =
-      fabricator.sourceMaterial().getInstruments(type)
+      fabricator.sourceMaterial().getInstruments(types, modes)
         .stream()
         .filter(i -> !avoidIds.contains(i.getId()))
         .filter(i -> instrumentContainsAudioEventsLike(i, requireEventNames))
@@ -1072,7 +1077,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     if (SegmentType.CONTINUE == fabricator.getType()) {
       var alreadyPicked =
         fabricator.retrospective().getChoices().stream()
-          .filter(candidate -> Objects.equals(candidate.getInstrumentType(), type.toString()))
+          .filter(candidate -> Objects.equals(candidate.getInstrumentType(), types.toString()))
           .filter(candidate -> Objects.nonNull(continueVoiceName))
           .filter(candidate -> fabricator.sourceMaterial().getProgramVoice(candidate.getProgramVoiceId())
             .stream().map(pv -> Objects.equals(continueVoiceName, pv.getName()))
@@ -1084,7 +1089,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     }
 
     // report
-    fabricator.putReport(String.format("choiceOf%sInstrument", type), bag.toString());
+    fabricator.putReport(String.format("choiceOf%sInstrument", types), bag.toString());
 
     // (4) return the top choice
     if (bag.isEmpty()) return Optional.empty();
@@ -1092,23 +1097,24 @@ public class CraftImpl extends FabricationWrapperImpl {
   }
 
   /**
-   PercLoop instrument audios are chosen in order of priority
+   Percussion-type Loop-mode instrument audios are chosen in order of priority
    https://www.pivotaltracker.com/story/show/181262545
    <p>
    Choose drum instrument to fulfill beat program event names https://www.pivotaltracker.com/story/show/180803311
 
-   @param type            of instrument to choose
+   @param types           of instrument to choose from
+   @param modes           of instrument to choose from
    @param avoidIds        to avoid, or empty list
    @param preferredEvents instrument candidates are required to have event names https://www.pivotaltracker.com/story/show/180803311
    @return Instrument
    */
   @SuppressWarnings("SameParameterValue")
-  protected Optional<InstrumentAudio> chooseFreshInstrumentAudio(InstrumentType type, Collection<UUID> avoidIds, List<String> preferredEvents) {
+  protected Optional<InstrumentAudio> chooseFreshInstrumentAudio(Collection<InstrumentType> types, Collection<InstrumentMode> modes, Collection<UUID> avoidIds, Collection<String> preferredEvents) {
     var bag = MarbleBag.empty();
 
     // (2) retrieve instruments bound to chain
     Collection<InstrumentAudio> candidates =
-      fabricator.sourceMaterial().getInstrumentAudios(type)
+      fabricator.sourceMaterial().getInstrumentAudios(types, modes)
         .stream()
         .filter(a -> !avoidIds.contains(a.getId()))
         .toList();
@@ -1132,7 +1138,10 @@ public class CraftImpl extends FabricationWrapperImpl {
     }
 
     // report
-    fabricator.putReport(String.format("choiceOf%sInstrument", type), bag.toString());
+    fabricator.putReport(String.format("choice%s%s",
+        types.stream().map(InstrumentType::toString).collect(Collectors.joining()),
+        modes.stream().map(InstrumentMode::toString).collect(Collectors.joining())),
+      bag.toString());
 
     // (4) return the top choice
     if (bag.isEmpty()) return Optional.empty();
@@ -1148,7 +1157,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param requireEvents N
    @return true if instrument contains audios named like N or required event names list is empty
    */
-  private boolean instrumentContainsAudioEventsLike(Instrument instrument, List<String> requireEvents) {
+  private boolean instrumentContainsAudioEventsLike(Instrument instrument, Collection<String> requireEvents) {
     if (requireEvents.isEmpty()) return true;
     for (var name : requireEvents)
       if (fabricator.sourceMaterial().getAudiosForInstrumentId(instrument.getId()).stream()

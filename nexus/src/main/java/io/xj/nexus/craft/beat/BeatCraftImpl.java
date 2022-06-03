@@ -4,6 +4,7 @@ package io.xj.nexus.craft.beat;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.api.SegmentChoice;
+import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Program;
@@ -76,7 +77,7 @@ public class BeatCraftImpl extends DetailCraftImpl implements BeatCraft {
         reportMissing(ProgramVoice.class,
           String.format("in Beat-choice Program[%s]", program.get().getId()));
 
-      craftNoteEvents(sequence.get(), voices, voice -> chooseFreshInstrument(voice.getType(), List.of(), voice.getName(), fabricator.sourceMaterial().getTrackNames(voice)), true);
+      craftNoteEvents(sequence.get(), voices, voice -> chooseFreshInstrument(List.of(voice.getType()), List.of(InstrumentMode.Event), List.of(), voice.getName(), fabricator.sourceMaterial().getTrackNames(voice)), true);
     }
 
     // Finally, update the segment with the crafted content

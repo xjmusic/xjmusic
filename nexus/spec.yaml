@@ -256,6 +256,8 @@ components:
           type: integer
         instrumentType:
           type: string
+        instrumentMode:
+          type: string
         programType:
           type: string
 

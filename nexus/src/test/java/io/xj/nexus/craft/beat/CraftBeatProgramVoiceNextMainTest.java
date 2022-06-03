@@ -131,7 +131,7 @@ public class CraftBeatProgramVoiceNextMainTest {
     Instrument instrument1 = Entities.add(entities, buildInstrument(
       fake.library2,
       InstrumentType.Drum,
-            InstrumentMode.NoteEvent, InstrumentState.Published,
+            InstrumentMode.Event, InstrumentState.Published,
       "808 Drums"));
     Entities.add(entities, buildInstrumentMeme(instrument1, "heavy"));
     //

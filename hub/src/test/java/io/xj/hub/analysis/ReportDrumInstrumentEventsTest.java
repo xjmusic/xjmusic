@@ -33,7 +33,7 @@ public class ReportDrumInstrumentEventsTest {
     TemplateBinding templateBinding_library1 = buildTemplateBinding(template, library1);
 
     // Instrument 201
-    instrument1 = buildInstrument(library1, InstrumentType.Drum, InstrumentMode.NoteEvent, InstrumentState.Published, "808 Drums");
+    instrument1 = buildInstrument(library1, InstrumentType.Drum, InstrumentMode.Event, InstrumentState.Published, "808 Drums");
     InstrumentMeme instrument1_meme1 = buildInstrumentMeme(instrument1, "Ants");
     InstrumentAudio instrument1_audio1 = buildInstrumentAudio(instrument1, "Chords Cm to D", "a0b9f74kf9b4h8d9e0g73k107s09f7-g0e73982.wav", 0.01f, 2.123f, 120.0f, 0.62f, "KICK", "X", 1.0f);
 

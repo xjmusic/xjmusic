@@ -129,7 +129,7 @@ public class ChordTest {
   }
 
   /**
-   ChordPart instrument mode
+   Chord instrument mode
    https://www.pivotaltracker.com/story/show/181631275
    */
   @Test
@@ -138,7 +138,7 @@ public class ChordTest {
   }
 
   /**
-   ChordPart instrument mode
+   Chord instrument mode
    https://www.pivotaltracker.com/story/show/181631275
    */
   @Test

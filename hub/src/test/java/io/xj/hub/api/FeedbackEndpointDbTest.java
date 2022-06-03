@@ -99,8 +99,8 @@ public class FeedbackEndpointDbTest {
   @Test
   public void readMany_forInstrument() throws JsonapiException, HubException {
     fake.library1 = test.insert(buildLibrary(fake.account1, "sandwich"));
-    fake.instrument201 = test.insert(buildInstrument(fake.library1, InstrumentType.Pad, InstrumentMode.NoteEvent, InstrumentState.Published, "buns"));
-    fake.instrument202 = test.insert(buildInstrument(fake.library1, InstrumentType.Drum, InstrumentMode.NoteEvent, InstrumentState.Published, "jams"));
+    fake.instrument201 = test.insert(buildInstrument(fake.library1, InstrumentType.Pad, InstrumentMode.Event, InstrumentState.Published, "buns"));
+    fake.instrument202 = test.insert(buildInstrument(fake.library1, InstrumentType.Drum, InstrumentMode.Event, InstrumentState.Published, "jams"));
     fake.audio1 = test.insert(buildInstrumentAudio(fake.instrument202, "Test audio", "fake.audio5.wav", 0.0f, 2.0f, 120.0f));
     test.insert(buildFeedbackInstrument(fake.feedback1a, fake.instrument201));
     test.insert(buildFeedbackInstrument(fake.feedback1b, fake.instrument202));

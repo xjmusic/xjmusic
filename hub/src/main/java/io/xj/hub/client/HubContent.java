@@ -3,6 +3,7 @@ package io.xj.hub.client;
 
 import com.google.common.collect.*;
 import com.google.inject.Inject;
+import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.ingest.HubContentPayload;
@@ -206,11 +207,12 @@ public class HubContent {
   /**
    Get all instrument audios for the given instrument type
 
-   @param type of instrument
+   @param types of instrument
+   @param modes of instrument
    @return all audios for instrument type
    */
-  public Collection<InstrumentAudio> getInstrumentAudios(InstrumentType type) {
-    return getInstruments(type).stream()
+  public Collection<InstrumentAudio> getInstrumentAudios(Collection<InstrumentType> types, Collection<InstrumentMode> modes) {
+    return getInstruments(types, modes).stream()
       .flatMap(instrument -> getInstrumentAudios(instrument.getId()).stream())
       .toList();
   }
@@ -241,6 +243,20 @@ public class HubContent {
   public Collection<Instrument> getInstruments(InstrumentType type) {
     return getInstruments().stream()
       .filter(instrument -> type.equals(instrument.getType()))
+      .collect(Collectors.toList());
+  }
+
+  /**
+   Get a collection of all instruments of a particular type for ingest
+
+   @param types of instrument; empty list is a wildcard
+   @param modes of instrument; empty list is a wildcard
+   @return collection of instruments
+   */
+  public Collection<Instrument> getInstruments(Collection<InstrumentType> types, Collection<InstrumentMode> modes) {
+    return getInstruments().stream()
+      .filter(instrument -> modes.isEmpty() || modes.contains(instrument.getMode()))
+      .filter(instrument -> types.isEmpty() || types.contains(instrument.getType()))
       .collect(Collectors.toList());
   }
 
@@ -746,5 +762,16 @@ public class HubContent {
   public boolean hasInstruments(InstrumentType type) {
     return getInstruments().stream()
       .anyMatch(instrument -> type.equals(instrument.getType()));
+  }
+
+  /**
+   Whether the content contains instruments of the given mode
+
+   @param mode of instrument for which to search
+   @return true if present
+   */
+  public boolean hasInstruments(InstrumentMode mode) {
+    return getInstruments().stream()
+      .anyMatch(instrument -> mode.equals(instrument.getMode()));
   }
 }

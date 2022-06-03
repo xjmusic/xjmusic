@@ -6,17 +6,15 @@ import com.google.inject.assistedinject.Assisted;
 import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentChoiceArrangement;
 import io.xj.api.SegmentChoiceArrangementPick;
-import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.util.MarbleBag;
-import io.xj.lib.util.TremendouslyRandom;
 import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.detail.DetailCraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +37,7 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
 
   @Override
   public void doWork() throws NexusException {
-    List<SegmentChoice> previousChoices = fabricator.retrospective().getPreviousChoicesOfType(InstrumentType.Background);
+    List<SegmentChoice> previousChoices = fabricator.retrospective().getPreviousChoicesOfMode(InstrumentMode.Background);
     Collection<UUID> instrumentIds = previousChoices.stream().map(SegmentChoice::getInstrumentId).collect(Collectors.toList());
 
     int targetLayers = (int) Math.floor(
@@ -59,7 +57,7 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
     Optional<Instrument> chosen;
     if (instrumentIds.size() < targetLayers)
       for (int i = 0; i < targetLayers - instrumentIds.size(); i++) {
-        chosen = chooseFreshInstrument(InstrumentType.Background, instrumentIds, null, List.of());
+        chosen = chooseFreshInstrument(List.of(), List.of(InstrumentMode.Background), instrumentIds, null, List.of());
         if (chosen.isPresent()) {
           instrumentIds.add(chosen.get().getId());
           craftBackground(chosen.get().getId());
@@ -78,9 +76,12 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
   @SuppressWarnings("DuplicatedCode")
   private void craftBackground(UUID instrumentId) throws NexusException {
     var choice = new SegmentChoice();
+    var instrument = fabricator.sourceMaterial().getInstrument(instrumentId)
+      .orElseThrow(() -> new NexusException("Can't get Instrument Audio!"));
     choice.setId(UUID.randomUUID());
     choice.setSegmentId(fabricator.getSegment().getId());
-    choice.setInstrumentType(InstrumentType.Background.toString());
+    choice.setInstrumentType(instrument.getType().toString());
+    choice.setInstrumentMode(instrument.getMode().toString());
     choice.setInstrumentId(instrumentId);
     fabricator.put(choice);
     var arrangement = new SegmentChoiceArrangement();

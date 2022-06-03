@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.api.*;
+import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.lib.entity.Entities;
@@ -123,6 +124,31 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
         .filter(c -> c.getSegmentId().equals(seg.get().getId())
           && Objects.nonNull(c.getInstrumentType())
           && c.getInstrumentType().equals(instrumentType.toString()))
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<SegmentChoice> getPreviousChoicesOfMode(InstrumentMode instrumentMode) {
+    Optional<Segment> seg = getPreviousSegment();
+    if (seg.isEmpty()) return List.of();
+    return
+      store.getAll(SegmentChoice.class).stream()
+        .filter(c -> c.getSegmentId().equals(seg.get().getId())
+          && Objects.nonNull(c.getInstrumentMode())
+          && c.getInstrumentMode().equals(instrumentMode.toString()))
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<SegmentChoice> getPreviousChoicesOfTypeModes(InstrumentType instrumentType, Collection<InstrumentMode> instrumentModes) {
+    Optional<Segment> seg = getPreviousSegment();
+    if (seg.isEmpty()) return List.of();
+    return
+      store.getAll(SegmentChoice.class).stream()
+        .filter(c -> c.getSegmentId().equals(seg.get().getId())
+          && Objects.nonNull(c.getInstrumentType())
+          && c.getInstrumentType().equals(instrumentType.toString())
+          && instrumentModes.contains(InstrumentMode.valueOf(c.getInstrumentMode())))
         .collect(Collectors.toList());
   }
 

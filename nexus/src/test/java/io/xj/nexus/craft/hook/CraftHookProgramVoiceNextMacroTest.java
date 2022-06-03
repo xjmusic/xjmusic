@@ -131,7 +131,7 @@ public class CraftHookProgramVoiceNextMacroTest {
     Collection<Object> entities = Lists.newArrayList();
 
     // Instrument "808"
-    Instrument instrument1 = Entities.add(entities, IntegrationTestingFixtures.buildInstrument(fake.library2, InstrumentType.Hook, InstrumentMode.NoteEvent, InstrumentState.Published, "Bongo Loop"));
+    Instrument instrument1 = Entities.add(entities, IntegrationTestingFixtures.buildInstrument(fake.library2, InstrumentType.Hook, InstrumentMode.Event, InstrumentState.Published, "Bongo Loop"));
     Entities.add(entities, IntegrationTestingFixtures.buildMeme(instrument1, "heavy"));
     //
     audioKick = Entities.add(entities, IntegrationTestingFixtures.buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.6f, "KICK", "Eb", 1.0f));
@@ -207,7 +207,8 @@ public class CraftHookProgramVoiceNextMacroTest {
         Segments.DELTA_UNLIMITED,
         Segments.DELTA_UNLIMITED,
         fake.program35,
-        InstrumentType.Hook));
+        InstrumentType.Hook,
+        InstrumentMode.Loop));
 
     // Chain "Test Print #1" has a segment in crafting state - Foundation is complete
     segment4 = store.put(buildSegment(

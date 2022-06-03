@@ -190,7 +190,7 @@ public class TemplateManagerDbTest {
     HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var boundLibrary = buildLibrary(fake.account1, "Test Library");
     var boundProgram = buildProgram(boundLibrary, ProgramType.Main, ProgramState.Published, "Test", "C", 120.0f, 0.6f);
-    var boundInstrument = buildInstrument(boundLibrary, InstrumentType.Bass, InstrumentMode.NoteEvent, InstrumentState.Published, "Test");
+    var boundInstrument = buildInstrument(boundLibrary, InstrumentType.Bass, InstrumentMode.Event, InstrumentState.Published, "Test");
     Template inputData = new Template();
     inputData.setType(TemplateType.Preview);
     inputData.setAccountId(fake.account1.getId());

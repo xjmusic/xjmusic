@@ -232,8 +232,10 @@ public class DubMasterImpl implements DubMaster {
     mixer.setBusLevel("Bass", fabricator.getTemplateConfig().getDubMasterVolumeInstrumentTypeBass());
     mixer.setBusLevel("Drum", fabricator.getTemplateConfig().getDubMasterVolumeInstrumentTypeDrum());
     mixer.setBusLevel("Pad", fabricator.getTemplateConfig().getDubMasterVolumeInstrumentTypePad());
-    mixer.setBusLevel("PercLoop", fabricator.getTemplateConfig().getDubMasterVolumeInstrumentTypePercLoop());
+    mixer.setBusLevel("Percussion", fabricator.getTemplateConfig().getDubMasterVolumeInstrumentTypePercussion());
     mixer.setBusLevel("Stab", fabricator.getTemplateConfig().getDubMasterVolumeInstrumentTypeStab());
+    mixer.setBusLevel("Noise", fabricator.getTemplateConfig().getDubMasterVolumeInstrumentTypeNoise());
+    mixer.setBusLevel("Sweep", fabricator.getTemplateConfig().getDubMasterVolumeInstrumentTypeSweep());
     mixer.setBusLevel("Sticky", fabricator.getTemplateConfig().getDubMasterVolumeInstrumentTypeSticky());
     mixer.setBusLevel("Stripe", fabricator.getTemplateConfig().getDubMasterVolumeInstrumentTypeStripe());
 

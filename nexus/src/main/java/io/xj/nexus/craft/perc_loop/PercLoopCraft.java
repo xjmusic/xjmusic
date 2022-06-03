@@ -11,7 +11,7 @@ public interface PercLoopCraft {
 
   /**
    perform craft for the current segment
-   https://www.pivotaltracker.com/story/show/153976073 Artist wants Pattern to have type Macro or Main (for Macro- or Main-type sequences), or Intro, Loop, or Outro (for PercLoop or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment.
+   https://www.pivotaltracker.com/story/show/153976073 Artist wants Pattern to have type Macro or Main (for Macro- or Main-type sequences), or Intro, Loop, or Outro (for Percussion-type Loop-mode or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment.
    https://www.pivotaltracker.com/story/show/161466708 Artist wants dynamic randomness over the selection of various audio events to fulfill particular pattern events, in order to establish repetition within any given segment.
    */
   void doWork() throws NexusException;

@@ -15,6 +15,7 @@ import io.xj.api.SegmentType;
 import io.xj.hub.HubTopology;
 import io.xj.hub.client.HubClient;
 import io.xj.hub.client.HubContent;
+import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
@@ -169,7 +170,8 @@ public class CraftHookContinueTest {
         Segments.DELTA_UNLIMITED,
         Segments.DELTA_UNLIMITED,
         fake.program35,
-        InstrumentType.Hook));
+        InstrumentType.Hook,
+        InstrumentMode.Loop));
 
     // segment crafting
     segment4 = store.put(buildSegment(
