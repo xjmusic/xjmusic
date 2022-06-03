@@ -19,6 +19,7 @@ resource "google_monitoring_alert_policy" "fabricated_ahead" {
       }
     }
   }
+  alert_strategy {auto_close = "1800s"}
   notification_channels = var.notification_channels
 }
 
@@ -39,6 +40,7 @@ resource "google_monitoring_alert_policy" "fabricating" {
       }
     }
   }
+  alert_strategy {auto_close = "1800s"}
   notification_channels = var.notification_channels
 }
 
@@ -62,6 +64,7 @@ resource "google_monitoring_alert_policy" "hls_playlist_ahead_seconds" {
       }
     }
   }
+  alert_strategy {auto_close = "1800s"}
   notification_channels = var.notification_channels
 }
 
@@ -82,6 +85,7 @@ resource "google_monitoring_alert_policy" "hls_playlist_shipping" {
       trigger {percent = 100}
     }
   }
+  alert_strategy {auto_close = "1800s"}
   notification_channels = var.notification_channels
 }
 
@@ -104,6 +108,7 @@ resource "google_monitoring_alert_policy" "ship_loaded_audio_ahead" {
       }
     }
   }
+  alert_strategy {auto_close = "1800s"}
   notification_channels = var.notification_channels
 }
 
