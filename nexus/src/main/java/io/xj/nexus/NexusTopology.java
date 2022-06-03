@@ -60,6 +60,8 @@ public enum NexusTopology {
     entityFactory.register(SegmentChoice.class)
       .createdBy(SegmentChoice::new)
       .withAttribute("programType")
+      .withAttribute("instrumentType")
+      .withAttribute("instrumentMode")
       .withAttribute("segmentType")
       .withAttribute("deltaIn")
       .withAttribute("deltaOut")
