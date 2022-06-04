@@ -40,7 +40,7 @@ public class ShipApp extends App {
    Construct a new application by providing
    - a config,
    - a set of resource packages to add to the core set, and
-   - an injector to create a child injector of in order to add the core set.@param resourcePackages to add to the core set of packages for the new application@param resourcePackages@param injector to add to the core set of modules for the new application
+   - an injector to create a child injector of in order to add the core set.
    */
   @Inject
   public ShipApp(

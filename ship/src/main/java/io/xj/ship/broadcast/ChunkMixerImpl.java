@@ -23,13 +23,13 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static io.xj.lib.util.Values.MICROS_PER_SECOND;
-import static io.xj.lib.util.Values.toEpochMicros;
+import static io.xj.lib.util.Values.NANOS_PER_SECOND;
 
 /**
  Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
@@ -128,14 +128,14 @@ class ChunkMixerImpl implements ChunkMixer {
 
     // actual microseconds-since-epoch to begin segment audio
     // (not including waveform preroll- we factor that in above, during source audio reading)
-    var sam = toEpochMicros(Instant.parse(source.getSegment().getBeginAt()));
-
+    // minus
     // actual microseconds-since-epoch to begin this output chunk
-    var oam = toEpochMicros(chunk.getFromInstant());
+    var delta = Duration.between(chunk.getFromInstant(), Instant.parse(source.getSegment().getBeginAt()));
+    var deltaSeconds = delta.toSeconds() + delta.toNanosPart() / NANOS_PER_SECOND;
 
     // calculate the starting frame (in output buffer) to align with frame 0 of this source audio
     // compute which frame in output to align with 0 frame of source (this may be negative if source begins before output)
-    var frf = (int) Math.floor(format.getSampleRate() * (sam - oam) / MICROS_PER_SECOND);
+    var frf = (int) Math.floor(format.getSampleRate() * deltaSeconds);
 
     // ratio of target frame rate to source frame rate
     // e.g. mixing from 96hz source to 48hz target = 0.5
