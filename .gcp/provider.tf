@@ -9,7 +9,7 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = "3.68.0" # see https://github.com/terraform-providers/terraform-provider-google/releases
+      version = "4.23.0" # see https://github.com/terraform-providers/terraform-provider-google/releases
     }
   }
 }
