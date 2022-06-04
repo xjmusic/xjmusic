@@ -165,6 +165,7 @@ jooq {
   }
 }
 
+flywayMigrate.dependsOn(flywayRepair)
 generateJooq.dependsOn(flywayMigrate)
 
 jar {
