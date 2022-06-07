@@ -9,6 +9,7 @@ import com.google.inject.assistedinject.Assisted;
 import io.xj.api.Segment;
 import io.xj.api.SegmentChoiceArrangementPick;
 import io.xj.api.SegmentType;
+import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.mixer.Mixer;
 import io.xj.lib.mixer.MixerConfig;
@@ -228,16 +229,8 @@ public class DubMasterImpl implements DubMaster {
 
       mixer = mixerFactory.createMixer(config);
     }
-
-    mixer.setBusLevel("Bass", fabricator.getTemplateConfig().getDubMasterVolumeInstrumentTypeBass());
-    mixer.setBusLevel("Drum", fabricator.getTemplateConfig().getDubMasterVolumeInstrumentTypeDrum());
-    mixer.setBusLevel("Pad", fabricator.getTemplateConfig().getDubMasterVolumeInstrumentTypePad());
-    mixer.setBusLevel("Percussion", fabricator.getTemplateConfig().getDubMasterVolumeInstrumentTypePercussion());
-    mixer.setBusLevel("Stab", fabricator.getTemplateConfig().getDubMasterVolumeInstrumentTypeStab());
-    mixer.setBusLevel("Noise", fabricator.getTemplateConfig().getDubMasterVolumeInstrumentTypeNoise());
-    mixer.setBusLevel("Sweep", fabricator.getTemplateConfig().getDubMasterVolumeInstrumentTypeSweep());
-    mixer.setBusLevel("Sticky", fabricator.getTemplateConfig().getDubMasterVolumeInstrumentTypeSticky());
-    mixer.setBusLevel("Stripe", fabricator.getTemplateConfig().getDubMasterVolumeInstrumentTypeStripe());
+    for (var instrumentType: InstrumentType.values())
+      mixer.setBusLevel(instrumentType.toString(), fabricator.getTemplateConfig().getDubMasterVolume(instrumentType));
 
     return mixer;
   }

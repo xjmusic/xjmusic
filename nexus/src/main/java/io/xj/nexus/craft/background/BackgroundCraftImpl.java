@@ -80,6 +80,7 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
       .orElseThrow(() -> new NexusException("Can't get Instrument Audio!"));
     choice.setId(UUID.randomUUID());
     choice.setSegmentId(fabricator.getSegment().getId());
+    choice.setMute(computeMute(instrument.getType()));
     choice.setInstrumentType(instrument.getType().toString());
     choice.setInstrumentMode(instrument.getMode().toString());
     choice.setInstrumentId(instrumentId);

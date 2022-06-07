@@ -7,7 +7,6 @@ import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigRenderOptions;
 import com.typesafe.config.ConfigValue;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Template;
@@ -28,67 +27,77 @@ import java.util.stream.Collectors;
  https://www.pivotaltracker.com/story/show/177355683 Artist saves Template config, validate & combine with defaults.
  */
 public class TemplateConfig {
-  public static final String DEFAULT =
-    """
-      backgroundLayerMax = 3
-      backgroundLayerMin = 0
-      bufferAheadSeconds = 180
-      bufferBeforeSeconds = 5
-      deltaArcBeatLayersIncoming = 1
-      deltaArcBeatLayersToPrioritize = kick
-      deltaArcDetailLayersIncoming = 1
-      deltaArcEnabled = true
-      densityCeiling = 0.9
-      densityFloor = 0.1
-      detailLayerOrder = ["Bass","Stripe","Pad","Sticky","Stab"]
-      dubMasterVolumeInstrumentTypeBass = 1.0
-      dubMasterVolumeInstrumentTypeDrum = 1.0
-      dubMasterVolumeInstrumentTypeNoise = 1.0
-      dubMasterVolumeInstrumentTypePad = 1.0
-      dubMasterVolumeInstrumentTypePercussion = 1.0
-      dubMasterVolumeInstrumentTypeStab = 1.0
-      dubMasterVolumeInstrumentTypeSticky = 1.0
-      dubMasterVolumeInstrumentTypeStripe = 1.0
-      dubMasterVolumeInstrumentTypeSweep = 1.0
-      eventNamesLarge = ["LARGE","BIG","HIGH","PRIMARY"]
-      eventNamesMedium = ["MEDIUM","REGULAR","MIDDLE","SECONDARY"]
-      eventNamesSmall = ["SMALL","LITTLE","LOW"]
-      instrumentTypesForAudioLengthFinalization = ["Bass","Pad","Stab","Sticky","Stripe"]
-      instrumentTypesForInversionSeeking = ["Pad","Stab","Sticky","Stripe"]
-      mainProgramLengthMaxDelta = 280
-      memeTaxonomy = [
-          {
-            "memes":["RED","GREEN","BLUE"],
-            "name":"COLOR"
-          },
-          {
-            "memes":["WINTER","SPRING","SUMMER","FALL"],
-            "name":"SEASON"
-          }
-        ]
-      mixerCompressAheadSeconds = 0.05
-      mixerCompressDecaySeconds = 0.125
-      mixerCompressRatioMax = 1.0
-      mixerCompressRatioMin = 0.3
-      mixerCompressToAmplitude = 1.0
-      mixerDspBufferSize = 1024
-      mixerHighpassThresholdHz = 30
-      mixerLowpassThresholdHz = 15000
-      mixerNormalizationBoostThreshold = 1.0
-      mixerNormalizationCeiling = 0.999
-      outputChannels = 2
-      outputContainer = "OGG"
-      outputContentType = "audio/ogg"
-      outputEncoding = "PCM_DOUBLE"
-      outputEncodingQuality = 0.618
-      outputFrameRate = 48000
-      outputSampleBits = 16
-      percLoopLayerMax = 8
-      percLoopLayerMin = 0
-      stickyBunEnabled = true
-      transitionLayerMax = 3
-      transitionLayerMin = 0
-      """;
+  public static final String DEFAULT = """
+    backgroundLayerMax = 3
+    backgroundLayerMin = 0
+    bufferAheadSeconds = 180
+    bufferBeforeSeconds = 5
+    choiceMuteProbabilityInstrumentTypeBass = 0.0
+    choiceMuteProbabilityInstrumentTypeDrum = 0.0
+    choiceMuteProbabilityInstrumentTypeHook = 0.0
+    choiceMuteProbabilityInstrumentTypeNoise = 0.0
+    choiceMuteProbabilityInstrumentTypePad = 0.0
+    choiceMuteProbabilityInstrumentTypePercussion = 0.0
+    choiceMuteProbabilityInstrumentTypeStab = 0.0
+    choiceMuteProbabilityInstrumentTypeSticky = 0.0
+    choiceMuteProbabilityInstrumentTypeStripe = 0.0
+    choiceMuteProbabilityInstrumentTypeSweep = 0.0
+    deltaArcBeatLayersIncoming = 1
+    deltaArcBeatLayersToPrioritize = kick
+    deltaArcDetailLayersIncoming = 1
+    deltaArcEnabled = true
+    densityCeiling = 0.9
+    densityFloor = 0.1
+    detailLayerOrder = ["Bass","Stripe","Pad","Sticky","Stab"]
+    dubMasterVolumeInstrumentTypeBass = 1.0
+    dubMasterVolumeInstrumentTypeDrum = 1.0
+    dubMasterVolumeInstrumentTypeHook = 1.0
+    dubMasterVolumeInstrumentTypeNoise = 1.0
+    dubMasterVolumeInstrumentTypePad = 1.0
+    dubMasterVolumeInstrumentTypePercussion = 1.0
+    dubMasterVolumeInstrumentTypeStab = 1.0
+    dubMasterVolumeInstrumentTypeSticky = 1.0
+    dubMasterVolumeInstrumentTypeStripe = 1.0
+    dubMasterVolumeInstrumentTypeSweep = 1.0
+    eventNamesLarge = ["LARGE","BIG","HIGH","PRIMARY"]
+    eventNamesMedium = ["MEDIUM","REGULAR","MIDDLE","SECONDARY"]
+    eventNamesSmall = ["SMALL","LITTLE","LOW"]
+    instrumentTypesForAudioLengthFinalization = ["Bass","Pad","Stab","Sticky","Stripe"]
+    instrumentTypesForInversionSeeking = ["Pad","Stab","Sticky","Stripe"]
+    mainProgramLengthMaxDelta = 280
+    memeTaxonomy = [
+        {
+          "memes":["RED","GREEN","BLUE"],
+          "name":"COLOR"
+        },
+        {
+          "memes":["WINTER","SPRING","SUMMER","FALL"],
+          "name":"SEASON"
+        }
+      ]
+    mixerCompressAheadSeconds = 0.05
+    mixerCompressDecaySeconds = 0.125
+    mixerCompressRatioMax = 1.0
+    mixerCompressRatioMin = 0.3
+    mixerCompressToAmplitude = 1.0
+    mixerDspBufferSize = 1024
+    mixerHighpassThresholdHz = 30
+    mixerLowpassThresholdHz = 15000
+    mixerNormalizationBoostThreshold = 1.0
+    mixerNormalizationCeiling = 0.999
+    outputChannels = 2
+    outputContainer = "OGG"
+    outputContentType = "audio/ogg"
+    outputEncoding = "PCM_DOUBLE"
+    outputEncodingQuality = 0.618
+    outputFrameRate = 48000
+    outputSampleBits = 16
+    percLoopLayerMax = 8
+    percLoopLayerMin = 0
+    stickyBunEnabled = true
+    transitionLayerMax = 3
+    transitionLayerMin = 0
+    """;
   private final AudioFormat.Encoding outputEncoding;
   private final List<InstrumentType> detailLayerOrder;
   private final List<InstrumentType> instrumentTypesForAudioLengthFinalization;
@@ -102,10 +111,21 @@ public class TemplateConfig {
   private final String outputContentType;
   private final boolean deltaArcEnabled;
   private final boolean stickyBunEnabled;
+  private final double choiceMuteProbabilityInstrumentTypeBass;
+  private final double choiceMuteProbabilityInstrumentTypeDrum;
+  private final double choiceMuteProbabilityInstrumentTypeHook;
+  private final double choiceMuteProbabilityInstrumentTypeNoise;
+  private final double choiceMuteProbabilityInstrumentTypePad;
+  private final double choiceMuteProbabilityInstrumentTypePercussion;
+  private final double choiceMuteProbabilityInstrumentTypeStab;
+  private final double choiceMuteProbabilityInstrumentTypeSticky;
+  private final double choiceMuteProbabilityInstrumentTypeStripe;
+  private final double choiceMuteProbabilityInstrumentTypeSweep;
   private final double densityCeiling;
   private final double densityFloor;
   private final double dubMasterVolumeInstrumentTypeBass;
   private final double dubMasterVolumeInstrumentTypeDrum;
+  private final double dubMasterVolumeInstrumentTypeHook;
   private final double dubMasterVolumeInstrumentTypeNoise;
   private final double dubMasterVolumeInstrumentTypePad;
   private final double dubMasterVolumeInstrumentTypePercussion;
@@ -138,10 +158,6 @@ public class TemplateConfig {
   private final int percLoopLayerMin;
   private final int transitionLayerMax;
   private final int transitionLayerMin;
-  private final ConfigRenderOptions renderOptions =
-    ConfigRenderOptions.concise()
-      .setJson(true)
-      .setFormatted(false);
 
   /**
    Get a template config from only the default config
@@ -172,25 +188,31 @@ public class TemplateConfig {
    */
   public TemplateConfig(String configText) throws ValueException {
     try {
-      Config config = Strings.isNullOrEmpty(configText) ?
-        ConfigFactory.parseString(DEFAULT) :
-        ConfigFactory.parseString(configText).withFallback(ConfigFactory.parseString(DEFAULT));
+      Config config = Strings.isNullOrEmpty(configText) ? ConfigFactory.parseString(DEFAULT) : ConfigFactory.parseString(configText).withFallback(ConfigFactory.parseString(DEFAULT));
       backgroundLayerMax = config.getInt("backgroundLayerMax");
       backgroundLayerMin = config.getInt("backgroundLayerMin");
       bufferAheadSeconds = config.getInt("bufferAheadSeconds");
       bufferBeforeSeconds = config.getInt("bufferBeforeSeconds");
-      deltaArcDetailLayersIncoming = config.getInt("deltaArcDetailLayersIncoming");
-      deltaArcEnabled = config.getBoolean("deltaArcEnabled");
+      choiceMuteProbabilityInstrumentTypeBass = config.getDouble("choiceMuteProbabilityInstrumentTypeBass");
+      choiceMuteProbabilityInstrumentTypeDrum = config.getDouble("choiceMuteProbabilityInstrumentTypeDrum");
+      choiceMuteProbabilityInstrumentTypeHook = config.getDouble("choiceMuteProbabilityInstrumentTypeHook");
+      choiceMuteProbabilityInstrumentTypeNoise = config.getDouble("choiceMuteProbabilityInstrumentTypeNoise");
+      choiceMuteProbabilityInstrumentTypePad = config.getDouble("choiceMuteProbabilityInstrumentTypePad");
+      choiceMuteProbabilityInstrumentTypePercussion = config.getDouble("choiceMuteProbabilityInstrumentTypePercussion");
+      choiceMuteProbabilityInstrumentTypeStab = config.getDouble("choiceMuteProbabilityInstrumentTypeStab");
+      choiceMuteProbabilityInstrumentTypeSticky = config.getDouble("choiceMuteProbabilityInstrumentTypeSticky");
+      choiceMuteProbabilityInstrumentTypeStripe = config.getDouble("choiceMuteProbabilityInstrumentTypeStripe");
+      choiceMuteProbabilityInstrumentTypeSweep = config.getDouble("choiceMuteProbabilityInstrumentTypeSweep");
       deltaArcBeatLayersIncoming = config.getInt("deltaArcBeatLayersIncoming");
       deltaArcBeatLayersToPrioritize = config.getString("deltaArcBeatLayersToPrioritize");
+      deltaArcDetailLayersIncoming = config.getInt("deltaArcDetailLayersIncoming");
+      deltaArcEnabled = config.getBoolean("deltaArcEnabled");
       densityCeiling = config.getDouble("densityCeiling");
       densityFloor = config.getDouble("densityFloor");
-      detailLayerOrder =
-        requireAtLeastOne("detailLayerOrder",
-          config.getStringList("detailLayerOrder").stream()
-            .map(InstrumentType::valueOf).toList());
+      detailLayerOrder = requireAtLeastOne("detailLayerOrder", config.getStringList("detailLayerOrder").stream().map(InstrumentType::valueOf).toList());
       dubMasterVolumeInstrumentTypeBass = config.getDouble("dubMasterVolumeInstrumentTypeBass");
       dubMasterVolumeInstrumentTypeDrum = config.getDouble("dubMasterVolumeInstrumentTypeDrum");
+      dubMasterVolumeInstrumentTypeHook = config.getDouble("dubMasterVolumeInstrumentTypeHook");
       dubMasterVolumeInstrumentTypeNoise = config.getDouble("dubMasterVolumeInstrumentTypeNoise");
       dubMasterVolumeInstrumentTypePad = config.getDouble("dubMasterVolumeInstrumentTypePad");
       dubMasterVolumeInstrumentTypePercussion = config.getDouble("dubMasterVolumeInstrumentTypePercussion");
@@ -198,26 +220,11 @@ public class TemplateConfig {
       dubMasterVolumeInstrumentTypeSticky = config.getDouble("dubMasterVolumeInstrumentTypeSticky");
       dubMasterVolumeInstrumentTypeStripe = config.getDouble("dubMasterVolumeInstrumentTypeStripe");
       dubMasterVolumeInstrumentTypeSweep = config.getDouble("dubMasterVolumeInstrumentTypeSweep");
-      eventNamesSmall =
-        requireAtLeastOne("eventNamesSmall",
-          config.getStringList("eventNamesSmall").stream()
-            .map(Text::toMeme).toList());
-      eventNamesMedium =
-        requireAtLeastOne("eventNamesMedium",
-          config.getStringList("eventNamesMedium").stream()
-            .map(Text::toMeme).toList());
-      eventNamesLarge =
-        requireAtLeastOne("eventNamesLarge",
-          config.getStringList("eventNamesLarge").stream()
-            .map(Text::toMeme).toList());
-      instrumentTypesForAudioLengthFinalization =
-        requireAtLeastOne("instrumentTypesForAudioLengthFinalization",
-          config.getStringList("instrumentTypesForAudioLengthFinalization").stream()
-            .map(InstrumentType::valueOf).toList());
-      instrumentTypesForInversionSeeking =
-        requireAtLeastOne("instrumentTypesForInversionSeeking",
-          config.getStringList("instrumentTypesForInversionSeeking").stream()
-            .map(InstrumentType::valueOf).toList());
+      eventNamesLarge = requireAtLeastOne("eventNamesLarge", config.getStringList("eventNamesLarge").stream().map(Text::toMeme).toList());
+      eventNamesMedium = requireAtLeastOne("eventNamesMedium", config.getStringList("eventNamesMedium").stream().map(Text::toMeme).toList());
+      eventNamesSmall = requireAtLeastOne("eventNamesSmall", config.getStringList("eventNamesSmall").stream().map(Text::toMeme).toList());
+      instrumentTypesForAudioLengthFinalization = requireAtLeastOne("instrumentTypesForAudioLengthFinalization", config.getStringList("instrumentTypesForAudioLengthFinalization").stream().map(InstrumentType::valueOf).toList());
+      instrumentTypesForInversionSeeking = requireAtLeastOne("instrumentTypesForInversionSeeking", config.getStringList("instrumentTypesForInversionSeeking").stream().map(InstrumentType::valueOf).toList());
       mainProgramLengthMaxDelta = config.getInt("mainProgramLengthMaxDelta");
       memeTaxonomy = MemeTaxonomy.fromList(config.getList("memeTaxonomy").stream().map(ConfigValue::unwrapped).toList());
       mixerCompressAheadSeconds = config.getDouble("mixerCompressAheadSeconds");
@@ -261,15 +268,26 @@ public class TemplateConfig {
     config.put("backgroundLayerMin", String.valueOf(backgroundLayerMin));
     config.put("bufferAheadSeconds", String.valueOf(bufferAheadSeconds));
     config.put("bufferBeforeSeconds", String.valueOf(bufferBeforeSeconds));
-    config.put("deltaArcDetailLayersIncoming", String.valueOf(deltaArcDetailLayersIncoming));
-    config.put("deltaArcEnabled", String.valueOf(deltaArcEnabled));
+    config.put("choiceMuteProbabilityInstrumentTypeBass", String.valueOf(choiceMuteProbabilityInstrumentTypeBass));
+    config.put("choiceMuteProbabilityInstrumentTypeDrum", String.valueOf(choiceMuteProbabilityInstrumentTypeDrum));
+    config.put("choiceMuteProbabilityInstrumentTypeHook", String.valueOf(choiceMuteProbabilityInstrumentTypeHook));
+    config.put("choiceMuteProbabilityInstrumentTypeNoise", String.valueOf(choiceMuteProbabilityInstrumentTypeNoise));
+    config.put("choiceMuteProbabilityInstrumentTypePad", String.valueOf(choiceMuteProbabilityInstrumentTypePad));
+    config.put("choiceMuteProbabilityInstrumentTypePercussion", String.valueOf(choiceMuteProbabilityInstrumentTypePercussion));
+    config.put("choiceMuteProbabilityInstrumentTypeStab", String.valueOf(choiceMuteProbabilityInstrumentTypeStab));
+    config.put("choiceMuteProbabilityInstrumentTypeSticky", String.valueOf(choiceMuteProbabilityInstrumentTypeSticky));
+    config.put("choiceMuteProbabilityInstrumentTypeStripe", String.valueOf(choiceMuteProbabilityInstrumentTypeStripe));
+    config.put("choiceMuteProbabilityInstrumentTypeSweep", String.valueOf(choiceMuteProbabilityInstrumentTypeSweep));
     config.put("deltaArcBeatLayersIncoming", String.valueOf(deltaArcBeatLayersIncoming));
     config.put("deltaArcBeatLayersToPrioritize", String.valueOf(deltaArcBeatLayersToPrioritize));
+    config.put("deltaArcDetailLayersIncoming", String.valueOf(deltaArcDetailLayersIncoming));
+    config.put("deltaArcEnabled", String.valueOf(deltaArcEnabled));
     config.put("densityCeiling", String.valueOf(densityCeiling));
     config.put("densityFloor", String.valueOf(densityFloor));
     config.put("detailLayerOrder", formatTypesafeQuoted(detailLayerOrder));
     config.put("dubMasterVolumeInstrumentTypeBass", String.valueOf(dubMasterVolumeInstrumentTypeBass));
     config.put("dubMasterVolumeInstrumentTypeDrum", String.valueOf(dubMasterVolumeInstrumentTypeDrum));
+    config.put("dubMasterVolumeInstrumentTypeHook", String.valueOf(dubMasterVolumeInstrumentTypeHook));
     config.put("dubMasterVolumeInstrumentTypeNoise", String.valueOf(dubMasterVolumeInstrumentTypeNoise));
     config.put("dubMasterVolumeInstrumentTypePad", String.valueOf(dubMasterVolumeInstrumentTypePad));
     config.put("dubMasterVolumeInstrumentTypePercussion", String.valueOf(dubMasterVolumeInstrumentTypePercussion));
@@ -277,9 +295,9 @@ public class TemplateConfig {
     config.put("dubMasterVolumeInstrumentTypeSticky", String.valueOf(dubMasterVolumeInstrumentTypeSticky));
     config.put("dubMasterVolumeInstrumentTypeStripe", String.valueOf(dubMasterVolumeInstrumentTypeStripe));
     config.put("dubMasterVolumeInstrumentTypeSweep", String.valueOf(dubMasterVolumeInstrumentTypeSweep));
-    config.put("eventNamesSmall", formatTypesafeQuoted(eventNamesSmall));
-    config.put("eventNamesMedium", formatTypesafeQuoted(eventNamesMedium));
     config.put("eventNamesLarge", formatTypesafeQuoted(eventNamesLarge));
+    config.put("eventNamesMedium", formatTypesafeQuoted(eventNamesMedium));
+    config.put("eventNamesSmall", formatTypesafeQuoted(eventNamesSmall));
     config.put("instrumentTypesForAudioLengthFinalization", formatTypesafeQuoted(instrumentTypesForAudioLengthFinalization));
     config.put("instrumentTypesForInversionSeeking", formatTypesafeQuoted(instrumentTypesForInversionSeeking));
     config.put("mainProgramLengthMaxDelta", String.valueOf(mainProgramLengthMaxDelta));
@@ -306,18 +324,11 @@ public class TemplateConfig {
     config.put("stickyBunEnabled", String.valueOf(stickyBunEnabled));
     config.put("transitionLayerMax", String.valueOf(transitionLayerMax));
     config.put("transitionLayerMin", String.valueOf(transitionLayerMin));
-    return Text.formatMultiline(config.entrySet().stream()
-      .sorted(Map.Entry.comparingByKey())
-      .map(pair -> String.format("%s = %s", pair.getKey(), pair.getValue()))
-      .toArray());
+    return Text.formatMultiline(config.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(pair -> String.format("%s = %s", pair.getKey(), pair.getValue())).toArray());
   }
 
   private String computeStringValueMemeTaxonomy() {
-    return String.format("[%s\n  ]",
-      memeTaxonomy.getCategories().stream().map(category ->
-        String.format("\n    {\n      \"memes\":[%s],\n      \"name\":%s\n    }",
-          category.getMemes().stream().map(Text::doubleQuoted).collect(Collectors.joining(",")),
-          Text.doubleQuoted(category.getName()))).collect(Collectors.joining(",")));
+    return String.format("[%s\n  ]", memeTaxonomy.getCategories().stream().map(category -> String.format("\n    {\n      \"memes\":[%s],\n      \"name\":%s\n    }", category.getMemes().stream().map(Text::doubleQuoted).collect(Collectors.joining(",")), Text.doubleQuoted(category.getName()))).collect(Collectors.joining(",")));
   }
 
   /**
@@ -327,11 +338,7 @@ public class TemplateConfig {
    @return typesafe array of quoted values
    */
   private <N> String formatTypesafeQuoted(List<N> values) {
-    return String.format("[%s]",
-      values.stream()
-        .map(N::toString)
-        .map(Text::doubleQuoted)
-        .collect(Collectors.joining(",")));
+    return String.format("[%s]", values.stream().map(N::toString).map(Text::doubleQuoted).collect(Collectors.joining(",")));
   }
 
   /**
@@ -413,66 +420,41 @@ public class TemplateConfig {
   }
 
   /**
-   @return ratio of amplitude to dub audio for Bass-type instruments
+   @return probability of a given type of instrument choice being muted for any given segment
    */
-  public double getDubMasterVolumeInstrumentTypeBass() {
-    return dubMasterVolumeInstrumentTypeBass;
+  @SuppressWarnings("DuplicatedCode")
+  public double getChoiceMuteProbability(InstrumentType instrumentType) {
+    return switch (instrumentType) {
+      case Bass -> choiceMuteProbabilityInstrumentTypeBass;
+      case Drum -> choiceMuteProbabilityInstrumentTypeDrum;
+      case Hook -> choiceMuteProbabilityInstrumentTypeHook;
+      case Noise -> choiceMuteProbabilityInstrumentTypeNoise;
+      case Pad -> choiceMuteProbabilityInstrumentTypePad;
+      case Percussion -> choiceMuteProbabilityInstrumentTypePercussion;
+      case Stab -> choiceMuteProbabilityInstrumentTypeStab;
+      case Sticky -> choiceMuteProbabilityInstrumentTypeSticky;
+      case Stripe -> choiceMuteProbabilityInstrumentTypeStripe;
+      case Sweep -> choiceMuteProbabilityInstrumentTypeSweep;
+    };
   }
 
   /**
-   @return ratio of amplitude to dub audio for Drum-type instruments
+   @return ratio of amplitude to dub audio for a given type of instrument
    */
-  public double getDubMasterVolumeInstrumentTypeDrum() {
-    return dubMasterVolumeInstrumentTypeDrum;
-  }
-
-  /**
-   @return ratio of amplitude to dub audio for Pad-type instruments
-   */
-  public double getDubMasterVolumeInstrumentTypePad() {
-    return dubMasterVolumeInstrumentTypePad;
-  }
-
-  /**
-   @return ratio of amplitude to dub audio for Percussion-type Loop-mode instruments
-   */
-  public double getDubMasterVolumeInstrumentTypePercussion() {
-    return dubMasterVolumeInstrumentTypePercussion;
-  }
-
-  /**
-   @return ratio of amplitude to dub audio for Stab-type instruments
-   */
-  public double getDubMasterVolumeInstrumentTypeStab() {
-    return dubMasterVolumeInstrumentTypeStab;
-  }
-
-  /**
-   @return ratio of amplitude to dub audio for Noise-type instruments
-   */
-  public double getDubMasterVolumeInstrumentTypeNoise() {
-    return dubMasterVolumeInstrumentTypeNoise;
-  }
-
-  /**
-   @return ratio of amplitude to dub audio for Sweep-type instruments
-   */
-  public double getDubMasterVolumeInstrumentTypeSweep() {
-    return dubMasterVolumeInstrumentTypeSweep;
-  }
-
-  /**
-   @return ratio of amplitude to dub audio for Stick-type instruments
-   */
-  public double getDubMasterVolumeInstrumentTypeSticky() {
-    return dubMasterVolumeInstrumentTypeSticky;
-  }
-
-  /**
-   @return ratio of amplitude to dub audio for Strip-type instruments
-   */
-  public double getDubMasterVolumeInstrumentTypeStripe() {
-    return dubMasterVolumeInstrumentTypeStripe;
+  @SuppressWarnings("DuplicatedCode")
+  public double getDubMasterVolume(InstrumentType instrumentType) {
+    return switch (instrumentType) {
+      case Bass -> dubMasterVolumeInstrumentTypeBass;
+      case Drum -> dubMasterVolumeInstrumentTypeDrum;
+      case Hook -> dubMasterVolumeInstrumentTypeHook;
+      case Noise -> dubMasterVolumeInstrumentTypeNoise;
+      case Pad -> dubMasterVolumeInstrumentTypePad;
+      case Percussion -> dubMasterVolumeInstrumentTypePercussion;
+      case Stab -> dubMasterVolumeInstrumentTypeStab;
+      case Sticky -> dubMasterVolumeInstrumentTypeSticky;
+      case Stripe -> dubMasterVolumeInstrumentTypeStripe;
+      case Sweep -> dubMasterVolumeInstrumentTypeSweep;
+    };
   }
 
   /**

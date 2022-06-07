@@ -254,6 +254,8 @@ components:
           type: integer
         deltaOut:
           type: integer
+        mute:
+          type: boolean
         instrumentType:
           type: string
         instrumentMode:

@@ -68,6 +68,7 @@ public class HookCraftImpl extends CraftImpl implements HookCraft {
     var choice = new SegmentChoice();
     choice.setId(UUID.randomUUID());
     choice.setSegmentId(fabricator.getSegment().getId());
+    choice.setMute(computeMute(instrument.getType()));
     choice.setInstrumentType(instrument.getType().toString());
     choice.setInstrumentMode(instrument.getMode().toString());
     choice.setInstrumentId(instrument.getId());

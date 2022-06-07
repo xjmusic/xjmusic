@@ -466,6 +466,7 @@ public class NexusIntegrationTestingFixtures {
     segmentChoice.setDeltaOut(deltaOut);
     segmentChoice.setProgramId(program.getId());
     segmentChoice.setProgramType(program.getType().toString());
+    segmentChoice.setMute(false);
     segmentChoice.setInstrumentType(instrumentType.toString());
     segmentChoice.setInstrumentMode(instrumentMode.toString());
     return segmentChoice;
@@ -488,6 +489,7 @@ public class NexusIntegrationTestingFixtures {
     segmentChoice.setProgramVoiceId(voice.getId());
     segmentChoice.setInstrumentId(instrument.getId());
     segmentChoice.setInstrumentType(instrument.getType().toString());
+    segmentChoice.setMute(false);
     segmentChoice.setInstrumentMode(instrument.getMode().toString());
     segmentChoice.setDeltaIn(Segments.DELTA_UNLIMITED);
     segmentChoice.setDeltaOut(Segments.DELTA_UNLIMITED);
@@ -509,6 +511,7 @@ public class NexusIntegrationTestingFixtures {
     choice.setProgramVoiceId(voice.getId());
     choice.setInstrumentId(instrument.getId());
     choice.setInstrumentType(instrument.getType().toString());
+    choice.setMute(false);
     choice.setInstrumentMode(instrument.getMode().toString());
     return choice;
   }

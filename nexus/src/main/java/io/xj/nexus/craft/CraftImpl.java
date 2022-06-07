@@ -133,8 +133,9 @@ public class CraftImpl extends FabricationWrapperImpl {
     try {
       for (ProgramVoice voice : voices) {
         var choice = new SegmentChoice();
-
         choice.setId(UUID.randomUUID());
+        choice.setSegmentId(fabricator.getSegment().getId());
+        choice.setMute(computeMute(voice.getType()));
         choice.setProgramType(fabricator.sourceMaterial().getProgram(voice.getProgramId())
           .orElseThrow(() -> new NexusException("Can't get program for voice")).getType()
           .toString());
@@ -142,7 +143,6 @@ public class CraftImpl extends FabricationWrapperImpl {
         choice.setProgramId(voice.getProgramId());
         choice.setProgramSequenceId(sequence.getId());
         choice.setProgramVoiceId(voice.getId());
-        choice.setSegmentId(fabricator.getSegment().getId());
 
         // Whether there is a prior choice for this voice
         Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(voice);
@@ -187,10 +187,11 @@ public class CraftImpl extends FabricationWrapperImpl {
     var choice = new SegmentChoice();
 
     choice.setId(UUID.randomUUID());
+    choice.setSegmentId(fabricator.getSegment().getId());
+    choice.setMute(computeMute(instrument.getType()));
     choice.setInstrumentType(instrument.getType().toString());
     choice.setInstrumentMode(instrument.getMode().toString());
     choice.setInstrumentId(instrument.getId());
-    choice.setSegmentId(fabricator.getSegment().getId());
 
     // Whether there is a prior choice for this voice
     Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(instrument.getType());
@@ -1149,24 +1150,6 @@ public class CraftImpl extends FabricationWrapperImpl {
   }
 
   /**
-   Test if an instrument contains audios named like N
-   <p>
-   Choose drum instrument to fulfill beat program event names https://www.pivotaltracker.com/story/show/180803311
-
-   @param instrument    to test
-   @param requireEvents N
-   @return true if instrument contains audios named like N or required event names list is empty
-   */
-  private boolean instrumentContainsAudioEventsLike(Instrument instrument, Collection<String> requireEvents) {
-    if (requireEvents.isEmpty()) return true;
-    for (var name : requireEvents)
-      if (fabricator.sourceMaterial().getAudiosForInstrumentId(instrument.getId()).stream()
-        .noneMatch(a -> 100 < NameIsometry.similarity(name, a.getEvent())))
-        return false;
-    return true;
-  }
-
-  /**
    Filter only the directly bound programs
 
    @param programs to filter
@@ -1227,9 +1210,38 @@ public class CraftImpl extends FabricationWrapperImpl {
   }
 
   /**
+   Compute a mute value, based on the template config
+
+   @param instrumentType of instrument for which to compute mute
+   @return true if muted
+   */
+  protected boolean computeMute(InstrumentType instrumentType) {
+    return TremendouslyRandom.booleanChanceOf(fabricator.getTemplateConfig().getChoiceMuteProbability(instrumentType));
+  }
+
+  /**
+   Test if an instrument contains audios named like N
+   <p>
+   Choose drum instrument to fulfill beat program event names https://www.pivotaltracker.com/story/show/180803311
+
+   @param instrument    to test
+   @param requireEvents N
+   @return true if instrument contains audios named like N or required event names list is empty
+   */
+  private boolean instrumentContainsAudioEventsLike(Instrument instrument, Collection<String> requireEvents) {
+    if (requireEvents.isEmpty()) return true;
+    for (var name : requireEvents)
+      if (fabricator.sourceMaterial().getAudiosForInstrumentId(instrument.getId()).stream()
+        .noneMatch(a -> 100 < NameIsometry.similarity(name, a.getEvent())))
+        return false;
+    return true;
+  }
+
+  /**
    Instrument provider to make some code more portable
    */
   public interface InstrumentProvider {
+
     Optional<Instrument> get(ProgramVoice voice) throws NexusException;
   }
 
@@ -1244,6 +1256,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    Representation of a section of an arrangement, having a chord, beginning position and end position
    */
   static class Section {
+
     public SegmentChord chord;
     public double fromPos;
     public double toPos;
@@ -1253,6 +1266,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    Default choice index provider
    */
   public static class DefaultChoiceIndexProvider implements ChoiceIndexProvider {
+
     @Override
     public String get(SegmentChoice choice) {
       return choice.getId().toString();

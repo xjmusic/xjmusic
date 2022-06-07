@@ -22,6 +22,16 @@ public interface TremendouslyRandom {
   }
 
   /**
+   Make a tremendously random boolean selection based on probability
+
+   @param probability 0 <= n < limit
+   @return random integer n, where 0 <= n < limit
+   */
+  static Boolean booleanChanceOf(Double probability) {
+    return ThreadLocalRandom.current().nextDouble(0, 1) <= probability;
+  }
+
+  /**
    Make a tremendously random selection of an double n, where 0 <= n < limit
 
    @param limit 0 <= n < limit
