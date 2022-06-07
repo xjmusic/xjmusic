@@ -144,7 +144,8 @@ public class DubMasterImpl implements DubMaster {
   private void doMixerTargetSetting(Double preroll) {
     for (SegmentChoiceArrangementPick pick : fabricator.getPicks())
       try {
-        setupTarget(preroll, pick);
+        if (!fabricator.getChoice(fabricator.getArrangement(pick).orElseThrow()).orElseThrow().getMute())
+          setupTarget(preroll, pick);
       } catch (Exception e) {
         warnings.add(e.getMessage() + " " + Text.formatStackTrace(e));
       }
@@ -229,7 +230,7 @@ public class DubMasterImpl implements DubMaster {
 
       mixer = mixerFactory.createMixer(config);
     }
-    for (var instrumentType: InstrumentType.values())
+    for (var instrumentType : InstrumentType.values())
       mixer.setBusLevel(instrumentType.toString(), fabricator.getTemplateConfig().getDubMasterVolume(instrumentType));
 
     return mixer;

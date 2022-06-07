@@ -531,6 +531,14 @@ class FabricatorImpl implements Fabricator {
     return new AudioFormat(templateConfig.getOutputEncoding(), templateConfig.getOutputFrameRate(), templateConfig.getOutputSampleBits(), templateConfig.getOutputChannels(), templateConfig.getOutputChannels() * templateConfig.getOutputSampleBits() / 8, templateConfig.getOutputFrameRate(), false);
   }
 
+  public Optional<SegmentChoice> getChoice(SegmentChoiceArrangement pick) {
+    return workbench.getSegmentChoices().stream().filter(choice->choice.getId().equals(pick.getSegmentChoiceId())).findFirst();
+  }
+
+  public Optional<SegmentChoiceArrangement> getArrangement(SegmentChoiceArrangementPick pick) {
+    return workbench.getSegmentChoiceArrangements().stream().filter(choice->choice.getId().equals(pick.getSegmentChoiceArrangementId())).findFirst();
+  }
+
   @Override
   public Collection<InstrumentAudio> getPickedAudios() {
     Collection<InstrumentAudio> audios = Lists.newArrayList();

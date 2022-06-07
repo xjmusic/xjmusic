@@ -342,6 +342,22 @@ public interface Fabricator {
   AudioFormat getOutputAudioFormat() throws NexusException;
 
   /**
+   Get the choice for a given pick
+
+   @param pick for which to get choice
+   @return choice for pick
+   */
+  Optional<SegmentChoice> getChoice(SegmentChoiceArrangement pick) throws NexusException;
+
+  /**
+   Get the choice for a given pick
+
+   @param pick for which to get choice
+   @return choice for pick
+   */
+  Optional<SegmentChoiceArrangement> getArrangement(SegmentChoiceArrangementPick pick) throws NexusException;
+
+  /**
    id of all audio picked for current segment
 
    @return list of audio ids
