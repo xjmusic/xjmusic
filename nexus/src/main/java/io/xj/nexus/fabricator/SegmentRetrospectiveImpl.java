@@ -28,6 +28,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   private final EntityStore store;
   private final Map<UUID, Map<Double, Optional<SegmentChord>>> chordAtPosition;
   private final Map<UUID, List<SegmentChord>> segmentChords;
+  private final Map<UUID, Integer> segmentDelta;
   private Segment previousSegment;
 
   @Inject
@@ -40,6 +41,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
 
     chordAtPosition = Maps.newHashMap();
     segmentChords = Maps.newHashMap();
+    segmentDelta = Maps.newHashMap();
 
     // begin by getting the previous segment
     // only can build retrospective if there is at least one previous segment
@@ -165,6 +167,11 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
+  public Optional<Segment> getSegment(UUID id) {
+    return store.getAll(Segment.class).stream().filter(s->Objects.equals(id, s.getId())).findAny();
+  }
+
+  @Override
   public Collection<SegmentChoice> getChoices() {
     return store.getAll(SegmentChoice.class);
   }
@@ -265,5 +272,19 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
     }
 
     return segmentChords.get(segmentId);
+  }
+
+  @Override
+  public Integer getSegmentDelta(UUID segmentId) {
+    if (!segmentDelta.containsKey(segmentId)) {
+      segmentDelta.put(segmentId, getSegment(segmentId).orElseThrow().getDelta());
+    }
+
+    return segmentDelta.get(segmentId);
+  }
+
+  @Override
+  public Double getAbsolutePosition(SegmentChoiceArrangementPick pick) {
+    return getSegmentDelta(pick.getSegmentId()) + pick.getStart();
   }
 }

@@ -417,7 +417,8 @@ public class FabricatorImplTest {
    <p>
    Resolve: Sticky bun note choices should persist into following segments
    https://www.pivotaltracker.com/story/show/182132467
-   Since this test passes, the next logical step is to examine whether XJ is using the information correctly during current-segment fabrication
+   First attempt, I was unable to creat a failing test from a simple use case.
+   Second attempt, I focused on testing that the first rendition of any given sticky bun is never overwritten
    <p>
    Digest sticky bun events from previous segment
    Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822
@@ -433,14 +434,14 @@ public class FabricatorImplTest {
     var account1 = buildAccount("Test Account");
     var library1 = buildLibrary(account1, "Test Library");
     var mp = buildProgram(library1, ProgramType.Main, ProgramState.Published, "Test Main Program", "C", 60.0f, 1.0f);
-    var mpVoice = buildVoice(mp, InstrumentType.Bass);
+    var mpVoice = buildVoice(mp, InstrumentType.Pad);
     var mpSequence = buildSequence(mp, 4);
     var mpSequenceBinding0 = buildProgramSequenceBinding(mpSequence, 0);
     var mpSequenceBinding1 = buildProgramSequenceBinding(mpSequence, 1);
     var mpSequenceChord = buildProgramSequenceChord(mpSequence, 0.0, "C");
     var mpSequenceChordVoicing = buildProgramSequenceChordVoicing(mpSequenceChord, mpVoice, "C1,D1,E1,F1");
     var dp = buildProgram(library1, ProgramType.Detail, ProgramState.Published, "Test Detail Program", "C", 60.0f, 1.0f);
-    var dpVoice = buildVoice(dp, InstrumentType.Bass);
+    var dpVoice = buildVoice(dp, InstrumentType.Pad);
     var dpTrack = buildTrack(dpVoice);
     var dpSequence = buildSequence(dp, 4);
     var dpPattern = buildPattern(dpSequence, dpVoice, 4);
@@ -448,43 +449,65 @@ public class FabricatorImplTest {
     var dpEvent2 = buildEvent(dpPattern, dpTrack, 1.0f, 1.0f, "X");
     var dpEvent3 = buildEvent(dpPattern, dpTrack, 2.0f, 1.0f, "X");
     var dpEvent4 = buildEvent(dpPattern, dpTrack, 3.0f, 1.0f, "X");
-    var bass = buildInstrument(InstrumentType.Bass, InstrumentMode.Event, true, true);
-    var bassAudioC1 = buildInstrumentAudio(bass, "C1", "bass-c1.wav", 0.0f, 1.0f, 60.0f);
-    var bassAudioD1 = buildInstrumentAudio(bass, "D1", "bass-d1.wav", 0.0f, 1.0f, 60.0f);
-    var bassAudioE1 = buildInstrumentAudio(bass, "E1", "bass-e1.wav", 0.0f, 1.0f, 60.0f);
-    var bassAudioF1 = buildInstrumentAudio(bass, "F1", "bass-f1.wav", 0.0f, 1.0f, 60.0f);
+    var pad = buildInstrument(InstrumentType.Pad, InstrumentMode.Event, true, true);
+    var padAudioC1 = buildInstrumentAudio(pad, "C1", "pad-c1.wav", 0.0f, 1.0f, 60.0f);
+    var padAudioD1 = buildInstrumentAudio(pad, "D1", "pad-d1.wav", 0.0f, 1.0f, 60.0f);
+    var padAudioE1 = buildInstrumentAudio(pad, "E1", "pad-e1.wav", 0.0f, 1.0f, 60.0f);
+    var padAudioF1 = buildInstrumentAudio(pad, "F1", "pad-f1.wav", 0.0f, 1.0f, 60.0f);
     var template1 = buildTemplate(account1, "Test Template", "testing", "stickyBunEnabled = true");
     var templateBinding1 = buildTemplateBinding(template1, library1);
-    sourceMaterial = new HubContent(ImmutableList.of(library1, mp, mpVoice, mpSequence, mpSequenceBinding0, mpSequenceBinding1, mpSequenceChord, mpSequenceChordVoicing, dp, dpVoice, dpTrack, dpSequence, dpPattern, dpEvent1, dpEvent2, dpEvent3, dpEvent4, bass, bassAudioC1, bassAudioD1, bassAudioE1, bassAudioF1, template1, templateBinding1));
+    sourceMaterial = new HubContent(ImmutableList.of(library1, mp, mpVoice, mpSequence, mpSequenceBinding0, mpSequenceBinding1, mpSequenceChord, mpSequenceChordVoicing, dp, dpVoice, dpTrack, dpSequence, dpPattern, dpEvent1, dpEvent2, dpEvent3, dpEvent4, pad, padAudioC1, padAudioD1, padAudioE1, padAudioF1, template1, templateBinding1));
     // fixtures: chain fabrication
     var chain = store.put(buildChain(account1, template1, "Test Chain", ChainType.PRODUCTION, ChainState.FABRICATE, Instant.parse("2017-12-12T01:00:08.000000Z")));
-    var seg1 = store.put(buildSegment(chain, 1, SegmentState.DUBBED, Instant.parse("2017-12-12T01:00:10.000000Z"), Instant.parse("2017-12-12T01:00:16.000000Z"), "G major", 4, 0.6, 60.0, "seg123", "ogg"));
-    var seg1Chord = store.put(buildSegmentChord(seg1, 0.0, "C"));
-    var seg1ChordVoicing = store.put(buildSegmentChordVoicing(seg1Chord, InstrumentType.Bass, "C1,D1,E1,F1"));
+    // 2 segments prior
+    var seg0 = store.put(buildSegment(chain,SegmentType.INITIAL,0,0,SegmentState.DUBBED,Instant.parse("2017-12-12T01:00:04.000000Z"), Instant.parse("2017-12-12T01:00:10.000000Z"), "G major", 4, 0.6, 60.0, "seg023", "ogg"));
+    var seg0Chord1 = store.put(buildSegmentChord(seg0, 0.0, "C"));
+    var seg0Chord1Voicing = store.put(buildSegmentChordVoicing(seg0Chord1, InstrumentType.Pad, "C1,D1,E1,F1"));
+    var seg0Choice = store.put(buildSegmentChoice(seg0, dp));
+    var seg0Arr1 = store.put(buildSegmentChoiceArrangement(seg0Choice));
+    var seg0Arr1PickC1 = store.put(buildSegmentChoiceArrangementPick(seg0Arr1, dpEvent1, padAudioC1, "C1", 0.0));
+    var seg0Arr1PickD1 = store.put(buildSegmentChoiceArrangementPick(seg0Arr1, dpEvent2, padAudioD1, "D1", 0.0));
+    var seg0Arr1PickE1 = store.put(buildSegmentChoiceArrangementPick(seg0Arr1, dpEvent3, padAudioE1, "E1", 0.0));
+    var seg0Arr1PickF1 = store.put(buildSegmentChoiceArrangementPick(seg0Arr1, dpEvent4, padAudioF1, "F1", 0.0));
+    // 1 segment prior
+    var seg1 = store.put(buildSegment(chain, SegmentType.CONTINUE,1, 4, SegmentState.DUBBED, Instant.parse("2017-12-12T01:00:10.000000Z"), Instant.parse("2017-12-12T01:00:16.000000Z"), "G major", 4, 0.6, 60.0, "seg123", "ogg"));
+    var seg1Chord1 = store.put(buildSegmentChord(seg1, 0.0, "C"));
+    var seg1Chord1Voicing = store.put(buildSegmentChordVoicing(seg1Chord1, InstrumentType.Pad, "C1,D1,E1,F1"));
     var seg1Choice = store.put(buildSegmentChoice(seg1, dp));
-    var seg1Arrangement = store.put(buildSegmentChoiceArrangement(seg1Choice));
-    var seg1PickC1 = store.put(buildSegmentChoiceArrangementPick(seg1Arrangement, dpEvent1, bassAudioC1, "C1", "C1"));
-    var seg1PickD1 = store.put(buildSegmentChoiceArrangementPick(seg1Arrangement, dpEvent2, bassAudioD1, "D1", "D1"));
-    var seg1PickE1 = store.put(buildSegmentChoiceArrangementPick(seg1Arrangement, dpEvent3, bassAudioE1, "E1", "E1"));
-    var seg1PickF1 = store.put(buildSegmentChoiceArrangementPick(seg1Arrangement, dpEvent4, bassAudioF1, "F1", "F1"));
-    var seg2 = store.put(buildSegment(chain, 2, SegmentState.CRAFTING, Instant.parse("2017-12-12T01:00:16.000000Z"), Instant.parse("2017-12-12T01:00:22.000000Z"), "G major", 4, 0.6, 60.0, "seg123", "ogg"));
+    var seg1Arr1 = store.put(buildSegmentChoiceArrangement(seg1Choice));
+    var seg1Arr1PickC1 = store.put(buildSegmentChoiceArrangementPick(seg1Arr1, dpEvent1, padAudioC1, "D1", 0.0));
+    var seg1Arr1PickD1 = store.put(buildSegmentChoiceArrangementPick(seg1Arr1, dpEvent2, padAudioD1, "D1", 0.0));
+    var seg1Arr1PickE1 = store.put(buildSegmentChoiceArrangementPick(seg1Arr1, dpEvent3, padAudioE1, "D1", 0.0));
+    var seg1Arr1PickF1 = store.put(buildSegmentChoiceArrangementPick(seg1Arr1, dpEvent4, padAudioF1, "D1", 0.0));
+    var seg2 = store.put(buildSegment(chain, SegmentType.CONTINUE, 2, 8, SegmentState.CRAFTING, Instant.parse("2017-12-12T01:00:16.000000Z"), Instant.parse("2017-12-12T01:00:22.000000Z"), "G major", 4, 0.6, 60.0, "seg123", "ogg"));
     var seg2Chord = store.put(buildSegmentChord(seg2, 0.0, "C"));
-    store.put(buildSegmentChordVoicing(seg2Chord, InstrumentType.Bass, "C1,D1,E1,F1"));
+    store.put(buildSegmentChordVoicing(seg2Chord, InstrumentType.Pad, "C1,D1,E1,F1"));
     // mocks
     when(mockFabricatorFactory.loadRetrospective(any(), any())).thenReturn(mockRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any())).thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment()).thenReturn(seg2);
-    when(mockRetrospective.getPicks()).thenReturn(List.of(seg1PickC1, seg1PickD1, seg1PickE1, seg1PickF1));
-    when(mockRetrospective.getPreviousSegment()).thenReturn(Optional.of(seg1));
-    when(mockRetrospective.getChord(same(seg1PickC1))).thenReturn(Optional.of(seg1Chord));
-    when(mockRetrospective.getChord(same(seg1PickD1))).thenReturn(Optional.of(seg1Chord));
-    when(mockRetrospective.getChord(same(seg1PickE1))).thenReturn(Optional.of(seg1Chord));
-    when(mockRetrospective.getChord(same(seg1PickF1))).thenReturn(Optional.of(seg1Chord));
-    when(mockRetrospective.getInstrumentType(same(seg1PickC1))).thenReturn(InstrumentType.Bass);
-    when(mockRetrospective.getInstrumentType(same(seg1PickD1))).thenReturn(InstrumentType.Bass);
-    when(mockRetrospective.getInstrumentType(same(seg1PickE1))).thenReturn(InstrumentType.Bass);
-    when(mockRetrospective.getInstrumentType(same(seg1PickF1))).thenReturn(InstrumentType.Bass);
-    when(mockRetrospective.getSegmentChordVoicing(eq(Objects.requireNonNull(seg1Chord).getId()), eq(InstrumentType.Bass))).thenReturn(Optional.ofNullable(seg1ChordVoicing));
+    when(mockRetrospective.getPicks()).thenReturn(List.of(
+      seg0Arr1PickC1, seg0Arr1PickD1, seg0Arr1PickE1, seg0Arr1PickF1,
+      seg1Arr1PickC1, seg1Arr1PickD1, seg1Arr1PickE1, seg1Arr1PickF1
+      ));
+    when(mockRetrospective.getChord(same(seg0Arr1PickC1))).thenReturn(Optional.of(seg0Chord1));
+    when(mockRetrospective.getChord(same(seg0Arr1PickD1))).thenReturn(Optional.of(seg0Chord1));
+    when(mockRetrospective.getChord(same(seg0Arr1PickE1))).thenReturn(Optional.of(seg0Chord1));
+    when(mockRetrospective.getChord(same(seg0Arr1PickF1))).thenReturn(Optional.of(seg0Chord1));
+    when(mockRetrospective.getInstrumentType(same(seg0Arr1PickC1))).thenReturn(InstrumentType.Pad);
+    when(mockRetrospective.getInstrumentType(same(seg0Arr1PickD1))).thenReturn(InstrumentType.Pad);
+    when(mockRetrospective.getInstrumentType(same(seg0Arr1PickE1))).thenReturn(InstrumentType.Pad);
+    when(mockRetrospective.getInstrumentType(same(seg0Arr1PickF1))).thenReturn(InstrumentType.Pad);
+    when(mockRetrospective.getSegmentChordVoicing(eq(Objects.requireNonNull(seg0Chord1).getId()), eq(InstrumentType.Pad))).thenReturn(Optional.ofNullable(seg0Chord1Voicing));
+    when(mockRetrospective.getChord(same(seg1Arr1PickC1))).thenReturn(Optional.of(seg1Chord1));
+    when(mockRetrospective.getChord(same(seg1Arr1PickD1))).thenReturn(Optional.of(seg1Chord1));
+    when(mockRetrospective.getChord(same(seg1Arr1PickE1))).thenReturn(Optional.of(seg1Chord1));
+    when(mockRetrospective.getChord(same(seg1Arr1PickF1))).thenReturn(Optional.of(seg1Chord1));
+    when(mockRetrospective.getInstrumentType(same(seg1Arr1PickC1))).thenReturn(InstrumentType.Pad);
+    when(mockRetrospective.getInstrumentType(same(seg1Arr1PickD1))).thenReturn(InstrumentType.Pad);
+    when(mockRetrospective.getInstrumentType(same(seg1Arr1PickE1))).thenReturn(InstrumentType.Pad);
+    when(mockRetrospective.getInstrumentType(same(seg1Arr1PickF1))).thenReturn(InstrumentType.Pad);
+    when(mockRetrospective.getSegmentChordVoicing(eq(Objects.requireNonNull(seg1Chord1).getId()), eq(InstrumentType.Pad))).thenReturn(Optional.ofNullable(seg1Chord1Voicing));
     when(mockChainManager.readOne(eq(seg2.getChainId()))).thenReturn(chain);
 
     subject = new FabricatorImpl(sourceMaterial, seg2, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory);

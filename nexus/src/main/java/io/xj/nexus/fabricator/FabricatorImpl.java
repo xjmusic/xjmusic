@@ -1173,7 +1173,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   /**
-   Digest sticky bun events from previous segment
+   Digest sticky bun events from all previous segments of this main program
    <p>
    Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822
    <p>
@@ -1188,10 +1188,7 @@ class FabricatorImpl implements Fabricator {
     Optional<Note> rootNote;
     for (var pick :
       retrospective.getPicks().stream()
-        .filter(pick -> Objects.equals(retrospective.getPreviousSegment()
-          .orElseThrow(() -> new RuntimeException("Failed to obtain previous segment"))
-          .getId(), pick.getSegmentId()))
-        .sorted(Comparator.comparing(SegmentChoiceArrangementPick::getStart))
+        .sorted(Comparator.comparing(retrospective::getAbsolutePosition))
         .toList())
       try {
 
@@ -1216,7 +1213,7 @@ class FabricatorImpl implements Fabricator {
         putStickyBun(
           pick.getProgramSequencePatternEventId(),
           rootNote.get(),
-          pick.getStart(),
+          retrospective.getAbsolutePosition(pick),
           List.of(Note.of(pick.getTones())));
       } catch (Exception e) {
         LOG.warn("Failed to persist sticky buns", e);

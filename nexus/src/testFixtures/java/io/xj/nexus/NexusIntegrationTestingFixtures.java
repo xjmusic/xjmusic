@@ -389,7 +389,6 @@ public class NexusIntegrationTestingFixtures {
 
   public static Segment buildSegment(Chain chain, SegmentType type, int offset, int delta, SegmentState state, Instant beginAt, @Nullable Instant endAt, String key, int total, double density, double tempo, String shipKey) {
     return buildSegment(chain, type, offset, delta, state, beginAt, endAt, key, total, density, tempo, shipKey, "OGG");
-
   }
 
   public static Segment buildSegment(Chain chain, SegmentType type, int offset, int delta, SegmentState state, Instant beginAt, @Nullable Instant endAt, String key, int total, double density, double tempo, String storageKey, String outputEncoder) {
@@ -580,6 +579,13 @@ public class NexusIntegrationTestingFixtures {
   public static SegmentChoiceArrangementPick buildSegmentChoiceArrangementPick(SegmentChoiceArrangement segmentChoiceArrangement, ProgramSequencePatternEvent event, InstrumentAudio instrumentAudio, String tones, String pickEvent) {
     var pick = buildSegmentChoiceArrangementPick(segmentChoiceArrangement, event, instrumentAudio, pickEvent);
     pick.setTones(tones);
+    return pick;
+  }
+
+  public static SegmentChoiceArrangementPick buildSegmentChoiceArrangementPick(SegmentChoiceArrangement segmentChoiceArrangement, ProgramSequencePatternEvent event, InstrumentAudio instrumentAudio, String tones, Double start) {
+    var pick = buildSegmentChoiceArrangementPick(segmentChoiceArrangement, event, instrumentAudio, tones);
+    pick.setTones(tones);
+    pick.setStart(start);
     return pick;
   }
 

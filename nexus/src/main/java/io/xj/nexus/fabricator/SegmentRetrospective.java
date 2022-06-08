@@ -130,9 +130,9 @@ public interface SegmentRetrospective {
   /**
    Get the previous-segment choices of a given instrument type
 
-   @return choices
    @param instrumentType for which to get previous-segment choices
-   @param instrumentMode for which to get previous-segment choices
+   @param instrumentModes for which to get previous-segment choices
+   @return choices
    */
   List<SegmentChoice> getPreviousChoicesOfTypeMode(InstrumentType instrumentType, InstrumentMode instrumentModes);
 
@@ -170,6 +170,13 @@ public interface SegmentRetrospective {
   Collection<Segment> getSegments();
 
   /**
+   Get a segment by id
+
+   @param id for which to get segment
+   */
+  Optional<Segment> getSegment(UUID id);
+
+  /**
    Get the chord at the given position and segment
 
    @param segmentId in which to search
@@ -180,6 +187,7 @@ public interface SegmentRetrospective {
 
   /**
    Get the voicing for the given segment chord and instrument type
+
    @param segmentChordId chord for which to get voicing
    @param instrumentType of voicing to get
    @return segment chord voicing if present
@@ -194,4 +202,18 @@ public interface SegmentRetrospective {
    */
   List<SegmentChord> getSegmentChords(UUID segmentId);
 
+  /**
+   Get the delta for a given segment id
+   @param segmentId for which to get delta
+   @return segment delta
+   */
+  Integer getSegmentDelta(UUID segmentId);
+
+  /**
+   Get the absolute position of a pick (segment delta plus pick position)
+
+   @param pick for which to get absolute position
+   @return absolute position of pick
+   */
+  Double getAbsolutePosition(SegmentChoiceArrangementPick pick);
 }
