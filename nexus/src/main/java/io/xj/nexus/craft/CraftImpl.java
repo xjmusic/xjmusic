@@ -254,6 +254,7 @@ public class CraftImpl extends FabricationWrapperImpl {
       pick.setSegmentId(choice.getSegmentId());
       pick.setSegmentChoiceArrangementId(arrangement.getId());
       pick.setInstrumentAudioId(audio.get().getId());
+      pick.setStart(startSeconds);
       pick.setTones(section.chord.getName());
       pick.setEvent(Text.toEvent(instrument.getType().toString()));
       pick.setLength(lengthSeconds);

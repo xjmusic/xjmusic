@@ -556,7 +556,9 @@ class FabricatorImpl implements Fabricator {
   public List<SegmentChoiceArrangementPick> getPicks(SegmentChoice choice) {
     if (!picksForChoice.containsKey(choice.getId())) {
       var arrangementIds = workbench.getSegmentChoiceArrangements().stream().filter(a -> a.getSegmentChoiceId().equals(choice.getId())).map(SegmentChoiceArrangement::getId).toList();
-      picksForChoice.put(choice.getId(), workbench.getSegmentChoiceArrangementPicks().stream().filter(p -> arrangementIds.contains(p.getSegmentChoiceArrangementId())).sorted(Comparator.comparing(SegmentChoiceArrangementPick::getStart)).toList());
+      picksForChoice.put(choice.getId(), workbench.getSegmentChoiceArrangementPicks().stream()
+        .filter(p -> arrangementIds.contains(p.getSegmentChoiceArrangementId()))
+        .sorted(Comparator.comparing(SegmentChoiceArrangementPick::getStart)).toList());
     }
     return picksForChoice.get(choice.getId());
   }
