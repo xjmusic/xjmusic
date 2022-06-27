@@ -97,7 +97,7 @@ public class DemoIT {
 
     // set up the sources
     for (String sourceName : sources)
-      demoMixer.loadSource(sourceName, getResourceFile(filePrefix + sourceName + sourceFileSuffix).getAbsolutePath());
+      demoMixer.loadSource(sourceName, getResourceFile(filePrefix + sourceName + sourceFileSuffix).getAbsolutePath(), "test audio");
 
     // set up the music
     int iL = demoSequence.length;

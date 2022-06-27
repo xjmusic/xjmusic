@@ -9,6 +9,7 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.BufferedInputStream;
@@ -116,12 +117,12 @@ class MixerImpl implements Mixer {
   }
 
   @Override
-  public void loadSource(String sourceId, String pathToFile) throws SourceException, FormatException, IOException {
+  public void loadSource(String sourceId, String pathToFile, String description) throws SourceException, FormatException, IOException {
     if (sources.containsKey(sourceId)) {
-      throw new SourceException(config.getLogPrefix() + "Already loaded source id '" + sourceId + "'");
+      throw new SourceException(config.getLogPrefix() + "Already loaded Source[" + sourceId + "] \"" + description + "\"");
     }
 
-    Source source = factory.createSource(sourceId, pathToFile);
+    Source source = factory.createSource(sourceId, pathToFile, description);
     sources.put(sourceId, source);
   }
 
@@ -247,6 +248,9 @@ class MixerImpl implements Mixer {
    @param source to apply
    */
   private void applySource(Source source) throws MixerException {
+    if (source.getAudioFormat().isEmpty()) return;
+    AudioFormat fmt = source.getAudioFormat().get();
+
     int i; // iterating on frames
     int tf, otf = -1; // target output buffer frame, and cache the old value in order to skip frames, init at -1 to force initial frame
     int ptf; // put target frame
@@ -275,8 +279,8 @@ class MixerImpl implements Mixer {
       var bufferedInputStream = new BufferedInputStream(fileInputStream);
       var audioInputStream = AudioSystem.getAudioInputStream(bufferedInputStream)
     ) {
-      var frameSize = source.getAudioFormat().getFrameSize();
-      var channels = source.getAudioFormat().getChannels();
+      var frameSize = fmt.getFrameSize();
+      var channels = fmt.getChannels();
       var isStereo = 2 == channels;
       var sampleSize = frameSize / channels;
       var expectBytes = audioInputStream.available();
@@ -287,7 +291,7 @@ class MixerImpl implements Mixer {
       int expectFrames;
       if (expectBytes == source.getFrameLength()) {
         // this is a bug where AudioInputStream returns bytes (instead of frames which it claims)
-        expectFrames = expectBytes / source.getAudioFormat().getFrameSize();
+        expectFrames = expectBytes / fmt.getFrameSize();
       } else {
         expectFrames = (int) source.getFrameLength();
       }
@@ -295,7 +299,7 @@ class MixerImpl implements Mixer {
       if (AudioSystem.NOT_SPECIFIED == frameSize || AudioSystem.NOT_SPECIFIED == expectFrames)
         throw new MixerException("audio streams with unspecified frame size or length are unsupported");
 
-      AudioSampleFormat sampleFormat = AudioSampleFormat.typeOfInput(source.getAudioFormat());
+      AudioSampleFormat sampleFormat = AudioSampleFormat.typeOfInput(fmt);
 
       int sf = 0; // current source frame
       int numBytesReadToBuffer;

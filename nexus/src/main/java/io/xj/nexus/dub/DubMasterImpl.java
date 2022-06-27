@@ -15,6 +15,7 @@ import io.xj.lib.mixer.Mixer;
 import io.xj.lib.mixer.MixerConfig;
 import io.xj.lib.mixer.MixerFactory;
 import io.xj.lib.mixer.OutputEncoder;
+import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.util.Text;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.fabricator.Fabricator;
@@ -35,9 +36,10 @@ import static io.xj.lib.util.Values.NANOS_PER_SECOND;
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public class DubMasterImpl implements DubMaster {
-  private final Logger log = LoggerFactory.getLogger(DubMasterImpl.class);
+  private final Logger LOG = LoggerFactory.getLogger(DubMasterImpl.class);
   private final Fabricator fabricator;
   private final MixerFactory mixerFactory;
+  private final NotificationProvider notification;
   private final List<String> warnings = Lists.newArrayList();
   private final Map<UUID, Float> pickOffsetStart = Maps.newHashMap();
   private final DubAudioCache dubAudioCache;
@@ -47,11 +49,13 @@ public class DubMasterImpl implements DubMaster {
   public DubMasterImpl(
     @Assisted("basis") Fabricator fabricator,
     DubAudioCache dubAudioCache,
-    MixerFactory mixerFactory
+    MixerFactory mixerFactory,
+    NotificationProvider notificationProvider
     /*-*/) {
     this.dubAudioCache = dubAudioCache;
     this.fabricator = fabricator;
     this.mixerFactory = mixerFactory;
+    notification = notificationProvider;
   }
 
   /**
@@ -110,7 +114,7 @@ public class DubMasterImpl implements DubMaster {
       if (Strings.isNullOrEmpty(key)) continue;
 
       if (!mixer().hasLoadedSource(audio.getId().toString()))
-        mixer().loadSource(audio.getId().toString(), dubAudioCache.getAbsolutePath(key));
+        mixer().loadSource(audio.getId().toString(), dubAudioCache.getAbsolutePath(key), audio.getName());
     }
   }
 
@@ -257,7 +261,7 @@ public class DubMasterImpl implements DubMaster {
 
       fabricator.addWarningMessage(body.toString());
     } catch (Exception e1) {
-      log.warn("Failed to create SegmentMessage", e1);
+      LOG.warn("Failed to create SegmentMessage", e1);
     }
   }
 

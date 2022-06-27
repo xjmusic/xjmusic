@@ -1,19 +1,32 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.mixer;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.ProvisionException;
+import com.google.inject.util.Modules;
+import io.xj.lib.notification.NotificationProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.sound.sampled.AudioFormat;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 
+@RunWith(MockitoJUnitRunner.class)
 public class MixerImplTest {
 
-  private final MixerFactory mixerFactory = Guice.createInjector(new MixerModule()).getInstance(MixerFactory.class);
+  @Mock
+  private NotificationProvider mockNotificationProvider;
+
+  private MixerFactory mixerFactory;
 
   private Mixer testMixer;
 
@@ -22,6 +35,13 @@ public class MixerImplTest {
 
   @Before
   public void setUp() throws Exception {
+    mixerFactory = Guice.createInjector(Modules.override(new MixerModule()).with(new AbstractModule() {
+      @Override
+      protected void configure() {
+        bind(NotificationProvider.class).toInstance(mockNotificationProvider);
+      }
+    })).getInstance(MixerFactory.class);
+
     testMixer = mixerFactory.createMixer(
       new MixerConfig(
         new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
@@ -71,14 +91,14 @@ public class MixerImplTest {
   @Test
   public void loadSource() throws Exception {
     InternalResource internalResource = new InternalResource("test_audio/F32LSB_48kHz_Stereo.wav");
-    testMixer.loadSource("F32LSB_48kHz_Stereo", internalResource.getFile().getAbsolutePath());
+    testMixer.loadSource("F32LSB_48kHz_Stereo", internalResource.getFile().getAbsolutePath(), "test audio");
     assertEquals(1, testMixer.getSourceCount());
   }
 
   @Test
   public void hasLoadedSource() throws Exception {
     InternalResource internalResource = new InternalResource("test_audio/F32LSB_48kHz_Stereo.wav");
-    testMixer.loadSource("F32LSB_48kHz_Stereo", internalResource.getFile().getAbsolutePath());
+    testMixer.loadSource("F32LSB_48kHz_Stereo", internalResource.getFile().getAbsolutePath(), "test audio");
 
     assertTrue(testMixer.hasLoadedSource("F32LSB_48kHz_Stereo"));
     assertFalse(testMixer.hasLoadedSource("bonkers"));
@@ -87,9 +107,8 @@ public class MixerImplTest {
   @Test
   public void loadSource_failsIfMoreThan2InputChannels() throws Exception {
     InternalResource internalResource = new InternalResource("test_audio/F32LSB_48kHz_6ch.wav");
-    var e = assertThrows(ProvisionException.class,
-      () -> testMixer.loadSource("F32LSB_48kHz_6ch", internalResource.getFile().getAbsolutePath()));
+    testMixer.loadSource("F32LSB_48kHz_6ch", internalResource.getFile().getAbsolutePath(), "test audio");
 
-    assertTrue(e.getMessage().contains("more than 2 input audio channels not allowed"));
+    verify(mockNotificationProvider).publish(eq("Failure"),eq("Failed to load source for Audio[F32LSB_48kHz_6ch] \"test audio\" because more than 2 input audio channels not allowed"));
   }
 }

@@ -3,6 +3,7 @@ package io.xj.lib.mixer;
 
 import com.google.inject.assistedinject.Assisted;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 
 /**
@@ -49,9 +50,12 @@ public interface MixerFactory {
    models a single audio source
    Source stores a series of Samples in Channels across Time, for audio playback.
    attempt to source audio file from input stream
+   <p>
+   Fabrication should not completely fail because of one bad source audio https://www.pivotaltracker.com/story/show/182575665
 
-   @param sourceId    to reference source by
-   @param absolutePath to read audio file from
+   @param sourceId     to reference source by
+   @param absolutePath from which to read audio file
+   @param description  in case of failure logs
    @return Source
    @throws SourceException if something is wrong with the source audio
    @throws FormatException on failure interpret format
@@ -59,6 +63,7 @@ public interface MixerFactory {
    */
   Source createSource(
     @Assisted("sourceId") String sourceId,
-    @Assisted("absolutePath") String absolutePath
+    @Assisted("absolutePath") String absolutePath,
+    @Assisted("description") String description
   ) throws SourceException, FormatException, IOException;
 }

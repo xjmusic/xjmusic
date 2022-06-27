@@ -2,6 +2,7 @@
 package io.xj.lib.mixer;
 
 import javax.sound.sampled.AudioFormat;
+import java.util.Optional;
 
 /**
  Models a single audio source.
@@ -18,7 +19,7 @@ public interface Source {
   /**
    @return source audio file format
    */
-  AudioFormat getAudioFormat();
+  Optional<AudioFormat> getAudioFormat();
 
   /**
    @return # of channels in source audio

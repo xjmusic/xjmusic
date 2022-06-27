@@ -6,8 +6,6 @@ import com.google.inject.Module;
 import io.xj.lib.mixer.*;
 
 import javax.sound.sampled.AudioFormat;
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.time.Duration;
 
 /**
@@ -86,7 +84,7 @@ public interface Main {
     for (String sourceName : sources) {
       //Get file from resources folder
       InternalResource internalResource = new InternalResource(filePrefix + sourceName + fileSuffix);
-      demoMixer.loadSource(sourceName, internalResource.getFile().getAbsolutePath());
+      demoMixer.loadSource(sourceName, internalResource.getFile().getAbsolutePath(), "test audio");
     }
 
     // set up the music

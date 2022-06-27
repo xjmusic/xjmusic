@@ -39,12 +39,15 @@ public interface Mixer {
   void setBusLevel(String busId, double level);
 
   /**
-   Load a source audio from input stream and cache it in memory under an alias.@param sourceId    under which to store this source
+   Load a source audio from input stream and cache it in memory under an alias.
+   <p>
+   Fabrication should not completely fail because of one bad source audio https://www.pivotaltracker.com/story/show/182575665
+
+   @param sourceId   under which to store this source
    @param pathToFile of source audio
-
-
+   @param description in case of failure logs
    */
-  void loadSource(String sourceId, String pathToFile) throws FormatException, IOException, SourceException;
+  void loadSource(String sourceId, String pathToFile, String description) throws FormatException, IOException, SourceException;
 
   /**
    THE BIG SHOW
