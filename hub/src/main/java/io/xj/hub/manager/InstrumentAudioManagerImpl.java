@@ -70,14 +70,28 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl<Instru
   }
 
   @Override
-  public Map<String, String> authorizeUpload(HubAccess access, UUID id, String extension) throws ManagerException, FileStoreException {
+  public Map<String, String> authorizeUpload(HubAccess access, UUID id, String extension) throws ManagerException, FileStoreException, ValueException, JsonapiException {
     DSLContext db = dbProvider.getDSL();
     var entity = readOne(db, access, id);
 
+    // Cannot authorize upload of audio when generated key would overwrite another one in an instrument https://www.pivotaltracker.com/story/show/181848232
+    var waveformKey = computeKey(db, entity, extension);
+    requireNotExists(String.format("Generated key \"%s\" would overwrite existing audio- please change name of audio before uploading file.", waveformKey),
+      db.select(INSTRUMENT_AUDIO.ID)
+        .from(INSTRUMENT_AUDIO)
+        .where(INSTRUMENT_AUDIO.INSTRUMENT_ID.eq(entity.getInstrumentId()))
+        .and(INSTRUMENT_AUDIO.WAVEFORM_KEY.eq(waveformKey))
+        .and(INSTRUMENT_AUDIO.ID.notEqual(id))
+        .fetch());
+
+    // Update the audio waveform key
+    entity.setWaveformKey(waveformKey);
+    update(access, id, entity);
+
+    // Authorize the upload
     Map<String, String> uploadAuthorization = Maps.newConcurrentMap();
     S3UploadPolicy uploadPolicy = fileStoreProvider.generateAudioUploadPolicy();
-
-    uploadAuthorization.put(KEY_WAVEFORM_KEY, computeKey(db, entity, extension));
+    uploadAuthorization.put(KEY_WAVEFORM_KEY, waveformKey);
     uploadAuthorization.put(KEY_UPLOAD_URL, fileStoreProvider.getUploadURL());
     uploadAuthorization.put(KEY_UPLOAD_ACCESS_KEY, fileStoreProvider.getCredentialId());
     uploadAuthorization.put(KEY_UPLOAD_POLICY, uploadPolicy.getPolicyString());
@@ -105,11 +119,12 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl<Instru
     if (Objects.isNull(fields))
       throw new ManagerException(String.format("Failed to retrieve Account, Library, and Instrument[%s]", instrumentAudio.getInstrumentId()));
 
-    return fileStoreProvider.generateKey(String.format("%s-%s-%s-%s",
+    return String.format("%s-%s-%s-%s.%s",
       Text.toAlphanumericHyphenated((String) fields.get(0)),
       Text.toAlphanumericHyphenated((String) fields.get(1)),
       Text.toAlphanumericHyphenated((String) fields.get(2)),
-      Text.toAlphanumericHyphenated(instrumentAudio.getName())), extension);
+      Text.toAlphanumericHyphenated(instrumentAudio.getName()),
+      extension);
   }
 
   @Override

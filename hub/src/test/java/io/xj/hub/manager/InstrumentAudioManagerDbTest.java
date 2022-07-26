@@ -202,12 +202,9 @@ public class InstrumentAudioManagerDbTest {
    */
   @Test
   public void computeKey() throws Exception {
-    when(fileStoreProvider.generateKey("bananas-sandwich-jams-Test-audio", "wav"))
-      .thenReturn("bananas-sandwich-jams-Test-audio-12345.wav");
-
     var result = testManager.computeKey(test.getDSL(), fake.audio1, "wav");
 
-    assertEquals("bananas-sandwich-jams-Test-audio-12345.wav", result);
+    assertEquals("bananas-sandwich-jams-Test-audio.wav", result);
   }
 
   @Test
@@ -215,8 +212,6 @@ public class InstrumentAudioManagerDbTest {
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     when(fileStoreProvider.generateAudioUploadPolicy())
       .thenReturn(new S3UploadPolicy("MyId", "MySecret", "bucket-owner-is-awesome", "xj-audio-test", "", 5));
-    when(fileStoreProvider.generateKey("bananas-sandwich-jams-Test-audio2", "wav"))
-      .thenReturn("bananas-sandwich-jams-Test-audio2-12345.wav");
     when(fileStoreProvider.getUploadURL())
       .thenReturn("https://coconuts.com");
     when(fileStoreProvider.getCredentialId())
@@ -229,7 +224,7 @@ public class InstrumentAudioManagerDbTest {
     Map<String, String> result = testManager.authorizeUpload(access, fake.audio2.getId(), "wav");
 
     assertNotNull(result);
-    assertEquals("bananas-sandwich-jams-Test-audio2-12345.wav", result.get("waveformKey"));
+    assertEquals("bananas-sandwich-jams-Test-audio2.wav", result.get("waveformKey"));
     assertEquals("xj-audio-test", result.get("bucketName"));
     assertNotNull(result.get("uploadPolicySignature"));
     assertEquals("https://coconuts.com", result.get("uploadUrl"));
@@ -237,6 +232,34 @@ public class InstrumentAudioManagerDbTest {
     assertNotNull(result.get("uploadPolicy"));
     assertEquals("bucket-owner-is-awesome", result.get("acl"));
   }
+
+  /**
+   Cannot authorize upload of audio when generated key would overwrite another one in an instrument https://www.pivotaltracker.com/story/show/181848232
+   <p>
+   Create two audios with same name- the first will be authorized, the second rejected
+   */
+  @Test
+  public void create_failsForExistingName() throws Exception {
+    var a1 = test.insert(buildInstrumentAudio(fake.instrument202, "Test audio", "fake.audio5.wav", 0.01f, 2.0f, 120.0f));
+    var a2 = test.insert(buildInstrumentAudio(fake.instrument202, "Test audio", "fake.audio5.wav", 0.01f, 2.0f, 120.0f));
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    when(fileStoreProvider.generateAudioUploadPolicy())
+      .thenReturn(new S3UploadPolicy("MyId", "MySecret", "bucket-owner-is-awesome", "xj-audio-test", "", 5));
+    when(fileStoreProvider.getUploadURL())
+      .thenReturn("https://coconuts.com");
+    when(fileStoreProvider.getCredentialId())
+      .thenReturn("MyId");
+    when(fileStoreProvider.getAudioBucketName())
+      .thenReturn("xj-audio-test");
+    when(fileStoreProvider.getAudioUploadACL())
+      .thenReturn("bucket-owner-is-awesome");
+
+    testManager.authorizeUpload(access, a1.getId(), "wav");
+    var e = assertThrows(ManagerException.class, () -> testManager.authorizeUpload(access, a2.getId(), "wav"));
+
+    assertEquals("Generated key \"bananas-sandwich-jams-Test-audio.wav\" would overwrite existing audio- please change name of audio before uploading file.", e.getMessage());
+  }
+
 
   @Test
   public void readMany() throws Exception {

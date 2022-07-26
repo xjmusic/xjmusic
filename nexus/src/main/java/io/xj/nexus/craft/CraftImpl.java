@@ -1231,9 +1231,9 @@ public class CraftImpl extends FabricationWrapperImpl {
    */
   private boolean instrumentContainsAudioEventsLike(Instrument instrument, Collection<String> requireEvents) {
     if (requireEvents.isEmpty()) return true;
-    for (var name : requireEvents)
+    for (var event : requireEvents)
       if (fabricator.sourceMaterial().getAudiosForInstrumentId(instrument.getId()).stream()
-        .noneMatch(a -> 100 < NameIsometry.similarity(name, a.getEvent())))
+        .noneMatch(a -> 100 < NameIsometry.similarity(event, a.getEvent())))
         return false;
     return true;
   }

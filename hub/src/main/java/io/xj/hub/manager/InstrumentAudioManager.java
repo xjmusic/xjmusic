@@ -4,6 +4,8 @@ package io.xj.hub.manager;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.filestore.FileStoreException;
+import io.xj.lib.jsonapi.JsonapiException;
+import io.xj.lib.util.ValueException;
 import org.jooq.DSLContext;
 
 import java.util.Map;
@@ -20,7 +22,7 @@ public interface InstrumentAudioManager extends Manager<InstrumentAudio> {
    @return retrieved record
    @throws ManagerException on failure
    */
-  Map<String, String> authorizeUpload(HubAccess access, UUID id, String extension) throws ManagerException, FileStoreException;
+  Map<String, String> authorizeUpload(HubAccess access, UUID id, String extension) throws ManagerException, FileStoreException, ValueException, JsonapiException;
 
   /**
    General an Audio URL key
