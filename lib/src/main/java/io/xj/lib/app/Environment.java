@@ -20,6 +20,8 @@ import java.util.Optional;
 public class Environment {
   private static final Logger LOG = LoggerFactory.getLogger(Environment.class);
   private static final int SECONDS_PER_HOUR = 60 * 60;
+  private static final String WORK_ENV_NAME_PRODUCTION = "Production";
+  private static final String WORK_ENV_NAME_PREVIEW = "Preview";
   private static final String EMPTY = "";
   private final String accessLogFilename;
   private final String accessTokenDomain;
@@ -85,8 +87,6 @@ public class Environment {
   private final int postgresPoolSizeMax;
   private final int postgresPort;
   private final int redisPort;
-  private final int segmentComputeTimeFramesPerBeat;
-  private final int segmentComputeTimeResolutionHz;
   private final int shipBitrateHigh;
   private final int shipChainJsonMaxAgeSeconds;
   private final int shipChunkTargetDuration;
@@ -159,8 +159,6 @@ public class Environment {
     platformEnvironment = readStr(vars, "ENVIRONMENT", "dev");
     playbackExpireSeconds = readInt(vars, "PLAYBACK_EXPIRE_SECONDS", SECONDS_PER_HOUR * 8);
     playerBaseURL = readStr(vars, "PLAYER_BASE_URL", "http://localhost/");
-    segmentComputeTimeFramesPerBeat = readInt(vars, "SEGMENT_COMPUTE_TIME_FRAMES_PER_BEAT", 64);
-    segmentComputeTimeResolutionHz = readInt(vars, "SEGMENT_COMPUTE_TIME_RESOLUTION_HZ", 1000000);
     shipBaseUrl = readStr(vars, "SHIP_BASE_URL", "https://ship.dev.xj.io/");
     shipBitrateHigh = readInt(vars, "SHIP_BITRATE_HIGH", 320000);
     shipBucket = readStr(vars, "SHIP_BUCKET", "xj-dev-ship");
@@ -679,20 +677,6 @@ public class Environment {
   }
 
   /**
-   @return the segment compute time frames per beat
-   */
-  public int getSegmentComputeTimeFramesPerBeat() {
-    return segmentComputeTimeFramesPerBeat;
-  }
-
-  /**
-   @return the segment compute time resolution hz
-   */
-  public int getSegmentComputeTimeResolutionHz() {
-    return segmentComputeTimeResolutionHz;
-  }
-
-  /**
    @return the segment base URL
    */
   public String getShipBaseUrl() {
@@ -819,7 +803,7 @@ public class Environment {
   }
 
   /**
-   @return path to the output file (e.g. .wav file for Ship in WAV mode)
+   @return path to the output file (e.g. WAV file for Ship in WAV mode)
    */
   public String getShipWavPath() {
     return shipWavPath;
@@ -991,5 +975,12 @@ public class Environment {
    */
   public int getWorkYardPollSeconds() {
     return workYardPollSeconds;
+  }
+
+  /**
+   @return name of the work environment, e.g. Preview or Production
+   */
+  public String getWorkEnvironmentName() {
+    return Strings.isNullOrEmpty(shipKey) ? WORK_ENV_NAME_PRODUCTION : WORK_ENV_NAME_PREVIEW;
   }
 }

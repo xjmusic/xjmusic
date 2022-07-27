@@ -37,7 +37,9 @@ public class JanitorImpl implements Janitor {
   private final SegmentAudioManager segmentAudioManager;
   private final TelemetryProvider telemetryProvider;
   private final String threadName;
-  private MediaSeqNumProvider mediaSeqNumProvider;
+  private final MediaSeqNumProvider mediaSeqNumProvider;
+  private final String envName;
+  private final String shipKey;
 
   @Inject
   public JanitorImpl(
@@ -56,6 +58,8 @@ public class JanitorImpl implements Janitor {
     this.segmentAudioManager = segmentAudioManager;
     this.store = store;
     this.telemetryProvider = telemetryProvider;
+    envName = env.getWorkEnvironmentName();
+    shipKey = env.getShipKey();
 
     eraseSegmentsOlderThanSeconds = env.getWorkEraseSegmentsOlderThanSeconds();
 
@@ -88,7 +92,9 @@ public class JanitorImpl implements Janitor {
     } catch (ShipException | ManagerFatalException | ManagerExistenceException | ManagerPrivilegeException | NexusException e) {
       var detail = Strings.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
       LOG.error("Failed while checking for segments to erase because {}", detail, e);
-      notification.publish("Failure", String.format("Failed while checking for segments to erase because %s\n\n%s", detail, Text.formatStackTrace(e)));
+      notification.publish(
+        Strings.isNullOrEmpty(shipKey) ? String.format("%s-Chain[%s] Janitor Failure", envName, shipKey) : String.format("%s-Chains Janitor Failure", envName),
+        String.format("Failed while checking for segments to erase because %s\n\n%s", detail, Text.formatStackTrace(e)));
       return;
     }
 

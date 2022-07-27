@@ -4,6 +4,7 @@ package io.xj.ship.broadcast;
 import com.google.api.client.util.Lists;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import io.xj.lib.app.Environment;
 import io.xj.lib.mixer.AudioSampleFormat;
 import io.xj.lib.mixer.FormatException;
 import io.xj.lib.notification.NotificationProvider;
@@ -48,18 +49,21 @@ class ChunkMixerImpl implements ChunkMixer {
   private final Chunk chunk;
   private final SegmentAudioManager segmentAudioManager;
   private final NotificationProvider notification;
+  private final String envName;
 
   @Inject
   public ChunkMixerImpl(
     @Assisted("audioFormat") AudioFormat format,
     @Assisted("chunk") Chunk chunk,
     NotificationProvider notification,
-    SegmentAudioManager segmentAudioManager
+    SegmentAudioManager segmentAudioManager,
+    Environment env
   ) {
     this.chunk = chunk;
     this.format = format;
     this.notification = notification;
     this.segmentAudioManager = segmentAudioManager;
+    envName = env.getWorkEnvironmentName();
 
     buffer = new double[(int) (format.getFrameRate() * chunk.getActualDuration())][format.getChannels()];
   }
@@ -88,14 +92,14 @@ class ChunkMixerImpl implements ChunkMixer {
 
     if (audios.isEmpty()) {
       LOG.error("Attempted to mix Chunk[{}] while waiting on segments", chunk.getKey());
-      notification.publish("Failure", String.format("Attempted to mix Chunk[%s] while waiting on segments", chunk.getKey()));
+      notification.publish(String.format("%s-Chain[%s] Chunk Mixing Failure", envName, chunk.getShipKey()), String.format("Attempted to mix Chunk[%s] while waiting on segments", chunk.getKey()));
       return buffer;
     }
 
     var notReady = anyNotReady(audios);
     if (!notReady.isEmpty()) {
       LOG.error("Attempted to mix Chunk[{}] while waiting on audio from segments {}", chunk.getKey(), CSV.from(notReady));
-      notification.publish("Failure", String.format("Attempted to mix Chunk[%s] while waiting on audio from segments %s", chunk.getKey(), CSV.from(notReady)));
+      notification.publish(String.format("%s-Chain[%s] Chunk Mixing Failure", envName, chunk.getShipKey()), String.format("Attempted to mix Chunk[%s] while waiting on audio from segments %s", chunk.getKey(), CSV.from(notReady)));
       return buffer;
     }
 

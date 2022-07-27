@@ -59,7 +59,7 @@ public class SourceImplTest {
       "F32LSB_48kHz_6ch",
       new InternalResource("test_audio/F32LSB_48kHz_6ch.wav").getFile().getAbsolutePath(), "test audio");
 
-    verify(mockNotificationProvider).publish(eq("Failure"),eq("Failed to load source for Audio[F32LSB_48kHz_6ch] \"test audio\" because more than 2 input audio channels not allowed"));
+    verify(mockNotificationProvider).publish(eq("Production-Chain Mix Source Failure"),eq("Failed to load source for Audio[F32LSB_48kHz_6ch] \"test audio\" because more than 2 input audio channels not allowed"));
   }
 
   @Test
@@ -139,6 +139,6 @@ public class SourceImplTest {
   @Test
   public void empty() {
     assertTrue(empty.getAudioFormat().isEmpty());
-    verify(mockNotificationProvider).publish(eq("Failure"),eq("Failed to load source for Audio[x123] \"will fail surely\" because /does/not/exists (No such file or directory)"));
+    verify(mockNotificationProvider).publish(eq("Production-Chain Mix Source Failure"),eq("Failed to load source for Audio[x123] \"will fail surely\" because /does/not/exists (No such file or directory)"));
   }
 }

@@ -3,6 +3,7 @@ package io.xj.lib.mixer;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import io.xj.lib.app.Environment;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
@@ -17,6 +18,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Optional;
 
 import static io.xj.lib.util.Values.MICROS_PER_SECOND;
@@ -47,7 +49,8 @@ class SourceImpl implements Source {
     @Assisted("sourceId") String sourceId,
     @Assisted("absolutePath") String absolutePath,
     @Assisted("description") String description,
-    NotificationProvider notification
+    NotificationProvider notification,
+    Environment env
   ) {
     double _microsPerFrame;
     long _lengthMicros;
@@ -58,6 +61,7 @@ class SourceImpl implements Source {
     AudioFormat _audioFormat;
     this.absolutePath = absolutePath;
     this.sourceId = sourceId;
+    String envName = env.getWorkEnvironmentName();
 
     try (
       var fileInputStream = FileUtils.openInputStream(new File(absolutePath));
@@ -77,7 +81,7 @@ class SourceImpl implements Source {
 
     } catch (UnsupportedAudioFileException | IOException | ValueException e) {
       LOG.error("Failed to load source for Audio[{}] \"{}\" because {}", sourceId, description, e.getMessage());
-      notification.publish("Failure", String.format("Failed to load source for Audio[%s] \"%s\" because %s", sourceId, description, e.getMessage()));
+      notification.publish(String.format("%s-Chain Mix Source Failure", envName), String.format("Failed to load source for Audio[%s] \"%s\" because %s", sourceId, description, e.getMessage()));
       _audioFormat = null;
       _channels = 0;
       _frameRate = 0;
@@ -139,7 +143,7 @@ class SourceImpl implements Source {
 
   @Override
   public int getSampleSize() {
-    return audioFormat.getFrameSize() / audioFormat.getChannels();
+    return Objects.isNull(audioFormat) ? 0 : audioFormat.getFrameSize() / audioFormat.getChannels();
   }
 
   @Override

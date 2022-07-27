@@ -109,6 +109,6 @@ public class MixerImplTest {
     InternalResource internalResource = new InternalResource("test_audio/F32LSB_48kHz_6ch.wav");
     testMixer.loadSource("F32LSB_48kHz_6ch", internalResource.getFile().getAbsolutePath(), "test audio");
 
-    verify(mockNotificationProvider).publish(eq("Failure"),eq("Failed to load source for Audio[F32LSB_48kHz_6ch] \"test audio\" because more than 2 input audio channels not allowed"));
+    verify(mockNotificationProvider).publish(eq("Production-Chain Mix Source Failure"),eq("Failed to load source for Audio[F32LSB_48kHz_6ch] \"test audio\" because more than 2 input audio channels not allowed"));
   }
 }

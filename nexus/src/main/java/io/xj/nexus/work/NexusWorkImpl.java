@@ -105,6 +105,7 @@ public class NexusWorkImpl implements NexusWork {
   private final String shipKey;
   private final NexusWorkImpl.Mode mode;
   private final boolean isRehydrationEnabled;
+  private final String envName;
   private Instant labPollNext;
   private Instant yardPollNext;
   private NexusWorkImpl.State state;
@@ -147,6 +148,7 @@ public class NexusWorkImpl implements NexusWork {
     this.segmentManager = segmentManager;
     this.store = store;
     this.telemetryProvider = telemetryProvider;
+    envName = env.getWorkEnvironmentName();
 
     chainThresholdFabricatedBehindSeconds = env.getFabricationChainThresholdFabricatedBehindSeconds();
     cycleMillis = env.getWorkCycleMillis();
@@ -217,7 +219,7 @@ public class NexusWorkImpl implements NexusWork {
       if (janitorEnabled) doJanitor();
 
     } catch (Exception e) {
-      didFailWhile("running a work cycle", e);
+      didFailWhile(null, "running a work cycle", e);
     }
 
     // End lap & do telemetry on all fabricated chains
@@ -244,7 +246,7 @@ public class NexusWorkImpl implements NexusWork {
     try {
       activeChains.addAll(new ArrayList<>(chainManager.readManyInState(ChainState.FABRICATE)));
     } catch (ManagerFatalException | ManagerPrivilegeException e) {
-      didFailWhile("getting the list of active chain IDs", e);
+      didFailWhile(null, "getting the list of active chain IDs", e);
       return;
     }
 
@@ -254,11 +256,11 @@ public class NexusWorkImpl implements NexusWork {
       try {
         fabricateChain(chain);
       } catch (FabricationFatalException e) {
-        didFailWhile(String.format("fabricating chain %s", chain.getShipKey()), e);
+        didFailWhile(chain.getShipKey(), "fabricating", e);
         try {
           chainManager.destroy(chain.getId());
         } catch (Exception e2) {
-          didFailWhile(String.format("destroying fatally wounded chain %s", chain.getShipKey()), e2);
+          didFailWhile(chain.getShipKey(), "destroying stale chain", e2);
           state = State.Fail;
           return;
         }
@@ -282,7 +284,7 @@ public class NexusWorkImpl implements NexusWork {
       state = State.Active;
 
     } catch (HubClientException e) {
-      didFailWhile("ingesting source material from Hub", e);
+      didFailWhile(shipKey, "ingesting source material from Hub", e);
       state = State.Fail;
     }
   }
@@ -299,7 +301,7 @@ public class NexusWorkImpl implements NexusWork {
     try {
       fabricateChain(chainManager.readOneByShipKey(shipKey));
     } catch (FabricationFatalException e) {
-      didFailWhile(String.format("fabricating chain %s", shipKey), e);
+      didFailWhile(shipKey, "fabricating", e);
       state = State.Fail;
     }
   }
@@ -320,7 +322,7 @@ public class NexusWorkImpl implements NexusWork {
       LOG.debug("Ingested {} entities of source material for Chain[{}]", material.size(), Chains.getIdentifier(chain));
 
     } catch (HubClientException e) {
-      didFailWhile("ingesting source material from Hub", e);
+      didFailWhile(chain.getShipKey(), "ingesting source material from Hub", e);
     }
   }
 
@@ -355,7 +357,7 @@ public class NexusWorkImpl implements NexusWork {
       LOG.info("Total elapsed time: {}", timer.totalsToString());
 
     } catch (ManagerFatalException | ManagerPrivilegeException e) {
-      didFailWhile("checking & reviving all", e);
+      didFailWhile(null, "checking & reviving all", e);
     }
   }
 
@@ -372,7 +374,7 @@ public class NexusWorkImpl implements NexusWork {
     try {
       gcSegIds = getSegmentIdsToErase();
     } catch (NexusException e) {
-      didFailWhile("checking for segments to erase", e);
+      didFailWhile(null, "checking for segments to erase", e);
       return;
     }
 
@@ -525,15 +527,18 @@ public class NexusWorkImpl implements NexusWork {
   /**
    Log and of segment message of error that job failed while (message)
 
+   @param shipKey  (optional) ship key
    @param msgWhile phrased like "Doing work"
    @param e        exception (optional)
    */
-  private void didFailWhile(String msgWhile, Exception e) {
+  private void didFailWhile(@Nullable String shipKey, String msgWhile, Exception e) {
     var msgCause = Strings.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
 
     LOG.error("Failed while {} because {}", msgWhile, msgCause, e);
 
-    notification.publish("Failure", String.format("Failed while %s because %s\n\n%s", msgWhile, msgCause, Text.formatStackTrace(e)));
+    notification.publish(
+      Strings.isNullOrEmpty(shipKey) ? String.format("%s-Chain[%s] Work Failure", envName, shipKey) : String.format("%s-Chains Work Failure", envName),
+      String.format("Failed while %s because %s\n\n%s", msgWhile, msgCause, Text.formatStackTrace(e)));
   }
 
   /**

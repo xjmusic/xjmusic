@@ -69,6 +69,7 @@ public class ShipWorkImpl implements ShipWork {
   private long nextMixMillis = 0;
   private long nextPublishMillis = 0;
   private long nextLoadMillis = 0;
+  private final String envName;
 
   @Inject
   public ShipWorkImpl(
@@ -90,6 +91,7 @@ public class ShipWorkImpl implements ShipWork {
     this.playlist = playlist;
     this.segmentAudios = segmentAudios;
     this.sources = sources;
+    envName = env.getWorkEnvironmentName();
 
     shipKey = env.getShipKey();
     if (Strings.isNullOrEmpty(shipKey)) {
@@ -209,7 +211,7 @@ public class ShipWorkImpl implements ShipWork {
       } catch (Exception e) {
         var detail = Strings.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
         LOG.error("Failed while running ship work because {}", detail, e);
-        notification.publish("Failure", String.format("Failed while running ship work because %s\n\n%s", detail, Text.formatStackTrace(e)));
+        notification.publish(String.format("%s-Chain[%s] Ship Failure", envName, shipKey), String.format("Failed while running ship work because %s\n\n%s", detail, Text.formatStackTrace(e)));
       }
   }
 
