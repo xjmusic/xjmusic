@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -46,6 +47,7 @@ public class SegmentRetrospectiveImplTest {
   private HubContent sourceMaterial;
   private NexusEntityStore store;
   private NexusIntegrationTestingFixtures fake;
+  private Segment segment0;
   private Segment segment1;
   private Segment segment3;
   private Segment segment4;
@@ -79,7 +81,7 @@ public class SegmentRetrospectiveImplTest {
 
     // Chain "Test Print #1" has 5 total segments
     Chain chain1 = store.put(NexusIntegrationTestingFixtures.buildChain(fake.account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
-    constructSegmentAndChoices(chain1, SegmentType.CONTINUE, 10, 4, fake.program4, fake.program4_sequence1_binding0, fake.program15, fake.program15_sequence1_binding0);
+    segment0 = constructSegmentAndChoices(chain1, SegmentType.CONTINUE, 10, 4, fake.program4, fake.program4_sequence1_binding0, fake.program15, fake.program15_sequence1_binding0);
     segment1 = constructSegmentAndChoices(chain1, SegmentType.NEXTMAIN, 11, 0, fake.program4, fake.program4_sequence1_binding0, fake.program5, fake.program5_sequence0_binding0);
     constructSegmentAndChoices(chain1, SegmentType.CONTINUE, 12, 1, fake.program4, fake.program4_sequence1_binding0, fake.program5, fake.program5_sequence1_binding0);
     segment3 = constructSegmentAndChoices(chain1, SegmentType.CONTINUE, 13, 2, fake.program4, fake.program4_sequence1_binding0, fake.program5, fake.program5_sequence1_binding0);
@@ -120,7 +122,7 @@ public class SegmentRetrospectiveImplTest {
   }
 
   @Test
-  public void getPreviousChoiceOfType() throws NexusException {
+  public void getPreviousChoiceOfType() throws NexusException, FabricationFatalException {
     var subject = fabricatorFactory.loadRetrospective(segment3, sourceMaterial);
 
     var result = subject.getPreviousChoiceOfType(ProgramType.Main);
@@ -130,7 +132,7 @@ public class SegmentRetrospectiveImplTest {
   }
 
   @Test
-  public void getPreviousChoiceOfType_forNextMacroSegment() throws NexusException {
+  public void getPreviousChoiceOfType_forNextMacroSegment() throws NexusException, FabricationFatalException {
     var subject = fabricatorFactory.loadRetrospective(segment4, sourceMaterial);
 
     var result = subject.getPreviousChoiceOfType(ProgramType.Main);
@@ -140,7 +142,7 @@ public class SegmentRetrospectiveImplTest {
   }
 
   @Test
-  public void getPreviousChoiceOfType_forNextMainSegment() throws NexusException {
+  public void getPreviousChoiceOfType_forNextMainSegment() throws NexusException, FabricationFatalException {
     var subject = fabricatorFactory.loadRetrospective(segment1, sourceMaterial);
 
     var result = subject.getPreviousChoiceOfType(ProgramType.Main);
@@ -148,5 +150,20 @@ public class SegmentRetrospectiveImplTest {
     assertTrue(result.isPresent());
     assertEquals(result.get().getProgramId(), fake.program15.getId());
   }
+
+  /**
+   Failure requiring a chain restart https://www.pivotaltracker.com/story/show/182131722
+   */
+  @Test
+  public void failureToReadMainChoiceIsFatal() throws NexusException {
+    for (SegmentChoice c : store.getAll(segment0.getId(), SegmentChoice.class))
+      if (c.getProgramType().equals(ProgramType.Main.toString()))
+        store.delete(segment0.getId(), SegmentChoice.class, c.getId());
+
+    var e = assertThrows(FabricationFatalException.class, () -> fabricatorFactory.loadRetrospective(segment1, sourceMaterial));
+
+    assertEquals("Retrospective sees no main choice!", e.getMessage());
+  }
+
 
 }

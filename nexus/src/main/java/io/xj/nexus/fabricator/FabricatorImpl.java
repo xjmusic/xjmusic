@@ -101,7 +101,7 @@ class FabricatorImpl implements Fabricator {
     FabricatorFactory fabricatorFactory,
     SegmentManager segmentManager,
     JsonapiPayloadFactory jsonapiPayloadFactory
-  ) throws NexusException {
+  ) throws NexusException, FabricationFatalException {
     this.segmentManager = segmentManager;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     try {

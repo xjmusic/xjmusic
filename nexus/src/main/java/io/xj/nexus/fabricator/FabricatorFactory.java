@@ -21,12 +21,13 @@ public interface FabricatorFactory {
    @param sourceMaterial from which to fabricate
    @param segment        segment to be fabricated
    @return Fabricator
-   @throws NexusException on failure
+   @throws NexusException       on retry-able network or service failure
+   @throws FabricationFatalException on failure requiring a chain restart https://www.pivotaltracker.com/story/show/182131722
    */
   Fabricator fabricate(
     @Assisted("sourceMaterial") HubContent sourceMaterial,
     @Assisted("segment") Segment segment
-  ) throws NexusException;
+  ) throws NexusException, FabricationFatalException;
 
   /**
    Create a retrospective to fabricate a particular segment
@@ -38,12 +39,13 @@ public interface FabricatorFactory {
    @param segment        Segment that's on the workbench
    @param sourceMaterial to get answers about the segment content
    @return SegmentRetrospective
-   @throws NexusException on failure
+   @throws NexusException       on retry-able network or service failure
+   @throws FabricationFatalException on failure requiring a chain restart https://www.pivotaltracker.com/story/show/182131722
    */
   SegmentRetrospective loadRetrospective(
     @Assisted("segment") Segment segment,
     @Assisted("sourceMaterial") HubContent sourceMaterial
-  ) throws NexusException;
+  ) throws NexusException, FabricationFatalException;
 
   /**
    Create a workbench to fabricate a particular segment

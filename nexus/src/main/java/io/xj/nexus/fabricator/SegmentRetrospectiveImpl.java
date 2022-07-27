@@ -36,7 +36,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
     @Assisted("segment") Segment segment,
     SegmentManager segmentManager,
     EntityStore entityStore
-  ) throws NexusException {
+  ) throws NexusException, FabricationFatalException {
     this.store = entityStore;
 
     chordAtPosition = Maps.newHashMap();
@@ -57,7 +57,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
       SegmentChoice previousSegmentMainChoice = store.getAll(SegmentChoice.class).stream()
         .filter(segmentChoice -> ProgramType.Main.toString().equals(segmentChoice.getProgramType()))
         .findFirst()
-        .orElseThrow(() -> new NexusException("Retrospective sees no main choice!"));
+        .orElseThrow(() -> new FabricationFatalException("Retrospective sees no main choice!"));
 
       var previousMany = segmentManager.readMany(List.of(segment.getChainId())).stream()
         .filter(s -> {

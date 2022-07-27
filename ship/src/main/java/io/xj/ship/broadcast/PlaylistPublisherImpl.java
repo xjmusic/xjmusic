@@ -174,7 +174,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
         }
 
       } catch (FileStoreException e) {
-        throw new ShipException("Failed ot publish playlist!", e);
+        throw new ShipException("Failed to publish playlist!", e);
       }
   }
 

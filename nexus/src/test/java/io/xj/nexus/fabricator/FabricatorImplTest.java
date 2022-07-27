@@ -245,7 +245,7 @@ public class FabricatorImplTest {
    https://www.pivotaltracker.com/story/show/176728582 Choose next Macro program based on the memes of the last sequence from the previous Macro program
    */
   @Test
-  public void getType() throws NexusException, ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException {
+  public void getType() throws NexusException, ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException, FabricationFatalException {
     var chain = store.put(buildChain(fake.account1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE, Instant.parse("2017-12-12T01:00:08.000000Z")));
     Segment previousSegment = store.put(buildSegment(chain, 1, SegmentState.CRAFTED, Instant.parse("2017-12-12T01:00:08.000000Z"), Instant.parse("2017-12-12T01:00:16.000000Z"), "F major", 8, 0.6, 120.0, "seg123", "ogg"));
     var previousMacroChoice = // second-to-last sequence of macro program
@@ -269,7 +269,7 @@ public class FabricatorImplTest {
   // FUTURE: test getChoicesOfPreviousSegments
 
   @Test
-  public void getMemeIsometryOfNextSequenceInPreviousMacro() throws NexusException, ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException {
+  public void getMemeIsometryOfNextSequenceInPreviousMacro() throws NexusException, ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException, FabricationFatalException {
     var chain = store.put(buildChain(fake.account1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE, Instant.parse("2017-12-12T01:00:08.000000Z")));
     Segment previousSegment = store.put(buildSegment(chain, 1, SegmentState.CRAFTED, Instant.parse("2017-12-12T01:00:08.000000Z"), Instant.parse("2017-12-12T01:00:16.000000Z"), "F major", 8, 0.6, 120.0, "seg123", "ogg"));
     var previousMacroChoice = // second-to-last sequence of macro program
@@ -289,7 +289,7 @@ public class FabricatorImplTest {
   }
 
   @Test
-  public void getChordAt() throws NexusException, ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException {
+  public void getChordAt() throws NexusException, ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException, FabricationFatalException {
     var chain = store.put(buildChain(fake.account1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE, Instant.parse("2017-12-12T01:00:08.000000Z")));
     segment = store.put(buildSegment(chain, 2, SegmentState.CRAFTING, Instant.parse("2017-12-12T01:00:16.000000Z"), Instant.parse("2017-12-12T01:00:22.000000Z"), "G major", 8, 0.6, 240.0, "seg123", "ogg"));
     when(mockFabricatorFactory.loadRetrospective(any(), any())).thenReturn(mockRetrospective);
@@ -310,7 +310,7 @@ public class FabricatorImplTest {
   }
 
   @Test
-  public void computeProgramRange() throws NexusException, ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException, HubClientException {
+  public void computeProgramRange() throws NexusException, ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException, HubClientException, FabricationFatalException {
     var chain = store.put(buildChain(fake.account1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE, Instant.parse("2017-12-12T01:00:08.000000Z")));
     segment = store.put(buildSegment(chain, 2, SegmentState.CRAFTING, Instant.parse("2017-12-12T01:00:16.000000Z"), Instant.parse("2017-12-12T01:00:22.000000Z"), "G major", 8, 0.6, 240.0, "seg123", "ogg"));
     when(mockFabricatorFactory.loadRetrospective(any(), any())).thenReturn(mockRetrospective);
@@ -332,7 +332,7 @@ public class FabricatorImplTest {
   }
 
   @Test
-  public void computeProgramRange_ignoresAtonalNotes() throws NexusException, ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException, HubClientException {
+  public void computeProgramRange_ignoresAtonalNotes() throws NexusException, ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException, HubClientException, FabricationFatalException {
     var chain = store.put(buildChain(fake.account1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE, Instant.parse("2017-12-12T01:00:08.000000Z")));
     segment = store.put(buildSegment(chain, 2, SegmentState.CRAFTING, Instant.parse("2017-12-12T01:00:16.000000Z"), Instant.parse("2017-12-12T01:00:22.000000Z"), "G major", 8, 0.6, 240.0, "seg123", "ogg"));
     when(mockFabricatorFactory.loadRetrospective(any(), any())).thenReturn(mockRetrospective);
@@ -354,7 +354,7 @@ public class FabricatorImplTest {
   }
 
   @Test
-  public void getProgramSequence_fromSequence() throws NexusException, ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, HubClientException {
+  public void getProgramSequence_fromSequence() throws NexusException, ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, HubClientException, FabricationFatalException {
     var account1 = buildAccount("fish");
     Template template1 = buildTemplate(account1, "Test Template 1", "test1");
     var chain = store.put(NexusIntegrationTestingFixtures.buildChain(template1));
@@ -373,7 +373,7 @@ public class FabricatorImplTest {
   }
 
   @Test
-  public void getProgramSequence_fromSequenceBinding() throws NexusException, ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, HubClientException {
+  public void getProgramSequence_fromSequenceBinding() throws NexusException, ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, HubClientException, FabricationFatalException {
     var account1 = buildAccount("fish");
     Template template1 = buildTemplate(account1, "Test Template 1", "test1");
     var chain = store.put(NexusIntegrationTestingFixtures.buildChain(template1));
@@ -429,7 +429,7 @@ public class FabricatorImplTest {
    --+ if this is a subsequent note in the series, record it's # semitones from first note
    */
   @Test
-  public void persistStickyBuns() throws NexusException, ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, HubClientException {
+  public void persistStickyBuns() throws NexusException, ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, HubClientException, FabricationFatalException {
     // fixtures: source material
     var account1 = buildAccount("Test Account");
     var library1 = buildLibrary(account1, "Test Library");

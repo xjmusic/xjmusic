@@ -99,7 +99,7 @@ public class ReportEvents extends Report {
     }
 
     public int size() {
-      return histogram.size();
+      return histogram.values().stream().map(Map::size).mapToInt((v -> v)).sum();
     }
 
     public void addInstrumentId(String type, String raw, UUID instrumentId) {

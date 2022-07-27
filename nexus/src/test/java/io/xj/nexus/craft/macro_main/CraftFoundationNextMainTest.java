@@ -16,6 +16,7 @@ import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
+import io.xj.nexus.fabricator.FabricationFatalException;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.hub.client.HubClient;
@@ -183,7 +184,7 @@ public class CraftFoundationNextMainTest {
       "chain-1-waveform-12345.wav",
       "ogg"));
 
-    assertThrows(NexusException.class, () ->
+    assertThrows(FabricationFatalException.class, () ->
       fabricatorFactory.fabricate(sourceMaterial, segment5));
   }
 
