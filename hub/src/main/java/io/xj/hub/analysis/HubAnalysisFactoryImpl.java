@@ -37,7 +37,7 @@ class HubAnalysisFactoryImpl implements HubAnalysisFactory {
       return switch (type) {
         case Memes -> new ReportMemes(content, env);
         case MainProgramChords -> new ReportMainProgramChords(content, env);
-        case DrumInstrumentEvents -> new ReportDrumInstrumentEvents(content, env);
+        case Events -> new ReportEvents(content, env);
       };
 
     } catch (HubIngestException e) {

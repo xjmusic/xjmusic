@@ -15,8 +15,8 @@ import static io.xj.hub.IntegrationTestingFixtures.*;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-public class ReportDrumInstrumentEventsTest {
-  private ReportDrumInstrumentEvents subject;
+public class ReportEventsTest {
+  private ReportEvents subject;
   private Program program2;
   private Instrument instrument1;
 
@@ -80,13 +80,13 @@ public class ReportDrumInstrumentEventsTest {
       program2_voice1
     );
 
-    subject = new ReportDrumInstrumentEvents(new HubContent(entities), Environment.getDefault());
+    subject = new ReportEvents(new HubContent(entities), Environment.getDefault());
   }
 
   @Test
   public void analysis() {
     assertEquals(2, subject.getEventHistogram().size());
-    assertArrayEquals(List.of(program2.getId()).toArray(), subject.getEventHistogram().get("BOOM").getProgramIds().toArray());
-    assertArrayEquals(List.of(instrument1.getId()).toArray(), subject.getEventHistogram().get("KICK").getInstrumentIds().toArray());
+    assertArrayEquals(List.of(program2.getId()).toArray(), subject.getEventHistogram().get("Drum", "BOOM").getProgramIds().toArray());
+    assertArrayEquals(List.of(instrument1.getId()).toArray(), subject.getEventHistogram().get("Drum", "KICK").getInstrumentIds().toArray());
   }
 }

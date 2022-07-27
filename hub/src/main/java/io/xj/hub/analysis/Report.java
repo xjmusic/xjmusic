@@ -13,7 +13,6 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  Template content Analysis https://www.pivotaltracker.com/story/show/161199945
@@ -165,7 +164,7 @@ public abstract class Report {
    Types of comps
    */
   public enum Type {
-    DrumInstrumentEvents("Drum Events"),
+    Events("Events"),
     MainProgramChords("Main Chords"),
     Memes("Memes");
 
