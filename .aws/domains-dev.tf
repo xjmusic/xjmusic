@@ -143,3 +143,16 @@ resource "aws_route53_record" "uxrg-dev" {
   }
 }
 
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
+resource "aws_route53_record" "aircraft-works-dev" {
+  name    = "dev.aircraft.works"
+  type    = "A"
+  zone_id = aws_route53_zone.aircraft-works.zone_id
+
+  alias {
+    name                   = aws_cloudfront_distribution.aircraft-works-dev.domain_name
+    zone_id                = aws_cloudfront_distribution.aircraft-works-dev.hosted_zone_id
+    evaluate_target_health = false
+  }
+}
+

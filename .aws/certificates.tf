@@ -52,3 +52,55 @@ resource "aws_acm_certificate" "uxrg" {
   validation_method = "DNS"
 }
 
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate
+resource "aws_acm_certificate" "aircraft-works" {
+  domain_name = "aircraft.works"
+  subject_alternative_names = [
+    "*.aircraft.works"
+  ]
+  validation_method = "DNS"
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate
+resource "aws_acm_certificate" "aircraft-works-coolair-redirect" {
+  domain_name = "cool.aircraft.works"
+  subject_alternative_names = [
+    "*.ambience.co",
+    "*.coolambience.co",
+    "*.coolambience.com",
+    "coolambience.co",
+    "coolambience.com",
+  ]
+  validation_method = "DNS"
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate
+resource "aws_acm_certificate" "aircraft-works-redirect" {
+  domain_name = "aircraft.works"
+  subject_alternative_names = [
+    "*.aircraft.works",
+    "aircraftcreative.com",
+    "aircraftproductivity.com",
+    "ambience.co",
+  ]
+  validation_method = "DNS"
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate
+resource "aws_acm_certificate" "ambientmusicfoundation-org" {
+  domain_name = "ambientmusicfoundation.org"
+  subject_alternative_names = [
+    "*.ambientmusicfoundation.org"
+  ]
+  validation_method = "DNS"
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate
+resource "aws_acm_certificate" "ambientmusicfoundation-org-redirect" {
+  domain_name = "ambientmusicfoundation.org"
+  subject_alternative_names = [
+    "*.ambientmusicfoundation.org",
+  ]
+  validation_method = "DNS"
+}
+

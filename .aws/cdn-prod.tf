@@ -1290,3 +1290,420 @@ resource "aws_cloudfront_distribution" "uxrg-redirect" {
     Environment = "prod"
   }
 }
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_distribution
+resource "aws_cloudfront_distribution" "aircraft-works" {
+  enabled             = true
+  is_ipv6_enabled     = true
+  comment             = "aircraft.works"
+  default_root_object = "index.html"
+  http_version        = "http2"
+  price_class         = "PriceClass_100"
+  aliases = [
+    "aircraft.works"
+  ]
+
+  origin {
+    domain_name = "${aws_s3_bucket.aircraft-works.bucket}.s3-website-${local.aws-region}.amazonaws.com"
+    origin_id   = "aircraft-works-s3-origin"
+    origin_path = ""
+    custom_origin_config {
+      http_port              = 80
+      https_port             = 443
+      origin_protocol_policy = "http-only"
+      origin_ssl_protocols = [
+        "TLSv1",
+        "TLSv1.1",
+        "TLSv1.2"
+      ]
+    }
+  }
+
+  default_cache_behavior {
+    allowed_methods = [
+      "GET",
+      "HEAD",
+    ]
+    cached_methods = [
+      "GET",
+      "HEAD"
+    ]
+    target_origin_id = "aircraft-works-s3-origin"
+
+    forwarded_values {
+      query_string = false
+      cookies {
+        forward = "none"
+      }
+      headers = []
+    }
+
+    viewer_protocol_policy = "redirect-to-https"
+    min_ttl                = 0
+    default_ttl            = 3600
+    max_ttl                = 86400
+  }
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+    }
+  }
+
+  viewer_certificate {
+    acm_certificate_arn      = aws_acm_certificate.aircraft-works.arn
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2019"
+  }
+
+  tags = {
+    Environment = "prod"
+  }
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_distribution
+resource "aws_cloudfront_distribution" "aircraft-works-coolair" {
+  enabled             = true
+  is_ipv6_enabled     = true
+  comment             = "cool.aircraft.works"
+  default_root_object = "index.html"
+  http_version        = "http2"
+  price_class         = "PriceClass_100"
+  aliases = [
+    "cool.aircraft.works"
+  ]
+
+  origin {
+    domain_name = "${aws_s3_bucket.aircraft-works-coolair.bucket}.s3-website-${local.aws-region}.amazonaws.com"
+    origin_id   = "aircraft-works-coolair-s3-origin"
+    origin_path = ""
+    custom_origin_config {
+      http_port              = 80
+      https_port             = 443
+      origin_protocol_policy = "http-only"
+      origin_ssl_protocols = [
+        "TLSv1",
+        "TLSv1.1",
+        "TLSv1.2"
+      ]
+    }
+  }
+
+  default_cache_behavior {
+    allowed_methods = [
+      "GET",
+      "HEAD",
+    ]
+    cached_methods = [
+      "GET",
+      "HEAD"
+    ]
+    target_origin_id = "aircraft-works-coolair-s3-origin"
+
+    forwarded_values {
+      query_string = false
+      cookies {
+        forward = "none"
+      }
+      headers = []
+    }
+
+    viewer_protocol_policy = "redirect-to-https"
+    min_ttl                = 0
+    default_ttl            = 3600
+    max_ttl                = 86400
+  }
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+    }
+  }
+
+  viewer_certificate {
+    acm_certificate_arn      = aws_acm_certificate.aircraft-works.arn
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2019"
+  }
+
+  tags = {
+    Environment = "prod"
+  }
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_distribution
+resource "aws_cloudfront_distribution" "aircraft-works-redirect" {
+  enabled         = true
+  is_ipv6_enabled = true
+  comment         = "redirect to aircraft.works"
+  http_version    = "http2"
+  price_class     = "PriceClass_100"
+  aliases = [
+    "www.aircraft.works",
+    "aircraftcreative.com",
+    "aircraftproductivity.com",
+    "ambience.co",
+  ]
+
+  origin {
+    domain_name = "${aws_s3_bucket.redirect-to-aircraft-works.bucket}.s3-website-${local.aws-region}.amazonaws.com"
+    origin_id   = "redirect-to-aircraft-works-s3-origin"
+    origin_path = ""
+    custom_origin_config {
+      http_port              = 80
+      https_port             = 443
+      origin_protocol_policy = "http-only"
+      origin_ssl_protocols = [
+        "TLSv1",
+        "TLSv1.1",
+        "TLSv1.2"
+      ]
+    }
+  }
+
+  default_cache_behavior {
+    allowed_methods = [
+      "GET",
+      "HEAD",
+    ]
+    cached_methods = [
+      "GET",
+      "HEAD"
+    ]
+    target_origin_id = "redirect-to-aircraft-works-s3-origin"
+
+    forwarded_values {
+      query_string = false
+      cookies {
+        forward = "none"
+      }
+      headers = []
+    }
+
+    viewer_protocol_policy = "redirect-to-https"
+    min_ttl                = 0
+    default_ttl            = 3600
+    max_ttl                = 86400
+  }
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+    }
+  }
+
+  viewer_certificate {
+    acm_certificate_arn      = aws_acm_certificate.aircraft-works-redirect.arn
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2019"
+  }
+
+  tags = {
+    Environment = "prod"
+  }
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_distribution
+resource "aws_cloudfront_distribution" "aircraft-redirect-coolair" {
+  enabled         = true
+  is_ipv6_enabled = true
+  comment         = "redirect to cool.aircraft.works"
+  http_version    = "http2"
+  price_class     = "PriceClass_100"
+  aliases = [
+    "coolambience.com",
+    "www.coolambience.com",
+  ]
+
+  origin {
+    domain_name = "${aws_s3_bucket.redirect-to-cool-aircraft-works.bucket}.s3-website-${local.aws-region}.amazonaws.com"
+    origin_id   = "redirect-to-cool-aircraft-works-s3-origin"
+    origin_path = ""
+    custom_origin_config {
+      http_port              = 80
+      https_port             = 443
+      origin_protocol_policy = "http-only"
+      origin_ssl_protocols = [
+        "TLSv1",
+        "TLSv1.1",
+        "TLSv1.2"
+      ]
+    }
+  }
+
+  default_cache_behavior {
+    allowed_methods = [
+      "GET",
+      "HEAD",
+    ]
+    cached_methods = [
+      "GET",
+      "HEAD"
+    ]
+    target_origin_id = "redirect-to-cool-aircraft-works-s3-origin"
+
+    forwarded_values {
+      query_string = false
+      cookies {
+        forward = "none"
+      }
+      headers = []
+    }
+
+    viewer_protocol_policy = "redirect-to-https"
+    min_ttl                = 0
+    default_ttl            = 3600
+    max_ttl                = 86400
+  }
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+    }
+  }
+
+  viewer_certificate {
+    acm_certificate_arn      = aws_acm_certificate.aircraft-works-coolair-redirect.arn
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2019"
+  }
+
+  tags = {
+    Environment = "prod"
+  }
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_distribution
+resource "aws_cloudfront_distribution" "aircraft-ambientmusicfoundation-org" {
+  enabled             = true
+  is_ipv6_enabled     = true
+  comment             = "ambientmusicfoundation.org"
+  default_root_object = "index.html"
+  http_version        = "http2"
+  price_class         = "PriceClass_100"
+  aliases = [
+    "ambientmusicfoundation.org"
+  ]
+
+  origin {
+    domain_name = "${aws_s3_bucket.ambientmusicfoundation-org.bucket}.s3-website-${local.aws-region}.amazonaws.com"
+    origin_id   = "ambientmusicfoundation-org-s3-origin"
+    origin_path = ""
+    custom_origin_config {
+      http_port              = 80
+      https_port             = 443
+      origin_protocol_policy = "http-only"
+      origin_ssl_protocols = [
+        "TLSv1",
+        "TLSv1.1",
+        "TLSv1.2"
+      ]
+    }
+  }
+
+  default_cache_behavior {
+    allowed_methods = [
+      "GET",
+      "HEAD",
+    ]
+    cached_methods = [
+      "GET",
+      "HEAD"
+    ]
+    target_origin_id = "ambientmusicfoundation-org-s3-origin"
+
+    forwarded_values {
+      query_string = false
+      cookies {
+        forward = "none"
+      }
+      headers = []
+    }
+
+    viewer_protocol_policy = "redirect-to-https"
+    min_ttl                = 0
+    default_ttl            = 3600
+    max_ttl                = 86400
+  }
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+    }
+  }
+
+  viewer_certificate {
+    acm_certificate_arn      = aws_acm_certificate.ambientmusicfoundation-org.arn
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2019"
+  }
+
+  tags = {
+    Environment = "prod"
+  }
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_distribution
+resource "aws_cloudfront_distribution" "aircraft-ambientmusicfoundation-org-redirect" {
+  enabled         = true
+  is_ipv6_enabled = true
+  comment         = "redirect to ambientmusicfoundation.org"
+  http_version    = "http2"
+  price_class     = "PriceClass_100"
+  aliases = [
+    "www.ambientmusicfoundation.org",
+  ]
+
+  origin {
+    domain_name = "${aws_s3_bucket.redirect-to-ambientmusicfoundation-org.bucket}.s3-website-${local.aws-region}.amazonaws.com"
+    origin_id   = "redirect-to-ambientmusicfoundation-org-s3-origin"
+    origin_path = ""
+    custom_origin_config {
+      http_port              = 80
+      https_port             = 443
+      origin_protocol_policy = "http-only"
+      origin_ssl_protocols = [
+        "TLSv1",
+        "TLSv1.1",
+        "TLSv1.2"
+      ]
+    }
+  }
+
+  default_cache_behavior {
+    allowed_methods = [
+      "GET",
+      "HEAD",
+    ]
+    cached_methods = [
+      "GET",
+      "HEAD"
+    ]
+    target_origin_id = "redirect-to-ambientmusicfoundation-org-s3-origin"
+
+    forwarded_values {
+      query_string = false
+      cookies {
+        forward = "none"
+      }
+      headers = []
+    }
+
+    viewer_protocol_policy = "redirect-to-https"
+    min_ttl                = 0
+    default_ttl            = 3600
+    max_ttl                = 86400
+  }
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+    }
+  }
+
+  viewer_certificate {
+    acm_certificate_arn      = aws_acm_certificate.ambientmusicfoundation-org-redirect.arn
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2019"
+  }
+}

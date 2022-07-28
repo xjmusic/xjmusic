@@ -144,10 +144,11 @@ resource "aws_iam_user_policy" "xj-ci" {
   })
 }
 
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user_policy
-resource "aws_iam_user_policy" "xj-ci-prod" {
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy
+resource "aws_iam_policy" "xj-ci-prod" {
   name = "xj-ci-prod"
-  user = aws_iam_user.xj-ci.name
+  path = "/"
+  description = "XJ CI user prod"
 
   policy = jsonencode({
     "Version" : "2012-10-17",
@@ -175,18 +176,17 @@ resource "aws_iam_user_policy" "xj-ci-prod" {
           "${aws_s3_bucket.xj-status.arn}/*",
           aws_s3_bucket.xj-lab.arn,
           "${aws_s3_bucket.xj-lab.arn}/*",
-          aws_s3_bucket.uxrg-prod.arn,
-          "${aws_s3_bucket.uxrg-prod.arn}/*",
         ]
       },
     ]
   })
 }
 
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user_policy
-resource "aws_iam_user_policy" "xj-ci-dev" {
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy
+resource "aws_iam_policy" "xj-ci-dev" {
   name = "xj-ci-dev"
-  user = aws_iam_user.xj-ci.name
+  path = "/"
+  description = "XJ CI user dev"
 
   policy = jsonencode({
     "Version" : "2012-10-17",
@@ -212,12 +212,96 @@ resource "aws_iam_user_policy" "xj-ci-dev" {
           "${aws_s3_bucket.xj-dev-status.arn}/*",
           aws_s3_bucket.xj-dev-stream.arn,
           "${aws_s3_bucket.xj-dev-stream.arn}/*",
-          aws_s3_bucket.uxrg-dev.arn,
-          "${aws_s3_bucket.uxrg-dev.arn}/*",
         ]
       },
     ]
   })
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy
+resource "aws_iam_policy" "xj-ci-aircraft-prod" {
+  name = "xj-ci-aircraft-prod"
+  path = "/"
+  description = "XJ CI user prod"
+
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        Sid    = "PublishProduction",
+        Effect = "Allow",
+        Action = [
+          "s3:Get*",
+          "s3:List*",
+          "s3:Put*"
+        ],
+        Resource = [
+          aws_s3_bucket.uxrg-prod.arn,
+          "${aws_s3_bucket.uxrg-prod.arn}/*",
+          aws_s3_bucket.aircraft-works.arn,
+          "${aws_s3_bucket.aircraft-works.arn}/*",
+          aws_s3_bucket.aircraft-works-coolair.arn,
+          "${aws_s3_bucket.aircraft-works-coolair.arn}/*",
+        ]
+      },
+    ]
+  })
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy
+resource "aws_iam_policy" "xj-ci-aircraft-dev" {
+  name = "xj-ci-aircraft-dev"
+  path = "/"
+  description = "XJ CI user dev"
+
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        Sid    = "PublishDevelopment",
+        Effect = "Allow",
+        Action = [
+          "s3:Get*",
+          "s3:List*",
+          "s3:Put*"
+        ],
+        Resource = [
+          aws_s3_bucket.uxrg-dev.arn,
+          "${aws_s3_bucket.uxrg-dev.arn}/*",
+          aws_s3_bucket.aircraft-works-dev.arn,
+          "${aws_s3_bucket.aircraft-works-dev.arn}/*",
+        ]
+      },
+    ]
+  })
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy_attachment
+resource "aws_iam_policy_attachment" "xj-ci-prod" {
+  name       = "xj-ci-prod"
+  users      = [aws_iam_user.xj-ci.name]
+  policy_arn = aws_iam_policy.xj-ci-prod.arn
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy_attachment
+resource "aws_iam_policy_attachment" "xj-ci-dev" {
+  name       = "xj-ci-dev"
+  users      = [aws_iam_user.xj-ci.name]
+  policy_arn = aws_iam_policy.xj-ci-dev.arn
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy_attachment
+resource "aws_iam_policy_attachment" "xj-ci-aircraft-prod" {
+  name       = "xj-ci-aircraft-prod"
+  users      = [aws_iam_user.xj-ci.name]
+  policy_arn = aws_iam_policy.xj-ci-aircraft-prod.arn
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy_attachment
+resource "aws_iam_policy_attachment" "xj-ci-aircraft-dev" {
+  name       = "xj-ci-aircraft-dev"
+  users      = [aws_iam_user.xj-ci.name]
+  policy_arn = aws_iam_policy.xj-ci-aircraft-dev.arn
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role
@@ -504,3 +588,48 @@ resource "aws_secretsmanager_secret" "xj-dev-env" {
   name        = "xj-dev-env"
   description = "Name of AWS secret comprising environment KEY=VALUE lines, for development"
 }
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user
+resource "aws_iam_user" "aircraft-sites" {
+  name = "aircraft-sites"
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_access_key
+resource "aws_iam_access_key" "aircraft-sites" {
+  user = aws_iam_user.aircraft-sites.name
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user_policy
+resource "aws_iam_user_policy" "aircraft-sites" {
+  name = "aircraft-sites"
+  user = aws_iam_user.aircraft-sites.name
+
+  policy = jsonencode({
+    "Statement" : [
+      {
+        Action = [
+          "cloudfront:*"
+        ],
+        Effect = "Allow",
+        Resource = [
+          "*"
+        ]
+      },
+      {
+        Action = [
+          "s3:*"
+        ],
+        Effect = "Allow",
+        Resource = [
+          "arn:aws:s3:::aircraft.works",
+          "arn:aws:s3:::aircraft.works/*",
+          "arn:aws:s3:::dev.aircraft.works",
+          "arn:aws:s3:::dev.aircraft.works/*",
+          "arn:aws:s3:::cool.aircraft.works",
+          "arn:aws:s3:::cool.aircraft.works/*"
+        ]
+      }
+    ]
+  })
+}
+

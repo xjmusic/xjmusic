@@ -471,3 +471,134 @@ resource "aws_s3_bucket" "uxrg-redirect" {
   }
 }
 
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+resource "aws_s3_bucket" "ambientmusicfoundation-org" {
+  bucket = "ambientmusicfoundation.org"
+  acl    = "public-read"
+  policy = jsonencode({
+    "Version" : "2008-10-17",
+    "Statement" : [
+      {
+        Sid       = "PublicReadGetObject",
+        Effect    = "Allow",
+        Principal = "*",
+        Action    = "s3:GetObject",
+        Resource  = "arn:aws:s3:::ambientmusicfoundation.org/*"
+      }
+    ]
+  })
+
+  website {
+    index_document = "index.html"
+  }
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+resource "aws_s3_bucket" "redirect-to-ambientmusicfoundation-org" {
+  bucket = "redirect-to-ambientmusicfoundation-org"
+  acl    = "public-read"
+  policy = jsonencode({
+    "Version" : "2008-10-17",
+    "Statement" : [
+      {
+        Sid       = "PublicReadGetObject",
+        Effect    = "Allow",
+        Principal = "*",
+        Action    = "s3:GetObject",
+        Resource  = "arn:aws:s3:::redirect-to-ambientmusicfoundation-org/*"
+      }
+    ]
+  })
+
+  website {
+    redirect_all_requests_to = "https://ambientmusicfoundation.org"
+  }
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+resource "aws_s3_bucket" "redirect-to-cool-aircraft-works" {
+  bucket = "redirect-to-cool-aircraft-works"
+  acl    = "public-read"
+  policy = jsonencode({
+    "Version" : "2008-10-17",
+    "Statement" : [
+      {
+        Sid       = "PublicReadGetObject",
+        Effect    = "Allow",
+        Principal = "*",
+        Action    = "s3:GetObject",
+        Resource  = "arn:aws:s3:::redirect-to-cool-aircraft-works/*"
+      }
+    ]
+  })
+
+  website {
+    redirect_all_requests_to = "https://xj.io/download"
+  }
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+resource "aws_s3_bucket" "redirect-to-aircraft-works" {
+  bucket = "redirect-to-aircraft-works"
+  acl    = "public-read"
+  policy = jsonencode({
+    "Version" : "2008-10-17",
+    "Statement" : [
+      {
+        Sid       = "PublicReadGetObject",
+        Effect    = "Allow",
+        Principal = "*",
+        Action    = "s3:GetObject",
+        Resource  = "arn:aws:s3:::redirect-to-aircraft-works/*"
+      }
+    ]
+  })
+
+  website {
+    redirect_all_requests_to = "https://aircraft.works"
+  }
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+resource "aws_s3_bucket" "aircraft-works" {
+  bucket = "aircraft.works"
+  acl    = "public-read"
+  policy = jsonencode({
+    "Version" : "2008-10-17",
+    "Statement" : [
+      {
+        Sid       = "PublicReadGetObject",
+        Effect    = "Allow",
+        Principal = "*",
+        Action    = "s3:GetObject",
+        Resource  = "arn:aws:s3:::aircraft.works/*"
+      }
+    ]
+  })
+
+  website {
+    index_document = "index.html"
+  }
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+resource "aws_s3_bucket" "aircraft-works-coolair" {
+  bucket = "cool.aircraft.works"
+  acl    = "public-read"
+  policy = jsonencode({
+    "Version" : "2008-10-17",
+    "Statement" : [
+      {
+        Sid       = "PublicReadGetObject",
+        Effect    = "Allow",
+        Principal = "*",
+        Action    = "s3:GetObject",
+        Resource  = "arn:aws:s3:::cool.aircraft.works/*"
+      }
+    ]
+  })
+
+  website {
+    redirect_all_requests_to = "https://xj.io/download"
+  }
+}
