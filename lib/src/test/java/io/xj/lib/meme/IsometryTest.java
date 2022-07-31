@@ -1,5 +1,5 @@
-// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.nexus.fabricator;
+// Copyright (c) 1999-2022, XJ Music Inc. (https://xj.io) All Rights Reserved.
+package io.xj.lib.meme;
 
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;

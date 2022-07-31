@@ -22,8 +22,10 @@ public abstract class Report {
   private static final String REPORT_HTML_PLACEHOLDER_TITLE = "{{title}}";
   private static final String REPORT_HTML_PLACEHOLDER_BODY = "{{body}}";
   private static final String title = "Content Analysis";
-  private static final String CELL_STYLE = "vertical-align:top; padding-right:5px; padding-bottom:5px;";
-  private static final String ROW_STYLE = "border-top:2px solid #333;";
+  private static final String CELL_STYLE = "vertical-align:top; padding-right:5px; padding-bottom:5px; padding-left:5px; border-left:2px solid #555; border-right:2px solid #555;";
+  private static final String P_STYLE = "margin-top:5px;";
+  private static final String ROW_STYLE = "border-bottom:2px solid #666;";
+  private static final String ROW_HEADER_STYLE = "background-color: #666;";
   private static final String TABLE_STYLE = "";
   private static final String H1_STYLE = "margin-top:10px;";
   private static final String H2_STYLE = "margin-top:20px;";
@@ -81,11 +83,12 @@ public abstract class Report {
   /**
    Render an HTML row tag with style
 
-   @param contents inside row tag
    @return row tag with style and content
+   @param header whether to make this a header row
+   @param contents inside row tag
    */
-  public static String TR(String... contents) {
-    return String.format("<TR STYLE=\"%s\">%s</TR>", ROW_STYLE, String.join("\n", contents));
+  public static String TR(Boolean header, String... contents) {
+    return String.format("<TR STYLE=\"%s\">%s</TR>", header ? ROW_HEADER_STYLE : ROW_STYLE, String.join("\n", contents));
   }
 
   /**
@@ -96,6 +99,16 @@ public abstract class Report {
    */
   public static String TD(String... contents) {
     return String.format("<TD STYLE=\"%s\">%s</TD>", CELL_STYLE, String.join("\n", contents));
+  }
+
+  /**
+   Render an HTML paragraph tag with style
+
+   @param content of paragraph
+   @return paragraph tag with style and content
+   */
+  public static String P(String content) {
+    return String.format("<P STYLE=\"%s\">%s</P>", P_STYLE, content);
   }
 
   /**
@@ -166,7 +179,8 @@ public abstract class Report {
   public enum Type {
     Events("Events"),
     MainProgramChords("Main Chords"),
-    Memes("Memes");
+    Memes("Memes"),
+    Constellations("Constellations");
 
     private final String name;
 

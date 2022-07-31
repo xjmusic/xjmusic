@@ -29,11 +29,11 @@ public class ReportMemes extends Report {
   @SuppressWarnings("DuplicatedCode")
   @Override
   public String renderContentHTML() {
-    return TABLE(TR(TD("Total"), TD("Name"), TD("Programs"), TD("Instruments")),
+    return TABLE(TR(true, TD("Total"), TD("Name"), TD("Programs"), TD("Instruments")),
       memes.histogram.entrySet().stream()
         .sorted((c1, c2) -> c2.getValue().total.compareTo(c1.getValue().total))
         .map(e -> TR(
-          TD(e.getValue().total.toString()),
+          false, TD(e.getValue().total.toString()),
           TD(e.getKey()),
           TD(e.getValue().programIds.stream()
             .map(content::getProgram)

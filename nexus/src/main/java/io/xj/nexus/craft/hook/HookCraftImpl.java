@@ -29,6 +29,7 @@ public class HookCraftImpl extends CraftImpl implements HookCraft {
 
   @Override
   public void doWork() throws NexusException {
+
     if (!fabricator.sourceMaterial().hasInstruments(InstrumentType.Hook, InstrumentMode.Loop)) return;
 
     // Instrument is from prior choice, else freshly chosen

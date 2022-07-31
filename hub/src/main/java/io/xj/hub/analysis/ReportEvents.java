@@ -44,11 +44,11 @@ public class ReportEvents extends Report {
   public String renderContentHTML() {
     return Arrays.stream(InstrumentType.values()).map(type ->
         H1(String.format("%s Events", type.toString()), type.toString()) +
-          TABLE(TR(TD("Total"), TD("Event"), TD("Programs"), TD("Instruments")),
+          TABLE(TR(true, TD("Total"), TD("Event"), TD("Programs"), TD("Instruments")),
             eventHistogram.histogram.get(type.toString()).entrySet().stream()
               .sorted((c1, c2) -> c2.getValue().total.compareTo(c1.getValue().total))
               .map(e -> TR(
-                TD(e.getValue().total.toString()),
+                false, TD(e.getValue().total.toString()),
                 TD(e.getKey()),
                 TD(e.getValue().programIds.stream()
                   .map(content::getProgram)

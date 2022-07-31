@@ -8,6 +8,7 @@ import io.xj.hub.client.HubContent;
 import io.xj.hub.ingest.HubIngestException;
 import io.xj.hub.ingest.HubIngestFactory;
 import io.xj.lib.app.Environment;
+import io.xj.lib.util.ValueException;
 
 import java.util.UUID;
 
@@ -38,12 +39,15 @@ class HubAnalysisFactoryImpl implements HubAnalysisFactory {
         case Memes -> new ReportMemes(content, env);
         case MainProgramChords -> new ReportMainProgramChords(content, env);
         case Events -> new ReportEvents(content, env);
+        case Constellations -> new ReportConstellations(content, env);
       };
 
     } catch (HubIngestException e) {
       throw new HubAnalysisException("Failed to ingest content", e);
     } catch (HubClientException e) {
       throw new HubAnalysisException("Failed to build content index", e);
+    } catch (ValueException e) {
+      throw new HubAnalysisException("Failed to parse value", e);
     }
   }
 }

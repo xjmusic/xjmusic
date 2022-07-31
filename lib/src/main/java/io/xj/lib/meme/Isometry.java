@@ -1,19 +1,16 @@
-// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.nexus.fabricator;
+// Copyright (c) 1999-2022, XJ Music Inc. (https://xj.io) All Rights Reserved.
+package io.xj.lib.meme;
 
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.codec.language.Metaphone;
 
 import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 
 /**
  Determine the isometry between a source and target group of Memes
  */
 public class Isometry {
-  private static final String CONSTELLATION_DELIMITER = "_";
   protected final Set<String> sources;
 
   /**
@@ -36,7 +33,7 @@ public class Isometry {
   }
 
   /**
-   Instantiate a new Isometry of a group of source strings which will be phentically reduced
+   Instantiate a new Isometry of a group of source strings which will be phonetically reduced
 
    @param sources to compare of
    @return Isometry ready for comparison to targets
@@ -59,7 +56,7 @@ public class Isometry {
   }
 
   /**
-   Add the a String for isometry comparison
+   Add a String for isometry comparison
 
    @param input to add
    */
@@ -81,12 +78,12 @@ public class Isometry {
 
    @return source memes
    */
-  Set<String> getSources() {
+  public Set<String> getSources() {
     return Collections.unmodifiableSet(sources);
   }
 
   /**
-   Compute a unique constellation for any set of Memes,
+   Compute normalized string representation of an unordered set of memes
    for the purpose of identifying unique constellations.
    <p>
    https://www.pivotaltracker.com/story/show/161736024 for each unique sequence-pattern-meme constellation within the main sequence
@@ -94,9 +91,7 @@ public class Isometry {
    @return unique constellation for this set of strings.
    */
   public String getConstellation() {
-    Map<String, Boolean> uniqueNames = Maps.newHashMap();
-    sources.forEach(meme -> uniqueNames.put(meme, true));
-    Set<String> pieces = Sets.newTreeSet(uniqueNames.keySet());
-    return String.join(CONSTELLATION_DELIMITER, pieces);
+    return MemeConstellation.fromNames(sources);
   }
+
 }

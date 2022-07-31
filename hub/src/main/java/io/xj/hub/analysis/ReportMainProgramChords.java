@@ -26,11 +26,11 @@ public class ReportMainProgramChords extends Report {
   @SuppressWarnings("DuplicatedCode")
   @Override
   public String renderContentHTML() {
-    return TABLE(TR(TD("Total"), TD("Name"), TD("Programs")),
+    return TABLE(TR(true, TD("Total"), TD("Name"), TD("Programs")),
       mainProgramChords.histogram.entrySet().stream()
         .sorted((c1, c2) -> c2.getValue().getTotal().compareTo(c1.getValue().getTotal()))
         .map(e -> TR(
-          TD(e.getValue().getTotal().toString()),
+          false, TD(e.getValue().getTotal().toString()),
           TD(e.getKey()),
           TD(e.getValue().getProgramIds().stream()
             .map(content::getProgram)

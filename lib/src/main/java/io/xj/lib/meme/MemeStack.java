@@ -99,4 +99,12 @@ public class MemeStack {
     // meme categories https://www.pivotaltracker.com/story/show/181801646
     return taxonomy.isAllowed(targets);
   }
+
+  /**
+   Constellations report https://www.pivotaltracker.com/story/show/182861489
+   @return normalized string representation of an unordered set of memes
+   */
+  public String getConstellation() {
+    return Isometry.of(memes).getConstellation();
+  }
 }

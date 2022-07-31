@@ -227,6 +227,18 @@ public class HubContent {
   }
 
   /**
+   Get memes of instrument
+
+   @param instrumentId to get memes for
+   @return memes of instrument
+   */
+  public Collection<InstrumentMeme> getInstrumentMemes(UUID instrumentId) {
+    return getAll(InstrumentMeme.class).stream()
+      .filter(m -> instrumentId.equals(m.getInstrumentId()))
+      .collect(Collectors.toList());
+  }
+
+  /**
    get all cached Instruments
 
    @return cached Instruments
@@ -456,12 +468,32 @@ public class HubContent {
   }
 
   /**
+   Get all sequence bindings for the given program
+
+   @param programId for which to get bindings
+   @return sequence bindings
+   */
+  public Collection<ProgramSequenceBinding> getSequenceBindingsForProgram(UUID programId) {
+    return getAll(ProgramSequenceBinding.class).stream().filter(b -> programId.equals(b.getProgramId())).collect(Collectors.toSet());
+  }
+
+  /**
    get all cached ProgramSequenceBindingMemes
 
    @return cached ProgramSequenceBindingMemes
    */
   public Collection<ProgramSequenceBindingMeme> getProgramSequenceBindingMemes() {
     return getAll(ProgramSequenceBindingMeme.class);
+  }
+
+  /**
+   Get memes for sequence binding
+
+   @param programSequenceBindingId for which to get memes
+   @return memes for sequence bindings
+   */
+  public Collection<ProgramSequenceBindingMeme> getMemesForSequenceBinding(UUID programSequenceBindingId) {
+    return getAll(ProgramSequenceBindingMeme.class).stream().filter(b -> programSequenceBindingId.equals(b.getProgramSequenceBindingId())).collect(Collectors.toSet());
   }
 
   /**
@@ -786,6 +818,5 @@ public class HubContent {
     return getInstruments().stream()
       .anyMatch(instrument -> type.equals(instrument.getType()) && mode.equals(instrument.getMode()));
   }
-
 
 }
