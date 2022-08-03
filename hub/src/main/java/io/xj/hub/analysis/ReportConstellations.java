@@ -6,6 +6,7 @@ import com.google.common.collect.Streams;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.client.HubClientException;
 import io.xj.hub.client.HubContent;
+import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Program;
@@ -16,6 +17,7 @@ import io.xj.lib.meme.MemeStack;
 import io.xj.lib.meme.MemeTaxonomy;
 import io.xj.lib.util.ValueException;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -33,7 +35,7 @@ public class ReportConstellations extends Report {
   private final Histogram mainHistogram;
   private final Histogram beatProgramHistogram;
   private final Histogram detailProgramHistogram;
-  private final Histogram instrumentHistogram;
+  private final Map<InstrumentType, Histogram> instrumentHistogram;
   private final MemeTaxonomy taxonomy;
 
   public ReportConstellations(HubContent content, Environment env) throws HubClientException, ValueException {
@@ -75,7 +77,7 @@ public class ReportConstellations extends Report {
     // 3. For each main constellation, compute all possible programs and instruments that might be chosen to fulfill the meme stack and display them all in a table
     beatProgramHistogram = new Histogram();
     detailProgramHistogram = new Histogram();
-    instrumentHistogram = new Histogram();
+    instrumentHistogram = Maps.newHashMap();
     for (var mainConstellation : mainHistogram.histogram.keySet()) {
       stack = MemeStack.from(taxonomy, MemeConstellation.toNames(mainConstellation));
       //
@@ -91,10 +93,14 @@ public class ReportConstellations extends Report {
           detailProgramHistogram.addId(stack.getConstellation(), detailProgram.getId());
       }
       //
-      for (var instrument : content.getInstruments()) {
-        memeNames = Entities.namesOf(content.getInstrumentMemes(instrument.getId()));
-        if (stack.isAllowed(memeNames))
-          instrumentHistogram.addId(stack.getConstellation(), instrument.getId());
+      for (var instrumentType : InstrumentType.values()) {
+        if (!instrumentHistogram.containsKey(instrumentType))
+          instrumentHistogram.put(instrumentType, new Histogram());
+        for (var instrument : content.getInstruments().stream().filter(instrument -> instrumentType.equals(instrument.getType())).collect(Collectors.toSet())) {
+          memeNames = Entities.namesOf(content.getInstrumentMemes(instrument.getId()));
+          if (stack.isAllowed(memeNames))
+            instrumentHistogram.get(instrumentType).addId(stack.getConstellation(), instrument.getId());
+        }
       }
     }
   }
@@ -142,7 +148,8 @@ public class ReportConstellations extends Report {
 
   private String renderMainContentHTML() {
     return H1("Main", "main_programs") +
-      TABLE(TR(true, TD("Memes"), TD("Main-Programs"), TD("Beat-Programs"), TD("Detail-Programs"), TD("Instruments")),
+      TABLE(TR(true, TD("Memes"), TD("Main-Programs"), TD("Beat-Programs"), TD("Detail-Programs"),
+          Arrays.stream(InstrumentType.values()).map(instrumentType -> TD(String.format("%s Instruments", instrumentType))).collect(Collectors.joining())),
         mainHistogram.histogram.entrySet().stream()
           .sorted(Map.Entry.comparingByKey())
           .map(c -> TR(
@@ -165,13 +172,16 @@ public class ReportConstellations extends Report {
               .sorted(Comparator.comparing(Program::getName))
               .map(this::programRef)
               .collect(Collectors.joining("\n"))),
-            TD(instrumentHistogram.getIds(c.getKey()).stream()
-              .map(content::getInstrument)
-              .map(Optional::orElseThrow)
-              .sorted(Comparator.comparing(Instrument::getName))
-              .map(this::instrumentRef)
-              .collect(Collectors.joining("\n")))
-          ))
+            Arrays.stream(InstrumentType.values()).map(instrumentType ->
+              TD(
+                instrumentHistogram.get(instrumentType).getIds(c.getKey()).stream()
+                  .map(content::getInstrument)
+                  .map(Optional::orElseThrow)
+                  .sorted(Comparator.comparing(Instrument::getName))
+                  .map(this::instrumentRef)
+                  .collect(Collectors.joining("\n"))
+              )
+            ).collect(Collectors.joining())))
           .collect(Collectors.joining()));
   }
 

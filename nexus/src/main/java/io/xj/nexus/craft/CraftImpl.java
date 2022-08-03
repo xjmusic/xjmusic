@@ -1048,7 +1048,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   protected Optional<Instrument> chooseFreshInstrument(Collection<InstrumentType> types, Collection<InstrumentMode> modes, Collection<UUID> avoidIds, @Nullable String continueVoiceName, Collection<String> requireEventNames) throws NexusException {
     var bag = MarbleBag.empty();
 
-    // (2) retrieve instruments bound to chain
+    // Retrieve instruments bound to chain
     Collection<Instrument> candidates =
       fabricator.sourceMaterial().getInstruments(types, modes)
         .stream()
@@ -1056,7 +1056,7 @@ public class CraftImpl extends FabricationWrapperImpl {
         .filter(i -> instrumentContainsAudioEventsLike(i, requireEventNames))
         .toList();
 
-    // (3) score each source instrument based on meme isometry
+    // Retrieve meme isometry of segment
     MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
     Collection<String> memes;
 

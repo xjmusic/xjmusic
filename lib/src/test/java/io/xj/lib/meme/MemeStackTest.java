@@ -108,6 +108,13 @@ public class MemeStackTest {
     assertFalse(MemeStack.from(taxonomy, List.of("CHICAGO", "DENVER", "ORANGES")).isValid());
   }
 
+  @Test
+  public void memeCategories_allowAlreadyPresentFromTaxonomy() {
+    var taxonomy = MemeTaxonomy.fromString("CITY[ABERDEEN,NAGOYA]");
+
+    assertTrue(MemeStack.from(taxonomy, List.of("ABERDEEN")).isAllowed(List.of("ABERDEEN")));
+  }
+
   /**
    Refuse to make a choice that violates the meme stack https://www.pivotaltracker.com/story/show/181466514
    */

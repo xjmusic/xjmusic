@@ -6,6 +6,7 @@ import io.xj.lib.util.Text;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -170,7 +171,8 @@ public class MemeTaxonomy {
     }
 
     public boolean isAllowed(List<String> targets) {
-      return 1 >= targets.stream()
+      return 1 >= new HashSet<>(targets)
+        .stream()
         .filter(memes::contains)
         .count();
     }

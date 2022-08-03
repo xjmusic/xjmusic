@@ -93,4 +93,10 @@ public class MemeTaxonomyTest {
     assertFalse(MemeTaxonomy.fromString("COLOR[RED,GREEN,BLUE];SIZE[LARGE,MEDIUM,SMALL]").isAllowed(List.of("GREEN", "MEDIUM", "PEACHES", "SMALL")));
   }
 
+  @Test
+  public void isAllowed_alreadyPresentFromTaxonomy() {
+    assertTrue(MemeTaxonomy.fromString("CITY[ABERDEEN,NAGOYA]").isAllowed(List.of("ABERDEEN","ABERDEEN")));
+  }
+
+
 }
