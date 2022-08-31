@@ -1,15 +1,39 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.music;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.util.Modules;
+import io.xj.lib.app.Environment;
+import io.xj.lib.json.JsonModule;
+import io.xj.lib.json.JsonProvider;
+import org.junit.Before;
 import org.junit.Test;
 
 import javax.annotation.Nullable;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
 public class NoteTest {
+  private JsonProvider jsonProvider;
+
+  @Before
+  public void setUp() throws Exception {
+    var env = Environment.getDefault();
+    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new JsonModule())).with(new AbstractModule() {
+      @Override
+      protected void configure() {
+        bind(Environment.class).toInstance(env);
+      }
+    }));
+    jsonProvider = injector.getInstance(JsonProvider.class);
+  }
 
   public static void assertNote(String expect, @Nullable Note actual) {
     assertNotNull(actual);
@@ -253,4 +277,18 @@ public class NoteTest {
     assertEquals(PitchClass.None, Note.of("X").nextDown(PitchClass.C).getPitchClass());
     assertNote("C4", Note.of("D4").nextDown(PitchClass.C));
   }
+
+  /**
+   Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
+   */
+  @Test
+  public void jsonSerDes() throws JsonProcessingException {
+    var expect = Note.of("C5");
+
+    var json = jsonProvider.getMapper().writeValueAsString(expect);
+    var actual = jsonProvider.getMapper().readValue(json, Note.class);
+
+    assertTrue(expect.sameAs(actual));
+  }
+
 }

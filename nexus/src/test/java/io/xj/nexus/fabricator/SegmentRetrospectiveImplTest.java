@@ -2,22 +2,31 @@
 
 package io.xj.nexus.fabricator;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Streams;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
-import io.xj.nexus.model.*;
 import io.xj.hub.HubTopology;
+import io.xj.hub.client.HubClient;
+import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.json.JsonProvider;
+import io.xj.lib.music.StickyBun;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
-import io.xj.hub.client.HubClient;
-import io.xj.hub.client.HubContent;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.ChainType;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.Chains;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.Segments;
@@ -29,10 +38,12 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Instant;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentMeta;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
@@ -40,9 +51,10 @@ import static org.junit.Assert.assertTrue;
 @RunWith(MockitoJUnitRunner.class)
 public class SegmentRetrospectiveImplTest {
   static int SEQUENCE_TOTAL_BEATS = 64;
-
+  private final UUID patternId = UUID.randomUUID();
   @Mock
   public HubClient hubClient;
+  private JsonProvider jsonProvider;
   private FabricatorFactory fabricatorFactory;
   private HubContent sourceMaterial;
   private NexusEntityStore store;
@@ -64,6 +76,7 @@ public class SegmentRetrospectiveImplTest {
         }
       }));
     fabricatorFactory = injector.getInstance(FabricatorFactory.class);
+    jsonProvider = injector.getInstance(JsonProvider.class);
     var entityFactory = injector.getInstance(EntityFactory.class);
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
@@ -165,5 +178,19 @@ public class SegmentRetrospectiveImplTest {
     assertEquals("Retrospective sees no main choice!", e.getMessage());
   }
 
+  /**
+   Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
+   */
+  @Test
+  public void getPreviousMeta() throws NexusException, FabricationFatalException, JsonProcessingException {
+    var bun = new StickyBun(patternId, 1);
+    var json = jsonProvider.getMapper().writeValueAsString(bun);
+    store.put(buildSegmentMeta(segment3, "StickyBun_0f650ae7-42b7-4023-816d-168759f37d2e", json));
+    var subject = fabricatorFactory.loadRetrospective(segment4, sourceMaterial);
 
+    var result = subject.getPreviousMeta("StickyBun_0f650ae7-42b7-4023-816d-168759f37d2e");
+
+    assertTrue(result.isPresent());
+    assertEquals(json, result.get().getValue());
+  }
 }

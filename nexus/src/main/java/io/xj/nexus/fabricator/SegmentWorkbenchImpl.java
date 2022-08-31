@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import io.xj.hub.access.HubAccessTokenAuthFilter;
 import io.xj.nexus.model.*;
 import io.xj.hub.enums.ProgramType;
 import io.xj.lib.entity.Entities;
@@ -16,11 +17,14 @@ import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.Text;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.persistence.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 class SegmentWorkbenchImpl implements SegmentWorkbench {
+  private final Logger LOG = LoggerFactory.getLogger(SegmentWorkbenchImpl.class);
   private final Chain chain;
   private final SegmentManager segmentManager;
   private final JsonapiPayloadFactory jsonapiPayloadFactory;
@@ -89,6 +93,11 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   }
 
   @Override
+  public Collection<SegmentMeta> getSegmentMetas() {
+    return benchStore.getAll(SegmentMeta.class);
+  }
+
+  @Override
   public Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks() {
     return benchStore.getAll(SegmentChoiceArrangementPick.class);
   }
@@ -117,6 +126,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
 
       segmentManager.createAllSubEntities(benchStore.getAll(SegmentMeme.class));
       segmentManager.createAllSubEntities(benchStore.getAll(SegmentMessage.class));
+      segmentManager.createAllSubEntities(benchStore.getAll(SegmentMeta.class));
       segmentManager.createAllSubEntities(benchStore.getAll(SegmentChord.class));
       segmentManager.createAllSubEntities(benchStore.getAll(SegmentChordVoicing.class));
       segmentManager.createAllSubEntities(benchStore.getAll(SegmentChoice.class));
@@ -151,7 +161,10 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   public <N> N put(N entity) throws NexusException {
     try {
       // Segment shouldn't have two of the same meme https://www.pivotaltracker.com/story/show/179078453
-      if (SegmentMeme.class.equals(entity.getClass()) && alreadyHasMeme((SegmentMeme) entity)) return entity;
+      if (entity instanceof SegmentMeme && alreadyHasMeme((SegmentMeme) entity)) return entity;
+
+      // Segment meta overwrites existing meta with same key https://www.pivotaltracker.com/story/show/183135787
+      else if (entity instanceof SegmentMeta) destroyExistingMeta(((SegmentMeta) entity).getKey());
 
       return benchStore.put(entity);
     } catch (EntityStoreException e) {
@@ -160,12 +173,19 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   }
 
   @Override
-  public <N> void delete(N entity) throws NexusException {
+  public <N> void delete(N entity){
     try {
       benchStore.delete(entity.getClass(), Entities.getId(entity));
     } catch (EntityException e) {
-      throw new NexusException(e);
+      LOG.error("Failed to delete {}", entity);
     }
+  }
+
+  @Override
+  public Optional<SegmentMeta> getSegmentMeta(String key) {
+    return benchStore.getAll(SegmentMeta.class)
+      .stream().filter(meta -> Objects.equals(key, meta.getKey()))
+      .findAny();
   }
 
   /**
@@ -191,5 +211,14 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   private boolean alreadyHasMeme(SegmentMeme meme) {
     var name = Text.toMeme(meme.getName());
     return getSegmentMemes().stream().anyMatch(existing -> existing.getName().equals(name));
+  }
+
+  /**
+   Segment meta overwrites existing meta with same key https://www.pivotaltracker.com/story/show/183135787
+
+   @param key for which to erase all metas
+   */
+  private void destroyExistingMeta(String key) {
+    getSegmentMetas().stream().filter(meta -> Objects.equals(key, meta.getKey())).forEach(this::delete);
   }
 }

@@ -7,6 +7,28 @@ import com.google.common.collect.Streams;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
+import io.xj.hub.HubTopology;
+import io.xj.hub.client.HubClient;
+import io.xj.hub.client.HubClientException;
+import io.xj.hub.client.HubClientModule;
+import io.xj.hub.client.HubContent;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.tables.pojos.Template;
+import io.xj.lib.app.Environment;
+import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.filestore.FileStoreModule;
+import io.xj.lib.json.JsonProvider;
+import io.xj.lib.jsonapi.JsonapiModule;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.mixer.MixerModule;
+import io.xj.lib.music.Chord;
+import io.xj.lib.music.Note;
+import io.xj.lib.music.StickyBun;
+import io.xj.lib.music.Tuning;
+import io.xj.nexus.NexusException;
+import io.xj.nexus.NexusIntegrationTestingFixtures;
+import io.xj.nexus.NexusTopology;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
 import io.xj.nexus.model.Segment;
@@ -16,28 +38,6 @@ import io.xj.nexus.model.SegmentChoiceArrangementPick;
 import io.xj.nexus.model.SegmentMeme;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
-import io.xj.hub.HubTopology;
-import io.xj.hub.client.HubClient;
-import io.xj.hub.client.HubClientException;
-import io.xj.hub.client.HubClientModule;
-import io.xj.hub.client.HubContent;
-import io.xj.hub.enums.InstrumentMode;
-import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramState;
-import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.Template;
-import io.xj.lib.app.Environment;
-import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.filestore.FileStoreModule;
-import io.xj.lib.jsonapi.JsonapiModule;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.mixer.MixerModule;
-import io.xj.lib.music.Chord;
-import io.xj.lib.music.Note;
-import io.xj.lib.music.Tuning;
-import io.xj.nexus.NexusException;
-import io.xj.nexus.NexusIntegrationTestingFixtures;
-import io.xj.nexus.NexusTopology;
 import io.xj.nexus.persistence.ChainManager;
 import io.xj.nexus.persistence.Chains;
 import io.xj.nexus.persistence.ManagerExistenceException;
@@ -59,7 +59,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -68,14 +67,8 @@ import java.util.stream.Stream;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.IntegrationTestingFixtures.buildEvent;
-import static io.xj.hub.IntegrationTestingFixtures.buildInstrument;
-import static io.xj.hub.IntegrationTestingFixtures.buildInstrumentAudio;
-import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
 import static io.xj.hub.IntegrationTestingFixtures.buildPattern;
 import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceBinding;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceChord;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceChordVoicing;
 import static io.xj.hub.IntegrationTestingFixtures.buildSequence;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplateBinding;
@@ -89,13 +82,11 @@ import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoiceArrangement;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoiceArrangementPick;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChord;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChordVoicing;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -124,6 +115,8 @@ public class FabricatorImplTest {
   public SegmentManager mockSegmentManager;
   @Mock
   public JsonapiPayloadFactory mockJsonapiPayloadFactory;
+  @Mock
+  public JsonProvider mockJsonProvider;
   @Captor
   ArgumentCaptor<Object> entityCaptor;
   private FabricatorImpl subject;
@@ -164,7 +157,7 @@ public class FabricatorImplTest {
     when(mockFabricatorFactory.setupWorkbench(any(), any())).thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, mockJsonProvider);
   }
 
   /**
@@ -183,7 +176,7 @@ public class FabricatorImplTest {
     when(mockFabricatorFactory.setupWorkbench(any(), any())).thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, mockJsonProvider);
 
     double result = subject.getAudioVolume(pick); // instantiates a time computer; see expectation above
 
@@ -206,7 +199,7 @@ public class FabricatorImplTest {
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockSegmentWorkbench.getSegmentChoiceArrangementPicks()).thenReturn(ImmutableList.of(beatPick));
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, mockJsonProvider);
 
     Collection<SegmentChoiceArrangementPick> result = subject.getPicks();
 
@@ -233,7 +226,7 @@ public class FabricatorImplTest {
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockSegmentWorkbench.getChoiceOfType(ProgramType.Main)).thenReturn(Optional.of(mainChoice));
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, mockJsonProvider);
 
     Set<InstrumentType> result = subject.getDistinctChordVoicingTypes();
 
@@ -259,7 +252,7 @@ public class FabricatorImplTest {
     when(mockRetrospective.getPreviousChoiceOfType(ProgramType.Main)).thenReturn(Optional.of(previousMainChoice));
     when(mockRetrospective.getPreviousChoiceOfType(ProgramType.Macro)).thenReturn(Optional.of(previousMacroChoice));
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, mockJsonProvider);
 
     var result = subject.getType();
 
@@ -281,7 +274,7 @@ public class FabricatorImplTest {
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockRetrospective.getPreviousChoiceOfType(ProgramType.Macro)).thenReturn(Optional.of(previousMacroChoice));
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, mockJsonProvider);
 
     var result = subject.getMemeIsometryOfNextSequenceInPreviousMacro();
 
@@ -297,7 +290,7 @@ public class FabricatorImplTest {
     when(mockSegmentWorkbench.getSegmentChords()).thenReturn(ImmutableList.of(buildSegmentChord(segment, 0.0, "C"), buildSegmentChord(segment, 2.0, "F"), buildSegmentChord(segment, 5.5, "Gm")));
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, mockJsonProvider);
 
     assertEquals("C", subject.getChordAt(0).orElseThrow().getName());
     assertEquals("C", subject.getChordAt(1).orElseThrow().getName());
@@ -323,7 +316,7 @@ public class FabricatorImplTest {
     var sequence = buildSequence(program, 4);
     var pattern = buildPattern(sequence, voice, 4);
     sourceMaterial = new HubContent(ImmutableList.of(program, voice, track, sequence, pattern, fake.template1, fake.templateBinding1, buildEvent(pattern, track, 0.0f, 1.0f, "C1"), buildEvent(pattern, track, 1.0f, 1.0f, "D2")));
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, mockJsonProvider);
 
     var result = subject.getProgramRange(program.getId(), InstrumentType.Bass);
 
@@ -345,7 +338,7 @@ public class FabricatorImplTest {
     var sequence = buildSequence(program, 4);
     var pattern = buildPattern(sequence, voice, 4);
     sourceMaterial = new HubContent(ImmutableList.of(program, voice, track, sequence, pattern, buildEvent(pattern, track, 0.0f, 1.0f, "C1"), buildEvent(pattern, track, 1.0f, 1.0f, "X"), buildEvent(pattern, track, 2.0f, 1.0f, "D2"), fake.template1, fake.templateBinding1));
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, mockJsonProvider);
 
     var result = subject.getProgramRange(program.getId(), InstrumentType.Bass);
 
@@ -365,7 +358,7 @@ public class FabricatorImplTest {
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
     sourceMaterial = new HubContent(ImmutableList.of(fake.program5_sequence0, fake.template1, fake.templateBinding1));
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, mockJsonProvider);
 
     var result = subject.getProgramSequence(choice);
 
@@ -384,23 +377,11 @@ public class FabricatorImplTest {
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
     sourceMaterial = new HubContent(ImmutableList.of(fake.program5_sequence0, fake.program5_sequence0_binding0, fake.template1, fake.templateBinding1));
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, mockJsonProvider);
 
     var result = subject.getProgramSequence(choice);
 
     assertEquals(fake.program5_sequence0.getId(), result.orElseThrow().getId());
-  }
-
-  /**
-   Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822 persisted for each randomly selected note in the series for any given pattern
-   - key on program-sequence-pattern-event id, persisting only the first value seen for any given event
-   - super-key on program-sequence-pattern id, measuring delta from the first event seen in that pattern
-   */
-  @Test
-  public void addStickyBun() {
-    subject.putStickyBun(fake.program35_sequence0_pattern0_event0.getId(), Note.of("C3"), 0.0, List.of(Note.of("C3"), Note.of("G3"), Note.of("F3")));
-
-    assertEquals(List.of(0, 7, 5), subject.getStickyBun(fake.program35_sequence0_pattern0.getId()).orElseThrow().getOffsets(fake.program35_sequence0_pattern0_event0.getId()));
   }
 
   /**
@@ -409,115 +390,6 @@ public class FabricatorImplTest {
   @Test
   public void getRootNote() {
     assertNote("C4", subject.getRootNoteMidRange("C3,E3,G3,A#3,C4,E4,G4", Chord.of("Cm")).orElseThrow());
-  }
-
-
-  /**
-   This test confirms XJ can assemble a Sticky bun based on the previous segment's picks.
-   <p>
-   Resolve: Sticky bun note choices should persist into following segments
-   https://www.pivotaltracker.com/story/show/182132467
-   First attempt, I was unable to creat a failing test from a simple use case.
-   Second attempt, I focused on testing that the first rendition of any given sticky bun is never overwritten
-   <p>
-   Digest sticky bun events from previous segment
-   Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822
-   <p>
-   For each instrument type:
-   + For each note in the series of picks for this instrument type:
-   --+ if this is the first pick for this instrument type, record the first note
-   --+ if this is a subsequent note in the series, record it's # semitones from first note
-   */
-  @Test
-  public void persistStickyBuns() throws NexusException, ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, HubClientException, FabricationFatalException {
-    // fixtures: source material
-    var account1 = buildAccount("Test Account");
-    var library1 = buildLibrary(account1, "Test Library");
-    var mp = buildProgram(library1, ProgramType.Main, ProgramState.Published, "Test Main Program", "C", 60.0f, 1.0f);
-    var mpVoice = buildVoice(mp, InstrumentType.Pad);
-    var mpSequence = buildSequence(mp, 4);
-    var mpSequenceBinding0 = buildProgramSequenceBinding(mpSequence, 0);
-    var mpSequenceBinding1 = buildProgramSequenceBinding(mpSequence, 1);
-    var mpSequenceChord = buildProgramSequenceChord(mpSequence, 0.0, "C");
-    var mpSequenceChordVoicing = buildProgramSequenceChordVoicing(mpSequenceChord, mpVoice, "C1,D1,E1,F1");
-    var dp = buildProgram(library1, ProgramType.Detail, ProgramState.Published, "Test Detail Program", "C", 60.0f, 1.0f);
-    var dpVoice = buildVoice(dp, InstrumentType.Pad);
-    var dpTrack = buildTrack(dpVoice);
-    var dpSequence = buildSequence(dp, 4);
-    var dpPattern = buildPattern(dpSequence, dpVoice, 4);
-    var dpEvent1 = buildEvent(dpPattern, dpTrack, 0.0f, 1.0f, "X");
-    var dpEvent2 = buildEvent(dpPattern, dpTrack, 1.0f, 1.0f, "X");
-    var dpEvent3 = buildEvent(dpPattern, dpTrack, 2.0f, 1.0f, "X");
-    var dpEvent4 = buildEvent(dpPattern, dpTrack, 3.0f, 1.0f, "X");
-    var pad = buildInstrument(InstrumentType.Pad, InstrumentMode.Event, true, true);
-    var padAudioC1 = buildInstrumentAudio(pad, "C1", "pad-c1.wav", 0.0f, 1.0f, 60.0f);
-    var padAudioD1 = buildInstrumentAudio(pad, "D1", "pad-d1.wav", 0.0f, 1.0f, 60.0f);
-    var padAudioE1 = buildInstrumentAudio(pad, "E1", "pad-e1.wav", 0.0f, 1.0f, 60.0f);
-    var padAudioF1 = buildInstrumentAudio(pad, "F1", "pad-f1.wav", 0.0f, 1.0f, 60.0f);
-    var template1 = buildTemplate(account1, "Test Template", "testing", "stickyBunEnabled = true");
-    var templateBinding1 = buildTemplateBinding(template1, library1);
-    sourceMaterial = new HubContent(ImmutableList.of(library1, mp, mpVoice, mpSequence, mpSequenceBinding0, mpSequenceBinding1, mpSequenceChord, mpSequenceChordVoicing, dp, dpVoice, dpTrack, dpSequence, dpPattern, dpEvent1, dpEvent2, dpEvent3, dpEvent4, pad, padAudioC1, padAudioD1, padAudioE1, padAudioF1, template1, templateBinding1));
-    // fixtures: chain fabrication
-    var chain = store.put(buildChain(account1, template1, "Test Chain", ChainType.PRODUCTION, ChainState.FABRICATE, Instant.parse("2017-12-12T01:00:08.000000Z")));
-    // 2 segments prior
-    var seg0 = store.put(buildSegment(chain,SegmentType.INITIAL,0,0,SegmentState.DUBBED,Instant.parse("2017-12-12T01:00:04.000000Z"), Instant.parse("2017-12-12T01:00:10.000000Z"), "G major", 4, 0.6, 60.0, "seg023", "ogg"));
-    var seg0Chord1 = store.put(buildSegmentChord(seg0, 0.0, "C"));
-    var seg0Chord1Voicing = store.put(buildSegmentChordVoicing(seg0Chord1, InstrumentType.Pad, "C1,D1,E1,F1"));
-    var seg0Choice = store.put(buildSegmentChoice(seg0, dp));
-    var seg0Arr1 = store.put(buildSegmentChoiceArrangement(seg0Choice));
-    var seg0Arr1PickC1 = store.put(buildSegmentChoiceArrangementPick(seg0Arr1, dpEvent1, padAudioC1, "C1", 0.0));
-    var seg0Arr1PickD1 = store.put(buildSegmentChoiceArrangementPick(seg0Arr1, dpEvent2, padAudioD1, "D1", 0.0));
-    var seg0Arr1PickE1 = store.put(buildSegmentChoiceArrangementPick(seg0Arr1, dpEvent3, padAudioE1, "E1", 0.0));
-    var seg0Arr1PickF1 = store.put(buildSegmentChoiceArrangementPick(seg0Arr1, dpEvent4, padAudioF1, "F1", 0.0));
-    // 1 segment prior
-    var seg1 = store.put(buildSegment(chain, SegmentType.CONTINUE,1, 4, SegmentState.DUBBED, Instant.parse("2017-12-12T01:00:10.000000Z"), Instant.parse("2017-12-12T01:00:16.000000Z"), "G major", 4, 0.6, 60.0, "seg123", "ogg"));
-    var seg1Chord1 = store.put(buildSegmentChord(seg1, 0.0, "C"));
-    var seg1Chord1Voicing = store.put(buildSegmentChordVoicing(seg1Chord1, InstrumentType.Pad, "C1,D1,E1,F1"));
-    var seg1Choice = store.put(buildSegmentChoice(seg1, dp));
-    var seg1Arr1 = store.put(buildSegmentChoiceArrangement(seg1Choice));
-    var seg1Arr1PickC1 = store.put(buildSegmentChoiceArrangementPick(seg1Arr1, dpEvent1, padAudioC1, "D1", 0.0));
-    var seg1Arr1PickD1 = store.put(buildSegmentChoiceArrangementPick(seg1Arr1, dpEvent2, padAudioD1, "D1", 0.0));
-    var seg1Arr1PickE1 = store.put(buildSegmentChoiceArrangementPick(seg1Arr1, dpEvent3, padAudioE1, "D1", 0.0));
-    var seg1Arr1PickF1 = store.put(buildSegmentChoiceArrangementPick(seg1Arr1, dpEvent4, padAudioF1, "D1", 0.0));
-    var seg2 = store.put(buildSegment(chain, SegmentType.CONTINUE, 2, 8, SegmentState.CRAFTING, Instant.parse("2017-12-12T01:00:16.000000Z"), Instant.parse("2017-12-12T01:00:22.000000Z"), "G major", 4, 0.6, 60.0, "seg123", "ogg"));
-    var seg2Chord = store.put(buildSegmentChord(seg2, 0.0, "C"));
-    store.put(buildSegmentChordVoicing(seg2Chord, InstrumentType.Pad, "C1,D1,E1,F1"));
-    // mocks
-    when(mockFabricatorFactory.loadRetrospective(any(), any())).thenReturn(mockRetrospective);
-    when(mockFabricatorFactory.setupWorkbench(any(), any())).thenReturn(mockSegmentWorkbench);
-    when(mockSegmentWorkbench.getSegment()).thenReturn(seg2);
-    when(mockRetrospective.getPicks()).thenReturn(List.of(
-      seg0Arr1PickC1, seg0Arr1PickD1, seg0Arr1PickE1, seg0Arr1PickF1,
-      seg1Arr1PickC1, seg1Arr1PickD1, seg1Arr1PickE1, seg1Arr1PickF1
-      ));
-    when(mockRetrospective.getChord(same(seg0Arr1PickC1))).thenReturn(Optional.of(seg0Chord1));
-    when(mockRetrospective.getChord(same(seg0Arr1PickD1))).thenReturn(Optional.of(seg0Chord1));
-    when(mockRetrospective.getChord(same(seg0Arr1PickE1))).thenReturn(Optional.of(seg0Chord1));
-    when(mockRetrospective.getChord(same(seg0Arr1PickF1))).thenReturn(Optional.of(seg0Chord1));
-    when(mockRetrospective.getInstrumentType(same(seg0Arr1PickC1))).thenReturn(InstrumentType.Pad);
-    when(mockRetrospective.getInstrumentType(same(seg0Arr1PickD1))).thenReturn(InstrumentType.Pad);
-    when(mockRetrospective.getInstrumentType(same(seg0Arr1PickE1))).thenReturn(InstrumentType.Pad);
-    when(mockRetrospective.getInstrumentType(same(seg0Arr1PickF1))).thenReturn(InstrumentType.Pad);
-    when(mockRetrospective.getSegmentChordVoicing(eq(Objects.requireNonNull(seg0Chord1).getId()), eq(InstrumentType.Pad))).thenReturn(Optional.ofNullable(seg0Chord1Voicing));
-    when(mockRetrospective.getChord(same(seg1Arr1PickC1))).thenReturn(Optional.of(seg1Chord1));
-    when(mockRetrospective.getChord(same(seg1Arr1PickD1))).thenReturn(Optional.of(seg1Chord1));
-    when(mockRetrospective.getChord(same(seg1Arr1PickE1))).thenReturn(Optional.of(seg1Chord1));
-    when(mockRetrospective.getChord(same(seg1Arr1PickF1))).thenReturn(Optional.of(seg1Chord1));
-    when(mockRetrospective.getInstrumentType(same(seg1Arr1PickC1))).thenReturn(InstrumentType.Pad);
-    when(mockRetrospective.getInstrumentType(same(seg1Arr1PickD1))).thenReturn(InstrumentType.Pad);
-    when(mockRetrospective.getInstrumentType(same(seg1Arr1PickE1))).thenReturn(InstrumentType.Pad);
-    when(mockRetrospective.getInstrumentType(same(seg1Arr1PickF1))).thenReturn(InstrumentType.Pad);
-    when(mockRetrospective.getSegmentChordVoicing(eq(Objects.requireNonNull(seg1Chord1).getId()), eq(InstrumentType.Pad))).thenReturn(Optional.ofNullable(seg1Chord1Voicing));
-    when(mockChainManager.readOne(eq(seg2.getChainId()))).thenReturn(chain);
-
-    subject = new FabricatorImpl(sourceMaterial, seg2, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory);
-
-    var result = subject.getStickyBun(dpPattern.getId()).orElseThrow();
-    assertNote("C1", result.getRoot());
-    assertNote("C1", result.getMembers().get(dpEvent1.getId()).getNotes().get(0));
-    assertNote("D1", result.getMembers().get(dpEvent2.getId()).getNotes().get(0));
-    assertNote("E1", result.getMembers().get(dpEvent3.getId()).getNotes().get(0));
-    assertNote("F1", result.getMembers().get(dpEvent4.getId()).getNotes().get(0));
   }
 
   /**

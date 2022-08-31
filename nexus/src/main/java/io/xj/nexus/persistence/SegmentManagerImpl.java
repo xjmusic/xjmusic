@@ -112,6 +112,17 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   @Override
+  public SegmentMeta create(HubClientAccess access, SegmentMeta entity) throws ManagerPrivilegeException, ManagerValidationException, ManagerFatalException {
+    try {
+      validate(entity);
+      return store.put(entity);
+
+    } catch (NexusException e) {
+      throw new ManagerFatalException(e);
+    }
+  }
+
+  @Override
   public Segment readOne(UUID id) throws ManagerExistenceException, ManagerFatalException {
     try {
       return store.getSegment(id)
@@ -178,6 +189,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
         entities.addAll(store.getAll(sId, SegmentChordVoicing.class, Segment.class, segmentIds));
         entities.addAll(store.getAll(sId, SegmentMeme.class, Segment.class, segmentIds));
         entities.addAll(store.getAll(sId, SegmentMessage.class, Segment.class, segmentIds));
+        entities.addAll(store.getAll(sId, SegmentMeta.class, Segment.class, segmentIds));
         if (includePicks)
           entities.addAll(store.getAll(sId, SegmentChoiceArrangementPick.class, Segment.class, segmentIds));
       }
@@ -306,6 +318,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
       store.deleteAll(id, SegmentChord.class);
       store.deleteAll(id, SegmentMeme.class);
       store.deleteAll(id, SegmentMessage.class);
+      store.deleteAll(id, SegmentMeta.class);
 
       update(id, segment);
 
@@ -388,6 +401,8 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
         validateSegmentMeme((SegmentMeme) entity);
       else if (entity instanceof SegmentMessage)
         validateSegmentMessage((SegmentMessage) entity);
+      else if (entity instanceof SegmentMeta)
+        validateSegmentMeta((SegmentMeta) entity);
 
     } catch (ValueException e) {
       throw new ManagerValidationException(e);
@@ -398,6 +413,12 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
     Values.require(record.getSegmentId(), "Segment ID");
     Values.require(record.getType(), "Type");
     MessageEntity.validate(record);
+  }
+
+  private void validateSegmentMeta(SegmentMeta record) throws ValueException {
+    Values.require(record.getSegmentId(), "Segment ID");
+    Values.require(record.getKey(), "Key");
+    Values.require(record.getValue(), "Value");
   }
 
   private void validateSegmentMeme(SegmentMeme record) throws ValueException {

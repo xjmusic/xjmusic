@@ -63,6 +63,16 @@ public interface SegmentRetrospective {
   InstrumentType getInstrumentType(SegmentChoiceArrangementPick pick) throws NexusException;
 
   /**
+   Get the meta from the previous segment with the given key
+   <p>
+   Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
+
+   @param key to search for meta
+   @return meta if found
+   */
+  Optional<SegmentMeta> getPreviousMeta(String key);
+
+  /**
    Get the previous segment choice for the given instrument
 
    @param instrumentId for which to get choice
@@ -130,7 +140,7 @@ public interface SegmentRetrospective {
   /**
    Get the previous-segment choices of a given instrument type
 
-   @param instrumentType for which to get previous-segment choices
+   @param instrumentType  for which to get previous-segment choices
    @param instrumentModes for which to get previous-segment choices
    @return choices
    */
@@ -204,6 +214,7 @@ public interface SegmentRetrospective {
 
   /**
    Get the delta for a given segment id
+
    @param segmentId for which to get delta
    @return segment delta
    */

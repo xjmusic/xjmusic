@@ -2,191 +2,115 @@
 
 package io.xj.lib.music;
 
-import com.google.api.client.util.Maps;
-import com.google.common.collect.Lists;
+import com.google.api.client.util.Lists;
+import io.xj.lib.util.TremendouslyRandom;
 
-import javax.annotation.Nullable;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
- Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822 persisted for each randomly selected note in the series for any given pattern
- - key on program-sequence-pattern-event id, persisting only the first value seen for any given event
- - super-key on program-sequence-pattern id, measuring delta from the first event seen in that pattern
+ Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
  */
 public class StickyBun {
-  private final UUID parentId;
-  private final Note root;
-  private final Map<UUID, Member> members;
-  private @Nullable
-  Double earliestPosition;
+  private static final String META_KEY_TEMPLATE = "StickyBun_%s";
+  private static final int MAX_VALUE = 99;
+  private List<Integer> values;
+  private UUID eventId;
 
   /**
-   Prepare a sticky bun for members of the given parent if
+   Prepare a sticky bun with event id and values
 
-   @param parentId id of parent
-   @param root     note
+   @param eventId to persist
+   @param size    of bun to generate
    */
-  public StickyBun(UUID parentId, Note root) {
-    this.parentId = parentId;
-    this.root = root;
-    members = Maps.newHashMap();
+  public StickyBun(UUID eventId, int size) {
+    this.eventId = eventId;
+    this.values = IntStream.rangeClosed(1, size)
+      .boxed().map(i -> TremendouslyRandom.zeroToLimit(MAX_VALUE))
+      .collect(Collectors.toList());
   }
 
   /**
-   Get the id of the parent of all members of this sticky bun
+   Prepare a sticky bun with only an event id
 
-   @return parent id
+   @param eventId to persist
    */
-  public UUID getParentId() {
-    return parentId;
+  public StickyBun(UUID eventId) {
+    this.values = List.of();
+    this.eventId = eventId;
   }
 
   /**
-   Add a note by member id. Update the earliest lowest note if qualified
+   Compute a meta key based on the given event id
+   <p>
+   Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
 
-   @param memberId id of member
-   @param position of note
-   @param note     to add
+   @return compute meta key
    */
-  public void put(UUID memberId, Double position, Note note) {
-    if (Objects.isNull(earliestPosition) || position < earliestPosition)
-      earliestPosition = position;
-
-    if (!members.containsKey(memberId))
-      members.put(memberId, new Member(memberId));
-    members.get(memberId).add(position, note);
+  public String computeMetaKey() {
+    return String.format(META_KEY_TEMPLATE, eventId.toString());
   }
 
   /**
-   Get a list of offsets (relative to earliest lowest note) for given member id
-
-   @param memberId for which to get offsets
-   @return offsets for member id
+   @return values
    */
-  public List<Integer> getOffsets(UUID memberId) {
-    if (!members.containsKey(memberId)) return List.of();
-    return members.get(memberId).getOffsetsFrom(root);
+  public List<Integer> getValues() {
+    return values;
   }
 
   /**
-   @return root note
+   set values
+
+   @param values to set
    */
-  public Note getRoot() {
-    return root;
+  public StickyBun setValues(List<Integer> values) {
+    this.values = values;
+    return this;
   }
 
   /**
-   @return members keyed by id
+   @return event id
    */
-  public Map<UUID, Member> getMembers() {
-    return members;
-  }
-
-
-  /**
-   @return earliest position
-   */
-  @Nullable
-  public Double getEarliestPosition() {
-    return earliestPosition;
+  public UUID getEventId() {
+    return eventId;
   }
 
   /**
-   Replace the atonal notes in the given list with our offsets from the given target root note
+   set event id
 
-   @param memberId to use
-   @param targetRoot   root note for interpretation of our offsets
-   @param from     list of notes from which to replace atonal notes with our offset notes
-   @return notes with atonal notes replaced
+   @param eventId to set
    */
-  public List<Note> replaceAtonal(UUID memberId, Note targetRoot, List<Note> from) {
-    var targets =
-      getOffsets(memberId).stream()
-        .map(targetRoot::shift)
-        .toList();
+  public StickyBun setEventId(UUID eventId) {
+    this.eventId = eventId;
+    return this;
+  }
 
-    List<Note> notes = Lists.newArrayList(from);
-    if (targets.isEmpty()) return notes;
+  /**
+   Replace atonal notes in the list with selections based on the sticky bun
+
+   @param source       notes to replace atonal elements
+   @param voicingNotes from which to select replacements
+   @return notes with atonal elements augmented by sticky bun
+   */
+  public List<Note> replaceAtonal(List<Note> source, List<Note> voicingNotes) {
+    var voicingRange = NoteRange.ofNotes(voicingNotes);
+    if (values.isEmpty()) return source;
+    if (voicingRange.getSpan().isEmpty()) return source;
+
+    List<Note> notes = Lists.newArrayList(source);
 
     for (var i = 0; i < notes.size(); i++)
-      if (notes.get(i).isAtonal())
-        notes.set(i, targets.get(Math.min(i, targets.size() - 1)));
+      if (notes.get(i).isAtonal()) {
+        var v = values.get(Math.min(i, values.size() - 1)) / MAX_VALUE;
+        var t = voicingRange.getLow().orElseThrow().shift(v * voicingRange.getSpan().orElseThrow());
+        var n = voicingNotes.stream().min(Comparator.comparingInt(a -> a.delta(t)));
+        if (n.isPresent())
+          notes.set(i, n.get());
+      }
 
     return notes;
-  }
-
-  /**
-   @param memberId to check for tonality
-   @return true if any of the specified member's notes are tonal
-   */
-  public boolean isTonal(UUID memberId) {
-    return members.containsKey(memberId) && !members.get(memberId).isAtonal();
-  }
-
-  /**
-   A sticky bun member is a group of notes at one position
-   */
-  public static class Member {
-    UUID id;
-    List<Note> notes;
-    @Nullable
-    Double position;
-
-    /**
-     Create a member with the given id
-
-     @param id of member
-     */
-    public Member(UUID id) {
-      this.id = id;
-    }
-
-    /**
-     @return member id
-     */
-    public UUID getId() {
-      return id;
-    }
-
-    /**
-     @return notes at earliest available position
-     */
-    public List<Note> getNotes() {
-      return notes;
-    }
-
-    /**
-     Add notes to the member at a known position
-
-     @param notePos position
-     @param note    to add
-     */
-    public void add(Double notePos, Note note) {
-      if (Objects.isNull(position) || notePos < position) {
-        position = notePos;
-        notes = Lists.newArrayList(note);
-      } else if (Objects.equals(position, notePos)) {
-        notes.add(note);
-      }
-    }
-
-    /**
-     Get the list of offsets of this member's notes from the given root
-     */
-    public List<Integer> getOffsetsFrom(Note root) {
-      return getNotes().stream()
-        .map(root::delta)
-        .toList();
-    }
-
-    /**
-     @return true if none of these notes are tonal
-     */
-    public boolean isAtonal() {
-      return notes.stream().allMatch(Note::isAtonal);
-    }
   }
 }

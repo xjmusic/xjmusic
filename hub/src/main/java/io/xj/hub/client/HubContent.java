@@ -153,12 +153,22 @@ public class HubContent {
   /**
    Get events for a given program pattern
 
-   @param programPattern to get events for
+   @param pattern to get events for
    @return events for given program pattern
    */
-  public List<ProgramSequencePatternEvent> getEvents(ProgramSequencePattern programPattern) {
+  public List<ProgramSequencePatternEvent> getEvents(ProgramSequencePattern pattern) {
+    return getEventsForPatternId(pattern.getId());
+  }
+
+  /**
+   Get events for a given program sequence pattern id
+
+   @param patternId for which to get events
+   @return events for given pattern id
+   */
+  public List<ProgramSequencePatternEvent> getEventsForPatternId(UUID patternId) {
     return getProgramSequencePatternEvents().stream()
-      .filter(m -> programPattern.getId().equals(m.getProgramSequencePatternId()))
+      .filter(m -> patternId.equals(m.getProgramSequencePatternId()))
       .sorted(Comparator.comparing(ProgramSequencePatternEvent::getPosition))
       .collect(Collectors.toList());
   }

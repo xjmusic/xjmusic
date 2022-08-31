@@ -191,6 +191,7 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
       entity instanceof SegmentChordVoicing ||
       entity instanceof SegmentChoice ||
       entity instanceof SegmentMessage ||
+      entity instanceof SegmentMeta ||
       entity instanceof SegmentChoiceArrangement ||
       entity instanceof SegmentChoiceArrangementPick)
       try {

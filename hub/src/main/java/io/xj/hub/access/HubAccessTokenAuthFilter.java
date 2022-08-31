@@ -23,7 +23,7 @@ import java.util.Objects;
 
 @Priority(Priorities.AUTHENTICATION)
 public class HubAccessTokenAuthFilter implements ContainerRequestFilter {
-  private final Logger log = LoggerFactory.getLogger(HubAccessTokenAuthFilter.class);
+  private final Logger LOG = LoggerFactory.getLogger(HubAccessTokenAuthFilter.class);
   private final String accessTokenName;
   private final HubAccessControlProvider hubAccessControlProvider;
 
@@ -123,7 +123,7 @@ public class HubAccessTokenAuthFilter implements ContainerRequestFilter {
    @param e pertaining to denial.
    */
   private void deny(ContainerRequestContext context, Exception e) {
-    log.debug("Denied {} /{} ({})", context.getRequest().getMethod(), context.getUriInfo().getPath(), e);
+    LOG.debug("Denied {} /{} ({})", context.getRequest().getMethod(), context.getUriInfo().getPath(), e);
     context.abortWith(
       Response
         .noContent()

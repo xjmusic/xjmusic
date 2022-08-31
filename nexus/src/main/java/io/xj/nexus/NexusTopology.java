@@ -54,7 +54,8 @@ public enum NexusTopology {
       .hasMany(SegmentChord.class)
       .hasMany(SegmentChordVoicing.class)
       .hasMany(SegmentMeme.class)
-      .hasMany(SegmentMessage.class);
+      .hasMany(SegmentMessage.class)
+      .hasMany(SegmentMeta.class);
 
     // SegmentChoice
     entityFactory.register(SegmentChoice.class)
@@ -123,6 +124,13 @@ public enum NexusTopology {
       .createdBy(SegmentMessage::new)
       .withAttribute("body")
       .withAttribute("type")
+      .belongsTo(Segment.class);
+
+    // SegmentMeta
+    entityFactory.register(SegmentMeta.class)
+      .createdBy(SegmentMeta::new)
+      .withAttribute("key")
+      .withAttribute("value")
       .belongsTo(Segment.class);
   }
 }

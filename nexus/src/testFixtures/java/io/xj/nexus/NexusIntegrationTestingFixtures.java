@@ -15,6 +15,7 @@ import io.xj.nexus.model.SegmentChoiceArrangementPick;
 import io.xj.nexus.model.SegmentChord;
 import io.xj.nexus.model.SegmentChordVoicing;
 import io.xj.nexus.model.SegmentMeme;
+import io.xj.nexus.model.SegmentMeta;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
 import io.xj.hub.LoremIpsum;
@@ -480,6 +481,15 @@ public class NexusIntegrationTestingFixtures {
     segmentChoice.setProgramId(program.getId());
     segmentChoice.setProgramType(program.getType().toString());
     return segmentChoice;
+  }
+
+  public static SegmentMeta buildSegmentMeta(Segment segment, String key, String value) {
+    var segmentMeta = new SegmentMeta();
+    segmentMeta.setId(UUID.randomUUID());
+    segmentMeta.setSegmentId(segment.getId());
+    segmentMeta.setKey(key);
+    segmentMeta.setValue(value);
+    return segmentMeta;
   }
 
   public static SegmentChoice buildSegmentChoice(Segment segment, Program program, ProgramSequence programSequence, ProgramVoice voice, Instrument instrument) {

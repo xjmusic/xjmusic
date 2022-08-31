@@ -7,12 +7,6 @@ import com.google.api.client.util.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
-import io.xj.nexus.model.SegmentChoice;
-import io.xj.nexus.model.SegmentChoiceArrangement;
-import io.xj.nexus.model.SegmentChoiceArrangementPick;
-import io.xj.nexus.model.SegmentChord;
-import io.xj.nexus.model.SegmentChordVoicing;
-import io.xj.nexus.model.SegmentType;
 import io.xj.hub.client.HubClientException;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
@@ -42,6 +36,12 @@ import io.xj.nexus.fabricator.FabricationWrapperImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.MemeIsometry;
 import io.xj.nexus.fabricator.NameIsometry;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangement;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.model.SegmentChord;
+import io.xj.nexus.model.SegmentChordVoicing;
+import io.xj.nexus.model.SegmentType;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -557,7 +557,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     // The final note is voiced from the chord voicing (if found) or else the default is used
     Set<String> notes = voicing.isPresent()
-      ? pickNotesForEvent(instrument.getType(), choice, event, segmentPosition, chord.get(), voicing.get(), range)
+      ? pickNotesForEvent(instrument.getType(), choice, event, chord.get(), voicing.get(), range)
       : (defaultAtonal ? Set.of(Note.ATONAL) : Set.of());
 
     // Pick attributes are expressed "rendered" as actual seconds
@@ -695,20 +695,18 @@ public class CraftImpl extends FabricationWrapperImpl {
    <p>
    https://www.pivotaltracker.com/story/show/176695166 XJ should choose correct instrument note based on detail program note
 
-   @param instrumentType  comprising audios
-   @param choice          for reference
-   @param event           of program to pick instrument note for
-   @param segmentPosition of note
-   @param segmentChord    to use for interpreting the voicing
-   @param voicing         to choose a note from
-   @param range           used to keep voicing in the tightest range possible
+   @param instrumentType comprising audios
+   @param choice         for reference
+   @param event          of program to pick instrument note for
+   @param segmentChord   to use for interpreting the voicing
+   @param voicing        to choose a note from
+   @param range          used to keep voicing in the tightest range possible
    @return note picked from the available voicing
    */
   private Set<String> pickNotesForEvent(
     InstrumentType instrumentType,
     SegmentChoice choice,
     ProgramSequencePatternEvent event,
-    Double segmentPosition,
     SegmentChord segmentChord,
     SegmentChordVoicing voicing,
     NoteRange range
@@ -728,37 +726,33 @@ public class CraftImpl extends FabricationWrapperImpl {
     var voicingNotes = fabricator.getNotes(voicing).stream()
       .flatMap(Note::ofValid)
       .collect(Collectors.toList());
-    var rootNote = fabricator.getRootNoteMidRange(voicing.getNotes(), chord);
 
     // Event notes are either computed from sticky bun or interpreted from program, potentially at random
     List<Note> eventNotes = CSV.split(event.getTones())
       .stream()
       .map(n -> Note.of(n).shift(targetShiftSemitones + 12 * targetShiftOctaves))
+      .sorted()
       .collect(Collectors.toList());
-
-    // Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822 uses this alternate path for note selection of random ("X") note events
-    var bun = fabricator.getStickyBun(event.getProgramSequencePatternId());
-    if (bun.isPresent() && bun.get().isTonal(event.getId()) && rootNote.isPresent())
-      eventNotes = bun.get().replaceAtonal(event.getId(), rootNote.get(), eventNotes);
-
     var eventDeltaSemitones = sourceRange.shifted(targetShiftSemitones).getDeltaSemitones(NoteRange.ofNotes(eventNotes));
     var eventRange = NoteRange.ofNotes(eventNotes).shifted(eventDeltaSemitones);
     if (range.isEmpty() && !eventRange.isEmpty()) range.expand(eventRange);
 
-    var notePicker = new NotePicker(range.shifted(eventDeltaSemitones), voicingNotes, eventNotes,
+    // Leverage segment meta to look up a sticky bun if it exists
+    var bun = fabricator.getStickyBun(event.getId());
+
+    // pick notes
+    var notePicker = new NotePicker(
+      range.shifted(eventDeltaSemitones),
+      voicingNotes,
+      bun.isPresent() ? bun.get().replaceAtonal(eventNotes, voicingNotes) : eventNotes,
       fabricator.getTemplateConfig().getInstrumentTypesForInversionSeeking().contains(instrumentType));
-
     notePicker.pick();
+    var notes = notePicker.getPickedNotes().stream().map(n -> n.toString(chord.getAdjSymbol())).collect(Collectors.toSet());
 
-    var notes = notePicker.getPickedNotes().stream()
-      .map(n -> n.toString(chord.getAdjSymbol())).collect(Collectors.toSet());
-
+    // persist the picked notes for chord
     fabricator.putNotesPickedForChord(event, chord.getName(), notes);
 
-    // Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822 persisted for each randomly selected note in the series for any given pattern
-    rootNote.ifPresent(note ->
-      fabricator.putStickyBun(event.getId(), note, segmentPosition, notes.stream().map(Note::of).toList()));
-
+    // outcome
     return notes;
   }
 

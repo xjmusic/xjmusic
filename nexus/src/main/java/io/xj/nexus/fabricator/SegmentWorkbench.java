@@ -72,6 +72,11 @@ public interface SegmentWorkbench {
   Collection<SegmentMessage> getSegmentMessages();
 
   /**
+   @return collection of all Meta in Segment
+   */
+  Collection<SegmentMeta> getSegmentMetas();
+
+  /**
    @return collection of all ChoiceArrangementPick in Segment
    */
   Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks();
@@ -117,6 +122,8 @@ public interface SegmentWorkbench {
   /**
    Put an Entity by type and id
 
+   Segment meta overwrites existing meta with same key https://www.pivotaltracker.com/story/show/183135787
+
    @param entity to put
    @param <N>    type of Entity
    @return entity that was added
@@ -129,8 +136,16 @@ public interface SegmentWorkbench {
 
    @param entity to remove
    @param <N>    type of Entity
-   @throws NexusException on failure
    */
-  <N> void delete(N entity) throws NexusException;
+  <N> void delete(N entity);
 
+  /**
+   Get a segment meta matching the given key
+
+   Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
+
+   @param key to search for meta
+   @return meta if found
+   */
+  Optional<SegmentMeta> getSegmentMeta(String key);
 }
