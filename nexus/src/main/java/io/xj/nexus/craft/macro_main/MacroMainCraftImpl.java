@@ -3,10 +3,10 @@ package io.xj.nexus.craft.macro_main;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.api.SegmentChoice;
-import io.xj.api.SegmentChord;
-import io.xj.api.SegmentChordVoicing;
-import io.xj.api.SegmentType;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChord;
+import io.xj.nexus.model.SegmentChordVoicing;
+import io.xj.nexus.model.SegmentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequence;

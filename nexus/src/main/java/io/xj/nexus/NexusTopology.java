@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus;
 
-import io.xj.api.*;
+import io.xj.nexus.model.*;
 import io.xj.hub.tables.pojos.*;
 import io.xj.lib.entity.EntityFactory;
 

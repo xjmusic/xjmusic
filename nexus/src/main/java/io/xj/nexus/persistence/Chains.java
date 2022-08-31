@@ -3,9 +3,9 @@
 package io.xj.nexus.persistence;
 
 import com.google.common.base.Strings;
-import io.xj.api.Chain;
-import io.xj.api.ChainType;
-import io.xj.api.Segment;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainType;
+import io.xj.nexus.model.Segment;
 import io.xj.hub.enums.ContentBindingType;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;

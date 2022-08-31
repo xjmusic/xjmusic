@@ -3,7 +3,7 @@
 package io.xj.ship.source;
 
 import com.google.inject.Guice;
-import io.xj.api.*;
+import io.xj.nexus.model.*;
 import io.xj.hub.enums.TemplateType;
 import io.xj.lib.mixer.InternalResource;
 import org.junit.Before;

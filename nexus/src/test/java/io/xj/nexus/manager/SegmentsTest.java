@@ -3,7 +3,7 @@
 package io.xj.nexus.manager;
 
 import com.google.common.collect.ImmutableList;
-import io.xj.api.*;
+import io.xj.nexus.model.*;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Template;

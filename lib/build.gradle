@@ -8,7 +8,6 @@ plugins {
   //
   id "de.undercouch.download"
   id "org.flywaydb.flyway"
-  id "org.openapi.generator"
   id "org.sonarqube"
   id 'nu.studer.jooq'
   id 'org.ajoberstar.grgit'

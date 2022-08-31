@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.fabricator;
 
-import io.xj.api.*;
+import io.xj.nexus.model.*;
 import io.xj.hub.InstrumentConfig;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.TemplateConfig;

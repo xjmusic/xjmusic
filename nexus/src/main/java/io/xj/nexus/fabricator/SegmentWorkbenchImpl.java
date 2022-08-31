@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.api.*;
+import io.xj.nexus.model.*;
 import io.xj.hub.enums.ProgramType;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;

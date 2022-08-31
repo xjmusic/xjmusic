@@ -8,7 +8,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Streams;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
-import io.xj.api.*;
+import io.xj.nexus.model.*;
 import io.xj.hub.InstrumentConfig;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.TemplateConfig;

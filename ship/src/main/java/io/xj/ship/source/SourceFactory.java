@@ -2,7 +2,7 @@
 package io.xj.ship.source;
 
 import com.google.inject.assistedinject.Assisted;
-import io.xj.api.Segment;
+import io.xj.nexus.model.Segment;
 
 /**
  Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189

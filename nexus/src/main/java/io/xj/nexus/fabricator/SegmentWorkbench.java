@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.fabricator;
 
-import io.xj.api.*;
+import io.xj.nexus.model.*;
 import io.xj.hub.enums.ProgramType;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
