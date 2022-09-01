@@ -2,7 +2,7 @@
 
 package io.xj.ship.source;
 
-import io.xj.api.Segment;
+import io.xj.nexus.model.Segment;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.mixer.FormatException;
 import io.xj.ship.ShipException;

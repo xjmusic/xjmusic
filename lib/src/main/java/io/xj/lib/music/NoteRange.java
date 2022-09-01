@@ -20,19 +20,25 @@ public class NoteRange {
   @Nullable
   Note high;
 
+  @Nullable
+  Integer span;
+
   private NoteRange() {
     low = null;
     high = null;
+    span = 0;
   }
 
   private NoteRange(@Nullable Note low, @Nullable Note high) {
     this.low = low;
     this.high = high;
+    span = Objects.nonNull(low) && Objects.nonNull(high) ? low.delta(high) : null;
   }
 
   private NoteRange(@Nullable String low, @Nullable String high) {
     this.low = Objects.nonNull(low) ? Note.of(low) : null;
     this.high = Objects.nonNull(high) ? Note.of(high) : null;
+    span = Objects.nonNull(low) && Objects.nonNull(high) ? this.low.delta(this.high) : null;
   }
 
   public static NoteRange from(@Nullable Note low, @Nullable Note high) {
@@ -78,6 +84,10 @@ public class NoteRange {
 
   public Optional<Note> getHigh() {
     return Optional.ofNullable(high);
+  }
+
+  public Optional<Integer> getSpan() {
+    return Optional.ofNullable(span);
   }
 
   public String toString(AdjSymbol adjSymbol) {

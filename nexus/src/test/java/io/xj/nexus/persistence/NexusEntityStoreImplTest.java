@@ -5,7 +5,7 @@ package io.xj.nexus.persistence;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
-import io.xj.api.*;
+import io.xj.nexus.model.*;
 import io.xj.hub.HubTopology;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Library;

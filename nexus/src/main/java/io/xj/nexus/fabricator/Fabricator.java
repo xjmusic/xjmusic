@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.fabricator;
 
-import io.xj.api.*;
+import io.xj.nexus.model.*;
 import io.xj.hub.InstrumentConfig;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.TemplateConfig;
@@ -24,35 +24,46 @@ public interface Fabricator {
 
    @param body to include in message
    */
-  void addMessage(SegmentMessageType messageType, String body) throws NexusException;
+  void addMessage(SegmentMessageType messageType, String body);
+
+  /**
+   Put a meta in the given segment, overwriting any existing with the same key
+   <p>
+   Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
+
+   @param key to write
+   @param value to write
+   @throws NexusException on failure
+   */
+  void putMeta(String key, String value) throws NexusException;
 
   /**
    Add an error message to the segment, with the given body
 
    @param body to include in message
    */
-  void addErrorMessage(String body) throws NexusException;
+  void addErrorMessage(String body);
 
   /**
    Add an warning message to the segment, with the given body
 
    @param body to include in message
    */
-  void addWarningMessage(String body) throws NexusException;
+  void addWarningMessage(String body);
 
   /**
    Add an info message to the segment, with the given body
 
    @param body to include in message
    */
-  void addInfoMessage(String body) throws NexusException;
+  void addInfoMessage(String body);
 
   /**
    Remove an Entity by type and id
 
    @param entity to delete
    */
-  <N> void delete(N entity) throws NexusException;
+  <N> void delete(N entity);
 
   /**
    Update the original Segment submitted for craft,
@@ -620,6 +631,15 @@ public interface Fabricator {
   Integer getSequenceBindingOffsetForChoice(SegmentChoice choice);
 
   /**
+   Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
+   - Sticky bun is a simple coded key-value in segment meta
+   --- key by pattern Id
+   --- value is a comma-separated list of integers, one integer for each note in the pattern, where
+   ----- tonal note is coded as a `0` value
+   ----- atonal note has a random integer value generated ranging from -50 to 50
+   - Rendering a pattern X voicing considers the sticky bun values
+   --- the random seed for rendering the pattern will always come from the associated sticky bun
+
    Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822 persisted for each randomly selected note in the series for any given pattern
    - key on program-sequence-pattern-event id, persisting only the first value seen for any given event
    - super-key on program-sequence-pattern id, measuring delta from the first event seen in that pattern
@@ -819,15 +839,6 @@ public interface Fabricator {
    @param segment to set
    */
   void putSegment(Segment segment) throws NexusException;
-
-  /**
-   Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822 persisted for each randomly selected note in the series for any given pattern
-   - key on program-sequence-pattern-event id, persisting only the first value seen for any given event
-   - super-key on program-sequence-pattern id, measuring delta from the first event seen in that pattern@param eventId  member id-- if this is null, the sticky bun will be ignored@param rootNote note of current chord@param position of note
-
-   @param notes to put
-   */
-  void putStickyBun(@Nullable UUID eventId, Note rootNote, Double position, List<Note> notes);
 
   /**
    Get the Segment Retrospective

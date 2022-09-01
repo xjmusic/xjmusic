@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.music;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.api.client.util.Strings;
 import io.xj.lib.util.CSV;
 
@@ -14,7 +15,8 @@ import java.util.stream.Stream;
  <p>
  https://en.wikipedia.org/wiki/Musical_note
  */
-public class Note {
+public class Note implements Comparable<Note> {
+  @JsonIgnore
   public static final String ATONAL = "X";
   private static final Pattern rgxValidNote = Pattern.compile("^([ABCDEFGX][♯#♭b]*[0-9]*)$");
   private static final int MAX_DELTA_SEMITONES = 1000; // this max is only for extreme-case infinite loop prevention
@@ -76,6 +78,7 @@ public class Note {
 
    @return atonal note
    */
+  @JsonIgnore
   public static Note atonal() {
     return of(Note.ATONAL);
   }
@@ -318,6 +321,7 @@ public class Note {
 
    @return true if the pitch class is none
    */
+  @JsonIgnore
   public boolean isAtonal() {
     return PitchClass.None.equals(pitchClass);
   }

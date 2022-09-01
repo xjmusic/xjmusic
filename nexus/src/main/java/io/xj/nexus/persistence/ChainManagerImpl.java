@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import io.xj.api.*;
+import io.xj.nexus.model.*;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.TemplateType;
 import io.xj.lib.app.Environment;

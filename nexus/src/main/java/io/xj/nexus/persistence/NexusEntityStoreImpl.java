@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import io.xj.api.*;
+import io.xj.nexus.model.*;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
@@ -191,6 +191,7 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
       entity instanceof SegmentChordVoicing ||
       entity instanceof SegmentChoice ||
       entity instanceof SegmentMessage ||
+      entity instanceof SegmentMeta ||
       entity instanceof SegmentChoiceArrangement ||
       entity instanceof SegmentChoiceArrangementPick)
       try {

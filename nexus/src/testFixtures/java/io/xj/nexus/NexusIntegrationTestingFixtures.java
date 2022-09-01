@@ -5,18 +5,19 @@ package io.xj.nexus;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import io.xj.api.Chain;
-import io.xj.api.ChainState;
-import io.xj.api.ChainType;
-import io.xj.api.Segment;
-import io.xj.api.SegmentChoice;
-import io.xj.api.SegmentChoiceArrangement;
-import io.xj.api.SegmentChoiceArrangementPick;
-import io.xj.api.SegmentChord;
-import io.xj.api.SegmentChordVoicing;
-import io.xj.api.SegmentMeme;
-import io.xj.api.SegmentState;
-import io.xj.api.SegmentType;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.ChainType;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangement;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.model.SegmentChord;
+import io.xj.nexus.model.SegmentChordVoicing;
+import io.xj.nexus.model.SegmentMeme;
+import io.xj.nexus.model.SegmentMeta;
+import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.model.SegmentType;
 import io.xj.hub.LoremIpsum;
 import io.xj.hub.Users;
 import io.xj.hub.client.HubClientAccess;
@@ -480,6 +481,15 @@ public class NexusIntegrationTestingFixtures {
     segmentChoice.setProgramId(program.getId());
     segmentChoice.setProgramType(program.getType().toString());
     return segmentChoice;
+  }
+
+  public static SegmentMeta buildSegmentMeta(Segment segment, String key, String value) {
+    var segmentMeta = new SegmentMeta();
+    segmentMeta.setId(UUID.randomUUID());
+    segmentMeta.setSegmentId(segment.getId());
+    segmentMeta.setKey(key);
+    segmentMeta.setValue(value);
+    return segmentMeta;
   }
 
   public static SegmentChoice buildSegmentChoice(Segment segment, Program program, ProgramSequence programSequence, ProgramVoice voice, Instrument instrument) {

@@ -3,7 +3,7 @@ package io.xj.nexus.craft.beat;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.api.SegmentChoice;
+import io.xj.nexus.model.SegmentChoice;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;

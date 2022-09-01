@@ -5,7 +5,7 @@ package io.xj.ship.source;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
-import io.xj.api.*;
+import io.xj.nexus.model.*;
 import io.xj.hub.enums.TemplateType;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;

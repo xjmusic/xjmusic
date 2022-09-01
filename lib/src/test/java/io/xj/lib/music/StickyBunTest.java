@@ -8,14 +8,14 @@ import org.junit.Test;
 import java.util.List;
 import java.util.UUID;
 
-import static io.xj.lib.music.NoteTest.assertNote;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
- Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822 persisted for each randomly selected note in the series for any given pattern
+ Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822 persisted for each randomly selected note in the series for any given event
  */
 public class StickyBunTest {
-  private final UUID patternId = UUID.randomUUID();
+  private final UUID eventId = UUID.randomUUID();
   StickyBun subject;
   UUID eventId0;
 
@@ -23,76 +23,45 @@ public class StickyBunTest {
   public void setUp() throws Exception {
     eventId0 = UUID.randomUUID();
 
-    subject = new StickyBun(patternId, Note.of("C5"));
+    subject = new StickyBun(eventId, 3);
+  }
+
+  @Test
+  public void getValues() {
+    assertEquals(3, subject.getValues().size());
   }
 
   /**
-   super-key on program-sequence-pattern id, measuring delta from the first event seen in that pattern
+   super-key on program-sequence-event id, measuring delta from the first event seen in that event
    */
   @Test
   public void getParentId() {
-    assertEquals(patternId, subject.getParentId());
+    assertEquals(eventId, subject.getEventId());
   }
 
   /**
-   key on program-sequence-pattern-event id, persisting only the first value seen for any given event
+   Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
    */
   @Test
-  public void addNotes_getOffsets() {
-    UUID eventId1 = UUID.randomUUID();
-    UUID eventId2 = UUID.randomUUID();
-
-    subject.put(eventId0, 0.0, Note.of("C5"));
-    subject.put(eventId1, 1.0, Note.of("G5"));
-    subject.put(eventId2, 1.5, Note.of("F5"));
-    subject.put(eventId2, 1.5, Note.of("Bb5"));
-
-    assertEquals(List.of(5, 10), subject.getOffsets(eventId2));
+  public void computeMetaKey() {
+    var eventId = UUID.fromString("0f650ae7-42b7-4023-816d-168759f37d2e");
+    assertEquals("StickyBun_0f650ae7-42b7-4023-816d-168759f37d2e", new StickyBun(eventId).computeMetaKey());
   }
 
   /**
-   Sticky bun member only remembers offsets from the first occurrence of any given event
+   Replace atonal members
    */
-  @Test
-  public void addNotes_discardsLaterNotes() {
-    subject.put(eventId0, 0.0, Note.of("C5"));
-    subject.put(eventId0, 0.0, Note.of("E5"));
-    subject.put(eventId0, 0.0, Note.of("G5"));
-    subject.put(eventId0, 1.0, Note.of("D5"));
-    subject.put(eventId0, 1.0, Note.of("F#5"));
-    subject.put(eventId0, 1.0, Note.of("A5"));
-
-    assertEquals(List.of(0, 4, 7), subject.getOffsets(eventId0));
-  }
-
   @Test
   public void replaceAtonal() {
-    subject.put(eventId0, 0.0, Note.of("C5"));
-    subject.put(eventId0, 0.0, Note.of("E5"));
-    subject.put(eventId0, 0.0, Note.of("G5"));
+    var eventId = UUID.fromString("0f650ae7-42b7-4023-816d-168759f37d2e");
+    var source = List.of(Note.of("Bb7"), Note.of("X"), Note.of("X"), Note.of("X"));
+    var voicingNotes = List.of(Note.of("C4"), Note.of("E5"), Note.of("G6"), Note.of("Bb7"));
+    var bun = new StickyBun(eventId, 4);
 
-    var result = subject.replaceAtonal(eventId0, Note.of("F3"), List.of(
-      Note.of("F2"),
-      Note.of("X"),
-      Note.of("X")
-    ));
+    var result = bun.replaceAtonal(source, voicingNotes);
 
-    assertNote("F2", result.get(0));
-    assertNote("A3", result.get(1));
-    assertNote("C4", result.get(2));
-  }
-
-  @Test
-  public void isTonal() {
-    subject.put(eventId0, 0.0, Note.of("C5"));
-
-    assertTrue(subject.isTonal(eventId0));
-  }
-
-  @Test
-  public void isTonal_notIfAtonal() {
-    subject.put(eventId0, 0.0, Note.of("X"));
-
-    assertFalse(subject.isTonal(eventId0));
+    assertTrue(Note.of("Bb7").sameAs(result.get(0)));
+    for (var n : result)
+      assertTrue(voicingNotes.stream().anyMatch(vn -> vn.sameAs(n)));
   }
 }

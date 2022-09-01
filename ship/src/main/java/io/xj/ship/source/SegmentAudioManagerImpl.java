@@ -6,7 +6,7 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.opencensus.stats.Measure;
-import io.xj.api.Segment;
+import io.xj.nexus.model.Segment;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.lib.util.Values;

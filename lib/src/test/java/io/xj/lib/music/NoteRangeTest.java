@@ -10,7 +10,9 @@ import org.junit.Test;
 import java.util.List;
 
 import static io.xj.lib.music.NoteTest.assertNote;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class NoteRangeTest {
   NoteRange subject;
@@ -34,6 +36,11 @@ public class NoteRangeTest {
   @Test
   public void getHigh() {
     assertTrue(Note.of("F6").sameAs(subject.getHigh().orElseThrow()));
+  }
+
+  @Test
+  public void getSpan() {
+    assertEquals(Integer.valueOf(41), subject.getSpan().orElseThrow());
   }
 
   @Test

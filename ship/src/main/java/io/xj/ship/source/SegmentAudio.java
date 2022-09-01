@@ -4,7 +4,7 @@ package io.xj.ship.source;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.api.Segment;
+import io.xj.nexus.model.Segment;
 import io.xj.lib.app.Environment;
 import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.lib.util.ValueException;

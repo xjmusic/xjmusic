@@ -1,9 +1,9 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.persistence;
 
-import io.xj.api.Chain;
-import io.xj.api.ChainState;
-import io.xj.api.Segment;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.Segment;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.TemplateType;
 import io.xj.lib.util.ValueException;

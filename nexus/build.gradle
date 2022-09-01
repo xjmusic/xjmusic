@@ -1,7 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
-
 plugins {
   id 'application'
   id 'com.google.cloud.tools.jib'
@@ -12,7 +10,6 @@ plugins {
   id 'java-test-fixtures'
   id 'org.ajoberstar.grgit'
   id 'org.flywaydb.flyway'
-  id 'org.openapi.generator'
   id 'org.sonarqube'
 }
 
@@ -131,36 +128,6 @@ jacocoTestReport {
     xml.enabled true
   }
 }
-
-task generateNexusModels(type: GenerateTask) {
-  generatorName = "jaxrs-spec"
-  inputSpec = "${projectDir.absolutePath}/spec.yaml".toString()
-  outputDir = "${buildDir.absolutePath}/openapi-codegen".toString()
-  apiPackage = "io.xj.api.chain"
-  invokerPackage = "io.xj.api"
-  modelPackage = "io.xj.api"
-  configOptions = [
-    validateSpec         : "false",
-    dateLibrary          : "java16",
-    useGenericResponse   : "true",
-    openApiNullable      : "true",
-    useSwaggerAnnotations: "false"
-  ]
-}
-
-sourceSets {
-  main {
-    java {
-      srcDir "${buildDir.absolutePath}/openapi-codegen/src/gen/java"
-    }
-    resources {
-      srcDir "${buildDir.absolutePath}/openapi-codegen/src/gen/resources"
-    }
-  }
-}
-
-// Compilation depends on generating all specs
-compileJava.dependsOn tasks.generateNexusModels
 
 // Ship to multiple repositories https://www.pivotaltracker.com/story/show/180684409
 jib {

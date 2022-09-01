@@ -4,7 +4,7 @@ package io.xj.ship.source;
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import io.xj.api.Segment;
+import io.xj.nexus.model.Segment;
 import io.xj.lib.app.Environment;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.util.Command;

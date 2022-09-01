@@ -4,10 +4,10 @@ package io.xj.nexus.persistence;
 
 import com.google.api.client.util.Lists;
 import com.google.common.base.Strings;
-import io.xj.api.Segment;
-import io.xj.api.SegmentChoice;
-import io.xj.api.SegmentChordVoicing;
-import io.xj.api.SegmentState;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChordVoicing;
+import io.xj.nexus.model.SegmentState;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.lib.mixer.OutputEncoder;

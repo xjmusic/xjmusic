@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus;
 
-import io.xj.api.*;
+import io.xj.nexus.model.*;
 import io.xj.hub.tables.pojos.*;
 import io.xj.lib.entity.EntityFactory;
 
@@ -54,7 +54,8 @@ public enum NexusTopology {
       .hasMany(SegmentChord.class)
       .hasMany(SegmentChordVoicing.class)
       .hasMany(SegmentMeme.class)
-      .hasMany(SegmentMessage.class);
+      .hasMany(SegmentMessage.class)
+      .hasMany(SegmentMeta.class);
 
     // SegmentChoice
     entityFactory.register(SegmentChoice.class)
@@ -123,6 +124,13 @@ public enum NexusTopology {
       .createdBy(SegmentMessage::new)
       .withAttribute("body")
       .withAttribute("type")
+      .belongsTo(Segment.class);
+
+    // SegmentMeta
+    entityFactory.register(SegmentMeta.class)
+      .createdBy(SegmentMeta::new)
+      .withAttribute("key")
+      .withAttribute("value")
       .belongsTo(Segment.class);
   }
 }

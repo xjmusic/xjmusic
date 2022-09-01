@@ -3,7 +3,7 @@ package io.xj.nexus.dub;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.api.SegmentType;
+import io.xj.nexus.model.SegmentType;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;

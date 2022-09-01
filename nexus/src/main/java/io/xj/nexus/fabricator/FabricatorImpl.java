@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.fabricator;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -8,7 +9,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Streams;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
-import io.xj.api.*;
 import io.xj.hub.InstrumentConfig;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.TemplateConfig;
@@ -18,19 +18,62 @@ import io.xj.hub.enums.ContentBindingType;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.*;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramMeme;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
+import io.xj.hub.tables.pojos.ProgramSequenceChord;
+import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
+import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.json.JsonProvider;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.meme.MemeStack;
-import io.xj.lib.music.*;
-import io.xj.lib.util.*;
+import io.xj.lib.music.AdjSymbol;
+import io.xj.lib.music.Chord;
+import io.xj.lib.music.Key;
+import io.xj.lib.music.Note;
+import io.xj.lib.music.NoteRange;
+import io.xj.lib.music.PitchClass;
+import io.xj.lib.music.StickyBun;
+import io.xj.lib.util.CSV;
+import io.xj.lib.util.MarbleBag;
+import io.xj.lib.util.Text;
+import io.xj.lib.util.ValueException;
+import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.persistence.*;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangement;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.model.SegmentChord;
+import io.xj.nexus.model.SegmentChordVoicing;
+import io.xj.nexus.model.SegmentMeme;
+import io.xj.nexus.model.SegmentMessage;
+import io.xj.nexus.model.SegmentMessageType;
+import io.xj.nexus.model.SegmentMeta;
+import io.xj.nexus.model.SegmentType;
+import io.xj.nexus.persistence.ChainManager;
+import io.xj.nexus.persistence.Chains;
+import io.xj.nexus.persistence.ManagerExistenceException;
+import io.xj.nexus.persistence.ManagerFatalException;
+import io.xj.nexus.persistence.ManagerPrivilegeException;
+import io.xj.nexus.persistence.ManagerValidationException;
+import io.xj.nexus.persistence.SegmentManager;
+import io.xj.nexus.persistence.Segments;
 import org.glassfish.jersey.internal.guava.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +81,16 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import javax.sound.sampled.AudioFormat;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -60,6 +112,7 @@ class FabricatorImpl implements Fabricator {
   private final int workBufferAheadSeconds;
   private final int workBufferBeforeSeconds;
   private final JsonapiPayloadFactory jsonapiPayloadFactory;
+  private final JsonProvider jsonProvider;
   private final Map<Double, Optional<SegmentChord>> chordAtPosition;
   private final Map<InstrumentType, NoteRange> voicingNoteRange;
   private final Map<SegmentChoice, ProgramSequence> sequenceForChoice;
@@ -72,7 +125,6 @@ class FabricatorImpl implements Fabricator {
   private final Map<String, Optional<Note>> rootNotesByVoicingAndChord;
   private final Map<UUID, Collection<ProgramSequenceChord>> completeChordsForProgramSequence;
   private final Map<UUID, List<SegmentChoiceArrangementPick>> picksForChoice;
-  private final Map<UUID, StickyBun> stickyBunsByPatternId;
   private final SegmentManager segmentManager;
   private final SegmentRetrospective retrospective;
   private final SegmentWorkbench workbench;
@@ -100,10 +152,12 @@ class FabricatorImpl implements Fabricator {
     ChainManager chainManager,
     FabricatorFactory fabricatorFactory,
     SegmentManager segmentManager,
-    JsonapiPayloadFactory jsonapiPayloadFactory
+    JsonapiPayloadFactory jsonapiPayloadFactory,
+    JsonProvider jsonProvider
   ) throws NexusException, FabricationFatalException {
     this.segmentManager = segmentManager;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
+    this.jsonProvider = jsonProvider;
     try {
       this.sourceMaterial = sourceMaterial;
 
@@ -118,7 +172,6 @@ class FabricatorImpl implements Fabricator {
       rangeShiftOctave = Maps.newHashMap();
       rootNotesByVoicingAndChord = Maps.newHashMap();
       sequenceForChoice = Maps.newHashMap();
-      stickyBunsByPatternId = Maps.newHashMap();
       targetShift = Maps.newHashMap();
       voicingNoteRange = Maps.newHashMap();
 
@@ -150,9 +203,6 @@ class FabricatorImpl implements Fabricator {
       // get the current segment on the workbench
       workbench = fabricatorFactory.setupWorkbench(chain, segment);
 
-      // digest Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822 for all event series of previous segment
-      if (templateConfig.isStickyBunEnabled()) persistStickyBuns();
-
       // final pre-flight check
       ensureShipKey();
 
@@ -163,32 +213,46 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public void addMessage(SegmentMessageType messageType, String body) throws NexusException {
-    var msg = new SegmentMessage();
+  public void addMessage(SegmentMessageType messageType, String body) {
+    try {
+      var msg = new SegmentMessage();
+      msg.setId(UUID.randomUUID());
+      msg.setSegmentId(getSegment().getId());
+      msg.setType(messageType);
+      msg.setBody(body);
+      put(msg);
+    } catch (NexusException e) {
+      LOG.error("Failed to add message!", e);
+    }
+  }
+
+  @Override
+  public void putMeta(String key, String value) throws NexusException {
+    var msg = new SegmentMeta();
     msg.setId(UUID.randomUUID());
     msg.setSegmentId(getSegment().getId());
-    msg.setType(messageType);
-    msg.setBody(body);
+    msg.setKey(key);
+    msg.setValue(value);
     put(msg);
   }
 
   @Override
-  public void addErrorMessage(String body) throws NexusException {
+  public void addErrorMessage(String body) {
     addMessage(SegmentMessageType.ERROR, body);
   }
 
   @Override
-  public void addWarningMessage(String body) throws NexusException {
+  public void addWarningMessage(String body) {
     addMessage(SegmentMessageType.WARNING, body);
   }
 
   @Override
-  public void addInfoMessage(String body) throws NexusException {
+  public void addInfoMessage(String body) {
     addMessage(SegmentMessageType.INFO, body);
   }
 
   @Override
-  public <N> void delete(N entity) throws NexusException {
+  public <N> void delete(N entity) {
     workbench.delete(entity);
   }
 
@@ -532,11 +596,11 @@ class FabricatorImpl implements Fabricator {
   }
 
   public Optional<SegmentChoice> getChoice(SegmentChoiceArrangement pick) {
-    return workbench.getSegmentChoices().stream().filter(choice->choice.getId().equals(pick.getSegmentChoiceId())).findFirst();
+    return workbench.getSegmentChoices().stream().filter(choice -> choice.getId().equals(pick.getSegmentChoiceId())).findFirst();
   }
 
   public Optional<SegmentChoiceArrangement> getArrangement(SegmentChoiceArrangementPick pick) {
-    return workbench.getSegmentChoiceArrangements().stream().filter(choice->choice.getId().equals(pick.getSegmentChoiceArrangementId())).findFirst();
+    return workbench.getSegmentChoiceArrangements().stream().filter(choice -> choice.getId().equals(pick.getSegmentChoiceArrangementId())).findFirst();
   }
 
   @Override
@@ -623,10 +687,19 @@ class FabricatorImpl implements Fabricator {
     var key = String.format("%s__%s", programId, instrumentType);
 
     if (!rangeForChoice.containsKey(key)) {
-      rangeForChoice.put(key, NoteRange.ofStrings(sourceMaterial.getEvents(programId).stream().filter(event -> sourceMaterial.getVoice(event).map(voice -> Objects.equals(voice.getType(), instrumentType)).orElse(false) && !Objects.equals(Note.of(event.getTones()).getPitchClass(), PitchClass.None)).flatMap(programSequencePatternEvent -> CSV.split(programSequencePatternEvent.getTones()).stream()).collect(Collectors.toList())));
+      rangeForChoice.put(key, computeProgramRange(programId, instrumentType));
     }
 
     return rangeForChoice.get(key);
+  }
+
+  private NoteRange computeProgramRange(UUID programId, InstrumentType instrumentType) {
+    return NoteRange.ofStrings(
+      sourceMaterial.getEvents(programId).stream()
+        .filter(event -> sourceMaterial.getVoice(event).map(voice -> Objects.equals(voice.getType(), instrumentType)).orElse(false)
+          && !Objects.equals(Note.of(event.getTones()).getPitchClass(), PitchClass.None))
+        .flatMap(programSequencePatternEvent -> CSV.split(programSequencePatternEvent.getTones()).stream())
+        .collect(Collectors.toList()));
   }
 
   @Override
@@ -723,10 +796,33 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Optional<StickyBun> getStickyBun(UUID patternId) {
+  public Optional<StickyBun> getStickyBun(UUID eventId) {
     if (!templateConfig.isStickyBunEnabled()) return Optional.empty();
-    if (!stickyBunsByPatternId.containsKey(patternId)) return Optional.empty();
-    return Optional.of(stickyBunsByPatternId.get(patternId));
+    //
+    var currentMeta = workbench.getSegmentMeta(new StickyBun(eventId, CSV.split(sourceMaterial.getProgramSequencePatternEvent(eventId).orElseThrow().getTones()).size()).computeMetaKey());
+    if (currentMeta.isPresent()) {
+      try {
+        return Optional.of(jsonProvider.getMapper().readValue(currentMeta.get().getValue(), StickyBun.class));
+      } catch (JsonProcessingException e) {
+        addErrorMessage(String.format("Failed to deserialize current segment meta value StickyBun JSON for Event[%s]", eventId));
+      }
+    }
+    //
+    var previousMeta = retrospective.getPreviousMeta(new StickyBun(eventId, CSV.split(sourceMaterial.getProgramSequencePatternEvent(eventId).orElseThrow().getTones()).size()).computeMetaKey());
+    if (previousMeta.isPresent()) {
+      try {
+        return Optional.of(jsonProvider.getMapper().readValue(previousMeta.get().getValue(), StickyBun.class));
+      } catch (JsonProcessingException e) {
+        addErrorMessage(String.format("Failed to deserialize previous segment meta value StickyBun JSON for Event[%s]", eventId));
+      }
+    }
+    var bun = new StickyBun(eventId, CSV.split(sourceMaterial.getProgramSequencePatternEvent(eventId).orElseThrow().getTones()).size());
+    try {
+      workbench.put(bun);
+    } catch (NexusException e) {
+      addErrorMessage(String.format("Failed to put StickyBun for Event[%s]", eventId));
+    }
+    return Optional.of(bun);
   }
 
   @Override
@@ -757,7 +853,17 @@ class FabricatorImpl implements Fabricator {
   @Override
   public String getSegmentJson() throws NexusException {
     try {
-      return jsonapiPayloadFactory.serialize(jsonapiPayloadFactory.newJsonapiPayload().setDataOne(jsonapiPayloadFactory.toPayloadObject(workbench.getSegment())).addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentChoiceArrangementPicks())).addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentChoiceArrangements())).addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentChoices())).addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentChords())).addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentMemes())).addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentMessages())));
+      return jsonapiPayloadFactory.serialize(
+        jsonapiPayloadFactory.newJsonapiPayload()
+          .setDataOne(jsonapiPayloadFactory.toPayloadObject(workbench.getSegment()))
+          .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentChoiceArrangementPicks()))
+          .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentChoiceArrangements()))
+          .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentChoices()))
+          .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentChords()))
+          .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentMemes()))
+          .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentMessages()))
+          .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentMetas()))
+      );
 
     } catch (JsonapiException e) {
       throw new NexusException(e);
@@ -940,22 +1046,6 @@ class FabricatorImpl implements Fabricator {
     } catch (ManagerFatalException | ManagerExistenceException | ManagerPrivilegeException | ManagerValidationException e) {
       LOG.error("Failed to update Segment", e);
     }
-  }
-
-  @Override
-  public void putStickyBun(@Nullable UUID eventId, Note rootNote, Double position, List<Note> notes) {
-    if (templateConfig.isStickyBunEnabled())
-      for (var note : notes)
-        if (Objects.nonNull(eventId))
-          try {
-            var patternId = sourceMaterial.getPatternIdForEventId(eventId);
-            if (!stickyBunsByPatternId.containsKey(patternId))
-              stickyBunsByPatternId.put(patternId, new StickyBun(patternId, rootNote));
-            stickyBunsByPatternId.get(patternId).put(eventId, position, note);
-
-          } catch (HubClientException e) {
-            LOG.warn("Failed to persist sticky bun because {}", e.getMessage());
-          }
   }
 
   @Override
@@ -1172,54 +1262,6 @@ class FabricatorImpl implements Fabricator {
           .ifPresent(audio -> audios.put(getKeyByVoiceTrack(pick), audio)));
 
     return audios;
-  }
-
-  /**
-   Digest sticky bun events from all previous segments of this main program
-   <p>
-   Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822
-   <p>
-   For each instrument type:
-   + For each note in the series of picks for this instrument type:
-   --+ if this is the first pick for this instrument type, record the first note
-   --+ if this is a subsequent note in the series, record it's # semitones from first note
-   */
-  private void persistStickyBuns() {
-    Optional<SegmentChord> chord;
-    Optional<SegmentChordVoicing> voicing;
-    Optional<Note> rootNote;
-    for (var pick :
-      retrospective.getPicks().stream()
-        .sorted(Comparator.comparing(retrospective::getAbsolutePosition))
-        .toList())
-      try {
-
-        chord = retrospective.getChord(pick);
-        if (chord.isEmpty()) {
-          LOG.warn("Unable to obtain ProgramSequenceChord for SegmentChoiceArrangementPick[{}]", pick.getId());
-          continue;
-        }
-
-        voicing = retrospective.getSegmentChordVoicing(chord.get().getId(), retrospective.getInstrumentType(pick));
-        if (voicing.isEmpty()) {
-          LOG.debug("No voicing for {}-type voicing of SegmentChord[{}]", retrospective.getInstrumentType(pick), chord.get().getId());
-          continue;
-        }
-
-        rootNote = getRootNoteMidRange(voicing.get().getNotes(), Chord.of(chord.get().getName()));
-        if (rootNote.isEmpty()) {
-          LOG.debug("No root note for Voicing[{}] and Chord[{}]", voicing.get().getNotes(), Chord.of(chord.get().getName()));
-          continue;
-        }
-
-        putStickyBun(
-          pick.getProgramSequencePatternEventId(),
-          rootNote.get(),
-          retrospective.getAbsolutePosition(pick),
-          List.of(Note.of(pick.getTones())));
-      } catch (Exception e) {
-        LOG.warn("Failed to persist sticky buns", e);
-      }
   }
 
   /**

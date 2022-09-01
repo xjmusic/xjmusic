@@ -2,13 +2,13 @@
 
 package io.xj.nexus.craft;
 
-import io.xj.api.Chain;
-import io.xj.api.ChainState;
-import io.xj.api.ChainType;
-import io.xj.api.Segment;
-import io.xj.api.SegmentChoice;
-import io.xj.api.SegmentState;
-import io.xj.api.SegmentType;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.ChainType;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.model.SegmentType;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.InstrumentMode;
