@@ -21,6 +21,14 @@ public class StickyBun {
   private UUID eventId;
 
   /**
+   Prepare empty sticky bun
+   */
+  public StickyBun() {
+    this.values = List.of();
+    this.eventId = null;
+  }
+
+  /**
    Prepare a sticky bun with event id and values
 
    @param eventId to persist
@@ -50,8 +58,8 @@ public class StickyBun {
 
    @return compute meta key
    */
-  public String computeMetaKey() {
-    return String.format(META_KEY_TEMPLATE, eventId.toString());
+  public static String computeMetaKey(UUID id) {
+    return String.format(META_KEY_TEMPLATE, id.toString());
   }
 
   /**
@@ -112,5 +120,9 @@ public class StickyBun {
       }
 
     return notes;
+  }
+
+  public String computeMetaKey() {
+    return StickyBun.computeMetaKey(eventId);
   }
 }

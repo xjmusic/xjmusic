@@ -799,7 +799,7 @@ class FabricatorImpl implements Fabricator {
   public Optional<StickyBun> getStickyBun(UUID eventId) {
     if (!templateConfig.isStickyBunEnabled()) return Optional.empty();
     //
-    var currentMeta = workbench.getSegmentMeta(new StickyBun(eventId, CSV.split(sourceMaterial.getProgramSequencePatternEvent(eventId).orElseThrow().getTones()).size()).computeMetaKey());
+    var currentMeta = workbench.getSegmentMeta(StickyBun.computeMetaKey(eventId));
     if (currentMeta.isPresent()) {
       try {
         return Optional.of(jsonProvider.getMapper().readValue(currentMeta.get().getValue(), StickyBun.class));
@@ -808,7 +808,7 @@ class FabricatorImpl implements Fabricator {
       }
     }
     //
-    var previousMeta = retrospective.getPreviousMeta(new StickyBun(eventId, CSV.split(sourceMaterial.getProgramSequencePatternEvent(eventId).orElseThrow().getTones()).size()).computeMetaKey());
+    var previousMeta = retrospective.getPreviousMeta(StickyBun.computeMetaKey(eventId));
     if (previousMeta.isPresent()) {
       try {
         return Optional.of(jsonProvider.getMapper().readValue(previousMeta.get().getValue(), StickyBun.class));
@@ -818,9 +818,15 @@ class FabricatorImpl implements Fabricator {
     }
     var bun = new StickyBun(eventId, CSV.split(sourceMaterial.getProgramSequencePatternEvent(eventId).orElseThrow().getTones()).size());
     try {
-      workbench.put(bun);
+      workbench.put(new SegmentMeta()
+        .id(UUID.randomUUID())
+        .segmentId(getSegment().getId())
+        .key(bun.computeMetaKey())
+        .value(jsonProvider.getMapper().writeValueAsString(bun)));
     } catch (NexusException e) {
-      addErrorMessage(String.format("Failed to put StickyBun for Event[%s]", eventId));
+      addErrorMessage(String.format("Failed to put StickyBun for Event[%s] because %s", eventId, e.getMessage()));
+    } catch (JsonProcessingException e) {
+      addErrorMessage(String.format("Failed to serialize segment meta value StickyBun JSON for Event[%s]", eventId));
     }
     return Optional.of(bun);
   }

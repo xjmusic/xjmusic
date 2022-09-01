@@ -46,6 +46,7 @@ public class StickyBunTest {
   public void computeMetaKey() {
     var eventId = UUID.fromString("0f650ae7-42b7-4023-816d-168759f37d2e");
     assertEquals("StickyBun_0f650ae7-42b7-4023-816d-168759f37d2e", new StickyBun(eventId).computeMetaKey());
+    assertEquals("StickyBun_0f650ae7-42b7-4023-816d-168759f37d2e", StickyBun.computeMetaKey(eventId));
   }
 
   /**
@@ -63,5 +64,18 @@ public class StickyBunTest {
     assertTrue(Note.of("Bb7").sameAs(result.get(0)));
     for (var n : result)
       assertTrue(voicingNotes.stream().anyMatch(vn -> vn.sameAs(n)));
+  }
+
+  /**
+   Construct empty
+   */
+  @Test
+  public void constructEmpty() {
+    var b = UUID.randomUUID();
+
+    var e = new StickyBun();
+    e.setEventId(b);
+
+    assertEquals(b, e.getEventId());
   }
 }
