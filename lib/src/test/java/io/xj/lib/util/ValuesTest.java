@@ -235,4 +235,11 @@ public class ValuesTest {
   public void withIdsRemoved() {
     assertEquals(2, Values.withIdsRemoved(List.of(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()), 2).size());
   }
+
+  @Test
+  public void emptyZero() {
+    assertEquals("12", Values.emptyZero(12));
+    assertEquals("-12", Values.emptyZero(-12));
+    assertEquals("", Values.emptyZero(0));
+  }
 }

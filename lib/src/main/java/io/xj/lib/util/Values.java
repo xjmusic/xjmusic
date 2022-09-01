@@ -471,4 +471,14 @@ public interface Values {
       ids.remove((int) TremendouslyRandom.zeroToLimit(ids.size()));
     return ids;
   }
+
+  /**
+   Return string value of int, or empty if zero
+
+   @param value to translate
+   @return non-zero value, or empty
+   */
+  static String emptyZero(int value) {
+    return 0 != value ? String.valueOf(value) : "";
+  }
 }

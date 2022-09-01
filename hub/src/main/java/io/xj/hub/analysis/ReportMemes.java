@@ -28,27 +28,30 @@ public class ReportMemes extends Report {
 
   @SuppressWarnings("DuplicatedCode")
   @Override
-  public String renderContentHTML() {
-    return TABLE(TR(true, TD("Total"), TD("Name"), TD("Programs"), TD("Instruments")),
-      memes.histogram.entrySet().stream()
-        .sorted((c1, c2) -> c2.getValue().total.compareTo(c1.getValue().total))
-        .map(e -> TR(
-          false, TD(e.getValue().total.toString()),
-          TD(e.getKey()),
-          TD(e.getValue().programIds.stream()
-            .map(content::getProgram)
-            .map(Optional::orElseThrow)
-            .sorted(Comparator.comparing(Program::getName))
-            .map(this::programRef)
-            .collect(Collectors.joining("\n"))),
-          TD(e.getValue().instrumentIds.stream()
-            .map(content::getInstrument)
-            .map(Optional::orElseThrow)
-            .sorted(Comparator.comparing(Instrument::getName))
-            .map(this::instrumentRef)
-            .collect(Collectors.joining("\n")))
-        ))
-        .collect(Collectors.joining()));
+  public List<ReportSection> computeSections() {
+    return List.of(
+      new ReportSection("memes", "Meme Summary",
+        List.of("Total", "Name", "Programs", "Instruments"),
+        memes.histogram.entrySet().stream()
+          .sorted((c1, c2) -> c2.getValue().total.compareTo(c1.getValue().total))
+          .map(e -> List.of(
+            e.getValue().total.toString(),
+            e.getKey(),
+            e.getValue().programIds.stream()
+              .map(content::getProgram)
+              .map(Optional::orElseThrow)
+              .sorted(Comparator.comparing(Program::getName))
+              .map(this::programRef)
+              .collect(Collectors.joining("\n")),
+            e.getValue().instrumentIds.stream()
+              .map(content::getInstrument)
+              .map(Optional::orElseThrow)
+              .sorted(Comparator.comparing(Instrument::getName))
+              .map(this::instrumentRef)
+              .collect(Collectors.joining("\n"))
+          ))
+          .toList())
+    );
   }
 
   @Override

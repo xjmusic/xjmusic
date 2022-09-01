@@ -25,21 +25,23 @@ public class ReportMainProgramChords extends Report {
 
   @SuppressWarnings("DuplicatedCode")
   @Override
-  public String renderContentHTML() {
-    return TABLE(TR(true, TD("Total"), TD("Name"), TD("Programs")),
-      mainProgramChords.histogram.entrySet().stream()
-        .sorted((c1, c2) -> c2.getValue().getTotal().compareTo(c1.getValue().getTotal()))
-        .map(e -> TR(
-          false, TD(e.getValue().getTotal().toString()),
-          TD(e.getKey()),
-          TD(e.getValue().getProgramIds().stream()
-            .map(content::getProgram)
-            .map(Optional::orElseThrow)
-            .sorted(Comparator.comparing(Program::getName))
-            .map(this::programRef)
-            .collect(Collectors.joining("\n")))
-        ))
-        .collect(Collectors.joining()));
+  public List<ReportSection> computeSections() {
+    return List.of(
+      new ReportSection("chords", "Main Chord Summary",
+        List.of("Total", "Name", "Programs"),
+        mainProgramChords.histogram.entrySet().stream()
+          .sorted((c1, c2) -> c2.getValue().getTotal().compareTo(c1.getValue().getTotal()))
+          .map(e -> List.of(
+            e.getValue().getTotal().toString(),
+            e.getKey(),
+            e.getValue().getProgramIds().stream()
+              .map(content::getProgram)
+              .map(Optional::orElseThrow)
+              .sorted(Comparator.comparing(Program::getName))
+              .map(this::programRef)
+              .collect(Collectors.joining("\n"))
+          )).toList())
+    );
   }
 
   @Override

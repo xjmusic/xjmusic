@@ -13,6 +13,7 @@ import io.xj.lib.util.Text;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -41,30 +42,30 @@ public class ReportEvents extends Report {
 
   @SuppressWarnings("DuplicatedCode")
   @Override
-  public String renderContentHTML() {
+  public List<ReportSection> computeSections() {
     return Arrays.stream(InstrumentType.values()).map(type ->
-        H1(String.format("%s Events", type.toString()), type.toString()) +
-          TABLE(TR(true, TD("Total"), TD("Event"), TD("Programs"), TD("Instruments")),
-            eventHistogram.histogram.get(type.toString()).entrySet().stream()
-              .sorted((c1, c2) -> c2.getValue().total.compareTo(c1.getValue().total))
-              .map(e -> TR(
-                false, TD(e.getValue().total.toString()),
-                TD(e.getKey()),
-                TD(e.getValue().programIds.stream()
-                  .map(content::getProgram)
-                  .map(Optional::orElseThrow)
-                  .sorted(Comparator.comparing(Program::getName))
-                  .map(this::programRef)
-                  .collect(Collectors.joining("\n"))),
-                TD(e.getValue().instrumentIds.stream()
-                  .map(content::getInstrument)
-                  .map(Optional::orElseThrow)
-                  .sorted(Comparator.comparing(Instrument::getName))
-                  .map(this::instrumentRef)
-                  .collect(Collectors.joining("\n")))
-              ))
-              .collect(Collectors.joining())))
-      .collect(Collectors.joining());
+        new ReportSection(String.format("%s_events", type.toString().toLowerCase(Locale.ROOT)), String.format("%s Events", type.toString()),
+          List.of("Total", "Event", "Programs", "Instruments"),
+          eventHistogram.histogram.get(type.toString()).entrySet().stream()
+            .sorted((c1, c2) -> c2.getValue().total.compareTo(c1.getValue().total))
+            .map(e -> List.of(
+              e.getValue().total.toString(),
+              e.getKey(),
+              e.getValue().programIds.stream()
+                .map(content::getProgram)
+                .map(Optional::orElseThrow)
+                .sorted(Comparator.comparing(Program::getName))
+                .map(this::programRef)
+                .collect(Collectors.joining("\n")),
+              e.getValue().instrumentIds.stream()
+                .map(content::getInstrument)
+                .map(Optional::orElseThrow)
+                .sorted(Comparator.comparing(Instrument::getName))
+                .map(this::instrumentRef)
+                .collect(Collectors.joining("\n"))
+            ))
+            .toList()))
+      .toList();
   }
 
   @Override
