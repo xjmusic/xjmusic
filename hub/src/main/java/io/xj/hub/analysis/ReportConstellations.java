@@ -192,20 +192,25 @@ public class ReportConstellations extends Report {
   }
 
   private ReportSection sectionBeatProgramCoverage() {
+    var programs = programsByType.get(ProgramType.Beat).stream()
+      .sorted(Comparator.comparing(Program::getName))
+      .toList();
     return new ReportSection("beat_programs", "Beat-program Coverage",
       Streams.concat(Stream.of("Memes"),
-        programsByType.get(ProgramType.Beat).stream().map(this::programRef)).toList(),
+        programs.stream().map(this::programRef)).toList(),
       mainHistogram.histogram.entrySet().stream()
         .sorted(Map.Entry.comparingByKey())
         .map(c -> Streams.concat(Stream.of(c.getKey()),
-          programsByType.get(ProgramType.Beat).stream().map(program ->
+          programs.stream().map(program ->
             ReportSection.checkboxValue(beatProgramHistogram.getIds(c.getKey()).contains(program.getId()))
           )).toList())
         .toList());
   }
 
   private ReportSection sectionInstrumentCoverage(InstrumentType instrumentType) {
-    var instruments = instrumentsByType.get(instrumentType);
+    var instruments = instrumentsByType.get(instrumentType).stream()
+      .sorted(Comparator.comparing(Instrument::getName))
+      .toList();
     if (instruments.isEmpty()) return ReportSection.empty();
     return new ReportSection(String.format("%s_detail_instruments", instrumentType.toString().toLowerCase(Locale.ROOT)),
       String.format("%s Instrument coverage", instrumentType),
@@ -223,6 +228,7 @@ public class ReportConstellations extends Report {
   private ReportSection sectionDetailProgramCoverage(InstrumentType instrumentType) {
     var programs = programsByType.get(ProgramType.Detail).stream()
       .filter(p -> content.getVoices(p).stream().anyMatch(v -> Objects.equals(instrumentType, v.getType())))
+      .sorted(Comparator.comparing(Program::getName))
       .toList();
     if (programs.isEmpty()) return ReportSection.empty();
     return new ReportSection(String.format("%s_detail_programs", instrumentType.toString().toLowerCase(Locale.ROOT)),
