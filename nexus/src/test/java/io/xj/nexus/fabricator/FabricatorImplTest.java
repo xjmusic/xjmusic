@@ -2,6 +2,7 @@
 
 package io.xj.nexus.fabricator;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Streams;
 import com.google.inject.AbstractModule;
@@ -36,6 +37,7 @@ import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangement;
 import io.xj.nexus.model.SegmentChoiceArrangementPick;
 import io.xj.nexus.model.SegmentMeme;
+import io.xj.nexus.model.SegmentMeta;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.ChainManager;
@@ -82,6 +84,7 @@ import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoiceArrangement;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoiceArrangementPick;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChord;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentMeta;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -115,8 +118,7 @@ public class FabricatorImplTest {
   public SegmentManager mockSegmentManager;
   @Mock
   public JsonapiPayloadFactory mockJsonapiPayloadFactory;
-  @Mock
-  public JsonProvider mockJsonProvider;
+  public JsonProvider jsonProvider;
   @Captor
   ArgumentCaptor<Object> entityCaptor;
   private FabricatorImpl subject;
@@ -138,6 +140,7 @@ public class FabricatorImplTest {
         bind(SegmentRetrospective.class).toInstance(mockRetrospective);
       }
     }));
+    jsonProvider = injector.getInstance(JsonProvider.class);
     var entityFactory = injector.getInstance(EntityFactory.class);
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
@@ -157,7 +160,7 @@ public class FabricatorImplTest {
     when(mockFabricatorFactory.setupWorkbench(any(), any())).thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, mockJsonProvider);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
   }
 
   /**
@@ -176,7 +179,7 @@ public class FabricatorImplTest {
     when(mockFabricatorFactory.setupWorkbench(any(), any())).thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, mockJsonProvider);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     double result = subject.getAudioVolume(pick); // instantiates a time computer; see expectation above
 
@@ -199,7 +202,7 @@ public class FabricatorImplTest {
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockSegmentWorkbench.getSegmentChoiceArrangementPicks()).thenReturn(ImmutableList.of(beatPick));
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, mockJsonProvider);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     Collection<SegmentChoiceArrangementPick> result = subject.getPicks();
 
@@ -226,7 +229,7 @@ public class FabricatorImplTest {
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockSegmentWorkbench.getChoiceOfType(ProgramType.Main)).thenReturn(Optional.of(mainChoice));
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, mockJsonProvider);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     Set<InstrumentType> result = subject.getDistinctChordVoicingTypes();
 
@@ -252,7 +255,7 @@ public class FabricatorImplTest {
     when(mockRetrospective.getPreviousChoiceOfType(ProgramType.Main)).thenReturn(Optional.of(previousMainChoice));
     when(mockRetrospective.getPreviousChoiceOfType(ProgramType.Macro)).thenReturn(Optional.of(previousMacroChoice));
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, mockJsonProvider);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     var result = subject.getType();
 
@@ -274,7 +277,7 @@ public class FabricatorImplTest {
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockRetrospective.getPreviousChoiceOfType(ProgramType.Macro)).thenReturn(Optional.of(previousMacroChoice));
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, mockJsonProvider);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     var result = subject.getMemeIsometryOfNextSequenceInPreviousMacro();
 
@@ -290,7 +293,7 @@ public class FabricatorImplTest {
     when(mockSegmentWorkbench.getSegmentChords()).thenReturn(ImmutableList.of(buildSegmentChord(segment, 0.0, "C"), buildSegmentChord(segment, 2.0, "F"), buildSegmentChord(segment, 5.5, "Gm")));
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, mockJsonProvider);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     assertEquals("C", subject.getChordAt(0).orElseThrow().getName());
     assertEquals("C", subject.getChordAt(1).orElseThrow().getName());
@@ -316,7 +319,7 @@ public class FabricatorImplTest {
     var sequence = buildSequence(program, 4);
     var pattern = buildPattern(sequence, voice, 4);
     sourceMaterial = new HubContent(ImmutableList.of(program, voice, track, sequence, pattern, fake.template1, fake.templateBinding1, buildEvent(pattern, track, 0.0f, 1.0f, "C1"), buildEvent(pattern, track, 1.0f, 1.0f, "D2")));
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, mockJsonProvider);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     var result = subject.getProgramRange(program.getId(), InstrumentType.Bass);
 
@@ -338,7 +341,7 @@ public class FabricatorImplTest {
     var sequence = buildSequence(program, 4);
     var pattern = buildPattern(sequence, voice, 4);
     sourceMaterial = new HubContent(ImmutableList.of(program, voice, track, sequence, pattern, buildEvent(pattern, track, 0.0f, 1.0f, "C1"), buildEvent(pattern, track, 1.0f, 1.0f, "X"), buildEvent(pattern, track, 2.0f, 1.0f, "D2"), fake.template1, fake.templateBinding1));
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, mockJsonProvider);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     var result = subject.getProgramRange(program.getId(), InstrumentType.Bass);
 
@@ -358,7 +361,7 @@ public class FabricatorImplTest {
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
     sourceMaterial = new HubContent(ImmutableList.of(fake.program5_sequence0, fake.template1, fake.templateBinding1));
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, mockJsonProvider);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     var result = subject.getProgramSequence(choice);
 
@@ -377,7 +380,7 @@ public class FabricatorImplTest {
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
     sourceMaterial = new HubContent(ImmutableList.of(fake.program5_sequence0, fake.program5_sequence0_binding0, fake.template1, fake.templateBinding1));
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, mockJsonProvider);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     var result = subject.getProgramSequence(choice);
 
@@ -411,4 +414,90 @@ public class FabricatorImplTest {
     assertEquals(fake.program4.getId(), ((SegmentChoice) results.get(6)).getProgramId());
     assertEquals(fake.program4_sequence1_binding0.getId(), ((SegmentChoice) results.get(6)).getProgramSequenceBindingId());
   }
+
+  /**
+   Unit test behavior of choosing an event for a note in a detail program
+   <p>
+   Sticky bun note choices should persist into following segments https://www.pivotaltracker.com/story/show/182132467
+   */
+  @Test
+  public void getStickyBun_readMetaFromCurrentSegment() throws JsonProcessingException {
+    var bun = new StickyBun(fake.program9_sequence0_pattern0_event0.getId(), 3);
+    var bunJson = jsonProvider.getMapper().writeValueAsString(bun);
+    var bunKey = StickyBun.computeMetaKey(fake.program9_sequence0_pattern0_event0.getId());
+    var bunMeta = buildSegmentMeta(segment, bunKey, bunJson);
+    when(mockSegmentWorkbench.getSegmentMeta(eq(bunKey))).thenReturn(Optional.of(bunMeta));
+
+    var result = subject.getStickyBun(fake.program9_sequence0_pattern0_event0.getId()).orElseThrow();
+
+    assertEquals(fake.program9_sequence0_pattern0_event0.getId(), result.getEventId());
+    assertArrayEquals(bun.getValues().toArray(), result.getValues().toArray());
+  }
+
+  /**
+   Unit test behavior of choosing an event for a note in a detail program
+   <p>
+   Sticky bun note choices should persist into following segments https://www.pivotaltracker.com/story/show/182132467
+   */
+  @Test
+  public void getStickyBun_readMetaFromPreviousSegment() throws JsonProcessingException {
+    var bun = new StickyBun(fake.program9_sequence0_pattern0_event0.getId(), 3);
+    var bunJson = jsonProvider.getMapper().writeValueAsString(bun);
+    var bunKey = StickyBun.computeMetaKey(fake.program9_sequence0_pattern0_event0.getId());
+    var bunMeta = buildSegmentMeta(segment, bunKey, bunJson);
+    when(mockRetrospective.getPreviousMeta(eq(bunKey))).thenReturn(Optional.of(bunMeta));
+
+    var result = subject.getStickyBun(fake.program9_sequence0_pattern0_event0.getId()).orElseThrow();
+
+    assertEquals(fake.program9_sequence0_pattern0_event0.getId(), result.getEventId());
+    assertArrayEquals(bun.getValues().toArray(), result.getValues().toArray());
+  }
+
+  /**
+   Unit test behavior of choosing a different events for a series of X notes in a detail program
+   <p>
+   Sticky bun note choices should persist into following segments https://www.pivotaltracker.com/story/show/182132467
+   */
+  @Test
+  public void getStickyBun_createForEvent() throws JsonProcessingException, NexusException {
+    var result = subject.getStickyBun(fake.program9_sequence0_pattern0_event0.getId()).orElseThrow();
+
+    var resultJson = jsonProvider.getMapper().writeValueAsString(result);
+    assertEquals(fake.program9_sequence0_pattern0_event0.getId(), result.getEventId());
+    verify(mockSegmentWorkbench, times(1)).put(entityCaptor.capture());
+    List<Object> results = entityCaptor.getAllValues();
+    SegmentMeta resultMeta = (SegmentMeta) results.get(0);
+    assertEquals(StickyBun.computeMetaKey(fake.program9_sequence0_pattern0_event0.getId()), resultMeta.getKey());
+    assertEquals(resultJson, resultMeta.getValue());
+  }
+
+  /**
+   Unit test behavior of choosing an event for a note in a detail program
+   <p>
+   Sticky bun note choices should persist into following segments https://www.pivotaltracker.com/story/show/182132467
+   */
+  @Test
+  public void getStickyBun_multipleEventsPickedSeparately() throws JsonProcessingException {
+    var bun0 = new StickyBun(fake.program9_sequence0_pattern0_event0.getId(), 3);
+    var bunJson0 = jsonProvider.getMapper().writeValueAsString(bun0);
+    var bunKey0 = StickyBun.computeMetaKey(fake.program9_sequence0_pattern0_event0.getId());
+    var bunMeta0 = buildSegmentMeta(segment, bunKey0, bunJson0);
+    when(mockSegmentWorkbench.getSegmentMeta(eq(bunKey0))).thenReturn(Optional.of(bunMeta0));
+
+    var bun1 = new StickyBun(fake.program9_sequence0_pattern0_event1.getId(), 3);
+    var bunJson1 = jsonProvider.getMapper().writeValueAsString(bun1);
+    var bunKey1 = StickyBun.computeMetaKey(fake.program9_sequence0_pattern0_event1.getId());
+    var bunMeta1 = buildSegmentMeta(segment, bunKey1, bunJson1);
+    when(mockSegmentWorkbench.getSegmentMeta(eq(bunKey1))).thenReturn(Optional.of(bunMeta1));
+
+    var result0 = subject.getStickyBun(fake.program9_sequence0_pattern0_event0.getId()).orElseThrow();
+    var result1 = subject.getStickyBun(fake.program9_sequence0_pattern0_event1.getId()).orElseThrow();
+
+    assertEquals(fake.program9_sequence0_pattern0_event0.getId(), result0.getEventId());
+    assertArrayEquals(bun0.getValues().toArray(), result0.getValues().toArray());
+    assertEquals(fake.program9_sequence0_pattern0_event1.getId(), result1.getEventId());
+    assertArrayEquals(bun1.getValues().toArray(), result1.getValues().toArray());
+  }
+
+
 }
