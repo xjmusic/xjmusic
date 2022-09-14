@@ -720,17 +720,15 @@ public class CraftImpl extends FabricationWrapperImpl {
     var sourceRange = fabricator.getProgramRange(choice.getProgramId(), instrumentType);
     var targetRange = fabricator.getProgramVoicingNoteRange(instrumentType);
     var targetShiftSemitones = fabricator.getProgramTargetShift(sourceKey, Chord.of(chord.getName()));
-    var targetShiftOctaves = fabricator.getProgramRangeShiftOctaves(instrumentType,
-      sourceRange.shifted(targetShiftSemitones), // take semitone shift into account before computing octave shift! https://www.pivotaltracker.com/story/show/181975107
-      targetRange);
-    var voicingNotes = fabricator.getNotes(voicing).stream()
-      .flatMap(Note::ofValid)
-      .collect(Collectors.toList());
+    var voicingNotes = fabricator.getNotes(voicing).stream().flatMap(Note::ofValid).collect(Collectors.toList());
+
+    // take semitone shift into account before computing octave shift! https://www.pivotaltracker.com/story/show/181975107
+    var targetShiftOctaves = 12 * fabricator.getProgramRangeShiftOctaves(instrumentType, sourceRange.shifted(targetShiftSemitones), targetRange);
 
     // Event notes are either computed from sticky bun or interpreted from program, potentially at random
     List<Note> eventNotes = CSV.split(event.getTones())
       .stream()
-      .map(n -> Note.of(n).shift(targetShiftSemitones + 12 * targetShiftOctaves))
+      .map(n -> Note.of(n).shift(targetShiftSemitones + targetShiftOctaves))
       .sorted()
       .collect(Collectors.toList());
     var eventDeltaSemitones = sourceRange.shifted(targetShiftSemitones).getDeltaSemitones(NoteRange.ofNotes(eventNotes));

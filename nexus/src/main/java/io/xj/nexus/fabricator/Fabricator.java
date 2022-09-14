@@ -647,10 +647,10 @@ public interface Fabricator {
    TemplateConfig parameter stickyBunEnabled
    https://www.pivotaltracker.com/story/show/181839489
 
-   @param patternId for super-key
+   @param eventId for super-key
    @return sticky bun if present
    */
-  Optional<StickyBun> getStickyBun(UUID patternId);
+  Optional<StickyBun> getStickyBun(UUID eventId);
 
   /**
    Get the track name for a give program sequence pattern event

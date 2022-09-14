@@ -8,6 +8,7 @@ import org.junit.Test;
 import java.util.List;
 import java.util.UUID;
 
+import static io.xj.lib.music.NoteTest.assertNote;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -45,7 +46,7 @@ public class StickyBunTest {
   @Test
   public void computeMetaKey() {
     var eventId = UUID.fromString("0f650ae7-42b7-4023-816d-168759f37d2e");
-    assertEquals("StickyBun_0f650ae7-42b7-4023-816d-168759f37d2e", new StickyBun(eventId).computeMetaKey());
+    assertEquals("StickyBun_0f650ae7-42b7-4023-816d-168759f37d2e", new StickyBun(eventId, 1).computeMetaKey());
     assertEquals("StickyBun_0f650ae7-42b7-4023-816d-168759f37d2e", StickyBun.computeMetaKey(eventId));
   }
 
@@ -57,13 +58,14 @@ public class StickyBunTest {
     var eventId = UUID.fromString("0f650ae7-42b7-4023-816d-168759f37d2e");
     var source = List.of(Note.of("Bb7"), Note.of("X"), Note.of("X"), Note.of("X"));
     var voicingNotes = List.of(Note.of("C4"), Note.of("E5"), Note.of("G6"), Note.of("Bb7"));
-    var bun = new StickyBun(eventId, 4);
+    var bun = new StickyBun(eventId, List.of(42, 67, 100, 0));
 
     var result = bun.replaceAtonal(source, voicingNotes);
 
-    assertTrue(Note.of("Bb7").sameAs(result.get(0)));
-    for (var n : result)
-      assertTrue(voicingNotes.stream().anyMatch(vn -> vn.sameAs(n)));
+    assertNote("Bb7", result.get(0));
+    assertNote("G6", result.get(1));
+    assertNote("Bb7", result.get(2));
+    assertNote("C4", result.get(3));
   }
 
   /**

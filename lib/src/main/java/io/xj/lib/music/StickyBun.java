@@ -42,13 +42,14 @@ public class StickyBun {
   }
 
   /**
-   Prepare a sticky bun with only an event id
+   Prepare a sticky bun with event id and values
 
    @param eventId to persist
+   @param values  of bun
    */
-  public StickyBun(UUID eventId) {
-    this.values = List.of();
+  public StickyBun(UUID eventId, List<Integer> values) {
     this.eventId = eventId;
+    this.values = values;
   }
 
   /**
@@ -112,11 +113,11 @@ public class StickyBun {
 
     for (var i = 0; i < notes.size(); i++)
       if (notes.get(i).isAtonal()) {
-        var v = values.get(Math.min(i, values.size() - 1)) / MAX_VALUE;
-        var t = voicingRange.getLow().orElseThrow().shift(v * voicingRange.getSpan().orElseThrow());
-        var n = voicingNotes.stream().min(Comparator.comparingInt(a -> a.delta(t)));
-        if (n.isPresent())
-          notes.set(i, n.get());
+        float value = (float) values.get(Math.min(i, values.size() - 1)) / MAX_VALUE;
+        var targetNote = voicingRange.getLow().orElseThrow().shift((int) (value * voicingRange.getSpan().orElseThrow()));
+        var foundNote = voicingNotes.stream().min(Comparator.comparingInt(a -> Math.abs(a.delta(targetNote))));
+        if (foundNote.isPresent())
+          notes.set(i, foundNote.get());
       }
 
     return notes;
