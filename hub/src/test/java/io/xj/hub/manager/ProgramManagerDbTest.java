@@ -47,7 +47,7 @@ import static org.junit.Assert.*;
 // future test: permissions of different users to readMany vs. of vs. update or destroy programs
 @RunWith(MockitoJUnitRunner.class)
 public class ProgramManagerDbTest {
-  private ProgramManager testManager;
+  private ProgramManager subject;
 
   private HubIntegrationTestProvider test;
   private IntegrationTestingFixtures fake;
@@ -66,8 +66,10 @@ public class ProgramManagerDbTest {
 
     test.reset();
 
-    // Account "bananas"
+    // Accounts
     fake.account1 = test.insert(buildAccount("bananas"));
+    fake.account2 = test.insert(buildAccount("apples"));
+
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     fake.user2 = test.insert(buildUser("john", "john@email.com", "https://pictures.com/john.gif", "Admin"));
 
@@ -91,8 +93,11 @@ public class ProgramManagerDbTest {
     test.insert(buildProgramSequenceBinding(fake.program3_sequence1, 0));
     fake.program4 = test.insert(buildProgram(fake.library2, ProgramType.Detail, ProgramState.Published, "sail", "C#", 120.0f, 0.6f));
 
+    // Library in different account
+    fake.library3 = test.insert(buildLibrary(fake.account2, "car"));
+
     // Instantiate the test subject
-    testManager = injector.getInstance(ProgramManager.class);
+    subject = injector.getInstance(ProgramManager.class);
   }
 
   @After
@@ -103,17 +108,16 @@ public class ProgramManagerDbTest {
   @Test
   public void create() throws Exception {
     HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
-    Program subject = new Program();
-    subject.setKey("G minor 7");
-    subject.setLibraryId(fake.library2.getId());
-    subject.setName("cannons");
-    subject.setTempo(129.4f);
-    subject.setDensity(0.6f);
-    subject.setState(ProgramState.Published);
-    subject.setType(ProgramType.Main);
+    Program input = new Program();
+    input.setKey("G minor 7");
+    input.setLibraryId(fake.library2.getId());
+    input.setName("cannons");
+    input.setTempo(129.4f);
+    input.setDensity(0.6f);
+    input.setState(ProgramState.Published);
+    input.setType(ProgramType.Main);
 
-    Program result = testManager.create(
-      access, subject);
+    Program result = subject.create(access, input);
 
     assertNotNull(result);
     assertEquals("G minor 7", result.getKey());
@@ -130,18 +134,17 @@ public class ProgramManagerDbTest {
   @Test
   public void create_asArtist() throws Exception {
     HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
-    Program inputData = new Program();
-    inputData.setId(UUID.randomUUID());
-    inputData.setKey("G minor 7");
-    inputData.setLibraryId(fake.library2.getId());
-    inputData.setName("cannons");
-    inputData.setTempo(129.4f);
-    inputData.setDensity(0.6f);
-    inputData.setState(ProgramState.Published);
-    inputData.setType(ProgramType.Main);
+    Program input = new Program();
+    input.setId(UUID.randomUUID());
+    input.setKey("G minor 7");
+    input.setLibraryId(fake.library2.getId());
+    input.setName("cannons");
+    input.setTempo(129.4f);
+    input.setDensity(0.6f);
+    input.setState(ProgramState.Published);
+    input.setType(ProgramType.Main);
 
-    Program result = testManager.create(
-      access, inputData);
+    Program result = subject.create(access, input);
 
     assertNotNull(result);
     assertEquals("G minor 7", result.getKey());
@@ -149,6 +152,23 @@ public class ProgramManagerDbTest {
     assertEquals("cannons", result.getName());
     assertEquals(129.4, result.getTempo(), 0.1);
     assertEquals(ProgramType.Main, result.getType());
+  }
+
+  /**
+   Programs/Instruments can be cloned/moved between accounts https://www.pivotaltracker.com/story/show/181878883
+   */
+  @Test
+  public void clone_toLibraryInDifferentAccount() throws Exception {
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1, fake.account2));
+    Program input = new Program();
+    input.setLibraryId(fake.library3.getId());
+    input.setName("porcupines");
+
+    ManagerCloner<Program> resultCloner = subject.clone(access, fake.program1.getId(), input);
+
+    Program result = subject.readOne(HubAccess.internal(), resultCloner.getClone().getId());
+    assertEquals(fake.library3.getId(), result.getLibraryId());
+    assertEquals("porcupines", result.getName());
   }
 
   /**
@@ -161,9 +181,9 @@ public class ProgramManagerDbTest {
   @Test
   public void clone_fromOriginal() throws Exception {
     HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
-    Program inputData = new Program();
-    inputData.setLibraryId(fake.library2.getId());
-    inputData.setName("cannons fifty nine");
+    Program input = new Program();
+    input.setLibraryId(fake.library2.getId());
+    input.setName("cannons fifty nine");
     test.insert(buildProgramMeme(fake.program1, "cinnamon"));
     var voice = test.insert(buildProgramVoice(fake.program1, InstrumentType.Drum, "drums"));
     var track = test.insert(buildProgramVoiceTrack(voice, "Kick"));
@@ -172,7 +192,7 @@ public class ProgramManagerDbTest {
     var pattern = test.insert(buildProgramSequencePattern(fake.program1_sequence1, voice, 8, "jam"));
     test.insert(buildProgramSequencePatternEvent(pattern, track, 0.0f, 1.0f, "C", 1.0f));
 
-    ManagerCloner<Program> resultCloner = testManager.clone(access, fake.program1.getId(), inputData);
+    ManagerCloner<Program> resultCloner = subject.clone(access, fake.program1.getId(), input);
 
     Program result = resultCloner.getClone();
     assertNotNull(result);
@@ -183,82 +203,42 @@ public class ProgramManagerDbTest {
     assertEquals(120, result.getTempo(), 0.1);
     assertEquals(ProgramType.Main, result.getType());
     // Cloned ProgramMeme
-    assertEquals(1, resultCloner.getChildClones().stream()
-      .filter(e -> ProgramMeme.class.equals(e.getClass())).count());
-    assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(PROGRAM_MEME)
-      .where(PROGRAM_MEME.PROGRAM_ID.eq(result.getId()))
-      .fetchOne(0, int.class));
+    assertEquals(1, resultCloner.getChildClones().stream().filter(e -> ProgramMeme.class.equals(e.getClass())).count());
+    assertEquals(Integer.valueOf(1), test.getDSL().selectCount().from(PROGRAM_MEME).where(PROGRAM_MEME.PROGRAM_ID.eq(result.getId())).fetchOne(0, int.class));
     // Cloned ProgramVoice
-    assertEquals(1, resultCloner.getChildClones().stream()
-      .filter(e -> ProgramVoice.class.equals(e.getClass())).count());
-    assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(PROGRAM_VOICE)
-      .where(PROGRAM_VOICE.PROGRAM_ID.eq(result.getId()))
-      .fetchOne(0, int.class));
+    assertEquals(1, resultCloner.getChildClones().stream().filter(e -> ProgramVoice.class.equals(e.getClass())).count());
+    assertEquals(Integer.valueOf(1), test.getDSL().selectCount().from(PROGRAM_VOICE).where(PROGRAM_VOICE.PROGRAM_ID.eq(result.getId())).fetchOne(0, int.class));
     // Cloned ProgramVoiceTrack belongs to ProgramVoice
-    assertEquals(1, resultCloner.getChildClones().stream()
-      .filter(e -> ProgramVoiceTrack.class.equals(e.getClass())).count());
-    assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(PROGRAM_VOICE_TRACK)
-      .where(PROGRAM_VOICE_TRACK.PROGRAM_ID.eq(result.getId()))
-      .fetchOne(0, int.class));
+    assertEquals(1, resultCloner.getChildClones().stream().filter(e -> ProgramVoiceTrack.class.equals(e.getClass())).count());
+    assertEquals(Integer.valueOf(1), test.getDSL().selectCount().from(PROGRAM_VOICE_TRACK).where(PROGRAM_VOICE_TRACK.PROGRAM_ID.eq(result.getId())).fetchOne(0, int.class));
     // Cloned ProgramSequence
-    assertEquals(1, resultCloner.getChildClones().stream()
-      .filter(e -> ProgramSequence.class.equals(e.getClass())).count());
-    assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(PROGRAM_SEQUENCE)
-      .where(PROGRAM_SEQUENCE.PROGRAM_ID.eq(result.getId()))
-      .fetchOne(0, int.class));
+    assertEquals(1, resultCloner.getChildClones().stream().filter(e -> ProgramSequence.class.equals(e.getClass())).count());
+    assertEquals(Integer.valueOf(1), test.getDSL().selectCount().from(PROGRAM_SEQUENCE).where(PROGRAM_SEQUENCE.PROGRAM_ID.eq(result.getId())).fetchOne(0, int.class));
     // Cloned ProgramSequenceChord belongs to ProgramSequence
-    assertEquals(1, resultCloner.getChildClones().stream()
-      .filter(e -> ProgramSequenceChord.class.equals(e.getClass())).count());
-    assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(PROGRAM_SEQUENCE_CHORD)
-      .where(PROGRAM_SEQUENCE_CHORD.PROGRAM_ID.eq(result.getId()))
-      .fetchOne(0, int.class));
+    assertEquals(1, resultCloner.getChildClones().stream().filter(e -> ProgramSequenceChord.class.equals(e.getClass())).count());
+    assertEquals(Integer.valueOf(1), test.getDSL().selectCount().from(PROGRAM_SEQUENCE_CHORD).where(PROGRAM_SEQUENCE_CHORD.PROGRAM_ID.eq(result.getId())).fetchOne(0, int.class));
     // Cloned ProgramSequenceChordVoicing belongs to ProgramSequenceChord
-    assertEquals(1, resultCloner.getChildClones().stream()
-      .filter(e -> ProgramSequenceChordVoicing.class.equals(e.getClass())).count());
-    assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(PROGRAM_SEQUENCE_CHORD_VOICING)
-      .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_ID.eq(result.getId()))
-      .fetchOne(0, int.class));
+    assertEquals(1, resultCloner.getChildClones().stream().filter(e -> ProgramSequenceChordVoicing.class.equals(e.getClass())).count());
+    assertEquals(Integer.valueOf(1), test.getDSL().selectCount().from(PROGRAM_SEQUENCE_CHORD_VOICING).where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_ID.eq(result.getId())).fetchOne(0, int.class));
     // Cloned ProgramSequenceBinding belongs to ProgramSequence
-    assertEquals(1, resultCloner.getChildClones().stream()
-      .filter(e -> ProgramSequenceBinding.class.equals(e.getClass())).count());
-    assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(PROGRAM_SEQUENCE_BINDING)
-      .where(PROGRAM_SEQUENCE_BINDING.PROGRAM_ID.eq(result.getId()))
-      .fetchOne(0, int.class));
+    assertEquals(1, resultCloner.getChildClones().stream().filter(e -> ProgramSequenceBinding.class.equals(e.getClass())).count());
+    assertEquals(Integer.valueOf(1), test.getDSL().selectCount().from(PROGRAM_SEQUENCE_BINDING).where(PROGRAM_SEQUENCE_BINDING.PROGRAM_ID.eq(result.getId())).fetchOne(0, int.class));
     // Cloned ProgramSequenceBindingMeme belongs to ProgramSequenceBinding
-    assertEquals(2, resultCloner.getChildClones().stream()
-      .filter(e -> ProgramSequenceBindingMeme.class.equals(e.getClass())).count());
-    assertEquals(Integer.valueOf(2), test.getDSL()
-      .selectCount().from(PROGRAM_SEQUENCE_BINDING_MEME)
-      .where(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID.eq(result.getId()))
-      .fetchOne(0, int.class));
+    assertEquals(2, resultCloner.getChildClones().stream().filter(e -> ProgramSequenceBindingMeme.class.equals(e.getClass())).count());
+    assertEquals(Integer.valueOf(2), test.getDSL().selectCount().from(PROGRAM_SEQUENCE_BINDING_MEME).where(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID.eq(result.getId())).fetchOne(0, int.class));
     // Cloned ProgramSequencePattern belongs to ProgramSequence and ProgramVoice
-    assertEquals(1, resultCloner.getChildClones().stream()
-      .filter(e -> ProgramSequencePattern.class.equals(e.getClass())).count());
-    assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(PROGRAM_SEQUENCE_PATTERN)
-      .where(PROGRAM_SEQUENCE_PATTERN.PROGRAM_ID.eq(result.getId()))
-      .fetchOne(0, int.class));
+    assertEquals(1, resultCloner.getChildClones().stream().filter(e -> ProgramSequencePattern.class.equals(e.getClass())).count());
+    assertEquals(Integer.valueOf(1), test.getDSL().selectCount().from(PROGRAM_SEQUENCE_PATTERN).where(PROGRAM_SEQUENCE_PATTERN.PROGRAM_ID.eq(result.getId())).fetchOne(0, int.class));
     // Cloned ProgramSequencePatternEvent belongs to ProgramSequencePattern and ProgramVoiceTrack
-    assertEquals(1, resultCloner.getChildClones().stream()
-      .filter(e -> ProgramSequencePatternEvent.class.equals(e.getClass())).count());
-    assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(PROGRAM_SEQUENCE_PATTERN_EVENT)
-      .where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_ID.eq(result.getId()))
-      .fetchOne(0, int.class));
+    assertEquals(1, resultCloner.getChildClones().stream().filter(e -> ProgramSequencePatternEvent.class.equals(e.getClass())).count());
+    assertEquals(Integer.valueOf(1), test.getDSL().selectCount().from(PROGRAM_SEQUENCE_PATTERN_EVENT).where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_ID.eq(result.getId())).fetchOne(0, int.class));
   }
 
   @Test
   public void readOne() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
 
-    Program result = testManager.readOne(access, fake.program2.getId());
+    Program result = subject.readOne(access, fake.program2.getId());
 
     assertNotNull(result);
     assertEquals(ProgramType.Beat, result.getType());
@@ -272,7 +252,7 @@ public class ProgramManagerDbTest {
   public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User");
 
-    var e = assertThrows(ManagerException.class, () -> testManager.readOne(access, fake.program1.getId()));
+    var e = assertThrows(ManagerException.class, () -> subject.readOne(access, fake.program1.getId()));
     assertEquals("Record does not exist", e.getMessage());
   }
 
@@ -293,7 +273,7 @@ public class ProgramManagerDbTest {
     var pattern = test.insert(buildProgramSequencePattern(fake.program1_sequence1, voice, 8, "jam"));
     test.insert(buildProgramSequencePatternEvent(pattern, track, 0.0f, 1.0f, "C", 1.0f));
 
-    Collection<Object> results = testManager.readManyWithChildEntities(access, ImmutableList.of(fake.program1.getId()));
+    Collection<Object> results = subject.readManyWithChildEntities(access, ImmutableList.of(fake.program1.getId()));
 
     assertEquals(12, results.size());
     assertContains(Program.class, 1, results);
@@ -318,17 +298,14 @@ public class ProgramManagerDbTest {
    @param <N>     type of entity
    */
   private <N> void assertContains(Class<N> type, int total, Collection<Object> results) {
-    assertEquals(String.format("Exactly %s count of %s class in results",
-      total, type.getSimpleName()), total, results.stream()
-      .filter(r -> type.isAssignableFrom(r.getClass()))
-      .count());
+    assertEquals(String.format("Exactly %s count of %s class in results", total, type.getSimpleName()), total, results.stream().filter(r -> type.isAssignableFrom(r.getClass())).count());
   }
 
   @Test
   public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User");
 
-    Collection<Program> result = testManager.readMany(access, ImmutableList.of(fake.library1.getId()));
+    Collection<Program> result = subject.readMany(access, ImmutableList.of(fake.library1.getId()));
 
     assertEquals(0L, result.size());
   }
@@ -336,16 +313,16 @@ public class ProgramManagerDbTest {
   @Test
   public void update_FailsUpdatingToNonexistentLibrary() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
-    Program subject = new Program();
-    subject.setId(UUID.randomUUID());
-    subject.setName("cannons");
-    subject.setLibraryId(UUID.randomUUID());
+    Program input = new Program();
+    input.setId(UUID.randomUUID());
+    input.setName("cannons");
+    input.setLibraryId(UUID.randomUUID());
 
     try {
-      testManager.update(access, fake.program1.getId(), subject);
+      subject.update(access, fake.program1.getId(), input);
 
     } catch (Exception e) {
-      Program result = testManager.readOne(HubAccess.internal(), fake.program1.getId());
+      Program result = subject.readOne(HubAccess.internal(), fake.program1.getId());
       assertNotNull(result);
       assertEquals("fonds", result.getName());
       assertEquals(fake.library1.getId(), result.getLibraryId());
@@ -356,19 +333,19 @@ public class ProgramManagerDbTest {
   @Test
   public void update_Name() throws Exception {
     HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
-    Program subject = new Program();
-    subject.setId(fake.program1.getId());
-    subject.setDensity(1.0f);
-    subject.setKey("G minor 7");
-    subject.setLibraryId(fake.library2.getId());
-    subject.setName("cannons");
-    subject.setTempo(129.4f);
-    subject.setState(ProgramState.Published);
-    subject.setType(ProgramType.Main);
+    Program input = new Program();
+    input.setId(fake.program1.getId());
+    input.setDensity(1.0f);
+    input.setKey("G minor 7");
+    input.setLibraryId(fake.library2.getId());
+    input.setName("cannons");
+    input.setTempo(129.4f);
+    input.setState(ProgramState.Published);
+    input.setType(ProgramType.Main);
 
-    testManager.update(access, fake.program1.getId(), subject);
+    subject.update(access, fake.program1.getId(), input);
 
-    Program result = testManager.readOne(HubAccess.internal(), fake.program1.getId());
+    Program result = subject.readOne(HubAccess.internal(), fake.program1.getId());
     assertNotNull(result);
     assertEquals("cannons", result.getName());
     assertEquals(fake.library2.getId(), result.getLibraryId());
@@ -383,17 +360,17 @@ public class ProgramManagerDbTest {
   public void update_artistCanAlwaysChangeType() throws Exception {
     HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     test.insert(buildProgramVoice(fake.program2, InstrumentType.Drum, "Drums"));
-    Program subject = new Program();
-    subject.setId(fake.program2.getId());
-    subject.setDensity(1.0f);
-    subject.setKey("G minor 7");
-    subject.setLibraryId(fake.library1.getId());
-    subject.setName("cannons");
-    subject.setTempo(129.4f);
-    subject.setState(ProgramState.Published);
-    subject.setType(ProgramType.Main);
+    Program input = new Program();
+    input.setId(fake.program2.getId());
+    input.setDensity(1.0f);
+    input.setKey("G minor 7");
+    input.setLibraryId(fake.library1.getId());
+    input.setName("cannons");
+    input.setTempo(129.4f);
+    input.setState(ProgramState.Published);
+    input.setType(ProgramType.Main);
 
-    testManager.update(access, fake.program2.getId(), subject);
+    subject.update(access, fake.program2.getId(), input);
   }
 
   /**
@@ -404,19 +381,19 @@ public class ProgramManagerDbTest {
   public void update_Name_PreservesOriginalOwner() throws Exception {
     // John will edit a program originally belonging to Jenny
     HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
-    Program subject = new Program();
-    subject.setId(fake.program1.getId());
-    subject.setKey("G minor 7");
-    subject.setDensity(1.0f);
-    subject.setLibraryId(fake.library2.getId());
-    subject.setName("cannons");
-    subject.setState(ProgramState.Published);
-    subject.setTempo(129.4f);
-    subject.setType(ProgramType.Main);
+    Program input = new Program();
+    input.setId(fake.program1.getId());
+    input.setKey("G minor 7");
+    input.setDensity(1.0f);
+    input.setLibraryId(fake.library2.getId());
+    input.setName("cannons");
+    input.setState(ProgramState.Published);
+    input.setTempo(129.4f);
+    input.setType(ProgramType.Main);
 
-    testManager.update(access, fake.program1.getId(), subject);
+    subject.update(access, fake.program1.getId(), input);
 
-    Program result = testManager.readOne(HubAccess.internal(), fake.program1.getId());
+    Program result = subject.readOne(HubAccess.internal(), fake.program1.getId());
     assertNotNull(result);
   }
 
@@ -424,10 +401,10 @@ public class ProgramManagerDbTest {
   public void destroy() throws Exception {
     HubAccess access = HubAccess.create("Admin");
 
-    testManager.destroy(access, fake.program2.getId());
+    subject.destroy(access, fake.program2.getId());
 
     try {
-      testManager.readOne(HubAccess.internal(), fake.program2.getId());
+      subject.readOne(HubAccess.internal(), fake.program2.getId());
       fail();
     } catch (ManagerException e) {
       assertTrue("Record should not exist", e.getMessage().contains("does not exist"));
@@ -439,13 +416,9 @@ public class ProgramManagerDbTest {
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     fake.program35 = test.insert(buildProgram(fake.library2, ProgramType.Main, ProgramState.Published, "fonds", "C#", 120.0f, 0.6f));
 
-    testManager.destroy(access, fake.program35.getId());
+    subject.destroy(access, fake.program35.getId());
 
-    assertEquals(Integer.valueOf(0), test.getDSL()
-      .selectCount().from(PROGRAM)
-      .where(PROGRAM.ID.eq(fake.program35.getId()))
-      .and(PROGRAM.IS_DELETED.eq(false))
-      .fetchOne(0, int.class));
+    assertEquals(Integer.valueOf(0), test.getDSL().selectCount().from(PROGRAM).where(PROGRAM.ID.eq(fake.program35.getId())).and(PROGRAM.IS_DELETED.eq(false)).fetchOne(0, int.class));
   }
 
   @Test
@@ -453,7 +426,7 @@ public class ProgramManagerDbTest {
     fake.account2 = buildAccount("Testing");
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account2), "Artist");
 
-    var e = assertThrows(ManagerException.class, () -> testManager.destroy(access, fake.program1.getId()));
+    var e = assertThrows(ManagerException.class, () -> subject.destroy(access, fake.program1.getId()));
     assertEquals("Program belonging to you does not exist", e.getMessage());
   }
 
@@ -467,7 +440,7 @@ public class ProgramManagerDbTest {
     test.insert(buildProgramMeme(program, "frozen"));
     test.insert(buildProgramMeme(program, "ham"));
 
-    testManager.destroy(access, program.getId());
+    subject.destroy(access, program.getId());
   }
 
   /**
@@ -485,20 +458,16 @@ public class ProgramManagerDbTest {
     var pattern = test.insert(buildProgramSequencePattern(programSequence, voice, 8, "jam"));
     test.insert(buildProgramSequencePatternEvent(pattern, track, 0.0f, 1.0f, "C", 1.0f));
 
-    testManager.destroy(access, program.getId());
+    subject.destroy(access, program.getId());
 
-    assertEquals(Integer.valueOf(0), test.getDSL()
-      .selectCount().from(PROGRAM)
-      .where(PROGRAM.ID.eq(program.getId()))
-      .and(PROGRAM.IS_DELETED.eq(false))
-      .fetchOne(0, int.class));
+    assertEquals(Integer.valueOf(0), test.getDSL().selectCount().from(PROGRAM).where(PROGRAM.ID.eq(program.getId())).and(PROGRAM.IS_DELETED.eq(false)).fetchOne(0, int.class));
   }
 
   @Test
   public void readMany() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
 
-    Collection<Program> result = testManager.readMany(access, ImmutableList.of(fake.library1.getId()));
+    Collection<Program> result = subject.readMany(access, ImmutableList.of(fake.library1.getId()));
 
     assertEquals(2L, result.size());
     Iterator<Program> resultIt = result.iterator();

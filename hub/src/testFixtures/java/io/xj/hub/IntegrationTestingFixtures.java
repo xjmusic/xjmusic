@@ -58,6 +58,7 @@ public class IntegrationTestingFixtures {
   public Library library2;
   public Library library2a;
   public Library library2b;
+  public Library library3;
   public Program program15;
   public Program program1;
   public Program program2;

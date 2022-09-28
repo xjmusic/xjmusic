@@ -29,10 +29,21 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.Collection;
 import java.util.UUID;
 
-import static io.xj.hub.IntegrationTestingFixtures.*;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrument;
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrumentAudio;
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrumentMeme;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
+import static io.xj.hub.IntegrationTestingFixtures.buildUser;
 import static io.xj.hub.tables.InstrumentAudio.INSTRUMENT_AUDIO;
 import static io.xj.hub.tables.InstrumentMeme.INSTRUMENT_MEME;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 // future test: permissions of different users to readMany vs. of vs. update or delete instruments
 
@@ -40,7 +51,7 @@ import static org.junit.Assert.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InstrumentManagerDbTest {
-  private InstrumentManager testManager;
+  private InstrumentManager subject;
   private HubIntegrationTestProvider test;
   private IntegrationTestingFixtures fake;
 
@@ -58,8 +69,11 @@ public class InstrumentManagerDbTest {
 
     test.reset();
 
-    // Account "bananas"
+    // Accounts
     fake.account1 = test.insert(buildAccount("bananas"));
+    fake.account2 = test.insert(buildAccount("apples"));
+
+    // User
     fake.user2 = test.insert(buildUser("john", "john@email.com", "https://pictures.com/john.gif", "Admin"));
 
     // Jenny has a "user" role and belongs to account "bananas"
@@ -72,8 +86,11 @@ public class InstrumentManagerDbTest {
     fake.instrument202 = test.insert(buildInstrument(fake.library1, InstrumentType.Drum, InstrumentMode.Event, InstrumentState.Published, "jams"));
     fake.audio1 = test.insert(buildInstrumentAudio(fake.instrument202, "Test audio", "fake.audio5.wav", 0.0f, 2.0f, 120.0f));
 
+    // Library in different account
+    fake.library3 = test.insert(buildLibrary(fake.account2, "car"));
+
     // Instantiate the test subject
-    testManager = injector.getInstance(InstrumentManager.class);
+    subject = injector.getInstance(InstrumentManager.class);
   }
 
   @After
@@ -84,18 +101,18 @@ public class InstrumentManagerDbTest {
   @Test
   public void create() throws Exception {
     HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
-    Instrument subject = new Instrument();
-    subject.setId(UUID.randomUUID());
-    subject.setLibraryId(fake.library1.getId());
-    subject.setName("shimmy");
-    subject.setVolume(0.54f);
-    subject.setDensity(0.6f);
-    subject.setState(InstrumentState.Published);
-    subject.setMode(InstrumentMode.Event);
-    subject.setType(InstrumentType.Drum);
+    Instrument input = new Instrument();
+    input.setId(UUID.randomUUID());
+    input.setLibraryId(fake.library1.getId());
+    input.setName("shimmy");
+    input.setVolume(0.54f);
+    input.setDensity(0.6f);
+    input.setState(InstrumentState.Published);
+    input.setMode(InstrumentMode.Event);
+    input.setType(InstrumentType.Drum);
 
-    Instrument result = testManager.create(
-      access, subject);
+    Instrument result = subject.create(
+      access, input);
 
     assertNotNull(result);
     assertEquals(fake.library1.getId(), result.getLibraryId());
@@ -111,12 +128,29 @@ public class InstrumentManagerDbTest {
   @Test
   public void create_defaultVolume() throws Exception {
     HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
-    Instrument subject = buildInstrument(fake.library1, InstrumentType.Drum, InstrumentMode.Event, InstrumentState.Published, "shimmy");
+    Instrument input = buildInstrument(fake.library1, InstrumentType.Drum, InstrumentMode.Event, InstrumentState.Published, "shimmy");
 
-    Instrument result = testManager.create(
-      access, subject);
+    Instrument result = subject.create(
+      access, input);
 
     assertEquals(1.0f, result.getVolume(), 0.01);
+  }
+
+  /**
+   Instruments/Instruments can be cloned/moved between accounts https://www.pivotaltracker.com/story/show/181878883
+   */
+  @Test
+  public void clone_toLibraryInDifferentAccount() throws Exception {
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1, fake.account2));
+    Instrument input = new Instrument();
+    input.setLibraryId(fake.library3.getId());
+    input.setName("porcupines");
+
+    ManagerCloner<Instrument> resultCloner = subject.clone(access, fake.instrument202.getId(), input);
+
+    Instrument result = subject.readOne(HubAccess.internal(), resultCloner.getClone().getId());
+    assertEquals(fake.library3.getId(), result.getLibraryId());
+    assertEquals("porcupines", result.getName());
   }
 
   /**
@@ -127,10 +161,10 @@ public class InstrumentManagerDbTest {
   public void clone_fromOriginal() throws Exception {
     HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     test.insert(buildInstrumentMeme(fake.instrument202, "chunk"));
-    Instrument subject = new Instrument();
-    subject.setId(UUID.randomUUID());
-    subject.setLibraryId(fake.library1.getId());
-    subject.setConfig(
+    Instrument input = new Instrument();
+    input.setId(UUID.randomUUID());
+    input.setLibraryId(fake.library1.getId());
+    input.setConfig(
       """
         isMultiphonic = true
         isOneShot = false
@@ -138,9 +172,9 @@ public class InstrumentManagerDbTest {
         oneShotObserveLengthOfEvents = [TEST]
           """
     );
-    subject.setName("cannons fifty nine");
+    input.setName("cannons fifty nine");
 
-    ManagerCloner<Instrument> result = testManager.clone(access, fake.instrument202.getId(), subject);
+    ManagerCloner<Instrument> result = subject.clone(access, fake.instrument202.getId(), input);
 
     assertNotNull(result);
     assertEquals(fake.library1.getId(), result.getClone().getLibraryId());
@@ -170,7 +204,7 @@ public class InstrumentManagerDbTest {
   public void readOne() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
 
-    Instrument result = testManager.readOne(access, fake.instrument201.getId());
+    Instrument result = subject.readOne(access, fake.instrument201.getId());
 
     assertNotNull(result);
     assertEquals(InstrumentType.Pad, result.getType());
@@ -185,7 +219,7 @@ public class InstrumentManagerDbTest {
     HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")
     ), "User");
 
-    var e = assertThrows(ManagerException.class, () -> testManager.readOne(access, fake.instrument201.getId()));
+    var e = assertThrows(ManagerException.class, () -> subject.readOne(access, fake.instrument201.getId()));
     assertEquals("Instrument does not exist", e.getMessage());
   }
 
@@ -195,7 +229,7 @@ public class InstrumentManagerDbTest {
   public void readMany() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
 
-    Collection<Instrument> result = testManager.readMany(access, ImmutableList.of(fake.library1.getId()));
+    Collection<Instrument> result = subject.readMany(access, ImmutableList.of(fake.library1.getId()));
 
     assertEquals(2L, result.size());
   }
@@ -204,7 +238,7 @@ public class InstrumentManagerDbTest {
   public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User");
 
-    Collection<Instrument> result = testManager.readMany(access, ImmutableList.of(fake.library1.getId()));
+    Collection<Instrument> result = subject.readMany(access, ImmutableList.of(fake.library1.getId()));
 
     assertEquals(0L, result.size());
   }
@@ -212,16 +246,16 @@ public class InstrumentManagerDbTest {
   @Test
   public void update_FailsUpdatingToNonexistentLibrary() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
-    Instrument subject = new Instrument();
-    subject.setId(UUID.randomUUID());
-    subject.setName("shimmy");
-    subject.setLibraryId(UUID.randomUUID());
+    Instrument input = new Instrument();
+    input.setId(UUID.randomUUID());
+    input.setName("shimmy");
+    input.setLibraryId(UUID.randomUUID());
 
     try {
-      testManager.update(access, fake.instrument201.getId(), subject);
+      subject.update(access, fake.instrument201.getId(), input);
 
     } catch (Exception e) {
-      Instrument result = testManager.readOne(HubAccess.internal(), fake.instrument201.getId());
+      Instrument result = subject.readOne(HubAccess.internal(), fake.instrument201.getId());
       assertNotNull(result);
       assertEquals("buns", result.getName());
       assertEquals(fake.library1.getId(), result.getLibraryId());
@@ -237,21 +271,21 @@ public class InstrumentManagerDbTest {
     HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     fake.instrument201.setVolume(0.74f);
 
-    testManager.update(access, fake.instrument201.getId(), fake.instrument201);
+    subject.update(access, fake.instrument201.getId(), fake.instrument201);
 
-    Instrument result = testManager.readOne(HubAccess.internal(), fake.instrument201.getId());
+    Instrument result = subject.readOne(HubAccess.internal(), fake.instrument201.getId());
     assertEquals(0.74f, result.getVolume(), 0.01f);
   }
 
   @Test
   public void update_addAudio() throws Exception {
     HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
-    Instrument subject = test.insert(buildInstrument(fake.library1, InstrumentType.Drum, InstrumentMode.Event, InstrumentState.Published, "shimmy"));
-    test.insert(buildInstrumentAudio(subject, "Test audio", "fake.audio5.wav", 0.0f, 20.f, 120.0f));
+    Instrument input = test.insert(buildInstrument(fake.library1, InstrumentType.Drum, InstrumentMode.Event, InstrumentState.Published, "shimmy"));
+    test.insert(buildInstrumentAudio(input, "Test audio", "fake.audio5.wav", 0.0f, 20.f, 120.0f));
 
-    testManager.update(access, fake.instrument201.getId(), subject);
+    subject.update(access, fake.instrument201.getId(), input);
 
-    Instrument result = testManager.readOne(HubAccess.internal(), fake.instrument201.getId());
+    Instrument result = subject.readOne(HubAccess.internal(), fake.instrument201.getId());
     assertNotNull(result);
     assertEquals(0.6, result.getDensity(), 0.1);
     assertEquals("shimmy", result.getName());
@@ -263,10 +297,10 @@ public class InstrumentManagerDbTest {
     HubAccess access = HubAccess.create("Admin");
     fake.instrument251 = test.insert(buildInstrument(fake.library1, InstrumentType.Pad, InstrumentMode.Event, InstrumentState.Published, "jub"));
 
-    testManager.destroy(access, fake.instrument251.getId());
+    subject.destroy(access, fake.instrument251.getId());
 
     try {
-      testManager.readOne(HubAccess.internal(), fake.instrument251.getId());
+      subject.readOne(HubAccess.internal(), fake.instrument251.getId());
       fail();
     } catch (ManagerException e) {
       assertTrue("Record should not exist", e.getMessage().contains("does not exist"));
@@ -280,7 +314,7 @@ public class InstrumentManagerDbTest {
     test.insert(buildInstrumentMeme(instrument, "frozen"));
     test.insert(buildInstrumentMeme(instrument, "ham"));
 
-    testManager.destroy(access, instrument.getId());
+    subject.destroy(access, instrument.getId());
   }
 
   /**
@@ -292,7 +326,7 @@ public class InstrumentManagerDbTest {
     Instrument instrument = test.insert(buildInstrument(fake.library1, InstrumentType.Pad, InstrumentMode.Event, InstrumentState.Published, "sandwich"));
     test.insert(buildInstrumentAudio(instrument, "drums", "drums.wav", 0.0f, 1.0f, 120.0f, 0.6f, "bing", "D", 1.0f));
 
-    testManager.destroy(access, instrument.getId());
+    subject.destroy(access, instrument.getId());
   }
 
 }
