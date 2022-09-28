@@ -28,6 +28,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.*;
@@ -48,7 +50,9 @@ import static org.junit.Assert.*;
 @RunWith(MockitoJUnitRunner.class)
 public class ProgramManagerDbTest {
   private ProgramManager subject;
-
+  private ProgramVoiceManager voiceManager;
+  private ProgramSequenceChordManager chordManager;
+  private ProgramSequenceChordVoicingManager voicingManager;
   private HubIntegrationTestProvider test;
   private IntegrationTestingFixtures fake;
 
@@ -62,6 +66,9 @@ public class ProgramManagerDbTest {
       }
     }));
     test = injector.getInstance(HubIntegrationTestProvider.class);
+    voiceManager = injector.getInstance(ProgramVoiceManager.class);
+    chordManager = injector.getInstance(ProgramSequenceChordManager.class);
+    voicingManager = injector.getInstance(ProgramSequenceChordVoicingManager.class);
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
@@ -169,6 +176,39 @@ public class ProgramManagerDbTest {
     Program result = subject.readOne(HubAccess.internal(), resultCloner.getClone().getId());
     assertEquals(fake.library3.getId(), result.getLibraryId());
     assertEquals("porcupines", result.getName());
+  }
+
+  /**
+   Programs/Instruments can be cloned/moved between accounts https://www.pivotaltracker.com/story/show/181878883
+   */
+  @Test
+  public void clone_mainProgramIncludesChordVoicings() throws Exception {
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1, fake.account1));
+    var padVoice = test.insert(buildProgramVoice(fake.program1, InstrumentType.Pad, "Pad"));
+    var padChord0 = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "D"));
+    var padChord1 = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 1.0f, "Dbm"));
+    var padChordVoicing0 = test.insert(buildProgramSequenceChordVoicing(padChord0, padVoice, "D4,F#4,A4"));
+    var padChordVoicing1 = test.insert(buildProgramSequenceChordVoicing(padChord1, padVoice, "Db4,E4,Ab4"));
+    Program input = new Program();
+    input.setName("porcupines");
+
+    ManagerCloner<Program> resultCloner = subject.clone(access, fake.program1.getId(), input);
+
+    Program result = subject.readOne(HubAccess.internal(), resultCloner.getClone().getId());
+    var resultVoice = voiceManager.readMany(HubAccess.internal(), List.of(result.getId())).stream().findFirst().orElseThrow();
+    assertEquals("Pad", resultVoice.getName());
+    //
+    var resultChords = chordManager.readMany(HubAccess.internal(), List.of(result.getId()));
+    var resultChord0 = resultChords.stream().filter(c -> c.getPosition() == 0.0f).findAny().orElseThrow();
+    var resultChord1 = resultChords.stream().filter(c -> c.getPosition() == 1.0f).findAny().orElseThrow();
+    //
+    var resultVoicings = voicingManager.readMany(HubAccess.internal(), List.of(result.getId()));
+    var resultVoicing0 = resultVoicings.stream().filter(v -> Objects.equals(resultChord0.getId(), v.getProgramSequenceChordId())).findAny().orElseThrow();
+    assertEquals(resultVoice.getId(), resultVoicing0.getProgramVoiceId());
+    assertEquals(resultChord0.getId(), resultVoicing0.getProgramSequenceChordId());
+    var resultVoicing1 = resultVoicings.stream().filter(v -> Objects.equals(resultChord1.getId(), v.getProgramSequenceChordId())).findAny().orElseThrow();
+    assertEquals(resultVoice.getId(), resultVoicing1.getProgramVoiceId());
+    assertEquals(resultChord1.getId(), resultVoicing1.getProgramSequenceChordId());
   }
 
   /**

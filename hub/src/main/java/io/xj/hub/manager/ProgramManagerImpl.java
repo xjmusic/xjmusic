@@ -7,7 +7,6 @@ import com.google.inject.Inject;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.ProgramState;
-import io.xj.hub.enums.UserRoleType;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.FeedbackProgram;
@@ -114,7 +113,7 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
 
       // Clone ProgramSequenceChordVoiding belongs to ProgramSequenceChord
       cloner.clone(db, PROGRAM_SEQUENCE_CHORD_VOICING, PROGRAM_SEQUENCE_CHORD_VOICING.ID,
-        ImmutableSet.of(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID),
+        ImmutableSet.of(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID, PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_VOICE_ID),
         PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_ID, cloneId, targetId);
 
       // Clone ProgramSequenceBinding belongs to ProgramSequence
