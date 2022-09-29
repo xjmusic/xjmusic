@@ -12,6 +12,7 @@ public class MixerModule extends AbstractModule {
   }
 
   private void installMixFactory() {
+    bind(EnvelopeProvider.class).to(EnvelopeProviderImpl.class);
     install(new NotificationModule());
     install(new FactoryModuleBuilder()
       .implement(Mixer.class, MixerImpl.class)

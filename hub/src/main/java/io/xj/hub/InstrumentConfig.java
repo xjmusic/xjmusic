@@ -22,20 +22,22 @@ import java.util.stream.Collectors;
  if the `config` value contains only `previewLengthMaxHours = 8`
  */
 public class InstrumentConfig {
-  public static final String DEFAULT =
-    """
-      isMultiphonic = false
-      isOneShot = false
-      isOneShotCutoffEnabled = true
-      isTonal = false
-      oneShotObserveLengthOfEvents = []
-      """;
+  public static final String DEFAULT = """
+    attackMillis = 1
+    isMultiphonic = false
+    isOneShot = false
+    isOneShotCutoffEnabled = true
+    isTonal = false
+    oneShotObserveLengthOfEvents = []
+    releaseMillis = 5
+    """;
   private final Boolean isMultiphonic;
   private final Boolean isOneShot;
-  private final Boolean isTonal;
-  private final Collection<String> oneShotObserveLengthOfEvents;
-
   private final Boolean isOneShotCutoffEnabled;
+  private final Boolean isTonal;
+  private final Integer attackMillis;
+  private final Integer releaseMillis;
+  private final Collection<String> oneShotObserveLengthOfEvents;
 
   /**
    Instantiate an Instrument configuration from a string of typesafe config.
@@ -66,14 +68,14 @@ public class InstrumentConfig {
    */
   public InstrumentConfig(String configText) throws ValueException {
     try {
-      Config config = Strings.isNullOrEmpty(configText) ?
-        ConfigFactory.parseString(DEFAULT) :
-        ConfigFactory.parseString(configText).withFallback(ConfigFactory.parseString(DEFAULT));
+      Config config = Strings.isNullOrEmpty(configText) ? ConfigFactory.parseString(DEFAULT) : ConfigFactory.parseString(configText).withFallback(ConfigFactory.parseString(DEFAULT));
+      attackMillis = config.getInt("attackMillis");
       isMultiphonic = config.getBoolean("isMultiphonic");
       isOneShot = config.getBoolean("isOneShot");
       isOneShotCutoffEnabled = config.getBoolean("isOneShotCutoffEnabled");
       isTonal = config.getBoolean("isTonal");
       oneShotObserveLengthOfEvents = config.getStringList("oneShotObserveLengthOfEvents").stream().map(Text::toMeme).collect(Collectors.toList());
+      releaseMillis = config.getInt("releaseMillis");
 
     } catch (ConfigException e) {
       throw new ValueException(e.getMessage());
@@ -84,15 +86,14 @@ public class InstrumentConfig {
   @Override
   public String toString() {
     Map<String, String> config = Maps.newHashMap();
+    config.put("attackMillis", attackMillis.toString());
     config.put("isMultiphonic", isMultiphonic.toString());
     config.put("isOneShot", isOneShot.toString());
     config.put("isOneShotCutoffEnabled", isOneShotCutoffEnabled.toString());
     config.put("isTonal", isTonal.toString());
     config.put("oneShotObserveLengthOfEvents", String.format("[%s]", CSV.join(oneShotObserveLengthOfEvents.stream().sorted().toList())));
-    return Text.formatMultiline(config.entrySet().stream()
-      .sorted(Map.Entry.comparingByKey())
-      .map(pair -> String.format("%s = %s", pair.getKey(), pair.getValue()))
-      .toArray());
+    config.put("releaseMillis", releaseMillis.toString());
+    return Text.formatMultiline(config.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(pair -> String.format("%s = %s", pair.getKey(), pair.getValue())).toArray());
   }
 
   /**
@@ -103,17 +104,24 @@ public class InstrumentConfig {
   }
 
   /**
-   @return true if tonal
-   */
-  public Boolean isTonal() {
-    return isTonal;
-  }
-
-  /**
    @return true if instrument is one-shot (samples play til end, regardless of note length)
    */
   public Boolean isOneShot() {
     return isOneShot;
+  }
+
+  /**
+   @return true if this instrument's one-shot cutoff are enabled
+   */
+  public Boolean isOneShotCutoffEnabled() {
+    return isOneShotCutoffEnabled;
+  }
+
+  /**
+   @return true if tonal
+   */
+  public Boolean isTonal() {
+    return isTonal;
   }
 
   /**
@@ -124,9 +132,16 @@ public class InstrumentConfig {
   }
 
   /**
-   @return true if this instrument's one-shot cutoff are enabled
+   @return Milliseconds length of one-shot instrument fadeout
    */
-  public Boolean isOneShotCutoffEnabled() {
-    return isOneShotCutoffEnabled;
+  public Integer getAttackMillis() {
+    return attackMillis;
+  }
+
+  /**
+   @return Milliseconds length of one-shot instrument fadeout
+   */
+  public Integer getReleaseMillis() {
+    return releaseMillis;
   }
 }

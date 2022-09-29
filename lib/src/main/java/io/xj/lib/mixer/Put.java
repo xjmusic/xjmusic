@@ -69,6 +69,20 @@ public interface Put {
   double getVelocity();
 
   /**
+   get Attack milliseconds
+
+   @return Attack milliseconds
+   */
+  int getAttackMillis();
+
+  /**
+   get Release milliseconds
+
+   @return Release milliseconds
+   */
+  int getReleaseMillis();
+
+  /**
    Get the bus id to output
 
    @return output bus id

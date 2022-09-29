@@ -24,11 +24,18 @@ public interface Mixer {
    <p>
    the Put only has a reference to the source--
    so the Mixer has to use that reference source id along with other variables from the Put,
-   in order to arrive at the final source output value at any given microsecond@param sourceId      under which the audio is stored@param startAtMicros duration from beginning of mix@param busId@param stopAtMicros  duration from beginning of mix
+   in order to arrive at the final source output value at any given microsecond
+   <p>
+   One-shot fadeout mode https://www.pivotaltracker.com/story/show/183385397
 
-   @param velocity 0 to 1
+   @param sourceId      under which the audio is stored
+   @param startAtMicros duration from beginning of mix
+   @param stopAtMicros  duration from beginning of mix
+   @param velocity      0 to 1
+   @param attackMillis  attack
+   @param releaseMillis release
    */
-  void put(String busName, String sourceId, long startAtMicros, long stopAtMicros, double velocity) throws PutException;
+  void put(String busName, String sourceId, long startAtMicros, long stopAtMicros, double velocity, int attackMillis, int releaseMillis) throws PutException;
 
   /**
    Set the level for a given bus name
@@ -43,8 +50,8 @@ public interface Mixer {
    <p>
    Fabrication should not completely fail because of one bad source audio https://www.pivotaltracker.com/story/show/182575665
 
-   @param sourceId   under which to store this source
-   @param pathToFile of source audio
+   @param sourceId    under which to store this source
+   @param pathToFile  of source audio
    @param description in case of failure logs
    */
   void loadSource(String sourceId, String pathToFile, String description) throws FormatException, IOException, SourceException;

@@ -2,7 +2,12 @@
 package io.xj.lib.mixer.demo;
 
 import com.google.inject.Guice;
-import io.xj.lib.mixer.*;
+import io.xj.lib.mixer.FormatException;
+import io.xj.lib.mixer.Mixer;
+import io.xj.lib.mixer.MixerConfig;
+import io.xj.lib.mixer.MixerFactory;
+import io.xj.lib.mixer.MixerModule;
+import io.xj.lib.mixer.OutputEncoder;
 import org.junit.Test;
 
 import javax.sound.sampled.AudioFormat;
@@ -102,10 +107,10 @@ public class DemoIT {
     // set up the music
     int iL = demoSequence.length;
     for (int i = 0; i < iL; i++)
-      demoMixer.put(DEFAULT_BUS, demoSequence[i], atMicros(i), atMicros(i + 3), 1.0);
+      demoMixer.put(DEFAULT_BUS, demoSequence[i], atMicros(i), atMicros(i + 3), 1.0, 1, 5);
 
     // To also test high rate inputs being added to the mix
-    demoMixer.put(DEFAULT_BUS, ding, atMicros(0), atMicros(4), 1.0);
+    demoMixer.put(DEFAULT_BUS, ding, atMicros(0), atMicros(4), 1.0, 1, 5);
 
     // mix it
     return demoMixer.mixToFile(outputEncoder, outputFilePath, 1.0f);

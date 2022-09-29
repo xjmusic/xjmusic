@@ -31,7 +31,7 @@ public interface Fabricator {
    <p>
    Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
 
-   @param key to write
+   @param key   to write
    @param value to write
    @throws NexusException on failure
    */
@@ -256,6 +256,14 @@ public interface Fabricator {
    @return InstrumentConfig from a given instrument, with fallback values
    */
   InstrumentConfig getInstrumentConfig(Instrument instrument) throws NexusException;
+
+  /**
+   Get the InstrumentConfig for a given pick, with fallback to instrument section of guice-injected config values
+
+   @param pick to get config of
+   @return InstrumentConfig from a given instrument, with fallback values
+   */
+  InstrumentConfig getInstrumentConfig(SegmentChoiceArrangementPick pick) throws NexusException;
 
   /**
    Get the range of available notes for a given instrument
@@ -639,7 +647,7 @@ public interface Fabricator {
    ----- atonal note has a random integer value generated ranging from -50 to 50
    - Rendering a pattern X voicing considers the sticky bun values
    --- the random seed for rendering the pattern will always come from the associated sticky bun
-
+   <p>
    Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822 persisted for each randomly selected note in the series for any given pattern
    - key on program-sequence-pattern-event id, persisting only the first value seen for any given event
    - super-key on program-sequence-pattern id, measuring delta from the first event seen in that pattern
@@ -771,6 +779,24 @@ public interface Fabricator {
    @throws NexusException on failure
    */
   boolean isOneShotCutoffEnabled(Instrument instrument) throws NexusException;
+
+  /**
+   One-shot fadeout mode https://www.pivotaltracker.com/story/show/183385397
+
+   @param pick for which to get audio volume
+   @return attack millis from instrument config
+   @throws NexusException on failure
+   */
+  Integer getAttackMillis(SegmentChoiceArrangementPick pick) throws NexusException;
+
+  /**
+   One-shot fadeout mode https://www.pivotaltracker.com/story/show/183385397
+
+   @param pick for which to get audio volume
+   @return release millis from instrument config
+   @throws NexusException on failure
+   */
+  Integer getReleaseMillis(SegmentChoiceArrangementPick pick) throws NexusException;
 
   /**
    is initial segment?

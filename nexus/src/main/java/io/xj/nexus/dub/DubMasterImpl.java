@@ -6,19 +6,18 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.nexus.model.Segment;
-import io.xj.nexus.model.SegmentChoiceArrangementPick;
-import io.xj.nexus.model.SegmentType;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.mixer.Mixer;
 import io.xj.lib.mixer.MixerConfig;
 import io.xj.lib.mixer.MixerFactory;
 import io.xj.lib.mixer.OutputEncoder;
-import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.util.Text;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.fabricator.Fabricator;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.model.SegmentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +38,6 @@ public class DubMasterImpl implements DubMaster {
   private final Logger LOG = LoggerFactory.getLogger(DubMasterImpl.class);
   private final Fabricator fabricator;
   private final MixerFactory mixerFactory;
-  private final NotificationProvider notification;
   private final List<String> warnings = Lists.newArrayList();
   private final Map<UUID, Float> pickOffsetStart = Maps.newHashMap();
   private final DubAudioCache dubAudioCache;
@@ -49,13 +47,11 @@ public class DubMasterImpl implements DubMaster {
   public DubMasterImpl(
     @Assisted("basis") Fabricator fabricator,
     DubAudioCache dubAudioCache,
-    MixerFactory mixerFactory,
-    NotificationProvider notificationProvider
+    MixerFactory mixerFactory
     /*-*/) {
     this.dubAudioCache = dubAudioCache;
     this.fabricator = fabricator;
     this.mixerFactory = mixerFactory;
-    notification = notificationProvider;
   }
 
   /**
@@ -172,7 +168,9 @@ public class DubMasterImpl implements DubMaster {
       pick.getInstrumentAudioId().toString(),
       toMicros(preroll + pick.getStart() - computeOffsetStart(pick)),
       toMicros(preroll + pick.getStart() + computeLengthSeconds(pick)),
-      pick.getAmplitude() * fabricator.getAudioVolume(pick));
+      pick.getAmplitude() * fabricator.getAudioVolume(pick),
+      fabricator.getAttackMillis(pick),
+      fabricator.getReleaseMillis(pick));
   }
 
   /**

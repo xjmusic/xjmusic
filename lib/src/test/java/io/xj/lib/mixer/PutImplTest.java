@@ -14,7 +14,7 @@ public class PutImplTest {
 
   @Before
   public void setUp() throws Exception {
-    testPut = mixerFactory.createPut(0, "bun1", 1000000, 2000000, 1.0);
+    testPut = mixerFactory.createPut(0, "bun1", 1000000, 2000000, 1.0, 0, 5);
   }
 
   @Test
@@ -112,6 +112,14 @@ public class PutImplTest {
   @Test
   public void getVelocity() {
     assertEquals(1.0, testPut.getVelocity(), 0);
+  }
+
+  /**
+   One-shot fadeout mode https://www.pivotaltracker.com/story/show/183385397
+   */
+  @Test
+  public void getReleaseMillis() {
+    assertEquals(5, testPut.getReleaseMillis());
   }
 
 }

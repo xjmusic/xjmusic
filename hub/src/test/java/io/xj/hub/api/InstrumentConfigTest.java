@@ -70,5 +70,14 @@ public class InstrumentConfigTest {
     assertTrue(subject.isOneShotCutoffEnabled());
   }
 
+  /**
+   One-shot fadeout mode https://www.pivotaltracker.com/story/show/183385397
+   */
+  @Test
+  public void releaseMillis() throws ValueException {
+    var subject = new InstrumentConfig("");
+
+    assertEquals((Integer) 5, subject.getReleaseMillis());
+  }
 
 }

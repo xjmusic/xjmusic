@@ -182,11 +182,13 @@ public class InstrumentManagerDbTest {
     assertEquals(InstrumentType.Drum, result.getClone().getType());
     assertEquals(
       """
+        attackMillis = 1
         isMultiphonic = true
         isOneShot = false
         isOneShotCutoffEnabled = true
         isTonal = false
         oneShotObserveLengthOfEvents = [TEST]
+        releaseMillis = 5
           """,
       result.getClone().getConfig()
     );

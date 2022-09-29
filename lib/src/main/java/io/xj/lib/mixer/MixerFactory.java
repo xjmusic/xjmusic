@@ -43,7 +43,9 @@ public interface MixerFactory {
     @Assisted("sourceId") String sourceId,
     @Assisted("startAtMicros") long startAtMicros,
     @Assisted("stopAtMicros") long stopAtMicros,
-    @Assisted("velocity") double velocity
+    @Assisted("velocity") double velocity,
+    @Assisted("attackMillis") int attackMillis,
+    @Assisted("releaseMillis") int releaseMillis
   ) throws PutException;
 
   /**

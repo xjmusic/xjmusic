@@ -118,6 +118,7 @@ class FabricatorImpl implements Fabricator {
   private final Map<SegmentChoice, ProgramSequence> sequenceForChoice;
   private final Map<String, InstrumentAudio> preferredAudios;
   private final Map<String, InstrumentConfig> instrumentConfigs;
+  private final Map<String, InstrumentConfig> pickInstrumentConfigs;
   private final Map<String, Integer> rangeShiftOctave;
   private final Map<String, Integer> targetShift;
   private final Map<String, NoteRange> rangeForChoice;
@@ -167,6 +168,7 @@ class FabricatorImpl implements Fabricator {
       chordAtPosition = Maps.newHashMap();
       completeChordsForProgramSequence = Maps.newHashMap();
       instrumentConfigs = Maps.newHashMap();
+      pickInstrumentConfigs = Maps.newHashMap();
       picksForChoice = Maps.newHashMap();
       rangeForChoice = Maps.newHashMap();
       rangeShiftOctave = Maps.newHashMap();
@@ -404,6 +406,17 @@ class FabricatorImpl implements Fabricator {
     } catch (ValueException e) {
       throw new NexusException(e);
     }
+  }
+
+  @Override
+  public InstrumentConfig getInstrumentConfig(SegmentChoiceArrangementPick pick) throws NexusException {
+    if (!pickInstrumentConfigs.containsKey(pick.getId().toString()))
+      pickInstrumentConfigs.put(pick.getId().toString(),
+        getInstrumentConfig(sourceMaterial.getInstrument(sourceMaterial.getInstrumentAudio(pick.getInstrumentAudioId())
+            .orElseThrow(() -> new NexusException("Failed to retrieve audio for pick")).getInstrumentId())
+          .orElseThrow(() -> new NexusException("Failed to retrieve instrument for audio"))));
+    return pickInstrumentConfigs.get(pick.getId().toString());
+
   }
 
   @Override
@@ -984,6 +997,16 @@ class FabricatorImpl implements Fabricator {
   @Override
   public boolean isOneShotCutoffEnabled(Instrument instrument) throws NexusException {
     return getInstrumentConfig(instrument).isOneShotCutoffEnabled();
+  }
+
+  @Override
+  public Integer getAttackMillis(SegmentChoiceArrangementPick pick) throws NexusException {
+    return getInstrumentConfig(pick).getAttackMillis();
+  }
+
+  @Override
+  public Integer getReleaseMillis(SegmentChoiceArrangementPick pick) throws NexusException {
+    return getInstrumentConfig(pick).getReleaseMillis();
   }
 
   @Override
