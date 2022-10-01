@@ -24,6 +24,14 @@ module "fabrication_space_flow" {
   display_name          = "Space/Flow"
 }
 
+module "fabrication_space_binaural" {
+  source = "./fabrication"
+
+  notification_channels = local.gcp-alert-notification-channels
+  ship_key              = "space_binaural"
+  display_name          = "Space/Binaural"
+}
+
 module "fabrication_slaps_lofi" {
   source = "./fabrication"
 

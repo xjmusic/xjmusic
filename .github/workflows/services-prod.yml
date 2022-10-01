@@ -147,4 +147,5 @@ jobs:
           kubectl -n yard rollout restart deployment/bump-chill-nexus deployment/bump-chill-ship
           kubectl -n yard rollout restart deployment/bump-deep-nexus deployment/bump-deep-ship
           kubectl -n yard rollout restart deployment/slaps-lofi-nexus deployment/slaps-lofi-ship
+          kubectl -n yard rollout restart deployment/space-binaural-nexus deployment/space-binaural-ship
           kubectl -n yard rollout restart deployment/space-flow-nexus deployment/space-flow-ship
