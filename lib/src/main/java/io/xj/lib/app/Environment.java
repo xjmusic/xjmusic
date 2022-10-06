@@ -98,6 +98,8 @@ public class Environment {
   private final int shipPlaylistAheadSeconds;
   private final int shipPlaylistBackSeconds;
   private final int shipSegmentLoadAheadSeconds;
+  private final int shipSegmentLoadRetryLimit;
+  private final int shipSegmentLoadRetryDelayMillis;
   private final int shipSegmentLoadTimeoutSeconds;
   private final int shipWavSeconds;
   private final int templatePublicationCacheExpireSeconds;
@@ -181,6 +183,8 @@ public class Environment {
     shipPlaylistAheadSeconds = readInt(vars, "SHIP_PLAYLIST_AHEAD_SECONDS", 30);
     shipPlaylistBackSeconds = readInt(vars, "SHIP_PLAYLIST_BACK_SECONDS", 300);
     shipSegmentLoadAheadSeconds = readInt(vars, "SHIP_SEGMENT_LOAD_AHEAD_SECONDS", 120);
+    shipSegmentLoadRetryLimit = readInt(vars, "SHIP_SEGMENT_LOAD_RETRY_LIMIT", 5);
+    shipSegmentLoadRetryDelayMillis = readInt(vars, "SHIP_SEGMENT_LOAD_RETRY_DELAY_MILLIS", 250);
     shipSegmentLoadTimeoutSeconds = readInt(vars, "SHIP_SEGMENT_LOAD_TIMEOUT_SECONDS", 5);
     streamBaseURL = readStr(vars, "STREAM_BASE_URL", "https://stream.dev.xj.io/");
     streamBucket = readStr(vars, "STREAM_BUCKET", "xj-dev-stream");
@@ -835,6 +839,20 @@ public class Environment {
    */
   public int getShipSegmentLoadAheadSeconds() {
     return shipSegmentLoadAheadSeconds;
+  }
+
+  /**
+   @return ship segment load retry limit
+   */
+  public int getShipSegmentLoadRetryLimit() {
+    return shipSegmentLoadRetryLimit;
+  }
+
+  /**
+   @return ship segment load retry delay millis
+   */
+  public int getShipSegmentLoadRetryDelayMillis() {
+    return shipSegmentLoadRetryDelayMillis;
   }
 
   /**

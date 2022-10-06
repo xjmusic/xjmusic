@@ -26,9 +26,7 @@ import java.util.stream.Collectors;
  */
 public class DetailCraftImpl extends CraftImpl implements DetailCraft {
   @Inject
-  public DetailCraftImpl(
-    @Assisted("basis") Fabricator fabricator
-  ) {
+  public DetailCraftImpl(@Assisted("basis") Fabricator fabricator) {
     super(fabricator);
   }
 
@@ -37,26 +35,17 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
     // https://www.pivotaltracker.com/story/show/178240332 Segments have intensity arcs; automate mixer layers in and out of each main program
     ChoiceIndexProvider choiceIndexProvider = (SegmentChoice choice) -> Values.stringOrDefault(choice.getInstrumentType(), choice.getId().toString());
     Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> Objects.equals(ProgramType.Detail.toString(), choice.getProgramType());
-    precomputeDeltas(
-      choiceFilter,
-      choiceIndexProvider,
-      fabricator.getTemplateConfig().getDetailLayerOrder().stream().map(InstrumentType::toString).collect(Collectors.toList()),
-      List.of(),
-      fabricator.getTemplateConfig().getDeltaArcDetailLayersIncoming()
-    );
+    precomputeDeltas(choiceFilter, choiceIndexProvider, fabricator.getTemplateConfig().getDetailLayerOrder().stream().map(InstrumentType::toString).collect(Collectors.toList()), List.of(), fabricator.getTemplateConfig().getDeltaArcDetailLayersIncoming());
 
     // For each type of voicing present in the main sequence, choose instrument, then program if necessary
-    for (InstrumentType voicingType :
-      fabricator.getTemplateConfig().getDetailLayerOrder().stream().filter(fabricator.getDistinctChordVoicingTypes()::contains).toList()) {
+    for (InstrumentType voicingType : fabricator.getTemplateConfig().getDetailLayerOrder().stream().filter(fabricator.getDistinctChordVoicingTypes()::contains).toList()) {
 
       // Instrument is from prior choice, else freshly chosen
       Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(voicingType);
 
       // Instruments may be chosen without programs
       // https://www.pivotaltracker.com/story/show/181290857
-      Optional<Instrument> instrument = priorChoice.isPresent() ?
-        fabricator.sourceMaterial().getInstrument(priorChoice.get().getInstrumentId()) :
-        chooseFreshInstrument(List.of(voicingType), List.of(), List.of(), null, List.of());
+      Optional<Instrument> instrument = priorChoice.isPresent() ? fabricator.sourceMaterial().getInstrument(priorChoice.get().getInstrumentId()) : chooseFreshInstrument(List.of(voicingType), List.of(), List.of(), null, List.of());
 
       // Should gracefully skip voicing type if unfulfilled by detail instrument
       // https://www.pivotaltracker.com/story/show/176373977
@@ -73,9 +62,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
         // https://www.pivotaltracker.com/story/show/181736854
         case Event -> {
           // Event Use prior chosen program or find a new one
-          Optional<Program> program = priorChoice.isPresent() ?
-            fabricator.sourceMaterial().getProgram(priorChoice.get().getProgramId()) :
-            chooseFreshProgram(ProgramType.Detail, voicingType);
+          Optional<Program> program = priorChoice.isPresent() ? fabricator.sourceMaterial().getProgram(priorChoice.get().getProgramId()) : chooseFreshProgram(ProgramType.Detail, voicingType);
 
           // Event Should gracefully skip voicing type if unfulfilled by detail program
           // https://www.pivotaltracker.com/story/show/176373977
@@ -83,19 +70,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
             reportMissing(Program.class, String.format("%s-type Program", voicingType));
             continue;
           }
-
-          // Event detail sequence is selected at random of the current instrument
-          // FUTURE: https://www.pivotaltracker.com/story/show/166855956 Detail Instrument with multiple Sequences
-          var sequence = fabricator.getRandomlySelectedSequence(program.get());
-
-          // Event voice arrangements
-          if (sequence.isPresent()) {
-            var voices = fabricator.sourceMaterial().getVoices(program.get());
-            if (voices.isEmpty())
-              reportMissing(ProgramVoice.class,
-                String.format("in Detail-choice Instrument[%s]", instrument.get().getId()));
-            craftNoteEvents(sequence.get(), voices, ignored -> instrument, false);
-          }
+          craftEventParts(instrument.get(), program.get());
         }
 
         // Chord instrument mode
@@ -103,9 +78,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
         case Chord -> craftChordParts(instrument.get());
 
         // As-yet Unsupported Modes
-        default -> fabricator.addWarningMessage(
-          String.format("Cannot craft unsupported mode %s for Instrument[%s]",
-            instrument.get().getMode(), instrument.get().getId()));
+        default -> fabricator.addWarningMessage(String.format("Cannot craft unsupported mode %s for Instrument[%s]", instrument.get().getMode(), instrument.get().getId()));
       }
     }
 

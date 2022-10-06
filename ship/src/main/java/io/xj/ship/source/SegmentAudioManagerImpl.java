@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.opencensus.stats.Measure;
+import io.xj.lib.app.Environment;
 import io.xj.nexus.model.Segment;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.telemetry.TelemetryProvider;
@@ -37,18 +38,17 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
   private final SegmentAudioCache cache;
   private final SourceFactory sourceFactory;
   private final Measure.MeasureDouble SEGMENT_AUDIO_LOADED_AHEAD_SECONDS;
+  private final int segmentLoadRetryLimit;
+  private final int segmentLoadRetryDelayMillis;
 
   @Inject
-  public SegmentAudioManagerImpl(
-    NexusEntityStore store,
-    SegmentAudioCache cache,
-    SourceFactory sourceFactory,
-    TelemetryProvider telemetryProvider
-  ) {
+  public SegmentAudioManagerImpl(Environment env, NexusEntityStore store, SegmentAudioCache cache, SourceFactory sourceFactory, TelemetryProvider telemetryProvider) {
     this.cache = cache;
     this.sourceFactory = sourceFactory;
     this.store = store;
     this.telemetryProvider = telemetryProvider;
+    segmentLoadRetryLimit = env.getShipSegmentLoadRetryLimit();
+    segmentLoadRetryDelayMillis = env.getShipSegmentLoadRetryDelayMillis();
 
     SEGMENT_AUDIO_LOADED_AHEAD_SECONDS = telemetryProvider.gauge("segment_audio_loaded_ahead_seconds", "Segment Audio Loaded Ahead Seconds", "s");
   }
@@ -61,16 +61,25 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
 
   @Override
   public void load(String shipKey, Segment segment) throws ShipException {
-    try {
-      store.put(segment);
-      var absolutePath = cache.downloadAndDecompress(segment);
-      var segmentAudio = sourceFactory.loadSegmentAudio(shipKey, segment, absolutePath);
-      put(segmentAudio);
+    for (var i = 0; i < segmentLoadRetryLimit; i++)
+      try {
+        store.put(segment);
+        var absolutePath = cache.downloadAndDecompress(segment);
+        var segmentAudio = sourceFactory.loadSegmentAudio(shipKey, segment, absolutePath);
+        put(segmentAudio);
+        return;
 
-    } catch (NexusException | FileStoreException | IOException | InterruptedException e) {
-      LOG.error("Failed to preload audio for Segment[{}]", Segments.getIdentifier(segment), e);
-      collectGarbage(segment.getId());
-    }
+      } catch (NexusException | FileStoreException | IOException | InterruptedException e) {
+        LOG.warn("Failed to preload audio for Segment[{}] of Template[{}], retrying in {}ms...", Segments.getIdentifier(segment), shipKey, segmentLoadRetryDelayMillis, e);
+        collectGarbage(segment.getId());
+        try {
+          Thread.sleep(segmentLoadRetryDelayMillis);
+        } catch (InterruptedException ex) {
+          throw new ShipException("Failed to sleep");
+        }
+      }
+    LOG.error("Failed to preload audio for Segment[{}] of Template[{}] after {} attempts", segment.getId(), shipKey, segmentLoadRetryLimit);
+    throw new ShipException(String.format("Failed to preload audio for Segment[%s] of Template[%s] after %s attempts", segment.getId(), shipKey, segmentLoadRetryLimit));
   }
 
   @Override
@@ -103,27 +112,17 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
 
   @Override
   public Collection<SegmentAudio> getAllIntersecting(String shipKey, Instant fromInstant, Instant toInstant) {
-    return segmentAudios.values().stream()
-      .filter(sa -> sa.intersects(shipKey, fromInstant, toInstant))
-      .collect(Collectors.toList());
+    return segmentAudios.values().stream().filter(sa -> sa.intersects(shipKey, fromInstant, toInstant)).collect(Collectors.toList());
   }
 
   @Override
   public void sendTelemetry() {
-    telemetryProvider.put(SEGMENT_AUDIO_LOADED_AHEAD_SECONDS,
-      segmentAudios.values().stream()
-        .map(SegmentAudio::getSegment)
-        .mapToDouble(s -> Math.floor(Values.computeRelativeSeconds(Instant.parse(s.getEndAt()))))
-        .max()
-        .orElse(0));
+    telemetryProvider.put(SEGMENT_AUDIO_LOADED_AHEAD_SECONDS, segmentAudios.values().stream().map(SegmentAudio::getSegment).mapToDouble(s -> Math.floor(Values.computeRelativeSeconds(Instant.parse(s.getEndAt())))).max().orElse(0));
   }
 
   @Override
   public boolean isLoadingOrReady(UUID segmentId, Long nowMillis) {
-    return
-      get(segmentId)
-        .map(sa -> sa.isLoadingOrReady(nowMillis))
-        .orElse(false);
+    return get(segmentId).map(sa -> sa.isLoadingOrReady(nowMillis)).orElse(false);
   }
 }
 

@@ -75,9 +75,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param fabricator internal
    */
   @Inject
-  public CraftImpl(
-    Fabricator fabricator
-  ) {
+  public CraftImpl(Fabricator fabricator) {
     super(fabricator);
 
     finalizeAudioLengthsForInstrumentTypes = fabricator.getTemplateConfig().getInstrumentTypesForAudioLengthFinalization();
@@ -136,9 +134,7 @@ public class CraftImpl extends FabricationWrapperImpl {
         choice.setId(UUID.randomUUID());
         choice.setSegmentId(fabricator.getSegment().getId());
         choice.setMute(computeMute(voice.getType()));
-        choice.setProgramType(fabricator.sourceMaterial().getProgram(voice.getProgramId())
-          .orElseThrow(() -> new NexusException("Can't get program for voice")).getType()
-          .toString());
+        choice.setProgramType(fabricator.sourceMaterial().getProgram(voice.getProgramId()).orElseThrow(() -> new NexusException("Can't get program for voice")).getType().toString());
         choice.setInstrumentType(voice.getType().toString());
         choice.setProgramId(voice.getProgramId());
         choice.setProgramSequenceId(sequence.getId());
@@ -220,8 +216,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @throws NexusException on failure
    */
   protected void craftChordParts(Instrument instrument, SegmentChoice choice) throws NexusException {
-    if (fabricator.getSegmentChords().isEmpty())
-      return;
+    if (fabricator.getSegmentChords().isEmpty()) return;
 
     // Arrangement
     var arrangement = new SegmentChoiceArrangement();
@@ -232,17 +227,14 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     // Pick for each section
     for (var section : computeSections()) {
-      var audio =
-        selectChordPartInstrumentAudio(instrument, Chord.of(section.chord.getName()));
+      var audio = selectChordPartInstrumentAudio(instrument, Chord.of(section.chord.getName()));
 
       // https://www.pivotaltracker.com/story/show/176373977 Should gracefully skip audio in unfulfilled by instrument
       if (audio.isEmpty()) return;
 
       // Pick attributes are expressed "rendered" as actual seconds
       double startSeconds = fabricator.getSecondsAtPosition(section.fromPos);
-      @Nullable Double lengthSeconds = fabricator.isOneShot(instrument)
-        ? null
-        : fabricator.getSecondsAtPosition(section.toPos) - startSeconds;
+      @Nullable Double lengthSeconds = fabricator.isOneShot(instrument) ? null : fabricator.getSecondsAtPosition(section.toPos) - startSeconds;
 
       // Volume ratio
       var volRatio = computeVolumeRatioForPickedNote(choice, section.fromPos);
@@ -264,6 +256,27 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     // Final pass to set the actual length of one-shot audio picks
     finalizeNoteEventCutoffsOfOneShotInstrumentAudioPicks(choice);
+  }
+
+  /**
+   Event instrument mode
+
+   @param instrument for which to craft choices
+   @param program for which to craft choices
+   @throws NexusException on failure
+   */
+  protected void craftEventParts(Instrument instrument, Program program) throws NexusException {
+    // Event detail sequence is selected at random of the current instrument
+    // FUTURE: https://www.pivotaltracker.com/story/show/166855956 Detail Instrument with multiple Sequences
+    var sequence = fabricator.getRandomlySelectedSequence(program);
+
+    // Event voice arrangements
+    if (sequence.isPresent()) {
+      var voices = fabricator.sourceMaterial().getVoices(program);
+      if (voices.isEmpty())
+        reportMissing(ProgramVoice.class, String.format("in Detail-choice Instrument[%s]", instrument.getId()));
+      craftNoteEvents(sequence.get(), voices, ignored -> Optional.of(instrument), false);
+    }
   }
 
   /**
@@ -311,8 +324,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     // passed to each iteration of note voicing arrangement in order to move as little as possible from the previous
     NoteRange range = NoteRange.empty();
 
-    var programConfig = fabricator.getProgramConfig(fabricator.getProgram(choice)
-      .orElseThrow(() -> new NexusException("Can't get program config")));
+    var programConfig = fabricator.getProgramConfig(fabricator.getProgram(choice).orElseThrow(() -> new NexusException("Can't get program config")));
 
     if (fabricator.getSegmentChords().isEmpty())
       craftNoteEventSection(choice, 0, fabricator.getSegment().getTotal(), range, defaultAtonal);
@@ -320,8 +332,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     else if (programConfig.doPatternRestartOnChord())
       craftNoteEventSectionRestartingEachChord(choice, range, defaultAtonal);
 
-    else
-      craftNoteEventSection(choice, 0, fabricator.getSegment().getTotal(), range, defaultAtonal);
+    else craftNoteEventSection(choice, 0, fabricator.getSegment().getTotal(), range, defaultAtonal);
 
     // Final pass to set the actual length of one-shot audio picks
     finalizeNoteEventCutoffsOfOneShotInstrumentAudioPicks(choice);
@@ -379,12 +390,10 @@ public class CraftImpl extends FabricationWrapperImpl {
           var layerName = layer.toLowerCase(Locale.ROOT);
           if (layerPrioritizationSearches.stream().anyMatch(m -> layerName.contains(m.toLowerCase(Locale.ROOT))))
             priLayers.add(layer);
-          else
-            secLayers.add(layer);
+          else secLayers.add(layer);
         });
         Collections.shuffle(priLayers);
-        if (!priLayers.isEmpty())
-          fabricator.addInfoMessage(String.format("Prioritized %s", CSV.join(priLayers)));
+        if (!priLayers.isEmpty()) fabricator.addInfoMessage(String.format("Prioritized %s", CSV.join(priLayers)));
         Collections.shuffle(secLayers);
         var orderedLayers = Stream.concat(priLayers.stream(), secLayers.stream()).toList();
         var delta = Values.roundToNearest(deltaUnits, TremendouslyRandom.zeroToLimit(deltaUnits * 4) - deltaUnits * 2 * numLayersIncoming);
@@ -397,11 +406,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
       case CONTINUE -> {
         for (String index : layers)
-          fabricator.retrospective().getChoices().stream()
-            .filter(choiceFilter)
-            .filter(choice -> Objects.equals(index, choiceIndexProvider.get(choice)))
-            .findAny()
-            .ifPresent(choice -> deltaIns.put(choiceIndexProvider.get(choice), choice.getDeltaIn()));
+          fabricator.retrospective().getChoices().stream().filter(choiceFilter).filter(choice -> Objects.equals(index, choiceIndexProvider.get(choice))).findAny().ifPresent(choice -> deltaIns.put(choiceIndexProvider.get(choice), choice.getDeltaIn()));
       }
     }
   }
@@ -416,11 +421,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param defaultAtonal whether to default to a single atonal note, if no voicings are available
    @throws NexusException on failure
    */
-  private void craftNoteEventSectionRestartingEachChord(
-    SegmentChoice choice,
-    NoteRange range,
-    boolean defaultAtonal
-  ) throws NexusException {
+  private void craftNoteEventSectionRestartingEachChord(SegmentChoice choice, NoteRange range, boolean defaultAtonal) throws NexusException {
     for (var section : computeSections())
       craftNoteEventSection(choice, section.fromPos, section.toPos, range, defaultAtonal);
   }
@@ -443,9 +444,7 @@ public class CraftImpl extends FabricationWrapperImpl {
       sections[i] = new Section();
       sections[i].chord = chords[i];
       sections[i].fromPos = chords[i].getPosition();
-      sections[i].toPos = i < chords.length - 1
-        ? chords[i + 1].getPosition()
-        : fabricator.getSegment().getTotal();
+      sections[i].toPos = i < chords.length - 1 ? chords[i + 1].getPosition() : fabricator.getSegment().getTotal();
     }
     return Arrays.stream(sections).toList();
   }
@@ -460,25 +459,17 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param defaultAtonal whether to default to a single atonal note, if no voicings are available
    @throws NexusException on failure
    */
-  private void craftNoteEventSection(
-    SegmentChoice choice,
-    double fromPos,
-    double maxPos,
-    NoteRange range,
-    boolean defaultAtonal
-  ) throws NexusException {
+  private void craftNoteEventSection(SegmentChoice choice, double fromPos, double maxPos, NoteRange range, boolean defaultAtonal) throws NexusException {
 
     // begin at the beginning and fabricate events for the segment of beginning to end
     double curPos = fromPos;
 
     // choose loop patterns until arrive at the out point or end of segment
     while (curPos < maxPos) {
-      Optional<ProgramSequencePattern> loopPattern =
-        fabricator.getRandomlySelectedPatternOfSequenceByVoiceAndType(choice);
+      Optional<ProgramSequencePattern> loopPattern = fabricator.getRandomlySelectedPatternOfSequenceByVoiceAndType(choice);
       if (loopPattern.isPresent())
         curPos += craftPatternEvents(choice, loopPattern.get(), curPos, maxPos, range, defaultAtonal);
-      else
-        curPos = maxPos;
+      else curPos = maxPos;
     }
   }
 
@@ -493,14 +484,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param defaultAtonal       whether to default to a single atonal note, if no voicings are available
    @return deltaPos of start, after crafting this batch of pattern events
    */
-  private double craftPatternEvents(
-    SegmentChoice choice,
-    ProgramSequencePattern pattern,
-    double fromSegmentPosition,
-    double toSegmentPosition,
-    NoteRange range,
-    boolean defaultAtonal
-  ) throws NexusException {
+  private double craftPatternEvents(SegmentChoice choice, ProgramSequencePattern pattern, double fromSegmentPosition, double toSegmentPosition, NoteRange range, boolean defaultAtonal) throws NexusException {
     if (Objects.isNull(pattern)) throw new NexusException("Cannot craft create null pattern");
     double totalBeats = toSegmentPosition - fromSegmentPosition;
     List<ProgramSequencePatternEvent> events = fabricator.sourceMaterial().getEvents(pattern);
@@ -512,8 +496,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     arrangement.setProgramSequencePatternId(pattern.getId());
     fabricator.put(arrangement);
 
-    var instrument = fabricator.sourceMaterial().getInstrument(choice.getInstrumentId())
-      .orElseThrow(() -> new NexusException("Failed to retrieve instrument"));
+    var instrument = fabricator.sourceMaterial().getInstrument(choice.getInstrumentId()).orElseThrow(() -> new NexusException("Failed to retrieve instrument"));
     for (ProgramSequencePatternEvent event : events)
       pickNotesAndInstrumentAudioForEvent(instrument, choice, arrangement, fromSegmentPosition, toSegmentPosition, event, range, defaultAtonal);
     return Math.min(totalBeats, pattern.getTotal());
@@ -530,16 +513,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param range               used to keep voicing in the tightest range possible
    @param defaultAtonal       whether to default to a single atonal note, if no voicings are available
    */
-  private void pickNotesAndInstrumentAudioForEvent(
-    Instrument instrument,
-    SegmentChoice choice,
-    SegmentChoiceArrangement arrangement,
-    Double fromSegmentPosition,
-    Double toSegmentPosition,
-    ProgramSequencePatternEvent event,
-    NoteRange range,
-    boolean defaultAtonal
-  ) throws NexusException {
+  private void pickNotesAndInstrumentAudioForEvent(Instrument instrument, SegmentChoice choice, SegmentChoiceArrangement arrangement, Double fromSegmentPosition, Double toSegmentPosition, ProgramSequencePatternEvent event, NoteRange range, boolean defaultAtonal) throws NexusException {
     // Morph & Point attributes are expressed in beats
     double segmentPosition = fromSegmentPosition + event.getPosition();
 
@@ -548,28 +522,21 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     double duration = Math.min(event.getDuration(), toSegmentPosition - segmentPosition);
     var chord = fabricator.getChordAt(segmentPosition);
-    Optional<SegmentChordVoicing> voicing = chord.isPresent()
-      ? fabricator.getVoicing(chord.get(), instrument.getType())
-      : Optional.empty();
+    Optional<SegmentChordVoicing> voicing = chord.isPresent() ? fabricator.getVoicing(chord.get(), instrument.getType()) : Optional.empty();
 
     var volRatio = computeVolumeRatioForPickedNote(choice, segmentPosition);
     if (0 >= volRatio) return;
 
     // The final note is voiced from the chord voicing (if found) or else the default is used
-    Set<String> notes = voicing.isPresent()
-      ? pickNotesForEvent(instrument.getType(), choice, event, chord.get(), voicing.get(), range)
-      : (defaultAtonal ? Set.of(Note.ATONAL) : Set.of());
+    Set<String> notes = voicing.isPresent() ? pickNotesForEvent(instrument.getType(), choice, event, chord.get(), voicing.get(), range) : (defaultAtonal ? Set.of(Note.ATONAL) : Set.of());
 
     // Pick attributes are expressed "rendered" as actual seconds
     double startSeconds = fabricator.getSecondsAtPosition(segmentPosition);
-    @Nullable Double lengthSeconds = fabricator.isOneShot(instrument, fabricator.getTrackName(event))
-      ? null
-      : fabricator.getSecondsAtPosition(segmentPosition + duration) - startSeconds;
+    @Nullable Double lengthSeconds = fabricator.isOneShot(instrument, fabricator.getTrackName(event)) ? null : fabricator.getSecondsAtPosition(segmentPosition + duration) - startSeconds;
 
     // pick an audio for each note
     for (var note : notes)
-      pickInstrumentAudio(note, instrument, event, arrangement, startSeconds, lengthSeconds,
-        voicing.map(SegmentChordVoicing::getId).orElse(null), volRatio);
+      pickInstrumentAudio(note, instrument, event, arrangement, startSeconds, lengthSeconds, voicing.map(SegmentChordVoicing::getId).orElse(null), volRatio);
   }
 
   /**
@@ -579,31 +546,23 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param choice for which to finalize length of one-shot audio picks
    */
   private void finalizeNoteEventCutoffsOfOneShotInstrumentAudioPicks(SegmentChoice choice) throws NexusException {
-    var instrument = fabricator.sourceMaterial().getInstrument(choice.getInstrumentId())
-      .orElseThrow(() -> new NexusException("Failed to get instrument from source material for segment choice!"));
+    var instrument = fabricator.sourceMaterial().getInstrument(choice.getInstrumentId()).orElseThrow(() -> new NexusException("Failed to get instrument from source material for segment choice!"));
 
     // skip instruments that are not one-shot
-    if (!fabricator.isOneShot(instrument))
-      return;
+    if (!fabricator.isOneShot(instrument)) return;
 
     // skip instruments that are do not have one-shot cutoff enabled https://www.pivotaltracker.com/story/show/181211927
-    if (!fabricator.isOneShotCutoffEnabled(instrument))
-      return;
+    if (!fabricator.isOneShotCutoffEnabled(instrument)) return;
 
     // skip instruments that are not on the list
-    if (!finalizeAudioLengthsForInstrumentTypes.contains(instrument.getType()))
-      return;
+    if (!finalizeAudioLengthsForInstrumentTypes.contains(instrument.getType())) return;
 
     // get all the picks, ordered chronologically, and skip the rest of this process if there are none
     List<SegmentChoiceArrangementPick> picks = fabricator.getPicks(choice);
     if (picks.isEmpty()) return;
 
     // build an ordered unique list of the moments in time when the one-shot will be cut off
-    List<Double> cutoffs = picks.stream()
-      .map(SegmentChoiceArrangementPick::getStart)
-      .collect(Collectors.toSet()).stream()
-      .sorted()
-      .toList();
+    List<Double> cutoffs = picks.stream().map(SegmentChoiceArrangementPick::getStart).collect(Collectors.toSet()).stream().sorted().toList();
 
     // iterate and set lengths of all picks in series
     for (SegmentChoiceArrangementPick pick : picks) {
@@ -611,9 +570,7 @@ public class CraftImpl extends FabricationWrapperImpl {
       // Skip picks that already have their end length set
       if (Objects.nonNull(pick.getLength())) continue;
 
-      var nextCutoff = cutoffs.stream()
-        .filter(c -> c > pick.getStart())
-        .findFirst();
+      var nextCutoff = cutoffs.stream().filter(c -> c > pick.getStart()).findFirst();
 
       if (nextCutoff.isPresent()) {
         pick.setLength(nextCutoff.get() - pick.getStart());
@@ -650,9 +607,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @return true if the current segment contains the given choice's delta in
    */
   public boolean isIntroSegment(SegmentChoice choice) {
-    return !isUnlimitedIn(choice)
-      && choice.getDeltaIn() >= fabricator.getSegment().getDelta()
-      && choice.getDeltaIn() < fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal();
+    return !isUnlimitedIn(choice) && choice.getDeltaIn() >= fabricator.getSegment().getDelta() && choice.getDeltaIn() < fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal();
   }
 
   /**
@@ -662,9 +617,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @return true if the current segment contains the given choice's delta out
    */
   public boolean isOutroSegment(SegmentChoice choice) {
-    return !isUnlimitedOut(choice)
-      && choice.getDeltaOut() <= fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal()
-      && choice.getDeltaOut() > fabricator.getSegment().getDelta();
+    return !isUnlimitedOut(choice) && choice.getDeltaOut() <= fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal() && choice.getDeltaOut() > fabricator.getSegment().getDelta();
   }
 
   /**
@@ -674,9 +627,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @return true if choice is silent the entire segment
    */
   public boolean isSilentEntireSegment(SegmentChoice choice) {
-    return
-      (choice.getDeltaOut() < fabricator.getSegment().getDelta())
-        || (choice.getDeltaIn() >= fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal());
+    return (choice.getDeltaOut() < fabricator.getSegment().getDelta()) || (choice.getDeltaIn() >= fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal());
   }
 
   /**
@@ -686,8 +637,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @return true if this choice is active the entire time
    */
   public boolean isActiveEntireSegment(SegmentChoice choice) {
-    return (choice.getDeltaIn() <= fabricator.getSegment().getDelta())
-      && (choice.getDeltaOut() >= fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal());
+    return (choice.getDeltaIn() <= fabricator.getSegment().getDelta()) && (choice.getDeltaOut() >= fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal());
   }
 
   /**
@@ -703,14 +653,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param range          used to keep voicing in the tightest range possible
    @return note picked from the available voicing
    */
-  private Set<String> pickNotesForEvent(
-    InstrumentType instrumentType,
-    SegmentChoice choice,
-    ProgramSequencePatternEvent event,
-    SegmentChord segmentChord,
-    SegmentChordVoicing voicing,
-    NoteRange range
-  ) throws NexusException {
+  private Set<String> pickNotesForEvent(InstrumentType instrumentType, SegmentChoice choice, ProgramSequencePatternEvent event, SegmentChord segmentChord, SegmentChordVoicing voicing, NoteRange range) throws NexusException {
     var previous = fabricator.getPreferredNotes(event.getId().toString(), segmentChord.getName());
     if (previous.isPresent()) return previous.get();
 
@@ -726,11 +669,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     var targetShiftOctaves = 12 * fabricator.getProgramRangeShiftOctaves(instrumentType, sourceRange.shifted(targetShiftSemitones), targetRange);
 
     // Event notes are either computed from sticky bun or interpreted from program, potentially at random
-    List<Note> eventNotes = CSV.split(event.getTones())
-      .stream()
-      .map(n -> Note.of(n).shift(targetShiftSemitones + targetShiftOctaves))
-      .sorted()
-      .collect(Collectors.toList());
+    List<Note> eventNotes = CSV.split(event.getTones()).stream().map(n -> Note.of(n).shift(targetShiftSemitones + targetShiftOctaves)).sorted().collect(Collectors.toList());
     var eventDeltaSemitones = sourceRange.shifted(targetShiftSemitones).getDeltaSemitones(NoteRange.ofNotes(eventNotes));
     var eventRange = NoteRange.ofNotes(eventNotes).shifted(eventDeltaSemitones);
     if (range.isEmpty() && !eventRange.isEmpty()) range.expand(eventRange);
@@ -739,11 +678,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     var bun = fabricator.getStickyBun(event.getId());
 
     // pick notes
-    var notePicker = new NotePicker(
-      range.shifted(eventDeltaSemitones),
-      voicingNotes,
-      bun.isPresent() ? bun.get().replaceAtonal(eventNotes, voicingNotes) : eventNotes,
-      fabricator.getTemplateConfig().getInstrumentTypesForInversionSeeking().contains(instrumentType));
+    var notePicker = new NotePicker(range.shifted(eventDeltaSemitones), voicingNotes, bun.isPresent() ? bun.get().replaceAtonal(eventNotes, voicingNotes) : eventNotes, fabricator.getTemplateConfig().getInstrumentTypesForInversionSeeking().contains(instrumentType));
     notePicker.pick();
     var notes = notePicker.getPickedNotes().stream().map(n -> n.toString(chord.getAdjSymbol())).collect(Collectors.toSet());
 
@@ -771,20 +706,8 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param volRatio                 ratio of volume
    @throws NexusException on failure
    */
-  private void pickInstrumentAudio(
-    String note,
-    Instrument instrument,
-    ProgramSequencePatternEvent event,
-    SegmentChoiceArrangement segmentChoiceArrangement,
-    double startSeconds,
-    @Nullable Double lengthSeconds,
-    @Nullable UUID segmentChordVoicingId,
-    double volRatio
-  ) throws NexusException {
-    var audio =
-      fabricator.getInstrumentConfig(instrument).isMultiphonic()
-        ? selectMultiphonicInstrumentAudio(instrument, event, note)
-        : selectNoteEventInstrumentAudio(instrument, event);
+  private void pickInstrumentAudio(String note, Instrument instrument, ProgramSequencePatternEvent event, SegmentChoiceArrangement segmentChoiceArrangement, double startSeconds, @Nullable Double lengthSeconds, @Nullable UUID segmentChordVoicingId, double volRatio) throws NexusException {
+    var audio = fabricator.getInstrumentConfig(instrument).isMultiphonic() ? selectMultiphonicInstrumentAudio(instrument, event, note) : selectNoteEventInstrumentAudio(instrument, event);
 
     // https://www.pivotaltracker.com/story/show/176373977 Should gracefully skip audio in unfulfilled by instrument
     if (audio.isEmpty()) return;
@@ -801,8 +724,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     pick.setLength(lengthSeconds);
     pick.setAmplitude(event.getVelocity() * volRatio);
     pick.setTones(fabricator.getInstrumentConfig(instrument).isTonal() ? note : Note.ATONAL);
-    if (Objects.nonNull(segmentChordVoicingId))
-      pick.setSegmentChordVoicingId(segmentChordVoicingId);
+    if (Objects.nonNull(segmentChordVoicingId)) pick.setSegmentChordVoicingId(segmentChordVoicingId);
     fabricator.put(pick);
   }
 
@@ -816,11 +738,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param note       to match selection
    @return matched new audio
    */
-  private Optional<InstrumentAudio> selectMultiphonicInstrumentAudio(
-    Instrument instrument,
-    ProgramSequencePatternEvent event,
-    String note
-  ) {
+  private Optional<InstrumentAudio> selectMultiphonicInstrumentAudio(Instrument instrument, ProgramSequencePatternEvent event, String note) {
     if (fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), note).isEmpty()) {
       var audio = selectNewMultiphonicInstrumentAudio(instrument, note);
       audio.ifPresent(instrumentAudio -> fabricator.putPreferredAudio(event.getProgramVoiceTrackId().toString(), note, instrumentAudio));
@@ -840,14 +758,9 @@ public class CraftImpl extends FabricationWrapperImpl {
    @return matched new audio
    @throws NexusException on failure
    */
-  private Optional<InstrumentAudio> selectNoteEventInstrumentAudio(
-    Instrument instrument,
-    ProgramSequencePatternEvent event
-  ) throws NexusException {
+  private Optional<InstrumentAudio> selectNoteEventInstrumentAudio(Instrument instrument, ProgramSequencePatternEvent event) throws NexusException {
     if (fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones()).isEmpty())
-      fabricator.putPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones(),
-        selectNewNoteEventInstrumentAudio(instrument, event)
-          .orElseThrow(() -> new NexusException("Unable to select note event instrument audio!")));
+      fabricator.putPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones(), selectNewNoteEventInstrumentAudio(instrument, event).orElseThrow(() -> new NexusException("Unable to select note event instrument audio!")));
 
     return fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones());
   }
@@ -862,10 +775,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param chord      to match selection
    @return matched new audio
    */
-  private Optional<InstrumentAudio> selectChordPartInstrumentAudio(
-    Instrument instrument,
-    Chord chord
-  ) {
+  private Optional<InstrumentAudio> selectChordPartInstrumentAudio(Instrument instrument, Chord chord) {
     if (fabricator.getPreferredAudio(instrument.getId().toString(), chord.getName()).isEmpty()) {
       var audio = selectNewChordPartInstrumentAudio(instrument, chord);
       audio.ifPresent(instrumentAudio -> fabricator.putPreferredAudio(instrument.getId().toString(), chord.getName(), instrumentAudio));
@@ -881,27 +791,23 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param event      to match
    @return matched new audio
    */
-  private Optional<InstrumentAudio> selectNewNoteEventInstrumentAudio(
-    Instrument instrument,
-    ProgramSequencePatternEvent event
-  ) throws NexusException {
+  private Optional<InstrumentAudio> selectNewNoteEventInstrumentAudio(Instrument instrument, ProgramSequencePatternEvent event) throws NexusException {
     Map<UUID, Integer> score = Maps.newHashMap();
 
     // add all audio to chooser
-    fabricator.sourceMaterial().getAudios(instrument)
-      .forEach(a -> score.put(a.getId(), 0));
+    fabricator.sourceMaterial().getAudios(instrument).forEach(a -> score.put(a.getId(), 0));
 
     // score each audio against the current voice event, with some variability
     for (InstrumentAudio audio : fabricator.sourceMaterial().getAudios(instrument))
       if (instrument.getType() == InstrumentType.Drum)
         score.put(audio.getId(), NameIsometry.similarity(fabricator.getTrackName(event), audio.getEvent()));
-      else
-        score.put(audio.getId(), Note.of(audio.getTones()).sameAs(Note.of(event.getTones())) ? 100 : 0);
+      else score.put(audio.getId(), Note.of(audio.getTones()).sameAs(Note.of(event.getTones())) ? 100 : 0);
 
     // final chosen audio event
     var pickId = Values.getKeyOfHighestValue(score);
     return pickId.isPresent() ? fabricator.sourceMaterial().getInstrumentAudio(pickId.get()) : Optional.empty();
   }
+
 
   /**
    Select a new random instrument audio based on a pattern event
@@ -910,19 +816,15 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param chord      to match
    @return matched new audio
    */
-  private Optional<InstrumentAudio> selectNewChordPartInstrumentAudio(
-    Instrument instrument,
-    Chord chord
-  ) {
+  protected Optional<InstrumentAudio> selectNewChordPartInstrumentAudio(Instrument instrument, Chord chord) {
     var bag = MarbleBag.empty();
 
     Chord audioChord;
     for (var a : fabricator.sourceMaterial().getAudios(instrument)) {
       audioChord = Chord.of(a.getTones());
-      if (audioChord.equals(chord))
+      if (audioChord.equals(chord)) {
         bag.add(0, a.getId());
-      else if (audioChord.hasSamePitchClasses(chord))
-        bag.add(1, a.getId());
+      }
     }
 
     if (bag.isEmpty()) return Optional.empty();
@@ -939,33 +841,17 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param note       to match
    @return matched new audio
    */
-  private Optional<InstrumentAudio> selectNewMultiphonicInstrumentAudio(
-    Instrument instrument,
-    String note
-  ) {
+  private Optional<InstrumentAudio> selectNewMultiphonicInstrumentAudio(Instrument instrument, String note) {
     var instrumentAudios = fabricator.sourceMaterial().getAudios(instrument);
     var a = Note.of(note);
-    var audio = instrumentAudios
-      .stream()
-      .filter(candidate -> {
-        if (Objects.isNull(candidate) || Strings.isNullOrEmpty(candidate.getTones())) return false;
-        var b = Note.of(candidate.getTones());
-        return a.isAtonal() || b.isAtonal() || a.sameAs(b);
-      })
-      .findAny();
+    var audio = instrumentAudios.stream().filter(candidate -> {
+      if (Objects.isNull(candidate) || Strings.isNullOrEmpty(candidate.getTones())) return false;
+      var b = Note.of(candidate.getTones());
+      return a.isAtonal() || b.isAtonal() || a.sameAs(b);
+    }).findAny();
 
     if (audio.isEmpty()) {
-      reportMissing(ImmutableMap.of(
-        "instrumentId", instrument.getId().toString(),
-        "searchForNote", note,
-        "availableNotes", CSV.from(instrumentAudios
-          .stream()
-          .map(InstrumentAudio::getTones)
-          .map(Note::of)
-          .sorted(Note::compareTo)
-          .map(N -> N.toString(AdjSymbol.Sharp))
-          .collect(Collectors.toList()))
-      ));
+      reportMissing(ImmutableMap.of("instrumentId", instrument.getId().toString(), "searchForNote", note, "availableNotes", CSV.from(instrumentAudios.stream().map(InstrumentAudio::getTones).map(Note::of).sorted(Note::compareTo).map(N -> N.toString(AdjSymbol.Sharp)).collect(Collectors.toList()))));
       return Optional.empty();
     }
 
@@ -983,18 +869,8 @@ public class CraftImpl extends FabricationWrapperImpl {
     var bag = MarbleBag.empty();
 
     // Retrieve programs bound to chain having a voice of the specified type
-    Map<UUID/*ID*/, Program> programMap = fabricator.sourceMaterial()
-      .getPrograms(programType).stream()
-      .collect(Collectors.toMap(Program::getId, program -> program));
-    Collection<Program> candidates = fabricator.sourceMaterial()
-      .getProgramVoices().stream()
-      .filter(programVoice -> Objects.nonNull(voicingType)
-        && voicingType.equals(programVoice.getType())
-        && programMap.containsKey(programVoice.getProgramId()))
-      .map(ProgramVoice::getProgramId)
-      .distinct()
-      .map(programMap::get)
-      .toList();
+    Map<UUID/*ID*/, Program> programMap = fabricator.sourceMaterial().getPrograms(programType).stream().collect(Collectors.toMap(Program::getId, program -> program));
+    Collection<Program> candidates = fabricator.sourceMaterial().getProgramVoices().stream().filter(programVoice -> Objects.nonNull(voicingType) && voicingType.equals(programVoice.getType()) && programMap.containsKey(programVoice.getProgramId())).map(ProgramVoice::getProgramId).distinct().map(programMap::get).toList();
 
     // (3) score each source program based on meme isometry
     MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
@@ -1004,16 +880,14 @@ public class CraftImpl extends FabricationWrapperImpl {
     for (Program program : programsDirectlyBound(candidates)) {
       memes = Entities.namesOf(fabricator.sourceMaterial().getMemesForProgramId(program.getId()));
       // FUTURE consider meme isometry, but for now, just use the meme stack
-      if (iso.isAllowed(memes))
-        bag.add(1, program.getId(), 1 + iso.score(memes));
+      if (iso.isAllowed(memes)) bag.add(1, program.getId(), 1 + iso.score(memes));
     }
 
     // Phase 2: All Published Programs
     for (Program program : programsPublished(candidates)) {
       memes = Entities.namesOf(fabricator.sourceMaterial().getMemesForProgramId(program.getId()));
       // FUTURE consider meme isometry, but for now, just use the meme stack
-      if (iso.isAllowed(memes))
-        bag.add(2, program.getId(), 1 + iso.score(memes));
+      if (iso.isAllowed(memes)) bag.add(2, program.getId(), 1 + iso.score(memes));
     }
 
     // report
@@ -1041,12 +915,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     var bag = MarbleBag.empty();
 
     // Retrieve instruments bound to chain
-    Collection<Instrument> candidates =
-      fabricator.sourceMaterial().getInstruments(types, modes)
-        .stream()
-        .filter(i -> !avoidIds.contains(i.getId()))
-        .filter(i -> instrumentContainsAudioEventsLike(i, requireEventNames))
-        .toList();
+    Collection<Instrument> candidates = fabricator.sourceMaterial().getInstruments(types, modes).stream().filter(i -> !avoidIds.contains(i.getId())).filter(i -> instrumentContainsAudioEventsLike(i, requireEventNames)).toList();
 
     // Retrieve meme isometry of segment
     MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
@@ -1055,29 +924,19 @@ public class CraftImpl extends FabricationWrapperImpl {
     // Phase 1: Directly Bound Instruments
     for (Instrument instrument : instrumentsDirectlyBound(candidates)) {
       memes = Entities.namesOf(fabricator.sourceMaterial().getMemesForInstrumentId(instrument.getId()));
-      if (iso.isAllowed(memes))
-        bag.add(1, instrument.getId(), 1 + iso.score(memes));
+      if (iso.isAllowed(memes)) bag.add(1, instrument.getId(), 1 + iso.score(memes));
     }
 
     // Phase 2: All Published Instruments
     for (Instrument instrument : instrumentsPublished(candidates)) {
       memes = Entities.namesOf(fabricator.sourceMaterial().getMemesForInstrumentId(instrument.getId()));
-      if (iso.isAllowed(memes))
-        bag.add(2, instrument.getId(), 1 + iso.score(memes));
+      if (iso.isAllowed(memes)) bag.add(2, instrument.getId(), 1 + iso.score(memes));
     }
 
     // Instrument choice inertia: prefer same instrument choices throughout a main program
     // https://www.pivotaltracker.com/story/show/178442889
     if (SegmentType.CONTINUE == fabricator.getType()) {
-      var alreadyPicked =
-        fabricator.retrospective().getChoices().stream()
-          .filter(candidate -> Objects.equals(candidate.getInstrumentType(), types.toString()))
-          .filter(candidate -> Objects.nonNull(continueVoiceName))
-          .filter(candidate -> fabricator.sourceMaterial().getProgramVoice(candidate.getProgramVoiceId())
-            .stream().map(pv -> Objects.equals(continueVoiceName, pv.getName()))
-            .findFirst()
-            .orElse(false))
-          .findAny();
+      var alreadyPicked = fabricator.retrospective().getChoices().stream().filter(candidate -> Objects.equals(candidate.getInstrumentType(), types.toString())).filter(candidate -> Objects.nonNull(continueVoiceName)).filter(candidate -> fabricator.sourceMaterial().getProgramVoice(candidate.getProgramVoiceId()).stream().map(pv -> Objects.equals(continueVoiceName, pv.getName())).findFirst().orElse(false)).findAny();
       if (alreadyPicked.isPresent())
         return fabricator.sourceMaterial().getInstrument(alreadyPicked.get().getInstrumentId());
     }
@@ -1107,11 +966,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     var bag = MarbleBag.empty();
 
     // (2) retrieve instruments bound to chain
-    Collection<InstrumentAudio> candidates =
-      fabricator.sourceMaterial().getInstrumentAudios(types, modes)
-        .stream()
-        .filter(a -> !avoidIds.contains(a.getId()))
-        .toList();
+    Collection<InstrumentAudio> candidates = fabricator.sourceMaterial().getInstrumentAudios(types, modes).stream().filter(a -> !avoidIds.contains(a.getId())).toList();
 
     // (3) score each source instrument based on meme isometry
     MemeIsometry iso = fabricator.getMemeIsometryOfSegment();
@@ -1132,10 +987,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     }
 
     // report
-    fabricator.putReport(String.format("choice%s%s",
-        types.stream().map(InstrumentType::toString).collect(Collectors.joining()),
-        modes.stream().map(InstrumentMode::toString).collect(Collectors.joining())),
-      bag.toString());
+    fabricator.putReport(String.format("choice%s%s", types.stream().map(InstrumentType::toString).collect(Collectors.joining()), modes.stream().map(InstrumentMode::toString).collect(Collectors.joining())), bag.toString());
 
     // (4) return the top choice
     if (bag.isEmpty()) return Optional.empty();
@@ -1224,8 +1076,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   private boolean instrumentContainsAudioEventsLike(Instrument instrument, Collection<String> requireEvents) {
     if (requireEvents.isEmpty()) return true;
     for (var event : requireEvents)
-      if (fabricator.sourceMaterial().getAudiosForInstrumentId(instrument.getId()).stream()
-        .noneMatch(a -> 100 < NameIsometry.similarity(event, a.getEvent())))
+      if (fabricator.sourceMaterial().getAudiosForInstrumentId(instrument.getId()).stream().noneMatch(a -> 100 < NameIsometry.similarity(event, a.getEvent())))
         return false;
     return true;
   }

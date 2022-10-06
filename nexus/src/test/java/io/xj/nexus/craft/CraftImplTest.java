@@ -2,6 +2,7 @@
 
 package io.xj.nexus.craft;
 
+import io.xj.lib.music.Chord;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
@@ -50,9 +51,11 @@ import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
 import static io.xj.nexus.persistence.Segments.DELTA_UNLIMITED;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -76,20 +79,7 @@ public class CraftImplTest {
     // Chain "Test Print #1" is fabricating segments
     Chain chain1 = buildChain(account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null);
 
-    segment0 = buildSegment(
-      chain1,
-      SegmentType.INITIAL,
-      2,
-      128,
-      SegmentState.DUBBED,
-      Instant.parse("2017-02-14T12:01:00.000001Z"),
-      Instant.parse("2017-02-14T12:01:32.000001Z"),
-      "D major",
-      64,
-      0.73,
-      120.0,
-      "chains-1-segments-9f7s89d8a7892",
-      "wav");
+    segment0 = buildSegment(chain1, SegmentType.INITIAL, 2, 128, SegmentState.DUBBED, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:32.000001Z"), "D major", 64, 0.73, 120.0, "chains-1-segments-9f7s89d8a7892", "wav");
 
     TemplateConfig templateConfig = new TemplateConfig(template1);
     when(fabricator.getTemplateConfig()).thenReturn(templateConfig);
@@ -192,4 +182,28 @@ public class CraftImplTest {
     verify(sourceMaterial, times(1)).getMemesForInstrumentId(eq(instrument1.getId()));
     assertTrue(result.isPresent());
   }
+
+  /**
+   XJ Should choose the correct chord audio per Main Program chord https://www.pivotaltracker.com/story/show/183434438
+   */
+  @Test
+  public void selectNewChordPartInstrumentAudio() {
+    Account account1 = buildAccount("testing");
+    Library library1 = buildLibrary(account1, "leaves");
+    Instrument instrument1 = buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Chord, InstrumentState.Published, "Test chord audio");
+    InstrumentAudio instrument1audio1 = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f, "PRIMARY", "G", 1.0f);
+    InstrumentAudio instrument1audio2 = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f, "PRIMARY", "G-7", 1.0f);
+    //
+    when(sourceMaterial.getAudios(same(instrument1))).thenReturn(List.of(instrument1audio1, instrument1audio2));
+    when(sourceMaterial.getInstrumentAudio(eq(instrument1audio1.getId()))).thenReturn(Optional.of(instrument1audio1));
+
+    var repeatTimes = 100;
+    for (var i = 0; i < repeatTimes; i++) {
+      var result = subject.selectNewChordPartInstrumentAudio(instrument1, Chord.of("G"));
+
+      assertTrue(result.isPresent());
+      assertEquals(instrument1audio1.getId(), result.get().getId());
+    }
+  }
+
 }

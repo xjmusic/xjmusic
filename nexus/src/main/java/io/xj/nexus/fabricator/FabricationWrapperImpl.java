@@ -3,13 +3,17 @@
 package io.xj.nexus.fabricator;
 
 import com.google.inject.Inject;
+import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.lib.music.Chord;
 import io.xj.lib.util.CSV;
+import io.xj.lib.util.MarbleBag;
 import io.xj.nexus.NexusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  Fabrication wrapper is a common foundation for all craft

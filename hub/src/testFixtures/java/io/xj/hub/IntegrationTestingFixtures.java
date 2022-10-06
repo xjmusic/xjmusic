@@ -397,7 +397,7 @@ public class IntegrationTestingFixtures {
     return binding;
   }
 
-  public static InstrumentAudio buildInstrumentAudio(Instrument instrument, String name, String waveformKey, float start, float length, float tempo, float density, String event, String note, float volume) {
+  public static InstrumentAudio buildInstrumentAudio(Instrument instrument, String name, String waveformKey, float start, float length, float tempo, float density, String event, String tones, float volume) {
     var instrumentAudio = new InstrumentAudio();
     instrumentAudio.setId(UUID.randomUUID());
     instrumentAudio.setInstrumentId(instrument.getId());
@@ -408,7 +408,7 @@ public class IntegrationTestingFixtures {
     instrumentAudio.setTempo(tempo);
     instrumentAudio.setDensity(density);
     instrumentAudio.setVolume(volume);
-    instrumentAudio.setTones(note);
+    instrumentAudio.setTones(tones);
     instrumentAudio.setEvent(event);
     return instrumentAudio;
   }
