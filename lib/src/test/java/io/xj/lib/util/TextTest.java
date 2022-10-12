@@ -252,4 +252,9 @@ public class TextTest {
     assertEquals("2", Text.incrementIntegerSuffix(""));
     assertEquals("2", Text.incrementIntegerSuffix(null));
   }
+
+  @Test
+  public void stripExtraSpaces() {
+    assertEquals("just a shadow", Text.stripExtraSpaces(" just   a     shadow   "));
+  }
 }

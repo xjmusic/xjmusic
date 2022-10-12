@@ -520,4 +520,14 @@ public interface Text {
       value.substring(0, value.length() - (m.matches() ? m.group(1).length() : 0)),
       m.matches() ? Integer.parseInt(m.group(1)) + 1 : 2);
   }
+
+  /**
+   Replace more than one space with one space, and stripg leading and trailing spaces
+
+   @param value to strip
+   @return stripped value
+   */
+  static String stripExtraSpaces(String value) {
+    return value.trim().replaceAll(" +", " ").strip();
+  }
 }

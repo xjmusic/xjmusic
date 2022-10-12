@@ -818,18 +818,19 @@ public class CraftImpl extends FabricationWrapperImpl {
    */
   protected Optional<InstrumentAudio> selectNewChordPartInstrumentAudio(Instrument instrument, Chord chord) {
     var bag = MarbleBag.empty();
+    var matchName = Text.stripExtraSpaces(chord.getName());
 
     Chord audioChord;
     for (var a : fabricator.sourceMaterial().getAudios(instrument)) {
       audioChord = Chord.of(a.getTones());
-      if (audioChord.equals(chord)) {
+      if (Objects.equals(matchName, Text.stripExtraSpaces(audioChord.getName()))) {
         bag.add(0, a.getId());
       }
     }
 
     if (bag.isEmpty()) return Optional.empty();
-
-    return fabricator.sourceMaterial().getInstrumentAudio(bag.pick());
+    var pick = bag.pick();
+    return fabricator.sourceMaterial().getInstrumentAudio(pick);
   }
 
   /**

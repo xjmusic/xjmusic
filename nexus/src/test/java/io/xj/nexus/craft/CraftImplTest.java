@@ -191,7 +191,7 @@ public class CraftImplTest {
     Account account1 = buildAccount("testing");
     Library library1 = buildLibrary(account1, "leaves");
     Instrument instrument1 = buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Chord, InstrumentState.Published, "Test chord audio");
-    InstrumentAudio instrument1audio1 = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f, "PRIMARY", "G", 1.0f);
+    InstrumentAudio instrument1audio1 = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f, "PRIMARY", " G   major  ", 1.0f);
     InstrumentAudio instrument1audio2 = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f, "PRIMARY", "G-7", 1.0f);
     //
     when(sourceMaterial.getAudios(same(instrument1))).thenReturn(List.of(instrument1audio1, instrument1audio2));
@@ -199,7 +199,7 @@ public class CraftImplTest {
 
     var repeatTimes = 100;
     for (var i = 0; i < repeatTimes; i++) {
-      var result = subject.selectNewChordPartInstrumentAudio(instrument1, Chord.of("G"));
+      var result = subject.selectNewChordPartInstrumentAudio(instrument1, Chord.of(" G    major    "));
 
       assertTrue(result.isPresent());
       assertEquals(instrument1audio1.getId(), result.get().getId());

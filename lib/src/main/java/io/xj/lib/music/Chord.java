@@ -3,6 +3,7 @@ package io.xj.lib.music;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import io.xj.lib.util.Text;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -294,6 +295,6 @@ public class Chord extends IntervalPitchGroup {
    @return true if equal
    */
   public boolean equals(Chord other) {
-    return Objects.equals(other.name, name);
+    return Objects.equals(Text.stripExtraSpaces(other.name), Text.stripExtraSpaces(name));
   }
 }
