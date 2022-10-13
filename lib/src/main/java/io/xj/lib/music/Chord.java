@@ -298,7 +298,16 @@ public class Chord extends IntervalPitchGroup {
    @param other chord to test
    @return true if equal
    */
-  public boolean equals(Chord other) {
+  public boolean isSame(Chord other) {
     return Objects.equals(other.name, name);
+  }
+
+  /**
+   Whether one chord is acceptable as a substitute another
+   @param other chord to test
+   @return true if acceptable
+   */
+  public boolean isAcceptable(Chord other) {
+    return Objects.equals(other.preSlash, preSlash);
   }
 }

@@ -7,6 +7,7 @@ import com.typesafe.config.ConfigValueFactory;
 import org.junit.Test;
 
 import java.time.Instant;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.*;
 
@@ -256,5 +257,13 @@ public class TextTest {
   @Test
   public void stripExtraSpaces() {
     assertEquals("just a shadow", Text.stripExtraSpaces(" just   a     shadow   "));
+  }
+
+  @Test
+  public void match() {
+    Pattern abc = Pattern.compile("^([ABC]+)$");
+
+    assertTrue(Text.match(abc, "123").isEmpty());
+    assertEquals("A", Text.match(abc, "A").orElseThrow());
   }
 }

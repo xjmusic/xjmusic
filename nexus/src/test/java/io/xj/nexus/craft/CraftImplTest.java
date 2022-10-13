@@ -62,6 +62,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CraftImplTest {
+  private static final int TEST_REPEAT_TIMES = 20;
   @Mock
   public Fabricator fabricator;
   @Mock
@@ -187,22 +188,43 @@ public class CraftImplTest {
    XJ Should choose the correct chord audio per Main Program chord https://www.pivotaltracker.com/story/show/183434438
    */
   @Test
-  public void selectNewChordPartInstrumentAudio() {
+  public void selectNewChordPartInstrumentAudio_stripSpaces() {
+    selectNewChordPartInstrumentAudio(" G   major  ", "G-7", " G    major    ");
+  }
+
+  /**
+   Chord-mode Instrument: Slash Chord Fluency
+   https://www.pivotaltracker.com/story/show/182885209
+   When the exact match is not present for an entire slash chord name, choose a chord matching the pre-slash name
+   */
+  @Test
+  public void selectNewChordPartInstrumentAudio_slashChordFluency() {
+    selectNewChordPartInstrumentAudio("Ab/C", "Eb/G", "Ab");
+    selectNewChordPartInstrumentAudio("Ab", "Eb/G", "Ab/C");
+  }
+
+  /**
+   Do the subroutine of testing the new chord part instrument audio selection
+
+   @param expectThis chord name
+   @param notThat    chord name
+   @param match      chord name
+   */
+  void selectNewChordPartInstrumentAudio(String expectThis, String notThat, String match) {
     Account account1 = buildAccount("testing");
     Library library1 = buildLibrary(account1, "leaves");
     Instrument instrument1 = buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Chord, InstrumentState.Published, "Test chord audio");
-    InstrumentAudio instrument1audio1 = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f, "PRIMARY", " G   major  ", 1.0f);
-    InstrumentAudio instrument1audio2 = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f, "PRIMARY", "G-7", 1.0f);
+    InstrumentAudio instrument1audio1 = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f, "PRIMARY", expectThis, 1.0f);
+    InstrumentAudio instrument1audio2 = buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f, "PRIMARY", notThat, 1.0f);
     //
     when(sourceMaterial.getAudios(same(instrument1))).thenReturn(List.of(instrument1audio1, instrument1audio2));
     when(sourceMaterial.getInstrumentAudio(eq(instrument1audio1.getId()))).thenReturn(Optional.of(instrument1audio1));
 
-    var repeatTimes = 100;
-    for (var i = 0; i < repeatTimes; i++) {
-      var result = subject.selectNewChordPartInstrumentAudio(instrument1, Chord.of(" G    major    "));
+    for (var i = 0; i < TEST_REPEAT_TIMES; i++) {
+      var result = subject.selectNewChordPartInstrumentAudio(instrument1, Chord.of(match));
 
-      assertTrue(result.isPresent());
-      assertEquals(instrument1audio1.getId(), result.get().getId());
+      assertTrue(String.format("Match a chord named %s", match), result.isPresent());
+      assertEquals(String.format("Match a chord named %s with %s not %s", match, expectThis, notThat), instrument1audio1.getId(), result.get().getId());
     }
   }
 

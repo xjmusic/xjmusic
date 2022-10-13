@@ -1,8 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.music;
 
-import java.util.Objects;
-import java.util.regex.Matcher;
+import io.xj.lib.util.Text;
+
 import java.util.regex.Pattern;
 
 /**
@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 public class SlashRoot {
   private static final Pattern rgxSlashNote = Pattern.compile("/([ABCDEFG])$");
   private static final Pattern rgxSlashNoteModified = Pattern.compile("/([ABCDEFG][♯#♭b])$");
+  private static final Pattern rgxSlashPre = Pattern.compile("^([^/]+)/");
   private PitchClass pitchClass;
 
   /**
@@ -22,8 +23,8 @@ public class SlashRoot {
     // as a default, the pitch class is None
     this.pitchClass = PitchClass.None;
 
-    evaluate(rgxSlashNote, name);
-    evaluate(rgxSlashNoteModified, name);
+    Text.match(rgxSlashNote, name).ifPresent(pc -> this.pitchClass = PitchClass.of(pc));
+    Text.match(rgxSlashNoteModified, name).ifPresent(pc -> this.pitchClass = PitchClass.of(pc));
   }
 
   /**
@@ -39,23 +40,6 @@ public class SlashRoot {
   }
 
   /**
-   First group matching pattern in text, else null@param pattern to in
-
-   @param text to search
-   */
-  private void evaluate(Pattern pattern, String text) {
-    Matcher matcher = pattern.matcher(text);
-    if (!matcher.find())
-      return;
-
-    String match = matcher.group(1);
-    if (Objects.isNull(match) || match.length() == 0)
-      return;
-
-    this.pitchClass = PitchClass.of(match);
-  }
-
-  /**
    Get pitch class of root
 
    @return root pitch class
@@ -67,5 +51,14 @@ public class SlashRoot {
   public PitchClass orDefault(PitchClass dpc) {
     if (pitchClass.equals(PitchClass.None)) return dpc;
     return pitchClass;
+  }
+
+  /**
+   Returns the pre-slash content, or whole string if no slash is present
+
+   @param name to search for pre-slash content
+   */
+  public static String pre(String name) {
+    return Text.match(rgxSlashPre, name).orElse(name);
   }
 }

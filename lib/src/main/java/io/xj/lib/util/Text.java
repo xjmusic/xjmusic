@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -529,5 +531,23 @@ public interface Text {
    */
   static String stripExtraSpaces(String value) {
     return value.trim().replaceAll(" +", " ").strip();
+  }
+
+  /**
+   First group matching pattern in text, else null
+   @param pattern to use
+   @param text    to search
+   @return match if found
+   */
+  static Optional<String> match(Pattern pattern, String text) {
+    Matcher matcher = pattern.matcher(text);
+    if (!matcher.find())
+      return Optional.empty();
+
+    String match = matcher.group(1);
+    if (Objects.isNull(match) || match.length() == 0)
+      return Optional.empty();
+
+    return Optional.of(match);
   }
 }

@@ -822,8 +822,10 @@ public class CraftImpl extends FabricationWrapperImpl {
     Chord audioChord;
     for (var a : fabricator.sourceMaterial().getAudios(instrument)) {
       audioChord = Chord.of(a.getTones());
-      if (audioChord.equals(chord)) {
+      if (audioChord.isSame(chord)) {
         bag.add(0, a.getId());
+      } else if (audioChord.isAcceptable(chord)) {
+        bag.add(1, a.getId());
       }
     }
 

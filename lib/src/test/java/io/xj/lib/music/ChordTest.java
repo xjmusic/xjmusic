@@ -189,4 +189,20 @@ public class ChordTest {
     assertEquals("G", Chord.of("  G      ").getName());
   }
 
+  @Test
+  public void isSame() {
+    assertTrue(Chord.of("  G major     ").isSame(Chord.of(" G     major ")));
+    assertTrue(Chord.of("Gm").isSame(Chord.of("Gm")));
+    assertFalse(Chord.of("Gm").isSame(Chord.of("Cm")));
+  }
+
+  @Test
+  public void isAcceptable() {
+    assertTrue(Chord.of("  G major     ").isAcceptable(Chord.of(" G     major ")));
+    assertTrue(Chord.of("Gm").isAcceptable(Chord.of("Gm")));
+    assertFalse(Chord.of("Gm").isAcceptable(Chord.of("Cm")));
+    assertTrue(Chord.of("Gm").isAcceptable(Chord.of("Gm/Bb")));
+    assertTrue(Chord.of("Gm/Bb").isAcceptable(Chord.of("Gm")));
+    assertFalse(Chord.of("Gm/Bb").isAcceptable(Chord.of("Cm")));
+  }
 }

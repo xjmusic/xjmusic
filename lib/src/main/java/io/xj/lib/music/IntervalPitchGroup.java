@@ -6,11 +6,13 @@ import com.google.common.collect.Maps;
 import io.xj.lib.util.Text;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  Interval Pitch Group is the super-entity to a Key, Chord or Scale- any group of pitches at specific intervals.
  */
 public abstract class IntervalPitchGroup {
+  protected String preSlash;
   protected String description;
   protected String name;
   // Root Pitch Class
@@ -22,17 +24,17 @@ public abstract class IntervalPitchGroup {
   // a map of this chord's +/- semitones-from-root, for each interval
   protected SortedMap<Interval, Integer> tones;
 
-  public IntervalPitchGroup(String name) {
+  public IntervalPitchGroup(String input) {
 
     // initialize tones map
     tones = Maps.newTreeMap();
 
     // Don't set values if there's nothing to set
-    if (Objects.isNull(name) || name.length() == 0)
+    if (Objects.isNull(input) || input.length() == 0)
       return;
 
     // store original name
-    this.name = Text.stripExtraSpaces(name);
+    name = Text.stripExtraSpaces(input);
 
     // determine whether the name is "sharps" or "flats"
     adjSymbol = AdjSymbol.of(name);
@@ -45,6 +47,7 @@ public abstract class IntervalPitchGroup {
 
     // parse the slash root
     this.slashRoot = SlashRoot.of(name).orDefault(this.root);
+    this.preSlash = SlashRoot.pre(name);
 
     // description is everything AFTER the root, in the original name
     description = root.getRemainingText();
