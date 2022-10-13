@@ -3,6 +3,7 @@ package io.xj.lib.music;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import io.xj.lib.util.Text;
 
 import java.util.*;
 
@@ -31,7 +32,7 @@ public abstract class IntervalPitchGroup {
       return;
 
     // store original name
-    this.name = name;
+    this.name = Text.stripExtraSpaces(name);
 
     // determine whether the name is "sharps" or "flats"
     adjSymbol = AdjSymbol.of(name);
