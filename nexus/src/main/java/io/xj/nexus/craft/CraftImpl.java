@@ -659,10 +659,10 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     // Various computations to prepare for picking
     var chord = Chord.of(segmentChord.getName());
-    var sourceKey = fabricator.getKeyForChoice(choice);
+    var sourceChord = fabricator.getKeyForChoice(choice);
     var sourceRange = fabricator.getProgramRange(choice.getProgramId(), instrumentType);
     var targetRange = fabricator.getProgramVoicingNoteRange(instrumentType);
-    var targetShiftSemitones = fabricator.getProgramTargetShift(sourceKey, Chord.of(chord.getName()));
+    var targetShiftSemitones = fabricator.getProgramTargetShift(sourceChord, Chord.of(chord.getName()));
     var voicingNotes = fabricator.getNotes(voicing).stream().flatMap(Note::ofValid).collect(Collectors.toList());
 
     // take semitone shift into account before computing octave shift! https://www.pivotaltracker.com/story/show/181975107

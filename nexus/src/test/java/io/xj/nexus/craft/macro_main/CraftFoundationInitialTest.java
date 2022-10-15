@@ -109,14 +109,14 @@ public class CraftFoundationInitialTest {
     assertEquals("2017-02-14T12:01:06.857143857Z", result.getEndAt());
     assertEquals(Integer.valueOf(16), result.getTotal());
     assertEquals(0.1, result.getDensity(), 0.01);
-    assertEquals("G major", result.getKey());
+    assertEquals("G", result.getKey());
     assertEquals(140.0, result.getTempo(), 0.01);
     // assert memes
     assertSameItems(
       Lists.newArrayList("TROPICAL", "WILD", "OUTLOOK", "OPTIMISM"),
       Entities.namesOf(store.getAll(result.getId(), SegmentMeme.class)));
     // assert chords
-    assertSameItems(Lists.newArrayList("G major", "Ab minor"),
+    assertSameItems(Lists.newArrayList("G", "Ab -"),
       Entities.namesOf(store.getAll(result.getId(), SegmentChord.class)));
     // assert choices
     Collection<SegmentChoice> segmentChoices =

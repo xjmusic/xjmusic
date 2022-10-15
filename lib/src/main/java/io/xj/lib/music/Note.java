@@ -51,7 +51,7 @@ public class Note implements Comparable<Note> {
   }
 
   /**
-   Instantiate a of note
+   Instantiate a note
 
    @param name of note
    @return note
@@ -216,37 +216,6 @@ public class Note implements Comparable<Note> {
   }
 
   /**
-   Copy of this note, conformed to one of the pitch classes in the given Chord
-   <p>
-   [#308] When conforming a Note to a Chord, find the absolute closest Note that conforms to the Chord's pitch classes
-
-   @param chord to conform note to
-   @return conformed note
-   */
-  public Note conformedTo(Chord chord) {
-
-    if (chord.getPitchClasses().containsValue(pitchClass))
-      return copy();
-
-    int delta = 0;
-    Note noteUp = copy();
-    Note noteDown = copy();
-    while (delta < MAX_DELTA_SEMITONES) {
-      delta++;
-
-      noteDown = noteDown.shift(-1);
-      if (chord.getPitchClasses().containsValue(noteDown.getPitchClass()))
-        return noteDown;
-
-      noteUp = noteUp.shift(1);
-      if (chord.getPitchClasses().containsValue(noteUp.getPitchClass()))
-        return noteUp;
-    }
-
-    return copy();
-  }
-
-  /**
    Delta +/- semitones from this Note to another Note
 
    @param target note to get delta to
@@ -303,7 +272,7 @@ public class Note implements Comparable<Note> {
    @return true if this is lower than the target
    */
   public boolean isLower(Note target) {
-    return -1 == compareTo(target);
+    return 0 > compareTo(target);
   }
 
   /**
@@ -313,7 +282,7 @@ public class Note implements Comparable<Note> {
    @return true if this is higher than the target
    */
   public boolean isHigher(Note target) {
-    return 1 == compareTo(target);
+    return 0 < compareTo(target);
   }
 
   /**

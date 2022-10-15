@@ -43,7 +43,6 @@ import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.meme.MemeStack;
 import io.xj.lib.music.AdjSymbol;
 import io.xj.lib.music.Chord;
-import io.xj.lib.music.Key;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.NoteRange;
 import io.xj.lib.music.PitchClass;
@@ -492,15 +491,15 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Key getKeyForChoice(SegmentChoice choice) throws NexusException {
+  public Chord getKeyForChoice(SegmentChoice choice) throws NexusException {
     Optional<Program> program = getProgram(choice);
     if (Values.isSet(choice.getProgramSequenceBindingId())) {
       var sequence = getSequence(choice);
       if (sequence.isPresent() && !Strings.isNullOrEmpty(sequence.get().getKey()))
-        return Key.of(sequence.get().getKey());
+        return Chord.of(sequence.get().getKey());
     }
 
-    return Key.of(program.orElseThrow(() -> new NexusException("Cannot get key for nonexistent choice!")).getKey());
+    return Chord.of(program.orElseThrow(() -> new NexusException("Cannot get key for nonexistent choice!")).getKey());
   }
 
   @Override
@@ -741,10 +740,10 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public int getProgramTargetShift(Key fromKey, Chord toChord) {
-    if (!fromKey.isPresent()) return 0;
-    var key = String.format("%s__%s", fromKey, toChord.toString());
-    if (!targetShift.containsKey(key)) targetShift.put(key, fromKey.getRoot().delta(toChord.getSlashRoot()));
+  public int getProgramTargetShift(Chord fromChord, Chord toChord) {
+    if (!fromChord.isPresent()) return 0;
+    var key = String.format("%s__%s", fromChord, toChord.toString());
+    if (!targetShift.containsKey(key)) targetShift.put(key, fromChord.getRoot().delta(toChord.getSlashRoot()));
 
     return targetShift.get(key);
   }

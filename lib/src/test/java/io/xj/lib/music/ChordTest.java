@@ -3,9 +3,12 @@ package io.xj.lib.music;
 
 import com.google.common.collect.Maps;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
 import java.util.Map;
+import java.util.Objects;
 
 import static io.xj.lib.music.Interval.I3;
 import static io.xj.lib.music.Interval.I6;
@@ -27,47 +30,27 @@ import static org.junit.Assert.assertTrue;
 
 public class ChordTest {
   private static final String EXPECTED_CHORDS_YAML = "/music/expect_chord.yaml";
-  private static final String KEY_CHORDS = "chords";
-  private static final String KEY_ROOT_PITCH_CLASS = "root";
-  private static final Object KEY_PITCHES = "pitches";
+  private final Logger LOG = LoggerFactory.getLogger(ChordTest.class);
 
   @Test
   public void TestChordExpectations() {
     Yaml yaml = new Yaml();
 
-    Map<?, ?> wrapper = yaml.load(getClass().getResourceAsStream(EXPECTED_CHORDS_YAML));
-    assertNotNull(wrapper);
-
-    Map<?, ?> chords = (Map<?, ?>) wrapper.get(KEY_CHORDS);
+    Map<String, String> chords = yaml.load(getClass().getResourceAsStream(EXPECTED_CHORDS_YAML));
     assertNotNull(chords);
 
-    chords.keySet().forEach((chordName) -> {
-      Map<?, ?> chord = (Map<?, ?>) chords.get(chordName);
-      PitchClass expectRootPitchClass = PitchClass.of(String.valueOf(chord.get(KEY_ROOT_PITCH_CLASS)));
-      assertNotNull(expectRootPitchClass);
-
-      Map<?, ?> rawPitches = (Map<?, ?>) chord.get(KEY_PITCHES);
-      assertNotNull(rawPitches);
-
-      Map<Interval, PitchClass> expectPitches = Maps.newHashMap();
-      rawPitches.forEach((rawInterval, rawPitchClass) ->
-        expectPitches.put(
-          Interval.valueOf(Integer.parseInt(String.valueOf(rawInterval))),
-          PitchClass.of(String.valueOf(rawPitchClass))));
-
-      assertChordExpectations(expectRootPitchClass, expectPitches, Chord.of(String.valueOf(chordName)));
-    });
-  }
-
-  private void assertChordExpectations(PitchClass expectRootPitchClass, Map<Interval, PitchClass> expectPitchClasses, Chord chord) {
-    System.out.println(
-      "Expect pitch classes " + IntervalPitchGroup.detailsOf(expectPitchClasses, chord.getAdjSymbol()) + " for " +
-        "Chord " + chord.details());
-    Map<Interval, PitchClass> pitchClasses = chord.getPitchClasses();
-    assertEquals(expectRootPitchClass, chord.getRoot());
-    assertEquals("same number of pitch classes", expectPitchClasses.size(), pitchClasses.size());
-    expectPitchClasses.forEach((expectInterval, expectPitchClass) ->
-      assertEquals(String.format("same pitch class at interval %s", expectInterval.getValue()), expectPitchClass, pitchClasses.get(expectInterval)));
+    int fails = 0;
+    String actual;
+    for (Map.Entry<?, ?> entry : chords.entrySet()) {
+      String input = entry.getKey().toString();
+      String expect = entry.getValue().toString();
+      actual = Chord.of(input).toString();
+      if (!Objects.equals(actual, expect)) {
+        LOG.warn("Expected \"{}\" to yield \"{}\" but actually was \"{}\"", input, expect, actual);
+        fails++;
+      }
+    }
+    assertEquals("no failures", 0, fails);
   }
 
   @Test
@@ -77,87 +60,11 @@ public class ChordTest {
   }
 
   @Test
-  public void TestChordOf() {
-    Chord chord = Chord.of("Cm nondominant -5 +6 +7 +9");
-    Map<Interval, PitchClass> pitchClasses = chord.getPitchClasses();
-    assertEquals(4, pitchClasses.size());
-    assertEquals(Ds, pitchClasses.get(I3));
-    assertEquals(A, pitchClasses.get(I6));
-    assertEquals(As, pitchClasses.get(I7));
-    assertEquals(D, pitchClasses.get(I9));
-  }
-
-  @Test
-  public void TestTranspose() {
-    Chord chord = Chord.of("Cm nondominant -5 +6 +7 +9").transpose(3);
-    Map<Interval, PitchClass> pitchClasses = chord.getPitchClasses();
-    assertEquals(4, pitchClasses.size());
-    assertEquals(Fs, pitchClasses.get(I3));
-    assertEquals(C, pitchClasses.get(I6));
-    assertEquals(Cs, pitchClasses.get(I7));
-    assertEquals(F, pitchClasses.get(I9));
-  }
-
-  @Test
   public void TestTranspose_DescriptionChange() {
     Chord chord = Chord.of("Cm nondominant -5 +6 +7 +9");
 
-    assertEquals("C m nondominant -5 +6 +7 +9", chord.getFullDescription());
-    assertEquals("Eb m nondominant -5 +6 +7 +9", chord.transpose(3).getFullDescription());
-  }
-
-  @Test
-  public void TestTranspose_officialDescription() {
-    Chord chord = Chord.of("Cm nondominant -5 +6 +7 +9");
-
-    assertEquals("C Basic NonDominant Minor Triad Omit Fifth Add Sixth Add Seventh Add Ninth", chord.officialDescription());
-  }
-
-  @Test
-  public void getForms_setForms() {
-    Chord source = Chord.of("Cm nondominant -5 +6 +7 +9");
-    Chord result = new Chord();
-    result.setForms(source.getForms());
-
-    assertEquals(7, result.getForms().size());
-  }
-
-  @Test
-  public void formString() {
-    Chord chord = Chord.of("Cm nondominant -5 +6 +7 +9");
-
-    assertEquals("Basic NonDominant Minor Triad Omit Fifth Add Sixth Add Seventh Add Ninth", chord.formString());
-  }
-
-  /**
-   https://www.pivotaltracker.com/story/show/154985948 Architect wants to determine tonal similarity (% of shared pitch classes) between two Chords, in order to perform fuzzy matching operations.
-   */
-  @Test
-  public void similarity() {
-    assertEquals(1.0000, Chord.of("Cm nondominant -5 +6 +7 +9").similarity(Chord.of("Cm nondominant -5 +6 +7 +9")), 0.001);
-    assertEquals(0.2499, Chord.of("Cm nondominant -5 +6 +7 +9").similarity(Chord.of("Gm nondominant -5 +6 +7 +9")), 0.001);
-    assertEquals(0.3125, Chord.of("Cm nondominant -5 +6 +7 +9").similarity(Chord.of("D7 minor")), 0.001);
-    assertEquals(0.1042, Chord.of("Cm nondominant -5 +6 +7 +9").similarity(Chord.of("C major")), 0.001);
-    assertEquals(0.6250, Chord.of("C minor 7").similarity(Chord.of("C major 7")), 0.001);
-    assertEquals(0.7792, Chord.of("C minor 7").similarity(Chord.of("C major m7")), 0.001);
-  }
-
-  /**
-   Chord instrument mode
-   https://www.pivotaltracker.com/story/show/181631275
-   */
-  @Test
-  public void similarityAtAnyIntervals() {
-    assertEquals(1.00, Chord.of("C major").similarityAtAnyIntervals(Chord.of("G sus -5 +6 /C")), 0.001);
-  }
-
-  /**
-   Chord instrument mode
-   https://www.pivotaltracker.com/story/show/181631275
-   */
-  @Test
-  public void hasSamePitchClasses() {
-    assertTrue( Chord.of("C major").hasSamePitchClasses(Chord.of("G sus -5 +6 /C")));
+    assertEquals("C m nondominant -5 +6 +7 +9", chord.getName());
+    assertEquals("Eb m nondominant -5 +6 +7 +9", chord.transpose(3).getName());
   }
 
   @Test
@@ -165,11 +72,6 @@ public class ChordTest {
     assertFalse(Chord.of("C#m7").isNoChord());
     assertTrue(Chord.of("NC").isNoChord());
     assertEquals("NC", Chord.NO_CHORD_NAME);
-  }
-
-  @Test
-  public void colloquialFormName() {
-    assertEquals("Minor Seventh", Chord.of("C#m7").colloquialFormName());
   }
 
   /**

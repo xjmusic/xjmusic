@@ -290,7 +290,7 @@ public interface Fabricator {
    @return key of specified sequence/program via choice
    @throws NexusException if unable to determine key of choice
    */
-  Key getKeyForChoice(SegmentChoice choice) throws NexusException;
+  Chord getKeyForChoice(SegmentChoice choice) throws NexusException;
 
   /**
    fetch the macro-type choice for the previous segment in the chain
@@ -472,11 +472,11 @@ public interface Fabricator {
   /**
    Compute the target shift from a key toward a chord
 
-   @param fromKey to compute shift from
+   @param fromChord to compute shift from
    @param toChord to compute shift toward
    @return computed target shift
    */
-  int getProgramTargetShift(Key fromKey, Chord toChord);
+  int getProgramTargetShift(Chord fromChord, Chord toChord);
 
   /**
    Get the program type of a given voice

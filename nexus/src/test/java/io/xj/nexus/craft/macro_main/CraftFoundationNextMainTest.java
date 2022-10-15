@@ -144,13 +144,13 @@ public class CraftFoundationNextMainTest {
     assertEquals(Integer.valueOf(16), result.getTotal());
     assertEquals("WAV", result.getOutputEncoder());
     assertEquals(0.1, result.getDensity(), 0.01);
-    assertEquals("G minor", result.getKey());
+    assertEquals("G -", result.getKey());
     assertEquals(140, result.getTempo(), 0.01);
     // assert memes
     assertSameItems(Lists.newArrayList("HINDSIGHT", "TROPICAL", "COZY", "WILD", "REGRET"),
       Entities.namesOf(store.getAll(result.getId(), SegmentMeme.class)));
     // assert chords
-    assertSameItems(Lists.newArrayList("G minor", "Ab minor"),
+    assertSameItems(Lists.newArrayList("G -", "Ab -"),
       Entities.namesOf(store.getAll(result.getId(), SegmentChord.class)));
     // assert choices
     Collection<SegmentChoice> segmentChoices =

@@ -1,375 +1,175 @@
 ---
-chords:
-
-  C:
-    root: C
-    pitches:
-      1: C
-      3: E
-      5: G
-
-  C7:
-    root: C
-    pitches:
-      1: C
-      3: E
-      5: G
-      7: A#
-
-  C 7:
-    root: C
-    pitches:
-      1: C
-      3: E
-      5: G
-      7: A#
-
-  C major:
-    root: C
-    pitches:
-      1: C
-      3: E
-      5: G
-
-  CM:
-    root: C
-    pitches:
-      1: C
-      3: E
-      5: G
-
-  C maj. 7:
-    root: C
-    pitches:
-      1: C
-      3: E
-      5: G
-      7: B
-
-  Cm:
-    root: C
-    pitches:
-      1: C
-      3: Eb
-      5: G
-
-  C min:
-    root: C
-    pitches:
-      1: C
-      3: Eb
-      5: G
-
-  C minor 7th:
-    root: C
-    pitches:
-      1: C
-      3: Eb
-      5: G
-      7: Bb
-
-  Caug:
-    root: C
-    pitches:
-      1: C
-      3: E
-      5: G#
-
-  C dim:
-    root: C
-    pitches:
-      1: C
-      3: Eb
-      5: Gb
-
-  C sus:
-    root: C
-    pitches:
-      1: C
-      4: F
-      5: G
-
-  CM7:
-    root: C
-    pitches:
-      1: C
-      3: E
-      5: G
-      7: B
-
-  Cm7:
-    root: C
-    pitches:
-      1: C
-      3: Eb
-      5: G
-      7: Bb
-
-  Cdom7:
-    root: C
-    pitches:
-      1: C
-      3: E
-      5: G
-      7: A#
-
-  C dominant 7 flat 5:
-    root: C
-    pitches:
-      1: C
-      3: E
-      5: F#
-      7: A#
-
-  Cdom7♭5:
-    root: C
-    pitches:
-      1: C
-      3: E
-      5: Gb
-      7: Bb
-
-  C diminished 7:
-    root: C
-    pitches:
-      1: C
-      3: Eb
-      5: Gb
-      7: A
-
-  Cdim7:
-    root: C
-    pitches:
-      1: C
-      3: Eb
-      5: Gb
-      7: A
-
-  C half diminished 7:
-    root: C
-    pitches:
-      1: C
-      3: Eb
-      5: Gb
-      7: Bb
-
-  C diminished M7:
-    root: C
-    pitches:
-      1: C
-      3: Eb
-      5: Gb
-      7: B
-
-  Cdim maj7:
-    root: C
-    pitches:
-      1: C
-      3: Eb
-      5: Gb
-      7: B
-
-  CdimM7:
-    root: C
-    pitches:
-      1: C
-      3: Eb
-      5: Gb
-      7: B
-
-  Cm nondominant -5 +6 +7 +9:
-    root: C
-    pitches:
-      3: Eb
-      6: A
-      7: Bb
-      9: D
-
-  CmM7: # minor 3rd + major 7th
-    root: C
-    pitches:
-      1: C
-      3: Eb
-      5: G
-      7: B
-
-  Cm(maj7): # minor 3rd + major 7th
-    root: C
-    pitches:
-      1: C
-      3: Eb
-      5: G
-      7: B
-
-  C aug major 7:
-    root: C
-    pitches:
-      1: C
-      3: E
-      5: G#
-      7: B
-
-  Caug m7:
-    root: C
-    pitches:
-      1: C
-      3: E
-      5: Ab
-      7: Bb
-
-  C nondominant 7:
-    root: C
-    pitches:
-      3: E
-      5: G
-      7: A#
-
-  C 9: # dominant 9th
-    root: C
-    pitches:
-      1: C
-      3: E
-      5: G
-      7: A#
-      9: D
-
-  C7#9: # dominant 7, sharp 9
-    root: C
-    pitches:
-      1: C
-      3: E
-      5: G
-      7: A#
-      9: D#
-
-  CM9: # major 9th
-    root: C
-    pitches:
-      1: C
-      3: E
-      5: G
-      7: B
-      9: D
-
-  CM11: # major 11
-    root: C
-    pitches:
-      1: C
-      3: E
-      5: G
-      7: B
-      9: D
-      11: F
-
-  C11: # dominant 11
-    root: C
-    pitches:
-      1: C
-      5: G
-      7: A#
-      9: D
-      11: F
-
-  Cm11: # minor 11
-    root: C
-    pitches:
-      1: C
-      3: Eb
-      5: G
-      7: Bb
-      9: D
-      11: F
-
-  B♭m11: # minor 11
-    root: Bb
-    pitches:
-      1: Bb
-      3: Db
-      5: F
-      7: Ab
-      9: C
-      11: Eb
-
-  CM13: # major 13
-    root: C
-    pitches:
-      1: C
-      3: E
-      5: G
-      7: B
-      9: D
-      11: F
-      13: A
-
-  CM13-11: # major 13
-    root: C
-    pitches:
-      1: C
-      3: E
-      5: G
-      7: B
-      9: D
-      13: A
-
-  CM13-9-11: # major 13
-    root: C
-    pitches:
-      1: C
-      3: E
-      5: G
-      7: B
-      13: A
-
-  Cm13 -7 -9 -11: # major 13
-    root: C
-    pitches:
-      1: C
-      3: Eb
-      5: G
-      13: A
-
-  Cm13: # minor 13
-    root: C
-    pitches:
-      1: C
-      3: Eb
-      5: G
-      7: Bb
-      9: D
-      11: F
-      13: A
-
-  C13: # dominant 13
-    root: C
-    pitches:
-      1: C
-      5: G
-      7: A#
-      9: D
-      11: F
-      13: A
-
-  CMb5b7:
-    root: C
-    pitches:
-      1: C
-      3: E
-      5: Gb
-      7: Bb
-
-  G7b9: #-- https://www.pivotaltracker.com/story/show/154310658 Artist expects chords "G7b9" to parse as "G7 flat 9" *not* "G7 add 9"
-    root: G
-    pitches:
-      1: G
-      3: B
-      5: D
-      7: F
-      9: Ab
-
-  Ebmb6: #-- https://www.pivotaltracker.com/story/show/154310658 Artist expects chord "Ebmb6" to parse as "Eb minor flat 6" *not* "Eb minor add 6."
-    root: Eb
-    pitches:
-      1: Eb
-      3: Gb
-      5: Bb
-      6: B
+"C #5": C +
+C +Maj7: C aug maj7
+C -11: C -7/11
+C -7/13: C -13
+C -7add9: C -7/9
+C -7b5/11: C -7b5/11
+C -maj7: C min/maj7
+C 11: C 7add4
+C 13: C 7/13
+C 5add2: C sus2
+C 5add9: C sus2
+C 6add9: C 6/9
+C 7#5: C +7
+C 7/11: C 7add4
+C 7/6/9: C 7/9/13
+C 7/6: C 7/13
+C 7b5: C 7#11
+C 7sus: C 7sus4
+C 9: C 7/9
+C add11: C add4
+C add2: C add9
+C aug7: C +7
+C aug: C +
+C augmented major 7: C aug maj7
+C augmented7: C +7
+C augmented: C +
+C diminished major 7: C dim maj7
+C diminished7: C dim7
+C diminished: C dim
+C dom 7/13: C 7/13
+C dom 7/9/13: C 7/9/13
+C dom7 6/9: C 7/9/13
+C dom7#11: C 7#11
+C dom7#9: C 7#9
+C dom7#9b13: C 7#9b13
+C dom7/11: C 7add4
+C dom7/6: C 7/13
+C dom7/9: C 7/9
+C dom7/9b13: C 7/9b13
+C dom7: C 7
+C dom7add4: C 7add4
+C dom7b5: C 7#11
+C dom7b9/13: C 7b9/13
+C dom7b9: C 7b9
+C dom7b9b13: C 7b9b13
+C dom7sus4: C 7sus4
+C dominant 7 b9/13: C 7b9/13
+C dominant 7#11: C 7#11
+C dominant 7#9: C 7#9
+C dominant 7#9b13: C 7#9b13
+C dominant 7/13: C 7/13
+C dominant 7/6: C 7/13
+C dominant 7/9/13: C 7/9/13
+C dominant 7/9: C 7/9
+C dominant 7/9b13: C 7/9b13
+C dominant 7: C 7
+C dominant 7add4: C 7add4
+C dominant 7b5: C 7#11
+C dominant 7b9: C 7b9
+C dominant 7b9b13: C 7b9b13
+C dominant 7sus4: C 7sus4
+C dominant7/11: C 7add4
+C dominant: C 7
+C domininant 7 6/9: C 7/9/13
+C half dim 11: C -7b5/11
+C half dim: C -7b5
+C half diminished: C -7b5
+C half dimished 11: C -7b5/11
+C maj add11: C add4
+C maj add2: C add9
+C maj add4: C add4
+C maj6/9: C 6/9
+C maj6: C 6
+C maj6add9: C 6/9
+C maj7#5: C aug maj7
+C maj7add2: C maj7/9
+C maj7add9: C maj7/9
+C maj: C
+C major add11: C add4
+C major add2: C add9
+C major add4: C add4
+C major add9: C add9
+C major6/9: C 6/9
+C major6: C 6
+C major6add9: C 6/9
+C major7#11: C maj7#11
+C major7#5: C aug maj7
+C major7/13: C maj7/13
+C major7/9: C maj7/9
+C major7: C maj7
+C major7add2: C maj7/9
+C major7add9: C maj7/9
+C major: C
+C mi/maj7: C min/maj7
+C mi11: C -7/11
+C mi6: C -6
+C mi7/11: C -7/11
+C mi7/9: C -7/9
+C mi7: C -7
+C mi7add9: C -7/9
+C mi: C -
+C min11: C -7/11
+C min13: C -13
+C min6: C -6
+C min7/11: C -7/11
+C min7/13: C -13
+C min7/9: C -7/9
+C min7: C -7
+C min7add9: C -7/9
+C min7b5: C -7b5
+C min: C -
+C minb6: C -b6
+C minor 13: C -13
+C minor b6: C -b6
+C minor major 7: C min/maj7
+C minor/maj7: C min/maj7
+C minor/major7: C min/maj7
+C minor11: C -7/11
+C minor6: C -6
+C minor7/11: C -7/11
+C minor7/13: C -13
+C minor7/9: C -7/9
+C minor7: C -7
+C minor7add9: C -7/9
+C minor7b5/11: C -7b5/11
+C minor7b5: C -7b5
+C minor: C -
+C sus: C sus4
+C Ø11: C -7b5/11
+C+M7: C aug maj7
+C+∆: C aug maj7
+C∆#5: C aug maj7
+C+♮7: C aug maj7
+C-∆: C min/maj7
+C7add9: C 7/9
+CM6/9: C 6/9
+CM6: C 6
+CM6add9: C 6/9
+CM7#11: C maj7#11
+CM7/13: C maj7/13
+CM7/9: C maj7/9
+CM7: C maj7
+CM7add9: C maj7/9
+CM: C
+CMadd11: C add4
+CMadd2: C add9
+CMadd4: C add4
+CMadd9: C add9
+CaugM7: C aug maj7
+Caug∆: C aug maj7
+CdimM7: C dim maj7
+Cdim♮7: C dim maj7
+Cm11: C -7/11
+Cm13: C -13
+Cm6: C -6
+Cm7/11: C -7/11
+Cm7/9: C -7/9
+Cm7: C -7
+Cm7add9: C -7/9
+Cm7b5/11: C -7b5/11
+Cm7b5: C -7b5
+Cm: C -
+CmM7: C min/maj7
+Cmaj add9: C add9
+Cmb6: C -b6
+Cmin∆: C min/maj7
+C°7: C dim7
+C°: C dim
+C°M7: C dim maj7
+CØ: C -7b5
+C∆#11: C maj7#11
+C∆13: C maj7/13
+C∆9: C maj7/9
+C∆: C maj7

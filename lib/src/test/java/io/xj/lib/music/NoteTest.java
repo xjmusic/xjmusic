@@ -113,54 +113,6 @@ public class NoteTest {
     assertEquals(Integer.valueOf(6), Note.of("A4").delta(Note.of("D#5")));
   }
 
-  /**
-   [#308] When conforming a Note to a Chord, find the absolute closest Note that conforms to the Chord's pitch classes
-   */
-  @Test
-  public void conformedTo() {
-    assertNote("E3", Note.of("E3").conformedTo(Chord.of("C major 7")));
-    assertNote("E3", Note.of("F3").conformedTo(Chord.of("C major 7")));
-    assertNote("G3", Note.of("Gb3").conformedTo(Chord.of("C major 7")));
-    assertNote("G3", Note.of("G3").conformedTo(Chord.of("C major 7")));
-    assertNote("G3", Note.of("Ab3").conformedTo(Chord.of("C major 7")));
-    assertNote("G3", Note.of("A3").conformedTo(Chord.of("C major 7")));
-    assertNote("B3", Note.of("Bb3").conformedTo(Chord.of("C major 7")));
-    assertNote("B3", Note.of("B3").conformedTo(Chord.of("C major 7")));
-    assertNote("C4", Note.of("C4").conformedTo(Chord.of("C major 7")));
-    assertNote("C4", Note.of("Db4").conformedTo(Chord.of("C major 7")));
-    assertNote("C4", Note.of("D4").conformedTo(Chord.of("C major 7")));
-    assertNote("E4", Note.of("Eb4").conformedTo(Chord.of("C major 7")));
-    assertNote("E4", Note.of("E4").conformedTo(Chord.of("C major 7")));
-    assertNote("E4", Note.of("F4").conformedTo(Chord.of("C major 7")));
-    assertNote("G4", Note.of("Gb4").conformedTo(Chord.of("C major 7")));
-    assertNote("G4", Note.of("G4").conformedTo(Chord.of("C major 7")));
-    assertNote("G4", Note.of("Ab4").conformedTo(Chord.of("C major 7")));
-    assertNote("G4", Note.of("A4").conformedTo(Chord.of("C major 7")));
-    assertNote("B4", Note.of("Bb4").conformedTo(Chord.of("C major 7")));
-    assertNote("B4", Note.of("B4").conformedTo(Chord.of("C major 7")));
-    assertNote("C5", Note.of("C5").conformedTo(Chord.of("C major 7")));
-    assertNote("C5", Note.of("C#5").conformedTo(Chord.of("C major 7")));
-    assertNote("C5", Note.of("D5").conformedTo(Chord.of("C major 7")));
-    assertNote("E5", Note.of("D#5").conformedTo(Chord.of("C major 7")));
-    assertNote("E5", Note.of("E5").conformedTo(Chord.of("C major 7")));
-    assertNote("E5", Note.of("F5").conformedTo(Chord.of("C major 7")));
-    assertNote("G5", Note.of("F#5").conformedTo(Chord.of("C major 7")));
-    assertNote("G5", Note.of("G5").conformedTo(Chord.of("C major 7")));
-    assertNote("G5", Note.of("G#5").conformedTo(Chord.of("C major 7")));
-    assertNote("G5", Note.of("A5").conformedTo(Chord.of("C major 7")));
-    assertNote("B5", Note.of("A#5").conformedTo(Chord.of("C major 7")));
-    assertNote("B5", Note.of("B5").conformedTo(Chord.of("C major 7")));
-    assertNote("C6", Note.of("C6").conformedTo(Chord.of("C major 7")));
-    assertNote("C6", Note.of("C#6").conformedTo(Chord.of("C major 7")));
-    assertNote("C6", Note.of("D6").conformedTo(Chord.of("C major 7")));
-    assertNote("E6", Note.of("D#6").conformedTo(Chord.of("C major 7")));
-    assertNote("E6", Note.of("E6").conformedTo(Chord.of("C major 7")));
-    assertNote("E6", Note.of("F6").conformedTo(Chord.of("C major 7")));
-    assertNote("G6", Note.of("F#6").conformedTo(Chord.of("C major 7")));
-    assertNote("G6", Note.of("G6").conformedTo(Chord.of("C major 7")));
-    assertNote("G6", Note.of("G#6").conformedTo(Chord.of("C major 7")));
-  }
-
   @Test
   public void NamedTest() {
     Note note = Note.of("G");

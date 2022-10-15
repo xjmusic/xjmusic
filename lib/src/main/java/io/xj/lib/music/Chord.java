@@ -1,41 +1,102 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.music;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import com.google.api.client.util.Strings;
+import io.xj.lib.util.Text;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.SortedMap;
-import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 /**
  Chord in a particular key
  */
-public class Chord extends IntervalPitchGroup {
+public class Chord {
+  private static final Pattern rgxStartsWithSlash = Pattern.compile("^/");
   public static final String NO_CHORD_NAME = "NC";
-  private static final double semitonesModulo = 12;
-  private static final double semitonesModuloDeltaMax = semitonesModulo / 2;
-  private List<ChordForm> forms;
+  protected String preSlash;
+  protected String description;
+  // Root Pitch Class
+  protected PitchClass root;
+  // Slash Root Pitch Class
+  protected PitchClass slashRoot;
+  // the (flat/sharp) adjustment symbol, which will be used to express this chord
+  protected AdjSymbol adjSymbol;
 
-  /**
-   Construct an empty Chord
-   */
   public Chord() {
-    super("");
+  }
+
+  public Chord(String input) {
+
+    // Don't set values if there's nothing to set
+    if (Objects.isNull(input) || input.length() == 0)
+      return;
+
+    // store original name
+    var name = Text.stripExtraSpaces(input);
+
+    // determine whether the name is "sharps" or "flats"
+    adjSymbol = AdjSymbol.of(name);
+
+    // Root utility separates root from remaining text
+    Root rooter = Root.of(name);
+
+    // parse the root, and keep the remaining string
+    this.root = rooter.getPitchClass();
+
+    // parse the slash root
+    this.slashRoot = SlashRoot.of(name).orDefault(this.root);
+    this.preSlash = SlashRoot.pre(name);
+
+    // description is everything AFTER the root, in the original name
+    description = ChordDescription.normalize(Text.stripExtraSpaces(rooter.getRemainingText()));
   }
 
   /**
-   Construct a new Chord of a particular key, e.g. of("C minor 7")
+   String expression of interval pitch group, original name
 
-   @param name of chord
+   @return scale as string
    */
-  public Chord(String name) {
-    super(name);
+  public String toString() {
+    return getName();
+  }
+
+  /**
+   Delta to another Key calculated in +/- semitones
+
+   @param target key to calculate delta to
+   @return delta +/- semitones to another key
+   */
+  public int delta(Chord target) {
+    return root.delta(target.getRoot());
+  }
+
+  /**
+   Compute the name from the root pitch class and description
+
+   @return chord name
+   */
+  public String getName() {
+    if (Strings.isNullOrEmpty(description))
+      return root.toString(adjSymbol);
+    if (rgxStartsWithSlash.matcher(description).find())
+      return String.format("%s%s", root.toString(adjSymbol), description);
+    else
+      return String.format("%s %s", root.toString(adjSymbol), description);
+  }
+
+  public PitchClass getRoot() {
+    return root;
+  }
+
+  /**
+   https://www.pivotaltracker.com/story/show/176728338 XJ understands the root of a slash chord
+   */
+  public PitchClass getSlashRoot() {
+    return slashRoot;
+  }
+
+  public AdjSymbol getAdjSymbol() {
+    return adjSymbol;
   }
 
   /**
@@ -49,56 +110,6 @@ public class Chord extends IntervalPitchGroup {
   }
 
   /**
-   Get the mean of a collection of values
-
-   @param values to get mean of
-   @return mean
-   */
-  private static <N extends Number> Double mean(Collection<N> values) {
-    double sum = 0.0;
-    double count = 0;
-    for (N value : values) {
-      sum += value.doubleValue();
-      count++;
-    }
-    return sum / count;
-  }
-
-  /**
-   Assumes a modulo-N system,
-   such that the greatest possible delta is N/2,
-   ergo returns a ratio from 0 to 1 (no match to full match).
-   corresponding to a delta of N/2 to 0.
-
-   @param t1 semitone value 1
-   @param t2 semitone value 2
-   @return similarity of semitone value 1 and value 2
-   */
-  private static Double similarity(PitchClass t1, PitchClass t2) {
-    return 1 - Math.abs(t1.delta(t2)) / semitonesModuloDeltaMax;
-  }
-
-  /**
-   Get forms
-
-   @return forms
-   */
-  List<ChordForm> getForms() {
-    return Collections.unmodifiableList(forms);
-  }
-
-  /**
-   Set forms
-
-   @param forms to set
-   @return chord after forms are set
-   */
-  Chord setForms(List<ChordForm> forms) {
-    this.forms = Lists.newArrayList(forms);
-    return this;
-  }
-
-  /**
    Copies this object to a new Chord
 
    @return new note
@@ -107,9 +118,18 @@ public class Chord extends IntervalPitchGroup {
     return new Chord()
       .setRootPitchClass(root)
       .setAdjSymbol(adjSymbol)
-      .setTones(tones)
-      .setOriginalDescription(getOriginalDescription())
-      .setForms(forms);
+      .setDescription(getDescription());
+  }
+
+  /**
+   Set the description
+
+   @param description to set
+   @return chord
+   */
+  private Chord setDescription(String description) {
+    this.description = description;
+    return this;
   }
 
   /**
@@ -119,68 +139,6 @@ public class Chord extends IntervalPitchGroup {
     return copy()
       .setAdjSymbol(adjSymbol)
       .setRootPitchClass(root.step(deltaSemitones).getPitchClass());
-  }
-
-  /**
-   Build the chord by processing all Forms against the given name.
-   <p>
-   We don't delete intervals until the end of the function,
-   in case an interval is double-added in the middle of the process
-   */
-  protected void parseSchema(String text) {
-    List<Interval> toDelete = Lists.newArrayList();
-    forms = Lists.newArrayList();
-
-    // consumer tests (and applies, if matching) a chord form
-    Consumer<? super ChordForm> applyForm = chordForm -> {
-      if (chordForm.in(text)) {
-        forms.add(chordForm);
-        tones.putAll(chordForm.getAdd());
-        toDelete.addAll(chordForm.getOmit());
-      }
-    };
-
-    // Check all chord forms; apply any that match
-    ChordForms.forEach(applyForm);
-
-    // finally, delete anything that's been set for deletion
-    toDelete.forEach(tones::remove);
-  }
-
-  /**
-   Build a string from the list of chord forms
-
-   @return chord form string
-   */
-  String formString() {
-    int size = forms.size();
-    String[] formStrings = new String[size];
-    for (int i = 0; i < size; i++) {
-      formStrings[i] = forms.get(i).getName();
-    }
-    return String.join(" ", formStrings);
-  }
-
-  /**
-   Set the tones of the chord.
-
-   @param tones to set
-   @return Chord after setting tones
-   */
-  private Chord setTones(SortedMap<Interval, Integer> tones) {
-    this.tones = tones;
-    return this;
-  }
-
-  /**
-   Set the original description of the chord.
-
-   @param description to set
-   @return Chord after setting description
-   */
-  private Chord setOriginalDescription(String description) {
-    this.description = description;
-    return this;
   }
 
   /**
@@ -206,75 +164,6 @@ public class Chord extends IntervalPitchGroup {
   }
 
   /**
-   Get the official description of the chord.
-
-   @return official description
-   */
-  String officialDescription() {
-    return root.toString(adjSymbol) + " " + formString();
-  }
-
-  /**
-   Architect wants to determine tonal similarity (% of shared pitch classes) between two Chords, in order to perform fuzzy matching operations.
-   https://www.pivotaltracker.com/story/show/154985948
-
-   @param other chord to compare with
-   @return ratio (0 to 1) of similarity.
-   */
-  public Double similarity(Chord other) {
-    return (similarityAtSameIntervals(other) + similarityAtAnyIntervals(other)) / 2;
-  }
-
-  /**
-   Architect wants to determine tonal similarity (% of shared pitch classes) between two Chords, in order to perform fuzzy matching operations.
-   https://www.pivotaltracker.com/story/show/154985948
-
-   @param other chord to compare with
-   @return ratio (0 to 1) of similarity.
-   */
-  public Double similarityAtSameIntervals(Chord other) {
-    Map<Interval, Double> pcDeltas = Maps.newHashMap();
-    getPitchClasses().forEach(((interval, pitchClass) -> {
-      if (other.getPitchClasses().containsKey(interval))
-        pcDeltas.put(interval, similarity(pitchClass, other.getPitchClasses().get(interval)));
-      else
-        pcDeltas.put(interval, 0.0);
-    }));
-    return mean(pcDeltas.values());
-  }
-
-  /**
-   Architect wants to determine tonal similarity (% of shared pitch classes) between two Chords, in order to perform fuzzy matching operations.
-   https://www.pivotaltracker.com/story/show/154985948
-
-   @param other chord to compare with
-   @return ratio (0 to 1) of similarity.
-   */
-  public Double similarityAtAnyIntervals(Chord other) {
-    Map<PitchClass, Integer> pcDeltas = Maps.newHashMap();
-    getPitchClasses().values().forEach((pitchClass -> {
-      if (other.getPitchClasses().containsValue(pitchClass))
-        pcDeltas.put(pitchClass, 1);
-      else
-        pcDeltas.put(pitchClass, 0);
-    }));
-    other.getPitchClasses().values().forEach(pitchClass -> {
-      if (!pcDeltas.containsKey(pitchClass))
-        pcDeltas.put(pitchClass, 0);
-    });
-    return mean(pcDeltas.values());
-  }
-
-  /**
-   Retrieve the colloquial name of a form, if exists
-
-   @return colloquial name of form
-   */
-  public String colloquialFormName() {
-    return ChordForms.colloquialFormNames.getOrDefault(formString(), formString());
-  }
-
-  /**
    Whether this is a No Chord instance
 
    @return true if No Chord
@@ -284,30 +173,40 @@ public class Chord extends IntervalPitchGroup {
   }
 
   /**
-   Whether this chord has the same pitch classes as another
-
-   @param other chord
-   @return true if same pitch classes
-   */
-  public boolean hasSamePitchClasses(Chord other) {
-    return new HashSet<>(getPitchClasses().values()).equals(new HashSet<>(other.getPitchClasses().values()));
-  }
-
-  /**
    Whether one chord equals another
+
    @param other chord to test
    @return true if equal
    */
   public boolean isSame(Chord other) {
-    return Objects.equals(other.name, name);
+    return Objects.equals(root, other.root) && Objects.equals(description, other.description);
   }
 
   /**
    Whether one chord is acceptable as a substitute another
+
    @param other chord to test
    @return true if acceptable
    */
   public boolean isAcceptable(Chord other) {
     return Objects.equals(other.preSlash, preSlash);
+  }
+
+  /**
+   Whether this Chord is null
+
+   @return true if non-null
+   */
+  public boolean isPresent() {
+    return Objects.nonNull(root);
+  }
+
+  /**
+   Get the description portion of the chord
+
+   @return description
+   */
+  public String getDescription() {
+    return description;
   }
 }

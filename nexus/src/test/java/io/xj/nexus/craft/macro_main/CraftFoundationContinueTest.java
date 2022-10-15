@@ -156,7 +156,7 @@ public class CraftFoundationContinueTest {
     assertEquals(Integer.valueOf(32), result.getTotal());
     assertEquals("WAV", result.getOutputEncoder());
     assertEquals(0.14, result.getDensity(), 0.001);
-    assertEquals("G minor", result.getKey());
+    assertEquals("G -", result.getKey());
     assertEquals(140, result.getTempo(), 0.001);
     assertEquals(SegmentType.CONTINUE, result.getType());
     // assert memes
@@ -164,7 +164,7 @@ public class CraftFoundationContinueTest {
       Lists.newArrayList("OUTLOOK", "TROPICAL", "COZY", "WILD", "PESSIMISM"),
       Entities.namesOf(store.getAll(result.getId(), SegmentMeme.class)));
     // assert chords
-    assertSameItems(Lists.newArrayList("Bb minor", "C major"),
+    assertSameItems(Lists.newArrayList("Bb -", "C"),
       Entities.namesOf(store.getAll(result.getId(), SegmentChord.class)));
     // assert choices
     Collection<SegmentChoice> segmentChoices =

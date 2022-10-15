@@ -13,7 +13,6 @@ import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceChord;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.music.Chord;
-import io.xj.lib.music.Key;
 import io.xj.lib.util.MarbleBag;
 import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
@@ -53,7 +52,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     String mainKey = mainSequence.getKey();
     if (null == mainKey || mainKey.isEmpty())
       mainKey = fabricator.sourceMaterial().getProgram(mainSequence.getProgramId()).orElseThrow().getKey();
-    return Key.of(mainKey).getFullDescription();
+    return Chord.of(mainKey).getName();
   }
 
   /**
@@ -161,7 +160,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
         String name;
         if (sequenceChord.getPosition() < mainSequence.get().getTotal()) {
           // delta the chord name
-          name = new Chord(sequenceChord.getName()).getFullDescription();
+          name = new Chord(sequenceChord.getName()).getName();
           // of the final chord
           SegmentChord chord = new SegmentChord();
           chord.setId(UUID.randomUUID());

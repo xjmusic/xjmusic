@@ -204,6 +204,14 @@ public class CraftImplTest {
   }
 
   /**
+   Enhanced Synonymous Chord recognition https://www.pivotaltracker.com/story/show/182811126
+   */
+  @Test
+  public void selectNewChordPartInstrumentAudio_chordSynonyms() {
+    selectNewChordPartInstrumentAudio("CMadd9", "Cm6", "C add9");
+  }
+
+  /**
    Do the subroutine of testing the new chord part instrument audio selection
 
    @param expectThis chord name
