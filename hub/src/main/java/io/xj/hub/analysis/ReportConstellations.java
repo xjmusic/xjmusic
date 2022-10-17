@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -45,8 +44,6 @@ public class ReportConstellations extends Report {
 
   public ReportConstellations(HubContent content, Environment env) throws HubClientException, ValueException {
     super(content, env);
-    Collection<String> macroMemeNames;
-    Collection<String> macroBindingMemeNames;
     Collection<String> memeNames;
     MemeStack stack;
 
@@ -54,30 +51,10 @@ public class ReportConstellations extends Report {
     taxonomy = new TemplateConfig(content.getTemplate()).getMemeTaxonomy();
 
     // 1. Compute Macro Constellations: for each macro program, for each macro sequence
-    macroHistogram = new Histogram();
-    for (var macroProgram : content.getPrograms(ProgramType.Macro)) {
-      macroMemeNames = Entities.namesOf(content.getProgramMemes(macroProgram.getId()));
-      for (var macroBinding : content.getSequenceBindingsForProgram(macroProgram.getId())) {
-        macroBindingMemeNames = Entities.namesOf(content.getMemesForSequenceBinding(macroBinding.getId()));
-        memeNames = Streams.concat(macroMemeNames.stream(), macroBindingMemeNames.stream()).collect(Collectors.toSet());
-        macroHistogram.addId(MemeStack.from(taxonomy, memeNames).getConstellation(), macroProgram.getId());
-      }
-    }
+    macroHistogram = computeMacroHistogram(taxonomy);
 
     // 2. Compute Main Constellations: for each macro constellation, for each possible main program, for each main sequence
-    mainHistogram = new Histogram();
-    for (var macroConstellation : macroHistogram.histogram.keySet()) {
-      stack = MemeStack.from(taxonomy, MemeConstellation.toNames(macroConstellation));
-      for (var mainProgram : content.getPrograms(ProgramType.Main)) {
-        var mainMemes = Entities.namesOf(content.getProgramMemes(mainProgram.getId()));
-        if (stack.isAllowed(mainMemes))
-          for (var mainBinding : content.getSequenceBindingsForProgram(mainProgram.getId())) {
-            Collection<String> mainBindingMemeNames = Entities.namesOf(content.getMemesForSequenceBinding(mainBinding.getId()));
-            memeNames = Streams.concat(mainMemes.stream(), mainBindingMemeNames.stream()).collect(Collectors.toSet());
-            mainHistogram.addId(MemeStack.from(taxonomy, memeNames).getConstellation(), mainProgram.getId());
-          }
-      }
-    }
+    mainHistogram = computeMainHistogram(taxonomy, macroHistogram);
 
     // 3. For each main constellation, compute all possible programs and instruments that might be chosen to fulfill the meme stack and display them all in a table
     beatProgramHistogram = new Histogram();
@@ -101,7 +78,7 @@ public class ReportConstellations extends Report {
       for (var instrumentType : InstrumentType.values()) {
         if (!instrumentHistogram.containsKey(instrumentType))
           instrumentHistogram.put(instrumentType, new Histogram());
-        for (var instrument : content.getInstruments().stream().filter(instrument -> instrumentType.equals(instrument.getType())).collect(Collectors.toSet())) {
+        for (var instrument : content.getInstruments().parallelStream().filter(instrument -> instrumentType.equals(instrument.getType())).collect(Collectors.toSet())) {
           memeNames = Entities.namesOf(content.getInstrumentMemes(instrument.getId()));
           if (stack.isAllowed(memeNames))
             instrumentHistogram.get(instrumentType).addId(stack.getConstellation(), instrument.getId());
@@ -128,7 +105,7 @@ public class ReportConstellations extends Report {
 
   @SuppressWarnings("DuplicatedCode")
   @Override
-  public List<ReportSection> computeSections() {
+  public List<Section> computeSections() {
     return Streams.concat(
       Stream.of(
         sectionTaxonomy(),
@@ -136,50 +113,49 @@ public class ReportConstellations extends Report {
         sectionMainSummary(),
         sectionBeatProgramCoverage()
       ),
-      instrumentsByType.keySet().stream().map(this::sectionInstrumentCoverage),
-      instrumentsByType.keySet().stream().map(this::sectionDetailProgramCoverage)
+      instrumentsByType.keySet().parallelStream().map(this::sectionInstrumentCoverage),
+      instrumentsByType.keySet().parallelStream().map(this::sectionDetailProgramCoverage)
     ).toList();
   }
 
-  private ReportSection sectionTaxonomy() {
-    return new ReportSection("taxonomy", "Template Taxonomy",
-      List.of("Category", "Values"),
-      taxonomy.getCategories().stream()
+  private Section sectionTaxonomy() {
+    return new Section("taxonomy", "Template Taxonomy",
+      taxonomy.getCategories().parallelStream()
         .sorted(Comparator.comparing(MemeTaxonomy.Category::getName))
         .map(c -> List.of(
           c.getName(),
-          c.getMemes().stream()
+          c.getMemes().parallelStream()
             .map(Report::P)
             .collect(Collectors.joining("\n"))
         ))
-        .toList());
+        .toList(), List.of("Category", "Values"),
+      List.of());
   }
 
-  private ReportSection sectionMacroSummary() {
-    return new ReportSection("macro_meme_summary", "Macro Summary",
-      List.of("Memes", "Macro-Programs"),
-      macroHistogram.histogram.entrySet().stream()
+  private Section sectionMacroSummary() {
+    return new Section("macro_meme_summary", "Macro Summary",
+      macroHistogram.histogram.entrySet().parallelStream()
         .sorted((c1, c2) -> c2.getValue().total.compareTo(c1.getValue().total))
         .map(e -> List.of(
           e.getKey(),
-          e.getValue().ids.stream()
+          e.getValue().ids.parallelStream()
             .map(content::getProgram)
             .map(Optional::orElseThrow)
             .sorted(Comparator.comparing(Program::getName))
             .map(this::programRef)
             .collect(Collectors.joining("\n"))
         ))
-        .toList());
+        .toList(), List.of("Memes", "Macro-Programs"),
+      List.of());
   }
 
-  private ReportSection sectionMainSummary() {
-    return new ReportSection("main_meme_summary", "Main Summary",
-      List.of("Memes", "Main-Programs", "# Beat-Programs", "# Detail-Programs"),
-      mainHistogram.histogram.entrySet().stream()
+  private Section sectionMainSummary() {
+    return new Section("main_meme_summary", "Main Summary",
+      mainHistogram.histogram.entrySet().parallelStream()
         .sorted(Map.Entry.comparingByKey())
         .map(c -> List.of(
           c.getKey(),
-          c.getValue().ids.stream()
+          c.getValue().ids.parallelStream()
             .map(content::getProgram)
             .map(Optional::orElseThrow)
             .sorted(Comparator.comparing(Program::getName))
@@ -188,100 +164,68 @@ public class ReportConstellations extends Report {
           Values.emptyZero(beatProgramHistogram.getIds(c.getKey()).size()),
           Values.emptyZero(detailProgramHistogram.getIds(c.getKey()).size())
         ))
-        .toList());
+        .toList(), List.of("Memes", "Main-Programs", "# Beat-Programs", "# Detail-Programs"),
+      List.of());
   }
 
-  private ReportSection sectionBeatProgramCoverage() {
-    var programs = programsByType.get(ProgramType.Beat).stream()
+  private Section sectionBeatProgramCoverage() {
+    if (!programsByType.containsKey(ProgramType.Beat)) return Section.empty();
+    var programs = programsByType.get(ProgramType.Beat).parallelStream()
       .sorted(Comparator.comparing(Program::getName))
       .toList();
-    return new ReportSection("beat_programs", "Beat-program Coverage",
-      Streams.concat(Stream.of("Memes"),
-        programs.stream().map(this::programRef)).toList(),
-      mainHistogram.histogram.entrySet().stream()
+    return new Section("beat_programs", "Beat-program Coverage",
+      mainHistogram.histogram.entrySet().parallelStream()
         .sorted(Map.Entry.comparingByKey())
         .map(c -> Streams.concat(Stream.of(c.getKey()),
-          programs.stream().map(program ->
-            ReportSection.checkboxValue(beatProgramHistogram.getIds(c.getKey()).contains(program.getId()))
+          programs.parallelStream().map(program ->
+            Section.checkboxValue(beatProgramHistogram.getIds(c.getKey()).contains(program.getId()))
           )).toList())
-        .toList());
+        .toList(), Streams.concat(Stream.of("Memes"),
+        programs.parallelStream().map(this::programRef)).toList(),
+      List.of());
   }
 
-  private ReportSection sectionInstrumentCoverage(InstrumentType instrumentType) {
-    var instruments = instrumentsByType.get(instrumentType).stream()
+  private Section sectionInstrumentCoverage(InstrumentType instrumentType) {
+    if (!instrumentsByType.containsKey(instrumentType)) return Section.empty();
+    var instruments = instrumentsByType.get(instrumentType).parallelStream()
       .sorted(Comparator.comparing(Instrument::getName))
       .toList();
-    if (instruments.isEmpty()) return ReportSection.empty();
-    return new ReportSection(String.format("%s_detail_instruments", instrumentType.toString().toLowerCase(Locale.ROOT)),
+    if (instruments.isEmpty()) return Section.empty();
+    return new Section(String.format("%s_detail_instruments", instrumentType.toString().toLowerCase(Locale.ROOT)),
       String.format("%s Instrument coverage", instrumentType),
-      Streams.concat(Stream.of("Memes"),
-        instruments.stream().map(this::instrumentRef)).toList(),
-      mainHistogram.histogram.entrySet().stream()
+      mainHistogram.histogram.entrySet().parallelStream()
         .sorted(Map.Entry.comparingByKey())
         .map(c -> Streams.concat(Stream.of(c.getKey()),
-          instruments.stream().map(instrument ->
-            ReportSection.checkboxValue(instrumentHistogram.get(instrumentType).getIds(c.getKey()).contains(instrument.getId()))
+          instruments.parallelStream().map(instrument ->
+            Section.checkboxValue(instrumentHistogram.get(instrumentType).getIds(c.getKey()).contains(instrument.getId()))
           )).toList())
-        .toList());
+        .toList(), Streams.concat(Stream.of("Memes"),
+        instruments.parallelStream().map(this::instrumentRef)).toList(),
+      List.of());
   }
 
-  private ReportSection sectionDetailProgramCoverage(InstrumentType instrumentType) {
-    var programs = programsByType.get(ProgramType.Detail).stream()
-      .filter(p -> content.getVoices(p).stream().anyMatch(v -> Objects.equals(instrumentType, v.getType())))
+  private Section sectionDetailProgramCoverage(InstrumentType instrumentType) {
+    if (!programsByType.containsKey(ProgramType.Detail)) return Section.empty();
+    var programs = programsByType.get(ProgramType.Detail).parallelStream()
+      .filter(p -> content.getVoices(p).parallelStream().anyMatch(v -> Objects.equals(instrumentType, v.getType())))
       .sorted(Comparator.comparing(Program::getName))
       .toList();
-    if (programs.isEmpty()) return ReportSection.empty();
-    return new ReportSection(String.format("%s_detail_programs", instrumentType.toString().toLowerCase(Locale.ROOT)),
+    if (programs.isEmpty()) return Section.empty();
+    return new Section(String.format("%s_detail_programs", instrumentType.toString().toLowerCase(Locale.ROOT)),
       String.format("%s DP coverage", instrumentType),
-      Streams.concat(Stream.of("Memes"),
-        programs.stream().map(this::programRef)).toList(),
-      mainHistogram.histogram.entrySet().stream()
+      mainHistogram.histogram.entrySet().parallelStream()
         .sorted(Map.Entry.comparingByKey())
         .map(c -> Streams.concat(Stream.of(c.getKey()),
-          programs.stream().map(program ->
-            ReportSection.checkboxValue(detailProgramHistogram.getIds(c.getKey()).contains(program.getId()))
+          programs.parallelStream().map(program ->
+            Section.checkboxValue(detailProgramHistogram.getIds(c.getKey()).contains(program.getId()))
           )).toList())
-        .toList());
+        .toList(), Streams.concat(Stream.of("Memes"),
+        programs.parallelStream().map(this::programRef)).toList(),
+      List.of());
   }
 
   @Override
   public Type getType() {
     return Type.Constellations;
-  }
-
-  /**
-   Representation of the construction of a histogram of usage of all constellations
-   */
-  private static class Histogram {
-    Map<String, Count> histogram;
-
-    public Histogram() {
-      histogram = Maps.newHashMap();
-    }
-
-    public void addId(String key, UUID id) {
-      if (!histogram.containsKey(key)) histogram.put(key, new Count());
-      histogram.get(key).addId(id);
-    }
-
-    public Collection<UUID> getIds(String key) {
-      if (histogram.containsKey(key)) return histogram.get(key).ids;
-      return List.of();
-    }
-
-    private static class Count {
-      Set<UUID> ids;
-      Integer total;
-
-      public Count() {
-        total = 0;
-        ids = Sets.newHashSet();
-      }
-
-      public void addId(UUID programId) {
-        ids.add(programId);
-        total++;
-      }
-    }
   }
 }

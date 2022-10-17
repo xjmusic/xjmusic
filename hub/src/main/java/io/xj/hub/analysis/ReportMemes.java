@@ -28,29 +28,29 @@ public class ReportMemes extends Report {
 
   @SuppressWarnings("DuplicatedCode")
   @Override
-  public List<ReportSection> computeSections() {
+  public List<Section> computeSections() {
     return List.of(
-      new ReportSection("memes", "Meme Summary",
-        List.of("Total", "Name", "Programs", "Instruments"),
-        memes.histogram.entrySet().stream()
+      new Section("memes", "Meme Summary",
+        memes.histogram.entrySet().parallelStream()
           .sorted((c1, c2) -> c2.getValue().total.compareTo(c1.getValue().total))
           .map(e -> List.of(
             e.getValue().total.toString(),
             e.getKey(),
-            e.getValue().programIds.stream()
+            e.getValue().programIds.parallelStream()
               .map(content::getProgram)
               .map(Optional::orElseThrow)
               .sorted(Comparator.comparing(Program::getName))
               .map(this::programRef)
               .collect(Collectors.joining("\n")),
-            e.getValue().instrumentIds.stream()
+            e.getValue().instrumentIds.parallelStream()
               .map(content::getInstrument)
               .map(Optional::orElseThrow)
               .sorted(Comparator.comparing(Instrument::getName))
               .map(this::instrumentRef)
               .collect(Collectors.joining("\n"))
           ))
-          .toList())
+          .toList(), List.of("Total", "Name", "Programs", "Instruments"),
+        List.of())
     );
   }
 

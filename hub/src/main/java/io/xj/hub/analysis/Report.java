@@ -2,23 +2,36 @@
 
 package io.xj.hub.analysis;
 
+import com.google.api.client.util.Maps;
+import com.google.api.client.util.Sets;
+import com.google.common.collect.Streams;
 import io.xj.hub.client.HubClientException;
 import io.xj.hub.client.HubContent;
+import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.lib.app.Environment;
+import io.xj.lib.entity.Entities;
+import io.xj.lib.meme.MemeConstellation;
+import io.xj.lib.meme.MemeStack;
+import io.xj.lib.meme.MemeTaxonomy;
 import io.xj.lib.util.Values;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
  Template content Analysis https://www.pivotaltracker.com/story/show/161199945
  */
+@SuppressWarnings("DuplicatedCode")
 public abstract class Report {
   private static final String TOP_ID = "top";
   private static final String SCROLL_TO_TOP_MESSAGE = "scroll to top";
@@ -26,13 +39,15 @@ public abstract class Report {
   private static final String REPORT_HTML_PLACEHOLDER_TITLE = "{{title}}";
   private static final String REPORT_HTML_PLACEHOLDER_BODY = "{{body}}";
   private static final String title = "Content Analysis";
-  private static final String CELL_CHECKBOX_TRUE_STYLE = "background-color:#141; color:#2f2; font-weight:900;";
+  private static final String CELL_STATUS_GREEN_STYLE = "background-color:#141; color:#2f2; font-weight:900;";
+  private static final String CELL_STATUS_YELLOW_STYLE = "background-color:#441; color:#ff2; font-weight:900;";
+  private static final String CELL_STATUS_RED_STYLE = "background-color:#411; color:#f22; font-weight:900;";
   private static final String CELL_STYLE = "vertical-align:top; padding-right:5px; padding-bottom:5px; padding-left:5px; border-left:2px solid #555; border-right:2px solid #555;";
+  private static final String CELL_HEADER_STYLE = String.format("%s %s", CELL_STYLE, "background-color: #666;");
   private static final String UNORDERED_LIST_STYLE = "";
   private static final String LIST_ITEM_STYLE = "";
   private static final String P_STYLE = "margin-top:5px;";
   private static final String ROW_STYLE = "border-bottom:2px solid #666;";
-  private static final String ROW_HEADER_STYLE = "background-color: #666;";
   private static final String TABLE_STYLE = "";
   private static final String H1_STYLE = "margin-top:10px;";
   private static final String H2_STYLE = "margin-top:20px;";
@@ -46,6 +61,88 @@ public abstract class Report {
   public Report(HubContent content, Environment env) {
     this.content = content;
     this.env = env;
+  }
+
+  /**
+   Representation of the construction of a histogram of usage of all constellations
+   */
+  protected static class Histogram {
+    Map<String, Count> histogram;
+
+    public Histogram() {
+      histogram = Maps.newHashMap();
+    }
+
+    public void addId(String key, UUID id) {
+      if (!histogram.containsKey(key)) histogram.put(key, new Count());
+      histogram.get(key).addId(id);
+    }
+
+    public Collection<UUID> getIds(String key) {
+      if (histogram.containsKey(key)) return histogram.get(key).ids;
+      return List.of();
+    }
+
+    protected static class Count {
+      Set<UUID> ids;
+      Integer total;
+
+      public Count() {
+        total = 0;
+        ids = Sets.newHashSet();
+      }
+
+      public void addId(UUID programId) {
+        ids.add(programId);
+        total++;
+      }
+    }
+  }
+
+  /**
+   Compute the macro histogram for a template
+
+   @param taxonomy of template
+   @return macro histogram for template
+   */
+  protected Histogram computeMacroHistogram(MemeTaxonomy taxonomy) {
+    Collection<String> macroMemeNames;
+    Collection<String> macroBindingMemeNames;
+    var macroHistogram = new ReportChordInstruments.Histogram();
+    for (var macroProgram : content.getPrograms(ProgramType.Macro)) {
+      macroMemeNames = Entities.namesOf(content.getProgramMemes(macroProgram.getId()));
+      for (var macroBinding : content.getSequenceBindingsForProgram(macroProgram.getId())) {
+        macroBindingMemeNames = Entities.namesOf(content.getMemesForSequenceBinding(macroBinding.getId()));
+        var memeNames = Streams.concat(macroMemeNames.parallelStream(), macroBindingMemeNames.parallelStream()).collect(Collectors.toSet());
+        macroHistogram.addId(MemeStack.from(taxonomy, memeNames).getConstellation(), macroProgram.getId());
+      }
+    }
+    return macroHistogram;
+  }
+
+  /**
+   Compute the main histogram for a template
+
+   @param taxonomy       of template
+   @param macroHistogram computed for template
+   @return main histogram for template
+   */
+  protected Histogram computeMainHistogram(MemeTaxonomy taxonomy, Histogram macroHistogram) {
+    Collection<String> mainBindingMemeNames;
+    var mainHistogram = new ReportChordInstruments.Histogram();
+    for (var macroConstellation : macroHistogram.histogram.keySet()) {
+      var stack = MemeStack.from(taxonomy, MemeConstellation.toNames(macroConstellation));
+      for (var mainProgram : content.getPrograms(ProgramType.Main)) {
+        var mainMemes = Entities.namesOf(content.getProgramMemes(mainProgram.getId()));
+        if (stack.isAllowed(mainMemes))
+          for (var mainBinding : content.getSequenceBindingsForProgram(mainProgram.getId())) {
+            mainBindingMemeNames = Entities.namesOf(content.getMemesForSequenceBinding(mainBinding.getId()));
+            var memeNames = Streams.concat(mainMemes.parallelStream(), mainBindingMemeNames.parallelStream()).collect(Collectors.toSet());
+            mainHistogram.addId(MemeStack.from(taxonomy, memeNames).getConstellation(), mainProgram.getId());
+          }
+      }
+    }
+    return mainHistogram;
   }
 
   /**
@@ -90,12 +187,22 @@ public abstract class Report {
   /**
    Render an HTML row tag with style
 
-   @param header   whether to make this a header row
    @param contents inside row tag
    @return row tag with style and content
    */
-  public static String TR(Boolean header, String... contents) {
-    return String.format("<TR STYLE=\"%s\">%s</TR>", header ? ROW_HEADER_STYLE : ROW_STYLE, String.join("\n", contents));
+  public static String TR(String... contents) {
+    return String.format("<TR STYLE=\"%s\">%s</TR>", ROW_STYLE, String.join("\n", contents));
+  }
+
+  /**
+   Render an HTML cell tag with optional header style
+
+   @param header   whether to make this a header cell
+   @param contents inside cell tag
+   @return cell tag with style and content
+   */
+  public static String TD(Boolean header, String... contents) {
+    return String.format("<TD STYLE=\"%s\">%s</TD>", header ? CELL_HEADER_STYLE : CELL_STYLE, String.join("\n", contents));
   }
 
   /**
@@ -105,7 +212,32 @@ public abstract class Report {
    @return cell tag with style and content
    */
   public static String TD(String... contents) {
-    return String.format("<TD STYLE=\"%s\">%s</TD>", CELL_STYLE, String.join("\n", contents));
+    return TD(false, contents);
+  }
+
+  /**
+   Render an HTML cell tag with header style
+
+   @param contents inside cell tag
+   @return cell tag with style and content
+   */
+  public static String headerTD(String... contents) {
+    return TD(true, contents);
+  }
+
+  public enum CellStatus {
+    NA,
+    GREEN,
+    YELLOW,
+    RED
+  }
+
+  public enum CellSpecialValue {
+    TRUE,
+    FALSE,
+    RED,
+    GREEN,
+    YELLOW
   }
 
   /**
@@ -115,9 +247,22 @@ public abstract class Report {
    @return cell tag with style and content
    */
   public static String checkboxTD(Boolean value) {
-    if (value)
-      return String.format("<TD STYLE=\"%s\">%s</TD>", CELL_CHECKBOX_TRUE_STYLE, "✓");
-    return String.format("<TD STYLE=\"%s\">%s</TD>", CELL_STYLE, "");
+    return statusTD(value ? CellStatus.GREEN : CellStatus.NA);
+  }
+
+  /**
+   Render an HTML cell tag with checkbox style
+
+   @param status of this cell
+   @return cell tag with style and content
+   */
+  public static String statusTD(CellStatus status) {
+    return switch (status) {
+      case NA -> String.format("<TD STYLE=\"%s\">%s</TD>", CELL_STYLE, "");
+      case GREEN -> String.format("<TD STYLE=\"%s\">%s</TD>", CELL_STATUS_GREEN_STYLE, "✓");
+      case YELLOW -> String.format("<TD STYLE=\"%s\">%s</TD>", CELL_STATUS_YELLOW_STYLE, "?");
+      case RED -> String.format("<TD STYLE=\"%s\">%s</TD>", CELL_STATUS_RED_STYLE, "X");
+    };
   }
 
   /**
@@ -193,15 +338,15 @@ public abstract class Report {
    @param sections to render
    @return rendered sections prefaced by linked table of contents
    */
-  protected String sectionsToHTML(List<ReportSection> sections) {
+  protected String sectionsToHTML(List<Section> sections) {
     return
-      UL(sections.stream()
-        .filter(ReportSection::notEmpty)
+      UL(sections.parallelStream()
+        .filter(Section::notEmpty)
         .map(s -> LI(s.renderRef()))
         .collect(Collectors.joining())) +
-        sections.stream()
-          .filter(ReportSection::notEmpty)
-          .map(ReportSection::render)
+        sections.parallelStream()
+          .filter(Section::notEmpty)
+          .map(Section::render)
           .collect(Collectors.joining());
   }
 
@@ -210,7 +355,7 @@ public abstract class Report {
 
    @return content HTML
    */
-  public abstract List<ReportSection> computeSections();
+  public abstract List<Section> computeSections();
 
   /**
    Get the type of this comp
@@ -243,10 +388,11 @@ public abstract class Report {
    Types of comps
    */
   public enum Type {
+    ChordInstruments("Chord-mode Instruments"),
+    Constellations("Constellations"),
     Events("Events"),
     MainProgramChords("Main Chords"),
-    Memes("Memes"),
-    Constellations("Constellations");
+    Memes("Memes");
 
     private final String name;
 
@@ -260,44 +406,50 @@ public abstract class Report {
   }
 
   /**
-   Organized sections of content
+   Organized sections of content@param id                   of section
 
-   @param id                   of section
-   @param name                 of section
-   @param columnHeaderContents columns
-   @param rowCellContents      row content
+   @param name          of section
+   @param rowColCells   row content
+   @param columnHeaders headers for columns
+   @param rowHeaders    headers for rows
    */
-  protected record ReportSection(String id, String name,
-                                 List<String> columnHeaderContents,
-                                 List<List<String>> rowCellContents) {
-    public static final String CELL_CHECKBOX_TRUE_VALUE = "true";
-    public static final String CELL_CHECKBOX_FALSE_VALUE = "false";
-
+  protected record Section(String id, String name,
+                           List<List<String>> rowColCells,
+                           List<String> columnHeaders,
+                           List<String> rowHeaders)
+  {
     public static String checkboxValue(Boolean value) {
-      return value ? CELL_CHECKBOX_TRUE_VALUE : CELL_CHECKBOX_FALSE_VALUE;
+      return value ? CellSpecialValue.TRUE.toString() : CellSpecialValue.FALSE.toString();
     }
 
-    public static ReportSection empty() {
-      return new ReportSection(null, null, List.of(), List.of());
+    public static Section empty() {
+      return new Section(null, null, List.of(), List.of(), List.of());
     }
 
     public String render() {
-      return "<br/><br/><br/>" + H2(name, id) + A(false, String.format("#%s", TOP_ID), SCROLL_TO_TOP_MESSAGE) +
-        TABLE(TR(true, columnHeaderContents.stream().map(String::valueOf).map(Report::TD).collect(Collectors.joining())),
-          rowCellContents.stream()
-            .map(row -> TR(false,
-              row.stream()
-                .map(v -> {
-                  if (Objects.equals(CELL_CHECKBOX_TRUE_VALUE, v)) return checkboxTD(true);
-                  else if (Objects.equals(CELL_CHECKBOX_FALSE_VALUE, v)) return checkboxTD(false);
-                  else return TD(String.valueOf(v));
-                })
-                .collect(Collectors.joining())))
+      String[] rows = new String[rowColCells.size()];
+      for (int i = 0; i < rowColCells.size(); i++)
+        rows[i] = TR(
+          rowHeaders.isEmpty() ? "" : headerTD(i < rowHeaders.size() ? rowHeaders.get(i) : ""),
+          rowColCells.get(i).parallelStream()
+            .map(v -> {
+              if (CellSpecialValue.TRUE.toString().equals(v)) return checkboxTD(true);
+              else if (CellSpecialValue.FALSE.toString().equals(v)) return checkboxTD(false);
+              else if (CellSpecialValue.RED.toString().equals(v)) return statusTD(CellStatus.RED);
+              else if (CellSpecialValue.GREEN.toString().equals(v)) return statusTD(CellStatus.GREEN);
+              else if (CellSpecialValue.YELLOW.toString().equals(v)) return statusTD(CellStatus.YELLOW);
+              else return TD(String.valueOf(v));
+            })
             .collect(Collectors.joining()));
+
+      return "<br/><br/><br/>" + H2(name, id) + A(false, String.format("#%s", TOP_ID), SCROLL_TO_TOP_MESSAGE) +
+        TABLE(
+          TR(rowHeaders.isEmpty() ? "" : headerTD(""), columnHeaders.parallelStream().map(String::valueOf).map(Report::headerTD).collect(Collectors.joining())),
+          String.join("", rows));
     }
 
     boolean notEmpty() {
-      return !rowCellContents.isEmpty();
+      return !rowColCells.isEmpty();
     }
 
     public String renderRef() {

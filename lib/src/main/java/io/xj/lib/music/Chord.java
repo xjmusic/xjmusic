@@ -4,13 +4,14 @@ package io.xj.lib.music;
 import com.google.api.client.util.Strings;
 import io.xj.lib.util.Text;
 
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
  Chord in a particular key
  */
-public class Chord {
+public class Chord implements Comparable<Chord> {
   private static final Pattern rgxStartsWithSlash = Pattern.compile("^/");
   public static final String NO_CHORD_NAME = "NC";
   protected String preSlash;
@@ -208,5 +209,10 @@ public class Chord {
    */
   public String getDescription() {
     return description;
+  }
+
+  @Override
+  public int compareTo(Chord o) {
+    return Objects.equals(root, o.root) ? description.compareTo(o.description) : root.compareTo(o.root);
   }
 }

@@ -29,18 +29,18 @@ public class ChordVoicingDeduper {
     Collection<ProgramSequenceChord> chords,
     Collection<ProgramSequenceChordVoicing> voicings
   ) {
-    this.voicesById = voices.stream()
+    this.voicesById = voices.parallelStream()
       .collect(Collectors.toMap(ProgramVoice::getId, (v) -> v));
 
-    var uniqueVoicings = chords.stream()
+    var uniqueVoicings = chords.parallelStream()
       .map(chord -> new ChordVoicings(chord,
-        voicings.stream()
+        voicings.parallelStream()
           .filter(v -> chord.getId().equals(v.getProgramSequenceChordId()))
           .toList()))
       .collect(Collectors.toMap(
         (cv) -> String.format("%s%s%s", cv.getChord().getName().toLowerCase(Locale.ROOT),
           FINGERPRINT_SEPARATOR_MAJOR,
-          cv.getVoicings().stream()
+          cv.getVoicings().parallelStream()
             .sorted(Comparator.comparing((v) -> voicesById.get(v.getProgramVoiceId()).getType()))
             .map(ProgramSequenceChordVoicing::getNotes)
             .map(String::toLowerCase)
@@ -49,12 +49,12 @@ public class ChordVoicingDeduper {
         (cv1, cv2) -> cv2
       ));
 
-    this.chords = uniqueVoicings.values().stream()
+    this.chords = uniqueVoicings.values().parallelStream()
       .map(ChordVoicings::getChord)
       .toList();
 
-    this.voicings = uniqueVoicings.values().stream()
-      .flatMap(cv -> cv.getVoicings().stream())
+    this.voicings = uniqueVoicings.values().parallelStream()
+      .flatMap(cv -> cv.getVoicings().parallelStream())
       .toList();
   }
 

@@ -1,27 +1,16 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.music;
 
-import com.google.common.collect.Maps;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
-import static io.xj.lib.music.Interval.I3;
-import static io.xj.lib.music.Interval.I6;
-import static io.xj.lib.music.Interval.I7;
-import static io.xj.lib.music.Interval.I9;
-import static io.xj.lib.music.PitchClass.A;
-import static io.xj.lib.music.PitchClass.As;
-import static io.xj.lib.music.PitchClass.C;
-import static io.xj.lib.music.PitchClass.Cs;
-import static io.xj.lib.music.PitchClass.D;
-import static io.xj.lib.music.PitchClass.Ds;
-import static io.xj.lib.music.PitchClass.F;
-import static io.xj.lib.music.PitchClass.Fs;
 import static io.xj.lib.music.PitchClass.None;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -106,5 +95,20 @@ public class ChordTest {
     assertTrue(Chord.of("Gm").isAcceptable(Chord.of("Gm/Bb")));
     assertTrue(Chord.of("Gm/Bb").isAcceptable(Chord.of("Gm")));
     assertFalse(Chord.of("Gm/Bb").isAcceptable(Chord.of("Cm")));
+  }
+
+  @Test
+  public void compareTo() {
+    var source = List.of(
+      Chord.of("Db minor"),
+      Chord.of("C major"),
+      Chord.of("C"),
+      Chord.of("C minor"),
+      Chord.of("Cs major")
+    );
+
+    var sorted = source.stream().sorted().toList();
+
+    assertEquals("C, C, C -, C s major, Db -", sorted.stream().map(Chord::getName).collect(Collectors.joining(", ")));
   }
 }

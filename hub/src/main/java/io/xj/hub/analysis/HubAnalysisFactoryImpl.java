@@ -36,10 +36,11 @@ class HubAnalysisFactoryImpl implements HubAnalysisFactory {
       var content = new HubContent(hubIngestFactory.ingest(access, templateId).getAllEntities());
 
       return switch (type) {
-        case Memes -> new ReportMemes(content, env);
-        case MainProgramChords -> new ReportMainProgramChords(content, env);
-        case Events -> new ReportEvents(content, env);
+        case ChordInstruments -> new ReportChordInstruments(content, env);
         case Constellations -> new ReportConstellations(content, env);
+        case Events -> new ReportEvents(content, env);
+        case MainProgramChords -> new ReportMainProgramChords(content, env);
+        case Memes -> new ReportMemes(content, env);
       };
 
     } catch (HubIngestException e) {

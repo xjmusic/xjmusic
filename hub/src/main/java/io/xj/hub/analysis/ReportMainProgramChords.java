@@ -25,22 +25,22 @@ public class ReportMainProgramChords extends Report {
 
   @SuppressWarnings("DuplicatedCode")
   @Override
-  public List<ReportSection> computeSections() {
+  public List<Section> computeSections() {
     return List.of(
-      new ReportSection("chords", "Main Chord Summary",
-        List.of("Total", "Name", "Programs"),
-        mainProgramChords.histogram.entrySet().stream()
+      new Section("chords", "Main Chord Summary",
+        mainProgramChords.histogram.entrySet().parallelStream()
           .sorted((c1, c2) -> c2.getValue().getTotal().compareTo(c1.getValue().getTotal()))
           .map(e -> List.of(
             e.getValue().getTotal().toString(),
             e.getKey(),
-            e.getValue().getProgramIds().stream()
+            e.getValue().getProgramIds().parallelStream()
               .map(content::getProgram)
               .map(Optional::orElseThrow)
               .sorted(Comparator.comparing(Program::getName))
               .map(this::programRef)
               .collect(Collectors.joining("\n"))
-          )).toList())
+          )).toList(), List.of("Total", "Name", "Programs"),
+        List.of())
     );
   }
 

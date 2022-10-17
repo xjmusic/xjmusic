@@ -459,6 +459,16 @@ public class HubContent {
   }
 
   /**
+   get all cached ProgramSequences
+
+   @param mainProgramId to search for sequences
+   @return cached ProgramSequences
+   */
+  public Collection<ProgramSequence> getProgramSequences(UUID mainProgramId) {
+    return getAll(ProgramSequence.class).stream().filter(s -> mainProgramId.equals(s.getProgramId())).toList();
+  }
+
+  /**
    get cached ProgramSequenceBinding by id
 
    @param id of ProgramSequenceBinding to get
@@ -561,6 +571,15 @@ public class HubContent {
    */
   public Collection<ProgramSequenceChord> getProgramSequenceChords() {
     return getAll(ProgramSequenceChord.class);
+  }
+
+  /**
+   get all cached ProgramSequenceChords
+
+   @return cached ProgramSequenceChords
+   */
+  public Collection<ProgramSequenceChord> getProgramSequenceChords(UUID mainProgramId) {
+    return getAll(ProgramSequenceChord.class).stream().filter(s -> mainProgramId.equals(s.getProgramId())).toList();
   }
 
   /**

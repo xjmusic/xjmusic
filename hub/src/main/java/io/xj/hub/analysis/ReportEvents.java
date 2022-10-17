@@ -42,29 +42,31 @@ public class ReportEvents extends Report {
 
   @SuppressWarnings("DuplicatedCode")
   @Override
-  public List<ReportSection> computeSections() {
+  public List<Section> computeSections() {
     return Arrays.stream(InstrumentType.values()).map(type ->
-        new ReportSection(String.format("%s_events", type.toString().toLowerCase(Locale.ROOT)), String.format("%s Events", type.toString()),
-          List.of("Total", "Event", "Programs", "Instruments"),
-          eventHistogram.histogram.get(type.toString()).entrySet().stream()
-            .sorted((c1, c2) -> c2.getValue().total.compareTo(c1.getValue().total))
-            .map(e -> List.of(
-              e.getValue().total.toString(),
-              e.getKey(),
-              e.getValue().programIds.stream()
-                .map(content::getProgram)
-                .map(Optional::orElseThrow)
-                .sorted(Comparator.comparing(Program::getName))
-                .map(this::programRef)
-                .collect(Collectors.joining("\n")),
-              e.getValue().instrumentIds.stream()
-                .map(content::getInstrument)
-                .map(Optional::orElseThrow)
-                .sorted(Comparator.comparing(Instrument::getName))
-                .map(this::instrumentRef)
-                .collect(Collectors.joining("\n"))
-            ))
-            .toList()))
+        new Section(String.format("%s_events", type.toString().toLowerCase(Locale.ROOT)), String.format("%s Events", type),
+          eventHistogram.histogram.containsKey(type.toString()) ?
+            eventHistogram.histogram.get(type.toString()).entrySet().parallelStream()
+              .sorted((c1, c2) -> c2.getValue().total.compareTo(c1.getValue().total))
+              .map(e -> List.of(
+                e.getValue().total.toString(),
+                e.getKey(),
+                e.getValue().programIds.parallelStream()
+                  .map(content::getProgram)
+                  .map(Optional::orElseThrow)
+                  .sorted(Comparator.comparing(Program::getName))
+                  .map(this::programRef)
+                  .collect(Collectors.joining("\n")),
+                e.getValue().instrumentIds.parallelStream()
+                  .map(content::getInstrument)
+                  .map(Optional::orElseThrow)
+                  .sorted(Comparator.comparing(Instrument::getName))
+                  .map(this::instrumentRef)
+                  .collect(Collectors.joining("\n"))
+              ))
+              .toList()
+            : List.of(), List.of("Total", "Event", "Programs", "Instruments"),
+          List.of()))
       .toList();
   }
 
@@ -100,7 +102,7 @@ public class ReportEvents extends Report {
     }
 
     public int size() {
-      return histogram.values().stream().map(Map::size).mapToInt((v -> v)).sum();
+      return histogram.values().parallelStream().map(Map::size).mapToInt((v -> v)).sum();
     }
 
     public void addInstrumentId(String type, String raw, UUID instrumentId) {
