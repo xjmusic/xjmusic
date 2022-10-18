@@ -4,33 +4,31 @@ package io.xj.lib.music;
 import com.google.api.client.util.Strings;
 import io.xj.lib.util.Text;
 
-import java.util.Comparator;
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 /**
  Chord in a particular key
  */
 public class Chord implements Comparable<Chord> {
-  private static final Pattern rgxStartsWithSlash = Pattern.compile("^/");
   public static final String NO_CHORD_NAME = "NC";
-  protected String preSlash;
-  protected String description;
+  protected final String description;
   // Root Pitch Class
-  protected PitchClass root;
+  protected final PitchClass root;
   // Slash Root Pitch Class
-  protected PitchClass slashRoot;
+  protected final SlashRoot slashRoot;
   // the (flat/sharp) adjustment symbol, which will be used to express this chord
-  protected AdjSymbol adjSymbol;
-
-  public Chord() {
-  }
+  protected final AdjSymbol adjSymbol;
 
   public Chord(String input) {
 
     // Don't set values if there's nothing to set
-    if (Objects.isNull(input) || input.length() == 0)
+    if (Objects.isNull(input) || input.length() == 0) {
+      description = "";
+      root = PitchClass.None;
+      slashRoot = SlashRoot.none();
+      adjSymbol = AdjSymbol.None;
       return;
+    }
 
     // store original name
     var name = Text.stripExtraSpaces(input);
@@ -44,12 +42,16 @@ public class Chord implements Comparable<Chord> {
     // parse the root, and keep the remaining string
     this.root = rooter.getPitchClass();
 
-    // parse the slash root
-    this.slashRoot = SlashRoot.of(name).orDefault(this.root);
-    this.preSlash = SlashRoot.pre(name);
+    // parse the description all together, before removing the slash root
+    var raw = Text.stripExtraSpaces(rooter.getRemainingText());
+    var normalized = ChordForm.normalize(raw);
 
-    // description is everything AFTER the root, in the original name
-    description = ChordDescription.normalize(Text.stripExtraSpaces(rooter.getRemainingText()));
+    // parse the slash root
+    slashRoot = SlashRoot.of(normalized);
+
+    // save the description without the slash root, normalizing again in case we missed one because of the slash
+    // but if we did make a substitution the first time (raw==normalized) then do not normalize again (this is wrong)
+    this.description = Objects.equals(raw, normalized) ? ChordForm.normalize(slashRoot.getPre()) : slashRoot.getPre();
   }
 
   /**
@@ -77,14 +79,15 @@ public class Chord implements Comparable<Chord> {
    @return chord name
    */
   public String getName() {
-    if (Strings.isNullOrEmpty(description))
-      return root.toString(adjSymbol);
-    if (rgxStartsWithSlash.matcher(description).find())
-      return String.format("%s%s", root.toString(adjSymbol), description);
-    else
-      return String.format("%s %s", root.toString(adjSymbol), description);
+    return String.format("%s%s%s",
+      root.toString(adjSymbol),
+      Strings.isNullOrEmpty(description) ? "" : String.format(" %s", description),
+      slashRoot.display(adjSymbol));
   }
 
+  /**
+   @return the chord root pitch class
+   */
   public PitchClass getRoot() {
     return root;
   }
@@ -93,9 +96,12 @@ public class Chord implements Comparable<Chord> {
    https://www.pivotaltracker.com/story/show/176728338 XJ understands the root of a slash chord
    */
   public PitchClass getSlashRoot() {
-    return slashRoot;
+    return PitchClass.None != slashRoot.getPitchClass() ? slashRoot.getPitchClass() : root;
   }
 
+  /**
+   @return the chord adjustment symbol
+   */
   public AdjSymbol getAdjSymbol() {
     return adjSymbol;
   }
@@ -108,60 +114,6 @@ public class Chord implements Comparable<Chord> {
    */
   public static Chord of(String name) {
     return new Chord(name);
-  }
-
-  /**
-   Copies this object to a new Chord
-
-   @return new note
-   */
-  private Chord copy() {
-    return new Chord()
-      .setRootPitchClass(root)
-      .setAdjSymbol(adjSymbol)
-      .setDescription(getDescription());
-  }
-
-  /**
-   Set the description
-
-   @param description to set
-   @return chord
-   */
-  private Chord setDescription(String description) {
-    this.description = description;
-    return this;
-  }
-
-  /**
-   Transpose a chord +/- semitones
-   */
-  public Chord transpose(int deltaSemitones) {
-    return copy()
-      .setAdjSymbol(adjSymbol)
-      .setRootPitchClass(root.step(deltaSemitones).getPitchClass());
-  }
-
-  /**
-   Set the root pitch class of the chord.
-
-   @param root pitch class to set
-   @return Chord after setting root pitch class
-   */
-  private Chord setRootPitchClass(PitchClass root) {
-    this.root = root;
-    return this;
-  }
-
-  /**
-   Set the adjustment symbol of the chord.
-
-   @param adjSymbol to set
-   @return Chord after setting adjustment symbol
-   */
-  private Chord setAdjSymbol(AdjSymbol adjSymbol) {
-    this.adjSymbol = adjSymbol;
-    return this;
   }
 
   /**
@@ -180,7 +132,9 @@ public class Chord implements Comparable<Chord> {
    @return true if equal
    */
   public boolean isSame(Chord other) {
-    return Objects.equals(root, other.root) && Objects.equals(description, other.description);
+    return Objects.equals(root, other.root)
+      && Objects.equals(description, other.description)
+      && slashRoot.isSame(other.slashRoot);
   }
 
   /**
@@ -190,7 +144,7 @@ public class Chord implements Comparable<Chord> {
    @return true if acceptable
    */
   public boolean isAcceptable(Chord other) {
-    return Objects.equals(other.preSlash, preSlash);
+    return Objects.equals(root, other.root) && Objects.equals(description, other.description);
   }
 
   /**

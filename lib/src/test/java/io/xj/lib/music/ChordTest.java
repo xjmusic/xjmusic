@@ -43,17 +43,16 @@ public class ChordTest {
   }
 
   @Test
-  public void TestOf_Invalid() {
-    Chord chord = Chord.of("P-funk");
-    assertEquals(None, chord.getRoot());
+  public void of() {
+    assertEquals("C 6/9", Chord.of("CM6add9").getName());
+    assertEquals("C 7b9/13", Chord.of("C dom7b9/13").getName());
+    assertEquals("C aug maj7", Chord.of("C+∆").getName());
   }
 
   @Test
-  public void TestTranspose_DescriptionChange() {
-    Chord chord = Chord.of("Cm nondominant -5 +6 +7 +9");
-
-    assertEquals("C m nondominant -5 +6 +7 +9", chord.getName());
-    assertEquals("Eb m nondominant -5 +6 +7 +9", chord.transpose(3).getName());
+  public void TestOf_Invalid() {
+    Chord chord = Chord.of("P-funk");
+    assertEquals(None, chord.getRoot());
   }
 
   @Test
@@ -64,7 +63,8 @@ public class ChordTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/176728338 XJ understands the root of a slash chord
+   XJ understands the root of a slash chord https://www.pivotaltracker.com/story/show/176728338
+   Slash Chord Fluency https://www.pivotaltracker.com/story/show/182885209
    */
   @Test
   public void getSlashRoot() {
@@ -73,6 +73,8 @@ public class ChordTest {
     assertEquals(PitchClass.G, Chord.of("Cm7/G").getSlashRoot());
     assertEquals(PitchClass.Gs, Chord.of("C#m7/G#").getSlashRoot());
     assertEquals(PitchClass.A, Chord.of("Gsus4/A").getSlashRoot());
+    assertEquals(PitchClass.A, Chord.of("G/A").getSlashRoot());
+    assertEquals("-", Chord.of("G#m/B").getDescription());
   }
 
   @Test
@@ -87,6 +89,17 @@ public class ChordTest {
     assertFalse(Chord.of("Gm").isSame(Chord.of("Cm")));
   }
 
+
+  /**
+   Chord mode Instruments should recognize enharmonic equivalents https://www.pivotaltracker.com/story/show/183558424
+   */
+  @Test
+  public void isSame_eharmonicEquivalent() {
+    assertTrue(Chord.of("  G# major     ").isSame(Chord.of(" Ab     major ")));
+    assertTrue(Chord.of("G#").isSame(Chord.of("Ab")));
+    assertFalse(Chord.of("G#").isSame(Chord.of("Bb")));
+  }
+
   @Test
   public void isAcceptable() {
     assertTrue(Chord.of("  G major     ").isAcceptable(Chord.of(" G     major ")));
@@ -95,6 +108,27 @@ public class ChordTest {
     assertTrue(Chord.of("Gm").isAcceptable(Chord.of("Gm/Bb")));
     assertTrue(Chord.of("Gm/Bb").isAcceptable(Chord.of("Gm")));
     assertFalse(Chord.of("Gm/Bb").isAcceptable(Chord.of("Cm")));
+  }
+
+  /**
+   Synonym of base chord should be accepted for slash chord https://www.pivotaltracker.com/story/show/183553280
+   */
+  @Test
+  public void isAcceptable_sameBaseDifferentSlash() {
+    assertTrue(Chord.of("C/G").isAcceptable(Chord.of("C/E")));
+  }
+
+  /**
+   Chord mode Instruments should recognize enharmonic equivalents https://www.pivotaltracker.com/story/show/183558424
+   */
+  @Test
+  public void isAcceptable_eharmonicEquivalent() {
+    assertTrue(Chord.of("  G# major     ").isAcceptable(Chord.of(" Ab     major ")));
+    assertTrue(Chord.of("G#m").isAcceptable(Chord.of("Abm")));
+    assertFalse(Chord.of("G#m").isAcceptable(Chord.of("Bbm")));
+    assertTrue(Chord.of("G#m").isAcceptable(Chord.of("Abm/Bb")));
+    assertTrue(Chord.of("G#m/C").isAcceptable(Chord.of("Abm")));
+    assertFalse(Chord.of("G#m/C").isAcceptable(Chord.of("Bbm")));
   }
 
   @Test

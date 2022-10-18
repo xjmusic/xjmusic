@@ -115,7 +115,7 @@ public class StickyBun {
       if (notes.get(i).isAtonal()) {
         float value = (float) values.get(Math.min(i, values.size() - 1)) / MAX_VALUE;
         var targetNote = voicingRange.getLow().orElseThrow().shift((int) (value * voicingRange.getSpan().orElseThrow()));
-        var foundNote = voicingNotes.stream().min(Comparator.comparingInt(a -> Math.abs(a.delta(targetNote))));
+        var foundNote = voicingNotes.parallelStream().min(Comparator.comparingInt(a -> Math.abs(a.delta(targetNote))));
         if (foundNote.isPresent())
           notes.set(i, foundNote.get());
       }

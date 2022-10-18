@@ -112,7 +112,7 @@ public class Note implements Comparable<Note> {
    @return true if contains any valid notes
    */
   public static boolean containsAnyValidNotes(String notes) {
-    return CSV.split(notes).stream().anyMatch(Note::isValid);
+    return CSV.split(notes).parallelStream().anyMatch(Note::isValid);
   }
 
   /**
