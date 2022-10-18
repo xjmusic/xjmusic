@@ -230,7 +230,7 @@ public class CraftImpl extends FabricationWrapperImpl {
       var audio = selectChordPartInstrumentAudio(instrument, Chord.of(section.chord.getName()));
 
       // https://www.pivotaltracker.com/story/show/176373977 Should gracefully skip audio in unfulfilled by instrument
-      if (audio.isEmpty()) return;
+      if (audio.isEmpty()) continue;
 
       // Pick attributes are expressed "rendered" as actual seconds
       double startSeconds = fabricator.getSecondsAtPosition(section.fromPos);
