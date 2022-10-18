@@ -1,18 +1,25 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.music;
 
+import com.google.api.client.util.Strings;
 import io.xj.lib.util.Text;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
  Root can be the root of a Chord, Key or Scale.
  */
 public class SlashRoot {
+  private static final Pattern rgxSlashPost = Pattern.compile("[^/]+/(.*)$");
   private static final Pattern rgxSlashNote = Pattern.compile("/([ABCDEFG])$");
   private static final Pattern rgxSlashNoteModified = Pattern.compile("/([ABCDEFG][♯#♭b])$");
   private static final Pattern rgxSlashPre = Pattern.compile("^([^/]+)/");
-  private PitchClass pitchClass;
+  private static final String SLASH = "/";
+  private static final String EMPTY = "";
+  private final PitchClass pitchClass;
+  private final String pre;
+  private final String post;
 
   /**
    Parse slash root string, using regular expressions
@@ -20,11 +27,14 @@ public class SlashRoot {
    @param name to parse slash root
    */
   private SlashRoot(String name) {
-    // as a default, the pitch class is None
-    this.pitchClass = PitchClass.None;
-
-    Text.match(rgxSlashNote, name).ifPresent(pc -> this.pitchClass = PitchClass.of(pc));
-    Text.match(rgxSlashNoteModified, name).ifPresent(pc -> this.pitchClass = PitchClass.of(pc));
+    pre = name.contains(SLASH) ? Text.match(rgxSlashPre, name).orElse(EMPTY) : name;
+    post = Text.match(rgxSlashPost, name).orElse(EMPTY);
+    pitchClass =
+      Text.match(rgxSlashNoteModified, name)
+        .map(PitchClass::of)
+        .orElse(Text.match(rgxSlashNote, name)
+          .map(PitchClass::of)
+          .orElse(PitchClass.None));
   }
 
   /**
@@ -37,6 +47,10 @@ public class SlashRoot {
    */
   public static SlashRoot of(String name) {
     return new SlashRoot(name);
+  }
+
+  public static SlashRoot none() {
+    return new SlashRoot("");
   }
 
   /**
@@ -56,9 +70,65 @@ public class SlashRoot {
   /**
    Returns the pre-slash content, or whole string if no slash is present
 
-   @param name to search for pre-slash content
+   @param description to search for pre-slash content
    */
-  public static String pre(String name) {
-    return Text.match(rgxSlashPre, name).orElse(name);
+  public static String pre(String description) {
+    return Text.match(rgxSlashPre, description).orElse(description);
+  }
+
+  /**
+   Return true if a slash is present in the given description
+
+   @param description to test for slash
+   @return true if slash is found
+   */
+  public static boolean isPresent(String description) {
+    return description.contains(SLASH);
+  }
+
+  /**
+   @return true if any slash info is present
+   */
+  public boolean isPresent() {
+    return !Strings.isNullOrEmpty(post);
+  }
+
+  /**
+   @return entire text after the first slash
+   */
+  public String getPost() {
+    return post;
+  }
+
+  /**
+   @return entire text before the first slash
+   */
+  public String getPre() {
+    return pre;
+  }
+
+  /**
+   Display the slash root, with an adjustment symbol if it's a clean note, otherwise as-is
+
+   @param withOptional adjustment symbol
+   @return displayed slash root
+   */
+  public String display(AdjSymbol withOptional) {
+    if (PitchClass.None != pitchClass)
+      return String.format("/%s", pitchClass.toString(withOptional));
+    else if (!Strings.isNullOrEmpty(post))
+      return String.format("/%s", post);
+    else return EMPTY;
+  }
+
+  /**
+   Whether this slash root is the same as another
+
+   @param o to compare
+   @return true if same
+   */
+  public boolean isSame(SlashRoot o) {
+    return (Objects.nonNull(post) && Objects.nonNull(o.post) && post.equals(o.post))
+      || pitchClass.equals(o.pitchClass);
   }
 }

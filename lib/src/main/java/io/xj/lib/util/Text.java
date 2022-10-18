@@ -535,6 +535,7 @@ public interface Text {
 
   /**
    First group matching pattern in text, else null
+
    @param pattern to use
    @param text    to search
    @return match if found
@@ -549,5 +550,17 @@ public interface Text {
       return Optional.empty();
 
     return Optional.of(match);
+  }
+
+  /**
+   First group matching pattern in text, else null
+
+   @param pattern to use
+   @param text    to search
+   @return true if found
+   */
+  static Boolean find(Pattern pattern, String text) {
+    Matcher matcher = pattern.matcher(text);
+    return matcher.find();
   }
 }

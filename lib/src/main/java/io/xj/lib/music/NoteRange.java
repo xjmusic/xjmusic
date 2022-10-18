@@ -55,15 +55,15 @@ public class NoteRange {
 
   public static NoteRange ofNotes(Collection<Note> notes) {
     return new NoteRange(
-      notes.stream().min(Note::compareTo).orElse(null),
-      notes.stream().max(Note::compareTo).orElse(null)
+      notes.parallelStream().min(Note::compareTo).orElse(null),
+      notes.parallelStream().max(Note::compareTo).orElse(null)
     );
   }
 
   public static NoteRange ofStrings(Collection<String> notes) {
     return new NoteRange(
-      notes.stream().map(Note::of).min(Note::compareTo).orElse(null),
-      notes.stream().map(Note::of).max(Note::compareTo).orElse(null)
+      notes.parallelStream().map(Note::of).min(Note::compareTo).orElse(null),
+      notes.parallelStream().map(Note::of).max(Note::compareTo).orElse(null)
     );
   }
 
