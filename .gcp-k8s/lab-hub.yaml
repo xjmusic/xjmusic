@@ -1,0 +1,111 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: hub-sa
+  namespace: lab
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: lab
+  name: hub-sa-role
+rules:
+  - apiGroups: ["*"]
+    resources: ["deployments","pods", "pods/log"]
+    verbs: ["get", "create", "update", "list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: hub-sa-role-binding
+  namespace: lab
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: hub-sa-role
+subjects:
+  - kind: ServiceAccount
+    name: hub-sa
+    namespace: lab
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: hub
+  name: hub
+  namespace: lab
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      k8s-app: hub
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        k8s-app: hub
+    spec:
+      automountServiceAccountToken: true
+      containers:
+        - image: gcr.io/xj-vpc-host-prod/hub:latest
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: prod.env
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 3000
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: hub
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+      serviceAccountName: hub-sa
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      shareProcessNamespace: false
+      terminationGracePeriodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  finalizers:
+    - service.kubernetes.io/load-balancer-cleanup
+  labels:
+    k8s-app: hub
+  name: hub
+  namespace: lab
+spec:
+  allocateLoadBalancerNodePorts: true
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+    - nodePort: 30413
+      port: 8080
+      protocol: TCP
+      targetPort: 3000
+  selector:
+    k8s-app: hub
+  sessionAffinity: None
+  type: LoadBalancer

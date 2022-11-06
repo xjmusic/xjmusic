@@ -266,4 +266,9 @@ public class TextTest {
     assertTrue(Text.match(abc, "123").isEmpty());
     assertEquals("A", Text.match(abc, "A").orElseThrow());
   }
+
+  @Test
+  public void reverseLines() {
+    assertEquals("Three\nTwo\nOne", Text.reverseLines("One\nTwo\nThree"));
+  }
 }

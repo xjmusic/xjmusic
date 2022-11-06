@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    k8s-app: redis
+  name: redis
+  namespace: lab
+spec:
+  serviceName: redis
+  podManagementPolicy: Parallel
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      k8s-app: redis
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        k8s-app: redis
+    spec:
+      automountServiceAccountToken: true
+      containers:
+      - command:
+        - redis-server
+        env:
+        - name: MASTER
+          value: "true"
+        image: redis:latest
+        imagePullPolicy: Always
+        name: redis
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /redis-master-data
+          name: redisdb
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      shareProcessNamespace: false
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: redisdb
+          persistentVolumeClaim:
+            claimName: redis-pv
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: redis-pv
+  namespace: lab
+spec:
+  storageClassName: standard
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    k8s-app: redis
+  name: redis
+  namespace: lab
+spec:
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+    - port: 6379
+      protocol: TCP
+      targetPort: 6379
+  selector:
+    k8s-app: redis
+  sessionAffinity: None
+  type: ClusterIP

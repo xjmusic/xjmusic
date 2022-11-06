@@ -10,7 +10,11 @@ import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.TemplateType;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
-import io.xj.hub.tables.pojos.*;
+import io.xj.hub.tables.pojos.FeedbackTemplate;
+import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.hub.tables.pojos.TemplatePlayback;
+import io.xj.hub.tables.pojos.TemplatePublication;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
@@ -31,7 +35,10 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.xj.hub.Tables.*;
+import static io.xj.hub.Tables.FEEDBACK_TEMPLATE;
+import static io.xj.hub.Tables.TEMPLATE;
+import static io.xj.hub.Tables.TEMPLATE_BINDING;
+import static io.xj.hub.Tables.TEMPLATE_PLAYBACK;
 import static io.xj.hub.tables.Account.ACCOUNT;
 
 public class TemplateManagerImpl extends HubPersistenceServiceImpl<Template> implements TemplateManager {
@@ -182,6 +189,22 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl<Template> imp
   }
 
   @Override
+  public Optional<Template> readOnePlayingForUser(HubAccess access, UUID userId) throws ManagerException {
+    requireTopLevel(access);
+    DSLContext db = dbProvider.getDSL();
+
+    var record = db.select(TEMPLATE.fields())
+      .from(TEMPLATE)
+      .join(TEMPLATE_PLAYBACK).on(TEMPLATE.ID.eq(TEMPLATE_PLAYBACK.TEMPLATE_ID))
+      .where(TEMPLATE_PLAYBACK.CREATED_AT.greaterThan(Timestamp.from(Instant.now().minusSeconds(playbackExpireSeconds)).toLocalDateTime()))
+      .and(TEMPLATE_PLAYBACK.USER_ID.eq(userId))
+      .and(TEMPLATE.IS_DELETED.eq(false))
+      .fetchOne();
+    if (Objects.isNull(record)) return Optional.empty();
+    return Optional.of(modelFrom(Template.class, record));
+  }
+
+  @Override
   public Collection<Template> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
     if (Objects.nonNull(parentIds) && !parentIds.isEmpty()) {
       if (access.isTopLevel())
@@ -314,9 +337,9 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl<Template> imp
   /**
    Read one record
 
-   @param db        DSL context
+   @param db     DSL context
    @param access control
-   @param id        to read
+   @param id     to read
    @return record
    @throws ManagerException on failure
    */
@@ -339,7 +362,7 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl<Template> imp
    Require read access
 
    @param db          database context
-   @param access   control
+   @param access      control
    @param templateIds to require access to
    */
   private void requireRead(DSLContext db, HubAccess access, Collection<UUID> templateIds) throws ManagerException {
@@ -354,9 +377,9 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl<Template> imp
   /**
    Require parent template exists of a given possible entity in a DSL context
 
-   @param db        DSL context
+   @param db     DSL context
    @param access control
-   @param entity    to validate
+   @param entity to validate
    @throws ManagerException if parent does not exist
    */
   private void requireParentExists(DSLContext db, HubAccess access, Template entity) throws ManagerException {

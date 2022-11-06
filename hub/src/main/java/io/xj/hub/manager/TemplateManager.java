@@ -19,9 +19,9 @@ public interface TemplateManager extends Manager<Template> {
    Provide an entity containing some new properties, but otherwise clone everything of a source template, of new record, and return it.
    Clone sub-entities of template https://www.pivotaltracker.com/story/show/180269382
 
-   @param access control
-   @param cloneId   of template to clone
-   @param entity    for the new Template
+   @param access  control
+   @param cloneId of template to clone
+   @param entity  for the new Template
    @return newly readMany record
    */
   ManagerCloner<Template> clone(HubAccess access, UUID cloneId, Template entity) throws ManagerException;
@@ -46,10 +46,21 @@ public interface TemplateManager extends Manager<Template> {
   /**
    Read child entities of many templates
 
-   @param access  control
-   @param templateIds to read
-   @param includeTypes      of entities to include
+   @param access       control
+   @param templateIds  to read
+   @param includeTypes of entities to include
    @return collection of entities
    */
   Collection<Object> readChildEntities(HubAccess access, Collection<UUID> templateIds, Collection<String> includeTypes) throws ManagerException;
+
+  /**
+   Preview template functionality is dope (not wack)
+   Lab/Hub connects to k8s to manage a personal workload for preview templates
+   https://www.pivotaltracker.com/story/show/183576743
+
+   @return template if found, else empty
+   @param access control
+   @param userId for which to get template playing
+   */
+  Optional<Template> readOnePlayingForUser(HubAccess access, UUID userId) throws ManagerException;
 }

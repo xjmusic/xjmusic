@@ -30,7 +30,7 @@ public enum Secrets {
   public static Environment environment() {
     var env = Environment.fromSystem();
 
-    if (Values.isSet(env.getAwsSecretName()) && Values.isSet(env.getAwsSecretName()))
+    if (Values.isSet(env.getAwsSecretName()))
       env = Environment.augmentSystem(fetchAwsSecret(env.getAwsDefaultRegion(), env.getAwsSecretName()));
 
     if (Values.isSet(env.getGcpProjectId()) && Values.isSet(env.getGcpSecretId()))
@@ -52,7 +52,7 @@ public enum Secrets {
    @param secretName to retrieve
    @return app secret
    */
-  private static String fetchAwsSecret(String region, String secretName) {
+  public static String fetchAwsSecret(String region, String secretName) {
     AWSSecretsManager client = AWSSecretsManagerClientBuilder.standard().withRegion(region).build();
     GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest().withSecretId(secretName);
     return client.getSecretValue(getSecretValueRequest).getSecretString();

@@ -13,6 +13,7 @@ import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.enums.TemplateType;
 import io.xj.hub.ingest.HubIngestModule;
+import io.xj.hub.kubernetes.KubernetesAdmin;
 import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.hub.tables.pojos.TemplatePlayback;
 import io.xj.lib.app.Environment;
@@ -22,6 +23,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.sql.Timestamp;
@@ -29,8 +31,20 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.UUID;
 
-import static io.xj.hub.IntegrationTestingFixtures.*;
-import static org.junit.Assert.*;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplatePlayback;
+import static io.xj.hub.IntegrationTestingFixtures.buildUser;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 // future test: permissions of different users to readMany vs. of vs. update or delete templatePlaybacks
 
@@ -43,6 +57,9 @@ public class TemplatePlaybackManagerDbTest {
   private IntegrationTestingFixtures fake;
   private TemplatePlayback templatePlayback201;
 
+  @Mock
+  private KubernetesAdmin kubernetesAdmin;
+
   @Before
   public void setUp() throws Exception {
     var env = Environment.getDefault();
@@ -50,6 +67,7 @@ public class TemplatePlaybackManagerDbTest {
       @Override
       protected void configure() {
         bind(Environment.class).toInstance(env);
+        bind(KubernetesAdmin.class).toInstance(kubernetesAdmin);
       }
     }));
     test = injector.getInstance(HubIntegrationTestProvider.class);
@@ -91,6 +109,7 @@ public class TemplatePlaybackManagerDbTest {
     assertNotNull(result);
     assertEquals(fake.template1.getId(), result.getTemplateId());
     assertEquals(fake.user2.getId(), result.getUserId());
+    verify(kubernetesAdmin, times(1)).startPreviewNexus(eq(fake.user2.getId()), any());
   }
 
   @Test
@@ -105,6 +124,7 @@ public class TemplatePlaybackManagerDbTest {
     assertNotNull(result);
     assertEquals(fake.template1.getId(), result.getTemplateId());
     assertEquals(fake.user2.getId(), result.getUserId());
+    verify(kubernetesAdmin, times(1)).startPreviewNexus(eq(fake.user2.getId()), any());
   }
 
   @Test
@@ -137,6 +157,7 @@ public class TemplatePlaybackManagerDbTest {
     testManager.create(access, subject);
 
     assertThrows(ManagerException.class, () -> testManager.readOne(access, priorPlayback.getId()));
+    verify(kubernetesAdmin, times(1)).startPreviewNexus(eq(fake.user2.getId()), any());
   }
 
   /**
@@ -152,6 +173,7 @@ public class TemplatePlaybackManagerDbTest {
     testManager.create(access, subject);
 
     assertThrows(ManagerException.class, () -> testManager.readOne(access, priorPlayback.getId()));
+    verify(kubernetesAdmin, times(1)).startPreviewNexus(eq(fake.user2.getId()), any());
   }
 
   @Test
@@ -252,7 +274,7 @@ public class TemplatePlaybackManagerDbTest {
 
   @Test
   public void destroy() throws Exception {
-    HubAccess access = HubAccess.create("Admin");
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     TemplatePlayback templatePlayback251 = buildTemplatePlayback(fake.template1, fake.user2);
 
     testManager.destroy(access, templatePlayback251.getId());
@@ -263,6 +285,7 @@ public class TemplatePlaybackManagerDbTest {
     } catch (ManagerException e) {
       assertTrue("Record should not exist", e.getMessage().contains("does not exist"));
     }
+    verify(kubernetesAdmin, times(1)).stopPreviewNexus(eq(fake.user2.getId()));
   }
 
 }

@@ -1,9 +1,8 @@
 # This is the base container for all Java services in this repository, built by CI when this file changes.
-# Build & ship to GCP: https://github.com/xjmusic/services/actions/workflows/services-base-gcp.yaml
-# Build & ship to AWS: https://github.com/xjmusic/services/actions/workflows/services-base-aws.yaml
+# Build & ship to GCP: https://github.com/xjmusic/services/actions/workflows/services-base.yaml
 
 # Based on official
-FROM ubuntu:20.10
+FROM ubuntu:20.04
 
 # Install Software Properties
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install software-properties-common
@@ -19,3 +18,17 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install ffmpeg
 
 # Install GPAC (MP4BOX)
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install gpac
+
+# Install curl
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install curl
+
+# Downloading gcloud package
+RUN curl https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz > /tmp/google-cloud-sdk.tar.gz
+
+# Installing the package
+RUN mkdir -p /usr/local/gcloud \
+  && tar -C /usr/local/gcloud -xvf /tmp/google-cloud-sdk.tar.gz \
+  && /usr/local/gcloud/google-cloud-sdk/install.sh
+
+# Adding the package path to local
+ENV PATH $PATH:/usr/local/gcloud/google-cloud-sdk/bin

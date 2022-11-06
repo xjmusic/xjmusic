@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bug
+  labels:
+    app: bug
+  namespace: lab
+spec:
+  containers:
+    - image: ubuntu
+      envFrom:
+        - secretRef:
+            name: prod.env
+      command:
+        - "sleep"
+        - "604800"
+      imagePullPolicy: IfNotPresent
+      name: ubuntu
+  restartPolicy: Always

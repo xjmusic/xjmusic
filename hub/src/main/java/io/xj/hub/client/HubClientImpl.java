@@ -25,8 +25,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -35,8 +35,8 @@ import java.util.stream.Collectors;
  */
 @Singleton
 public class HubClientImpl implements HubClient {
-  private static final String API_PATH_INGEST_PREFIX = "api/1/ingest/";
-  private static final String API_PATH_TEMPLATES_PLAYING = "api/1/templates/playing";
+  private static final String API_PATH_INGEST_FORMAT = "api/1/ingest/%s";
+  private static final String API_PATH_USER_TEMPLATE_PLAYBACK_FORMAT = "api/1/templates/playing?userId=%s";
   private static final String HEADER_COOKIE = "Cookie";
   private final Logger LOG = LoggerFactory.getLogger(HubClientImpl.class);
   private final String ingestUrl;
@@ -70,12 +70,13 @@ public class HubClientImpl implements HubClient {
   @Override
   public HubContent ingest(HubClientAccess access, UUID templateId) throws HubClientException {
     CloseableHttpClient client = httpClientProvider.getClient();
+    var uri = buildURI(String.format(API_PATH_INGEST_FORMAT, templateId.toString()));
     try (
-      CloseableHttpResponse response = client.execute(buildGetRequest(buildURI(String.format("%s%s", API_PATH_INGEST_PREFIX, templateId.toString())), ingestTokenValue))
+      CloseableHttpResponse response = client.execute(buildGetRequest(uri, ingestTokenValue))
     ) {
       // return content if successful.
       if (!Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode()))
-        throw buildException(response);
+        throw buildException(uri.toString(), response);
 
       String json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
       return HubContent.from(jsonProvider.getMapper().readValue(json, HubContentPayload.class));
@@ -86,20 +87,25 @@ public class HubClientImpl implements HubClient {
   }
 
   @Override
-  public Collection<Template> readAllTemplatesPlaying() throws HubClientException {
+  public Optional<Template> readPreviewTemplate(UUID userId) throws HubClientException {
     CloseableHttpClient client = httpClientProvider.getClient();
+    var path = String.format(API_PATH_USER_TEMPLATE_PLAYBACK_FORMAT, userId);
+    var uri = buildURI(path);
+    var request = buildGetRequest(uri, ingestTokenValue);
     try (
-      CloseableHttpResponse response = client.execute(buildGetRequest(buildURI(API_PATH_TEMPLATES_PLAYING), ingestTokenValue))
+      CloseableHttpResponse response = client.execute(request)
     ) {
       if (!Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode()))
-        throw buildException(response);
+        throw buildException(uri.toString(), response);
 
       var json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
+
       var payload = jsonapiPayloadFactory.deserialize(json);
-      return jsonapiPayloadFactory.toMany(payload);
+
+      return payload.isEmpty() ? Optional.empty() : Optional.of(jsonapiPayloadFactory.toOne(payload));
 
     } catch (IOException | JsonapiException e) {
-      throw new HubClientException(e);
+      throw new HubClientException(String.format("Failed executing Hub API request to %s", uri), e);
     }
   }
 
@@ -113,7 +119,7 @@ public class HubClientImpl implements HubClient {
     ) {
       // return content if successful.
       if (!Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode()))
-        throw buildException(response);
+        throw buildException(url, response);
 
       String json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
       return HubContent.from(jsonProvider.getMapper().readValue(json, HubContentPayload.class));
@@ -153,13 +159,13 @@ public class HubClientImpl implements HubClient {
   }
 
   /**
-   Log a failure message and returns a throwable exception based on a response
+   Log a failure message and returns a throwable exception based on a response@param uri
 
    @param response to log and throw
    */
-  private HubClientException buildException(CloseableHttpResponse response) throws HubClientException {
+  private HubClientException buildException(String uri, CloseableHttpResponse response) throws HubClientException {
     // if we got here, it's a failure
-    LOG.error("Request failed! response: {} {}", response.getAllHeaders(), response);
-    throw new HubClientException(String.format("Request failed with response Code %d %s", response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase()));
+    LOG.error("Request failed to {}\n response: {} {}", uri, response.getAllHeaders(), response);
+    throw new HubClientException(String.format("Request failed to %s\nresponse: %d %s", uri, response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase()));
   }
 }

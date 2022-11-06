@@ -7,3 +7,5 @@ gcloud container clusters get-credentials xj-prod-us-west-1 --region us-west1
   -PjibFromImage=gcr.io/xj-vpc-host-prod/base:latest \
   -PjibToImageRegistry=gcr.io/xj-vpc-host-prod/dev \
   jib
+
+kubectl -n dev rollout restart deploy

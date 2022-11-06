@@ -13,11 +13,13 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  All secrets from environment variables
  */
 public class Environment {
+  public static final String FABRICATION_PREVIEW_USER_ID = "FABRICATION_PREVIEW_USER_ID";
   private static final Logger LOG = LoggerFactory.getLogger(Environment.class);
   private static final int SECONDS_PER_HOUR = 60 * 60;
   private static final String WORK_ENV_NAME_PRODUCTION = "Production";
@@ -40,6 +42,7 @@ public class Environment {
   private final String awsSecretKey;
   private final String awsSecretName;
   private final String awsSnsTopicArn;
+  private final String fabricationPreviewUserId;
   private final String gcpProjectId;
   private final String gcpSecretId;
   private final String googleClientID;
@@ -48,6 +51,7 @@ public class Environment {
   private final String ingestTokenName;
   private final String ingestTokenValue;
   private final String ingestURL;
+  private final String kubernetesNamespaceLab;
   private final String platformEnvironment;
   private final String playerBaseURL;
   private final String postgresDatabase;
@@ -83,6 +87,7 @@ public class Environment {
   private final int fabricationPreviewLengthMaxHours;
   private final int httpClientPoolMaxPerRoute;
   private final int httpClientPoolMaxTotal;
+  private final int kubernetesLogTailLines;
   private final int playbackExpireSeconds;
   private final int postgresPoolSizeMax;
   private final int postgresPort;
@@ -98,8 +103,8 @@ public class Environment {
   private final int shipPlaylistAheadSeconds;
   private final int shipPlaylistBackSeconds;
   private final int shipSegmentLoadAheadSeconds;
-  private final int shipSegmentLoadRetryLimit;
   private final int shipSegmentLoadRetryDelayMillis;
+  private final int shipSegmentLoadRetryLimit;
   private final int shipSegmentLoadTimeoutSeconds;
   private final int shipWavSeconds;
   private final int templatePublicationCacheExpireSeconds;
@@ -132,7 +137,7 @@ public class Environment {
    @param vars to build environment from
    */
   public Environment(Map<String, String> vars) {
-    LOG.debug("Received values for {} keys: {}", vars.size(), CSV.join(vars.keySet().stream().toList()));
+    LOG.info("Read {} environment variables with keys {}", vars.size(), CSV.join(vars.keySet().stream().toList()));
 
     // Application
     accessLogFilename = readStr(vars, "ACCESS_LOG_FILENAME", "/tmp/access.log");
@@ -151,13 +156,16 @@ public class Environment {
     audioUploadURL = readStr(vars, "AUDIO_UPLOAD_URL", "https://xj-dev-audio.s3.amazonaws.com/");
     chainStartInFutureSeconds = readInt(vars, "CHAIN_START_IN_FUTURE_SECONDS", 0);
     fabricationChainThresholdFabricatedBehindSeconds = readInt(vars, "FABRICATION_CHAIN_THRESHOLD_FABRICATED_BEHIND_SECONDS", 15);
-    fabricationPreviewLengthMaxHours = readInt(vars, "FABRICATION_PREVIEW_LENGTH_MAX_HOURS", 8);
+    fabricationPreviewLengthMaxHours = readInt(vars, "FABRICATION_PREVIEW_LENGTH_MAX_HOURS", 2);
+    fabricationPreviewUserId = readStr(vars, FABRICATION_PREVIEW_USER_ID, EMPTY);
     hostname = readStr(vars, "HOSTNAME", "localhost");
     httpClientPoolMaxPerRoute = readInt(vars, "HTTP_CLIENT_POOL_MAX_PER_ROUTE", 20);
     httpClientPoolMaxTotal = readInt(vars, "HTTP_CLIENT_POOL_MAX_TOTAL", 200);
     ingestTokenName = readStr(vars, "INGEST_TOKEN_NAME", "access_token");
     ingestTokenValue = readStr(vars, "INGEST_TOKEN_VALUE", EMPTY);
     ingestURL = readStr(vars, "INGEST_URL", "http://localhost/");
+    kubernetesLogTailLines = readInt(vars, "KUBERNETES_LOG_LINES", 24);
+    kubernetesNamespaceLab = readStr(vars, "KUBERNETES_NAMESPACE_LAB", "lab");
     platformEnvironment = readStr(vars, "ENVIRONMENT", "dev");
     playbackExpireSeconds = readInt(vars, "PLAYBACK_EXPIRE_SECONDS", SECONDS_PER_HOUR * 8);
     playerBaseURL = readStr(vars, "PLAYER_BASE_URL", "http://localhost/");
@@ -178,14 +186,14 @@ public class Environment {
     shipMediaSequenceNumberOffset = readInt(vars, "SHIP_MEDIA_SEQUENCE_NUMBER_OFFSET", 3);
     shipMixCycleSeconds = readInt(vars, "WORK_PRINT_CYCLE_SECONDS", 1);
     shipMode = readStr(vars, "SHIP_MODE", "hls");
-    shipWavPath = readStr(vars, "SHIP_WAV_PATH", "");
-    shipWavSeconds = readInt(vars, "SHIP_WAV_SECONDS", 0);
     shipPlaylistAheadSeconds = readInt(vars, "SHIP_PLAYLIST_AHEAD_SECONDS", 30);
     shipPlaylistBackSeconds = readInt(vars, "SHIP_PLAYLIST_BACK_SECONDS", 300);
     shipSegmentLoadAheadSeconds = readInt(vars, "SHIP_SEGMENT_LOAD_AHEAD_SECONDS", 120);
-    shipSegmentLoadRetryLimit = readInt(vars, "SHIP_SEGMENT_LOAD_RETRY_LIMIT", 5);
     shipSegmentLoadRetryDelayMillis = readInt(vars, "SHIP_SEGMENT_LOAD_RETRY_DELAY_MILLIS", 250);
+    shipSegmentLoadRetryLimit = readInt(vars, "SHIP_SEGMENT_LOAD_RETRY_LIMIT", 5);
     shipSegmentLoadTimeoutSeconds = readInt(vars, "SHIP_SEGMENT_LOAD_TIMEOUT_SECONDS", 5);
+    shipWavPath = readStr(vars, "SHIP_WAV_PATH", "");
+    shipWavSeconds = readInt(vars, "SHIP_WAV_SECONDS", 0);
     streamBaseURL = readStr(vars, "STREAM_BASE_URL", "https://stream.dev.xj.io/");
     streamBucket = readStr(vars, "STREAM_BUCKET", "xj-dev-stream");
     telemetryEnabled = readBool(vars, "TELEMETRY_ENABLED", false);
@@ -277,8 +285,7 @@ public class Environment {
     vars.putAll(pairs);
     if (0 < pairs.size())
       LOG.info("Augmented system environment with {} secrets having keys {}", pairs.size(), CSV.join(pairs.keySet().stream().toList()));
-    else
-      LOG.warn("Did not parse any secrets with which to augment system environment.");
+    else LOG.warn("Did not parse any secrets with which to augment system environment.");
     return from(vars);
   }
 
@@ -520,6 +527,22 @@ public class Environment {
   }
 
   /**
+   Lab/Hub connects to k8s to manage a personal workload for preview templates
+   https://www.pivotaltracker.com/story/show/183576743
+   <p>
+
+   @return the user id for which we ought to fabricate a preview chain
+   */
+  public Optional<UUID> getFabricationPreviewUserId() {
+    if (Strings.isNullOrEmpty(fabricationPreviewUserId)) return Optional.empty();
+    try {
+      return Optional.of(UUID.fromString(fabricationPreviewUserId));
+    } catch (Exception e) {
+      return Optional.empty();
+    }
+  }
+
+  /**
    @return GCP project id
    */
   public String getGcpProjectId() {
@@ -587,6 +610,20 @@ public class Environment {
    */
   public String getIngestTokenValue() {
     return ingestTokenValue;
+  }
+
+  /**
+   @return # of lines to log from tail of Kubernetes logs of preview template workloads https://www.pivotaltracker.com/story/show/183576743
+   */
+  public int getKubernetesLogTailLines() {
+    return kubernetesLogTailLines;
+  }
+
+  /**
+   @return the Kubernetes namespace for scheduling preview template workloads https://www.pivotaltracker.com/story/show/183576743
+   */
+  public String getKubernetesNamespaceLab() {
+    return kubernetesNamespaceLab;
   }
 
   /**
