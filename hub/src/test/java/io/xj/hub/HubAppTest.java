@@ -11,6 +11,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import io.xj.hub.access.GoogleProvider;
 import io.xj.hub.access.HubAccessControlProvider;
 import io.xj.hub.analysis.HubAnalysisModule;
+import io.xj.hub.kubernetes.KubernetesAdmin;
 import io.xj.hub.manager.*;
 import io.xj.hub.ingest.HubIngestFactory;
 import io.xj.hub.persistence.HubDatabaseProvider;
@@ -42,30 +43,41 @@ import static org.mockito.Mockito.when;
 public class HubAppTest {
   public CloseableHttpClient httpClient;
   public App subject;
-  @Mock
-  public HubDatabaseProvider hubDatabaseProvider;
-  @Mock
-  public HubAccessControlProvider hubAccessControlProvider;
-  @Mock
-  public HubIngestFactory hubIngestFactory;
+
   @Mock
   public AccountManager accountManager;
   @Mock
   public AccountUserManager accountUserManager;
   @Mock
-  public InstrumentManager instrumentManager;
+  public FileStoreProvider fileStoreProvider;
+  @Mock
+  public GoogleProvider googleProvider;
+  @Mock
+  public HikariDataSource mockDataSource;
+  @Mock
+  public HubMigration hubMigration;
+  @Mock
+  public HubAccessControlProvider hubAccessControlProvider;
+  @Mock
+  public HubDatabaseProvider hubDatabaseProvider;
+  @Mock
+  public HubIngestFactory hubIngestFactory;
   @Mock
   public InstrumentAudioManager instrumentAudioManager;
   @Mock
+  public InstrumentManager instrumentManager;
+  @Mock
   public InstrumentMemeManager instrumentMemeManager;
+  @Mock
+  public KubernetesAdmin kubernetesAdmin;
   @Mock
   public LibraryManager libraryManager;
   @Mock
   public ProgramManager programManager;
   @Mock
-  public ProgramSequencePatternEventManager programSequencePatternEventManager;
-  @Mock
   public ProgramMemeManager programMemeManager;
+  @Mock
+  public ProgramSequencePatternEventManager programSequencePatternEventManager;
   @Mock
   public ProgramSequencePatternManager programSequencePatternManager;
   @Mock
@@ -92,14 +104,6 @@ public class HubAppTest {
   public TemplatePublicationManager templatePublicationManager;
   @Mock
   public UserManager userManager;
-  @Mock
-  private GoogleProvider googleProvider;
-  @Mock
-  private HikariDataSource mockDataSource;
-  @Mock
-  private HubMigration hubMigration;
-  @Mock
-  private FileStoreProvider fileStoreProvider;
 
   @Before
   public void setUp() throws Exception {
@@ -109,35 +113,36 @@ public class HubAppTest {
     var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new JsonapiModule(), new HubAnalysisModule())).with(new AbstractModule() {
       @Override
       protected void configure() {
-        bind(Environment.class).toInstance(env);
-        bind(FileStoreProvider.class).toInstance(fileStoreProvider);
-        bind(HubDatabaseProvider.class).toInstance(hubDatabaseProvider);
-        bind(HubAccessControlProvider.class).toInstance(hubAccessControlProvider);
-        bind(HubMigration.class).toInstance(hubMigration);
-        bind(HubIngestFactory.class).toInstance(hubIngestFactory);
         bind(AccountManager.class).toInstance(accountManager);
         bind(AccountUserManager.class).toInstance(accountUserManager);
-        bind(InstrumentManager.class).toInstance(instrumentManager);
+        bind(Environment.class).toInstance(env);
+        bind(FileStoreProvider.class).toInstance(fileStoreProvider);
+        bind(GoogleProvider.class).toInstance(googleProvider);
+        bind(HubAccessControlProvider.class).toInstance(hubAccessControlProvider);
+        bind(HubDatabaseProvider.class).toInstance(hubDatabaseProvider);
+        bind(HubIngestFactory.class).toInstance(hubIngestFactory);
+        bind(HubMigration.class).toInstance(hubMigration);
         bind(InstrumentAudioManager.class).toInstance(instrumentAudioManager);
+        bind(InstrumentManager.class).toInstance(instrumentManager);
         bind(InstrumentMemeManager.class).toInstance(instrumentMemeManager);
+        bind(KubernetesAdmin.class).toInstance(kubernetesAdmin);
         bind(LibraryManager.class).toInstance(libraryManager);
-        bind(TemplateManager.class).toInstance(templateManager);
-        bind(TemplateBindingManager.class).toInstance(templateBindingManager);
-        bind(TemplatePlaybackManager.class).toInstance(templatePlaybackManager);
-        bind(TemplatePublicationManager.class).toInstance(templatePublicationManager);
         bind(ProgramManager.class).toInstance(programManager);
-        bind(ProgramSequencePatternEventManager.class).toInstance(programSequencePatternEventManager);
         bind(ProgramMemeManager.class).toInstance(programMemeManager);
-        bind(ProgramSequencePatternManager.class).toInstance(programSequencePatternManager);
-        bind(ProgramSequenceManager.class).toInstance(programSequenceManager);
         bind(ProgramSequenceBindingManager.class).toInstance(programSequenceBindingManager);
         bind(ProgramSequenceBindingMemeManager.class).toInstance(programSequenceBindingMemeManager);
         bind(ProgramSequenceChordManager.class).toInstance(programSequenceChordManager);
         bind(ProgramSequenceChordVoicingManager.class).toInstance(programSequenceChordVoicingManager);
-        bind(ProgramVoiceTrackManager.class).toInstance(programVoiceTrackManager);
+        bind(ProgramSequenceManager.class).toInstance(programSequenceManager);
+        bind(ProgramSequencePatternEventManager.class).toInstance(programSequencePatternEventManager);
+        bind(ProgramSequencePatternManager.class).toInstance(programSequencePatternManager);
         bind(ProgramVoiceManager.class).toInstance(programVoiceManager);
+        bind(ProgramVoiceTrackManager.class).toInstance(programVoiceTrackManager);
+        bind(TemplateBindingManager.class).toInstance(templateBindingManager);
+        bind(TemplateManager.class).toInstance(templateManager);
+        bind(TemplatePlaybackManager.class).toInstance(templatePlaybackManager);
+        bind(TemplatePublicationManager.class).toInstance(templatePublicationManager);
         bind(UserManager.class).toInstance(userManager);
-        bind(GoogleProvider.class).toInstance(googleProvider);
       }
     }));
     when(hubDatabaseProvider.getDataSource()).thenReturn(mockDataSource);

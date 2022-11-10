@@ -49,6 +49,7 @@ dependencies {
   // jOOq vendor
   jooqGenerator 'org.postgresql:postgresql:42.2.14'
   // vendor
+  implementation 'io.kubernetes:client-java:16.0.1'
   compileOnly 'io.swagger:swagger-annotations:1.6.3'
   implementation 'ch.qos.logback:logback-classic:1.2.6'
   implementation 'ch.qos.logback:logback-classic:1.2.6'

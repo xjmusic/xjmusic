@@ -5,7 +5,9 @@ import com.google.common.base.Strings;
 import com.typesafe.config.Config;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -562,5 +564,17 @@ public interface Text {
   static Boolean find(Pattern pattern, String text) {
     Matcher matcher = pattern.matcher(text);
     return matcher.find();
+  }
+
+  /**
+   Reverse the lines of a multi-line text value
+
+   @param text lines to reverse
+   @return text reversed lines
+   */
+  static String reverseLines(String text) {
+    ArrayList<String> lines = new ArrayList<>(Arrays.asList(text.split("\n")));
+    Collections.reverse(lines);
+    return String.join("\n", lines);
   }
 }

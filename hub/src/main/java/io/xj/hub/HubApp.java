@@ -22,28 +22,29 @@ import java.io.File;
 
 @SuppressWarnings("ALL")
 public class HubApp extends App {
-  private final Logger log = LoggerFactory.getLogger(HubApp.class);
+  private final Logger LOG = LoggerFactory.getLogger(HubApp.class);
   private final String platformRelease;
   private final HubDatabaseProvider hubDatabaseProvider;
   private final HubMigration hubMigration;
 
   @Inject
   public HubApp(
-    EntityFactory entityFactory,
-    Environment env,
-    HubAccessControlProvider hubAccessControlProvider,
-    HubDatabaseProvider hubDatabaseProvider,
-    HubMigration hubMigration,
     AccountEndpoint accountEndpoint,
     AccountUserEndpoint accountUserEndpoint,
     AnalysisEndpoint analysisEndpoint,
     AuthEndpoint authEndpoint,
     ConfigEndpoint configEndpoint,
+    EntityFactory entityFactory,
+    Environment env,
     HealthEndpoint healthEndpoint,
+    HubAccessControlProvider hubAccessControlProvider,
+    HubDatabaseProvider hubDatabaseProvider,
+    HubMigration hubMigration,
     IngestEndpoint ingestEndpoint,
     InstrumentAudioEndpoint instrumentAudioEndpoint,
     InstrumentEndpoint instrumentEndpoint,
     InstrumentMemeEndpoint instrumentMemeEndpoint,
+    KubernetesEndpoint kubernetesEndpoint,
     LibraryEndpoint libraryEndpoint,
     ProgramEndpoint programEndpoint,
     ProgramMemeEndpoint programMemeEndpoint,
@@ -56,8 +57,8 @@ public class HubApp extends App {
     ProgramSequencePatternEventEndpoint programSequencePatternEventEndpoint,
     ProgramVoiceEndpoint programVoiceEndpoint,
     ProgramVoiceTrackEndpoint programVoiceTrackEndpoint,
-    TemplateEndpoint templateEndpoint,
     TemplateBindingEndpoint templateBindingEndpoint,
+    TemplateEndpoint templateEndpoint,
     TemplatePlaybackEndpoint templatePlaybackEndpoint,
     TemplatePublicationEndpoint templatePublicationEndpoint,
     UserEndpoint userEndpoint
@@ -74,6 +75,7 @@ public class HubApp extends App {
     getResourceConfig().register(instrumentAudioEndpoint);
     getResourceConfig().register(instrumentEndpoint);
     getResourceConfig().register(instrumentMemeEndpoint);
+    getResourceConfig().register(kubernetesEndpoint);
     getResourceConfig().register(libraryEndpoint);
     getResourceConfig().register(programEndpoint);
     getResourceConfig().register(programMemeEndpoint);
@@ -86,8 +88,8 @@ public class HubApp extends App {
     getResourceConfig().register(programSequencePatternEventEndpoint);
     getResourceConfig().register(programVoiceEndpoint);
     getResourceConfig().register(programVoiceTrackEndpoint);
-    getResourceConfig().register(templateEndpoint);
     getResourceConfig().register(templateBindingEndpoint);
+    getResourceConfig().register(templateEndpoint);
     getResourceConfig().register(templatePlaybackEndpoint);
     getResourceConfig().register(templatePublicationEndpoint);
     getResourceConfig().register(userEndpoint);
@@ -117,7 +119,7 @@ public class HubApp extends App {
   public void start() throws AppException {
     // start the underlying app
     super.start();
-    log.info("{} ({}) is up and running at {}}", getName(), platformRelease, getBaseURI());
+    LOG.info("{} ({}) is up and running at {}}", getName(), platformRelease, getBaseURI());
   }
 
   /**
@@ -126,11 +128,11 @@ public class HubApp extends App {
   public void finish() {
     // stop the underlying app
     super.finish();
-    log.info("{} ({}}) did exit OK at {}", getName(), platformRelease, getBaseURI());
+    LOG.info("{} ({}}) did exit OK at {}", getName(), platformRelease, getBaseURI());
 
     // shutdown SQL database connection pool
     hubDatabaseProvider.shutdown();
-    log.debug("{} SQL database connection pool did shutdown OK", getName());
+    LOG.debug("{} SQL database connection pool did shutdown OK", getName());
   }
 
   /**

@@ -8,12 +8,12 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.opencensus.stats.Measure;
-import io.xj.nexus.model.Chain;
-import io.xj.nexus.model.ChainState;
-import io.xj.nexus.model.Segment;
-import io.xj.nexus.model.SegmentState;
-import io.xj.hub.manager.Templates;
+import io.xj.hub.client.HubClient;
+import io.xj.hub.client.HubClientAccess;
+import io.xj.hub.client.HubClientException;
+import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.TemplateType;
+import io.xj.hub.manager.Templates;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.lib.app.Environment;
@@ -28,7 +28,6 @@ import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.MultiStopwatch;
 import io.xj.lib.telemetry.TelemetryProvider;
-import io.xj.lib.util.CSV;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
@@ -38,11 +37,19 @@ import io.xj.nexus.dub.DubFactory;
 import io.xj.nexus.fabricator.FabricationFatalException;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.hub.client.HubClient;
-import io.xj.hub.client.HubClientAccess;
-import io.xj.hub.client.HubClientException;
-import io.xj.hub.client.HubContent;
-import io.xj.nexus.persistence.*;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.persistence.ChainManager;
+import io.xj.nexus.persistence.Chains;
+import io.xj.nexus.persistence.ManagerExistenceException;
+import io.xj.nexus.persistence.ManagerFatalException;
+import io.xj.nexus.persistence.ManagerPrivilegeException;
+import io.xj.nexus.persistence.ManagerValidationException;
+import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.persistence.SegmentManager;
+import io.xj.nexus.persistence.Segments;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -53,7 +60,14 @@ import javax.annotation.Nullable;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -101,11 +115,13 @@ public class NexusWorkImpl implements NexusWork {
   private final int medicCycleSeconds;
   private final int rehydrateFabricatedAheadThreshold;
   private final long healthCycleStalenessThresholdMillis;
-  @Nullable
-  private final String shipKey;
   private final NexusWorkImpl.Mode mode;
   private final boolean isRehydrationEnabled;
   private final String envName;
+  @Nullable
+  private final String shipKey;
+  @Nullable
+  private final UUID labUserId;
   private Instant labPollNext;
   private Instant yardPollNext;
   private NexusWorkImpl.State state;
@@ -172,6 +188,8 @@ public class NexusWorkImpl implements NexusWork {
     mode = Strings.isNullOrEmpty(shipKey) ? Lab : NexusWorkImpl.Mode.Yard;
     state = NexusWorkImpl.State.Init;
 
+    labUserId = env.getFabricationPreviewUserId().orElse(null);
+
     // Telemetry: # Segments Erased
     METRIC_FABRICATED_AHEAD_SECONDS = telemetryProvider.gauge("fabricated_ahead_seconds", "Fabricated Ahead Seconds", "s");
     METRIC_SEGMENT_CREATED = telemetryProvider.count("segment_created", "Segment Created", "");
@@ -235,7 +253,7 @@ public class NexusWorkImpl implements NexusWork {
     if (Instant.now().isAfter(labPollNext)) {
       state = State.Loading;
       labPollNext = Instant.now().plusSeconds(labPollSeconds);
-      if (maintainPreviewChains())
+      if (maintainPreviewChain())
         state = State.Active;
       else
         state = State.Fail;
@@ -608,45 +626,57 @@ public class NexusWorkImpl implements NexusWork {
   }
 
   /**
-   Maintain a chain for each current hub template playback
+   Maintain a chain for a single user
+   <p>
+   Lab/Hub connects to k8s to manage a personal workload for preview templates
+   https://www.pivotaltracker.com/story/show/183576743
 
    @return true if all is well, false if something has failed
    */
-  private boolean maintainPreviewChains() {
-    Collection<Template> templates;
+  private boolean maintainPreviewChain() {
+    Optional<Template> template;
+    if (Objects.isNull(labUserId)) return false;
     try {
-      templates = hubClient.readAllTemplatesPlaying();
+      template = hubClient.readPreviewTemplate(labUserId);
     } catch (HubClientException e) {
-      LOG.error("Failed to read Template Playbacks from Hub!", e);
+      LOG.error("Failed to read preview template for User[{}] from Hub!", labUserId, e);
       return false;
     }
 
-    // Maintain chain for all templates
+    // Keep track of all fabricating chains
+    // probably a relic of prior architecture but at this time it stays to change as little as possible
+    // https://www.pivotaltracker.com/story/show/183576743
     Collection<Chain> allFab;
     try {
       allFab = chains.readAllFabricating();
-      Set<String> chainShipKeys = allFab.stream().map(Chain::getShipKey).collect(Collectors.toSet());
-      for (Template template : templates)
-        if (!Strings.isNullOrEmpty(template.getShipKey()) && !chainShipKeys.contains(template.getShipKey()))
-          createChainForTemplate(template)
-            .orElseThrow(() -> new ManagerFatalException(String.format("Failed to create chain for Template[%s]", Templates.getIdentifier(template))));
     } catch (ManagerFatalException | ManagerPrivilegeException e) {
-      LOG.error("Failed to start Chain(s) for playing Template(s)!", e);
+      LOG.error("Failed to retrieve all fabrication Chain(s)!", e);
       return false;
     }
 
-    // Stop chains no longer playing
-    List<String> templateShipKeys = templates.stream().map(Template::getShipKey).toList();
-    try {
-      for (var chain : allFab)
-        if (!templateShipKeys.contains(chain.getShipKey())) {
-          LOG.info("Will stop lab Chain[{}]- does not belong to playing Templates[{}]", Chains.getIdentifier(chain), CSV.join(templateShipKeys));
+    if (template.isPresent())
+      // Maintain chain for preview template
+      try {
+        Set<String> chainShipKeys = allFab.stream().map(Chain::getShipKey).collect(Collectors.toSet());
+        if (!Strings.isNullOrEmpty(template.get().getShipKey()) && !chainShipKeys.contains(template.get().getShipKey()))
+          createChainForTemplate(template.get())
+            .orElseThrow(() -> new ManagerFatalException(String.format("Failed to create chain for Template[%s]", Templates.getIdentifier(template.get()))));
+      } catch (ManagerFatalException e) {
+        LOG.error("Failed to start Chain(s) for playing Template(s)!", e);
+        return false;
+      }
+
+    else
+      // Stop all chains (no longer playing)
+      try {
+        for (var chain : allFab) {
+          LOG.info("Will stop lab Chain[{}]", Chains.getIdentifier(chain));
           chains.updateState(chain.getId(), ChainState.COMPLETE);
         }
-    } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException | ManagerValidationException e) {
-      LOG.error("Failed to stop non-playing Chain(s)!", e);
-      return false;
-    }
+      } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException | ManagerValidationException e) {
+        LOG.error("Failed to stop non-playing Chain(s)!", e);
+        return false;
+      }
 
     return true;
   }

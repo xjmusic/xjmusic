@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    k8s-app: postgres
+  name: postgres
+  namespace: dev
+spec:
+  serviceName: postgres
+  podManagementPolicy: Parallel
+  replicas: 1
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      k8s-app: postgres
+  template:
+    metadata:
+      labels:
+        k8s-app: postgres
+    spec:
+      automountServiceAccountToken: true
+      containers:
+        - name: postgres
+          image: postgres:13
+          imagePullPolicy: Always
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          resources: {}
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_PASSWORD
+              value: postgres
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgredb
+      volumes:
+        - name: postgredb
+          persistentVolumeClaim:
+            claimName: postgres-pv
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      shareProcessNamespace: false
+      terminationGracePeriodSeconds: 300
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: postgres-pv
+  namespace: dev
+spec:
+  storageClassName: standard
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 300Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    k8s-app: postgres
+  name: postgres
+  namespace: dev
+spec:
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+    - port: 5432
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    k8s-app: postgres
+  sessionAffinity: None
+  type: ClusterIP

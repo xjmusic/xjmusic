@@ -7,16 +7,15 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
+import io.xj.hub.client.HubClientModule;
 import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
 import io.xj.lib.mixer.MixerModule;
-import io.xj.lib.secret.Secrets;
 import io.xj.nexus.craft.CraftModule;
 import io.xj.nexus.dub.DubModule;
 import io.xj.nexus.fabricator.NexusFabricatorModule;
-import io.xj.hub.client.HubClientModule;
 import io.xj.nexus.persistence.NexusPersistenceModule;
 import io.xj.nexus.work.NexusWork;
 import io.xj.nexus.work.NexusWorkModule;
@@ -50,7 +49,7 @@ public interface Main {
    */
   @SuppressWarnings("DuplicatedCode")
   static void main(String[] args) throws AppException, UnknownHostException {
-    final var env = Secrets.environment();
+    final var env = Environment.fromSystem();
     env.setAppName(APP_NAME);
 
     var injector = Guice.createInjector(Modules.override(injectorModules).with(new AbstractModule() {

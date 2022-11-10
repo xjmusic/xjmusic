@@ -10,6 +10,7 @@ import com.google.inject.util.Modules;
 import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.analysis.HubAnalysisModule;
 import io.xj.hub.ingest.HubIngestModule;
+import io.xj.hub.kubernetes.KubernetesModule;
 import io.xj.hub.manager.ManagerModule;
 import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.lib.app.AppException;
@@ -17,7 +18,6 @@ import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityModule;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
-import io.xj.lib.secret.Secrets;
 import org.slf4j.LoggerFactory;
 
 import java.net.UnknownHostException;
@@ -36,7 +36,8 @@ public interface Main {
     new HubAnalysisModule(),
     new ManagerModule(),
     new HubIngestModule(),
-    new HubPersistenceModule()
+    new HubPersistenceModule(),
+    new KubernetesModule()
   );
 
   /**
@@ -46,7 +47,7 @@ public interface Main {
    */
   @SuppressWarnings("DuplicatedCode")
   static void main(String[] args) throws AppException, UnknownHostException {
-    final var env = Secrets.environment();
+    final var env = Environment.fromSystem();
     env.setAppName(APP_NAME);
 
     var injector = Guice.createInjector(Modules.override(injectorModules).with(new AbstractModule() {

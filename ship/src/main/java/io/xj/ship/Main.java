@@ -10,7 +10,6 @@ import com.google.inject.util.Modules;
 import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
 import io.xj.lib.jsonapi.JsonapiModule;
-import io.xj.lib.secret.Secrets;
 import io.xj.ship.work.ShipWork;
 import io.xj.ship.work.ShipWorkModule;
 import org.slf4j.LoggerFactory;
@@ -34,7 +33,7 @@ public interface Main {
    */
   @SuppressWarnings("DuplicatedCode")
   static void main(String[] args) throws AppException {
-    final var env = Secrets.environment();
+    final var env = Environment.fromSystem();
     env.setAppName(APP_NAME);
 
     var injector = Guice.createInjector(Modules.override(injectorModules).with(new AbstractModule() {

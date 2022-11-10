@@ -89,6 +89,21 @@ public class HubAccess {
    Create a new HubAccess control object
 
    @param user     for access
+   @param accounts for access
+   @param rolesCSV for access
+   @return access control object
+   */
+  public static HubAccess create(User user, ImmutableList<Account> accounts, String rolesCSV) {
+    return new HubAccess()
+      .setUserId(user.getId())
+      .setAccountIds(Entities.idsOf(accounts))
+      .setRoleTypes(Users.userRoleTypesFromCsv(rolesCSV));
+  }
+
+  /**
+   Create a new HubAccess control object
+
+   @param user     for access
    @param rolesCSV for access
    @return access control object
    */

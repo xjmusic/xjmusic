@@ -571,4 +571,68 @@ public class TemplateManagerDbTest {
     assertEquals("top-level access is required", e.getMessage());
   }
 
+
+  /**
+   Lab/Hub connects to k8s to manage a personal workload for preview templates
+   https://www.pivotaltracker.com/story/show/183576743
+   */
+
+  /**
+   Preview Nexus reads one currently-playing preview template for the authenticated user
+   https://www.pivotaltracker.com/story/show/183576743
+   */
+  @Test
+  public void readOnePlayingForUser() throws Exception {
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Admin");
+    test.insert(buildTemplatePlayback(template1a, fake.user2));
+
+    Optional<Template> result = testManager.readOnePlayingForUser(access, fake.user2.getId());
+
+    assertTrue(result.isPresent());
+  }
+
+  /**
+   Preview Nexus deactivates for the authenticated user when no template is playing
+   https://www.pivotaltracker.com/story/show/183576743
+   */
+  @Test
+  public void readOnePlayingForUser_noneIfNonePlaying() throws Exception {
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Admin");
+
+    Optional<Template> result = testManager.readOnePlayingForUser(access, fake.user2.getId());
+
+    assertTrue(result.isEmpty());
+  }
+
+  /**
+   Preview Nexus deactivates for the authenticated user when template playback is expired
+   https://www.pivotaltracker.com/story/show/183576743
+   */
+  @Test
+  public void readOnePlayingForUser_noneIfPlaybackExpired() throws Exception {
+    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Admin");
+    var playback = buildTemplatePlayback(template1a, fake.user2);
+    playback.setCreatedAt(Timestamp.from(Instant.now().minusSeconds(60 * 60 * 24)).toLocalDateTime());
+    test.insert(playback);
+
+    Optional<Template> result = testManager.readOnePlayingForUser(access, fake.user2.getId());
+
+    assertTrue(result.isEmpty());
+  }
+
+  /**
+   Preview Nexus deactivates for the authenticated user when template playback is expired
+   https://www.pivotaltracker.com/story/show/183576743
+   */
+  @Test
+  public void readOnePlayingForUser_byInternalAccess() throws Exception {
+    HubAccess access = HubAccess.internal();
+    var playback = buildTemplatePlayback(template1a, fake.user2);
+    playback.setCreatedAt(Timestamp.from(Instant.now().minusSeconds(60 * 60 * 24)).toLocalDateTime());
+    test.insert(playback);
+
+    Optional<Template> result = testManager.readOnePlayingForUser(access, fake.user2.getId());
+
+    assertTrue(result.isEmpty());
+  }
 }

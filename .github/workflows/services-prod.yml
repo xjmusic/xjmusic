@@ -87,36 +87,6 @@ jobs:
       - name: Nothing left TODO
         run: .github/nothing_left_todo.sh
 
-      - name: (AWS) Configure Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
-      - name: (AWS) Login to Elastic Container Registry (ECR)
-        uses: aws-actions/amazon-ecr-login@v1
-
-      - name: (AWS) Authenticate with Elastic Kubernetes Service (EKS)
-        run: aws eks --region ${{ secrets.AWS_DEFAULT_REGION }} update-kubeconfig --name ${{ secrets.CLUSTER_NAME }}
-
-      - name: (AWS) Update the aws-cli
-        run: pip3 install awscli --upgrade --user
-
-      - name: (AWS) rewrite the kube-config
-        run: aws eks update-kubeconfig --name ${{ secrets.CLUSTER_NAME }} --region ${{ secrets.AWS_DEFAULT_REGION }}
-
-      - name: (AWS) Build & push Docker images
-        run: |
-          ./gradlew --info --no-daemon \
-            -PjibFromImage=027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/base:latest \
-            -PjibToImageRegistry=027141088039.dkr.ecr.us-east-1.amazonaws.com/xj \
-            jib
-        continue-on-error: false
-
-      - name: (AWS) Kubernetes rollout Lab/Hub
-        run: kubectl -n lab rollout restart deployment/hub
-
       - name: (GCP) Authenticate and setup Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v0.3.0
         with:
@@ -139,13 +109,7 @@ jobs:
             jib
         continue-on-error: false
 
-      - name: (GCP) Kubernetes rollout Lab/Nexus
-        run: kubectl -n lab rollout restart deployment/nexus
-
-      - name: (GCP) Kubernetes rollout Fabrication
+      - name: (GCP) Kubernetes rollout
         run: |
-          kubectl -n yard rollout restart deployment/bump-chill-nexus deployment/bump-chill-ship
-          kubectl -n yard rollout restart deployment/bump-deep-nexus deployment/bump-deep-ship
-          kubectl -n yard rollout restart deployment/slaps-lofi-nexus deployment/slaps-lofi-ship
-          kubectl -n yard rollout restart deployment/space-binaural-nexus deployment/space-binaural-ship
-          kubectl -n yard rollout restart deployment/space-flow-nexus deployment/space-flow-ship
+          kubectl -n yard rollout restart deployment
+          kubectl -n lab rollout restart deployment

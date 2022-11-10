@@ -11,10 +11,10 @@ import com.google.inject.util.Modules;
 import io.xj.hub.HubTopology;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
+import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.manager.ManagerException;
 import io.xj.hub.manager.ManagerModule;
 import io.xj.hub.manager.TemplateManager;
-import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Template;
@@ -38,7 +38,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import static io.xj.hub.IntegrationTestingFixtures.*;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplateBinding;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplatePlayback;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplatePublication;
+import static io.xj.hub.IntegrationTestingFixtures.buildUser;
 import static io.xj.hub.access.HubAccess.CONTEXT_KEY;
 import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
 import static org.junit.Assert.assertEquals;
@@ -169,6 +175,27 @@ public class TemplateEndpointTest {
     assertTrue(result.hasEntity());
     JsonapiPayload resultJsonapiPayload = new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class);
     assertPayload(resultJsonapiPayload)
+      .hasDataOne("templates", template1.getId().toString());
+  }
+
+
+  /**
+   Preview template functionality is dope (not wack) https://www.pivotaltracker.com/story/show/183576743
+   */
+  @Test
+  public void readAllPlaying() throws ManagerException, IOException, JsonapiException {
+    access = HubAccess.internal();
+    when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
+    var user1 = buildUser("Jim", "jim@email.com", "https://pictures.com/jim.jpg", "Artist");
+    var template1 = buildTemplate(account25, "fonds", "ABC");
+    when(templateManager.readOnePlayingForUser(same(access), eq(user1.getId()))).thenReturn(Optional.of(template1));
+
+    Response result = subject.readAllPlaying(crc, user1.getId());
+
+    verify(templateManager).readOnePlayingForUser(same(access), eq(user1.getId()));
+    assertEquals(200, result.getStatus());
+    assertTrue(result.hasEntity());
+    assertPayload(new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class))
       .hasDataOne("templates", template1.getId().toString());
   }
 }

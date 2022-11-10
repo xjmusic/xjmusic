@@ -2,6 +2,7 @@
 package io.xj.hub.manager;
 
 import com.google.inject.AbstractModule;
+import io.xj.hub.kubernetes.KubernetesModule;
 
 public class ManagerModule extends AbstractModule {
   @Override
@@ -28,6 +29,7 @@ public class ManagerModule extends AbstractModule {
     bind(TemplatePlaybackManager.class).to(TemplatePlaybackManagerImpl.class);
     bind(TemplatePublicationManager.class).to(TemplatePublicationManagerImpl.class);
     bind(UserManager.class).to(UserManagerImpl.class);
+    install(new KubernetesModule());
   }
 
 }

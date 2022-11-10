@@ -4,7 +4,7 @@ package io.xj.hub.client;
 
 import io.xj.hub.tables.pojos.Template;
 
-import java.util.Collection;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -30,8 +30,9 @@ public interface HubClient {
    Read all Templates playing from Hub
 
    @return Templates currently playing
+   @param userId for which to read to template
    */
-  Collection<Template> readAllTemplatesPlaying() throws HubClientException;
+  Optional<Template> readPreviewTemplate(UUID userId) throws HubClientException;
 
   /**
    Load shipped content from a static file

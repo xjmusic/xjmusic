@@ -4,6 +4,8 @@ package io.xj.hub.manager;
 import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.TemplateType;
+import io.xj.hub.kubernetes.KubernetesAdmin;
+import io.xj.hub.kubernetes.KubernetesException;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.Template;
@@ -27,15 +29,18 @@ import static io.xj.hub.Tables.TEMPLATE;
 import static io.xj.hub.Tables.TEMPLATE_PLAYBACK;
 
 public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl<TemplatePlayback> implements TemplatePlaybackManager {
+  private final KubernetesAdmin kubernetesAdmin;
   private final long playbackExpireSeconds;
 
   @Inject
   public TemplatePlaybackManagerImpl(
     EntityFactory entityFactory,
     HubDatabaseProvider dbProvider,
+    KubernetesAdmin kubernetesAdmin,
     Environment env
   ) {
     super(entityFactory, dbProvider);
+    this.kubernetesAdmin = kubernetesAdmin;
 
     playbackExpireSeconds = env.getPlaybackExpireSeconds();
   }
@@ -63,8 +68,16 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl<Templ
         .where(TEMPLATE_PLAYBACK.USER_ID.eq(record.getUserId()))
         .or(TEMPLATE_PLAYBACK.TEMPLATE_ID.eq(record.getTemplateId()))
         .fetch()))
-      destroy(access, prior.getId());
-    return modelFrom(TemplatePlayback.class, executeCreate(db, TEMPLATE_PLAYBACK, record));
+      _destroy(access, prior.getId());
+
+    var created = modelFrom(TemplatePlayback.class, executeCreate(db, TEMPLATE_PLAYBACK, record));
+    try {
+      kubernetesAdmin.startPreviewNexus(access.getUserId(), template);
+    } catch (KubernetesException e) {
+      _destroy(access, created.getId());
+      throw new ManagerException(e);
+    }
+    return created;
   }
 
   @Override
@@ -96,18 +109,13 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl<Templ
 
   @Override
   public void destroy(HubAccess access, UUID id) throws ManagerException {
-    DSLContext db = dbProvider.getDSL();
+    _destroy(access, id);
 
-    if (!access.isTopLevel())
-      requireExists("Access to the template's account",
-        db.selectCount().from(TEMPLATE_PLAYBACK)
-          .join(TEMPLATE).on(TEMPLATE.ID.eq(TEMPLATE_PLAYBACK.TEMPLATE_ID))
-          .where(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
-          .fetchOne(0, int.class));
-
-    db.deleteFrom(TEMPLATE_PLAYBACK)
-      .where(TEMPLATE_PLAYBACK.ID.eq(id))
-      .execute();
+    try {
+      kubernetesAdmin.stopPreviewNexus(access.getUserId());
+    } catch (KubernetesException e) {
+      throw new ManagerException(e);
+    }
   }
 
   @Override
@@ -141,11 +149,32 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl<Templ
   }
 
   /**
+   Inner destroy method to avoid running
+   @param access control
+   @param id of template playback
+   @throws ManagerException on failure
+   */
+  private void _destroy(HubAccess access, UUID id) throws ManagerException {
+    DSLContext db = dbProvider.getDSL();
+
+    if (!access.isTopLevel())
+      requireExists("Access to the template's account",
+        db.selectCount().from(TEMPLATE_PLAYBACK)
+          .join(TEMPLATE).on(TEMPLATE.ID.eq(TEMPLATE_PLAYBACK.TEMPLATE_ID))
+          .where(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
+          .fetchOne(0, int.class));
+
+    db.deleteFrom(TEMPLATE_PLAYBACK)
+      .where(TEMPLATE_PLAYBACK.ID.eq(id))
+      .execute();
+  }
+
+  /**
    Read one record
 
-   @param db        DSL context
+   @param db     DSL context
    @param access control
-   @param id        to read
+   @param id     to read
    @return record
    @throws ManagerException on failure
    */

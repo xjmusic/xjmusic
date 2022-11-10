@@ -84,39 +84,6 @@ jobs:
         run: "./gradlew --info --no-daemon build test"
         continue-on-error: false
 
-      - name: (AWS) Configure Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
-      - name: (AWS) Login to Elastic Container Registry (ECR)
-        uses: aws-actions/amazon-ecr-login@v1
-
-      - name: (AWS) Authenticate with Elastic Kubernetes Service (EKS)
-        run: aws eks --region ${{ secrets.AWS_DEFAULT_REGION }} update-kubeconfig --name ${{ secrets.CLUSTER_NAME }}
-
-      - name: (AWS) Update the aws-cli
-        run: pip3 install awscli --upgrade --user
-
-      - name: (AWS) rewrite the kube-config
-        run: aws eks update-kubeconfig --name ${{ secrets.CLUSTER_NAME }} --region ${{ secrets.AWS_DEFAULT_REGION }}
-
-      - name: (AWS) Build & push Docker images
-        run: |
-          ./gradlew --info --no-daemon \
-            -PjibFromImage=027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/base:latest \
-            -PjibToImageRegistry=027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/dev \
-            jib
-        continue-on-error: false
-
-      - name: (AWS) Kubernetes rollout Dev/Hub
-        run: kubectl -n dev rollout restart deployment/hub
-
-      - name: (AWS) Kubernetes rollout Dev/HubLocal
-        run: kubectl -n dev rollout restart deployment/hub-local
-
       - name: (GCP) Authenticate and setup Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v0.3.0
         with:
@@ -138,3 +105,8 @@ jobs:
             -PjibToImageRegistry=gcr.io/xj-vpc-host-prod/dev \
             jib
         continue-on-error: false
+
+      - name: (GCP) Kubernetes rollout
+        run: |
+          kubectl -n dev rollout restart deployment
+

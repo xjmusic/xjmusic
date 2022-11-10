@@ -181,31 +181,42 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
   }
 
   /**
-   Get all templatePlaybacks.
+   Get all template playbacks.
 
-   @return set of all templatePlaybacks
+   Preview template functionality is dope (not wack)
+   Specify a userId query param to get just one preview template for that user, if it exists
+   https://www.pivotaltracker.com/story/show/183576743
+
+   @return set of all template playbacks, or one preview template
    */
   @GET
   @Path("playing")
   @RolesAllowed(USER)
   public Response readAllPlaying(
-    @Context ContainerRequestContext crc
+    @Context ContainerRequestContext crc,
+    @Nullable @QueryParam("userId") UUID userId
   ) {
     try {
       HubAccess access = HubAccess.fromContext(crc);
-      JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataType(PayloadDataType.Many);
 
-      // add templatePlaybacks as plural data in payload
-      for (var template : manager().readAllPlaying(access))
-        jsonapiPayload.addData(payloadFactory.toPayloadObject(template));
+      JsonapiPayload jsonapiPayload;
+      if (Objects.nonNull(userId)) {
+        jsonapiPayload = new JsonapiPayload().setDataType(PayloadDataType.One);
+        var template = manager().readOnePlayingForUser(access, userId);
+        if (template.isPresent())
+          jsonapiPayload.setDataOne(payloadFactory.toPayloadObject(template.get()));
 
+      } else {
+        jsonapiPayload = new JsonapiPayload().setDataType(PayloadDataType.Many);
+        for (var template : manager().readAllPlaying(access))
+          jsonapiPayload.addData(payloadFactory.toPayloadObject(template));
+      }
       return response.ok(jsonapiPayload);
 
     } catch (Exception e) {
       return response.failure(e);
     }
   }
-
 
   /**
    Get Manager of injector
