@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import static io.xj.lib.util.Values.MILLIS_PER_SECOND;
+
 /**
  Preview template functionality is dope (not wack)
  Lab/Hub connects to k8s to manage a personal workload for preview templates
@@ -47,42 +49,23 @@ public class KubernetesAdminImpl implements KubernetesAdmin {
   private final Logger LOG = LoggerFactory.getLogger(KubernetesAdminImpl.class);
   private final String labNamespace;
   private final int logTailLines;
+  private final int clientConfigExpirySeconds;
   private boolean isConfigured;
+  private long lastConfiguredMillis;
 
   @Inject
   public KubernetesAdminImpl(Environment env) {
     labNamespace = env.getKubernetesNamespaceLab();
     logTailLines = env.getKubernetesLogTailLines();
+    clientConfigExpirySeconds = env.getKubernetesClientConfigExpirySeconds();
 
-    ApiClient client;
-
-    try {
-      client = Config.fromCluster();
-      Configuration.setDefaultApiClient(client);
-      LOG.info("Kubernetes client configured from cluster; authenticated via {}", String.join(", ", client.getAuthentications().keySet()));
-      isConfigured = true;
-      return;
-    } catch (Exception ignored) {
-      LOG.warn("Kubernetes client could not be configured from cluster!");
-    }
-
-    try {
-      client = Config.defaultClient();
-      Configuration.setDefaultApiClient(client);
-      LOG.info("Configured default Kubernetes client: {}", String.join(", ", client.getAuthentications().keySet()));
-      isConfigured = true;
-      return;
-    } catch (Exception e) {
-      LOG.warn("Kubernetes default client could not be configured!");
-    }
-
-    LOG.warn("Kubernetes client is not configured.");
-    isConfigured = false;
+    isConfigured = _buildAndSetDefaultApiClient();
   }
 
   @Override
   public String getPreviewNexusLogs(UUID userId) {
-    if (!isConfigured) return "Kubernetes client is not configured!";
+    if (!buildAndSetDefaultApiClient())
+      return "Kubernetes client is not configured!";
 
     var name = computePreviewNexusDeploymentName(userId);
 
@@ -102,7 +85,7 @@ public class KubernetesAdminImpl implements KubernetesAdmin {
 
   @Override
   public void startPreviewNexus(UUID userId, Template template) throws KubernetesException {
-    if (!isConfigured) {
+    if (!buildAndSetDefaultApiClient()) {
       LOG.warn("Kubernetes client is not configured!");
       return;
     }
@@ -113,12 +96,53 @@ public class KubernetesAdminImpl implements KubernetesAdmin {
 
   @Override
   public void stopPreviewNexus(UUID userId) throws KubernetesException {
-    if (!isConfigured) {
+    if (!buildAndSetDefaultApiClient()) {
       LOG.warn("Kubernetes client is not configured!");
       return;
     }
     if (!previewNexusExists(userId)) return;
     updatePreviewNexus(userId, 0, null);
+  }
+
+  /**
+   Checks if the configuration needs to be reconfigured (based on expiry seconds) and return true if it is OK
+
+   @return true if configured
+   */
+  @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+  private boolean buildAndSetDefaultApiClient() {
+    if (lastConfiguredMillis + clientConfigExpirySeconds * MILLIS_PER_SECOND < System.currentTimeMillis())
+      isConfigured = _buildAndSetDefaultApiClient();
+    return isConfigured;
+  }
+
+  /**
+   Build and set the Kubernetes client
+   */
+  private boolean _buildAndSetDefaultApiClient() {
+    lastConfiguredMillis = System.currentTimeMillis();
+    ApiClient client;
+
+    try {
+      client = Config.fromCluster();
+      Configuration.setDefaultApiClient(client);
+      LOG.info("Kubernetes client configured from cluster; authenticated via {}", String.join(", ", client.getAuthentications().keySet()));
+      return true;
+    } catch (Exception ignored) {
+      LOG.warn("Kubernetes client could not be configured from cluster!");
+    }
+
+    try {
+      client = Config.defaultClient();
+      Configuration.setDefaultApiClient(client);
+      LOG.info("Configured default Kubernetes client: {}", String.join(", ", client.getAuthentications().keySet()));
+      return true;
+    } catch (Exception e) {
+      LOG.warn("Kubernetes default client could not be configured!");
+    }
+
+    LOG.warn("Kubernetes client is not configured.");
+    return false;
   }
 
   /**

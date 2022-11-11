@@ -205,6 +205,11 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl<Template> imp
   }
 
   @Override
+  public String readPreviewNexusLog(HubAccess access, UUID templateId) {
+    return templatePlaybackManager.readPreviewNexusLog(access, templateId);
+  }
+
+  @Override
   public Collection<Template> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
     if (Objects.nonNull(parentIds) && !parentIds.isEmpty()) {
       if (access.isTopLevel())

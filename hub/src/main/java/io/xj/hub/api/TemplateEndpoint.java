@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
+import io.xj.hub.kubernetes.KubernetesAdmin;
 import io.xj.hub.manager.ManagerCloner;
 import io.xj.hub.manager.ManagerException;
 import io.xj.hub.manager.TemplateManager;
@@ -13,6 +14,8 @@ import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.*;
 import io.xj.lib.util.CSV;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.annotation.security.RolesAllowed;
@@ -30,6 +33,8 @@ import java.util.UUID;
  */
 @Path("api/1/templates")
 public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
+  private static final Logger LOG = LoggerFactory.getLogger(TemplateEndpoint.class);
+  private final KubernetesAdmin kubernetesAdministrator;
   private final TemplateManager manager;
 
   /**
@@ -37,14 +42,16 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
    */
   @Inject
   public TemplateEndpoint(
-    TemplateManager manager,
+    EntityFactory entityFactory,
     HubDatabaseProvider dbProvider,
     JsonapiHttpResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
-    EntityFactory entityFactory
+    KubernetesAdmin kubernetesAdministrator,
+    TemplateManager templateManager
   ) {
     super(dbProvider, response, payloadFactory, entityFactory);
-    this.manager = manager;
+    this.manager = templateManager;
+    this.kubernetesAdministrator = kubernetesAdministrator;
   }
 
   /**
@@ -150,6 +157,32 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
       return response.notFound(manager.newInstance().getClass(), identifier);
 
     } catch (Exception e) {
+      return response.failure(e);
+    }
+  }
+
+  /**
+   Read logs for a preview template.
+
+   @return text/plain response.
+   */
+  @GET
+  @Path("{id}/log")
+  @RolesAllowed(USER)
+  public Response readLog(
+    @Context ContainerRequestContext crc,
+    @PathParam("id") UUID templateId
+  ) {
+    var access = HubAccess.fromContext(crc);
+
+    try {
+      return Response
+        .ok(manager.readPreviewNexusLog(access, templateId))
+        .type(javax.ws.rs.core.MediaType.TEXT_PLAIN_TYPE)
+        .build();
+
+    } catch (Exception e) {
+      LOG.error("Failed to read nexus preview log!", e);
       return response.failure(e);
     }
   }

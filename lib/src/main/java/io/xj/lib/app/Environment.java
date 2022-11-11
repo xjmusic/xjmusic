@@ -24,7 +24,6 @@ public class Environment {
   private static final int SECONDS_PER_HOUR = 60 * 60;
   private static final String WORK_ENV_NAME_PRODUCTION = "Production";
   private static final String WORK_ENV_NAME_PREVIEW = "Preview";
-  private static final String EMPTY = "";
   private final String accessLogFilename;
   private final String accessTokenDomain;
   private final String accessTokenName;
@@ -87,6 +86,7 @@ public class Environment {
   private final int fabricationPreviewLengthMaxHours;
   private final int httpClientPoolMaxPerRoute;
   private final int httpClientPoolMaxTotal;
+  private final int kubernetesClientConfigExpirySeconds;
   private final int kubernetesLogTailLines;
   private final int playbackExpireSeconds;
   private final int postgresPoolSizeMax;
@@ -119,6 +119,7 @@ public class Environment {
   private final int workRehydrateFabricatedAheadThreshold;
   private final int workTelemetryCycleSeconds;
   private final int workYardPollSeconds;
+  private static final String EMPTY = "";
 
   // This must be set manually by the bootstrap before starting the application
   private String appName;
@@ -164,6 +165,7 @@ public class Environment {
     ingestTokenName = readStr(vars, "INGEST_TOKEN_NAME", "access_token");
     ingestTokenValue = readStr(vars, "INGEST_TOKEN_VALUE", EMPTY);
     ingestURL = readStr(vars, "INGEST_URL", "http://localhost/");
+    kubernetesClientConfigExpirySeconds = readInt(vars, "KUBERNETES_CLIENT_CONFIG_EXPIRY_SECONDS", 3600);
     kubernetesLogTailLines = readInt(vars, "KUBERNETES_LOG_LINES", 24);
     kubernetesNamespaceLab = readStr(vars, "KUBERNETES_NAMESPACE_LAB", "lab");
     platformEnvironment = readStr(vars, "ENVIRONMENT", "dev");
@@ -624,6 +626,13 @@ public class Environment {
    */
   public String getKubernetesNamespaceLab() {
     return kubernetesNamespaceLab;
+  }
+
+  /**
+   @return the Kubernetes client config expiry seconds for scheduling preview template workloads https://www.pivotaltracker.com/story/show/183576743
+   */
+  public int getKubernetesClientConfigExpirySeconds() {
+    return kubernetesClientConfigExpirySeconds;
   }
 
   /**

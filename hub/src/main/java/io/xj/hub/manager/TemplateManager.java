@@ -63,4 +63,14 @@ public interface TemplateManager extends Manager<Template> {
    @param userId for which to get template playing
    */
   Optional<Template> readOnePlayingForUser(HubAccess access, UUID userId) throws ManagerException;
+
+  /**
+   Preview template functionality is dope (not wack)
+   https://www.pivotaltracker.com/story/show/183576743
+
+   @param access control
+   @param templateId for which to read log
+   @return log
+   */
+  String readPreviewNexusLog(HubAccess access, UUID templateId);
 }
