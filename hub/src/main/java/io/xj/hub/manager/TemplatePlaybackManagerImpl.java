@@ -16,6 +16,8 @@ import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.sql.Timestamp;
@@ -29,6 +31,7 @@ import static io.xj.hub.Tables.TEMPLATE;
 import static io.xj.hub.Tables.TEMPLATE_PLAYBACK;
 
 public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl<TemplatePlayback> implements TemplatePlaybackManager {
+  private final Logger LOG = LoggerFactory.getLogger(TemplatePlaybackManagerImpl.class);
   private final KubernetesAdmin kubernetesAdmin;
   private final long playbackExpireSeconds;
 
@@ -108,6 +111,45 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl<Templ
   }
 
   @Override
+  public Optional<TemplatePlayback> readOneForTemplate(HubAccess access, UUID templateId) throws ManagerException {
+    DSLContext db = dbProvider.getDSL();
+    var playbackRecord = access.isTopLevel()
+      ?
+      db.selectFrom(TEMPLATE_PLAYBACK)
+        .where(TEMPLATE_PLAYBACK.TEMPLATE_ID.eq(templateId))
+        .and(TEMPLATE_PLAYBACK.CREATED_AT.greaterThan(Timestamp.from(Instant.now().minusSeconds(playbackExpireSeconds)).toLocalDateTime()))
+        .fetchOne()
+      :
+      db.select(TEMPLATE_PLAYBACK.fields())
+        .from(TEMPLATE_PLAYBACK)
+        .join(TEMPLATE).on(TEMPLATE.ID.eq(TEMPLATE_PLAYBACK.TEMPLATE_ID))
+        .where(TEMPLATE_PLAYBACK.TEMPLATE_ID.eq(templateId))
+        .and(TEMPLATE_PLAYBACK.CREATED_AT.greaterThan(Timestamp.from(Instant.now().minusSeconds(playbackExpireSeconds)).toLocalDateTime()))
+        .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetchOne();
+
+    return Objects.nonNull(playbackRecord) ? Optional.of(modelFrom(TemplatePlayback.class, playbackRecord)) : Optional.empty();
+  }
+
+  @Override
+  public String readPreviewNexusLog(HubAccess access, UUID templateId) {
+    try {
+      var playback = readOneForTemplate(access, templateId);
+      if (playback.isEmpty())
+        return String.format("Template[%s] is not playing!", templateId);
+      return kubernetesAdmin.getPreviewNexusLogs(playback.get().getUserId());
+
+    } catch (ManagerException e) {
+      LOG.error("Failed to read template playback for Template[{}]", templateId, e);
+      return String.format("Failed to read template playback for Template[%s]: %s", templateId, e.getMessage());
+
+    } catch (KubernetesException e) {
+      LOG.error("Kubernetes client failed to read logs for Template[{}]", templateId, e);
+      return String.format("Kubernetes client failed to read logs for Template[%s]: %s", templateId, e.getMessage());
+    }
+  }
+
+  @Override
   public void destroy(HubAccess access, UUID id) throws ManagerException {
     _destroy(access, id);
 
@@ -150,8 +192,9 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl<Templ
 
   /**
    Inner destroy method to avoid running
+
    @param access control
-   @param id of template playback
+   @param id     of template playback
    @throws ManagerException on failure
    */
   private void _destroy(HubAccess access, UUID id) throws ManagerException {

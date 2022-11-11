@@ -5,7 +5,33 @@ import com.google.inject.Inject;
 import io.xj.hub.access.HubAccessControlProvider;
 import io.xj.hub.access.HubAccessLogFilter;
 import io.xj.hub.access.HubAccessTokenAuthFilter;
-import io.xj.hub.api.*;
+import io.xj.hub.api.AccountEndpoint;
+import io.xj.hub.api.AccountUserEndpoint;
+import io.xj.hub.api.AnalysisEndpoint;
+import io.xj.hub.api.AuthEndpoint;
+import io.xj.hub.api.ConfigEndpoint;
+import io.xj.hub.api.HealthEndpoint;
+import io.xj.hub.api.IngestEndpoint;
+import io.xj.hub.api.InstrumentAudioEndpoint;
+import io.xj.hub.api.InstrumentEndpoint;
+import io.xj.hub.api.InstrumentMemeEndpoint;
+import io.xj.hub.api.LibraryEndpoint;
+import io.xj.hub.api.ProgramEndpoint;
+import io.xj.hub.api.ProgramMemeEndpoint;
+import io.xj.hub.api.ProgramSequenceBindingEndpoint;
+import io.xj.hub.api.ProgramSequenceBindingMemeEndpoint;
+import io.xj.hub.api.ProgramSequenceChordEndpoint;
+import io.xj.hub.api.ProgramSequenceChordVoicingEndpoint;
+import io.xj.hub.api.ProgramSequenceEndpoint;
+import io.xj.hub.api.ProgramSequencePatternEndpoint;
+import io.xj.hub.api.ProgramSequencePatternEventEndpoint;
+import io.xj.hub.api.ProgramVoiceEndpoint;
+import io.xj.hub.api.ProgramVoiceTrackEndpoint;
+import io.xj.hub.api.TemplateBindingEndpoint;
+import io.xj.hub.api.TemplateEndpoint;
+import io.xj.hub.api.TemplatePlaybackEndpoint;
+import io.xj.hub.api.TemplatePublicationEndpoint;
+import io.xj.hub.api.UserEndpoint;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.persistence.HubMigration;
 import io.xj.hub.persistence.HubPersistenceException;
@@ -44,7 +70,6 @@ public class HubApp extends App {
     InstrumentAudioEndpoint instrumentAudioEndpoint,
     InstrumentEndpoint instrumentEndpoint,
     InstrumentMemeEndpoint instrumentMemeEndpoint,
-    KubernetesEndpoint kubernetesEndpoint,
     LibraryEndpoint libraryEndpoint,
     ProgramEndpoint programEndpoint,
     ProgramMemeEndpoint programMemeEndpoint,
@@ -75,7 +100,6 @@ public class HubApp extends App {
     getResourceConfig().register(instrumentAudioEndpoint);
     getResourceConfig().register(instrumentEndpoint);
     getResourceConfig().register(instrumentMemeEndpoint);
-    getResourceConfig().register(kubernetesEndpoint);
     getResourceConfig().register(libraryEndpoint);
     getResourceConfig().register(programEndpoint);
     getResourceConfig().register(programMemeEndpoint);
