@@ -74,7 +74,17 @@ public class ChordTest {
     assertEquals(PitchClass.Gs, Chord.of("C#m7/G#").getSlashRoot());
     assertEquals(PitchClass.A, Chord.of("Gsus4/A").getSlashRoot());
     assertEquals(PitchClass.A, Chord.of("G/A").getSlashRoot());
+  }
+
+  /**
+   XJ should correctly choose chords with tensions notated via slash and not confuse them with slash chords
+   https://www.pivotaltracker.com/story/show/183738228
+   */
+  @Test
+  public void getDescription_dontConfuseTensionWithSlash() {
     assertEquals("-", Chord.of("G#m/B").getDescription());
+    assertEquals("maj7/9", Chord.of("Gmaj7/9").getDescription());
+    assertEquals("maj7", Chord.of("Gmaj7/E").getDescription());
   }
 
   @Test
@@ -111,10 +121,27 @@ public class ChordTest {
   }
 
   /**
+   XJ should correctly choose chords with tensions notated via slash and not confuse them with slash chords
+   https://www.pivotaltracker.com/story/show/183738228
+   */
+  @Test
+  public void isAcceptable_dontConfuseTensionWithSlash() {
+    assertFalse(Chord.of("Fmaj7/9").isAcceptable(Chord.of("Fmaj7/G")));
+  }
+
+  /**
    Synonym of base chord should be accepted for slash chord https://www.pivotaltracker.com/story/show/183553280
    */
   @Test
   public void isAcceptable_sameBaseDifferentSlash() {
+    var c1 = Chord.of("C/G");
+    var c2 = Chord.of("C/E");
+    assertEquals(PitchClass.G, c1.getSlashRoot());
+    assertEquals(PitchClass.E, c2.getSlashRoot());
+    assertEquals(PitchClass.C, c1.getRoot());
+    assertEquals(PitchClass.C, c2.getRoot());
+    assertEquals("", c1.getDescription());
+    assertEquals("", c2.getDescription());
     assertTrue(Chord.of("C/G").isAcceptable(Chord.of("C/E")));
   }
 

@@ -23,8 +23,10 @@ public class SlashRootTest {
 
   @Test
   public void pre() {
-    assertEquals("Gm", SlashRoot.pre("Gm"));
-    assertEquals("Gm", SlashRoot.pre("Gm/Bb"));
+    assertEquals("",SlashRoot.of("/G").getPre());
+    assertEquals("maj7", SlashRoot.pre("maj7"));
+    assertEquals("m", SlashRoot.pre("m/Bb"));
+    assertEquals("", SlashRoot.pre("/G"));
   }
 
   @Test
@@ -33,24 +35,53 @@ public class SlashRootTest {
     assertTrue(SlashRoot.isPresent("Gm/Bb"));
   }
 
+
+  /**
+   XJ should correctly choose chords with tensions notated via slash and not confuse them with slash chords
+   https://www.pivotaltracker.com/story/show/183738228
+   */
   @Test
-  public void alphanumeric() {
-    assertEquals("9/13", SlashRoot.of("C 7/9/13").getPost());
-    assertEquals("9", SlashRoot.of("C 7/9").getPost());
+  public void onlyNotes() {
+    assertEquals("", SlashRoot.of("C 7/9/13").getPost());
+    assertEquals("", SlashRoot.of("C 7/9").getPost());
     assertEquals("E", SlashRoot.of("C 7/E").getPost());
   }
 
   @Test
   public void isSame() {
-    assertTrue(SlashRoot.of("C 7/9/13").isSame(SlashRoot.of("G 7/9/13")));
     assertTrue(SlashRoot.of("C/E").isSame(SlashRoot.of("A/E")));
   }
 
   @Test
   public void display() {
-    assertEquals("/9/13", SlashRoot.of("G 7/9/13").display(AdjSymbol.Sharp));
+    assertEquals("", SlashRoot.of("G 7/9/13").display(AdjSymbol.Sharp));
     assertEquals("/E", SlashRoot.of("A/E").display(AdjSymbol.Sharp));
     assertEquals("/Eb", SlashRoot.of("Ab/Eb").display(AdjSymbol.Flat));
     assertEquals("/D#", SlashRoot.of("Ab/Eb").display(AdjSymbol.Sharp));
   }
+
+  /**
+   XJ should correctly choose chords with tensions notated via slash and not confuse them with slash chords
+   https://www.pivotaltracker.com/story/show/183738228
+   */
+  @Test
+  public void constructor_dontConfuseTensionWithSlash() {
+    var tension = SlashRoot.of("C 7/9");
+    assertEquals("C 7/9", tension.getPre());
+    assertEquals(PitchClass.None,tension.getPitchClass());
+    assertEquals("",tension.getPost());
+  }
+
+
+  /**
+   XJ should correctly choose chords with tensions notated via slash and not confuse them with slash chords
+   https://www.pivotaltracker.com/story/show/183738228
+   */
+  @Test
+  public void isPresent_dontConfuseTensionWithSlash() {
+    assertTrue(SlashRoot.isPresent("C/E"));
+    assertFalse(SlashRoot.isPresent("C/9"));
+  }
+
+
 }

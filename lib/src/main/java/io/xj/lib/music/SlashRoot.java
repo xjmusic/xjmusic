@@ -11,10 +11,10 @@ import java.util.regex.Pattern;
  Root can be the root of a Chord, Key or Scale.
  */
 public class SlashRoot {
-  private static final Pattern rgxSlashPost = Pattern.compile("[^/]+/(.*)$");
-  private static final Pattern rgxSlashNote = Pattern.compile("/([ABCDEFG])$");
-  private static final Pattern rgxSlashNoteModified = Pattern.compile("/([ABCDEFG][♯#♭b])$");
-  private static final Pattern rgxSlashPre = Pattern.compile("^([^/]+)/");
+  private static final Pattern rgxSlashPost = Pattern.compile("[^/]*/([A-G♯#♭b]+)$");
+  private static final Pattern rgxSlashNote = Pattern.compile("/([A-G])$");
+  private static final Pattern rgxSlashNoteModified = Pattern.compile("/([A-G][♯#♭b])$");
+  private static final Pattern rgxSlashPre = Pattern.compile("^([^/]*)/");
   private static final String SLASH = "/";
   private static final String EMPTY = "";
   private final PitchClass pitchClass;
@@ -27,8 +27,8 @@ public class SlashRoot {
    @param name to parse slash root
    */
   private SlashRoot(String name) {
-    pre = name.contains(SLASH) ? Text.match(rgxSlashPre, name).orElse(EMPTY) : name;
     post = Text.match(rgxSlashPost, name).orElse(EMPTY);
+    pre = Strings.isNullOrEmpty(post) ? name : Text.match(rgxSlashPre, name).orElse(EMPTY);
     pitchClass =
       Text.match(rgxSlashNoteModified, name)
         .map(PitchClass::of)
@@ -73,17 +73,19 @@ public class SlashRoot {
    @param description to search for pre-slash content
    */
   public static String pre(String description) {
+    if (Strings.isNullOrEmpty(description)) return "";
+    if (Objects.equals(SLASH, description.substring(0, 1))) return "";
     return Text.match(rgxSlashPre, description).orElse(description);
   }
 
   /**
-   Return true if a slash is present in the given description
+   Return true if a slash is present in the given chord name
 
-   @param description to test for slash
+   @param name to test for slash
    @return true if slash is found
    */
-  public static boolean isPresent(String description) {
-    return description.contains(SLASH);
+  public static boolean isPresent(String name) {
+    return rgxSlashPost.matcher(name).find();
   }
 
   /**
