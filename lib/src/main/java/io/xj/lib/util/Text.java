@@ -547,6 +547,9 @@ public interface Text {
     if (!matcher.find())
       return Optional.empty();
 
+    if (0 == matcher.groupCount())
+      return Optional.empty();
+
     String match = matcher.group(1);
     if (Objects.isNull(match) || match.length() == 0)
       return Optional.empty();
