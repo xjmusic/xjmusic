@@ -31,6 +31,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -49,6 +50,7 @@ public class KubernetesAdminImpl implements KubernetesAdmin {
   private static final String RESOURCE_REQUIREMENT_KEY_CPU = "cpu";
   private static final String RESOURCE_REQUIREMENT_KEY_MEMORY = "memory";
   private static final String LOG_LINE_FILTER_PREFIX = "[main] ";
+  private static final String LOG_LINE_REMOVE = " i.x.n.w.NexusWorkImpl ";
   private final Logger LOG = LoggerFactory.getLogger(KubernetesAdminImpl.class);
   private final String labNamespace;
   private final int logTailLines;
@@ -84,6 +86,7 @@ public class KubernetesAdminImpl implements KubernetesAdmin {
       return lines.stream()
         .filter((L) -> Text.beginsWith(L, LOG_LINE_FILTER_PREFIX))
         .map((L) -> L.substring(LOG_LINE_FILTER_PREFIX.length()))
+        .map((L) -> L.replace(LOG_LINE_REMOVE, ""))
         .limit(logTailLines)
         .collect(Collectors.joining("\n"));
 
