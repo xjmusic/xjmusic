@@ -642,7 +642,7 @@ public class NexusWorkImpl implements NexusWork {
     try {
       template = hubClient.readPreviewTemplate(labUserId);
     } catch (HubClientException e) {
-      LOG.error("Failed to read preview template for User[{}] from Hub!", labUserId, e);
+      LOG.error("Failed to read preview template for User[{}] from Hub because {}", labUserId, e.getMessage());
       return false;
     }
 
@@ -653,7 +653,7 @@ public class NexusWorkImpl implements NexusWork {
     try {
       allFab = chains.readAllFabricating();
     } catch (ManagerFatalException | ManagerPrivilegeException e) {
-      LOG.error("Failed to retrieve all fabrication Chain(s)!", e);
+      LOG.error("Failed to retrieve all fabrication Chain(s) because {}", e.getMessage());
       return false;
     }
 
@@ -665,7 +665,7 @@ public class NexusWorkImpl implements NexusWork {
           createChainForTemplate(template.get())
             .orElseThrow(() -> new ManagerFatalException(String.format("Failed to create chain for Template[%s]", Templates.getIdentifier(template.get()))));
       } catch (ManagerFatalException e) {
-        LOG.error("Failed to start Chain(s) for playing Template(s)!", e);
+        LOG.error("Failed to start Chain(s) for playing Template(s) because {}", e.getMessage());
         return false;
       }
 
@@ -677,7 +677,7 @@ public class NexusWorkImpl implements NexusWork {
           chains.updateState(chain.getId(), ChainState.COMPLETE);
         }
       } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException | ManagerValidationException e) {
-        LOG.error("Failed to stop non-playing Chain(s)!", e);
+        LOG.error("Failed to stop non-playing Chain(s) because {}", e.getMessage());
         return false;
       }
 
@@ -705,7 +705,7 @@ public class NexusWorkImpl implements NexusWork {
       return Optional.of(chains.bootstrap(template.getType(), Chains.fromTemplate(template)));
 
     } catch (ManagerFatalException | ManagerPrivilegeException | ManagerValidationException | ManagerExistenceException e) {
-      LOG.error("Failed to bootstrap Template[{}]!", Templates.getIdentifier(template), e);
+      LOG.error("Failed to bootstrap Template[{}] because {}", Templates.getIdentifier(template), e.getMessage());
       return Optional.empty();
     }
   }
@@ -791,14 +791,14 @@ public class NexusWorkImpl implements NexusWork {
                   entities.add(entity);
                   childCount.getAndIncrement();
                 } catch (Exception e) {
-                  LOG.error("Could not deserialize Segment from shipped Chain JSON", e);
+                  LOG.error("Could not deserialize Segment from shipped Chain JSON because {}", e.getMessage());
                   success.set(false);
                 }
               });
             LOG.info("Read Segment[{}] and {} child entities", Segments.getIdentifier(segment), childCount);
 
           } catch (Exception e) {
-            LOG.error("Could not load Segment[{}]", Segments.getIdentifier(segment), e);
+            LOG.error("Could not load Segment[{}] because {}", Segments.getIdentifier(segment), e.getMessage());
             success.set(false);
           }
         });
@@ -845,5 +845,4 @@ public class NexusWorkImpl implements NexusWork {
     Active,
     Fail,
   }
-
 }
