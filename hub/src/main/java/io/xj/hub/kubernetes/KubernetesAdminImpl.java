@@ -21,6 +21,7 @@ import io.kubernetes.client.util.Yaml;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.app.Environment;
+import io.xj.lib.util.Text;
 import io.xj.lib.util.ValueException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static io.xj.lib.util.Values.MILLIS_PER_SECOND;
 
@@ -46,6 +48,7 @@ public class KubernetesAdminImpl implements KubernetesAdmin {
   private static final String SERVICE_TEMPLATE_YAML_PATH = "kubernetes/lab-nexus-preview-template.yaml";
   private static final String RESOURCE_REQUIREMENT_KEY_CPU = "cpu";
   private static final String RESOURCE_REQUIREMENT_KEY_MEMORY = "memory";
+  private static final String LOG_LINE_FILTER_PREFIX = "[main] ";
   private final Logger LOG = LoggerFactory.getLogger(KubernetesAdminImpl.class);
   private final String labNamespace;
   private final int logTailLines;
@@ -76,7 +79,13 @@ public class KubernetesAdminImpl implements KubernetesAdmin {
         return String.format("Kubernetes deployment %s not found!", name);
       }
       var containerName = Objects.requireNonNull(pods.getItems().get(0).getMetadata()).getName();
-      return api.readNamespacedPodLog(containerName, labNamespace, name, false, false, null, null, null, null, logTailLines, null);
+      var log = api.readNamespacedPodLog(containerName, labNamespace, name, false, false, null, null, null, null, logTailLines * 2, null);
+      var lines = List.of(Text.splitLines(log));
+      return lines.stream()
+        .filter((L) -> Text.beginsWith(L, LOG_LINE_FILTER_PREFIX))
+        .map((L) -> L.substring(LOG_LINE_FILTER_PREFIX.length()))
+        .limit(logTailLines)
+        .collect(Collectors.joining("\n"));
 
     } catch (ApiException e) {
       return String.format("Failed to get logs for %s", name);
