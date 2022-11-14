@@ -271,4 +271,14 @@ public class TextTest {
   public void reverseLines() {
     assertEquals("Three\nTwo\nOne", Text.reverseLines("One\nTwo\nThree"));
   }
+
+  @Test
+  public void beginsWith() {
+    assertTrue(Text.beginsWith("yellow", "yellow"));
+    assertTrue(Text.beginsWith("yellow", "yel"));
+    assertTrue(Text.beginsWith("yellow", "y"));
+    assertFalse(Text.beginsWith("yellow", "ell"));
+    assertFalse(Text.beginsWith("yel", "yellow"));
+    assertFalse(Text.beginsWith("yellow", "e"));
+  }
 }

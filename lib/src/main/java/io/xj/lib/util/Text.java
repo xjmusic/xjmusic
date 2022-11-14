@@ -580,4 +580,16 @@ public interface Text {
     Collections.reverse(lines);
     return String.join("\n", lines);
   }
+
+  /**
+   Whether the text begins with the given prefix
+
+   @param text   to test
+   @param prefix search at beginning only
+   @return true if text begins with prefix
+   */
+  static boolean beginsWith(String text, String prefix) {
+    return text.length() >= prefix.length()
+      && Objects.equals(text.substring(0, prefix.length()), prefix);
+  }
 }
