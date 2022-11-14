@@ -166,7 +166,7 @@ public class Environment {
     ingestTokenValue = readStr(vars, "INGEST_TOKEN_VALUE", EMPTY);
     ingestURL = readStr(vars, "INGEST_URL", "http://localhost/");
     kubernetesClientConfigExpirySeconds = readInt(vars, "KUBERNETES_CLIENT_CONFIG_EXPIRY_SECONDS", 3600);
-    kubernetesLogTailLines = readInt(vars, "KUBERNETES_LOG_LINES", 24);
+    kubernetesLogTailLines = readInt(vars, "KUBERNETES_LOG_LINES", 100);
     kubernetesNamespaceLab = readStr(vars, "KUBERNETES_NAMESPACE_LAB", "lab");
     platformEnvironment = readStr(vars, "ENVIRONMENT", "dev");
     playbackExpireSeconds = readInt(vars, "PLAYBACK_EXPIRE_SECONDS", SECONDS_PER_HOUR * 8);
