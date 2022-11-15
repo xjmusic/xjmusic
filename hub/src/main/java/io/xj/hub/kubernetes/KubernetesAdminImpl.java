@@ -12,10 +12,12 @@ import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.AppsV1Api;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1Deployment;
+import io.kubernetes.client.openapi.models.V1EnvFromSource;
 import io.kubernetes.client.openapi.models.V1EnvVar;
 import io.kubernetes.client.openapi.models.V1LabelSelector;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1ResourceRequirements;
+import io.kubernetes.client.openapi.models.V1SecretEnvSource;
 import io.kubernetes.client.util.Config;
 import io.kubernetes.client.util.Yaml;
 import io.xj.hub.TemplateConfig;
@@ -23,6 +25,7 @@ import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.app.Environment;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.ValueException;
+import io.xj.lib.util.Values;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,9 +34,8 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.xj.lib.util.Values.MILLIS_PER_SECOND;
 
@@ -46,23 +48,28 @@ import static io.xj.lib.util.Values.MILLIS_PER_SECOND;
 public class KubernetesAdminImpl implements KubernetesAdmin {
   private static final String PREVIEW_NEXUS_DEPLOYMENT_FORMAT = "nexus-preview-%s";
   private static final String LABEL_K8S_APP_KEY = "k8s-app";
-  private static final String SERVICE_TEMPLATE_YAML_PATH = "kubernetes/lab-nexus-preview-template.yaml";
+  private static final String SERVICE_TEMPLATE_YAML_PATH = "kubernetes/nexus-preview-template.yaml";
   private static final String RESOURCE_REQUIREMENT_KEY_CPU = "cpu";
   private static final String RESOURCE_REQUIREMENT_KEY_MEMORY = "memory";
   private static final String LOG_LINE_FILTER_PREFIX = "[main] ";
   private static final String LOG_LINE_REMOVE = " i.x.n.w.NexusWorkImpl ";
   private final Logger LOG = LoggerFactory.getLogger(KubernetesAdminImpl.class);
-  private final String labNamespace;
-  private final int logTailLines;
-  private final int clientConfigExpirySeconds;
   private boolean isConfigured;
+  private final String envSecretRefName;
+  private final String namespace;
+  private final String nexusImage;
+  private final int clientConfigExpirySeconds;
+  private final int logTailLines;
   private long lastConfiguredMillis;
 
   @Inject
   public KubernetesAdminImpl(Environment env) {
-    labNamespace = env.getKubernetesNamespaceLab();
-    logTailLines = env.getKubernetesLogTailLines();
     clientConfigExpirySeconds = env.getKubernetesClientConfigExpirySeconds();
+    envSecretRefName = env.getKubernetesContainerEnvSecretRefName();
+    namespace = env.getKubernetesNamespace();
+    logTailLines = env.getKubernetesLogTailLines();
+    nexusImage = env.getKubernetesNexusImage();
+    LOG.info("Kubernetes client will create containers namespace={} with secretRef={}", namespace, envSecretRefName);
 
     isConfigured = _buildAndSetDefaultApiClient();
   }
@@ -76,19 +83,17 @@ public class KubernetesAdminImpl implements KubernetesAdmin {
 
     try {
       var api = new CoreV1Api();
-      var pods = api.listNamespacedPod(labNamespace, null, null, null, null, String.format("%s=%s", LABEL_K8S_APP_KEY, name), null, null, null, null, null);
+      var pods = api.listNamespacedPod(namespace, null, null, null, null, String.format("%s=%s", LABEL_K8S_APP_KEY, name), null, null, null, null, null);
       if (pods.getItems().isEmpty()) {
         return String.format("Kubernetes deployment %s not found!", name);
       }
       var containerName = Objects.requireNonNull(pods.getItems().get(0).getMetadata()).getName();
-      var log = api.readNamespacedPodLog(containerName, labNamespace, name, false, false, null, null, null, null, logTailLines * 2, null);
-      var lines = List.of(Text.splitLines(log));
-      return lines.stream()
+      var log = api.readNamespacedPodLog(containerName, namespace, name, false, false, null, null, null, null, logTailLines * 2, null);
+      var lines = Stream.of(Text.splitLines(log))
         .filter((L) -> Text.beginsWith(L, LOG_LINE_FILTER_PREFIX))
         .map((L) -> L.substring(LOG_LINE_FILTER_PREFIX.length()))
-        .map((L) -> L.replace(LOG_LINE_REMOVE, ""))
-        .limit(logTailLines)
-        .collect(Collectors.joining("\n"));
+        .map((L) -> L.replace(LOG_LINE_REMOVE, "")).toList();
+      return String.join("\n", Values.last(logTailLines, lines));
 
     } catch (ApiException e) {
       return String.format("Failed to get logs for %s", name);
@@ -168,7 +173,7 @@ public class KubernetesAdminImpl implements KubernetesAdmin {
       var name = computePreviewNexusDeploymentName(userId);
       LOG.info("Kubernetes will create deployment {}", name);
 
-      (new AppsV1Api()).createNamespacedDeployment(labNamespace, computePreviewNexusDeployment(userId, 0, null), null, null, null, null);
+      (new AppsV1Api()).createNamespacedDeployment(namespace, computePreviewNexusDeployment(userId, 0, null), null, null, null, null);
 
     } catch (IOException e) {
       LOG.error("Failed to connect to Kubernetes API!", e);
@@ -193,7 +198,7 @@ public class KubernetesAdminImpl implements KubernetesAdmin {
       var name = computePreviewNexusDeploymentName(userId);
       LOG.info("Kubernetes will scale deployment {} to {} replicas", name, replicas);
 
-      (new AppsV1Api()).replaceNamespacedDeployment(name, labNamespace, computePreviewNexusDeployment(userId, replicas, template), null, null, null, null);
+      (new AppsV1Api()).replaceNamespacedDeployment(name, namespace, computePreviewNexusDeployment(userId, replicas, template), null, null, null, null);
 
     } catch (IOException e) {
       LOG.error("Failed to connect to Kubernetes API!", e);
@@ -215,7 +220,7 @@ public class KubernetesAdminImpl implements KubernetesAdmin {
     try {
       var name = computePreviewNexusDeploymentName(userId);
       var api = new AppsV1Api();
-      api.readNamespacedDeployment(name, labNamespace, null);
+      api.readNamespacedDeployment(name, namespace, null);
       return true;
 
     } catch (ApiException e) {
@@ -239,7 +244,7 @@ public class KubernetesAdminImpl implements KubernetesAdmin {
 
     // metadata for deployment and spec template
     V1ObjectMeta metadata = new V1ObjectMeta();
-    metadata.setNamespace(labNamespace);
+    metadata.setNamespace(namespace);
     metadata.setName(name);
     metadata.setLabels(ImmutableMap.of(LABEL_K8S_APP_KEY, name));
 
@@ -261,11 +266,18 @@ public class KubernetesAdminImpl implements KubernetesAdmin {
     Objects.requireNonNull(deployment.getSpec().getTemplate().getSpec());
     var container = deployment.getSpec().getTemplate().getSpec().getContainers().get(0);
     container.setName(name);
+    container.setImage(nexusImage);
 
     V1EnvVar userIdEnvVar = new V1EnvVar();
     userIdEnvVar.setName(Environment.FABRICATION_PREVIEW_USER_ID);
     userIdEnvVar.setValue(userId.toString());
     container.setEnv(List.of(userIdEnvVar));
+    V1EnvFromSource envFromSource = new V1EnvFromSource();
+    V1SecretEnvSource secretRef = new V1SecretEnvSource();
+    secretRef.setName(envSecretRefName);
+    envFromSource.secretRef(secretRef);
+    List<V1EnvFromSource> envFrom = List.of(envFromSource);
+    container.setEnvFrom(envFrom);
     if (Objects.nonNull(template)) try {
       var templateConfig = new TemplateConfig(template);
       V1ResourceRequirements resources = new V1ResourceRequirements();
