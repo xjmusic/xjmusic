@@ -473,12 +473,23 @@ public interface Values {
   }
 
   /**
-   Return string value of int, or empty if zero
+   Get string value of int, or empty if zero
 
    @param value to translate
    @return non-zero value, or empty
    */
   static String emptyZero(int value) {
     return 0 != value ? String.valueOf(value) : "";
+  }
+
+  /**
+   Get the last N values from a list
+
+   @param num  of entries
+   @param list of all entries
+   @return last N entries from the list
+   */
+  static List<String> last(int num, List<String> list) {
+    return list.subList(Math.min(list.size(), Math.max(0, list.size() - num)), list.size());
   }
 }

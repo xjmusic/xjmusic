@@ -50,7 +50,9 @@ public class Environment {
   private final String ingestTokenName;
   private final String ingestTokenValue;
   private final String ingestURL;
-  private final String kubernetesNamespaceLab;
+  private final String kubernetesContainerEnvSecretRefName;
+  private final String kubernetesNamespace;
+  private final String kubernetesNexusImage;
   private final String platformEnvironment;
   private final String playerBaseURL;
   private final String postgresDatabase;
@@ -166,8 +168,10 @@ public class Environment {
     ingestTokenValue = readStr(vars, "INGEST_TOKEN_VALUE", EMPTY);
     ingestURL = readStr(vars, "INGEST_URL", "http://localhost/");
     kubernetesClientConfigExpirySeconds = readInt(vars, "KUBERNETES_CLIENT_CONFIG_EXPIRY_SECONDS", 3600);
-    kubernetesLogTailLines = readInt(vars, "KUBERNETES_LOG_LINES", 100);
-    kubernetesNamespaceLab = readStr(vars, "KUBERNETES_NAMESPACE_LAB", "lab");
+    kubernetesContainerEnvSecretRefName = readStr(vars, "KUBERNETES_CONTAINER_ENV_SECRET_REF_NAME", "prod.env");
+    kubernetesLogTailLines = readInt(vars, "KUBERNETES_LOG_LINES", 40);
+    kubernetesNamespace = readStr(vars, "KUBERNETES_NAMESPACE", "lab");
+    kubernetesNexusImage = readStr(vars, "KUBERNETES_NEXUS_IMAGE", "gcr.io/xj-vpc-host-prod/nexus:latest");
     platformEnvironment = readStr(vars, "ENVIRONMENT", "dev");
     playbackExpireSeconds = readInt(vars, "PLAYBACK_EXPIRE_SECONDS", SECONDS_PER_HOUR * 8);
     playerBaseURL = readStr(vars, "PLAYER_BASE_URL", "http://localhost/");
@@ -615,6 +619,13 @@ public class Environment {
   }
 
   /**
+   @return name of Kubernetes to attach to containers https://www.pivotaltracker.com/story/show/183576743
+   */
+  public String getKubernetesContainerEnvSecretRefName() {
+    return kubernetesContainerEnvSecretRefName;
+  }
+
+  /**
    @return # of lines to log from tail of Kubernetes logs of preview template workloads https://www.pivotaltracker.com/story/show/183576743
    */
   public int getKubernetesLogTailLines() {
@@ -624,8 +635,15 @@ public class Environment {
   /**
    @return the Kubernetes namespace for scheduling preview template workloads https://www.pivotaltracker.com/story/show/183576743
    */
-  public String getKubernetesNamespaceLab() {
-    return kubernetesNamespaceLab;
+  public String getKubernetesNamespace() {
+    return kubernetesNamespace;
+  }
+
+  /**
+   @return the Kubernetes image for nexus https://www.pivotaltracker.com/story/show/183576743
+   */
+  public String getKubernetesNexusImage() {
+    return kubernetesNexusImage;
   }
 
   /**

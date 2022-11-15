@@ -242,4 +242,16 @@ public class ValuesTest {
     assertEquals("-12", Values.emptyZero(-12));
     assertEquals("", Values.emptyZero(0));
   }
+
+  @Test
+  public void last() {
+    var input = List.of("One", "Two", "Three");
+
+    assertEquals(List.of(), Values.last(-1, input));
+    assertEquals(List.of(), Values.last(0, input));
+    assertEquals(List.of("Three"), Values.last(1, input));
+    assertEquals(List.of("Two", "Three"), Values.last(2, input));
+    assertEquals(List.of("One", "Two", "Three"), Values.last(3, input));
+    assertEquals(List.of("One", "Two", "Three"), Values.last(4, input));
+  }
 }
