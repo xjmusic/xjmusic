@@ -1313,12 +1313,12 @@ class FabricatorImpl implements Fabricator {
       sourceMaterial().getMemesForInstrumentId(choice.getInstrumentId())
         .forEach(meme -> names.add(Text.toMeme(meme.getName())));
 
-    if (!MemeStack.from(templateConfig.getMemeTaxonomy(),
-      Stream.concat(
-        names.stream(),
-        getSegmentMemes().stream().map(SegmentMeme::toString)
-      ).collect(Collectors.toSet())).isValid()) {
-      addMessage(SegmentMessageType.ERROR, String.format("Refused to add Choice[%s] because the segment meme theorem would be violated by its additional Memes[%s]",
+    var memeStack = MemeStack.from(templateConfig.getMemeTaxonomy(),
+      getSegmentMemes().stream().map(SegmentMeme::toString).toList());
+
+    if (!memeStack.isAllowed(names)) {
+      addMessage(SegmentMessageType.ERROR, String.format("Refused to add Choice[%s] because adding Memes[%s] to MemeStack[%s] would result in an invalid meme stack theorem!",
+        memeStack.getConstellation(),
         Segments.describe(choice), CSV.join(names.stream().toList())));
       return false;
     }

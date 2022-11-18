@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.meme;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 
 import java.util.List;
@@ -81,6 +82,41 @@ public class MemeStackTest {
     assertTrue(MemeStack.from(MemeTaxonomy.empty(), List.of("JAMS", "LEMONS!")).isAllowed(List.of("4NOTE", "LEMONS")));
     assertFalse(MemeStack.from(MemeTaxonomy.empty(), List.of("JAMS", "ORANGES")).isAllowed(List.of("4NOTE", "LEMONS!")));
     assertTrue(MemeStack.from(MemeTaxonomy.empty(), List.of("JAMS", "LEMONS!")).isAllowed(List.of("4NOTE", "ORANGES")));
+  }
+
+  @Test
+  public void strongMemes_withTaxonomy() {
+    var taxonomy = MemeTaxonomy.fromList(List.of(
+      ImmutableMap.of(
+        "name", "VOXHOOK",
+        "memes", List.of("DONTLOOK", "NEEDU", "FLOAT", "ALLGO")
+      ),
+      ImmutableMap.of(
+        "name", "SEASON",
+        "memes", List.of("WINTER", "SPRING", "SUMMER", "FALL")
+      )));
+
+    assertTrue(MemeStack.from(taxonomy, List.of(
+      "!TIGHTY",
+      "4NOTE",
+      "ALLGO",
+      "EARTH",
+      "FIRE",
+      "KNOCKY",
+      "LARGE",
+      "NEW",
+      "OPEN",
+      "SMALL",
+      "STRAIGHT",
+      "STRONGMEME",
+      "WATER",
+      "WIDEOPEN",
+      "WIND")
+    ).isAllowed(List.of(
+      "SMALL",
+      "FIRE",
+      "STRONGMEME!"
+    )));
   }
 
   /**
