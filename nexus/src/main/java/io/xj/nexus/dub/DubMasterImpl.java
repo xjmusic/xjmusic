@@ -145,8 +145,13 @@ public class DubMasterImpl implements DubMaster {
     for (SegmentChoiceArrangementPick pick : fabricator.getPicks())
       try {
         var arrangement = fabricator.getArrangement(pick);
-        if (arrangement.isPresent() && !fabricator.getChoice(arrangement.get()).orElseThrow().getMute()) {
-          setupTarget(preroll, pick);
+        if (arrangement.isPresent()) {
+          var choice = fabricator.getChoice(arrangement.get());
+          if (choice.isPresent()) {
+            if (!choice.get().getMute()) {
+              setupTarget(preroll, pick);
+            }
+          }
         }
       } catch (Exception e) {
         warnings.add(e.getMessage() + " " + Text.formatStackTrace(e));

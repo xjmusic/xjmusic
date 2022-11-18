@@ -84,6 +84,16 @@ public class MemeStackTest {
     assertTrue(MemeStack.from(MemeTaxonomy.empty(), List.of("JAMS", "LEMONS!")).isAllowed(List.of("4NOTE", "ORANGES")));
   }
 
+  /**
+   Strong-meme like LEMONS! should always favor LEMONS https://www.pivotaltracker.com/story/show/180468772
+   */
+  @Test
+  public void strongMemes_okayToAddBothStrongAndRegular_butNotOnlyStrong() {
+    assertTrue(MemeStack.from(MemeTaxonomy.empty(), List.of("LEMONS", "LEMONS!")).isValid());
+    assertFalse(MemeStack.from(MemeTaxonomy.empty(), List.of("LEMONS!")).isValid());
+    assertTrue(MemeStack.from(MemeTaxonomy.empty(), List.of("LEMONS")).isAllowed(List.of("LEMONS!")));
+  }
+
   @Test
   public void strongMemes_withTaxonomy() {
     var taxonomy = MemeTaxonomy.fromList(List.of(
