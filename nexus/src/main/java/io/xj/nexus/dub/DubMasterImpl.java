@@ -144,8 +144,10 @@ public class DubMasterImpl implements DubMaster {
   private void doMixerTargetSetting(Double preroll) {
     for (SegmentChoiceArrangementPick pick : fabricator.getPicks())
       try {
-        if (!fabricator.getChoice(fabricator.getArrangement(pick).orElseThrow()).orElseThrow().getMute())
+        var arrangement = fabricator.getArrangement(pick);
+        if (arrangement.isPresent() && !fabricator.getChoice(arrangement.get()).orElseThrow().getMute()) {
           setupTarget(preroll, pick);
+        }
       } catch (Exception e) {
         warnings.add(e.getMessage() + " " + Text.formatStackTrace(e));
       }
