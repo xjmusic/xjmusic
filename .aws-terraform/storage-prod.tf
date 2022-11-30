@@ -602,3 +602,4 @@ resource "aws_s3_bucket" "aircraft-works-coolair" {
     redirect_all_requests_to = "https://xj.io/download"
   }
 }
+

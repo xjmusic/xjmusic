@@ -103,4 +103,3 @@ resource "aws_acm_certificate" "ambientmusicfoundation-org-redirect" {
   ]
   validation_method = "DNS"
 }
-
