@@ -105,7 +105,6 @@ public class InstrumentAudioManagerDbTest {
 
     var result = testManager.create(access, inputData);
 
-    verify(fileStoreProvider, times(0)).generateKey("instrument-" + fake.instrument202.getId() + "-audio", "wav");
     assertNotNull(result);
     assertEquals(fake.instrument201.getId(), result.getInstrumentId());
     assertEquals("maracas", result.getName());
@@ -138,7 +137,6 @@ public class InstrumentAudioManagerDbTest {
     var result = testManager.create(
       access, inputData);
 
-    verify(fileStoreProvider, times(0)).generateKey("instrument-" + fake.instrument202.getId() + "-audio", "wav");
     assertNull(result.getWaveformKey());
   }
 

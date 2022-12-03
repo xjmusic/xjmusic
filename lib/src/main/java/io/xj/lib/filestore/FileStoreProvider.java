@@ -18,16 +18,6 @@ public interface FileStoreProvider {
   S3UploadPolicy generateAudioUploadPolicy() throws FileStoreException;
 
   /**
-   Generate a new key of an object in AWS file storage (S3)
-   [#
-
-   @param prefix    of the key
-   @param extension of the key
-   @return key
-   */
-  String generateKey(String prefix, String extension);
-
-  /**
    Get the URL to upload an object to AWS file storage (S3)
 
    @return full URL
