@@ -13,6 +13,7 @@ import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.filestore.S3UploadPolicy;
 import io.xj.lib.jsonapi.JsonapiException;
+import io.xj.lib.music.Accidental;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
@@ -123,7 +124,7 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl<Instru
       Text.toAlphanumericHyphenated((String) fields.get(0)),
       Text.toAlphanumericHyphenated((String) fields.get(1)),
       Text.toAlphanumericHyphenated((String) fields.get(2)),
-      Text.toAlphanumericHyphenated(instrumentAudio.getName()),
+      Text.toAlphanumericHyphenated(Accidental.replaceWithExplicit(instrumentAudio.getName())),
       extension);
   }
 

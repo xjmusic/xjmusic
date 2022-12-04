@@ -54,10 +54,10 @@ public class SlashRootTest {
 
   @Test
   public void display() {
-    assertEquals("", SlashRoot.of("G 7/9/13").display(AdjSymbol.Sharp));
-    assertEquals("/E", SlashRoot.of("A/E").display(AdjSymbol.Sharp));
-    assertEquals("/Eb", SlashRoot.of("Ab/Eb").display(AdjSymbol.Flat));
-    assertEquals("/D#", SlashRoot.of("Ab/Eb").display(AdjSymbol.Sharp));
+    assertEquals("", SlashRoot.of("G 7/9/13").display(Accidental.Sharp));
+    assertEquals("/E", SlashRoot.of("A/E").display(Accidental.Sharp));
+    assertEquals("/Eb", SlashRoot.of("Ab/Eb").display(Accidental.Flat));
+    assertEquals("/D#", SlashRoot.of("Ab/Eb").display(Accidental.Sharp));
   }
 
   /**

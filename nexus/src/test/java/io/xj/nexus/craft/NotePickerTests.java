@@ -3,7 +3,7 @@ package io.xj.nexus.craft;
 
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.InstrumentType;
-import io.xj.lib.music.AdjSymbol;
+import io.xj.lib.music.Accidental;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.NoteRange;
 import io.xj.lib.util.CSV;
@@ -121,7 +121,7 @@ public class NotePickerTests extends YamlTest {
       assertSame("Range High-end", note, subject.getTargetRange().getHigh().orElseThrow()));
 
     var picked = subject.getPickedNotes().stream()
-      .map(n -> n.toString(AdjSymbol.Sharp))
+      .map(n -> n.toString(Accidental.Sharp))
       .collect(Collectors.toSet());
 
     Optional.ofNullable(getStr(obj, "picks"))

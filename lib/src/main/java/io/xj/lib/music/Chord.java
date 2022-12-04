@@ -17,7 +17,7 @@ public class Chord implements Comparable<Chord> {
   // Slash Root Pitch Class
   protected final SlashRoot slashRoot;
   // the (flat/sharp) adjustment symbol, which will be used to express this chord
-  protected final AdjSymbol adjSymbol;
+  protected final Accidental accidental;
 
   public Chord(String input) {
 
@@ -26,7 +26,7 @@ public class Chord implements Comparable<Chord> {
       description = "";
       root = PitchClass.None;
       slashRoot = SlashRoot.none();
-      adjSymbol = AdjSymbol.None;
+      accidental = Accidental.None;
       return;
     }
 
@@ -34,7 +34,7 @@ public class Chord implements Comparable<Chord> {
     var name = Text.stripExtraSpaces(input);
 
     // determine whether the name is "sharps" or "flats"
-    adjSymbol = AdjSymbol.of(name);
+    accidental = Accidental.of(name);
 
     // Root utility separates root from remaining text
     Root rooter = Root.of(name);
@@ -80,9 +80,9 @@ public class Chord implements Comparable<Chord> {
    */
   public String getName() {
     return String.format("%s%s%s",
-      root.toString(adjSymbol),
+      root.toString(accidental),
       Strings.isNullOrEmpty(description) ? "" : String.format(" %s", description),
-      slashRoot.display(adjSymbol));
+      slashRoot.display(accidental));
   }
 
   /**
@@ -102,8 +102,8 @@ public class Chord implements Comparable<Chord> {
   /**
    @return the chord adjustment symbol
    */
-  public AdjSymbol getAdjSymbol() {
-    return adjSymbol;
+  public Accidental getAdjSymbol() {
+    return accidental;
   }
 
   /**

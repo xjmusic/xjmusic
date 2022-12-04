@@ -21,7 +21,7 @@ import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.lib.entity.Entities;
-import io.xj.lib.music.AdjSymbol;
+import io.xj.lib.music.Accidental;
 import io.xj.lib.music.Bar;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
@@ -853,7 +853,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     }).findAny();
 
     if (audio.isEmpty()) {
-      reportMissing(ImmutableMap.of("instrumentId", instrument.getId().toString(), "searchForNote", note, "availableNotes", CSV.from(instrumentAudios.stream().map(InstrumentAudio::getTones).map(Note::of).sorted(Note::compareTo).map(N -> N.toString(AdjSymbol.Sharp)).collect(Collectors.toList()))));
+      reportMissing(ImmutableMap.of("instrumentId", instrument.getId().toString(), "searchForNote", note, "availableNotes", CSV.from(instrumentAudios.stream().map(InstrumentAudio::getTones).map(Note::of).sorted(Note::compareTo).map(N -> N.toString(Accidental.Sharp)).collect(Collectors.toList()))));
       return Optional.empty();
     }
 

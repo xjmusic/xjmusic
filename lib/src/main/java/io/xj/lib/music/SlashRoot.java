@@ -115,7 +115,7 @@ public class SlashRoot {
    @param withOptional adjustment symbol
    @return displayed slash root
    */
-  public String display(AdjSymbol withOptional) {
+  public String display(Accidental withOptional) {
     if (PitchClass.None != pitchClass)
       return String.format("/%s", pitchClass.toString(withOptional));
     else if (!Strings.isNullOrEmpty(post))

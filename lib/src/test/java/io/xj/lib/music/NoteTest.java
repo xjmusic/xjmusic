@@ -14,8 +14,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.annotation.Nullable;
-import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -53,8 +51,8 @@ public class NoteTest {
 
   @Test
   public void noteToString() {
-    assertEquals("C#5", Note.of("C#5").toString(AdjSymbol.Sharp));
-    assertEquals("Db5", Note.of("C#5").toString(AdjSymbol.Flat));
+    assertEquals("C#5", Note.of("C#5").toString(Accidental.Sharp));
+    assertEquals("Db5", Note.of("C#5").toString(Accidental.Flat));
   }
 
   @Test
@@ -146,7 +144,7 @@ public class NoteTest {
           Note.of("F#2"))
         .stream()
         .sorted(Note::compareTo)
-        .map(note -> note.toString(AdjSymbol.Sharp))
+        .map(note -> note.toString(Accidental.Sharp))
         .collect(Collectors.joining(","))
     );
   }
