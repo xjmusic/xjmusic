@@ -146,8 +146,8 @@ resource "aws_iam_user_policy" "xj-ci" {
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy
 resource "aws_iam_policy" "xj-ci-prod" {
-  name = "xj-ci-prod"
-  path = "/"
+  name        = "xj-ci-prod"
+  path        = "/"
   description = "XJ CI user prod"
 
   policy = jsonencode({
@@ -176,6 +176,8 @@ resource "aws_iam_policy" "xj-ci-prod" {
           "${aws_s3_bucket.xj-status.arn}/*",
           aws_s3_bucket.xj-lab.arn,
           "${aws_s3_bucket.xj-lab.arn}/*",
+          aws_s3_bucket.xjmusic-com-podcast.arn,
+          "${aws_s3_bucket.xjmusic-com-podcast.arn}/*",
         ]
       },
     ]
@@ -184,8 +186,8 @@ resource "aws_iam_policy" "xj-ci-prod" {
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy
 resource "aws_iam_policy" "xj-ci-dev" {
-  name = "xj-ci-dev"
-  path = "/"
+  name        = "xj-ci-dev"
+  path        = "/"
   description = "XJ CI user dev"
 
   policy = jsonencode({
@@ -212,6 +214,8 @@ resource "aws_iam_policy" "xj-ci-dev" {
           "${aws_s3_bucket.xj-dev-status.arn}/*",
           aws_s3_bucket.xj-dev-stream.arn,
           "${aws_s3_bucket.xj-dev-stream.arn}/*",
+          aws_s3_bucket.xjmusic-com-dev-podcast.arn,
+          "${aws_s3_bucket.xjmusic-com-dev-podcast.arn}/*",
         ]
       },
     ]
@@ -220,8 +224,8 @@ resource "aws_iam_policy" "xj-ci-dev" {
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy
 resource "aws_iam_policy" "xj-ci-aircraft-prod" {
-  name = "xj-ci-aircraft-prod"
-  path = "/"
+  name        = "xj-ci-aircraft-prod"
+  path        = "/"
   description = "XJ CI user prod"
 
   policy = jsonencode({
@@ -250,8 +254,8 @@ resource "aws_iam_policy" "xj-ci-aircraft-prod" {
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy
 resource "aws_iam_policy" "xj-ci-aircraft-dev" {
-  name = "xj-ci-aircraft-dev"
-  path = "/"
+  name        = "xj-ci-aircraft-dev"
+  path        = "/"
   description = "XJ CI user dev"
 
   policy = jsonencode({
@@ -546,18 +550,6 @@ resource "aws_iam_user_policy" "xj-dev" {
       }
     ]
   })
-}
-
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret
-resource "aws_secretsmanager_secret" "xj-prod-env" {
-  name        = "xj-prod-env"
-  description = "Name of AWS secret comprising environment KEY=VALUE lines, for production"
-}
-
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret
-resource "aws_secretsmanager_secret" "xj-dev-env" {
-  name        = "xj-dev-env"
-  description = "Name of AWS secret comprising environment KEY=VALUE lines, for development"
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user

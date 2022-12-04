@@ -133,7 +133,7 @@ public enum PitchClass {
     if (Objects.isNull(text) || text.length() <= 1)
       return 0;
 
-    switch (AdjSymbol.firstOf(text.substring(1))) {
+    switch (Accidental.firstOf(text.substring(1))) {
       case Sharp:
         return 1;
       case Flat:
@@ -220,7 +220,7 @@ public enum PitchClass {
    @param with adjustment symbol
    @return pitch class with adjustment symbol
    */
-  public String toString(AdjSymbol with) {
+  public String toString(Accidental with) {
     return stringOf(this, with);
   }
 
@@ -248,7 +248,7 @@ public enum PitchClass {
    @param with adjustment symbol
    @return string of pitch class
    */
-  private String stringOf(PitchClass from, AdjSymbol with) {
+  private String stringOf(PitchClass from, Accidental with) {
     switch (this) {
       case C:
         return "C";
@@ -266,9 +266,9 @@ public enum PitchClass {
         return "B";
     }
 
-    if (with == AdjSymbol.Sharp)
+    if (with == Accidental.Sharp)
       return stringSharpOf(from);
-    else if (with == AdjSymbol.Flat)
+    else if (with == Accidental.Flat)
       return stringFlatOf(from);
     else
       return "X";

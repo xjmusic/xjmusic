@@ -133,11 +133,11 @@ public class Note implements Comparable<Note> {
   /**
    Note to String
 
-   @param adjSymbol to represent note with
+   @param accidental to represent note with
    @return string representation of Note
    */
-  public String toString(AdjSymbol adjSymbol) {
-    return String.format("%s%s", pitchClass.toString(adjSymbol), octave);
+  public String toString(Accidental accidental) {
+    return String.format("%s%s", pitchClass.toString(accidental), octave);
   }
 
   /**

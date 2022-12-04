@@ -52,14 +52,6 @@ public class FileStoreProviderImplTest {
   }
 
   @Test
-  public void generateKey() {
-    String result = fileStoreProvider.generateKey("file-name", "wav");
-
-    assertTrue("Contains file-name-", result.contains("file-name-"));
-    assertTrue("Contains .wav", result.contains(".wav"));
-  }
-
-  @Test
   public void getUploadUrl() throws Exception {
     String url = fileStoreProvider.getUploadURL();
 

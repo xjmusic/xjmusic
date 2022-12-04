@@ -108,7 +108,7 @@ public class NoteRangeTest {
 
   @Test
   public void outputToString() {
-    assertEquals("C3-F6", subject.toString(AdjSymbol.None));
+    assertEquals("C3-F6", subject.toString(Accidental.None));
   }
 
   @Test

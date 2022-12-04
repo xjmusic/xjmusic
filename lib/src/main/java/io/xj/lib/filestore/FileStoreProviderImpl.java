@@ -68,11 +68,6 @@ class FileStoreProviderImpl implements FileStoreProvider {
   }
 
   @Override
-  public String generateKey(String filename, String extension) {
-    return String.format("%s%s%s.%s", filename, NAME_SEPARATOR, UUID.randomUUID(), extension);
-  }
-
-  @Override
   public String getUploadURL() {
     return audioUploadUrl;
   }

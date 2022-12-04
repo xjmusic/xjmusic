@@ -23,9 +23,4 @@ public class TremendouslyRandomTest {
     assertTrue(76.0 > result);
   }
 
-  @Test
-  public void generateKey() {
-    assertEquals(10, TremendouslyRandom.generateShipKey(10).length());
-  }
-
 }

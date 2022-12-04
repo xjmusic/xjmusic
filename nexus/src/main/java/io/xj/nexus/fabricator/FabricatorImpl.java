@@ -41,7 +41,7 @@ import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.meme.MemeStack;
-import io.xj.lib.music.AdjSymbol;
+import io.xj.lib.music.Accidental;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.NoteRange;
@@ -716,7 +716,7 @@ class FabricatorImpl implements Fabricator {
 
   @Override
   public int getProgramRangeShiftOctaves(InstrumentType type, NoteRange sourceRange, NoteRange targetRange) throws NexusException {
-    var key = String.format("%s__%s__%s", type, sourceRange.toString(AdjSymbol.None), targetRange.toString(AdjSymbol.None));
+    var key = String.format("%s__%s__%s", type, sourceRange.toString(Accidental.None), targetRange.toString(Accidental.None));
 
     if (!rangeShiftOctave.containsKey(key)) switch (type) {
 

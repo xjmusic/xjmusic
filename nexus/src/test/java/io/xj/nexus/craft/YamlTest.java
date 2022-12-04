@@ -2,7 +2,7 @@
 package io.xj.nexus.craft;
 
 import com.google.common.collect.Sets;
-import io.xj.lib.music.AdjSymbol;
+import io.xj.lib.music.Accidental;
 import io.xj.lib.music.Note;
 import org.junit.After;
 import org.junit.Before;
@@ -62,8 +62,8 @@ public abstract class YamlTest {
   protected void assertSame(String description, Note expected, Note actual) {
     if (!expected.sameAs(actual))
       failures.add(String.format("%s — Expected: %s — Actual: %s", description,
-        expected.toString(AdjSymbol.Sharp),
-        actual.toString(AdjSymbol.Sharp)
+        expected.toString(Accidental.Sharp),
+        actual.toString(Accidental.Sharp)
       ));
   }
 
@@ -73,12 +73,12 @@ public abstract class YamlTest {
         expected.stream()
           .map(Note::of)
           .sorted(Note::compareTo)
-          .map(n -> n.toString(AdjSymbol.Sharp))
+          .map(n -> n.toString(Accidental.Sharp))
           .collect(Collectors.toList()),
         actual.stream()
           .map(Note::of)
           .sorted(Note::compareTo)
-          .map(n -> n.toString(AdjSymbol.Sharp))
+          .map(n -> n.toString(Accidental.Sharp))
           .collect(Collectors.toList())));
     }
   }

@@ -90,13 +90,13 @@ public class NoteRange {
     return Optional.ofNullable(span);
   }
 
-  public String toString(AdjSymbol adjSymbol) {
+  public String toString(Accidental accidental) {
     if (Objects.nonNull(low) && Objects.nonNull(high))
-      return String.format("%s-%s", low.toString(adjSymbol), high.toString(adjSymbol));
+      return String.format("%s-%s", low.toString(accidental), high.toString(accidental));
     if (Objects.nonNull(low))
-      return String.format("%s", low.toString(adjSymbol));
+      return String.format("%s", low.toString(accidental));
     if (Objects.nonNull(high))
-      return String.format("%s", high.toString(adjSymbol));
+      return String.format("%s", high.toString(accidental));
     return UNKNOWN;
   }
 

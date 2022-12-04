@@ -120,8 +120,6 @@ public class ComplexLibraryTest {
 
   @Test
   public void fabricatesManySegments() throws Exception {
-    when(fileStoreProvider.generateKey(any(), any()))
-      .thenReturn("chains-1-segments-12345.wav");
     when(httpResponseEntity.getContent())
       .thenAnswer((Answer<InputStream>) invocation -> new FileInputStream(Objects.requireNonNull(
         ComplexLibraryTest.class.getClassLoader().getResource("source_audio/kick1.wav")).getFile()));

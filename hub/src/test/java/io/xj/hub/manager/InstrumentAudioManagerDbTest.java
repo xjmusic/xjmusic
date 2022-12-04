@@ -105,7 +105,6 @@ public class InstrumentAudioManagerDbTest {
 
     var result = testManager.create(access, inputData);
 
-    verify(fileStoreProvider, times(0)).generateKey("instrument-" + fake.instrument202.getId() + "-audio", "wav");
     assertNotNull(result);
     assertEquals(fake.instrument201.getId(), result.getInstrumentId());
     assertEquals("maracas", result.getName());
@@ -138,7 +137,6 @@ public class InstrumentAudioManagerDbTest {
     var result = testManager.create(
       access, inputData);
 
-    verify(fileStoreProvider, times(0)).generateKey("instrument-" + fake.instrument202.getId() + "-audio", "wav");
     assertNull(result.getWaveformKey());
   }
 
@@ -202,9 +200,26 @@ public class InstrumentAudioManagerDbTest {
    */
   @Test
   public void computeKey() throws Exception {
+    fake.audio1.setName("C");
     var result = testManager.computeKey(test.getDSL(), fake.audio1, "wav");
 
-    assertEquals("bananas-sandwich-jams-Test-audio.wav", result);
+    assertEquals("bananas-sandwich-jams-C.wav", result);
+  }
+
+  /**
+   Uploading audios with accidental note same as existing non-accidental note should not produce error
+   https://www.pivotaltracker.com/story/show/183952419
+   */
+  @Test
+  public void computeKey_translateAccidentals() throws Exception {
+    fake.audio1.setName("C#");
+    assertEquals("bananas-sandwich-jams-Cs.wav", testManager.computeKey(test.getDSL(), fake.audio1, "wav"));
+    fake.audio1.setName("C♯");
+    assertEquals("bananas-sandwich-jams-Cs.wav", testManager.computeKey(test.getDSL(), fake.audio1, "wav"));
+    fake.audio1.setName("Cb");
+    assertEquals("bananas-sandwich-jams-Cb.wav", testManager.computeKey(test.getDSL(), fake.audio1, "wav"));
+    fake.audio1.setName("C♭");
+    assertEquals("bananas-sandwich-jams-Cb.wav", testManager.computeKey(test.getDSL(), fake.audio1, "wav"));
   }
 
   @Test
