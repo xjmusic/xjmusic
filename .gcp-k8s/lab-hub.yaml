@@ -72,7 +72,13 @@ spec:
             successThreshold: 1
             timeoutSeconds: 1
           name: hub
-          resources: {}
+          resources:
+            requests:
+              cpu: "1"
+              memory: 2G
+            limits:
+              cpu: "2"
+              memory: 4G
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
       serviceAccountName: hub-sa
