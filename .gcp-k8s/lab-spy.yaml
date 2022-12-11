@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: bug
+  name: spy
   labels:
-    app: bug
+    app: spy
   namespace: lab
 spec:
   containers:

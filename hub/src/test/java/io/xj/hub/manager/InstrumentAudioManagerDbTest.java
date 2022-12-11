@@ -200,10 +200,11 @@ public class InstrumentAudioManagerDbTest {
    */
   @Test
   public void computeKey() throws Exception {
-    fake.audio1.setName("C");
+    fake.audio1.setName("Piano");
+    fake.audio1.setTones("C3,G3");
     var result = testManager.computeKey(test.getDSL(), fake.audio1, "wav");
 
-    assertEquals("bananas-sandwich-jams-C.wav", result);
+    assertEquals("bananas-sandwich-jams-Piano-C3-G3.wav", result);
   }
 
   /**
@@ -212,14 +213,14 @@ public class InstrumentAudioManagerDbTest {
    */
   @Test
   public void computeKey_translateAccidentals() throws Exception {
-    fake.audio1.setName("C#");
-    assertEquals("bananas-sandwich-jams-Cs.wav", testManager.computeKey(test.getDSL(), fake.audio1, "wav"));
-    fake.audio1.setName("C♯");
-    assertEquals("bananas-sandwich-jams-Cs.wav", testManager.computeKey(test.getDSL(), fake.audio1, "wav"));
-    fake.audio1.setName("Cb");
-    assertEquals("bananas-sandwich-jams-Cb.wav", testManager.computeKey(test.getDSL(), fake.audio1, "wav"));
-    fake.audio1.setName("C♭");
-    assertEquals("bananas-sandwich-jams-Cb.wav", testManager.computeKey(test.getDSL(), fake.audio1, "wav"));
+    fake.audio1.setTones("C#");
+    assertEquals("bananas-sandwich-jams-Test-audio-Cs.wav", testManager.computeKey(test.getDSL(), fake.audio1, "wav"));
+    fake.audio1.setTones("C♯");
+    assertEquals("bananas-sandwich-jams-Test-audio-Cs.wav", testManager.computeKey(test.getDSL(), fake.audio1, "wav"));
+    fake.audio1.setTones("Cb");
+    assertEquals("bananas-sandwich-jams-Test-audio-Cb.wav", testManager.computeKey(test.getDSL(), fake.audio1, "wav"));
+    fake.audio1.setTones("C♭");
+    assertEquals("bananas-sandwich-jams-Test-audio-Cb.wav", testManager.computeKey(test.getDSL(), fake.audio1, "wav"));
   }
 
   @Test
@@ -239,7 +240,7 @@ public class InstrumentAudioManagerDbTest {
     Map<String, String> result = testManager.authorizeUpload(access, fake.audio2.getId(), "wav");
 
     assertNotNull(result);
-    assertEquals("bananas-sandwich-jams-Test-audio2.wav", result.get("waveformKey"));
+    assertEquals("bananas-sandwich-jams-Test-audio2-E.wav", result.get("waveformKey"));
     assertEquals("xj-audio-test", result.get("bucketName"));
     assertNotNull(result.get("uploadPolicySignature"));
     assertEquals("https://coconuts.com", result.get("uploadUrl"));
@@ -272,7 +273,7 @@ public class InstrumentAudioManagerDbTest {
     testManager.authorizeUpload(access, a1.getId(), "wav");
     var e = assertThrows(ManagerException.class, () -> testManager.authorizeUpload(access, a2.getId(), "wav"));
 
-    assertEquals("Generated key \"bananas-sandwich-jams-Test-audio.wav\" would overwrite existing audio- please change name of audio before uploading file.", e.getMessage());
+    assertEquals("Generated key \"bananas-sandwich-jams-Test-audio-X.wav\" would overwrite existing audio- please change name of audio before uploading file.", e.getMessage());
   }
 
 
