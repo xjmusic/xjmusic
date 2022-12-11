@@ -120,11 +120,14 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl<Instru
     if (Objects.isNull(fields))
       throw new ManagerException(String.format("Failed to retrieve Account, Library, and Instrument[%s]", instrumentAudio.getInstrumentId()));
 
-    return String.format("%s-%s-%s-%s.%s",
-      Text.toAlphanumericHyphenated((String) fields.get(0)),
-      Text.toAlphanumericHyphenated((String) fields.get(1)),
-      Text.toAlphanumericHyphenated((String) fields.get(2)),
-      Text.toAlphanumericHyphenated(Accidental.replaceWithExplicit(instrumentAudio.getName())),
+    return String.format("%s.%s",
+      String.join("-",
+        Text.toAlphanumericHyphenated((String) fields.get(0)),
+        Text.toAlphanumericHyphenated((String) fields.get(1)),
+        Text.toAlphanumericHyphenated((String) fields.get(2)),
+        Text.toAlphanumericHyphenated(Accidental.replaceWithExplicit(instrumentAudio.getName())),
+        Text.toAlphanumericHyphenated(Accidental.replaceWithExplicit(instrumentAudio.getTones()))
+      ),
       extension);
   }
 
