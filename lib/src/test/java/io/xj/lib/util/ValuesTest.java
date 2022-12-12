@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -253,5 +254,24 @@ public class ValuesTest {
     assertEquals(List.of("Two", "Three"), Values.last(2, input));
     assertEquals(List.of("One", "Two", "Three"), Values.last(3, input));
     assertEquals(List.of("One", "Two", "Three"), Values.last(4, input));
+  }
+
+  @Test
+  public void getKeyOfHighestNonZeroValue() {
+    var a = UUID.fromString("e33e4c97-49f5-4fa8-85bf-3f0618eca351");
+    var b = UUID.fromString("e0e6c13c-9f84-4641-b4e5-796af7100864");
+    var c = UUID.fromString("cc7a6a7a-113e-44bb-a892-29a7a5610945");
+
+    assertEquals(b, Values.getKeyOfHighestNonZeroValue(Map.of(
+      a, 2,
+      b, 6,
+      c, 0
+    )).orElseThrow());
+
+    assertTrue(Values.getKeyOfHighestNonZeroValue(Map.of(
+      a, 0,
+      b, 0,
+      c, 0
+    )).isEmpty());
   }
 }
