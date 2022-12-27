@@ -67,3 +67,15 @@ resource "aws_route53_record" "xjmusic-com-www" {
   ]
 }
 
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
+resource "aws_route53_record" "xjmusic-com-verification" {
+  name    = "xjmusic.com"
+  type    = "TXT"
+  zone_id = aws_route53_zone.xjmusic-com.zone_id
+  ttl     = 86400
+
+  records = [
+    "google-site-verification=L7FhL6FUfLC9adOI9gkzWXrwdPA0m0sKtyV5DF3Xf_g"
+  ]
+}
+
