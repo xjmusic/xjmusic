@@ -812,7 +812,8 @@ public class CraftImpl extends FabricationWrapperImpl {
     for (InstrumentAudio audio : fabricator.sourceMaterial().getAudios(instrument))
       if (instrument.getType() == InstrumentType.Drum)
         score.put(audio.getId(), NameIsometry.similarity(fabricator.getTrackName(event), audio.getEvent()));
-      else score.put(audio.getId(), Note.of(audio.getTones()).sameAs(Note.of(event.getTones())) ? 100 : 0);
+      else if (Note.of(audio.getTones()).sameAs(Note.of(event.getTones())))
+        score.put(audio.getId(), 100);
 
     // final chosen audio event
     var pickId = Values.getKeyOfHighestValue(score);
