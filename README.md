@@ -92,6 +92,10 @@ which is never checked in to version control or released with the distribution. 
 contains secrets. The **env.example.conf** file is kept up-to-date with all environment variables required for the
 developer to configure.
 
+### Production App Secrets
+
+Stored in Kubernetes secrets called `dev.env` and `dev-local.env` (in namespace `dev`), and `prod.env` (in namespaces `yard` and `lab`)
+
 ## Integration testing
 
 Run all tests with Gradle
