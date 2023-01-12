@@ -262,7 +262,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    Event instrument mode
 
    @param instrument for which to craft choices
-   @param program    for which to craft choices
+   @param program for which to craft choices
    @throws NexusException on failure
    */
   protected void craftEventParts(Instrument instrument, Program program) throws NexusException {
@@ -707,7 +707,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @throws NexusException on failure
    */
   private void pickInstrumentAudio(String note, Instrument instrument, ProgramSequencePatternEvent event, SegmentChoiceArrangement segmentChoiceArrangement, double startSeconds, @Nullable Double lengthSeconds, @Nullable UUID segmentChordVoicingId, double volRatio) throws NexusException {
-    var audio = selectInstrumentAudio(instrument, event, note);
+    var audio = fabricator.getInstrumentConfig(instrument).isMultiphonic() ? selectMultiphonicInstrumentAudio(instrument, event, note) : selectNoteEventInstrumentAudio(instrument, event);
 
     // https://www.pivotaltracker.com/story/show/176373977 Should gracefully skip audio in unfulfilled by instrument
     if (audio.isEmpty()) return;
@@ -731,22 +731,38 @@ public class CraftImpl extends FabricationWrapperImpl {
   /**
    Select audio from a multiphonic instrument
    <p>
-   Sampler obeys isMultiphonic from Instrument config https://www.pivotaltracker.com/story/show/176649593
-   Tonal drum kit obeys drum voicings in MP https://www.pivotaltracker.com/story/show/184008175
+   https://www.pivotaltracker.com/story/show/176649593 Sampler obeys isMultiphonic from Instrument config
 
    @param instrument of which to score available audios, and make a selection
    @param event      for caching reference
    @param note       to match selection
    @return matched new audio
    */
-  private Optional<InstrumentAudio> selectInstrumentAudio(Instrument instrument, ProgramSequencePatternEvent event, String note) throws NexusException {
-    var ident = fabricator.getInstrumentConfig(instrument).isTonal() ? String.format("%s_%s", fabricator.getTrackName(event), note) : note;
-    if (fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), ident).isEmpty()) {
-      var audio = selectNewEventInstrumentAudio(instrument, event, Note.of(note));
-      audio.ifPresent(instrumentAudio -> fabricator.putPreferredAudio(event.getProgramVoiceTrackId().toString(), ident, instrumentAudio));
+  private Optional<InstrumentAudio> selectMultiphonicInstrumentAudio(Instrument instrument, ProgramSequencePatternEvent event, String note) {
+    if (fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), note).isEmpty()) {
+      var audio = selectNewMultiphonicInstrumentAudio(instrument, note);
+      audio.ifPresent(instrumentAudio -> fabricator.putPreferredAudio(event.getProgramVoiceTrackId().toString(), note, instrumentAudio));
     }
 
-    return fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), ident);
+    return fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), note);
+  }
+
+  /**
+   Select the cached (already selected for this voice + track name)
+   instrument audio based on a pattern event.
+   <p>
+   If never encountered, default to new selection and cache that.
+
+   @param instrument of which to score available audios, and make a selection
+   @param event      to match selection
+   @return matched new audio
+   @throws NexusException on failure
+   */
+  private Optional<InstrumentAudio> selectNoteEventInstrumentAudio(Instrument instrument, ProgramSequencePatternEvent event) throws NexusException {
+    if (fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones()).isEmpty())
+      fabricator.putPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones(), selectNewNoteEventInstrumentAudio(instrument, event).orElseThrow(() -> new NexusException("Unable to select note event instrument audio!")));
+
+    return fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones());
   }
 
   /**
@@ -770,54 +786,28 @@ public class CraftImpl extends FabricationWrapperImpl {
 
   /**
    Select a new random instrument audio based on a pattern event
-   <p>
-   https://www.pivotaltracker.com/story/show/176649593 Sampler obeys isMultiphonic from Instrument config
 
    @param instrument of which to score available audios, and make a selection
    @param event      to match
-   @param note       to match
    @return matched new audio
    */
-  private Optional<InstrumentAudio> selectNewEventInstrumentAudio(Instrument instrument, ProgramSequencePatternEvent event, Note note) throws NexusException {
+  private Optional<InstrumentAudio> selectNewNoteEventInstrumentAudio(Instrument instrument, ProgramSequencePatternEvent event) throws NexusException {
     Map<UUID, Integer> score = Maps.newHashMap();
 
     // add all audio to chooser
     fabricator.sourceMaterial().getAudios(instrument).forEach(a -> score.put(a.getId(), 0));
 
     // score each audio against the current voice event, with some variability
-    int p;
-    var instrumentAudios = fabricator.sourceMaterial().getAudios(instrument);
-    for (InstrumentAudio audio : instrumentAudios) {
-      p = 0;
-      if (instrument.getMode() == InstrumentMode.Event)
-        p += NameIsometry.similarity(fabricator.getTrackName(event), audio.getEvent());
-      if (fabricator.getInstrumentConfig(instrument).isMultiphonic()
-        && isSame(audio, note))
-        p += 100;
-      score.put(audio.getId(), p);
-    }
+    for (InstrumentAudio audio : fabricator.sourceMaterial().getAudios(instrument))
+      if (instrument.getType() == InstrumentType.Drum)
+        score.put(audio.getId(), NameIsometry.similarity(fabricator.getTrackName(event), audio.getEvent()));
+      else score.put(audio.getId(), Note.of(audio.getTones()).sameAs(Note.of(event.getTones())) ? 100 : 0);
 
     // final chosen audio event
-    var pickId = Values.getKeyOfHighestNonZeroValue(score);
-    if (pickId.isEmpty()) {
-      reportMissing(ImmutableMap.of("instrumentId", instrument.getId().toString(), "searchForNote", note.toString(), "availableNotes", CSV.from(instrumentAudios.stream().map(InstrumentAudio::getTones).map(Note::of).sorted(Note::compareTo).map(N -> N.toString(Accidental.Sharp)).collect(Collectors.toList()))));
-      return Optional.empty();
-    }
-    return fabricator.sourceMaterial().getInstrumentAudio(pickId.get());
+    var pickId = Values.getKeyOfHighestValue(score);
+    return pickId.isPresent() ? fabricator.sourceMaterial().getInstrumentAudio(pickId.get()) : Optional.empty();
   }
 
-  /**
-   Whether this audio is the same note as given
-
-   @param audio to test
-   @param note  to test against
-   @return true if same
-   */
-  private boolean isSame(InstrumentAudio audio, Note note) {
-    if (Objects.isNull(audio) || Strings.isNullOrEmpty(audio.getTones())) return false;
-    var b = Note.of(audio.getTones());
-    return note.isAtonal() || b.isAtonal() || note.sameAs(b);
-  }
 
   /**
    Select a new random instrument audio based on a pattern event
@@ -842,6 +832,32 @@ public class CraftImpl extends FabricationWrapperImpl {
     if (bag.isEmpty()) return Optional.empty();
 
     return fabricator.sourceMaterial().getInstrumentAudio(bag.pick());
+  }
+
+  /**
+   Select a new random instrument audio based on a pattern event
+   <p>
+   https://www.pivotaltracker.com/story/show/176649593 Sampler obeys isMultiphonic from Instrument config
+
+   @param instrument of which to score available audios, and make a selection
+   @param note       to match
+   @return matched new audio
+   */
+  private Optional<InstrumentAudio> selectNewMultiphonicInstrumentAudio(Instrument instrument, String note) {
+    var instrumentAudios = fabricator.sourceMaterial().getAudios(instrument);
+    var a = Note.of(note);
+    var audio = instrumentAudios.stream().filter(candidate -> {
+      if (Objects.isNull(candidate) || Strings.isNullOrEmpty(candidate.getTones())) return false;
+      var b = Note.of(candidate.getTones());
+      return a.isAtonal() || b.isAtonal() || a.sameAs(b);
+    }).findAny();
+
+    if (audio.isEmpty()) {
+      reportMissing(ImmutableMap.of("instrumentId", instrument.getId().toString(), "searchForNote", note, "availableNotes", CSV.from(instrumentAudios.stream().map(InstrumentAudio::getTones).map(Note::of).sorted(Note::compareTo).map(N -> N.toString(Accidental.Sharp)).collect(Collectors.toList()))));
+      return Optional.empty();
+    }
+
+    return fabricator.sourceMaterial().getInstrumentAudio(audio.get().getId());
   }
 
   /**
