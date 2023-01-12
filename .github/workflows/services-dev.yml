@@ -12,6 +12,9 @@ jobs:
       CI_BOT_USERNAME: ${{ secrets.CI_BOT_USERNAME }}
     name: Development CI
     runs-on: ubuntu-20.04
+    permissions:
+      contents: 'read'
+      id-token: 'write'
 
     #
     services:
@@ -91,12 +94,17 @@ jobs:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
           export_default_credentials: true
 
-      - name: (GCP) Configure Kubernetes credentials for GKE
-        env:
-          GKE_CLUSTER: ${{ secrets.GKE_CLUSTER }}
-          GKE_REGION: ${{ secrets.GKE_REGION }}
-        run: |-
-          gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER }} --region ${{ secrets.GKE_REGION }}
+#      - id: 'auth'
+#        uses: 'google-github-actions/auth@v1'
+#        with:
+#          workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
+#          service_account: 'my-service-account@my-project.iam.gserviceaccount.com'
+
+      - id: 'get-credentials'
+        uses: 'google-github-actions/get-gke-credentials@v1'
+        with:
+          cluster_name: ${{ secrets.GKE_CLUSTER }}
+          location: ${{ secrets.GKE_REGION }}
 
       - name: (GCP) Build & push Docker images
         run: |
