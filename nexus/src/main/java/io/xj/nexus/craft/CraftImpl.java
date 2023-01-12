@@ -262,7 +262,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    Event instrument mode
 
    @param instrument for which to craft choices
-   @param program for which to craft choices
+   @param program    for which to craft choices
    @throws NexusException on failure
    */
   protected void craftEventParts(Instrument instrument, Program program) throws NexusException {
@@ -707,7 +707,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @throws NexusException on failure
    */
   private void pickInstrumentAudio(String note, Instrument instrument, ProgramSequencePatternEvent event, SegmentChoiceArrangement segmentChoiceArrangement, double startSeconds, @Nullable Double lengthSeconds, @Nullable UUID segmentChordVoicingId, double volRatio) throws NexusException {
-    var audio = fabricator.getInstrumentConfig(instrument).isMultiphonic() ? selectMultiphonicInstrumentAudio(instrument, event, note) : selectNoteEventInstrumentAudio(instrument, event);
+    var audio = fabricator.getInstrumentConfig(instrument).isMultiphonic() ? selectMultiphonicInstrumentAudio(instrument, event, note) : selectMonophonicInstrumentAudio(instrument, event);
 
     // https://www.pivotaltracker.com/story/show/176373977 Should gracefully skip audio in unfulfilled by instrument
     if (audio.isEmpty()) return;
@@ -738,18 +738,21 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param note       to match selection
    @return matched new audio
    */
-  private Optional<InstrumentAudio> selectMultiphonicInstrumentAudio(Instrument instrument, ProgramSequencePatternEvent event, String note) {
-    if (fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), note).isEmpty()) {
-      var audio = selectNewMultiphonicInstrumentAudio(instrument, note);
-      audio.ifPresent(instrumentAudio -> fabricator.putPreferredAudio(event.getProgramVoiceTrackId().toString(), note, instrumentAudio));
-    }
+  private Optional<InstrumentAudio> selectMultiphonicInstrumentAudio(Instrument instrument, ProgramSequencePatternEvent event, String note) throws NexusException {
+    if (fabricator.getInstrumentConfig(instrument).isAudioSelectionPersistent()) {
+      if (fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), note).isEmpty()) {
+        var audio = selectNewMultiphonicInstrumentAudio(instrument, note);
+        audio.ifPresent(instrumentAudio -> fabricator.putPreferredAudio(event.getProgramVoiceTrackId().toString(), note, instrumentAudio));
+      }
+      return fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), note);
 
-    return fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), note);
+    } else {
+      return selectNewMultiphonicInstrumentAudio(instrument, note);
+    }
   }
 
   /**
-   Select the cached (already selected for this voice + track name)
-   instrument audio based on a pattern event.
+   Select audio from a multiphonic instrument
    <p>
    If never encountered, default to new selection and cache that.
 
@@ -758,11 +761,15 @@ public class CraftImpl extends FabricationWrapperImpl {
    @return matched new audio
    @throws NexusException on failure
    */
-  private Optional<InstrumentAudio> selectNoteEventInstrumentAudio(Instrument instrument, ProgramSequencePatternEvent event) throws NexusException {
-    if (fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones()).isEmpty())
-      fabricator.putPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones(), selectNewNoteEventInstrumentAudio(instrument, event).orElseThrow(() -> new NexusException("Unable to select note event instrument audio!")));
+  private Optional<InstrumentAudio> selectMonophonicInstrumentAudio(Instrument instrument, ProgramSequencePatternEvent event) throws NexusException {
+    if (fabricator.getInstrumentConfig(instrument).isAudioSelectionPersistent()) {
+      if (fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones()).isEmpty())
+        fabricator.putPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones(), selectNewNoteEventInstrumentAudio(instrument, event).orElseThrow(() -> new NexusException("Unable to select note event instrument audio!")));
+      return fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones());
 
-    return fabricator.getPreferredAudio(event.getProgramVoiceTrackId().toString(), event.getTones());
+    } else {
+      return selectNewNoteEventInstrumentAudio(instrument, event);
+    }
   }
 
   /**
@@ -775,13 +782,17 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param chord      to match selection
    @return matched new audio
    */
-  private Optional<InstrumentAudio> selectChordPartInstrumentAudio(Instrument instrument, Chord chord) {
-    if (fabricator.getPreferredAudio(instrument.getId().toString(), chord.getName()).isEmpty()) {
-      var audio = selectNewChordPartInstrumentAudio(instrument, chord);
-      audio.ifPresent(instrumentAudio -> fabricator.putPreferredAudio(instrument.getId().toString(), chord.getName(), instrumentAudio));
-    }
+  private Optional<InstrumentAudio> selectChordPartInstrumentAudio(Instrument instrument, Chord chord) throws NexusException {
+    if (fabricator.getInstrumentConfig(instrument).isAudioSelectionPersistent()) {
+      if (fabricator.getPreferredAudio(instrument.getId().toString(), chord.getName()).isEmpty()) {
+        var audio = selectNewChordPartInstrumentAudio(instrument, chord);
+        audio.ifPresent(instrumentAudio -> fabricator.putPreferredAudio(instrument.getId().toString(), chord.getName(), instrumentAudio));
+      }
+      return fabricator.getPreferredAudio(instrument.getId().toString(), chord.getName());
 
-    return fabricator.getPreferredAudio(instrument.getId().toString(), chord.getName());
+    } else {
+      return selectNewChordPartInstrumentAudio(instrument, chord);
+    }
   }
 
   /**

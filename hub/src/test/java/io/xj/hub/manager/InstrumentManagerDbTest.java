@@ -183,6 +183,7 @@ public class InstrumentManagerDbTest {
     assertEquals(
       """
         attackMillis = 1
+        isAudioSelectionPersistent = true
         isMultiphonic = true
         isOneShot = false
         isOneShotCutoffEnabled = true

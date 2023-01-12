@@ -3,6 +3,7 @@ package io.xj.nexus.craft.hook;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import io.xj.hub.HubApp;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangement;
 import io.xj.nexus.model.SegmentChoiceArrangementPick;
@@ -14,12 +15,16 @@ import io.xj.lib.util.MarbleBag;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.CraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public class HookCraftImpl extends CraftImpl implements HookCraft {
+  private final Logger LOG = LoggerFactory.getLogger(HookCraftImpl.class);
+
   @Inject
   public HookCraftImpl(
     @Assisted("basis") Fabricator fabricator
@@ -46,13 +51,20 @@ public class HookCraftImpl extends CraftImpl implements HookCraft {
     Optional<InstrumentAudio> priorAudio = priorPick.flatMap(pp ->
       fabricator.sourceMaterial().getInstrumentAudio(pp.getInstrumentAudioId()).stream().findAny());
 
-    // Pick instrument audio
-    Optional<InstrumentAudio> instrumentAudio = priorAudio.isPresent() ? priorAudio :
-      (instrument.isPresent() ? selectNewInstrumentAudio(instrument.get()) : Optional.empty());
 
-    // Loop instrument mode https://www.pivotaltracker.com/story/show/181815619
-    // Should gracefully skip audio in unfulfilled by instrument https://www.pivotaltracker.com/story/show/176373977
-    if (instrument.isPresent() && instrumentAudio.isPresent()) craftHook(instrument.get(), instrumentAudio.get());
+    if (instrument.isPresent()) {
+      // Pick instrument audio
+      Optional<InstrumentAudio> instrumentAudio =
+        fabricator.getInstrumentConfig(instrument.get()).isAudioSelectionPersistent() && priorAudio.isPresent()
+          ? priorAudio : selectNewInstrumentAudio(instrument.get());
+
+      // Loop instrument mode https://www.pivotaltracker.com/story/show/181815619
+      // Should gracefully skip audio in unfulfilled by instrument https://www.pivotaltracker.com/story/show/176373977
+      if (instrumentAudio.isPresent()) craftHook(instrument.get(), instrumentAudio.get());
+
+    } else {
+      LOG.warn("Instrument not present!");
+    }
 
     // Finally, update the segment with the crafted content
     fabricator.done();
