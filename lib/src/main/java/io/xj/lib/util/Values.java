@@ -436,8 +436,8 @@ public interface Values {
    @param map of key-value pairs
    @return key of the highest value
    */
-  static Optional<UUID> getKeyOfHighestNonZeroValue(Map<UUID, Integer> map) {
-    var max = map.entrySet().stream().filter(e -> 0 < e.getValue()).max(Map.Entry.comparingByValue());
+  static Optional<UUID> getKeyOfHighestValue(Map<UUID, Integer> map) {
+    var max = map.entrySet().stream().max(Map.Entry.comparingByValue());
     return max.map(Map.Entry::getKey);
   }
 

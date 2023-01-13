@@ -3,9 +3,6 @@ package io.xj.nexus.craft.hook;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.nexus.model.SegmentChoice;
-import io.xj.nexus.model.SegmentChoiceArrangement;
-import io.xj.nexus.model.SegmentChoiceArrangementPick;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Instrument;
@@ -14,6 +11,9 @@ import io.xj.lib.util.MarbleBag;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.CraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangement;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,7 +29,6 @@ public class HookCraftImpl extends CraftImpl implements HookCraft {
 
   @Override
   public void doWork() throws NexusException {
-
     if (!fabricator.sourceMaterial().hasInstruments(InstrumentType.Hook, InstrumentMode.Loop)) return;
 
     // Instrument is from prior choice, else freshly chosen
@@ -47,8 +46,9 @@ public class HookCraftImpl extends CraftImpl implements HookCraft {
       fabricator.sourceMaterial().getInstrumentAudio(pp.getInstrumentAudioId()).stream().findAny());
 
     // Pick instrument audio
-    Optional<InstrumentAudio> instrumentAudio = priorAudio.isPresent() ? priorAudio :
-      (instrument.isPresent() ? selectNewInstrumentAudio(instrument.get()) : Optional.empty());
+    Optional<InstrumentAudio> instrumentAudio =
+      instrument.isPresent() && fabricator.getInstrumentConfig(instrument.get()).isAudioSelectionPersistent() && priorAudio.isPresent()
+        ? priorAudio : (instrument.isPresent() ? selectNewInstrumentAudio(instrument.get()) : Optional.empty());
 
     // Loop instrument mode https://www.pivotaltracker.com/story/show/181815619
     // Should gracefully skip audio in unfulfilled by instrument https://www.pivotaltracker.com/story/show/176373977

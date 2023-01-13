@@ -92,7 +92,7 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
     fabricator.put(arrangement);
 
     // Start at zero and keep laying down perc loops until we're out of here
-    var audio = pickAudioForInstrument(instrumentId);
+    var audio = pickAudioForInstrument(instrument);
     if (audio.isEmpty()) return;
 
     var pick = new SegmentChoiceArrangementPick();
@@ -112,15 +112,16 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
    [#325] Possible to choose multiple instruments for different voices in the same program
 
    @return drum-type Instrument
+   @param instrument for which to pick audio
    */
-  private Optional<InstrumentAudio> pickAudioForInstrument(UUID instrumentId) {
-    var arr = fabricator.retrospective().getPreviousPicksForInstrument(instrumentId);
-    if (!arr.isEmpty())
+  private Optional<InstrumentAudio> pickAudioForInstrument(Instrument instrument) throws NexusException {
+    var arr = fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId());
+    if (fabricator.getInstrumentConfig(instrument).isAudioSelectionPersistent() && !arr.isEmpty())
       return fabricator.sourceMaterial().getInstrumentAudio(arr.get(0).getInstrumentAudioId());
 
     var bag = MarbleBag.empty();
 
-    for (InstrumentAudio audio : fabricator.sourceMaterial().getAudiosForInstrumentId(instrumentId))
+    for (InstrumentAudio audio : fabricator.sourceMaterial().getAudiosForInstrumentId(instrument.getId()))
       bag.add(1, audio.getId());
 
     if (bag.isEmpty()) return Optional.empty();

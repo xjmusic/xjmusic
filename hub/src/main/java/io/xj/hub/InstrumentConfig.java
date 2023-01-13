@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 public class InstrumentConfig {
   public static final String DEFAULT = """
     attackMillis = 1
+    isAudioSelectionPersistent = true
     isMultiphonic = false
     isOneShot = false
     isOneShotCutoffEnabled = true
@@ -31,6 +32,9 @@ public class InstrumentConfig {
     oneShotObserveLengthOfEvents = []
     releaseMillis = 5
     """;
+
+  private final Boolean isAudioSelectionPersistent;
+
   private final Boolean isMultiphonic;
   private final Boolean isOneShot;
   private final Boolean isOneShotCutoffEnabled;
@@ -38,7 +42,6 @@ public class InstrumentConfig {
   private final Integer attackMillis;
   private final Integer releaseMillis;
   private final Collection<String> oneShotObserveLengthOfEvents;
-
   /**
    Instantiate an Instrument configuration from a string of typesafe config.
    Said string will be embedded in a `instrument{...}` block such that
@@ -70,6 +73,7 @@ public class InstrumentConfig {
     try {
       Config config = Strings.isNullOrEmpty(configText) ? ConfigFactory.parseString(DEFAULT) : ConfigFactory.parseString(configText).withFallback(ConfigFactory.parseString(DEFAULT));
       attackMillis = config.getInt("attackMillis");
+      isAudioSelectionPersistent = config.getBoolean("isAudioSelectionPersistent");
       isMultiphonic = config.getBoolean("isMultiphonic");
       isOneShot = config.getBoolean("isOneShot");
       isOneShotCutoffEnabled = config.getBoolean("isOneShotCutoffEnabled");
@@ -87,6 +91,7 @@ public class InstrumentConfig {
   public String toString() {
     Map<String, String> config = Maps.newHashMap();
     config.put("attackMillis", attackMillis.toString());
+    config.put("isAudioSelectionPersistent", isAudioSelectionPersistent.toString());
     config.put("isMultiphonic", isMultiphonic.toString());
     config.put("isOneShot", isOneShot.toString());
     config.put("isOneShotCutoffEnabled", isOneShotCutoffEnabled.toString());
@@ -136,6 +141,13 @@ public class InstrumentConfig {
    */
   public Integer getAttackMillis() {
     return attackMillis;
+  }
+
+  /**
+   @return whether to choose the same instrument audio per note throughout a main program
+   */
+  public Boolean isAudioSelectionPersistent() {
+    return isAudioSelectionPersistent;
   }
 
   /**

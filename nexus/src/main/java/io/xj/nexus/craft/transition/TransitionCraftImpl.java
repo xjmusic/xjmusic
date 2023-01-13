@@ -132,9 +132,9 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     arrangement.segmentChoiceId(choice.getId());
     fabricator.put(arrangement);
 
-    var small = pickAudioForInstrument(instrumentId, smallNames);
-    var medium = pickAudioForInstrument(instrumentId, mediumNames);
-    var big = pickAudioForInstrument(instrumentId, largeNames);
+    var small = pickAudioForInstrument(instrument, smallNames);
+    var medium = pickAudioForInstrument(instrument, mediumNames);
+    var big = pickAudioForInstrument(instrument, largeNames);
 
     if (small.isPresent())
       pickTransition(arrangement, small.get(), 0, fabricator.getTotalSeconds(), smallNames.get(0));
@@ -182,17 +182,18 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
 
    @return drum-type Instrument
    */
-  private Optional<InstrumentAudio> pickAudioForInstrument(UUID instrumentId, List<String> names) {
-    var previous = fabricator.retrospective().getPreviousPicksForInstrument(instrumentId).stream()
+  private Optional<InstrumentAudio> pickAudioForInstrument(Instrument instrument, List<String> names) throws NexusException {
+    var previous =
+      fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId()).stream()
       .filter(pick -> names.contains(Text.toMeme(pick.getEvent())))
       .findAny();
 
-    if (previous.isPresent())
+    if (fabricator.getInstrumentConfig(instrument).isAudioSelectionPersistent() && previous.isPresent())
       return fabricator.sourceMaterial().getInstrumentAudio(previous.get().getInstrumentAudioId());
 
     var bag = MarbleBag.empty();
 
-    for (InstrumentAudio audio : fabricator.sourceMaterial().getAudiosForInstrumentId(instrumentId)
+    for (InstrumentAudio audio : fabricator.sourceMaterial().getAudiosForInstrumentId(instrument.getId())
       .stream().filter(instrumentAudio -> names.contains(Text.toMeme(instrumentAudio.getEvent()))).toList())
       bag.add(1, audio.getId());
 

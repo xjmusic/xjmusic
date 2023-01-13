@@ -4,10 +4,6 @@ package io.xj.nexus.craft.perc_loop;
 import com.google.api.client.util.Lists;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.nexus.model.SegmentChoice;
-import io.xj.nexus.model.SegmentChoiceArrangement;
-import io.xj.nexus.model.SegmentChoiceArrangementPick;
-import io.xj.nexus.model.SegmentType;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.InstrumentAudio;
@@ -16,6 +12,10 @@ import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.beat.BeatCraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangement;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.model.SegmentType;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -40,10 +40,13 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
 
   @Override
   public void doWork() throws NexusException {
+    var choices = fabricator.retrospective().getPreviousChoicesOfTypeMode(InstrumentType.Percussion, InstrumentMode.Loop);
+    var instruments = choices.stream().flatMap(choice -> fabricator.sourceMaterial().getInstrument(choice.getInstrumentId()).stream()).toList();
+
     Collection<UUID> audioIds =
       SegmentType.CONTINUE.equals(fabricator.getType()) ?
-        fabricator.retrospective().getPreviousChoicesOfTypeMode(InstrumentType.Percussion, InstrumentMode.Loop).stream()
-          .flatMap(choice -> fabricator.retrospective().getPreviousPicksForInstrument(choice.getInstrumentId()).stream())
+        instruments.stream()
+          .flatMap(instrument -> fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId()).stream())
           .map(SegmentChoiceArrangementPick::getInstrumentAudioId)
           .collect(Collectors.toSet())
         : Lists.newArrayList();
