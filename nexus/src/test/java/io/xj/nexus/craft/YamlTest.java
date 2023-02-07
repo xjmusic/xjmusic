@@ -24,7 +24,6 @@ import static org.junit.Assert.assertNotNull;
  */
 @RunWith(MockitoJUnitRunner.class)
 public abstract class YamlTest {
-  private static final String TEST_PATH_PREFIX = "/arrangements/";
   protected Set<String> failures;
 
   @Before
@@ -46,10 +45,10 @@ public abstract class YamlTest {
     assertEquals("There should be zero assertion failures", 0, failures.size());
   }
 
-  protected Map<?, ?> loadYaml(String filename) {
+  protected Map<?, ?> loadYaml(String prefix, String filename) {
     Yaml yaml = new Yaml();
     Map<?, ?> data = yaml.load(getClass()
-      .getResourceAsStream(String.format("%s%s", TEST_PATH_PREFIX, filename)));
+      .getResourceAsStream(String.format("%s%s", prefix, filename)));
     assertNotNull("Read Test YAML file", data);
     return data;
   }

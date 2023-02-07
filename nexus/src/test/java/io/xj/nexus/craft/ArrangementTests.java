@@ -67,6 +67,7 @@ import static org.junit.Assert.assertEquals;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ArrangementTests extends YamlTest {
+  private static final String TEST_PATH_PREFIX = "/arrangements/";
   private static final int REPEAT_EACH_TEST_TIMES = 7;
   private static final Set<InstrumentType> INSTRUMENT_TYPES = ImmutableSet.of(
     InstrumentType.Bass,
@@ -182,7 +183,7 @@ public class ArrangementTests extends YamlTest {
         reset();
 
         // Load YAML and parse
-        var data = loadYaml(filename);
+        var data = loadYaml(TEST_PATH_PREFIX, filename);
 
         // Read Instruments and Detail Programs from the test YAML
         for (var instrumentType : INSTRUMENT_TYPES) {

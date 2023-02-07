@@ -27,6 +27,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(MockitoJUnitRunner.class)
 public class NotePickerTests extends YamlTest {
   private static final int REPEAT_EACH_TEST_TIMES = 7;
+  private static final String TEST_PATH_PREFIX = "/picking/";
   private final TemplateConfig templateConfig;
   private NotePicker subject;
 
@@ -36,22 +37,27 @@ public class NotePickerTests extends YamlTest {
 
   @Test
   public void notePicker4a() {
-    loadAndRunTest("arrangement_4_5_notes_one.yaml");
+    loadAndRunTest("picking_4_5_notes_one.yaml");
   }
 
   @Test
   public void notePicker4b() {
-    loadAndRunTest("arrangement_4_5_notes_two.yaml");
+    loadAndRunTest("picking_4_5_notes_two.yaml");
   }
 
   @Test
   public void notePicker4c() {
-    loadAndRunTest("arrangement_4_5_notes_three.yaml");
+    loadAndRunTest("picking_4_5_notes_three.yaml");
   }
 
   @Test
   public void notePicker6a() {
-    loadAndRunTest("arrangement_6_notes.yaml");
+    loadAndRunTest("picking_6_notes.yaml");
+  }
+
+  @Test
+  public void notePicker184343503() {
+    loadAndRunTest("picking_184343503_notes.yaml");
   }
 
   /**
@@ -63,7 +69,7 @@ public class NotePickerTests extends YamlTest {
     for (int i = 0; i < REPEAT_EACH_TEST_TIMES; i++)
       try {
         // Load YAML and parse
-        var data = loadYaml(filename);
+        var data = loadYaml(TEST_PATH_PREFIX, filename);
 
         // Read inputs from the test YAML and instantiate the subject
         loadSubject(data);
