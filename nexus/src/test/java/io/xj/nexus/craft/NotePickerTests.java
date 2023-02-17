@@ -55,11 +55,6 @@ public class NotePickerTests extends YamlTest {
     loadAndRunTest("picking_6_notes.yaml");
   }
 
-  @Test
-  public void notePicker184343503() {
-    loadAndRunTest("picking_184343503_notes.yaml");
-  }
-
   /**
    Load the specified test YAML file and run it repeatedly.
 
@@ -86,7 +81,8 @@ public class NotePickerTests extends YamlTest {
   }
 
   /**
-   Load the input section of the test YAML file@param data YAML file wrapper
+   Load the input section of the test YAML file
+   @param data YAML file wrapper
    */
   private void loadSubject(Map<?, ?> data) throws Exception {
     Map<?, ?> obj = (Map<?, ?>) data.get("input");

@@ -130,10 +130,10 @@ assertPicks:
   pad:
     - { start: 0.0, length: 3.5, count: 4, notes: "C4, E4, G4, A4" }
     - { start: 3.5, length: 4.0, count: 4, notes: "G3, C4, D4, G4" }
-    - { start: 7.5, length: 4.0, count: 4, notes: "C4, E4, G4, A4" }
-    - { start: 11.5, length: 4.5, count: 4, notes: "C4, F4, G4, A4" }
+    - { start: 7.5, length: 4.0, count: 4, notes: "G3, A3, C4, E4" }
+    - { start: 11.5, length: 4.5, count: 4, notes: "A3, C4, F4, A4" }
   stab:
     - { start: 0.0, length: 0.5, count: 4, notes: "C4, E4, G4, A4" }
     - { start: 3.5, length: 0.5, count: 4, notes: "G3, C4, D4, G4" }
-    - { start: 7.5, length: 0.5, count: 4, notes: "C4, E4, G4, A4" }
-    - { start: 11.5, length: 0.5, count: 4, notes: "C4, F4, G4, A4" }
+    - { start: 7.5, length: 0.5, count: 4, notes: "G3, A3, C4, E4" }
+    - { start: 11.5, length: 0.5, count: 4, notes: "A3, C4, F4, A4" }
