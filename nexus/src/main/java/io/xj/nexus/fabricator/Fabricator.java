@@ -13,7 +13,6 @@ import io.xj.lib.music.*;
 import io.xj.nexus.NexusException;
 import io.xj.hub.client.HubContent;
 
-import javax.annotation.Nullable;
 import javax.sound.sampled.AudioFormat;
 import java.util.*;
 
@@ -279,7 +278,7 @@ public interface Fabricator {
    @param pick to get key of
    @return unique key for pattern event
    */
-  String getKeyByVoiceTrack(SegmentChoiceArrangementPick pick) throws NexusException;
+  String computeCacheKeyForVoiceTrack(SegmentChoiceArrangementPick pick) throws NexusException;
 
   /**
    Get the Key for any given Choice, preferring its Sequence Key (bound), defaulting to the Program Key.
@@ -472,11 +471,12 @@ public interface Fabricator {
   /**
    Compute the target shift from a key toward a chord
 
-   @param fromChord to compute shift from
-   @param toChord to compute shift toward
+   @param instrumentType to switch behavior
+   @param fromChord      to compute shift from
+   @param toChord        to compute shift toward
    @return computed target shift
    */
-  int getProgramTargetShift(Chord fromChord, Chord toChord);
+  int getProgramTargetShift(InstrumentType instrumentType, Chord fromChord, Chord toChord);
 
   /**
    Get the program type of a given voice

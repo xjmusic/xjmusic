@@ -54,28 +54,42 @@ public class NoteRange {
   }
 
   public static NoteRange ofNotes(Collection<Note> notes) {
-    return new NoteRange(
-      notes.parallelStream().min(Note::compareTo).orElse(null),
-      notes.parallelStream().max(Note::compareTo).orElse(null)
-    );
+    return new NoteRange(notes.parallelStream().min(Note::compareTo).orElse(null), notes.parallelStream().max(Note::compareTo).orElse(null));
   }
 
   public static NoteRange ofStrings(Collection<String> notes) {
-    return new NoteRange(
-      notes.parallelStream().map(Note::of).min(Note::compareTo).orElse(null),
-      notes.parallelStream().map(Note::of).max(Note::compareTo).orElse(null)
-    );
+    return new NoteRange(notes.parallelStream().map(Note::of).min(Note::compareTo).orElse(null), notes.parallelStream().map(Note::of).max(Note::compareTo).orElse(null));
   }
 
   public static NoteRange median(NoteRange r1, NoteRange r2) {
-    return new NoteRange(
-      Note.median(r1.getLow().orElse(null), r2.getLow().orElse(null)),
-      Note.median(r1.getHigh().orElse(null), r2.getHigh().orElse(null))
-    );
+    return new NoteRange(Note.median(r1.getLow().orElse(null), r2.getLow().orElse(null)), Note.median(r1.getHigh().orElse(null), r2.getHigh().orElse(null)));
   }
 
   public static NoteRange empty() {
     return new NoteRange();
+  }
+
+  /**
+   Compute the median optimal range shift octaves
+
+   @param sourceRange from
+   @param targetRange to
+   @return median optimal range shift octaves
+   */
+  public static Integer computeMedianOptimalRangeShiftOctaves(NoteRange sourceRange, NoteRange targetRange) throws MusicalException {
+    if (sourceRange.getLow().isEmpty() || sourceRange.getHigh().isEmpty() || targetRange.getLow().isEmpty() || targetRange.getHigh().isEmpty())
+      return 0;
+    var shiftOctave = 0; // search for optimal value
+    var baselineDelta = 100; // optimal is the lowest possible integer zero or above
+    for (var o = 10; o >= -10; o--) {
+      int dLow = targetRange.getLow().orElseThrow(() -> new MusicalException("Can't find low end of target range")).delta(sourceRange.getLow().orElseThrow(() -> new MusicalException("Can't find low end of source range")).shiftOctave(o));
+      int dHigh = targetRange.getHigh().orElseThrow(() -> new MusicalException("Can't find high end of target range")).delta(sourceRange.getHigh().orElseThrow(() -> new MusicalException("Can't find high end of source range")).shiftOctave(o));
+      if (0 <= dLow && 0 >= dHigh && Math.abs(o) < baselineDelta) {
+        baselineDelta = Math.abs(o);
+        shiftOctave = o;
+      }
+    }
+    return shiftOctave;
   }
 
   public Optional<Note> getLow() {
@@ -93,10 +107,8 @@ public class NoteRange {
   public String toString(Accidental accidental) {
     if (Objects.nonNull(low) && Objects.nonNull(high))
       return String.format("%s-%s", low.toString(accidental), high.toString(accidental));
-    if (Objects.nonNull(low))
-      return String.format("%s", low.toString(accidental));
-    if (Objects.nonNull(high))
-      return String.format("%s", high.toString(accidental));
+    if (Objects.nonNull(low)) return String.format("%s", low.toString(accidental));
+    if (Objects.nonNull(high)) return String.format("%s", high.toString(accidental));
     return UNKNOWN;
   }
 
@@ -129,17 +141,11 @@ public class NoteRange {
   }
 
   public NoteRange shifted(int inc) {
-    return new NoteRange(
-      Objects.nonNull(low) ? low.shift(inc) : null,
-      Objects.nonNull(high) ? high.shift(inc) : null
-    );
+    return new NoteRange(Objects.nonNull(low) ? low.shift(inc) : null, Objects.nonNull(high) ? high.shift(inc) : null);
   }
 
   public boolean isEmpty() {
-    return Objects.isNull(low) ||
-      Objects.isNull(high) ||
-      PitchClass.None.equals(low.getPitchClass()) ||
-      PitchClass.None.equals(high.getPitchClass());
+    return Objects.isNull(low) || Objects.isNull(high) || PitchClass.None.equals(low.getPitchClass()) || PitchClass.None.equals(high.getPitchClass());
   }
 
   public Optional<Note> getNoteNearestMedian(PitchClass root) {

@@ -235,4 +235,23 @@ public class NoteRangeTest {
     assertNote("D4", NoteRange.from(null, Note.of("C4")).toAvailableOctave(Note.of("D4")));
     assertNote("C4", NoteRange.empty().toAvailableOctave(Note.of("C4")));
   }
+
+  @Test
+  public void computeMedianOptimalRangeShiftOctaves() {
+    var rangeA = NoteRange.from(Note.of("C3"), Note.of("B3"));
+    var rangeA_overlap = NoteRange.from(Note.of("G3"), Note.of("C6"));
+    var rangeB = NoteRange.from(Note.of("C5"), Note.of("B5"));
+    var rangeB_superset = NoteRange.from(Note.of("G2"), Note.of("D6"));
+
+    var rangeC1 = NoteRange.from(Note.of("F3"), Note.of("E4"));
+    var rangeC2 = NoteRange.from(Note.of("D3"), Note.of("C6"));
+
+    assertEquals(2, NoteRange.computeMedianOptimalRangeShiftOctaves(rangeA, rangeB).intValue());
+    assertEquals(-2, NoteRange.computeMedianOptimalRangeShiftOctaves(rangeB, rangeA).intValue());
+    assertEquals(0, NoteRange.computeMedianOptimalRangeShiftOctaves(rangeB, rangeB_superset).intValue());
+    assertEquals(0, NoteRange.computeMedianOptimalRangeShiftOctaves(rangeB_superset, rangeB).intValue());
+    assertEquals(1, NoteRange.computeMedianOptimalRangeShiftOctaves(rangeA, rangeA_overlap).intValue());
+    assertEquals(0, NoteRange.computeMedianOptimalRangeShiftOctaves(rangeC1, rangeC2).intValue());
+    assertEquals(0, NoteRange.computeMedianOptimalRangeShiftOctaves(rangeC2, rangeC1).intValue());
+  }
 }

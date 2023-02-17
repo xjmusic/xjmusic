@@ -484,10 +484,10 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public String getKeyByVoiceTrack(SegmentChoiceArrangementPick pick) {
-    String key = sourceMaterial().getProgramSequencePatternEvent(pick.getProgramSequencePatternEventId()).flatMap(event -> sourceMaterial().getTrack(event).map(ProgramVoiceTrack::getProgramVoiceId)).map(UUID::toString).orElse(UNKNOWN_KEY);
+  public String computeCacheKeyForVoiceTrack(SegmentChoiceArrangementPick pick) {
+    String cacheKey = sourceMaterial().getProgramSequencePatternEvent(pick.getProgramSequencePatternEventId()).flatMap(event -> sourceMaterial().getTrack(event).map(ProgramVoiceTrack::getProgramVoiceId)).map(UUID::toString).orElse(UNKNOWN_KEY);
 
-    return String.format(KEY_VOICE_TRACK_TEMPLATE, key, pick.getEvent());
+    return String.format(KEY_VOICE_TRACK_TEMPLATE, cacheKey, pick.getEvent());
   }
 
   @Override
@@ -641,9 +641,9 @@ class FabricatorImpl implements Fabricator {
 
   @Override
   public Optional<InstrumentAudio> getPreferredAudio(String parentIdent, String ident) {
-    String key = String.format(KEY_VOICE_NOTE_TEMPLATE, parentIdent, ident);
+    String cacheKey = String.format(KEY_VOICE_NOTE_TEMPLATE, parentIdent, ident);
 
-    if (preferredAudios.containsKey(key)) return Optional.of(preferredAudios.get(key));
+    if (preferredAudios.containsKey(cacheKey)) return Optional.of(preferredAudios.get(cacheKey));
 
     return Optional.empty();
   }
@@ -651,9 +651,9 @@ class FabricatorImpl implements Fabricator {
   @Override
   public Optional<Set<String>> getPreferredNotes(String parentIdent, String chordName) {
     try {
-      var key = computeNoteChordEventKey(parentIdent, chordName);
-      if (preferredNotesByChordEvent.containsKey(key))
-        return Optional.of(new HashSet<>(preferredNotesByChordEvent.get(key)));
+      var cacheKey = computeNoteChordEventCacheKey(parentIdent, chordName);
+      if (preferredNotesByChordEvent.containsKey(cacheKey))
+        return Optional.of(new HashSet<>(preferredNotesByChordEvent.get(cacheKey)));
 
     } catch (NexusException | EntityStoreException e) {
       LOG.debug("No notes cached for previous event and chord id", e);
@@ -696,13 +696,13 @@ class FabricatorImpl implements Fabricator {
 
   @Override
   public NoteRange getProgramRange(UUID programId, InstrumentType instrumentType) {
-    var key = String.format("%s__%s", programId, instrumentType);
+    var cacheKey = String.format("%s__%s", programId, instrumentType);
 
-    if (!rangeForChoice.containsKey(key)) {
-      rangeForChoice.put(key, computeProgramRange(programId, instrumentType));
+    if (!rangeForChoice.containsKey(cacheKey)) {
+      rangeForChoice.put(cacheKey, computeProgramRange(programId, instrumentType));
     }
 
-    return rangeForChoice.get(key);
+    return rangeForChoice.get(cacheKey);
   }
 
   private NoteRange computeProgramRange(UUID programId, InstrumentType instrumentType) {
@@ -716,12 +716,11 @@ class FabricatorImpl implements Fabricator {
 
   @Override
   public int getProgramRangeShiftOctaves(InstrumentType type, NoteRange sourceRange, NoteRange targetRange) throws NexusException {
-    var key = String.format("%s__%s__%s", type, sourceRange.toString(Accidental.None), targetRange.toString(Accidental.None));
+    var cacheKey = String.format("%s__%s__%s", type, sourceRange.toString(Accidental.None), targetRange.toString(Accidental.None));
 
-    if (!rangeShiftOctave.containsKey(key)) switch (type) {
-
+    if (!rangeShiftOctave.containsKey(cacheKey)) switch (type) {
       case Bass:
-        rangeShiftOctave.put(key, computeLowestOptimalRangeShiftOctaves(sourceRange, targetRange));
+        rangeShiftOctave.put(cacheKey, computeLowestOptimalRangeShiftOctaves(sourceRange, targetRange));
         break;
 
       case Drum:
@@ -732,20 +731,26 @@ class FabricatorImpl implements Fabricator {
       case Sticky:
       case Stripe:
       default:
-        rangeShiftOctave.put(key, computeMedianOptimalRangeShiftOctaves(sourceRange, targetRange));
+        rangeShiftOctave.put(cacheKey, NoteRange.computeMedianOptimalRangeShiftOctaves(sourceRange, targetRange));
         break;
     }
 
-    return rangeShiftOctave.get(key);
+    return rangeShiftOctave.get(cacheKey);
   }
 
   @Override
-  public int getProgramTargetShift(Chord fromChord, Chord toChord) {
+  public int getProgramTargetShift(InstrumentType instrumentType, Chord fromChord, Chord toChord) {
     if (!fromChord.isPresent()) return 0;
-    var key = String.format("%s__%s", fromChord, toChord.toString());
-    if (!targetShift.containsKey(key)) targetShift.put(key, fromChord.getRoot().delta(toChord.getSlashRoot()));
+    var cacheKey = String.format("%s__%s__%s", instrumentType.toString(), fromChord, toChord.toString());
+    if (!targetShift.containsKey(cacheKey)) {
+      if (instrumentType.equals(InstrumentType.Bass)) {
+        targetShift.put(cacheKey, fromChord.getRoot().delta(toChord.getSlashRoot()));
+      } else {
+        targetShift.put(cacheKey, fromChord.getRoot().delta(toChord.getRoot()));
+      }
+    }
 
-    return targetShift.get(key);
+    return targetShift.get(cacheKey);
   }
 
   @Override
@@ -1038,7 +1043,7 @@ class FabricatorImpl implements Fabricator {
   @Override
   public void putNotesPickedForChord(ProgramSequencePatternEvent event, String chordName, Set<String> notes) {
     try {
-      preferredNotesByChordEvent.put(computeNoteChordEventKey(event.getId().toString(), chordName), new HashSet<>(notes));
+      preferredNotesByChordEvent.put(computeNoteChordEventCacheKey(event.getId().toString(), chordName), new HashSet<>(notes));
     } catch (NexusException | EntityStoreException e) {
       LOG.warn("Can't cache notes picked for chord", e);
     }
@@ -1046,15 +1051,15 @@ class FabricatorImpl implements Fabricator {
 
   @Override
   public void putPreferredAudio(String parentIdent, String ident, InstrumentAudio instrumentAudio) {
-    String key = String.format(KEY_VOICE_NOTE_TEMPLATE, parentIdent, ident);
+    String cacheKey = String.format(KEY_VOICE_NOTE_TEMPLATE, parentIdent, ident);
 
-    preferredAudios.put(key, instrumentAudio);
+    preferredAudios.put(cacheKey, instrumentAudio);
   }
 
   @Override
   public void putPreferredNotes(String parentIdent, String ident, Set<String> instrumentNotes) {
     try {
-      preferredNotesByChordEvent.put(computeNoteChordEventKey(parentIdent, ident), instrumentNotes);
+      preferredNotesByChordEvent.put(computeNoteChordEventCacheKey(parentIdent, ident), instrumentNotes);
     } catch (NexusException | EntityStoreException e) {
       LOG.warn("Can't cache preferred notes", e);
     }
@@ -1114,29 +1119,6 @@ class FabricatorImpl implements Fabricator {
   }
 
   /**
-   Compute the median optimal range shift octaves
-
-   @param sourceRange from
-   @param targetRange to
-   @return median optimal range shift octaves
-   */
-  private Integer computeMedianOptimalRangeShiftOctaves(NoteRange sourceRange, NoteRange targetRange) throws NexusException {
-    if (sourceRange.getLow().isEmpty() || sourceRange.getHigh().isEmpty() || targetRange.getLow().isEmpty() || targetRange.getHigh().isEmpty())
-      return 0;
-    var shiftOctave = 0; // search for optimal value
-    var baselineDelta = 100; // optimal is the lowest possible integer zero or above
-    for (var o = 10; o >= -10; o--) {
-      int dLow = targetRange.getLow().orElseThrow(() -> new NexusException("Can't find low end of target range")).delta(sourceRange.getLow().orElseThrow(() -> new NexusException("Can't find low end of source range")).shiftOctave(o));
-      int dHigh = targetRange.getHigh().orElseThrow(() -> new NexusException("Can't find high end of target range")).delta(sourceRange.getHigh().orElseThrow(() -> new NexusException("Can't find high end of source range")).shiftOctave(o));
-      if (0 <= dLow && 0 >= dHigh && Math.abs(o) < baselineDelta) {
-        baselineDelta = Math.abs(o);
-        shiftOctave = o;
-      }
-    }
-    return shiftOctave;
-  }
-
-  /**
    Compute a Segment ship key: the chain ship key concatenated with the begin-at time in microseconds since epoch
 
    @param chain   for which to compute segment ship key
@@ -1188,7 +1170,7 @@ class FabricatorImpl implements Fabricator {
    @param chordName   to get key for
    @return key for chord + event
    */
-  private String computeNoteChordEventKey(@Nullable String parentIdent, @Nullable String chordName) throws NexusException, EntityStoreException {
+  private String computeNoteChordEventCacheKey(@Nullable String parentIdent, @Nullable String chordName) throws NexusException, EntityStoreException {
     return String.format("%s__%s", Strings.isNullOrEmpty(chordName) ? UNKNOWN_KEY : chordName, Objects.isNull(parentIdent) ? UNKNOWN_KEY : parentIdent);
   }
 
@@ -1261,12 +1243,12 @@ class FabricatorImpl implements Fabricator {
 
     retrospective.getPicks().forEach(pick -> {
       try {
-        var key = computeNoteChordEventKey(
+        var cacheKey = computeNoteChordEventCacheKey(
           Objects.nonNull(pick.getProgramSequencePatternEventId()) ? pick.getProgramSequencePatternEventId().toString() : UNKNOWN_KEY,
           Objects.nonNull(pick.getSegmentChordVoicingId()) ? pick.getSegmentChordVoicingId().toString() : UNKNOWN_KEY
         );
-        if (!notes.containsKey(key)) notes.put(key, Sets.newHashSet());
-        notes.get(key).add(pick.getTones());
+        if (!notes.containsKey(cacheKey)) notes.put(cacheKey, Sets.newHashSet());
+        notes.get(cacheKey).add(pick.getTones());
 
       } catch (NexusException | EntityStoreException e) {
         LOG.warn("Can't find chord of previous event and chord id", e);
@@ -1287,7 +1269,7 @@ class FabricatorImpl implements Fabricator {
     retrospective.getPicks()
       .forEach(pick ->
         sourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId())
-          .ifPresent(audio -> audios.put(getKeyByVoiceTrack(pick), audio)));
+          .ifPresent(audio -> audios.put(computeCacheKeyForVoiceTrack(pick), audio)));
 
     return audios;
   }

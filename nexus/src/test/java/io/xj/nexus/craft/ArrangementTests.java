@@ -155,6 +155,14 @@ public class ArrangementTests extends YamlTest {
     loadAndRunTest("arrangement_10.yaml");
   }
 
+/*
+FUTURE goal
+  @Test
+  public void arrangement11() {
+    loadAndRunTest("arrangement_11.yaml");
+  }
+*/
+
   @Test
   public void arrangement0_NoChordSections() {
     loadAndRunTest("arrangement_0_no_chord_sections.yaml");
