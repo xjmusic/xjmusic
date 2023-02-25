@@ -2,10 +2,10 @@
 |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [![Production CI](https://github.com/xjmusic/services/actions/workflows/services-prod.yml/badge.svg)](https://github.com/xjmusic/services/actions/workflows/services-prod.yml) | [![Development CI](https://github.com/xjmusic/services/actions/workflows/services-dev.yml/badge.svg)](https://github.com/xjmusic/services/actions/workflows/services-dev.yml) |
 
-|                  | GCP                                                                                                                                                                                         |
-|------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| _Base Image_     | [![Base Image (GCP)](https://github.com/xjmusic/services/actions/workflows/services-base-gcp.yaml/badge.svg)](https://github.com/xjmusic/services/actions/workflows/services-base-gcp.yaml) |
-| _Infrastructure_ | [![Kubernetes Apply (GCP)](https://github.com/xjmusic/services/actions/workflows/infra-gke.yaml/badge.svg)](https://github.com/xjmusic/services/actions/workflows/infra-gke.yaml)           |                                                                                                                                                                                             |
+|                  | GCP                                                                                                                                                                                 |
+|------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| _Base Image_     | [![Base Image (GCP)](https://github.com/xjmusic/services/actions/workflows/services-base.yaml/badge.svg)](https://github.com/xjmusic/services/actions/workflows/services-base.yaml) |
+| _Infrastructure_ | [![Kubernetes Apply (GCP)](https://github.com/xjmusic/services/actions/workflows/infra-gke.yaml/badge.svg)](https://github.com/xjmusic/services/actions/workflows/infra-gke.yaml)   |                                                                                                                                                                                             |
 
 # XJ Music Backend (Java) Services
 
