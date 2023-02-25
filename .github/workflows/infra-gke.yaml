@@ -29,13 +29,11 @@ jobs:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
           export_default_credentials: true
 
-      - id: gke-credentials
-        name: Configure Kubernetes credentials for GKE
-        env:
-          GKE_CLUSTER: ${{ secrets.GKE_CLUSTER }}
-          GKE_REGION: ${{ secrets.GKE_REGION }}
-        run: |-
-          gcloud container clusters get-credentials "$GKE_CLUSTER" --region "$GKE_REGION"
+      - id: 'get-credentials'
+        uses: 'google-github-actions/get-gke-credentials@v1'
+        with:
+          cluster_name: ${{ secrets.GKE_CLUSTER }}
+          location: ${{ secrets.GKE_REGION }}
 
       - id: apply-kuberenetes-manifests
         name: Apply Kubernetes Manifests

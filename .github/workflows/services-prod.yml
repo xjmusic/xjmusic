@@ -12,6 +12,9 @@ jobs:
       CI_BOT_USERNAME: ${{ secrets.CI_BOT_USERNAME }}
     name: Production CI
     runs-on: ubuntu-20.04
+    permissions:
+      contents: 'read'
+      id-token: 'write'
 
     #
     services:
