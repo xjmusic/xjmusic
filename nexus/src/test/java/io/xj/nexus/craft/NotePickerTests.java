@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.craft;
 
+import com.google.api.client.util.Lists;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.lib.music.Accidental;
@@ -14,6 +15,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.annotation.Nullable;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -27,6 +29,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(MockitoJUnitRunner.class)
 public class NotePickerTests extends YamlTest {
   private static final int REPEAT_EACH_TEST_TIMES = 7;
+  private static final String TEST_PATH_PREFIX = "/picking/";
   private final TemplateConfig templateConfig;
   private NotePicker subject;
 
@@ -35,23 +38,23 @@ public class NotePickerTests extends YamlTest {
   }
 
   @Test
-  public void notePicker4a() {
-    loadAndRunTest("arrangement_4_5_notes_one.yaml");
+  public void picking_4_5_notes_one() {
+    loadAndRunTest("picking_4_5_notes_one.yaml");
   }
 
   @Test
-  public void notePicker4b() {
-    loadAndRunTest("arrangement_4_5_notes_two.yaml");
+  public void picking_4_5_notes_two() {
+    loadAndRunTest("picking_4_5_notes_two.yaml");
   }
 
   @Test
-  public void notePicker4c() {
-    loadAndRunTest("arrangement_4_5_notes_three.yaml");
+  public void picking_4_5_notes_three() {
+    loadAndRunTest("picking_4_5_notes_three.yaml");
   }
 
   @Test
-  public void notePicker6a() {
-    loadAndRunTest("arrangement_6_notes.yaml");
+  public void picking_6_notes() {
+    loadAndRunTest("picking_6_notes.yaml");
   }
 
   /**
@@ -63,16 +66,19 @@ public class NotePickerTests extends YamlTest {
     for (int i = 0; i < REPEAT_EACH_TEST_TIMES; i++)
       try {
         // Load YAML and parse
-        var data = loadYaml(filename);
+        var data = loadYaml(TEST_PATH_PREFIX, filename);
 
         // Read inputs from the test YAML and instantiate the subject
-        loadSubject(data);
+        var eventNotes = loadSubject(data);
 
         // Execute note picking
-        subject.pick();
+        List<Note> picked = Lists.newArrayList();
+        for (var note : eventNotes) {
+          picked.add(subject.pick(note));
+        }
 
         // assert final picks
-        loadAndPerformAssertions(data);
+        loadAndPerformAssertions(picked, data);
 
       } catch (Exception e) {
         failures.add(String.format("[%s] Exception: %s", filename, e.getMessage()));
@@ -80,9 +86,11 @@ public class NotePickerTests extends YamlTest {
   }
 
   /**
-   Load the input section of the test YAML file@param data YAML file wrapper
+   Load the input section of the test YAML file
+
+   @param data YAML file wrapper
    */
-  private void loadSubject(Map<?, ?> data) throws Exception {
+  private List<Note> loadSubject(Map<?, ?> data) throws Exception {
     Map<?, ?> obj = (Map<?, ?>) data.get("input");
     if (Objects.isNull(obj)) throw new Exception("Input is required!");
 
@@ -94,11 +102,11 @@ public class NotePickerTests extends YamlTest {
     var voicingNotes = CSV.split(Objects.requireNonNull(getStr(obj, "voicingNotes"))).stream()
       .map(Note::of).collect(Collectors.toSet());
 
-    var eventNotes = CSV.split(Objects.requireNonNull(getStr(obj, "eventNotes"))).stream()
-      .map(Note::of).collect(Collectors.toSet());
 
-    subject = new NotePicker(range, voicingNotes, eventNotes,
-      templateConfig.getInstrumentTypesForInversionSeeking().contains(instrumentType));
+    subject = new NotePicker(range, voicingNotes, templateConfig.getInstrumentTypesForInversionSeeking().contains(instrumentType));
+
+    return CSV.split(Objects.requireNonNull(getStr(obj, "eventNotes"))).stream()
+      .map(Note::of).collect(Collectors.toList());
   }
 
   private NoteRange getOptionalNoteRange(Map<?, ?> obj) {
@@ -107,7 +115,7 @@ public class NotePickerTests extends YamlTest {
     return NoteRange.from(getStr(rObj, "from"), getStr(rObj, "to"));
   }
 
-  private void loadAndPerformAssertions(Map<?, ?> data) throws Exception {
+  private void loadAndPerformAssertions(List<Note> pickedNotes, Map<?, ?> data) throws Exception {
     @Nullable
     Map<?, ?> obj = (Map<?, ?>) data.get("assertion");
     if (Objects.isNull(obj)) throw new Exception("Assertion is required!");
@@ -115,17 +123,17 @@ public class NotePickerTests extends YamlTest {
     var range = getOptionalNoteRange(obj);
 
     range.getLow().ifPresent(note ->
-      assertSame("Range Low-end", note, subject.getTargetRange().getLow().orElseThrow()));
+      assertSameNote("Range Low-end", note, subject.getTargetRange().getLow().orElseThrow()));
 
     range.getHigh().ifPresent(note ->
-      assertSame("Range High-end", note, subject.getTargetRange().getHigh().orElseThrow()));
+      assertSameNote("Range High-end", note, subject.getTargetRange().getHigh().orElseThrow()));
 
-    var picked = subject.getPickedNotes().stream()
+    var picked = pickedNotes.stream()
       .map(n -> n.toString(Accidental.Sharp))
       .collect(Collectors.toSet());
 
     Optional.ofNullable(getStr(obj, "picks"))
-      .ifPresent(picks -> assertSame("Picks",
+      .ifPresent(picks -> assertSameNotes("Picks",
         new HashSet<>(CSV.split(picks)),
         picked));
 

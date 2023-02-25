@@ -8,16 +8,19 @@ import io.xj.lib.music.PitchClass;
 
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  In order to pick exactly one optimal voicing note for each of the source event notes.
  */
 public class NotePicker {
   private final NoteRange targetRange;
-  private final Set<Note> eventNotes;
   private final Set<Note> voicingNotes;
-  private final Set<Note> pickedNotes;
   private final boolean seekInversions;
   private final SecureRandom random = new SecureRandom(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
   private final NoteRange voicingRange;
@@ -25,47 +28,42 @@ public class NotePicker {
   /**
    Build a NotePicker from the given optimal target range
 
-   @param targetRange          optimally picks will be within
+   @param targetRange    optimally picks will be within
    @param voicingNotes   to pick from, at most once each
-   @param eventNotes     for which to pick exactly one voicing note each
    @param seekInversions whether to seek inversions
    */
-  public NotePicker(NoteRange targetRange, Collection<Note> voicingNotes, Collection<Note> eventNotes, boolean seekInversions) {
+  public NotePicker(NoteRange targetRange, Collection<Note> voicingNotes, boolean seekInversions) {
     this.targetRange = NoteRange.copyOf(targetRange);
-    this.eventNotes = new HashSet<>(eventNotes);
     this.voicingNotes = new HashSet<>(voicingNotes);
     this.voicingRange = NoteRange.ofNotes(voicingNotes);
     this.seekInversions = seekInversions;
-    pickedNotes = new HashSet<>();
   }
 
   /**
    Pick all voicing notes for event notes
    */
-  public void pick() {
+  public Note pick(Note eventNote) {
+    var noteInAvailableOctave = voicingRange.toAvailableOctave(eventNote);
 
-    // Pick the notes
-    for (var eN : eventNotes.stream()
-      .map(voicingRange::toAvailableOctave)
-      .sorted(Note::compareTo)
-      .toList()) {
-      if (PitchClass.None.equals(eN.getPitchClass()))
-        pickRandom(voicingNotes).ifPresent(this::pick);
-      else
-        voicingNotes.stream()
-          .sorted(Note::compareTo)
-          .map(vN -> new RankedNote(vN, Math.abs(vN.delta(eN))))
-          .min(Comparator.comparing(RankedNote::getDelta))
-          .map(RankedNote::getTones)
-          .map(voicingNote -> seekInversion(voicingNote, targetRange, voicingNotes))
-          .ifPresent(this::pick);
+    var picked =
+      // if atonal, pick random note
+      PitchClass.None.equals(noteInAvailableOctave.getPitchClass()) ? pickRandom(voicingNotes)
+        // not atonal, actually pick note
+        : voicingNotes.stream()
+        .sorted(Note::compareTo)
+        .map(vN -> new RankedNote(vN, Math.abs(vN.delta(noteInAvailableOctave))))
+        .min(Comparator.comparing(RankedNote::getDelta))
+        .map(RankedNote::getTones)
+        .map(voicingNote -> seekInversion(voicingNote, targetRange, voicingNotes));
+
+    // Pick the note
+    if (picked.isPresent()) {
+      // Keep track of the total range of notes selected, to keep voicing in the tightest possible range
+      targetRange.expand(picked.get());
+      return removePicked(picked.get());
     }
 
-    // If nothing has made it through to here, pick a single atonal note.
-    if (pickedNotes.isEmpty()) pickedNotes.add(Note.of(Note.ATONAL));
-
-    // Keep track of the total range of notes selected, to keep voicing in the tightest possible range
-    targetRange.expand(pickedNotes);
+    return Note.of(Note.ATONAL);
   }
 
   /**
@@ -76,20 +74,13 @@ public class NotePicker {
   }
 
   /**
-   @return resulting notes picked
-   */
-  public Set<Note> getPickedNotes() {
-    return pickedNotes;
-  }
-
-  /**
    Pick a note, adding it to picked notes and removing it from voicing notes
 
-   @param voicingNote to pick
+   @param picked to pick
    */
-  private void pick(Note voicingNote) {
-    voicingNotes.remove(voicingNote);
-    pickedNotes.add(voicingNote);
+  private Note removePicked(Note picked) {
+    voicingNotes.remove(picked);
+    return picked;
   }
 
   /**

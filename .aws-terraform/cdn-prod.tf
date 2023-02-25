@@ -298,7 +298,7 @@ resource "aws_cloudfront_distribution" "xj-content" {
   enabled             = true
   is_ipv6_enabled     = true
   comment             = "content.xj.io"
-  default_root_object = "content.json"
+  default_root_object = "content-v4.json"
   http_version        = "http2"
   price_class         = "PriceClass_100"
   aliases = [

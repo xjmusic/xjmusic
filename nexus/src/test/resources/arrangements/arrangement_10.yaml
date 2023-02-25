@@ -19,11 +19,10 @@ bassDetailProgram:
   doPatternRestartOnChord: true
   sequence:
     total: 8
-    patterns:
-      - type: Loop
-        total: 8
-        events:
-          - { position: 0.0, duration: 0.5, tones: "A1" }
+    pattern:
+      total: 8
+      events:
+        - { position: 0.0, duration: 0.5, tones: "A1" }
 
 segment:
   key: A-

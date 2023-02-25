@@ -84,7 +84,7 @@ resource "aws_s3_bucket" "xj-content" {
   })
 
   website {
-    index_document = "content.json"
+    index_document = "content-v4.json"
   }
 }
 

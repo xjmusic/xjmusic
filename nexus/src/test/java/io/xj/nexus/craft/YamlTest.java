@@ -11,6 +11,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.yaml.snakeyaml.Yaml;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -24,7 +25,6 @@ import static org.junit.Assert.assertNotNull;
  */
 @RunWith(MockitoJUnitRunner.class)
 public abstract class YamlTest {
-  private static final String TEST_PATH_PREFIX = "/arrangements/";
   protected Set<String> failures;
 
   @Before
@@ -46,10 +46,10 @@ public abstract class YamlTest {
     assertEquals("There should be zero assertion failures", 0, failures.size());
   }
 
-  protected Map<?, ?> loadYaml(String filename) {
+  protected Map<?, ?> loadYaml(String prefix, String filename) {
     Yaml yaml = new Yaml();
     Map<?, ?> data = yaml.load(getClass()
-      .getResourceAsStream(String.format("%s%s", TEST_PATH_PREFIX, filename)));
+      .getResourceAsStream(String.format("%s%s", prefix, filename)));
     assertNotNull("Read Test YAML file", data);
     return data;
   }
@@ -59,7 +59,7 @@ public abstract class YamlTest {
       failures.add(String.format("%s — Expected: %s — Actual: %s", description, expected, actual));
   }
 
-  protected void assertSame(String description, Note expected, Note actual) {
+  protected void assertSameNote(String description, Note expected, Note actual) {
     if (!expected.sameAs(actual))
       failures.add(String.format("%s — Expected: %s — Actual: %s", description,
         expected.toString(Accidental.Sharp),
@@ -67,19 +67,26 @@ public abstract class YamlTest {
       ));
   }
 
-  protected void assertSame(String description, Set<String> expected, Set<String> actual) {
-    if (!Objects.equals(expected, actual)) {
-      failures.add(String.format("%s — Expected: %s — Actual: %s", description,
-        expected.stream()
-          .map(Note::of)
-          .sorted(Note::compareTo)
-          .map(n -> n.toString(Accidental.Sharp))
-          .collect(Collectors.toList()),
-        actual.stream()
-          .map(Note::of)
-          .sorted(Note::compareTo)
-          .map(n -> n.toString(Accidental.Sharp))
-          .collect(Collectors.toList())));
+  protected void assertSameNotes(String description, Set<String> expected, Set<String> actual) {
+    List<Note> expectedNotes = expected.stream()
+      .map(Note::of)
+      .sorted(Note::compareTo).toList();
+    List<Note> actualNotes = actual.stream()
+      .map(Note::of)
+      .sorted(Note::compareTo).toList();
+
+    // iterate through all notes and compare
+    for (int i = 0; i < expectedNotes.size(); i++) {
+      if (!expectedNotes.get(i).sameAs(actualNotes.get(i))) {
+        failures.add(String.format("%s — Expected: %s — Actual: %s", description,
+          expectedNotes.stream()
+            .map(n -> n.toString(Accidental.Sharp))
+            .collect(Collectors.toList()),
+          actualNotes.stream()
+            .map(n -> n.toString(Accidental.Sharp))
+            .collect(Collectors.toList())));
+        return;
+      }
     }
   }
 

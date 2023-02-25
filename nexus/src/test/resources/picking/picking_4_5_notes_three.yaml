@@ -10,7 +10,7 @@ input:
   eventNotes: D3, F#3, A4, C#4
 
 assertion:
-  picks: C4, D4, G4, C5
+  picks: G3, C4, D4, G4,
   range:
-    from: C4
-    to: C5
+    from: G3
+    to: G4

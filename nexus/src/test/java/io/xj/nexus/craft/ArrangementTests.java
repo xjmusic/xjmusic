@@ -8,10 +8,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
-import io.xj.nexus.model.Chain;
-import io.xj.nexus.model.Segment;
-import io.xj.nexus.model.SegmentChoice;
-import io.xj.nexus.model.SegmentChoiceArrangementPick;
 import io.xj.hub.HubTopology;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.client.HubClient;
@@ -23,11 +19,13 @@ import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.music.StickyBun;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Text;
 import io.xj.nexus.NexusException;
@@ -35,6 +33,10 @@ import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.work.NexusWorkModule;
 import org.junit.Before;
@@ -67,12 +69,14 @@ import static org.junit.Assert.assertEquals;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ArrangementTests extends YamlTest {
+  private static final String TEST_PATH_PREFIX = "/arrangements/";
   private static final int REPEAT_EACH_TEST_TIMES = 7;
-  private static final Set<InstrumentType> INSTRUMENT_TYPES = ImmutableSet.of(
+  private static final Set<InstrumentType> INSTRUMENT_TYPES_TO_TEST = ImmutableSet.of(
     InstrumentType.Bass,
     InstrumentType.Pad,
     InstrumentType.Stab,
-    InstrumentType.Stripe
+    InstrumentType.Stripe,
+    InstrumentType.Sticky
   );
   private final Logger LOG = LoggerFactory.getLogger(YamlTest.class);
   // this is how we provide content for fabrication
@@ -88,6 +92,8 @@ public class ArrangementTests extends YamlTest {
   private Map<InstrumentType, Program> detailPrograms;
   private Map<InstrumentType, ProgramVoice> detailProgramVoices;
   private Map<InstrumentType, ProgramSequence> detailProgramSequences;
+  private Map<InstrumentType, List<ProgramSequencePatternEvent>> detailProgramSequencePatternEvents;
+  private List<StickyBun> stickyBuns;
   private Chain chain;
   private Segment segment;
   private Map<InstrumentType, SegmentChoice> segmentChoices;
@@ -155,6 +161,19 @@ public class ArrangementTests extends YamlTest {
   }
 
   @Test
+  public void arrangement_12_sticky_bun_basic() {
+    loadAndRunTest("arrangement_12_sticky_bun_basic.yaml");
+  }
+
+/*
+FUTURE goal
+  @Test
+  public void arrangement11() {
+    loadAndRunTest("arrangement_11.yaml");
+  }
+*/
+
+  @Test
   public void arrangement0_NoChordSections() {
     loadAndRunTest("arrangement_0_no_chord_sections.yaml");
   }
@@ -182,10 +201,10 @@ public class ArrangementTests extends YamlTest {
         reset();
 
         // Load YAML and parse
-        var data = loadYaml(filename);
+        var data = loadYaml(TEST_PATH_PREFIX, filename);
 
         // Read Instruments and Detail Programs from the test YAML
-        for (var instrumentType : INSTRUMENT_TYPES) {
+        for (var instrumentType : INSTRUMENT_TYPES_TO_TEST) {
           loadInstrument(data, instrumentType);
           loadDetailProgram(data, instrumentType);
         }
@@ -196,6 +215,9 @@ public class ArrangementTests extends YamlTest {
         // Fabricate: Craft Arrangements for Choices
         var sourceMaterial = new HubContent(content);
         fabricator = fabrication.fabricate(sourceMaterial, segment);
+        for (StickyBun bun : stickyBuns) {
+          fabricator.putStickyBun(bun);
+        }
         fabricator.put(buildSegmentChoice(segment, mainProgram1));
         CraftImpl subject = new CraftImpl(fabricator);
         for (var choice : segmentChoices.values()) subject.craftNoteEventArrangements(choice, false);
@@ -235,6 +257,8 @@ public class ArrangementTests extends YamlTest {
     detailPrograms = Maps.newHashMap();
     detailProgramVoices = Maps.newHashMap();
     detailProgramSequences = Maps.newHashMap();
+    detailProgramSequencePatternEvents = Maps.newHashMap();
+    stickyBuns = Lists.newArrayList();
     segmentChoices = Maps.newHashMap();
   }
 
@@ -288,18 +312,21 @@ public class ArrangementTests extends YamlTest {
     detailProgramSequences.put(type, sequence);
     content.add(sequence);
 
+    Map<?, ?> pObj = (Map<?, ?>) sObj.get("pattern");
+    var pattern = IntegrationTestingFixtures.buildPattern(sequence, voice,
+      Objects.requireNonNull(getInt(pObj, "total")));
+    content.add(pattern);
     //noinspection unchecked
-    for (Map<?, ?> pObj : (List<Map<?, ?>>) sObj.get("patterns")) {
-      var pattern = IntegrationTestingFixtures.buildPattern(sequence, voice,
-        Objects.requireNonNull(getInt(pObj, "total")));
-      content.add(pattern);
-      //noinspection unchecked
-      for (Map<?, ?> eObj : (List<Map<?, ?>>) pObj.get("events")) {
-        content.add(IntegrationTestingFixtures.buildEvent(pattern, track,
-          Objects.requireNonNull(getFloat(eObj, "position")),
-          Objects.requireNonNull(getFloat(eObj, "duration")),
-          getStr(eObj, "tones")));
+    for (Map<?, ?> eObj : (List<Map<?, ?>>) pObj.get("events")) {
+      var event = IntegrationTestingFixtures.buildEvent(pattern, track,
+        Objects.requireNonNull(getFloat(eObj, "position")),
+        Objects.requireNonNull(getFloat(eObj, "duration")),
+        getStr(eObj, "tones"));
+      content.add(event);
+      if (!detailProgramSequencePatternEvents.containsKey(type)) {
+        detailProgramSequencePatternEvents.put(type, Lists.newArrayList());
       }
+      detailProgramSequencePatternEvents.get(type).add(event);
     }
   }
 
@@ -316,6 +343,20 @@ public class ArrangementTests extends YamlTest {
       Objects.requireNonNull(getInt(obj, "total")),
       Objects.requireNonNull(getFloat(obj, "density")),
       60)); // 60 BPM such that 1 beat = 1 second
+
+    if (obj.containsKey("stickyBuns")) {
+      //noinspection unchecked
+      for (Map<?, ?> sbObj : (List<Map<?, ?>>) obj.get("stickyBuns")) {
+        var sbType = InstrumentType.valueOf(getStr(sbObj, "type"));
+        var sbPosition = getFloat(sbObj, "position");
+        var sbSeed = getInt(sbObj, "seed");
+        var event = detailProgramSequencePatternEvents.get(sbType).stream()
+          .filter(e -> e.getPosition().equals(sbPosition))
+          .findAny()
+          .orElseThrow(() -> new NexusException(String.format("Failed to locate event type %s position %f", sbType, sbPosition)));
+        stickyBuns.add(new StickyBun(event.getId(), List.of(Objects.requireNonNull(sbSeed))));
+      }
+    }
 
     //noinspection unchecked
     for (Map<?, ?> cObj : (List<Map<?, ?>>) obj.get("chords")) {
@@ -350,7 +391,7 @@ public class ArrangementTests extends YamlTest {
     @Nullable
     Map<?, ?> obj = (Map<?, ?>) data.get("assertPicks");
     if (Objects.isNull(obj)) return;
-    for (var type : INSTRUMENT_TYPES) loadAndPerformAssertions(obj, type);
+    for (var type : INSTRUMENT_TYPES_TO_TEST) loadAndPerformAssertions(obj, type);
   }
 
   private void loadAndPerformAssertions(Map<?, ?> data, InstrumentType type) {
@@ -385,7 +426,7 @@ public class ArrangementTests extends YamlTest {
           count, picks.size());
 
       if (Objects.nonNull(notes))
-        assertSame(String.format("Notes of %s", assertionName),
+        assertSameNotes(String.format("Notes of %s", assertionName),
           new HashSet<>(CSV.split(notes)), new HashSet<>(picks));
     }
   }

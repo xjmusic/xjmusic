@@ -3,6 +3,7 @@
 package io.xj.nexus.craft;
 
 import com.google.api.client.util.Lists;
+import com.google.api.client.util.Sets;
 import com.google.api.client.util.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -514,7 +515,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    @param defaultAtonal       whether to default to a single atonal note, if no voicings are available
    */
   private void pickNotesAndInstrumentAudioForEvent(Instrument instrument, SegmentChoice choice, SegmentChoiceArrangement arrangement, Double fromSegmentPosition, Double toSegmentPosition, ProgramSequencePatternEvent event, NoteRange range, boolean defaultAtonal) throws NexusException {
-    // Morph & Point attributes are expressed in beats
+    // Segment position is expressed in beats
     double segmentPosition = fromSegmentPosition + event.getPosition();
 
     // Should never place segment events outside of segment time range https://www.pivotaltracker.com/story/show/180245354
@@ -645,48 +646,54 @@ public class CraftImpl extends FabricationWrapperImpl {
    <p>
    https://www.pivotaltracker.com/story/show/176695166 XJ should choose correct instrument note based on detail program note
 
-   @param instrumentType comprising audios
-   @param choice         for reference
-   @param event          of program to pick instrument note for
-   @param segmentChord   to use for interpreting the voicing
-   @param voicing        to choose a note from
-   @param range          used to keep voicing in the tightest range possible
+   @param instrumentType  comprising audios
+   @param choice          for reference
+   @param event           of program to pick instrument note for
+   @param rawSegmentChord to use for interpreting the voicing
+   @param voicing         to choose a note from
+   @param optimalRange    used to keep voicing in the tightest range possible
    @return note picked from the available voicing
    */
-  private Set<String> pickNotesForEvent(InstrumentType instrumentType, SegmentChoice choice, ProgramSequencePatternEvent event, SegmentChord segmentChord, SegmentChordVoicing voicing, NoteRange range) throws NexusException {
-    var previous = fabricator.getPreferredNotes(event.getId().toString(), segmentChord.getName());
-    if (previous.isPresent()) return previous.get();
-
+  private Set<String> pickNotesForEvent(InstrumentType instrumentType, SegmentChoice choice, ProgramSequencePatternEvent event, SegmentChord rawSegmentChord, SegmentChordVoicing voicing, NoteRange optimalRange) throws NexusException {
     // Various computations to prepare for picking
-    var chord = Chord.of(segmentChord.getName());
-    var sourceChord = fabricator.getKeyForChoice(choice);
-    var sourceRange = fabricator.getProgramRange(choice.getProgramId(), instrumentType);
-    var targetRange = fabricator.getProgramVoicingNoteRange(instrumentType);
-    var targetShiftSemitones = fabricator.getProgramTargetShift(sourceChord, Chord.of(chord.getName()));
-    var voicingNotes = fabricator.getNotes(voicing).stream().flatMap(Note::ofValid).collect(Collectors.toList());
+    var segChord = Chord.of(rawSegmentChord.getName());
+    var dpKey = fabricator.getKeyForChoice(choice);
+    var dpRange = fabricator.getProgramRange(choice.getProgramId(), instrumentType);
+    var voicingListRange = fabricator.getProgramVoicingNoteRange(instrumentType);
 
     // take semitone shift into account before computing octave shift! https://www.pivotaltracker.com/story/show/181975107
-    var targetShiftOctaves = 12 * fabricator.getProgramRangeShiftOctaves(instrumentType, sourceRange.shifted(targetShiftSemitones), targetRange);
+    var dpTransposeSemitones = fabricator.getProgramTargetShift(instrumentType, dpKey, segChord);
+    var dpTransposeOctaveSemitones = 12 * fabricator.getProgramRangeShiftOctaves(instrumentType, dpRange.shifted(dpTransposeSemitones), voicingListRange);
 
-    // Event notes are either computed from sticky bun or interpreted from program, potentially at random
-    List<Note> eventNotes = CSV.split(event.getTones()).stream().map(n -> Note.of(n).shift(targetShiftSemitones + targetShiftOctaves)).sorted().collect(Collectors.toList());
-    var eventDeltaSemitones = sourceRange.shifted(targetShiftSemitones).getDeltaSemitones(NoteRange.ofNotes(eventNotes));
-    var eventRange = NoteRange.ofNotes(eventNotes).shifted(eventDeltaSemitones);
-    if (range.isEmpty() && !eventRange.isEmpty()) range.expand(eventRange);
+    // Event notes are either interpreted from specific notes in dp, or via sticky bun from X notes in dp
+    List<Note> eventNotes = CSV.split(event.getTones()).stream().map(n -> Note.of(n).shift(dpTransposeSemitones + dpTransposeOctaveSemitones)).sorted().collect(Collectors.toList());
+    var dpEventRelativeOffsetWithinRangeSemitones = dpRange.shifted(dpTransposeSemitones + dpTransposeOctaveSemitones).getDeltaSemitones(NoteRange.ofNotes(eventNotes));
+    var dpEventRangeWithinWholeDP = NoteRange.ofNotes(eventNotes).shifted(dpEventRelativeOffsetWithinRangeSemitones);
+
+    if (optimalRange.isEmpty() && !dpEventRangeWithinWholeDP.isEmpty())
+      optimalRange.expand(dpEventRangeWithinWholeDP);
 
     // Leverage segment meta to look up a sticky bun if it exists
     var bun = fabricator.getStickyBun(event.getId());
 
-    // pick notes
-    var notePicker = new NotePicker(range.shifted(eventDeltaSemitones), voicingNotes, bun.isPresent() ? bun.get().replaceAtonal(eventNotes, voicingNotes) : eventNotes, fabricator.getTemplateConfig().getInstrumentTypesForInversionSeeking().contains(instrumentType));
-    notePicker.pick();
-    var notes = notePicker.getPickedNotes().stream().map(n -> n.toString(chord.getAdjSymbol())).collect(Collectors.toSet());
+    // Prepare voicing notes and note picker
+    var voicingNotes = fabricator.getNotes(voicing).stream().flatMap(Note::ofValid).collect(Collectors.toList());
+    var notePicker = new NotePicker(optimalRange.shifted(dpEventRelativeOffsetWithinRangeSemitones), voicingNotes, fabricator.getTemplateConfig().getInstrumentTypesForInversionSeeking().contains(instrumentType));
 
-    // persist the picked notes for chord
-    fabricator.putNotesPickedForChord(event, chord.getName(), notes);
+    // Go through the notes in the event and pick a note from the voicing, either by note picker or by sticky bun
+    List<Note> pickedNotes = Lists.newArrayList();
+    for (var i = 0; i < eventNotes.size(); i++) {
+      var pickedNote = eventNotes.get(i).isAtonal() && bun.isPresent() ? bun.get().compute(voicingNotes, i) : notePicker.pick(eventNotes.get(i));
+      pickedNotes.add(pickedNote);
+    }
+
+    var pickedNoteStrings = pickedNotes.stream().map(n -> n.toString(segChord.getAdjSymbol())).collect(Collectors.toSet());
+
+    // expand the optimal range for voice leading by the notes that were just picked
+    optimalRange.expand(pickedNotes);
 
     // outcome
-    return notes;
+    return pickedNoteStrings;
   }
 
   /**
@@ -709,7 +716,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   private void pickInstrumentAudio(String note, Instrument instrument, ProgramSequencePatternEvent event, SegmentChoiceArrangement segmentChoiceArrangement, double startSeconds, @Nullable Double lengthSeconds, @Nullable UUID segmentChordVoicingId, double volRatio) throws NexusException {
     var audio = fabricator.getInstrumentConfig(instrument).isMultiphonic() ? selectMultiphonicInstrumentAudio(instrument, event, note) : selectMonophonicInstrumentAudio(instrument, event);
 
-    // https://www.pivotaltracker.com/story/show/176373977 Should gracefully skip audio in unfulfilled by instrument
+    // https://www.pivotaltracker.com/story/show/176373977 Should gracefully skip audio if unfulfilled by instrument
     if (audio.isEmpty()) return;
 
     // of pick
