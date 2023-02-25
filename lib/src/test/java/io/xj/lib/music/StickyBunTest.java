@@ -51,7 +51,7 @@ public class StickyBunTest {
   }
 
   /**
-   Replace atonal members
+   Replace any number of members of the set, when atonal, by computing the sticky bun
    */
   @Test
   public void replaceAtonal() {
@@ -66,6 +66,21 @@ public class StickyBunTest {
     assertNote("G6", result.get(1));
     assertNote("Bb7", result.get(2));
     assertNote("C4", result.get(3));
+  }
+
+  /**
+   Pick one
+   */
+  @Test
+  public void compute() {
+    var eventId = UUID.fromString("0f650ae7-42b7-4023-816d-168759f37d2e");
+    var voicingNotes = List.of(Note.of("C4"), Note.of("E5"), Note.of("G6"), Note.of("Bb7"));
+    var bun = new StickyBun(eventId, List.of(42, 67, 100, 0));
+
+    assertNote("E5", bun.compute(voicingNotes, 0));
+    assertNote("G6", bun.compute(voicingNotes, 1));
+    assertNote("Bb7", bun.compute(voicingNotes, 2));
+    assertNote("C4", bun.compute(voicingNotes, 3));
   }
 
   /**

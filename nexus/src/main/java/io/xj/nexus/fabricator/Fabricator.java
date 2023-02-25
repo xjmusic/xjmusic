@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.fabricator;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.xj.nexus.model.*;
 import io.xj.hub.InstrumentConfig;
 import io.xj.hub.ProgramConfig;
@@ -405,15 +406,6 @@ public interface Fabricator {
   Optional<InstrumentAudio> getPreferredAudio(String parentIdent, String ident);
 
   /**
-   Get preferred (previously chosen) notes
-
-   @param parentIdent of event
-   @param chordName   of chord
-   @return notes
-   */
-  Optional<Set<String>> getPreferredNotes(String parentIdent, String chordName);
-
-  /**
    Get Program for any given choice
 
    @param choice to get program for
@@ -639,6 +631,15 @@ public interface Fabricator {
   Integer getSequenceBindingOffsetForChoice(SegmentChoice choice);
 
   /**
+   Store a sticky bun in the fabricator
+
+   @param bun to store
+   @throws JsonProcessingException on failure
+   @throws NexusException          on failure
+   */
+  void putStickyBun(StickyBun bun) throws JsonProcessingException, NexusException;
+
+  /**
    Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
    - Sticky bun is a simple coded key-value in segment meta
    --- key by pattern Id
@@ -822,15 +823,6 @@ public interface Fabricator {
   <N> N put(N entity) throws NexusException;
 
   /**
-   Remember which notes were picked for a given event
-
-   @param event     for which to remember picked notes
-   @param chordName to remember notes picked for
-   @param notes     to remember were picked
-   */
-  void putNotesPickedForChord(ProgramSequencePatternEvent event, String chordName, Set<String> notes);
-
-  /**
    Set the preferred audio for a key
 
    @param parentIdent     for which to set
@@ -838,15 +830,6 @@ public interface Fabricator {
    @param instrumentAudio value to set
    */
   void putPreferredAudio(String parentIdent, String ident, InstrumentAudio instrumentAudio);
-
-  /**
-   Set the preferred notes for a key
-
-   @param parentIdent     for which to set
-   @param ident           for which to set
-   @param instrumentNotes value to set
-   */
-  void putPreferredNotes(String parentIdent, String ident, Set<String> instrumentNotes);
 
   /**
    Put a key-value pair into the report

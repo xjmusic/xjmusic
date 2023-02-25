@@ -5,7 +5,6 @@ package io.xj.lib.music;
 import com.google.api.client.util.Lists;
 import io.xj.lib.util.TremendouslyRandom;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -16,7 +15,7 @@ import java.util.stream.IntStream;
  */
 public class StickyBun {
   private static final String META_KEY_TEMPLATE = "StickyBun_%s";
-  private static final int MAX_VALUE = 99;
+  private static final int MAX_VALUE = 100;
   private List<Integer> values;
   private UUID eventId;
 
@@ -105,22 +104,27 @@ public class StickyBun {
    @return notes with atonal elements augmented by sticky bun
    */
   public List<Note> replaceAtonal(List<Note> source, List<Note> voicingNotes) {
-    var voicingRange = NoteRange.ofNotes(voicingNotes);
     if (values.isEmpty()) return source;
-    if (voicingRange.getSpan().isEmpty()) return source;
 
-    List<Note> notes = Lists.newArrayList(source);
+    List<Note> sourceNotes = Lists.newArrayList(source);
 
-    for (var i = 0; i < notes.size(); i++)
-      if (notes.get(i).isAtonal()) {
-        float value = (float) values.get(Math.min(i, values.size() - 1)) / MAX_VALUE;
-        var targetNote = voicingRange.getLow().orElseThrow().shift((int) (value * voicingRange.getSpan().orElseThrow()));
-        var foundNote = voicingNotes.parallelStream().min(Comparator.comparingInt(a -> Math.abs(a.delta(targetNote))));
-        if (foundNote.isPresent())
-          notes.set(i, foundNote.get());
+    for (var i = 0; i < sourceNotes.size(); i++)
+      if (sourceNotes.get(i).isAtonal()) {
+        sourceNotes.set(i, compute(voicingNotes, i));
       }
 
-    return notes;
+    return sourceNotes;
+  }
+
+  /**
+   Replace atonal notes in the list with selections based on the sticky bun
+
+   @param voicingNotes from which to select replacements
+   @return notes with atonal elements augmented by sticky bun
+   */
+  public Note compute(List<Note> voicingNotes, int index) {
+    float valueRatio = (float) values.get(Math.min(index, values.size() - 1)) / MAX_VALUE;
+    return voicingNotes.get((int) Math.max(0, Math.min(voicingNotes.size() - 1, Math.floor((voicingNotes.size() - 1) * valueRatio))));
   }
 
   public String computeMetaKey() {

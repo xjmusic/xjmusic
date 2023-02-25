@@ -23,22 +23,21 @@ stabDetailProgram:
   doPatternRestartOnChord: false
   sequence:
     total: 8
-    patterns:
-      - type: Loop
-        total: 8
-        events:
-          - { position: 0.0, duration: 0.5, tones: "C4" }
-          - { position: 0.5, duration: 0.5, tones: "C#4" }
-          - { position: 1.0, duration: 0.5, tones: "D4" }
-          - { position: 1.5, duration: 0.5, tones: "D#4" }
-          - { position: 2.0, duration: 0.5, tones: "E4" }
-          - { position: 2.5, duration: 0.5, tones: "F4" }
-          - { position: 3.0, duration: 0.5, tones: "F#4" }
-          - { position: 3.5, duration: 0.5, tones: "G4" }
-          - { position: 4.0, duration: 0.5, tones: "G#4" }
-          - { position: 4.5, duration: 0.5, tones: "A4" }
-          - { position: 5.0, duration: 0.5, tones: "A#4" }
-          - { position: 5.5, duration: 0.5, tones: "B4" }
+    pattern:
+      total: 8
+      events:
+        - { position: 0.0, duration: 0.5, tones: "C4" }
+        - { position: 0.5, duration: 0.5, tones: "C#4" }
+        - { position: 1.0, duration: 0.5, tones: "D4" }
+        - { position: 1.5, duration: 0.5, tones: "D#4" }
+        - { position: 2.0, duration: 0.5, tones: "E4" }
+        - { position: 2.5, duration: 0.5, tones: "F4" }
+        - { position: 3.0, duration: 0.5, tones: "F#4" }
+        - { position: 3.5, duration: 0.5, tones: "G4" }
+        - { position: 4.0, duration: 0.5, tones: "G#4" }
+        - { position: 4.5, duration: 0.5, tones: "A4" }
+        - { position: 5.0, duration: 0.5, tones: "A#4" }
+        - { position: 5.5, duration: 0.5, tones: "B4" }
 
 segment:
   key: C-

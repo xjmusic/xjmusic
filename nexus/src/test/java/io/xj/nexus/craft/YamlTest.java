@@ -11,6 +11,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.yaml.snakeyaml.Yaml;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -58,7 +59,7 @@ public abstract class YamlTest {
       failures.add(String.format("%s — Expected: %s — Actual: %s", description, expected, actual));
   }
 
-  protected void assertSame(String description, Note expected, Note actual) {
+  protected void assertSameNote(String description, Note expected, Note actual) {
     if (!expected.sameAs(actual))
       failures.add(String.format("%s — Expected: %s — Actual: %s", description,
         expected.toString(Accidental.Sharp),
@@ -66,19 +67,26 @@ public abstract class YamlTest {
       ));
   }
 
-  protected void assertSame(String description, Set<String> expected, Set<String> actual) {
-    if (!Objects.equals(expected, actual)) {
-      failures.add(String.format("%s — Expected: %s — Actual: %s", description,
-        expected.stream()
-          .map(Note::of)
-          .sorted(Note::compareTo)
-          .map(n -> n.toString(Accidental.Sharp))
-          .collect(Collectors.toList()),
-        actual.stream()
-          .map(Note::of)
-          .sorted(Note::compareTo)
-          .map(n -> n.toString(Accidental.Sharp))
-          .collect(Collectors.toList())));
+  protected void assertSameNotes(String description, Set<String> expected, Set<String> actual) {
+    List<Note> expectedNotes = expected.stream()
+      .map(Note::of)
+      .sorted(Note::compareTo).toList();
+    List<Note> actualNotes = actual.stream()
+      .map(Note::of)
+      .sorted(Note::compareTo).toList();
+
+    // iterate through all notes and compare
+    for (int i = 0; i < expectedNotes.size(); i++) {
+      if (!expectedNotes.get(i).sameAs(actualNotes.get(i))) {
+        failures.add(String.format("%s — Expected: %s — Actual: %s", description,
+          expectedNotes.stream()
+            .map(n -> n.toString(Accidental.Sharp))
+            .collect(Collectors.toList()),
+          actualNotes.stream()
+            .map(n -> n.toString(Accidental.Sharp))
+            .collect(Collectors.toList())));
+        return;
+      }
     }
   }
 

@@ -34,24 +34,22 @@ padDetailProgram:
   doPatternRestartOnChord: false
   sequence:
     total: 4
-    patterns:
-      - type: Loop
-        total: 4
-        events:
-          - { position: 0.0, duration: 2.0, tones: "G3, B3, C4, E4" }
-          - { position: 2.0, duration: 2.0, tones: "B3, C4, E4, G4" }
+    pattern:
+      total: 4
+      events:
+        - { position: 0.0, duration: 2.0, tones: "G3, B3, C4, E4" }
+        - { position: 2.0, duration: 2.0, tones: "B3, C4, E4, G4" }
 
 stabDetailProgram:
   key: C
   doPatternRestartOnChord: false
   sequence:
     total: 4
-    patterns:
-      - type: Loop
-        total: 4
-        events:
-          - { position: 0.0, duration: 2.0, tones: "G3, B3, C4, E4" }
-          - { position: 2.0, duration: 2.0, tones: "B3, C4, E4, G4" }
+    pattern:
+      total: 4
+      events:
+        - { position: 0.0, duration: 2.0, tones: "G3, B3, C4, E4" }
+        - { position: 2.0, duration: 2.0, tones: "B3, C4, E4, G4" }
 
 segment:
   key: D-

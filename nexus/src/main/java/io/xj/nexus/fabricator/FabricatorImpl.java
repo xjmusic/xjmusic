@@ -83,7 +83,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -121,7 +120,6 @@ class FabricatorImpl implements Fabricator {
   private final Map<String, Integer> rangeShiftOctave;
   private final Map<String, Integer> targetShift;
   private final Map<String, NoteRange> rangeForChoice;
-  private final Map<String, Set<String>> preferredNotesByChordEvent;
   private final Map<String, Optional<Note>> rootNotesByVoicingAndChord;
   private final Map<UUID, Collection<ProgramSequenceChord>> completeChordsForProgramSequence;
   private final Map<UUID, List<SegmentChoiceArrangementPick>> picksForChoice;
@@ -194,9 +192,6 @@ class FabricatorImpl implements Fabricator {
 
       // set up the segment retrospective
       retrospective = fabricatorFactory.loadRetrospective(segment, sourceMaterial);
-
-      // digest previous picks for chord+event
-      preferredNotesByChordEvent = computePreferredNotesByChordEvent();
 
       // digest previous instrument audio
       preferredAudios = computePreferredInstrumentAudio();
@@ -649,20 +644,6 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Optional<Set<String>> getPreferredNotes(String parentIdent, String chordName) {
-    try {
-      var cacheKey = computeNoteChordEventCacheKey(parentIdent, chordName);
-      if (preferredNotesByChordEvent.containsKey(cacheKey))
-        return Optional.of(new HashSet<>(preferredNotesByChordEvent.get(cacheKey)));
-
-    } catch (NexusException | EntityStoreException e) {
-      LOG.debug("No notes cached for previous event and chord id", e);
-    }
-
-    return Optional.empty();
-  }
-
-  @Override
   public Optional<Program> getProgram(SegmentChoice choice) {
     return sourceMaterial.getProgram(choice.getProgramId());
   }
@@ -813,6 +794,15 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
+  public void putStickyBun(StickyBun bun) throws JsonProcessingException, NexusException {
+    workbench.put(new SegmentMeta()
+      .id(UUID.randomUUID())
+      .segmentId(getSegment().getId())
+      .key(bun.computeMetaKey())
+      .value(jsonProvider.getMapper().writeValueAsString(bun)));
+  }
+
+  @Override
   public Optional<StickyBun> getStickyBun(UUID eventId) {
     if (!templateConfig.isStickyBunEnabled()) return Optional.empty();
     //
@@ -835,11 +825,7 @@ class FabricatorImpl implements Fabricator {
     }
     var bun = new StickyBun(eventId, CSV.split(sourceMaterial.getProgramSequencePatternEvent(eventId).orElseThrow().getTones()).size());
     try {
-      workbench.put(new SegmentMeta()
-        .id(UUID.randomUUID())
-        .segmentId(getSegment().getId())
-        .key(bun.computeMetaKey())
-        .value(jsonProvider.getMapper().writeValueAsString(bun)));
+      putStickyBun(bun);
     } catch (NexusException e) {
       addErrorMessage(String.format("Failed to put StickyBun for Event[%s] because %s", eventId, e.getMessage()));
     } catch (JsonProcessingException e) {
@@ -1041,28 +1027,10 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public void putNotesPickedForChord(ProgramSequencePatternEvent event, String chordName, Set<String> notes) {
-    try {
-      preferredNotesByChordEvent.put(computeNoteChordEventCacheKey(event.getId().toString(), chordName), new HashSet<>(notes));
-    } catch (NexusException | EntityStoreException e) {
-      LOG.warn("Can't cache notes picked for chord", e);
-    }
-  }
-
-  @Override
   public void putPreferredAudio(String parentIdent, String ident, InstrumentAudio instrumentAudio) {
     String cacheKey = String.format(KEY_VOICE_NOTE_TEMPLATE, parentIdent, ident);
 
     preferredAudios.put(cacheKey, instrumentAudio);
-  }
-
-  @Override
-  public void putPreferredNotes(String parentIdent, String ident, Set<String> instrumentNotes) {
-    try {
-      preferredNotesByChordEvent.put(computeNoteChordEventCacheKey(parentIdent, ident), instrumentNotes);
-    } catch (NexusException | EntityStoreException e) {
-      LOG.warn("Can't cache preferred notes", e);
-    }
   }
 
   @Override

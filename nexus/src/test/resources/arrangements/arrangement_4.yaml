@@ -31,40 +31,37 @@ bassDetailProgram:
   doPatternRestartOnChord: false
   sequence:
     total: 4
-    patterns:
-      - type: Loop
-        total: 4
-        events:
-          - { position: 0.0, duration: 0.5, tones: "C2" }
-          - { position: 0.5, duration: 0.5, tones: "C2" }
-          - { position: 1.0, duration: 0.5, tones: "C2" }
-          - { position: 1.5, duration: 0.5, tones: "C2" }
-          - { position: 2.0, duration: 0.5, tones: "C2" }
-          - { position: 2.5, duration: 0.5, tones: "C2" }
-          - { position: 3.0, duration: 0.5, tones: "C2" }
-          - { position: 3.5, duration: 0.5, tones: "C2" }
+    pattern:
+      total: 4
+      events:
+        - { position: 0.0, duration: 0.5, tones: "C2" }
+        - { position: 0.5, duration: 0.5, tones: "C2" }
+        - { position: 1.0, duration: 0.5, tones: "C2" }
+        - { position: 1.5, duration: 0.5, tones: "C2" }
+        - { position: 2.0, duration: 0.5, tones: "C2" }
+        - { position: 2.5, duration: 0.5, tones: "C2" }
+        - { position: 3.0, duration: 0.5, tones: "C2" }
+        - { position: 3.5, duration: 0.5, tones: "C2" }
 
 padDetailProgram:
   key: C
   doPatternRestartOnChord: true
   sequence:
     total: 4
-    patterns:
-      - type: Loop
-        total: 4
-        events:
-          - { position: 0.0, duration: 4.0, tones: "F3, A3, C4, E4" }
+    pattern:
+      total: 4
+      events:
+        - { position: 0.0, duration: 4.0, tones: "F3, A3, C4, E4" }
 
 stabDetailProgram:
   key: C
   doPatternRestartOnChord: true
   sequence:
     total: 4
-    patterns:
-      - type: Loop
-        total: 4
-        events:
-          - { position: 0.0, duration: 0.5, tones: "F3, A3, C4, E4" }
+    pattern:
+      total: 4
+      events:
+        - { position: 0.0, duration: 0.5, tones: "F3, A3, C4, E4" }
 
 segment:
   key: A

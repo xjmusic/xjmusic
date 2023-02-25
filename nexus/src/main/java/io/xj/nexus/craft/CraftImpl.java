@@ -3,6 +3,7 @@
 package io.xj.nexus.craft;
 
 import com.google.api.client.util.Lists;
+import com.google.api.client.util.Sets;
 import com.google.api.client.util.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -654,9 +655,6 @@ public class CraftImpl extends FabricationWrapperImpl {
    @return note picked from the available voicing
    */
   private Set<String> pickNotesForEvent(InstrumentType instrumentType, SegmentChoice choice, ProgramSequencePatternEvent event, SegmentChord rawSegmentChord, SegmentChordVoicing voicing, NoteRange optimalRange) throws NexusException {
-    var previous = fabricator.getPreferredNotes(event.getId().toString(), rawSegmentChord.getName());
-    if (previous.isPresent()) return previous.get();
-
     // Various computations to prepare for picking
     var segChord = Chord.of(rawSegmentChord.getName());
     var dpKey = fabricator.getKeyForChoice(choice);
@@ -678,17 +676,21 @@ public class CraftImpl extends FabricationWrapperImpl {
     // Leverage segment meta to look up a sticky bun if it exists
     var bun = fabricator.getStickyBun(event.getId());
 
-    // pick notes
+    // Prepare voicing notes and note picker
     var voicingNotes = fabricator.getNotes(voicing).stream().flatMap(Note::ofValid).collect(Collectors.toList());
-    var notePicker = new NotePicker(optimalRange.shifted(dpEventRelativeOffsetWithinRangeSemitones), voicingNotes, bun.isPresent() ? bun.get().replaceAtonal(eventNotes, voicingNotes) : eventNotes, fabricator.getTemplateConfig().getInstrumentTypesForInversionSeeking().contains(instrumentType));
-    notePicker.pick();
-    var pickedNoteStrings = notePicker.getPickedNotes().stream().map(n -> n.toString(segChord.getAdjSymbol())).collect(Collectors.toSet());
+    var notePicker = new NotePicker(optimalRange.shifted(dpEventRelativeOffsetWithinRangeSemitones), voicingNotes, fabricator.getTemplateConfig().getInstrumentTypesForInversionSeeking().contains(instrumentType));
 
-    // persist the picked notes for chord
-    fabricator.putNotesPickedForChord(event, segChord.getName(), pickedNoteStrings);
+    // Go through the notes in the event and pick a note from the voicing, either by note picker or by sticky bun
+    List<Note> pickedNotes = Lists.newArrayList();
+    for (var i = 0; i < eventNotes.size(); i++) {
+      var pickedNote = eventNotes.get(i).isAtonal() && bun.isPresent() ? bun.get().compute(voicingNotes, i) : notePicker.pick(eventNotes.get(i));
+      pickedNotes.add(pickedNote);
+    }
+
+    var pickedNoteStrings = pickedNotes.stream().map(n -> n.toString(segChord.getAdjSymbol())).collect(Collectors.toSet());
 
     // expand the optimal range for voice leading by the notes that were just picked
-    optimalRange.expand(notePicker.getPickedNotes());
+    optimalRange.expand(pickedNotes);
 
     // outcome
     return pickedNoteStrings;
