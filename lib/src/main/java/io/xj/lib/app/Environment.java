@@ -152,7 +152,7 @@ public class Environment {
     apiWelcomeRedirectPath = readStr(vars, "API_WELCOME_REDIRECT_PATH", "");
     appBaseURL = readStr(vars, "APP_BASE_URL", "http://localhost/");
     appName = readStr(vars, "APP_NAME", "app");
-    appPort = readInt(vars, "APP_PORT", 3000);
+    appPort = readInt(vars, "APP_PORT", 8080);
     audioBaseURL = readStr(vars, "AUDIO_BASE_URL", "https://audio.dev.xj.io/");
     audioCacheFilePrefix = readStr(vars, "AUDIO_CACHE_FILE_PREFIX", "/tmp/");
     audioFileBucket = readStr(vars, "AUDIO_FILE_BUCKET", "xj-dev-audio");

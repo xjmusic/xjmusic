@@ -1,7 +1,7 @@
 # Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 module "fabrication_bump_deep" {
-  source = "./fabrication"
+  source = "./modules/fabrication-legacy"
 
   notification_channels = local.gcp-alert-notification-channels
   ship_key              = "bump_deep"
@@ -9,7 +9,7 @@ module "fabrication_bump_deep" {
 }
 
 module "fabrication_bump_chill" {
-  source = "./fabrication"
+  source = "./modules/fabrication-legacy"
 
   notification_channels = local.gcp-alert-notification-channels
   ship_key              = "bump_chill"
@@ -17,7 +17,7 @@ module "fabrication_bump_chill" {
 }
 
 module "fabrication_space_flow" {
-  source = "./fabrication"
+  source = "./modules/fabrication-legacy"
 
   notification_channels = local.gcp-alert-notification-channels
   ship_key              = "space_flow"
@@ -25,7 +25,7 @@ module "fabrication_space_flow" {
 }
 
 module "fabrication_space_binaural" {
-  source = "./fabrication"
+  source = "./modules/fabrication-legacy"
 
   notification_channels = local.gcp-alert-notification-channels
   ship_key              = "space_binaural"
@@ -33,7 +33,7 @@ module "fabrication_space_binaural" {
 }
 
 module "fabrication_slaps_lofi" {
-  source = "./fabrication"
+  source = "./modules/fabrication-legacy"
 
   notification_channels = local.gcp-alert-notification-channels
   ship_key              = "slaps_lofi"
