@@ -1,15 +1,16 @@
 # Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 terraform {
-  required_version = ">= 0.13.1" # see https://releases.hashicorp.com/terraform/
+  required_version = ">= 0.15.1" # see https://releases.hashicorp.com/terraform/
   backend "gcs" {
     bucket = "xj-vpc-host-prod-us-west1-terraform"
     prefix = "main"
   }
   required_providers {
+    # https://github.com/terraform-providers/terraform-provider-google/releases
     google = {
       source  = "hashicorp/google"
-      version = "4.23.0" # see https://github.com/terraform-providers/terraform-provider-google/releases
+      version = "4.55.0"
     }
   }
 }

@@ -70,7 +70,7 @@ Each service has a unique port assignment:
 
 | Service       | Port          |
 | ------------- |---------------|
-| nexus         | 3000          |
+| nexus         | 8080          |
 
 ## Chain Work
 
