@@ -3,31 +3,27 @@
 package io.xj.lib.jsonapi;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Guice;
 import io.xj.lib.Widget;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.json.JsonProviderImpl;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import java.util.Collection;
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class JsonapiPayloadFactoryImplTest {
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
   private JsonapiPayloadFactory subject;
   private EntityFactory entityFactory;
 
   @Before
   public void setUp() {
-    var injector = Guice.createInjector(new JsonapiModule());
-    entityFactory = injector.getInstance(EntityFactory.class);
-    subject = injector.getInstance(JsonapiPayloadFactory.class);
+    var jsonProvider = new JsonProviderImpl();
+    entityFactory = new EntityFactoryImpl(jsonProvider);
+    subject = new JsonapiPayloadFactoryImpl(entityFactory);
   }
 
   @Test
@@ -80,10 +76,8 @@ public class JsonapiPayloadFactoryImplTest {
         .setId(UUID.fromString("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7"))
         .setName("Jams")));
 
-    failure.expect(JsonapiException.class);
-    failure.expectMessage("Failed to deserialize JSON");
-
-    subject.deserialize("this is absolutely not json");
+    var e = assertThrows(JsonapiException.class, () -> subject.deserialize("this is absolutely not json"));
+    assertTrue(e.getMessage().contains("Failed to deserialize JSON"));
   }
 
   @Test
@@ -110,10 +104,8 @@ public class JsonapiPayloadFactoryImplTest {
         .setId(UUID.fromString("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7"))
         .setName("Jams"));
 
-    failure.expect(JsonapiException.class);
-    failure.expectMessage("Failed to locate instance provider for widgets");
-
-    subject.toOne(jsonapiPayloadObject);
+    var e = assertThrows(JsonapiException.class, () -> subject.toOne(jsonapiPayloadObject));
+    assertTrue(e.getMessage().contains("Failed to locate instance provider for widgets"));
   }
 
 }

@@ -1,11 +1,20 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.fabricator;
 
-import io.xj.nexus.model.*;
 import io.xj.hub.enums.ProgramType;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
 import io.xj.nexus.NexusException;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangement;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.model.SegmentChord;
+import io.xj.nexus.model.SegmentChordVoicing;
+import io.xj.nexus.model.SegmentMeme;
+import io.xj.nexus.model.SegmentMessage;
+import io.xj.nexus.model.SegmentMeta;
 
 import java.util.Collection;
 import java.util.List;
@@ -83,7 +92,7 @@ public interface SegmentWorkbench {
 
   /**
    Put a key-value pair into the report
-   https://www.pivotaltracker.com/story/show/162999779 only exports data as a sub-field of the standard content JSON
+   only exports data as a sub-field of the standard content JSON https://www.pivotaltracker.com/story/show/162999779
 
    @param key   to put
    @param value to put

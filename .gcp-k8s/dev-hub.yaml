@@ -65,7 +65,7 @@ spec:
             failureThreshold: 3
             httpGet:
               path: /healthz
-              port: 3000
+              port: 8080
               scheme: HTTP
             initialDelaySeconds: 40
             periodSeconds: 15
@@ -110,7 +110,7 @@ spec:
     - nodePort: 30415
       port: 8080
       protocol: TCP
-      targetPort: 3000
+      targetPort: 8080
   selector:
     k8s-app: hub
   sessionAffinity: None

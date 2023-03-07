@@ -4,7 +4,7 @@ package io.xj.lib.mixer;
 /**
  Put to represent a single audio source playing at a specific time in the future.
  <p>
- Provides an attack/release envelope from 0.0 to 1.0 per https://www.pivotaltracker.com/story/show/150279617 dub using an Attack/Release envelope
+ Provides an attack/release envelope from 0.0 to 1.0 per dub using an Attack/Release envelope https://www.pivotaltracker.com/story/show/150279617
  */
 public interface Put {
   String READY = "ready";

@@ -1,9 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.mixer;
 
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-import io.xj.lib.app.Environment;
+
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
@@ -24,12 +23,12 @@ import java.util.Optional;
 import static io.xj.lib.util.Values.MICROS_PER_SECOND;
 
 /**
- models a single audio source
- stores a series of Samples in Channels across Time, for audio playback.
- <p>
- Dub mixes audio from disk (not memory) to avoid heap overflow https://www.pivotaltracker.com/story/show/180206211
- <p>
- Fabrication should not completely fail because of one bad source audio https://www.pivotaltracker.com/story/show/182575665
+ * models a single audio source
+ * stores a series of Samples in Channels across Time, for audio playback.
+ * <p>
+ * Dub mixes audio from disk (not memory) to avoid heap overflow https://www.pivotaltracker.com/story/show/180206211
+ * <p>
+ * Fabrication should not completely fail because of one bad source audio https://www.pivotaltracker.com/story/show/182575665
  */
 class SourceImpl implements Source {
   private static final Logger LOG = LoggerFactory.getLogger(SourceImpl.class);
@@ -44,13 +43,12 @@ class SourceImpl implements Source {
   private final long frameLength;
   private final long lengthMicros;
 
-  @Inject
   public SourceImpl(
-    @Assisted("sourceId") String sourceId,
-    @Assisted("absolutePath") String absolutePath,
-    @Assisted("description") String description,
+    AppEnvironment env,
     NotificationProvider notification,
-    Environment env
+    String sourceId,
+    String absolutePath,
+    String description
   ) {
     double _microsPerFrame;
     long _lengthMicros;

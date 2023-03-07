@@ -4,10 +4,8 @@ package io.xj.ship.broadcast;
 
 import com.google.api.client.util.Lists;
 import com.google.common.collect.Maps;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import io.opencensus.stats.Measure;
-import io.xj.lib.app.Environment;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
@@ -20,9 +18,11 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
@@ -38,13 +38,13 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 /**
- Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
+ * Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
  */
-@Singleton
+@Service
 public class PlaylistPublisherImpl implements PlaylistPublisher {
   private static final Logger LOG = LoggerFactory.getLogger(PlaylistPublisherImpl.class);
   private final AtomicLong maxSequenceNumber = new AtomicLong(0);
-  private final BroadcastFactory broadcast;
+  private final ChunkFactory chunkFactory;
   private final DecimalFormat df;
   private final FileStoreProvider fileStore;
   private final HttpClientProvider httpClientProvider;
@@ -70,17 +70,17 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   @Nullable
   private final String m3u8KeyAlias;
 
-  @Inject
+  @Autowired
   public PlaylistPublisherImpl(
-    BroadcastFactory broadcast,
-    Environment env,
-    FileStoreProvider fileStore,
+    AppEnvironment env,
+    ChunkFactory chunkFactory,
+    FileStoreProvider fileStoreProvider,
     HttpClientProvider httpClientProvider,
     MediaSeqNumProvider mediaSeqNumProvider,
     TelemetryProvider telemetryProvider
   ) {
-    this.broadcast = broadcast;
-    this.fileStore = fileStore;
+    this.chunkFactory = chunkFactory;
+    this.fileStore = fileStoreProvider;
     this.httpClientProvider = httpClientProvider;
     this.mediaSeqNumProvider = mediaSeqNumProvider;
     this.telemetryProvider = telemetryProvider;
@@ -118,7 +118,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     try (
       CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", streamBaseUrl, m3u8Key)))
     ) {
-      if (!Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode())) {
+      if (!Objects.equals(HttpStatus.OK.value(), response.getStatusLine().getStatusCode())) {
         LOG.error("Failed to get previously playlist {} because {} {}", m3u8Key, response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
         return Optional.empty();
       }
@@ -238,7 +238,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
         seqNum = Integer.parseInt(mF.group(2));
         ext = mF.group(3);
 
-        item = broadcast.chunk(shipKey, seqNum, ext, actualDuration);
+        item = chunkFactory.build(shipKey, seqNum, ext, actualDuration);
 
         chunks.add(item);
       }
@@ -289,16 +289,17 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   }
 
   /**
-   Recompute the max sequence number given current items
+   * Recompute the max sequence number given current items
    */
   private void recomputeMaxSequenceNumber() {
     maxSequenceNumber.set(items.keySet().stream().max(Long::compare).orElse(0L));
   }
 
   /**
-   Compute an M3U8 file key
-   @param key for which to compute file key
-   @return file key
+   * Compute an M3U8 file key
+   *
+   * @param key for which to compute file key
+   * @return file key
    */
   private String computeM3u8Key(String key) {
     return String.format("%s.m3u8", key);

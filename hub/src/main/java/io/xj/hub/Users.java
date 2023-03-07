@@ -14,10 +14,10 @@ public enum Users {
   ;
 
   /**
-   extract a collection of ids of a string CSV
-
-   @param csv to parse
-   @return collection of ids
+   * extract a collection of ids of a string CSV
+   *
+   * @param csv to parse
+   * @return collection of ids
    */
   public static Collection<UserRoleType> userRoleTypesFromCsv(String csv) {
     Collection<UserRoleType> result = Lists.newArrayList();
@@ -30,10 +30,10 @@ public enum Users {
   }
 
   /**
-   Get CSV of a collection of user role types
-
-   @param roleTypes to get CSV of
-   @return CSV of user role types
+   * Get CSV of a collection of user role types
+   *
+   * @param roleTypes to get CSV of
+   * @return CSV of user role types
    */
   public static String csvOfUserRoleTypes(Collection<UserRoleType> roleTypes) {
     return CSV.join(roleTypes.stream().map(Enum::toString).collect(Collectors.toList()));

@@ -3,24 +3,39 @@
 package io.xj.nexus.craft.macro_main;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
-import io.xj.nexus.model.*;
 import io.xj.hub.HubTopology;
-import io.xj.hub.enums.ProgramState;
-import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.*;
-import io.xj.lib.app.Environment;
-import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.json.ApiUrlProvider;
-import io.xj.nexus.NexusException;
-import io.xj.nexus.NexusTopology;
-import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.hub.client.HubClient;
 import io.xj.hub.client.HubContent;
-import io.xj.nexus.persistence.NexusEntityStore;
-import io.xj.nexus.work.NexusWorkModule;
+import io.xj.hub.enums.ProgramState;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.tables.pojos.Account;
+import io.xj.hub.tables.pojos.AccountUser;
+import io.xj.hub.tables.pojos.Library;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.hub.tables.pojos.User;
+import io.xj.lib.app.AppEnvironment;
+import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.entity.EntityStore;
+import io.xj.lib.entity.EntityStoreImpl;
+import io.xj.lib.json.ApiUrlProvider;
+import io.xj.lib.json.JsonProviderImpl;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.lib.notification.NotificationProvider;
+import io.xj.nexus.NexusException;
+import io.xj.nexus.NexusTopology;
+import io.xj.nexus.fabricator.FabricatorFactoryImpl;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.ChainType;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.persistence.ChainManagerImpl;
+import io.xj.nexus.persistence.NexusEntityStoreImpl;
+import io.xj.nexus.persistence.SegmentManagerImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,12 +44,23 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Instant;
 
-import static io.xj.hub.IntegrationTestingFixtures.*;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildBinding;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
+import static io.xj.hub.IntegrationTestingFixtures.buildMeme;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
+import static io.xj.hub.IntegrationTestingFixtures.buildSequence;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplateBinding;
+import static io.xj.hub.IntegrationTestingFixtures.buildUser;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
 import static org.junit.Assert.assertEquals;
 
 /**
- https://www.pivotaltracker.com/story/show/176728582 Choose next Macro program based on the memes of the last sequence from the previous Macro program
+ * Choose next Macro program based on the memes of the last sequence from the previous Macro program https://www.pivotaltracker.com/story/show/176728582
  */
 @SuppressWarnings("ALL")
 @RunWith(MockitoJUnitRunner.class)
@@ -44,26 +70,38 @@ public class MacroFromOverlappingMemeSequencesTest {
   public HubClient hubClient;
   @Mock
   public ApiUrlProvider apiUrlProvider;
+  @Mock
+  public NotificationProvider notificationProvider;
   private MacroMainCraftImpl subject;
   private Program macro2a;
 
   @Before
   public void setUp() throws Exception {
-    Environment env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(new NexusWorkModule())
-      .with(new AbstractModule() {
-        @Override
-        protected void configure() {
-          bind(Environment.class).toInstance(env);
-        }
-      }));
-    FabricatorFactory fabricatorFactory = injector.getInstance(FabricatorFactory.class);
-    var entityFactory = injector.getInstance(EntityFactory.class);
+    AppEnvironment env = AppEnvironment.getDefault();
+    var jsonProvider = new JsonProviderImpl();
+    var entityFactory = new EntityFactoryImpl(jsonProvider);
+    var store = new NexusEntityStoreImpl(entityFactory);
+    var segmentManager = new SegmentManagerImpl(entityFactory, store);
+    var chainManager = new ChainManagerImpl(
+      env,
+      entityFactory,
+      store,
+      segmentManager,
+      notificationProvider
+    );
+    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
+    EntityStore entityStore = new EntityStoreImpl();
+    var fabricatorFactory = new FabricatorFactoryImpl(
+      env,
+      chainManager,
+            segmentManager,
+      jsonapiPayloadFactory,
+      jsonProvider
+    );
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
-    NexusEntityStore store = injector.getInstance(NexusEntityStore.class);
     store.deleteAll();
 
     // Mock request via HubClient returns fake generated library of hub content

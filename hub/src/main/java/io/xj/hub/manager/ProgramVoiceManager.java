@@ -12,15 +12,15 @@ import java.util.UUID;
 public interface ProgramVoiceManager extends Manager<ProgramVoice> {
 
   /**
-   Add a voicing to the given program
-   <p>
-   Programs persist main chord/voicing structure sensibly
-   https://www.pivotaltracker.com/story/show/182220689
-
-   @param db        database
-   @param programId to add a voicing
-   @param type      of voicing to add
-   @return newly added voicing
+   * Add a voicing to the given program
+   * <p>
+   * Programs persist main chord/voicing structure sensibly
+   * https://www.pivotaltracker.com/story/show/182220689
+   *
+   * @param db        database
+   * @param programId to add a voicing
+   * @param type      of voicing to add
+   * @return newly added voicing
    */
   ProgramVoice add(DSLContext db, UUID programId, InstrumentType type) throws ManagerException, JsonapiException, ValueException;
 }

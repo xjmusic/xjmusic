@@ -2,71 +2,70 @@
 package io.xj.hub.api;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.manager.*;
-import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.*;
 import io.xj.lib.util.CSV;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
 import javax.annotation.Nullable;
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 /**
- Programs
+ * Programs
  */
 @Path("api/1/programs")
-public class ProgramEndpoint extends HubJsonapiEndpoint<Program> {
+public class ProgramEndpoint extends HubJsonapiEndpoint {
   private final ProgramSequenceBindingMemeManager programSequenceBindingMemeManager;
   private final ProgramManager manager;
   private final ProgramMemeManager programMemeManager;
 
   /**
-   Constructor
+   * Constructor
    */
-  @Inject
   public ProgramEndpoint(
     ProgramManager manager,
     ProgramSequenceBindingMemeManager programSequenceBindingMemeManager,
     ProgramMemeManager programMemeManager,
-    HubDatabaseProvider dbProvider,
-    JsonapiHttpResponseProvider response,
+    HubSqlStoreProvider sqlStoreProvider,
+    JsonapiResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory
   ) {
-    super(dbProvider, response, payloadFactory, entityFactory);
+    super(sqlStoreProvider, response, payloadFactory, entityFactory);
     this.manager = manager;
     this.programSequenceBindingMemeManager = programSequenceBindingMemeManager;
     this.programMemeManager = programMemeManager;
   }
 
   /**
-   Get all programs.
-
-   @param accountId to get programs for
-   @param libraryId to get programs for
-   @param detailed  whether to include memes and bindings
-   @return set of all programs
+   * Get all programs.
+   *
+   * @param accountId to get programs for
+   * @param libraryId to get programs for
+   * @param detailed  whether to include memes and bindings
+   * @return set of all programs
    */
   @GET
   @RolesAllowed(USER)
-  public Response readMany(
-    @Context ContainerRequestContext crc,
+  public ResponseEntity<JsonapiPayload> readMany(
+    HttpServletRequest req, HttpServletResponse res,
     @Nullable @QueryParam("accountId") UUID accountId,
     @Nullable @QueryParam("libraryId") UUID libraryId,
     @Nullable @QueryParam("detailed") Boolean detailed
   ) {
     try {
-      HubAccess access = HubAccess.fromContext(crc);
+      HubAccess access = HubAccess.fromRequest(req);
       JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataType(PayloadDataType.Many);
       Collection<Program> programs;
 
@@ -92,30 +91,30 @@ public class ProgramEndpoint extends HubJsonapiEndpoint<Program> {
         jsonapiPayload.addAllToIncluded(payloadFactory.toPayloadObjects(
           programSequenceBindingMemeManager.readMany(access, programIds)));
 
-      return response.ok(jsonapiPayload);
+      return responseProvider.ok(jsonapiPayload);
 
     } catch (Exception e) {
-      return response.failure(e);
+      return responseProvider.failure(e);
     }
   }
 
   /**
-   Create new program, potentially cloning an existing program
-
-   @param jsonapiPayload with which to update Program record.
-   @return Response
+   * Create new program, potentially cloning an existing program
+   *
+   * @param jsonapiPayload with which to update Program record.
+   * @return ResponseEntity
    */
   @POST
-  @Consumes(MediaType.APPLICATION_JSONAPI)
+  @Consumes(MediaType.APPLICATION_JSON_VALUE)
   @RolesAllowed(ARTIST)
-  public Response create(
+  public ResponseEntity<JsonapiPayload> create(
     JsonapiPayload jsonapiPayload,
-    @Context ContainerRequestContext crc,
+    HttpServletRequest req, HttpServletResponse res,
     @Nullable @QueryParam("cloneId") UUID cloneId
   ) {
 
     try {
-      HubAccess access = HubAccess.fromContext(crc);
+      HubAccess access = HubAccess.fromRequest(req);
       Program program = payloadFactory.consume(manager().newInstance(), jsonapiPayload);
       JsonapiPayload responseJsonapiPayload = new JsonapiPayload();
       if (Objects.nonNull(cloneId)) {
@@ -131,28 +130,28 @@ public class ProgramEndpoint extends HubJsonapiEndpoint<Program> {
         responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(manager().create(access, program)));
       }
 
-      return response.create(responseJsonapiPayload);
+      return responseProvider.create(responseJsonapiPayload);
 
     } catch (Exception e) {
-      return response.notAcceptable(e);
+      return responseProvider.notAcceptable(e);
     }
   }
 
   /**
-   Get one program with included child entities
-
-   @return application/json response.
+   * Get one program with included child entities
+   *
+   * @return application/json response.
    */
   @GET
   @Path("{id}")
   @RolesAllowed(USER)
-  public Response readOne(
-    @Context ContainerRequestContext crc,
+  public ResponseEntity<JsonapiPayload> readOne(
+    HttpServletRequest req, HttpServletResponse res,
     @PathParam("id") UUID id,
     @Nullable @QueryParam("include") String include
   ) {
     try {
-      HubAccess access = HubAccess.fromContext(crc);
+      HubAccess access = HubAccess.fromRequest(req);
 
       JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(manager().readOne(access, id)));
 
@@ -167,52 +166,52 @@ public class ProgramEndpoint extends HubJsonapiEndpoint<Program> {
           list);
       }
 
-      return response.ok(jsonapiPayload);
+      return responseProvider.ok(jsonapiPayload);
 
     } catch (ManagerException ignored) {
-      return response.notFound(manager.newInstance().getClass(), id);
+      return responseProvider.notFound(manager.newInstance().getClass(), id);
 
     } catch (Exception e) {
-      return response.failure(e);
+      return responseProvider.failure(e);
     }
   }
 
   /**
-   Update one program
-
-   @param jsonapiPayload with which to update Program record.
-   @return Response
+   * Update one program
+   *
+   * @param jsonapiPayload with which to update Program record.
+   * @return ResponseEntity
    */
   @PATCH
   @Path("{id}")
-  @Consumes(MediaType.APPLICATION_JSONAPI)
+  @Consumes(MediaType.APPLICATION_JSON_VALUE)
   @RolesAllowed(ARTIST)
-  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") UUID id) {
-    return update(crc, manager(), id, jsonapiPayload);
+  public ResponseEntity<JsonapiPayload> update(JsonapiPayload jsonapiPayload, HttpServletRequest req, @PathParam("id") UUID id) {
+    return update(req, manager(), id, jsonapiPayload);
   }
 
   /**
-   Delete one program
-
-   @return Response
+   * Delete one program
+   *
+   * @return ResponseEntity
    */
   @DELETE
   @Path("{id}")
   @RolesAllowed(ARTIST)
-  public Response destroy(@Context ContainerRequestContext crc, @PathParam("id") UUID id) {
+  public ResponseEntity<JsonapiPayload> destroy(HttpServletRequest req, HttpServletResponse res, @PathParam("id") UUID id) {
     try {
-      manager().destroy(HubAccess.fromContext(crc), id);
-      return response.noContent();
+      manager().destroy(HubAccess.fromRequest(req), id);
+      return responseProvider.deletedOk();
 
     } catch (Exception e) {
-      return response.failure(e);
+      return responseProvider.failure(e);
     }
   }
 
   /**
-   Get Manager of injector
-
-   @return Manager
+   * Get Manager of injector
+   *
+   * @return Manager
    */
   private ProgramManager manager() {
     return manager;

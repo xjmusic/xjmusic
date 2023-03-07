@@ -2,14 +2,9 @@
 
 package io.xj.ship.broadcast;
 
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-import io.xj.lib.app.Environment;
-import io.xj.lib.util.ValueException;
+
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.util.Values;
-import io.xj.nexus.persistence.ManagerExistenceException;
-import io.xj.nexus.persistence.ManagerFatalException;
-import io.xj.nexus.persistence.ManagerPrivilegeException;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
@@ -18,13 +13,13 @@ import java.util.Objects;
 import static io.xj.lib.util.Values.NANOS_PER_SECOND;
 
 /**
- An HTTP Live Streaming Media Chunk
- <p>
- SEE: https://en.m.wikipedia.org/wiki/HTTP_Live_Streaming
- <p>
- SEE: https://developer.apple.com/documentation/http_live_streaming/hls_authoring_specification_for_apple_devices
- <p>
- Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
+ * An HTTP Live Streaming Media Chunk
+ * <p>
+ * SEE: https://en.m.wikipedia.org/wiki/HTTP_Live_Streaming
+ * <p>
+ * SEE: https://developer.apple.com/documentation/http_live_streaming/hls_authoring_specification_for_apple_devices
+ * <p>
+ * Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
  */
 public class Chunk {
   private final Instant fromInstant;
@@ -36,14 +31,12 @@ public class Chunk {
   private final long sequenceNumber;
   private final long toSecondsUTC;
 
-  @Inject
   public Chunk(
-    @Assisted("shipKey") String shipKey,
-    @Assisted("sequenceNumber") Long sequenceNumber,
-    @Nullable @Assisted("fileExtension") String fileExtension,
-    @Nullable @Assisted("actualDuration") Double actualDuration,
-    Environment env
-  ) throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, ValueException {
+    AppEnvironment env, String shipKey,
+    Long sequenceNumber,
+    @Nullable String fileExtension,
+    @Nullable Double actualDuration
+  ) {
     this.sequenceNumber = sequenceNumber;
     this.fileExtension = Objects.nonNull(fileExtension)
       ? fileExtension

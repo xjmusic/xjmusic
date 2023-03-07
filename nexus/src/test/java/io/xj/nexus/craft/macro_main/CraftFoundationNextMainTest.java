@@ -3,27 +3,42 @@ package io.xj.nexus.craft.macro_main;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
-import io.xj.nexus.model.*;
 import io.xj.hub.HubTopology;
+import io.xj.hub.client.HubClient;
+import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.ProgramType;
-import io.xj.lib.app.Environment;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.Entities;
-import io.xj.lib.entity.EntityFactory;
-import io.xj.nexus.NexusException;
+import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.entity.EntityStore;
+import io.xj.lib.entity.EntityStoreImpl;
+import io.xj.lib.json.ApiUrlProvider;
+import io.xj.lib.json.JsonProviderImpl;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.lib.notification.NotificationProvider;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
+import io.xj.nexus.craft.CraftFactoryImpl;
 import io.xj.nexus.fabricator.FabricationFatalException;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.hub.client.HubClient;
-import io.xj.hub.client.HubContent;
+import io.xj.nexus.fabricator.FabricatorFactoryImpl;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.ChainType;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChord;
+import io.xj.nexus.model.SegmentMeme;
+import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.model.SegmentType;
+import io.xj.nexus.persistence.ChainManagerImpl;
 import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.persistence.NexusEntityStoreImpl;
+import io.xj.nexus.persistence.SegmentManagerImpl;
 import io.xj.nexus.persistence.Segments;
-import io.xj.nexus.work.NexusWorkModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,6 +59,8 @@ import static org.junit.Assert.assertThrows;
 public class CraftFoundationNextMainTest {
   @Mock
   public HubClient hubClient;
+  @Mock
+  public NotificationProvider notificationProvider;
   private CraftFactory craftFactory;
   private FabricatorFactory fabricatorFactory;
   private NexusIntegrationTestingFixtures fake;
@@ -54,23 +71,33 @@ public class CraftFoundationNextMainTest {
 
   @Before
   public void setUp() throws Exception {
-    Environment env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(new NexusWorkModule())
-      .with(new AbstractModule() {
-        @Override
-        protected void configure() {
-          bind(Environment.class).toInstance(env);
-        }
-      }));
-
-    fabricatorFactory = injector.getInstance(FabricatorFactory.class);
-    craftFactory = injector.getInstance(CraftFactory.class);
-    var entityFactory = injector.getInstance(EntityFactory.class);
+    AppEnvironment env = AppEnvironment.getDefault();
+    var jsonProvider = new JsonProviderImpl();
+    var entityFactory = new EntityFactoryImpl(jsonProvider);
+    store = new NexusEntityStoreImpl(entityFactory);
+    var segmentManager = new SegmentManagerImpl(entityFactory, store);
+    var chainManager = new ChainManagerImpl(
+      env,
+      entityFactory,
+      store,
+      segmentManager,
+      notificationProvider
+    );
+    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
+    EntityStore entityStore = new EntityStoreImpl();
+    fabricatorFactory = new FabricatorFactoryImpl(
+      env,
+      chainManager,
+            segmentManager,
+      jsonapiPayloadFactory,
+      jsonProvider
+    );
+    ApiUrlProvider apiUrlProvider = new ApiUrlProvider(env);
+    craftFactory = new CraftFactoryImpl(apiUrlProvider);
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
-    store = injector.getInstance(NexusEntityStore.class);
     store.deleteAll();
 
     // Mock request via HubClient returns fake generated library of hub content
@@ -166,7 +193,7 @@ public class CraftFoundationNextMainTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/158610991 Engineer wants a Segment to be reverted, and re-queued for Craft, in the event that such a Segment has just failed its Craft process, in order to ensure Chain fabrication fault tolerance
+   * Engineer wants a Segment to be reverted, and re-queued for Craft, in the event that such a Segment has just failed its Craft process, in order to ensure Chain fabrication fault tolerance https://www.pivotaltracker.com/story/show/158610991
    */
   @Test
   public void craftFoundationNextMain_revertsAndRequeueOnFailure() throws Exception {

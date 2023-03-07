@@ -1,19 +1,30 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.mixer;
 
-import com.google.inject.Guice;
+
+import io.xj.lib.app.AppEnvironment;
+import io.xj.lib.notification.NotificationProvider;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class PutImplTest {
-  private final MixerFactory mixerFactory = Guice.createInjector(new MixerModule()).getInstance(MixerFactory.class);
 
   private Put testPut;
 
+  @Mock
+  NotificationProvider notificationProvider;
+
   @Before
   public void setUp() throws Exception {
+    AppEnvironment env = new AppEnvironment();
+    EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
+    MixerFactory mixerFactory = new MixerFactoryImpl(env, envelopeProvider, notificationProvider);
     testPut = mixerFactory.createPut(0, "bun1", 1000000, 2000000, 1.0, 0, 5);
   }
 

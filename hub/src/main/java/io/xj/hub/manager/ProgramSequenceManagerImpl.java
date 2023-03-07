@@ -2,9 +2,8 @@
 package io.xj.hub.manager;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.lib.entity.EntityFactory;
@@ -13,6 +12,7 @@ import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -24,23 +24,23 @@ import java.util.concurrent.atomic.AtomicReference;
 import static io.xj.hub.Tables.*;
 import static io.xj.hub.tables.ProgramSequenceChordVoicing.PROGRAM_SEQUENCE_CHORD_VOICING;
 
-public class ProgramSequenceManagerImpl extends HubPersistenceServiceImpl<ProgramSequence> implements ProgramSequenceManager {
+@Service
+public class ProgramSequenceManagerImpl extends HubPersistenceServiceImpl implements ProgramSequenceManager {
 
-  @Inject
   public ProgramSequenceManagerImpl(
     EntityFactory entityFactory,
-    HubDatabaseProvider dbProvider
+    HubSqlStoreProvider sqlStoreProvider
   ) {
-    super(entityFactory, dbProvider);
+    super(entityFactory, sqlStoreProvider);
   }
 
   @Override
   public ProgramSequence create(HubAccess access, ProgramSequence entity) throws ManagerException, JsonapiException, ValueException {
     ProgramSequence builder = validate(entity);
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
     requireProgramModification(db, access, builder.getProgramId());
     return modelFrom(ProgramSequence.class,
-      executeCreate(dbProvider.getDSL(), PROGRAM_SEQUENCE, builder));
+      executeCreate(sqlStoreProvider.getDSL(), PROGRAM_SEQUENCE, builder));
   }
 
   @Override
@@ -48,7 +48,7 @@ public class ProgramSequenceManagerImpl extends HubPersistenceServiceImpl<Progra
     requireArtist(access);
     AtomicReference<ProgramSequence> result = new AtomicReference<>();
     AtomicReference<ManagerCloner<ProgramSequence>> cloner = new AtomicReference<>();
-    dbProvider.getDSL().transaction(ctx -> {
+    sqlStoreProvider.getDSL().transaction(ctx -> {
       DSLContext db = DSL.using(ctx);
       requireModification(db, access, cloneId);
 
@@ -112,7 +112,7 @@ public class ProgramSequenceManagerImpl extends HubPersistenceServiceImpl<Progra
   @Nullable
   public ProgramSequence readOne(HubAccess access, UUID id) throws ManagerException {
     requireArtist(access);
-    return readOne(dbProvider.getDSL(), access, id);
+    return readOne(sqlStoreProvider.getDSL(), access, id);
   }
 
   @Override
@@ -121,12 +121,12 @@ public class ProgramSequenceManagerImpl extends HubPersistenceServiceImpl<Progra
     requireArtist(access);
     if (access.isTopLevel())
       return modelsFrom(ProgramSequence.class,
-        dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE)
+        sqlStoreProvider.getDSL().selectFrom(PROGRAM_SEQUENCE)
           .where(PROGRAM_SEQUENCE.PROGRAM_ID.in(parentIds))
           .fetch());
     else
       return modelsFrom(ProgramSequence.class,
-        dbProvider.getDSL().select(PROGRAM_SEQUENCE.fields()).from(PROGRAM_SEQUENCE)
+        sqlStoreProvider.getDSL().select(PROGRAM_SEQUENCE.fields()).from(PROGRAM_SEQUENCE)
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM_SEQUENCE.PROGRAM_ID.in(parentIds))
@@ -137,7 +137,7 @@ public class ProgramSequenceManagerImpl extends HubPersistenceServiceImpl<Progra
   @Override
   public ProgramSequence update(HubAccess access, UUID id, ProgramSequence ramProgramSequence) throws ManagerException, JsonapiException, ValueException {
     ProgramSequence builder = validate(ramProgramSequence);
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
     requireModification(db, access, id);
     executeUpdate(db, PROGRAM_SEQUENCE, id, builder);
     return builder;
@@ -145,7 +145,7 @@ public class ProgramSequenceManagerImpl extends HubPersistenceServiceImpl<Progra
 
   @Override
   public void destroy(HubAccess access, UUID id) throws ManagerException {
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
     requireModification(db, access, id);
 
     // Delete all ProgramSequenceBindingMeme
@@ -196,12 +196,12 @@ public class ProgramSequenceManagerImpl extends HubPersistenceServiceImpl<Progra
   }
 
   /**
-   Require permission to modify the specified program sequence
-
-   @param db        context
-   @param access control
-   @param id        of entity to require modification access to
-   @throws ManagerException on invalid permissions
+   * Require permission to modify the specified program sequence
+   *
+   * @param db     context
+   * @param access control
+   * @param id     of entity to require modification access to
+   * @throws ManagerException on invalid permissions
    */
   private void requireModification(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     requireArtist(access);
@@ -220,12 +220,12 @@ public class ProgramSequenceManagerImpl extends HubPersistenceServiceImpl<Progra
   }
 
   /**
-   Require parent ProgramSequence exists of a given possible entity in a DSL context
-
-   @param db        DSL context
-   @param access control
-   @param entity    to validate
-   @throws ManagerException if parent does not exist
+   * Require parent ProgramSequence exists of a given possible entity in a DSL context
+   *
+   * @param db     DSL context
+   * @param access control
+   * @param entity to validate
+   * @throws ManagerException if parent does not exist
    */
   private void requireParentExists(DSLContext db, HubAccess access, ProgramSequence entity) throws ManagerException {
     if (access.isTopLevel())
@@ -241,12 +241,12 @@ public class ProgramSequenceManagerImpl extends HubPersistenceServiceImpl<Progra
   }
 
   /**
-   Read one Program Sequence
-
-   @param db        context
-   @param access control
-   @param id        of entity to read
-   @return program sequence
+   * Read one Program Sequence
+   *
+   * @param db     context
+   * @param access control
+   * @param id     of entity to read
+   * @return program sequence
    */
   private ProgramSequence readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     if (access.isTopLevel())
@@ -265,10 +265,10 @@ public class ProgramSequenceManagerImpl extends HubPersistenceServiceImpl<Progra
   }
 
   /**
-   validate data
-
-   @param record to validate
-   @throws ManagerException if invalid
+   * validate data
+   *
+   * @param record to validate
+   * @throws ManagerException if invalid
    */
   public ProgramSequence validate(ProgramSequence record) throws ManagerException {
     try {

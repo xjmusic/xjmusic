@@ -1,35 +1,34 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.api;
 
-import com.google.inject.Inject;
-import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubSqlStoreProvider;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.security.PermitAll;
-import javax.inject.Singleton;
 import javax.ws.rs.GET;
-import javax.ws.rs.Path;
 import java.sql.SQLException;
 
-/**
- Health resource.
- */
-@Path("healthz")
-@Singleton
+@RestController
 public class HealthEndpoint {
-  private final HubDatabaseProvider dbProvider;
+  private final HubSqlStoreProvider sqlStoreProvider;
 
-  @Inject
   public HealthEndpoint(
-    HubDatabaseProvider dbProvider
+    HubSqlStoreProvider sqlStoreProvider
   ) {
-    this.dbProvider = dbProvider;
+    this.sqlStoreProvider = sqlStoreProvider;
   }
 
   @GET
   @PermitAll
-  public String index() throws SQLException {
-    try (var ignored = dbProvider.getDataSource().getConnection()) {
-      return "ok";
+  @GetMapping("/healthz")
+  public ResponseEntity<String> index() {
+    try (var ignored = sqlStoreProvider.getDataSource().getConnection()) {
+      return ResponseEntity.ok().build();
+    } catch (SQLException e) {
+      return ResponseEntity.internalServerError()
+        .body(e.getMessage());
     }
   }
 }

@@ -3,7 +3,7 @@
 package io.xj.hub;
 
 /**
- Class to configure the Hub API URLs
+ * Class to configure the Hub API URLs
  */
 public class HubApiUrls {
 

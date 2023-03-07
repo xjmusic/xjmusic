@@ -3,24 +3,12 @@ package io.xj.hub.manager;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.inject.Inject;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.ProgramState;
-import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
-import io.xj.hub.tables.pojos.FeedbackProgram;
-import io.xj.hub.tables.pojos.Program;
-import io.xj.hub.tables.pojos.ProgramMeme;
-import io.xj.hub.tables.pojos.ProgramSequence;
-import io.xj.hub.tables.pojos.ProgramSequenceBinding;
-import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
-import io.xj.hub.tables.pojos.ProgramSequenceChord;
-import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
-import io.xj.hub.tables.pojos.ProgramSequencePattern;
-import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
-import io.xj.hub.tables.pojos.ProgramVoice;
-import io.xj.hub.tables.pojos.ProgramVoiceTrack;
+import io.xj.hub.tables.pojos.*;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
@@ -29,47 +17,36 @@ import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
+import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.xj.hub.Tables.FEEDBACK_PROGRAM;
-import static io.xj.hub.Tables.LIBRARY;
-import static io.xj.hub.Tables.PROGRAM;
-import static io.xj.hub.Tables.PROGRAM_MEME;
-import static io.xj.hub.Tables.PROGRAM_SEQUENCE;
-import static io.xj.hub.Tables.PROGRAM_SEQUENCE_BINDING;
-import static io.xj.hub.Tables.PROGRAM_SEQUENCE_BINDING_MEME;
-import static io.xj.hub.Tables.PROGRAM_SEQUENCE_CHORD;
-import static io.xj.hub.Tables.PROGRAM_SEQUENCE_CHORD_VOICING;
-import static io.xj.hub.Tables.PROGRAM_SEQUENCE_PATTERN;
-import static io.xj.hub.Tables.PROGRAM_SEQUENCE_PATTERN_EVENT;
-import static io.xj.hub.Tables.PROGRAM_VOICE;
-import static io.xj.hub.Tables.PROGRAM_VOICE_TRACK;
+import static io.xj.hub.Tables.*;
 
-public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> implements ProgramManager {
-  @Inject
+@Service
+public class ProgramManagerImpl extends HubPersistenceServiceImpl implements ProgramManager {
   public ProgramManagerImpl(
     EntityFactory entityFactory,
-    HubDatabaseProvider dbProvider
+    HubSqlStoreProvider sqlStoreProvider
   ) {
-    super(entityFactory, dbProvider);
+    super(entityFactory, sqlStoreProvider);
   }
 
   @Override
   public Program create(HubAccess access, Program rawProgram) throws ManagerException, JsonapiException, ValueException {
     var program = validate(rawProgram);
     requireArtist(access);
-    return modelFrom(Program.class, executeCreate(dbProvider.getDSL(), PROGRAM, program));
+    return modelFrom(Program.class, executeCreate(sqlStoreProvider.getDSL(), PROGRAM, program));
   }
 
   @Override
   public ManagerCloner<Program> clone(HubAccess access, UUID cloneId, Program to) throws ManagerException {
     requireArtist(access);
     AtomicReference<ManagerCloner<Program>> result = new AtomicReference<>();
-    dbProvider.getDSL().transaction(ctx -> result.set(clone(DSL.using(ctx), access, cloneId, to)));
+    sqlStoreProvider.getDSL().transaction(ctx -> result.set(clone(DSL.using(ctx), access, cloneId, to)));
     return result.get();
   }
 
@@ -146,19 +123,19 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
 
   @Override
   public Program readOne(HubAccess access, UUID id) throws ManagerException {
-    return readOne(dbProvider.getDSL(), access, id);
+    return readOne(sqlStoreProvider.getDSL(), access, id);
   }
 
   @Override
   public Collection<Program> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
     if (access.isTopLevel())
-      return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
+      return modelsFrom(Program.class, sqlStoreProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
         .where(PROGRAM.LIBRARY_ID.in(parentIds))
         .and(PROGRAM.IS_DELETED.eq(false))
         .orderBy(PROGRAM.TYPE, PROGRAM.NAME)
         .fetch());
     else
-      return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
+      return modelsFrom(Program.class, sqlStoreProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
         .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
         .where(PROGRAM.LIBRARY_ID.in(parentIds))
         .and(PROGRAM.IS_DELETED.eq(false))
@@ -169,7 +146,7 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
 
   @Override
   public <N> Collection<N> readManyWithChildEntities(HubAccess access, Collection<UUID> programIds) throws ManagerException {
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
 
     requireRead(db, access, programIds);
 
@@ -185,14 +162,13 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
     entities.addAll(modelsFrom(ProgramSequence.class, db.selectFrom(PROGRAM_SEQUENCE).where(PROGRAM_SEQUENCE.PROGRAM_ID.in(programIds))));
     entities.addAll(modelsFrom(ProgramVoiceTrack.class, db.selectFrom(PROGRAM_VOICE_TRACK).where(PROGRAM_VOICE_TRACK.PROGRAM_ID.in(programIds))));
     entities.addAll(modelsFrom(ProgramVoice.class, db.selectFrom(PROGRAM_VOICE).where(PROGRAM_VOICE.PROGRAM_ID.in(programIds))));
-    entities.addAll(modelsFrom(FeedbackProgram.class, db.selectFrom(FEEDBACK_PROGRAM).where(FEEDBACK_PROGRAM.PROGRAM_ID.in(programIds))));
     //noinspection unchecked
     return (Collection<N>) entities;
   }
 
   @Override
   public Collection<Object> readChildEntities(HubAccess access, Collection<UUID> programIds, Collection<String> types) throws ManagerException {
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
 
     requireRead(db, access, programIds);
 
@@ -248,23 +224,18 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
       entities.addAll(modelsFrom(ProgramVoice.class,
         db.selectFrom(PROGRAM_VOICE).where(PROGRAM_VOICE.PROGRAM_ID.in(programIds))));
 
-    // FeedbackProgram
-    if (types.contains(Entities.toResourceType(FeedbackProgram.class)))
-      entities.addAll(modelsFrom(FeedbackProgram.class,
-        db.selectFrom(FEEDBACK_PROGRAM).where(FEEDBACK_PROGRAM.PROGRAM_ID.in(programIds))));
-
     return entities;
   }
 
   @Override
   public Collection<Program> readMany(HubAccess access) throws ManagerException {
     if (access.isTopLevel())
-      return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
+      return modelsFrom(Program.class, sqlStoreProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
         .where(PROGRAM.IS_DELETED.eq(false))
         .orderBy(PROGRAM.TYPE, PROGRAM.NAME)
         .fetch());
     else
-      return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
+      return modelsFrom(Program.class, sqlStoreProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
         .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .and(PROGRAM.IS_DELETED.eq(false))
@@ -277,7 +248,7 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
     var builder = validate(rawProgram);
 
     requireArtist(access);
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
     readOne(db, access, id);
 
     executeUpdate(db, PROGRAM, id, builder);
@@ -286,7 +257,7 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
 
   @Override
   public void destroy(HubAccess access, UUID id) throws ManagerException {
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
 
     if (!access.isTopLevel())
       requireExists("Program belonging to you", db.selectCount().from(PROGRAM)
@@ -310,14 +281,14 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
   @Override
   public Collection<Program> readManyInAccount(HubAccess access, UUID accountId) throws ManagerException {
     if (access.isTopLevel())
-      return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
+      return modelsFrom(Program.class, sqlStoreProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
         .join(LIBRARY).on(PROGRAM.LIBRARY_ID.eq(LIBRARY.ID))
         .where(LIBRARY.ACCOUNT_ID.eq(accountId))
         .and(PROGRAM.IS_DELETED.eq(false))
         .orderBy(PROGRAM.TYPE, PROGRAM.NAME)
         .fetch());
     else
-      return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
+      return modelsFrom(Program.class, sqlStoreProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
         .join(LIBRARY).on(PROGRAM.LIBRARY_ID.eq(LIBRARY.ID))
         .where(LIBRARY.ACCOUNT_ID.in(accountId))
         .and(PROGRAM.IS_DELETED.eq(false))
@@ -329,7 +300,7 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
   @Override
   public Collection<UUID> readIdsInLibraries(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
     requireArtist(access);
-    return Manager.idsFrom(dbProvider.getDSL().select(PROGRAM.ID)
+    return Manager.idsFrom(sqlStoreProvider.getDSL().select(PROGRAM.ID)
       .from(PROGRAM)
       .where(PROGRAM.LIBRARY_ID.in(parentIds))
       .and(PROGRAM.STATE.equal(ProgramState.Published))
@@ -338,11 +309,11 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
   }
 
   /**
-   Require read access
-
-   @param db         database context
-   @param access     control
-   @param programIds to require access to
+   * Require read access
+   *
+   * @param db         database context
+   * @param access     control
+   * @param programIds to require access to
    */
   private void requireRead(DSLContext db, HubAccess access, Collection<UUID> programIds) throws ManagerException {
     if (!access.isTopLevel())
@@ -356,13 +327,13 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
   }
 
   /**
-   Read one record
-
-   @param db     DSL context
-   @param access control
-   @param id     to read
-   @return record
-   @throws ManagerException on failure
+   * Read one record
+   *
+   * @param db     DSL context
+   * @param access control
+   * @param id     to read
+   * @return record
+   * @throws ManagerException on failure
    */
   private Program readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     if (access.isTopLevel())
@@ -383,12 +354,12 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
   }
 
   /**
-   Require parent program exists of a given possible entity in a DSL context
-
-   @param db     DSL context
-   @param access control
-   @param entity to validate
-   @throws ManagerException if parent does not exist
+   * Require parent program exists of a given possible entity in a DSL context
+   *
+   * @param db     DSL context
+   * @param access control
+   * @param entity to validate
+   * @throws ManagerException if parent does not exist
    */
   private void requireParentExists(DSLContext db, HubAccess access, Program entity) throws ManagerException {
     if (access.isTopLevel())
@@ -403,11 +374,11 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
   }
 
   /**
-   Validate data
-
-   @param record to validate
-   @return validated Program
-   @throws ManagerException if invalid
+   * Validate data
+   *
+   * @param record to validate
+   * @return validated Program
+   * @throws ManagerException if invalid
    */
   public Program validate(Program record) throws ManagerException {
     try {
@@ -418,8 +389,8 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl<Program> imple
       Values.require(record.getType(), "Type");
       Values.require(record.getState(), "State");
 
-      // https://www.pivotaltracker.com/story/show/175347578 validate TypeSafe chain config
-      // https://www.pivotaltracker.com/story/show/177129498 Artist saves Program, Instrument, or Template config, validate & combine with defaults.
+      // validate TypeSafe chain config https://www.pivotaltracker.com/story/show/175347578
+      // Artist saves Program, Instrument, or Template config, validate & combine with defaults. https://www.pivotaltracker.com/story/show/177129498
       if (Objects.isNull(record.getConfig()))
         record.setConfig(new ProgramConfig().toString());
       else

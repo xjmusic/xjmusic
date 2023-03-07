@@ -4,7 +4,7 @@
 #  This test is a counterpart to Test #4, in that it uses as its material the other section of the main program featured in Test #4.
 #  Test is based on Main Program “Earth 3”, sequence “A”
 #
-#  https://www.pivotaltracker.com/story/show/176696738 XJ has a serviceable voicing algorithm
+#  XJ has a serviceable voicing algorithm https://www.pivotaltracker.com/story/show/176696738
 ---
 
 bassInstrument:

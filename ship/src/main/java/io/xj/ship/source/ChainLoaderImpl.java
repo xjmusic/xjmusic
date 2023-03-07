@@ -1,31 +1,33 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.ship.source;
 
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
+
 import io.opencensus.stats.Measure;
-import io.xj.nexus.model.Chain;
-import io.xj.nexus.model.Segment;
-import io.xj.nexus.model.SegmentState;
-import io.xj.lib.app.Environment;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.telemetry.TelemetryProvider;
-import io.xj.nexus.persistence.*;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.persistence.ChainManager;
+import io.xj.nexus.persistence.Chains;
+import io.xj.nexus.persistence.ManagerFatalException;
+import io.xj.nexus.persistence.SegmentManager;
+import io.xj.nexus.persistence.Segments;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
@@ -33,7 +35,7 @@ import java.util.stream.Stream;
 import static io.xj.lib.filestore.FileStoreProvider.EXTENSION_JSON;
 
 /**
- Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
+ * Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
  */
 @SuppressWarnings("DuplicatedCode")
 public class ChainLoaderImpl extends ChainLoader {
@@ -55,12 +57,11 @@ public class ChainLoaderImpl extends ChainLoader {
   private final int loadBackSeconds;
   private final int loadAheadSeconds;
 
-  @Inject
   public ChainLoaderImpl(
-    @Assisted("shipKey") String shipKey,
-    @Assisted("onFailure") Runnable onFailure,
+    String shipKey,
+    Runnable onFailure,
     ChainManager chainManager,
-    Environment env,
+    AppEnvironment env,
     HttpClientProvider httpClientProvider,
     JsonProvider jsonProvider,
     JsonapiPayloadFactory jsonapiPayloadFactory,
@@ -100,7 +101,7 @@ public class ChainLoaderImpl extends ChainLoader {
   }
 
   /**
-   Do the work inside a named thread
+   * Do the work inside a named thread
    */
   private void doWork() {
     var nowMillis = Instant.now().toEpochMilli();
@@ -117,7 +118,7 @@ public class ChainLoaderImpl extends ChainLoader {
     try (
       CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", shipBaseUrl, key)))
     ) {
-      if (!Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode())) {
+      if (!Objects.equals(HttpStatus.OK.value(), response.getStatusLine().getStatusCode())) {
         LOG.error("Failed to get previously fabricated chain for Template[{}] because {} {}", key, response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
         onFailure.run();
         return;

@@ -2,18 +2,20 @@
 
 package io.xj.lib.http;
 
-import com.google.inject.Inject;
-import io.xj.lib.app.Environment;
+import io.xj.lib.app.AppEnvironment;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class HttpClientProviderImpl implements HttpClientProvider {
   private final PoolingHttpClientConnectionManager cm;
 
-  @Inject
+  @Autowired
   public HttpClientProviderImpl(
-    Environment env
+    AppEnvironment env
   ) {
     cm = new PoolingHttpClientConnectionManager();
     cm.setMaxTotal(env.getHttpClientPoolMaxTotal());

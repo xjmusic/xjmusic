@@ -5,12 +5,12 @@ package io.xj.lib.jsonapi;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.util.Values;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
 import java.util.*;
@@ -25,12 +25,12 @@ import java.util.stream.Collectors;
  <p>
  Created by Charney Kaye on 2020/03/09
  */
-@Singleton
+@Service
 public class JsonapiPayloadFactoryImpl implements JsonapiPayloadFactory {
   private final EntityFactory entityFactory;
 
-  @Inject
-  JsonapiPayloadFactoryImpl(
+  @Autowired
+  public JsonapiPayloadFactoryImpl(
     EntityFactory entityFactory
   ) {
     this.entityFactory = entityFactory;

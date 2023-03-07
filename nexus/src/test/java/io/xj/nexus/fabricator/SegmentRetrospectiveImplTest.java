@@ -4,19 +4,22 @@ package io.xj.nexus.fabricator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Streams;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
 import io.xj.hub.HubTopology;
 import io.xj.hub.client.HubClient;
 import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
-import io.xj.lib.app.Environment;
-import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.app.AppEnvironment;
+import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.entity.EntityStore;
+import io.xj.lib.entity.EntityStoreImpl;
 import io.xj.lib.json.JsonProvider;
+import io.xj.lib.json.JsonProviderImpl;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.lib.music.StickyBun;
+import io.xj.lib.notification.NotificationProvider;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
@@ -27,10 +30,12 @@ import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
+import io.xj.nexus.persistence.ChainManagerImpl;
 import io.xj.nexus.persistence.Chains;
 import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.persistence.NexusEntityStoreImpl;
+import io.xj.nexus.persistence.SegmentManagerImpl;
 import io.xj.nexus.persistence.Segments;
-import io.xj.nexus.work.NexusWorkModule;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,6 +59,8 @@ public class SegmentRetrospectiveImplTest {
   private final UUID patternId = UUID.randomUUID();
   @Mock
   public HubClient hubClient;
+  @Mock
+  public NotificationProvider notificationProvider;
   private JsonProvider jsonProvider;
   private FabricatorFactory fabricatorFactory;
   private HubContent sourceMaterial;
@@ -66,23 +73,31 @@ public class SegmentRetrospectiveImplTest {
 
   @Before
   public void setUp() throws Exception {
-    Environment env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(new NexusWorkModule())
-      .with(new AbstractModule() {
-        @Override
-        public void configure() {
-          bind(Environment.class).toInstance(env);
-          bind(HubClient.class).toInstance(hubClient);
-        }
-      }));
-    fabricatorFactory = injector.getInstance(FabricatorFactory.class);
-    jsonProvider = injector.getInstance(JsonProvider.class);
-    var entityFactory = injector.getInstance(EntityFactory.class);
+    AppEnvironment env = AppEnvironment.getDefault();
+    var entityFactory = new EntityFactoryImpl(jsonProvider);
+    store = new NexusEntityStoreImpl(entityFactory);
+    var segmentManager = new SegmentManagerImpl(entityFactory, store);
+    var chainManager = new ChainManagerImpl(
+      env,
+      entityFactory,
+      store,
+      segmentManager,
+      notificationProvider
+    );
+    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
+    EntityStore entityStore = new EntityStoreImpl();
+    jsonProvider = new JsonProviderImpl();
+    fabricatorFactory = new FabricatorFactoryImpl(
+      env,
+      chainManager,
+            segmentManager,
+      jsonapiPayloadFactory,
+      jsonProvider
+    );
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
-    store = injector.getInstance(NexusEntityStore.class);
     store.deleteAll();
 
     // Mock request via HubClient returns fake generated library of hub content

@@ -2,8 +2,6 @@
 package io.xj.nexus.craft.perc_loop;
 
 import com.google.api.client.util.Lists;
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.InstrumentAudio;
@@ -28,12 +26,11 @@ import java.util.stream.Collectors;
  Percussion-type Loop-mode craft for the current segment
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  <p>
- https://www.pivotaltracker.com/story/show/176625174 PercLoopCraftImpl extends DetailCraftImpl to leverage all detail craft enhancements
+ PercLoopCraftImpl extends DetailCraftImpl to leverage all detail craft enhancements https://www.pivotaltracker.com/story/show/176625174
  */
 public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
-  @Inject
   public PercLoopCraftImpl(
-    @Assisted("basis") Fabricator fabricator
+     Fabricator fabricator
   ) {
     super(fabricator);
   }

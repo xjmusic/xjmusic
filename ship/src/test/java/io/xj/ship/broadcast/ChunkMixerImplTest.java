@@ -4,20 +4,33 @@ package io.xj.ship.broadcast;
 
 import com.google.api.client.util.Lists;
 import com.google.common.collect.ImmutableMap;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
+
+
+import io.xj.lib.app.AppEnvironment;
+import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.http.HttpClientProvider;
+import io.xj.lib.http.HttpClientProviderImpl;
+import io.xj.lib.json.JsonProvider;
+import io.xj.lib.json.JsonProviderImpl;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.lib.notification.NotificationProvider;
+import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.nexus.model.*;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Template;
-import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.mixer.InternalResource;
 import io.xj.nexus.persistence.ChainManager;
+import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.persistence.NexusEntityStoreImpl;
+import io.xj.nexus.persistence.SegmentManager;
+import io.xj.nexus.persistence.SegmentManagerImpl;
 import io.xj.ship.source.SegmentAudio;
 import io.xj.ship.source.SegmentAudioManager;
 import io.xj.ship.source.SourceFactory;
-import io.xj.ship.work.ShipWorkModule;
+import io.xj.ship.source.SourceFactoryImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,19 +57,20 @@ public class ChunkMixerImplTest {
   private Segment segment2;
   private SourceFactory source;
   private ChunkMixer subject;
-
   @Mock
-  private ChainManager chainManager;
-
+  ChainManager chainManager;
   @Mock
-  private FileStoreProvider fileStoreProvider;
-
+  FileStoreProvider fileStoreProvider;
   @Mock
-  private SegmentAudioManager segmentAudioManager;
+  SegmentAudioManager segmentAudioManager;
+  @Mock
+  TelemetryProvider telemetryProvider;
+  @Mock
+  NotificationProvider notificationProvider;
 
   @Before
   public void setUp() {
-    Environment env = Environment.from(ImmutableMap.of("SHIP_KEY", "coolair"));
+    AppEnvironment env = AppEnvironment.from(ImmutableMap.of("SHIP_KEY", "coolair"));
     Account account1 = buildAccount("Testing");
     Template template1 = buildTemplate(account1, "fonds", "ABC");
     Chain chain1 = buildChain(
@@ -87,19 +101,28 @@ public class ChunkMixerImplTest {
       48000,
       false);
 
-    var injector = Guice.createInjector(Modules.override(new ShipWorkModule()).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(ChainManager.class).toInstance(chainManager);
-        bind(Environment.class).toInstance(env);
-        bind(FileStoreProvider.class).toInstance(fileStoreProvider);
-        bind(SegmentAudioManager.class).toInstance(segmentAudioManager);
-      }
-    }));
-    source = injector.getInstance(SourceFactory.class);
-    BroadcastFactory broadcast = injector.getInstance(BroadcastFactory.class);
+    HttpClientProvider httpClientProvider = new HttpClientProviderImpl(env);
+    JsonProvider jsonProvider = new JsonProviderImpl();
+    EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
+    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
+    NexusEntityStore nexusEntityStore = new NexusEntityStoreImpl(entityFactory);
+    SegmentManager segmentManager = new SegmentManagerImpl(entityFactory, nexusEntityStore);
+    source = new SourceFactoryImpl(
+      chainManager,
+      env,
+      httpClientProvider,
+      jsonProvider,
+      jsonapiPayloadFactory,
+      segmentAudioManager,
+      segmentManager,
+      telemetryProvider
+    );
+    ChunkFactory chunkFactory = new ChunkFactoryImpl(env);
+    MediaSeqNumProvider mediaSeqNumProvider = new MediaSeqNumProvider(env);
+    PlaylistPublisher playlistPublisher = new PlaylistPublisherImpl(env, chunkFactory, fileStoreProvider, httpClientProvider, mediaSeqNumProvider, telemetryProvider);
+    BroadcastFactory broadcast = new BroadcastFactoryImpl(env, playlistPublisher, fileStoreProvider, notificationProvider, segmentAudioManager);
 
-    Chunk chunk = broadcast.chunk(SHIP_KEY, 151304042L, "mp3", null);
+    Chunk chunk = chunkFactory.build(SHIP_KEY, 151304042L, "mp3", null);
 
     segmentAudios = Lists.newArrayList();
 

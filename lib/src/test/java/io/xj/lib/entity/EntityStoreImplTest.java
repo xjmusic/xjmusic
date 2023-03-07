@@ -3,9 +3,9 @@
 package io.xj.lib.entity;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Guice;
 import io.xj.lib.Superwidget;
 import io.xj.lib.Widget;
+import io.xj.lib.json.JsonProviderImpl;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,9 +20,8 @@ public class EntityStoreImplTest {
 
   @Before
   public void setUp() {
-    var injector = Guice.createInjector(new EntityModule());
-    var entityFactory = injector.getInstance(EntityFactory.class);
-    subject = injector.getInstance(EntityStore.class);
+    var jsonProvider = new JsonProviderImpl();
+    var entityFactory = new EntityFactoryImpl(jsonProvider);
 
     // Some topology
     entityFactory.register("Widget")
@@ -30,8 +29,7 @@ public class EntityStoreImplTest {
       .belongsTo(Superwidget.class)
       .createdBy(Widget::new);
 
-    // Instantiate the test subject and put the payload
-    subject = injector.getInstance(EntityStore.class);
+    subject = new EntityStoreImpl();
   }
 
   @Test

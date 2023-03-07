@@ -3,9 +3,9 @@ package io.xj.lib.entity;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.inject.Guice;
 import io.xj.lib.Widget;
 import io.xj.lib.WidgetState;
+import io.xj.lib.json.JsonProviderImpl;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,8 +21,8 @@ public class EntityFactoryImplTest {
 
   @Before
   public void setUp() {
-    var injector = Guice.createInjector(new EntityModule());
-    subject = injector.getInstance(EntityFactory.class);
+    var jsonProvider = new JsonProviderImpl();
+    subject = new EntityFactoryImpl(jsonProvider);
   }
 
   @Test
@@ -154,10 +154,10 @@ public class EntityFactoryImplTest {
 
 
   /**
-   This should ostensibly be a test inside the Entity superwidget-- and it is, except for this bug that
-   at the time of this writing, we couldn't isolate to that superwidget, and are therefore reproducing it here.
-
-   @throws EntityException on failure
+   * This should ostensibly be a test inside the Entity superwidget-- and it is, except for this bug that
+   * at the time of this writing, we couldn't isolate to that superwidget, and are therefore reproducing it here.
+   *
+   * @throws EntityException on failure
    */
   @Test
   public void internal_entityFactoryClonesWidgetTypeOK() throws EntityException {

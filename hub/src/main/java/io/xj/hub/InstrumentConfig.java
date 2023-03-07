@@ -17,9 +17,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- Parse a TypeSafe `config` value for an Instrument's configuration, overriding values from top-level default.conf--
- e.g.
- if the `config` value contains only `previewLengthMaxHours = 8`
+ * Parse a TypeSafe `config` value for an Instrument's configuration, overriding values from top-level default.conf--
+ * e.g.
+ * if the `config` value contains only `previewLengthMaxHours = 8`
  */
 public class InstrumentConfig {
   public static final String DEFAULT = """
@@ -42,32 +42,33 @@ public class InstrumentConfig {
   private final Integer attackMillis;
   private final Integer releaseMillis;
   private final Collection<String> oneShotObserveLengthOfEvents;
-  /**
-   Instantiate an Instrument configuration from a string of typesafe config.
-   Said string will be embedded in a `instrument{...}` block such that
-   provided simple Key=Value pairs will be understood as members of `instrument`
-   e.g. will override values from the `instrument{...}` block of the top-level **default.conf**
 
-   @param instrument to get config from
+  /**
+   * Instantiate an Instrument configuration from a string of typesafe config.
+   * Said string will be embedded in a `instrument{...}` block such that
+   * provided simple Key=Value pairs will be understood as members of `instrument`
+   * e.g. will override values from the `instrument{...}` block of the top-level **default.conf**
+   *
+   * @param instrument to get config from
    */
   public InstrumentConfig(Instrument instrument) throws ValueException {
     this(instrument.getConfig());
   }
 
   /**
-   Get an instrument config from only the default config
-
-   @throws ValueException on failure
+   * Get an instrument config from only the default config
+   *
+   * @throws ValueException on failure
    */
   public InstrumentConfig() throws ValueException {
     this("");
   }
 
   /**
-   Instantiate an Instrument configuration from a string of typesafe config.
-   Said string will be embedded in a `instrument{...}` block such that
-   provided simple Key=Value pairs will be understood as members of `instrument`
-   e.g. will override values from the `instrument{...}` block of the top-level **default.conf**
+   * Instantiate an Instrument configuration from a string of typesafe config.
+   * Said string will be embedded in a `instrument{...}` block such that
+   * provided simple Key=Value pairs will be understood as members of `instrument`
+   * e.g. will override values from the `instrument{...}` block of the top-level **default.conf**
    */
   public InstrumentConfig(String configText) throws ValueException {
     try {
@@ -102,56 +103,56 @@ public class InstrumentConfig {
   }
 
   /**
-   @return True if multiphonic
+   * @return True if multiphonic
    */
   public Boolean isMultiphonic() {
     return isMultiphonic;
   }
 
   /**
-   @return true if instrument is one-shot (samples play til end, regardless of note length)
+   * @return true if instrument is one-shot (samples play til end, regardless of note length)
    */
   public Boolean isOneShot() {
     return isOneShot;
   }
 
   /**
-   @return true if this instrument's one-shot cutoff are enabled
+   * @return true if this instrument's one-shot cutoff are enabled
    */
   public Boolean isOneShotCutoffEnabled() {
     return isOneShotCutoffEnabled;
   }
 
   /**
-   @return true if tonal
+   * @return true if tonal
    */
   public Boolean isTonal() {
     return isTonal;
   }
 
   /**
-   @return a list of event types that will ignore one-shot, if instrument is one-shot
+   * @return a list of event types that will ignore one-shot, if instrument is one-shot
    */
   public Collection<String> getOneShotObserveLengthOfEvents() {
     return oneShotObserveLengthOfEvents;
   }
 
   /**
-   @return Milliseconds length of one-shot instrument fadeout
+   * @return Milliseconds length of one-shot instrument fadeout
    */
   public Integer getAttackMillis() {
     return attackMillis;
   }
 
   /**
-   @return whether to choose the same instrument audio per note throughout a main program
+   * @return whether to choose the same instrument audio per note throughout a main program
    */
   public Boolean isAudioSelectionPersistent() {
     return isAudioSelectionPersistent;
   }
 
   /**
-   @return Milliseconds length of one-shot instrument fadeout
+   * @return Milliseconds length of one-shot instrument fadeout
    */
   public Integer getReleaseMillis() {
     return releaseMillis;

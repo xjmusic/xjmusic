@@ -2,28 +2,16 @@
 
 package io.xj.hub.api;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
-import io.xj.hub.HubIntegrationTestModule;
-import io.xj.hub.HubIntegrationTestProvider;
+import io.xj.hub.HubIntegrationTest;
+import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.ingest.HubIngestModule;
-import io.xj.hub.manager.ManagerException;
-import io.xj.hub.manager.ManagerModule;
-import io.xj.hub.persistence.HubPersistenceModule;
-import io.xj.lib.app.Environment;
-import io.xj.lib.filestore.FileStoreModule;
-import io.xj.lib.json.JsonProvider;
+import io.xj.hub.manager.*;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.jsonapi.JsonapiModule;
-import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.PayloadDataType;
 import org.junit.After;
@@ -32,16 +20,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.HttpStatus;
 
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.Response;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Objects;
 
-import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
-import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
-import static io.xj.hub.IntegrationTestingFixtures.buildInstrument;
-import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
-import static io.xj.hub.IntegrationTestingFixtures.buildUser;
+import static io.xj.hub.IntegrationTestingFixtures.*;
 import static io.xj.hub.access.HubAccess.CONTEXT_KEY;
 import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
 import static org.junit.Assert.assertEquals;
@@ -51,23 +37,18 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class InstrumentEndpointDbTest {
   @Mock
-  ContainerRequestContext context;
+  HttpServletRequest req;
+  @Mock
+  HttpServletResponse res;
   private InstrumentEndpoint subject;
-  private HubIntegrationTestProvider test;
+  private HubIntegrationTest test;
   private IntegrationTestingFixtures fake;
   private JsonapiPayloadFactory jsonapiPayloadFactory;
-  private JsonProvider jsonProvider;
 
   @Before
   public void setUp() throws Exception {
-    var env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule(), new HubIntegrationTestModule())).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(Environment.class).toInstance(env);
-      }
-    }));
-    test = injector.getInstance(HubIntegrationTestProvider.class);
+    var env = AppEnvironment.getDefault();
+    test = HubIntegrationTestFactory.build(env);
     fake = new IntegrationTestingFixtures(test);
     //
     test.reset();
@@ -83,9 +64,10 @@ public class InstrumentEndpointDbTest {
     test.insert(buildAccountUser(fake.account1, fake.user1));
     //
     // Instantiate the test subject
-    jsonapiPayloadFactory = injector.getInstance(JsonapiPayloadFactory.class);
-    jsonProvider = injector.getInstance(JsonProvider.class);
-    subject = injector.getInstance(InstrumentEndpoint.class);
+    jsonapiPayloadFactory = test.getJsonapiPayloadFactory();
+    InstrumentManager instrumentManager = new InstrumentManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
+    InstrumentMemeManager instrumentMemeManager = new InstrumentMemeManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
+    subject = new InstrumentEndpoint(instrumentManager, instrumentMemeManager, test.getSqlStoreProvider(), test.getHttpResponseProvider(), test.getJsonapiPayloadFactory(), test.getEntityFactory());
   }
 
   //
@@ -95,27 +77,27 @@ public class InstrumentEndpointDbTest {
   }
 
   @Test
-  public void readMany_forLibrary() throws JsonapiException {
-    when(context.getProperty(CONTEXT_KEY)).thenReturn(HubAccess.internal());
+  public void readMany_forLibrary() {
+    when(req.getAttribute(CONTEXT_KEY)).thenReturn(HubAccess.internal());
 
-    Response result = subject.readMany(context, null, fake.library1.getId(), null);
+    var result = subject.readMany(req, res, null, fake.library1.getId(), null);
 
-    assertEquals(200, result.getStatus());
-    assertTrue(result.hasEntity());
-    var resultPayload = jsonapiPayloadFactory.deserialize(String.valueOf(result.getEntity()));
+    assertEquals(HttpStatus.OK, result.getStatusCode());
+    assertTrue(result.hasBody());
+    var resultPayload = Objects.requireNonNull(result.getBody());
     assertEquals(PayloadDataType.Many, resultPayload.getDataType());
     assertEquals(2, resultPayload.getDataMany().size());
   }
 
   @Test
-  public void readMany_forAccount() throws JsonapiException {
-    when(context.getProperty(CONTEXT_KEY)).thenReturn(HubAccess.internal());
+  public void readMany_forAccount() {
+    when(req.getAttribute(CONTEXT_KEY)).thenReturn(HubAccess.internal());
 
-    Response result = subject.readMany(context, fake.account1.getId(), null, null);
+    var result = subject.readMany(req, res, fake.account1.getId(), null, null);
 
-    assertEquals(200, result.getStatus());
-    assertTrue(result.hasEntity());
-    var resultPayload = jsonapiPayloadFactory.deserialize(String.valueOf(result.getEntity()));
+    assertEquals(HttpStatus.OK, result.getStatusCode());
+    assertTrue(result.hasBody());
+    var resultPayload = Objects.requireNonNull(result.getBody());
     assertEquals(PayloadDataType.Many, resultPayload.getDataType());
     assertEquals(2, resultPayload.getDataMany().size());
   }
@@ -124,31 +106,30 @@ public class InstrumentEndpointDbTest {
   public void create() throws ManagerException, IOException, JsonapiException {
     var toCreate = buildInstrument(fake.library1, InstrumentType.Drum, InstrumentMode.Event, InstrumentState.Published, "test");
     var input = jsonapiPayloadFactory.from(toCreate);
-    when(context.getProperty(CONTEXT_KEY)).thenReturn(HubAccess.internal());
+    when(req.getAttribute(CONTEXT_KEY)).thenReturn(HubAccess.internal());
 
-    Response result = subject.create(context, input, null);
+    var result = subject.create(req, res, input, null);
 
-    assertEquals(201, result.getStatus());
-    var resultPayload = jsonapiPayloadFactory.deserialize(String.valueOf(result.getEntity()));
+    assertEquals(HttpStatus.CREATED, result.getStatusCode());
+    var resultPayload = Objects.requireNonNull(result.getBody());
     assertEquals(PayloadDataType.One, resultPayload.getDataType());
   }
 
   /**
-   Lab entity attribute invalidations should throw clean errors in api payload
-   https://www.pivotaltracker.com/story/show/181516000
+   * Lab entity attribute invalidations should throw clean errors in api payload
+   * https://www.pivotaltracker.com/story/show/181516000
    */
   @Test
-  public void create_invalidThrowsCleanErrorPayload() throws JsonapiException, IOException {
+  public void create_invalidThrowsCleanErrorPayload() throws JsonapiException {
     var toCreate = buildInstrument(fake.library1, InstrumentType.Drum, InstrumentMode.Event, InstrumentState.Published, ""); // empty name not allowed
     var input = jsonapiPayloadFactory.from(toCreate);
-    when(context.getProperty(CONTEXT_KEY)).thenReturn(HubAccess.internal());
+    when(req.getAttribute(CONTEXT_KEY)).thenReturn(HubAccess.internal());
 
-    Response response = subject.create(context, input, null);
+    var result = subject.create(req, res, input, null);
 
-    assertEquals(406, response.getStatus());
-    var result = jsonProvider.getMapper().readValue(String.valueOf(response.getEntity()), JsonapiPayload.class);
-    assertPayload(result).hasErrorCount(1);
-    var error = result.getErrors().iterator().next();
+    assertEquals(HttpStatus.NOT_ACCEPTABLE, result.getStatusCode());
+    assertPayload(result.getBody()).hasErrorCount(1);
+    var error = Objects.requireNonNull(result.getBody()).getErrors().iterator().next();
     assertEquals("Name is required.", error.getTitle());
   }
 

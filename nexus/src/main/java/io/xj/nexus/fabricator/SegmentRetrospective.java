@@ -1,11 +1,17 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.fabricator;
 
-import io.xj.nexus.model.*;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.nexus.NexusException;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangement;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.model.SegmentChord;
+import io.xj.nexus.model.SegmentChordVoicing;
+import io.xj.nexus.model.SegmentMeta;
 
 import java.util.Collection;
 import java.util.List;
@@ -91,7 +97,7 @@ public interface SegmentRetrospective {
   /**
    Get the picks of any previous segments which selected the same main sequence
    <p>
-   https://www.pivotaltracker.com/story/show/175947230 Artist writing detail program expects 'X' note value to result in random part creation from available Voicings
+   Artist writing detail program expects 'X' note value to result in random part creation from available Voicings https://www.pivotaltracker.com/story/show/175947230
 
    @return map of all previous segment meme constellations (as keys) to a collection of choices made
    */

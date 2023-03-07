@@ -70,7 +70,7 @@ Each service has a unique port assignment:
 
 | Service       | Port          |
 | ------------- |---------------|
-| nexus         | 3000          |
+| nexus         | 8080          |
 
 ## Chain Work
 
@@ -157,11 +157,6 @@ CLI is authenticated as.
 
 ## Library
 
-**Craft** fabricates a musical audio composite from source sequences and instrument-audio. Built with Java, Guice,
-Tomcat, Maven.
-
-**Dub** mixes and ships finished audio data to delivery. Built with Java, Guice, Tomcat, Maven.
-
 **Mixer** is a Java implementation of the Go project [go-mix](https://github.com/go-mix/mix).
 
 **Music** is a Java implementation of the Go project [go-music-theory](https://github.com/go-music-theory/music-theory).
@@ -179,9 +174,19 @@ A **Scale** is any set of musical notes ordered by fundamental frequency or pitc
 
 Contained in the `lib/telemetry` module.
 
+## Apps
+
 ### nexus
 
-Central structured data and business logic. Built with Java.
+Fabricates a musical audio composite from source sequences and instrument-audio. Built with Java Spring Boot.
+
+### ship
+
+Mixes and ships finished audio data to delivery. Built with Java Spring Boot.
+
+### hub
+
+Central structured data and business logic. Built with Java Spring Boot.
 
 Depends on `lib` components
 

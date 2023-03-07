@@ -3,9 +3,9 @@
 package io.xj.lib.jsonapi;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.inject.Guice;
 import io.xj.lib.Widget;
-import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.json.JsonProviderImpl;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -17,9 +17,9 @@ public class JsonapiPayloadErrorTest {
 
   @Before
   public void setUp() {
-    var injector = Guice.createInjector(new JsonapiModule());
-    jsonapiPayloadFactory = injector.getInstance(JsonapiPayloadFactory.class);
-    var entityFactory = injector.getInstance(EntityFactory.class);
+    var jsonProvider = new JsonProviderImpl();
+    var entityFactory = new EntityFactoryImpl(jsonProvider);
+    jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     entityFactory.register(Widget.class);
     subject = jsonapiPayloadFactory.newPayloadError();
   }

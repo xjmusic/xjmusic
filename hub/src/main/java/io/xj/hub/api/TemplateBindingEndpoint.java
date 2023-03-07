@@ -2,63 +2,65 @@
 package io.xj.hub.api;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.manager.TemplateBindingManager;
-import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.*;
+import io.xj.lib.jsonapi.JsonapiResponseProvider;
+import io.xj.lib.jsonapi.JsonapiPayload;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.PayloadDataType;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
 import javax.annotation.security.RolesAllowed;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
 import java.util.Collection;
 import java.util.UUID;
 
 /**
- TemplateBindings
+ * TemplateBindings
  */
 @Path("api/1/template-bindings")
-public class TemplateBindingEndpoint extends HubJsonapiEndpoint<TemplateBinding> {
+public class TemplateBindingEndpoint extends HubJsonapiEndpoint {
   private final TemplateBindingManager manager;
 
   /**
-   Constructor
+   * Constructor
    */
-  @Inject
   public TemplateBindingEndpoint(
     TemplateBindingManager manager,
-    HubDatabaseProvider dbProvider,
-    JsonapiHttpResponseProvider response,
+    HubSqlStoreProvider sqlStoreProvider,
+    JsonapiResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory
   ) {
-    super(dbProvider, response, payloadFactory, entityFactory);
+    super(sqlStoreProvider, response, payloadFactory, entityFactory);
     this.manager = manager;
   }
 
   /**
-   Get all templateBindings.
-
-   @param accountId  to get templateBindings for
-   @param templateId to get templateBindings for
-   @param detailed   whether to include memes
-   @return set of all templateBindings
+   * Get all templateBindings.
+   *
+   * @param accountId  to get templateBindings for
+   * @param templateId to get templateBindings for
+   * @param detailed   whether to include memes
+   * @return set of all templateBindings
    */
   @GET
   @RolesAllowed(ARTIST)
-  public Response readMany(
-    @Context ContainerRequestContext crc,
+  public ResponseEntity<JsonapiPayload> readMany(
+    HttpServletRequest req, HttpServletResponse res,
     @QueryParam("accountId") String accountId,
     @QueryParam("templateId") String templateId,
     @QueryParam("detailed") Boolean detailed
   ) {
     try {
-      HubAccess access = HubAccess.fromContext(crc);
+      HubAccess access = HubAccess.fromRequest(req);
       JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataType(PayloadDataType.Many);
       Collection<TemplateBinding> templateBindings;
 
@@ -69,81 +71,81 @@ public class TemplateBindingEndpoint extends HubJsonapiEndpoint<TemplateBinding>
       for (TemplateBinding templateBinding : templateBindings)
         jsonapiPayload.addData(payloadFactory.toPayloadObject(templateBinding));
 
-      return response.ok(jsonapiPayload);
+      return responseProvider.ok(jsonapiPayload);
 
     } catch (Exception e) {
-      return response.failure(e);
+      return responseProvider.failure(e);
     }
   }
 
   /**
-   Create new templateBinding
-
-   @param jsonapiPayload with which to update TemplateBinding record.
-   @return Response
+   * Create new templateBinding
+   *
+   * @param jsonapiPayload with which to update TemplateBinding record.
+   * @return ResponseEntity
    */
   @POST
-  @Consumes(MediaType.APPLICATION_JSONAPI)
+  @Consumes(MediaType.APPLICATION_JSON_VALUE)
   @RolesAllowed(ARTIST)
-  public Response create(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc) {
+  public ResponseEntity<JsonapiPayload> create(JsonapiPayload jsonapiPayload, HttpServletRequest req, HttpServletResponse res) {
 
     try {
       TemplateBinding templateBinding = payloadFactory.consume(manager().newInstance(), jsonapiPayload);
       TemplateBinding created;
       created = manager().create(
-        HubAccess.fromContext(crc),
+        HubAccess.fromRequest(req),
         templateBinding);
 
-      return response.create(new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(created)));
+      return responseProvider.create(new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(created)));
 
     } catch (Exception e) {
-      return response.notAcceptable(e);
+      return responseProvider.notAcceptable(e);
     }
   }
 
 
   /**
-   Get one templateBinding.
-
-   @return application/json response.
+   * Get one templateBinding.
+   *
+   * @return application/json response.
    */
   @GET
   @Path("{id}")
   @RolesAllowed(ARTIST)
-  public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") UUID id) {
-    return readOne(crc, manager(), id);
+  public ResponseEntity<JsonapiPayload> readOne(HttpServletRequest req, @PathParam("id") UUID id) {
+    return readOne(req, manager(), id);
   }
 
   /**
-   Update one templateBinding
-
-   @param jsonapiPayload with which to update TemplateBinding record.
-   @return Response
+   * Update one templateBinding
+   *
+   * @param jsonapiPayload with which to update TemplateBinding record.
+   * @return ResponseEntity
    */
   @PATCH
   @Path("{id}")
-  @Consumes(MediaType.APPLICATION_JSONAPI)
+  @Consumes(MediaType.APPLICATION_JSON_VALUE)
   @RolesAllowed(ARTIST)
-  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") UUID id) {
-    return update(crc, manager(), id, jsonapiPayload);
+  public ResponseEntity<JsonapiPayload> update(JsonapiPayload jsonapiPayload, HttpServletRequest req, @PathParam("id") UUID id) {
+    return update(req, manager(), id, jsonapiPayload);
   }
 
   /**
-   Delete one templateBinding
-
-   @return Response
+   * Delete one templateBinding
+   *
+   * @return ResponseEntity
    */
   @DELETE
   @Path("{id}")
   @RolesAllowed(ARTIST)
-  public Response delete(@Context ContainerRequestContext crc, @PathParam("id") UUID id) {
-    return delete(crc, manager(), id);
+  public ResponseEntity<JsonapiPayload> delete(HttpServletRequest req, @PathParam("id") UUID id) {
+    return delete(req, manager(), id);
   }
 
   /**
-   Get Manager of injector
-
-   @return Manager
+   * Get Manager of injector
+   *
+   * @return Manager
    */
   private TemplateBindingManager manager() {
     return manager;

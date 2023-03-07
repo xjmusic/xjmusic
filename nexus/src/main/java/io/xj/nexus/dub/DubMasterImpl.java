@@ -4,8 +4,6 @@ package io.xj.nexus.dub;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.mixer.Mixer;
@@ -43,11 +41,8 @@ public class DubMasterImpl implements DubMaster {
   private final DubAudioCache dubAudioCache;
   private Mixer mixer;
 
-  @Inject
   public DubMasterImpl(
-    @Assisted("basis") Fabricator fabricator,
-    DubAudioCache dubAudioCache,
-    MixerFactory mixerFactory
+    DubAudioCache dubAudioCache, MixerFactory mixerFactory, Fabricator fabricator
     /*-*/) {
     this.dubAudioCache = dubAudioCache;
     this.fabricator = fabricator;
@@ -117,7 +112,7 @@ public class DubMasterImpl implements DubMaster {
   /**
    Iterate through every picked audio and, based on its transient and position in the segment, determine the preroll required, and keep the maximum preroll required out of all the audios.
    <p>
-   https://www.pivotaltracker.com/story/show/165799913 Dubbed audio can begin before segment start
+   Dubbed audio can begin before segment start https://www.pivotaltracker.com/story/show/165799913
    - During dub work, the waveform preroll required for the current segment is determined by finding the earliest positioned audio sample. **This process must factor in the transient of each audio sample.**
 
    @return computed preroll (in seconds)
@@ -136,7 +131,7 @@ public class DubMasterImpl implements DubMaster {
   /**
    Implements Mixer module to set playback for Picks in current Segment
    <p>
-   https://www.pivotaltracker.com/story/show/165799913 Dubbed audio can begin before segment start
+   Dubbed audio can begin before segment start https://www.pivotaltracker.com/story/show/165799913
    - During dub work, output audio includes the head start, and `waveform_preroll` value is persisted to segment
 
    @param preroll (seconds)
@@ -162,9 +157,9 @@ public class DubMasterImpl implements DubMaster {
    Set playback for a pick
    <p>
    [#341] Dub process takes into account the start offset of each audio, in order to ensure that it is mixed such that the hit is exactly on the meter
-   https://www.pivotaltracker.com/story/show/165799913 Dubbed audio can begin before segment start
+   Dubbed audio can begin before segment start https://www.pivotaltracker.com/story/show/165799913
    - During dub work, output audio includes the head start, and `waveform_preroll` value is persisted to segment
-   https://www.pivotaltracker.com/story/show/171224848 Duration of events should include segment preroll
+   Duration of events should include segment preroll https://www.pivotaltracker.com/story/show/171224848
 
    @param preroll (seconds)
    @param pick    to set playback for

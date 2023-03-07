@@ -2,28 +2,23 @@
 package io.xj.hub.manager;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
 import io.xj.hub.HubException;
-import io.xj.hub.HubIntegrationTestModule;
-import io.xj.hub.HubIntegrationTestProvider;
+import io.xj.hub.HubIntegrationTest;
+import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.enums.*;
-import io.xj.hub.ingest.HubIngestModule;
-import io.xj.hub.persistence.HubPersistenceModule;
+import io.xj.hub.kubernetes.KubernetesAdmin;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
-import io.xj.lib.app.Environment;
-import io.xj.lib.filestore.FileStoreModule;
-import io.xj.lib.jsonapi.JsonapiModule;
+import io.xj.lib.app.AppEnvironment;
 import org.assertj.core.util.Lists;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -33,9 +28,12 @@ import static io.xj.hub.IntegrationTestingFixtures.*;
 import static io.xj.hub.tables.TemplateBinding.TEMPLATE_BINDING;
 import static org.junit.Assert.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class TemplateManagerDbTest {
+  @Mock
+  private KubernetesAdmin kubernetesAdmin;
   private TemplateManager testManager;
-  private HubIntegrationTestProvider test;
+  private HubIntegrationTest test;
   private IntegrationTestingFixtures fake;
   private Template template2a;
   private Template template1a;
@@ -43,14 +41,8 @@ public class TemplateManagerDbTest {
 
   @Before
   public void setUp() throws Exception {
-    var env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule(), new HubIntegrationTestModule())).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(Environment.class).toInstance(env);
-      }
-    }));
-    test = injector.getInstance(HubIntegrationTestProvider.class);
+    var env = AppEnvironment.getDefault();
+    test = HubIntegrationTestFactory.build(env);
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
@@ -70,7 +62,10 @@ public class TemplateManagerDbTest {
     test.insert(buildTemplate(fake.account2, "sail", UUID.randomUUID().toString()));
 
     // Instantiate the test subject
-    testManager = injector.getInstance(TemplateManager.class);
+    TemplateBindingManager templateBindingManager = new TemplateBindingManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
+    TemplatePlaybackManager templatePlaybackManager = new TemplatePlaybackManagerImpl(test.getEnv(), test.getEntityFactory(), test.getSqlStoreProvider(), kubernetesAdmin);
+    TemplatePublicationManager templatePublicationManager = new TemplatePublicationManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
+    testManager = new TemplateManagerImpl(test.getEnv(), test.getEntityFactory(), test.getSqlStoreProvider(), templateBindingManager, templatePlaybackManager, templatePublicationManager);
   }
 
   @After
@@ -83,12 +78,12 @@ public class TemplateManagerDbTest {
     HubAccess access = HubAccess.create("Admin");
     Template inputData = new Template();
     inputData.setName("coconuts");
-    inputData.setShipKey("dXUZhm");
+    inputData.setShipKey("dX_UZ_hm");
     inputData.setAccountId(fake.account1.getId());
 
     Template result = testManager.create(access, inputData);
 
-    assertEquals("dxuzhm", result.getShipKey());
+    assertEquals("dx_uz_hm", result.getShipKey());
   }
 
   @Test
@@ -142,11 +137,11 @@ public class TemplateManagerDbTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/155089641 Engineer expects to be able to of and update a Template.
+   * Engineer expects to be able to of and update a Template. https://www.pivotaltracker.com/story/show/155089641
    */
   @Test
   public void create_asEngineer() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Engineer");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Engineer");
     Template inputData = new Template();
     inputData.setName("coconuts");
     inputData.setAccountId(fake.account1.getId());
@@ -160,11 +155,11 @@ public class TemplateManagerDbTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/155089641 Engineer expects to be able to of and update a Template.
+   * Engineer expects to be able to of and update a Template. https://www.pivotaltracker.com/story/show/155089641
    */
   @Test
   public void create_asEngineer_failsWithoutAccountAccess() {
-    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "Engineer");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "Engineer");
     Template inputData = new Template();
     inputData.setName("coconuts");
     inputData.setAccountId(fake.account1.getId());
@@ -187,7 +182,7 @@ public class TemplateManagerDbTest {
 
   @Test
   public void clone_includeBindings() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     var boundLibrary = buildLibrary(fake.account1, "Test Library");
     var boundProgram = buildProgram(boundLibrary, ProgramType.Main, ProgramState.Published, "Test", "C", 120.0f, 0.6f);
     var boundInstrument = buildInstrument(boundLibrary, InstrumentType.Bass, InstrumentMode.Event, InstrumentState.Published, "Test");
@@ -210,29 +205,35 @@ public class TemplateManagerDbTest {
     // Cloned TemplateBinding
     assertEquals(3, resultCloner.getChildClones().stream()
       .filter(e -> TemplateBinding.class.equals(e.getClass())).count());
-    assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(TEMPLATE_BINDING)
-      .where(TEMPLATE_BINDING.TEMPLATE_ID.eq(result.getId()))
-      .and(TEMPLATE_BINDING.TARGET_ID.eq(boundLibrary.getId()))
-      .fetchOne(0, int.class));
-    assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(TEMPLATE_BINDING)
-      .where(TEMPLATE_BINDING.TEMPLATE_ID.eq(result.getId()))
-      .and(TEMPLATE_BINDING.TARGET_ID.eq(boundProgram.getId()))
-      .fetchOne(0, int.class));
-    assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(TEMPLATE_BINDING)
-      .where(TEMPLATE_BINDING.TEMPLATE_ID.eq(result.getId()))
-      .and(TEMPLATE_BINDING.TARGET_ID.eq(boundInstrument.getId()))
-      .fetchOne(0, int.class));
+    try (var selectCount = test.getDSL().selectCount()) {
+      assertEquals(Integer.valueOf(1),
+        selectCount.from(TEMPLATE_BINDING)
+          .where(TEMPLATE_BINDING.TEMPLATE_ID.eq(result.getId()))
+          .and(TEMPLATE_BINDING.TARGET_ID.eq(boundLibrary.getId()))
+          .fetchOne(0, int.class));
+    }
+    try (var selectCount = test.getDSL().selectCount()) {
+      assertEquals(Integer.valueOf(1),
+        selectCount.from(TEMPLATE_BINDING)
+          .where(TEMPLATE_BINDING.TEMPLATE_ID.eq(result.getId()))
+          .and(TEMPLATE_BINDING.TARGET_ID.eq(boundProgram.getId()))
+          .fetchOne(0, int.class));
+    }
+    try (var selectCount = test.getDSL().selectCount()) {
+      assertEquals(Integer.valueOf(1),
+        selectCount.from(TEMPLATE_BINDING)
+          .where(TEMPLATE_BINDING.TEMPLATE_ID.eq(result.getId()))
+          .and(TEMPLATE_BINDING.TARGET_ID.eq(boundInstrument.getId()))
+          .fetchOne(0, int.class));
+    }
   }
 
   /**
-   Lab cloned template is always Preview-type and has new ship key if unspecified https://www.pivotaltracker.com/story/show/181054239
+   * Lab cloned template is always Preview-type and has new ship key if unspecified https://www.pivotaltracker.com/story/show/181054239
    */
   @Test
   public void clone_alwaysPreviewWithNewShipKey() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     Template inputData = new Template();
     inputData.setType(TemplateType.Production);
     inputData.setAccountId(fake.account1.getId());
@@ -249,11 +250,11 @@ public class TemplateManagerDbTest {
   }
 
   /**
-   Lab cloned template has specified ship key https://www.pivotaltracker.com/story/show/181054239
+   * Lab cloned template has specified ship key https://www.pivotaltracker.com/story/show/181054239
    */
   @Test
   public void clone_hasSpecifiedShipKey() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     Template inputData = new Template();
     inputData.setType(TemplateType.Production);
     inputData.setShipKey("new2ship5key");
@@ -272,7 +273,7 @@ public class TemplateManagerDbTest {
 
   @Test
   public void readOne() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
 
     Template result = testManager.readOne(access, template1b.getId());
 
@@ -284,7 +285,7 @@ public class TemplateManagerDbTest {
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() {
-    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "User");
 
     var e = assertThrows(ManagerException.class, () -> testManager.readOne(access, fake.account1.getId()));
     assertEquals("Record does not exist", e.getMessage());
@@ -292,7 +293,7 @@ public class TemplateManagerDbTest {
 
   @Test
   public void readMany() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
 
     Collection<Template> result = testManager.readMany(access, ImmutableList.of(fake.account1.getId()));
 
@@ -304,7 +305,7 @@ public class TemplateManagerDbTest {
 
   @Test
   public void readChildEntities() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1, fake.account2), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1, fake.account2), "User");
     test.insert(buildTemplateBinding(template1a, buildProgram(buildLibrary(buildAccount("Test"), "test"), ProgramType.Detail, ProgramState.Published, "test", "C", 120.0f, 06f)));
     test.insert(buildTemplatePlayback(template1a, buildUser("Test", "test@test.com", "test.jpg", "User")));
     var legacy = buildTemplatePlayback(template1a, buildUser("Test2", "test2@test.com", "test2.jpg", "User"));
@@ -318,7 +319,7 @@ public class TemplateManagerDbTest {
 
   @Test
   public void readMany_fromAllAccounts() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1, fake.account2), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1, fake.account2), "User");
 
     Collection<Template> result = testManager.readMany(access, Lists.newArrayList());
 
@@ -332,7 +333,7 @@ public class TemplateManagerDbTest {
 
   @Test
   public void readMany_SeesNothingOutsideOfAccount() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "User");
 
     Collection<Template> result = testManager.readMany(access, ImmutableList.of(fake.account1.getId()));
 
@@ -342,7 +343,7 @@ public class TemplateManagerDbTest {
 
   @Test
   public void readAllPlaying() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin");
     test.insert(buildTemplatePlayback(template1a, fake.user3));
     test.insert(buildTemplatePlayback(template1a, fake.user2));
 
@@ -353,7 +354,7 @@ public class TemplateManagerDbTest {
 
   @Test
   public void readAllPlaying_noneOlderThanThreshold() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin");
     test.insert(buildTemplatePlayback(template1a, fake.user2));
     var later = buildTemplatePlayback(template1a, fake.user3);
     later.setCreatedAt(Timestamp.from(Instant.now().minusSeconds(60 * 60 * 12)).toLocalDateTime());
@@ -442,11 +443,11 @@ public class TemplateManagerDbTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/155089641 Engineer expects to be able to of and update a Template.
+   * Engineer expects to be able to of and update a Template. https://www.pivotaltracker.com/story/show/155089641
    */
   @Test
   public void update_asEngineer() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Engineer");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Engineer");
     Template inputData = new Template();
     inputData.setName("cannons");
     inputData.setAccountId(fake.account1.getId());
@@ -460,11 +461,11 @@ public class TemplateManagerDbTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/155089641 Engineer expects to be able to of and update a Template.
+   * Engineer expects to be able to of and update a Template. https://www.pivotaltracker.com/story/show/155089641
    */
   @Test
   public void update_asEngineer_failsWithoutAccountAccess() {
-    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "Engineer");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "Engineer");
     Template inputData = new Template();
     inputData.setName("cannons");
     inputData.setAccountId(fake.account1.getId());
@@ -481,7 +482,7 @@ public class TemplateManagerDbTest {
     inputData.setName("cannons");
     inputData.setAccountId(UUID.randomUUID());
 
-    var e = assertThrows(ManagerException.class, () -> testManager.update(access, template1a.getId(), inputData));
+    assertThrows(ManagerException.class, () -> testManager.update(access, template1a.getId(), inputData));
 
     Template result = testManager.readOne(HubAccess.internal(), template1a.getId());
     assertNotNull(result);
@@ -541,15 +542,15 @@ public class TemplateManagerDbTest {
   }
 
   /**
-   Artist should be able to delete Preview Templates https://www.pivotaltracker.com/story/show/181227134
-
-   @throws Exception on failure
+   * Artist should be able to delete Preview Templates https://www.pivotaltracker.com/story/show/181227134
+   *
+   * @throws Exception on failure
    */
   @Test
   public void delete_artistHasPermissionForPreviewTemplate() throws Exception {
     test.insert(buildTemplateBinding(template1b, buildProgram(buildLibrary(buildAccount("Test"), "test"), ProgramType.Detail, ProgramState.Published, "test", "C", 120.0f, 06f)));
     test.insert(buildTemplatePlayback(template1a, buildUser("Test", "test@test.com", "test.jpg", "User")));
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User,Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User,Artist");
 
     testManager.destroy(access, template1a.getId());
 
@@ -558,28 +559,22 @@ public class TemplateManagerDbTest {
   }
 
   /**
-   Artist should NOT be able to delete Production Templates https://www.pivotaltracker.com/story/show/181227134
-
-   @throws Exception on failure
+   * Artist should NOT be able to delete Production Templates https://www.pivotaltracker.com/story/show/181227134
+   *
+   * @throws Exception on failure
    */
   @Test
   public void delete_artistCannotDeleteProductionTemplate() throws Exception {
     var productionTemplate = test.insert(buildTemplate(fake.account1, TemplateType.Production, "can't touch this", "no_touching"));
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User,Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User,Artist");
 
     var e = assertThrows(ManagerException.class, () -> testManager.destroy(access, productionTemplate.getId()));
     assertEquals("top-level access is required", e.getMessage());
   }
 
-
   /**
-   Lab/Hub connects to k8s to manage a personal workload for preview templates
-   https://www.pivotaltracker.com/story/show/183576743
-   */
-
-  /**
-   Preview Nexus reads one currently-playing preview template for the authenticated user
-   https://www.pivotaltracker.com/story/show/183576743
+   * Preview Nexus reads one currently-playing preview template for the authenticated user
+   * https://www.pivotaltracker.com/story/show/183576743
    */
   @Test
   public void readOnePlayingForUser() throws Exception {
@@ -592,8 +587,8 @@ public class TemplateManagerDbTest {
   }
 
   /**
-   Preview Nexus deactivates for the authenticated user when no template is playing
-   https://www.pivotaltracker.com/story/show/183576743
+   * Preview Nexus deactivates for the authenticated user when no template is playing
+   * https://www.pivotaltracker.com/story/show/183576743
    */
   @Test
   public void readOnePlayingForUser_noneIfNonePlaying() throws Exception {
@@ -605,8 +600,8 @@ public class TemplateManagerDbTest {
   }
 
   /**
-   Preview Nexus deactivates for the authenticated user when template playback is expired
-   https://www.pivotaltracker.com/story/show/183576743
+   * Preview Nexus deactivates for the authenticated user when template playback is expired
+   * https://www.pivotaltracker.com/story/show/183576743
    */
   @Test
   public void readOnePlayingForUser_noneIfPlaybackExpired() throws Exception {
@@ -621,8 +616,8 @@ public class TemplateManagerDbTest {
   }
 
   /**
-   Preview Nexus deactivates for the authenticated user when template playback is expired
-   https://www.pivotaltracker.com/story/show/183576743
+   * Preview Nexus deactivates for the authenticated user when template playback is expired
+   * https://www.pivotaltracker.com/story/show/183576743
    */
   @Test
   public void readOnePlayingForUser_byInternalAccess() throws Exception {

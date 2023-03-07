@@ -4,29 +4,44 @@ package io.xj.nexus.craft.transition;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
-import io.xj.nexus.model.*;
 import io.xj.hub.HubTopology;
 import io.xj.hub.IntegrationTestingFixtures;
+import io.xj.hub.client.HubClient;
+import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Instrument;
-import io.xj.lib.app.Environment;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.Entities;
-import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.entity.EntityStore;
+import io.xj.lib.entity.EntityStoreImpl;
+import io.xj.lib.json.ApiUrlProvider;
+import io.xj.lib.json.JsonProvider;
+import io.xj.lib.json.JsonProviderImpl;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.lib.notification.NotificationProvider;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
+import io.xj.nexus.craft.CraftFactoryImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.hub.client.HubClient;
-import io.xj.hub.client.HubContent;
-import io.xj.nexus.persistence.NexusEntityStore;
-import io.xj.nexus.work.NexusWorkModule;
+import io.xj.nexus.fabricator.FabricatorFactoryImpl;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.ChainType;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.model.SegmentType;
+import io.xj.nexus.persistence.ChainManager;
+import io.xj.nexus.persistence.ChainManagerImpl;
+import io.xj.nexus.persistence.NexusEntityStoreImpl;
+import io.xj.nexus.persistence.SegmentManager;
+import io.xj.nexus.persistence.SegmentManagerImpl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,12 +58,14 @@ import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 
 /**
- https://www.pivotaltracker.com/story/show/166481918 Transition fabrication composited of layered Patterns
+ * Transition fabrication composited of layered Patterns https://www.pivotaltracker.com/story/show/166481918
  */
 @RunWith(MockitoJUnitRunner.class)
 public class CraftTransition_LayeredVoicesTest {
   @Mock
   public HubClient hubClient;
+  @Mock
+  public NotificationProvider notificationProvider;
   private CraftFactory craftFactory;
   private FabricatorFactory fabricatorFactory;
   private HubContent sourceMaterial;
@@ -57,22 +74,33 @@ public class CraftTransition_LayeredVoicesTest {
 
   @Before
   public void setUp() throws Exception {
-    Environment env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(new NexusWorkModule())
-      .with(new AbstractModule() {
-        @Override
-        protected void configure() {
-          bind(Environment.class).toInstance(env);
-        }
-      }));
-    fabricatorFactory = injector.getInstance(FabricatorFactory.class);
-    craftFactory = injector.getInstance(CraftFactory.class);
-    var entityFactory = injector.getInstance(EntityFactory.class);
+    AppEnvironment env = AppEnvironment.getDefault();
+    JsonProvider jsonProvider = new JsonProviderImpl();
+    var entityFactory = new EntityFactoryImpl(jsonProvider);
+    ApiUrlProvider apiUrlProvider = new ApiUrlProvider(env);
+    craftFactory = new CraftFactoryImpl(apiUrlProvider);
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
+    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
+    var store = new NexusEntityStoreImpl(entityFactory);
+    SegmentManager segmentManager = new SegmentManagerImpl(entityFactory, store);
+    ChainManager chainManager = new ChainManagerImpl(
+      env,
+      entityFactory,
+      store,
+      segmentManager,
+      notificationProvider
+    );
+    EntityStore entityStore = new EntityStoreImpl();
+    fabricatorFactory = new FabricatorFactoryImpl(
+      env,
+      chainManager,
+            segmentManager,
+      jsonapiPayloadFactory,
+      jsonProvider
+    );
 
     // Manipulate the underlying entity store; reset before each test
-    NexusEntityStore store = injector.getInstance(NexusEntityStore.class);
     store.deleteAll();
 
     // Mock request via HubClient returns fake generated library of hub content
@@ -159,9 +187,9 @@ public class CraftTransition_LayeredVoicesTest {
 
 
   /**
-   Some custom fixtures for testing
-
-   @return list of all entities
+   * Some custom fixtures for testing
+   *
+   * @return list of all entities
    */
   private Collection<Object> customFixtures() {
     Collection<Object> entities = Lists.newArrayList();
@@ -192,7 +220,7 @@ public class CraftTransition_LayeredVoicesTest {
 
 //    Segment result = store.getSegment(segment4.getId()).orElseThrow();
 //    assertFalse(store.getAll(result.getId(), SegmentChoice.class).isEmpty());
-//    // test vector for https://www.pivotaltracker.com/story/show/154014731 persist Audio pick in memory
+//    // test vector for persist Audio pick in memory https://www.pivotaltracker.com/story/show/154014731
 //    int pickedKick = 0;
 //    int pickedSnare = 0;
 //    int pickedHihat = 0;

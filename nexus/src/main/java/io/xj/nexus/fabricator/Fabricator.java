@@ -2,20 +2,45 @@
 package io.xj.nexus.fabricator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.xj.nexus.model.*;
 import io.xj.hub.InstrumentConfig;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.TemplateConfig;
+import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.*;
-import io.xj.lib.music.*;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramSequenceChord;
+import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.lib.music.Chord;
+import io.xj.lib.music.Note;
+import io.xj.lib.music.NoteRange;
+import io.xj.lib.music.StickyBun;
 import io.xj.nexus.NexusException;
-import io.xj.hub.client.HubContent;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangement;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.model.SegmentChord;
+import io.xj.nexus.model.SegmentChordVoicing;
+import io.xj.nexus.model.SegmentMeme;
+import io.xj.nexus.model.SegmentMessageType;
+import io.xj.nexus.model.SegmentType;
 
 import javax.sound.sampled.AudioFormat;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 public interface Fabricator {
 
@@ -68,8 +93,8 @@ public interface Fabricator {
   /**
    Update the original Segment submitted for craft,
    cache it in the internal in-memory object, and persisted in the database
-   https://www.pivotaltracker.com/story/show/162361525 ALWAYS persist Segment content as JSON when work is performed
-   https://www.pivotaltracker.com/story/show/162361534 musical evolution depends on segments that continue the use of a main sequence
+   ALWAYS persist Segment content as JSON when work is performed https://www.pivotaltracker.com/story/show/162361525
+   musical evolution depends on segments that continue the use of a main sequence https://www.pivotaltracker.com/story/show/162361534
    */
   void done() throws NexusException;
 
@@ -156,7 +181,7 @@ public interface Fabricator {
    Determine if a choice has been previously crafted
    in one of the previous segments of the current main sequence
    <p>
-   https://www.pivotaltracker.com/story/show/176468964 Beat and Detail choices are kept for an entire Main Program
+   Beat and Detail choices are kept for an entire Main Program https://www.pivotaltracker.com/story/show/176468964
 
    @return choice if previously made, or null if none is found
    */
@@ -250,7 +275,7 @@ public interface Fabricator {
   String getFullQualityAudioOutputFilePath() throws NexusException;
 
   /**
-   Get the InstrumentConfig from a given instrument, with fallback to instrument section of guice-injected config values
+   Get the InstrumentConfig from a given instrument, with fallback to instrument section of injected config values
 
    @param instrument to get config of
    @return InstrumentConfig from a given instrument, with fallback values
@@ -258,7 +283,7 @@ public interface Fabricator {
   InstrumentConfig getInstrumentConfig(Instrument instrument) throws NexusException;
 
   /**
-   Get the InstrumentConfig for a given pick, with fallback to instrument section of guice-injected config values
+   Get the InstrumentConfig for a given pick, with fallback to instrument section of injected config values
 
    @param pick to get config of
    @return InstrumentConfig from a given instrument, with fallback values
@@ -284,7 +309,7 @@ public interface Fabricator {
   /**
    Get the Key for any given Choice, preferring its Sequence Key (bound), defaulting to the Program Key.
    <p>
-   https://www.pivotaltracker.com/story/show/176474164 If Sequence has no key/tempo/density inherit from Program
+   If Sequence has no key/tempo/density inherit from Program https://www.pivotaltracker.com/story/show/176474164
 
    @param choice to get key for
    @return key of specified sequence/program via choice
@@ -414,7 +439,7 @@ public interface Fabricator {
   Optional<Program> getProgram(SegmentChoice choice);
 
   /**
-   Get the ProgramConfig from a given program, with fallback to program section of guice-injected config values
+   Get the ProgramConfig from a given program, with fallback to program section of injected config values
 
    @param program to get config of
    @return ProgramConfig from a given program, with fallback values
@@ -423,7 +448,7 @@ public interface Fabricator {
 
   /**
    Get the complete set of program sequence chords,
-   ignoring ghost chords* REF https://www.pivotaltracker.com/story/show/178420030 by choosing the voicings with largest # of notes at that position
+   ignoring ghost chords* REF by choosing the voicings with largest # of notes at that position https://www.pivotaltracker.com/story/show/178420030
    (caches results)
 
    @param programSequence for which to get complete do-ghosted set of chords
@@ -441,7 +466,7 @@ public interface Fabricator {
   NoteRange getProgramRange(UUID programId, InstrumentType instrumentType) throws NexusException;
 
   /**
-   https://www.pivotaltracker.com/story/show/176696738 Detail craft shifts source program events into the target range
+   Detail craft shifts source program events into the target range https://www.pivotaltracker.com/story/show/176696738
    <p>
    via average of delta from source low to target low, and from source high to target high, rounded to octave
 
@@ -506,11 +531,11 @@ public interface Fabricator {
   Optional<ProgramSequence> getRandomlySelectedSequence(Program program);
 
   /**
-   https://www.pivotaltracker.com/story/show/165954619 Selects one (at random) of all available patterns of a given type within a sequence.
+   Selects one (at random) of all available patterns of a given type within a sequence. https://www.pivotaltracker.com/story/show/165954619
    <p>
    Caches the selection, so it will always return the same output for any given input.
    <p>
-   https://www.pivotaltracker.com/story/show/166481918 Beat fabrication composited of layered Patterns
+   Beat fabrication composited of layered Patterns https://www.pivotaltracker.com/story/show/166481918
 
    @return Pattern model, or null if no pattern of this type is found
    @throws NexusException on failure
@@ -548,8 +573,8 @@ public interface Fabricator {
    the seconds of start for any given position in beats
    Velocity of Segment meter (beats per minute) increases linearly of the beginning of the Segment (at the previous Segment's tempo) to the end of the Segment (arriving at the current Segment's tempo, only at its end)
    <p>
-   https://www.pivotaltracker.com/story/show/166370833 Segment should *never* be fabricated longer than its total beats.
-   https://www.pivotaltracker.com/story/show/153542275 Segment wherein tempo changes expect perfectly smooth sound of previous segment through to following segment
+   Segment should *never* be fabricated longer than its total beats. https://www.pivotaltracker.com/story/show/166370833
+   Segment wherein tempo changes expect perfectly smooth sound of previous segment through to following segment https://www.pivotaltracker.com/story/show/153542275
 
    @param p position in beats
    @return seconds of start
@@ -611,9 +636,9 @@ public interface Fabricator {
   String getSegmentShipKey(String extension);
 
   /**
-   https://www.pivotaltracker.com/story/show/165954619 Get the sequence for a Choice either directly (beat- and detail-type sequences), or by sequence-pattern (macro- or main-type sequences)
+   Get the sequence for a Choice either directly (beat- and detail-type sequences), or by sequence-pattern (macro- or main-type sequences) https://www.pivotaltracker.com/story/show/165954619
    <p>
-   https://www.pivotaltracker.com/story/show/166690830 Program model handles all of its own entities
+   Program model handles all of its own entities https://www.pivotaltracker.com/story/show/166690830
    Beat and Detail programs are allowed to have only one (default) sequence.
 
    @param choice to get sequence for
@@ -649,7 +674,7 @@ public interface Fabricator {
    - Rendering a pattern X voicing considers the sticky bun values
    --- the random seed for rendering the pattern will always come from the associated sticky bun
    <p>
-   Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822 persisted for each randomly selected note in the series for any given pattern
+   Sticky buns v2 persisted for each randomly selected note in the series for any given pattern https://www.pivotaltracker.com/story/show/179153822
    - key on program-sequence-pattern-event id, persisting only the first value seen for any given event
    - super-key on program-sequence-pattern id, measuring delta from the first event seen in that pattern
    <p>
@@ -833,7 +858,7 @@ public interface Fabricator {
 
   /**
    Put a key-value pair into the report
-   https://www.pivotaltracker.com/story/show/162999779 only exports data as a sub-field of the standard content JSON
+   only exports data as a sub-field of the standard content JSON https://www.pivotaltracker.com/story/show/162999779
 
    @param key   to put
    @param value to put

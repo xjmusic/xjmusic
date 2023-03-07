@@ -1,9 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.manager;
 
-import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
 import io.xj.lib.entity.EntityFactory;
@@ -12,6 +11,7 @@ import io.xj.lib.util.Text;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -20,19 +20,19 @@ import java.util.UUID;
 
 import static io.xj.hub.Tables.*;
 
-public class ProgramSequenceBindingMemeManagerImpl extends HubPersistenceServiceImpl<ProgramSequenceBindingMeme> implements ProgramSequenceBindingMemeManager {
+@Service
+public class ProgramSequenceBindingMemeManagerImpl extends HubPersistenceServiceImpl implements ProgramSequenceBindingMemeManager {
 
-  @Inject
   public ProgramSequenceBindingMemeManagerImpl(
     EntityFactory entityFactory,
-    HubDatabaseProvider dbProvider
+    HubSqlStoreProvider sqlStoreProvider
   ) {
-    super(entityFactory, dbProvider);
+    super(entityFactory, sqlStoreProvider);
   }
 
   @Override
   public ProgramSequenceBindingMeme create(HubAccess access, ProgramSequenceBindingMeme rawMeme) throws ManagerException, JsonapiException, ValueException {
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
     var meme = validate(rawMeme);
     requireArtist(access);
     requireProgramModification(db, access, meme.getProgramId());
@@ -47,12 +47,12 @@ public class ProgramSequenceBindingMemeManagerImpl extends HubPersistenceService
     requireArtist(access);
     if (access.isTopLevel())
       return modelFrom(ProgramSequenceBindingMeme.class,
-        dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_BINDING_MEME)
+        sqlStoreProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_BINDING_MEME)
           .where(PROGRAM_SEQUENCE_BINDING_MEME.ID.eq(id))
           .fetchOne());
     else
       return modelFrom(ProgramSequenceBindingMeme.class,
-        dbProvider.getDSL().select(PROGRAM_SEQUENCE_BINDING_MEME.fields()).from(PROGRAM_SEQUENCE_BINDING_MEME)
+        sqlStoreProvider.getDSL().select(PROGRAM_SEQUENCE_BINDING_MEME.fields()).from(PROGRAM_SEQUENCE_BINDING_MEME)
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM_SEQUENCE_BINDING_MEME.ID.eq(id))
@@ -66,12 +66,12 @@ public class ProgramSequenceBindingMemeManagerImpl extends HubPersistenceService
     requireArtist(access);
     if (access.isTopLevel())
       return modelsFrom(ProgramSequenceBindingMeme.class,
-        dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_BINDING_MEME)
+        sqlStoreProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_BINDING_MEME)
           .where(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID.in(programIds))
           .fetch());
     else
       return modelsFrom(ProgramSequenceBindingMeme.class,
-        dbProvider.getDSL().select(PROGRAM_SEQUENCE_BINDING_MEME.fields()).from(PROGRAM_SEQUENCE_BINDING_MEME)
+        sqlStoreProvider.getDSL().select(PROGRAM_SEQUENCE_BINDING_MEME.fields()).from(PROGRAM_SEQUENCE_BINDING_MEME)
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID.in(programIds))
@@ -81,7 +81,7 @@ public class ProgramSequenceBindingMemeManagerImpl extends HubPersistenceService
 
   @Override
   public ProgramSequenceBindingMeme update(HubAccess access, UUID id, ProgramSequenceBindingMeme rawMeme) throws ManagerException, JsonapiException, ValueException {
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
     requireAny("Same id", Objects.equals(id, rawMeme.getId()));
     var meme = validate(rawMeme);
     requireArtist(access);
@@ -93,7 +93,7 @@ public class ProgramSequenceBindingMemeManagerImpl extends HubPersistenceService
 
   @Override
   public void destroy(HubAccess access, UUID id) throws ManagerException {
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
     requireArtist(access);
 
     if (!access.isTopLevel())
@@ -116,10 +116,10 @@ public class ProgramSequenceBindingMemeManagerImpl extends HubPersistenceService
   }
 
   /**
-   Validate data
-
-   @param record to validate
-   @throws ManagerException if invalid
+   * Validate data
+   *
+   * @param record to validate
+   * @throws ManagerException if invalid
    */
   public ProgramSequenceBindingMeme validate(ProgramSequenceBindingMeme record) throws ManagerException {
     try {

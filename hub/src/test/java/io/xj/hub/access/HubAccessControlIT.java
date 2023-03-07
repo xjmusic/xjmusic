@@ -2,23 +2,16 @@
 package io.xj.hub.access;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
-import io.xj.hub.HubIntegrationTestModule;
-import io.xj.hub.HubIntegrationTestProvider;
-import io.xj.hub.manager.ManagerModule;
+import io.xj.hub.HubIntegrationTest;
+import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.enums.UserAuthType;
-import io.xj.hub.ingest.HubIngestModule;
-import io.xj.hub.persistence.HubPersistenceModule;
+import io.xj.hub.manager.UserManager;
+import io.xj.hub.manager.UserManagerImpl;
 import io.xj.hub.tables.pojos.AccountUser;
 import io.xj.hub.tables.pojos.User;
 import io.xj.hub.tables.pojos.UserAuth;
-import io.xj.lib.app.Environment;
-import io.xj.lib.filestore.FileStoreModule;
-import io.xj.lib.jsonapi.JsonapiModule;
+import io.xj.lib.app.AppEnvironment;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,29 +27,28 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
 public class HubAccessControlIT {
+  private static final AppEnvironment env = AppEnvironment.from(ImmutableMap.of(
+    "REDIS_SESSION_NAMESPACE", "xj_session_test"
+  ));
 
   private static final int STRESS_TEST_ITERATIONS = 100;
-  HubAccessControlProvider hubAccessControlProvider;
-  private HubIntegrationTestProvider test;
+  UserManager userManager;
+  private HubIntegrationTest test;
 
   @Before
   public void setUp() throws Exception {
-    var env = Environment.from(ImmutableMap.of(
-      "REDIS_SESSION_NAMESPACE", "xj_session_test"
-    ));
-
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new FileStoreModule(), new JsonapiModule(), new HubIntegrationTestModule())).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(Environment.class).toInstance(env);
-      }
-    }));
-
-    test = injector.getInstance(HubIntegrationTestProvider.class);
+    test = HubIntegrationTestFactory.build(env);
 
     test.reset();
 
-    hubAccessControlProvider = injector.getInstance(HubAccessControlProvider.class);
+    userManager = new UserManagerImpl(
+      env,
+      test.getEntityFactory(),
+      test.getGoogleProvider(),
+      test.getAccessTokenGenerator(),
+      test.getSqlStoreProvider(),
+      test.getKvStoreProvider()
+    );
   }
 
   @After
@@ -83,18 +75,18 @@ public class HubAccessControlIT {
     accountUser.setAccountId(accountId);
     // access control provider
     Collection<AccountUser> accounts = Lists.newArrayList(accountUser);
-    String TEST_TOKEN = hubAccessControlProvider.create(user, userAuth, accounts);
+    String TEST_TOKEN = userManager.create(user, userAuth, accounts);
 
     // now stress test
     for (int i = 0; STRESS_TEST_ITERATIONS > i; i++) {
-      HubAccess result = hubAccessControlProvider.get(TEST_TOKEN);
+      HubAccess result = userManager.get(TEST_TOKEN);
       assertTrue("Result is valid", result.isValid());
     }
   }
 
   @Test
   public void computeKey() {
-    assertEquals("xj_session_test:*", hubAccessControlProvider.computeKey("*"));
+    assertEquals("xj_session_test:*", userManager.computeKey("*"));
   }
 
 }

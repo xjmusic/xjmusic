@@ -2,10 +2,9 @@
 package io.xj.hub.manager;
 
 import com.google.api.client.util.Strings;
-import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.ProgramSequenceChord;
 import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
@@ -18,33 +17,26 @@ import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import static io.xj.hub.Tables.LIBRARY;
-import static io.xj.hub.Tables.PROGRAM;
-import static io.xj.hub.Tables.PROGRAM_SEQUENCE_CHORD;
-import static io.xj.hub.Tables.PROGRAM_SEQUENCE_CHORD_VOICING;
-import static io.xj.hub.Tables.PROGRAM_VOICE;
+import static io.xj.hub.Tables.*;
 
-public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl<ProgramSequenceChord> implements ProgramSequenceChordManager {
+@Service
+public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl implements ProgramSequenceChordManager {
 
   private final ProgramVoiceManager programVoiceManager;
 
-  @Inject
   public ProgramSequenceChordManagerImpl(
     EntityFactory entityFactory,
     ProgramVoiceManager programVoiceManager,
-    HubDatabaseProvider dbProvider
+    HubSqlStoreProvider sqlStoreProvider
   ) {
-    super(entityFactory, dbProvider);
+    super(entityFactory, sqlStoreProvider);
     this.programVoiceManager = programVoiceManager;
   }
 
@@ -53,7 +45,7 @@ public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl<P
     HubAccess access,
     ProgramSequenceChord entity
   ) throws ManagerException, JsonapiException, ValueException {
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
     validate(entity);
     requireArtist(access);
     requireProgramModification(db, access, entity.getProgramId());
@@ -74,7 +66,7 @@ public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl<P
     UUID id
   ) throws ManagerException {
     requireArtist(access);
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
     return readOne(db, access, id);
   }
 
@@ -87,12 +79,12 @@ public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl<P
     requireArtist(access);
     if (access.isTopLevel())
       return modelsFrom(ProgramSequenceChord.class,
-        dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_CHORD)
+        sqlStoreProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_CHORD)
           .where(PROGRAM_SEQUENCE_CHORD.PROGRAM_ID.in(programIds))
           .fetch());
     else
       return modelsFrom(ProgramSequenceChord.class,
-        dbProvider.getDSL().select(PROGRAM_SEQUENCE_CHORD.fields()).from(PROGRAM_SEQUENCE_CHORD)
+        sqlStoreProvider.getDSL().select(PROGRAM_SEQUENCE_CHORD.fields()).from(PROGRAM_SEQUENCE_CHORD)
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_CHORD.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM_SEQUENCE_CHORD.PROGRAM_ID.in(programIds))
@@ -106,14 +98,14 @@ public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl<P
     UUID libraryId,
     String chordName
   ) throws ManagerException {
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
     requireArtist(access);
     requireLibraryRead(db, access, libraryId);
     if (Strings.isNullOrEmpty(chordName))
       throw new ManagerException("Search requires at least one character of text!");
 
     return modelsFrom(ProgramSequenceChord.class,
-      dbProvider.getDSL().select(PROGRAM_SEQUENCE_CHORD.fields()).from(PROGRAM_SEQUENCE_CHORD)
+      sqlStoreProvider.getDSL().select(PROGRAM_SEQUENCE_CHORD.fields()).from(PROGRAM_SEQUENCE_CHORD)
         .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_CHORD.PROGRAM_ID))
         .where(DSL.lower(PROGRAM_SEQUENCE_CHORD.NAME).like(String.format("%s%%", chordName).toLowerCase(Locale.ROOT)))
         .and(PROGRAM.LIBRARY_ID.eq(libraryId))
@@ -126,7 +118,7 @@ public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl<P
   public ManagerCloner<ProgramSequenceChord> clone(HubAccess access, UUID cloneId, ProgramSequenceChord entity, List<InstrumentType> voicingTypes) throws ManagerException {
     requireArtist(access);
     AtomicReference<ManagerCloner<ProgramSequenceChord>> result = new AtomicReference<>();
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
 
     requireNotExists(String.format("Chord in sequence at position %f", entity.getPosition()),
       db.selectCount().from(PROGRAM_SEQUENCE_CHORD)
@@ -144,7 +136,7 @@ public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl<P
     UUID id,
     ProgramSequenceChord entity
   ) throws ManagerException, JsonapiException, ValueException {
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
     validate(entity);
     requireArtist(access);
     requireProgramModification(db, access, entity.getProgramId());
@@ -163,7 +155,7 @@ public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl<P
     HubAccess access,
     UUID id
   ) throws ManagerException {
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
     requireArtist(access);
     ProgramSequenceChord chord = readOne(access, id);
     if (Objects.isNull(chord))
@@ -183,10 +175,10 @@ public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl<P
   }
 
   /**
-   Validate data
-
-   @param record to validate
-   @throws ManagerException if invalid
+   * Validate data
+   *
+   * @param record to validate
+   * @throws ManagerException if invalid
    */
   public ProgramSequenceChord validate(ProgramSequenceChord record) throws ManagerException {
     try {
@@ -201,12 +193,12 @@ public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl<P
   }
 
   /**
-   Require user has access to read a library
-
-   @param db        database
-   @param access    control
-   @param libraryId for which to require access
-   @throws ManagerException if there is no access
+   * Require user has access to read a library
+   *
+   * @param db        database
+   * @param access    control
+   * @param libraryId for which to require access
+   * @throws ManagerException if there is no access
    */
   private void requireLibraryRead(DSLContext db, HubAccess access, UUID libraryId) throws ManagerException {
     if (access.isTopLevel()) return;
@@ -218,13 +210,13 @@ public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl<P
   }
 
   /**
-   Read a sequence chord
-
-   @param db     database
-   @param access control
-   @param id     of chord to read
-   @return chord
-   @throws ManagerException if there is no access
+   * Read a sequence chord
+   *
+   * @param db     database
+   * @param access control
+   * @param id     of chord to read
+   * @return chord
+   * @throws ManagerException if there is no access
    */
   private ProgramSequenceChord readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     if (access.isTopLevel())
@@ -243,14 +235,14 @@ public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl<P
   }
 
   /**
-   Clone a chord's voicings
-
-   @param db      database
-   @param access  control
-   @param cloneId of chord to clone
-   @param entity  new chord attributes
-   @return cloner
-   @throws ManagerException on failure
+   * Clone a chord's voicings
+   *
+   * @param db      database
+   * @param access  control
+   * @param cloneId of chord to clone
+   * @param entity  new chord attributes
+   * @return cloner
+   * @throws ManagerException on failure
    */
   private ManagerCloner<ProgramSequenceChord> clone(DSLContext db, HubAccess access, UUID cloneId, ProgramSequenceChord entity, List<InstrumentType> voicingTypes) throws ManagerException, ValueException, JsonapiException {
     requireArtist(access);

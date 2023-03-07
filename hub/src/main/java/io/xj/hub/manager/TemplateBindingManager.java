@@ -4,9 +4,9 @@ package io.xj.hub.manager;
 import io.xj.hub.tables.pojos.TemplateBinding;
 
 /**
- Manager for Template Bindings
- <p>
- Templates: enhanced preview chain creation for artists in Lab UI https://www.pivotaltracker.com/story/show/178457569
+ * Manager for Template Bindings
+ * <p>
+ * Templates: enhanced preview chain creation for artists in Lab UI https://www.pivotaltracker.com/story/show/178457569
  */
 public interface TemplateBindingManager extends Manager<TemplateBinding> {
 }

@@ -1,27 +1,21 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.ingest;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
-import io.xj.hub.HubIntegrationTestModule;
-import io.xj.hub.HubIntegrationTestProvider;
+import io.xj.hub.HubIntegrationTest;
+import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.enums.*;
-import io.xj.hub.manager.ManagerModule;
-import io.xj.hub.persistence.HubPersistenceModule;
-import io.xj.lib.app.Environment;
-import io.xj.lib.filestore.FileStoreModule;
-import io.xj.lib.jsonapi.JsonapiModule;
+import io.xj.hub.kubernetes.KubernetesAdmin;
+import io.xj.hub.manager.*;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.util.Text;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collection;
@@ -35,8 +29,10 @@ import static org.junit.Assert.*;
 public class HubIngestIT {
 
   private HubIngestFactory ingestFactory;
-  private HubIntegrationTestProvider test;
+  private HubIntegrationTest test;
   private IntegrationTestingFixtures fake;
+  @Mock
+  private KubernetesAdmin kubernetesAdmin;
 
   private static Map<String, Integer> classTally(Collection<Object> allEntities) {
     Map<String, Integer> out = Maps.newHashMap();
@@ -49,19 +45,19 @@ public class HubIngestIT {
 
   @Before
   public void setUp() throws Exception {
-    var env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule(), new HubIntegrationTestModule())).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(Environment.class).toInstance(env);
-      }
-    }));
-    test = injector.getInstance(HubIntegrationTestProvider.class);
+    var env = AppEnvironment.getDefault();
+    test = HubIntegrationTestFactory.build(env);
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
     fake.insertFixtureA();
-    ingestFactory = injector.getInstance(HubIngestFactory.class);
+    InstrumentManager instrumentManager = new InstrumentManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
+    ProgramManager programManager = new ProgramManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
+    TemplateBindingManager templateBindingManager = new TemplateBindingManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
+    TemplatePlaybackManager templatePlaybackManager = new TemplatePlaybackManagerImpl(env, test.getEntityFactory(), test.getSqlStoreProvider(), kubernetesAdmin);
+    TemplatePublicationManager templatePublicationManager = new TemplatePublicationManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
+    TemplateManager templateManager = new TemplateManagerImpl(test.getEnv(), test.getEntityFactory(), test.getSqlStoreProvider(), templateBindingManager, templatePlaybackManager, templatePublicationManager);
+    ingestFactory = new HubIngestFactoryImpl(test.getJsonProvider(), test.getEntityStore(), instrumentManager, programManager, templateManager, templateBindingManager);
   }
 
   @After

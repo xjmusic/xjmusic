@@ -30,7 +30,7 @@ public class ChordEntity {
 
   /**
    Whether this is a chord of any tonal kind
-   https://www.pivotaltracker.com/story/show/158715321 ChordEntity nodes able to parse No ChordEntity notation
+   ChordEntity nodes able to parse No ChordEntity notation https://www.pivotaltracker.com/story/show/158715321
    */
   public Boolean isChord() {
     return !isNoChord();
@@ -38,7 +38,7 @@ public class ChordEntity {
 
   /**
    Whether this is a No ChordEntity instance
-   https://www.pivotaltracker.com/story/show/158715321 ChordEntity nodes able to parse No ChordEntity notation
+   ChordEntity nodes able to parse No ChordEntity notation https://www.pivotaltracker.com/story/show/158715321
    */
   public Boolean isNoChord() {
     return toMusical().isNoChord();

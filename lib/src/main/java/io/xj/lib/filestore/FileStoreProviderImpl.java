@@ -7,10 +7,11 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.google.inject.Inject;
-import io.xj.lib.app.Environment;
+import io.xj.lib.app.AppEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import java.io.ByteArrayInputStream;
@@ -19,10 +20,10 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Objects;
-import java.util.UUID;
 
 import static io.xj.lib.util.Values.NANOS_PER_SECOND;
 
+@Service
 class FileStoreProviderImpl implements FileStoreProvider {
   private static final Logger log = LoggerFactory.getLogger(FileStoreProviderImpl.class);
   private static final String NAME_SEPARATOR = "-";
@@ -35,9 +36,9 @@ class FileStoreProviderImpl implements FileStoreProvider {
   private final String fileUploadACL;
   private final int awsS3RetryLimit;
 
-  @Inject
+  @Autowired
   public FileStoreProviderImpl(
-    Environment env
+    AppEnvironment env
   ) {
     audioFileBucket = env.getAudioFileBucket();
     audioUploadUrl = env.getAudioUploadURL();

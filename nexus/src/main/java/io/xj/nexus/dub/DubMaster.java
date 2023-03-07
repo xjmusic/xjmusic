@@ -11,7 +11,7 @@ public interface DubMaster {
   /**
    perform master dub for the current segment
    <p>
-   https://www.pivotaltracker.com/story/show/165799913 Dubbed audio can begin before segment start
+   Dubbed audio can begin before segment start https://www.pivotaltracker.com/story/show/165799913
    - Segment has `waveform_preroll` field in order to offset the start of the audio
    - During dub work, the waveform preroll required for the current segment is determined by finding the earliest positioned audio sample. **This process must factor in the transient of each audio sample.**
    - During dub work, output audio includes the head start, and `waveform_preroll` value is persisted to segment

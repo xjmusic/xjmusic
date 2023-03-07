@@ -2,26 +2,18 @@
 package io.xj.hub.manager;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
-import io.xj.hub.HubIntegrationTestModule;
-import io.xj.hub.HubIntegrationTestProvider;
+import io.xj.hub.HubIntegrationTest;
+import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.access.HubAccessControlModule;
-import io.xj.hub.ingest.HubIngestModule;
-import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.hub.tables.pojos.AccountUser;
-import io.xj.lib.app.Environment;
-import io.xj.lib.filestore.FileStoreModule;
-import io.xj.lib.jsonapi.JsonapiModule;
+import io.xj.lib.app.AppEnvironment;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collection;
+import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.*;
 import static org.junit.Assert.*;
@@ -30,19 +22,13 @@ import static org.junit.Assert.*;
 public class AccountUserManagerDbTest {
   private AccountUserManager testManager;
   private AccountUser accountUser_1_2;
-  private HubIntegrationTestProvider test;
+  private HubIntegrationTest test;
   private IntegrationTestingFixtures fake;
 
   @Before
   public void setUp() throws Exception {
-    var env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule(), new HubIntegrationTestModule())).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(Environment.class).toInstance(env);
-      }
-    }));
-    test = injector.getInstance(HubIntegrationTestProvider.class);
+    var env = AppEnvironment.getDefault();
+    test = HubIntegrationTestFactory.build(env);
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
@@ -59,7 +45,7 @@ public class AccountUserManagerDbTest {
     test.insert(buildAccountUser(fake.account1, fake.user3));
 
     // Instantiate the test subject
-    testManager = injector.getInstance(AccountUserManager.class);
+    testManager = new AccountUserManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
   }
 
   @After
@@ -130,7 +116,7 @@ public class AccountUserManagerDbTest {
 
   @Test
   public void readOne() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
 
     var result = testManager.readOne(access, accountUser_1_2.getId());
 
@@ -141,7 +127,7 @@ public class AccountUserManagerDbTest {
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() {
-    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "Artist");
     var e = assertThrows(ManagerException.class, () -> testManager.readOne(access, accountUser_1_2.getId()));
 
     assertEquals("Record does not exist", e.getMessage());
@@ -158,7 +144,7 @@ public class AccountUserManagerDbTest {
 
   @Test
   public void readMany_UserCanSeeInsideOwnAccount() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
 
     Collection<AccountUser> result = testManager.readMany(access, ImmutableList.of(fake.account1.getId()));
 
@@ -167,7 +153,7 @@ public class AccountUserManagerDbTest {
 
   @Test
   public void readMany_SeesNothingOutsideOfAccount() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "Artist");
 
     Collection<AccountUser> result = testManager.readMany(access, ImmutableList.of(fake.account1.getId()));
 

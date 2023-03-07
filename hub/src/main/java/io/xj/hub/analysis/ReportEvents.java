@@ -7,26 +7,19 @@ import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Program;
-import io.xj.lib.app.Environment;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.util.Text;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- Template content Analysis https://www.pivotaltracker.com/story/show/161199945
+ * Template content Analysis https://www.pivotaltracker.com/story/show/161199945
  */
 public class ReportEvents extends Report {
   private final EventHistogram eventHistogram;
 
-  public ReportEvents(HubContent content, Environment env) {
+  public ReportEvents(HubContent content, AppEnvironment env) {
     super(content, env);
 
     eventHistogram = new EventHistogram();
@@ -34,8 +27,10 @@ public class ReportEvents extends Report {
     Arrays.stream(InstrumentType.values()).forEach(type -> {
       content.getInstrumentAudios(List.of(type), List.of()).forEach(audio -> eventHistogram.addInstrumentId(type.toString(), audio.getEvent(), audio.getInstrumentId()));
       switch (type) {
-        case Bass, Hook, Noise, Pad, Percussion, Stab, Sticky, Stripe, Sweep -> content.getProgramVoiceTracks(ProgramType.Detail).forEach(track -> eventHistogram.addProgramId(type.toString(), track.getName(), track.getProgramId(), false));
-        case Drum -> content.getProgramVoiceTracks(ProgramType.Beat).forEach(track -> eventHistogram.addProgramId(type.toString(), track.getName(), track.getProgramId(), true));
+        case Bass, Hook, Noise, Pad, Percussion, Stab, Sticky, Stripe, Sweep ->
+          content.getProgramVoiceTracks(ProgramType.Detail).forEach(track -> eventHistogram.addProgramId(type.toString(), track.getName(), track.getProgramId(), false));
+        case Drum ->
+          content.getProgramVoiceTracks(ProgramType.Beat).forEach(track -> eventHistogram.addProgramId(type.toString(), track.getName(), track.getProgramId(), true));
       }
     });
   }
@@ -76,16 +71,16 @@ public class ReportEvents extends Report {
   }
 
   /**
-   Get the histogram
-
-   @return event histogram
+   * Get the histogram
+   *
+   * @return event histogram
    */
   public EventHistogram getEventHistogram() {
     return eventHistogram;
   }
 
   /**
-   Representation of the construction of a histogram of usage of all events
+   * Representation of the construction of a histogram of usage of all events
    */
   public static class EventHistogram {
     Map<String, Map<String, EventCount>> histogram;
@@ -124,7 +119,7 @@ public class ReportEvents extends Report {
   }
 
   /**
-   Representation of the count of usages for one event
+   * Representation of the count of usages for one event
    */
   public static class EventCount {
     Set<UUID> programIds;

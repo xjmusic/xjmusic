@@ -1,9 +1,9 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.mixer;
 
-import com.google.inject.assistedinject.Assisted;
 
-import javax.annotation.Nullable;
+import org.springframework.beans.factory.annotation.Qualifier;
+
 import java.io.IOException;
 
 /**
@@ -23,7 +23,7 @@ public interface MixerFactory {
    @throws MixerException if unable to of Mixer
    */
   Mixer createMixer(
-    @Assisted("mixerConfig") MixerConfig mixerConfig
+    @Qualifier("mixerConfig") MixerConfig mixerConfig
   ) throws MixerException;
 
 
@@ -39,18 +39,17 @@ public interface MixerFactory {
    @throws PutException on failure
    */
   Put createPut(
-    @Assisted("bus") int bus,
-    @Assisted("sourceId") String sourceId,
-    @Assisted("startAtMicros") long startAtMicros,
-    @Assisted("stopAtMicros") long stopAtMicros,
-    @Assisted("velocity") double velocity,
-    @Assisted("attackMillis") int attackMillis,
-    @Assisted("releaseMillis") int releaseMillis
+     int bus,
+     String sourceId,
+     long startAtMicros,
+     long stopAtMicros,
+     double velocity,
+     int attackMillis,
+     int releaseMillis
   ) throws PutException;
 
   /**
-   models a single audio source
-   Source stores a series of Samples in Channels across Time, for audio playback.
+   models a single audio source, a series of Samples in Channels across Time, for audio playback.
    attempt to source audio file from input stream
    <p>
    Fabrication should not completely fail because of one bad source audio https://www.pivotaltracker.com/story/show/182575665
@@ -64,8 +63,8 @@ public interface MixerFactory {
    @throws IOException     on failure to read file
    */
   Source createSource(
-    @Assisted("sourceId") String sourceId,
-    @Assisted("absolutePath") String absolutePath,
-    @Assisted("description") String description
+     String sourceId,
+     String absolutePath,
+     String description
   ) throws SourceException, FormatException, IOException;
 }

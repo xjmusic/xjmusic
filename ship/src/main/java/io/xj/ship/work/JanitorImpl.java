@@ -3,9 +3,8 @@ package io.xj.ship.work;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.inject.Inject;
 import io.opencensus.stats.Measure;
-import io.xj.lib.app.Environment;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.TelemetryProvider;
@@ -18,14 +17,17 @@ import io.xj.ship.broadcast.PlaylistPublisher;
 import io.xj.ship.source.SegmentAudioManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.Collection;
 import java.util.UUID;
 
 /**
- Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
+ * Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
  */
+@Service
 public class JanitorImpl implements Janitor {
   private static final Logger LOG = LoggerFactory.getLogger(JanitorImpl.class);
   private final Measure.MeasureLong METRIC_SEGMENT_ERASED;
@@ -41,10 +43,10 @@ public class JanitorImpl implements Janitor {
   private final String envName;
   private final String shipKey;
 
-  @Inject
+  @Autowired
   public JanitorImpl(
     ChainManager chainManager,
-    Environment env,
+    AppEnvironment env,
     MediaSeqNumProvider mediaSeqNumProvider,
     NexusEntityStore store,
     NotificationProvider notification,
@@ -82,14 +84,15 @@ public class JanitorImpl implements Janitor {
   }
 
   /**
-   Do the work inside a named thread
+   * Do the work inside a named thread
    */
   private void doWork() {
     // Seek segments to erase
     Collection<UUID> segmentIdsToErase;
     try {
       segmentIdsToErase = getSegmentIdsToErase();
-    } catch (ShipException | ManagerFatalException | ManagerExistenceException | ManagerPrivilegeException | NexusException e) {
+    } catch (ShipException | ManagerFatalException | ManagerExistenceException | ManagerPrivilegeException |
+             NexusException e) {
       var detail = Strings.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
       LOG.error("Failed while checking for segments to erase because {}", detail, e);
       notification.publish(
@@ -116,9 +119,9 @@ public class JanitorImpl implements Janitor {
   }
 
   /**
-   Get the IDs of all Segments that we ought to erase
-
-   @return list of IDs of Segments we ought to erase
+   * Get the IDs of all Segments that we ought to erase
+   *
+   * @return list of IDs of Segments we ought to erase
    */
   private Collection<UUID> getSegmentIdsToErase() throws ShipException, ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, NexusException {
     Instant eraseBefore = Instant.now().minusSeconds(eraseSegmentsOlderThanSeconds);

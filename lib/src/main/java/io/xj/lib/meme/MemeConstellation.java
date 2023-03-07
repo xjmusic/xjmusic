@@ -14,7 +14,7 @@ import java.util.Set;
  Compute normalized string representation of an unordered set of memes
  for the purpose of identifying unique constellations.
  <p>
- https://www.pivotaltracker.com/story/show/161736024 for each unique sequence-pattern-meme constellation within the main sequence
+ for each unique sequence-pattern-meme constellation within the main sequence https://www.pivotaltracker.com/story/show/161736024
  */
 public enum MemeConstellation {
   ;

@@ -2,26 +2,17 @@
 package io.xj.hub.manager;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
-import io.xj.hub.HubIntegrationTestModule;
-import io.xj.hub.HubIntegrationTestProvider;
+import io.xj.hub.HubIntegrationTest;
+import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.ingest.HubIngestModule;
-import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.lib.app.Environment;
-import io.xj.lib.filestore.FileStoreModule;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.filestore.S3UploadPolicy;
-import io.xj.lib.jsonapi.JsonapiModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +27,7 @@ import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.*;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 // future test: permissions of different users to readMany vs. of vs. update or delete instruments
 
@@ -47,21 +38,13 @@ public class InstrumentAudioManagerDbTest {
   @Mock
   public FileStoreProvider fileStoreProvider;
   private InstrumentAudioManager testManager;
-  private HubIntegrationTestProvider test;
+  private HubIntegrationTest test;
   private IntegrationTestingFixtures fake;
 
   @Before
   public void setUp() throws Exception {
-    var env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule(), new HubIntegrationTestModule())).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(Environment.class).toInstance(env);
-        bind(FileStoreProvider.class).toInstance(fileStoreProvider);
-      }
-    }));
-
-    test = injector.getInstance(HubIntegrationTestProvider.class);
+    var env = AppEnvironment.getDefault();
+    test = HubIntegrationTestFactory.build(env);
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
@@ -85,7 +68,7 @@ public class InstrumentAudioManagerDbTest {
     fake.audio2 = test.insert(buildInstrumentAudio(fake.instrument202, "Test audio2", "fake.audio5222.wav", 0.0f, 2.0f, 120.0f, 0.5f, "bang", "E", 1.0f));
 
     // Instantiate the test subject
-    testManager = injector.getInstance(InstrumentAudioManager.class);
+    testManager = new InstrumentAudioManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider(), fileStoreProvider);
   }
 
   @After
@@ -94,13 +77,13 @@ public class InstrumentAudioManagerDbTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/175213519 Expect new Audios to have no waveform
-   <p>
-   Expect audio event to be formatted
+   * Expect new Audios to have no waveform https://www.pivotaltracker.com/story/show/175213519
+   * <p>
+   * Expect audio event to be formatted
    */
   @Test
   public void create() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
     var inputData = buildInstrumentAudio(fake.instrument201, "maracas", null, 0.009f, 0.21f, 80.5f, 0.6f, "b 5a !nG", "X", 1.0f);
 
     var result = testManager.create(access, inputData);
@@ -117,7 +100,7 @@ public class InstrumentAudioManagerDbTest {
 
   @Test
   public void create_FailsWithoutInstrumentID() {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
     var inputData = buildInstrumentAudio(fake.instrument201, "maracas", "instrument" + File.separator + "percussion" + File.separator + "demo_source_audio/808" + File.separator + "maracas.wav", 0.009f, 0.21f, 80.5f);
     inputData.setInstrumentId(null);
 
@@ -127,11 +110,11 @@ public class InstrumentAudioManagerDbTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/175213519 Expect new Audios to have no waveform
+   * Expect new Audios to have no waveform https://www.pivotaltracker.com/story/show/175213519
    */
   @Test
   public void create_SucceedsWithoutWaveformKey() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
     var inputData = buildInstrumentAudio(fake.instrument202, "maracas", null, 0.009f, 0.21f, 80.5f);
 
     var result = testManager.create(
@@ -141,11 +124,11 @@ public class InstrumentAudioManagerDbTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/170290553 Clone sub-entities of instrument audios
+   * Clone sub-entities of instrument audios https://www.pivotaltracker.com/story/show/170290553
    */
   @Test
   public void clone_fromOriginal() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
     var inputData = buildInstrumentAudio(fake.instrument202, "cannons fifty nine", "fake.audio5.wav", 0.01f, 2.0f, 120.0f);
 
     var result = testManager.clone(access, fake.audio1.getId(), inputData);
@@ -160,11 +143,11 @@ public class InstrumentAudioManagerDbTest {
   }
 
   /**
-   Error when cloning Audios in Instruments https://www.pivotaltracker.com/story/show/180698009
+   * Error when cloning Audios in Instruments https://www.pivotaltracker.com/story/show/180698009
    */
   @Test
   public void clone_fromOriginal_noInputData() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
     var inputData = new InstrumentAudio();
     inputData.setName("Clone of thing");
 
@@ -181,7 +164,7 @@ public class InstrumentAudioManagerDbTest {
 
   @Test
   public void readOne() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
 
     var result = testManager.readOne(access, fake.audio1.getId());
 
@@ -195,8 +178,8 @@ public class InstrumentAudioManagerDbTest {
   }
 
   /**
-   Instrument audio downloads with human-readable file name
-   https://www.pivotaltracker.com/story/show/181848232
+   * Instrument audio downloads with human-readable file name
+   * https://www.pivotaltracker.com/story/show/181848232
    */
   @Test
   public void computeKey() throws Exception {
@@ -208,8 +191,8 @@ public class InstrumentAudioManagerDbTest {
   }
 
   /**
-   Uploading audios with accidental note same as existing non-accidental note should not produce error
-   https://www.pivotaltracker.com/story/show/183952419
+   * Uploading audios with accidental note same as existing non-accidental note should not produce error
+   * https://www.pivotaltracker.com/story/show/183952419
    */
   @Test
   public void computeKey_translateAccidentals() throws Exception {
@@ -225,7 +208,7 @@ public class InstrumentAudioManagerDbTest {
 
   @Test
   public void authorizeUpload() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
     when(fileStoreProvider.generateAudioUploadPolicy())
       .thenReturn(new S3UploadPolicy("MyId", "MySecret", "bucket-owner-is-awesome", "xj-audio-test", "", 5));
     when(fileStoreProvider.getUploadURL())
@@ -250,15 +233,15 @@ public class InstrumentAudioManagerDbTest {
   }
 
   /**
-   Cannot authorize upload of audio when generated key would overwrite another one in an instrument https://www.pivotaltracker.com/story/show/181848232
-   <p>
-   Create two audios with same name- the first will be authorized, the second rejected
+   * Cannot authorize upload of audio when generated key would overwrite another one in an instrument https://www.pivotaltracker.com/story/show/181848232
+   * <p>
+   * Create two audios with same name. The first will be authorized, the second rejected
    */
   @Test
   public void create_failsForExistingName() throws Exception {
     var a1 = test.insert(buildInstrumentAudio(fake.instrument202, "Test audio", "fake.audio5.wav", 0.01f, 2.0f, 120.0f));
     var a2 = test.insert(buildInstrumentAudio(fake.instrument202, "Test audio", "fake.audio5.wav", 0.01f, 2.0f, 120.0f));
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
     when(fileStoreProvider.generateAudioUploadPolicy())
       .thenReturn(new S3UploadPolicy("MyId", "MySecret", "bucket-owner-is-awesome", "xj-audio-test", "", 5));
     when(fileStoreProvider.getUploadURL())
@@ -279,7 +262,7 @@ public class InstrumentAudioManagerDbTest {
 
   @Test
   public void readMany() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
 
     Collection<InstrumentAudio> result = testManager.readMany(access, ImmutableList.of(fake.instrument202.getId()));
 
@@ -288,7 +271,7 @@ public class InstrumentAudioManagerDbTest {
 
   @Test
   public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(), "Artist");
 
     Collection<InstrumentAudio> result = testManager.readMany(access, ImmutableList.of(fake.instrument202.getId()));
 
@@ -297,7 +280,7 @@ public class InstrumentAudioManagerDbTest {
 
   @Test
   public void update_FailsWithoutInstrumentID() {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
     var inputData = buildInstrumentAudio(fake.instrument201, "maracas", "instrument" + File.separator + "percussion" + File.separator + "demo_source_audio/808" + File.separator + "maracas.wav", 0.009f, 0.21f, 80.5f);
     inputData.setInstrumentId(null);
 
@@ -308,7 +291,7 @@ public class InstrumentAudioManagerDbTest {
 
   @Test
   public void update_FailsUpdatingToNonexistentInstrument() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
     var inputData = new InstrumentAudio();
     inputData.setId(UUID.randomUUID());
     inputData.setInstrumentId(UUID.randomUUID());
@@ -328,10 +311,10 @@ public class InstrumentAudioManagerDbTest {
   }
 
 
-  // https://www.pivotaltracker.com/story/show/162361785 InstrumentAudio can be moved to a different Instrument
+  // InstrumentAudio can be moved to a different Instrument https://www.pivotaltracker.com/story/show/162361785
   @Test
   public void update() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
     var inputData = buildInstrumentAudio(fake.instrument201, "maracas", "fake.audio5.wav", 0.009f, 0.21f, 80.5f);
 
     testManager.update(access, fake.audio1.getId(), inputData);
@@ -350,7 +333,7 @@ public class InstrumentAudioManagerDbTest {
 
   @Test
   public void destroy_failsIfNotInAccount() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(), "Artist");
 
     var e = assertThrows(ManagerException.class, () -> testManager.destroy(access, fake.audio1.getId()));
 
@@ -359,7 +342,7 @@ public class InstrumentAudioManagerDbTest {
 
   @Test
   public void destroy_SucceedsEvenWithChildren() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
 
     try {
       testManager.destroy(access, fake.audio1.getId());
@@ -387,7 +370,7 @@ public class InstrumentAudioManagerDbTest {
 
   // future test: AudioManager cannot delete record unless user has account access
 
-  // future test: AudioManager cannot write to Waveform Key value on of or update- ONLY updated by generating an upload policy
+  // future test: AudioManager cannot write to Waveform Key value on of or update. ONLY updated by generating an upload policy
 
 
 /*
@@ -446,14 +429,14 @@ fake.user2, fake.library1, ProgramType.Macro, ProgramState.Published, "epic conc
   public void setUp() throws Exception {
     reset();
 
-    var injector = Guice.createInjector(Modules.override(new CoreModule()).with(
+    var injector = createInjector(Modules.override(new CoreModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
           bind(FileStoreProvider.class).toInstance(fileStoreProvider);
           }
       }));
-    audioFactory = injector.getInstance(AudioFactory.class);
+    audioFactory = new AudioFactoryImpl(test.getEntityFactory(), test.getSqlStoreProvider());
 
 
     // Account "bananas"
@@ -475,7 +458,7 @@ fake.user2, fake.library1, ProgramType.Macro, ProgramState.Published, "epic conc
     insertAudio(2, 1, "Published", "Snare", "instrument" + File.separator + "percussion" + File.separator + "808" + File.separator + "snare.wav", 0.0023, 1.05, 131.0, 702.0);
 
     // Instantiate the test subject
-    testManager = injector.getInstance(AudioManager.class);
+    testManager = new AudioManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
   }
 
 
@@ -668,7 +651,7 @@ access, inputData);
     insertAudioEvent(1, 1.0, 1.0, "SNARE", "G", 0.1, 0.8);
 
     // Instantiate the test subject
-    testManager = injector.getInstance(AudioEventManager.class);
+    testManager = new AudioEventManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
   }
 
 

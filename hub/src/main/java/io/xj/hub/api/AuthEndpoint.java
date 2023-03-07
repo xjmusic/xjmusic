@@ -2,68 +2,61 @@
 package io.xj.hub.api;
 
 import com.google.api.client.auth.oauth2.AuthorizationCodeResponseUrl;
-import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.GoogleProvider;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.access.HubAccessControlProvider;
 import io.xj.hub.access.HubAccessException;
 import io.xj.hub.manager.ManagerException;
 import io.xj.hub.manager.UserManager;
-import io.xj.hub.persistence.HubDatabaseProvider;
-import io.xj.hub.tables.pojos.UserAuth;
-import io.xj.lib.app.Environment;
+import io.xj.hub.persistence.HubSqlStoreProvider;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
+import io.xj.lib.json.ApiUrlProvider;
+import io.xj.lib.jsonapi.JsonapiResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-import java.net.URI;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Objects;
 
 /**
- Current user authentication
+ * Current user authentication
  */
-@Path("auth")
-public class AuthEndpoint extends HubJsonapiEndpoint<UserAuth> {
+@RestController
+@RequestMapping("/auth")
+public class AuthEndpoint extends HubJsonapiEndpoint {
   private static final Logger log = LoggerFactory.getLogger(AuthEndpoint.class);
+  private final ApiUrlProvider apiUrlProvider;
   private final GoogleProvider authGoogleProvider;
-  private final HubAccessControlProvider hubAccessControlProvider;
-  private final JsonapiHttpResponseProvider httpResponseProvider;
+  private final UserManager userManager;
   private final String appPathUnauthorized;
   private final String appPathWelcome;
-  private final UserManager userManager;
 
   /**
-   Constructor
+   * Constructor
    */
-  @Inject
   public AuthEndpoint(
+    ApiUrlProvider apiUrlProvider,
+    AppEnvironment env,
     EntityFactory entityFactory,
-    Environment env,
     GoogleProvider authGoogleProvider,
-    HubAccessControlProvider hubAccessControlProvider,
-    JsonapiHttpResponseProvider httpResponseProvider,
-    HubDatabaseProvider dbProvider,
-    JsonapiHttpResponseProvider response,
+    HubSqlStoreProvider sqlStoreProvider,
+    JsonapiResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
     UserManager userManager
   ) {
-    super(dbProvider, response, payloadFactory, entityFactory);
+    super(sqlStoreProvider, response, payloadFactory, entityFactory);
+    this.apiUrlProvider = apiUrlProvider;
     this.authGoogleProvider = authGoogleProvider;
-    this.httpResponseProvider = httpResponseProvider;
-    this.hubAccessControlProvider = hubAccessControlProvider;
     this.userManager = userManager;
 
     appPathUnauthorized = env.getApiUnauthorizedRedirectPath();
@@ -71,131 +64,84 @@ public class AuthEndpoint extends HubJsonapiEndpoint<UserAuth> {
   }
 
   /**
-   Get current authentication.
-
-   @return application/json response.
+   * Get current authentication.
+   *
+   * @return application/json response.
    */
-  @GET
+  @GetMapping
   @RolesAllowed(USER)
-  public Response getCurrentAuthentication(@Context ContainerRequestContext crc) {
-    try {
-      return Response
-        .accepted(payloadFactory.serialize(HubAccess.fromContext(crc)))
-        .type(MediaType.APPLICATION_JSON)
-        .build();
-
-    } catch (JsonapiException e) {
-      return httpResponseProvider.failure(e);
+  public ResponseEntity<HubAccess> getCurrentAuthentication(HttpServletRequest req, HttpServletResponse res) throws IOException {
+    var access = HubAccess.fromRequest(req);
+    if (access.isValid()) {
+      return ResponseEntity
+        .accepted()
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(access);
+    } else {
+      res.sendRedirect(apiUrlProvider.getApiUrlString(appPathUnauthorized));
+      return ResponseEntity.noContent().build();
     }
   }
 
 
   /**
-   Nullify current authentication
+   * Nullify current authentication
    */
-  @GET
-  @Path("no")
-  @PermitAll
-  public Response nullifyAuthentication(@Context ContainerRequestContext crc) {
-    HubAccess access = HubAccess.fromContext(crc);
+  @GetMapping("/no")
+  public void nullifyAuthentication(HttpServletRequest req, HttpServletResponse res) throws IOException {
+    HubAccess access = HubAccess.fromRequest(req);
 
     if (access.isValid()) {
       try {
         userManager.destroyAllTokens(access.getUserId());
-        return response.internalRedirectWithCookie("", hubAccessControlProvider.newExpiredCookie());
+        res.addCookie(userManager.newExpiredCookie());
 
       } catch (Exception e) {
-        return response.failure(e);
+        res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
       }
 
     } else
-      return response.internalRedirectWithCookie("", hubAccessControlProvider.newExpiredCookie());
+      res.addCookie(userManager.newExpiredCookie());
   }
 
   /**
-   Begin user OAuth2 authentication via Google.
-
-   @return Response redirection to auth code request URL
+   * Begin user OAuth2 authentication via Google.
    */
-  @GET
-  @Path("google")
-  @PermitAll
-  public Response redirectToAuthCodeRequestUrl() {
+  @GetMapping("/google")
+  public void redirectToAuthCodeRequestUrl(HttpServletResponse res) throws IOException {
     String url;
     try {
       url = authGoogleProvider.getAuthCodeRequestUrl();
-    } catch (HubAccessException e) {
+      res.sendRedirect(url);
+    } catch (HubAccessException | IOException e) {
       log.error("Google Auth Provider Failed!", e);
-      return Response.serverError().build();
+      res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
     }
-
-    return Response.temporaryRedirect(URI.create(url)).build();
   }
 
   /**
-   Begin user OAuth2 authentication via Google.
-
-   @return Response temporary redirection to auth URL
+   * Begin user OAuth2 authentication via Google.
    */
   @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
-  @GET
-  @Path("google/callback")
-  @PermitAll
-  public Response authGoogleCallback(@Context UriInfo ui) {
+  @GetMapping("/google/callback")
+  public void authGoogleCallback(HttpServletRequest req, HttpServletResponse res) throws IOException {
     AuthorizationCodeResponseUrl authResponse;
-    try {
-      authResponse = new AuthorizationCodeResponseUrl(ui.getRequestUri().toString());
-      if (Objects.nonNull(authResponse.getError())) {
-        return errorResponse("Authorization denied: " + authResponse.getErrorDescription());
-      }
-    } catch (IllegalArgumentException e) {
-      return errorResponse("Authorization code response URL missing required parameter(s)");
-    } catch (Exception e) {
-      return errorResponse("Unknown error while parse authorization code response URL", e);
-    }
-
     String accessToken;
     try {
-      accessToken = hubAccessControlProvider.authenticate(authResponse.getCode());
+      authResponse = new AuthorizationCodeResponseUrl(req.getRequestURI());
+      if (Objects.nonNull(authResponse.getError())) {
+        res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Authorization denied: " + authResponse.getErrorDescription());
+      }
+      accessToken = userManager.authenticate(authResponse.getCode());
+      res.addCookie(userManager.newCookie(accessToken));
+      res.sendRedirect(apiUrlProvider.getApiUrlString(appPathWelcome));
+    } catch (IllegalArgumentException e) {
+      res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Authorization code response URL missing required parameter(s)");
     } catch (ManagerException e) {
-      return errorResponse("Authentication failed:" + e.getMessage());
+      res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Authentication failed: " + e.getMessage());
     } catch (Exception e) {
-      return errorResponse("Unknown error with authenticating access code", e);
+      res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unknown error with authenticating access code: " + e.getMessage());
     }
-
-    return response.internalRedirectWithCookie(appPathWelcome, hubAccessControlProvider.newCookie(accessToken));
-  }
-
-  /**
-   Returns a redirect-to-unauthorized-path Response, and logs the error message with an Exception.
-
-   @param msg to log
-   @param e   Exception to log
-   @return Response
-   */
-  private Response errorResponse(String msg, Exception e) {
-    log.error(msg, e);
-    return errorResponse();
-  }
-
-  /**
-   Returns a redirect-to-unauthorized-path Response, and logs the error message.
-
-   @param msg to log
-   @return Response
-   */
-  private Response errorResponse(String msg) {
-    log.error(msg);
-    return errorResponse();
-  }
-
-  /**
-   Returns a redirect-to-unauthorized-path Response.
-
-   @return Response
-   */
-  private Response errorResponse() {
-    return response.internalRedirect(appPathUnauthorized);
   }
 
 }

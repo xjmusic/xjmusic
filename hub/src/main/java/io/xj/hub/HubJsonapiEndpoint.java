@@ -2,200 +2,198 @@
 package io.xj.hub;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.manager.Manager;
 import io.xj.hub.manager.ManagerException;
-import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
+import io.xj.lib.jsonapi.JsonapiResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.PayloadDataType;
+import org.springframework.http.ResponseEntity;
 
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.Response;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- A JAX-RS resource
+ * A JAX-RS resource
  */
-public class HubJsonapiEndpoint<E> extends HubPersistenceServiceImpl<E> {
+public class HubJsonapiEndpoint extends HubPersistenceServiceImpl {
   public static final String ADMIN = "Admin";
   public static final String ARTIST = "Artist";
   //  public static final String BANNED = "Banned";
   public static final String ENGINEER = "Engineer";
   public static final String INTERNAL = "Internal";
   public static final String USER = "User";
-  protected final JsonapiHttpResponseProvider response;
+  protected final JsonapiResponseProvider responseProvider;
   protected final JsonapiPayloadFactory payloadFactory;
 
   /**
-   Constructor
+   * Constructor
    */
-  @Inject
   public HubJsonapiEndpoint(
-    HubDatabaseProvider dbProvider,
-    JsonapiHttpResponseProvider response,
+    HubSqlStoreProvider sqlStoreProvider,
+    JsonapiResponseProvider responseProvider,
     JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory
   ) {
-    super(entityFactory, dbProvider);
-    this.response = response;
+    super(entityFactory, sqlStoreProvider);
+    this.responseProvider = responseProvider;
     this.payloadFactory = payloadFactory;
   }
 
   /**
-   Create one Entity via a Manager given a JSON:API payload request
-
-   @param crc            request context
-   @param manager        via which to of Entity
-   @param jsonapiPayload of data to of Entity
-   @param <N>            type of Entity
-   @return HTTP response comprising JSON:API payload
+   * Create one Entity via a Manager given a JSON:API payload request
+   *
+   * @param req           request
+   * @param manager        via which to of Entity
+   * @param jsonapiPayload of data to of Entity
+   * @param <N>            type of Entity
+   * @return HTTP response comprising JSON:API payload
    */
-  public <N> Response create(ContainerRequestContext crc, Manager<N> manager, JsonapiPayload jsonapiPayload) {
+  public <N> ResponseEntity<JsonapiPayload> create(HttpServletRequest req, Manager<N> manager, JsonapiPayload jsonapiPayload) {
     try {
-      HubAccess access = HubAccess.fromContext(crc);
+      HubAccess access = HubAccess.fromRequest(req);
       N createdEntity = manager.create(access, payloadFactory.consume(manager.newInstance(), jsonapiPayload));
 
       JsonapiPayload responseData = new JsonapiPayload();
       responseData.setDataOne(payloadFactory.toPayloadObject(createdEntity));
-      return response.create(responseData);
+      return responseProvider.create(responseData);
 
     } catch (Exception e) {
-      return response.notAcceptable(e);
+      return responseProvider.notAcceptable(e);
     }
   }
 
   /**
-   Read one Entity of a Manager and return the JSON:API payload response
-
-   @param crc request context
-   @param manager of which to read one Entity
-   @param id  of Entity to read
-   @param <N> type of Entity
-   @return HTTP response comprising JSON:API payload
+   * Read one Entity of a Manager and return the JSON:API payload response
+   *
+   * @param req           request
+   * @param manager of which to read one Entity
+   * @param id      of Entity to read
+   * @param <N>     type of Entity
+   * @return HTTP response comprising JSON:API payload
    */
-  public <N> Response readOne(ContainerRequestContext crc, Manager<N> manager, Object id) {
+  public <N> ResponseEntity<JsonapiPayload> readOne(HttpServletRequest req, Manager<N> manager, Object id) {
     try {
-      Object entity = manager.readOne(HubAccess.fromContext(crc), UUID.fromString(String.valueOf(id)));
+      Object entity = manager.readOne(HubAccess.fromRequest(req), UUID.fromString(String.valueOf(id)));
       JsonapiPayload jsonapiPayload = new JsonapiPayload();
       jsonapiPayload.setDataOne(payloadFactory.toPayloadObject(entity));
-      return response.ok(jsonapiPayload);
+      return responseProvider.ok(jsonapiPayload);
 
     } catch (ManagerException ignored) {
-      return response.notFound(manager.newInstance().getClass(), UUID.fromString(String.valueOf(id)));
+      return responseProvider.notFound(manager.newInstance().getClass(), UUID.fromString(String.valueOf(id)));
 
     } catch (Exception e) {
-      return response.failure(e);
+      return responseProvider.failure(e);
     }
   }
 
   /**
-   Read many Entity of a Manager and return the JSON:API payload response
-
-   @param crc       request context
-   @param manager       of which to read many Entity
-   @param parentIds of Entity to read
-   @param <N>       type of Entity
-   @return HTTP response comprising JSON:API payload
+   * Read many Entity of a Manager and return the JSON:API payload response
+   *
+   * @param req           request
+   * @param manager   of which to read many Entity
+   * @param parentIds of Entity to read
+   * @param <N>       type of Entity
+   * @return HTTP response comprising JSON:API payload
    */
-  public <N, O> Response readMany(ContainerRequestContext crc, Manager<N> manager, Collection<O> parentIds) {
+  public <N, O> ResponseEntity<JsonapiPayload> readMany(HttpServletRequest req, Manager<N> manager, Collection<O> parentIds) {
     try {
-      Collection<N> entities = manager.readMany(HubAccess.fromContext(crc),
+      Collection<N> entities = manager.readMany(HubAccess.fromRequest(req),
         parentIds.stream().map((id) -> UUID.fromString(String.valueOf(id))).collect(Collectors.toList()));
       JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataType(PayloadDataType.Many);
       jsonapiPayload.setDataType(PayloadDataType.Many);
       for (N entity : entities) jsonapiPayload.addData(payloadFactory.toPayloadObject(entity));
-      return response.ok(jsonapiPayload);
+      return responseProvider.ok(jsonapiPayload);
 
     } catch (Exception e) {
-      return response.failure(e);
+      return responseProvider.failure(e);
     }
   }
 
   /**
-   Read many Entity of a Manager and return the JSON:API payload response
-
-   @param crc      request context
-   @param manager      of which to read many Entity
-   @param parentId of Entity to read
-   @param <N>      type of Entity
-   @return HTTP response comprising JSON:API payload
+   * Read many Entity of a Manager and return the JSON:API payload response
+   *
+   * @param req           request
+   * @param manager  of which to read many Entity
+   * @param parentId of Entity to read
+   * @param <N>      type of Entity
+   * @return HTTP response comprising JSON:API payload
    */
-  public <N> Response readMany(ContainerRequestContext crc, Manager<N> manager, UUID parentId) {
-    if (Objects.isNull(parentId)) return response.notAcceptable("parent id is required");
+  public <N> ResponseEntity<JsonapiPayload> readMany(HttpServletRequest req, Manager<N> manager, UUID parentId) {
+    if (Objects.isNull(parentId)) return responseProvider.notAcceptable("parent id is required");
 
-    return readMany(crc, manager, ImmutableList.of(parentId));
+    return readMany(req, manager, ImmutableList.of(parentId));
   }
 
   /**
-   Update one Entity via a Manager given a JSON:API payload request
-
-   @param crc            request context
-   @param manager            via which to read one Entity
-   @param id             of Entity to read
-   @param jsonapiPayload of data to update
-   @param <N>            type of Entity
-   @return HTTP response comprising JSON:API payload
+   * Update one Entity via a Manager given a JSON:API payload request
+   *
+   * @param req           request
+   * @param manager        via which to read one Entity
+   * @param id             of Entity to read
+   * @param jsonapiPayload of data to update
+   * @param <N>            type of Entity
+   * @return HTTP response comprising JSON:API payload
    */
-  public <N> Response update(ContainerRequestContext crc, Manager<N> manager, UUID id, JsonapiPayload jsonapiPayload) {
+  public <N> ResponseEntity<JsonapiPayload> update(HttpServletRequest req, Manager<N> manager, UUID id, JsonapiPayload jsonapiPayload) {
     try {
-      HubAccess access = HubAccess.fromContext(crc);
+      HubAccess access = HubAccess.fromRequest(req);
       N updated = manager.update(access, id, payloadFactory.consume(manager.readOne(access, id), jsonapiPayload));
-      return response.ok(new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(updated)));
+      return responseProvider.ok(new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(updated)));
 
     } catch (Exception e) {
-      return response.notAcceptable(e);
+      return responseProvider.notAcceptable(e);
     }
   }
 
   /**
-   Update many Entities via a Manager given a JSON:API payload request
-
-   @param crc            request context
-   @param manager            via which to read one Entity
-   @param jsonapiPayload of data to update, type:many
-   @param <N>            type of Entity
-   @return HTTP response comprising JSON:API payload
+   * Update many Entities via a Manager given a JSON:API payload request
+   *
+   * @param req           request
+   * @param manager        via which to read one Entity
+   * @param jsonapiPayload of data to update, type:many
+   * @param <N>            type of Entity
+   * @return HTTP response comprising JSON:API payload
    */
-  public <N> Response updateMany(ContainerRequestContext crc, Manager<N> manager, JsonapiPayload jsonapiPayload) {
+  public <N> ResponseEntity<JsonapiPayload> updateMany(HttpServletRequest req, Manager<N> manager, JsonapiPayload jsonapiPayload) {
     try {
-      HubAccess access = HubAccess.fromContext(crc);
+      HubAccess access = HubAccess.fromRequest(req);
       var result = new JsonapiPayload().setDataType(PayloadDataType.Many);
       for (var toUpdate : jsonapiPayload.getDataMany()) {
         N updated = payloadFactory.consume(manager.readOne(access, UUID.fromString(toUpdate.getId())), toUpdate);
         manager.update(access, UUID.fromString(toUpdate.getId()), updated);
         result.addData(payloadFactory.toPayloadObject(updated));
       }
-      return response.ok(result);
+      return responseProvider.ok(result);
 
     } catch (Exception e) {
-      return response.notAcceptable(e);
+      return responseProvider.notAcceptable(e);
     }
   }
 
   /**
-   Delete one Entity via a Manager
-
-   @param crc request context
-   @param manager via which to delete one Entity
-   @param id  of Entity to delete
-   @param <N> type of Entity
-   @return HTTP response comprising JSON:API payload
+   * Delete one Entity via a Manager
+   *
+   * @param req           request
+   * @param manager via which to delete one Entity
+   * @param id      of Entity to delete
+   * @param <N>     type of Entity
+   * @return HTTP response comprising JSON:API payload
    */
-  public <N> Response delete(ContainerRequestContext crc, Manager<N> manager, UUID id) {
+  public <N> ResponseEntity<JsonapiPayload> delete(HttpServletRequest req, Manager<N> manager, UUID id) {
     try {
-      manager.destroy(HubAccess.fromContext(crc), id);
-      return response.noContent();
+      manager.destroy(HubAccess.fromRequest(req), id);
+      return responseProvider.deletedOk();
 
     } catch (Exception e) {
-      return response.failure(e);
+      return responseProvider.failure(e);
     }
   }
 }

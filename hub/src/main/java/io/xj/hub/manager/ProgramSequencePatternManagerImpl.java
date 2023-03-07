@@ -2,9 +2,8 @@
 package io.xj.hub.manager;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.lib.entity.EntityFactory;
@@ -13,6 +12,7 @@ import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -22,20 +22,20 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static io.xj.hub.Tables.*;
 
-public class ProgramSequencePatternManagerImpl extends HubPersistenceServiceImpl<ProgramSequencePattern> implements ProgramSequencePatternManager {
+@Service
+public class ProgramSequencePatternManagerImpl extends HubPersistenceServiceImpl implements ProgramSequencePatternManager {
 
-  @Inject
   public ProgramSequencePatternManagerImpl(
     EntityFactory entityFactory,
-    HubDatabaseProvider dbProvider
+    HubSqlStoreProvider sqlStoreProvider
   ) {
-    super(entityFactory, dbProvider);
+    super(entityFactory, sqlStoreProvider);
   }
 
   @Override
   public ProgramSequencePattern create(HubAccess access, ProgramSequencePattern entity) throws ManagerException, JsonapiException, ValueException {
     ProgramSequencePattern builder = validate(entity);
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
     requireProgramModification(db, access, builder.getProgramId());
     return modelFrom(ProgramSequencePattern.class,
       executeCreate(db, PROGRAM_SEQUENCE_PATTERN, builder));
@@ -46,7 +46,7 @@ public class ProgramSequencePatternManagerImpl extends HubPersistenceServiceImpl
     requireArtist(access);
     AtomicReference<ProgramSequencePattern> result = new AtomicReference<>();
     AtomicReference<ManagerCloner<ProgramSequencePattern>> cloner = new AtomicReference<>();
-    dbProvider.getDSL().transaction(ctx -> {
+    sqlStoreProvider.getDSL().transaction(ctx -> {
       DSLContext db = DSL.using(ctx);
       requireModification(db, access, cloneId);
 
@@ -79,7 +79,7 @@ public class ProgramSequencePatternManagerImpl extends HubPersistenceServiceImpl
   @Override
   @Nullable
   public ProgramSequencePattern readOne(HubAccess access, UUID id) throws ManagerException {
-    return readOne(dbProvider.getDSL(), access, id);
+    return readOne(sqlStoreProvider.getDSL(), access, id);
   }
 
   @Override
@@ -88,12 +88,12 @@ public class ProgramSequencePatternManagerImpl extends HubPersistenceServiceImpl
     requireArtist(access);
     if (access.isTopLevel())
       return modelsFrom(ProgramSequencePattern.class,
-        dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_PATTERN)
+        sqlStoreProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_PATTERN)
           .where(PROGRAM_SEQUENCE_PATTERN.PROGRAM_SEQUENCE_ID.in(parentIds))
           .fetch());
     else
       return modelsFrom(ProgramSequencePattern.class,
-        dbProvider.getDSL().select(PROGRAM_SEQUENCE_PATTERN.fields()).from(PROGRAM_SEQUENCE_PATTERN)
+        sqlStoreProvider.getDSL().select(PROGRAM_SEQUENCE_PATTERN.fields()).from(PROGRAM_SEQUENCE_PATTERN)
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_PATTERN.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM_SEQUENCE_PATTERN.PROGRAM_SEQUENCE_ID.in(parentIds))
@@ -106,7 +106,7 @@ public class ProgramSequencePatternManagerImpl extends HubPersistenceServiceImpl
   public ProgramSequencePattern update(HubAccess access, UUID id, ProgramSequencePattern rawProgramSequencePattern) throws ManagerException, JsonapiException, ValueException {
     ProgramSequencePattern builder = validate(rawProgramSequencePattern);
     requireArtist(access);
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
     requireModification(db, access, id);
     executeUpdate(db, PROGRAM_SEQUENCE_PATTERN, id, builder);
     return builder;
@@ -115,7 +115,7 @@ public class ProgramSequencePatternManagerImpl extends HubPersistenceServiceImpl
   @Override
   public void destroy(HubAccess access, UUID id) throws ManagerException {
     requireArtist(access);
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
     requireModification(db, access, id);
 
     db.deleteFrom(PROGRAM_SEQUENCE_PATTERN_EVENT)
@@ -133,12 +133,12 @@ public class ProgramSequencePatternManagerImpl extends HubPersistenceServiceImpl
   }
 
   /**
-   Read one Program Sequence Pattern
-
-   @param db        context
-   @param access control
-   @param id        of entity to read
-   @return program sequence pattern
+   * Read one Program Sequence Pattern
+   *
+   * @param db     context
+   * @param access control
+   * @param id     of entity to read
+   * @return program sequence pattern
    */
   private ProgramSequencePattern readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     requireArtist(access);
@@ -158,12 +158,12 @@ public class ProgramSequencePatternManagerImpl extends HubPersistenceServiceImpl
   }
 
   /**
-   Require parent ProgramSequence exists of a given possible entity in a DSL context
-
-   @param db        DSL context
-   @param access control
-   @param entity    to validate
-   @throws ManagerException if parent does not exist
+   * Require parent ProgramSequence exists of a given possible entity in a DSL context
+   *
+   * @param db     DSL context
+   * @param access control
+   * @param entity to validate
+   * @throws ManagerException if parent does not exist
    */
   private void requireParentExists(DSLContext db, HubAccess access, ProgramSequencePattern entity) throws ManagerException {
     if (access.isTopLevel())
@@ -180,12 +180,12 @@ public class ProgramSequencePatternManagerImpl extends HubPersistenceServiceImpl
   }
 
   /**
-   Require access to modification of a Program Sequence Pattern
-
-   @param db        context
-   @param access control
-   @param id        to validate access to
-   @throws ManagerException if no access
+   * Require access to modification of a Program Sequence Pattern
+   *
+   * @param db     context
+   * @param access control
+   * @param id     to validate access to
+   * @throws ManagerException if no access
    */
   private void requireModification(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     requireArtist(access);
@@ -203,10 +203,10 @@ public class ProgramSequencePatternManagerImpl extends HubPersistenceServiceImpl
   }
 
   /**
-   Validate data
-
-   @param record to validate
-   @throws ManagerException if invalid
+   * Validate data
+   *
+   * @param record to validate
+   * @throws ManagerException if invalid
    */
   public ProgramSequencePattern validate(ProgramSequencePattern record) throws ManagerException {
     try {

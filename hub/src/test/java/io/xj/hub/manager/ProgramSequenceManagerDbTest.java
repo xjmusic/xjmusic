@@ -2,24 +2,15 @@
 package io.xj.hub.manager;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
-import io.xj.hub.HubIntegrationTestModule;
-import io.xj.hub.HubIntegrationTestProvider;
+import io.xj.hub.HubIntegrationTest;
+import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.ingest.HubIngestModule;
-import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.hub.tables.pojos.*;
-import io.xj.lib.app.Environment;
-import io.xj.lib.filestore.FileStoreModule;
-import io.xj.lib.jsonapi.JsonapiModule;
+import io.xj.lib.app.AppEnvironment;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,19 +36,13 @@ import static org.junit.Assert.*;
 public class ProgramSequenceManagerDbTest {
   private ProgramSequenceManager testManager;
 
-  private HubIntegrationTestProvider test;
+  private HubIntegrationTest test;
   private IntegrationTestingFixtures fake;
 
   @Before
   public void setUp() throws Exception {
-    var env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule(), new HubIntegrationTestModule())).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(Environment.class).toInstance(env);
-      }
-    }));
-    test = injector.getInstance(HubIntegrationTestProvider.class);
+    var env = AppEnvironment.getDefault();
+    test = HubIntegrationTestFactory.build(env);
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
@@ -89,7 +74,7 @@ public class ProgramSequenceManagerDbTest {
     fake.program4 = test.insert(buildProgram(fake.library2, ProgramType.Detail, ProgramState.Published, "sail", "C#", 120.0f, 0.6f));
 
     // Instantiate the test subject
-    testManager = injector.getInstance(ProgramSequenceManager.class);
+    testManager = new ProgramSequenceManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
   }
 
   @After
@@ -99,7 +84,7 @@ public class ProgramSequenceManagerDbTest {
 
   @Test
   public void create() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     var subject = new ProgramSequence();
     subject.setId(UUID.randomUUID());
     subject.setKey("G minor 7");
@@ -118,12 +103,12 @@ public class ProgramSequenceManagerDbTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/156144567 Artist expects to of a Main-type programSequence without crashing the entire platform
-   NOTE: This simple test fails to invoke the complexity of database call that is/was creating this issue in production.
+   * Artist expects to of a Main-type programSequence without crashing the entire platform https://www.pivotaltracker.com/story/show/156144567
+   * NOTE: This simple test fails to invoke the complexity of database call that is/was creating this issue in production.
    */
   @Test
   public void create_asArtist() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     var inputData = new ProgramSequence();
     inputData.setId(UUID.randomUUID());
     inputData.setKey("G minor 7");
@@ -142,14 +127,14 @@ public class ProgramSequenceManagerDbTest {
   }
 
   /**
-   Voicing Lists missing when cloning Main Program Sequence
-   https://www.pivotaltracker.com/story/show/182286657
-   <p>
-   https://www.pivotaltracker.com/story/show/170290553 Clone sub-entities of programSequence
+   * Voicing Lists missing when cloning Main Program Sequence
+   * https://www.pivotaltracker.com/story/show/182286657
+   * <p>
+   * Clone sub-entities of programSequence https://www.pivotaltracker.com/story/show/170290553
    */
   @Test
   public void clone_fromOriginal() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     var inputData = new ProgramSequence();
     inputData.setId(UUID.randomUUID());
     inputData.setProgramId(fake.program3.getId());
@@ -160,7 +145,7 @@ public class ProgramSequenceManagerDbTest {
     var voice = test.insert(buildProgramVoice(fake.program1, InstrumentType.Pad, "Test"));
     var track = test.insert(buildProgramVoiceTrack(voice, "Test"));
     var chord = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "D"));
-    test.insert(buildProgramSequenceChordVoicing(chord,voice,"C3,E3,G3,C4,E4,G4"));
+    test.insert(buildProgramSequenceChordVoicing(chord, voice, "C3,E3,G3,C4,E4,G4"));
     var pattern = test.insert(buildProgramSequencePattern(fake.program1_sequence1, voice, 8, "jam"));
     test.insert(buildProgramSequencePatternEvent(pattern, track, 0.0f, 1.0f, "C", 1.0f));
 
@@ -173,60 +158,83 @@ public class ProgramSequenceManagerDbTest {
     assertEquals(fake.program3.getId(), result.getProgramId());
     assertEquals("cannons fifty nine", result.getName());
     // Cloned ProgramSequence
-    assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(PROGRAM_SEQUENCE)
-      .where(PROGRAM_SEQUENCE.ID.eq(result.getId()))
-      .fetchOne(0, int.class));
+    try (var selectCount = test.getDSL().selectCount()) {
+      assertEquals(Integer.valueOf(1),
+        selectCount.from(PROGRAM_SEQUENCE)
+          .where(PROGRAM_SEQUENCE.ID.eq(result.getId()))
+          .fetchOne(0, int.class));
+    }
     // Cloned ProgramSequenceChord belongs to ProgramSequence
     assertEquals(1, resultCloner.getChildClones().stream()
       .filter(e -> ProgramSequenceChord.class.equals(e.getClass())).count());
-    assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(PROGRAM_SEQUENCE_CHORD)
-      .where(PROGRAM_SEQUENCE_CHORD.PROGRAM_SEQUENCE_ID.eq(result.getId()))
-      .fetchOne(0, int.class));
+    try (var selectCount = test.getDSL().selectCount()) {
+      assertEquals(Integer.valueOf(1),
+        selectCount.from(PROGRAM_SEQUENCE_CHORD)
+          .where(PROGRAM_SEQUENCE_CHORD.PROGRAM_SEQUENCE_ID.eq(result.getId()))
+          .fetchOne(0, int.class));
+    }
     // Cloned ProgramSequenceChordVoicing belongs to ProgramSequenceChord and ProgramVoice
     assertEquals(1, resultCloner.getChildClones().stream()
       .filter(e -> ProgramSequenceChordVoicing.class.equals(e.getClass())).count());
-    assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(PROGRAM_SEQUENCE_CHORD_VOICING)
-      .join(PROGRAM_SEQUENCE_CHORD).on(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID.eq(PROGRAM_SEQUENCE_CHORD.ID))
-      .where(PROGRAM_SEQUENCE_CHORD.PROGRAM_SEQUENCE_ID.eq(result.getId()))
-      .fetchOne(0, int.class));
+    try (
+      var selectCount = test.getDSL().selectCount();
+      var joinVoicing = selectCount.from(PROGRAM_SEQUENCE_CHORD_VOICING)
+        .join(PROGRAM_SEQUENCE_CHORD).on(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID.eq(PROGRAM_SEQUENCE_CHORD.ID))
+    ) {
+      assertEquals(Integer.valueOf(1),
+        joinVoicing
+          .where(PROGRAM_SEQUENCE_CHORD.PROGRAM_SEQUENCE_ID.eq(result.getId()))
+          .fetchOne(0, int.class));
+    }
     // Cloned ProgramSequenceBinding belongs to ProgramSequence
     assertEquals(1, resultCloner.getChildClones().stream()
       .filter(e -> ProgramSequenceBinding.class.equals(e.getClass())).count());
-    assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(PROGRAM_SEQUENCE_BINDING)
-      .where(PROGRAM_SEQUENCE_BINDING.PROGRAM_SEQUENCE_ID.eq(result.getId()))
-      .fetchOne(0, int.class));
+    try (var selectCount = test.getDSL().selectCount()) {
+      assertEquals(Integer.valueOf(1),
+        selectCount.from(PROGRAM_SEQUENCE_BINDING)
+          .where(PROGRAM_SEQUENCE_BINDING.PROGRAM_SEQUENCE_ID.eq(result.getId()))
+          .fetchOne(0, int.class));
+    }
     // Cloned ProgramSequenceBindingMeme belongs to ProgramSequenceBinding
     assertEquals(2, resultCloner.getChildClones().stream()
       .filter(e -> ProgramSequenceBindingMeme.class.equals(e.getClass())).count());
-    assertEquals(Integer.valueOf(2), test.getDSL()
-      .selectCount().from(PROGRAM_SEQUENCE_BINDING_MEME)
-      .join(PROGRAM_SEQUENCE_BINDING).on(PROGRAM_SEQUENCE_BINDING.ID.eq(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_SEQUENCE_BINDING_ID))
-      .where(PROGRAM_SEQUENCE_BINDING.PROGRAM_SEQUENCE_ID.eq(result.getId()))
-      .fetchOne(0, int.class));
+    try (
+      var selectCount = test.getDSL().selectCount();
+      var joinMeme = selectCount.from(PROGRAM_SEQUENCE_BINDING_MEME)
+        .join(PROGRAM_SEQUENCE_BINDING).on(PROGRAM_SEQUENCE_BINDING.ID.eq(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_SEQUENCE_BINDING_ID))
+    ) {
+      assertEquals(Integer.valueOf(2),
+        joinMeme
+          .where(PROGRAM_SEQUENCE_BINDING.PROGRAM_SEQUENCE_ID.eq(result.getId()))
+          .fetchOne(0, int.class));
+    }
     // Cloned ProgramSequencePattern belongs to ProgramSequence and ProgramVoice
     assertEquals(1, resultCloner.getChildClones().stream()
       .filter(e -> ProgramSequencePattern.class.equals(e.getClass())).count());
-    assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(PROGRAM_SEQUENCE_PATTERN)
-      .where(PROGRAM_SEQUENCE_PATTERN.PROGRAM_SEQUENCE_ID.eq(result.getId()))
-      .fetchOne(0, int.class));
+    try (var selectCount = test.getDSL().selectCount()) {
+      assertEquals(Integer.valueOf(1),
+        selectCount.from(PROGRAM_SEQUENCE_PATTERN)
+          .where(PROGRAM_SEQUENCE_PATTERN.PROGRAM_SEQUENCE_ID.eq(result.getId()))
+          .fetchOne(0, int.class));
+    }
     // Cloned ProgramSequencePatternEvent belongs to ProgramSequencePattern and ProgramVoiceTrack
     assertEquals(1, resultCloner.getChildClones().stream()
       .filter(e -> ProgramSequencePatternEvent.class.equals(e.getClass())).count());
-    assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(PROGRAM_SEQUENCE_PATTERN_EVENT)
-      .join(PROGRAM_SEQUENCE_PATTERN).on(PROGRAM_SEQUENCE_PATTERN.ID.eq(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_SEQUENCE_PATTERN_ID))
-      .where(PROGRAM_SEQUENCE_PATTERN.PROGRAM_SEQUENCE_ID.eq(result.getId()))
-      .fetchOne(0, int.class));
+    try (
+      var selectCount = test.getDSL().selectCount();
+      var joinEvent = selectCount.from(PROGRAM_SEQUENCE_PATTERN_EVENT)
+        .join(PROGRAM_SEQUENCE_PATTERN).on(PROGRAM_SEQUENCE_PATTERN.ID.eq(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_SEQUENCE_PATTERN_ID))
+    ) {
+      assertEquals(Integer.valueOf(1),
+        joinEvent
+          .where(PROGRAM_SEQUENCE_PATTERN.PROGRAM_SEQUENCE_ID.eq(result.getId()))
+          .fetchOne(0, int.class));
+    }
   }
 
   @Test
   public void readOne() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User, Artist");
 
     var result = testManager.readOne(access, fake.program3_sequence1.getId());
 
@@ -238,7 +246,7 @@ public class ProgramSequenceManagerDbTest {
 
   @Test
   public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "User, Artist");
 
     var e = assertThrows(ManagerException.class, () -> testManager.readOne(access, fake.program3_sequence1.getId()));
 
@@ -249,7 +257,7 @@ public class ProgramSequenceManagerDbTest {
 
   @Test
   public void readMany() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin");
 
     Collection<ProgramSequence> result = testManager.readMany(access, ImmutableList.of(fake.program3.getId()));
 
@@ -260,7 +268,7 @@ public class ProgramSequenceManagerDbTest {
 
   @Test
   public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "User, Artist");
 
     Collection<ProgramSequence> result = testManager.readMany(access, ImmutableList.of(fake.program3.getId()));
 
@@ -269,7 +277,7 @@ public class ProgramSequenceManagerDbTest {
 
   @Test
   public void update_FailsUpdatingToNonexistentLibrary() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User, Artist");
     var subject = new ProgramSequence();
     subject.setId(UUID.randomUUID());
     subject.setName("cannons");
@@ -286,7 +294,7 @@ public class ProgramSequenceManagerDbTest {
 
   @Test
   public void update_Name() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     var subject = new ProgramSequence();
     subject.setId(fake.program3_sequence1.getId());
     subject.setDensity(1.0f);
@@ -304,13 +312,13 @@ public class ProgramSequenceManagerDbTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/156030760 Artist expects owner of ProgramSequence or Instrument to always remain the same as when it was ofd, even after being updated by another user.
-   DEPRECATED, future will be replaced by https://www.pivotaltracker.com/story/show/166724453 Instruments and Programs have author history
+   * Artist expects owner of ProgramSequence or Instrument to always remain the same as when it was ofd, even after being updated by another user. https://www.pivotaltracker.com/story/show/156030760
+   * DEPRECATED, future will be replaced by Instruments and Programs have author history https://www.pivotaltracker.com/story/show/166724453
    */
   @Test
   public void update_Name_PreservesOriginalOwner() throws Exception {
     // John will edit a programSequence originally belonging to Jenny
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     var subject = new ProgramSequence();
     subject.setId(fake.program3_sequence1.getId());
     subject.setKey("G minor 7");
@@ -327,21 +335,24 @@ public class ProgramSequenceManagerDbTest {
 
   @Test
   public void destroy_asArtist() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
     fake.programSequence35 = test.insert(buildProgramSequence(fake.program2, 16, "Ants", 0.6f, "C#"));
 
     testManager.destroy(access, fake.programSequence35.getId());
 
-    assertEquals(Integer.valueOf(0), test.getDSL()
-      .selectCount().from(PROGRAM_SEQUENCE)
-      .where(PROGRAM_SEQUENCE.ID.eq(fake.programSequence35.getId()))
-      .fetchOne(0, int.class));
+    try (var selectCount = test.getDSL().selectCount()) {
+      assertEquals(Integer.valueOf(0),
+        selectCount
+          .from(PROGRAM_SEQUENCE)
+          .where(PROGRAM_SEQUENCE.ID.eq(fake.programSequence35.getId()))
+          .fetchOne(0, int.class));
+    }
   }
 
   @Test
   public void destroy_failsIfNotInAccount() throws Exception {
     fake.account2 = buildAccount("Testing");
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account2), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account2), "Artist");
 
     var e = assertThrows(ManagerException.class, () -> testManager.destroy(access, fake.program3_sequence1.getId()));
 
@@ -349,7 +360,7 @@ public class ProgramSequenceManagerDbTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/170390872 Delete a **Sequence** even if it has children, as long as it has no sequence bindings
+   * Delete a **Sequence** even if it has children, as long as it has no sequence bindings https://www.pivotaltracker.com/story/show/170390872
    */
   @Test
   public void destroy_succeedsEvenWhenHasPattern() throws Exception {
@@ -361,9 +372,9 @@ public class ProgramSequenceManagerDbTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/175693261 Artist editing program should be able to delete sequences
-   <p>
-   DEPRECATES https://www.pivotaltracker.com/story/show/170390872 Delete a **Sequence** even if it has children, as long as it has no sequence bindings
+   * Artist editing program should be able to delete sequences https://www.pivotaltracker.com/story/show/175693261
+   * <p>
+   * DEPRECATES Delete a **Sequence** even if it has children, as long as it has no sequence bindings https://www.pivotaltracker.com/story/show/170390872
    */
   @Test
   public void destroy_succeedsEvenWithChildren() throws Exception {

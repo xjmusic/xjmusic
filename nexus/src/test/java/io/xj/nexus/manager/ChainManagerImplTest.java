@@ -2,24 +2,35 @@
 package io.xj.nexus.manager;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
-import io.xj.nexus.model.*;
 import io.xj.hub.HubTopology;
 import io.xj.hub.enums.TemplateType;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Template;
-import io.xj.lib.app.Environment;
-import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.EntityModule;
+import io.xj.lib.app.AppEnvironment;
+import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.json.JsonProvider;
+import io.xj.lib.json.JsonProviderImpl;
+import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.util.Values;
 import io.xj.nexus.NexusTopology;
-import io.xj.hub.client.HubClientAccess;
-import io.xj.nexus.persistence.*;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.ChainType;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.model.SegmentType;
+import io.xj.nexus.persistence.ChainManager;
+import io.xj.nexus.persistence.ChainManagerImpl;
+import io.xj.nexus.persistence.ManagerExistenceException;
+import io.xj.nexus.persistence.ManagerValidationException;
+import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.persistence.NexusEntityStoreImpl;
+import io.xj.nexus.persistence.SegmentManager;
+import io.xj.nexus.persistence.SegmentManagerImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Instant;
@@ -27,14 +38,23 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
-import static io.xj.hub.IntegrationTestingFixtures.*;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
-import static org.junit.Assert.*;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-@SuppressWarnings("HttpUrlsUsage")
 @RunWith(MockitoJUnitRunner.class)
 public class ChainManagerImplTest {
-  private NexusEntityStore test;
+  @Mock
+  private NotificationProvider notificationProvider;
+  private NexusEntityStore store;
   private ChainManager subject;
   private Account account1;
   private Chain chain1;
@@ -44,21 +64,15 @@ public class ChainManagerImplTest {
 
   @Before
   public void setUp() throws Exception {
-    Environment env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(new NexusPersistenceModule(), new EntityModule(), new NexusPersistenceModule())
-      .with(new AbstractModule() {
-        @Override
-        protected void configure() {
-          bind(Environment.class).toInstance(env);
-        }
-      }));
-    var entityFactory = injector.getInstance(EntityFactory.class);
+    var env = AppEnvironment.getDefault();
+    JsonProvider jsonProvider = new JsonProviderImpl();
+    var entityFactory = new EntityFactoryImpl(jsonProvider);
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
 
     // Manipulate the underlying entity store
-    test = injector.getInstance(NexusEntityStore.class);
-    test.deleteAll();
+    store = new NexusEntityStoreImpl(entityFactory);
+    store.deleteAll();
 
     // hub entities as basis
     account1 = buildAccount("fish");
@@ -67,17 +81,24 @@ public class ChainManagerImplTest {
     template2 = buildTemplate(account1, "Test Template 2", "test2");
 
     // Payload comprising Nexus entities
-    chain1 = test.put(buildChain(account1, "school", ChainType.PRODUCTION, ChainState.READY, template1,
+    chain1 = store.put(buildChain(account1, "school", ChainType.PRODUCTION, ChainState.READY, template1,
       Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), null));
-    chain2 = test.put(buildChain(account1, "bucket", ChainType.PRODUCTION, ChainState.FABRICATE, template2,
+    chain2 = store.put(buildChain(account1, "bucket", ChainType.PRODUCTION, ChainState.FABRICATE, template2,
       Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), null));
 
     // Instantiate the test subject
-    subject = injector.getInstance(ChainManager.class);
+    SegmentManager segmentManager = new SegmentManagerImpl(entityFactory, store);
+    subject = new ChainManagerImpl(
+      env,
+      entityFactory,
+      store,
+      segmentManager,
+      notificationProvider
+    );
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/176285826 Nexus bootstraps Chains from JSON file on startup
+   * Nexus bootstraps Chains from JSON file on startup https://www.pivotaltracker.com/story/show/176285826
    */
   @Test
   public void bootstrap() throws Exception {
@@ -292,8 +313,6 @@ public class ChainManagerImplTest {
 
   @Test
   public void readOne() throws Exception {
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
-
     var result = subject.readOne(chain2.getId());
 
     assertNotNull(result);
@@ -307,12 +326,11 @@ public class ChainManagerImplTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/150279540 Unauthenticated or specifically-authenticated public Client wants to access a Chain by ship key (as alias for chain id) in order to provide data for playback.
+   * Unauthenticated or specifically-authenticated public Client wants to access a Chain by ship key (as alias for chain id) in order to provide data for playback. https://www.pivotaltracker.com/story/show/150279540
    */
   @Test
   public void readOne_byShipKey_unauthenticatedOk() throws Exception {
     var chain = subject.create(buildChain(account1, "cats test", ChainType.PRODUCTION, ChainState.DRAFT, template1, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), "cats"));
-    HubClientAccess access = HubClientAccess.unauthenticated();
 
     var result = subject.readOneByShipKey("cats");
 
@@ -329,8 +347,6 @@ public class ChainManagerImplTest {
 
   @Test
   public void readMany() throws Exception {
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Artist");
-
     Collection<Chain> result = subject.readMany(ImmutableList.of(account1.getId()));
 
     assertEquals(2L, result.size());
@@ -338,14 +354,13 @@ public class ChainManagerImplTest {
 
   @Test
   public void readAllFabricating() throws Exception {
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "Admin");
-    test.put(buildChain(template2, ChainState.FABRICATE));
-    test.put(buildChain(template2, ChainState.FABRICATE));
-    test.put(buildChain(template2, ChainState.FABRICATE));
-    test.put(buildChain(template2, ChainState.DRAFT));
-    test.put(buildChain(template2, ChainState.COMPLETE));
-    test.put(buildChain(template2, ChainState.READY));
-    test.put(buildChain(template2, ChainState.FAILED));
+    store.put(buildChain(template2, ChainState.FABRICATE));
+    store.put(buildChain(template2, ChainState.FABRICATE));
+    store.put(buildChain(template2, ChainState.FABRICATE));
+    store.put(buildChain(template2, ChainState.DRAFT));
+    store.put(buildChain(template2, ChainState.COMPLETE));
+    store.put(buildChain(template2, ChainState.READY));
+    store.put(buildChain(template2, ChainState.FAILED));
 
     Collection<Chain> result = subject.readAllFabricating();
 
@@ -355,7 +370,6 @@ public class ChainManagerImplTest {
   @Test
   public void readMany_excludesChainsInFabricateState() throws Exception {
     buildChain(account1, "sham", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), null);
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User");
 
     Collection<Chain> result = subject.readMany(ImmutableList.of(account1.getId()));
 
@@ -406,7 +420,7 @@ public class ChainManagerImplTest {
     previewChain.setState(ChainState.FABRICATE);
     previewChain.startAt("2009-08-12T12:17:02.687327Z");
     previewChain.stopAt("2009-09-11T12:17:01.989941Z");
-    test.put(previewChain);
+    store.put(previewChain);
     var input = new Chain();
     input.setId(UUID.randomUUID());
     input.setAccountId(account1.getId());
@@ -455,7 +469,7 @@ public class ChainManagerImplTest {
 
   @Test
   public void update_removeShipKey() throws Exception {
-    var chain3 = test.put(buildChain(account1, "bucket", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), "twenty_four_hours"));
+    var chain3 = store.put(buildChain(account1, "bucket", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), "twenty_four_hours"));
     var input = new Chain();
     input.setId(UUID.randomUUID());
     input.setAccountId(account1.getId());
@@ -481,7 +495,7 @@ public class ChainManagerImplTest {
 
   @Test
   public void update_addShipKey_failsIfShipKeyAlreadyExists() throws Exception {
-    test.put(buildChain(account1, "bucket", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), "twenty_four_hours"));
+    store.put(buildChain(account1, "bucket", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), "twenty_four_hours"));
     var input = new Chain();
     input.setId(UUID.randomUUID());
     input.setAccountId(account1.getId());
@@ -500,7 +514,7 @@ public class ChainManagerImplTest {
 
   @Test
   public void update_okayWithShipKey() throws Exception {
-    var chain = test.put(buildChain(account1, "school", ChainType.PRODUCTION, ChainState.READY, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
+    var chain = store.put(buildChain(account1, "school", ChainType.PRODUCTION, ChainState.READY, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
     var input = new Chain();
     input.setId(UUID.randomUUID());
     input.setAccountId(account1.getId());
@@ -526,7 +540,7 @@ public class ChainManagerImplTest {
 
   @Test
   public void existsForShipKey() throws Exception {
-    test.put(buildChain(account1, "school", ChainType.PRODUCTION, ChainState.READY, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
+    store.put(buildChain(account1, "school", ChainType.PRODUCTION, ChainState.READY, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
     var input = new Chain();
     input.setId(UUID.randomUUID());
     input.setAccountId(account1.getId());
@@ -559,7 +573,7 @@ public class ChainManagerImplTest {
 
   @Test
   public void update_failsToChangeStartAt_whenChainsHasSegment() throws Exception {
-    test.put(buildSegment(
+    store.put(buildSegment(
       chain2,
       5,
       SegmentState.CRAFTED,
@@ -603,7 +617,7 @@ public class ChainManagerImplTest {
     seg.setType(SegmentType.NEXTMAIN);
     seg.storageKey("chains-1-segments-9f7s89d8a7892.wav");
 
-    test.put(seg);
+    store.put(seg);
     var input = new Chain();
     input.setId(UUID.randomUUID());
     input.setAccountId(account1.getId());
@@ -700,8 +714,6 @@ public class ChainManagerImplTest {
 
   @Test
   public void updateState() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Internal");
-
     subject.updateState(chain2.getId(), ChainState.COMPLETE);
 
     var result = subject.readOne(chain2.getId());
@@ -711,8 +723,6 @@ public class ChainManagerImplTest {
 
   @Test
   public void updateState_WithAccountAccess() throws Exception {
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
-
     subject.updateState(chain2.getId(), ChainState.COMPLETE);
 
     var result = subject.readOne(chain2.getId());
@@ -722,8 +732,7 @@ public class ChainManagerImplTest {
 
   @Test
   public void buildNextSegmentOrComplete_chainWithSegmentsReadyForNextSegment() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Internal");
-    chain1 = test.put(buildChain(account1, "Test Print #2", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T14:03:40.000001Z"), null));
+    chain1 = store.put(buildChain(account1, "Test Print #2", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T14:03:40.000001Z"), null));
     var seg = new Segment();
     seg.setId(UUID.randomUUID());
     seg.setChainId(chain1.getId());
@@ -737,7 +746,7 @@ public class ChainManagerImplTest {
     seg.setEndAt("2014-02-14T12:04:10.000001Z");
     seg.setTempo(120.0);
     seg.storageKey("chains-1-segments-9f7s89d8a7892.wav");
-    test.put(seg);
+    store.put(seg);
 
     Segment result = subject.buildNextSegmentOrCompleteTheChain(chain1, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T11:53:40.000001Z")).orElseThrow();
 
@@ -749,8 +758,7 @@ public class ChainManagerImplTest {
 
   @Test
   public void buildNextSegmentOrComplete_chainWithSegmentsReadyForNextSegment_butChainIsAlreadyFull_butNotSoLongEnoughToBeComplete() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Internal");
-    chain1 = test.put(buildChain(account1, "Test Print #2", ChainType.PRODUCTION, ChainState.FABRICATE, template2, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T14:03:40.000001Z"), null));
+    chain1 = store.put(buildChain(account1, "Test Print #2", ChainType.PRODUCTION, ChainState.FABRICATE, template2, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T14:03:40.000001Z"), null));
     var seg = new Segment();
     seg.setId(UUID.randomUUID());
     seg.setChainId(chain1.getId());
@@ -764,7 +772,7 @@ public class ChainManagerImplTest {
     seg.setDensity(0.41);
     seg.setTempo(120.0);
     seg.storageKey("chains-1-segments-9f7s89d8a7892.wav");
-    test.put(seg);
+    store.put(seg);
 
     Segment result = subject.buildNextSegmentOrCompleteTheChain(chain1, Instant.parse("2014-02-14T14:03:50.000001Z"), Instant.parse("2014-02-14T13:53:50.000001Z")).orElseThrow();
 
@@ -776,8 +784,7 @@ public class ChainManagerImplTest {
 
   @Test
   public void buildNextSegmentOrComplete_chainWithSegmentsReadyForNextSegment_butChainIsAlreadyFull_andGetsUpdatedToComplete() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Internal");
-    chain1 = test.put(buildChain(account1, "Test Print #2", ChainType.PRODUCTION, ChainState.FABRICATE, template2, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T14:03:40.000001Z"), null));
+    chain1 = store.put(buildChain(account1, "Test Print #2", ChainType.PRODUCTION, ChainState.FABRICATE, template2, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T14:03:40.000001Z"), null));
     var seg = new Segment();
     seg.setId(UUID.randomUUID());
     seg.setChainId(chain1.getId());
@@ -791,7 +798,7 @@ public class ChainManagerImplTest {
     seg.setDensity(0.41);
     seg.setTempo(120.0);
     seg.storageKey("chains-1-segments-9f7s89d8a7892.wav");
-    test.put(seg);
+    store.put(seg);
 
     Optional<Segment> result = subject.buildNextSegmentOrCompleteTheChain(chain1, Instant.parse("2014-02-14T14:03:50.000001Z"), Instant.parse("2014-02-14T14:15:50.000001Z"));
 
@@ -803,8 +810,7 @@ public class ChainManagerImplTest {
 
   @Test
   public void buildNextSegmentOrComplete_chainWithSegmentsReadyForNextSegment_butChainIsAlreadyFull_butCantKnowBecauseBoundsProvidedAreNull() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Internal");
-    chain1 = test.put(buildChain(account1, "Test Print #2", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T14:03:40.000001Z"), null));
+    chain1 = store.put(buildChain(account1, "Test Print #2", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T14:03:40.000001Z"), null));
     var seg = new Segment();
     seg.setId(UUID.randomUUID());
     seg.setChainId(chain1.getId());
@@ -818,7 +824,7 @@ public class ChainManagerImplTest {
     seg.setDensity(0.41);
     seg.setTempo(120.0);
     seg.storageKey("chains-1-segments-9f7s89d8a7892.wav");
-    test.put(seg);
+    store.put(seg);
 
     Segment result = subject.buildNextSegmentOrCompleteTheChain(chain1, Instant.parse("2014-02-14T14:03:50.000001Z"), Instant.parse("2014-02-14T14:15:50.000001Z")).orElseThrow();
 
@@ -830,8 +836,7 @@ public class ChainManagerImplTest {
 
   @Test
   public void buildNextSegmentOrComplete_chainWithSegmentsAlreadyHasNextSegment() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Internal");
-    chain1 = test.put(buildChain(account1, "Test Print #2", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T14:03:40.000001Z"), null));
+    chain1 = store.put(buildChain(account1, "Test Print #2", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T14:03:40.000001Z"), null));
     var seg = new Segment();
     seg.setId(UUID.randomUUID());
     seg.setChainId(chain1.getId());
@@ -845,7 +850,7 @@ public class ChainManagerImplTest {
     seg.setDensity(0.41);
     seg.setTempo(120.0);
     seg.storageKey("chains-1-segments-9f7s89d8a7892.wav");
-    test.put(seg);
+    store.put(seg);
 
     Optional<Segment> result = subject.buildNextSegmentOrCompleteTheChain(chain1, Instant.parse("2014-08-12T14:03:38.000001Z"), Instant.parse("2014-08-12T13:53:38.000001Z"));
 
@@ -854,9 +859,8 @@ public class ChainManagerImplTest {
 
   @Test
   public void buildNextSegmentOrComplete_chainEndingInCraftedSegment() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Internal");
-    var fromChain = test.put(buildChain(account1, "Test Print #2", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), null));
-    test.put(buildSegment(fromChain, 5, SegmentState.CRAFTED, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-08-12T14:03:38.000001Z"), "A major", 64, 0.52, 120.0, "chains-1-segments-9f7s89d8a7892.wav", "OGG"));
+    var fromChain = store.put(buildChain(account1, "Test Print #2", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), null));
+    store.put(buildSegment(fromChain, 5, SegmentState.CRAFTED, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-08-12T14:03:38.000001Z"), "A major", 64, 0.52, 120.0, "chains-1-segments-9f7s89d8a7892.wav", "OGG"));
 
     Segment result = subject.buildNextSegmentOrCompleteTheChain(fromChain, Instant.parse("2014-08-12T14:03:38.000001Z"), Instant.parse("2014-08-12T13:53:38.000001Z")).orElseThrow();
 
@@ -867,13 +871,12 @@ public class ChainManagerImplTest {
 
   @Test
   public void buildNextSegmentOrComplete_newEmptyChain() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Internal");
-    test.put(buildChain(account1, "Test Print #2", ChainType.PRODUCTION, ChainState.READY, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    store.put(buildChain(account1, "Test Print #2", ChainType.PRODUCTION, ChainState.READY, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
     var fromChain = new Chain();
     fromChain.setId(UUID.randomUUID());
     fromChain.setType(ChainType.PRODUCTION);
     fromChain.startAt("2014-08-12T12:17:02.527142Z");
-    test.put(fromChain);
+    store.put(fromChain);
 
     Segment result = subject.buildNextSegmentOrCompleteTheChain(fromChain, Instant.parse("2014-08-12T14:03:38.000001Z"), Instant.parse("2014-08-12T13:53:38.000001Z")).orElseThrow();
 

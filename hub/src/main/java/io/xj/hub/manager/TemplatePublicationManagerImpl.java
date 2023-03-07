@@ -1,10 +1,9 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.manager;
 
-import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.TemplateType;
-import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplatePublication;
@@ -13,6 +12,7 @@ import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -23,18 +23,18 @@ import java.util.UUID;
 import static io.xj.hub.Tables.TEMPLATE;
 import static io.xj.hub.Tables.TEMPLATE_PUBLICATION;
 
-public class TemplatePublicationManagerImpl extends HubPersistenceServiceImpl<TemplatePublication> implements TemplatePublicationManager {
-  @Inject
+@Service
+public class TemplatePublicationManagerImpl extends HubPersistenceServiceImpl implements TemplatePublicationManager {
   public TemplatePublicationManagerImpl(
     EntityFactory entityFactory,
-    HubDatabaseProvider dbProvider
+    HubSqlStoreProvider sqlStoreProvider
   ) {
-    super(entityFactory, dbProvider);
+    super(entityFactory, sqlStoreProvider);
   }
 
   @Override
   public TemplatePublication create(HubAccess access, TemplatePublication raw) throws ManagerException, JsonapiException, ValueException {
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
     raw.setUserId(access.getUserId());
     TemplatePublication record = validate(raw);
     requireArtist(access);
@@ -45,7 +45,7 @@ public class TemplatePublicationManagerImpl extends HubPersistenceServiceImpl<Te
         .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
 
-    var template = modelFrom(Template.class, dbProvider.getDSL().selectFrom(TEMPLATE)
+    var template = modelFrom(Template.class, sqlStoreProvider.getDSL().selectFrom(TEMPLATE)
       .where(TEMPLATE.ID.eq(record.getTemplateId()))
       .fetchOne());
     requireAny("Production-type Template", TemplateType.Production.equals(template.getType()));
@@ -63,12 +63,12 @@ public class TemplatePublicationManagerImpl extends HubPersistenceServiceImpl<Te
   @Override
   @Nullable
   public TemplatePublication readOne(HubAccess access, UUID id) throws ManagerException {
-    return readOne(dbProvider.getDSL(), access, id);
+    return readOne(sqlStoreProvider.getDSL(), access, id);
   }
 
   @Override
   public Optional<TemplatePublication> readOneForUser(HubAccess access, UUID userId) throws ManagerException {
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
     var publicationRecord = access.isTopLevel()
       ?
       db.selectFrom(TEMPLATE_PUBLICATION)
@@ -98,13 +98,13 @@ public class TemplatePublicationManagerImpl extends HubPersistenceServiceImpl<Te
   @Override
   public Collection<TemplatePublication> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
     if (access.isTopLevel())
-      return modelsFrom(TemplatePublication.class, dbProvider.getDSL().select(TEMPLATE_PUBLICATION.fields())
+      return modelsFrom(TemplatePublication.class, sqlStoreProvider.getDSL().select(TEMPLATE_PUBLICATION.fields())
         .from(TEMPLATE_PUBLICATION)
         .where(TEMPLATE_PUBLICATION.TEMPLATE_ID.in(parentIds))
         .orderBy(TEMPLATE_PUBLICATION.USER_ID)
         .fetch());
     else
-      return modelsFrom(TemplatePublication.class, dbProvider.getDSL().select(TEMPLATE_PUBLICATION.fields())
+      return modelsFrom(TemplatePublication.class, sqlStoreProvider.getDSL().select(TEMPLATE_PUBLICATION.fields())
         .from(TEMPLATE_PUBLICATION)
         .join(TEMPLATE).on(TEMPLATE.ID.eq(TEMPLATE_PUBLICATION.TEMPLATE_ID))
         .where(TEMPLATE_PUBLICATION.TEMPLATE_ID.in(parentIds))
@@ -119,13 +119,13 @@ public class TemplatePublicationManagerImpl extends HubPersistenceServiceImpl<Te
   }
 
   /**
-   Read one record
-
-   @param db        DSL context
-   @param access control
-   @param id        to read
-   @return record
-   @throws ManagerException on failure
+   * Read one record
+   *
+   * @param db     DSL context
+   * @param access control
+   * @param id     to read
+   * @return record
+   * @throws ManagerException on failure
    */
   private TemplatePublication readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     if (access.isTopLevel())
@@ -142,10 +142,10 @@ public class TemplatePublicationManagerImpl extends HubPersistenceServiceImpl<Te
   }
 
   /**
-   Validate data
-
-   @param builder to validate
-   @throws ManagerException if invalid
+   * Validate data
+   *
+   * @param builder to validate
+   * @throws ManagerException if invalid
    */
   public TemplatePublication validate(TemplatePublication builder) throws ManagerException {
     try {

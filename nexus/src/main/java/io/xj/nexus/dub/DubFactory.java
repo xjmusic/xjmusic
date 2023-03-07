@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.dub;
 
-import com.google.inject.assistedinject.Assisted;
+
 import io.xj.nexus.NexusException;
 import io.xj.nexus.fabricator.Fabricator;
 
@@ -24,7 +24,7 @@ public interface DubFactory {
    @throws NexusException on failure
    */
   DubMaster master(
-    @Assisted("basis") Fabricator fabricator
+     Fabricator fabricator
   ) throws NexusException;
 
   /**
@@ -36,7 +36,7 @@ public interface DubFactory {
    @throws NexusException on failure
    */
   DubShip ship(
-    @Assisted("basis") Fabricator fabricator
+     Fabricator fabricator
   ) throws NexusException;
 
 }

@@ -8,7 +8,7 @@ import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest;
 import com.google.cloud.secretmanager.v1.AccessSecretVersionResponse;
 import com.google.cloud.secretmanager.v1.SecretManagerServiceClient;
 import com.google.cloud.secretmanager.v1.SecretVersionName;
-import io.xj.lib.app.Environment;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.util.Values;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,14 +27,14 @@ public enum Secrets {
 
    @return environment
    */
-  public static Environment environment() {
-    var env = Environment.fromSystem();
+  public static AppEnvironment environment() {
+    var env = AppEnvironment.fromSystem();
 
     if (Values.isSet(env.getAwsSecretName()))
-      env = Environment.augmentSystem(fetchAwsSecret(env.getAwsDefaultRegion(), env.getAwsSecretName()));
+      env = AppEnvironment.augmentSystem(fetchAwsSecret(env.getAwsDefaultRegion(), env.getAwsSecretName()));
 
     if (Values.isSet(env.getGcpProjectId()) && Values.isSet(env.getGcpSecretId()))
-      env = Environment.augmentSystem(fetchGcpSecret(env.getGcpProjectId(), env.getGcpSecretId()));
+      env = AppEnvironment.augmentSystem(fetchGcpSecret(env.getGcpProjectId(), env.getGcpSecretId()));
 
     return env;
   }
@@ -60,7 +60,7 @@ public enum Secrets {
 
   /**
    Get the Environment via GCP Secret Manager, merged with the system environment params.
-   This method is static to use before Guice injection, probably in a program's Main.java.
+   This method is static to use before dependency injection, probably in a program's Main.java.
 
    @return environment
    */

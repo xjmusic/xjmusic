@@ -2,30 +2,22 @@
 package io.xj.hub.manager;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
-import io.xj.hub.HubIntegrationTestModule;
-import io.xj.hub.HubIntegrationTestProvider;
+import io.xj.hub.HubIntegrationTest;
+import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.enums.UserAuthType;
-import io.xj.hub.ingest.HubIngestModule;
-import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.hub.tables.pojos.User;
 import io.xj.hub.tables.pojos.UserAuth;
 import io.xj.hub.tables.pojos.UserAuthToken;
-import io.xj.lib.app.Environment;
-import io.xj.lib.filestore.FileStoreModule;
-import io.xj.lib.jsonapi.JsonapiModule;
+import io.xj.lib.app.AppEnvironment;
 import org.assertj.core.util.Lists;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collection;
+import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.*;
 import static org.junit.Assert.*;
@@ -33,19 +25,13 @@ import static org.junit.Assert.*;
 public class UserManagerDbTest {
   private UserManager subjectManager;
 
-  private HubIntegrationTestProvider test;
+  private HubIntegrationTest test;
   private IntegrationTestingFixtures fake;
 
   @Before
   public void setUp() throws Exception {
-    var env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule(), new HubIntegrationTestModule())).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(Environment.class).toInstance(env);
-      }
-    }));
-    test = injector.getInstance(HubIntegrationTestProvider.class);
+    var env = AppEnvironment.getDefault();
+    test = HubIntegrationTestFactory.build(env);
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
@@ -67,7 +53,7 @@ public class UserManagerDbTest {
     fake.user4 = test.insert(buildUser("bill", "bill@email.com", "https://pictures.com/bill.gif", "User"));
 
     // Instantiate the test subject
-    subjectManager = injector.getInstance(UserManager.class);
+    subjectManager = new UserManagerImpl(test.getEnv(), test.getEntityFactory(), test.getGoogleProvider(), test.getAccessTokenGenerator(), test.getSqlStoreProvider(), test.getKvStoreProvider());
   }
 
   @After
@@ -147,7 +133,7 @@ public class UserManagerDbTest {
 
   @Test
   public void update() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin,User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin,User");
     User update = buildUser("Timmy", "timmy@email.com", "https://pictures.com/timmy.jpg", "User,Artist,Engineer,Admin");
 
     User result = subjectManager.update(access, fake.user2.getId(), update);
@@ -162,7 +148,7 @@ public class UserManagerDbTest {
 
   @Test
   public void readOne() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin,User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin,User");
 
     User result = subjectManager.readOne(access, fake.user2.getId());
 
@@ -178,7 +164,7 @@ public class UserManagerDbTest {
   public void readOne_inMultipleAccounts() throws Exception {
     fake.account2 = test.insert(buildAccount("too bananas"));
     test.insert(buildAccountUser(fake.account2, fake.user3));
-    HubAccess access = HubAccess.create(fake.user3, ImmutableList.of(fake.account1, fake.account2));
+    HubAccess access = HubAccess.create(fake.user3, UUID.randomUUID(), ImmutableList.of(fake.account1, fake.account2));
 
     User result = subjectManager.readOne(access, fake.user3.getId());
 
@@ -188,7 +174,7 @@ public class UserManagerDbTest {
 
   @Test
   public void readOne_UserCannotSeeUserWithoutCommonAccountMembership() {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
 
     var e = assertThrows(ManagerException.class, () ->
       subjectManager.readOne(access, fake.user4.getId()));
@@ -198,7 +184,7 @@ public class UserManagerDbTest {
 
   @Test
   public void readOne_UserSeesAnotherUserWithCommonAccountMembership() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
 
     User result = subjectManager.readOne(access, fake.user3.getId());
 
@@ -222,7 +208,7 @@ public class UserManagerDbTest {
 
   @Test
   public void readMany() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User,Admin");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User,Admin");
 
     Collection<User> result = subjectManager.readMany(access, Lists.newArrayList());
 
@@ -231,7 +217,7 @@ public class UserManagerDbTest {
 
   @Test
   public void readMany_UserSeesSelfAndOtherUsersInSameAccount() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
 
     Collection<User> result = subjectManager.readMany(access, Lists.newArrayList());
 

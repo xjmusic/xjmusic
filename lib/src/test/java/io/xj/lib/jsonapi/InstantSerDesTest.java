@@ -2,9 +2,11 @@
 
 package io.xj.lib.jsonapi;
 
-import com.google.inject.Guice;
+
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.json.JsonProviderImpl;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,7 +21,8 @@ public class InstantSerDesTest {
 
   @Before
   public void setUp() {
-    entityFactory = Guice.createInjector(new JsonapiModule()).getInstance(EntityFactory.class);
+    var jsonProvider = new JsonProviderImpl();
+    entityFactory = new EntityFactoryImpl(jsonProvider);
     subject = Instant.parse("2014-09-11T12:17:00.679314Z");
     subjectJson = "\"2014-09-11T12:17:00.679314Z\"";
   }

@@ -11,20 +11,21 @@ import com.google.api.client.http.*;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.plus.model.Person;
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Inject;
-import io.xj.lib.app.Environment;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.json.ApiUrlProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Collection;
 
-class GoogleProviderImpl implements GoogleProvider {
+@Service
+public class GoogleProviderImpl implements GoogleProvider {
   private static final String CALLBACK_PATH = "auth/google/callback";
   private static final Collection<String> SCOPES = ImmutableList.of("profile", "email");
   private static final String API_PEOPLE_ENDPOINT = "https://www.googleapis.com/plus/v1/people/me";
-  private static final Logger log = LoggerFactory.getLogger(GoogleProviderImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(GoogleProviderImpl.class);
   private final GoogleHttpProvider googleHttpProvider;
   private final GsonFactory gsonFactory;
   private final ApiUrlProvider apiUrlProvider;
@@ -32,21 +33,19 @@ class GoogleProviderImpl implements GoogleProvider {
   private String clientId;
   private String clientSecret;
 
-  @Inject
   public GoogleProviderImpl(
     GoogleHttpProvider googleHttpProvider,
-    GsonFactory gsonFactory,
     ApiUrlProvider apiUrlProvider,
-    Environment env
+    AppEnvironment env
   ) {
     this.googleHttpProvider = googleHttpProvider;
-    this.gsonFactory = gsonFactory;
+    this.gsonFactory = new GsonFactory();
     this.apiUrlProvider = apiUrlProvider;
     try {
       clientId = env.getGoogleClientID();
       clientSecret = env.getGoogleClientSecret();
     } catch (Exception e) {
-      log.error("Failed to initialize Google Provider: {}", e.getMessage());
+      LOG.error("Failed to initialize Google Provider: {}", e.getMessage());
     }
   }
 
@@ -85,13 +84,13 @@ class GoogleProviderImpl implements GoogleProvider {
         code, getCallbackUrl());
       response = request.execute();
     } catch (TokenResponseException e) {
-      log.error("GoogleProvider.getTokenFromCode failed to retrieve token response: {}", detailsOfTokenException(e));
+      LOG.error("GoogleProvider.getTokenFromCode failed to retrieve token response: {}", detailsOfTokenException(e));
       throw new HubAccessException("Failed to retrieve token response for Google OAuth2 code.", e);
     } catch (IOException e) {
-      log.error("GoogleProvider.getTokenFromCode had I/O failure!", e);
+      LOG.error("GoogleProvider.getTokenFromCode had I/O failure!", e);
       throw new HubAccessException("I/O failure.", e);
     } catch (IllegalArgumentException e) {
-      log.error("GoogleProvider.getTokenFromCode had illegal argument failure!", e);
+      LOG.error("GoogleProvider.getTokenFromCode had illegal argument failure!", e);
       throw new HubAccessException("Illegal argument failure.", e);
     }
 
@@ -117,8 +116,8 @@ class GoogleProviderImpl implements GoogleProvider {
     }
 
     Person person;
-    try {
-      person = gsonFactory.createJsonParser(responseJson).parse(Person.class);
+    try (var parser = gsonFactory.createJsonParser(responseJson)) {
+      person = parser.parse(Person.class);
     } catch (Exception e) {
       throw new HubAccessException("Google API result is not valid JSON", e);
     }

@@ -1,9 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.mixer;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
+
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.notification.NotificationProvider;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,18 +13,14 @@ import org.mockito.junit.MockitoJUnitRunner;
 import javax.sound.sampled.AudioFormat;
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SourceImplTest {
-
   @Mock
-  private NotificationProvider mockNotificationProvider;
+  private NotificationProvider notificationProvider;
 
   private MixerFactory mixerFactory;
 
@@ -35,12 +30,9 @@ public class SourceImplTest {
 
   @Before
   public void setUp() throws Exception {
-    mixerFactory = Guice.createInjector(Modules.override(new MixerModule()).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(NotificationProvider.class).toInstance(mockNotificationProvider);
-      }
-    })).getInstance(MixerFactory.class);
+    AppEnvironment env = new AppEnvironment();
+    EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
+    mixerFactory = new MixerFactoryImpl(env, envelopeProvider, notificationProvider);
 
     F32LSB_48kHz_Stereo = mixerFactory.createSource(
       "F32LSB_48kHz_Stereo",
@@ -59,7 +51,7 @@ public class SourceImplTest {
       "F32LSB_48kHz_6ch",
       new InternalResource("test_audio/F32LSB_48kHz_6ch.wav").getFile().getAbsolutePath(), "test audio");
 
-    verify(mockNotificationProvider).publish(eq("Production-Chain Mix Source Failure"),eq("Failed to load source for Audio[F32LSB_48kHz_6ch] \"test audio\" because more than 2 input audio channels not allowed"));
+    verify(notificationProvider).publish(eq("Production-Chain Mix Source Failure"), eq("Failed to load source for Audio[F32LSB_48kHz_6ch] \"test audio\" because more than 2 input audio channels not allowed"));
   }
 
   @Test
@@ -134,11 +126,11 @@ public class SourceImplTest {
   }
 
   /**
-   Fabrication should not completely fail because of one bad source audio https://www.pivotaltracker.com/story/show/182575665
+   * Fabrication should not completely fail because of one bad source audio https://www.pivotaltracker.com/story/show/182575665
    */
   @Test
   public void empty() {
     assertTrue(empty.getAudioFormat().isEmpty());
-    verify(mockNotificationProvider).publish(eq("Production-Chain Mix Source Failure"),eq("Failed to load source for Audio[x123] \"will fail surely\" because /does/not/exists (No such file or directory)"));
+    verify(notificationProvider).publish(eq("Production-Chain Mix Source Failure"), eq("Failed to load source for Audio[x123] \"will fail surely\" because /does/not/exists (No such file or directory)"));
   }
 }

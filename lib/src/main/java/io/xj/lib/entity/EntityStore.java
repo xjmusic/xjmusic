@@ -8,7 +8,7 @@ import java.util.UUID;
 /**
  Entity store interface
  <p>
- https://www.pivotaltracker.com/story/show/171553408 XJ Lab Distributed Architecture
+ XJ Lab Distributed Architecture https://www.pivotaltracker.com/story/show/171553408
  Chains, ChainBindings, TemplateConfigs, Segments and all Segment content sub-entities persisted in memory
  */
 public interface EntityStore {

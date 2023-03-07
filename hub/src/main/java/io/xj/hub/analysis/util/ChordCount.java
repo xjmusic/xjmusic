@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- Representation of the count of usages for one chord
+ * Representation of the count of usages for one chord
  */
 public class ChordCount {
   Set<UUID> programIds;

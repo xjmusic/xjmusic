@@ -3,13 +3,8 @@ package io.xj.lib.music;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
-import io.xj.lib.app.Environment;
-import io.xj.lib.json.JsonModule;
 import io.xj.lib.json.JsonProvider;
+import io.xj.lib.json.JsonProviderImpl;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,18 +14,12 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.*;
 
 public class NoteTest {
+
   private JsonProvider jsonProvider;
 
   @Before
   public void setUp() throws Exception {
-    var env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new JsonModule())).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(Environment.class).toInstance(env);
-      }
-    }));
-    jsonProvider = injector.getInstance(JsonProvider.class);
+    jsonProvider = new JsonProviderImpl();
   }
 
   public static void assertNote(String expect, @Nullable Note actual) {
@@ -40,7 +29,7 @@ public class NoteTest {
   }
 
   /**
-   [#303] Craft calculates drum audio pitch to conform to the allowable note closest to the original note, slightly favoring down-pitching versus up-pitching.
+   * [#303] Craft calculates drum audio pitch to conform to the allowable note closest to the original note, slightly favoring down-pitching versus up-pitching.
    */
   @Test
   public void setOctaveNearest() {
@@ -176,7 +165,7 @@ public class NoteTest {
   }
 
   /**
-   NC sections should not cache notes from the previous section https://www.pivotaltracker.com/story/show/179409784
+   * NC sections should not cache notes from the previous section https://www.pivotaltracker.com/story/show/179409784
    */
   @Test
   public void onlyValid() {
@@ -188,7 +177,7 @@ public class NoteTest {
   }
 
   /**
-   NC sections should not cache notes from the previous section https://www.pivotaltracker.com/story/show/179409784
+   * NC sections should not cache notes from the previous section https://www.pivotaltracker.com/story/show/179409784
    */
   @Test
   public void isValid() {
@@ -229,7 +218,7 @@ public class NoteTest {
   }
 
   /**
-   Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
+   * Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
    */
   @Test
   public void jsonSerDes() throws JsonProcessingException {

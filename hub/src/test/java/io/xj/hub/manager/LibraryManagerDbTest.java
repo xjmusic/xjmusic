@@ -2,22 +2,13 @@
 package io.xj.hub.manager;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
-import io.xj.hub.HubIntegrationTestModule;
-import io.xj.hub.HubIntegrationTestProvider;
+import io.xj.hub.HubIntegrationTest;
+import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.enums.*;
-import io.xj.hub.ingest.HubIngestModule;
-import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.hub.tables.pojos.*;
-import io.xj.lib.app.Environment;
-import io.xj.lib.filestore.FileStoreModule;
-import io.xj.lib.jsonapi.JsonapiModule;
+import io.xj.lib.app.AppEnvironment;
 import org.assertj.core.util.Lists;
 import org.jooq.exception.DataAccessException;
 import org.junit.After;
@@ -45,19 +36,13 @@ import static org.junit.Assert.*;
 
 public class LibraryManagerDbTest {
   private LibraryManager subject;
-  private HubIntegrationTestProvider test;
+  private HubIntegrationTest test;
   private IntegrationTestingFixtures fake;
 
   @Before
   public void setUp() throws Exception {
-    var env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule(), new HubIntegrationTestModule())).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(Environment.class).toInstance(env);
-      }
-    }));
-    test = injector.getInstance(HubIntegrationTestProvider.class);
+    var env = AppEnvironment.getDefault();
+    test = HubIntegrationTestFactory.build(env);
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
@@ -73,7 +58,9 @@ public class LibraryManagerDbTest {
     fake.library2b = test.insert(buildLibrary(fake.account2, "sail"));
 
     // Instantiate the test subject
-    subject = injector.getInstance(LibraryManager.class);
+    InstrumentManager instrumentManager = new InstrumentManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
+    ProgramManager programManager = new ProgramManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
+    subject = new LibraryManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider(), instrumentManager, programManager);
   }
 
   @After
@@ -96,11 +83,11 @@ public class LibraryManagerDbTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/155089641 Engineer expects to be able to of and update a Library.
+   * Engineer expects to be able to of and update a Library. https://www.pivotaltracker.com/story/show/155089641
    */
   @Test
   public void create_asEngineer() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Engineer");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Engineer");
     Library inputData = new Library();
     inputData.setName("coconuts");
     inputData.setAccountId(fake.account1.getId());
@@ -113,11 +100,11 @@ public class LibraryManagerDbTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/155089641 Engineer expects to be able to of and update a Library.
+   * Engineer expects to be able to of and update a Library. https://www.pivotaltracker.com/story/show/155089641
    */
   @Test
   public void create_asEngineer_failsWithoutAccountAccess() {
-    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "Engineer");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "Engineer");
     Library inputData = new Library();
     inputData.setName("coconuts");
     inputData.setAccountId(fake.account1.getId());
@@ -183,73 +170,103 @@ public class LibraryManagerDbTest {
     // Cloned ProgramMeme
     assertEquals(1, resultCloner.getChildClones().stream()
       .filter(e -> ProgramMeme.class.equals(e.getClass())).count());
-    assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(PROGRAM_MEME)
-      .where(PROGRAM_MEME.PROGRAM_ID.eq(resultProgram.getId()))
-      .fetchOne(0, int.class));
+    try (var selectCount = test.getDSL().selectCount()) {
+      assertEquals(Integer.valueOf(1),
+        selectCount
+          .from(PROGRAM_MEME)
+          .where(PROGRAM_MEME.PROGRAM_ID.eq(resultProgram.getId()))
+          .fetchOne(0, int.class));
+    }
     // Cloned ProgramVoice
     assertEquals(2, resultCloner.getChildClones().stream()
       .filter(e -> ProgramVoice.class.equals(e.getClass())).count());
-    assertEquals(Integer.valueOf(2), test.getDSL()
-      .selectCount().from(PROGRAM_VOICE)
-      .where(PROGRAM_VOICE.PROGRAM_ID.eq(resultProgram.getId()))
-      .fetchOne(0, int.class));
+    try (var selectCount = test.getDSL().selectCount()) {
+      assertEquals(Integer.valueOf(2),
+        selectCount
+          .from(PROGRAM_VOICE)
+          .where(PROGRAM_VOICE.PROGRAM_ID.eq(resultProgram.getId()))
+          .fetchOne(0, int.class));
+    }
     // Cloned ProgramVoiceTrack belongs to ProgramVoice
     assertEquals(1, resultCloner.getChildClones().stream()
       .filter(e -> ProgramVoiceTrack.class.equals(e.getClass())).count());
-    assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(PROGRAM_VOICE_TRACK)
-      .where(PROGRAM_VOICE_TRACK.PROGRAM_ID.eq(resultProgram.getId()))
-      .fetchOne(0, int.class));
+    try (var selectCount = test.getDSL().selectCount()) {
+      assertEquals(Integer.valueOf(1),
+        selectCount
+          .from(PROGRAM_VOICE_TRACK)
+          .where(PROGRAM_VOICE_TRACK.PROGRAM_ID.eq(resultProgram.getId()))
+          .fetchOne(0, int.class));
+    }
     // Cloned ProgramSequence
     assertEquals(1, resultCloner.getChildClones().stream()
       .filter(e -> ProgramSequence.class.equals(e.getClass())).count());
-    assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(PROGRAM_SEQUENCE)
-      .where(PROGRAM_SEQUENCE.PROGRAM_ID.eq(resultProgram.getId()))
-      .fetchOne(0, int.class));
+    try (var selectCount = test.getDSL().selectCount()) {
+      assertEquals(Integer.valueOf(1),
+        selectCount
+          .from(PROGRAM_SEQUENCE)
+          .where(PROGRAM_SEQUENCE.PROGRAM_ID.eq(resultProgram.getId()))
+          .fetchOne(0, int.class));
+    }
     // Cloned ProgramSequenceChord belongs to ProgramSequence
     assertEquals(1, resultCloner.getChildClones().stream()
       .filter(e -> ProgramSequenceChord.class.equals(e.getClass())).count());
-    assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(PROGRAM_SEQUENCE_CHORD)
-      .where(PROGRAM_SEQUENCE_CHORD.PROGRAM_ID.eq(resultProgram.getId()))
-      .fetchOne(0, int.class));
+    try (var selectCount = test.getDSL().selectCount()) {
+      assertEquals(Integer.valueOf(1),
+        selectCount
+          .from(PROGRAM_SEQUENCE_CHORD)
+          .where(PROGRAM_SEQUENCE_CHORD.PROGRAM_ID.eq(resultProgram.getId()))
+          .fetchOne(0, int.class));
+    }
     // Cloned ProgramSequenceChordVoicing belongs to ProgramSequenceChord
     assertEquals(1, resultCloner.getChildClones().stream()
       .filter(e -> ProgramSequenceChordVoicing.class.equals(e.getClass())).count());
-    assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(PROGRAM_SEQUENCE_CHORD_VOICING)
-      .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_ID.eq(resultProgram.getId()))
-      .fetchOne(0, int.class));
+    try (var selectCount = test.getDSL().selectCount()) {
+      assertEquals(Integer.valueOf(1),
+        selectCount
+          .from(PROGRAM_SEQUENCE_CHORD_VOICING)
+          .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_ID.eq(resultProgram.getId()))
+          .fetchOne(0, int.class));
+    }
     // Cloned ProgramSequenceBinding belongs to ProgramSequence
     assertEquals(1, resultCloner.getChildClones().stream()
       .filter(e -> ProgramSequenceBinding.class.equals(e.getClass())).count());
-    assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(PROGRAM_SEQUENCE_BINDING)
-      .where(PROGRAM_SEQUENCE_BINDING.PROGRAM_ID.eq(resultProgram.getId()))
-      .fetchOne(0, int.class));
+    try (var selectCount = test.getDSL().selectCount()) {
+      assertEquals(Integer.valueOf(1),
+        selectCount
+          .from(PROGRAM_SEQUENCE_BINDING)
+          .where(PROGRAM_SEQUENCE_BINDING.PROGRAM_ID.eq(resultProgram.getId()))
+          .fetchOne(0, int.class));
+    }
     // Cloned ProgramSequenceBindingMeme belongs to ProgramSequenceBinding
     assertEquals(2, resultCloner.getChildClones().stream()
       .filter(e -> ProgramSequenceBindingMeme.class.equals(e.getClass())).count());
-    assertEquals(Integer.valueOf(2), test.getDSL()
-      .selectCount().from(PROGRAM_SEQUENCE_BINDING_MEME)
-      .where(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID.eq(resultProgram.getId()))
-      .fetchOne(0, int.class));
+    try (var selectCount = test.getDSL().selectCount()) {
+      assertEquals(Integer.valueOf(2),
+        selectCount
+          .from(PROGRAM_SEQUENCE_BINDING_MEME)
+          .where(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID.eq(resultProgram.getId()))
+          .fetchOne(0, int.class));
+    }
     // Cloned ProgramSequencePattern belongs to ProgramSequence and ProgramVoice
     assertEquals(1, resultCloner.getChildClones().stream()
       .filter(e -> ProgramSequencePattern.class.equals(e.getClass())).count());
-    assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(PROGRAM_SEQUENCE_PATTERN)
-      .where(PROGRAM_SEQUENCE_PATTERN.PROGRAM_ID.eq(resultProgram.getId()))
-      .fetchOne(0, int.class));
+    try (var selectCount = test.getDSL().selectCount()) {
+      assertEquals(Integer.valueOf(1),
+        selectCount
+          .from(PROGRAM_SEQUENCE_PATTERN)
+          .where(PROGRAM_SEQUENCE_PATTERN.PROGRAM_ID.eq(resultProgram.getId()))
+          .fetchOne(0, int.class));
+    }
     // Cloned ProgramSequencePatternEvent belongs to ProgramSequencePattern and ProgramVoiceTrack
     assertEquals(1, resultCloner.getChildClones().stream()
       .filter(e -> ProgramSequencePatternEvent.class.equals(e.getClass())).count());
-    assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(PROGRAM_SEQUENCE_PATTERN_EVENT)
-      .where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_ID.eq(resultProgram.getId()))
-      .fetchOne(0, int.class));
+    try (var selectCount = test.getDSL().selectCount()) {
+      assertEquals(Integer.valueOf(1),
+        selectCount
+          .from(PROGRAM_SEQUENCE_PATTERN_EVENT)
+          .where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_ID.eq(resultProgram.getId()))
+          .fetchOne(0, int.class));
+    }
     //
     Instrument resultInstrument = (Instrument) resultCloner.getChildClones().stream()
       .filter(e -> Instrument.class.equals(e.getClass()))
@@ -258,19 +275,25 @@ public class LibraryManagerDbTest {
     assertEquals(resultCloner.getClone().getId(), resultInstrument.getLibraryId());
     assertEquals("cannons fifty nine", resultInstrument.getName());
     assertEquals(InstrumentType.Drum, resultInstrument.getType());
-    assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(INSTRUMENT_MEME)
-      .where(INSTRUMENT_MEME.INSTRUMENT_ID.eq(resultInstrument.getId()))
-      .fetchOne(0, int.class));
-    assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(INSTRUMENT_AUDIO)
-      .where(INSTRUMENT_AUDIO.INSTRUMENT_ID.eq(resultInstrument.getId()))
-      .fetchOne(0, int.class));
+    try (var selectCount = test.getDSL().selectCount()) {
+      assertEquals(Integer.valueOf(1),
+        selectCount
+          .from(INSTRUMENT_MEME)
+          .where(INSTRUMENT_MEME.INSTRUMENT_ID.eq(resultInstrument.getId()))
+          .fetchOne(0, int.class));
+    }
+    try (var selectCount = test.getDSL().selectCount()) {
+      assertEquals(Integer.valueOf(1),
+        selectCount
+          .from(INSTRUMENT_AUDIO)
+          .where(INSTRUMENT_AUDIO.INSTRUMENT_ID.eq(resultInstrument.getId()))
+          .fetchOne(0, int.class));
+    }
   }
 
   @Test
   public void readOne() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
 
     Library result = subject.readOne(access, fake.library1b.getId());
 
@@ -282,7 +305,7 @@ public class LibraryManagerDbTest {
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() {
-    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "User");
 
     var e = assertThrows(ManagerException.class, () -> subject.readOne(access, fake.account1.getId()));
 
@@ -291,7 +314,7 @@ public class LibraryManagerDbTest {
 
   @Test
   public void readMany() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
 
     Collection<Library> result = subject.readMany(access, ImmutableList.of(fake.account1.getId()));
 
@@ -303,7 +326,7 @@ public class LibraryManagerDbTest {
 
   @Test
   public void readMany_fromAllAccounts() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1, fake.account2), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1, fake.account2), "User");
 
     Collection<Library> result = subject.readMany(access, Lists.newArrayList());
 
@@ -317,7 +340,7 @@ public class LibraryManagerDbTest {
 
   @Test
   public void readMany_SeesNothingOutsideOfAccount() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "User");
 
     Collection<Library> result = subject.readMany(access, ImmutableList.of(fake.account1.getId()));
 
@@ -362,11 +385,11 @@ public class LibraryManagerDbTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/155089641 Engineer expects to be able to of and update a Library.
+   * Engineer expects to be able to of and update a Library. https://www.pivotaltracker.com/story/show/155089641
    */
   @Test
   public void update_asEngineer() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Engineer");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Engineer");
     Library inputData = new Library();
     inputData.setName("cannons");
     inputData.setAccountId(fake.account1.getId());
@@ -380,11 +403,11 @@ public class LibraryManagerDbTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/155089641 Engineer expects to be able to of and update a Library.
+   * Engineer expects to be able to of and update a Library. https://www.pivotaltracker.com/story/show/155089641
    */
   @Test
   public void update_asEngineer_failsWithoutAccountAccess() {
-    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "Engineer");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "Engineer");
     Library inputData = new Library();
     inputData.setName("cannons");
     inputData.setAccountId(fake.account1.getId());
@@ -451,7 +474,7 @@ public class LibraryManagerDbTest {
 
   @Test
   public void delete_artistCanDelete() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User,Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User,Artist");
 
     subject.destroy(access, fake.library1a.getId());
 

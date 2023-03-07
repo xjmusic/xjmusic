@@ -5,7 +5,7 @@ package io.xj.hub.analysis;
 import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.*;
 import io.xj.hub.tables.pojos.*;
-import io.xj.lib.app.Environment;
+import io.xj.lib.app.AppEnvironment;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -80,7 +80,7 @@ public class ReportEventsTest {
       program2_voice1
     );
 
-    subject = new ReportEvents(new HubContent(entities), Environment.getDefault());
+    subject = new ReportEvents(new HubContent(entities), AppEnvironment.getDefault());
   }
 
   @Test

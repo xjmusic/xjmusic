@@ -1,8 +1,10 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.mixer;
 
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
@@ -19,15 +21,14 @@ class PutImpl implements Put {
   private final long startAtMicros;
   private final long stopAtMicros;
 
-  @Inject
   public PutImpl(
-    @Assisted("bus") int bus,
-    @Assisted("attackMillis") int attackMillis,
-    @Assisted("releaseMillis") int releaseMillis,
-    @Assisted("sourceId") String sourceId,
-    @Assisted("startAtMicros") long startAtMicros,
-    @Assisted("stopAtMicros") long stopAtMicros,
-    @Assisted("velocity") double velocity
+     int bus,
+     int attackMillis,
+     int releaseMillis,
+     String sourceId,
+     long startAtMicros,
+     long stopAtMicros,
+     double velocity
   ) {
     this.bus = bus;
     this.attackMillis = attackMillis;

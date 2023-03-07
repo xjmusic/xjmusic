@@ -5,11 +5,11 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSAsyncClientBuilder;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import io.xj.lib.app.Environment;
+import io.xj.lib.app.AppEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -17,8 +17,8 @@ import java.util.Objects;
 /**
  Implementation of Amazon SNS publisher
  */
-@Singleton
-class NotificationProviderImpl implements NotificationProvider {
+@Service
+public class NotificationProviderImpl implements NotificationProvider {
   private static final Logger LOG = LoggerFactory.getLogger(NotificationProviderImpl.class);
   private final String awsDefaultRegion;
   private final String awsAccessKeyId;
@@ -30,9 +30,9 @@ class NotificationProviderImpl implements NotificationProvider {
   @Nullable
   private final String topicArn;
 
-  @Inject
+  @Autowired
   public NotificationProviderImpl(
-    Environment env
+    AppEnvironment env
   ) {
     awsDefaultRegion = env.getAwsDefaultRegion();
     awsAccessKeyId = env.getAwsAccessKeyID();

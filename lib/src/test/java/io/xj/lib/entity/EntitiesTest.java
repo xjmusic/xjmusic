@@ -3,9 +3,9 @@ package io.xj.lib.entity;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.inject.Guice;
 import io.xj.lib.Superwidget;
 import io.xj.lib.Widget;
+import io.xj.lib.json.JsonProviderImpl;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,13 +18,13 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.*;
 
 /**
- Tests for text utilities
- <p>
- Created by Charney Kaye on 2020/03/09
+ * Tests for text utilities
+ * <p>
+ * Created by Charney Kaye on 2020/03/09
  */
 public class EntitiesTest extends TestTemplate {
   Widget widget;
-  private EntityFactory entityFactory;
+  private EntityFactory subject;
 
   @Test
   public void toResourceBelongsTo() {
@@ -81,9 +81,9 @@ public class EntitiesTest extends TestTemplate {
 
   @Before
   public void setUp() {
-    var injector = Guice.createInjector(new EntityModule());
-    entityFactory = injector.getInstance(EntityFactory.class);
-    entityFactory.register(Widget.class)
+    var jsonProvider = new JsonProviderImpl();
+    subject = new EntityFactoryImpl(jsonProvider);
+    subject.register(Widget.class)
       .withAttribute("name");
     widget = new Widget()
       .setId(UUID.fromString("879802e8-5856-4b1f-8c7f-09fd7f4bcde6"))
@@ -109,7 +109,7 @@ public class EntitiesTest extends TestTemplate {
 
   @Test
   public void setAllAttributes() throws EntityException {
-    entityFactory.setAllAttributes(widget, createWidget("Marv"));
+    subject.setAllAttributes(widget, createWidget("Marv"));
 
     Assert.assertEquals("Marv", widget.getName());
   }
@@ -126,17 +126,17 @@ public class EntitiesTest extends TestTemplate {
 
   @Test
   public void set_willFailIfSetterAcceptsNoParameters() {
-    Widget subject = new Widget();
+    Widget input = new Widget();
 
-    var e = assertThrows(EntityException.class, () -> Entities.set(subject, "willFailBecauseAcceptsNoParameters", true));
+    var e = assertThrows(EntityException.class, () -> Entities.set(input, "willFailBecauseAcceptsNoParameters", true));
     assertEquals("Widget has no attribute 'willFailBecauseAcceptsNoParameters'", e.getMessage());
   }
 
   @Test
   public void set_willFailIfSetterHasProtectedAccess() {
-    Widget subject = new Widget();
+    Widget input = new Widget();
 
-    var e = assertThrows(EntityException.class, () -> Entities.set(subject, "willFailBecauseNonexistent", "testing"));
+    var e = assertThrows(EntityException.class, () -> Entities.set(input, "willFailBecauseNonexistent", "testing"));
     assertEquals("Widget has no attribute 'willFailBecauseNonexistent'", e.getMessage());
   }
 

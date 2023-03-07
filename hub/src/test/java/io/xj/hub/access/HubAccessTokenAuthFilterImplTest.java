@@ -3,31 +3,31 @@
 package io.xj.hub.access;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
 import io.xj.hub.HubJsonapiEndpoint;
-import io.xj.hub.manager.ManagerModule;
-import io.xj.hub.ingest.HubIngestModule;
-import io.xj.hub.persistence.HubPersistenceModule;
-import io.xj.lib.app.Environment;
-import io.xj.lib.filestore.FileStoreModule;
+import io.xj.hub.manager.UserManager;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.jsonapi.JsonapiModule;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.HandlerMapping;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.GET;
-import javax.ws.rs.container.ContainerRequestContext;
+import javax.servlet.FilterChain;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.container.ResourceInfo;
-import javax.ws.rs.core.*;
+import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -36,158 +36,116 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class HubAccessTokenAuthFilterImplTest {
   @Mock
-  private HubAccessControlProvider hubAccessControlProvider;
+  UserManager userManager;
   @Mock
-  private ContainerRequestContext requestContext;
+  HttpServletRequest req;
   @Mock
-  private ResourceInfo resourceInfo;
+  HttpServletResponse res;
   @Mock
-  private Request request;
+  FilterChain chain;
   @Mock
-  private UriInfo uriInfo;
+  ResourceInfo resourceInfo;
   //
   private HubAccessTokenAuthFilter subject;
-  private JsonapiPayloadFactory payloadFactory;
+
+  @RestController
+  @RequestMapping("/test")
+  static class TestAuthenticatedResource {
+    @GetMapping
+    @RolesAllowed(HubJsonapiEndpoint.USER)
+    public ResponseEntity<HubAccess> get(HttpServletRequest req) throws JsonapiException {
+      HubAccess access = HubAccess.fromRequest(req);
+      return ResponseEntity
+        .accepted()
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(access);
+    }
+  }
+
+  @RestController
+  @RequestMapping("/test")
+  static class TestPublicResource {
+    @GetMapping
+    @PermitAll
+    public ResponseEntity<HubAccess> get(HttpServletRequest req) throws JsonapiException {
+      HubAccess access = HubAccess.fromRequest(req);
+      return ResponseEntity
+        .accepted()
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(access);
+    }
+  }
 
   @Before
   public void setUp() throws Exception {
-    var env = Environment.from(ImmutableMap.of(
+    var env = AppEnvironment.from(ImmutableMap.of(
       "GOOGLE_CLIENT_ID", "my-google-id",
       "GOOGLE_CLIENT_SECRET", "my-google-secret"
     ));
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new FileStoreModule(), new JsonapiModule())).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(Environment.class).toInstance(env);
-        bind(HubAccessControlProvider.class).toInstance(hubAccessControlProvider);
-      }
-    }));
-    payloadFactory = injector.getInstance(JsonapiPayloadFactory.class);
-    subject = new HubAccessTokenAuthFilter(injector.getInstance(HubAccessControlProvider.class), "access_token");
-    subject.setResourceInfo(resourceInfo);
+    subject = new HubAccessTokenAuthFilter(userManager, env);
+
+    when(req.getCookies()).thenReturn(List.of(new Cookie("access_token", "abc-def-0123456789")).toArray(new Cookie[0]));
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/154580129 User expects to log in without having access to any accounts.
+   * User expects to log in without having access to any accounts. https://www.pivotaltracker.com/story/show/154580129
    */
   @Test
   public void filter_allowedWithNoAccounts() throws Exception {
-    class TestResource {
-      @GET
-      @RolesAllowed(HubJsonapiEndpoint.USER)
-      public Response get(@Context ContainerRequestContext crc) throws JsonapiException {
-        HubAccess access = HubAccess.fromContext(crc);
-        return Response
-          .accepted(payloadFactory.serialize(access))
-          .type(MediaType.APPLICATION_JSON)
-          .build();
-      }
-    }
-    when(resourceInfo.getResourceMethod())
-      .thenReturn(TestResource.class.getMethod("get", ContainerRequestContext.class));
-    when(requestContext.getCookies()).thenReturn(ImmutableMap.of(
-      "access_token", new Cookie("access_token", "abc-def-0123456789")
-    ));
-    when(hubAccessControlProvider.get("abc-def-0123456789")).thenReturn(
+    var handlerMethod = new HandlerMethod(TestAuthenticatedResource.class, TestAuthenticatedResource.class.getMethod("get", HttpServletRequest.class));
+    when(req.getAttribute(HandlerMapping.BEST_MATCHING_HANDLER_ATTRIBUTE)).thenReturn(handlerMethod);
+    when(userManager.get("abc-def-0123456789")).thenReturn(
       HubAccess.create("User")
         .setUserId(UUID.fromString("61562554-0fd8-11ea-ab87-6f844ba10e4f")) // Bill is in no accounts
         .setUserAuthId(UUID.fromString("7c8d0740-0fdb-11ea-b5c9-8f1250fb0100")));
 
-    subject.filter(requestContext);
+    subject.doFilter(req, res, chain);
 
-    verify(requestContext, never()).abortWith(any());
+    verify(res, never()).sendError(anyInt());
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/154580129 User expects to log in without having access to any accounts.
+   * User expects to log in without having access to any accounts. https://www.pivotaltracker.com/story/show/154580129
    */
   @Test
   public void filter_allowedPermitAllRoute_withAccessToken() throws Exception {
-    class TestResource {
-      @GET
-      @PermitAll
-      public Response get(@Context ContainerRequestContext crc) throws JsonapiException {
-        HubAccess access = HubAccess.fromContext(crc);
-        return Response
-          .accepted(payloadFactory.serialize(access))
-          .type(MediaType.APPLICATION_JSON)
-          .build();
-      }
-    }
-    when(resourceInfo.getResourceMethod())
-      .thenReturn(TestResource.class.getMethod("get", ContainerRequestContext.class));
-    when(requestContext.getCookies()).thenReturn(ImmutableMap.of(
-      "access_token", new Cookie("access_token", "abc-def-0123456789")
-    ));
-    when(hubAccessControlProvider.get("abc-def-0123456789")).thenReturn(
+    var handlerMethod = new HandlerMethod(TestAuthenticatedResource.class, TestAuthenticatedResource.class.getMethod("get", HttpServletRequest.class));
+    when(req.getAttribute(HandlerMapping.BEST_MATCHING_HANDLER_ATTRIBUTE)).thenReturn(handlerMethod);
+    when(userManager.get("abc-def-0123456789")).thenReturn(
       HubAccess.create("User")
         .setUserId(UUID.fromString("61562554-0fd8-11ea-ab87-6f844ba10e4f")) // Bill is in no accounts
         .setUserAuthId(UUID.fromString("7c8d0740-0fdb-11ea-b5c9-8f1250fb0100")));
 
-    subject.filter(requestContext);
+    subject.doFilter(req, res, chain);
 
-    verify(requestContext, never()).abortWith(any());
+    verify(res, never()).sendError(anyInt());
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/154580129 User expects to log in without having access to any accounts.
+   * User expects to log in without having access to any accounts. https://www.pivotaltracker.com/story/show/154580129
    */
   @Test
   public void filter_nullHubAccessToken() throws Exception {
-    class TestResource {
-      @GET
-      @RolesAllowed(HubJsonapiEndpoint.USER)
-      public Response get(@Context ContainerRequestContext crc) throws JsonapiException {
-        HubAccess access = HubAccess.fromContext(crc);
-        return Response
-          .accepted(payloadFactory.serialize(access))
-          .type(MediaType.APPLICATION_JSON)
-          .build();
-      }
-    }
-    when(resourceInfo.getResourceMethod())
-      .thenReturn(TestResource.class.getMethod("get", ContainerRequestContext.class));
-    when(requestContext.getCookies()).thenReturn(ImmutableMap.of(
-      "access_token", new Cookie("access_token", "abc-def-0123456789")
-    ));
-    when(requestContext.getRequest()).thenReturn(request);
-    when(request.getMethod()).thenReturn("GET");
-    when(requestContext.getUriInfo()).thenReturn(uriInfo);
-    when(uriInfo.getPath()).thenReturn("/");
-    when(hubAccessControlProvider.get("abc-def-0123456789")).thenThrow(new HubAccessException("Nonexistent"));
+    var handlerMethod = new HandlerMethod(TestAuthenticatedResource.class, TestAuthenticatedResource.class.getMethod("get", HttpServletRequest.class));
+    when(req.getAttribute(HandlerMapping.BEST_MATCHING_HANDLER_ATTRIBUTE)).thenReturn(handlerMethod);
+    when(userManager.get("abc-def-0123456789")).thenThrow(new HubAccessException("Nonexistent"));
 
-    subject.filter(requestContext);
+    subject.doFilter(req, res, chain);
 
-    verify(requestContext, times(1)).abortWith(any());
+    verify(res, times(1)).sendError(anyInt());
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/154580129 User expects to log in without having access to any accounts.
+   * User expects to log in without having access to any accounts. https://www.pivotaltracker.com/story/show/154580129
    */
   @Test
   public void filter_nullHubAccessToken_OkayIfPermitAll() throws Exception {
-    class TestResource {
-      @GET
-      @PermitAll
-      public Response get(@Context ContainerRequestContext crc) throws JsonapiException {
-        HubAccess access = HubAccess.fromContext(crc);
-        return Response
-          .accepted(payloadFactory.serialize(access))
-          .type(MediaType.APPLICATION_JSON)
-          .build();
-      }
-    }
-    when(resourceInfo.getResourceMethod())
-      .thenReturn(TestResource.class.getMethod("get", ContainerRequestContext.class));
-    when(requestContext.getCookies()).thenReturn(ImmutableMap.of(
-      "access_token", new Cookie("access_token", "abc-def-0123456789")
-    ));
-    when(hubAccessControlProvider.get("abc-def-0123456789")).thenThrow(new HubAccessException("Nonexistent"));
+    var handlerMethod = new HandlerMethod(TestPublicResource.class, TestPublicResource.class.getMethod("get", HttpServletRequest.class));
+    when(req.getAttribute(HandlerMapping.BEST_MATCHING_HANDLER_ATTRIBUTE)).thenReturn(handlerMethod);
+    when(userManager.get("abc-def-0123456789")).thenThrow(new HubAccessException("Nonexistent"));
 
-    subject.filter(requestContext);
+    subject.doFilter(req, res, chain);
 
-    verify(requestContext, never()).abortWith(any());
+    verify(res, never()).sendError(anyInt());
   }
-
-
 }

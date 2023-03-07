@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.ship.source;
 
-import com.google.inject.assistedinject.Assisted;
+
 import io.xj.nexus.model.Segment;
 
 /**
@@ -17,8 +17,8 @@ public interface SourceFactory {
    @return chain manifest loader
    */
   ChainLoader loadChain(
-    @Assisted("shipKey") String shipKey,
-    @Assisted("onFailure") Runnable onFailure
+     String shipKey,
+     Runnable onFailure
   );
 
   /**
@@ -29,9 +29,9 @@ public interface SourceFactory {
    @return segment audio
    */
   SegmentAudio loadSegmentAudio(
-    @Assisted("shipKey") String shipKey,
-    @Assisted("segment") Segment segment,
-    @Assisted("absolutePath") String absolutePath
+     String shipKey,
+     Segment segment,
+     String absolutePath
   );
 
 }

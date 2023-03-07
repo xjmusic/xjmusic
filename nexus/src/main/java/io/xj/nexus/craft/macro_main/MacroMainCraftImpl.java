@@ -1,12 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.craft.macro_main;
 
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-import io.xj.nexus.model.SegmentChoice;
-import io.xj.nexus.model.SegmentChord;
-import io.xj.nexus.model.SegmentChordVoicing;
-import io.xj.nexus.model.SegmentType;
+
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequence;
@@ -19,11 +14,19 @@ import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.CraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.MemeIsometry;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChord;
+import io.xj.nexus.model.SegmentChordVoicing;
+import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.Segments;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
 import static io.xj.lib.util.Values.NANOS_PER_SECOND;
 
@@ -33,9 +36,8 @@ import static io.xj.lib.util.Values.NANOS_PER_SECOND;
 public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   private final ApiUrlProvider apiUrlProvider;
 
-  @Inject
   public MacroMainCraftImpl(
-    @Assisted("basis") Fabricator fabricator,
+    Fabricator fabricator,
     ApiUrlProvider apiUrlProvider
   ) {
     super(fabricator);
@@ -156,7 +158,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     // 3. Chords and voicings
     if (mainSequence.isPresent())
       for (ProgramSequenceChord sequenceChord : fabricator.getProgramSequenceChords(mainSequence.get())) {
-        // https://www.pivotaltracker.com/story/show/154090557 don't of chord past end of Segment
+        // don't of chord past end of Segment https://www.pivotaltracker.com/story/show/154090557
         String name;
         if (sequenceChord.getPosition() < mainSequence.get().getTotal()) {
           // delta the chord name

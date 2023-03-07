@@ -7,7 +7,7 @@ import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.ProgramSequenceChord;
-import io.xj.lib.app.Environment;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.meme.MemeConstellation;
 import io.xj.lib.meme.MemeStack;
@@ -22,14 +22,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- Constellations report https://www.pivotaltracker.com/story/show/182861489
+ * Constellations report https://www.pivotaltracker.com/story/show/182861489
  */
 public class ReportChordInstruments extends Report {
   private final Histogram mainHistogram;
   private final MemeTaxonomy taxonomy;
   private final List<Instrument> chordInstruments;
 
-  public ReportChordInstruments(HubContent content, Environment env) throws HubClientException, ValueException {
+  public ReportChordInstruments(HubContent content, AppEnvironment env) throws HubClientException, ValueException {
     super(content, env);
 
     // Store the taxonomy

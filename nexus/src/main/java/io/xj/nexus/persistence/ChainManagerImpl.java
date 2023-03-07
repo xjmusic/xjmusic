@@ -5,12 +5,9 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import io.xj.nexus.model.*;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.TemplateType;
-import io.xj.lib.app.Environment;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.MessageType;
 import io.xj.lib.notification.NotificationProvider;
@@ -19,11 +16,24 @@ import io.xj.lib.util.Text;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.ChainType;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.model.SegmentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static java.time.temporal.ChronoUnit.HOURS;
@@ -41,7 +51,7 @@ import static java.time.temporal.ChronoUnit.HOURS;
  <p>
  Nexus Managers are Singletons unless some other requirement changes that-- 'cuz here be cyclic dependencies...
  */
-@Singleton
+@Service
 public class ChainManagerImpl extends ManagerImpl<Chain> implements ChainManager {
   private static final Logger LOG = LoggerFactory.getLogger(ChainManagerImpl.class);
   private static final Set<ChainState> NOTIFY_ON_CHAIN_STATES = ImmutableSet.of(
@@ -52,12 +62,12 @@ public class ChainManagerImpl extends ManagerImpl<Chain> implements ChainManager
   private final int previewLengthMaxHours;
   private final NotificationProvider pubSub;
 
-  // https://www.pivotaltracker.com/story/show/176375238 Chains should N seconds into the future
+  // Chains should N seconds into the future https://www.pivotaltracker.com/story/show/176375238
   private final int chainStartInFutureSeconds;
 
-  @Inject
+  @Autowired
   public ChainManagerImpl(
-    Environment env,
+    AppEnvironment env,
     EntityFactory entityFactory,
     NexusEntityStore nexusEntityStore,
     SegmentManager segmentManager,
@@ -197,7 +207,7 @@ public class ChainManagerImpl extends ManagerImpl<Chain> implements ChainManager
       if (existing.getType() != chain.getType())
         throw new ManagerValidationException("Cannot modify Chain Type");
 
-      // https://www.pivotaltracker.com/story/show/174153691 Cannot change stop-at time or Ship key of Preview chain
+      // Cannot change stop-at time or Ship key of Preview chain https://www.pivotaltracker.com/story/show/174153691
       if (ChainType.PREVIEW == existing.getType()) {
         chain.setStopAt(existing.getStopAt());
         chain.setShipKey(existing.getShipKey());

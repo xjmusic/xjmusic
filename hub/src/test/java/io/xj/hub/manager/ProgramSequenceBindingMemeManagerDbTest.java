@@ -2,30 +2,19 @@
 package io.xj.hub.manager;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
-import io.xj.hub.HubIntegrationTestModule;
-import io.xj.hub.HubIntegrationTestProvider;
+import io.xj.hub.HubIntegrationTest;
+import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.ingest.HubIngestModule;
-import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
-import io.xj.lib.app.Environment;
-import io.xj.lib.filestore.FileStoreModule;
-import io.xj.lib.jsonapi.JsonapiModule;
+import io.xj.lib.app.AppEnvironment;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -34,17 +23,14 @@ import java.util.Iterator;
 import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 // future test: permissions of different users to readMany vs. of vs. update or destroy programs
 @RunWith(MockitoJUnitRunner.class)
 public class ProgramSequenceBindingMemeManagerDbTest {
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
   private ProgramSequenceBindingMemeManager testManager;
 
-  private HubIntegrationTestProvider test;
+  private HubIntegrationTest test;
   private IntegrationTestingFixtures fake;
 
   private ProgramSequenceBinding sequenceBinding1a_0;
@@ -52,14 +38,8 @@ public class ProgramSequenceBindingMemeManagerDbTest {
 
   @Before
   public void setUp() throws Exception {
-    var env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule(), new HubIntegrationTestModule())).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(Environment.class).toInstance(env);
-      }
-    }));
-    test = injector.getInstance(HubIntegrationTestProvider.class);
+    var env = AppEnvironment.getDefault();
+    test = HubIntegrationTestFactory.build(env);
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
@@ -91,7 +71,7 @@ public class ProgramSequenceBindingMemeManagerDbTest {
     fake.program4 = test.insert(buildProgram(fake.library2, ProgramType.Detail, ProgramState.Published, "sail", "C#", 120.0f, 0.6f));
 
     // Instantiate the test subject
-    testManager = injector.getInstance(ProgramSequenceBindingMemeManager.class);
+    testManager = new ProgramSequenceBindingMemeManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
   }
 
   @After
@@ -101,7 +81,7 @@ public class ProgramSequenceBindingMemeManagerDbTest {
 
   @Test
   public void create() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     var subject = new ProgramSequenceBindingMeme();
     subject.setId(UUID.randomUUID());
     subject.setProgramId(fake.program3.getId());
@@ -119,11 +99,11 @@ public class ProgramSequenceBindingMemeManagerDbTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/177587964 Artist can use numerals in meme name
+   * Artist can use numerals in meme name https://www.pivotaltracker.com/story/show/177587964
    */
   @Test
   public void create_numerals() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     var subject = new ProgramSequenceBindingMeme();
     subject.setId(UUID.randomUUID());
     subject.setProgramId(fake.program3.getId());
@@ -141,11 +121,11 @@ public class ProgramSequenceBindingMemeManagerDbTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/176474073 Artist can add !MEME values into Programs
+   * Artist can add !MEME values into Programs https://www.pivotaltracker.com/story/show/176474073
    */
   @Test
   public void create_notMeme() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     var subject = new ProgramSequenceBindingMeme();
     subject.setId(UUID.randomUUID());
     subject.setProgramId(fake.program3.getId());
@@ -163,12 +143,12 @@ public class ProgramSequenceBindingMemeManagerDbTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/156144567 Artist expects to of a Main-type programSequenceBindingMeme without crashing the entire platform
-   NOTE: This simple test fails to invoke the complexity of database call that is/was creating this issue in production.
+   * Artist expects to of a Main-type programSequenceBindingMeme without crashing the entire platform https://www.pivotaltracker.com/story/show/156144567
+   * NOTE: This simple test fails to invoke the complexity of database call that is/was creating this issue in production.
    */
   @Test
   public void create_asArtist() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     var inputData = new ProgramSequenceBindingMeme();
     inputData.setId(UUID.randomUUID());
     inputData.setProgramId(fake.program3.getId());
@@ -187,7 +167,7 @@ public class ProgramSequenceBindingMemeManagerDbTest {
 
   @Test
   public void readOne() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User, Artist");
 
     var result = testManager.readOne(access, sequenceBinding1a_0_meme0.getId());
 
@@ -200,18 +180,17 @@ public class ProgramSequenceBindingMemeManagerDbTest {
 
   @Test
   public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
-    failure.expect(ManagerException.class);
-    failure.expectMessage("does not exist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "User, Artist");
 
-    testManager.readOne(access, sequenceBinding1a_0_meme0.getId());
+    var e = assertThrows(ManagerException.class, () -> testManager.readOne(access, sequenceBinding1a_0_meme0.getId()));
+    assertTrue(e.getMessage().contains("does not exist"));
   }
 
   // future test: readManyInAccount vs readManyInLibraries, positive and negative cases
 
   @Test
   public void readMany() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin");
 
     Collection<ProgramSequenceBindingMeme> result = testManager.readMany(access, ImmutableList.of(fake.program1.getId()));
 
@@ -223,7 +202,7 @@ public class ProgramSequenceBindingMemeManagerDbTest {
 
   @Test
   public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "User, Artist");
 
     Collection<ProgramSequenceBindingMeme> result = testManager.readMany(access, ImmutableList.of(fake.program1.getId()));
 
@@ -233,12 +212,11 @@ public class ProgramSequenceBindingMemeManagerDbTest {
   @Test
   public void destroy_failsIfNotInAccount() throws Exception {
     fake.account2 = buildAccount("Testing");
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account2), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account2), "Artist");
 
-    failure.expect(ManagerException.class);
-    failure.expectMessage("Meme belongs to Program in Account you have access to does not exist");
 
-    testManager.destroy(access, sequenceBinding1a_0_meme0.getId());
+    var e = assertThrows(ManagerException.class, () -> testManager.destroy(access, sequenceBinding1a_0_meme0.getId()));
+    assertTrue(e.getMessage().contains("Meme belongs to Program in Account you have access to does not exist"));
   }
 
 }

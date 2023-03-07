@@ -2,19 +2,34 @@
 package io.xj.ship.work;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
 import io.xj.hub.HubTopology;
-import io.xj.lib.app.Environment;
-import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.app.AppEnvironment;
+import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.http.HttpClientProvider;
+import io.xj.lib.http.HttpClientProviderImpl;
+import io.xj.lib.json.JsonProvider;
+import io.xj.lib.json.JsonProviderImpl;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.lib.notification.NotificationProvider;
+import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.persistence.ChainManager;
 import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.persistence.NexusEntityStoreImpl;
+import io.xj.nexus.persistence.SegmentManager;
+import io.xj.nexus.persistence.SegmentManagerImpl;
 import io.xj.ship.broadcast.BroadcastFactory;
+import io.xj.ship.broadcast.BroadcastFactoryImpl;
+import io.xj.ship.broadcast.ChunkFactory;
+import io.xj.ship.broadcast.ChunkFactoryImpl;
+import io.xj.ship.broadcast.MediaSeqNumProvider;
 import io.xj.ship.broadcast.PlaylistPublisher;
+import io.xj.ship.broadcast.PlaylistPublisherImpl;
+import io.xj.ship.source.SegmentAudioManager;
 import io.xj.ship.source.SourceFactory;
+import io.xj.ship.source.SourceFactoryImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,45 +41,68 @@ import static org.junit.Assert.assertFalse;
 @RunWith(MockitoJUnitRunner.class)
 public class ShipWorkImplTest {
   @Mock
-  BroadcastFactory broadcast;
+  BroadcastFactory broadcastFactory;
   @Mock
-  ChainManager chains;
+  ChainManager chainManager;
   @Mock
   Janitor janitor;
   @Mock
-  NotificationProvider notification;
+  NotificationProvider notificationProvider;
   @Mock
-  SourceFactory source;
+  SourceFactory sourceFactory;
   @Mock
-  PlaylistPublisher publisher;
+  FileStoreProvider fileStoreProvider;
+  @Mock
+  SegmentAudioManager segmentAudioManager;
+  @Mock
+  TelemetryProvider telemetryProvider;
 
   private ShipWork subject;
 
   @Before
   public void setUp() throws Exception {
-    Environment env = Environment.from(ImmutableMap.of("SHIP_KEY", "coolair"));
-    var injector = Guice.createInjector(Modules.override(new ShipWorkModule()).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(Environment.class).toInstance(env);
-        bind(BroadcastFactory.class).toInstance(broadcast);
-        bind(ChainManager.class).toInstance(chains);
-        bind(Janitor.class).toInstance(janitor);
-        bind(PlaylistPublisher.class).toInstance(publisher);
-        bind(NotificationProvider.class).toInstance(notification);
-        bind(SourceFactory.class).toInstance(source);
-      }
-    }));
-    var entityFactory = injector.getInstance(EntityFactory.class);
+    AppEnvironment env = AppEnvironment.from(ImmutableMap.of("SHIP_KEY", "coolair"));
+    JsonProvider jsonProvider = new JsonProviderImpl();
+    var entityFactory = new EntityFactoryImpl(jsonProvider);
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
 
     // Manipulate the underlying entity store
-    NexusEntityStore test = injector.getInstance(NexusEntityStore.class);
+    NexusEntityStore test = new NexusEntityStoreImpl(entityFactory);
     test.deleteAll();
 
+    HttpClientProvider httpClientProvider = new HttpClientProviderImpl(env);
+    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
+    NexusEntityStore nexusEntityStore = new NexusEntityStoreImpl(entityFactory);
+    SegmentManager segmentManager = new SegmentManagerImpl(entityFactory, nexusEntityStore);
+    sourceFactory = new SourceFactoryImpl(
+      chainManager,
+      env,
+      httpClientProvider,
+      jsonProvider,
+      jsonapiPayloadFactory,
+      segmentAudioManager,
+      segmentManager,
+      telemetryProvider
+    );
+    ChunkFactory chunkFactory = new ChunkFactoryImpl(env);
+    MediaSeqNumProvider mediaSeqNumProvider = new MediaSeqNumProvider(env);
+    PlaylistPublisher playlistPublisher = new PlaylistPublisherImpl(env, chunkFactory, fileStoreProvider, httpClientProvider, mediaSeqNumProvider, telemetryProvider);
+    BroadcastFactory broadcast = new BroadcastFactoryImpl(env, playlistPublisher, fileStoreProvider, notificationProvider, segmentAudioManager);
+
     // Instantiate the test subject
-    subject = injector.getInstance(ShipWork.class);
+    subject = new ShipWorkImpl(
+      broadcastFactory,
+      chunkFactory,
+      chainManager,
+      env,
+      janitor,
+      mediaSeqNumProvider,
+      notificationProvider,
+      playlistPublisher,
+      segmentAudioManager,
+      sourceFactory
+    );
   }
 
 /*
@@ -78,13 +116,6 @@ FUTURE: bring this back, but it's now necessary to get the stream process runnin
 
   @Test
   public void isHealthy_neverWithoutShipKey() {
-    subject = Guice.createInjector(Modules.override(new ShipWorkModule()).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(Environment.class).toInstance(Environment.getDefault());
-      }
-    })).getInstance(ShipWork.class);
-
     assertFalse(subject.isHealthy());
   }
 

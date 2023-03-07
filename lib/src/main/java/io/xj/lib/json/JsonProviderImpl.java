@@ -9,20 +9,20 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import io.xj.lib.entity.InstantDeserializer;
 import io.xj.lib.entity.InstantSerializer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-@Singleton
+@Service
 public class JsonProviderImpl implements JsonProvider {
   private final ObjectMapper mapper = new ObjectMapper();
 
-  @Inject
+  @Autowired
   public JsonProviderImpl() {
     mapper.registerModule(buildInstantSerDesModule());
     mapper.registerModule(buildJavaTimeModule());

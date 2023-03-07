@@ -2,15 +2,17 @@
 
 package io.xj.ship.source;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
-import io.xj.nexus.model.*;
+
 import io.xj.hub.enums.TemplateType;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.filestore.FileStoreException;
-import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.mixer.InternalResource;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.ChainType;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentState;
 import io.xj.ship.ShipException;
 import org.apache.http.HttpEntity;
 import org.apache.http.StatusLine;
@@ -51,11 +53,10 @@ public class SegmentAudioCacheImplTest {
   public StatusLine httpStatusLine;
   private Segment segment1;
   private SegmentAudioCache subject;
-  @Mock
-  private FileStoreProvider fileStoreProvider;
 
   @Before
   public void setUp() throws IOException {
+    var env = AppEnvironment.getDefault();
     var account1 = buildAccount("Test");
     var template1 = buildTemplate(account1, TemplateType.Production, "Test 123", "test123");
     Chain chain1 = buildChain(
@@ -79,20 +80,13 @@ public class SegmentAudioCacheImplTest {
       "ogg");
     segment1.setWaveformPreroll(1.7306228);
     segment1.setWaveformPostroll(1.205893);
-    var injector = Guice.createInjector(Modules.override(new SourceModule()).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(FileStoreProvider.class).toInstance(fileStoreProvider);
-        bind(HttpClientProvider.class).toInstance(httpClientProvider);
-      }
-    }));
 
     when(httpClientProvider.getClient()).thenReturn(httpClient);
     when(httpClient.execute(any())).thenReturn(httpResponse);
     when(httpResponse.getEntity()).thenReturn(httpResponseEntity);
     when(httpResponse.getStatusLine()).thenReturn(httpStatusLine);
 
-    subject = injector.getInstance(SegmentAudioCache.class);
+    subject = new SegmentAudioCacheImpl(env, httpClientProvider);
   }
 
   @Test

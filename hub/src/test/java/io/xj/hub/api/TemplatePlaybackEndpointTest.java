@@ -2,42 +2,36 @@
 
 package io.xj.hub.api;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
 import io.xj.hub.HubTopology;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.manager.ManagerException;
-import io.xj.hub.manager.ManagerModule;
 import io.xj.hub.manager.TemplatePlaybackManager;
-import io.xj.hub.ingest.HubIngestModule;
-import io.xj.hub.persistence.HubPersistenceModule;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplatePlayback;
 import io.xj.hub.tables.pojos.User;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.app.AppException;
-import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.filestore.FileStoreModule;
-import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.jsonapi.JsonapiModule;
-import io.xj.lib.jsonapi.JsonapiPayload;
+import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.json.ApiUrlProvider;
+import io.xj.lib.json.JsonProvider;
+import io.xj.lib.json.JsonProviderImpl;
+import io.xj.lib.jsonapi.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.HttpStatus;
 
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.Response;
-import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.*;
 import static io.xj.hub.access.HubAccess.CONTEXT_KEY;
@@ -51,9 +45,13 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class TemplatePlaybackEndpointTest {
   @Mock
-  ContainerRequestContext crc;
+  HttpServletRequest req;
+  @Mock
+  HttpServletResponse res;
   @Mock
   TemplatePlaybackManager templatePlaybackManager;
+  @Mock
+  private HubSqlStoreProvider sqlStoreProvider;
   private HubAccess access;
   private TemplatePlaybackEndpoint subject;
   private Template template25;
@@ -62,67 +60,62 @@ public class TemplatePlaybackEndpointTest {
 
   @Before
   public void setUp() throws AppException {
-    var env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule())).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(Environment.class).toInstance(env);
-        bind(TemplatePlaybackManager.class).toInstance(templatePlaybackManager);
-      }
-    }));
+    var env = AppEnvironment.getDefault();
+    JsonProvider jsonProvider = new JsonProviderImpl();
+    EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
+    JsonapiPayloadFactory payloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
+    HubTopology.buildHubApiTopology(entityFactory);
+    ApiUrlProvider apiUrlProvider = new ApiUrlProvider(env);
+    JsonapiResponseProvider responseProvider = new JsonapiResponseProviderImpl(apiUrlProvider);
 
-    HubTopology.buildHubApiTopology(injector.getInstance(EntityFactory.class));
     Account account1 = buildAccount("Testing");
     user1 = buildUser("Joe", "joe@email.com", "joe.jpg", "User,Artist");
-    access = HubAccess.create(user1, ImmutableList.of(account1));
+    access = HubAccess.create(user1, UUID.randomUUID(), ImmutableList.of(account1));
     template25 = buildTemplate(account1, "Testing");
     template1 = buildTemplate(account1, "Testing");
-    subject = injector.getInstance(TemplatePlaybackEndpoint.class);
-    injector.injectMembers(subject);
+    subject = new TemplatePlaybackEndpoint(templatePlaybackManager, sqlStoreProvider, responseProvider, payloadFactory, entityFactory);
   }
 
   @Test
-  public void readManyForTemplate() throws ManagerException, IOException, JsonapiException {
-    when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
+  public void readManyForTemplate() throws ManagerException, JsonapiException {
+    when(req.getAttribute(CONTEXT_KEY)).thenReturn(access);
     TemplatePlayback templatePlayback1 = buildTemplatePlayback(template25, user1);
     TemplatePlayback templatePlayback2 = buildTemplatePlayback(template25, user1);
     Collection<TemplatePlayback> templatePlaybacks = ImmutableList.of(templatePlayback1, templatePlayback2);
     when(templatePlaybackManager.readMany(same(access), eq(ImmutableList.of(template25.getId()))))
       .thenReturn(templatePlaybacks);
 
-    Response result = subject.readManyForTemplate(crc, template25.getId().toString());
+    var result = subject.readManyForTemplate(req, res, template25.getId().toString());
 
     verify(templatePlaybackManager).readMany(same(access), eq(ImmutableList.of(template25.getId())));
-    assertEquals(200, result.getStatus());
-    assertTrue(result.hasEntity());
-    assertPayload(new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class))
+    assertEquals(HttpStatus.OK, result.getStatusCode());
+    assertTrue(result.hasBody());
+    assertPayload(result.getBody())
       .hasDataMany("template-playbacks", ImmutableList.of(templatePlayback1.getId().toString(), templatePlayback2.getId().toString()));
   }
 
   @Test
-  public void readOneForUser() throws ManagerException, IOException, JsonapiException {
-    when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
+  public void readOneForUser() throws ManagerException, JsonapiException {
+    when(req.getAttribute(CONTEXT_KEY)).thenReturn(access);
     TemplatePlayback templatePlayback1 = buildTemplatePlayback(template1, user1);
     when(templatePlaybackManager.readOneForUser(same(access), eq(user1.getId()))).thenReturn(Optional.of(templatePlayback1));
 
-    Response result = subject.readOneForUser(crc, user1.getId().toString());
+    var result = subject.readOneForUser(req, res, user1.getId().toString());
 
-    assertEquals(200, result.getStatus());
-    assertTrue(result.hasEntity());
-    JsonapiPayload resultJsonapiPayload = new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class);
+    assertEquals(HttpStatus.OK, result.getStatusCode());
+    assertTrue(result.hasBody());
+    JsonapiPayload resultJsonapiPayload = result.getBody();
     assertPayload(resultJsonapiPayload)
       .hasDataOne("template-playbacks", templatePlayback1.getId().toString());
   }
 
   @Test
   public void readOneForUser_noneFound() throws ManagerException {
-    when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
+    when(req.getAttribute(CONTEXT_KEY)).thenReturn(access);
     when(templatePlaybackManager.readOneForUser(same(access), eq(user1.getId()))).thenReturn(Optional.empty());
 
-    Response result = subject.readOneForUser(crc, user1.getId().toString());
+    var result = subject.readOneForUser(req, res, user1.getId().toString());
 
-    assertEquals(204, result.getStatus());
-    assertFalse(result.hasEntity());
+    assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
   }
-
 }

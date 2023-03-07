@@ -1,8 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.craft.hook;
 
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
+
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Instrument;
@@ -20,9 +19,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class HookCraftImpl extends CraftImpl implements HookCraft {
-  @Inject
   public HookCraftImpl(
-    @Assisted("basis") Fabricator fabricator
+     Fabricator fabricator
   ) {
     super(fabricator);
   }

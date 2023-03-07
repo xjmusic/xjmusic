@@ -15,7 +15,7 @@ import io.xj.lib.entity.Entities;
 import io.xj.lib.util.CSV;
 
 import javax.annotation.Nullable;
-import javax.ws.rs.container.ContainerRequestContext;
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -38,44 +38,44 @@ public class HubAccess {
   private UUID userAuthId;
 
   /**
-   Create an access control object of request context
-   Mirror of toContext()
-
-   @param crc container request context
-   @return access control
+   * Create an access control object of request context
+   * Mirror of toContext()
+   *
+   * @param req http servlet request
+   * @return access control
    */
-  public static HubAccess fromContext(ContainerRequestContext crc) {
-    HubAccess access = (HubAccess) crc.getProperty(CONTEXT_KEY);
+  public static HubAccess fromRequest(HttpServletRequest req) {
+    HubAccess access = (HubAccess) req.getAttribute(CONTEXT_KEY);
     if (Objects.nonNull(access)) return access;
-    else return unauthenticated();
+    return unauthenticated();
   }
 
   /**
-   Create an access control object for an internal process with top-level access
-
-   @return access control
+   * Create an access control object for an internal process with top-level access
+   *
+   * @return access control
    */
   public static HubAccess internal() {
     return new HubAccess().setRoleTypes(ImmutableList.of(UserRoleType.Internal));
   }
 
   /**
-   Create an access control object for an unauthenticated access
-
-   @return access control
+   * Create an access control object for an unauthenticated access
+   *
+   * @return access control
    */
   public static HubAccess unauthenticated() {
     return new HubAccess();
   }
 
   /**
-   Create a new HubAccess control object
-
-   @param user     for access
-   @param userAuth for access
-   @param accounts for access
-   @param rolesCSV for access
-   @return access control object
+   * Create a new HubAccess control object
+   *
+   * @param user     for access
+   * @param userAuth for access
+   * @param accounts for access
+   * @param rolesCSV for access
+   * @return access control object
    */
   public static HubAccess create(User user, UserAuth userAuth, ImmutableList<Account> accounts, String rolesCSV) {
     return new HubAccess()
@@ -86,12 +86,12 @@ public class HubAccess {
   }
 
   /**
-   Create a new HubAccess control object
-
-   @param user     for access
-   @param accounts for access
-   @param rolesCSV for access
-   @return access control object
+   * Create a new HubAccess control object
+   *
+   * @param user     for access
+   * @param accounts for access
+   * @param rolesCSV for access
+   * @return access control object
    */
   public static HubAccess create(User user, ImmutableList<Account> accounts, String rolesCSV) {
     return new HubAccess()
@@ -101,11 +101,11 @@ public class HubAccess {
   }
 
   /**
-   Create a new HubAccess control object
-
-   @param user     for access
-   @param rolesCSV for access
-   @return access control object
+   * Create a new HubAccess control object
+   *
+   * @param user     for access
+   * @param rolesCSV for access
+   * @return access control object
    */
   public static HubAccess create(User user, String rolesCSV) {
     return new HubAccess()
@@ -114,11 +114,11 @@ public class HubAccess {
   }
 
   /**
-   Create a new HubAccess control object
-
-   @param user     for access
-   @param accounts for access
-   @return access control object
+   * Create a new HubAccess control object
+   *
+   * @param user     for access
+   * @param accounts for access
+   * @return access control object
    */
   public static HubAccess create(User user, List<Account> accounts) {
     return new HubAccess()
@@ -128,12 +128,12 @@ public class HubAccess {
   }
 
   /**
-   Create a new HubAccess control object
-
-   @param user       for access
-   @param userAuth   for access
-   @param accountIds for access
-   @return access control object
+   * Create a new HubAccess control object
+   *
+   * @param user       for access
+   * @param userAuth   for access
+   * @param accountIds for access
+   * @return access control object
    */
   public static HubAccess create(User user, UserAuth userAuth, List<UUID> accountIds) {
     return new HubAccess()
@@ -144,49 +144,55 @@ public class HubAccess {
   }
 
   /**
-   Create a new HubAccess control object
-
-   @param user     for access
-   @param accounts for access
-   @return access control object
+   * Create a new HubAccess control object
+   *
+   * @param user       for access
+   * @param userAuthId for access
+   * @param accounts   for access
+   * @return access control object
    */
-  public static HubAccess create(User user, ImmutableList<Account> accounts) {
+  public static HubAccess create(User user, UUID userAuthId, ImmutableList<Account> accounts) {
     return new HubAccess()
       .setUserId(user.getId())
+      .setUserAuthId(userAuthId)
       .setAccountIds(Entities.idsOf(accounts))
       .setRoleTypes(CSV.split(user.getRoles()).stream().map(UserRoleType::valueOf).collect(Collectors.toList()));
   }
 
   /**
-   Create a new HubAccess control object
-
-   @param accounts for access
-   @param rolesCSV for access
-   @return access control object
+   * Create a new HubAccess control object
+   *
+   * @param userId     for access
+   * @param userAuthId for access
+   * @param accounts   for access
+   * @param rolesCSV   for access
+   * @return access control object
    */
-  public static HubAccess create(ImmutableList<Account> accounts, String rolesCSV) {
+  public static HubAccess create(UUID userId, UUID userAuthId, ImmutableList<Account> accounts, String rolesCSV) {
     return new HubAccess()
+      .setUserId(userId)
+      .setUserAuthId(userAuthId)
       .setAccountIds(Entities.idsOf(accounts))
       .setRoleTypes(Users.userRoleTypesFromCsv(rolesCSV));
   }
 
   /**
-   Create a new HubAccess control object
-
-   @param rolesCSV for access
-   @return access control object
+   * Create a new HubAccess control object
+   *
+   * @param rolesCSV for access
+   * @return access control object
    */
   public static HubAccess create(String rolesCSV) {
     return new HubAccess().setRoleTypes(Users.userRoleTypesFromCsv(rolesCSV));
   }
 
   /**
-   Create a new HubAccess control object with the given user auth, account users, and user roles
-
-   @param userAuth     to use for access control
-   @param accountUsers to use for access control
-   @param userRoles    to use for access control
-   @return new HubAccess
+   * Create a new HubAccess control object with the given user auth, account users, and user roles
+   *
+   * @param userAuth     to use for access control
+   * @param accountUsers to use for access control
+   * @param userRoles    to use for access control
+   * @return new HubAccess
    */
   public static HubAccess create(UserAuth userAuth, Collection<AccountUser> accountUsers, String userRoles) {
     return new HubAccess()
@@ -201,21 +207,21 @@ public class HubAccess {
   }
 
   /**
-   Put this access to the container request context.
-   Mirror of fromContext()
-
-   @param context to put
+   * Put this access to the container request context.
+   * Mirror of fromContext()
+   *
+   * @param req to put
    */
   @JsonIgnore
-  public void toContext(ContainerRequestContext context) {
-    context.setProperty(CONTEXT_KEY, this);
+  public void authenticate(HttpServletRequest req) {
+    req.setAttribute(CONTEXT_KEY, this);
   }
 
   /**
-   Determine if user access roles match any of the given resource access roles.
-
-   @param matchRoles of the resource to match.
-   @return whether user access roles match resource access roles.
+   * Determine if user access roles match any of the given resource access roles.
+   *
+   * @param matchRoles of the resource to match.
+   * @return whether user access roles match resource access roles.
    */
   @SafeVarargs
   @JsonIgnore
@@ -226,9 +232,9 @@ public class HubAccess {
   }
 
   /**
-   Get user ID of this access control
-
-   @return id
+   * Get user ID of this access control
+   *
+   * @return id
    */
   @Nullable
   public UUID getUserId() {
@@ -236,10 +242,10 @@ public class HubAccess {
   }
 
   /**
-   Set User Id
-
-   @param userId to set
-   @return this HubAccess (for chaining setters)
+   * Set User Id
+   *
+   * @param userId to set
+   * @return this HubAccess (for chaining setters)
    */
   public HubAccess setUserId(@Nullable UUID userId) {
     this.userId = userId;
@@ -247,19 +253,19 @@ public class HubAccess {
   }
 
   /**
-   Get Accounts
-
-   @return array of account id
+   * Get Accounts
+   *
+   * @return array of account id
    */
   public Collection<UUID> getAccountIds() {
     return Collections.unmodifiableCollection(accountIds);
   }
 
   /**
-   Set AccountIds
-
-   @param accountIds to set
-   @return this HubAccess (for chaining setters)
+   * Set AccountIds
+   *
+   * @param accountIds to set
+   * @return this HubAccess (for chaining setters)
    */
   public HubAccess setAccountIds(Collection<UUID> accountIds) {
     this.accountIds.clear();
@@ -268,19 +274,19 @@ public class HubAccess {
   }
 
   /**
-   Get user role types
-
-   @return user role types
+   * Get user role types
+   *
+   * @return user role types
    */
   public Collection<UserRoleType> getRoleTypes() {
     return Collections.unmodifiableCollection(roleTypes);
   }
 
   /**
-   Set RoleTypes
-
-   @param roleTypes to set
-   @return this HubAccess (for chaining setters)
+   * Set RoleTypes
+   *
+   * @param roleTypes to set
+   * @return this HubAccess (for chaining setters)
    */
   public HubAccess setRoleTypes(Collection<UserRoleType> roleTypes) {
     this.roleTypes.clear();
@@ -289,9 +295,9 @@ public class HubAccess {
   }
 
   /**
-   Is Top Level?
-
-   @return boolean
+   * Is Top Level?
+   *
+   * @return boolean
    */
   @JsonIgnore
   public Boolean isTopLevel() {
@@ -299,8 +305,8 @@ public class HubAccess {
   }
 
   /**
-   Validation
-   https://www.pivotaltracker.com/story/show/154580129 valid with no accounts, because User expects to log in without having access to any accounts.
+   * Validation
+   * valid with no accounts, because User expects to log in without having access to any accounts. https://www.pivotaltracker.com/story/show/154580129
    */
   @JsonIgnore
   public boolean isValid() {
@@ -311,10 +317,10 @@ public class HubAccess {
   }
 
   /**
-   Set User auth id
-
-   @param userAuthId to set
-   @return this HubAccess (for chaining setters)
+   * Set User auth id
+   *
+   * @param userAuthId to set
+   * @return this HubAccess (for chaining setters)
    */
   public HubAccess setUserAuthId(@Nullable UUID userAuthId) {
     this.userAuthId = userAuthId;

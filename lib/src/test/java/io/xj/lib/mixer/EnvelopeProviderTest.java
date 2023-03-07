@@ -2,7 +2,7 @@
 
 package io.xj.lib.mixer;
 
-import com.google.inject.Guice;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -13,9 +13,7 @@ public class EnvelopeProviderTest {
 
   @Before
   public void setup() {
-    var injector = Guice.createInjector(new MixerModule());
-
-    subject = injector.getInstance(EnvelopeProvider.class);
+    subject = new EnvelopeProviderImpl();
   }
 
   @Test

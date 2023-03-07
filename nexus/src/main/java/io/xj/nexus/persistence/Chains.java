@@ -3,12 +3,12 @@
 package io.xj.nexus.persistence;
 
 import com.google.common.base.Strings;
-import io.xj.nexus.model.Chain;
-import io.xj.nexus.model.ChainType;
-import io.xj.nexus.model.Segment;
 import io.xj.hub.enums.ContentBindingType;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainType;
+import io.xj.nexus.model.Segment;
 
 import javax.annotation.Nullable;
 import java.time.Instant;

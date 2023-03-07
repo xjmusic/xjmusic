@@ -3,9 +3,10 @@ package io.xj.lib.jsonapi;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.inject.Guice;
 import io.xj.lib.Widget;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.json.JsonProviderImpl;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -14,9 +15,9 @@ import java.util.UUID;
 import static org.junit.Assert.assertFalse;
 
 /**
- Payload serializer test
- <p>
- Created by Charney Kaye on 2020/03/09
+ * Payload serializer test
+ * <p>
+ * Created by Charney Kaye on 2020/03/09
  */
 public class JsonapiPayloadSerializerTest {
   private JsonapiPayloadFactory jsonapiPayloadFactory;
@@ -24,9 +25,9 @@ public class JsonapiPayloadSerializerTest {
 
   @Before
   public void setUp() {
-    var injector = Guice.createInjector(new JsonapiModule());
-    entityFactory = injector.getInstance(EntityFactory.class);
-    jsonapiPayloadFactory = injector.getInstance(JsonapiPayloadFactory.class);
+    var jsonProvider = new JsonProviderImpl();
+    entityFactory = new EntityFactoryImpl(jsonProvider);
+    jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     entityFactory.register(Widget.class);
   }
 
@@ -79,7 +80,7 @@ public class JsonapiPayloadSerializerTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/175792528 JSON:API serializer must not include relationship payload where there is none
+   * JSON:API serializer must not include relationship payload where there is none https://www.pivotaltracker.com/story/show/175792528
    */
   @Test
   public void serializeOne_withBelongsTo_empty() throws JsonapiException {

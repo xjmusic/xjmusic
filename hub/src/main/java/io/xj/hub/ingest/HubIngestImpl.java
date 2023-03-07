@@ -1,10 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.ingest;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
+
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.ContentBindingType;
 import io.xj.hub.enums.InstrumentType;
@@ -22,17 +20,16 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- https://www.pivotaltracker.com/story/show/154350346 to ingest any combination of Programs, Instruments, or Libraries (with their Programs and Instruments)
+ * to ingest any combination of Programs, Instruments, or Libraries (with their Programs and Instruments) https://www.pivotaltracker.com/story/show/154350346
  */
 class HubIngestImpl implements HubIngest {
   private final HubAccess access;
   private final EntityStore store;
   private final JsonProvider jsonProvider;
 
-  @Inject
   public HubIngestImpl(
-    @Assisted("access") HubAccess access,
-    @Assisted("templateId") UUID templateId,
+    HubAccess access,
+    UUID templateId,
     EntityStore entityStore,
     InstrumentManager instrumentManager,
     JsonProvider jsonProvider,
@@ -126,9 +123,9 @@ class HubIngestImpl implements HubIngest {
   }
 
   @Override
-  public String toJSON() throws JsonProcessingException {
+  public HubContentPayload toContentPayload() {
     var entities = getAllEntities();
-    return jsonProvider.getMapper().writeValueAsString(new HubContentPayload()
+    return new HubContentPayload()
       .setTemplates(entities.stream()
         .filter(ent -> Template.class.equals(ent.getClass()))
         .map(ent -> (Template) ent)
@@ -192,17 +189,17 @@ class HubIngestImpl implements HubIngest {
       .setProgramVoiceTracks(entities.stream()
         .filter(ent -> ProgramVoiceTrack.class.equals(ent.getClass()))
         .map(ent -> (ProgramVoiceTrack) ent)
-        .collect(Collectors.toList())));
+        .collect(Collectors.toList()));
   }
 
   /**
-   Get a member from a map of entities, or else throw an exception
-
-   @param type of member to get
-   @param id   of member to get
-   @param <N>  type of entity
-   @return entity from map
-   @throws HubIngestException if no such entity exists
+   * Get a member from a map of entities, or else throw an exception
+   *
+   * @param type of member to get
+   * @param id   of member to get
+   * @param <N>  type of entity
+   * @return entity from map
+   * @throws HubIngestException if no such entity exists
    */
   private <N> N getOrThrow(Class<N> type, UUID id) throws HubIngestException {
     return store.get(type, id)

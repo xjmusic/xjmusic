@@ -2,24 +2,27 @@
 
 package io.xj.hub.api;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
+
 import io.xj.hub.HubTopology;
-import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubSqlStoreProvider;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.app.AppException;
-import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.ApiUrlProvider;
+import io.xj.lib.json.JsonProvider;
+import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.jsonapi.JsonapiModule;
+import io.xj.lib.jsonapi.JsonapiResponseProviderImpl;
+import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.lib.jsonapi.PayloadDataType;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.HttpStatus;
 
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.Response;
+import java.util.Objects;
 
 import static org.junit.Assert.*;
 
@@ -28,38 +31,32 @@ public class ConfigEndpointTest {
   private ConfigEndpoint subject;
 
   @Mock
-  ContainerRequestContext crc;
-
-  @Mock
   ApiUrlProvider apiUrlProvider;
 
   @Mock
-  HubDatabaseProvider hubDatabaseProvider;
+  HubSqlStoreProvider sqlStoreProvider;
 
   @Before
   public void setUp() throws AppException, JsonapiException {
-    var injector = Guice.createInjector(Modules.override(new JsonapiModule()).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        super.configure();
-        bind(ApiUrlProvider.class).toInstance(apiUrlProvider);
-        bind(HubDatabaseProvider.class).toInstance(hubDatabaseProvider);
-      }
-    }));
-    HubTopology.buildHubApiTopology(injector.getInstance(EntityFactory.class));
-    subject = injector.getInstance(ConfigEndpoint.class);
+    JsonProvider jsonProvider = new JsonProviderImpl();
+    var env = AppEnvironment.getDefault();
+    var responseProvider = new JsonapiResponseProviderImpl(apiUrlProvider);
+    var entityFactory = new EntityFactoryImpl(jsonProvider);
+    HubTopology.buildHubApiTopology(entityFactory);
+    var payloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
+    subject = new ConfigEndpoint(env, sqlStoreProvider, responseProvider, payloadFactory, entityFactory);
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/175771083 Enums should not have unrecognized values
+   * Enums should not have unrecognized values https://www.pivotaltracker.com/story/show/175771083
    */
   @Test
   public void getConfig() {
-    Response result = subject.getConfig(crc);
+    var result = subject.getConfig();
 
-    assertEquals(200, result.getStatus());
-    assertFalse(String.valueOf(result.getEntity()).contains("UNRECOGNIZED"));
-    assertTrue(result.hasEntity());
+    assertEquals(HttpStatus.OK, result.getStatusCode());
+    assertTrue(result.hasBody());
+    assertEquals(Objects.requireNonNull(result.getBody()).getDataType(), PayloadDataType.One);
   }
 
 }

@@ -1,10 +1,9 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.manager;
 
-import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.UserRoleType;
-import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.lib.entity.Entities;
@@ -15,6 +14,7 @@ import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -26,18 +26,18 @@ import java.util.concurrent.atomic.AtomicReference;
 import static io.xj.hub.Tables.LIBRARY;
 import static io.xj.hub.tables.Account.ACCOUNT;
 
-public class LibraryManagerImpl extends HubPersistenceServiceImpl<Library> implements LibraryManager {
+@Service
+public class LibraryManagerImpl extends HubPersistenceServiceImpl implements LibraryManager {
   private final InstrumentManager instrumentManager;
   private final ProgramManager programManager;
 
-  @Inject
   public LibraryManagerImpl(
     EntityFactory entityFactory,
-    HubDatabaseProvider dbProvider,
+    HubSqlStoreProvider sqlStoreProvider,
     InstrumentManager instrumentManager,
     ProgramManager programManager
   ) {
-    super(entityFactory, dbProvider);
+    super(entityFactory, sqlStoreProvider);
     this.instrumentManager = instrumentManager;
     this.programManager = programManager;
   }
@@ -45,7 +45,7 @@ public class LibraryManagerImpl extends HubPersistenceServiceImpl<Library> imple
   @Override
   public Library create(HubAccess access, Library entity) throws ManagerException, JsonapiException, ValueException {
     Library record = validate(entity);
-    var db = dbProvider.getDSL();
+    var db = sqlStoreProvider.getDSL();
 
     requireParentExists(db, access, entity);
 
@@ -55,20 +55,20 @@ public class LibraryManagerImpl extends HubPersistenceServiceImpl<Library> imple
   @Override
   @Nullable
   public Library readOne(HubAccess access, UUID id) throws ManagerException {
-    return readOne(dbProvider.getDSL(), access, id);
+    return readOne(sqlStoreProvider.getDSL(), access, id);
   }
 
   @Override
   public Collection<Library> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
     if (Objects.nonNull(parentIds) && !parentIds.isEmpty()) {
       if (access.isTopLevel())
-        return modelsFrom(Library.class, dbProvider.getDSL().select(LIBRARY.fields())
+        return modelsFrom(Library.class, sqlStoreProvider.getDSL().select(LIBRARY.fields())
           .from(LIBRARY)
           .where(LIBRARY.ACCOUNT_ID.in(parentIds))
           .and(LIBRARY.IS_DELETED.eq(false))
           .fetch());
       else
-        return modelsFrom(Library.class, dbProvider.getDSL().select(LIBRARY.fields())
+        return modelsFrom(Library.class, sqlStoreProvider.getDSL().select(LIBRARY.fields())
           .from(LIBRARY)
           .where(LIBRARY.ACCOUNT_ID.in(parentIds))
           .and(LIBRARY.IS_DELETED.eq(false))
@@ -76,12 +76,12 @@ public class LibraryManagerImpl extends HubPersistenceServiceImpl<Library> imple
           .fetch());
     } else {
       if (access.isTopLevel())
-        return modelsFrom(Library.class, dbProvider.getDSL().select(LIBRARY.fields())
+        return modelsFrom(Library.class, sqlStoreProvider.getDSL().select(LIBRARY.fields())
           .from(LIBRARY)
           .where(LIBRARY.IS_DELETED.eq(false))
           .fetch());
       else
-        return modelsFrom(Library.class, dbProvider.getDSL().select(LIBRARY.fields())
+        return modelsFrom(Library.class, sqlStoreProvider.getDSL().select(LIBRARY.fields())
           .from(LIBRARY)
           .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
           .and(LIBRARY.IS_DELETED.eq(false))
@@ -101,23 +101,23 @@ public class LibraryManagerImpl extends HubPersistenceServiceImpl<Library> imple
 
     if (!access.isTopLevel()) {
       requireExists("Library",
-        dbProvider.getDSL().selectCount().from(LIBRARY)
+        sqlStoreProvider.getDSL().selectCount().from(LIBRARY)
           .where(LIBRARY.ID.eq(id))
           .and(LIBRARY.IS_DELETED.eq(false))
           .fetchOne(0, int.class));
       requireExists("Account",
-        dbProvider.getDSL().selectCount().from(ACCOUNT)
+        sqlStoreProvider.getDSL().selectCount().from(ACCOUNT)
           .where(ACCOUNT.ID.in(access.getAccountIds()))
           .fetchOne(0, int.class));
     }
 
-    executeUpdate(dbProvider.getDSL(), LIBRARY, id, record);
+    executeUpdate(sqlStoreProvider.getDSL(), LIBRARY, id, record);
     return record;
   }
 
   @Override
   public void destroy(HubAccess access, UUID id) throws ManagerException {
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
 
     requireAny(access, UserRoleType.Artist, UserRoleType.Engineer);
 
@@ -133,10 +133,10 @@ public class LibraryManagerImpl extends HubPersistenceServiceImpl<Library> imple
   }
 
   /**
-   Validate a library record
-
-   @param record to validate
-   @throws ManagerException if invalid
+   * Validate a library record
+   *
+   * @param record to validate
+   * @throws ManagerException if invalid
    */
   public Library validate(Library record) throws ManagerException {
     try {
@@ -157,7 +157,7 @@ public class LibraryManagerImpl extends HubPersistenceServiceImpl<Library> imple
     requireArtist(access);
     AtomicReference<Library> result = new AtomicReference<>();
     AtomicReference<ManagerCloner<Library>> cloner = new AtomicReference<>();
-    dbProvider.getDSL().transaction(ctx -> {
+    sqlStoreProvider.getDSL().transaction(ctx -> {
       DSLContext db = DSL.using(ctx);
 
       Library from = readOne(db, access, cloneId);

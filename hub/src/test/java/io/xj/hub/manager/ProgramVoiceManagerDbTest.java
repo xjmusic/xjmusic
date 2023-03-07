@@ -2,26 +2,16 @@
 package io.xj.hub.manager;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.util.Modules;
-import io.xj.hub.HubIntegrationTestModule;
-import io.xj.hub.HubIntegrationTestProvider;
+import io.xj.hub.HubIntegrationTest;
+import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.ingest.HubIngestModule;
-import io.xj.hub.persistence.HubDatabaseProvider;
-import io.xj.hub.persistence.HubPersistenceModule;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.ProgramVoice;
-import io.xj.lib.app.Environment;
-import io.xj.lib.filestore.FileStoreModule;
-import io.xj.lib.jsonapi.JsonapiModule;
+import io.xj.lib.app.AppEnvironment;
 import org.jooq.DSLContext;
 import org.junit.After;
 import org.junit.Before;
@@ -33,47 +23,24 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.UUID;
 
-import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
-import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
-import static io.xj.hub.IntegrationTestingFixtures.buildChord;
-import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequence;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceBinding;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequencePattern;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequencePatternEvent;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgramVoice;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgramVoiceTrack;
-import static io.xj.hub.IntegrationTestingFixtures.buildSequence;
-import static io.xj.hub.IntegrationTestingFixtures.buildUser;
-import static io.xj.hub.IntegrationTestingFixtures.buildVoice;
-import static io.xj.hub.IntegrationTestingFixtures.buildVoicing;
+import static io.xj.hub.IntegrationTestingFixtures.*;
 import static io.xj.hub.tables.ProgramVoice.PROGRAM_VOICE;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.*;
 
 // future test: permissions of different users to readMany vs. of vs. update or destroy programs
 @RunWith(MockitoJUnitRunner.class)
 public class ProgramVoiceManagerDbTest {
   private ProgramVoiceManager subject;
 
-  private HubIntegrationTestProvider test;
+  private HubIntegrationTest test;
   private IntegrationTestingFixtures fake;
-  private HubDatabaseProvider dbProvider;
-  private Injector injector;
+  private HubSqlStoreProvider sqlStoreProvider;
 
   @Before
   public void setUp() throws Exception {
-    var env = Environment.getDefault();
-    injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule(), new HubIntegrationTestModule())).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(Environment.class).toInstance(env);
-      }
-    }));
-    test = injector.getInstance(HubIntegrationTestProvider.class);
-    dbProvider = injector.getInstance(HubDatabaseProvider.class);
+    var env = AppEnvironment.getDefault();
+    test = HubIntegrationTestFactory.build(env);
+    sqlStoreProvider = test.getSqlStoreProvider();
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
@@ -107,7 +74,7 @@ public class ProgramVoiceManagerDbTest {
     fake.program4 = test.insert(buildProgram(fake.library2, ProgramType.Detail, ProgramState.Published, "sail", "C#", 120.0f, 0.6f));
 
     // Instantiate the test entity
-    subject = injector.getInstance(ProgramVoiceManager.class);
+    subject = new ProgramVoiceManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
   }
 
   @After
@@ -117,7 +84,7 @@ public class ProgramVoiceManagerDbTest {
 
   @Test
   public void create() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     var entity = new ProgramVoice();
     entity.setId(UUID.randomUUID());
     entity.setProgramId(fake.program3.getId());
@@ -133,7 +100,7 @@ public class ProgramVoiceManagerDbTest {
 
   @Test
   public void add() throws Exception {
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
 
     var result = subject.add(db, fake.program3.getId(), InstrumentType.Bass);
 
@@ -145,12 +112,12 @@ public class ProgramVoiceManagerDbTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/156144567 Artist expects to of a Main-type programVoice without crashing the entire platform
-   NOTE: This simple test fails to invoke the complexity of database call that is/was creating this issue in production.
+   * Artist expects to of a Main-type programVoice without crashing the entire platform https://www.pivotaltracker.com/story/show/156144567
+   * NOTE: This simple test fails to invoke the complexity of database call that is/was creating this issue in production.
    */
   @Test
   public void create_asArtist() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     var inputData = new ProgramVoice();
     inputData.setId(UUID.randomUUID());
     inputData.setProgramId(fake.program3.getId());
@@ -167,7 +134,7 @@ public class ProgramVoiceManagerDbTest {
 
   @Test
   public void readOne() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User, Artist");
 
     var result = subject.readOne(access, fake.program702_voice1.getId());
 
@@ -179,7 +146,7 @@ public class ProgramVoiceManagerDbTest {
 
   @Test
   public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "User, Artist");
 
     var e = assertThrows(ManagerException.class, () -> subject.readOne(access, fake.program702_voice1.getId()));
     assertEquals("Record does not exist", e.getMessage());
@@ -187,7 +154,7 @@ public class ProgramVoiceManagerDbTest {
 
   @Test
   public void readMany() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User, Artist");
 
     Collection<ProgramVoice> result = subject.readMany(access, ImmutableList.of(fake.program2.getId()));
 
@@ -198,7 +165,7 @@ public class ProgramVoiceManagerDbTest {
 
   @Test
   public void readMany_seesNothingOutsideOfLibrary() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "User, Artist");
 
     Collection<ProgramVoice> result = subject.readMany(access, ImmutableList.of(fake.program2.getId()));
 
@@ -211,10 +178,11 @@ public class ProgramVoiceManagerDbTest {
 
     subject.destroy(access, fake.program702_voice1.getId());
 
-    assertEquals(Integer.valueOf(0), test.getDSL()
-      .selectCount().from(PROGRAM_VOICE)
-      .where(PROGRAM_VOICE.ID.eq(fake.program702_voice1.getId()))
-      .fetchOne(0, int.class));
+    try (var selectCount = test.getDSL().selectCount()) {
+      assertEquals(Integer.valueOf(0), selectCount.from(PROGRAM_VOICE)
+        .where(PROGRAM_VOICE.ID.eq(fake.program702_voice1.getId()))
+        .fetchOne(0, int.class));
+    }
   }
 
   @Test
@@ -227,39 +195,41 @@ public class ProgramVoiceManagerDbTest {
     test.insert(buildVoicing(program5_sequence0_chord0, program5_voiceBass, "G3, B3, D4"));
     var program5_sequence0_chord1 = test.insert(buildChord(program5_sequence0, 8.0, "Ab minor"));
     test.insert(buildVoicing(program5_sequence0_chord1, program5_voiceBass, "Ab3, Db3, F4"));
-    var program5_sequence0_chord2 = test.insert(buildChord(program5_sequence0, 75.0, "G-9")); // https://www.pivotaltracker.com/story/show/154090557 this ChordEntity should be ignored, because it's past the end of the main-pattern total
+    var program5_sequence0_chord2 = test.insert(buildChord(program5_sequence0, 75.0, "G-9")); // this ChordEntity should be ignored, because it's past the end of the main-pattern total https://www.pivotaltracker.com/story/show/154090557
     test.insert(buildVoicing(program5_sequence0_chord2, program5_voiceBass, "G3, Bb3, D4, A4"));
 
     subject.destroy(access, program5_voiceBass.getId());
 
-    assertEquals(Integer.valueOf(0), test.getDSL()
-      .selectCount().from(PROGRAM_VOICE)
-      .where(PROGRAM_VOICE.ID.eq(program5_voiceBass.getId()))
-      .fetchOne(0, int.class));
+    try (var selectCount = test.getDSL().selectCount()) {
+      assertEquals(Integer.valueOf(0), selectCount.from(PROGRAM_VOICE)
+        .where(PROGRAM_VOICE.ID.eq(program5_voiceBass.getId()))
+        .fetchOne(0, int.class));
+    }
   }
 
   @Test
   public void destroy_asArtist() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
-    injector.getInstance(ProgramSequencePatternManager.class).destroy(HubAccess.internal(), fake.program2_sequence1_pattern1.getId());
-    injector.getInstance(ProgramVoiceTrackManager.class).destroy(HubAccess.internal(), fake.program2_voice1_track0.getId());
-    injector.getInstance(ProgramVoiceTrackManager.class).destroy(HubAccess.internal(), fake.program2_voice1_track1.getId());
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
+    new ProgramSequencePatternManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider()).destroy(HubAccess.internal(), fake.program2_sequence1_pattern1.getId());
+    new ProgramVoiceTrackManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider()).destroy(HubAccess.internal(), fake.program2_voice1_track0.getId());
+    new ProgramVoiceTrackManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider()).destroy(HubAccess.internal(), fake.program2_voice1_track1.getId());
 
     subject.destroy(access, fake.program702_voice1.getId());
 
-    assertEquals(Integer.valueOf(0), test.getDSL()
-      .selectCount().from(PROGRAM_VOICE)
-      .where(PROGRAM_VOICE.ID.eq(fake.program702_voice1.getId()))
-      .fetchOne(0, int.class));
+    try (var selectCount = test.getDSL().selectCount()) {
+      assertEquals(Integer.valueOf(0), selectCount.from(PROGRAM_VOICE)
+        .where(PROGRAM_VOICE.ID.eq(fake.program702_voice1.getId()))
+        .fetchOne(0, int.class));
+    }
   }
 
   @Test
   public void destroy_failsIfNotInAccount() throws Exception {
     fake.account2 = buildAccount("Testing");
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account2), "Artist");
-    injector.getInstance(ProgramSequencePatternManager.class).destroy(HubAccess.internal(), fake.program2_sequence1_pattern1.getId());
-    injector.getInstance(ProgramVoiceTrackManager.class).destroy(HubAccess.internal(), fake.program2_voice1_track0.getId());
-    injector.getInstance(ProgramVoiceTrackManager.class).destroy(HubAccess.internal(), fake.program2_voice1_track1.getId());
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account2), "Artist");
+    new ProgramSequencePatternManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider()).destroy(HubAccess.internal(), fake.program2_sequence1_pattern1.getId());
+    new ProgramVoiceTrackManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider()).destroy(HubAccess.internal(), fake.program2_voice1_track0.getId());
+    new ProgramVoiceTrackManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider()).destroy(HubAccess.internal(), fake.program2_voice1_track1.getId());
 
     var e = assertThrows(ManagerException.class, () -> subject.destroy(access, fake.program702_voice1.getId()));
     assertEquals("Voice in Program in Account you have access to does not exist", e.getMessage());

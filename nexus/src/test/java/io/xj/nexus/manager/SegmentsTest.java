@@ -3,11 +3,17 @@
 package io.xj.nexus.manager;
 
 import com.google.common.collect.ImmutableList;
-import io.xj.nexus.model.*;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.NexusException;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.ChainType;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.Segments;
 import junit.framework.TestCase;
 

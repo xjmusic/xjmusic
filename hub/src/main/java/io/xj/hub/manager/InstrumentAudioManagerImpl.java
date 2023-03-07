@@ -3,9 +3,8 @@ package io.xj.hub.manager;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
-import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.entity.EntityFactory;
@@ -20,6 +19,7 @@ import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -28,12 +28,10 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.xj.hub.Tables.ACCOUNT;
-import static io.xj.hub.Tables.INSTRUMENT;
-import static io.xj.hub.Tables.INSTRUMENT_AUDIO;
-import static io.xj.hub.Tables.LIBRARY;
+import static io.xj.hub.Tables.*;
 
-public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl<InstrumentAudio> implements InstrumentAudioManager {
+@Service
+public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl implements InstrumentAudioManager {
   private static final String DEFAULT_EVENT = "X";
   private final FileStoreProvider fileStoreProvider;
   // key special resources (e.g. upload policy)
@@ -45,16 +43,15 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl<Instru
   String KEY_UPLOAD_BUCKET_NAME = "bucketName";
   String KEY_UPLOAD_ACL = "acl";
 
-  @Inject
   public InstrumentAudioManagerImpl(
     EntityFactory entityFactory,
-    HubDatabaseProvider dbProvider,
+    HubSqlStoreProvider sqlStoreProvider,
     FileStoreProvider fileStoreProvider
   ) {
-    super(entityFactory, dbProvider);
+    super(entityFactory, sqlStoreProvider);
     this.fileStoreProvider = fileStoreProvider;
 
-    // FUTURE https://www.pivotaltracker.com/story/show/170288602 Create instrument audio, provide waveform file extension as query parameter (checked by front-end after selecting the upload file)
+    // FUTURE Create instrument audio, provide waveform file extension as query parameter (checked by front-end after selecting the upload file) https://www.pivotaltracker.com/story/show/170288602
 //    String waveformFileExtension = env.getAudioFileExtension();
   }
 
@@ -63,7 +60,7 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl<Instru
     var audio = validate(rawAudio);
     requireArtist(access);
 
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
     requireParentExists(db, access, audio);
 
     return modelFrom(InstrumentAudio.class,
@@ -72,7 +69,7 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl<Instru
 
   @Override
   public Map<String, String> authorizeUpload(HubAccess access, UUID id, String extension) throws ManagerException, FileStoreException, ValueException, JsonapiException {
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
     var entity = readOne(db, access, id);
 
     // Cannot authorize upload of audio when generated key would overwrite another one in an instrument https://www.pivotaltracker.com/story/show/181848232
@@ -105,7 +102,7 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl<Instru
   @Override
   @Nullable
   public InstrumentAudio readOne(HubAccess access, UUID id) throws ManagerException {
-    return readOne(dbProvider.getDSL(), access, id);
+    return readOne(sqlStoreProvider.getDSL(), access, id);
   }
 
   @Override
@@ -137,12 +134,12 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl<Instru
     requireArtist(access);
     if (access.isTopLevel())
       return modelsFrom(InstrumentAudio.class,
-        dbProvider.getDSL().selectFrom(INSTRUMENT_AUDIO)
+        sqlStoreProvider.getDSL().selectFrom(INSTRUMENT_AUDIO)
           .where(INSTRUMENT_AUDIO.INSTRUMENT_ID.in(parentIds))
           .fetch());
     else
       return modelsFrom(InstrumentAudio.class,
-        dbProvider.getDSL().select(INSTRUMENT_AUDIO.fields())
+        sqlStoreProvider.getDSL().select(INSTRUMENT_AUDIO.fields())
           .from(INSTRUMENT_AUDIO)
           .join(INSTRUMENT).on(INSTRUMENT.ID.eq(INSTRUMENT_AUDIO.INSTRUMENT_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
@@ -156,7 +153,7 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl<Instru
     var audio = validate(rawAudio);
     requireArtist(access);
 
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
 
     requireParentExists(db, access, audio);
 
@@ -169,7 +166,7 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl<Instru
 
   @Override
   public void destroy(HubAccess access, UUID id) throws ManagerException {
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
 
     requireExists("InstrumentAudio", readOne(db, access, id));
 
@@ -187,7 +184,7 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl<Instru
   public InstrumentAudio clone(HubAccess access, UUID rawCloneId, InstrumentAudio to) throws ManagerException {
     requireArtist(access);
     AtomicReference<InstrumentAudio> result = new AtomicReference<>();
-    dbProvider.getDSL().transaction(ctx -> {
+    sqlStoreProvider.getDSL().transaction(ctx -> {
       DSLContext db = DSL.using(ctx);
 
       var from = readOne(db, access, rawCloneId);
@@ -205,12 +202,12 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl<Instru
   }
 
   /**
-   Require parent instrument exists of a given possible entity in a DSL context
-
-   @param db     DSL context
-   @param access control
-   @param entity to validate
-   @throws ManagerException if parent does not exist
+   * Require parent instrument exists of a given possible entity in a DSL context
+   *
+   * @param db     DSL context
+   * @param access control
+   * @param entity to validate
+   * @throws ManagerException if parent does not exist
    */
   private void requireParentExists(DSLContext db, HubAccess access, InstrumentAudio entity) throws ManagerException {
     if (access.isTopLevel())
@@ -226,13 +223,13 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl<Instru
   }
 
   /**
-   Read one record with the given DSL context,
-   ensuring audio in instrument in library in access control account ids
-
-   @param db     DSL context
-   @param access control
-   @param id     of record to read
-   @return entity
+   * Read one record with the given DSL context,
+   * ensuring audio in instrument in library in access control account ids
+   *
+   * @param db     DSL context
+   * @param access control
+   * @param id     of record to read
+   * @return entity
    */
   private InstrumentAudio readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     requireArtist(access);
@@ -254,10 +251,10 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl<Instru
   }
 
   /**
-   Validate data
-
-   @param builder to validate
-   @throws ManagerException if invalid
+   * Validate data
+   *
+   * @param builder to validate
+   * @throws ManagerException if invalid
    */
   public InstrumentAudio validate(InstrumentAudio builder) throws ManagerException {
     try {

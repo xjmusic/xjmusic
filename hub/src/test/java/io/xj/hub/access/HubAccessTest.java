@@ -3,24 +3,19 @@ package io.xj.hub.access;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
-import io.xj.hub.manager.ManagerModule;
 import io.xj.hub.enums.UserRoleType;
-import io.xj.hub.ingest.HubIngestModule;
-import io.xj.hub.persistence.HubPersistenceModule;
-import io.xj.lib.app.Environment;
-import io.xj.lib.filestore.FileStoreModule;
+import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.jsonapi.JsonapiModule;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import javax.ws.rs.container.ContainerRequestContext;
+import javax.servlet.http.HttpServletRequest;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
@@ -29,7 +24,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class HubAccessTest {
   @Mock
-  private ContainerRequestContext crc;
+  private HttpServletRequest req;
 
   @Test
   public void matchRoles() {
@@ -52,29 +47,18 @@ public class HubAccessTest {
   @Test
   public void fromContext() {
     HubAccess expectHubAccess = new HubAccess().setUserId(UUID.randomUUID());
-    when(crc.getProperty(HubAccess.CONTEXT_KEY))
-      .thenReturn(expectHubAccess);
+    when(req.getAttribute(HubAccess.CONTEXT_KEY)).thenReturn(expectHubAccess);
 
-    HubAccess actualHubAccess = HubAccess.fromContext(crc);
+    HubAccess actualHubAccess = HubAccess.fromRequest(req);
 
     assertEquals(expectHubAccess, actualHubAccess);
   }
 
   @Test
   public void serialize() throws JsonapiException {
-    var env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(),
-      new ManagerModule(),
-      new HubIngestModule(),
-      new HubPersistenceModule(),
-      new JsonapiModule(),
-      new FileStoreModule())).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(Environment.class).toInstance(env);
-      }
-    }));
-    JsonapiPayloadFactory payloadFactory = injector.getInstance(JsonapiPayloadFactory.class);
+    JsonProviderImpl jsonProvider = new JsonProviderImpl();
+    EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
+    JsonapiPayloadFactory payloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
 
     var userId = UUID.randomUUID();
     var accountId = UUID.randomUUID();
@@ -121,7 +105,7 @@ public class HubAccessTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/154580129 User expects to log in without having access to any accounts.
+   * User expects to log in without having access to any accounts. https://www.pivotaltracker.com/story/show/154580129
    */
   @Test
   public void valid_evenWithNoAccounts() {

@@ -2,28 +2,49 @@
 package io.xj.nexus.dub.master;
 
 import com.google.common.collect.Streams;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
-import io.xj.nexus.model.*;
 import io.xj.hub.HubTopology;
+import io.xj.hub.client.HubClient;
+import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.ProgramType;
-import io.xj.lib.app.Environment;
-import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.app.AppEnvironment;
+import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.entity.EntityStore;
+import io.xj.lib.entity.EntityStoreImpl;
 import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.http.HttpClientProvider;
+import io.xj.lib.http.HttpClientProviderImpl;
+import io.xj.lib.json.JsonProvider;
+import io.xj.lib.json.JsonProviderImpl;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.lib.mixer.InternalResource;
 import io.xj.lib.mixer.Mixer;
 import io.xj.lib.mixer.MixerFactory;
+import io.xj.lib.notification.NotificationProvider;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
+import io.xj.nexus.dub.DubAudioCache;
+import io.xj.nexus.dub.DubAudioCacheImpl;
+import io.xj.nexus.dub.DubAudioCacheItemFactory;
+import io.xj.nexus.dub.DubAudioCacheItemFactoryImpl;
 import io.xj.nexus.dub.DubFactory;
+import io.xj.nexus.dub.DubFactoryImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.hub.client.HubClient;
-import io.xj.hub.client.HubContent;
-import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.fabricator.FabricatorFactoryImpl;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.ChainType;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.model.SegmentType;
+import io.xj.nexus.persistence.ChainManager;
+import io.xj.nexus.persistence.ChainManagerImpl;
+import io.xj.nexus.persistence.NexusEntityStoreImpl;
+import io.xj.nexus.persistence.SegmentManager;
+import io.xj.nexus.persistence.SegmentManagerImpl;
 import io.xj.nexus.persistence.Segments;
-import io.xj.nexus.work.NexusWorkModule;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -47,6 +68,8 @@ public class DubDubMasterContinueTest {
   @Mock
   public FileStoreProvider fileStoreProvider;
   @Mock
+  public NotificationProvider notificationProvider;
+  @Mock
   public HubClient hubClient;
   @Mock
   public Mixer mixer;
@@ -59,27 +82,39 @@ public class DubDubMasterContinueTest {
 
   @Before
   public void setUp() throws Exception {
-    Environment env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(new NexusWorkModule())
-      .with(new AbstractModule() {
-        @Override
-        public void configure() {
-          bind(Environment.class).toInstance(env);
-          bind(FileStoreProvider.class).toInstance(fileStoreProvider);
-          bind(HubClient.class).toInstance(hubClient);
-          bind(MixerFactory.class).toInstance(mixerFactory);
-        }
-      }));
-    fabricatorFactory = injector.getInstance(FabricatorFactory.class);
-    dubFactory = injector.getInstance(DubFactory.class);
-    when(mixerFactory.createMixer(any())).thenReturn(mixer);
-    var entityFactory = injector.getInstance(EntityFactory.class);
+    AppEnvironment env = AppEnvironment.getDefault();
+    JsonProvider jsonProvider = new JsonProviderImpl();
+    var entityFactory = new EntityFactoryImpl(jsonProvider);
+    var store = new NexusEntityStoreImpl(entityFactory);
+    SegmentManager segmentManager = new SegmentManagerImpl(entityFactory, store);
+    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
+    ChainManager chainManager = new ChainManagerImpl(
+      env,
+      entityFactory,
+      store,
+      segmentManager,
+      notificationProvider
+    );
+    EntityStore entityStore = new EntityStoreImpl();
+    fabricatorFactory = new FabricatorFactoryImpl(
+      env,
+      chainManager,
+            segmentManager,
+      jsonapiPayloadFactory,
+      jsonProvider
+    );
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
-    NexusEntityStore store = injector.getInstance(NexusEntityStore.class);
     store.deleteAll();
+
+    // Setup mixer and dub factory
+    when(mixerFactory.createMixer(any())).thenReturn(mixer);
+    HttpClientProvider httpClientProvider = new HttpClientProviderImpl(env);
+    DubAudioCacheItemFactory cacheItemFactory = new DubAudioCacheItemFactoryImpl(env, httpClientProvider);
+    DubAudioCache dubAudioCache = new DubAudioCacheImpl(env, cacheItemFactory);
+    dubFactory = new DubFactoryImpl(env, dubAudioCache, fileStoreProvider, mixerFactory);
 
     // Mock request via HubClient returns fake generated library of hub content
     NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();
@@ -157,7 +192,7 @@ public class DubDubMasterContinueTest {
     store.put(NexusIntegrationTestingFixtures.buildSegmentChord(segment4, 8.0, "D major"));
     store.put(NexusIntegrationTestingFixtures.buildSegmentChoiceArrangement(choice1));
 
-    // FUTURE: determine new test vector for https://www.pivotaltracker.com/story/show/154014731 persist Audio pick in memory
+    // FUTURE: determine new test vector for persist Audio pick in memory https://www.pivotaltracker.com/story/show/154014731
   }
 
   @After

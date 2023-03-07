@@ -12,7 +12,7 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 /**
- https://www.pivotaltracker.com/story/show/177355683 Artist saves Instrument config, validate & combine with defaults.
+ Artist saves Instrument config, validate & combine with defaults. https://www.pivotaltracker.com/story/show/177355683
  */
 public class InstrumentConfigTest {
 

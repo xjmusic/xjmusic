@@ -1,11 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.craft.background;
 
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-import io.xj.nexus.model.SegmentChoice;
-import io.xj.nexus.model.SegmentChoiceArrangement;
-import io.xj.nexus.model.SegmentChoiceArrangementPick;
+
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
@@ -14,6 +10,9 @@ import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.detail.DetailCraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangement;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
 
 import java.util.Collection;
 import java.util.List;
@@ -28,9 +27,8 @@ import java.util.stream.Collectors;
  */
 public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCraft {
 
-  @Inject
   public BackgroundCraftImpl(
-    @Assisted("basis") Fabricator fabricator
+     Fabricator fabricator
   ) {
     super(fabricator);
   }

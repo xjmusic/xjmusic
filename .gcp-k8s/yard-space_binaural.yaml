@@ -37,7 +37,7 @@ items:
                 failureThreshold: 3
                 httpGet:
                   path: /healthz
-                  port: 3000
+                  port: 8080
                   scheme: HTTP
                 initialDelaySeconds: 90
                 periodSeconds: 5
@@ -96,7 +96,7 @@ items:
                 failureThreshold: 3
                 httpGet:
                   path: /healthz
-                  port: 3000
+                  port: 8080
                   scheme: HTTP
                 initialDelaySeconds: 30
                 periodSeconds: 5

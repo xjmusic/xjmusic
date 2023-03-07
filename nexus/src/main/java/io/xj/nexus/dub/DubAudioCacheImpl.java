@@ -2,27 +2,28 @@
 package io.xj.nexus.dub;
 
 import com.google.common.base.Strings;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import io.xj.lib.app.Environment;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.util.Files;
+import io.xj.nexus.NexusException;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
 
-@Singleton
-class DubAudioCacheImpl implements DubAudioCache {
+@Service
+public class DubAudioCacheImpl implements DubAudioCache {
   final Logger log = LoggerFactory.getLogger(DubAudioCacheImpl.class);
   final String pathPrefix;
   private final DubAudioCacheItemFactory dubAudioCacheItemFactory;
 
-  @Inject
-  DubAudioCacheImpl(
-    Environment env,
+  @Autowired
+  public DubAudioCacheImpl(
+    AppEnvironment env,
     DubAudioCacheItemFactory dubAudioCacheItemFactory
   ) {
     this.dubAudioCacheItemFactory = dubAudioCacheItemFactory;
@@ -44,7 +45,7 @@ class DubAudioCacheImpl implements DubAudioCache {
   }
 
   @Override
-  public String getAbsolutePath(String key) throws FileStoreException, IOException {
+  public String getAbsolutePath(String key) throws FileStoreException, IOException, NexusException {
     if (Strings.isNullOrEmpty(key)) throw new FileStoreException("Can't load null or empty audio key!");
     return dubAudioCacheItemFactory.load(key, String.format("%s%s", pathPrefix, key)).getAbsolutePath();
   }

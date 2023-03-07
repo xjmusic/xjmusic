@@ -4,39 +4,50 @@ package io.xj.nexus.persistence;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import io.xj.nexus.model.*;
-import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityStoreImpl;
 import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangement;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.model.SegmentChord;
+import io.xj.nexus.model.SegmentChordVoicing;
+import io.xj.nexus.model.SegmentMeme;
+import io.xj.nexus.model.SegmentMessage;
+import io.xj.nexus.model.SegmentMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- https://www.pivotaltracker.com/story/show/175880468 NexusEntityStore segments and child entities partitioned by segment id for rapid addressing
+ NexusEntityStore segments and child entities partitioned by segment id for rapid addressing https://www.pivotaltracker.com/story/show/175880468
  <p>
- https://www.pivotaltracker.com/story/show/171553408 XJ Lab Distributed Architecture
+ XJ Lab Distributed Architecture https://www.pivotaltracker.com/story/show/171553408
  Chains, ChainBindings, TemplateConfigs, Segments and all Segment content sub-entities persisted in JSON:API record stored keyed by chain or segment id in memory
  */
-@Singleton
+@Service
 public class NexusEntityStoreImpl implements NexusEntityStore {
   private static final Logger LOG = LoggerFactory.getLogger(EntityStoreImpl.class);
   private static final String SEGMENT_ID_ATTRIBUTE = Entities.toIdAttribute(Entities.toBelongsTo(Segment.class));
   private final Map<UUID/*ID*/, Chain> chainMap = Maps.newConcurrentMap();
-  private final Map<UUID/*ID*/, TemplateBinding> chainBindingMap = Maps.newConcurrentMap();
   private final Map<UUID/*ID*/, Segment> segmentMap = Maps.newConcurrentMap();
   private final Map<UUID/*SegID*/, Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>>> store = Maps.newConcurrentMap();
   private final EntityFactory entityFactory;
 
-  @Inject
+  @Autowired
   public NexusEntityStoreImpl(EntityFactory entityFactory) {
     this.entityFactory = entityFactory;
   }
@@ -44,11 +55,6 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   @Override
   public void deleteChain(UUID id) {
     chainMap.remove(id);
-  }
-
-  @Override
-  public void deleteChainBinding(UUID id) {
-    chainBindingMap.remove(id);
   }
 
   @Override
@@ -78,7 +84,6 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   public void deleteAll() {
     store.clear();
     segmentMap.clear();
-    chainBindingMap.clear();
     chainMap.clear();
     LOG.debug("Did delete all records in store");
   }
@@ -87,12 +92,6 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   public Optional<Chain> getChain(UUID id) {
     if (!chainMap.containsKey(id)) return Optional.empty();
     return Optional.of(chainMap.get(id));
-  }
-
-  @Override
-  public Optional<TemplateBinding> getChainBinding(UUID id) {
-    if (!chainBindingMap.containsKey(id)) return Optional.empty();
-    return Optional.of(chainBindingMap.get(id));
   }
 
   @Override
@@ -180,9 +179,6 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
     if (entity instanceof Chain)
       chainMap.put(id, (Chain) entity);
 
-    else if (entity instanceof TemplateBinding)
-      chainBindingMap.put(id, (TemplateBinding) entity);
-
     else if (entity instanceof Segment)
       segmentMap.put(id, (Segment) entity);
 
@@ -215,9 +211,8 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   }
 
   @Override
-  public <N> Collection<N> putAll(Collection<N> entities) throws NexusException {
+  public <N> void putAll(Collection<N> entities) throws NexusException {
     for (N entity : entities) put(entity);
-    return entities;
   }
 
   @Override

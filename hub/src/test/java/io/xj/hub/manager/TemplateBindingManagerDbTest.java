@@ -2,23 +2,14 @@
 package io.xj.hub.manager;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
-import io.xj.hub.HubIntegrationTestModule;
-import io.xj.hub.HubIntegrationTestProvider;
+import io.xj.hub.HubIntegrationTest;
+import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.enums.ContentBindingType;
-import io.xj.hub.ingest.HubIngestModule;
-import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.TemplateBinding;
-import io.xj.lib.app.Environment;
-import io.xj.lib.filestore.FileStoreModule;
-import io.xj.lib.jsonapi.JsonapiModule;
+import io.xj.lib.app.AppEnvironment;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +17,7 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collection;
+import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.*;
 import static org.junit.Assert.*;
@@ -37,21 +29,15 @@ import static org.junit.Assert.*;
 @RunWith(MockitoJUnitRunner.class)
 public class TemplateBindingManagerDbTest {
   private TemplateBindingManager testManager;
-  private HubIntegrationTestProvider test;
+  private HubIntegrationTest test;
   private IntegrationTestingFixtures fake;
   private TemplateBinding templateBinding201;
   private Library targetLibrary;
 
   @Before
   public void setUp() throws Exception {
-    var env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule(), new HubIntegrationTestModule())).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(Environment.class).toInstance(env);
-      }
-    }));
-    test = injector.getInstance(HubIntegrationTestProvider.class);
+    var env = AppEnvironment.getDefault();
+    test = HubIntegrationTestFactory.build(env);
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
@@ -71,7 +57,7 @@ public class TemplateBindingManagerDbTest {
     templateBinding201 = test.insert(buildTemplateBinding(fake.template1, targetLibrary));
 
     // Instantiate the test subject
-    testManager = injector.getInstance(TemplateBindingManager.class);
+    testManager = new TemplateBindingManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
   }
 
   @After
@@ -81,7 +67,7 @@ public class TemplateBindingManagerDbTest {
 
   @Test
   public void create() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     var otherLibrary = buildLibrary(fake.account1, "Another");
     TemplateBinding subject = buildTemplateBinding(fake.template1, otherLibrary);
 
@@ -96,7 +82,7 @@ public class TemplateBindingManagerDbTest {
   @Test
   public void create_cantBindSameContentTwice() throws Exception {
     test.insert(buildTemplateBinding(fake.template1, targetLibrary));
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     TemplateBinding subject = buildTemplateBinding(fake.template1, targetLibrary);
 
     var e = assertThrows(ManagerException.class, () -> testManager.create(access, subject));
@@ -105,7 +91,7 @@ public class TemplateBindingManagerDbTest {
 
   @Test
   public void readOne() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
 
     TemplateBinding result = testManager.readOne(access, templateBinding201.getId());
 
@@ -117,7 +103,7 @@ public class TemplateBindingManagerDbTest {
 
   @Test
   public void readOne_FailsWhenUserIsNotInTemplate() {
-    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")
     ), "User");
 
     var e = assertThrows(ManagerException.class, () -> testManager.readOne(access, templateBinding201.getId()));
@@ -126,7 +112,7 @@ public class TemplateBindingManagerDbTest {
 
   @Test
   public void readMany() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin");
 
     Collection<TemplateBinding> result = testManager.readMany(access, ImmutableList.of(fake.template1.getId()));
 
@@ -135,7 +121,7 @@ public class TemplateBindingManagerDbTest {
 
   @Test
   public void readMany_SeesNothingOutsideOfTemplate() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "User");
 
     Collection<TemplateBinding> result = testManager.readMany(access, ImmutableList.of(fake.template1.getId()));
 
@@ -144,7 +130,7 @@ public class TemplateBindingManagerDbTest {
 
   @Test
   public void update_notAllowed() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     TemplateBinding subject = test.insert(buildTemplateBinding(fake.template1, targetLibrary));
 
     assertThrows(ManagerException.class, () -> testManager.update(access, subject.getId(), subject));

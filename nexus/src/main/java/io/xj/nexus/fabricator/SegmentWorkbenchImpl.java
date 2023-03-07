@@ -3,10 +3,6 @@ package io.xj.nexus.fabricator;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-import io.xj.hub.access.HubAccessTokenAuthFilter;
-import io.xj.nexus.model.*;
 import io.xj.hub.enums.ProgramType;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
@@ -16,11 +12,32 @@ import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.Text;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.persistence.*;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangement;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.model.SegmentChord;
+import io.xj.nexus.model.SegmentChordVoicing;
+import io.xj.nexus.model.SegmentMeme;
+import io.xj.nexus.model.SegmentMessage;
+import io.xj.nexus.model.SegmentMessageType;
+import io.xj.nexus.model.SegmentMeta;
+import io.xj.nexus.persistence.ManagerExistenceException;
+import io.xj.nexus.persistence.ManagerFatalException;
+import io.xj.nexus.persistence.ManagerPrivilegeException;
+import io.xj.nexus.persistence.ManagerValidationException;
+import io.xj.nexus.persistence.SegmentManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 class SegmentWorkbenchImpl implements SegmentWorkbench {
@@ -33,10 +50,9 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   private Segment segment;
   private List<SegmentChord> segmentChords;
 
-  @Inject
   public SegmentWorkbenchImpl(
-    @Assisted("chain") Chain chain,
-    @Assisted("segment") Segment segment,
+     Chain chain,
+     Segment segment,
     SegmentManager segmentManager,
     JsonapiPayloadFactory jsonapiPayloadFactory,
     EntityStore entityStore

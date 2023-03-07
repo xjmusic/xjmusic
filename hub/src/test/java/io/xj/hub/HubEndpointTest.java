@@ -2,17 +2,17 @@
 
 package io.xj.hub;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
+
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.manager.Manager;
 import io.xj.hub.manager.ManagerException;
-import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.Account;
-import io.xj.lib.app.Environment;
-import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.app.AppEnvironment;
+import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.json.ApiUrlProvider;
+import io.xj.lib.json.JsonProvider;
+import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.*;
 import io.xj.lib.util.ValueException;
 import org.junit.Before;
@@ -20,9 +20,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.HttpStatus;
 
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.Response;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.access.HubAccess.CONTEXT_KEY;
@@ -36,31 +37,29 @@ public class HubEndpointTest {
   private JsonapiPayloadFactory payloadFactory;
 
   @Mock
-  ContainerRequestContext crc;
+  HttpServletRequest req;
+  @Mock
+  HttpServletResponse res;
 
   @Mock
   Manager<Account> manager; // can be any class that, we picked a simple one with no belongs-to
 
   @Mock
-  HubDatabaseProvider hubDatabaseProvider;
+  HubSqlStoreProvider sqlStoreProvider;
 
   //
-  HubJsonapiEndpoint<?> subject;
+  HubJsonapiEndpoint subject;
 
   @Before
   public void setUp() throws Exception {
-    var env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new JsonapiModule())).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(Environment.class).toInstance(env);
-        bind(HubDatabaseProvider.class).toInstance(hubDatabaseProvider);
-      }
-    }));
-    payloadFactory = injector.getInstance(JsonapiPayloadFactory.class);
-    var entityFactory = injector.getInstance(EntityFactory.class);
+    var env = AppEnvironment.getDefault();
+    JsonProvider jsonProvider = new JsonProviderImpl();
+    var entityFactory = new EntityFactoryImpl(jsonProvider);
+    payloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     HubTopology.buildHubApiTopology(entityFactory);
-    subject = injector.getInstance(HubJsonapiEndpoint.class);
+    ApiUrlProvider apiUrlProvider = new ApiUrlProvider(env);
+    JsonapiResponseProvider responseProvider = new JsonapiResponseProviderImpl(apiUrlProvider);
+    subject = new HubJsonapiEndpoint(sqlStoreProvider, responseProvider, payloadFactory, entityFactory);
   }
 
   @Test
@@ -70,17 +69,17 @@ public class HubEndpointTest {
       .setDataOne(payloadFactory.newPayloadObject()
         .setType(Account.class)
         .setAttribute("name", "test5"));
-    when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
+    when(req.getAttribute(CONTEXT_KEY)).thenReturn(access);
     when(manager.newInstance()).thenReturn(buildAccount("Testing"));
     var createdAccount = buildAccount("Testing");
     createdAccount.setName("test5");
     when(manager.create(same(access), any(Account.class))).thenReturn(createdAccount);
 
-    Response result = subject.create(crc, manager, jsonapiPayload);
+    var result = subject.create(req, manager, jsonapiPayload);
 
     verify(manager, times(1)).create(same(access), any(Account.class));
-    assertEquals(201, result.getStatus());
-    JsonapiPayload resultJsonapiPayload = payloadFactory.deserialize(String.valueOf(result.getEntity()));
+    assertEquals(HttpStatus.CREATED, result.getStatusCode());
+    JsonapiPayload resultJsonapiPayload = result.getBody();
     (new AssertPayload(resultJsonapiPayload)).hasDataOne(createdAccount);
   }
 }

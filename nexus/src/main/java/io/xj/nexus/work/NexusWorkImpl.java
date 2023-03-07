@@ -5,8 +5,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import io.opencensus.stats.Measure;
 import io.xj.hub.client.HubClient;
 import io.xj.hub.client.HubClientAccess;
@@ -16,7 +14,7 @@ import io.xj.hub.enums.TemplateType;
 import io.xj.hub.manager.Templates;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
-import io.xj.lib.app.Environment;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
@@ -55,9 +53,11 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -78,11 +78,10 @@ import static io.xj.lib.util.Values.MILLIS_PER_SECOND;
 import static io.xj.lib.util.Values.NANOS_PER_SECOND;
 import static io.xj.nexus.work.NexusWorkImpl.Mode.Lab;
 
-@Singleton
+@Service
 public class NexusWorkImpl implements NexusWork {
   private static final Logger LOG = LoggerFactory.getLogger(NexusWorkImpl.class);
   private final ChainManager chainManager;
-  private final ChainManager chains;
   private final CraftFactory craftFactory;
   private final DubFactory dubFactory;
   private final EntityFactory entityFactory;
@@ -132,14 +131,13 @@ public class NexusWorkImpl implements NexusWork {
   private long nextJanitorMillis = System.currentTimeMillis();
   private long nextMedicMillis = System.currentTimeMillis();
 
-  @Inject
+  @Autowired
   public NexusWorkImpl(
     ChainManager chainManager,
-    ChainManager chains,
     CraftFactory craftFactory,
     DubFactory dubFactory,
     EntityFactory entityFactory,
-    Environment env,
+    AppEnvironment env,
     FabricatorFactory fabricatorFactory,
     HttpClientProvider httpClientProvider,
     HubClient hubClient,
@@ -151,7 +149,6 @@ public class NexusWorkImpl implements NexusWork {
     TelemetryProvider telemetryProvider
   ) {
     this.chainManager = chainManager;
-    this.chains = chains;
     this.craftFactory = craftFactory;
     this.dubFactory = dubFactory;
     this.entityFactory = entityFactory;
@@ -199,12 +196,14 @@ public class NexusWorkImpl implements NexusWork {
   @Override
   public void start() {
     timer = MultiStopwatch.start();
+    LOG.info("Will start Nexus");
     while (alive) runCycle();
   }
 
   @Override
   public void finish() {
     alive = false;
+    LOG.info("Did stop Nexus");
   }
 
   /**
@@ -345,10 +344,10 @@ public class NexusWorkImpl implements NexusWork {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/158897383 Engineer wants platform heartbeat to check for any stale production chains in fabricate state,
+   Engineer wants platform heartbeat to check for any stale production chains in fabricate state, https://www.pivotaltracker.com/story/show/158897383
    and if found, send back a failure health check it in order to ensure the Chain remains in an operable state.
    <p>
-   https://www.pivotaltracker.com/story/show/177021797 Medic relies on precomputed  telemetry of fabrication latency
+   Medic relies on precomputed  telemetry of fabrication latency https://www.pivotaltracker.com/story/show/177021797
    */
   private void doMedic() {
     if (System.currentTimeMillis() < nextMedicMillis) return;
@@ -620,7 +619,7 @@ public class NexusWorkImpl implements NexusWork {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/177072936 chain shows current fabrication latency
+   chain shows current fabrication latency https://www.pivotaltracker.com/story/show/177072936
 
    @param chain fabricating
    */
@@ -651,7 +650,7 @@ public class NexusWorkImpl implements NexusWork {
     // https://www.pivotaltracker.com/story/show/183576743
     Collection<Chain> allFab;
     try {
-      allFab = chains.readAllFabricating();
+      allFab = chainManager.readAllFabricating();
     } catch (ManagerFatalException | ManagerPrivilegeException e) {
       LOG.error("Failed to retrieve all fabrication Chain(s) because {}", e.getMessage());
       return false;
@@ -674,7 +673,7 @@ public class NexusWorkImpl implements NexusWork {
       try {
         for (var chain : allFab) {
           LOG.info("Will stop lab Chain[{}]", Chains.getIdentifier(chain));
-          chains.updateState(chain.getId(), ChainState.COMPLETE);
+          chainManager.updateState(chain.getId(), ChainState.COMPLETE);
         }
       } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException | ManagerValidationException e) {
         LOG.error("Failed to stop non-playing Chain(s) because {}", e.getMessage());
@@ -697,12 +696,12 @@ public class NexusWorkImpl implements NexusWork {
     if (chain.isPresent()) return chain;
 
     // If the template already exists, destroy it
-    chains.destroyIfExistsForShipKey(template.getShipKey());
+    chainManager.destroyIfExistsForShipKey(template.getShipKey());
 
     // Only if rehydration was unsuccessful
     try {
       LOG.info("Will bootstrap Template[{}]", Templates.getIdentifier(template));
-      return Optional.of(chains.bootstrap(template.getType(), Chains.fromTemplate(template)));
+      return Optional.of(chainManager.bootstrap(template.getType(), Chains.fromTemplate(template)));
 
     } catch (ManagerFatalException | ManagerPrivilegeException | ManagerValidationException | ManagerExistenceException e) {
       LOG.error("Failed to bootstrap Template[{}] because {}", Templates.getIdentifier(template), e.getMessage());
@@ -714,7 +713,7 @@ public class NexusWorkImpl implements NexusWork {
    Attempt to rehydrate the store from a bootstrap, and return true if successful, so we can skip other stuff
 
    @param template from which to rehydrate
-   @return true if the rehydration was successful
+   @return chain if the rehydration was successful
    */
   private Optional<Chain> rehydrateTemplate(Template template) {
     if (!isRehydrationEnabled) return Optional.empty();
@@ -729,7 +728,7 @@ public class NexusWorkImpl implements NexusWork {
     try (
       CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", shipBaseUrl, key)))
     ) {
-      if (!Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode())) {
+      if (!Objects.equals(HttpStatus.OK.value(), response.getStatusLine().getStatusCode())) {
         LOG.error("Failed to get previously fabricated chain for Template[{}] because {} {}", template.getShipKey(), response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
         return Optional.empty();
       }
@@ -776,7 +775,7 @@ public class NexusWorkImpl implements NexusWork {
           try (
             CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", shipBaseUrl, segmentShipKey)))
           ) {
-            if (!Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode())) {
+            if (!Objects.equals(HttpStatus.OK.value(), response.getStatusLine().getStatusCode())) {
               LOG.error("Failed to get segment for Template[{}] because {} {}", template.getShipKey(), response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
               success.set(false);
               return;
@@ -818,7 +817,7 @@ public class NexusWorkImpl implements NexusWork {
       if (aheadSeconds < rehydrateFabricatedAheadThreshold) {
         LOG.info("Will not rehydrate Chain[{}] fabricated ahead {}s (not > {}s)",
           Chains.getIdentifier(chain), aheadSeconds, rehydrateFabricatedAheadThreshold);
-        chains.destroy(chain.getId());
+        chainManager.destroy(chain.getId());
         return Optional.empty();
       }
 

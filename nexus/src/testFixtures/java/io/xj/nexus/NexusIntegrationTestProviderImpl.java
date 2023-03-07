@@ -1,8 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.nexus.persistence.NexusEntityStore;
 import org.slf4j.Logger;
@@ -10,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 
-@Singleton
 public class NexusIntegrationTestProviderImpl implements NexusIntegrationTestProvider {
   final Logger LOG = LoggerFactory.getLogger(NexusIntegrationTestProviderImpl.class);
   private final NexusEntityStore store;
@@ -19,7 +16,6 @@ public class NexusIntegrationTestProviderImpl implements NexusIntegrationTestPro
    Since this class is a singleton, the process here in its constructor
    will happen only once for a whole test suite
    */
-  @Inject
   NexusIntegrationTestProviderImpl(
     EntityFactory entityFactory,
     NexusEntityStore nexusEntityStore

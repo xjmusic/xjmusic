@@ -1,30 +1,30 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.dub;
 
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-import io.xj.nexus.model.SegmentType;
-import io.xj.lib.app.Environment;
+
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
-import io.xj.lib.jsonapi.MediaType;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.fabricator.Fabricator;
+import io.xj.nexus.model.SegmentType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
 
 /**
- [#264] Segment audio is compressed to OGG and shipped to https://segment.xj.io
+ * [#264] Segment audio is compressed to OGG and shipped to https://segment.xj.io
  */
+@Service
 public class DubShipImpl implements DubShip {
   private final Fabricator fabricator;
   private final FileStoreProvider fileStore;
   private final String shipBucket;
   private final int chainJsonMaxAgeSeconds;
 
-  @Inject
+  @Autowired
   public DubShipImpl(
-    @Assisted("basis") Fabricator fabricator,
-    FileStoreProvider fileStore,
-    Environment env
+    AppEnvironment env, FileStoreProvider fileStore, Fabricator fabricator
     /*-*/) {
     this.fabricator = fabricator;
     this.fileStore = fileStore;
@@ -51,7 +51,7 @@ public class DubShipImpl implements DubShip {
 
 
   /**
-   DubShip the final audio
+   * DubShip the final audio
    */
   private void shipSegmentAudio() throws NexusException, FileStoreException {
     fileStore.putS3ObjectFromTempFile(
@@ -62,37 +62,37 @@ public class DubShipImpl implements DubShip {
   }
 
   /**
-   DubShip the final metadata
+   * DubShip the final metadata
    */
   private void shipSegmentJson() throws NexusException, FileStoreException {
     fileStore.putS3ObjectFromString(
-      fabricator.getSegmentJson(),
+     fabricator.getSegmentJson(),
       shipBucket,
       fabricator.getSegmentJsonOutputKey(),
-      MediaType.APPLICATION_JSONAPI, null);
+      MediaType.APPLICATION_JSON_VALUE, null);
   }
 
   /**
-   DubShip the final metadata
+   * DubShip the final metadata
    */
   private void shipChainFullJson() throws NexusException, FileStoreException {
     fileStore.putS3ObjectFromString(
       fabricator.getChainFullJson(),
       shipBucket,
       fabricator.getChainFullJsonOutputKey(),
-      MediaType.APPLICATION_JSONAPI,
+      MediaType.APPLICATION_JSON_VALUE,
       chainJsonMaxAgeSeconds);
   }
 
   /**
-   DubShip the final metadata
+   * DubShip the final metadata
    */
   private void shipChainJson() throws NexusException, FileStoreException {
     fileStore.putS3ObjectFromString(
       fabricator.getChainJson(),
       shipBucket,
       fabricator.getChainJsonOutputKey(),
-      MediaType.APPLICATION_JSONAPI,
+      MediaType.APPLICATION_JSON_VALUE,
       chainJsonMaxAgeSeconds);
   }
 

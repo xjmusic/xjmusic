@@ -2,18 +2,24 @@
 package io.xj.ship.work;
 
 import com.google.common.base.Strings;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import io.xj.lib.app.Environment;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.util.Text;
 import io.xj.nexus.persistence.ChainManager;
 import io.xj.ship.ShipException;
-import io.xj.ship.broadcast.*;
+import io.xj.ship.broadcast.BroadcastFactory;
+import io.xj.ship.broadcast.ChunkFactory;
+import io.xj.ship.broadcast.ChunkMixer;
+import io.xj.ship.broadcast.MediaSeqNumProvider;
+import io.xj.ship.broadcast.PlaylistPublisher;
+import io.xj.ship.broadcast.StreamEncoder;
+import io.xj.ship.broadcast.StreamPlayer;
+import io.xj.ship.broadcast.StreamWriter;
 import io.xj.ship.source.SegmentAudioManager;
 import io.xj.ship.source.SourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import javax.sound.sampled.AudioFormat;
@@ -23,27 +29,28 @@ import java.util.concurrent.atomic.AtomicReference;
 import static io.xj.lib.util.Values.MILLIS_PER_SECOND;
 
 /**
- Ship Work Service Implementation
- <p>
- Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
- <p>
- SEE: https://www.nurkiewicz.com/2014/11/executorservice-10-tips-and-tricks.html
- <p>
- Work is performed by runnable executables in a cached thread pool, with callback functions for success and failure.
+ * Ship Work Service Implementation
+ * <p>
+ * Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
+ * <p>
+ * SEE: https://www.nurkiewicz.com/2014/11/executorservice-10-tips-and-tricks.html
+ * <p>
+ * Work is performed by runnable executables in a cached thread pool, with callback functions for success and failure.
  */
-@Singleton
+@Service
 public class ShipWorkImpl implements ShipWork {
   private static final Logger LOG = LoggerFactory.getLogger(ShipWorkImpl.class);
   private final AtomicReference<State> state;
   private final AudioFormat audioFormat;
-  private final BroadcastFactory broadcast;
-  private final ChainManager chains;
+  private final BroadcastFactory broadcastFactory;
+  private final ChunkFactory chunkFactory;
+  private final ChainManager chainManager;
   private final Janitor janitor;
   private final MediaSeqNumProvider mediaSeqNumProvider;
-  private final NotificationProvider notification;
-  private final PlaylistPublisher playlist;
-  private final SegmentAudioManager segmentAudios;
-  private final SourceFactory sources;
+  private final NotificationProvider notificationProvider;
+  private final PlaylistPublisher playlistPublisher;
+  private final SegmentAudioManager segmentAudioManager;
+  private final SourceFactory sourceFactory;
   private final StreamPlayer player;
   private final boolean janitorEnabled;
   private final int chunkTargetDuration;
@@ -71,26 +78,27 @@ public class ShipWorkImpl implements ShipWork {
   private long nextLoadMillis = 0;
   private final String envName;
 
-  @Inject
   public ShipWorkImpl(
-    BroadcastFactory broadcast,
-    ChainManager chains,
-    Environment env,
+    BroadcastFactory broadcastFactory,
+    ChunkFactory chunkFactory,
+    ChainManager chainManager,
+    AppEnvironment env,
     Janitor janitor,
     MediaSeqNumProvider mediaSeqNumProvider,
-    NotificationProvider notification,
-    PlaylistPublisher playlist,
-    SegmentAudioManager segmentAudios,
-    SourceFactory sources
+    NotificationProvider notificationProvider,
+    PlaylistPublisher playlistPublisher,
+    SegmentAudioManager segmentAudioManager,
+    SourceFactory sourceFactory
   ) {
-    this.broadcast = broadcast;
-    this.chains = chains;
+    this.broadcastFactory = broadcastFactory;
+    this.chunkFactory = chunkFactory;
+    this.chainManager = chainManager;
     this.janitor = janitor;
     this.mediaSeqNumProvider = mediaSeqNumProvider;
-    this.notification = notification;
-    this.playlist = playlist;
-    this.segmentAudios = segmentAudios;
-    this.sources = sources;
+    this.notificationProvider = notificationProvider;
+    this.playlistPublisher = playlistPublisher;
+    this.segmentAudioManager = segmentAudioManager;
+    this.sourceFactory = sourceFactory;
     envName = env.getWorkEnvironmentName();
 
     shipKey = env.getShipKey();
@@ -119,13 +127,13 @@ public class ShipWorkImpl implements ShipWork {
       48000,
       false);
 
-    player = broadcast.player(audioFormat);
-    writer = broadcast.writer(audioFormat);
+    player = broadcastFactory.player(audioFormat);
+    writer = broadcastFactory.writer(audioFormat);
 
     // Snap this once to avoid the edge case of a difference between subsequently computed values
     var nowMillis = System.currentTimeMillis();
 
-    // This is the initial sequence number when the entire ship process was started-
+    // This is the initial sequence number when the entire ship process was started:
     // necessary to coordinate between mixing, encoding, and playlist publishing
     initialSeqNum = mediaSeqNumProvider.computeInitialMediaSeqNum(nowMillis);
     LOG.info("Initial media sequence number {}", initialSeqNum);
@@ -140,18 +148,19 @@ public class ShipWorkImpl implements ShipWork {
 
   @Override
   public void start() {
-    playlist.start(initialSeqNum)
+    playlistPublisher.start(initialSeqNum)
       .ifPresent(maxSeqNum -> doneUpToSecondsUTC = (maxSeqNum + 1) * chunkTargetDuration);
 
     // Collect garbage before we begin
     var nowSeqNum = mediaSeqNumProvider.computeMediaSeqNum(System.currentTimeMillis());
-    playlist.collectGarbage(nowSeqNum);
+    playlistPublisher.collectGarbage(nowSeqNum);
 
     // Check to see if in fact, this is a stale playlist and should be reset
-    if (playlist.isEmpty()) {
+    if (playlistPublisher.isEmpty()) {
       doneUpToSecondsUTC = (long) nowSeqNum * chunkTargetDuration;
     }
 
+    LOG.info("Will start Ship");
     while (active) this.doCycle();
   }
 
@@ -160,6 +169,7 @@ public class ShipWorkImpl implements ShipWork {
     active = false;
     player.close();
     writer.close();
+    LOG.info("Did finish Ship");
   }
 
   @Override
@@ -169,15 +179,15 @@ public class ShipWorkImpl implements ShipWork {
     if (State.Fail.equals(state.get())) return notHealthy("Work entered a failure state!");
     if (Objects.isNull(stream)) return notHealthy("Stream encoder has not yet started!");
     if (!stream.isHealthy()) return notHealthy("Stream encoder is not healthy!");
-    if (!playlist.isHealthy()) return notHealthy("Playlist is not healthy!");
+    if (!playlistPublisher.isHealthy()) return notHealthy("Playlist is not healthy!");
     return true;
   }
 
   /**
-   Return false after logging a warning message
-
-   @param message to warn
-   @return false
+   * Return false after logging a warning message
+   *
+   * @param message to warn
+   * @return false
    */
   private boolean notHealthy(String message) {
     LOG.warn(message);
@@ -185,7 +195,7 @@ public class ShipWorkImpl implements ShipWork {
   }
 
   /**
-   @return true if the cycle is stale
+   * @return true if the cycle is stale
    */
   private boolean isCycleStale() {
     if (0 == nextCycleMillis) return false;
@@ -193,7 +203,7 @@ public class ShipWorkImpl implements ShipWork {
   }
 
   /**
-   Run one work cycle
+   * Run one work cycle
    */
   private void doCycle() {
     var nowMillis = System.currentTimeMillis();
@@ -211,14 +221,14 @@ public class ShipWorkImpl implements ShipWork {
       } catch (Exception e) {
         var detail = Strings.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
         LOG.error("Failed while running ship work because {}", detail, e);
-        notification.publish(String.format("%s-Chain[%s] Ship Failure", envName, shipKey), String.format("Failed while running ship work because %s\n\n%s", detail, Text.formatStackTrace(e)));
+        notificationProvider.publish(String.format("%s-Chain[%s] Ship Failure", envName, shipKey), String.format("Failed while running ship work because %s\n\n%s", detail, Text.formatStackTrace(e)));
       }
   }
 
   /**
-   Print the chunks every N milliseconds
-
-   @param nowMillis current
+   * Print the chunks every N milliseconds
+   *
+   * @param nowMillis current
    */
   private void doMixCycle(long nowMillis) throws ShipException {
     ChunkMixer mixer;
@@ -227,17 +237,17 @@ public class ShipWorkImpl implements ShipWork {
     nextMixMillis = nowMillis + mixCycleSeconds * MILLIS_PER_SECOND;
 
     // Compute next chunk
-    if (!chains.existsForShipKey(shipKey)) return;
+    if (!chainManager.existsForShipKey(shipKey)) return;
     var computeToSecondsUTC = computeChunkSecondsUTC(nowMillis + shipAheadMillis);
     if (doneUpToSecondsUTC == computeToSecondsUTC) return;
-    var chunk = broadcast.chunk(shipKey, doneUpToSecondsUTC / chunkTargetDuration, null, null);
+    var chunk = chunkFactory.build(shipKey, doneUpToSecondsUTC / chunkTargetDuration, null, null);
 
     // Use the first chunk to initialize the stream-- this is how we keep ffmpeg in sync with our chunk scheme
     if (Objects.isNull(stream))
-      stream = broadcast.encoder(shipKey, audioFormat, initialSeqNum);
+      stream = broadcastFactory.encoder(shipKey, audioFormat, initialSeqNum);
 
     // get the mixer for this chunk before pulling the trigger
-    mixer = broadcast.mixer(chunk, audioFormat);
+    mixer = broadcastFactory.mixer(chunk, audioFormat);
 
     // if this chunk isn't ready to be mixed, then quit the mix cycle for now. we won't update done-up-to any further this cycle
     if (!mixer.isReadyToMix()) return;
@@ -255,20 +265,20 @@ public class ShipWorkImpl implements ShipWork {
   }
 
   /**
-   Load sources every N milliseconds
-
-   @param nowMillis current
+   * Load sources every N milliseconds
+   *
+   * @param nowMillis current
    */
   private void doLoadCycle(long nowMillis) {
     if (nowMillis < nextLoadMillis) return;
     nextLoadMillis = nowMillis + loadCycleSeconds * MILLIS_PER_SECOND;
-    sources.loadChain(shipKey, () -> state.set(State.Fail)).run();
+    sourceFactory.loadChain(shipKey, () -> state.set(State.Fail)).run();
   }
 
   /**
-   Clean up every N milliseconds
-
-   @param nowMillis current
+   * Clean up every N milliseconds
+   *
+   * @param nowMillis current
    */
   private void doCleanupCycle(long nowMillis) {
     if (!janitorEnabled) return;
@@ -278,22 +288,22 @@ public class ShipWorkImpl implements ShipWork {
   }
 
   /**
-   Clean up every N milliseconds
-
-   @param nowMillis current
+   * Clean up every N milliseconds
+   *
+   * @param nowMillis current
    */
   private void doTelemetryCycle(long nowMillis) {
     if (!telemetryEnabled) return;
     if (nowMillis < nextTelemetryMillis) return;
     nextTelemetryMillis = nowMillis + (telemetryCycleSeconds * MILLIS_PER_SECOND);
-    segmentAudios.sendTelemetry();
-    playlist.sendTelemetry();
+    segmentAudioManager.sendTelemetry();
+    playlistPublisher.sendTelemetry();
   }
 
   /**
-   Publish the playlist every N milliseconds
-
-   @param nowMillis current
+   * Publish the playlist every N milliseconds
+   *
+   * @param nowMillis current
    */
   private void doPublishCycle(long nowMillis) throws ShipException {
     if (nowMillis < nextPublishMillis) return;
@@ -303,17 +313,17 @@ public class ShipWorkImpl implements ShipWork {
   }
 
   /**
-   Compute the from-seconds-utc for a given now (in milliseconds)
-
-   @param nowMillis current
-   @return seconds UTC
+   * Compute the from-seconds-utc for a given now (in milliseconds)
+   *
+   * @param nowMillis current
+   * @return seconds UTC
    */
   public long computeChunkSecondsUTC(long nowMillis) {
     return (long) (Math.floor((double) (nowMillis / MILLIS_PER_SECOND) / chunkTargetDuration) * chunkTargetDuration);
   }
 
   /**
-   State of the ship work
+   * State of the ship work
    */
   enum State {
     Active,

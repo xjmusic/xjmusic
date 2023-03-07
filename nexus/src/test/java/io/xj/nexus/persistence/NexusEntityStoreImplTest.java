@@ -2,18 +2,24 @@
 
 package io.xj.nexus.persistence;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
-import io.xj.nexus.model.*;
+
 import io.xj.hub.HubTopology;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Library;
-import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.json.JsonProvider;
+import io.xj.lib.json.JsonProviderImpl;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusTopology;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.ChainType;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.model.SegmentType;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,8 +29,14 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.UUID;
 
-import static io.xj.hub.IntegrationTestingFixtures.*;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequence;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceBinding;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
@@ -35,27 +47,20 @@ public class NexusEntityStoreImplTest {
 
   @Before
   public void setUp() throws Exception {
-    Environment env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(new NexusPersistenceModule())
-      .with(new AbstractModule() {
-        @Override
-        protected void configure() {
-          bind(Environment.class).toInstance(env);
-        }
-      }));
-    entityFactory = injector.getInstance(EntityFactory.class);
+    JsonProvider jsonProvider = new JsonProviderImpl();
+    entityFactory = new EntityFactoryImpl(jsonProvider);
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
 
     // Instantiate the test subject and put the payload
-    subject = injector.getInstance(NexusEntityStore.class);
+    subject = new NexusEntityStoreImpl(entityFactory);
   }
 
   /**
-   This should ostensibly be a test inside the Entity library-- and it is, except for this bug that
-   at the time of this writing, we couldn't isolate to that library, and are therefore reproducing it here.
-
-   @throws EntityException on failure
+   * This should ostensibly be a test inside the Entity library-- and it is, except for this bug that
+   * at the time of this writing, we couldn't isolate to that library, and are therefore reproducing it here.
+   *
+   * @throws EntityException on failure
    */
   @Test
   public void internal_entityFactoryClonesSegmentTypeOK() throws EntityException {

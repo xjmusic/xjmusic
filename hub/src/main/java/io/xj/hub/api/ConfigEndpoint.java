@@ -2,7 +2,6 @@
 package io.xj.hub.api;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.inject.Inject;
 import com.typesafe.config.ConfigFactory;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.InstrumentConfig;
@@ -10,75 +9,76 @@ import io.xj.hub.ProgramConfig;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.analysis.Report;
 import io.xj.hub.enums.*;
-import io.xj.hub.persistence.HubDatabaseProvider;
-import io.xj.lib.app.Environment;
+import io.xj.hub.persistence.HubSqlStoreProvider;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
+import io.xj.lib.jsonapi.JsonapiResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadObject;
 import io.xj.lib.util.Text;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.security.PermitAll;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- Current platform configuration
+ * Current platform configuration
  */
-@Path("config")
-public class ConfigEndpoint extends HubJsonapiEndpoint<Object> {
+@RestController
+@RequestMapping("/config")
+public class ConfigEndpoint extends HubJsonapiEndpoint {
   private final Map<String, Object> configMap;
 
   /**
-   Constructor
+   * Constructor
    */
-  @Inject
   public ConfigEndpoint(
-    Environment env,
-    HubDatabaseProvider dbProvider,
-    JsonapiHttpResponseProvider response,
+    AppEnvironment env,
+    HubSqlStoreProvider sqlStoreProvider,
+    JsonapiResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory
   ) {
-    super(dbProvider, response, payloadFactory, entityFactory);
-    configMap = ImmutableMap.<String, Object>builder()
-      .put("analysisTypes", Arrays.stream(Report.Type.values()).collect(Collectors.toMap(Report.Type::toString, Report.Type::getName)))
-      .put("apiBaseUrl", env.getAppBaseUrl())
-      .put("audioBaseUrl", env.getAudioBaseUrl())
-      .put("streamBaseUrl", env.getStreamBaseUrl())
-      .put("baseUrl", env.getAppBaseUrl())
-      .put("choiceTypes", ProgramType.values())
-      .put("defaultInstrumentConfig", Text.format(ConfigFactory.parseString(InstrumentConfig.DEFAULT)))
-      .put("defaultProgramConfig", Text.format(ConfigFactory.parseString(ProgramConfig.DEFAULT)))
-      .put("defaultTemplateConfig", Text.format(ConfigFactory.parseString(TemplateConfig.DEFAULT)))
-      .put("instrumentStates", InstrumentState.values())
-      .put("instrumentTypes", InstrumentType.values())
-      .put("instrumentModes", InstrumentMode.values())
-      .put("playerBaseUrl", env.getPlayerBaseUrl())
-      .put("programStates", ProgramState.values())
-      .put("programTypes", ProgramType.values())
-      .put("shipBaseUrl", env.getShipBaseUrl())
-      .put("templateTypes", TemplateType.values())
-      .build();
+    super(sqlStoreProvider, response, payloadFactory, entityFactory);
+    var c = ImmutableMap.<String, Object>builder();
+    c.put("analysisTypes", Arrays.stream(Report.Type.values()).collect(Collectors.toMap(Report.Type::toString, Report.Type::getName)));
+    c.put("apiBaseUrl", env.getAppBaseUrl());
+    c.put("audioBaseUrl", env.getAudioBaseUrl());
+    c.put("streamBaseUrl", env.getStreamBaseUrl());
+    c.put("baseUrl", env.getAppBaseUrl());
+    c.put("choiceTypes", ProgramType.values());
+    c.put("defaultInstrumentConfig", Text.format(ConfigFactory.parseString(InstrumentConfig.DEFAULT)));
+    c.put("defaultProgramConfig", Text.format(ConfigFactory.parseString(ProgramConfig.DEFAULT)));
+    c.put("defaultTemplateConfig", Text.format(ConfigFactory.parseString(TemplateConfig.DEFAULT)));
+    c.put("instrumentStates", InstrumentState.values());
+    c.put("instrumentTypes", InstrumentType.values());
+    c.put("instrumentModes", InstrumentMode.values());
+    c.put("playerBaseUrl", env.getPlayerBaseUrl());
+    c.put("programStates", ProgramState.values());
+    c.put("programTypes", ProgramType.values());
+    c.put("shipBaseUrl", env.getShipBaseUrl());
+    c.put("templateTypes", TemplateType.values());
+    configMap = c.build();
   }
 
   /**
-   Get current platform configuration (PUBLIC)
-
-   @return application/json response.
+   * Get current platform configuration (PUBLIC)
+   *
+   * @return application/json response.
    */
-  @GET
+  @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE})
   @PermitAll
-  public Response getConfig(@Context ContainerRequestContext crc) {
-    return response.ok(
-      new JsonapiPayload().setDataOne(
-        new JsonapiPayloadObject().setAttributes(configMap)));
+  public ResponseEntity<JsonapiPayload> getConfig() {
+    var dataOne = new JsonapiPayloadObject().setAttributes(configMap);
+    var payload = new JsonapiPayload().setDataOne(dataOne);
+
+    return responseProvider.ok(payload);
   }
 }

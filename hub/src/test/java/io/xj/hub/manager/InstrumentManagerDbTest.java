@@ -2,24 +2,15 @@
 package io.xj.hub.manager;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
-import io.xj.hub.HubIntegrationTestModule;
-import io.xj.hub.HubIntegrationTestProvider;
+import io.xj.hub.HubIntegrationTest;
+import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.ingest.HubIngestModule;
-import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.hub.tables.pojos.Instrument;
-import io.xj.lib.app.Environment;
-import io.xj.lib.filestore.FileStoreModule;
-import io.xj.lib.jsonapi.JsonapiModule;
+import io.xj.lib.app.AppEnvironment;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,21 +20,10 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.Collection;
 import java.util.UUID;
 
-import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
-import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
-import static io.xj.hub.IntegrationTestingFixtures.buildInstrument;
-import static io.xj.hub.IntegrationTestingFixtures.buildInstrumentAudio;
-import static io.xj.hub.IntegrationTestingFixtures.buildInstrumentMeme;
-import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
-import static io.xj.hub.IntegrationTestingFixtures.buildUser;
+import static io.xj.hub.IntegrationTestingFixtures.*;
 import static io.xj.hub.tables.InstrumentAudio.INSTRUMENT_AUDIO;
 import static io.xj.hub.tables.InstrumentMeme.INSTRUMENT_MEME;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 // future test: permissions of different users to readMany vs. of vs. update or delete instruments
 
@@ -52,19 +32,13 @@ import static org.junit.Assert.fail;
 @RunWith(MockitoJUnitRunner.class)
 public class InstrumentManagerDbTest {
   private InstrumentManager subject;
-  private HubIntegrationTestProvider test;
+  private HubIntegrationTest test;
   private IntegrationTestingFixtures fake;
 
   @Before
   public void setUp() throws Exception {
-    var env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule(), new HubIntegrationTestModule())).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(Environment.class).toInstance(env);
-      }
-    }));
-    test = injector.getInstance(HubIntegrationTestProvider.class);
+    var env = AppEnvironment.getDefault();
+    test = HubIntegrationTestFactory.build(env);
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
@@ -90,7 +64,7 @@ public class InstrumentManagerDbTest {
     fake.library3 = test.insert(buildLibrary(fake.account2, "car"));
 
     // Instantiate the test subject
-    subject = injector.getInstance(InstrumentManager.class);
+    subject = new InstrumentManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
   }
 
   @After
@@ -100,7 +74,7 @@ public class InstrumentManagerDbTest {
 
   @Test
   public void create() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     Instrument input = new Instrument();
     input.setId(UUID.randomUUID());
     input.setLibraryId(fake.library1.getId());
@@ -123,11 +97,11 @@ public class InstrumentManagerDbTest {
   }
 
   /**
-   Overall volume parameter defaults to 1.0 https://www.pivotaltracker.com/story/show/179215413
+   * Overall volume parameter defaults to 1.0 https://www.pivotaltracker.com/story/show/179215413
    */
   @Test
   public void create_defaultVolume() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     Instrument input = buildInstrument(fake.library1, InstrumentType.Drum, InstrumentMode.Event, InstrumentState.Published, "shimmy");
 
     Instrument result = subject.create(
@@ -137,11 +111,11 @@ public class InstrumentManagerDbTest {
   }
 
   /**
-   Instruments/Instruments can be cloned/moved between accounts https://www.pivotaltracker.com/story/show/181878883
+   * Instruments/Instruments can be cloned/moved between accounts https://www.pivotaltracker.com/story/show/181878883
    */
   @Test
   public void clone_toLibraryInDifferentAccount() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1, fake.account2));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1, fake.account2));
     Instrument input = new Instrument();
     input.setLibraryId(fake.library3.getId());
     input.setName("porcupines");
@@ -154,12 +128,12 @@ public class InstrumentManagerDbTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/170290553 Clone sub-entities of instruments
-   Cloning an Instrument should not reset its Parameters https://www.pivotaltracker.com/story/show/180764355
+   * Clone sub-entities of instruments https://www.pivotaltracker.com/story/show/170290553
+   * Cloning an Instrument should not reset its Parameters https://www.pivotaltracker.com/story/show/180764355
    */
   @Test
   public void clone_fromOriginal() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     test.insert(buildInstrumentMeme(fake.instrument202, "chunk"));
     Instrument input = new Instrument();
     input.setId(UUID.randomUUID());
@@ -193,19 +167,21 @@ public class InstrumentManagerDbTest {
           """,
       result.getClone().getConfig()
     );
-    assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(INSTRUMENT_MEME)
-      .where(INSTRUMENT_MEME.INSTRUMENT_ID.eq(result.getClone().getId()))
-      .fetchOne(0, int.class));
-    assertEquals(Integer.valueOf(1), test.getDSL()
-      .selectCount().from(INSTRUMENT_AUDIO)
-      .where(INSTRUMENT_AUDIO.INSTRUMENT_ID.eq(result.getClone().getId()))
-      .fetchOne(0, int.class));
+    try (var selectCount = test.getDSL().selectCount()) {
+      assertEquals(Integer.valueOf(1), selectCount.from(INSTRUMENT_MEME)
+        .where(INSTRUMENT_MEME.INSTRUMENT_ID.eq(result.getClone().getId()))
+        .fetchOne(0, int.class));
+    }
+    try (var selectCount = test.getDSL().selectCount()) {
+      assertEquals(Integer.valueOf(1), selectCount.from(INSTRUMENT_AUDIO)
+        .where(INSTRUMENT_AUDIO.INSTRUMENT_ID.eq(result.getClone().getId()))
+        .fetchOne(0, int.class));
+    }
   }
 
   @Test
   public void readOne() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
 
     Instrument result = subject.readOne(access, fake.instrument201.getId());
 
@@ -219,7 +195,7 @@ public class InstrumentManagerDbTest {
 
   @Test
   public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")
     ), "User");
 
     var e = assertThrows(ManagerException.class, () -> subject.readOne(access, fake.instrument201.getId()));
@@ -230,7 +206,7 @@ public class InstrumentManagerDbTest {
 
   @Test
   public void readMany() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin");
 
     Collection<Instrument> result = subject.readMany(access, ImmutableList.of(fake.library1.getId()));
 
@@ -239,7 +215,7 @@ public class InstrumentManagerDbTest {
 
   @Test
   public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "User");
 
     Collection<Instrument> result = subject.readMany(access, ImmutableList.of(fake.library1.getId()));
 
@@ -248,7 +224,7 @@ public class InstrumentManagerDbTest {
 
   @Test
   public void update_FailsUpdatingToNonexistentLibrary() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
     Instrument input = new Instrument();
     input.setId(UUID.randomUUID());
     input.setName("shimmy");
@@ -267,11 +243,11 @@ public class InstrumentManagerDbTest {
   }
 
   /**
-   change volume parameter https://www.pivotaltracker.com/story/show/179215413
+   * change volume parameter https://www.pivotaltracker.com/story/show/179215413
    */
   @Test
   public void update_volume() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     fake.instrument201.setVolume(0.74f);
 
     subject.update(access, fake.instrument201.getId(), fake.instrument201);
@@ -282,7 +258,7 @@ public class InstrumentManagerDbTest {
 
   @Test
   public void update_addAudio() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     Instrument input = test.insert(buildInstrument(fake.library1, InstrumentType.Drum, InstrumentMode.Event, InstrumentState.Published, "shimmy"));
     test.insert(buildInstrumentAudio(input, "Test audio", "fake.audio5.wav", 0.0f, 20.f, 120.0f));
 
@@ -321,7 +297,7 @@ public class InstrumentManagerDbTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/170299297 As long as instrument has no meme, destroy all other inner entities
+   * As long as instrument has no meme, destroy all other inner entities https://www.pivotaltracker.com/story/show/170299297
    */
   @Test
   public void destroy_succeedsWithInnerEntitiesButNoMemes() throws Exception {

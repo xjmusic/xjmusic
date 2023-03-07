@@ -2,22 +2,45 @@
 package io.xj.nexus.work;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
 import io.xj.hub.HubTopology;
-import io.xj.lib.app.Environment;
-import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.filestore.FileStoreProvider;
-import io.xj.lib.http.HttpClientProvider;
-import io.xj.lib.telemetry.TelemetryProvider;
-import io.xj.nexus.NexusIntegrationTestingFixtures;
-import io.xj.nexus.NexusTopology;
 import io.xj.hub.client.HubClient;
 import io.xj.hub.client.HubClientAccess;
 import io.xj.hub.client.HubClientException;
 import io.xj.hub.client.HubContent;
-import io.xj.nexus.persistence.*;
+import io.xj.lib.app.AppEnvironment;
+import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.entity.EntityStore;
+import io.xj.lib.entity.EntityStoreImpl;
+import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.http.HttpClientProvider;
+import io.xj.lib.http.HttpClientProviderImpl;
+import io.xj.lib.json.ApiUrlProvider;
+import io.xj.lib.json.JsonProviderImpl;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.lib.mixer.Mixer;
+import io.xj.lib.mixer.MixerFactory;
+import io.xj.lib.notification.NotificationProvider;
+import io.xj.lib.telemetry.TelemetryProvider;
+import io.xj.nexus.NexusIntegrationTestingFixtures;
+import io.xj.nexus.NexusTopology;
+import io.xj.nexus.craft.CraftFactory;
+import io.xj.nexus.craft.CraftFactoryImpl;
+import io.xj.nexus.dub.DubAudioCache;
+import io.xj.nexus.dub.DubAudioCacheImpl;
+import io.xj.nexus.dub.DubAudioCacheItemFactory;
+import io.xj.nexus.dub.DubAudioCacheItemFactoryImpl;
+import io.xj.nexus.dub.DubFactoryImpl;
+import io.xj.nexus.fabricator.FabricatorFactoryImpl;
+import io.xj.nexus.persistence.ChainManager;
+import io.xj.nexus.persistence.ChainManagerImpl;
+import io.xj.nexus.persistence.ManagerExistenceException;
+import io.xj.nexus.persistence.ManagerFatalException;
+import io.xj.nexus.persistence.ManagerPrivilegeException;
+import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.persistence.NexusEntityStoreImpl;
+import io.xj.nexus.persistence.SegmentManager;
+import io.xj.nexus.persistence.SegmentManagerImpl;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -38,7 +61,9 @@ import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ComplexLibraryTest {
@@ -59,7 +84,13 @@ public class ComplexLibraryTest {
   @Mock(lenient = true)
   public HttpEntity httpResponseEntity;
   @Mock
+  public NotificationProvider notificationProvider;
+  @Mock
   public TelemetryProvider telemetryProvider;
+  @Mock
+  private MixerFactory mixerFactory;
+  @Mock
+  private Mixer mixer;
   long startTime = System.currentTimeMillis();
   private AppWorkThread workThread;
   private ChainManager chainManager;
@@ -79,32 +110,38 @@ public class ComplexLibraryTest {
     template.setConfig("bufferAheadSeconds=9999\noutputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n");
     content.put(template);
 
-    Environment env = Environment.from(ImmutableMap.of(
+    AppEnvironment env = AppEnvironment.from(ImmutableMap.of(
       "APP_PORT", "9043",
       "SHIP_KEY", content.getTemplate().getShipKey(),
       "WORK_REHYDRATION_ENABLED", "false",
       "WORK_ERASE_SEGMENTS_OLDER_THAN_SECONDS", String.valueOf(MAXIMUM_TEST_WAIT_SECONDS + 300),
       "WORK_CYCLE_MILLIS", "50"
     ));
-    var injector = Guice.createInjector(Modules.override(new NexusWorkModule())
-      .with(new AbstractModule() {
-        @Override
-        public void configure() {
-          bind(Environment.class).toInstance(env);
-          bind(FileStoreProvider.class).toInstance(fileStoreProvider);
-          bind(HttpClientProvider.class).toInstance(httpClientProvider);
-          bind(HubClient.class).toInstance(hubClient);
-          bind(TelemetryProvider.class).toInstance(telemetryProvider);
-        }
-      }));
-    segmentManager = injector.getInstance(SegmentManager.class);
-    chainManager = injector.getInstance(ChainManager.class);
-    var entityFactory = injector.getInstance(EntityFactory.class);
+    var jsonProvider = new JsonProviderImpl();
+    var entityFactory = new EntityFactoryImpl(jsonProvider);
+    var store = new NexusEntityStoreImpl(entityFactory);
+    segmentManager = new SegmentManagerImpl(entityFactory, store);
+    chainManager = new ChainManagerImpl(
+      env,
+      entityFactory,
+      store,
+      segmentManager,
+      notificationProvider
+    );
+    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
+    EntityStore entityStore = new EntityStoreImpl();
+    var fabricatorFactory = new FabricatorFactoryImpl(
+      env,
+      chainManager,
+      segmentManager,
+      jsonapiPayloadFactory,
+      jsonProvider
+    );
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
-    NexusEntityStore test = injector.getInstance(NexusEntityStore.class);
+    NexusEntityStore test = new NexusEntityStoreImpl(entityFactory);
     test.deleteAll();
 
     // Mock request via HubClient returns fake generated library of hub content
@@ -113,7 +150,32 @@ public class ComplexLibraryTest {
     when(httpClient.execute(any())).thenReturn(httpResponse);
     when(httpResponse.getEntity()).thenReturn(httpResponseEntity);
 
-    work = injector.getInstance(NexusWork.class);
+    // Dependencies
+    ApiUrlProvider apiUrlProvider = new ApiUrlProvider(env);
+    CraftFactory craftFactory = new CraftFactoryImpl(apiUrlProvider);
+    when(mixerFactory.createMixer(any())).thenReturn(mixer);
+    HttpClientProvider httpClientProvider = new HttpClientProviderImpl(env);
+    DubAudioCacheItemFactory cacheItemFactory = new DubAudioCacheItemFactoryImpl(env, httpClientProvider);
+    DubAudioCache dubAudioCache = new DubAudioCacheImpl(env, cacheItemFactory);
+    var dubFactory = new DubFactoryImpl(env, dubAudioCache, fileStoreProvider, mixerFactory);
+
+    // work
+    work = new NexusWorkImpl(
+      chainManager,
+      craftFactory,
+      dubFactory,
+      entityFactory,
+      env,
+      fabricatorFactory,
+      httpClientProvider,
+      hubClient,
+      jsonProvider,
+      jsonapiPayloadFactory,
+      store,
+      notificationProvider,
+      segmentManager,
+      telemetryProvider
+    );
 
     workThread = new AppWorkThread(work);
   }
@@ -141,9 +203,9 @@ public class ComplexLibraryTest {
   }
 
   /**
-   Whether this test is within the time limit
-
-   @return true if within time limit
+   * Whether this test is within the time limit
+   *
+   * @return true if within time limit
    */
   private boolean isWithinTimeLimit() {
     if (MAXIMUM_TEST_WAIT_SECONDS * MILLIS_PER_SECOND > System.currentTimeMillis() - startTime)
@@ -153,9 +215,9 @@ public class ComplexLibraryTest {
   }
 
   /**
-   Does the specified chain contain at least N segments?
-
-   @return true if it has at least N segments
+   * Does the specified chain contain at least N segments?
+   *
+   * @return true if it has at least N segments
    */
   private boolean hasSegmentsDubbedPastMinimumOffset() {
     try {
@@ -163,7 +225,8 @@ public class ComplexLibraryTest {
       return segmentManager.readLastDubbedSegment(HubClientAccess.internal(), chain.getId())
         .filter(value -> MARATHON_NUMBER_OF_SEGMENTS <= value.getOffset()).isPresent();
 
-    } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException | HubClientException ignored) {
+    } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException |
+             HubClientException ignored) {
       return false;
     }
   }

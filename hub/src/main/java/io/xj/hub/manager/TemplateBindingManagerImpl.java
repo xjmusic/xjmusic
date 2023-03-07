@@ -1,9 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.manager;
 
-import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.lib.entity.EntityFactory;
@@ -11,6 +10,7 @@ import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -19,19 +19,19 @@ import java.util.UUID;
 import static io.xj.hub.Tables.TEMPLATE;
 import static io.xj.hub.Tables.TEMPLATE_BINDING;
 
-public class TemplateBindingManagerImpl extends HubPersistenceServiceImpl<TemplateBinding> implements TemplateBindingManager {
+@Service
+public class TemplateBindingManagerImpl extends HubPersistenceServiceImpl implements TemplateBindingManager {
 
-  @Inject
   public TemplateBindingManagerImpl(
     EntityFactory entityFactory,
-    HubDatabaseProvider dbProvider
+    HubSqlStoreProvider sqlStoreProvider
   ) {
-    super(entityFactory, dbProvider);
+    super(entityFactory, sqlStoreProvider);
   }
 
   @Override
   public TemplateBinding create(HubAccess access, TemplateBinding rawTemplateBinding) throws ManagerException, JsonapiException, ValueException {
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
     TemplateBinding record = validate(rawTemplateBinding);
     requireArtist(access);
     requireParentExists(db, access, record); // This entity's parent is a Template
@@ -46,12 +46,12 @@ public class TemplateBindingManagerImpl extends HubPersistenceServiceImpl<Templa
   @Override
   @Nullable
   public TemplateBinding readOne(HubAccess access, UUID id) throws ManagerException {
-    return readOne(dbProvider.getDSL(), access, id);
+    return readOne(sqlStoreProvider.getDSL(), access, id);
   }
 
   @Override
   public void destroy(HubAccess access, UUID id) throws ManagerException {
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
 
     if (!access.isTopLevel())
       requireExists("TemplateBinding belonging to you", db.selectCount().from(TEMPLATE_BINDING)
@@ -61,7 +61,7 @@ public class TemplateBindingManagerImpl extends HubPersistenceServiceImpl<Templa
         .fetchOne(0, int.class));
 
     //
-    // https://www.pivotaltracker.com/story/show/170299297 Cannot delete TemplateBindings that have a Meme-- otherwise, destroy all inner entities
+    // Cannot delete TemplateBindings that have a Meme-- otherwise, destroy all inner entities https://www.pivotaltracker.com/story/show/170299297
     //
 
     db.deleteFrom(TEMPLATE_BINDING)
@@ -77,13 +77,13 @@ public class TemplateBindingManagerImpl extends HubPersistenceServiceImpl<Templa
   @Override
   public Collection<TemplateBinding> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
     if (access.isTopLevel())
-      return modelsFrom(TemplateBinding.class, dbProvider.getDSL().select(TEMPLATE_BINDING.fields())
+      return modelsFrom(TemplateBinding.class, sqlStoreProvider.getDSL().select(TEMPLATE_BINDING.fields())
         .from(TEMPLATE_BINDING)
         .where(TEMPLATE_BINDING.TEMPLATE_ID.in(parentIds))
         .orderBy(TEMPLATE_BINDING.TYPE)
         .fetch());
     else
-      return modelsFrom(TemplateBinding.class, dbProvider.getDSL().select(TEMPLATE_BINDING.fields())
+      return modelsFrom(TemplateBinding.class, sqlStoreProvider.getDSL().select(TEMPLATE_BINDING.fields())
         .from(TEMPLATE_BINDING)
         .join(TEMPLATE).on(TEMPLATE.ID.eq(TEMPLATE_BINDING.TEMPLATE_ID))
         .where(TEMPLATE_BINDING.TEMPLATE_ID.in(parentIds))
@@ -98,13 +98,13 @@ public class TemplateBindingManagerImpl extends HubPersistenceServiceImpl<Templa
   }
 
   /**
-   Read one record
-
-   @param db        DSL context
-   @param access control
-   @param id        to read
-   @return record
-   @throws ManagerException on failure
+   * Read one record
+   *
+   * @param db     DSL context
+   * @param access control
+   * @param id     to read
+   * @return record
+   * @throws ManagerException on failure
    */
   private TemplateBinding readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     if (access.isTopLevel())
@@ -121,12 +121,12 @@ public class TemplateBindingManagerImpl extends HubPersistenceServiceImpl<Templa
   }
 
   /**
-   Require parent templateBinding exists of a given possible entity in a DSL context
-
-   @param db        DSL context
-   @param access control
-   @param entity    to validate
-   @throws ManagerException if parent does not exist
+   * Require parent templateBinding exists of a given possible entity in a DSL context
+   *
+   * @param db     DSL context
+   * @param access control
+   * @param entity to validate
+   * @throws ManagerException if parent does not exist
    */
   private void requireParentExists(DSLContext db, HubAccess access, TemplateBinding entity) throws ManagerException {
     if (access.isTopLevel())
@@ -141,10 +141,10 @@ public class TemplateBindingManagerImpl extends HubPersistenceServiceImpl<Templa
   }
 
   /**
-   Validate data
-
-   @param builder to validate
-   @throws ManagerException if invalid
+   * Validate data
+   *
+   * @param builder to validate
+   * @throws ManagerException if invalid
    */
   public TemplateBinding validate(TemplateBinding builder) throws ManagerException {
     try {

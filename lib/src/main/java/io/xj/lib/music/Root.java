@@ -31,7 +31,7 @@ public class Root {
   /**
    Instantiate a Root by name
    <p>
-   https://www.pivotaltracker.com/story/show/176728338 XJ understands the root of a slash chord
+   XJ understands the root of a slash chord https://www.pivotaltracker.com/story/show/176728338
 
    @param name of root
    @return root

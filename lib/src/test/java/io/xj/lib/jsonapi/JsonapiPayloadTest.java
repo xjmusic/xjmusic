@@ -4,9 +4,9 @@ package io.xj.lib.jsonapi;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.inject.Guice;
 import io.xj.lib.Widget;
-import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.json.JsonProviderImpl;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -17,9 +17,9 @@ import java.util.UUID;
 import static org.junit.Assert.*;
 
 /**
- Payload test
- <p>
- Created by Charney Kaye on 2020/03/09
+ * Payload test
+ * <p>
+ * Created by Charney Kaye on 2020/03/09
  */
 public class JsonapiPayloadTest {
   private JsonapiPayload subject;
@@ -27,9 +27,9 @@ public class JsonapiPayloadTest {
 
   @Before
   public void setUp() {
-    var injector = Guice.createInjector(new JsonapiModule());
-    var entityFactory = injector.getInstance(EntityFactory.class);
-    jsonapiPayloadFactory = injector.getInstance(JsonapiPayloadFactory.class);
+    var jsonProvider = new JsonProviderImpl();
+    var entityFactory = new EntityFactoryImpl(jsonProvider);
+    jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     entityFactory.register(Widget.class);
     subject = jsonapiPayloadFactory.newJsonapiPayload();
   }
@@ -144,9 +144,9 @@ public class JsonapiPayloadTest {
   }
 
   /**
-   Serialize a payload comprising a Widget
-
-   @throws JsonapiException on failure
+   * Serialize a payload comprising a Widget
+   *
+   * @throws JsonapiException on failure
    */
   @Test
   public void setDataOne_widget() throws JsonapiException {

@@ -5,33 +5,33 @@ package io.xj.lib.entity;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import io.xj.lib.json.JsonProviderImpl;
+import io.xj.lib.json.JsonProvider;
 import io.xj.lib.util.Values;
 import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.function.Supplier;
 
 /**
- Implementation of Entity Factory
- <p>
- Created by Charney Kaye on 2020/03/09
+ * Implementation of Entity Factory
+ * <p>
+ * Created by Charney Kaye on 2020/03/09
  */
-@Singleton
+@Service
 public class EntityFactoryImpl implements EntityFactory {
   private static final Logger log = LoggerFactory.getLogger(EntityFactoryImpl.class);
   private static final List<String> IGNORE_ATTRIBUTES = List.of("id", "class");
-  private final JsonProviderImpl jsonProvider;
+  private final JsonProvider jsonProvider;
   Map<String, EntitySchema> schema = Maps.newConcurrentMap();
 
-  @Inject
-  EntityFactoryImpl(
-    JsonProviderImpl jsonProvider
+  @Autowired
+  public EntityFactoryImpl(
+    JsonProvider jsonProvider
   ) {
     this.jsonProvider = jsonProvider;
   }
@@ -195,10 +195,10 @@ public class EntityFactoryImpl implements EntityFactory {
   }
 
   /**
-   Ensure the given type exists in the inner schema, else add it
-
-   @param message on failure
-   @param type    to ensure existence of
+   * Ensure the given type exists in the inner schema, else add it
+   *
+   * @param message on failure
+   * @param type    to ensure existence of
    */
   private void ensureSchemaExists(Object message, String type) throws EntityException {
     if (!schema.containsKey(type))

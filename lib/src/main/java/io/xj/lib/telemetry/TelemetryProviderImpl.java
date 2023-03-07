@@ -2,12 +2,13 @@
 package io.xj.lib.telemetry;
 
 import com.google.api.client.util.Strings;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import io.opencensus.exporter.stats.stackdriver.StackdriverStatsExporter;
 import io.opencensus.stats.*;
-import io.xj.lib.app.Environment;
+import io.xj.lib.app.AppConfiguration;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.util.Text;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
@@ -24,7 +25,7 @@ import static io.xj.lib.util.Text.UNDERSCORE;
  - names with "ship_app_" e.g. "coolair_nexus_xyz"
  - descriptions with "Ship App" e.g. "Coolair Nexus Xyz"
  */
-@Singleton
+@Service
 class TelemetryProviderImpl implements TelemetryProvider {
   private static final StatsRecorder STATS_RECORDER = Stats.getStatsRecorder();
   private static final String DEFAULT_SHIP_KEY = "lab";
@@ -32,12 +33,13 @@ class TelemetryProviderImpl implements TelemetryProvider {
   private final String prefixB;
   private final boolean enabled;
 
-  @Inject
+  @Autowired
   public TelemetryProviderImpl(
-    Environment env
+    AppEnvironment env,
+    AppConfiguration config
   ) throws IOException {
     prefixA = Strings.isNullOrEmpty(env.getShipKey()) ? DEFAULT_SHIP_KEY : env.getShipKey();
-    prefixB = env.getAppName();
+    prefixB = config.getName();
 
     // Globally enable or disable telemetry recording
     enabled = env.isTelemetryEnabled();

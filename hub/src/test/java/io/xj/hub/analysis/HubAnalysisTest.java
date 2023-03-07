@@ -2,14 +2,13 @@
 
 package io.xj.hub.analysis;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.*;
 import io.xj.hub.ingest.HubIngest;
 import io.xj.hub.ingest.HubIngestFactory;
 import io.xj.hub.tables.pojos.*;
+import io.xj.lib.app.AppEnvironment;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,7 +31,6 @@ public class HubAnalysisTest {
   HubIngest hubIngest;
   private Template template;
   private HubAccess access;
-  private Injector injector;
 
   @Before
   public void setUp() throws Exception {
@@ -96,19 +94,13 @@ public class HubAnalysisTest {
 
     access = HubAccess.internal();
 
-    injector = Guice.createInjector(new HubAnalysisModule(), new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(HubIngestFactory.class).toInstance(hubIngestFactory);
-      }
-    });
     when(hubIngestFactory.ingest(same(access), eq(template.getId()))).thenReturn(hubIngest);
     when(hubIngest.getAllEntities()).thenReturn(entities);
   }
 
   @Test
   public void analysis_toHTML() throws Exception {
-    Report subject = injector.getInstance(HubAnalysisFactory.class).report(access, template.getId(), Report.Type.Memes);
+    Report subject = new HubAnalysisFactoryImpl(AppEnvironment.getDefault(), hubIngestFactory).report(access, template.getId(), Report.Type.Memes);
 
     var result = subject.toHTML();
 

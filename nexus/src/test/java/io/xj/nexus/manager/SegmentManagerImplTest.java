@@ -2,19 +2,28 @@
 package io.xj.nexus.manager;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
-import io.xj.nexus.model.*;
 import io.xj.hub.HubTopology;
+import io.xj.hub.client.HubClientAccess;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Template;
-import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.json.JsonProvider;
+import io.xj.lib.json.JsonProviderImpl;
 import io.xj.nexus.NexusTopology;
-import io.xj.hub.client.HubClientAccess;
-import io.xj.nexus.persistence.*;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.ChainType;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.model.SegmentType;
+import io.xj.nexus.persistence.ManagerExistenceException;
+import io.xj.nexus.persistence.ManagerValidationException;
+import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.persistence.NexusEntityStoreImpl;
+import io.xj.nexus.persistence.SegmentManager;
+import io.xj.nexus.persistence.SegmentManagerImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,15 +34,23 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.UUID;
 
-import static io.xj.hub.IntegrationTestingFixtures.*;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
-import static org.junit.Assert.*;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplateBinding;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildHubClientAccess;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SegmentManagerImplTest {
   private Account account1;
   private Chain chain3;
-  private Chain chain5;
   private EntityFactory entityFactory;
   private NexusEntityStore store;
   private Segment segment1;
@@ -45,24 +62,17 @@ public class SegmentManagerImplTest {
 
   @Before
   public void setUp() throws Exception {
-    Environment env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(new NexusPersistenceModule())
-      .with(new AbstractModule() {
-        @Override
-        protected void configure() {
-          bind(Environment.class).toInstance(env);
-        }
-      }));
-    entityFactory = injector.getInstance(EntityFactory.class);
+    JsonProvider jsonProvider = new JsonProviderImpl();
+    entityFactory = new EntityFactoryImpl(jsonProvider);
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
 
     // Manipulate the underlying entity store
-    store = injector.getInstance(NexusEntityStore.class);
+    store = new NexusEntityStoreImpl(entityFactory);
     store.deleteAll();
 
     // test subject
-    testService = injector.getInstance(SegmentManager.class);
+    testService = new SegmentManagerImpl(entityFactory, store);
 
     // Account "Testing" has a chain "Test Print #1"
     account1 = buildAccount("Testing");
@@ -153,7 +163,7 @@ public class SegmentManagerImplTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/162361712 Segment waveform_key is set by fabricator (which knows the chain configuration) NOT on creation
+   * Segment waveform_key is set by fabricator (which knows the chain configuration) NOT on creation https://www.pivotaltracker.com/story/show/162361712
    */
   @Test
   public void create() throws Exception {
@@ -190,8 +200,8 @@ public class SegmentManagerImplTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/162361712 Segment waveform_key is set by fabricator (which knows the chain configuration) NOT on creation
-   [#126] Segments are always readMany in PLANNED state
+   * Segment waveform_key is set by fabricator (which knows the chain configuration) NOT on creation https://www.pivotaltracker.com/story/show/162361712
+   * [#126] Segments are always readMany in PLANNED state
    */
   @Test
   public void create_alwaysInPlannedState() throws Exception {
@@ -311,11 +321,11 @@ public class SegmentManagerImplTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/173806948 List of Segments returned should not be more than a dozen or so
+   * List of Segments returned should not be more than a dozen or so https://www.pivotaltracker.com/story/show/173806948
    */
   @Test
   public void readMany_hasNoLimit() throws Exception {
-    chain5 = store.put(buildChain(account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "barnacles"));
+    Chain chain5 = store.put(buildChain(account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "barnacles"));
     for (int i = 0; i < 20; i++)
       store.put(new Segment()
         .id(UUID.randomUUID())
@@ -336,89 +346,6 @@ public class SegmentManagerImplTest {
   }
 
   @Test
-  public void readMany_byShipKey() throws Exception {
-    chain5 = store.put(buildChain(account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "barnacles"));
-    store.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain5.getId())
-      .offset(0L)
-      .state(SegmentState.DUBBED)
-      .key("D major")
-      .total(64)
-      .density(0.73)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .beginAt("2017-02-14T12:01:00.000001Z")
-
-    );
-    store.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain5.getId())
-      .offset(1L)
-      .state(SegmentState.DUBBING)
-      .key("Db minor")
-      .total(64)
-      .density(0.85)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .beginAt("2017-02-14T12:01:32.000001Z")
-
-    );
-    store.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain5.getId())
-      .offset(2L)
-      .state(SegmentState.CRAFTED)
-      .key("F major")
-      .total(64)
-      .density(0.30)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .beginAt("2017-02-14T12:02:04.000001Z")
-
-    );
-    store.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain5.getId())
-      .offset(3L)
-      .state(SegmentState.CRAFTING)
-      .key("E minor")
-      .total(64)
-      .density(0.41)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .beginAt("2017-02-14T12:02:36.000001Z")
-
-    );
-    store.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain5.getId())
-      .beginAt("2017-02-14T12:03:08.000001Z")
-      .offset(4L)
-      .state(SegmentState.PLANNED)
-      .key("E minor")
-      .total(64)
-      .density(0.41)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892.wav"));
-
-    Collection<Segment> result = testService.readManyByShipKey("barnacles");
-
-    assertEquals(5L, result.size());
-    Iterator<Segment> it = result.iterator();
-    Segment actualResult0 = it.next();
-    assertEquals(SegmentState.PLANNED, actualResult0.getState());
-    Segment result1 = it.next();
-    assertEquals(SegmentState.CRAFTING, result1.getState());
-    Segment result2 = it.next();
-    assertEquals(SegmentState.CRAFTED, result2.getState());
-    Segment result3 = it.next();
-    assertEquals(SegmentState.DUBBING, result3.getState());
-    Segment result4 = it.next();
-    assertEquals(SegmentState.DUBBED, result4.getState());
-  }
-
-  @Test
   public void readManyFromToOffset() throws Exception {
     Collection<Segment> result = testService.readManyFromToOffset(chain3.getId(), 2L, 3L);
 
@@ -435,135 +362,6 @@ public class SegmentManagerImplTest {
     Collection<Segment> result = testService.readManyFromToOffset(chain3.getId(), -1L, -1L);
 
     assertEquals(0L, result.size());
-  }
-
-  @Test
-  public void readManyFromSecondsUTC() throws Exception {
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
-
-    Collection<Segment> result = testService.readManyFromSecondsUTC(access, chain3.getId(), 1487073724L);
-
-    assertEquals(3L, result.size());
-    Iterator<Segment> it = result.iterator();
-    Segment actualResult0 = it.next();
-    assertEquals(SegmentState.DUBBING, actualResult0.getState());
-    Segment result1 = it.next();
-    assertEquals(SegmentState.CRAFTED, result1.getState());
-    Segment result2 = it.next();
-    assertEquals(SegmentState.CRAFTING, result2.getState());
-  }
-
-  /**
-   https://www.pivotaltracker.com/story/show/170299748 Player should always load what it needs next--
-   currently possible to load too far into the future, causing playback delay
-   */
-  @Test
-  public void readManyFromSecondsUTC_limitedFromNow_notLatestSegment() throws Exception {
-    long fromSecondsUTC = 1487073724L;
-    Instant beginAt = Instant.ofEpochSecond(fromSecondsUTC);
-    int numSegmentsToGenerate = 50;
-    int total = 16;
-    int tempo = 120;
-    chain5 = store.put(buildChain(account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, beginAt, null, "barnacles")
-      .templateConfig("bufferAheadSeconds=90\noutputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n"));
-    for (int offset = 0; offset < numSegmentsToGenerate; offset++) {
-      Instant endAt = beginAt.plusMillis(1000 * total * 60 / tempo);
-      store.put(buildSegment(chain5, offset, SegmentState.DUBBED,
-        beginAt, endAt, "D major", total, 0.73, tempo,
-        "chains-1-segments-9f7s89d8a7892.wav", "OGG"));
-      beginAt = endAt;
-    }
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
-
-    Collection<Segment> result = testService.readManyFromSecondsUTC(access, chain5.getId(), fromSecondsUTC + 1);
-
-    assertEquals(12L, result.size());
-    Iterator<Segment> it = result.iterator();
-    Segment firstReturnedSegment = it.next();
-    assertEquals(Instant.ofEpochSecond(fromSecondsUTC),
-      Instant.parse(firstReturnedSegment.getBeginAt()));
-  }
-
-  @Test
-  public void readManyFromSecondsUTC_byShipKey() throws Exception {
-    chain5 = store.put(buildChain(account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "barnacles"));
-    store.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain5.getId())
-      .offset(0L)
-      .delta(0)
-      .type(SegmentType.CONTINUE)
-      .state(SegmentState.DUBBED)
-      .key("D major")
-      .total(64)
-      .density(0.73)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .beginAt("2017-02-14T12:01:00.000001Z")
-      .endAt("2017-02-14T12:01:32.000001Z"));
-    store.put(new Segment().chainId(chain5.getId())
-      .id(UUID.randomUUID())
-      .offset(1L)
-      .delta(0)
-      .type(SegmentType.CONTINUE)
-      .state(SegmentState.DUBBING)
-      .key("Db minor")
-      .total(64)
-      .density(0.85)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .beginAt("2017-02-14T12:01:32.000001Z")
-      .endAt("2017-02-14T12:02:04.000001Z"));
-    store.put(new Segment().chainId(chain5.getId())
-      .id(UUID.randomUUID())
-      .offset(2L)
-      .delta(0)
-      .type(SegmentType.CONTINUE)
-      .state(SegmentState.CRAFTED)
-      .key("F major")
-      .total(64)
-      .density(0.30)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .beginAt("2017-02-14T12:02:04.000001Z")
-      .endAt("2017-02-14T12:02:36.000001Z"));
-    store.put(new Segment().chainId(chain5.getId())
-      .id(UUID.randomUUID())
-      .offset(3L)
-      .delta(0)
-      .type(SegmentType.CONTINUE)
-      .state(SegmentState.CRAFTING)
-      .key("E minor")
-      .total(64)
-      .density(0.41)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .beginAt("2017-02-14T12:02:36.000001Z")
-      .endAt("2017-02-14T12:03:08.000001Z"));
-    store.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain5.getId())
-      .beginAt("2017-02-14T12:03:08.000001Z")
-      .offset(4L)
-      .delta(0)
-      .type(SegmentType.CONTINUE)
-      .state(SegmentState.PLANNED)
-      .key("E minor")
-      .total(64)
-      .density(0.41)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892.wav"));
-
-    Collection<Segment> result = testService.readManyFromSecondsUTCbyShipKey(HubClientAccess.internal(), "barnacles", 1487073724L);
-
-    assertEquals(3L, result.size());
-    Iterator<Segment> it = result.iterator();
-    Segment result0 = it.next();
-    assertEquals(SegmentState.DUBBING, result0.getState());
-    Segment result1 = it.next();
-    assertEquals(SegmentState.CRAFTED, result1.getState());
-    Segment result2 = it.next();
-    assertEquals(SegmentState.CRAFTING, result2.getState());
   }
 
   @Test
@@ -622,7 +420,7 @@ public class SegmentManagerImplTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/162361525 persist Segment content as JSON, then read prior Segment JSON
+   * persist Segment content as JSON, then read prior Segment JSON https://www.pivotaltracker.com/story/show/162361525
    */
   @Test
   public void persistPriorSegmentContent() throws Exception {

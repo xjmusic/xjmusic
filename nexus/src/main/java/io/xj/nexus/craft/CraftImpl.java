@@ -3,11 +3,9 @@
 package io.xj.nexus.craft;
 
 import com.google.api.client.util.Lists;
-import com.google.api.client.util.Sets;
 import com.google.api.client.util.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.google.inject.Inject;
 import io.xj.hub.client.HubClientException;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
@@ -75,7 +73,6 @@ public class CraftImpl extends FabricationWrapperImpl {
 
    @param fabricator internal
    */
-  @Inject
   public CraftImpl(Fabricator fabricator) {
     super(fabricator);
 
@@ -230,7 +227,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     for (var section : computeSections()) {
       var audio = selectChordPartInstrumentAudio(instrument, Chord.of(section.chord.getName()));
 
-      // https://www.pivotaltracker.com/story/show/176373977 Should gracefully skip audio in unfulfilled by instrument
+      // Should gracefully skip audio in unfulfilled by instrument https://www.pivotaltracker.com/story/show/176373977
       if (audio.isEmpty()) continue;
 
       // Pick attributes are expressed "rendered" as actual seconds
@@ -268,7 +265,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    */
   protected void craftEventParts(Instrument instrument, Program program) throws NexusException {
     // Event detail sequence is selected at random of the current instrument
-    // FUTURE: https://www.pivotaltracker.com/story/show/166855956 Detail Instrument with multiple Sequences
+    // FUTURE: Detail Instrument with multiple Sequences https://www.pivotaltracker.com/story/show/166855956
     var sequence = fabricator.getRandomlySelectedSequence(program);
 
     // Event voice arrangements
@@ -415,7 +412,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   /**
    Iterate through all the chords of a sequence and arrange events per each chord
    <p>
-   https://www.pivotaltracker.com/story/show/176468993 Detail programs can be made to repeat every chord change
+   Detail programs can be made to repeat every chord change https://www.pivotaltracker.com/story/show/176468993
 
    @param choice        from which to craft events
    @param range         used to keep voicing in the tightest range possible
@@ -476,7 +473,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
   /**
    Craft the voice events of a single pattern.
-   https://www.pivotaltracker.com/story/show/161601279 Artist during craft audio selection wants randomness of outro audio selection to gently ramp of zero to N over the course of the outro.
+   Artist during craft audio selection wants randomness of outro audio selection to gently ramp of zero to N over the course of the outro. https://www.pivotaltracker.com/story/show/161601279
 
    @param pattern             to source events
    @param fromSegmentPosition to write events to segment
@@ -644,7 +641,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   /**
    Pick final note based on instrument type, voice event, transposition and current chord
    <p>
-   https://www.pivotaltracker.com/story/show/176695166 XJ should choose correct instrument note based on detail program note
+   XJ should choose correct instrument note based on detail program note https://www.pivotaltracker.com/story/show/176695166
 
    @param instrumentType  comprising audios
    @param choice          for reference
@@ -697,9 +694,9 @@ public class CraftImpl extends FabricationWrapperImpl {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/176696738 XJ has a serviceable voicing algorithm
+   XJ has a serviceable voicing algorithm https://www.pivotaltracker.com/story/show/176696738
    <p>
-   https://www.pivotaltracker.com/story/show/176474113 Artist can edit comma-separated notes into detail program events
+   Artist can edit comma-separated notes into detail program events https://www.pivotaltracker.com/story/show/176474113
    <p>
    of a pick of instrument-audio for each event, where events are conformed to entities/scales based on the master segment entities
    pick instrument audio for one event, in a voice in a pattern, belonging to an arrangement
@@ -716,7 +713,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   private void pickInstrumentAudio(String note, Instrument instrument, ProgramSequencePatternEvent event, SegmentChoiceArrangement segmentChoiceArrangement, double startSeconds, @Nullable Double lengthSeconds, @Nullable UUID segmentChordVoicingId, double volRatio) throws NexusException {
     var audio = fabricator.getInstrumentConfig(instrument).isMultiphonic() ? selectMultiphonicInstrumentAudio(instrument, event, note) : selectMonophonicInstrumentAudio(instrument, event);
 
-    // https://www.pivotaltracker.com/story/show/176373977 Should gracefully skip audio if unfulfilled by instrument
+    // Should gracefully skip audio if unfulfilled by instrument https://www.pivotaltracker.com/story/show/176373977
     if (audio.isEmpty()) return;
 
     // of pick
@@ -738,7 +735,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   /**
    Select audio from a multiphonic instrument
    <p>
-   https://www.pivotaltracker.com/story/show/176649593 Sampler obeys isMultiphonic from Instrument config
+   Sampler obeys isMultiphonic from Instrument config https://www.pivotaltracker.com/story/show/176649593
 
    @param instrument of which to score available audios, and make a selection
    @param event      for caching reference
@@ -856,7 +853,7 @@ public class CraftImpl extends FabricationWrapperImpl {
   /**
    Select a new random instrument audio based on a pattern event
    <p>
-   https://www.pivotaltracker.com/story/show/176649593 Sampler obeys isMultiphonic from Instrument config
+   Sampler obeys isMultiphonic from Instrument config https://www.pivotaltracker.com/story/show/176649593
 
    @param instrument of which to score available audios, and make a selection
    @param note       to match

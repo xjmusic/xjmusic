@@ -1,41 +1,30 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.telemetry;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
-import io.xj.lib.app.Environment;
+import io.xj.lib.app.AppConfiguration;
+import io.xj.lib.app.AppEnvironment;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
+import java.io.IOException;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-@RunWith(MockitoJUnitRunner.class)
 public class TelemetryProviderImplTest {
-  @Mock
   private TelemetryProvider subject;
 
+  private final AppEnvironment env = AppEnvironment.from(Map.of(
+    "SHIP_KEY", "coolair",
+    "APP_NAME", "nexus"
+  ));
+
+  private final AppConfiguration config = new AppConfiguration("nexus");
+
   @Before
-  public void setUp() {
-    var env = Environment.from(Map.of(
-      "SHIP_KEY", "coolair",
-      "APP_NAME", "nexus"
-    ));
-    var injector = Guice.createInjector(ImmutableSet.of(Modules.override(new TelemetryModule()).with(
-      new AbstractModule() {
-        @Override
-        public void configure() {
-          bind(Environment.class).toInstance(env);
-        }
-      })));
-    subject = injector.getInstance(TelemetryProvider.class);
+  public void setUp() throws IOException {
+    subject = new TelemetryProviderImpl(env, config);
   }
 
   @Test
@@ -52,5 +41,4 @@ public class TelemetryProviderImplTest {
   public void prefixedProperSpace() {
     assertEquals("Coolair Nexus Segments", subject.prefixedProperSpace("segments"));
   }
-
 }

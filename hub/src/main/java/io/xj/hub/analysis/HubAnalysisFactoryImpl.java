@@ -1,35 +1,33 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.analysis;
 
-import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.client.HubClientException;
 import io.xj.hub.client.HubContent;
 import io.xj.hub.ingest.HubIngestException;
 import io.xj.hub.ingest.HubIngestFactory;
-import io.xj.lib.app.Environment;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.util.ValueException;
 
 import java.util.UUID;
 
 /**
- Template content Analysis https://www.pivotaltracker.com/story/show/161199945
+ * Template content Analysis https://www.pivotaltracker.com/story/show/161199945
  */
 class HubAnalysisFactoryImpl implements HubAnalysisFactory {
-  private final Environment env;
+  private final AppEnvironment env;
   private final HubIngestFactory hubIngestFactory;
 
-  @Inject
-  public HubAnalysisFactoryImpl(Environment env, HubIngestFactory hubIngestFactory) {
+  public HubAnalysisFactoryImpl(AppEnvironment env, HubIngestFactory hubIngestFactory) {
     this.env = env;
     this.hubIngestFactory = hubIngestFactory;
   }
 
   /**
-   Get the comp for the given type
-
-   @param type of comp
-   @return comp
+   * Get the comp for the given type
+   *
+   * @param type of comp
+   * @return comp
    */
   public Report report(HubAccess access, UUID templateId, Report.Type type) throws HubAnalysisException {
     try {

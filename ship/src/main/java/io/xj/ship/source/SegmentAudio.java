@@ -2,13 +2,11 @@
 
 package io.xj.ship.source;
 
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-import io.xj.nexus.model.Segment;
-import io.xj.lib.app.Environment;
+
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.lib.util.ValueException;
-import io.xj.ship.ShipException;
+import io.xj.nexus.model.Segment;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,13 +25,13 @@ import static io.xj.lib.util.Values.NANOS_PER_SECOND;
 import static io.xj.lib.util.Values.enforceMaxStereo;
 
 /**
- An HTTP Live Streaming Media Segment
- <p>
- SEE: https://en.m.wikipedia.org/wiki/HTTP_Live_Streaming
- <p>
- SEE: https://developer.apple.com/documentation/http_live_streaming/hls_authoring_specification_for_apple_devices
- <p>
- Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
+ * An HTTP Live Streaming Media Segment
+ * <p>
+ * SEE: https://en.m.wikipedia.org/wiki/HTTP_Live_Streaming
+ * <p>
+ * SEE: https://developer.apple.com/documentation/http_live_streaming/hls_authoring_specification_for_apple_devices
+ * <p>
+ * Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
  */
 public class SegmentAudio {
   private static final Logger LOG = LoggerFactory.getLogger(SegmentAudio.class);
@@ -44,22 +42,21 @@ public class SegmentAudio {
   private final int shipSegmentLoadTimeoutMillis;
   private final Instant endAt;
   private final Instant beginAt;
-  private final AudioFormat audioFormat;
-  private final int channels;
-  private final float frameRate;
-  private final int frameSize;
-  private final int sampleSizeInBits;
+  private AudioFormat audioFormat;
+  private int channels;
+  private float frameRate;
+  private int frameSize;
+  private int sampleSizeInBits;
   private Instant updated;
   private SegmentAudioState state;
 
-  @Inject
   public SegmentAudio(
-    @Assisted("absolutePath") String absolutePath,
-    @Assisted("segment") Segment segment,
-    @Assisted("shipKey") String shipKey,
+    String absolutePath,
+    Segment segment,
+    String shipKey,
     TelemetryProvider telemetryProvider,
-    Environment env
-  ) throws ShipException {
+    AppEnvironment env
+  ) {
     this.absolutePath = absolutePath;
     this.shipKey = shipKey;
     this.segment = segment;
@@ -89,54 +86,55 @@ public class SegmentAudio {
       telemetryProvider.put(SEGMENT_AUDIO_LOADED_SECONDS, (long) lengthSeconds);
 
     } catch (UnsupportedAudioFileException | IOException | ValueException e) {
-      throw new ShipException(String.format("Failed to read audio from disk %s", absolutePath), e);
+      state = SegmentAudioState.Failed;
+      LOG.error("Failed to read audio from disk {}", absolutePath, e);
     }
   }
 
   /**
-   @return channels of segment audio
+   * @return channels of segment audio
    */
   public int getChannels() {
     return channels;
   }
 
   /**
-   @return frameRate of segment audio
+   * @return frameRate of segment audio
    */
   public float getFrameRate() {
     return frameRate;
   }
 
   /**
-   @return frame size (in bytes) of segment audio
+   * @return frame size (in bytes) of segment audio
    */
   public int getFrameSize() {
     return frameSize;
   }
 
   /**
-   Get metadata about the original OGG/Vorbis audio
-
-   @return info
+   * Get metadata about the original OGG/Vorbis audio
+   *
+   * @return info
    */
   public AudioFormat getAudioFormat() {
     return audioFormat;
   }
 
   /**
-   @return sample size (in bits) of segment audio
+   * @return sample size (in bits) of segment audio
    */
   public int getSampleSizeInBits() {
     return sampleSizeInBits;
   }
 
   /**
-   Whether this segment intersects the specified ship key, from instant, and to instant
-
-   @param shipKey to test for intersection
-   @param from    to test for intersection
-   @param to      to test for intersection
-   @return true if the ship key matches, fromInstant is before the segment end, and toInstant is after the segment beginning
+   * Whether this segment intersects the specified ship key, from instant, and to instant
+   *
+   * @param shipKey to test for intersection
+   * @param from    to test for intersection
+   * @param to      to test for intersection
+   * @return true if the ship key matches, fromInstant is before the segment end, and toInstant is after the segment beginning
    */
   public boolean intersects(String shipKey, Instant from, Instant to) {
     if (!Objects.equals(shipKey, this.shipKey)) return false;
@@ -160,20 +158,20 @@ public class SegmentAudio {
   }
 
   /**
-   @return the ship key
+   * @return the ship key
    */
   public String getShipKey() {
     return shipKey;
   }
 
   /**
-   Get the total number of frames in the pcm buffer
-   <p>
-   /**
-   Whether this segment audio is loading (within timeout of the given now millis) or ready
-
-   @param nowMillis from which to test
-   @return true if loading or ready
+   * Get the total number of frames in the pcm buffer
+   * <p>
+   * /**
+   * Whether this segment audio is loading (within timeout of the given now millis) or ready
+   *
+   * @param nowMillis from which to test
+   * @return true if loading or ready
    */
   public boolean isLoadingOrReady(Long nowMillis) {
     return switch (state) {
@@ -184,16 +182,16 @@ public class SegmentAudio {
   }
 
   /**
-   Set update time
-
-   @param updated time
+   * Set update time
+   *
+   * @param updated time
    */
   public void setUpdated(Instant updated) {
     this.updated = updated;
   }
 
   /**
-   @return absolut path to uncompressed WAV segment audio on disk
+   * @return absolut path to uncompressed WAV segment audio on disk
    */
   public String getAbsolutePath() {
     return absolutePath;

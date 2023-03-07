@@ -2,19 +2,18 @@
 
 package io.xj.nexus.persistence;
 
+import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
-import io.xj.hub.tables.pojos.TemplateBinding;
-import io.xj.nexus.NexusException;
 
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
 /**
- https://www.pivotaltracker.com/story/show/175880468 NexusEntityStore segments and child entities partitioned by segment id for rapid addressing
+ NexusEntityStore segments and child entities partitioned by segment id for rapid addressing https://www.pivotaltracker.com/story/show/175880468
  <p>
- https://www.pivotaltracker.com/story/show/171553408 XJ Lab Distributed Architecture
+ XJ Lab Distributed Architecture https://www.pivotaltracker.com/story/show/171553408
  Chains, ChainBindings, TemplateConfigs, Segments and all Segment content sub-entities persisted in memory
  */
 public interface NexusEntityStore {
@@ -35,9 +34,8 @@ public interface NexusEntityStore {
 
    @param <N>      types of entities
    @param entities to put into the store
-   @return collection of entities just added to the store
    */
-  <N> Collection<N> putAll(Collection<N> entities) throws NexusException;
+  <N> void putAll(Collection<N> entities) throws NexusException;
 
   /**
    Delete a Chain specified by id
@@ -45,13 +43,6 @@ public interface NexusEntityStore {
    @param id of Chain   to delete
    */
   void deleteChain(UUID id) throws NexusException;
-
-  /**
-   Delete a Chain Binding specified by id
-
-   @param id of TemplateBinding to delete
-   */
-  void deleteChainBinding(UUID id) throws NexusException;
 
   /**
    Delete a Segment specified by id
@@ -89,14 +80,6 @@ public interface NexusEntityStore {
    @throws NexusException on failure to retrieve the requested key
    */
   Optional<Chain> getChain(UUID id) throws NexusException;
-
-  /**
-   Retrieve a templateBinding by id
-
-   @param id of templateBinding to retrieve
-   @throws NexusException on failure to retrieve the requested key
-   */
-  Optional<TemplateBinding> getChainBinding(UUID id) throws NexusException;
 
   /**
    Retrieve a segment by id

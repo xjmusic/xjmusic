@@ -2,20 +2,20 @@
 
 package io.xj.ship.broadcast;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import io.xj.lib.app.Environment;
+import io.xj.lib.app.AppEnvironment;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import static io.xj.lib.util.Values.MILLIS_PER_SECOND;
 
-@Singleton
+@Service
 public class MediaSeqNumProvider {
   private final int chunkTargetDuration;
   private final int mediaSeqNumOffset;
 
-  @Inject
+  @Autowired
   public MediaSeqNumProvider(
-    Environment env
+    AppEnvironment env
   ) {
     chunkTargetDuration = env.getShipChunkTargetDuration();
     mediaSeqNumOffset = env.getShipMediaSequenceNumberOffset();

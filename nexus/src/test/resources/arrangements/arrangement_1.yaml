@@ -6,7 +6,7 @@
 #  Pad and Stab will utilize “voice leading” to move gracefully to nearby inversions of temporally adjacent chords.
 #  In this first example, the starting chord is a major triad in second inversion.
 #
-#  https://www.pivotaltracker.com/story/show/176696738 XJ has a serviceable voicing algorithm
+#  XJ has a serviceable voicing algorithm https://www.pivotaltracker.com/story/show/176696738
 ---
 
 bassInstrument:
@@ -67,7 +67,7 @@ segment:
   density: 1.0
   chords:
     # Bass deliberately has too-high voicings available to test against
-    # https://www.pivotaltracker.com/story/show/178277316 Bass always prefers the lowest end of the available voicings
+    # Bass always prefers the lowest end of the available voicings https://www.pivotaltracker.com/story/show/178277316
     - position: 0.0
       name: C
       voicings:

@@ -4,10 +4,6 @@ package io.xj.nexus.persistence;
 
 import com.google.api.client.util.Lists;
 import com.google.common.base.Strings;
-import io.xj.nexus.model.Segment;
-import io.xj.nexus.model.SegmentChoice;
-import io.xj.nexus.model.SegmentChordVoicing;
-import io.xj.nexus.model.SegmentState;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.lib.mixer.OutputEncoder;
@@ -15,10 +11,19 @@ import io.xj.lib.music.Note;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChordVoicing;
+import io.xj.nexus.model.SegmentState;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**

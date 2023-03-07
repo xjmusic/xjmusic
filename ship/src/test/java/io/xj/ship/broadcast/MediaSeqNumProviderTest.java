@@ -3,18 +3,10 @@
 package io.xj.ship.broadcast;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
-import io.xj.lib.app.Environment;
-import io.xj.lib.filestore.FileStoreProvider;
-import io.xj.nexus.persistence.ChainManager;
-import io.xj.ship.source.SegmentAudioManager;
-import io.xj.ship.work.ShipWorkModule;
+import io.xj.lib.app.AppEnvironment;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
@@ -27,35 +19,17 @@ public class MediaSeqNumProviderTest {
   // Under Test
   private MediaSeqNumProvider subject;
 
-  @Mock
-  private ChainManager chainManager;
-
-  @Mock
-  private SegmentAudioManager segmentAudioManager;
-
-  @Mock
-  private FileStoreProvider fileStoreProvider;
-
   @Before
   public void setUp() {
-    Environment env = Environment.from(ImmutableMap.of(
+    AppEnvironment env = AppEnvironment.from(ImmutableMap.of(
       "SHIP_CHUNK_TARGET_DURATION", "10",
       "SHIP_KEY", "coolair"
     ));
-    var injector = Guice.createInjector(Modules.override(new ShipWorkModule()).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(ChainManager.class).toInstance(chainManager);
-        bind(FileStoreProvider.class).toInstance(fileStoreProvider);
-        bind(Environment.class).toInstance(env);
-        bind(SegmentAudioManager.class).toInstance(segmentAudioManager);
-      }
-    }));
 
     var chain = buildChain(buildTemplate(buildAccount("Testing"), "Testing"));
     chain.setTemplateConfig("metaSource = \"XJ Music Testing\"\nmetaTitle = \"Test Stream 5\"");
 
-    subject = injector.getInstance(MediaSeqNumProvider.class);
+    subject = new MediaSeqNumProvider(env);
   }
 
 

@@ -13,9 +13,9 @@ import io.xj.lib.util.ValueException;
 import java.util.Map;
 
 /**
- Parse a TypeSafe `config` value for a Program's configuration, overriding values from top-level default.conf--
- e.g.
- if the `config` value contains only `previewLengthMaxHours = 8`
+ * Parse a TypeSafe `config` value for a Program's configuration, overriding values from top-level default.conf--
+ * e.g.
+ * if the `config` value contains only `previewLengthMaxHours = 8`
  */
 public class ProgramConfig {
   public static final String DEFAULT =
@@ -27,31 +27,31 @@ public class ProgramConfig {
   private final int barBeats;
 
   /**
-   Instantiate a Program configuration from a string of typesafe config.
-   Said string will be embedded in a `program{...}` block such that
-   provided simple Key=Value pairs will be understood as members of `program`
-   e.g. will override values from the `program{...}` block of the top-level **default.conf**
-
-   @param program to get config from
+   * Instantiate a Program configuration from a string of typesafe config.
+   * Said string will be embedded in a `program{...}` block such that
+   * provided simple Key=Value pairs will be understood as members of `program`
+   * e.g. will override values from the `program{...}` block of the top-level **default.conf**
+   *
+   * @param program to get config from
    */
   public ProgramConfig(Program program) throws ValueException {
     this(program.getConfig());
   }
 
   /**
-   Get a program config from only the default config
-
-   @throws ValueException on failure
+   * Get a program config from only the default config
+   *
+   * @throws ValueException on failure
    */
   public ProgramConfig() throws ValueException {
     this("");
   }
 
   /**
-   Instantiate a Program configuration from a string of typesafe config.
-   Said string will be embedded in a `program{...}` block such that
-   provided simple Key=Value pairs will be understood as members of `program`
-   e.g. will override values from the `program{...}` block of the top-level **default.conf**
+   * Instantiate a Program configuration from a string of typesafe config.
+   * Said string will be embedded in a `program{...}` block such that
+   * provided simple Key=Value pairs will be understood as members of `program`
+   * e.g. will override values from the `program{...}` block of the top-level **default.conf**
    */
   public ProgramConfig(String configText) throws ValueException {
     try {
@@ -79,14 +79,14 @@ public class ProgramConfig {
   }
 
   /**
-   @return the number of beats in a bar
+   * @return the number of beats in a bar
    */
   public int getBarBeats() {
     return barBeats;
   }
 
   /**
-   @return True if multiphonic
+   * @return True if multiphonic
    */
   public Boolean doPatternRestartOnChord() {
     return doPatternRestartOnChord;

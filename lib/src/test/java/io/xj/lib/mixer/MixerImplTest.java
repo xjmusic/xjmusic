@@ -1,9 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.mixer;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
+
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.notification.NotificationProvider;
 import org.junit.After;
 import org.junit.Before;
@@ -14,34 +13,28 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.sound.sampled.AudioFormat;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MixerImplTest {
-
   @Mock
-  private NotificationProvider mockNotificationProvider;
+  private NotificationProvider notificationProvider;
 
   private MixerFactory mixerFactory;
 
   private Mixer testMixer;
+
 
   // FUTURE test compression settings
   // FUTURE test compression special getters for ahead/decay frames
 
   @Before
   public void setUp() throws Exception {
-    mixerFactory = Guice.createInjector(Modules.override(new MixerModule()).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(NotificationProvider.class).toInstance(mockNotificationProvider);
-      }
-    })).getInstance(MixerFactory.class);
-
+    AppEnvironment env = new AppEnvironment();
+    EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
+    mixerFactory = new MixerFactoryImpl(env, envelopeProvider, notificationProvider);
     testMixer = mixerFactory.createMixer(
       new MixerConfig(
         new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
@@ -109,6 +102,6 @@ public class MixerImplTest {
     InternalResource internalResource = new InternalResource("test_audio/F32LSB_48kHz_6ch.wav");
     testMixer.loadSource("F32LSB_48kHz_6ch", internalResource.getFile().getAbsolutePath(), "test audio");
 
-    verify(mockNotificationProvider).publish(eq("Production-Chain Mix Source Failure"),eq("Failed to load source for Audio[F32LSB_48kHz_6ch] \"test audio\" because more than 2 input audio channels not allowed"));
+    verify(notificationProvider).publish(eq("Production-Chain Mix Source Failure"), eq("Failed to load source for Audio[F32LSB_48kHz_6ch] \"test audio\" because more than 2 input audio channels not allowed"));
   }
 }

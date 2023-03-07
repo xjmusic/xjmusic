@@ -1,18 +1,16 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.craft.detail;
 
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-import io.xj.nexus.model.SegmentChoice;
+
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Program;
-import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.CraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
+import io.xj.nexus.model.SegmentChoice;
 
 import java.util.List;
 import java.util.Objects;
@@ -25,14 +23,13 @@ import java.util.stream.Collectors;
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public class DetailCraftImpl extends CraftImpl implements DetailCraft {
-  @Inject
-  public DetailCraftImpl(@Assisted("basis") Fabricator fabricator) {
+  public DetailCraftImpl( Fabricator fabricator) {
     super(fabricator);
   }
 
   @Override
   public void doWork() throws NexusException {
-    // https://www.pivotaltracker.com/story/show/178240332 Segments have intensity arcs; automate mixer layers in and out of each main program
+    // Segments have intensity arcs; automate mixer layers in and out of each main program https://www.pivotaltracker.com/story/show/178240332
     ChoiceIndexProvider choiceIndexProvider = (SegmentChoice choice) -> Values.stringOrDefault(choice.getInstrumentType(), choice.getId().toString());
     Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> Objects.equals(ProgramType.Detail.toString(), choice.getProgramType());
     precomputeDeltas(choiceFilter, choiceIndexProvider, fabricator.getTemplateConfig().getDetailLayerOrder().stream().map(InstrumentType::toString).collect(Collectors.toList()), List.of(), fabricator.getTemplateConfig().getDeltaArcDetailLayersIncoming());

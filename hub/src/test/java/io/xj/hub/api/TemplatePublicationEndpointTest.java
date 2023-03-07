@@ -2,41 +2,38 @@
 
 package io.xj.hub.api;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
 import io.xj.hub.HubTopology;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.access.HubAccessControlModule;
+import io.xj.hub.ingest.HubIngestFactory;
 import io.xj.hub.manager.ManagerException;
-import io.xj.hub.manager.ManagerModule;
+import io.xj.hub.manager.TemplateManager;
 import io.xj.hub.manager.TemplatePublicationManager;
-import io.xj.hub.ingest.HubIngestModule;
-import io.xj.hub.persistence.HubPersistenceModule;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplatePublication;
 import io.xj.hub.tables.pojos.User;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.app.AppException;
-import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.filestore.FileStoreModule;
-import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.jsonapi.JsonapiModule;
-import io.xj.lib.jsonapi.JsonapiPayload;
+import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.json.ApiUrlProvider;
+import io.xj.lib.json.JsonProvider;
+import io.xj.lib.json.JsonProviderImpl;
+import io.xj.lib.jsonapi.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.HttpStatus;
 
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.Response;
-import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
+import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.*;
 import static io.xj.hub.access.HubAccess.CONTEXT_KEY;
@@ -49,14 +46,24 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- Hub can publish content for production fabrication https://www.pivotaltracker.com/story/show/180805580
+ * Hub can publish content for production fabrication https://www.pivotaltracker.com/story/show/180805580
  */
 @RunWith(MockitoJUnitRunner.class)
 public class TemplatePublicationEndpointTest {
   @Mock
-  ContainerRequestContext crc;
+  HttpServletRequest req;
+  @Mock
+  HttpServletResponse res;
   @Mock
   TemplatePublicationManager templatePublicationManager;
+  @Mock
+  FileStoreProvider fileStoreProvider;
+  @Mock
+  HubSqlStoreProvider sqlStoreProvider;
+  @Mock
+  HubIngestFactory ingestFactory;
+  @Mock
+  TemplateManager templateManager;
   private HubAccess access;
   private TemplatePublicationEndpoint subject;
   private Template template25;
@@ -64,39 +71,36 @@ public class TemplatePublicationEndpointTest {
 
   @Before
   public void setUp() throws AppException {
-    var env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule())).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(Environment.class).toInstance(env);
-        bind(TemplatePublicationManager.class).toInstance(templatePublicationManager);
-      }
-    }));
+    var env = AppEnvironment.getDefault();
+    JsonProvider jsonProvider = new JsonProviderImpl();
+    EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
+    JsonapiPayloadFactory payloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
+    HubTopology.buildHubApiTopology(entityFactory);
+    ApiUrlProvider apiUrlProvider = new ApiUrlProvider(env);
+    JsonapiResponseProvider responseProvider = new JsonapiResponseProviderImpl(apiUrlProvider);
 
-    HubTopology.buildHubApiTopology(injector.getInstance(EntityFactory.class));
     Account account1 = buildAccount("Testing");
     user1 = buildUser("Joe", "joe@email.com", "joe.jpg", "User,Artist");
-    access = HubAccess.create(user1, ImmutableList.of(account1));
+    access = HubAccess.create(user1, UUID.randomUUID(), ImmutableList.of(account1));
     template25 = buildTemplate(account1, "Testing");
-    subject = injector.getInstance(TemplatePublicationEndpoint.class);
-    injector.injectMembers(subject);
+    subject = new TemplatePublicationEndpoint(entityFactory, env, fileStoreProvider, sqlStoreProvider, ingestFactory, responseProvider, payloadFactory, templateManager, templatePublicationManager, jsonProvider);
   }
 
   @Test
-  public void readManyForTemplate() throws ManagerException, IOException, JsonapiException {
-    when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
+  public void readManyForTemplate() throws ManagerException, JsonapiException {
+    when(req.getAttribute(CONTEXT_KEY)).thenReturn(access);
     TemplatePublication templatePublication1 = buildTemplatePublication(template25, user1);
     TemplatePublication templatePublication2 = buildTemplatePublication(template25, user1);
     Collection<TemplatePublication> templatePublications = ImmutableList.of(templatePublication1, templatePublication2);
     when(templatePublicationManager.readMany(same(access), eq(ImmutableList.of(template25.getId()))))
       .thenReturn(templatePublications);
 
-    Response result = subject.readManyForTemplate(crc, template25.getId().toString());
+    var result = subject.readManyForTemplate(req, res, template25.getId().toString());
 
     verify(templatePublicationManager).readMany(same(access), eq(ImmutableList.of(template25.getId())));
-    assertEquals(200, result.getStatus());
-    assertTrue(result.hasEntity());
-    assertPayload(new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class))
+    assertEquals(HttpStatus.OK, result.getStatusCode());
+    assertTrue(result.hasBody());
+    assertPayload(result.getBody())
       .hasDataMany("template-publications", ImmutableList.of(templatePublication1.getId().toString(), templatePublication2.getId().toString()));
   }
 

@@ -2,106 +2,103 @@
 package io.xj.hub.api;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.manager.Manager;
 import io.xj.hub.manager.UserManager;
-import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.User;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
+import io.xj.lib.jsonapi.JsonapiResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.jsonapi.MediaType;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Objects;
 import java.util.UUID;
 
 /**
- Current user
+ * Current user
  */
 @Path("api/1")
-public class UserEndpoint extends HubJsonapiEndpoint<User> {
+public class UserEndpoint extends HubJsonapiEndpoint {
   private final UserManager manager;
 
   /**
-   Constructor
+   * Constructor
    */
-  @Inject
   public UserEndpoint(
     UserManager manager,
-    HubDatabaseProvider dbProvider,
-    JsonapiHttpResponseProvider response,
+    HubSqlStoreProvider sqlStoreProvider,
+    JsonapiResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory
   ) {
-    super(dbProvider, response, payloadFactory, entityFactory);
+    super(sqlStoreProvider, response, payloadFactory, entityFactory);
     this.manager = manager;
   }
 
   /**
-   Get all users.
-
-   @return application/json response.
+   * Get all users.
+   *
+   * @return application/json response.
    */
   @GET
   @Path("users")
   @RolesAllowed(USER)
-  public Response readMany(@Context ContainerRequestContext crc) {
-    return readMany(crc, manager(), ImmutableList.of());
+  public ResponseEntity<JsonapiPayload> readMany(HttpServletRequest req) {
+    return readMany(req, manager(), ImmutableList.of());
   }
 
   /**
-   Get one user.
-
-   @return application/json response.
+   * Get one user.
+   *
+   * @return application/json response.
    */
   @GET
   @Path("users/{id}")
   @RolesAllowed(USER)
-  public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") UUID id) {
-    return readOne(crc, manager(), id);
+  public ResponseEntity<JsonapiPayload> readOne(HttpServletRequest req, @PathParam("id") UUID id) {
+    return readOne(req, manager(), id);
   }
 
   /**
-   Update one User.
-
-   @param jsonapiPayload with which to update User record.
-   @return Response.
+   * Update one User.
+   *
+   * @param jsonapiPayload with which to update User record.
+   * @return ResponseEntity.
    */
   @PATCH
   @Path("users/{id}")
-  @Consumes(MediaType.APPLICATION_JSONAPI)
+  @Consumes(MediaType.APPLICATION_JSON_VALUE)
   @RolesAllowed(ADMIN)
-  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") UUID id) {
-    return update(crc, manager(), id, jsonapiPayload);
+  public ResponseEntity<JsonapiPayload> update(JsonapiPayload jsonapiPayload, HttpServletRequest req, @PathParam("id") UUID id) {
+    return update(req, manager(), id, jsonapiPayload);
   }
 
   /**
-   Get current authentication.
-
-   @return application/json response.
+   * Get current authentication.
+   *
+   * @return application/json response.
    */
   @GET
   @Path("users/me")
   @RolesAllowed({USER})
-  public Response getCurrentlyAuthenticatedUser(@Context ContainerRequestContext crc) {
+  public ResponseEntity<JsonapiPayload> getCurrentlyAuthenticatedUser(HttpServletRequest req) {
     UUID userId;
-    userId = HubAccess.fromContext(crc).getUserId();
+    userId = HubAccess.fromRequest(req).getUserId();
 
-    return readOne(crc, manager(), Objects.requireNonNull(userId).toString());
+    return readOne(req, manager(), Objects.requireNonNull(userId).toString());
   }
 
   /**
-   Get Manager of injector
-
-   @return Manager
+   * Get Manager of injector
+   *
+   * @return Manager
    */
   private Manager<User> manager() {
     return manager;

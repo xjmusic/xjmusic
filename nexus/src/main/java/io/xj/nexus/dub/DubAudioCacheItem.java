@@ -1,9 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.dub;
 
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-import io.xj.lib.app.Environment;
+
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.nexus.NexusException;
 import org.apache.commons.io.FileUtils;
@@ -25,7 +24,7 @@ import java.util.Objects;
  <p>
  NO LONGER using Caffeine in-memory caching-- just caching on disk originally loading from S3
  <p>
- https://www.pivotaltracker.com/story/show/176642679 Advanced audio caching during fabrication
+ Advanced audio caching during fabrication https://www.pivotaltracker.com/story/show/176642679
  */
 public class DubAudioCacheItem {
   final Logger log = LoggerFactory.getLogger(DubAudioCacheItem.class);
@@ -38,12 +37,11 @@ public class DubAudioCacheItem {
    @param key          ot this item
    @param absolutePath to this item's waveform data on disk
    */
-  @Inject
   public DubAudioCacheItem(
-    Environment env,
+    AppEnvironment env,
     HttpClientProvider httpClientProvider,
-    @Assisted("key") String key,
-    @Assisted("path") String absolutePath
+     String key,
+     String absolutePath
   ) throws NexusException {
     this.key = key;
     this.absolutePath = absolutePath;

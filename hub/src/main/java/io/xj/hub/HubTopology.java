@@ -5,17 +5,17 @@ import io.xj.hub.tables.pojos.*;
 import io.xj.lib.entity.EntityFactory;
 
 /**
- In the future, we will simplify JSON payload
- deprecating this complex abstraction of JSON:API
- in favor of plain POJO
+ * In the future, we will simplify JSON payload
+ * deprecating this complex abstraction of JSON:API
+ * in favor of plain POJO
  */
 public enum HubTopology {
   ;
 
   /**
-   Given an entity factory, build the Hub REST API entity topology
-
-   @param entityFactory to build topology on
+   * Given an entity factory, build the Hub REST API entity topology
+   *
+   * @param entityFactory to build topology on
    */
   public static void buildHubApiTopology(EntityFactory entityFactory) {
     // Account
@@ -242,44 +242,6 @@ public enum HubTopology {
       .withAttribute("createdAt")
       .belongsTo(Template.class)
       .belongsTo(User.class);
-
-    // Feedback
-    entityFactory.register(Feedback.class)
-      .createdBy(Feedback::new)
-      .withAttribute("source")
-      .withAttribute("type")
-      .withAttribute("timestamp")
-      .withAttribute("account_id")
-      .withAttribute("body")
-      .belongsTo(User.class)
-      .belongsTo(Template.class)
-      .belongsTo(Program.class)
-      .belongsTo(Library.class)
-      .belongsTo(Instrument.class);
-
-    // Feedback
-    entityFactory.register(FeedbackInstrument.class)
-      .createdBy(FeedbackInstrument::new)
-      .belongsTo(Feedback.class)
-      .belongsTo(Instrument.class);
-
-    // Feedback
-    entityFactory.register(FeedbackLibrary.class)
-      .createdBy(FeedbackLibrary::new)
-      .belongsTo(Feedback.class)
-      .belongsTo(Library.class);
-
-    // Feedback
-    entityFactory.register(FeedbackProgram.class)
-      .createdBy(FeedbackProgram::new)
-      .belongsTo(Feedback.class)
-      .belongsTo(Program.class);
-
-    // Feedback
-    entityFactory.register(FeedbackTemplate.class)
-      .createdBy(FeedbackTemplate::new)
-      .belongsTo(Feedback.class)
-      .belongsTo(Template.class);
   }
 
 

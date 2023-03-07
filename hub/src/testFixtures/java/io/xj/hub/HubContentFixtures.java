@@ -52,7 +52,7 @@ import static io.xj.hub.IntegrationTestingFixtures.buildProgramVoiceTrack;
 import static io.xj.hub.IntegrationTestingFixtures.buildUser;
 
 /**
- https://www.pivotaltracker.com/story/show/165954673 Integration tests use shared scenario fixtures as much as possible
+ Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
  <p>
  Testing the hypothesis that, while unit tests are all independent,
  integration tests ought be as much about testing all features around a consensus model of the platform
@@ -233,7 +233,7 @@ public class HubContentFixtures {
     program5_sequence0_chord0_voicing = buildProgramSequenceChordVoicing(program5_sequence0_chord0, voice1, "G3, B3, D4");
     program5_sequence0_chord1 = buildProgramSequenceChord(program5_sequence0, 8.0, "Ab minor");
     program5_sequence0_chord1_voicing = buildProgramSequenceChordVoicing(program5_sequence0_chord1, voice1, "Ab3, Db3, F4");
-    program5_sequence0_chord2 = buildProgramSequenceChord(program5_sequence0, 75.0, "G-9"); // https://www.pivotaltracker.com/story/show/154090557 this ChordEntity should be ignored, because it's past the end of the main-pattern total
+    program5_sequence0_chord2 = buildProgramSequenceChord(program5_sequence0, 75.0, "G-9"); // this ChordEntity should be ignored, because it's past the end of the main-pattern total https://www.pivotaltracker.com/story/show/154090557
     program5_sequence0_chord2_voicing = buildProgramSequenceChordVoicing(program5_sequence0_chord2, voice1, "G3, Bb3, D4, A4");
     program5_sequence0_binding0 = buildProgramSequenceBinding(program5_sequence0, 0);
     program5_sequence0_binding0_meme0 = buildProgramSequenceBindingMeme(program5_sequence0_binding0, "Optimism");
@@ -341,7 +341,7 @@ public class HubContentFixtures {
   /**
    Library of Content B-2 (shared test fixture)
    <p>
-   https://www.pivotaltracker.com/story/show/165954673 Integration tests use shared scenario fixtures as much as possible
+   Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
    */
   public Collection<Object> setupFixtureB2() {
     // "Tangy, Chunky to Smooth" macro-program in house library
@@ -402,16 +402,16 @@ public class HubContentFixtures {
   /**
    Library of Content B-3 (shared test fixture)
    <p>
-   https://www.pivotaltracker.com/story/show/165954673 Integration tests use shared scenario fixtures as much as possible
+   Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
    <p>
-   https://www.pivotaltracker.com/story/show/163158036 memes bound to sequence-pattern because sequence-binding is not considered for beat sequences, beat sequence patterns do not have memes.
+   memes bound to sequence-pattern because sequence-binding is not considered for beat sequences, beat sequence patterns do not have memes. https://www.pivotaltracker.com/story/show/163158036
    <p>
-   https://www.pivotaltracker.com/story/show/165954619 Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (beat- and detail-type sequences)
+   Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (beat- and detail-type sequences) https://www.pivotaltracker.com/story/show/165954619
    <p>
-   https://www.pivotaltracker.com/story/show/153976073 Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Beat or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment.
+   Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Beat or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment. https://www.pivotaltracker.com/story/show/153976073
    + For this test, there's an Intro Pattern with all BLEEPS, multiple Loop Patterns with KICK and SNARE (2x each), and an Outro Pattern with all TOOTS.
    <p>
-   https://www.pivotaltracker.com/story/show/150279647 Artist wants to of multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset.
+   Artist wants to of multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset. https://www.pivotaltracker.com/story/show/150279647
    */
   public Collection<Object> setupFixtureB3() {
     // A basic beat

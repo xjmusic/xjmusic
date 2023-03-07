@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.access;
 
-import com.google.inject.Inject;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.slf4j.Logger;
@@ -16,27 +15,26 @@ public class HubAccessLogFilter {
   private final Logger LOG = LoggerFactory.getLogger(HubAccessLogFilter.class);
   private final String pathToWriteAccessLog;
 
-  @Inject
   public HubAccessLogFilter(String pathToWriteAccessLog) {
     this.pathToWriteAccessLog = pathToWriteAccessLog;
   }
 
   /**
-   Setup a path and max entity size
-
-   @param path to setup
-   @throws IOException on failure
+   * Setup a path and max entity size
+   *
+   * @param path to setup
+   * @throws IOException on failure
    */
   private static void setup(String path) throws IOException {
     instance = new LoggingFeature(getLogger(path));
   }
 
   /**
-   Get a file logger
-
-   @param pathToWriteFile to write file output to
-   @return Logger
-   @throws IOException when there is a problem opening the file for writing
+   * Get a file logger
+   *
+   * @param pathToWriteFile to write file output to
+   * @return Logger
+   * @throws IOException when there is a problem opening the file for writing
    */
   private static java.util.logging.Logger getLogger(String pathToWriteFile) throws IOException {
     String name = "Jersey";

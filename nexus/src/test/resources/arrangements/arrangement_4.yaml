@@ -8,7 +8,7 @@
 #    * Four-note chords
 #  Test is based on Main Program “Earth 3”, sequence “0”
 #
-#  https://www.pivotaltracker.com/story/show/176696738 XJ has a serviceable voicing algorithm
+#  XJ has a serviceable voicing algorithm https://www.pivotaltracker.com/story/show/176696738
 ---
 
 bassInstrument:
@@ -72,7 +72,7 @@ segment:
       name: Gsus4/A
       voicings:
         # Bass deliberately has too-high voicings available to test against
-        # https://www.pivotaltracker.com/story/show/178277316 Bass always prefers the lowest end of the available voicings
+        # Bass always prefers the lowest end of the available voicings https://www.pivotaltracker.com/story/show/178277316
         bass: E1, G1, A1, C2, D2, E2, G2, A2, C3, D3, E3, G3, A3, C4, D4, E4, G4, A4, C5, D5
         pad: G3, C4, D4, G4, C5, D5, G5, C6
         stab: G3, C4, D4, G4, C5, D5, G5, C6

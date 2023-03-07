@@ -10,7 +10,7 @@ import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Program;
-import io.xj.lib.app.Environment;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.meme.MemeConstellation;
 import io.xj.lib.meme.MemeStack;
@@ -18,19 +18,12 @@ import io.xj.lib.meme.MemeTaxonomy;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- Constellations report https://www.pivotaltracker.com/story/show/182861489
+ * Constellations report https://www.pivotaltracker.com/story/show/182861489
  */
 public class ReportConstellations extends Report {
   private final Histogram macroHistogram;
@@ -42,7 +35,7 @@ public class ReportConstellations extends Report {
   private final Map<InstrumentType, Set<Instrument>> instrumentsByType;
   private final MemeTaxonomy taxonomy;
 
-  public ReportConstellations(HubContent content, Environment env) throws HubClientException, ValueException {
+  public ReportConstellations(HubContent content, AppEnvironment env) throws HubClientException, ValueException {
     super(content, env);
     Collection<String> memeNames;
     MemeStack stack;
@@ -181,7 +174,7 @@ public class ReportConstellations extends Report {
             Section.checkboxValue(beatProgramHistogram.getIds(c.getKey()).contains(program.getId()))
           )).toList())
         .toList(), Streams.concat(Stream.of("Memes"),
-        programs.parallelStream().map(this::programRef)).toList(),
+      programs.parallelStream().map(this::programRef)).toList(),
       List.of());
   }
 
@@ -200,7 +193,7 @@ public class ReportConstellations extends Report {
             Section.checkboxValue(instrumentHistogram.get(instrumentType).getIds(c.getKey()).contains(instrument.getId()))
           )).toList())
         .toList(), Streams.concat(Stream.of("Memes"),
-        instruments.parallelStream().map(this::instrumentRef)).toList(),
+      instruments.parallelStream().map(this::instrumentRef)).toList(),
       List.of());
   }
 
@@ -220,7 +213,7 @@ public class ReportConstellations extends Report {
             Section.checkboxValue(detailProgramHistogram.getIds(c.getKey()).contains(program.getId()))
           )).toList())
         .toList(), Streams.concat(Stream.of("Memes"),
-        programs.parallelStream().map(this::programRef)).toList(),
+      programs.parallelStream().map(this::programRef)).toList(),
       List.of());
   }
 

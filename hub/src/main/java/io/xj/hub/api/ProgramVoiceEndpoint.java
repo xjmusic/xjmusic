@@ -1,128 +1,126 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.api;
 
-import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.manager.ProgramSequenceChordVoicingManager;
 import io.xj.hub.manager.ProgramVoiceManager;
-import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
+import io.xj.lib.jsonapi.JsonapiResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.jsonapi.MediaType;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
 /**
- ProgramVoice endpoint
+ * ProgramVoice endpoint
  */
 @Path("api/1/program-voices")
-public class ProgramVoiceEndpoint extends HubJsonapiEndpoint<ProgramVoice> {
+public class ProgramVoiceEndpoint extends HubJsonapiEndpoint {
   private final ProgramVoiceManager manager;
   private final ProgramSequenceChordVoicingManager voicingManager;
 
   /**
-   Constructor
+   * Constructor
    */
-  @Inject
   public ProgramVoiceEndpoint(
     ProgramVoiceManager manager,
     ProgramSequenceChordVoicingManager voicingManager,
-    HubDatabaseProvider dbProvider,
-    JsonapiHttpResponseProvider response,
+    HubSqlStoreProvider sqlStoreProvider,
+    JsonapiResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory
   ) {
-    super(dbProvider, response, payloadFactory, entityFactory);
+    super(sqlStoreProvider, response, payloadFactory, entityFactory);
     this.manager = manager;
     this.voicingManager = voicingManager;
   }
 
   /**
-   Create new programVoice binding
-
-   @param jsonapiPayload with which to of ProgramVoice Binding
-   @return Response
+   * Create new programVoice binding
+   *
+   * @param jsonapiPayload with which to of ProgramVoice Binding
+   * @return ResponseEntity
    */
   @POST
-  @Consumes(MediaType.APPLICATION_JSONAPI)
+  @Consumes(MediaType.APPLICATION_JSON_VALUE)
   @RolesAllowed(ARTIST)
-  public Response create(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc) {
+  public ResponseEntity<JsonapiPayload> create(JsonapiPayload jsonapiPayload, HttpServletRequest req, HttpServletResponse res) {
     try {
-      HubAccess access = HubAccess.fromContext(crc);
+      HubAccess access = HubAccess.fromRequest(req);
       JsonapiPayload responseData = new JsonapiPayload();
 
       ProgramVoice created = manager.create(access, payloadFactory.consume(manager.newInstance(), jsonapiPayload));
       responseData.setDataOne(payloadFactory.toPayloadObject(created));
       responseData.addAllToIncluded(payloadFactory.toPayloadObjects(voicingManager.createEmptyVoicings(access, created)));
-      return response.create(responseData);
+      return responseProvider.create(responseData);
 
     } catch (Exception e) {
-      return response.notAcceptable(e);
+      return responseProvider.notAcceptable(e);
     }
   }
 
   /**
-   Get one ProgramVoice by id
-
-   @return application/json response.
+   * Get one ProgramVoice by id
+   *
+   * @return application/json response.
    */
   @GET
   @Path("{id}")
   @RolesAllowed(ARTIST)
-  public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") UUID id) {
-    return readOne(crc, manager(), id);
+  public ResponseEntity<JsonapiPayload> readOne(HttpServletRequest req, @PathParam("id") UUID id) {
+    return readOne(req, manager(), id);
   }
 
   /**
-   Get many program voices
-
-   @return application/json response.
+   * Get many program voices
+   *
+   * @return application/json response.
    */
   @GET
   @RolesAllowed(ARTIST)
-  public Response readMany(@Context ContainerRequestContext crc, @QueryParam("programId") UUID programId) {
-    return readMany(crc, manager(), programId);
+  public ResponseEntity<JsonapiPayload> readMany(HttpServletRequest req, @QueryParam("programId") UUID programId) {
+    return readMany(req, manager(), programId);
   }
 
   /**
-   Update one ProgramVoice
-
-   @param jsonapiPayload with which to update record.
-   @return Response
+   * Update one ProgramVoice
+   *
+   * @param jsonapiPayload with which to update record.
+   * @return ResponseEntity
    */
   @PATCH
   @Path("{id}")
-  @Consumes(MediaType.APPLICATION_JSONAPI)
+  @Consumes(MediaType.APPLICATION_JSON_VALUE)
   @RolesAllowed(ARTIST)
-  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") UUID id) {
-    return update(crc, manager(), id, jsonapiPayload);
+  public ResponseEntity<JsonapiPayload> update(JsonapiPayload jsonapiPayload, HttpServletRequest req, @PathParam("id") UUID id) {
+    return update(req, manager(), id, jsonapiPayload);
   }
 
   /**
-   Delete one ProgramVoice by programVoiceId and bindingId
-
-   @return application/json response.
+   * Delete one ProgramVoice by programVoiceId and bindingId
+   *
+   * @return application/json response.
    */
   @DELETE
   @Path("{id}")
   @RolesAllowed(ARTIST)
-  public Response delete(@Context ContainerRequestContext crc, @PathParam("id") UUID id) {
-    return delete(crc, manager(), id);
+  public ResponseEntity<JsonapiPayload> delete(HttpServletRequest req, @PathParam("id") UUID id) {
+    return delete(req, manager(), id);
   }
 
   /**
-   Get Manager of injector
-
-   @return Manager
+   * Get Manager of injector
+   *
+   * @return Manager
    */
   private ProgramVoiceManager manager() {
     return manager;

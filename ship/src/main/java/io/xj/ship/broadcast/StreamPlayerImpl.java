@@ -2,16 +2,19 @@
 
 package io.xj.ship.broadcast;
 
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-import io.xj.lib.app.Environment;
+
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.mixer.FormatException;
 import io.xj.ship.ShipException;
 import io.xj.ship.ShipMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.sound.sampled.*;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.SourceDataLine;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -23,15 +26,14 @@ public class StreamPlayerImpl implements StreamPlayer {
   private static final Logger LOG = LoggerFactory.getLogger(StreamPlayer.class);
   private static final String THREAD_NAME = "StreamPlayer";
   private final AudioFormat format;
-  private final SourceDataLine line;
+  private SourceDataLine line;
   private final ConcurrentLinkedQueue<ByteBuffer> queue;
   private volatile boolean active = true;
 
-  @Inject
   public StreamPlayerImpl(
-    @Assisted("audioFormat") AudioFormat format,
-    Environment env
-  ) throws ShipException {
+    AudioFormat format,
+    AppEnvironment env
+  ) {
     this.format = format;
 
     queue = new ConcurrentLinkedQueue<>();
@@ -68,7 +70,8 @@ public class StreamPlayerImpl implements StreamPlayer {
         });
 
       } catch (LineUnavailableException e) {
-        throw new ShipException("Failed to initialize!", e);
+        LOG.error("Failed to initialize!", e);
+        active = false;
       }
     else {
       line = null;

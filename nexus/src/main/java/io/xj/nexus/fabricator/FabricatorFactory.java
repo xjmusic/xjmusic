@@ -1,18 +1,18 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.fabricator;
 
-import com.google.inject.assistedinject.Assisted;
+
+import io.xj.hub.client.HubContent;
+import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
-import io.xj.nexus.NexusException;
-import io.xj.hub.client.HubContent;
 
 /**
  Fabricator content = contentFactory.fabricate(segment);
  ... do things with this content, like craft or dub ...
  content.putReport();
  <p>
- https://www.pivotaltracker.com/story/show/176625033 Unify guice factory with explicit methods to construct components from Fabricator
+ Unify factory with explicit methods to construct components from Fabricator https://www.pivotaltracker.com/story/show/176625033
  */
 public interface FabricatorFactory {
   /**
@@ -25,8 +25,8 @@ public interface FabricatorFactory {
    @throws FabricationFatalException on failure requiring a chain restart https://www.pivotaltracker.com/story/show/182131722
    */
   Fabricator fabricate(
-    @Assisted("sourceMaterial") HubContent sourceMaterial,
-    @Assisted("segment") Segment segment
+     HubContent sourceMaterial,
+     Segment segment
   ) throws NexusException, FabricationFatalException;
 
   /**
@@ -43,8 +43,8 @@ public interface FabricatorFactory {
    @throws FabricationFatalException on failure requiring a chain restart https://www.pivotaltracker.com/story/show/182131722
    */
   SegmentRetrospective loadRetrospective(
-    @Assisted("segment") Segment segment,
-    @Assisted("sourceMaterial") HubContent sourceMaterial
+     Segment segment,
+     HubContent sourceMaterial
   ) throws NexusException, FabricationFatalException;
 
   /**
@@ -55,7 +55,7 @@ public interface FabricatorFactory {
    @throws NexusException on failure
    */
   SegmentWorkbench setupWorkbench(
-    @Assisted("chain") Chain chain,
-    @Assisted("segment") Segment segment
+     Chain chain,
+     Segment segment
   ) throws NexusException;
 }

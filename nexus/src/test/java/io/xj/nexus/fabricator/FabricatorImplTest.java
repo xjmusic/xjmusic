@@ -5,24 +5,18 @@ package io.xj.nexus.fabricator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Streams;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
 import io.xj.hub.HubTopology;
 import io.xj.hub.client.HubClient;
 import io.xj.hub.client.HubClientException;
-import io.xj.hub.client.HubClientModule;
 import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Template;
-import io.xj.lib.app.Environment;
-import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.filestore.FileStoreModule;
+import io.xj.lib.app.AppEnvironment;
+import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.JsonProvider;
-import io.xj.lib.jsonapi.JsonapiModule;
+import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.mixer.MixerModule;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.StickyBun;
@@ -46,10 +40,9 @@ import io.xj.nexus.persistence.ManagerExistenceException;
 import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.ManagerPrivilegeException;
 import io.xj.nexus.persistence.NexusEntityStore;
-import io.xj.nexus.persistence.NexusPersistenceModule;
+import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.Segments;
-import io.xj.nexus.work.NexusWorkModule;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -95,13 +88,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- FUTURE: https://www.pivotaltracker.com/story/show/170035559 Split the FabricatorImplTest into separate tests of the FabricatorImpl, SegmentWorkbenchImpl, SegmentRetrospectiveImpl, and IngestImpl
+ * FUTURE: Split the FabricatorImplTest into separate tests of the FabricatorImpl, SegmentWorkbenchImpl, SegmentRetrospectiveImpl, and IngestImpl https://www.pivotaltracker.com/story/show/170035559
  */
 @RunWith(MockitoJUnitRunner.class)
 public class FabricatorImplTest {
   static int SEQUENCE_TOTAL_BEATS = 64;
   @Mock
-  public Environment env;
+  public AppEnvironment env;
   @Mock
   public FabricatorFactory mockFabricatorFactory;
   @Mock
@@ -129,24 +122,13 @@ public class FabricatorImplTest {
 
   @Before
   public void setUp() throws Exception {
-    var injector = Guice.createInjector(Modules.override(new FileStoreModule(), new NexusPersistenceModule(), new HubClientModule(), new NexusPersistenceModule(), new MixerModule(), new JsonapiModule(), new NexusWorkModule()).with(new AbstractModule() {
-      @Override
-      public void configure() {
-        bind(Environment.class).toInstance(env);
-        bind(Tuning.class).toInstance(mockTuning);
-        bind(HubClient.class).toInstance(mockHubClient);
-        bind(FabricatorFactory.class).toInstance(mockFabricatorFactory);
-        bind(SegmentWorkbench.class).toInstance(mockSegmentWorkbench);
-        bind(SegmentRetrospective.class).toInstance(mockRetrospective);
-      }
-    }));
-    jsonProvider = injector.getInstance(JsonProvider.class);
-    var entityFactory = injector.getInstance(EntityFactory.class);
+    jsonProvider = new JsonProviderImpl();
+    var entityFactory = new EntityFactoryImpl(jsonProvider);
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
+    store = new NexusEntityStoreImpl(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
-    store = injector.getInstance(NexusEntityStore.class);
     store.deleteAll();
 
     // Mock request via HubClient returns fake generated library of hub content
@@ -160,11 +142,11 @@ public class FabricatorImplTest {
     when(mockFabricatorFactory.setupWorkbench(any(), any())).thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
+    subject = new FabricatorImpl(env, sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
   }
 
   /**
-   Instrument has overall volume parameter https://www.pivotaltracker.com/story/show/179215413
+   * Instrument has overall volume parameter https://www.pivotaltracker.com/story/show/179215413
    */
   @Test
   public void computeAudioVolume() throws Exception {
@@ -179,7 +161,7 @@ public class FabricatorImplTest {
     when(mockFabricatorFactory.setupWorkbench(any(), any())).thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
+    subject = new FabricatorImpl(env, sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     double result = subject.getAudioVolume(pick); // instantiates a time computer; see expectation above
 
@@ -202,7 +184,7 @@ public class FabricatorImplTest {
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockSegmentWorkbench.getSegmentChoiceArrangementPicks()).thenReturn(ImmutableList.of(beatPick));
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
+    subject = new FabricatorImpl(env, sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     Collection<SegmentChoiceArrangementPick> result = subject.getPicks();
 
@@ -220,7 +202,6 @@ public class FabricatorImplTest {
   public void getDistinctChordVoicingTypes() throws Exception {
     sourceMaterial = new HubContent(Streams.concat(fake.setupFixtureB1().stream(), fake.setupFixtureB2().stream(), fake.setupFixtureB3().stream(), Stream.of(buildVoicing(fake.program5_sequence0_chord0, fake.program5_voiceSticky, "G4, B4, D4"), buildVoicing(fake.program5_sequence0_chord0, fake.program5_voiceStripe, "F5"), buildVoicing(fake.program5_sequence0_chord0, fake.program5_voicePad, "(None)") // No voicing notes- doesn't count!
     )).collect(Collectors.toList()));
-    store.put(buildTemplateBinding(fake.template1, fake.library2));
     var chain = store.put(buildChain(fake.account1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE, Instant.parse("2017-12-12T01:00:08.000000Z")));
     segment = store.put(buildSegment(chain, 0, SegmentState.CRAFTING, Instant.parse("2017-12-12T01:00:08.000000Z"), Instant.parse("2017-12-12T01:00:16.000000Z"), "F major", 8, 0.6, 120.0, "seg123", "ogg"));
     SegmentChoice mainChoice = store.put(buildSegmentChoice(segment, Segments.DELTA_UNLIMITED, Segments.DELTA_UNLIMITED, fake.program5));
@@ -229,7 +210,7 @@ public class FabricatorImplTest {
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockSegmentWorkbench.getChoiceOfType(ProgramType.Main)).thenReturn(Optional.of(mainChoice));
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
+    subject = new FabricatorImpl(env, sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     Set<InstrumentType> result = subject.getDistinctChordVoicingTypes();
 
@@ -238,7 +219,7 @@ public class FabricatorImplTest {
 
 
   /**
-   https://www.pivotaltracker.com/story/show/176728582 Choose next Macro program based on the memes of the last sequence from the previous Macro program
+   * Choose next Macro program based on the memes of the last sequence from the previous Macro program https://www.pivotaltracker.com/story/show/176728582
    */
   @Test
   public void getType() throws NexusException, ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException, FabricationFatalException {
@@ -255,7 +236,7 @@ public class FabricatorImplTest {
     when(mockRetrospective.getPreviousChoiceOfType(ProgramType.Main)).thenReturn(Optional.of(previousMainChoice));
     when(mockRetrospective.getPreviousChoiceOfType(ProgramType.Macro)).thenReturn(Optional.of(previousMacroChoice));
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
+    subject = new FabricatorImpl(env, sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     var result = subject.getType();
 
@@ -277,7 +258,7 @@ public class FabricatorImplTest {
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockRetrospective.getPreviousChoiceOfType(ProgramType.Macro)).thenReturn(Optional.of(previousMacroChoice));
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
+    subject = new FabricatorImpl(env, sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     var result = subject.getMemeIsometryOfNextSequenceInPreviousMacro();
 
@@ -293,7 +274,7 @@ public class FabricatorImplTest {
     when(mockSegmentWorkbench.getSegmentChords()).thenReturn(ImmutableList.of(buildSegmentChord(segment, 0.0, "C"), buildSegmentChord(segment, 2.0, "F"), buildSegmentChord(segment, 5.5, "Gm")));
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
+    subject = new FabricatorImpl(env, sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     assertEquals("C", subject.getChordAt(0).orElseThrow().getName());
     assertEquals("C", subject.getChordAt(1).orElseThrow().getName());
@@ -319,7 +300,7 @@ public class FabricatorImplTest {
     var sequence = buildSequence(program, 4);
     var pattern = buildPattern(sequence, voice, 4);
     sourceMaterial = new HubContent(ImmutableList.of(program, voice, track, sequence, pattern, fake.template1, fake.templateBinding1, buildEvent(pattern, track, 0.0f, 1.0f, "C1"), buildEvent(pattern, track, 1.0f, 1.0f, "D2")));
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
+    subject = new FabricatorImpl(env, sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     var result = subject.getProgramRange(program.getId(), InstrumentType.Bass);
 
@@ -341,7 +322,7 @@ public class FabricatorImplTest {
     var sequence = buildSequence(program, 4);
     var pattern = buildPattern(sequence, voice, 4);
     sourceMaterial = new HubContent(ImmutableList.of(program, voice, track, sequence, pattern, buildEvent(pattern, track, 0.0f, 1.0f, "C1"), buildEvent(pattern, track, 1.0f, 1.0f, "X"), buildEvent(pattern, track, 2.0f, 1.0f, "D2"), fake.template1, fake.templateBinding1));
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
+    subject = new FabricatorImpl(env, sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     var result = subject.getProgramRange(program.getId(), InstrumentType.Bass);
 
@@ -361,7 +342,7 @@ public class FabricatorImplTest {
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
     sourceMaterial = new HubContent(ImmutableList.of(fake.program5_sequence0, fake.template1, fake.templateBinding1));
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
+    subject = new FabricatorImpl(env, sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     var result = subject.getProgramSequence(choice);
 
@@ -380,7 +361,7 @@ public class FabricatorImplTest {
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
     sourceMaterial = new HubContent(ImmutableList.of(fake.program5_sequence0, fake.program5_sequence0_binding0, fake.template1, fake.templateBinding1));
-    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
+    subject = new FabricatorImpl(env, sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     var result = subject.getProgramSequence(choice);
 
@@ -388,7 +369,7 @@ public class FabricatorImplTest {
   }
 
   /**
-   Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822 use slash root when available
+   * Sticky buns v2 use slash root when available https://www.pivotaltracker.com/story/show/179153822
    */
   @Test
   public void getRootNote() {
@@ -396,7 +377,7 @@ public class FabricatorImplTest {
   }
 
   /**
-   Should add meme from ALL program and instrument types! https://www.pivotaltracker.com/story/show/181336704
+   * Should add meme from ALL program and instrument types! https://www.pivotaltracker.com/story/show/181336704
    */
   @Test
   public void put_addsMemesForChoice() throws NexusException {
@@ -416,9 +397,9 @@ public class FabricatorImplTest {
   }
 
   /**
-   Unit test behavior of choosing an event for a note in a detail program
-   <p>
-   Sticky bun note choices should persist into following segments https://www.pivotaltracker.com/story/show/182132467
+   * Unit test behavior of choosing an event for a note in a detail program
+   * <p>
+   * Sticky bun note choices should persist into following segments https://www.pivotaltracker.com/story/show/182132467
    */
   @Test
   public void getStickyBun_readMetaFromCurrentSegment() throws JsonProcessingException {
@@ -435,9 +416,9 @@ public class FabricatorImplTest {
   }
 
   /**
-   Unit test behavior of choosing an event for a note in a detail program
-   <p>
-   Sticky bun note choices should persist into following segments https://www.pivotaltracker.com/story/show/182132467
+   * Unit test behavior of choosing an event for a note in a detail program
+   * <p>
+   * Sticky bun note choices should persist into following segments https://www.pivotaltracker.com/story/show/182132467
    */
   @Test
   public void getStickyBun_readMetaFromPreviousSegment() throws JsonProcessingException {
@@ -454,9 +435,9 @@ public class FabricatorImplTest {
   }
 
   /**
-   Unit test behavior of choosing a different events for a series of X notes in a detail program
-   <p>
-   Sticky bun note choices should persist into following segments https://www.pivotaltracker.com/story/show/182132467
+   * Unit test behavior of choosing a different events for a series of X notes in a detail program
+   * <p>
+   * Sticky bun note choices should persist into following segments https://www.pivotaltracker.com/story/show/182132467
    */
   @Test
   public void getStickyBun_createForEvent() throws JsonProcessingException, NexusException {
@@ -472,9 +453,9 @@ public class FabricatorImplTest {
   }
 
   /**
-   Unit test behavior of choosing an event for a note in a detail program
-   <p>
-   Sticky bun note choices should persist into following segments https://www.pivotaltracker.com/story/show/182132467
+   * Unit test behavior of choosing an event for a note in a detail program
+   * <p>
+   * Sticky bun note choices should persist into following segments https://www.pivotaltracker.com/story/show/182132467
    */
   @Test
   public void getStickyBun_multipleEventsPickedSeparately() throws JsonProcessingException {

@@ -1,75 +1,57 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.ship.broadcast;
 
-import com.google.inject.assistedinject.Assisted;
 
-import javax.annotation.Nullable;
 import javax.sound.sampled.AudioFormat;
 
 /**
- Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
+ * Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
  */
 public interface BroadcastFactory {
 
   /**
-   Build a chunk to represent a Media Segment
-
-   @param shipKey        for chunk
-   @param sequenceNumber for chunk
-   @param fileExtension  for chunk
-   @param actualDuration for chunk
-   @return chunk
-   */
-  Chunk chunk(
-    @Assisted("shipKey") String shipKey,
-    @Assisted("sequenceNumber") Long sequenceNumber,
-    @Nullable @Assisted("fileExtension") String fileExtension,
-    @Nullable @Assisted("actualDuration") Double actualDuration
-  );
-
-  /**
-   Encode the stream for a ship key
-
-   @param format of audio
-   @return stream
+   * Encode the stream for a ship key
+   *
+   * @param format of audio
+   * @return stream
    */
   StreamEncoder encoder(
-    @Assisted("shipKey") String shipKey,
-    @Assisted("audioFormat") AudioFormat format,
-    @Assisted("initialSeqNum") Long initialSeqNum
+    String shipKey,
+    AudioFormat format,
+    Long initialSeqNum
   );
 
   /**
-   Mix one chunk of the stream
-
-   @param chunk  to mix
-   @param format of audio
-   @return media chunk printer
+   * Mix one chunk of the stream
+   *
+   * @param chunk  to mix
+   * @param format of audio
+   * @return media chunk printer
    */
   ChunkMixer mixer(
-    @Assisted("chunk") Chunk chunk,
-    @Assisted("audioFormat") AudioFormat format
+    Chunk chunk,
+    AudioFormat format
   );
 
   /**
-   Play the stream locally
-
-   @param format of audio
-   @return stream player
+   * Play the stream locally
+   *
+   * @param format of audio
+   * @return stream player
    */
   StreamPlayer player(
-    @Assisted("audioFormat") AudioFormat format
+    AudioFormat format
   );
 
   /**
-   Write the stream to a local .WAV file
-   <p>
-   Ship service can be used to write N seconds to local .WAV file https://www.pivotaltracker.com/story/show/181082015
-
-   @param format of audio
-   @return stream writer
+   * Write the stream to a local .WAV file
+   * <p>
+   * Ship service can be used to write N seconds to local .WAV file https://www.pivotaltracker.com/story/show/181082015
+   *
+   * @param format of audio
+   * @return stream writer
    */
   StreamWriter writer(
-    @Assisted("audioFormat") AudioFormat format
+    AudioFormat format
   );
 }

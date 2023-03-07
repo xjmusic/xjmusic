@@ -2,21 +2,12 @@
 package io.xj.hub.manager;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
-import io.xj.hub.HubIntegrationTestModule;
-import io.xj.hub.HubIntegrationTestProvider;
+import io.xj.hub.HubIntegrationTest;
+import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.access.HubAccessControlModule;
-import io.xj.hub.ingest.HubIngestModule;
-import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.hub.tables.pojos.Account;
-import io.xj.lib.app.Environment;
-import io.xj.lib.filestore.FileStoreModule;
-import io.xj.lib.jsonapi.JsonapiModule;
+import io.xj.lib.app.AppEnvironment;
 import org.assertj.core.util.Lists;
 import org.junit.After;
 import org.junit.Before;
@@ -30,19 +21,13 @@ import static org.junit.Assert.*;
 
 public class AccountManagerDbTest {
   private AccountManager subject;
-  private HubIntegrationTestProvider test;
+  private HubIntegrationTest test;
   private IntegrationTestingFixtures fake;
 
   @Before
   public void setUp() throws Exception {
-    var env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule(), new HubIntegrationTestModule())).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(Environment.class).toInstance(env);
-      }
-    }));
-    test = injector.getInstance(HubIntegrationTestProvider.class);
+    var env = AppEnvironment.getDefault();
+    test = HubIntegrationTestFactory.build(env);
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
@@ -51,7 +36,7 @@ public class AccountManagerDbTest {
     fake.account1 = test.insert(buildAccount("bananas"));
 
     // Instantiate the test entity
-    subject = injector.getInstance(AccountManager.class);
+    subject = new AccountManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
   }
 
   @After
@@ -66,7 +51,7 @@ public class AccountManagerDbTest {
 
   @Test
   public void readOne_asSetToModel() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
 
     var result = subject.readOne(access, fake.account1.getId());
 
@@ -77,7 +62,7 @@ public class AccountManagerDbTest {
 
   @Test
   public void readMany() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
 
     Collection<Account> results = subject.readMany(access, Lists.newArrayList());
 
@@ -90,7 +75,7 @@ public class AccountManagerDbTest {
 
   @Test
   public void update() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin");
     var entity = new Account();
     entity.setId(UUID.randomUUID());
     entity.setName("jammers");
@@ -104,7 +89,7 @@ public class AccountManagerDbTest {
 
   @Test
   public void update_failsIfNotAdmin() {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
     var entity = new Account();
     entity.setId(UUID.randomUUID());
     entity.setName("jammers");
@@ -116,7 +101,7 @@ public class AccountManagerDbTest {
 
   @Test
   public void delete() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin");
 
     subject.destroy(access, fake.account1.getId());
 
@@ -127,7 +112,7 @@ public class AccountManagerDbTest {
 
   @Test
   public void delete_failsIfNotAdmin() {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
 
     var e = assertThrows(ManagerException.class,
       () -> subject.destroy(access, fake.account1.getId()));
@@ -136,7 +121,7 @@ public class AccountManagerDbTest {
 
   @Test
   public void delete_failsIfHasLibrary() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin");
     test.insert(buildLibrary(fake.account1, "Testing"));
 
     var e = assertThrows(ManagerException.class, () ->
@@ -146,7 +131,7 @@ public class AccountManagerDbTest {
 
   @Test
   public void delete_failsIfHasAccountUser() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin");
     fake.user1 = test.insert(buildUser("jim",
       "jim@jim.com",
       "https://www.jim.com/jim.png",

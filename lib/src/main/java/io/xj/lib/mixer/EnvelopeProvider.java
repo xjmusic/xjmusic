@@ -2,7 +2,7 @@
 
 package io.xj.lib.mixer;
 
-import com.google.inject.assistedinject.Assisted;
+
 
 /**
  One-shot fadeout mode https://www.pivotaltracker.com/story/show/183385397
@@ -17,6 +17,6 @@ public interface EnvelopeProvider {
    @return envelope
    */
   Envelope length(
-    @Assisted("frames") Integer frames
+     Integer frames
   );
 }

@@ -1,9 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.manager;
 
-import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.lib.entity.EntityFactory;
@@ -12,6 +11,7 @@ import io.xj.lib.util.Text;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -19,21 +19,21 @@ import java.util.UUID;
 
 import static io.xj.hub.Tables.*;
 
-public class ProgramMemeManagerImpl extends HubPersistenceServiceImpl<ProgramMeme> implements ProgramMemeManager {
+@Service
+public class ProgramMemeManagerImpl extends HubPersistenceServiceImpl implements ProgramMemeManager {
 
-  @Inject
   public ProgramMemeManagerImpl(
     EntityFactory entityFactory,
-    HubDatabaseProvider dbProvider
+    HubSqlStoreProvider sqlStoreProvider
   ) {
-    super(entityFactory, dbProvider);
+    super(entityFactory, sqlStoreProvider);
   }
 
   @Override
   public ProgramMeme create(HubAccess access, ProgramMeme rawMeme) throws ManagerException, JsonapiException, ValueException {
     var meme = validate(rawMeme);
     requireArtist(access);
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
     requireProgramModification(db, access, meme.getProgramId());
     return modelFrom(ProgramMeme.class,
       executeCreate(db, PROGRAM_MEME, meme));
@@ -44,7 +44,7 @@ public class ProgramMemeManagerImpl extends HubPersistenceServiceImpl<ProgramMem
   @Nullable
   public ProgramMeme readOne(HubAccess access, UUID id) throws ManagerException {
     requireArtist(access);
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
     return readOne(db, access, id);
   }
 
@@ -54,12 +54,12 @@ public class ProgramMemeManagerImpl extends HubPersistenceServiceImpl<ProgramMem
     requireArtist(access);
     if (access.isTopLevel())
       return modelsFrom(ProgramMeme.class,
-        dbProvider.getDSL().selectFrom(PROGRAM_MEME)
+        sqlStoreProvider.getDSL().selectFrom(PROGRAM_MEME)
           .where(PROGRAM_MEME.PROGRAM_ID.in(parentIds))
           .fetch());
     else
       return modelsFrom(ProgramMeme.class,
-        dbProvider.getDSL().select(PROGRAM_MEME.fields()).from(PROGRAM_MEME)
+        sqlStoreProvider.getDSL().select(PROGRAM_MEME.fields()).from(PROGRAM_MEME)
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_MEME.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM_MEME.PROGRAM_ID.in(parentIds))
@@ -71,7 +71,7 @@ public class ProgramMemeManagerImpl extends HubPersistenceServiceImpl<ProgramMem
   public ProgramMeme update(HubAccess access, UUID id, ProgramMeme rawMeme) throws ManagerException, JsonapiException, ValueException {
     var meme = validate(rawMeme);
     requireArtist(access);
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
     var original = readOne(db, access, id);
     meme.setProgramId(original.getProgramId());
     executeUpdate(db, PROGRAM_MEME, id, meme);
@@ -81,7 +81,7 @@ public class ProgramMemeManagerImpl extends HubPersistenceServiceImpl<ProgramMem
   @Override
   public void destroy(HubAccess access, UUID id) throws ManagerException {
     requireArtist(access);
-    DSLContext db = dbProvider.getDSL();
+    DSLContext db = sqlStoreProvider.getDSL();
     requireModification(db, access, id);
     db.deleteFrom(PROGRAM_MEME)
       .where(PROGRAM_MEME.ID.eq(id))
@@ -94,13 +94,13 @@ public class ProgramMemeManagerImpl extends HubPersistenceServiceImpl<ProgramMem
   }
 
   /**
-   Read one Program Meme that have permissions to
-
-   @param db        context
-   @param access control
-   @param id        of entity to read
-   @return Program Meme
-   @throws ManagerException on failure
+   * Read one Program Meme that have permissions to
+   *
+   * @param db     context
+   * @param access control
+   * @param id     of entity to read
+   * @return Program Meme
+   * @throws ManagerException on failure
    */
   private ProgramMeme readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     if (access.isTopLevel())
@@ -119,12 +119,12 @@ public class ProgramMemeManagerImpl extends HubPersistenceServiceImpl<ProgramMem
   }
 
   /**
-   Require access to modification of a Program Meme
-
-   @param db        context
-   @param access control
-   @param id        to validate access to
-   @throws ManagerException if no access
+   * Require access to modification of a Program Meme
+   *
+   * @param db     context
+   * @param access control
+   * @param id     to validate access to
+   * @throws ManagerException if no access
    */
   private void requireModification(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     requireArtist(access);
@@ -142,10 +142,10 @@ public class ProgramMemeManagerImpl extends HubPersistenceServiceImpl<ProgramMem
   }
 
   /**
-   Validate data
-
-   @param record to validate
-   @throws ManagerException if invalid
+   * Validate data
+   *
+   * @param record to validate
+   * @throws ManagerException if invalid
    */
   public ProgramMeme validate(ProgramMeme record) throws ManagerException {
     try {

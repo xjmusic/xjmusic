@@ -2,11 +2,9 @@
 
 package io.xj.hub.client;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import io.xj.hub.ingest.HubContentPayload;
 import io.xj.hub.tables.pojos.Template;
-import io.xj.lib.app.Environment;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiException;
@@ -18,8 +16,10 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -31,9 +31,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- Implementation of a Hub Client for connecting to Hub and accessing contents
+ * Implementation of a Hub Client for connecting to Hub and accessing contents
  */
-@Singleton
+@Service
 public class HubClientImpl implements HubClient {
   private static final String API_PATH_INGEST_FORMAT = "api/1/ingest/%s";
   private static final String API_PATH_USER_TEMPLATE_PLAYBACK_FORMAT = "api/1/templates/playing?userId=%s";
@@ -47,9 +47,9 @@ public class HubClientImpl implements HubClient {
   private final String ingestTokenValue;
   private final String audioBaseUrl;
 
-  @Inject
+  @Autowired
   public HubClientImpl(
-    Environment env,
+    AppEnvironment env,
     HttpClientProvider httpClientProvider,
     JsonProviderImpl jsonProvider,
     JsonapiPayloadFactory jsonapiPayloadFactory
@@ -75,7 +75,7 @@ public class HubClientImpl implements HubClient {
       CloseableHttpResponse response = client.execute(buildGetRequest(uri, ingestTokenValue))
     ) {
       // return content if successful.
-      if (!Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode()))
+      if (!Objects.equals(HttpStatus.OK.value(), response.getStatusLine().getStatusCode()))
         throw buildException(uri.toString(), response);
 
       String json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
@@ -95,7 +95,7 @@ public class HubClientImpl implements HubClient {
     try (
       CloseableHttpResponse response = client.execute(request)
     ) {
-      if (!Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode()))
+      if (!Objects.equals(HttpStatus.OK.value(), response.getStatusLine().getStatusCode()))
         throw buildException(uri.toString(), response);
 
       var json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
@@ -118,7 +118,7 @@ public class HubClientImpl implements HubClient {
       CloseableHttpResponse response = client.execute(new HttpGet(url))
     ) {
       // return content if successful.
-      if (!Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode()))
+      if (!Objects.equals(HttpStatus.OK.value(), response.getStatusLine().getStatusCode()))
         throw buildException(url, response);
 
       String json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
@@ -130,11 +130,11 @@ public class HubClientImpl implements HubClient {
   }
 
   /**
-   Set the access token cookie header for a request to Hub
-
-   @param uri              of request
-   @param ingestTokenValue of request
-   @return http request
+   * Set the access token cookie header for a request to Hub
+   *
+   * @param uri              of request
+   * @param ingestTokenValue of request
+   * @return http request
    */
   private HttpGet buildGetRequest(URI uri, String ingestTokenValue) {
     var request = new HttpGet(uri);
@@ -143,11 +143,11 @@ public class HubClientImpl implements HubClient {
   }
 
   /**
-   Build URI for specified API path
-
-   @param path to build URI to
-   @return URI for specified API path
-   @throws HubClientException on failure to construct URI
+   * Build URI for specified API path
+   *
+   * @param path to build URI to
+   * @return URI for specified API path
+   * @throws HubClientException on failure to construct URI
    */
   private URI buildURI(String path) throws HubClientException {
     try {
@@ -159,9 +159,9 @@ public class HubClientImpl implements HubClient {
   }
 
   /**
-   Log a failure message and returns a throwable exception based on a response@param uri
-
-   @param response to log and throw
+   * Log a failure message and returns a throwable exception based on a response@param uri
+   *
+   * @param response to log and throw
    */
   private HubClientException buildException(String uri, CloseableHttpResponse response) throws HubClientException {
     // if we got here, it's a failure

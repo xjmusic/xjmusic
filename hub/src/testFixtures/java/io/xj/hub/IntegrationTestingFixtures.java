@@ -16,7 +16,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- https://www.pivotaltracker.com/story/show/165954673 Integration tests use shared scenario fixtures as much as possible
+ Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
  <p>
  Testing the hypothesis that, while unit tests are all independent,
  integration tests ought to be as much about testing all features around a consensus model of the platform
@@ -24,19 +24,11 @@ import java.util.UUID;
  */
 public class IntegrationTestingFixtures {
   public static final String TEST_TEMPLATE_CONFIG = "outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n";
-  private final HubIntegrationTestProvider test;
+  private final HubIntegrationTest test;
 
   // These are fully exposed (no getters/setters) for ease of use in testing
   public Account account1;
   public Account account2;
-  public Feedback feedback10000001;
-  public Feedback feedback10000002;
-  public Feedback feedback1;
-  public Feedback feedback1a;
-  public Feedback feedback1b;
-  public Feedback feedback2;
-  public Feedback feedback2a;
-  public Feedback feedback2b;
   public Instrument instrument201;
   public Instrument instrument202;
   public Instrument instrument251;
@@ -110,16 +102,16 @@ public class IntegrationTestingFixtures {
   /**
    Create a new Integration Testing Fixtures instance by providing the integration test provider
    */
-  public IntegrationTestingFixtures(HubIntegrationTestProvider hubIntegrationTestProvider) {
-    test = hubIntegrationTestProvider;
+  public IntegrationTestingFixtures(HubIntegrationTest hubIntegrationTest) {
+    test = hubIntegrationTest;
     content = new HubContentFixtures();
   }
 
   /**
    Create a new Integration Testing Fixtures instance by providing the integration test provider and content fixtures
    */
-  public IntegrationTestingFixtures(HubIntegrationTestProvider hubIntegrationTestProvider, HubContentFixtures content) {
-    test = hubIntegrationTestProvider;
+  public IntegrationTestingFixtures(HubIntegrationTest hubIntegrationTest, HubContentFixtures content) {
+    test = hubIntegrationTest;
     this.content = content;
   }
 
@@ -449,51 +441,6 @@ public class IntegrationTestingFixtures {
     return library;
   }
 
-  public static Feedback buildFeedback(Account account, FeedbackType type, FeedbackSource source) {
-    var feedback = new Feedback();
-    feedback.setId(UUID.randomUUID());
-    feedback.setAccountId(account.getId());
-    feedback.setType(type);
-    feedback.setSource(source);
-    return feedback;
-  }
-
-  public static Feedback buildFeedback(Account account, FeedbackType type, FeedbackSource source, User user) {
-    var feedback = buildFeedback(account, type, source);
-    feedback.setUserId(user.getId());
-    return feedback;
-  }
-
-  public static FeedbackInstrument buildFeedbackInstrument(Feedback feedback, Instrument instrument) {
-    var feedbackInstrument = new FeedbackInstrument();
-    feedbackInstrument.setFeedbackId(feedback.getId());
-    feedbackInstrument.setInstrumentId(instrument.getId());
-    return feedbackInstrument;
-  }
-
-  public static FeedbackLibrary buildFeedbackLibrary(Feedback feedback, Library library) {
-    var feedbackLibrary = new FeedbackLibrary();
-    feedbackLibrary.setFeedbackId(feedback.getId());
-    feedbackLibrary.setLibraryId(library.getId());
-    return feedbackLibrary;
-  }
-
-  public static FeedbackProgram buildFeedbackProgram(Feedback feedback, Program program) {
-    var feedbackProgram = new FeedbackProgram();
-    feedbackProgram.setFeedbackId(feedback.getId());
-    feedbackProgram.setProgramId(program.getId());
-    return feedbackProgram;
-  }
-
-  public static FeedbackTemplate buildFeedbackTemplate(Feedback feedback, Template template, @Nullable String shipKey) {
-    var feedbackTemplate = new FeedbackTemplate();
-    feedbackTemplate.setFeedbackId(feedback.getId());
-    feedbackTemplate.setTemplateId(template.getId());
-    if (Objects.nonNull(shipKey)) feedbackTemplate.setSegmentKey(shipKey);
-    return feedbackTemplate;
-  }
-
-
   public static Account buildAccount(String name) {
     var account = new Account();
     account.setId(UUID.randomUUID());
@@ -816,7 +763,7 @@ public class IntegrationTestingFixtures {
   /**
    Library of Content B-1 (shared test fixture)
    <p>
-   https://www.pivotaltracker.com/story/show/165954673 Integration tests use shared scenario fixtures as much as possible
+   Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
    */
   public void insertFixtureB2() throws HubException {
     Collection<Object> entities = content.setupFixtureB2();
@@ -828,16 +775,16 @@ public class IntegrationTestingFixtures {
   /**
    Library of Content B-3 (shared test fixture)
    <p>
-   https://www.pivotaltracker.com/story/show/165954673 Integration tests use shared scenario fixtures as much as possible
+   Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
    <p>
-   https://www.pivotaltracker.com/story/show/163158036 memes bound to sequence-pattern because sequence-binding is not considered for beat sequences, beat sequence patterns do not have memes.
+   memes bound to sequence-pattern because sequence-binding is not considered for beat sequences, beat sequence patterns do not have memes. https://www.pivotaltracker.com/story/show/163158036
    <p>
-   https://www.pivotaltracker.com/story/show/165954619 Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (beat- and detail-type sequences)
+   Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (beat- and detail-type sequences) https://www.pivotaltracker.com/story/show/165954619
    <p>
-   https://www.pivotaltracker.com/story/show/153976073 Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Beat or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment.
+   Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Beat or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment. https://www.pivotaltracker.com/story/show/153976073
    + For this test, there's an Intro Pattern with all BLEEPS, multiple Loop Patterns with KICK and SNARE (2x each), and an Outro Pattern with all TOOTS.
    <p>
-   https://www.pivotaltracker.com/story/show/150279647 Artist wants to of multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset.
+   Artist wants to of multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset. https://www.pivotaltracker.com/story/show/150279647
    */
   public void insertFixtureB3() throws HubException {
     Collection<Object> entities = content.setupFixtureB3();
@@ -849,7 +796,7 @@ public class IntegrationTestingFixtures {
   /**
    Library of Content B: Instruments (shared test fixture)
    <p>
-   https://www.pivotaltracker.com/story/show/165954673 Integration tests use shared scenario fixtures as much as possible
+   Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
    */
   public void insertFixtureB_Instruments() throws HubException {
     instrument201 = test.insert(buildInstrument(library2, InstrumentType.Drum, InstrumentMode.Event, InstrumentState.Published, "808 Drums"));

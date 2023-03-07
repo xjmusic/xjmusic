@@ -1,14 +1,14 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.craft;
 
-import com.google.inject.assistedinject.Assisted;
+
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.background.BackgroundCraft;
+import io.xj.nexus.craft.beat.BeatCraft;
 import io.xj.nexus.craft.detail.DetailCraft;
 import io.xj.nexus.craft.hook.HookCraft;
 import io.xj.nexus.craft.macro_main.MacroMainCraft;
 import io.xj.nexus.craft.perc_loop.PercLoopCraft;
-import io.xj.nexus.craft.beat.BeatCraft;
 import io.xj.nexus.craft.transition.TransitionCraft;
 import io.xj.nexus.fabricator.Fabricator;
 
@@ -34,7 +34,7 @@ public interface CraftFactory {
    @throws NexusException on failure
    */
   BackgroundCraft background(
-    @Assisted("basis") Fabricator fabricator
+     Fabricator fabricator
   ) throws NexusException;
 
   /**
@@ -45,7 +45,7 @@ public interface CraftFactory {
    @throws NexusException on failure
    */
   BeatCraft beat(
-    @Assisted("basis") Fabricator fabricator
+     Fabricator fabricator
   ) throws NexusException;
 
   /**
@@ -56,7 +56,7 @@ public interface CraftFactory {
    @throws NexusException on failure
    */
   DetailCraft detail(
-    @Assisted("basis") Fabricator fabricator
+     Fabricator fabricator
   ) throws NexusException;
 
   /**
@@ -67,7 +67,7 @@ public interface CraftFactory {
    @throws NexusException on failure
    */
   HookCraft hook(
-    @Assisted("basis") Fabricator fabricator
+     Fabricator fabricator
   ) throws NexusException;
 
   /**
@@ -79,7 +79,7 @@ public interface CraftFactory {
    @throws NexusException on failure
    */
   MacroMainCraft macroMain(
-    @Assisted("basis") Fabricator fabricator
+     Fabricator fabricator
   ) throws NexusException;
 
   /**
@@ -90,7 +90,7 @@ public interface CraftFactory {
    @throws NexusException on failure
    */
   PercLoopCraft percLoop(
-    @Assisted("basis") Fabricator fabricator
+     Fabricator fabricator
   ) throws NexusException;
 
   /**
@@ -101,7 +101,7 @@ public interface CraftFactory {
    @throws NexusException on failure
    */
   TransitionCraft transition(
-    @Assisted("basis") Fabricator fabricator
+     Fabricator fabricator
   ) throws NexusException;
 
 }

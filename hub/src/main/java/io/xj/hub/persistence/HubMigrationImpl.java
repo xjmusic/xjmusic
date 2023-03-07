@@ -1,18 +1,18 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.persistence;
 
-import com.google.inject.Inject;
 import org.flywaydb.core.Flyway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
+@Service
 public class HubMigrationImpl implements HubMigration {
   private static final Logger log = LoggerFactory.getLogger(HubMigrationImpl.class);
-  private final HubDatabaseProvider hubDatabaseProvider;
+  private final HubSqlStoreProvider sqlStoreProvider;
 
-  @Inject
-  HubMigrationImpl(HubDatabaseProvider hubDatabaseProvider) {
-    this.hubDatabaseProvider = hubDatabaseProvider;
+  public HubMigrationImpl(HubSqlStoreProvider sqlStoreProvider) {
+    this.sqlStoreProvider = sqlStoreProvider;
   }
 
   @Override
@@ -38,14 +38,14 @@ public class HubMigrationImpl implements HubMigration {
   }
 
   /**
-   Get a Flyway instance to perform or validate migration
-
-   @return Flyway instance
+   * Get a Flyway instance to perform or validate migration
+   *
+   * @return Flyway instance
    */
   private Flyway getFlyway() {
     Flyway flyway = Flyway.configure()
-      .dataSource(hubDatabaseProvider.getDataSource())
-      .schemas(hubDatabaseProvider.getSchemas())
+      .dataSource(sqlStoreProvider.getDataSource())
+      .schemas(sqlStoreProvider.getSchemas())
       .load();
     log.debug("Will configure Flyway");
     return flyway;

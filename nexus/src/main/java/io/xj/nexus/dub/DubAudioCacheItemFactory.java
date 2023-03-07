@@ -1,8 +1,9 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.dub;
 
-import com.google.inject.assistedinject.Assisted;
+
 import io.xj.lib.filestore.FileStoreException;
+import io.xj.nexus.NexusException;
 
 import java.io.IOException;
 
@@ -11,7 +12,7 @@ import java.io.IOException;
  <p>
  NO LONGER using Caffeine in-memory caching-- just caching on disk originally loading from S3
  <p>
- https://www.pivotaltracker.com/story/show/176642679 Advanced audio caching during fabrication
+ Advanced audio caching during fabrication https://www.pivotaltracker.com/story/show/176642679
  */
 public interface DubAudioCacheItemFactory {
 
@@ -22,7 +23,7 @@ public interface DubAudioCacheItemFactory {
    @throws FileStoreException on failure to load from filestore
    */
   DubAudioCacheItem load(
-    @Assisted("key") String key,
-    @Assisted("path") String path
-  ) throws IOException, FileStoreException;
+     String key,
+     String path
+  ) throws IOException, FileStoreException, NexusException;
 }

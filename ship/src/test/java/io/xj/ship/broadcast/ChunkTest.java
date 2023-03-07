@@ -3,15 +3,10 @@
 package io.xj.ship.broadcast;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
-import io.xj.lib.app.Environment;
-import io.xj.nexus.persistence.ChainManager;
+import io.xj.lib.app.AppEnvironment;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
@@ -21,26 +16,15 @@ public class ChunkTest {
   private static final String SHIP_KEY = "test63";
   private Chunk subject;
 
-  @Mock
-  private ChainManager chainManager;
-
   @Before
   public void setUp() {
-    Environment env = Environment.from(ImmutableMap.of(
+    AppEnvironment env = AppEnvironment.from(ImmutableMap.of(
       "SHIP_CHUNK_TARGET_DURATION", "10",
       "SHIP_KEY", "coolair"
     ));
-    var injector = Guice.createInjector(Modules.override(new BroadcastModule()).with(new AbstractModule() {
+    ChunkFactory chunkFactory = new ChunkFactoryImpl(env);
 
-      @Override
-      protected void configure() {
-        bind(Environment.class).toInstance(env);
-        bind(ChainManager.class).toInstance(chainManager);
-      }
-    }));
-
-    var broadcast = injector.getInstance(BroadcastFactory.class);
-    subject = broadcast.chunk(SHIP_KEY, 151304042L, "mp3", null);
+    subject = chunkFactory.build(SHIP_KEY, 151304042L, "mp3", null);
   }
 
   @Test

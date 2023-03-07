@@ -4,19 +4,19 @@ import com.google.api.client.util.Maps;
 import io.xj.hub.analysis.util.ChordCount;
 import io.xj.hub.client.HubContent;
 import io.xj.hub.tables.pojos.Program;
-import io.xj.lib.app.Environment;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.music.Chord;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- Template content Analysis https://www.pivotaltracker.com/story/show/161199945
+ * Template content Analysis https://www.pivotaltracker.com/story/show/161199945
  */
 public class ReportMainProgramChords extends Report {
   private final ChordHistogram mainProgramChords;
 
-  public ReportMainProgramChords(HubContent content, Environment env) {
+  public ReportMainProgramChords(HubContent content, AppEnvironment env) {
     super(content, env);
 
     mainProgramChords = new ChordHistogram();
@@ -50,7 +50,7 @@ public class ReportMainProgramChords extends Report {
   }
 
   /**
-   Representation of the construction of a histogram of usage of all mainProgramChords
+   * Representation of the construction of a histogram of usage of all mainProgramChords
    */
   private static class ChordHistogram {
     Map<String, ChordCount> histogram;

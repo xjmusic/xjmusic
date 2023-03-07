@@ -2,25 +2,16 @@
 package io.xj.hub.manager;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
-import io.xj.hub.HubIntegrationTestModule;
-import io.xj.hub.HubIntegrationTestProvider;
+import io.xj.hub.HubIntegrationTest;
+import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.ingest.HubIngestModule;
-import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.hub.tables.pojos.ProgramSequenceChord;
 import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
-import io.xj.lib.app.Environment;
-import io.xj.lib.filestore.FileStoreModule;
-import io.xj.lib.jsonapi.JsonapiModule;
+import io.xj.lib.app.AppEnvironment;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +31,7 @@ import static org.junit.Assert.*;
 public class ProgramSequenceChordVoicingManagerDbTest {
   private ProgramSequenceChordVoicingManager subject;
 
-  private HubIntegrationTestProvider test;
+  private HubIntegrationTest test;
   private IntegrationTestingFixtures fake;
 
   private ProgramSequenceChord sequenceChord1a_0;
@@ -48,14 +39,8 @@ public class ProgramSequenceChordVoicingManagerDbTest {
 
   @Before
   public void setUp() throws Exception {
-    var env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule(), new HubIntegrationTestModule())).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(Environment.class).toInstance(env);
-      }
-    }));
-    test = injector.getInstance(HubIntegrationTestProvider.class);
+    var env = AppEnvironment.getDefault();
+    test = HubIntegrationTestFactory.build(env);
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
@@ -89,7 +74,7 @@ public class ProgramSequenceChordVoicingManagerDbTest {
     fake.program4 = test.insert(buildProgram(fake.library2, ProgramType.Detail, ProgramState.Published, "sail", "C#", 120.0f, 0.6f));
 
     // Instantiate the test entity
-    subject = injector.getInstance(ProgramSequenceChordVoicingManager.class);
+    subject = new ProgramSequenceChordVoicingManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
   }
 
   @After
@@ -99,7 +84,7 @@ public class ProgramSequenceChordVoicingManagerDbTest {
 
   @Test
   public void create() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     var entity = new ProgramSequenceChordVoicing();
     entity.setId(UUID.randomUUID());
     entity.setProgramId(fake.program3.getId());
@@ -118,8 +103,8 @@ public class ProgramSequenceChordVoicingManagerDbTest {
   }
 
   /**
-   Creating a new chord creates `(None)` chord voicings for all program voices, and includes all created entities in API response
-   https://www.pivotaltracker.com/story/show/182220689
+   * Creating a new chord creates `(None)` chord voicings for all program voices, and includes all created entities in API response
+   * https://www.pivotaltracker.com/story/show/182220689
    */
   @Test
   public void create_emptyForChord() throws Exception {
@@ -135,8 +120,8 @@ public class ProgramSequenceChordVoicingManagerDbTest {
   }
 
   /**
-   Creating a new program voice creates `(None)` chord voicings for all sequence chords, and includes all created entities in API response
-   https://www.pivotaltracker.com/story/show/182220689
+   * Creating a new program voice creates `(None)` chord voicings for all sequence chords, and includes all created entities in API response
+   * https://www.pivotaltracker.com/story/show/182220689
    */
   @Test
   public void create_emptyForVoice() throws Exception {
@@ -153,18 +138,18 @@ public class ProgramSequenceChordVoicingManagerDbTest {
   }
 
   /**
-   Cannot create/update a voicing to existing chord+voice
-   https://www.pivotaltracker.com/story/show/182220689
-   <p>
-   Creating a voicing type deletes (overwrites) the previously existent voicing
-   Re: Lab should be able to create voicing for MP chord where there is none
-   https://www.pivotaltracker.com/story/show/182132495
-   <p>
-   PREVIOUS BEHAVIOR: Cannot create another voicing for a chord with the same type as an existing voicing for that chord https://www.pivotaltracker.com/story/show/181159558
+   * Cannot create/update a voicing to existing chord+voice
+   * https://www.pivotaltracker.com/story/show/182220689
+   * <p>
+   * Creating a voicing type deletes (overwrites) the previously existent voicing
+   * Re: Lab should be able to create voicing for MP chord where there is none
+   * https://www.pivotaltracker.com/story/show/182132495
+   * <p>
+   * PREVIOUS BEHAVIOR: Cannot create another voicing for a chord with the same type as an existing voicing for that chord https://www.pivotaltracker.com/story/show/181159558
    */
   @Test
   public void create_cannotCreateAnotherForExistingChordAndVoice() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     subject.create(access, buildProgramSequenceChordVoicing(fake.program3_chord1, fake.program1_voicePad, "C5, Eb5, G5"));
     var voicing1b = buildProgramSequenceChordVoicing(fake.program3_chord1, fake.program1_voicePad, "A4, C5, E5");
 
@@ -174,11 +159,11 @@ public class ProgramSequenceChordVoicingManagerDbTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/176162975 Endpoint to batch update ProgramSequenceChordVoicing
+   * Endpoint to batch update ProgramSequenceChordVoicing https://www.pivotaltracker.com/story/show/176162975
    */
   @Test
   public void update() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     sequenceChord1a_0_voicing0.setNotes("G1,G2,G3");
 
     subject.update(access, sequenceChord1a_0_voicing0.getId(), sequenceChord1a_0_voicing0);
@@ -191,18 +176,18 @@ public class ProgramSequenceChordVoicingManagerDbTest {
   }
 
   /**
-   Cannot create/update a voicing to existing chord+voice
-   https://www.pivotaltracker.com/story/show/182220689
-   <p>
-   Updating to an existing voicing type deletes (overwrites) the previously existent voicing
-   Re: Lab should be able to create voicing for MP chord where there is none
-   https://www.pivotaltracker.com/story/show/182132495
-   <p>
-   PREVIOUS BEHAVIOR: Cannot update this voicing to a type that already exists for that chord https://www.pivotaltracker.com/story/show/181159558
+   * Cannot create/update a voicing to existing chord+voice
+   * https://www.pivotaltracker.com/story/show/182220689
+   * <p>
+   * Updating to an existing voicing type deletes (overwrites) the previously existent voicing
+   * Re: Lab should be able to create voicing for MP chord where there is none
+   * https://www.pivotaltracker.com/story/show/182132495
+   * <p>
+   * PREVIOUS BEHAVIOR: Cannot update this voicing to a type that already exists for that chord https://www.pivotaltracker.com/story/show/181159558
    */
   @Test
   public void update_cannotUpdateToTypeOfExistingChordAndVoice() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     var voicing1a = buildProgramSequenceChordVoicing(fake.program3_chord1, fake.program1_voicePad, "C5, Eb5, G5");
     subject.create(access, voicing1a);
     ProgramSequenceChordVoicing voicing1b = subject.create(access, buildProgramSequenceChordVoicing(fake.program3_chord1, fake.program1_voiceBass, "A4, C5, E5"));
@@ -214,12 +199,12 @@ public class ProgramSequenceChordVoicingManagerDbTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/156144567 Artist expects to of a Main-type programSequenceChordVoicing without crashing the entire platform
-   NOTE: This simple test fails to invoke the complexity of database call that is/was creating this issue in production.
+   * Artist expects to of a Main-type programSequenceChordVoicing without crashing the entire platform https://www.pivotaltracker.com/story/show/156144567
+   * NOTE: This simple test fails to invoke the complexity of database call that is/was creating this issue in production.
    */
   @Test
   public void create_asArtist() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     var inputData = new ProgramSequenceChordVoicing();
     inputData.setId(UUID.randomUUID());
     inputData.setProgramId(fake.program3.getId());
@@ -239,7 +224,7 @@ public class ProgramSequenceChordVoicingManagerDbTest {
 
   @Test
   public void readOne() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User, Artist");
 
     var result = subject.readOne(access, sequenceChord1a_0_voicing0.getId());
 
@@ -253,7 +238,7 @@ public class ProgramSequenceChordVoicingManagerDbTest {
 
   @Test
   public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "User, Artist");
 
     var e = assertThrows(ManagerException.class,
       () -> subject.readOne(access, sequenceChord1a_0_voicing0.getId()));
@@ -264,7 +249,7 @@ public class ProgramSequenceChordVoicingManagerDbTest {
 
   @Test
   public void readMany() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin");
 
     Collection<ProgramSequenceChordVoicing> result = subject.readMany(access, ImmutableList.of(fake.program1.getId()));
 
@@ -275,12 +260,12 @@ public class ProgramSequenceChordVoicingManagerDbTest {
   }
 
   /**
-   Chord Search while composing a main program
-   https://www.pivotaltracker.com/story/show/178921705
+   * Chord Search while composing a main program
+   * https://www.pivotaltracker.com/story/show/178921705
    */
   @Test
   public void readMany_forChords() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin");
 
     Collection<ProgramSequenceChordVoicing> result = subject.readManyForChords(access, ImmutableList.of(sequenceChord1a_0.getId()));
 
@@ -289,7 +274,7 @@ public class ProgramSequenceChordVoicingManagerDbTest {
 
   @Test
   public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "User, Artist");
 
     Collection<ProgramSequenceChordVoicing> result = subject.readMany(access, ImmutableList.of(fake.program1.getId()));
 
@@ -299,7 +284,7 @@ public class ProgramSequenceChordVoicingManagerDbTest {
   @Test
   public void destroy_failsIfNotInAccount() throws Exception {
     fake.account2 = buildAccount("Testing");
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account2), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account2), "Artist");
 
     var e = assertThrows(ManagerException.class,
       () -> subject.destroy(access, sequenceChord1a_0_voicing0.getId()));

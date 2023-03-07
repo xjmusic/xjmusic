@@ -2,14 +2,6 @@
 
 package io.xj.nexus.craft;
 
-import io.xj.lib.music.Chord;
-import io.xj.nexus.model.Chain;
-import io.xj.nexus.model.ChainState;
-import io.xj.nexus.model.ChainType;
-import io.xj.nexus.model.Segment;
-import io.xj.nexus.model.SegmentChoice;
-import io.xj.nexus.model.SegmentState;
-import io.xj.nexus.model.SegmentType;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.InstrumentMode;
@@ -25,9 +17,17 @@ import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.meme.MemeTaxonomy;
+import io.xj.lib.music.Chord;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.MemeIsometry;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.ChainType;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.model.SegmentType;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

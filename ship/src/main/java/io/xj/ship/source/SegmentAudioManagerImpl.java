@@ -3,20 +3,20 @@
 package io.xj.ship.source;
 
 import com.google.common.collect.Maps;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import io.opencensus.stats.Measure;
-import io.xj.lib.app.Environment;
-import io.xj.nexus.model.Segment;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
+import io.xj.nexus.model.Segment;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.Segments;
 import io.xj.ship.ShipException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -27,9 +27,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
+ * Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
  */
-@Singleton
+@Service
 public class SegmentAudioManagerImpl implements SegmentAudioManager {
   private static final Logger LOG = LoggerFactory.getLogger(SegmentAudioManagerImpl.class);
   private final Map<UUID/* segmentId */, SegmentAudio> segmentAudios = Maps.newConcurrentMap();
@@ -41,8 +41,14 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
   private final int segmentLoadRetryLimit;
   private final int segmentLoadRetryDelayMillis;
 
-  @Inject
-  public SegmentAudioManagerImpl(Environment env, NexusEntityStore store, SegmentAudioCache cache, SourceFactory sourceFactory, TelemetryProvider telemetryProvider) {
+  @Autowired
+  public SegmentAudioManagerImpl(
+    AppEnvironment env,
+    NexusEntityStore store,
+    SegmentAudioCache cache,
+    SourceFactory sourceFactory,
+    TelemetryProvider telemetryProvider
+  ) {
     this.cache = cache;
     this.sourceFactory = sourceFactory;
     this.store = store;

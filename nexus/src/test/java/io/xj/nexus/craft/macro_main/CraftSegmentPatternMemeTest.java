@@ -3,24 +3,36 @@ package io.xj.nexus.craft.macro_main;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.util.Modules;
-import io.xj.nexus.model.*;
 import io.xj.hub.HubTopology;
+import io.xj.hub.client.HubClient;
+import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.ProgramType;
-import io.xj.lib.app.Environment;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.Entities;
-import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.entity.EntityStore;
+import io.xj.lib.entity.EntityStoreImpl;
+import io.xj.lib.json.ApiUrlProvider;
+import io.xj.lib.json.JsonProviderImpl;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.lib.notification.NotificationProvider;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
+import io.xj.nexus.craft.CraftFactoryImpl;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.hub.client.HubClient;
-import io.xj.hub.client.HubContent;
-import io.xj.nexus.persistence.NexusEntityStore;
-import io.xj.nexus.work.NexusWorkModule;
+import io.xj.nexus.fabricator.FabricatorFactoryImpl;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.ChainType;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentMeme;
+import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.model.SegmentType;
+import io.xj.nexus.persistence.ChainManagerImpl;
+import io.xj.nexus.persistence.NexusEntityStoreImpl;
+import io.xj.nexus.persistence.SegmentManagerImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -43,35 +55,48 @@ public class CraftSegmentPatternMemeTest {
 
   @Mock
   public HubClient hubClient;
+  @Mock
+  public NotificationProvider notificationProvider;
 
   /**
-   Test to ensure that the following Macro-Program is based on its first sequence-binding meme
-   matching the last sequence-binding meme of the preceding Macro-Program
-   <p>
-   https://www.pivotaltracker.com/story/show/165803886 Segment memes expected to be taken directly of sequence_pattern binding
-   https://www.pivotaltracker.com/story/show/176728582 Macro program sequence should advance after each main program
+   * Test to ensure that the following Macro-Program is based on its first sequence-binding meme
+   * matching the last sequence-binding meme of the preceding Macro-Program
+   * <p>
+   * Segment memes expected to be taken directly of sequence_pattern binding https://www.pivotaltracker.com/story/show/165803886
+   * Macro program sequence should advance after each main program https://www.pivotaltracker.com/story/show/176728582
    */
   @Test
   public void craftSegment() throws Exception {
     for (int i = 1; i <= TEST_REPEAT_ITERATIONS; i++) {
       LOG.info("ATTEMPT NUMBER {}", i);
-      Environment env = Environment.getDefault();
-      Injector injector = Guice.createInjector(Modules.override(new NexusWorkModule())
-        .with(new AbstractModule() {
-          @Override
-          public void configure() {
-            bind(Environment.class).toInstance(env);
-            bind(HubClient.class).toInstance(hubClient);
-          }
-        }));
-      CraftFactory craftFactory = injector.getInstance(CraftFactory.class);
-      FabricatorFactory fabricatorFactory = injector.getInstance(FabricatorFactory.class);
-      var entityFactory = injector.getInstance(EntityFactory.class);
+      AppEnvironment env = AppEnvironment.getDefault();
+
+      ApiUrlProvider apiUrlProvider = new ApiUrlProvider(env);
+      CraftFactory craftFactory = new CraftFactoryImpl(apiUrlProvider);
+      var jsonProvider = new JsonProviderImpl();
+      var entityFactory = new EntityFactoryImpl(jsonProvider);
+      var store = new NexusEntityStoreImpl(entityFactory);
+      var segmentManager = new SegmentManagerImpl(entityFactory, store);
+      var chainManager = new ChainManagerImpl(
+        env,
+        entityFactory,
+        store,
+        segmentManager,
+        notificationProvider
+      );
+      JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
+      EntityStore entityStore = new EntityStoreImpl();
+      FabricatorFactory fabricatorFactory = new FabricatorFactoryImpl(
+        env,
+        chainManager,
+              segmentManager,
+        jsonapiPayloadFactory,
+        jsonProvider
+      );
       HubTopology.buildHubApiTopology(entityFactory);
       NexusTopology.buildNexusApiTopology(entityFactory);
 
       // Manipulate the underlying entity store; reset before each test
-      NexusEntityStore store = injector.getInstance(NexusEntityStore.class);
       store.deleteAll();
 
       // Mock request via HubClient returns fake generated library of hub content

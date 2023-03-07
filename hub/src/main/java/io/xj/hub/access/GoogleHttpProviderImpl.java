@@ -2,12 +2,12 @@
 package io.xj.hub.access;
 
 import com.google.api.client.http.HttpTransport;
-import com.google.inject.Inject;
+import org.springframework.stereotype.Service;
 
+@Service
 class GoogleHttpProviderImpl implements GoogleHttpProvider {
   private final HttpTransport httpTransport;
 
-  @Inject
   public GoogleHttpProviderImpl(
     HttpTransport httpTransport
   ) {

@@ -2,6 +2,7 @@
 package io.xj.nexus.dub;
 
 import io.xj.lib.filestore.FileStoreException;
+import io.xj.nexus.NexusException;
 
 import java.io.IOException;
 
@@ -12,11 +13,11 @@ public interface DubAudioCache {
    <p>
    NO LONGER using Caffeine in-memory caching-- just caching on disk originally loading from S3
    <p>
-   https://www.pivotaltracker.com/story/show/176642679 Advanced audio caching during fabrication
+   Advanced audio caching during fabrication https://www.pivotaltracker.com/story/show/176642679
 
    @param key to retrieve
    @return stream if cached; null if not
    */
-  String getAbsolutePath(String key) throws FileStoreException, IOException;
+  String getAbsolutePath(String key) throws FileStoreException, IOException, NexusException;
 
 }

@@ -3,31 +3,24 @@
 package io.xj.hub.kubernetes;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import io.kubernetes.client.custom.Quantity;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.AppsV1Api;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
-import io.kubernetes.client.openapi.models.V1Deployment;
-import io.kubernetes.client.openapi.models.V1EnvFromSource;
-import io.kubernetes.client.openapi.models.V1EnvVar;
-import io.kubernetes.client.openapi.models.V1LabelSelector;
-import io.kubernetes.client.openapi.models.V1ObjectMeta;
-import io.kubernetes.client.openapi.models.V1ResourceRequirements;
-import io.kubernetes.client.openapi.models.V1SecretEnvSource;
+import io.kubernetes.client.openapi.models.*;
 import io.kubernetes.client.util.Config;
 import io.kubernetes.client.util.Yaml;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.tables.pojos.Template;
-import io.xj.lib.app.Environment;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import java.io.BufferedInputStream;
@@ -40,11 +33,11 @@ import java.util.stream.Stream;
 import static io.xj.lib.util.Values.MILLIS_PER_SECOND;
 
 /**
- Preview template functionality is dope (not wack)
- Lab/Hub connects to k8s to manage a personal workload for preview templates
- https://www.pivotaltracker.com/story/show/183576743
+ * Preview template functionality is dope (not wack)
+ * Lab/Hub connects to k8s to manage a personal workload for preview templates
+ * https://www.pivotaltracker.com/story/show/183576743
  */
-@Singleton
+@Service
 public class KubernetesAdminImpl implements KubernetesAdmin {
   private static final String PREVIEW_NEXUS_DEPLOYMENT_FORMAT = "nexus-preview-%s";
   private static final String LABEL_K8S_APP_KEY = "k8s-app";
@@ -62,8 +55,7 @@ public class KubernetesAdminImpl implements KubernetesAdmin {
   private final int logTailLines;
   private long lastConfiguredMillis;
 
-  @Inject
-  public KubernetesAdminImpl(Environment env) {
+  public KubernetesAdminImpl(AppEnvironment env) {
     clientConfigExpirySeconds = env.getKubernetesClientConfigExpirySeconds();
     envSecretRefName = env.getKubernetesContainerEnvSecretRefName();
     namespace = env.getKubernetesNamespace();
@@ -122,9 +114,9 @@ public class KubernetesAdminImpl implements KubernetesAdmin {
   }
 
   /**
-   Checks if the configuration needs to be reconfigured (based on expiry seconds) and return true if it is OK
-
-   @return true if configured
+   * Checks if the configuration needs to be reconfigured (based on expiry seconds) and return true if it is OK
+   *
+   * @return true if configured
    */
   @SuppressWarnings("BooleanMethodIsAlwaysInverted")
   private boolean buildAndSetDefaultApiClient() {
@@ -134,7 +126,7 @@ public class KubernetesAdminImpl implements KubernetesAdmin {
   }
 
   /**
-   Build and set the Kubernetes client
+   * Build and set the Kubernetes client
    */
   private boolean _buildAndSetDefaultApiClient() {
     lastConfiguredMillis = System.currentTimeMillis();
@@ -163,10 +155,10 @@ public class KubernetesAdminImpl implements KubernetesAdmin {
   }
 
   /**
-   createPreviewNexus
-
-   @param userId for which to createPreviewNexus
-   @throws KubernetesException on failure
+   * createPreviewNexus
+   *
+   * @param userId for which to createPreviewNexus
+   * @throws KubernetesException on failure
    */
   private void createPreviewNexus(UUID userId) throws KubernetesException {
     try {
@@ -186,12 +178,12 @@ public class KubernetesAdminImpl implements KubernetesAdmin {
   }
 
   /**
-   update Preview Nexus deployment
-
-   @param userId   for which to updatePreviewNexus
-   @param replicas in pod
-   @param template from which to source vm resource preferences
-   @throws KubernetesException on failure
+   * update Preview Nexus deployment
+   *
+   * @param userId   for which to updatePreviewNexus
+   * @param replicas in pod
+   * @param template from which to source vm resource preferences
+   * @throws KubernetesException on failure
    */
   private void updatePreviewNexus(UUID userId, int replicas, @Nullable Template template) throws KubernetesException {
     try {
@@ -211,10 +203,10 @@ public class KubernetesAdminImpl implements KubernetesAdmin {
   }
 
   /**
-   previewNexusExists
-
-   @param userId for which to previewNexusExists
-   @return true if exists
+   * previewNexusExists
+   *
+   * @param userId for which to previewNexusExists
+   * @return true if exists
    */
   private Boolean previewNexusExists(UUID userId) {
     try {
@@ -229,14 +221,14 @@ public class KubernetesAdminImpl implements KubernetesAdmin {
   }
 
   /**
-   Compute the deployment template by reading and amending the baseline YAML spec from internal resources
-
-   @param userId   for which to compute a deployment
-   @param replicas in pod
-   @param template from which to deploy
-   @return Kubernetes deployment
-   @throws IOException         on I/O failure
-   @throws KubernetesException on API failure
+   * Compute the deployment template by reading and amending the baseline YAML spec from internal resources
+   *
+   * @param userId   for which to compute a deployment
+   * @param replicas in pod
+   * @param template from which to deploy
+   * @return Kubernetes deployment
+   * @throws IOException         on I/O failure
+   * @throws KubernetesException on API failure
    */
   private V1Deployment computePreviewNexusDeployment(UUID userId, int replicas, @Nullable Template template) throws IOException, KubernetesException {
     var name = computePreviewNexusDeploymentName(userId);
@@ -269,7 +261,7 @@ public class KubernetesAdminImpl implements KubernetesAdmin {
     container.setImage(nexusImage);
 
     V1EnvVar userIdEnvVar = new V1EnvVar();
-    userIdEnvVar.setName(Environment.FABRICATION_PREVIEW_USER_ID);
+    userIdEnvVar.setName(AppEnvironment.FABRICATION_PREVIEW_USER_ID);
     userIdEnvVar.setValue(userId.toString());
     container.setEnv(List.of(userIdEnvVar));
     V1EnvFromSource envFromSource = new V1EnvFromSource();
@@ -295,20 +287,20 @@ public class KubernetesAdminImpl implements KubernetesAdmin {
   }
 
   /**
-   Read the Kubernetes service template YAML from internal resources
-
-   @return string content
-   @throws IOException on failure
+   * Read the Kubernetes service template YAML from internal resources
+   *
+   * @return string content
+   * @throws IOException on failure
    */
   private String readServiceTemplateYamlContent() throws IOException {
     return new String(new BufferedInputStream(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(SERVICE_TEMPLATE_YAML_PATH))).readAllBytes());
   }
 
   /**
-   Compute the Preview Nexus Deployment Name for the given user
-
-   @param userId for which to compute name
-   @return Preview Nexus Deployment Name
+   * Compute the Preview Nexus Deployment Name for the given user
+   *
+   * @param userId for which to compute name
+   * @return Preview Nexus Deployment Name
    */
   private String computePreviewNexusDeploymentName(UUID userId) {
     return String.format(PREVIEW_NEXUS_DEPLOYMENT_FORMAT, userId);

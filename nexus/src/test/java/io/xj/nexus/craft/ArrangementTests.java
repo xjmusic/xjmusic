@@ -4,10 +4,6 @@ package io.xj.nexus.craft;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.util.Modules;
 import io.xj.hub.HubTopology;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.client.HubClient;
@@ -22,10 +18,17 @@ import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.tables.pojos.Template;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.app.AppException;
-import io.xj.lib.app.Environment;
-import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.entity.EntityStore;
+import io.xj.lib.entity.EntityStoreImpl;
+import io.xj.lib.json.JsonProvider;
+import io.xj.lib.json.JsonProviderImpl;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.lib.music.StickyBun;
+import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Text;
 import io.xj.nexus.NexusException;
@@ -33,12 +36,17 @@ import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
+import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.persistence.ChainManager;
+import io.xj.nexus.persistence.ChainManagerImpl;
 import io.xj.nexus.persistence.NexusEntityStore;
-import io.xj.nexus.work.NexusWorkModule;
+import io.xj.nexus.persistence.NexusEntityStoreImpl;
+import io.xj.nexus.persistence.SegmentManager;
+import io.xj.nexus.persistence.SegmentManagerImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -65,7 +73,7 @@ import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
 import static org.junit.Assert.assertEquals;
 
 /**
- https://www.pivotaltracker.com/story/show/176696738 XJ has a serviceable voicing algorithm
+ * XJ has a serviceable voicing algorithm https://www.pivotaltracker.com/story/show/176696738
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ArrangementTests extends YamlTest {
@@ -82,6 +90,8 @@ public class ArrangementTests extends YamlTest {
   // this is how we provide content for fabrication
   @Mock
   public HubClient hubClient;
+  @Mock
+  public NotificationProvider notificationProvider;
   private FabricatorFactory fabrication;
   private NexusEntityStore store;
   private Fabricator fabricator;
@@ -97,8 +107,8 @@ public class ArrangementTests extends YamlTest {
   private Chain chain;
   private Segment segment;
   private Map<InstrumentType, SegmentChoice> segmentChoices;
-  private Injector injector;
   private Program mainProgram1;
+  private AppEnvironment env;
 
   @Test
   public void arrangementBaseline() {
@@ -180,20 +190,13 @@ FUTURE goal
 
   @Before
   public void setUp() throws AppException {
-    Environment env = Environment.getDefault();
-    injector = Guice.createInjector(Modules.override(new NexusWorkModule())
-      .with(new AbstractModule() {
-        @Override
-        protected void configure() {
-          bind(Environment.class).toInstance(env);
-        }
-      }));
+    env = AppEnvironment.getDefault();
   }
 
   /**
-   Load the specified test YAML file and run it repeatedly.
-
-   @param filename of test YAML file
+   * Load the specified test YAML file and run it repeatedly.
+   *
+   * @param filename of test YAML file
    */
   private void loadAndRunTest(String filename) {
     for (int i = 0; i < REPEAT_EACH_TEST_TIMES; i++)
@@ -231,16 +234,34 @@ FUTURE goal
   }
 
   /**
-   Reset the resources before each repetition of each test
+   * Reset the resources before each repetition of each test
    */
   private void reset() throws Exception {
-    fabrication = injector.getInstance(FabricatorFactory.class);
-    var entityFactory = injector.getInstance(EntityFactory.class);
+    AppEnvironment env = AppEnvironment.getDefault();
+    JsonProvider jsonProvider = new JsonProviderImpl();
+    var entityFactory = new EntityFactoryImpl(jsonProvider);
+    store = new NexusEntityStoreImpl(entityFactory);
+    SegmentManager segmentManager = new SegmentManagerImpl(entityFactory, store);
+    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
+    ChainManager chainManager = new ChainManagerImpl(
+      env,
+      entityFactory,
+      store,
+      segmentManager,
+      notificationProvider
+    );
+    EntityStore entityStore = new EntityStoreImpl();
+    fabrication = new FabricatorFactoryImpl(
+      env,
+      chainManager,
+            segmentManager,
+      jsonapiPayloadFactory,
+      jsonProvider
+    );
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
-    store = injector.getInstance(NexusEntityStore.class);
     store.deleteAll();
 
     var account1 = buildAccount("fish");
@@ -263,9 +284,9 @@ FUTURE goal
   }
 
   /**
-   Load the instrument section of the test YAML file, for one type of Instrument@param data YAML file wrapper
-
-   @param type of instrument to read
+   * Load the instrument section of the test YAML file, for one type of Instrument@param data YAML file wrapper
+   *
+   * @param type of instrument to read
    */
   private void loadInstrument(Map<?, ?> data, InstrumentType type) {
     Map<?, ?> obj = (Map<?, ?>) data.get(String.format("%sInstrument", type.toString().toLowerCase(Locale.ROOT)));
@@ -284,10 +305,10 @@ FUTURE goal
   }
 
   /**
-   Load the detail program section of the test YAML file, for one type of Instrument
-
-   @param data YAML file wrapper
-   @param type of instrument to read
+   * Load the detail program section of the test YAML file, for one type of Instrument
+   *
+   * @param data YAML file wrapper
+   * @param type of instrument to read
    */
   private void loadDetailProgram(Map<?, ?> data, InstrumentType type) {
     Map<?, ?> obj = (Map<?, ?>) data.get(String.format("%sDetailProgram", type.toString().toLowerCase(Locale.ROOT)));
@@ -331,9 +352,9 @@ FUTURE goal
   }
 
   /**
-   Load the segment section of the test YAML file
-
-   @param data YAML file wrapper
+   * Load the segment section of the test YAML file
+   *
+   * @param data YAML file wrapper
    */
   private void loadSegment(Map<?, ?> data) throws NexusException {
     Map<?, ?> obj = (Map<?, ?>) data.get("segment");
@@ -384,8 +405,8 @@ FUTURE goal
   }
 
   /**
-   Load the assertions of picks section after a test has run
-   Load the instrument section of the test YAML file, for one type of Instrument@param data YAML file wrapper
+   * Load the assertions of picks section after a test has run
+   * Load the instrument section of the test YAML file, for one type of Instrument@param data YAML file wrapper
    */
   private void loadAndPerformAssertions(Map<?, ?> data) {
     @Nullable

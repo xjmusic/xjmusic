@@ -2,24 +2,15 @@
 package io.xj.hub.manager;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
-import io.xj.hub.HubIntegrationTestModule;
-import io.xj.hub.HubIntegrationTestProvider;
+import io.xj.hub.HubIntegrationTest;
+import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.ingest.HubIngestModule;
-import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.hub.tables.pojos.ProgramSequenceChord;
-import io.xj.lib.app.Environment;
-import io.xj.lib.filestore.FileStoreModule;
-import io.xj.lib.jsonapi.JsonapiModule;
+import io.xj.lib.app.AppEnvironment;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,40 +21,24 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
-import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
-import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequence;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceChord;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceChordVoicing;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgramVoice;
-import static io.xj.hub.IntegrationTestingFixtures.buildUser;
+import static io.xj.hub.IntegrationTestingFixtures.*;
 import static io.xj.hub.Tables.PROGRAM_SEQUENCE_CHORD_VOICING;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.*;
 
 // future test: permissions of different users to readMany vs. of vs. update or destroy programs
 @RunWith(MockitoJUnitRunner.class)
 public class ProgramSequenceChordManagerDbTest {
   private ProgramSequenceChordManager subject;
 
-  private HubIntegrationTestProvider test;
+  private HubIntegrationTest test;
   private IntegrationTestingFixtures fake;
 
   private ProgramSequenceChord sequenceChord1a_0;
 
   @Before
   public void setUp() throws Exception {
-    var env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule(), new HubIntegrationTestModule())).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(Environment.class).toInstance(env);
-      }
-    }));
-    test = injector.getInstance(HubIntegrationTestProvider.class);
+    var env = AppEnvironment.getDefault();
+    test = HubIntegrationTestFactory.build(env);
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
@@ -98,7 +73,8 @@ public class ProgramSequenceChordManagerDbTest {
     fake.program4 = test.insert(buildProgram(fake.library2, ProgramType.Detail, ProgramState.Published, "sail", "C#", 120.0f, 0.6f));
 
     // Instantiate the test input
-    subject = injector.getInstance(ProgramSequenceChordManager.class);
+    ProgramVoiceManager programVoiceManager = new ProgramVoiceManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
+    subject = new ProgramSequenceChordManagerImpl(test.getEntityFactory(), programVoiceManager, test.getSqlStoreProvider());
   }
 
   @After
@@ -108,7 +84,7 @@ public class ProgramSequenceChordManagerDbTest {
 
   @Test
   public void create() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     var input = new ProgramSequenceChord();
     input.setId(UUID.randomUUID());
     input.setProgramSequenceId(fake.program3_sequence1.getId());
@@ -125,12 +101,12 @@ public class ProgramSequenceChordManagerDbTest {
   }
 
   /**
-   Lab should refuse to create or update chord to duplicate offset
-   https://www.pivotaltracker.com/story/show/178921705
+   * Lab should refuse to create or update chord to duplicate offset
+   * https://www.pivotaltracker.com/story/show/178921705
    */
   @Test
   public void create_refusedAtExistingOffset() {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     var input = buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "C minor");
 
     var e = assertThrows(ManagerException.class, () -> subject.create(access, input));
@@ -140,7 +116,7 @@ public class ProgramSequenceChordManagerDbTest {
 
   @Test
   public void create_asArtist() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     var inputData = new ProgramSequenceChord();
     inputData.setId(UUID.randomUUID());
     inputData.setProgramSequenceId(fake.program3_sequence1.getId());
@@ -157,14 +133,14 @@ public class ProgramSequenceChordManagerDbTest {
   }
 
   /**
-   In the chord search modal, click any voicing row (Bass, Stripe, etc.) to enable/disable whether that type of
-   voicing will be cloned with the chord. By default, Stripe and Sticky are disabled. The preference of which
-   voicings are cloned will be memorized for the program editor session. See attached preview.
-   https://www.pivotaltracker.com/story/show/178921705
+   * In the chord search modal, click any voicing row (Bass, Stripe, etc.) to enable/disable whether that type of
+   * voicing will be cloned with the chord. By default, Stripe and Sticky are disabled. The preference of which
+   * voicings are cloned will be memorized for the program editor session. See attached preview.
+   * https://www.pivotaltracker.com/story/show/178921705
    */
   @Test
   public void cloneVoicings_onlyThoseSpecified() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     var input = buildProgramSequenceChord(fake.program1_sequence1, 4.3f, "F- sus");
     test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, fake.program1_voiceBass, "G3, Bb3, D4"));
     test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, fake.program1_voiceStripe, "G5, Bb5, D6"));
@@ -172,19 +148,22 @@ public class ProgramSequenceChordManagerDbTest {
 
     var result = subject.clone(access, sequenceChord1a_0.getId(), input, List.of(InstrumentType.Bass, InstrumentType.Stripe));
 
-    assertEquals(Integer.valueOf(2), test.getDSL()
-      .selectCount().from(PROGRAM_SEQUENCE_CHORD_VOICING)
-      .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID.eq(result.getClone().getId()))
-      .fetchOne(0, int.class));
+    try (var selectCount = test.getDSL().selectCount()) {
+      assertEquals(Integer.valueOf(2),
+        selectCount
+          .from(PROGRAM_SEQUENCE_CHORD_VOICING)
+          .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID.eq(result.getClone().getId()))
+          .fetchOne(0, int.class));
+    }
   }
 
   /**
-   Chord Search while composing a main program
-   https://www.pivotaltracker.com/story/show/178921705
+   * Chord Search while composing a main program
+   * https://www.pivotaltracker.com/story/show/178921705
    */
   @Test
   public void cloneVoicings() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     var input = buildProgramSequenceChord(fake.program1_sequence1, 4.3f, "F- sus");
     test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, fake.program1_voiceBass, "G3, Bb3, D4"));
     test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, fake.program1_voiceStripe, "G5, Bb5, D6"));
@@ -196,19 +175,22 @@ public class ProgramSequenceChordManagerDbTest {
     assertEquals(fake.program1_sequence1.getId(), result.getClone().getProgramSequenceId());
     assertEquals("F- sus", result.getClone().getName());
     assertEquals(4.3, result.getClone().getPosition(), 0.1);
-    assertEquals(Integer.valueOf(3), test.getDSL()
-      .selectCount().from(PROGRAM_SEQUENCE_CHORD_VOICING)
-      .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID.eq(result.getClone().getId()))
-      .fetchOne(0, int.class));
+    try (var selectCount = test.getDSL().selectCount()) {
+      assertEquals(Integer.valueOf(3),
+        selectCount
+          .from(PROGRAM_SEQUENCE_CHORD_VOICING)
+          .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID.eq(result.getClone().getId()))
+          .fetchOne(0, int.class));
+    }
   }
 
   /**
-   Chord Search while composing a main program
-   https://www.pivotaltracker.com/story/show/178921705
+   * Chord Search while composing a main program
+   * https://www.pivotaltracker.com/story/show/178921705
    */
   @Test
   public void cloneVoicings_fromAnotherProgram() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, fake.program1_voiceBass, "G3, Bb3, D4"));
     test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, fake.program1_voiceStripe, "G5, Bb5, D6"));
     test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, fake.program1_voiceSticky, "G4, Bb4, D5"));
@@ -221,23 +203,24 @@ public class ProgramSequenceChordManagerDbTest {
     assertEquals(program2_sequence1.getId(), result.getClone().getProgramSequenceId());
     assertEquals("F- sus", result.getClone().getName());
     assertEquals(4.3, result.getClone().getPosition(), 0.1);
-    var voicings = test.getDSL()
-      .selectFrom(PROGRAM_SEQUENCE_CHORD_VOICING)
-      .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID.eq(result.getClone().getId()))
-      .fetch();
-    for (var voicing : voicings) {
-      assertEquals(fake.program2.getId(), voicing.getProgramId());
-      assertEquals(result.getClone().getId(), voicing.getProgramSequenceChordId());
+    try (var selectVoicing = test.getDSL().selectFrom(PROGRAM_SEQUENCE_CHORD_VOICING)) {
+      var voicings = selectVoicing
+        .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID.eq(result.getClone().getId()))
+        .fetch();
+      for (var voicing : voicings) {
+        assertEquals(fake.program2.getId(), voicing.getProgramId());
+        assertEquals(result.getClone().getId(), voicing.getProgramSequenceChordId());
+      }
     }
   }
 
   /**
-   Lab should refuse to clone chord to duplicate offset
-   https://www.pivotaltracker.com/story/show/178921705
+   * Lab should refuse to clone chord to duplicate offset
+   * https://www.pivotaltracker.com/story/show/178921705
    */
   @Test
   public void cloneVoicings_refusedAtExistingOffset() {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     var input = buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "F- sus");
 
     var e = assertThrows(ManagerException.class, () -> subject.clone(access, sequenceChord1a_0.getId(), input, List.of(InstrumentType.Bass, InstrumentType.Stripe, InstrumentType.Sticky)));
@@ -247,7 +230,7 @@ public class ProgramSequenceChordManagerDbTest {
 
   @Test
   public void readOne() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User, Artist");
 
     var result = subject.readOne(access, sequenceChord1a_0.getId());
 
@@ -259,7 +242,7 @@ public class ProgramSequenceChordManagerDbTest {
 
   @Test
   public void readMany() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin");
 
     Collection<ProgramSequenceChord> result = subject.readMany(access, ImmutableList.of(fake.program1.getId()));
 
@@ -267,14 +250,14 @@ public class ProgramSequenceChordManagerDbTest {
   }
 
   /**
-   Chord Search while composing a main program
-   https://www.pivotaltracker.com/story/show/178921705
-   <p>
-   Only return 1 of any given chord name
+   * Chord Search while composing a main program
+   * https://www.pivotaltracker.com/story/show/178921705
+   * <p>
+   * Only return 1 of any given chord name
    */
   @Test
   public void search() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin");
     test.reset();
     fake.account1 = test.insert(buildAccount("bananas"));
     fake.library1 = test.insert(buildLibrary(fake.account1, "palm tree"));
@@ -308,12 +291,12 @@ public class ProgramSequenceChordManagerDbTest {
   }
 
   /**
-   Chord Search requires at least one character of input text
-   https://www.pivotaltracker.com/story/show/178921705
+   * Chord Search requires at least one character of input text
+   * https://www.pivotaltracker.com/story/show/178921705
    */
   @Test
   public void search_requiresInputText() {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin");
 
     var e = assertThrows(ManagerException.class, () -> subject.search(access, fake.library1.getId(), ""));
 
@@ -322,7 +305,7 @@ public class ProgramSequenceChordManagerDbTest {
 
   @Test
   public void update() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     var input = buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "A# sus");
 
     var result = subject.update(access, sequenceChord1a_0.getId(), input);
@@ -337,12 +320,12 @@ public class ProgramSequenceChordManagerDbTest {
   }
 
   /**
-   Lab should refuse to create or update chord to duplicate offset
-   https://www.pivotaltracker.com/story/show/178921705
+   * Lab should refuse to create or update chord to duplicate offset
+   * https://www.pivotaltracker.com/story/show/178921705
    */
   @Test
   public void update_refusedAtExistingOffset() {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     var input = buildProgramSequenceChord(fake.program1_sequence1, 2.0f, "A# sus");
 
     var e = assertThrows(ManagerException.class, () -> subject.update(access, sequenceChord1a_0.getId(), input));
@@ -352,7 +335,7 @@ public class ProgramSequenceChordManagerDbTest {
 
   @Test
   public void destroy() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User, Artist");
 
     subject.destroy(access, sequenceChord1a_0.getId());
 
@@ -360,13 +343,13 @@ public class ProgramSequenceChordManagerDbTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/175703981 Artist editing main program deletes voicing along with chord
+   * Artist editing main program deletes voicing along with chord https://www.pivotaltracker.com/story/show/175703981
    */
   @Test
   public void destroy_afterHasVoicing() throws Exception {
     test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, fake.program1_voicePad, "C5, Eb5, G5"));
 
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User, Artist");
 
     subject.destroy(access, sequenceChord1a_0.getId());
 

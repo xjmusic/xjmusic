@@ -2,12 +2,34 @@
 
 package io.xj.ship.source;
 
-import com.google.inject.Guice;
-import io.xj.nexus.model.*;
+
 import io.xj.hub.enums.TemplateType;
+import io.xj.lib.app.AppEnvironment;
+import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.http.HttpClientProvider;
+import io.xj.lib.http.HttpClientProviderImpl;
+import io.xj.lib.json.JsonProvider;
+import io.xj.lib.json.JsonProviderImpl;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.lib.mixer.InternalResource;
+import io.xj.lib.telemetry.TelemetryProvider;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.ChainType;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.persistence.ChainManager;
+import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.persistence.NexusEntityStoreImpl;
+import io.xj.nexus.persistence.SegmentManager;
+import io.xj.nexus.persistence.SegmentManagerImpl;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Instant;
 
@@ -15,9 +37,18 @@ import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
+@RunWith(MockitoJUnitRunner.class)
 public class SegmentAudioTest {
+  @Mock
+  ChainManager chainManager;
+  @Mock
+  SegmentAudioManager segmentAudioManager;
+  @Mock
+  TelemetryProvider telemetryProvider;
   private Segment segment1;
   private Chain chain1;
   private SegmentAudio subject;
@@ -48,8 +79,25 @@ public class SegmentAudioTest {
       "ogg");
     segment1.setWaveformPreroll(1.7306228);
     segment1.setWaveformPostroll(1.205893);
-    var injector = Guice.createInjector(new SourceModule());
-    factory = injector.getInstance(SourceFactory.class);
+
+    var env = AppEnvironment.getDefault();
+    HttpClientProvider httpClientProvider = new HttpClientProviderImpl(env);
+    JsonProvider jsonProvider = new JsonProviderImpl();
+    EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
+    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
+    NexusEntityStore nexusEntityStore = new NexusEntityStoreImpl(entityFactory);
+    SegmentManager segmentManager = new SegmentManagerImpl(entityFactory, nexusEntityStore);
+    factory = new SourceFactoryImpl(
+      chainManager,
+      env,
+      httpClientProvider,
+      jsonProvider,
+      jsonapiPayloadFactory,
+      segmentAudioManager,
+      segmentManager,
+      telemetryProvider
+    );
+
     String sourcePath = new InternalResource("ogg_decoding/coolair-1633586832900943.wav").getFile().getAbsolutePath();
     subject = factory.loadSegmentAudio(chain1.getShipKey(), segment1, sourcePath);
   }

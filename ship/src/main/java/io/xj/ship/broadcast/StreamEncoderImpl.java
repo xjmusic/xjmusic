@@ -2,9 +2,8 @@
 
 package io.xj.ship.broadcast;
 
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-import io.xj.lib.app.Environment;
+
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.mixer.FormatException;
@@ -47,12 +46,11 @@ public class StreamEncoderImpl implements StreamEncoder {
   private Process ffmpeg;
   private volatile boolean active;
 
-  @Inject
   public StreamEncoderImpl(
-    @Assisted("shipKey") String shipKey,
-    @Assisted("audioFormat") AudioFormat format,
-    @Assisted("initialSeqNum") Long initialSeqNum,
-    Environment env,
+     String shipKey,
+     AudioFormat format,
+     Long initialSeqNum,
+    AppEnvironment env,
     FileStoreProvider fileStore,
     PlaylistPublisher playlist
   ) {

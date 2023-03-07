@@ -20,11 +20,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- Parse a TypeSafe `config` value for a Template's configuration, overriding values from top-level default.conf--
- e.g.
- if the `config` value contains only `previewLengthMaxHours = 8`
- <p>
- https://www.pivotaltracker.com/story/show/177355683 Artist saves Template config, validate & combine with defaults.
+ * Parse a TypeSafe `config` value for a Template's configuration, overriding values from top-level default.conf--
+ * e.g.
+ * if the `config` value contains only `previewLengthMaxHours = 8`
+ * <p>
+ * Artist saves Template config, validate & combine with defaults. https://www.pivotaltracker.com/story/show/177355683
  */
 public class TemplateConfig {
   public static final String DEFAULT = """
@@ -168,31 +168,31 @@ public class TemplateConfig {
   private final int transitionLayerMin;
 
   /**
-   Get a template config from only the default config
-
-   @throws ValueException on failure
+   * Get a template config from only the default config
+   *
+   * @throws ValueException on failure
    */
   public TemplateConfig() throws ValueException {
     this("");
   }
 
   /**
-   Instantiate a Template configuration from a string of typesafe config.
-   Said string will be embedded in a `template{...}` block such that
-   provided simple Key=Value pairs will be understood as members of `template`
-   e.g. will override values from the `template{...}` block of the top-level **default.conf**
-
-   @param template to get config from
+   * Instantiate a Template configuration from a string of typesafe config.
+   * Said string will be embedded in a `template{...}` block such that
+   * provided simple Key=Value pairs will be understood as members of `template`
+   * e.g. will override values from the `template{...}` block of the top-level **default.conf**
+   *
+   * @param template to get config from
    */
   public TemplateConfig(Template template) throws ValueException {
     this(template.getConfig());
   }
 
   /**
-   Instantiate a Template configuration from a string of typesafe config.
-   Said string will be embedded in a `template{...}` block such that
-   provided simple Key=Value pairs will be understood as members of `template`
-   e.g. will override values from the `template{...}` block of the top-level **default.conf**
+   * Instantiate a Template configuration from a string of typesafe config.
+   * Said string will be embedded in a `template{...}` block such that
+   * provided simple Key=Value pairs will be understood as members of `template`
+   * e.g. will override values from the `template{...}` block of the top-level **default.conf**
    */
   public TemplateConfig(String configText) throws ValueException {
     try {
@@ -348,45 +348,45 @@ public class TemplateConfig {
   }
 
   /**
-   Convert a list of objects in a quoted list of strings in a set of brackets, for inclusion in a typesafe config
-
-   @param values to format
-   @return typesafe array of quoted values
+   * Convert a list of objects in a quoted list of strings in a set of brackets, for inclusion in a typesafe config
+   *
+   * @param values to format
+   * @return typesafe array of quoted values
    */
   private <N> String formatTypesafeQuoted(List<N> values) {
     return String.format("[%s]", values.stream().map(N::toString).map(Text::doubleQuoted).collect(Collectors.joining(",")));
   }
 
   /**
-   @return background layer min
+   * @return background layer min
    */
   public int getBackgroundLayerMin() {
     return backgroundLayerMin;
   }
 
   /**
-   @return background layer max
+   * @return background layer max
    */
   public int getBackgroundLayerMax() {
     return backgroundLayerMax;
   }
 
   /**
-   @return the work buffer ahead seconds
+   * @return the work buffer ahead seconds
    */
   public int getBufferAheadSeconds() {
     return bufferAheadSeconds;
   }
 
   /**
-   @return the work buffer before seconds
+   * @return the work buffer before seconds
    */
   public int getBufferBeforeSeconds() {
     return bufferBeforeSeconds;
   }
 
   /**
-   @return true if choice delta is enabled
+   * @return true if choice delta is enabled
    */
   @SuppressWarnings("BooleanMethodIsAlwaysInverted")
   public boolean isDeltaArcEnabled() {
@@ -394,49 +394,49 @@ public class TemplateConfig {
   }
 
   /**
-   @return the number of delta arc detail layers incoming each segment
+   * @return the number of delta arc detail layers incoming each segment
    */
   public int getDeltaArcDetailLayersIncoming() {
     return deltaArcDetailLayersIncoming;
   }
 
   /**
-   @return the number of delta arc beat layers incoming each segment
+   * @return the number of delta arc beat layers incoming each segment
    */
   public int getDeltaArcBeatLayersIncoming() {
     return deltaArcBeatLayersIncoming;
   }
 
   /**
-   @return delta arc beat layer prioritization regexp
+   * @return delta arc beat layer prioritization regexp
    */
   public String getDeltaArcBeatLayersToPrioritize() {
     return deltaArcBeatLayersToPrioritize;
   }
 
   /**
-   @return the density floor
+   * @return the density floor
    */
   public double getDensityFloor() {
     return densityFloor;
   }
 
   /**
-   @return the density ceiling
+   * @return the density ceiling
    */
   public double getDensityCeiling() {
     return densityCeiling;
   }
 
   /**
-   @return instrument layers in the intended order of craft
+   * @return instrument layers in the intended order of craft
    */
   public List<InstrumentType> getDetailLayerOrder() {
     return detailLayerOrder;
   }
 
   /**
-   @return probability of a given type of instrument choice being muted for any given segment
+   * @return probability of a given type of instrument choice being muted for any given segment
    */
   @SuppressWarnings("DuplicatedCode")
   public double getChoiceMuteProbability(InstrumentType instrumentType) {
@@ -455,7 +455,7 @@ public class TemplateConfig {
   }
 
   /**
-   @return ratio of amplitude to dub audio for a given type of instrument
+   * @return ratio of amplitude to dub audio for a given type of instrument
    */
   @SuppressWarnings("DuplicatedCode")
   public double getDubMasterVolume(InstrumentType instrumentType) {
@@ -474,203 +474,203 @@ public class TemplateConfig {
   }
 
   /**
-   @return names of small transitions
+   * @return names of small transitions
    */
   public List<String> getEventNamesSmall() {
     return eventNamesSmall;
   }
 
   /**
-   @return names of medium transitions
+   * @return names of medium transitions
    */
   public List<String> getEventNamesMedium() {
     return eventNamesMedium;
   }
 
   /**
-   @return names of large transitions
+   * @return names of large transitions
    */
   public List<String> getEventNamesLarge() {
     return eventNamesLarge;
   }
 
   /**
-   @return list of instrument types for which we'll finalize audio lengths, as in one-shot instrument audios
+   * @return list of instrument types for which we'll finalize audio lengths, as in one-shot instrument audios
    */
   public List<InstrumentType> getInstrumentTypesForAudioLengthFinalization() {
     return instrumentTypesForAudioLengthFinalization;
   }
 
   /**
-   @return list of instrument types for which we'll seek inversions, as in note picking for chords
+   * @return list of instrument types for which we'll seek inversions, as in note picking for chords
    */
   public List<InstrumentType> getInstrumentTypesForInversionSeeking() {
     return instrumentTypesForInversionSeeking;
   }
 
   /**
-   @return max length (delta) for a main program to run
+   * @return max length (delta) for a main program to run
    */
   public int getMainProgramLengthMaxDelta() {
     return mainProgramLengthMaxDelta;
   }
 
   /**
-   @return meme taxonomy, categories of implicitly separate memes
+   * @return meme taxonomy, categories of implicitly separate memes
    */
   public MemeTaxonomy getMemeTaxonomy() {
     return memeTaxonomy;
   }
 
   /**
-   @return mixer Compress Ahead Seconds
+   * @return mixer Compress Ahead Seconds
    */
   public double getMixerCompressAheadSeconds() {
     return mixerCompressAheadSeconds;
   }
 
   /**
-   @return mixer Compress Decay Seconds
+   * @return mixer Compress Decay Seconds
    */
   public double getMixerCompressDecaySeconds() {
     return mixerCompressDecaySeconds;
   }
 
   /**
-   @return mixer Compress Ratio Max
+   * @return mixer Compress Ratio Max
    */
   public double getMixerCompressRatioMax() {
     return mixerCompressRatioMax;
   }
 
   /**
-   @return mixer Compress Ratio Min
+   * @return mixer Compress Ratio Min
    */
   public double getMixerCompressRatioMin() {
     return mixerCompressRatioMin;
   }
 
   /**
-   @return mixer Compress To Amplitude
+   * @return mixer Compress To Amplitude
    */
   public double getMixerCompressToAmplitude() {
     return mixerCompressToAmplitude;
   }
 
   /**
-   @return mixer Dsp Buffer Size
+   * @return mixer Dsp Buffer Size
    */
   public int getMixerDspBufferSize() {
     return mixerDspBufferSize;
   }
 
   /**
-   @return mixer Highpass Threshold Hz
+   * @return mixer Highpass Threshold Hz
    */
   public double getMixerHighpassThresholdHz() {
     return mixerHighpassThresholdHz;
   }
 
   /**
-   @return mixer Lowpass Threshold Hz
+   * @return mixer Lowpass Threshold Hz
    */
   public double getMixerLowpassThresholdHz() {
     return mixerLowpassThresholdHz;
   }
 
   /**
-   @return mixer Normalization Max
+   * @return mixer Normalization Max
    */
   public double getMixerNormalizationCeiling() {
     return mixerNormalizationCeiling;
   }
 
   /**
-   @return mixer limit of how much to boost during normalization
+   * @return mixer limit of how much to boost during normalization
    */
   public double getMixerNormalizationBoostThreshold() {
     return mixerNormalizationBoostThreshold;
   }
 
   /**
-   @return # of Output Channels
+   * @return # of Output Channels
    */
   public int getOutputChannels() {
     return outputChannels;
   }
 
   /**
-   @return Output Container
+   * @return Output Container
    */
   public String getOutputContainer() {
     return outputContainer;
   }
 
   /**
-   @return Output content-type
+   * @return Output content-type
    */
   public String getOutputContentType() {
     return outputContentType;
   }
 
   /**
-   @return Output Encoding
+   * @return Output Encoding
    */
   public AudioFormat.Encoding getOutputEncoding() {
     return outputEncoding;
   }
 
   /**
-   @return Output Encoding Quality (ratio from 0 to 1)
+   * @return Output Encoding Quality (ratio from 0 to 1)
    */
   public double getOutputEncodingQuality() {
     return outputEncodingQuality;
   }
 
   /**
-   @return Output Frame Rate (Hz)
+   * @return Output Frame Rate (Hz)
    */
   public int getOutputFrameRate() {
     return outputFrameRate;
   }
 
   /**
-   @return Output Sample Bits
+   * @return Output Sample Bits
    */
   public int getOutputSampleBits() {
     return outputSampleBits;
   }
 
   /**
-   @return the maximum # of layers of percussive loops
+   * @return the maximum # of layers of percussive loops
    */
   public int getPercLoopLayerMax() {
     return percLoopLayerMax;
   }
 
   /**
-   @return the minimum # of layers of percussive loops
+   * @return the minimum # of layers of percussive loops
    */
   public int getPercLoopLayerMin() {
     return percLoopLayerMin;
   }
 
   /**
-   @return true if sticky bun behavior is enabled
+   * @return true if sticky bun behavior is enabled
    */
   public boolean isStickyBunEnabled() {
     return stickyBunEnabled;
   }
 
   /**
-   @return transition layer min
+   * @return transition layer min
    */
   public int getTransitionLayerMin() {
     return transitionLayerMin;
   }
 
   /**
-   @return transition layer max
+   * @return transition layer max
    */
   public int getTransitionLayerMax() {
     return transitionLayerMax;
@@ -678,28 +678,28 @@ public class TemplateConfig {
 
 
   /**
-   @return virtual machine resource limit # of CPU
+   * @return virtual machine resource limit # of CPU
    */
   public double getVmResourceLimitCpu() {
     return vmResourceLimitCpu;
   }
 
   /**
-   @return virtual machine resource limit memory (gigabytes)
+   * @return virtual machine resource limit memory (gigabytes)
    */
   public double getVmResourceLimitMemoryGb() {
     return vmResourceLimitMemoryGb;
   }
 
   /**
-   @return virtual machine resource request # of CPU
+   * @return virtual machine resource request # of CPU
    */
   public double getVmResourceRequestCpu() {
     return vmResourceRequestCpu;
   }
 
   /**
-   @return virtual machine resource request memory (gigabytes)
+   * @return virtual machine resource request memory (gigabytes)
    */
   public double getVmResourceRequestMemoryGb() {
     return vmResourceRequestMemoryGb;

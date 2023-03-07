@@ -7,6 +7,7 @@ import com.google.common.collect.Maps;
 import io.xj.lib.util.Values;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.Map;
@@ -17,9 +18,10 @@ import java.util.stream.Collectors;
 /**
  Implementation of Object Store
  <p>
- https://www.pivotaltracker.com/story/show/171553408 XJ Lab Distributed Architecture
+ XJ Lab Distributed Architecture https://www.pivotaltracker.com/story/show/171553408
  Chains, ChainBindings, TemplateConfigs, Segments and all Segment content sub-entities persisted in JSON:API record stored keyed by chain or segment id in memory
  */
+@Service
 public class EntityStoreImpl implements EntityStore {
   private static final Logger LOG = LoggerFactory.getLogger(EntityStoreImpl.class);
   private final Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>> store = Maps.newConcurrentMap();

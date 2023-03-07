@@ -11,7 +11,7 @@ public interface NotificationProvider {
 
   /**
    Publish a message on Amazon SNS
-   https://www.pivotaltracker.com/story/show/173968289 Messages that result from Chain fabrication are persisted@param message  to publish@param subject of message
+   Messages that result from Chain fabrication are persisted@param message  to publish@param subject of message https://www.pivotaltracker.com/story/show/173968289
 
 
    */

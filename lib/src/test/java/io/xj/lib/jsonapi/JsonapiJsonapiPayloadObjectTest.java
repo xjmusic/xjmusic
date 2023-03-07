@@ -4,13 +4,15 @@ package io.xj.lib.jsonapi;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.google.inject.Guice;
 import io.xj.lib.Superwidget;
 import io.xj.lib.Widget;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.util.ValueException;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
 import java.util.Map;
@@ -21,10 +23,11 @@ import static io.xj.lib.util.Assertion.assertSameItems;
 import static org.junit.Assert.*;
 
 /**
- Payload object test
- <p>
- Created by Charney Kaye on 2020/03/09
+ * Payload object test
+ * <p>
+ * Created by Charney Kaye on 2020/03/09
  */
+@SpringBootTest
 public class JsonapiJsonapiPayloadObjectTest {
   JsonapiPayloadFactory jsonapiPayloadFactory;
   EntityFactory entityFactory;
@@ -32,9 +35,9 @@ public class JsonapiJsonapiPayloadObjectTest {
 
   @Before
   public void setUp() {
-    var injector = Guice.createInjector(new JsonapiModule());
-    jsonapiPayloadFactory = injector.getInstance(JsonapiPayloadFactory.class);
-    entityFactory = injector.getInstance(EntityFactory.class);
+    var jsonProvider = new JsonProviderImpl();
+    entityFactory = new EntityFactoryImpl(jsonProvider);
+    jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     entityFactory.register(Widget.class);
     subject = jsonapiPayloadFactory.newPayloadObject();
   }

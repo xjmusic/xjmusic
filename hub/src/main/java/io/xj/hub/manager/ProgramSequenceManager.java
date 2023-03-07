@@ -9,12 +9,12 @@ import java.util.UUID;
 public interface ProgramSequenceManager extends Manager<ProgramSequence> {
 
   /**
-   Clone a ProgramSequence and its children
-
-   @param access control
-   @param cloneId   of entity to clone attributes and children of
-   @param entity    with attributes to set on new entity
-   @return cloner comprising newly cloned entity and its newly cloned child entities
+   * Clone a ProgramSequence and its children
+   *
+   * @param access  control
+   * @param cloneId of entity to clone attributes and children of
+   * @param entity  with attributes to set on new entity
+   * @return cloner comprising newly cloned entity and its newly cloned child entities
    */
   ManagerCloner<ProgramSequence> clone(HubAccess access, UUID cloneId, ProgramSequence entity) throws ManagerException;
 }

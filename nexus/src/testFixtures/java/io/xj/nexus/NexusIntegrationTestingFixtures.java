@@ -5,19 +5,6 @@ package io.xj.nexus;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import io.xj.nexus.model.Chain;
-import io.xj.nexus.model.ChainState;
-import io.xj.nexus.model.ChainType;
-import io.xj.nexus.model.Segment;
-import io.xj.nexus.model.SegmentChoice;
-import io.xj.nexus.model.SegmentChoiceArrangement;
-import io.xj.nexus.model.SegmentChoiceArrangementPick;
-import io.xj.nexus.model.SegmentChord;
-import io.xj.nexus.model.SegmentChordVoicing;
-import io.xj.nexus.model.SegmentMeme;
-import io.xj.nexus.model.SegmentMeta;
-import io.xj.nexus.model.SegmentState;
-import io.xj.nexus.model.SegmentType;
 import io.xj.hub.LoremIpsum;
 import io.xj.hub.Users;
 import io.xj.hub.client.HubClientAccess;
@@ -51,6 +38,19 @@ import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.Values;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.ChainType;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangement;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.model.SegmentChord;
+import io.xj.nexus.model.SegmentChordVoicing;
+import io.xj.nexus.model.SegmentMeme;
+import io.xj.nexus.model.SegmentMeta;
+import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.Segments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,7 +88,7 @@ import static io.xj.hub.IntegrationTestingFixtures.buildVoicing;
 import static io.xj.lib.util.Values.NANOS_PER_SECOND;
 
 /**
- https://www.pivotaltracker.com/story/show/165954673 Integration tests use shared scenario fixtures as much as possible
+ Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
  <p>
  Testing the hypothesis that, while unit tests are all independent,
  integration tests ought be as much about testing all features around a consensus model of the platform
@@ -749,7 +749,7 @@ public class NexusIntegrationTestingFixtures {
     program5_sequence0_chord0_voicing = buildVoicing(program5_sequence0_chord0, program5_voiceBass, "G3, B3, D4");
     program5_sequence0_chord1 = buildChord(program5_sequence0, 8.0, "Ab minor");
     program5_sequence0_chord1_voicing = buildVoicing(program5_sequence0_chord1, program5_voiceBass, "Ab3, Db3, F4");
-    program5_sequence0_chord2 = buildChord(program5_sequence0, 75.0, "G-9"); // https://www.pivotaltracker.com/story/show/154090557 this ChordEntity should be ignored, because it's past the end of the main-pattern total
+    program5_sequence0_chord2 = buildChord(program5_sequence0, 75.0, "G-9"); // this ChordEntity should be ignored, because it's past the end of the main-pattern total https://www.pivotaltracker.com/story/show/154090557
     program5_sequence0_chord2_voicing = buildVoicing(program5_sequence0_chord2, program5_voiceBass, "G3, Bb3, D4, A4");
     program5_sequence0_binding0 = buildBinding(program5_sequence0, 0);
     program5_sequence0_binding0_meme0 = buildMeme(program5_sequence0_binding0, "Optimism");
@@ -856,7 +856,7 @@ public class NexusIntegrationTestingFixtures {
   /**
    Library of Content B-2 (shared test fixture)
    <p>
-   https://www.pivotaltracker.com/story/show/165954673 Integration tests use shared scenario fixtures as much as possible
+   Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
    */
   public Collection<Object> setupFixtureB2() {
     // "Tangy, Chunky to Smooth" macro-program in house library
@@ -927,16 +927,16 @@ public class NexusIntegrationTestingFixtures {
   /**
    Library of Content B-3 (shared test fixture)
    <p>
-   https://www.pivotaltracker.com/story/show/165954673 Integration tests use shared scenario fixtures as much as possible
+   Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
    <p>
-   https://www.pivotaltracker.com/story/show/163158036 memes bound to sequence-pattern because sequence-binding is not considered for beat sequences, beat sequence patterns do not have memes.
+   memes bound to sequence-pattern because sequence-binding is not considered for beat sequences, beat sequence patterns do not have memes. https://www.pivotaltracker.com/story/show/163158036
    <p>
-   https://www.pivotaltracker.com/story/show/165954619 Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (beat- and detail-type sequences)
+   Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (beat- and detail-type sequences) https://www.pivotaltracker.com/story/show/165954619
    <p>
-   https://www.pivotaltracker.com/story/show/153976073 Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Beat or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment.
+   Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Beat or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment. https://www.pivotaltracker.com/story/show/153976073
    + For this test, there's an Intro Pattern with all BLEEPS, multiple Loop Patterns with KICK and SNARE (2x each), and an Outro Pattern with all TOOTS.
    <p>
-   https://www.pivotaltracker.com/story/show/150279647 Artist wants to of multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset.
+   Artist wants to of multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset. https://www.pivotaltracker.com/story/show/150279647
    */
   public Collection<Object> setupFixtureB3() {
     // A basic beat
@@ -1050,7 +1050,7 @@ public class NexusIntegrationTestingFixtures {
   /**
    Library of Content B-4 (shared test fixture)
    <p>
-   https://www.pivotaltracker.com/story/show/154464276 Detail Craft v1
+   Detail Craft v1 https://www.pivotaltracker.com/story/show/154464276
    */
   public Collection<Object> setupFixtureB4_DetailBass() {
     // A basic bass pattern

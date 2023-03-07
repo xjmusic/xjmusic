@@ -4,18 +4,14 @@ import io.xj.hub.tables.pojos.ProgramSequenceChord;
 import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
 import io.xj.hub.tables.pojos.ProgramVoice;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- Chord Search while composing a main program
- https://www.pivotaltracker.com/story/show/178921705
- <p>
- Chord search results (backend) must include all unique combinations of chord & voicing
+ * Chord Search while composing a main program
+ * https://www.pivotaltracker.com/story/show/178921705
+ * <p>
+ * Chord search results (backend) must include all unique combinations of chord & voicing
  */
 public class ChordVoicingDeduper {
   private final Map<UUID, ProgramVoice> voicesById;
@@ -68,7 +64,7 @@ public class ChordVoicingDeduper {
 
 
   /**
-   One chord and its voicings
+   * One chord and its voicings
    */
   public record ChordVoicings(
     ProgramSequenceChord chord,

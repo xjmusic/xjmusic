@@ -1,8 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.ship;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusTopology;
@@ -12,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 
-@Singleton
 public class ShipIntegrationTestProviderImpl implements ShipIntegrationTestProvider {
   final Logger LOG = LoggerFactory.getLogger(ShipIntegrationTestProviderImpl.class);
   private final NexusEntityStore store;
@@ -21,7 +18,6 @@ public class ShipIntegrationTestProviderImpl implements ShipIntegrationTestProvi
    Since this class is a singleton, the process here in its constructor
    will happen only once for a whole test suite
    */
-  @Inject
   ShipIntegrationTestProviderImpl(
     EntityFactory entityFactory,
     NexusEntityStore nexusEntityStore

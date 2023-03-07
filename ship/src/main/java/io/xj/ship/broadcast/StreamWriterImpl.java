@@ -3,9 +3,7 @@
 package io.xj.ship.broadcast;
 
 import com.google.api.client.util.Strings;
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-import io.xj.lib.app.Environment;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.mixer.FormatException;
 import io.xj.lib.util.Files;
 import io.xj.lib.util.Text;
@@ -46,11 +44,10 @@ public class StreamWriterImpl implements StreamWriter {
   private FileOutputStream tempOut;
   private volatile boolean active;
 
-  @Inject
   public StreamWriterImpl(
-    @Assisted("audioFormat") AudioFormat format,
-    Environment env
-  ) throws ShipException {
+    AudioFormat format,
+    AppEnvironment env
+  ) {
     this.format = format;
     outPath = env.getShipWavPath();
     tempPath = Files.getUniqueTempFilename("stream.pcm");
@@ -63,10 +60,15 @@ public class StreamWriterImpl implements StreamWriter {
     active = enabled;
     if (active)
       try {
-        if (Strings.isNullOrEmpty(outPath))
-          throw new ShipException("Cannot write stream to WAV without path to output file!");
-        if (0 >= targetByteCount)
-          throw new ShipException("Cannot write stream to WAV without specific # of seconds!");
+        if (Strings.isNullOrEmpty(outPath)) {
+          LOG.error("Cannot write stream to WAV without path to output file!");
+          active = false;
+          return;
+        } else if (0 >= targetByteCount) {
+          LOG.error("Cannot write stream to WAV without specific # of seconds!");
+          active = false;
+          return;
+        }
 
         deleteIfExists(Path.of(tempPath));
         tempOut = new FileOutputStream(tempPath, true);
@@ -122,7 +124,8 @@ public class StreamWriterImpl implements StreamWriter {
         });
 
       } catch (IOException e) {
-        throw new ShipException("Failed to initialize!", e);
+        LOG.error("Failed to initialize!", e);
+        active = false;
       }
     else {
       tempOut = null;

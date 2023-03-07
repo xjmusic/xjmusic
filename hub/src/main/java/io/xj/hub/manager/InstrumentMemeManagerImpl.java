@@ -1,9 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.manager;
 
-import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.InstrumentMeme;
 import io.xj.lib.entity.EntityFactory;
@@ -11,6 +10,7 @@ import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -18,14 +18,14 @@ import java.util.UUID;
 
 import static io.xj.hub.Tables.INSTRUMENT_MEME;
 
-public class InstrumentMemeManagerImpl extends HubPersistenceServiceImpl<InstrumentMeme> implements InstrumentMemeManager {
+@Service
+public class InstrumentMemeManagerImpl extends HubPersistenceServiceImpl implements InstrumentMemeManager {
 
-  @Inject
   public InstrumentMemeManagerImpl(
     EntityFactory entityFactory,
-    HubDatabaseProvider dbProvider
+    HubSqlStoreProvider sqlStoreProvider
   ) {
-    super(entityFactory, dbProvider);
+    super(entityFactory, sqlStoreProvider);
   }
 
   @Override
@@ -33,7 +33,7 @@ public class InstrumentMemeManagerImpl extends HubPersistenceServiceImpl<Instrum
     var meme = validate(rawMeme);
     requireArtist(access);
     return modelFrom(InstrumentMeme.class,
-      executeCreate(dbProvider.getDSL(), INSTRUMENT_MEME, meme));
+      executeCreate(sqlStoreProvider.getDSL(), INSTRUMENT_MEME, meme));
   }
 
   @Override
@@ -41,7 +41,7 @@ public class InstrumentMemeManagerImpl extends HubPersistenceServiceImpl<Instrum
   public InstrumentMeme readOne(HubAccess access, UUID id) throws ManagerException {
     requireArtist(access);
     return modelFrom(InstrumentMeme.class,
-      dbProvider.getDSL().selectFrom(INSTRUMENT_MEME)
+      sqlStoreProvider.getDSL().selectFrom(INSTRUMENT_MEME)
         .where(INSTRUMENT_MEME.ID.eq(id))
         .fetchOne());
   }
@@ -51,7 +51,7 @@ public class InstrumentMemeManagerImpl extends HubPersistenceServiceImpl<Instrum
   public Collection<InstrumentMeme> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
     requireArtist(access);
     return modelsFrom(InstrumentMeme.class,
-      dbProvider.getDSL().selectFrom(INSTRUMENT_MEME)
+      sqlStoreProvider.getDSL().selectFrom(INSTRUMENT_MEME)
         .where(INSTRUMENT_MEME.INSTRUMENT_ID.in(parentIds))
         .fetch());
   }
@@ -60,14 +60,14 @@ public class InstrumentMemeManagerImpl extends HubPersistenceServiceImpl<Instrum
   public InstrumentMeme update(HubAccess access, UUID id, InstrumentMeme rawMeme) throws ManagerException, JsonapiException, ValueException {
     var meme = validate(rawMeme);
     requireArtist(access);
-    executeUpdate(dbProvider.getDSL(), INSTRUMENT_MEME, id, meme);
+    executeUpdate(sqlStoreProvider.getDSL(), INSTRUMENT_MEME, id, meme);
     return meme;
   }
 
   @Override
   public void destroy(HubAccess access, UUID id) throws ManagerException {
     requireArtist(access);
-    dbProvider.getDSL().deleteFrom(INSTRUMENT_MEME)
+    sqlStoreProvider.getDSL().deleteFrom(INSTRUMENT_MEME)
       .where(INSTRUMENT_MEME.ID.eq(id))
       .execute();
   }
@@ -78,10 +78,10 @@ public class InstrumentMemeManagerImpl extends HubPersistenceServiceImpl<Instrum
   }
 
   /**
-   Validate data
-
-   @param record to validate
-   @throws ManagerException if invalid
+   * Validate data
+   *
+   * @param record to validate
+   * @throws ManagerException if invalid
    */
   public InstrumentMeme validate(InstrumentMeme record) throws ManagerException {
     try {

@@ -6,7 +6,6 @@ import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.UserRoleType;
 import io.xj.hub.manager.ManagerException;
@@ -22,6 +21,7 @@ import org.jooq.Record;
 import org.jooq.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
@@ -32,11 +32,12 @@ import java.util.stream.Collectors;
 
 import static io.xj.hub.Tables.*;
 
-public class HubPersistenceServiceImpl<E> {
+@Service
+public class HubPersistenceServiceImpl {
   private static final Logger log = LoggerFactory.getLogger(HubPersistenceServiceImpl.class);
   private static final String KEY_ID = "id";
   protected final EntityFactory entityFactory;
-  protected final HubDatabaseProvider dbProvider;
+  protected final HubSqlStoreProvider sqlStoreProvider;
   protected Map<Class<?>, Table<?>> tablesInSchemaConstructionOrder = ImmutableMap.<Class<?>, Table<?>>builder() // DELIBERATE ORDER
     .put(io.xj.hub.tables.pojos.User.class, USER)
     .put(UserAuth.class, USER_AUTH) // after user
@@ -62,11 +63,6 @@ public class HubPersistenceServiceImpl<E> {
     .put(Instrument.class, INSTRUMENT) // after library
     .put(InstrumentAudio.class, INSTRUMENT_AUDIO)
     .put(InstrumentMeme.class, INSTRUMENT_MEME)
-    .put(Feedback.class, FEEDBACK) // after account
-    .put(FeedbackInstrument.class, FEEDBACK_INSTRUMENT) // after feedback, instrument
-    .put(FeedbackLibrary.class, FEEDBACK_LIBRARY) // after feedback, library
-    .put(FeedbackProgram.class, FEEDBACK_PROGRAM) // after feedback, program
-    .put(FeedbackTemplate.class, FEEDBACK_TEMPLATE) // after feedback, template
     .build();
   protected Map<Class<? extends Record>, Class<?>> modelsForRecords = ImmutableMap.<Class<? extends Record>, Class<?>>builder()
     .put(UserRecord.class, User.class)
@@ -93,51 +89,49 @@ public class HubPersistenceServiceImpl<E> {
     .put(InstrumentRecord.class, Instrument.class)
     .put(InstrumentAudioRecord.class, InstrumentAudio.class)
     .put(InstrumentMemeRecord.class, InstrumentMeme.class)
-    .put(FeedbackRecord.class, Feedback.class)
-    .put(FeedbackInstrumentRecord.class, FeedbackInstrument.class)
-    .put(FeedbackLibraryRecord.class, FeedbackLibrary.class)
-    .put(FeedbackProgramRecord.class, FeedbackProgram.class)
-    .put(FeedbackTemplateRecord.class, FeedbackTemplate.class)
     .build();
   Collection<String> nullValueClasses = ImmutableList.of("Null", "JsonNull");
 
-  @Inject
-  public HubPersistenceServiceImpl(EntityFactory entityFactory, HubDatabaseProvider dbProvider) {
+  public HubPersistenceServiceImpl(EntityFactory entityFactory, HubSqlStoreProvider sqlStoreProvider) {
     this.entityFactory = entityFactory;
-    this.dbProvider = dbProvider;
+    this.sqlStoreProvider = sqlStoreProvider;
   }
 
   /**
-   Get a collection of records based ona collection of entities
-
-   @param db       to make new records in
-   @param table    to make new records in
-   @param entities to source number of rows and their values for new records
-   @param <R>      type of record (only one type in collection)
-   @param <N>      type of entity (only one type in collection)
-   @return collection of records
-   @throws ManagerException on failure
+   * Get a collection of records based ona collection of entities
+   *
+   * @param db       to make new records in
+   * @param table    to make new records in
+   * @param entities to source number of rows and their values for new records
+   * @param <R>      type of record (only one type in collection)
+   * @param <N>      type of entity (only one type in collection)
+   * @return collection of records
+   * @throws ManagerException on failure
    */
   protected <R extends TableRecord<?>, N> Collection<R> recordsFrom(DSLContext db, Table<?> table, Collection<N> entities) throws ManagerException {
     Collection<R> records = Lists.newArrayList();
     for (N e : entities) {
       //noinspection unchecked
       R record = (R) db.newRecord(table);
-      try {
-        UUID id = Entities.getId(e);
-        if (Objects.nonNull(id))
-          set(record, KEY_ID, id);
-      } catch (EntityException ignored) {
-        // no op
-      }
-      try {
-        setAll(record, e);
-      } catch (HubPersistenceException e2) {
-        throw new ManagerException(e2);
-      }
+      getEntities(e, record);
       records.add(record);
     }
     return records;
+  }
+
+  private <R extends TableRecord<?>, N> void getEntities(N e, R record) throws ManagerException {
+    try {
+      UUID id = Entities.getId(e);
+      if (Objects.nonNull(id))
+        set(record, KEY_ID, id);
+    } catch (EntityException ignored) {
+      // no op
+    }
+    try {
+      setAll(record, e);
+    } catch (HubPersistenceException e2) {
+      throw new ManagerException(e2);
+    }
   }
 
   public <N, R extends Record> Collection<N> modelsFrom(Class<N> modelClass, Iterable<R> records) throws ManagerException {
@@ -155,12 +149,12 @@ public class HubPersistenceServiceImpl<E> {
   }
 
   /**
-   Transmogrify the field-value pairs of a jOOQ record and set values on the corresponding POJO entity.
-
-   @param modelClass to whose setters the values will be written
-   @param record     to source field-values of
-   @return entity after transmogrification
-   @throws ManagerException on failure to transmogrify
+   * Transmogrify the field-value pairs of a jOOQ record and set values on the corresponding POJO entity.
+   *
+   * @param modelClass to whose setters the values will be written
+   * @param record     to source field-values of
+   * @return entity after transmogrification
+   * @throws ManagerException on failure to transmogrify
    */
   protected <N, R extends Record> N modelFrom(Class<N> modelClass, R record) throws ManagerException {
     if (Objects.isNull(modelClass))
@@ -181,11 +175,11 @@ public class HubPersistenceServiceImpl<E> {
   }
 
   /**
-   Set all fields of an Entity using values transmogrified of a jOOQ Record
-
-   @param record to transmogrify values of
-   @param model  to set fields of
-   @throws ManagerException on failure to set transmogrified values
+   * Set all fields of an Entity using values transmogrified of a jOOQ Record
+   *
+   * @param record to transmogrify values of
+   * @param model  to set fields of
+   * @throws ManagerException on failure to set transmogrified values
    */
   protected <N, R extends Record> void modelSetTransmogrified(R record, N model) throws ManagerException {
     if (Objects.isNull(record))
@@ -203,42 +197,30 @@ public class HubPersistenceServiceImpl<E> {
   }
 
   /**
-   Get a table record for an entity
-
-   @param <N>    type of entity
-   @param db     database context
-   @param entity to get table record for
-   @return table record
-   @throws ManagerException on failure
+   * Get a table record for an entity
+   *
+   * @param <N>    type of entity
+   * @param db     database context
+   * @param entity to get table record for
+   * @return table record
+   * @throws ManagerException on failure
    */
   protected <N> UpdatableRecord<?> recordFor(DSLContext db, N entity) throws ManagerException {
     Table<?> table = tablesInSchemaConstructionOrder.get(entity.getClass());
     var raw = db.newRecord(table);
     UpdatableRecord<?> record = (UpdatableRecord<?>) raw;
 
-    try {
-      UUID id = Entities.getId(entity);
-      if (Objects.nonNull(id))
-        set(record, KEY_ID, id);
-    } catch (EntityException ignored) {
-      // no op
-    }
-
-    try {
-      setAll(record, entity);
-    } catch (HubPersistenceException e) {
-      throw new ManagerException(e);
-    }
+    getEntities(entity, record);
 
     return record;
   }
 
   /**
-   Insert entity to database
-
-   @param entity to insert
-   @param db     database context
-   @return the same entity (for chaining methods)
+   * Insert entity to database
+   *
+   * @param entity to insert
+   * @param db     database context
+   * @return the same entity (for chaining methods)
    */
   protected <N> N insert(DSLContext db, N entity) throws ManagerException {
     UpdatableRecord<?> record = recordFor(db, entity);
@@ -255,25 +237,25 @@ public class HubPersistenceServiceImpl<E> {
 
 
   /**
-   Require has engineer-level access
-
-   @param access to validate
-   @throws ManagerException if not engineer
+   * Require has engineer-level access
+   *
+   * @param access to validate
+   * @throws ManagerException if not engineer
    */
   protected void requireEngineer(HubAccess access) throws ManagerException {
     requireAny(access, UserRoleType.Engineer);
   }
 
   /**
-   Execute a database CREATE operation
-
-   @param <R>    record type dynamic
-   @param db     DSL context
-   @param table  to of entity in
-   @param entity to of
-   @return record
+   * Execute a database CREATE operation
+   *
+   * @param <R>    record type dynamic
+   * @param db     DSL context
+   * @param table  to of entity in
+   * @param entity to of
+   * @return record
    */
-  protected <R extends UpdatableRecord<R>> R executeCreate(DSLContext db, Table<R> table, E entity) throws ManagerException {
+  protected <R extends UpdatableRecord<R>, E> R executeCreate(DSLContext db, Table<R> table, E entity) throws ManagerException {
     R record = db.newRecord(table);
 
     try {
@@ -288,13 +270,13 @@ public class HubPersistenceServiceImpl<E> {
   }
 
   /**
-   Execute a database UPDATE operation@param <R>   record type dynamic
-
-   @param db    context in which to execute
-   @param table to update
-   @param id    of record to update
+   * Execute a database UPDATE operation@param <R>   record type dynamic
+   *
+   * @param db    context in which to execute
+   * @param table to update
+   * @param id    of record to update
    */
-  protected <R extends UpdatableRecord<R>> void executeUpdate(DSLContext db, Table<R> table, UUID id, E entity) throws ManagerException {
+  protected <R extends UpdatableRecord<R>, E> void executeUpdate(DSLContext db, Table<R> table, UUID id, E entity) throws ManagerException {
     R record = db.newRecord(table);
     try {
       setAll(record, entity);
@@ -313,91 +295,91 @@ public class HubPersistenceServiceImpl<E> {
   }
 
   /**
-   Require empty Result
-
-   @param message to require
-   @param result  to check.
-   @throws ManagerException if result set is not empty.
-   @throws ManagerException if something goes wrong.
+   * Require empty Result
+   *
+   * @param message to require
+   * @param result  to check.
+   * @throws ManagerException if result set is not empty.
+   * @throws ManagerException if something goes wrong.
    */
   protected <R extends Record> void requireNotExists(String message, Collection<R> result) throws ManagerException {
     if (Values.isNonNull(result) && !result.isEmpty()) throw new ManagerException(message);
   }
 
   /**
-   Require empty count of a Result
-
-   @param name  to require
-   @param count to check.
-   @throws ManagerException if result set is not empty.
-   @throws ManagerException if something goes wrong.
+   * Require empty count of a Result
+   *
+   * @param name  to require
+   * @param count to check.
+   * @throws ManagerException if result set is not empty.
+   * @throws ManagerException if something goes wrong.
    */
   protected void requireNotExists(String name, @Nullable Integer count) throws ManagerException {
     if (Objects.isNull(count) || 0 < count) throw new ManagerException("Found" + " " + name);
   }
 
   /**
-   Require that a record isNonNull
-
-   @param name   name of record (for error message)
-   @param record to require existence of
-   @throws ManagerException if not isNonNull
+   * Require that a record isNonNull
+   *
+   * @param name   name of record (for error message)
+   * @param record to require existence of
+   * @throws ManagerException if not isNonNull
    */
   protected <R extends Record> void requireExists(String name, R record) throws ManagerException {
     requireAny(name, "does not exist", Values.isNonNull(record));
   }
 
   /**
-   Require that an entity isNonNull
-
-   @param name   name of entity (for error message)
-   @param entity to require existence of
-   @throws ManagerException if not isNonNull
+   * Require that an entity isNonNull
+   *
+   * @param name   name of entity (for error message)
+   * @param entity to require existence of
+   * @throws ManagerException if not isNonNull
    */
-  protected void requireExists(String name, E entity) throws ManagerException {
+  protected <E> void requireExists(String name, E entity) throws ManagerException {
     requireAny(name, "does not exist", Values.isNonNull(entity));
   }
 
   /**
-   Require that a count of a record isNonNull
-
-   @param name  name of record (for error message)
-   @param count to require existence of
-   @throws ManagerException if not isNonNull
+   * Require that a count of a record isNonNull
+   *
+   * @param name  name of record (for error message)
+   * @param count to require existence of
+   * @throws ManagerException if not isNonNull
    */
   protected void requireExists(String name, @Nullable Integer count) throws ManagerException {
     requireAny(name, "does not exist", Objects.nonNull(count) && 0 < count);
   }
 
   /**
-   Require user has admin access
-
-   @param access control
-   @throws ManagerException if not admin
+   * Require user has admin access
+   *
+   * @param access control
+   * @throws ManagerException if not admin
    */
   protected void requireTopLevel(HubAccess access) throws ManagerException {
     requireAny("top-level access", access.isTopLevel());
   }
 
   /**
-   ASSUMED an entity.parentId() is a libraryId for this class of entity
-   Require library-level access to an entity
-
-   @param access control
-   @throws ManagerException if we do not have hub access
+   * ASSUMED an entity.parentId() is a libraryId for this class of entity
+   * Require library-level access to an entity
+   *
+   * @param access control
+   * @throws ManagerException if we do not have hub access
    */
   protected void requireArtist(HubAccess access) throws ManagerException {
     requireAny(access, UserRoleType.Artist);
   }
 
   /**
-   Require access has one of the specified roles
-   <p>
-   Uses static formats to improve efficiency of method calls with less than 3 allowed roles
-
-   @param access    to validate
-   @param allowedRoles to require
-   @throws ManagerException if access does not have any one of the specified roles
+   * Require access has one of the specified roles
+   * <p>
+   * Uses static formats to improve efficiency of method calls with less than 3 allowed roles
+   *
+   * @param access       to validate
+   * @param allowedRoles to require
+   * @throws ManagerException if access does not have any one of the specified roles
    */
   protected void requireAny(HubAccess access, UserRoleType... allowedRoles) throws ManagerException {
     if (access.isTopLevel()) return;
@@ -411,59 +393,64 @@ public class HubPersistenceServiceImpl<E> {
   }
 
   /**
-   Require that a condition is true, else error that it is required
-
-   @param name       name of condition (for error message)
-   @param mustBeTrue to require true
-   @throws ManagerException if not true
+   * Require that a condition is true, else error that it is required
+   *
+   * @param name       name of condition (for error message)
+   * @param mustBeTrue to require true
+   * @throws ManagerException if not true
    */
   protected void requireAny(String name, Boolean mustBeTrue) throws ManagerException {
     requireAny(name, "is required", mustBeTrue);
   }
 
   /**
-   Require that a condition is true, else error that it is required
-
-   @param message    condition (for error message)
-   @param mustBeTrue to require true
-   @param condition  to append
-   @throws ManagerException if not true
+   * Require that a condition is true, else error that it is required
+   *
+   * @param message    condition (for error message)
+   * @param mustBeTrue to require true
+   * @param condition  to append
+   * @throws ManagerException if not true
    */
   protected void requireAny(String message, String condition, Boolean mustBeTrue) throws ManagerException {
     if (!mustBeTrue) throw new ManagerException(message + " " + condition);
   }
 
   /**
-   Require permission to modify the specified program
-
-   @param db        context
-   @param access control
-   @param id        of entity to require modification access to
-   @throws ManagerException on invalid permissions
+   * Require permission to modify the specified program
+   *
+   * @param db     context
+   * @param access control
+   * @param id     of entity to require modification access to
+   * @throws ManagerException on invalid permissions
    */
   protected void requireProgramModification(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     requireArtist(access);
 
-    if (access.isTopLevel())
-      requireExists("Program", db.selectCount().from(PROGRAM)
+    if (access.isTopLevel()) try (var selectCount = db.selectCount()) {
+      requireExists("Program", selectCount.from(PROGRAM)
         .where(PROGRAM.ID.eq(id))
         .fetchOne(0, int.class));
-    else
-      requireExists("Program in Account you have access to", db.selectCount().from(PROGRAM)
-        .join(LIBRARY).on(PROGRAM.LIBRARY_ID.eq(LIBRARY.ID))
-        .where(PROGRAM.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-        .fetchOne(0, int.class));
+    }
+    else try (
+      var selectCount = db.selectCount();
+      var joinLibrary = selectCount.from(PROGRAM).join(LIBRARY).on(PROGRAM.LIBRARY_ID.eq(LIBRARY.ID))
+    ) {
+      requireExists("Program in Account you have access to",
+        joinLibrary
+          .where(PROGRAM.ID.eq(id))
+          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+          .fetchOne(0, int.class));
+    }
   }
 
   /**
-   set all values from an entity onto a record
-
-   @param target to set values on
-   @param source to get value from
-   @param <R>    type of record
-   @param <N>    type of entity
-   @throws HubPersistenceException on a REST API payload related failure to parse
+   * set all values from an entity onto a record
+   *
+   * @param target to set values on
+   * @param source to get value from
+   * @param <R>    type of record
+   * @param <N>    type of entity
+   * @throws HubPersistenceException on a REST API payload related failure to parse
    */
   protected <R extends Record, N> void setAll(R target, N source) throws HubPersistenceException {
     try {
@@ -492,11 +479,11 @@ public class HubPersistenceServiceImpl<E> {
   }
 
   /**
-   Get a value of a target object via attribute name
-
-   @param attributeName of attribute to get
-   @return value
-   @throws ManagerException on failure to get
+   * Get a value of a target object via attribute name
+   *
+   * @param attributeName of attribute to get
+   * @return value
+   * @throws ManagerException on failure to get
    */
   protected <R extends Record> Optional<Object> get(R target, String attributeName) throws ManagerException {
     String getterName = Entities.toGetterName(attributeName);
@@ -514,10 +501,10 @@ public class HubPersistenceServiceImpl<E> {
   }
 
   /**
-   Set a value using an attribute name
-
-   @param attributeName of attribute for which to find setter method
-   @param value         to set
+   * Set a value using an attribute name
+   *
+   * @param attributeName of attribute for which to find setter method
+   * @param value         to set
    */
   protected <R extends Record> void set(R target, String attributeName, Object value) throws ManagerException {
     if (Objects.isNull(value)) return;
@@ -547,12 +534,12 @@ public class HubPersistenceServiceImpl<E> {
   }
 
   /**
-   Set null value on target
-
-   @param target to set on
-   @param setter to set with
-   @throws InvocationTargetException on failure to invoke setter
-   @throws IllegalAccessException    on failure to access setter
+   * Set null value on target
+   *
+   * @param target to set on
+   * @param setter to set with
+   * @throws InvocationTargetException on failure to invoke setter
+   * @throws IllegalAccessException    on failure to access setter
    */
   protected <R extends Record> void setNull(R target, Method setter) throws InvocationTargetException, IllegalAccessException, ManagerException {
     if (Objects.nonNull(setter.getAnnotation(Nullable.class)))

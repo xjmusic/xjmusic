@@ -2,49 +2,41 @@
 
 package io.xj.hub.api;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
 import io.xj.hub.HubTopology;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.manager.InstrumentManager;
+import io.xj.hub.manager.InstrumentMemeManager;
 import io.xj.hub.manager.ManagerException;
-import io.xj.hub.manager.ManagerModule;
-import io.xj.hub.persistence.HubPersistenceModule;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Library;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.app.AppException;
-import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.filestore.FileStoreModule;
-import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.jsonapi.JsonapiModule;
-import io.xj.lib.jsonapi.JsonapiPayload;
+import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.json.ApiUrlProvider;
+import io.xj.lib.json.JsonProvider;
+import io.xj.lib.json.JsonProviderImpl;
+import io.xj.lib.jsonapi.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.HttpStatus;
 
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.Response;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
-import static io.xj.hub.IntegrationTestingFixtures.buildInstrument;
-import static io.xj.hub.IntegrationTestingFixtures.buildInstrumentMeme;
-import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
+import static io.xj.hub.IntegrationTestingFixtures.*;
 import static io.xj.hub.access.HubAccess.CONTEXT_KEY;
 import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
 import static org.junit.Assert.assertEquals;
@@ -57,9 +49,15 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class InstrumentEndpointTest {
   @Mock
-  ContainerRequestContext crc;
+  HttpServletRequest req;
+  @Mock
+  HttpServletResponse res;
   @Mock
   InstrumentManager instrumentManager;
+  @Mock
+  InstrumentMemeManager instrumentMemeManager;
+  @Mock
+  private HubSqlStoreProvider sqlStoreProvider;
   private HubAccess access;
   private InstrumentEndpoint subject;
   private Library library25;
@@ -67,27 +65,24 @@ public class InstrumentEndpointTest {
 
   @Before
   public void setUp() throws AppException {
-    var env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule())).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(Environment.class).toInstance(env);
-        bind(InstrumentManager.class).toInstance(instrumentManager);
-      }
-    }));
+    var env = AppEnvironment.getDefault();
+    JsonProvider jsonProvider = new JsonProviderImpl();
+    EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
+    JsonapiPayloadFactory payloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
+    HubTopology.buildHubApiTopology(entityFactory);
+    ApiUrlProvider apiUrlProvider = new ApiUrlProvider(env);
+    JsonapiResponseProvider responseProvider = new JsonapiResponseProviderImpl(apiUrlProvider);
 
-    HubTopology.buildHubApiTopology(injector.getInstance(EntityFactory.class));
     var account1 = buildAccount("Testing");
-    access = HubAccess.create(ImmutableList.of(account1), "User,Artist");
+    access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(account1), "User,Artist");
     library25 = buildLibrary(account1, "Test 25");
     library1 = buildLibrary(account1, "Test 1");
-    subject = injector.getInstance(InstrumentEndpoint.class);
-    injector.injectMembers(subject);
+    subject = new InstrumentEndpoint(instrumentManager, instrumentMemeManager, sqlStoreProvider, responseProvider, payloadFactory, entityFactory);
   }
 
   @Test
   public void readMany() throws ManagerException, IOException, JsonapiException {
-    when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
+    when(req.getAttribute(CONTEXT_KEY)).thenReturn(access);
     Instrument instrument1 = new Instrument();
     instrument1.setId(UUID.randomUUID());
     instrument1.setLibraryId(library25.getId());
@@ -106,18 +101,18 @@ public class InstrumentEndpointTest {
     when(instrumentManager.readMany(same(access), eq(ImmutableList.of(library25.getId()))))
       .thenReturn(instruments);
 
-    Response result = subject.readMany(crc, null, library25.getId(), false);
+    var result = subject.readMany(req, res, null, library25.getId(), false);
 
     verify(instrumentManager).readMany(same(access), eq(ImmutableList.of(library25.getId())));
-    assertEquals(200, result.getStatus());
-    assertTrue(result.hasEntity());
-    assertPayload(new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class))
+    assertEquals(HttpStatus.OK, result.getStatusCode());
+    assertTrue(result.hasBody());
+    assertPayload(result.getBody())
       .hasDataMany("instruments", ImmutableList.of(instrument1.getId().toString(), instrument2.getId().toString()));
   }
 
   @Test
   public void readOne() throws ManagerException, IOException, JsonapiException {
-    when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
+    when(req.getAttribute(CONTEXT_KEY)).thenReturn(access);
     Instrument instrument1 = new Instrument();
     instrument1.setId(UUID.randomUUID());
     instrument1.setLibraryId(library1.getId());
@@ -127,31 +122,31 @@ public class InstrumentEndpointTest {
     instrument1.setDensity(0.6f);
     when(instrumentManager.readOne(same(access), eq(instrument1.getId()))).thenReturn(instrument1);
 
-    Response result = subject.readOne(crc, instrument1.getId(), "");
+    var result = subject.readOne(req, res, instrument1.getId(), "");
 
-    assertEquals(200, result.getStatus());
-    assertTrue(result.hasEntity());
-    JsonapiPayload resultJsonapiPayload = new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class);
+    assertEquals(HttpStatus.OK, result.getStatusCode());
+    assertTrue(result.hasBody());
+    JsonapiPayload resultJsonapiPayload = result.getBody();
     assertPayload(resultJsonapiPayload)
       .hasDataOne("instruments", instrument1.getId().toString());
   }
 
   /**
-   Lab UI should load memes when directly visiting an instrument https://www.pivotaltracker.com/story/show/181129203
+   * Lab UI should load memes when directly visiting an instrument https://www.pivotaltracker.com/story/show/181129203
    */
   @Test
   public void readOne_includingMemes() throws ManagerException, IOException, JsonapiException {
-    when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
+    when(req.getAttribute(CONTEXT_KEY)).thenReturn(access);
     var instrument1 = buildInstrument(library1, InstrumentType.Drum, InstrumentMode.Event, InstrumentState.Published, "test");
     var instrumentMeme1 = buildInstrumentMeme(instrument1, "RED");
     when(instrumentManager.readOne(same(access), eq(instrument1.getId()))).thenReturn(instrument1);
     when(instrumentManager.readChildEntities(same(access), eq(List.of(instrument1.getId())), eq(List.of("instrument-meme")))).thenReturn(List.of(instrumentMeme1));
 
-    Response result = subject.readOne(crc, instrument1.getId(), "instrument-meme");
+    var result = subject.readOne(req, res, instrument1.getId(), "instrument-meme");
 
-    assertEquals(200, result.getStatus());
-    assertTrue(result.hasEntity());
-    JsonapiPayload resultJsonapiPayload = new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class);
+    assertEquals(HttpStatus.OK, result.getStatusCode());
+    assertTrue(result.hasBody());
+    JsonapiPayload resultJsonapiPayload = result.getBody();
     assertPayload(resultJsonapiPayload).hasDataOne("instruments", instrument1.getId().toString());
     assertPayload(resultJsonapiPayload).hasIncluded("instrument-memes", List.of(instrumentMeme1));
   }

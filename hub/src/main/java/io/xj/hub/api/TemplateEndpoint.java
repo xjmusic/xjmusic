@@ -2,94 +2,89 @@
 package io.xj.hub.api;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.kubernetes.KubernetesAdmin;
 import io.xj.hub.manager.ManagerCloner;
 import io.xj.hub.manager.ManagerException;
 import io.xj.hub.manager.TemplateManager;
-import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.*;
 import io.xj.lib.util.CSV;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
 import javax.annotation.Nullable;
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 /**
- Templates
+ * Templates
  */
 @Path("api/1/templates")
-public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
+public class TemplateEndpoint extends HubJsonapiEndpoint {
   private static final Logger LOG = LoggerFactory.getLogger(TemplateEndpoint.class);
-  private final KubernetesAdmin kubernetesAdministrator;
   private final TemplateManager manager;
 
   /**
-   Constructor
+   * Constructor
    */
-  @Inject
   public TemplateEndpoint(
     EntityFactory entityFactory,
-    HubDatabaseProvider dbProvider,
-    JsonapiHttpResponseProvider response,
+    HubSqlStoreProvider sqlStoreProvider,
+    JsonapiResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
-    KubernetesAdmin kubernetesAdministrator,
     TemplateManager templateManager
   ) {
-    super(dbProvider, response, payloadFactory, entityFactory);
+    super(sqlStoreProvider, response, payloadFactory, entityFactory);
     this.manager = templateManager;
-    this.kubernetesAdministrator = kubernetesAdministrator;
   }
 
   /**
-   Get all templates.
-
-   @return application/json response.
+   * Get all templates.
+   *
+   * @return application/json response.
    */
   @GET
   @RolesAllowed(USER)
-  public Response readMany(
-    @Context ContainerRequestContext crc,
+  public ResponseEntity<JsonapiPayload> readMany(
+    HttpServletRequest req, HttpServletResponse res,
     @Nullable @QueryParam("accountId") UUID accountId
   ) {
     if (Objects.nonNull(accountId))
-      return readMany(crc, manager(), accountId);
+      return readMany(req, manager(), accountId);
     else
-      return readMany(crc, manager(), HubAccess.fromContext(crc).getAccountIds());
+      return readMany(req, manager(), HubAccess.fromRequest(req).getAccountIds());
   }
 
   /**
-   Create new template
-   <p>
-   Or, clone sub-entities of template https://www.pivotaltracker.com/story/show/180269382
-
-   @param jsonapiPayload with which to update Template record.
-   @return Response
+   * Create new template
+   * <p>
+   * Or, clone sub-entities of template https://www.pivotaltracker.com/story/show/180269382
+   *
+   * @param jsonapiPayload with which to update Template record.
+   * @return ResponseEntity
    */
   @POST
-  @Consumes(MediaType.APPLICATION_JSONAPI)
+  @Consumes(MediaType.APPLICATION_JSON_VALUE)
   @RolesAllowed(ARTIST)
-  public Response create(
+  public ResponseEntity<JsonapiPayload> create(
     JsonapiPayload jsonapiPayload,
-    @Context ContainerRequestContext crc,
+    HttpServletRequest req, HttpServletResponse res,
     @Nullable @QueryParam("cloneId") UUID cloneId
   ) {
 
     try {
-      HubAccess access = HubAccess.fromContext(crc);
+      HubAccess access = HubAccess.fromRequest(req);
       Template template = payloadFactory.consume(manager().newInstance(), jsonapiPayload);
       JsonapiPayload responseJsonapiPayload = new JsonapiPayload();
       if (Objects.nonNull(cloneId)) {
@@ -105,27 +100,27 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
         responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(manager().create(access, template)));
       }
 
-      return response.create(responseJsonapiPayload);
+      return responseProvider.create(responseJsonapiPayload);
 
     } catch (Exception e) {
-      return response.notAcceptable(e);
+      return responseProvider.notAcceptable(e);
     }
   }
 
   /**
-   Get one template.
-
-   @return application/json response.
+   * Get one template.
+   *
+   * @return application/json response.
    */
   @GET
   @Path("{identifier}")
   @RolesAllowed(USER)
-  public Response readOne(
-    @Context ContainerRequestContext crc,
+  public ResponseEntity<JsonapiPayload> readOne(
+    HttpServletRequest req, HttpServletResponse res,
     @PathParam("identifier") String identifier,
     @Nullable @QueryParam("include") String include
   ) {
-    var access = HubAccess.fromContext(crc);
+    var access = HubAccess.fromRequest(req);
 
     @Nullable UUID uuid;
     try {
@@ -151,86 +146,86 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
         jsonapiPayload.setIncluded(list);
       }
 
-      return response.ok(jsonapiPayload);
+      return responseProvider.ok(jsonapiPayload);
 
     } catch (ManagerException ignored) {
-      return response.notFound(manager.newInstance().getClass(), identifier);
+      return responseProvider.notFound(manager.newInstance().getClass(), identifier);
 
     } catch (Exception e) {
-      return response.failure(e);
+      return responseProvider.failure(e);
     }
   }
 
   /**
-   Read logs for a preview template.
-
-   @return text/plain response.
+   * Read logs for a preview template.
+   *
+   * @return text/plain response.
    */
   @GET
   @Path("{id}/log")
   @RolesAllowed(USER)
-  public Response readLog(
-    @Context ContainerRequestContext crc,
+  public ResponseEntity<String> readLog(
+    HttpServletRequest req, HttpServletResponse res,
     @PathParam("id") UUID templateId
   ) {
-    var access = HubAccess.fromContext(crc);
+    var access = HubAccess.fromRequest(req);
 
     try {
-      return Response
-        .ok(manager.readPreviewNexusLog(access, templateId))
-        .type(javax.ws.rs.core.MediaType.TEXT_PLAIN_TYPE)
-        .build();
+      return ResponseEntity
+        .ok()
+        .contentType(MediaType.TEXT_PLAIN)
+        .body(manager.readPreviewNexusLog(access, templateId));
 
     } catch (Exception e) {
       LOG.error("Failed to read nexus preview log!", e);
-      return response.failure(e);
+      return responseProvider.failureText(e);
     }
   }
 
   /**
-   Update one template
-
-   @param jsonapiPayload with which to update Template record.
-   @return Response
+   * Update one template
+   *
+   * @param jsonapiPayload with which to update Template record.
+   * @return ResponseEntity
    */
   @PATCH
   @Path("{id}")
-  @Consumes(MediaType.APPLICATION_JSONAPI)
+  @Consumes(MediaType.APPLICATION_JSON_VALUE)
   @RolesAllowed({ADMIN, ENGINEER})
-  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") UUID id) {
-    return update(crc, manager(), id, jsonapiPayload);
+  public ResponseEntity<JsonapiPayload> update(JsonapiPayload jsonapiPayload, HttpServletRequest req, @PathParam("id") UUID id) {
+    return update(req, manager(), id, jsonapiPayload);
   }
 
   /**
-   Delete one template
-
-   @return Response
+   * Delete one template
+   *
+   * @return ResponseEntity
    */
   @DELETE
   @Path("{id}")
   @RolesAllowed({ADMIN, ENGINEER})
-  public Response delete(@Context ContainerRequestContext crc, @PathParam("id") UUID id) {
-    return delete(crc, manager(), id);
+  public ResponseEntity<JsonapiPayload> delete(HttpServletRequest req, @PathParam("id") UUID id) {
+    return delete(req, manager(), id);
   }
 
   /**
-   Get all template playbacks.
-
-   Preview template functionality is dope (not wack)
-   Specify a userId query param to get just one preview template for that user, if it exists
-   https://www.pivotaltracker.com/story/show/183576743
-
-   @return set of all template playbacks, or one preview template
+   * Get all template playbacks.
+   * <p>
+   * Preview template functionality is dope (not wack)
+   * Specify a userId query param to get just one preview template for that user, if it exists
+   * https://www.pivotaltracker.com/story/show/183576743
+   *
+   * @return set of all template playbacks, or one preview template
    */
   @GET
   @Path("playing")
   @RolesAllowed(USER)
-  public Response readAllPlaying(
-    @Context ContainerRequestContext crc,
+  public ResponseEntity<JsonapiPayload> readAllPlaying(
+    HttpServletRequest req, HttpServletResponse res,
     @Nullable @QueryParam("userId") UUID userId
   ) {
     try {
-      HubAccess access = HubAccess.fromContext(crc);
+      HubAccess access = HubAccess.fromRequest(req);
 
       JsonapiPayload jsonapiPayload;
       if (Objects.nonNull(userId)) {
@@ -244,17 +239,17 @@ public class TemplateEndpoint extends HubJsonapiEndpoint<Template> {
         for (var template : manager().readAllPlaying(access))
           jsonapiPayload.addData(payloadFactory.toPayloadObject(template));
       }
-      return response.ok(jsonapiPayload);
+      return responseProvider.ok(jsonapiPayload);
 
     } catch (Exception e) {
-      return response.failure(e);
+      return responseProvider.failure(e);
     }
   }
 
   /**
-   Get Manager of injector
-
-   @return Manager
+   * Get Manager of injector
+   *
+   * @return Manager
    */
   private TemplateManager manager() {
     return manager;

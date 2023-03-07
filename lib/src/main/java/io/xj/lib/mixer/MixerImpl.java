@@ -3,11 +3,13 @@ package io.xj.lib.mixer;
 
 import com.google.api.client.util.Lists;
 import com.google.common.collect.Maps;
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
+
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
@@ -66,8 +68,7 @@ class MixerImpl implements Mixer {
    @param mixerFactory factory to of new mixer
    @throws MixerException on failure
    */
-  @Inject
-  public MixerImpl(@Assisted("mixerConfig") MixerConfig mixerConfig, MixerFactory mixerFactory, EnvelopeProvider envelopeProvider) throws MixerException {
+  public MixerImpl( MixerConfig mixerConfig, MixerFactory mixerFactory, EnvelopeProvider envelopeProvider) throws MixerException {
     config = mixerConfig;
     factory = mixerFactory;
     envelope = envelopeProvider;
@@ -301,7 +302,7 @@ class MixerImpl implements Mixer {
   /**
    apply compressor to mixing buffer
    <p>
-   https://www.pivotaltracker.com/story/show/154112129 lookahead-attack compressor compresses entire buffer towards target amplitude
+   lookahead-attack compressor compresses entire buffer towards target amplitude https://www.pivotaltracker.com/story/show/154112129
    <p>
    only each major cycle, compute the new target compression ratio,
    but modify the compression ratio *every* frame for max smoothness
@@ -327,7 +328,7 @@ class MixerImpl implements Mixer {
   }
 
   /*
-   https://www.pivotaltracker.com/story/show/161670248 Engineer wants high-pass and low-pass filters with gradual thresholds, in order to be optimally heard but not listened to.
+   Engineer wants high-pass and low-pass filters with gradual thresholds, in order to be optimally heard but not listened to. https://www.pivotaltracker.com/story/show/161670248
    The lowpass filter ensures there are no screeching extra-high tones in the mix.
    The highpass filter ensures there are no distorting ultra-low tones in the mix.
    *
@@ -348,7 +349,7 @@ class MixerImpl implements Mixer {
    NO NORMALIZATION! See https://www.pivotaltracker.com/story/show/179257872
    <p>
    Previously: apply normalization to mixing buffer
-   https://www.pivotaltracker.com/story/show/154112129 normalize final buffer to normalization threshold
+   normalize final buffer to normalization threshold https://www.pivotaltracker.com/story/show/154112129
    */
   @SuppressWarnings("unused")
   private void applyNormalization() {
@@ -359,7 +360,7 @@ class MixerImpl implements Mixer {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/154112129 lookahead-attack compressor compresses entire buffer towards target amplitude
+   lookahead-attack compressor compresses entire buffer towards target amplitude https://www.pivotaltracker.com/story/show/154112129
 
    @return target amplitude
    */

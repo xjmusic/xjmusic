@@ -2,7 +2,6 @@
 
 package io.xj.nexus.persistence;
 
-import com.google.inject.Inject;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.util.Values;
 
@@ -10,7 +9,6 @@ public abstract class ManagerImpl<E> implements Manager<E> {
   protected final EntityFactory entityFactory;
   protected final NexusEntityStore store;
 
-  @Inject
   public ManagerImpl(
     EntityFactory entityFactory,
     NexusEntityStore nexusEntityStore

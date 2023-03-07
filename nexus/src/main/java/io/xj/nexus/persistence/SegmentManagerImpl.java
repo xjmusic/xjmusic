@@ -1,11 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.persistence;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import io.xj.nexus.model.*;
+import io.xj.hub.client.HubClientAccess;
 import io.xj.hub.enums.ProgramType;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.ChordEntity;
@@ -15,39 +12,52 @@ import io.xj.lib.util.Text;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
-import io.xj.hub.client.HubClientAccess;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangement;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.model.SegmentChord;
+import io.xj.nexus.model.SegmentChordVoicing;
+import io.xj.nexus.model.SegmentMeme;
+import io.xj.nexus.model.SegmentMessage;
+import io.xj.nexus.model.SegmentMeta;
+import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.model.SegmentType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 /**
- Nexus Managers are Singletons unless some other requirement changes that-- 'cuz here be cyclic dependencies...
+ * Nexus Managers are Singletons unless some other requirement changes that-- 'cuz here be cyclic dependencies...
  */
-@Singleton
+@Service
 public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentManager {
   public static final Double LENGTH_MINIMUM = 0.01; //
   public static final Double AMPLITUDE_MINIMUM = 0.0; //
-  private final ChainManager chainManager;
 
-  @Inject
+  @Autowired
   public SegmentManagerImpl(
     EntityFactory entityFactory,
-    NexusEntityStore nexusEntityStore,
-    ChainManager chainManager
+    NexusEntityStore nexusEntityStore
   ) {
     super(entityFactory, nexusEntityStore);
-    this.chainManager = chainManager;
-
   }
 
   /**
-   Require state is in an array of states
-
-   @param toState       to check
-   @param allowedStates required to be in
-   @throws ValueException if not in required states
+   * Require state is in an array of states
+   *
+   * @param toState       to check
+   * @param allowedStates required to be in
+   * @throws ValueException if not in required states
    */
   public static void onlyAllowSegmentStateTransitions(SegmentState toState, SegmentState... allowedStates) throws ValueException {
     List<String> allowedStateNames = Lists.newArrayList();
@@ -62,18 +72,20 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   /**
-   Segment state transitions are protected, dependent on the state this segment is being transitioned of, and the intended state it is being transitioned to.
-
-   @param fromState to protect transition of
-   @param toState   to test transition to
-   @throws ValueException on prohibited transition
+   * Segment state transitions are protected, dependent on the state this segment is being transitioned of, and the intended state it is being transitioned to.
+   *
+   * @param fromState to protect transition of
+   * @param toState   to test transition to
+   * @throws ValueException on prohibited transition
    */
   public static void protectSegmentStateTransition(SegmentState fromState, SegmentState toState) throws ValueException {
     switch (fromState) {
       case PLANNED -> onlyAllowSegmentStateTransitions(toState, SegmentState.PLANNED, SegmentState.CRAFTING);
-      case CRAFTING -> onlyAllowSegmentStateTransitions(toState, SegmentState.CRAFTING, SegmentState.CRAFTED, SegmentState.DUBBING, SegmentState.FAILED, SegmentState.PLANNED);
+      case CRAFTING ->
+        onlyAllowSegmentStateTransitions(toState, SegmentState.CRAFTING, SegmentState.CRAFTED, SegmentState.DUBBING, SegmentState.FAILED, SegmentState.PLANNED);
       case CRAFTED -> onlyAllowSegmentStateTransitions(toState, SegmentState.CRAFTED, SegmentState.DUBBING);
-      case DUBBING -> onlyAllowSegmentStateTransitions(toState, SegmentState.DUBBING, SegmentState.DUBBED, SegmentState.FAILED);
+      case DUBBING ->
+        onlyAllowSegmentStateTransitions(toState, SegmentState.DUBBING, SegmentState.DUBBED, SegmentState.FAILED);
       case DUBBED -> onlyAllowSegmentStateTransitions(toState, SegmentState.DUBBED);
       case FAILED -> onlyAllowSegmentStateTransitions(toState, SegmentState.FAILED);
       default -> onlyAllowSegmentStateTransitions(toState, SegmentState.PLANNED);
@@ -165,20 +177,6 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   @Override
-  public Collection<Segment> readManyByShipKey(String shipKey) throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException {
-    try {
-      var chainId = chainManager.readOneByShipKey(shipKey).getId();
-      return store.getAllSegments(chainId)
-        .stream()
-        .sorted(Comparator.comparing(Segment::getOffset).reversed())
-        .collect(Collectors.toList());
-
-    } catch (NexusException e) {
-      throw new ManagerFatalException(e);
-    }
-  }
-
-  @Override
   public <N> Collection<N> readManySubEntities(Collection<UUID> segmentIds, Boolean includePicks) throws ManagerFatalException {
     try {
       Collection<Object> entities = Lists.newArrayList();
@@ -244,34 +242,6 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   @Override
-  public Collection<Segment> readManyFromSecondsUTC(HubClientAccess access, UUID chainId, Long fromSecondsUTC) throws ManagerFatalException {
-    try {
-      Instant from = Instant.ofEpochSecond(fromSecondsUTC);
-      var templateConfig = chainManager.getTemplateConfig(chainId);
-      Instant maxBeginAt = from.plusSeconds(templateConfig.getBufferAheadSeconds());
-      Instant minEndAt = from.minusSeconds(templateConfig.getBufferBeforeSeconds());
-      return store.getAllSegments(chainId)
-        .stream()
-        .filter(s -> Values.isSet(s.getEndAt()) &&
-          maxBeginAt.isAfter(Instant.parse(s.getBeginAt())) &&
-          !Strings.isNullOrEmpty(s.getEndAt()) &&
-          minEndAt.isBefore(Instant.parse(s.getEndAt())))
-        .sorted(Comparator.comparing(Segment::getOffset))
-        .collect(Collectors.toList());
-
-    } catch (NexusException | ManagerExistenceException | ManagerPrivilegeException | ValueException e) {
-      throw new ManagerFatalException(e);
-    }
-  }
-
-  @Override
-  public Collection<Segment> readManyFromSecondsUTCbyShipKey(HubClientAccess access, String shipKey, Long fromSecondsUTC) throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException {
-    return readManyFromSecondsUTC(access,
-      chainManager.readOneByShipKey(shipKey).getId(),
-      fromSecondsUTC);
-  }
-
-  @Override
   public Segment update(UUID id, Segment entity) throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException, ManagerValidationException {
     try {
       // validate and cache to-state
@@ -303,27 +273,6 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
 
     } catch (ValueException e) {
       throw new ManagerValidationException(e);
-    }
-  }
-
-  @Override
-  public void revert(HubClientAccess access, UUID id) throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException, ManagerValidationException {
-    try {
-      Segment segment = readOne(id);
-
-      // Destroy child entities of segment-- but not the messages
-      store.deleteAll(id, SegmentChoice.class);
-      store.deleteAll(id, SegmentChoiceArrangement.class);
-      store.deleteAll(id, SegmentChoiceArrangementPick.class);
-      store.deleteAll(id, SegmentChord.class);
-      store.deleteAll(id, SegmentMeme.class);
-      store.deleteAll(id, SegmentMessage.class);
-      store.deleteAll(id, SegmentMeta.class);
-
-      update(id, segment);
-
-    } catch (NexusException e) {
-      throw new ManagerFatalException(e);
     }
   }
 
@@ -380,10 +329,10 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   /**
-   Validate a segment or child entity
-
-   @param entity to validate
-   @throws ManagerValidationException if invalid
+   * Validate a segment or child entity
+   *
+   * @param entity to validate
+   * @throws ManagerValidationException if invalid
    */
   public void validate(Object entity) throws ManagerValidationException {
     try {
@@ -474,7 +423,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
 
 
   /**
-   Require the given runnable throws an exception.@param mustThrowException when run, this must throw an exception
+   * Require the given runnable throws an exception.@param mustThrowException when run, this must throw an exception
    */
   protected void requireNotSameOffsetInChain(Callable<?> mustThrowException) throws ManagerValidationException {
     try {

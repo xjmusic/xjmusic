@@ -5,7 +5,8 @@ services:
   postgres:
     container_name: postgres01xj1
     image: postgres:13
-    network_mode: host
+    ports:
+      - 5432:5432
     volumes:
       - /var/lib/postgresql/data
     environment:
@@ -15,7 +16,8 @@ services:
 
   redis:
     container_name: redis01xj1
-    network_mode: host
     image: redis:3.0.7
+    ports:
+      - 6379:6379
     restart: always
 

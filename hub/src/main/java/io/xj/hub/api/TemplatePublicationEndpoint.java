@@ -2,40 +2,39 @@
 package io.xj.hub.api;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
+import io.xj.hub.ingest.HubIngestFactory;
 import io.xj.hub.manager.TemplateManager;
 import io.xj.hub.manager.TemplatePublicationManager;
-import io.xj.hub.ingest.HubIngestFactory;
-import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplatePublication;
-import io.xj.lib.app.Environment;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreProvider;
-import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
+import io.xj.lib.json.JsonProvider;
+import io.xj.lib.jsonapi.JsonapiResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.PayloadDataType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
 import java.util.UUID;
 
-import static io.xj.lib.jsonapi.MediaType.APPLICATION_JSONAPI;
-
 /**
- TemplatePublications
+ * TemplatePublications
  */
 @Path("api/1")
-public class TemplatePublicationEndpoint extends HubJsonapiEndpoint<TemplatePublication> {
+public class TemplatePublicationEndpoint extends HubJsonapiEndpoint {
   private final Logger LOG = LoggerFactory.getLogger(TemplatePublicationEndpoint.class);
   private final FileStoreProvider fileStoreProvider;
   private final TemplateManager templateManager;
@@ -43,23 +42,23 @@ public class TemplatePublicationEndpoint extends HubJsonapiEndpoint<TemplatePubl
   private final HubIngestFactory ingestFactory;
   private final int templatePublicationCacheExpireSeconds;
   private final String audioBucket;
+  private final JsonProvider jsonProvider;
 
   /**
-   Constructor
+   * Constructor
    */
-  @Inject
   public TemplatePublicationEndpoint(
     EntityFactory entityFactory,
-    Environment env,
+    AppEnvironment env,
     FileStoreProvider fileStoreProvider,
-    HubDatabaseProvider dbProvider,
+    HubSqlStoreProvider sqlStoreProvider,
     HubIngestFactory ingestFactory,
-    JsonapiHttpResponseProvider response,
+    JsonapiResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
     TemplateManager templateManager,
-    TemplatePublicationManager manager
-  ) {
-    super(dbProvider, response, payloadFactory, entityFactory);
+    TemplatePublicationManager manager,
+    JsonProvider jsonProvider) {
+    super(sqlStoreProvider, response, payloadFactory, entityFactory);
 
     templatePublicationCacheExpireSeconds = env.getTemplatePublicationCacheExpireSeconds();
     audioBucket = env.getAudioFileBucket();
@@ -68,23 +67,24 @@ public class TemplatePublicationEndpoint extends HubJsonapiEndpoint<TemplatePubl
     this.fileStoreProvider = fileStoreProvider;
     this.ingestFactory = ingestFactory;
     this.templateManager = templateManager;
+    this.jsonProvider = jsonProvider;
   }
 
   /**
-   Get all templatePublications.
-
-   @param templateId to get templatePublications for
-   @return set of all templatePublications
+   * Get all templatePublications.
+   *
+   * @param templateId to get templatePublications for
+   * @return set of all templatePublications
    */
   @GET
   @Path("templates/{templateId}/publication")
   @RolesAllowed(ARTIST)
-  public Response readManyForTemplate(
-    @Context ContainerRequestContext crc,
+  public ResponseEntity<JsonapiPayload> readManyForTemplate(
+    HttpServletRequest req, HttpServletResponse res,
     @PathParam("templateId") String templateId
   ) {
     try {
-      HubAccess access = HubAccess.fromContext(crc);
+      HubAccess access = HubAccess.fromRequest(req);
       JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataType(PayloadDataType.Many);
       Collection<TemplatePublication> templatePublications;
 
@@ -95,51 +95,52 @@ public class TemplatePublicationEndpoint extends HubJsonapiEndpoint<TemplatePubl
       for (TemplatePublication templatePublication : templatePublications)
         jsonapiPayload.addData(payloadFactory.toPayloadObject(templatePublication));
 
-      return response.ok(jsonapiPayload);
+      return responseProvider.ok(jsonapiPayload);
 
     } catch (Exception e) {
-      return response.failure(e);
+      return responseProvider.failure(e);
     }
   }
 
   /**
-   Create new templatePublication
-
-   @param jsonapiPayload with which to update TemplatePublication record.
-   @return Response
+   * Create new templatePublication
+   *
+   * @param jsonapiPayload with which to update TemplatePublication record.
+   * @return ResponseEntity
    */
   @POST
   @Path("template-publications")
-  @Consumes(APPLICATION_JSONAPI)
+  @Consumes(MediaType.APPLICATION_JSON_VALUE)
   @RolesAllowed(ARTIST)
-  public Response create(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc) {
+  public ResponseEntity<JsonapiPayload> create(JsonapiPayload jsonapiPayload, HttpServletRequest req, HttpServletResponse res) {
     try {
-      var access = HubAccess.fromContext(crc);
+      var access = HubAccess.fromRequest(req);
       TemplatePublication templatePublication = payloadFactory.consume(manager().newInstance(), jsonapiPayload);
       Template template = templateManager.readOne(access, templatePublication.getTemplateId());
       String publicationKey = String.format("%s.%s", template.getShipKey(), FileStoreProvider.EXTENSION_JSON);
-      String content = ingestFactory.ingest(access, templatePublication.getTemplateId()).toJSON();
+      var payload = ingestFactory.ingest(access, templatePublication.getTemplateId()).toContentPayload();
+      String content = jsonProvider.getMapper().writeValueAsString(payload);
 
       LOG.debug("Will upload {} bytes to s3://{}/{}", content.length(), audioBucket, publicationKey);
-      fileStoreProvider.putS3ObjectFromString(content, audioBucket, publicationKey, APPLICATION_JSONAPI, templatePublicationCacheExpireSeconds);
+      fileStoreProvider.putS3ObjectFromString(content, audioBucket, publicationKey, MediaType.APPLICATION_JSON_VALUE, templatePublicationCacheExpireSeconds);
       LOG.info("Did upload {} bytes to s3://{}/{}", content.length(), audioBucket, publicationKey);
 
       TemplatePublication created = manager().create(
-        HubAccess.fromContext(crc),
+        HubAccess.fromRequest(req),
         templatePublication);
 
-      return response.create(new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(created)));
+      return responseProvider.create(new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(created)));
 
     } catch (Exception e) {
       LOG.error("Failed to publish!", e);
-      return response.notAcceptable(e);
+      return responseProvider.notAcceptable(e);
     }
   }
 
   /**
-   Get Manager of injector
-
-   @return Manager
+   * Get Manager of injector
+   *
+   * @return Manager
    */
   private TemplatePublicationManager manager() {
     return manager;

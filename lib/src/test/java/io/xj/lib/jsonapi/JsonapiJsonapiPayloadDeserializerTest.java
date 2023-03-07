@@ -3,8 +3,9 @@ package io.xj.lib.jsonapi;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharStreams;
-import com.google.inject.Guice;
 import io.xj.lib.Widget;
+import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.json.JsonProviderImpl;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,17 +20,18 @@ import java.util.UUID;
 import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
 
 /**
- Payload deserializer test
- <p>
- Created by Charney Kaye on 2020/03/09
+ * Payload deserializer test
+ * <p>
+ * Created by Charney Kaye on 2020/03/09
  */
 public class JsonapiJsonapiPayloadDeserializerTest {
   private JsonapiPayloadFactory jsonapiPayloadFactory;
 
   @Before
   public void setUp() {
-    var injector = Guice.createInjector(new JsonapiModule());
-    jsonapiPayloadFactory = injector.getInstance(JsonapiPayloadFactory.class);
+    var jsonProvider = new JsonProviderImpl();
+    var entityFactory = new EntityFactoryImpl(jsonProvider);
+    jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
   }
 
   @Test
@@ -139,11 +141,11 @@ public class JsonapiJsonapiPayloadDeserializerTest {
   }
 
   /**
-   Read a file as a string of java resources
-
-   @param filePath to get and read as string
-   @return contents of file
-   @throws FileNotFoundException if resource does not exist
+   * Read a file as a string of java resources
+   *
+   * @param filePath to get and read as string
+   * @return contents of file
+   * @throws FileNotFoundException if resource does not exist
    */
   private String readResourceFile(String filePath) throws IOException {
     File file = resourceFile(filePath);
@@ -155,11 +157,11 @@ public class JsonapiJsonapiPayloadDeserializerTest {
   }
 
   /**
-   get a file of java resources
-
-   @param filePath to get
-   @return File
-   @throws FileNotFoundException if resource does not exist
+   * get a file of java resources
+   *
+   * @param filePath to get
+   * @return File
+   * @throws FileNotFoundException if resource does not exist
    */
   private File resourceFile(String filePath) throws FileNotFoundException {
     ClassLoader classLoader = JsonapiJsonapiPayloadDeserializerTest.class.getClassLoader();

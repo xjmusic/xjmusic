@@ -1,13 +1,13 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.persistence;
 
-import io.xj.nexus.model.Chain;
-import io.xj.nexus.model.ChainState;
-import io.xj.nexus.model.Segment;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.TemplateType;
 import io.xj.lib.util.ValueException;
 import io.xj.nexus.NexusException;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.Segment;
 
 import java.time.Instant;
 import java.util.Collection;
@@ -28,7 +28,7 @@ public interface ChainManager extends Manager<Chain> {
   Collection<Chain> readManyInState(ChainState state) throws ManagerFatalException, ManagerPrivilegeException;
 
   /**
-   https://www.pivotaltracker.com/story/show/176285826 Nexus bootstraps Chains from JSON file on startup
+   Nexus bootstraps Chains from JSON file on startup https://www.pivotaltracker.com/story/show/176285826
 
    @param type  of template
    @param chain to bootstrap
@@ -43,7 +43,7 @@ public interface ChainManager extends Manager<Chain> {
   ) throws ManagerFatalException, ManagerPrivilegeException, ManagerValidationException, ManagerExistenceException;
 
   /**
-   https://www.pivotaltracker.com/story/show/150279540 Unauthenticated or specifically-authenticated public Client wants to access a Chain by ship key (as alias for chain id) in order to provide data for playback.
+   Unauthenticated or specifically-authenticated public Client wants to access a Chain by ship key (as alias for chain id) in order to provide data for playback. https://www.pivotaltracker.com/story/show/150279540
 
    @param shipKey of record to fetch
    @return retrieved record

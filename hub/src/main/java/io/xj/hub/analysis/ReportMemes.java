@@ -5,19 +5,19 @@ import com.google.api.client.util.Sets;
 import io.xj.hub.client.HubContent;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Program;
-import io.xj.lib.app.Environment;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.util.Text;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- Template content Analysis https://www.pivotaltracker.com/story/show/161199945
+ * Template content Analysis https://www.pivotaltracker.com/story/show/161199945
  */
 public class ReportMemes extends Report {
   private final MemeHistogram memes;
 
-  public ReportMemes(HubContent content, Environment env) {
+  public ReportMemes(HubContent content, AppEnvironment env) {
     super(content, env);
 
     memes = new MemeHistogram();
@@ -60,7 +60,7 @@ public class ReportMemes extends Report {
   }
 
   /**
-   Representation of the construction of a histogram of usage of all memes
+   * Representation of the construction of a histogram of usage of all memes
    */
   private static class MemeHistogram {
     Map<String, MemeCount> histogram;
@@ -83,7 +83,7 @@ public class ReportMemes extends Report {
   }
 
   /**
-   Representation of the count of usages for one meme
+   * Representation of the count of usages for one meme
    */
   private static class MemeCount {
     Set<UUID> programIds;

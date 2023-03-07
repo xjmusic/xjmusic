@@ -1,9 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.manager;
 
-import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.lib.entity.EntityFactory;
@@ -11,6 +10,7 @@ import io.xj.lib.entity.common.EventEntity;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -18,14 +18,14 @@ import java.util.UUID;
 
 import static io.xj.hub.Tables.PROGRAM_SEQUENCE_PATTERN_EVENT;
 
-public class ProgramSequencePatternEventManagerImpl extends HubPersistenceServiceImpl<ProgramSequencePatternEvent> implements ProgramSequencePatternEventManager {
+@Service
+public class ProgramSequencePatternEventManagerImpl extends HubPersistenceServiceImpl implements ProgramSequencePatternEventManager {
 
-  @Inject
   public ProgramSequencePatternEventManagerImpl(
     EntityFactory entityFactory,
-    HubDatabaseProvider dbProvider
+    HubSqlStoreProvider sqlStoreProvider
   ) {
-    super(entityFactory, dbProvider);
+    super(entityFactory, sqlStoreProvider);
   }
 
   @Override
@@ -33,7 +33,7 @@ public class ProgramSequencePatternEventManagerImpl extends HubPersistenceServic
     var record = validate(entity);
     requireArtist(access);
     return modelFrom(ProgramSequencePatternEvent.class,
-      executeCreate(dbProvider.getDSL(), PROGRAM_SEQUENCE_PATTERN_EVENT, record));
+      executeCreate(sqlStoreProvider.getDSL(), PROGRAM_SEQUENCE_PATTERN_EVENT, record));
 
   }
 
@@ -42,7 +42,7 @@ public class ProgramSequencePatternEventManagerImpl extends HubPersistenceServic
   public ProgramSequencePatternEvent readOne(HubAccess access, UUID id) throws ManagerException {
     requireArtist(access);
     return modelFrom(ProgramSequencePatternEvent.class,
-      dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_PATTERN_EVENT)
+      sqlStoreProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_PATTERN_EVENT)
         .where(PROGRAM_SEQUENCE_PATTERN_EVENT.ID.eq(id))
         .fetchOne());
   }
@@ -52,7 +52,7 @@ public class ProgramSequencePatternEventManagerImpl extends HubPersistenceServic
   public Collection<ProgramSequencePatternEvent> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
     requireArtist(access);
     return modelsFrom(ProgramSequencePatternEvent.class,
-      dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_PATTERN_EVENT)
+      sqlStoreProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_PATTERN_EVENT)
         .where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_SEQUENCE_PATTERN_ID.in(parentIds))
         .fetch());
   }
@@ -61,14 +61,14 @@ public class ProgramSequencePatternEventManagerImpl extends HubPersistenceServic
   public ProgramSequencePatternEvent update(HubAccess access, UUID id, ProgramSequencePatternEvent entity) throws ManagerException, JsonapiException, ValueException {
     var record = validate(entity);
     requireArtist(access);
-    executeUpdate(dbProvider.getDSL(), PROGRAM_SEQUENCE_PATTERN_EVENT, id, record);
+    executeUpdate(sqlStoreProvider.getDSL(), PROGRAM_SEQUENCE_PATTERN_EVENT, id, record);
     return record;
   }
 
   @Override
   public void destroy(HubAccess access, UUID id) throws ManagerException {
     requireArtist(access);
-    dbProvider.getDSL().deleteFrom(PROGRAM_SEQUENCE_PATTERN_EVENT)
+    sqlStoreProvider.getDSL().deleteFrom(PROGRAM_SEQUENCE_PATTERN_EVENT)
       .where(PROGRAM_SEQUENCE_PATTERN_EVENT.ID.eq(id))
       .execute();
   }
@@ -79,10 +79,10 @@ public class ProgramSequencePatternEventManagerImpl extends HubPersistenceServic
   }
 
   /**
-   Validate data
-
-   @param builder to validate
-   @throws ManagerException if invalid
+   * Validate data
+   *
+   * @param builder to validate
+   * @throws ManagerException if invalid
    */
   public ProgramSequencePatternEvent validate(ProgramSequencePatternEvent builder) throws ManagerException {
     try {

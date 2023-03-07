@@ -1,9 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.craft.beat;
 
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-import io.xj.nexus.model.SegmentChoice;
+
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
@@ -13,6 +11,7 @@ import io.xj.lib.util.CSV;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.detail.DetailCraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
+import io.xj.nexus.model.SegmentChoice;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,13 +22,12 @@ import java.util.stream.Collectors;
  Beat craft for the current segment
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  <p>
- https://www.pivotaltracker.com/story/show/176625174 BeatCraftImpl extends DetailCraftImpl to leverage all detail craft enhancements
+ BeatCraftImpl extends DetailCraftImpl to leverage all detail craft enhancements https://www.pivotaltracker.com/story/show/176625174
  */
 public class BeatCraftImpl extends DetailCraftImpl implements BeatCraft {
 
-  @Inject
   public BeatCraftImpl(
-    @Assisted("basis") Fabricator fabricator
+     Fabricator fabricator
   ) {
     super(fabricator);
   }
@@ -43,13 +41,13 @@ public class BeatCraftImpl extends DetailCraftImpl implements BeatCraft {
       fabricator.sourceMaterial().getProgram(priorChoice.get().getProgramId()) :
       chooseFreshProgram(ProgramType.Beat, InstrumentType.Drum);
 
-    // https://www.pivotaltracker.com/story/show/176373977 Should gracefully skip voicing type if unfulfilled by detail program
+    // Should gracefully skip voicing type if unfulfilled by detail program https://www.pivotaltracker.com/story/show/176373977
     if (program.isEmpty()) {
       reportMissing(Program.class, "Beat-type program");
       return;
     }
 
-    // https://www.pivotaltracker.com/story/show/178240332 Segments have intensity arcs; automate mixer layers in and out of each main program
+    // Segments have intensity arcs; automate mixer layers in and out of each main program https://www.pivotaltracker.com/story/show/178240332
     ChoiceIndexProvider choiceIndexProvider = (SegmentChoice choice) ->
       fabricator.sourceMaterial().getProgramVoice(choice.getProgramVoiceId())
         .map(ProgramVoice::getName)
@@ -67,7 +65,7 @@ public class BeatCraftImpl extends DetailCraftImpl implements BeatCraft {
     );
 
     // beat sequence is selected at random of the current program
-    // FUTURE: https://www.pivotaltracker.com/story/show/166855956 Beat Program with multiple Sequences
+    // FUTURE: Beat Program with multiple Sequences https://www.pivotaltracker.com/story/show/166855956
     var sequence = fabricator.getRandomlySelectedSequence(program.get());
 
     // voice arrangements

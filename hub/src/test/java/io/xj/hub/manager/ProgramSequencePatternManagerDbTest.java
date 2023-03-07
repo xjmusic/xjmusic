@@ -3,65 +3,46 @@ package io.xj.hub.manager;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.util.Modules;
-import io.xj.hub.HubIntegrationTestModule;
-import io.xj.hub.HubIntegrationTestProvider;
+import io.xj.hub.HubIntegrationTest;
+import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.ingest.HubIngestModule;
-import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.ProgramVoice;
-import io.xj.lib.app.Environment;
-import io.xj.lib.filestore.FileStoreModule;
-import io.xj.lib.jsonapi.JsonapiModule;
+import io.xj.lib.app.AppEnvironment;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 // future test: permissions of different users to readMany vs. of vs. update or destroy programs
 @RunWith(MockitoJUnitRunner.class)
 public class ProgramSequencePatternManagerDbTest {
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
   private ProgramSequencePatternManager subjectManager;
 
-  private HubIntegrationTestProvider test;
+  private HubIntegrationTest test;
   private IntegrationTestingFixtures fake;
 
-  private Injector injector;
   private ProgramVoice programVoice3;
   private ProgramVoice programVoice1;
 
   @Before
   public void setUp() throws Exception {
-    var env = Environment.getDefault();
-    injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new ManagerModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule(), new HubIntegrationTestModule())).with(new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(Environment.class).toInstance(env);
-      }
-    }));
-    test = injector.getInstance(HubIntegrationTestProvider.class);
+    var env = AppEnvironment.getDefault();
+
+    test = HubIntegrationTestFactory.build(env);
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
@@ -97,7 +78,7 @@ public class ProgramSequencePatternManagerDbTest {
     fake.program4 = test.insert(buildProgram(fake.library2, ProgramType.Detail, ProgramState.Published, "sail", "C#", 120.0f, 0.6f));
 
     // Instantiate the test subject
-    subjectManager = injector.getInstance(ProgramSequencePatternManager.class);
+    subjectManager = new ProgramSequencePatternManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
   }
 
   @After
@@ -107,7 +88,7 @@ public class ProgramSequencePatternManagerDbTest {
 
   @Test
   public void create() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     var subject = new ProgramSequencePattern();
     subject.setId(UUID.randomUUID());
     subject.setTotal((short) 4);
@@ -126,12 +107,12 @@ public class ProgramSequencePatternManagerDbTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/171617769 Artist editing Program clones a pattern
-   https://www.pivotaltracker.com/story/show/173912361 Hub API create pattern cloning existing pattern
+   * Artist editing Program clones a pattern https://www.pivotaltracker.com/story/show/171617769
+   * Hub API create pattern cloning existing pattern https://www.pivotaltracker.com/story/show/173912361
    */
   @Test
   public void cloneExisting() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     var input = new ProgramSequencePattern();
     input.setId(UUID.randomUUID());
     input.setTotal((short) 4);
@@ -144,20 +125,20 @@ public class ProgramSequencePatternManagerDbTest {
 
     assertNotNull(result);
     assertEquals(2, result.getChildClones().size());
-    assertEquals(2, injector.getInstance(ProgramSequencePatternEventManager.class)
-      .readMany(HubAccess.internal(), ImmutableSet.of(result.getClone().getId()))
+    assertEquals(2, Objects.requireNonNull(new ProgramSequencePatternEventManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider())
+        .readMany(HubAccess.internal(), ImmutableSet.of(result.getClone().getId())))
       .size());
   }
 
   /**
-   FIX https://www.pivotaltracker.com/story/show/176352798 Clone API for Artist editing a Program can clone a pattern including its events
-   due to constraints of serializing and deserializing the empty JSON payload for cloning an object
-   without setting values (we will do this better in the future)--
-   when cloning a pattern, `type` and `total` will always be set from the source pattern, and cannot be overridden.
+   * FIX Clone API for Artist editing a Program can clone a pattern including its events https://www.pivotaltracker.com/story/show/176352798
+   * due to constraints of serializing and deserializing the empty JSON payload for cloning an object
+   * without setting values (we will do this better in the future)--
+   * when cloning a pattern, `type` and `total` will always be set from the source pattern, and cannot be overridden.
    */
   @Test
   public void cloneExisting_allModifications() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     var input = new ProgramSequencePattern();
     input.setProgramId(fake.program3.getId());
     input.setProgramVoiceId(programVoice3.getId());
@@ -176,11 +157,11 @@ public class ProgramSequencePatternManagerDbTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/176352798 Clone API for Artist editing a Program can clone a pattern including its events
+   * Clone API for Artist editing a Program can clone a pattern including its events https://www.pivotaltracker.com/story/show/176352798
    */
   @Test
   public void cloneExisting_noModifications() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     var input = new ProgramSequencePattern();
 
     ManagerCloner<ProgramSequencePattern> result = subjectManager.clone(access, fake.program2_sequence1_pattern1.getId(), input);
@@ -194,12 +175,12 @@ public class ProgramSequencePatternManagerDbTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/156144567 Artist expects to of a Main-type programSequencePattern without crashing the entire platform
-   NOTE: This simple test fails to invoke the complexity of database call that is/was creating this issue in production.
+   * Artist expects to of a Main-type programSequencePattern without crashing the entire platform https://www.pivotaltracker.com/story/show/156144567
+   * NOTE: This simple test fails to invoke the complexity of database call that is/was creating this issue in production.
    */
   @Test
   public void create_asArtist() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
     var inputData = new ProgramSequencePattern();
     inputData.setId(UUID.randomUUID());
     inputData.setTotal((short) 4);
@@ -219,7 +200,7 @@ public class ProgramSequencePatternManagerDbTest {
 
   @Test
   public void readOne() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User, Artist");
 
     var result = subjectManager.readOne(access, fake.program2_sequence1_pattern1.getId());
 
@@ -231,18 +212,17 @@ public class ProgramSequencePatternManagerDbTest {
 
   @Test
   public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
-    failure.expect(ManagerException.class);
-    failure.expectMessage("does not exist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "User, Artist");
 
-    subjectManager.readOne(access, fake.program2_sequence1_pattern1.getId());
+    var e = assertThrows(ManagerException.class, () -> subjectManager.readOne(access, fake.program2_sequence1_pattern1.getId()));
+    assertTrue(e.getMessage().contains("does not exist"));
   }
 
   // future test: readManyInAccount vs readManyInLibraries, positive and negative cases
 
   @Test
   public void readMany() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin");
 
     Collection<ProgramSequencePattern> result = subjectManager.readMany(access, ImmutableList.of(fake.program1_sequence1.getId()));
 
@@ -253,7 +233,7 @@ public class ProgramSequencePatternManagerDbTest {
 
   @Test
   public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "User, Artist");
 
     Collection<ProgramSequencePattern> result = subjectManager.readMany(access, ImmutableList.of(fake.program3_sequence1.getId()));
 
@@ -261,7 +241,7 @@ public class ProgramSequencePatternManagerDbTest {
   }
 
   /**
-   https://www.pivotaltracker.com/story/show/171173394 Delete pattern with events in it
+   * Delete pattern with events in it https://www.pivotaltracker.com/story/show/171173394
    */
   @Test
   public void destroy_okWithChildEntities() throws Exception {
@@ -273,29 +253,30 @@ public class ProgramSequencePatternManagerDbTest {
 
   @Test
   public void destroy_asArtist() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
-    injector.getInstance(ProgramSequencePatternEventManager.class).destroy(HubAccess.internal(), fake.program2_sequence1_pattern1_event0.getId());
-    injector.getInstance(ProgramSequencePatternEventManager.class).destroy(HubAccess.internal(), fake.program2_sequence1_pattern1_event1.getId());
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
+    new ProgramSequencePatternEventManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider()).destroy(HubAccess.internal(), fake.program2_sequence1_pattern1_event0.getId());
+    new ProgramSequencePatternEventManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider()).destroy(HubAccess.internal(), fake.program2_sequence1_pattern1_event1.getId());
 
     subjectManager.destroy(access, fake.program2_sequence1_pattern1.getId());
 
-    assertEquals(Integer.valueOf(0), test.getDSL()
-      .selectCount().from(io.xj.hub.tables.ProgramSequencePattern.PROGRAM_SEQUENCE_PATTERN)
-      .where(io.xj.hub.tables.ProgramSequencePattern.PROGRAM_SEQUENCE_PATTERN.ID.eq(fake.program2_sequence1_pattern1.getId()))
-      .fetchOne(0, int.class));
+    try (var selectCount = test.getDSL().selectCount()) {
+      assertEquals(Integer.valueOf(0),
+        selectCount.from(io.xj.hub.tables.ProgramSequencePattern.PROGRAM_SEQUENCE_PATTERN)
+          .where(io.xj.hub.tables.ProgramSequencePattern.PROGRAM_SEQUENCE_PATTERN.ID.eq(fake.program2_sequence1_pattern1.getId()))
+          .fetchOne(0, int.class));
+    }
   }
 
   @Test
   public void destroy_failsIfNotInAccount() throws Exception {
     fake.account2 = buildAccount("Testing");
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account2), "Artist");
-    injector.getInstance(ProgramSequencePatternEventManager.class).destroy(HubAccess.internal(), fake.program2_sequence1_pattern1_event0.getId());
-    injector.getInstance(ProgramSequencePatternEventManager.class).destroy(HubAccess.internal(), fake.program2_sequence1_pattern1_event1.getId());
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account2), "Artist");
+    new ProgramSequencePatternEventManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider()).destroy(HubAccess.internal(), fake.program2_sequence1_pattern1_event0.getId());
+    new ProgramSequencePatternEventManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider()).destroy(HubAccess.internal(), fake.program2_sequence1_pattern1_event1.getId());
 
-    failure.expect(ManagerException.class);
-    failure.expectMessage("Sequence Pattern in Program in Account you have access to does not exist");
 
-    subjectManager.destroy(access, fake.program2_sequence1_pattern1.getId());
+    var e = assertThrows(ManagerException.class, () -> subjectManager.destroy(access, fake.program2_sequence1_pattern1.getId()));
+    assertTrue(e.getMessage().contains("Sequence Pattern in Program in Account you have access to does not exist"));
   }
 
 }

@@ -4,31 +4,46 @@ package io.xj.nexus.craft.background;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
-import io.xj.nexus.model.*;
 import io.xj.hub.HubTopology;
 import io.xj.hub.IntegrationTestingFixtures;
+import io.xj.hub.client.HubClient;
+import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Instrument;
-import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.lib.app.Environment;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.Entities;
-import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.entity.EntityStore;
+import io.xj.lib.entity.EntityStoreImpl;
+import io.xj.lib.json.ApiUrlProvider;
+import io.xj.lib.json.JsonProvider;
+import io.xj.lib.json.JsonProviderImpl;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.lib.notification.NotificationProvider;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
+import io.xj.nexus.craft.CraftFactoryImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.hub.client.HubClient;
-import io.xj.hub.client.HubContent;
+import io.xj.nexus.fabricator.FabricatorFactoryImpl;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.ChainType;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.model.SegmentType;
+import io.xj.nexus.persistence.ChainManager;
+import io.xj.nexus.persistence.ChainManagerImpl;
 import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.persistence.NexusEntityStoreImpl;
+import io.xj.nexus.persistence.SegmentManager;
+import io.xj.nexus.persistence.SegmentManagerImpl;
 import io.xj.nexus.persistence.Segments;
-import io.xj.nexus.work.NexusWorkModule;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,40 +54,54 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChord;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentMeme;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CraftBackgroundProgramVoiceNextMacroTest {
   @Mock
   public HubClient hubClient;
+  @Mock
+  public NotificationProvider notificationProvider;
   private Chain chain1;
   private CraftFactory craftFactory;
   private FabricatorFactory fabricatorFactory;
   private HubContent sourceMaterial;
-  private InstrumentAudio audioKick;
-  private InstrumentAudio audioSnare;
   private NexusEntityStore store;
   private NexusIntegrationTestingFixtures fake;
   private Segment segment4;
 
   @Before
   public void setUp() throws Exception {
-    Environment env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(new NexusWorkModule())
-      .with(new AbstractModule() {
-        @Override
-        protected void configure() {
-          bind(Environment.class).toInstance(env);
-        }
-      }));
-    fabricatorFactory = injector.getInstance(FabricatorFactory.class);
-    craftFactory = injector.getInstance(CraftFactory.class);
-    var entityFactory = injector.getInstance(EntityFactory.class);
+    AppEnvironment env = AppEnvironment.getDefault();
+    JsonProvider jsonProvider = new JsonProviderImpl();
+    var entityFactory = new EntityFactoryImpl(jsonProvider);
+    ApiUrlProvider apiUrlProvider = new ApiUrlProvider(env);
+    craftFactory = new CraftFactoryImpl(apiUrlProvider);
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
+    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
+    store = new NexusEntityStoreImpl(entityFactory);
+    SegmentManager segmentManager = new SegmentManagerImpl(entityFactory, store);
+    ChainManager chainManager = new ChainManagerImpl(
+      env,
+      entityFactory,
+      store,
+      segmentManager,
+      notificationProvider
+    );
+    EntityStore entityStore = new EntityStoreImpl();
+    fabricatorFactory = new FabricatorFactoryImpl(
+      env,
+      chainManager,
+      segmentManager,
+      jsonapiPayloadFactory,
+      jsonProvider
+    );
 
     // Manipulate the underlying entity store; reset before each test
-    store = injector.getInstance(NexusEntityStore.class);
     store.deleteAll();
 
     // Mock request via HubClient returns fake generated library of hub content
@@ -115,9 +144,9 @@ public class CraftBackgroundProgramVoiceNextMacroTest {
   }
 
   /**
-   Some custom fixtures for testing
-
-   @return list of all entities
+   * Some custom fixtures for testing
+   *
+   * @return list of all entities
    */
   private Collection<Object> customFixtures() {
     Collection<Object> entities = Lists.newArrayList();
@@ -126,9 +155,9 @@ public class CraftBackgroundProgramVoiceNextMacroTest {
     Instrument instrument1 = Entities.add(entities, IntegrationTestingFixtures.buildInstrument(fake.library2, InstrumentType.Noise, InstrumentMode.Background, InstrumentState.Published, "Bongo Loop"));
     Entities.add(entities, IntegrationTestingFixtures.buildMeme(instrument1, "heavy"));
     //
-    audioKick = Entities.add(entities, IntegrationTestingFixtures.buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.6f, "KICK", "Eb", 1.0f));
+    Entities.add(entities, IntegrationTestingFixtures.buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.6f, "KICK", "Eb", 1.0f));
     //
-    audioSnare = Entities.add(entities, IntegrationTestingFixtures.buildAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01f, 1.5f, 120.0f, 0.6f, "SNARE", "Ab", 1.0f));
+    Entities.add(entities, IntegrationTestingFixtures.buildAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01f, 1.5f, 120.0f, 0.6f, "SNARE", "Ab", 1.0f));
 
     return entities;
   }
@@ -136,7 +165,7 @@ public class CraftBackgroundProgramVoiceNextMacroTest {
 
   @Test
   public void craftBackgroundVoiceNextMacro() throws Exception {
-    insertSegments3and4(true);
+    insertSegments3and4();
     Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4);
 
     craftFactory.background(fabricator).doWork();
@@ -147,7 +176,7 @@ public class CraftBackgroundProgramVoiceNextMacroTest {
 //      .filter(c -> c.getInstrumentType().equals(InstrumentType.Background)).findFirst().orElseThrow();
 //    assertTrue(fabricator.getArrangements()
 //      .stream().anyMatch(a -> a.getSegmentChoiceId().equals(backgroundChoice.getId())));
-//    // test vector for https://www.pivotaltracker.com/story/show/154014731 persist Audio pick in memory
+//    // test vector for persist Audio pick in memory https://www.pivotaltracker.com/story/show/154014731
 //    int pickedKick = 0;
 //    int pickedSnare = 0;
 //    Collection<SegmentChoiceArrangementPick> picks = fabricator.getPicks();
@@ -162,11 +191,9 @@ public class CraftBackgroundProgramVoiceNextMacroTest {
   }
 
   /**
-   Insert fixture segments 3 and 4, including the background choice for segment 3 only if specified
-
-   @param excludeBackgroundChoiceForSegment3 if desired for the purpose of this test
+   * Insert fixture segments 3 and 4, including the background choice for segment 3 only if specified
    */
-  private void insertSegments3and4(boolean excludeBackgroundChoiceForSegment3) throws NexusException {
+  private void insertSegments3and4() throws NexusException {
     // Chain "Test Print #1" has this segment that was just crafted
     Segment segment3 = store.put(buildSegment(
       chain1,
@@ -193,14 +220,6 @@ public class CraftBackgroundProgramVoiceNextMacroTest {
       Segments.DELTA_UNLIMITED,
       fake.program5,
       fake.program5_sequence1_binding0));
-    if (!excludeBackgroundChoiceForSegment3)
-      store.put(buildSegmentChoice(
-        segment3,
-        Segments.DELTA_UNLIMITED,
-        Segments.DELTA_UNLIMITED,
-        fake.program35,
-        InstrumentType.Noise,
-        InstrumentMode.Background));
 
     // Chain "Test Print #1" has a segment in crafting state - Foundation is complete
     segment4 = store.put(buildSegment(

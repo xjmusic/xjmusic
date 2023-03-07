@@ -10,7 +10,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 /**
- https://www.pivotaltracker.com/story/show/177355683 Artist saves Template config, validate & combine with defaults.
+ Artist saves Template config, validate & combine with defaults. https://www.pivotaltracker.com/story/show/177355683
  */
 public class TemplateConfigTest {
 

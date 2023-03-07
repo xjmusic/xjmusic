@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.api;
 
-import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.analysis.util.ChordVoicingDeduper;
@@ -10,31 +9,21 @@ import io.xj.hub.manager.ManagerCloner;
 import io.xj.hub.manager.ProgramSequenceChordManager;
 import io.xj.hub.manager.ProgramSequenceChordVoicingManager;
 import io.xj.hub.manager.ProgramVoiceManager;
-import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.ProgramSequenceChord;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
-import io.xj.lib.jsonapi.JsonapiPayload;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.jsonapi.JsonapiPayloadObject;
-import io.xj.lib.jsonapi.MediaType;
-import io.xj.lib.jsonapi.PayloadDataType;
+import io.xj.lib.jsonapi.*;
 import io.xj.lib.util.CSV;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
 import javax.annotation.Nullable;
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.PATCH;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -42,51 +31,50 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- ProgramSequenceChord endpoint
+ * ProgramSequenceChord endpoint
  */
 @Path("api/1/program-sequence-chords")
-public class ProgramSequenceChordEndpoint extends HubJsonapiEndpoint<ProgramSequenceChord> {
+public class ProgramSequenceChordEndpoint extends HubJsonapiEndpoint {
   private static final String VOICE_TYPE_KEY = "type";
   private final ProgramVoiceManager voiceManager;
   private final ProgramSequenceChordManager manager;
   private final ProgramSequenceChordVoicingManager voicingManager;
 
   /**
-   Constructor
+   * Constructor
    */
-  @Inject
   public ProgramSequenceChordEndpoint(
     ProgramVoiceManager voiceManager,
     ProgramSequenceChordManager manager,
     ProgramSequenceChordVoicingManager voicingManager,
-    HubDatabaseProvider dbProvider,
-    JsonapiHttpResponseProvider response,
+    HubSqlStoreProvider sqlStoreProvider,
+    JsonapiResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory
   ) {
-    super(dbProvider, response, payloadFactory, entityFactory);
+    super(sqlStoreProvider, response, payloadFactory, entityFactory);
     this.voiceManager = voiceManager;
     this.manager = manager;
     this.voicingManager = voicingManager;
   }
 
   /**
-   Create a program sequence chord, optionally cloning voicings of an existing chord
-   <p>
-   Chord Search while composing a main program
-   https://www.pivotaltracker.com/story/show/178921705
+   * Create a program sequence chord, optionally cloning voicings of an existing chord
+   * <p>
+   * Chord Search while composing a main program
+   * https://www.pivotaltracker.com/story/show/178921705
    */
   @POST
-  @Consumes(MediaType.APPLICATION_JSONAPI)
+  @Consumes(MediaType.APPLICATION_JSON_VALUE)
   @RolesAllowed(ARTIST)
-  public Response create(
-    @Context ContainerRequestContext crc,
+  public ResponseEntity<JsonapiPayload> create(
+    HttpServletRequest req, HttpServletResponse res,
     JsonapiPayload jsonapiPayload,
     @Nullable @QueryParam("cloneId") UUID cloneId,
     @Nullable @QueryParam("voicingTypes") String voicingTypes
   ) {
     try {
-      HubAccess access = HubAccess.fromContext(crc);
+      HubAccess access = HubAccess.fromRequest(req);
       ProgramSequenceChord entity = payloadFactory.consume(manager().newInstance(), jsonapiPayload);
       ProgramSequenceChord created;
       JsonapiPayload responseData = new JsonapiPayload();
@@ -106,52 +94,52 @@ public class ProgramSequenceChordEndpoint extends HubJsonapiEndpoint<ProgramSequ
       }
       responseData.addAllToIncluded(payloadFactory.toPayloadObjects(voicingManager.createEmptyVoicings(access, created)));
 
-      return response.create(responseData);
+      return responseProvider.create(responseData);
 
     } catch (Exception e) {
-      return response.notAcceptable(e);
+      return responseProvider.notAcceptable(e);
     }
   }
 
   /**
-   Get one ProgramSequenceChord by id
-
-   @return application/json response.
+   * Get one ProgramSequenceChord by id
+   *
+   * @return application/json response.
    */
   @GET
   @Path("{id}")
   @RolesAllowed(ARTIST)
-  public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") UUID id) {
-    return readOne(crc, manager(), id);
+  public ResponseEntity<JsonapiPayload> readOne(HttpServletRequest req, @PathParam("id") UUID id) {
+    return readOne(req, manager(), id);
   }
 
   /**
-   Get Chords in program sequence (by specifying programSequenceId)
-   or
-   Chord Search while composing a main program (by specifying search chord name and libraryId)
-   https://www.pivotaltracker.com/story/show/178921705
-   <p>
-   Chord search results voicings have type attribute
-   https://www.pivotaltracker.com/story/show/182220689
-
-   @return application/json response.
+   * Get Chords in program sequence (by specifying programSequenceId)
+   * or
+   * Chord Search while composing a main program (by specifying search chord name and libraryId)
+   * https://www.pivotaltracker.com/story/show/178921705
+   * <p>
+   * Chord search results voicings have type attribute
+   * https://www.pivotaltracker.com/story/show/182220689
+   *
+   * @return application/json response.
    */
   @GET
   @RolesAllowed(ARTIST)
-  public Response readMany(
-    @Context ContainerRequestContext crc,
+  public ResponseEntity<JsonapiPayload> readMany(
+    HttpServletRequest req,
     @Nullable @QueryParam("programSequenceId") UUID programSequenceId, // all-chords-for-sequence mode
     @Nullable @QueryParam("libraryId") UUID libraryId, // chord-search mode
     @Nullable @QueryParam("search") String chordName // chord-search mode
   ) {
     if (Objects.nonNull(programSequenceId) && Objects.nonNull(libraryId))
-      return response.failure(Response.Status.NOT_ACCEPTABLE, "Must specify either parent programSequenceId or libraryId, not both!");
+      return responseProvider.failure(HttpStatus.NOT_ACCEPTABLE, "Must specify either parent programSequenceId or libraryId, not both!");
 
     if (Objects.nonNull(programSequenceId))
-      return readMany(crc, manager(), programSequenceId);
+      return readMany(req, manager(), programSequenceId);
 
     try {
-      HubAccess access = HubAccess.fromContext(crc);
+      HubAccess access = HubAccess.fromRequest(req);
       var chords = manager().search(access, libraryId, chordName);
       var voicesById = voiceManager.readMany(access, chords.stream().map(ProgramSequenceChord::getProgramId).collect(Collectors.toSet()))
         .stream().collect(Collectors.toMap(ProgramVoice::getId, (v) -> v));
@@ -162,43 +150,43 @@ public class ProgramSequenceChordEndpoint extends HubJsonapiEndpoint<ProgramSequ
       for (var voicing : uniqueChordVoicings.getVoicings())
         result.addToIncluded(payloadFactory.toPayloadObject(voicing)
           .setAttribute(VOICE_TYPE_KEY, voicesById.get(voicing.getProgramVoiceId()).getType().toString()));
-      return response.ok(result);
+      return responseProvider.ok(result);
 
     } catch (Exception e) {
-      return response.notAcceptable(e);
+      return responseProvider.notAcceptable(e);
     }
   }
 
   /**
-   Update one ProgramSequenceChord
-
-   @param jsonapiPayload with which to update record.
-   @return Response
+   * Update one ProgramSequenceChord
+   *
+   * @param jsonapiPayload with which to update record.
+   * @return ResponseEntity
    */
   @PATCH
   @Path("{id}")
-  @Consumes(MediaType.APPLICATION_JSONAPI)
+  @Consumes(MediaType.APPLICATION_JSON_VALUE)
   @RolesAllowed(ARTIST)
-  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") UUID id) {
-    return update(crc, manager(), id, jsonapiPayload);
+  public ResponseEntity<JsonapiPayload> update(JsonapiPayload jsonapiPayload, HttpServletRequest req, @PathParam("id") UUID id) {
+    return update(req, manager(), id, jsonapiPayload);
   }
 
   /**
-   Delete one ProgramSequenceChord by programSequenceId and chordId
-
-   @return application/json response.
+   * Delete one ProgramSequenceChord by programSequenceId and chordId
+   *
+   * @return application/json response.
    */
   @DELETE
   @Path("{id}")
   @RolesAllowed(ARTIST)
-  public Response delete(@Context ContainerRequestContext crc, @PathParam("id") UUID id) {
-    return delete(crc, manager(), id);
+  public ResponseEntity<JsonapiPayload> delete(HttpServletRequest req, @PathParam("id") UUID id) {
+    return delete(req, manager(), id);
   }
 
   /**
-   Get Manager of injector
-
-   @return Manager
+   * Get Manager of injector
+   *
+   * @return Manager
    */
   private ProgramSequenceChordManager manager() {
     return manager;

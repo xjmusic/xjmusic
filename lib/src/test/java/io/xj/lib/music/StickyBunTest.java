@@ -13,7 +13,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- Sticky buns v2 https://www.pivotaltracker.com/story/show/179153822 persisted for each randomly selected note in the series for any given event
+ Sticky buns v2 persisted for each randomly selected note in the series for any given event https://www.pivotaltracker.com/story/show/179153822
  */
 public class StickyBunTest {
   private final UUID eventId = UUID.randomUUID();

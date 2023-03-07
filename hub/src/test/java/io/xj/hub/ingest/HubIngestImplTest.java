@@ -2,12 +2,17 @@
 
 package io.xj.hub.ingest;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
+
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.manager.*;
 import io.xj.hub.enums.TemplateType;
+import io.xj.hub.manager.InstrumentManager;
+import io.xj.hub.manager.ProgramManager;
+import io.xj.hub.manager.TemplateBindingManager;
+import io.xj.hub.manager.TemplateManager;
 import io.xj.hub.tables.pojos.Template;
+import io.xj.lib.entity.EntityStore;
+import io.xj.lib.json.JsonProvider;
+import io.xj.lib.json.JsonProviderImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -33,27 +38,24 @@ public class HubIngestImplTest {
   @Mock
   TemplateBindingManager templateBindingManager;
   @Mock
-  TemplatePlaybackManager templatePlaybackManager;
+  EntityStore entityStore;
 
   @Test
   public void instantiateWithUUIDs() throws Exception {
-    var injector = Guice.createInjector(new HubIngestModule(), new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(InstrumentManager.class).toInstance(instrumentManager);
-        bind(ProgramManager.class).toInstance(programManager);
-        bind(TemplateManager.class).toInstance(templateManager);
-        bind(TemplateBindingManager.class).toInstance(templateBindingManager);
-        bind(TemplatePlaybackManager.class).toInstance(templatePlaybackManager);
-      }
-    });
     Template template = buildTemplate(buildAccount("Test"), TemplateType.Preview, "Test", "key123");
     when(templateManager.readOne(any(), eq(template.getId())))
       .thenReturn(template);
     when(templateBindingManager.readMany(any(), eq(List.of(template.getId()))))
       .thenReturn(List.of());
 
-    HubIngest subject = injector.getInstance(HubIngestFactory.class).ingest(HubAccess.internal(), template.getId());
+    JsonProvider jsonProvider = new JsonProviderImpl();
+    HubIngest subject = new HubIngestFactoryImpl(
+      jsonProvider, entityStore,
+      instrumentManager,
+      programManager,
+      templateManager,
+      templateBindingManager
+    ).ingest(HubAccess.internal(), template.getId());
 
     assertNotNull(subject);
   }
