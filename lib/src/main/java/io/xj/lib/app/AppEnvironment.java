@@ -42,6 +42,8 @@ public class AppEnvironment {
   private final String awsSecretName;
   private final String awsSnsTopicArn;
   private final String fabricationPreviewUserId;
+  private final String gcpCloudSqlSocketFactory;
+  private final String gcpCloudSqlInstance;
   private final String gcpProjectId;
   private final String gcpSecretId;
   private final String googleClientID;
@@ -222,7 +224,9 @@ public class AppEnvironment {
     awsSnsTopicArn = readStr(vars, "AWS_SNS_TOPIC_ARN", EMPTY);
     awsUploadExpireMinutes = readInt(vars, "AWS_UPLOAD_EXPIRE_MINUTES", 60);
 
-    // Resource: Google
+    // Resource: _Google
+    gcpCloudSqlSocketFactory = readStr(vars, "GCP_CLOUD_SQL_SOCKET_FACTORY", "com.google.cloud.sql.postgres.SocketFactory");
+    gcpCloudSqlInstance = readStr(vars, "GCP_CLOUD_SQL_INSTANCE", EMPTY);
     gcpProjectId = readStr(vars, "GCP_PROJECT_ID", EMPTY);
     gcpSecretId = readStr(vars, "GCP_SECRET_ID", EMPTY);
     googleClientID = readStr(vars, "GOOGLE_CLIENT_ID", EMPTY);
@@ -1026,5 +1030,21 @@ public class AppEnvironment {
    */
   public String getWorkEnvironmentName() {
     return Strings.isNullOrEmpty(shipKey) ? WORK_ENV_NAME_PRODUCTION : WORK_ENV_NAME_PREVIEW;
+  }
+
+  /**
+   https://github.com/GoogleCloudPlatform/cloud-sql-jdbc-socket-factory/blob/main/docs/jdbc-postgres.md
+   @return the Google Cloud SQL Socket Factory class name
+   */
+  public String getGcpCloudSqlSocketFactory() {
+    return gcpCloudSqlSocketFactory;
+  }
+
+  /**
+   https://github.com/GoogleCloudPlatform/cloud-sql-jdbc-socket-factory/blob/main/docs/jdbc-postgres.md
+   @return the Google Cloud SQL database instance name
+   */
+  public String getGcpCloudSqlInstance() {
+    return gcpCloudSqlInstance;
   }
 }

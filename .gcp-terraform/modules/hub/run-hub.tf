@@ -3,19 +3,28 @@
 # Serverless operations (Spring Boot Refactoring)
 # https://www.pivotaltracker.com/story/show/184580235
 
-# https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_iam#google_cloud_run_service_iam_member
-resource "google_cloud_run_service_iam_member" "xj-yard-bump-chill-serverless-nexus-invoker" {
-  service  = google_cloud_run_service.xj-yard-bump-chill-serverless-nexus.name
-  location = google_cloud_run_service.xj-yard-bump-chill-serverless-nexus.location
-  role     = "roles/run.invoker"
-  member   = "serviceAccount:${var.service_account_email}"
-  project  = var.project
+# https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/iam_policy
+data "google_iam_policy" "noauth" {
+  binding {
+    role = "roles/run.invoker"
+    members = [
+      "allUsers",
+    ]
+  }
 }
 
+# https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_service_iam_policy
+resource "google_cloud_run_service_iam_policy" "noauth" {
+  location    = google_cloud_run_service.hub.location
+  project     = google_cloud_run_service.hub.project
+  service     = google_cloud_run_service.hub.name
+
+  policy_data = data.google_iam_policy.noauth.policy_data
+}
 
 # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_service
-resource "google_cloud_run_service" "xj-yard-bump-chill-serverless-nexus" {
-  name     = "yard-bump-chill-serverless-nexus"
+resource "google_cloud_run_service" "hub" {
+  name     = var.service_name
   location = var.region
   project  = var.project
   provider = google-beta
@@ -23,15 +32,15 @@ resource "google_cloud_run_service" "xj-yard-bump-chill-serverless-nexus" {
   template {
     metadata {
       annotations = {
-        "run.googleapis.com/cpu-throttling" = false
+        "run.googleapis.com/cpu-throttling" = true
       }
     }
     spec {
       service_account_name = var.service_account_email
       containers {
         env {
-          name  = "SHIP_KEY"
-          value = "bump_chill_serverless"
+          name  = "ENVIRONMENT"
+          value = "production"
         }
         env {
           name  = "AUDIO_BASE_URL"
@@ -86,12 +95,32 @@ resource "google_cloud_run_service" "xj-yard-bump-chill-serverless-nexus" {
           }
         }
         env {
-          name  = "AWS_SNS_TOPIC_ARN"
-          value = "arn:aws:sns:us-east-1:027141088039:xj-prod-chain-fabrication"
+          name  = "PLAYER_BASE_URL"
+          value = "https://play.xj.io/"
         }
         env {
-          name  = "ENVIRONMENT"
-          value = "production"
+          name  = "POSTGRES_DATABASE"
+          value = var.postgres_database
+        }
+        env {
+          name  = "GCP_CLOUD_SQL_INSTANCE"
+          value = var.postgres_gcp_cloud_sql_instance
+        }
+        env {
+          name  = "POSTGRES_PASS"
+          value = var.postgres_pass
+        }
+        env {
+          name  = "POSTGRES_USER"
+          value = var.postgres_user
+        }
+        env {
+          name  = "REDIS_HOST"
+          value = "redis.lab.svc.cluster.local"
+        }
+        env {
+          name  = "REDIS_PORT"
+          value = 6379
         }
         env {
           name  = "SHIP_BASE_URL"
@@ -101,7 +130,7 @@ resource "google_cloud_run_service" "xj-yard-bump-chill-serverless-nexus" {
           name  = "SHIP_BUCKET"
           value = "xj-prod-ship"
         }
-        image = "gcr.io/xj-vpc-host-prod/dev/nexus:latest"
+        image = "gcr.io/xj-vpc-host-prod/dev/hub:latest"
         startup_probe {
           initial_delay_seconds = 30
           timeout_seconds       = 2
@@ -120,11 +149,11 @@ resource "google_cloud_run_service" "xj-yard-bump-chill-serverless-nexus" {
         resources {
           requests = {
             cpu    = 1
-            memory = "4G"
+            memory = "2G"
           }
           limits = {
             cpu    = 2
-            memory = "6Gi"
+            memory = "4Gi"
           }
         }
       }

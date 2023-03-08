@@ -5,8 +5,15 @@ resource "google_service_account" "xj-prod-yard" {
 }
 
 # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_project_iam#google_project_iam_member
-resource "google_project_iam_member" "project" {
+resource "google_project_iam_member" "secret_accessor" {
   project = local.gcp-project-id
   role    = "roles/secretmanager.secretAccessor"
+  member  = "serviceAccount:${google_service_account.xj-prod-yard.email}"
+}
+
+# https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_project_iam#google_project_iam_member
+resource "google_project_iam_member" "cloudsql_client" {
+  project = local.gcp-project-id
+  role    = "roles/cloudsql.client"
   member  = "serviceAccount:${google_service_account.xj-prod-yard.email}"
 }

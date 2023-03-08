@@ -1,5 +1,9 @@
 # Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
+variable "service_name" {
+  type = string
+}
+
 variable "region" {
   type = string
 }
@@ -12,15 +16,19 @@ variable "service_account_email" {
   type = string
 }
 
-variable "notification_channels" {
-  type = list(string)
-}
-
-variable "ship_key" {
+variable "postgres_database" {
   type = string
 }
 
-variable "display_name" {
+variable "postgres_gcp_cloud_sql_instance" {
+  type = string
+}
+
+variable "postgres_user" {
+  type = string
+}
+
+variable "postgres_pass" {
   type = string
 }
 

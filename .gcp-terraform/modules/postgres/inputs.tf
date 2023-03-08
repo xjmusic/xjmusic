@@ -1,9 +1,13 @@
 # Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-variable "service_account_email" {
+variable "region" {
   type = string
 }
 
-variable "region" {
+variable "project" {
+  type = string
+}
+
+variable "service_account_email" {
   type = string
 }
