@@ -2,7 +2,7 @@
 # Build & ship to GCP: https://github.com/xjmusic/services/actions/workflows/services-base.yaml
 
 # Based on official
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 # Install Software Properties
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install software-properties-common
@@ -10,8 +10,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install software
 # Install C Build Tools
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install build-essential make
 
-# Install Java 16
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install openjdk-16-jdk
+# Install Java 17
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install openjdk-17-jdk
 
 # Install FFMPEG
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install ffmpeg
@@ -32,3 +32,4 @@ RUN mkdir -p /usr/local/gcloud \
 
 # Adding the package path to local
 ENV PATH $PATH:/usr/local/gcloud/google-cloud-sdk/bin
+

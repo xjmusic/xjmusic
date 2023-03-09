@@ -9,22 +9,28 @@ import io.xj.hub.access.HubAccess;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.lib.app.AppEnvironment;
 import org.assertj.core.util.Lists;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class AccountManagerDbTest {
   private AccountManager subject;
   private HubIntegrationTest test;
   private IntegrationTestingFixtures fake;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     var env = AppEnvironment.getDefault();
     test = HubIntegrationTestFactory.build(env);
@@ -39,7 +45,7 @@ public class AccountManagerDbTest {
     subject = new AccountManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     test.shutdown();
   }
@@ -107,7 +113,7 @@ public class AccountManagerDbTest {
 
     var e = assertThrows(ManagerException.class,
       () -> subject.readOne(HubAccess.internal(), fake.account1.getId()));
-    assertTrue("Record should not exist", e.getMessage().contains("does not exist"));
+    assertTrue(e.getMessage().contains("does not exist"), "Record should not exist");
   }
 
   @Test

@@ -13,10 +13,12 @@ import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.filestore.S3UploadPolicy;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.context.SpringBootTest;
+
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -26,14 +28,21 @@ import java.util.Map;
 import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 
 // future test: permissions of different users to readMany vs. of vs. update or delete instruments
 
 // FUTURE: any test that
 
-@RunWith(MockitoJUnitRunner.class)
+@SpringBootTest
 public class InstrumentAudioManagerDbTest {
   @Mock
   public FileStoreProvider fileStoreProvider;
@@ -41,7 +50,7 @@ public class InstrumentAudioManagerDbTest {
   private HubIntegrationTest test;
   private IntegrationTestingFixtures fake;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     var env = AppEnvironment.getDefault();
     test = HubIntegrationTestFactory.build(env);
@@ -71,7 +80,7 @@ public class InstrumentAudioManagerDbTest {
     testManager = new InstrumentAudioManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider(), fileStoreProvider);
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     test.shutdown();
   }
@@ -364,7 +373,7 @@ public class InstrumentAudioManagerDbTest {
       testManager.readOne(HubAccess.internal(), fake.audio1.getId());
       fail();
     } catch (ManagerException e) {
-      assertTrue("Record should not exist", e.getMessage().contains("does not exist"));
+      assertTrue(e.getMessage().contains("does not exist"), "Record should not exist");
     }
   }
 
@@ -425,7 +434,7 @@ fake.user2, fake.library1, ProgramType.Macro, ProgramState.Published, "epic conc
 
 
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     reset();
 
@@ -623,7 +632,7 @@ access, inputData);
   }
 
 
-    @Before
+    @BeforeEach
   public void setUp() throws Exception {
     reset();
 

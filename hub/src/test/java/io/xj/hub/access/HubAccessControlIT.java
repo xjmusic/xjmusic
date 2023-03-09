@@ -12,20 +12,22 @@ import io.xj.hub.tables.pojos.AccountUser;
 import io.xj.hub.tables.pojos.User;
 import io.xj.hub.tables.pojos.UserAuth;
 import io.xj.lib.app.AppEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.context.SpringBootTest;
+
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collection;
 import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildUser;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@RunWith(MockitoJUnitRunner.class)
+@SpringBootTest
 public class HubAccessControlIT {
   private static final AppEnvironment env = AppEnvironment.from(ImmutableMap.of(
     "REDIS_SESSION_NAMESPACE", "xj_session_test"
@@ -35,7 +37,7 @@ public class HubAccessControlIT {
   UserManager userManager;
   private HubIntegrationTest test;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     test = HubIntegrationTestFactory.build(env);
 
@@ -51,7 +53,7 @@ public class HubAccessControlIT {
     );
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     test.shutdown();
   }
@@ -80,7 +82,7 @@ public class HubAccessControlIT {
     // now stress test
     for (int i = 0; STRESS_TEST_ITERATIONS > i; i++) {
       HubAccess result = userManager.get(TEST_TOKEN);
-      assertTrue("Result is valid", result.isValid());
+      assertTrue(result.isValid(), "Result is valid");
     }
   }
 

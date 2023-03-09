@@ -5,11 +5,17 @@ package io.xj.hub.api;
 import io.xj.hub.InstrumentConfig;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.lib.util.ValueException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  Artist saves Instrument config, validate & combine with defaults. https://www.pivotaltracker.com/story/show/177355683

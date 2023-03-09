@@ -9,30 +9,38 @@ import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.TemplateType;
 import io.xj.hub.tables.pojos.TemplatePublication;
 import io.xj.lib.app.AppEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.context.SpringBootTest;
+
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collection;
 import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 // future test: permissions of different users to readMany vs. of vs. update or delete templatePublications
 
 // FUTURE: any test that
 
-@RunWith(MockitoJUnitRunner.class)
+@SpringBootTest
 public class TemplatePublicationManagerDbTest {
   private TemplatePublicationManager testManager;
   private HubIntegrationTest test;
   private IntegrationTestingFixtures fake;
   private TemplatePublication templatePublication201;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     var env = AppEnvironment.getDefault();
     test = HubIntegrationTestFactory.build(env);
@@ -59,7 +67,7 @@ public class TemplatePublicationManagerDbTest {
     testManager = new TemplatePublicationManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     test.shutdown();
   }

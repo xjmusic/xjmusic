@@ -13,10 +13,12 @@ import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.lib.app.AppEnvironment;
 import org.jooq.DSLContext;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.context.SpringBootTest;
+
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collection;
@@ -25,10 +27,16 @@ import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.*;
 import static io.xj.hub.tables.ProgramVoice.PROGRAM_VOICE;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 // future test: permissions of different users to readMany vs. of vs. update or destroy programs
-@RunWith(MockitoJUnitRunner.class)
+@SpringBootTest
 public class ProgramVoiceManagerDbTest {
   private ProgramVoiceManager subject;
 
@@ -36,7 +44,7 @@ public class ProgramVoiceManagerDbTest {
   private IntegrationTestingFixtures fake;
   private HubSqlStoreProvider sqlStoreProvider;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     var env = AppEnvironment.getDefault();
     test = HubIntegrationTestFactory.build(env);
@@ -77,7 +85,7 @@ public class ProgramVoiceManagerDbTest {
     subject = new ProgramVoiceManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     test.shutdown();
   }

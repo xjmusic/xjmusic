@@ -37,4 +37,11 @@ public interface KubernetesAdmin {
    * @throws KubernetesException on failure
    */
   void stopPreviewNexus(UUID userId) throws KubernetesException;
+
+  /**
+   * Whether the KubernetesAdmin is ready to use
+   *
+   * @return true if ready
+   */
+  boolean isReady();
 }

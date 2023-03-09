@@ -2,9 +2,6 @@
 
 # Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-# Include common functions
-. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/functions
-
 # Port
 REDIS_PORT=6379
 
@@ -23,10 +20,4 @@ REDIS_ARGS="${@}"
 REDIS_DB="xj"
 
 # connect to ${HOST}
-step "Redis CLI"
 ${REDIS_COMMAND} -h 127.0.0.1 -p ${REDIS_PORT} ${REDIS_ARGS}
-step_ok
-
-#
-finished_ok
-

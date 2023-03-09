@@ -18,10 +18,12 @@ import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.context.SpringBootTest;
+
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import redis.clients.jedis.Jedis;
@@ -31,11 +33,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@SpringBootTest
 public class HubRemoteAccessTokenTest {
   @Mock
   GoogleProvider googleProvider;
@@ -68,7 +70,7 @@ public class HubRemoteAccessTokenTest {
     "REDIS_SESSION_NAMESPACE", "xj_session_test"
   ));
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     var jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
@@ -98,7 +100,7 @@ public class HubRemoteAccessTokenTest {
     accountUsers = List.of(accountUser1, accountUser2);
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     System.clearProperty("access.token.domain");
     System.clearProperty("access.token.path");

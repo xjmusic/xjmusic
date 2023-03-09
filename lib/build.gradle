@@ -75,7 +75,7 @@ dependencies {
   implementation 'org.slf4j:log4j-over-slf4j:1.7.32'
   implementation 'org.slf4j:slf4j-api:1.7.32'
   implementation 'org.springframework.boot:spring-boot-starter-web:2.7.6'
-  implementation 'org.yaml:snakeyaml:2.0'
+  implementation 'org.yaml:snakeyaml:1.33'
   implementation 'software.amazon.awssdk:cloudwatch:2.17.61'
   implementation platform('com.google.cloud:libraries-bom:24.0.0')
   testImplementation 'com.github.tomakehurst:wiremock-jre8-standalone:2.35.0'

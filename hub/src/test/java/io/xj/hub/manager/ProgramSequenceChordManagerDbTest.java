@@ -11,22 +11,31 @@ import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.ProgramSequenceChord;
 import io.xj.lib.app.AppEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-import static io.xj.hub.IntegrationTestingFixtures.*;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequence;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceChord;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceChordVoicing;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramVoice;
+import static io.xj.hub.IntegrationTestingFixtures.buildUser;
 import static io.xj.hub.Tables.PROGRAM_SEQUENCE_CHORD_VOICING;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 
 // future test: permissions of different users to readMany vs. of vs. update or destroy programs
-@RunWith(MockitoJUnitRunner.class)
+@SpringBootTest
 public class ProgramSequenceChordManagerDbTest {
   private ProgramSequenceChordManager subject;
 
@@ -35,7 +44,7 @@ public class ProgramSequenceChordManagerDbTest {
 
   private ProgramSequenceChord sequenceChord1a_0;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     var env = AppEnvironment.getDefault();
     test = HubIntegrationTestFactory.build(env);
@@ -77,7 +86,7 @@ public class ProgramSequenceChordManagerDbTest {
     subject = new ProgramSequenceChordManagerImpl(test.getEntityFactory(), programVoiceManager, test.getSqlStoreProvider());
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     test.shutdown();
   }

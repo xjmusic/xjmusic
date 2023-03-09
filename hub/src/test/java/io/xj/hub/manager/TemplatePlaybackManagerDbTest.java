@@ -10,20 +10,27 @@ import io.xj.hub.enums.TemplateType;
 import io.xj.hub.kubernetes.KubernetesAdmin;
 import io.xj.hub.tables.pojos.TemplatePlayback;
 import io.xj.lib.app.AppEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.UUID;
 
-import static io.xj.hub.IntegrationTestingFixtures.*;
-import static org.junit.Assert.*;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplatePlayback;
+import static io.xj.hub.IntegrationTestingFixtures.buildUser;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -33,7 +40,7 @@ import static org.mockito.Mockito.verify;
 
 // FUTURE: any test that
 
-@RunWith(MockitoJUnitRunner.class)
+@SpringBootTest
 public class TemplatePlaybackManagerDbTest {
   private TemplatePlaybackManager testManager;
   private HubIntegrationTest test;
@@ -43,7 +50,7 @@ public class TemplatePlaybackManagerDbTest {
   @Mock
   private KubernetesAdmin kubernetesAdmin;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     var env = AppEnvironment.getDefault();
     test = HubIntegrationTestFactory.build(env);
@@ -70,7 +77,7 @@ public class TemplatePlaybackManagerDbTest {
     testManager = new TemplatePlaybackManagerImpl(test.getEnv(), test.getEntityFactory(), test.getSqlStoreProvider(), kubernetesAdmin);
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     test.shutdown();
   }
@@ -259,7 +266,7 @@ public class TemplatePlaybackManagerDbTest {
       testManager.readOne(HubAccess.internal(), templatePlayback251.getId());
       fail();
     } catch (ManagerException e) {
-      assertTrue("Record should not exist", e.getMessage().contains("does not exist"));
+      assertTrue(e.getMessage().contains("does not exist"), "Record should not exist");
     }
     verify(kubernetesAdmin, times(1)).stopPreviewNexus(eq(fake.user2.getId()));
   }

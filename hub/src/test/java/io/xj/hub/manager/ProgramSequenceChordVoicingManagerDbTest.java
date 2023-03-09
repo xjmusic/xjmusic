@@ -12,22 +12,32 @@ import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.ProgramSequenceChord;
 import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
 import io.xj.lib.app.AppEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static io.xj.hub.IntegrationTestingFixtures.*;
-import static org.junit.Assert.*;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequence;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceChord;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceChordVoicing;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramVoice;
+import static io.xj.hub.IntegrationTestingFixtures.buildUser;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // future test: permissions of different users to readMany vs. of vs. update or destroy programs
-@RunWith(MockitoJUnitRunner.class)
+@SpringBootTest
 public class ProgramSequenceChordVoicingManagerDbTest {
   private ProgramSequenceChordVoicingManager subject;
 
@@ -37,7 +47,7 @@ public class ProgramSequenceChordVoicingManagerDbTest {
   private ProgramSequenceChord sequenceChord1a_0;
   private ProgramSequenceChordVoicing sequenceChord1a_0_voicing0;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     var env = AppEnvironment.getDefault();
     test = HubIntegrationTestFactory.build(env);
@@ -77,7 +87,7 @@ public class ProgramSequenceChordVoicingManagerDbTest {
     subject = new ProgramSequenceChordVoicingManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     test.shutdown();
   }
@@ -115,8 +125,8 @@ public class ProgramSequenceChordVoicingManagerDbTest {
 
     assertEquals(2, result.size());
     var targetVoiceIds = result.stream().map(ProgramSequenceChordVoicing::getProgramVoiceId).collect(Collectors.toSet());
-    assertTrue("created empty pad voicing", targetVoiceIds.contains(fake.program1_voicePad.getId()));
-    assertTrue("created empty bass voicing", targetVoiceIds.contains(fake.program1_voiceBass.getId()));
+    assertTrue(targetVoiceIds.contains(fake.program1_voicePad.getId()), "created empty pad voicing");
+    assertTrue(targetVoiceIds.contains(fake.program1_voiceBass.getId()), "created empty bass voicing");
   }
 
   /**
@@ -133,8 +143,8 @@ public class ProgramSequenceChordVoicingManagerDbTest {
 
     assertEquals(2, result.size());
     var targetChordIds = result.stream().map(ProgramSequenceChordVoicing::getProgramSequenceChordId).collect(Collectors.toSet());
-    assertTrue("created empty voicing for chord 1", targetChordIds.contains(sequenceChord1a_0.getId()));
-    assertTrue("created empty voicing for chord 2", targetChordIds.contains(extraChord.getId()));
+    assertTrue(targetChordIds.contains(sequenceChord1a_0.getId()), "created empty voicing for chord 1");
+    assertTrue(targetChordIds.contains(extraChord.getId()), "created empty voicing for chord 2");
   }
 
   /**

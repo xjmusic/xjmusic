@@ -9,22 +9,25 @@ import com.google.api.services.plus.model.Person;
 import com.google.common.collect.ImmutableMap;
 import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.json.ApiUrlProvider;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.context.SpringBootTest;
+
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@RunWith(MockitoJUnitRunner.class)
+@SpringBootTest
 public class GoogleProviderImplTest extends Mockito {
   @Mock
   private GoogleHttpProvider googleHttpProvider;
   private GoogleProvider googleProvider;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     var env = AppEnvironment.from(ImmutableMap.of(
       "GOOGLE_CLIENT_ID", "12345",
@@ -68,7 +71,7 @@ public class GoogleProviderImplTest extends Mockito {
     assertEquals("ab1cd2ef3", tokenResponse.getRefreshToken());
   }
 
-  @Test(expected = HubAccessException.class)
+  @Test
   public void getTokenFromCode_IOFailure() throws Exception {
     String responseJson = "garbage response will cause IO failure";
     MockLowLevelHttpResponse httpResponse = new MockLowLevelHttpResponse();
@@ -80,10 +83,10 @@ public class GoogleProviderImplTest extends Mockito {
     when(googleHttpProvider.getTransport())
       .thenReturn(httpTransport);
 
-    googleProvider.getTokenFromCode("red");
+    assertThrows(HubAccessException.class, () -> googleProvider.getTokenFromCode("red"));
   }
 
-  @Test(expected = HubAccessException.class)
+  @Test
   public void getTokenFromCode_TokenResponseFailure() throws Exception {
     String responseJson = "{\"details\":{" +
       "\"error_description\":\"terrible\"," +
@@ -98,7 +101,7 @@ public class GoogleProviderImplTest extends Mockito {
     when(googleHttpProvider.getTransport())
       .thenReturn(httpTransport);
 
-    googleProvider.getTokenFromCode("red");
+    assertThrows(HubAccessException.class, () -> googleProvider.getTokenFromCode("red"));
   }
 
   @Test
@@ -158,7 +161,7 @@ public class GoogleProviderImplTest extends Mockito {
     assertEquals("charneykaye@gmail.com", person.getEmails().get(0).getValue());
   }
 
-  @Test(expected = HubAccessException.class)
+  @Test
   public void getMe_IOFailure() throws Exception {
     MockLowLevelHttpResponse httpResponse = new MockLowLevelHttpResponse();
     httpResponse.setStatusCode(500);
@@ -168,10 +171,10 @@ public class GoogleProviderImplTest extends Mockito {
     when(googleHttpProvider.getTransport())
       .thenReturn(httpTransport);
 
-    googleProvider.getMe("12345");
+    assertThrows(HubAccessException.class, () -> googleProvider.getMe("12345"));
   }
 
-  @Test(expected = HubAccessException.class)
+  @Test
   public void getMe_ResponseJSONFailure() throws Exception {
     String responseJson = "this ain't JSON";
     MockLowLevelHttpResponse httpResponse = new MockLowLevelHttpResponse();
@@ -183,7 +186,7 @@ public class GoogleProviderImplTest extends Mockito {
     when(googleHttpProvider.getTransport())
       .thenReturn(httpTransport);
 
-    googleProvider.getMe("12345");
+    assertThrows(HubAccessException.class, () -> googleProvider.getMe("12345"));
   }
 
 }

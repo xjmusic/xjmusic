@@ -82,7 +82,7 @@ dependencies {
   implementation 'org.apache.httpcomponents:httpclient:4.5.13'
   implementation 'org.apache.httpcomponents:httpclient:4.5.13'
   implementation 'org.apache.httpcomponents:httpcore:4.4.14'
-  implementation 'org.flywaydb:flyway-core:8.0.1'
+  implementation 'org.flywaydb:flyway-core:9.16.0'
   implementation 'org.jooq:jooq-codegen:3.15.2'
   implementation 'org.jooq:jooq:3.15.2'
   implementation 'org.json:json:20220924'
@@ -91,12 +91,12 @@ dependencies {
   implementation 'org.reflections:reflections:0.10.1'
   implementation 'org.slf4j:slf4j-api:1.7.32'
   implementation 'org.springframework.boot:spring-boot-starter-web:2.7.6'
-  implementation 'org.yaml:snakeyaml:2.0'
+  implementation 'org.yaml:snakeyaml:1.33'
   implementation 'redis.clients:jedis:3.6.3'
   implementation 'software.amazon.awssdk:cloudwatch:2.17.61'
-  testFixturesImplementation 'com.google.guava:guava:31.0.1-jre'
   testFixturesImplementation 'com.google.api-client:google-api-client:1.31.5'
   testFixturesImplementation 'com.google.apis:google-api-services-plus:v1-rev20190328-1.30.10'
+  testFixturesImplementation 'com.google.guava:guava:31.0.1-jre'
   testFixturesImplementation 'com.typesafe:config:1.4.1'
   testFixturesImplementation 'org.jooq:jooq:3.15.2'
   testFixturesImplementation 'org.slf4j:slf4j-api:1.7.32'
@@ -106,6 +106,8 @@ dependencies {
   testImplementation 'org.assertj:assertj-core:3.21.0'
   testImplementation 'org.hamcrest:hamcrest-library:2.2'
   testImplementation 'org.mockito:mockito-core:4.0.0'
+  testImplementation 'org.mockito:mockito-junit-jupiter:4.6.1'
+  testImplementation 'org.springframework.boot:spring-boot-starter-test:2.7.6'
 }
 
 
@@ -186,4 +188,8 @@ jib {
   // set from CI command: (for building and pushing the image to multiple repositories)
   from.image = project.jibFromImage
   to.image = project.jibToImageRegistry + '/' + name
+}
+
+test {
+  useJUnitPlatform()
 }

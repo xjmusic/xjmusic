@@ -9,21 +9,23 @@ import io.xj.hub.ingest.HubIngest;
 import io.xj.hub.ingest.HubIngestFactory;
 import io.xj.hub.tables.pojos.*;
 import io.xj.lib.app.AppEnvironment;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.context.SpringBootTest;
+
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
 
 import static io.xj.hub.IntegrationTestingFixtures.*;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@SpringBootTest
 public class HubAnalysisTest {
   @Mock
   HubIngestFactory hubIngestFactory;
@@ -32,7 +34,7 @@ public class HubAnalysisTest {
   private Template template;
   private HubAccess access;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     // account
     Account account1 = buildAccount("testing");

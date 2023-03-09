@@ -11,31 +11,41 @@ import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.lib.app.AppEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Collection;
 import java.util.UUID;
 
-import static io.xj.hub.IntegrationTestingFixtures.*;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrument;
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrumentAudio;
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrumentMeme;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
+import static io.xj.hub.IntegrationTestingFixtures.buildUser;
 import static io.xj.hub.tables.InstrumentAudio.INSTRUMENT_AUDIO;
 import static io.xj.hub.tables.InstrumentMeme.INSTRUMENT_MEME;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 // future test: permissions of different users to readMany vs. of vs. update or delete instruments
 
 // FUTURE: any test that
 
-@RunWith(MockitoJUnitRunner.class)
+@SpringBootTest
 public class InstrumentManagerDbTest {
   private InstrumentManager subject;
   private HubIntegrationTest test;
   private IntegrationTestingFixtures fake;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     var env = AppEnvironment.getDefault();
     test = HubIntegrationTestFactory.build(env);
@@ -67,7 +77,7 @@ public class InstrumentManagerDbTest {
     subject = new InstrumentManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     test.shutdown();
   }
@@ -282,7 +292,7 @@ public class InstrumentManagerDbTest {
       subject.readOne(HubAccess.internal(), fake.instrument251.getId());
       fail();
     } catch (ManagerException e) {
-      assertTrue("Record should not exist", e.getMessage().contains("does not exist"));
+      assertTrue(e.getMessage().contains("does not exist"), "Record should not exist");
     }
   }
 

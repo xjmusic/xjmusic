@@ -12,10 +12,12 @@ import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
 import io.xj.lib.app.AppEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.context.SpringBootTest;
+
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collection;
@@ -23,10 +25,16 @@ import java.util.Iterator;
 import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 // future test: permissions of different users to readMany vs. of vs. update or destroy programs
-@RunWith(MockitoJUnitRunner.class)
+@SpringBootTest
 public class ProgramSequenceBindingMemeManagerDbTest {
   private ProgramSequenceBindingMemeManager testManager;
 
@@ -36,7 +44,7 @@ public class ProgramSequenceBindingMemeManagerDbTest {
   private ProgramSequenceBinding sequenceBinding1a_0;
   private ProgramSequenceBindingMeme sequenceBinding1a_0_meme0;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     var env = AppEnvironment.getDefault();
     test = HubIntegrationTestFactory.build(env);
@@ -74,7 +82,7 @@ public class ProgramSequenceBindingMemeManagerDbTest {
     testManager = new ProgramSequenceBindingMemeManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     test.shutdown();
   }

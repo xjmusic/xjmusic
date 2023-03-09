@@ -5,9 +5,9 @@ package io.xj.hub.api;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.util.ValueException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  Artist saves Template config, validate & combine with defaults. https://www.pivotaltracker.com/story/show/177355683

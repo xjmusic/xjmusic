@@ -11,10 +11,12 @@ import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.*;
 import io.xj.lib.app.AppEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.context.SpringBootTest;
+
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.*;
@@ -31,10 +33,16 @@ import static io.xj.hub.tables.ProgramSequencePattern.PROGRAM_SEQUENCE_PATTERN;
 import static io.xj.hub.tables.ProgramSequencePatternEvent.PROGRAM_SEQUENCE_PATTERN_EVENT;
 import static io.xj.hub.tables.ProgramVoice.PROGRAM_VOICE;
 import static io.xj.hub.tables.ProgramVoiceTrack.PROGRAM_VOICE_TRACK;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 // future test: permissions of different users to readMany vs. of vs. update or destroy programs
-@RunWith(MockitoJUnitRunner.class)
+@SpringBootTest
 public class ProgramManagerDbTest {
   private ProgramManager subject;
   private ProgramVoiceManager voiceManager;
@@ -43,7 +51,7 @@ public class ProgramManagerDbTest {
   private HubIntegrationTest test;
   private IntegrationTestingFixtures fake;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     var env = AppEnvironment.getDefault();
     test = HubIntegrationTestFactory.build(env);
@@ -88,7 +96,7 @@ public class ProgramManagerDbTest {
     subject = new ProgramManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     test.shutdown();
   }
@@ -339,7 +347,7 @@ public class ProgramManagerDbTest {
    * @param <N>     type of entity
    */
   private <N> void assertContains(Class<N> type, int total, Collection<Object> results) {
-    assertEquals(String.format("Exactly %s count of %s class in results", total, type.getSimpleName()), total, results.stream().filter(r -> type.isAssignableFrom(r.getClass())).count());
+    assertEquals(total, results.stream().filter(r -> type.isAssignableFrom(r.getClass())).count(), String.format("Exactly %s count of %s class in results", total, type.getSimpleName()));
   }
 
   @Test
@@ -448,7 +456,7 @@ public class ProgramManagerDbTest {
       subject.readOne(HubAccess.internal(), fake.program2.getId());
       fail();
     } catch (ManagerException e) {
-      assertTrue("Record should not exist", e.getMessage().contains("does not exist"));
+      assertTrue(e.getMessage().contains("does not exist"), "Record should not exist");
     }
   }
 

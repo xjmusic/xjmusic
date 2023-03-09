@@ -113,6 +113,11 @@ public class KubernetesAdminImpl implements KubernetesAdmin {
     updatePreviewNexus(userId, 0, null);
   }
 
+  @Override
+  public boolean isReady() {
+    return isConfigured;
+  }
+
   /**
    * Checks if the configuration needs to be reconfigured (based on expiry seconds) and return true if it is OK
    *

@@ -11,10 +11,12 @@ import io.xj.hub.kubernetes.KubernetesAdmin;
 import io.xj.hub.manager.*;
 import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.util.Text;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.context.SpringBootTest;
+
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -23,9 +25,16 @@ import java.util.Map;
 import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@RunWith(MockitoJUnitRunner.class)
+@SpringBootTest
 public class HubIngestIT {
 
   private HubIngestFactory ingestFactory;
@@ -43,7 +52,7 @@ public class HubIngestIT {
     return out;
   }
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     var env = AppEnvironment.getDefault();
     test = HubIntegrationTestFactory.build(env);
@@ -60,7 +69,7 @@ public class HubIngestIT {
     ingestFactory = new HubIngestFactoryImpl(test.getJsonProvider(), test.getEntityStore(), instrumentManager, programManager, templateManager, templateBindingManager);
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     test.shutdown();
   }

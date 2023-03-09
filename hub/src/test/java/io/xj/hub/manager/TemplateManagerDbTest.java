@@ -7,28 +7,49 @@ import io.xj.hub.HubIntegrationTest;
 import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.enums.*;
+import io.xj.hub.enums.InstrumentMode;
+import io.xj.hub.enums.InstrumentState;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramState;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.enums.TemplateType;
 import io.xj.hub.kubernetes.KubernetesAdmin;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.lib.app.AppEnvironment;
 import org.assertj.core.util.Lists;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.UUID;
 
-import static io.xj.hub.IntegrationTestingFixtures.*;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrument;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplateBinding;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplatePlayback;
+import static io.xj.hub.IntegrationTestingFixtures.buildUser;
 import static io.xj.hub.tables.TemplateBinding.TEMPLATE_BINDING;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@RunWith(MockitoJUnitRunner.class)
+@SpringBootTest
 public class TemplateManagerDbTest {
   @Mock
   private KubernetesAdmin kubernetesAdmin;
@@ -39,7 +60,7 @@ public class TemplateManagerDbTest {
   private Template template1a;
   private Template template1b;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     var env = AppEnvironment.getDefault();
     test = HubIntegrationTestFactory.build(env);
@@ -68,7 +89,7 @@ public class TemplateManagerDbTest {
     testManager = new TemplateManagerImpl(test.getEnv(), test.getEntityFactory(), test.getSqlStoreProvider(), templateBindingManager, templatePlaybackManager, templatePublicationManager);
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     test.shutdown();
   }
@@ -526,7 +547,7 @@ public class TemplateManagerDbTest {
     testManager.destroy(access, template1a.getId());
 
     var e = assertThrows(ManagerException.class, () -> testManager.readOne(HubAccess.internal(), template1a.getId()));
-    assertTrue("Record should not exist", e.getMessage().contains("does not exist"));
+    assertTrue(e.getMessage().contains("does not exist"), "Record should not exist");
   }
 
   @Test
@@ -538,7 +559,7 @@ public class TemplateManagerDbTest {
     testManager.destroy(access, template1a.getId());
 
     var e = assertThrows(ManagerException.class, () -> testManager.readOne(HubAccess.internal(), template1a.getId()));
-    assertTrue("Record should not exist", e.getMessage().contains("does not exist"));
+    assertTrue(e.getMessage().contains("does not exist"), "Record should not exist");
   }
 
   /**
@@ -555,7 +576,7 @@ public class TemplateManagerDbTest {
     testManager.destroy(access, template1a.getId());
 
     var e = assertThrows(ManagerException.class, () -> testManager.readOne(HubAccess.internal(), template1a.getId()));
-    assertTrue("Record should not exist", e.getMessage().contains("does not exist"));
+    assertTrue(e.getMessage().contains("does not exist"), "Record should not exist");
   }
 
   /**

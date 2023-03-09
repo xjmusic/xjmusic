@@ -6,21 +6,21 @@ import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.*;
 import io.xj.hub.tables.pojos.*;
 import io.xj.lib.app.AppEnvironment;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static io.xj.hub.IntegrationTestingFixtures.*;
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ReportEventsTest {
   private ReportEvents subject;
   private Program program2;
   private Instrument instrument1;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     // account
     Account account1 = buildAccount("testing");

@@ -10,8 +10,8 @@ import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceChord;
 import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
 import io.xj.hub.tables.pojos.ProgramVoice;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -22,7 +22,7 @@ import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequence;
 import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceChord;
 import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceChordVoicing;
 import static io.xj.hub.IntegrationTestingFixtures.buildProgramVoice;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  Chord Search while composing a main program
@@ -52,7 +52,7 @@ public class ChordVoicingDeduperTest {
 
   private ChordVoicingDeduper subject;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     account1 = buildAccount("bananas");
     library1 = buildLibrary(account1, "palm tree");

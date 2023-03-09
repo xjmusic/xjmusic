@@ -1,19 +1,21 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.access;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.context.SpringBootTest;
+
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 
-@RunWith(MockitoJUnitRunner.class)
+@SpringBootTest
 public class HubLocalAccessTokenTest {
   private HubAccessTokenGenerator hubAccessTokenGenerator;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     hubAccessTokenGenerator = new HubAccessTokenGeneratorImpl();
   }

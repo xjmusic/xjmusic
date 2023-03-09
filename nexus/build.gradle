@@ -80,7 +80,7 @@ dependencies {
   implementation 'org.reflections:reflections:0.10.1'
   implementation 'org.slf4j:log4j-over-slf4j:1.7.32'
   implementation 'org.slf4j:slf4j-api:1.7.32'
-  implementation 'org.yaml:snakeyaml:1.29'
+  implementation 'org.yaml:snakeyaml:1.33'
   implementation 'software.amazon.awssdk:cloudwatch:2.17.61'
   testFixturesImplementation 'com.google.guava:guava:31.0.1-jre'
   testFixturesImplementation 'com.typesafe:config:1.4.1'
