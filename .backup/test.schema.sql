@@ -4,8 +4,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 13.9 (Debian 13.9-1.pgdg110+1)
--- Dumped by pg_dump version 14.4
+-- Dumped from database version 13.10 (Debian 13.10-1.pgdg110+1)
+-- Dumped by pg_dump version 14.7 (Ubuntu 14.7-0ubuntu0.22.04.1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1290,8 +1290,8 @@ ALTER TABLE ONLY xj.user_auth
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 13.9 (Debian 13.9-1.pgdg110+1)
--- Dumped by pg_dump version 14.4
+-- Dumped from database version 13.10 (Debian 13.10-1.pgdg110+1)
+-- Dumped by pg_dump version 14.7 (Ubuntu 14.7-0ubuntu0.22.04.1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
