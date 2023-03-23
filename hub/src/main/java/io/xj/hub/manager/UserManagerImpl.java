@@ -12,9 +12,10 @@ import io.xj.hub.access.HubAccessException;
 import io.xj.hub.access.HubAccessTokenGenerator;
 import io.xj.hub.enums.UserAuthType;
 import io.xj.hub.enums.UserRoleType;
-import io.xj.hub.persistence.HubSqlStoreProvider;
-import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.persistence.HubKvStoreProvider;
+import io.xj.hub.persistence.HubPersistenceException;
+import io.xj.hub.persistence.HubPersistenceServiceImpl;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.AccountUser;
 import io.xj.hub.tables.pojos.User;
 import io.xj.hub.tables.pojos.UserAuth;
@@ -33,7 +34,6 @@ import org.jooq.SelectSelectStep;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import redis.clients.jedis.Jedis;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.Cookie;
@@ -43,12 +43,15 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static io.xj.hub.Tables.*;
+import static io.xj.hub.Tables.ACCOUNT_USER;
+import static io.xj.hub.Tables.USER;
+import static io.xj.hub.Tables.USER_AUTH;
+import static io.xj.hub.Tables.USER_AUTH_TOKEN;
 
 @Service
 public class UserManagerImpl extends HubPersistenceServiceImpl implements UserManager {
   private static final Logger LOG = LoggerFactory.getLogger(UserManagerImpl.class);
-  private final String redisSessionNamespace;
+  private final String sessionNamespace;
   private final HubKvStoreProvider hubKvStoreProvider;
   private final HubAccessTokenGenerator hubAccessTokenGenerator;
   private final GoogleProvider googleProvider;
@@ -58,7 +61,6 @@ public class UserManagerImpl extends HubPersistenceServiceImpl implements UserMa
   private final String tokenPath;
   private final int tokenMaxAge;
   private final Set<String> internalTokens;
-  private final EntityFactory entityFactory;
   private static final Logger log = LoggerFactory.getLogger(UserManagerImpl.class);
 
   public UserManagerImpl(
@@ -74,13 +76,12 @@ public class UserManagerImpl extends HubPersistenceServiceImpl implements UserMa
     this.hubAccessTokenGenerator = hubAccessTokenGenerator;
     this.googleProvider = googleProvider;
 
-    redisSessionNamespace = env.getRedisSessionNamespace();
+    sessionNamespace = env.getSessionNamespace();
     tokenName = env.getAccessTokenName();
     tokenDomain = env.getAccessTokenDomain();
     tokenPath = env.getAccessTokenPath();
     tokenMaxAge = env.getAccessTokenMaxAgeSeconds();
     internalTokens = ImmutableSet.of(env.getIngestTokenValue());
-    this.entityFactory = entityFactory;
   }
 
   /**
@@ -427,7 +428,7 @@ public class UserManagerImpl extends HubPersistenceServiceImpl implements UserMa
   }
 
   /**
-   * Destroy an access token, first in Redis, then (if successful) in SQL.
+   * Destroy an access token
    *
    * @param db              context
    * @param userAccessToken record of user access token to destroy
@@ -463,14 +464,10 @@ public class UserManagerImpl extends HubPersistenceServiceImpl implements UserMa
   public String create(User user, UserAuth userAuth, Collection<AccountUser> accountUsers) throws HubAccessException {
     String accessToken = hubAccessTokenGenerator.generate();
     HubAccess access = HubAccess.create(user, userAuth, accountUsers.stream().map(AccountUser::getAccountId).collect(Collectors.toList()));
-    Jedis client = hubKvStoreProvider.getClient();
     try {
-      client.set(computeKey(accessToken), entityFactory.serialize(access));
-      client.close();
-    } catch (Exception e) {
-      client.close();
-      LOG.error("Redis database connection", e);
-      throw new HubAccessException("Redis database connection", e);
+      hubKvStoreProvider.set(computeKey(accessToken), access);
+    } catch (HubPersistenceException e) {
+      throw new HubAccessException(e);
     }
     return accessToken;
   }
@@ -478,13 +475,10 @@ public class UserManagerImpl extends HubPersistenceServiceImpl implements UserMa
 
   @Override
   public void expire(String token) throws HubAccessException {
-    Jedis client = hubKvStoreProvider.getClient();
     try {
-      client.del(computeKey(token));
-      client.close();
+      hubKvStoreProvider.del(computeKey(token));
     } catch (Exception e) {
-      client.close();
-      throw new HubAccessException("Redis error", e);
+      throw new HubAccessException(e);
     }
   }
 
@@ -492,15 +486,13 @@ public class UserManagerImpl extends HubPersistenceServiceImpl implements UserMa
   public HubAccess get(String token) throws HubAccessException {
     if (internalTokens.contains(token)) return HubAccess.internal();
 
-    Jedis client = hubKvStoreProvider.getClient();
+
     try {
-      HubAccess access = entityFactory.deserialize(HubAccess.class, client.get(computeKey(token)));
-      client.close();
+      HubAccess access = hubKvStoreProvider.get(HubAccess.class, computeKey(token));
       if (Objects.isNull(access)) throw new HubAccessException("Token does not exist!");
       return access;
     } catch (Exception e) {
-      client.close();
-      throw new HubAccessException("Redis error(" + e.getClass().getName() + ")", e);
+      throw new HubAccessException(e);
     }
   }
 
@@ -557,6 +549,6 @@ public class UserManagerImpl extends HubPersistenceServiceImpl implements UserMa
 
   @Override
   public String computeKey(String token) {
-    return String.format("%s:%s", redisSessionNamespace, token);
+    return String.format("%s:%s", sessionNamespace, token);
   }
 }

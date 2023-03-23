@@ -12,22 +12,38 @@ import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.*;
+import io.xj.lib.jsonapi.JsonapiPayload;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.JsonapiPayloadObject;
+import io.xj.lib.jsonapi.JsonapiResponseProvider;
+import io.xj.lib.jsonapi.PayloadDataType;
 import io.xj.lib.util.CSV;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Nullable;
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.*;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Instruments
  */
-@Path("api/1/instruments")
+@RestController
+@RequestMapping("/api/1/instruments")
 public class InstrumentController extends HubJsonapiEndpoint {
   private final InstrumentManager manager;
   private final InstrumentMemeManager instrumentMemeManager;
@@ -56,13 +72,13 @@ public class InstrumentController extends HubJsonapiEndpoint {
    * @param detailed  whether to include memes and bindings
    * @return set of all instruments
    */
-  @GET
+  @GetMapping
   @RolesAllowed(USER)
   public ResponseEntity<JsonapiPayload> readMany(
-    HttpServletRequest req, HttpServletResponse res,
-    @Nullable @QueryParam("accountId") UUID accountId,
-    @Nullable @QueryParam("libraryId") UUID libraryId,
-    @Nullable @QueryParam("detailed") Boolean detailed
+    HttpServletRequest req,
+    @Nullable @RequestParam("accountId") UUID accountId,
+    @Nullable @RequestParam("libraryId") UUID libraryId,
+    @Nullable @RequestParam("detailed") Boolean detailed
   ) {
     try {
       HubAccess access = HubAccess.fromRequest(req);
@@ -99,13 +115,12 @@ public class InstrumentController extends HubJsonapiEndpoint {
    * @param jsonapiPayload with which to update Instrument record.
    * @return ResponseEntity
    */
-  @POST
-  @Consumes(MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping
   @RolesAllowed(ARTIST)
   public ResponseEntity<JsonapiPayload> create(
-    HttpServletRequest req, HttpServletResponse res,
-    JsonapiPayload jsonapiPayload,
-    @Nullable @QueryParam("cloneId") UUID cloneId
+    HttpServletRequest req,
+    @RequestBody JsonapiPayload jsonapiPayload,
+    @Nullable @RequestParam("cloneId") UUID cloneId
   ) {
     try {
       HubAccess access = HubAccess.fromRequest(req);
@@ -136,13 +151,12 @@ public class InstrumentController extends HubJsonapiEndpoint {
    *
    * @return application/json response.
    */
-  @GET
-  @Path("{id}")
+  @GetMapping("{id}")
   @RolesAllowed(USER)
   public ResponseEntity<JsonapiPayload> readOne(
-    HttpServletRequest req, HttpServletResponse res,
-    @PathParam("id") UUID id,
-    @Nullable @QueryParam("include") String include
+    HttpServletRequest req,
+    @PathVariable("id") UUID id,
+    @Nullable @RequestParam("include") String include
   ) {
     try {
       HubAccess access = HubAccess.fromRequest(req);
@@ -175,11 +189,9 @@ public class InstrumentController extends HubJsonapiEndpoint {
    * @param jsonapiPayload with which to update Instrument record.
    * @return ResponseEntity
    */
-  @PATCH
-  @Path("{id}")
-  @Consumes(MediaType.APPLICATION_JSON_VALUE)
+  @PatchMapping("{id}")
   @RolesAllowed(ARTIST)
-  public ResponseEntity<JsonapiPayload> update(JsonapiPayload jsonapiPayload, HttpServletRequest req, @PathParam("id") UUID id) {
+  public ResponseEntity<JsonapiPayload> update(@RequestBody JsonapiPayload jsonapiPayload, HttpServletRequest req, @PathVariable("id") UUID id) {
     return update(req, manager(), id, jsonapiPayload);
   }
 
@@ -188,10 +200,9 @@ public class InstrumentController extends HubJsonapiEndpoint {
    *
    * @return ResponseEntity
    */
-  @DELETE
-  @Path("{id}")
+  @DeleteMapping("{id}")
   @RolesAllowed(ARTIST)
-  public ResponseEntity<JsonapiPayload> delete(HttpServletRequest req, @PathParam("id") UUID id) {
+  public ResponseEntity<JsonapiPayload> delete(HttpServletRequest req, @PathVariable("id") UUID id) {
     return delete(req, manager(), id);
   }
 

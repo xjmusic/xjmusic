@@ -9,14 +9,18 @@ import io.xj.hub.manager.UserManager;
 import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.User;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.JsonapiResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import org.springframework.http.MediaType;
+import io.xj.lib.jsonapi.JsonapiResponseProvider;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Objects;
 import java.util.UUID;
@@ -24,7 +28,8 @@ import java.util.UUID;
 /**
  * Current user
  */
-@Path("api/1")
+@RestController
+@RequestMapping("/api/1")
 public class UserController extends HubJsonapiEndpoint {
   private final UserManager manager;
 
@@ -47,8 +52,7 @@ public class UserController extends HubJsonapiEndpoint {
    *
    * @return application/json response.
    */
-  @GET
-  @Path("users")
+  @GetMapping("users")
   @RolesAllowed(USER)
   public ResponseEntity<JsonapiPayload> readMany(HttpServletRequest req) {
     return readMany(req, manager(), ImmutableList.of());
@@ -59,10 +63,9 @@ public class UserController extends HubJsonapiEndpoint {
    *
    * @return application/json response.
    */
-  @GET
-  @Path("users/{id}")
+  @GetMapping("users/{id}")
   @RolesAllowed(USER)
-  public ResponseEntity<JsonapiPayload> readOne(HttpServletRequest req, @PathParam("id") UUID id) {
+  public ResponseEntity<JsonapiPayload> readOne(HttpServletRequest req, @PathVariable("id") UUID id) {
     return readOne(req, manager(), id);
   }
 
@@ -72,11 +75,9 @@ public class UserController extends HubJsonapiEndpoint {
    * @param jsonapiPayload with which to update User record.
    * @return ResponseEntity.
    */
-  @PATCH
-  @Path("users/{id}")
-  @Consumes(MediaType.APPLICATION_JSON_VALUE)
+  @PatchMapping("users/{id}")
   @RolesAllowed(ADMIN)
-  public ResponseEntity<JsonapiPayload> update(JsonapiPayload jsonapiPayload, HttpServletRequest req, @PathParam("id") UUID id) {
+  public ResponseEntity<JsonapiPayload> update(@RequestBody JsonapiPayload jsonapiPayload, HttpServletRequest req, @PathVariable("id") UUID id) {
     return update(req, manager(), id, jsonapiPayload);
   }
 
@@ -85,8 +86,7 @@ public class UserController extends HubJsonapiEndpoint {
    *
    * @return application/json response.
    */
-  @GET
-  @Path("users/me")
+  @GetMapping("users/me")
   @RolesAllowed({USER})
   public ResponseEntity<JsonapiPayload> getCurrentlyAuthenticatedUser(HttpServletRequest req) {
     UUID userId;

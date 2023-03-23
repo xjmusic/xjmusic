@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.security.PermitAll;
-import javax.ws.rs.GET;
 import java.sql.SQLException;
 
 @RestController
@@ -24,12 +23,11 @@ public class HealthController {
     this.kubernetesAdmin = kubernetesAdmin;
   }
 
-  @GET
   @PermitAll
   @GetMapping("/healthz")
   public ResponseEntity<String> index() {
     try (
-      var ignoredSqlConnection = sqlStoreProvider.getDataSource().getConnection();
+      var ignoredSqlConnection = sqlStoreProvider.getDataSource().getConnection()
     ) {
       if (!kubernetesAdmin.isReady()) {
         return ResponseEntity.internalServerError()

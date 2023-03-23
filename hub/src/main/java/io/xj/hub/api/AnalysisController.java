@@ -7,17 +7,18 @@ import io.xj.hub.analysis.HubAnalysisFactory;
 import io.xj.hub.analysis.Report;
 import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.JsonapiResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.JsonapiResponseProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
@@ -25,7 +26,8 @@ import java.util.UUID;
 /**
  * Template content Analysis https://www.pivotaltracker.com/story/show/161199945
  */
-@Path("api/1/analysis")
+@RestController
+@RequestMapping("/api/1/analysis")
 public class AnalysisController extends HubJsonapiEndpoint {
   private static final Logger LOG = LoggerFactory.getLogger(AnalysisController.class);
   private final HubAnalysisFactory analysisFactory;
@@ -49,13 +51,12 @@ public class AnalysisController extends HubJsonapiEndpoint {
    *
    * @return text/html response.
    */
-  @GET
-  @Path("{templateId}/{type}")
+  @GetMapping("{templateId}/{type}")
   @RolesAllowed(ARTIST)
   public ResponseEntity<String> analysis(
     HttpServletRequest req, HttpServletResponse res,
-    @PathParam("templateId") String templateId,
-    @PathParam("type") String type
+    @PathVariable("templateId") String templateId,
+    @PathVariable("type") String type
   ) {
     try {
       return ResponseEntity

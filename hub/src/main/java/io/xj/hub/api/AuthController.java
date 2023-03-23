@@ -12,8 +12,8 @@ import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.json.ApiUrlProvider;
-import io.xj.lib.jsonapi.JsonapiResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.JsonapiResponseProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -35,7 +35,7 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/auth")
 public class AuthController extends HubJsonapiEndpoint {
-  private static final Logger log = LoggerFactory.getLogger(AuthController.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AuthController.class);
   private final ApiUrlProvider apiUrlProvider;
   private final GoogleProvider authGoogleProvider;
   private final UserManager userManager;
@@ -79,7 +79,7 @@ public class AuthController extends HubJsonapiEndpoint {
         .contentType(MediaType.APPLICATION_JSON)
         .body(access);
     } else {
-      res.sendRedirect(apiUrlProvider.getApiUrlString(appPathUnauthorized));
+      res.sendRedirect(apiUrlProvider.getAppUrl(appPathUnauthorized));
       return ResponseEntity.noContent().build();
     }
   }
@@ -117,7 +117,7 @@ public class AuthController extends HubJsonapiEndpoint {
       url = authGoogleProvider.getAuthCodeRequestUrl();
       res.sendRedirect(url);
     } catch (HubAccessException | IOException e) {
-      log.error("Google Auth Provider Failed!", e);
+      LOG.error("Google Auth Provider Failed!", e);
       res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
     }
   }
@@ -132,20 +132,26 @@ public class AuthController extends HubJsonapiEndpoint {
     AuthorizationCodeResponseUrl authResponse;
     String accessToken;
     try {
-      authResponse = new AuthorizationCodeResponseUrl(req.getRequestURI());
+      authResponse = new AuthorizationCodeResponseUrl(apiUrlProvider.getAppUrl(String.format("%s?%s",req.getRequestURI(),req.getQueryString())));
       if (Objects.nonNull(authResponse.getError())) {
         res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Authorization denied: " + authResponse.getErrorDescription());
+        return;
       }
       accessToken = userManager.authenticate(authResponse.getCode());
       res.addCookie(userManager.newCookie(accessToken));
-      res.sendRedirect(apiUrlProvider.getApiUrlString(appPathWelcome));
+      res.sendRedirect(apiUrlProvider.getAppUrl(appPathWelcome));
     } catch (IllegalArgumentException e) {
-      res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Authorization code response URL missing required parameter(s)");
+      logAndSendInternalError(res, "Authorization code response URL missing required parameter(s)!", e);
     } catch (ManagerException e) {
-      res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Authentication failed: " + e.getMessage());
+      logAndSendInternalError(res, "Authentication failed!", e);
     } catch (Exception e) {
-      res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unknown error with authenticating access code: " + e.getMessage());
+      logAndSendInternalError(res, "Unknown error with authenticating access code!", e);
     }
+  }
+
+  private void logAndSendInternalError(HttpServletResponse res, String message, Exception e) throws IOException {
+    res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, String.format("%s\n%s", message, e.getMessage()));
+    LOG.error(message, e);
   }
 
 }

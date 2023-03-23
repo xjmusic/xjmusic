@@ -150,9 +150,9 @@ public class HubAccessTokenAuthFilter implements OrderedFilter {
    *
    * @param e pertaining to denial.
    */
-  private void deny(HttpServletRequest req, HttpServletResponse res, Exception e) throws IOException {
+  private void deny(HttpServletRequest req, HttpServletResponse res, Exception e) {
     LOG.debug("Denied {} ({})", req.getRequestURI(), e.getMessage());
-    res.sendRedirect(apiUrlProvider.getApiUrlString(appPathUnauthorized));
+    res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
   }
 
   /**

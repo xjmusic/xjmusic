@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest
 public class HubAccessControlIT {
   private static final AppEnvironment env = AppEnvironment.from(ImmutableMap.of(
-    "REDIS_SESSION_NAMESPACE", "xj_session_test"
+    "SESSION_NAMESPACE", "xj_session_test"
   ));
 
   private static final int STRESS_TEST_ITERATIONS = 100;

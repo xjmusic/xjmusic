@@ -8,15 +8,11 @@ import io.xj.lib.util.ValueException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- Artist saves Program config, validate & combine with defaults. https://www.pivotaltracker.com/story/show/177355683
+ * Artist saves Program config, validate & combine with defaults. https://www.pivotaltracker.com/story/show/177355683
  */
 public class ProgramConfigTest {
 
@@ -27,14 +23,14 @@ public class ProgramConfigTest {
 
     var subject = new ProgramConfig(program);
 
-    assertTrue( subject.doPatternRestartOnChord());
+    assertTrue(subject.doPatternRestartOnChord());
   }
 
   @Test
   public void setFromDefaults() throws ValueException {
     var subject = new ProgramConfig(ProgramConfig.DEFAULT);
 
-    assertFalse( subject.doPatternRestartOnChord());
+    assertFalse(subject.doPatternRestartOnChord());
   }
 
   @Test

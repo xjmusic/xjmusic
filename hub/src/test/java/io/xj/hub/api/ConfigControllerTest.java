@@ -18,26 +18,17 @@ import io.xj.lib.jsonapi.PayloadDataType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 public class ConfigControllerTest {
   private ConfigController subject;
-
-  @Mock
-  HttpServletRequest req;
-
-  @Mock
-  HttpServletResponse res;
 
   @Mock
   ApiUrlProvider apiUrlProvider;

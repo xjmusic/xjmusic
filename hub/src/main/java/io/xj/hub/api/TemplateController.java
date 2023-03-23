@@ -10,18 +10,29 @@ import io.xj.hub.manager.TemplateManager;
 import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.*;
+import io.xj.lib.jsonapi.JsonapiPayload;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.JsonapiPayloadObject;
+import io.xj.lib.jsonapi.JsonapiResponseProvider;
+import io.xj.lib.jsonapi.PayloadDataType;
 import io.xj.lib.util.CSV;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Nullable;
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.*;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -30,7 +41,8 @@ import java.util.UUID;
 /**
  * Templates
  */
-@Path("api/1/templates")
+@RestController
+@RequestMapping("/api/1/templates")
 public class TemplateController extends HubJsonapiEndpoint {
   private static final Logger LOG = LoggerFactory.getLogger(TemplateController.class);
   private final TemplateManager manager;
@@ -54,11 +66,11 @@ public class TemplateController extends HubJsonapiEndpoint {
    *
    * @return application/json response.
    */
-  @GET
+  @GetMapping
   @RolesAllowed(USER)
   public ResponseEntity<JsonapiPayload> readMany(
-    HttpServletRequest req, HttpServletResponse res,
-    @Nullable @QueryParam("accountId") UUID accountId
+    HttpServletRequest req,
+    @Nullable @RequestParam("accountId") UUID accountId
   ) {
     if (Objects.nonNull(accountId))
       return readMany(req, manager(), accountId);
@@ -74,13 +86,12 @@ public class TemplateController extends HubJsonapiEndpoint {
    * @param jsonapiPayload with which to update Template record.
    * @return ResponseEntity
    */
-  @POST
-  @Consumes(MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping
   @RolesAllowed(ARTIST)
   public ResponseEntity<JsonapiPayload> create(
-    JsonapiPayload jsonapiPayload,
-    HttpServletRequest req, HttpServletResponse res,
-    @Nullable @QueryParam("cloneId") UUID cloneId
+    @RequestBody JsonapiPayload jsonapiPayload,
+    HttpServletRequest req,
+    @Nullable @RequestParam("cloneId") UUID cloneId
   ) {
 
     try {
@@ -112,13 +123,12 @@ public class TemplateController extends HubJsonapiEndpoint {
    *
    * @return application/json response.
    */
-  @GET
-  @Path("{identifier}")
+  @GetMapping("{identifier}")
   @RolesAllowed(USER)
   public ResponseEntity<JsonapiPayload> readOne(
-    HttpServletRequest req, HttpServletResponse res,
-    @PathParam("identifier") String identifier,
-    @Nullable @QueryParam("include") String include
+    HttpServletRequest req,
+    @PathVariable("identifier") String identifier,
+    @Nullable @RequestParam("include") String include
   ) {
     var access = HubAccess.fromRequest(req);
 
@@ -161,12 +171,11 @@ public class TemplateController extends HubJsonapiEndpoint {
    *
    * @return text/plain response.
    */
-  @GET
-  @Path("{id}/log")
+  @GetMapping("{id}/log")
   @RolesAllowed(USER)
   public ResponseEntity<String> readLog(
-    HttpServletRequest req, HttpServletResponse res,
-    @PathParam("id") UUID templateId
+    HttpServletRequest req,
+    @PathVariable("id") UUID templateId
   ) {
     var access = HubAccess.fromRequest(req);
 
@@ -188,11 +197,9 @@ public class TemplateController extends HubJsonapiEndpoint {
    * @param jsonapiPayload with which to update Template record.
    * @return ResponseEntity
    */
-  @PATCH
-  @Path("{id}")
-  @Consumes(MediaType.APPLICATION_JSON_VALUE)
+  @PatchMapping("{id}")
   @RolesAllowed({ADMIN, ENGINEER})
-  public ResponseEntity<JsonapiPayload> update(JsonapiPayload jsonapiPayload, HttpServletRequest req, @PathParam("id") UUID id) {
+  public ResponseEntity<JsonapiPayload> update(@RequestBody JsonapiPayload jsonapiPayload, HttpServletRequest req, @PathVariable("id") UUID id) {
     return update(req, manager(), id, jsonapiPayload);
   }
 
@@ -201,10 +208,9 @@ public class TemplateController extends HubJsonapiEndpoint {
    *
    * @return ResponseEntity
    */
-  @DELETE
-  @Path("{id}")
+  @DeleteMapping("{id}")
   @RolesAllowed({ADMIN, ENGINEER})
-  public ResponseEntity<JsonapiPayload> delete(HttpServletRequest req, @PathParam("id") UUID id) {
+  public ResponseEntity<JsonapiPayload> delete(HttpServletRequest req, @PathVariable("id") UUID id) {
     return delete(req, manager(), id);
   }
 
@@ -217,12 +223,11 @@ public class TemplateController extends HubJsonapiEndpoint {
    *
    * @return set of all template playbacks, or one preview template
    */
-  @GET
-  @Path("playing")
+  @GetMapping("playing")
   @RolesAllowed(USER)
   public ResponseEntity<JsonapiPayload> readAllPlaying(
-    HttpServletRequest req, HttpServletResponse res,
-    @Nullable @QueryParam("userId") UUID userId
+    HttpServletRequest req,
+    @Nullable @RequestParam("userId") UUID userId
   ) {
     try {
       HubAccess access = HubAccess.fromRequest(req);

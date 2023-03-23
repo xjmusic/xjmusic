@@ -21,24 +21,28 @@ import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
-import io.xj.lib.jsonapi.*;
+import io.xj.lib.jsonapi.JsonapiException;
+import io.xj.lib.jsonapi.JsonapiPayload;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.lib.jsonapi.JsonapiResponseProvider;
+import io.xj.lib.jsonapi.JsonapiResponseProviderImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-import static io.xj.hub.IntegrationTestingFixtures.*;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrument;
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrumentMeme;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
 import static io.xj.hub.access.HubAccess.CONTEXT_KEY;
 import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -52,8 +56,6 @@ import static org.mockito.Mockito.when;
 public class InstrumentControllerTest {
   @Mock
   HttpServletRequest req;
-  @Mock
-  HttpServletResponse res;
   @Mock
   InstrumentManager instrumentManager;
   @Mock
@@ -103,7 +105,7 @@ public class InstrumentControllerTest {
     when(instrumentManager.readMany(same(access), eq(ImmutableList.of(library25.getId()))))
       .thenReturn(instruments);
 
-    var result = subject.readMany(req, res, null, library25.getId(), false);
+    var result = subject.readMany(req, null, library25.getId(), false);
 
     verify(instrumentManager).readMany(same(access), eq(ImmutableList.of(library25.getId())));
     assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -124,7 +126,7 @@ public class InstrumentControllerTest {
     instrument1.setDensity(0.6f);
     when(instrumentManager.readOne(same(access), eq(instrument1.getId()))).thenReturn(instrument1);
 
-    var result = subject.readOne(req, res, instrument1.getId(), "");
+    var result = subject.readOne(req, instrument1.getId(), "");
 
     assertEquals(HttpStatus.OK, result.getStatusCode());
     assertTrue(result.hasBody());
@@ -137,14 +139,14 @@ public class InstrumentControllerTest {
    * Lab UI should load memes when directly visiting an instrument https://www.pivotaltracker.com/story/show/181129203
    */
   @Test
-  public void readOne_includingMemes() throws ManagerException, IOException, JsonapiException {
+  public void readOne_includingMemes() throws ManagerException, JsonapiException {
     when(req.getAttribute(CONTEXT_KEY)).thenReturn(access);
     var instrument1 = buildInstrument(library1, InstrumentType.Drum, InstrumentMode.Event, InstrumentState.Published, "test");
     var instrumentMeme1 = buildInstrumentMeme(instrument1, "RED");
     when(instrumentManager.readOne(same(access), eq(instrument1.getId()))).thenReturn(instrument1);
     when(instrumentManager.readChildEntities(same(access), eq(List.of(instrument1.getId())), eq(List.of("instrument-meme")))).thenReturn(List.of(instrumentMeme1));
 
-    var result = subject.readOne(req, res, instrument1.getId(), "instrument-meme");
+    var result = subject.readOne(req, instrument1.getId(), "instrument-meme");
 
     assertEquals(HttpStatus.OK, result.getStatusCode());
     assertTrue(result.hasBody());

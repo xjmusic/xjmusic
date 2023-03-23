@@ -22,22 +22,25 @@ import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
-import io.xj.lib.jsonapi.*;
+import io.xj.lib.jsonapi.JsonapiException;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.lib.jsonapi.JsonapiResponseProvider;
+import io.xj.lib.jsonapi.JsonapiResponseProviderImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
 import java.util.UUID;
 
-import static io.xj.hub.IntegrationTestingFixtures.*;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplatePublication;
+import static io.xj.hub.IntegrationTestingFixtures.buildUser;
 import static io.xj.hub.access.HubAccess.CONTEXT_KEY;
 import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -54,8 +57,6 @@ import static org.mockito.Mockito.when;
 public class TemplatePublicationControllerTest {
   @Mock
   HttpServletRequest req;
-  @Mock
-  HttpServletResponse res;
   @Mock
   TemplatePublicationManager templatePublicationManager;
   @Mock
@@ -97,7 +98,7 @@ public class TemplatePublicationControllerTest {
     when(templatePublicationManager.readMany(same(access), eq(ImmutableList.of(template25.getId()))))
       .thenReturn(templatePublications);
 
-    var result = subject.readManyForTemplate(req, res, template25.getId().toString());
+    var result = subject.readManyForTemplate(req, template25.getId().toString());
 
     verify(templatePublicationManager).readMany(same(access), eq(ImmutableList.of(template25.getId())));
     assertEquals(HttpStatus.OK, result.getStatusCode());

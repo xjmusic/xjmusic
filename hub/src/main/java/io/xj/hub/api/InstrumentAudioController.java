@@ -9,18 +9,25 @@ import io.xj.hub.manager.InstrumentAudioManager;
 import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.JsonapiResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.JsonapiResponseProvider;
 import io.xj.lib.jsonapi.PayloadDataType;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Nullable;
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.*;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -29,7 +36,8 @@ import java.util.UUID;
 /**
  * InstrumentAudio endpoint
  */
-@Path("api/1/instrument-audios")
+@RestController
+@RequestMapping("/api/1/instrument-audios")
 public class InstrumentAudioController extends HubJsonapiEndpoint {
   private final InstrumentAudioManager manager;
 
@@ -53,13 +61,12 @@ public class InstrumentAudioController extends HubJsonapiEndpoint {
    * @param jsonapiPayload with which to of InstrumentAudio Binding
    * @return ResponseEntity
    */
-  @POST
-  @Consumes(MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping
   @RolesAllowed(ARTIST)
   public ResponseEntity<JsonapiPayload> create(
-    JsonapiPayload jsonapiPayload,
-    HttpServletRequest req, HttpServletResponse res,
-    @Nullable @QueryParam("cloneId") UUID cloneId
+    @RequestBody JsonapiPayload jsonapiPayload,
+    HttpServletRequest req,
+    @Nullable @RequestParam("cloneId") UUID cloneId
   ) {
     try {
       HubAccess access = HubAccess.fromRequest(req);
@@ -82,10 +89,9 @@ public class InstrumentAudioController extends HubJsonapiEndpoint {
    *
    * @return application/json response.
    */
-  @GET
-  @Path("{id}/upload")
+  @GetMapping("{id}/upload")
   @RolesAllowed(ARTIST)
-  public ResponseEntity<Map<String, String>> uploadOne(HttpServletRequest req, HttpServletResponse res, @PathParam("id") UUID id, @QueryParam("extension") String extension) {
+  public ResponseEntity<Map<String, String>> uploadOne(HttpServletRequest req, @PathVariable("id") UUID id, @RequestParam("extension") String extension) {
     try {
       Map<String, String> result = manager().authorizeUpload(HubAccess.fromRequest(req), id, extension);
       if (null != result) {
@@ -108,25 +114,22 @@ public class InstrumentAudioController extends HubJsonapiEndpoint {
    *
    * @return application/json response.
    */
-  @GET
-  @Path("{id}")
+  @GetMapping("{id}")
   @RolesAllowed(ARTIST)
-  public ResponseEntity<JsonapiPayload> readOne(HttpServletRequest req, @PathParam("id") UUID id) {
+  public ResponseEntity<JsonapiPayload> readOne(HttpServletRequest req, @PathVariable("id") UUID id) {
     return readOne(req, manager(), id);
   }
 
   /**
    * Get Bindings in one instrumentAudio.
    *
-   * @param detailed whether to include events and chords
    * @return application/json response.
    */
-  @GET
+  @GetMapping
   @RolesAllowed(ARTIST)
   public ResponseEntity<JsonapiPayload> readMany(
-    HttpServletRequest req, HttpServletResponse res,
-    @QueryParam("instrumentId") String instrumentId,
-    @QueryParam("detailed") Boolean detailed
+    HttpServletRequest req,
+    @RequestParam("instrumentId") String instrumentId
   ) {
     try {
       JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataType(PayloadDataType.Many);
@@ -150,11 +153,9 @@ public class InstrumentAudioController extends HubJsonapiEndpoint {
    * @param jsonapiPayload with which to update InstrumentAudio record.
    * @return ResponseEntity
    */
-  @PATCH
-  @Path("{id}")
-  @Consumes(MediaType.APPLICATION_JSON_VALUE)
+  @PatchMapping("{id}")
   @RolesAllowed(ARTIST)
-  public ResponseEntity<JsonapiPayload> update(JsonapiPayload jsonapiPayload, HttpServletRequest req, @PathParam("id") UUID id) {
+  public ResponseEntity<JsonapiPayload> update(@RequestBody JsonapiPayload jsonapiPayload, HttpServletRequest req, @PathVariable("id") UUID id) {
     return update(req, manager(), id, jsonapiPayload);
   }
 
@@ -163,10 +164,9 @@ public class InstrumentAudioController extends HubJsonapiEndpoint {
    *
    * @return application/json response.
    */
-  @DELETE
-  @Path("{id}")
+  @DeleteMapping("{id}")
   @RolesAllowed(ARTIST)
-  public ResponseEntity<JsonapiPayload> delete(HttpServletRequest req, @PathParam("id") UUID id) {
+  public ResponseEntity<JsonapiPayload> delete(HttpServletRequest req, @PathVariable("id") UUID id) {
     return delete(req, manager(), id);
   }
 

@@ -63,7 +63,7 @@ public class AppEnvironment {
   private final String postgresSchemas;
   private final String postgresUser;
   private final String redisHost;
-  private final String redisSessionNamespace;
+  private final String sessionNamespace;
   private final String shipBaseUrl;
   private final String shipBucket;
   private final String shipChunkAudioEncoder;
@@ -241,10 +241,10 @@ public class AppEnvironment {
     postgresSchemas = readStr(vars, "POSTGRES_SCHEMAS", "xj");
     postgresUser = readStr(vars, "POSTGRES_USER", "postgres");
 
-    // Resource: Redis
+    // Resource: Key-Value Store (Redis)
     redisHost = readStr(vars, "REDIS_HOST", "localhost");
     redisPort = readInt(vars, "REDIS_PORT", 6379);
-    redisSessionNamespace = readStr(vars, "REDIS_SESSION_NAMESPACE", "xj_session");
+    sessionNamespace = readStr(vars, "SESSION_NAMESPACE", "xj_session");
   }
 
   /**
@@ -704,10 +704,10 @@ public class AppEnvironment {
   }
 
   /**
-   * @return the redis session namespace
+   * @return the session namespace
    */
-  public String getRedisSessionNamespace() {
-    return redisSessionNamespace;
+  public String getSessionNamespace() {
+    return sessionNamespace;
   }
 
   /**
@@ -1033,16 +1033,18 @@ public class AppEnvironment {
   }
 
   /**
-   https://github.com/GoogleCloudPlatform/cloud-sql-jdbc-socket-factory/blob/main/docs/jdbc-postgres.md
-   @return the Google Cloud SQL Socket Factory class name
+   * https://github.com/GoogleCloudPlatform/cloud-sql-jdbc-socket-factory/blob/main/docs/jdbc-postgres.md
+   *
+   * @return the Google Cloud SQL Socket Factory class name
    */
   public String getGcpCloudSqlSocketFactory() {
     return gcpCloudSqlSocketFactory;
   }
 
   /**
-   https://github.com/GoogleCloudPlatform/cloud-sql-jdbc-socket-factory/blob/main/docs/jdbc-postgres.md
-   @return the Google Cloud SQL database instance name
+   * https://github.com/GoogleCloudPlatform/cloud-sql-jdbc-socket-factory/blob/main/docs/jdbc-postgres.md
+   *
+   * @return the Google Cloud SQL database instance name
    */
   public String getGcpCloudSqlInstance() {
     return gcpCloudSqlInstance;

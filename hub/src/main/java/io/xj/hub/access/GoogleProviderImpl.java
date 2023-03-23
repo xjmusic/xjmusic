@@ -71,7 +71,7 @@ public class GoogleProviderImpl implements GoogleProvider {
 
   @Override
   public String getCallbackUrl() {
-    return apiUrlProvider.getApiUrlString(CALLBACK_PATH);
+    return apiUrlProvider.getAppUrl(CALLBACK_PATH);
   }
 
   @Override

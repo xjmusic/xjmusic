@@ -21,18 +21,19 @@ import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
-import io.xj.lib.jsonapi.*;
+import io.xj.lib.jsonapi.JsonapiException;
+import io.xj.lib.jsonapi.JsonapiPayload;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.lib.jsonapi.JsonapiResponseProvider;
+import io.xj.lib.jsonapi.JsonapiResponseProviderImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.UUID;
@@ -52,8 +53,6 @@ import static org.mockito.Mockito.when;
 public class ProgramControllerTest {
   @Mock
   HttpServletRequest req;
-  @Mock
-  HttpServletResponse res;
   @Mock
   ProgramManager programManager;
   @Mock
@@ -109,7 +108,7 @@ public class ProgramControllerTest {
     when(programManager.readMany(same(access), eq(ImmutableList.of(library25.getId()))))
       .thenReturn(programs);
 
-    var result = subject.readMany(req, res, null, library25.getId(), false);
+    var result = subject.readMany(req, null, library25.getId(), false);
 
     verify(programManager).readMany(same(access), eq(ImmutableList.of(library25.getId())));
     assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -132,7 +131,7 @@ public class ProgramControllerTest {
     program1.setDensity(0.6f);
     when(programManager.readOne(same(access), eq(program1.getId()))).thenReturn(program1);
 
-    var result = subject.readOne(req, res, program1.getId(), "");
+    var result = subject.readOne(req, program1.getId(), "");
 
     assertEquals(HttpStatus.OK, result.getStatusCode());
     assertTrue(result.hasBody());

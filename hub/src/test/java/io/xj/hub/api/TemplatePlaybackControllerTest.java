@@ -19,32 +19,31 @@ import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
-import io.xj.lib.jsonapi.*;
+import io.xj.lib.jsonapi.JsonapiException;
+import io.xj.lib.jsonapi.JsonapiPayload;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.lib.jsonapi.JsonapiResponseProvider;
+import io.xj.lib.jsonapi.JsonapiResponseProviderImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
-import static io.xj.hub.IntegrationTestingFixtures.*;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplatePlayback;
+import static io.xj.hub.IntegrationTestingFixtures.buildUser;
 import static io.xj.hub.access.HubAccess.CONTEXT_KEY;
 import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.verify;
@@ -54,8 +53,6 @@ import static org.mockito.Mockito.when;
 public class TemplatePlaybackControllerTest {
   @Mock
   HttpServletRequest req;
-  @Mock
-  HttpServletResponse res;
   @Mock
   TemplatePlaybackManager templatePlaybackManager;
   @Mock
@@ -93,7 +90,7 @@ public class TemplatePlaybackControllerTest {
     when(templatePlaybackManager.readMany(same(access), eq(ImmutableList.of(template25.getId()))))
       .thenReturn(templatePlaybacks);
 
-    var result = subject.readManyForTemplate(req, res, template25.getId().toString());
+    var result = subject.readManyForTemplate(req, template25.getId().toString());
 
     verify(templatePlaybackManager).readMany(same(access), eq(ImmutableList.of(template25.getId())));
     assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -108,7 +105,7 @@ public class TemplatePlaybackControllerTest {
     TemplatePlayback templatePlayback1 = buildTemplatePlayback(template1, user1);
     when(templatePlaybackManager.readOneForUser(same(access), eq(user1.getId()))).thenReturn(Optional.of(templatePlayback1));
 
-    var result = subject.readOneForUser(req, res, user1.getId().toString());
+    var result = subject.readOneForUser(req, user1.getId().toString());
 
     assertEquals(HttpStatus.OK, result.getStatusCode());
     assertTrue(result.hasBody());
@@ -122,7 +119,7 @@ public class TemplatePlaybackControllerTest {
     when(req.getAttribute(CONTEXT_KEY)).thenReturn(access);
     when(templatePlaybackManager.readOneForUser(same(access), eq(user1.getId()))).thenReturn(Optional.empty());
 
-    var result = subject.readOneForUser(req, res, user1.getId().toString());
+    var result = subject.readOneForUser(req, user1.getId().toString());
 
     assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
   }

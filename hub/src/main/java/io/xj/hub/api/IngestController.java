@@ -7,18 +7,18 @@ import io.xj.hub.ingest.HubContentPayload;
 import io.xj.hub.ingest.HubIngestFactory;
 import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.JsonapiResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.JsonapiResponseProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
 /**
@@ -26,7 +26,8 @@ import java.util.UUID;
  * <p>
  * Architect wants to ingest library contents, to modularize graph mathematics used during craft, and provide the Artist with useful insight for developing the library. https://www.pivotaltracker.com/story/show/154234716
  */
-@Path("api/1/ingest")
+@RestController
+@RequestMapping("/api/1/ingest")
 public class IngestController extends HubJsonapiEndpoint {
   private static final Logger LOG = LoggerFactory.getLogger(IngestController.class);
   private final HubIngestFactory ingestFactory;
@@ -50,12 +51,11 @@ public class IngestController extends HubJsonapiEndpoint {
    *
    * @return application/json response.
    */
-  @GET
-  @Path("{templateId}")
+  @GetMapping("{templateId}")
   @RolesAllowed(INTERNAL)
   public ResponseEntity<HubContentPayload> ingest(
-    HttpServletRequest req, HttpServletResponse res,
-    @PathParam("templateId") String templateId
+    HttpServletRequest req,
+    @PathVariable("templateId") String templateId
   ) {
     try {
       return ResponseEntity.ok(ingestFactory.ingest(HubAccess.fromRequest(req), UUID.fromString(templateId)).toContentPayload());

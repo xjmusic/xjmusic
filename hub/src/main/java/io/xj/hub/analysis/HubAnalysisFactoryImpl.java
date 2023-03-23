@@ -8,12 +8,14 @@ import io.xj.hub.ingest.HubIngestException;
 import io.xj.hub.ingest.HubIngestFactory;
 import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.util.ValueException;
+import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
 /**
  * Template content Analysis https://www.pivotaltracker.com/story/show/161199945
  */
+@Service
 class HubAnalysisFactoryImpl implements HubAnalysisFactory {
   private final AppEnvironment env;
   private final HubIngestFactory hubIngestFactory;

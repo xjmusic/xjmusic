@@ -5,21 +5,28 @@ import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.manager.AccountUserManager;
 import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.JsonapiResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import org.springframework.http.MediaType;
+import io.xj.lib.jsonapi.JsonapiResponseProvider;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.UUID;
 
 /**
  * Account record
  */
-@Path("api/1/account-users")
+@RestController
+@RequestMapping("/api/1/account-users")
 public class AccountUserController extends HubJsonapiEndpoint {
   private final AccountUserManager manager;
 
@@ -42,9 +49,9 @@ public class AccountUserController extends HubJsonapiEndpoint {
    *
    * @return application/json response.
    */
-  @GET
+  @GetMapping
   @RolesAllowed(USER)
-  public ResponseEntity<JsonapiPayload> readMany(HttpServletRequest req, @QueryParam("accountId") UUID accountId) {
+  public ResponseEntity<JsonapiPayload> readMany(HttpServletRequest req, @RequestParam("accountId") UUID accountId) {
     return readMany(req, manager(), accountId);
   }
 
@@ -54,10 +61,9 @@ public class AccountUserController extends HubJsonapiEndpoint {
    * @param jsonapiPayload with which to of Account User
    * @return ResponseEntity
    */
-  @POST
-  @Consumes(MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping
   @RolesAllowed(ADMIN)
-  public ResponseEntity<JsonapiPayload> create(JsonapiPayload jsonapiPayload, HttpServletRequest req) {
+  public ResponseEntity<JsonapiPayload> create(@RequestBody JsonapiPayload jsonapiPayload, HttpServletRequest req) {
     return create(req, manager(), jsonapiPayload);
   }
 
@@ -66,10 +72,9 @@ public class AccountUserController extends HubJsonapiEndpoint {
    *
    * @return application/json response.
    */
-  @GET
-  @Path("{id}")
+  @GetMapping("{id}")
   @RolesAllowed(USER)
-  public ResponseEntity<JsonapiPayload> readOne(HttpServletRequest req, @PathParam("id") UUID id) {
+  public ResponseEntity<JsonapiPayload> readOne(HttpServletRequest req, @PathVariable("id") UUID id) {
     return readOne(req, manager(), id);
   }
 
@@ -78,10 +83,9 @@ public class AccountUserController extends HubJsonapiEndpoint {
    *
    * @return application/json response.
    */
-  @DELETE
-  @Path("{id}")
+  @DeleteMapping("{id}")
   @RolesAllowed(ADMIN)
-  public ResponseEntity<JsonapiPayload> delete(HttpServletRequest req, @PathParam("id") UUID id) {
+  public ResponseEntity<JsonapiPayload> delete(HttpServletRequest req, @PathVariable("id") UUID id) {
     return delete(req, manager(), id);
   }
 

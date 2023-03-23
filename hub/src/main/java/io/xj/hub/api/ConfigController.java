@@ -8,14 +8,19 @@ import io.xj.hub.InstrumentConfig;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.analysis.Report;
-import io.xj.hub.enums.*;
+import io.xj.hub.enums.InstrumentMode;
+import io.xj.hub.enums.InstrumentState;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramState;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.enums.TemplateType;
 import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.JsonapiResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadObject;
+import io.xj.lib.jsonapi.JsonapiResponseProvider;
 import io.xj.lib.util.Text;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +39,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/config")
 public class ConfigController extends HubJsonapiEndpoint {
-  private final Map<String, Object> configMap;
+    private final Map<String, Object> configMap;
 
   /**
    * Constructor

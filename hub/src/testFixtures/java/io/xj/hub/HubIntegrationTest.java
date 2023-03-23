@@ -7,8 +7,11 @@ import com.google.common.collect.Lists;
 import io.xj.hub.access.GoogleProvider;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessTokenGenerator;
-import io.xj.hub.manager.UserManager;
-import io.xj.hub.persistence.*;
+import io.xj.hub.persistence.HubKvStoreProvider;
+import io.xj.hub.persistence.HubMigration;
+import io.xj.hub.persistence.HubPersistenceException;
+import io.xj.hub.persistence.HubPersistenceServiceImpl;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityStore;
@@ -16,13 +19,12 @@ import io.xj.lib.entity.EntityStoreImpl;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
-import io.xj.lib.jsonapi.JsonapiResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.JsonapiResponseProvider;
 import org.jooq.DSLContext;
 import org.jooq.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import redis.clients.jedis.Jedis;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -38,10 +40,8 @@ import java.util.UUID;
 public class HubIntegrationTest extends HubPersistenceServiceImpl {
   private static final String SELECT_ALL_PATTERN = "*";
   final Logger log = LoggerFactory.getLogger(HubIntegrationTest.class);
-  final Jedis redisConnection;
   private final AppEnvironment env;
   private final ApiUrlProvider apiUrlProvider;
-  private final UserManager userManager;
   private final HubKvStoreProvider kvStoreProvider;
   private final GoogleProvider googleProvider;
   private final HubAccessTokenGenerator accessTokenGenerator;
@@ -63,8 +63,7 @@ public class HubIntegrationTest extends HubPersistenceServiceImpl {
     HubMigration migration,
     HubSqlStoreProvider sqlStoreProvider,
     JsonapiResponseProvider jsonapiResponseProvider,
-    JsonapiPayloadFactory jsonapiPayloadFactory,
-    UserManager userManager
+    JsonapiPayloadFactory jsonapiPayloadFactory
   ) {
     super(entityFactory, sqlStoreProvider);
     this.env = env;
@@ -76,7 +75,6 @@ public class HubIntegrationTest extends HubPersistenceServiceImpl {
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     this.jsonapiResponseProvider = jsonapiResponseProvider;
     this.kvStoreProvider = kvStoreProvider;
-    this.userManager = userManager;
 
     // Build the Hub REST API payload topology
     HubTopology.buildHubApiTopology(entityFactory);
@@ -92,15 +90,6 @@ public class HubIntegrationTest extends HubPersistenceServiceImpl {
       System.exit(1);
     }
 
-    // jOOQ handles DataSource
-
-    // One Redis connection remains open until main program exit
-    redisConnection = kvStoreProvider.getClient();
-    if (Objects.isNull(redisConnection)) {
-      log.error("Failed to get Redis connection");
-      System.exit(1);
-    }
-
     // Prepared
     log.debug("Did open master connection and prepare integration database.");
   }
@@ -108,8 +97,13 @@ public class HubIntegrationTest extends HubPersistenceServiceImpl {
   /**
    * Reset redis keys
    */
-  public void resetRedis() {
-    redisDeleteAllKeysMatching(userManager.computeKey(SELECT_ALL_PATTERN));
+  public void resetSessions() {
+    try {
+      kvStoreProvider.clear();
+      log.debug("Did delete all redis keys matching: {}", SELECT_ALL_PATTERN);
+    } catch (Exception e) {
+      log.error("Failed to delete all redis keys matching: {}", SELECT_ALL_PATTERN, e);
+    }
   }
 
   /**
@@ -121,7 +115,6 @@ public class HubIntegrationTest extends HubPersistenceServiceImpl {
     } catch (Exception e) {
       log.error("Failed to shutdown SQL connection", e);
     }
-    redisConnection.close();
     log.debug("Did close master connection to integration database.");
   }
 
@@ -133,8 +126,8 @@ public class HubIntegrationTest extends HubPersistenceServiceImpl {
       for (Table<?> table : Lists.reverse(ImmutableList.copyOf(tablesInSchemaConstructionOrder.values())))
         reset(table);
 
-      // Finally, all queues
-      resetRedis();
+      // Finally, all sessions
+      resetSessions();
 
     } catch (Exception e) {
       log.error(e.getClass().getName(), e);
@@ -237,16 +230,6 @@ public class HubIntegrationTest extends HubPersistenceServiceImpl {
   public <E> E update(HubAccess ignoredAccess, UUID ignoredId, E entity) {
     // no op
     return entity;
-  }
-
-  /**
-   * delete all redis keys matching a specified pattern
-   *
-   * @param pattern to match
-   */
-  private void redisDeleteAllKeysMatching(String pattern) {
-    redisConnection.keys(pattern).forEach(redisConnection::del);
-    log.debug("Did delete all redis keys matching: {}", pattern);
   }
 
   public AppEnvironment getEnv() {

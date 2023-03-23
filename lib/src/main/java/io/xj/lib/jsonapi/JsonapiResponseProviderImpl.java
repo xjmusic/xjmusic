@@ -41,7 +41,7 @@ public class JsonapiResponseProviderImpl implements JsonapiResponseProvider {
 
   @Override
   public ResponseEntity<JsonapiPayload> create(JsonapiPayload jsonapiPayload) {
-    return jsonapiPayload.getSelfURI().isPresent() ? ResponseEntity.created(jsonapiPayload.getSelfURI().orElseThrow()).contentType(MediaType.APPLICATION_JSON).body(jsonapiPayload) : ResponseEntity.created(apiUrlProvider.getApiURI("")).contentType(MediaType.APPLICATION_JSON).body(jsonapiPayload);
+    return jsonapiPayload.getSelfURI().isPresent() ? ResponseEntity.created(jsonapiPayload.getSelfURI().orElseThrow()).contentType(MediaType.APPLICATION_JSON).body(jsonapiPayload) : ResponseEntity.created(apiUrlProvider.getAppURI("")).contentType(MediaType.APPLICATION_JSON).body(jsonapiPayload);
 
   }
 

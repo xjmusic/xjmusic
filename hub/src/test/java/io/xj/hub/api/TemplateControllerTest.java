@@ -17,25 +17,32 @@ import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
-import io.xj.lib.jsonapi.*;
+import io.xj.lib.jsonapi.JsonapiException;
+import io.xj.lib.jsonapi.JsonapiPayload;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.lib.jsonapi.JsonapiResponseProvider;
+import io.xj.lib.jsonapi.JsonapiResponseProviderImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static io.xj.hub.IntegrationTestingFixtures.*;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplateBinding;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplatePlayback;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplatePublication;
+import static io.xj.hub.IntegrationTestingFixtures.buildUser;
 import static io.xj.hub.access.HubAccess.CONTEXT_KEY;
 import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -49,8 +56,6 @@ import static org.mockito.Mockito.when;
 public class TemplateControllerTest {
   @Mock
   HttpServletRequest req;
-  @Mock
-  HttpServletResponse res;
   @Mock
   TemplateManager templateManager;
   @Mock
@@ -85,7 +90,7 @@ public class TemplateControllerTest {
     when(templateManager.readMany(same(access), eq(ImmutableList.of(account25.getId()))))
       .thenReturn(templates);
 
-    var result = subject.readMany(req, res, account25.getId());
+    var result = subject.readMany(req, account25.getId());
 
     verify(templateManager).readMany(same(access), eq(ImmutableList.of(account25.getId())));
     assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -103,7 +108,7 @@ public class TemplateControllerTest {
     when(templateManager.readMany(same(access), eq(ImmutableList.of(account25.getId()))))
       .thenReturn(templates);
 
-    var result = subject.readMany(req, res, account25.getId());
+    var result = subject.readMany(req, account25.getId());
 
     verify(templateManager).readMany(same(access), eq(ImmutableList.of(account25.getId())));
     assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -118,7 +123,7 @@ public class TemplateControllerTest {
     Template template1 = buildTemplate(account1, "fonds", "ABC");
     when(templateManager.readOne(same(access), eq(template1.getId()))).thenReturn(template1);
 
-    var result = subject.readOne(req, res, template1.getId().toString(), "");
+    var result = subject.readOne(req, template1.getId().toString(), "");
 
     assertEquals(HttpStatus.OK, result.getStatusCode());
     assertTrue(result.hasBody());
@@ -144,7 +149,7 @@ public class TemplateControllerTest {
     when(templateManager.readChildEntities(same(access), eq(List.of(template4.getId())), eq(List.of("template-bindings", "template-playbacks", "template-publications"))))
       .thenReturn(List.of(templateBinding43, templatePlayback42, templatePublication67));
 
-    var result = subject.readOne(req, res, template4.getId().toString(), "template-bindings,template-playbacks,template-publications");
+    var result = subject.readOne(req, template4.getId().toString(), "template-bindings,template-playbacks,template-publications");
 
     assertEquals(HttpStatus.OK, result.getStatusCode());
     assertTrue(result.hasBody());
@@ -161,7 +166,7 @@ public class TemplateControllerTest {
     Template template1 = buildTemplate(account1, "fonds", "ABC");
     when(templateManager.readOneByShipKey(same(access), eq("ABC"))).thenReturn(Optional.of(template1));
 
-    var result = subject.readOne(req, res, "ABC", "");
+    var result = subject.readOne(req, "ABC", "");
 
     assertEquals(HttpStatus.OK, result.getStatusCode());
     assertTrue(result.hasBody());
@@ -182,7 +187,7 @@ public class TemplateControllerTest {
     var template1 = buildTemplate(account25, "fonds", "ABC");
     when(templateManager.readOnePlayingForUser(same(access), eq(user1.getId()))).thenReturn(Optional.of(template1));
 
-    var result = subject.readAllPlaying(req, res, user1.getId());
+    var result = subject.readAllPlaying(req, user1.getId());
 
     verify(templateManager).readOnePlayingForUser(same(access), eq(user1.getId()));
     assertEquals(HttpStatus.OK, result.getStatusCode());

@@ -7,8 +7,9 @@ import com.google.common.collect.ImmutableSet;
 import io.xj.hub.enums.UserRoleType;
 import io.xj.hub.manager.UserManager;
 import io.xj.hub.manager.UserManagerImpl;
-import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubKvStoreProvider;
+import io.xj.hub.persistence.HubKvStoreProviderImpl;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.AccountUser;
 import io.xj.hub.tables.pojos.User;
@@ -16,28 +17,23 @@ import io.xj.hub.tables.pojos.UserAuth;
 import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.JsonProviderImpl;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import redis.clients.jedis.Jedis;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.servlet.http.Cookie;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class HubRemoteAccessTokenTest {
   @Mock
   GoogleProvider googleProvider;
@@ -48,11 +44,7 @@ public class HubRemoteAccessTokenTest {
   @Mock
   HubAccessTokenGenerator hubAccessTokenGenerator;
 
-  @Mock
   HubKvStoreProvider hubKVStoreProvider;
-
-  @Mock
-  private Jedis redisClient;
 
   Account account1;
   Account account2;
@@ -60,21 +52,21 @@ public class HubRemoteAccessTokenTest {
   private UserAuth userAuth;
   private Collection<AccountUser> accountUsers;
   private User user;
-  private JsonapiPayloadFactory payloadFactory;
 
   private final AppEnvironment env = AppEnvironment.from(ImmutableMap.of(
     "ACCESS_TOKEN_DOMAIN", "com.coconuts",
     "ACCESS_TOKEN_MAX_AGE_SECONDS", "60",
     "ACCESS_TOKEN_NAME", "access_token_jammy",
     "ACCESS_TOKEN_PATH", "/dough",
-    "REDIS_SESSION_NAMESPACE", "xj_session_test"
+    "SESSION_NAMESPACE", "xj_session_test"
   ));
 
   @BeforeEach
   public void setUp() throws Exception {
+    hubKVStoreProvider = new HubKvStoreProviderImpl(new EntityFactoryImpl(new JsonProviderImpl()));
+
     var jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
-    payloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     userManager = new UserManagerImpl(env, entityFactory, googleProvider, hubAccessTokenGenerator, sqlStoreProvider, hubKVStoreProvider);
 
     user = new User();
@@ -110,19 +102,16 @@ public class HubRemoteAccessTokenTest {
 
   @Test
   public void create() throws Exception {
-    when(hubKVStoreProvider.getClient())
-      .thenReturn(redisClient);
     when(hubAccessTokenGenerator.generate())
       .thenReturn("token123");
 
     userManager.create(user, userAuth, accountUsers);
 
-    HubAccess expectUserAccess = new HubAccess()
-      .setUserId(user.getId())
-      .setUserAuthId(userAuth.getId())
-      .setRoleTypes(ImmutableList.of(UserRoleType.User, UserRoleType.Artist))
-      .setAccountIds(ImmutableSet.of(account1.getId(), account2.getId()));
-    verify(redisClient).set("xj_session_test:token123", payloadFactory.serialize(expectUserAccess));
+    var actual = hubKVStoreProvider.get(HubAccess.class, "xj_session_test:token123");
+    assertEquals(user.getId(), actual.getUserId());
+    assertEquals(userAuth.getId(), actual.getUserAuthId());
+    assertArrayEquals(ImmutableList.of(UserRoleType.User, UserRoleType.Artist).toArray(), actual.getRoleTypes().toArray());
+    assertArrayEquals(ImmutableSet.of(account1.getId(), account2.getId()).toArray(), actual.getAccountIds().toArray());
   }
 
   @Test

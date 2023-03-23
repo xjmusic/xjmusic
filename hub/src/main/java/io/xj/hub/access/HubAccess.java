@@ -326,4 +326,8 @@ public class HubAccess {
     this.userAuthId = userAuthId;
     return this;
   }
+
+  public UUID getUserAuthId() {
+    return userAuthId;
+  }
 }
