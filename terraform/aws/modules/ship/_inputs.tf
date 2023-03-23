@@ -70,7 +70,3 @@ variable "blacklist_locations" {
     "CN",
   ]
 }
-
-variable "lambda_iam_user" {
-  type = string
-}

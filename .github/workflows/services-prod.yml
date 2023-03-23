@@ -115,3 +115,7 @@ jobs:
         run: |
           kubectl -n yard rollout restart deployment
           kubectl -n lab rollout restart deployment
+
+      - name: (GCP) Google Cloud Run service deployment
+        run: |
+          gcloud run deploy xj-prod-lab-hub --image gcr.io/xj-vpc-host-prod/hub:latest --platform managed --region us-west1 --project xj-vpc-host-prod

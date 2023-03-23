@@ -226,11 +226,12 @@ resource "aws_route53_record" "xj-hub" {
 }
 
 module "xj-lab" {
-  source                 = "./modules/lab"
-  bucket                 = "lab.xj.io"
-  region                 = local.aws-region
-  acm_certificate_arn    = aws_acm_certificate.xj-io.arn
-  hub_origin_domain_name = aws_route53_record.xj-lab-gke-prod.name
+  source                     = "./modules/lab"
+  bucket                     = "lab.xj.io"
+  region                     = local.aws-region
+  acm_certificate_arn        = aws_acm_certificate.xj-io.arn
+  hub_origin_domain_name     = aws_route53_record.xj-lab-gke-prod.name
+  hub_origin_protocol_policy = "http-only"
   aliases = [
     "lab.xj.io"
   ]
@@ -366,7 +367,6 @@ module "xj-prod-ship" {
   aliases = [
     "ship.xj.io"
   ]
-  lambda_iam_user = aws_iam_user.xj-ci.name
 }
 
 module "xj-prod-stream" {

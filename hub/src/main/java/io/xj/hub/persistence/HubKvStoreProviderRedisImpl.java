@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 
-@Primary
 @Service
 public class HubKvStoreProviderRedisImpl implements HubKvStoreProvider {
   private static final Logger LOG = LoggerFactory.getLogger(HubKvStoreProviderRedisImpl.class);

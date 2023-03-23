@@ -151,7 +151,7 @@ module "xj-dev-lab" {
   bucket              = "lab.dev.xj.io"
   region              = local.aws-region
   acm_certificate_arn = aws_acm_certificate.xj-environments.arn
-  aliases             = [
+  aliases = [
     "lab.dev.xj.io"
   ]
   hub_origin_domain_name = "xj-dev-lab-hub-pxo2raxupa-uw.a.run.app"
@@ -162,7 +162,7 @@ module "xj-dev-local" {
   bucket              = "local.dev.xj.io"
   region              = local.aws-region
   acm_certificate_arn = aws_acm_certificate.xj-environments.arn
-  aliases             = [
+  aliases = [
     "local.dev.xj.io"
   ]
   hub_origin_domain_name = "xj-dev-lab-hub-pxo2raxupa-uw.a.run.app" # future: set this to the local dev hub
@@ -175,7 +175,7 @@ module "xj-dev" {
   bucket              = "dev.xj.io"
   region              = local.aws-region
   acm_certificate_arn = aws_acm_certificate.xj-io.arn
-  aliases             = [
+  aliases = [
     "dev.xj.io"
   ]
 }
@@ -185,7 +185,7 @@ module "xj-dev-static" {
   bucket              = "xj-dev-static"
   region              = local.aws-region
   acm_certificate_arn = aws_acm_certificate.xj-environments.arn
-  aliases             = [
+  aliases = [
     "static.dev.xj.io"
   ]
 }
@@ -195,7 +195,7 @@ module "xj-dev-help" {
   bucket              = "help.dev.xj.io"
   region              = local.aws-region
   acm_certificate_arn = aws_acm_certificate.xj-environments.arn
-  aliases             = [
+  aliases = [
     "help.dev.xj.io"
   ]
 }
@@ -206,7 +206,7 @@ module "xj-dev-content" {
   index_document      = "content-v4.json"
   region              = local.aws-region
   acm_certificate_arn = aws_acm_certificate.xj-environments.arn
-  aliases             = [
+  aliases = [
     "content.dev.xj.io"
   ]
 }
@@ -217,14 +217,14 @@ module "xj-dev-status" {
   bucket              = "status.dev.xj.io"
   region              = local.aws-region
   acm_certificate_arn = aws_acm_certificate.xj-environments.arn
-  aliases             = [
+  aliases = [
     "status.dev.xj.io"
   ]
 }
 
 module "xj-dev-audio" {
-  source              = "./modules/audio"
-  bucket              = "xj-dev-audio"
+  source = "./modules/audio"
+  bucket = "xj-dev-audio"
   admin_user_arn_list = [
     "arn:aws:iam::${local.aws-account-id}:user/charney"
   ]
@@ -242,14 +242,14 @@ module "xj-dev-audio" {
   ]
   region              = local.aws-region
   acm_certificate_arn = aws_acm_certificate.xj-environments.arn
-  aliases             = [
+  aliases = [
     "audio.dev.xj.io"
   ]
 }
 
 module "xj-dev-ship" {
-  source              = "./modules/ship"
-  bucket              = "xj-dev-ship"
+  source = "./modules/ship"
+  bucket = "xj-dev-ship"
   admin_user_arn_list = [
     "arn:aws:iam::${local.aws-account-id}:user/charney"
   ]
@@ -258,15 +258,14 @@ module "xj-dev-ship" {
   ]
   region              = local.aws-region
   acm_certificate_arn = aws_acm_certificate.xj-environments.arn
-  aliases             = [
-    "local.dev.xj.io"
+  aliases = [
+    "ship.dev.xj.io"
   ]
-  lambda_iam_user = aws_iam_user.xj-ci.name
 }
 
 module "xj-dev-stream" {
-  source              = "./modules/stream"
-  bucket              = "xj-dev-stream"
+  source = "./modules/stream"
+  bucket = "xj-dev-stream"
   admin_user_arn_list = [
     "arn:aws:iam::${local.aws-account-id}:user/charney"
   ]
@@ -275,7 +274,7 @@ module "xj-dev-stream" {
   ]
   region              = local.aws-region
   acm_certificate_arn = aws_acm_certificate.xj-environments.arn
-  aliases             = [
+  aliases = [
     "stream.dev.xj.io"
   ]
 }

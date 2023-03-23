@@ -37,6 +37,11 @@ variable "hub_origin_domain_name" {
   type = string
 }
 
+variable "hub_origin_protocol_policy" {
+  type = string
+  default = "https-only"
+}
+
 # If you want to use an existing bucket, you must provide the bucket name
 variable "existing_bucket_name" {
   type= string

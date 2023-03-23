@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
+@Primary
 @Service
 public class HubKvStoreProviderImpl implements HubKvStoreProvider {
   private static final Logger LOG = LoggerFactory.getLogger(HubKvStoreProviderImpl.class);

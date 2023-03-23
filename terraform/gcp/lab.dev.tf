@@ -22,8 +22,6 @@ module "dev_lab" {
   postgres_pass                   = module.lab_postgres.password
   postgres_user                   = module.lab_postgres.user
   project                         = local.gcp-project-id
-  redis_host                      = module.lab_redis.host
-  redis_port                      = module.lab_redis.port
   region                          = local.gcp-region
   secret_id__aws_access_key_id    = module.secret-dev-aws-access-key-id.secret_id
   secret_id__aws_secret_key       = module.secret-dev-aws-secret-key.secret_id

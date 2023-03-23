@@ -15,6 +15,14 @@
 
 Just push to the `main` branch to deploy to Production CI, or `dev` branch for Development CI.
 
+## Google Cloud Run Services
+
+Our preferred deployment method for all services is Google Cloud Run (serverless) services. For example, to tail the logs of the hub:
+
+```shell
+gcloud beta run services logs tail xj-prod-lab-hub  --project xj-vpc-host-prod
+```
+
 ## Art
 
 See the **/art** folder. By Accessing the contents of that folder, you agree to these terms:
@@ -66,11 +74,7 @@ LabStreamingSegmentsArchitecture.pdf)
 
 ## Service Ports
 
-Each service has a unique port assignment:
-
-| Service       | Port          |
-| ------------- |---------------|
-| nexus         | 8080          |
+Services expose pose 8080
 
 ## Chain Work
 
@@ -194,10 +198,6 @@ Connects to:
 
 * S3 Filesystem
 
-### pulse
-
-This app exists solely to be run in AWS Lambda, and call the Hub /heartbeat endpoint once per minute.
-
 ## Healthcheck Endpoint
 
 **GET /healthz**
@@ -206,13 +206,6 @@ This app exists solely to be run in AWS Lambda, and call the Hub /heartbeat endp
 
 https://developers.google.com/+/web/samples/java
 
-## Intro to Jersey and Grizzly2
-
-See [Java SE 8: Creating a Basic REST Web Service using Grizzly, Jersey, and Maven](http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/griz_jersey_intro/Grizzly-Jersey-Intro.html)
-
-## Jersey
-
-[Latest User Guide](https://jersey.java.net/documentation/latest/user-guide.html)
 
 ## IntelliJ IDEA
 

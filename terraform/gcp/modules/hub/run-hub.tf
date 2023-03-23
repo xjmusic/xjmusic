@@ -119,14 +119,6 @@ resource "google_cloud_run_service" "hub" {
           value = var.postgres_user
         }
         env {
-          name  = "REDIS_HOST"
-          value = var.redis_host
-        }
-        env {
-          name  = "REDIS_PORT"
-          value = var.redis_port
-        }
-        env {
           name  = "SHIP_BASE_URL"
           value = var.ship_base_url
         }

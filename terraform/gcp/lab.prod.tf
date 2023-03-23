@@ -7,7 +7,7 @@
 module "prod_lab" {
   source = "./modules/hub"
 
-  image                           = "gcr.io/xj-vpc-host-prod/prod/hub:latest"
+  image                           = "gcr.io/xj-vpc-host-prod/hub:latest"
   service_name                    = "xj-prod-lab-hub"
   app_base_url                    = "https://lab.xj.io/"
   audio_base_url                  = "https://audio.xj.io/"
@@ -16,8 +16,6 @@ module "prod_lab" {
   aws_default_region              = "us-east-1"
   environment                     = "production"
   player_base_url                 = "https://play.xj.io/"
-  redis_host                      = module.lab_redis.database_prod
-  redis_port                      = 6379
   ship_base_url                   = "https://ship.xj.io/"
   ship_bucket                     = "xj-prod-ship"
   region                          = local.gcp-region
@@ -41,12 +39,3 @@ module "lab_postgres" {
   project               = local.gcp-project-id
   service_account_email = google_service_account.xj-dev-yard.email
 }
-
-module "lab_redis" {
-  source = "./modules/redis"
-
-  region                = local.gcp-region
-  project               = local.gcp-project-id
-  service_account_email = google_service_account.xj-dev-yard.email
-}
-

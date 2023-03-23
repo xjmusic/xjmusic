@@ -57,12 +57,6 @@ variable "aws_default_region" {
 variable "player_base_url" {
   type = string
 }
-variable "redis_host" {
-  type = string
-}
-variable "redis_port" {
-  type = number
-}
 variable "ship_base_url" {
   type = string
 }

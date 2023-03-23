@@ -32,7 +32,7 @@ resource "aws_cloudfront_distribution" "distribution" {
     custom_origin_config {
       http_port              = 8080
       https_port             = 443
-      origin_protocol_policy = "http-only"
+      origin_protocol_policy = var.hub_origin_protocol_policy
       origin_ssl_protocols   = [
         "TLSv1",
         "TLSv1.1",
