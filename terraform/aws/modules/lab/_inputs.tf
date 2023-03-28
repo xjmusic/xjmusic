@@ -15,7 +15,7 @@ variable "index_document" {
 
 variable "error_document" {
   type = string
-  default = "error.html"
+  default = "index.html"
 }
 
 variable "aliases" {
