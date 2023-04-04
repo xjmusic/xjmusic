@@ -62,7 +62,6 @@ public class AppEnvironment {
   private final String postgresPass;
   private final String postgresSchemas;
   private final String postgresUser;
-  private final String redisHost;
   private final String sessionNamespace;
   private final String shipBaseUrl;
   private final String shipBucket;
@@ -94,7 +93,6 @@ public class AppEnvironment {
   private final int playbackExpireSeconds;
   private final int postgresPoolSizeMax;
   private final int postgresPort;
-  private final int redisPort;
   private final int shipBitrateHigh;
   private final int shipChainJsonMaxAgeSeconds;
   private final int shipChunkTargetDuration;
@@ -241,9 +239,7 @@ public class AppEnvironment {
     postgresSchemas = readStr(vars, "POSTGRES_SCHEMAS", "xj");
     postgresUser = readStr(vars, "POSTGRES_USER", "postgres");
 
-    // Resource: Key-Value Store (Redis)
-    redisHost = readStr(vars, "REDIS_HOST", "localhost");
-    redisPort = readInt(vars, "REDIS_PORT", 6379);
+    // Resource: Key-Value Store
     sessionNamespace = readStr(vars, "SESSION_NAMESPACE", "xj_session");
   }
 
@@ -687,20 +683,6 @@ public class AppEnvironment {
    */
   public String getPlayerBaseUrl() {
     return playerBaseURL;
-  }
-
-  /**
-   * @return the Redis host
-   */
-  public String getRedisHost() {
-    return redisHost;
-  }
-
-  /**
-   * @return the Redis port
-   */
-  public int getRedisPort() {
-    return redisPort;
   }
 
   /**

@@ -1,11 +1,8 @@
-resource "random_id" "db_name_suffix" {
-  byte_length = 4
-}
-
 # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/sql_database_instance
 resource "google_sql_database_instance" "postgres" {
-  name             = "postgres-instance-${random_id.db_name_suffix.hex}"
+  name             = var.name
   database_version = "POSTGRES_14"
+  deletion_protection = true
 
   settings {
     tier = "db-f1-micro" # $7.65/month as of 2023-03-20
@@ -33,7 +30,7 @@ resource "google_sql_database_instance" "postgres" {
 
 # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_sql_user
 resource "google_sql_user" "lab" {
-  name     = random_string.postgres_user.result
+  name     = random_string.postgres_username.result
   instance = google_sql_database_instance.postgres.name
   password = random_password.postgres_password.result
 }
@@ -49,12 +46,3 @@ resource "google_sql_database" "prod" {
   instance = google_sql_database_instance.postgres.name
 }
 
-resource "random_password" "postgres_password" {
-  length           = 32
-  special          = false
-}
-
-resource "random_string" "postgres_user" {
-  length  = 32
-  special = false
-}

@@ -119,7 +119,7 @@ public interface UserManager extends Manager<User> {
   String authenticate(String accessCode) throws Exception;
 
   /**
-   * Compute the Redis session persistence key for any given token (it's prefixed to have a xj session namespace)
+   * Compute the session persistence key for any given token (it's prefixed to have a xj session namespace)
    *
    * @param token to compute key of
    * @return key for token

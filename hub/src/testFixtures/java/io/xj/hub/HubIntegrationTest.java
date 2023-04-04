@@ -38,7 +38,6 @@ import java.util.UUID;
  * 3. call integrationTestProvider.shutdown()
  */
 public class HubIntegrationTest extends HubPersistenceServiceImpl {
-  private static final String SELECT_ALL_PATTERN = "*";
   final Logger log = LoggerFactory.getLogger(HubIntegrationTest.class);
   private final AppEnvironment env;
   private final ApiUrlProvider apiUrlProvider;
@@ -95,15 +94,10 @@ public class HubIntegrationTest extends HubPersistenceServiceImpl {
   }
 
   /**
-   * Reset redis keys
+   * Reset sessions
    */
   public void resetSessions() {
-    try {
-      kvStoreProvider.clear();
-      log.debug("Did delete all redis keys matching: {}", SELECT_ALL_PATTERN);
-    } catch (Exception e) {
-      log.error("Failed to delete all redis keys matching: {}", SELECT_ALL_PATTERN, e);
-    }
+    kvStoreProvider.clear();
   }
 
   /**

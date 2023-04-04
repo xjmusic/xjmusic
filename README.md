@@ -20,8 +20,78 @@ Just push to the `main` branch to deploy to Production CI, or `dev` branch for D
 Our preferred deployment method for all services is Google Cloud Run (serverless) services. For example, to tail the logs of the hub:
 
 ```shell
-gcloud beta run services logs tail xj-prod-lab-hub  --project xj-vpc-host-prod
+gcloud beta run services logs tail xj-dev-lab-hub --region us-west1 --project xj-vpc-host-prod
 ```
+
+## Terraform Infrastructure
+
+### Frontend Infrastructure
+
+To plan changes to the AWS Terraform configuration (Frontend infra), run:
+
+```shell
+cd terraform/aws
+terraform init
+terraform plan
+```
+
+### Backend Infrastructure
+
+Because we use the `gcloud` CLI to deploy updates to Google Cloud Run services, the Terraform state for these services 
+will be out of sync with the actual state of the services. To fix this, we need to import the existing services into the
+Terraform state. To do this, run:
+
+```shell
+cd terraform/gcp
+terraform refresh
+````
+
+To plan changes to the GCP Terraform configuration (Backend infra), run:
+
+```shell
+cd terraform/gcp
+terraform init
+terraform plan
+```
+
+To get an output value, such as the secret id for postgres username and password:
+
+```shell
+cd terraform/gcp
+terraform output -raw lab_postgres_username
+terraform output -raw lab_postgres_password
+```
+
+### Connecting to Cloud SQL Postgres
+
+To obtain credentials for the Lab Postgres database, run:
+
+```shell
+gcloud secrets versions access latest --secret=xj-lab-postgres-username
+gcloud secrets versions access latest --secret=xj-lab-postgres-password
+```
+
+To proxy a local port to the Google Cloud SQL (Postgres) instance:
+
+```shell
+cloud-sql-proxy postgres-instance-4bda6363 --user=$lab_postgres_username --pass=$lab_postgres_password --database=xj_dev
+```
+
+Use the `cloud-sql-proxy` utility to proxy a database connection to the Cloud SQL instance:
+
+```shell
+cloud-sql-proxy xj-vpc-host-prod:us-west1:xj-lab-postgres
+```
+
+And here's all the steps to connect to the locally proxied database:
+
+```shell
+PGUSERNAME=$(gcloud secrets versions access latest --secret=xj-lab-postgres-username)
+export PGPASSWORD=$(gcloud secrets versions access latest --secret=xj-lab-postgres-password)
+psql --host=127.0.0.1 --port=5432 --user=${PGUSERNAME} xj_dev
+```
+
+Note, when importing a SQL dump into a Cloud SQL instance (e.g. [delete-and-insert-all-records.sql](.backup/delete-and-insert-all-records.sql)) be sure to use the proper user (there's an advanced user dropdown)
 
 ## Art
 

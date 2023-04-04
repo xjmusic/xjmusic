@@ -82,8 +82,6 @@ public class UserManagerDbTest {
     // Created User HubAccess Token
     assertNotNull(accessToken);
 
-    // future test: token stored in Redis with correct auth
-
     // access token was persisted
     UserAuthToken userAccessToken = subjectManager.readOneAuthToken(HubAccess.internal(), accessToken);
     assertNotNull(userAccessToken);
@@ -118,7 +116,6 @@ public class UserManagerDbTest {
 
     // Created User HubAccess Token
     assertNotNull(accessToken);
-    // future test: token stored in Redis with correct auth
     UserAuthToken userAccessToken = subjectManager.readOneAuthToken(HubAccess.internal(), accessToken);
     assertNotNull(userAccessToken);
     // Created User Auth
