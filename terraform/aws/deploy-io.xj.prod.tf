@@ -187,6 +187,19 @@ resource "aws_route53_record" "xj-help" {
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
+resource "aws_route53_record" "xj-catalog" {
+  name    = "catalog.xj.io"
+  type    = "A"
+  zone_id = aws_route53_zone.xj-io.zone_id
+
+  alias {
+    name                   = module.xj-catalog.domain_name
+    zone_id                = module.xj-catalog.hosted_zone_id
+    evaluate_target_health = false
+  }
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
 resource "aws_route53_record" "xj-content" {
   name    = "content.xj.io"
   type    = "A"
@@ -284,6 +297,17 @@ module "xj-status" {
   acm_certificate_arn = aws_acm_certificate.xj-io.arn
   aliases = [
     "status.xj.io"
+  ]
+}
+
+module "xj-catalog" {
+  source              = "./modules/website"
+  bucket              = "catalog.xj.io"
+  region              = local.aws-region
+  index_document      = "v4.json"
+  acm_certificate_arn = aws_acm_certificate.xj-io.arn
+  aliases = [
+    "catalog.xj.io"
   ]
 }
 

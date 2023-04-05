@@ -121,6 +121,19 @@ resource "aws_route53_record" "xj-dev-help" {
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
+resource "aws_route53_record" "xj-dev-catalog" {
+  name    = "catalog.dev.xj.io"
+  type    = "A"
+  zone_id = aws_route53_zone.xj-io.zone_id
+
+  alias {
+    name                   = module.xj-dev-catalog.domain_name
+    zone_id                = module.xj-dev-catalog.hosted_zone_id
+    evaluate_target_health = false
+  }
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
 resource "aws_route53_record" "xj-dev-content" {
   name    = "content.dev.xj.io"
   type    = "A"
@@ -200,6 +213,17 @@ module "xj-dev-help" {
   ]
 }
 
+module "xj-dev-catalog" {
+  source              = "./modules/website"
+  bucket              = "catalog.dev.xj.io"
+  index_document      = "v4.json"
+  region              = local.aws-region
+  acm_certificate_arn = aws_acm_certificate.xj-environments.arn
+  aliases = [
+    "catalog.dev.xj.io"
+  ]
+}
+
 module "xj-dev-content" {
   source              = "./modules/website"
   bucket              = "content.dev.xj.io"
@@ -210,7 +234,6 @@ module "xj-dev-content" {
     "content.dev.xj.io"
   ]
 }
-
 
 module "xj-dev-status" {
   source              = "./modules/website"
