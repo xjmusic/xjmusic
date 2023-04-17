@@ -63,7 +63,7 @@ public class HubRemoteAccessTokenTest {
 
   @BeforeEach
   public void setUp() throws Exception {
-    hubKVStoreProvider = new HubKvStoreProviderImpl(new EntityFactoryImpl(new JsonProviderImpl()));
+    hubKVStoreProvider = new HubKvStoreProviderImpl(env, new EntityFactoryImpl(new JsonProviderImpl()));
 
     var jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);

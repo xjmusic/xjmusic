@@ -37,4 +37,9 @@ public interface HubKvStoreProvider {
    * Clear all keys
    */
   void clear();
+
+  /**
+   * Shutdown the store
+   */
+  void shutdown();
 }

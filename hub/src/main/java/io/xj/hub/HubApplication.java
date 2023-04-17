@@ -4,6 +4,7 @@ import ch.qos.logback.classic.LoggerContext;
 import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubMigration;
 import io.xj.hub.persistence.HubPersistenceException;
+import io.xj.hub.persistence.kv.HubKvStoreProvider;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactory;
@@ -23,6 +24,7 @@ import javax.annotation.PreDestroy;
 @ComponentScan(basePackages = {"io.xj.lib", "io.xj.hub"})
 public class HubApplication {
   final Logger LOG = LoggerFactory.getLogger(HubApplication.class);
+  private final HubKvStoreProvider hubKvStoreProvider;
   private final HubSqlStoreProvider hubSqlStoreProvider;
   private final EntityFactory entityFactory;
   private final HubMigration hubMigration;
@@ -30,7 +32,8 @@ public class HubApplication {
   private final AppConfiguration config;
 
   @Autowired
-  public HubApplication(HubSqlStoreProvider hubSqlStoreProvider, EntityFactory entityFactory, HubMigration hubMigration, AppEnvironment env, AppConfiguration config) {
+  public HubApplication(HubKvStoreProvider hubKvStoreProvider, HubSqlStoreProvider hubSqlStoreProvider, EntityFactory entityFactory, HubMigration hubMigration, AppEnvironment env, AppConfiguration config) {
+    this.hubKvStoreProvider = hubKvStoreProvider;
     this.hubSqlStoreProvider = hubSqlStoreProvider;
     this.entityFactory = entityFactory;
     this.hubMigration = hubMigration;
@@ -66,6 +69,7 @@ public class HubApplication {
   @PreDestroy
   public void destroy() {
     hubSqlStoreProvider.shutdown();
+    hubKvStoreProvider.shutdown();
     LOG.debug("{} did teardown SQL connection pool and shutdown OK", config.getName());
   }
 

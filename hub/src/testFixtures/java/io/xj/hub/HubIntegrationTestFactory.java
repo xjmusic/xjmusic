@@ -6,12 +6,12 @@ import io.xj.hub.access.GoogleProvider;
 import io.xj.hub.access.HubAccessException;
 import io.xj.hub.access.HubAccessTokenGenerator;
 import io.xj.hub.access.HubAccessTokenGeneratorImpl;
-import io.xj.hub.persistence.kv.HubKvStoreProvider;
-import io.xj.hub.persistence.kv.HubKvStoreProviderImpl;
 import io.xj.hub.persistence.HubMigration;
 import io.xj.hub.persistence.HubMigrationImpl;
 import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubSqlStoreProviderImpl;
+import io.xj.hub.persistence.kv.HubKvStoreProvider;
+import io.xj.hub.persistence.kv.HubKvStoreProviderImpl;
 import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityFactoryImpl;
@@ -31,7 +31,7 @@ public class HubIntegrationTestFactory {
     JsonapiResponseProvider httpResponseProvider = new JsonapiResponseProviderImpl(apiUrlProvider);
     GoogleProvider googleProvider = new FakeGoogleProvider();
     HubAccessTokenGenerator hubAccessTokenGenerator = new HubAccessTokenGeneratorImpl();
-    HubKvStoreProvider kvStoreProvider = new HubKvStoreProviderImpl(entityFactory);
+    HubKvStoreProvider kvStoreProvider = new HubKvStoreProviderImpl(env, entityFactory);
     HubSqlStoreProvider sqlStoreProvider = new HubSqlStoreProviderImpl(env);
     HubMigration hubMigration = new HubMigrationImpl(sqlStoreProvider);
     return new HubIntegrationTest(

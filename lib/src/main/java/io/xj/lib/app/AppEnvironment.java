@@ -52,6 +52,7 @@ public class AppEnvironment {
   private final String ingestTokenName;
   private final String ingestTokenValue;
   private final String ingestURL;
+  private final String memcacheAddress;
   private final String platformEnvironment;
   private final String playerBaseURL;
   private final String postgresDatabase;
@@ -85,6 +86,7 @@ public class AppEnvironment {
   private final int fabricationPreviewLengthMaxHours;
   private final int httpClientPoolMaxPerRoute;
   private final int httpClientPoolMaxTotal;
+  private final int memcacheExpirationSeconds;
   private final int playbackExpireSeconds;
   private final int postgresPoolSizeMax;
   private final int postgresPort;
@@ -154,6 +156,8 @@ public class AppEnvironment {
     ingestTokenName = readStr(vars, "INGEST_TOKEN_NAME", "access_token");
     ingestTokenValue = readStr(vars, "INGEST_TOKEN_VALUE", EMPTY);
     ingestURL = readStr(vars, "INGEST_URL", "http://localhost/");
+    memcacheAddress = readStr(vars, "MEMCACHE_ADDRESS", "");
+    memcacheExpirationSeconds = readInt(vars, "MEMCACHE_EXPIRATION_SECONDS", SECONDS_PER_HOUR * 24);
     platformEnvironment = readStr(vars, "ENVIRONMENT", "dev");
     playbackExpireSeconds = readInt(vars, "PLAYBACK_EXPIRE_SECONDS", SECONDS_PER_HOUR * 8);
     playerBaseURL = readStr(vars, "PLAYER_BASE_URL", "http://localhost/");
@@ -568,6 +572,20 @@ public class AppEnvironment {
    */
   public String getIngestTokenValue() {
     return ingestTokenValue;
+  }
+
+  /**
+   * @return address of memcache KV store if present
+   */
+  public String getMemcacheAddress() {
+    return memcacheAddress;
+  }
+
+  /**
+   * @return expiration seconds of memcache KV store if present
+   */
+  public int getMemcacheExpirationSeconds() {
+    return memcacheExpirationSeconds;
   }
 
   /**
