@@ -35,13 +35,17 @@ jobs:
           - 5432:5432
 
     steps:
-      - name: Install system packages
-        run: |
-          sudo apt-get update
-          sudo apt-get -y install ffmpeg
-          sudo apt-get -y install gpac
-          sudo apt-get -y install postgresql-client
-          sudo apt-get -y install amazon-ecr-credential-helper
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - uses: burrunan/gradle-cache-action@v1
+        name: Cache Gradle
+
+      - name: Install and cache system packages
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: ffmpeg gpac postgresql-client
+          version: 1.0
 
       - name: Ensure Postgres started OK
         run: sudo docker start $(docker ps -a -q)
@@ -58,9 +62,6 @@ jobs:
           createdb -h localhost -p 5432 -U postgres xj_test
         env:
           PGPASSWORD: postgres
-
-      - name: Checkout
-        uses: actions/checkout@v2
 
       - uses: actions/cache@v2
         with:

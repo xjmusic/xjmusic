@@ -18,6 +18,12 @@ jobs:
       id-token: 'write'
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - uses: burrunan/gradle-cache-action@v1
+        name: Cache Gradle
+
       - id: setup-gcloud-sdk
         name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v0.3.0
@@ -32,9 +38,6 @@ jobs:
 
       - name: Docker authentication helper
         run: gcloud auth configure-docker -q
-
-      - name: Checkout repository
-        uses: actions/checkout@v2
 
       - name: Docker Image Build
         id: dockerImageBuild
