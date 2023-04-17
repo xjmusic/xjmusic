@@ -95,8 +95,6 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  finalizers:
-    - service.kubernetes.io/load-balancer-cleanup
   labels:
     k8s-app: hub
   name: hub

@@ -25,7 +25,7 @@ public class HealthController {
   public ResponseEntity<String> index() {
     if (!work.isHealthy()) {
       return ResponseEntity.internalServerError()
-        .body("Kubernetes is not ready");
+        .body("Work is not ready");
     }
     return ResponseEntity.ok().build();
   }

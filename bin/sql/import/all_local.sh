@@ -25,8 +25,4 @@ export PGPASSWORD=postgres
 CFG="--user=${SQL_USER} --host=${SQL_HOST} --port=${SQL_PORT}"
 
 #
-dropdb --if-exists ${CFG} ${SQL_DB_MAIN} || error
-createdb ${CFG} ${SQL_DB_MAIN} || error
-
-#
 psql ${CFG} ${SQL_DB_MAIN}< ${SOURCE_MAIN_RECORDS_SQL} || error

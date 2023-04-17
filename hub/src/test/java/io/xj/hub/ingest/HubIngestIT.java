@@ -7,18 +7,16 @@ import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.*;
-import io.xj.hub.kubernetes.KubernetesAdmin;
+import io.xj.hub.service.PreviewNexusAdmin;
 import io.xj.hub.manager.*;
 import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.util.Text;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collection;
 import java.util.Map;
@@ -41,7 +39,7 @@ public class HubIngestIT {
   private HubIntegrationTest test;
   private IntegrationTestingFixtures fake;
   @Mock
-  private KubernetesAdmin kubernetesAdmin;
+  private PreviewNexusAdmin previewNexusAdmin;
 
   private static Map<String, Integer> classTally(Collection<Object> allEntities) {
     Map<String, Integer> out = Maps.newHashMap();
@@ -63,7 +61,7 @@ public class HubIngestIT {
     InstrumentManager instrumentManager = new InstrumentManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
     ProgramManager programManager = new ProgramManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
     TemplateBindingManager templateBindingManager = new TemplateBindingManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
-    TemplatePlaybackManager templatePlaybackManager = new TemplatePlaybackManagerImpl(env, test.getEntityFactory(), test.getSqlStoreProvider(), kubernetesAdmin);
+    TemplatePlaybackManager templatePlaybackManager = new TemplatePlaybackManagerImpl(env, test.getEntityFactory(), test.getSqlStoreProvider(), previewNexusAdmin);
     TemplatePublicationManager templatePublicationManager = new TemplatePublicationManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
     TemplateManager templateManager = new TemplateManagerImpl(test.getEnv(), test.getEntityFactory(), test.getSqlStoreProvider(), templateBindingManager, templatePlaybackManager, templatePublicationManager);
     ingestFactory = new HubIngestFactoryImpl(test.getJsonProvider(), test.getEntityStore(), instrumentManager, programManager, templateManager, templateBindingManager);

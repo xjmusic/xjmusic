@@ -3,8 +3,8 @@ package io.xj.hub.manager;
 
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.TemplateType;
-import io.xj.hub.kubernetes.KubernetesAdmin;
-import io.xj.hub.kubernetes.KubernetesException;
+import io.xj.hub.service.PreviewNexusAdmin;
+import io.xj.hub.service.ServiceException;
 import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.tables.pojos.Template;
@@ -33,17 +33,17 @@ import static io.xj.hub.Tables.TEMPLATE_PLAYBACK;
 @Service
 public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl implements TemplatePlaybackManager {
   private final Logger LOG = LoggerFactory.getLogger(TemplatePlaybackManagerImpl.class);
-  private final KubernetesAdmin kubernetesAdmin;
+  private final PreviewNexusAdmin previewNexusAdmin;
   private final long playbackExpireSeconds;
 
   public TemplatePlaybackManagerImpl(
     AppEnvironment env,
     EntityFactory entityFactory,
     HubSqlStoreProvider sqlStoreProvider,
-    KubernetesAdmin kubernetesAdmin
+    PreviewNexusAdmin previewNexusAdmin
   ) {
     super(entityFactory, sqlStoreProvider);
-    this.kubernetesAdmin = kubernetesAdmin;
+    this.previewNexusAdmin = previewNexusAdmin;
 
     playbackExpireSeconds = env.getPlaybackExpireSeconds();
   }
@@ -75,8 +75,8 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl imple
 
     var created = modelFrom(TemplatePlayback.class, executeCreate(db, TEMPLATE_PLAYBACK, record));
     try {
-      kubernetesAdmin.startPreviewNexus(access.getUserId(), template);
-    } catch (KubernetesException e) {
+      previewNexusAdmin.startPreviewNexus(access.getUserId(), template);
+    } catch (ServiceException e) {
       _destroy(access, created.getId());
       throw new ManagerException(e);
     }
@@ -137,15 +137,15 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl imple
       var playback = readOneForTemplate(access, templateId);
       if (playback.isEmpty())
         return String.format("Template[%s] is not playing!", templateId);
-      return kubernetesAdmin.getPreviewNexusLogs(playback.get().getUserId());
+      return previewNexusAdmin.getPreviewNexusLogs(playback.get().getUserId());
 
     } catch (ManagerException e) {
       LOG.error("Failed to read template playback for Template[{}]", templateId, e);
       return String.format("Failed to read template playback for Template[%s]: %s", templateId, e.getMessage());
 
-    } catch (KubernetesException e) {
-      LOG.error("Kubernetes client failed to read logs for Template[{}]", templateId, e);
-      return String.format("Kubernetes client failed to read logs for Template[%s]: %s", templateId, e.getMessage());
+    } catch (ServiceException e) {
+      LOG.error("Service administrator failed to read logs for Template[{}]", templateId, e);
+      return String.format("Service administrator failed to read logs for Template[%s]: %s", templateId, e.getMessage());
     }
   }
 
@@ -154,8 +154,8 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl imple
     _destroy(access, id);
 
     try {
-      kubernetesAdmin.stopPreviewNexus(access.getUserId());
-    } catch (KubernetesException e) {
+      previewNexusAdmin.stopPreviewNexus(access.getUserId());
+    } catch (ServiceException e) {
       throw new ManagerException(e);
     }
   }

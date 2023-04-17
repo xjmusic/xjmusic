@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.api;
 
-import io.xj.hub.kubernetes.KubernetesAdmin;
+import io.xj.hub.service.PreviewNexusAdmin;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,11 +25,11 @@ public class HealthControllerTest {
 
   @SuppressWarnings("unused")
   @MockBean
-  private KubernetesAdmin kubernetesAdmin;
+  private PreviewNexusAdmin previewNexusAdmin;
 
   @Test
   public void healthCheckShouldReturn200OK() {
-    when(kubernetesAdmin.isReady()).thenReturn(true);
+    when(previewNexusAdmin.isReady()).thenReturn(true);
 
     ResponseEntity<String> response = restTemplate.getForEntity(
       "http://localhost:" + port + "/healthz", String.class);
@@ -39,7 +39,7 @@ public class HealthControllerTest {
 
   @Test
   public void failsWithoutServices() {
-    when(kubernetesAdmin.isReady()).thenReturn(false);
+    when(previewNexusAdmin.isReady()).thenReturn(false);
 
     ResponseEntity<String> response = restTemplate.getForEntity(
       "http://localhost:" + port + "/healthz", String.class);

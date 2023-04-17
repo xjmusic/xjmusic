@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.api;
 
-import io.xj.hub.kubernetes.KubernetesAdmin;
+import io.xj.hub.service.PreviewNexusAdmin;
 import io.xj.hub.persistence.HubSqlStoreProvider;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,14 +13,14 @@ import java.sql.SQLException;
 @RestController
 public class HealthController {
   private final HubSqlStoreProvider sqlStoreProvider;
-  private final KubernetesAdmin kubernetesAdmin;
+  private final PreviewNexusAdmin previewNexusAdmin;
 
   public HealthController(
     HubSqlStoreProvider sqlStoreProvider,
-    KubernetesAdmin kubernetesAdmin
+    PreviewNexusAdmin previewNexusAdmin
   ) {
     this.sqlStoreProvider = sqlStoreProvider;
-    this.kubernetesAdmin = kubernetesAdmin;
+    this.previewNexusAdmin = previewNexusAdmin;
   }
 
   @PermitAll
@@ -29,9 +29,9 @@ public class HealthController {
     try (
       var ignoredSqlConnection = sqlStoreProvider.getDataSource().getConnection()
     ) {
-      if (!kubernetesAdmin.isReady()) {
+      if (!previewNexusAdmin.isReady()) {
         return ResponseEntity.internalServerError()
-          .body("Kubernetes is not ready");
+          .body("Service administrator is not ready");
       }
       return ResponseEntity.ok().build();
     } catch (SQLException e) {

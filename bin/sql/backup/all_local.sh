@@ -19,7 +19,7 @@ DB_MAIN=${1:-xj_dev}
 
 # Output
 OUTPUT_PREFIX="${PWD}/.backup/"
-OUTPUT_MAIN_RECORDS_SQL="${OUTPUT_PREFIX}delete-and-insert-all-records.sql"
+OUTPUT_MAIN_RECORDS_SQL="${OUTPUT_PREFIX}export-records.sql"
 
 #
 step "Backup main database records"

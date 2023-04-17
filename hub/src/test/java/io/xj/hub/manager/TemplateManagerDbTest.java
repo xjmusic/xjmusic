@@ -13,7 +13,7 @@ import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.enums.TemplateType;
-import io.xj.hub.kubernetes.KubernetesAdmin;
+import io.xj.hub.service.PreviewNexusAdmin;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.lib.app.AppEnvironment;
@@ -52,7 +52,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest
 public class TemplateManagerDbTest {
   @Mock
-  private KubernetesAdmin kubernetesAdmin;
+  private PreviewNexusAdmin previewNexusAdmin;
   private TemplateManager testManager;
   private HubIntegrationTest test;
   private IntegrationTestingFixtures fake;
@@ -84,7 +84,7 @@ public class TemplateManagerDbTest {
 
     // Instantiate the test subject
     TemplateBindingManager templateBindingManager = new TemplateBindingManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
-    TemplatePlaybackManager templatePlaybackManager = new TemplatePlaybackManagerImpl(test.getEnv(), test.getEntityFactory(), test.getSqlStoreProvider(), kubernetesAdmin);
+    TemplatePlaybackManager templatePlaybackManager = new TemplatePlaybackManagerImpl(test.getEnv(), test.getEntityFactory(), test.getSqlStoreProvider(), previewNexusAdmin);
     TemplatePublicationManager templatePublicationManager = new TemplatePublicationManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
     testManager = new TemplateManagerImpl(test.getEnv(), test.getEntityFactory(), test.getSqlStoreProvider(), templateBindingManager, templatePlaybackManager, templatePublicationManager);
   }

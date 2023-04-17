@@ -7,7 +7,7 @@ import com.google.common.collect.Lists;
 import io.xj.hub.access.GoogleProvider;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessTokenGenerator;
-import io.xj.hub.persistence.HubKvStoreProvider;
+import io.xj.hub.persistence.kv.HubKvStoreProvider;
 import io.xj.hub.persistence.HubMigration;
 import io.xj.hub.persistence.HubPersistenceException;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;

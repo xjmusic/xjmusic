@@ -12,7 +12,7 @@ import io.xj.hub.access.HubAccessException;
 import io.xj.hub.access.HubAccessTokenGenerator;
 import io.xj.hub.enums.UserAuthType;
 import io.xj.hub.enums.UserRoleType;
-import io.xj.hub.persistence.HubKvStoreProvider;
+import io.xj.hub.persistence.kv.HubKvStoreProvider;
 import io.xj.hub.persistence.HubPersistenceException;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.persistence.HubSqlStoreProvider;

@@ -5,7 +5,7 @@ package io.xj.hub.api;
 import com.google.common.collect.ImmutableList;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessException;
-import io.xj.hub.kubernetes.KubernetesAdmin;
+import io.xj.hub.service.PreviewNexusAdmin;
 import io.xj.hub.manager.UserManager;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.lib.app.AppException;
@@ -40,7 +40,7 @@ public class AuthControllerTest {
 
   @SuppressWarnings("unused")
   @MockBean
-  private KubernetesAdmin kubernetesAdmin;
+  private PreviewNexusAdmin previewNexusAdmin;
 
   @MockBean
   UserManager userManager;

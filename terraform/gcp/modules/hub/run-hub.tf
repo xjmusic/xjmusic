@@ -27,7 +27,7 @@ resource "google_cloud_run_service_iam_policy" "noauth" {
 resource "google_cloud_run_service" "hub" {
   name     = var.service_name
   location = var.region
-  project  = var.project
+  project  = var.project_id
   provider = google-beta
 
   template {
@@ -76,6 +76,18 @@ resource "google_cloud_run_service" "hub" {
         env {
           name  = "GCP_CLOUD_SQL_INSTANCE"
           value = var.postgres_gcp_cloud_sql_instance
+        }
+        env {
+          name = "GCP_REGION"
+          value = var.region
+        }
+        env {
+          name = "GCP_PROJECT_ID"
+          value = var.project_id
+        }
+        env {
+          name = "GCP_SERVICE_ACCOUNT_EMAIL"
+          value = var.service_account_email
         }
         env {
           name  = "SHIP_BASE_URL"

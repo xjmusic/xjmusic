@@ -7,7 +7,7 @@ import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.TemplateType;
-import io.xj.hub.kubernetes.KubernetesAdmin;
+import io.xj.hub.service.PreviewNexusAdmin;
 import io.xj.hub.tables.pojos.TemplatePlayback;
 import io.xj.lib.app.AppEnvironment;
 import org.junit.jupiter.api.AfterEach;
@@ -48,7 +48,7 @@ public class TemplatePlaybackManagerDbTest {
   private TemplatePlayback templatePlayback201;
 
   @Mock
-  private KubernetesAdmin kubernetesAdmin;
+  private PreviewNexusAdmin previewNexusAdmin;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -74,7 +74,7 @@ public class TemplatePlaybackManagerDbTest {
     templatePlayback201 = test.insert(buildTemplatePlayback(fake.template1, fake.user2));
 
     // Instantiate the test subject
-    testManager = new TemplatePlaybackManagerImpl(test.getEnv(), test.getEntityFactory(), test.getSqlStoreProvider(), kubernetesAdmin);
+    testManager = new TemplatePlaybackManagerImpl(test.getEnv(), test.getEntityFactory(), test.getSqlStoreProvider(), previewNexusAdmin);
   }
 
   @AfterEach
@@ -92,7 +92,7 @@ public class TemplatePlaybackManagerDbTest {
     assertNotNull(result);
     assertEquals(fake.template1.getId(), result.getTemplateId());
     assertEquals(fake.user2.getId(), result.getUserId());
-    verify(kubernetesAdmin, times(1)).startPreviewNexus(eq(fake.user2.getId()), any());
+    verify(previewNexusAdmin, times(1)).startPreviewNexus(eq(fake.user2.getId()), any());
   }
 
   @Test
@@ -107,7 +107,7 @@ public class TemplatePlaybackManagerDbTest {
     assertNotNull(result);
     assertEquals(fake.template1.getId(), result.getTemplateId());
     assertEquals(fake.user2.getId(), result.getUserId());
-    verify(kubernetesAdmin, times(1)).startPreviewNexus(eq(fake.user2.getId()), any());
+    verify(previewNexusAdmin, times(1)).startPreviewNexus(eq(fake.user2.getId()), any());
   }
 
   @Test
@@ -140,7 +140,7 @@ public class TemplatePlaybackManagerDbTest {
     testManager.create(access, subject);
 
     assertThrows(ManagerException.class, () -> testManager.readOne(access, priorPlayback.getId()));
-    verify(kubernetesAdmin, times(1)).startPreviewNexus(eq(fake.user2.getId()), any());
+    verify(previewNexusAdmin, times(1)).startPreviewNexus(eq(fake.user2.getId()), any());
   }
 
   /**
@@ -156,7 +156,7 @@ public class TemplatePlaybackManagerDbTest {
     testManager.create(access, subject);
 
     assertThrows(ManagerException.class, () -> testManager.readOne(access, priorPlayback.getId()));
-    verify(kubernetesAdmin, times(1)).startPreviewNexus(eq(fake.user2.getId()), any());
+    verify(previewNexusAdmin, times(1)).startPreviewNexus(eq(fake.user2.getId()), any());
   }
 
   @Test
@@ -268,7 +268,7 @@ public class TemplatePlaybackManagerDbTest {
     } catch (ManagerException e) {
       assertTrue(e.getMessage().contains("does not exist"), "Record should not exist");
     }
-    verify(kubernetesAdmin, times(1)).stopPreviewNexus(eq(fake.user2.getId()));
+    verify(previewNexusAdmin, times(1)).stopPreviewNexus(eq(fake.user2.getId()));
   }
 
 }

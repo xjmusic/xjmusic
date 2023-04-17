@@ -99,8 +99,6 @@ public class TemplateConfig {
     transitionLayerMin = 0
     vmResourceLimitCpu = 2.5
     vmResourceLimitMemoryGb = 6.0
-    vmResourceRequestCpu = 1.25
-    vmResourceRequestMemoryGb = 3.0
     """;
   private final AudioFormat.Encoding outputEncoding;
   private final List<InstrumentType> detailLayerOrder;
@@ -147,8 +145,6 @@ public class TemplateConfig {
   private final double outputEncodingQuality;
   private final double vmResourceLimitCpu;
   private final double vmResourceLimitMemoryGb;
-  private final double vmResourceRequestCpu;
-  private final double vmResourceRequestMemoryGb;
   private final int backgroundLayerMax;
   private final int backgroundLayerMin;
   private final int bufferAheadSeconds;
@@ -259,8 +255,6 @@ public class TemplateConfig {
       transitionLayerMin = config.getInt("transitionLayerMin");
       vmResourceLimitCpu = config.getDouble("vmResourceLimitCpu");
       vmResourceLimitMemoryGb = config.getDouble("vmResourceLimitMemoryGb");
-      vmResourceRequestCpu = config.getDouble("vmResourceRequestCpu");
-      vmResourceRequestMemoryGb = config.getDouble("vmResourceRequestMemoryGb");
     } catch (ConfigException e) {
       throw new ValueException(e.getMessage());
     }
@@ -338,8 +332,6 @@ public class TemplateConfig {
     config.put("transitionLayerMin", String.valueOf(transitionLayerMin));
     config.put("vmResourceLimitCpu", String.valueOf(vmResourceLimitCpu));
     config.put("vmResourceLimitMemoryGb", String.valueOf(vmResourceLimitMemoryGb));
-    config.put("vmResourceRequestCpu", String.valueOf(vmResourceRequestCpu));
-    config.put("vmResourceRequestMemoryGb", String.valueOf(vmResourceRequestMemoryGb));
     return Text.formatMultiline(config.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(pair -> String.format("%s = %s", pair.getKey(), pair.getValue())).toArray());
   }
 
@@ -689,20 +681,6 @@ public class TemplateConfig {
    */
   public double getVmResourceLimitMemoryGb() {
     return vmResourceLimitMemoryGb;
-  }
-
-  /**
-   * @return virtual machine resource request # of CPU
-   */
-  public double getVmResourceRequestCpu() {
-    return vmResourceRequestCpu;
-  }
-
-  /**
-   * @return virtual machine resource request memory (gigabytes)
-   */
-  public double getVmResourceRequestMemoryGb() {
-    return vmResourceRequestMemoryGb;
   }
 
 }

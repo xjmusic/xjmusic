@@ -25,7 +25,7 @@ module "lab_dev_hub" {
   ship_bucket                     = "xj-dev-ship"
   postgres_database               = module.lab_postgres.database_dev
   postgres_gcp_cloud_sql_instance = module.lab_postgres.connection_name
-  project                         = local.gcp-project-id
+  project_id                      = local.gcp-project-id
   region                          = local.gcp-region
   resources_limits_cpu            = 2
   resources_limits_memory         = "4Gi"

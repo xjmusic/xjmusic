@@ -52,9 +52,6 @@ public class AppEnvironment {
   private final String ingestTokenName;
   private final String ingestTokenValue;
   private final String ingestURL;
-  private final String kubernetesContainerEnvSecretRefName;
-  private final String kubernetesNamespace;
-  private final String kubernetesNexusImage;
   private final String platformEnvironment;
   private final String playerBaseURL;
   private final String postgresDatabase;
@@ -88,8 +85,6 @@ public class AppEnvironment {
   private final int fabricationPreviewLengthMaxHours;
   private final int httpClientPoolMaxPerRoute;
   private final int httpClientPoolMaxTotal;
-  private final int kubernetesClientConfigExpirySeconds;
-  private final int kubernetesLogTailLines;
   private final int playbackExpireSeconds;
   private final int postgresPoolSizeMax;
   private final int postgresPort;
@@ -159,11 +154,6 @@ public class AppEnvironment {
     ingestTokenName = readStr(vars, "INGEST_TOKEN_NAME", "access_token");
     ingestTokenValue = readStr(vars, "INGEST_TOKEN_VALUE", EMPTY);
     ingestURL = readStr(vars, "INGEST_URL", "http://localhost/");
-    kubernetesClientConfigExpirySeconds = readInt(vars, "KUBERNETES_CLIENT_CONFIG_EXPIRY_SECONDS", 3600);
-    kubernetesContainerEnvSecretRefName = readStr(vars, "KUBERNETES_CONTAINER_ENV_SECRET_REF_NAME", "prod.env");
-    kubernetesLogTailLines = readInt(vars, "KUBERNETES_LOG_LINES", 40);
-    kubernetesNamespace = readStr(vars, "KUBERNETES_NAMESPACE", "lab");
-    kubernetesNexusImage = readStr(vars, "KUBERNETES_NEXUS_IMAGE", "gcr.io/xj-vpc-host-prod/nexus:latest");
     platformEnvironment = readStr(vars, "ENVIRONMENT", "dev");
     playbackExpireSeconds = readInt(vars, "PLAYBACK_EXPIRE_SECONDS", SECONDS_PER_HOUR * 8);
     playerBaseURL = readStr(vars, "PLAYER_BASE_URL", "http://localhost/");
@@ -578,41 +568,6 @@ public class AppEnvironment {
    */
   public String getIngestTokenValue() {
     return ingestTokenValue;
-  }
-
-  /**
-   * @return name of Kubernetes to attach to containers https://www.pivotaltracker.com/story/show/183576743
-   */
-  public String getKubernetesContainerEnvSecretRefName() {
-    return kubernetesContainerEnvSecretRefName;
-  }
-
-  /**
-   * @return # of lines to log from tail of Kubernetes logs of preview template workloads https://www.pivotaltracker.com/story/show/183576743
-   */
-  public int getKubernetesLogTailLines() {
-    return kubernetesLogTailLines;
-  }
-
-  /**
-   * @return the Kubernetes namespace for scheduling preview template workloads https://www.pivotaltracker.com/story/show/183576743
-   */
-  public String getKubernetesNamespace() {
-    return kubernetesNamespace;
-  }
-
-  /**
-   * @return the Kubernetes image for nexus https://www.pivotaltracker.com/story/show/183576743
-   */
-  public String getKubernetesNexusImage() {
-    return kubernetesNexusImage;
-  }
-
-  /**
-   * @return the Kubernetes client config expiry seconds for scheduling preview template workloads https://www.pivotaltracker.com/story/show/183576743
-   */
-  public int getKubernetesClientConfigExpirySeconds() {
-    return kubernetesClientConfigExpirySeconds;
   }
 
   /**

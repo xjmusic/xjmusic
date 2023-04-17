@@ -5,7 +5,6 @@
 |                  | GCP                                                                                                                                                                                 |
 |------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | _Base Image_     | [![Base Image (GCP)](https://github.com/xjmusic/services/actions/workflows/services-base.yaml/badge.svg)](https://github.com/xjmusic/services/actions/workflows/services-base.yaml) |
-| _Infrastructure_ | [![Kubernetes Apply (GCP)](https://github.com/xjmusic/services/actions/workflows/infra-gke.yaml/badge.svg)](https://github.com/xjmusic/services/actions/workflows/infra-gke.yaml)   |                                                                                                                                                                                             |
 
 # XJ Music Backend (Java) Services
 
@@ -13,15 +12,37 @@
 
 ## Deployment
 
-Just push to the `main` branch to deploy to Production CI, or `dev` branch for Development CI.
+CI builds & deploys the `prod` branch to Production, and `dev` to Development.
 
-## Google Cloud Run Services
+# XJ service deployment on AWS and GCP
+
+## Terraform
+
+We use Terraform to deploy the infrastructure on AWS and GCP. The Terraform code is in the `terraform` folder.
+
+### Amazon Web Service (AWS)
+
+We use AWS to host static content buckets (S3) and the content distribution network (CloudFront).
+
+Install the AWS CLI according to [this tutorial](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html).
+
+### Google Cloud Platform (GCP)
+
+We use GCP to host the database (Cloud SQL) and services (Cloud Run).
+
+Install the GCP CLI according to [this tutorial](https://cloud.google.com/sdk/docs/install).
+
+### Google Cloud Run Services
 
 Our preferred deployment method for all services is Google Cloud Run (serverless) services. For example, to tail the logs of the hub:
 
 ```shell
 gcloud beta run services logs tail xj-dev-lab-hub --region us-west1 --project xj-vpc-host-prod
 ```
+
+### Terraform CLI
+
+Install the Terraform CLI according to [this tutorial](https://learn.hashicorp.com/tutorials/terraform/install-cli).
 
 ## Terraform Infrastructure
 
@@ -156,19 +177,6 @@ in a Chain.
 To compile the Java server-side applications and package them for deployment:
 
     gradle clean assemble
-
-## App Configuration
-
-There is an example configuration called **env.example.conf** in the root of the project. It is up to you, the
-developer, to obtain keys and fill in the values of your own environment variables, in a new file called **.env**
-which is never checked in to version control or released with the distribution. Developers modify their local
-**.env** file with private keys and configuration. The **.env** file is never committed to the repository, because it
-contains secrets. The **env.example.conf** file is kept up-to-date with all environment variables required for the
-developer to configure.
-
-### Production App Secrets
-
-Stored in Kubernetes secrets called `dev.env` and `dev-local.env` (in namespace `dev`), and `prod.env` (in namespaces `yard` and `lab`)
 
 ## Integration testing
 
