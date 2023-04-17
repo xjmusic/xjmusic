@@ -42,10 +42,13 @@ public class AppEnvironment {
   private final String awsSecretName;
   private final String awsSnsTopicArn;
   private final String fabricationPreviewUserId;
-  private final String gcpCloudSqlSocketFactory;
   private final String gcpCloudSqlInstance;
+  private final String gcpCloudSqlSocketFactory;
   private final String gcpProjectId;
+  private final String gcpRegion;
   private final String gcpSecretId;
+  private final String gcpServiceAccountEmail;
+  private final String gcpServiceNexusImage;
   private final String googleClientID;
   private final String googleClientSecret;
   private final String hostname;
@@ -60,6 +63,8 @@ public class AppEnvironment {
   private final String postgresPass;
   private final String postgresSchemas;
   private final String postgresUser;
+  private final String serviceContainerEnvSecretRefName;
+  private final String serviceNamespace;
   private final String sessionNamespace;
   private final String shipBaseUrl;
   private final String shipBucket;
@@ -90,6 +95,7 @@ public class AppEnvironment {
   private final int playbackExpireSeconds;
   private final int postgresPoolSizeMax;
   private final int postgresPort;
+  private final int serviceLogTailLines;
   private final int shipBitrateHigh;
   private final int shipChainJsonMaxAgeSeconds;
   private final int shipChunkTargetDuration;
@@ -136,7 +142,7 @@ public class AppEnvironment {
 
     // Application
     accessTokenDomain = readStr(vars, "ACCESS_TOKEN_DOMAIN", "");
-    accessTokenMaxAgeSeconds = readInt(vars, "ACCESS_TOKEN_MAX_AGE_SECONDS", 2419200);
+    accessTokenMaxAgeSeconds = readInt(vars, "ACCESS_TOKEN_MAX_AGE_SECONDS", SECONDS_PER_HOUR * 24);
     accessTokenName = readStr(vars, "ACCESS_TOKEN_NAME", "access_token");
     accessTokenPath = readStr(vars, "ACCESS_TOKEN_PATH", "/");
     apiUnauthorizedRedirectPath = readStr(vars, "API_UNAUTHORIZED_REDIRECT_PATH", "unauthorized");
@@ -158,6 +164,9 @@ public class AppEnvironment {
     ingestURL = readStr(vars, "INGEST_URL", "http://localhost/");
     memcacheAddress = readStr(vars, "MEMCACHE_ADDRESS", "");
     memcacheExpirationSeconds = readInt(vars, "MEMCACHE_EXPIRATION_SECONDS", SECONDS_PER_HOUR * 24);
+    serviceContainerEnvSecretRefName = readStr(vars, "SERVICE_CONTAINER_ENV_SECRET_REF_NAME", "prod.env");
+    serviceLogTailLines = readInt(vars, "SERVICE_LOG_LINES", 40);
+    serviceNamespace = readStr(vars, "SERVICE_NAMESPACE", "lab");
     platformEnvironment = readStr(vars, "ENVIRONMENT", "dev");
     playbackExpireSeconds = readInt(vars, "PLAYBACK_EXPIRE_SECONDS", SECONDS_PER_HOUR * 8);
     playerBaseURL = readStr(vars, "PLAYER_BASE_URL", "http://localhost/");
@@ -217,10 +226,13 @@ public class AppEnvironment {
     awsUploadExpireMinutes = readInt(vars, "AWS_UPLOAD_EXPIRE_MINUTES", 60);
 
     // Resource: _Google
-    gcpCloudSqlSocketFactory = readStr(vars, "GCP_CLOUD_SQL_SOCKET_FACTORY", "com.google.cloud.sql.postgres.SocketFactory");
     gcpCloudSqlInstance = readStr(vars, "GCP_CLOUD_SQL_INSTANCE", EMPTY);
+    gcpCloudSqlSocketFactory = readStr(vars, "GCP_CLOUD_SQL_SOCKET_FACTORY", "com.google.cloud.sql.postgres.SocketFactory");
     gcpProjectId = readStr(vars, "GCP_PROJECT_ID", EMPTY);
+    gcpRegion = readStr(vars, "GCP_REGION", EMPTY);
     gcpSecretId = readStr(vars, "GCP_SECRET_ID", EMPTY);
+    gcpServiceAccountEmail = readStr(vars, "GCP_SERVICE_ACCOUNT_EMAIL", EMPTY);
+    gcpServiceNexusImage = readStr(vars, "SERVICE_NEXUS_IMAGE", "gcr.io/xj-vpc-host-prod/nexus:latest");
     googleClientID = readStr(vars, "GOOGLE_CLIENT_ID", EMPTY);
     googleClientSecret = readStr(vars, "GOOGLE_CLIENT_SECRET", EMPTY);
 
@@ -512,6 +524,13 @@ public class AppEnvironment {
   }
 
   /**
+   * @return GCP region
+   */
+  public String getGcpRegion() {
+    return gcpRegion;
+  }
+
+  /**
    * @return GCP secret id
    */
   public String getGcpSecretId() {
@@ -586,6 +605,27 @@ public class AppEnvironment {
    */
   public int getMemcacheExpirationSeconds() {
     return memcacheExpirationSeconds;
+  }
+
+  /**
+   * @return name of Service to attach to containers https://www.pivotaltracker.com/story/show/183576743
+   */
+  public String getServiceContainerEnvSecretRefName() {
+    return serviceContainerEnvSecretRefName;
+  }
+
+  /**
+   * @return # of lines to log from tail of Service logs of preview template workloads https://www.pivotaltracker.com/story/show/183576743
+   */
+  public int getServiceLogTailLines() {
+    return serviceLogTailLines;
+  }
+
+  /**
+   * @return the Service namespace for scheduling preview template workloads https://www.pivotaltracker.com/story/show/183576743
+   */
+  public String getServiceNamespace() {
+    return serviceNamespace;
   }
 
   /**
@@ -1003,5 +1043,19 @@ public class AppEnvironment {
    */
   public String getGcpCloudSqlInstance() {
     return gcpCloudSqlInstance;
+  }
+
+  /**
+   * @return GCP service account
+   */
+  public String getGcpServiceAccountEmail() {
+    return gcpServiceAccountEmail;
+  }
+
+  /**
+   * @return the Service image for nexus https://www.pivotaltracker.com/story/show/183576743
+   */
+  public String getGcpServiceNexusImage() {
+    return gcpServiceNexusImage;
   }
 }
