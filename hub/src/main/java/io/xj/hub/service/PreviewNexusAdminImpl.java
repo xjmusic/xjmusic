@@ -15,10 +15,13 @@ import com.google.cloud.run.v2.CreateServiceRequest;
 import com.google.cloud.run.v2.DeleteServiceRequest;
 import com.google.cloud.run.v2.EnvVar;
 import com.google.cloud.run.v2.GetServiceRequest;
+import com.google.cloud.run.v2.HTTPGetAction;
+import com.google.cloud.run.v2.Probe;
 import com.google.cloud.run.v2.ResourceRequirements;
 import com.google.cloud.run.v2.RevisionTemplate;
 import com.google.cloud.run.v2.ServiceName;
 import com.google.cloud.run.v2.ServicesClient;
+import com.google.cloud.run.v2.TCPSocketAction;
 import com.google.cloud.run.v2.UpdateServiceRequest;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.tables.pojos.Template;
@@ -349,12 +352,34 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
       .putLimits(RESOURCE_REQUIREMENT_KEY_MEMORY, computeMemoryLimit(template))
       .build();
 
+    // probe to ensure a healthy startup
+    var startupProbe = Probe.newBuilder()
+      .setInitialDelaySeconds(240)
+      .setTimeoutSeconds(2)
+      .setPeriodSeconds(10)
+      .setFailureThreshold(3)
+      .setTcpSocket(TCPSocketAction.newBuilder().setPort(8080).build())
+      .setHttpGet(HTTPGetAction.newBuilder().setPath("/healthz").build())
+      .build();
+
+    // probe to ensure liveness
+    var livenessProbe = Probe.newBuilder()
+      .setInitialDelaySeconds(240)
+      .setTimeoutSeconds(2)
+      .setPeriodSeconds(10)
+      .setFailureThreshold(3)
+      .setTcpSocket(TCPSocketAction.newBuilder().setPort(8080).build())
+      .setHttpGet(HTTPGetAction.newBuilder().setPath("/healthz").build())
+      .build();
+
     // container
     Container container = Container.newBuilder()
       .setImage(nexusImage)
       .addAllEnv(envVars)
       .addPorts(ContainerPort.newBuilder().setContainerPort(8080).build())
       .setResources(resourceRequirements)
+      .setStartupProbe(startupProbe)
+      .setLivenessProbe(livenessProbe)
       .build();
 
     // annotations
