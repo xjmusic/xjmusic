@@ -3,6 +3,7 @@
 package io.xj.hub.service;
 
 import com.google.api.client.util.Lists;
+import com.google.api.client.util.Strings;
 import com.google.api.gax.rpc.ApiException;
 import com.google.cloud.logging.LogEntry;
 import com.google.cloud.logging.Logging;
@@ -14,13 +15,10 @@ import com.google.cloud.run.v2.CreateServiceRequest;
 import com.google.cloud.run.v2.DeleteServiceRequest;
 import com.google.cloud.run.v2.EnvVar;
 import com.google.cloud.run.v2.GetServiceRequest;
-import com.google.cloud.run.v2.HTTPGetAction;
-import com.google.cloud.run.v2.Probe;
 import com.google.cloud.run.v2.ResourceRequirements;
 import com.google.cloud.run.v2.RevisionTemplate;
 import com.google.cloud.run.v2.ServiceName;
 import com.google.cloud.run.v2.ServicesClient;
-import com.google.cloud.run.v2.TCPSocketAction;
 import com.google.cloud.run.v2.UpdateServiceRequest;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.tables.pojos.Template;
@@ -33,16 +31,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Preview template functionality is dope (not wack)
@@ -59,7 +56,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   private static final String RESOURCE_REQUIREMENT_DEFAULT_CPU = "2";
   private static final String RESOURCE_REQUIREMENT_KEY_MEMORY = "memory";
   private static final String RESOURCE_REQUIREMENT_DEFAULT_MEMORY = "4Gi";
-  private static final String LOG_LINE_FILTER_PREFIX = "[main] ";
+  private static final String LOG_LINE_FILTER_BEGINS_WITH = "[main] ";
   private static final String LOG_LINE_REMOVE = " i.x.n.w.NexusWorkImpl ";
   private final Logger LOG = LoggerFactory.getLogger(PreviewNexusAdminImpl.class);
   private final String gcpServiceAccountEmail;
@@ -74,18 +71,20 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   private final String audioFileBucket;
   private final String audioUploadUrl;
   private final String awsAccessKeyId;
+  private final String awsDefaultRegion;
   private final String awsSecretKey;
   private final String environment;
   private final String gcpCloudSqlInstance;
   private final String googleClientId;
   private final String googleClientSecret;
+  private final String ingestTokenValue;
+  private final String ingestUrl;
   private final String playerBaseUrl;
   private final String postgresDatabase;
   private final String postgresPass;
   private final String postgresUser;
   private final String shipBaseUrl;
   private final String shipBucket;
-  private final String awsDefaultRegion;
 
   public PreviewNexusAdminImpl(AppEnvironment env) {
     String envSecretRefName = env.getServiceContainerEnvSecretRefName();
@@ -105,6 +104,8 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
     gcpCloudSqlInstance = env.getGcpCloudSqlInstance();
     googleClientId = env.getGoogleClientID();
     googleClientSecret = env.getGoogleClientSecret();
+    ingestTokenValue = env.getIngestTokenValue();
+    ingestUrl = env.getIngestURL();
     playerBaseUrl = env.getPlayerBaseUrl();
     postgresDatabase = env.getPostgresDatabase();
     postgresPass = env.getPostgresPass();
@@ -122,32 +123,37 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
     if (!isConfigured)
       return "Service administrator is not configured!";
 
-    var serviceId = computeServiceName(userId);
+    try {
+      var serviceId = computeServiceName(userId);
 
-    List<String> lines = Lists.newArrayList();
+      List<String> lines = Lists.newArrayList();
 
-    Instant now = Instant.now();
-    Instant before = now.minus(Duration.ofMinutes(1));
+      Instant now = Instant.now();
+      Instant before = now.minus(Duration.ofMinutes(1));
 
-    String filter = String.format("resource.type=\"cloud_run_revision\""
-        + " AND resource.labels.service_name=\"%s\""
-        + " AND timestamp >= \"%s\""
-        + " AND timestamp <= \"%s\"",
-      serviceId, before.toString(), now);
+      String filter = String.format("resource.type=\"cloud_run_revision\""
+          + " AND resource.labels.service_name=\"%s\""
+          + " AND timestamp >= \"%s\""
+          + " AND timestamp <= \"%s\"",
+        serviceId, before.toString(), now);
 
-    Logging logging = LoggingOptions.getDefaultInstance().getService();
-    EntryListOption entryListOption = EntryListOption.filter(filter);
-    var entries = logging.listLogEntries(entryListOption);
+      Logging logging = LoggingOptions.getDefaultInstance().getService();
+      EntryListOption entryListOption = EntryListOption.filter(filter);
+      var entries = logging.listLogEntries(entryListOption);
 
-    for (LogEntry logEntry : entries.iterateAll()) {
-      if (Text.beginsWith(logEntry.getPayload().toString(), LOG_LINE_FILTER_PREFIX)) {
-        lines.add(logEntry.getPayload().toString());
+      for (LogEntry logEntry : entries.iterateAll()) {
+        if (Text.beginsWith(logEntry.getPayload().getData().toString(), LOG_LINE_FILTER_BEGINS_WITH)) {
+          lines.add(logEntry.getPayload().getData().toString());
+        }
       }
-    }
 
-    return String.join("\n", Values.last(logTailLines, lines).stream()
-      .map((L) -> L.substring(LOG_LINE_FILTER_PREFIX.length()))
-      .map((L) -> L.replace(LOG_LINE_REMOVE, "")).toList());
+      return String.join("\n", Values.last(logTailLines, lines).stream()
+        .map((L) -> L.substring(LOG_LINE_FILTER_BEGINS_WITH.length()))
+        .map((L) -> L.replace(LOG_LINE_REMOVE, "")).toList());
+    } catch (RuntimeException e) {
+      LOG.error("Failed to get logs for preview nexus", e);
+      return String.format("Failed to get logs for preview nexus: %s", e.getMessage());
+    }
   }
 
   @Override
@@ -184,7 +190,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
    * @param userId for which to createPreviewNexus
    * @throws ServiceException on failure
    */
-  private void createPreviewNexus(UUID userId, @Nullable Template template) throws ServiceException {
+  private void createPreviewNexus(UUID userId, Template template) throws ServiceException {
     try (var client = ServicesClient.create()) {
       var serviceName = computeServiceName(userId);
       var request = CreateServiceRequest.newBuilder()
@@ -195,8 +201,8 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
           .build())
         .build();
 
-      client.createServiceAsync(request);
-      LOG.info("Sent request to create preview nexus {}", serviceName);
+      var result = client.createServiceAsync(request).get();
+      LOG.info("Created {}", result.getName());
 
     } catch (IOException e) {
       LOG.error("Failed to create preview nexus; connection failed!", e);
@@ -204,6 +210,14 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
 
     } catch (ApiException e) {
       LOG.error("Failed to create preview nexus; service API failed!", e);
+      throw new ServiceException("Failed to create preview nexus; service API failed!", e);
+
+    } catch (ExecutionException e) {
+      LOG.error("Failed to create preview nexus; execution failed!", e);
+      throw new ServiceException("Failed to create preview nexus; service API failed!", e);
+
+    } catch (InterruptedException e) {
+      LOG.error("Failed to create preview nexus; execution interrupted!", e);
       throw new ServiceException("Failed to create preview nexus; service API failed!", e);
     }
   }
@@ -219,7 +233,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
    * @param template from which to source vm resource preferences
    * @throws ServiceException on failure
    */
-  private void updatePreviewNexus(UUID userId, @Nullable Template template) throws ServiceException {
+  private void updatePreviewNexus(UUID userId, Template template) throws ServiceException {
     var existing = getPreviewNexus(userId);
     if (existing.isEmpty()) {
       LOG.warn("Failed to update preview nexus; service does not exist!");
@@ -234,8 +248,8 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
         .setService(updated)
         .build();
 
-      client.updateServiceAsync(request);
-      LOG.info("Sent request to update preview nexus {}", existing.get().getName());
+      var result = client.updateServiceAsync(request).get();
+      LOG.info("Updated {}", result.getName());
 
     } catch (IOException e) {
       LOG.error("Failed to update preview nexus; connection failed!", e);
@@ -243,6 +257,14 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
 
     } catch (ApiException e) {
       LOG.error("Failed to update preview nexus; service API failed!", e);
+      throw new ServiceException("Failed to update preview nexus; service API failed!", e);
+
+    } catch (ExecutionException e) {
+      LOG.error("Failed to update preview nexus; execution failed!", e);
+      throw new ServiceException("Failed to update preview nexus; service API failed!", e);
+
+    } catch (InterruptedException e) {
+      LOG.error("Failed to update preview nexus; execution interrupted!", e);
       throw new ServiceException("Failed to update preview nexus; service API failed!", e);
     }
   }
@@ -279,8 +301,11 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
         .setName(serviceName.toString())
         .build();
 
-      client.deleteServiceAsync(request);
-    } catch (ApiException | IOException e) {
+      // block until deleted
+      client.deleteServiceAsync(request).get();
+      LOG.info("Deleted {}", serviceName);
+
+    } catch (ApiException | IOException | InterruptedException | ExecutionException e) {
       LOG.warn("Failed to delete preview nexus!", e);
     }
   }
@@ -298,10 +323,16 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   /**
    * @return string content
    */
-  private RevisionTemplate computeRevisionTemplate(@Nullable Template template) {
+  private RevisionTemplate computeRevisionTemplate(Template template) {
+    List<EnvVar> envVars = Lists.newArrayList();
+
+    // Ship key from template
+    if (Strings.isNullOrEmpty(template.getShipKey())) {
+      throw new IllegalArgumentException("Template must have a ship key!");
+    }
+    envVars.add(EnvVar.newBuilder().setName("SHIP_KEY").setValue(template.getShipKey()).build());
 
     // environment variables passed through
-    List<EnvVar> envVars = Lists.newArrayList();
     envVars.add(EnvVar.newBuilder().setName("APP_BASE_URL").setValue(appBaseUrl).build());
     envVars.add(EnvVar.newBuilder().setName("AUDIO_BASE_URL").setValue(audioBaseUrl).build());
     envVars.add(EnvVar.newBuilder().setName("AUDIO_FILE_BUCKET").setValue(audioFileBucket).build());
@@ -311,6 +342,8 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
     envVars.add(EnvVar.newBuilder().setName("GCP_CLOUD_SQL_INSTANCE").setValue(gcpCloudSqlInstance).build());
     envVars.add(EnvVar.newBuilder().setName("GCP_PROJECT_ID").setValue(gcpProjectId).build());
     envVars.add(EnvVar.newBuilder().setName("GCP_REGION").setValue(gcpRegion).build());
+    envVars.add(EnvVar.newBuilder().setName("INGEST_TOKEN_VALUE").setValue(ingestTokenValue).build());
+    envVars.add(EnvVar.newBuilder().setName("INGEST_URL").setValue(ingestUrl).build());
     envVars.add(EnvVar.newBuilder().setName("GCP_SERVICE_ACCOUNT_NAME").setValue(gcpServiceAccountEmail).build());
     envVars.add(EnvVar.newBuilder().setName("PLAYER_BASE_URL").setValue(playerBaseUrl).build());
     envVars.add(EnvVar.newBuilder().setName("POSTGRES_DATABASE").setValue(postgresDatabase).build());
@@ -325,12 +358,13 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
     envVars.add(EnvVar.newBuilder().setName("POSTGRES_PASS").setValue(postgresPass).build());
     envVars.add(EnvVar.newBuilder().setName("POSTGRES_USER").setValue(postgresUser).build());
 
+/*
     // probe to ensure a healthy startup
     var startupProbe = Probe.newBuilder()
-      .setInitialDelaySeconds(30)
+      .setInitialDelaySeconds(60)
       .setTimeoutSeconds(2)
-      .setPeriodSeconds(3)
-      .setFailureThreshold(1)
+      .setPeriodSeconds(7)
+      .setFailureThreshold(3)
       .setTcpSocket(TCPSocketAction.newBuilder().setPort(8080).build())
       .setHttpGet(HTTPGetAction.newBuilder().setPath("/healthz").build())
       .build();
@@ -340,6 +374,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
       .setTimeoutSeconds(2)
       .setHttpGet(HTTPGetAction.newBuilder().setPath("/healthz").build())
       .build();
+*/
 
     // resource requirements
     var resourceRequirements = ResourceRequirements.newBuilder()
@@ -353,8 +388,8 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
       .setImage(nexusImage)
       .addAllEnv(envVars)
       .addPorts(ContainerPort.newBuilder().setContainerPort(8080).build())
-      .setStartupProbe(startupProbe)
-      .setLivenessProbe(livenessProbe)
+//      .setStartupProbe(startupProbe)
+//      .setLivenessProbe(livenessProbe)
       .setResources(resourceRequirements)
       .build();
 
@@ -371,26 +406,22 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
     return revisionTemplate.build();
   }
 
-  private String computeCpuLimit(@Nullable Template template) {
-    if (Objects.nonNull(template)) {
-      try {
-        return String.valueOf(new TemplateConfig(template).getVmResourceLimitCpu());
-      } catch (ValueException e) {
-        LOG.error("Failed to parse template configuration", e);
-      }
+  private String computeCpuLimit(Template template) {
+    try {
+      return String.valueOf(new TemplateConfig(template).getVmResourceLimitCpu());
+    } catch (ValueException e) {
+      LOG.error("Failed to parse template configuration", e);
+      return RESOURCE_REQUIREMENT_DEFAULT_CPU;
     }
-    return RESOURCE_REQUIREMENT_DEFAULT_CPU;
   }
 
-  private String computeMemoryLimit(@Nullable Template template) {
-    if (Objects.nonNull(template)) {
-      try {
-        return String.format("%fGi", new TemplateConfig(template).getVmResourceLimitMemoryGb());
-      } catch (ValueException e) {
-        LOG.error("Failed to parse template configuration", e);
-      }
+  private String computeMemoryLimit(Template template) {
+    try {
+      return String.format("%fGi", new TemplateConfig(template).getVmResourceLimitMemoryGb());
+    } catch (ValueException e) {
+      LOG.error("Failed to parse template configuration", e);
+      return RESOURCE_REQUIREMENT_DEFAULT_MEMORY;
     }
-    return RESOURCE_REQUIREMENT_DEFAULT_MEMORY;
   }
 
   /**

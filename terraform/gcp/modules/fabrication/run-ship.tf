@@ -87,7 +87,7 @@ resource "google_cloud_run_service" "xj-yard-bump-chill-serverless-ship" {
         }
         env {
           name  = "ENVIRONMENT"
-          value = "production"
+          value = "prod"
         }
         env {
           name  = "SHIP_BASE_URL"
