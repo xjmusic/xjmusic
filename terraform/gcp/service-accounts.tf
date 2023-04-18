@@ -5,12 +5,13 @@ module "xj-dev-hub-sa" {
   account_id   = "xj-dev-hub"
   display_name = "XJ Development Hub"
   roles        = [
-    "roles/secretmanager.secretAccessor",
     "roles/cloudsql.client",
     "roles/compute.serviceAgent",
     "roles/container.serviceAgent",
     "roles/iam.serviceAccountUser",
-    "roles/run.admin"
+    "roles/logging.viewer",
+    "roles/run.admin",
+    "roles/secretmanager.secretAccessor"
   ]
 }
 
@@ -21,12 +22,13 @@ module "xj-prod-hub-sa" {
   account_id   = "xj-prod-hub"
   display_name = "XJ Production Hub"
   roles        = [
-    "roles/secretmanager.secretAccessor",
     "roles/cloudsql.client",
     "roles/compute.serviceAgent",
     "roles/container.serviceAgent",
     "roles/iam.serviceAccountUser",
-    "roles/run.admin"
+    "roles/logging.viewer",
+    "roles/run.admin",
+    "roles/secretmanager.secretAccessor"
   ]
 }
 
@@ -42,8 +44,8 @@ module "github-actions-sa" {
     "roles/container.serviceAgent",
     "roles/containerregistry.ServiceAgent",
     "roles/iam.serviceAccountUser",
-    "roles/storage.admin",
-    "roles/run.admin"
+    "roles/run.admin",
+    "roles/storage.admin"
   ]
 }
 

@@ -201,8 +201,8 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
           .build())
         .build();
 
-      var result = client.createServiceAsync(request).get();
-      LOG.info("Created {}", result.getName());
+      client.createServiceAsync(request);
+      LOG.info("Send request to created {}", serviceName);
 
     } catch (IOException e) {
       LOG.error("Failed to create preview nexus; connection failed!", e);
@@ -210,14 +210,6 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
 
     } catch (ApiException e) {
       LOG.error("Failed to create preview nexus; service API failed!", e);
-      throw new ServiceException("Failed to create preview nexus; service API failed!", e);
-
-    } catch (ExecutionException e) {
-      LOG.error("Failed to create preview nexus; execution failed!", e);
-      throw new ServiceException("Failed to create preview nexus; service API failed!", e);
-
-    } catch (InterruptedException e) {
-      LOG.error("Failed to create preview nexus; execution interrupted!", e);
       throw new ServiceException("Failed to create preview nexus; service API failed!", e);
     }
   }
@@ -248,8 +240,8 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
         .setService(updated)
         .build();
 
-      var result = client.updateServiceAsync(request).get();
-      LOG.info("Updated {}", result.getName());
+      client.updateServiceAsync(request);
+      LOG.info("Updated {}", existing.get().getName());
 
     } catch (IOException e) {
       LOG.error("Failed to update preview nexus; connection failed!", e);
@@ -257,14 +249,6 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
 
     } catch (ApiException e) {
       LOG.error("Failed to update preview nexus; service API failed!", e);
-      throw new ServiceException("Failed to update preview nexus; service API failed!", e);
-
-    } catch (ExecutionException e) {
-      LOG.error("Failed to update preview nexus; execution failed!", e);
-      throw new ServiceException("Failed to update preview nexus; service API failed!", e);
-
-    } catch (InterruptedException e) {
-      LOG.error("Failed to update preview nexus; execution interrupted!", e);
       throw new ServiceException("Failed to update preview nexus; service API failed!", e);
     }
   }
@@ -358,24 +342,6 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
     envVars.add(EnvVar.newBuilder().setName("POSTGRES_PASS").setValue(postgresPass).build());
     envVars.add(EnvVar.newBuilder().setName("POSTGRES_USER").setValue(postgresUser).build());
 
-/*
-    // probe to ensure a healthy startup
-    var startupProbe = Probe.newBuilder()
-      .setInitialDelaySeconds(60)
-      .setTimeoutSeconds(2)
-      .setPeriodSeconds(7)
-      .setFailureThreshold(3)
-      .setTcpSocket(TCPSocketAction.newBuilder().setPort(8080).build())
-      .setHttpGet(HTTPGetAction.newBuilder().setPath("/healthz").build())
-      .build();
-
-    // probe to ensure liveness
-    var livenessProbe = Probe.newBuilder()
-      .setTimeoutSeconds(2)
-      .setHttpGet(HTTPGetAction.newBuilder().setPath("/healthz").build())
-      .build();
-*/
-
     // resource requirements
     var resourceRequirements = ResourceRequirements.newBuilder()
       .setCpuIdle(false)
@@ -388,8 +354,6 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
       .setImage(nexusImage)
       .addAllEnv(envVars)
       .addPorts(ContainerPort.newBuilder().setContainerPort(8080).build())
-//      .setStartupProbe(startupProbe)
-//      .setLivenessProbe(livenessProbe)
       .setResources(resourceRequirements)
       .build();
 
