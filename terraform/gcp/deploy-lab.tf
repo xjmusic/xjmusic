@@ -29,8 +29,6 @@ module "lab_dev_hub" {
   region                          = local.gcp-region
   resources_limits_cpu            = 2
   resources_limits_memory         = "4Gi"
-  resources_requests_cpu          = 1
-  resources_requests_memory       = "2G"
   secret_id__aws_access_key_id    = google_secret_manager_secret.secret-dev-aws-access-key-id.secret_id
   secret_id__aws_secret_key       = google_secret_manager_secret.secret-dev-aws-secret-key.secret_id
   secret_id__google_client_id     = google_secret_manager_secret.secret-dev-google-client-id.secret_id

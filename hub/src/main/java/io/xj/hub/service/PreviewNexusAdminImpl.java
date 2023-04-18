@@ -340,6 +340,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
 
     // resource requirements
     var resourceRequirements = ResourceRequirements.newBuilder()
+      .setCpuIdle(false)
       .putLimits(RESOURCE_REQUIREMENT_KEY_CPU, computeCpuLimit(template))
       .putLimits(RESOURCE_REQUIREMENT_KEY_MEMORY, computeMemoryLimit(template))
       .build();

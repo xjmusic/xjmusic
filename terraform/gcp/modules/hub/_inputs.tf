@@ -77,14 +77,6 @@ variable "resources_limits_memory" {
   type = string
 }
 
-variable "resources_requests_cpu" {
-  type = string
-}
-
-variable "resources_requests_memory" {
-  type = string
-}
-
 # Reference the secret manager secret by its id
 variable "secret_id__aws_access_key_id" {
   type = string
