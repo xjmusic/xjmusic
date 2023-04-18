@@ -6,7 +6,7 @@ module "lab_postgres" {
   name                  = "xj-lab-postgres"
   region                = local.gcp-region
   project               = local.gcp-project-id
-  service_account_email = google_service_account.xj-dev-yard.email
+  service_account_email = module.xj-dev-hub-sa.service_account_email
 }
 
 module "lab_dev_hub" {
@@ -35,7 +35,7 @@ module "lab_dev_hub" {
   secret_id__google_client_secret = google_secret_manager_secret.secret-dev-google-client-secret.secret_id
   secret_id__postgres_username    = module.lab_postgres.username_secret_id
   secret_id__postgres_password    = module.lab_postgres.password_secret_id
-  service_account_email           = google_service_account.xj-dev-yard.email
+  service_account_email           = module.xj-dev-hub-sa.service_account_email
 }
 
 /*

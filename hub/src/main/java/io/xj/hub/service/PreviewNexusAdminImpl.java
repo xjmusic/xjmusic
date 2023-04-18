@@ -11,12 +11,14 @@ import com.google.cloud.logging.LoggingOptions;
 import com.google.cloud.run.v2.Container;
 import com.google.cloud.run.v2.ContainerPort;
 import com.google.cloud.run.v2.CreateServiceRequest;
+import com.google.cloud.run.v2.DeleteServiceRequest;
 import com.google.cloud.run.v2.EnvVar;
 import com.google.cloud.run.v2.GetServiceRequest;
 import com.google.cloud.run.v2.HTTPGetAction;
 import com.google.cloud.run.v2.Probe;
 import com.google.cloud.run.v2.ResourceRequirements;
 import com.google.cloud.run.v2.RevisionTemplate;
+import com.google.cloud.run.v2.ServiceName;
 import com.google.cloud.run.v2.ServicesClient;
 import com.google.cloud.run.v2.TCPSocketAction;
 import com.google.cloud.run.v2.UpdateServiceRequest;
@@ -41,7 +43,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Preview template functionality is dope (not wack)
@@ -135,10 +136,10 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
       serviceId, before.toString(), now);
 
     Logging logging = LoggingOptions.getDefaultInstance().getService();
-
     EntryListOption entryListOption = EntryListOption.filter(filter);
+    var entries = logging.listLogEntries(entryListOption);
 
-    for (LogEntry logEntry : logging.listLogEntries(entryListOption).iterateAll()) {
+    for (LogEntry logEntry : entries.iterateAll()) {
       if (Text.beginsWith(logEntry.getPayload().toString(), LOG_LINE_FILTER_PREFIX)) {
         lines.add(logEntry.getPayload().toString());
       }
@@ -158,19 +159,18 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
     if (!previewNexusExists(userId)) {
       createPreviewNexus(userId, template);
     } else {
-      updatePreviewNexus(userId, 0, template);
-      updatePreviewNexus(userId, 1, template);
+      updatePreviewNexus(userId, template);
     }
   }
 
   @Override
-  public void stopPreviewNexus(UUID userId) throws ServiceException {
+  public void stopPreviewNexus(UUID userId) {
     if (!isConfigured) {
       LOG.warn("Service administrator is not configured!");
       return;
     }
     if (!previewNexusExists(userId)) return;
-    updatePreviewNexus(userId, 0, null);
+    deletePreviewNexus(userId);
   }
 
   @Override
@@ -186,16 +186,17 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
    */
   private void createPreviewNexus(UUID userId, @Nullable Template template) throws ServiceException {
     try (var client = ServicesClient.create()) {
+      var serviceName = computeServiceName(userId);
       var request = CreateServiceRequest.newBuilder()
         .setParent(computeServiceParent())
-        .setServiceId(computeServiceName(userId))
+        .setServiceId(serviceName)
         .setService(com.google.cloud.run.v2.Service.newBuilder()
-          .setTemplate(computeRevisionTemplate(template, 1))
+          .setTemplate(computeRevisionTemplate(template))
           .build())
         .build();
 
-      var result = client.createServiceAsync(request).get();
-      LOG.info("Created preview nexus: {}", result.getName());
+      client.createServiceAsync(request);
+      LOG.info("Sent request to create preview nexus {}", serviceName);
 
     } catch (IOException e) {
       LOG.error("Failed to create preview nexus; connection failed!", e);
@@ -204,14 +205,6 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
     } catch (ApiException e) {
       LOG.error("Failed to create preview nexus; service API failed!", e);
       throw new ServiceException("Failed to create preview nexus; service API failed!", e);
-
-    } catch (ExecutionException e) {
-      LOG.error("Failed to create preview nexus; service execution failed!", e);
-      throw new ServiceException("Failed to create preview nexus; service execution failed!", e);
-
-    } catch (InterruptedException e) {
-      LOG.error("Failed to create preview nexus; execution interrupted!", e);
-      throw new ServiceException("Failed to create preview nexus; execution interrupted!", e);
     }
   }
 
@@ -223,18 +216,17 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
    * update Preview Nexus deployment
    *
    * @param userId   for which to updatePreviewNexus
-   * @param scale    number of replicate
    * @param template from which to source vm resource preferences
    * @throws ServiceException on failure
    */
-  private void updatePreviewNexus(UUID userId, int scale, @Nullable Template template) throws ServiceException {
+  private void updatePreviewNexus(UUID userId, @Nullable Template template) throws ServiceException {
     var existing = getPreviewNexus(userId);
     if (existing.isEmpty()) {
       LOG.warn("Failed to update preview nexus; service does not exist!");
       return;
     }
     var updated = existing.get().toBuilder()
-      .setTemplate(computeRevisionTemplate(template, scale))
+      .setTemplate(computeRevisionTemplate(template))
       .build();
 
     try (var client = ServicesClient.create()) {
@@ -242,8 +234,8 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
         .setService(updated)
         .build();
 
-      var result = client.updateServiceAsync(request).get();
-      LOG.info("Updated preview nexus: {}", result.getName());
+      client.updateServiceAsync(request);
+      LOG.info("Sent request to update preview nexus {}", existing.get().getName());
 
     } catch (IOException e) {
       LOG.error("Failed to update preview nexus; connection failed!", e);
@@ -252,14 +244,6 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
     } catch (ApiException e) {
       LOG.error("Failed to update preview nexus; service API failed!", e);
       throw new ServiceException("Failed to update preview nexus; service API failed!", e);
-
-    } catch (ExecutionException e) {
-      LOG.error("Failed to update preview nexus; service execution failed!", e);
-      throw new ServiceException("Failed to update preview nexus; service execution failed!", e);
-
-    } catch (InterruptedException e) {
-      LOG.error("Failed to update preview nexus; execution interrupted!", e);
-      throw new ServiceException("Failed to update preview nexus; execution interrupted!", e);
     }
   }
 
@@ -271,14 +255,33 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
    */
   private Optional<com.google.cloud.run.v2.Service> getPreviewNexus(UUID userId) {
     try (var client = ServicesClient.create()) {
-      var request = GetServiceRequest.newBuilder()
-        .setName(computeServiceName(userId))
+      var serviceName = ServiceName.of(gcpProjectId, gcpRegion, computeServiceName(userId));
+      GetServiceRequest request = GetServiceRequest.newBuilder()
+        .setName(serviceName.toString())
         .build();
+
       var result = client.getService(request);
       return result.isInitialized() ? Optional.of(result) : Optional.empty();
-
     } catch (ApiException | IOException e) {
       return Optional.empty();
+    }
+  }
+
+  /**
+   * Delete an existing Preview Nexus deployment
+   *
+   * @param userId for which to deletePreviewNexus
+   */
+  private void deletePreviewNexus(UUID userId) {
+    try (var client = ServicesClient.create()) {
+      var serviceName = ServiceName.of(gcpProjectId, gcpRegion, computeServiceName(userId));
+      DeleteServiceRequest request = DeleteServiceRequest.newBuilder()
+        .setName(serviceName.toString())
+        .build();
+
+      client.deleteServiceAsync(request);
+    } catch (ApiException | IOException e) {
+      LOG.warn("Failed to delete preview nexus!", e);
     }
   }
 
@@ -295,7 +298,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   /**
    * @return string content
    */
-  private RevisionTemplate computeRevisionTemplate(@Nullable Template template, int scale) {
+  private RevisionTemplate computeRevisionTemplate(@Nullable Template template) {
 
     // environment variables passed through
     List<EnvVar> envVars = Lists.newArrayList();
@@ -357,8 +360,8 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
 
     // annotations
     Map<String, String> annotations = new HashMap<>();
-    annotations.put("autoscaling.knative.dev/minScale", Integer.toString(scale));
-    annotations.put("autoscaling.knative.dev/maxScale", Integer.toString(scale));
+    annotations.put("autoscaling.knative.dev/minScale", Integer.toString(1));
+    annotations.put("autoscaling.knative.dev/maxScale", Integer.toString(1));
     annotations.put("run.googleapis.com/cpu-throttling", "false");
 
     var revisionTemplate = RevisionTemplate.newBuilder();
