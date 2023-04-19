@@ -3,7 +3,6 @@
 package io.xj.hub.service;
 
 import com.google.api.client.util.Lists;
-import com.google.api.client.util.Strings;
 import com.google.api.gax.rpc.ApiException;
 import com.google.cloud.logging.LogEntry;
 import com.google.cloud.logging.Logging;
@@ -200,7 +199,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
         .setParent(computeServiceParent())
         .setServiceId(serviceName)
         .setService(com.google.cloud.run.v2.Service.newBuilder()
-          .setTemplate(computeRevisionTemplate(template))
+          .setTemplate(computeRevisionTemplate(userId, template))
           .build())
         .build();
 
@@ -235,7 +234,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
       return;
     }
     var updated = existing.get().toBuilder()
-      .setTemplate(computeRevisionTemplate(template))
+      .setTemplate(computeRevisionTemplate(userId, template))
       .build();
 
     try (var client = ServicesClient.create()) {
@@ -310,14 +309,11 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   /**
    * @return string content
    */
-  private RevisionTemplate computeRevisionTemplate(Template template) {
+  private RevisionTemplate computeRevisionTemplate(UUID userId, Template template) {
     List<EnvVar> envVars = Lists.newArrayList();
 
-    // Ship key from template
-    if (Strings.isNullOrEmpty(template.getShipKey())) {
-      throw new IllegalArgumentException("Template must have a ship key!");
-    }
-    envVars.add(EnvVar.newBuilder().setName("SHIP_KEY").setValue(template.getShipKey()).build());
+    // Fabrication preview user ID
+    envVars.add(EnvVar.newBuilder().setName(AppEnvironment.FABRICATION_PREVIEW_USER_ID).setValue(userId.toString()).build());
 
     // environment variables passed through
     envVars.add(EnvVar.newBuilder().setName("APP_BASE_URL").setValue(appBaseUrl).build());
