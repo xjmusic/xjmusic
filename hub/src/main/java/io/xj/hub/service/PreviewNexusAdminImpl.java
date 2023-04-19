@@ -80,7 +80,6 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   private final String googleClientId;
   private final String googleClientSecret;
   private final String ingestTokenValue;
-  private final String ingestUrl;
   private final String playerBaseUrl;
   private final String postgresDatabase;
   private final String postgresPass;
@@ -107,7 +106,6 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
     googleClientId = env.getGoogleClientID();
     googleClientSecret = env.getGoogleClientSecret();
     ingestTokenValue = env.getIngestTokenValue();
-    ingestUrl = env.getIngestURL();
     playerBaseUrl = env.getPlayerBaseUrl();
     postgresDatabase = env.getPostgresDatabase();
     postgresPass = env.getPostgresPass();
@@ -316,7 +314,6 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
     envVars.add(EnvVar.newBuilder().setName(AppEnvironment.FABRICATION_PREVIEW_USER_ID).setValue(userId.toString()).build());
 
     // environment variables passed through
-    envVars.add(EnvVar.newBuilder().setName("APP_BASE_URL").setValue(appBaseUrl).build());
     envVars.add(EnvVar.newBuilder().setName("AUDIO_BASE_URL").setValue(audioBaseUrl).build());
     envVars.add(EnvVar.newBuilder().setName("AUDIO_FILE_BUCKET").setValue(audioFileBucket).build());
     envVars.add(EnvVar.newBuilder().setName("AUDIO_UPLOAD_URL").setValue(audioUploadUrl).build());
@@ -326,7 +323,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
     envVars.add(EnvVar.newBuilder().setName("GCP_PROJECT_ID").setValue(gcpProjectId).build());
     envVars.add(EnvVar.newBuilder().setName("GCP_REGION").setValue(gcpRegion).build());
     envVars.add(EnvVar.newBuilder().setName("INGEST_TOKEN_VALUE").setValue(ingestTokenValue).build());
-    envVars.add(EnvVar.newBuilder().setName("INGEST_URL").setValue(ingestUrl).build());
+    envVars.add(EnvVar.newBuilder().setName("INGEST_URL").setValue(appBaseUrl).build());
     envVars.add(EnvVar.newBuilder().setName("GCP_SERVICE_ACCOUNT_NAME").setValue(gcpServiceAccountEmail).build());
     envVars.add(EnvVar.newBuilder().setName("PLAYER_BASE_URL").setValue(playerBaseUrl).build());
     envVars.add(EnvVar.newBuilder().setName("POSTGRES_DATABASE").setValue(postgresDatabase).build());
