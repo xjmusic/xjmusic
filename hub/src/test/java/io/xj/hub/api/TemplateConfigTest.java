@@ -38,4 +38,14 @@ public class TemplateConfigTest {
     assertEquals(TemplateConfig.DEFAULT, subject.toString());
   }
 
+  @Test
+  public void setFromTemplate_vmLimitCpuRoundsDown() throws ValueException {
+    var template = new Template();
+    template.setConfig("vmResourceLimitCpu = 1.25");
+
+    var subject = new TemplateConfig(template);
+
+    assertEquals(1.0, subject.getVmResourceLimitCpu(), 0.01);
+  }
+
 }

@@ -97,7 +97,7 @@ public class TemplateConfig {
     stickyBunEnabled = true
     transitionLayerMax = 3
     transitionLayerMin = 0
-    vmResourceLimitCpu = 2.5
+    vmResourceLimitCpu = 2.0
     vmResourceLimitMemoryGb = 6.0
     """;
   private final AudioFormat.Encoding outputEncoding;
@@ -253,7 +253,7 @@ public class TemplateConfig {
       stickyBunEnabled = config.getBoolean("stickyBunEnabled");
       transitionLayerMax = config.getInt("transitionLayerMax");
       transitionLayerMin = config.getInt("transitionLayerMin");
-      vmResourceLimitCpu = config.getDouble("vmResourceLimitCpu");
+      vmResourceLimitCpu = Math.floor(config.getDouble("vmResourceLimitCpu"));
       vmResourceLimitMemoryGb = config.getDouble("vmResourceLimitMemoryGb");
     } catch (ConfigException e) {
       throw new ValueException(e.getMessage());
