@@ -2,9 +2,6 @@
 
 # Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-# Include common functions
-. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../../common/functions
-
 # Requires 6 arguments
 if [ $# != 6 ]; then echo "
    Usage:
