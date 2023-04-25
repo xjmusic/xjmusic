@@ -38,7 +38,6 @@ module "lab_dev_hub" {
   service_account_email           = module.xj-dev-hub-sa.service_account_email
 }
 
-/*
 module "lab_prod_hub" {
   source = "./modules/hub"
 
@@ -53,17 +52,18 @@ module "lab_prod_hub" {
   player_base_url                 = "https://play.xj.io/"
   ship_base_url                   = "https://ship.xj.io/"
   ship_bucket                     = "xj-prod-ship"
-  region                          = local.gcp-region
-  project                         = local.gcp-project-id
-  service_account_email           = google_service_account.xj-prod-yard.email
   postgres_database               = module.lab_postgres.database_prod
-  postgres_user                   = module.lab_postgres.user
-  postgres_pass                   = module.lab_postgres.password
-  secret_id__aws_access_key_id    = module.secret-prod-aws-access-key-id.secret_id
-  secret_id__aws_secret_key       = module.secret-prod-aws-secret-key.secret_id
-  secret_id__google_client_id     = module.secret-prod-google-client-id.secret_id
-  secret_id__google_client_secret = module.secret-prod-google-client-secret.secret_id
   postgres_gcp_cloud_sql_instance = module.lab_postgres.connection_name
+  project_id                      = local.gcp-project-id
+  region                          = local.gcp-region
+  resources_limits_cpu            = 2
+  resources_limits_memory         = "4Gi"
+  secret_id__aws_access_key_id    = google_secret_manager_secret.secret-prod-aws-access-key-id.secret_id
+  secret_id__aws_secret_key       = google_secret_manager_secret.secret-prod-aws-secret-key.secret_id
+  secret_id__google_client_id     = google_secret_manager_secret.secret-prod-google-client-id.secret_id
+  secret_id__google_client_secret = google_secret_manager_secret.secret-prod-google-client-secret.secret_id
+  secret_id__postgres_username    = module.lab_postgres.username_secret_id
+  secret_id__postgres_password    = module.lab_postgres.password_secret_id
+  service_account_email           = module.xj-prod-hub-sa.service_account_email
 }
-*/
 

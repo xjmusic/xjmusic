@@ -23,7 +23,7 @@ resource "google_cloud_run_service_iam_policy" "noauth" {
   depends_on  = [google_project_service.run_api]
 }
 
-# https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_service
+# https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_v2_service
 resource "google_cloud_run_v2_service" "hub" {
   name     = var.service_name
   location = var.region
@@ -175,6 +175,18 @@ resource "google_cloud_run_v2_service" "hub" {
       }
     }
   }
+
+  lifecycle {
+    ignore_changes = [
+      client,
+      client_version,
+      annotations,
+      template[0].revision,
+      template[0].annotations,
+      template[0].containers[0].image,
+    ]
+  }
+
   depends_on = [google_project_service.run_api]
 }
 
