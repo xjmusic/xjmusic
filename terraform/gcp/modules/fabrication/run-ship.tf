@@ -25,7 +25,7 @@ resource "google_cloud_run_service_iam_policy" "noauth-ship" {
 
 # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_v2_service
 resource "google_cloud_run_v2_service" "ship" {
-  name     = "yard-${var.ship_key}-ship"
+  name     = "yard-${replace(var.ship_key, "_", "-")}-ship"
   location = var.region
   project  = var.project_id
   provider = google-beta
@@ -136,7 +136,6 @@ resource "google_cloud_run_v2_service" "ship" {
       client,
       client_version,
       annotations,
-      template[0].revision,
       template[0].annotations,
       template[0].containers[0].image,
     ]
