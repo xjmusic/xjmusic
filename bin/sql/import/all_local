@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+# Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+
+# Include common functions
+. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../../common/functions
+
+error() {
+  echo "Failed!"
+  exit 1
+}
+
+# Connect as postgres
+SQL_USER="postgres"
+SQL_PASS="postgres"
+SQL_PORT=5432
+SQL_HOST="127.0.0.1"
+
+# Database
+SQL_DB_MAIN=${1:-xj_dev}
+SQL_DB_TEST="xj_test"
+
+# Source
+SOURCE_PREFIX="${PWD}/.backup/"
+SOURCE_MAIN_SCHEMA_SQL="${SOURCE_PREFIX}main.schema.sql"
+SOURCE_MAIN_RECORDS_SQL="${SOURCE_PREFIX}main.records.sql"
+SOURCE_TEST_SCHEMA_SQL="${SOURCE_PREFIX}test.schema.sql"
+
+# Postgresql
+export PGPASSWORD=postgres
+CFG="--user=${SQL_USER} --host=${SQL_HOST} --port=${SQL_PORT}"
+
+#
+step "Destroy and re-create databases"
+dropdb --if-exists ${CFG} ${SQL_DB_MAIN} || error
+dropdb --if-exists ${CFG} ${SQL_DB_TEST} || error
+createdb ${CFG} ${SQL_DB_MAIN} || error
+createdb ${CFG} ${SQL_DB_TEST} || error
+step_ok
+
+#
+step "Create main DB schema"
+psql ${CFG} ${SQL_DB_MAIN} < ${SOURCE_MAIN_SCHEMA_SQL} || error
+step_ok
+
+#
+step "Insert main DB records"
+psql ${CFG} ${SQL_DB_MAIN}< ${SOURCE_MAIN_RECORDS_SQL} || error
+step_ok
+
+#
+step "Create test DB schema"
+psql ${CFG} ${SQL_DB_TEST}< ${SOURCE_TEST_SCHEMA_SQL} || error
+step_ok
+
+#
+finished_ok

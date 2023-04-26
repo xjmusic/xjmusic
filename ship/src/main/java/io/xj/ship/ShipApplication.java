@@ -20,7 +20,7 @@ import javax.annotation.PreDestroy;
 import java.util.Objects;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"io.xj.lib", "io.xj.nexus", "io.xj.ship"})
+@ComponentScan(basePackages = {"io.xj.lib", "io.xj.nexus.model", "io.xj.nexus.persistence", "io.xj.ship"})
 public class ShipApplication {
   final Logger LOG = LoggerFactory.getLogger(ShipApplication.class);
   private final EntityFactory entityFactory;

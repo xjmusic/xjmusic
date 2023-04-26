@@ -16,7 +16,6 @@ import io.xj.ship.broadcast.StreamEncoder;
 import io.xj.ship.broadcast.StreamPlayer;
 import io.xj.ship.broadcast.StreamWriter;
 import io.xj.ship.source.SegmentAudioManager;
-import io.xj.ship.source.SourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -50,7 +49,6 @@ public class ShipWorkImpl implements ShipWork {
   private final NotificationProvider notificationProvider;
   private final PlaylistPublisher playlistPublisher;
   private final SegmentAudioManager segmentAudioManager;
-  private final SourceFactory sourceFactory;
   private final StreamPlayer player;
   private final boolean janitorEnabled;
   private final int chunkTargetDuration;
@@ -87,8 +85,7 @@ public class ShipWorkImpl implements ShipWork {
     MediaSeqNumProvider mediaSeqNumProvider,
     NotificationProvider notificationProvider,
     PlaylistPublisher playlistPublisher,
-    SegmentAudioManager segmentAudioManager,
-    SourceFactory sourceFactory
+    SegmentAudioManager segmentAudioManager
   ) {
     this.broadcastFactory = broadcastFactory;
     this.chunkFactory = chunkFactory;
@@ -98,7 +95,6 @@ public class ShipWorkImpl implements ShipWork {
     this.notificationProvider = notificationProvider;
     this.playlistPublisher = playlistPublisher;
     this.segmentAudioManager = segmentAudioManager;
-    this.sourceFactory = sourceFactory;
     envName = env.getWorkEnvironmentName();
 
     shipKey = env.getShipKey();
@@ -272,7 +268,7 @@ public class ShipWorkImpl implements ShipWork {
   private void doLoadCycle(long nowMillis) {
     if (nowMillis < nextLoadMillis) return;
     nextLoadMillis = nowMillis + loadCycleSeconds * MILLIS_PER_SECOND;
-    sourceFactory.loadChain(shipKey, () -> state.set(State.Fail)).run();
+    segmentAudioManager.loadChain(shipKey, () -> state.set(State.Fail)).run();
   }
 
   /**

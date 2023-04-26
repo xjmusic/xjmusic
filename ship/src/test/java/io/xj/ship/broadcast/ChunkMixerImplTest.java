@@ -4,33 +4,36 @@ package io.xj.ship.broadcast;
 
 import com.google.api.client.util.Lists;
 import com.google.common.collect.ImmutableMap;
-
-
+import io.xj.hub.tables.pojos.Account;
+import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.http.HttpClientProviderImpl;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.lib.mixer.InternalResource;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.TelemetryProvider;
-import io.xj.nexus.model.*;
-import io.xj.hub.tables.pojos.Account;
-import io.xj.hub.tables.pojos.Template;
-import io.xj.lib.filestore.FileStoreProvider;
-import io.xj.lib.mixer.InternalResource;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.ChainType;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.persistence.ChainManager;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.SegmentManagerImpl;
 import io.xj.ship.source.SegmentAudio;
+import io.xj.ship.source.SegmentAudioCache;
+import io.xj.ship.source.SegmentAudioCacheImpl;
 import io.xj.ship.source.SegmentAudioManager;
-import io.xj.ship.source.SourceFactory;
-import io.xj.ship.source.SourceFactoryImpl;
+import io.xj.ship.source.SegmentAudioManagerImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,8 +48,6 @@ import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ChunkMixerImplTest {
@@ -55,14 +56,12 @@ public class ChunkMixerImplTest {
   // Under Test
   private Collection<SegmentAudio> segmentAudios;
   private Segment segment2;
-  private SourceFactory source;
+  private SegmentAudioManager segmentAudioManager;
   private ChunkMixer subject;
   @Mock
   ChainManager chainManager;
   @Mock
   FileStoreProvider fileStoreProvider;
-  @Mock
-  SegmentAudioManager segmentAudioManager;
   @Mock
   TelemetryProvider telemetryProvider;
   @Mock
@@ -107,15 +106,18 @@ public class ChunkMixerImplTest {
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     NexusEntityStore nexusEntityStore = new NexusEntityStoreImpl(entityFactory);
     SegmentManager segmentManager = new SegmentManagerImpl(entityFactory, nexusEntityStore);
-    source = new SourceFactoryImpl(
-      chainManager,
+    SegmentAudioCache cache = new SegmentAudioCacheImpl(env, httpClientProvider);
+    segmentAudioManager = new SegmentAudioManagerImpl(
       env,
+      nexusEntityStore,
+      cache,
+      telemetryProvider,
+      chainManager,
       httpClientProvider,
       jsonProvider,
       jsonapiPayloadFactory,
       segmentAudioManager,
-      segmentManager,
-      telemetryProvider
+      segmentManager
     );
     ChunkFactory chunkFactory = new ChunkFactoryImpl(env);
     MediaSeqNumProvider mediaSeqNumProvider = new MediaSeqNumProvider(env);
@@ -126,19 +128,13 @@ public class ChunkMixerImplTest {
 
     segmentAudios = Lists.newArrayList();
 
-    when(segmentAudioManager.getAllIntersecting(
-      eq(chunk.getShipKey()),
-      eq(chunk.getFromInstant()),
-      eq(chunk.getToInstant())))
-      .thenReturn(segmentAudios);
-
     subject = broadcast.mixer(chunk, format);
   }
 
   @Test
   public void run() throws Exception {
     String sourcePath = new InternalResource("ogg_decoding/coolair-1633586832900943.wav").getFile().getAbsolutePath();
-    segmentAudios.add(source.loadSegmentAudio(SHIP_KEY, segment2, sourcePath));
+    segmentAudios.add(segmentAudioManager.loadSegmentAudio(SHIP_KEY, segment2, sourcePath));
 
     subject.mix();
 

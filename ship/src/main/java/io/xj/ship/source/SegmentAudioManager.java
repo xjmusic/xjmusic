@@ -35,6 +35,31 @@ public interface SegmentAudioManager {
   void load(String shipKey, Segment segment) throws ShipException, IOException, FormatException, FileStoreException;
 
   /**
+   Load the chain manifest, including all its chains
+
+   @param shipKey   to load
+   @param onFailure callback
+   @return chain manifest loader
+   */
+  ChainLoader loadChain(
+    String shipKey,
+    Runnable onFailure
+  );
+
+  /**
+   Create a Segment audio
+
+   @param shipKey to load
+   @param segment to load
+   @return segment audio
+   */
+  SegmentAudio loadSegmentAudio(
+    String shipKey,
+    Segment segment,
+    String absolutePath
+  );
+
+  /**
    Put a Segment Audio in the store
 
    @param segmentAudio to put

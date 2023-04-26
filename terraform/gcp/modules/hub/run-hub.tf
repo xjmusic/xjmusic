@@ -32,6 +32,7 @@ resource "google_cloud_run_v2_service" "hub" {
 
   template {
     scaling {
+      min_instance_count = var.sleep_when_idle ? 0 : 1
       max_instance_count = 1
     }
     service_account = var.service_account_email
@@ -96,8 +97,8 @@ resource "google_cloud_run_v2_service" "hub" {
         name = "AWS_ACCESS_KEY_ID"
         value_source {
           secret_key_ref {
-            version  = "latest"
-            secret = var.secret_id__aws_access_key_id
+            version = "latest"
+            secret  = var.secret_id__aws_access_key_id
           }
         }
       }
@@ -105,8 +106,8 @@ resource "google_cloud_run_v2_service" "hub" {
         name = "AWS_SECRET_KEY"
         value_source {
           secret_key_ref {
-            version  = "latest"
-            secret = var.secret_id__aws_secret_key
+            version = "latest"
+            secret  = var.secret_id__aws_secret_key
           }
         }
       }
@@ -114,8 +115,8 @@ resource "google_cloud_run_v2_service" "hub" {
         name = "GOOGLE_CLIENT_ID"
         value_source {
           secret_key_ref {
-            version  = "latest"
-            secret = var.secret_id__google_client_id
+            version = "latest"
+            secret  = var.secret_id__google_client_id
           }
         }
       }
@@ -123,8 +124,8 @@ resource "google_cloud_run_v2_service" "hub" {
         name = "GOOGLE_CLIENT_SECRET"
         value_source {
           secret_key_ref {
-            version  = "latest"
-            secret = var.secret_id__google_client_secret
+            version = "latest"
+            secret  = var.secret_id__google_client_secret
           }
         }
       }
@@ -132,8 +133,8 @@ resource "google_cloud_run_v2_service" "hub" {
         name = "POSTGRES_PASS"
         value_source {
           secret_key_ref {
-            version  = "latest"
-            secret = var.secret_id__postgres_password
+            version = "latest"
+            secret  = var.secret_id__postgres_password
           }
         }
       }
@@ -141,8 +142,8 @@ resource "google_cloud_run_v2_service" "hub" {
         name = "POSTGRES_USER"
         value_source {
           secret_key_ref {
-            version  = "latest"
-            secret = var.secret_id__postgres_username
+            version = "latest"
+            secret  = var.secret_id__postgres_username
           }
         }
       }
@@ -167,7 +168,7 @@ resource "google_cloud_run_v2_service" "hub" {
         }
       }
       resources {
-        cpu_idle = false
+        cpu_idle = var.sleep_when_idle
         limits   = {
           cpu    = var.resources_limits_cpu
           memory = var.resources_limits_memory

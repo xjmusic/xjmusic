@@ -46,13 +46,11 @@ public class SegmentAudioTest {
   @Mock
   ChainManager chainManager;
   @Mock
-  SegmentAudioManager segmentAudioManager;
-  @Mock
   TelemetryProvider telemetryProvider;
   private Segment segment1;
   private Chain chain1;
   private SegmentAudio subject;
-  private SourceFactory factory;
+  private SegmentAudioManager segmentAudioManager;
 
   @Before
   public void setUp() {
@@ -87,25 +85,28 @@ public class SegmentAudioTest {
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     NexusEntityStore nexusEntityStore = new NexusEntityStoreImpl(entityFactory);
     SegmentManager segmentManager = new SegmentManagerImpl(entityFactory, nexusEntityStore);
-    factory = new SourceFactoryImpl(
-      chainManager,
+    SegmentAudioCache cache = new SegmentAudioCacheImpl(env, httpClientProvider);
+    segmentAudioManager = new SegmentAudioManagerImpl(
       env,
+      nexusEntityStore,
+      cache,
+      telemetryProvider,
+      chainManager,
       httpClientProvider,
       jsonProvider,
       jsonapiPayloadFactory,
       segmentAudioManager,
-      segmentManager,
-      telemetryProvider
+      segmentManager
     );
 
     String sourcePath = new InternalResource("ogg_decoding/coolair-1633586832900943.wav").getFile().getAbsolutePath();
-    subject = factory.loadSegmentAudio(chain1.getShipKey(), segment1, sourcePath);
+    subject = segmentAudioManager.loadSegmentAudio(chain1.getShipKey(), segment1, sourcePath);
   }
 
   @Test
   public void from() {
     String sourcePath = new InternalResource("ogg_decoding/coolair-1633586832900943.wav").getFile().getAbsolutePath();
-    var result = factory.loadSegmentAudio(chain1.getShipKey(), segment1, sourcePath);
+    var result = segmentAudioManager.loadSegmentAudio(chain1.getShipKey(), segment1, sourcePath);
 
     assertEquals(result.getSegment(), subject.getSegment());
     assertEquals(SegmentAudioState.Ready, result.getState());

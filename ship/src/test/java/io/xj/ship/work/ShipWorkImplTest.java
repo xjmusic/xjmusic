@@ -21,15 +21,15 @@ import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.SegmentManagerImpl;
 import io.xj.ship.broadcast.BroadcastFactory;
-import io.xj.ship.broadcast.BroadcastFactoryImpl;
 import io.xj.ship.broadcast.ChunkFactory;
 import io.xj.ship.broadcast.ChunkFactoryImpl;
 import io.xj.ship.broadcast.MediaSeqNumProvider;
 import io.xj.ship.broadcast.PlaylistPublisher;
 import io.xj.ship.broadcast.PlaylistPublisherImpl;
+import io.xj.ship.source.SegmentAudioCache;
+import io.xj.ship.source.SegmentAudioCacheImpl;
 import io.xj.ship.source.SegmentAudioManager;
-import io.xj.ship.source.SourceFactory;
-import io.xj.ship.source.SourceFactoryImpl;
+import io.xj.ship.source.SegmentAudioManagerImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,12 +48,9 @@ public class ShipWorkImplTest {
   Janitor janitor;
   @Mock
   NotificationProvider notificationProvider;
-  @Mock
-  SourceFactory sourceFactory;
+  SegmentAudioManager segmentAudioManager;
   @Mock
   FileStoreProvider fileStoreProvider;
-  @Mock
-  SegmentAudioManager segmentAudioManager;
   @Mock
   TelemetryProvider telemetryProvider;
 
@@ -75,20 +72,22 @@ public class ShipWorkImplTest {
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     NexusEntityStore nexusEntityStore = new NexusEntityStoreImpl(entityFactory);
     SegmentManager segmentManager = new SegmentManagerImpl(entityFactory, nexusEntityStore);
-    sourceFactory = new SourceFactoryImpl(
-      chainManager,
+    SegmentAudioCache cache = new SegmentAudioCacheImpl(env, httpClientProvider);
+    segmentAudioManager = new SegmentAudioManagerImpl(
       env,
+      nexusEntityStore,
+      cache,
+      telemetryProvider,
+      chainManager,
       httpClientProvider,
       jsonProvider,
       jsonapiPayloadFactory,
       segmentAudioManager,
-      segmentManager,
-      telemetryProvider
+      segmentManager
     );
     ChunkFactory chunkFactory = new ChunkFactoryImpl(env);
     MediaSeqNumProvider mediaSeqNumProvider = new MediaSeqNumProvider(env);
     PlaylistPublisher playlistPublisher = new PlaylistPublisherImpl(env, chunkFactory, fileStoreProvider, httpClientProvider, mediaSeqNumProvider, telemetryProvider);
-    BroadcastFactory broadcast = new BroadcastFactoryImpl(env, playlistPublisher, fileStoreProvider, notificationProvider, segmentAudioManager);
 
     // Instantiate the test subject
     subject = new ShipWorkImpl(
@@ -100,8 +99,7 @@ public class ShipWorkImplTest {
       mediaSeqNumProvider,
       notificationProvider,
       playlistPublisher,
-      segmentAudioManager,
-      sourceFactory
+      segmentAudioManager
     );
   }
 

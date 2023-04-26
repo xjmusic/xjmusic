@@ -64,7 +64,7 @@ variable "ship_bucket" {
   type = string
 }
 
-variable "resources_cpu_throttling" {
+variable "sleep_when_idle" {
   type = bool
   default = false
 }

@@ -8,21 +8,17 @@ import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.model.SegmentType;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
 
 /**
  * [#264] Segment audio is compressed to OGG and shipped to https://segment.xj.io
  */
-@Service
 public class DubShipImpl implements DubShip {
   private final Fabricator fabricator;
   private final FileStoreProvider fileStore;
   private final String shipBucket;
   private final int chainJsonMaxAgeSeconds;
 
-  @Autowired
   public DubShipImpl(
     AppEnvironment env, FileStoreProvider fileStore, Fabricator fabricator
     /*-*/) {
@@ -66,7 +62,7 @@ public class DubShipImpl implements DubShip {
    */
   private void shipSegmentJson() throws NexusException, FileStoreException {
     fileStore.putS3ObjectFromString(
-     fabricator.getSegmentJson(),
+      fabricator.getSegmentJson(),
       shipBucket,
       fabricator.getSegmentJsonOutputKey(),
       MediaType.APPLICATION_JSON_VALUE, null);

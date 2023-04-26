@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-class SegmentAudioCacheImpl implements SegmentAudioCache {
+public class SegmentAudioCacheImpl implements SegmentAudioCache {
   private final Logger LOG = LoggerFactory.getLogger(SegmentAudioCacheImpl.class);
   private final HttpClientProvider httpClientProvider;
   private final String pathPrefix;
@@ -36,7 +36,7 @@ class SegmentAudioCacheImpl implements SegmentAudioCache {
   private final String shipBucket;
 
   @Autowired
-  SegmentAudioCacheImpl(
+  public SegmentAudioCacheImpl(
     AppEnvironment env,
     HttpClientProvider httpClientProvider
   ) {

@@ -152,15 +152,6 @@ resource "aws_route53_record" "xj-lab" {
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
-resource "aws_route53_record" "xj-lab-gke-prod" {
-  name    = "aa2efefd.lab.xj.io"
-  records = ["35.230.59.92"]
-  ttl     = 300
-  type    = "A"
-  zone_id = aws_route53_zone.xj-io.zone_id
-}
-
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
 resource "aws_route53_record" "xj-play" {
   name    = "play.xj.io"
   type    = "A"
@@ -243,8 +234,7 @@ module "xj-lab" {
   bucket                     = "lab.xj.io"
   region                     = local.aws-region
   acm_certificate_arn        = aws_acm_certificate.xj-io.arn
-  hub_origin_domain_name     = aws_route53_record.xj-lab-gke-prod.name
-  hub_origin_protocol_policy = "http-only"
+  hub_origin_domain_name     = "xj-prod-lab-hub-pxo2raxupa-uw.a.run.app"
   aliases = [
     "lab.xj.io"
   ]

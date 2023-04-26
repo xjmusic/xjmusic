@@ -8,6 +8,10 @@ resource "google_sql_database_instance" "postgres" {
     tier = "db-f1-micro" # $7.65/month as of 2023-03-20
     # tier = "db-g1-small" # $25.55/month as of 2023-03-20
 
+    insights_config {
+      query_insights_enabled = true
+    }
+
     database_flags {
       name  = "max_connections"
       value = "100"

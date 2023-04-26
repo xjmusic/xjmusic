@@ -36,6 +36,7 @@ module "lab_dev_hub" {
   secret_id__postgres_username    = module.lab_postgres.username_secret_id
   secret_id__postgres_password    = module.lab_postgres.password_secret_id
   service_account_email           = module.xj-dev-hub-sa.service_account_email
+  sleep_when_idle                 = true
 }
 
 module "lab_prod_hub" {

@@ -164,10 +164,10 @@ module "xj-dev-lab" {
   bucket              = "lab.dev.xj.io"
   region              = local.aws-region
   acm_certificate_arn = aws_acm_certificate.xj-environments.arn
+  hub_origin_domain_name = "xj-dev-lab-hub-pxo2raxupa-uw.a.run.app"
   aliases = [
     "lab.dev.xj.io"
   ]
-  hub_origin_domain_name = "xj-dev-lab-hub-pxo2raxupa-uw.a.run.app"
 }
 
 module "xj-dev-local" {

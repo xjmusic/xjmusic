@@ -6,11 +6,16 @@ import com.google.common.collect.Maps;
 import io.opencensus.stats.Measure;
 import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.filestore.FileStoreException;
+import io.xj.lib.http.HttpClientProvider;
+import io.xj.lib.json.JsonProvider;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Segment;
+import io.xj.nexus.persistence.ChainManager;
 import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.Segments;
 import io.xj.ship.ShipException;
 import org.slf4j.Logger;
@@ -36,7 +41,12 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
   private final NexusEntityStore store;
   private final TelemetryProvider telemetryProvider;
   private final SegmentAudioCache cache;
-  private final SourceFactory sourceFactory;
+  private final ChainManager chainManager;
+  private final AppEnvironment env;
+  private final HttpClientProvider httpClientProvider;
+  private final JsonProvider jsonProvider;
+  private final JsonapiPayloadFactory jsonapiPayloadFactory;
+  private final SegmentManager segmentManager;
   private final Measure.MeasureDouble SEGMENT_AUDIO_LOADED_AHEAD_SECONDS;
   private final int segmentLoadRetryLimit;
   private final int segmentLoadRetryDelayMillis;
@@ -46,11 +56,20 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
     AppEnvironment env,
     NexusEntityStore store,
     SegmentAudioCache cache,
-    SourceFactory sourceFactory,
-    TelemetryProvider telemetryProvider
+    TelemetryProvider telemetryProvider,
+    ChainManager chainManager,
+    HttpClientProvider httpClientProvider,
+    JsonProvider jsonProvider,
+    JsonapiPayloadFactory jsonapiPayloadFactory,
+    SegmentManager segmentManager
   ) {
     this.cache = cache;
-    this.sourceFactory = sourceFactory;
+    this.chainManager = chainManager;
+    this.env = env;
+    this.httpClientProvider = httpClientProvider;
+    this.jsonProvider = jsonProvider;
+    this.jsonapiPayloadFactory = jsonapiPayloadFactory;
+    this.segmentManager = segmentManager;
     this.store = store;
     this.telemetryProvider = telemetryProvider;
     segmentLoadRetryLimit = env.getShipSegmentLoadRetryLimit();
@@ -71,7 +90,7 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
       try {
         store.put(segment);
         var absolutePath = cache.downloadAndDecompress(segment);
-        var segmentAudio = sourceFactory.loadSegmentAudio(shipKey, segment, absolutePath);
+        var segmentAudio = loadSegmentAudio(shipKey, segment, absolutePath);
         put(segmentAudio);
         return;
 
@@ -86,6 +105,17 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
       }
     LOG.error("Failed to preload audio for Segment[{}] of Template[{}] after {} attempts", segment.getId(), shipKey, segmentLoadRetryLimit);
     throw new ShipException(String.format("Failed to preload audio for Segment[%s] of Template[%s] after %s attempts", segment.getId(), shipKey, segmentLoadRetryLimit));
+  }
+
+
+  @Override
+  public ChainLoader loadChain(String shipKey, Runnable onFailure) {
+    return new ChainLoaderImpl(shipKey, onFailure, chainManager, env, httpClientProvider, jsonProvider, jsonapiPayloadFactory, this, segmentManager, telemetryProvider);
+  }
+
+  @Override
+  public SegmentAudio loadSegmentAudio(String shipKey, Segment segment, String absolutePath) {
+    return new SegmentAudio(absolutePath, segment, shipKey, telemetryProvider, env);
   }
 
   @Override
