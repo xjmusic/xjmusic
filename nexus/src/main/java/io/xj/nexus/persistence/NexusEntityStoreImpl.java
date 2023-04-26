@@ -201,7 +201,7 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
       } catch (EntityException e) {
         throw new NexusException(e);
       }
-    else throw new NexusException(String.format("Can't store %s!", entity.getClass().getSimpleName()));
+    else return entity;
 
     try {
       return entityFactory.clone(entity);

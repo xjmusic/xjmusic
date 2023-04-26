@@ -25,14 +25,14 @@ resource "google_cloud_run_service_iam_policy" "noauth-nexus" {
 
 # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_v2_service
 resource "google_cloud_run_v2_service" "nexus" {
-  name     = "yard-${replace(var.ship_key, "_", "-")}-nexus"
+  name     = "yard-${local.service_key}-nexus"
   location = var.region
   project  = var.project_id
   provider = google-beta
 
   template {
     scaling {
-      min_instance_count = var.sleep_when_idle ? 0 : 1
+      min_instance_count = 1
       max_instance_count = 1
     }
     service_account = var.service_account_email
@@ -121,7 +121,7 @@ resource "google_cloud_run_v2_service" "nexus" {
         }
       }
       resources {
-        cpu_idle = var.sleep_when_idle
+        cpu_idle = false
         limits   = {
           cpu    = var.nexus_resources_limits_cpu
           memory = var.nexus_resources_limits_memory

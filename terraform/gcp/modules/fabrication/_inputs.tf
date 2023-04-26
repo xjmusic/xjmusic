@@ -64,11 +64,6 @@ variable "ship_bucket" {
   type = string
 }
 
-variable "sleep_when_idle" {
-  type = bool
-  default = false
-}
-
 variable "nexus_resources_limits_cpu" {
   type = string
 }

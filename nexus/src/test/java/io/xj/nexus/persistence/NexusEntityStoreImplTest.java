@@ -5,7 +5,11 @@ package io.xj.nexus.persistence;
 
 import io.xj.hub.HubTopology;
 import io.xj.hub.enums.ProgramType;
+import io.xj.hub.enums.TemplateType;
+import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Library;
+import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityFactoryImpl;
@@ -30,10 +34,12 @@ import java.util.Collection;
 import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
 import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
 import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequence;
 import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceBinding;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplateBinding;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
@@ -149,15 +155,15 @@ public class NexusEntityStoreImplTest {
   }
 
   @Test
-  public void put_failsIfNotNexusEntity() {
+  public void put_passThroughIfNotNexusEntity() throws NexusException {
     var library = new Library();
     library.setId(UUID.randomUUID());
     library.setAccountId(UUID.randomUUID());
     library.setName("helm");
 
-    var failure = assertThrows(NexusException.class, () -> subject.put(library));
+    var result = subject.put(library);
 
-    assertEquals("Can't store Library!", failure.getMessage());
+    assertEquals(library, result);
   }
 
   @Test
@@ -261,6 +267,16 @@ public class NexusEntityStoreImplTest {
     assertEquals(2, result.size());
     Collection<SegmentChoice> resultChoices = subject.getAll(chain3_segment0.getId(), SegmentChoice.class);
     assertEquals(1, resultChoices.size());
+  }
+
+  @Test
+  public void put_nonSegmentEntity() throws NexusException {
+    Account account1 = buildAccount("testing");
+    Library library1 = buildLibrary(account1, "leaves");
+    Template template = buildTemplate(buildAccount("Test"), TemplateType.Preview, "Test", "key123");
+    TemplateBinding templateBinding = buildTemplateBinding(template, library1);
+
+    subject.put(templateBinding);
   }
 
 }

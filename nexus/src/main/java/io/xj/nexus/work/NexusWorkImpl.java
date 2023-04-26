@@ -828,7 +828,7 @@ public class NexusWorkImpl implements NexusWork {
       return Optional.of(chain);
 
     } catch (NexusException | ManagerFatalException | ManagerPrivilegeException | ManagerExistenceException e) {
-      LOG.error("Failed to rehydrate store because {}", e.getMessage());
+      LOG.error("Failed to rehydrate store!", e);
       return Optional.empty();
     }
   }

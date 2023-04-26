@@ -9,7 +9,9 @@ module "xj-dev-hub-sa" {
     "roles/compute.serviceAgent",
     "roles/container.serviceAgent",
     "roles/iam.serviceAccountUser",
+    "roles/logging.logWriter",
     "roles/logging.viewer",
+    "roles/monitoring.metricWriter",
     "roles/run.admin",
     "roles/secretmanager.secretAccessor"
   ]
@@ -26,7 +28,9 @@ module "xj-prod-hub-sa" {
     "roles/compute.serviceAgent",
     "roles/container.serviceAgent",
     "roles/iam.serviceAccountUser",
+    "roles/logging.logWriter",
     "roles/logging.viewer",
+    "roles/monitoring.metricWriter",
     "roles/run.admin",
     "roles/secretmanager.secretAccessor"
   ]
@@ -60,7 +64,9 @@ module "xj-prod-yard-sa" {
     "roles/compute.serviceAgent",
     "roles/container.serviceAgent",
     "roles/iam.serviceAccountUser",
+    "roles/logging.logWriter",
     "roles/logging.viewer",
+    "roles/monitoring.metricWriter",
     "roles/run.admin",
     "roles/secretmanager.secretAccessor"
   ]
