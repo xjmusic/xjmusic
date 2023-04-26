@@ -82,7 +82,6 @@ public class ShipWorkImplTest {
       httpClientProvider,
       jsonProvider,
       jsonapiPayloadFactory,
-      segmentAudioManager,
       segmentManager
     );
     ChunkFactory chunkFactory = new ChunkFactoryImpl(env);

@@ -116,7 +116,6 @@ public class ChunkMixerImplTest {
       httpClientProvider,
       jsonProvider,
       jsonapiPayloadFactory,
-      segmentAudioManager,
       segmentManager
     );
     ChunkFactory chunkFactory = new ChunkFactoryImpl(env);

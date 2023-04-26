@@ -95,7 +95,6 @@ public class SegmentAudioTest {
       httpClientProvider,
       jsonProvider,
       jsonapiPayloadFactory,
-      segmentAudioManager,
       segmentManager
     );
 

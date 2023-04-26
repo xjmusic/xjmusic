@@ -4,7 +4,7 @@
 # https://www.pivotaltracker.com/story/show/184580235
 
 # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/iam_policy
-data "google_iam_policy" "noauth" {
+data "google_iam_policy" "noauth-nexus" {
   binding {
     role    = "roles/run.invoker"
     members = [
@@ -14,18 +14,18 @@ data "google_iam_policy" "noauth" {
 }
 
 # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_service_iam_policy
-resource "google_cloud_run_service_iam_policy" "noauth" {
-  location = google_cloud_run_v2_service.hub.location
-  project  = google_cloud_run_v2_service.hub.project
-  service  = google_cloud_run_v2_service.hub.name
+resource "google_cloud_run_service_iam_policy" "noauth-nexus" {
+  location = google_cloud_run_v2_service.nexus.location
+  project  = google_cloud_run_v2_service.nexus.project
+  service  = google_cloud_run_v2_service.nexus.name
 
-  policy_data = data.google_iam_policy.noauth.policy_data
+  policy_data = data.google_iam_policy.noauth-ship.policy_data
   depends_on  = [google_project_service.run_api]
 }
 
 # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_v2_service
-resource "google_cloud_run_v2_service" "hub" {
-  name     = var.service_name
+resource "google_cloud_run_v2_service" "nexus" {
+  name     = "yard-${var.ship_key}-nexus"
   location = var.region
   project  = var.project_id
   provider = google-beta
@@ -37,10 +37,6 @@ resource "google_cloud_run_v2_service" "hub" {
     }
     service_account = var.service_account_email
     containers {
-      env {
-        name  = "APP_BASE_URL"
-        value = var.app_base_url
-      }
       env {
         name  = "ENVIRONMENT"
         value = var.environment
@@ -60,18 +56,6 @@ resource "google_cloud_run_v2_service" "hub" {
       env {
         name  = "AWS_DEFAULT_REGION"
         value = var.aws_default_region
-      }
-      env {
-        name  = "PLAYER_BASE_URL"
-        value = var.player_base_url
-      }
-      env {
-        name  = "POSTGRES_DATABASE"
-        value = var.postgres_database
-      }
-      env {
-        name  = "GCP_CLOUD_SQL_INSTANCE"
-        value = var.postgres_gcp_cloud_sql_instance
       }
       env {
         name  = "GCP_REGION"
@@ -94,6 +78,10 @@ resource "google_cloud_run_v2_service" "hub" {
         value = var.ship_bucket
       }
       env {
+        name  = "SHIP_KEY"
+        value = var.ship_key
+      }
+      env {
         name = "AWS_ACCESS_KEY_ID"
         value_source {
           secret_key_ref {
@@ -111,43 +99,8 @@ resource "google_cloud_run_v2_service" "hub" {
           }
         }
       }
-      env {
-        name = "GOOGLE_CLIENT_ID"
-        value_source {
-          secret_key_ref {
-            version = "latest"
-            secret  = var.secret_id__google_client_id
-          }
-        }
-      }
-      env {
-        name = "GOOGLE_CLIENT_SECRET"
-        value_source {
-          secret_key_ref {
-            version = "latest"
-            secret  = var.secret_id__google_client_secret
-          }
-        }
-      }
-      env {
-        name = "POSTGRES_PASS"
-        value_source {
-          secret_key_ref {
-            version = "latest"
-            secret  = var.secret_id__postgres_password
-          }
-        }
-      }
-      env {
-        name = "POSTGRES_USER"
-        value_source {
-          secret_key_ref {
-            version = "latest"
-            secret  = var.secret_id__postgres_username
-          }
-        }
-      }
-      image = var.image
+      image = var.nexus_image
+
       //noinspection HCLUnknownBlockType
       startup_probe {
         initial_delay_seconds = 30
@@ -170,8 +123,8 @@ resource "google_cloud_run_v2_service" "hub" {
       resources {
         cpu_idle = var.sleep_when_idle
         limits   = {
-          cpu    = var.resources_limits_cpu
-          memory = var.resources_limits_memory
+          cpu    = var.nexus_resources_limits_cpu
+          memory = var.nexus_resources_limits_memory
         }
       }
     }

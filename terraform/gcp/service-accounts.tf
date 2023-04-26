@@ -49,3 +49,20 @@ module "github-actions-sa" {
   ]
 }
 
+module "xj-prod-yard-sa" {
+  source       = "./modules/service-account"
+  region       = local.gcp-region
+  project_id   = local.gcp-project-id
+  account_id   = "xj-prod-yard"
+  display_name = "XJ Production Yard"
+  roles        = [
+    "roles/cloudsql.client",
+    "roles/compute.serviceAgent",
+    "roles/container.serviceAgent",
+    "roles/iam.serviceAccountUser",
+    "roles/logging.viewer",
+    "roles/run.admin",
+    "roles/secretmanager.secretAccessor"
+  ]
+}
+
