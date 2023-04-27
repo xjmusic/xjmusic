@@ -108,8 +108,8 @@ resource "google_cloud_run_v2_service" "nexus" {
         period_seconds        = 3
         failure_threshold     = 1
         //noinspection HCLUnknownBlockType
-        tcp_socket {
-          port = 8080
+        http_get {
+          path = "/healthz"
         }
       }
       //noinspection HCLUnknownBlockType
@@ -126,6 +126,9 @@ resource "google_cloud_run_v2_service" "nexus" {
           cpu    = var.nexus_resources_limits_cpu
           memory = var.nexus_resources_limits_memory
         }
+      }
+      ports {
+        name = "h2c"
       }
     }
   }
