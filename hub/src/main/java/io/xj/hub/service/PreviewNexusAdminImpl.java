@@ -20,7 +20,6 @@ import com.google.cloud.run.v2.ResourceRequirements;
 import com.google.cloud.run.v2.RevisionTemplate;
 import com.google.cloud.run.v2.ServiceName;
 import com.google.cloud.run.v2.ServicesClient;
-import com.google.cloud.run.v2.TCPSocketAction;
 import com.google.cloud.run.v2.UpdateServiceRequest;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.tables.pojos.Template;
@@ -60,6 +59,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   private static final String RESOURCE_REQUIREMENT_DEFAULT_MEMORY = "4Gi";
   private static final String LOG_LINE_FILTER_BEGINS_WITH = "[main] ";
   private static final String LOG_LINE_REMOVE = " i.x.n.w.NexusWorkImpl ";
+  private static final String HTTP2_CONTAINER_PORT_NAME = "h2c";
   private final Logger LOG = LoggerFactory.getLogger(PreviewNexusAdminImpl.class);
   private final String gcpServiceAccountEmail;
   private final boolean isConfigured;
@@ -351,7 +351,6 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
       .setTimeoutSeconds(2)
       .setPeriodSeconds(10)
       .setFailureThreshold(3)
-      .setTcpSocket(TCPSocketAction.newBuilder().setPort(8080).build())
       .setHttpGet(HTTPGetAction.newBuilder().setPath("/healthz").build())
       .build();
 
@@ -361,7 +360,6 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
       .setTimeoutSeconds(2)
       .setPeriodSeconds(10)
       .setFailureThreshold(3)
-      .setTcpSocket(TCPSocketAction.newBuilder().setPort(8080).build())
       .setHttpGet(HTTPGetAction.newBuilder().setPath("/healthz").build())
       .build();
 
@@ -369,7 +367,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
     Container container = Container.newBuilder()
       .setImage(nexusImage)
       .addAllEnv(envVars)
-      .addPorts(ContainerPort.newBuilder().setContainerPort(8080).build())
+      .addPorts(ContainerPort.newBuilder().setName(HTTP2_CONTAINER_PORT_NAME).setContainerPort(8080).build())
       .setResources(resourceRequirements)
       .setStartupProbe(startupProbe)
       .setLivenessProbe(livenessProbe)
