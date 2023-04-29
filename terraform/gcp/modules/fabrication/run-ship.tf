@@ -78,6 +78,14 @@ resource "google_cloud_run_v2_service" "ship" {
         value = var.ship_bucket
       }
       env {
+        name  = "STREAM_BASE_URL"
+        value = var.stream_base_url
+      }
+      env {
+        name  = "STREAM_BUCKET"
+        value = var.stream_bucket
+      }
+      env {
         name  = "SHIP_KEY"
         value = var.ship_key
       }

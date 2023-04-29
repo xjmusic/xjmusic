@@ -59,6 +59,8 @@ module "fabrication_test_serverless" {
   player_base_url               = "https://play.xj.io/"
   ship_base_url                 = "https://ship.xj.io/"
   ship_bucket                   = "xj-prod-ship"
+  stream_bucket                 = "xj-prod-stream"
+  stream_base_url               = "https://stream.xj.io/"
   notification_channels         = local.gcp-alert-notification-channels
   project_id                    = local.gcp-project-id
   region                        = local.gcp-region
