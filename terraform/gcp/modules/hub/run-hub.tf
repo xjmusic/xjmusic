@@ -174,9 +174,6 @@ resource "google_cloud_run_v2_service" "hub" {
           memory = var.resources_limits_memory
         }
       }
-      ports {
-        name = "h2c"
-      }
     }
   }
 

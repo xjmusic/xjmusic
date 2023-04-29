@@ -9,7 +9,6 @@ import com.google.cloud.logging.Logging;
 import com.google.cloud.logging.Logging.EntryListOption;
 import com.google.cloud.logging.LoggingOptions;
 import com.google.cloud.run.v2.Container;
-import com.google.cloud.run.v2.ContainerPort;
 import com.google.cloud.run.v2.CreateServiceRequest;
 import com.google.cloud.run.v2.DeleteServiceRequest;
 import com.google.cloud.run.v2.EnvVar;
@@ -59,7 +58,6 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   private static final String RESOURCE_REQUIREMENT_DEFAULT_MEMORY = "4Gi";
   private static final String LOG_LINE_FILTER_BEGINS_WITH = "[main] ";
   private static final String LOG_LINE_REMOVE = " i.x.n.w.NexusWorkImpl ";
-  private static final String HTTP2_CONTAINER_PORT_NAME = "h2c";
   private final Logger LOG = LoggerFactory.getLogger(PreviewNexusAdminImpl.class);
   private final String gcpServiceAccountEmail;
   private final boolean isConfigured;
@@ -139,7 +137,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
 
       Logging logging = LoggingOptions.getDefaultInstance().getService();
       EntryListOption entryListOption = EntryListOption.filter(filter);
-      var entries = logging.listLogEntries(entryListOption);
+      var entries = logging.listLogEntriesAsync(entryListOption).get();
 
       for (LogEntry logEntry : entries.iterateAll()) {
         if (Text.beginsWith(logEntry.getPayload().getData().toString(), LOG_LINE_FILTER_BEGINS_WITH)) {
@@ -150,7 +148,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
       return String.join("\n", Values.last(logTailLines, lines).stream()
         .map((L) -> L.substring(LOG_LINE_FILTER_BEGINS_WITH.length()))
         .map((L) -> L.replace(LOG_LINE_REMOVE, "")).toList());
-    } catch (RuntimeException e) {
+    } catch (RuntimeException | InterruptedException | ExecutionException e) {
       LOG.error("Failed to get logs for preview nexus", e);
       return String.format("Failed to get logs for preview nexus: %s", e.getMessage());
     }
@@ -367,7 +365,6 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
     Container container = Container.newBuilder()
       .setImage(nexusImage)
       .addAllEnv(envVars)
-      .addPorts(ContainerPort.newBuilder().setName(HTTP2_CONTAINER_PORT_NAME).setContainerPort(8080).build())
       .setResources(resourceRequirements)
       .setStartupProbe(startupProbe)
       .setLivenessProbe(livenessProbe)
@@ -418,7 +415,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   /**
    * @return true if we are able to configure a service administration client
    * <p>
-   * // https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
+   * https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
    */
   private boolean doConfigurationTest() {
     try (ServicesClient ignored = ServicesClient.create()) {

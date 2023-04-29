@@ -127,9 +127,6 @@ resource "google_cloud_run_v2_service" "nexus" {
           memory = var.nexus_resources_limits_memory
         }
       }
-      ports {
-        name = "h2c"
-      }
     }
   }
 
