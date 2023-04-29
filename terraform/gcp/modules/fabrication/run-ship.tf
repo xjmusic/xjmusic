@@ -103,10 +103,10 @@ resource "google_cloud_run_v2_service" "ship" {
 
       //noinspection HCLUnknownBlockType
       startup_probe {
-        initial_delay_seconds = 30
+        initial_delay_seconds = 120
         timeout_seconds       = 2
-        period_seconds        = 3
-        failure_threshold     = 1
+        period_seconds        = 5
+        failure_threshold     = 2
         //noinspection HCLUnknownBlockType
         http_get {
           path = "/healthz"

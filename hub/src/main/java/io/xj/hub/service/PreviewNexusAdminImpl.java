@@ -345,7 +345,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
 
     // probe to ensure a healthy startup
     var startupProbe = Probe.newBuilder()
-      .setInitialDelaySeconds(240)
+      .setInitialDelaySeconds(180)
       .setTimeoutSeconds(2)
       .setPeriodSeconds(10)
       .setFailureThreshold(3)
@@ -354,9 +354,9 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
 
     // probe to ensure liveness
     var livenessProbe = Probe.newBuilder()
-      .setInitialDelaySeconds(240)
+      .setInitialDelaySeconds(180)
       .setTimeoutSeconds(2)
-      .setPeriodSeconds(10)
+      .setPeriodSeconds(5)
       .setFailureThreshold(3)
       .setHttpGet(HTTPGetAction.newBuilder().setPath("/healthz").build())
       .build();
