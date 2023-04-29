@@ -119,7 +119,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
       CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", streamBaseUrl, m3u8Key)))
     ) {
       if (!Objects.equals(HttpStatus.OK.value(), response.getStatusLine().getStatusCode())) {
-        LOG.error("Failed to get previously playlist {} because {} {}", m3u8Key, response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+        LOG.error("Failed to get previously-shipped playlist {} because {} {}", m3u8Key, response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
         return Optional.empty();
       }
 

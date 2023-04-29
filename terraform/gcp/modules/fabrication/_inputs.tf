@@ -64,6 +64,14 @@ variable "ship_bucket" {
   type = string
 }
 
+variable "stream_base_url" {
+  type = string
+}
+
+variable "stream_bucket" {
+  type = string
+}
+
 variable "nexus_resources_limits_cpu" {
   type = string
 }

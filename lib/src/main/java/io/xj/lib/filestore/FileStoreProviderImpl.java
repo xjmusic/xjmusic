@@ -103,8 +103,7 @@ class FileStoreProviderImpl implements FileStoreProvider {
     try {
       long startedAt = System.nanoTime();
       log.debug("Will ship {} to {}/{}", filePath, bucket, key);
-      s3Client().putObject(new PutObjectRequest(
-        bucket, key, new File(filePath)));
+      s3Client().putObject(new PutObjectRequest(bucket, key, new File(filePath)));
       log.debug("Did ship {} to {}/{} OK in {}s", filePath, bucket, key, String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
 
     } catch (Exception e) {
