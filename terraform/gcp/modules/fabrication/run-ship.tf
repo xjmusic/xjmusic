@@ -144,3 +144,73 @@ resource "google_cloud_run_v2_service" "ship" {
   depends_on = [google_project_service.run_api]
 }
 
+# https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/monitoring_alert_policy
+resource "google_monitoring_alert_policy" "ship_hls_playlist_ahead_seconds" {
+  depends_on   = [google_cloud_run_v2_service.ship]
+  enabled      = true
+  combiner     = "OR"
+  display_name = "[${var.display_name}] HLS Playlist Ahead Seconds"
+  conditions {
+    display_name = "Not Ahead"
+    condition_threshold {
+      comparison      = "COMPARISON_LT"
+      duration        = "60s"
+      filter          = "resource.type = \"k8s_container\" AND metric.type = \"custom.googleapis.com/opencensus/${var.ship_key}_ship_hls_playlist_ahead_seconds\""
+      threshold_value = 0.005
+      trigger { count = 1 }
+      aggregations {
+        alignment_period   = "300s"
+        per_series_aligner = "ALIGN_MEAN"
+      }
+    }
+  }
+  alert_strategy { auto_close = "1800s" }
+  notification_channels = var.notification_channels
+}
+
+# https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/monitoring_alert_policy
+resource "google_monitoring_alert_policy" "ship_hls_playlist_shipping" {
+  depends_on   = [google_cloud_run_v2_service.ship]
+  enabled      = true
+  combiner     = "OR"
+  display_name = "[${var.display_name}] HLS Playlist Shipping"
+  conditions {
+    display_name = "No Data"
+    condition_absent {
+      duration = "300s"
+      filter   = "resource.type = \"k8s_container\" AND metric.type = \"custom.googleapis.com/opencensus/${var.ship_key}_ship_hls_playlist_size\""
+      aggregations {
+        alignment_period   = "300s"
+        per_series_aligner = "ALIGN_MEAN"
+      }
+      trigger { percent = 100 }
+    }
+  }
+  alert_strategy { auto_close = "1800s" }
+  notification_channels = var.notification_channels
+}
+
+# https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/monitoring_alert_policy
+resource "google_monitoring_alert_policy" "ship_loaded_audio_ahead" {
+  depends_on   = [google_cloud_run_v2_service.ship]
+  enabled      = true
+  combiner     = "OR"
+  display_name = "[${var.display_name}] Ship Loaded Audio Ahead"
+  conditions {
+    display_name = "No Data"
+    condition_threshold {
+      comparison      = "COMPARISON_LT"
+      duration        = "300s"
+      filter          = "resource.type = \"k8s_container\" AND metric.type = \"custom.googleapis.com/opencensus/${var.ship_key}_ship_segment_audio_loaded_ahead_seconds\""
+      threshold_value = 40
+      trigger { count = 1 }
+      aggregations {
+        alignment_period   = "60s"
+        per_series_aligner = "ALIGN_MEAN"
+      }
+    }
+  }
+  alert_strategy { auto_close = "1800s" }
+  notification_channels = var.notification_channels
+}
+

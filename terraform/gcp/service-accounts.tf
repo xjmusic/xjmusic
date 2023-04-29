@@ -4,7 +4,7 @@ module "xj-dev-hub-sa" {
   project_id   = local.gcp-project-id
   account_id   = "xj-dev-hub"
   display_name = "XJ Development Hub"
-  roles        = [
+  roles = [
     "roles/cloudsql.client",
     "roles/compute.serviceAgent",
     "roles/container.serviceAgent",
@@ -23,7 +23,7 @@ module "xj-prod-hub-sa" {
   project_id   = local.gcp-project-id
   account_id   = "xj-prod-hub"
   display_name = "XJ Production Hub"
-  roles        = [
+  roles = [
     "roles/cloudsql.client",
     "roles/compute.serviceAgent",
     "roles/container.serviceAgent",
@@ -42,7 +42,7 @@ module "github-actions-sa" {
   project_id   = local.gcp-project-id
   account_id   = "github-actions"
   display_name = "XJ GitHub Actions"
-  roles        = [
+  roles = [
     "roles/artifactregistry.serviceAgent",
     "roles/compute.serviceAgent",
     "roles/container.serviceAgent",
@@ -59,7 +59,7 @@ module "xj-prod-yard-sa" {
   project_id   = local.gcp-project-id
   account_id   = "xj-prod-yard"
   display_name = "XJ Production Yard"
-  roles        = [
+  roles = [
     "roles/cloudsql.client",
     "roles/compute.serviceAgent",
     "roles/container.serviceAgent",

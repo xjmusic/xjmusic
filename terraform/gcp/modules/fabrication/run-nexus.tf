@@ -145,3 +145,50 @@ resource "google_cloud_run_v2_service" "nexus" {
   depends_on = [google_project_service.run_api]
 }
 
+# https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/monitoring_alert_policy
+resource "google_monitoring_alert_policy" "nexus_fabricated_ahead" {
+  depends_on   = [google_cloud_run_v2_service.nexus]
+  enabled      = true
+  combiner     = "OR"
+  display_name = "[${var.display_name}] Fabricated Ahead"
+  conditions {
+    display_name = "Not Ahead"
+    condition_threshold {
+      comparison      = "COMPARISON_LT"
+      duration        = "60s"
+      filter          = "resource.type = \"k8s_container\" AND metric.type = \"custom.googleapis.com/opencensus/${var.ship_key}_nexus_fabricated_ahead_seconds\""
+      threshold_value = 180
+      trigger { count = 1 }
+      aggregations {
+        alignment_period   = "300s"
+        per_series_aligner = "ALIGN_MEAN"
+      }
+    }
+  }
+  alert_strategy { auto_close = "1800s" }
+  notification_channels = var.notification_channels
+}
+
+# https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/monitoring_alert_policy
+resource "google_monitoring_alert_policy" "nexus_fabricating" {
+  depends_on   = [google_cloud_run_v2_service.nexus]
+  enabled      = true
+  combiner     = "OR"
+  display_name = "[${var.display_name}] Fabricating"
+  conditions {
+    display_name = "No Data"
+    condition_absent {
+      duration = "300s"
+      filter   = "resource.type = \"k8s_container\" AND metric.type = \"custom.googleapis.com/opencensus/${var.ship_key}_nexus_fabricated_ahead_seconds\""
+      trigger { percent = 100 }
+      aggregations {
+        alignment_period   = "300s"
+        per_series_aligner = "ALIGN_MEAN"
+      }
+    }
+  }
+  alert_strategy { auto_close = "1800s" }
+  notification_channels = var.notification_channels
+}
+
+

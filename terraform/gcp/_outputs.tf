@@ -6,7 +6,7 @@ output "github_actions_service_account_email" {
 output "github_actions_service_account_key" {
   description = "GCP service account for GitHub Actions"
   value       = module.github-actions-sa.service_account_key
-  sensitive = true
+  sensitive   = true
 }
 
 output "lab_postgres_username_secret_id" {
@@ -53,7 +53,7 @@ output "dev_gcp_hub_service_account_email" {
 output "dev_gcp_hub_service_account_key" {
   description = "GCP service account for Hub (Development)"
   value       = module.xj-dev-hub-sa.service_account_key
-  sensitive = true
+  sensitive   = true
 }
 
 output "dev_gcp_project_id" {
@@ -74,7 +74,7 @@ output "prod_gcp_hub_service_account_email" {
 output "prod_gcp_hub_service_account_key" {
   description = "GCP service account for Hub (Production)"
   value       = module.xj-prod-hub-sa.service_account_key
-  sensitive = true
+  sensitive   = true
 }
 
 output "lab_postgres_connection_name" {
