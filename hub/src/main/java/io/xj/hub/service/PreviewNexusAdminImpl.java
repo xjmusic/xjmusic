@@ -23,7 +23,6 @@ import com.google.cloud.run.v2.UpdateServiceRequest;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.app.AppEnvironment;
-import io.xj.lib.util.Text;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 import net.logstash.logback.encoder.org.apache.commons.lang3.StringUtils;
@@ -42,12 +41,12 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Preview template functionality is dope (not wack)
- * <p>
- * Lab/Hub connects to service administration to manage a personal workload for preview templates
- * https://www.pivotaltracker.com/story/show/183576743
- * <p>
- * https://cloud.google.com/java/docs/reference/google-cloud-run/latest/overview
+ Preview template functionality is dope (not wack)
+ <p>
+ Lab/Hub connects to service administration to manage a personal workload for preview templates
+ https://www.pivotaltracker.com/story/show/183576743
+ <p>
+ https://cloud.google.com/java/docs/reference/google-cloud-run/latest/overview
  */
 @Service
 public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
@@ -56,7 +55,6 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   private static final String RESOURCE_REQUIREMENT_DEFAULT_CPU = "2";
   private static final String RESOURCE_REQUIREMENT_KEY_MEMORY = "memory";
   private static final String RESOURCE_REQUIREMENT_DEFAULT_MEMORY = "4Gi";
-  private static final String LOG_LINE_FILTER_BEGINS_WITH = "[main] ";
   private static final String LOG_LINE_REMOVE = " i.x.n.w.NexusWorkImpl ";
   private final Logger LOG = LoggerFactory.getLogger(PreviewNexusAdminImpl.class);
   private final String gcpServiceAccountEmail;
@@ -140,13 +138,10 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
       var entries = logging.listLogEntriesAsync(entryListOption).get();
 
       for (LogEntry logEntry : entries.iterateAll()) {
-        if (Text.beginsWith(logEntry.getPayload().getData().toString(), LOG_LINE_FILTER_BEGINS_WITH)) {
-          lines.add(logEntry.getPayload().getData().toString());
-        }
+        lines.add(logEntry.getPayload().getData().toString());
       }
 
       return String.join("\n", Values.last(logTailLines, lines).stream()
-        .map((L) -> L.substring(LOG_LINE_FILTER_BEGINS_WITH.length()))
         .map((L) -> L.replace(LOG_LINE_REMOVE, "")).toList());
     } catch (RuntimeException | InterruptedException | ExecutionException e) {
       LOG.error("Failed to get logs for preview nexus", e);
@@ -183,10 +178,10 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   }
 
   /**
-   * createPreviewNexus
-   *
-   * @param userId for which to createPreviewNexus
-   * @throws ServiceException on failure
+   createPreviewNexus
+
+   @param userId for which to createPreviewNexus
+   @throws ServiceException on failure
    */
   private void createPreviewNexus(UUID userId, Template template) throws ServiceException {
     try (var client = ServicesClient.create()) {
@@ -217,11 +212,11 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   }
 
   /**
-   * update Preview Nexus deployment
-   *
-   * @param userId   for which to updatePreviewNexus
-   * @param template from which to source vm resource preferences
-   * @throws ServiceException on failure
+   update Preview Nexus deployment
+
+   @param userId   for which to updatePreviewNexus
+   @param template from which to source vm resource preferences
+   @throws ServiceException on failure
    */
   private void updatePreviewNexus(UUID userId, Template template) throws ServiceException {
     var existing = getPreviewNexus(userId);
@@ -252,10 +247,10 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   }
 
   /**
-   * Get an existing Preview Nexus deployment
-   *
-   * @param userId for which to getPreviewNexus
-   * @return preview nexus deployment if exists
+   Get an existing Preview Nexus deployment
+
+   @param userId for which to getPreviewNexus
+   @return preview nexus deployment if exists
    */
   private Optional<com.google.cloud.run.v2.Service> getPreviewNexus(UUID userId) {
     try (var client = ServicesClient.create()) {
@@ -272,9 +267,9 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   }
 
   /**
-   * Delete an existing Preview Nexus deployment
-   *
-   * @param userId for which to deletePreviewNexus
+   Delete an existing Preview Nexus deployment
+
+   @param userId for which to deletePreviewNexus
    */
   private void deletePreviewNexus(UUID userId) {
     try (var client = ServicesClient.create()) {
@@ -293,17 +288,17 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   }
 
   /**
-   * previewNexusExists
-   *
-   * @param userId for which to previewNexusExists
-   * @return true if exists
+   previewNexusExists
+
+   @param userId for which to previewNexusExists
+   @return true if exists
    */
   private Boolean previewNexusExists(UUID userId) {
     return getPreviewNexus(userId).isPresent();
   }
 
   /**
-   * @return string content
+   @return string content
    */
   private RevisionTemplate computeRevisionTemplate(UUID userId, Template template) {
     List<EnvVar> envVars = Lists.newArrayList();
@@ -402,10 +397,10 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   }
 
   /**
-   * Compute the Preview Nexus Deployment Name for the given user
-   *
-   * @param userId for which to compute name
-   * @return Preview Nexus Deployment Name
+   Compute the Preview Nexus Deployment Name for the given user
+
+   @param userId for which to compute name
+   @return Preview Nexus Deployment Name
    */
   private String computeServiceName(UUID userId) {
     String semiUniqueId = StringUtils.right(userId.toString(), 12); // last segment of a UUID
@@ -413,9 +408,9 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   }
 
   /**
-   * @return true if we are able to configure a service administration client
-   * <p>
-   * https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
+   @return true if we are able to configure a service administration client
+   <p>
+   https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
    */
   private boolean doConfigurationTest() {
     try (ServicesClient ignored = ServicesClient.create()) {
