@@ -92,7 +92,7 @@ public class TemplatePlaybackManagerDbTest {
     assertNotNull(result);
     assertEquals(fake.template1.getId(), result.getTemplateId());
     assertEquals(fake.user2.getId(), result.getUserId());
-    verify(previewNexusAdmin, times(1)).startPreviewNexus(eq(fake.user2.getId()), any());
+    verify(previewNexusAdmin, times(1)).startPreviewNexus(any());
   }
 
   @Test
@@ -107,7 +107,7 @@ public class TemplatePlaybackManagerDbTest {
     assertNotNull(result);
     assertEquals(fake.template1.getId(), result.getTemplateId());
     assertEquals(fake.user2.getId(), result.getUserId());
-    verify(previewNexusAdmin, times(1)).startPreviewNexus(eq(fake.user2.getId()), any());
+    verify(previewNexusAdmin, times(1)).startPreviewNexus(any());
   }
 
   @Test
@@ -140,23 +140,13 @@ public class TemplatePlaybackManagerDbTest {
     testManager.create(access, subject);
 
     assertThrows(ManagerException.class, () -> testManager.readOne(access, priorPlayback.getId()));
-    verify(previewNexusAdmin, times(1)).startPreviewNexus(eq(fake.user2.getId()), any());
-  }
-
-  /**
-   * Should be able to load template even if user is playing two templates, or two users are playing one template https://www.pivotaltracker.com/story/show/180124281
-   */
-  @Test
-  public void create_archivesExistingForTemplate() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
-
-    var priorPlayback = test.insert(buildTemplatePlayback(fake.template1, fake.user3));
-    var subject = buildTemplatePlayback(fake.template1, fake.user2);
-
-    testManager.create(access, subject);
-
-    assertThrows(ManagerException.class, () -> testManager.readOne(access, priorPlayback.getId()));
-    verify(previewNexusAdmin, times(1)).startPreviewNexus(eq(fake.user2.getId()), any());
+    verify(previewNexusAdmin, times(1)).startPreviewNexus(any());
+    try {
+      testManager.readOne(HubAccess.internal(), priorPlayback.getId());
+      fail();
+    } catch (ManagerException e) {
+      assertTrue(e.getMessage().contains("does not exist"), "Record should not exist");
+    }
   }
 
   @Test
@@ -258,7 +248,7 @@ public class TemplatePlaybackManagerDbTest {
   @Test
   public void destroy() throws Exception {
     HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
-    TemplatePlayback templatePlayback251 = buildTemplatePlayback(fake.template1, fake.user2);
+    TemplatePlayback templatePlayback251 = test.insert(buildTemplatePlayback(fake.template1, fake.user2));
 
     testManager.destroy(access, templatePlayback251.getId());
 
@@ -268,7 +258,7 @@ public class TemplatePlaybackManagerDbTest {
     } catch (ManagerException e) {
       assertTrue(e.getMessage().contains("does not exist"), "Record should not exist");
     }
-    verify(previewNexusAdmin, times(1)).stopPreviewNexus(eq(fake.user2.getId()));
+    verify(previewNexusAdmin, times(1)).stopPreviewNexus(eq(fake.template1.getId()));
   }
 
 }

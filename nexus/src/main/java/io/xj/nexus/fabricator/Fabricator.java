@@ -52,17 +52,6 @@ public interface Fabricator {
   void addMessage(SegmentMessageType messageType, String body);
 
   /**
-   Put a meta in the given segment, overwriting any existing with the same key
-   <p>
-   Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
-
-   @param key   to write
-   @param value to write
-   @throws NexusException on failure
-   */
-  void putMeta(String key, String value) throws NexusException;
-
-  /**
    Add an error message to the segment, with the given body
 
    @param body to include in message
@@ -70,7 +59,7 @@ public interface Fabricator {
   void addErrorMessage(String body);
 
   /**
-   Add an warning message to the segment, with the given body
+   Add a warning message to the segment, with the given body
 
    @param body to include in message
    */
@@ -258,7 +247,7 @@ public interface Fabricator {
   /**
    Get a list of unique voicing (instrument) types present in the voicings of the current main program's chords.
 
-   @return list of voicing (instrument) types
+   @return set of voicing (instrument) types
    */
   Set<InstrumentType> getDistinctChordVoicingTypes() throws NexusException;
 
@@ -289,14 +278,6 @@ public interface Fabricator {
    @return InstrumentConfig from a given instrument, with fallback values
    */
   InstrumentConfig getInstrumentConfig(SegmentChoiceArrangementPick pick) throws NexusException;
-
-  /**
-   Get the range of available notes for a given instrument
-
-   @param instrumentId for which to get range
-   @return range
-   */
-  NoteRange getInstrumentRange(UUID instrumentId);
 
   /**
    Key for any pick designed to collide at same voice id + name
@@ -496,7 +477,7 @@ public interface Fabricator {
   int getProgramTargetShift(InstrumentType instrumentType, Chord fromChord, Chord toChord);
 
   /**
-   Get the program type of a given voice
+   Get the program type of given voice
 
    @param voice for which to get program type
    @return program type
@@ -549,15 +530,6 @@ public interface Fabricator {
    @return randomly selected sequence binding
    */
   Optional<ProgramSequenceBinding> getRandomlySelectedSequenceBindingAtOffset(Program program, Integer offset);
-
-  /**
-   Get a randomly selected voice of the given program id
-
-   @param programId       for which to randomly select voice
-   @param excludeVoiceIds to exclude from random selection
-   @return randomly selected voice
-   */
-  Optional<ProgramVoice> getRandomlySelectedVoiceForProgramId(UUID programId, Collection<UUID> excludeVoiceIds);
 
   /**
    Get the root note from an available set of voicings and a given chord
@@ -693,14 +665,6 @@ public interface Fabricator {
    @return Track name
    */
   String getTrackName(ProgramSequencePatternEvent event) throws NexusException;
-
-  /**
-   Get the track name for a give segment choice arrangement pick
-
-   @param pick for which to get track name
-   @return Track name
-   */
-  String getTrackName(SegmentChoiceArrangementPick pick) throws NexusException;
 
   /**
    Determine type of content, e.g. initial segment in chain, or next macro-sequence

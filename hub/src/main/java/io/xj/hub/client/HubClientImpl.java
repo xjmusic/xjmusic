@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 @Service
 public class HubClientImpl implements HubClient {
   private static final String API_PATH_INGEST_FORMAT = "api/1/ingest/%s";
-  private static final String API_PATH_USER_TEMPLATE_PLAYBACK_FORMAT = "api/1/templates/playing?userId=%s";
+  private static final String API_PATH_TEMPLATE_BY_ID_FORMAT = "api/1/templates/%s";
   private static final String HEADER_COOKIE = "Cookie";
   private final Logger LOG = LoggerFactory.getLogger(HubClientImpl.class);
   private final String ingestUrl;
@@ -87,9 +87,9 @@ public class HubClientImpl implements HubClient {
   }
 
   @Override
-  public Optional<Template> readPreviewTemplate(UUID userId) throws HubClientException {
+  public Optional<Template> readPreviewTemplate(UUID templateId) throws HubClientException {
     CloseableHttpClient client = httpClientProvider.getClient();
-    var path = String.format(API_PATH_USER_TEMPLATE_PLAYBACK_FORMAT, userId);
+    var path = String.format(API_PATH_TEMPLATE_BY_ID_FORMAT, templateId);
     var uri = buildURI(path);
     var request = buildGetRequest(uri, ingestTokenValue);
     try (

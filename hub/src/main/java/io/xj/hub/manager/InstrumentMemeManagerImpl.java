@@ -40,20 +40,28 @@ public class InstrumentMemeManagerImpl extends HubPersistenceServiceImpl impleme
   @Nullable
   public InstrumentMeme readOne(HubAccess access, UUID id) throws ManagerException {
     requireArtist(access);
-    return modelFrom(InstrumentMeme.class,
-      sqlStoreProvider.getDSL().selectFrom(INSTRUMENT_MEME)
-        .where(INSTRUMENT_MEME.ID.eq(id))
-        .fetchOne());
+    try (var selectInstrumentMeme = sqlStoreProvider.getDSL().selectFrom(INSTRUMENT_MEME)) {
+      return modelFrom(InstrumentMeme.class,
+        selectInstrumentMeme
+          .where(INSTRUMENT_MEME.ID.eq(id))
+          .fetchOne());
+    } catch (Exception e) {
+      throw new ManagerException(e);
+    }
   }
 
   @Override
   @Nullable
   public Collection<InstrumentMeme> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
     requireArtist(access);
+    try (var selectInstrumentMeme = sqlStoreProvider.getDSL().selectFrom(INSTRUMENT_MEME)){
     return modelsFrom(InstrumentMeme.class,
-      sqlStoreProvider.getDSL().selectFrom(INSTRUMENT_MEME)
+      selectInstrumentMeme
         .where(INSTRUMENT_MEME.INSTRUMENT_ID.in(parentIds))
         .fetch());
+    } catch (Exception e) {
+      throw new ManagerException(e);
+    }
   }
 
   @Override
@@ -67,9 +75,13 @@ public class InstrumentMemeManagerImpl extends HubPersistenceServiceImpl impleme
   @Override
   public void destroy(HubAccess access, UUID id) throws ManagerException {
     requireArtist(access);
-    sqlStoreProvider.getDSL().deleteFrom(INSTRUMENT_MEME)
+    try (var deleteInstrumentMeme =sqlStoreProvider.getDSL().deleteFrom(INSTRUMENT_MEME)) {
+    deleteInstrumentMeme
       .where(INSTRUMENT_MEME.ID.eq(id))
       .execute();
+    } catch (Exception e) {
+      throw new ManagerException(e);
+    }
   }
 
   @Override
@@ -78,10 +90,10 @@ public class InstrumentMemeManagerImpl extends HubPersistenceServiceImpl impleme
   }
 
   /**
-   * Validate data
-   *
-   * @param record to validate
-   * @throws ManagerException if invalid
+   Validate data
+
+   @param record to validate
+   @throws ManagerException if invalid
    */
   public InstrumentMeme validate(InstrumentMeme record) throws ManagerException {
     try {

@@ -4,8 +4,8 @@ package io.xj.hub.manager;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreException;
@@ -28,11 +28,15 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.xj.hub.Tables.*;
+import static io.xj.hub.Tables.ACCOUNT;
+import static io.xj.hub.Tables.INSTRUMENT;
+import static io.xj.hub.Tables.INSTRUMENT_AUDIO;
+import static io.xj.hub.Tables.LIBRARY;
 
 @Service
 public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl implements InstrumentAudioManager {
   private static final String DEFAULT_EVENT = "X";
+  private final InstrumentManager instrumentManager;
   private final FileStoreProvider fileStoreProvider;
   // key special resources (e.g. upload policy)
   String KEY_UPLOAD_ACCESS_KEY = "awsAccessKeyId";
@@ -46,9 +50,11 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl implem
   public InstrumentAudioManagerImpl(
     EntityFactory entityFactory,
     HubSqlStoreProvider sqlStoreProvider,
-    FileStoreProvider fileStoreProvider
+    FileStoreProvider fileStoreProvider,
+    InstrumentManager instrumentManager
   ) {
     super(entityFactory, sqlStoreProvider);
+    this.instrumentManager = instrumentManager;
     this.fileStoreProvider = fileStoreProvider;
 
     // FUTURE Create instrument audio, provide waveform file extension as query parameter (checked by front-end after selecting the upload file) https://www.pivotaltracker.com/story/show/170288602
@@ -61,7 +67,7 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl implem
     requireArtist(access);
 
     DSLContext db = sqlStoreProvider.getDSL();
-    requireParentExists(db, access, audio);
+    requireAccessToParent(access, audio);
 
     return modelFrom(InstrumentAudio.class,
       executeCreate(db, INSTRUMENT_AUDIO, audio));
@@ -70,17 +76,22 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl implem
   @Override
   public Map<String, String> authorizeUpload(HubAccess access, UUID id, String extension) throws ManagerException, FileStoreException, ValueException, JsonapiException {
     DSLContext db = sqlStoreProvider.getDSL();
-    var entity = readOne(db, access, id);
 
-    // Cannot authorize upload of audio when generated key would overwrite another one in an instrument https://www.pivotaltracker.com/story/show/181848232
+    var entity = readOne(db, access, id);
     var waveformKey = computeKey(db, entity, extension);
-    requireNotExists(String.format("Generated key \"%s\" would overwrite existing audio- please change name of audio before uploading file.", waveformKey),
-      db.select(INSTRUMENT_AUDIO.ID)
-        .from(INSTRUMENT_AUDIO)
-        .where(INSTRUMENT_AUDIO.INSTRUMENT_ID.eq(entity.getInstrumentId()))
-        .and(INSTRUMENT_AUDIO.WAVEFORM_KEY.eq(waveformKey))
-        .and(INSTRUMENT_AUDIO.ID.notEqual(id))
-        .fetch());
+
+    try (var selectInstrumentAudio = db.select(INSTRUMENT_AUDIO.ID)) {
+      // Cannot authorize upload of audio when generated key would overwrite another one in an instrument https://www.pivotaltracker.com/story/show/181848232
+      requireNotExists(String.format("Generated key \"%s\" would overwrite existing audio- please change name of audio before uploading file.", waveformKey),
+        selectInstrumentAudio
+          .from(INSTRUMENT_AUDIO)
+          .where(INSTRUMENT_AUDIO.INSTRUMENT_ID.eq(entity.getInstrumentId()))
+          .and(INSTRUMENT_AUDIO.WAVEFORM_KEY.eq(waveformKey))
+          .and(INSTRUMENT_AUDIO.ID.notEqual(id))
+          .fetch());
+    } catch (Exception e) {
+      throw new ManagerException(e);
+    }
 
     // Update the audio waveform key
     entity.setWaveformKey(waveformKey);
@@ -97,6 +108,7 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl implem
     uploadAuthorization.put(KEY_UPLOAD_BUCKET_NAME, fileStoreProvider.getAudioBucketName());
     uploadAuthorization.put(KEY_UPLOAD_ACL, fileStoreProvider.getAudioUploadACL());
     return uploadAuthorization;
+
   }
 
   @Override
@@ -107,25 +119,33 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl implem
 
   @Override
   public String computeKey(DSLContext db, InstrumentAudio instrumentAudio, String extension) throws ManagerException {
-    var fields = db.select(ACCOUNT.NAME, LIBRARY.NAME, INSTRUMENT.NAME)
-      .from(INSTRUMENT)
-      .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
-      .join(ACCOUNT).on(ACCOUNT.ID.eq(LIBRARY.ACCOUNT_ID))
-      .where(INSTRUMENT.ID.eq(instrumentAudio.getInstrumentId()))
-      .fetchOne();
+    try (var select = db.select(ACCOUNT.NAME, LIBRARY.NAME, INSTRUMENT.NAME);
+         var joinLibrary = select
+           .from(INSTRUMENT)
+           .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID));
+         var joinAccount = joinLibrary
+           .join(ACCOUNT).on(ACCOUNT.ID.eq(LIBRARY.ACCOUNT_ID))) {
+      var fields =
+        joinAccount
+          .where(INSTRUMENT.ID.eq(instrumentAudio.getInstrumentId()))
+          .fetchOne();
 
-    if (Objects.isNull(fields))
-      throw new ManagerException(String.format("Failed to retrieve Account, Library, and Instrument[%s]", instrumentAudio.getInstrumentId()));
+      if (Objects.isNull(fields))
+        throw new ManagerException(String.format("Failed to retrieve Account, Library, and Instrument[%s]", instrumentAudio.getInstrumentId()));
 
-    return String.format("%s.%s",
-      String.join("-",
-        Text.toAlphanumericHyphenated((String) fields.get(0)),
-        Text.toAlphanumericHyphenated((String) fields.get(1)),
-        Text.toAlphanumericHyphenated((String) fields.get(2)),
-        Text.toAlphanumericHyphenated(Accidental.replaceWithExplicit(instrumentAudio.getName())),
-        Text.toAlphanumericHyphenated(Accidental.replaceWithExplicit(instrumentAudio.getTones()))
-      ),
-      extension);
+      return String.format("%s.%s",
+        String.join("-",
+          Text.toAlphanumericHyphenated((String) fields.get(0)),
+          Text.toAlphanumericHyphenated((String) fields.get(1)),
+          Text.toAlphanumericHyphenated((String) fields.get(2)),
+          Text.toAlphanumericHyphenated(Accidental.replaceWithExplicit(instrumentAudio.getName())),
+          Text.toAlphanumericHyphenated(Accidental.replaceWithExplicit(instrumentAudio.getTones()))
+        ),
+        extension);
+
+    } catch (Exception e) {
+      throw new ManagerException(e);
+    }
   }
 
   @Override
@@ -133,19 +153,28 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl implem
   public Collection<InstrumentAudio> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
     requireArtist(access);
     if (access.isTopLevel())
-      return modelsFrom(InstrumentAudio.class,
-        sqlStoreProvider.getDSL().selectFrom(INSTRUMENT_AUDIO)
-          .where(INSTRUMENT_AUDIO.INSTRUMENT_ID.in(parentIds))
-          .fetch());
+      try (var selectInstrumentAudio = sqlStoreProvider.getDSL().selectFrom(INSTRUMENT_AUDIO)) {
+        return modelsFrom(InstrumentAudio.class,
+          selectInstrumentAudio
+            .where(INSTRUMENT_AUDIO.INSTRUMENT_ID.in(parentIds))
+            .fetch());
+      } catch (Exception e) {
+        throw new ManagerException(e);
+      }
     else
-      return modelsFrom(InstrumentAudio.class,
-        sqlStoreProvider.getDSL().select(INSTRUMENT_AUDIO.fields())
-          .from(INSTRUMENT_AUDIO)
-          .join(INSTRUMENT).on(INSTRUMENT.ID.eq(INSTRUMENT_AUDIO.INSTRUMENT_ID))
-          .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
-          .where(INSTRUMENT_AUDIO.INSTRUMENT_ID.in(parentIds))
-          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-          .fetch());
+      try (var selectInstrumentAudio = sqlStoreProvider.getDSL().select(INSTRUMENT_AUDIO.fields());
+           var joinInstrument = selectInstrumentAudio
+             .from(INSTRUMENT_AUDIO)
+             .join(INSTRUMENT).on(INSTRUMENT.ID.eq(INSTRUMENT_AUDIO.INSTRUMENT_ID));
+           var joinLibrary = joinInstrument.join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))) {
+        return modelsFrom(InstrumentAudio.class,
+          joinLibrary
+            .where(INSTRUMENT_AUDIO.INSTRUMENT_ID.in(parentIds))
+            .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+            .fetch());
+      } catch (Exception e) {
+        throw new ManagerException(e);
+      }
   }
 
   @Override
@@ -155,7 +184,7 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl implem
 
     DSLContext db = sqlStoreProvider.getDSL();
 
-    requireParentExists(db, access, audio);
+    requireAccessToParent(access, audio);
 
     if (Strings.isNullOrEmpty(audio.getWaveformKey()))
       audio.setWaveformKey(readOne(db, access, id).getWaveformKey());
@@ -170,9 +199,12 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl implem
 
     requireExists("InstrumentAudio", readOne(db, access, id));
 
-    db.deleteFrom(INSTRUMENT_AUDIO)
-      .where(INSTRUMENT_AUDIO.ID.eq(id))
-      .execute();
+    try (var deleteInstrumentAudio = db.deleteFrom(INSTRUMENT_AUDIO)) {
+      deleteInstrumentAudio.where(INSTRUMENT_AUDIO.ID.eq(id))
+        .execute();
+    } catch (Exception e) {
+      throw new ManagerException(e);
+    }
   }
 
   @Override
@@ -194,7 +226,7 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl implem
       // When not set, clone inherits attribute values from original record
       entityFactory.setAllEmptyAttributes(from, to);
       var audio = validate(to);
-      requireParentExists(db, access, audio);
+      requireAccessToParent(access, audio);
 
       result.set(modelFrom(InstrumentAudio.class, executeCreate(db, INSTRUMENT_AUDIO, audio)));
     });
@@ -204,22 +236,12 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl implem
   /**
    * Require parent instrument exists of a given possible entity in a DSL context
    *
-   * @param db     DSL context
    * @param access control
    * @param entity to validate
    * @throws ManagerException if parent does not exist
    */
-  private void requireParentExists(DSLContext db, HubAccess access, InstrumentAudio entity) throws ManagerException {
-    if (access.isTopLevel())
-      requireExists("Instrument", db.selectCount().from(INSTRUMENT)
-        .where(INSTRUMENT.ID.eq(entity.getInstrumentId()))
-        .fetchOne(0, int.class));
-    else
-      requireExists("Instrument", db.selectCount().from(INSTRUMENT)
-        .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
-        .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-        .and(INSTRUMENT.ID.eq(entity.getInstrumentId()))
-        .fetchOne(0, int.class));
+  private void requireAccessToParent(HubAccess access, InstrumentAudio entity) throws ManagerException {
+    instrumentManager.readOne(access, entity.getInstrumentId());
   }
 
   /**
@@ -235,18 +257,28 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl implem
     requireArtist(access);
     Record record;
     if (access.isTopLevel())
-      record = db.selectFrom(INSTRUMENT_AUDIO)
-        .where(INSTRUMENT_AUDIO.ID.eq(id))
-        .fetchOne();
+      try (var selectInstrumentAudio = db.selectFrom(INSTRUMENT_AUDIO)) {
+        record = selectInstrumentAudio
+          .where(INSTRUMENT_AUDIO.ID.eq(id))
+          .fetchOne();
+      } catch (Exception e) {
+        throw new ManagerException(e);
+      }
     else
-      record = db.select(INSTRUMENT_AUDIO.fields())
-        .from(INSTRUMENT_AUDIO)
-        .join(INSTRUMENT).on(INSTRUMENT.ID.eq(INSTRUMENT_AUDIO.INSTRUMENT_ID))
-        .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
-        .where(INSTRUMENT_AUDIO.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-        .fetchOne();
-    requireExists("InstrumentAudio", record);
+      try (var selectInstrumentAudio = db.select(INSTRUMENT_AUDIO.fields());
+           var joinInstrument = selectInstrumentAudio
+             .from(INSTRUMENT_AUDIO)
+             .join(INSTRUMENT).on(INSTRUMENT.ID.eq(INSTRUMENT_AUDIO.INSTRUMENT_ID));
+           var joinLibrary = joinInstrument
+             .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))) {
+        record = joinLibrary
+          .where(INSTRUMENT_AUDIO.ID.eq(id))
+          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+          .fetchOne();
+        requireExists("InstrumentAudio", record);
+      } catch (Exception e) {
+        throw new ManagerException(e);
+      }
     return modelFrom(InstrumentAudio.class, record);
   }
 

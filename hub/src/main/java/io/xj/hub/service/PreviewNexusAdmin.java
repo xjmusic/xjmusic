@@ -15,28 +15,27 @@ public interface PreviewNexusAdmin {
   /**
    * getPreviewNexusLogs
    *
-   * @param userId for which to getPreviewNexusLogs
+   * @param templateId for which to getPreviewNexusLogs
    * @return logs
    * @throws ServiceException on failure
    */
-  String getPreviewNexusLogs(UUID userId) throws ServiceException;
+  String getPreviewNexusLogs(UUID templateId) throws ServiceException;
 
   /**
    * startPreviewNexus
    *
-   * @param userId   for which to startPreviewNexus
    * @param template from which to source vm resource preferences
    * @throws ServiceException on failure
    */
-  void startPreviewNexus(UUID userId, Template template) throws ServiceException;
+  void startPreviewNexus(Template template) throws ServiceException;
 
   /**
    * stopPreviewNexus
    *
-   * @param userId for which to stopPreviewNexus
+   * @param templateId for which to stopPreviewNexus
    * @throws ServiceException on failure
    */
-  void stopPreviewNexus(UUID userId) throws ServiceException;
+  void stopPreviewNexus(UUID templateId) throws ServiceException;
 
   /**
    * Whether the service administration is ready to use

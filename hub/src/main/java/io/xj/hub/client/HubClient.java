@@ -27,12 +27,12 @@ public interface HubClient {
   HubContent ingest(HubClientAccess access, UUID templateId) throws HubClientException;
 
   /**
-   * Read all Templates playing from Hub
+   * Read preview template by ID
    *
-   * @param userId for which to read to template
-   * @return Templates currently playing
+   * @param templateId of template to read
+   * @return Template
    */
-  Optional<Template> readPreviewTemplate(UUID userId) throws HubClientException;
+  Optional<Template> readPreviewTemplate(UUID templateId) throws HubClientException;
 
   /**
    * Load shipped content from a static file

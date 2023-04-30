@@ -75,7 +75,7 @@ public class InstrumentManagerImpl extends HubPersistenceServiceImpl implements 
       return cloner;
 
     } catch (EntityException e) {
-      throw new ManagerException("Failed to clone Instrument!", e);
+      throw new ManagerException(e);
     }
   }
 
@@ -90,17 +90,17 @@ public class InstrumentManagerImpl extends HubPersistenceServiceImpl implements 
     DSLContext db = sqlStoreProvider.getDSL();
 
     if (!access.isTopLevel()) try (
-      var sc = db.selectCount();
-      var scj = sc.from(INSTRUMENT).join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
+      var selectCount = db.selectCount();
+      var joinInstrument = selectCount.from(INSTRUMENT).join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
     ) {
-      requireExists("Instrument belonging to you", scj
+      requireExists("Instrument belonging to you", joinInstrument
         .where(INSTRUMENT.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
     }
 
-    try (var u = db.update(INSTRUMENT).set(INSTRUMENT.IS_DELETED, true)) {
-      u.where(INSTRUMENT.ID.eq(id)).execute();
+    try (var updateInstrument = db.update(INSTRUMENT).set(INSTRUMENT.IS_DELETED, true)) {
+      updateInstrument.where(INSTRUMENT.ID.eq(id)).execute();
     }
   }
 
@@ -301,13 +301,13 @@ public class InstrumentManagerImpl extends HubPersistenceServiceImpl implements 
    * @throws ManagerException if parent does not exist
    */
   private void requireParentExists(DSLContext db, HubAccess access, Instrument entity) throws ManagerException {
-    try (var s = db.selectCount()) {
+    try (var selectCount = db.selectCount()) {
       if (access.isTopLevel())
-        requireExists("Library", s.from(LIBRARY)
+        requireExists("Library", selectCount.from(LIBRARY)
           .where(LIBRARY.ID.eq(entity.getLibraryId()))
           .fetchOne(0, int.class));
       else
-        requireExists("Library", s.from(LIBRARY)
+        requireExists("Library", selectCount.from(LIBRARY)
           .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
           .and(LIBRARY.ID.eq(entity.getLibraryId()))
           .fetchOne(0, int.class));

@@ -116,7 +116,7 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl implements Pro
       return cloner;
 
     } catch (EntityException e) {
-      throw new ManagerException("Failed to clone Program!", e);
+      throw new ManagerException(e);
     }
   }
 

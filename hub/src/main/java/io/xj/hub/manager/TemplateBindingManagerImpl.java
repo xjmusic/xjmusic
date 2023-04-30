@@ -2,8 +2,8 @@
 package io.xj.hub.manager;
 
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
@@ -35,11 +35,15 @@ public class TemplateBindingManagerImpl extends HubPersistenceServiceImpl implem
     TemplateBinding record = validate(rawTemplateBinding);
     requireArtist(access);
     requireParentExists(db, access, record); // This entity's parent is a Template
-    requireNotExists("same content already bound to template",
-      db.selectCount().from(TEMPLATE_BINDING)
-        .where(TEMPLATE_BINDING.TEMPLATE_ID.eq(record.getTemplateId()))
-        .and(TEMPLATE_BINDING.TARGET_ID.eq(record.getTargetId()))
-        .fetchOne(0, int.class));
+    try (var selectCount = db.selectCount()) {
+      requireNotExists("same content already bound to template",
+        selectCount.from(TEMPLATE_BINDING)
+          .where(TEMPLATE_BINDING.TEMPLATE_ID.eq(record.getTemplateId()))
+          .and(TEMPLATE_BINDING.TARGET_ID.eq(record.getTargetId()))
+          .fetchOne(0, int.class));
+    } catch (Exception e) {
+      throw new ManagerException(e);
+    }
     return modelFrom(TemplateBinding.class, executeCreate(db, TEMPLATE_BINDING, record));
   }
 
@@ -53,20 +57,30 @@ public class TemplateBindingManagerImpl extends HubPersistenceServiceImpl implem
   public void destroy(HubAccess access, UUID id) throws ManagerException {
     DSLContext db = sqlStoreProvider.getDSL();
 
-    if (!access.isTopLevel())
-      requireExists("TemplateBinding belonging to you", db.selectCount().from(TEMPLATE_BINDING)
-        .join(TEMPLATE).on(TEMPLATE_BINDING.TEMPLATE_ID.eq(TEMPLATE.ID))
-        .where(TEMPLATE_BINDING.ID.eq(id))
-        .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
-        .fetchOne(0, int.class));
+    try (var selectCount = db.selectCount();
+         var joinTemplateBinding = selectCount.from(TEMPLATE_BINDING)
+           .join(TEMPLATE).on(TEMPLATE_BINDING.TEMPLATE_ID.eq(TEMPLATE.ID))) {
+      if (!access.isTopLevel())
+        requireExists("TemplateBinding belonging to you",
+          joinTemplateBinding
+            .where(TEMPLATE_BINDING.ID.eq(id))
+            .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
+            .fetchOne(0, int.class));
+    } catch (Exception e) {
+      throw new ManagerException(e);
+    }
 
     //
     // Cannot delete TemplateBindings that have a Meme-- otherwise, destroy all inner entities https://www.pivotaltracker.com/story/show/170299297
     //
 
-    db.deleteFrom(TEMPLATE_BINDING)
-      .where(TEMPLATE_BINDING.ID.eq(id))
-      .execute();
+    try (var deleteTemplateBinding = db.deleteFrom(TEMPLATE_BINDING)) {
+      deleteTemplateBinding.where(TEMPLATE_BINDING.ID.eq(id))
+        .execute();
+    } catch (Exception e) {
+      throw new ManagerException(e);
+    }
+
   }
 
   @Override
@@ -77,19 +91,33 @@ public class TemplateBindingManagerImpl extends HubPersistenceServiceImpl implem
   @Override
   public Collection<TemplateBinding> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
     if (access.isTopLevel())
-      return modelsFrom(TemplateBinding.class, sqlStoreProvider.getDSL().select(TEMPLATE_BINDING.fields())
-        .from(TEMPLATE_BINDING)
-        .where(TEMPLATE_BINDING.TEMPLATE_ID.in(parentIds))
-        .orderBy(TEMPLATE_BINDING.TYPE)
-        .fetch());
+      try (var selectTemplateBinding = sqlStoreProvider.getDSL().select(TEMPLATE_BINDING.fields())) {
+        return modelsFrom(TemplateBinding.class,
+          selectTemplateBinding
+            .from(TEMPLATE_BINDING)
+            .where(TEMPLATE_BINDING.TEMPLATE_ID.in(parentIds))
+            .orderBy(TEMPLATE_BINDING.TYPE)
+            .fetch());
+      } catch (Exception e) {
+        throw new ManagerException(e);
+      }
     else
-      return modelsFrom(TemplateBinding.class, sqlStoreProvider.getDSL().select(TEMPLATE_BINDING.fields())
-        .from(TEMPLATE_BINDING)
-        .join(TEMPLATE).on(TEMPLATE.ID.eq(TEMPLATE_BINDING.TEMPLATE_ID))
-        .where(TEMPLATE_BINDING.TEMPLATE_ID.in(parentIds))
-        .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
-        .orderBy(TEMPLATE_BINDING.TYPE)
-        .fetch());
+      try (
+        var selectTemplateBinding = sqlStoreProvider.getDSL().select(TEMPLATE_BINDING.fields());
+        var joinTemplate = selectTemplateBinding
+          .from(TEMPLATE_BINDING)
+          .join(TEMPLATE).on(TEMPLATE.ID.eq(TEMPLATE_BINDING.TEMPLATE_ID))
+      ) {
+        return modelsFrom(TemplateBinding.class,
+          joinTemplate
+            .where(TEMPLATE_BINDING.TEMPLATE_ID.in(parentIds))
+            .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
+            .orderBy(TEMPLATE_BINDING.TYPE)
+            .fetch());
+      } catch (Exception e) {
+        throw new ManagerException(e);
+      }
+
   }
 
   @Override
@@ -108,16 +136,30 @@ public class TemplateBindingManagerImpl extends HubPersistenceServiceImpl implem
    */
   private TemplateBinding readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     if (access.isTopLevel())
-      return modelFrom(TemplateBinding.class, db.selectFrom(TEMPLATE_BINDING)
-        .where(TEMPLATE_BINDING.ID.eq(id))
-        .fetchOne());
+      try (var selectTemplateBinding = db.selectFrom(TEMPLATE_BINDING)) {
+        return modelFrom(TemplateBinding.class,
+          selectTemplateBinding
+            .where(TEMPLATE_BINDING.ID.eq(id))
+            .fetchOne());
+      } catch (Exception e) {
+        throw new ManagerException(e);
+      }
+
     else
-      return modelFrom(TemplateBinding.class, db.select(TEMPLATE_BINDING.fields())
-        .from(TEMPLATE_BINDING)
-        .join(TEMPLATE).on(TEMPLATE.ID.eq(TEMPLATE_BINDING.TEMPLATE_ID))
-        .where(TEMPLATE_BINDING.ID.eq(id))
-        .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
-        .fetchOne());
+      try (
+        var selectTemplateBinding = db.select(TEMPLATE_BINDING.fields());
+        var joinTemplate = selectTemplateBinding
+          .from(TEMPLATE_BINDING)
+          .join(TEMPLATE).on(TEMPLATE.ID.eq(TEMPLATE_BINDING.TEMPLATE_ID))
+      ) {
+        return modelFrom(TemplateBinding.class,
+          joinTemplate
+            .where(TEMPLATE_BINDING.ID.eq(id))
+            .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
+            .fetchOne());
+      } catch (Exception e) {
+        throw new ManagerException(e);
+      }
   }
 
   /**
@@ -129,15 +171,19 @@ public class TemplateBindingManagerImpl extends HubPersistenceServiceImpl implem
    * @throws ManagerException if parent does not exist
    */
   private void requireParentExists(DSLContext db, HubAccess access, TemplateBinding entity) throws ManagerException {
-    if (access.isTopLevel())
-      requireExists("Template", db.selectCount().from(TEMPLATE)
-        .where(TEMPLATE.ID.eq(entity.getTemplateId()))
-        .fetchOne(0, int.class));
-    else
-      requireExists("Template", db.selectCount().from(TEMPLATE)
-        .where(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
-        .and(TEMPLATE.ID.eq(entity.getTemplateId()))
-        .fetchOne(0, int.class));
+    try (var selectCount = db.selectCount()) {
+      if (access.isTopLevel())
+        requireExists("Template", selectCount.from(TEMPLATE)
+          .where(TEMPLATE.ID.eq(entity.getTemplateId()))
+          .fetchOne(0, int.class));
+      else
+        requireExists("Template", selectCount.from(TEMPLATE)
+          .where(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
+          .and(TEMPLATE.ID.eq(entity.getTemplateId()))
+          .fetchOne(0, int.class));
+    } catch (Exception e) {
+      throw new ManagerException(e);
+    }
   }
 
   /**

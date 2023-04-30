@@ -20,7 +20,7 @@ import java.util.UUID;
  */
 @Component
 public class AppEnvironment {
-  public static final String FABRICATION_PREVIEW_USER_ID = "FABRICATION_PREVIEW_USER_ID";
+  public static final String FABRICATION_PREVIEW_TEMPLATE_ID = "FABRICATION_PREVIEW_TEMPLATE_ID";
   private static final Logger LOG = LoggerFactory.getLogger(AppEnvironment.class);
   private static final int SECONDS_PER_HOUR = 60 * 60;
   private static final String WORK_ENV_NAME_PRODUCTION = "Production";
@@ -41,7 +41,7 @@ public class AppEnvironment {
   private final String awsSecretKey;
   private final String awsSecretName;
   private final String awsSnsTopicArn;
-  private final String fabricationPreviewUserId;
+  private final String fabricationPreviewTemplateId;
   private final String gcpCloudSqlInstance;
   private final String gcpCloudSqlSocketFactory;
   private final String gcpProjectId;
@@ -156,7 +156,7 @@ public class AppEnvironment {
     chainStartInFutureSeconds = readInt(vars, "CHAIN_START_IN_FUTURE_SECONDS", 0);
     fabricationChainThresholdFabricatedBehindSeconds = readInt(vars, "FABRICATION_CHAIN_THRESHOLD_FABRICATED_BEHIND_SECONDS", 15);
     fabricationPreviewLengthMaxHours = readInt(vars, "FABRICATION_PREVIEW_LENGTH_MAX_HOURS", 2);
-    fabricationPreviewUserId = readStr(vars, FABRICATION_PREVIEW_USER_ID, EMPTY);
+    fabricationPreviewTemplateId = readStr(vars, FABRICATION_PREVIEW_TEMPLATE_ID, EMPTY);
     hostname = readStr(vars, "HOSTNAME", "localhost");
     httpClientPoolMaxPerRoute = readInt(vars, "HTTP_CLIENT_POOL_MAX_PER_ROUTE", 20);
     httpClientPoolMaxTotal = readInt(vars, "HTTP_CLIENT_POOL_MAX_TOTAL", 200);
@@ -509,10 +509,10 @@ public class AppEnvironment {
    *
    * @return the user id for which we ought to fabricate a preview chain
    */
-  public Optional<UUID> getFabricationPreviewUserId() {
-    if (Strings.isNullOrEmpty(fabricationPreviewUserId)) return Optional.empty();
+  public Optional<UUID> getFabricationPreviewTemplateId() {
+    if (Strings.isNullOrEmpty(fabricationPreviewTemplateId)) return Optional.empty();
     try {
-      return Optional.of(UUID.fromString(fabricationPreviewUserId));
+      return Optional.of(UUID.fromString(fabricationPreviewTemplateId));
     } catch (Exception e) {
       return Optional.empty();
     }

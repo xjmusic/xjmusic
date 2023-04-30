@@ -7,9 +7,12 @@ import com.google.common.collect.Lists;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.TemplateType;
-import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
-import io.xj.hub.tables.pojos.*;
+import io.xj.hub.persistence.HubSqlStoreProvider;
+import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.hub.tables.pojos.TemplatePlayback;
+import io.xj.hub.tables.pojos.TemplatePublication;
 import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
@@ -32,7 +35,9 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.xj.hub.Tables.*;
+import static io.xj.hub.Tables.TEMPLATE;
+import static io.xj.hub.Tables.TEMPLATE_BINDING;
+import static io.xj.hub.Tables.TEMPLATE_PLAYBACK;
 import static io.xj.hub.tables.Account.ACCOUNT;
 
 @Service
@@ -65,16 +70,24 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl implements Te
     var db = sqlStoreProvider.getDSL();
 
     if (!access.isTopLevel())
-      requireExists("Account",
-        db.selectCount().from(ACCOUNT)
-          .where(ACCOUNT.ID.in(access.getAccountIds()))
-          .fetchOne(0, int.class));
+      try (var selectCount = db.selectCount()) {
+        requireExists("Account",
+          selectCount.from(ACCOUNT)
+            .where(ACCOUNT.ID.in(access.getAccountIds()))
+            .fetchOne(0, int.class));
+      } catch (Exception e) {
+        throw new ManagerException(e);
+      }
 
-    requireNotExists("Template with same Ship key",
-      db.selectCount().from(TEMPLATE)
-        .where(TEMPLATE.SHIP_KEY.eq(entity.getShipKey()))
-        .and(TEMPLATE.IS_DELETED.eq(false))
-        .fetchOne(0, int.class));
+    try (var selectCount = db.selectCount()) {
+      requireNotExists("Template with same Ship key",
+        selectCount.from(TEMPLATE)
+          .where(TEMPLATE.SHIP_KEY.eq(entity.getShipKey()))
+          .and(TEMPLATE.IS_DELETED.eq(false))
+          .fetchOne(0, int.class));
+    } catch (Exception e) {
+      throw new ManagerException(e);
+    }
 
     return modelFrom(Template.class, executeCreate(sqlStoreProvider.getDSL(), TEMPLATE, record));
   }
@@ -128,17 +141,26 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl implements Te
   public Optional<Template> readOneByShipKey(HubAccess access, String rawShipKey) throws ManagerException {
     String key = Text.toShipKey(rawShipKey);
     if (access.isTopLevel())
-      return Optional.ofNullable(modelFrom(Template.class, sqlStoreProvider.getDSL().selectFrom(TEMPLATE)
-        .where(TEMPLATE.SHIP_KEY.eq(key))
-        .and(TEMPLATE.IS_DELETED.eq(false))
-        .fetchOne()));
+      try (var selectFromTemplate = sqlStoreProvider.getDSL().selectFrom(TEMPLATE)) {
+        return Optional.ofNullable(modelFrom(Template.class, selectFromTemplate
+          .where(TEMPLATE.SHIP_KEY.eq(key))
+          .and(TEMPLATE.IS_DELETED.eq(false))
+          .fetchOne()));
+      } catch (Exception e) {
+        throw new ManagerException(e);
+      }
     else
-      return Optional.ofNullable(modelFrom(Template.class, sqlStoreProvider.getDSL().select(TEMPLATE.fields())
-        .from(TEMPLATE)
-        .where(TEMPLATE.SHIP_KEY.eq(key))
-        .and(TEMPLATE.IS_DELETED.eq(false))
-        .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
-        .fetchOne()));
+      try (var selectTemplate = sqlStoreProvider.getDSL().select(TEMPLATE.fields())) {
+        return Optional.ofNullable(modelFrom(Template.class,
+          selectTemplate
+            .from(TEMPLATE)
+            .where(TEMPLATE.SHIP_KEY.eq(key))
+            .and(TEMPLATE.IS_DELETED.eq(false))
+            .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
+            .fetchOne()));
+      } catch (Exception e) {
+        throw new ManagerException(e);
+      }
   }
 
   @Override
@@ -146,12 +168,18 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl implements Te
     requireTopLevel(access);
     DSLContext db = sqlStoreProvider.getDSL();
 
-    return modelsFrom(Template.class, db.select(TEMPLATE.fields())
-      .from(TEMPLATE)
-      .join(TEMPLATE_PLAYBACK).on(TEMPLATE.ID.eq(TEMPLATE_PLAYBACK.TEMPLATE_ID))
-      .where(TEMPLATE_PLAYBACK.CREATED_AT.greaterThan(Timestamp.from(Instant.now().minusSeconds(playbackExpireSeconds)).toLocalDateTime()))
-      .and(TEMPLATE.IS_DELETED.eq(false))
-      .fetch());
+    try (var selectTemplate = db.select(TEMPLATE.fields());
+         var joinTemplatePlayback = selectTemplate
+           .from(TEMPLATE)
+           .join(TEMPLATE_PLAYBACK).on(TEMPLATE.ID.eq(TEMPLATE_PLAYBACK.TEMPLATE_ID))) {
+      return modelsFrom(Template.class,
+        joinTemplatePlayback
+          .where(TEMPLATE_PLAYBACK.CREATED_AT.greaterThan(Timestamp.from(Instant.now().minusSeconds(playbackExpireSeconds)).toLocalDateTime()))
+          .and(TEMPLATE.IS_DELETED.eq(false))
+          .fetch());
+    } catch (Exception e) {
+      throw new ManagerException(e);
+    }
   }
 
   @Override
@@ -182,15 +210,20 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl implements Te
     requireTopLevel(access);
     DSLContext db = sqlStoreProvider.getDSL();
 
-    var record = db.select(TEMPLATE.fields())
-      .from(TEMPLATE)
-      .join(TEMPLATE_PLAYBACK).on(TEMPLATE.ID.eq(TEMPLATE_PLAYBACK.TEMPLATE_ID))
-      .where(TEMPLATE_PLAYBACK.CREATED_AT.greaterThan(Timestamp.from(Instant.now().minusSeconds(playbackExpireSeconds)).toLocalDateTime()))
-      .and(TEMPLATE_PLAYBACK.USER_ID.eq(userId))
-      .and(TEMPLATE.IS_DELETED.eq(false))
-      .fetchOne();
-    if (Objects.isNull(record)) return Optional.empty();
-    return Optional.of(modelFrom(Template.class, record));
+    try (var selectTemplate = db.select(TEMPLATE.fields());
+         var joinTemplatePlayback = selectTemplate.from(TEMPLATE)
+           .join(TEMPLATE_PLAYBACK).on(TEMPLATE.ID.eq(TEMPLATE_PLAYBACK.TEMPLATE_ID))) {
+      var record =
+        joinTemplatePlayback
+          .where(TEMPLATE_PLAYBACK.CREATED_AT.greaterThan(Timestamp.from(Instant.now().minusSeconds(playbackExpireSeconds)).toLocalDateTime()))
+          .and(TEMPLATE_PLAYBACK.USER_ID.eq(userId))
+          .and(TEMPLATE.IS_DELETED.eq(false))
+          .fetchOne();
+      if (Objects.isNull(record)) return Optional.empty();
+      return Optional.of(modelFrom(Template.class, record));
+    } catch (Exception e) {
+      throw new ManagerException(e);
+    }
   }
 
   @Override
@@ -200,34 +233,37 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl implements Te
 
   @Override
   public Collection<Template> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
-    if (Objects.nonNull(parentIds) && !parentIds.isEmpty()) {
-      if (access.isTopLevel())
-        return modelsFrom(Template.class, sqlStoreProvider.getDSL().select(TEMPLATE.fields())
-          .from(TEMPLATE)
-          .where(TEMPLATE.ACCOUNT_ID.in(parentIds))
-          .and(TEMPLATE.IS_DELETED.eq(false))
-          .fetch());
-      else
-        return modelsFrom(Template.class, sqlStoreProvider.getDSL().select(TEMPLATE.fields())
-          .from(TEMPLATE)
-          .where(TEMPLATE.ACCOUNT_ID.in(parentIds))
-          .and(TEMPLATE.IS_DELETED.eq(false))
-          .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
-          .fetch());
-    } else {
-      if (access.isTopLevel())
-        return modelsFrom(Template.class, sqlStoreProvider.getDSL().select(TEMPLATE.fields())
-          .from(TEMPLATE)
-          .where(TEMPLATE.IS_DELETED.eq(false))
-          .fetch());
-      else
-        return modelsFrom(Template.class, sqlStoreProvider.getDSL().select(TEMPLATE.fields())
-          .from(TEMPLATE)
-          .where(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
-          .and(TEMPLATE.IS_DELETED.eq(false))
-          .fetch());
+    try (var selectTemplate = sqlStoreProvider.getDSL().select(TEMPLATE.fields())) {
+      if (Objects.nonNull(parentIds) && !parentIds.isEmpty()) {
+        if (access.isTopLevel())
+          return modelsFrom(Template.class, selectTemplate
+            .from(TEMPLATE)
+            .where(TEMPLATE.ACCOUNT_ID.in(parentIds))
+            .and(TEMPLATE.IS_DELETED.eq(false))
+            .fetch());
+        else
+          return modelsFrom(Template.class, selectTemplate
+            .from(TEMPLATE)
+            .where(TEMPLATE.ACCOUNT_ID.in(parentIds))
+            .and(TEMPLATE.IS_DELETED.eq(false))
+            .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
+            .fetch());
+      } else {
+        if (access.isTopLevel())
+          return modelsFrom(Template.class, selectTemplate
+            .from(TEMPLATE)
+            .where(TEMPLATE.IS_DELETED.eq(false))
+            .fetch());
+        else
+          return modelsFrom(Template.class, selectTemplate
+            .from(TEMPLATE)
+            .where(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
+            .and(TEMPLATE.IS_DELETED.eq(false))
+            .fetch());
+      }
+    } catch (Exception e) {
+      throw new ManagerException(e);
     }
-
   }
 
   @Override
@@ -241,29 +277,42 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl implements Te
 
     var db = sqlStoreProvider.getDSL();
 
-    if (!access.isTopLevel()) {
-      requireExists("Template",
-        db.selectCount().from(TEMPLATE)
-          .where(TEMPLATE.ID.eq(id))
-          .and(TEMPLATE.IS_DELETED.eq(false))
-          .fetchOne(0, int.class));
-      requireExists("Account",
-        db.selectCount().from(ACCOUNT)
-          .where(ACCOUNT.ID.in(access.getAccountIds()))
-          .fetchOne(0, int.class));
+    try (
+      var selectTemplateCount = db.selectCount();
+      var selectAccountCount = db.selectCount()
+    ) {
+      if (!access.isTopLevel()) {
+        requireExists("Template",
+          selectTemplateCount.from(TEMPLATE)
+            .where(TEMPLATE.ID.eq(id))
+            .and(TEMPLATE.IS_DELETED.eq(false))
+            .fetchOne(0, int.class));
+        requireExists("Account",
+          selectAccountCount.from(ACCOUNT)
+            .where(ACCOUNT.ID.in(access.getAccountIds()))
+            .fetchOne(0, int.class));
+      } else {
+        requireExists("Account",
+          selectAccountCount.from(ACCOUNT)
+            .where(ACCOUNT.ID.eq(record.getAccountId()))
+            .fetchOne(0, int.class));
+      }
+    } catch (Exception e) {
+      throw new ManagerException(e);
     }
 
-    requireExists("Account",
-      db.selectCount().from(ACCOUNT)
-        .where(ACCOUNT.ID.eq(record.getAccountId()))
-        .fetchOne(0, int.class));
-
-    requireNotExists("Template with same Ship key",
-      db.selectCount().from(TEMPLATE)
-        .where(TEMPLATE.SHIP_KEY.eq(record.getShipKey()))
-        .and(TEMPLATE.ID.ne(record.getId()))
-        .and(TEMPLATE.IS_DELETED.eq(false))
-        .fetchOne(0, int.class));
+    try (
+      var selectTemplateCount = db.selectCount()
+    ) {
+      requireNotExists("Template with same Ship key",
+        selectTemplateCount.from(TEMPLATE)
+          .where(TEMPLATE.SHIP_KEY.eq(record.getShipKey()))
+          .and(TEMPLATE.ID.ne(record.getId()))
+          .and(TEMPLATE.IS_DELETED.eq(false))
+          .fetchOne(0, int.class));
+    } catch (Exception e) {
+      throw new ManagerException(e);
+    }
 
     executeUpdate(sqlStoreProvider.getDSL(), TEMPLATE, id, record);
     return record;
@@ -277,10 +326,13 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl implements Te
     if (!TemplateType.Preview.equals(exists.getType()))
       requireTopLevel(access);
 
-    db.update(TEMPLATE)
-      .set(TEMPLATE.IS_DELETED, true)
-      .where(TEMPLATE.ID.eq(id))
-      .execute();
+    try (var updateTemplate = db.update(TEMPLATE)
+      .set(TEMPLATE.IS_DELETED, true)) {
+      updateTemplate.where(TEMPLATE.ID.eq(id))
+        .execute();
+    } catch (Exception e) {
+      throw new ManagerException(e);
+    }
   }
 
   @Override
@@ -339,17 +391,25 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl implements Te
    */
   private Template readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     if (access.isTopLevel())
-      return modelFrom(Template.class, db.selectFrom(TEMPLATE)
-        .where(TEMPLATE.ID.eq(id))
-        .and(TEMPLATE.IS_DELETED.eq(false))
-        .fetchOne());
+      try (var selectTemplate = db.selectFrom(TEMPLATE)) {
+        return modelFrom(Template.class, selectTemplate
+          .where(TEMPLATE.ID.eq(id))
+          .and(TEMPLATE.IS_DELETED.eq(false))
+          .fetchOne());
+      } catch (Exception e) {
+        throw new ManagerException(e);
+      }
     else
-      return modelFrom(Template.class, db.select(TEMPLATE.fields())
-        .from(TEMPLATE)
-        .where(TEMPLATE.ID.eq(id))
-        .and(TEMPLATE.IS_DELETED.eq(false))
-        .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
-        .fetchOne());
+      try (var selectTemplate = db.select(TEMPLATE.fields())) {
+        return modelFrom(Template.class, selectTemplate
+          .from(TEMPLATE)
+          .where(TEMPLATE.ID.eq(id))
+          .and(TEMPLATE.IS_DELETED.eq(false))
+          .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
+          .fetchOne());
+      } catch (Exception e) {
+        throw new ManagerException(e);
+      }
   }
 
   /**
@@ -362,10 +422,14 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl implements Te
   private void requireRead(DSLContext db, HubAccess access, Collection<UUID> templateIds) throws ManagerException {
     if (!access.isTopLevel())
       for (UUID templateId : templateIds)
-        requireExists("Template", db.selectCount().from(TEMPLATE)
-          .where(TEMPLATE.ID.eq(templateId))
-          .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
-          .fetchOne(0, int.class));
+        try (var selectCount = db.selectCount()) {
+          requireExists("Template", selectCount.from(TEMPLATE)
+            .where(TEMPLATE.ID.eq(templateId))
+            .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
+            .fetchOne(0, int.class));
+        } catch (Exception e) {
+          throw new ManagerException(e);
+        }
   }
 
   /**
@@ -377,15 +441,18 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl implements Te
    * @throws ManagerException if parent does not exist
    */
   private void requireParentExists(DSLContext db, HubAccess access, Template entity) throws ManagerException {
-    if (access.isTopLevel())
-      requireExists("Account", db.selectCount().from(ACCOUNT)
-        .where(ACCOUNT.ID.eq(entity.getAccountId()))
-        .fetchOne(0, int.class));
-    else
-      requireExists("Account", db.selectCount().from(ACCOUNT)
-        .where(ACCOUNT.ID.in(access.getAccountIds()))
-        .and(ACCOUNT.ID.eq(entity.getAccountId()))
-        .fetchOne(0, int.class));
+    try (var selectCount = db.selectCount()) {
+      if (access.isTopLevel())
+        requireExists("Account", selectCount.from(ACCOUNT)
+          .where(ACCOUNT.ID.eq(entity.getAccountId()))
+          .fetchOne(0, int.class));
+      else
+        requireExists("Account", selectCount.from(ACCOUNT)
+          .where(ACCOUNT.ID.in(access.getAccountIds()))
+          .and(ACCOUNT.ID.eq(entity.getAccountId()))
+          .fetchOne(0, int.class));
+    } catch (Exception e) {
+      throw new ManagerException(e);
+    }
   }
-
 }

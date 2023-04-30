@@ -60,38 +60,43 @@ public class LibraryManagerImpl extends HubPersistenceServiceImpl implements Lib
 
   @Override
   public Collection<Library> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
-    if (Objects.nonNull(parentIds) && !parentIds.isEmpty()) {
-      if (access.isTopLevel())
-        return modelsFrom(Library.class, sqlStoreProvider.getDSL().select(LIBRARY.fields())
-          .from(LIBRARY)
-          .where(LIBRARY.ACCOUNT_ID.in(parentIds))
-          .and(LIBRARY.IS_DELETED.eq(false))
-          .fetch());
-      else
-        return modelsFrom(Library.class, sqlStoreProvider.getDSL().select(LIBRARY.fields())
-          .from(LIBRARY)
-          .where(LIBRARY.ACCOUNT_ID.in(parentIds))
-          .and(LIBRARY.IS_DELETED.eq(false))
-          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-          .fetch());
-    } else {
-      if (access.isTopLevel())
-        return modelsFrom(Library.class, sqlStoreProvider.getDSL().select(LIBRARY.fields())
-          .from(LIBRARY)
-          .where(LIBRARY.IS_DELETED.eq(false))
-          .fetch());
-      else
-        return modelsFrom(Library.class, sqlStoreProvider.getDSL().select(LIBRARY.fields())
-          .from(LIBRARY)
-          .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-          .and(LIBRARY.IS_DELETED.eq(false))
-          .fetch());
+    try (var selectLibrary = sqlStoreProvider.getDSL().select(LIBRARY.fields())) {
+      if (Objects.nonNull(parentIds) && !parentIds.isEmpty()) {
+        if (access.isTopLevel())
+          return modelsFrom(Library.class, selectLibrary
+            .from(LIBRARY)
+            .where(LIBRARY.ACCOUNT_ID.in(parentIds))
+            .and(LIBRARY.IS_DELETED.eq(false))
+            .fetch());
+        else
+          return modelsFrom(Library.class, selectLibrary
+            .from(LIBRARY)
+            .where(LIBRARY.ACCOUNT_ID.in(parentIds))
+            .and(LIBRARY.IS_DELETED.eq(false))
+            .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+            .fetch());
+      } else {
+        if (access.isTopLevel())
+          return modelsFrom(Library.class, selectLibrary
+            .from(LIBRARY)
+            .where(LIBRARY.IS_DELETED.eq(false))
+            .fetch());
+        else
+          return modelsFrom(Library.class, selectLibrary
+            .from(LIBRARY)
+            .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+            .and(LIBRARY.IS_DELETED.eq(false))
+            .fetch());
+      }
+    } catch (Exception e) {
+      throw new ManagerException(e);
     }
-
   }
 
   @Override
   public Library update(HubAccess access, UUID id, Library rawLibrary) throws ManagerException, JsonapiException, ValueException {
+    DSLContext db = sqlStoreProvider.getDSL();
+
     Library record = validate(rawLibrary);
     try {
       Entities.setId(record, id); //prevent changing id
@@ -99,19 +104,27 @@ public class LibraryManagerImpl extends HubPersistenceServiceImpl implements Lib
       throw new ManagerException(e);
     }
 
-    if (!access.isTopLevel()) {
-      requireExists("Library",
-        sqlStoreProvider.getDSL().selectCount().from(LIBRARY)
-          .where(LIBRARY.ID.eq(id))
-          .and(LIBRARY.IS_DELETED.eq(false))
-          .fetchOne(0, int.class));
-      requireExists("Account",
-        sqlStoreProvider.getDSL().selectCount().from(ACCOUNT)
-          .where(ACCOUNT.ID.in(access.getAccountIds()))
-          .fetchOne(0, int.class));
-    }
+    if (!access.isTopLevel())
+      try (
+        var selectLibraryCount = db.selectCount();
+        var selectAccountCount = db.selectCount()
+      ) {
+        requireExists("Library",
+          selectLibraryCount
+            .from(LIBRARY)
+            .where(LIBRARY.ID.eq(id))
+            .and(LIBRARY.IS_DELETED.eq(false))
+            .fetchOne(0, int.class));
+        requireExists("Account",
+          selectAccountCount
+            .from(ACCOUNT)
+            .where(ACCOUNT.ID.in(access.getAccountIds()))
+            .fetchOne(0, int.class));
+      } catch (Exception e) {
+        throw new ManagerException(e);
+      }
 
-    executeUpdate(sqlStoreProvider.getDSL(), LIBRARY, id, record);
+    executeUpdate(db, LIBRARY, id, record);
     return record;
   }
 
@@ -121,10 +134,14 @@ public class LibraryManagerImpl extends HubPersistenceServiceImpl implements Lib
 
     requireAny(access, UserRoleType.Artist, UserRoleType.Engineer);
 
-    db.update(LIBRARY)
-      .set(LIBRARY.IS_DELETED, true)
-      .where(LIBRARY.ID.eq(id))
-      .execute();
+    try (var updateLibrary = db.update(LIBRARY)
+      .set(LIBRARY.IS_DELETED, true)) {
+      updateLibrary
+        .where(LIBRARY.ID.eq(id))
+        .execute();
+    } catch (Exception e) {
+      throw new ManagerException(e);
+    }
   }
 
   @Override
@@ -133,10 +150,10 @@ public class LibraryManagerImpl extends HubPersistenceServiceImpl implements Lib
   }
 
   /**
-   * Validate a library record
-   *
-   * @param record to validate
-   * @throws ManagerException if invalid
+   Validate a library record
+
+   @param record to validate
+   @throws ManagerException if invalid
    */
   public Library validate(Library record) throws ManagerException {
     try {
@@ -195,26 +212,37 @@ public class LibraryManagerImpl extends HubPersistenceServiceImpl implements Lib
 
   private void requireParentExists(DSLContext db, HubAccess access, Library library) throws ManagerException {
     if (!access.isTopLevel())
-      requireExists("Account",
-        db.selectCount().from(ACCOUNT)
-          .where(ACCOUNT.ID.in(access.getAccountIds()))
-          .and(ACCOUNT.ID.eq(library.getAccountId()))
-          .fetchOne(0, int.class));
+      try (var selectCount = db.selectCount()) {
+        requireExists("Account",
+          selectCount.from(ACCOUNT)
+            .where(ACCOUNT.ID.in(access.getAccountIds()))
+            .and(ACCOUNT.ID.eq(library.getAccountId()))
+            .fetchOne(0, int.class));
+      } catch (Exception e) {
+        throw new ManagerException(e);
+      }
   }
 
   private Library readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     if (access.isTopLevel())
-      return modelFrom(Library.class, db.selectFrom(LIBRARY)
-        .where(LIBRARY.ID.eq(id))
-        .and(LIBRARY.IS_DELETED.eq(false))
-        .fetchOne());
+      try (var selectLibrary = db.selectFrom(LIBRARY)) {
+        return modelFrom(Library.class, selectLibrary
+          .where(LIBRARY.ID.eq(id))
+          .and(LIBRARY.IS_DELETED.eq(false))
+          .fetchOne());
+      } catch (Exception e) {
+        throw new ManagerException(e);
+      }
     else
-      return modelFrom(Library.class, db.select(LIBRARY.fields())
-        .from(LIBRARY)
-        .where(LIBRARY.ID.eq(id))
-        .and(LIBRARY.IS_DELETED.eq(false))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-        .fetchOne());
+      try (var selectLibrary = db.select(LIBRARY.fields())) {
+        return modelFrom(Library.class, selectLibrary
+          .from(LIBRARY)
+          .where(LIBRARY.ID.eq(id))
+          .and(LIBRARY.IS_DELETED.eq(false))
+          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+          .fetchOne());
+      } catch (Exception e) {
+        throw new ManagerException(e);
+      }
   }
-
 }

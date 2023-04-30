@@ -120,7 +120,7 @@ public class NexusWorkImpl implements NexusWork {
   @Nullable
   private final String shipKey;
   @Nullable
-  private final UUID labUserId;
+  private final UUID fabricationPreviewTemplateId;
   private Instant labPollNext;
   private Instant yardPollNext;
   private NexusWorkImpl.State state;
@@ -185,7 +185,7 @@ public class NexusWorkImpl implements NexusWork {
     mode = Strings.isNullOrEmpty(shipKey) ? Lab : NexusWorkImpl.Mode.Yard;
     state = NexusWorkImpl.State.Init;
 
-    labUserId = env.getFabricationPreviewUserId().orElse(null);
+    fabricationPreviewTemplateId = env.getFabricationPreviewTemplateId().orElse(null);
 
     // Telemetry: # Segments Erased
     METRIC_FABRICATED_AHEAD_SECONDS = telemetryProvider.gauge("fabricated_ahead_seconds", "Fabricated Ahead Seconds", "s");
@@ -252,7 +252,7 @@ public class NexusWorkImpl implements NexusWork {
     if (Instant.now().isAfter(labPollNext)) {
       state = State.Loading;
       labPollNext = Instant.now().plusSeconds(labPollSeconds);
-      if (maintainPreviewChain())
+      if (maintainPreviewTemplate())
         state = State.Active;
       else
         state = State.Fail;
@@ -628,20 +628,17 @@ public class NexusWorkImpl implements NexusWork {
   }
 
   /**
-   Maintain a chain for a single user
-   <p>
-   Lab/Hub connects to k8s to manage a personal workload for preview templates
-   https://www.pivotaltracker.com/story/show/183576743
+   Maintain a single preview template by id
 
    @return true if all is well, false if something has failed
    */
-  private boolean maintainPreviewChain() {
+  private boolean maintainPreviewTemplate() {
     Optional<Template> template;
-    if (Objects.isNull(labUserId)) return false;
+    if (Objects.isNull(fabricationPreviewTemplateId)) return false;
     try {
-      template = hubClient.readPreviewTemplate(labUserId);
+      template = hubClient.readPreviewTemplate(fabricationPreviewTemplateId);
     } catch (HubClientException e) {
-      LOG.error("Failed to read preview template for User[{}] from Hub because {}", labUserId, e.getMessage());
+      LOG.error("Failed to read preview Template[{}] from Hub because {}", fabricationPreviewTemplateId, e.getMessage());
       return false;
     }
 

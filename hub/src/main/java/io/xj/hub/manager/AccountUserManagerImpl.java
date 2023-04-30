@@ -31,39 +31,51 @@ public class AccountUserManagerImpl extends HubPersistenceServiceImpl implements
     validate(entity);
     requireTopLevel(access);
 
-    if (null != sqlStoreProvider.getDSL().selectFrom(ACCOUNT_USER)
-      .where(ACCOUNT_USER.ACCOUNT_ID.eq(entity.getAccountId()))
-      .and(ACCOUNT_USER.USER_ID.eq(entity.getUserId()))
-      .fetchOne())
-      throw new ManagerException("Account User already exists!");
+    try (var selectAccountUser = sqlStoreProvider.getDSL().selectFrom(ACCOUNT_USER)) {
+      if (null != selectAccountUser
+        .where(ACCOUNT_USER.ACCOUNT_ID.eq(entity.getAccountId()))
+        .and(ACCOUNT_USER.USER_ID.eq(entity.getUserId()))
+        .fetchOne())
+        throw new ManagerException("Account User already exists!");
+    } catch (Exception e) {
+      throw new ManagerException(e);
+    }
 
     return modelFrom(AccountUser.class, executeCreate(sqlStoreProvider.getDSL(), ACCOUNT_USER, entity));
   }
 
   @Override
   public AccountUser readOne(HubAccess access, UUID id) throws ManagerException {
-    if (access.isTopLevel())
-      return modelFrom(AccountUser.class, sqlStoreProvider.getDSL().selectFrom(ACCOUNT_USER)
-        .where(ACCOUNT_USER.ID.eq(id))
-        .fetchOne());
-    else
-      return modelFrom(AccountUser.class, sqlStoreProvider.getDSL().selectFrom(ACCOUNT_USER)
-        .where(ACCOUNT_USER.ID.eq(id))
-        .and(ACCOUNT_USER.ACCOUNT_ID.in(access.getAccountIds()))
-        .fetchOne());
+    try (var selectAccountUser = sqlStoreProvider.getDSL().selectFrom(ACCOUNT_USER)) {
+      if (access.isTopLevel())
+        return modelFrom(AccountUser.class, selectAccountUser
+          .where(ACCOUNT_USER.ID.eq(id))
+          .fetchOne());
+      else
+        return modelFrom(AccountUser.class, selectAccountUser
+          .where(ACCOUNT_USER.ID.eq(id))
+          .and(ACCOUNT_USER.ACCOUNT_ID.in(access.getAccountIds()))
+          .fetchOne());
+    } catch (Exception e) {
+      throw new ManagerException(e);
+    }
   }
 
   @Override
   public Collection<AccountUser> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
-    if (access.isTopLevel())
-      return modelsFrom(AccountUser.class, sqlStoreProvider.getDSL().selectFrom(ACCOUNT_USER)
-        .where(ACCOUNT_USER.ACCOUNT_ID.in(parentIds))
-        .fetch());
-    else
-      return modelsFrom(AccountUser.class, sqlStoreProvider.getDSL().selectFrom(ACCOUNT_USER)
-        .where(ACCOUNT_USER.ACCOUNT_ID.in(parentIds))
-        .and(ACCOUNT_USER.ACCOUNT_ID.in(access.getAccountIds()))
-        .fetch());
+    try (var selectAccountUser = sqlStoreProvider.getDSL().selectFrom(ACCOUNT_USER)) {
+      if (access.isTopLevel())
+        return modelsFrom(AccountUser.class, selectAccountUser
+          .where(ACCOUNT_USER.ACCOUNT_ID.in(parentIds))
+          .fetch());
+      else
+        return modelsFrom(AccountUser.class, selectAccountUser
+          .where(ACCOUNT_USER.ACCOUNT_ID.in(parentIds))
+          .and(ACCOUNT_USER.ACCOUNT_ID.in(access.getAccountIds()))
+          .fetch());
+    } catch (Exception e) {
+      throw new ManagerException(e);
+    }
   }
 
   @Override
@@ -74,9 +86,13 @@ public class AccountUserManagerImpl extends HubPersistenceServiceImpl implements
   @Override
   public void destroy(HubAccess access, UUID id) throws ManagerException {
     requireTopLevel(access);
-    sqlStoreProvider.getDSL().deleteFrom(ACCOUNT_USER)
-      .where(ACCOUNT_USER.ID.eq(id))
-      .execute();
+    try (var selectAccountUser = sqlStoreProvider.getDSL().deleteFrom(ACCOUNT_USER)) {
+      selectAccountUser
+        .where(ACCOUNT_USER.ID.eq(id))
+        .execute();
+    } catch (Exception e) {
+      throw new ManagerException(e);
+    }
   }
 
   @Override
@@ -86,10 +102,10 @@ public class AccountUserManagerImpl extends HubPersistenceServiceImpl implements
 
 
   /**
-   * Validate data
-   *
-   * @param record to validate
-   * @throws ManagerException if invalid
+   Validate data
+
+   @param record to validate
+   @throws ManagerException if invalid
    */
   public void validate(AccountUser record) throws ManagerException {
     try {

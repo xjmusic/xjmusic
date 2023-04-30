@@ -259,7 +259,7 @@ public class UserManagerImpl extends HubPersistenceServiceImpl implements UserMa
         accounts = Lists.newArrayList();
         userAuth = newUserAuth(db, user.getId().toString(), authType, account, externalAccessToken, externalRefreshToken);
       } catch (Exception e) {
-        throw new ManagerException("SQL Exception", e);
+        throw new ManagerException(e);
       }
     }
 
@@ -272,7 +272,7 @@ public class UserManagerImpl extends HubPersistenceServiceImpl implements UserMa
       return accessToken;
 
     } catch (HubAccessException e) {
-      throw new ManagerException("Cannot authenticate!", e);
+      throw new ManagerException(e);
     }
   }
 
@@ -441,7 +441,7 @@ public class UserManagerImpl extends HubPersistenceServiceImpl implements UserMa
         .execute();
       log.info("Deleted UserAuthToken, id={}, userId={}, userAuthId={}, accessToken={}", userAccessToken.getId(), userAccessToken.getUserId(), userAccessToken.getUserAuthId(), userAccessToken.getAccessToken());
     } catch (HubAccessException e) {
-      throw new ManagerException("Cannot destroy token!", e);
+      throw new ManagerException(e);
     }
   }
 

@@ -39,31 +39,37 @@ public class AccountManagerImpl extends HubPersistenceServiceImpl implements Acc
 
   @Override
   public Account readOne(HubAccess access, UUID id) throws ManagerException {
-    if (access.isTopLevel())
-      return modelFrom(Account.class,
-        sqlStoreProvider.getDSL().selectFrom(Tables.ACCOUNT)
+    try (var selectAccount = sqlStoreProvider.getDSL().selectFrom(Tables.ACCOUNT)) {
+      if (access.isTopLevel())
+        return modelFrom(Account.class, selectAccount
           .where(Tables.ACCOUNT.ID.eq(id))
           .fetchOne());
-    else
-      return modelFrom(Account.class,
-        sqlStoreProvider.getDSL().select(Tables.ACCOUNT.fields())
-          .from(Tables.ACCOUNT)
-          .where(Tables.ACCOUNT.ID.eq(id))
-          .and(Tables.ACCOUNT.ID.in(access.getAccountIds()))
-          .fetchOne());
+      else return modelFrom(Account.class, selectAccount
+        .where(Tables.ACCOUNT.ID.eq(id))
+        .and(Tables.ACCOUNT.ID.in(access.getAccountIds()))
+        .fetchOne());
+
+    } catch (Exception e) {
+      throw new ManagerException(e);
+    }
   }
 
   @Override
   public Collection<Account> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
-    if (access.isTopLevel())
-      return modelsFrom(Account.class,
-        sqlStoreProvider.getDSL().selectFrom(Tables.ACCOUNT)
-          .fetch());
-    else
-      return modelsFrom(Account.class,
-        sqlStoreProvider.getDSL().selectFrom(Tables.ACCOUNT)
-          .where(Tables.ACCOUNT.ID.in(access.getAccountIds()))
-          .fetch());
+    try (var selectAccount = sqlStoreProvider.getDSL().selectFrom(Tables.ACCOUNT)) {
+      if (access.isTopLevel())
+        return modelsFrom(Account.class,
+          selectAccount
+            .fetch());
+      else
+        return modelsFrom(Account.class,
+          selectAccount
+            .where(Tables.ACCOUNT.ID.in(access.getAccountIds()))
+            .fetch());
+
+    } catch (Exception e) {
+      throw new ManagerException(e);
+    }
   }
 
   @Override
@@ -80,27 +86,45 @@ public class AccountManagerImpl extends HubPersistenceServiceImpl implements Acc
 
     requireTopLevel(access);
 
-    requireNotExists("Account still has libraries!", db.select(Library.LIBRARY.ID)
-      .from(Library.LIBRARY)
-      .where(Library.LIBRARY.ACCOUNT_ID.eq(id))
-      .fetch());
-
-    requireNotExists("Account still has user access!", db.select(AccountUser.ACCOUNT_USER.ID)
-      .from(AccountUser.ACCOUNT_USER)
-      .where(AccountUser.ACCOUNT_USER.ACCOUNT_ID.eq(id))
-      .fetch());
-
-    db.deleteFrom(Tables.ACCOUNT)
-      .where(Tables.ACCOUNT.ID.eq(id))
-      .andNotExists(
-        db.select(Library.LIBRARY.ID)
+    try (var selectLibrary = db.select(Library.LIBRARY.ID)) {
+      requireNotExists("Account still has libraries!",
+        selectLibrary
           .from(Library.LIBRARY)
-          .where(Library.LIBRARY.ACCOUNT_ID.eq(id)))
-      .andNotExists(
-        db.select(AccountUser.ACCOUNT_USER.ID)
+          .where(Library.LIBRARY.ACCOUNT_ID.eq(id))
+          .fetch());
+    } catch (Exception e) {
+      throw new ManagerException(e);
+    }
+
+    try (var selectAccountUser = db.select(AccountUser.ACCOUNT_USER.ID)) {
+      requireNotExists("Account still has user access!",
+        selectAccountUser
           .from(AccountUser.ACCOUNT_USER)
-          .where(AccountUser.ACCOUNT_USER.ACCOUNT_ID.eq(id)))
-      .execute();
+          .where(AccountUser.ACCOUNT_USER.ACCOUNT_ID.eq(id))
+          .fetch());
+    } catch (Exception e) {
+      throw new ManagerException(e);
+    }
+
+    try (
+      var deleteAccount = db.deleteFrom(Tables.ACCOUNT);
+      var selectLibrary = db.select(Library.LIBRARY.ID);
+      var selectAccountUser = db.select(AccountUser.ACCOUNT_USER.ID)
+    ) {
+      deleteAccount
+        .where(Tables.ACCOUNT.ID.eq(id))
+        .andNotExists(
+          selectLibrary
+            .from(Library.LIBRARY)
+            .where(Library.LIBRARY.ACCOUNT_ID.eq(id)))
+        .andNotExists(
+          selectAccountUser
+            .from(AccountUser.ACCOUNT_USER)
+            .where(AccountUser.ACCOUNT_USER.ACCOUNT_ID.eq(id)))
+        .execute();
+    } catch (Exception e) {
+      throw new ManagerException(e);
+    }
   }
 
   @Override
@@ -109,10 +133,10 @@ public class AccountManagerImpl extends HubPersistenceServiceImpl implements Acc
   }
 
   /**
-   * Validate data
-   *
-   * @param record to validate
-   * @throws ManagerException if invalid
+   Validate data
+
+   @param record to validate
+   @throws ManagerException if invalid
    */
   public void validate(Account record) throws ManagerException {
     try {

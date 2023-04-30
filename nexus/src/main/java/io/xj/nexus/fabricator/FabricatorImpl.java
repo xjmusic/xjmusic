@@ -219,16 +219,6 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public void putMeta(String key, String value) throws NexusException {
-    var msg = new SegmentMeta();
-    msg.setId(UUID.randomUUID());
-    msg.setSegmentId(getSegment().getId());
-    msg.setKey(key);
-    msg.setValue(value);
-    put(msg);
-  }
-
-  @Override
   public void addErrorMessage(String body) {
     addMessage(SegmentMessageType.ERROR, body);
   }
@@ -407,14 +397,6 @@ public class FabricatorImpl implements Fabricator {
           .orElseThrow(() -> new NexusException("Failed to retrieve instrument for audio"))));
     return pickInstrumentConfigs.get(pick.getId().toString());
 
-  }
-
-  @Override
-  public NoteRange getInstrumentRange(UUID instrumentId) {
-    return NoteRange.ofNotes(sourceMaterial.getInstrumentAudios(instrumentId).stream()
-      .map(InstrumentAudio::getTones)
-      .map(Note::of)
-      .toList());
   }
 
   @Override
@@ -762,15 +744,6 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Optional<ProgramVoice> getRandomlySelectedVoiceForProgramId(UUID programId, Collection<UUID> excludeVoiceIds) {
-    var bag = MarbleBag.empty();
-    for (ProgramVoice sequenceBinding : sourceMaterial.getProgramVoices().stream().filter(programVoice -> Objects.equals(programId, programVoice.getProgramId()) && !excludeVoiceIds.contains(programVoice.getId())).toList())
-      bag.add(1, sequenceBinding.getId());
-    if (bag.isEmpty()) return Optional.empty();
-    return sourceMaterial.getProgramVoice(bag.pick());
-  }
-
-  @Override
   public Optional<ProgramSequencePattern> getRandomlySelectedPatternOfSequenceByVoiceAndType(SegmentChoice choice) {
     var bag = MarbleBag.empty();
     sourceMaterial.getProgramSequencePatterns().stream().filter(pattern -> Objects.equals(pattern.getProgramSequenceId(), choice.getProgramSequenceId())).filter(pattern -> Objects.equals(pattern.getProgramVoiceId(), choice.getProgramVoiceId())).forEach(pattern -> bag.add(1, pattern.getId()));
@@ -911,11 +884,6 @@ public class FabricatorImpl implements Fabricator {
   @Override
   public String getTrackName(ProgramSequencePatternEvent event) {
     return sourceMaterial().getTrack(event).map(ProgramVoiceTrack::getName).orElse(UNKNOWN_KEY);
-  }
-
-  @Override
-  public String getTrackName(SegmentChoiceArrangementPick pick) throws NexusException {
-    return sourceMaterial().getTrack(sourceMaterial.getProgramSequencePatternEvent(pick.getProgramSequencePatternEventId()).orElseThrow(() -> new NexusException("Failed to get event from source material for pick!"))).map(ProgramVoiceTrack::getName).orElse(UNKNOWN_KEY);
   }
 
   @Override
