@@ -95,6 +95,7 @@ public class AppEnvironment {
   private final int playbackExpireSeconds;
   private final int postgresPoolSizeMax;
   private final int postgresPort;
+  private final int serviceLogBackMinutes;
   private final int serviceLogTailLines;
   private final int shipBitrateHigh;
   private final int shipChainJsonMaxAgeSeconds;
@@ -166,6 +167,7 @@ public class AppEnvironment {
     memcacheExpirationSeconds = readInt(vars, "MEMCACHE_EXPIRATION_SECONDS", SECONDS_PER_HOUR * 24);
     serviceContainerEnvSecretRefName = readStr(vars, "SERVICE_CONTAINER_ENV_SECRET_REF_NAME", "prod.env");
     serviceLogTailLines = readInt(vars, "SERVICE_LOG_LINES", 40);
+    serviceLogBackMinutes = readInt(vars, "SERVICE_LOG_BACK_MINUTES", 5);
     serviceNamespace = readStr(vars, "SERVICE_NAMESPACE", "lab");
     platformEnvironment = readStr(vars, "ENVIRONMENT", "dev");
     playbackExpireSeconds = readInt(vars, "PLAYBACK_EXPIRE_SECONDS", SECONDS_PER_HOUR * 8);
@@ -608,27 +610,6 @@ public class AppEnvironment {
   }
 
   /**
-   * @return name of Service to attach to containers https://www.pivotaltracker.com/story/show/183576743
-   */
-  public String getServiceContainerEnvSecretRefName() {
-    return serviceContainerEnvSecretRefName;
-  }
-
-  /**
-   * @return # of lines to log from tail of Service logs of preview template workloads https://www.pivotaltracker.com/story/show/183576743
-   */
-  public int getServiceLogTailLines() {
-    return serviceLogTailLines;
-  }
-
-  /**
-   * @return the Service namespace for scheduling preview template workloads https://www.pivotaltracker.com/story/show/183576743
-   */
-  public String getServiceNamespace() {
-    return serviceNamespace;
-  }
-
-  /**
    * @return the environment, e.g. "dev" "stage" or "prod"
    */
   public String getPlatformEnvironment() {
@@ -696,6 +677,31 @@ public class AppEnvironment {
    */
   public String getPlayerBaseUrl() {
     return playerBaseURL;
+  }
+
+  /**
+   * @return name of Service to attach to containers https://www.pivotaltracker.com/story/show/183576743
+   */
+  public String getServiceContainerEnvSecretRefName() {
+    return serviceContainerEnvSecretRefName;
+  }
+
+  public int getServiceLogBackMinutes() {
+    return serviceLogBackMinutes;
+  }
+
+  /**
+   * @return # of lines to log from tail of Service logs of preview template workloads https://www.pivotaltracker.com/story/show/183576743
+   */
+  public int getServiceLogTailLines() {
+    return serviceLogTailLines;
+  }
+
+  /**
+   * @return the Service namespace for scheduling preview template workloads https://www.pivotaltracker.com/story/show/183576743
+   */
+  public String getServiceNamespace() {
+    return serviceNamespace;
   }
 
   /**

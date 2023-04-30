@@ -56,7 +56,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   private static final String RESOURCE_REQUIREMENT_DEFAULT_CPU = "2";
   private static final String RESOURCE_REQUIREMENT_KEY_MEMORY = "memory";
   private static final String RESOURCE_REQUIREMENT_DEFAULT_MEMORY = "4Gi";
-  private static final String LOG_LINE_FILTER_BEGINS_WITH = "[main] ";
+  private static final String LOG_LINE_FILTER_CONTAINS = "main]";
   private static final String LOG_LINE_REMOVE = " i.x.n.w.NexusWorkImpl ";
   private final Logger LOG = LoggerFactory.getLogger(PreviewNexusAdminImpl.class);
   private final String gcpServiceAccountEmail;
@@ -84,33 +84,35 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   private final String postgresUser;
   private final String shipBaseUrl;
   private final String shipBucket;
+  private final int logBackMinutes;
 
   public PreviewNexusAdminImpl(AppEnvironment env) {
     String envSecretRefName = env.getServiceContainerEnvSecretRefName();
     String namespace = env.getServiceNamespace();
-    logTailLines = env.getServiceLogTailLines();
-    nexusImage = env.getGcpServiceNexusImage();
-    gcpServiceAccountEmail = env.getGcpServiceAccountEmail();
-    gcpProjectId = env.getGcpProjectId();
-    gcpRegion = env.getGcpRegion();
     appBaseUrl = env.getAppBaseUrl();
     audioBaseUrl = env.getAudioBaseUrl();
     audioFileBucket = env.getAudioFileBucket();
     audioUploadUrl = env.getAudioUploadURL();
     awsAccessKeyId = env.getAwsAccessKeyID();
+    awsDefaultRegion = env.getAwsDefaultRegion();
     awsSecretKey = env.getAwsSecretKey();
     environment = env.getPlatformEnvironment();
     gcpCloudSqlInstance = env.getGcpCloudSqlInstance();
+    gcpProjectId = env.getGcpProjectId();
+    gcpRegion = env.getGcpRegion();
+    gcpServiceAccountEmail = env.getGcpServiceAccountEmail();
     googleClientId = env.getGoogleClientID();
     googleClientSecret = env.getGoogleClientSecret();
     ingestTokenValue = env.getIngestTokenValue();
+    logTailLines = env.getServiceLogTailLines();
+    logBackMinutes = env.getServiceLogBackMinutes();
+    nexusImage = env.getGcpServiceNexusImage();
     playerBaseUrl = env.getPlayerBaseUrl();
     postgresDatabase = env.getPostgresDatabase();
     postgresPass = env.getPostgresPass();
     postgresUser = env.getPostgresUser();
     shipBaseUrl = env.getShipBaseUrl();
     shipBucket = env.getShipBucket();
-    awsDefaultRegion = env.getAwsDefaultRegion();
 
     isConfigured = doConfigurationTest();
     LOG.info("Service administrator will create containers namespace={} with secretRef={}", namespace, envSecretRefName);
@@ -127,7 +129,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
       List<String> lines = Lists.newArrayList();
 
       Instant now = Instant.now();
-      Instant before = now.minus(Duration.ofMinutes(1));
+      Instant before = now.minus(Duration.ofMinutes(logBackMinutes));
 
       String filter = String.format("resource.type=\"cloud_run_revision\""
           + " AND resource.labels.service_name=\"%s\""
@@ -140,13 +142,12 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
       var entries = logging.listLogEntriesAsync(entryListOption).get();
 
       for (LogEntry logEntry : entries.iterateAll()) {
-        if (Text.beginsWith(logEntry.getPayload().getData().toString(), LOG_LINE_FILTER_BEGINS_WITH)) {
+        if (logEntry.getPayload().getData().toString().contains(LOG_LINE_FILTER_CONTAINS)) {
           lines.add(logEntry.getPayload().getData().toString());
         }
       }
 
       return String.join("\n", Values.last(logTailLines, lines).stream()
-        .map((L) -> L.substring(LOG_LINE_FILTER_BEGINS_WITH.length()))
         .map((L) -> L.replace(LOG_LINE_REMOVE, "")).toList());
     } catch (RuntimeException | InterruptedException | ExecutionException e) {
       LOG.error("Failed to get logs for preview nexus", e);
