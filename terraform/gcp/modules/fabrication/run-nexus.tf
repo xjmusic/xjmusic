@@ -156,7 +156,7 @@ resource "google_monitoring_alert_policy" "nexus_fabricated_ahead" {
     condition_threshold {
       comparison      = "COMPARISON_LT"
       duration        = "60s"
-      filter          = "resource.type = \"k8s_container\" AND metric.type = \"custom.googleapis.com/opencensus/${var.ship_key}_nexus_fabricated_ahead_seconds\""
+      filter          = "resource.type = \"gce_instance\" AND metric.type = \"custom.googleapis.com/opencensus/${var.ship_key}_nexus_fabricated_ahead_seconds\""
       threshold_value = 180
       trigger { count = 1 }
       aggregations {
@@ -179,7 +179,7 @@ resource "google_monitoring_alert_policy" "nexus_fabricating" {
     display_name = "No Data"
     condition_absent {
       duration = "300s"
-      filter   = "resource.type = \"k8s_container\" AND metric.type = \"custom.googleapis.com/opencensus/${var.ship_key}_nexus_fabricated_ahead_seconds\""
+      filter   = "resource.type = \"gce_instance\" AND metric.type = \"custom.googleapis.com/opencensus/${var.ship_key}_nexus_fabricated_ahead_seconds\""
       trigger { percent = 100 }
       aggregations {
         alignment_period   = "300s"

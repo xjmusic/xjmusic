@@ -7,6 +7,8 @@ import io.opencensus.stats.*;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.util.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +29,7 @@ import static io.xj.lib.util.Text.UNDERSCORE;
  */
 @Service
 class TelemetryProviderImpl implements TelemetryProvider {
+  private static final Logger LOG = LoggerFactory.getLogger(TelemetryProviderImpl.class);
   private static final StatsRecorder STATS_RECORDER = Stats.getStatsRecorder();
   private static final String DEFAULT_SHIP_KEY = "lab";
   private final String prefixA;
@@ -44,6 +47,7 @@ class TelemetryProviderImpl implements TelemetryProvider {
     // Globally enable or disable telemetry recording
     enabled = env.isTelemetryEnabled();
     if (!enabled) {
+      LOG.warn("Telemetry disabled!");
       return;
     }
 

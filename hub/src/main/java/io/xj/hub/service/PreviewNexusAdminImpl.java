@@ -23,6 +23,7 @@ import com.google.cloud.run.v2.UpdateServiceRequest;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.app.AppEnvironment;
+import io.xj.lib.util.Text;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 import net.logstash.logback.encoder.org.apache.commons.lang3.StringUtils;
@@ -55,6 +56,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   private static final String RESOURCE_REQUIREMENT_DEFAULT_CPU = "2";
   private static final String RESOURCE_REQUIREMENT_KEY_MEMORY = "memory";
   private static final String RESOURCE_REQUIREMENT_DEFAULT_MEMORY = "4Gi";
+  private static final String LOG_LINE_FILTER_BEGINS_WITH = "[main] ";
   private static final String LOG_LINE_REMOVE = " i.x.n.w.NexusWorkImpl ";
   private final Logger LOG = LoggerFactory.getLogger(PreviewNexusAdminImpl.class);
   private final String gcpServiceAccountEmail;
@@ -138,10 +140,13 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
       var entries = logging.listLogEntriesAsync(entryListOption).get();
 
       for (LogEntry logEntry : entries.iterateAll()) {
-        lines.add(logEntry.getPayload().getData().toString());
+        if (Text.beginsWith(logEntry.getPayload().getData().toString(), LOG_LINE_FILTER_BEGINS_WITH)) {
+          lines.add(logEntry.getPayload().getData().toString());
+        }
       }
 
       return String.join("\n", Values.last(logTailLines, lines).stream()
+        .map((L) -> L.substring(LOG_LINE_FILTER_BEGINS_WITH.length()))
         .map((L) -> L.replace(LOG_LINE_REMOVE, "")).toList());
     } catch (RuntimeException | InterruptedException | ExecutionException e) {
       LOG.error("Failed to get logs for preview nexus", e);

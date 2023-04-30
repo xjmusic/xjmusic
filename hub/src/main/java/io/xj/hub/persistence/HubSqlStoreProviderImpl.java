@@ -14,7 +14,7 @@ import java.util.Objects;
 
 @Service
 public class HubSqlStoreProviderImpl implements HubSqlStoreProvider {
-  private static final Logger log = LoggerFactory.getLogger(HubSqlStoreProviderImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(HubSqlStoreProviderImpl.class);
   private final HikariDataSource dataSource;
   private final String schemas;
 
@@ -35,12 +35,12 @@ public class HubSqlStoreProviderImpl implements HubSqlStoreProvider {
     String url;
     if (Strings.isNullOrEmpty(gcpCloudSqlInstance)) {
       url = String.format("jdbc:postgresql://%s:%s/%s", host, port, database);
-      log.info("Configured without GCP Cloud SQL instance, using host and port: {}", url);
+      LOG.info("Configured without GCP Cloud SQL instance, using host and port: {}", url);
     } else {
       url = String.format(
         "jdbc:postgresql:///%s?cloudSqlInstance=%s&socketFactory=%s&user=%s&password=%s",
         database, gcpCloudSqlInstance, gcpCloudSqlSocketFactory, user, password);
-      log.info("Configured with GCP Cloud SQL instance, using socket factory: {}", url);
+      LOG.info("Configured with GCP Cloud SQL instance, using socket factory: {}", url);
     }
 
     schemas = env.getPostgresSchemas();
@@ -50,7 +50,7 @@ public class HubSqlStoreProviderImpl implements HubSqlStoreProvider {
     dataSource.setPassword(password);
     dataSource.setMaximumPoolSize(env.getPostgresPoolSizeMax());
 
-    log.info("HikariDataSource created for {}", url);
+    LOG.info("HikariDataSource created for {}", url);
   }
 
   @Override
