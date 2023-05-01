@@ -13,13 +13,15 @@ data "archive_file" "ffmpeg" {
   output_path      = "${path.module}/build/lambda_ffmpeg.zip"
 }
 
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_layer_version
 resource "aws_lambda_layer_version" "ffmpeg" {
-  layer_name          = "${var.bucket}-ffmpeg"
-  description         = "ffmpeg layer for Lambda functions running on Amazon Linux"
-  filename            = data.archive_file.ffmpeg.output_path
-  compatible_runtimes = ["python3.8"]
-  license_info        = "https://www.ffmpeg.org/legal.html"
+  layer_name               = "${var.bucket}-ffmpeg"
+  description              = "ffmpeg layer for Lambda functions running on Amazon Linux"
+  filename                 = data.archive_file.ffmpeg.output_path
+  compatible_runtimes      = ["python3.8"]
+  compatible_architectures = ["x86_64"]
+  license_info             = "https://www.ffmpeg.org/legal.html"
+  source_code_hash         = filebase64sha256(data.archive_file.ffmpeg.output_path)
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
@@ -52,6 +54,7 @@ resource "aws_lambda_function" "ogg_to_mp3" {
   handler       = "ogg_to_mp3.lambda_handler"
   timeout       = 600
   runtime       = "python3.8"
+  architectures = ["x86_64"]
 
   environment {
     variables = {
@@ -64,7 +67,7 @@ resource "aws_lambda_function" "ogg_to_mp3" {
   ]
 
   layers = [
-    aws_lambda_layer_version.ffmpeg.arn
+    aws_lambda_layer_version.ffmpeg.arn,
   ]
 }
 

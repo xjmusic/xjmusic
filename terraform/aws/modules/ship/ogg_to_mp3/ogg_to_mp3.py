@@ -8,6 +8,8 @@ from botocore.exceptions import ClientError
 s3 = boto3.client('s3')
 target_bitrate = os.getenv('TARGET_BITRATE')
 
+os.environ['LD_LIBRARY_PATH'] = f"{os.environ['LAMBDA_TASK_ROOT']}/lib:{os.environ.get('LD_LIBRARY_PATH', '')}"
+
 def lambda_handler(event, context):
     bucket = event['Records'][0]['s3']['bucket']['name']
     key = urllib.parse.unquote_plus(event['Records'][0]['s3']['object']['key'], encoding='utf-8')
@@ -33,4 +35,5 @@ def lambda_handler(event, context):
     except Exception as e:
         print('Error processing object {} from bucket {}: {}'.format(key, bucket, e))
         raise e
+
 
