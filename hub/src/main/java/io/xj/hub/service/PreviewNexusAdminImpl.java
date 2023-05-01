@@ -16,6 +16,7 @@ import com.google.cloud.run.v2.GetServiceRequest;
 import com.google.cloud.run.v2.HTTPGetAction;
 import com.google.cloud.run.v2.Probe;
 import com.google.cloud.run.v2.ResourceRequirements;
+import com.google.cloud.run.v2.RevisionScaling;
 import com.google.cloud.run.v2.RevisionTemplate;
 import com.google.cloud.run.v2.ServiceName;
 import com.google.cloud.run.v2.ServicesClient;
@@ -33,9 +34,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -360,16 +359,16 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
       .setLivenessProbe(livenessProbe)
       .build();
 
-    // annotations
-    Map<String, String> annotations = new HashMap<>();
-    annotations.put("autoscaling.knative.dev/minScale", Integer.toString(1));
-    annotations.put("autoscaling.knative.dev/maxScale", Integer.toString(1));
-    annotations.put("run.googleapis.com/cpu-throttling", "false");
+    // scaling
+    var scaling = RevisionScaling.newBuilder()
+      .setMinInstanceCount(1)
+      .setMaxInstanceCount(1)
+      .build();
 
     var revisionTemplate = RevisionTemplate.newBuilder();
-    revisionTemplate.putAllAnnotations(annotations);
     revisionTemplate.setServiceAccount(gcpServiceAccountEmail);
     revisionTemplate.addContainers(container);
+    revisionTemplate.setScaling(scaling);
     return revisionTemplate.build();
   }
 
