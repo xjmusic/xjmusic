@@ -367,6 +367,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
 
     var revisionTemplate = RevisionTemplate.newBuilder();
     revisionTemplate.setServiceAccount(gcpServiceAccountEmail);
+    revisionTemplate.setMaxInstanceRequestConcurrency(1);
     revisionTemplate.addContainers(container);
     revisionTemplate.setScaling(scaling);
     return revisionTemplate.build();

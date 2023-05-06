@@ -35,6 +35,7 @@ resource "google_cloud_run_v2_service" "ship" {
       min_instance_count = 1
       max_instance_count = 1
     }
+    max_instance_request_concurrency = 1
     service_account = var.service_account_email
     containers {
       env {

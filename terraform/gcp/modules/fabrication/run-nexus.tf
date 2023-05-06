@@ -36,6 +36,7 @@ resource "google_cloud_run_v2_service" "nexus" {
       max_instance_count = 1
     }
     service_account = var.service_account_email
+    max_instance_request_concurrency = 1
     containers {
       env {
         name  = "ENVIRONMENT"
