@@ -3,6 +3,7 @@
 package io.xj.hub.client;
 
 import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplatePlayback;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -33,6 +34,14 @@ public interface HubClient {
    * @return Template
    */
   Optional<Template> readPreviewTemplate(UUID templateId) throws HubClientException;
+
+  /**
+   * Read preview template playback by ID
+   *
+   * @param templatePlaybackId of template playback to read
+   * @return Template
+   */
+  Optional<TemplatePlayback> readPreviewTemplatePlayback(UUID templatePlaybackId) throws HubClientException;
 
   /**
    * Load shipped content from a static file

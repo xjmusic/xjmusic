@@ -4,6 +4,7 @@ package io.xj.hub.client;
 
 import io.xj.hub.ingest.HubContentPayload;
 import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplatePlayback;
 import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.json.JsonProviderImpl;
@@ -37,6 +38,7 @@ import java.util.stream.Collectors;
 public class HubClientImpl implements HubClient {
   private static final String API_PATH_INGEST_FORMAT = "api/1/ingest/%s";
   private static final String API_PATH_TEMPLATE_BY_ID_FORMAT = "api/1/templates/%s";
+  private static final String API_PATH_TEMPLATE_PLAYBACK_BY_ID_FORMAT = "api/1/template-playbacks/%s";
   private static final String HEADER_COOKIE = "Cookie";
   private final Logger LOG = LoggerFactory.getLogger(HubClientImpl.class);
   private final String ingestUrl;
@@ -88,25 +90,12 @@ public class HubClientImpl implements HubClient {
 
   @Override
   public Optional<Template> readPreviewTemplate(UUID templateId) throws HubClientException {
-    CloseableHttpClient client = httpClientProvider.getClient();
-    var path = String.format(API_PATH_TEMPLATE_BY_ID_FORMAT, templateId);
-    var uri = buildURI(path);
-    var request = buildGetRequest(uri, ingestTokenValue);
-    try (
-      CloseableHttpResponse response = client.execute(request)
-    ) {
-      if (!Objects.equals(HttpStatus.OK.value(), response.getStatusLine().getStatusCode()))
-        throw buildException(uri.toString(), response);
+    return getOneFromHub(Template.class, String.format(API_PATH_TEMPLATE_BY_ID_FORMAT, templateId));
+  }
 
-      var json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
-
-      var payload = jsonapiPayloadFactory.deserialize(json);
-
-      return payload.isEmpty() ? Optional.empty() : Optional.of(jsonapiPayloadFactory.toOne(payload));
-
-    } catch (IOException | JsonapiException e) {
-      throw new HubClientException(String.format("Failed executing Hub API request to %s", uri), e);
-    }
+  @Override
+  public Optional<TemplatePlayback> readPreviewTemplatePlayback(UUID templatePlaybackId) throws HubClientException {
+    return getOneFromHub(TemplatePlayback.class, String.format(API_PATH_TEMPLATE_PLAYBACK_BY_ID_FORMAT, templatePlaybackId));
   }
 
   @Override
@@ -126,6 +115,27 @@ public class HubClientImpl implements HubClient {
 
     } catch (IOException e) {
       throw new HubClientException(e);
+    }
+  }
+
+  private <N> Optional<N> getOneFromHub(Class<N> type, String path) throws HubClientException {
+    CloseableHttpClient client = httpClientProvider.getClient();
+    var uri = buildURI(path);
+    var request = buildGetRequest(uri, ingestTokenValue);
+    try (
+      CloseableHttpResponse response = client.execute(request)
+    ) {
+      if (!Objects.equals(HttpStatus.OK.value(), response.getStatusLine().getStatusCode()))
+        throw buildException(uri.toString(), response);
+
+      var json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
+
+      var payload = jsonapiPayloadFactory.deserialize(json);
+
+      return payload.isEmpty() ? Optional.empty() : Optional.of(jsonapiPayloadFactory.toOne(payload));
+
+    } catch (IOException | JsonapiException e) {
+      throw new HubClientException(String.format("Failed executing Hub API request to %s", uri), e);
     }
   }
 

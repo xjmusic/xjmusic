@@ -279,9 +279,10 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl imple
       try (var selectTemplatePlayback = db.selectFrom(TEMPLATE_PLAYBACK)) {
         return modelFrom(TemplatePlayback.class, selectTemplatePlayback
           .where(TEMPLATE_PLAYBACK.ID.eq(id))
+          .and(TEMPLATE_PLAYBACK.CREATED_AT.greaterThan(Timestamp.from(Instant.now().minusSeconds(playbackExpireSeconds)).toLocalDateTime()))
           .fetchOne());
       } catch (Exception e) {
-        throw new ManagerException(e);
+        return null;
       }
     else
       try (var selectTemplatePlayback = db.select(TEMPLATE_PLAYBACK.fields());
@@ -291,9 +292,10 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl imple
         return modelFrom(TemplatePlayback.class, joinTemplate
           .where(TEMPLATE_PLAYBACK.ID.eq(id))
           .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
+          .and(TEMPLATE_PLAYBACK.CREATED_AT.greaterThan(Timestamp.from(Instant.now().minusSeconds(playbackExpireSeconds)).toLocalDateTime()))
           .fetchOne());
       } catch (Exception e) {
-        throw new ManagerException(e);
+        return null;
       }
   }
 

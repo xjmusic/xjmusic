@@ -301,7 +301,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
     List<EnvVar> envVars = Lists.newArrayList();
 
     // Fabrication preview template ID
-    envVars.add(EnvVar.newBuilder().setName(AppEnvironment.FABRICATION_PREVIEW_TEMPLATE_ID).setValue(template.getId().toString()).build());
+    envVars.add(EnvVar.newBuilder().setName(AppEnvironment.FABRICATION_PREVIEW_TEMPLATE_PLAYBACK_ID).setValue(template.getId().toString()).build());
 
     // environment variables passed through
     envVars.add(EnvVar.newBuilder().setName("AUDIO_BASE_URL").setValue(audioBaseUrl).build());

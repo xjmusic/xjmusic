@@ -28,9 +28,9 @@ import static io.xj.hub.IntegrationTestingFixtures.buildTemplatePlayback;
 import static io.xj.hub.IntegrationTestingFixtures.buildUser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -139,14 +139,9 @@ public class TemplatePlaybackManagerDbTest {
 
     testManager.create(access, subject);
 
-    assertThrows(ManagerException.class, () -> testManager.readOne(access, priorPlayback.getId()));
+    assertNull(testManager.readOne(access, priorPlayback.getId()));
     verify(previewNexusAdmin, times(1)).startPreviewNexus(any());
-    try {
-      testManager.readOne(HubAccess.internal(), priorPlayback.getId());
-      fail();
-    } catch (ManagerException e) {
-      assertTrue(e.getMessage().contains("does not exist"), "Record should not exist");
-    }
+    assertNull(testManager.readOne(HubAccess.internal(), priorPlayback.getId()));
   }
 
   @Test
@@ -158,6 +153,27 @@ public class TemplatePlaybackManagerDbTest {
     assertNotNull(result);
     assertEquals(templatePlayback201.getId(), result.getId());
     assertEquals(fake.user2.getId(), result.getUserId());
+  }
+
+
+  /**
+   Preview Nexus attaches to template playback id specifically,
+   to ensure that once the template playback is unavailable, fabrication gracefully terminates
+   https://www.pivotaltracker.com/story/show/185115143
+   */
+  @Test
+  public void readOne_notIfOlderThanThreshold() throws Exception {
+    HubAccess userAccess = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
+    HubAccess adminAccess = HubAccess.internal();
+    var olderPlayback = buildTemplatePlayback(fake.template1, fake.user3);
+    olderPlayback.setCreatedAt(Timestamp.from(Instant.now().minusSeconds(60 * 60 * 24)).toLocalDateTime());
+    var input = test.insert(olderPlayback);
+
+    var adminResult = testManager.readOne(adminAccess, input.getId());
+    var userResult = testManager.readOne(userAccess, input.getId());
+
+    assertNull(adminResult);
+    assertNull(userResult);
   }
 
   @Test
@@ -195,12 +211,11 @@ public class TemplatePlaybackManagerDbTest {
   }
 
   @Test
-  public void readOne_FailsWhenUserIsNotInTemplate() {
+  public void readOne_FailsWhenUserIsNotInTemplate() throws ManagerException {
     HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")
     ), "User");
 
-    var e = assertThrows(ManagerException.class, () -> testManager.readOne(access, templatePlayback201.getId()));
-    assertEquals("Record does not exist", e.getMessage());
+    assertNull(testManager.readOne(access, templatePlayback201.getId()));
   }
 
   // future test: readManyInAccount vs readManyInLibraries, positive and negative cases
@@ -252,12 +267,7 @@ public class TemplatePlaybackManagerDbTest {
 
     testManager.destroy(access, templatePlayback251.getId());
 
-    try {
-      testManager.readOne(HubAccess.internal(), templatePlayback251.getId());
-      fail();
-    } catch (ManagerException e) {
-      assertTrue(e.getMessage().contains("does not exist"), "Record should not exist");
-    }
+    assertNull(testManager.readOne(HubAccess.internal(), templatePlayback251.getId()));
     verify(previewNexusAdmin, times(1)).stopPreviewNexus(eq(fake.template1.getId()));
   }
 

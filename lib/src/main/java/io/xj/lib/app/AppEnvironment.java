@@ -20,7 +20,7 @@ import java.util.UUID;
  */
 @Component
 public class AppEnvironment {
-  public static final String FABRICATION_PREVIEW_TEMPLATE_ID = "FABRICATION_PREVIEW_TEMPLATE_ID";
+  public static final String FABRICATION_PREVIEW_TEMPLATE_PLAYBACK_ID = "FABRICATION_PREVIEW_TEMPLATE_PLAYBACK_ID";
   private static final Logger LOG = LoggerFactory.getLogger(AppEnvironment.class);
   private static final int SECONDS_PER_HOUR = 60 * 60;
   private static final String WORK_ENV_NAME_PRODUCTION = "Production";
@@ -41,7 +41,7 @@ public class AppEnvironment {
   private final String awsSecretKey;
   private final String awsSecretName;
   private final String awsSnsTopicArn;
-  private final String fabricationPreviewTemplateId;
+  private final String fabricationPreviewTemplatePlaybackId;
   private final String gcpCloudSqlInstance;
   private final String gcpCloudSqlSocketFactory;
   private final String gcpProjectId;
@@ -156,7 +156,7 @@ public class AppEnvironment {
     chainStartInFutureSeconds = readInt(vars, "CHAIN_START_IN_FUTURE_SECONDS", 0);
     fabricationChainThresholdFabricatedBehindSeconds = readInt(vars, "FABRICATION_CHAIN_THRESHOLD_FABRICATED_BEHIND_SECONDS", 15);
     fabricationPreviewLengthMaxHours = readInt(vars, "FABRICATION_PREVIEW_LENGTH_MAX_HOURS", 2);
-    fabricationPreviewTemplateId = readStr(vars, FABRICATION_PREVIEW_TEMPLATE_ID, EMPTY);
+    fabricationPreviewTemplatePlaybackId = readStr(vars, FABRICATION_PREVIEW_TEMPLATE_PLAYBACK_ID, EMPTY);
     hostname = readStr(vars, "HOSTNAME", "localhost");
     httpClientPoolMaxPerRoute = readInt(vars, "HTTP_CLIENT_POOL_MAX_PER_ROUTE", 20);
     httpClientPoolMaxTotal = readInt(vars, "HTTP_CLIENT_POOL_MAX_TOTAL", 200);
@@ -170,7 +170,7 @@ public class AppEnvironment {
     serviceLogBackMinutes = readInt(vars, "SERVICE_LOG_BACK_MINUTES", 5);
     serviceNamespace = readStr(vars, "SERVICE_NAMESPACE", "lab");
     platformEnvironment = readStr(vars, "ENVIRONMENT", "dev");
-    playbackExpireSeconds = readInt(vars, "PLAYBACK_EXPIRE_SECONDS", SECONDS_PER_HOUR * 8);
+    playbackExpireSeconds = readInt(vars, "PLAYBACK_EXPIRE_SECONDS", SECONDS_PER_HOUR * 4);
     playerBaseURL = readStr(vars, "PLAYER_BASE_URL", "http://localhost/");
     shipBaseUrl = readStr(vars, "SHIP_BASE_URL", "https://ship.dev.xj.io/");
     shipBitrateHigh = readInt(vars, "SHIP_BITRATE_HIGH", 320000);
@@ -509,10 +509,10 @@ public class AppEnvironment {
    *
    * @return the user id for which we ought to fabricate a preview chain
    */
-  public Optional<UUID> getFabricationPreviewTemplateId() {
-    if (Strings.isNullOrEmpty(fabricationPreviewTemplateId)) return Optional.empty();
+  public Optional<UUID> getFabricationPreviewTemplatePlaybackId() {
+    if (Strings.isNullOrEmpty(fabricationPreviewTemplatePlaybackId)) return Optional.empty();
     try {
-      return Optional.of(UUID.fromString(fabricationPreviewTemplateId));
+      return Optional.of(UUID.fromString(fabricationPreviewTemplatePlaybackId));
     } catch (Exception e) {
       return Optional.empty();
     }

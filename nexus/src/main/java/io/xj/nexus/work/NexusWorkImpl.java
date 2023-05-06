@@ -14,6 +14,7 @@ import io.xj.hub.enums.TemplateType;
 import io.xj.hub.manager.Templates;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.hub.tables.pojos.TemplatePlayback;
 import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
@@ -120,7 +121,7 @@ public class NexusWorkImpl implements NexusWork {
   @Nullable
   private final String shipKey;
   @Nullable
-  private final UUID fabricationPreviewTemplateId;
+  private final UUID fabricationPreviewTemplatePlaybackId;
   private Instant labPollNext;
   private Instant yardPollNext;
   private NexusWorkImpl.State state;
@@ -185,7 +186,7 @@ public class NexusWorkImpl implements NexusWork {
     mode = Strings.isNullOrEmpty(shipKey) ? Lab : NexusWorkImpl.Mode.Yard;
     state = NexusWorkImpl.State.Init;
 
-    fabricationPreviewTemplateId = env.getFabricationPreviewTemplateId().orElse(null);
+    fabricationPreviewTemplatePlaybackId = env.getFabricationPreviewTemplatePlaybackId().orElse(null);
 
     // Telemetry: # Segments Erased
     METRIC_FABRICATED_AHEAD_SECONDS = telemetryProvider.gauge("fabricated_ahead_seconds", "Fabricated Ahead Seconds", "s");
@@ -466,7 +467,8 @@ public class NexusWorkImpl implements NexusWork {
         Segments.getIdentifier(segment),
         aheadSeconds);
 
-    } catch (ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException | ManagerFatalException | NexusException | ValueException e) {
+    } catch (ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException |
+             ManagerFatalException | NexusException | ValueException e) {
       var body = String.format("Failed to create Segment of Chain[%s] (%s) because %s\n\n%s",
         Chains.getIdentifier(from),
         from.getType(),
@@ -544,8 +546,8 @@ public class NexusWorkImpl implements NexusWork {
   /**
    Log and of segment message of error that job failed while (message)@param shipKey  (optional) ship key
 
-   @param msgWhile       phrased like "Doing work"
-   @param e              exception (optional)
+   @param msgWhile      phrased like "Doing work"
+   @param e             exception (optional)
    @param logStackTrace whether to show the whole stack trace in logs
    */
   private void didFailWhile(@Nullable String shipKey, String msgWhile, Exception e, boolean logStackTrace) {
@@ -629,16 +631,22 @@ public class NexusWorkImpl implements NexusWork {
 
   /**
    Maintain a single preview template by id
+   If we find no reason to perform work, we return false.
+   Returning false ultimately gracefully terminates the instance
+   https://www.pivotaltracker.com/story/show/185119448
 
    @return true if all is well, false if something has failed
    */
   private boolean maintainPreviewTemplate() {
-    Optional<Template> template;
-    if (Objects.isNull(fabricationPreviewTemplateId)) return false;
-    try {
-      template = hubClient.readPreviewTemplate(fabricationPreviewTemplateId);
-    } catch (HubClientException e) {
-      LOG.error("Failed to read preview Template[{}] from Hub because {}", fabricationPreviewTemplateId, e.getMessage());
+    Optional<TemplatePlayback> templatePlayback = readPreviewTemplatePlayback();
+    if (templatePlayback.isEmpty()) {
+      LOG.debug("No preview template playback found");
+      return false;
+    }
+
+    Optional<Template> template = readPreviewTemplate(templatePlayback.get().getTemplateId());
+    if (template.isEmpty()) {
+      LOG.debug("No preview template found");
       return false;
     }
 
@@ -653,31 +661,41 @@ public class NexusWorkImpl implements NexusWork {
       return false;
     }
 
-    if (template.isPresent())
-      // Maintain chain for preview template
-      try {
-        Set<String> chainShipKeys = allFab.stream().map(Chain::getShipKey).collect(Collectors.toSet());
-        if (!Strings.isNullOrEmpty(template.get().getShipKey()) && !chainShipKeys.contains(template.get().getShipKey()))
-          createChainForTemplate(template.get())
-            .orElseThrow(() -> new ManagerFatalException(String.format("Failed to create chain for Template[%s]", Templates.getIdentifier(template.get()))));
-      } catch (ManagerFatalException e) {
-        LOG.error("Failed to start Chain(s) for playing Template(s) because {}", e.getMessage());
-        return false;
-      }
-
-    else
-      // Stop all chains (no longer playing)
-      try {
-        for (var chain : allFab) {
-          LOG.info("Will stop lab Chain[{}]", Chains.getIdentifier(chain));
-          chainManager.updateState(chain.getId(), ChainState.COMPLETE);
-        }
-      } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException | ManagerValidationException e) {
-        LOG.error("Failed to stop non-playing Chain(s) because {}", e.getMessage());
-        return false;
-      }
+    try {
+      Set<String> chainShipKeys = allFab.stream().map(Chain::getShipKey).collect(Collectors.toSet());
+      if (!Strings.isNullOrEmpty(template.get().getShipKey()) && !chainShipKeys.contains(template.get().getShipKey()))
+        createChainForTemplate(template.get())
+          .orElseThrow(() -> new ManagerFatalException(String.format("Failed to create chain for Template[%s]", Templates.getIdentifier(template.get()))));
+    } catch (ManagerFatalException e) {
+      LOG.error("Failed to start Chain(s) for playing Template(s) because {}", e.getMessage());
+      return false;
+    }
 
     return true;
+  }
+
+  private Optional<Template> readPreviewTemplate(UUID templateId) {
+    try {
+      return hubClient.readPreviewTemplate(templateId);
+    } catch (HubClientException e) {
+      LOG.error("Failed to read preview Template[{}] from Hub because {}", templateId, e.getMessage());
+      return Optional.empty();
+    }
+  }
+
+  /**
+   Read preview TemplatePlayback from Hub
+
+   @return preview TemplatePlayback
+   */
+  private Optional<TemplatePlayback> readPreviewTemplatePlayback() {
+    if (Objects.isNull(fabricationPreviewTemplatePlaybackId)) return Optional.empty();
+    try {
+      return hubClient.readPreviewTemplatePlayback(fabricationPreviewTemplatePlaybackId);
+    } catch (HubClientException e) {
+      LOG.error("Failed to read preview TemplatePlayback[{}] from Hub because {}", fabricationPreviewTemplatePlaybackId, e.getMessage());
+      return Optional.empty();
+    }
   }
 
   /**
@@ -700,7 +718,8 @@ public class NexusWorkImpl implements NexusWork {
       LOG.info("Will bootstrap Template[{}]", Templates.getIdentifier(template));
       return Optional.of(chainManager.bootstrap(template.getType(), Chains.fromTemplate(template)));
 
-    } catch (ManagerFatalException | ManagerPrivilegeException | ManagerValidationException | ManagerExistenceException e) {
+    } catch (ManagerFatalException | ManagerPrivilegeException | ManagerValidationException |
+             ManagerExistenceException e) {
       LOG.error("Failed to bootstrap Template[{}] because {}", Templates.getIdentifier(template), e.getMessage());
       return Optional.empty();
     }
