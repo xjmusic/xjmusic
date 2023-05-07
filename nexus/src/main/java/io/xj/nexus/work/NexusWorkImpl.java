@@ -12,6 +12,8 @@ import io.xj.hub.client.HubClientException;
 import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.TemplateType;
 import io.xj.hub.manager.Templates;
+import io.xj.hub.service.PreviewNexusAdmin;
+import io.xj.hub.service.ServiceException;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.hub.tables.pojos.TemplatePlayback;
@@ -131,6 +133,7 @@ public class NexusWorkImpl implements NexusWork {
   private long nextCycleMillis = System.currentTimeMillis();
   private long nextJanitorMillis = System.currentTimeMillis();
   private long nextMedicMillis = System.currentTimeMillis();
+  private final PreviewNexusAdmin previewNexusAdmin;
 
   @Autowired
   public NexusWorkImpl(
@@ -147,7 +150,8 @@ public class NexusWorkImpl implements NexusWork {
     NexusEntityStore store,
     NotificationProvider notification,
     SegmentManager segmentManager,
-    TelemetryProvider telemetryProvider
+    TelemetryProvider telemetryProvider,
+    PreviewNexusAdmin previewNexusAdmin
   ) {
     this.chainManager = chainManager;
     this.craftFactory = craftFactory;
@@ -180,6 +184,7 @@ public class NexusWorkImpl implements NexusWork {
     shipBaseUrl = env.getShipBaseUrl();
     shipKey = env.getShipKey();
     yardPollSeconds = env.getWorkYardPollSeconds();
+    this.previewNexusAdmin = previewNexusAdmin;
 
     labPollNext = Instant.now();
     yardPollNext = Instant.now();
@@ -208,7 +213,7 @@ public class NexusWorkImpl implements NexusWork {
   }
 
   /**
-   This is the internal cycle that's run indefinitely
+   * This is the internal cycle that's run indefinitely
    */
   private void runCycle() {
     if (System.currentTimeMillis() < nextCycleMillis) return;
@@ -247,7 +252,7 @@ public class NexusWorkImpl implements NexusWork {
   }
 
   /**
-   Run all work when this Nexus is a sidecar to a hub, as in the Lab
+   * Run all work when this Nexus is a sidecar to a hub, as in the Lab
    */
   private void runLab() {
     if (Instant.now().isAfter(labPollNext)) {
@@ -287,9 +292,9 @@ public class NexusWorkImpl implements NexusWork {
   }
 
   /**
-   Load static content to run yard fabrication
-   <p>
-   Nexus production fabrication from static source (without Hub) https://www.pivotaltracker.com/story/show/177020318
+   * Load static content to run yard fabrication
+   * <p>
+   * Nexus production fabrication from static source (without Hub) https://www.pivotaltracker.com/story/show/177020318
    */
   private void loadYard() {
     try {
@@ -308,7 +313,7 @@ public class NexusWorkImpl implements NexusWork {
   }
 
   /**
-   Run all work when this Nexus is in production, as in the Yard
+   * Run all work when this Nexus is in production, as in the Yard
    */
   private void runYard() throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException {
     if (Instant.now().isAfter(yardPollNext)) {
@@ -325,7 +330,7 @@ public class NexusWorkImpl implements NexusWork {
   }
 
   /**
-   Ingest Content from Hub
+   * Ingest Content from Hub
    */
   private void ingestMaterialIfNecessary(Chain chain) {
     if (chainNextIngestMillis.containsKey(chain.getId()) &&
@@ -345,10 +350,10 @@ public class NexusWorkImpl implements NexusWork {
   }
 
   /**
-   Engineer wants platform heartbeat to check for any stale production chains in fabricate state, https://www.pivotaltracker.com/story/show/158897383
-   and if found, send back a failure health check it in order to ensure the Chain remains in an operable state.
-   <p>
-   Medic relies on precomputed  telemetry of fabrication latency https://www.pivotaltracker.com/story/show/177021797
+   * Engineer wants platform heartbeat to check for any stale production chains in fabricate state, https://www.pivotaltracker.com/story/show/158897383
+   * and if found, send back a failure health check it in order to ensure the Chain remains in an operable state.
+   * <p>
+   * Medic relies on precomputed  telemetry of fabrication latency https://www.pivotaltracker.com/story/show/177021797
    */
   private void doMedic() {
     if (System.currentTimeMillis() < nextMedicMillis) return;
@@ -380,7 +385,7 @@ public class NexusWorkImpl implements NexusWork {
   }
 
   /**
-   Do the work-- this is called by the underlying WorkerImpl run() hook
+   * Do the work-- this is called by the underlying WorkerImpl run() hook
    */
   protected void doJanitor() {
     if (System.currentTimeMillis() < nextJanitorMillis) return;
@@ -415,7 +420,7 @@ public class NexusWorkImpl implements NexusWork {
   }
 
   /**
-   Do the work-- this is called by the underlying WorkerImpl run() hook
+   * Do the work-- this is called by the underlying WorkerImpl run() hook
    */
   public void fabricateChain(Chain from) throws FabricationFatalException {
     try {
@@ -486,11 +491,11 @@ public class NexusWorkImpl implements NexusWork {
   }
 
   /**
-   Finish work on Segment
-
-   @param fabricator to craft
-   @param segment    fabricating
-   @throws NexusException on failure
+   * Finish work on Segment
+   *
+   * @param fabricator to craft
+   * @param segment    fabricating
+   * @throws NexusException on failure
    */
   private void finishWork(Fabricator fabricator, Segment segment) throws NexusException {
     updateSegmentState(fabricator, segment, SegmentState.DUBBING, SegmentState.DUBBED);
@@ -498,12 +503,12 @@ public class NexusWorkImpl implements NexusWork {
   }
 
   /**
-   Craft a Segment, or fail
-
-   @param fabricator to craft
-   @param segment    fabricating
-   @throws NexusException on configuration failure
-   @throws NexusException on craft failure
+   * Craft a Segment, or fail
+   *
+   * @param fabricator to craft
+   * @param segment    fabricating
+   * @throws NexusException on configuration failure
+   * @throws NexusException on craft failure
    */
   private Segment doCraftWork(Fabricator fabricator, Segment segment) throws NexusException {
     var updated = updateSegmentState(fabricator, segment, SegmentState.PLANNED, SegmentState.CRAFTING);
@@ -518,13 +523,13 @@ public class NexusWorkImpl implements NexusWork {
   }
 
   /**
-   Dub a Segment, or fail
-
-   @param fabricator to dub master
-   @param segment    fabricating
-   @return updated Segment
-   @throws NexusException on craft failure
-   @throws NexusException on dub failure
+   * Dub a Segment, or fail
+   *
+   * @param fabricator to dub master
+   * @param segment    fabricating
+   * @return updated Segment
+   * @throws NexusException on craft failure
+   * @throws NexusException on dub failure
    */
   protected Segment doDubMasterWork(Fabricator fabricator, Segment segment) throws NexusException {
     var updated = updateSegmentState(fabricator, segment, SegmentState.CRAFTING, SegmentState.DUBBING);
@@ -533,22 +538,22 @@ public class NexusWorkImpl implements NexusWork {
   }
 
   /**
-   Ship a Segment, or fail
-
-   @param fabricator to ship
-   @throws NexusException on craft failure
-   @throws NexusException on ship failure
+   * Ship a Segment, or fail
+   *
+   * @param fabricator to ship
+   * @throws NexusException on craft failure
+   * @throws NexusException on ship failure
    */
   protected void doDubShipWork(Fabricator fabricator) throws NexusException {
     dubFactory.ship(fabricator).doWork();
   }
 
   /**
-   Log and of segment message of error that job failed while (message)@param shipKey  (optional) ship key
-
-   @param msgWhile      phrased like "Doing work"
-   @param e             exception (optional)
-   @param logStackTrace whether to show the whole stack trace in logs
+   * Log and of segment message of error that job failed while (message)@param shipKey  (optional) ship key
+   *
+   * @param msgWhile      phrased like "Doing work"
+   * @param e             exception (optional)
+   * @param logStackTrace whether to show the whole stack trace in logs
    */
   private void didFailWhile(@Nullable String shipKey, String msgWhile, Exception e, boolean logStackTrace) {
     var msgCause = Strings.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
@@ -564,13 +569,13 @@ public class NexusWorkImpl implements NexusWork {
   }
 
   /**
-   Update Segment to Working state
-
-   @param fabricator to update
-   @param fromState  of existing segment
-   @param toState    of new segment
-   @return updated Segment
-   @throws NexusException if record is invalid
+   * Update Segment to Working state
+   *
+   * @param fabricator to update
+   * @param fromState  of existing segment
+   * @param toState    of new segment
+   * @return updated Segment
+   * @throws NexusException if record is invalid
    */
   private Segment updateSegmentState(Fabricator fabricator, Segment segment, SegmentState fromState, SegmentState toState) throws NexusException {
     if (fromState != segment.getState())
@@ -584,10 +589,10 @@ public class NexusWorkImpl implements NexusWork {
 
 
   /**
-   Whether this Segment is before a given threshold, first by end-at if available, else begin-at
-
-   @param eraseBefore threshold to filter before
-   @return true if segment is before threshold
+   * Whether this Segment is before a given threshold, first by end-at if available, else begin-at
+   *
+   * @param eraseBefore threshold to filter before
+   * @return true if segment is before threshold
    */
   protected boolean isBefore(Segment segment, Instant eraseBefore) {
     if (Values.isSet(segment.getEndAt())) return Instant.parse(segment.getEndAt()).isBefore(eraseBefore);
@@ -596,9 +601,9 @@ public class NexusWorkImpl implements NexusWork {
   }
 
   /**
-   Get the IDs of all Segments that we ought to erase
-
-   @return list of IDs of Segments we ought to erase
+   * Get the IDs of all Segments that we ought to erase
+   *
+   * @return list of IDs of Segments we ought to erase
    */
   private Collection<UUID> getSegmentIdsToErase() throws NexusException {
     Instant eraseBefore = Instant.now().minusSeconds(eraseSegmentsOlderThanSeconds);
@@ -621,32 +626,34 @@ public class NexusWorkImpl implements NexusWork {
   }
 
   /**
-   chain shows current fabrication latency https://www.pivotaltracker.com/story/show/177072936
-
-   @param chain fabricating
+   * chain shows current fabrication latency https://www.pivotaltracker.com/story/show/177072936
+   *
+   * @param chain fabricating
    */
   private Instant computeFabricatedAheadAt(Chain chain) throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException {
     return Chains.computeFabricatedAheadAt(chain, segmentManager.readMany(ImmutableList.of(chain.getId())));
   }
 
   /**
-   Maintain a single preview template by id
-   If we find no reason to perform work, we return false.
-   Returning false ultimately gracefully terminates the instance
-   https://www.pivotaltracker.com/story/show/185119448
-
-   @return true if all is well, false if something has failed
+   * Maintain a single preview template by id
+   * If we find no reason to perform work, we return false.
+   * Returning false ultimately gracefully terminates the instance
+   * https://www.pivotaltracker.com/story/show/185119448
+   *
+   * @return true if all is well, false if something has failed
    */
   private boolean maintainPreviewTemplate() {
     Optional<TemplatePlayback> templatePlayback = readPreviewTemplatePlayback();
     if (templatePlayback.isEmpty()) {
       LOG.debug("No preview template playback found");
+      selfDestructPreviewTemplate();
       return false;
     }
 
     Optional<Template> template = readPreviewTemplate(templatePlayback.get().getTemplateId());
     if (template.isEmpty()) {
       LOG.debug("No preview template found");
+      selfDestructPreviewTemplate();
       return false;
     }
 
@@ -658,6 +665,7 @@ public class NexusWorkImpl implements NexusWork {
       allFab = chainManager.readAllFabricating();
     } catch (ManagerFatalException | ManagerPrivilegeException e) {
       LOG.error("Failed to retrieve all fabrication Chain(s) because {}", e.getMessage());
+      selfDestructPreviewTemplate();
       return false;
     }
 
@@ -668,10 +676,25 @@ public class NexusWorkImpl implements NexusWork {
           .orElseThrow(() -> new ManagerFatalException(String.format("Failed to create chain for Template[%s]", Templates.getIdentifier(template.get()))));
     } catch (ManagerFatalException e) {
       LOG.error("Failed to start Chain(s) for playing Template(s) because {}", e.getMessage());
+      selfDestructPreviewTemplate();
       return false;
     }
 
     return true;
+  }
+
+  /**
+   * Self-destruct the Preview Template
+   */
+  private void selfDestructPreviewTemplate() {
+    if (Objects.isNull(fabricationPreviewTemplatePlaybackId)) return;
+    try {
+      var templatePlayback  = new TemplatePlayback();
+      templatePlayback.setId(fabricationPreviewTemplatePlaybackId);
+      previewNexusAdmin.stopPreviewNexus(templatePlayback);
+    } catch (ServiceException e) {
+      LOG.error("Failed to read preview TemplatePlayback[{}] from Hub because {}", fabricationPreviewTemplatePlaybackId, e.getMessage());
+    }
   }
 
   private Optional<Template> readPreviewTemplate(UUID templateId) {
@@ -684,9 +707,9 @@ public class NexusWorkImpl implements NexusWork {
   }
 
   /**
-   Read preview TemplatePlayback from Hub
-
-   @return preview TemplatePlayback
+   * Read preview TemplatePlayback from Hub
+   *
+   * @return preview TemplatePlayback
    */
   private Optional<TemplatePlayback> readPreviewTemplatePlayback() {
     if (Objects.isNull(fabricationPreviewTemplatePlaybackId)) return Optional.empty();
@@ -699,10 +722,10 @@ public class NexusWorkImpl implements NexusWork {
   }
 
   /**
-   Bootstrap a chain from JSON chain bootstrap data,
-   first rehydrating store from last shipped JSON matching this ship key.
-   <p>
-   Nexus with bootstrap chain rehydrates store on startup from shipped JSON files https://www.pivotaltracker.com/story/show/178718006
+   * Bootstrap a chain from JSON chain bootstrap data,
+   * first rehydrating store from last shipped JSON matching this ship key.
+   * <p>
+   * Nexus with bootstrap chain rehydrates store on startup from shipped JSON files https://www.pivotaltracker.com/story/show/178718006
    */
   private Optional<Chain> createChainForTemplate(Template template) {
     var chain = rehydrateTemplate(template);
@@ -726,10 +749,10 @@ public class NexusWorkImpl implements NexusWork {
   }
 
   /**
-   Attempt to rehydrate the store from a bootstrap, and return true if successful, so we can skip other stuff
-
-   @param template from which to rehydrate
-   @return chain if the rehydration was successful
+   * Attempt to rehydrate the store from a bootstrap, and return true if successful, so we can skip other stuff
+   *
+   * @param template from which to rehydrate
+   * @return chain if the rehydration was successful
    */
   private Optional<Chain> rehydrateTemplate(Template template) {
     if (!isRehydrationEnabled) return Optional.empty();

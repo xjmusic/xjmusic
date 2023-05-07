@@ -4,6 +4,7 @@ package io.xj.nexus.work;
 
 import io.xj.hub.HubTopology;
 import io.xj.hub.client.HubClient;
+import io.xj.hub.service.PreviewNexusAdmin;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.app.AppEnvironment;
@@ -62,6 +63,8 @@ public class NexusWorkImplTest {
   private FileStoreProvider fileStoreProvider;
   @Mock
   private HubClient hubClient;
+  @Mock
+  private PreviewNexusAdmin previewNexusAdmin;
   private NexusWork subject;
 
   @Before
@@ -127,7 +130,8 @@ public class NexusWorkImplTest {
       store,
       notificationProvider,
       segmentManager,
-      telemetryProvider
+      telemetryProvider,
+      previewNexusAdmin
     );
   }
 

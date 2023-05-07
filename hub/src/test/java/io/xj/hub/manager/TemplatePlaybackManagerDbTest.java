@@ -32,7 +32,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -92,7 +91,7 @@ public class TemplatePlaybackManagerDbTest {
     assertNotNull(result);
     assertEquals(fake.template1.getId(), result.getTemplateId());
     assertEquals(fake.user2.getId(), result.getUserId());
-    verify(previewNexusAdmin, times(1)).startPreviewNexus(any());
+    verify(previewNexusAdmin, times(1)).startPreviewNexus(any(), any());
   }
 
   @Test
@@ -107,7 +106,7 @@ public class TemplatePlaybackManagerDbTest {
     assertNotNull(result);
     assertEquals(fake.template1.getId(), result.getTemplateId());
     assertEquals(fake.user2.getId(), result.getUserId());
-    verify(previewNexusAdmin, times(1)).startPreviewNexus(any());
+    verify(previewNexusAdmin, times(1)).startPreviewNexus(any(), any());
   }
 
   @Test
@@ -140,7 +139,7 @@ public class TemplatePlaybackManagerDbTest {
     testManager.create(access, subject);
 
     assertNull(testManager.readOne(access, priorPlayback.getId()));
-    verify(previewNexusAdmin, times(1)).startPreviewNexus(any());
+    verify(previewNexusAdmin, times(1)).startPreviewNexus(any(), any());
     assertNull(testManager.readOne(HubAccess.internal(), priorPlayback.getId()));
   }
 
@@ -157,9 +156,9 @@ public class TemplatePlaybackManagerDbTest {
 
 
   /**
-   Preview Nexus attaches to template playback id specifically,
-   to ensure that once the template playback is unavailable, fabrication gracefully terminates
-   https://www.pivotaltracker.com/story/show/185115143
+   * Preview Nexus attaches to template playback id specifically,
+   * to ensure that once the template playback is unavailable, fabrication gracefully terminates
+   * https://www.pivotaltracker.com/story/show/185115143
    */
   @Test
   public void readOne_notIfOlderThanThreshold() throws Exception {
@@ -268,7 +267,7 @@ public class TemplatePlaybackManagerDbTest {
     testManager.destroy(access, templatePlayback251.getId());
 
     assertNull(testManager.readOne(HubAccess.internal(), templatePlayback251.getId()));
-    verify(previewNexusAdmin, times(1)).stopPreviewNexus(eq(fake.template1.getId()));
+    verify(previewNexusAdmin, times(1)).stopPreviewNexus(any());
   }
 
 }

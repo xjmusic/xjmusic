@@ -6,31 +6,42 @@ import io.xj.hub.HubIntegrationTest;
 import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.enums.*;
+import io.xj.hub.enums.InstrumentMode;
+import io.xj.hub.enums.InstrumentState;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramState;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.manager.InstrumentManager;
+import io.xj.hub.manager.InstrumentManagerImpl;
+import io.xj.hub.manager.ProgramManager;
+import io.xj.hub.manager.ProgramManagerImpl;
+import io.xj.hub.manager.TemplateBindingManager;
+import io.xj.hub.manager.TemplateBindingManagerImpl;
+import io.xj.hub.manager.TemplateManager;
+import io.xj.hub.manager.TemplateManagerImpl;
+import io.xj.hub.manager.TemplatePlaybackManager;
+import io.xj.hub.manager.TemplatePlaybackManagerImpl;
+import io.xj.hub.manager.TemplatePublicationManager;
+import io.xj.hub.manager.TemplatePublicationManagerImpl;
 import io.xj.hub.service.PreviewNexusAdmin;
-import io.xj.hub.manager.*;
 import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.util.Text;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import org.mockito.Mock;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 
-import static io.xj.hub.IntegrationTestingFixtures.*;
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrument;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplateBinding;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
 
 @SpringBootTest
 public class HubIngestIT {

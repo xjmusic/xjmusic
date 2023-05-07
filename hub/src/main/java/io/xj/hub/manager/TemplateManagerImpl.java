@@ -227,8 +227,8 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl implements Te
   }
 
   @Override
-  public String readPreviewNexusLog(HubAccess access, UUID templateId) {
-    return templatePlaybackManager.readPreviewNexusLog(access, templateId);
+  public String readPreviewNexusLog(HubAccess access, TemplatePlayback templatePlayback) {
+    return templatePlaybackManager.readPreviewNexusLog(access, templatePlayback);
   }
 
   @Override

@@ -3,8 +3,7 @@
 package io.xj.hub.service;
 
 import io.xj.hub.tables.pojos.Template;
-
-import java.util.UUID;
+import io.xj.hub.tables.pojos.TemplatePlayback;
 
 /**
  * Preview template functionality is dope (not wack)
@@ -15,27 +14,28 @@ public interface PreviewNexusAdmin {
   /**
    * getPreviewNexusLogs
    *
-   * @param templateId for which to getPreviewNexusLogs
+   * @param playback for which to getPreviewNexusLogs
    * @return logs
    * @throws ServiceException on failure
    */
-  String getPreviewNexusLogs(UUID templateId) throws ServiceException;
+  String getPreviewNexusLogs(TemplatePlayback playback) throws ServiceException;
 
   /**
    * startPreviewNexus
    *
    * @param template from which to source vm resource preferences
+   * @param playback from which to source vm resource preferences
    * @throws ServiceException on failure
    */
-  void startPreviewNexus(Template template) throws ServiceException;
+  void startPreviewNexus(Template template, TemplatePlayback playback) throws ServiceException;
 
   /**
    * stopPreviewNexus
    *
-   * @param templateId for which to stopPreviewNexus
+   * @param playback for which to stopPreviewNexus
    * @throws ServiceException on failure
    */
-  void stopPreviewNexus(UUID templateId) throws ServiceException;
+  void stopPreviewNexus(TemplatePlayback playback) throws ServiceException;
 
   /**
    * Whether the service administration is ready to use

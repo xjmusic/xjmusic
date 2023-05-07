@@ -7,6 +7,7 @@ import io.xj.hub.access.HubAccess;
 import io.xj.hub.manager.ManagerCloner;
 import io.xj.hub.manager.ManagerException;
 import io.xj.hub.manager.TemplateManager;
+import io.xj.hub.manager.TemplatePlaybackManager;
 import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.entity.EntityFactory;
@@ -46,6 +47,7 @@ import java.util.UUID;
 public class TemplateController extends HubJsonapiEndpoint {
   private static final Logger LOG = LoggerFactory.getLogger(TemplateController.class);
   private final TemplateManager manager;
+  private final TemplatePlaybackManager templatePlaybackManager;
 
   /**
    * Constructor
@@ -55,10 +57,12 @@ public class TemplateController extends HubJsonapiEndpoint {
     HubSqlStoreProvider sqlStoreProvider,
     JsonapiResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
-    TemplateManager templateManager
+    TemplateManager templateManager,
+    TemplatePlaybackManager templatePlaybackManager
   ) {
     super(sqlStoreProvider, response, payloadFactory, entityFactory);
     this.manager = templateManager;
+    this.templatePlaybackManager = templatePlaybackManager;
   }
 
   /**
@@ -180,10 +184,13 @@ public class TemplateController extends HubJsonapiEndpoint {
     var access = HubAccess.fromRequest(req);
 
     try {
-      return ResponseEntity
-        .ok()
-        .contentType(MediaType.TEXT_PLAIN)
-        .body(manager.readPreviewNexusLog(access, templateId));
+      var templatePlayback = templatePlaybackManager.readOneForTemplate(access, templateId);
+      return templatePlayback
+        .map(playback -> ResponseEntity
+          .ok()
+          .contentType(MediaType.TEXT_PLAIN)
+          .body(manager.readPreviewNexusLog(access, playback)))
+        .orElseGet(() -> ResponseEntity.notFound().build());
 
     } catch (Exception e) {
       LOG.error("Failed to read nexus preview log!", e);

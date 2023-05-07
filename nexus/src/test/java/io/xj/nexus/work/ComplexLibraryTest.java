@@ -7,10 +7,9 @@ import io.xj.hub.client.HubClient;
 import io.xj.hub.client.HubClientAccess;
 import io.xj.hub.client.HubClientException;
 import io.xj.hub.client.HubContent;
+import io.xj.hub.service.PreviewNexusAdmin;
 import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactoryImpl;
-import io.xj.lib.entity.EntityStore;
-import io.xj.lib.entity.EntityStoreImpl;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.http.HttpClientProviderImpl;
@@ -88,6 +87,8 @@ public class ComplexLibraryTest {
   @Mock
   public TelemetryProvider telemetryProvider;
   @Mock
+  private PreviewNexusAdmin previewNexusAdmin;
+  @Mock
   private MixerFactory mixerFactory;
   @Mock
   private Mixer mixer;
@@ -129,7 +130,6 @@ public class ComplexLibraryTest {
       notificationProvider
     );
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    EntityStore entityStore = new EntityStoreImpl();
     var fabricatorFactory = new FabricatorFactoryImpl(
       env,
       chainManager,
@@ -174,7 +174,8 @@ public class ComplexLibraryTest {
       store,
       notificationProvider,
       segmentManager,
-      telemetryProvider
+      telemetryProvider,
+      previewNexusAdmin
     );
 
     workThread = new AppWorkThread(work);

@@ -21,8 +21,6 @@ import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactoryImpl;
-import io.xj.lib.entity.EntityStore;
-import io.xj.lib.entity.EntityStoreImpl;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
@@ -108,7 +106,6 @@ public class ArrangementTests extends YamlTest {
   private Segment segment;
   private Map<InstrumentType, SegmentChoice> segmentChoices;
   private Program mainProgram1;
-  private AppEnvironment env;
 
   @Test
   public void arrangementBaseline() {
@@ -190,7 +187,6 @@ FUTURE goal
 
   @Before
   public void setUp() throws AppException {
-    env = AppEnvironment.getDefault();
   }
 
   /**
@@ -250,11 +246,10 @@ FUTURE goal
       segmentManager,
       notificationProvider
     );
-    EntityStore entityStore = new EntityStoreImpl();
     fabrication = new FabricatorFactoryImpl(
       env,
       chainManager,
-            segmentManager,
+      segmentManager,
       jsonapiPayloadFactory,
       jsonProvider
     );

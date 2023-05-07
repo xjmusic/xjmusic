@@ -53,13 +53,13 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl imple
   public TemplatePlayback create(HubAccess access, TemplatePlayback raw) throws ManagerException, JsonapiException, ValueException {
     DSLContext db = sqlStoreProvider.getDSL();
     raw.setUserId(access.getUserId());
-    TemplatePlayback record = validate(raw);
+    TemplatePlayback playback = validate(raw);
     requireArtist(access);
 
     if (!access.isTopLevel())
       try (var selectTemplatePlayback = db.selectCount()) {
         requireExists("Access to template", selectTemplatePlayback.from(TEMPLATE)
-          .where(TEMPLATE.ID.eq(record.getTemplateId()))
+          .where(TEMPLATE.ID.eq(playback.getTemplateId()))
           .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
           .fetchOne(0, int.class));
       } catch (Exception e) {
@@ -69,7 +69,7 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl imple
     Template template;
     try (var S = sqlStoreProvider.getDSL().selectFrom(TEMPLATE)) {
       template = modelFrom(Template.class, S
-        .where(TEMPLATE.ID.eq(record.getTemplateId()))
+        .where(TEMPLATE.ID.eq(playback.getTemplateId()))
         .fetchOne());
     }
     requireAny("Preview-type Template", TemplateType.Preview.equals(template.getType()));
@@ -77,9 +77,9 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl imple
     for (var prior : readAllForUser(access))
       doDestroy(prior.getId());
 
-    var created = modelFrom(TemplatePlayback.class, executeCreate(db, TEMPLATE_PLAYBACK, record));
+    var created = modelFrom(TemplatePlayback.class, executeCreate(db, TEMPLATE_PLAYBACK, playback));
     try {
-      previewNexusAdmin.startPreviewNexus(template);
+      previewNexusAdmin.startPreviewNexus(template, playback);
     } catch (ServiceException e) {
       doDestroy(created.getId());
       throw new ManagerException(e);
@@ -156,33 +156,26 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl imple
   }
 
   @Override
-  public String readPreviewNexusLog(HubAccess access, UUID templateId) {
+  public String readPreviewNexusLog(HubAccess access, TemplatePlayback playback) {
     try {
-      var playback = readOneForTemplate(access, templateId);
-      if (playback.isEmpty())
-        return String.format("Template[%s] is not playing!", templateId);
-      return previewNexusAdmin.getPreviewNexusLogs(templateId);
-
-    } catch (ManagerException e) {
-      LOG.error("Failed to read template playback for Template[{}]", templateId, e);
-      return String.format("Failed to read template playback for Template[%s]: %s", templateId, e.getMessage());
+      return previewNexusAdmin.getPreviewNexusLogs(playback);
 
     } catch (ServiceException e) {
-      LOG.error("Service administrator failed to read logs for Template[{}]", templateId, e);
-      return String.format("Service administrator failed to read logs for Template[%s]: %s", templateId, e.getMessage());
+      LOG.error("Service administrator failed to read logs for TemplatePlayback[{}]", playback.getId(), e);
+      return String.format("Service administrator failed to read logs for TemplatePlayback[%s]: %s", playback.getId(), e.getMessage());
     }
   }
 
   @Override
   public void destroy(HubAccess access, UUID id) throws ManagerException {
-    var exists = readOne(access, id);
-    if (Objects.isNull(exists))
+    var playback = readOne(access, id);
+    if (Objects.isNull(playback))
       throw new ManagerException(String.format("TemplatePlayback[%s] does not exist!", id));
 
-    doDestroy(exists.getId());
+    doDestroy(playback.getId());
 
     try {
-      previewNexusAdmin.stopPreviewNexus(exists.getTemplateId());
+      previewNexusAdmin.stopPreviewNexus(playback);
     } catch (ServiceException e) {
       throw new ManagerException(e);
     }
@@ -272,9 +265,8 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl imple
    * @param access control
    * @param id     to read
    * @return record
-   * @throws ManagerException on failure
    */
-  private TemplatePlayback readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+  private TemplatePlayback readOne(DSLContext db, HubAccess access, UUID id) {
     if (access.isTopLevel())
       try (var selectTemplatePlayback = db.selectFrom(TEMPLATE_PLAYBACK)) {
         return modelFrom(TemplatePlayback.class, selectTemplatePlayback

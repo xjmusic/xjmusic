@@ -7,6 +7,7 @@ import io.xj.hub.HubTopology;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.manager.ManagerException;
 import io.xj.hub.manager.TemplateManager;
+import io.xj.hub.manager.TemplatePlaybackManager;
 import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Template;
@@ -59,6 +60,8 @@ public class TemplateControllerTest {
   @Mock
   TemplateManager templateManager;
   @Mock
+  TemplatePlaybackManager templatePlaybackManager;
+  @Mock
   private HubSqlStoreProvider sqlStoreProvider;
   private HubAccess access;
   private TemplateController subject;
@@ -78,7 +81,7 @@ public class TemplateControllerTest {
     account1 = buildAccount("Testing Account 1");
     access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(account1), "User,Artist");
     account25 = buildAccount("Testing Account 25");
-    subject = new TemplateController(entityFactory, sqlStoreProvider, responseProvider, payloadFactory, templateManager);
+    subject = new TemplateController(entityFactory, sqlStoreProvider, responseProvider, payloadFactory, templateManager, templatePlaybackManager);
   }
 
   @Test

@@ -23,6 +23,7 @@ import com.google.cloud.run.v2.ServicesClient;
 import com.google.cloud.run.v2.UpdateServiceRequest;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplatePlayback;
 import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
@@ -36,16 +37,15 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 /**
- Preview template functionality is dope (not wack)
- <p>
- Lab/Hub connects to service administration to manage a personal workload for preview templates
- https://www.pivotaltracker.com/story/show/183576743
- <p>
- https://cloud.google.com/java/docs/reference/google-cloud-run/latest/overview
+ * Preview template functionality is dope (not wack)
+ * <p>
+ * Lab/Hub connects to service administration to manage a personal workload for preview templates
+ * https://www.pivotaltracker.com/story/show/183576743
+ * <p>
+ * https://cloud.google.com/java/docs/reference/google-cloud-run/latest/overview
  */
 @Service
 public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
@@ -112,12 +112,12 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   }
 
   @Override
-  public String getPreviewNexusLogs(UUID templateId) {
+  public String getPreviewNexusLogs(TemplatePlayback playback) {
     if (!isConfigured)
       return "Service administrator is not configured!";
 
     try {
-      var serviceId = computeServiceName(templateId);
+      var serviceName = computeServiceName(playback);
 
       List<String> lines = Lists.newArrayList();
 
@@ -128,7 +128,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
           + " AND resource.labels.service_name=\"%s\""
           + " AND timestamp >= \"%s\""
           + " AND timestamp <= \"%s\"",
-        serviceId, before.toString(), now);
+        serviceName, before.toString(), now);
 
       Logging logging = LoggingOptions.getDefaultInstance().getService();
       EntryListOption entryListOption = EntryListOption.filter(filter);
@@ -149,26 +149,26 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   }
 
   @Override
-  public void startPreviewNexus(Template template) throws ServiceException {
+  public void startPreviewNexus(Template template, TemplatePlayback playback) throws ServiceException {
     if (!isConfigured) {
       LOG.warn("Service administrator is not configured!");
       return;
     }
-    if (!previewNexusExists(template.getId())) {
-      createPreviewNexus(template);
+    if (!previewNexusExists(playback)) {
+      createPreviewNexus(template, playback);
     } else {
-      updatePreviewNexus(template);
+      updatePreviewNexus(template, playback);
     }
   }
 
   @Override
-  public void stopPreviewNexus(UUID templateId) {
+  public void stopPreviewNexus(TemplatePlayback playback) {
     if (!isConfigured) {
       LOG.warn("Service administrator is not configured!");
       return;
     }
-    if (!previewNexusExists(templateId)) return;
-    deletePreviewNexus(templateId);
+    if (!previewNexusExists(playback)) return;
+    deletePreviewNexus(playback);
   }
 
   @Override
@@ -177,13 +177,13 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   }
 
   /**
-   createPreviewNexus
-
-   @throws ServiceException on failure
+   * createPreviewNexus
+   *
+   * @throws ServiceException on failure
    */
-  private void createPreviewNexus(Template template) throws ServiceException {
+  private void createPreviewNexus(Template template, TemplatePlayback playback) throws ServiceException {
     try (var client = ServicesClient.create()) {
-      var serviceName = computeServiceName(template.getId());
+      var serviceName = computeServiceName(playback);
       var request = CreateServiceRequest.newBuilder()
         .setParent(computeServiceParent())
         .setServiceId(serviceName)
@@ -210,13 +210,14 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   }
 
   /**
-   update Preview Nexus deployment
-
-   @param template from which to source vm resource preferences
-   @throws ServiceException on failure
+   * update Preview Nexus deployment
+   *
+   * @param template from which to source vm resource preferences
+   * @param playback from which to source vm resource preferences
+   * @throws ServiceException on failure
    */
-  private void updatePreviewNexus(Template template) throws ServiceException {
-    var existing = getPreviewNexus(template.getId());
+  private void updatePreviewNexus(Template template, TemplatePlayback playback) throws ServiceException {
+    var existing = getPreviewNexus(playback);
     if (existing.isEmpty()) {
       LOG.warn("Failed to update preview nexus; service does not exist!");
       return;
@@ -244,14 +245,14 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   }
 
   /**
-   Get an existing Preview Nexus deployment
-
-   @param templateId for which to getPreviewNexus
-   @return preview nexus deployment if exists
+   * Get an existing Preview Nexus deployment
+   *
+   * @param playback for which to getPreviewNexus
+   * @return preview nexus deployment if exists
    */
-  private Optional<com.google.cloud.run.v2.Service> getPreviewNexus(UUID templateId) {
+  private Optional<com.google.cloud.run.v2.Service> getPreviewNexus(TemplatePlayback playback) {
     try (var client = ServicesClient.create()) {
-      var serviceName = ServiceName.of(gcpProjectId, gcpRegion, computeServiceName(templateId));
+      var serviceName = ServiceName.of(gcpProjectId, gcpRegion, computeServiceName(playback));
       GetServiceRequest request = GetServiceRequest.newBuilder()
         .setName(serviceName.toString())
         .build();
@@ -264,13 +265,13 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   }
 
   /**
-   Delete an existing Preview Nexus deployment
-
-   @param templateId for which to deletePreviewNexus
+   * Delete an existing Preview Nexus deployment
+   *
+   * @param playback for which to deletePreviewNexus
    */
-  private void deletePreviewNexus(UUID templateId) {
+  private void deletePreviewNexus(TemplatePlayback playback) {
     try (var client = ServicesClient.create()) {
-      var serviceName = ServiceName.of(gcpProjectId, gcpRegion, computeServiceName(templateId));
+      var serviceName = ServiceName.of(gcpProjectId, gcpRegion, computeServiceName(playback));
       DeleteServiceRequest request = DeleteServiceRequest.newBuilder()
         .setName(serviceName.toString())
         .build();
@@ -285,17 +286,17 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   }
 
   /**
-   Whether a Preview Nexus deployment exists
-
-   @param templateId for which to seek preview nexus
-   @return true if exists
+   * Whether a Preview Nexus deployment exists
+   *
+   * @param playback for which to seek preview nexus
+   * @return true if exists
    */
-  private Boolean previewNexusExists(UUID templateId) {
-    return getPreviewNexus(templateId).isPresent();
+  private Boolean previewNexusExists(TemplatePlayback playback) {
+    return getPreviewNexus(playback).isPresent();
   }
 
   /**
-   @return string content
+   * @return string content
    */
   private RevisionTemplate computeRevisionTemplate(Template template) {
     List<EnvVar> envVars = Lists.newArrayList();
@@ -392,24 +393,23 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   }
 
   /**
-   Compute the Preview Nexus Deployment Name for the given template
-
-   @param templateId for which to compute name
-   @return Preview Nexus Deployment Name
+   * Compute the Preview Nexus Deployment Name for the given template playback
+   *
+   * @param playback for which to compute name
+   * @return Preview Nexus Deployment Name
    */
-  private String computeServiceName(UUID templateId) {
-    String semiUniqueId = StringUtils.right(templateId.toString(), 12); // last segment of a UUID
+  private String computeServiceName(TemplatePlayback playback) {
+    String semiUniqueId = StringUtils.right(playback.getId().toString(), 12); // last segment of a UUID
     return String.format(PREVIEW_NEXUS_DEPLOYMENT_FORMAT, environment, semiUniqueId);
   }
 
   /**
-   @return true if we are able to configure a service administration client
-   <p>
-   https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
+   * @return true if we are able to configure a service administration client
+   * <p>
+   * https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
    */
   private boolean doConfigurationTest() {
     try (ServicesClient ignored = ServicesClient.create()) {
-      computeServiceName(UUID.randomUUID());
       LOG.info("Configured service administration client");
       return true;
 
