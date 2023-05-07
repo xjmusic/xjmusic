@@ -130,6 +130,17 @@ public class TemplatePlaybackController extends HubJsonapiEndpoint {
   }
 
   /**
+   * Get one templatePlayback
+   *
+   * @return ResponseEntity
+   */
+  @GetMapping("template-playbacks/{id}")
+  @RolesAllowed(ARTIST)
+  public ResponseEntity<JsonapiPayload> get(HttpServletRequest req, @PathVariable("id") UUID id) {
+    return readOne(req, manager(), id);
+  }
+
+  /**
    * Update one templatePlayback
    *
    * @param jsonapiPayload with which to update TemplatePlayback record.

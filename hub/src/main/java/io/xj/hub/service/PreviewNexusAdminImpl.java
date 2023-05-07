@@ -188,7 +188,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
         .setParent(computeServiceParent())
         .setServiceId(serviceName)
         .setService(com.google.cloud.run.v2.Service.newBuilder()
-          .setTemplate(computeRevisionTemplate(template))
+          .setTemplate(computeRevisionTemplate(template, playback))
           .build())
         .build();
 
@@ -223,7 +223,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
       return;
     }
     var updated = existing.get().toBuilder()
-      .setTemplate(computeRevisionTemplate(template))
+      .setTemplate(computeRevisionTemplate(template, playback))
       .build();
 
     try (var client = ServicesClient.create()) {
@@ -298,11 +298,11 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   /**
    * @return string content
    */
-  private RevisionTemplate computeRevisionTemplate(Template template) {
+  private RevisionTemplate computeRevisionTemplate(Template template, TemplatePlayback playback) {
     List<EnvVar> envVars = Lists.newArrayList();
 
     // Fabrication preview template ID
-    envVars.add(EnvVar.newBuilder().setName(AppEnvironment.FABRICATION_PREVIEW_TEMPLATE_PLAYBACK_ID).setValue(template.getId().toString()).build());
+    envVars.add(EnvVar.newBuilder().setName(AppEnvironment.FABRICATION_PREVIEW_TEMPLATE_PLAYBACK_ID).setValue(playback.getId().toString()).build());
 
     // environment variables passed through
     envVars.add(EnvVar.newBuilder().setName("AUDIO_BASE_URL").setValue(audioBaseUrl).build());

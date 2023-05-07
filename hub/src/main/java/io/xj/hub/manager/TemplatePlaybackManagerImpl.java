@@ -53,13 +53,13 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl imple
   public TemplatePlayback create(HubAccess access, TemplatePlayback raw) throws ManagerException, JsonapiException, ValueException {
     DSLContext db = sqlStoreProvider.getDSL();
     raw.setUserId(access.getUserId());
-    TemplatePlayback playback = validate(raw);
+    TemplatePlayback playbackData = validate(raw);
     requireArtist(access);
 
     if (!access.isTopLevel())
       try (var selectTemplatePlayback = db.selectCount()) {
         requireExists("Access to template", selectTemplatePlayback.from(TEMPLATE)
-          .where(TEMPLATE.ID.eq(playback.getTemplateId()))
+          .where(TEMPLATE.ID.eq(playbackData.getTemplateId()))
           .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
           .fetchOne(0, int.class));
       } catch (Exception e) {
@@ -69,7 +69,7 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl imple
     Template template;
     try (var S = sqlStoreProvider.getDSL().selectFrom(TEMPLATE)) {
       template = modelFrom(Template.class, S
-        .where(TEMPLATE.ID.eq(playback.getTemplateId()))
+        .where(TEMPLATE.ID.eq(playbackData.getTemplateId()))
         .fetchOne());
     }
     requireAny("Preview-type Template", TemplateType.Preview.equals(template.getType()));
@@ -77,14 +77,14 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl imple
     for (var prior : readAllForUser(access))
       doDestroy(prior.getId());
 
-    var created = modelFrom(TemplatePlayback.class, executeCreate(db, TEMPLATE_PLAYBACK, playback));
+    var playback = modelFrom(TemplatePlayback.class, executeCreate(db, TEMPLATE_PLAYBACK, playbackData));
     try {
       previewNexusAdmin.startPreviewNexus(template, playback);
-    } catch (ServiceException e) {
-      doDestroy(created.getId());
+    } catch (Exception e) {
+      doDestroy(playback.getId());
       throw new ManagerException(e);
     }
-    return created;
+    return playback;
   }
 
   @Override
