@@ -31,6 +31,6 @@ resource "google_secret_manager_secret" "secret-dev-google-client-secret" {
 # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret
 resource "google_secret_manager_secret" "secret-dev-ingest-token-value" {
   project   = local.gcp-project-id
-  secret_id = "xj-services-dev-ingest-token-value"
+    secret_id = "xj-services-dev-ingest-token-value"
   replication { automatic = true }
 }

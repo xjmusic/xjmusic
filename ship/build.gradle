@@ -1,9 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 plugins {
-	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 	id 'java'
-	id 'org.springframework.boot' version '2.7.6'
   id 'application'
   id 'com.google.cloud.tools.jib'
   id 'de.undercouch.download'
@@ -31,6 +29,8 @@ jacocoTestReport {
 }
 
 apply plugin: 'java'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'org.springframework.boot'
 
 repositories {
   mavenLocal()
@@ -54,8 +54,8 @@ dependencies {
   testFixturesImplementation(testFixtures(project(":hub")))
   testFixturesImplementation(testFixtures(project(":nexus")))
   //
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+  implementation "org.springframework.boot:spring-boot-starter-web:${rootProject.ext.springBootVersion}"
+  testImplementation "org.springframework.boot:spring-boot-starter-test:${rootProject.ext.springBootVersion}"
   implementation 'ch.qos.logback:logback-classic:1.2.6'
   implementation 'com.amazonaws:aws-java-sdk-secretsmanager:1.12.90'
   implementation 'com.amazonaws:aws-java-sdk:1.12.90'
@@ -67,7 +67,7 @@ dependencies {
   implementation 'com.github.trilarion:java-vorbis-support:1.2.1'
   implementation 'com.google.api-client:google-api-client:1.32.2'
   implementation 'com.google.apis:google-api-services-plus:v1-rev20190328-1.30.10'
-  implementation 'com.google.guava:guava:31.0.1-jre'
+  implementation "com.google.guava:guava:${rootProject.ext.guavaVersion}"
   implementation 'com.typesafe:config:1.4.1'
   implementation 'com.zaxxer:HikariCP:5.0.0'
   implementation 'commons-codec:commons-codec:1.5'
@@ -97,7 +97,7 @@ dependencies {
   implementation 'org.slf4j:slf4j-api:1.7.32'
   implementation 'org.yaml:snakeyaml:1.33'
   implementation 'software.amazon.awssdk:cloudwatch:2.17.61'
-  testFixturesImplementation 'com.google.guava:guava:31.0.1-jre'
+  testFixturesImplementation "com.google.guava:guava:${rootProject.ext.guavaVersion}"
   testFixturesImplementation 'com.typesafe:config:1.4.1'
   testFixturesImplementation 'org.jooq:jooq:3.15.2'
   testFixturesImplementation 'org.slf4j:slf4j-api:1.7.32'

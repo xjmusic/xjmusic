@@ -77,33 +77,38 @@ variable "resources_limits_memory" {
   type = string
 }
 
-# Reference the secret manager secret by its id
+variable "secret_id__ingest_token_value" {
+  description = "Reference the value for 'ingest_token_value' by secret manager id"
+  type = string
+}
+
 variable "secret_id__aws_access_key_id" {
+  description = "Reference the value for 'aws_access_key_id' by secret manager id"
   type = string
 }
 
-# Reference the secret manager secret by its id
 variable "secret_id__aws_secret_key" {
+  description = "Reference the value for 'aws_secret_key' by secret manager id"
   type = string
 }
 
-# Reference the secret manager secret by its id
 variable "secret_id__google_client_id" {
+  description = "Reference the value for 'google_client_id' by secret manager id"
   type = string
 }
 
-# Reference the secret manager secret by its id
 variable "secret_id__google_client_secret" {
+  description = "Reference the value for 'google_client_secret' by secret manager id"
   type = string
 }
 
-# Reference the secret manager secret by its id
 variable "secret_id__postgres_username" {
+  description = "Reference the value for 'postgres_username' by secret manager id"
   type = string
 }
 
-# Reference the secret manager secret by its id
 variable "secret_id__postgres_password" {
+  description = "Reference the value for 'postgres_password' by secret manager id"
   type = string
 }
 

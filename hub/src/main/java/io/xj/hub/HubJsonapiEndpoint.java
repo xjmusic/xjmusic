@@ -14,6 +14,7 @@ import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.PayloadDataType;
 import org.springframework.http.ResponseEntity;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.Objects;
@@ -50,7 +51,7 @@ public class HubJsonapiEndpoint extends HubPersistenceServiceImpl {
   /**
    * Create one Entity via a Manager given a JSON:API payload request
    *
-   * @param req           request
+   * @param req            request
    * @param manager        via which to of Entity
    * @param jsonapiPayload of data to of Entity
    * @param <N>            type of Entity
@@ -73,7 +74,7 @@ public class HubJsonapiEndpoint extends HubPersistenceServiceImpl {
   /**
    * Read one Entity of a Manager and return the JSON:API payload response
    *
-   * @param req           request
+   * @param req     request
    * @param manager of which to read one Entity
    * @param id      of Entity to read
    * @param <N>     type of Entity
@@ -81,7 +82,9 @@ public class HubJsonapiEndpoint extends HubPersistenceServiceImpl {
    */
   public <N> ResponseEntity<JsonapiPayload> readOne(HttpServletRequest req, Manager<N> manager, Object id) {
     try {
-      Object entity = manager.readOne(HubAccess.fromRequest(req), UUID.fromString(String.valueOf(id)));
+      @Nullable Object entity = manager.readOne(HubAccess.fromRequest(req), UUID.fromString(String.valueOf(id)));
+      if (Objects.isNull(entity))
+        return responseProvider.notFound(manager.newInstance().getClass(), UUID.fromString(String.valueOf(id)));
       JsonapiPayload jsonapiPayload = new JsonapiPayload();
       jsonapiPayload.setDataOne(payloadFactory.toPayloadObject(entity));
       return responseProvider.ok(jsonapiPayload);
@@ -97,7 +100,7 @@ public class HubJsonapiEndpoint extends HubPersistenceServiceImpl {
   /**
    * Read many Entity of a Manager and return the JSON:API payload response
    *
-   * @param req           request
+   * @param req       request
    * @param manager   of which to read many Entity
    * @param parentIds of Entity to read
    * @param <N>       type of Entity
@@ -120,7 +123,7 @@ public class HubJsonapiEndpoint extends HubPersistenceServiceImpl {
   /**
    * Read many Entity of a Manager and return the JSON:API payload response
    *
-   * @param req           request
+   * @param req      request
    * @param manager  of which to read many Entity
    * @param parentId of Entity to read
    * @param <N>      type of Entity
@@ -135,7 +138,7 @@ public class HubJsonapiEndpoint extends HubPersistenceServiceImpl {
   /**
    * Update one Entity via a Manager given a JSON:API payload request
    *
-   * @param req           request
+   * @param req            request
    * @param manager        via which to read one Entity
    * @param id             of Entity to read
    * @param jsonapiPayload of data to update
@@ -156,7 +159,7 @@ public class HubJsonapiEndpoint extends HubPersistenceServiceImpl {
   /**
    * Update many Entities via a Manager given a JSON:API payload request
    *
-   * @param req           request
+   * @param req            request
    * @param manager        via which to read one Entity
    * @param jsonapiPayload of data to update, type:many
    * @param <N>            type of Entity
@@ -181,7 +184,7 @@ public class HubJsonapiEndpoint extends HubPersistenceServiceImpl {
   /**
    * Delete one Entity via a Manager
    *
-   * @param req           request
+   * @param req     request
    * @param manager via which to delete one Entity
    * @param id      of Entity to delete
    * @param <N>     type of Entity

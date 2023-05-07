@@ -88,13 +88,13 @@ variable "ship_resources_limits_memory" {
   type = string
 }
 
-# Reference the secret manager secret by its id
 variable "secret_id__aws_access_key_id" {
+  description = "Reference the value for 'aws_access_key_id' by secret manager id"
   type = string
 }
 
-# Reference the secret manager secret by its id
 variable "secret_id__aws_secret_key" {
+  description = "Reference the value for 'aws_secret_key' by secret manager id"
   type = string
 }
 

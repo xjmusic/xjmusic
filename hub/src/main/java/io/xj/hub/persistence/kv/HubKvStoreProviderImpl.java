@@ -10,7 +10,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
+import java.util.Objects;
 
 @Primary
 @Service
@@ -38,9 +40,10 @@ public class HubKvStoreProviderImpl implements HubKvStoreProvider {
   }
 
   @Override
-  public <T> T get(Class<T> type, String key) throws HubPersistenceException {
+  public <T> @Nullable T get(Class<T> type, String key) throws HubPersistenceException {
     try {
-      return entityFactory.deserialize(type, store.get(key));
+      var value = store.get(key);
+      return Objects.nonNull(value) ? entityFactory.deserialize(type, value) : null;
     } catch (Exception e) {
       LOG.error("While getting key {}", key, e);
       throw new HubPersistenceException("While getting key", e);

@@ -266,29 +266,27 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl imple
    * @param id     to read
    * @return record
    */
-  private TemplatePlayback readOne(DSLContext db, HubAccess access, UUID id) {
+  private @Nullable TemplatePlayback readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+    @Nullable Record playback;
     if (access.isTopLevel())
       try (var selectTemplatePlayback = db.selectFrom(TEMPLATE_PLAYBACK)) {
-        return modelFrom(TemplatePlayback.class, selectTemplatePlayback
+        playback = selectTemplatePlayback
           .where(TEMPLATE_PLAYBACK.ID.eq(id))
           .and(TEMPLATE_PLAYBACK.CREATED_AT.greaterThan(Timestamp.from(Instant.now().minusSeconds(playbackExpireSeconds)).toLocalDateTime()))
-          .fetchOne());
-      } catch (Exception e) {
-        return null;
+          .fetchOne();
       }
     else
       try (var selectTemplatePlayback = db.select(TEMPLATE_PLAYBACK.fields());
            var joinTemplate = selectTemplatePlayback
              .from(TEMPLATE_PLAYBACK)
              .join(TEMPLATE).on(TEMPLATE.ID.eq(TEMPLATE_PLAYBACK.TEMPLATE_ID))) {
-        return modelFrom(TemplatePlayback.class, joinTemplate
+        playback = joinTemplate
           .where(TEMPLATE_PLAYBACK.ID.eq(id))
           .and(TEMPLATE.ACCOUNT_ID.in(access.getAccountIds()))
           .and(TEMPLATE_PLAYBACK.CREATED_AT.greaterThan(Timestamp.from(Instant.now().minusSeconds(playbackExpireSeconds)).toLocalDateTime()))
-          .fetchOne());
-      } catch (Exception e) {
-        return null;
+          .fetchOne();
       }
+    return Objects.nonNull(playback) ? modelFrom(TemplatePlayback.class, playback) : null;
   }
 
   /**

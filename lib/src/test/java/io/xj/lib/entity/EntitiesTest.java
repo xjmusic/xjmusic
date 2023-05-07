@@ -10,6 +10,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -99,6 +100,30 @@ public class EntitiesTest extends TestTemplate {
     Entities.set(widget5, "name", "Dave");
 
     Assert.assertEquals("Dave", widget5.getName());
+  }
+
+  @Test
+  public void set_localDateTime() throws EntityException {
+    Widget widget5 = new Widget()
+      .setId(UUID.fromString("879802e8-5856-4b1f-8c7f-09fd7f4bcde6"))
+      .setName("Marv");
+    LocalDateTime input = LocalDateTime.parse("2020-03-09T12:34:56.789");
+
+    Entities.set(widget5, "createdAt", input);
+
+    Assert.assertEquals(input, widget5.getCreatedAt());
+  }
+
+  @Test
+  public void set_localDateTime_fromString() throws EntityException {
+    Widget widget5 = new Widget()
+      .setId(UUID.fromString("879802e8-5856-4b1f-8c7f-09fd7f4bcde6"))
+      .setName("Marv");
+    LocalDateTime input = LocalDateTime.parse("2020-03-09T12:34:56.789");
+
+    Entities.set(widget5, "createdAt", input.toString());
+
+    Assert.assertEquals(input, widget5.getCreatedAt());
   }
 
   @Test

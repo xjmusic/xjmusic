@@ -4,6 +4,7 @@ package io.xj.hub.persistence.kv;
 
 import com.google.common.collect.Maps;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Map;
 
@@ -20,8 +21,8 @@ public class MemoryKvStore implements KvStore {
   }
 
   @Override
-  public String get(String key) {
-    return store.get(key);
+  public @Nullable String get(String key) {
+    return store.containsKey(key) ? store.get(key) : null;
   }
 
   @Override

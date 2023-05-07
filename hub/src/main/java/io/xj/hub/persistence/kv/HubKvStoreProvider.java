@@ -3,6 +3,8 @@ package io.xj.hub.persistence.kv;
 
 import io.xj.hub.persistence.HubPersistenceException;
 
+import javax.annotation.Nullable;
+
 public interface HubKvStoreProvider {
 
   /**
@@ -24,7 +26,7 @@ public interface HubKvStoreProvider {
    * @return object
    * @throws HubPersistenceException if there is an error
    */
-  <T> T get(Class<T> type, String key) throws HubPersistenceException;
+  <T> @Nullable T get(Class<T> type, String key) throws HubPersistenceException;
 
   /**
    * Encapsulate the del operation

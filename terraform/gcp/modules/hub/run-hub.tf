@@ -94,6 +94,15 @@ resource "google_cloud_run_v2_service" "hub" {
         value = var.ship_bucket
       }
       env {
+        name = "INGEST_TOKEN_VALUE"
+        value_source {
+          secret_key_ref {
+            version = "latest"
+            secret  = var.secret_id__ingest_token_value
+          }
+        }
+      }
+      env {
         name = "AWS_ACCESS_KEY_ID"
         value_source {
           secret_key_ref {

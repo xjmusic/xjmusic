@@ -7,9 +7,9 @@ import com.google.common.collect.ImmutableSet;
 import io.xj.hub.enums.UserRoleType;
 import io.xj.hub.manager.UserManager;
 import io.xj.hub.manager.UserManagerImpl;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.kv.HubKvStoreProvider;
 import io.xj.hub.persistence.kv.HubKvStoreProviderImpl;
-import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.AccountUser;
 import io.xj.hub.tables.pojos.User;
@@ -18,6 +18,7 @@ import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.JsonProviderImpl;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -107,11 +108,35 @@ public class HubRemoteAccessTokenTest {
 
     userManager.create(user, userAuth, accountUsers);
 
-    var actual = hubKVStoreProvider.get(HubAccess.class, "xj_session_test:token123");
-    assertEquals(user.getId(), actual.getUserId());
-    assertEquals(userAuth.getId(), actual.getUserAuthId());
-    assertArrayEquals(ImmutableList.of(UserRoleType.User, UserRoleType.Artist).toArray(), actual.getRoleTypes().toArray());
-    assertArrayEquals(ImmutableSet.of(account1.getId(), account2.getId()).toArray(), actual.getAccountIds().toArray());
+    var result = hubKVStoreProvider.get(HubAccess.class, "xj_session_test:token123");
+    Assertions.assertNotNull(result);
+    assertEquals(user.getId(), result.getUserId());
+    assertEquals(userAuth.getId(), result.getUserAuthId());
+    assertArrayEquals(ImmutableList.of(UserRoleType.User, UserRoleType.Artist).toArray(), result.getRoleTypes().toArray());
+    assertArrayEquals(ImmutableSet.of(account1.getId(), account2.getId()).toArray(), result.getAccountIds().toArray());
+  }
+
+  @Test
+  public void get() throws Exception {
+    when(hubAccessTokenGenerator.generate())
+      .thenReturn("token123");
+    userManager.create(user, userAuth, accountUsers);
+
+    var result = hubKVStoreProvider.get(HubAccess.class, "xj_session_test:token123");
+
+    Assertions.assertNotNull(result);
+    assertEquals(user.getId(), result.getUserId());
+  }
+
+  @Test
+  public void get_nullIfNotFound() throws Exception {
+    when(hubAccessTokenGenerator.generate())
+      .thenReturn("token123");
+    userManager.create(user, userAuth, accountUsers);
+
+    var actual = hubKVStoreProvider.get(HubAccess.class, "xj_session_test:token456");
+
+    Assertions.assertNull(actual);
   }
 
   @Test

@@ -5,9 +5,7 @@ import nu.studer.gradle.jooq.JooqEdition
 import org.jooq.meta.jaxb.Logging
 
 plugins {
-	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
-	id 'java'
-	id 'org.springframework.boot' version '2.7.6'
+  id 'java'
   id 'application'
   id 'distribution'
   id 'jacoco'
@@ -19,6 +17,7 @@ plugins {
   id 'nu.studer.jooq'
   id 'org.ajoberstar.grgit'
 }
+
 
 group = 'io.xj'
 version = '1.0'
@@ -35,9 +34,11 @@ jacocoTestReport {
   }
 }
 
-apply plugin: "nu.studer.jooq"
-apply plugin: "org.flywaydb.flyway"
+apply plugin: 'nu.studer.jooq'
+apply plugin: 'org.flywaydb.flyway'
 apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
 
 flyway {
   url = 'jdbc:postgresql://127.0.0.1:5432/xj_test'
@@ -66,7 +67,7 @@ dependencies {
   implementation 'com.google.cloud:google-cloud-core:2.14.0'
   implementation 'com.google.cloud:google-cloud-logging:3.14.7'
   implementation 'com.google.cloud:google-cloud-run:0.15.0'
-  implementation 'com.google.guava:guava:31.1-jre'
+  implementation "com.google.guava:guava:${rootProject.ext.guavaVersion}"
   implementation 'com.typesafe:config:1.4.1'
   implementation 'com.zaxxer:HikariCP:5.0.0'
   implementation 'commons-codec:commons-codec:1.15'
@@ -93,12 +94,12 @@ dependencies {
   implementation 'org.postgresql:postgresql:42.2.27'
   implementation 'org.reflections:reflections:0.10.1'
   implementation 'org.slf4j:slf4j-api:1.7.32'
-  implementation 'org.springframework.boot:spring-boot-starter-web:2.7.6'
+  implementation "org.springframework.boot:spring-boot-starter-web:${rootProject.ext.springBootVersion}"
   implementation 'org.yaml:snakeyaml:1.33'
   implementation 'software.amazon.awssdk:cloudwatch:2.17.61'
   testFixturesImplementation 'com.google.api-client:google-api-client:1.31.5'
   testFixturesImplementation 'com.google.apis:google-api-services-plus:v1-rev20190328-1.30.10'
-  testFixturesImplementation 'com.google.guava:guava:31.0.1-jre'
+  testFixturesImplementation "com.google.guava:guava:${rootProject.ext.guavaVersion}"
   testFixturesImplementation 'com.typesafe:config:1.4.1'
   testFixturesImplementation 'org.jooq:jooq:3.15.2'
   testFixturesImplementation 'org.slf4j:slf4j-api:1.7.32'
@@ -108,7 +109,7 @@ dependencies {
   testImplementation 'org.hamcrest:hamcrest-library:2.2'
   testImplementation 'org.mockito:mockito-core:4.0.0'
   testImplementation 'org.mockito:mockito-junit-jupiter:4.6.1'
-  testImplementation 'org.springframework.boot:spring-boot-starter-test:2.7.6'
+  testImplementation "org.springframework.boot:spring-boot-starter-test:${rootProject.ext.springBootVersion}"
 }
 
 

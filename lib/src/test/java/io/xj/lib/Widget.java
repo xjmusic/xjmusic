@@ -2,6 +2,7 @@
 
 package io.xj.lib;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class Widget {
@@ -10,6 +11,7 @@ public class Widget {
   private UUID superwidgetId;
   private WidgetState state;
   private double position;
+  private LocalDateTime createdAt;
 
   public UUID getId() {
     return id;
@@ -55,4 +57,13 @@ public class Widget {
     this.position = position;
     return this;
   }
+
+  public LocalDateTime getCreatedAt() {
+    return this.createdAt;
+  }
+
+  public void setCreatedAt(LocalDateTime createdAt) {
+    this.createdAt = createdAt;
+  }
+
 }

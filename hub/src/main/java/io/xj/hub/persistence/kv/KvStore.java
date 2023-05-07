@@ -2,12 +2,13 @@
 
 package io.xj.hub.persistence.kv;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 
 public interface KvStore {
   void put(String key, String value);
 
-  String get(String key);
+  @Nullable String get(String key);
 
   void remove(String key);
 

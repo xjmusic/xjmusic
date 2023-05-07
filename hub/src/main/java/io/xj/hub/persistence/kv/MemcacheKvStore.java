@@ -8,6 +8,7 @@ import net.spy.memcached.MemcachedClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -28,8 +29,9 @@ public class MemcacheKvStore implements KvStore {
   }
 
   @Override
-  public String get(String key) {
-    return Objects.requireNonNull(memcachedClient.get(key)).toString();
+  public @Nullable String get(String key) {
+    var value = memcachedClient.get(key);
+    return Objects.nonNull(value) ? value.toString() : null;
   }
 
   @Override
