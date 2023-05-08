@@ -361,7 +361,7 @@ public class NexusWorkImpl implements NexusWork {
       // read the source material
       var material = hubClient.ingest(access, chain.getTemplateId());
       chainSourceMaterial.put(chain.getId(), material);
-      LOG.debug("Ingested {} entities of source material for Chain[{}]", material.size(), Chains.getIdentifier(chain));
+      LOG.info("Ingested {} entities of source material for Chain[{}]", material.size(), Chains.getIdentifier(chain));
 
     } catch (HubClientException e) {
       didFailWhile(chain.getShipKey(), "ingesting source material from Hub", e, false);
