@@ -231,7 +231,10 @@ public class NexusWorkImpl implements NexusWork {
    * This is the internal cycle that's run indefinitely
    */
   private void runCycle() throws InterruptedException {
-    if (System.currentTimeMillis() < nextCycleMillis) Thread.sleep(INTERNAL_CYCLE_SLEEP_MILLIS);
+    if (System.currentTimeMillis() < nextCycleMillis) {
+      Thread.sleep(INTERNAL_CYCLE_SLEEP_MILLIS);
+      return;
+    };
     nextCycleMillis = System.currentTimeMillis() + cycleMillis;
 
     // Action based on state and mode
@@ -264,6 +267,7 @@ public class NexusWorkImpl implements NexusWork {
     timer.lap();
     LOG.info("Lap time: {}", timer.lapToString());
     timer.clearLapSections();
+    nextCycleMillis = System.currentTimeMillis() + cycleMillis;
   }
 
   /**

@@ -218,8 +218,11 @@ public class ShipWorkImpl implements ShipWork {
    */
   private void doCycle() throws InterruptedException {
     var nowMillis = System.currentTimeMillis();
-    if (nowMillis < nextCycleMillis) Thread.sleep(INTERNAL_CYCLE_SLEEP_MILLIS);
-    nextCycleMillis = nowMillis + cycleMillis;
+    if (nowMillis < nextCycleMillis) {
+      Thread.sleep(INTERNAL_CYCLE_SLEEP_MILLIS);
+      return;
+    };
+    nextCycleMillis = System.currentTimeMillis() + cycleMillis;
 
     if (state.get() == State.Active)
       try {
@@ -247,6 +250,8 @@ public class ShipWorkImpl implements ShipWork {
         LOG.error("Failed to acquire ship lock for Chain[{}] reason={}", shipKey, e.getMessage());
         active = false;
       }
+
+    nextCycleMillis = System.currentTimeMillis() + cycleMillis;
   }
 
   /**

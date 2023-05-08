@@ -83,6 +83,10 @@ resource "google_cloud_run_v2_service" "nexus" {
         value = var.ship_key
       }
       env {
+        name = "TELEMETRY_ENABLED"
+        value = "true"
+      }
+      env {
         name = "AWS_ACCESS_KEY_ID"
         value_source {
           secret_key_ref {
