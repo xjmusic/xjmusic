@@ -13,6 +13,7 @@ module "lab_dev_hub" {
   source = "./modules/hub"
 
   image                           = "gcr.io/xj-vpc-host-prod/dev/hub:latest"
+  nexus_image                     = "gcr.io/xj-vpc-host-prod/dev/nexus:latest"
   service_name                    = "xj-dev-lab-hub"
   app_base_url                    = "https://lab.dev.xj.io/"
   audio_base_url                  = "https://audio.dev.xj.io/"
@@ -44,6 +45,7 @@ module "lab_prod_hub" {
   source = "./modules/hub"
 
   image                           = "gcr.io/xj-vpc-host-prod/hub:latest"
+  nexus_image                     = "gcr.io/xj-vpc-host-prod/nexus:latest"
   service_name                    = "xj-prod-lab-hub"
   app_base_url                    = "https://lab.xj.io/"
   audio_base_url                  = "https://audio.xj.io/"

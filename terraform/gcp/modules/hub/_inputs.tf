@@ -4,6 +4,10 @@ variable "image" {
   type = string
 }
 
+variable "nexus_image" {
+  type = string
+}
+
 variable "service_name" {
   type = string
 }

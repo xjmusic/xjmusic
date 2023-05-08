@@ -94,6 +94,10 @@ resource "google_cloud_run_v2_service" "hub" {
         value = var.ship_bucket
       }
       env {
+        name  = "SERVICE_NEXUS_IMAGE"
+        value = var.nexus_image
+      }
+      env {
         name = "INGEST_TOKEN_VALUE"
         value_source {
           secret_key_ref {
