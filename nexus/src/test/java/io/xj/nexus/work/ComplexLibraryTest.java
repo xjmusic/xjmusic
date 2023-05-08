@@ -31,6 +31,7 @@ import io.xj.nexus.dub.DubAudioCacheItemFactory;
 import io.xj.nexus.dub.DubAudioCacheItemFactoryImpl;
 import io.xj.nexus.dub.DubFactoryImpl;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
+import io.xj.lib.lock.LockProvider;
 import io.xj.nexus.persistence.ChainManager;
 import io.xj.nexus.persistence.ChainManagerImpl;
 import io.xj.nexus.persistence.ManagerExistenceException;
@@ -98,6 +99,8 @@ public class ComplexLibraryTest {
   private SegmentManager segmentManager;
   private NexusWork work;
   private HubContent content;
+  @Mock
+  private LockProvider lockProvider;
 
   @Before
   public void setUp() throws Exception {
@@ -161,21 +164,16 @@ public class ComplexLibraryTest {
 
     // work
     work = new NexusWorkImpl(
-      chainManager,
+      env, chainManager,
       craftFactory,
       dubFactory,
       entityFactory,
-      env,
       fabricatorFactory,
-      httpClientProvider,
-      hubClient,
-      jsonProvider,
-      jsonapiPayloadFactory,
+      httpClientProvider, hubClient, jsonapiPayloadFactory, jsonProvider, lockProvider,
       store,
       notificationProvider,
-      segmentManager,
-      telemetryProvider,
-      previewNexusAdmin
+      previewNexusAdmin, segmentManager,
+      telemetryProvider
     );
 
     workThread = new AppWorkThread(work);

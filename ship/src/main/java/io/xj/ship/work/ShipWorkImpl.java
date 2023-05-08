@@ -3,6 +3,8 @@ package io.xj.ship.work;
 
 import com.google.common.base.Strings;
 import io.xj.lib.app.AppEnvironment;
+import io.xj.lib.lock.LockException;
+import io.xj.lib.lock.LockProvider;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.util.Text;
 import io.xj.nexus.persistence.ChainManager;
@@ -39,6 +41,7 @@ import static io.xj.lib.util.Values.MILLIS_PER_SECOND;
 @Service
 public class ShipWorkImpl implements ShipWork {
   private static final Logger LOG = LoggerFactory.getLogger(ShipWorkImpl.class);
+  private static final long INTERNAL_CYCLE_SLEEP_MILLIS = 50;
   private final AtomicReference<State> state;
   private final AudioFormat audioFormat;
   private final BroadcastFactory broadcastFactory;
@@ -65,6 +68,7 @@ public class ShipWorkImpl implements ShipWork {
   private final boolean telemetryEnabled;
   private final long initialSeqNum;
   private final StreamWriter writer;
+  private final String streamBucket;
   private StreamEncoder stream;
   private boolean active = true;
   private long doneUpToSecondsUTC;
@@ -75,22 +79,25 @@ public class ShipWorkImpl implements ShipWork {
   private long nextPublishMillis = 0;
   private long nextLoadMillis = 0;
   private final String envName;
+  private final LockProvider lockProvider;
 
   public ShipWorkImpl(
-    BroadcastFactory broadcastFactory,
-    ChunkFactory chunkFactory,
-    ChainManager chainManager,
     AppEnvironment env,
+    BroadcastFactory broadcastFactory,
+    ChainManager chainManager,
+    ChunkFactory chunkFactory,
     Janitor janitor,
+    LockProvider lockProvider,
     MediaSeqNumProvider mediaSeqNumProvider,
     NotificationProvider notificationProvider,
     PlaylistPublisher playlistPublisher,
     SegmentAudioManager segmentAudioManager
   ) {
     this.broadcastFactory = broadcastFactory;
-    this.chunkFactory = chunkFactory;
     this.chainManager = chainManager;
+    this.chunkFactory = chunkFactory;
     this.janitor = janitor;
+    this.lockProvider = lockProvider;
     this.mediaSeqNumProvider = mediaSeqNumProvider;
     this.notificationProvider = notificationProvider;
     this.playlistPublisher = playlistPublisher;
@@ -112,8 +119,9 @@ public class ShipWorkImpl implements ShipWork {
     mixCycleSeconds = env.getShipMixCycleSeconds();
     publishCycleSeconds = env.getWorkPublishCycleSeconds();
     shipAheadMillis = env.getShipPlaylistAheadSeconds() * MILLIS_PER_SECOND;
-    telemetryEnabled = env.isTelemetryEnabled();
+    streamBucket = env.getStreamBucket();
     telemetryCycleSeconds = env.getWorkTelemetryCycleSeconds();
+    telemetryEnabled = env.isTelemetryEnabled();
 
     audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
       48000,
@@ -157,7 +165,14 @@ public class ShipWorkImpl implements ShipWork {
     }
 
     LOG.info("Will start Ship");
-    while (active) this.doCycle();
+    while (active) {
+      try {
+        this.doCycle();
+      } catch (InterruptedException e) {
+        LOG.warn("Ship interrupted!", e);
+        active = false;
+      }
+    }
   }
 
   @Override
@@ -201,23 +216,36 @@ public class ShipWorkImpl implements ShipWork {
   /**
    * Run one work cycle
    */
-  private void doCycle() {
+  private void doCycle() throws InterruptedException {
     var nowMillis = System.currentTimeMillis();
-    if (nowMillis < nextCycleMillis) return;
+    if (nowMillis < nextCycleMillis) Thread.sleep(INTERNAL_CYCLE_SLEEP_MILLIS);
     nextCycleMillis = nowMillis + cycleMillis;
 
     if (state.get() == State.Active)
       try {
+        // On Ship start, generate a random hash key and write it to a lock file named after the ship key, next to the target playlist output m3u8-- e.g. **bump_deep.lock** is written next to the target chain output **bump_deep.m3u8**
+        // https://www.pivotaltracker.com/story/show/185119448
+        lockProvider.acquire(streamBucket, shipKey);
+
         doLoadCycle(nowMillis);
         doMixCycle(nowMillis);
+
+        // Before writing the playlist, Ship reads the expected lock file and confirms that the hash has not changed.
+        // https://www.pivotaltracker.com/story/show/185119448
+        lockProvider.check(streamBucket, shipKey);
+
         doPublishCycle(nowMillis);
         doCleanupCycle(nowMillis);
         doTelemetryCycle(nowMillis);
 
-      } catch (Exception e) {
+      } catch (ShipException e) {
         var detail = Strings.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
         LOG.error("Failed while running ship work because {}", detail, e);
         notificationProvider.publish(String.format("%s-Chain[%s] Ship Failure", envName, shipKey), String.format("Failed while running ship work because %s\n\n%s", detail, Text.formatStackTrace(e)));
+
+      } catch (LockException e) {
+        LOG.error("Failed to acquire ship lock for Chain[{}] reason={}", shipKey, e.getMessage());
+        active = false;
       }
   }
 

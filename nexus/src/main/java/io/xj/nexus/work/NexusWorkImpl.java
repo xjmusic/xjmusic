@@ -38,6 +38,8 @@ import io.xj.nexus.dub.DubFactory;
 import io.xj.nexus.fabricator.FabricationFatalException;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
+import io.xj.lib.lock.LockProvider;
+import io.xj.lib.lock.LockException;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.Segment;
@@ -84,11 +86,13 @@ import static io.xj.nexus.work.NexusWorkImpl.Mode.Lab;
 @Service
 public class NexusWorkImpl implements NexusWork {
   private static final Logger LOG = LoggerFactory.getLogger(NexusWorkImpl.class);
+  private static final long INTERNAL_CYCLE_SLEEP_MILLIS = 50;
   private final ChainManager chainManager;
   private final CraftFactory craftFactory;
   private final DubFactory dubFactory;
   private final EntityFactory entityFactory;
   private final FabricatorFactory fabricatorFactory;
+  private final LockProvider lockProvider;
   private final HttpClientProvider httpClientProvider;
   private final HubClient hubClient;
   private final HubClientAccess access = HubClientAccess.internal();
@@ -124,11 +128,12 @@ public class NexusWorkImpl implements NexusWork {
   private final String shipKey;
   @Nullable
   private final UUID fabricationPreviewTemplatePlaybackId;
+  private final String shipBucket;
   private Instant labPollNext;
   private Instant yardPollNext;
   private NexusWorkImpl.State state;
   private MultiStopwatch timer;
-  private boolean alive = true;
+  private boolean active = true;
   private boolean allChainsFabricatedAhead = true;
   private long nextCycleMillis = System.currentTimeMillis();
   private long nextJanitorMillis = System.currentTimeMillis();
@@ -137,21 +142,22 @@ public class NexusWorkImpl implements NexusWork {
 
   @Autowired
   public NexusWorkImpl(
+    AppEnvironment env,
     ChainManager chainManager,
     CraftFactory craftFactory,
     DubFactory dubFactory,
     EntityFactory entityFactory,
-    AppEnvironment env,
     FabricatorFactory fabricatorFactory,
     HttpClientProvider httpClientProvider,
     HubClient hubClient,
-    JsonProvider jsonProvider,
     JsonapiPayloadFactory jsonapiPayloadFactory,
+    JsonProvider jsonProvider,
+    LockProvider lockProvider,
     NexusEntityStore store,
     NotificationProvider notification,
+    PreviewNexusAdmin previewNexusAdmin,
     SegmentManager segmentManager,
-    TelemetryProvider telemetryProvider,
-    PreviewNexusAdmin previewNexusAdmin
+    TelemetryProvider telemetryProvider
   ) {
     this.chainManager = chainManager;
     this.craftFactory = craftFactory;
@@ -162,6 +168,7 @@ public class NexusWorkImpl implements NexusWork {
     this.hubClient = hubClient;
     this.jsonProvider = jsonProvider;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
+    this.lockProvider = lockProvider;
     this.notification = notification;
     this.segmentManager = segmentManager;
     this.store = store;
@@ -183,6 +190,7 @@ public class NexusWorkImpl implements NexusWork {
     rehydrateFabricatedAheadThreshold = env.getWorkRehydrateFabricatedAheadThreshold();
     shipBaseUrl = env.getShipBaseUrl();
     shipKey = env.getShipKey();
+    shipBucket = env.getShipBucket();
     yardPollSeconds = env.getWorkYardPollSeconds();
     this.previewNexusAdmin = previewNexusAdmin;
 
@@ -203,20 +211,27 @@ public class NexusWorkImpl implements NexusWork {
   public void start() {
     timer = MultiStopwatch.start();
     LOG.info("Will start Nexus");
-    while (alive) runCycle();
+    while (active) {
+      try {
+        runCycle();
+      } catch (InterruptedException e) {
+        LOG.warn("Nexus interrupted!", e);
+        active = false;
+      }
+    }
   }
 
   @Override
   public void finish() {
-    alive = false;
+    active = false;
     LOG.info("Did stop Nexus");
   }
 
   /**
    * This is the internal cycle that's run indefinitely
    */
-  private void runCycle() {
-    if (System.currentTimeMillis() < nextCycleMillis) return;
+  private void runCycle() throws InterruptedException {
+    if (System.currentTimeMillis() < nextCycleMillis) Thread.sleep(INTERNAL_CYCLE_SLEEP_MILLIS);
     nextCycleMillis = System.currentTimeMillis() + cycleMillis;
 
     // Action based on state and mode
@@ -422,12 +437,16 @@ public class NexusWorkImpl implements NexusWork {
   /**
    * Do the work-- this is called by the underlying WorkerImpl run() hook
    */
-  public void fabricateChain(Chain from) throws FabricationFatalException {
+  public void fabricateChain(Chain target) throws FabricationFatalException {
     try {
+      // On Nexus start, generate a random hash key and write it to a lock file named after the ship key, next to the target chain output json-- e.g. **bump_deep.lock** is written next to the target chain output **bump_deep.json**
+      // https://www.pivotaltracker.com/story/show/185119448
+      lockProvider.acquire(shipBucket, target.getShipKey());
+
       timer.section("ComputeAhead");
-      var fabricatedAheadAt = computeFabricatedAheadAt(from);
+      var fabricatedAheadAt = computeFabricatedAheadAt(target);
       double aheadSeconds = Math.floor(Values.computeRelativeSeconds(fabricatedAheadAt));
-      var chain = chainManager.update(from.getId(), from.fabricatedAheadAt(Values.formatIso8601UTC(fabricatedAheadAt)));
+      var chain = chainManager.update(target.getId(), target.fabricatedAheadAt(Values.formatIso8601UTC(fabricatedAheadAt)));
       telemetryProvider.put(METRIC_FABRICATED_AHEAD_SECONDS, aheadSeconds);
 
       var templateConfig = chainManager.getTemplateConfig(chain.getId());
@@ -462,6 +481,10 @@ public class NexusWorkImpl implements NexusWork {
       chain = chainManager.update(chain.getId(), chain.fabricatedAheadAt(Values.formatIso8601UTC(fabricatedAheadAt)));
       telemetryProvider.put(METRIC_FABRICATED_AHEAD_SECONDS, aheadSeconds);
 
+      // Before writing a segment, Nexus reads the expected lock file and confirms that the hash has not changed.
+      // https://www.pivotaltracker.com/story/show/185119448
+      lockProvider.check(shipBucket, target.getShipKey());
+
       timer.section("Ship");
       doDubShipWork(fabricator);
       finishWork(fabricator, segment);
@@ -475,18 +498,21 @@ public class NexusWorkImpl implements NexusWork {
     } catch (ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException |
              ManagerFatalException | NexusException | ValueException e) {
       var body = String.format("Failed to create Segment of Chain[%s] (%s) because %s\n\n%s",
-        Chains.getIdentifier(from),
-        from.getType(),
+        Chains.getIdentifier(target),
+        target.getType(),
         e.getMessage(),
         Text.formatStackTrace(e));
 
       notification.publish(String.format("%s-Chain[%s] Failure",
-        from.getType(),
-        Chains.getIdentifier(from)), body
+        target.getType(),
+        Chains.getIdentifier(target)), body
       );
 
-      LOG.error("Failed to created Segment in Chain[{}] reason={}", Chains.getIdentifier(from), e.getMessage());
+      LOG.error("Failed to created Segment in Chain[{}] reason={}", Chains.getIdentifier(target), e.getMessage());
 
+    } catch (LockException e) {
+      LOG.error("Failed to acquire fabrication lock for Chain[{}] reason={}", Chains.getIdentifier(target), e.getMessage());
+      active = false;
     }
   }
 

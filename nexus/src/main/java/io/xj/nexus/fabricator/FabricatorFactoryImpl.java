@@ -29,11 +29,11 @@ public class FabricatorFactoryImpl implements FabricatorFactory {
     JsonapiPayloadFactory jsonapiPayloadFactory,
     JsonProvider jsonProvider
   ) {
-    this.env = env;
     this.chainManager = chainManager;
-    this.segmentManager = segmentManager;
-    this.jsonapiPayloadFactory = jsonapiPayloadFactory;
+    this.env = env;
     this.jsonProvider = jsonProvider;
+    this.jsonapiPayloadFactory = jsonapiPayloadFactory;
+    this.segmentManager = segmentManager;
   }
 
   @Override
@@ -50,4 +50,5 @@ public class FabricatorFactoryImpl implements FabricatorFactory {
   public SegmentWorkbench setupWorkbench(Chain chain, Segment segment) throws NexusException {
     return new SegmentWorkbenchImpl(chain, segment, segmentManager, jsonapiPayloadFactory, new EntityStoreImpl());
   }
+
 }

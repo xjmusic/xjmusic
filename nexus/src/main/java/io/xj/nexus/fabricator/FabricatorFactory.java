@@ -8,54 +8,54 @@ import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 
 /**
- Fabricator content = contentFactory.fabricate(segment);
- ... do things with this content, like craft or dub ...
- content.putReport();
- <p>
- Unify factory with explicit methods to construct components from Fabricator https://www.pivotaltracker.com/story/show/176625033
+ * Fabricator content = contentFactory.fabricate(segment);
+ * ... do things with this content, like craft or dub ...
+ * content.putReport();
+ * <p>
+ * Unify factory with explicit methods to construct components from Fabricator https://www.pivotaltracker.com/story/show/176625033
  */
 public interface FabricatorFactory {
   /**
-   Create a fabricator to fabricate a segment
-
-   @param sourceMaterial from which to fabricate
-   @param segment        segment to be fabricated
-   @return Fabricator
-   @throws NexusException       on retry-able network or service failure
-   @throws FabricationFatalException on failure requiring a chain restart https://www.pivotaltracker.com/story/show/182131722
+   * Create a fabricator to fabricate a segment
+   *
+   * @param sourceMaterial from which to fabricate
+   * @param segment        segment to be fabricated
+   * @return Fabricator
+   * @throws NexusException            on retry-able network or service failure
+   * @throws FabricationFatalException on failure requiring a chain restart https://www.pivotaltracker.com/story/show/182131722
    */
   Fabricator fabricate(
-     HubContent sourceMaterial,
-     Segment segment
+    HubContent sourceMaterial,
+    Segment segment
   ) throws NexusException, FabricationFatalException;
 
   /**
-   Create a retrospective to fabricate a particular segment
-   <p>
-   Fabricator content = contentFactory.workOn(segment);
-   ... do things with this content, like craft or dub ...
-   content.putReport();
-
-   @param segment        Segment that's on the workbench
-   @param sourceMaterial to get answers about the segment content
-   @return SegmentRetrospective
-   @throws NexusException       on retry-able network or service failure
-   @throws FabricationFatalException on failure requiring a chain restart https://www.pivotaltracker.com/story/show/182131722
+   * Create a retrospective to fabricate a particular segment
+   * <p>
+   * Fabricator content = contentFactory.workOn(segment);
+   * ... do things with this content, like craft or dub ...
+   * content.putReport();
+   *
+   * @param segment        Segment that's on the workbench
+   * @param sourceMaterial to get answers about the segment content
+   * @return SegmentRetrospective
+   * @throws NexusException            on retry-able network or service failure
+   * @throws FabricationFatalException on failure requiring a chain restart https://www.pivotaltracker.com/story/show/182131722
    */
   SegmentRetrospective loadRetrospective(
-     Segment segment,
-     HubContent sourceMaterial
+    Segment segment,
+    HubContent sourceMaterial
   ) throws NexusException, FabricationFatalException;
 
   /**
-   Create a workbench to fabricate a particular segment
-
-   @param segment Segment to be worked on
-   @return SegmentWorkbench
-   @throws NexusException on failure
+   * Create a workbench to fabricate a particular segment
+   *
+   * @param segment Segment to be worked on
+   * @return SegmentWorkbench
+   * @throws NexusException on failure
    */
   SegmentWorkbench setupWorkbench(
-     Chain chain,
-     Segment segment
+    Chain chain,
+    Segment segment
   ) throws NexusException;
 }

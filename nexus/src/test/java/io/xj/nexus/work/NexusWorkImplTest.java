@@ -28,6 +28,7 @@ import io.xj.nexus.dub.DubAudioCacheItemFactory;
 import io.xj.nexus.dub.DubAudioCacheItemFactoryImpl;
 import io.xj.nexus.dub.DubFactoryImpl;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
+import io.xj.lib.lock.LockProvider;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
 import io.xj.nexus.persistence.ChainManager;
@@ -66,6 +67,8 @@ public class NexusWorkImplTest {
   @Mock
   private PreviewNexusAdmin previewNexusAdmin;
   private NexusWork subject;
+  @Mock
+  private LockProvider lockProvider;
 
   @Before
   public void setUp() throws Exception {
@@ -117,21 +120,16 @@ public class NexusWorkImplTest {
 
     // Instantiate the test subject
     subject = new NexusWorkImpl(
-      chainManager,
+      env, chainManager,
       craftFactory,
       dubFactory,
       entityFactory,
-      env,
       fabricatorFactory,
-      httpClientProvider,
-      hubClient,
-      jsonProvider,
-      jsonapiPayloadFactory,
+      httpClientProvider, hubClient, jsonapiPayloadFactory, jsonProvider, lockProvider,
       store,
       notificationProvider,
-      segmentManager,
-      telemetryProvider,
-      previewNexusAdmin
+      previewNexusAdmin, segmentManager,
+      telemetryProvider
     );
   }
 

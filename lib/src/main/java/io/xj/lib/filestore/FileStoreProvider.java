@@ -81,4 +81,11 @@ public interface FileStoreProvider {
    */
   void putS3ObjectFromString(String content, String bucket, String key, String contentType, @Nullable Integer expiresInSeconds) throws FileStoreException;
 
+  /**
+   * Get an object from S3
+   * @param bucket the bucket
+   * @param key the key
+   * @return the object
+   */
+  String getS3Object(String bucket, String key);
 }
