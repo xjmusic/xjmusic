@@ -650,7 +650,7 @@ public class NexusWorkImpl implements NexusWork {
       return false;
     }
 
-    Optional<Template> template = readPreviewTemplate(templatePlayback.get().getTemplateId());
+    Optional<Template> template = readPreviewTemplate(templatePlayback.get());
     if (template.isEmpty()) {
       LOG.debug("No preview template found");
       selfDestructPreviewTemplate();
@@ -689,19 +689,26 @@ public class NexusWorkImpl implements NexusWork {
   private void selfDestructPreviewTemplate() {
     if (Objects.isNull(fabricationPreviewTemplatePlaybackId)) return;
     try {
-      var templatePlayback  = new TemplatePlayback();
+      LOG.info("Will self-destruct stale TemplatePlayback[{}]", fabricationPreviewTemplatePlaybackId);
+      var templatePlayback = new TemplatePlayback();
       templatePlayback.setId(fabricationPreviewTemplatePlaybackId);
       previewNexusAdmin.stopPreviewNexus(templatePlayback);
     } catch (ServiceException e) {
-      LOG.error("Failed to read preview TemplatePlayback[{}] from Hub because {}", fabricationPreviewTemplatePlaybackId, e.getMessage());
+      LOG.error("Failed to self-destruct stale TemplatePlayback[{}] because {}", fabricationPreviewTemplatePlaybackId, e.getMessage());
     }
   }
 
-  private Optional<Template> readPreviewTemplate(UUID templateId) {
+  /**
+   * Read preview Template from Hub
+   *
+   * @param playback TemplatePlayback for which to get Template
+   * @return preview Template
+   */
+  private Optional<Template> readPreviewTemplate(TemplatePlayback playback) {
     try {
-      return hubClient.readPreviewTemplate(templateId);
+      return hubClient.readPreviewTemplate(playback.getTemplateId());
     } catch (HubClientException e) {
-      LOG.error("Failed to read preview Template[{}] from Hub because {}", templateId, e.getMessage());
+      LOG.error("Failed to read preview Template[{}] from Hub because {}", playback.getTemplateId(), e.getMessage());
       return Optional.empty();
     }
   }

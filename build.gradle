@@ -17,8 +17,7 @@ plugins {
 }
 
 ext {
-  guavaVersion = '31.0.1-jre'
-  guavaNewerVersion = '31.1-jre'
+  guavaVersion = '31.1-jre'
   springBootVersion = '2.7.6'
   springTestVersion = '5.3.24'
 }

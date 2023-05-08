@@ -59,7 +59,7 @@ dependencies {
   implementation 'com.google.cloud:google-cloud-core:2.14.0'
   implementation 'com.google.cloud:google-cloud-logging:3.14.7'
   implementation 'com.google.cloud:google-cloud-run:0.15.0'
-  implementation "com.google.guava:guava:${rootProject.ext.guavaNewerVersion}"
+  implementation "com.google.guava:guava:${rootProject.ext.guavaVersion}"
   implementation 'com.typesafe:config:1.4.1'
   implementation 'com.zaxxer:HikariCP:5.0.0'
   implementation 'commons-codec:commons-codec:1.15'
