@@ -159,6 +159,7 @@ resource "google_cloud_run_v2_service" "ship" {
 
 # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/monitoring_alert_policy
 resource "google_monitoring_alert_policy" "ship_hls_playlist_ahead_seconds" {
+  project      = var.project_id
   depends_on   = [google_cloud_run_v2_service.ship]
   enabled      = true
   combiner     = "OR"
@@ -168,7 +169,7 @@ resource "google_monitoring_alert_policy" "ship_hls_playlist_ahead_seconds" {
     condition_threshold {
       comparison      = "COMPARISON_LT"
       duration        = "60s"
-      filter          = "resource.type = \"cloud_run_revision\" AND metric.type = \"custom.googleapis.com/opencensus/${var.ship_key}_ship_hls_playlist_ahead_seconds\""
+      filter          = "resource.type = \"gce_instance\" AND metric.type = \"custom.googleapis.com/opencensus/${var.ship_key}_ship_hls_playlist_ahead_seconds\""
       threshold_value = 0.005
       trigger { count = 1 }
       aggregations {
@@ -183,6 +184,7 @@ resource "google_monitoring_alert_policy" "ship_hls_playlist_ahead_seconds" {
 
 # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/monitoring_alert_policy
 resource "google_monitoring_alert_policy" "ship_hls_playlist_shipping" {
+  project      = var.project_id
   depends_on   = [google_cloud_run_v2_service.ship]
   enabled      = true
   combiner     = "OR"
@@ -191,7 +193,7 @@ resource "google_monitoring_alert_policy" "ship_hls_playlist_shipping" {
     display_name = "No Data"
     condition_absent {
       duration = "300s"
-      filter   = "resource.type = \"cloud_run_revision\" AND metric.type = \"custom.googleapis.com/opencensus/${var.ship_key}_ship_hls_playlist_size\""
+      filter   = "resource.type = \"gce_instance\" AND metric.type = \"custom.googleapis.com/opencensus/${var.ship_key}_ship_hls_playlist_size\""
       aggregations {
         alignment_period   = "300s"
         per_series_aligner = "ALIGN_MEAN"
@@ -205,6 +207,7 @@ resource "google_monitoring_alert_policy" "ship_hls_playlist_shipping" {
 
 # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/monitoring_alert_policy
 resource "google_monitoring_alert_policy" "ship_loaded_audio_ahead" {
+  project      = var.project_id
   depends_on   = [google_cloud_run_v2_service.ship]
   enabled      = true
   combiner     = "OR"
@@ -214,7 +217,7 @@ resource "google_monitoring_alert_policy" "ship_loaded_audio_ahead" {
     condition_threshold {
       comparison      = "COMPARISON_LT"
       duration        = "300s"
-      filter          = "resource.type = \"cloud_run_revision\" AND metric.type = \"custom.googleapis.com/opencensus/${var.ship_key}_ship_segment_audio_loaded_ahead_seconds\""
+      filter          = "resource.type = \"gce_instance\" AND metric.type = \"custom.googleapis.com/opencensus/${var.ship_key}_ship_segment_audio_loaded_ahead_seconds\""
       threshold_value = 40
       trigger { count = 1 }
       aggregations {

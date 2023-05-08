@@ -35,7 +35,7 @@ resource "google_cloud_run_v2_service" "nexus" {
       min_instance_count = 1
       max_instance_count = 1
     }
-    service_account = var.service_account_email
+    service_account                  = var.service_account_email
     max_instance_request_concurrency = 1
     containers {
       env {
@@ -83,7 +83,7 @@ resource "google_cloud_run_v2_service" "nexus" {
         value = var.ship_key
       }
       env {
-        name = "TELEMETRY_ENABLED"
+        name  = "TELEMETRY_ENABLED"
         value = "true"
       }
       env {
@@ -152,6 +152,7 @@ resource "google_cloud_run_v2_service" "nexus" {
 
 # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/monitoring_alert_policy
 resource "google_monitoring_alert_policy" "nexus_fabricated_ahead" {
+  project      = var.project_id
   depends_on   = [google_cloud_run_v2_service.nexus]
   enabled      = true
   combiner     = "OR"
@@ -161,7 +162,7 @@ resource "google_monitoring_alert_policy" "nexus_fabricated_ahead" {
     condition_threshold {
       comparison      = "COMPARISON_LT"
       duration        = "60s"
-      filter          = "resource.type = \"cloud_run_revision\" AND metric.type = \"custom.googleapis.com/opencensus/${var.ship_key}_nexus_fabricated_ahead_seconds\""
+      filter          = "resource.type = \"gce_instance\" AND metric.type = \"custom.googleapis.com/opencensus/${var.ship_key}_nexus_fabricated_ahead_seconds\""
       threshold_value = 180
       trigger { count = 1 }
       aggregations {
@@ -176,6 +177,7 @@ resource "google_monitoring_alert_policy" "nexus_fabricated_ahead" {
 
 # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/monitoring_alert_policy
 resource "google_monitoring_alert_policy" "nexus_fabricating" {
+  project      = var.project_id
   depends_on   = [google_cloud_run_v2_service.nexus]
   enabled      = true
   combiner     = "OR"
@@ -184,7 +186,7 @@ resource "google_monitoring_alert_policy" "nexus_fabricating" {
     display_name = "No Data"
     condition_absent {
       duration = "300s"
-      filter   = "resource.type = \"cloud_run_revision\" AND metric.type = \"custom.googleapis.com/opencensus/${var.ship_key}_nexus_fabricated_ahead_seconds\""
+      filter   = "resource.type = \"gce_instance\" AND metric.type = \"custom.googleapis.com/opencensus/${var.ship_key}_nexus_fabricated_ahead_seconds\""
       trigger { percent = 100 }
       aggregations {
         alignment_period   = "300s"
