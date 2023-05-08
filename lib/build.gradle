@@ -4,33 +4,25 @@ plugins {
   id 'java'
   id 'application'
   id 'distribution'
-  id 'jacoco'
   //
   id "de.undercouch.download"
   id "org.flywaydb.flyway"
-  id "org.sonarqube"
+  id 'io.spring.dependency-management'
   id 'nu.studer.jooq'
   id 'org.ajoberstar.grgit'
+  id 'org.springframework.boot'
 }
 
 group = 'io.xj'
 version = '1.0'
 
-description = 'XJ Music platform backend services'
+description = 'XJ music platform backend services'
 
 tasks.withType(JavaCompile) {
   options.encoding = 'UTF-8'
 }
 
-jacocoTestReport {
-  reports {
-    xml.enabled true
-  }
-}
-
 apply plugin: 'java'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
 
 repositories {
   mavenLocal()
@@ -111,10 +103,4 @@ java {
 
 tasks.withType(JavaCompile) {
   options.encoding = 'UTF-8'
-}
-
-jacocoTestReport {
-  reports {
-    xml.enabled true
-  }
 }

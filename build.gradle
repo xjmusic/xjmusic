@@ -1,40 +1,30 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 plugins {
+  id 'java'
   id 'application'
   id 'distribution'
-  id 'jacoco'
-  id 'java'
   //
   id 'com.commercehub.gradle.plugin.avro' version '0.9.1'
-  id 'com.google.cloud.tools.jib' version '3.2.1' apply false
   id 'de.undercouch.download' version "4.0.4"
+  id 'org.ajoberstar.grgit' version '4.1.0'
+  //
+  id "org.flywaydb.flyway" version "9.16.1" apply false
+  id 'com.google.cloud.tools.jib' version '3.2.1' apply false
   id 'io.spring.dependency-management' version '1.0.15.RELEASE' apply false
   id 'nu.studer.jooq' version '6.0.1' apply false
-  id 'org.ajoberstar.grgit' version '4.1.0'
-  id 'org.flywaydb.flyway' version "9.16.1" apply false
-  id 'org.sonarqube' version '2.8'
   id 'org.springframework.boot' version '2.7.6' apply false
 }
 
 ext {
   guavaVersion = '31.0.1-jre'
+  guavaNewerVersion = '31.1-jre'
   springBootVersion = '2.7.6'
   springTestVersion = '5.3.24'
 }
 
 allprojects {
   group = 'io.xj'
-
-  sonarqube {
-    properties {
-      property 'sonar.sourceEncoding', 'UTF-8'
-      property 'sonar.coverage.jacoco.xmlReportPaths', 'build/reports/jacoco/test/jacocoTestReport.xml'
-      property 'sonar.jacoco.reportPaths', null
-      property 'sonar.jacoco.reportPath', null
-      property "sonar.host.url", "https://sonarcloud.io"
-    }
-  }
 
   tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'

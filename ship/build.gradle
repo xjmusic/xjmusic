@@ -1,16 +1,17 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 plugins {
-	id 'java'
+  id 'java'
+  id 'java-test-fixtures'
   id 'application'
+  id 'distribution'
+  //
   id 'com.google.cloud.tools.jib'
   id 'de.undercouch.download'
-  id 'distribution'
-  id 'jacoco'
-  id 'java-test-fixtures'
+  id 'io.spring.dependency-management'
   id 'org.ajoberstar.grgit'
   id 'org.flywaydb.flyway'
-  id 'org.sonarqube'
+  id 'org.springframework.boot'
 }
 
 group = 'io.xj'
@@ -22,15 +23,7 @@ tasks.withType(JavaCompile) {
   options.encoding = 'UTF-8'
 }
 
-jacocoTestReport {
-  reports {
-    xml.enabled true
-  }
-}
-
 apply plugin: 'java'
-apply plugin: 'io.spring.dependency-management'
-apply plugin: 'org.springframework.boot'
 
 repositories {
   mavenLocal()
@@ -126,12 +119,6 @@ java {
 
 tasks.withType(JavaCompile) {
   options.encoding = 'UTF-8'
-}
-
-jacocoTestReport {
-  reports {
-    xml.enabled true
-  }
 }
 
 // Ship to multiple repositories https://www.pivotaltracker.com/story/show/180684409
