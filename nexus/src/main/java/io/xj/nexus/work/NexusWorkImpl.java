@@ -720,6 +720,7 @@ public class NexusWorkImpl implements NexusWork {
     if (Objects.isNull(fabricationPreviewTemplatePlaybackId)) return;
     try {
       LOG.info("Will self-destruct stale TemplatePlayback[{}]", fabricationPreviewTemplatePlaybackId);
+      active = false;
       var templatePlayback = new TemplatePlayback();
       templatePlayback.setId(fabricationPreviewTemplatePlaybackId);
       previewNexusAdmin.stopPreviewNexus(templatePlayback);
