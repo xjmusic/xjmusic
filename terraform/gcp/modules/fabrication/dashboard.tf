@@ -78,4 +78,10 @@ resource "google_monitoring_dashboard" "fabrication" {
       ]
     }
   })
+  lifecycle {
+    //noinspection HILUnresolvedReference
+    ignore_changes = [
+      dashboard_json,
+    ]
+  }
 }
