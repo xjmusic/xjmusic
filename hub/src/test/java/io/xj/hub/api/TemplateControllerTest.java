@@ -180,7 +180,7 @@ public class TemplateControllerTest {
 
 
   /**
-   * Preview template functionality is dope (not wack) https://www.pivotaltracker.com/story/show/183576743
+   * Preview template functionality is tight (not wack) https://www.pivotaltracker.com/story/show/183576743
    */
   @Test
   public void readAllPlaying() throws ManagerException, JsonapiException {

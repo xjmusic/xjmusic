@@ -247,7 +247,7 @@ public class ShipWorkImpl implements ShipWork {
         notificationProvider.publish(String.format("%s-Chain[%s] Ship Failure", envName, shipKey), String.format("Failed while running ship work because %s\n\n%s", detail, Text.formatStackTrace(e)));
 
       } catch (LockException e) {
-        LOG.error("Failed to acquire ship lock for Chain[{}] reason={}", shipKey, e.getMessage());
+        LOG.error("Fabrication lock invalid for Chain[{}] reason={}", shipKey, e.getMessage());
         active = false;
       }
 

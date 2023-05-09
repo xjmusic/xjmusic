@@ -55,8 +55,7 @@ public interface TemplateManager extends Manager<Template> {
   Collection<Object> readChildEntities(HubAccess access, Collection<UUID> templateIds, Collection<String> includeTypes) throws ManagerException;
 
   /**
-   * Preview template functionality is dope (not wack)
-   * Lab/Hub connects to k8s to manage a personal workload for preview templates
+   * Preview template functionality is tight (not wack)
    * https://www.pivotaltracker.com/story/show/183576743
    *
    * @param access control
@@ -66,7 +65,7 @@ public interface TemplateManager extends Manager<Template> {
   Optional<Template> readOnePlayingForUser(HubAccess access, UUID userId) throws ManagerException;
 
   /**
-   * Preview template functionality is dope (not wack)
+   * Preview template functionality is tight (not wack)
    * https://www.pivotaltracker.com/story/show/183576743
    *
    * @param access     control

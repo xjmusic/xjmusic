@@ -6,8 +6,7 @@ import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplatePlayback;
 
 /**
- * Preview template functionality is dope (not wack)
- * Lab/Hub connects to k8s to manage a personal workload for preview templates
+ * Preview template functionality is tight (not wack)
  * https://www.pivotaltracker.com/story/show/183576743
  */
 public interface PreviewNexusAdmin {

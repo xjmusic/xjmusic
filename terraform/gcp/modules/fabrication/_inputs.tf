@@ -6,10 +6,12 @@ variable "notification_channels" {
 
 variable "ship_image" {
   type = string
+  default = "gcr.io/xj-vpc-host-prod/ship:latest"
 }
 
 variable "nexus_image" {
   type = string
+  default = "gcr.io/xj-vpc-host-prod/nexus:latest"
 }
 
 variable "ship_key" {
@@ -34,58 +36,72 @@ variable "service_account_email" {
 
 variable "environment" {
   type = string
+  default = "prod"
 }
 
 variable "audio_base_url" {
   type = string
+  default = "https://audio.xj.io/"
 }
 
 variable "audio_file_bucket" {
   type = string
+  default = "xj-prod-audio"
 }
 
 variable "audio_upload_url" {
   type = string
+  default = "https://xj-prod-audio.s3.amazonaws.com/"
 }
 
 variable "aws_default_region" {
   type = string
+  default = "us-east-1"
 }
 
 variable "player_base_url" {
   type = string
+  default = "https://play.xj.io/"
 }
 
 variable "ship_base_url" {
   type = string
+  default = "https://ship.xj.io/"
 }
 
 variable "ship_bucket" {
   type = string
+  default = "xj-prod-ship"
 }
 
 variable "stream_base_url" {
   type = string
+  default = "https://stream.xj.io/"
 }
 
 variable "stream_bucket" {
   type = string
+  default = "xj-prod-stream"
 }
 
 variable "nexus_resources_limits_cpu" {
   type = string
+  default = 2
 }
 
 variable "nexus_resources_limits_memory" {
   type = string
+  default = "4Gi"
 }
 
 variable "ship_resources_limits_cpu" {
   type = string
+  default = 2
 }
 
 variable "ship_resources_limits_memory" {
   type = string
+  default = "4Gi"
 }
 
 variable "secret_id__aws_access_key_id" {

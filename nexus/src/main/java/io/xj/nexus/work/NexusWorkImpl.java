@@ -515,7 +515,7 @@ public class NexusWorkImpl implements NexusWork {
       LOG.error("Failed to created Segment in Chain[{}] reason={}", Chains.getIdentifier(target), e.getMessage());
 
     } catch (LockException e) {
-      LOG.error("Failed to acquire fabrication lock for Chain[{}] reason={}", Chains.getIdentifier(target), e.getMessage());
+      LOG.error("Fabrication lock invalid for Chain[{}] reason={}", Chains.getIdentifier(target), e.getMessage());
       active = false;
     }
   }

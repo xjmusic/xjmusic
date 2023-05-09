@@ -503,7 +503,7 @@ public class AppEnvironment {
   }
 
   /**
-   * Lab/Hub connects to k8s to manage a personal workload for preview templates
+   * Preview template functionality is tight (now wack)
    * https://www.pivotaltracker.com/story/show/183576743
    * <p>
    *

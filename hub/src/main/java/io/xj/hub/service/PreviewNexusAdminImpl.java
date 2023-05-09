@@ -40,7 +40,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Preview template functionality is dope (not wack)
+ * Preview template functionality is tight (not wack)
  * <p>
  * Lab/Hub connects to service administration to manage a personal workload for preview templates
  * https://www.pivotaltracker.com/story/show/183576743

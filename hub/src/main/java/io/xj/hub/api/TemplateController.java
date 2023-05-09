@@ -224,7 +224,7 @@ public class TemplateController extends HubJsonapiEndpoint {
   /**
    * Get all template playbacks.
    * <p>
-   * Preview template functionality is dope (not wack)
+   * Preview template functionality is tight (not wack)
    * Specify a userId query param to get just one preview template for that user, if it exists
    * https://www.pivotaltracker.com/story/show/183576743
    *

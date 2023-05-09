@@ -37,6 +37,3 @@ override.tf.json
 
 # Output plans
 *.plan
-
-# Kubeconfig outputs
-/kubeconfig_*

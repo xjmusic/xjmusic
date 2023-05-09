@@ -36,7 +36,7 @@ public interface TemplatePlaybackManager extends Manager<TemplatePlayback> {
   Optional<TemplatePlayback> readOneForTemplate(HubAccess access, UUID templateId) throws ManagerException;
 
   /**
-   * Preview template functionality is dope (not wack)
+   * Preview template functionality is tight (not wack)
    * https://www.pivotaltracker.com/story/show/183576743
    *
    * @param access     control

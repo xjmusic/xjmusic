@@ -332,18 +332,6 @@ resource "aws_iam_role" "xj-eks" {
           "Service" : "ec2.amazonaws.com"
         },
         Action = "sts:AssumeRole"
-      },
-      {
-        Effect = "Allow",
-        Principal = {
-          "Federated" : "arn:aws:iam::${local.aws-account-id}}:oidc-provider/oidc.eks.${local.aws-region}.amazonaws.com/id/xj-prod-6VxY2MG3"
-        },
-        Action = "sts:AssumeRoleWithWebIdentity",
-        Condition = {
-          "StringEquals" : {
-            "oidc.eks.${local.aws-region}.amazonaws.com/id/xj-prod-6VxY2MG3:sub" : "system:serviceaccount:kube-system:efs-csi-controller-sa"
-          }
-        }
       }
     ]
   })
