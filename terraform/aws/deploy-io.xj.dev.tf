@@ -64,24 +64,6 @@ resource "aws_route53_record" "xj-dev-lab" {
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
-resource "aws_route53_record" "xj-lab-gke-dev" {
-  name    = "cbf2e597.lab.xj.io"
-  records = ["34.105.63.9"]
-  ttl     = 300
-  type    = "A"
-  zone_id = aws_route53_zone.xj-io.zone_id
-}
-
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
-resource "aws_route53_record" "xj-lab-gke-dev-local" {
-  name    = "9e38338a.lab.xj.io"
-  records = ["34.82.243.188"]
-  ttl     = 300
-  type    = "A"
-  zone_id = aws_route53_zone.xj-io.zone_id
-}
-
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
 resource "aws_route53_record" "xj-dev-local" {
   name    = "local.dev.xj.io"
   type    = "A"

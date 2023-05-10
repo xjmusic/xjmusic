@@ -91,7 +91,7 @@ variable "nexus_resources_limits_cpu" {
 
 variable "nexus_resources_limits_memory" {
   type = string
-  default = "4Gi"
+  default = "6Gi"
 }
 
 variable "ship_resources_limits_cpu" {
@@ -101,7 +101,7 @@ variable "ship_resources_limits_cpu" {
 
 variable "ship_resources_limits_memory" {
   type = string
-  default = "4Gi"
+  default = "6Gi"
 }
 
 variable "secret_id__aws_access_key_id" {

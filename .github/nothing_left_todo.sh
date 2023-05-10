@@ -4,7 +4,7 @@
 
 check() {
   TARGET=${1}
-  if grep --recursive -ie "\\btodo\\b" ${TARGET}
+  if grep --recursive -Iie "\\btodo\\b" ${TARGET}
     then
       echo "There are remaining items TODO"
       exit 1;
@@ -13,10 +13,9 @@ check() {
   fi
 }
 
-check .aws
-check .gke
+check terraform/gcp
+check terraform/aws
 check hub/src
 check lib/src
 check nexus/src
 check ship/src
-check spec/src
