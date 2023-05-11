@@ -163,9 +163,9 @@ resource "google_monitoring_alert_policy" "ship_hls_playlist_ahead_seconds" {
   depends_on   = [google_cloud_run_v2_service.ship]
   enabled      = true
   combiner     = "OR"
-  display_name = "[${var.display_name}] HLS Playlist Ahead Seconds"
+  display_name = "[${var.display_name}/Ship] HLS Ahead"
   conditions {
-    display_name = "Not Ahead"
+    display_name = "[${var.display_name}/Ship] HLS Ahead"
     condition_threshold {
       comparison      = "COMPARISON_LT"
       duration        = "60s"
@@ -188,9 +188,9 @@ resource "google_monitoring_alert_policy" "ship_hls_playlist_shipping" {
   depends_on   = [google_cloud_run_v2_service.ship]
   enabled      = true
   combiner     = "OR"
-  display_name = "[${var.display_name}] HLS Playlist Shipping"
+  display_name = "[${var.display_name}/Ship] HLS OK"
   conditions {
-    display_name = "No Data"
+    display_name = "[${var.display_name}/Ship] HLS OK"
     condition_absent {
       duration = "300s"
       filter   = "resource.type = \"gce_instance\" AND metric.type = \"custom.googleapis.com/opencensus/${var.ship_key}_ship_hls_playlist_size\""
@@ -211,9 +211,9 @@ resource "google_monitoring_alert_policy" "ship_loaded_audio_ahead" {
   depends_on   = [google_cloud_run_v2_service.ship]
   enabled      = true
   combiner     = "OR"
-  display_name = "[${var.display_name}] Ship Loaded Audio Ahead"
+  display_name = "[${var.display_name}/Ship] Audio Loaded Ahead"
   conditions {
-    display_name = "No Data"
+    display_name = "[${var.display_name}/Ship] Audio Loaded Ahead"
     condition_threshold {
       comparison      = "COMPARISON_LT"
       duration        = "300s"

@@ -156,9 +156,9 @@ resource "google_monitoring_alert_policy" "nexus_fabricated_ahead" {
   depends_on   = [google_cloud_run_v2_service.nexus]
   enabled      = true
   combiner     = "OR"
-  display_name = "[${var.display_name}] Fabricated Ahead"
+  display_name = "[${var.display_name}/Nexus] Fabricated Ahead"
   conditions {
-    display_name = "Not Ahead"
+    display_name = "[${var.display_name}/Nexus] Fabricated Ahead"
     condition_threshold {
       comparison      = "COMPARISON_LT"
       duration        = "60s"
@@ -181,9 +181,9 @@ resource "google_monitoring_alert_policy" "nexus_fabricating" {
   depends_on   = [google_cloud_run_v2_service.nexus]
   enabled      = true
   combiner     = "OR"
-  display_name = "[${var.display_name}] Fabricating"
+  display_name = "[${var.display_name}/Nexus] Fabrication OK"
   conditions {
-    display_name = "No Data"
+    display_name = "[${var.display_name}/Nexus] Fabrication OK"
     condition_absent {
       duration = "300s"
       filter   = "resource.type = \"gce_instance\" AND metric.type = \"custom.googleapis.com/opencensus/${var.ship_key}_nexus_fabricated_ahead_seconds\""
