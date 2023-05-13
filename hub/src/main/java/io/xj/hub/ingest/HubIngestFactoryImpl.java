@@ -5,7 +5,7 @@ import io.xj.hub.manager.InstrumentManager;
 import io.xj.hub.manager.ProgramManager;
 import io.xj.hub.manager.TemplateBindingManager;
 import io.xj.hub.manager.TemplateManager;
-import io.xj.lib.entity.EntityStore;
+import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.json.JsonProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,22 +14,23 @@ import java.util.UUID;
 
 @Service
 public class HubIngestFactoryImpl implements HubIngestFactory {
-  private final EntityStore entityStore;
   private final InstrumentManager instrumentManager;
   private final JsonProvider jsonProvider;
   private final ProgramManager programManager;
   private final TemplateManager templateManager;
   private final TemplateBindingManager templateBindingManager;
+  private final EntityFactory entityFactory;
 
   @Autowired
   public HubIngestFactoryImpl(
-    JsonProvider jsonProvider, EntityStore entityStore,
+    EntityFactory entityFactory,
+    JsonProvider jsonProvider,
     InstrumentManager instrumentManager,
     ProgramManager programManager,
     TemplateManager templateManager,
     TemplateBindingManager templateBindingManager
   ) {
-    this.entityStore = entityStore;
+    this.entityFactory = entityFactory;
     this.instrumentManager = instrumentManager;
     this.jsonProvider = jsonProvider;
     this.programManager = programManager;
@@ -39,6 +40,6 @@ public class HubIngestFactoryImpl implements HubIngestFactory {
 
   @Override
   public HubIngest ingest(HubAccess access, UUID templateId) throws HubIngestException {
-    return new HubIngestImpl(access, templateId, entityStore, instrumentManager, jsonProvider, programManager, templateManager, templateBindingManager);
+    return new HubIngestImpl(entityFactory, jsonProvider, access, templateId, instrumentManager, programManager, templateManager, templateBindingManager);
   }
 }

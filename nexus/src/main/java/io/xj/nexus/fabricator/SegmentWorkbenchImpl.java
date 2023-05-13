@@ -8,6 +8,7 @@ import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreException;
+import io.xj.lib.entity.EntityStoreImpl;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.Text;
@@ -51,21 +52,20 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   private List<SegmentChord> segmentChords;
 
   public SegmentWorkbenchImpl(
-     Chain chain,
-     Segment segment,
+    Chain chain,
+    Segment segment,
     SegmentManager segmentManager,
-    JsonapiPayloadFactory jsonapiPayloadFactory,
-    EntityStore entityStore
+    JsonapiPayloadFactory jsonapiPayloadFactory
   ) throws NexusException {
     this.chain = chain;
     this.segment = segment;
     this.segmentManager = segmentManager;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
-    this.benchStore = entityStore;
+    this.benchStore = new EntityStoreImpl();
 
     // fetch all sub entities of all segments and store the results in the corresponding entity cache
     try {
-      entityStore.putAll(segmentManager.readManySubEntities(ImmutableList.of(segment.getId()), true));
+      benchStore.putAll(segmentManager.readManySubEntities(ImmutableList.of(segment.getId()), true));
     } catch (ManagerFatalException | ManagerPrivilegeException | EntityStoreException e) {
       throw new NexusException("Failed to load Segment for Workbench!", e);
     }
@@ -149,7 +149,8 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
       segmentManager.createAllSubEntities(benchStore.getAll(SegmentChoiceArrangement.class)); // after choices
       segmentManager.createAllSubEntities(benchStore.getAll(SegmentChoiceArrangementPick.class)); // after arrangements
 
-    } catch (JsonapiException | ManagerFatalException | ManagerExistenceException | ManagerPrivilegeException | ManagerValidationException e) {
+    } catch (JsonapiException | ManagerFatalException | ManagerExistenceException | ManagerPrivilegeException |
+             ManagerValidationException e) {
       throw new NexusException("Failed to build and update payload for Segment!", e);
     }
   }
@@ -179,7 +180,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
       // Segment shouldn't have two of the same meme https://www.pivotaltracker.com/story/show/179078453
       if (entity instanceof SegmentMeme && alreadyHasMeme((SegmentMeme) entity)) return entity;
 
-      // Segment meta overwrites existing meta with same key https://www.pivotaltracker.com/story/show/183135787
+        // Segment meta overwrites existing meta with same key https://www.pivotaltracker.com/story/show/183135787
       else if (entity instanceof SegmentMeta) destroyExistingMeta(((SegmentMeta) entity).getKey());
 
       return benchStore.put(entity);
@@ -189,7 +190,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   }
 
   @Override
-  public <N> void delete(N entity){
+  public <N> void delete(N entity) {
     try {
       benchStore.delete(entity.getClass(), Entities.getId(entity));
     } catch (EntityException e) {
@@ -205,7 +206,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   }
 
   /**
-   Returns the current report map as json, and clears the report, so it'll only be reported once
+   * Returns the current report map as json, and clears the report, so it'll only be reported once
    */
   private void sendReportToSegmentMessage() throws JsonapiException, NexusException {
     String reported = jsonapiPayloadFactory.serialize(report);
@@ -219,10 +220,10 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   }
 
   /**
-   Whether the workbench already has a meme of this name
-
-   @param meme to test for existence
-   @return true if a meme already exists with this name
+   * Whether the workbench already has a meme of this name
+   *
+   * @param meme to test for existence
+   * @return true if a meme already exists with this name
    */
   private boolean alreadyHasMeme(SegmentMeme meme) {
     var name = Text.toMeme(meme.getName());
@@ -230,9 +231,9 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   }
 
   /**
-   Segment meta overwrites existing meta with same key https://www.pivotaltracker.com/story/show/183135787
-
-   @param key for which to erase all metas
+   * Segment meta overwrites existing meta with same key https://www.pivotaltracker.com/story/show/183135787
+   *
+   * @param key for which to erase all metas
    */
   private void destroyExistingMeta(String key) {
     getSegmentMetas().stream().filter(meta -> Objects.equals(key, meta.getKey())).forEach(this::delete);

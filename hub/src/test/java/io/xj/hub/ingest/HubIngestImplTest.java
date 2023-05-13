@@ -10,27 +10,28 @@ import io.xj.hub.manager.ProgramManager;
 import io.xj.hub.manager.TemplateBindingManager;
 import io.xj.hub.manager.TemplateManager;
 import io.xj.hub.tables.pojos.Template;
+import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityStore;
+import io.xj.lib.entity.EntityStoreImpl;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
 public class HubIngestImplTest {
+  @Mock
+  EntityFactory entityFactory;
   @Mock
   InstrumentManager instrumentManager;
   @Mock
@@ -49,17 +50,19 @@ public class HubIngestImplTest {
       .thenReturn(template);
     when(templateBindingManager.readMany(any(), eq(List.of(template.getId()))))
       .thenReturn(List.of());
+    when(entityFactory.createEntityStore()).thenReturn(new EntityStoreImpl());
 
     JsonProvider jsonProvider = new JsonProviderImpl();
     HubIngest subject = new HubIngestFactoryImpl(
-      jsonProvider, entityStore,
+      entityFactory,
+      jsonProvider,
       instrumentManager,
       programManager,
       templateManager,
       templateBindingManager
     ).ingest(HubAccess.internal(), template.getId());
 
-    assertNotNull(subject);
+    Assertions.assertNotNull(subject);
   }
 
 }

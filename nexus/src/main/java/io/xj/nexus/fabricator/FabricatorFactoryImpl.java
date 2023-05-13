@@ -2,7 +2,6 @@ package io.xj.nexus.fabricator;
 
 import io.xj.hub.client.HubContent;
 import io.xj.lib.app.AppEnvironment;
-import io.xj.lib.entity.EntityStoreImpl;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.nexus.NexusException;
@@ -43,12 +42,12 @@ public class FabricatorFactoryImpl implements FabricatorFactory {
 
   @Override
   public SegmentRetrospective loadRetrospective(Segment segment, HubContent sourceMaterial) throws NexusException, FabricationFatalException {
-    return new SegmentRetrospectiveImpl(segment, segmentManager, new EntityStoreImpl());
+    return new SegmentRetrospectiveImpl(segment, segmentManager);
   }
 
   @Override
   public SegmentWorkbench setupWorkbench(Chain chain, Segment segment) throws NexusException {
-    return new SegmentWorkbenchImpl(chain, segment, segmentManager, jsonapiPayloadFactory, new EntityStoreImpl());
+    return new SegmentWorkbenchImpl(chain, segment, segmentManager, jsonapiPayloadFactory);
   }
 
 }

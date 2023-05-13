@@ -25,6 +25,7 @@ import io.xj.hub.manager.TemplatePublicationManager;
 import io.xj.hub.manager.TemplatePublicationManagerImpl;
 import io.xj.hub.service.PreviewNexusAdmin;
 import io.xj.lib.app.AppEnvironment;
+import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.util.Text;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -75,7 +76,7 @@ public class HubIngestIT {
     TemplatePlaybackManager templatePlaybackManager = new TemplatePlaybackManagerImpl(env, test.getEntityFactory(), test.getSqlStoreProvider(), previewNexusAdmin);
     TemplatePublicationManager templatePublicationManager = new TemplatePublicationManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
     TemplateManager templateManager = new TemplateManagerImpl(test.getEnv(), test.getEntityFactory(), test.getSqlStoreProvider(), templateBindingManager, templatePlaybackManager, templatePublicationManager);
-    ingestFactory = new HubIngestFactoryImpl(test.getJsonProvider(), test.getEntityStore(), instrumentManager, programManager, templateManager, templateBindingManager);
+    ingestFactory = new HubIngestFactoryImpl(test.getEntityFactory(), test.getJsonProvider(), instrumentManager, programManager, templateManager, templateBindingManager);
   }
 
   @AfterEach

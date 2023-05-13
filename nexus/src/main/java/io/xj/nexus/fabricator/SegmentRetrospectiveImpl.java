@@ -9,6 +9,7 @@ import io.xj.hub.enums.ProgramType;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreException;
+import io.xj.lib.entity.EntityStoreImpl;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
@@ -36,7 +37,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- The SegmentRetrospective is a delegate to look back on previous segments, read-only
+ * The SegmentRetrospective is a delegate to look back on previous segments, read-only
  */
 class SegmentRetrospectiveImpl implements SegmentRetrospective {
   private final Logger LOG = LoggerFactory.getLogger(SegmentRetrospectiveImpl.class);
@@ -47,11 +48,10 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   private Segment previousSegment;
 
   public SegmentRetrospectiveImpl(
-     Segment segment,
-    SegmentManager segmentManager,
-    EntityStore entityStore
+    Segment segment,
+    SegmentManager segmentManager
   ) throws NexusException, FabricationFatalException {
-    this.retroStore = entityStore;
+    this.retroStore = new EntityStoreImpl();
 
     chordAtPosition = Maps.newHashMap();
     segmentChords = Maps.newHashMap();

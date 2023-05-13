@@ -9,6 +9,7 @@ import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.manager.*;
 import io.xj.hub.tables.pojos.*;
+import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.json.JsonProvider;
@@ -28,16 +29,16 @@ class HubIngestImpl implements HubIngest {
   private final JsonProvider jsonProvider;
 
   public HubIngestImpl(
+    EntityFactory entityFactory,
+    JsonProvider jsonProvider,
     HubAccess access,
     UUID templateId,
-    EntityStore entityStore,
     InstrumentManager instrumentManager,
-    JsonProvider jsonProvider,
     ProgramManager programManager,
     TemplateManager templateManager,
     TemplateBindingManager templateBindingManager
   ) throws HubIngestException {
-    store = entityStore;
+    store = entityFactory.createEntityStore();
     this.jsonProvider = jsonProvider;
     this.access = access;
     try {

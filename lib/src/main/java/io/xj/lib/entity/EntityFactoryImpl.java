@@ -77,11 +77,6 @@ public class EntityFactoryImpl implements EntityFactory {
   }
 
   @Override
-  public Set<String> getBelongsTo(Class<?> type) throws EntityException {
-    return getBelongsTo(type.getSimpleName());
-  }
-
-  @Override
   public Set<String> getHasMany(String type) throws EntityException {
     String key = Entities.toType(type);
     ensureSchemaExists("get has-many type", key);
@@ -140,21 +135,6 @@ public class EntityFactoryImpl implements EntityFactory {
   }
 
   @Override
-  public boolean isKnownSchema(String entityName) {
-    return schema.containsKey(Entities.toType(entityName));
-  }
-
-  @Override
-  public boolean isKnownSchema(Class<?> entityClass) {
-    return schema.containsKey(Entities.toType(entityClass));
-  }
-
-  @Override
-  public boolean isKnownSchema(Object entity) {
-    return schema.containsKey(Entities.toType(entity));
-  }
-
-  @Override
   public <N> N clone(N from) throws EntityException {
     String className = from.getClass().getSimpleName();
     Object builder = getInstance(className);
@@ -192,6 +172,11 @@ public class EntityFactoryImpl implements EntityFactory {
     } catch (JsonProcessingException e) {
       throw new EntityException("Failed to serialize JSON", e);
     }
+  }
+
+  @Override
+  public EntityStore createEntityStore() {
+    return new EntityStoreImpl();
   }
 
   /**

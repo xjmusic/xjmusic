@@ -65,14 +65,6 @@ public interface EntityFactory {
   Set<String> getBelongsTo(String type) throws EntityException;
 
   /**
-   Get the belongs-to types for a given type of entity
-
-   @param type of entity to get the belongs-to types for
-   @return belongs-to types for the type of entity
-   */
-  Set<String> getBelongsTo(Class<?> type) throws EntityException;
-
-  /**
    Get the has-many types for a given type of entity
 
    @param type of entity to get the has-many types for
@@ -114,30 +106,6 @@ public interface EntityFactory {
   <N> void setAllEmptyAttributes(N source, N target) throws EntityException;
 
   /**
-   Whether the specified type is a known schema
-
-   @param entityName to check for known schema
-   @return true if schema is known
-   */
-  boolean isKnownSchema(String entityName);
-
-  /**
-   Whether the specified type is a known schema
-
-   @param entityClass to check for known schema
-   @return true if schema is known
-   */
-  boolean isKnownSchema(Class<?> entityClass);
-
-  /**
-   Whether the specified type is a known schema
-
-   @param entity to check for known schema
-   @return true if schema is known
-   */
-  boolean isKnownSchema(Object entity);
-
-  /**
    Clone an entity: its id, know attributes, and relationships,
    for example when getting/putting objects from an in-memory store to prevent unintended mutation of the store ;)
 
@@ -176,4 +144,10 @@ public interface EntityFactory {
    @throws EntityException on failure to serialize
    */
   String serialize(Object obj) throws EntityException;
+
+  /**
+   * Create an Entity Store
+   * @return Entity Store
+   */
+  EntityStore createEntityStore();
 }
