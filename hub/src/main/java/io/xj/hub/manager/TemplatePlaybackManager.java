@@ -2,7 +2,6 @@
 package io.xj.hub.manager;
 
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplatePlayback;
 
 import java.util.Optional;
@@ -44,4 +43,5 @@ public interface TemplatePlaybackManager extends Manager<TemplatePlayback> {
    * @return log
    */
   String readPreviewNexusLog(HubAccess access, TemplatePlayback playback);
+
 }

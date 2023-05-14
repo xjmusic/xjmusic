@@ -314,6 +314,16 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl implements Te
       throw new ManagerException(e);
     }
 
+    if (Objects.equals(TemplateType.Production, record.getType())) {
+      try (var deleteTemplatePlayback = db.deleteFrom(TEMPLATE_PLAYBACK)) {
+        deleteTemplatePlayback
+          .where(TEMPLATE_PLAYBACK.TEMPLATE_ID.eq(id))
+          .execute();
+      } catch (Exception e) {
+        throw new ManagerException(e);
+      }
+    }
+
     executeUpdate(sqlStoreProvider.getDSL(), TEMPLATE, id, record);
     return record;
   }

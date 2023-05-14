@@ -276,11 +276,10 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
         .setName(serviceName.toString())
         .build();
 
-      // block until deleted
-      client.deleteServiceAsync(request).get();
+      client.deleteServiceAsync(request);
       LOG.info("Deleted {}", serviceName);
 
-    } catch (ApiException | IOException | InterruptedException | ExecutionException e) {
+    } catch (ApiException | IOException e) {
       LOG.warn("Failed to delete preview nexus!", e);
     }
   }

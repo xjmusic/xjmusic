@@ -241,7 +241,7 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl imple
   }
 
   /**
-   * Inner destroy method to avoid running
+   * Inner destroy method to avoid replication of code
    *
    * @param templatePlaybackId of template playback
    * @throws ManagerException on failure

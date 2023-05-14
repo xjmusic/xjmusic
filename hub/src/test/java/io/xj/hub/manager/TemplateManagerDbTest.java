@@ -16,6 +16,7 @@ import io.xj.hub.enums.TemplateType;
 import io.xj.hub.service.PreviewNexusAdmin;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.hub.tables.pojos.TemplatePlayback;
 import io.xj.lib.app.AppEnvironment;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.AfterEach;
@@ -46,6 +47,7 @@ import static io.xj.hub.tables.TemplateBinding.TEMPLATE_BINDING;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -59,6 +61,7 @@ public class TemplateManagerDbTest {
   private Template template2a;
   private Template template1a;
   private Template template1b;
+  private TemplatePlaybackManager templatePlaybackManager;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -84,7 +87,7 @@ public class TemplateManagerDbTest {
 
     // Instantiate the test subject
     TemplateBindingManager templateBindingManager = new TemplateBindingManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
-    TemplatePlaybackManager templatePlaybackManager = new TemplatePlaybackManagerImpl(test.getEnv(), test.getEntityFactory(), test.getSqlStoreProvider(), previewNexusAdmin);
+    templatePlaybackManager = new TemplatePlaybackManagerImpl(test.getEnv(), test.getEntityFactory(), test.getSqlStoreProvider(), previewNexusAdmin);
     TemplatePublicationManager templatePublicationManager = new TemplatePublicationManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
     testManager = new TemplateManagerImpl(test.getEnv(), test.getEntityFactory(), test.getSqlStoreProvider(), templateBindingManager, templatePlaybackManager, templatePublicationManager);
   }
@@ -538,6 +541,22 @@ public class TemplateManagerDbTest {
     assertNotNull(result);
     assertEquals("trunk", result.getName());
     assertEquals(fake.account1.getId(), result.getAccountId());
+  }
+
+  @Test
+  public void update_toProductionTemplateDeletesPlaybacks() throws Exception {
+    HubAccess access = HubAccess.create("Admin");
+    Template inputData = new Template();
+    inputData.setName("cannons");
+    inputData.setType(TemplateType.Production);
+    inputData.setShipKey("embed5leaves");
+    inputData.setAccountId(fake.account1.getId());
+    TemplatePlayback playback = test.insert(buildTemplatePlayback(template1a, fake.user2));
+
+    testManager.update(access, template1a.getId(), inputData);
+
+    TemplatePlayback result = templatePlaybackManager.readOne(HubAccess.internal(), playback.getId());
+    assertNull(result);
   }
 
   @Test
