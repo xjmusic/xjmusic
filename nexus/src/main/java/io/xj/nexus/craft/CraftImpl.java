@@ -404,7 +404,11 @@ public class CraftImpl extends FabricationWrapperImpl {
 
       case CONTINUE -> {
         for (String index : layers)
-          fabricator.retrospective().getChoices().stream().filter(choiceFilter).filter(choice -> Objects.equals(index, choiceIndexProvider.get(choice))).findAny().ifPresent(choice -> deltaIns.put(choiceIndexProvider.get(choice), choice.getDeltaIn()));
+          fabricator.retrospective().getChoices().stream()
+            .filter(choiceFilter)
+            .filter(choice -> Objects.equals(index, choiceIndexProvider.get(choice)))
+            .findAny()
+            .ifPresent(choice -> deltaIns.put(choiceIndexProvider.get(choice), choice.getDeltaIn()));
       }
     }
   }
@@ -862,11 +866,11 @@ public class CraftImpl extends FabricationWrapperImpl {
   private Optional<InstrumentAudio> selectNewMultiphonicInstrumentAudio(Instrument instrument, String note) {
     var instrumentAudios = fabricator.sourceMaterial().getAudios(instrument);
     var a = Note.of(note);
-    var audio = instrumentAudios.stream().filter(candidate -> {
+    var audio = MarbleBag.quickPick(instrumentAudios.stream().filter(candidate -> {
       if (Objects.isNull(candidate) || Strings.isNullOrEmpty(candidate.getTones())) return false;
       var b = Note.of(candidate.getTones());
       return a.isAtonal() || b.isAtonal() || a.sameAs(b);
-    }).findAny();
+    }).toList());
 
     if (audio.isEmpty()) {
       reportMissing(ImmutableMap.of("instrumentId", instrument.getId().toString(), "searchForNote", note, "availableNotes", CSV.from(instrumentAudios.stream().map(InstrumentAudio::getTones).map(Note::of).sorted(Note::compareTo).map(N -> N.toString(Accidental.Sharp)).collect(Collectors.toList()))));
@@ -954,7 +958,14 @@ public class CraftImpl extends FabricationWrapperImpl {
     // Instrument choice inertia: prefer same instrument choices throughout a main program
     // https://www.pivotaltracker.com/story/show/178442889
     if (SegmentType.CONTINUE == fabricator.getType()) {
-      var alreadyPicked = fabricator.retrospective().getChoices().stream().filter(candidate -> Objects.equals(candidate.getInstrumentType(), types.toString())).filter(candidate -> Objects.nonNull(continueVoiceName)).filter(candidate -> fabricator.sourceMaterial().getProgramVoice(candidate.getProgramVoiceId()).stream().map(pv -> Objects.equals(continueVoiceName, pv.getName())).findFirst().orElse(false)).findAny();
+      var alreadyPicked = fabricator.retrospective().getChoices().stream()
+        .filter(candidate -> Objects.equals(candidate.getInstrumentType(), types.toString()))
+        .filter(candidate -> Objects.nonNull(continueVoiceName))
+        .filter(candidate -> fabricator.sourceMaterial().getProgramVoice(candidate.getProgramVoiceId()).stream()
+          .map(pv -> Objects.equals(continueVoiceName, pv.getName()))
+          .findFirst()
+          .orElse(false))
+        .findAny();
       if (alreadyPicked.isPresent())
         return fabricator.sourceMaterial().getInstrument(alreadyPicked.get().getInstrumentId());
     }

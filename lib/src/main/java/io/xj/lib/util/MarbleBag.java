@@ -82,9 +82,9 @@ public class MarbleBag {
   /**
    Add a quantity of marbles to the bag; increments the count of the specified marble by the specified quantity.
 
-   @param phase    of selection
-   @param id of the marble to add
-   @param qty      quantity of this marble to add
+   @param phase of selection
+   @param id    of the marble to add
+   @param qty   quantity of this marble to add
    */
   public void add(Integer phase, UUID id, Integer qty) {
     if (!marbles.containsKey(phase))
@@ -177,6 +177,10 @@ public class MarbleBag {
       this.from = from;
       this.to = to;
     }
+  }
+
+  public static <N> Optional<N> quickPick(List<N> items) {
+    return items.isEmpty() ? Optional.empty() : Optional.of(items.get(TremendouslyRandom.zeroToLimit(items.size())));
   }
 
 }

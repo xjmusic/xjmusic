@@ -92,7 +92,7 @@ import java.util.stream.Stream;
 import static io.xj.lib.util.Values.NANOS_PER_SECOND;
 
 /**
- * [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
+ [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public class FabricatorImpl implements Fabricator {
   private static final String KEY_VOICE_NOTE_TEMPLATE = "voice-%s_note-%s";
@@ -261,7 +261,10 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public double getAudioVolume(SegmentChoiceArrangementPick pick) {
-    return sourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId()).stream().map(audio -> audio.getVolume() * sourceMaterial().getInstrument(audio.getInstrumentId()).orElseThrow().getVolume()).findAny().orElse(1.0f);
+    return MarbleBag.quickPick(sourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId()).stream()
+        .map(audio -> audio.getVolume() * sourceMaterial().getInstrument(audio.getInstrumentId()).orElseThrow().getVolume())
+        .collect(Collectors.toList()))
+      .orElse(1.0f);
   }
 
   @Override
@@ -895,7 +898,11 @@ public class FabricatorImpl implements Fabricator {
   @Override
   public Optional<SegmentChordVoicing> getVoicing(SegmentChord chord, InstrumentType type) {
     Collection<SegmentChordVoicing> voicings = workbench.getSegmentChordVoicings();
-    return voicings.stream().filter(Segments::containsAnyValidNotes).filter(voicing -> Objects.equals(type.toString(), voicing.getType())).filter(voicing -> Objects.equals(chord.getId(), voicing.getSegmentChordId())).findAny();
+    return MarbleBag.quickPick(voicings.stream()
+      .filter(Segments::containsAnyValidNotes)
+      .filter(voicing -> Objects.equals(type.toString(), voicing.getType()))
+      .filter(voicing -> Objects.equals(chord.getId(), voicing.getSegmentChordId()))
+      .collect(Collectors.toList()));
   }
 
   @Override
@@ -1020,18 +1027,18 @@ public class FabricatorImpl implements Fabricator {
   }
 
   /**
-   * @return Chain base key
+   @return Chain base key
    */
   private String computeChainBaseKey() {
     return Strings.isNullOrEmpty(getChain().getShipKey()) ? String.format("chain-%s", chain.getId()) : getChain().getShipKey();
   }
 
   /**
-   * Compute the lowest optimal range shift octaves
-   *
-   * @param sourceRange from
-   * @param targetRange to
-   * @return lowest optimal range shift octaves
+   Compute the lowest optimal range shift octaves
+
+   @param sourceRange from
+   @param targetRange to
+   @return lowest optimal range shift octaves
    */
   private Integer computeLowestOptimalRangeShiftOctaves(NoteRange sourceRange, NoteRange targetRange) throws NexusException {
     var shiftOctave = 0; // search for optimal value
@@ -1047,11 +1054,11 @@ public class FabricatorImpl implements Fabricator {
   }
 
   /**
-   * Compute a Segment ship key: the chain ship key concatenated with the begin-at time in microseconds since epoch
-   *
-   * @param chain   for which to compute segment ship key
-   * @param segment for which to compute segment ship key
-   * @return Segment ship key computed for the given chain and Segment
+   Compute a Segment ship key: the chain ship key concatenated with the begin-at time in microseconds since epoch
+
+   @param chain   for which to compute segment ship key
+   @param segment for which to compute segment ship key
+   @return Segment ship key computed for the given chain and Segment
    */
   private String computeShipKey(Chain chain, Segment segment) {
     String chainName = Strings.isNullOrEmpty(chain.getShipKey()) ? "chain" + NAME_SEPARATOR + chain.getId() : chain.getShipKey();
@@ -1060,21 +1067,21 @@ public class FabricatorImpl implements Fabricator {
   }
 
   /**
-   * Format a message with the segmentId as prefix
-   *
-   * @param message to format
-   * @return formatted message with segmentId as prefix
+   Format a message with the segmentId as prefix
+
+   @param message to format
+   @return formatted message with segmentId as prefix
    */
   private String formatLog(String message) {
     return String.format("[segId=%s] %s", workbench.getSegment().getId(), message);
   }
 
   /**
-   * Get the Chain Metadata JSON file from a set of segments
-   *
-   * @param segments to include in metadata JSON
-   * @return metadata JSON
-   * @throws NexusException on failure
+   Get the Chain Metadata JSON file from a set of segments
+
+   @param segments to include in metadata JSON
+   @return metadata JSON
+   @throws NexusException on failure
    */
   private String computeChainJson(Collection<Segment> segments) throws NexusException {
     try {
@@ -1092,9 +1099,9 @@ public class FabricatorImpl implements Fabricator {
   }
 
   /**
-   * Compute and cache the # of seconds per beat
-   *
-   * @return seconds per beat
+   Compute and cache the # of seconds per beat
+
+   @return seconds per beat
    */
   private Double computeSecondsPerBeat() throws NexusException {
     if (Objects.isNull(secondsPerBeat))
@@ -1103,7 +1110,7 @@ public class FabricatorImpl implements Fabricator {
   }
 
   /**
-   * Ensure the current segment has a storage key; if not, add a storage key to this Segment
+   Ensure the current segment has a storage key; if not, add a storage key to this Segment
    */
   private void ensureShipKey() {
     if (Values.isEmpty(workbench.getSegment().getStorageKey()) || workbench.getSegment().getStorageKey().isEmpty()) {
@@ -1115,9 +1122,9 @@ public class FabricatorImpl implements Fabricator {
   }
 
   /**
-   * Compute the type of the current segment
-   *
-   * @return type of the current segment
+   Compute the type of the current segment
+
+   @return type of the current segment
    */
   private SegmentType computeType() {
     if (isInitialSegment())
@@ -1140,9 +1147,9 @@ public class FabricatorImpl implements Fabricator {
   }
 
   /**
-   * Get the delta of the previous segment
-   *
-   * @return delta from previous segment
+   Get the delta of the previous segment
+
+   @return delta from previous segment
    */
   private int getPreviousSegmentDelta() {
     return retrospective.getPreviousSegment()
@@ -1151,9 +1158,9 @@ public class FabricatorImpl implements Fabricator {
   }
 
   /**
-   * Compute the preferred instrument audio
-   *
-   * @return preferred instrument audio
+   Compute the preferred instrument audio
+
+   @return preferred instrument audio
    */
   private Map<String, InstrumentAudio> computePreferredInstrumentAudio() {
     Map<String, InstrumentAudio> audios = Maps.newHashMap();
@@ -1167,10 +1174,10 @@ public class FabricatorImpl implements Fabricator {
   }
 
   /**
-   * For a SegmentChoice, add memes from program, program sequence binding, and instrument if present https://www.pivotaltracker.com/story/show/181336704
-   *
-   * @param choice for which to add memes
-   * @return true if adding memes was successful
+   For a SegmentChoice, add memes from program, program sequence binding, and instrument if present https://www.pivotaltracker.com/story/show/181336704
+
+   @param choice for which to add memes
+   @return true if adding memes was successful
    */
   private boolean addMemes(SegmentChoice choice) throws NexusException {
     Set<String> names = Sets.newHashSet();

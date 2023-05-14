@@ -10,6 +10,7 @@ import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.entity.EntityStoreImpl;
+import io.xj.lib.util.MarbleBag;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
@@ -134,38 +135,32 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   @Override
   public List<SegmentChoice> getPreviousChoicesOfType(InstrumentType instrumentType) {
     Optional<Segment> seg = getPreviousSegment();
-    if (seg.isEmpty()) return List.of();
-    return
-      retroStore.getAll(SegmentChoice.class).stream()
-        .filter(c -> c.getSegmentId().equals(seg.get().getId())
-          && Objects.nonNull(c.getInstrumentType())
-          && c.getInstrumentType().equals(instrumentType.toString()))
-        .collect(Collectors.toList());
+    return seg.map(segment -> retroStore.getAll(SegmentChoice.class).stream()
+      .filter(c -> c.getSegmentId().equals(segment.getId())
+        && Objects.nonNull(c.getInstrumentType())
+        && c.getInstrumentType().equals(instrumentType.toString()))
+      .collect(Collectors.toList())).orElseGet(List::of);
   }
 
   @Override
   public List<SegmentChoice> getPreviousChoicesOfMode(InstrumentMode instrumentMode) {
     Optional<Segment> seg = getPreviousSegment();
-    if (seg.isEmpty()) return List.of();
-    return
-      retroStore.getAll(SegmentChoice.class).stream()
-        .filter(c -> c.getSegmentId().equals(seg.get().getId())
-          && Objects.nonNull(c.getInstrumentMode())
-          && c.getInstrumentMode().equals(instrumentMode.toString()))
-        .collect(Collectors.toList());
+    return seg.map(segment -> retroStore.getAll(SegmentChoice.class).stream()
+      .filter(c -> c.getSegmentId().equals(segment.getId())
+        && Objects.nonNull(c.getInstrumentMode())
+        && c.getInstrumentMode().equals(instrumentMode.toString()))
+      .collect(Collectors.toList())).orElseGet(List::of);
   }
 
   @Override
   public List<SegmentChoice> getPreviousChoicesOfTypeMode(InstrumentType instrumentType, InstrumentMode instrumentMode) {
     Optional<Segment> seg = getPreviousSegment();
-    if (seg.isEmpty()) return List.of();
-    return
-      retroStore.getAll(SegmentChoice.class).stream()
-        .filter(c -> c.getSegmentId().equals(seg.get().getId())
-          && Objects.nonNull(c.getInstrumentType())
-          && c.getInstrumentType().equals(instrumentType.toString())
-          && c.getInstrumentMode().equals(instrumentMode.toString()))
-        .collect(Collectors.toList());
+    return seg.map(segment -> retroStore.getAll(SegmentChoice.class).stream()
+      .filter(c -> c.getSegmentId().equals(segment.getId())
+        && Objects.nonNull(c.getInstrumentType())
+        && c.getInstrumentType().equals(instrumentType.toString())
+        && c.getInstrumentMode().equals(instrumentMode.toString()))
+      .collect(Collectors.toList())).orElseGet(List::of);
   }
 
   @Override
@@ -182,7 +177,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
 
   @Override
   public Optional<Segment> getSegment(UUID id) {
-    return retroStore.getAll(Segment.class).stream().filter(s -> Objects.equals(id, s.getId())).findAny();
+    return MarbleBag.quickPick(retroStore.getAll(Segment.class).stream().filter(s -> Objects.equals(id, s.getId())). collect(Collectors.toList()));
   }
 
   @Override
@@ -193,23 +188,19 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   @Override
   public Optional<SegmentChoice> getPreviousChoiceForInstrument(UUID instrumentId) {
     Optional<Segment> seg = getPreviousSegment();
-    if (seg.isEmpty()) return Optional.empty();
-    return
-      retroStore.getAll(SegmentChoice.class).stream()
-        .filter(c -> c.getSegmentId().equals(seg.get().getId())
-          && Objects.nonNull(c.getInstrumentId())
-          && instrumentId.equals(c.getInstrumentId()))
-        .findFirst();
+    return seg.flatMap(segment -> retroStore.getAll(SegmentChoice.class).stream()
+      .filter(c -> c.getSegmentId().equals(segment.getId())
+        && Objects.nonNull(c.getInstrumentId())
+        && instrumentId.equals(c.getInstrumentId()))
+      .findFirst());
   }
 
   @Override
   public List<SegmentChoiceArrangement> getPreviousArrangementsForInstrument(UUID instrumentId) {
     var choice = getPreviousChoiceForInstrument(instrumentId);
-    if (choice.isEmpty()) return List.of();
-    return
-      retroStore.getAll(SegmentChoiceArrangement.class).stream()
-        .filter(c -> c.getSegmentChoiceId().equals(choice.get().getId()))
-        .collect(Collectors.toList());
+    return choice.map(segmentChoice -> retroStore.getAll(SegmentChoiceArrangement.class).stream()
+      .filter(c -> c.getSegmentChoiceId().equals(segmentChoice.getId()))
+      .collect(Collectors.toList())).orElseGet(List::of);
   }
 
   @Override

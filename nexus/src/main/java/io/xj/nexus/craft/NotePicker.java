@@ -5,6 +5,7 @@ package io.xj.nexus.craft;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.NoteRange;
 import io.xj.lib.music.PitchClass;
+import io.xj.lib.util.MarbleBag;
 
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
@@ -131,9 +132,9 @@ public class NotePicker {
    @return a random note from the voicing
    */
   private Optional<Note> pickRandom(Collection<Note> voicingNotes) {
-    return voicingNotes
+    return MarbleBag.quickPick(voicingNotes
       .stream()
       .sorted(Comparator.comparing((s) -> random.nextFloat()))
-      .findAny();
+      .toList());
   }
 }
