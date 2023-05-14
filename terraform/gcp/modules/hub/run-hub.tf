@@ -197,7 +197,6 @@ resource "google_cloud_run_v2_service" "hub" {
       client_version,
       annotations,
       template[0].annotations,
-      template[0].containers[0].image,
     ]
   }
 

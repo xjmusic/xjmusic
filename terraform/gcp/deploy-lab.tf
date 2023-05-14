@@ -21,7 +21,7 @@ module "lab_dev_hub" {
   audio_upload_url                = "https://xj-dev-audio.s3.amazonaws.com/"
   aws_default_region              = "us-east-1"
   environment                     = "dev"
-  player_base_url                 = "https://play.dev.xj.io/"
+  player_base_url                 = "https://play.xj.io/"
   ship_base_url                   = "https://ship.dev.xj.io/"
   ship_bucket                     = "xj-dev-ship"
   postgres_database               = module.lab_postgres.database_dev

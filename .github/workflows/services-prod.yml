@@ -96,4 +96,4 @@ jobs:
 
       - name: (GCP Cloud Run) Deploy Production Hub
         run: |
-          gcloud run deploy xj-prod-lab-hub --image gcr.io/xj-vpc-host-prod/hub --region ${{ secrets.GKE_REGION }}
+          gcloud run deploy xj-prod-lab-hub --image gcr.io/xj-vpc-host-prod/hub:latest --region ${{ secrets.GKE_REGION }}
