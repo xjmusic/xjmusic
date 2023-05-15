@@ -13,8 +13,6 @@ check() {
   fi
 }
 
-check terraform/gcp
-check terraform/aws
 check hub/src
 check lib/src
 check nexus/src

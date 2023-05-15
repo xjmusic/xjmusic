@@ -17,73 +17,6 @@ CI builds & deploys the `prod` branch to Production, and `dev` to Development.
 
 # XJ service deployment on AWS and GCP
 
-## Terraform
-
-We use Terraform to deploy the infrastructure on AWS and GCP. The Terraform code is in the `terraform` folder.
-
-### Amazon Web Service (AWS)
-
-We use AWS to host static content buckets (S3) and the content distribution network (CloudFront).
-
-Install the AWS CLI according to [this tutorial](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html).
-
-### Google Cloud Platform (GCP)
-
-We use GCP to host the database (Cloud SQL) and services (Cloud Run).
-
-Install the GCP CLI according to [this tutorial](https://cloud.google.com/sdk/docs/install).
-
-### Google Cloud Run Services
-
-Our preferred deployment method for all services is Google Cloud Run (serverless) services. For example, to tail the logs of the hub:
-
-```shell
-gcloud beta run services logs tail xj-dev-lab-hub --region us-west1 --project xj-vpc-host-prod
-```
-
-### Terraform CLI
-
-Install the Terraform CLI according to [this tutorial](https://learn.hashicorp.com/tutorials/terraform/install-cli).
-
-## Terraform Infrastructure
-
-### Frontend Infrastructure
-
-To plan changes to the AWS Terraform configuration (Frontend infra), run:
-
-```shell
-cd terraform/aws
-terraform init
-terraform plan
-```
-
-### Backend Infrastructure
-
-Because we use the `gcloud` CLI to deploy updates to Google Cloud Run services, the Terraform state for these services 
-will be out of sync with the actual state of the services. To fix this, we need to import the existing services into the
-Terraform state. To do this, run:
-
-```shell
-cd terraform/gcp
-terraform refresh
-````
-
-To plan changes to the GCP Terraform configuration (Backend infra), run:
-
-```shell
-cd terraform/gcp
-terraform init
-terraform plan
-```
-
-To get an output value, such as the secret id for postgres username and password:
-
-```shell
-cd terraform/gcp
-terraform output -raw lab_postgres_username
-terraform output -raw lab_postgres_password
-```
-
 ### Connecting to Cloud SQL Postgres
 
 To obtain credentials for the Lab Postgres database, run:
@@ -117,7 +50,7 @@ Note, when importing a SQL dump into a Cloud SQL instance (e.g. [delete-and-inse
 
 ## Art
 
-See the **/art** folder. By Accessing the contents of that folder, you agree to these terms:
+See the **art/** folder. By Accessing the contents of that folder, you agree to these terms:
 
 > Please only read these files on your machine and then delete. Please do Not email that file anywhere, or upload it to
 > any other servers. These files are confidential property of XJ Music Inc.
@@ -127,12 +60,11 @@ See specifically, the [XJ music User Guide](https://docs.google.com/document/d/1
 
 ### Architecture
 
-Here's the general architecture of the XJ Music platform backend services. [(Download PDF)](art/XJ
-LabStreamingSegmentsArchitecture.pdf)
+Here's the general architecture of the XJ Music platform backend services. [(Download PDF)](art/XJLabStreamingSegmentsArchitecture.pdf)
 
-![XJ Lab Streaming Segments Architecture](.art/XJLabStreamingSegmentsArchitecture.svg)
+![XJ Lab Streaming Segments Architecture](art/XJLabStreamingSegmentsArchitecture.svg)
 
-![Mixer Design v6](.art/MixerDesignV6_XJ_Music.jpg)
+![Mixer Design v6](art/MixerDesignV6_XJ_Music.jpg)
 
 ## Axioms
 

@@ -1,2 +1,1 @@
 *.zip filter=lfs diff=lfs merge=lfs -text
-terraform/aws/modules/ship/ffmpeg/bin/ffmpeg filter=lfs diff=lfs merge=lfs -text
