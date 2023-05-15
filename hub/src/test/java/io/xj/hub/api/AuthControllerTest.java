@@ -66,7 +66,7 @@ public class AuthControllerTest {
 
   @Test
   public void GetAuthGoogle() {
-    ResponseEntity<HubAccess> response = restTemplate.exchange("http://localhost:" + port + "/auth/google", HttpMethod.GET, null, HubAccess.class);
+    ResponseEntity<HubAccess> response = restTemplate.exchange("http://localhost:" + port + "/auth/google?state=xj-music", HttpMethod.GET, null, HubAccess.class);
 
     assertEquals(HttpStatus.FOUND, response.getStatusCode());
     var responseHeaders = response.getHeaders();
