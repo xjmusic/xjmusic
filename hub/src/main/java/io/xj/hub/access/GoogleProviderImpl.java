@@ -60,11 +60,11 @@ public class GoogleProviderImpl implements GoogleProvider {
   }
 
   @Override
-  public String getAuthCodeRequestUrl() {
+  public String getAuthCodeRequestUrl(String state) {
     return new AuthorizationCodeRequestUrl(GoogleOAuthConstants.AUTHORIZATION_SERVER_URL, clientId)
       .setResponseTypes(ImmutableList.of("code"))
       .setRedirectUri(getCallbackUrl())
-      .setState("xj-music")
+      .setState(state)
       .setScopes(SCOPES)
       .build();
   }

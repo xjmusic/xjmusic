@@ -50,7 +50,7 @@ public class HubIntegrationTestFactory {
 
   private static class FakeGoogleProvider implements GoogleProvider {
     @Override
-    public String getAuthCodeRequestUrl() throws HubAccessException {
+    public String getAuthCodeRequestUrl(String state) throws HubAccessException {
       throw new HubAccessException("Not implemented");
     }
 

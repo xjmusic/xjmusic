@@ -20,8 +20,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Nullable;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
@@ -97,13 +99,16 @@ public class AuthController extends HubJsonapiEndpoint {
       try {
         userManager.destroyAllTokens(access.getUserId());
         res.addCookie(userManager.newExpiredCookie());
+        res.sendRedirect(apiUrlProvider.getAppUrl(appPathWelcome));
 
       } catch (Exception e) {
         res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
       }
 
-    } else
+    } else {
       res.addCookie(userManager.newExpiredCookie());
+      res.sendRedirect(apiUrlProvider.getAppUrl(appPathWelcome));
+    }
   }
 
   /**
@@ -111,10 +116,10 @@ public class AuthController extends HubJsonapiEndpoint {
    */
   @GetMapping("/google")
   @PermitAll
-  public void redirectToAuthCodeRequestUrl(HttpServletResponse res) throws IOException {
+  public void redirectToAuthCodeRequestUrl(HttpServletResponse res, @Nullable @RequestParam String state) throws IOException {
     String url;
     try {
-      url = authGoogleProvider.getAuthCodeRequestUrl();
+      url = authGoogleProvider.getAuthCodeRequestUrl(state);
       res.sendRedirect(url);
     } catch (HubAccessException | IOException e) {
       LOG.error("Google Auth Provider Failed!", e);
@@ -128,18 +133,18 @@ public class AuthController extends HubJsonapiEndpoint {
   @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
   @GetMapping("/google/callback")
   @PermitAll
-  public void authGoogleCallback(HttpServletRequest req, HttpServletResponse res) throws IOException {
+  public void authGoogleCallback(HttpServletRequest req, HttpServletResponse res, @Nullable @RequestParam String state) throws IOException {
     AuthorizationCodeResponseUrl authResponse;
     String accessToken;
     try {
-      authResponse = new AuthorizationCodeResponseUrl(apiUrlProvider.getAppUrl(String.format("%s?%s",req.getRequestURI(),req.getQueryString())));
+      authResponse = new AuthorizationCodeResponseUrl(apiUrlProvider.getAppUrl(String.format("%s?%s", req.getRequestURI(), req.getQueryString())));
       if (Objects.nonNull(authResponse.getError())) {
         res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Authorization denied: " + authResponse.getErrorDescription());
         return;
       }
       accessToken = userManager.authenticate(authResponse.getCode());
       res.addCookie(userManager.newCookie(accessToken));
-      res.sendRedirect(apiUrlProvider.getAppUrl(appPathWelcome));
+      res.sendRedirect(Objects.nonNull(state) ? state : apiUrlProvider.getAppUrl(appPathWelcome));
     } catch (IllegalArgumentException e) {
       logAndSendInternalError(res, "Authorization code response URL missing required parameter(s)!", e);
     } catch (ManagerException e) {

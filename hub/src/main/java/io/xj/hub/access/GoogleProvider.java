@@ -14,7 +14,7 @@ public interface GoogleProvider {
    * @return String authorization code request URL
    * @throws HubAccessException if required system properties are not set
    */
-  String getAuthCodeRequestUrl() throws HubAccessException;
+  String getAuthCodeRequestUrl(String state) throws HubAccessException;
 
   /**
    * URI that the authorization server directs the resource owner's user-agent back to

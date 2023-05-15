@@ -11,12 +11,10 @@ import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.json.ApiUrlProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -41,7 +39,7 @@ public class GoogleProviderImplTest extends Mockito {
 
   @Test
   public void getAuthCodeRequestUrl() throws Exception {
-    String url = googleProvider.getAuthCodeRequestUrl();
+    String url = googleProvider.getAuthCodeRequestUrl("xj-music");
     assertEquals("https://accounts.google.com/o/oauth2/auth" +
       "?client_id=12345" +
       "&redirect_uri=http://shammy/auth/google/callback" +
