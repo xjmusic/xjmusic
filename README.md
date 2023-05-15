@@ -46,7 +46,7 @@ export PGPASSWORD=$(gcloud secrets versions access latest --secret=xj-lab-postgr
 psql --host=127.0.0.1 --port=5432 --user=${PGUSERNAME} xj_dev
 ```
 
-Note, when importing a SQL dump into a Cloud SQL instance (e.g. [delete-and-insert-all-records.sql](.backup/delete-and-insert-all-records.sql)) be sure to use the proper user (there's an advanced user dropdown)
+Note, when importing a SQL dump into a Cloud SQL instance be sure to use the proper user (there's an advanced user dropdown)
 
 ## Art
 
@@ -155,9 +155,9 @@ Here are the public-facing Amazon CloudFront-backed URLs for audio files, and th
 
 **NOTE** that our CloudFront configuration defines two tiers of caching behavior:
 
-* Files containing NO hyphen will have a short TTL, e.g. **coolambience.json** (this is the chain manifest that is
+* Files containing NO hyphen will have a short TTL, e.g. **bump_chill.json** (this is the chain manifest that is
   updated frequently)
-* Files containing a hyphen will have a long TTL, e.g. **coolambience-000012598722847.ogg** (this is a segment file that
+* Files containing a hyphen will have a long TTL, e.g. **bump_chill-000012598722847.ogg** (this is a segment file that
   never changes)
 
 ## Amazon S3
