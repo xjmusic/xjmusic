@@ -337,7 +337,6 @@ public class NexusWorkImpl implements NexusWork {
   private void runYard() throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException {
     if (Instant.now().isAfter(yardPollNext)) {
       yardPollNext = Instant.now().plusSeconds(yardPollSeconds);
-      loadYard();
     }
 
     try {
@@ -900,8 +899,8 @@ public class NexusWorkImpl implements NexusWork {
 
       // Okay to rehydrate
       store.putAll(entities);
-      LOG.info("Rehydrated {} entities OK. Chain[{}] is fabricated ahead {}s",
-        entities.size(), Chains.getIdentifier(chain), aheadSeconds);
+      LOG.info("Rehydrated {} entities OK. Chain[{}] is fabricated ahead {}s (> {}s)",
+        entities.size(), Chains.getIdentifier(chain), aheadSeconds, rehydrateFabricatedAheadThreshold);
       return Optional.of(chain);
 
     } catch (NexusException | ManagerFatalException | ManagerPrivilegeException | ManagerExistenceException e) {

@@ -101,7 +101,7 @@ public class HubClientImpl implements HubClient {
   @Override
   public HubContent load(String shipKey) throws HubClientException {
     var url = String.format("%s%s.json", audioBaseUrl, shipKey);
-    LOG.info("Will load to Hub content from {}", url);
+    LOG.info("Will load content from {}", url);
     CloseableHttpClient client = httpClientProvider.getClient();
     try (
       CloseableHttpResponse response = client.execute(new HttpGet(url))
