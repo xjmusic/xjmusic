@@ -3,8 +3,6 @@ package io.xj.ship.work;
 
 import com.google.common.base.Strings;
 import io.xj.lib.app.AppEnvironment;
-import io.xj.lib.lock.LockException;
-import io.xj.lib.lock.LockProvider;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.util.Text;
 import io.xj.nexus.persistence.ChainManager;
@@ -68,7 +66,6 @@ public class ShipWorkImpl implements ShipWork {
   private final boolean telemetryEnabled;
   private final long initialSeqNum;
   private final StreamWriter writer;
-  private final String streamBucket;
   private StreamEncoder stream;
   private boolean active = true;
   private long doneUpToSecondsUTC;
@@ -79,7 +76,6 @@ public class ShipWorkImpl implements ShipWork {
   private long nextPublishMillis = 0;
   private long nextLoadMillis = 0;
   private final String envName;
-  private final LockProvider lockProvider;
 
   public ShipWorkImpl(
     AppEnvironment env,
@@ -87,7 +83,6 @@ public class ShipWorkImpl implements ShipWork {
     ChainManager chainManager,
     ChunkFactory chunkFactory,
     Janitor janitor,
-    LockProvider lockProvider,
     MediaSeqNumProvider mediaSeqNumProvider,
     NotificationProvider notificationProvider,
     PlaylistPublisher playlistPublisher,
@@ -97,7 +92,6 @@ public class ShipWorkImpl implements ShipWork {
     this.chainManager = chainManager;
     this.chunkFactory = chunkFactory;
     this.janitor = janitor;
-    this.lockProvider = lockProvider;
     this.mediaSeqNumProvider = mediaSeqNumProvider;
     this.notificationProvider = notificationProvider;
     this.playlistPublisher = playlistPublisher;
@@ -119,7 +113,6 @@ public class ShipWorkImpl implements ShipWork {
     mixCycleSeconds = env.getShipMixCycleSeconds();
     publishCycleSeconds = env.getWorkPublishCycleSeconds();
     shipAheadMillis = env.getShipPlaylistAheadSeconds() * MILLIS_PER_SECOND;
-    streamBucket = env.getStreamBucket();
     telemetryCycleSeconds = env.getWorkTelemetryCycleSeconds();
     telemetryEnabled = env.isTelemetryEnabled();
 
@@ -221,21 +214,14 @@ public class ShipWorkImpl implements ShipWork {
     if (nowMillis < nextCycleMillis) {
       Thread.sleep(INTERNAL_CYCLE_SLEEP_MILLIS);
       return;
-    };
+    }
+
     nextCycleMillis = System.currentTimeMillis() + cycleMillis;
 
     if (state.get() == State.Active)
       try {
-        // On Ship start, generate a random hash key and write it to a lock file named after the ship key, next to the target playlist output m3u8-- e.g. **bump_deep.lock** is written next to the target chain output **bump_deep.m3u8**
-        // https://www.pivotaltracker.com/story/show/185119448
-        lockProvider.acquire(streamBucket, shipKey);
-
         doLoadCycle(nowMillis);
         doMixCycle(nowMillis);
-
-        // Before writing the playlist, Ship reads the expected lock file and confirms that the hash has not changed.
-        // https://www.pivotaltracker.com/story/show/185119448
-        lockProvider.check(streamBucket, shipKey);
 
         doPublishCycle(nowMillis);
         doCleanupCycle(nowMillis);
@@ -245,10 +231,6 @@ public class ShipWorkImpl implements ShipWork {
         var detail = Strings.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
         LOG.error("Failed while running ship work because {}", detail, e);
         notificationProvider.publish(String.format("%s-Chain[%s] Ship Failure", envName, shipKey), String.format("Failed while running ship work because %s\n\n%s", detail, Text.formatStackTrace(e)));
-
-      } catch (LockException e) {
-        LOG.error("Fabrication lock invalid for Chain[{}] reason={}", shipKey, e.getMessage());
-        active = false;
       }
 
     nextCycleMillis = System.currentTimeMillis() + cycleMillis;

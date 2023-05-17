@@ -86,6 +86,12 @@ jobs:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
           export_default_credentials: true
 
+      - id: 'get-credentials'
+        uses: 'google-github-actions/get-gke-credentials@v1'
+        with:
+          cluster_name: ${{ secrets.GKE_CLUSTER }}
+          location: ${{ secrets.GKE_REGION }}
+
       - name: (GCP) Build & push Docker images
         run: |
           ./gradlew --info --no-daemon \
@@ -97,3 +103,7 @@ jobs:
       - name: (GCP Cloud Run) Deploy Production Hub
         run: |
           gcloud run deploy xj-prod-lab-hub --image gcr.io/xj-vpc-host-prod/hub:latest --region ${{ secrets.GKE_REGION }}
+
+      - name: (GCP Kubernetes) Deploy Production Yard
+        run: |
+          kubectl -n yard rollout restart deployment

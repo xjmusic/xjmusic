@@ -234,7 +234,8 @@ public class NexusWorkImpl implements NexusWork {
     if (System.currentTimeMillis() < nextCycleMillis) {
       Thread.sleep(INTERNAL_CYCLE_SLEEP_MILLIS);
       return;
-    };
+    }
+    ;
     nextCycleMillis = System.currentTimeMillis() + cycleMillis;
 
     // Action based on state and mode
@@ -442,9 +443,11 @@ public class NexusWorkImpl implements NexusWork {
    */
   public void fabricateChain(Chain target) throws FabricationFatalException {
     try {
-      // On Nexus start, generate a random hash key and write it to a lock file named after the ship key, next to the target chain output json-- e.g. **bump_deep.lock** is written next to the target chain output **bump_deep.json**
+      // On Preview Nexus start, generate a random hash key and write it to a lock file named after the ship key, next to the target chain output json-- e.g. **bump_deep.lock** is written next to the target chain output **bump_deep.json**
       // https://www.pivotaltracker.com/story/show/185119448
-      lockProvider.acquire(shipBucket, target.getShipKey());
+      if (mode == Lab) {
+        lockProvider.acquire(shipBucket, target.getShipKey());
+      }
 
       timer.section("ComputeAhead");
       var fabricatedAheadAt = computeFabricatedAheadAt(target);
@@ -486,7 +489,9 @@ public class NexusWorkImpl implements NexusWork {
 
       // Before writing a segment, Nexus reads the expected lock file and confirms that the hash has not changed.
       // https://www.pivotaltracker.com/story/show/185119448
-      lockProvider.check(shipBucket, target.getShipKey());
+      if (mode == Lab) {
+        lockProvider.check(shipBucket, target.getShipKey());
+      }
 
       timer.section("Ship");
       doDubShipWork(fabricator);

@@ -12,7 +12,6 @@ import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.lib.lock.LockProvider;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.nexus.NexusTopology;
@@ -55,8 +54,6 @@ public class ShipWorkImplTest {
   @Mock
   TelemetryProvider telemetryProvider;
 
-  @Mock
-  private LockProvider lockProvider;
   private ShipWork subject;
 
   @Before
@@ -97,7 +94,6 @@ public class ShipWorkImplTest {
       chainManager,
       chunkFactory,
       janitor,
-      lockProvider,
       mediaSeqNumProvider,
       notificationProvider,
       playlistPublisher,
