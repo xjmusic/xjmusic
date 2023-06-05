@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -123,8 +122,7 @@ public class ChainLoaderImpl extends ChainLoader {
     LOG.debug("will load chain");
     var key = Chains.getShipKey(Chains.getFullKey(shipKey), EXTENSION_JSON);
     try {
-      var json = isLocalModeEnabled ? readLocalFile(filePathProvider.computeTempFilePath(key)) : fetchRemoteFile(key);
-      chainPayload = jsonProvider.getMapper().readValue(json, JsonapiPayload.class);
+      chainPayload = isLocalModeEnabled ? readLocalFile(filePathProvider.computeTempFilePath(key)) : fetchRemoteFile(key);
       chain = jsonapiPayloadFactory.toOne(chainPayload);
       chainManager.put(chain);
       LOG.info("Loaded Chain[{}]", Chains.getIdentifier(chain));
@@ -223,7 +221,7 @@ public class ChainLoaderImpl extends ChainLoader {
    * @return the file contents
    * @throws IOException if the file could not be fetched
    */
-  private InputStream fetchRemoteFile(String key) throws IOException {
+  private JsonapiPayload fetchRemoteFile(String key) throws IOException {
     CloseableHttpClient client = httpClientProvider.getClient();
     try (
       CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", shipBaseUrl, key)))
@@ -231,7 +229,7 @@ public class ChainLoaderImpl extends ChainLoader {
       if (!Objects.equals(HttpStatus.OK.value(), response.getStatusLine().getStatusCode())) {
         throw new IOException("Failed to get previously fabricated chain for Template[" + key + "] because " + response.getStatusLine().getStatusCode() + " " + response.getStatusLine().getReasonPhrase());
       }
-      return response.getEntity().getContent();
+      return jsonProvider.getMapper().readValue(response.getEntity().getContent(), JsonapiPayload.class);
 
     } catch (ClassCastException | IOException e) {
       throw new IOException("Failed to get previously fabricated chain for Template[" + key + "] because " + e.getMessage(), e);
@@ -245,9 +243,9 @@ public class ChainLoaderImpl extends ChainLoader {
    * @return the file contents
    * @throws SourceNotReadyException if the file could not be fetched
    */
-  private InputStream readLocalFile(String path) throws SourceNotReadyException {
+  private JsonapiPayload readLocalFile(String path) throws SourceNotReadyException {
     try {
-      return Files.newInputStream(Path.of(path));
+      return jsonProvider.getMapper().readValue(Files.newInputStream(Path.of(path)), JsonapiPayload.class);
     } catch (IOException e) {
       throw new SourceNotReadyException("Failed to read " + path + " because " + e.getMessage(), e);
     }
