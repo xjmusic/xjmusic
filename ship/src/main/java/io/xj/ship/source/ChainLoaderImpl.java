@@ -15,6 +15,7 @@ import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.persistence.ChainManager;
 import io.xj.nexus.persistence.Chains;
+import io.xj.nexus.persistence.FilePathProvider;
 import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.Segments;
@@ -26,6 +27,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -43,11 +47,13 @@ public class ChainLoaderImpl extends ChainLoader {
   private static final String THREAD_NAME = "chain";
   private final ChainManager chainManager;
   private final HttpClientProvider httpClientProvider;
+  private final FilePathProvider filePathProvider;
   private final JsonProvider jsonProvider;
   private final JsonapiPayloadFactory jsonapiPayloadFactory;
   private final Measure.MeasureLong CHAIN_LOADED;
   private final Measure.MeasureLong SEGMENT_LOADED;
   private final Measure.MeasureLong SEGMENT_IGNORED;
+  private final boolean isLocalModeEnabled;
   private final Runnable onFailure;
   private final SegmentAudioManager segmentAudioManager;
   private final SegmentManager segmentManager;
@@ -60,9 +66,9 @@ public class ChainLoaderImpl extends ChainLoader {
   public ChainLoaderImpl(
     String shipKey,
     Runnable onFailure,
-    ChainManager chainManager,
-    AppEnvironment env,
+    AppEnvironment env, ChainManager chainManager,
     HttpClientProvider httpClientProvider,
+    FilePathProvider filePathProvider,
     JsonProvider jsonProvider,
     JsonapiPayloadFactory jsonapiPayloadFactory,
     SegmentAudioManager segmentAudioManager,
@@ -71,6 +77,7 @@ public class ChainLoaderImpl extends ChainLoader {
   ) {
     this.chainManager = chainManager;
     this.httpClientProvider = httpClientProvider;
+    this.filePathProvider = filePathProvider;
     this.jsonProvider = jsonProvider;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     this.onFailure = onFailure;
@@ -78,6 +85,7 @@ public class ChainLoaderImpl extends ChainLoader {
     this.segmentManager = segmentManager;
     this.shipKey = shipKey;
     this.telemetryProvider = telemetryProvider;
+    this.isLocalModeEnabled = env.isYardLocalModeEnabled();
 
     loadAheadSeconds = env.getShipPlaylistAheadSeconds() + env.getShipSegmentLoadAheadSeconds();
     loadBackSeconds = env.getShipPlaylistBackSeconds();
@@ -114,22 +122,17 @@ public class ChainLoaderImpl extends ChainLoader {
     Chain chain;
     LOG.debug("will load chain");
     var key = Chains.getShipKey(Chains.getFullKey(shipKey), EXTENSION_JSON);
-    CloseableHttpClient client = httpClientProvider.getClient();
-    try (
-      CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", shipBaseUrl, key)))
-    ) {
-      if (!Objects.equals(HttpStatus.OK.value(), response.getStatusLine().getStatusCode())) {
-        LOG.error("Failed to get previously fabricated chain for Template[{}] because {} {}", key, response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
-        onFailure.run();
-        return;
-      }
-
-      chainPayload = jsonProvider.getMapper().readValue(response.getEntity().getContent(), JsonapiPayload.class);
+    try {
+      var json = isLocalModeEnabled ? readLocalFile(filePathProvider.computeTempFilePath(key)) : fetchRemoteFile(key);
+      chainPayload = jsonProvider.getMapper().readValue(json, JsonapiPayload.class);
       chain = jsonapiPayloadFactory.toOne(chainPayload);
       chainManager.put(chain);
       LOG.info("Loaded Chain[{}]", Chains.getIdentifier(chain));
       telemetryProvider.put(CHAIN_LOADED, 1L);
 
+    } catch (SourceNotReadyException e) {
+      LOG.warn("Source not ready for Template[{}] because {}", shipKey, e.getMessage());
+      return;
     } catch (JsonapiException | ClassCastException | IOException | ManagerFatalException e) {
       LOG.error("Failed to retrieve previously fabricated chain for Template[{}] because {}", shipKey, e.getMessage());
       onFailure.run();
@@ -211,5 +214,42 @@ public class ChainLoaderImpl extends ChainLoader {
         segmentIgnoredLoading.get(),
         segmentIgnoredPast.get(),
         segmentIgnoredFuture.get());
+  }
+
+  /**
+   * Fetch a remote file via HTTP
+   *
+   * @param key the key of the file to fetch
+   * @return the file contents
+   * @throws IOException if the file could not be fetched
+   */
+  private InputStream fetchRemoteFile(String key) throws IOException {
+    CloseableHttpClient client = httpClientProvider.getClient();
+    try (
+      CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", shipBaseUrl, key)))
+    ) {
+      if (!Objects.equals(HttpStatus.OK.value(), response.getStatusLine().getStatusCode())) {
+        throw new IOException("Failed to get previously fabricated chain for Template[" + key + "] because " + response.getStatusLine().getStatusCode() + " " + response.getStatusLine().getReasonPhrase());
+      }
+      return response.getEntity().getContent();
+
+    } catch (ClassCastException | IOException e) {
+      throw new IOException("Failed to get previously fabricated chain for Template[" + key + "] because " + e.getMessage(), e);
+    }
+  }
+
+  /**
+   * Read a local file from disk
+   *
+   * @param path the key of the file to fetch
+   * @return the file contents
+   * @throws SourceNotReadyException if the file could not be fetched
+   */
+  private InputStream readLocalFile(String path) throws SourceNotReadyException {
+    try {
+      return Files.newInputStream(Path.of(path));
+    } catch (IOException e) {
+      throw new SourceNotReadyException("Failed to read " + path + " because " + e.getMessage(), e);
+    }
   }
 }

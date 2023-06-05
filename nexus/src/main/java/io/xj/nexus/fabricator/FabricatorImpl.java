@@ -39,6 +39,7 @@ import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.meme.MemeStack;
+import io.xj.lib.mixer.OutputEncoder;
 import io.xj.lib.music.Accidental;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
@@ -92,7 +93,7 @@ import java.util.stream.Stream;
 import static io.xj.lib.util.Values.NANOS_PER_SECOND;
 
 /**
- [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
+ * [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public class FabricatorImpl implements Fabricator {
   private static final String KEY_VOICE_NOTE_TEMPLATE = "voice-%s_note-%s";
@@ -125,7 +126,6 @@ public class FabricatorImpl implements Fabricator {
   private final SegmentWorkbench workbench;
   private final Set<UUID> boundInstrumentIds;
   private final Set<UUID> boundProgramIds;
-  private final String workTempFilePathPrefix;
   private final long startTime;
   private SegmentType type;
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
@@ -138,9 +138,11 @@ public class FabricatorImpl implements Fabricator {
 
   @Nullable
   private Set<InstrumentType> distinctChordVoicingTypes;
+  private final boolean isLocalModeEnabled;
 
   public FabricatorImpl(
-    AppEnvironment env, HubContent sourceMaterial,
+    AppEnvironment env,
+    HubContent sourceMaterial,
     Segment segment,
     ChainManager chainManager,
     FabricatorFactory fabricatorFactory,
@@ -154,7 +156,7 @@ public class FabricatorImpl implements Fabricator {
     try {
       this.sourceMaterial = sourceMaterial;
 
-      workTempFilePathPrefix = env.getTempFilePathPrefix();
+      isLocalModeEnabled = env.isYardLocalModeEnabled();
 
       // caches
       chordAtPosition = Maps.newHashMap();
@@ -289,7 +291,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public String getChainFullJsonOutputKey() {
-    return Chains.getShipKey(Chains.getFullKey(computeChainBaseKey()), FileStoreProvider.EXTENSION_JSON);
+    return Chains.getShipKey(Chains.getFullKey(Chains.computeBaseKey(getChain())), FileStoreProvider.EXTENSION_JSON);
   }
 
   @Override
@@ -307,7 +309,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public String getChainJsonOutputKey() {
-    return Chains.getShipKey(computeChainBaseKey(), FileStoreProvider.EXTENSION_JSON);
+    return Chains.getShipKey(Chains.computeBaseKey(getChain()), FileStoreProvider.EXTENSION_JSON);
   }
 
   @Override
@@ -372,11 +374,6 @@ public class FabricatorImpl implements Fabricator {
   @Override
   public Double getElapsedSeconds() {
     return (System.nanoTime() - startTime) / NANOS_PER_SECOND;
-  }
-
-  @Override
-  public String getFullQualityAudioOutputFilePath() {
-    return String.format("%s%s", workTempFilePathPrefix, getSegmentOutputWaveformKey());
   }
 
   @Override
@@ -583,7 +580,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public AudioFormat getOutputAudioFormat() {
-    return new AudioFormat(templateConfig.getOutputEncoding(), templateConfig.getOutputFrameRate(), templateConfig.getOutputSampleBits(), templateConfig.getOutputChannels(), templateConfig.getOutputChannels() * templateConfig.getOutputSampleBits() / 8, templateConfig.getOutputFrameRate(), false);
+    return new AudioFormat(computeOutputEncoding(), templateConfig.getOutputFrameRate(), computeOutputSampleBits(), templateConfig.getOutputChannels(), templateConfig.getOutputChannels() * templateConfig.getOutputSampleBits() / 8, templateConfig.getOutputFrameRate(), false);
   }
 
   public Optional<SegmentChoice> getChoice(SegmentChoiceArrangement pick) {
@@ -858,7 +855,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public String getSegmentShipKey(String extension) {
-    return Segments.getStorageFilename(getSegment().getStorageKey(), extension);
+    return Segments.getStorageFilename(getSegment(), extension);
   }
 
   @Override
@@ -1026,19 +1023,28 @@ public class FabricatorImpl implements Fabricator {
     return sourceMaterial;
   }
 
-  /**
-   @return Chain base key
-   */
-  private String computeChainBaseKey() {
-    return Strings.isNullOrEmpty(getChain().getShipKey()) ? String.format("chain-%s", chain.getId()) : getChain().getShipKey();
+  @Override
+  public OutputEncoder computeOutputEncoder() {
+    return isLocalModeEnabled ? OutputEncoder.WAV : OutputEncoder.parse(getTemplateConfig().getOutputContainer());
   }
 
-  /**
-   Compute the lowest optimal range shift octaves
+  @Override
+  public AudioFormat.Encoding computeOutputEncoding() {
+    return isLocalModeEnabled ? AudioFormat.Encoding.PCM_SIGNED : templateConfig.getOutputEncoding();
+  }
 
-   @param sourceRange from
-   @param targetRange to
-   @return lowest optimal range shift octaves
+  @Override
+  public int computeOutputSampleBits() {
+    return isLocalModeEnabled ? 16 : templateConfig.getOutputSampleBits();
+  }
+
+
+  /**
+   * Compute the lowest optimal range shift octaves
+   *
+   * @param sourceRange from
+   * @param targetRange to
+   * @return lowest optimal range shift octaves
    */
   private Integer computeLowestOptimalRangeShiftOctaves(NoteRange sourceRange, NoteRange targetRange) throws NexusException {
     var shiftOctave = 0; // search for optimal value
@@ -1054,11 +1060,11 @@ public class FabricatorImpl implements Fabricator {
   }
 
   /**
-   Compute a Segment ship key: the chain ship key concatenated with the begin-at time in microseconds since epoch
-
-   @param chain   for which to compute segment ship key
-   @param segment for which to compute segment ship key
-   @return Segment ship key computed for the given chain and Segment
+   * Compute a Segment ship key: the chain ship key concatenated with the begin-at time in microseconds since epoch
+   *
+   * @param chain   for which to compute segment ship key
+   * @param segment for which to compute segment ship key
+   * @return Segment ship key computed for the given chain and Segment
    */
   private String computeShipKey(Chain chain, Segment segment) {
     String chainName = Strings.isNullOrEmpty(chain.getShipKey()) ? "chain" + NAME_SEPARATOR + chain.getId() : chain.getShipKey();
@@ -1067,21 +1073,21 @@ public class FabricatorImpl implements Fabricator {
   }
 
   /**
-   Format a message with the segmentId as prefix
-
-   @param message to format
-   @return formatted message with segmentId as prefix
+   * Format a message with the segmentId as prefix
+   *
+   * @param message to format
+   * @return formatted message with segmentId as prefix
    */
   private String formatLog(String message) {
     return String.format("[segId=%s] %s", workbench.getSegment().getId(), message);
   }
 
   /**
-   Get the Chain Metadata JSON file from a set of segments
-
-   @param segments to include in metadata JSON
-   @return metadata JSON
-   @throws NexusException on failure
+   * Get the Chain Metadata JSON file from a set of segments
+   *
+   * @param segments to include in metadata JSON
+   * @return metadata JSON
+   * @throws NexusException on failure
    */
   private String computeChainJson(Collection<Segment> segments) throws NexusException {
     try {
@@ -1099,9 +1105,9 @@ public class FabricatorImpl implements Fabricator {
   }
 
   /**
-   Compute and cache the # of seconds per beat
-
-   @return seconds per beat
+   * Compute and cache the # of seconds per beat
+   *
+   * @return seconds per beat
    */
   private Double computeSecondsPerBeat() throws NexusException {
     if (Objects.isNull(secondsPerBeat))
@@ -1110,7 +1116,7 @@ public class FabricatorImpl implements Fabricator {
   }
 
   /**
-   Ensure the current segment has a storage key; if not, add a storage key to this Segment
+   * Ensure the current segment has a storage key; if not, add a storage key to this Segment
    */
   private void ensureShipKey() {
     if (Values.isEmpty(workbench.getSegment().getStorageKey()) || workbench.getSegment().getStorageKey().isEmpty()) {
@@ -1122,9 +1128,9 @@ public class FabricatorImpl implements Fabricator {
   }
 
   /**
-   Compute the type of the current segment
-
-   @return type of the current segment
+   * Compute the type of the current segment
+   *
+   * @return type of the current segment
    */
   private SegmentType computeType() {
     if (isInitialSegment())
@@ -1147,9 +1153,9 @@ public class FabricatorImpl implements Fabricator {
   }
 
   /**
-   Get the delta of the previous segment
-
-   @return delta from previous segment
+   * Get the delta of the previous segment
+   *
+   * @return delta from previous segment
    */
   private int getPreviousSegmentDelta() {
     return retrospective.getPreviousSegment()
@@ -1158,9 +1164,9 @@ public class FabricatorImpl implements Fabricator {
   }
 
   /**
-   Compute the preferred instrument audio
-
-   @return preferred instrument audio
+   * Compute the preferred instrument audio
+   *
+   * @return preferred instrument audio
    */
   private Map<String, InstrumentAudio> computePreferredInstrumentAudio() {
     Map<String, InstrumentAudio> audios = Maps.newHashMap();
@@ -1174,10 +1180,10 @@ public class FabricatorImpl implements Fabricator {
   }
 
   /**
-   For a SegmentChoice, add memes from program, program sequence binding, and instrument if present https://www.pivotaltracker.com/story/show/181336704
-
-   @param choice for which to add memes
-   @return true if adding memes was successful
+   * For a SegmentChoice, add memes from program, program sequence binding, and instrument if present https://www.pivotaltracker.com/story/show/181336704
+   *
+   * @param choice for which to add memes
+   * @return true if adding memes was successful
    */
   private boolean addMemes(SegmentChoice choice) throws NexusException {
     Set<String> names = Sets.newHashSet();

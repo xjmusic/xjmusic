@@ -9,8 +9,6 @@ import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.ProgramType;
 import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactoryImpl;
-import io.xj.lib.entity.EntityStore;
-import io.xj.lib.entity.EntityStoreImpl;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
@@ -34,6 +32,7 @@ import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.ChainManager;
 import io.xj.nexus.persistence.ChainManagerImpl;
+import io.xj.nexus.persistence.FilePathProviderImpl;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManager;
@@ -89,14 +88,14 @@ public class CraftBeatNextMacroTest {
       segmentManager,
       notificationProvider
     );
-    EntityStore entityStore = new EntityStoreImpl();
+    var filePathProvider = new FilePathProviderImpl(env);
     fabricatorFactory = new FabricatorFactoryImpl(
       env,
       chainManager,
       segmentManager,
       jsonapiPayloadFactory,
-      jsonProvider
-    );
+      jsonProvider,
+      filePathProvider);
 
     // Manipulate the underlying entity store; reset before each test
     store.deleteAll();
@@ -172,9 +171,9 @@ public class CraftBeatNextMacroTest {
   }
 
   /**
-   Insert fixture segments 3 and 4, including the beat choice for segment 3 only if specified
-
-   @param excludeBeatChoiceForSegment3 if desired for the purpose of this test
+   * Insert fixture segments 3 and 4, including the beat choice for segment 3 only if specified
+   *
+   * @param excludeBeatChoiceForSegment3 if desired for the purpose of this test
    */
   private void insertSegments3and4(boolean excludeBeatChoiceForSegment3) throws NexusException {
     // Chain "Test Print #1" has this segment that was just crafted

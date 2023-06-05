@@ -10,18 +10,16 @@ import io.xj.hub.enums.ProgramType;
 import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactoryImpl;
-import io.xj.lib.entity.EntityStore;
-import io.xj.lib.entity.EntityStoreImpl;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.lib.notification.NotificationProvider;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactoryImpl;
 import io.xj.nexus.fabricator.Fabricator;
-import io.xj.lib.notification.NotificationProvider;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
@@ -34,6 +32,7 @@ import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.ChainManager;
 import io.xj.nexus.persistence.ChainManagerImpl;
+import io.xj.nexus.persistence.FilePathProviderImpl;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.SegmentManagerImpl;
@@ -62,8 +61,8 @@ public class CraftFoundationNextMacroTest {
 
 
   /**
-   Test to ensure that the following Macro-Program is based on its first sequence-binding meme
-   matching the last sequence-binding meme of the preceding Macro-Program
+   * Test to ensure that the following Macro-Program is based on its first sequence-binding meme
+   * matching the last sequence-binding meme of the preceding Macro-Program
    */
   @Test
   public void craftFoundationNextMacro() throws Exception {
@@ -85,14 +84,14 @@ public class CraftFoundationNextMacroTest {
         segmentManager,
         notificationProvider
       );
-      EntityStore entityStore = new EntityStoreImpl();
+      var filePathProvider = new FilePathProviderImpl(env);
       var fabricatorFactory = new FabricatorFactoryImpl(
         env,
         chainManager,
         segmentManager,
         jsonapiPayloadFactory,
-        jsonProvider
-      );
+        jsonProvider,
+        filePathProvider);
 
       // Manipulate the underlying entity store; reset before each test
       store.deleteAll();

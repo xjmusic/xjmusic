@@ -26,6 +26,8 @@ import io.xj.lib.json.JsonProvider;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.lock.LockException;
+import io.xj.lib.lock.LockProvider;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.MultiStopwatch;
 import io.xj.lib.telemetry.TelemetryProvider;
@@ -38,8 +40,6 @@ import io.xj.nexus.dub.DubFactory;
 import io.xj.nexus.fabricator.FabricationFatalException;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.lib.lock.LockProvider;
-import io.xj.lib.lock.LockException;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.Segment;
@@ -235,7 +235,7 @@ public class NexusWorkImpl implements NexusWork {
       Thread.sleep(INTERNAL_CYCLE_SLEEP_MILLIS);
       return;
     }
-    ;
+
     nextCycleMillis = System.currentTimeMillis() + cycleMillis;
 
     // Action based on state and mode
@@ -327,7 +327,7 @@ public class NexusWorkImpl implements NexusWork {
       state = State.Active;
 
     } catch (HubClientException e) {
-      didFailWhile(shipKey, "ingesting source material from Hub", e, false);
+      didFailWhile(shipKey, "ingesting published source material", e, false);
       state = State.Fail;
     }
   }
@@ -494,7 +494,7 @@ public class NexusWorkImpl implements NexusWork {
       }
 
       timer.section("Ship");
-      doDubShipWork(fabricator);
+      doDubUploadWork(fabricator);
       finishWork(fabricator, segment);
 
       LOG.info("Chain[{}] offset={} Segment[{}] ahead {}s fabricated OK",
@@ -578,8 +578,8 @@ public class NexusWorkImpl implements NexusWork {
    * @throws NexusException on craft failure
    * @throws NexusException on ship failure
    */
-  protected void doDubShipWork(Fabricator fabricator) throws NexusException {
-    dubFactory.ship(fabricator).doWork();
+  protected void doDubUploadWork(Fabricator fabricator) throws NexusException {
+    dubFactory.upload(fabricator).doWork();
   }
 
   /**
@@ -852,7 +852,7 @@ public class NexusWorkImpl implements NexusWork {
         .filter(seg -> SegmentState.DUBBED.equals(seg.getState()))
         .filter(seg -> Instant.parse(seg.getEndAt()).isAfter(ignoreBefore))
         .forEach(segment -> {
-          var segmentShipKey = Segments.getStorageFilename(segment.getStorageKey(), EXTENSION_JSON);
+          var segmentShipKey = Segments.getStorageFilename(segment, EXTENSION_JSON);
           try (
             CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", shipBaseUrl, segmentShipKey)))
           ) {

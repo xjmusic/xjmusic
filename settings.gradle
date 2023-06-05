@@ -5,4 +5,5 @@ include(':lib')
 include(':hub')
 include(':nexus')
 include(':ship')
+include(':yard')
 

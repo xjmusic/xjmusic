@@ -17,6 +17,7 @@ import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.lib.lock.LockProvider;
 import io.xj.lib.mixer.Mixer;
 import io.xj.lib.mixer.MixerFactory;
 import io.xj.lib.notification.NotificationProvider;
@@ -31,9 +32,9 @@ import io.xj.nexus.dub.DubAudioCacheItemFactory;
 import io.xj.nexus.dub.DubAudioCacheItemFactoryImpl;
 import io.xj.nexus.dub.DubFactoryImpl;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
-import io.xj.lib.lock.LockProvider;
 import io.xj.nexus.persistence.ChainManager;
 import io.xj.nexus.persistence.ChainManagerImpl;
+import io.xj.nexus.persistence.FilePathProviderImpl;
 import io.xj.nexus.persistence.ManagerExistenceException;
 import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.ManagerPrivilegeException;
@@ -133,13 +134,14 @@ public class ComplexLibraryTest {
       notificationProvider
     );
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
+    var filePathProvider = new FilePathProviderImpl(env);
     var fabricatorFactory = new FabricatorFactoryImpl(
       env,
       chainManager,
       segmentManager,
       jsonapiPayloadFactory,
-      jsonProvider
-    );
+      jsonProvider,
+      filePathProvider);
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
 
@@ -160,7 +162,7 @@ public class ComplexLibraryTest {
     HttpClientProvider httpClientProvider = new HttpClientProviderImpl(env);
     DubAudioCacheItemFactory cacheItemFactory = new DubAudioCacheItemFactoryImpl(env, httpClientProvider);
     DubAudioCache dubAudioCache = new DubAudioCacheImpl(env, cacheItemFactory);
-    var dubFactory = new DubFactoryImpl(env, dubAudioCache, fileStoreProvider, mixerFactory);
+    var dubFactory = new DubFactoryImpl(env, dubAudioCache, filePathProvider, fileStoreProvider, mixerFactory);
 
     // work
     work = new NexusWorkImpl(
@@ -194,10 +196,7 @@ public class ComplexLibraryTest {
 
     // assertions
     verify(fileStoreProvider, atLeast(MARATHON_NUMBER_OF_SEGMENTS))
-      .putS3ObjectFromTempFile(any(), any(), any(), any());
-    // FUTURE use a spy to assert actual json payload shipped to S3 for metadata
-    verify(fileStoreProvider, atLeast(MARATHON_NUMBER_OF_SEGMENTS))
-      .putS3ObjectFromString(any(), any(), any(), any(), any());
+      .putS3ObjectFromTempFile(any(), any(), any(), any(), any());
     assertTrue(hasSegmentsDubbedPastMinimumOffset());
   }
 

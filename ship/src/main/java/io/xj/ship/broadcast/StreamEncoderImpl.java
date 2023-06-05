@@ -194,7 +194,7 @@ public class StreamEncoderImpl implements StreamEncoder {
    */
   private void uploadMediaSegment(String key, String contentType) throws FileStoreException, ShipException {
     var path = String.format("%s%s", tempFilePathPrefix, key);
-    fileStore.putS3ObjectFromTempFile(path, bucket, key, contentType);
+    fileStore.putS3ObjectFromTempFile(path, bucket, key, contentType, null);
     LOG.info("Shipped {}/{} ({})", bucket, key, contentType);
     playlist.publish();
   }

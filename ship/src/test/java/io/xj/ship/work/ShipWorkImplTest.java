@@ -16,6 +16,8 @@ import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.persistence.ChainManager;
+import io.xj.nexus.persistence.FilePathProvider;
+import io.xj.nexus.persistence.FilePathProviderImpl;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManager;
@@ -73,9 +75,11 @@ public class ShipWorkImplTest {
     NexusEntityStore nexusEntityStore = new NexusEntityStoreImpl(entityFactory);
     SegmentManager segmentManager = new SegmentManagerImpl(entityFactory, nexusEntityStore);
     SegmentAudioCache cache = new SegmentAudioCacheImpl(env, httpClientProvider);
+    FilePathProvider filePathProvider = new FilePathProviderImpl(env);
     segmentAudioManager = new SegmentAudioManagerImpl(
       env,
       nexusEntityStore,
+      filePathProvider,
       cache,
       telemetryProvider,
       chainManager,

@@ -10,10 +10,10 @@ import javax.annotation.security.PermitAll;
 import javax.ws.rs.GET;
 
 @RestController
-public class HealthController {
+public class ShipHealthController {
   private final ShipWork work;
 
-  public HealthController(
+  public ShipHealthController(
     ShipWork work
   ) {
     this.work = work;

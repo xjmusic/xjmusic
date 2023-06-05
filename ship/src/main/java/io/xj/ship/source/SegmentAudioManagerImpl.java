@@ -14,6 +14,7 @@ import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.persistence.ChainManager;
+import io.xj.nexus.persistence.FilePathProvider;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.Segments;
@@ -40,6 +41,7 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
   private final Map<UUID/* segmentId */, SegmentAudio> segmentAudios = Maps.newConcurrentMap();
   private final NexusEntityStore store;
   private final TelemetryProvider telemetryProvider;
+  private final FilePathProvider filePathProvider;
   private final SegmentAudioCache cache;
   private final ChainManager chainManager;
   private final AppEnvironment env;
@@ -50,11 +52,13 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
   private final Measure.MeasureDouble SEGMENT_AUDIO_LOADED_AHEAD_SECONDS;
   private final int segmentLoadRetryLimit;
   private final int segmentLoadRetryDelayMillis;
+  private final boolean isLocalModeEnabled;
 
   @Autowired
   public SegmentAudioManagerImpl(
     AppEnvironment env,
     NexusEntityStore store,
+    FilePathProvider filePathProvider,
     SegmentAudioCache cache,
     TelemetryProvider telemetryProvider,
     ChainManager chainManager,
@@ -63,6 +67,7 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
     JsonapiPayloadFactory jsonapiPayloadFactory,
     SegmentManager segmentManager
   ) {
+    this.filePathProvider = filePathProvider;
     this.cache = cache;
     this.chainManager = chainManager;
     this.env = env;
@@ -72,6 +77,7 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
     this.segmentManager = segmentManager;
     this.store = store;
     this.telemetryProvider = telemetryProvider;
+    this.isLocalModeEnabled = env.isYardLocalModeEnabled();
     segmentLoadRetryLimit = env.getShipSegmentLoadRetryLimit();
     segmentLoadRetryDelayMillis = env.getShipSegmentLoadRetryDelayMillis();
 
@@ -89,7 +95,7 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
     for (var i = 0; i < segmentLoadRetryLimit; i++)
       try {
         store.put(segment);
-        var absolutePath = cache.downloadAndDecompress(segment);
+        var absolutePath = isLocalModeEnabled ? filePathProvider.computeFullQualityAudioOutputFilePath(segment) : cache.downloadAndDecompress(segment);
         var segmentAudio = loadSegmentAudio(shipKey, segment, absolutePath);
         put(segmentAudio);
         return;
@@ -109,8 +115,8 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
 
 
   @Override
-  public ChainLoader loadChain(String shipKey, Runnable onFailure) {
-    return new ChainLoaderImpl(shipKey, onFailure, chainManager, env, httpClientProvider, jsonProvider, jsonapiPayloadFactory, this, segmentManager, telemetryProvider);
+  public ChainLoader loadChain(String shipKey, Runnable onFailure, boolean isLocalModeEnabled) {
+    return new ChainLoaderImpl(shipKey, onFailure, env, chainManager, httpClientProvider, filePathProvider, jsonProvider, jsonapiPayloadFactory, this, segmentManager, telemetryProvider);
   }
 
   @Override

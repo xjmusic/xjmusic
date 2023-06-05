@@ -28,14 +28,14 @@ public interface DubFactory {
   ) throws NexusException;
 
   /**
-   Create DubShip Dub instance for a particular segment
+   Create DubUpload Dub instance for a particular segment
    [#264] Segment audio is compressed to OGG and shipped to https://segment.xj.io
 
    @param fabricator of dub
    @return ShipDub
    @throws NexusException on failure
    */
-  DubShip ship(
+  DubUpload upload(
      Fabricator fabricator
   ) throws NexusException;
 

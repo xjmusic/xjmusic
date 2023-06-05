@@ -6,19 +6,22 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.mixer.Mixer;
 import io.xj.lib.mixer.MixerConfig;
 import io.xj.lib.mixer.MixerFactory;
-import io.xj.lib.mixer.OutputEncoder;
 import io.xj.lib.util.Text;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoiceArrangementPick;
 import io.xj.nexus.model.SegmentType;
+import io.xj.nexus.persistence.FilePathProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -30,30 +33,38 @@ import static io.xj.lib.util.Values.MICROS_PER_SECOND;
 import static io.xj.lib.util.Values.NANOS_PER_SECOND;
 
 /**
- [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
+ * [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public class DubMasterImpl implements DubMaster {
   private final Logger LOG = LoggerFactory.getLogger(DubMasterImpl.class);
+  private final FilePathProvider filePathProvider;
   private final Fabricator fabricator;
   private final MixerFactory mixerFactory;
   private final List<String> warnings = Lists.newArrayList();
   private final Map<UUID, Float> pickOffsetStart = Maps.newHashMap();
   private final DubAudioCache dubAudioCache;
+  private final boolean isLocalModeEnabled;
   private Mixer mixer;
 
   public DubMasterImpl(
-    DubAudioCache dubAudioCache, MixerFactory mixerFactory, Fabricator fabricator
-    /*-*/) {
+    AppEnvironment env,
+    DubAudioCache dubAudioCache,
+    FilePathProvider filePathProvider,
+    MixerFactory mixerFactory,
+    Fabricator fabricator
+  ) {
     this.dubAudioCache = dubAudioCache;
+    this.filePathProvider = filePathProvider;
     this.fabricator = fabricator;
     this.mixerFactory = mixerFactory;
+    this.isLocalModeEnabled = env.isYardLocalModeEnabled();
   }
 
   /**
-   Microseconds of seconds
-
-   @param seconds to convert
-   @return microseconds
+   * Microseconds of seconds
+   *
+   * @param seconds to convert
+   * @return microseconds
    */
   private static Long toMicros(Double seconds) {
     return (long) (seconds * MICROS_PER_SECOND);
@@ -79,6 +90,9 @@ public class DubMasterImpl implements DubMaster {
       fabricator.putSegment(segment);
       fabricator.done();
 
+      // write JSON outputs
+      doWriteJsonOutputs();
+
     } catch (Exception e) {
       throw new NexusException(
         String.format("Failed to do %s-type MasterDub for segment #%s",
@@ -87,17 +101,17 @@ public class DubMasterImpl implements DubMaster {
   }
 
   /**
-   Compute the length of a segment, in seconds double floating-point
-
-   @param segment for which to compute length between start and end
-   @return length in seconds double floating-point
+   * Compute the length of a segment, in seconds double floating-point
+   *
+   * @param segment for which to compute length between start and end
+   * @return length in seconds double floating-point
    */
   private double computeLengthSeconds(Segment segment) {
     return Duration.between(Instant.parse(segment.getBeginAt()), Instant.parse(segment.getEndAt())).toNanos() / NANOS_PER_SECOND;
   }
 
   /**
-   @throws Exception if failed to stream data of item of cache
+   * @throws Exception if failed to stream data of item of cache
    */
   private void doMixerSourceLoading() throws Exception {
     for (InstrumentAudio audio : fabricator.getPickedAudios()) {
@@ -110,12 +124,12 @@ public class DubMasterImpl implements DubMaster {
   }
 
   /**
-   Iterate through every picked audio and, based on its transient and position in the segment, determine the preroll required, and keep the maximum preroll required out of all the audios.
-   <p>
-   Dubbed audio can begin before segment start https://www.pivotaltracker.com/story/show/165799913
-   - During dub work, the waveform preroll required for the current segment is determined by finding the earliest positioned audio sample. **This process must factor in the transient of each audio sample.**
-
-   @return computed preroll (in seconds)
+   * Iterate through every picked audio and, based on its transient and position in the segment, determine the preroll required, and keep the maximum preroll required out of all the audios.
+   * <p>
+   * Dubbed audio can begin before segment start https://www.pivotaltracker.com/story/show/165799913
+   * - During dub work, the waveform preroll required for the current segment is determined by finding the earliest positioned audio sample. **This process must factor in the transient of each audio sample.**
+   *
+   * @return computed preroll (in seconds)
    */
   private double computePreroll() {
     double maxPreroll = 0.0;
@@ -129,12 +143,12 @@ public class DubMasterImpl implements DubMaster {
   }
 
   /**
-   Implements Mixer module to set playback for Picks in current Segment
-   <p>
-   Dubbed audio can begin before segment start https://www.pivotaltracker.com/story/show/165799913
-   - During dub work, output audio includes the head start, and `waveform_preroll` value is persisted to segment
-
-   @param preroll (seconds)
+   * Implements Mixer module to set playback for Picks in current Segment
+   * <p>
+   * Dubbed audio can begin before segment start https://www.pivotaltracker.com/story/show/165799913
+   * - During dub work, output audio includes the head start, and `waveform_preroll` value is persisted to segment
+   *
+   * @param preroll (seconds)
    */
   private void doMixerTargetSetting(Double preroll) {
     for (SegmentChoiceArrangementPick pick : fabricator.getPicks())
@@ -154,15 +168,15 @@ public class DubMasterImpl implements DubMaster {
   }
 
   /**
-   Set playback for a pick
-   <p>
-   [#341] Dub process takes into account the start offset of each audio, in order to ensure that it is mixed such that the hit is exactly on the meter
-   Dubbed audio can begin before segment start https://www.pivotaltracker.com/story/show/165799913
-   - During dub work, output audio includes the head start, and `waveform_preroll` value is persisted to segment
-   Duration of events should include segment preroll https://www.pivotaltracker.com/story/show/171224848
-
-   @param preroll (seconds)
-   @param pick    to set playback for
+   * Set playback for a pick
+   * <p>
+   * [#341] Dub process takes into account the start offset of each audio, in order to ensure that it is mixed such that the hit is exactly on the meter
+   * Dubbed audio can begin before segment start https://www.pivotaltracker.com/story/show/165799913
+   * - During dub work, output audio includes the head start, and `waveform_preroll` value is persisted to segment
+   * Duration of events should include segment preroll https://www.pivotaltracker.com/story/show/171224848
+   *
+   * @param preroll (seconds)
+   * @param pick    to set playback for
    */
   private void setupTarget(Double preroll, SegmentChoiceArrangementPick pick) throws Exception {
     mixer().put(
@@ -176,10 +190,10 @@ public class DubMasterImpl implements DubMaster {
   }
 
   /**
-   Compute the length of a pick
-
-   @param pick for which to compute length
-   @return length
+   * Compute the length of a pick
+   *
+   * @param pick for which to compute length
+   * @return length
    */
   private Double computeLengthSeconds(SegmentChoiceArrangementPick pick) {
     if (Objects.nonNull(pick.getLength())) return pick.getLength();
@@ -187,10 +201,10 @@ public class DubMasterImpl implements DubMaster {
   }
 
   /**
-   Compute the offset start for a pick, and cache results
-
-   @param pick to get offset start for
-   @return offset start, or cached result
+   * Compute the offset start for a pick, and cache results
+   *
+   * @param pick to get offset start for
+   * @return offset start, or cached result
    */
   private float computeOffsetStart(SegmentChoiceArrangementPick pick) throws NexusException {
     if (!pickOffsetStart.containsKey(pick.getId()))
@@ -202,20 +216,54 @@ public class DubMasterImpl implements DubMaster {
   }
 
   /**
-   MasterDub implements Mixer module to mix final output to waveform streamed directly to Amazon S3
-
-   @return postroll seconds after mixing
+   * MasterDub implements Mixer module to mix final output to waveform streamed directly to Amazon S3
+   *
+   * @return postroll seconds after mixing
    */
   private double doMix() throws Exception {
     float quality = (float) fabricator.getTemplateConfig().getOutputEncodingQuality();
-    return mixer().mixToFile(OutputEncoder.parse(fabricator.getTemplateConfig().getOutputContainer()), fabricator.getFullQualityAudioOutputFilePath(), quality);
+    return mixer().mixToFile(fabricator.computeOutputEncoder(),
+      filePathProvider.computeFullQualityAudioOutputFilePath(fabricator.getSegment()), quality);
   }
 
   /**
-   Get a mixer instance
-   (caches instance)
+   * MasterDub implements Mixer module to write JSON outputs
+   *
+   * @throws Exception on error
+   */
+  private void doWriteJsonOutputs() throws Exception {
+    writeJsonFile(
+      fabricator.getSegmentJson(),
+      filePathProvider.computeSegmentJsonOutputFilePath(fabricator.getSegment()));
+    writeJsonFile(
+      fabricator.getChainFullJson(),
+      filePathProvider.computeChainFullJsonOutputFilePath(fabricator.getChain()));
+    writeJsonFile(
+      fabricator.getChainJson(),
+      filePathProvider.computeChainJsonOutputFilePath(fabricator.getChain()));
+  }
 
-   @return mixer
+  /**
+   * Write json content to file
+   *
+   * @param json content
+   * @param path to write
+   */
+  private void writeJsonFile(String json, String path) {
+    var bytes = json.getBytes();
+    try {
+      Files.write(Paths.get(path), bytes);
+      LOG.info("Wrote {} bytes to {}", bytes.length, path);
+    } catch (Exception e) {
+      LOG.error("Error writing {} bytes to {}", bytes.length, path, e);
+    }
+  }
+
+  /**
+   * Get a mixer instance
+   * (caches instance)
+   *
+   * @return mixer
    */
   private Mixer mixer() throws Exception {
     if (Objects.isNull(mixer)) {
@@ -241,14 +289,14 @@ public class DubMasterImpl implements DubMaster {
   }
 
   /**
-   Report
+   * Report
    */
   private void report() {
     // fabricator.report() anything else interesting of the dub operation
   }
 
   /**
-   Report warnings in a concatenated Segment Message
+   * Report warnings in a concatenated Segment Message
    */
   private void reportWarnings() {
     try {

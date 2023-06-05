@@ -12,8 +12,6 @@ import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactoryImpl;
-import io.xj.lib.entity.EntityStore;
-import io.xj.lib.entity.EntityStoreImpl;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
@@ -32,6 +30,7 @@ import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.ChainManagerImpl;
 import io.xj.nexus.persistence.Chains;
+import io.xj.nexus.persistence.FilePathProviderImpl;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManagerImpl;
@@ -85,15 +84,15 @@ public class SegmentRetrospectiveImplTest {
       notificationProvider
     );
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    EntityStore entityStore = new EntityStoreImpl();
+    var filePathProvider = new FilePathProviderImpl(env);
     jsonProvider = new JsonProviderImpl();
     fabricatorFactory = new FabricatorFactoryImpl(
       env,
       chainManager,
-            segmentManager,
+      segmentManager,
       jsonapiPayloadFactory,
-      jsonProvider
-    );
+      jsonProvider,
+      filePathProvider);
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
 
@@ -180,7 +179,7 @@ public class SegmentRetrospectiveImplTest {
   }
 
   /**
-   Failure requiring a chain restart https://www.pivotaltracker.com/story/show/182131722
+   * Failure requiring a chain restart https://www.pivotaltracker.com/story/show/182131722
    */
   @Test
   public void failureToReadMainChoiceIsFatal() throws NexusException {
@@ -194,7 +193,7 @@ public class SegmentRetrospectiveImplTest {
   }
 
   /**
-   Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
+   * Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
    */
   @Test
   public void getPreviousMeta() throws NexusException, FabricationFatalException, JsonProcessingException {

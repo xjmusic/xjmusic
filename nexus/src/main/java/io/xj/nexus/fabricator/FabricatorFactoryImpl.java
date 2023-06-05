@@ -8,6 +8,7 @@ import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.persistence.ChainManager;
+import io.xj.nexus.persistence.FilePathProvider;
 import io.xj.nexus.persistence.SegmentManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ public class FabricatorFactoryImpl implements FabricatorFactory {
   private final JsonapiPayloadFactory jsonapiPayloadFactory;
   private final SegmentManager segmentManager;
   private final JsonProvider jsonProvider;
+  private final FilePathProvider filePathProvider;
 
   @Autowired
   public FabricatorFactoryImpl(
@@ -26,13 +28,15 @@ public class FabricatorFactoryImpl implements FabricatorFactory {
     ChainManager chainManager,
     SegmentManager segmentManager,
     JsonapiPayloadFactory jsonapiPayloadFactory,
-    JsonProvider jsonProvider
+    JsonProvider jsonProvider,
+    FilePathProvider filePathProvider
   ) {
     this.chainManager = chainManager;
     this.env = env;
     this.jsonProvider = jsonProvider;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     this.segmentManager = segmentManager;
+    this.filePathProvider = filePathProvider;
   }
 
   @Override

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Streams;
 import io.xj.hub.HubTopology;
-import io.xj.hub.client.HubClient;
 import io.xj.hub.client.HubClientException;
 import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.InstrumentType;
@@ -20,7 +19,6 @@ import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.StickyBun;
-import io.xj.lib.music.Tuning;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
@@ -36,6 +34,7 @@ import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.ChainManager;
 import io.xj.nexus.persistence.Chains;
+import io.xj.nexus.persistence.FilePathProviderImpl;
 import io.xj.nexus.persistence.ManagerExistenceException;
 import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.ManagerPrivilegeException;
@@ -102,10 +101,6 @@ public class FabricatorImplTest {
   @Mock
   public SegmentRetrospective mockRetrospective;
   @Mock
-  public Tuning mockTuning;
-  @Mock
-  public HubClient mockHubClient;
-  @Mock
   public ChainManager mockChainManager;
   @Mock
   public SegmentManager mockSegmentManager;
@@ -119,6 +114,7 @@ public class FabricatorImplTest {
   private NexusEntityStore store;
   private NexusIntegrationTestingFixtures fake;
   private Segment segment;
+  private FilePathProviderImpl filePathProvider;
 
   @Before
   public void setUp() throws Exception {
@@ -127,6 +123,8 @@ public class FabricatorImplTest {
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
     store = new NexusEntityStoreImpl(entityFactory);
+    filePathProvider = new FilePathProviderImpl(env);
+
 
     // Manipulate the underlying entity store; reset before each test
     store.deleteAll();

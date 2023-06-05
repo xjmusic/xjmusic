@@ -19,7 +19,12 @@ import javax.annotation.PreDestroy;
 import java.util.Objects;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"io.xj.lib", "io.xj.hub.client", "io.xj.hub.service", "io.xj.nexus"})
+@ComponentScan(basePackages = {
+  "io.xj.lib",
+  "io.xj.hub.client",
+  "io.xj.hub.service",
+  "io.xj.nexus",
+})
 public class NexusApplication {
   final Logger LOG = LoggerFactory.getLogger(NexusApplication.class);
   private final EntityFactory entityFactory;

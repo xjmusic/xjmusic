@@ -16,8 +16,6 @@ import io.xj.hub.tables.pojos.Instrument;
 import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactoryImpl;
-import io.xj.lib.entity.EntityStore;
-import io.xj.lib.entity.EntityStoreImpl;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
@@ -39,6 +37,7 @@ import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.ChainManager;
 import io.xj.nexus.persistence.ChainManagerImpl;
+import io.xj.nexus.persistence.FilePathProviderImpl;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.SegmentManagerImpl;
@@ -91,14 +90,14 @@ public class CraftBackground_LayeredVoicesTest {
       segmentManager,
       notificationProvider
     );
-    EntityStore entityStore = new EntityStoreImpl();
+    var filePathProvider = new FilePathProviderImpl(env);
     fabricatorFactory = new FabricatorFactoryImpl(
       env,
       chainManager,
-            segmentManager,
+      segmentManager,
       jsonapiPayloadFactory,
-      jsonProvider
-    );
+      jsonProvider,
+      filePathProvider);
 
     // Manipulate the underlying entity store; reset before each test
     store.deleteAll();

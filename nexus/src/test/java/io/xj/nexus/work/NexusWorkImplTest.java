@@ -16,6 +16,7 @@ import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.lib.lock.LockProvider;
 import io.xj.lib.mixer.MixerFactory;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.TelemetryProvider;
@@ -28,11 +29,12 @@ import io.xj.nexus.dub.DubAudioCacheItemFactory;
 import io.xj.nexus.dub.DubAudioCacheItemFactoryImpl;
 import io.xj.nexus.dub.DubFactoryImpl;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
-import io.xj.lib.lock.LockProvider;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
 import io.xj.nexus.persistence.ChainManager;
 import io.xj.nexus.persistence.ChainManagerImpl;
+import io.xj.nexus.persistence.FilePathProvider;
+import io.xj.nexus.persistence.FilePathProviderImpl;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManagerImpl;
@@ -108,15 +110,16 @@ public class NexusWorkImplTest {
     HttpClientProvider httpClientProvider = new HttpClientProviderImpl(env);
     DubAudioCacheItemFactory cacheItemFactory = new DubAudioCacheItemFactoryImpl(env, httpClientProvider);
     DubAudioCache dubAudioCache = new DubAudioCacheImpl(env, cacheItemFactory);
-    var dubFactory = new DubFactoryImpl(env, dubAudioCache, fileStoreProvider, mixerFactory);
+    FilePathProvider filePathProvider = new FilePathProviderImpl(env);
+    var dubFactory = new DubFactoryImpl(env, dubAudioCache, filePathProvider, fileStoreProvider, mixerFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     var fabricatorFactory = new FabricatorFactoryImpl(
       env,
       chainManager,
       segmentManager,
       jsonapiPayloadFactory,
-      jsonProvider
-    );
+      jsonProvider,
+      filePathProvider);
 
     // Instantiate the test subject
     subject = new NexusWorkImpl(

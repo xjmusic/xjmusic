@@ -16,13 +16,12 @@ import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactoryImpl;
-import io.xj.lib.entity.EntityStore;
-import io.xj.lib.entity.EntityStoreImpl;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.lib.notification.NotificationProvider;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
@@ -30,7 +29,6 @@ import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.craft.CraftFactoryImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.lib.notification.NotificationProvider;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
@@ -42,6 +40,7 @@ import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.ChainManager;
 import io.xj.nexus.persistence.ChainManagerImpl;
+import io.xj.nexus.persistence.FilePathProviderImpl;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManager;
@@ -100,14 +99,14 @@ public class CraftBeatProgramVoiceContinueTest {
       segmentManager,
       notificationProvider
     );
-    EntityStore entityStore = new EntityStoreImpl();
+    var filePathProvider = new FilePathProviderImpl(env);
     fabricatorFactory = new FabricatorFactoryImpl(
       env,
       chainManager,
-            segmentManager,
+      segmentManager,
       jsonapiPayloadFactory,
-      jsonProvider
-    );
+      jsonProvider,
+      filePathProvider);
 
     // Manipulate the underlying entity store; reset before each test
     store.deleteAll();
@@ -152,9 +151,9 @@ public class CraftBeatProgramVoiceContinueTest {
   }
 
   /**
-   Some custom fixtures for testing
-
-   @return list of all entities
+   * Some custom fixtures for testing
+   *
+   * @return list of all entities
    */
   private Collection<Object> customFixtures() {
     Collection<Object> entities = Lists.newArrayList();
@@ -208,9 +207,9 @@ public class CraftBeatProgramVoiceContinueTest {
   }
 
   /**
-   Insert fixture segments 3 and 4, including the beat choice for segment 3 only if specified
-
-   @param excludeBeatChoiceForSegment3 if desired for the purpose of this test
+   * Insert fixture segments 3 and 4, including the beat choice for segment 3 only if specified
+   *
+   * @param excludeBeatChoiceForSegment3 if desired for the purpose of this test
    */
   private void insertSegments3and4(boolean excludeBeatChoiceForSegment3) throws NexusException {
     // segment just crafted

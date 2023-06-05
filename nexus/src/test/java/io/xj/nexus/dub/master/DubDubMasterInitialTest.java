@@ -8,8 +8,6 @@ import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.ProgramType;
 import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactoryImpl;
-import io.xj.lib.entity.EntityStore;
-import io.xj.lib.entity.EntityStoreImpl;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.http.HttpClientProviderImpl;
@@ -39,6 +37,7 @@ import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.persistence.ChainManager;
 import io.xj.nexus.persistence.ChainManagerImpl;
+import io.xj.nexus.persistence.FilePathProviderImpl;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.SegmentManagerImpl;
@@ -88,14 +87,14 @@ public class DubDubMasterInitialTest {
       segmentManager,
       notificationProvider
     );
-    EntityStore entityStore = new EntityStoreImpl();
+    var filePathProvider = new FilePathProviderImpl(env);
     fabricatorFactory = new FabricatorFactoryImpl(
       env,
       chainManager,
-            segmentManager,
+      segmentManager,
       jsonapiPayloadFactory,
-      jsonProvider
-    );
+      jsonProvider,
+      filePathProvider);
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
 
@@ -107,7 +106,7 @@ public class DubDubMasterInitialTest {
     HttpClientProvider httpClientProvider = new HttpClientProviderImpl(env);
     DubAudioCacheItemFactory cacheItemFactory = new DubAudioCacheItemFactoryImpl(env, httpClientProvider);
     DubAudioCache dubAudioCache = new DubAudioCacheImpl(env, cacheItemFactory);
-    dubFactory = new DubFactoryImpl(env, dubAudioCache, fileStoreProvider, mixerFactory);
+    dubFactory = new DubFactoryImpl(env, dubAudioCache, filePathProvider, fileStoreProvider, mixerFactory);
 
     // Mock request via HubClient returns fake generated library of hub content
     NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();

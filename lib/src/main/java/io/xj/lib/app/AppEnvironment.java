@@ -23,8 +23,6 @@ public class AppEnvironment {
   public static final String FABRICATION_PREVIEW_TEMPLATE_PLAYBACK_ID = "FABRICATION_PREVIEW_TEMPLATE_PLAYBACK_ID";
   private static final Logger LOG = LoggerFactory.getLogger(AppEnvironment.class);
   private static final int SECONDS_PER_HOUR = 60 * 60;
-  private static final String WORK_ENV_NAME_PRODUCTION = "Production";
-  private static final String WORK_ENV_NAME_PREVIEW = "Preview";
   private final String accessTokenDomain;
   private final String accessTokenName;
   private final String accessTokenPath;
@@ -83,6 +81,7 @@ public class AppEnvironment {
   private final boolean workJanitorEnabled;
   private final boolean workMedicEnabled;
   private final boolean workRehydrationEnabled;
+  private final boolean yardLocalModeEnabled;
   private final int accessTokenMaxAgeSeconds;
   private final int awsS3retryLimit;
   private final int awsUploadExpireMinutes;
@@ -125,6 +124,8 @@ public class AppEnvironment {
   private final int workTelemetryCycleSeconds;
   private final int workYardPollSeconds;
   private static final String EMPTY = "";
+  private static final String WORK_ENV_NAME_PREVIEW = "Preview";
+  private static final String WORK_ENV_NAME_PRODUCTION = "Production";
 
   /**
    * Zero-argument construction defaults to system environment
@@ -216,6 +217,9 @@ public class AppEnvironment {
     workRehydrationEnabled = readBool(vars, "WORK_REHYDRATION_ENABLED", true);
     workTelemetryCycleSeconds = readInt(vars, "WORK_TELEMETRY_CYCLE_SECONDS", 2);
     workYardPollSeconds = readInt(vars, "WORK_YARD_POLL_SECONDS", 300);
+
+    // Yard service is all-in-one nexus and ship https://www.pivotaltracker.com/story/show/185325944
+    yardLocalModeEnabled = readBool(vars, "YARD_LOCAL_MODE_ENABLED", false);
 
     // Resource: Amazon Web Services (AWS)
     awsAccessKeyID = readStr(vars, "AWS_ACCESS_KEY_ID", EMPTY);
@@ -1063,5 +1067,12 @@ public class AppEnvironment {
    */
   public String getGcpServiceNexusImage() {
     return gcpServiceNexusImage;
+  }
+
+  /**
+   * @return true if local mode is enabled
+   */
+  public boolean isYardLocalModeEnabled() {
+    return yardLocalModeEnabled;
   }
 }

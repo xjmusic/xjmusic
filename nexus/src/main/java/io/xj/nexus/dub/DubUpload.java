@@ -4,12 +4,12 @@ package io.xj.nexus.dub;
 import io.xj.nexus.NexusException;
 
 /**
- [#264] Segment audio is compressed to OGG and shipped to https://segment.xj.io
+ * [#264] Segment audio is compressed to OGG and shipped to https://segment.xj.io
  */
-public interface DubShip {
+public interface DubUpload {
 
   /**
-   perform delivery for the current segment
+   * perform delivery for the current segment
    */
   void doWork() throws NexusException;
 

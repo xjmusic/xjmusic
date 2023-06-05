@@ -119,17 +119,6 @@ public enum Segments {
   }
 
   /**
-   Get the ship key for a Segment
-
-   @param segmentKey for which to get ship key
-   @param extension  of key
-   @return segment ship key
-   */
-  public static String getStorageFilename(String segmentKey, String extension) {
-    return String.format("%s%s%s", segmentKey, EXTENSION_SEPARATOR, extension);
-  }
-
-  /**
    Whether a segment chord voicing contains any valid notes
 
    @param voicing to test
@@ -162,13 +151,24 @@ public enum Segments {
   }
 
   /**
+   Get the storage filename for a Segment
+
+   @param segment for which to get storage filename
+   @param extension  of key
+   @return segment ship key
+   */
+  public static String getStorageFilename(Segment segment, String extension) {
+    return String.format("%s%s%s", segment.getStorageKey(), EXTENSION_SEPARATOR, extension);
+  }
+
+  /**
    Get the full storage key for a segment audio
 
    @param segment for which to get storage key
    @return storage key for segment
    */
   public static String getStorageFilename(Segment segment) {
-    return getStorageFilename(segment.getStorageKey(), segment.getOutputEncoder().toLowerCase(Locale.ENGLISH));
+    return getStorageFilename(segment, segment.getOutputEncoder().toLowerCase(Locale.ENGLISH));
   }
 
   /**
@@ -178,7 +178,7 @@ public enum Segments {
    @return storage key for segment
    */
   public static String getUncompressedStorageFilename(Segment segment) {
-    return getStorageFilename(segment.getStorageKey(), OutputEncoder.WAV.name().toLowerCase(Locale.ENGLISH));
+    return getStorageFilename(segment, OutputEncoder.WAV.name().toLowerCase(Locale.ENGLISH));
   }
 
   /**

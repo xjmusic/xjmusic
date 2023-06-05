@@ -17,6 +17,8 @@ import javax.annotation.Nullable;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Objects;
@@ -96,13 +98,20 @@ class FileStoreProviderImpl implements FileStoreProvider {
   }
 
   @Override
-  public void putS3ObjectFromTempFile(String filePath, String bucket, String key, String contentType) throws FileStoreException {
+  public void putS3ObjectFromTempFile(String filePath, String bucket, String key, String contentType, @Nullable Integer expiresInSeconds) throws FileStoreException {
     try {
       long startedAt = System.nanoTime();
       log.debug("Will ship {} to {}/{}", filePath, bucket, key);
+
+      ObjectMetadata metadata = new ObjectMetadata();
+      metadata.setContentLength(Files.size(Path.of(filePath)));
+      metadata.setContentType(contentType);
+      if (Objects.nonNull(expiresInSeconds)) {
+        metadata.setExpirationTime(Date.from(Instant.now().plusSeconds(expiresInSeconds)));
+        metadata.setCacheControl(String.format("max-age=%d", expiresInSeconds));
+      }
       s3Client().putObject(new PutObjectRequest(bucket, key, new File(filePath)));
       log.debug("Did ship {} to {}/{} OK in {}s", filePath, bucket, key, String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
-
     } catch (Exception e) {
       throw new FileStoreException("Failed to put S3 object", e);
     }

@@ -283,7 +283,7 @@ public class ShipWorkImpl implements ShipWork {
   private void doLoadCycle(long nowMillis) {
     if (nowMillis < nextLoadMillis) return;
     nextLoadMillis = nowMillis + loadCycleSeconds * MILLIS_PER_SECOND;
-    segmentAudioManager.loadChain(shipKey, () -> state.set(State.Fail)).run();
+    segmentAudioManager.loadChain(shipKey, () -> state.set(State.Fail), false).run();
   }
 
   /**

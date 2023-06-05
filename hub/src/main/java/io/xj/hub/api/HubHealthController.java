@@ -11,11 +11,11 @@ import javax.annotation.security.PermitAll;
 import java.sql.SQLException;
 
 @RestController
-public class HealthController {
+public class HubHealthController {
   private final HubSqlStoreProvider sqlStoreProvider;
   private final PreviewNexusAdmin previewNexusAdmin;
 
-  public HealthController(
+  public HubHealthController(
     HubSqlStoreProvider sqlStoreProvider,
     PreviewNexusAdmin previewNexusAdmin
   ) {

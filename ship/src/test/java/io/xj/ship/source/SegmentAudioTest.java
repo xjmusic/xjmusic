@@ -21,6 +21,8 @@ import io.xj.nexus.model.ChainType;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.persistence.ChainManager;
+import io.xj.nexus.persistence.FilePathProvider;
+import io.xj.nexus.persistence.FilePathProviderImpl;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManager;
@@ -86,9 +88,11 @@ public class SegmentAudioTest {
     NexusEntityStore nexusEntityStore = new NexusEntityStoreImpl(entityFactory);
     SegmentManager segmentManager = new SegmentManagerImpl(entityFactory, nexusEntityStore);
     SegmentAudioCache cache = new SegmentAudioCacheImpl(env, httpClientProvider);
+    FilePathProvider filePathProvider = new FilePathProviderImpl(env);
     segmentAudioManager = new SegmentAudioManagerImpl(
       env,
       nexusEntityStore,
+      filePathProvider,
       cache,
       telemetryProvider,
       chainManager,
