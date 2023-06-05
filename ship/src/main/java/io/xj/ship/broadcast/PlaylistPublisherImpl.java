@@ -119,13 +119,13 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
       CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", streamBaseUrl, m3u8Key)))
     ) {
       if (!Objects.equals(HttpStatus.OK.value(), response.getStatusLine().getStatusCode())) {
-        LOG.error("Failed to get previously-shipped playlist {} because {} {}", m3u8Key, response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+        LOG.warn("Failed to get previously-shipped playlist {} because {} {}", m3u8Key, response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
         return Optional.empty();
       }
 
       LOG.debug("will check for last shipped playlist");
       var chunks = parseItems(new String(response.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8));
-      var maxSeqNum = chunks.stream().map(Chunk::getSequenceNumber).max(Long::compare).orElseThrow();
+      var maxSeqNum = chunks.stream().map(Chunk::getSequenceNumber).max(Long::compare).orElseThrow(() -> new ShipException("No chunks in playlist"));
       if (initialSeqNum > maxSeqNum) {
         LOG.warn("Will not rehydrate from stale playlist with last sequence number {} (< {})", maxSeqNum, initialSeqNum);
         return Optional.empty();
@@ -141,7 +141,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
       return Optional.of(actualMaxSeqNum);
 
     } catch (ClassCastException | IOException | ShipException e) {
-      LOG.error("Failed to retrieve previously streamed playlist {}/{} because {}", bucket, m3u8Key, e.getMessage());
+      LOG.warn("Failed to retrieve previously streamed playlist {}/{} because {}", bucket, m3u8Key, e.getMessage());
       return Optional.empty();
     }
   }
