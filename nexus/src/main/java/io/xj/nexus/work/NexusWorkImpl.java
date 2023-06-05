@@ -139,6 +139,7 @@ public class NexusWorkImpl implements NexusWork {
   private long nextJanitorMillis = System.currentTimeMillis();
   private long nextMedicMillis = System.currentTimeMillis();
   private final PreviewNexusAdmin previewNexusAdmin;
+  private final boolean yardLocalModeEnabled;
 
   @Autowired
   public NexusWorkImpl(
@@ -174,6 +175,7 @@ public class NexusWorkImpl implements NexusWork {
     this.store = store;
     this.telemetryProvider = telemetryProvider;
     envName = env.getWorkEnvironmentName();
+    yardLocalModeEnabled = env.isYardLocalModeEnabled();
 
     chainThresholdFabricatedBehindSeconds = env.getFabricationChainThresholdFabricatedBehindSeconds();
     cycleMillis = env.getWorkCycleMillis();
@@ -798,6 +800,7 @@ public class NexusWorkImpl implements NexusWork {
    */
   private Optional<Chain> rehydrateTemplate(Template template) {
     if (!isRehydrationEnabled) return Optional.empty();
+    if (yardLocalModeEnabled) return Optional.empty();
     var success = new AtomicBoolean(true);
     Collection<Object> entities = com.google.api.client.util.Lists.newArrayList();
     JsonapiPayload chainPayload;
