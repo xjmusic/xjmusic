@@ -413,7 +413,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
       return true;
 
     } catch (IOException e) {
-      LOG.error("Unable to configure service administration client", e);
+      LOG.warn("Unable to configure service administration client because {}", e.getMessage());
       return false;
     }
   }

@@ -98,6 +98,7 @@ public class StreamWriterImpl implements StreamWriter {
                 AudioInputStream ais = new AudioInputStream(bufferedInputStream, format, targetByteCount);
                 AudioSystem.write(ais, AudioFileFormat.Type.WAVE, outputFile);
                 LOG.info("Did write final output WAV container to {}", outPath);
+                System.exit(0);
                 active = false;
               } else {
                 this.tempOut.write(bytes.array(), 0, bytes.array().length);

@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.google.common.base.Strings;
 import io.xj.lib.app.AppEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,7 @@ class FileStoreProviderImpl implements FileStoreProvider {
   private final String audioFileBucket;
   private final int awsFileUploadExpireMinutes;
   private final String fileUploadACL;
+  private final boolean active;
 
   @Autowired
   public FileStoreProviderImpl(
@@ -47,6 +49,8 @@ class FileStoreProviderImpl implements FileStoreProvider {
     awsFileUploadExpireMinutes = env.getAwsUploadExpireMinutes();
     awsSecretKey = env.getAwsSecretKey();
     fileUploadACL = env.getAwsFileUploadACL();
+
+    active = !Strings.isNullOrEmpty(awsAccessKeyId) && !Strings.isNullOrEmpty(awsSecretKey);
   }
 
   /**
@@ -100,6 +104,10 @@ class FileStoreProviderImpl implements FileStoreProvider {
   @Override
   public void putS3ObjectFromTempFile(String filePath, String bucket, String key, String contentType, @Nullable Integer expiresInSeconds) throws FileStoreException {
     try {
+      if (!active) {
+        log.debug("Will NOT ship {} to {}/{}", filePath, bucket, key);
+        return;
+      }
       long startedAt = System.nanoTime();
       log.debug("Will ship {} to {}/{}", filePath, bucket, key);
 
@@ -120,6 +128,10 @@ class FileStoreProviderImpl implements FileStoreProvider {
   @Override
   public void putS3ObjectFromString(String content, String bucket, String key, String contentType, @Nullable Integer expiresInSeconds) throws FileStoreException {
     try {
+      if (!active) {
+        log.debug("Will NOT ship {} bytes of content to {}/{}", content.length(), bucket, key);
+        return;
+      }
       long startedAt = System.nanoTime();
       log.debug("Will ship {} bytes of content to {}/{}", content.length(), bucket, key);
 
@@ -140,6 +152,9 @@ class FileStoreProviderImpl implements FileStoreProvider {
 
   @Override
   public String getS3Object(String bucket, String key) {
+    if (!active) {
+      throw new RuntimeException("FileStoreProvider is not active");
+    }
     return s3Client().getObjectAsString(bucket, key);
   }
 

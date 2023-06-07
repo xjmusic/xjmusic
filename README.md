@@ -321,6 +321,22 @@ MovieFragmentBox:
 org.mp4parser.boxes.iso14496.part12.MediaDataBox@720c8f80
 ```
 
-# Base Docker Image for Nexus
+# Docker
+
+For example, an artist/engineer runs the Yard on their local machine using the Docker image:
+
+```shell
+docker run gcr.io/xj-vpc-host-prod/yard:latest \
+  -e AUDIO_BASE_URL=https://audio.xj.io/ \
+  -e ENVIRONMENT=production \
+  -e SHIP_BASE_URL=https://ship.xj.io/ \
+  -e SHIP_KEY=bump_chill \
+  -e SHIP_MODE=wav \
+  -e SHIP_WAV_PATH=/tmp/bump_chill.wav \
+  -e SHIP_WAV_SECONDS=300 \
+  -e YARD_LOCAL_MODE_ENABLED=true
+```
+
+## Base Docker Image for Nexus
 
 Base Container required to ship Nexus as a container via jib
