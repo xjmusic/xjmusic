@@ -226,7 +226,7 @@ public class NexusWorkImpl implements NexusWork {
   @Override
   public void finish() {
     active = false;
-    LOG.info("Did stop Nexus");
+    LOG.info("Did finish Nexus");
   }
 
   /**

@@ -13,8 +13,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.event.ApplicationStartedEvent;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 
 import javax.annotation.PreDestroy;
@@ -44,22 +46,24 @@ public class YardApplication {
   private final AppConfiguration config;
   private final NexusWork nexusWork;
   private final ShipWork shipWork;
+  private final ApplicationContext context;
 
   @Autowired
-  public YardApplication(EntityFactory entityFactory, AppEnvironment env, AppConfiguration config, NexusWork nexusWork, ShipWork shipWork) {
+  public YardApplication(EntityFactory entityFactory, AppEnvironment env, AppConfiguration config, NexusWork nexusWork, ShipWork shipWork, ApplicationContext context) {
     this.entityFactory = entityFactory;
     this.env = env;
     this.config = config;
     this.nexusWork = nexusWork;
     this.shipWork = shipWork;
+    this.context = context;
 
     if (!env.isYardLocalModeEnabled()) {
       throw new RuntimeException("App environment must have Yard Local Mode enabled");
     }
   }
 
-  @EventListener(ContextRefreshedEvent.class)
-  public void onApplicationReady() throws YardException {
+  @EventListener(ApplicationStartedEvent.class)
+  public void start() throws YardException {
     // Add context to logs
     LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
     lc.setPackagingDataEnabled(true);
@@ -86,21 +90,21 @@ public class YardApplication {
     // This blocks until a graceful exit on interrupt signal
     LOG.info("{} will wait for Nexus and Ship to finish", config.getName());
     try {
-      ship.join(); // only wait for ship to finish
-    } catch (InterruptedException e) {
-      LOG.info("{} was interrupted", config.getName());
-    }
-    LOG.debug("{} will finish work", config.getName());
-    nexusWork.finish();
-    shipWork.finish();
-    try {
+      ship.join(); // first, wait for ship to finish
+      nexusWork.finish();
+      shipWork.finish();
       nexus.join();
+      shutdown();
     } catch (InterruptedException e) {
       LOG.info("{} was interrupted", config.getName());
     }
-    // exit process
-    LOG.info("{} did finish work and shutdown OK", config.getName());
-    System.exit(0);
+  }
+
+  private void shutdown() {
+    LOG.debug("{} will shutdown", config.getName());
+    Thread shutdown = new Thread(() -> ((ConfigurableApplicationContext) context).close());
+    shutdown.setDaemon(false);
+    shutdown.start();
   }
 
   @PreDestroy
@@ -113,5 +117,4 @@ public class YardApplication {
   public static void main(String[] args) {
     SpringApplication.run(YardApplication.class, args);
   }
-
 }
