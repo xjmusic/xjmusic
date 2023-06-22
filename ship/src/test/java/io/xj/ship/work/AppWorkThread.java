@@ -11,6 +11,6 @@ public class AppWorkThread extends Thread {
   }
 
   public void run() {
-    work.start();
+    work.doWork();
   }
 }

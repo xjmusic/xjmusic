@@ -47,7 +47,7 @@ class TelemetryProviderImpl implements TelemetryProvider {
     // Globally enable or disable telemetry recording
     enabled = env.isTelemetryEnabled();
     if (!enabled) {
-      LOG.warn("Telemetry disabled!");
+      LOG.info("Will not send telemetry.");
       return;
     }
 

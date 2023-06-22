@@ -8,7 +8,7 @@ public interface ShipWork {
   /**
    * This method just does work until failure, blocks until interrupted
    */
-  void start();
+  void doWork();
 
   /**
    * Stop work

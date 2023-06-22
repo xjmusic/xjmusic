@@ -71,13 +71,13 @@ class ChunkMixerImpl implements ChunkMixer {
     var audios = getAllIntersectingAudios(chunk);
 
     if (audios.isEmpty()) {
-      LOG.warn("Waiting to mix Chunk[{}]: loading segments", chunk.getKey());
+      LOG.debug("Waiting to mix Chunk[{}]: loading segments", chunk.getKey());
       return false;
     }
 
     var notReady = anyNotReady(audios);
     if (!notReady.isEmpty()) {
-      LOG.warn("Waiting to mix Chunk[{}]: loading audio for segments {}", chunk.getKey(), CSV.from(notReady));
+      LOG.debug("Waiting to mix Chunk[{}]: loading audio for segments {}", chunk.getKey(), CSV.from(notReady));
       return false;
     }
 

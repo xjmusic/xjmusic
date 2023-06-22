@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Nullable;
 import javax.sound.sampled.AudioFormat;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.xj.lib.util.Values.MILLIS_PER_SECOND;
@@ -67,7 +68,7 @@ public class ShipWorkImpl implements ShipWork {
   private final long initialSeqNum;
   private final StreamWriter writer;
   private StreamEncoder stream;
-  private boolean active = true;
+  private final AtomicBoolean active = new AtomicBoolean(true);
   private long doneUpToSecondsUTC;
   private long nextCycleMillis = 0;
   private long nextJanitorMillis = 0;
@@ -101,7 +102,7 @@ public class ShipWorkImpl implements ShipWork {
     shipKey = env.getShipKey();
     if (Strings.isNullOrEmpty(shipKey)) {
       LOG.error("Cannot start with null or empty ship key!");
-      active = false;
+      active.set(false);
     }
 
     chunkTargetDuration = env.getShipChunkTargetDuration();
@@ -144,7 +145,7 @@ public class ShipWorkImpl implements ShipWork {
   }
 
   @Override
-  public void start() {
+  public void doWork() {
     playlistPublisher.start(initialSeqNum)
       .ifPresent(maxSeqNum -> doneUpToSecondsUTC = (maxSeqNum + 1) * chunkTargetDuration);
 
@@ -158,19 +159,24 @@ public class ShipWorkImpl implements ShipWork {
     }
 
     LOG.info("Will start Ship");
-    while (active) {
+    while (active.get()) {
       try {
         this.doCycle();
+        //noinspection BusyWait
+        Thread.sleep(INTERNAL_CYCLE_SLEEP_MILLIS);
       } catch (InterruptedException e) {
         LOG.warn("Ship interrupted!", e);
-        active = false;
       }
     }
+    active.set(false);
+    state.set(State.Done);
+    player.close();
+    writer.close();
   }
 
   @Override
   public void finish() {
-    active = false;
+    active.set(false);
     player.close();
     writer.close();
     LOG.info("Did finish Ship");
@@ -178,7 +184,7 @@ public class ShipWorkImpl implements ShipWork {
 
   @Override
   public boolean isHealthy() {
-    if (!active) return notHealthy("Not Active!");
+    if (!active.get()) return notHealthy("Not Active!");
     if (isCycleStale()) return notHealthy("Work cycle is stale!");
     if (State.Fail.equals(state.get())) return notHealthy("Work entered a failure state!");
     if (Objects.isNull(stream)) return notHealthy("Stream encoder has not yet started!");
@@ -211,10 +217,6 @@ public class ShipWorkImpl implements ShipWork {
    */
   private void doCycle() throws InterruptedException {
     var nowMillis = System.currentTimeMillis();
-    if (nowMillis < nextCycleMillis) {
-      Thread.sleep(INTERNAL_CYCLE_SLEEP_MILLIS);
-      return;
-    }
 
     nextCycleMillis = System.currentTimeMillis() + cycleMillis;
 
@@ -269,7 +271,9 @@ public class ShipWorkImpl implements ShipWork {
         stream.append(
           mixer.mix())));
 
-    if (writer.enabledAndDoneWithOutput()) active = false;
+    if (writer.enabledAndDoneWithOutput()) {
+      active.set(false);
+    }
 
     // having arrived here, we confirm that the chunks have been mixed up to here.
     doneUpToSecondsUTC = chunk.getToSecondsUTC();
@@ -292,6 +296,9 @@ public class ShipWorkImpl implements ShipWork {
    * @param nowMillis current
    */
   private void doCleanupCycle(long nowMillis) {
+    if (!writer.isActive()) {
+      active.set(false);
+    }
     if (!janitorEnabled) return;
     if (nowMillis < nextJanitorMillis) return;
     nextJanitorMillis = nowMillis + (janitorCycleSeconds * MILLIS_PER_SECOND);
@@ -338,6 +345,7 @@ public class ShipWorkImpl implements ShipWork {
    */
   enum State {
     Active,
+    Done,
     Fail
   }
 }

@@ -79,18 +79,28 @@ public class YardApplication {
     // Run work on separate threads.
     LOG.info("{} will start Nexus and Ship", config.getName());
     Thread nexus = new Thread(nexusWork::start);
-    Thread ship = new Thread(shipWork::start);
+    Thread ship = new Thread(shipWork::doWork);
     nexus.start();
     ship.start();
 
     // This blocks until a graceful exit on interrupt signal
     LOG.info("{} will wait for Nexus and Ship to finish", config.getName());
     try {
-      nexus.join();
-      ship.join();
+      ship.join(); // only wait for ship to finish
     } catch (InterruptedException e) {
       LOG.info("{} was interrupted", config.getName());
     }
+    LOG.debug("{} will finish work", config.getName());
+    nexusWork.finish();
+    shipWork.finish();
+    try {
+      nexus.join();
+    } catch (InterruptedException e) {
+      LOG.info("{} was interrupted", config.getName());
+    }
+    // exit process
+    LOG.info("{} did finish work and shutdown OK", config.getName());
+    System.exit(0);
   }
 
   @PreDestroy

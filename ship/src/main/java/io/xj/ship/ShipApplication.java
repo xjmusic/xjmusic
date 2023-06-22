@@ -51,10 +51,9 @@ public class ShipApplication {
     NexusTopology.buildNexusApiTopology(entityFactory);
 
     // Start work. This blocks until a graceful exit on interrupt signal
-    if (Objects.isNull(work)) throw new ShipException("Failed to instantiate work");
-    work.start();
-
     LOG.debug("{} will start", config.getName());
+    if (Objects.isNull(work)) throw new ShipException("Failed to instantiate work");
+    work.doWork();
   }
 
   @PreDestroy

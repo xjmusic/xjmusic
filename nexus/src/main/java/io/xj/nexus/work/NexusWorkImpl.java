@@ -393,7 +393,7 @@ public class NexusWorkImpl implements NexusWork {
         .forEach(chain -> {
           var aheadSeconds = Strings.isNullOrEmpty(chain.getFabricatedAheadAt()) ? 0 : Math.floor(Values.computeRelativeSeconds(Instant.parse(chain.getFabricatedAheadAt())));
           if (aheadSeconds < chainThresholdFabricatedBehindSeconds) {
-            LOG.warn("Chain {} is stalled, fabricated ahead {}s", Chains.getIdentifier(chain), aheadSeconds);
+            LOG.debug("Chain {} is stalled, fabricated ahead {}s", Chains.getIdentifier(chain), aheadSeconds);
             stalledChainIds.add(chain.getId());
           }
         });

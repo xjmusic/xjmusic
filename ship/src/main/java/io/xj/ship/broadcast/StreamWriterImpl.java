@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static io.xj.lib.mixer.AudioStreamWriter.byteBufferOf;
@@ -42,7 +43,7 @@ public class StreamWriterImpl implements StreamWriter {
   private final AtomicLong appendedByteCount = new AtomicLong(0);
   private final boolean enabled;
   private FileOutputStream tempOut;
-  private volatile boolean active;
+  private final AtomicBoolean active;
 
   public StreamWriterImpl(
     AudioFormat format,
@@ -57,16 +58,16 @@ public class StreamWriterImpl implements StreamWriter {
     queue = new ConcurrentLinkedQueue<>();
 
     enabled = ShipMode.WAV.equals(env.getShipMode());
-    active = enabled;
-    if (active)
+    active = new AtomicBoolean(enabled);
+    if (active.get())
       try {
         if (Strings.isNullOrEmpty(outPath)) {
           LOG.error("Cannot write stream to WAV without path to output file!");
-          active = false;
+          active.set(false);
           return;
         } else if (0 >= targetByteCount) {
           LOG.error("Cannot write stream to WAV without specific # of seconds!");
-          active = false;
+          active.set(false);
           return;
         }
 
@@ -79,7 +80,7 @@ public class StreamWriterImpl implements StreamWriter {
           final String oldName = currentThread.getName();
           currentThread.setName(THREAD_NAME);
           try {
-            while (active) {
+            while (active.get()) {
               var bytes = queue.poll();
               if (Objects.isNull(bytes)) continue;
               // make sure we append the exact # of samples for the expected # of seconds of WAV output
@@ -98,8 +99,7 @@ public class StreamWriterImpl implements StreamWriter {
                 AudioInputStream ais = new AudioInputStream(bufferedInputStream, format, targetByteCount);
                 AudioSystem.write(ais, AudioFileFormat.Type.WAVE, outputFile);
                 LOG.info("Did write final output WAV container to {}", outPath);
-                System.exit(0);
-                active = false;
+                active.set(false);
               } else {
                 this.tempOut.write(bytes.array(), 0, bytes.array().length);
                 appendedByteCount.addAndGet(bytes.array().length);
@@ -112,7 +112,7 @@ public class StreamWriterImpl implements StreamWriter {
             LOG.error("Failed to write bytes to output file!", e);
 
             tempOut = null;
-            active = false;
+            active.set(false);
           } finally {
             try {
               if (Objects.nonNull(tempOut)) tempOut.close();
@@ -126,17 +126,22 @@ public class StreamWriterImpl implements StreamWriter {
 
       } catch (IOException e) {
         LOG.error("Failed to initialize!", e);
-        active = false;
+        active.set(false);
       }
     else {
       tempOut = null;
-      active = false;
+      active.set(false);
     }
   }
 
   @Override
+  public boolean isActive() {
+    return active.get();
+  }
+
+  @Override
   public double[][] append(double[][] samples) throws ShipException {
-    if (!active)
+    if (!active.get())
       return samples;
 
     try {
@@ -159,12 +164,12 @@ public class StreamWriterImpl implements StreamWriter {
         LOG.error("Failed to close output file stream!", e);
       }
     }
-    active = false;
+    active.set(false);
   }
 
   @Override
   public boolean enabledAndDoneWithOutput() {
-    return enabled && !active;
+    return enabled && !active.get();
   }
 
 }

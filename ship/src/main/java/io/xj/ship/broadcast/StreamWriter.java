@@ -25,4 +25,6 @@ public interface StreamWriter {
    @return true if the writer is enabled and done writing
    */
   boolean enabledAndDoneWithOutput();
+
+  boolean isActive();
 }

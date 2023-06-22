@@ -19,6 +19,7 @@ import java.nio.ByteBuffer;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.xj.lib.mixer.AudioStreamWriter.byteBufferOf;
 
@@ -28,7 +29,7 @@ public class StreamPlayerImpl implements StreamPlayer {
   private final AudioFormat format;
   private SourceDataLine line;
   private final ConcurrentLinkedQueue<ByteBuffer> queue;
-  private volatile boolean active = true;
+  private final AtomicBoolean active = new AtomicBoolean(true);
 
   public StreamPlayerImpl(
     AudioFormat format,
@@ -57,7 +58,7 @@ public class StreamPlayerImpl implements StreamPlayer {
           final String oldName = currentThread.getName();
           currentThread.setName(THREAD_NAME);
           try {
-            while (active) {
+            while (active.get()) {
               var bytes = queue.poll();
               if (Objects.isNull(bytes)) continue;
               LOG.info("Playing next {} bytes", bytes.array().length);
@@ -71,17 +72,17 @@ public class StreamPlayerImpl implements StreamPlayer {
 
       } catch (LineUnavailableException e) {
         LOG.error("Failed to initialize!", e);
-        active = false;
+        active.set(false);
       }
     else {
       line = null;
-      active = false;
+      active.set(false);
     }
   }
 
   @Override
   public double[][] append(double[][] samples) throws ShipException {
-    if (!active)
+    if (!active.get())
       return samples;
 
     try {
@@ -97,7 +98,7 @@ public class StreamPlayerImpl implements StreamPlayer {
   public void close() {
     if (Objects.nonNull(line))
       line.close();
-    active = false;
+    active.set(false);
   }
 
 }

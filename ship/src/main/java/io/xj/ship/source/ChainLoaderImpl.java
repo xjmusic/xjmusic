@@ -129,7 +129,7 @@ public class ChainLoaderImpl extends ChainLoader {
       telemetryProvider.put(CHAIN_LOADED, 1L);
 
     } catch (SourceNotReadyException e) {
-      LOG.warn("Source not ready for Template[{}] because {}", shipKey, e.getMessage());
+      LOG.debug("Source not ready for Template[{}] because {}", shipKey, e.getMessage());
       return;
     } catch (JsonapiException | ClassCastException | IOException | ManagerFatalException e) {
       LOG.error("Failed to retrieve previously fabricated chain for Template[{}] because {}", shipKey, e.getMessage());
