@@ -86,12 +86,6 @@ jobs:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
           export_default_credentials: true
 
-      - name: (GCP) Get GKE credentials
-        uses: 'google-github-actions/get-gke-credentials@v1'
-        with:
-          cluster_name: ${{ secrets.GKE_CLUSTER }}
-          location: ${{ secrets.GKE_REGION }}
-
       - name: (GCP) Build & push Docker images
         run: |
           ./gradlew --info --no-daemon \
