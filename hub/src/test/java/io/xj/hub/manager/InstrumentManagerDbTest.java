@@ -28,6 +28,7 @@ import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
 import static io.xj.hub.IntegrationTestingFixtures.buildUser;
 import static io.xj.hub.tables.InstrumentAudio.INSTRUMENT_AUDIO;
 import static io.xj.hub.tables.InstrumentMeme.INSTRUMENT_MEME;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -107,7 +108,7 @@ public class InstrumentManagerDbTest {
   }
 
   /**
-   * Overall volume parameter defaults to 1.0 https://www.pivotaltracker.com/story/show/179215413
+   Overall volume parameter defaults to 1.0 https://www.pivotaltracker.com/story/show/179215413
    */
   @Test
   public void create_defaultVolume() throws Exception {
@@ -121,7 +122,7 @@ public class InstrumentManagerDbTest {
   }
 
   /**
-   * Instruments/Instruments can be cloned/moved between accounts https://www.pivotaltracker.com/story/show/181878883
+   Instruments/Instruments can be cloned/moved between accounts https://www.pivotaltracker.com/story/show/181878883
    */
   @Test
   public void clone_toLibraryInDifferentAccount() throws Exception {
@@ -138,8 +139,8 @@ public class InstrumentManagerDbTest {
   }
 
   /**
-   * Clone sub-entities of instruments https://www.pivotaltracker.com/story/show/170290553
-   * Cloning an Instrument should not reset its Parameters https://www.pivotaltracker.com/story/show/180764355
+   Clone sub-entities of instruments https://www.pivotaltracker.com/story/show/170290553
+   Cloning an Instrument should not reset its Parameters https://www.pivotaltracker.com/story/show/180764355
    */
   @Test
   public void clone_fromOriginal() throws Exception {
@@ -164,18 +165,18 @@ public class InstrumentManagerDbTest {
     assertEquals(fake.library1.getId(), result.getClone().getLibraryId());
     assertEquals("cannons fifty nine", result.getClone().getName());
     assertEquals(InstrumentType.Drum, result.getClone().getType());
-    assertEquals(
-      """
-        attackMillis = 1
-        isAudioSelectionPersistent = true
-        isMultiphonic = true
-        isOneShot = false
-        isOneShotCutoffEnabled = true
-        isTonal = false
-        oneShotObserveLengthOfEvents = [TEST]
-        releaseMillis = 5
-          """,
-      result.getClone().getConfig()
+    assertArrayEquals(
+      new String[]{
+        "attackMillis = 1",
+        "isAudioSelectionPersistent = true",
+        "isMultiphonic = true",
+        "isOneShot = false",
+        "isOneShotCutoffEnabled = true",
+        "isTonal = false",
+        "oneShotObserveLengthOfEvents = [TEST]",
+        "releaseMillis = 5",
+      },
+      result.getClone().getConfig().split("\n")
     );
     try (var selectCount = test.getDSL().selectCount()) {
       assertEquals(Integer.valueOf(1), selectCount.from(INSTRUMENT_MEME)
@@ -253,7 +254,7 @@ public class InstrumentManagerDbTest {
   }
 
   /**
-   * change volume parameter https://www.pivotaltracker.com/story/show/179215413
+   change volume parameter https://www.pivotaltracker.com/story/show/179215413
    */
   @Test
   public void update_volume() throws Exception {
@@ -307,7 +308,7 @@ public class InstrumentManagerDbTest {
   }
 
   /**
-   * As long as instrument has no meme, destroy all other inner entities https://www.pivotaltracker.com/story/show/170299297
+   As long as instrument has no meme, destroy all other inner entities https://www.pivotaltracker.com/story/show/170299297
    */
   @Test
   public void destroy_succeedsWithInnerEntitiesButNoMemes() throws Exception {
