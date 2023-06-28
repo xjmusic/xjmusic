@@ -176,7 +176,7 @@ public class InstrumentManagerDbTest {
         "oneShotObserveLengthOfEvents = [TEST]",
         "releaseMillis = 5",
       },
-      result.getClone().getConfig().split("\n")
+      result.getClone().getConfig().split(System.lineSeparator())
     );
     try (var selectCount = test.getDSL().selectCount()) {
       assertEquals(Integer.valueOf(1), selectCount.from(INSTRUMENT_MEME)
