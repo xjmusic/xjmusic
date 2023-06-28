@@ -29,7 +29,7 @@ gcloud secrets versions access latest --secret=xj-lab-postgres-password
 To proxy a local port to the Google Cloud SQL (Postgres) instance:
 
 ```shell
-cloud-sql-proxy postgres-instance-4bda6363 --user=$lab_postgres_username --pass=$lab_postgres_password --database=xj_dev
+gcloud sql connect xj-lab-postgres --user=$lab_postgres_username --quiet
 ```
 
 Use the `cloud-sql-proxy` utility to proxy a database connection to the Cloud SQL instance:
