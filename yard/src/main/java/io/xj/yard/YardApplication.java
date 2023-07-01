@@ -3,7 +3,6 @@ package io.xj.yard;
 import ch.qos.logback.classic.LoggerContext;
 import io.xj.hub.HubTopology;
 import io.xj.lib.app.AppConfiguration;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.work.NexusWork;
@@ -11,6 +10,7 @@ import io.xj.ship.work.ShipWork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
@@ -42,22 +42,33 @@ import java.util.Objects;
 public class YardApplication {
   final Logger LOG = LoggerFactory.getLogger(YardApplication.class);
   private final EntityFactory entityFactory;
-  private final AppEnvironment env;
   private final AppConfiguration config;
   private final NexusWork nexusWork;
   private final ShipWork shipWork;
+  private final String hostname;
+  private final String platformEnvironment;
   private final ApplicationContext context;
 
   @Autowired
-  public YardApplication(EntityFactory entityFactory, AppEnvironment env, AppConfiguration config, NexusWork nexusWork, ShipWork shipWork, ApplicationContext context) {
+  public YardApplication(
+    EntityFactory entityFactory,
+    AppConfiguration config,
+    ApplicationContext context,
+    NexusWork nexusWork,
+    ShipWork shipWork,
+    @Value("${yard.local.mode.enabled}") boolean isYardLocalModeEnabled,
+    @Value("${hostname}") String hostname,
+    @Value("${platform.environment}") String platformEnvironment
+  ) {
     this.entityFactory = entityFactory;
-    this.env = env;
     this.config = config;
     this.nexusWork = nexusWork;
     this.shipWork = shipWork;
+    this.hostname = hostname;
+    this.platformEnvironment = platformEnvironment;
     this.context = context;
 
-    if (!env.isYardLocalModeEnabled()) {
+    if (isYardLocalModeEnabled) {
       throw new RuntimeException("App environment must have Yard Local Mode enabled");
     }
   }
@@ -69,8 +80,8 @@ public class YardApplication {
     lc.setPackagingDataEnabled(true);
     lc.putProperty("source", "java");
     lc.putProperty("service", "yard");
-    lc.putProperty("host", env.getHostname());
-    lc.putProperty("env", env.getPlatformEnvironment());
+    lc.putProperty("host", hostname);
+    lc.putProperty("env", platformEnvironment);
 
     // Setup Entity topology
     HubTopology.buildHubApiTopology(entityFactory);

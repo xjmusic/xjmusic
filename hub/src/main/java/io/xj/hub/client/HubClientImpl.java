@@ -5,7 +5,6 @@ package io.xj.hub.client;
 import io.xj.hub.ingest.HubContentPayload;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplatePlayback;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiException;
@@ -18,6 +17,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -51,19 +51,22 @@ public class HubClientImpl implements HubClient {
 
   @Autowired
   public HubClientImpl(
-    AppEnvironment env,
     HttpClientProvider httpClientProvider,
     JsonProviderImpl jsonProvider,
-    JsonapiPayloadFactory jsonapiPayloadFactory
+    JsonapiPayloadFactory jsonapiPayloadFactory,
+    @Value("${ingest.url}") String ingestUrl,
+    @Value("${ingest.token.name}") String ingestTokenName,
+    @Value("${ingest.token.value}") String ingestTokenValue,
+    @Value("${audio.base.url}") String audioBaseUrl
   ) {
     this.httpClientProvider = httpClientProvider;
     this.jsonProvider = jsonProvider;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
 
-    ingestUrl = env.getIngestURL();
-    ingestTokenName = env.getIngestTokenName();
-    ingestTokenValue = env.getIngestTokenValue();
-    audioBaseUrl = env.getAudioBaseUrl();
+    this.ingestUrl = ingestUrl;
+    this.ingestTokenName = ingestTokenName;
+    this.ingestTokenValue = ingestTokenValue;
+    this.audioBaseUrl = audioBaseUrl;
 
     String obscuredSecret = Arrays.stream(ingestTokenValue.split("")).map(c -> "*").collect(Collectors.joining());
     LOG.info("Will connect to Hub at {} with token '{}' value '{}'", ingestUrl, ingestTokenName, obscuredSecret);

@@ -3,7 +3,6 @@
 package io.xj.lib.jsonapi;
 
 import io.xj.lib.Widget;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.json.ApiUrlProvider;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,8 +20,7 @@ public class JsonapiResponseProviderImplTest {
 
   @Before
   public void setUp() {
-    var env = new AppEnvironment();
-    ApiUrlProvider apiUrlProvider = new ApiUrlProvider(env);
+    ApiUrlProvider apiUrlProvider = new ApiUrlProvider("");
     subject = new JsonapiResponseProviderImpl(apiUrlProvider);
   }
 

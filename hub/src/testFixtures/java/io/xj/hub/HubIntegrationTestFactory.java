@@ -12,7 +12,6 @@ import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubSqlStoreProviderImpl;
 import io.xj.hub.persistence.kv.HubKvStoreProvider;
 import io.xj.hub.persistence.kv.HubKvStoreProviderImpl;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.ApiUrlProvider;
@@ -22,52 +21,7 @@ import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.lib.jsonapi.JsonapiResponseProvider;
 import io.xj.lib.jsonapi.JsonapiResponseProviderImpl;
 
-public class HubIntegrationTestFactory {
-  public static HubIntegrationTest build(AppEnvironment env) {
-    JsonProviderImpl jsonProvider = new JsonProviderImpl();
-    EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
-    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    ApiUrlProvider apiUrlProvider = new ApiUrlProvider(env);
-    JsonapiResponseProvider httpResponseProvider = new JsonapiResponseProviderImpl(apiUrlProvider);
-    GoogleProvider googleProvider = new FakeGoogleProvider();
-    HubAccessTokenGenerator hubAccessTokenGenerator = new HubAccessTokenGeneratorImpl();
-    HubKvStoreProvider kvStoreProvider = new HubKvStoreProviderImpl(env, entityFactory);
-    HubSqlStoreProvider sqlStoreProvider = new HubSqlStoreProviderImpl(env);
-    HubMigration hubMigration = new HubMigrationImpl(sqlStoreProvider);
-    return new HubIntegrationTest(
-      env,
-      apiUrlProvider,
-      entityFactory,
-      googleProvider,
-      hubAccessTokenGenerator,
-      kvStoreProvider,
-      hubMigration,
-      sqlStoreProvider,
-      httpResponseProvider,
-      jsonapiPayloadFactory
-    );
-  }
-
-  private static class FakeGoogleProvider implements GoogleProvider {
-    @Override
-    public String getAuthCodeRequestUrl(String state) throws HubAccessException {
-      throw new HubAccessException("Not implemented");
-    }
-
-    @Override
-    public String getCallbackUrl() throws HubAccessException {
-      throw new HubAccessException("Not implemented");
-    }
-
-    @Override
-    public GoogleTokenResponse getTokenFromCode(String code) throws HubAccessException {
-      throw new HubAccessException("Not implemented");
-    }
-
-    @Override
-    public Person getMe(String access_token) throws HubAccessException {
-      throw new HubAccessException("Not implemented");
-    }
-  }
+public interface HubIntegrationTestFactory {
+  HubIntegrationTest build();
 }
 

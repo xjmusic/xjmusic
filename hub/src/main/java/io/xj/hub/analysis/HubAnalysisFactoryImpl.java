@@ -6,7 +6,6 @@ import io.xj.hub.client.HubClientException;
 import io.xj.hub.client.HubContent;
 import io.xj.hub.ingest.HubIngestException;
 import io.xj.hub.ingest.HubIngestFactory;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.util.ValueException;
 import org.springframework.stereotype.Service;
 
@@ -17,11 +16,9 @@ import java.util.UUID;
  */
 @Service
 class HubAnalysisFactoryImpl implements HubAnalysisFactory {
-  private final AppEnvironment env;
   private final HubIngestFactory hubIngestFactory;
 
-  public HubAnalysisFactoryImpl(AppEnvironment env, HubIngestFactory hubIngestFactory) {
-    this.env = env;
+  public HubAnalysisFactoryImpl(HubIngestFactory hubIngestFactory) {
     this.hubIngestFactory = hubIngestFactory;
   }
 
@@ -36,11 +33,11 @@ class HubAnalysisFactoryImpl implements HubAnalysisFactory {
       var content = new HubContent(hubIngestFactory.ingest(access, templateId).getAllEntities());
 
       return switch (type) {
-        case ChordInstruments -> new ReportChordInstruments(content, env);
-        case Constellations -> new ReportConstellations(content, env);
-        case Events -> new ReportEvents(content, env);
-        case MainProgramChords -> new ReportMainProgramChords(content, env);
-        case Memes -> new ReportMemes(content, env);
+        case ChordInstruments -> new ReportChordInstruments(content);
+        case Constellations -> new ReportConstellations(content);
+        case Events -> new ReportEvents(content);
+        case MainProgramChords -> new ReportMainProgramChords(content);
+        case Memes -> new ReportMemes(content);
       };
 
     } catch (HubIngestException e) {

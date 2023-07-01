@@ -7,7 +7,6 @@ import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Program;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.util.Text;
 
 import java.util.*;
@@ -19,8 +18,8 @@ import java.util.stream.Collectors;
 public class ReportEvents extends Report {
   private final EventHistogram eventHistogram;
 
-  public ReportEvents(HubContent content, AppEnvironment env) {
-    super(content, env);
+  public ReportEvents(HubContent content) {
+    super(content);
 
     eventHistogram = new EventHistogram();
 

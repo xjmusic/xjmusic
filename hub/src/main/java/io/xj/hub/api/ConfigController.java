@@ -15,13 +15,14 @@ import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.enums.TemplateType;
 import io.xj.hub.persistence.HubSqlStoreProvider;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadObject;
 import io.xj.lib.jsonapi.JsonapiResponseProvider;
 import io.xj.lib.util.Text;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,20 +45,30 @@ public class ConfigController extends HubJsonapiEndpoint {
   /**
    * Constructor
    */
+  @Autowired
   public ConfigController(
-    AppEnvironment env,
     HubSqlStoreProvider sqlStoreProvider,
     JsonapiResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
-    EntityFactory entityFactory
+    EntityFactory entityFactory,
+    @Value("${app.base.url}")
+    String appBaseUrl,
+    @Value("${audio.base.url}")
+    String audioBaseUrl,
+    @Value("${stream.base.url}")
+    String streamBaseUrl,
+    @Value("${player.base.url}")
+    String playerBaseUrl,
+    @Value("${ship.base.url}")
+    String shipBaseUrl
   ) {
     super(sqlStoreProvider, response, payloadFactory, entityFactory);
     var c = ImmutableMap.<String, Object>builder();
     c.put("analysisTypes", Arrays.stream(Report.Type.values()).collect(Collectors.toMap(Report.Type::toString, Report.Type::getName)));
-    c.put("apiBaseUrl", env.getAppBaseUrl());
-    c.put("audioBaseUrl", env.getAudioBaseUrl());
-    c.put("streamBaseUrl", env.getStreamBaseUrl());
-    c.put("baseUrl", env.getAppBaseUrl());
+    c.put("apiBaseUrl", appBaseUrl);
+    c.put("audioBaseUrl", audioBaseUrl);
+    c.put("streamBaseUrl", streamBaseUrl);
+    c.put("baseUrl", appBaseUrl);
     c.put("choiceTypes", ProgramType.values());
     c.put("defaultInstrumentConfig", Text.format(ConfigFactory.parseString(InstrumentConfig.DEFAULT)));
     c.put("defaultProgramConfig", Text.format(ConfigFactory.parseString(ProgramConfig.DEFAULT)));
@@ -65,10 +76,10 @@ public class ConfigController extends HubJsonapiEndpoint {
     c.put("instrumentStates", InstrumentState.values());
     c.put("instrumentTypes", InstrumentType.values());
     c.put("instrumentModes", InstrumentMode.values());
-    c.put("playerBaseUrl", env.getPlayerBaseUrl());
+    c.put("playerBaseUrl", playerBaseUrl);
     c.put("programStates", ProgramState.values());
     c.put("programTypes", ProgramType.values());
-    c.put("shipBaseUrl", env.getShipBaseUrl());
+    c.put("shipBaseUrl", shipBaseUrl);
     c.put("templateTypes", TemplateType.values());
     configMap = c.build();
   }

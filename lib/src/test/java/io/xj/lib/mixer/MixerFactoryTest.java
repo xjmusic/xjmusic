@@ -2,7 +2,6 @@
 package io.xj.lib.mixer;
 
 
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.notification.NotificationProvider;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,12 +18,12 @@ public class MixerFactoryTest {
   private MixerFactory mixerFactory;
   @Mock
   NotificationProvider notificationProvider;
+  @Mock
+  EnvelopeProvider envelopeProvider;
 
   @Before
   public void setUp() {
-    AppEnvironment env = new AppEnvironment();
-    EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    mixerFactory = new MixerFactoryImpl(env, envelopeProvider, notificationProvider);
+    mixerFactory = new MixerFactoryImpl(envelopeProvider, notificationProvider, "development");
   }
 
   @Test

@@ -6,7 +6,6 @@ import io.xj.hub.HubTopology;
 import io.xj.hub.enums.TemplateType;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Template;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
@@ -64,7 +63,6 @@ public class ChainManagerImplTest {
 
   @Before
   public void setUp() throws Exception {
-    var env = AppEnvironment.getDefault();
     JsonProvider jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     HubTopology.buildHubApiTopology(entityFactory);
@@ -89,11 +87,10 @@ public class ChainManagerImplTest {
     // Instantiate the test subject
     SegmentManager segmentManager = new SegmentManagerImpl(entityFactory, store);
     subject = new ChainManagerImpl(
-      env,
       entityFactory,
       store,
       segmentManager,
-      notificationProvider
+      notificationProvider,1,1
     );
   }
 

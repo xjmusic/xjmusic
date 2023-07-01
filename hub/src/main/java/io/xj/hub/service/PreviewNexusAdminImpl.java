@@ -24,12 +24,13 @@ import com.google.cloud.run.v2.UpdateServiceRequest;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplatePlayback;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 import net.logstash.logback.encoder.org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -58,13 +59,13 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   private static final String LOG_LINE_REMOVE = " i.x.n.w.NexusWorkImpl ";
   private static final int LOG_LINE_TRIP_LEADING_CHARACTERS = 97;
   private final Logger LOG = LoggerFactory.getLogger(PreviewNexusAdminImpl.class);
-  private final String gcpServiceAccountEmail;
   private final boolean isConfigured;
+  private final String fabricationPreviewTemplatePlaybackId;
+  private final String gcpServiceAccountEmail;
   private final String nexusImage;
   private final int logTailLines;
   private final String gcpProjectId;
   private final String gcpRegion;
-
   private final String appBaseUrl;
   private final String audioBaseUrl;
   private final String audioFileBucket;
@@ -81,32 +82,84 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   private final String shipBaseUrl;
   private final String shipBucket;
   private final int logBackMinutes;
+  private final String envSecretRefName;
+  private final String namespace;
 
-  public PreviewNexusAdminImpl(AppEnvironment env) {
-    String envSecretRefName = env.getServiceContainerEnvSecretRefName();
-    String namespace = env.getServiceNamespace();
-    appBaseUrl = env.getAppBaseUrl();
-    audioBaseUrl = env.getAudioBaseUrl();
-    audioFileBucket = env.getAudioFileBucket();
-    audioUploadUrl = env.getAudioUploadURL();
-    awsAccessKeyId = env.getAwsAccessKeyID();
-    awsDefaultRegion = env.getAwsDefaultRegion();
-    awsSecretKey = env.getAwsSecretKey();
-    environment = env.getPlatformEnvironment();
-    gcpCloudSqlInstance = env.getGcpCloudSqlInstance();
-    gcpProjectId = env.getGcpProjectId();
-    gcpRegion = env.getGcpRegion();
-    gcpServiceAccountEmail = env.getGcpServiceAccountEmail();
-    googleClientId = env.getGoogleClientID();
-    googleClientSecret = env.getGoogleClientSecret();
-    ingestTokenValue = env.getIngestTokenValue();
-    logTailLines = env.getServiceLogTailLines();
-    logBackMinutes = env.getServiceLogBackMinutes();
-    nexusImage = env.getGcpServiceNexusImage();
-    playerBaseUrl = env.getPlayerBaseUrl();
-    shipBaseUrl = env.getShipBaseUrl();
-    shipBucket = env.getShipBucket();
-
+  @Autowired
+  public PreviewNexusAdminImpl(
+    @Value("${static.fabrication.preview.template.playback.id}")
+    String fabricationPreviewTemplatePlaybackId,
+    @Value("${gcp.service.account.email}")
+    String gcpServiceAccountEmail,
+    @Value("${gcp.service.nexus.image}")
+    String nexusImage,
+    @Value("${service.log.tail.lines}")
+    int logTailLines,
+    @Value("${gcp.project.id}")
+    String gcpProjectId,
+    @Value("${gcp.region}")
+    String gcpRegion,
+    @Value("${app.base.url}")
+    String appBaseUrl,
+    @Value("${audio.base.url}")
+    String audioBaseUrl,
+    @Value("${audio.file.bucket}")
+    String audioFileBucket,
+    @Value("${audio.upload.url}")
+    String audioUploadUrl,
+    @Value("${aws.access.key.id}")
+    String awsAccessKeyId,
+    @Value("${aws.default.region}")
+    String awsDefaultRegion,
+    @Value("${aws.secret.key}")
+    String awsSecretKey,
+    @Value("${platform.environment}")
+    String environment,
+    @Value("${gcp.cloud.sql.instance}")
+    String gcpCloudSqlInstance,
+    @Value("${google.client.id}")
+    String googleClientId,
+    @Value("${google.client.secret}")
+    String googleClientSecret,
+    @Value("${ingest.token.value}")
+    String ingestTokenValue,
+    @Value("${player.base.url}")
+    String playerBaseUrl,
+    @Value("${ship.base.url}")
+    String shipBaseUrl,
+    @Value("${ship.bucket}")
+    String shipBucket,
+    @Value("${service.logback.minutes}")
+    int logBackMinutes,
+    @Value("${service.container.env.secret.ref.name}")
+    String envSecretRefName,
+    @Value("${service.namespace}")
+    String namespace
+  ) {
+    this.envSecretRefName = envSecretRefName;
+    this.namespace = namespace;
+    this.fabricationPreviewTemplatePlaybackId = fabricationPreviewTemplatePlaybackId;
+    this.gcpServiceAccountEmail = gcpServiceAccountEmail;
+    this.nexusImage = nexusImage;
+    this.logTailLines = logTailLines;
+    this.gcpProjectId = gcpProjectId;
+    this.gcpRegion = gcpRegion;
+    this.appBaseUrl = appBaseUrl;
+    this.audioBaseUrl = audioBaseUrl;
+    this.audioFileBucket = audioFileBucket;
+    this.audioUploadUrl = audioUploadUrl;
+    this.awsAccessKeyId = awsAccessKeyId;
+    this.awsDefaultRegion = awsDefaultRegion;
+    this.awsSecretKey = awsSecretKey;
+    this.environment = environment;
+    this.gcpCloudSqlInstance = gcpCloudSqlInstance;
+    this.googleClientId = googleClientId;
+    this.googleClientSecret = googleClientSecret;
+    this.ingestTokenValue = ingestTokenValue;
+    this.playerBaseUrl = playerBaseUrl;
+    this.shipBaseUrl = shipBaseUrl;
+    this.shipBucket = shipBucket;
+    this.logBackMinutes = logBackMinutes;
     isConfigured = doConfigurationTest();
     LOG.info("Service administrator will create containers namespace={} with secretRef={}", namespace, envSecretRefName);
   }
@@ -301,7 +354,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
     List<EnvVar> envVars = Lists.newArrayList();
 
     // Fabrication preview template ID
-    envVars.add(EnvVar.newBuilder().setName(AppEnvironment.FABRICATION_PREVIEW_TEMPLATE_PLAYBACK_ID).setValue(playback.getId().toString()).build());
+    envVars.add(EnvVar.newBuilder().setName(fabricationPreviewTemplatePlaybackId).setValue(playback.getId().toString()).build());
 
     // environment variables passed through
     envVars.add(EnvVar.newBuilder().setName("AUDIO_BASE_URL").setValue(audioBaseUrl).build());

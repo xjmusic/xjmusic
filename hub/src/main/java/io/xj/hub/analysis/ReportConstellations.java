@@ -10,7 +10,6 @@ import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Program;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.meme.MemeConstellation;
 import io.xj.lib.meme.MemeStack;
@@ -35,8 +34,8 @@ public class ReportConstellations extends Report {
   private final Map<InstrumentType, Set<Instrument>> instrumentsByType;
   private final MemeTaxonomy taxonomy;
 
-  public ReportConstellations(HubContent content, AppEnvironment env) throws HubClientException, ValueException {
-    super(content, env);
+  public ReportConstellations(HubContent content) throws HubClientException, ValueException {
+    super(content);
     Collection<String> memeNames;
     MemeStack stack;
 

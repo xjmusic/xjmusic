@@ -2,8 +2,6 @@
 
 package io.xj.ship.broadcast;
 
-import com.google.common.collect.ImmutableMap;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.http.HttpClientProviderImpl;
@@ -38,14 +36,12 @@ public class PlaylistPublisherImplTest {
 
   @Before
   public void setUp() {
-    AppEnvironment env = AppEnvironment.from(ImmutableMap.of(
-      "SHIP_CHUNK_TARGET_DURATION", "10",
-      "SHIP_KEY", "coolair"
-    ));
-    HttpClientProvider httpClientProvider = new HttpClientProviderImpl(env);
-    chunkFactory = new ChunkFactoryImpl(env);
-    MediaSeqNumProvider mediaSeqNumProvider = new MediaSeqNumProvider(env);
-    playlistPublisher = new PlaylistPublisherImpl(env, chunkFactory, fileStoreProvider, httpClientProvider, mediaSeqNumProvider, telemetryProvider);
+    HttpClientProvider httpClientProvider = new HttpClientProviderImpl(1,1);
+    chunkFactory = new ChunkFactoryImpl("aac", 10);
+    MediaSeqNumProvider mediaSeqNumProvider = new MediaSeqNumProvider(1,1);
+    playlistPublisher = new PlaylistPublisherImpl(chunkFactory, fileStoreProvider, httpClientProvider, mediaSeqNumProvider, telemetryProvider,
+      "yard","xj-prod-stream",10,"",0,10,300,"https://stream.xj.io/",
+      1,"aac","coolair","");
 
     var chain = buildChain(buildTemplate(buildAccount("Testing"), "Testing"));
     chain.setTemplateConfig("metaSource = \"XJ Music Testing\"\nmetaTitle = \"Test Stream 5\"");

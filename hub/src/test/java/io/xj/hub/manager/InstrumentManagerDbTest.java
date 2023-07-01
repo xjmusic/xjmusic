@@ -10,11 +10,16 @@ import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Instrument;
-import io.xj.lib.app.AppEnvironment;
-import org.junit.jupiter.api.AfterEach;
+import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.http.HttpClientProvider;
+import io.xj.lib.notification.NotificationProvider;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -40,16 +45,28 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 // FUTURE: any test that
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 public class InstrumentManagerDbTest {
   private InstrumentManager subject;
   private HubIntegrationTest test;
   private IntegrationTestingFixtures fake;
 
+  @MockBean
+  NotificationProvider notificationProvider;
+
+  @MockBean
+  HttpClientProvider httpClientProvider;
+
+  @MockBean
+  FileStoreProvider fileStoreProvider;
+
+  @Autowired
+  HubIntegrationTestFactory integrationTestFactory;
+
   @BeforeEach
   public void setUp() throws Exception {
-    var env = AppEnvironment.getDefault();
-    test = HubIntegrationTestFactory.build(env);
+    test = integrationTestFactory.build();
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
@@ -78,7 +95,7 @@ public class InstrumentManagerDbTest {
     subject = new InstrumentManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
   }
 
-  @AfterEach
+  @AfterAll
   public void tearDown() {
     test.shutdown();
   }
@@ -108,7 +125,7 @@ public class InstrumentManagerDbTest {
   }
 
   /**
-   Overall volume parameter defaults to 1.0 https://www.pivotaltracker.com/story/show/179215413
+   * Overall volume parameter defaults to 1.0 https://www.pivotaltracker.com/story/show/179215413
    */
   @Test
   public void create_defaultVolume() throws Exception {
@@ -122,7 +139,7 @@ public class InstrumentManagerDbTest {
   }
 
   /**
-   Instruments/Instruments can be cloned/moved between accounts https://www.pivotaltracker.com/story/show/181878883
+   * Instruments/Instruments can be cloned/moved between accounts https://www.pivotaltracker.com/story/show/181878883
    */
   @Test
   public void clone_toLibraryInDifferentAccount() throws Exception {
@@ -139,8 +156,8 @@ public class InstrumentManagerDbTest {
   }
 
   /**
-   Clone sub-entities of instruments https://www.pivotaltracker.com/story/show/170290553
-   Cloning an Instrument should not reset its Parameters https://www.pivotaltracker.com/story/show/180764355
+   * Clone sub-entities of instruments https://www.pivotaltracker.com/story/show/170290553
+   * Cloning an Instrument should not reset its Parameters https://www.pivotaltracker.com/story/show/180764355
    */
   @Test
   public void clone_fromOriginal() throws Exception {
@@ -254,7 +271,7 @@ public class InstrumentManagerDbTest {
   }
 
   /**
-   change volume parameter https://www.pivotaltracker.com/story/show/179215413
+   * change volume parameter https://www.pivotaltracker.com/story/show/179215413
    */
   @Test
   public void update_volume() throws Exception {
@@ -308,7 +325,7 @@ public class InstrumentManagerDbTest {
   }
 
   /**
-   As long as instrument has no meme, destroy all other inner entities https://www.pivotaltracker.com/story/show/170299297
+   * As long as instrument has no meme, destroy all other inner entities https://www.pivotaltracker.com/story/show/170299297
    */
   @Test
   public void destroy_succeedsWithInnerEntitiesButNoMemes() throws Exception {

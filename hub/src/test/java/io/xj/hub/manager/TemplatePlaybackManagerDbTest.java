@@ -9,12 +9,16 @@ import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.TemplateType;
 import io.xj.hub.service.PreviewNexusAdmin;
 import io.xj.hub.tables.pojos.TemplatePlayback;
-import io.xj.lib.app.AppEnvironment;
-import org.junit.jupiter.api.AfterEach;
+import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.http.HttpClientProvider;
+import io.xj.lib.notification.NotificationProvider;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
+import org.junit.jupiter.api.TestInstance;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -39,6 +43,7 @@ import static org.mockito.Mockito.verify;
 
 // FUTURE: any test that
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 public class TemplatePlaybackManagerDbTest {
   private TemplatePlaybackManager testManager;
@@ -46,13 +51,24 @@ public class TemplatePlaybackManagerDbTest {
   private IntegrationTestingFixtures fake;
   private TemplatePlayback templatePlayback201;
 
-  @Mock
+  @MockBean
   private PreviewNexusAdmin previewNexusAdmin;
+
+  @MockBean
+  NotificationProvider notificationProvider;
+
+  @MockBean
+  HttpClientProvider httpClientProvider;
+
+  @MockBean
+  FileStoreProvider fileStoreProvider;
+
+  @Autowired
+  HubIntegrationTestFactory integrationTestFactory;
 
   @BeforeEach
   public void setUp() throws Exception {
-    var env = AppEnvironment.getDefault();
-    test = HubIntegrationTestFactory.build(env);
+    test = integrationTestFactory.build();
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
@@ -73,10 +89,10 @@ public class TemplatePlaybackManagerDbTest {
     templatePlayback201 = test.insert(buildTemplatePlayback(fake.template1, fake.user2));
 
     // Instantiate the test subject
-    testManager = new TemplatePlaybackManagerImpl(test.getEnv(), test.getEntityFactory(), test.getSqlStoreProvider(), previewNexusAdmin);
+    testManager = new TemplatePlaybackManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider(), previewNexusAdmin, 14400);
   }
 
-  @AfterEach
+  @AfterAll
   public void tearDown() {
     test.shutdown();
   }

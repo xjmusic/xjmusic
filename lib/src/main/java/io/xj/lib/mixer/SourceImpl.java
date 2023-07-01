@@ -2,13 +2,14 @@
 package io.xj.lib.mixer;
 
 
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.notification.NotificationProvider;
+import io.xj.lib.util.Text;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.Nullable;
 import javax.sound.sampled.AudioFormat;
@@ -44,11 +45,12 @@ class SourceImpl implements Source {
   private final long lengthMicros;
 
   public SourceImpl(
-    AppEnvironment env,
     NotificationProvider notification,
     String sourceId,
     String absolutePath,
-    String description
+    String description,
+    @Value("${environment}")
+    String environment
   ) {
     double _microsPerFrame;
     long _lengthMicros;
@@ -59,7 +61,7 @@ class SourceImpl implements Source {
     AudioFormat _audioFormat;
     this.absolutePath = absolutePath;
     this.sourceId = sourceId;
-    String envName = env.getWorkEnvironmentName();
+    String envName = Text.toProper(environment);
 
     try (
       var fileInputStream = FileUtils.openInputStream(new File(absolutePath));

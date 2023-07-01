@@ -17,7 +17,6 @@ import io.xj.hub.service.ServiceException;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.hub.tables.pojos.TemplatePlayback;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
@@ -59,6 +58,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -143,7 +143,6 @@ public class NexusWorkImpl implements NexusWork {
 
   @Autowired
   public NexusWorkImpl(
-    AppEnvironment env,
     ChainManager chainManager,
     CraftFactory craftFactory,
     DubFactory dubFactory,
@@ -158,7 +157,25 @@ public class NexusWorkImpl implements NexusWork {
     NotificationProvider notification,
     PreviewNexusAdmin previewNexusAdmin,
     SegmentManager segmentManager,
-    TelemetryProvider telemetryProvider
+    TelemetryProvider telemetryProvider,
+    @Value("${environment}") String environment,
+    @Nullable @Value("${ship.key}") String shipKey,
+    @Value("${yard.local-mode.enabled}") boolean isYardLocalModeEnabled,
+    @Value("${fabrication.chain.threshold.fabrication.behind.seconds}") int fabricationChainThresholdFabricatedBehindSeconds,
+    @Value("${work.cycle.millis}") int workCycleMillis,
+    @Value("${work.erase.seconds.older.than.seconds}") int workEraseSegmentsOlderThanSeconds,
+    @Value("${work.healty.cycle.staleness.threshold.seconds}") int workHealthCycleStalenessThresholdSeconds,
+    @Value("${work.ingest.cycle.seconds}") int workIngestCycleSeconds,
+    @Value("${work.janitor.cycle.seconds}") int workJanitorCycleSeconds,
+    @Value("${work.janitor.enabled}") boolean isWorkJanitorEnabled,
+    @Value("${work.rehydration.enabled}") boolean isWorkRehydrationEnabled,
+    @Value("${work.lab.hub-lab.poll-seconds}") int workLabHubLabPollSeconds,
+    @Value("${work.medic.enabled}") boolean isWorkMedicEnabled,
+    @Value("${work.rehydrate.fabricated.ahead.threshold}") int workRehydrateFabricatedAheadThreshold,
+    @Value("${ship.base.url}") String shipBaseUrl,
+    @Value("${ship.bucket}") String shipBucket,
+    @Value("${work.yard.poll-seconds}") int workYardPollSeconds,
+    @Value("${fabrication.preview.template.playback.id}") String fabricationPreviewTemplatePlaybackId
   ) {
     this.chainManager = chainManager;
     this.craftFactory = craftFactory;
@@ -174,34 +191,35 @@ public class NexusWorkImpl implements NexusWork {
     this.segmentManager = segmentManager;
     this.store = store;
     this.telemetryProvider = telemetryProvider;
-    envName = env.getWorkEnvironmentName();
-    yardLocalModeEnabled = env.isYardLocalModeEnabled();
+    this.envName = Text.toProper(environment);
+    this.yardLocalModeEnabled = isYardLocalModeEnabled;
 
-    chainThresholdFabricatedBehindSeconds = env.getFabricationChainThresholdFabricatedBehindSeconds();
-    cycleMillis = env.getWorkCycleMillis();
-    eraseSegmentsOlderThanSeconds = env.getWorkEraseSegmentsOlderThanSeconds();
-    healthCycleStalenessThresholdMillis = env.getWorkHealthCycleStalenessThresholdSeconds() * MILLIS_PER_SECOND;
-    ignoreSegmentsOlderThanSeconds = env.getWorkEraseSegmentsOlderThanSeconds();
-    ingestCycleSeconds = env.getWorkIngestCycleSeconds();
-    janitorCycleSeconds = env.getWorkJanitorCycleSeconds();
-    janitorEnabled = env.isWorkJanitorEnabled();
-    isRehydrationEnabled = env.isWorkRehydrationEnabled();
-    labPollSeconds = env.getWorkLabHubLabPollSeconds();
-    medicCycleSeconds = env.getWorkMedicCycleSeconds();
-    medicEnabled = env.isWorkMedicEnabled();
-    rehydrateFabricatedAheadThreshold = env.getWorkRehydrateFabricatedAheadThreshold();
-    shipBaseUrl = env.getShipBaseUrl();
-    shipKey = env.getShipKey();
-    shipBucket = env.getShipBucket();
-    yardPollSeconds = env.getWorkYardPollSeconds();
+    this.chainThresholdFabricatedBehindSeconds = fabricationChainThresholdFabricatedBehindSeconds;
+    this.cycleMillis = workCycleMillis;
+    this.eraseSegmentsOlderThanSeconds = workEraseSegmentsOlderThanSeconds;
+    this.healthCycleStalenessThresholdMillis = workHealthCycleStalenessThresholdSeconds * MILLIS_PER_SECOND;
+    this.ignoreSegmentsOlderThanSeconds = workEraseSegmentsOlderThanSeconds;
+    this.ingestCycleSeconds = workIngestCycleSeconds;
+    this.janitorCycleSeconds = workJanitorCycleSeconds;
+    this.janitorEnabled = isWorkJanitorEnabled;
+    this.isRehydrationEnabled = isWorkRehydrationEnabled;
+    this.labPollSeconds = workLabHubLabPollSeconds;
+    this.medicCycleSeconds = workIngestCycleSeconds;
+    this.medicEnabled = isWorkMedicEnabled;
+    this.rehydrateFabricatedAheadThreshold = workRehydrateFabricatedAheadThreshold;
+    this.shipBaseUrl = shipBaseUrl;
+    this.shipKey = shipKey;
+    this.shipBucket = shipBucket;
+    this.yardPollSeconds = workYardPollSeconds;
     this.previewNexusAdmin = previewNexusAdmin;
 
-    labPollNext = Instant.now();
-    yardPollNext = Instant.now();
-    mode = Strings.isNullOrEmpty(shipKey) ? Lab : NexusWorkImpl.Mode.Yard;
-    state = NexusWorkImpl.State.Init;
+    this.labPollNext = Instant.now();
+    this.yardPollNext = Instant.now();
+    this.mode = Strings.isNullOrEmpty(shipKey) ? Lab : NexusWorkImpl.Mode.Yard;
+    this.state = NexusWorkImpl.State.Init;
 
-    fabricationPreviewTemplatePlaybackId = env.getFabricationPreviewTemplatePlaybackId().orElse(null);
+    this.fabricationPreviewTemplatePlaybackId = !fabricationPreviewTemplatePlaybackId.equals("") ?
+      UUID.fromString(fabricationPreviewTemplatePlaybackId) : null;
 
     // Telemetry: # Segments Erased
     METRIC_FABRICATED_AHEAD_SECONDS = telemetryProvider.gauge("fabricated_ahead_seconds", "Fabricated Ahead Seconds", "s");

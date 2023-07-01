@@ -8,20 +8,21 @@ import io.xj.hub.manager.Manager;
 import io.xj.hub.manager.ManagerException;
 import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.Account;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.*;
+import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.util.ValueException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 
 import javax.servlet.http.HttpServletRequest;
@@ -37,29 +38,31 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 public class HubEndpointTest {
   private JsonapiPayloadFactory payloadFactory;
-
   @Mock
   HttpServletRequest req;
   @Mock
   HttpServletResponse res;
-
   @Mock
   Manager<Account> manager; // can be any class that, we picked a simple one with no belongs-to
-
   @Mock
   HubSqlStoreProvider sqlStoreProvider;
+  @MockBean
+  NotificationProvider notificationProvider;
+  @MockBean
+  FileStoreProvider fileStoreProvider;
+  @MockBean
+  HttpClientProvider httpClientProvider;
 
   //
   HubJsonapiEndpoint subject;
 
   @BeforeEach
   public void setUp() throws Exception {
-    var env = AppEnvironment.getDefault();
     JsonProvider jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     payloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     HubTopology.buildHubApiTopology(entityFactory);
-    ApiUrlProvider apiUrlProvider = new ApiUrlProvider(env);
+    ApiUrlProvider apiUrlProvider = new ApiUrlProvider("");
     JsonapiResponseProvider responseProvider = new JsonapiResponseProviderImpl(apiUrlProvider);
     subject = new HubJsonapiEndpoint(sqlStoreProvider, responseProvider, payloadFactory, entityFactory);
   }

@@ -2,8 +2,6 @@
 
 package io.xj.ship.broadcast;
 
-import com.google.common.collect.ImmutableMap;
-import io.xj.lib.app.AppEnvironment;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,11 +16,7 @@ public class ChunkTest {
 
   @Before
   public void setUp() {
-    AppEnvironment env = AppEnvironment.from(ImmutableMap.of(
-      "SHIP_CHUNK_TARGET_DURATION", "10",
-      "SHIP_KEY", "coolair"
-    ));
-    ChunkFactory chunkFactory = new ChunkFactoryImpl(env);
+    ChunkFactory chunkFactory = new ChunkFactoryImpl("aac", 10);
 
     subject = chunkFactory.build(SHIP_KEY, 151304042L, "mp3", null);
   }

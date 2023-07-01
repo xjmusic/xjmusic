@@ -2,11 +2,12 @@
 package io.xj.hub.persistence.kv;
 
 import io.xj.hub.persistence.HubPersistenceException;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactory;
 import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +21,21 @@ public class HubKvStoreProviderImpl implements HubKvStoreProvider {
   private static final Logger LOG = LoggerFactory.getLogger(HubKvStoreProviderImpl.class);
   private final EntityFactory entityFactory;
   private final KvStore store;
+  private final String memcacheAddress;
   private final int memcacheExpirationSeconds;
 
-  public HubKvStoreProviderImpl(AppEnvironment env, EntityFactory entityFactory) {
-    store = createStore(env.getMemcacheAddress());
+  @Autowired
+  public HubKvStoreProviderImpl(
+    EntityFactory entityFactory,
+    @Value("${memcache.address}")
+    String memcacheAddress,
+    @Value("${memcache.expiration.seconds}")
+    int memcacheExpirationSeconds) {
+    store = createStore(memcacheAddress);
     this.entityFactory = entityFactory;
+    this.memcacheAddress = memcacheAddress;
+    this.memcacheExpirationSeconds = memcacheExpirationSeconds;
     LOG.info("Will use local in-memory store");
-    memcacheExpirationSeconds = env.getMemcacheExpirationSeconds();
   }
 
   @Override

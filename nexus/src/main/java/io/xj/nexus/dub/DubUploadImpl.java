@@ -1,13 +1,13 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.dub;
 
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.FilePathProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 
 /**
@@ -21,19 +21,23 @@ public class DubUploadImpl implements DubUpload {
   private final int chainJsonMaxAgeSeconds;
   private final boolean isLocalModeEnabled;
 
+
   public DubUploadImpl(
-    AppEnvironment env,
     FilePathProvider filePathProvider,
     FileStoreProvider fileStore,
-    Fabricator fabricator
+    Fabricator fabricator,
+    @Value("${ship.bucket}")
+    String shipBucket,
+    @Value("${ship.chain.json.max-age-seconds}")
+    int chainJsonMaxAgeSeconds,
+    @Value("${yard.local-mode.enabled}") boolean isLocalModeEnabled
   ) {
     this.filePathProvider = filePathProvider;
     this.fabricator = fabricator;
     this.fileStore = fileStore;
-    this.isLocalModeEnabled = env.isYardLocalModeEnabled();
-
-    chainJsonMaxAgeSeconds = env.getShipChainJsonMaxAgeSeconds();
-    shipBucket = env.getShipBucket();
+    this.shipBucket = shipBucket;
+    this.chainJsonMaxAgeSeconds = chainJsonMaxAgeSeconds;
+    this.isLocalModeEnabled = isLocalModeEnabled;
   }
 
   @Override

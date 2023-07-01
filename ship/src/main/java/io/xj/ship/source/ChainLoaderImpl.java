@@ -3,7 +3,6 @@ package io.xj.ship.source;
 
 
 import io.opencensus.stats.Measure;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.jsonapi.JsonapiException;
@@ -24,6 +23,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
@@ -65,14 +65,19 @@ public class ChainLoaderImpl extends ChainLoader {
   public ChainLoaderImpl(
     String shipKey,
     Runnable onFailure,
-    AppEnvironment env, ChainManager chainManager,
+    ChainManager chainManager,
     HttpClientProvider httpClientProvider,
     FilePathProvider filePathProvider,
     JsonProvider jsonProvider,
     JsonapiPayloadFactory jsonapiPayloadFactory,
     SegmentAudioManager segmentAudioManager,
     SegmentManager segmentManager,
-    TelemetryProvider telemetryProvider
+    TelemetryProvider telemetryProvider,
+    @Value("${yard.local.mode.enabled}") boolean isYardLocalModeEnabled,
+    @Value("${ship.segment.load.ahead.seconds}") int shipSegmentLoadAheadSeconds,
+    @Value("${ship.playlist.back.seconds}") int shipPlaylistBackSeconds,
+    @Value("${ship.playlist.ahead.seconds}") int shipPlaylistAheadSeconds,
+    @Value("${ship.base.url}") String shipBaseUrl
   ) {
     this.chainManager = chainManager;
     this.httpClientProvider = httpClientProvider;
@@ -84,11 +89,11 @@ public class ChainLoaderImpl extends ChainLoader {
     this.segmentManager = segmentManager;
     this.shipKey = shipKey;
     this.telemetryProvider = telemetryProvider;
-    this.isLocalModeEnabled = env.isYardLocalModeEnabled();
+    this.isLocalModeEnabled = isYardLocalModeEnabled;
 
-    loadAheadSeconds = env.getShipPlaylistAheadSeconds() + env.getShipSegmentLoadAheadSeconds();
-    loadBackSeconds = env.getShipPlaylistBackSeconds();
-    shipBaseUrl = env.getShipBaseUrl();
+    this.loadAheadSeconds = shipPlaylistAheadSeconds + shipSegmentLoadAheadSeconds;
+    this.loadBackSeconds = shipPlaylistBackSeconds;
+    this.shipBaseUrl = shipBaseUrl;
 
     CHAIN_LOADED = telemetryProvider.count("chain_loaded", "Chain Loaded", "");
     SEGMENT_LOADED = telemetryProvider.count("segment_loaded", "Segment Loaded", "");

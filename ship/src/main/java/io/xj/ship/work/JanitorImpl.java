@@ -4,7 +4,6 @@ package io.xj.ship.work;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import io.opencensus.stats.Measure;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.TelemetryProvider;
@@ -18,6 +17,7 @@ import io.xj.ship.source.SegmentAudioManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -46,13 +46,15 @@ public class JanitorImpl implements Janitor {
   @Autowired
   public JanitorImpl(
     ChainManager chainManager,
-    AppEnvironment env,
     MediaSeqNumProvider mediaSeqNumProvider,
     NexusEntityStore store,
     NotificationProvider notification,
     PlaylistPublisher playlist,
     SegmentAudioManager segmentAudioManager,
-    TelemetryProvider telemetryProvider
+    TelemetryProvider telemetryProvider,
+    @Value("${ship.key}") String shipKey,
+    @Value("${environment}") String environment,
+    @Value("${work.erase.seconds.older.than.seconds}") int workEraseSegmentsOlderThanSeconds
   ) {
     this.chainManager = chainManager;
     this.notification = notification;
@@ -60,10 +62,10 @@ public class JanitorImpl implements Janitor {
     this.segmentAudioManager = segmentAudioManager;
     this.store = store;
     this.telemetryProvider = telemetryProvider;
-    envName = env.getWorkEnvironmentName();
-    shipKey = env.getShipKey();
+    this.envName = Text.toProper(environment);
+    this.shipKey = shipKey;
 
-    eraseSegmentsOlderThanSeconds = env.getWorkEraseSegmentsOlderThanSeconds();
+    this.eraseSegmentsOlderThanSeconds = workEraseSegmentsOlderThanSeconds;
 
     METRIC_SEGMENT_ERASED = telemetryProvider.count("ship_segments_erased", "Ship Segments Erased", "");
     this.mediaSeqNumProvider = mediaSeqNumProvider;

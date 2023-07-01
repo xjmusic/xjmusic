@@ -6,7 +6,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.mixer.Mixer;
 import io.xj.lib.mixer.MixerConfig;
 import io.xj.lib.mixer.MixerFactory;
@@ -19,6 +18,7 @@ import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.FilePathProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -43,11 +43,9 @@ public class DubMasterImpl implements DubMaster {
   private final List<String> warnings = Lists.newArrayList();
   private final Map<UUID, Float> pickOffsetStart = Maps.newHashMap();
   private final DubAudioCache dubAudioCache;
-  private final boolean isLocalModeEnabled;
   private Mixer mixer;
 
   public DubMasterImpl(
-    AppEnvironment env,
     DubAudioCache dubAudioCache,
     FilePathProvider filePathProvider,
     MixerFactory mixerFactory,
@@ -57,7 +55,6 @@ public class DubMasterImpl implements DubMaster {
     this.filePathProvider = filePathProvider;
     this.fabricator = fabricator;
     this.mixerFactory = mixerFactory;
-    this.isLocalModeEnabled = env.isYardLocalModeEnabled();
   }
 
   /**

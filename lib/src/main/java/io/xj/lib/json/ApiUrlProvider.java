@@ -1,7 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.json;
 
-import io.xj.lib.app.AppEnvironment;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
@@ -16,8 +17,9 @@ public class ApiUrlProvider {
 
   private static final Pattern rgxStripLeadingSlash = Pattern.compile("^/");
 
-  public ApiUrlProvider(AppEnvironment env) {
-    this.appBaseUrl = env.getAppBaseUrl();
+  @Autowired
+  public ApiUrlProvider(@Value("${app.base.url}") String appBaseUrl) {
+    this.appBaseUrl = appBaseUrl;
   }
 
   /**

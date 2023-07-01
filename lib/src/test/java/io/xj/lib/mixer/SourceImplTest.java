@@ -2,7 +2,6 @@
 package io.xj.lib.mixer;
 
 
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.notification.NotificationProvider;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,16 +12,21 @@ import org.mockito.junit.MockitoJUnitRunner;
 import javax.sound.sampled.AudioFormat;
 import java.io.IOException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SourceImplTest {
   @Mock
-  private NotificationProvider notificationProvider;
+  EnvelopeProvider envelopeProvider;
+  @Mock
+  NotificationProvider notificationProvider;
 
-  private MixerFactory mixerFactory;
+  MixerFactory mixerFactory;
 
   private Source F32LSB_48kHz_Stereo;
   private Source S16LSB_44100Hz_Mono;
@@ -30,9 +34,7 @@ public class SourceImplTest {
 
   @Before
   public void setUp() throws Exception {
-    AppEnvironment env = new AppEnvironment();
-    EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    mixerFactory = new MixerFactoryImpl(env, envelopeProvider, notificationProvider);
+    mixerFactory = new MixerFactoryImpl(envelopeProvider, notificationProvider, "production");
 
     F32LSB_48kHz_Stereo = mixerFactory.createSource(
       "F32LSB_48kHz_Stereo",

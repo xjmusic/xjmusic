@@ -4,10 +4,11 @@ package io.xj.hub.persistence;
 import com.google.api.client.util.Strings;
 import com.zaxxer.hikari.HikariDataSource;
 import io.xj.hub.manager.Manager;
-import io.xj.lib.app.AppEnvironment;
 import org.jooq.DSLContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -19,36 +20,37 @@ public class HubSqlStoreProviderImpl implements HubSqlStoreProvider {
   private final String schemas;
 
   /**
-   Constructor
+   * Constructor
    */
+  @Autowired
   public HubSqlStoreProviderImpl(
-    AppEnvironment env
+    @Value("${postgres.schemas}") String schemas,
+    @Value("${cloud.sql.socket.factory}") String gcpCloudSqlSocketFactory,
+    @Value("${cloud.sql.instance}") String gcpCloudSqlInstance,
+    @Value("${postgres.database}") String postgresDatabase,
+    @Value("${postgres.host}") String postgresHost,
+    @Value("${postgres.port}") String postgresPort,
+    @Value("${postgres.user}") String postgresUser,
+    @Value("${postgres.pass}") String postgresPass,
+    @Value("${postgres.pool.size.max}") Integer postgresPoolSizeMax
   ) {
-    String gcpCloudSqlSocketFactory = env.getGcpCloudSqlSocketFactory();
-    String gcpCloudSqlInstance = env.getGcpCloudSqlInstance();
-    String database = env.getPostgresDatabase();
-    String host = env.getPostgresHost();
-    int port = env.getPostgresPort();
-    String user = env.getPostgresUser();
-    String password = env.getPostgresPass();
-
+    this.schemas = schemas;
     String url;
     if (Strings.isNullOrEmpty(gcpCloudSqlInstance)) {
-      url = String.format("jdbc:postgresql://%s:%s/%s", host, port, database);
+      url = String.format("jdbc:postgresql://%s:%s/%s", postgresHost, postgresPort, postgresDatabase);
       LOG.info("Configured without GCP Cloud SQL instance, using host and port: {}", url);
     } else {
       url = String.format(
         "jdbc:postgresql:///%s?cloudSqlInstance=%s&socketFactory=%s&user=%s&password=%s",
-        database, gcpCloudSqlInstance, gcpCloudSqlSocketFactory, user, password);
+        postgresDatabase, gcpCloudSqlInstance, gcpCloudSqlSocketFactory, postgresUser, postgresPass);
       LOG.info("Configured with GCP Cloud SQL instance, using socket factory: {}", url);
     }
 
-    schemas = env.getPostgresSchemas();
     dataSource = new HikariDataSource();
     dataSource.setJdbcUrl(url);
-    dataSource.setUsername(user);
-    dataSource.setPassword(password);
-    dataSource.setMaximumPoolSize(env.getPostgresPoolSizeMax());
+    dataSource.setUsername(postgresUser);
+    dataSource.setPassword(postgresPass);
+    dataSource.setMaximumPoolSize(postgresPoolSizeMax);
 
     LOG.info("HikariDataSource created for {}", url);
   }

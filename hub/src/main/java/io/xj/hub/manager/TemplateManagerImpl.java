@@ -13,7 +13,6 @@ import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.hub.tables.pojos.TemplatePlayback;
 import io.xj.hub.tables.pojos.TemplatePublication;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
@@ -25,6 +24,7 @@ import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -50,17 +50,19 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl implements Te
 
   @Autowired
   public TemplateManagerImpl(
-    AppEnvironment env, EntityFactory entityFactory,
+    EntityFactory entityFactory,
     HubSqlStoreProvider sqlStoreProvider,
     TemplateBindingManager templateBindingManager,
     TemplatePlaybackManager templatePlaybackManager,
-    TemplatePublicationManager templatePublicationManager
+    TemplatePublicationManager templatePublicationManager,
+    @Value("${playback.expire.seconds}")
+    long playbackExpireSeconds
   ) {
     super(entityFactory, sqlStoreProvider);
-    playbackExpireSeconds = env.getPlaybackExpireSeconds();
     this.templateBindingManager = templateBindingManager;
     this.templatePlaybackManager = templatePlaybackManager;
     this.templatePublicationManager = templatePublicationManager;
+    this.playbackExpireSeconds = playbackExpireSeconds;
   }
 
   @Override

@@ -17,13 +17,17 @@ import io.xj.hub.service.PreviewNexusAdmin;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.hub.tables.pojos.TemplatePlayback;
-import io.xj.lib.app.AppEnvironment;
+import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.http.HttpClientProvider;
+import io.xj.lib.notification.NotificationProvider;
 import org.assertj.core.util.Lists;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
+import org.junit.jupiter.api.TestInstance;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -51,10 +55,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 public class TemplateManagerDbTest {
-  @Mock
-  private PreviewNexusAdmin previewNexusAdmin;
   private TemplateManager testManager;
   private HubIntegrationTest test;
   private IntegrationTestingFixtures fake;
@@ -63,10 +66,24 @@ public class TemplateManagerDbTest {
   private Template template1b;
   private TemplatePlaybackManager templatePlaybackManager;
 
+  @MockBean
+  PreviewNexusAdmin previewNexusAdmin;
+
+  @MockBean
+  NotificationProvider notificationProvider;
+
+  @MockBean
+  HttpClientProvider httpClientProvider;
+
+  @MockBean
+  FileStoreProvider fileStoreProvider;
+
+  @Autowired
+  HubIntegrationTestFactory integrationTestFactory;
+
   @BeforeEach
   public void setUp() throws Exception {
-    var env = AppEnvironment.getDefault();
-    test = HubIntegrationTestFactory.build(env);
+    test = integrationTestFactory.build();
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
@@ -87,12 +104,12 @@ public class TemplateManagerDbTest {
 
     // Instantiate the test subject
     TemplateBindingManager templateBindingManager = new TemplateBindingManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
-    templatePlaybackManager = new TemplatePlaybackManagerImpl(test.getEnv(), test.getEntityFactory(), test.getSqlStoreProvider(), previewNexusAdmin);
+    templatePlaybackManager = new TemplatePlaybackManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider(), previewNexusAdmin, 300);
     TemplatePublicationManager templatePublicationManager = new TemplatePublicationManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
-    testManager = new TemplateManagerImpl(test.getEnv(), test.getEntityFactory(), test.getSqlStoreProvider(), templateBindingManager, templatePlaybackManager, templatePublicationManager);
+    testManager = new TemplateManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider(), templateBindingManager, templatePlaybackManager, templatePublicationManager, 300);
   }
 
-  @AfterEach
+  @AfterAll
   public void tearDown() {
     test.shutdown();
   }

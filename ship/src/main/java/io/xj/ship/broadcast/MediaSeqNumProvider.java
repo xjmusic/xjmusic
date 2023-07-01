@@ -2,8 +2,8 @@
 
 package io.xj.ship.broadcast;
 
-import io.xj.lib.app.AppEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import static io.xj.lib.util.Values.MILLIS_PER_SECOND;
@@ -15,10 +15,11 @@ public class MediaSeqNumProvider {
 
   @Autowired
   public MediaSeqNumProvider(
-    AppEnvironment env
+    @Value("${ship.chunk.target.duration}") int shipChunkTargetDuration,
+    @Value("${ship.media.sequence.number.offset}") int shipMediaSequenceNumberOffset
   ) {
-    chunkTargetDuration = env.getShipChunkTargetDuration();
-    mediaSeqNumOffset = env.getShipMediaSequenceNumberOffset();
+    this.chunkTargetDuration = shipChunkTargetDuration;
+    this.mediaSeqNumOffset = shipMediaSequenceNumberOffset;
   }
 
   /**

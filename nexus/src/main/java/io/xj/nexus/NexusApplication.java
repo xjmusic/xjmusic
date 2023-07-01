@@ -3,12 +3,12 @@ package io.xj.nexus;
 import ch.qos.logback.classic.LoggerContext;
 import io.xj.hub.HubTopology;
 import io.xj.lib.app.AppConfiguration;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.nexus.work.NexusWork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
@@ -28,16 +28,22 @@ import java.util.Objects;
 public class NexusApplication {
   final Logger LOG = LoggerFactory.getLogger(NexusApplication.class);
   private final EntityFactory entityFactory;
-  private final AppEnvironment env;
   private final AppConfiguration config;
   private final NexusWork work;
+  private final String hostname;
+  private final String platformEnvironment;
 
   @Autowired
-  public NexusApplication(EntityFactory entityFactory, AppEnvironment env, AppConfiguration config, NexusWork work) {
+  public NexusApplication(
+    EntityFactory entityFactory, AppConfiguration config, NexusWork work,
+    @Value("${hostname}") String hostname,
+    @Value("${platform.environment}") String platformEnvironment
+    ) {
     this.entityFactory = entityFactory;
-    this.env = env;
     this.config = config;
     this.work = work;
+    this.hostname = hostname;
+    this.platformEnvironment = platformEnvironment;
   }
 
   @EventListener(ContextRefreshedEvent.class)
@@ -47,8 +53,8 @@ public class NexusApplication {
     lc.setPackagingDataEnabled(true);
     lc.putProperty("source", "java");
     lc.putProperty("service", "nexus");
-    lc.putProperty("host", env.getHostname());
-    lc.putProperty("env", env.getPlatformEnvironment());
+    lc.putProperty("host", hostname);
+    lc.putProperty("env", platformEnvironment);
 
     // Setup Entity topology
     HubTopology.buildHubApiTopology(entityFactory);

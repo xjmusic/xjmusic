@@ -12,7 +12,6 @@ import io.xj.hub.persistence.HubPersistenceException;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.kv.HubKvStoreProvider;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityStore;
 import io.xj.lib.json.ApiUrlProvider;
@@ -38,7 +37,6 @@ import java.util.UUID;
  */
 public class HubIntegrationTest extends HubPersistenceServiceImpl {
   final Logger log = LoggerFactory.getLogger(HubIntegrationTest.class);
-  private final AppEnvironment env;
   private final ApiUrlProvider apiUrlProvider;
   private final HubKvStoreProvider kvStoreProvider;
   private final GoogleProvider googleProvider;
@@ -52,7 +50,6 @@ public class HubIntegrationTest extends HubPersistenceServiceImpl {
    * This should happen only once for a whole test suite
    */
   public HubIntegrationTest(
-    AppEnvironment env,
     ApiUrlProvider apiUrlProvider,
     EntityFactory entityFactory,
     GoogleProvider googleProvider,
@@ -64,7 +61,6 @@ public class HubIntegrationTest extends HubPersistenceServiceImpl {
     JsonapiPayloadFactory jsonapiPayloadFactory
   ) {
     super(entityFactory, sqlStoreProvider);
-    this.env = env;
     this.apiUrlProvider = apiUrlProvider;
     this.entityStore = entityFactory.createEntityStore();
     this.googleProvider = googleProvider;
@@ -103,12 +99,12 @@ public class HubIntegrationTest extends HubPersistenceServiceImpl {
    * Runs on program exit
    */
   public void shutdown() {
-    try {
-      sqlStoreProvider.shutdown();
-    } catch (Exception e) {
-      log.error("Failed to shutdown SQL connection", e);
-    }
-    log.debug("Did close master connection to integration database.");
+//    try {
+//      sqlStoreProvider.shutdown();
+//    } catch (Exception e) {
+//      log.error("Failed to shutdown SQL connection", e);
+//    }
+//    log.debug("Did close master connection to integration database.");
   }
 
   /**
@@ -224,11 +220,6 @@ public class HubIntegrationTest extends HubPersistenceServiceImpl {
     // no op
     return entity;
   }
-
-  public AppEnvironment getEnv() {
-    return env;
-  }
-
   public ApiUrlProvider getApiUrlProvider() {
     return apiUrlProvider;
   }

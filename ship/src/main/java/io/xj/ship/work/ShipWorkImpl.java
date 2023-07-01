@@ -2,7 +2,6 @@
 package io.xj.ship.work;
 
 import com.google.common.base.Strings;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.util.Text;
 import io.xj.nexus.persistence.ChainManager;
@@ -18,6 +17,7 @@ import io.xj.ship.broadcast.StreamWriter;
 import io.xj.ship.source.SegmentAudioManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
@@ -79,7 +79,6 @@ public class ShipWorkImpl implements ShipWork {
   private final String envName;
 
   public ShipWorkImpl(
-    AppEnvironment env,
     BroadcastFactory broadcastFactory,
     ChainManager chainManager,
     ChunkFactory chunkFactory,
@@ -87,7 +86,20 @@ public class ShipWorkImpl implements ShipWork {
     MediaSeqNumProvider mediaSeqNumProvider,
     NotificationProvider notificationProvider,
     PlaylistPublisher playlistPublisher,
-    SegmentAudioManager segmentAudioManager
+    SegmentAudioManager segmentAudioManager,
+    @Nullable @Value("${ship.key}") String shipKey,
+    @Value("${environment}") String environment,
+    @Value("${ship.chunk.target.duration}") int shipChunkTargetDuration,
+    @Value("${work.cycle.millis}") int workCycleMillis,
+    @Value("${work.health.cycle.staleness.threshold.seconds}") int workHealthCycleStalenessThresholdSeconds,
+    @Value("${work.janitor.cycle.seconds}") int workJanitorCycleSeconds,
+    @Value("${work.janitor.enabled}") boolean isWorkJanitorEnabled,
+    @Value("${ship.load.cycle.seconds}") int shipLoadCycleSeconds,
+    @Value("${ship.mix.cycle.seconds}") int shipMixCycleSeconds,
+    @Value("${work.publish.cycle.seconds}") int workPublishCycleSeconds,
+    @Value("${ship.playlist.ahead.seconds}") int shipPlaylistAheadSeconds,
+    @Value("${work.telemetry.cycle.seconds}") int workTelemetryCycleSeconds,
+    @Value("${telemetry.enabled}") boolean isTelemetryEnabled
   ) {
     this.broadcastFactory = broadcastFactory;
     this.chainManager = chainManager;
@@ -97,25 +109,25 @@ public class ShipWorkImpl implements ShipWork {
     this.notificationProvider = notificationProvider;
     this.playlistPublisher = playlistPublisher;
     this.segmentAudioManager = segmentAudioManager;
-    envName = env.getWorkEnvironmentName();
+    this.envName = Text.toProper(environment);
 
-    shipKey = env.getShipKey();
+    this.shipKey = shipKey;
     if (Strings.isNullOrEmpty(shipKey)) {
       LOG.error("Cannot start with null or empty ship key!");
       active.set(false);
     }
 
-    chunkTargetDuration = env.getShipChunkTargetDuration();
-    cycleMillis = env.getWorkCycleMillis();
-    healthCycleStalenessThresholdMillis = env.getWorkHealthCycleStalenessThresholdSeconds() * MILLIS_PER_SECOND;
-    janitorCycleSeconds = env.getWorkJanitorCycleSeconds();
-    janitorEnabled = env.isWorkJanitorEnabled();
-    loadCycleSeconds = env.getShipLoadCycleSeconds();
-    mixCycleSeconds = env.getShipMixCycleSeconds();
-    publishCycleSeconds = env.getWorkPublishCycleSeconds();
-    shipAheadMillis = env.getShipPlaylistAheadSeconds() * MILLIS_PER_SECOND;
-    telemetryCycleSeconds = env.getWorkTelemetryCycleSeconds();
-    telemetryEnabled = env.isTelemetryEnabled();
+    this.chunkTargetDuration = shipChunkTargetDuration;
+    this.cycleMillis = workCycleMillis;
+    this.healthCycleStalenessThresholdMillis = workHealthCycleStalenessThresholdSeconds * MILLIS_PER_SECOND;
+    this.janitorCycleSeconds = workJanitorCycleSeconds;
+    this.janitorEnabled = isWorkJanitorEnabled;
+    this.loadCycleSeconds = shipLoadCycleSeconds;
+    this.mixCycleSeconds = shipMixCycleSeconds;
+    this.publishCycleSeconds = workPublishCycleSeconds;
+    this.shipAheadMillis = shipPlaylistAheadSeconds * MILLIS_PER_SECOND;
+    this.telemetryCycleSeconds = workTelemetryCycleSeconds;
+    this.telemetryEnabled = isTelemetryEnabled;
 
     audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
       48000,

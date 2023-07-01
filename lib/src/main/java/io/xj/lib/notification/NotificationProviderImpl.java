@@ -5,10 +5,10 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSAsyncClientBuilder;
-import io.xj.lib.app.AppEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
@@ -32,21 +32,26 @@ public class NotificationProviderImpl implements NotificationProvider {
 
   @Autowired
   public NotificationProviderImpl(
-    AppEnvironment env
+    @Value("${aws.default.region}")
+    String awsDefaultRegion,
+    @Value("${aws.access.key.id}")
+    String awsAccessKeyId,
+    @Value("${aws.secret.key}")
+    String awsSecretKey,
+    @Value("${aws.sns.topic.arn}")
+    String awsSnsTopicArn
   ) {
-    awsDefaultRegion = env.getAwsDefaultRegion();
-    awsAccessKeyId = env.getAwsAccessKeyID();
-    awsSecretKey = env.getAwsSecretKey();
-
+    this.awsAccessKeyId = awsAccessKeyId;
+    this.awsDefaultRegion = awsDefaultRegion;
+    this.awsSecretKey = awsSecretKey;
     // If not configured, will warn instead of publishing
-    if (0 < env.getAwsSnsTopicArn().length()) {
-      topicArn = env.getAwsSnsTopicArn();
+    if (0 < awsSnsTopicArn.length()) {
+      topicArn = awsSnsTopicArn;
       LOG.info("Will publish notifications to {}", topicArn);
     } else {
       topicArn = null;
       LOG.info("Will not publish notifications because environment has no aws snsTopicArn");
     }
-
   }
 
   /**

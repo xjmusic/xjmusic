@@ -1,12 +1,17 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.access;
 
+import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.http.HttpClientProvider;
+import io.xj.lib.notification.NotificationProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
@@ -14,6 +19,15 @@ import static org.junit.Assert.assertNotSame;
 @SpringBootTest
 public class HubLocalAccessTokenTest {
   private HubAccessTokenGenerator hubAccessTokenGenerator;
+
+  @MockBean
+  NotificationProvider notificationProvider;
+
+  @MockBean
+  FileStoreProvider fileStoreProvider;
+
+  @MockBean
+  HttpClientProvider httpClientProvider;
 
   @BeforeEach
   public void setUp() throws Exception {

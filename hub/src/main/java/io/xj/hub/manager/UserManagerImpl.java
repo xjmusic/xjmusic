@@ -23,7 +23,6 @@ import io.xj.hub.tables.pojos.UserAuthToken;
 import io.xj.hub.tables.records.UserAuthRecord;
 import io.xj.hub.tables.records.UserAuthTokenRecord;
 import io.xj.hub.tables.records.UserRecord;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.ValueException;
@@ -33,6 +32,8 @@ import org.jooq.Result;
 import org.jooq.SelectSelectStep;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
@@ -51,11 +52,10 @@ import static io.xj.hub.Tables.USER_AUTH_TOKEN;
 @Service
 public class UserManagerImpl extends HubPersistenceServiceImpl implements UserManager {
   private static final Logger LOG = LoggerFactory.getLogger(UserManagerImpl.class);
-  private final String sessionNamespace;
   private final HubKvStoreProvider hubKvStoreProvider;
   private final HubAccessTokenGenerator hubAccessTokenGenerator;
   private final GoogleProvider googleProvider;
-
+  private final String sessionNamespace;
   private final String tokenName;
   private final String tokenDomain;
   private final String tokenPath;
@@ -63,25 +63,37 @@ public class UserManagerImpl extends HubPersistenceServiceImpl implements UserMa
   private final Set<String> internalTokens;
   private static final Logger log = LoggerFactory.getLogger(UserManagerImpl.class);
 
+  @Autowired
   public UserManagerImpl(
-    AppEnvironment env,
     EntityFactory entityFactory,
     GoogleProvider googleProvider,
     HubAccessTokenGenerator hubAccessTokenGenerator,
     HubSqlStoreProvider sqlStoreProvider,
-    HubKvStoreProvider hubKvStoreProvider
+    HubKvStoreProvider hubKvStoreProvider,
+    @Value("${session.namespace}")
+    String sessionNamespace,
+    @Value("${access.token.name}")
+    String tokenName,
+    @Value("${access.token.domain}")
+    String tokenDomain,
+    @Value("${access.token.path}")
+    String tokenPath,
+    @Value("${access.token.max.age}")
+    int tokenMaxAge,
+    @Value("${ingest.token.value}")
+    String ingestTokenValue
   ) {
     super(entityFactory, sqlStoreProvider);
     this.hubKvStoreProvider = hubKvStoreProvider;
     this.hubAccessTokenGenerator = hubAccessTokenGenerator;
     this.googleProvider = googleProvider;
+    this.sessionNamespace = sessionNamespace;
+    this.tokenName = tokenName;
+    this.tokenDomain = tokenDomain;
+    this.tokenPath = tokenPath;
+    this.tokenMaxAge = tokenMaxAge;
 
-    sessionNamespace = env.getSessionNamespace();
-    tokenName = env.getAccessTokenName();
-    tokenDomain = env.getAccessTokenDomain();
-    tokenPath = env.getAccessTokenPath();
-    tokenMaxAge = env.getAccessTokenMaxAgeSeconds();
-    internalTokens = ImmutableSet.of(env.getIngestTokenValue());
+    internalTokens = ImmutableSet.of(ingestTokenValue);
   }
 
   /**

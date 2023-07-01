@@ -8,10 +8,10 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.google.common.base.Strings;
-import io.xj.lib.app.AppEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
@@ -29,6 +29,7 @@ import static io.xj.lib.util.Values.NANOS_PER_SECOND;
 @Service
 class FileStoreProviderImpl implements FileStoreProvider {
   private static final Logger log = LoggerFactory.getLogger(FileStoreProviderImpl.class);
+
   private final String awsDefaultRegion;
   private final String audioUploadUrl;
   private final String awsAccessKeyId;
@@ -40,17 +41,29 @@ class FileStoreProviderImpl implements FileStoreProvider {
 
   @Autowired
   public FileStoreProviderImpl(
-    AppEnvironment env
+    @Value("${aws.default.region}")
+    String awsDefaultRegion,
+    @Value("${audio.upload.url}")
+    String audioUploadUrl,
+    @Value("${aws.access.key.id}")
+    String awsAccessKeyId,
+    @Value("${aws.secret.key}")
+    String awsSecretKey,
+    @Value("${audio.file.bucket}")
+    String audioFileBucket,
+    @Value("${aws.upload.expire.minutes}")
+    int awsFileUploadExpireMinutes,
+    @Value("${aws.file.upload.acl}")
+    String fileUploadACL
   ) {
-    audioFileBucket = env.getAudioFileBucket();
-    audioUploadUrl = env.getAudioUploadURL();
-    awsAccessKeyId = env.getAwsAccessKeyID();
-    awsDefaultRegion = env.getAwsDefaultRegion();
-    awsFileUploadExpireMinutes = env.getAwsUploadExpireMinutes();
-    awsSecretKey = env.getAwsSecretKey();
-    fileUploadACL = env.getAwsFileUploadACL();
-
     active = !Strings.isNullOrEmpty(awsAccessKeyId) && !Strings.isNullOrEmpty(awsSecretKey);
+    this.awsDefaultRegion = awsDefaultRegion;
+    this.audioUploadUrl = audioUploadUrl;
+    this.awsAccessKeyId = awsAccessKeyId;
+    this.awsSecretKey = awsSecretKey;
+    this.audioFileBucket = audioFileBucket;
+    this.awsFileUploadExpireMinutes = awsFileUploadExpireMinutes;
+    this.fileUploadACL = fileUploadACL;
   }
 
   /**

@@ -3,10 +3,8 @@
 package io.xj.ship.broadcast;
 
 import com.google.api.client.util.Lists;
-import com.google.common.collect.ImmutableMap;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Template;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.filestore.FileStoreProvider;
@@ -71,7 +69,6 @@ public class ChunkMixerImplTest {
 
   @Before
   public void setUp() {
-    AppEnvironment env = AppEnvironment.from(ImmutableMap.of("SHIP_KEY", "coolair"));
     Account account1 = buildAccount("Testing");
     Template template1 = buildTemplate(account1, "fonds", "ABC");
     Chain chain1 = buildChain(
@@ -102,16 +99,15 @@ public class ChunkMixerImplTest {
       48000,
       false);
 
-    HttpClientProvider httpClientProvider = new HttpClientProviderImpl(env);
+    HttpClientProvider httpClientProvider = new HttpClientProviderImpl(1,1);
     JsonProvider jsonProvider = new JsonProviderImpl();
     EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     NexusEntityStore nexusEntityStore = new NexusEntityStoreImpl(entityFactory);
     SegmentManager segmentManager = new SegmentManagerImpl(entityFactory, nexusEntityStore);
-    SegmentAudioCache cache = new SegmentAudioCacheImpl(env, httpClientProvider);
-    FilePathProvider filePathProvider = new FilePathProviderImpl(env);
+    SegmentAudioCache cache = new SegmentAudioCacheImpl(httpClientProvider,"","","");
+    FilePathProvider filePathProvider = new FilePathProviderImpl("");
     segmentAudioManager = new SegmentAudioManagerImpl(
-      env,
       nexusEntityStore,
       filePathProvider,
       cache,
@@ -120,12 +116,14 @@ public class ChunkMixerImplTest {
       httpClientProvider,
       jsonProvider,
       jsonapiPayloadFactory,
-      segmentManager
+      segmentManager,false,1,1
     );
-    ChunkFactory chunkFactory = new ChunkFactoryImpl(env);
-    MediaSeqNumProvider mediaSeqNumProvider = new MediaSeqNumProvider(env);
-    PlaylistPublisher playlistPublisher = new PlaylistPublisherImpl(env, chunkFactory, fileStoreProvider, httpClientProvider, mediaSeqNumProvider, telemetryProvider);
-    BroadcastFactory broadcast = new BroadcastFactoryImpl(env, playlistPublisher, fileStoreProvider, notificationProvider, segmentAudioManager);
+    ChunkFactory chunkFactory = new ChunkFactoryImpl("aac", 10);
+    MediaSeqNumProvider mediaSeqNumProvider = new MediaSeqNumProvider(1,1);
+    PlaylistPublisher playlistPublisher = new PlaylistPublisherImpl(chunkFactory, fileStoreProvider, httpClientProvider, mediaSeqNumProvider, telemetryProvider,
+      "","",1,"",1,1,1,"",
+      1,"","","");
+    BroadcastFactory broadcast = new BroadcastFactoryImpl(playlistPublisher, fileStoreProvider, notificationProvider, segmentAudioManager);
 
     Chunk chunk = chunkFactory.build(SHIP_KEY, 151304042L, "mp3", null);
 

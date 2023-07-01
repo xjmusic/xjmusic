@@ -13,12 +13,16 @@ import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreImpl;
+import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
+import io.xj.lib.notification.NotificationProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.List;
 
@@ -42,6 +46,12 @@ public class HubIngestImplTest {
   TemplateBindingManager templateBindingManager;
   @Mock
   EntityStore entityStore;
+  @MockBean
+  NotificationProvider notificationProvider;
+  @MockBean
+  FileStoreProvider fileStoreProvider;
+  @MockBean
+  HttpClientProvider httpClientProvider;
 
   @Test
   public void instantiateWithUUIDs() throws Exception {

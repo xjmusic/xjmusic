@@ -12,45 +12,62 @@ import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.ProgramVoice;
-import io.xj.lib.app.AppEnvironment;
-import org.junit.jupiter.api.AfterEach;
+import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.http.HttpClientProvider;
+import io.xj.lib.notification.NotificationProvider;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.TestInstance;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.UUID;
 
-import static io.xj.hub.IntegrationTestingFixtures.*;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequence;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequencePattern;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequencePatternEvent;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramVoice;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramVoiceTrack;
+import static io.xj.hub.IntegrationTestingFixtures.buildUser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // future test: permissions of different users to readMany vs. of vs. update or destroy programs
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 public class ProgramSequencePatternManagerDbTest {
   private ProgramSequencePatternManager subjectManager;
-
   private HubIntegrationTest test;
   private IntegrationTestingFixtures fake;
-
   private ProgramVoice programVoice3;
   private ProgramVoice programVoice1;
 
+  @MockBean
+  NotificationProvider notificationProvider;
+
+  @MockBean
+  HttpClientProvider httpClientProvider;
+
+  @MockBean
+  FileStoreProvider fileStoreProvider;
+
+  @Autowired
+  HubIntegrationTestFactory integrationTestFactory;
+
   @BeforeEach
   public void setUp() throws Exception {
-    var env = AppEnvironment.getDefault();
-
-    test = HubIntegrationTestFactory.build(env);
+    test = integrationTestFactory.build();
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
@@ -89,7 +106,7 @@ public class ProgramSequencePatternManagerDbTest {
     subjectManager = new ProgramSequencePatternManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
   }
 
-  @AfterEach
+  @AfterAll
   public void tearDown() {
     test.shutdown();
   }

@@ -4,7 +4,6 @@ package io.xj.ship.source;
 
 
 import io.xj.hub.enums.TemplateType;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.http.HttpClientProvider;
@@ -80,17 +79,15 @@ public class SegmentAudioTest {
     segment1.setWaveformPreroll(1.7306228);
     segment1.setWaveformPostroll(1.205893);
 
-    var env = AppEnvironment.getDefault();
-    HttpClientProvider httpClientProvider = new HttpClientProviderImpl(env);
+    HttpClientProvider httpClientProvider = new HttpClientProviderImpl(1,1);
     JsonProvider jsonProvider = new JsonProviderImpl();
     EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     NexusEntityStore nexusEntityStore = new NexusEntityStoreImpl(entityFactory);
     SegmentManager segmentManager = new SegmentManagerImpl(entityFactory, nexusEntityStore);
-    SegmentAudioCache cache = new SegmentAudioCacheImpl(env, httpClientProvider);
-    FilePathProvider filePathProvider = new FilePathProviderImpl(env);
+    SegmentAudioCache cache = new SegmentAudioCacheImpl(httpClientProvider,"","","");
+    FilePathProvider filePathProvider = new FilePathProviderImpl("");
     segmentAudioManager = new SegmentAudioManagerImpl(
-      env,
       nexusEntityStore,
       filePathProvider,
       cache,
@@ -99,7 +96,7 @@ public class SegmentAudioTest {
       httpClientProvider,
       jsonProvider,
       jsonapiPayloadFactory,
-      segmentManager
+      segmentManager,false,1,1
     );
 
     String sourcePath = new InternalResource("ogg_decoding/coolair-1633586832900943.wav").getFile().getAbsolutePath();

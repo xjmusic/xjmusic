@@ -1,7 +1,6 @@
 package io.xj.nexus.fabricator;
 
 import io.xj.hub.client.HubContent;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.nexus.NexusException;
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class FabricatorFactoryImpl implements FabricatorFactory {
-  private final AppEnvironment env;
   private final ChainManager chainManager;
   private final JsonapiPayloadFactory jsonapiPayloadFactory;
   private final SegmentManager segmentManager;
@@ -24,7 +22,6 @@ public class FabricatorFactoryImpl implements FabricatorFactory {
 
   @Autowired
   public FabricatorFactoryImpl(
-    AppEnvironment env,
     ChainManager chainManager,
     SegmentManager segmentManager,
     JsonapiPayloadFactory jsonapiPayloadFactory,
@@ -32,7 +29,6 @@ public class FabricatorFactoryImpl implements FabricatorFactory {
     FilePathProvider filePathProvider
   ) {
     this.chainManager = chainManager;
-    this.env = env;
     this.jsonProvider = jsonProvider;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     this.segmentManager = segmentManager;
@@ -41,7 +37,7 @@ public class FabricatorFactoryImpl implements FabricatorFactory {
 
   @Override
   public Fabricator fabricate(HubContent sourceMaterial, Segment segment) throws NexusException, FabricationFatalException {
-    return new FabricatorImpl(env, sourceMaterial, segment, chainManager, this, segmentManager, jsonapiPayloadFactory, jsonProvider);
+    return new FabricatorImpl(sourceMaterial, segment, chainManager, this, segmentManager, jsonapiPayloadFactory, jsonProvider,false);
   }
 
   @Override

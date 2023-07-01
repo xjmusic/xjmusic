@@ -2,7 +2,6 @@
 package io.xj.lib.mixer.demo;
 
 
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.mixer.*;
 import io.xj.lib.notification.NotificationProvider;
 import org.junit.Test;
@@ -67,9 +66,8 @@ public class DemoIT {
   NotificationProvider notificationProvider;
 
   public DemoIT() {
-    AppEnvironment env = AppEnvironment.getDefault();
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    this.mixerFactory = new MixerFactoryImpl(env, envelopeProvider, notificationProvider);
+    this.mixerFactory = new MixerFactoryImpl(envelopeProvider, notificationProvider, "development");
   }
 
   /**

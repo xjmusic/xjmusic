@@ -2,11 +2,11 @@
 
 package io.xj.lib.http;
 
-import io.xj.lib.app.AppEnvironment;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,11 +15,14 @@ public class HttpClientProviderImpl implements HttpClientProvider {
 
   @Autowired
   public HttpClientProviderImpl(
-    AppEnvironment env
+    @Value("${http.client.pool.max.total}")
+    int httpClientPoolMaxTotal,
+    @Value("${http.client.pool.max.per.route}")
+    int httpClientPoolMaxPerRoute
   ) {
     cm = new PoolingHttpClientConnectionManager();
-    cm.setMaxTotal(env.getHttpClientPoolMaxTotal());
-    cm.setDefaultMaxPerRoute(env.getHttpClientPoolMaxPerRoute());
+    cm.setMaxTotal(httpClientPoolMaxTotal);
+    cm.setDefaultMaxPerRoute(httpClientPoolMaxPerRoute);
   }
 
   @Override

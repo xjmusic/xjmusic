@@ -9,7 +9,6 @@ import io.xj.hub.service.PreviewNexusAdmin;
 import io.xj.hub.service.ServiceException;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplatePlayback;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
@@ -18,6 +17,8 @@ import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
@@ -37,16 +38,17 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl imple
   private final PreviewNexusAdmin previewNexusAdmin;
   private final long playbackExpireSeconds;
 
+  @Autowired
   public TemplatePlaybackManagerImpl(
-    AppEnvironment env,
     EntityFactory entityFactory,
     HubSqlStoreProvider sqlStoreProvider,
-    PreviewNexusAdmin previewNexusAdmin
+    PreviewNexusAdmin previewNexusAdmin,
+    @Value("${playback.expire.seconds}")
+    long playbackExpireSeconds
   ) {
     super(entityFactory, sqlStoreProvider);
     this.previewNexusAdmin = previewNexusAdmin;
-
-    playbackExpireSeconds = env.getPlaybackExpireSeconds();
+    this.playbackExpireSeconds = playbackExpireSeconds;
   }
 
   @Override

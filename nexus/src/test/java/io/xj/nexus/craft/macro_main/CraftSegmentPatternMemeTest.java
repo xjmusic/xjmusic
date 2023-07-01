@@ -7,7 +7,6 @@ import io.xj.hub.HubTopology;
 import io.xj.hub.client.HubClient;
 import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.ProgramType;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.ApiUrlProvider;
@@ -68,25 +67,22 @@ public class CraftSegmentPatternMemeTest {
   public void craftSegment() throws Exception {
     for (int i = 1; i <= TEST_REPEAT_ITERATIONS; i++) {
       LOG.info("ATTEMPT NUMBER {}", i);
-      AppEnvironment env = AppEnvironment.getDefault();
 
-      ApiUrlProvider apiUrlProvider = new ApiUrlProvider(env);
+      ApiUrlProvider apiUrlProvider = new ApiUrlProvider("");
       CraftFactory craftFactory = new CraftFactoryImpl(apiUrlProvider);
       var jsonProvider = new JsonProviderImpl();
       var entityFactory = new EntityFactoryImpl(jsonProvider);
       var store = new NexusEntityStoreImpl(entityFactory);
       var segmentManager = new SegmentManagerImpl(entityFactory, store);
       var chainManager = new ChainManagerImpl(
-        env,
         entityFactory,
         store,
         segmentManager,
-        notificationProvider
+        notificationProvider,1,1
       );
       JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-      var filePathProvider = new FilePathProviderImpl(env);
+      var filePathProvider = new FilePathProviderImpl("");
       FabricatorFactory fabricatorFactory = new FabricatorFactoryImpl(
-        env,
         chainManager,
         segmentManager,
         jsonapiPayloadFactory,

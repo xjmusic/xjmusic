@@ -8,14 +8,15 @@ import io.xj.hub.enums.*;
 import io.xj.hub.ingest.HubIngest;
 import io.xj.hub.ingest.HubIngestFactory;
 import io.xj.hub.tables.pojos.*;
-import io.xj.lib.app.AppEnvironment;
+import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.http.HttpClientProvider;
+import io.xj.lib.notification.NotificationProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.List;
 
@@ -31,6 +32,12 @@ public class HubAnalysisTest {
   HubIngestFactory hubIngestFactory;
   @Mock
   HubIngest hubIngest;
+  @MockBean
+  NotificationProvider notificationProvider;
+  @MockBean
+  FileStoreProvider fileStoreProvider;
+  @MockBean
+  HttpClientProvider httpClientProvider;
   private Template template;
   private HubAccess access;
 
@@ -102,7 +109,7 @@ public class HubAnalysisTest {
 
   @Test
   public void analysis_toHTML() throws Exception {
-    Report subject = new HubAnalysisFactoryImpl(AppEnvironment.getDefault(), hubIngestFactory).report(access, template.getId(), Report.Type.Memes);
+    Report subject = new HubAnalysisFactoryImpl(hubIngestFactory).report(access, template.getId(), Report.Type.Memes);
 
     var result = subject.toHTML();
 

@@ -9,6 +9,9 @@ import io.xj.hub.service.PreviewNexusAdmin;
 import io.xj.hub.manager.UserManager;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.lib.app.AppException;
+import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.http.HttpClientProvider;
+import io.xj.lib.notification.NotificationProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,16 +37,20 @@ import static org.mockito.Mockito.when;
 public class AuthControllerTest {
   @LocalServerPort
   private int port;
-
   @Autowired
   private TestRestTemplate restTemplate;
-
   @SuppressWarnings("unused")
   @MockBean
   private PreviewNexusAdmin previewNexusAdmin;
-
   @MockBean
   UserManager userManager;
+  @MockBean
+  NotificationProvider notificationProvider;
+  @MockBean
+  FileStoreProvider fileStoreProvider;
+  @MockBean
+  HttpClientProvider httpClientProvider;
+
   private HubAccess access;
 
   @BeforeEach

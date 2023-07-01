@@ -24,14 +24,17 @@ import io.xj.hub.manager.TemplatePlaybackManagerImpl;
 import io.xj.hub.manager.TemplatePublicationManager;
 import io.xj.hub.manager.TemplatePublicationManagerImpl;
 import io.xj.hub.service.PreviewNexusAdmin;
-import io.xj.lib.app.AppEnvironment;
-import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.http.HttpClientProvider;
+import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.util.Text;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
+import org.junit.jupiter.api.TestInstance;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Collection;
 import java.util.Map;
@@ -44,14 +47,27 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 public class HubIngestIT {
 
   private HubIngestFactory ingestFactory;
   private HubIntegrationTest test;
   private IntegrationTestingFixtures fake;
-  @Mock
+  @MockBean
   private PreviewNexusAdmin previewNexusAdmin;
+
+  @MockBean
+  NotificationProvider notificationProvider;
+
+  @MockBean
+  HttpClientProvider httpClientProvider;
+
+  @MockBean
+  FileStoreProvider fileStoreProvider;
+
+  @Autowired
+  HubIntegrationTestFactory integrationTestFactory;
 
   private static Map<String, Integer> classTally(Collection<Object> allEntities) {
     Map<String, Integer> out = Maps.newHashMap();
@@ -64,8 +80,7 @@ public class HubIngestIT {
 
   @BeforeEach
   public void setUp() throws Exception {
-    var env = AppEnvironment.getDefault();
-    test = HubIntegrationTestFactory.build(env);
+    test = integrationTestFactory.build();
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
@@ -73,13 +88,13 @@ public class HubIngestIT {
     InstrumentManager instrumentManager = new InstrumentManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
     ProgramManager programManager = new ProgramManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
     TemplateBindingManager templateBindingManager = new TemplateBindingManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
-    TemplatePlaybackManager templatePlaybackManager = new TemplatePlaybackManagerImpl(env, test.getEntityFactory(), test.getSqlStoreProvider(), previewNexusAdmin);
+    TemplatePlaybackManager templatePlaybackManager = new TemplatePlaybackManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider(), previewNexusAdmin, 300);
     TemplatePublicationManager templatePublicationManager = new TemplatePublicationManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
-    TemplateManager templateManager = new TemplateManagerImpl(test.getEnv(), test.getEntityFactory(), test.getSqlStoreProvider(), templateBindingManager, templatePlaybackManager, templatePublicationManager);
+    TemplateManager templateManager = new TemplateManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider(), templateBindingManager, templatePlaybackManager, templatePublicationManager, 300);
     ingestFactory = new HubIngestFactoryImpl(test.getEntityFactory(), test.getJsonProvider(), instrumentManager, programManager, templateManager, templateBindingManager);
   }
 
-  @AfterEach
+  @AfterAll
   public void tearDown() {
     test.shutdown();
   }

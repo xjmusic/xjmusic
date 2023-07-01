@@ -3,7 +3,6 @@
 package io.xj.ship.broadcast;
 
 
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.util.Values;
 
 import javax.annotation.Nullable;
@@ -32,22 +31,24 @@ public class Chunk {
   private final long toSecondsUTC;
 
   public Chunk(
-    AppEnvironment env, String shipKey,
+    String shipKey,
     Long sequenceNumber,
     @Nullable String fileExtension,
-    @Nullable Double actualDuration
+    @Nullable Double actualDuration,
+    String shipChunkAudioEncoder,
+    int shipChunkTargetDuration
   ) {
     this.sequenceNumber = sequenceNumber;
     this.fileExtension = Objects.nonNull(fileExtension)
       ? fileExtension
-      : env.getShipChunkAudioEncoder();
+      : shipChunkAudioEncoder;
     this.shipKey = shipKey;
     this.actualDuration = Objects.nonNull(actualDuration)
       ? actualDuration
-      : env.getShipChunkTargetDuration();
+      : shipChunkTargetDuration;
 
-    fromSecondsUTC = sequenceNumber * env.getShipChunkTargetDuration(); // seq num to time ratio always based on target duration, not actual
-    toSecondsUTC = fromSecondsUTC + env.getShipChunkTargetDuration();
+    fromSecondsUTC = sequenceNumber * shipChunkTargetDuration; // seq num to time ratio always based on target duration, not actual
+    toSecondsUTC = fromSecondsUTC + shipChunkTargetDuration;
     fromInstant = Instant.ofEpochSecond(fromSecondsUTC);
     toInstant = fromInstant.plusNanos((long) (this.actualDuration * NANOS_PER_SECOND));
   }

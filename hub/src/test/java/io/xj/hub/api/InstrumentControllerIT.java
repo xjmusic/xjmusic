@@ -14,15 +14,19 @@ import io.xj.hub.manager.InstrumentManagerImpl;
 import io.xj.hub.manager.InstrumentMemeManager;
 import io.xj.hub.manager.InstrumentMemeManagerImpl;
 import io.xj.hub.manager.ManagerException;
-import io.xj.lib.app.AppEnvironment;
+import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.PayloadDataType;
-import org.junit.jupiter.api.AfterEach;
+import io.xj.lib.notification.NotificationProvider;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
+import org.junit.jupiter.api.TestInstance;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 
 import javax.servlet.http.HttpServletRequest;
@@ -40,19 +44,32 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 public class InstrumentControllerIT {
-  @Mock
-  HttpServletRequest req;
   private InstrumentController subject;
   private HubIntegrationTest test;
   private IntegrationTestingFixtures fake;
   private JsonapiPayloadFactory jsonapiPayloadFactory;
 
+  @MockBean
+  HttpServletRequest req;
+
+  @MockBean
+  NotificationProvider notificationProvider;
+
+  @MockBean
+  HttpClientProvider httpClientProvider;
+
+  @MockBean
+  FileStoreProvider fileStoreProvider;
+
+  @Autowired
+  HubIntegrationTestFactory integrationTestFactory;
+
   @BeforeEach
   public void setUp() throws Exception {
-    var env = AppEnvironment.getDefault();
-    test = HubIntegrationTestFactory.build(env);
+    test = integrationTestFactory.build();
     fake = new IntegrationTestingFixtures(test);
     //
     test.reset();
@@ -75,7 +92,7 @@ public class InstrumentControllerIT {
   }
 
   //
-  @AfterEach
+  @AfterAll
   public void tearDown() {
     test.shutdown();
   }

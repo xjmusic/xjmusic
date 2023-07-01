@@ -2,7 +2,6 @@
 package io.xj.lib.mixer;
 
 
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.notification.NotificationProvider;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,9 +21,8 @@ public class PutImplTest {
 
   @Before
   public void setUp() throws Exception {
-    AppEnvironment env = new AppEnvironment();
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    MixerFactory mixerFactory = new MixerFactoryImpl(env, envelopeProvider, notificationProvider);
+    MixerFactory mixerFactory = new MixerFactoryImpl(envelopeProvider, notificationProvider, "development");
     testPut = mixerFactory.createPut(0, "bun1", 1000000, 2000000, 1.0, 0, 5);
   }
 

@@ -1,27 +1,33 @@
 package io.xj.nexus.dub;
 
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.nexus.NexusException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
 @Service
 public class DubAudioCacheItemFactoryImpl implements DubAudioCacheItemFactory {
-  private final AppEnvironment env;
   private final HttpClientProvider httpClientProvider;
+  private final String audioFileBucket;
+  private final String audioBaseUrl;
 
   @Autowired
-  public DubAudioCacheItemFactoryImpl(AppEnvironment env, HttpClientProvider httpClientProvider) {
-    this.env = env;
+  public DubAudioCacheItemFactoryImpl(
+    HttpClientProvider httpClientProvider,
+    @Value("${audio.file.bucket}") String audioFileBucket,
+    @Value("${audio.base.url}") String audioBaseUrl
+  ) {
     this.httpClientProvider = httpClientProvider;
+    this.audioFileBucket = audioFileBucket;
+    this.audioBaseUrl = audioBaseUrl;
   }
 
   @Override
   public DubAudioCacheItem load(String key, String path) throws IOException, FileStoreException, NexusException {
-    return new DubAudioCacheItem(env, httpClientProvider, key, path);
+    return new DubAudioCacheItem(httpClientProvider, key, path, audioFileBucket, audioBaseUrl);
   }
 }

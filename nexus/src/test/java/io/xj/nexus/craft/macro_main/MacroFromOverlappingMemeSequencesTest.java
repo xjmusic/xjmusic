@@ -16,7 +16,6 @@ import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.hub.tables.pojos.User;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreImpl;
@@ -78,23 +77,20 @@ public class MacroFromOverlappingMemeSequencesTest {
 
   @Before
   public void setUp() throws Exception {
-    AppEnvironment env = AppEnvironment.getDefault();
     var jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     var store = new NexusEntityStoreImpl(entityFactory);
     var segmentManager = new SegmentManagerImpl(entityFactory, store);
     var chainManager = new ChainManagerImpl(
-      env,
       entityFactory,
       store,
       segmentManager,
-      notificationProvider
+      notificationProvider,1,1
     );
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     EntityStore entityStore = new EntityStoreImpl();
-    var filePathProvider = new FilePathProviderImpl(env);
+    var filePathProvider = new FilePathProviderImpl("");
     var fabricatorFactory = new FabricatorFactoryImpl(
-      env,
       chainManager,
       segmentManager,
       jsonapiPayloadFactory,

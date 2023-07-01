@@ -2,7 +2,6 @@
 package io.xj.ship.source;
 
 import com.google.common.base.Strings;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.util.Command;
 import io.xj.lib.util.Files;
@@ -17,6 +16,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -37,13 +37,15 @@ public class SegmentAudioCacheImpl implements SegmentAudioCache {
 
   @Autowired
   public SegmentAudioCacheImpl(
-    AppEnvironment env,
-    HttpClientProvider httpClientProvider
+    HttpClientProvider httpClientProvider,
+    @Value("${ship.bucket}") String shipBucket,
+    @Value("${ship.base.url}") String shipBaseUrl,
+    @Value("${audio.cache.file.prefix}") String audioCacheFilePrefix
   ) {
-    shipBucket = env.getShipBucket();
-    shipBaseUrl = env.getShipBaseUrl();
-    pathPrefix = 0 < env.getAudioCacheFilePrefix().length() ?
-      env.getAudioCacheFilePrefix() :
+    this.shipBucket = shipBucket;
+    this.shipBaseUrl = shipBaseUrl;
+    this.pathPrefix = 0 < audioCacheFilePrefix.length() ?
+      audioCacheFilePrefix :
       Files.getTempFilePathPrefix() + "cache" + File.separator;
     this.httpClientProvider = httpClientProvider;
 
@@ -115,7 +117,7 @@ public class SegmentAudioCacheImpl implements SegmentAudioCache {
       return absolutePath;
 
     } catch (IOException e) {
-      throw new ShipException(String.format("Failed to stream audio from s3://%s/%s", shipBucket, key), e);
+      throw new ShipException(String.format("Segment audio cache failed to stream audio from s3://%s/%s", shipBucket, key), e);
     }
   }
 

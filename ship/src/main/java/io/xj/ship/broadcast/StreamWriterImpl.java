@@ -3,7 +3,6 @@
 package io.xj.ship.broadcast;
 
 import com.google.api.client.util.Strings;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.mixer.FormatException;
 import io.xj.lib.util.Files;
 import io.xj.lib.util.Text;
@@ -12,6 +11,7 @@ import io.xj.ship.ShipMode;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -47,17 +47,19 @@ public class StreamWriterImpl implements StreamWriter {
 
   public StreamWriterImpl(
     AudioFormat format,
-    AppEnvironment env
+    @Value("${ship.wav.path}") String shipWavPath,
+    @Value("${ship.wav.seconds}") int shipWavSeconds,
+    @Value("${ship.wav.mode}") String shipWavMode
   ) {
     this.format = format;
-    outPath = env.getShipWavPath();
-    tempPath = Files.getUniqueTempFilename("stream.pcm");
-    int outSeconds = env.getShipWavSeconds();
+    this.outPath = shipWavPath;
+    this.tempPath = Files.getUniqueTempFilename("stream.pcm");
+    int outSeconds = shipWavSeconds;
     targetByteCount = (long) (outSeconds * format.getFrameRate() * format.getFrameSize());
 
     queue = new ConcurrentLinkedQueue<>();
 
-    enabled = ShipMode.WAV.equals(env.getShipMode());
+    enabled = ShipMode.WAV.equals(shipWavMode);
     active = new AtomicBoolean(enabled);
     if (active.get())
       try {

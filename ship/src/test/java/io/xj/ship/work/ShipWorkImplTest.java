@@ -1,9 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.ship.work;
 
-import com.google.common.collect.ImmutableMap;
 import io.xj.hub.HubTopology;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
@@ -60,7 +58,6 @@ public class ShipWorkImplTest {
 
   @Before
   public void setUp() throws Exception {
-    AppEnvironment env = AppEnvironment.from(ImmutableMap.of("SHIP_KEY", "coolair"));
     JsonProvider jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     HubTopology.buildHubApiTopology(entityFactory);
@@ -70,14 +67,13 @@ public class ShipWorkImplTest {
     NexusEntityStore test = new NexusEntityStoreImpl(entityFactory);
     test.deleteAll();
 
-    HttpClientProvider httpClientProvider = new HttpClientProviderImpl(env);
+    HttpClientProvider httpClientProvider = new HttpClientProviderImpl(1, 1);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     NexusEntityStore nexusEntityStore = new NexusEntityStoreImpl(entityFactory);
     SegmentManager segmentManager = new SegmentManagerImpl(entityFactory, nexusEntityStore);
-    SegmentAudioCache cache = new SegmentAudioCacheImpl(env, httpClientProvider);
-    FilePathProvider filePathProvider = new FilePathProviderImpl(env);
+    SegmentAudioCache cache = new SegmentAudioCacheImpl(httpClientProvider, "", "", "");
+    FilePathProvider filePathProvider = new FilePathProviderImpl("");
     segmentAudioManager = new SegmentAudioManagerImpl(
-      env,
       nexusEntityStore,
       filePathProvider,
       cache,
@@ -86,22 +82,27 @@ public class ShipWorkImplTest {
       httpClientProvider,
       jsonProvider,
       jsonapiPayloadFactory,
-      segmentManager
+      segmentManager, false, 1, 1
     );
-    ChunkFactory chunkFactory = new ChunkFactoryImpl(env);
-    MediaSeqNumProvider mediaSeqNumProvider = new MediaSeqNumProvider(env);
-    PlaylistPublisher playlistPublisher = new PlaylistPublisherImpl(env, chunkFactory, fileStoreProvider, httpClientProvider, mediaSeqNumProvider, telemetryProvider);
+    ChunkFactory chunkFactory = new ChunkFactoryImpl("aac", 10);
+    MediaSeqNumProvider mediaSeqNumProvider = new MediaSeqNumProvider(1, 1);
+    PlaylistPublisher playlistPublisher = new PlaylistPublisherImpl(chunkFactory, fileStoreProvider, httpClientProvider, mediaSeqNumProvider, telemetryProvider,
+      "", "", 1, "", 1, 1, 1, "",
+      1, "", "", "");
 
     // Instantiate the test subject
     subject = new ShipWorkImpl(
-      env, broadcastFactory,
+      broadcastFactory,
       chainManager,
       chunkFactory,
       janitor,
       mediaSeqNumProvider,
       notificationProvider,
       playlistPublisher,
-      segmentAudioManager
+      segmentAudioManager, "", "",
+      1, 1, 1,
+      1, false, 1,
+      1, 1, 1, 1, false
     );
   }
 

@@ -2,21 +2,19 @@
 
 package io.xj.lib.json;
 
-import com.google.common.collect.ImmutableMap;
-import io.xj.lib.app.AppEnvironment;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@SpringBootTest
 public class ApiUrlProviderTest {
   ApiUrlProvider subject;
 
   @Before
   public void setUp() {
-    subject = new ApiUrlProvider(AppEnvironment.from(ImmutableMap.of(
-      "APP_BASE_URL", "https://lab.test.xj.io/"
-    )));
+    subject = new ApiUrlProvider("https://lab.test.xj.io/");
   }
 
   @Test

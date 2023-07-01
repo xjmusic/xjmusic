@@ -1,14 +1,12 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.work;
 
-import com.google.common.collect.ImmutableMap;
 import io.xj.hub.HubTopology;
 import io.xj.hub.client.HubClient;
 import io.xj.hub.client.HubClientAccess;
 import io.xj.hub.client.HubClientException;
 import io.xj.hub.client.HubContent;
 import io.xj.hub.service.PreviewNexusAdmin;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
@@ -115,28 +113,19 @@ public class ComplexLibraryTest {
     template.setConfig("bufferAheadSeconds=9999\noutputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n");
     content.put(template);
 
-    AppEnvironment env = AppEnvironment.from(ImmutableMap.of(
-      "APP_PORT", "9043",
-      "SHIP_KEY", content.getTemplate().getShipKey(),
-      "WORK_REHYDRATION_ENABLED", "false",
-      "WORK_ERASE_SEGMENTS_OLDER_THAN_SECONDS", String.valueOf(MAXIMUM_TEST_WAIT_SECONDS + 300),
-      "WORK_CYCLE_MILLIS", "50"
-    ));
     var jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     var store = new NexusEntityStoreImpl(entityFactory);
     segmentManager = new SegmentManagerImpl(entityFactory, store);
     chainManager = new ChainManagerImpl(
-      env,
       entityFactory,
       store,
       segmentManager,
-      notificationProvider
+      notificationProvider, 1, 1
     );
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    var filePathProvider = new FilePathProviderImpl(env);
+    var filePathProvider = new FilePathProviderImpl("/tmp/");
     var fabricatorFactory = new FabricatorFactoryImpl(
-      env,
       chainManager,
       segmentManager,
       jsonapiPayloadFactory,
@@ -156,27 +145,49 @@ public class ComplexLibraryTest {
     when(httpResponse.getEntity()).thenReturn(httpResponseEntity);
 
     // Dependencies
-    ApiUrlProvider apiUrlProvider = new ApiUrlProvider(env);
+    ApiUrlProvider apiUrlProvider = new ApiUrlProvider("http://localhost:8080/");
     CraftFactory craftFactory = new CraftFactoryImpl(apiUrlProvider);
     when(mixerFactory.createMixer(any())).thenReturn(mixer);
-    HttpClientProvider httpClientProvider = new HttpClientProviderImpl(env);
-    DubAudioCacheItemFactory cacheItemFactory = new DubAudioCacheItemFactoryImpl(env, httpClientProvider);
-    DubAudioCache dubAudioCache = new DubAudioCacheImpl(env, cacheItemFactory);
-    var dubFactory = new DubFactoryImpl(env, dubAudioCache, filePathProvider, fileStoreProvider, mixerFactory);
+    HttpClientProvider httpClientProvider = new HttpClientProviderImpl(1, 1);
+    DubAudioCacheItemFactory cacheItemFactory = new DubAudioCacheItemFactoryImpl(httpClientProvider, "xj-prod-audio", "https://audio.xj.io/");
+    DubAudioCache dubAudioCache = new DubAudioCacheImpl(cacheItemFactory, "/tmp/");
+    var dubFactory = new DubFactoryImpl(dubAudioCache, filePathProvider, fileStoreProvider, mixerFactory);
 
     // work
     work = new NexusWorkImpl(
-      env, chainManager,
+      chainManager,
       craftFactory,
       dubFactory,
       entityFactory,
       fabricatorFactory,
-      httpClientProvider, hubClient, jsonapiPayloadFactory, jsonProvider, lockProvider,
+      httpClientProvider,
+      hubClient,
+      jsonapiPayloadFactory,
+      jsonProvider,
+      lockProvider,
       store,
       notificationProvider,
-      previewNexusAdmin, segmentManager,
-      telemetryProvider
-    );
+      previewNexusAdmin,
+      segmentManager,
+      telemetryProvider,
+      "production",
+      content.getTemplate().getShipKey(),
+      false,
+      1,
+      50,
+      MAXIMUM_TEST_WAIT_SECONDS + 300,
+      1,
+      1,
+      1,
+      false,
+      false,
+      1,
+      false,
+      1,
+      "https://ship.xj.io/",
+      "xj-prod-ship",
+      1,
+      "");
 
     workThread = new AppWorkThread(work);
   }

@@ -4,7 +4,6 @@ package io.xj.ship.source;
 
 
 import io.xj.hub.enums.TemplateType;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.mixer.InternalResource;
@@ -56,7 +55,6 @@ public class SegmentAudioCacheImplTest {
 
   @Before
   public void setUp() throws IOException {
-    var env = AppEnvironment.getDefault();
     var account1 = buildAccount("Test");
     var template1 = buildTemplate(account1, TemplateType.Production, "Test 123", "test123");
     Chain chain1 = buildChain(
@@ -86,7 +84,7 @@ public class SegmentAudioCacheImplTest {
     when(httpResponse.getEntity()).thenReturn(httpResponseEntity);
     when(httpResponse.getStatusLine()).thenReturn(httpStatusLine);
 
-    subject = new SegmentAudioCacheImpl(env, httpClientProvider);
+    subject = new SegmentAudioCacheImpl(httpClientProvider,"","","");
   }
 
   @Test
@@ -98,6 +96,6 @@ public class SegmentAudioCacheImplTest {
 
     var result = subject.downloadAndDecompress(segment1);
 
-    assertEquals("/tmp/seg123.wav", result);
+    assertEquals("/tmp/cache/seg123.wav", result);
   }
 }

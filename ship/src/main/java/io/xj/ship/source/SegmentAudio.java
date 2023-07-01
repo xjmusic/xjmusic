@@ -3,13 +3,13 @@
 package io.xj.ship.source;
 
 
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.lib.util.ValueException;
 import io.xj.nexus.model.Segment;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
@@ -55,12 +55,12 @@ public class SegmentAudio {
     Segment segment,
     String shipKey,
     TelemetryProvider telemetryProvider,
-    AppEnvironment env
+    @Value("${ship.segment.load.timeout.seconds}") int shipSegmentLoadTimeoutSeconds
   ) {
     this.absolutePath = absolutePath;
     this.shipKey = shipKey;
     this.segment = segment;
-    shipSegmentLoadTimeoutMillis = env.getShipSegmentLoadTimeoutSeconds() * MILLIS_PER_SECOND;
+    this.shipSegmentLoadTimeoutMillis = shipSegmentLoadTimeoutSeconds * MILLIS_PER_SECOND;
     state = SegmentAudioState.Pending;
     beginAt = Instant.parse(segment.getBeginAt()).minusNanos((long) (segment.getWaveformPreroll() * NANOS_PER_SECOND));
     endAt = Instant.parse(segment.getEndAt()).plusNanos((long) (segment.getWaveformPostroll() * NANOS_PER_SECOND));

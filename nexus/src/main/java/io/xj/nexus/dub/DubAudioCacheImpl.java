@@ -2,7 +2,6 @@
 package io.xj.nexus.dub;
 
 import com.google.common.base.Strings;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.util.Files;
 import io.xj.nexus.NexusException;
@@ -10,6 +9,7 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -23,12 +23,12 @@ public class DubAudioCacheImpl implements DubAudioCache {
 
   @Autowired
   public DubAudioCacheImpl(
-    AppEnvironment env,
-    DubAudioCacheItemFactory dubAudioCacheItemFactory
+    DubAudioCacheItemFactory dubAudioCacheItemFactory,
+    @Value("${audio.cache.file-prefix}") String audioCacheFilePrefix
   ) {
     this.dubAudioCacheItemFactory = dubAudioCacheItemFactory;
-    pathPrefix = 0 < env.getAudioCacheFilePrefix().length() ?
-      env.getAudioCacheFilePrefix() :
+    pathPrefix = 0 < audioCacheFilePrefix.length() ?
+      audioCacheFilePrefix :
       Files.getTempFilePathPrefix() + "cache" + File.separator;
 
     try {

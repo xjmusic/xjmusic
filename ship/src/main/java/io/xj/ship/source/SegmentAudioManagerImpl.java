@@ -4,7 +4,6 @@ package io.xj.ship.source;
 
 import com.google.common.collect.Maps;
 import io.opencensus.stats.Measure;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.json.JsonProvider;
@@ -22,6 +21,7 @@ import io.xj.ship.ShipException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -44,7 +44,6 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
   private final FilePathProvider filePathProvider;
   private final SegmentAudioCache cache;
   private final ChainManager chainManager;
-  private final AppEnvironment env;
   private final HttpClientProvider httpClientProvider;
   private final JsonProvider jsonProvider;
   private final JsonapiPayloadFactory jsonapiPayloadFactory;
@@ -56,7 +55,6 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
 
   @Autowired
   public SegmentAudioManagerImpl(
-    AppEnvironment env,
     NexusEntityStore store,
     FilePathProvider filePathProvider,
     SegmentAudioCache cache,
@@ -65,21 +63,23 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
     HttpClientProvider httpClientProvider,
     JsonProvider jsonProvider,
     JsonapiPayloadFactory jsonapiPayloadFactory,
-    SegmentManager segmentManager
+    SegmentManager segmentManager,
+    @Value("${yard.local.mode.enabled}") boolean isYardLocalModeEnabled,
+    @Value("${ship.segment.load.retry.limit}") int shipSegmentLoadRetryLimit,
+    @Value("${ship.segment.load.retry.daily.millis}") int shipSegmentLoadRetryDelayMillis
   ) {
     this.filePathProvider = filePathProvider;
     this.cache = cache;
     this.chainManager = chainManager;
-    this.env = env;
     this.httpClientProvider = httpClientProvider;
     this.jsonProvider = jsonProvider;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     this.segmentManager = segmentManager;
     this.store = store;
     this.telemetryProvider = telemetryProvider;
-    this.isLocalModeEnabled = env.isYardLocalModeEnabled();
-    segmentLoadRetryLimit = env.getShipSegmentLoadRetryLimit();
-    segmentLoadRetryDelayMillis = env.getShipSegmentLoadRetryDelayMillis();
+    this.isLocalModeEnabled = isYardLocalModeEnabled;
+    this.segmentLoadRetryLimit = shipSegmentLoadRetryLimit;
+    this.segmentLoadRetryDelayMillis = shipSegmentLoadRetryDelayMillis;
 
     SEGMENT_AUDIO_LOADED_AHEAD_SECONDS = telemetryProvider.gauge("segment_audio_loaded_ahead_seconds", "Segment Audio Loaded Ahead Seconds", "s");
   }
@@ -116,12 +116,12 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
 
   @Override
   public ChainLoader loadChain(String shipKey, Runnable onFailure, boolean isLocalModeEnabled) {
-    return new ChainLoaderImpl(shipKey, onFailure, env, chainManager, httpClientProvider, filePathProvider, jsonProvider, jsonapiPayloadFactory, this, segmentManager, telemetryProvider);
+    return new ChainLoaderImpl(shipKey, onFailure, chainManager, httpClientProvider, filePathProvider, jsonProvider, jsonapiPayloadFactory, this, segmentManager, telemetryProvider,false,1,1,1,"");
   }
 
   @Override
   public SegmentAudio loadSegmentAudio(String shipKey, Segment segment, String absolutePath) {
-    return new SegmentAudio(absolutePath, segment, shipKey, telemetryProvider, env);
+    return new SegmentAudio(absolutePath, segment, shipKey, telemetryProvider,1);
   }
 
   @Override

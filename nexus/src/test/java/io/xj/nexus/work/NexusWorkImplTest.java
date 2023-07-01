@@ -7,7 +7,6 @@ import io.xj.hub.client.HubClient;
 import io.xj.hub.service.PreviewNexusAdmin;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Template;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
@@ -74,7 +73,6 @@ public class NexusWorkImplTest {
 
   @Before
   public void setUp() throws Exception {
-    AppEnvironment env = AppEnvironment.getDefault();
     var jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     HubTopology.buildHubApiTopology(entityFactory);
@@ -99,22 +97,20 @@ public class NexusWorkImplTest {
     // Instantiate dependencies
     var segmentManager = new SegmentManagerImpl(entityFactory, store);
     chainManager = new ChainManagerImpl(
-      env,
       entityFactory,
       store,
       segmentManager,
-      notificationProvider
+      notificationProvider, 1, 1
     );
-    ApiUrlProvider apiUrlProvider = new ApiUrlProvider(env);
+    ApiUrlProvider apiUrlProvider = new ApiUrlProvider("");
     CraftFactory craftFactory = new CraftFactoryImpl(apiUrlProvider);
-    HttpClientProvider httpClientProvider = new HttpClientProviderImpl(env);
-    DubAudioCacheItemFactory cacheItemFactory = new DubAudioCacheItemFactoryImpl(env, httpClientProvider);
-    DubAudioCache dubAudioCache = new DubAudioCacheImpl(env, cacheItemFactory);
-    FilePathProvider filePathProvider = new FilePathProviderImpl(env);
-    var dubFactory = new DubFactoryImpl(env, dubAudioCache, filePathProvider, fileStoreProvider, mixerFactory);
+    HttpClientProvider httpClientProvider = new HttpClientProviderImpl(1, 1);
+    DubAudioCacheItemFactory cacheItemFactory = new DubAudioCacheItemFactoryImpl(httpClientProvider, "xj-prod-audio", "https://audio.xj.io/");
+    DubAudioCache dubAudioCache = new DubAudioCacheImpl(cacheItemFactory, "");
+    FilePathProvider filePathProvider = new FilePathProviderImpl("");
+    var dubFactory = new DubFactoryImpl(dubAudioCache, filePathProvider, fileStoreProvider, mixerFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     var fabricatorFactory = new FabricatorFactoryImpl(
-      env,
       chainManager,
       segmentManager,
       jsonapiPayloadFactory,
@@ -123,17 +119,39 @@ public class NexusWorkImplTest {
 
     // Instantiate the test subject
     subject = new NexusWorkImpl(
-      env, chainManager,
+      chainManager,
       craftFactory,
       dubFactory,
       entityFactory,
       fabricatorFactory,
-      httpClientProvider, hubClient, jsonapiPayloadFactory, jsonProvider, lockProvider,
+      httpClientProvider,
+      hubClient,
+      jsonapiPayloadFactory,
+      jsonProvider,
+      lockProvider,
       store,
       notificationProvider,
-      previewNexusAdmin, segmentManager,
-      telemetryProvider
-    );
+      previewNexusAdmin,
+      segmentManager,
+      telemetryProvider,
+      "production",
+      "",
+      false,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      false,
+      false,
+      1,
+      false,
+      1,
+      "https://ship.xj.io/",
+      "xj-prod-ship",
+      1,
+      "");
   }
 
   @Test

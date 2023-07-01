@@ -10,7 +10,6 @@ import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
@@ -72,22 +71,19 @@ public class SegmentRetrospectiveImplTest {
 
   @Before
   public void setUp() throws Exception {
-    AppEnvironment env = AppEnvironment.getDefault();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     store = new NexusEntityStoreImpl(entityFactory);
     var segmentManager = new SegmentManagerImpl(entityFactory, store);
     var chainManager = new ChainManagerImpl(
-      env,
       entityFactory,
       store,
       segmentManager,
-      notificationProvider
+      notificationProvider,1,1
     );
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    var filePathProvider = new FilePathProviderImpl(env);
+    var filePathProvider = new FilePathProviderImpl("");
     jsonProvider = new JsonProviderImpl();
     fabricatorFactory = new FabricatorFactoryImpl(
-      env,
       chainManager,
       segmentManager,
       jsonapiPayloadFactory,

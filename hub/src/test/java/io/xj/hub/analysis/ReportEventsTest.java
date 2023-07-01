@@ -5,7 +5,6 @@ package io.xj.hub.analysis;
 import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.*;
 import io.xj.hub.tables.pojos.*;
-import io.xj.lib.app.AppEnvironment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -80,7 +79,7 @@ public class ReportEventsTest {
       program2_voice1
     );
 
-    subject = new ReportEvents(new HubContent(entities), AppEnvironment.getDefault());
+    subject = new ReportEvents(new HubContent(entities));
   }
 
   @Test

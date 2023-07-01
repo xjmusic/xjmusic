@@ -9,11 +9,16 @@ import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.ContentBindingType;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.TemplateBinding;
-import io.xj.lib.app.AppEnvironment;
-import org.junit.jupiter.api.AfterEach;
+import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.http.HttpClientProvider;
+import io.xj.lib.notification.NotificationProvider;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -34,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 // FUTURE: any test that
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 public class TemplateBindingManagerDbTest {
   private TemplateBindingManager testManager;
@@ -42,10 +48,21 @@ public class TemplateBindingManagerDbTest {
   private TemplateBinding templateBinding201;
   private Library targetLibrary;
 
+  @MockBean
+  NotificationProvider notificationProvider;
+
+  @MockBean
+  HttpClientProvider httpClientProvider;
+
+  @MockBean
+  FileStoreProvider fileStoreProvider;
+
+  @Autowired
+  HubIntegrationTestFactory integrationTestFactory;
+
   @BeforeEach
   public void setUp() throws Exception {
-    var env = AppEnvironment.getDefault();
-    test = HubIntegrationTestFactory.build(env);
+    test = integrationTestFactory.build();
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
@@ -68,7 +85,7 @@ public class TemplateBindingManagerDbTest {
     testManager = new TemplateBindingManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider());
   }
 
-  @AfterEach
+  @AfterAll
   public void tearDown() {
     test.shutdown();
   }

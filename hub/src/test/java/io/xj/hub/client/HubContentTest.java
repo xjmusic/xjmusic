@@ -24,12 +24,13 @@ import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.http.HttpClientProvider;
+import io.xj.lib.notification.NotificationProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.List;
 import java.util.UUID;
@@ -59,6 +60,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class HubContentTest {
   private HubContent subject;
   private ProgramSequencePatternEvent program702_pattern901_boomEvent;
+
+  @MockBean
+  NotificationProvider notificationProvider;
+
+  @MockBean
+  FileStoreProvider fileStoreProvider;
+
+  @MockBean
+  HttpClientProvider httpClientProvider;
 
   @BeforeEach
   public void setUp() throws Exception {

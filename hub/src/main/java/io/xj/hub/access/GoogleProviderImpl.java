@@ -11,10 +11,11 @@ import com.google.api.client.http.*;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.plus.model.Person;
 import com.google.common.collect.ImmutableList;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.json.ApiUrlProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -29,24 +30,21 @@ public class GoogleProviderImpl implements GoogleProvider {
   private final GoogleHttpProvider googleHttpProvider;
   private final GsonFactory gsonFactory;
   private final ApiUrlProvider apiUrlProvider;
+  private final String clientId;
+  private final String clientSecret;
 
-  private String clientId;
-  private String clientSecret;
-
+  @Autowired
   public GoogleProviderImpl(
     GoogleHttpProvider googleHttpProvider,
     ApiUrlProvider apiUrlProvider,
-    AppEnvironment env
+    @Value("${google.client.id}") String clientId,
+    @Value("${google.client.secret}") String clientSecret
   ) {
     this.googleHttpProvider = googleHttpProvider;
     this.gsonFactory = new GsonFactory();
     this.apiUrlProvider = apiUrlProvider;
-    try {
-      clientId = env.getGoogleClientID();
-      clientSecret = env.getGoogleClientSecret();
-    } catch (Exception e) {
-      LOG.error("Failed to initialize Google Provider: {}", e.getMessage());
-    }
+    this.clientId = clientId;
+    this.clientSecret = clientSecret;
   }
 
   private static String detailsOfTokenException(TokenResponseException e) {

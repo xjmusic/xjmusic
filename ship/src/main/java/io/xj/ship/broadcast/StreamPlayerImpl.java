@@ -3,12 +3,12 @@
 package io.xj.ship.broadcast;
 
 
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.mixer.FormatException;
 import io.xj.ship.ShipException;
 import io.xj.ship.ShipMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
@@ -33,13 +33,13 @@ public class StreamPlayerImpl implements StreamPlayer {
 
   public StreamPlayerImpl(
     AudioFormat format,
-    AppEnvironment env
+    @Value("${ship.mode}") String shipMode
   ) {
     this.format = format;
 
     queue = new ConcurrentLinkedQueue<>();
 
-    if (ShipMode.Playback.equals(env.getShipMode()))
+    if (ShipMode.Playback.equals(shipMode))
       try {
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
         if (!AudioSystem.isLineSupported(info)) {

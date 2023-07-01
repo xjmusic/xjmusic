@@ -2,12 +2,11 @@
 package io.xj.ship.broadcast;
 
 import com.google.api.client.util.Lists;
-
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.mixer.AudioSampleFormat;
 import io.xj.lib.mixer.FormatException;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.util.CSV;
+import io.xj.lib.util.Text;
 import io.xj.nexus.persistence.Segments;
 import io.xj.ship.ShipException;
 import io.xj.ship.source.SegmentAudio;
@@ -16,6 +15,7 @@ import io.xj.ship.source.SegmentAudioState;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
@@ -32,12 +32,12 @@ import java.util.stream.Collectors;
 import static io.xj.lib.util.Values.NANOS_PER_SECOND;
 
 /**
- Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
- <p>
- Side lab experiments done in
- - https://github.com/charneykaye/encode-fmp4-demo
- referenced in the question I posted on Stack Overflow
- - https://stackoverflow.com/questions/69625970/java-mp4parser-to-create-a-single-m4s-fragment
+ * Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
+ * <p>
+ * Side lab experiments done in
+ * - https://github.com/charneykaye/encode-fmp4-demo
+ * referenced in the question I posted on Stack Overflow
+ * - https://stackoverflow.com/questions/69625970/java-mp4parser-to-create-a-single-m4s-fragment
  */
 class ChunkMixerImpl implements ChunkMixer {
   public static final int MAX_INT_LENGTH_ARRAY_SIZE = 2147483647;
@@ -51,17 +51,17 @@ class ChunkMixerImpl implements ChunkMixer {
   private final String envName;
 
   public ChunkMixerImpl(
-     AudioFormat format,
-     Chunk chunk,
+    @Value("${environment}") String environment,
+    AudioFormat format,
+    Chunk chunk,
     NotificationProvider notificationProvider,
-    SegmentAudioManager segmentAudioManager,
-    AppEnvironment env
+    SegmentAudioManager segmentAudioManager
   ) {
     this.chunk = chunk;
     this.format = format;
     this.notificationProvider = notificationProvider;
     this.segmentAudioManager = segmentAudioManager;
-    envName = env.getWorkEnvironmentName();
+    this.envName = Text.toProper(environment);
 
     buffer = new double[(int) (format.getFrameRate() * chunk.getActualDuration())][format.getChannels()];
   }
@@ -112,10 +112,10 @@ class ChunkMixerImpl implements ChunkMixer {
   }
 
   /**
-   apply one source to the mixing buffer@param chunk  to mix
-
-   @param source to apply
-   @param buffer to which we will add source
+   * apply one source to the mixing buffer@param chunk  to mix
+   *
+   * @param source to apply
+   * @param buffer to which we will add source
    */
   private void applySource(Chunk chunk, SegmentAudio source, double[][] buffer) throws ShipException {
     int i; // frame iterator
@@ -154,7 +154,7 @@ class ChunkMixerImpl implements ChunkMixer {
       var sampleSize = frameSize / channels;
       var expectBytes = audioInputStream.available();
 
-      if (MAX_INT_LENGTH_ARRAY_SIZE <= expectBytes)
+      if (MAX_INT_LENGTH_ARRAY_SIZE == expectBytes)
         throw new ShipException("loading audio steams longer than 2,147,483,647 frames (max. value of signed 32-bit integer) is not supported");
 
       int expectFrames;
@@ -196,9 +196,9 @@ class ChunkMixerImpl implements ChunkMixer {
   }
 
   /**
-   Whether all the source segments for this chunk are ready
-
-   @return true if all segments are ready
+   * Whether all the source segments for this chunk are ready
+   *
+   * @return segments which are ready
    */
   private List<String> anyNotReady(Collection<SegmentAudio> audios) {
     List<String> ready = Lists.newArrayList();
@@ -214,10 +214,10 @@ class ChunkMixerImpl implements ChunkMixer {
   }
 
   /**
-   Get all the segment audios intersecting with this chunk
-
-   @param chunk for which to get intersecting audios
-   @return segment audios
+   * Get all the segment audios intersecting with this chunk
+   *
+   * @param chunk for which to get intersecting audios
+   * @return segment audios
    */
   private Collection<SegmentAudio> getAllIntersectingAudios(Chunk chunk) {
     return segmentAudioManager.getAllIntersecting(chunk.getShipKey(), chunk.getFromInstant(), chunk.getToInstant());

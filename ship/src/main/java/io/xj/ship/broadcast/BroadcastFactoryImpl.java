@@ -1,6 +1,5 @@
 package io.xj.ship.broadcast;
 
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.ship.source.SegmentAudioManager;
@@ -11,7 +10,6 @@ import javax.sound.sampled.AudioFormat;
 
 @Service
 public class BroadcastFactoryImpl implements BroadcastFactory {
-  private final AppEnvironment env;
   private final PlaylistPublisher playlistPublisher;
   private final FileStoreProvider fileStoreProvider;
   private final NotificationProvider notificationProvider;
@@ -19,13 +17,11 @@ public class BroadcastFactoryImpl implements BroadcastFactory {
 
   @Autowired
   public BroadcastFactoryImpl(
-    AppEnvironment env,
     PlaylistPublisher playlistPublisher,
     FileStoreProvider fileStoreProvider,
     NotificationProvider notificationProvider,
     SegmentAudioManager segmentAudioManager
   ) {
-    this.env = env;
     this.playlistPublisher = playlistPublisher;
     this.fileStoreProvider = fileStoreProvider;
     this.notificationProvider = notificationProvider;
@@ -34,21 +30,22 @@ public class BroadcastFactoryImpl implements BroadcastFactory {
 
   @Override
   public StreamEncoder encoder(String shipKey, AudioFormat format, Long initialSeqNum) {
-    return new StreamEncoderImpl(shipKey, format, initialSeqNum, env, fileStoreProvider, playlistPublisher);
+    return new StreamEncoderImpl(shipKey, format, initialSeqNum, fileStoreProvider, playlistPublisher,
+      1, "", "", 1, "", "", "", "");
   }
 
   @Override
   public ChunkMixer mixer(Chunk chunk, AudioFormat format) {
-    return new ChunkMixerImpl(format, chunk, notificationProvider, segmentAudioManager, env);
+    return new ChunkMixerImpl("production", format, chunk, notificationProvider, segmentAudioManager);
   }
 
   @Override
   public StreamPlayer player(AudioFormat format) {
-    return new StreamPlayerImpl(format, env);
+    return new StreamPlayerImpl(format, "");
   }
 
   @Override
   public StreamWriter writer(AudioFormat format) {
-    return new StreamWriterImpl(format, env);
+    return new StreamWriterImpl(format, "", 1, "");
   }
 }

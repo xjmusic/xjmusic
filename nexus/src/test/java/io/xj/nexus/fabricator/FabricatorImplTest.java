@@ -11,7 +11,6 @@ import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Template;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
@@ -93,8 +92,6 @@ import static org.mockito.Mockito.when;
 public class FabricatorImplTest {
   static int SEQUENCE_TOTAL_BEATS = 64;
   @Mock
-  public AppEnvironment env;
-  @Mock
   public FabricatorFactory mockFabricatorFactory;
   @Mock
   public SegmentWorkbench mockSegmentWorkbench;
@@ -123,7 +120,7 @@ public class FabricatorImplTest {
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
     store = new NexusEntityStoreImpl(entityFactory);
-    filePathProvider = new FilePathProviderImpl(env);
+    filePathProvider = new FilePathProviderImpl("");
 
 
     // Manipulate the underlying entity store; reset before each test
@@ -140,7 +137,7 @@ public class FabricatorImplTest {
     when(mockFabricatorFactory.setupWorkbench(any(), any())).thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(env, sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
+    subject = new FabricatorImpl(sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider,false);
   }
 
   /**
@@ -159,7 +156,8 @@ public class FabricatorImplTest {
     when(mockFabricatorFactory.setupWorkbench(any(), any())).thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(env, sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
+    subject = new FabricatorImpl(sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider,false
+    );
 
     double result = subject.getAudioVolume(pick); // instantiates a time computer; see expectation above
 
@@ -182,7 +180,7 @@ public class FabricatorImplTest {
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockSegmentWorkbench.getSegmentChoiceArrangementPicks()).thenReturn(ImmutableList.of(beatPick));
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(env, sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
+    subject = new FabricatorImpl(sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider,false);
 
     Collection<SegmentChoiceArrangementPick> result = subject.getPicks();
 
@@ -208,7 +206,7 @@ public class FabricatorImplTest {
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockSegmentWorkbench.getChoiceOfType(ProgramType.Main)).thenReturn(Optional.of(mainChoice));
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(env, sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
+    subject = new FabricatorImpl(sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider,false);
 
     Set<InstrumentType> result = subject.getDistinctChordVoicingTypes();
 
@@ -234,7 +232,7 @@ public class FabricatorImplTest {
     when(mockRetrospective.getPreviousChoiceOfType(ProgramType.Main)).thenReturn(Optional.of(previousMainChoice));
     when(mockRetrospective.getPreviousChoiceOfType(ProgramType.Macro)).thenReturn(Optional.of(previousMacroChoice));
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(env, sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
+    subject = new FabricatorImpl(sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider,false);
 
     var result = subject.getType();
 
@@ -256,7 +254,7 @@ public class FabricatorImplTest {
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockRetrospective.getPreviousChoiceOfType(ProgramType.Macro)).thenReturn(Optional.of(previousMacroChoice));
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(env, sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
+    subject = new FabricatorImpl(sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider,false);
 
     var result = subject.getMemeIsometryOfNextSequenceInPreviousMacro();
 
@@ -272,7 +270,7 @@ public class FabricatorImplTest {
     when(mockSegmentWorkbench.getSegmentChords()).thenReturn(ImmutableList.of(buildSegmentChord(segment, 0.0, "C"), buildSegmentChord(segment, 2.0, "F"), buildSegmentChord(segment, 5.5, "Gm")));
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(env, sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
+    subject = new FabricatorImpl(sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider,false);
 
     assertEquals("C", subject.getChordAt(0).orElseThrow().getName());
     assertEquals("C", subject.getChordAt(1).orElseThrow().getName());
@@ -298,7 +296,7 @@ public class FabricatorImplTest {
     var sequence = buildSequence(program, 4);
     var pattern = buildPattern(sequence, voice, 4);
     sourceMaterial = new HubContent(ImmutableList.of(program, voice, track, sequence, pattern, fake.template1, fake.templateBinding1, buildEvent(pattern, track, 0.0f, 1.0f, "C1"), buildEvent(pattern, track, 1.0f, 1.0f, "D2")));
-    subject = new FabricatorImpl(env, sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
+    subject = new FabricatorImpl(sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider,false);
 
     var result = subject.getProgramRange(program.getId(), InstrumentType.Bass);
 
@@ -320,7 +318,7 @@ public class FabricatorImplTest {
     var sequence = buildSequence(program, 4);
     var pattern = buildPattern(sequence, voice, 4);
     sourceMaterial = new HubContent(ImmutableList.of(program, voice, track, sequence, pattern, buildEvent(pattern, track, 0.0f, 1.0f, "C1"), buildEvent(pattern, track, 1.0f, 1.0f, "X"), buildEvent(pattern, track, 2.0f, 1.0f, "D2"), fake.template1, fake.templateBinding1));
-    subject = new FabricatorImpl(env, sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
+    subject = new FabricatorImpl(sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider,false);
 
     var result = subject.getProgramRange(program.getId(), InstrumentType.Bass);
 
@@ -340,7 +338,7 @@ public class FabricatorImplTest {
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
     sourceMaterial = new HubContent(ImmutableList.of(fake.program5_sequence0, fake.template1, fake.templateBinding1));
-    subject = new FabricatorImpl(env, sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
+    subject = new FabricatorImpl(sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider,false);
 
     var result = subject.getProgramSequence(choice);
 
@@ -359,7 +357,7 @@ public class FabricatorImplTest {
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
     sourceMaterial = new HubContent(ImmutableList.of(fake.program5_sequence0, fake.program5_sequence0_binding0, fake.template1, fake.templateBinding1));
-    subject = new FabricatorImpl(env, sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
+    subject = new FabricatorImpl(sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider,false);
 
     var result = subject.getProgramSequence(choice);
 

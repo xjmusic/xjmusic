@@ -7,13 +7,13 @@ import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.ProgramSequenceChord;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.meme.MemeConstellation;
 import io.xj.lib.meme.MemeStack;
 import io.xj.lib.meme.MemeTaxonomy;
 import io.xj.lib.music.Chord;
 import io.xj.lib.util.ValueException;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,8 +29,8 @@ public class ReportChordInstruments extends Report {
   private final MemeTaxonomy taxonomy;
   private final List<Instrument> chordInstruments;
 
-  public ReportChordInstruments(HubContent content, AppEnvironment env) throws HubClientException, ValueException {
-    super(content, env);
+  public ReportChordInstruments(HubContent content) throws HubClientException, ValueException {
+    super(content);
 
     // Store the taxonomy
     taxonomy = new TemplateConfig(content.getTemplate()).getMemeTaxonomy();

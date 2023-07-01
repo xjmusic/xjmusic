@@ -6,7 +6,6 @@ import com.google.common.collect.Streams;
 import io.xj.hub.HubTopology;
 import io.xj.hub.client.HubClient;
 import io.xj.hub.client.HubContent;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.json.JsonProvider;
@@ -63,10 +62,9 @@ public class CraftPercLoopInitialTest {
 
   @Before
   public void setUp() throws Exception {
-    AppEnvironment env = AppEnvironment.getDefault();
     JsonProvider jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
-    ApiUrlProvider apiUrlProvider = new ApiUrlProvider(env);
+    ApiUrlProvider apiUrlProvider = new ApiUrlProvider("");
     craftFactory = new CraftFactoryImpl(apiUrlProvider);
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
@@ -74,15 +72,13 @@ public class CraftPercLoopInitialTest {
     store = new NexusEntityStoreImpl(entityFactory);
     SegmentManager segmentManager = new SegmentManagerImpl(entityFactory, store);
     ChainManager chainManager = new ChainManagerImpl(
-      env,
       entityFactory,
       store,
       segmentManager,
-      notificationProvider
+      notificationProvider,1,1
     );
-    var filePathProvider = new FilePathProviderImpl(env);
+    var filePathProvider = new FilePathProviderImpl("");
     fabricatorFactory = new FabricatorFactoryImpl(
-      env,
       chainManager,
       segmentManager,
       jsonapiPayloadFactory,

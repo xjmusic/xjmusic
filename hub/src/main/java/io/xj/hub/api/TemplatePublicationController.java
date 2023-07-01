@@ -10,7 +10,6 @@ import io.xj.hub.manager.TemplatePublicationManager;
 import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplatePublication;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.json.JsonProvider;
@@ -20,6 +19,8 @@ import io.xj.lib.jsonapi.JsonapiResponseProvider;
 import io.xj.lib.jsonapi.PayloadDataType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,9 +53,9 @@ public class TemplatePublicationController extends HubJsonapiEndpoint {
   /**
    * Constructor
    */
+  @Autowired
   public TemplatePublicationController(
     EntityFactory entityFactory,
-    AppEnvironment env,
     FileStoreProvider fileStoreProvider,
     HubSqlStoreProvider sqlStoreProvider,
     HubIngestFactory ingestFactory,
@@ -62,17 +63,20 @@ public class TemplatePublicationController extends HubJsonapiEndpoint {
     JsonapiPayloadFactory payloadFactory,
     TemplateManager templateManager,
     TemplatePublicationManager manager,
-    JsonProvider jsonProvider) {
+    JsonProvider jsonProvider,
+    @Value("${template.publication.cache.expire.seconds}")
+    int templatePublicationCacheExpireSeconds,
+    @Value("${audio.file.bucket}")
+    String audioBucket
+  ) {
     super(sqlStoreProvider, response, payloadFactory, entityFactory);
-
-    templatePublicationCacheExpireSeconds = env.getTemplatePublicationCacheExpireSeconds();
-    audioBucket = env.getAudioFileBucket();
-
     this.manager = manager;
     this.fileStoreProvider = fileStoreProvider;
     this.ingestFactory = ingestFactory;
     this.templateManager = templateManager;
     this.jsonProvider = jsonProvider;
+    this.templatePublicationCacheExpireSeconds = templatePublicationCacheExpireSeconds;
+    this.audioBucket = audioBucket;
   }
 
   /**

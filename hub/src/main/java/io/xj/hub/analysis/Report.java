@@ -10,12 +10,12 @@ import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Program;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.meme.MemeConstellation;
 import io.xj.lib.meme.MemeStack;
 import io.xj.lib.meme.MemeTaxonomy;
 import io.xj.lib.util.Values;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -48,14 +48,14 @@ public abstract class Report {
   private static final String H2_STYLE = "margin-top:20px;";
   private static final String USAGE_LINK_STYLE = "font-size:8pt; line-height:9pt; margin-right:4pt; white-space:nowrap;";
   protected final HubContent content;
-  protected final AppEnvironment env;
+  @Value("${app.base.url}")
+  private String appBaseUrl;
 
   /**
    * Create a comp from some Hub content
    */
-  public Report(HubContent content, AppEnvironment env) {
+  public Report(HubContent content) {
     this.content = content;
-    this.env = env;
   }
 
   /**
@@ -366,7 +366,7 @@ public abstract class Report {
    * @return link to program
    */
   protected String programRef(Program program) {
-    return A(true, String.format("%s%s/%s", env.getAppBaseUrl(), "programs", program.getId()), program.getName());
+    return A(true, String.format("%s%s/%s", appBaseUrl, "programs", program.getId()), program.getName());
   }
 
   /**
@@ -376,7 +376,7 @@ public abstract class Report {
    * @return link to instrument
    */
   protected String instrumentRef(Instrument instrument) {
-    return A(true, String.format("%s%s/%s", env.getAppBaseUrl(), "instruments", instrument.getId()), instrument.getName());
+    return A(true, String.format("%s%s/%s", appBaseUrl, "instruments", instrument.getId()), instrument.getName());
   }
 
   /**

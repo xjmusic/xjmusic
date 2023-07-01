@@ -5,7 +5,6 @@ import com.google.api.client.util.Sets;
 import io.xj.hub.client.HubContent;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Program;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.util.Text;
 
 import java.util.*;
@@ -17,8 +16,8 @@ import java.util.stream.Collectors;
 public class ReportMemes extends Report {
   private final MemeHistogram memes;
 
-  public ReportMemes(HubContent content, AppEnvironment env) {
-    super(content, env);
+  public ReportMemes(HubContent content) {
+    super(content);
 
     memes = new MemeHistogram();
     content.getInstrumentMemes().forEach(meme -> memes.addInstrumentId(meme.getName(), meme.getInstrumentId()));

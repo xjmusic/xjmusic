@@ -31,7 +31,6 @@ import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.hub.tables.pojos.TemplateBinding;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.json.JsonProvider;
@@ -74,6 +73,7 @@ import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.Segments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.Nullable;
 import javax.sound.sampled.AudioFormat;
@@ -141,22 +141,21 @@ public class FabricatorImpl implements Fabricator {
   private final boolean isLocalModeEnabled;
 
   public FabricatorImpl(
-    AppEnvironment env,
     HubContent sourceMaterial,
     Segment segment,
     ChainManager chainManager,
     FabricatorFactory fabricatorFactory,
     SegmentManager segmentManager,
     JsonapiPayloadFactory jsonapiPayloadFactory,
-    JsonProvider jsonProvider
+    JsonProvider jsonProvider,
+    @Value("${yard.local.mode.enabled}") boolean isYardLocalModeEnabled
   ) throws NexusException, FabricationFatalException {
     this.segmentManager = segmentManager;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     this.jsonProvider = jsonProvider;
     try {
       this.sourceMaterial = sourceMaterial;
-
-      isLocalModeEnabled = env.isYardLocalModeEnabled();
+      this.isLocalModeEnabled = isYardLocalModeEnabled;
 
       // caches
       chordAtPosition = Maps.newHashMap();

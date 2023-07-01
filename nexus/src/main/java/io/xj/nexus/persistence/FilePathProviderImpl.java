@@ -2,11 +2,11 @@
 
 package io.xj.nexus.persistence;
 
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,9 +15,9 @@ public class FilePathProviderImpl implements FilePathProvider {
 
   @Autowired
   public FilePathProviderImpl(
-    AppEnvironment env
+    @Value("${temp.file.path.prefix}") String tempFilePathPrefix
   ) {
-    this.tempFilePathPrefix = env.getTempFilePathPrefix();
+    this.tempFilePathPrefix = tempFilePathPrefix;
   }
 
   @Override

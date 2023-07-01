@@ -7,7 +7,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.TemplateType;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.MessageType;
 import io.xj.lib.notification.NotificationProvider;
@@ -25,6 +24,7 @@ import io.xj.nexus.model.SegmentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -67,18 +67,18 @@ public class ChainManagerImpl extends ManagerImpl<Chain> implements ChainManager
 
   @Autowired
   public ChainManagerImpl(
-    AppEnvironment env,
     EntityFactory entityFactory,
     NexusEntityStore nexusEntityStore,
     SegmentManager segmentManager,
-    NotificationProvider notificationProvider
+    NotificationProvider notificationProvider,
+    @Value("${fabrication.preview.length.max-hours}") int fabricationPreviewLengthMaxHours,
+    @Value("${chain.start.in-future.seconds}") int chainStartInFutureSeconds
   ) {
     super(entityFactory, nexusEntityStore);
     this.segmentManager = segmentManager;
     this.pubSub = notificationProvider;
-
-    previewLengthMaxHours = env.getFabricationPreviewLengthMaxHours();
-    chainStartInFutureSeconds = env.getChainStartInFutureSeconds();
+    this.previewLengthMaxHours = fabricationPreviewLengthMaxHours;
+    this.chainStartInFutureSeconds = chainStartInFutureSeconds;
   }
 
   @Override

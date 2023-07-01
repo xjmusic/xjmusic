@@ -9,13 +9,14 @@ import io.xj.hub.access.HubAccessException;
 import io.xj.hub.manager.ManagerException;
 import io.xj.hub.manager.UserManager;
 import io.xj.hub.persistence.HubSqlStoreProvider;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiResponseProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,24 +47,28 @@ public class AuthController extends HubJsonapiEndpoint {
 
   /**
    * Constructor
+   *
    */
+  @Autowired
   public AuthController(
     ApiUrlProvider apiUrlProvider,
-    AppEnvironment env,
     EntityFactory entityFactory,
     GoogleProvider authGoogleProvider,
     HubSqlStoreProvider sqlStoreProvider,
     JsonapiResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
-    UserManager userManager
+    UserManager userManager,
+    @Value("${api.path.unauthorized}")
+    String appPathUnauthorized,
+    @Value("${api.path.welcome}")
+    String appPathWelcome
   ) {
     super(sqlStoreProvider, response, payloadFactory, entityFactory);
     this.apiUrlProvider = apiUrlProvider;
     this.authGoogleProvider = authGoogleProvider;
     this.userManager = userManager;
-
-    appPathUnauthorized = env.getApiUnauthorizedRedirectPath();
-    appPathWelcome = env.getApiWelcomeRedirectPath();
+    this.appPathUnauthorized = appPathUnauthorized;
+    this.appPathWelcome = appPathWelcome;
   }
 
   /**

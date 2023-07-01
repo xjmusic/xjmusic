@@ -6,16 +6,20 @@ import com.google.common.collect.ImmutableSet;
 import io.xj.hub.enums.UserRoleType;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.lib.notification.NotificationProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.UUID;
@@ -32,7 +36,16 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 public class HubAccessTest {
-  @Mock
+  @MockBean
+  NotificationProvider notificationProvider;
+
+  @MockBean
+  FileStoreProvider fileStoreProvider;
+
+  @MockBean
+  HttpClientProvider httpClientProvider;
+
+  @MockBean
   private HttpServletRequest req;
 
   @Test

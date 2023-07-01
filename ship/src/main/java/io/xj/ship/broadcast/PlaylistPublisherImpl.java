@@ -3,9 +3,9 @@
 package io.xj.ship.broadcast;
 
 import com.google.api.client.util.Lists;
+import com.google.api.client.util.Strings;
 import com.google.common.collect.Maps;
 import io.opencensus.stats.Measure;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
@@ -19,6 +19,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -72,12 +73,23 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
 
   @Autowired
   public PlaylistPublisherImpl(
-    AppEnvironment env,
     ChunkFactory chunkFactory,
     FileStoreProvider fileStoreProvider,
     HttpClientProvider httpClientProvider,
     MediaSeqNumProvider mediaSeqNumProvider,
-    TelemetryProvider telemetryProvider
+    TelemetryProvider telemetryProvider,
+    @Value("${ship.mode}") String shipMode,
+    @Value("${stream.bucket}") String streamBucket,
+    @Value("${ship.chunk.target.duration}") int shipChunkTargetDuration,
+    @Value("${ship.m3u8.content.type}") String shipM3u8ContentType,
+    @Value("${ship.m3u8.max.age.seconds}") int shipM3u8MaxAgeSeconds,
+    @Value("${ship.m3u8.server.control.hold.back.extra.seconds}") int shipM3u8ServerControlHoldBackExtraSeconds,
+    @Value("${ship.playlist.back.seconds}") int shipPlaylistBackSeconds,
+    @Value("${stream.base.url}") String streamBaseUrl,
+    @Value("${ship.media.sequence.number.offset}") int shipMediaSequenceNumberOffset,
+    @Value("${ship.chunk.audio.encoder}") String shipChunkAudioEncoder,
+    @Value("${ship.key}") String shipKey,
+    @Value("${ship.key.alias}") String shipKeyAlias
   ) {
     this.chunkFactory = chunkFactory;
     this.fileStore = fileStoreProvider;
@@ -86,20 +98,20 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     this.telemetryProvider = telemetryProvider;
 
     // Environment
-    active = ShipMode.HLS.equals(env.getShipMode());
-    bucket = env.getStreamBucket();
-    chunkTargetDuration = env.getShipChunkTargetDuration();
-    m3u8ContentType = env.getShipM3u8ContentType();
-    m3u8MaxAgeSeconds = env.getShipM3u8MaxAgeSeconds();
-    m3u8ServerControlHoldBackSeconds = 3 * chunkTargetDuration + env.getShipM3u8ServerControlHoldBackExtraSeconds();
-    playlistBackSeconds = env.getShipPlaylistBackSeconds();
-    streamBaseUrl = env.getStreamBaseUrl();
+    this.active = ShipMode.HLS.equals(shipMode);
+    this.bucket = streamBucket;
+    this.chunkTargetDuration = shipChunkTargetDuration;
+    this.m3u8ContentType = shipM3u8ContentType;
+    this.m3u8MaxAgeSeconds = shipM3u8MaxAgeSeconds;
+    this.m3u8ServerControlHoldBackSeconds = 3 * chunkTargetDuration + shipM3u8ServerControlHoldBackExtraSeconds;
+    this.playlistBackSeconds = shipPlaylistBackSeconds;
+    this.streamBaseUrl = streamBaseUrl;
 
     // Computed
-    mediaSeqNumOffset = env.getShipMediaSequenceNumberOffset();
-    isSegmentFilename = m -> m.endsWith(String.format(".%s", env.getShipChunkAudioEncoder()));
-    m3u8Key = computeM3u8Key(env.getShipKey());
-    m3u8KeyAlias = env.getShipKeyAlias().map(this::computeM3u8Key).orElse(null);
+    this.mediaSeqNumOffset = shipMediaSequenceNumberOffset;
+    this.isSegmentFilename = m -> m.endsWith(String.format(".%s", shipChunkAudioEncoder));
+    this.m3u8Key = computeM3u8Key(shipKey);
+    this.m3u8KeyAlias = Strings.isNullOrEmpty(shipKeyAlias) ? String.valueOf(Optional.empty()) : Optional.of(shipKeyAlias).map(this::computeM3u8Key).orElse(null);
 
     // Decimal format for writing seconds values in .m3u8 playlist line items
     df = new DecimalFormat("#.######");

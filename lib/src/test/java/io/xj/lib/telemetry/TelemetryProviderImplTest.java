@@ -2,7 +2,6 @@
 package io.xj.lib.telemetry;
 
 import io.xj.lib.app.AppConfiguration;
-import io.xj.lib.app.AppEnvironment;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -14,17 +13,11 @@ import static org.junit.Assert.assertNotNull;
 
 public class TelemetryProviderImplTest {
   private TelemetryProvider subject;
-
-  private final AppEnvironment env = AppEnvironment.from(Map.of(
-    "SHIP_KEY", "coolair",
-    "APP_NAME", "nexus"
-  ));
-
   private final AppConfiguration config = new AppConfiguration("nexus");
 
   @Before
   public void setUp() throws IOException {
-    subject = new TelemetryProviderImpl(env, config);
+    subject = new TelemetryProviderImpl(config, "coolair", true);
   }
 
   @Test

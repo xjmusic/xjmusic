@@ -4,7 +4,6 @@ import com.google.api.client.util.Maps;
 import io.xj.hub.analysis.util.ChordCount;
 import io.xj.hub.client.HubContent;
 import io.xj.hub.tables.pojos.Program;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.music.Chord;
 
 import java.util.*;
@@ -16,8 +15,8 @@ import java.util.stream.Collectors;
 public class ReportMainProgramChords extends Report {
   private final ChordHistogram mainProgramChords;
 
-  public ReportMainProgramChords(HubContent content, AppEnvironment env) {
-    super(content, env);
+  public ReportMainProgramChords(HubContent content) {
+    super(content);
 
     mainProgramChords = new ChordHistogram();
     content.getProgramSequenceChords().forEach(chord -> mainProgramChords.addProgramId(chord.getName(), chord.getProgramId()));

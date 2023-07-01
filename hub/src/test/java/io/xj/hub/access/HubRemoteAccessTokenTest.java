@@ -2,7 +2,6 @@
 package io.xj.hub.access;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import io.xj.hub.enums.UserRoleType;
 import io.xj.hub.manager.UserManager;
@@ -14,7 +13,6 @@ import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.AccountUser;
 import io.xj.hub.tables.pojos.User;
 import io.xj.hub.tables.pojos.UserAuth;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.JsonProviderImpl;
 import org.junit.jupiter.api.AfterEach;
@@ -54,21 +52,13 @@ public class HubRemoteAccessTokenTest {
   private Collection<AccountUser> accountUsers;
   private User user;
 
-  private final AppEnvironment env = AppEnvironment.from(ImmutableMap.of(
-    "ACCESS_TOKEN_DOMAIN", "com.coconuts",
-    "ACCESS_TOKEN_MAX_AGE_SECONDS", "60",
-    "ACCESS_TOKEN_NAME", "access_token_jammy",
-    "ACCESS_TOKEN_PATH", "/dough",
-    "SESSION_NAMESPACE", "xj_session_test"
-  ));
-
   @BeforeEach
   public void setUp() throws Exception {
-    hubKVStoreProvider = new HubKvStoreProviderImpl(env, new EntityFactoryImpl(new JsonProviderImpl()));
+    hubKVStoreProvider = new HubKvStoreProviderImpl(new EntityFactoryImpl(new JsonProviderImpl()), "", 1);
 
     var jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
-    userManager = new UserManagerImpl(env, entityFactory, googleProvider, hubAccessTokenGenerator, sqlStoreProvider, hubKVStoreProvider);
+    userManager = new UserManagerImpl(entityFactory, googleProvider, hubAccessTokenGenerator, sqlStoreProvider, hubKVStoreProvider, "xj_session_test", "access_token_jammy", "com.coconuts", "/dough", 1, "token123");
 
     user = new User();
     user.setId(UUID.randomUUID());
@@ -95,10 +85,6 @@ public class HubRemoteAccessTokenTest {
 
   @AfterEach
   public void tearDown() {
-    System.clearProperty("access.token.domain");
-    System.clearProperty("access.token.path");
-    System.clearProperty("access.token.max.age");
-    System.clearProperty("access.token.name");
   }
 
   @Test

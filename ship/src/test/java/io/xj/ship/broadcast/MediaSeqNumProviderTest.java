@@ -3,7 +3,6 @@
 package io.xj.ship.broadcast;
 
 import com.google.common.collect.ImmutableMap;
-import io.xj.lib.app.AppEnvironment;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,15 +20,10 @@ public class MediaSeqNumProviderTest {
 
   @Before
   public void setUp() {
-    AppEnvironment env = AppEnvironment.from(ImmutableMap.of(
-      "SHIP_CHUNK_TARGET_DURATION", "10",
-      "SHIP_KEY", "coolair"
-    ));
-
     var chain = buildChain(buildTemplate(buildAccount("Testing"), "Testing"));
     chain.setTemplateConfig("metaSource = \"XJ Music Testing\"\nmetaTitle = \"Test Stream 5\"");
 
-    subject = new MediaSeqNumProvider(env);
+    subject = new MediaSeqNumProvider(10,3);
   }
 
 

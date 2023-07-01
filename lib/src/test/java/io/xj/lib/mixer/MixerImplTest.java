@@ -2,7 +2,6 @@
 package io.xj.lib.mixer;
 
 
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.notification.NotificationProvider;
 import org.junit.After;
 import org.junit.Before;
@@ -32,9 +31,8 @@ public class MixerImplTest {
 
   @Before
   public void setUp() throws Exception {
-    AppEnvironment env = new AppEnvironment();
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    mixerFactory = new MixerFactoryImpl(env, envelopeProvider, notificationProvider);
+    mixerFactory = new MixerFactoryImpl(envelopeProvider, notificationProvider, "production");
     testMixer = mixerFactory.createMixer(
       new MixerConfig(
         new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,

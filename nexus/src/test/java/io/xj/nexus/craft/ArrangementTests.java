@@ -18,7 +18,6 @@ import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.tables.pojos.Template;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.JsonProvider;
@@ -234,22 +233,19 @@ FUTURE goal
    * Reset the resources before each repetition of each test
    */
   private void reset() throws Exception {
-    AppEnvironment env = AppEnvironment.getDefault();
     JsonProvider jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     store = new NexusEntityStoreImpl(entityFactory);
     SegmentManager segmentManager = new SegmentManagerImpl(entityFactory, store);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    var filePathProvider = new FilePathProviderImpl(env);
+    var filePathProvider = new FilePathProviderImpl("");
     ChainManager chainManager = new ChainManagerImpl(
-      env,
       entityFactory,
       store,
       segmentManager,
-      notificationProvider
+      notificationProvider,1,1
     );
     fabrication = new FabricatorFactoryImpl(
-      env,
       chainManager,
       segmentManager,
       jsonapiPayloadFactory,

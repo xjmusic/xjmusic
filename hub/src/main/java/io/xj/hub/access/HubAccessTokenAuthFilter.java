@@ -2,11 +2,11 @@
 package io.xj.hub.access;
 
 import io.xj.hub.manager.UserManager;
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.json.ApiUrlProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.filter.OrderedFilter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
@@ -40,19 +40,22 @@ public class HubAccessTokenAuthFilter implements OrderedFilter {
   private final String accessTokenName;
   private final RequestMappingHandlerMapping requestMappingHandlerMapping;
   private final ApiUrlProvider apiUrlProvider;
-  private final String appPathUnauthorized;
+  private final String apiPathUnauthorized;
 
   @Autowired
   public HubAccessTokenAuthFilter(
     UserManager userManager,
-    AppEnvironment env,
     RequestMappingHandlerMapping requestMappingHandlerMapping,
-    ApiUrlProvider apiUrlProvider) {
+    ApiUrlProvider apiUrlProvider,
+    @Value("${access.token.name}")
+    String accessTokenName,
+    @Value("${api.path.unauthorized}")
+    String apiPathUnauthorized) {
     this.userManager = userManager;
-    accessTokenName = env.getAccessTokenName();
     this.requestMappingHandlerMapping = requestMappingHandlerMapping;
     this.apiUrlProvider = apiUrlProvider;
-    appPathUnauthorized = env.getApiUnauthorizedRedirectPath();
+    this.accessTokenName = accessTokenName;
+    this.apiPathUnauthorized = apiPathUnauthorized;
   }
 
   @Override

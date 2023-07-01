@@ -6,35 +6,39 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.testing.http.MockHttpTransport;
 import com.google.api.client.testing.http.MockLowLevelHttpResponse;
 import com.google.api.services.plus.model.Person;
-import com.google.common.collect.ImmutableMap;
-import io.xj.lib.app.AppEnvironment;
+import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.json.ApiUrlProvider;
+import io.xj.lib.notification.NotificationProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 public class GoogleProviderImplTest extends Mockito {
-  @Mock
-  private GoogleHttpProvider googleHttpProvider;
-  private GoogleProvider googleProvider;
+  @MockBean
+  NotificationProvider notificationProvider;
+
+  @MockBean
+  FileStoreProvider fileStoreProvider;
+
+  @MockBean
+  HttpClientProvider httpClientProvider;
+
+  @MockBean
+  GoogleHttpProvider googleHttpProvider;
+
+  GoogleProvider googleProvider;
 
   @BeforeEach
   public void setUp() throws Exception {
-    var env = AppEnvironment.from(ImmutableMap.of(
-      "GOOGLE_CLIENT_ID", "12345",
-      "GOOGLE_CLIENT_SECRET", "ab1cd2ef3",
-      "APP_BASE_URL", "http://shammy/"
-    ));
-
-    ApiUrlProvider apiUrlProvider = new ApiUrlProvider(env);
-    googleProvider = new GoogleProviderImpl(googleHttpProvider, apiUrlProvider, env);
+    ApiUrlProvider apiUrlProvider = new ApiUrlProvider("http://shammy/");
+    googleProvider = new GoogleProviderImpl(googleHttpProvider, apiUrlProvider, "12345", "");
   }
 
   @Test

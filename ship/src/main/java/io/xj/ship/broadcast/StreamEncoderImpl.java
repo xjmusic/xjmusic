@@ -3,7 +3,6 @@
 package io.xj.ship.broadcast;
 
 
-import io.xj.lib.app.AppEnvironment;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.mixer.FormatException;
@@ -14,6 +13,7 @@ import io.xj.ship.ShipException;
 import io.xj.ship.ShipMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -50,24 +50,31 @@ public class StreamEncoderImpl implements StreamEncoder {
      String shipKey,
      AudioFormat format,
      Long initialSeqNum,
-    AppEnvironment env,
-    FileStoreProvider fileStore,
-    PlaylistPublisher playlist
+     FileStoreProvider fileStore,
+     PlaylistPublisher playlist,
+     @Value("bitrate") int bitrate,
+     @Value("stream.bucket") String streamBucket,
+     @Value("ship.chunk.content.type") String shipChunkContentType,
+     @Value("chunk.target.duration") int chunkTargetDuration,
+     @Value("temp.file.path.prefix") String tempFilePathPrefix,
+     @Value("ship.mode") String shipMode,
+     @Value("ship.mpeg.verbosity") String shipFFmpegVerbosity,
+     @Value("ship.chunk.audio.encoder") String shipChunkAudioEncoder
   ) {
     this.fileStore = fileStore;
     this.format = format;
     this.playlist = playlist;
 
-    bitrate = env.getShipBitrateHigh();
-    bucket = env.getStreamBucket();
-    contentTypeSegment = env.getShipChunkContentType();
-    chunkTargetDuration = env.getShipChunkTargetDuration();
-    tempFilePathPrefix = env.getTempFilePathPrefix();
+    this.bitrate = bitrate;
+    this.bucket = streamBucket;
+    this.contentTypeSegment = shipChunkContentType;
+    this.chunkTargetDuration = chunkTargetDuration;
+    this.tempFilePathPrefix = tempFilePathPrefix;
 
     String m3u8Key = String.format("%s.m3u8", shipKey);
     playlistPath = String.format("%s%s", tempFilePathPrefix, m3u8Key);
 
-    active = ShipMode.HLS.equals(env.getShipMode());
+    active = ShipMode.HLS.equals(shipMode);
 
     if (active)
       CompletableFuture.runAsync(() -> {
@@ -77,10 +84,10 @@ public class StreamEncoderImpl implements StreamEncoder {
         try {
           ProcessBuilder builder = new ProcessBuilder(List.of(
             "ffmpeg",
-            "-v", env.getShipFFmpegVerbosity(),
+            "-v", shipFFmpegVerbosity,
             "-i", "pipe:0",
             "-ac", "2",
-            "-c:a", env.getShipChunkAudioEncoder(),
+            "-c:a", shipChunkAudioEncoder,
             "-b:a", Values.k(bitrate),
             "-maxrate", Values.k(bitrate),
             "-minrate", Values.k(bitrate),
@@ -90,7 +97,7 @@ public class StreamEncoderImpl implements StreamEncoder {
             "-initial_offset", String.valueOf(initialSeqNum),
             "-hls_flags", "delete_segments",
             "-hls_playlist_type", "event",
-            "-hls_segment_filename", String.format("%s%s-%%d.%s", env.getTempFilePathPrefix(), shipKey, env.getShipChunkAudioEncoder()),
+            "-hls_segment_filename", String.format("%s%s-%%d.%s", tempFilePathPrefix, shipKey, shipChunkAudioEncoder),
             "-hls_time", String.valueOf(chunkTargetDuration),
             playlistPath
           ));
