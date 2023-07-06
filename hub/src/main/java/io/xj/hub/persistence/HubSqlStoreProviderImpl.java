@@ -26,7 +26,7 @@ public class HubSqlStoreProviderImpl implements HubSqlStoreProvider {
   public HubSqlStoreProviderImpl(
     @Value("${postgres.schemas}") String schemas,
     @Value("${cloud.sql.socket.factory}") String gcpCloudSqlSocketFactory,
-    @Value("${cloud.sql.instance}") String gcpCloudSqlInstance,
+    @Value("${gcp.cloud.sql.instance}") String gcpCloudSqlInstance,
     @Value("${postgres.database}") String postgresDatabase,
     @Value("${postgres.host}") String postgresHost,
     @Value("${postgres.port}") String postgresPort,
@@ -36,8 +36,6 @@ public class HubSqlStoreProviderImpl implements HubSqlStoreProvider {
   ) {
     this.schemas = schemas;
     String url;
-    LOG.info("Spring @Value 'cloud.sql.instance' {}", gcpCloudSqlInstance);
-    LOG.info("System.getenv('cloud.sql.instance') {}", System.getenv("cloud.sql.instance"));
     if (Strings.isNullOrEmpty(gcpCloudSqlInstance)) {
       url = String.format("jdbc:postgresql://%s:%s/%s", postgresHost, postgresPort, postgresDatabase);
       LOG.info("Configured without GCP Cloud SQL instance, using host and port: {}", url);
