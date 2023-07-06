@@ -1,8 +1,15 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.mixer.demo;
 
-
-import io.xj.lib.mixer.*;
+import io.xj.lib.mixer.AudioFileWriter;
+import io.xj.lib.mixer.AudioFileWriterImpl;
+import io.xj.lib.mixer.EnvelopeProvider;
+import io.xj.lib.mixer.EnvelopeProviderImpl;
+import io.xj.lib.mixer.FormatException;
+import io.xj.lib.mixer.Mixer;
+import io.xj.lib.mixer.MixerConfig;
+import io.xj.lib.mixer.MixerFactory;
+import io.xj.lib.mixer.MixerFactoryImpl;
 import io.xj.lib.notification.NotificationProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,11 +18,10 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.sound.sampled.AudioFormat;
 import java.time.Duration;
+import java.util.UUID;
 
 import static io.xj.lib.util.Assertion.assertFileMatchesResourceFile;
-import static io.xj.lib.util.Assertion.assertFileSizeToleranceFromResourceFile;
 import static io.xj.lib.util.Files.getResourceFile;
-import static org.junit.Assert.assertEquals;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DemoIT {
@@ -24,14 +30,14 @@ public class DemoIT {
   private static final Duration step = beat.dividedBy(4);
   private static final String filePrefix = "demo_source_audio/";
   private static final String sourceFileSuffix = ".wav";
-  private static final String kick1 = "808/kick1";
-  private static final String kick2 = "808/kick2";
-  private static final String marac = "808/maracas";
-  private static final String snare = "808/snare";
-  private static final String lotom = "808/tom1";
-  private static final String clhat = "808/cl_hihat";
-  private static final String ding = "instrument7-audio9-24bit-88200hz";
-  private static final String[] sources = {
+  private static final DemoSource kick1 = new DemoSource(UUID.randomUUID(), "808/kick1");
+  private static final DemoSource kick2 = new DemoSource(UUID.randomUUID(), "808/kick2");
+  private static final DemoSource marac = new DemoSource(UUID.randomUUID(), "808/maracas");
+  private static final DemoSource snare = new DemoSource(UUID.randomUUID(), "808/snare");
+  private static final DemoSource lotom = new DemoSource(UUID.randomUUID(), "808/tom1");
+  private static final DemoSource clhat = new DemoSource(UUID.randomUUID(), "808/cl_hihat");
+  private static final DemoSource ding = new DemoSource(UUID.randomUUID(), "instrument7-audio9-24bit-88200hz");
+  private static final DemoSource[] sources = {
     kick1,
     kick2,
     marac,
@@ -40,7 +46,7 @@ public class DemoIT {
     clhat,
     ding
   };
-  private static final String[] demoSequence = {
+  private static final DemoSource[] demoSequence = {
     kick2,
     marac,
     clhat,
@@ -60,20 +66,19 @@ public class DemoIT {
   };
   private final MixerFactory mixerFactory;
   private static final String referenceAudioFilePrefix = "demo_reference_outputs/";
-  private static final String DEFAULT_BUS = "Default";
+  private static final int DEFAULT_BUS = 0;
 
   @Mock
   NotificationProvider notificationProvider;
 
   public DemoIT() {
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    this.mixerFactory = new MixerFactoryImpl(envelopeProvider, notificationProvider, "development");
+    this.mixerFactory = new MixerFactoryImpl(envelopeProvider, notificationProvider, "development", 1000000);
   }
 
   /**
    * assert mix output equals reference audio
    *
-   * @param encoder       to output
    * @param encoding      encoding
    * @param frameRate     frame rate
    * @param sampleBits    sample bits
@@ -82,46 +87,51 @@ public class DemoIT {
    * @throws Exception on failure
    */
   @SuppressWarnings("SameParameterValue")
-  private void assertMixOutputEqualsReferenceAudio(OutputEncoder encoder, AudioFormat.Encoding encoding, int frameRate, int sampleBits, int channels, double seconds, String referenceName) throws Exception {
+  private void assertMixOutputEqualsReferenceAudio(AudioFormat.Encoding encoding, int frameRate, int sampleBits, int channels, double seconds, String referenceName) throws Exception {
     String filename = io.xj.lib.util.Files.getUniqueTempFilename(referenceName);
-    assertEquals("Mixed output length in seconds", seconds, mixAndWriteOutput(encoder, encoding, frameRate, sampleBits, channels, filename), 0.01);
-    switch (encoder) {
-      case WAV -> assertFileMatchesResourceFile(getReferenceAudioFilename(referenceName), filename);
-      case OGG -> assertFileSizeToleranceFromResourceFile(filename, getReferenceAudioFilename(referenceName));
-    }
+    mixAndWriteOutput(encoding, frameRate, sampleBits, channels, seconds, filename);
+    assertFileMatchesResourceFile(getReferenceAudioFilename(referenceName), filename);
   }
 
   /**
    * Execute a mix and write output to file
    *
-   * @param outputEncoder    to encode pure floating point samples in channels to contained file output
    * @param outputEncoding   encoding
    * @param outputFrameRate  frame rate
    * @param outputSampleBits bits per sample
    * @param outputChannels   channels
+   * @param outputSeconds    seconds
    * @param outputFilePath   file path to write output
    * @throws Exception on failure
    */
-  private double mixAndWriteOutput(OutputEncoder outputEncoder, AudioFormat.Encoding outputEncoding, int outputFrameRate, int outputSampleBits, int outputChannels, String outputFilePath) throws Exception {
-    Mixer demoMixer = mixerFactory.createMixer(new MixerConfig(
-      new AudioFormat(outputEncoding, outputFrameRate, outputSampleBits, outputChannels,
-        (outputChannels * outputSampleBits / 8), outputFrameRate, false)
-    ));
+  private void mixAndWriteOutput(AudioFormat.Encoding outputEncoding, int outputFrameRate, int outputSampleBits, int outputChannels, double outputSeconds, String outputFilePath) throws Exception {
+    AudioFormat audioFormat = new AudioFormat(outputEncoding, outputFrameRate, outputSampleBits, outputChannels,
+      (outputChannels * outputSampleBits / 8), outputFrameRate, false);
+    AudioFileWriter audioFileWriter = new AudioFileWriterImpl(audioFormat);
+    MixerConfig mixerConfig = new MixerConfig(audioFormat);
+    mixerConfig.setTotalSeconds(outputSeconds);
+    Mixer mixer = mixerFactory.createMixer(mixerConfig);
 
     // set up the sources
-    for (String sourceName : sources)
-      demoMixer.loadSource(sourceName, getResourceFile(filePrefix + sourceName + sourceFileSuffix).getAbsolutePath(), "test audio");
+    for (DemoSource source : sources) {
+      mixer.loadSource(source.id(), getResourceFile(filePrefix + source.key() + sourceFileSuffix).getAbsolutePath(), "test audio");
+    }
 
     // set up the music
     int iL = demoSequence.length;
     for (int i = 0; i < iL; i++)
-      demoMixer.put(DEFAULT_BUS, demoSequence[i], atMicros(i), atMicros(i + 3), 1.0, 1, 5);
+      mixer.put(UUID.randomUUID(), demoSequence[i].id(), DEFAULT_BUS, atMicros(i), atMicros(i + 3), 1.0, 1, 5);
 
     // To also test high rate inputs being added to the mix
-    demoMixer.put(DEFAULT_BUS, ding, atMicros(0), atMicros(4), 1.0, 1, 5);
+    mixer.put(UUID.randomUUID(), ding.id(), DEFAULT_BUS, atMicros(0), atMicros(4), 1.0, 1, 5);
 
     // mix it
-    return demoMixer.mixToFile(outputEncoder, outputFilePath, 1.0f);
+    mixer.mix();
+
+    // Write the demo file output
+    audioFileWriter.open(outputFilePath);
+    audioFileWriter.append(mixer.getBuffer().consume(mixer.getBuffer().getAvailableByteCount()));
+    audioFileWriter.close();
   }
 
   /**
@@ -152,22 +162,17 @@ public class DemoIT {
    */
   @Test
   public void demo_48000Hz_Signed_32bit_2ch() throws Exception {
-    assertMixOutputEqualsReferenceAudio(OutputEncoder.WAV, AudioFormat.Encoding.PCM_SIGNED, 48000, 32, 2, 2.231404, "48000Hz_Signed_32bit_2ch.wav");
+    assertMixOutputEqualsReferenceAudio(AudioFormat.Encoding.PCM_SIGNED, 48000, 32, 2, 2.231404, "48000Hz_Signed_32bit_2ch.wav");
   }
 
   @Test
   public void demo_48000Hz_Signed_16bit_2ch() throws Exception {
-    assertMixOutputEqualsReferenceAudio(OutputEncoder.WAV, AudioFormat.Encoding.PCM_SIGNED, 44100, 16, 2, 2.231404, "44100Hz_Signed_16bit_2ch.wav");
+    assertMixOutputEqualsReferenceAudio(AudioFormat.Encoding.PCM_SIGNED, 44100, 16, 2, 2.231404, "44100Hz_Signed_16bit_2ch.wav");
   }
 
   @Test
   public void demo_48000Hz_Signed_8bit_1ch() throws Exception {
-    assertMixOutputEqualsReferenceAudio(OutputEncoder.WAV, AudioFormat.Encoding.PCM_SIGNED, 22000, 8, 1, 2.231404, "22000Hz_Signed_8bit_1ch.wav");
-  }
-
-  @Test
-  public void demo_48000Hz_2ch_OggVorbis() throws Exception {
-    assertMixOutputEqualsReferenceAudio(OutputEncoder.OGG, AudioFormat.Encoding.PCM_FLOAT, 48000, 32, 2, 2.231404, "48000Hz_Float_32bit_2ch.ogg");
+    assertMixOutputEqualsReferenceAudio(AudioFormat.Encoding.PCM_SIGNED, 22000, 8, 1, 2.231404, "22000Hz_Signed_8bit_1ch.wav");
   }
 
 }

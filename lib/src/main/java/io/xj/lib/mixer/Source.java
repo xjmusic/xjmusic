@@ -3,6 +3,7 @@ package io.xj.lib.mixer;
 
 import javax.sound.sampled.AudioFormat;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  Models a single audio source.
@@ -57,7 +58,7 @@ public interface Source {
   int getSampleSize();
 
   /**
-   @return source id, for usage
+   * @return source id, for usage
    */
-  String getSourceId();
+  UUID getAudioId();
 }

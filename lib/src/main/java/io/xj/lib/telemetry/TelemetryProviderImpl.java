@@ -3,7 +3,11 @@ package io.xj.lib.telemetry;
 
 import com.google.api.client.util.Strings;
 import io.opencensus.exporter.stats.stackdriver.StackdriverStatsExporter;
-import io.opencensus.stats.*;
+import io.opencensus.stats.Aggregation;
+import io.opencensus.stats.Measure;
+import io.opencensus.stats.Stats;
+import io.opencensus.stats.StatsRecorder;
+import io.opencensus.stats.View;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.util.Text;
 import org.slf4j.Logger;
@@ -12,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
 
 import static io.xj.lib.util.Text.SPACE;
@@ -39,12 +42,12 @@ class TelemetryProviderImpl implements TelemetryProvider {
   @Autowired
   public TelemetryProviderImpl(
     AppConfiguration config,
-    @Value("${ship.key:}")
-    String shipKey,
+    @Value("${input.template.key:}")
+    String inputTemplateKey,
     @Value("${telemetry.enabled:false}")
     Boolean isTelemetryEnabled
-  ) throws IOException {
-    prefixA = Strings.isNullOrEmpty(shipKey) ? DEFAULT_SHIP_KEY : shipKey;
+  ) {
+    prefixA = Strings.isNullOrEmpty(inputTemplateKey) ? DEFAULT_SHIP_KEY : inputTemplateKey;
     prefixB = config.getName();
 
     // Globally enable or disable telemetry recording

@@ -11,6 +11,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.sound.sampled.AudioFormat;
 import java.io.IOException;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -32,34 +33,40 @@ public class SourceImplTest {
   private Source S16LSB_44100Hz_Mono;
   private Source empty;
 
+  private final UUID audioId_F32LSB_48kHz_6ch = UUID.randomUUID();
+  private final UUID audioId_F32LSB_48kHz_Stereo = UUID.randomUUID();
+  private final UUID audioId_S16LSB_44100Hz_Mono = UUID.randomUUID();
+
   @Before
   public void setUp() throws Exception {
-    mixerFactory = new MixerFactoryImpl(envelopeProvider, notificationProvider, "production");
+    EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
+    mixerFactory = new MixerFactoryImpl(envelopeProvider, notificationProvider, "production", 1000000);
+
 
     F32LSB_48kHz_Stereo = mixerFactory.createSource(
-      "F32LSB_48kHz_Stereo",
+      audioId_F32LSB_48kHz_Stereo,
       new InternalResource("test_audio/F32LSB_48kHz_Stereo.wav").getFile().getAbsolutePath(), "test audio");
 
     S16LSB_44100Hz_Mono = mixerFactory.createSource(
-      "S16LSB_44100Hz_Mono",
+      audioId_S16LSB_44100Hz_Mono,
       new InternalResource("test_audio/S16LSB_44100Hz_Mono.wav").getFile().getAbsolutePath(), "test audio");
 
-    empty = mixerFactory.createSource("x123", "/does/not/exists", "will fail surely");
+    empty = mixerFactory.createSource(UUID.randomUUID(), "/does/not/exists", "will fail surely");
   }
 
   @Test
   public void unsupported_over2channels() throws IOException, SourceException, FormatException {
     mixerFactory.createSource(
-      "F32LSB_48kHz_6ch",
+      audioId_F32LSB_48kHz_6ch,
       new InternalResource("test_audio/F32LSB_48kHz_6ch.wav").getFile().getAbsolutePath(), "test audio");
 
-    verify(notificationProvider).publish(eq("Production-Chain Mix Source Failure"), eq("Failed to load source for Audio[F32LSB_48kHz_6ch] \"test audio\" because more than 2 input audio channels not allowed"));
+    verify(notificationProvider).publish(eq("Production-Chain Mix Source Failure"), eq("Failed to load source for Audio[" + audioId_F32LSB_48kHz_6ch + "] \"test audio\" because more than 2 input audio channels not allowed"));
   }
 
   @Test
   public void load24BitSourceAudio() throws Exception {
     assertNotNull(mixerFactory.createSource(
-      "S24LSB_44100Hz_Stereo",
+      audioId_F32LSB_48kHz_Stereo,
       new InternalResource("test_audio/S24LSB_44100Hz_Stereo.wav").getFile().getAbsolutePath(), "test audio"));
   }
 
@@ -99,8 +106,8 @@ public class SourceImplTest {
 
   @Test
   public void getSourceId() {
-    assertEquals("F32LSB_48kHz_Stereo", F32LSB_48kHz_Stereo.getSourceId());
-    assertEquals("S16LSB_44100Hz_Mono", S16LSB_44100Hz_Mono.getSourceId());
+    assertEquals(audioId_F32LSB_48kHz_Stereo, F32LSB_48kHz_Stereo.getAudioId());
+    assertEquals(audioId_S16LSB_44100Hz_Mono, S16LSB_44100Hz_Mono.getAudioId());
   }
 
   @Test
@@ -133,6 +140,6 @@ public class SourceImplTest {
   @Test
   public void empty() {
     assertTrue(empty.getAudioFormat().isEmpty());
-    verify(notificationProvider).publish(eq("Production-Chain Mix Source Failure"), eq("Failed to load source for Audio[x123] \"will fail surely\" because /does/not/exists (No such file or directory)"));
+    verify(notificationProvider).publish(eq("Production-Chain Mix Source Failure"), eq("Failed to load source for Audio[" + empty.getAudioId() + "] \"will fail surely\" because /does/not/exists (No such file or directory)"));
   }
 }

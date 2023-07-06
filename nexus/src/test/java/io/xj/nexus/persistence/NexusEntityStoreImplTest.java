@@ -29,8 +29,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.time.Instant;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
@@ -40,6 +40,7 @@ import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequence;
 import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceBinding;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplateBinding;
+import static io.xj.lib.util.Values.MICROS_PER_SECOND;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
@@ -87,9 +88,9 @@ public class NexusEntityStoreImplTest {
     segment.setChainId(chainId);
     segment.setOffset(0L);
     segment.setType(SegmentType.NEXTMACRO);
-    segment.setState(SegmentState.DUBBED);
-    segment.beginAt("2017-02-14T12:01:00.000001Z");
-    segment.endAt("2017-02-14T12:01:32.000001Z");
+    segment.setState(SegmentState.CRAFTED);
+    segment.beginAtChainMicros(0L);
+    segment.durationMicros(32 * MICROS_PER_SECOND);
     segment.setKey("D Major");
     segment.setTotal(64);
     segment.setDensity(0.73);
@@ -103,9 +104,9 @@ public class NexusEntityStoreImplTest {
     assertEquals(chainId, result.getChainId());
     assertEquals(Long.valueOf(0), result.getOffset());
     assertEquals(SegmentType.NEXTMACRO, result.getType());
-    assertEquals(SegmentState.DUBBED, result.getState());
-    assertEquals("2017-02-14T12:01:00.000001Z", result.getBeginAt());
-    assertEquals("2017-02-14T12:01:32.000001Z", result.getEndAt());
+    assertEquals(SegmentState.CRAFTED, result.getState());
+    assertEquals(0, (long) result.getBeginAtChainMicros());
+    assertEquals(32 * MICROS_PER_SECOND, (long) Objects.requireNonNull(result.getDurationMicros()));
     assertEquals("D Major", result.getKey());
     assertEquals(Integer.valueOf(64), result.getTotal());
     assertEquals(0.73, result.getDensity(), 0.01);
@@ -121,8 +122,6 @@ public class NexusEntityStoreImplTest {
     chain.setAccountId(accountId);
     chain.setType(ChainType.PREVIEW);
     chain.setState(ChainState.FABRICATE);
-    chain.startAt("2017-02-14T12:01:00.000001Z");
-    chain.stopAt("2017-02-14T12:01:32.000001Z");
     chain.shipKey("super");
 
     subject.put(chain);
@@ -132,8 +131,6 @@ public class NexusEntityStoreImplTest {
     assertEquals(accountId, result.getAccountId());
     assertEquals(ChainType.PREVIEW, result.getType());
     assertEquals(ChainState.FABRICATE, result.getState());
-    assertEquals("2017-02-14T12:01:00.000001Z", result.getStartAt());
-    assertEquals("2017-02-14T12:01:32.000001Z", result.getStopAt());
     assertEquals("super", result.getShipKey());
   }
 
@@ -143,9 +140,9 @@ public class NexusEntityStoreImplTest {
     segment.setId(UUID.randomUUID());
     segment.setChainId(UUID.randomUUID());
     segment.setOffset(0L);
-    segment.setState(SegmentState.DUBBED);
-    segment.beginAt("2017-02-14T12:01:00.000001Z");
-    segment.endAt("2017-02-14T12:01:32.000001Z");
+    segment.setState(SegmentState.CRAFTED);
+    segment.beginAtChainMicros(0);
+    segment.durationMicros(32 * MICROS_PER_SECOND);
     segment.setKey("D Major");
     segment.setTotal(64);
     segment.setDensity(0.73);
@@ -171,9 +168,9 @@ public class NexusEntityStoreImplTest {
     var seg = new Segment();
     seg.setChainId(UUID.randomUUID());
     seg.setOffset(0L);
-    seg.setState(SegmentState.DUBBED);
-    seg.beginAt("2017-02-14T12:01:00.000001Z");
-    seg.endAt("2017-02-14T12:01:32.000001Z");
+    seg.setState(SegmentState.CRAFTED);
+    seg.beginAtChainMicros(0);
+    seg.durationMicros(32 * MICROS_PER_SECOND);
     seg.setKey("D Major");
     seg.setTotal(64);
     seg.setDensity(0.73);
@@ -194,7 +191,7 @@ public class NexusEntityStoreImplTest {
     choice.setDeltaIn(Segments.DELTA_UNLIMITED);
     choice.setDeltaOut(Segments.DELTA_UNLIMITED);
     choice.setProgramSequenceBindingId(UUID.randomUUID());
-    choice.setProgramType(ProgramType.Macro.toString());
+    choice.setProgramType(ProgramType.Macro);
 
     var failure = assertThrows(NexusException.class,
       () -> subject.put(choice));
@@ -212,56 +209,46 @@ public class NexusEntityStoreImplTest {
       ChainType.PRODUCTION,
       ChainState.FABRICATE,
       template,
-      Instant.parse("2014-08-12T12:17:02.527142Z"),
-      null,
-      "key123"));
+            "key123"));
     var chain3 = subject.put(buildChain(
       account1,
       "Test Print #3",
       ChainType.PRODUCTION,
       ChainState.FABRICATE,
       template,
-      Instant.parse("2014-08-12T12:17:02.527142Z"),
-      null,
-      "key123"));
+            "key123"));
     var program = buildProgram(ProgramType.Macro, "C", 120.0f, 0.6f);
     var programSequence = buildProgramSequence(program, 8, "Hay", 0.6f, "G");
     var programSequenceBinding = buildProgramSequenceBinding(programSequence, 0);
     subject.put(buildSegment(chain2,
       12,
-      SegmentState.DUBBED,
-      Instant.parse("2017-02-14T12:01:00.000001Z"),
-      Instant.parse("2017-02-14T12:01:32.000001Z"),
+      SegmentState.CRAFTED,
       "G minor",
       32,
       0.3,
       10.0,
-      "chains-2-segments-8929f7sd8a789.wav",
-      "OGG"));
+      "chains-2-segments-8929f7sd8a789.wav"
+    ));
     Segment chain3_segment0 = subject.put(buildSegment(chain3,
       0,
-      SegmentState.DUBBED,
-      Instant.parse("2017-02-14T12:01:00.000001Z"),
-      Instant.parse("2017-02-14T12:01:32.000001Z"),
+      SegmentState.CRAFTED,
       "D Major",
       64,
       0.73,
       120.0,
-      "chains-3-segments-9f7s89d8a7892.wav",
-      "OGG"));
+      "chains-3-segments-9f7s89d8a7892.wav"
+    ));
     subject.put(buildSegmentChoice(chain3_segment0, Segments.DELTA_UNLIMITED, Segments.DELTA_UNLIMITED, program, programSequenceBinding));
     // not in the above chain, won't be retrieved with it
     subject.put(buildSegment(chain3,
       0,
-      SegmentState.DUBBED,
-      Instant.parse("2017-02-14T12:01:32.000001Z"),
-      Instant.parse("2017-02-14T12:01:48.000001Z"),
+      SegmentState.CRAFTED,
       "D Major",
       48,
       0.73,
       120.0,
-      "chains-3-segments-d8a78929f7s89.wav",
-      "OGG"));
+      "chains-3-segments-d8a78929f7s89.wav"
+    ));
 
     Collection<Segment> result = subject.getAllSegments(chain3.getId());
     assertEquals(2, result.size());

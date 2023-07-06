@@ -2,10 +2,13 @@
 package io.xj.nexus.fabricator;
 
 
+import io.xj.hub.client.HubClientException;
 import io.xj.hub.client.HubContent;
+import io.xj.lib.util.ValueException;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
+import io.xj.nexus.persistence.ManagerFatalException;
 
 /**
  * Fabricator content = contentFactory.fabricate(segment);
@@ -27,7 +30,7 @@ public interface FabricatorFactory {
   Fabricator fabricate(
     HubContent sourceMaterial,
     Segment segment
-  ) throws NexusException, FabricationFatalException;
+  ) throws NexusException, FabricationFatalException, ManagerFatalException, ValueException, HubClientException;
 
   /**
    * Create a retrospective to fabricate a particular segment

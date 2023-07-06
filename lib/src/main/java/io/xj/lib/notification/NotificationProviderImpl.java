@@ -50,7 +50,7 @@ public class NotificationProviderImpl implements NotificationProvider {
       LOG.info("Will publish notifications to {}", topicArn);
     } else {
       topicArn = null;
-      LOG.info("Will not publish notifications because environment has no aws snsTopicArn");
+      LOG.info("Will not publish notifications.");
     }
   }
 

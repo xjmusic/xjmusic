@@ -37,7 +37,6 @@ import io.xj.hub.tables.pojos.UserAuth;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.util.Text;
-import io.xj.lib.util.Values;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
@@ -56,7 +55,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.time.Instant;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -85,14 +83,15 @@ import static io.xj.hub.IntegrationTestingFixtures.buildTrack;
 import static io.xj.hub.IntegrationTestingFixtures.buildUser;
 import static io.xj.hub.IntegrationTestingFixtures.buildVoice;
 import static io.xj.hub.IntegrationTestingFixtures.buildVoicing;
-import static io.xj.lib.util.Values.NANOS_PER_SECOND;
+import static io.xj.lib.util.Values.MICROS_PER_SECOND;
+import static io.xj.lib.util.Values.SECONDS_PER_MINUTE;
 
 /**
- Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
- <p>
- Testing the hypothesis that, while unit tests are all independent,
- integration tests ought be as much about testing all features around a consensus model of the platform
- as they are about testing all resources.
+ * Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
+ * <p>
+ * Testing the hypothesis that, while unit tests are all independent,
+ * integration tests ought be as much about testing all features around a consensus model of the platform
+ * as they are about testing all resources.
  */
 public class NexusIntegrationTestingFixtures {
   private static final Logger log = LoggerFactory.getLogger(NexusIntegrationTestingFixtures.class);
@@ -270,10 +269,10 @@ public class NexusIntegrationTestingFixtures {
   public User user3;
 
   /**
-   List of N random values
-
-   @param N number of values
-   @return list of values
+   * List of N random values
+   *
+   * @param N number of values
+   * @return array of values
    */
   protected static Float[] listOfRandomValues(int N) {
     Float[] result = new Float[N];
@@ -284,11 +283,11 @@ public class NexusIntegrationTestingFixtures {
   }
 
   /**
-   Create a N-magnitude list of unique Strings at random of a source list of Strings
-
-   @param N           size of list
-   @param sourceItems source Strings
-   @return list of unique random Strings
+   * Create a N-magnitude list of unique Strings at random of a source list of Strings
+   *
+   * @param N           size of list
+   * @param sourceItems source Strings
+   * @return array of unique random Strings
    */
   protected static String[] listOfUniqueRandom(long N, String[] sourceItems) {
     long count = 0;
@@ -304,31 +303,31 @@ public class NexusIntegrationTestingFixtures {
   }
 
   /**
-   Random value between A and B
-
-   @param A floor
-   @param B ceiling
-   @return A <= value <= B
+   * Random value between A and B
+   *
+   * @param A floor
+   * @param B ceiling
+   * @return A <= value <= B
    */
   protected static Float random(double A, double B) {
     return (float) (A + StrictMath.random() * (B - A));
   }
 
   /**
-   Get random String of array
-
-   @param array to get String of
-   @return random String
+   * Get random String of array
+   *
+   * @param array to get String of
+   * @return random String
    */
   protected static String random(String[] array) {
     return array[(int) StrictMath.floor(StrictMath.random() * array.length)];
   }
 
   /**
-   Get random long of array
-
-   @param array to get long of
-   @return random long
+   * Get random long of array
+   *
+   * @param array to get long of
+   * @return random long
    */
   protected static Integer random(Integer[] array) {
     return array[(int) StrictMath.floor(StrictMath.random() * array.length)];
@@ -347,19 +346,18 @@ public class NexusIntegrationTestingFixtures {
     chain.setType(ChainType.PRODUCTION);
     chain.setTemplateConfig(template.getConfig());
     chain.setState(state);
-    chain.startAt(Values.formatIso8601UTC(Instant.now()));
     return chain;
   }
 
-  public static Chain buildChain(Account account, String name, ChainType type, ChainState state, Template template, Instant startAt) {
-    return buildChain(account, name, type, state, template, startAt, null, Text.toShipKey(name));
+  public static Chain buildChain(Account account, String name, ChainType type, ChainState state, Template template) {
+    return buildChain(account, name, type, state, template, Text.toShipKey(name));
   }
 
-  public static Chain buildChain(Account account, Template template, String name, ChainType type, ChainState state, Instant startAt) {
-    return buildChain(account, name, type, state, template, startAt, null, Text.toShipKey(name));
+  public static Chain buildChain(Account account, Template template, String name, ChainType type, ChainState state) {
+    return buildChain(account, name, type, state, template, Text.toShipKey(name));
   }
 
-  public static Chain buildChain(Account account, String name, ChainType type, ChainState state, Template template, Instant startAt, @Nullable Instant stopAt, @Nullable String shipKey) {
+  public static Chain buildChain(Account account, String name, ChainType type, ChainState state, Template template, @Nullable String shipKey) {
     var chain = new Chain();
     chain.setId(UUID.randomUUID());
     chain.setTemplateId(template.getId());
@@ -368,9 +366,6 @@ public class NexusIntegrationTestingFixtures {
     chain.setType(type);
     chain.setState(state);
     chain.setTemplateConfig(TEST_TEMPLATE_CONFIG);
-    chain.startAt(Values.formatIso8601UTC(startAt));
-    if (Objects.nonNull(stopAt))
-      chain.stopAt(Values.formatIso8601UTC(stopAt));
     if (Objects.nonNull(shipKey))
       chain.shipKey(shipKey);
     return chain;
@@ -382,26 +377,22 @@ public class NexusIntegrationTestingFixtures {
     return seg;
   }
 
-  public static Segment buildSegment(Chain chain, int offset, SegmentState state, Instant beginAt, @Nullable Instant endAt, String key, int total, double density, double tempo, String storageKey, String outputEncoder) {
+  public static Segment buildSegment(Chain chain, int offset, SegmentState state, String key, int total, double density, double tempo, String storageKey) {
     return buildSegment(chain,
       0 < offset ? SegmentType.CONTINUE : SegmentType.INITIAL,
-      offset, 0, state, beginAt, endAt, key, total, density, tempo, storageKey, outputEncoder);
+      offset, 0, state, key, total, density, tempo, storageKey, state == SegmentState.CRAFTED);
   }
 
-  public static Segment buildSegment(Chain chain, SegmentType type, int offset, int delta, SegmentState state, Instant beginAt, @Nullable Instant endAt, String key, int total, double density, double tempo, String shipKey) {
-    return buildSegment(chain, type, offset, delta, state, beginAt, endAt, key, total, density, tempo, shipKey, "OGG");
-  }
 
-  public static Segment buildSegment(Chain chain, SegmentType type, int offset, int delta, SegmentState state, Instant beginAt, @Nullable Instant endAt, String key, int total, double density, double tempo, String storageKey, String outputEncoder) {
+  public static Segment buildSegment(Chain chain, SegmentType type, int offset, int delta, SegmentState state, String key, int total, double density, double tempo, String storageKey, boolean hasEndSet) {
     var segment = new Segment();
     segment.setId(UUID.randomUUID());
     segment.setChainId(chain.getId());
     segment.setType(type);
-    segment.setOutputEncoder(outputEncoder);
     segment.setOffset((long) offset);
     segment.setDelta(delta);
     segment.setState(state);
-    segment.setBeginAt(Values.formatIso8601UTC(beginAt));
+    segment.setBeginAtChainMicros((long) (offset * MICROS_PER_SECOND * total * SECONDS_PER_MINUTE / tempo));
     segment.setKey(key);
     segment.setTotal(total);
     segment.setDensity(density);
@@ -410,8 +401,9 @@ public class NexusIntegrationTestingFixtures {
     segment.setWaveformPreroll(0.0);
     segment.setWaveformPostroll(0.0);
 
-    if (Objects.nonNull(endAt))
-      segment.endAt(Values.formatIso8601UTC(endAt));
+    var durationMicros = (long) (MICROS_PER_SECOND * total * SECONDS_PER_MINUTE / tempo);
+    if (hasEndSet)
+      segment.setDurationMicros(durationMicros);
 
     return segment;
   }
@@ -421,17 +413,15 @@ public class NexusIntegrationTestingFixtures {
       chain,
       0,
       SegmentState.CRAFTING,
-      Instant.parse(chain.getStartAt()),
-      Instant.parse(chain.getStartAt()).plusNanos((long) (NANOS_PER_SECOND * total * (60 / tempo))), key, total, density, tempo, "segment123", "wav");
+      key, total, density, tempo, "segment123");
   }
 
-  public static Segment buildSegment(Chain chain, int offset, Instant beginAt, String key, int total, float density, float tempo) {
+  public static Segment buildSegment(Chain chain, int offset, String key, int total, float density, float tempo) {
     return buildSegment(
       chain,
       offset,
       SegmentState.CRAFTING,
-      beginAt,
-      beginAt.plusNanos((long) (NANOS_PER_SECOND * total * (60 / tempo))), key, total, density, tempo, "segment123", "wav");
+      key, total, density, tempo, "segment123");
   }
 
   public static SegmentChoice buildSegmentChoice(Segment segment, ProgramType programType, ProgramSequenceBinding programSequenceBinding) {
@@ -442,7 +432,7 @@ public class NexusIntegrationTestingFixtures {
     segmentChoice.setDeltaOut(Segments.DELTA_UNLIMITED);
     segmentChoice.setProgramId(programSequenceBinding.getProgramId());
     segmentChoice.setProgramSequenceBindingId(programSequenceBinding.getId());
-    segmentChoice.setProgramType(programType.toString());
+    segmentChoice.setProgramType(programType);
     return segmentChoice;
   }
 
@@ -454,7 +444,7 @@ public class NexusIntegrationTestingFixtures {
     segmentChoice.setDeltaOut(Segments.DELTA_UNLIMITED);
     segmentChoice.setProgramId(programSequence.getProgramId());
     segmentChoice.setProgramSequenceId(programSequence.getId());
-    segmentChoice.setProgramType(programType.toString());
+    segmentChoice.setProgramType(programType);
     return segmentChoice;
   }
 
@@ -465,10 +455,10 @@ public class NexusIntegrationTestingFixtures {
     segmentChoice.setDeltaIn(deltaIn);
     segmentChoice.setDeltaOut(deltaOut);
     segmentChoice.setProgramId(program.getId());
-    segmentChoice.setProgramType(program.getType().toString());
+    segmentChoice.setProgramType(program.getType());
     segmentChoice.setMute(false);
-    segmentChoice.setInstrumentType(instrumentType.toString());
-    segmentChoice.setInstrumentMode(instrumentMode.toString());
+    segmentChoice.setInstrumentType(instrumentType);
+    segmentChoice.setInstrumentMode(instrumentMode);
     return segmentChoice;
   }
 
@@ -479,7 +469,7 @@ public class NexusIntegrationTestingFixtures {
     segmentChoice.setDeltaIn(Segments.DELTA_UNLIMITED);
     segmentChoice.setDeltaOut(Segments.DELTA_UNLIMITED);
     segmentChoice.setProgramId(program.getId());
-    segmentChoice.setProgramType(program.getType().toString());
+    segmentChoice.setProgramType(program.getType());
     return segmentChoice;
   }
 
@@ -497,15 +487,15 @@ public class NexusIntegrationTestingFixtures {
     segmentChoice.setId(UUID.randomUUID());
     segmentChoice.setProgramVoiceId(voice.getId());
     segmentChoice.setInstrumentId(instrument.getId());
-    segmentChoice.setInstrumentType(instrument.getType().toString());
+    segmentChoice.setInstrumentType(instrument.getType());
     segmentChoice.setMute(false);
-    segmentChoice.setInstrumentMode(instrument.getMode().toString());
+    segmentChoice.setInstrumentMode(instrument.getMode());
     segmentChoice.setDeltaIn(Segments.DELTA_UNLIMITED);
     segmentChoice.setDeltaOut(Segments.DELTA_UNLIMITED);
     segmentChoice.setSegmentId(segment.getId());
     segmentChoice.setProgramId(program.getId());
     segmentChoice.setProgramSequenceId(programSequence.getId());
-    segmentChoice.setProgramType(program.getType().toString());
+    segmentChoice.setProgramType(program.getType());
     return segmentChoice;
   }
 
@@ -519,9 +509,9 @@ public class NexusIntegrationTestingFixtures {
     var choice = buildSegmentChoice(segment, deltaIn, deltaOut, program);
     choice.setProgramVoiceId(voice.getId());
     choice.setInstrumentId(instrument.getId());
-    choice.setInstrumentType(instrument.getType().toString());
+    choice.setInstrumentType(instrument.getType());
     choice.setMute(false);
-    choice.setInstrumentMode(instrument.getMode().toString());
+    choice.setInstrumentMode(instrument.getMode());
     return choice;
   }
 
@@ -532,7 +522,7 @@ public class NexusIntegrationTestingFixtures {
     choice.setDeltaIn(deltaIn);
     choice.setDeltaOut(deltaOut);
     choice.setProgramId(program.getId());
-    choice.setProgramType(program.getType().toString());
+    choice.setProgramType(program.getType());
     return choice;
   }
 
@@ -544,11 +534,11 @@ public class NexusIntegrationTestingFixtures {
     return segmentMeme;
   }
 
-  public static SegmentChord buildSegmentChord(Segment segment, Double position, String name) {
+  public static SegmentChord buildSegmentChord(Segment segment, Double atPosition, String name) {
     var segmentChord = new SegmentChord();
     segmentChord.setId(UUID.randomUUID());
     segmentChord.setSegmentId(segment.getId());
-    segmentChord.setPosition(position);
+    segmentChord.setPosition(atPosition);
     segmentChord.setName(name);
     return segmentChord;
   }
@@ -571,42 +561,42 @@ public class NexusIntegrationTestingFixtures {
     return segmentChoiceArrangement;
   }
 
-  public static SegmentChoiceArrangementPick buildSegmentChoiceArrangementPick(SegmentChoiceArrangement segmentChoiceArrangement, ProgramSequencePatternEvent event, InstrumentAudio instrumentAudio, String pickEvent) {
+  public static SegmentChoiceArrangementPick buildSegmentChoiceArrangementPick(Segment segment, SegmentChoiceArrangement segmentChoiceArrangement, ProgramSequencePatternEvent event, InstrumentAudio instrumentAudio, String pickEvent) {
     var pick = new SegmentChoiceArrangementPick();
     pick.setId(UUID.randomUUID());
     pick.setSegmentId(segmentChoiceArrangement.getSegmentId());
     pick.setSegmentChoiceArrangementId(segmentChoiceArrangement.getId());
     pick.setProgramSequencePatternEventId(event.getId());
     pick.setInstrumentAudioId(instrumentAudio.getId());
-    pick.setStart(Double.valueOf(event.getPosition()));
-    pick.setLength(Double.valueOf(event.getDuration()));
+    pick.setStartAtSegmentMicros((long) (event.getPosition() * MICROS_PER_SECOND / segment.getTempo()));
+    pick.setLengthMicros((long) (event.getDuration() * MICROS_PER_SECOND / segment.getTempo()));
     pick.setAmplitude(Double.valueOf(event.getVelocity()));
     pick.setTones(event.getTones());
     pick.setEvent(pickEvent);
     return pick;
   }
 
-  public static SegmentChoiceArrangementPick buildSegmentChoiceArrangementPick(SegmentChoiceArrangement segmentChoiceArrangement, ProgramSequencePatternEvent event, InstrumentAudio instrumentAudio, String tones, String pickEvent) {
-    var pick = buildSegmentChoiceArrangementPick(segmentChoiceArrangement, event, instrumentAudio, pickEvent);
+  public static SegmentChoiceArrangementPick buildSegmentChoiceArrangementPick(Segment segment, SegmentChoiceArrangement segmentChoiceArrangement, ProgramSequencePatternEvent event, InstrumentAudio instrumentAudio, String tones, String pickEvent) {
+    var pick = buildSegmentChoiceArrangementPick(segment, segmentChoiceArrangement, event, instrumentAudio, pickEvent);
     pick.setTones(tones);
     return pick;
   }
 
-  public static SegmentChoiceArrangementPick buildSegmentChoiceArrangementPick(SegmentChoiceArrangement segmentChoiceArrangement, ProgramSequencePatternEvent event, InstrumentAudio instrumentAudio, String tones, Double start) {
-    var pick = buildSegmentChoiceArrangementPick(segmentChoiceArrangement, event, instrumentAudio, tones);
+  public static SegmentChoiceArrangementPick buildSegmentChoiceArrangementPick(Segment segment, SegmentChoiceArrangement segmentChoiceArrangement, ProgramSequencePatternEvent event, InstrumentAudio instrumentAudio, String tones, Double start) {
+    var pick = buildSegmentChoiceArrangementPick(segment, segmentChoiceArrangement, event, instrumentAudio, tones);
     pick.setTones(tones);
-    pick.setStart(start);
+    pick.setStartAtSegmentMicros((long) (start * MICROS_PER_SECOND / segment.getTempo()));
     return pick;
   }
 
   /**
-   Create a new HubAccess control object
-
-   @param user     for access
-   @param userAuth for access
-   @param accounts for access
-   @param rolesCSV for access
-   @return access control object
+   * Create a new HubAccess control object
+   *
+   * @param user     for access
+   * @param userAuth for access
+   * @param accounts for access
+   * @param rolesCSV for access
+   * @return access control object
    */
   public static HubClientAccess buildHubClientAccess(User user, UserAuth userAuth, ImmutableList<Account> accounts, String rolesCSV) {
     return new HubClientAccess()
@@ -617,11 +607,11 @@ public class NexusIntegrationTestingFixtures {
   }
 
   /**
-   Create a new HubAccess control object
-
-   @param user     for access
-   @param rolesCSV for access
-   @return access control object
+   * Create a new HubAccess control object
+   *
+   * @param user     for access
+   * @param rolesCSV for access
+   * @return access control object
    */
   public static HubClientAccess buildHubClientAccess(User user, String rolesCSV) {
     return new HubClientAccess()
@@ -630,12 +620,12 @@ public class NexusIntegrationTestingFixtures {
   }
 
   /**
-   Create a new HubAccess control object
-
-   @param user     for access
-   @param accounts for access
-   @param rolesCSV for access
-   @return access control object
+   * Create a new HubAccess control object
+   *
+   * @param user     for access
+   * @param accounts for access
+   * @param rolesCSV for access
+   * @return access control object
    */
   public static HubClientAccess buildHubClientAccess(User user, ImmutableList<Account> accounts, String rolesCSV) {
     return new HubClientAccess()
@@ -645,12 +635,12 @@ public class NexusIntegrationTestingFixtures {
   }
 
   /**
-   Create a new HubAccess control object
-
-   @param user     for access
-   @param userAuth for access
-   @param accounts for access
-   @return access control object
+   * Create a new HubAccess control object
+   *
+   * @param user     for access
+   * @param userAuth for access
+   * @param accounts for access
+   * @return access control object
    */
   public static HubClientAccess buildHubClientAccess(User user, UserAuth userAuth, ImmutableList<Account> accounts) {
     return new HubClientAccess()
@@ -660,11 +650,11 @@ public class NexusIntegrationTestingFixtures {
   }
 
   /**
-   Create a new HubAccess control object
-
-   @param user     for access
-   @param accounts for access
-   @return access control object
+   * Create a new HubAccess control object
+   *
+   * @param user     for access
+   * @param accounts for access
+   * @return access control object
    */
   public static HubClientAccess buildHubClientAccess(User user, ImmutableList<Account> accounts) {
     return new HubClientAccess()
@@ -673,11 +663,11 @@ public class NexusIntegrationTestingFixtures {
   }
 
   /**
-   Create a new HubAccess control object
-
-   @param accounts for access
-   @param rolesCSV for access
-   @return access control object
+   * Create a new HubAccess control object
+   *
+   * @param accounts for access
+   * @param rolesCSV for access
+   * @return access control object
    */
   public static HubClientAccess buildHubClientAccess(ImmutableList<Account> accounts, String rolesCSV) {
     return new HubClientAccess()
@@ -686,19 +676,19 @@ public class NexusIntegrationTestingFixtures {
   }
 
   /**
-   Create a new HubAccess control object
-
-   @param rolesCSV for access
-   @return access control object
+   * Create a new HubAccess control object
+   *
+   * @param rolesCSV for access
+   * @return access control object
    */
   public static HubClientAccess buildHubClientAccess(String rolesCSV) {
     return new HubClientAccess().setRoleTypes(Users.userRoleTypesFromCsv(rolesCSV));
   }
 
   /**
-   A whole library of mock content
-
-   @return collection of entities
+   * A whole library of mock content
+   *
+   * @return collection of entities
    */
   public Collection<Object> setupFixtureB1() throws EntityException {
 
@@ -854,9 +844,9 @@ public class NexusIntegrationTestingFixtures {
   }
 
   /**
-   Library of Content B-2 (shared test fixture)
-   <p>
-   Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
+   * Library of Content B-2 (shared test fixture)
+   * <p>
+   * Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
    */
   public Collection<Object> setupFixtureB2() {
     // "Tangy, Chunky to Smooth" macro-program in house library
@@ -925,18 +915,18 @@ public class NexusIntegrationTestingFixtures {
   }
 
   /**
-   Library of Content B-3 (shared test fixture)
-   <p>
-   Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
-   <p>
-   memes bound to sequence-pattern because sequence-binding is not considered for beat sequences, beat sequence patterns do not have memes. https://www.pivotaltracker.com/story/show/163158036
-   <p>
-   Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (beat- and detail-type sequences) https://www.pivotaltracker.com/story/show/165954619
-   <p>
-   Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Beat or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment. https://www.pivotaltracker.com/story/show/153976073
-   + For this test, there's an Intro Pattern with all BLEEPS, multiple Loop Patterns with KICK and SNARE (2x each), and an Outro Pattern with all TOOTS.
-   <p>
-   Artist wants to of multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset. https://www.pivotaltracker.com/story/show/150279647
+   * Library of Content B-3 (shared test fixture)
+   * <p>
+   * Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
+   * <p>
+   * memes bound to sequence-pattern because sequence-binding is not considered for beat sequences, beat sequence patterns do not have memes. https://www.pivotaltracker.com/story/show/163158036
+   * <p>
+   * Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (beat- and detail-type sequences) https://www.pivotaltracker.com/story/show/165954619
+   * <p>
+   * Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Beat or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment. https://www.pivotaltracker.com/story/show/153976073
+   * + For this test, there's an Intro Pattern with all BLEEPS, multiple Loop Patterns with KICK and SNARE (2x each), and an Outro Pattern with all TOOTS.
+   * <p>
+   * Artist wants to of multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset. https://www.pivotaltracker.com/story/show/150279647
    */
   public Collection<Object> setupFixtureB3() {
     // A basic beat
@@ -1048,9 +1038,9 @@ public class NexusIntegrationTestingFixtures {
   }
 
   /**
-   Library of Content B-4 (shared test fixture)
-   <p>
-   Detail Craft v1 https://www.pivotaltracker.com/story/show/154464276
+   * Library of Content B-4 (shared test fixture)
+   * <p>
+   * Detail Craft v1 https://www.pivotaltracker.com/story/show/154464276
    */
   public Collection<Object> setupFixtureB4_DetailBass() {
     // A basic bass pattern
@@ -1125,10 +1115,10 @@ public class NexusIntegrationTestingFixtures {
   }
 
   /**
-   Generate a Library comprising many related entities
-
-   @param N magnitude of library to generate
-   @return entities
+   * Generate a Library comprising many related entities
+   *
+   * @param N magnitude of library to generate
+   * @return entities
    */
   public Collection<Object> generatedFixture(int N) {
     Collection<Object> entities = Lists.newArrayList();
@@ -1267,12 +1257,12 @@ public class NexusIntegrationTestingFixtures {
   }
 
   /**
-   Add an entity to a collection, then return that entity
-
-   @param to     collection
-   @param entity to add
-   @param <N>    type of entity
-   @return entity that's been added
+   * Add an entity to a collection, then return that entity
+   *
+   * @param to     collection
+   * @param entity to add
+   * @param <N>    type of entity
+   * @return entity that's been added
    */
   private <N> N add(Collection<Object> to, N entity) {
     to.add(entity);

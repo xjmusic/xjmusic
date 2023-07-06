@@ -158,14 +158,14 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   @Override
   public Optional<SegmentChoice> getChoiceOfType(ProgramType type) {
     return getSegmentChoices().stream()
-      .filter(c -> type.toString().equals(c.getProgramType()))
+      .filter(c -> type.equals(c.getProgramType()))
       .findFirst();
   }
 
   @Override
   public Collection<SegmentChoice> getChoicesOfType(ProgramType type) {
     return getSegmentChoices().stream()
-      .filter(c -> type.toString().equals(c.getProgramType()))
+      .filter(c -> type.equals(c.getProgramType()))
       .collect(Collectors.toList());
   }
 

@@ -15,6 +15,7 @@ import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.lib.notification.NotificationProvider;
+import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
@@ -28,8 +29,6 @@ import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentState;
-import io.xj.nexus.persistence.ChainManager;
-import io.xj.nexus.persistence.ChainManagerImpl;
 import io.xj.nexus.persistence.FilePathProviderImpl;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
@@ -76,19 +75,12 @@ public class CraftHookProgramVoiceInitialTest {
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     store = new NexusEntityStoreImpl(entityFactory);
     SegmentManager segmentManager = new SegmentManagerImpl(entityFactory, store);
-    ChainManager chainManager = new ChainManagerImpl(
-      entityFactory,
-      store,
-      segmentManager,
-      notificationProvider,1,1
-    );
     var filePathProvider = new FilePathProviderImpl("");
     fabricatorFactory = new FabricatorFactoryImpl(
-      chainManager,
       segmentManager,
       jsonapiPayloadFactory,
-      jsonProvider,
-      filePathProvider);
+      jsonProvider
+    );
 
     // Manipulate the underlying entity store; reset before each test
     store.deleteAll();
@@ -110,7 +102,6 @@ public class CraftHookProgramVoiceInitialTest {
     chain2.setTemplateConfig(TemplateConfig.DEFAULT);
     chain2.setType(ChainType.PRODUCTION);
     chain2.setState(ChainState.FABRICATE);
-    chain2.startAt("2014-08-12T12:17:02.527142Z");
     store.put(chain2);
   }
 
@@ -162,14 +153,12 @@ public class CraftHookProgramVoiceInitialTest {
       chain2,
       0,
       SegmentState.CRAFTING,
-      Instant.parse("2017-02-14T12:01:00.000001Z"),
-      Instant.parse("2017-02-14T12:01:07.384616Z"),
       "D Major",
       32,
       0.55,
       130.0,
-      "chains-1-segments-9f7s89d8a7892.wav",
-      "OGG"));
+      "chains-1-segments-9f7s89d8a7892.wav"
+    ));
     store.put(buildSegmentChoice(segment0, Segments.DELTA_UNLIMITED, Segments.DELTA_UNLIMITED, fake.program4, fake.program4_sequence0_binding0));
     store.put(buildSegmentChoice(segment0, Segments.DELTA_UNLIMITED, Segments.DELTA_UNLIMITED, fake.program5, fake.program5_sequence0_binding0));
     for (String memeName : ImmutableList.of("Special", "Wild", "Pessimism", "Outlook"))

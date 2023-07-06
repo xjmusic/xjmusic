@@ -2,18 +2,16 @@
 package io.xj.lib.mixer;
 
 
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.Objects;
+import java.util.UUID;
 
 /**
- Put to represent a single audio source playing at a specific time in the future.
+ * Put to represent a single audio source playing at a specific time in the future.
  */
 class PutImpl implements Put {
   private String state;
-  private final String sourceId;
+  private final UUID id;
+  private final UUID audioId;
   private final double velocity;
   private final int bus;
   private final int attackMillis;
@@ -22,18 +20,20 @@ class PutImpl implements Put {
   private final long stopAtMicros;
 
   public PutImpl(
-     int bus,
-     int attackMillis,
-     int releaseMillis,
-     String sourceId,
-     long startAtMicros,
-     long stopAtMicros,
-     double velocity
+    UUID id,
+    UUID audioId,
+    int bus,
+    int attackMillis,
+    int releaseMillis,
+    long startAtMicros,
+    long stopAtMicros,
+    double velocity
   ) {
+    this.id = id;
+    this.audioId = audioId;
     this.bus = bus;
     this.attackMillis = attackMillis;
     this.releaseMillis = releaseMillis;
-    this.sourceId = sourceId;
     this.startAtMicros = startAtMicros;
     this.stopAtMicros = stopAtMicros;
     this.velocity = velocity;
@@ -43,20 +43,19 @@ class PutImpl implements Put {
 
   public long sourceOffsetMicros(long atMixOffsetMicros) {
     switch (state) {
-
-      case READY:
+      case READY -> {
         if (atMixOffsetMicros > startAtMicros)
           state = PLAY;
         return 0;
-
-      case PLAY:
+      }
+      case PLAY -> {
         if (atMixOffsetMicros > stopAtMicros)
           state = DONE;
         return (long) (atMixOffsetMicros - (double) startAtMicros);
-
-      case DONE:
-      default:
+      }
+      default -> {
         return 0;
+      }
     }
   }
 
@@ -71,8 +70,13 @@ class PutImpl implements Put {
   }
 
   @Override
-  public String getSourceId() {
-    return sourceId;
+  public UUID getId() {
+    return id;
+  }
+
+  @Override
+  public UUID getAudioId() {
+    return audioId;
   }
 
   @Override

@@ -12,7 +12,11 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.sound.sampled.AudioFormat;
 
-import static org.junit.Assert.*;
+import java.util.UUID;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
@@ -32,7 +36,7 @@ public class MixerImplTest {
   @Before
   public void setUp() throws Exception {
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    mixerFactory = new MixerFactoryImpl(envelopeProvider, notificationProvider, "production");
+    mixerFactory = new MixerFactoryImpl(envelopeProvider, notificationProvider, "production", 1000000);
     testMixer = mixerFactory.createMixer(
       new MixerConfig(
         new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
@@ -82,24 +86,26 @@ public class MixerImplTest {
   @Test
   public void loadSource() throws Exception {
     InternalResource internalResource = new InternalResource("test_audio/F32LSB_48kHz_Stereo.wav");
-    testMixer.loadSource("F32LSB_48kHz_Stereo", internalResource.getFile().getAbsolutePath(), "test audio");
+    testMixer.loadSource(UUID.randomUUID(), internalResource.getFile().getAbsolutePath(), "test audio");
     assertEquals(1, testMixer.getSourceCount());
   }
 
   @Test
   public void hasLoadedSource() throws Exception {
     InternalResource internalResource = new InternalResource("test_audio/F32LSB_48kHz_Stereo.wav");
-    testMixer.loadSource("F32LSB_48kHz_Stereo", internalResource.getFile().getAbsolutePath(), "test audio");
+    var audioId = UUID.randomUUID();
+    testMixer.loadSource(audioId, internalResource.getFile().getAbsolutePath(), "test audio");
 
-    assertTrue(testMixer.hasLoadedSource("F32LSB_48kHz_Stereo"));
-    assertFalse(testMixer.hasLoadedSource("bonkers"));
+    assertTrue(testMixer.hasLoadedSource(audioId));
+    assertFalse(testMixer.hasLoadedSource(UUID.randomUUID()));
   }
 
   @Test
   public void loadSource_failsIfMoreThan2InputChannels() throws Exception {
     InternalResource internalResource = new InternalResource("test_audio/F32LSB_48kHz_6ch.wav");
-    testMixer.loadSource("F32LSB_48kHz_6ch", internalResource.getFile().getAbsolutePath(), "test audio");
+    var audioId = UUID.randomUUID();
+    testMixer.loadSource(audioId, internalResource.getFile().getAbsolutePath(), "test audio");
 
-    verify(notificationProvider).publish(eq("Production-Chain Mix Source Failure"), eq("Failed to load source for Audio[F32LSB_48kHz_6ch] \"test audio\" because more than 2 input audio channels not allowed"));
+    verify(notificationProvider).publish(eq("Production-Chain Mix Source Failure"), eq("Failed to load source for Audio[" + audioId + "] \"test audio\" because more than 2 input audio channels not allowed"));
   }
 }

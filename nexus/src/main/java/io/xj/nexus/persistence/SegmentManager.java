@@ -3,14 +3,16 @@ package io.xj.nexus.persistence;
 
 import io.xj.hub.client.HubClientAccess;
 import io.xj.hub.enums.ProgramType;
+import io.xj.nexus.NexusException;
+import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentMessage;
 import io.xj.nexus.model.SegmentMeta;
 import io.xj.nexus.model.SegmentState;
 
-import java.time.Instant;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -43,27 +45,37 @@ public interface SegmentManager extends Manager<Segment> {
   SegmentMeta create(HubClientAccess access, SegmentMeta entity) throws ManagerValidationException, ManagerPrivilegeException, ManagerExistenceException, ManagerFatalException;
 
   /**
+   * Get the segments that span the given instant
+   *
+   * @param chainId         for which to get segments
+   * @param fromChainMicros for which to get segments
+   * @param toChainMicros   for which to get segments
+   * @return segments that span the given instant, empty if none found
+   */
+  List<Segment> readAllSpanning(UUID chainId, Long fromChainMicros, Long toChainMicros);
+
+  /**
    * Fetch id for the Segment in a Chain at a given offset, if present
    *
    * @param chainId to fetch segment for
    * @param offset  to fetch segment at
    * @return segment id
    */
-  Segment readOneAtChainOffset(UUID chainId, Long offset) throws ManagerPrivilegeException, ManagerExistenceException, ManagerFatalException;
+  Optional<Segment> readOneAtChainOffset(UUID chainId, Long offset);
 
   /**
    * Fetch one Segment by chainId and state, if present
    *
-   * @param access             control
-   * @param chainId            to find segment in
-   * @param segmentState       segmentState to find segment in
-   * @param segmentBeginBefore ahead to look for segments
+   * @param access                        control
+   * @param chainId                       to find segment in
+   * @param segmentState                  segmentState to find segment in
+   * @param segmentBeginBeforeChainMicros ahead to look for segments
    * @return Segment if found
    * @throws ManagerFatalException     on failure
    * @throws ManagerExistenceException if the entity does not exist
    * @throws ManagerPrivilegeException if access is prohibited
    */
-  Segment readOneInState(HubClientAccess access, UUID chainId, SegmentState segmentState, Instant segmentBeginBefore) throws ManagerFatalException, ManagerPrivilegeException, ManagerExistenceException;
+  Segment readOneInState(HubClientAccess access, UUID chainId, SegmentState segmentState, Long segmentBeginBeforeChainMicros) throws ManagerFatalException, ManagerPrivilegeException, ManagerExistenceException;
 
   /**
    * Fetch all sub-entities records for many parent segments by id
@@ -112,7 +124,7 @@ public interface SegmentManager extends Manager<Segment> {
    * @param chainId of chain
    * @return Last Dubbed-state Segment in Chain
    */
-  Optional<Segment> readLastDubbedSegment(HubClientAccess access, UUID chainId) throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException;
+  Optional<Segment> readLastCraftedSegment(HubClientAccess access, UUID chainId) throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException;
 
   /**
    * Read a choice for a given segment id and program type
@@ -130,4 +142,24 @@ public interface SegmentManager extends Manager<Segment> {
    * @return true if segment exists
    */
   boolean exists(UUID id);
+
+  /**
+   * Get the segment at the given chain microseconds, if it is ready
+   * segment beginning <= chain microseconds <= end
+   * <p>
+   * Note this algorithm intends to get the latter segment when the lookup point is on the line between two segments
+   *
+   * @param chainId     the chain id for which to get the segment
+   * @param chainMicros the chain microseconds for which to get the segment
+   * @return the segment at the given chain microseconds, or an empty optional if the segment is not ready
+   */
+  Optional<Segment> readOneAt(UUID chainId, long chainMicros) throws NexusException;
+
+  /**
+   * Get chain for segment
+   *
+   * @param segment for which to get chain
+   * @return chain for segment
+   */
+  Chain getChain(Segment segment) throws NexusException, ManagerFatalException;
 }

@@ -20,6 +20,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static io.xj.lib.util.Values.MICROS_PER_SECOND;
+
 /**
  Background craft for the current segment
  <p>
@@ -79,8 +81,8 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
     choice.setId(UUID.randomUUID());
     choice.setSegmentId(fabricator.getSegment().getId());
     choice.setMute(computeMute(instrument.getType()));
-    choice.setInstrumentType(instrument.getType().toString());
-    choice.setInstrumentMode(instrument.getMode().toString());
+    choice.setInstrumentType(instrument.getType());
+    choice.setInstrumentMode(instrument.getMode());
     choice.setInstrumentId(instrumentId);
     fabricator.put(choice);
     var arrangement = new SegmentChoiceArrangement();
@@ -97,8 +99,8 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
     pick.setId(UUID.randomUUID());
     pick.setSegmentId(fabricator.getSegment().getId());
     pick.setSegmentChoiceArrangementId(arrangement.getId());
-    pick.setStart(0.0);
-    pick.setLength(fabricator.getTotalSeconds());
+    pick.setStartAtSegmentMicros(0L);
+    pick.setLengthMicros((long) (fabricator.getTotalMicros() * MICROS_PER_SECOND));
     pick.setAmplitude(1.0);
     pick.setEvent("BACKGROUND");
     pick.setInstrumentAudioId(audio.get().getId());
@@ -112,7 +114,7 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
    @return drum-type Instrument
    @param instrument for which to pick audio
    */
-  private Optional<InstrumentAudio> pickAudioForInstrument(Instrument instrument) throws NexusException {
+  private Optional<InstrumentAudio> pickAudioForInstrument(Instrument instrument) {
     var arr = fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId());
     if (fabricator.getInstrumentConfig(instrument).isAudioSelectionPersistent() && !arr.isEmpty())
       return fabricator.sourceMaterial().getInstrumentAudio(arr.get(0).getInstrumentAudioId());

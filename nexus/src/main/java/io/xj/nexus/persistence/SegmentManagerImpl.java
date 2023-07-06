@@ -12,6 +12,7 @@ import io.xj.lib.util.Text;
 import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
+import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangement;
@@ -26,23 +27,24 @@ import io.xj.nexus.model.SegmentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
+
+import static io.xj.lib.util.Values.MICROS_PER_SECOND;
 
 /**
  * Nexus Managers are Singletons unless some other requirement changes that-- 'cuz here be cyclic dependencies...
  */
 @Service
 public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentManager {
-  public static final Double LENGTH_MINIMUM = 0.01; //
+  public static final Long LENGTH_MINIMUM_MICROS = MICROS_PER_SECOND; //
   public static final Double AMPLITUDE_MINIMUM = 0.0; //
+  private static final long SEGMENT_TIME_MATCH_THRESHOLD_MICROS = 5;
 
   @Autowired
   public SegmentManagerImpl(
@@ -82,11 +84,8 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
     switch (fromState) {
       case PLANNED -> onlyAllowSegmentStateTransitions(toState, SegmentState.PLANNED, SegmentState.CRAFTING);
       case CRAFTING ->
-        onlyAllowSegmentStateTransitions(toState, SegmentState.CRAFTING, SegmentState.CRAFTED, SegmentState.DUBBING, SegmentState.FAILED, SegmentState.PLANNED);
-      case CRAFTED -> onlyAllowSegmentStateTransitions(toState, SegmentState.CRAFTED, SegmentState.DUBBING);
-      case DUBBING ->
-        onlyAllowSegmentStateTransitions(toState, SegmentState.DUBBING, SegmentState.DUBBED, SegmentState.FAILED);
-      case DUBBED -> onlyAllowSegmentStateTransitions(toState, SegmentState.DUBBED);
+        onlyAllowSegmentStateTransitions(toState, SegmentState.CRAFTING, SegmentState.CRAFTED, SegmentState.CRAFTING, SegmentState.FAILED, SegmentState.PLANNED);
+      case CRAFTED -> onlyAllowSegmentStateTransitions(toState, SegmentState.CRAFTED, SegmentState.CRAFTING);
       case FAILED -> onlyAllowSegmentStateTransitions(toState, SegmentState.FAILED);
       default -> onlyAllowSegmentStateTransitions(toState, SegmentState.PLANNED);
     }
@@ -102,8 +101,9 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
       entity.setState(SegmentState.PLANNED);
 
       // create segment with Chain ID and offset are read-only, set at creation
-      requireNotSameOffsetInChain(
-        () -> readOneAtChainOffset(entity.getChainId(), entity.getOffset()));
+      if (readOneAtChainOffset(entity.getChainId(), entity.getOffset()).isPresent()) {
+        throw new ManagerValidationException("Found Segment at same offset in Chain!");
+      }
 
       return store.put(entity);
 
@@ -135,6 +135,19 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   @Override
+  public List<Segment> readAllSpanning(UUID chainId, Long fromChainMicros, Long toChainMicros) {
+    try {
+      return store.getAllSegments(chainId)
+        .stream()
+        .filter(s -> Segments.isSpanning(s, fromChainMicros, toChainMicros))
+        .toList();
+
+    } catch (NexusException e) {
+      return List.of();
+    }
+  }
+
+  @Override
   public Segment readOne(UUID id) throws ManagerExistenceException, ManagerFatalException {
     try {
       return store.getSegment(id)
@@ -147,27 +160,25 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
 
 
   @Override
-  public Segment readOneAtChainOffset(UUID chainId, Long offset) throws ManagerExistenceException, ManagerFatalException {
+  public Optional<Segment> readOneAtChainOffset(UUID chainId, Long offset) {
     try {
       return store.getAllSegments(chainId)
         .stream()
         .filter(s -> offset.equals(s.getOffset()))
-        .findFirst()
-        .orElseThrow(() -> new ManagerExistenceException(String.format("Found no Segment@%d in Chain[%s]!", offset, chainId)));
+        .findFirst();
 
     } catch (NexusException e) {
-      throw new ManagerFatalException(e);
+      return Optional.empty();
     }
   }
 
-  public Segment readOneInState(HubClientAccess access, UUID chainId, SegmentState segmentState, Instant segmentBeginBefore) throws ManagerFatalException, ManagerExistenceException {
+  public Segment readOneInState(HubClientAccess access, UUID chainId, SegmentState segmentState, Long segmentBeginBeforeChainMicros) throws ManagerFatalException, ManagerExistenceException {
     try {
       return store.getAllSegments(chainId)
         .stream()
         .sorted(Comparator.comparing(Segment::getOffset))
         .filter(s -> segmentState.equals(s.getState()) &&
-          (segmentBeginBefore.equals(Instant.parse(s.getBeginAt())) ||
-            segmentBeginBefore.isAfter(Instant.parse(s.getBeginAt()))))
+          segmentBeginBeforeChainMicros >= s.getBeginAtChainMicros())
         .findFirst()
         .orElseThrow(() -> new ManagerExistenceException(String.format("Found no Segment[state=%s] in Chain[%s]!", segmentState, chainId)));
 
@@ -289,9 +300,9 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   @Override
-  public Optional<Segment> readLastDubbedSegment(HubClientAccess access, UUID chainId) throws ManagerFatalException {
+  public Optional<Segment> readLastCraftedSegment(HubClientAccess access, UUID chainId) throws ManagerFatalException {
     try {
-      return Segments.getLastDubbed(store.getAllSegments(chainId));
+      return Segments.getLastCrafted(store.getAllSegments(chainId));
 
     } catch (NexusException e) {
       throw new ManagerFatalException(e);
@@ -303,7 +314,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
     try {
       return store.getAll(segmentId, SegmentChoice.class)
         .stream()
-        .filter(sc -> programType.toString().equals(sc.getProgramType()))
+        .filter(sc -> programType.equals(sc.getProgramType()))
         .findAny();
 
     } catch (NexusException e) {
@@ -316,6 +327,22 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   @Override
   public boolean exists(UUID id) {
     return store.segmentExists(id);
+  }
+
+  @Override
+  public Optional<Segment> readOneAt(UUID chainId, long chainMicros) throws NexusException {
+    var segments = store.getAllSegments(chainId)
+      .stream()
+      .filter(s -> Objects.nonNull(s.getDurationMicros()) && s.getBeginAtChainMicros() + s.getDurationMicros() < chainMicros + SEGMENT_TIME_MATCH_THRESHOLD_MICROS && chainMicros <= s.getBeginAtChainMicros())
+      .sorted(Comparator.comparing(Segment::getOffset))
+      .toList();
+    return segments.isEmpty() ? Optional.empty() : Optional.of(segments.get(segments.size() - 1));
+  }
+
+  @Override
+  public Chain getChain(Segment segment) throws NexusException, ManagerFatalException {
+    return store.getChain(segment.getChainId())
+      .orElseThrow(() -> new ManagerFatalException("Segment #" + segment.getId() + " has no chain"));
   }
 
   @Override
@@ -386,9 +413,9 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
     Values.require(record.getSegmentChoiceArrangementId(), "Arrangement ID");
     Values.require(record.getProgramSequencePatternEventId(), "Pattern Event ID");
     Values.require(record.getInstrumentAudioId(), "Audio ID");
-    Values.require(record.getStart(), "Start");
-    if (Objects.nonNull(record.getLength()))
-      Values.requireMinimum(LENGTH_MINIMUM, record.getLength(), "Length");
+    Values.require(record.getStartAtSegmentMicros(), "Start");
+    if (Objects.nonNull(record.getLengthMicros()))
+      Values.requireMinimum(LENGTH_MINIMUM_MICROS, record.getLengthMicros(), "Length");
     Values.require(record.getAmplitude(), "Amplitude");
     Values.requireMinimum(AMPLITUDE_MINIMUM, record.getAmplitude(), "Amplitude");
     Values.require(record.getTones(), "Note");
@@ -418,20 +445,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
     Values.require(record.getType(), "Type");
     Values.require(record.getState(), "State");
     if (!SegmentType.PENDING.equals(record.getType()))
-      Values.require(record.getBeginAt(), "Begin-at");
-  }
-
-
-  /**
-   * Require the given runnable throws an exception.@param mustThrowException when run, this must throw an exception
-   */
-  protected void requireNotSameOffsetInChain(Callable<?> mustThrowException) throws ManagerValidationException {
-    try {
-      mustThrowException.call();
-    } catch (Exception ignored) {
-      return;
-    }
-    throw new ManagerValidationException("Found Segment at same offset in Chain!");
+      Values.require(record.getBeginAtChainMicros(), "Begin-at");
   }
 
 }

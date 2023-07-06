@@ -86,10 +86,7 @@ public class TemplateConfig {
     mixerNormalizationBoostThreshold = 1.0
     mixerNormalizationCeiling = 0.999
     outputChannels = 2
-    outputContainer = "OGG"
-    outputContentType = "audio/ogg"
     outputEncoding = "PCM_DOUBLE"
-    outputEncodingQuality = 0.618
     outputFrameRate = 48000
     outputSampleBits = 16
     percLoopLayerMax = 8
@@ -109,8 +106,6 @@ public class TemplateConfig {
   private final List<String> eventNamesSmall;
   private final MemeTaxonomy memeTaxonomy;
   private final String deltaArcBeatLayersToPrioritize;
-  private final String outputContainer;
-  private final String outputContentType;
   private final boolean deltaArcEnabled;
   private final boolean stickyBunEnabled;
   private final double choiceMuteProbabilityInstrumentTypeBass;
@@ -142,7 +137,6 @@ public class TemplateConfig {
   private final double mixerCompressToAmplitude;
   private final double mixerNormalizationBoostThreshold;
   private final double mixerNormalizationCeiling;
-  private final double outputEncodingQuality;
   private final double vmResourceLimitCpu;
   private final double vmResourceLimitMemoryGb;
   private final int backgroundLayerMax;
@@ -242,10 +236,7 @@ public class TemplateConfig {
       mixerNormalizationBoostThreshold = config.getDouble("mixerNormalizationBoostThreshold");
       mixerNormalizationCeiling = config.getDouble("mixerNormalizationCeiling");
       outputChannels = config.getInt("outputChannels");
-      outputContainer = config.getString("outputContainer");
-      outputContentType = config.getString("outputContentType");
       outputEncoding = new AudioFormat.Encoding(config.getString("outputEncoding"));
-      outputEncodingQuality = config.getDouble("outputEncodingQuality");
       outputFrameRate = config.getInt("outputFrameRate");
       outputSampleBits = config.getInt("outputSampleBits");
       percLoopLayerMax = config.getInt("percLoopLayerMax");
@@ -319,10 +310,7 @@ public class TemplateConfig {
     config.put("mixerNormalizationBoostThreshold", String.valueOf(mixerNormalizationBoostThreshold));
     config.put("mixerNormalizationCeiling", String.valueOf(mixerNormalizationCeiling));
     config.put("outputChannels", String.valueOf(outputChannels));
-    config.put("outputContainer", Text.doubleQuoted(outputContainer));
-    config.put("outputContentType", Text.doubleQuoted(outputContentType));
     config.put("outputEncoding", Text.doubleQuoted(outputEncoding.toString()));
-    config.put("outputEncodingQuality", String.valueOf(outputEncodingQuality));
     config.put("outputFrameRate", String.valueOf(outputFrameRate));
     config.put("outputSampleBits", String.valueOf(outputSampleBits));
     config.put("percLoopLayerMax", String.valueOf(percLoopLayerMax));
@@ -592,31 +580,10 @@ public class TemplateConfig {
   }
 
   /**
-   * @return Output Container
-   */
-  public String getOutputContainer() {
-    return outputContainer;
-  }
-
-  /**
-   * @return Output content-type
-   */
-  public String getOutputContentType() {
-    return outputContentType;
-  }
-
-  /**
    * @return Output Encoding
    */
   public AudioFormat.Encoding getOutputEncoding() {
     return outputEncoding;
-  }
-
-  /**
-   * @return Output Encoding Quality (ratio from 0 to 1)
-   */
-  public double getOutputEncodingQuality() {
-    return outputEncodingQuality;
   }
 
   /**

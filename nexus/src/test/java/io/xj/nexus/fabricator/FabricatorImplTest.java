@@ -18,6 +18,7 @@ import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.StickyBun;
+import io.xj.lib.util.ValueException;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
@@ -31,12 +32,8 @@ import io.xj.nexus.model.SegmentMeme;
 import io.xj.nexus.model.SegmentMeta;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
-import io.xj.nexus.persistence.ChainManager;
 import io.xj.nexus.persistence.Chains;
-import io.xj.nexus.persistence.FilePathProviderImpl;
-import io.xj.nexus.persistence.ManagerExistenceException;
 import io.xj.nexus.persistence.ManagerFatalException;
-import io.xj.nexus.persistence.ManagerPrivilegeException;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManager;
@@ -49,7 +46,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -69,6 +65,7 @@ import static io.xj.hub.IntegrationTestingFixtures.buildTrack;
 import static io.xj.hub.IntegrationTestingFixtures.buildVoice;
 import static io.xj.hub.IntegrationTestingFixtures.buildVoicing;
 import static io.xj.lib.music.NoteTest.assertNote;
+import static io.xj.lib.util.Values.MICROS_PER_SECOND;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
@@ -98,8 +95,6 @@ public class FabricatorImplTest {
   @Mock
   public SegmentRetrospective mockRetrospective;
   @Mock
-  public ChainManager mockChainManager;
-  @Mock
   public SegmentManager mockSegmentManager;
   @Mock
   public JsonapiPayloadFactory mockJsonapiPayloadFactory;
@@ -111,7 +106,6 @@ public class FabricatorImplTest {
   private NexusEntityStore store;
   private NexusIntegrationTestingFixtures fake;
   private Segment segment;
-  private FilePathProviderImpl filePathProvider;
 
   @Before
   public void setUp() throws Exception {
@@ -120,8 +114,6 @@ public class FabricatorImplTest {
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
     store = new NexusEntityStoreImpl(entityFactory);
-    filePathProvider = new FilePathProviderImpl("");
-
 
     // Manipulate the underlying entity store; reset before each test
     store.deleteAll();
@@ -131,13 +123,13 @@ public class FabricatorImplTest {
     sourceMaterial = new HubContent(Streams.concat(fake.setupFixtureB1().stream(), fake.setupFixtureB2().stream(), fake.setupFixtureB3().stream(), Stream.of(fake.template1, fake.templateBinding1)).collect(Collectors.toList()));
 
     // Here's a basic setup that can be replaced for complex tests
-    var chain = store.put(buildChain(fake.account1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE, Instant.parse("2017-12-12T01:00:08.000000Z")));
-    segment = store.put(buildSegment(chain, 2, SegmentState.CRAFTING, Instant.parse("2017-12-12T01:00:16.000000Z"), Instant.parse("2017-12-12T01:00:22.000000Z"), "G major", 8, 0.6, 240.0, "seg123", "ogg"));
+    var chain = store.put(buildChain(fake.account1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE));
+    segment = store.put(buildSegment(chain, 2, SegmentState.CRAFTING, "G major", 8, 0.6, 240.0, "seg123"));
     when(mockFabricatorFactory.loadRetrospective(any(), any())).thenReturn(mockRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any())).thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
-    when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider,false);
+    when(mockSegmentManager.getChain(any())).thenReturn(chain);
+    subject = new FabricatorImpl(sourceMaterial, segment, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
   }
 
   /**
@@ -146,17 +138,16 @@ public class FabricatorImplTest {
   @Test
   public void computeAudioVolume() throws Exception {
     buildTemplateBinding(fake.template1, fake.library2);
-    var chain = store.put(buildChain(fake.account1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE, Instant.parse("2017-12-12T01:00:08.000000Z")));
-    store.put(buildSegment(chain, 1, SegmentState.CRAFTED, Instant.parse("2017-12-12T01:00:08.000000Z"), Instant.parse("2017-12-12T01:00:16.000000Z"), "F major", 8, 0.6, 120.0, "seg123", "ogg"));
-    segment = store.put(buildSegment(chain, 2, SegmentState.CRAFTING, Instant.parse("2017-12-12T01:00:16.000000Z"), Instant.parse("2017-12-12T01:00:22.000000Z"), "G major", 8, 0.6, 240.0, "seg123", "ogg"));
+    var chain = store.put(buildChain(fake.account1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE));
+    store.put(buildSegment(chain, 1, SegmentState.CRAFTED, "F major", 8, 0.6, 120.0, "seg123"));
+    segment = store.put(buildSegment(chain, 2, SegmentState.CRAFTING, "G major", 8, 0.6, 240.0, "seg123"));
     var choice = store.put(buildSegmentChoice(segment, Segments.DELTA_UNLIMITED, Segments.DELTA_UNLIMITED, fake.program9, fake.program9_voice0, fake.instrument8));
     var arrangement = store.put(buildSegmentChoiceArrangement(choice));
-    var pick = store.put(buildSegmentChoiceArrangementPick(arrangement, fake.program9_sequence0_pattern0_event0, fake.instrument8_audio8kick, "KICK"));
+    var pick = store.put(buildSegmentChoiceArrangementPick(segment, arrangement, fake.program9_sequence0_pattern0_event0, fake.instrument8_audio8kick, "KICK"));
     when(mockFabricatorFactory.loadRetrospective(any(), any())).thenReturn(mockRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any())).thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
-    when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider,false
+    subject = new FabricatorImpl(sourceMaterial, segment, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider
     );
 
     double result = subject.getAudioVolume(pick); // instantiates a time computer; see expectation above
@@ -167,28 +158,27 @@ public class FabricatorImplTest {
   @Test
   public void pick_returned_by_picks() throws Exception {
     buildTemplateBinding(fake.template1, fake.library2);
-    var chain = store.put(buildChain(fake.account1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE, Instant.parse("2017-12-12T01:00:08.000000Z")));
-    store.put(buildSegment(chain, 1, SegmentState.CRAFTED, Instant.parse("2017-12-12T01:00:08.000000Z"), Instant.parse("2017-12-12T01:00:16.000000Z"), "F major", 8, 0.6, 120.0, "seg123", "ogg"));
-    segment = store.put(buildSegment(chain, 2, SegmentState.CRAFTING, Instant.parse("2017-12-12T01:00:16.000000Z"), Instant.parse("2017-12-12T01:00:22.000000Z"), "G major", 8, 0.6, 240.0, "seg123", "ogg"));
+    var chain = store.put(buildChain(fake.account1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE));
+    store.put(buildSegment(chain, 1, SegmentState.CRAFTED, "F major", 8, 0.6, 120.0, "seg123"));
+    segment = store.put(buildSegment(chain, 2, SegmentState.CRAFTING, "G major", 8, 0.6, 240.0, "seg123"));
     store.put(buildSegmentChord(segment, 0.0, "A"));
     store.put(buildSegmentChoice(segment, Segments.DELTA_UNLIMITED, Segments.DELTA_UNLIMITED, fake.program5));
     SegmentChoice beatChoice = store.put(buildSegmentChoice(segment, Segments.DELTA_UNLIMITED, Segments.DELTA_UNLIMITED, fake.program35, fake.program35_voice0, fake.instrument8));
     SegmentChoiceArrangement beatArrangement = store.put(buildSegmentChoiceArrangement(beatChoice));
-    SegmentChoiceArrangementPick beatPick = store.put(new SegmentChoiceArrangementPick().id(UUID.randomUUID()).segmentId(beatArrangement.getSegmentId()).segmentChoiceArrangementId(beatArrangement.getId()).programSequencePatternEventId(fake.program35_sequence0_pattern0_event0.getId()).instrumentAudioId(fake.instrument8_audio8kick.getId()).event("CLANG").start(0.273).length(1.571).amplitude(0.8).tones("A4"));
+    SegmentChoiceArrangementPick beatPick = store.put(new SegmentChoiceArrangementPick().id(UUID.randomUUID()).segmentId(beatArrangement.getSegmentId()).segmentChoiceArrangementId(beatArrangement.getId()).programSequencePatternEventId(fake.program35_sequence0_pattern0_event0.getId()).instrumentAudioId(fake.instrument8_audio8kick.getId()).event("CLANG").startAtSegmentMicros((long) (0.273 * MICROS_PER_SECOND)).lengthMicros((long) (1.571 * MICROS_PER_SECOND)).amplitude(0.8).tones("A4"));
     when(mockFabricatorFactory.loadRetrospective(any(), any())).thenReturn(mockRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any())).thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockSegmentWorkbench.getSegmentChoiceArrangementPicks()).thenReturn(ImmutableList.of(beatPick));
-    when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider,false);
+    subject = new FabricatorImpl(sourceMaterial, segment, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     Collection<SegmentChoiceArrangementPick> result = subject.getPicks();
 
     SegmentChoiceArrangementPick resultPick = result.iterator().next();
     assertEquals(beatArrangement.getId(), resultPick.getSegmentChoiceArrangementId());
     assertEquals(fake.instrument8_audio8kick.getId(), resultPick.getInstrumentAudioId());
-    assertEquals(0.273, resultPick.getStart(), 0.001);
-    assertEquals(1.571, resultPick.getLength(), 0.001);
+    assertEquals(0.273 * MICROS_PER_SECOND, resultPick.getStartAtSegmentMicros(), 0.001);
+    assertEquals(1.571 * MICROS_PER_SECOND, resultPick.getLengthMicros(), 0.001);
     assertEquals(0.8, resultPick.getAmplitude(), 0.1);
     assertEquals("A4", resultPick.getTones());
   }
@@ -198,15 +188,14 @@ public class FabricatorImplTest {
   public void getDistinctChordVoicingTypes() throws Exception {
     sourceMaterial = new HubContent(Streams.concat(fake.setupFixtureB1().stream(), fake.setupFixtureB2().stream(), fake.setupFixtureB3().stream(), Stream.of(buildVoicing(fake.program5_sequence0_chord0, fake.program5_voiceSticky, "G4, B4, D4"), buildVoicing(fake.program5_sequence0_chord0, fake.program5_voiceStripe, "F5"), buildVoicing(fake.program5_sequence0_chord0, fake.program5_voicePad, "(None)") // No voicing notes- doesn't count!
     )).collect(Collectors.toList()));
-    var chain = store.put(buildChain(fake.account1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE, Instant.parse("2017-12-12T01:00:08.000000Z")));
-    segment = store.put(buildSegment(chain, 0, SegmentState.CRAFTING, Instant.parse("2017-12-12T01:00:08.000000Z"), Instant.parse("2017-12-12T01:00:16.000000Z"), "F major", 8, 0.6, 120.0, "seg123", "ogg"));
+    var chain = store.put(buildChain(fake.account1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE));
+    segment = store.put(buildSegment(chain, 0, SegmentState.CRAFTING, "F major", 8, 0.6, 120.0, "seg123"));
     SegmentChoice mainChoice = store.put(buildSegmentChoice(segment, Segments.DELTA_UNLIMITED, Segments.DELTA_UNLIMITED, fake.program5));
     when(mockFabricatorFactory.loadRetrospective(any(), any())).thenReturn(mockRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any())).thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockSegmentWorkbench.getChoiceOfType(ProgramType.Main)).thenReturn(Optional.of(mainChoice));
-    when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider,false);
+    subject = new FabricatorImpl(sourceMaterial, segment, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     Set<InstrumentType> result = subject.getDistinctChordVoicingTypes();
 
@@ -218,21 +207,20 @@ public class FabricatorImplTest {
    * Choose next Macro program based on the memes of the last sequence from the previous Macro program https://www.pivotaltracker.com/story/show/176728582
    */
   @Test
-  public void getType() throws NexusException, ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException, FabricationFatalException {
-    var chain = store.put(buildChain(fake.account1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE, Instant.parse("2017-12-12T01:00:08.000000Z")));
-    Segment previousSegment = store.put(buildSegment(chain, 1, SegmentState.CRAFTED, Instant.parse("2017-12-12T01:00:08.000000Z"), Instant.parse("2017-12-12T01:00:16.000000Z"), "F major", 8, 0.6, 120.0, "seg123", "ogg"));
+  public void getType() throws NexusException, ManagerFatalException, FabricationFatalException, ValueException, HubClientException {
+    var chain = store.put(buildChain(fake.account1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE));
+    Segment previousSegment = store.put(buildSegment(chain, 1, SegmentState.CRAFTED, "F major", 8, 0.6, 120.0, "seg123"));
     var previousMacroChoice = // second-to-last sequence of macro program
       store.put(buildSegmentChoice(previousSegment, Segments.DELTA_UNLIMITED, Segments.DELTA_UNLIMITED, fake.program4, fake.program4_sequence1_binding0));
     var previousMainChoice = // last sequence of main program
       store.put(buildSegmentChoice(previousSegment, Segments.DELTA_UNLIMITED, Segments.DELTA_UNLIMITED, fake.program5, fake.program5_sequence1_binding0));
-    segment = store.put(buildSegment(chain, 2, SegmentState.CRAFTING, Instant.parse("2017-12-12T01:00:16.000000Z"), Instant.parse("2017-12-12T01:00:22.000000Z"), "G major", 8, 0.6, 240.0, "seg123", "ogg"));
+    segment = store.put(buildSegment(chain, 2, SegmentState.CRAFTING, "G major", 8, 0.6, 240.0, "seg123"));
     when(mockFabricatorFactory.loadRetrospective(any(), any())).thenReturn(mockRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any())).thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockRetrospective.getPreviousChoiceOfType(ProgramType.Main)).thenReturn(Optional.of(previousMainChoice));
     when(mockRetrospective.getPreviousChoiceOfType(ProgramType.Macro)).thenReturn(Optional.of(previousMacroChoice));
-    when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider,false);
+    subject = new FabricatorImpl(sourceMaterial, segment, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     var result = subject.getType();
 
@@ -242,19 +230,18 @@ public class FabricatorImplTest {
   // FUTURE: test getChoicesOfPreviousSegments
 
   @Test
-  public void getMemeIsometryOfNextSequenceInPreviousMacro() throws NexusException, ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException, FabricationFatalException {
-    var chain = store.put(buildChain(fake.account1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE, Instant.parse("2017-12-12T01:00:08.000000Z")));
-    Segment previousSegment = store.put(buildSegment(chain, 1, SegmentState.CRAFTED, Instant.parse("2017-12-12T01:00:08.000000Z"), Instant.parse("2017-12-12T01:00:16.000000Z"), "F major", 8, 0.6, 120.0, "seg123", "ogg"));
+  public void getMemeIsometryOfNextSequenceInPreviousMacro() throws NexusException, ManagerFatalException, FabricationFatalException, ValueException, HubClientException {
+    var chain = store.put(buildChain(fake.account1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE));
+    Segment previousSegment = store.put(buildSegment(chain, 1, SegmentState.CRAFTED, "F major", 8, 0.6, 120.0, "seg123"));
     var previousMacroChoice = // second-to-last sequence of macro program
       store.put(buildSegmentChoice(previousSegment, Segments.DELTA_UNLIMITED, Segments.DELTA_UNLIMITED, fake.program4, fake.program4_sequence1_binding0));
     store.put(buildSegmentChoice(previousSegment, Segments.DELTA_UNLIMITED, Segments.DELTA_UNLIMITED, fake.program5, fake.program5_sequence1_binding0));
-    segment = store.put(buildSegment(chain, 2, SegmentState.CRAFTING, Instant.parse("2017-12-12T01:00:16.000000Z"), Instant.parse("2017-12-12T01:00:22.000000Z"), "G major", 8, 0.6, 240.0, "seg123", "ogg"));
+    segment = store.put(buildSegment(chain, 2, SegmentState.CRAFTING, "G major", 8, 0.6, 240.0, "seg123"));
     when(mockFabricatorFactory.loadRetrospective(any(), any())).thenReturn(mockRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any())).thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     when(mockRetrospective.getPreviousChoiceOfType(ProgramType.Macro)).thenReturn(Optional.of(previousMacroChoice));
-    when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider,false);
+    subject = new FabricatorImpl(sourceMaterial, segment, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     var result = subject.getMemeIsometryOfNextSequenceInPreviousMacro();
 
@@ -262,41 +249,39 @@ public class FabricatorImplTest {
   }
 
   @Test
-  public void getChordAt() throws NexusException, ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException, FabricationFatalException {
-    var chain = store.put(buildChain(fake.account1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE, Instant.parse("2017-12-12T01:00:08.000000Z")));
-    segment = store.put(buildSegment(chain, 2, SegmentState.CRAFTING, Instant.parse("2017-12-12T01:00:16.000000Z"), Instant.parse("2017-12-12T01:00:22.000000Z"), "G major", 8, 0.6, 240.0, "seg123", "ogg"));
+  public void getChordAt() throws NexusException, ManagerFatalException, FabricationFatalException, ValueException, HubClientException {
+    var chain = store.put(buildChain(fake.account1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE));
+    segment = store.put(buildSegment(chain, 2, SegmentState.CRAFTING, "G major", 8, 0.6, 240.0, "seg123"));
     when(mockFabricatorFactory.loadRetrospective(any(), any())).thenReturn(mockRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any())).thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegmentChords()).thenReturn(ImmutableList.of(buildSegmentChord(segment, 0.0, "C"), buildSegmentChord(segment, 2.0, "F"), buildSegmentChord(segment, 5.5, "Gm")));
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
-    when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider,false);
+    subject = new FabricatorImpl(sourceMaterial, segment, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
-    assertEquals("C", subject.getChordAt(0).orElseThrow().getName());
-    assertEquals("C", subject.getChordAt(1).orElseThrow().getName());
-    assertEquals("F", subject.getChordAt(2).orElseThrow().getName());
-    assertEquals("F", subject.getChordAt(3).orElseThrow().getName());
-    assertEquals("F", subject.getChordAt(5).orElseThrow().getName());
+    assertEquals("C", subject.getChordAt(0.0).orElseThrow().getName());
+    assertEquals("C", subject.getChordAt(1.0).orElseThrow().getName());
+    assertEquals("F", subject.getChordAt(2.0).orElseThrow().getName());
+    assertEquals("F", subject.getChordAt(3.0).orElseThrow().getName());
+    assertEquals("F", subject.getChordAt(5.0).orElseThrow().getName());
     assertEquals("Gm", subject.getChordAt(5.5).orElseThrow().getName());
-    assertEquals("Gm", subject.getChordAt(6).orElseThrow().getName());
+    assertEquals("Gm", subject.getChordAt(6.0).orElseThrow().getName());
     assertEquals("Gm", subject.getChordAt(7.5).orElseThrow().getName());
   }
 
   @Test
-  public void computeProgramRange() throws NexusException, ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException, HubClientException, FabricationFatalException {
-    var chain = store.put(buildChain(fake.account1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE, Instant.parse("2017-12-12T01:00:08.000000Z")));
-    segment = store.put(buildSegment(chain, 2, SegmentState.CRAFTING, Instant.parse("2017-12-12T01:00:16.000000Z"), Instant.parse("2017-12-12T01:00:22.000000Z"), "G major", 8, 0.6, 240.0, "seg123", "ogg"));
+  public void computeProgramRange() throws NexusException, ManagerFatalException, HubClientException, FabricationFatalException, ValueException {
+    var chain = store.put(buildChain(fake.account1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE));
+    segment = store.put(buildSegment(chain, 2, SegmentState.CRAFTING, "G major", 8, 0.6, 240.0, "seg123"));
     when(mockFabricatorFactory.loadRetrospective(any(), any())).thenReturn(mockRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any())).thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
-    when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
     var program = buildProgram(ProgramType.Detail, "C", 120.0f, 1.0f);
     var voice = buildVoice(program, InstrumentType.Bass);
     var track = buildTrack(voice);
     var sequence = buildSequence(program, 4);
     var pattern = buildPattern(sequence, voice, 4);
     sourceMaterial = new HubContent(ImmutableList.of(program, voice, track, sequence, pattern, fake.template1, fake.templateBinding1, buildEvent(pattern, track, 0.0f, 1.0f, "C1"), buildEvent(pattern, track, 1.0f, 1.0f, "D2")));
-    subject = new FabricatorImpl(sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider,false);
+    subject = new FabricatorImpl(sourceMaterial, segment, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     var result = subject.getProgramRange(program.getId(), InstrumentType.Bass);
 
@@ -305,20 +290,19 @@ public class FabricatorImplTest {
   }
 
   @Test
-  public void computeProgramRange_ignoresAtonalNotes() throws NexusException, ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException, HubClientException, FabricationFatalException {
-    var chain = store.put(buildChain(fake.account1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE, Instant.parse("2017-12-12T01:00:08.000000Z")));
-    segment = store.put(buildSegment(chain, 2, SegmentState.CRAFTING, Instant.parse("2017-12-12T01:00:16.000000Z"), Instant.parse("2017-12-12T01:00:22.000000Z"), "G major", 8, 0.6, 240.0, "seg123", "ogg"));
+  public void computeProgramRange_ignoresAtonalNotes() throws NexusException, ManagerFatalException, HubClientException, FabricationFatalException, ValueException {
+    var chain = store.put(buildChain(fake.account1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE));
+    segment = store.put(buildSegment(chain, 2, SegmentState.CRAFTING, "G major", 8, 0.6, 240.0, "seg123"));
     when(mockFabricatorFactory.loadRetrospective(any(), any())).thenReturn(mockRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any())).thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
-    when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
     var program = buildProgram(ProgramType.Detail, "C", 120.0f, 1.0f);
     var voice = buildVoice(program, InstrumentType.Bass);
     var track = buildTrack(voice);
     var sequence = buildSequence(program, 4);
     var pattern = buildPattern(sequence, voice, 4);
     sourceMaterial = new HubContent(ImmutableList.of(program, voice, track, sequence, pattern, buildEvent(pattern, track, 0.0f, 1.0f, "C1"), buildEvent(pattern, track, 1.0f, 1.0f, "X"), buildEvent(pattern, track, 2.0f, 1.0f, "D2"), fake.template1, fake.templateBinding1));
-    subject = new FabricatorImpl(sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider,false);
+    subject = new FabricatorImpl(sourceMaterial, segment, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     var result = subject.getProgramRange(program.getId(), InstrumentType.Bass);
 
@@ -327,18 +311,17 @@ public class FabricatorImplTest {
   }
 
   @Test
-  public void getProgramSequence_fromSequence() throws NexusException, ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, HubClientException, FabricationFatalException {
+  public void getProgramSequence_fromSequence() throws NexusException, ManagerFatalException, HubClientException, FabricationFatalException, ValueException {
     var account1 = buildAccount("fish");
     Template template1 = buildTemplate(account1, "Test Template 1", "test1");
     var chain = store.put(NexusIntegrationTestingFixtures.buildChain(template1));
-    segment = store.put(buildSegment(chain, SegmentType.CONTINUE, 17, 4, SegmentState.DUBBED, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:32.000001Z"), "D major", SEQUENCE_TOTAL_BEATS, 0.73, 120.0, String.format("chains-%s-segments-%s", Chains.getIdentifier(chain), 17), "wav"));
+    segment = store.put(buildSegment(chain, SegmentType.CONTINUE, 17, 4, SegmentState.CRAFTED, "D major", SEQUENCE_TOTAL_BEATS, 0.73, 120.0, String.format("chains-%s-segments-%s", Chains.getIdentifier(chain), 17), true));
     SegmentChoice choice = store.put(buildSegmentChoice(segment, ProgramType.Main, fake.program5_sequence0));
     when(mockFabricatorFactory.loadRetrospective(any(), any())).thenReturn(mockRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any())).thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
-    when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
     sourceMaterial = new HubContent(ImmutableList.of(fake.program5_sequence0, fake.template1, fake.templateBinding1));
-    subject = new FabricatorImpl(sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider,false);
+    subject = new FabricatorImpl(sourceMaterial, segment, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     var result = subject.getProgramSequence(choice);
 
@@ -346,18 +329,17 @@ public class FabricatorImplTest {
   }
 
   @Test
-  public void getProgramSequence_fromSequenceBinding() throws NexusException, ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, HubClientException, FabricationFatalException {
+  public void getProgramSequence_fromSequenceBinding() throws NexusException, ManagerFatalException, HubClientException, FabricationFatalException, ValueException {
     var account1 = buildAccount("fish");
     Template template1 = buildTemplate(account1, "Test Template 1", "test1");
     var chain = store.put(NexusIntegrationTestingFixtures.buildChain(template1));
-    segment = store.put(buildSegment(chain, SegmentType.CONTINUE, 17, 4, SegmentState.DUBBED, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:32.000001Z"), "D major", SEQUENCE_TOTAL_BEATS, 0.73, 120.0, String.format("chains-%s-segments-%s", Chains.getIdentifier(chain), 17), "wav"));
+    segment = store.put(buildSegment(chain, SegmentType.CONTINUE, 17, 4, SegmentState.CRAFTED, "D major", SEQUENCE_TOTAL_BEATS, 0.73, 120.0, String.format("chains-%s-segments-%s", Chains.getIdentifier(chain), 17), true));
     SegmentChoice choice = store.put(buildSegmentChoice(segment, ProgramType.Main, fake.program5_sequence0_binding0));
     when(mockFabricatorFactory.loadRetrospective(any(), any())).thenReturn(mockRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any())).thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
-    when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
     sourceMaterial = new HubContent(ImmutableList.of(fake.program5_sequence0, fake.program5_sequence0_binding0, fake.template1, fake.templateBinding1));
-    subject = new FabricatorImpl(sourceMaterial, segment, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider,false);
+    subject = new FabricatorImpl(sourceMaterial, segment, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     var result = subject.getProgramSequence(choice);
 

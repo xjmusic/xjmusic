@@ -3,9 +3,9 @@
 package io.xj.nexus.work;
 
 public class AppWorkThread extends Thread {
-  private final NexusWork work;
+  private final CraftWork work;
 
-  public AppWorkThread(NexusWork work) {
+  public AppWorkThread(CraftWork work) {
     this.work = work;
   }
 

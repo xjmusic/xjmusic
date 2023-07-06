@@ -18,9 +18,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static io.xj.lib.util.Values.MICROS_PER_SECOND;
+
 public class HookCraftImpl extends CraftImpl implements HookCraft {
   public HookCraftImpl(
-     Fabricator fabricator
+    Fabricator fabricator
   ) {
     super(fabricator);
   }
@@ -57,19 +59,19 @@ public class HookCraftImpl extends CraftImpl implements HookCraft {
   }
 
   /**
-   Craft hook loop
-
-   @param instrument to craft
-   @param audio      to craft
-   @throws NexusException on failure
+   * Craft hook loop
+   *
+   * @param instrument to craft
+   * @param audio      to craft
+   * @throws NexusException on failure
    */
   private void craftHook(Instrument instrument, InstrumentAudio audio) throws NexusException {
     var choice = new SegmentChoice();
     choice.setId(UUID.randomUUID());
     choice.setSegmentId(fabricator.getSegment().getId());
     choice.setMute(computeMute(instrument.getType()));
-    choice.setInstrumentType(instrument.getType().toString());
-    choice.setInstrumentMode(instrument.getMode().toString());
+    choice.setInstrumentType(instrument.getType());
+    choice.setInstrumentMode(instrument.getMode());
     choice.setInstrumentId(instrument.getId());
     fabricator.put(choice);
     var arrangement = new SegmentChoiceArrangement();
@@ -82,16 +84,16 @@ public class HookCraftImpl extends CraftImpl implements HookCraft {
     double pos = 0;
     while (pos < fabricator.getSegment().getTotal()) {
       // Pick attributes are expressed "rendered" as actual seconds
-      double startSeconds = fabricator.getSecondsAtPosition(pos);
-      double lengthSeconds = fabricator.getSecondsAtPosition(pos + audio.getTotalBeats()) - startSeconds;
+      double startSeconds = fabricator.getSegmentMicrosAtPosition(pos);
+      double lengthSeconds = fabricator.getSegmentMicrosAtPosition(pos + audio.getTotalBeats()) - startSeconds;
 
       // of pick
       var pick = new SegmentChoiceArrangementPick();
       pick.setId(UUID.randomUUID());
       pick.setSegmentId(fabricator.getSegment().getId());
       pick.setSegmentChoiceArrangementId(arrangement.getId());
-      pick.setStart(startSeconds);
-      pick.setLength(lengthSeconds);
+      pick.setStartAtSegmentMicros((long) (startSeconds * MICROS_PER_SECOND));
+      pick.setLengthMicros((long) (lengthSeconds * MICROS_PER_SECOND));
       pick.setAmplitude(1.0);
       pick.setEvent("HOOK");
       pick.setInstrumentAudioId(audio.getId());
@@ -102,10 +104,10 @@ public class HookCraftImpl extends CraftImpl implements HookCraft {
   }
 
   /**
-   Select a new random instrument audio
-
-   @param instrument of which to score available audios, and make a selection
-   @return matched new audio
+   * Select a new random instrument audio
+   *
+   * @param instrument of which to score available audios, and make a selection
+   * @return matched new audio
    */
   private Optional<InstrumentAudio> selectNewInstrumentAudio(
     Instrument instrument

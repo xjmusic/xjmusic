@@ -38,9 +38,6 @@ import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangementPick;
-import io.xj.nexus.persistence.ChainManager;
-import io.xj.nexus.persistence.ChainManagerImpl;
-import io.xj.nexus.persistence.FilePathProviderImpl;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManager;
@@ -67,6 +64,7 @@ import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
 import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
+import static io.xj.lib.util.Values.MICROS_PER_SECOND;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
 import static org.junit.Assert.assertEquals;
 
@@ -238,19 +236,11 @@ FUTURE goal
     store = new NexusEntityStoreImpl(entityFactory);
     SegmentManager segmentManager = new SegmentManagerImpl(entityFactory, store);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    var filePathProvider = new FilePathProviderImpl("");
-    ChainManager chainManager = new ChainManagerImpl(
-      entityFactory,
-      store,
-      segmentManager,
-      notificationProvider,1,1
-    );
     fabrication = new FabricatorFactoryImpl(
-      chainManager,
       segmentManager,
       jsonapiPayloadFactory,
-      jsonProvider,
-      filePathProvider);
+      jsonProvider
+    );
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
 
@@ -415,24 +405,26 @@ FUTURE goal
     if (Objects.isNull(objs)) return;
 
     LOG.info("Picks: {}", fabricator.getPicks().stream()
-      .sorted(Comparator.comparing(SegmentChoiceArrangementPick::getStart))
-      .map(pick -> String.format("%s@%f", pick.getTones(), pick.getStart()))
+      .sorted(Comparator.comparing(SegmentChoiceArrangementPick::getStartAtSegmentMicros))
+      .map(pick -> String.format("%s@%.1f", pick.getTones(), ((float) pick.getStartAtSegmentMicros() / MICROS_PER_SECOND)))
       .toList());
 
     for (var obj : objs) {
-      Float start = getFloat(obj, "start");
-      Float length = getFloat(obj, "length");
+      @Nullable Float startAtSeconds = getFloat(obj, "start");
+      @Nullable Float lengthSeconds = getFloat(obj, "length");
+      @Nullable Long startAtMicros = Objects.nonNull(startAtSeconds) ? (long) (startAtSeconds * MICROS_PER_SECOND) : null;
+      @Nullable Long lengthMicros = Objects.nonNull(lengthSeconds) ? (long) (lengthSeconds * MICROS_PER_SECOND) : null;
       Integer count = getInt(obj, "count");
       String notes = getStr(obj, "notes");
 
       var assertionName = String.format("%s-type picks", type) +
-        (Objects.nonNull(start) ? String.format(" starting at %fs", start) : "") +
-        (Objects.nonNull(length) ? String.format(" with length %fs", length) : "");
+        (Objects.nonNull(startAtMicros) ? String.format(" starting at %fs", startAtSeconds) : "") +
+        (Objects.nonNull(lengthMicros) ? String.format(" with length %fs", lengthSeconds) : "");
 
       var picks = fabricator.getPicks().stream()
         .filter(pick -> pick.getEvent().equals(type.toString()) &&
-          (Objects.isNull(start) || start.equals(pick.getStart().floatValue())) &&
-          (Objects.isNull(length) || length.equals(pick.getLength().floatValue())))
+          (Objects.isNull(startAtMicros) || startAtMicros.equals(pick.getStartAtSegmentMicros())) &&
+          (Objects.isNull(lengthMicros) || lengthMicros.equals(pick.getLengthMicros())))
         .map(SegmentChoiceArrangementPick::getTones).toList();
 
       if (Objects.nonNull(count))

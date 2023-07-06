@@ -11,7 +11,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,19 +32,17 @@ public class DubAudioCacheItem {
   private int size; // # of bytes
 
   /**
-   * @param httpClientProvider to use for http requests
-   * @param key                of audio file
-   * @param absolutePath       of audio file
-   * @param audioFileBucket    of audio file
-   * @param audioBaseUrl       of audio file
-   * @throws NexusException on failure
+   * @param audioFileBucket is the bucket for audio files
+   * @param audioBaseUrl    is the base URL for audio files
+   * @param key             ot this item
+   * @param absolutePath    to this item's waveform data on disk
    */
   public DubAudioCacheItem(
+    String audioBaseUrl,
+    String audioFileBucket,
     HttpClientProvider httpClientProvider,
     String key,
-    String absolutePath,
-    @Value("${audio.file.bucket}") String audioFileBucket,
-    @Value("${audio.base.url}") String audioBaseUrl
+    String absolutePath
   ) throws NexusException {
     this.key = key;
     this.absolutePath = absolutePath;

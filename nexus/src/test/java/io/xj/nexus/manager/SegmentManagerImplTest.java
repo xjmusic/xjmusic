@@ -29,15 +29,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.time.Instant;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplateBinding;
+import static io.xj.lib.util.Values.MICROS_PER_SECOND;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildHubClientAccess;
 import static org.junit.Assert.assertEquals;
@@ -51,7 +52,6 @@ import static org.junit.Assert.fail;
 public class SegmentManagerImplTest {
   private Account account1;
   private Chain chain3;
-  private EntityFactory entityFactory;
   private NexusEntityStore store;
   private Segment segment1;
   private Segment segment2;
@@ -63,7 +63,7 @@ public class SegmentManagerImplTest {
   @Before
   public void setUp() throws Exception {
     JsonProvider jsonProvider = new JsonProviderImpl();
-    entityFactory = new EntityFactoryImpl(jsonProvider);
+    EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
 
@@ -85,8 +85,7 @@ public class SegmentManagerImplTest {
       .accountId(account1.getId())
       .name("Test Print #1")
       .type(ChainType.PRODUCTION)
-      .state(ChainState.FABRICATE)
-      .startAt("2014-08-12T12:17:02.527142Z"));
+      .state(ChainState.FABRICATE));
 
     // Chain "Test Print #1" has 5 sequential segments
     segment1 = store.put(new Segment()
@@ -95,29 +94,29 @@ public class SegmentManagerImplTest {
       .offset(0L)
       .delta(0)
       .type(SegmentType.INITIAL)
-      .state(SegmentState.DUBBED)
+      .state(SegmentState.CRAFTED)
       .key("D major")
       .total(64)
       .density(0.73)
       .tempo(120.0)
       .storageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .beginAt("2017-02-14T12:01:00.000001Z")
-      .endAt("2017-02-14T12:01:32.000001Z"));
+      .beginAtChainMicros(0L)
+      .durationMicros(32 * MICROS_PER_SECOND));
     segment2 = store.put(new Segment()
       .id(UUID.randomUUID())
       .chainId(chain3.getId())
       .offset(1L)
       .delta(64)
       .type(SegmentType.CONTINUE)
-      .state(SegmentState.DUBBING)
+      .state(SegmentState.CRAFTING)
       .key("Db minor")
       .total(64)
       .density(0.85)
       .tempo(120.0)
       .storageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .beginAt("2017-02-14T12:01:32.000001Z")
+      .beginAtChainMicros(32 * MICROS_PER_SECOND)
       .waveformPreroll(1.523)
-      .endAt("2017-02-14T12:02:04.000001Z"));
+      .durationMicros(32 * MICROS_PER_SECOND));
     store.put(new Segment()
       .id(UUID.randomUUID())
       .chainId(chain3.getId())
@@ -130,8 +129,8 @@ public class SegmentManagerImplTest {
       .density(0.30)
       .tempo(120.0)
       .storageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .beginAt("2017-02-14T12:02:04.000001Z")
-      .endAt("2017-02-14T12:02:36.000001Z"));
+      .beginAtChainMicros(2 * 32 * MICROS_PER_SECOND)
+      .durationMicros(32 * MICROS_PER_SECOND));
     segment4 = store.put(new Segment()
       .id(UUID.randomUUID())
       .chainId(chain3.getId())
@@ -144,12 +143,12 @@ public class SegmentManagerImplTest {
       .density(0.41)
       .tempo(120.0)
       .storageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .beginAt("2017-02-14T12:02:36.000001Z")
-      .endAt("2017-02-14T12:03:08.000001Z"));
+      .beginAtChainMicros(3 * 32 * MICROS_PER_SECOND)
+      .durationMicros(32 * MICROS_PER_SECOND));
     segment5 = store.put(new Segment()
       .id(UUID.randomUUID())
       .chainId(chain3.getId())
-      .beginAt("2017-02-14T12:03:08.000001Z")
+      .beginAtChainMicros(4 * 32 * MICROS_PER_SECOND)
       .offset(4L)
       .delta(245)
       .type(SegmentType.CONTINUE)
@@ -158,8 +157,7 @@ public class SegmentManagerImplTest {
       .total(64)
       .density(0.41)
       .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892")
-      .outputEncoder("wav"));
+      .storageKey("chains-1-segments-9f7s89d8a7892"));
   }
 
   /**
@@ -174,8 +172,8 @@ public class SegmentManagerImplTest {
       .state(SegmentState.PLANNED)
       .delta(0)
       .type(SegmentType.CONTINUE)
-      .beginAt("1995-04-28T11:23:00.000001Z")
-      .endAt("1995-04-28T11:23:32.000001Z")
+      .beginAtChainMicros(5 * 32 * MICROS_PER_SECOND)
+      .durationMicros(32 * MICROS_PER_SECOND)
       .total(64)
       .density(0.74)
       .waveformPreroll(2.898)
@@ -189,8 +187,8 @@ public class SegmentManagerImplTest {
     assertEquals(chain3.getId(), result.getChainId());
     assertEquals(Long.valueOf(5), result.getOffset());
     assertEquals(SegmentState.PLANNED, result.getState());
-    assertEquals("1995-04-28T11:23:00.000001Z", result.getBeginAt());
-    assertEquals("1995-04-28T11:23:32.000001Z", result.getEndAt());
+    assertEquals(5 * 32 * MICROS_PER_SECOND, (long) result.getBeginAtChainMicros());
+    assertEquals(32 * MICROS_PER_SECOND, (long) Objects.requireNonNull(result.getDurationMicros()));
     assertEquals(Integer.valueOf(64), result.getTotal());
     assertEquals(0.74, result.getDensity(), 0.01);
     assertEquals("C# minor 7 b9", result.getKey());
@@ -212,8 +210,8 @@ public class SegmentManagerImplTest {
       .state(SegmentState.CRAFTING)
       .delta(0)
       .type(SegmentType.CONTINUE)
-      .beginAt("1995-04-28T11:23:00.000001Z")
-      .endAt("1995-04-28T11:23:32.000001Z")
+      .beginAtChainMicros(5 * 32 * MICROS_PER_SECOND)
+      .durationMicros(32 * MICROS_PER_SECOND)
       .storageKey("chains-1-segments-9f7s89d8a7892.wav")
       .total(64)
       .density(0.74)
@@ -226,8 +224,8 @@ public class SegmentManagerImplTest {
     assertEquals(chain3.getId(), result.getChainId());
     assertEquals(Long.valueOf(5), result.getOffset());
     assertEquals(SegmentState.PLANNED, result.getState());
-    assertEquals("1995-04-28T11:23:00.000001Z", result.getBeginAt());
-    assertEquals("1995-04-28T11:23:32.000001Z", result.getEndAt());
+    assertEquals(5 * 32 * MICROS_PER_SECOND, (long) result.getBeginAtChainMicros());
+    assertEquals(32 * MICROS_PER_SECOND, (long) Objects.requireNonNull(result.getDurationMicros()));
     assertEquals(Integer.valueOf(64), result.getTotal());
     assertEquals(0.74, result.getDensity(), 0.01);
     assertEquals("C# minor 7 b9", result.getKey());
@@ -244,8 +242,8 @@ public class SegmentManagerImplTest {
       .delta(0)
       .type(SegmentType.CONTINUE)
       .state(SegmentState.CRAFTING)
-      .beginAt("1995-04-28T11:23:00.000001Z")
-      .endAt("1995-04-28T11:23:32.000001Z")
+      .beginAtChainMicros(4 * 32 * MICROS_PER_SECOND)
+      .durationMicros(32 * MICROS_PER_SECOND)
       .total(64)
       .density(0.74)
       .key("C# minor 7 b9")
@@ -264,8 +262,8 @@ public class SegmentManagerImplTest {
       .delta(0)
       .type(SegmentType.CONTINUE)
       .state(SegmentState.CRAFTING)
-      .beginAt("1995-04-28T11:23:00.000001Z")
-      .endAt("1995-04-28T11:23:32.000001Z")
+      .beginAtChainMicros(4 * 32 * MICROS_PER_SECOND)
+      .durationMicros(32 * MICROS_PER_SECOND)
       .total(64)
       .density(0.74)
       .key("C# minor 7 b9")
@@ -285,9 +283,9 @@ public class SegmentManagerImplTest {
     assertEquals(segment2.getId(), result.getId());
     assertEquals(chain3.getId(), result.getChainId());
     assertEquals(Long.valueOf(1L), result.getOffset());
-    assertEquals(SegmentState.DUBBING, result.getState());
-    assertEquals("2017-02-14T12:01:32.000001Z", result.getBeginAt());
-    assertEquals("2017-02-14T12:02:04.000001Z", result.getEndAt());
+    assertEquals(SegmentState.CRAFTING, result.getState());
+    assertEquals(32 * MICROS_PER_SECOND, (long) result.getBeginAtChainMicros());
+    assertEquals(32 * MICROS_PER_SECOND, (long) Objects.requireNonNull(result.getDurationMicros()));
     assertEquals(Integer.valueOf(64), result.getTotal());
     assertEquals(0.85, result.getDensity(), 0.01);
     assertEquals("Db minor", result.getKey());
@@ -305,10 +303,10 @@ public class SegmentManagerImplTest {
     Iterator<Segment> it = result.iterator();
 
     Segment result0 = it.next();
-    assertEquals(SegmentState.DUBBED, result0.getState());
+    assertEquals(SegmentState.CRAFTED, result0.getState());
 
     Segment result1 = it.next();
-    assertEquals(SegmentState.DUBBING, result1.getState());
+    assertEquals(SegmentState.CRAFTING, result1.getState());
 
     Segment result2 = it.next();
     assertEquals(SegmentState.CRAFTED, result2.getState());
@@ -325,15 +323,15 @@ public class SegmentManagerImplTest {
    */
   @Test
   public void readMany_hasNoLimit() throws Exception {
-    Chain chain5 = store.put(buildChain(account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "barnacles"));
+    Chain chain5 = store.put(buildChain(account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, "barnacles"));
     for (int i = 0; i < 20; i++)
       store.put(new Segment()
         .id(UUID.randomUUID())
         .chainId(chain5.getId())
         .offset(4L)
         .state(SegmentState.CRAFTING)
-        .beginAt("1995-04-28T11:23:00.000001Z")
-        .endAt("1995-04-28T11:23:32.000001Z")
+        .beginAtChainMicros(4 * 32 * MICROS_PER_SECOND)
+        .durationMicros(32 * MICROS_PER_SECOND)
         .total(64)
         .density(0.74)
         .key("C# minor 7 b9")
@@ -368,23 +366,23 @@ public class SegmentManagerImplTest {
   public void readOneInState() throws Exception {
     HubClientAccess access = buildHubClientAccess("Internal");
 
-    Segment result = testService.readOneInState(access, chain3.getId(), SegmentState.PLANNED, Instant.parse("2017-02-14T12:03:08.000001Z"));
+    Segment result = testService.readOneInState(access, chain3.getId(), SegmentState.PLANNED, 4 * 32 * MICROS_PER_SECOND);
 
     assertEquals(segment5.getId(), result.getId());
     assertEquals(chain3.getId(), result.getChainId());
     assertEquals(Long.valueOf(4), result.getOffset());
     assertEquals(SegmentState.PLANNED, result.getState());
-    assertEquals("2017-02-14T12:03:08.000001Z", result.getBeginAt());
-    assertNull(result.getEndAt());
+    assertEquals(4 * 32 * MICROS_PER_SECOND, (long) result.getBeginAtChainMicros());
+    assertNull(result.getDurationMicros());
   }
 
   @Test
   public void readOneInState_failIfNoneInChain() {
     HubClientAccess access = buildHubClientAccess("Internal");
-    buildChain(account1, "Test Print #2", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null);
+    buildChain(account1, "Test Print #2", ChainType.PRODUCTION, ChainState.FABRICATE, template1, null);
 
     Exception thrown = assertThrows(ManagerExistenceException.class, () ->
-      testService.readOneInState(access, segment2.getId(), SegmentState.PLANNED, Instant.parse("2017-02-14T12:03:08.000001Z")));
+      testService.readOneInState(access, segment2.getId(), SegmentState.PLANNED, 2 * 32 * MICROS_PER_SECOND));
 
     assertTrue(thrown.getMessage().contains("Found no Segment"));
   }
@@ -395,11 +393,11 @@ public class SegmentManagerImplTest {
       .id(UUID.randomUUID())
       .chainId(chain3.getId())
       .offset(5L)
-      .state(SegmentState.DUBBED)
+      .state(SegmentState.CRAFTED)
       .delta(0)
       .type(SegmentType.CONTINUE)
-      .beginAt("1995-04-28T11:23:00.000001Z")
-      .endAt("1995-04-28T11:23:32.000001Z")
+      .beginAtChainMicros(4 * 32 * MICROS_PER_SECOND)
+      .durationMicros(32 * MICROS_PER_SECOND)
       .storageKey("chains-1-segments-9f7s89d8a7892.wav")
       .total(64)
       .density(0.74)
@@ -413,10 +411,10 @@ public class SegmentManagerImplTest {
     assertNotNull(result);
     assertEquals("C# minor 7 b9", result.getKey());
     assertEquals(chain3.getId(), result.getChainId());
-    assertEquals(SegmentState.DUBBED, result.getState());
+    assertEquals(SegmentState.CRAFTED, result.getState());
     assertEquals(0.0123, result.getWaveformPreroll(), 0.001);
-    assertEquals("1995-04-28T11:23:00.000001Z", result.getBeginAt());
-    assertEquals("1995-04-28T11:23:32.000001Z", result.getEndAt());
+    assertEquals(4 * 32 * MICROS_PER_SECOND, (long) result.getBeginAtChainMicros());
+    assertEquals(32 * MICROS_PER_SECOND, (long) Objects.requireNonNull(result.getDurationMicros()));
   }
 
   /**
@@ -430,9 +428,9 @@ public class SegmentManagerImplTest {
       .delta(0)
       .chainId(chain3.getId())
       .offset(5L)
-      .state(SegmentState.DUBBED)
-      .beginAt("1995-04-28T11:23:00.000001Z")
-      .endAt("1995-04-28T11:23:32.000001Z")
+      .state(SegmentState.CRAFTED)
+      .beginAtChainMicros(4 * 32 * MICROS_PER_SECOND)
+      .durationMicros(32 * MICROS_PER_SECOND)
       .total(64)
       .density(0.74)
       .key("C# minor 7 b9")
@@ -447,12 +445,24 @@ public class SegmentManagerImplTest {
 
   @Test
   public void update_failsToTransitionFromDubbingToCrafting() {
+    Segment inputData = new Segment()
+      .id(segment5.getId())
+      .chainId(segment5.getChainId())
+      .offset(4L)
+      .state(SegmentState.CRAFTED)
+      .delta(0)
+      .type(SegmentType.CONTINUE)
+      .beginAtChainMicros(4 * 32 * MICROS_PER_SECOND)
+      .durationMicros(32 * MICROS_PER_SECOND)
+      .total(64)
+      .density(0.74)
+      .key("C# minor 7 b9")
+      .tempo(120.0);
 
     Exception thrown = assertThrows(ManagerValidationException.class, () ->
-      testService.update(segment2.getId(),
-        entityFactory.clone(segment2).state(SegmentState.CRAFTING)));
+      testService.update(segment5.getId(), inputData));
 
-    assertTrue(thrown.getMessage().contains("transition to Crafting not in allowed"));
+    assertTrue(thrown.getMessage().contains("transition to Crafted not in allowed"));
   }
 
   @Test
@@ -463,8 +473,8 @@ public class SegmentManagerImplTest {
       .state(SegmentState.CRAFTING)
       .delta(0)
       .type(SegmentType.CONTINUE)
-      .beginAt("1995-04-28T11:23:00.000001Z")
-      .endAt("1995-04-28T11:23:32.000001Z")
+      .beginAtChainMicros(4 * 32 * MICROS_PER_SECOND)
+      .durationMicros(32 * MICROS_PER_SECOND)
       .total(64)
       .density(0.74)
       .key("C# minor 7 b9")
@@ -480,13 +490,13 @@ public class SegmentManagerImplTest {
   public void update_FailsToChangeChain() throws Exception {
     Segment inputData = new Segment()
       .id(UUID.randomUUID())
-      .chainId(chain3.getId())
+      .chainId(UUID.randomUUID())
       .offset(4L)
       .delta(0)
       .type(SegmentType.CONTINUE)
       .state(SegmentState.CRAFTING)
-      .beginAt("1995-04-28T11:23:00.000001Z")
-      .endAt("1995-04-28T11:23:32.000001Z")
+      .beginAtChainMicros(4 * 32 * MICROS_PER_SECOND)
+      .durationMicros(32 * MICROS_PER_SECOND)
       .total(64)
       .density(0.74)
       .key("C# minor 7 b9")
@@ -495,7 +505,7 @@ public class SegmentManagerImplTest {
     Exception thrown = assertThrows(ManagerValidationException.class, () ->
       testService.update(segment2.getId(), inputData));
 
-    assertTrue(thrown.getMessage().contains("transition to Crafting not in allowed"));
+    assertTrue(thrown.getMessage().contains("cannot change chainId create a segment"));
     Segment result = testService.readOne(segment2.getId());
     assertNotNull(result);
     assertEquals("Db minor", result.getKey());

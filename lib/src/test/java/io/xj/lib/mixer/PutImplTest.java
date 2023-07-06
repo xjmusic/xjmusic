@@ -9,7 +9,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.junit.Assert.*;
+import java.util.UUID;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PutImplTest {
@@ -18,12 +22,14 @@ public class PutImplTest {
 
   @Mock
   NotificationProvider notificationProvider;
+  private UUID audioId;
 
   @Before
   public void setUp() throws Exception {
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    MixerFactory mixerFactory = new MixerFactoryImpl(envelopeProvider, notificationProvider, "development");
-    testPut = mixerFactory.createPut(0, "bun1", 1000000, 2000000, 1.0, 0, 5);
+    MixerFactory mixerFactory = new MixerFactoryImpl(envelopeProvider, notificationProvider, "development", 1000000);
+    audioId = UUID.randomUUID();
+    testPut = mixerFactory.createPut(UUID.randomUUID(), audioId, 0, 1000000, 2000000, 1.0, 0, 5);
   }
 
   @Test
@@ -93,7 +99,7 @@ public class PutImplTest {
 
   @Test
   public void getSourceId() {
-    assertEquals("bun1", testPut.getSourceId());
+    assertEquals(audioId, testPut.getAudioId());
   }
 
   @Test
@@ -124,7 +130,7 @@ public class PutImplTest {
   }
 
   /**
-   One-shot fadeout mode https://www.pivotaltracker.com/story/show/183385397
+   * One-shot fadeout mode https://www.pivotaltracker.com/story/show/183385397
    */
   @Test
   public void getReleaseMillis() {

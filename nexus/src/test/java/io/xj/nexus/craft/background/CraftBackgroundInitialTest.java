@@ -25,8 +25,6 @@ import io.xj.nexus.model.ChainType;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
-import io.xj.nexus.persistence.ChainManager;
-import io.xj.nexus.persistence.ChainManagerImpl;
 import io.xj.nexus.persistence.FilePathProviderImpl;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
@@ -40,7 +38,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.time.Instant;
 import java.util.stream.Collectors;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
@@ -71,19 +68,12 @@ public class CraftBackgroundInitialTest {
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     store = new NexusEntityStoreImpl(entityFactory);
     SegmentManager segmentManager = new SegmentManagerImpl(entityFactory, store);
-    ChainManager chainManager = new ChainManagerImpl(
-      entityFactory,
-      store,
-      segmentManager,
-      notificationProvider,1,1
-    );
     var filePathProvider = new FilePathProviderImpl("");
     fabricatorFactory = new FabricatorFactoryImpl(
-      chainManager,
       segmentManager,
       jsonapiPayloadFactory,
-      jsonProvider,
-      filePathProvider);
+      jsonProvider
+    );
 
     // Manipulate the underlying entity store; reset before each test
     store.deleteAll();
@@ -102,8 +92,8 @@ public class CraftBackgroundInitialTest {
       "Print #2",
       ChainType.PRODUCTION,
       ChainState.FABRICATE,
-      buildTemplate(fake.account1, "Test"),
-      Instant.parse("2014-08-12T12:17:02.527142Z")));
+      buildTemplate(fake.account1, "Test")
+    ));
 
     // segment crafting
     segment6 = store.put(buildSegment(
@@ -112,14 +102,12 @@ public class CraftBackgroundInitialTest {
       0,
       0,
       SegmentState.CRAFTING,
-      Instant.parse("2017-02-14T12:01:00.000001Z"),
-      Instant.parse("2017-02-14T12:01:07.384616Z"),
       "C minor",
       16,
       0.55,
       130.0,
       "chains-1-segments-9f7s89d8a7892.wav",
-      "ogg"));
+      true));
     store.put(buildSegmentChoice(
       segment6,
       Segments.DELTA_UNLIMITED,

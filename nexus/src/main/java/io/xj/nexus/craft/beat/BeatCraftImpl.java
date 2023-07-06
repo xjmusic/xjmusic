@@ -52,7 +52,7 @@ public class BeatCraftImpl extends DetailCraftImpl implements BeatCraft {
       fabricator.sourceMaterial().getProgramVoice(choice.getProgramVoiceId())
         .map(ProgramVoice::getName)
         .orElse("Unknown");
-    Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> ProgramType.Beat.toString().equals(choice.getProgramType());
+    Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> ProgramType.Beat.equals(choice.getProgramType());
     var programNames = fabricator.sourceMaterial().getVoices(program.get()).stream()
       .map(ProgramVoice::getName)
       .collect(Collectors.toList());

@@ -3,12 +3,17 @@ package io.xj.lib.util;
 
 import com.google.api.client.util.Lists;
 import com.google.common.base.Strings;
+import io.xj.lib.mixer.AudioSampleFormat;
+import io.xj.lib.mixer.FormatException;
 
 import javax.annotation.Nullable;
+import javax.sound.sampled.AudioFormat;
+import java.nio.ByteBuffer;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -18,21 +23,23 @@ public interface Values {
   double roundPositionMultiplier = StrictMath.pow(10.0, entityPositionDecimalPlaces);
   String K = "k";
   String EMPTY = "";
-  double MICROS_PER_SECOND = 1000000.0F;
-  double NANOS_PER_SECOND = 1000.0F * MICROS_PER_SECOND;
+  long MILLIS_PER_SECOND = 1000;
+  long MICROS_PER_MILLI = 1000;
+  long NANOS_PER_MICRO = 1000;
+  long MICROS_PER_SECOND = MICROS_PER_MILLI * MILLIS_PER_SECOND;
+  long NANOS_PER_SECOND = NANOS_PER_MICRO * MICROS_PER_SECOND;
   long SECONDS_PER_MINUTE = 60;
   long MINUTES_PER_HOUR = 60;
   long HOURS_PER_DAY = 24;
-  long MILLIS_PER_SECOND = 1000;
   long SECONDS_PER_HOUR = SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
   long SECONDS_PER_DAY = SECONDS_PER_HOUR * HOURS_PER_DAY;
 
   /**
-   Return the first value if it's non-null, else the second
-
-   @param d1 to check if non-null and return
-   @param d2 to default to, if s1 is null
-   @return s1 if non-null, else s2
+   * Return the first value if it's non-null, else the second
+   *
+   * @param d1 to check if non-null and return
+   * @param d2 to default to, if s1 is null
+   * @return s1 if non-null, else s2
    */
   static Double eitherOr(Double d1, Double d2) {
     if (Objects.nonNull(d1) && !d1.isNaN() && !Objects.equals(d1, 0.0d))
@@ -42,11 +49,11 @@ public interface Values {
   }
 
   /**
-   Return the first value if it's non-null, else the second
-
-   @param s1 to check if non-null and return
-   @param s2 to default to, if s1 is null
-   @return s1 if non-null, else s2
+   * Return the first value if it's non-null, else the second
+   *
+   * @param s1 to check if non-null and return
+   * @param s2 to default to, if s1 is null
+   * @return s1 if non-null, else s2
    */
   static String eitherOr(String s1, String s2) {
     if (Objects.nonNull(s1) && !s1.isEmpty())
@@ -56,63 +63,63 @@ public interface Values {
   }
 
   /**
-   Divide a set of integers by a double and return the divided set
-
-   @param divisor   to divide by
-   @param originals to divide
-   @return divided originals
+   * Divide a set of integers by a double and return the divided set
+   *
+   * @param divisor   to divide by
+   * @param originals to divide
+   * @return divided originals
    */
   static Set<Integer> dividedBy(Double divisor, Set<Integer> originals) {
     return originals.stream().map(original -> (int) Math.floor(original / divisor)).collect(Collectors.toSet());
   }
 
   /**
-   Calculate ratio (of 0 to 1) within a zero-to-N limit
-
-   @param value to calculate radio of
-   @param limit N where ratio will be calculated based on zero-to-N
-   @return ratio between 0 and 1
+   * Calculate ratio (of 0 to 1) within a zero-to-N limit
+   *
+   * @param value to calculate radio of
+   * @param limit N where ratio will be calculated based on zero-to-N
+   * @return ratio between 0 and 1
    */
   static double ratio(double value, double limit) {
     return Math.max(Math.min(1, value / limit), 0);
   }
 
   /**
-   True if input string is an integer
-
-   @param raw text to check if it's an integer
-   @return true if it's an integer
+   * True if input string is an integer
+   *
+   * @param raw text to check if it's an integer
+   * @return true if it's an integer
    */
   static Boolean isInteger(String raw) {
     return Text.isInteger.matcher(raw).matches();
   }
 
   /**
-   Add an ID if not already added to list
-
-   @param ids   list to which addition will be assured
-   @param addId to ensure in list
+   * Add an ID if not already added to list
+   *
+   * @param ids   list to which addition will be assured
+   * @param addId to ensure in list
    */
   static <N> void put(Collection<N> ids, N addId) {
     if (!ids.contains(addId)) ids.add(addId);
   }
 
   /**
-   Add an ID if not already added to list
-
-   @param ids    list to which addition will be assured
-   @param addIds to ensure in list
+   * Add an ID if not already added to list
+   *
+   * @param ids    list to which addition will be assured
+   * @param addIds to ensure in list
    */
   static <N> void put(Collection<N> ids, Collection<N> addIds) {
     addIds.forEach(addId -> put(ids, addId));
   }
 
   /**
-   Require a non-null value, or else throw an exception with the specified name
-
-   @param notNull value
-   @param name    to describe in exception
-   @throws ValueException if null
+   * Require a non-null value, or else throw an exception with the specified name
+   *
+   * @param notNull value
+   * @param name    to describe in exception
+   * @throws ValueException if null
    */
   static <V> void require(V notNull, String name) throws ValueException {
     if (Objects.isNull(notNull) || String.valueOf(notNull).isEmpty())
@@ -120,12 +127,12 @@ public interface Values {
   }
 
   /**
-   Require a minimum value, or else throw an exception with the specified name
-
-   @param minimum threshold minimum
-   @param value   value
-   @param name    to describe in exception
-   @throws ValueException if null
+   * Require a minimum value, or else throw an exception with the specified name
+   *
+   * @param minimum threshold minimum
+   * @param value   value
+   * @param name    to describe in exception
+   * @throws ValueException if null
    */
   static void requireMinimum(Double minimum, Double value, String name) throws ValueException {
     if (value < minimum)
@@ -133,11 +140,24 @@ public interface Values {
   }
 
   /**
-   Require a non-zero value, or else throw an exception with the specified name
+   * Require a minimum value, or else throw an exception with the specified name
+   *
+   * @param minimum threshold minimum
+   * @param value   value
+   * @param name    to describe in exception
+   * @throws ValueException if null
+   */
+  static void requireMinimum(Long minimum, Long value, String name) throws ValueException {
+    if (value < minimum)
+      throw new ValueException(String.format("%s must be at least %d", name, minimum));
+  }
 
-   @param value value
-   @param name  to describe in exception
-   @throws ValueException if null
+  /**
+   * Require a non-zero value, or else throw an exception with the specified name
+   *
+   * @param value value
+   * @param name  to describe in exception
+   * @throws ValueException if null
    */
   static <V> void requireNonZero(V value, String name) throws ValueException {
     if (Values.isUnsetOrZero(value))
@@ -145,11 +165,11 @@ public interface Values {
   }
 
   /**
-   allow only the specified values, or else throw an exception with the specified name
-
-   @param value value
-   @param name  to describe in exception
-   @throws ValueException if null
+   * allow only the specified values, or else throw an exception with the specified name
+   *
+   * @param value value
+   * @param name  to describe in exception
+   * @throws ValueException if null
    */
   static <V> void require(V value, String name, Collection<V> allowed) throws ValueException {
     require(value, name);
@@ -158,21 +178,21 @@ public interface Values {
   }
 
   /**
-   Round a value to N decimal places.
-   Architect wants to limit the floating point precision of chord and event position, in order to limit obsession over the position of things. https://www.pivotaltracker.com/story/show/154976066
-
-   @param value to round
-   @return rounded position
+   * Round a value to N decimal places.
+   * Architect wants to limit the floating point precision of chord and event position, in order to limit obsession over the position of things. https://www.pivotaltracker.com/story/show/154976066
+   *
+   * @param value to round
+   * @return rounded position
    */
   static Double limitDecimalPrecision(Double value) {
     return Math.floor(value * roundPositionMultiplier) / roundPositionMultiplier;
   }
 
   /**
-   Definitely not null, or string "null"
-
-   @param obj to ingest for non-nullness
-   @return true if non-null
+   * Definitely not null, or string "null"
+   *
+   * @param obj to ingest for non-nullness
+   * @return true if non-null
    */
   static boolean isNonNull(Object obj) {
     return Objects.nonNull(obj) &&
@@ -180,10 +200,10 @@ public interface Values {
   }
 
   /**
-   Is a value not present?
-
-   @param value to test
-   @return true if null or empty
+   * Is a value not present?
+   *
+   * @param value to test
+   * @return true if null or empty
    */
   static boolean isEmpty(Object value) {
     if (Objects.isNull(value)) return true;
@@ -191,20 +211,20 @@ public interface Values {
   }
 
   /**
-   Is a value not present, empty, or equal to zero?
-
-   @param value to test
-   @return true if unset, empty, or equals zero
+   * Is a value not present, empty, or equal to zero?
+   *
+   * @param value to test
+   * @return true if unset, empty, or equals zero
    */
   static <V> boolean isUnsetOrZero(V value) {
     return Objects.isNull(value) || String.valueOf(value).isEmpty() || Double.valueOf(String.valueOf(value)).equals(0.0);
   }
 
   /**
-   Format an Instant as ISO-8601 UTC
-
-   @param instant to format
-   @return formatted ISO-8601 UTC from instant
+   * Format an Instant as ISO-8601 UTC
+   *
+   * @param instant to format
+   * @return formatted ISO-8601 UTC from instant
    */
   static String formatIso8601UTC(Instant instant) {
     return ZonedDateTime.ofInstant(instant, ZoneOffset.UTC)
@@ -212,10 +232,10 @@ public interface Values {
   }
 
   /**
-   Format an Instant as ISO-8601 UTC
-
-   @param instant to format
-   @return formatted ISO-8601 UTC from instant
+   * Format an Instant as ISO-8601 UTC
+   *
+   * @param instant to format
+   * @return formatted ISO-8601 UTC from instant
    */
   static String formatRfc1123UTC(Instant instant) {
     return ZonedDateTime.ofInstant(instant, ZoneOffset.UTC)
@@ -223,10 +243,10 @@ public interface Values {
   }
 
   /**
-   Whether a value is non-null and non-empty
-
-   @param value to test
-   @return true if non-null and non-empty
+   * Whether a value is non-null and non-empty
+   *
+   * @param value to test
+   * @return true if non-null and non-empty
    */
   static boolean isSet(Object value) {
     if (Objects.isNull(value)) return false;
@@ -234,10 +254,10 @@ public interface Values {
   }
 
   /**
-   Whether a value is null or empty
-
-   @param value to test
-   @return true if non-null and non-empty
+   * Whether a value is null or empty
+   *
+   * @param value to test
+   * @return true if non-null and non-empty
    */
   static boolean isUnset(Object value) {
     if (Objects.isNull(value)) return true;
@@ -245,12 +265,12 @@ public interface Values {
   }
 
   /**
-   Filter a value out of an array of values
-
-   @param removed value to remove
-   @param values  to source and filter
-   @param <O>     type
-   @return values without removed value
+   * Filter a value out of an array of values
+   *
+   * @param removed value to remove
+   * @param values  to source and filter
+   * @param <O>     type
+   * @return values without removed value
    */
   static <O> O[] without(O removed, O[] values) {
     //noinspection unchecked
@@ -260,31 +280,31 @@ public interface Values {
   }
 
   /**
-   String representation of value, or pass through null as empty string
-
-   @param value to parse
-   @return string or empty
+   * String representation of value, or pass through null as empty string
+   *
+   * @param value to parse
+   * @return string or empty
    */
   static String stringOrEmpty(@Nullable Object value) {
     return stringOrDefault(value, EMPTY);
   }
 
   /**
-   String representation of value, or pass through a default value
-
-   @param value        to parse
-   @param defaultValue to return if value is null
-   @return string or default value
+   * String representation of value, or pass through a default value
+   *
+   * @param value        to parse
+   * @param defaultValue to return if value is null
+   * @return string or default value
    */
   static String stringOrDefault(@Nullable Object value, String defaultValue) {
     return Objects.nonNull(value) ? String.valueOf(value) : defaultValue;
   }
 
   /**
-   Get a UUID from the input string, or return null if the input is null or invalid
-
-   @param id from which to compute uuid
-   @return uuid or null
+   * Get a UUID from the input string, or return null if the input is null or invalid
+   *
+   * @param id from which to compute uuid
+   * @return uuid or null
    */
   static @Nullable
   UUID uuidOrNull(@Nullable String id) {
@@ -297,42 +317,52 @@ public interface Values {
   }
 
   /**
-   Get the epoch micros of a given instant
-
-   @param of instant
-   @return epoch micros
+   * Get the epoch micros of a given instant
+   *
+   * @param of instant
+   * @return epoch micros
    */
-  static long toEpochMicros(Instant of) {
+  static Long toEpochMicros(Instant of) {
     return of.toEpochMilli() * 1000 + of.getNano() / 1000;
   }
 
   /**
-   Get the "kilos" representation of an integer, as in 128k for 128000
+   * Get an Instant from a long value of microseconds since epoch
+   *
+   * @param of microseconds since epoch
+   * @return Instant
+   */
+  static Instant fromEpochMicros(long of) {
+    return Instant.ofEpochMilli(of / 1000).plus(of % 1000, ChronoUnit.MICROS);
+  }
 
-   @param value for which to get kilos
-   @return kilos representation
+  /**
+   * Get the "kilos" representation of an integer, as in 128k for 128000
+   *
+   * @param value for which to get kilos
+   * @return kilos representation
    */
   static String k(int value) {
     return String.format("%d%s", (int) Math.floor((double) value / 1000), K);
   }
 
   /**
-   Get a random string from the collection
-
-   @param from which to get random string
-   @return random string from collection
+   * Get a random string from the collection
+   *
+   * @param from which to get random string
+   * @return random string from collection
    */
   static String randomFrom(Collection<String> from) {
     return (String) from.toArray()[TremendouslyRandom.zeroToLimit(from.size())];
   }
 
   /**
-   Get N number of the member strings from the collection.
-   Don't repeat a choice.
-
-   @param from which to get random strings
-   @param num  number of strings to get
-   @return random strings from collection
+   * Get N number of the member strings from the collection.
+   * Don't repeat a choice.
+   *
+   * @param from which to get random strings
+   * @param num  number of strings to get
+   * @return random strings from collection
    */
   static List<String> randomFrom(Collection<String> from, int num) {
     if (0 == num || from.isEmpty()) return List.of();
@@ -343,11 +373,11 @@ public interface Values {
   }
 
   /**
-   Greatest common denominator of two numbers
-
-   @param a from which to compute
-   @param b from which to compute
-   @return greatest common denominator
+   * Greatest common denominator of two numbers
+   *
+   * @param a from which to compute
+   * @param b from which to compute
+   * @return greatest common denominator
    */
   static long gcd(long a, long b) {
     while (b > 0) {
@@ -359,11 +389,11 @@ public interface Values {
   }
 
   /**
-   Get the values (filtered from the given set of test factors) which are factors of the target value
-
-   @param target      which we'll test values against
-   @param testFactors values to test
-   @return values that are indeed a factor of the target value
+   * Get the values (filtered from the given set of test factors) which are factors of the target value
+   *
+   * @param target      which we'll test values against
+   * @param testFactors values to test
+   * @return values that are indeed a factor of the target value
    */
   static int[] factors(long target, int[] testFactors) {
     return Arrays.stream(testFactors)
@@ -372,18 +402,18 @@ public interface Values {
   }
 
   /**
-   Get the smallest subdivision within the total, e.g.
-   --- [12,3] = 4
-   --- [12,4] = 3
-   --- [16,4] = 4
-   --- [24,3] = 4
-   --- [24,4] = 3
-   --- [48,3] = 4
-   --- [48,4] = 3
-   --- [64,4] = 4
-
-   @param numerator   from which to compute
-   @param denominator from which to compute
+   * Get the smallest subdivision within the total, e.g.
+   * --- [12,3] = 4
+   * --- [12,4] = 3
+   * --- [16,4] = 4
+   * --- [24,3] = 4
+   * --- [24,4] = 3
+   * --- [48,3] = 4
+   * --- [48,4] = 3
+   * --- [64,4] = 4
+   *
+   * @param numerator   from which to compute
+   * @param denominator from which to compute
    */
   static int subDiv(int numerator, int denominator) {
     if (numerator % denominator != 0 || numerator <= denominator) return numerator;
@@ -396,34 +426,34 @@ public interface Values {
   }
 
   /**
-   Round down to a multiple of the given factor
-
-   @param factor of which to get a multiple
-   @param value  source
-   @return floor of value
+   * Round down to a multiple of the given factor
+   *
+   * @param factor of which to get a multiple
+   * @param value  source
+   * @return floor of value
    */
   static int multipleFloor(int factor, double value) {
     return (int) (Math.floor(value / factor) * factor);
   }
 
   /**
-   Interpolate a value between the floor and ceiling
-
-   @param floor      bottom value
-   @param ceiling    top value
-   @param position   between 0 and 1 of value to interpolate between the floor and ceiling
-   @param multiplier of value (above ceiling)
-   @return interpolated value
+   * Interpolate a value between the floor and ceiling
+   *
+   * @param floor      bottom value
+   * @param ceiling    top value
+   * @param position   between 0 and 1 of value to interpolate between the floor and ceiling
+   * @param multiplier of value (above ceiling)
+   * @return interpolated value
    */
   static Double interpolate(double floor, double ceiling, double position, double multiplier) {
     return floor + (ceiling - floor) * position * multiplier;
   }
 
   /**
-   Enforce a maximum
-
-   @param value actual
-   @throws ValueException if value greater than allowable
+   * Enforce a maximum
+   *
+   * @param value actual
+   * @throws ValueException if value greater than allowable
    */
   static void enforceMaxStereo(int value) throws ValueException {
     if (value > 2)
@@ -431,10 +461,10 @@ public interface Values {
   }
 
   /**
-   Get the key from a map, based on the highest value stored
-
-   @param map of key-value pairs
-   @return key of the highest value
+   * Get the key from a map, based on the highest value stored
+   *
+   * @param map of key-value pairs
+   * @return key of the highest value
    */
   static Optional<UUID> getKeyOfHighestValue(Map<UUID, Integer> map) {
     var max = map.entrySet().stream().max(Map.Entry.comparingByValue());
@@ -442,28 +472,18 @@ public interface Values {
   }
 
   /**
-   Compute the relative (to now) seconds of an instant
-
-   @param at to which we'll compute
-   @return seconds from now until instant (negative if instant is in the past)
-   */
-  static float computeRelativeSeconds(Instant at) {
-    return (float) (at.toEpochMilli() - Instant.now().toEpochMilli()) / MILLIS_PER_SECOND;
-  }
-
-  /**
-   Round value to the nearest positive multiple of N
+   * Round value to the nearest positive multiple of N
    */
   static int roundToNearest(int N, int value) {
     return (int) (Math.max(0, Math.floor((float) value / N)) * N);
   }
 
   /**
-   Remove some number of ids from the list
-
-   @param fromIds to begin with
-   @param count   number of ids to add
-   @return list including added ids
+   * Remove some number of ids from the list
+   *
+   * @param fromIds to begin with
+   * @param count   number of ids to add
+   * @return list including added ids
    */
   static Collection<UUID> withIdsRemoved(Collection<UUID> fromIds, int count) {
     var ids = new ArrayList<>(fromIds);
@@ -473,23 +493,39 @@ public interface Values {
   }
 
   /**
-   Get string value of int, or empty if zero
-
-   @param value to translate
-   @return non-zero value, or empty
+   * Get string value of int, or empty if zero
+   *
+   * @param value to translate
+   * @return non-zero value, or empty
    */
   static String emptyZero(int value) {
     return 0 != value ? String.valueOf(value) : "";
   }
 
   /**
-   Get the last N values from a list
-
-   @param num  of entries
-   @param list of all entries
-   @return last N entries from the list
+   * Get the last N values from a list
+   *
+   * @param num  of entries
+   * @param list of all entries
+   * @return last N entries from the list
    */
   static List<String> last(int num, List<String> list) {
     return list.subList(Math.min(list.size(), Math.max(0, list.size() - num)), list.size());
   }
+
+    /**
+     * Convert output values into a ByteBuffer
+     *
+     * @param fmt     to write
+     * @param samples [frame][channel] output to convert
+     * @return byte buffer of stream
+     */
+    static ByteBuffer byteBufferOf(AudioFormat fmt, double[][] samples) throws FormatException {
+      ByteBuffer outputBytes = ByteBuffer.allocate(samples.length * fmt.getFrameSize());
+      for (double[] sample : samples)
+        for (double v : sample)
+          outputBytes.put(AudioSampleFormat.toBytes(v, AudioSampleFormat.typeOfOutput(fmt)));
+
+      return outputBytes;
+    }
 }

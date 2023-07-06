@@ -124,7 +124,7 @@ public interface SegmentWorkbench {
   /**
    Get the Chain this Segment Workbench is working within
 
-   @return Chain that this this Segment Workbench is working within
+   @return Chain containing this Segment
    */
   Chain getChain();
 

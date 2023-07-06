@@ -16,10 +16,6 @@ public enum SegmentState {
 
   CRAFTED("Crafted"),
 
-  DUBBING("Dubbing"),
-
-  DUBBED("Dubbed"),
-
   FAILED("Failed");
 
   private String value;

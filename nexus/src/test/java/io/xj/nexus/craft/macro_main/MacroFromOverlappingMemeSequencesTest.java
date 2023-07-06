@@ -32,7 +32,6 @@ import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentState;
-import io.xj.nexus.persistence.ChainManagerImpl;
 import io.xj.nexus.persistence.FilePathProviderImpl;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManagerImpl;
@@ -41,8 +40,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.time.Instant;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
@@ -81,21 +78,14 @@ public class MacroFromOverlappingMemeSequencesTest {
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     var store = new NexusEntityStoreImpl(entityFactory);
     var segmentManager = new SegmentManagerImpl(entityFactory, store);
-    var chainManager = new ChainManagerImpl(
-      entityFactory,
-      store,
-      segmentManager,
-      notificationProvider,1,1
-    );
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     EntityStore entityStore = new EntityStoreImpl();
     var filePathProvider = new FilePathProviderImpl("");
     var fabricatorFactory = new FabricatorFactoryImpl(
-      chainManager,
       segmentManager,
       jsonapiPayloadFactory,
-      jsonProvider,
-      filePathProvider);
+      jsonProvider
+    );
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
 
@@ -175,34 +165,30 @@ public class MacroFromOverlappingMemeSequencesTest {
     ));
 
     // Chain "Test Print #1" has 5 total segments
-    Chain chain1 = store.put(buildChain(account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    Chain chain1 = store.put(buildChain(account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, null));
     Segment segment1 = store.put(buildSegment(
       chain1,
       0,
-      SegmentState.DUBBED,
-      Instant.parse("2017-02-14T12:01:00.000001Z"),
-      Instant.parse("2017-02-14T12:01:32.000001Z"),
+      SegmentState.CRAFTED,
       "D major",
       64,
       0.73,
       120.0,
-      "chains-1-segments-9f7s89d8a7892",
-      "wav"));
+      "chains-1-segments-9f7s89d8a7892"
+    ));
     store.put(buildSegmentChoice(segment1, ProgramType.Macro, macro1_sequenceA_binding));
     store.put(buildSegmentChoice(segment1, ProgramType.Main, main5_sequenceA_binding));
 
     Segment segment2 = store.put(buildSegment(
       chain1,
       1,
-      SegmentState.DUBBING,
-      Instant.parse("2017-02-14T12:01:32.000001Z"),
-      Instant.parse("2017-02-14T12:02:04.000001Z"),
+      SegmentState.CRAFTING,
       "Db minor",
       64,
       0.85,
       120.0,
-      "chains-1-segments-9f7s89d8a7892.wav",
-      "ogg"));
+      "chains-1-segments-9f7s89d8a7892.wav"
+    ));
 
     subject = new MacroMainCraftImpl(fabricatorFactory.fabricate(sourceMaterial, segment2), apiUrlProvider);
   }

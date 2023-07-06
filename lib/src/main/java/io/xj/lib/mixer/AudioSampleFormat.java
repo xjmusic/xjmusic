@@ -78,8 +78,7 @@ public enum AudioSampleFormat {
     AudioFormat.Encoding encoding = format.getEncoding();
     int sampleSizeInBits = format.getSampleSizeInBits();
     switch (sampleSizeInBits) {
-
-      case 8:
+      case 8 -> {
         if (!isOutput && encoding.equals(PCM_UNSIGNED)) {
           return U8;
         } else if (encoding.equals((PCM_SIGNED))) {
@@ -87,8 +86,8 @@ public enum AudioSampleFormat {
         } else {
           throw new FormatException("Unsupported 8-bit " + (isOutput ? "output " : "") + "encoding: " + encoding);
         }
-
-      case 16:
+      }
+      case 16 -> {
         if (!isOutput && encoding.equals(PCM_UNSIGNED)) {
           return format.isBigEndian() ? U16MSB : U16LSB;
         } else if (encoding.equals((PCM_SIGNED))) {
@@ -96,15 +95,15 @@ public enum AudioSampleFormat {
         } else {
           throw new FormatException("Unsupported 16-bit " + (isOutput ? "output " : "") + "encoding: " + encoding);
         }
-
-      case 24:
+      }
+      case 24 -> {
         if (!isOutput && encoding.equals(PCM_SIGNED)) {
           return format.isBigEndian() ? S24MSB : S24LSB;
         } else {
           throw new FormatException("Unsupported 24-bit " + (isOutput ? "output " : "") + "encoding: " + encoding);
         }
-
-      case 32:
+      }
+      case 32 -> {
         if (encoding.equals(PCM_SIGNED)) {
           return format.isBigEndian() ? S32MSB : S32LSB;
         } else if (encoding.equals((PCM_FLOAT))) {
@@ -112,15 +111,15 @@ public enum AudioSampleFormat {
         } else {
           throw new FormatException("Unsupported 32-bit " + (isOutput ? "output " : "") + "encoding: " + encoding);
         }
-
-      case 64:
+      }
+      case 64 -> {
         if (encoding.equals(PCM_FLOAT)) {
           return format.isBigEndian() ? F64MSB : F64LSB;
         } else {
           throw new FormatException("Unsupported 64-bit " + (isOutput ? "output " : "") + "encoding: " + encoding);
         }
-
-      default:
+      }
+      default ->
         throw new FormatException("Unsupported " + (isOutput ? "output " : "") + " sample size: " + sampleSizeInBits + " bits");
     }
   }

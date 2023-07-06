@@ -19,7 +19,6 @@ import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.hub.tables.pojos.ProgramVoice;
-import io.xj.lib.mixer.OutputEncoder;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.NoteRange;
@@ -150,7 +149,7 @@ public interface Fabricator {
    *
    * @return JSON:API payload of the entire result of Chain Fabrication
    */
-  String getChainJson() throws NexusException;
+  String getChainJson(long atChainMicros) throws NexusException;
 
   /**
    * Returns the ship key concatenated with JSON as its file extension
@@ -208,7 +207,7 @@ public interface Fabricator {
    * @param position in segment
    * @return ChordEntity
    */
-  Optional<SegmentChord> getChordAt(double position);
+  Optional<SegmentChord> getChordAt(Double position);
 
   /**
    * fetch the main-type choice for the current segment in the chain
@@ -255,7 +254,7 @@ public interface Fabricator {
   /**
    * @return Seconds elapsed since fabricator was instantiated
    */
-  Double getElapsedSeconds();
+  Long getElapsedMicros();
 
   /**
    * Get the InstrumentConfig from a given instrument, with fallback to instrument section of injected config values
@@ -263,7 +262,7 @@ public interface Fabricator {
    * @param instrument to get config of
    * @return InstrumentConfig from a given instrument, with fallback values
    */
-  InstrumentConfig getInstrumentConfig(Instrument instrument) throws NexusException;
+  InstrumentConfig getInstrumentConfig(Instrument instrument);
 
   /**
    * Get the InstrumentConfig for a given pick, with fallback to instrument section of injected config values
@@ -545,12 +544,12 @@ public interface Fabricator {
    * @param p position in beats
    * @return seconds of start
    */
-  Double getSecondsAtPosition(double p) throws NexusException;
+  long getSegmentMicrosAtPosition(double p) throws NexusException;
 
   /**
    * @return the total number of seconds in the segment
    */
-  double getTotalSeconds() throws NexusException;
+  long getTotalMicros() throws NexusException;
 
   /**
    * The segment being fabricated
@@ -847,13 +846,6 @@ public interface Fabricator {
   HubContent sourceMaterial();
 
   /**
-   * If in local mode, use WAV, else compress to the template's output container
-   *
-   * @return output encoder
-   */
-  OutputEncoder computeOutputEncoder();
-
-  /**
    * If in local mode, use PCM, else use the template config
    *
    * @return output encoding
@@ -866,4 +858,11 @@ public interface Fabricator {
    * @return output sample bits
    */
   int computeOutputSampleBits();
+
+  /**
+   * Get the number of micros per beat for the current segment
+   *
+   * @return micros per beat
+   */
+  Double getMicrosPerBeat() throws NexusException;
 }

@@ -25,8 +25,6 @@ import io.xj.nexus.model.ChainType;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
-import io.xj.nexus.persistence.ChainManager;
-import io.xj.nexus.persistence.ChainManagerImpl;
 import io.xj.nexus.persistence.FilePathProviderImpl;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
@@ -38,7 +36,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.time.Instant;
 import java.util.stream.Collectors;
 
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
@@ -68,19 +65,12 @@ public class CraftSegmentOutputEncoderTest {
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     store = new NexusEntityStoreImpl(entityFactory);
     SegmentManager segmentManager = new SegmentManagerImpl(entityFactory, store);
-    ChainManager chainManager = new ChainManagerImpl(
-      entityFactory,
-      store,
-      segmentManager,
-      notificationProvider,1,1
-    );
     var filePathProvider = new FilePathProviderImpl("");
     fabricatorFactory = new FabricatorFactoryImpl(
-      chainManager,
       segmentManager,
       jsonapiPayloadFactory,
-      jsonProvider,
-      filePathProvider);
+      jsonProvider
+    );
 
     // Manipulate the underlying entity store; reset before each test
     store.deleteAll();
@@ -97,20 +87,17 @@ public class CraftSegmentOutputEncoderTest {
       "Print #2",
       ChainType.PRODUCTION,
       ChainState.FABRICATE,
-      fake.template1,
-      Instant.parse("2014-08-12T12:17:02.527142Z")));
+      fake.template1
+    ));
     segment6 = store.put(buildSegment(
       chain2,
       0,
       SegmentState.PLANNED,
-      Instant.parse("2017-02-14T12:01:00.000001Z"),
-      null,
-      "C",
+            "C",
       8,
       0.8,
       120.0,
-      "chain-1-waveform-12345.wav",
-      "ogg"));
+      "chain-1-waveform-12345.wav"));
   }
 
   @Test
@@ -121,7 +108,6 @@ public class CraftSegmentOutputEncoderTest {
 
     Segment result = store.getSegment(segment6.getId()).orElseThrow();
     assertEquals(segment6.getId(), result.getId());
-    assertEquals("WAV", result.getOutputEncoder());
     assertEquals(SegmentType.INITIAL, result.getType());
   }
 }

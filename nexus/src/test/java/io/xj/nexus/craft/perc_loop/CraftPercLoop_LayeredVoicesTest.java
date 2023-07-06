@@ -34,8 +34,6 @@ import io.xj.nexus.model.ChainType;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
-import io.xj.nexus.persistence.ChainManager;
-import io.xj.nexus.persistence.ChainManagerImpl;
 import io.xj.nexus.persistence.FilePathProviderImpl;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManager;
@@ -47,7 +45,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.time.Instant;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -81,19 +78,12 @@ public class CraftPercLoop_LayeredVoicesTest {
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     var store = new NexusEntityStoreImpl(entityFactory);
     SegmentManager segmentManager = new SegmentManagerImpl(entityFactory, store);
-    ChainManager chainManager = new ChainManagerImpl(
-      entityFactory,
-      store,
-      segmentManager,
-      notificationProvider,1,1
-    );
     var filePathProvider = new FilePathProviderImpl("");
     fabricatorFactory = new FabricatorFactoryImpl(
-      chainManager,
       segmentManager,
       jsonapiPayloadFactory,
-      jsonProvider,
-      filePathProvider);
+      jsonProvider
+    );
 
     // Manipulate the underlying entity store; reset before each test
     store.deleteAll();
@@ -106,35 +96,31 @@ public class CraftPercLoop_LayeredVoicesTest {
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    Chain chain1 = store.put(buildChain(fake.account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    Chain chain1 = store.put(buildChain(fake.account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
     store.put(buildSegment(
       chain1,
       SegmentType.INITIAL,
       0,
       0,
-      SegmentState.DUBBED,
-      Instant.parse("2017-02-14T12:01:00.000001Z"),
-      Instant.parse("2017-02-14T12:01:32.000001Z"),
+      SegmentState.CRAFTED,
       "D major",
       64,
       0.73,
       120.0,
       "chains-1-segments-9f7s89d8a7892",
-      "wav"));
+      true));
     store.put(buildSegment(
       chain1,
       SegmentType.CONTINUE,
       1,
       1,
-      SegmentState.DUBBING,
-      Instant.parse("2017-02-14T12:01:32.000001Z"),
-      Instant.parse("2017-02-14T12:02:04.000001Z"),
+      SegmentState.CRAFTING,
       "Db minor",
       64,
       0.85,
       120.0,
       "chains-1-segments-9f7s89d8a7892.wav",
-      "wav"));
+      true));
 
     // segment just crafted
     // Testing entities for reference
@@ -144,14 +130,12 @@ public class CraftPercLoop_LayeredVoicesTest {
       2,
       2,
       SegmentState.CRAFTED,
-      Instant.parse("2017-02-14T12:02:04.000001Z"),
-      Instant.parse("2017-02-14T12:02:36.000001Z"),
       "F Major",
       64,
       0.30,
       120.0,
       "chains-1-segments-9f7s89d8a7892.wav",
-      "ogg"));
+      true));
     store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment3, ProgramType.Macro, fake.program4_sequence0_binding0));
     store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment3, ProgramType.Main, fake.program5_sequence0_binding0));
 
@@ -162,14 +146,12 @@ public class CraftPercLoop_LayeredVoicesTest {
       3,
       3,
       SegmentState.CRAFTING,
-      Instant.parse("2017-02-14T12:03:08.000001Z"),
-      Instant.parse("2017-02-14T12:03:15.836735Z"),
       "D Major",
       16,
       0.45,
       120.0,
       "chains-1-segments-9f7s89d8a7892.wav",
-      "wav"));
+      true));
     store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment4, ProgramType.Macro, fake.program4_sequence0_binding0));
     store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment4, ProgramType.Main, fake.program5_sequence1_binding0));
 

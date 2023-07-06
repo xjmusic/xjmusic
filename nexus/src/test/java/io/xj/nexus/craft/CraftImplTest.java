@@ -34,7 +34,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -78,9 +77,9 @@ public class CraftImplTest {
     program1 = buildProgram(library1, ProgramType.Detail, ProgramState.Published, "swimming", "C", 120.0f, 0.6f);
     Template template1 = buildTemplate(account1, "Test Template 1", "test1");
     // Chain "Test Print #1" is fabricating segments
-    Chain chain1 = buildChain(account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null);
+    Chain chain1 = buildChain(account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, null);
 
-    segment0 = buildSegment(chain1, SegmentType.INITIAL, 2, 128, SegmentState.DUBBED, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:32.000001Z"), "D major", 64, 0.73, 120.0, "chains-1-segments-9f7s89d8a7892", "wav");
+    segment0 = buildSegment(chain1, SegmentType.INITIAL, 2, 128, SegmentState.CRAFTED, "D major", 64, 0.73, 120.0, "chains-1-segments-9f7s89d8a7892", true);
 
     TemplateConfig templateConfig = new TemplateConfig(template1);
     when(fabricator.getTemplateConfig()).thenReturn(templateConfig);
@@ -91,8 +90,8 @@ public class CraftImplTest {
 
   @Test
   public void precomputeDeltas() throws NexusException {
-    CraftImpl.ChoiceIndexProvider choiceIndexProvider = SegmentChoice::getInstrumentType;
-    Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> ProgramType.Detail.toString().equals(choice.getProgramType());
+    CraftImpl.ChoiceIndexProvider choiceIndexProvider = choice -> choice.getInstrumentType().toString();
+    Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> ProgramType.Detail.equals(choice.getProgramType());
     subject.precomputeDeltas(choiceFilter, choiceIndexProvider, fabricator.getTemplateConfig().getDetailLayerOrder().stream().map(InstrumentType::toString).collect(Collectors.toList()), List.of(), 1);
   }
 
@@ -156,8 +155,8 @@ public class CraftImplTest {
   }
 
   /**
-   PercLoops are not adhering to "__BPM" memes
-   https://www.pivotaltracker.com/story/show/181975131
+   * PercLoops are not adhering to "__BPM" memes
+   * https://www.pivotaltracker.com/story/show/181975131
    */
   @Test
   public void chooseFreshInstrumentAudio() {
@@ -185,7 +184,7 @@ public class CraftImplTest {
   }
 
   /**
-   XJ Should choose the correct chord audio per Main Program chord https://www.pivotaltracker.com/story/show/183434438
+   * XJ Should choose the correct chord audio per Main Program chord https://www.pivotaltracker.com/story/show/183434438
    */
   @Test
   public void selectNewChordPartInstrumentAudio_stripSpaces() {
@@ -193,9 +192,9 @@ public class CraftImplTest {
   }
 
   /**
-   Chord-mode Instrument: Slash Chord Fluency
-   https://www.pivotaltracker.com/story/show/182885209
-   When the exact match is not present for an entire slash chord name, choose a chord matching the pre-slash name
+   * Chord-mode Instrument: Slash Chord Fluency
+   * https://www.pivotaltracker.com/story/show/182885209
+   * When the exact match is not present for an entire slash chord name, choose a chord matching the pre-slash name
    */
   @Test
   public void selectNewChordPartInstrumentAudio_slashChordFluency() {
@@ -204,7 +203,7 @@ public class CraftImplTest {
   }
 
   /**
-   Enhanced Synonymous Chord recognition https://www.pivotaltracker.com/story/show/182811126
+   * Enhanced Synonymous Chord recognition https://www.pivotaltracker.com/story/show/182811126
    */
   @Test
   public void selectNewChordPartInstrumentAudio_chordSynonyms() {
@@ -212,11 +211,11 @@ public class CraftImplTest {
   }
 
   /**
-   Do the subroutine of testing the new chord part instrument audio selection
-
-   @param expectThis chord name
-   @param notThat    chord name
-   @param match      chord name
+   * Do the subroutine of testing the new chord part instrument audio selection
+   *
+   * @param expectThis chord name
+   * @param notThat    chord name
+   * @param match      chord name
    */
   void selectNewChordPartInstrumentAudio(String expectThis, String notThat, String match) {
     Account account1 = buildAccount("testing");

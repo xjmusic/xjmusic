@@ -6,10 +6,8 @@ import com.google.api.client.util.Lists;
 import com.google.common.base.Strings;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
-import io.xj.lib.mixer.OutputEncoder;
 import io.xj.lib.music.Note;
 import io.xj.lib.util.CSV;
-import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
@@ -17,55 +15,53 @@ import io.xj.nexus.model.SegmentChordVoicing;
 import io.xj.nexus.model.SegmentState;
 
 import javax.annotation.Nullable;
-import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- Utilities for working with segments
+ * Utilities for working with segments
  */
 public enum Segments {
   ;
   public static final int DELTA_UNLIMITED = -1;
-  private static final long MILLIS_PER_SECOND = 1000;
   private static final String EXTENSION_SEPARATOR = ".";
+  private static final String WAV_EXTENSION = "wav";
 
   /**
-   Find first segment choice of a given type in a collection of segment choices
-
-   @param segmentChoices to filter from
-   @param type           to find one of
-   @return segment choice of given type
+   * Find first segment choice of a given type in a collection of segment choices
+   *
+   * @param segmentChoices to filter from
+   * @param type           to find one of
+   * @return segment choice of given type
    */
   public static SegmentChoice findFirstOfType(Collection<SegmentChoice> segmentChoices, ProgramType type) throws NexusException {
-    Optional<SegmentChoice> found = segmentChoices.stream().filter(c -> c.getProgramType().equals(type.toString())).findFirst();
+    Optional<SegmentChoice> found = segmentChoices.stream().filter(c -> c.getProgramType().equals(type)).findFirst();
     if (found.isEmpty()) throw new NexusException(String.format("No %s-type choice found", type));
     return found.get();
   }
 
   /**
-   Find first segment choice of a given type in a collection of segment choices
-
-   @param segmentChoices to filter from
-   @param type           to find one of
-   @return segment choice of given type
+   * Find first segment choice of a given type in a collection of segment choices
+   *
+   * @param segmentChoices to filter from
+   * @param type           to find one of
+   * @return segment choice of given type
    */
   public static SegmentChoice findFirstOfType(Collection<SegmentChoice> segmentChoices, InstrumentType type) throws NexusException {
-    Optional<SegmentChoice> found = segmentChoices.stream().filter(c -> c.getInstrumentType().equals(type.toString())).findFirst();
+    Optional<SegmentChoice> found = segmentChoices.stream().filter(c -> c.getInstrumentType().equals(type)).findFirst();
     if (found.isEmpty()) throw new NexusException(String.format("No %s-type choice found", type));
     return found.get();
   }
 
   /**
-   Get the identifier or a Segment: ship key if available, else ID
-
-   @param segment to get identifier of
-   @return ship key if available, else ID
+   * Get the identifier or a Segment: ship key if available, else ID
+   *
+   * @param segment to get identifier of
+   * @return ship key if available, else ID
    */
   public static String getIdentifier(@Nullable Segment segment) {
     if (Objects.isNull(segment)) return "N/A";
@@ -74,20 +70,20 @@ public enum Segments {
 
 
   /**
-   Get the last dubbed from any collection of Segments
-
-   @param segments to get last dubbed from
-   @return last dubbed segment from collection
+   * Get the last dubbed from any collection of Segments
+   *
+   * @param segments to get last dubbed from
+   * @return last dubbed segment from collection
    */
-  public static Optional<Segment> getLastDubbed(Collection<Segment> segments) {
-    return getLast(getDubbed(segments));
+  public static Optional<Segment> getLastCrafted(Collection<Segment> segments) {
+    return getLast(getCrafted(segments));
   }
 
   /**
-   Get the last from any collection of Segments
-
-   @param segments to get last from
-   @return last segment from collection
+   * Get the last from any collection of Segments
+   *
+   * @param segments to get last from
+   * @return last segment from collection
    */
   public static Optional<Segment> getLast(Collection<Segment> segments) {
     return segments
@@ -96,94 +92,66 @@ public enum Segments {
   }
 
   /**
-   Get only the dubbed from any collection of Segments
-
-   @param segments to get dubbed from
-   @return dubbed segments from collection
+   * Get only the dubbed from any collection of Segments
+   *
+   * @param segments to get dubbed from
+   * @return dubbed segments from collection
    */
-  public static Collection<Segment> getDubbed(Collection<Segment> segments) {
+  public static Collection<Segment> getCrafted(Collection<Segment> segments) {
     return segments
       .stream()
-      .filter(segment -> SegmentState.DUBBED == segment.getState())
+      .filter(segment -> SegmentState.CRAFTED == segment.getState())
       .collect(Collectors.toList());
   }
 
   /**
-   Get the length of a Segment in seconds
-
-   @param segment for which to get length
-   @return length of segment in seconds
-   */
-  public static float getLengthSeconds(Segment segment) {
-    return (float) (Instant.parse(segment.getEndAt()).toEpochMilli() - Instant.parse(segment.getBeginAt()).toEpochMilli()) / MILLIS_PER_SECOND;
-  }
-
-  /**
-   Whether a segment chord voicing contains any valid notes
-
-   @param voicing to test
-   @return true if contains any valid notes
+   * Whether a segment chord voicing contains any valid notes
+   *
+   * @param voicing to test
+   * @return true if contains any valid notes
    */
   public static boolean containsAnyValidNotes(SegmentChordVoicing voicing) {
     return Note.containsAnyValidNotes(voicing.getNotes());
   }
 
   /**
-   Whether this Segment is before a given threshold, first by end-at if available, else begin-at
-
-   @param before threshold to filter before
-   @return true if segment is before threshold
+   * Whether the segment is spanning a given time
+   *
+   * @param segment         to test
+   * @param fromChainMicros to test
+   * @param toChainMicros   to test
+   * @return true if segment is spanning time
    */
-  public static boolean isBefore(Segment segment, Instant before) {
-    return Values.isSet(segment.getEndAt()) ?
-      Instant.parse(segment.getEndAt()).isBefore(before) :
-      Instant.parse(segment.getBeginAt()).isBefore(before);
+  public static boolean isSpanning(Segment segment, Long fromChainMicros, Long toChainMicros) {
+    return Objects.nonNull(segment.getDurationMicros()) &&
+      segment.getBeginAtChainMicros() + segment.getDurationMicros() > fromChainMicros &&
+      segment.getBeginAtChainMicros() < toChainMicros;
   }
 
   /**
-   Whether this Segment is after a given threshold, first by end-at if available, else begin-at
-
-   @param after threshold to filter after
-   @return true if segment is after threshold
-   */
-  public static boolean isAfter(Segment segment, Instant after) {
-    return Instant.parse(segment.getBeginAt()).isAfter(after);
-  }
-
-  /**
-   Get the storage filename for a Segment
-
-   @param segment for which to get storage filename
-   @param extension  of key
-   @return segment ship key
+   * Get the storage filename for a Segment
+   *
+   * @param segment   for which to get storage filename
+   * @param extension of key
+   * @return segment ship key
    */
   public static String getStorageFilename(Segment segment, String extension) {
     return String.format("%s%s%s", segment.getStorageKey(), EXTENSION_SEPARATOR, extension);
   }
 
   /**
-   Get the full storage key for a segment audio
-
-   @param segment for which to get storage key
-   @return storage key for segment
+   * Get the full storage key for a segment audio
+   *
+   * @param segment for which to get storage key
+   * @return storage key for segment
    */
   public static String getStorageFilename(Segment segment) {
-    return getStorageFilename(segment, segment.getOutputEncoder().toLowerCase(Locale.ENGLISH));
+    return getStorageFilename(segment, WAV_EXTENSION);
   }
 
   /**
-   Get the full storage key for an uncompressed segment audio
-
-   @param segment for which to get storage key
-   @return storage key for segment
-   */
-  public static String getUncompressedStorageFilename(Segment segment) {
-    return getStorageFilename(segment, OutputEncoder.WAV.name().toLowerCase(Locale.ENGLISH));
-  }
-
-  /**
-   @param choice to describe
-   @return description of choice
+   * @param choice to describe
+   * @return description of choice
    */
   public static String describe(SegmentChoice choice) {
     List<String> pieces = Lists.newArrayList();
@@ -199,5 +167,9 @@ public enum Segments {
     if (Objects.nonNull(choice.getProgramVoiceId()))
       pieces.add(String.format("programVoice:%s", choice.getProgramVoiceId()));
     return CSV.join(pieces);
+  }
+
+  public static long getEndAtChainMicros(Segment segment) {
+    return Objects.nonNull(segment.getDurationMicros()) ? segment.getBeginAtChainMicros() + segment.getDurationMicros() : segment.getBeginAtChainMicros();
   }
 }

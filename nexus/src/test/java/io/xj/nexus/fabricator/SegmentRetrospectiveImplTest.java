@@ -27,9 +27,7 @@ import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
-import io.xj.nexus.persistence.ChainManagerImpl;
 import io.xj.nexus.persistence.Chains;
-import io.xj.nexus.persistence.FilePathProviderImpl;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManagerImpl;
@@ -74,21 +72,13 @@ public class SegmentRetrospectiveImplTest {
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     store = new NexusEntityStoreImpl(entityFactory);
     var segmentManager = new SegmentManagerImpl(entityFactory, store);
-    var chainManager = new ChainManagerImpl(
-      entityFactory,
-      store,
-      segmentManager,
-      notificationProvider,1,1
-    );
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    var filePathProvider = new FilePathProviderImpl("");
     jsonProvider = new JsonProviderImpl();
     fabricatorFactory = new FabricatorFactoryImpl(
-      chainManager,
       segmentManager,
       jsonapiPayloadFactory,
-      jsonProvider,
-      filePathProvider);
+      jsonProvider
+    );
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
 
@@ -103,7 +93,7 @@ public class SegmentRetrospectiveImplTest {
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    Chain chain1 = store.put(NexusIntegrationTestingFixtures.buildChain(fake.account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    Chain chain1 = store.put(NexusIntegrationTestingFixtures.buildChain(fake.account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
     segment0 = constructSegmentAndChoices(chain1, SegmentType.CONTINUE, 10, 4, fake.program4, fake.program4_sequence1_binding0, fake.program15, fake.program15_sequence1_binding0);
     segment1 = constructSegmentAndChoices(chain1, SegmentType.NEXTMAIN, 11, 0, fake.program4, fake.program4_sequence1_binding0, fake.program5, fake.program5_sequence0_binding0);
     constructSegmentAndChoices(chain1, SegmentType.CONTINUE, 12, 1, fake.program4, fake.program4_sequence1_binding0, fake.program5, fake.program5_sequence1_binding0);
@@ -119,15 +109,13 @@ public class SegmentRetrospectiveImplTest {
       type,
       offset,
       delta,
-      SegmentState.DUBBED,
-      start,
-      end,
+      SegmentState.CRAFTED,
       "D major",
       SEQUENCE_TOTAL_BEATS,
       0.73,
       120.0,
       String.format("chains-%s-segments-%s", Chains.getIdentifier(chain), offset),
-      "wav"));
+      true));
     store.put(buildSegmentChoice(
       segment,
       Segments.DELTA_UNLIMITED,
@@ -180,7 +168,7 @@ public class SegmentRetrospectiveImplTest {
   @Test
   public void failureToReadMainChoiceIsFatal() throws NexusException {
     for (SegmentChoice c : store.getAll(segment0.getId(), SegmentChoice.class))
-      if (c.getProgramType().equals(ProgramType.Main.toString()))
+      if (c.getProgramType().equals(ProgramType.Main))
         store.delete(segment0.getId(), SegmentChoice.class, c.getId());
 
     var e = assertThrows(FabricationFatalException.class, () -> fabricatorFactory.loadRetrospective(segment1, sourceMaterial));

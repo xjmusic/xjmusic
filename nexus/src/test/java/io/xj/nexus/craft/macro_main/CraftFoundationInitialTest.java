@@ -31,8 +31,6 @@ import io.xj.nexus.model.SegmentChord;
 import io.xj.nexus.model.SegmentMeme;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
-import io.xj.nexus.persistence.ChainManager;
-import io.xj.nexus.persistence.ChainManagerImpl;
 import io.xj.nexus.persistence.FilePathProviderImpl;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
@@ -45,11 +43,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.time.Instant;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static io.xj.lib.util.Assertion.assertSameItems;
+import static io.xj.lib.util.Values.MICROS_PER_SECOND;
+import static io.xj.lib.util.Values.SECONDS_PER_MINUTE;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static org.junit.Assert.assertEquals;
@@ -78,19 +78,12 @@ public class CraftFoundationInitialTest {
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     store = new NexusEntityStoreImpl(entityFactory);
     SegmentManager segmentManager = new SegmentManagerImpl(entityFactory, store);
-    ChainManager chainManager = new ChainManagerImpl(
-      entityFactory,
-      store,
-      segmentManager,
-      notificationProvider,1,1
-    );
     var filePathProvider = new FilePathProviderImpl("");
     fabricatorFactory = new FabricatorFactoryImpl(
-      chainManager,
       segmentManager,
       jsonapiPayloadFactory,
-      jsonProvider,
-      filePathProvider);
+      jsonProvider
+    );
 
     // Manipulate the underlying entity store; reset before each test
     store.deleteAll();
@@ -107,20 +100,18 @@ public class CraftFoundationInitialTest {
       fake.template1,
       "Print #2",
       ChainType.PRODUCTION,
-      ChainState.FABRICATE,
-      Instant.parse("2014-08-12T12:17:02.527142Z")));
+      ChainState.FABRICATE
+    ));
     segment6 = store.put(buildSegment(
       chain2,
       0,
       SegmentState.PLANNED,
-      Instant.parse("2017-02-14T12:01:00.000001Z"),
-      null,
       "C",
       8,
       0.8,
       120.0,
-      "chain-1-waveform-12345.wav",
-      "ogg"));
+      "chain-1-waveform-12345.wav"
+    ));
   }
 
   @Test
@@ -131,9 +122,8 @@ public class CraftFoundationInitialTest {
 
     Segment result = store.getSegment(segment6.getId()).orElseThrow();
     assertEquals(segment6.getId(), result.getId());
-    assertEquals("WAV", result.getOutputEncoder());
     assertEquals(SegmentType.INITIAL, result.getType());
-    assertEquals("2017-02-14T12:01:06.857143857Z", result.getEndAt());
+    assertEquals(16 * MICROS_PER_SECOND * SECONDS_PER_MINUTE / 140, (long) Objects.requireNonNull(result.getDurationMicros()));
     assertEquals(Integer.valueOf(16), result.getTotal());
     assertEquals(0.1, result.getDensity(), 0.01);
     assertEquals("G", result.getKey());

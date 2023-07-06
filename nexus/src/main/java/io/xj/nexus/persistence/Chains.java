@@ -11,7 +11,6 @@ import io.xj.nexus.model.ChainType;
 import io.xj.nexus.model.Segment;
 
 import javax.annotation.Nullable;
-import java.time.Instant;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
@@ -59,18 +58,6 @@ public enum Chains {
   }
 
   /**
-   * Describe a collection of chainbindings like Type[id###], Type[id###}, etc
-   *
-   * @param chainBindings to describe
-   * @return description of chain bindings
-   */
-  public static String describe(Collection<TemplateBinding> chainBindings) {
-    return chainBindings.stream()
-      .map(b -> String.format("%s[%s]", b.getType().toString(), b.getTargetId()))
-      .collect(Collectors.joining(", "));
-  }
-
-  /**
    * Get the ship key for a Chain
    *
    * @param chainKey  for which to get ship key
@@ -81,18 +68,15 @@ public enum Chains {
     return String.format("%s%s%s", chainKey, EXTENSION_SEPARATOR, extension);
   }
 
-
   /**
    * Compute the fabricated-ahead seconds for any collection of Segments
    *
    * @param segments for which to get fabricated-ahead seconds
    * @return fabricated-ahead seconds for this collection of Segments
    */
-  public static Instant computeFabricatedAheadAt(Chain chain, Collection<Segment> segments) {
-    var lastDubbedSegment = Segments.getLastDubbed(segments);
-    return lastDubbedSegment.isPresent() ?
-      Instant.parse(lastDubbedSegment.get().getEndAt()) :
-      Instant.parse(chain.getStartAt());
+  public static Long computeFabricatedToChainMicros(Collection<Segment> segments) {
+    var lastDubbedSegment = Segments.getLastCrafted(segments);
+    return lastDubbedSegment.map(segment -> (Objects.nonNull(segment.getDurationMicros()) ? segment.getBeginAtChainMicros() + segment.getDurationMicros() : segment.getBeginAtChainMicros())).orElse(0L);
   }
 
   /**

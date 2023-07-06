@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 
-public class SegmentChord   {
+public class SegmentChord {
 
   private @Valid UUID id;
   private @Valid UUID segmentId;
@@ -17,6 +17,7 @@ public class SegmentChord   {
   private @Valid String name;
 
   /**
+   *
    **/
   public SegmentChord id(UUID id) {
     this.id = id;
@@ -28,11 +29,13 @@ public class SegmentChord   {
   public UUID getId() {
     return id;
   }
+
   public void setId(UUID id) {
     this.id = id;
   }
 
   /**
+   *
    **/
   public SegmentChord segmentId(UUID segmentId) {
     this.segmentId = segmentId;
@@ -44,11 +47,13 @@ public class SegmentChord   {
   public UUID getSegmentId() {
     return segmentId;
   }
+
   public void setSegmentId(UUID segmentId) {
     this.segmentId = segmentId;
   }
 
   /**
+   *
    **/
   public SegmentChord position(Double position) {
     this.position = position;
@@ -60,11 +65,13 @@ public class SegmentChord   {
   public Double getPosition() {
     return position;
   }
+
   public void setPosition(Double position) {
     this.position = position;
   }
 
   /**
+   *
    **/
   public SegmentChord name(String name) {
     this.name = name;
@@ -76,6 +83,7 @@ public class SegmentChord   {
   public String getName() {
     return name;
   }
+
   public void setName(String name) {
     this.name = name;
   }
@@ -91,9 +99,9 @@ public class SegmentChord   {
     }
     SegmentChord segmentChord = (SegmentChord) o;
     return Objects.equals(this.id, segmentChord.id) &&
-        Objects.equals(this.segmentId, segmentChord.segmentId) &&
-        Objects.equals(this.position, segmentChord.position) &&
-        Objects.equals(this.name, segmentChord.name);
+      Objects.equals(this.segmentId, segmentChord.segmentId) &&
+      Objects.equals(this.position, segmentChord.position) &&
+      Objects.equals(this.name, segmentChord.name);
   }
 
   @Override
@@ -103,15 +111,12 @@ public class SegmentChord   {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class SegmentChord {\n");
-
-    sb.append("    id: ").append(toIndentedString(id)).append("\n");
-    sb.append("    segmentId: ").append(toIndentedString(segmentId)).append("\n");
-    sb.append("    position: ").append(toIndentedString(position)).append("\n");
-    sb.append("    name: ").append(toIndentedString(name)).append("\n");
-    sb.append("}");
-    return sb.toString();
+    return "class SegmentChord {\n" +
+      "    id: " + toIndentedString(id) + "\n" +
+      "    segmentId: " + toIndentedString(segmentId) + "\n" +
+      "    atSegmentMicros: " + toIndentedString(position) + "\n" +
+      "    name: " + toIndentedString(name) + "\n" +
+      "}";
   }
 
   /**

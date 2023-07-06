@@ -1,15 +1,11 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.mixer;
 
-import com.google.api.client.util.Lists;
 import com.google.common.collect.Maps;
-
+import io.xj.lib.util.Values;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
@@ -17,9 +13,9 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.UUID;
+import java.util.stream.Stream;
 
 import static io.xj.lib.util.Values.MICROS_PER_SECOND;
 import static io.xj.lib.util.Values.NANOS_PER_SECOND;
@@ -30,45 +26,43 @@ class MixerImpl implements Mixer {
   private static final int READ_BUFFER_BYTE_SIZE = 1024;
   private static final int NORMALIZATION_GRAIN = 20;
   private static final int COMPRESSION_GRAIN = 20;
-  // fields: output file
   private final float microsPerFrame;
   private final float outputFrameRate;
   private final int outputChannels;
   private final int outputFrameSize;
-  // fields: in-memory storage via concurrent maps
-  private final Map<String, Source> sources = Maps.newConcurrentMap(); // concurrency required
-  private final Map<Long, Put> puts = Maps.newConcurrentMap(); // concurrency required
-  // fields: mix macro and audio format
+  private final Map<UUID, Source> sources = Maps.newConcurrentMap(); // concurrency required
+  private final Map<UUID, Put> activePuts = Maps.newConcurrentMap(); // concurrency required
   private final MixerFactory factory;
   private final MixerConfig config;
-  // fields: from mixer config
   private final double compressToAmplitude;
   private final double compressRatioMin;
   private final double compressRatioMax;
   private final int framesAhead;
   private final int dspBufferSize;
   private final int framesDecay;
-  private final List<String> busIds = Lists.newArrayList();
-  private final Map<String, Double> busLevel = Maps.newHashMap();
+  private final Map<Integer, Double> busLevel = Maps.newConcurrentMap();
   private final int framesPerMilli;
   private final EnvelopeProvider envelope;
-  // fields: playback state-machine
+
+  private final BytePipeline buffer;
   private MixerState state = MixerState.Ready;
-  private int uniquePutId; // key for storage in map of Puts
   /**
-   Note: these buffers can't be constructed until after the sources are Put, ergo defining the total buffer length.
+   * Note: these buffers can't be constructed until after the sources are Put, ergo defining the total buffer length.
    */
-  private double[][][] busBuf; // buffer separated into busses like [bus][frame][channel]
-  private double[][] outBuf; // final output buffer like [bus][frame][channel]
+  private final double[][][] busBuf; // buffer separated into busses like [bus][frame][channel]
+  private final double[][] outBuf; // final output buffer like [bus][frame][channel]
+  private final AudioFormat audioFormat;
+  private double compRatio = 0; // mixer effects are continuous between renders, so these ending values make their way back to the beginning of the next render
 
   /**
-   Instantiate a single Mix instance
-
-   @param mixerConfig  configuration of mixer
-   @param mixerFactory factory to of new mixer
-   @throws MixerException on failure
+   * Instantiate a single Mix instance
+   *
+   * @param mixerConfig    configuration of mixer
+   * @param mixerFactory   factory to of new mixer
+   * @param outputPipeSize capacity of output buffer
+   * @throws MixerException on failure
    */
-  public MixerImpl( MixerConfig mixerConfig, MixerFactory mixerFactory, EnvelopeProvider envelopeProvider) throws MixerException {
+  public MixerImpl(MixerConfig mixerConfig, MixerFactory mixerFactory, EnvelopeProvider envelopeProvider, int outputPipeSize) throws MixerException {
     config = mixerConfig;
     factory = mixerFactory;
     envelope = envelopeProvider;
@@ -80,15 +74,21 @@ class MixerImpl implements Mixer {
     framesDecay = config.getCompressDecayFrames();
 
     try {
-      outputChannels = config.getOutputFormat().getChannels();
+      audioFormat = config.getOutputFormat();
+      outputChannels = audioFormat.getChannels();
       MathUtil.enforceMin(1, "output audio channels", outputChannels);
       MathUtil.enforceMax(2, "output audio channels", outputChannels);
-      outputFrameRate = config.getOutputFormat().getFrameRate();
+      outputFrameRate = audioFormat.getFrameRate();
       framesPerMilli = (int) (outputFrameRate / 1000);
-      outputFrameSize = config.getOutputFormat().getFrameSize();
-      microsPerFrame = (float) (MICROS_PER_SECOND / outputFrameRate);
+      microsPerFrame = MICROS_PER_SECOND / outputFrameRate;
+      int totalFrames = (int) Math.floor(config.getTotalSeconds() * outputFrameRate);
+      busBuf = new double[config.getTotalBuses()][totalFrames][outputChannels];
+      outBuf = new double[totalFrames][outputChannels];
+      outputFrameSize = audioFormat.getFrameSize();
+      int totalBytes = totalFrames * outputFrameSize;
+      buffer = new BytePipeline(outputPipeSize);
 
-      LOG.debug(config.getLogPrefix() + "Did initialize mixer with " + "outputChannels: {}, " + "outputFrameRate: {}, " + "outputFrameSize: {}, " + "microsPerFrame: {}, " + "totalSeconds: {}, " + "totalFrames: {}, " + "totalBytes: {}", outputChannels, outputFrameRate, outputFrameSize, microsPerFrame);
+      LOG.debug(config.getLogPrefix() + "Did initialize mixer with " + "outputChannels: {}, " + "outputFrameRate: {}, " + "outputFrameSize: {}, " + "microsPerFrame: {}, " + "totalSeconds: {}, " + "totalFrames: {}, " + "totalBytes: {}", outputChannels, outputFrameRate, outputFrameSize, microsPerFrame, config.getTotalSeconds(), totalFrames, totalBytes);
 
     } catch (Exception e) {
       throw new MixerException(config.getLogPrefix() + "unable to setup internal variables from output audio format", e);
@@ -96,48 +96,44 @@ class MixerImpl implements Mixer {
   }
 
   @Override
-  public void put(String busName, String sourceId, long startAtMicros, long stopAtMicros, double velocity, int attackMillis, int releaseMillis) throws PutException {
-    puts.put(nextPutId(), factory.createPut(getAssignedBusNumber(busName), sourceId, startAtMicros, stopAtMicros, velocity, attackMillis, releaseMillis));
+  public void put(UUID id, UUID audioId, int busId, long startAtMicros, long stopAtMicros, double velocity, int attackMillis, int releaseMillis) throws PutException {
+    activePuts.put(id, factory.createPut(id, audioId, busId, startAtMicros, stopAtMicros, velocity, attackMillis, releaseMillis));
   }
 
   @Override
-  public void setBusLevel(String busId, double level) {
+  public void del(UUID id) {
+    activePuts.remove(id);
+  }
+
+  @Override
+  public void setBusLevel(int busId, double level) {
     busLevel.put(busId, level);
   }
 
   @Override
-  public void loadSource(String sourceId, String pathToFile, String description) throws SourceException, FormatException, IOException {
-    if (sources.containsKey(sourceId)) {
-      throw new SourceException(config.getLogPrefix() + "Already loaded Source[" + sourceId + "] \"" + description + "\"");
+  public void loadSource(UUID audioId, String pathToFile, String description) throws SourceException, FormatException, IOException {
+    if (sources.containsKey(audioId)) {
+      LOG.debug(config.getLogPrefix() + "Already loaded Source[" + audioId + "] \"" + description + "\"");
+      return;
     }
 
-    Source source = factory.createSource(sourceId, pathToFile, description);
-    sources.put(sourceId, source);
+    Source source = factory.createSource(audioId, pathToFile, description);
+    sources.put(audioId, source);
   }
 
   @Override
-  public double mixToFile(OutputEncoder outputEncoder, String outputFilePath, Float quality) throws Exception {
-    double totalSeconds = puts.values().stream().map(Put::getStopAtMicros).max(Long::compare).orElse(0L) / MICROS_PER_SECOND;
-    int totalFrames = (int) Math.floor(totalSeconds * outputFrameRate);
-    int totalBytes = totalFrames * outputFrameSize;
-    busBuf = new double[busIds.size()][totalFrames][outputChannels];
-    outBuf = new double[totalFrames][outputChannels];
-
-    if (!Objects.equals(state, MixerState.Ready))
-      throw new MixerException(config.getLogPrefix() + "can't mix again; only one mix allowed per Mixer");
-
-    // start the mixer
+  public double mix() throws MixerException, FormatException, IOException {
+    // clear the mixing buffer and start the mixing process
     state = MixerState.Mixing;
     long startedAt = System.nanoTime();
-    var numInstances = puts.size();
-    var numSources = sources.size();
-    LOG.debug(config.getLogPrefix() + "Will mix {} seconds of output audio at {} Hz frame rate from {} instances of {} sources", String.format("%.9f", totalSeconds), outputFrameRate, puts.size(), numInstances, numSources);
+    clearBuffers();
+    LOG.debug(config.getLogPrefix() + "Will mix {} seconds of output audio at {} Hz frame rate from {} instances of {} sources", config.getTotalSeconds(), outputFrameRate, activePuts.size(), sources.size());
 
     // Start with original sources summed up verbatim
     // Initial mix steps are done on individual busses
     // Multi-bus output with individual normalization REF https://www.pivotaltracker.com/story/show/179081795
     applySources();
-    for (int b = 0; b < busIds.size(); b++)
+    for (int b = 0; b < busBuf.length; b++)
       applyFinalOutputCompressor();
     mixOutputBus();
 
@@ -153,30 +149,41 @@ class MixerImpl implements Mixer {
 
     //
     state = MixerState.Done;
-    LOG.debug(config.getLogPrefix() + "Did mix {} seconds of output audio at {} Hz from {} instances of {} sources in {}s", String.format("%.9f", totalSeconds), outputFrameRate, numInstances, numSources, String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
+    LOG.debug(config.getLogPrefix() + "Did mix {} seconds of output audio at {} Hz from {} instances of {} sources in {}s", config.getTotalSeconds(), outputFrameRate, activePuts.size(), sources.size(), String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
 
-    if (0 == outBuf.length) {
-      LOG.warn(config.getLogPrefix() + "Output buffer is empty!");
-      outBuf = new double[][]{new double[]{0, 0}, new double[]{0, 0}};
-    }
-
-    startedAt = System.nanoTime();
-    LOG.debug(config.getLogPrefix() + "Will write {} bytes of output audio", totalBytes);
-    new AudioStreamWriter(outBuf, quality).writeToFile(outputFilePath, config.getOutputFormat(), outputEncoder);
-    LOG.debug(config.getLogPrefix() + "Did write {} OK in {}s", outputFilePath, String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
-    return totalSeconds;
+    // Write the output bytes to the shared buffer
+    buffer.produce(Values.byteBufferOf(audioFormat, outBuf).array());
+    return config.getTotalSeconds();
   }
 
   /**
-   Mix input buffers to output buffer
+   * Zero all buffers
+   */
+  private void clearBuffers() {
+    for (int b = 0; b < busBuf.length; b++)
+      for (int f = 0; f < busBuf[0].length; f++)
+        for (int c = 0; c < busBuf[0][0].length; c++)
+          busBuf[b][f][c] = 0.0;
+    for (int f = 0; f < outBuf.length; f++)
+      for (int c = 0; c < outBuf[0].length; c++)
+        outBuf[f][c] = 0.0;
+  }
+
+  /**
+   * Mix input buffers to output buffer
    */
   private void mixOutputBus() {
-    double[] level = busIds.stream().mapToDouble(b -> busLevel.getOrDefault(b, 1.0)).toArray();
+    double[] level = Stream.iterate(0, i -> i + 1).limit(busBuf.length).mapToDouble(i -> busLevel.getOrDefault(i, 1.0)).toArray();
     int b, f, c;
     for (b = 0; b < busBuf.length; b++)
       for (f = 0; f < busBuf[0].length; f++)
-        for (c = 0; c < busBuf[0][0].length; c++)
+        for (c = 0; c < busBuf[0][0].length; c++) {
+          if (b > level.length - 1) {
+            LOG.error(config.getLogPrefix() + "b > level.length - 1: " + b + " > " + (level.length - 1));
+          }
           outBuf[f][c] += busBuf[b][f][c] * level[b];
+        }
+
   }
 
   @Override
@@ -195,27 +202,37 @@ class MixerImpl implements Mixer {
   }
 
   @Override
-  public boolean hasLoadedSource(String sourceKey) {
-    return sources.containsKey(sourceKey);
+  public boolean hasLoadedSource(UUID audioId) {
+    return sources.containsKey(audioId);
   }
 
   @Override
-  public Source getSource(String sourceId) {
-    return sources.get(sourceId);
+  public Source getSource(UUID audioId) {
+    return sources.get(audioId);
+  }
+
+  @Override
+  public BytePipeline getBuffer() {
+    return buffer;
+  }
+
+  @Override
+  public AudioFormat getAudioFormat() {
+    return audioFormat;
   }
 
   /**
-   apply original sources to mixing buffer
-   addition of all sources into initial mixed source frames
+   * apply original sources to mixing buffer
+   * addition of all sources into initial mixed source frames
    */
   private void applySources() throws MixerException {
     for (var source : sources.values()) applySource(source);
   }
 
   /**
-   apply one source to the mixing buffer
-
-   @param source to apply
+   * apply one source to the mixing buffer
+   *
+   * @param source to apply
    */
   private void applySource(Source source) throws MixerException {
     if (source.getAudioFormat().isEmpty()) return;
@@ -229,7 +246,7 @@ class MixerImpl implements Mixer {
     double v, ev; // a single sample value, and the enveloped value
 
     // steps to get requisite items stored plain arrays, for access speed
-    var srcPutList = puts.values().stream().filter(put -> source.getSourceId().equals(put.getSourceId())).toList();
+    var srcPutList = activePuts.values().stream().filter(put -> source.getAudioId().equals(put.getAudioId())).toList();
     Put[] srcPut = new Put[srcPutList.size()];
     int[] srcPutSpan = new int[srcPut.length];
     int[] srcPutFrom = new int[srcPut.length];
@@ -250,7 +267,7 @@ class MixerImpl implements Mixer {
       var sampleSize = frameSize / channels;
       var expectBytes = audioInputStream.available();
 
-      if (MAX_INT_LENGTH_ARRAY_SIZE <= expectBytes)
+      if (MAX_INT_LENGTH_ARRAY_SIZE == expectBytes)
         throw new MixerException("loading audio steams longer than 2,147,483,647 frames (max. value of signed 32-bit integer) is not supported");
 
       int expectFrames;
@@ -295,24 +312,26 @@ class MixerImpl implements Mixer {
         }
       }
     } catch (UnsupportedAudioFileException | IOException | FormatException e) {
-      throw new MixerException(String.format("Failed to apply Source[%s]", source.getSourceId()), e);
+      throw new MixerException(String.format("Failed to apply Source[%s]", source.getAudioId()), e);
     }
   }
 
   /**
-   apply compressor to mixing buffer
-   <p>
-   lookahead-attack compressor compresses entire buffer towards target amplitude https://www.pivotaltracker.com/story/show/154112129
-   <p>
-   only each major cycle, compute the new target compression ratio,
-   but modify the compression ratio *every* frame for max smoothness
-   <p>
-   compression target uses a rate of change of rate of change
-   to maintain inertia over time, required to preserve audio signal
+   * apply compressor to mixing buffer
+   * <p>
+   * lookahead-attack compressor compresses entire buffer towards target amplitude https://www.pivotaltracker.com/story/show/154112129
+   * <p>
+   * only each major cycle, compute the new target compression ratio,
+   * but modify the compression ratio *every* frame for max smoothness
+   * <p>
+   * compression target uses a rate of change of rate of change
+   * to maintain inertia over time, required to preserve audio signal
    */
   private void applyFinalOutputCompressor() {
-    //
-    double compRatio = computeCompressorTarget(outBuf, 0, framesAhead);
+    // only set the comp ratio directly if it's never been set before, otherwise mixer effects are continuous between renders, so these ending values make their way back to the beginning of the next render
+    if (0 == compRatio) {
+      compRatio = computeCompressorTarget(outBuf, 0, framesAhead);
+    }
     double compRatioDelta = 0; // rate of change
     double targetCompRatio = compRatio;
     for (int i = 0; i < outBuf.length; i++) {
@@ -338,7 +357,7 @@ class MixerImpl implements Mixer {
    */
 
   /**
-   apply logarithmic dynamic range to mixing buffer
+   * apply logarithmic dynamic range to mixing buffer
    */
   private void applyLogarithmicDynamicRange() {
     for (int i = 0; i < outBuf.length; i++)
@@ -346,10 +365,10 @@ class MixerImpl implements Mixer {
   }
 
   /**
-   NO NORMALIZATION! See https://www.pivotaltracker.com/story/show/179257872
-   <p>
-   Previously: apply normalization to mixing buffer
-   normalize final buffer to normalization threshold https://www.pivotaltracker.com/story/show/154112129
+   * NO NORMALIZATION! See https://www.pivotaltracker.com/story/show/179257872
+   * <p>
+   * Previously: apply normalization to mixing buffer
+   * normalize final buffer to normalization threshold https://www.pivotaltracker.com/story/show/154112129
    */
   @SuppressWarnings("unused")
   private void applyNormalization() {
@@ -360,34 +379,13 @@ class MixerImpl implements Mixer {
   }
 
   /**
-   lookahead-attack compressor compresses entire buffer towards target amplitude https://www.pivotaltracker.com/story/show/154112129
-
-   @return target amplitude
+   * lookahead-attack compressor compresses entire buffer towards target amplitude https://www.pivotaltracker.com/story/show/154112129
+   *
+   * @return target amplitude
    */
   private double computeCompressorTarget(double[][] input, int iFr, int iTo) {
     double currentAmplitude = MathUtil.maxAbs(input, iFr, iTo, COMPRESSION_GRAIN);
     return MathUtil.limit(compressRatioMin, compressRatioMax, compressToAmplitude / currentAmplitude);
-  }
-
-  /**
-   generate unique ids for storage of Puts
-
-   @return next unique put id
-   */
-  private long nextPutId() {
-    uniquePutId++;
-    return uniquePutId;
-  }
-
-  /**
-   Each new bus name maps to a number
-
-   @param busName to get number for
-   @return number of bus id
-   */
-  private int getAssignedBusNumber(String busName) {
-    if (!busIds.contains(busName)) busIds.add(busName);
-    return busIds.indexOf(busName);
   }
 }
 

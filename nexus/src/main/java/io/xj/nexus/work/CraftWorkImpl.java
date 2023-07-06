@@ -1,0 +1,1107 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+package io.xj.nexus.work;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import io.opencensus.stats.Measure;
+import io.xj.hub.TemplateConfig;
+import io.xj.hub.client.HubClient;
+import io.xj.hub.client.HubClientAccess;
+import io.xj.hub.client.HubClientException;
+import io.xj.hub.client.HubContent;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.manager.Templates;
+import io.xj.hub.service.PreviewNexusAdmin;
+import io.xj.hub.service.ServiceException;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.hub.tables.pojos.TemplatePlayback;
+import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityException;
+import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.http.HttpClientProvider;
+import io.xj.lib.json.JsonProvider;
+import io.xj.lib.jsonapi.JsonapiException;
+import io.xj.lib.jsonapi.JsonapiPayload;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.lock.LockException;
+import io.xj.lib.lock.LockProvider;
+import io.xj.lib.notification.NotificationProvider;
+import io.xj.lib.telemetry.MultiStopwatch;
+import io.xj.lib.telemetry.TelemetryProvider;
+import io.xj.lib.util.Text;
+import io.xj.lib.util.ValueException;
+import io.xj.nexus.InputMode;
+import io.xj.nexus.NexusException;
+import io.xj.nexus.OutputMode;
+import io.xj.nexus.craft.CraftFactory;
+import io.xj.nexus.fabricator.FabricationFatalException;
+import io.xj.nexus.fabricator.Fabricator;
+import io.xj.nexus.fabricator.FabricatorFactory;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.ChainState;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangement;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.model.SegmentType;
+import io.xj.nexus.persistence.Chains;
+import io.xj.nexus.persistence.FilePathProvider;
+import io.xj.nexus.persistence.ManagerExistenceException;
+import io.xj.nexus.persistence.ManagerFatalException;
+import io.xj.nexus.persistence.ManagerPrivilegeException;
+import io.xj.nexus.persistence.ManagerValidationException;
+import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.persistence.SegmentManager;
+import io.xj.nexus.persistence.Segments;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static io.xj.lib.filestore.FileStoreProvider.EXTENSION_JSON;
+import static io.xj.lib.util.Values.MICROS_PER_SECOND;
+import static io.xj.lib.util.Values.MILLIS_PER_SECOND;
+
+@Service
+public class CraftWorkImpl implements CraftWork {
+  private static final Logger LOG = LoggerFactory.getLogger(CraftWorkImpl.class);
+  private static final long INTERNAL_CYCLE_SLEEP_MILLIS = 50;
+  private final CraftFactory craftFactory;
+  private final EntityFactory entityFactory;
+  private final FabricatorFactory fabricatorFactory;
+  private final LockProvider lockProvider;
+  private final HttpClientProvider httpClientProvider;
+  private final HubClient hubClient;
+  private final HubClientAccess access = HubClientAccess.internal();
+  private final JsonProvider jsonProvider;
+  private final JsonapiPayloadFactory jsonapiPayloadFactory;
+  private HubContent chainSourceMaterial;
+  private Long chainNextIngestMillis = System.currentTimeMillis();
+  private final Measure.MeasureDouble METRIC_FABRICATED_AHEAD_SECONDS;
+  private final Measure.MeasureLong METRIC_SEGMENT_CREATED;
+  private final Measure.MeasureLong METRIC_SEGMENT_GC;
+  private final NexusEntityStore store;
+  private final NotificationProvider notification;
+  private final SegmentManager segmentManager;
+  private final TelemetryProvider telemetryProvider;
+  @Value("${ship.base.url}")
+  private String shipBaseUrl;
+  @Value("${craft.janitor.enabled}")
+  private boolean janitorEnabled;
+  @Value("${craft.medic.enabled}")
+  private boolean medicEnabled;
+  @Value("${craft.chain.threshold.fabricated.behind.seconds}")
+  private int chainThresholdFabricatedBehindSeconds;
+  @Value("${craft.cycle.millis}")
+  private int cycleMillis;
+  @Value("${craft.erase.segments.older.than.seconds}")
+  private int eraseSegmentsOlderThanSeconds;
+  @Value("${craft.ignore.segments.older.than.seconds}")
+  private int ignoreSegmentsOlderThanSeconds;
+  @Value("${craft.ingest.cycle.seconds}")
+  private int ingestCycleSeconds;
+  @Value("${craft.janitor.cycle.seconds}")
+  private int janitorCycleSeconds;
+  @Value("${craft.sync.poll.seconds}")
+  private int labPollSeconds;
+  @Value("${craft.async.poll.seconds}")
+  private int yardPollSeconds;
+  @Value("${craft.medic.cycle.seconds}")
+  private int medicCycleSeconds;
+  @Value("${rehydration.ahead.threshold}")
+  private int rehydrateFabricatedAheadThreshold;
+  @Value("${craft.health.cycle.staleness.threshold.seconds}")
+  private long healthCycleStalenessThresholdSeconds;
+  @Value("${rehydration.enabled}")
+  private boolean isRehydrationEnabled;
+  @Value("${input.preview.template.playback.id}")
+  @Nullable
+  private UUID fabricationPreviewTemplatePlaybackId;
+  @Value("${ship.bucket}")
+  private String shipBucket;
+  private final OutputMode outputMode;
+  private long labPollNextSystemMillis;
+  private long yardPollNextSystemMillis;
+  private WorkState state = WorkState.Initializing;
+  private MultiStopwatch timer;
+  private final AtomicBoolean running = new AtomicBoolean(true);
+  private boolean chainFabricatedAhead = true;
+  private long nextCycleMillis = System.currentTimeMillis();
+  private long nextJanitorMillis = System.currentTimeMillis();
+  private long nextMedicMillis = System.currentTimeMillis();
+  private final PreviewNexusAdmin previewNexusAdmin;
+  private long atChainMicros = 0;
+  private final FilePathProvider filePathProvider;
+  private final InputMode inputMode;
+  private final String inputTemplateKey;
+  private final String environment;
+  private final boolean isJsonOutputEnabled;
+  @Nullable
+  private UUID chainId;
+
+  @Autowired
+  public CraftWorkImpl(
+    CraftFactory craftFactory,
+    EntityFactory entityFactory,
+    FabricatorFactory fabricatorFactory,
+    HttpClientProvider httpClientProvider,
+    HubClient hubClient,
+    JsonapiPayloadFactory jsonapiPayloadFactory,
+    JsonProvider jsonProvider,
+    LockProvider lockProvider,
+    NexusEntityStore store,
+    NotificationProvider notification,
+    PreviewNexusAdmin previewNexusAdmin,
+    SegmentManager segmentManager,
+    TelemetryProvider telemetryProvider,
+    FilePathProvider filePathProvider,
+    @Value("${input.mode}") String inputMode,
+    @Value("${output.mode}") String outputMode,
+    @Value("${input.template.key}") String inputTemplateKey,
+    @Value("${environment}") String environment,
+    @Value("${output.json.enabled}") boolean isJsonOutputEnabled
+  ) {
+    this.craftFactory = craftFactory;
+    this.entityFactory = entityFactory;
+    this.fabricatorFactory = fabricatorFactory;
+    this.httpClientProvider = httpClientProvider;
+    this.hubClient = hubClient;
+    this.jsonProvider = jsonProvider;
+    this.jsonapiPayloadFactory = jsonapiPayloadFactory;
+    this.lockProvider = lockProvider;
+    this.notification = notification;
+    this.segmentManager = segmentManager;
+    this.store = store;
+    this.telemetryProvider = telemetryProvider;
+    this.previewNexusAdmin = previewNexusAdmin;
+    this.filePathProvider = filePathProvider;
+    this.inputTemplateKey = inputTemplateKey;
+    this.environment = environment;
+    this.isJsonOutputEnabled = isJsonOutputEnabled;
+
+    labPollNextSystemMillis = System.currentTimeMillis();
+    yardPollNextSystemMillis = System.currentTimeMillis();
+    this.inputMode = InputMode.valueOf(inputMode.toUpperCase(Locale.ROOT));
+    this.outputMode = OutputMode.valueOf(outputMode.toUpperCase(Locale.ROOT));
+
+    // Telemetry: # Segments Erased
+    METRIC_FABRICATED_AHEAD_SECONDS = telemetryProvider.gauge("fabricated_ahead_seconds", "Fabricated Ahead Seconds", "s");
+    METRIC_SEGMENT_CREATED = telemetryProvider.count("segment_created", "Segment Created", "");
+    METRIC_SEGMENT_GC = telemetryProvider.count("segment_gc", "Segment Garbage Collected", "");
+  }
+
+  @Override
+  public void start() {
+    timer = MultiStopwatch.start();
+    LOG.info("Will start Nexus");
+    while (running.get()) {
+      try {
+        runCycle();
+      } catch (InterruptedException e) {
+        LOG.warn("Nexus interrupted!", e);
+        running.set(false);
+      }
+    }
+  }
+
+  @Override
+  public void finish() {
+    if (!running.get()) return;
+    running.set(false);
+    LOG.info("Finished");
+  }
+
+  @Override
+  public boolean isHealthy() {
+    return chainFabricatedAhead
+      && !WorkState.Failed.equals(state)
+      && nextCycleMillis > System.currentTimeMillis() - healthCycleStalenessThresholdSeconds * MILLIS_PER_SECOND;
+  }
+
+  @Override
+  public void setAtChainMicros(long chainMicros) {
+    atChainMicros = chainMicros;
+  }
+
+  @Override
+  public Optional<Chain> getChain() {
+    try {
+      if (Objects.isNull(chainId)) {
+        return Optional.empty();
+      }
+      return store.getChain(chainId);
+    } catch (NexusException e) {
+      return Optional.empty();
+    }
+  }
+
+  @Override
+  public Optional<TemplateConfig> getTemplateConfig() {
+    try {
+      var chain = getChain();
+      return chain.isPresent() ? Optional.of(new TemplateConfig(chain.get().getTemplateConfig())) : Optional.empty();
+    } catch (ValueException e) {
+      LOG.debug("Unable to retrieve template config because {}", e.getMessage());
+      return Optional.empty();
+    }
+  }
+
+  @Override
+  public List<Segment> getSegmentsIfReady(Long planFromChainMicros, Long planToChainMicros) {
+    // require chain
+    var chain = getChain();
+    if (chain.isEmpty()) {
+      return List.of();
+    }
+
+    // require template config
+    TemplateConfig templateConfig;
+    try {
+      templateConfig = new TemplateConfig(chain.get().getTemplateConfig());
+    } catch (ValueException e) {
+      return List.of();
+    }
+
+    // require current segment with end-at time and crafted state
+    var currentSegments = segmentManager.readAllSpanning(chain.get().getId(), planFromChainMicros, planToChainMicros);
+    if (currentSegments.isEmpty() || currentSegments.stream().anyMatch(segment -> !SegmentState.CRAFTED.equals(segment.getState()))) {
+      return List.of();
+    }
+
+    // If we are already spanning two segments, return them
+    if (1 < currentSegments.size()) {
+      return currentSegments;
+    }
+    var firstSegment = Objects.requireNonNull(currentSegments.get(0));
+
+    // if the end of the current segment is before the threshold, require next segment
+    Optional<Segment> nextSegment = Optional.empty();
+    if (Objects.nonNull(firstSegment.getDurationMicros()) && firstSegment.getBeginAtChainMicros() + firstSegment.getDurationMicros() < planToChainMicros + templateConfig.getBufferAheadSeconds() * MICROS_PER_SECOND) {
+      nextSegment = segmentManager.readOneAtChainOffset(chain.get().getId(), currentSegments.get(0).getOffset() + 1);
+      if (nextSegment.isEmpty() || Objects.isNull(nextSegment.get().getDurationMicros()) || !SegmentState.CRAFTED.equals(nextSegment.get().getState())) {
+        return List.of();
+      }
+    }
+
+    // if the beginning of the current segment is after the threshold, require previous segment
+    Optional<Segment> previousSegment = Optional.empty();
+    if (Objects.nonNull(firstSegment.getDurationMicros()) && firstSegment.getBeginAtChainMicros() + firstSegment.getDurationMicros() < planToChainMicros + templateConfig.getBufferAheadSeconds() * MICROS_PER_SECOND && currentSegments.get(0).getOffset() > 0) {
+      previousSegment = segmentManager.readOneAtChainOffset(chain.get().getId(), currentSegments.get(0).getOffset() - 1);
+      if (previousSegment.isEmpty()) {
+        return List.of();
+      }
+    }
+
+    return Stream.of(currentSegments.stream().findFirst(), nextSegment, previousSegment)
+      .filter(Optional::isPresent)
+      .map(Optional::get)
+      .collect(Collectors.toList());
+  }
+
+  @Override
+  public Optional<Segment> getSegmentAt(long chainMicros) {
+    // require chain
+    var chain = getChain();
+    if (chain.isEmpty()) {
+      return Optional.empty();
+    }
+
+    // require current segment in crafted state
+    try {
+      var currentSegment = segmentManager.readOneAt(chain.get().getId(), chainMicros);
+      if (currentSegment.isEmpty() || currentSegment.get().getState() != SegmentState.CRAFTED) {
+        return Optional.empty();
+      }
+      return currentSegment;
+    } catch (NexusException e) {
+      return Optional.empty();
+    }
+  }
+
+  @Override
+  public List<SegmentChoiceArrangementPick> getPicks(List<Segment> segments) throws NexusException {
+    return store.getPicks(segments);
+  }
+
+  @Override
+  public Optional<Instrument> getInstrument(InstrumentAudio audio) {
+    return chainSourceMaterial.getInstrument(audio.getInstrumentId());
+  }
+
+  @Override
+  public Optional<InstrumentAudio> getInstrumentAudio(SegmentChoiceArrangementPick pick) {
+    return chainSourceMaterial.getInstrumentAudio(pick.getInstrumentAudioId());
+  }
+
+  @Override
+  public String getInputTemplateKey() {
+    return inputTemplateKey;
+  }
+
+  @Override
+  public boolean isMuted(SegmentChoiceArrangementPick pick) {
+    try {
+      var segment = segmentManager.readOne(pick.getSegmentId());
+      var arrangement = store.get(segment.getId(), SegmentChoiceArrangement.class, pick.getSegmentChoiceArrangementId());
+      if (arrangement.isEmpty()) {
+        return false;
+      }
+      var choice = store.get(segment.getId(), SegmentChoice.class, arrangement.get().getSegmentChoiceId());
+      return choice.isPresent() ? choice.get().getMute() : false;
+    } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException | NexusException e) {
+      LOG.warn("Unable to determine if SegmentChoiceArrangementPick[{}] is muted because {}", pick.getId(), e.getMessage());
+      return false;
+    }
+  }
+
+  @Override
+  public boolean isRunning() {
+    return running.get();
+  }
+
+  @Override
+  public Optional<Program> getMainProgram(Segment segment) throws NexusException {
+    var chain = getChain();
+    if (chain.isEmpty()) {
+      return Optional.empty();
+    }
+    var mainChoice = store.getAll(segment.getId(), SegmentChoice.class).stream().filter(choice -> choice.getProgramType().equals(ProgramType.Main)).findFirst();
+    if (mainChoice.isEmpty()) {
+      return Optional.empty();
+    }
+    return chainSourceMaterial.getProgram(mainChoice.get().getProgramId());
+  }
+
+  @Override
+  public Optional<Program> getMacroProgram(Segment segment) throws NexusException {
+    var chain = getChain();
+    if (chain.isEmpty()) {
+      return Optional.empty();
+    }
+    var macroChoice = store.getAll(segment.getId(), SegmentChoice.class).stream().filter(choice -> choice.getProgramType().equals(ProgramType.Macro)).findFirst();
+    if (macroChoice.isEmpty()) {
+      return Optional.empty();
+    }
+    return chainSourceMaterial.getProgram(macroChoice.get().getProgramId());
+  }
+
+  @Override
+  public boolean isFailed() {
+    return state == WorkState.Failed;
+  }
+
+  /**
+   * This is the internal cycle that's run indefinitely
+   */
+  private void runCycle() throws InterruptedException {
+    if (System.currentTimeMillis() < nextCycleMillis) {
+      Thread.sleep(INTERNAL_CYCLE_SLEEP_MILLIS);
+      return;
+    }
+
+    nextCycleMillis = System.currentTimeMillis() + cycleMillis;
+
+    // Action based on state and mode
+    try {
+      switch (state) {
+        case Initializing -> {
+          if (InputMode.PREVIEW.equals(inputMode)) {
+            state = WorkState.Working;
+          } else {
+            loadYard();
+          }
+        }
+        case Loading -> {
+          // no op
+        }
+        case Working -> {
+          if (InputMode.PREVIEW.equals(inputMode)) {
+            runPreview();
+          } else {
+            runYard();
+          }
+        }
+      }
+      if (medicEnabled) doMedic();
+      if (janitorEnabled) doJanitor();
+
+    } catch (Exception e) {
+      didFailWhile(null, "running a work cycle", e, true);
+    }
+
+    // End lap & do telemetry on all fabricated chains
+    timer.lap();
+    LOG.debug("Lap time: {}", timer.lapToString());
+    timer.clearLapSections();
+    nextCycleMillis = System.currentTimeMillis() + cycleMillis;
+  }
+
+  /**
+   * Run all work when this Nexus is a sidecar to a hub, as in the Lab
+   */
+  private void runPreview() {
+    if (System.currentTimeMillis() > labPollNextSystemMillis) {
+      state = WorkState.Loading;
+      labPollNextSystemMillis = System.currentTimeMillis() + labPollSeconds * MILLIS_PER_SECOND;
+      if (maintainPreviewTemplate())
+        state = WorkState.Working;
+      else
+        state = WorkState.Failed;
+    }
+
+    // Fabricate active chain
+    var chain = getChain();
+    if (chain.isEmpty()) {
+      return;
+    }
+    ingestMaterialIfNecessary(chain.get());
+    try {
+      fabricateChain(chain.get());
+    } catch (FabricationFatalException e) {
+      didFailWhile(chain.get().getShipKey(), "fabricating", e, false);
+    }
+  }
+
+  /**
+   * Load static content to run nexus fabrication
+   * <p>
+   * Nexus production fabrication from static source (without Hub) https://www.pivotaltracker.com/story/show/177020318
+   */
+  private void loadYard() {
+    try {
+      chainSourceMaterial = hubClient.load(inputTemplateKey);
+      chainSourceMaterial.setTemplateShipKey(inputTemplateKey);
+      chainId = createChainForTemplate(chainSourceMaterial.getTemplate())
+        .orElseThrow(() -> new HubClientException(String.format("Failed to create chain for Template[%s]", inputTemplateKey)))
+        .getId();
+
+      LOG.debug("Ingested {} entities of source material", chainSourceMaterial.size());
+      state = WorkState.Working;
+
+    } catch (HubClientException e) {
+      didFailWhile(inputTemplateKey, "ingesting published source material", e, false);
+    }
+  }
+
+  /**
+   * Run all work when this Nexus is in production, as in the Nexus
+   */
+  private void runYard() {
+    if (System.currentTimeMillis() > yardPollNextSystemMillis) {
+      yardPollNextSystemMillis = System.currentTimeMillis() + yardPollSeconds * MILLIS_PER_SECOND;
+    }
+
+    try {
+      var chain = getChain();
+      if (chain.isEmpty()) {
+        return;
+      }
+      fabricateChain(chain.get());
+    } catch (FabricationFatalException e) {
+      didFailWhile(inputTemplateKey, "fabricating", e, false);
+      state = WorkState.Failed;
+    }
+  }
+
+  /**
+   * Ingest Content from Hub
+   */
+  private void ingestMaterialIfNecessary(Chain chain) {
+    if (System.currentTimeMillis() < chainNextIngestMillis) return;
+    chainNextIngestMillis = System.currentTimeMillis() + ingestCycleSeconds * MILLIS_PER_SECOND;
+    timer.section("Ingest");
+
+    try {
+      // read the source material
+      chainSourceMaterial = hubClient.ingest(access, chain.getTemplateId());
+      LOG.info("Ingested {} entities of source material for Chain[{}]", chainSourceMaterial.size(), Chains.getIdentifier(chain));
+
+    } catch (HubClientException e) {
+      didFailWhile(chain.getShipKey(), "ingesting source material from Hub", e, false);
+    }
+  }
+
+  /**
+   * Engineer wants platform heartbeat to check for any stale production chains in fabricate state, https://www.pivotaltracker.com/story/show/158897383
+   * and if found, send back a failure health check it in order to ensure the Chain remains in an operable state.
+   * <p>
+   * Medic relies on precomputed  telemetry of fabrication latency https://www.pivotaltracker.com/story/show/177021797
+   */
+  private void doMedic() {
+    if (System.currentTimeMillis() < nextMedicMillis) return;
+    nextMedicMillis = System.currentTimeMillis() + (medicCycleSeconds * MILLIS_PER_SECOND);
+    timer.section("Medic");
+
+    var chain = getChain();
+    if (chain.isEmpty()) {
+      return;
+    }
+
+    try {
+      var lastCraftedSegment = segmentManager.readLastCraftedSegment(HubClientAccess.internal(), chainId);
+      if (lastCraftedSegment.isEmpty()) {
+        chainFabricatedAhead = false;
+        return;
+      }
+      var aheadSeconds = (Segments.getEndAtChainMicros(lastCraftedSegment.get()) - atChainMicros) / MICROS_PER_SECOND;
+      if (aheadSeconds < chainThresholdFabricatedBehindSeconds) {
+        LOG.debug("Fabrication is stalled, ahead {}s", aheadSeconds);
+        chainFabricatedAhead = false;
+        return;
+      }
+
+    } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException e) {
+      throw new RuntimeException(e);
+    }
+
+    chainFabricatedAhead = true;
+    LOG.debug("Total elapsed time: {}", timer.totalsToString());
+
+  }
+
+  /**
+   * Do the work-- this is called by the underlying WorkerImpl run() hook
+   */
+  protected void doJanitor() {
+    if (System.currentTimeMillis() < nextJanitorMillis) return;
+    nextJanitorMillis = System.currentTimeMillis() + (janitorCycleSeconds * MILLIS_PER_SECOND);
+    timer.section("Janitor");
+
+    // Seek segments to erase
+    Collection<UUID> gcSegIds;
+    try {
+      gcSegIds = getSegmentIdsToErase();
+    } catch (NexusException e) {
+      didFailWhile(null, "checking for segments to erase", e, true);
+      return;
+    }
+
+    // Erase segments if necessary
+    if (gcSegIds.isEmpty())
+      LOG.debug("Found no segments to erase");
+    else
+      LOG.debug("Will garbage collect {} segments", gcSegIds.size());
+
+    for (UUID segmentId : gcSegIds) {
+      try {
+        segmentManager.destroy(segmentId);
+        LOG.debug("collected garbage Segment[{}]", segmentId);
+      } catch (ManagerFatalException | ManagerPrivilegeException | ManagerExistenceException e) {
+        LOG.warn("Error while destroying Segment[{}]", segmentId);
+      }
+    }
+
+    telemetryProvider.put(METRIC_SEGMENT_GC, (long) gcSegIds.size());
+  }
+
+  /**
+   * Do the work-- this is called by the underlying WorkerImpl run() hook
+   */
+  public void fabricateChain(Chain target) throws FabricationFatalException {
+    try {
+      // On Preview Nexus start, generate a random hash key and write it to a lock file named after the ship key, next to the target chain output json-- e.g. **bump_deep.lock** is written next to the target chain output **bump_deep.json**
+      // https://www.pivotaltracker.com/story/show/185119448
+      if (inputMode == InputMode.PREVIEW) {
+        lockProvider.acquire(shipBucket, target.getShipKey());
+      }
+
+      timer.section("ComputeAhead");
+      var fabricatedToChainMicros = Chains.computeFabricatedToChainMicros(segmentManager.readMany(ImmutableList.of(target.getId())));
+
+      double aheadSeconds = (double) ((fabricatedToChainMicros - atChainMicros) / MICROS_PER_SECOND);
+      telemetryProvider.put(METRIC_FABRICATED_AHEAD_SECONDS, aheadSeconds);
+
+      var templateConfig = new TemplateConfig(target.getTemplateConfig());
+      if (aheadSeconds > templateConfig.getBufferAheadSeconds()) return;
+
+      timer.section("BuildNext");
+      Optional<Segment> nextSegment = buildNextSegment(target);
+      if (nextSegment.isEmpty()) return;
+
+      Segment segment = segmentManager.create(nextSegment.get());
+      LOG.debug("Created Segment {}", segment);
+      telemetryProvider.put(METRIC_SEGMENT_CREATED, 1L);
+
+      Fabricator fabricator;
+      timer.section("Prepare");
+      LOG.debug("[segId={}] will prepare fabricator", segment.getId());
+      fabricator = fabricatorFactory.fabricate(chainSourceMaterial, segment);
+
+      timer.section("Craft");
+      LOG.debug("[segId={}] will do craft work", segment.getId());
+      segment = doCraftWork(fabricator, segment);
+
+      // Update the chain fabricated-ahead seconds before shipping data
+      fabricatedToChainMicros = Objects.nonNull(segment.getDurationMicros()) ? fabricatedToChainMicros + segment.getDurationMicros() : fabricatedToChainMicros;
+      aheadSeconds = (float) (fabricatedToChainMicros - atChainMicros) / MICROS_PER_SECOND;
+      telemetryProvider.put(METRIC_FABRICATED_AHEAD_SECONDS, aheadSeconds);
+
+      // Before writing a segment, Nexus reads the expected lock file and confirms that the hash has not changed.
+      // https://www.pivotaltracker.com/story/show/185119448
+      if (inputMode == InputMode.PREVIEW) {
+        lockProvider.check(shipBucket, target.getShipKey());
+      }
+
+      finishWork(fabricator, segment);
+
+      LOG.info("Fabricated Segment[offset={}] {}s long (ahead {}s)",
+        segment.getOffset(),
+        String.format("%.1f", (float) (Objects.requireNonNull(segment.getDurationMicros()) / MICROS_PER_SECOND)),
+        String.format("%.1f", aheadSeconds)
+      );
+
+    } catch (
+      ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException | ManagerFatalException |
+      NexusException | ValueException | HubClientException e
+    ) {
+      var body = String.format("Failed to create Segment of Chain[%s] (%s) because %s\n\n%s",
+        Chains.getIdentifier(target),
+        target.getType(),
+        e.getMessage(),
+        Text.formatStackTrace(e));
+
+      notification.publish(String.format("%s-Chain[%s] Failure",
+        target.getType(),
+        Chains.getIdentifier(target)), body
+      );
+
+      LOG.error("Failed to created Segment in Chain[{}] reason={}", Chains.getIdentifier(target), e.getMessage());
+
+    } catch (LockException e) {
+      LOG.error("Fabrication lock invalid for Chain[{}] reason={}", Chains.getIdentifier(target), e.getMessage());
+      running.set(false);
+    }
+  }
+
+  private Optional<Segment> buildNextSegment(Chain target) throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException {
+    // Get the last segment in the chain
+    // If the chain had no last segment, it must be empty; return a template for its first segment
+    var maybeLastSegmentInChain = segmentManager.readLastSegment(target.getId());
+    if (maybeLastSegmentInChain.isEmpty()) {
+      var seg = new Segment();
+      seg.setId(UUID.randomUUID());
+      seg.setChainId(target.getId());
+      seg.setBeginAtChainMicros(0L);
+      seg.setOffset(0L);
+      seg.setDelta(0);
+      seg.setType(SegmentType.PENDING);
+      seg.setState(SegmentState.PLANNED);
+      return Optional.of(seg);
+    }
+    var lastSegmentInChain = maybeLastSegmentInChain.get();
+
+    // Build the template of the segment that follows the last known one
+    var seg = new Segment();
+    seg.setId(UUID.randomUUID());
+    seg.setChainId(target.getId());
+    seg.setBeginAtChainMicros(lastSegmentInChain.getBeginAtChainMicros() + Objects.requireNonNull(lastSegmentInChain.getDurationMicros()));
+    seg.setOffset(lastSegmentInChain.getOffset() + 1);
+    seg.setDelta(lastSegmentInChain.getDelta());
+    seg.setType(SegmentType.PENDING);
+    seg.setState(SegmentState.PLANNED);
+    return Optional.of(seg);
+  }
+
+  /**
+   * Finish work on Segment
+   *
+   * @param fabricator to craft
+   * @param segment    fabricating
+   * @throws NexusException on failure
+   */
+  private void finishWork(Fabricator fabricator, Segment segment) throws NexusException {
+    updateSegmentState(fabricator, segment, SegmentState.CRAFTING, SegmentState.CRAFTED);
+    doWriteJsonOutputs(fabricator);
+    LOG.debug("[segId={}] Worked for {} seconds", segment.getId(), String.format("%.2f", (float) fabricator.getElapsedMicros() / MICROS_PER_SECOND));
+  }
+
+  /**
+   * Craft a Segment, or fail
+   *
+   * @param fabricator to craft
+   * @param segment    fabricating
+   * @throws NexusException on configuration failure
+   * @throws NexusException on craft failure
+   */
+  private Segment doCraftWork(Fabricator fabricator, Segment segment) throws NexusException {
+    var updated = updateSegmentState(fabricator, segment, SegmentState.PLANNED, SegmentState.CRAFTING);
+    craftFactory.macroMain(fabricator).doWork();
+    craftFactory.beat(fabricator).doWork();
+    craftFactory.hook(fabricator).doWork();
+    craftFactory.detail(fabricator).doWork();
+    craftFactory.percLoop(fabricator).doWork();
+    craftFactory.transition(fabricator).doWork();
+    craftFactory.background(fabricator).doWork();
+    return updated;
+  }
+
+  /**
+   * Log and send notification of error that job failed while (message)
+   *
+   * @param templateKey   (optional) ship key
+   * @param msgWhile      phrased like "Doing work"
+   * @param e             exception (optional)
+   * @param logStackTrace whether to show the whole stack trace in logs
+   */
+  private void didFailWhile(@Nullable String templateKey, String msgWhile, Exception e, boolean logStackTrace) {
+    var msgCause = Strings.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
+
+    if (logStackTrace)
+      LOG.error("Failed while {} because {}", msgWhile, msgCause, e);
+    else
+      LOG.error("Failed while {} because {}", msgWhile, msgCause);
+
+    notification.publish(
+      Strings.isNullOrEmpty(templateKey) ? String.format("%s-Chain[%s] Work Failure", environment, templateKey) : String.format("%s-Chains Work Failure", environment),
+      String.format("Failed while %s because %s\n\n%s", msgWhile, msgCause, Text.formatStackTrace(e)));
+
+    state = WorkState.Failed;
+    running.set(false);
+    finish();
+  }
+
+  /**
+   * Update Segment to Working state
+   *
+   * @param fabricator to update
+   * @param fromState  of existing segment
+   * @param toState    of new segment
+   * @return updated Segment
+   * @throws NexusException if record is invalid
+   */
+  private Segment updateSegmentState(Fabricator fabricator, Segment segment, SegmentState fromState, SegmentState toState) throws NexusException {
+    if (fromState != segment.getState())
+      throw new NexusException(String.format("Segment[%s] %s requires Segment must be in %s state.", segment.getId(), toState, fromState));
+    var seg = fabricator.getSegment();
+    seg.setState(toState);
+    fabricator.putSegment(seg);
+    LOG.debug("[segId={}] Segment transitioned to state {} OK", segment.getId(), toState);
+    return fabricator.getSegment();
+  }
+
+
+  /**
+   * Whether this Segment is before a given threshold, first by end-at if available, else begin-at
+   *
+   * @param eraseBeforeChainMicros threshold to filter before
+   * @return true if segment is before threshold
+   */
+  protected boolean isBefore(Segment segment, Long eraseBeforeChainMicros) {
+    if (Objects.nonNull(segment.getDurationMicros()))
+      return segment.getBeginAtChainMicros() + segment.getDurationMicros() < eraseBeforeChainMicros;
+    if (Objects.nonNull(segment.getBeginAtChainMicros()))
+      return segment.getBeginAtChainMicros() < eraseBeforeChainMicros;
+    return false;
+  }
+
+  /**
+   * Get the IDs of all Segments that we ought to erase
+   *
+   * @return list of IDs of Segments we ought to erase
+   */
+  private Collection<UUID> getSegmentIdsToErase() throws NexusException {
+    Long eraseBeforeChainMicros = atChainMicros - eraseSegmentsOlderThanSeconds * MICROS_PER_SECOND;
+    Collection<UUID> segmentIds = Lists.newArrayList();
+    for (UUID chainId : store.getAllChains().stream()
+      .flatMap(Entities::flatMapIds).toList())
+      store.getAllSegments(chainId)
+        .stream()
+        .filter(segment -> isBefore(segment, eraseBeforeChainMicros))
+        .flatMap(Entities::flatMapIds)
+        .forEach(segmentIds::add);
+    return segmentIds;
+  }
+
+  /**
+   * Maintain a single preview template by id
+   * If we find no reason to perform work, we return false.
+   * Returning false ultimately gracefully terminates the instance
+   * https://www.pivotaltracker.com/story/show/185119448
+   *
+   * @return true if all is well, false if something has failed
+   */
+  private boolean maintainPreviewTemplate() {
+    Optional<TemplatePlayback> templatePlayback = readPreviewTemplatePlayback();
+    if (templatePlayback.isEmpty()) {
+      LOG.debug("No preview template playback found");
+      selfDestructPreviewTemplate();
+      return false;
+    }
+
+    Optional<Template> template = readPreviewTemplate(templatePlayback.get());
+    if (template.isEmpty()) {
+      LOG.debug("No preview template found");
+      selfDestructPreviewTemplate();
+      return false;
+    }
+
+    try {
+      if (Objects.isNull(chainId)) {
+        chainId = createChainForTemplate(template.get())
+          .orElseThrow(() -> new ManagerFatalException(String.format("Failed to create chain for Template[%s]", Templates.getIdentifier(template.get()))))
+          .getId();
+      }
+    } catch (ManagerFatalException e) {
+      LOG.error("Failed to start Chain(s) for playing Template(s) because {}", e.getMessage());
+      selfDestructPreviewTemplate();
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Self-destruct the Preview Template
+   */
+  private void selfDestructPreviewTemplate() {
+    if (Objects.isNull(fabricationPreviewTemplatePlaybackId)) return;
+    try {
+      LOG.info("Will self-destruct stale TemplatePlayback[{}]", fabricationPreviewTemplatePlaybackId);
+      running.set(false);
+      var templatePlayback = new TemplatePlayback();
+      templatePlayback.setId(fabricationPreviewTemplatePlaybackId);
+      previewNexusAdmin.stopPreviewNexus(templatePlayback);
+    } catch (ServiceException e) {
+      LOG.error("Failed to self-destruct stale TemplatePlayback[{}] because {}", fabricationPreviewTemplatePlaybackId, e.getMessage());
+    }
+  }
+
+  /**
+   * Read preview Template from Hub
+   *
+   * @param playback TemplatePlayback for which to get Template
+   * @return preview Template
+   */
+  private Optional<Template> readPreviewTemplate(TemplatePlayback playback) {
+    try {
+      return hubClient.readPreviewTemplate(playback.getTemplateId());
+    } catch (HubClientException e) {
+      LOG.error("Failed to read preview Template[{}] from Hub because {}", playback.getTemplateId(), e.getMessage());
+      return Optional.empty();
+    }
+  }
+
+  /**
+   * Read preview TemplatePlayback from Hub
+   *
+   * @return preview TemplatePlayback
+   */
+  private Optional<TemplatePlayback> readPreviewTemplatePlayback() {
+    if (Objects.isNull(fabricationPreviewTemplatePlaybackId)) return Optional.empty();
+    try {
+      return hubClient.readPreviewTemplatePlayback(fabricationPreviewTemplatePlaybackId);
+    } catch (HubClientException e) {
+      LOG.error("Failed to read preview TemplatePlayback[{}] from Hub because {}", fabricationPreviewTemplatePlaybackId, e.getMessage());
+      return Optional.empty();
+    }
+  }
+
+  /**
+   * Bootstrap a chain from JSON chain bootstrap data,
+   * first rehydrating store from last shipped JSON matching this ship key.
+   * <p>
+   * Nexus with bootstrap chain rehydrates store on startup from shipped JSON files https://www.pivotaltracker.com/story/show/178718006
+   */
+  private Optional<Chain> createChainForTemplate(Template template) {
+    var rehydrated = rehydrateTemplate(template);
+    if (rehydrated.isPresent()) return rehydrated;
+
+    // Only if rehydration was unsuccessful
+    try {
+      LOG.info("Will bootstrap Template[{}]", Templates.getIdentifier(template));
+      var entity = Chains.fromTemplate(template);
+      entity.setState(ChainState.FABRICATE);
+      entity.setId(UUID.randomUUID());
+      return Optional.ofNullable(store.put(entity));
+
+    } catch (NexusException e) {
+      LOG.error("Failed to bootstrap Template[{}] because {}", Templates.getIdentifier(template), e.getMessage());
+      return Optional.empty();
+    }
+  }
+
+  /**
+   * Attempt to rehydrate the store from a bootstrap, and return true if successful, so we can skip other stuff
+   *
+   * @param template from which to rehydrate
+   * @return chain if the rehydration was successful
+   */
+  private Optional<Chain> rehydrateTemplate(Template template) {
+    if (!isRehydrationEnabled) return Optional.empty();
+    if (outputMode.isLocal()) return Optional.empty();
+    var success = new AtomicBoolean(true);
+    Collection<Object> entities = com.google.api.client.util.Lists.newArrayList();
+    JsonapiPayload chainPayload;
+    Chain chain;
+
+    String key = Chains.getShipKey(Chains.getFullKey(template.getShipKey()), EXTENSION_JSON);
+
+    CloseableHttpClient client = httpClientProvider.getClient();
+    try (
+      CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", shipBaseUrl, key)))
+    ) {
+      if (!Objects.equals(HttpStatus.OK.value(), response.getStatusLine().getStatusCode())) {
+        LOG.debug("Failed to get previously fabricated chain for Template[{}] because {} {}", template.getShipKey(), response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+        return Optional.empty();
+      }
+
+      LOG.debug("will check for last shipped data");
+      chainPayload = jsonProvider.getMapper().readValue(response.getEntity().getContent(), JsonapiPayload.class);
+      chain = jsonapiPayloadFactory.toOne(chainPayload);
+      entities.add(entityFactory.clone(chain));
+    } catch (JsonapiException | ClassCastException | IOException | EntityException e) {
+      LOG.error("Failed to rehydrate previously fabricated chain for Template[{}] because {}", template.getShipKey(), e.getMessage());
+      return Optional.empty();
+    }
+
+    try {
+      LOG.info("Will load Chain[{}] for ship key \"{}\"", chain.getId(), template.getShipKey());
+      chainPayload.getIncluded().stream()
+        .filter(po -> po.isType(TemplateBinding.class))
+        .forEach(templateBinding -> {
+          try {
+            entities.add(entityFactory.clone(jsonapiPayloadFactory.toOne(templateBinding)));
+          } catch (JsonapiException | EntityException | ClassCastException e) {
+            success.set(false);
+            LOG.error("Could not deserialize TemplateBinding from shipped Chain JSON because {}", e.getMessage());
+          }
+        });
+
+      Long ignoreBeforeChainMicros = atChainMicros - ignoreSegmentsOlderThanSeconds * MICROS_PER_SECOND;
+      //noinspection DuplicatedCode
+      chainPayload.getIncluded().parallelStream()
+        .filter(po -> po.isType(Segment.class))
+        .flatMap(po -> {
+          try {
+            return Stream.of((Segment) jsonapiPayloadFactory.toOne(po));
+          } catch (JsonapiException | ClassCastException e) {
+            LOG.error("Could not deserialize Segment from shipped Chain JSON because {}", e.getMessage());
+            success.set(false);
+            return Stream.empty();
+          }
+        })
+        .filter(seg -> SegmentState.CRAFTED.equals(seg.getState()))
+        .filter(seg -> seg.getBeginAtChainMicros() > ignoreBeforeChainMicros)
+        .forEach(segment -> {
+          var segmentShipKey = Segments.getStorageFilename(segment, EXTENSION_JSON);
+          try (
+            CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", shipBaseUrl, segmentShipKey)))
+          ) {
+            if (!Objects.equals(HttpStatus.OK.value(), response.getStatusLine().getStatusCode())) {
+              LOG.error("Failed to get segment for Template[{}] because {} {}", template.getShipKey(), response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+              success.set(false);
+              return;
+            }
+            var segmentPayload = jsonProvider.getMapper().readValue(response.getEntity().getContent(), JsonapiPayload.class);
+            AtomicInteger childCount = new AtomicInteger();
+            entities.add(entityFactory.clone(segment));
+            segmentPayload.getIncluded()
+              .forEach(po -> {
+                try {
+                  var entity = jsonapiPayloadFactory.toOne(po);
+                  entities.add(entity);
+                  childCount.getAndIncrement();
+                } catch (Exception e) {
+                  LOG.error("Could not deserialize Segment from shipped Chain JSON because {}", e.getMessage());
+                  success.set(false);
+                }
+              });
+            LOG.info("Read Segment[{}] and {} child entities", Segments.getIdentifier(segment), childCount);
+
+          } catch (Exception e) {
+            LOG.error("Could not load Segment[{}] because {}", Segments.getIdentifier(segment), e.getMessage());
+            success.set(false);
+          }
+        });
+
+      // Quit if anything failed up to here
+      if (!success.get()) return Optional.empty();
+
+      // Nexus with bootstrap won't rehydrate stale Chain
+      // https://www.pivotaltracker.com/story/show/178727631
+      var aheadSeconds =
+        Math.floor(Chains.computeFabricatedToChainMicros(
+          entities.stream()
+            .filter(e -> Entities.isType(e, Segment.class))
+            .map(e -> (Segment) e)
+            .collect(Collectors.toList())) - atChainMicros) / MICROS_PER_SECOND;
+
+      if (aheadSeconds < rehydrateFabricatedAheadThreshold) {
+        LOG.info("Will not rehydrate Chain[{}] fabricated ahead {}s (not > {}s)",
+          Chains.getIdentifier(chain), aheadSeconds, rehydrateFabricatedAheadThreshold);
+        return Optional.empty();
+      }
+
+      // Okay to rehydrate
+      store.putAll(entities);
+      LOG.info("Rehydrated {} entities OK. Chain[{}] is fabricated ahead {}s (> {}s)",
+        entities.size(), Chains.getIdentifier(chain), aheadSeconds, rehydrateFabricatedAheadThreshold);
+      return Optional.of(chain);
+
+    } catch (NexusException e) {
+      LOG.error("Failed to rehydrate store!", e);
+      return Optional.empty();
+    }
+  }
+
+  /**
+   * MasterDub implements Mixer module to write JSON outputs
+   *
+   * @throws NexusException on error
+   */
+  private void doWriteJsonOutputs(Fabricator fabricator) throws NexusException {
+    if (!isJsonOutputEnabled) return;
+    writeJsonFile(
+      fabricator.getSegmentJson(),
+      filePathProvider.computeSegmentJsonOutputFilePath(fabricator.getSegment()));
+    writeJsonFile(
+      fabricator.getChainFullJson(),
+      filePathProvider.computeChainFullJsonOutputFilePath(fabricator.getChain()));
+    writeJsonFile(
+      fabricator.getChainJson(atChainMicros),
+      filePathProvider.computeChainJsonOutputFilePath(fabricator.getChain()));
+  }
+
+  /**
+   * Write json content to file
+   *
+   * @param json content
+   * @param path to write
+   */
+  private void writeJsonFile(String json, String path) {
+    var bytes = json.getBytes();
+    try {
+      Files.write(Paths.get(path), bytes);
+      LOG.info("Wrote {} bytes to {}", bytes.length, path);
+    } catch (Exception e) {
+      LOG.error("Error writing {} bytes to {}", bytes.length, path, e);
+    }
+  }
+
+}

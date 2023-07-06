@@ -2,6 +2,7 @@
 
 package io.xj.nexus.persistence;
 
+import com.google.api.client.util.Lists;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import io.xj.lib.entity.Entities;
@@ -27,16 +28,17 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- NexusEntityStore segments and child entities partitioned by segment id for rapid addressing https://www.pivotaltracker.com/story/show/175880468
- <p>
- XJ Lab Distributed Architecture https://www.pivotaltracker.com/story/show/171553408
- Chains, ChainBindings, TemplateConfigs, Segments and all Segment content sub-entities persisted in JSON:API record stored keyed by chain or segment id in memory
+ * NexusEntityStore segments and child entities partitioned by segment id for rapid addressing https://www.pivotaltracker.com/story/show/175880468
+ * <p>
+ * XJ Lab Distributed Architecture https://www.pivotaltracker.com/story/show/171553408
+ * Chains, ChainBindings, TemplateConfigs, Segments and all Segment content sub-entities persisted in JSON:API record stored keyed by chain or segment id in memory
  */
 @Service
 public class NexusEntityStoreImpl implements NexusEntityStore {
@@ -111,7 +113,7 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
       if (!store.containsKey(segmentId) || !store.get(segmentId).containsKey(type))
         if (!store.get(segmentId).get(type).containsKey(id)) return Optional.empty();
       //noinspection unchecked
-      return (Optional<N>) Optional.of(store.get(segmentId).get(type).get(id));
+      return (Optional<N>) Optional.ofNullable(store.get(segmentId).get(type).get(id));
 
     } catch (Exception e) {
       throw new NexusException(e);
@@ -218,5 +220,14 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   @Override
   public int size() {
     return 0;
+  }
+
+  @Override
+  public List<SegmentChoiceArrangementPick> getPicks(List<Segment> segments) throws NexusException {
+    List<SegmentChoiceArrangementPick> picks = Lists.newArrayList();
+    for (Segment segment : segments) {
+      picks.addAll(getAll(segment.getId(), SegmentChoiceArrangementPick.class));
+    }
+    return picks;
   }
 }

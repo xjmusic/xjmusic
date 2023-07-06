@@ -24,17 +24,17 @@ import io.xj.nexus.model.SegmentMessage;
 import io.xj.nexus.model.SegmentMeta;
 
 /**
- In the future, we will simplify JSON payload
- deprecating this complex abstraction of JSON:API
- in favor of plain POJO
+ * In the future, we will simplify JSON payload
+ * deprecating this complex abstraction of JSON:API
+ * in favor of plain POJO
  */
 public enum NexusTopology {
   ;
 
   /**
-   Given an entity factory, build the Hub REST API entity topology
-
-   @param entityFactory to build topology on
+   * Given an entity factory, build the Hub REST API entity topology
+   *
+   * @param entityFactory to build topology on
    */
   public static void buildNexusApiTopology(EntityFactory entityFactory) {
     // Chain
@@ -42,9 +42,9 @@ public enum NexusTopology {
       .createdBy(Chain::new)
       .withAttribute("name")
       .withAttribute("state")
-      .withAttribute("startAt")
-      .withAttribute("stopAt")
-      .withAttribute("fabricatedAheadAt")
+      .withAttribute("type")
+      .withAttribute("shipKey")
+      .withAttribute("templateConfig")
       .belongsTo(Account.class)
       .belongsTo(Template.class);
 
@@ -52,8 +52,8 @@ public enum NexusTopology {
     entityFactory.register(Segment.class)
       .createdBy(Segment::new)
       .withAttribute("state")
-      .withAttribute("beginAt")
-      .withAttribute("endAt")
+      .withAttribute("beginAtChainMicros")
+      .withAttribute("durationMicros")
       .withAttribute("key")
       .withAttribute("total")
       .withAttribute("offset")
@@ -61,7 +61,6 @@ public enum NexusTopology {
       .withAttribute("density")
       .withAttribute("tempo")
       .withAttribute("shipKey")
-      .withAttribute("outputEncoder")
       .withAttribute("waveformPreroll")
       .withAttribute("waveformPostroll")
       .withAttribute("type")
@@ -103,8 +102,8 @@ public enum NexusTopology {
     // SegmentChoiceArrangementPick
     entityFactory.register(SegmentChoiceArrangementPick.class)
       .createdBy(SegmentChoiceArrangementPick::new)
-      .withAttribute("start")
-      .withAttribute("length")
+      .withAttribute("startAtSegmentMicros")
+      .withAttribute("lengthMicros")
       .withAttribute("amplitude")
       .withAttribute("name")
       .withAttribute("tones")
@@ -118,7 +117,7 @@ public enum NexusTopology {
     entityFactory.register(SegmentChord.class)
       .createdBy(SegmentChord::new)
       .withAttribute("name")
-      .withAttribute("position")
+      .withAttribute("position") // atMicros or position?
       .hasMany(SegmentChordVoicing.class)
       .belongsTo(ProgramSequenceChord.class)
       .belongsTo(Segment.class);

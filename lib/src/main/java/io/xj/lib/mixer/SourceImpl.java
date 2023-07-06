@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 import static io.xj.lib.util.Values.MICROS_PER_SECOND;
 
@@ -36,7 +37,7 @@ class SourceImpl implements Source {
   private final @Nullable
   AudioFormat audioFormat;
   private final String absolutePath;
-  private final String sourceId;
+  private final UUID audioId;
   private final double lengthSeconds;
   private final double microsPerFrame;
   private final float frameRate;
@@ -46,7 +47,7 @@ class SourceImpl implements Source {
 
   public SourceImpl(
     NotificationProvider notification,
-    String sourceId,
+    UUID audioId,
     String absolutePath,
     String description,
     @Value("${environment}")
@@ -60,7 +61,7 @@ class SourceImpl implements Source {
     int _channels;
     AudioFormat _audioFormat;
     this.absolutePath = absolutePath;
-    this.sourceId = sourceId;
+    this.audioId = audioId;
     String envName = Text.toProper(environment);
 
     try (
@@ -77,11 +78,11 @@ class SourceImpl implements Source {
       _microsPerFrame = MICROS_PER_SECOND / _frameRate;
       Values.enforceMaxStereo(_channels);
       LOG.debug("Loaded absolutePath: {}, sourceId: {}, audioFormat: {}, channels: {}, frameRate: {}, frameLength: {}, lengthSeconds: {}, lengthMicros: {}, microsPerFrame: {}",
-        absolutePath, sourceId, _audioFormat, _channels, _frameRate, _frameLength, _lengthSeconds, _lengthMicros, _microsPerFrame);
+        absolutePath, audioId, _audioFormat, _channels, _frameRate, _frameLength, _lengthSeconds, _lengthMicros, _microsPerFrame);
 
     } catch (UnsupportedAudioFileException | IOException | ValueException e) {
-      LOG.error("Failed to load source for Audio[{}] \"{}\" because {}", sourceId, description, e.getMessage());
-      notification.publish(String.format("%s-Chain Mix Source Failure", envName), String.format("Failed to load source for Audio[%s] \"%s\" because %s", sourceId, description, e.getMessage()));
+      LOG.error("Failed to load source for Audio[{}] \"{}\" because {}", audioId, description, e.getMessage());
+      notification.publish(String.format("%s-Chain Mix Source Failure", envName), String.format("Failed to load source for Audio[%s] \"%s\" because %s", audioId, description, e.getMessage()));
       _audioFormat = null;
       _channels = 0;
       _frameRate = 0;
@@ -98,7 +99,7 @@ class SourceImpl implements Source {
     frameRate = _frameRate;
     channels = _channels;
     audioFormat = _audioFormat;
-    LOG.debug("Did load source {}", sourceId);
+    LOG.debug("Did load source {}", audioId);
   }
 
   @Override
@@ -147,13 +148,13 @@ class SourceImpl implements Source {
   }
 
   @Override
-  public String getSourceId() {
-    return sourceId;
+  public UUID getAudioId() {
+    return audioId;
   }
 
   @Override
   public String toString() {
-    return String.format("id[%s] frames[%d]", sourceId, frameLength);
+    return String.format("id[%s] frames[%d]", audioId, frameLength);
   }
 }
 

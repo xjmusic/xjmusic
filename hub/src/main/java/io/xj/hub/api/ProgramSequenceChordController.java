@@ -158,7 +158,7 @@ public class ProgramSequenceChordController extends HubJsonapiEndpoint {
       for (var chord : uniqueChordVoicings.getChords()) result.addData(payloadFactory.toPayloadObject(chord));
       for (var voicing : uniqueChordVoicings.getVoicings())
         result.addToIncluded(payloadFactory.toPayloadObject(voicing)
-          .setAttribute(VOICE_TYPE_KEY, voicesById.get(voicing.getProgramVoiceId()).getType().toString()));
+          .setAttribute(VOICE_TYPE_KEY, voicesById.get(voicing.getProgramVoiceId()).getType()));
       return responseProvider.ok(result);
 
     } catch (Exception e) {

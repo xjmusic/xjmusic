@@ -1,6 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.mixer;
 
+import java.util.UUID;
+
 /**
  Put to represent a single audio source playing at a specific time in the future.
  <p>
@@ -10,6 +12,19 @@ public interface Put {
   String READY = "ready";
   String PLAY = "play";
   String DONE = "done";
+
+  /**
+   * Get the active id of this put
+   * @return active id
+   */
+  UUID getId();
+
+  /**
+   * Get reference source id
+   *
+   * @return source id
+   */
+  UUID getAudioId();
 
   /**
    For a specific moment in the final mix, get the corresponding moment in the source audio.
@@ -32,13 +47,6 @@ public interface Put {
    @return true if playing
    */
   boolean isPlaying();
-
-  /**
-   Get reference source id
-
-   @return source id
-   */
-  String getSourceId();
 
   /**
    Get State

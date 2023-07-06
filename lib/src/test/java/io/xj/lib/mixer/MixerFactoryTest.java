@@ -23,7 +23,8 @@ public class MixerFactoryTest {
 
   @Before
   public void setUp() {
-    mixerFactory = new MixerFactoryImpl(envelopeProvider, notificationProvider, "development");
+    EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
+    mixerFactory = new MixerFactoryImpl(envelopeProvider, notificationProvider, "production", 1000000);
   }
 
   @Test

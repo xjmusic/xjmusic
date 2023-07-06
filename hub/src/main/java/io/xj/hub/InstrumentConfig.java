@@ -5,7 +5,6 @@ package io.xj.hub;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.lib.util.CSV;
@@ -51,7 +50,7 @@ public class InstrumentConfig {
    *
    * @param instrument to get config from
    */
-  public InstrumentConfig(Instrument instrument) throws ValueException {
+  public InstrumentConfig(Instrument instrument) {
     this(instrument.getConfig());
   }
 
@@ -70,21 +69,16 @@ public class InstrumentConfig {
    * provided simple Key=Value pairs will be understood as members of `instrument`
    * e.g. will override values from the `instrument{...}` block of the top-level **default.conf**
    */
-  public InstrumentConfig(String configText) throws ValueException {
-    try {
-      Config config = Strings.isNullOrEmpty(configText) ? ConfigFactory.parseString(DEFAULT) : ConfigFactory.parseString(configText).withFallback(ConfigFactory.parseString(DEFAULT));
-      attackMillis = config.getInt("attackMillis");
-      isAudioSelectionPersistent = config.getBoolean("isAudioSelectionPersistent");
-      isMultiphonic = config.getBoolean("isMultiphonic");
-      isOneShot = config.getBoolean("isOneShot");
-      isOneShotCutoffEnabled = config.getBoolean("isOneShotCutoffEnabled");
-      isTonal = config.getBoolean("isTonal");
-      oneShotObserveLengthOfEvents = config.getStringList("oneShotObserveLengthOfEvents").stream().map(Text::toMeme).collect(Collectors.toList());
-      releaseMillis = config.getInt("releaseMillis");
-
-    } catch (ConfigException e) {
-      throw new ValueException(e.getMessage());
-    }
+  public InstrumentConfig(String configText) {
+    Config config = Strings.isNullOrEmpty(configText) ? ConfigFactory.parseString(DEFAULT) : ConfigFactory.parseString(configText).withFallback(ConfigFactory.parseString(DEFAULT));
+    attackMillis = config.getInt("attackMillis");
+    isAudioSelectionPersistent = config.getBoolean("isAudioSelectionPersistent");
+    isMultiphonic = config.getBoolean("isMultiphonic");
+    isOneShot = config.getBoolean("isOneShot");
+    isOneShotCutoffEnabled = config.getBoolean("isOneShotCutoffEnabled");
+    isTonal = config.getBoolean("isTonal");
+    oneShotObserveLengthOfEvents = config.getStringList("oneShotObserveLengthOfEvents").stream().map(Text::toMeme).collect(Collectors.toList());
+    releaseMillis = config.getInt("releaseMillis");
   }
 
   @SuppressWarnings("DuplicatedCode")

@@ -38,7 +38,6 @@ import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.meme.MemeStack;
-import io.xj.lib.mixer.OutputEncoder;
 import io.xj.lib.music.Accidental;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
@@ -63,7 +62,6 @@ import io.xj.nexus.model.SegmentMessage;
 import io.xj.nexus.model.SegmentMessageType;
 import io.xj.nexus.model.SegmentMeta;
 import io.xj.nexus.model.SegmentType;
-import io.xj.nexus.persistence.ChainManager;
 import io.xj.nexus.persistence.Chains;
 import io.xj.nexus.persistence.ManagerExistenceException;
 import io.xj.nexus.persistence.ManagerFatalException;
@@ -73,11 +71,9 @@ import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.Segments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.Nullable;
 import javax.sound.sampled.AudioFormat;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -90,7 +86,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.lib.util.Values.NANOS_PER_SECOND;
+import static io.xj.lib.util.Values.MICROS_PER_SECOND;
+import static io.xj.lib.util.Values.NANOS_PER_MICRO;
+import static io.xj.lib.util.Values.SECONDS_PER_MINUTE;
 
 /**
  * [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
@@ -126,7 +124,7 @@ public class FabricatorImpl implements Fabricator {
   private final SegmentWorkbench workbench;
   private final Set<UUID> boundInstrumentIds;
   private final Set<UUID> boundProgramIds;
-  private final long startTime;
+  private final long startAtSystemNanoTime;
   private SegmentType type;
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   private Optional<SegmentChoice> macroChoiceOfPreviousSegment;
@@ -134,75 +132,64 @@ public class FabricatorImpl implements Fabricator {
   private Optional<SegmentChoice> mainChoiceOfPreviousSegment;
 
   @Nullable
-  private Double secondsPerBeat;
+  private Double microsPerBeat;
 
   @Nullable
   private Set<InstrumentType> distinctChordVoicingTypes;
-  private final boolean isLocalModeEnabled;
 
   public FabricatorImpl(
     HubContent sourceMaterial,
     Segment segment,
-    ChainManager chainManager,
     FabricatorFactory fabricatorFactory,
     SegmentManager segmentManager,
     JsonapiPayloadFactory jsonapiPayloadFactory,
-    JsonProvider jsonProvider,
-    @Value("${yard.local.mode.enabled}") boolean isYardLocalModeEnabled
-  ) throws NexusException, FabricationFatalException {
+    JsonProvider jsonProvider
+  ) throws NexusException, FabricationFatalException, ManagerFatalException, ValueException, HubClientException {
     this.segmentManager = segmentManager;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     this.jsonProvider = jsonProvider;
-    try {
-      this.sourceMaterial = sourceMaterial;
-      this.isLocalModeEnabled = isYardLocalModeEnabled;
+    this.sourceMaterial = sourceMaterial;
 
-      // caches
-      chordAtPosition = Maps.newHashMap();
-      completeChordsForProgramSequence = Maps.newHashMap();
-      instrumentConfigs = Maps.newHashMap();
-      pickInstrumentConfigs = Maps.newHashMap();
-      picksForChoice = Maps.newHashMap();
-      rangeForChoice = Maps.newHashMap();
-      rangeShiftOctave = Maps.newHashMap();
-      rootNotesByVoicingAndChord = Maps.newHashMap();
-      sequenceForChoice = Maps.newHashMap();
-      targetShift = Maps.newHashMap();
-      voicingNoteRange = Maps.newHashMap();
+    // caches
+    chordAtPosition = Maps.newHashMap();
+    completeChordsForProgramSequence = Maps.newHashMap();
+    instrumentConfigs = Maps.newHashMap();
+    pickInstrumentConfigs = Maps.newHashMap();
+    picksForChoice = Maps.newHashMap();
+    rangeForChoice = Maps.newHashMap();
+    rangeShiftOctave = Maps.newHashMap();
+    rootNotesByVoicingAndChord = Maps.newHashMap();
+    sequenceForChoice = Maps.newHashMap();
+    targetShift = Maps.newHashMap();
+    voicingNoteRange = Maps.newHashMap();
 
-      // time
-      startTime = System.nanoTime();
-      LOG.debug("[segId={}] StartTime {}ns since epoch zulu", segment.getId(), startTime);
+    // keep elapsed time based on system nano time
+    startAtSystemNanoTime = System.nanoTime();
 
-      // read the chain, configs, and bindings
-      chain = chainManager.readOne(segment.getChainId());
-      templateConfig = new TemplateConfig(sourceMaterial.getTemplate());
-      templateBindings = sourceMaterial.getTemplateBindings();
-      boundProgramIds = Chains.targetIdsOfType(templateBindings, ContentBindingType.Program);
-      boundInstrumentIds = Chains.targetIdsOfType(templateBindings, ContentBindingType.Instrument);
-      LOG.debug("[segId={}] Chain {} configured with {} and bound to {} ", segment.getId(), chain.getId(), templateConfig, CSV.prettyFrom(templateBindings, "and"));
+    // read the chain, configs, and bindings
+    chain = segmentManager.getChain(segment);
+    templateConfig = new TemplateConfig(sourceMaterial.getTemplate());
+    templateBindings = sourceMaterial.getTemplateBindings();
+    boundProgramIds = Chains.targetIdsOfType(templateBindings, ContentBindingType.Program);
+    boundInstrumentIds = Chains.targetIdsOfType(templateBindings, ContentBindingType.Instrument);
+    LOG.debug("[segId={}] Chain {} configured with {} and bound to {} ", segment.getId(), chain.getId(), templateConfig, CSV.prettyFrom(templateBindings, "and"));
 
-      // Buffer times from template
-      workBufferAheadSeconds = templateConfig.getBufferAheadSeconds();
-      workBufferBeforeSeconds = templateConfig.getBufferBeforeSeconds();
+    // Buffer times from template
+    workBufferAheadSeconds = templateConfig.getBufferAheadSeconds();
+    workBufferBeforeSeconds = templateConfig.getBufferBeforeSeconds();
 
-      // set up the segment retrospective
-      retrospective = fabricatorFactory.loadRetrospective(segment, sourceMaterial);
+    // set up the segment retrospective
+    retrospective = fabricatorFactory.loadRetrospective(segment, sourceMaterial);
 
-      // digest previous instrument audio
-      preferredAudios = computePreferredInstrumentAudio();
+    // digest previous instrument audio
+    preferredAudios = computePreferredInstrumentAudio();
 
-      // get the current segment on the workbench
-      workbench = fabricatorFactory.setupWorkbench(chain, segment);
+    // get the current segment on the workbench
+    workbench = fabricatorFactory.setupWorkbench(chain, segment);
 
-      // final pre-flight check
-      ensureShipKey();
+    // final pre-flight check
+    ensureShipKey();
 
-    } catch (ManagerFatalException | ManagerExistenceException | ManagerPrivilegeException | ValueException |
-             HubClientException e) {
-      LOG.error("Failed to instantiate Fabricator!", e);
-      throw new NexusException("Failed to instantiate Fabricator!", e);
-    }
   }
 
   @Override
@@ -294,12 +281,16 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public String getChainJson() throws NexusException {
+  public String getChainJson(long atChainMicros) throws NexusException {
     try {
-      var now = Instant.now();
-      var beforeThreshold = now.plusSeconds(workBufferAheadSeconds);
-      var afterThreshold = now.minusSeconds(workBufferBeforeSeconds);
-      return computeChainJson(segmentManager.readMany(ImmutableList.of(chain.getId())).stream().filter(segment -> Instant.parse(segment.getBeginAt()).isBefore(beforeThreshold) && Instant.parse(segment.getEndAt()).isAfter(afterThreshold)).collect(Collectors.toList()));
+      var beforeThresholdChainMicros = atChainMicros + workBufferAheadSeconds * MICROS_PER_SECOND;
+      var afterThresholdChainMicros = atChainMicros - workBufferBeforeSeconds * MICROS_PER_SECOND;
+      return computeChainJson(
+        segmentManager.readMany(ImmutableList.of(chain.getId())).stream()
+          .filter(segment ->
+            segment.getBeginAtChainMicros() < beforeThresholdChainMicros
+              && (Objects.nonNull(segment.getDurationMicros()) ? segment.getDurationMicros() : 0) > afterThresholdChainMicros)
+          .toList());
 
     } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException e) {
       throw new NexusException(e);
@@ -317,7 +308,7 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Optional<SegmentChord> getChordAt(double position) {
+  public Optional<SegmentChord> getChordAt(Double position) {
     if (!chordAtPosition.containsKey(position)) {
       Optional<SegmentChord> foundChord = Optional.empty();
       Double foundPosition = null;
@@ -371,20 +362,15 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Double getElapsedSeconds() {
-    return (System.nanoTime() - startTime) / NANOS_PER_SECOND;
+  public Long getElapsedMicros() {
+    return (System.nanoTime() - startAtSystemNanoTime) / NANOS_PER_MICRO;
   }
 
   @Override
-  public InstrumentConfig getInstrumentConfig(Instrument instrument) throws NexusException {
-    try {
-      if (!instrumentConfigs.containsKey(instrument.getId().toString()))
-        instrumentConfigs.put(instrument.getId().toString(), new InstrumentConfig(instrument));
-      return instrumentConfigs.get(instrument.getId().toString());
-
-    } catch (ValueException e) {
-      throw new NexusException(e);
-    }
+  public InstrumentConfig getInstrumentConfig(Instrument instrument) {
+    if (!instrumentConfigs.containsKey(instrument.getId().toString()))
+      instrumentConfigs.put(instrument.getId().toString(), new InstrumentConfig(instrument));
+    return instrumentConfigs.get(instrument.getId().toString());
   }
 
   @Override
@@ -419,7 +405,7 @@ public class FabricatorImpl implements Fabricator {
       return switch (getSegment().getType()) {
         case INITIAL, NEXTMAIN, NEXTMACRO, PENDING -> Optional.empty();
         case CONTINUE ->
-          retrospective.getChoices().stream().filter(choice -> Objects.equals(instrumentType.toString(), choice.getInstrumentType())).findFirst();
+          retrospective.getChoices().stream().filter(choice -> Objects.equals(instrumentType, choice.getInstrumentType())).findFirst();
       };
 
     } catch (Exception e) {
@@ -434,7 +420,7 @@ public class FabricatorImpl implements Fabricator {
       return switch (getSegment().getType()) {
         case INITIAL, NEXTMAIN, NEXTMACRO, PENDING -> Optional.empty();
         case CONTINUE ->
-          retrospective.getChoices().stream().filter(choice -> Objects.equals(instrumentType.toString(), choice.getInstrumentType()) && Objects.equals(instrumentMode.toString(), choice.getInstrumentMode())).findFirst();
+          retrospective.getChoices().stream().filter(choice -> Objects.equals(instrumentType, choice.getInstrumentType()) && Objects.equals(instrumentMode, choice.getInstrumentMode())).findFirst();
       };
 
     } catch (Exception e) {
@@ -449,7 +435,7 @@ public class FabricatorImpl implements Fabricator {
       return switch (getSegment().getType()) {
         case PENDING, INITIAL, NEXTMAIN, NEXTMACRO -> Optional.empty();
         case CONTINUE ->
-          retrospective.getChoices().stream().filter(choice -> Objects.equals(programType.toString(), choice.getProgramType())).findFirst();
+          retrospective.getChoices().stream().filter(choice -> Objects.equals(programType, choice.getProgramType())).findFirst();
       };
 
     } catch (Exception e) {
@@ -609,7 +595,7 @@ public class FabricatorImpl implements Fabricator {
       var arrangementIds = workbench.getSegmentChoiceArrangements().stream().filter(a -> a.getSegmentChoiceId().equals(choice.getId())).map(SegmentChoiceArrangement::getId).toList();
       picksForChoice.put(choice.getId(), workbench.getSegmentChoiceArrangementPicks().stream()
         .filter(p -> arrangementIds.contains(p.getSegmentChoiceArrangementId()))
-        .sorted(Comparator.comparing(SegmentChoiceArrangementPick::getStart)).toList());
+        .sorted(Comparator.comparing(SegmentChoiceArrangementPick::getStartAtSegmentMicros)).toList());
     }
     return picksForChoice.get(choice.getId());
   }
@@ -798,13 +784,13 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Double getSecondsAtPosition(double p) throws NexusException {
-    return computeSecondsPerBeat() * p;
+  public long getSegmentMicrosAtPosition(double p) throws NexusException {
+    return (long) (getMicrosPerBeat() * p);
   }
 
   @Override
-  public double getTotalSeconds() throws NexusException {
-    return getSecondsAtPosition(getSegment().getTotal());
+  public long getTotalMicros() throws NexusException {
+    return getSegmentMicrosAtPosition(getSegment().getTotal());
   }
 
   @Override
@@ -937,17 +923,17 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public boolean isOneShot(Instrument instrument, String trackName) throws NexusException {
+  public boolean isOneShot(Instrument instrument, String trackName) {
     return isOneShot(instrument) && !getInstrumentConfig(instrument).getOneShotObserveLengthOfEvents().contains(trackName);
   }
 
   @Override
-  public boolean isOneShot(Instrument instrument) throws NexusException {
+  public boolean isOneShot(Instrument instrument) {
     return getInstrumentConfig(instrument).isOneShot();
   }
 
   @Override
-  public boolean isOneShotCutoffEnabled(Instrument instrument) throws NexusException {
+  public boolean isOneShotCutoffEnabled(Instrument instrument) {
     return getInstrumentConfig(instrument).isOneShotCutoffEnabled();
   }
 
@@ -1023,20 +1009,21 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public OutputEncoder computeOutputEncoder() {
-    return isLocalModeEnabled ? OutputEncoder.WAV : OutputEncoder.parse(getTemplateConfig().getOutputContainer());
-  }
-
-  @Override
   public AudioFormat.Encoding computeOutputEncoding() {
-    return isLocalModeEnabled ? AudioFormat.Encoding.PCM_SIGNED : templateConfig.getOutputEncoding();
+    return AudioFormat.Encoding.PCM_SIGNED;
   }
 
   @Override
   public int computeOutputSampleBits() {
-    return isLocalModeEnabled ? 16 : templateConfig.getOutputSampleBits();
+    return 16;
   }
 
+  @Override
+  public Double getMicrosPerBeat() throws NexusException {
+    if (Objects.isNull(microsPerBeat))
+      microsPerBeat = (double) MICROS_PER_SECOND * SECONDS_PER_MINUTE / getCurrentMainProgram().getTempo();
+    return microsPerBeat;
+  }
 
   /**
    * Compute the lowest optimal range shift octaves
@@ -1059,7 +1046,7 @@ public class FabricatorImpl implements Fabricator {
   }
 
   /**
-   * Compute a Segment ship key: the chain ship key concatenated with the begin-at time in microseconds since epoch
+   * Compute a Segment ship key: the chain ship key concatenated with the begin-at time in chain microseconds
    *
    * @param chain   for which to compute segment ship key
    * @param segment for which to compute segment ship key
@@ -1067,7 +1054,7 @@ public class FabricatorImpl implements Fabricator {
    */
   private String computeShipKey(Chain chain, Segment segment) {
     String chainName = Strings.isNullOrEmpty(chain.getShipKey()) ? "chain" + NAME_SEPARATOR + chain.getId() : chain.getShipKey();
-    String segmentName = String.valueOf(Values.toEpochMicros(Instant.parse(segment.getBeginAt())));
+    String segmentName = String.valueOf(segment.getBeginAtChainMicros());
     return chainName + NAME_SEPARATOR + segmentName;
   }
 
@@ -1101,17 +1088,6 @@ public class FabricatorImpl implements Fabricator {
     } catch (JsonapiException e) {
       throw new NexusException(e);
     }
-  }
-
-  /**
-   * Compute and cache the # of seconds per beat
-   *
-   * @return seconds per beat
-   */
-  private Double computeSecondsPerBeat() throws NexusException {
-    if (Objects.isNull(secondsPerBeat))
-      secondsPerBeat = 60d / getCurrentMainProgram().getTempo();
-    return secondsPerBeat;
   }
 
   /**

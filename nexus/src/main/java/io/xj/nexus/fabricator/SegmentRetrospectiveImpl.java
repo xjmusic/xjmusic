@@ -17,7 +17,6 @@ import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangement;
 import io.xj.nexus.model.SegmentChoiceArrangementPick;
 import io.xj.nexus.model.SegmentChord;
-import io.xj.nexus.model.SegmentChordVoicing;
 import io.xj.nexus.model.SegmentMeta;
 import io.xj.nexus.persistence.ManagerExistenceException;
 import io.xj.nexus.persistence.ManagerFatalException;
@@ -43,9 +42,7 @@ import java.util.stream.Collectors;
 class SegmentRetrospectiveImpl implements SegmentRetrospective {
   private final Logger LOG = LoggerFactory.getLogger(SegmentRetrospectiveImpl.class);
   private final EntityStore retroStore;
-  private final Map<UUID, Map<Double, Optional<SegmentChord>>> chordAtPosition;
   private final Map<UUID, List<SegmentChord>> segmentChords;
-  private final Map<UUID, Integer> segmentDelta;
   private Segment previousSegment;
 
   public SegmentRetrospectiveImpl(
@@ -54,9 +51,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   ) throws NexusException, FabricationFatalException {
     this.retroStore = new EntityStoreImpl();
 
-    chordAtPosition = Maps.newHashMap();
     segmentChords = Maps.newHashMap();
-    segmentDelta = Maps.newHashMap();
 
     // begin by getting the previous segment
     // only can build retrospective if there is at least one previous segment
@@ -65,12 +60,13 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
     try {
       // begin by getting the previous segment
       // the previous segment is the first one cached here. we may cache even further back segments below if found
-      previousSegment = retroStore.put(segmentManager.readOneAtChainOffset(segment.getChainId(), segment.getOffset() - 1));
+      previousSegment = retroStore.put(segmentManager.readOneAtChainOffset(segment.getChainId(), segment.getOffset() - 1)
+        .orElseThrow(() -> new ManagerExistenceException("No previous segment!")));
       retroStore.putAll(segmentManager.readManySubEntities(ImmutableList.of(previousSegment.getId()), true));
 
       // previous segment must have a main choice to continue past here.
       SegmentChoice previousSegmentMainChoice = retroStore.getAll(SegmentChoice.class).stream()
-        .filter(segmentChoice -> ProgramType.Main.toString().equals(segmentChoice.getProgramType()))
+        .filter(segmentChoice -> ProgramType.Main.equals(segmentChoice.getProgramType()))
         .findFirst()
         .orElseThrow(() -> new FabricationFatalException("Retrospective sees no main choice!"));
 
@@ -101,7 +97,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
     return
       retroStore.getAll(SegmentChoice.class).stream()
         .filter(c -> c.getSegmentId().equals(segment.getId())
-          && programType.toString().equals(c.getProgramType()))
+          && programType.equals(c.getProgramType()))
         .findFirst();
   }
 
@@ -133,22 +129,12 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public List<SegmentChoice> getPreviousChoicesOfType(InstrumentType instrumentType) {
-    Optional<Segment> seg = getPreviousSegment();
-    return seg.map(segment -> retroStore.getAll(SegmentChoice.class).stream()
-      .filter(c -> c.getSegmentId().equals(segment.getId())
-        && Objects.nonNull(c.getInstrumentType())
-        && c.getInstrumentType().equals(instrumentType.toString()))
-      .collect(Collectors.toList())).orElseGet(List::of);
-  }
-
-  @Override
   public List<SegmentChoice> getPreviousChoicesOfMode(InstrumentMode instrumentMode) {
     Optional<Segment> seg = getPreviousSegment();
     return seg.map(segment -> retroStore.getAll(SegmentChoice.class).stream()
       .filter(c -> c.getSegmentId().equals(segment.getId())
         && Objects.nonNull(c.getInstrumentMode())
-        && c.getInstrumentMode().equals(instrumentMode.toString()))
+        && c.getInstrumentMode().equals(instrumentMode))
       .collect(Collectors.toList())).orElseGet(List::of);
   }
 
@@ -158,16 +144,9 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
     return seg.map(segment -> retroStore.getAll(SegmentChoice.class).stream()
       .filter(c -> c.getSegmentId().equals(segment.getId())
         && Objects.nonNull(c.getInstrumentType())
-        && c.getInstrumentType().equals(instrumentType.toString())
-        && c.getInstrumentMode().equals(instrumentMode.toString()))
+        && c.getInstrumentType().equals(instrumentType)
+        && c.getInstrumentMode().equals(instrumentMode))
       .collect(Collectors.toList())).orElseGet(List::of);
-  }
-
-  @Override
-  public Optional<SegmentChoice> getPreviousChoiceOfVoice(UUID programVoiceId) {
-    Optional<Segment> seg = getPreviousSegment();
-    if (seg.isEmpty()) return Optional.empty();
-    return getPreviousChoiceOfType(seg.get(), programVoiceId);
   }
 
   @Override
@@ -177,7 +156,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
 
   @Override
   public Optional<Segment> getSegment(UUID id) {
-    return MarbleBag.quickPick(retroStore.getAll(Segment.class).stream().filter(s -> Objects.equals(id, s.getId())). collect(Collectors.toList()));
+    return MarbleBag.quickPick(retroStore.getAll(Segment.class).stream().filter(s -> Objects.equals(id, s.getId())).collect(Collectors.toList()));
   }
 
   @Override
@@ -217,7 +196,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
 
   @Override
   public InstrumentType getInstrumentType(SegmentChoiceArrangementPick pick) throws NexusException {
-    return InstrumentType.valueOf(getChoice(getArrangement(pick)).getInstrumentType());
+    return getChoice(getArrangement(pick)).getInstrumentType();
   }
 
   @Override
@@ -240,39 +219,6 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public Optional<SegmentChord> getChord(SegmentChoiceArrangementPick pick) {
-    return getSegmentChord(pick.getSegmentId(), pick.getStart());
-  }
-
-  @Override
-  public Optional<SegmentChord> getSegmentChord(UUID segmentId, Double position) {
-    if (!(chordAtPosition.containsKey(segmentId) && chordAtPosition.get(segmentId).containsKey(position))) {
-      if (!chordAtPosition.containsKey(segmentId)) chordAtPosition.put(segmentId, Maps.newHashMap());
-      Optional<SegmentChord> foundChord = Optional.empty();
-      Double foundPosition = null;
-
-      // we assume that these entities are in order of position ascending
-      for (SegmentChord segmentChord : getSegmentChords(segmentId)) {
-        // if it's a better match (or no match has yet been found) then use it
-        if (Objects.isNull(foundPosition) || (segmentChord.getPosition() > foundPosition && segmentChord.getPosition() <= position)) {
-          foundPosition = segmentChord.getPosition();
-          foundChord = Optional.of(segmentChord);
-        }
-      }
-      chordAtPosition.get(segmentId).put(position, foundChord);
-    }
-
-    return chordAtPosition.get(segmentId).get(position);
-  }
-
-  @Override
-  public Optional<SegmentChordVoicing> getSegmentChordVoicing(UUID segmentChordId, InstrumentType instrumentType) {
-    return retroStore.getAll(SegmentChordVoicing.class).stream()
-      .filter(voicing -> segmentChordId.equals(voicing.getSegmentChordId()) && instrumentType.toString().equals(voicing.getType()))
-      .findFirst();
-  }
-
-  @Override
   public List<SegmentChord> getSegmentChords(UUID segmentId) {
     if (!segmentChords.containsKey(segmentId)) {
       segmentChords.put(segmentId,
@@ -284,19 +230,5 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
     }
 
     return segmentChords.get(segmentId);
-  }
-
-  @Override
-  public Integer getSegmentDelta(UUID segmentId) {
-    if (!segmentDelta.containsKey(segmentId)) {
-      segmentDelta.put(segmentId, getSegment(segmentId).orElseThrow().getDelta());
-    }
-
-    return segmentDelta.get(segmentId);
-  }
-
-  @Override
-  public Double getAbsolutePosition(SegmentChoiceArrangementPick pick) {
-    return getSegmentDelta(pick.getSegmentId()) + pick.getStart();
   }
 }

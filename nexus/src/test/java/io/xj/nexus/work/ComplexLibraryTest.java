@@ -4,11 +4,9 @@ package io.xj.nexus.work;
 import io.xj.hub.HubTopology;
 import io.xj.hub.client.HubClient;
 import io.xj.hub.client.HubClientAccess;
-import io.xj.hub.client.HubClientException;
 import io.xj.hub.client.HubContent;
 import io.xj.hub.service.PreviewNexusAdmin;
 import io.xj.lib.entity.EntityFactoryImpl;
-import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.http.HttpClientProviderImpl;
 import io.xj.lib.json.ApiUrlProvider;
@@ -16,22 +14,13 @@ import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.lib.lock.LockProvider;
-import io.xj.lib.mixer.Mixer;
-import io.xj.lib.mixer.MixerFactory;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.craft.CraftFactoryImpl;
-import io.xj.nexus.dub.DubAudioCache;
-import io.xj.nexus.dub.DubAudioCacheImpl;
-import io.xj.nexus.dub.DubAudioCacheItemFactory;
-import io.xj.nexus.dub.DubAudioCacheItemFactoryImpl;
-import io.xj.nexus.dub.DubFactoryImpl;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
-import io.xj.nexus.persistence.ChainManager;
-import io.xj.nexus.persistence.ChainManagerImpl;
 import io.xj.nexus.persistence.FilePathProviderImpl;
 import io.xj.nexus.persistence.ManagerExistenceException;
 import io.xj.nexus.persistence.ManagerFatalException;
@@ -60,8 +49,6 @@ import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -72,8 +59,6 @@ public class ComplexLibraryTest {
   private static final int MILLIS_PER_SECOND = 1000;
   @Mock
   public HubClient hubClient;
-  @Mock(lenient = true)
-  public FileStoreProvider fileStoreProvider;
   @Mock(lenient = true)
   public HttpClientProvider httpClientProvider;
   @Mock(lenient = true)
@@ -88,16 +73,10 @@ public class ComplexLibraryTest {
   public TelemetryProvider telemetryProvider;
   @Mock
   private PreviewNexusAdmin previewNexusAdmin;
-  @Mock
-  private MixerFactory mixerFactory;
-  @Mock
-  private Mixer mixer;
   long startTime = System.currentTimeMillis();
   private AppWorkThread workThread;
-  private ChainManager chainManager;
   private SegmentManager segmentManager;
-  private NexusWork work;
-  private HubContent content;
+  private CraftWork work;
   @Mock
   private LockProvider lockProvider;
 
@@ -106,10 +85,11 @@ public class ComplexLibraryTest {
     NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();
     fake.account1 = buildAccount("fish");
     fake.library1 = buildLibrary(fake.account1, "test");
-    content = new HubContent(fake.generatedFixture(3));
+    HubContent content = new HubContent(fake.generatedFixture(3));
 
     // NOTE: it's critical that the test template has config bufferAheadSeconds=9999 in order to ensure the test fabricates far ahead
     var template = content.getTemplate();
+    template.setShipKey("complex_library_test");
     template.setConfig("bufferAheadSeconds=9999\noutputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n");
     content.put(template);
 
@@ -117,20 +97,12 @@ public class ComplexLibraryTest {
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     var store = new NexusEntityStoreImpl(entityFactory);
     segmentManager = new SegmentManagerImpl(entityFactory, store);
-    chainManager = new ChainManagerImpl(
-      entityFactory,
-      store,
-      segmentManager,
-      notificationProvider, 1, 1
-    );
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     var filePathProvider = new FilePathProviderImpl("/tmp/");
     var fabricatorFactory = new FabricatorFactoryImpl(
-      chainManager,
       segmentManager,
       jsonapiPayloadFactory,
-      jsonProvider,
-      filePathProvider);
+      jsonProvider);
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
 
@@ -147,17 +119,11 @@ public class ComplexLibraryTest {
     // Dependencies
     ApiUrlProvider apiUrlProvider = new ApiUrlProvider("http://localhost:8080/");
     CraftFactory craftFactory = new CraftFactoryImpl(apiUrlProvider);
-    when(mixerFactory.createMixer(any())).thenReturn(mixer);
     HttpClientProvider httpClientProvider = new HttpClientProviderImpl(1, 1);
-    DubAudioCacheItemFactory cacheItemFactory = new DubAudioCacheItemFactoryImpl(httpClientProvider, "xj-prod-audio", "https://audio.xj.io/");
-    DubAudioCache dubAudioCache = new DubAudioCacheImpl(cacheItemFactory, "/tmp/");
-    var dubFactory = new DubFactoryImpl(dubAudioCache, filePathProvider, fileStoreProvider, mixerFactory);
 
     // work
-    work = new NexusWorkImpl(
-      chainManager,
+    work = new CraftWorkImpl(
       craftFactory,
-      dubFactory,
       entityFactory,
       fabricatorFactory,
       httpClientProvider,
@@ -170,24 +136,12 @@ public class ComplexLibraryTest {
       previewNexusAdmin,
       segmentManager,
       telemetryProvider,
+      filePathProvider,
       "production",
-      content.getTemplate().getShipKey(),
-      false,
-      1,
-      50,
-      MAXIMUM_TEST_WAIT_SECONDS + 300,
-      1,
-      1,
-      1,
-      false,
-      false,
-      1,
-      false,
-      1,
-      "https://ship.xj.io/",
-      "xj-prod-ship",
-      1,
-      "");
+      "playback",
+      "complex_library_test",
+      "production",
+      false);
 
     workThread = new AppWorkThread(work);
   }
@@ -206,8 +160,6 @@ public class ComplexLibraryTest {
     work.finish();
 
     // assertions
-    verify(fileStoreProvider, atLeast(MARATHON_NUMBER_OF_SEGMENTS))
-      .putS3ObjectFromTempFile(any(), any(), any(), any(), any());
     assertTrue(hasSegmentsDubbedPastMinimumOffset());
   }
 
@@ -230,12 +182,13 @@ public class ComplexLibraryTest {
    */
   private boolean hasSegmentsDubbedPastMinimumOffset() {
     try {
-      var chain = chainManager.readOneByShipKey(content.getTemplate().getShipKey());
-      return segmentManager.readLastDubbedSegment(HubClientAccess.internal(), chain.getId())
+      var chain = work.getChain();
+      if (chain.isEmpty())
+        return false;
+      return segmentManager.readLastCraftedSegment(HubClientAccess.internal(), chain.get().getId())
         .filter(value -> MARATHON_NUMBER_OF_SEGMENTS <= value.getOffset()).isPresent();
 
-    } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException |
-             HubClientException ignored) {
+    } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException ignored) {
       return false;
     }
   }

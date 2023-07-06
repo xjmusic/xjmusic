@@ -29,9 +29,6 @@ import io.xj.nexus.model.SegmentChord;
 import io.xj.nexus.model.SegmentMeme;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
-import io.xj.nexus.persistence.ChainManager;
-import io.xj.nexus.persistence.ChainManagerImpl;
-import io.xj.nexus.persistence.FilePathProviderImpl;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.SegmentManagerImpl;
@@ -41,11 +38,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.time.Instant;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static io.xj.lib.util.Assertion.assertSameItems;
+import static io.xj.lib.util.Values.MICROS_PER_SECOND;
+import static io.xj.lib.util.Values.SECONDS_PER_MINUTE;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static org.junit.Assert.assertEquals;
@@ -75,19 +74,11 @@ public class CraftFoundationNextMacroTest {
       JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
       var store = new NexusEntityStoreImpl(entityFactory);
       SegmentManager segmentManager = new SegmentManagerImpl(entityFactory, store);
-      ChainManager chainManager = new ChainManagerImpl(
-        entityFactory,
-        store,
-        segmentManager,
-        notificationProvider,1,1
-      );
-      var filePathProvider = new FilePathProviderImpl("");
       var fabricatorFactory = new FabricatorFactoryImpl(
-        chainManager,
         segmentManager,
         jsonapiPayloadFactory,
-        jsonProvider,
-        filePathProvider);
+        jsonProvider
+      );
 
       // Manipulate the underlying entity store; reset before each test
       store.deleteAll();
@@ -100,50 +91,44 @@ public class CraftFoundationNextMacroTest {
       ).collect(Collectors.toList()));
 
       // Chain "Test Print #1" has 5 total segments
-      Chain chain1 = store.put(buildChain(fake.account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+      Chain chain1 = store.put(buildChain(fake.account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
       store.put(buildSegment(
         chain1,
         0,
-        SegmentState.DUBBED,
-        Instant.parse("2017-02-14T12:01:00.000001Z"),
-        Instant.parse("2017-02-14T12:01:32.000001Z"),
+        SegmentState.CRAFTED,
         "D major",
         64,
         0.73,
         120.0,
-        "chains-1-segments-9f7s89d8a7892",
-        "wav"));
+        "chains-1-segments-9f7s89d8a7892"
+      ));
       store.put(buildSegment(
         chain1,
         1,
-        SegmentState.DUBBING,
-        Instant.parse("2017-02-14T12:01:32.000001Z"),
-        Instant.parse("2017-02-14T12:02:04.000001Z"),
+        SegmentState.CRAFTING,
         "Db minor",
         64,
         0.85,
         120.0,
-        "chains-1-segments-9f7s89d8a7892.wav",
-        "ogg"));
+        "chains-1-segments-9f7s89d8a7892.wav"
+      ));
 
       // Chain "Test Print #1" has this segment that was just crafted
       Segment segment3 = store.put(buildSegment(
         chain1,
         2,
         SegmentState.CRAFTED,
-        Instant.parse("2017-02-14T12:02:04.000001Z"),
-        Instant.parse("2017-02-14T12:02:36.000001Z"),
         "Ab minor",
         64,
         0.30,
         120.0,
-        "chains-1-segments-9f7s89d8a7892.wav",
-        "ogg"));
+        "chains-1-segments-9f7s89d8a7892.wav"
+      ));
       store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment3, ProgramType.Macro, fake.program4_sequence2_binding0));
       store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment3, ProgramType.Main, fake.program5_sequence1_binding0));
 
       // Chain "Test Print #1" has a planned segment
-      Segment segment4 = store.put(buildSegment(chain1, 3, SegmentState.PLANNED, Instant.parse("2017-02-14T12:03:08.000001Z"), null, "C", 8, 0.8, 120, "chain-1-waveform-12345", "wav"));
+      Segment segment4 = store.put(buildSegment(chain1, 3, SegmentState.PLANNED, "C", 8, 0.8, 120, "chain-1-waveform-12345"));
 
       Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4);
 
@@ -151,9 +136,8 @@ public class CraftFoundationNextMacroTest {
 
       Segment result = store.getSegment(segment4.getId()).orElseThrow();
       assertEquals(SegmentType.NEXTMACRO, result.getType());
-      assertEquals("2017-02-14T12:03:14.857143857Z", result.getEndAt());
+      assertEquals(16 * MICROS_PER_SECOND * SECONDS_PER_MINUTE / 140, (long) Objects.requireNonNull(result.getDurationMicros()));
       assertEquals(Integer.valueOf(16), result.getTotal());
-      assertEquals("WAV", result.getOutputEncoder());
       assertEquals(0.1, result.getDensity(), 0.01);
       assertEquals("G -", result.getKey());
       assertEquals(140, result.getTempo(), 0.01);

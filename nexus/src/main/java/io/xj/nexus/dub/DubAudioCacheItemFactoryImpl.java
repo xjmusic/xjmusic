@@ -16,11 +16,9 @@ public class DubAudioCacheItemFactoryImpl implements DubAudioCacheItemFactory {
   private final String audioBaseUrl;
 
   @Autowired
-  public DubAudioCacheItemFactoryImpl(
-    HttpClientProvider httpClientProvider,
-    @Value("${audio.file.bucket}") String audioFileBucket,
-    @Value("${audio.base.url}") String audioBaseUrl
-  ) {
+  public DubAudioCacheItemFactoryImpl(HttpClientProvider httpClientProvider,
+                                      @Value("${audio.file.bucket}") String audioFileBucket,
+                                      @Value("${audio.base.url}") String audioBaseUrl) {
     this.httpClientProvider = httpClientProvider;
     this.audioFileBucket = audioFileBucket;
     this.audioBaseUrl = audioBaseUrl;
@@ -28,6 +26,6 @@ public class DubAudioCacheItemFactoryImpl implements DubAudioCacheItemFactory {
 
   @Override
   public DubAudioCacheItem load(String key, String path) throws IOException, FileStoreException, NexusException {
-    return new DubAudioCacheItem(httpClientProvider, key, path, audioFileBucket, audioBaseUrl);
+    return new DubAudioCacheItem(audioBaseUrl, audioFileBucket, httpClientProvider, key, path);
   }
 }

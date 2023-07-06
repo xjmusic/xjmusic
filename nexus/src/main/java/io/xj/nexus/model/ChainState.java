@@ -16,11 +16,9 @@ public enum ChainState {
 
   FABRICATE("Fabricate"),
 
-  COMPLETE("Complete"),
-
   FAILED("Failed");
 
-  private String value;
+  private final String value;
 
   ChainState(String value) {
     this.value = value;

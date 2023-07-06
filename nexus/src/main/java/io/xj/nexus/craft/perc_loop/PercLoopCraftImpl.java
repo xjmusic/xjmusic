@@ -15,7 +15,6 @@ import io.xj.nexus.model.SegmentChoiceArrangement;
 import io.xj.nexus.model.SegmentChoiceArrangementPick;
 import io.xj.nexus.model.SegmentType;
 
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -23,14 +22,14 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- Percussion-type Loop-mode craft for the current segment
- [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
- <p>
- PercLoopCraftImpl extends DetailCraftImpl to leverage all detail craft enhancements https://www.pivotaltracker.com/story/show/176625174
+ * Percussion-type Loop-mode craft for the current segment
+ * [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
+ * <p>
+ * PercLoopCraftImpl extends DetailCraftImpl to leverage all detail craft enhancements https://www.pivotaltracker.com/story/show/176625174
  */
 public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
   public PercLoopCraftImpl(
-     Fabricator fabricator
+    Fabricator fabricator
   ) {
     super(fabricator);
   }
@@ -77,13 +76,12 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
   }
 
   /**
-   Percussion-type Loop-mode instrument audios are chosen in order of priority
-   https://www.pivotaltracker.com/story/show/181262545
-
-   @param after # of choices
-   @return required event name
+   * Percussion-type Loop-mode instrument audios are chosen in order of priority
+   * https://www.pivotaltracker.com/story/show/181262545
+   *
+   * @param after # of choices
+   * @return required event name
    */
-  @Nullable
   private List<String> computePreferredEvents(int after) {
     return switch (after) {
       case 0 -> fabricator.getTemplateConfig().getEventNamesLarge().stream()
@@ -101,9 +99,9 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
   }
 
   /**
-   Craft percussion loop
-
-   @param audio for which to craft segment
+   * Craft percussion loop
+   *
+   * @param audio for which to craft segment
    */
   @SuppressWarnings("DuplicatedCode")
   private void craftPercLoop(InstrumentAudio audio) throws NexusException {
@@ -113,8 +111,8 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
     choice.setId(UUID.randomUUID());
     choice.setSegmentId(fabricator.getSegment().getId());
     choice.setMute(computeMute(instrument.getType()));
-    choice.setInstrumentType(instrument.getType().toString());
-    choice.setInstrumentMode(instrument.getMode().toString());
+    choice.setInstrumentType(instrument.getType());
+    choice.setInstrumentMode(instrument.getMode());
     choice.setInstrumentId(audio.getInstrumentId());
     fabricator.put(choice);
     var arrangement = new SegmentChoiceArrangement();
@@ -124,26 +122,26 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
     fabricator.put(arrangement);
 
     // Start at zero and keep laying down perc loops until we're out of here
-    double pos = 0;
-    while (pos < fabricator.getSegment().getTotal()) {
+    double segmentMicros = 0;
+    while (segmentMicros < fabricator.getSegment().getTotal()) {
 
       // Pick attributes are expressed "rendered" as actual seconds
-      double startSeconds = fabricator.getSecondsAtPosition(pos);
-      double lengthSeconds = fabricator.getSecondsAtPosition(pos + audio.getTotalBeats()) - startSeconds;
+      long startAtSegmentMicros = fabricator.getSegmentMicrosAtPosition(segmentMicros);
+      long lengthMicros = fabricator.getSegmentMicrosAtPosition(segmentMicros + audio.getTotalBeats()) - startAtSegmentMicros;
 
       // of pick
       var pick = new SegmentChoiceArrangementPick();
       pick.setId(UUID.randomUUID());
       pick.setSegmentId(fabricator.getSegment().getId());
       pick.setSegmentChoiceArrangementId(arrangement.getId());
-      pick.setStart(startSeconds);
-      pick.setLength(lengthSeconds);
+      pick.setStartAtSegmentMicros(startAtSegmentMicros);
+      pick.setLengthMicros(lengthMicros);
       pick.setAmplitude(1.0);
       pick.setEvent("PERCLOOP");
       pick.setInstrumentAudioId(audio.getId());
       fabricator.put(pick);
 
-      pos += audio.getTotalBeats();
+      segmentMicros += audio.getTotalBeats() * fabricator.getMicrosPerBeat();
     }
   }
 }

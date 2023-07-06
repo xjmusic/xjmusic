@@ -27,8 +27,6 @@ import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentMeme;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
-import io.xj.nexus.persistence.ChainManagerImpl;
-import io.xj.nexus.persistence.FilePathProviderImpl;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManagerImpl;
 import org.junit.Test;
@@ -38,7 +36,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
 import java.util.stream.Collectors;
 
 import static io.xj.lib.util.Assertion.assertSameItems;
@@ -74,20 +71,12 @@ public class CraftSegmentPatternMemeTest {
       var entityFactory = new EntityFactoryImpl(jsonProvider);
       var store = new NexusEntityStoreImpl(entityFactory);
       var segmentManager = new SegmentManagerImpl(entityFactory, store);
-      var chainManager = new ChainManagerImpl(
-        entityFactory,
-        store,
-        segmentManager,
-        notificationProvider,1,1
-      );
       JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-      var filePathProvider = new FilePathProviderImpl("");
       FabricatorFactory fabricatorFactory = new FabricatorFactoryImpl(
-        chainManager,
         segmentManager,
         jsonapiPayloadFactory,
-        jsonProvider,
-        filePathProvider);
+        jsonProvider
+      );
       HubTopology.buildHubApiTopology(entityFactory);
       NexusTopology.buildNexusApiTopology(entityFactory);
 
@@ -102,26 +91,24 @@ public class CraftSegmentPatternMemeTest {
       ).collect(Collectors.toList()));
 
       // Chain "Test Print #1" has 5 total segments
-      Chain chain = store.put(buildChain(fake.account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+      Chain chain = store.put(buildChain(fake.account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
 
       // Preceding Segment
       Segment previousSegment = store.put(buildSegment(
         chain,
         1,
         SegmentState.CRAFTING,
-        Instant.parse("2017-02-14T12:02:04.000001Z"),
-        Instant.parse("2017-02-14T12:02:36.000001Z"),
         "F Major",
         64,
         0.30,
         120.0,
-        "chains-1-segments-9f7s89d8a7892.wav",
-        "ogg"));
+        "chains-1-segments-9f7s89d8a7892.wav"
+      ));
       store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(previousSegment, ProgramType.Macro, fake.program4_sequence1_binding0));
       store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(previousSegment, ProgramType.Main, fake.program5_sequence1_binding0));
 
       // Following Segment
-      Segment segment = store.put(buildSegment(chain, 2, SegmentState.PLANNED, Instant.parse(previousSegment.getEndAt()), null, "C", 8, 0.8, 120, "chain-1-waveform-12345", "wav"));
+      Segment segment = store.put(buildSegment(chain, 2, SegmentState.PLANNED, "C", 8, 0.8, 120, "chain-1-waveform-12345"));
 
       craftFactory.macroMain(fabricatorFactory.fabricate(sourceMaterial, segment)).doWork();
 

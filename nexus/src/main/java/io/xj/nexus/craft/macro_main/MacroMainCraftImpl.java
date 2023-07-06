@@ -21,14 +21,11 @@ import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.Segments;
 
 import javax.annotation.Nullable;
-import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-
-import static io.xj.lib.util.Values.NANOS_PER_SECOND;
 
 /**
  * [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
@@ -125,7 +122,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     macroChoice.setProgramId(macroProgram.getId());
     macroChoice.setDeltaIn(Segments.DELTA_UNLIMITED);
     macroChoice.setDeltaOut(Segments.DELTA_UNLIMITED);
-    macroChoice.setProgramType(ProgramType.Macro.toString());
+    macroChoice.setProgramType(ProgramType.Macro);
     macroChoice.setProgramSequenceBindingId(macroSequenceBinding.getId());
     fabricator.put(macroChoice);
 
@@ -151,7 +148,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     mainChoice.setProgramId(mainProgram.getId());
     mainChoice.setDeltaIn(Segments.DELTA_UNLIMITED);
     mainChoice.setDeltaOut(Segments.DELTA_UNLIMITED);
-    mainChoice.setProgramType(ProgramType.Main.toString());
+    mainChoice.setProgramType(ProgramType.Main);
     mainChoice.setProgramSequenceBindingId(mainSequenceBinding.getId());
     fabricator.put(mainChoice);
 
@@ -186,7 +183,6 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     if (mainSequence.isPresent()) {
       var seg = fabricator.getSegment();
       seg.setType(fabricator.getType());
-      seg.setOutputEncoder(fabricator.computeOutputEncoder().toString());
       seg.setTempo(Double.valueOf(mainProgram.getTempo()));
       seg.setKey(computeSegmentKey(mainSequence.get()).strip());
       seg.setTotal(Integer.valueOf(mainSequence.get().getTotal()));
@@ -196,7 +192,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     // then, set the end-at time.
     if (mainSequence.isPresent())
       fabricator.putSegment(fabricator.getSegment()
-        .endAt(Values.formatIso8601UTC(segmentEndInstant(mainSequence.get()))));
+        .durationMicros(segmentLengthMicros(mainSequence.get())));
 
     // If the type is not Continue, we will reset the offset main
     var segment = fabricator.getSegment();
@@ -236,22 +232,18 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    */
   private Integer computeMainProgramSequenceBindingOffset() throws NexusException {
     switch (fabricator.getType()) {
-
-      case INITIAL:
-      case NEXTMAIN:
-      case NEXTMACRO:
+      case INITIAL, NEXTMAIN, NEXTMACRO -> {
         return 0;
-
-      case CONTINUE:
+      }
+      case CONTINUE -> {
         var previousMainChoice = fabricator.getPreviousMainChoice();
         if (previousMainChoice.isEmpty())
           throw new NexusException("Cannot get retrieve previous main choice");
         return fabricator.getNextSequenceBindingOffset(previousMainChoice.get());
-
-      default:
+      }
+      default ->
         throw new NexusException(String.format("Cannot get Macro-type sequence for known fabricator type=%s", fabricator.getType()));
     }
-
   }
 
   /**
@@ -403,19 +395,8 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    * @return segment length, in nanoseconds
    * @throws NexusException on failure
    */
-  private long segmentLengthNanos(ProgramSequence mainSequence) throws NexusException {
-    return (long) (fabricator.getSecondsAtPosition(mainSequence.getTotal()) * NANOS_PER_SECOND);
+  private long segmentLengthMicros(ProgramSequence mainSequence) throws NexusException {
+    return fabricator.getSegmentMicrosAtPosition(mainSequence.getTotal());
   }
 
-  /**
-   * Get Segment End Timestamp
-   * Segment Length Time = Segment Tempo (time per Beat) * Segment Length (# Beats)
-   *
-   * @param mainSequence of which to compute segment length
-   * @return end timestamp
-   * @throws NexusException on failure
-   */
-  private Instant segmentEndInstant(ProgramSequence mainSequence) throws NexusException {
-    return Instant.parse(fabricator.getSegment().getBeginAt()).plusNanos(segmentLengthNanos(mainSequence));
-  }
 }

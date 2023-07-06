@@ -5,8 +5,10 @@ package io.xj.nexus.persistence;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -164,4 +166,11 @@ public interface NexusEntityStore {
    @return size of store
    */
   int size();
+
+  /**
+   * Get all picks for the given segments
+   * @param segments for which to get picks
+   * @return picks
+   */
+  List<SegmentChoiceArrangementPick> getPicks(List<Segment> segments) throws NexusException;
 }

@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public interface Text {
-  Pattern spaces = Pattern.compile("[ ]+");
+  Pattern spaces = Pattern.compile(" +");
   Pattern underscores = Pattern.compile("_+");
   Pattern leadingScores = Pattern.compile("^_+");
   Pattern tailingScores = Pattern.compile("_+$");
@@ -255,7 +255,7 @@ public interface Text {
    @return plural noun
    */
   static String toSingular(String noun) {
-    // too short to singularize
+    // too short to make singular
     if (2 > noun.length())
       return noun;
 
@@ -526,7 +526,7 @@ public interface Text {
   }
 
   /**
-   Replace more than one space with one space, and stripg leading and trailing spaces
+   Replace more than one space with one space, and strip leading and trailing spaces
 
    @param value to strip
    @return stripped value
@@ -591,5 +591,15 @@ public interface Text {
   static boolean beginsWith(String text, String prefix) {
     return text.length() >= prefix.length()
       && Objects.equals(text.substring(0, prefix.length()), prefix);
+  }
+
+  /**
+   * Pad the value with zeros to the given number of digits
+   * @param value to pad
+   * @param digits total after padding
+   * @return padded value
+   */
+  static String zeroPadded(int value, int digits) {
+    return String.format("%0" + digits + "d", value);
   }
 }

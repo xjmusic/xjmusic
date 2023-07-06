@@ -3,6 +3,9 @@
 package io.xj.nexus.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.xj.hub.enums.InstrumentMode;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramType;
 
 import javax.validation.Valid;
 import java.util.Objects;
@@ -21,9 +24,9 @@ public class SegmentChoice   {
   private @Valid Integer deltaIn;
   private @Valid Integer deltaOut;
   private @Valid Boolean mute;
-  private @Valid String instrumentType;
-  private @Valid String instrumentMode;
-  private @Valid String programType;
+  private @Valid InstrumentType instrumentType;
+  private @Valid InstrumentMode instrumentMode;
+  private @Valid ProgramType programType;
 
   /**
    **/
@@ -187,49 +190,49 @@ public class SegmentChoice   {
 
   /**
    **/
-  public SegmentChoice instrumentType(String instrumentType) {
+  public SegmentChoice instrumentType(InstrumentType instrumentType) {
     this.instrumentType = instrumentType;
     return this;
   }
 
 
   @JsonProperty("instrumentType")
-  public String getInstrumentType() {
+  public InstrumentType getInstrumentType() {
     return instrumentType;
   }
-  public void setInstrumentType(String instrumentType) {
+  public void setInstrumentType(InstrumentType instrumentType) {
     this.instrumentType = instrumentType;
   }
 
   /**
    **/
-  public SegmentChoice instrumentMode(String instrumentMode) {
+  public SegmentChoice instrumentMode(InstrumentMode instrumentMode) {
     this.instrumentMode = instrumentMode;
     return this;
   }
 
 
   @JsonProperty("instrumentMode")
-  public String getInstrumentMode() {
+  public InstrumentMode getInstrumentMode() {
     return instrumentMode;
   }
-  public void setInstrumentMode(String instrumentMode) {
+  public void setInstrumentMode(InstrumentMode instrumentMode) {
     this.instrumentMode = instrumentMode;
   }
 
   /**
    **/
-  public SegmentChoice programType(String programType) {
+  public SegmentChoice programType(ProgramType programType) {
     this.programType = programType;
     return this;
   }
 
 
   @JsonProperty("programType")
-  public String getProgramType() {
+  public ProgramType getProgramType() {
     return programType;
   }
-  public void setProgramType(String programType) {
+  public void setProgramType(ProgramType programType) {
     this.programType = programType;
   }
 
@@ -265,24 +268,22 @@ public class SegmentChoice   {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class SegmentChoice {\n");
 
-    sb.append("    id: ").append(toIndentedString(id)).append("\n");
-    sb.append("    segmentId: ").append(toIndentedString(segmentId)).append("\n");
-    sb.append("    programId: ").append(toIndentedString(programId)).append("\n");
-    sb.append("    programSequenceId: ").append(toIndentedString(programSequenceId)).append("\n");
-    sb.append("    programSequenceBindingId: ").append(toIndentedString(programSequenceBindingId)).append("\n");
-    sb.append("    programVoiceId: ").append(toIndentedString(programVoiceId)).append("\n");
-    sb.append("    instrumentId: ").append(toIndentedString(instrumentId)).append("\n");
-    sb.append("    deltaIn: ").append(toIndentedString(deltaIn)).append("\n");
-    sb.append("    deltaOut: ").append(toIndentedString(deltaOut)).append("\n");
-    sb.append("    mute: ").append(toIndentedString(mute)).append("\n");
-    sb.append("    instrumentType: ").append(toIndentedString(instrumentType)).append("\n");
-    sb.append("    instrumentMode: ").append(toIndentedString(instrumentMode)).append("\n");
-    sb.append("    programType: ").append(toIndentedString(programType)).append("\n");
-    sb.append("}");
-    return sb.toString();
+    return "class SegmentChoice {\n" +
+      "    id: " + toIndentedString(id) + "\n" +
+      "    segmentId: " + toIndentedString(segmentId) + "\n" +
+      "    programId: " + toIndentedString(programId) + "\n" +
+      "    programSequenceId: " + toIndentedString(programSequenceId) + "\n" +
+      "    programSequenceBindingId: " + toIndentedString(programSequenceBindingId) + "\n" +
+      "    programVoiceId: " + toIndentedString(programVoiceId) + "\n" +
+      "    instrumentId: " + toIndentedString(instrumentId) + "\n" +
+      "    deltaIn: " + toIndentedString(deltaIn) + "\n" +
+      "    deltaOut: " + toIndentedString(deltaOut) + "\n" +
+      "    mute: " + toIndentedString(mute) + "\n" +
+      "    instrumentType: " + toIndentedString(instrumentType) + "\n" +
+      "    instrumentMode: " + toIndentedString(instrumentMode) + "\n" +
+      "    programType: " + toIndentedString(programType) + "\n" +
+      "}";
   }
 
   /**

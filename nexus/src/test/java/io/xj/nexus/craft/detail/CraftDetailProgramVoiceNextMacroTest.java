@@ -32,8 +32,6 @@ import io.xj.nexus.model.SegmentChoiceArrangementPick;
 import io.xj.nexus.model.SegmentChord;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
-import io.xj.nexus.persistence.ChainManager;
-import io.xj.nexus.persistence.ChainManagerImpl;
 import io.xj.nexus.persistence.FilePathProviderImpl;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
@@ -46,7 +44,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.time.Instant;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -83,19 +80,12 @@ public class CraftDetailProgramVoiceNextMacroTest {
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     store = new NexusEntityStoreImpl(entityFactory);
     SegmentManager segmentManager = new SegmentManagerImpl(entityFactory, store);
-    ChainManager chainManager = new ChainManagerImpl(
-      entityFactory,
-      store,
-      segmentManager,
-      notificationProvider,1,1
-    );
     var filePathProvider = new FilePathProviderImpl("");
     fabricatorFactory = new FabricatorFactoryImpl(
-      chainManager,
       segmentManager,
       jsonapiPayloadFactory,
-      jsonProvider,
-      filePathProvider);
+      jsonProvider
+    );
 
     // Manipulate the underlying entity store; reset before each test
     store.deleteAll();
@@ -109,34 +99,30 @@ public class CraftDetailProgramVoiceNextMacroTest {
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store.put(NexusIntegrationTestingFixtures.buildChain(fake.account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    chain1 = store.put(NexusIntegrationTestingFixtures.buildChain(fake.account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, null));
     store.put(buildSegment(
       chain1,
       SegmentType.INITIAL,
       0,
       0,
-      SegmentState.DUBBED,
-      Instant.parse("2017-02-14T12:01:00.000001Z"),
-      Instant.parse("2017-02-14T12:01:32.000001Z"),
+      SegmentState.CRAFTED,
       "D major",
       64,
       0.73,
       120.0,
       "chains-1-segments-9f7s89d8a7892",
-      "wav"));
+      true));
     store.put(buildSegment(
       chain1,
       SegmentType.CONTINUE,
       1,
       1,
-      SegmentState.DUBBING,
-      Instant.parse("2017-02-14T12:01:32.000001Z"),
-      Instant.parse("2017-02-14T12:02:04.000001Z"),
+      SegmentState.CRAFTING,
       "Db minor",
       64,
       0.85,
       120.0,
-      "chains-1-segments-9f7s89d8a7892.wav"));
+      "chains-1-segments-9f7s89d8a7892.wav", true));
   }
 
   @Test
@@ -149,7 +135,7 @@ public class CraftDetailProgramVoiceNextMacroTest {
     // assert detail choice
     Collection<SegmentChoice> segmentChoices = fabricator.getChoices();
     SegmentChoice beatChoice = segmentChoices.stream()
-      .filter(c -> c.getProgramType().equals(ProgramType.Detail.toString())).findFirst().orElseThrow();
+      .filter(c -> c.getProgramType().equals(ProgramType.Detail)).findFirst().orElseThrow();
     assertTrue(fabricator.getArrangements()
       .stream().anyMatch(a -> a.getSegmentChoiceId().equals(beatChoice.getId())));
     // test vector for persist Audio pick in memory https://www.pivotaltracker.com/story/show/154014731
@@ -183,13 +169,11 @@ public class CraftDetailProgramVoiceNextMacroTest {
       2,
       2,
       SegmentState.CRAFTED,
-      Instant.parse("2017-02-14T12:02:04.000001Z"),
-      Instant.parse("2017-02-14T12:02:36.000001Z"),
       "Ab minor",
       64,
       0.30,
       120.0,
-      "chains-1-segments-9f7s89d8a7892.wav"));
+      "chains-1-segments-9f7s89d8a7892.wav", true));
     store.put(buildSegmentChoice(
       segment3,
       Segments.DELTA_UNLIMITED,
@@ -216,13 +200,11 @@ public class CraftDetailProgramVoiceNextMacroTest {
       3,
       3,
       SegmentState.CRAFTING,
-      Instant.parse("2017-02-14T12:03:08.000001Z"),
-      Instant.parse("2017-02-14T12:03:15.836735Z"),
       "F minor",
       16,
       0.45,
       125.0,
-      "chains-1-segments-9f7s89d8a7892.wav"));
+      "chains-1-segments-9f7s89d8a7892.wav", true));
     store.put(buildSegmentChoice(
       segment4,
       Segments.DELTA_UNLIMITED,

@@ -247,7 +247,13 @@ It may be necessary to change all the permissions so your user owns the working 
 sudo chown -R $(id -u):$(id -g) .
 ```
 
-# MP4 Encoding
+## FFmpeg
+
+### Convert all WAV files in folder to MP3
+
+```shell
+for n in *.wav; do ffmpeg -i "$n" -f mp3 "${n%.*}.mp3"; done
+```
 
 ### MP4 Fragment (reference)
 
@@ -323,10 +329,10 @@ org.mp4parser.boxes.iso14496.part12.MediaDataBox@720c8f80
 
 # Docker
 
-For example, an artist/engineer runs the Yard on their local machine using the Docker image:
+For example, an artist/engineer runs the Nexus on their local machine using the Docker image:
 
 ```shell
-docker run gcr.io/xj-vpc-host-prod/yard:latest \
+docker run gcr.io/xj-vpc-host-prod/nexus:latest \
   -e AUDIO_BASE_URL=https://audio.xj.io/ \
   -e ENVIRONMENT=production \
   -e SHIP_BASE_URL=https://ship.xj.io/ \

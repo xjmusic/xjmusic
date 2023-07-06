@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 
-public class SegmentChoiceArrangementPick   {
+public class SegmentChoiceArrangementPick {
 
   private @Valid UUID id;
   private @Valid UUID segmentId;
@@ -17,13 +17,14 @@ public class SegmentChoiceArrangementPick   {
   private @Valid UUID segmentChordVoicingId;
   private @Valid UUID instrumentAudioId;
   private @Valid UUID programSequencePatternEventId;
-  private @Valid Double start;
-  private @Valid Double length;
+  private @Valid Long startAtSegmentMicros;
+  private @Valid Long lengthMicros;
   private @Valid Double amplitude;
   private @Valid String tones;
   private @Valid String event;
 
   /**
+   *
    **/
   public SegmentChoiceArrangementPick id(UUID id) {
     this.id = id;
@@ -35,11 +36,13 @@ public class SegmentChoiceArrangementPick   {
   public UUID getId() {
     return id;
   }
+
   public void setId(UUID id) {
     this.id = id;
   }
 
   /**
+   *
    **/
   public SegmentChoiceArrangementPick segmentId(UUID segmentId) {
     this.segmentId = segmentId;
@@ -51,11 +54,13 @@ public class SegmentChoiceArrangementPick   {
   public UUID getSegmentId() {
     return segmentId;
   }
+
   public void setSegmentId(UUID segmentId) {
     this.segmentId = segmentId;
   }
 
   /**
+   *
    **/
   public SegmentChoiceArrangementPick segmentChoiceArrangementId(UUID segmentChoiceArrangementId) {
     this.segmentChoiceArrangementId = segmentChoiceArrangementId;
@@ -67,11 +72,13 @@ public class SegmentChoiceArrangementPick   {
   public UUID getSegmentChoiceArrangementId() {
     return segmentChoiceArrangementId;
   }
+
   public void setSegmentChoiceArrangementId(UUID segmentChoiceArrangementId) {
     this.segmentChoiceArrangementId = segmentChoiceArrangementId;
   }
 
   /**
+   *
    **/
   public SegmentChoiceArrangementPick segmentChordVoicingId(UUID segmentChordVoicingId) {
     this.segmentChordVoicingId = segmentChordVoicingId;
@@ -83,11 +90,13 @@ public class SegmentChoiceArrangementPick   {
   public UUID getSegmentChordVoicingId() {
     return segmentChordVoicingId;
   }
+
   public void setSegmentChordVoicingId(UUID segmentChordVoicingId) {
     this.segmentChordVoicingId = segmentChordVoicingId;
   }
 
   /**
+   *
    **/
   public SegmentChoiceArrangementPick instrumentAudioId(UUID instrumentAudioId) {
     this.instrumentAudioId = instrumentAudioId;
@@ -99,11 +108,13 @@ public class SegmentChoiceArrangementPick   {
   public UUID getInstrumentAudioId() {
     return instrumentAudioId;
   }
+
   public void setInstrumentAudioId(UUID instrumentAudioId) {
     this.instrumentAudioId = instrumentAudioId;
   }
 
   /**
+   *
    **/
   public SegmentChoiceArrangementPick programSequencePatternEventId(UUID programSequencePatternEventId) {
     this.programSequencePatternEventId = programSequencePatternEventId;
@@ -115,43 +126,49 @@ public class SegmentChoiceArrangementPick   {
   public UUID getProgramSequencePatternEventId() {
     return programSequencePatternEventId;
   }
+
   public void setProgramSequencePatternEventId(UUID programSequencePatternEventId) {
     this.programSequencePatternEventId = programSequencePatternEventId;
   }
 
   /**
+   *
    **/
-  public SegmentChoiceArrangementPick start(Double start) {
-    this.start = start;
+  public SegmentChoiceArrangementPick startAtSegmentMicros(Long segmentMicros) {
+    this.startAtSegmentMicros = segmentMicros;
     return this;
   }
 
 
-  @JsonProperty("start")
-  public Double getStart() {
-    return start;
+  @JsonProperty("startAtSegmentMicros")
+  public Long getStartAtSegmentMicros() {
+    return startAtSegmentMicros;
   }
-  public void setStart(Double start) {
-    this.start = start;
+
+  public void setStartAtSegmentMicros(Long segmentMicros) {
+    this.startAtSegmentMicros = segmentMicros;
   }
 
   /**
+   *
    **/
-  public SegmentChoiceArrangementPick length(Double length) {
-    this.length = length;
+  public SegmentChoiceArrangementPick lengthMicros(Long micros) {
+    this.lengthMicros = micros;
     return this;
   }
 
 
-  @JsonProperty("length")
-  public Double getLength() {
-    return length;
+  @JsonProperty("lengthMicros")
+  public Long getLengthMicros() {
+    return lengthMicros;
   }
-  public void setLength(Double length) {
-    this.length = length;
+
+  public void setLengthMicros(Long micros) {
+    this.lengthMicros = micros;
   }
 
   /**
+   *
    **/
   public SegmentChoiceArrangementPick amplitude(Double amplitude) {
     this.amplitude = amplitude;
@@ -163,11 +180,13 @@ public class SegmentChoiceArrangementPick   {
   public Double getAmplitude() {
     return amplitude;
   }
+
   public void setAmplitude(Double amplitude) {
     this.amplitude = amplitude;
   }
 
   /**
+   *
    **/
   public SegmentChoiceArrangementPick tones(String tones) {
     this.tones = tones;
@@ -179,11 +198,13 @@ public class SegmentChoiceArrangementPick   {
   public String getTones() {
     return tones;
   }
+
   public void setTones(String tones) {
     this.tones = tones;
   }
 
   /**
+   *
    **/
   public SegmentChoiceArrangementPick event(String event) {
     this.event = event;
@@ -195,6 +216,7 @@ public class SegmentChoiceArrangementPick   {
   public String getEvent() {
     return event;
   }
+
   public void setEvent(String event) {
     this.event = event;
   }
@@ -210,41 +232,39 @@ public class SegmentChoiceArrangementPick   {
     }
     SegmentChoiceArrangementPick segmentChoiceArrangementPick = (SegmentChoiceArrangementPick) o;
     return Objects.equals(this.id, segmentChoiceArrangementPick.id) &&
-        Objects.equals(this.segmentId, segmentChoiceArrangementPick.segmentId) &&
-        Objects.equals(this.segmentChoiceArrangementId, segmentChoiceArrangementPick.segmentChoiceArrangementId) &&
-        Objects.equals(this.segmentChordVoicingId, segmentChoiceArrangementPick.segmentChordVoicingId) &&
-        Objects.equals(this.instrumentAudioId, segmentChoiceArrangementPick.instrumentAudioId) &&
-        Objects.equals(this.programSequencePatternEventId, segmentChoiceArrangementPick.programSequencePatternEventId) &&
-        Objects.equals(this.start, segmentChoiceArrangementPick.start) &&
-        Objects.equals(this.length, segmentChoiceArrangementPick.length) &&
-        Objects.equals(this.amplitude, segmentChoiceArrangementPick.amplitude) &&
-        Objects.equals(this.tones, segmentChoiceArrangementPick.tones) &&
-        Objects.equals(this.event, segmentChoiceArrangementPick.event);
+      Objects.equals(this.segmentId, segmentChoiceArrangementPick.segmentId) &&
+      Objects.equals(this.segmentChoiceArrangementId, segmentChoiceArrangementPick.segmentChoiceArrangementId) &&
+      Objects.equals(this.segmentChordVoicingId, segmentChoiceArrangementPick.segmentChordVoicingId) &&
+      Objects.equals(this.instrumentAudioId, segmentChoiceArrangementPick.instrumentAudioId) &&
+      Objects.equals(this.programSequencePatternEventId, segmentChoiceArrangementPick.programSequencePatternEventId) &&
+      Objects.equals(this.startAtSegmentMicros, segmentChoiceArrangementPick.startAtSegmentMicros) &&
+      Objects.equals(this.lengthMicros, segmentChoiceArrangementPick.lengthMicros) &&
+      Objects.equals(this.amplitude, segmentChoiceArrangementPick.amplitude) &&
+      Objects.equals(this.tones, segmentChoiceArrangementPick.tones) &&
+      Objects.equals(this.event, segmentChoiceArrangementPick.event);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, segmentId, segmentChoiceArrangementId, segmentChordVoicingId, instrumentAudioId, programSequencePatternEventId, start, length, amplitude, tones, event);
+    return Objects.hash(id, segmentId, segmentChoiceArrangementId, segmentChordVoicingId, instrumentAudioId, programSequencePatternEventId, startAtSegmentMicros, lengthMicros, amplitude, tones, event);
   }
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class SegmentChoiceArrangementPick {\n");
 
-    sb.append("    id: ").append(toIndentedString(id)).append("\n");
-    sb.append("    segmentId: ").append(toIndentedString(segmentId)).append("\n");
-    sb.append("    segmentChoiceArrangementId: ").append(toIndentedString(segmentChoiceArrangementId)).append("\n");
-    sb.append("    segmentChordVoicingId: ").append(toIndentedString(segmentChordVoicingId)).append("\n");
-    sb.append("    instrumentAudioId: ").append(toIndentedString(instrumentAudioId)).append("\n");
-    sb.append("    programSequencePatternEventId: ").append(toIndentedString(programSequencePatternEventId)).append("\n");
-    sb.append("    start: ").append(toIndentedString(start)).append("\n");
-    sb.append("    length: ").append(toIndentedString(length)).append("\n");
-    sb.append("    amplitude: ").append(toIndentedString(amplitude)).append("\n");
-    sb.append("    tones: ").append(toIndentedString(tones)).append("\n");
-    sb.append("    event: ").append(toIndentedString(event)).append("\n");
-    sb.append("}");
-    return sb.toString();
+    return "class SegmentChoiceArrangementPick {\n" +
+      "    id: " + toIndentedString(id) + "\n" +
+      "    segmentId: " + toIndentedString(segmentId) + "\n" +
+      "    segmentChoiceArrangementId: " + toIndentedString(segmentChoiceArrangementId) + "\n" +
+      "    segmentChordVoicingId: " + toIndentedString(segmentChordVoicingId) + "\n" +
+      "    instrumentAudioId: " + toIndentedString(instrumentAudioId) + "\n" +
+      "    programSequencePatternEventId: " + toIndentedString(programSequencePatternEventId) + "\n" +
+      "    startAtSegmentMicros: " + toIndentedString(startAtSegmentMicros) + "\n" +
+      "    lengthMicros: " + toIndentedString(lengthMicros) + "\n" +
+      "    amplitude: " + toIndentedString(amplitude) + "\n" +
+      "    tones: " + toIndentedString(tones) + "\n" +
+      "    event: " + toIndentedString(event) + "\n" +
+      "}";
   }
 
   /**
