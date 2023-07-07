@@ -5,14 +5,14 @@ package io.xj.nexus;
 public enum OutputMode {
   HLS,
   PLAYBACK,
-    FILE;
+  FILE;
 
   public boolean isLocal() {
     return this == PLAYBACK || this == FILE;
   }
 
   public boolean isSync() {
-    return this == HLS;
+    return this == HLS || this == PLAYBACK;
   }
 
   public boolean isAsync() {

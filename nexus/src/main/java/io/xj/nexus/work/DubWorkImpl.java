@@ -40,8 +40,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.lib.util.Values.MILLIS_PER_SECOND;
-
 @Service
 public class DubWorkImpl implements DubWork {
   private static final Logger LOG = LoggerFactory.getLogger(DubWorkImpl.class);
@@ -62,18 +60,14 @@ public class DubWorkImpl implements DubWork {
   private final MixerFactory mixerFactory;
   private final NotificationProvider notification;
   private final OutputMode mode;
-  private final boolean janitorEnabled;
-  private final boolean medicEnabled;
-  private final int janitorCycleSeconds;
-  private final int medicCycleSeconds;
   private final int mixerLengthSeconds;
   private final long cycleMillis;
   private final long mixerLengthMicros;
   private long chunkFromChainMicros = 0; // dubbing is done up to this point
   private long chunkToChainMicros = 0; // plan ahead one dub frame at a time
   private long nextCycleAtSystemMillis = System.currentTimeMillis();
-  private long nextJanitorAtSystemMillis = System.currentTimeMillis();
-  private long nextMedicAtSystemMillis = System.currentTimeMillis();
+  @Nullable
+  private Float mixerOutputMicrosecondsPerByte;
 
   @Autowired
   public DubWorkImpl(
@@ -83,11 +77,7 @@ public class DubWorkImpl implements DubWork {
     NotificationProvider notification,
     @Value("${output.mode}") String mode,
     @Value("${mixer.timeline.seconds}") int mixerSeconds,
-    @Value("${dub.cycle.millis}") long cycleMillis,
-    @Value("${dub.janitor.enabled}") boolean janitorEnabled,
-    @Value("${dub.medic.cycle.seconds}") int medicCycleSeconds,
-    @Value("${dub.medic.enabled}") boolean medicEnabled,
-    @Value("${dub.janitor.cycle.seconds}") int janitorCycleSeconds
+    @Value("${dub.cycle.millis}") long cycleMillis
   ) {
     this.craftWork = craftWork;
     this.dubAudioCache = dubAudioCache;
@@ -97,10 +87,6 @@ public class DubWorkImpl implements DubWork {
     this.mixerLengthMicros = mixerLengthSeconds * MICROS_PER_SECOND;
     this.mixerFactory = mixerFactory;
     this.cycleMillis = cycleMillis;
-    this.janitorEnabled = janitorEnabled;
-    this.medicCycleSeconds = medicCycleSeconds;
-    this.medicEnabled = medicEnabled;
-    this.janitorCycleSeconds = janitorCycleSeconds;
   }
 
   @Override
@@ -162,8 +148,14 @@ public class DubWorkImpl implements DubWork {
   }
 
   @Override
-  public Optional<Float> getMixerOutputMicrosecondsPerByte() {
-    return Objects.nonNull(mixer) ? Optional.of(MICROS_PER_SECOND / (mixer.getAudioFormat().getFrameSize() * mixer.getAudioFormat().getFrameRate())) : Optional.empty();
+  public Optional<Float> getMixerOutputMicrosPerByte() {
+    if (Objects.isNull(mixerOutputMicrosecondsPerByte)) {
+      if (Objects.isNull(mixer)) {
+        return Optional.empty();
+      }
+      mixerOutputMicrosecondsPerByte = MICROS_PER_SECOND / (mixer.getAudioFormat().getFrameSize() * mixer.getAudioFormat().getFrameRate());
+    }
+    return Optional.of(mixerOutputMicrosecondsPerByte);
   }
 
   /**
@@ -207,8 +199,6 @@ public class DubWorkImpl implements DubWork {
           }
         }
       }
-      if (medicEnabled) doMedic();
-      if (janitorEnabled) doJanitor();
 
     } catch (Exception e) {
       didFailWhile("running a work cycle", e);
@@ -265,7 +255,7 @@ public class DubWorkImpl implements DubWork {
           @Nullable Long lengthMicros = Objects.nonNull(pick.getLengthMicros()) ? (long) (pick.getLengthMicros() * MICROS_PER_SECOND) : null; // pick length microseconds, or empty if infinite
           long startAtChainMicros =
             segment.getBeginAtChainMicros() // segment begin at chain microseconds
-              + (pick.getStartAtSegmentMicros() * MICROS_PER_SECOND)  // plus pick start microseconds
+              + pick.getStartAtSegmentMicros()  // plus pick start microseconds
               - transientMicros // minus transient microseconds
               - chunkFromChainMicros; // relative to beginning of this chunk
           @Nullable Long stopAtMicros =
@@ -308,8 +298,8 @@ public class DubWorkImpl implements DubWork {
    * @return mixer
    */
   private Mixer mixerInit(TemplateConfig templateConfig) throws Exception {
-    AudioFormat.Encoding encoding = mode.isLocal() ? AudioFormat.Encoding.PCM_SIGNED : templateConfig.getOutputEncoding();
-    int sampleBits = mode.isLocal() ? 16 : templateConfig.getOutputSampleBits();
+    AudioFormat.Encoding encoding = AudioFormat.Encoding.PCM_SIGNED;
+    int sampleBits = 16;
     int frameSize = templateConfig.getOutputChannels() * sampleBits / BITS_PER_BYTE;
     AudioFormat audioFormat = new AudioFormat(encoding, templateConfig.getOutputFrameRate(), sampleBits, templateConfig.getOutputChannels(), frameSize, templateConfig.getOutputFrameRate(), false);
     MixerConfig config = new MixerConfig(audioFormat)
@@ -410,36 +400,6 @@ public class DubWorkImpl implements DubWork {
     if (!instrumentBusNumber.containsKey(instrumentType))
       instrumentBusNumber.put(instrumentType, computedBusNumber.getAndIncrement());
     return instrumentBusNumber.get(instrumentType);
-  }
-
-  /**
-   * Engineer wants platform heartbeat to check for any stale production chains in fabricate state, https://www.pivotaltracker.com/story/show/158897383
-   * and if found, send back a failure health check it in order to ensure the Chain remains in an operable state.
-   * <p>
-   * Medic relies on precomputed  telemetry of fabrication latency https://www.pivotaltracker.com/story/show/177021797
-   */
-  private void doMedic() {
-    if (System.currentTimeMillis() < nextMedicAtSystemMillis) return;
-    nextMedicAtSystemMillis = System.currentTimeMillis() + (medicCycleSeconds * MILLIS_PER_SECOND);
-    timer.section("Medic");
-
-    try {
-      LOG.debug("Total elapsed time: {}", timer.totalsToString());
-
-    } catch (Exception e) {
-      didFailWhile("checking & reviving all", e);
-    }
-  }
-
-  /**
-   * Do the work-- this is called by the underlying WorkerImpl run() hook
-   */
-  protected void doJanitor() {
-    if (System.currentTimeMillis() < nextJanitorAtSystemMillis) return;
-    nextJanitorAtSystemMillis = System.currentTimeMillis() + (janitorCycleSeconds * MILLIS_PER_SECOND);
-    timer.section("Janitor");
-
-    // future actual janitor work for dub
   }
 
   /**

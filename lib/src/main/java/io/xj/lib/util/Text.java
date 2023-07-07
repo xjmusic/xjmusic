@@ -39,10 +39,10 @@ public interface Text {
   char DOUBLE_QUOTE = '"';
 
   /**
-   Format a stack trace in carriage-return-separated lines
-
-   @param e exception to format the stack trace of
-   @return formatted stack trace
+   * Format a stack trace in carriage-return-separated lines
+   *
+   * @param e exception to format the stack trace of
+   * @return formatted stack trace
    */
   static String formatStackTrace(@Nullable Throwable e) {
     if (Objects.isNull(e)) return "";
@@ -50,10 +50,10 @@ public interface Text {
   }
 
   /**
-   Format multiline text in carriage-return-separated lines
-
-   @param stack of strings to format as multiline
-   @return formatted stack trace
+   * Format multiline text in carriage-return-separated lines
+   *
+   * @param stack of strings to format as multiline
+   * @return formatted stack trace
    */
   static String formatMultiline(Object[] stack) {
     String[] stackLines = Arrays.stream(stack).map(String::valueOf).toArray(String[]::new);
@@ -61,20 +61,20 @@ public interface Text {
   }
 
   /**
-   Get class simple name, or interface class simple name if it exists
-
-   @param entity to get name of
-   @return entity name
+   * Get class simple name, or interface class simple name if it exists
+   *
+   * @param entity to get name of
+   * @return entity name
    */
   static String getSimpleName(Object entity) {
     return getSimpleName(entity.getClass());
   }
 
   /**
-   Get class simple name, or interface class simple name if it exists
-
-   @param entityClass to get name of
-   @return entity name
+   * Get class simple name, or interface class simple name if it exists
+   *
+   * @param entityClass to get name of
+   * @return entity name
    */
   static String getSimpleName(Class<?> entityClass) {
     if (entityClass.isInterface())
@@ -87,10 +87,10 @@ public interface Text {
   }
 
   /**
-   Alphabetical characters only, no case modification
-
-   @param raw text to restrict to alphabetical
-   @return alphabetical-only string
+   * Alphabetical characters only, no case modification
+   *
+   * @param raw text to restrict to alphabetical
+   * @return alphabetical-only string
    */
   static String toAlphabetical(String raw) {
     return
@@ -99,10 +99,10 @@ public interface Text {
   }
 
   /**
-   Alphanumeric characters only, no case modification
-
-   @param raw text to restrict to alphanumeric
-   @return alphanumeric-only string
+   * Alphanumeric characters only, no case modification
+   *
+   * @param raw text to restrict to alphanumeric
+   * @return alphanumeric-only string
    */
   static String toAlphanumeric(String raw) {
     return
@@ -111,10 +111,10 @@ public interface Text {
   }
 
   /**
-   Alphanumeric characters only, no case modification
-
-   @param raw text to restrict to alphanumeric
-   @return alphanumeric-only string
+   * Alphanumeric characters only, no case modification
+   *
+   * @param raw text to restrict to alphanumeric
+   * @return alphanumeric-only string
    */
   static String toAlphanumericHyphenated(String raw) {
     return
@@ -123,10 +123,10 @@ public interface Text {
   }
 
   /**
-   Alphabetical characters and underscore only, no case modification
-
-   @param raw text to restrict to alphabetical and underscore
-   @return alphabetical-and-underscore-only string
+   * Alphabetical characters and underscore only, no case modification
+   *
+   * @param raw text to restrict to alphabetical and underscore
+   * @return alphabetical-and-underscore-only string
    */
   static String toAlphaSlug(String raw) {
     return
@@ -135,21 +135,21 @@ public interface Text {
   }
 
   /**
-   Conform to Lower-scored (e.g. "buns_and_jams")
-
-   @param raw input
-   @return purified
+   * Conform to Lower-scored (e.g. "buns_and_jams")
+   *
+   * @param raw input
+   * @return purified
    */
   static String toLowerScored(String raw) {
     return toScored(raw).toLowerCase(Locale.ENGLISH);
   }
 
   /**
-   Conform to Lower-scored (e.g. "buns_and_jams"), else default value
-
-   @param raw          input
-   @param defaultValue if no input
-   @return purified
+   * Conform to Lower-scored (e.g. "buns_and_jams"), else default value
+   *
+   * @param raw          input
+   * @param defaultValue if no input
+   * @return purified
    */
   static String toLowerScored(String raw, String defaultValue) {
     if (Objects.isNull(raw))
@@ -163,21 +163,31 @@ public interface Text {
   }
 
   /**
-   Conform to Lower-slug (e.g. "mush")
+   * Conform to Lowercase hyphenated-slug (e.g. "mush-mush")
+   *
+   * @param raw input
+   * @return purified
+   */
+  static String toLowerHyphenatedSlug(String raw) {
+    return toSlug(raw).replace(" ", "-").toLowerCase(Locale.ENGLISH);
+  }
 
-   @param raw input
-   @return purified
+  /**
+   * Conform to Lowercase slug (e.g. "mush")
+   *
+   * @param raw input
+   * @return purified
    */
   static String toLowerSlug(String raw) {
     return toSlug(raw).toLowerCase(Locale.ENGLISH);
   }
 
   /**
-   Conform to Lower-slug (e.g. "mush"), else default value
-
-   @param raw          input
-   @param defaultValue if no input
-   @return purified
+   * Conform to Lowercase slug (e.g. "mush"), else default value
+   *
+   * @param raw          input
+   * @param defaultValue if no input
+   * @return purified
    */
   static String toLowerSlug(String raw, String defaultValue) {
     if (Objects.isNull(raw))
@@ -191,10 +201,10 @@ public interface Text {
   }
 
   /**
-   Conform to Note (e.g. "C# major")
-
-   @param raw input
-   @return purified
+   * Conform to Note (e.g. "C# major")
+   *
+   * @param raw input
+   * @return purified
    */
   static String toNote(String raw) {
     return nonNote.matcher(raw)
@@ -202,10 +212,10 @@ public interface Text {
   }
 
   /**
-   Number characters only
-
-   @param raw text to restrict to numeric
-   @return numeric-only string
+   * Number characters only
+   *
+   * @param raw text to restrict to numeric
+   * @return numeric-only string
    */
   static String toNumeric(String raw) {
     return
@@ -214,10 +224,10 @@ public interface Text {
   }
 
   /**
-   Make plural
-
-   @param noun to make plural
-   @return plural noun
+   * Make plural
+   *
+   * @param noun to make plural
+   * @return plural noun
    */
   static String toPlural(String noun) {
     // too short to pluralize
@@ -249,10 +259,10 @@ public interface Text {
   }
 
   /**
-   Make plural
-
-   @param noun to make plural
-   @return plural noun
+   * Make plural
+   *
+   * @param noun to make plural
+   * @return plural noun
    */
   static String toSingular(String noun) {
     // too short to make singular
@@ -276,10 +286,10 @@ public interface Text {
   }
 
   /**
-   Conform to Proper (e.g. "Jam")
-
-   @param raw input
-   @return purified
+   * Conform to Proper (e.g. "Jam")
+   *
+   * @param raw input
+   * @return purified
    */
   static String toProper(String raw) {
     if (1 < raw.length()) {
@@ -292,31 +302,31 @@ public interface Text {
   }
 
   /**
-   Conform to Proper-slug (e.g. "Jam")
-
-   @param raw input
-   @return purified
+   * Conform to Proper-slug (e.g. "Jam")
+   *
+   * @param raw input
+   * @return purified
    */
   static String toProperSlug(String raw) {
     return toProper(toSlug(raw));
   }
 
   /**
-   Conform to Proper-slug (e.g. "Jam"), else default value
-
-   @param raw          input
-   @param defaultValue if no input
-   @return purified
+   * Conform to Proper-slug (e.g. "Jam"), else default value
+   *
+   * @param raw          input
+   * @param defaultValue if no input
+   * @return purified
    */
   static String toProperSlug(String raw, String defaultValue) {
     return toProper(toSlug(raw, defaultValue));
   }
 
   /**
-   Conform to toScored (e.g. "mush_bun")
-
-   @param raw input
-   @return purified
+   * Conform to toScored (e.g. "mush_bun")
+   *
+   * @param raw input
+   * @return purified
    */
   static String toScored(String raw) {
     if (Objects.isNull(raw)) return "";
@@ -335,30 +345,30 @@ public interface Text {
   }
 
   /**
-   Return single-quoted version of string
-
-   @param value to single-quote
-   @return single-quoted value
+   * Return single-quoted version of string
+   *
+   * @param value to single-quote
+   * @return single-quoted value
    */
   static String singleQuoted(String value) {
     return String.format("%s%s%s", SINGLE_QUOTE, value, SINGLE_QUOTE);
   }
 
   /**
-   Return double-quoted version of string
-
-   @param value to single-quote
-   @return single-quoted value
+   * Return double-quoted version of string
+   *
+   * @param value to single-quote
+   * @return single-quoted value
    */
   static String doubleQuoted(String value) {
     return String.format("%s%s%s", DOUBLE_QUOTE, value, DOUBLE_QUOTE);
   }
 
   /**
-   Conform to Slug (e.g. "jim")
-
-   @param raw input
-   @return purified
+   * Conform to Slug (e.g. "jim")
+   *
+   * @param raw input
+   * @return purified
    */
   static String toSlug(String raw) {
     return nonSlug.matcher(raw)
@@ -366,11 +376,11 @@ public interface Text {
   }
 
   /**
-   Conform to Slug (e.g. "jim"), else default value
-
-   @param raw          input
-   @param defaultValue if no input
-   @return purified
+   * Conform to Slug (e.g. "jim"), else default value
+   *
+   * @param raw          input
+   * @param defaultValue if no input
+   * @return purified
    */
   static String toSlug(String raw, String defaultValue) {
     String slug = toSlug(raw);
@@ -379,21 +389,21 @@ public interface Text {
   }
 
   /**
-   Conform to Upper-scored (e.g. "BUNS_AND_JAMS")
-
-   @param raw input
-   @return purified
+   * Conform to Upper-scored (e.g. "BUNS_AND_JAMS")
+   *
+   * @param raw input
+   * @return purified
    */
   static String toUpperScored(String raw) {
     return toScored(raw).toUpperCase(Locale.ENGLISH);
   }
 
   /**
-   Conform to Upper-scored (e.g. "BUNS_AND_JAMS"), else default value
-
-   @param raw          input
-   @param defaultValue if no input
-   @return purified
+   * Conform to Upper-scored (e.g. "BUNS_AND_JAMS"), else default value
+   *
+   * @param raw          input
+   * @param defaultValue if no input
+   * @return purified
    */
   static String toUpperScored(String raw, String defaultValue) {
     if (Objects.isNull(raw))
@@ -407,10 +417,10 @@ public interface Text {
   }
 
   /**
-   Conform to Upper-slug non-numeric and strip special characters, e.g. "BUN"
-
-   @param raw input
-   @return purified
+   * Conform to Upper-slug non-numeric and strip special characters, e.g. "BUN"
+   *
+   * @param raw input
+   * @return purified
    */
   static String toEvent(String raw) {
     return nonEvent.matcher(raw)
@@ -419,10 +429,10 @@ public interface Text {
   }
 
   /**
-   Conform to Upper-slug including some special characters, e.g. "BUN!"
-
-   @param raw input
-   @return purified
+   * Conform to Upper-slug including some special characters, e.g. "BUN!"
+   *
+   * @param raw input
+   * @return purified
    */
   static String toMeme(String raw) {
     return nonMeme.matcher(raw)
@@ -431,11 +441,11 @@ public interface Text {
   }
 
   /**
-   Conform to Upper-slug (e.g. "BUN"), else default value
-
-   @param raw          input
-   @param defaultValue if no input
-   @return purified
+   * Conform to Upper-slug (e.g. "BUN"), else default value
+   *
+   * @param raw          input
+   * @param defaultValue if no input
+   * @return purified
    */
   static String toMeme(String raw, String defaultValue) {
     if (Objects.isNull(raw))
@@ -449,10 +459,10 @@ public interface Text {
   }
 
   /**
-   Format a TypeSafe config as K=V lines
-
-   @param config to format
-   @return formatted config
+   * Format a TypeSafe config as K=V lines
+   *
+   * @param config to format
+   * @return formatted config
    */
   static String format(Config config) {
     return config.entrySet().stream()
@@ -462,20 +472,20 @@ public interface Text {
   }
 
   /**
-   Format af ship key
-
-   @param shipKey to format
-   @return formatted ship key
+   * Format af ship key
+   *
+   * @param shipKey to format
+   * @return formatted ship key
    */
   static String toShipKey(String shipKey) {
     return toLowerScored(shipKey);
   }
 
   /**
-   Parse a block of text containing environment variable key-value pairs, into a kev-value map
-
-   @param secretValue to parse
-   @return key-value map of environment variables
+   * Parse a block of text containing environment variable key-value pairs, into a kev-value map
+   *
+   * @param secretValue to parse
+   * @return key-value map of environment variables
    */
   static Map<String, String> parseEnvironmentVariableKeyPairs(String secretValue) {
     return Arrays.stream(secretValue.split("\n"))
@@ -484,38 +494,38 @@ public interface Text {
   }
 
   /**
-   @param value to quote if empty
-   @return value, or empty quotes
+   * @param value to quote if empty
+   * @return value, or empty quotes
    */
   static String orEmptyQuotes(@Nullable String value) {
     return Strings.isNullOrEmpty(value) ? "\"\"" : value;
   }
 
   /**
-   Split multiline text into an array of lines
-
-   @param content to split
-   @return split content
+   * Split multiline text into an array of lines
+   *
+   * @param content to split
+   * @return split content
    */
   static String[] splitLines(String content) {
     return content.split("\n");
   }
 
   /**
-   Get the percentage of a ratio, e.g. "53%" for 0.53f
-
-   @param ratio input
-   @return formatted percentage
+   * Get the percentage of a ratio, e.g. "53%" for 0.53f
+   *
+   * @param ratio input
+   * @return formatted percentage
    */
   static String percentage(float ratio) {
     return String.format("%d%%", (int) Math.floor(100 * ratio));
   }
 
   /**
-   Increment the integer suffix of a given string, or start at 2
-
-   @param value of which to scan suffix and increment
-   @return value with incremented integer suffix
+   * Increment the integer suffix of a given string, or start at 2
+   *
+   * @param value of which to scan suffix and increment
+   * @return value with incremented integer suffix
    */
   static String incrementIntegerSuffix(String value) {
     if (Strings.isNullOrEmpty(value)) return "2";
@@ -526,21 +536,21 @@ public interface Text {
   }
 
   /**
-   Replace more than one space with one space, and strip leading and trailing spaces
-
-   @param value to strip
-   @return stripped value
+   * Replace more than one space with one space, and strip leading and trailing spaces
+   *
+   * @param value to strip
+   * @return stripped value
    */
   static String stripExtraSpaces(String value) {
     return value.trim().replaceAll(" +", " ").strip();
   }
 
   /**
-   First group matching pattern in text, else null
-
-   @param pattern to use
-   @param text    to search
-   @return match if found
+   * First group matching pattern in text, else null
+   *
+   * @param pattern to use
+   * @param text    to search
+   * @return match if found
    */
   static Optional<String> match(Pattern pattern, String text) {
     Matcher matcher = pattern.matcher(text);
@@ -558,11 +568,11 @@ public interface Text {
   }
 
   /**
-   First group matching pattern in text, else null
-
-   @param pattern to use
-   @param text    to search
-   @return true if found
+   * First group matching pattern in text, else null
+   *
+   * @param pattern to use
+   * @param text    to search
+   * @return true if found
    */
   static Boolean find(Pattern pattern, String text) {
     Matcher matcher = pattern.matcher(text);
@@ -570,10 +580,10 @@ public interface Text {
   }
 
   /**
-   Reverse the lines of a multi-line text value
-
-   @param text lines to reverse
-   @return text reversed lines
+   * Reverse the lines of a multi-line text value
+   *
+   * @param text lines to reverse
+   * @return text reversed lines
    */
   static String reverseLines(String text) {
     ArrayList<String> lines = new ArrayList<>(Arrays.asList(text.split("\n")));
@@ -582,11 +592,11 @@ public interface Text {
   }
 
   /**
-   Whether the text begins with the given prefix
-
-   @param text   to test
-   @param prefix search at beginning only
-   @return true if text begins with prefix
+   * Whether the text begins with the given prefix
+   *
+   * @param text   to test
+   * @param prefix search at beginning only
+   * @return true if text begins with prefix
    */
   static boolean beginsWith(String text, String prefix) {
     return text.length() >= prefix.length()
@@ -595,7 +605,8 @@ public interface Text {
 
   /**
    * Pad the value with zeros to the given number of digits
-   * @param value to pad
+   *
+   * @param value  to pad
    * @param digits total after padding
    * @return padded value
    */

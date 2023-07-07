@@ -87,5 +87,5 @@ public interface DubWork {
    *
    * @return the number of bytes per microsecond, or empty if not yet available
    */
-  Optional<Float> getMixerOutputMicrosecondsPerByte();
+  Optional<Float> getMixerOutputMicrosPerByte();
 }

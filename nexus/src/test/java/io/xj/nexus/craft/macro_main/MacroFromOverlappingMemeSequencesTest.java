@@ -32,7 +32,6 @@ import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentState;
-import io.xj.nexus.persistence.FilePathProviderImpl;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManagerImpl;
 import org.junit.Before;
@@ -80,7 +79,6 @@ public class MacroFromOverlappingMemeSequencesTest {
     var segmentManager = new SegmentManagerImpl(entityFactory, store);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     EntityStore entityStore = new EntityStoreImpl();
-    var filePathProvider = new FilePathProviderImpl("");
     var fabricatorFactory = new FabricatorFactoryImpl(
       segmentManager,
       jsonapiPayloadFactory,

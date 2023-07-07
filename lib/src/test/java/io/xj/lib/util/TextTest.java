@@ -281,4 +281,10 @@ public class TextTest {
     assertFalse(Text.beginsWith("yel", "yellow"));
     assertFalse(Text.beginsWith("yellow", "e"));
   }
+
+  @Test
+  public void toLowerHyphenatedSlug() {
+    assertEquals("jammy-buns", Text.toLowerHyphenatedSlug("jaMMy b#!uns"));
+    assertEquals("jammy", Text.toLowerHyphenatedSlug("jaMMy"));
+  }
 }

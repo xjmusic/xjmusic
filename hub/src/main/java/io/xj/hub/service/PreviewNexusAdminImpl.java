@@ -56,11 +56,9 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   private static final String RESOURCE_REQUIREMENT_KEY_MEMORY = "memory";
   private static final String RESOURCE_REQUIREMENT_DEFAULT_MEMORY = "4Gi";
   private static final String LOG_LINE_FILTER_CONTAINS = "main]";
-  private static final String LOG_LINE_REMOVE = " i.x.n.w.NexusWorkImpl ";
   private static final int LOG_LINE_TRIP_LEADING_CHARACTERS = 97;
   private final Logger LOG = LoggerFactory.getLogger(PreviewNexusAdminImpl.class);
   private final boolean isConfigured;
-  private final String fabricationPreviewTemplatePlaybackId;
   private final String gcpServiceAccountEmail;
   private final String nexusImage;
   private final int logTailLines;
@@ -82,13 +80,9 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
   private final String shipBaseUrl;
   private final String shipBucket;
   private final int logBackMinutes;
-  private final String envSecretRefName;
-  private final String namespace;
 
   @Autowired
   public PreviewNexusAdminImpl(
-    @Value("${static.fabrication.preview.template.playback.id}")
-    String fabricationPreviewTemplatePlaybackId,
     @Value("${gcp.service.account.email}")
     String gcpServiceAccountEmail,
     @Value("${gcp.service.nexus.image}")
@@ -113,7 +107,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
     String awsDefaultRegion,
     @Value("${aws.secret.key}")
     String awsSecretKey,
-    @Value("${platform.environment}")
+    @Value("${environment}")
     String environment,
     @Value("${gcp.cloud.sql.instance}")
     String gcpCloudSqlInstance,
@@ -136,9 +130,6 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
     @Value("${service.namespace}")
     String namespace
   ) {
-    this.envSecretRefName = envSecretRefName;
-    this.namespace = namespace;
-    this.fabricationPreviewTemplatePlaybackId = fabricationPreviewTemplatePlaybackId;
     this.gcpServiceAccountEmail = gcpServiceAccountEmail;
     this.nexusImage = nexusImage;
     this.logTailLines = logTailLines;
@@ -193,8 +184,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
         }
       }
 
-      return String.join("\n", Values.last(logTailLines, lines).stream()
-        .map((L) -> L.replace(LOG_LINE_REMOVE, "")).toList());
+      return String.join("\n", Values.last(logTailLines, lines).stream().toList());
     } catch (RuntimeException | InterruptedException | ExecutionException e) {
       LOG.error("Failed to get logs for preview nexus", e);
       return String.format("Failed to get logs for preview nexus: %s", e.getMessage());
@@ -354,7 +344,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
     List<EnvVar> envVars = Lists.newArrayList();
 
     // Fabrication preview template ID
-    envVars.add(EnvVar.newBuilder().setName(fabricationPreviewTemplatePlaybackId).setValue(playback.getId().toString()).build());
+    envVars.add(EnvVar.newBuilder().setName("FABRICATION_PREVIEW_TEMPLATE_PLAYBACK_ID").setValue(playback.getId().toString()).build());
 
     // environment variables passed through
     envVars.add(EnvVar.newBuilder().setName("AUDIO_BASE_URL").setValue(audioBaseUrl).build());
@@ -377,6 +367,11 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
     envVars.add(EnvVar.newBuilder().setName("AWS_SECRET_KEY").setValue(awsSecretKey).build());
     envVars.add(EnvVar.newBuilder().setName("GOOGLE_CLIENT_ID").setValue(googleClientId).build());
     envVars.add(EnvVar.newBuilder().setName("GOOGLE_CLIENT_SECRET").setValue(googleClientSecret).build());
+
+    // nexus preview mode
+    envVars.add(EnvVar.newBuilder().setName("INPUT_MODE").setValue("preview").build());
+    envVars.add(EnvVar.newBuilder().setName("OUTPUT_MODE").setValue("hls").build());
+    envVars.add(EnvVar.newBuilder().setName("OUTPUT_JSON_ENABLED").setValue("true").build());
 
     // resource requirements
     var resourceRequirements = ResourceRequirements.newBuilder()

@@ -23,6 +23,7 @@ import io.xj.hub.tables.pojos.TemplatePlayback;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.jsonapi.JsonapiException;
@@ -51,7 +52,6 @@ import io.xj.nexus.model.SegmentChoiceArrangementPick;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.Chains;
-import io.xj.nexus.persistence.FilePathProvider;
 import io.xj.nexus.persistence.ManagerExistenceException;
 import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.ManagerPrivilegeException;
@@ -61,6 +61,7 @@ import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.Segments;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,6 +102,7 @@ public class CraftWorkImpl implements CraftWork {
   private final HubClientAccess access = HubClientAccess.internal();
   private final JsonProvider jsonProvider;
   private final JsonapiPayloadFactory jsonapiPayloadFactory;
+  private final FileStoreProvider fileStore;
   private HubContent chainSourceMaterial;
   private Long chainNextIngestMillis = System.currentTimeMillis();
   private final Measure.MeasureDouble METRIC_FABRICATED_AHEAD_SECONDS;
@@ -129,9 +131,9 @@ public class CraftWorkImpl implements CraftWork {
   @Value("${craft.janitor.cycle.seconds}")
   private int janitorCycleSeconds;
   @Value("${craft.sync.poll.seconds}")
-  private int labPollSeconds;
+  private int syncPollSeconds;
   @Value("${craft.async.poll.seconds}")
-  private int yardPollSeconds;
+  private int asyncPollSeconds;
   @Value("${craft.medic.cycle.seconds}")
   private int medicCycleSeconds;
   @Value("${rehydration.ahead.threshold}")
@@ -140,7 +142,7 @@ public class CraftWorkImpl implements CraftWork {
   private long healthCycleStalenessThresholdSeconds;
   @Value("${rehydration.enabled}")
   private boolean isRehydrationEnabled;
-  @Value("${input.preview.template.playback.id}")
+  @Value("${fabrication.preview.template.playback.id}")
   @Nullable
   private UUID fabricationPreviewTemplatePlaybackId;
   @Value("${ship.bucket}")
@@ -157,11 +159,12 @@ public class CraftWorkImpl implements CraftWork {
   private long nextMedicMillis = System.currentTimeMillis();
   private final PreviewNexusAdmin previewNexusAdmin;
   private long atChainMicros = 0;
-  private final FilePathProvider filePathProvider;
   private final InputMode inputMode;
   private final String inputTemplateKey;
   private final String environment;
   private final boolean isJsonOutputEnabled;
+  private final String tempFilePathPrefix;
+  private final Integer jsonExpiresInSeconds;
   @Nullable
   private UUID chainId;
 
@@ -170,6 +173,7 @@ public class CraftWorkImpl implements CraftWork {
     CraftFactory craftFactory,
     EntityFactory entityFactory,
     FabricatorFactory fabricatorFactory,
+    FileStoreProvider fileStore,
     HttpClientProvider httpClientProvider,
     HubClient hubClient,
     JsonapiPayloadFactory jsonapiPayloadFactory,
@@ -180,12 +184,13 @@ public class CraftWorkImpl implements CraftWork {
     PreviewNexusAdmin previewNexusAdmin,
     SegmentManager segmentManager,
     TelemetryProvider telemetryProvider,
-    FilePathProvider filePathProvider,
     @Value("${input.mode}") String inputMode,
     @Value("${output.mode}") String outputMode,
     @Value("${input.template.key}") String inputTemplateKey,
     @Value("${environment}") String environment,
-    @Value("${output.json.enabled}") boolean isJsonOutputEnabled
+    @Value("${output.json.enabled}") boolean isJsonOutputEnabled,
+    @Value("${temp.file.path.prefix}") String tempFilePathPrefix,
+    @Value("${json.expires.in.seconds}") int jsonExpiresInSeconds
   ) {
     this.craftFactory = craftFactory;
     this.entityFactory = entityFactory;
@@ -200,10 +205,11 @@ public class CraftWorkImpl implements CraftWork {
     this.store = store;
     this.telemetryProvider = telemetryProvider;
     this.previewNexusAdmin = previewNexusAdmin;
-    this.filePathProvider = filePathProvider;
+    this.tempFilePathPrefix = tempFilePathPrefix;
     this.inputTemplateKey = inputTemplateKey;
     this.environment = environment;
     this.isJsonOutputEnabled = isJsonOutputEnabled;
+    this.jsonExpiresInSeconds = jsonExpiresInSeconds;
 
     labPollNextSystemMillis = System.currentTimeMillis();
     yardPollNextSystemMillis = System.currentTimeMillis();
@@ -214,6 +220,7 @@ public class CraftWorkImpl implements CraftWork {
     METRIC_FABRICATED_AHEAD_SECONDS = telemetryProvider.gauge("fabricated_ahead_seconds", "Fabricated Ahead Seconds", "s");
     METRIC_SEGMENT_CREATED = telemetryProvider.count("segment_created", "Segment Created", "");
     METRIC_SEGMENT_GC = telemetryProvider.count("segment_gc", "Segment Garbage Collected", "");
+    this.fileStore = fileStore;
   }
 
   @Override
@@ -325,7 +332,7 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   @Override
-  public Optional<Segment> getSegmentAt(long chainMicros) {
+  public Optional<Segment> getSegmentAtChainMicros(long chainMicros) {
     // require chain
     var chain = getChain();
     if (chain.isEmpty()) {
@@ -333,15 +340,27 @@ public class CraftWorkImpl implements CraftWork {
     }
 
     // require current segment in crafted state
-    try {
-      var currentSegment = segmentManager.readOneAt(chain.get().getId(), chainMicros);
-      if (currentSegment.isEmpty() || currentSegment.get().getState() != SegmentState.CRAFTED) {
-        return Optional.empty();
-      }
-      return currentSegment;
-    } catch (NexusException e) {
+    var currentSegment = segmentManager.readOneAtChainMicros(chain.get().getId(), chainMicros);
+    if (currentSegment.isEmpty() || currentSegment.get().getState() != SegmentState.CRAFTED) {
       return Optional.empty();
     }
+    return currentSegment;
+  }
+
+  @Override
+  public Optional<Segment> getSegmentAtOffset(long offset) {
+    // require chain
+    var chain = getChain();
+    if (chain.isEmpty()) {
+      return Optional.empty();
+    }
+
+    // require current segment in crafted state
+    var currentSegment = segmentManager.readOneAtChainOffset(chain.get().getId(), offset);
+    if (currentSegment.isEmpty() || currentSegment.get().getState() != SegmentState.CRAFTED) {
+      return Optional.empty();
+    }
+    return currentSegment;
   }
 
   @Override
@@ -391,7 +410,7 @@ public class CraftWorkImpl implements CraftWork {
     if (chain.isEmpty()) {
       return Optional.empty();
     }
-    var mainChoice = store.getAll(segment.getId(), SegmentChoice.class).stream().filter(choice -> choice.getProgramType().equals(ProgramType.Main)).findFirst();
+    var mainChoice = store.getAll(segment.getId(), SegmentChoice.class).stream().filter(choice -> ProgramType.Main.equals(choice.getProgramType())).findFirst();
     if (mainChoice.isEmpty()) {
       return Optional.empty();
     }
@@ -404,7 +423,7 @@ public class CraftWorkImpl implements CraftWork {
     if (chain.isEmpty()) {
       return Optional.empty();
     }
-    var macroChoice = store.getAll(segment.getId(), SegmentChoice.class).stream().filter(choice -> choice.getProgramType().equals(ProgramType.Macro)).findFirst();
+    var macroChoice = store.getAll(segment.getId(), SegmentChoice.class).stream().filter(choice -> ProgramType.Macro.equals(choice.getProgramType())).findFirst();
     if (macroChoice.isEmpty()) {
       return Optional.empty();
     }
@@ -468,7 +487,7 @@ public class CraftWorkImpl implements CraftWork {
   private void runPreview() {
     if (System.currentTimeMillis() > labPollNextSystemMillis) {
       state = WorkState.Loading;
-      labPollNextSystemMillis = System.currentTimeMillis() + labPollSeconds * MILLIS_PER_SECOND;
+      labPollNextSystemMillis = System.currentTimeMillis() + syncPollSeconds * MILLIS_PER_SECOND;
       if (maintainPreviewTemplate())
         state = WorkState.Working;
       else
@@ -514,7 +533,7 @@ public class CraftWorkImpl implements CraftWork {
    */
   private void runYard() {
     if (System.currentTimeMillis() > yardPollNextSystemMillis) {
-      yardPollNextSystemMillis = System.currentTimeMillis() + yardPollSeconds * MILLIS_PER_SECOND;
+      yardPollNextSystemMillis = System.currentTimeMillis() + asyncPollSeconds * MILLIS_PER_SECOND;
     }
 
     try {
@@ -1079,29 +1098,43 @@ public class CraftWorkImpl implements CraftWork {
     if (!isJsonOutputEnabled) return;
     writeJsonFile(
       fabricator.getSegmentJson(),
-      filePathProvider.computeSegmentJsonOutputFilePath(fabricator.getSegment()));
+      Segments.getStorageFilename(fabricator.getSegment(), FileStoreProvider.EXTENSION_JSON));
     writeJsonFile(
       fabricator.getChainFullJson(),
-      filePathProvider.computeChainFullJsonOutputFilePath(fabricator.getChain()));
+      Chains.getShipKey(Chains.getFullKey(Chains.computeBaseKey(fabricator.getChain())), FileStoreProvider.EXTENSION_JSON));
     writeJsonFile(
       fabricator.getChainJson(atChainMicros),
-      filePathProvider.computeChainJsonOutputFilePath(fabricator.getChain()));
+      Chains.getShipKey(Chains.computeBaseKey(fabricator.getChain()), FileStoreProvider.EXTENSION_JSON));
   }
 
   /**
    * Write json content to file
    *
-   * @param json content
-   * @param path to write
+   * @param json     content
+   * @param filename to write
    */
-  private void writeJsonFile(String json, String path) {
+  private void writeJsonFile(String json, String filename) {
     var bytes = json.getBytes();
-    try {
-      Files.write(Paths.get(path), bytes);
-      LOG.info("Wrote {} bytes to {}", bytes.length, path);
-    } catch (Exception e) {
-      LOG.error("Error writing {} bytes to {}", bytes.length, path, e);
+    if (outputMode == OutputMode.HLS) {
+      try {
+        fileStore.putS3ObjectFromString(new String(bytes), shipBucket, filename, ContentType.APPLICATION_JSON.toString(), jsonExpiresInSeconds);
+        LOG.info("Uploaded {} bytes to {}", bytes.length, filename);
+      } catch (Exception e) {
+        LOG.error("Error writing {} bytes to {}", bytes.length, filename, e);
+      }
+    } else {
+      var path = computeTempFilePath(filename);
+      try {
+        Files.write(Paths.get(path), bytes);
+        LOG.info("Wrote {} bytes to {}", bytes.length, path);
+      } catch (Exception e) {
+        LOG.error("Error writing {} bytes to {}", bytes.length, path, e);
+      }
     }
+  }
+
+  private String computeTempFilePath(String filename) {
+    return String.format("%s%s", tempFilePathPrefix, filename);
   }
 
 }

@@ -7,6 +7,7 @@ import io.xj.hub.client.HubClientAccess;
 import io.xj.hub.client.HubContent;
 import io.xj.hub.service.PreviewNexusAdmin;
 import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.http.HttpClientProviderImpl;
 import io.xj.lib.json.ApiUrlProvider;
@@ -21,7 +22,6 @@ import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.craft.CraftFactoryImpl;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
-import io.xj.nexus.persistence.FilePathProviderImpl;
 import io.xj.nexus.persistence.ManagerExistenceException;
 import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.ManagerPrivilegeException;
@@ -79,6 +79,8 @@ public class ComplexLibraryTest {
   private CraftWork work;
   @Mock
   private LockProvider lockProvider;
+  @Mock
+  private FileStoreProvider fileStoreProvider;
 
   @Before
   public void setUp() throws Exception {
@@ -98,7 +100,6 @@ public class ComplexLibraryTest {
     var store = new NexusEntityStoreImpl(entityFactory);
     segmentManager = new SegmentManagerImpl(entityFactory, store);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    var filePathProvider = new FilePathProviderImpl("/tmp/");
     var fabricatorFactory = new FabricatorFactoryImpl(
       segmentManager,
       jsonapiPayloadFactory,
@@ -126,6 +127,7 @@ public class ComplexLibraryTest {
       craftFactory,
       entityFactory,
       fabricatorFactory,
+      fileStoreProvider,
       httpClientProvider,
       hubClient,
       jsonapiPayloadFactory,
@@ -136,12 +138,13 @@ public class ComplexLibraryTest {
       previewNexusAdmin,
       segmentManager,
       telemetryProvider,
-      filePathProvider,
       "production",
       "playback",
       "complex_library_test",
       "production",
-      false);
+      false,
+      "/tmp",
+      86400);
 
     workThread = new AppWorkThread(work);
   }

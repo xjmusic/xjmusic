@@ -62,7 +62,12 @@ class MixerImpl implements Mixer {
    * @param outputPipeSize capacity of output buffer
    * @throws MixerException on failure
    */
-  public MixerImpl(MixerConfig mixerConfig, MixerFactory mixerFactory, EnvelopeProvider envelopeProvider, int outputPipeSize) throws MixerException {
+  public MixerImpl(
+    MixerConfig mixerConfig,
+    MixerFactory mixerFactory,
+    EnvelopeProvider envelopeProvider,
+    int outputPipeSize
+  ) throws MixerException {
     config = mixerConfig;
     factory = mixerFactory;
     envelope = envelopeProvider;

@@ -125,7 +125,7 @@ public enum Segments {
   public static boolean isSpanning(Segment segment, Long fromChainMicros, Long toChainMicros) {
     return Objects.nonNull(segment.getDurationMicros()) &&
       segment.getBeginAtChainMicros() + segment.getDurationMicros() > fromChainMicros &&
-      segment.getBeginAtChainMicros() < toChainMicros;
+      segment.getBeginAtChainMicros() <= toChainMicros;
   }
 
   /**

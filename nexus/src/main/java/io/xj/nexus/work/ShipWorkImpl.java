@@ -3,7 +3,8 @@ package io.xj.nexus.work;
 
 import com.google.api.client.util.Lists;
 import com.google.common.base.Strings;
-import io.xj.lib.mixer.BytePipeline;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.lib.mixer.AudioFileWriter;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.MultiStopwatch;
 import io.xj.lib.util.Text;
@@ -12,8 +13,8 @@ import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.ship.ShipException;
-import io.xj.lib.mixer.AudioFileWriter;
 import io.xj.nexus.ship.broadcast.BroadcastFactory;
+import io.xj.nexus.ship.broadcast.StreamEncoder;
 import io.xj.nexus.ship.broadcast.StreamPlayer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,11 +27,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.xj.lib.util.Values.MICROS_PER_MILLI;
 import static io.xj.lib.util.Values.MICROS_PER_SECOND;
-import static io.xj.lib.util.Values.MILLIS_PER_SECOND;
 
 @Service
 public class ShipWorkImpl implements ShipWork {
@@ -43,6 +44,8 @@ public class ShipWorkImpl implements ShipWork {
   private OutputFile outputFile = null;
   @Nullable
   private StreamPlayer playback;
+  @Nullable
+  private StreamEncoder encoder;
   private MultiStopwatch timer;
   private WorkState state = WorkState.Initializing;
   private final AtomicBoolean running = new AtomicBoolean(true);
@@ -53,9 +56,7 @@ public class ShipWorkImpl implements ShipWork {
   private final OutputFileMode outputFileMode;
   private final OutputMode outputMode;
   private final String outputPathPrefix;
-  private final boolean janitorEnabled;
   private final int cycleAudioBytes;
-  private final int janitorCycleSeconds;
   private final int outputFileNumberDigits;
   private final int outputSeconds;
   private final int pcmChunkSizeBytes;
@@ -64,7 +65,6 @@ public class ShipWorkImpl implements ShipWork {
   private int outputFileNum = 0;
   private long atChainMicros = 0;
   private long nextCycleAtSystemMillis = System.currentTimeMillis();
-  private long nextJanitorAtSystemMillis = System.currentTimeMillis();
   private final long initializedAtSystemMillis = System.currentTimeMillis();
 
   @Autowired
@@ -77,8 +77,6 @@ public class ShipWorkImpl implements ShipWork {
     @Value("${output.file.mode}") String outputFileMode,
     @Value("${output.seconds}") int outputSeconds,
     @Value("${ship.cycle.millis}") long cycleMillis,
-    @Value("${ship.janitor.enabled}") boolean janitorEnabled,
-    @Value("${ship.janitor.cycle.seconds}") int janitorCycleSeconds,
     @Value("${ship.cycle.audio.bytes}") int cycleAudioBytes,
     @Value("${ship.output.synchronous.plan.ahead.seconds}") int planAheadSeconds,
     @Value("${output.path.prefix}") String outputPathPrefix,
@@ -90,8 +88,6 @@ public class ShipWorkImpl implements ShipWork {
     this.cycleAudioBytes = cycleAudioBytes;
     this.cycleMillis = cycleMillis;
     this.dubWork = dubWork;
-    this.janitorCycleSeconds = janitorCycleSeconds;
-    this.janitorEnabled = janitorEnabled;
     this.notification = notification;
     this.outputFileMode = OutputFileMode.valueOf(outputFileMode.toUpperCase(Locale.ROOT));
     this.outputFileNumberDigits = outputFileNumberDigits;
@@ -131,7 +127,6 @@ public class ShipWorkImpl implements ShipWork {
             case Initializing -> doInit();
             case Working -> doWork();
           }
-          if (janitorEnabled) doJanitor();
 
         } catch (Exception e) {
           didFailWhile("running a work cycle", e);
@@ -152,6 +147,9 @@ public class ShipWorkImpl implements ShipWork {
   @Override
   public void finish() {
     dubWork.finish();
+    if (Objects.nonNull(encoder)) {
+      encoder.close();
+    }
     if (!running.get()) return;
     running.set(false);
     LOG.info("Finished");
@@ -175,8 +173,8 @@ public class ShipWorkImpl implements ShipWork {
     switch (outputMode) {
       case HLS -> {
         LOG.info("Will initialize HLS output");
-        // future: implement HLS S3 output initialization
-        didFailWhile("initializing HLS S3 output", new UnsupportedOperationException("it's not yet implemented"));
+        encoder = broadcastFactory.encoder(audioFormat.get(), craftWork.getInputTemplateKey());
+        doInitializedOK();
       }
       case PLAYBACK -> {
         LOG.info("Will initialize playback output");
@@ -195,16 +193,12 @@ public class ShipWorkImpl implements ShipWork {
    * Do the output
    */
   private void doWork() throws InterruptedException, ShipException, IOException, NexusException {
-    var mixerBuffer = dubWork.getMixerBuffer();
-    var microsecondsPerByte = dubWork.getMixerOutputMicrosecondsPerByte();
-    if (mixerBuffer.isEmpty() || microsecondsPerByte.isEmpty()) return;
+    if (dubWork.getMixerBuffer().isEmpty() || dubWork.getMixerOutputMicrosPerByte().isEmpty()) return;
     if (isAheadOfSync()) return;
     switch (outputMode) {
-      case HLS -> {
-        // Future: implement HLS S3 byte shipment
-      }
-      case PLAYBACK -> doShipOutputPlayback(mixerBuffer.get(), microsecondsPerByte.get());
-      case FILE -> doShipOutputFiles(mixerBuffer.get(), microsecondsPerByte.get());
+      case HLS -> doShipOutputStream();
+      case PLAYBACK -> doShipOutputPlayback();
+      case FILE -> doShipOutputFile();
     }
   }
 
@@ -240,17 +234,18 @@ public class ShipWorkImpl implements ShipWork {
   /**
    * Ship available bytes from the dub mixer buffer to the output method
    */
-  private void doShipOutputPlayback(BytePipeline pipeline, float bytesPerMicrosecond) throws IOException, ShipException {
+  private void doShipOutputStream() throws IOException, ShipException {
     {
-      if (Objects.isNull(playback)) {
+      if (Objects.isNull(encoder)) {
         didFailWhile("shipping bytes to local playback", new IllegalStateException("Player is null"));
         return;
       }
-      var availableBytes = pipeline.getAvailableByteCount();
+      var availableBytes = dubWork.getMixerBuffer().orElseThrow().getAvailableByteCount();
       if (availableBytes >= cycleAudioBytes) {
         LOG.debug("Shipping {} bytes to local playback", cycleAudioBytes);
-        playback.append(pipeline.consume(cycleAudioBytes));
-        atChainMicros = atChainMicros + (long) (cycleAudioBytes / bytesPerMicrosecond);
+        encoder.append(dubWork.getMixerBuffer().orElseThrow().consume(cycleAudioBytes));
+        atChainMicros = (long) (atChainMicros + cycleAudioBytes * dubWork.getMixerOutputMicrosPerByte().orElseThrow());
+        encoder.setPlaylistAtChainMicros(atChainMicros);
       }
     }
   }
@@ -258,14 +253,33 @@ public class ShipWorkImpl implements ShipWork {
   /**
    * Ship available bytes from the dub mixer buffer to the output method
    */
-  private void doShipOutputFiles(BytePipeline pipeline, float microSecondsPerByte) throws IOException, NexusException, ShipException {
+  private void doShipOutputPlayback() throws IOException, ShipException {
+    {
+      if (Objects.isNull(playback)) {
+        didFailWhile("shipping bytes to local playback", new IllegalStateException("Player is null"));
+        return;
+      }
+      var availableBytes = dubWork.getMixerBuffer().orElseThrow().getAvailableByteCount();
+      if (availableBytes >= cycleAudioBytes) {
+        LOG.debug("Shipping {} bytes to local playback", cycleAudioBytes);
+        playback.append(dubWork.getMixerBuffer().orElseThrow().consume(cycleAudioBytes));
+        atChainMicros = (long) (atChainMicros + cycleAudioBytes * dubWork.getMixerOutputMicrosPerByte().orElseThrow());
+      }
+    }
+  }
+
+  /**
+   * Ship available bytes from the dub mixer buffer to the output method
+   */
+  private void doShipOutputFile() throws IOException, NexusException {
     if (Objects.isNull(fileWriter)) {
-      LOG.debug("File writer is null, won't ship output files");
+      LOG.debug("File writer is null, won't ship output file");
       return;
     }
-    var segment = craftWork.getSegmentAt(atChainMicros);
+    Optional<Segment> segment;
+    segment = craftWork.getSegmentAtChainMicros(atChainMicros); // first, get the segment exactly at the playhead
     if (segment.isEmpty()) {
-      LOG.debug("No segment available for {}", atChainMicros);
+      LOG.debug("No segment available at chain micros {}", atChainMicros);
       return;
     }
 
@@ -273,6 +287,15 @@ public class ShipWorkImpl implements ShipWork {
       doShipOutputFileStartNext(segment.get());
 
     } else { // Continue output file in progress, start next if needed, finish if done
+      if (outputFile.getToChainMicros() - atChainMicros < pcmChunkSizeBytes * dubWork.getMixerOutputMicrosPerByte().orElseThrow()) { // check to see if we are at risk of getting stuck in this last pcm chunk of the segment-- this would never advance to the next segment/output file
+        LOG.debug("Not enough space in current output file, will advance to next segment");
+        var nextOffset = segment.get().getOffset() + 1;
+        segment = craftWork.getSegmentAtOffset(nextOffset);
+        if (segment.isEmpty()) {
+          LOG.debug("No segment available at chain offset {}", nextOffset);
+          return;
+        }
+      }
       if (!outputFile.contains(segment.get())) {
         switch (outputFileMode) {
           case CONTINUOUS -> outputFile.add(segment.get());
@@ -286,6 +309,8 @@ public class ShipWorkImpl implements ShipWork {
             }
             if (!currentMainProgram.get().getId().equals(nextMainProgram.get().getId())) {
               doShipOutputFileStartNext(segment.get());
+            } else {
+              outputFile.add(segment.get());
             }
           }
           case MACRO -> {
@@ -297,20 +322,23 @@ public class ShipWorkImpl implements ShipWork {
             }
             if (!currentMacroProgram.get().getId().equals(nextMacroProgram.get().getId())) {
               doShipOutputFileStartNext(segment.get());
+            } else {
+              outputFile.add(segment.get());
             }
           }
         }
       }
 
-      var availableBytes = pipeline.getAvailableByteCount();
-      var shipBytes = (int) (pcmChunkSizeBytes * Math.floor(Math.min(Math.min(availableBytes, cycleAudioBytes), (outputFile.getToChainMicros() - atChainMicros) / microSecondsPerByte) / pcmChunkSizeBytes));
+      int availableBytes = Math.min(dubWork.getMixerBuffer().orElseThrow().getAvailableByteCount(), cycleAudioBytes);
+      int currentFileMaxBytes = (int) ((outputFile.getToChainMicros() - atChainMicros) / dubWork.getMixerOutputMicrosPerByte().orElseThrow());
+      int shipBytes = (int) (pcmChunkSizeBytes * Math.floor((float) Math.min(availableBytes, currentFileMaxBytes) / pcmChunkSizeBytes)); // rounded down to a multiple of pcm chunk size bytes
       if (0 == shipBytes) {
         LOG.debug("Will not ship any bytes");
         return;
       }
       LOG.debug("Will ship {} bytes to local files", shipBytes);
-      fileWriter.append(pipeline.consume(shipBytes));
-      atChainMicros = atChainMicros + (long) (shipBytes * microSecondsPerByte);
+      fileWriter.append(dubWork.getMixerBuffer().orElseThrow().consume(shipBytes));
+      atChainMicros = atChainMicros + (long) (shipBytes * dubWork.getMixerOutputMicrosPerByte().orElseThrow());
       if (shippedEnoughSeconds()) {
         doShipOutputFileClose();
       }
@@ -319,17 +347,16 @@ public class ShipWorkImpl implements ShipWork {
 
   private void doShipOutputFileStartNext(Segment firstSegment) {
     doShipOutputFileClose();
+    outputFile = new OutputFile(firstSegment);
 
-    var path = outputPathPrefix + craftWork.getInputTemplateKey() + "-" + Text.zeroPadded(outputFileNum++, outputFileNumberDigits) + ".wav";
     try {
-      Objects.requireNonNull(fileWriter).open(path);
+      Objects.requireNonNull(fileWriter).open(outputFile.getPath());
     } catch (IOException e) {
       didFailWhile("opening file writer", e);
       return;
     }
 
-    outputFile = new OutputFile(firstSegment);
-    LOG.info("Starting next output file {}", path);
+    LOG.info("Starting next output file {}", outputFile.getPath());
   }
 
   private void doShipOutputFileClose() {
@@ -367,17 +394,6 @@ public class ShipWorkImpl implements ShipWork {
   }
 
   /**
-   * Do the work-- this is called by the underlying WorkerImpl run() hook
-   */
-  protected void doJanitor() {
-    if (System.currentTimeMillis() < nextJanitorAtSystemMillis) return;
-    nextJanitorAtSystemMillis = System.currentTimeMillis() + (janitorCycleSeconds * MILLIS_PER_SECOND);
-    timer.section("Janitor");
-
-    // future: ship work janitor
-  }
-
-  /**
    * Log and of segment message of error that job failed while (message)@param shipKey  (optional) ship key
    *
    * @param msgWhile phrased like "Doing work"
@@ -404,7 +420,7 @@ public class ShipWorkImpl implements ShipWork {
   /**
    * Output File
    */
-  static class OutputFile {
+  class OutputFile {
 
     private final List<Segment> segments;
     private long toChainMicros;
@@ -432,6 +448,35 @@ public class ShipWorkImpl implements ShipWork {
 
     public Segment getLastSegment() {
       return segments.get(segments.size() - 1);
+    }
+
+    public String getPath() {
+      return outputPathPrefix +
+        craftWork.getInputTemplateKey() +
+        "-" + Text.zeroPadded(outputFileNum++, outputFileNumberDigits) +
+        getPathDescriptionIfRelevant() +
+        ".wav";
+    }
+
+    private String getPathDescriptionIfRelevant() {
+      try {
+        switch (outputFileMode) {
+          default -> {
+            return "";
+          }
+          case MAIN -> {
+            Optional<Program> mainProgram = craftWork.getMainProgram(getLastSegment());
+            return mainProgram.map(program -> "-" + Text.toLowerHyphenatedSlug(program.getName())).orElse("");
+          }
+          case MACRO -> {
+            Optional<Program> macroProgram = craftWork.getMacroProgram(getLastSegment());
+            return macroProgram.map(program -> "-" + Text.toLowerHyphenatedSlug(program.getName())).orElse("");
+          }
+        }
+      } catch (NexusException e) {
+        LOG.warn("Failed to get program for segment", e);
+        return "";
+      }
     }
   }
 }

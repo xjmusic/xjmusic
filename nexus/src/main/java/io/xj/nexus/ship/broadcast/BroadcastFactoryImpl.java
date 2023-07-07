@@ -29,14 +29,14 @@ public class BroadcastFactoryImpl implements BroadcastFactory {
   public BroadcastFactoryImpl(
     PlaylistPublisher playlistPublisher,
     FileStoreProvider fileStoreProvider,
-    @Value("bitrate") int bitrate,
-    @Value("stream.bucket") String streamBucket,
-    @Value("ship.chunk.content.type") String shipChunkContentType,
-    @Value("chunk.target.duration") int chunkTargetDuration,
-    @Value("temp.file.path.prefix") String tempFilePathPrefix,
-    @Value("ship.mode") String shipMode,
-    @Value("ship.mpeg.verbosity") String shipFFmpegVerbosity,
-    @Value("ship.chunk.audio.encoder") String shipChunkAudioEncoder
+    @Value("${ship.bitrate}") int bitrate,
+    @Value("${stream.bucket}") String streamBucket,
+    @Value("${ship.chunk.content.type}") String shipChunkContentType,
+    @Value("${chunk.duration.seconds}") int chunkTargetDuration,
+    @Value("${temp.file.path.prefix}") String tempFilePathPrefix,
+    @Value("${ship.mode}") String shipMode,
+    @Value("${ship.mpeg.verbosity}") String shipFFmpegVerbosity,
+    @Value("${ship.chunk.audio.encoder}") String shipChunkAudioEncoder
   ) {
     this.playlistPublisher = playlistPublisher;
     this.fileStoreProvider = fileStoreProvider;
@@ -51,14 +51,13 @@ public class BroadcastFactoryImpl implements BroadcastFactory {
   }
 
   @Override
-  public StreamEncoder encoder(String shipKey, AudioFormat format, Long initialSeqNum) {
-    return new StreamEncoderImpl(shipKey, format, initialSeqNum, fileStoreProvider, playlistPublisher,
+  public StreamEncoder encoder(AudioFormat format, String shipKey) {
+    return new StreamEncoderImpl(shipKey, format, fileStoreProvider, playlistPublisher,
       bitrate,
       streamBucket,
       shipChunkContentType,
       chunkTargetDuration,
       tempFilePathPrefix,
-      shipMode,
       shipFFmpegVerbosity,
       shipChunkAudioEncoder
     );

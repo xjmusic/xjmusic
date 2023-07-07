@@ -55,6 +55,18 @@ public interface SegmentManager extends Manager<Segment> {
   List<Segment> readAllSpanning(UUID chainId, Long fromChainMicros, Long toChainMicros);
 
   /**
+   * Get the segment at the given chain microseconds, if it is ready
+   * segment beginning <= chain microseconds <= end
+   * <p>
+   * Note this algorithm intends to get the latter segment when the lookup point is on the line between two segments
+   *
+   * @param chainId     the chain id for which to get the segment
+   * @param chainMicros the chain microseconds for which to get the segment
+   * @return the segment at the given chain microseconds, or an empty optional if the segment is not ready
+   */
+  Optional<Segment> readOneAtChainMicros(UUID chainId, long chainMicros);
+
+  /**
    * Fetch id for the Segment in a Chain at a given offset, if present
    *
    * @param chainId to fetch segment for
@@ -142,18 +154,6 @@ public interface SegmentManager extends Manager<Segment> {
    * @return true if segment exists
    */
   boolean exists(UUID id);
-
-  /**
-   * Get the segment at the given chain microseconds, if it is ready
-   * segment beginning <= chain microseconds <= end
-   * <p>
-   * Note this algorithm intends to get the latter segment when the lookup point is on the line between two segments
-   *
-   * @param chainId     the chain id for which to get the segment
-   * @param chainMicros the chain microseconds for which to get the segment
-   * @return the segment at the given chain microseconds, or an empty optional if the segment is not ready
-   */
-  Optional<Segment> readOneAt(UUID chainId, long chainMicros) throws NexusException;
 
   /**
    * Get chain for segment

@@ -5,12 +5,10 @@ package io.xj.nexus.ship.broadcast;
 
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
-import io.xj.lib.mixer.FormatException;
 import io.xj.lib.util.Files;
 import io.xj.lib.util.StreamLogger;
 import io.xj.lib.util.Values;
 import io.xj.nexus.ship.ShipException;
-import io.xj.nexus.ship.ShipMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,13 +24,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
-import static io.xj.lib.util.Values.byteBufferOf;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class StreamEncoderImpl implements StreamEncoder {
   private static final Logger LOG = LoggerFactory.getLogger(StreamEncoderImpl.class);
-  private static final String THREAD_NAME = "StreamEncoder";
-  private final AudioFormat format;
   private final ConcurrentLinkedQueue<ByteBuffer> queue = new ConcurrentLinkedQueue<>();
   private final FileStoreProvider fileStore;
   private final PlaylistPublisher playlist;
@@ -41,12 +36,11 @@ public class StreamEncoderImpl implements StreamEncoder {
   private final String playlistPath;
   private final String tempFilePathPrefix;
   private Process ffmpeg;
-  private volatile boolean active;
+  private final AtomicBoolean running = new AtomicBoolean(true);
 
   public StreamEncoderImpl(
     String shipKey,
     AudioFormat format,
-    Long initialSeqNum,
     FileStoreProvider fileStore,
     PlaylistPublisher playlist,
     int bitrate,
@@ -54,12 +48,10 @@ public class StreamEncoderImpl implements StreamEncoder {
     String shipChunkContentType,
     int chunkTargetDuration,
     String tempFilePathPrefix,
-    String shipMode,
     String shipFFmpegVerbosity,
     String shipChunkAudioEncoder
   ) {
     this.fileStore = fileStore;
-    this.format = format;
     this.playlist = playlist;
 
     this.bucket = streamBucket;
@@ -69,82 +61,65 @@ public class StreamEncoderImpl implements StreamEncoder {
     String m3u8Key = String.format("%s.m3u8", shipKey);
     playlistPath = String.format("%s%s", tempFilePathPrefix, m3u8Key);
 
-    active = ShipMode.HLS.equals(shipMode);
-
-    if (active)
-      CompletableFuture.runAsync(() -> {
-        final Thread currentThread = Thread.currentThread();
-        final String oldName = currentThread.getName();
-        currentThread.setName(THREAD_NAME);
-        try {
-          ProcessBuilder builder = new ProcessBuilder(List.of(
-            "ffmpeg",
-            "-v", shipFFmpegVerbosity,
-            "-i", "pipe:0",
-            "-ac", "2",
-            "-c:a", shipChunkAudioEncoder,
-            "-b:a", Values.k(bitrate),
-            "-maxrate", Values.k(bitrate),
-            "-minrate", Values.k(bitrate),
-            // HLS
-            "-f", "hls",
-            "-start_number", String.valueOf(initialSeqNum),
-            "-initial_offset", String.valueOf(initialSeqNum),
-            "-hls_flags", "delete_segments",
-            "-hls_playlist_type", "event",
-            "-hls_segment_filename", String.format("%s%s-%%d.%s", tempFilePathPrefix, shipKey, shipChunkAudioEncoder),
-            "-hls_time", String.valueOf(chunkTargetDuration),
-            playlistPath
-          ));
-          builder.redirectErrorStream(true);
-          ffmpeg = builder.start();
-
-          // Start consumer to read the stdout
-          CompletableFuture.runAsync(new StreamLogger(LOG, ffmpeg.getInputStream(), "stdout"));
-
-          // Start the audio stream of data to ffmpeg. Write the WAV header once
-          try (AudioInputStream ais = new AudioInputStream(new ByteArrayInputStream(new byte[0]), format, 0)) {
-            AudioSystem.write(ais, AudioFileFormat.Type.WAVE, ffmpeg.getOutputStream());
-          }
-
-          while (active) {
-            var bytes = queue.poll();
-            if (Objects.isNull(bytes)) continue;
-            if (!ffmpeg.isAlive()) {
-              LOG.error("Exited with code {}", ffmpeg.exitValue());
-              active = false;
-              continue;
-            }
-
-            ffmpeg.getOutputStream().write(bytes.array());
-            LOG.debug("received {} bytes of audio data", bytes.array().length);
-          }
-        } catch (IOException e) {
-          LOG.error("Failed while streaming bytes to ffmpeg!", e);
-        } finally {
-          currentThread.setName(oldName);
-          if (Objects.nonNull(ffmpeg)) ffmpeg.destroy();
-        }
-      });
-  }
-
-  @Override
-  public double[][] append(double[][] samples) throws ShipException {
-    if (!active)
-      return samples;
-
     try {
-      queue.add(byteBufferOf(format, samples));
-      return samples;
+      ProcessBuilder builder = new ProcessBuilder(List.of(
+        "ffmpeg",
+        "-v", shipFFmpegVerbosity,
+        "-i", "pipe:0",
+        "-ac", "2",
+        "-c:a", shipChunkAudioEncoder,
+        "-b:a", Values.k(bitrate),
+        "-maxrate", Values.k(bitrate),
+        "-minrate", Values.k(bitrate),
+        // HLS
+        "-f", "hls",
+        "-start_number", "0",
+        "-initial_offset", "0",
+        "-hls_flags", "delete_segments",
+        "-hls_playlist_type", "event",
+        "-hls_segment_filename", String.format("%s%s-%%d.%s", tempFilePathPrefix, shipKey, shipChunkAudioEncoder),
+        "-hls_time", String.valueOf(chunkTargetDuration),
+        playlistPath
+      ));
+      builder.redirectErrorStream(true);
+      ffmpeg = builder.start();
 
-    } catch (FormatException e) {
-      throw new ShipException("Failed to append data to stream!", e);
+      // Start consumer to read the stdout
+      CompletableFuture.runAsync(new StreamLogger(LOG, ffmpeg.getInputStream(), "stdout"));
+
+      // Start the audio stream of data to ffmpeg. Write the WAV header once
+      try (AudioInputStream ais = new AudioInputStream(new ByteArrayInputStream(new byte[0]), format, 0)) {
+        AudioSystem.write(ais, AudioFileFormat.Type.WAVE, ffmpeg.getOutputStream());
+      }
+
+      while (running.get()) {
+        var bytes = queue.poll();
+        if (Objects.isNull(bytes)) continue;
+        if (!ffmpeg.isAlive()) {
+          LOG.error("Exited with code {}", ffmpeg.exitValue());
+          running.set(false);
+          continue;
+        }
+
+        ffmpeg.getOutputStream().write(bytes.array());
+        LOG.debug("received {} bytes of audio data", bytes.array().length);
+      }
+    } catch (IOException e) {
+      LOG.error("Failed while streaming bytes to ffmpeg!", e);
+    } finally {
+      if (Objects.nonNull(ffmpeg)) ffmpeg.destroy();
     }
   }
 
   @Override
+  public void append(byte[] samples) throws ShipException {
+    queue.add(ByteBuffer.wrap(samples));
+
+  }
+
+  @Override
   public void publish(long atMillis) throws ShipException {
-    if (active)
+    if (running.get())
       try {
         // test for existence of playlist file; skip if nonexistent
         if (!new File(playlistPath).exists()) return;
@@ -166,14 +141,19 @@ public class StreamEncoderImpl implements StreamEncoder {
   public void close() {
     if (Objects.nonNull(ffmpeg))
       ffmpeg.destroy();
-    active = false;
+    running.set(false);
   }
 
   @Override
   public boolean isHealthy() {
-    if (!active) return notHealthy("Not Active!");
+    if (!running.get()) return notHealthy("Not Active!");
     if (!ffmpeg.isAlive()) return notHealthy("FFMPEG is not alive!");
     return true;
+  }
+
+  @Override
+  public void setPlaylistAtChainMicros(long atChainMicros) {
+    playlist.setAtChainMicros(atChainMicros);
   }
 
   /**

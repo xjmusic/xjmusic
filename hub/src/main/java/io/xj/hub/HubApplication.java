@@ -33,14 +33,22 @@ public class HubApplication {
   private final String platformEnvironment;
 
   @Autowired
-  public HubApplication(HubKvStoreProvider hubKvStoreProvider, HubSqlStoreProvider hubSqlStoreProvider, EntityFactory entityFactory, HubMigration hubMigration, AppConfiguration config, @Value("${hostname}") String hostname, @Value("${platform.environment}") String platformEnvironment) {
+  public HubApplication(
+    HubKvStoreProvider hubKvStoreProvider,
+    HubSqlStoreProvider hubSqlStoreProvider,
+    EntityFactory entityFactory,
+    HubMigration hubMigration,
+    AppConfiguration config,
+    @Value("${hostname}") String hostname,
+    @Value("${environment}") String environment
+  ) {
     this.hubKvStoreProvider = hubKvStoreProvider;
     this.hubSqlStoreProvider = hubSqlStoreProvider;
     this.entityFactory = entityFactory;
     this.hubMigration = hubMigration;
     this.config = config;
     this.hostname = hostname;
-    this.platformEnvironment = platformEnvironment;
+    this.platformEnvironment = environment;
   }
 
   @EventListener(ContextRefreshedEvent.class)

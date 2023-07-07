@@ -117,6 +117,8 @@ public class SegmentsTest extends TestCase {
   }
 
   public void testIsSpanning() {
+    assertTrue(Segments.isSpanning(seg1, 32 * MICROS_PER_SECOND,32 * MICROS_PER_SECOND)); // true if exactly at beginning of segment
+    assertFalse(Segments.isSpanning(seg1, 64 * MICROS_PER_SECOND,64 * MICROS_PER_SECOND)); // false if exactly at end of segment
     assertFalse(Segments.isSpanning(seg1, 15 * MICROS_PER_SECOND, 30 * MICROS_PER_SECOND));
     assertTrue(Segments.isSpanning(seg1, 20 * MICROS_PER_SECOND, 36 * MICROS_PER_SECOND));
     assertTrue(Segments.isSpanning(seg1, 35 * MICROS_PER_SECOND, 52 * MICROS_PER_SECOND));

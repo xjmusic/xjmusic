@@ -20,14 +20,14 @@ public class OutputModeTest {
   @Test
   public void isSync() {
     assertTrue(OutputMode.HLS.isSync());
-    assertFalse(OutputMode.PLAYBACK.isSync());
+    assertTrue(OutputMode.PLAYBACK.isSync());
     assertFalse(OutputMode.FILE.isSync());
   }
 
   @Test
   public void isAsync() {
     assertFalse(OutputMode.HLS.isAsync());
-    assertTrue(OutputMode.PLAYBACK.isAsync());
+    assertFalse(OutputMode.PLAYBACK.isAsync());
     assertTrue(OutputMode.FILE.isAsync());
   }
 }

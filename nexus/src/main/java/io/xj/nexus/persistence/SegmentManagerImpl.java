@@ -42,9 +42,8 @@ import static io.xj.lib.util.Values.MICROS_PER_SECOND;
  */
 @Service
 public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentManager {
-  public static final Long LENGTH_MINIMUM_MICROS = MICROS_PER_SECOND; //
-  public static final Double AMPLITUDE_MINIMUM = 0.0; //
-  private static final long SEGMENT_TIME_MATCH_THRESHOLD_MICROS = 5;
+  public static final Long LENGTH_MINIMUM_MICROS = MICROS_PER_SECOND;
+  public static final Double AMPLITUDE_MINIMUM = 0.0;
 
   @Autowired
   public SegmentManagerImpl(
@@ -158,6 +157,20 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
     }
   }
 
+
+  @Override
+  public Optional<Segment> readOneAtChainMicros(UUID chainId, long chainMicros) {
+    try {
+      var segments = store.getAllSegments(chainId)
+        .stream()
+        .filter(s -> Segments.isSpanning(s, chainMicros, chainMicros))
+        .sorted(Comparator.comparing(Segment::getOffset))
+        .toList();
+      return segments.isEmpty() ? Optional.empty() : Optional.of(segments.get(segments.size() - 1));
+    } catch (NexusException e) {
+      return Optional.empty();
+    }
+  }
 
   @Override
   public Optional<Segment> readOneAtChainOffset(UUID chainId, Long offset) {
@@ -327,16 +340,6 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   @Override
   public boolean exists(UUID id) {
     return store.segmentExists(id);
-  }
-
-  @Override
-  public Optional<Segment> readOneAt(UUID chainId, long chainMicros) throws NexusException {
-    var segments = store.getAllSegments(chainId)
-      .stream()
-      .filter(s -> Objects.nonNull(s.getDurationMicros()) && s.getBeginAtChainMicros() + s.getDurationMicros() < chainMicros + SEGMENT_TIME_MATCH_THRESHOLD_MICROS && chainMicros <= s.getBeginAtChainMicros())
-      .sorted(Comparator.comparing(Segment::getOffset))
-      .toList();
-    return segments.isEmpty() ? Optional.empty() : Optional.of(segments.get(segments.size() - 1));
   }
 
   @Override

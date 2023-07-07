@@ -18,9 +18,8 @@ public interface BroadcastFactory {
    * @return stream
    */
   StreamEncoder encoder(
-    String shipKey,
     AudioFormat format,
-    Long initialSeqNum
+    String shipKey
   );
 
   /**

@@ -83,7 +83,15 @@ public interface CraftWork {
    * @param chainMicros the microseconds since beginning of chain for which to get the segment
    * @return the segment at the given chain microseconds, or an empty optional if the segment is not ready
    */
-  Optional<Segment> getSegmentAt(long chainMicros);
+  Optional<Segment> getSegmentAtChainMicros(long chainMicros);
+
+  /**
+   * Get the segment at the given offset, if it is ready
+   *
+   * @param offset of segment
+   * @return the segment at the given offset
+   */
+  Optional<Segment> getSegmentAtOffset(long offset);
 
   /**
    * Get the segments spanning the given time range, if they are ready- if not, return an empty list
@@ -147,6 +155,7 @@ public interface CraftWork {
 
   /**
    * Whether craft work has failed
+   *
    * @return true if failed
    */
   boolean isFailed();

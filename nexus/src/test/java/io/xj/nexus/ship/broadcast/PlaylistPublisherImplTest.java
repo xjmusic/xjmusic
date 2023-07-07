@@ -40,7 +40,7 @@ public class PlaylistPublisherImplTest {
     chunkFactory = new ChunkFactoryImpl("aac", 10);
     MediaSeqNumProvider mediaSeqNumProvider = new MediaSeqNumProvider(1);
     playlistPublisher = new PlaylistPublisherImpl(chunkFactory, fileStoreProvider, httpClientProvider, mediaSeqNumProvider, telemetryProvider,
-      "nexus", "xj-prod-stream", 10, "", 0, 10, 300, "https://stream.xj.io/",
+      "nexus", "xj-prod-stream", 10, "", 0, 10, "https://stream.xj.io/",
       "aac", "coolair", "");
 
     var chain = buildChain(buildTemplate(buildAccount("Testing"), "Testing"));

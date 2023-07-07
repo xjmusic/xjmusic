@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -70,7 +69,6 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   private final int chunkDurationSeconds;
   private final int m3u8MaxAgeSeconds;
   private final int m3u8ServerControlHoldBackSeconds;
-  private final int playlistBackSeconds;
 
   @Nullable
   private final String m3u8KeyAlias;
@@ -88,7 +86,6 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     @Value("${ship.m3u8.content.type}") String shipM3u8ContentType,
     @Value("${ship.m3u8.max.age.seconds}") int shipM3u8MaxAgeSeconds,
     @Value("${ship.m3u8.server.control.hold.back.extra.seconds}") int shipM3u8ServerControlHoldBackExtraSeconds,
-    @Value("${ship.playlist.back.seconds}") int shipPlaylistBackSeconds,
     @Value("${stream.base.url}") String streamBaseUrl,
     @Value("${ship.chunk.audio.encoder}") String shipChunkAudioEncoder,
     @Value("${input.template.key}") String shipKey,
@@ -107,7 +104,6 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     this.m3u8ContentType = shipM3u8ContentType;
     this.m3u8MaxAgeSeconds = shipM3u8MaxAgeSeconds;
     this.m3u8ServerControlHoldBackSeconds = 3 * this.chunkDurationSeconds + shipM3u8ServerControlHoldBackExtraSeconds;
-    this.playlistBackSeconds = shipPlaylistBackSeconds;
     this.streamBaseUrl = streamBaseUrl;
 
     // Computed
@@ -296,6 +292,11 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   }
 
   @Override
+  public void setAtChainMicros(long atChainMicros) {
+    toChainMicros.set(atChainMicros);
+  }
+
+  @Override
   public Long getMaxToChainMicros() {
     return items.values().stream().max(Chunk::compare).map(Chunk::getToChainMicros).orElse(0L);
   }
@@ -305,7 +306,6 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
    */
   private void recomputeMaxSequenceNumber() {
     maxSequenceNumber.set(items.keySet().stream().max(Long::compare).orElse(0L));
-    toChainMicros.set(items.values().stream().max(Comparator.comparingLong((Chunk::getToChainMicros))).map(Chunk::getToChainMicros).orElse(0L));
   }
 
   /**
