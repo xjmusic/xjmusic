@@ -26,6 +26,7 @@ public interface Text {
   Pattern nonAlphanumeric = Pattern.compile("[^a-zA-Z0-9.\\-]"); // include decimal and sign
   Pattern nonNumeric = Pattern.compile("[^0-9.\\-]"); // include decimal and sign
   Pattern nonSlug = Pattern.compile("[^a-zA-Z0-9]");
+  Pattern nonHyphenatedSlug = Pattern.compile("[^a-zA-Z0-9\\-]");
   Pattern nonMeme = Pattern.compile("[^a-zA-Z0-9!$]");
   Pattern nonEvent = Pattern.compile("[^a-zA-Z]");
   Pattern nonScored = Pattern.compile("[^a-zA-Z0-9_]");
@@ -169,7 +170,7 @@ public interface Text {
    * @return purified
    */
   static String toLowerHyphenatedSlug(String raw) {
-    return toSlug(raw).replace(" ", "-").toLowerCase(Locale.ENGLISH);
+    return nonHyphenatedSlug.matcher(raw.replace(" ", "-")).replaceAll(NOTHING).toLowerCase(Locale.ENGLISH);
   }
 
   /**
