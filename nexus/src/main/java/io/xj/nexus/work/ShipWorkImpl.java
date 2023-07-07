@@ -8,7 +8,6 @@ import io.xj.lib.mixer.AudioFileWriter;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.MultiStopwatch;
 import io.xj.lib.util.Text;
-import io.xj.nexus.NexusException;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.model.Segment;
@@ -50,7 +49,6 @@ public class ShipWorkImpl implements ShipWork {
   private WorkState state = WorkState.Initializing;
   private final AtomicBoolean running = new AtomicBoolean(true);
   private final BroadcastFactory broadcastFactory;
-  private final CraftWork craftWork;
   private final DubWork dubWork;
   private final NotificationProvider notification;
   private final OutputFileMode outputFileMode;
@@ -70,7 +68,6 @@ public class ShipWorkImpl implements ShipWork {
   @Autowired
   public ShipWorkImpl(
     DubWork dubWork,
-    CraftWork craftWork,
     NotificationProvider notification,
     BroadcastFactory broadcastFactory,
     @Value("${output.mode}") String outputMode,
@@ -84,7 +81,6 @@ public class ShipWorkImpl implements ShipWork {
     @Value("${output.pcm.chunk.size.bytes}") int pcmChunkSizeBytes
   ) {
     this.broadcastFactory = broadcastFactory;
-    this.craftWork = craftWork;
     this.cycleAudioBytes = cycleAudioBytes;
     this.cycleMillis = cycleMillis;
     this.dubWork = dubWork;
@@ -102,11 +98,6 @@ public class ShipWorkImpl implements ShipWork {
   public void start() {
     timer = MultiStopwatch.start();
     while (running.get()) {
-      if (craftWork.isFailed()) {
-        LOG.warn("CraftWork failed, stopping");
-        finish();
-      }
-
       if (dubWork.isFailed()) {
         LOG.warn("DubWork failed, stopping");
         finish();
@@ -164,7 +155,7 @@ public class ShipWorkImpl implements ShipWork {
       LOG.debug("Waiting for audio format to be available.");
       return;
     }
-    var chain = craftWork.getChain();
+    var chain = dubWork.getChain();
     if (chain.isEmpty()) {
       LOG.debug("Waiting for Dub to begin");
       return;
@@ -173,7 +164,7 @@ public class ShipWorkImpl implements ShipWork {
     switch (outputMode) {
       case HLS -> {
         LOG.info("Will initialize HLS output");
-        encoder = broadcastFactory.encoder(audioFormat.get(), craftWork.getInputTemplateKey());
+        encoder = broadcastFactory.encoder(audioFormat.get(), dubWork.getInputTemplateKey());
         doInitializedOK();
       }
       case PLAYBACK -> {
@@ -192,7 +183,7 @@ public class ShipWorkImpl implements ShipWork {
   /**
    * Do the output
    */
-  private void doWork() throws InterruptedException, ShipException, IOException, NexusException {
+  private void doWork() throws InterruptedException, ShipException, IOException {
     if (dubWork.getMixerBuffer().isEmpty() || dubWork.getMixerOutputMicrosPerByte().isEmpty()) return;
     if (isAheadOfSync()) return;
     switch (outputMode) {
@@ -271,13 +262,13 @@ public class ShipWorkImpl implements ShipWork {
   /**
    * Ship available bytes from the dub mixer buffer to the output method
    */
-  private void doShipOutputFile() throws IOException, NexusException {
+  private void doShipOutputFile() throws IOException {
     if (Objects.isNull(fileWriter)) {
       LOG.debug("File writer is null, won't ship output file");
       return;
     }
     Optional<Segment> segment;
-    segment = craftWork.getSegmentAtChainMicros(atChainMicros); // first, get the segment exactly at the playhead
+    segment = dubWork.getSegmentAtChainMicros(atChainMicros); // first, get the segment exactly at the play head
     if (segment.isEmpty()) {
       LOG.debug("No segment available at chain micros {}", atChainMicros);
       return;
@@ -290,7 +281,7 @@ public class ShipWorkImpl implements ShipWork {
       if (outputFile.getToChainMicros() - atChainMicros < pcmChunkSizeBytes * dubWork.getMixerOutputMicrosPerByte().orElseThrow()) { // check to see if we are at risk of getting stuck in this last pcm chunk of the segment-- this would never advance to the next segment/output file
         LOG.debug("Not enough space in current output file, will advance to next segment");
         var nextOffset = segment.get().getOffset() + 1;
-        segment = craftWork.getSegmentAtOffset(nextOffset);
+        segment = dubWork.getSegmentAtOffset(nextOffset);
         if (segment.isEmpty()) {
           LOG.debug("No segment available at chain offset {}", nextOffset);
           return;
@@ -301,8 +292,8 @@ public class ShipWorkImpl implements ShipWork {
           case CONTINUOUS -> outputFile.add(segment.get());
           case SEGMENT -> doShipOutputFileStartNext(segment.get());
           case MAIN -> {
-            var currentMainProgram = craftWork.getMainProgram(outputFile.getLastSegment());
-            var nextMainProgram = craftWork.getMainProgram(segment.get());
+            var currentMainProgram = dubWork.getMainProgram(outputFile.getLastSegment());
+            var nextMainProgram = dubWork.getMainProgram(segment.get());
             if (currentMainProgram.isEmpty() || nextMainProgram.isEmpty()) {
               LOG.debug("Not fully ready, waiting for current and/or next main program");
               return;
@@ -314,8 +305,8 @@ public class ShipWorkImpl implements ShipWork {
             }
           }
           case MACRO -> {
-            var currentMacroProgram = craftWork.getMacroProgram(outputFile.getLastSegment());
-            var nextMacroProgram = craftWork.getMacroProgram(segment.get());
+            var currentMacroProgram = dubWork.getMacroProgram(outputFile.getLastSegment());
+            var nextMacroProgram = dubWork.getMacroProgram(segment.get());
             if (currentMacroProgram.isEmpty() || nextMacroProgram.isEmpty()) {
               LOG.debug("Not fully ready, waiting for current and/or next macro program");
               return;
@@ -452,30 +443,25 @@ public class ShipWorkImpl implements ShipWork {
 
     public String getPath() {
       return outputPathPrefix +
-        craftWork.getInputTemplateKey() +
+        dubWork.getInputTemplateKey() +
         "-" + Text.zeroPadded(outputFileNum++, outputFileNumberDigits) +
         getPathDescriptionIfRelevant() +
         ".wav";
     }
 
     private String getPathDescriptionIfRelevant() {
-      try {
-        switch (outputFileMode) {
-          default -> {
-            return "";
-          }
-          case MAIN -> {
-            Optional<Program> mainProgram = craftWork.getMainProgram(getLastSegment());
-            return mainProgram.map(program -> "-" + Text.toLowerHyphenatedSlug(program.getName())).orElse("");
-          }
-          case MACRO -> {
-            Optional<Program> macroProgram = craftWork.getMacroProgram(getLastSegment());
-            return macroProgram.map(program -> "-" + Text.toLowerHyphenatedSlug(program.getName())).orElse("");
-          }
+      switch (outputFileMode) {
+        default -> {
+          return "";
         }
-      } catch (NexusException e) {
-        LOG.warn("Failed to get program for segment", e);
-        return "";
+        case MAIN -> {
+          Optional<Program> mainProgram = dubWork.getMainProgram(getLastSegment());
+          return mainProgram.map(program -> "-" + Text.toLowerHyphenatedSlug(program.getName())).orElse("");
+        }
+        case MACRO -> {
+          Optional<Program> macroProgram = dubWork.getMacroProgram(getLastSegment());
+          return macroProgram.map(program -> "-" + Text.toLowerHyphenatedSlug(program.getName())).orElse("");
+        }
       }
     }
   }

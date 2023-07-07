@@ -549,7 +549,7 @@ public interface Fabricator {
   /**
    * @return the total number of seconds in the segment
    */
-  long getTotalMicros() throws NexusException;
+  long getTotalSegmentMicros() throws NexusException;
 
   /**
    * The segment being fabricated

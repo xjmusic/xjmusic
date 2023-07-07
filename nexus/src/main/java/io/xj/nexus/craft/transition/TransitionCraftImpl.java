@@ -135,17 +135,17 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     var big = pickAudioForInstrument(instrument, largeNames);
 
     if (small.isPresent())
-      pickTransition(arrangement, small.get(), 0, fabricator.getTotalMicros(), smallNames.get(0));
+      pickTransition(arrangement, small.get(), 0, fabricator.getTotalSegmentMicros(), smallNames.get(0));
     else if (isMediumTransitionSegment() && medium.isPresent())
-      pickTransition(arrangement, medium.get(), 0, fabricator.getTotalMicros(), mediumNames.get(0));
+      pickTransition(arrangement, medium.get(), 0, fabricator.getTotalSegmentMicros(), mediumNames.get(0));
     else if (isBigTransitionSegment() && big.isPresent())
-      pickTransition(arrangement, big.get(), 0, fabricator.getTotalMicros(), largeNames.get(0));
+      pickTransition(arrangement, big.get(), 0, fabricator.getTotalSegmentMicros(), largeNames.get(0));
 
     var deltaUnits = Bar.of(fabricator.getCurrentMainProgramConfig().getBarBeats()).computeSubsectionBeats(fabricator.getSegment().getTotal());
     var pos = deltaUnits;
     while (pos < fabricator.getSegment().getTotal()) {
       if (small.isPresent())
-        pickTransition(arrangement, small.get(), fabricator.getSegmentMicrosAtPosition(pos), fabricator.getTotalMicros(), smallNames.get(0));
+        pickTransition(arrangement, small.get(), fabricator.getSegmentMicrosAtPosition(pos), fabricator.getTotalSegmentMicros(), smallNames.get(0));
       pos += deltaUnits;
     }
   }

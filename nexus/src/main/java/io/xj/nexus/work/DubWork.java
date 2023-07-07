@@ -1,7 +1,10 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.work;
 
+import io.xj.hub.tables.pojos.Program;
 import io.xj.lib.mixer.BytePipeline;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.Segment;
 
 import javax.sound.sampled.AudioFormat;
 import java.io.IOException;
@@ -88,4 +91,50 @@ public interface DubWork {
    * @return the number of bytes per microsecond, or empty if not yet available
    */
   Optional<Float> getMixerOutputMicrosPerByte();
+
+  /**
+   * Get the chain from craft work
+   *
+   * @return chain or empty if not yet available
+   */
+  Optional<Chain> getChain();
+
+  /**
+   * Get the input template key
+   *
+   * @return the input template key
+   */
+  String getInputTemplateKey();
+
+  /**
+   * Get the segment at the given chain micros
+   *
+   * @param atChainMicros the chain micros
+   * @return the segment, or empty if not yet available
+   */
+  Optional<Segment> getSegmentAtChainMicros(long atChainMicros);
+
+  /**
+   * Get the segment at the given offset
+   *
+   * @param offset the offset
+   * @return the segment, or empty if not yet available
+   */
+  Optional<Segment> getSegmentAtOffset(long offset);
+
+  /**
+   * Get the main program for the given segment
+   *
+   * @param segment for which to get program
+   * @return main program or empty if not yet available
+   */
+  Optional<Program> getMainProgram(Segment segment);
+
+  /**
+   * Get the macro program for the given segment
+   *
+   * @param segment for which to get program
+   * @return macro program or empty if not yet available
+   */
+  Optional<Program> getMacroProgram(Segment segment);
 }

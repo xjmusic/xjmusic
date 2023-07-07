@@ -143,7 +143,7 @@ public interface CraftWork {
    * @param segment for which to get main program
    * @return the main program for the given segment, or empty if not chosen
    */
-  Optional<Program> getMainProgram(Segment segment) throws NexusException;
+  Optional<Program> getMainProgram(Segment segment);
 
   /**
    * Get the macro program for the given segment
@@ -151,7 +151,7 @@ public interface CraftWork {
    * @param segment for which to get macro program
    * @return the macro program for the given segment, or empty if not chosen
    */
-  Optional<Program> getMacroProgram(Segment segment) throws NexusException;
+  Optional<Program> getMacroProgram(Segment segment);
 
   /**
    * Whether craft work has failed

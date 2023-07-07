@@ -789,7 +789,7 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public long getTotalMicros() throws NexusException {
+  public long getTotalSegmentMicros() throws NexusException {
     return getSegmentMicrosAtPosition(getSegment().getTotal());
   }
 

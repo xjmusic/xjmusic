@@ -564,7 +564,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     if (picks.isEmpty()) return;
 
     // build an ordered unique list of the moments in time when the one-shot will be cut off
-    List<Long> cutoffs = picks.stream().map(SegmentChoiceArrangementPick::getStartAtSegmentMicros).collect(Collectors.toSet()).stream().sorted().toList();
+    List<Long> cutoffAtSegmentMicros = picks.stream().map(SegmentChoiceArrangementPick::getStartAtSegmentMicros).collect(Collectors.toSet()).stream().sorted().toList();
 
     // iterate and set lengths of all picks in series
     for (SegmentChoiceArrangementPick pick : picks) {
@@ -572,16 +572,16 @@ public class CraftImpl extends FabricationWrapperImpl {
       // Skip picks that already have their end length set
       if (Objects.nonNull(pick.getLengthMicros())) continue;
 
-      var nextCutoff = cutoffs.stream().filter(c -> c > pick.getStartAtSegmentMicros()).findFirst();
+      var nextCutoffAtSegmentMicros = cutoffAtSegmentMicros.stream().filter(c -> c > pick.getStartAtSegmentMicros()).findFirst();
 
-      if (nextCutoff.isPresent()) {
-        pick.setLengthMicros(nextCutoff.get() - pick.getStartAtSegmentMicros());
+      if (nextCutoffAtSegmentMicros.isPresent()) {
+        pick.setLengthMicros(nextCutoffAtSegmentMicros.get() - pick.getStartAtSegmentMicros());
         fabricator.put(pick);
         continue;
       }
 
-      if (pick.getStartAtSegmentMicros() < fabricator.getTotalMicros()) {
-        pick.setLengthMicros(fabricator.getTotalMicros() - pick.getStartAtSegmentMicros());
+      if (pick.getStartAtSegmentMicros() < fabricator.getTotalSegmentMicros()) {
+        pick.setLengthMicros(fabricator.getTotalSegmentMicros() - pick.getStartAtSegmentMicros());
         fabricator.put(pick);
         continue;
       }

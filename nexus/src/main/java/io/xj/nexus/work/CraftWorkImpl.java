@@ -405,29 +405,39 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   @Override
-  public Optional<Program> getMainProgram(Segment segment) throws NexusException {
-    var chain = getChain();
-    if (chain.isEmpty()) {
+  public Optional<Program> getMainProgram(Segment segment) {
+    try {
+      var chain = getChain();
+      if (chain.isEmpty()) {
+        return Optional.empty();
+      }
+      var mainChoice = store.getAll(segment.getId(), SegmentChoice.class).stream().filter(choice -> ProgramType.Main.equals(choice.getProgramType())).findFirst();
+      if (mainChoice.isEmpty()) {
+        return Optional.empty();
+      }
+      return chainSourceMaterial.getProgram(mainChoice.get().getProgramId());
+    } catch (NexusException e) {
+      LOG.warn("Unable to get main program for segment[{}] because {}", segment.getId(), e.getMessage());
       return Optional.empty();
     }
-    var mainChoice = store.getAll(segment.getId(), SegmentChoice.class).stream().filter(choice -> ProgramType.Main.equals(choice.getProgramType())).findFirst();
-    if (mainChoice.isEmpty()) {
-      return Optional.empty();
-    }
-    return chainSourceMaterial.getProgram(mainChoice.get().getProgramId());
   }
 
   @Override
-  public Optional<Program> getMacroProgram(Segment segment) throws NexusException {
-    var chain = getChain();
-    if (chain.isEmpty()) {
+  public Optional<Program> getMacroProgram(Segment segment) {
+    try {
+      var chain = getChain();
+      if (chain.isEmpty()) {
+        return Optional.empty();
+      }
+      var macroChoice = store.getAll(segment.getId(), SegmentChoice.class).stream().filter(choice -> ProgramType.Macro.equals(choice.getProgramType())).findFirst();
+      if (macroChoice.isEmpty()) {
+        return Optional.empty();
+      }
+      return chainSourceMaterial.getProgram(macroChoice.get().getProgramId());
+    } catch (NexusException e) {
+      LOG.warn("Unable to get main program for segment[{}] because {}", segment.getId(), e.getMessage());
       return Optional.empty();
     }
-    var macroChoice = store.getAll(segment.getId(), SegmentChoice.class).stream().filter(choice -> ProgramType.Macro.equals(choice.getProgramType())).findFirst();
-    if (macroChoice.isEmpty()) {
-      return Optional.empty();
-    }
-    return chainSourceMaterial.getProgram(macroChoice.get().getProgramId());
   }
 
   @Override

@@ -5,6 +5,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.tables.pojos.Program;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.mixer.BytePipeline;
 import io.xj.lib.mixer.FormatException;
@@ -17,9 +18,10 @@ import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.MultiStopwatch;
 import io.xj.lib.util.Text;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.OutputMode;
 import io.xj.nexus.dub.DubAudioCache;
 import io.xj.nexus.mixer.ActiveAudio;
+import io.xj.nexus.model.Chain;
+import io.xj.nexus.model.Segment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +32,6 @@ import javax.annotation.Nullable;
 import javax.sound.sampled.AudioFormat;
 import java.io.IOException;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -59,7 +60,6 @@ public class DubWorkImpl implements DubWork {
   private final Map<UUID, ActiveAudio> mixerActiveAudio = Maps.newConcurrentMap();
   private final MixerFactory mixerFactory;
   private final NotificationProvider notification;
-  private final OutputMode mode;
   private final int mixerLengthSeconds;
   private final long cycleMillis;
   private final long mixerLengthMicros;
@@ -75,13 +75,11 @@ public class DubWorkImpl implements DubWork {
     DubAudioCache dubAudioCache,
     MixerFactory mixerFactory,
     NotificationProvider notification,
-    @Value("${output.mode}") String mode,
     @Value("${mixer.timeline.seconds}") int mixerSeconds,
     @Value("${dub.cycle.millis}") long cycleMillis
   ) {
     this.craftWork = craftWork;
     this.dubAudioCache = dubAudioCache;
-    this.mode = OutputMode.valueOf(mode.toUpperCase(Locale.ROOT));
     this.notification = notification;
     this.mixerLengthSeconds = mixerSeconds;
     this.mixerLengthMicros = mixerLengthSeconds * MICROS_PER_SECOND;
@@ -156,6 +154,36 @@ public class DubWorkImpl implements DubWork {
       mixerOutputMicrosecondsPerByte = MICROS_PER_SECOND / (mixer.getAudioFormat().getFrameSize() * mixer.getAudioFormat().getFrameRate());
     }
     return Optional.of(mixerOutputMicrosecondsPerByte);
+  }
+
+  @Override
+  public Optional<Chain> getChain() {
+    return craftWork.getChain();
+  }
+
+  @Override
+  public String getInputTemplateKey() {
+    return craftWork.getInputTemplateKey();
+  }
+
+  @Override
+  public Optional<Segment> getSegmentAtChainMicros(long atChainMicros) {
+    return craftWork.getSegmentAtChainMicros(atChainMicros);
+  }
+
+  @Override
+  public Optional<Segment> getSegmentAtOffset(long offset) {
+    return craftWork.getSegmentAtOffset(offset);
+  }
+
+  @Override
+  public Optional<Program> getMainProgram(Segment segment) {
+    return craftWork.getMainProgram(segment);
+  }
+
+  @Override
+  public Optional<Program> getMacroProgram(Segment segment) {
+    return craftWork.getMacroProgram(segment);
   }
 
   /**
@@ -252,7 +280,7 @@ public class DubWorkImpl implements DubWork {
             return Stream.empty();
           }
           long transientMicros = Objects.nonNull(audio.get().getTransientSeconds()) ? (long) (audio.get().getTransientSeconds() * MICROS_PER_SECOND) : 0; // audio transient microseconds (to start audio before picked time)
-          @Nullable Long lengthMicros = Objects.nonNull(pick.getLengthMicros()) ? (long) (pick.getLengthMicros() * MICROS_PER_SECOND) : null; // pick length microseconds, or empty if infinite
+          @Nullable Long lengthMicros = Objects.nonNull(pick.getLengthMicros()) ? pick.getLengthMicros() : null; // pick length microseconds, or empty if infinite
           long startAtChainMicros =
             segment.getBeginAtChainMicros() // segment begin at chain microseconds
               + pick.getStartAtSegmentMicros()  // plus pick start microseconds
