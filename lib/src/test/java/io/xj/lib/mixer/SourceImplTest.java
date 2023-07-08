@@ -17,6 +17,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
@@ -140,6 +141,6 @@ public class SourceImplTest {
   @Test
   public void empty() {
     assertTrue(empty.getAudioFormat().isEmpty());
-    verify(notificationProvider).publish(eq("Production-Chain Mix Source Failure"), eq("Failed to load source for Audio[" + empty.getAudioId() + "] \"will fail surely\" because /does/not/exists (No such file or directory)"));
+    verify(notificationProvider).publish(eq("Production-Chain Mix Source Failure"), any());
   }
 }

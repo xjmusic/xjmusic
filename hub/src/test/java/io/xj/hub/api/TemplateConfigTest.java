@@ -35,7 +35,7 @@ public class TemplateConfigTest {
   public void defaultsToString() throws ValueException {
     var subject = new TemplateConfig(TemplateConfig.DEFAULT);
 
-    assertEquals(TemplateConfig.DEFAULT, subject.toString());
+    assertEquals(TemplateConfig.DEFAULT, subject.toString().replace(System.lineSeparator(),"\n"));
   }
 
   @Test

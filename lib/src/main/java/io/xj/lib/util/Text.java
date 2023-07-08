@@ -58,7 +58,7 @@ public interface Text {
    */
   static String formatMultiline(Object[] stack) {
     String[] stackLines = Arrays.stream(stack).map(String::valueOf).toArray(String[]::new);
-    return String.join(System.getProperty("line.separator"), stackLines) + System.getProperty("line.separator");
+    return String.join(System.lineSeparator(), stackLines) + System.lineSeparator();
   }
 
   /**
@@ -489,7 +489,7 @@ public interface Text {
    * @return key-value map of environment variables
    */
   static Map<String, String> parseEnvironmentVariableKeyPairs(String secretValue) {
-    return Arrays.stream(secretValue.split("\n"))
+    return Arrays.stream(secretValue.split(System.lineSeparator()))
       .map(pair -> pair.split("="))
       .collect(Collectors.toMap(p -> p[0], p -> p[1]));
   }
@@ -509,7 +509,7 @@ public interface Text {
    * @return split content
    */
   static String[] splitLines(String content) {
-    return content.split("\n");
+    return content.split(System.lineSeparator());
   }
 
   /**

@@ -218,7 +218,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     ).toList();
 
     // publish custom .m3u8 file
-    return String.join("\n", m3u8FinalLines) + "\n";
+    return Text.formatMultiline(m3u8FinalLines.toArray());
   }
 
   @Override

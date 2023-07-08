@@ -15,7 +15,7 @@ public class TextTest {
 
   @Test
   public void formatMultiline() {
-    assertEquals("Line One\nLine Two\n", Text.formatMultiline(new String[]{"Line One", "Line Two"}));
+    assertEquals("Line One"+System.lineSeparator()+"Line Two"+System.lineSeparator(), Text.formatMultiline(new String[]{"Line One", "Line Two"}));
   }
 
   @Test
@@ -235,14 +235,14 @@ public class TextTest {
         "YO", "MA",
         "HELLA", "BEANS"
       ),
-      Text.parseEnvironmentVariableKeyPairs("YO=MA\nHELLA=BEANS"));
+      Text.parseEnvironmentVariableKeyPairs("YO=MA"+System.lineSeparator()+"HELLA=BEANS"));
   }
 
   @Test
   public void splitLines() {
     assertArrayEquals(
       new String[]{"One", "Two", "Three"},
-      Text.splitLines("One\nTwo\nThree"));
+      Text.splitLines("One"+System.lineSeparator()+"Two"+System.lineSeparator()+"Three"));
   }
 
   @Test

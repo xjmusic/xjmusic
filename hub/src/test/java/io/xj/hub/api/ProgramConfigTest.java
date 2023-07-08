@@ -7,9 +7,7 @@ import io.xj.hub.tables.pojos.Program;
 import io.xj.lib.util.ValueException;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Artist saves Program config, validate & combine with defaults. https://www.pivotaltracker.com/story/show/177355683
@@ -37,7 +35,7 @@ public class ProgramConfigTest {
   public void defaultsToString() throws ValueException {
     var subject = new ProgramConfig(ProgramConfig.DEFAULT);
 
-    assertEquals(ProgramConfig.DEFAULT, subject.toString());
+    assertArrayEquals(ProgramConfig.DEFAULT.split("\n"), subject.toString().split(System.lineSeparator()));
   }
 
 }
