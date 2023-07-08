@@ -18,11 +18,11 @@ import static org.junit.Assert.assertTrue;
 @RunWith(MockitoJUnitRunner.class)
 public class PutImplTest {
 
-  private Put testPut;
+  Put testPut;
 
   @Mock
   NotificationProvider notificationProvider;
-  private UUID audioId;
+  UUID audioId;
 
   @Before
   public void setUp() throws Exception {

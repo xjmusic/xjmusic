@@ -61,14 +61,14 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CraftImplTest {
-  private static final int TEST_REPEAT_TIMES = 20;
+  static final int TEST_REPEAT_TIMES = 20;
   @Mock
   public Fabricator fabricator;
   @Mock
   public HubContent sourceMaterial;
-  private CraftImpl subject;
-  private Segment segment0;
-  private Program program1;
+  CraftImpl subject;
+  Segment segment0;
+  Program program1;
 
   @Before
   public void setUp() throws Exception {

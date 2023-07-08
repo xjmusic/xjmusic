@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/config")
 public class ConfigController extends HubJsonapiEndpoint {
-    private final Map<String, Object> configMap;
+    final Map<String, Object> configMap;
 
   /**
    * Constructor

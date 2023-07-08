@@ -14,7 +14,7 @@ public enum ChainType {
 
   PRODUCTION("Production");
 
-  private String value;
+  String value;
 
   ChainType(String value) {
     this.value = value;

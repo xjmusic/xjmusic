@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class HttpClientProviderImpl implements HttpClientProvider {
-  private final PoolingHttpClientConnectionManager cm;
+  final PoolingHttpClientConnectionManager cm;
 
   @Autowired
   public HttpClientProviderImpl(

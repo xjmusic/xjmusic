@@ -6,13 +6,13 @@ package io.xj.lib.music;
  Step to another pitch class, including optional +/- octave delta
  */
 public class Step {
-  private final PitchClass pitchClass;
-  private final Integer deltaOctave;
+  final PitchClass pitchClass;
+  final Integer deltaOctave;
 
   /**
-   Private constructor
+   constructor
    */
-  private Step(PitchClass pitchClass, Integer deltaOctave) {
+  Step(PitchClass pitchClass, Integer deltaOctave) {
     this.pitchClass = pitchClass;
     this.deltaOctave = deltaOctave;
   }

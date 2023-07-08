@@ -9,11 +9,11 @@ import java.util.UUID;
 
 @Service
 public class MixerFactoryImpl implements MixerFactory {
-  private final EnvelopeProvider envelopeProvider;
-  private final NotificationProvider notification;
-  private final String environment;
+  final EnvelopeProvider envelopeProvider;
+  final NotificationProvider notification;
+  final String environment;
 
-  private int mixerOutputPipeSize;
+  int mixerOutputPipeSize;
 
   @Autowired
   public MixerFactoryImpl(

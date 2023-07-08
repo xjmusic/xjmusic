@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class JsonapiPayloadFactoryImpl implements JsonapiPayloadFactory {
-  private final EntityFactory entityFactory;
+  final EntityFactory entityFactory;
 
   @Autowired
   public JsonapiPayloadFactoryImpl(
@@ -444,7 +444,7 @@ public class JsonapiPayloadFactoryImpl implements JsonapiPayloadFactory {
    @param resourceType   to require a primary object of
    @throws JsonapiException if there exists NO primary object of the specified type
    */
-  private JsonapiPayloadObject extractPrimaryObject(JsonapiPayload jsonapiPayload, String resourceType) throws JsonapiException {
+  JsonapiPayloadObject extractPrimaryObject(JsonapiPayload jsonapiPayload, String resourceType) throws JsonapiException {
     Optional<JsonapiPayloadObject> obj = jsonapiPayload.getDataOne();
     if (obj.isEmpty())
       throw new JsonapiException("Cannot deserialize single entity create payload without singular data!");
@@ -460,7 +460,7 @@ public class JsonapiPayloadFactoryImpl implements JsonapiPayloadFactory {
    @param resource to test whether target belongs to
    @return true if target belongs to the specified resource
    */
-  private <N> boolean belongsTo(N target, N resource) {
+  <N> boolean belongsTo(N target, N resource) {
     try {
       Optional<Object> id = Entities.get(target, Entities.toIdAttribute(resource));
       return id.isPresent() && id.get().equals(getResourceId(resource));
@@ -474,7 +474,7 @@ public class JsonapiPayloadFactoryImpl implements JsonapiPayloadFactory {
 
    @return Entity Id
    */
-  private <N> String getResourceId(N target) throws JsonapiException {
+  <N> String getResourceId(N target) throws JsonapiException {
     try {
       Optional<Object> id = Entities.get(target, JsonapiPayloadObject.KEY_ID);
       if (id.isEmpty()) throw new JsonapiException("Has no id");

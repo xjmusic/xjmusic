@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
  * Template content Analysis https://www.pivotaltracker.com/story/show/161199945
  */
 public class ReportMainProgramChords extends Report {
-  private final ChordHistogram mainProgramChords;
+  final ChordHistogram mainProgramChords;
 
   public ReportMainProgramChords(HubContent content) {
     super(content);
@@ -51,7 +51,7 @@ public class ReportMainProgramChords extends Report {
   /**
    * Representation of the construction of a histogram of usage of all mainProgramChords
    */
-  private static class ChordHistogram {
+  static class ChordHistogram {
     Map<String, ChordCount> histogram;
 
     public ChordHistogram() {

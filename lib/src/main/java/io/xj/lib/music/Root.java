@@ -9,17 +9,17 @@ import java.util.regex.Pattern;
  Root can be the root of a Chord, Key or Scale.
  */
 public class Root {
-  private static final Pattern rgxNote = Pattern.compile("^([ABCDEFG]).*");
-  private static final Pattern rgxNoteModified = Pattern.compile("^([ABCDEFG][♯#♭b]).*");
-  private PitchClass pitchClass;
-  private String remainingText;
+  static final Pattern rgxNote = Pattern.compile("^([ABCDEFG]).*");
+  static final Pattern rgxNoteModified = Pattern.compile("^([ABCDEFG][♯#♭b]).*");
+  PitchClass pitchClass;
+  String remainingText;
 
   /**
    Parse root and remaining string, using regular expressions
 
    @param name to parse root and remaining of
    */
-  private Root(String name) {
+  Root(String name) {
     // as a default, the whole thing is remaining text, and pitch class is None
     this.pitchClass = PitchClass.None;
     this.remainingText = name;
@@ -43,7 +43,7 @@ public class Root {
   /**
    First group matching pattern in text, else null@param pattern to in@param text              to search
    */
-  private void evaluate(Pattern pattern, String text) {
+  void evaluate(Pattern pattern, String text) {
     Matcher matcher = pattern.matcher(text);
     if (!matcher.find())
       return;

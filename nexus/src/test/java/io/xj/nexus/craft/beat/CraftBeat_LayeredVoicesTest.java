@@ -79,16 +79,16 @@ public class CraftBeat_LayeredVoicesTest {
   public HubClient hubClient;
   @Mock
   public NotificationProvider notificationProvider;
-  private CraftFactory craftFactory;
-  private FabricatorFactory fabricatorFactory;
-  private HubContent sourceMaterial;
-  private InstrumentAudio audioHihat;
-  private InstrumentAudio audioKick;
-  private InstrumentAudio audioSnare;
-  private NexusEntityStore store;
-  private NexusIntegrationTestingFixtures fake;
-  private Program program42;
-  private Segment segment4;
+  CraftFactory craftFactory;
+  FabricatorFactory fabricatorFactory;
+  HubContent sourceMaterial;
+  InstrumentAudio audioHihat;
+  InstrumentAudio audioKick;
+  InstrumentAudio audioSnare;
+  NexusEntityStore store;
+  NexusIntegrationTestingFixtures fake;
+  Program program42;
+  Segment segment4;
 
   @Before
   public void setUp() throws Exception {
@@ -188,7 +188,7 @@ public class CraftBeat_LayeredVoicesTest {
    *
    * @return list of all entities
    */
-  private Collection<Object> customFixtures() {
+  Collection<Object> customFixtures() {
     Collection<Object> entities = Lists.newArrayList();
 
     // Instrument "808"

@@ -42,12 +42,12 @@ import java.util.stream.Collectors;
  */
 @Service
 public class NexusEntityStoreImpl implements NexusEntityStore {
-  private static final Logger LOG = LoggerFactory.getLogger(EntityStoreImpl.class);
-  private static final String SEGMENT_ID_ATTRIBUTE = Entities.toIdAttribute(Entities.toBelongsTo(Segment.class));
-  private final Map<UUID/*ID*/, Chain> chainMap = Maps.newConcurrentMap();
-  private final Map<UUID/*ID*/, Segment> segmentMap = Maps.newConcurrentMap();
-  private final Map<UUID/*SegID*/, Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>>> store = Maps.newConcurrentMap();
-  private final EntityFactory entityFactory;
+  static final Logger LOG = LoggerFactory.getLogger(EntityStoreImpl.class);
+  static final String SEGMENT_ID_ATTRIBUTE = Entities.toIdAttribute(Entities.toBelongsTo(Segment.class));
+  final Map<UUID/*ID*/, Chain> chainMap = Maps.newConcurrentMap();
+  final Map<UUID/*ID*/, Segment> segmentMap = Maps.newConcurrentMap();
+  final Map<UUID/*SegID*/, Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>>> store = Maps.newConcurrentMap();
+  final EntityFactory entityFactory;
 
   @Autowired
   public NexusEntityStoreImpl(EntityFactory entityFactory) {

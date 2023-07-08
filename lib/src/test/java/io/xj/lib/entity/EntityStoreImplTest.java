@@ -16,7 +16,7 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 
 public class EntityStoreImplTest {
-  private EntityStore subject;
+  EntityStore subject;
 
   @Before
   public void setUp() {

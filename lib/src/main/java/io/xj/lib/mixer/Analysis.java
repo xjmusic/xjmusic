@@ -15,18 +15,18 @@ import java.util.List;
  Stores complex values in buffer[channel][frame] in order to be able to treat each channel as a single buffer for analysis
  */
 public class Analysis {
-  private final float[][] buffer; // buffer[channel][frame]
-  private final int channels;
-  private final PitchProcessor pitchProcessor;
-  private final TarsosDSPAudioFormat audioFormat;
-  private final List<Float> detectedPitches = Lists.newLinkedList();
+  final float[][] buffer; // buffer[channel][frame]
+  final int channels;
+  final PitchProcessor pitchProcessor;
+  final TarsosDSPAudioFormat audioFormat;
+  final List<Float> detectedPitches = Lists.newLinkedList();
 
   /**
    Construct a new analysis from a buffer of complex values@param buffer buffer[channel][frame] in order to be able to treat each channel as a single buffer for analysis
 
    @param sampleRate of buffer, for computation of pitch
    */
-  private Analysis(float[][] buffer, float sampleRate) {
+  Analysis(float[][] buffer, float sampleRate) {
     this.buffer = buffer;
     channels = buffer.length;
     pitchProcessor = new PitchProcessor(PitchProcessor.PitchEstimationAlgorithm.FFT_YIN, sampleRate, buffer[0].length,
@@ -89,7 +89,7 @@ public class Analysis {
    @param buffer to of audio event of
    @return new audio event
    */
-  private AudioEvent createAudioEvent(float[] buffer) {
+  AudioEvent createAudioEvent(float[] buffer) {
     AudioEvent audioEvent = new AudioEvent(audioFormat);
     audioEvent.setFloatBuffer(buffer);
     audioEvent.setOverlap(0);

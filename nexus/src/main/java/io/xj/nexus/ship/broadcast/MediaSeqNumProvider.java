@@ -10,7 +10,7 @@ import static io.xj.lib.util.Values.MICROS_PER_SECOND;
 
 @Service
 public class MediaSeqNumProvider {
-  private final int chunkDurationSeconds;
+  final int chunkDurationSeconds;
 
   @Autowired
   public MediaSeqNumProvider(

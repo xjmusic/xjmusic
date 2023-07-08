@@ -50,36 +50,36 @@ import java.util.concurrent.ExecutionException;
  */
 @Service
 public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
-  private static final String PREVIEW_NEXUS_DEPLOYMENT_FORMAT = "nexus-preview-%s-%s";
-  private static final String RESOURCE_REQUIREMENT_KEY_CPU = "cpu";
-  private static final String RESOURCE_REQUIREMENT_DEFAULT_CPU = "2";
-  private static final String RESOURCE_REQUIREMENT_KEY_MEMORY = "memory";
-  private static final String RESOURCE_REQUIREMENT_DEFAULT_MEMORY = "4Gi";
-  private static final String LOG_LINE_FILTER_CONTAINS = "main]";
-  private static final int LOG_LINE_TRIP_LEADING_CHARACTERS = 97;
-  private final Logger LOG = LoggerFactory.getLogger(PreviewNexusAdminImpl.class);
-  private final boolean isConfigured;
-  private final String gcpServiceAccountEmail;
-  private final String nexusImage;
-  private final int logTailLines;
-  private final String gcpProjectId;
-  private final String gcpRegion;
-  private final String appBaseUrl;
-  private final String audioBaseUrl;
-  private final String audioFileBucket;
-  private final String audioUploadUrl;
-  private final String awsAccessKeyId;
-  private final String awsDefaultRegion;
-  private final String awsSecretKey;
-  private final String environment;
-  private final String gcpCloudSqlInstance;
-  private final String googleClientId;
-  private final String googleClientSecret;
-  private final String ingestTokenValue;
-  private final String playerBaseUrl;
-  private final String shipBaseUrl;
-  private final String shipBucket;
-  private final int logBackMinutes;
+  static final String PREVIEW_NEXUS_DEPLOYMENT_FORMAT = "nexus-preview-%s-%s";
+  static final String RESOURCE_REQUIREMENT_KEY_CPU = "cpu";
+  static final String RESOURCE_REQUIREMENT_DEFAULT_CPU = "2";
+  static final String RESOURCE_REQUIREMENT_KEY_MEMORY = "memory";
+  static final String RESOURCE_REQUIREMENT_DEFAULT_MEMORY = "4Gi";
+  static final String LOG_LINE_FILTER_CONTAINS = "main]";
+  static final int LOG_LINE_TRIP_LEADING_CHARACTERS = 97;
+  final Logger LOG = LoggerFactory.getLogger(PreviewNexusAdminImpl.class);
+  final boolean isConfigured;
+  final String gcpServiceAccountEmail;
+  final String nexusImage;
+  final int logTailLines;
+  final String gcpProjectId;
+  final String gcpRegion;
+  final String appBaseUrl;
+  final String audioBaseUrl;
+  final String audioFileBucket;
+  final String audioUploadUrl;
+  final String awsAccessKeyId;
+  final String awsDefaultRegion;
+  final String awsSecretKey;
+  final String environment;
+  final String gcpCloudSqlInstance;
+  final String googleClientId;
+  final String googleClientSecret;
+  final String ingestTokenValue;
+  final String playerBaseUrl;
+  final String shipBaseUrl;
+  final String shipBucket;
+  final int logBackMinutes;
 
   @Autowired
   public PreviewNexusAdminImpl(
@@ -224,7 +224,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
    *
    * @throws ServiceException on failure
    */
-  private void createPreviewNexus(Template template, TemplatePlayback playback) throws ServiceException {
+  void createPreviewNexus(Template template, TemplatePlayback playback) throws ServiceException {
     try (var client = ServicesClient.create()) {
       var serviceName = computeServiceName(playback);
       var request = CreateServiceRequest.newBuilder()
@@ -248,7 +248,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
     }
   }
 
-  private String computeServiceParent() {
+  String computeServiceParent() {
     return String.format("projects/%s/locations/%s", gcpProjectId, gcpRegion);
   }
 
@@ -259,7 +259,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
    * @param playback from which to source vm resource preferences
    * @throws ServiceException on failure
    */
-  private void updatePreviewNexus(Template template, TemplatePlayback playback) throws ServiceException {
+  void updatePreviewNexus(Template template, TemplatePlayback playback) throws ServiceException {
     var existing = getPreviewNexus(playback);
     if (existing.isEmpty()) {
       LOG.warn("Failed to update preview nexus; service does not exist!");
@@ -293,7 +293,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
    * @param playback for which to getPreviewNexus
    * @return preview nexus deployment if exists
    */
-  private Optional<com.google.cloud.run.v2.Service> getPreviewNexus(TemplatePlayback playback) {
+  Optional<com.google.cloud.run.v2.Service> getPreviewNexus(TemplatePlayback playback) {
     try (var client = ServicesClient.create()) {
       var serviceName = ServiceName.of(gcpProjectId, gcpRegion, computeServiceName(playback));
       GetServiceRequest request = GetServiceRequest.newBuilder()
@@ -312,7 +312,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
    *
    * @param playback for which to deletePreviewNexus
    */
-  private void deletePreviewNexus(TemplatePlayback playback) {
+  void deletePreviewNexus(TemplatePlayback playback) {
     try (var client = ServicesClient.create()) {
       var serviceName = ServiceName.of(gcpProjectId, gcpRegion, computeServiceName(playback));
       DeleteServiceRequest request = DeleteServiceRequest.newBuilder()
@@ -333,14 +333,14 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
    * @param playback for which to seek preview nexus
    * @return true if exists
    */
-  private Boolean previewNexusExists(TemplatePlayback playback) {
+  Boolean previewNexusExists(TemplatePlayback playback) {
     return getPreviewNexus(playback).isPresent();
   }
 
   /**
    * @return string content
    */
-  private RevisionTemplate computeRevisionTemplate(Template template, TemplatePlayback playback) {
+  RevisionTemplate computeRevisionTemplate(Template template, TemplatePlayback playback) {
     List<EnvVar> envVars = Lists.newArrayList();
 
     // Fabrication preview template ID
@@ -421,7 +421,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
     return revisionTemplate.build();
   }
 
-  private String computeCpuLimit(Template template) {
+  String computeCpuLimit(Template template) {
     try {
       return String.valueOf(new TemplateConfig(template).getVmResourceLimitCpu());
     } catch (ValueException e) {
@@ -430,7 +430,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
     }
   }
 
-  private String computeMemoryLimit(Template template) {
+  String computeMemoryLimit(Template template) {
     try {
       return String.format("%fGi", new TemplateConfig(template).getVmResourceLimitMemoryGb());
     } catch (ValueException e) {
@@ -445,7 +445,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
    * @param playback for which to compute name
    * @return Preview Nexus Deployment Name
    */
-  private String computeServiceName(TemplatePlayback playback) {
+  String computeServiceName(TemplatePlayback playback) {
     String semiUniqueId = StringUtils.right(playback.getId().toString(), 12); // last segment of a UUID
     return String.format(PREVIEW_NEXUS_DEPLOYMENT_FORMAT, environment, semiUniqueId);
   }
@@ -455,7 +455,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
    * <p>
    * https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
    */
-  private boolean doConfigurationTest() {
+  boolean doConfigurationTest() {
     try (ServicesClient ignored = ServicesClient.create()) {
       LOG.info("Configured service administration client");
       return true;

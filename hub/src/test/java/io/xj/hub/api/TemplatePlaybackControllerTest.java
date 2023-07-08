@@ -59,18 +59,18 @@ public class TemplatePlaybackControllerTest {
   @Mock
   TemplatePlaybackManager templatePlaybackManager;
   @Mock
-  private HubSqlStoreProvider sqlStoreProvider;
+  HubSqlStoreProvider sqlStoreProvider;
   @MockBean
   NotificationProvider notificationProvider;
   @MockBean
   FileStoreProvider fileStoreProvider;
   @MockBean
   HttpClientProvider httpClientProvider;
-  private HubAccess access;
-  private TemplatePlaybackController subject;
-  private Template template25;
-  private Template template1;
-  private User user1;
+  HubAccess access;
+  TemplatePlaybackController subject;
+  Template template25;
+  Template template1;
+  User user1;
 
   @BeforeEach
   public void setUp() throws AppException {

@@ -64,17 +64,17 @@ public class InstrumentControllerTest {
   @Mock
   InstrumentMemeManager instrumentMemeManager;
   @Mock
-  private HubSqlStoreProvider sqlStoreProvider;
+  HubSqlStoreProvider sqlStoreProvider;
   @MockBean
   NotificationProvider notificationProvider;
   @MockBean
   FileStoreProvider fileStoreProvider;
   @MockBean
   HttpClientProvider httpClientProvider;
-  private HubAccess access;
-  private InstrumentController subject;
-  private Library library25;
-  private Library library1;
+  HubAccess access;
+  InstrumentController subject;
+  Library library25;
+  Library library1;
 
   @BeforeEach
   public void setUp() throws AppException {

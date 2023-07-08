@@ -31,7 +31,7 @@ import java.util.UUID;
  * [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
-  private final ApiUrlProvider apiUrlProvider;
+  final ApiUrlProvider apiUrlProvider;
 
   public MacroMainCraftImpl(
     Fabricator fabricator,
@@ -47,7 +47,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    * @param mainSequence of which to compute key
    * @return key
    */
-  private String computeSegmentKey(ProgramSequence mainSequence) {
+  String computeSegmentKey(ProgramSequence mainSequence) {
     String mainKey = mainSequence.getKey();
     if (null == mainKey || mainKey.isEmpty())
       mainKey = fabricator.sourceMaterial().getProgram(mainSequence.getProgramId()).orElseThrow().getKey();
@@ -65,7 +65,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    * @param mainSequence  of which to compute segment tempo
    * @return density
    */
-  private double computeSegmentDensity(Integer delta, @Nullable ProgramSequence macroSequence, @Nullable ProgramSequence mainSequence) throws NexusException {
+  double computeSegmentDensity(Integer delta, @Nullable ProgramSequence macroSequence, @Nullable ProgramSequence mainSequence) throws NexusException {
     return Values.limitDecimalPrecision(Values.interpolate(
       fabricator.getTemplateConfig().getDensityFloor(),
       fabricator.getTemplateConfig().getDensityCeiling(),
@@ -81,7 +81,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    * @param mainSequence  of which to compute segment tempo
    * @return density
    */
-  private Float computeDensity(@Nullable ProgramSequence macroSequence, @Nullable ProgramSequence mainSequence) throws NexusException {
+  Float computeDensity(@Nullable ProgramSequence macroSequence, @Nullable ProgramSequence mainSequence) throws NexusException {
     @Nullable Float macroDensity =
       Objects.nonNull(macroSequence) ?
         (Objects.nonNull(macroSequence.getDensity()) ?
@@ -212,7 +212,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    *
    * @return macroSequenceBindingOffset
    */
-  private Integer computeMacroProgramSequenceBindingOffset() throws NexusException {
+  Integer computeMacroProgramSequenceBindingOffset() throws NexusException {
     var previousMacroChoice = fabricator.getMacroChoiceOfPreviousSegment();
     return switch (fabricator.getType()) {
       case INITIAL, NEXTMACRO -> 0;
@@ -230,7 +230,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    *
    * @return mainSequenceBindingOffset
    */
-  private Integer computeMainProgramSequenceBindingOffset() throws NexusException {
+  Integer computeMainProgramSequenceBindingOffset() throws NexusException {
     switch (fabricator.getType()) {
       case INITIAL, NEXTMAIN, NEXTMACRO -> {
         return 0;
@@ -395,7 +395,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    * @return segment length, in nanoseconds
    * @throws NexusException on failure
    */
-  private long segmentLengthMicros(ProgramSequence mainSequence) throws NexusException {
+  long segmentLengthMicros(ProgramSequence mainSequence) throws NexusException {
     return fabricator.getSegmentMicrosAtPosition(mainSequence.getTotal());
   }
 

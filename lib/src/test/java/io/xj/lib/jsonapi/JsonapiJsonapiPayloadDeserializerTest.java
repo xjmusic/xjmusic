@@ -25,7 +25,7 @@ import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
  * Created by Charney Kaye on 2020/03/09
  */
 public class JsonapiJsonapiPayloadDeserializerTest {
-  private JsonapiPayloadFactory jsonapiPayloadFactory;
+  JsonapiPayloadFactory jsonapiPayloadFactory;
 
   @Before
   public void setUp() {
@@ -147,7 +147,7 @@ public class JsonapiJsonapiPayloadDeserializerTest {
    * @return contents of file
    * @throws FileNotFoundException if resource does not exist
    */
-  private String readResourceFile(String filePath) throws IOException {
+  String readResourceFile(String filePath) throws IOException {
     File file = resourceFile(filePath);
     String text;
     try (final FileReader reader = new FileReader(file)) {
@@ -163,7 +163,7 @@ public class JsonapiJsonapiPayloadDeserializerTest {
    * @return File
    * @throws FileNotFoundException if resource does not exist
    */
-  private File resourceFile(String filePath) throws FileNotFoundException {
+  File resourceFile(String filePath) throws FileNotFoundException {
     ClassLoader classLoader = JsonapiJsonapiPayloadDeserializerTest.class.getClassLoader();
     URL resource = classLoader.getResource(filePath);
     if (Objects.isNull(resource))

@@ -11,11 +11,11 @@ import java.util.UUID;
 
 public class SegmentChordVoicing   {
 
-  private @Valid UUID id;
-  private @Valid UUID segmentId;
-  private @Valid UUID segmentChordId;
-  private @Valid String type;
-  private @Valid String notes;
+  @Valid UUID id;
+  @Valid UUID segmentId;
+  @Valid UUID segmentChordId;
+  @Valid String type;
+  @Valid String notes;
 
   /**
    **/
@@ -137,7 +137,7 @@ public class SegmentChordVoicing   {
    * Convert the given object to string with each line indented by 4 spaces
    * (except the first line).
    */
-  private String toIndentedString(Object o) {
+  String toIndentedString(Object o) {
     if (o == null) {
       return "null";
     }

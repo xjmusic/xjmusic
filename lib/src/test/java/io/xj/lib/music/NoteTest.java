@@ -15,7 +15,7 @@ import static org.junit.Assert.*;
 
 public class NoteTest {
 
-  private JsonProvider jsonProvider;
+  JsonProvider jsonProvider;
 
   @Before
   public void setUp() throws Exception {

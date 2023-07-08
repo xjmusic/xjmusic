@@ -42,11 +42,11 @@ import static io.xj.hub.tables.Account.ACCOUNT;
 
 @Service
 public class TemplateManagerImpl extends HubPersistenceServiceImpl implements TemplateManager {
-  private static final int GENERATED_SHIP_KEY_LENGTH = 9;
-  private final long playbackExpireSeconds;
-  private final TemplateBindingManager templateBindingManager;
-  private final TemplatePlaybackManager templatePlaybackManager;
-  private final TemplatePublicationManager templatePublicationManager;
+  static final int GENERATED_SHIP_KEY_LENGTH = 9;
+  final long playbackExpireSeconds;
+  final TemplateBindingManager templateBindingManager;
+  final TemplatePlaybackManager templatePlaybackManager;
+  final TemplatePublicationManager templatePublicationManager;
 
   @Autowired
   public TemplateManagerImpl(
@@ -359,7 +359,7 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl implements Te
    * @param record to validate
    * @throws ManagerException if invalid
    */
-  private Template validate(HubAccess access, Template record) throws ManagerException {
+  Template validate(HubAccess access, Template record) throws ManagerException {
     try {
       Values.require(record.getAccountId(), "Account ID");
       Values.require(record.getName(), "Name");
@@ -401,7 +401,7 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl implements Te
    * @return record
    * @throws ManagerException on failure
    */
-  private Template readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+  Template readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     if (access.isTopLevel())
       try (var selectTemplate = db.selectFrom(TEMPLATE)) {
         return modelFrom(Template.class, selectTemplate
@@ -431,7 +431,7 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl implements Te
    * @param access      control
    * @param templateIds to require access to
    */
-  private void requireRead(DSLContext db, HubAccess access, Collection<UUID> templateIds) throws ManagerException {
+  void requireRead(DSLContext db, HubAccess access, Collection<UUID> templateIds) throws ManagerException {
     if (!access.isTopLevel())
       for (UUID templateId : templateIds)
         try (var selectCount = db.selectCount()) {
@@ -452,7 +452,7 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl implements Te
    * @param entity to validate
    * @throws ManagerException if parent does not exist
    */
-  private void requireParentExists(DSLContext db, HubAccess access, Template entity) throws ManagerException {
+  void requireParentExists(DSLContext db, HubAccess access, Template entity) throws ManagerException {
     try (var selectCount = db.selectCount()) {
       if (access.isTopLevel())
         requireExists("Account", selectCount.from(ACCOUNT)

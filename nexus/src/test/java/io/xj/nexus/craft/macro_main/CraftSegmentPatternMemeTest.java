@@ -45,8 +45,8 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CraftSegmentPatternMemeTest {
-  private final Logger LOG = LoggerFactory.getLogger(CraftSegmentPatternMemeTest.class);
-  private static final int TEST_REPEAT_ITERATIONS = 14;
+  final Logger LOG = LoggerFactory.getLogger(CraftSegmentPatternMemeTest.class);
+  static final int TEST_REPEAT_ITERATIONS = 14;
 
   @Mock
   public HubClient hubClient;

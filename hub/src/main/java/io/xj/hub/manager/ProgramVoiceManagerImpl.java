@@ -21,7 +21,7 @@ import static io.xj.hub.Tables.*;
 
 @Service
 public class ProgramVoiceManagerImpl extends HubPersistenceServiceImpl implements ProgramVoiceManager {
-  private static final Float DEFAULT_ORDER_VALUE = 1000.0f;
+  static final Float DEFAULT_ORDER_VALUE = 1000.0f;
 
   public ProgramVoiceManagerImpl(
     EntityFactory entityFactory,
@@ -178,7 +178,7 @@ public class ProgramVoiceManagerImpl extends HubPersistenceServiceImpl implement
    * @param id     of entity to require modification access to
    * @throws ManagerException on invalid permissions
    */
-  private void requireModification(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+  void requireModification(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     requireArtist(access);
 
     if (access.isTopLevel())

@@ -19,9 +19,9 @@ import java.util.Objects;
  Stores values in buffer[channel][frame] in order to be able to treat each channel as a single buffer for frequency range limiter
  */
 public class FrequencyRangeLimiter {
-  private final AudioDispatcher audioDispatcher;
-  private final FloatBufferCatcher floatBufferCatcher;
-  private final float[] floatBuffer;
+  final AudioDispatcher audioDispatcher;
+  final FloatBufferCatcher floatBufferCatcher;
+  final float[] floatBuffer;
 
   /**
    Construct a new frequency range limiter from a buffer of complex values@param buffer buffer[channel][frame] in order to be able to treat each channel as a single buffer for frequency range limiter to filter
@@ -31,7 +31,7 @@ public class FrequencyRangeLimiter {
    @param highpassThresholdHz frequency in Hz, above which to allow audio to pass
    @param lowpassThresholdHz  frequency in Hz, below which to allow audio to pass
    */
-  private FrequencyRangeLimiter(float[] floatBuffer, float sampleRate, int audioBufferSize, float highpassThresholdHz, float lowpassThresholdHz) {
+  FrequencyRangeLimiter(float[] floatBuffer, float sampleRate, int audioBufferSize, float highpassThresholdHz, float lowpassThresholdHz) {
     this.floatBuffer = floatBuffer;
     int frames = floatBuffer.length;
     TarsosDSPAudioFormat audioFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, false);
@@ -79,7 +79,7 @@ public class FrequencyRangeLimiter {
    @param toBuffer   to write values onto
    @param channel    # of channel to extract
    */
-  private static void copyToMulti(float[] fromBuffer, double[][] toBuffer, int channel) {
+  static void copyToMulti(float[] fromBuffer, double[][] toBuffer, int channel) {
     int frames = fromBuffer.length;
     for (int frame = 0; frame < frames; frame++)
       toBuffer[frame][channel] = fromBuffer[frame];
@@ -92,7 +92,7 @@ public class FrequencyRangeLimiter {
    @param toBuffer   to write values onto
    @param channel    # of channel to extract
    */
-  private static void copyToSingle(double[][] fromBuffer, float[] toBuffer, int channel) {
+  static void copyToSingle(double[][] fromBuffer, float[] toBuffer, int channel) {
     int frames = fromBuffer.length;
     for (int frame = 0; frame < frames; frame++)
       toBuffer[frame] = (float) fromBuffer[frame][channel];
@@ -107,7 +107,7 @@ public class FrequencyRangeLimiter {
    @param lowpassThresholdHz  frequency in Hz, below which to allow audio to pass
    @return samples[frame]
    */
-  private static float[] filter(float[] buffer, float sampleRate, int audioBufferSize, float highpassThresholdHz, float lowpassThresholdHz) throws MixerException {
+  static float[] filter(float[] buffer, float sampleRate, int audioBufferSize, float highpassThresholdHz, float lowpassThresholdHz) throws MixerException {
     FrequencyRangeLimiter filter = new FrequencyRangeLimiter(buffer, sampleRate, audioBufferSize, highpassThresholdHz, lowpassThresholdHz);
     filter.process();
     return filter.getBuffer();
@@ -119,14 +119,14 @@ public class FrequencyRangeLimiter {
    @return buffer of channel-
    interlaced samples
    */
-  private float[] getBuffer() {
+  float[] getBuffer() {
     return floatBuffer;
   }
 
   /**
    Process the filter.
    */
-  private void process() throws MixerException {
+  void process() throws MixerException {
     audioDispatcher.run();
     if (!Objects.equals(floatBufferCatcher.getCursor(), floatBuffer.length))
       throw new MixerException("FrequencyRangeLimiter filter resulted in output buffer of unexpected length!");

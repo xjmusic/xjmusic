@@ -5,7 +5,7 @@ package org.xiph.libogg;
 public class ogg_page {
 
   // static ogg_uint32_t crc_lookup[256]={
-  private static final int[] crc_lookup = new int[256];
+  static final int[] crc_lookup = new int[256];
 
   static {
     for (int i = 0; i < crc_lookup.length; i++) {
@@ -21,7 +21,7 @@ public class ogg_page {
   public ogg_page() {
   }
 
-  private static int crc_entry(int index) {
+  static int crc_entry(int index) {
 
     int r = index << 24;
     for (int i = 0; i < 8; i++) {

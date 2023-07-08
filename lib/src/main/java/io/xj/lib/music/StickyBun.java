@@ -14,10 +14,10 @@ import java.util.stream.IntStream;
  Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
  */
 public class StickyBun {
-  private static final String META_KEY_TEMPLATE = "StickyBun_%s";
-  private static final int MAX_VALUE = 100;
-  private List<Integer> values;
-  private UUID eventId;
+  static final String META_KEY_TEMPLATE = "StickyBun_%s";
+  static final int MAX_VALUE = 100;
+  List<Integer> values;
+  UUID eventId;
 
   /**
    Prepare empty sticky bun

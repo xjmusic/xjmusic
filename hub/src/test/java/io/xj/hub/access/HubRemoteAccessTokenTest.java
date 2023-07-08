@@ -47,10 +47,10 @@ public class HubRemoteAccessTokenTest {
 
   Account account1;
   Account account2;
-  private UserManager userManager;
-  private UserAuth userAuth;
-  private Collection<AccountUser> accountUsers;
-  private User user;
+  UserManager userManager;
+  UserAuth userAuth;
+  Collection<AccountUser> accountUsers;
+  User user;
 
   @BeforeEach
   public void setUp() throws Exception {

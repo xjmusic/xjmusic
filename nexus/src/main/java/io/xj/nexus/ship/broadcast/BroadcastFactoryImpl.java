@@ -13,8 +13,8 @@ import javax.sound.sampled.AudioFormat;
 
 @Service
 public class BroadcastFactoryImpl implements BroadcastFactory {
-  private final PlaylistPublisher playlistPublisher;
-  private final FileStoreProvider fileStoreProvider;
+  final PlaylistPublisher playlistPublisher;
+  final FileStoreProvider fileStoreProvider;
 
   int bitrate;
   String streamBucket;

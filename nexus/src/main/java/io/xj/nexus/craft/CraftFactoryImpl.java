@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class CraftFactoryImpl implements CraftFactory {
-  private final ApiUrlProvider apiUrlProvider;
+  final ApiUrlProvider apiUrlProvider;
 
   @Autowired
   public CraftFactoryImpl(ApiUrlProvider apiUrlProvider) {

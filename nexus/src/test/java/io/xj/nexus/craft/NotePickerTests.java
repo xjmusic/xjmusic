@@ -28,10 +28,10 @@ import static org.junit.Assert.assertEquals;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class NotePickerTests extends YamlTest {
-  private static final int REPEAT_EACH_TEST_TIMES = 7;
-  private static final String TEST_PATH_PREFIX = "/picking/";
-  private final TemplateConfig templateConfig;
-  private NotePicker subject;
+  static final int REPEAT_EACH_TEST_TIMES = 7;
+  static final String TEST_PATH_PREFIX = "/picking/";
+  final TemplateConfig templateConfig;
+  NotePicker subject;
 
   public NotePickerTests() throws ValueException {
     templateConfig = new TemplateConfig();
@@ -62,7 +62,7 @@ public class NotePickerTests extends YamlTest {
 
    @param filename of test YAML file
    */
-  private void loadAndRunTest(String filename) {
+  void loadAndRunTest(String filename) {
     for (int i = 0; i < REPEAT_EACH_TEST_TIMES; i++)
       try {
         // Load YAML and parse
@@ -90,7 +90,7 @@ public class NotePickerTests extends YamlTest {
 
    @param data YAML file wrapper
    */
-  private List<Note> loadSubject(Map<?, ?> data) throws Exception {
+  List<Note> loadSubject(Map<?, ?> data) throws Exception {
     Map<?, ?> obj = (Map<?, ?>) data.get("input");
     if (Objects.isNull(obj)) throw new Exception("Input is required!");
 
@@ -109,13 +109,13 @@ public class NotePickerTests extends YamlTest {
       .map(Note::of).collect(Collectors.toList());
   }
 
-  private NoteRange getOptionalNoteRange(Map<?, ?> obj) {
+  NoteRange getOptionalNoteRange(Map<?, ?> obj) {
     Map<?, ?> rObj = (Map<?, ?>) obj.get("range");
     if (Objects.isNull(rObj)) return NoteRange.empty();
     return NoteRange.from(getStr(rObj, "from"), getStr(rObj, "to"));
   }
 
-  private void loadAndPerformAssertions(List<Note> pickedNotes, Map<?, ?> data) throws Exception {
+  void loadAndPerformAssertions(List<Note> pickedNotes, Map<?, ?> data) throws Exception {
     @Nullable
     Map<?, ?> obj = (Map<?, ?>) data.get("assertion");
     if (Objects.isNull(obj)) throw new Exception("Assertion is required!");

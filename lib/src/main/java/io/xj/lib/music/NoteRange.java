@@ -11,8 +11,8 @@ import java.util.Optional;
  Represent a note range
  */
 public class NoteRange {
-  private static final String UNKNOWN = "Unknown";
-  private static final int MAX_SEEK_OCTAVES = 3;
+  static final String UNKNOWN = "Unknown";
+  static final int MAX_SEEK_OCTAVES = 3;
 
   @Nullable
   Note low;
@@ -23,19 +23,19 @@ public class NoteRange {
   @Nullable
   Integer span;
 
-  private NoteRange() {
+  NoteRange() {
     low = null;
     high = null;
     span = 0;
   }
 
-  private NoteRange(@Nullable Note low, @Nullable Note high) {
+  NoteRange(@Nullable Note low, @Nullable Note high) {
     this.low = low;
     this.high = high;
     span = Objects.nonNull(low) && Objects.nonNull(high) ? low.delta(high) : null;
   }
 
-  private NoteRange(@Nullable String low, @Nullable String high) {
+  NoteRange(@Nullable String low, @Nullable String high) {
     this.low = Objects.nonNull(low) ? Note.of(low) : null;
     this.high = Objects.nonNull(high) ? Note.of(high) : null;
     span = Objects.nonNull(low) && Objects.nonNull(high) ? this.low.delta(this.high) : null;

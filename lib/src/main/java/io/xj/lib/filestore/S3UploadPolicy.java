@@ -19,9 +19,9 @@ import java.util.SimpleTimeZone;
  */
 public class S3UploadPolicy {
 
-  private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
-  private final String policySignature;
-  private final String policyString;
+  static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
+  final String policySignature;
+  final String policyString;
 
   /**
    Creates a new S3 upload policy object of the specified parameters. Once
@@ -89,7 +89,7 @@ public class S3UploadPolicy {
     return this.policySignature;
   }
 
-  private String signPolicy(String awsSecretKey, String base64EncodedPolicy) throws
+  String signPolicy(String awsSecretKey, String base64EncodedPolicy) throws
     NoSuchAlgorithmException,
     InvalidKeyException,
     UnsupportedEncodingException {
@@ -99,7 +99,7 @@ public class S3UploadPolicy {
     return base64Encode(mac.doFinal(base64EncodedPolicy.getBytes()));
   }
 
-  private String base64Encode(byte... data) {
+  String base64Encode(byte... data) {
     return Base64.encodeAsString(data).replaceAll("\\s", "");
   }
 

@@ -31,14 +31,14 @@ import java.util.stream.Stream;
  That would tell XJ about the existence of a meme category called City with values `CHICAGO`, `DENVER`, and `PHILADELPHIA`. And these would function as exclusion like numeric memes, e.g. after content having `CHICAGO` is chosen, we can choose nothing with `DENVER` or `PHILADELPHIA`.
  */
 public class MemeTaxonomy {
-  private static final String CATEGORY_SEPARATOR = ";";
-  private final List<Category> categories;
+  static final String CATEGORY_SEPARATOR = ";";
+  final List<Category> categories;
 
-  private MemeTaxonomy() {
+  MemeTaxonomy() {
     categories = List.of();
   }
 
-  private MemeTaxonomy(@Nullable String raw) {
+  MemeTaxonomy(@Nullable String raw) {
     if (Strings.isNullOrEmpty(raw))
       categories = List.of();
     else
@@ -95,15 +95,15 @@ public class MemeTaxonomy {
   }
 
   public static class Category {
-    private static final Pattern rgx = Pattern.compile("^([a-zA-Z\s]+)\\[([a-zA-Z,\s]+)]$");
-    private static final String MEME_SEPARATOR = ",";
-    private static final String KEY_NAME = "name";
-    private static final String KEY_MEMES = "memes";
-    private static final String DEFAULT_CATEGORY_NAME = "CATEGORY";
-    private final String name;
-    private final List<String> memes;
+    static final Pattern rgx = Pattern.compile("^([a-zA-Z\s]+)\\[([a-zA-Z,\s]+)]$");
+    static final String MEME_SEPARATOR = ",";
+    static final String KEY_NAME = "name";
+    static final String KEY_MEMES = "memes";
+    static final String DEFAULT_CATEGORY_NAME = "CATEGORY";
+    final String name;
+    final List<String> memes;
 
-    private Category(@Nullable String raw) {
+    Category(@Nullable String raw) {
       if (Strings.isNullOrEmpty(raw)) {
         name = DEFAULT_CATEGORY_NAME;
         memes = List.of();
@@ -140,7 +140,7 @@ public class MemeTaxonomy {
       memes = parseMemeList(data);
     }
 
-    private List<String> parseMemeList(Map<String, Object> data) {
+    List<String> parseMemeList(Map<String, Object> data) {
       if (data.containsKey(KEY_MEMES) && data.get(KEY_MEMES) instanceof List<?>) try {
         //noinspection unchecked
         return ((List<String>) data.get(KEY_MEMES)).stream().map(this::sanitize).toList();
@@ -188,7 +188,7 @@ public class MemeTaxonomy {
       );
     }
 
-    private String sanitize(String raw) {
+    String sanitize(String raw) {
       return Text.toAlphabetical(raw.trim()).toUpperCase(Locale.ROOT);
     }
   }

@@ -18,11 +18,11 @@ import java.util.Objects;
 @Primary
 @Service
 public class HubKvStoreProviderImpl implements HubKvStoreProvider {
-  private static final Logger LOG = LoggerFactory.getLogger(HubKvStoreProviderImpl.class);
-  private final EntityFactory entityFactory;
-  private final KvStore store;
-  private final String memcacheAddress;
-  private final int memcacheExpirationSeconds;
+  static final Logger LOG = LoggerFactory.getLogger(HubKvStoreProviderImpl.class);
+  final EntityFactory entityFactory;
+  final KvStore store;
+  final String memcacheAddress;
+  final int memcacheExpirationSeconds;
 
   @Autowired
   public HubKvStoreProviderImpl(
@@ -92,7 +92,7 @@ public class HubKvStoreProviderImpl implements HubKvStoreProvider {
    * @param memcacheAddress memcache address
    * @return KV store
    */
-  private KvStore createStore(String memcacheAddress) {
+  KvStore createStore(String memcacheAddress) {
     if (!Strings.isEmpty(memcacheAddress)) {
       try {
         return new MemcacheKvStore(memcacheAddress, memcacheExpirationSeconds);

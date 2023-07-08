@@ -9,8 +9,8 @@ import be.tarsos.dsp.AudioProcessor;
  take the output of a TarsosDSP operation and writes in to a buffer.
  */
 public class FloatBufferCatcher implements AudioProcessor {
-  private final float[] output;
-  private int cursor;
+  final float[] output;
+  int cursor;
 
   /**
    Initialize the writer.@param format The format of the received bytes.@param output buffer to write to

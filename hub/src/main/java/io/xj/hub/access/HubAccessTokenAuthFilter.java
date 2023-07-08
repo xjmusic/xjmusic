@@ -35,12 +35,12 @@ import java.util.Objects;
  */
 @Component
 public class HubAccessTokenAuthFilter implements OrderedFilter {
-  private final Logger LOG = LoggerFactory.getLogger(io.xj.hub.access.HubAccessTokenAuthFilter.class);
-  private final UserManager userManager;
-  private final String accessTokenName;
-  private final RequestMappingHandlerMapping requestMappingHandlerMapping;
-  private final ApiUrlProvider apiUrlProvider;
-  private final String apiPathUnauthorized;
+  final Logger LOG = LoggerFactory.getLogger(io.xj.hub.access.HubAccessTokenAuthFilter.class);
+  final UserManager userManager;
+  final String accessTokenName;
+  final RequestMappingHandlerMapping requestMappingHandlerMapping;
+  final ApiUrlProvider apiUrlProvider;
+  final String apiPathUnauthorized;
 
   @Autowired
   public HubAccessTokenAuthFilter(
@@ -83,7 +83,7 @@ public class HubAccessTokenAuthFilter implements OrderedFilter {
    * @return null if allowed -- String message on failure
    */
   @Nullable
-  private String authenticate(HttpServletRequest req) {
+  String authenticate(HttpServletRequest req) {
     try {
       HandlerExecutionChain handlerExeChain = requestMappingHandlerMapping.getHandler(req);
       if (Objects.isNull(handlerExeChain)) {
@@ -153,7 +153,7 @@ public class HubAccessTokenAuthFilter implements OrderedFilter {
    *
    * @param e pertaining to denial.
    */
-  private void deny(HttpServletRequest req, HttpServletResponse res, Exception e) {
+  void deny(HttpServletRequest req, HttpServletResponse res, Exception e) {
     LOG.debug("Denied {} ({})", req.getRequestURI(), e.getMessage());
     res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
   }

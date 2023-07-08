@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  * Template content Analysis https://www.pivotaltracker.com/story/show/161199945
  */
 public class ReportMemes extends Report {
-  private final MemeHistogram memes;
+  final MemeHistogram memes;
 
   public ReportMemes(HubContent content) {
     super(content);
@@ -61,7 +61,7 @@ public class ReportMemes extends Report {
   /**
    * Representation of the construction of a histogram of usage of all memes
    */
-  private static class MemeHistogram {
+  static class MemeHistogram {
     Map<String, MemeCount> histogram;
 
     public MemeHistogram() {
@@ -84,7 +84,7 @@ public class ReportMemes extends Report {
   /**
    * Representation of the count of usages for one meme
    */
-  private static class MemeCount {
+  static class MemeCount {
     Set<UUID> programIds;
     Set<UUID> instrumentIds;
     Integer total;

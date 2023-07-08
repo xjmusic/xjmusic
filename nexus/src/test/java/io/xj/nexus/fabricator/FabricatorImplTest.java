@@ -101,11 +101,11 @@ public class FabricatorImplTest {
   public JsonProvider jsonProvider;
   @Captor
   ArgumentCaptor<Object> entityCaptor;
-  private FabricatorImpl subject;
-  private HubContent sourceMaterial;
-  private NexusEntityStore store;
-  private NexusIntegrationTestingFixtures fake;
-  private Segment segment;
+  FabricatorImpl subject;
+  HubContent sourceMaterial;
+  NexusEntityStore store;
+  NexusIntegrationTestingFixtures fake;
+  Segment segment;
 
   @Before
   public void setUp() throws Exception {

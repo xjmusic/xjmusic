@@ -25,9 +25,9 @@ import java.util.stream.Collectors;
  * Constellations report https://www.pivotaltracker.com/story/show/182861489
  */
 public class ReportChordInstruments extends Report {
-  private final Histogram mainHistogram;
-  private final MemeTaxonomy taxonomy;
-  private final List<Instrument> chordInstruments;
+  final Histogram mainHistogram;
+  final MemeTaxonomy taxonomy;
+  final List<Instrument> chordInstruments;
 
   public ReportChordInstruments(HubContent content) throws HubClientException, ValueException {
     super(content);
@@ -52,7 +52,7 @@ public class ReportChordInstruments extends Report {
   }
 
 
-  private Section sectionInstrumentCoverage(String mainConstellation) {
+  Section sectionInstrumentCoverage(String mainConstellation) {
     // to in each main constellation section,
     List<Chord> chords = mainHistogram.histogram.get(mainConstellation).ids.parallelStream()
       .flatMap(mpId -> content.getProgramSequenceChords(mpId).parallelStream())

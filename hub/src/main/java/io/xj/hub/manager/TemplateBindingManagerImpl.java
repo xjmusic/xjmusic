@@ -134,7 +134,7 @@ public class TemplateBindingManagerImpl extends HubPersistenceServiceImpl implem
    * @return record
    * @throws ManagerException on failure
    */
-  private TemplateBinding readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+  TemplateBinding readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     if (access.isTopLevel())
       try (var selectTemplateBinding = db.selectFrom(TEMPLATE_BINDING)) {
         return modelFrom(TemplateBinding.class,
@@ -170,7 +170,7 @@ public class TemplateBindingManagerImpl extends HubPersistenceServiceImpl implem
    * @param entity to validate
    * @throws ManagerException if parent does not exist
    */
-  private void requireParentExists(DSLContext db, HubAccess access, TemplateBinding entity) throws ManagerException {
+  void requireParentExists(DSLContext db, HubAccess access, TemplateBinding entity) throws ManagerException {
     try (var selectCount = db.selectCount()) {
       if (access.isTopLevel())
         requireExists("Template", selectCount.from(TEMPLATE)

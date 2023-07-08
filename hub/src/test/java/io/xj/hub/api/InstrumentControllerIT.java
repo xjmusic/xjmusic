@@ -47,10 +47,10 @@ import static org.mockito.Mockito.when;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 public class InstrumentControllerIT {
-  private InstrumentController subject;
-  private HubIntegrationTest test;
-  private IntegrationTestingFixtures fake;
-  private JsonapiPayloadFactory jsonapiPayloadFactory;
+  InstrumentController subject;
+  HubIntegrationTest test;
+  IntegrationTestingFixtures fake;
+  JsonapiPayloadFactory jsonapiPayloadFactory;
 
   @MockBean
   HttpServletRequest req;

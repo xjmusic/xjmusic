@@ -15,9 +15,9 @@ import java.time.Instant;
 import static org.junit.Assert.assertEquals;
 
 public class InstantSerDesTest {
-  private Instant subject;
-  private String subjectJson;
-  private EntityFactory entityFactory;
+  Instant subject;
+  String subjectJson;
+  EntityFactory entityFactory;
 
   @Before
   public void setUp() {

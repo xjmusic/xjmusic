@@ -74,7 +74,7 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
    @param instrumentId of percussion loop instrument to craft
    */
   @SuppressWarnings("DuplicatedCode")
-  private void craftBackground(UUID instrumentId) throws NexusException {
+  void craftBackground(UUID instrumentId) throws NexusException {
     var choice = new SegmentChoice();
     var instrument = fabricator.sourceMaterial().getInstrument(instrumentId)
       .orElseThrow(() -> new NexusException("Can't get Instrument Audio!"));
@@ -114,7 +114,7 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
    @return drum-type Instrument
    @param instrument for which to pick audio
    */
-  private Optional<InstrumentAudio> pickAudioForInstrument(Instrument instrument) {
+  Optional<InstrumentAudio> pickAudioForInstrument(Instrument instrument) {
     var arr = fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId());
     if (fabricator.getInstrumentConfig(instrument).isAudioSelectionPersistent() && !arr.isEmpty())
       return fabricator.sourceMaterial().getInstrumentAudio(arr.get(0).getInstrumentAudioId());

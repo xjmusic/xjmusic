@@ -36,12 +36,12 @@ import static org.mockito.Mockito.when;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class AuthControllerTest {
   @LocalServerPort
-  private int port;
+  int port;
   @Autowired
-  private TestRestTemplate restTemplate;
+  TestRestTemplate restTemplate;
   @SuppressWarnings("unused")
   @MockBean
-  private PreviewNexusAdmin previewNexusAdmin;
+  PreviewNexusAdmin previewNexusAdmin;
   @MockBean
   UserManager userManager;
   @MockBean
@@ -51,7 +51,7 @@ public class AuthControllerTest {
   @MockBean
   HttpClientProvider httpClientProvider;
 
-  private HubAccess access;
+  HubAccess access;
 
   @BeforeEach
   public void setUp() throws AppException {

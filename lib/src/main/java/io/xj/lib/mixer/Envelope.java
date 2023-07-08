@@ -9,7 +9,7 @@ import java.util.stream.IntStream;
  */
 public class Envelope {
   static double HALF_PI = 1.57079632679;
-  private final double[] exponential;
+  final double[] exponential;
 
   /**
    Cached result of exponential envelope over N frames

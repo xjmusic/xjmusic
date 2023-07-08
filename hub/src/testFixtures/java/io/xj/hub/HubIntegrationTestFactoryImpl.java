@@ -16,15 +16,15 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class HubIntegrationTestFactoryImpl implements HubIntegrationTestFactory {
-  private final ApiUrlProvider apiUrlProvider;
-  private final EntityFactory entityFactory;
-  private final GoogleProvider googleProvider;
-  private final HubAccessTokenGenerator hubAccessTokenGenerator;
-  private final HubKvStoreProvider kvStoreProvider;
-  private final HubMigration hubMigration;
-  private final HubSqlStoreProvider sqlStoreProvider;
-  private final JsonapiResponseProvider httpResponseProvider;
-  private final JsonapiPayloadFactory jsonapiPayloadFactory;
+  final ApiUrlProvider apiUrlProvider;
+  final EntityFactory entityFactory;
+  final GoogleProvider googleProvider;
+  final HubAccessTokenGenerator hubAccessTokenGenerator;
+  final HubKvStoreProvider kvStoreProvider;
+  final HubMigration hubMigration;
+  final HubSqlStoreProvider sqlStoreProvider;
+  final JsonapiResponseProvider httpResponseProvider;
+  final JsonapiPayloadFactory jsonapiPayloadFactory;
 
   @Autowired
   public HubIntegrationTestFactoryImpl(

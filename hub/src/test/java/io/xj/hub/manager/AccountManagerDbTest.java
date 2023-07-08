@@ -34,9 +34,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 public class AccountManagerDbTest {
-  private AccountManager subject;
-  private HubIntegrationTest test;
-  private IntegrationTestingFixtures fake;
+  AccountManager subject;
+  HubIntegrationTest test;
+  IntegrationTestingFixtures fake;
 
   @MockBean
   NotificationProvider notificationProvider;

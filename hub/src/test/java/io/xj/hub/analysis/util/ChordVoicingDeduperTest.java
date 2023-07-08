@@ -32,25 +32,25 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 @SuppressWarnings("FieldCanBeLocal")
 public class ChordVoicingDeduperTest {
-  private Account account1;
-  private Library library1;
-  private Program program1;
-  private ProgramVoice voiceBass;
-  private ProgramSequence program1_sequence1;
-  private ProgramSequenceChord chord1;
-  private ProgramSequenceChord chord2;
-  private ProgramSequenceChord chord3;
-  private ProgramSequenceChord chord4;
-  private ProgramSequenceChord chord5;
-  private ProgramSequenceChord chord6;
-  private ProgramSequenceChordVoicing chord1_voicing1;
-  private ProgramSequenceChordVoicing chord2_voicing1;
-  private ProgramSequenceChordVoicing chord3_voicing1;
-  private ProgramSequenceChordVoicing chord4_voicing1;
-  private ProgramSequenceChordVoicing chord5_voicing1;
-  private ProgramSequenceChordVoicing chord6_voicing1;
+  Account account1;
+  Library library1;
+  Program program1;
+  ProgramVoice voiceBass;
+  ProgramSequence program1_sequence1;
+  ProgramSequenceChord chord1;
+  ProgramSequenceChord chord2;
+  ProgramSequenceChord chord3;
+  ProgramSequenceChord chord4;
+  ProgramSequenceChord chord5;
+  ProgramSequenceChord chord6;
+  ProgramSequenceChordVoicing chord1_voicing1;
+  ProgramSequenceChordVoicing chord2_voicing1;
+  ProgramSequenceChordVoicing chord3_voicing1;
+  ProgramSequenceChordVoicing chord4_voicing1;
+  ProgramSequenceChordVoicing chord5_voicing1;
+  ProgramSequenceChordVoicing chord6_voicing1;
 
-  private ChordVoicingDeduper subject;
+  ChordVoicingDeduper subject;
 
   @BeforeEach
   public void setUp() throws Exception {

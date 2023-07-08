@@ -23,15 +23,15 @@ import java.util.Collection;
 
 @Service
 public class GoogleProviderImpl implements GoogleProvider {
-  private static final String CALLBACK_PATH = "auth/google/callback";
-  private static final Collection<String> SCOPES = ImmutableList.of("profile", "email");
-  private static final String API_PEOPLE_ENDPOINT = "https://www.googleapis.com/plus/v1/people/me";
-  private static final Logger LOG = LoggerFactory.getLogger(GoogleProviderImpl.class);
-  private final GoogleHttpProvider googleHttpProvider;
-  private final GsonFactory gsonFactory;
-  private final ApiUrlProvider apiUrlProvider;
-  private final String clientId;
-  private final String clientSecret;
+  static final String CALLBACK_PATH = "auth/google/callback";
+  static final Collection<String> SCOPES = ImmutableList.of("profile", "email");
+  static final String API_PEOPLE_ENDPOINT = "https://www.googleapis.com/plus/v1/people/me";
+  static final Logger LOG = LoggerFactory.getLogger(GoogleProviderImpl.class);
+  final GoogleHttpProvider googleHttpProvider;
+  final GsonFactory gsonFactory;
+  final ApiUrlProvider apiUrlProvider;
+  final String clientId;
+  final String clientSecret;
 
   @Autowired
   public GoogleProviderImpl(
@@ -47,7 +47,7 @@ public class GoogleProviderImpl implements GoogleProvider {
     this.clientSecret = clientSecret;
   }
 
-  private static String detailsOfTokenException(TokenResponseException e) {
+  static String detailsOfTokenException(TokenResponseException e) {
     return
       (null != e.getMessage() ? e.getMessage() : "") +
         (null != e.getDetails() ? (

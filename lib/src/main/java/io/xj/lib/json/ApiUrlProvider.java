@@ -13,9 +13,9 @@ import java.util.regex.Pattern;
  */
 @Service
 public class ApiUrlProvider {
-  private final String appBaseUrl;
+  final String appBaseUrl;
 
-  private static final Pattern rgxStripLeadingSlash = Pattern.compile("^/");
+  static final Pattern rgxStripLeadingSlash = Pattern.compile("^/");
 
   @Autowired
   public ApiUrlProvider(@Value("${app.base.url}") String appBaseUrl) {
@@ -49,7 +49,7 @@ public class ApiUrlProvider {
     return String.format("%s%s", appBaseUrl, stripLeadingSlash(path));
   }
 
-  private static String stripLeadingSlash(String input) {
+  static String stripLeadingSlash(String input) {
     return rgxStripLeadingSlash.matcher(input).replaceAll("");
   }
 }

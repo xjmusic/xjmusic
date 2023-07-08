@@ -53,10 +53,10 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ComplexLibraryTest {
-  private static final Logger LOG = LoggerFactory.getLogger(ComplexLibraryTest.class);
-  private static final int MARATHON_NUMBER_OF_SEGMENTS = 50;
-  private static final int MAXIMUM_TEST_WAIT_SECONDS = 10 * MARATHON_NUMBER_OF_SEGMENTS;
-  private static final int MILLIS_PER_SECOND = 1000;
+  static final Logger LOG = LoggerFactory.getLogger(ComplexLibraryTest.class);
+  static final int MARATHON_NUMBER_OF_SEGMENTS = 50;
+  static final int MAXIMUM_TEST_WAIT_SECONDS = 10 * MARATHON_NUMBER_OF_SEGMENTS;
+  static final int MILLIS_PER_SECOND = 1000;
   @Mock
   public HubClient hubClient;
   @Mock(lenient = true)
@@ -72,15 +72,15 @@ public class ComplexLibraryTest {
   @Mock
   public TelemetryProvider telemetryProvider;
   @Mock
-  private PreviewNexusAdmin previewNexusAdmin;
+  PreviewNexusAdmin previewNexusAdmin;
   long startTime = System.currentTimeMillis();
-  private AppWorkThread workThread;
-  private SegmentManager segmentManager;
-  private CraftWork work;
+  AppWorkThread workThread;
+  SegmentManager segmentManager;
+  CraftWork work;
   @Mock
-  private LockProvider lockProvider;
+  LockProvider lockProvider;
   @Mock
-  private FileStoreProvider fileStoreProvider;
+  FileStoreProvider fileStoreProvider;
 
   @Before
   public void setUp() throws Exception {
@@ -171,7 +171,7 @@ public class ComplexLibraryTest {
    *
    * @return true if within time limit
    */
-  private boolean isWithinTimeLimit() {
+  boolean isWithinTimeLimit() {
     if (MAXIMUM_TEST_WAIT_SECONDS * MILLIS_PER_SECOND > System.currentTimeMillis() - startTime)
       return true;
     LOG.error("EXCEEDED TEST TIME LIMIT OF {} SECONDS", MAXIMUM_TEST_WAIT_SECONDS);
@@ -183,7 +183,7 @@ public class ComplexLibraryTest {
    *
    * @return true if it has at least N segments
    */
-  private boolean hasSegmentsDubbedPastMinimumOffset() {
+  boolean hasSegmentsDubbedPastMinimumOffset() {
     try {
       var chain = work.getChain();
       if (chain.isEmpty())

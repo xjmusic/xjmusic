@@ -21,8 +21,8 @@ public abstract class MessageEntity {
   static int BODY_LENGTH_LIMIT = 65535;
   static String BODY_TRUNCATE_SUFFIX = " (truncated to fit character limit)";
   protected ValueException typeException;
-  private String body;
-  private MessageType type;
+  String body;
+  MessageType type;
 
   /**
    Validate message attributes

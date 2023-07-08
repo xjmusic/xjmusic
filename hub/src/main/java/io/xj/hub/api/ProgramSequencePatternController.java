@@ -37,7 +37,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/1/program-sequence-patterns")
 public class ProgramSequencePatternController extends HubJsonapiEndpoint {
-  private final ProgramSequencePatternManager manager;
+  final ProgramSequencePatternManager manager;
 
   /**
    * Constructor
@@ -140,7 +140,7 @@ public class ProgramSequencePatternController extends HubJsonapiEndpoint {
    *
    * @return Manager
    */
-  private ProgramSequencePatternManager manager() {
+  ProgramSequencePatternManager manager() {
     return manager;
   }
 

@@ -18,8 +18,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class ChordTest {
-  private static final String EXPECTED_CHORDS_YAML = "/music/expect_chord.yaml";
-  private final Logger LOG = LoggerFactory.getLogger(ChordTest.class);
+  static final String EXPECTED_CHORDS_YAML = "/music/expect_chord.yaml";
+  final Logger LOG = LoggerFactory.getLogger(ChordTest.class);
 
   @Test
   public void TestChordExpectations() {

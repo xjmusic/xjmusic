@@ -47,11 +47,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 public class ProgramSequencePatternManagerDbTest {
-  private ProgramSequencePatternManager subjectManager;
-  private HubIntegrationTest test;
-  private IntegrationTestingFixtures fake;
-  private ProgramVoice programVoice3;
-  private ProgramVoice programVoice1;
+  ProgramSequencePatternManager subjectManager;
+  HubIntegrationTest test;
+  IntegrationTestingFixtures fake;
+  ProgramVoice programVoice3;
+  ProgramVoice programVoice1;
 
   @MockBean
   NotificationProvider notificationProvider;

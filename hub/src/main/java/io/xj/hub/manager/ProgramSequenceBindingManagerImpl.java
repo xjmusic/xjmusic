@@ -114,7 +114,7 @@ public class ProgramSequenceBindingManagerImpl extends HubPersistenceServiceImpl
    * @param id     to validate access to
    * @throws ManagerException if no access
    */
-  private void requireModification(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+  void requireModification(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     requireArtist(access);
     if (access.isTopLevel())
       requireExists("Program Sequence Binding", db.selectCount().from(PROGRAM_SEQUENCE_BINDING)

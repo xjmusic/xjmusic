@@ -401,7 +401,7 @@ public class TuningTest {
     Tuning.at(Note.of("G73"), 97492.06);
   }
 
-  private void expectMusicalFailure(String msg) {
+  void expectMusicalFailure(String msg) {
     failure.expect(MusicalException.class);
     failure.expectMessage(msg);
   }

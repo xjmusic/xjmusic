@@ -7,8 +7,8 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
 public class BytePipeline {
-  private final PipedInputStream inputStream;
-  private final PipedOutputStream outputStream;
+  final PipedInputStream inputStream;
+  final PipedOutputStream outputStream;
 
   public BytePipeline(int pipeSize) throws IOException {
     this.outputStream = new PipedOutputStream();

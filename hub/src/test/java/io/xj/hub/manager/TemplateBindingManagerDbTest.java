@@ -42,11 +42,11 @@ import static org.junit.jupiter.api.Assertions.fail;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 public class TemplateBindingManagerDbTest {
-  private TemplateBindingManager testManager;
-  private HubIntegrationTest test;
-  private IntegrationTestingFixtures fake;
-  private TemplateBinding templateBinding201;
-  private Library targetLibrary;
+  TemplateBindingManager testManager;
+  HubIntegrationTest test;
+  IntegrationTestingFixtures fake;
+  TemplateBinding templateBinding201;
+  Library targetLibrary;
 
   @MockBean
   NotificationProvider notificationProvider;

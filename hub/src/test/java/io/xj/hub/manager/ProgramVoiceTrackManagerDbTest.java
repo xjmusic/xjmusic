@@ -45,12 +45,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 public class ProgramVoiceTrackManagerDbTest {
-  private ProgramVoiceTrackManager testManager;
-  private HubIntegrationTest test;
-  private IntegrationTestingFixtures fake;
-  private ProgramVoiceTrack voiceTrack1a_0;
-  private ProgramSequencePatternEvent voiceTrack1a_0_event0;
-  private ProgramSequencePatternEvent voiceTrack1a_0_event1;
+  ProgramVoiceTrackManager testManager;
+  HubIntegrationTest test;
+  IntegrationTestingFixtures fake;
+  ProgramVoiceTrack voiceTrack1a_0;
+  ProgramSequencePatternEvent voiceTrack1a_0_event0;
+  ProgramSequencePatternEvent voiceTrack1a_0_event1;
 
   @MockBean
   NotificationProvider notificationProvider;

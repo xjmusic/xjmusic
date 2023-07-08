@@ -24,13 +24,13 @@ import javax.annotation.PreDestroy;
 @ComponentScan(basePackages = {"io.xj.lib", "io.xj.hub"})
 public class HubApplication {
   final Logger LOG = LoggerFactory.getLogger(HubApplication.class);
-  private final HubKvStoreProvider hubKvStoreProvider;
-  private final HubSqlStoreProvider hubSqlStoreProvider;
-  private final EntityFactory entityFactory;
-  private final HubMigration hubMigration;
-  private final AppConfiguration config;
-  private final String hostname;
-  private final String platformEnvironment;
+  final HubKvStoreProvider hubKvStoreProvider;
+  final HubSqlStoreProvider hubSqlStoreProvider;
+  final EntityFactory entityFactory;
+  final HubMigration hubMigration;
+  final AppConfiguration config;
+  final String hostname;
+  final String platformEnvironment;
 
   @Autowired
   public HubApplication(

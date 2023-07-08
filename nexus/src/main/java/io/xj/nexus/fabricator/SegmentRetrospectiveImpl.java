@@ -40,10 +40,10 @@ import java.util.stream.Collectors;
  * The SegmentRetrospective is a delegate to look back on previous segments, read-only
  */
 class SegmentRetrospectiveImpl implements SegmentRetrospective {
-  private final Logger LOG = LoggerFactory.getLogger(SegmentRetrospectiveImpl.class);
-  private final EntityStore retroStore;
-  private final Map<UUID, List<SegmentChord>> segmentChords;
-  private Segment previousSegment;
+  final Logger LOG = LoggerFactory.getLogger(SegmentRetrospectiveImpl.class);
+  final EntityStore retroStore;
+  final Map<UUID, List<SegmentChord>> segmentChords;
+  Segment previousSegment;
 
   public SegmentRetrospectiveImpl(
     Segment segment,

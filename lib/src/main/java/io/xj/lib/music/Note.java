@@ -18,10 +18,10 @@ import java.util.stream.Stream;
 public class Note implements Comparable<Note> {
   @JsonIgnore
   public static final String ATONAL = "X";
-  private static final Pattern rgxValidNote = Pattern.compile("^([ABCDEFGX][♯#♭b]*[0-9]*)$");
-  private static final int MAX_DELTA_SEMITONES = 1000; // this max is only for extreme-case infinite loop prevention
-  private Integer octave; // octave #
-  private PitchClass pitchClass; // pitch class of note
+  static final Pattern rgxValidNote = Pattern.compile("^([ABCDEFGX][♯#♭b]*[0-9]*)$");
+  static final int MAX_DELTA_SEMITONES = 1000; // this max is only for extreme-case infinite loop prevention
+  Integer octave; // octave #
+  PitchClass pitchClass; // pitch class of note
 
   /**
    Construct new empty note
@@ -168,7 +168,7 @@ public class Note implements Comparable<Note> {
 
    @return new note
    */
-  private Note copy() {
+  Note copy() {
     return new Note()
       .setOctave(octave)
       .setPitchClass(pitchClass);
@@ -322,7 +322,7 @@ public class Note implements Comparable<Note> {
    @param delta  direction (1 or -1) in which to seek
    @return first note with given pitch class from this
    */
-  private Note next(PitchClass target, int delta) {
+  Note next(PitchClass target, int delta) {
     if (isAtonal() || Objects.equals(pitchClass, target))
       return this;
 

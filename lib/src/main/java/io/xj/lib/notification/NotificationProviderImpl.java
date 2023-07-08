@@ -19,16 +19,16 @@ import java.util.Objects;
  */
 @Service
 public class NotificationProviderImpl implements NotificationProvider {
-  private static final Logger LOG = LoggerFactory.getLogger(NotificationProviderImpl.class);
-  private final String awsDefaultRegion;
-  private final String awsAccessKeyId;
-  private final String awsSecretKey;
+  static final Logger LOG = LoggerFactory.getLogger(NotificationProviderImpl.class);
+  final String awsDefaultRegion;
+  final String awsAccessKeyId;
+  final String awsSecretKey;
 
   /**
    Optional-- when null, no notifications are sent (as in testing)
    */
   @Nullable
-  private final String topicArn;
+  final String topicArn;
 
   @Autowired
   public NotificationProviderImpl(
@@ -59,7 +59,7 @@ public class NotificationProviderImpl implements NotificationProvider {
 
    @return S3 client
    */
-  private AmazonSNS snsClient() {
+  AmazonSNS snsClient() {
     BasicAWSCredentials credentials = new BasicAWSCredentials(awsAccessKeyId, awsSecretKey);
     return AmazonSNSAsyncClientBuilder.standard()
       .withRegion(awsDefaultRegion)

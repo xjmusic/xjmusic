@@ -29,7 +29,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/1/program-sequence-binding-memes")
 public class ProgramSequenceBindingMemeController extends HubJsonapiEndpoint {
-  private final ProgramSequenceBindingMemeManager manager;
+  final ProgramSequenceBindingMemeManager manager;
 
   /**
    * Constructor
@@ -107,7 +107,7 @@ public class ProgramSequenceBindingMemeController extends HubJsonapiEndpoint {
    *
    * @return Manager
    */
-  private ProgramSequenceBindingMemeManager manager() {
+  ProgramSequenceBindingMemeManager manager() {
     return manager;
   }
 

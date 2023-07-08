@@ -18,9 +18,9 @@ import static io.xj.lib.util.Text.formatStackTrace;
 
 @Service
 public class JsonapiResponseProviderImpl implements JsonapiResponseProvider {
-  private static final Logger log = LoggerFactory.getLogger(JsonapiResponseProviderImpl.class);
-  private final String appUrl;
-  private final ApiUrlProvider apiUrlProvider;
+  static final Logger log = LoggerFactory.getLogger(JsonapiResponseProviderImpl.class);
+  final String appUrl;
+  final ApiUrlProvider apiUrlProvider;
 
   @Autowired
   public JsonapiResponseProviderImpl(ApiUrlProvider apiUrlProvider) {

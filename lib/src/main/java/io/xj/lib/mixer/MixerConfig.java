@@ -9,21 +9,21 @@ import javax.sound.sampled.AudioFormat;
  * Engineer wants final Segment audio mastered with a lookahead-attack compressor https://www.pivotaltracker.com/story/show/154112129
  */
 public class MixerConfig {
-  private int totalBuses = 8;
-  private double totalSeconds = 6;
-  private AudioFormat outputFormat;
-  private Double compressAheadSeconds = 0.1;
-  private Double compressDecaySeconds = 0.01;
-  private Double compressRatioMax = 1.38;
-  private Double compressRatioMin = 0.62;
-  private Double compressToAmplitude = 1.0;
-  private Double normalizationCeiling = 1.0;
-  private Integer dspBufferSize = 1024; // DSP buffer size must be a power of 2
-  private String logPrefix = "";
-  private double highpassThresholdHz = 20.0;
-  private double lowpassThresholdHz = 12000;
+  int totalBuses = 8;
+  double totalSeconds = 6;
+  AudioFormat outputFormat;
+  Double compressAheadSeconds = 0.1;
+  Double compressDecaySeconds = 0.01;
+  Double compressRatioMax = 1.38;
+  Double compressRatioMin = 0.62;
+  Double compressToAmplitude = 1.0;
+  Double normalizationCeiling = 1.0;
+  Integer dspBufferSize = 1024; // DSP buffer size must be a power of 2
+  String logPrefix = "";
+  double highpassThresholdHz = 20.0;
+  double lowpassThresholdHz = 12000;
 
-  private double normalizationBoostThreshold = 1.38;
+  double normalizationBoostThreshold = 1.38;
 
   /**
    * Instantiate a new mixer configuration with format and length (and default compression settings)

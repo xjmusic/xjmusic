@@ -10,22 +10,22 @@ import java.util.Collection;
 import java.util.List;
 
 public class HubContentPayload {
-  private List<Template> templates;
-  private List<TemplateBinding> templateBindings;
-  private List<Instrument> instruments;
-  private List<InstrumentAudio> instrumentAudios;
-  private List<InstrumentMeme> instrumentMemes;
-  private List<Program> programs;
-  private List<ProgramMeme> programMemes;
-  private List<ProgramSequence> programSequences;
-  private List<ProgramSequenceBinding> programSequenceBindings;
-  private List<ProgramSequenceBindingMeme> programSequenceBindingMemes;
-  private List<ProgramSequenceChord> programSequenceChords;
-  private List<ProgramSequenceChordVoicing> programSequenceChordVoicings;
-  private List<ProgramSequencePattern> programSequencePatterns;
-  private List<ProgramSequencePatternEvent> programSequencePatternEvents;
-  private List<ProgramVoice> programVoices;
-  private List<ProgramVoiceTrack> programVoiceTracks;
+  List<Template> templates;
+  List<TemplateBinding> templateBindings;
+  List<Instrument> instruments;
+  List<InstrumentAudio> instrumentAudios;
+  List<InstrumentMeme> instrumentMemes;
+  List<Program> programs;
+  List<ProgramMeme> programMemes;
+  List<ProgramSequence> programSequences;
+  List<ProgramSequenceBinding> programSequenceBindings;
+  List<ProgramSequenceBindingMeme> programSequenceBindingMemes;
+  List<ProgramSequenceChord> programSequenceChords;
+  List<ProgramSequenceChordVoicing> programSequenceChordVoicings;
+  List<ProgramSequencePattern> programSequencePatterns;
+  List<ProgramSequencePatternEvent> programSequencePatternEvents;
+  List<ProgramVoice> programVoices;
+  List<ProgramVoiceTrack> programVoiceTracks;
 
 
   public List<Instrument> getInstruments() {

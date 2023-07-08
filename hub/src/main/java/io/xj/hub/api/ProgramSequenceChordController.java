@@ -46,10 +46,10 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/1/program-sequence-chords")
 public class ProgramSequenceChordController extends HubJsonapiEndpoint {
-  private static final String VOICE_TYPE_KEY = "type";
-  private final ProgramVoiceManager voiceManager;
-  private final ProgramSequenceChordManager manager;
-  private final ProgramSequenceChordVoicingManager voicingManager;
+  static final String VOICE_TYPE_KEY = "type";
+  final ProgramVoiceManager voiceManager;
+  final ProgramSequenceChordManager manager;
+  final ProgramSequenceChordVoicingManager voicingManager;
 
   /**
    * Constructor
@@ -194,7 +194,7 @@ public class ProgramSequenceChordController extends HubJsonapiEndpoint {
    *
    * @return Manager
    */
-  private ProgramSequenceChordManager manager() {
+  ProgramSequenceChordManager manager() {
     return manager;
   }
 

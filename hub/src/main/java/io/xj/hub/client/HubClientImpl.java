@@ -36,18 +36,18 @@ import java.util.stream.Collectors;
  */
 @Service
 public class HubClientImpl implements HubClient {
-  private static final String API_PATH_INGEST_FORMAT = "api/1/ingest/%s";
-  private static final String API_PATH_TEMPLATE_BY_ID_FORMAT = "api/1/templates/%s";
-  private static final String API_PATH_TEMPLATE_PLAYBACK_BY_ID_FORMAT = "api/1/template-playbacks/%s";
-  private static final String HEADER_COOKIE = "Cookie";
-  private final Logger LOG = LoggerFactory.getLogger(HubClientImpl.class);
-  private final String ingestUrl;
-  private final String ingestTokenName;
-  private final HttpClientProvider httpClientProvider;
-  private final JsonProviderImpl jsonProvider;
-  private final JsonapiPayloadFactory jsonapiPayloadFactory;
-  private final String ingestTokenValue;
-  private final String audioBaseUrl;
+  static final String API_PATH_INGEST_FORMAT = "api/1/ingest/%s";
+  static final String API_PATH_TEMPLATE_BY_ID_FORMAT = "api/1/templates/%s";
+  static final String API_PATH_TEMPLATE_PLAYBACK_BY_ID_FORMAT = "api/1/template-playbacks/%s";
+  static final String HEADER_COOKIE = "Cookie";
+  final Logger LOG = LoggerFactory.getLogger(HubClientImpl.class);
+  final String ingestUrl;
+  final String ingestTokenName;
+  final HttpClientProvider httpClientProvider;
+  final JsonProviderImpl jsonProvider;
+  final JsonapiPayloadFactory jsonapiPayloadFactory;
+  final String ingestTokenValue;
+  final String audioBaseUrl;
 
   @Autowired
   public HubClientImpl(
@@ -121,7 +121,7 @@ public class HubClientImpl implements HubClient {
     }
   }
 
-  private <N> Optional<N> getOneFromHub(Class<N> type, String path) throws HubClientException {
+  <N> Optional<N> getOneFromHub(Class<N> type, String path) throws HubClientException {
     CloseableHttpClient client = httpClientProvider.getClient();
     var uri = buildURI(path);
     var request = buildGetRequest(uri, ingestTokenValue);
@@ -149,7 +149,7 @@ public class HubClientImpl implements HubClient {
    * @param ingestTokenValue of request
    * @return http request
    */
-  private HttpGet buildGetRequest(URI uri, String ingestTokenValue) {
+  HttpGet buildGetRequest(URI uri, String ingestTokenValue) {
     var request = new HttpGet(uri);
     request.setHeader(HEADER_COOKIE, String.format("%s=%s", ingestTokenName, ingestTokenValue));
     return request;
@@ -162,7 +162,7 @@ public class HubClientImpl implements HubClient {
    * @return URI for specified API path
    * @throws HubClientException on failure to construct URI
    */
-  private URI buildURI(String path) throws HubClientException {
+  URI buildURI(String path) throws HubClientException {
     try {
       URIBuilder b = new URIBuilder(String.format("%s%s", ingestUrl, path));
       return b.build();
@@ -176,7 +176,7 @@ public class HubClientImpl implements HubClient {
    *
    * @param response to log and throw
    */
-  private HubClientException buildException(String uri, CloseableHttpResponse response) throws HubClientException {
+  HubClientException buildException(String uri, CloseableHttpResponse response) throws HubClientException {
     // if we got here, it's a failure
     LOG.error("Request failed to {}\n response: {} {}", uri, response.getAllHeaders(), response);
     throw new HubClientException(String.format("Request failed to %s\nresponse: %d %s", uri, response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase()));

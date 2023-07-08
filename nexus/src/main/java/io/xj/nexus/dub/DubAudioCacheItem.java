@@ -27,9 +27,9 @@ import java.util.Objects;
  */
 public class DubAudioCacheItem {
   final Logger log = LoggerFactory.getLogger(DubAudioCacheItem.class);
-  private final String key;
-  private final String absolutePath;
-  private int size; // # of bytes
+  final String key;
+  final String absolutePath;
+  int size; // # of bytes
 
   /**
    * @param audioFileBucket is the bucket for audio files
@@ -69,7 +69,7 @@ public class DubAudioCacheItem {
   /**
    * @return true if this dub audio cache item exists (as audio waveform data) on disk
    */
-  private boolean existsOnDisk() {
+  boolean existsOnDisk() {
     return new File(absolutePath).exists();
   }
 

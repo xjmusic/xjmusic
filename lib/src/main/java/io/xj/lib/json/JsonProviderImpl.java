@@ -20,7 +20,7 @@ import java.time.format.DateTimeFormatter;
 
 @Service
 public class JsonProviderImpl implements JsonProvider {
-  private final ObjectMapper mapper = new ObjectMapper();
+  final ObjectMapper mapper = new ObjectMapper();
 
   @Autowired
   public JsonProviderImpl() {
@@ -35,14 +35,14 @@ public class JsonProviderImpl implements JsonProvider {
     return mapper;
   }
 
-  private Module buildInstantSerDesModule() {
+  Module buildInstantSerDesModule() {
     SimpleModule mod = new SimpleModule();
     mod.addSerializer(Instant.class, new InstantSerializer());
     mod.addDeserializer(Instant.class, new InstantDeserializer());
     return mod;
   }
 
-  private Module buildJavaTimeModule() {
+  Module buildJavaTimeModule() {
     JavaTimeModule mod = new JavaTimeModule();
     mod.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeFormatter.ISO_DATE_TIME));
     return mod;

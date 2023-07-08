@@ -28,8 +28,8 @@ import static io.xj.hub.tables.Account.ACCOUNT;
 
 @Service
 public class LibraryManagerImpl extends HubPersistenceServiceImpl implements LibraryManager {
-  private final InstrumentManager instrumentManager;
-  private final ProgramManager programManager;
+  final InstrumentManager instrumentManager;
+  final ProgramManager programManager;
 
   public LibraryManagerImpl(
     EntityFactory entityFactory,
@@ -210,7 +210,7 @@ public class LibraryManagerImpl extends HubPersistenceServiceImpl implements Lib
     return cloner.get();
   }
 
-  private void requireParentExists(DSLContext db, HubAccess access, Library library) throws ManagerException {
+  void requireParentExists(DSLContext db, HubAccess access, Library library) throws ManagerException {
     if (!access.isTopLevel())
       try (var selectCount = db.selectCount()) {
         requireExists("Account",
@@ -223,7 +223,7 @@ public class LibraryManagerImpl extends HubPersistenceServiceImpl implements Lib
       }
   }
 
-  private Library readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+  Library readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     if (access.isTopLevel())
       try (var selectLibrary = db.selectFrom(LIBRARY)) {
         return modelFrom(Library.class, selectLibrary

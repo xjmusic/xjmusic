@@ -15,9 +15,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class FabricatorFactoryImpl implements FabricatorFactory {
-  private final JsonapiPayloadFactory jsonapiPayloadFactory;
-  private final SegmentManager segmentManager;
-  private final JsonProvider jsonProvider;
+  final JsonapiPayloadFactory jsonapiPayloadFactory;
+  final SegmentManager segmentManager;
+  final JsonProvider jsonProvider;
 
   @Autowired
   public FabricatorFactoryImpl(

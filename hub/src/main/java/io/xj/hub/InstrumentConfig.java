@@ -32,15 +32,15 @@ public class InstrumentConfig {
     releaseMillis = 5
     """;
 
-  private final Boolean isAudioSelectionPersistent;
+  final Boolean isAudioSelectionPersistent;
 
-  private final Boolean isMultiphonic;
-  private final Boolean isOneShot;
-  private final Boolean isOneShotCutoffEnabled;
-  private final Boolean isTonal;
-  private final Integer attackMillis;
-  private final Integer releaseMillis;
-  private final Collection<String> oneShotObserveLengthOfEvents;
+  final Boolean isMultiphonic;
+  final Boolean isOneShot;
+  final Boolean isOneShotCutoffEnabled;
+  final Boolean isTonal;
+  final Integer attackMillis;
+  final Integer releaseMillis;
+  final Collection<String> oneShotObserveLengthOfEvents;
 
   /**
    * Instantiate an Instrument configuration from a string of typesafe config.

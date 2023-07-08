@@ -39,7 +39,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/1/instrument-audios")
 public class InstrumentAudioController extends HubJsonapiEndpoint {
-  private final InstrumentAudioManager manager;
+  final InstrumentAudioManager manager;
 
   /**
    * Constructor
@@ -175,7 +175,7 @@ public class InstrumentAudioController extends HubJsonapiEndpoint {
    *
    * @return Manager
    */
-  private InstrumentAudioManager manager() {
+  InstrumentAudioManager manager() {
     return manager;
   }
 

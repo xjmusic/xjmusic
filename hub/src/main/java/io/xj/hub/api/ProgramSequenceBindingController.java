@@ -29,7 +29,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/1/program-sequence-bindings")
 public class ProgramSequenceBindingController extends HubJsonapiEndpoint {
-  private final ProgramSequenceBindingManager manager;
+  final ProgramSequenceBindingManager manager;
 
   /**
    * Constructor
@@ -107,7 +107,7 @@ public class ProgramSequenceBindingController extends HubJsonapiEndpoint {
    *
    * @return Manager
    */
-  private ProgramSequenceBindingManager manager() {
+  ProgramSequenceBindingManager manager() {
     return manager;
   }
 

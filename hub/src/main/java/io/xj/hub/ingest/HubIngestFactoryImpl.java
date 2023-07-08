@@ -14,12 +14,12 @@ import java.util.UUID;
 
 @Service
 public class HubIngestFactoryImpl implements HubIngestFactory {
-  private final InstrumentManager instrumentManager;
-  private final JsonProvider jsonProvider;
-  private final ProgramManager programManager;
-  private final TemplateManager templateManager;
-  private final TemplateBindingManager templateBindingManager;
-  private final EntityFactory entityFactory;
+  final InstrumentManager instrumentManager;
+  final JsonProvider jsonProvider;
+  final ProgramManager programManager;
+  final TemplateManager templateManager;
+  final TemplateBindingManager templateBindingManager;
+  final EntityFactory entityFactory;
 
   @Autowired
   public HubIngestFactoryImpl(

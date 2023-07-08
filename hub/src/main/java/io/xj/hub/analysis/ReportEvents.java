@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  * Template content Analysis https://www.pivotaltracker.com/story/show/161199945
  */
 public class ReportEvents extends Report {
-  private final EventHistogram eventHistogram;
+  final EventHistogram eventHistogram;
 
   public ReportEvents(HubContent content) {
     super(content);

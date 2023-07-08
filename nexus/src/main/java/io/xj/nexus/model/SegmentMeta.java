@@ -13,10 +13,10 @@ import java.util.UUID;
  */
 public class SegmentMeta {
 
-  private @Valid UUID id;
-  private @Valid UUID segmentId;
-  private @Valid String key;
-  private @Valid String value;
+  @Valid UUID id;
+  @Valid UUID segmentId;
+  @Valid String key;
+  @Valid String value;
 
   /**
    *
@@ -127,7 +127,7 @@ public class SegmentMeta {
    Convert the given object to string with each line indented by 4 spaces
    (except the first line).
    */
-  private String toIndentedString(Object o) {
+  String toIndentedString(Object o) {
     if (o == null) {
       return "null";
     }

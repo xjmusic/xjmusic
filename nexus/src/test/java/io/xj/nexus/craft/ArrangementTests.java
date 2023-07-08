@@ -73,37 +73,37 @@ import static org.junit.Assert.assertEquals;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ArrangementTests extends YamlTest {
-  private static final String TEST_PATH_PREFIX = "/arrangements/";
-  private static final int REPEAT_EACH_TEST_TIMES = 7;
-  private static final Set<InstrumentType> INSTRUMENT_TYPES_TO_TEST = ImmutableSet.of(
+  static final String TEST_PATH_PREFIX = "/arrangements/";
+  static final int REPEAT_EACH_TEST_TIMES = 7;
+  static final Set<InstrumentType> INSTRUMENT_TYPES_TO_TEST = ImmutableSet.of(
     InstrumentType.Bass,
     InstrumentType.Pad,
     InstrumentType.Stab,
     InstrumentType.Stripe,
     InstrumentType.Sticky
   );
-  private final Logger LOG = LoggerFactory.getLogger(YamlTest.class);
+  final Logger LOG = LoggerFactory.getLogger(YamlTest.class);
   // this is how we provide content for fabrication
   @Mock
   public HubClient hubClient;
   @Mock
   public NotificationProvider notificationProvider;
-  private FabricatorFactory fabrication;
-  private NexusEntityStore store;
-  private Fabricator fabricator;
+  FabricatorFactory fabrication;
+  NexusEntityStore store;
+  Fabricator fabricator;
   // list of all entities to return from Hub
-  private List<Object> content;
+  List<Object> content;
   // maps with specific entities that will reference each other
-  private Map<InstrumentType, Instrument> instruments;
-  private Map<InstrumentType, Program> detailPrograms;
-  private Map<InstrumentType, ProgramVoice> detailProgramVoices;
-  private Map<InstrumentType, ProgramSequence> detailProgramSequences;
-  private Map<InstrumentType, List<ProgramSequencePatternEvent>> detailProgramSequencePatternEvents;
-  private List<StickyBun> stickyBuns;
-  private Chain chain;
-  private Segment segment;
-  private Map<InstrumentType, SegmentChoice> segmentChoices;
-  private Program mainProgram1;
+  Map<InstrumentType, Instrument> instruments;
+  Map<InstrumentType, Program> detailPrograms;
+  Map<InstrumentType, ProgramVoice> detailProgramVoices;
+  Map<InstrumentType, ProgramSequence> detailProgramSequences;
+  Map<InstrumentType, List<ProgramSequencePatternEvent>> detailProgramSequencePatternEvents;
+  List<StickyBun> stickyBuns;
+  Chain chain;
+  Segment segment;
+  Map<InstrumentType, SegmentChoice> segmentChoices;
+  Program mainProgram1;
 
   @Test
   public void arrangementBaseline() {
@@ -192,7 +192,7 @@ FUTURE goal
    *
    * @param filename of test YAML file
    */
-  private void loadAndRunTest(String filename) {
+  void loadAndRunTest(String filename) {
     for (int i = 0; i < REPEAT_EACH_TEST_TIMES; i++)
       try {
         reset();
@@ -230,7 +230,7 @@ FUTURE goal
   /**
    * Reset the resources before each repetition of each test
    */
-  private void reset() throws Exception {
+  void reset() throws Exception {
     JsonProvider jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     store = new NexusEntityStoreImpl(entityFactory);
@@ -271,7 +271,7 @@ FUTURE goal
    *
    * @param type of instrument to read
    */
-  private void loadInstrument(Map<?, ?> data, InstrumentType type) {
+  void loadInstrument(Map<?, ?> data, InstrumentType type) {
     Map<?, ?> obj = (Map<?, ?>) data.get(String.format("%sInstrument", type.toString().toLowerCase(Locale.ROOT)));
     if (Objects.isNull(obj)) return;
 
@@ -293,7 +293,7 @@ FUTURE goal
    * @param data YAML file wrapper
    * @param type of instrument to read
    */
-  private void loadDetailProgram(Map<?, ?> data, InstrumentType type) {
+  void loadDetailProgram(Map<?, ?> data, InstrumentType type) {
     Map<?, ?> obj = (Map<?, ?>) data.get(String.format("%sDetailProgram", type.toString().toLowerCase(Locale.ROOT)));
     if (Objects.isNull(obj)) return;
 
@@ -339,7 +339,7 @@ FUTURE goal
    *
    * @param data YAML file wrapper
    */
-  private void loadSegment(Map<?, ?> data) throws NexusException {
+  void loadSegment(Map<?, ?> data) throws NexusException {
     Map<?, ?> obj = (Map<?, ?>) data.get("segment");
 
     segment = store.put(NexusIntegrationTestingFixtures.buildSegment(chain,
@@ -391,14 +391,14 @@ FUTURE goal
    * Load the assertions of picks section after a test has run
    * Load the instrument section of the test YAML file, for one type of Instrument@param data YAML file wrapper
    */
-  private void loadAndPerformAssertions(Map<?, ?> data) {
+  void loadAndPerformAssertions(Map<?, ?> data) {
     @Nullable
     Map<?, ?> obj = (Map<?, ?>) data.get("assertPicks");
     if (Objects.isNull(obj)) return;
     for (var type : INSTRUMENT_TYPES_TO_TEST) loadAndPerformAssertions(obj, type);
   }
 
-  private void loadAndPerformAssertions(Map<?, ?> data, InstrumentType type) {
+  void loadAndPerformAssertions(Map<?, ?> data, InstrumentType type) {
     @Nullable
     @SuppressWarnings("unchecked")
     List<Map<?, ?>> objs = (List<Map<?, ?>>) data.get(type.toString().toLowerCase(Locale.ROOT));

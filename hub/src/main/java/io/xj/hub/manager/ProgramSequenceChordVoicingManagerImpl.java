@@ -26,7 +26,7 @@ import static io.xj.hub.Tables.*;
 
 @Service
 public class ProgramSequenceChordVoicingManagerImpl extends HubPersistenceServiceImpl implements ProgramSequenceChordVoicingManager {
-  private static final String VOICING_NOTES_EMPTY = "(None)";
+  static final String VOICING_NOTES_EMPTY = "(None)";
 
   public ProgramSequenceChordVoicingManagerImpl(
     EntityFactory entityFactory,
@@ -212,7 +212,7 @@ public class ProgramSequenceChordVoicingManagerImpl extends HubPersistenceServic
    * @return empty voicing created
    * @throws ManagerException on failure
    */
-  private ProgramSequenceChordVoicing createEmptyVoicing(DSLContext db, UUID programId, UUID voiceId, UUID chordId) throws ManagerException {
+  ProgramSequenceChordVoicing createEmptyVoicing(DSLContext db, UUID programId, UUID voiceId, UUID chordId) throws ManagerException {
     var voicing = new ProgramSequenceChordVoicing();
     voicing.setProgramId(programId);
     voicing.setProgramVoiceId(voiceId);
@@ -229,7 +229,7 @@ public class ProgramSequenceChordVoicingManagerImpl extends HubPersistenceServic
    * @param voicing to test
    * @throws ManagerException if already exists
    */
-  private void requireNotExistsForChordAndVoice(DSLContext db, ProgramSequenceChordVoicing voicing) throws ManagerException {
+  void requireNotExistsForChordAndVoice(DSLContext db, ProgramSequenceChordVoicing voicing) throws ManagerException {
     requireNotExists("existing voicing for this chord and voice", db.selectCount().from(PROGRAM_SEQUENCE_CHORD_VOICING)
       .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID.eq(voicing.getProgramSequenceChordId()))
       .and(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_VOICE_ID.eq(voicing.getProgramVoiceId()))

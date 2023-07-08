@@ -37,7 +37,7 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class HubEndpointTest {
-  private JsonapiPayloadFactory payloadFactory;
+  JsonapiPayloadFactory payloadFactory;
   @Mock
   HttpServletRequest req;
   @Mock

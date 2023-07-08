@@ -18,7 +18,7 @@ public enum SegmentMessageType {
 
   ERROR("Error");
 
-  private String value;
+  String value;
 
   SegmentMessageType(String value) {
     this.value = value;

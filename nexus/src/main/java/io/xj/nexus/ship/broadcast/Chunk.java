@@ -22,11 +22,11 @@ import static io.xj.lib.util.Values.MICROS_PER_SECOND;
  * Nexus timing is entirely in chain/segment microseconds https://www.pivotaltracker.com/story/show/185515194
  */
 public class Chunk {
-  private final Long fromChainMicros;
-  private final Long durationMicros;
-  private final String fileExtension;
-  private final String shipKey;
-  private final long sequenceNumber;
+  final Long fromChainMicros;
+  final Long durationMicros;
+  final String fileExtension;
+  final String shipKey;
+  final long sequenceNumber;
 
   public Chunk(
     String shipChunkAudioEncoder,

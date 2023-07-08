@@ -29,7 +29,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/1/instrument-memes")
 public class InstrumentMemeController extends HubJsonapiEndpoint {
-  private final InstrumentMemeManager manager;
+  final InstrumentMemeManager manager;
 
   /**
    * Constructor
@@ -107,7 +107,7 @@ public class InstrumentMemeController extends HubJsonapiEndpoint {
    *
    * @return Manager
    */
-  private InstrumentMemeManager manager() {
+  InstrumentMemeManager manager() {
     return manager;
   }
 

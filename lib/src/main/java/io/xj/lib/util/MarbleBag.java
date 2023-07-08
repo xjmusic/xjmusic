@@ -26,12 +26,12 @@ import java.util.stream.Collectors;
  This supports functionality such as “XJ always chooses a directly-bound program or instrument when available”
  */
 public class MarbleBag {
-  private final Map<Integer/*Phase*/, Map<UUID/*Id*/, Integer/*Qty*/>> marbles;
+  final Map<Integer/*Phase*/, Map<UUID/*Id*/, Integer/*Qty*/>> marbles;
 
   /**
    Construct a new Marble Bag
    */
-  private MarbleBag() {
+  MarbleBag() {
     marbles = Maps.newConcurrentMap();
   }
 
@@ -139,7 +139,7 @@ public class MarbleBag {
    @param phase from which to pick a marble
    @return marble if available
    */
-  private Optional<UUID> pickPhase(Integer phase) {
+  Optional<UUID> pickPhase(Integer phase) {
     var total = 0;
     List<Group> blocks = Lists.newArrayList();
 
@@ -167,7 +167,7 @@ public class MarbleBag {
   /**
    Group of marbles with a given id
    */
-  private static class Group {
+  static class Group {
     UUID id;
     Integer from;
     Integer to;

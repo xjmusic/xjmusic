@@ -12,15 +12,15 @@ import java.util.*;
 
 public class HubClientAccess {
   public static final String CONTEXT_KEY = "hub_access";
-  private static final UserRoleType[] topLevelRoles = {UserRoleType.Admin, UserRoleType.Internal};
-  private final Collection<UserRoleType> roleTypes = Lists.newArrayList();
-  private final Collection<UUID> accountIds = Lists.newArrayList();
+  static final UserRoleType[] topLevelRoles = {UserRoleType.Admin, UserRoleType.Internal};
+  final Collection<UserRoleType> roleTypes = Lists.newArrayList();
+  final Collection<UUID> accountIds = Lists.newArrayList();
   @Nullable
-  private String token = null;
+  String token = null;
   @Nullable
-  private UUID userId = null;
+  UUID userId = null;
   @Nullable
-  private UUID userAuthId = null;
+  UUID userAuthId = null;
 
   /**
    * Construct an HubClientAccess model

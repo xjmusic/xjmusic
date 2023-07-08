@@ -10,6 +10,7 @@ import io.xj.lib.util.Text;
 import io.xj.nexus.work.CraftWork;
 import io.xj.nexus.work.DubWork;
 import io.xj.nexus.work.ShipWork;
+import io.xj.nexus.work.WorkFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,12 +35,10 @@ import java.util.Objects;
   })
 public class NexusApplication {
   final Logger LOG = LoggerFactory.getLogger(NexusApplication.class);
-  private final EntityFactory entityFactory;
-  private final AppConfiguration config;
-  private final CraftWork craftWork;
-  private final DubWork dubWork;
-  private final ShipWork shipWork;
-  private final ApplicationContext context;
+  final EntityFactory entityFactory;
+  final AppConfiguration config;
+  final WorkFactory workFactory;
+  final ApplicationContext context;
 
   @Value("${hostname}")
   String hostname;
@@ -51,15 +50,11 @@ public class NexusApplication {
     AppConfiguration config,
     ApplicationContext context,
     EntityFactory entityFactory,
-    CraftWork craftWork,
-    DubWork dubWork,
-    ShipWork shipWork
+    WorkFactory workFactory
   ) {
     this.entityFactory = entityFactory;
     this.config = config;
-    this.craftWork = craftWork;
-    this.dubWork = dubWork;
-    this.shipWork = shipWork;
+    this.workFactory = workFactory;
     this.context = context;
   }
 
@@ -77,35 +72,10 @@ public class NexusApplication {
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
 
-    // Confirm workers are instantiated
-    if (Objects.isNull(craftWork)) throw new NexusException("Failed to instantiate Craft work");
-    if (Objects.isNull(dubWork)) throw new NexusException("Failed to instantiate Dub work");
-    if (Objects.isNull(shipWork)) throw new NexusException("Failed to instantiate Ship work");
-
-    LOG.info("{} will start", Text.toProper(config.getName()));
-    try {
-      // Run work on separate threads.
-      Thread craftThread = new Thread(craftWork::start);
-      Thread dubThread = new Thread(dubWork::start);
-      Thread shipThread = new Thread(shipWork::start);
-      craftThread.start();
-      dubThread.start();
-      shipThread.start();
-
-      // This blocks until a graceful exit on interrupt signal or Dub work complete
-      dubThread.join();
-      craftThread.join();
-      shipThread.join();
-
-      // Shutdown the Spring Boot application
-      shutdown();
-
-    } catch (InterruptedException e) {
-      LOG.info("{} was interrupted", config.getName());
-    }
+    workFactory.start(this::shutdown);
   }
 
-  private void shutdown() {
+  void shutdown() {
     LOG.info("{} will shutdown", Text.toProper(config.getName()));
     Thread shutdown = new Thread(() -> {
       ((ConfigurableApplicationContext) context).close();

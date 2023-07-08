@@ -23,11 +23,11 @@ import static org.mockito.Mockito.verify;
 @RunWith(MockitoJUnitRunner.class)
 public class MixerImplTest {
   @Mock
-  private NotificationProvider notificationProvider;
+  NotificationProvider notificationProvider;
 
-  private MixerFactory mixerFactory;
+  MixerFactory mixerFactory;
 
-  private Mixer testMixer;
+  Mixer testMixer;
 
 
   // FUTURE test compression settings

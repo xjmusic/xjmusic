@@ -11,10 +11,10 @@ import java.util.UUID;
 
 public class SegmentChoiceArrangement   {
 
-  private @Valid UUID id;
-  private @Valid UUID segmentId;
-  private @Valid UUID segmentChoiceId;
-  private @Valid UUID programSequencePatternId;
+  @Valid UUID id;
+  @Valid UUID segmentId;
+  @Valid UUID segmentChoiceId;
+  @Valid UUID programSequencePatternId;
 
   /**
    **/
@@ -118,7 +118,7 @@ public class SegmentChoiceArrangement   {
    * Convert the given object to string with each line indented by 4 spaces
    * (except the first line).
    */
-  private String toIndentedString(Object o) {
+  String toIndentedString(Object o) {
     if (o == null) {
       return "null";
     }

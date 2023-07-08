@@ -49,9 +49,9 @@ import static org.mockito.Mockito.when;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 public class InstrumentAudioManagerDbTest {
-  private InstrumentAudioManager testManager;
-  private HubIntegrationTest test;
-  private IntegrationTestingFixtures fake;
+  InstrumentAudioManager testManager;
+  HubIntegrationTest test;
+  IntegrationTestingFixtures fake;
 
   @MockBean
   NotificationProvider notificationProvider;

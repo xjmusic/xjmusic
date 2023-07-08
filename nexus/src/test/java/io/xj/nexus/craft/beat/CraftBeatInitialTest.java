@@ -54,11 +54,11 @@ public class CraftBeatInitialTest {
   public HubClient hubClient;
   @Mock
   public NotificationProvider notificationProvider;
-  private CraftFactory craftFactory;
-  private FabricatorFactory fabricatorFactory;
-  private HubContent sourceMaterial;
-  private NexusEntityStore store;
-  private Segment segment6;
+  CraftFactory craftFactory;
+  FabricatorFactory fabricatorFactory;
+  HubContent sourceMaterial;
+  NexusEntityStore store;
+  Segment segment6;
 
   @Before
   public void setUp() throws Exception {

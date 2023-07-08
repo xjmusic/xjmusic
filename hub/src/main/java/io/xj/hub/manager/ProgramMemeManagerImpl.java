@@ -102,7 +102,7 @@ public class ProgramMemeManagerImpl extends HubPersistenceServiceImpl implements
    * @return Program Meme
    * @throws ManagerException on failure
    */
-  private ProgramMeme readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+  ProgramMeme readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     if (access.isTopLevel())
       return modelFrom(ProgramMeme.class,
         db.selectFrom(PROGRAM_MEME)
@@ -126,7 +126,7 @@ public class ProgramMemeManagerImpl extends HubPersistenceServiceImpl implements
    * @param id     to validate access to
    * @throws ManagerException if no access
    */
-  private void requireModification(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+  void requireModification(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     requireArtist(access);
     if (access.isTopLevel())
       requireExists("Program Meme", db.selectCount().from(PROGRAM_MEME)

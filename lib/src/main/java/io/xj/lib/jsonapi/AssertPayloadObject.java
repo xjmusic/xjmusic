@@ -19,7 +19,7 @@ import static io.xj.lib.util.Assertion.assertTrue;
  Created by Charney Kaye on 2020/03/05
  */
 public class AssertPayloadObject {
-  private final JsonapiPayloadObject jsonapiPayloadObject;
+  final JsonapiPayloadObject jsonapiPayloadObject;
 
   /**
    of instance of payloadObject assertion utility object

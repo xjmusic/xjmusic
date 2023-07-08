@@ -50,15 +50,15 @@ import static org.junit.Assert.fail;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SegmentManagerImplTest {
-  private Account account1;
-  private Chain chain3;
-  private NexusEntityStore store;
-  private Segment segment1;
-  private Segment segment2;
-  private Segment segment4;
-  private Segment segment5;
-  private SegmentManager testService;
-  private Template template1;
+  Account account1;
+  Chain chain3;
+  NexusEntityStore store;
+  Segment segment1;
+  Segment segment2;
+  Segment segment4;
+  Segment segment5;
+  SegmentManager testService;
+  Template template1;
 
   @Before
   public void setUp() throws Exception {

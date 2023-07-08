@@ -44,14 +44,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 public class ProgramSequenceBindingManagerDbTest {
-  private ProgramSequenceBindingManager testManager;
+  ProgramSequenceBindingManager testManager;
 
-  private HubIntegrationTest test;
-  private IntegrationTestingFixtures fake;
+  HubIntegrationTest test;
+  IntegrationTestingFixtures fake;
 
-  private ProgramSequenceBinding sequenceBinding1a_0;
-  private ProgramSequenceBindingMeme sequenceBinding1a_0_meme0;
-  private ProgramSequenceBindingMeme sequenceBinding1a_0_meme1;
+  ProgramSequenceBinding sequenceBinding1a_0;
+  ProgramSequenceBindingMeme sequenceBinding1a_0_meme0;
+  ProgramSequenceBindingMeme sequenceBinding1a_0_meme1;
 
   @MockBean
   NotificationProvider notificationProvider;

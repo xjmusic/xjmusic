@@ -52,13 +52,13 @@ public class CraftTransitionNextMacroTest {
   public HubClient hubClient;
   @Mock
   public NotificationProvider notificationProvider;
-  private CraftFactory craftFactory;
-  private FabricatorFactory fabricatorFactory;
-  private NexusIntegrationTestingFixtures fake;
-  private Chain chain1;
-  private Segment segment4;
-  private NexusEntityStore store;
-  private HubContent sourceMaterial;
+  CraftFactory craftFactory;
+  FabricatorFactory fabricatorFactory;
+  NexusIntegrationTestingFixtures fake;
+  Chain chain1;
+  Segment segment4;
+  NexusEntityStore store;
+  HubContent sourceMaterial;
 
   @Before
   public void setUp() throws Exception {
@@ -137,7 +137,7 @@ public class CraftTransitionNextMacroTest {
   /**
    * Insert fixture segments 3 and 4, including the transition choice for segment 3 only if specified
    */
-  private void insertSegments3and4() throws NexusException {
+  void insertSegments3and4() throws NexusException {
     // Chain "Test Print #1" has this segment that was just crafted
     Segment segment3 = store.put(buildSegment(
       chain1,

@@ -140,7 +140,7 @@ public class ProgramSequencePatternManagerImpl extends HubPersistenceServiceImpl
    * @param id     of entity to read
    * @return program sequence pattern
    */
-  private ProgramSequencePattern readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+  ProgramSequencePattern readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     requireArtist(access);
     if (access.isTopLevel())
       return modelFrom(ProgramSequencePattern.class,
@@ -165,7 +165,7 @@ public class ProgramSequencePatternManagerImpl extends HubPersistenceServiceImpl
    * @param entity to validate
    * @throws ManagerException if parent does not exist
    */
-  private void requireParentExists(DSLContext db, HubAccess access, ProgramSequencePattern entity) throws ManagerException {
+  void requireParentExists(DSLContext db, HubAccess access, ProgramSequencePattern entity) throws ManagerException {
     if (access.isTopLevel())
       requireExists("Program Sequence", db.selectCount().from(PROGRAM_SEQUENCE)
         .where(PROGRAM_SEQUENCE.ID.eq(entity.getProgramSequenceId()))
@@ -187,7 +187,7 @@ public class ProgramSequencePatternManagerImpl extends HubPersistenceServiceImpl
    * @param id     to validate access to
    * @throws ManagerException if no access
    */
-  private void requireModification(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+  void requireModification(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     requireArtist(access);
     if (access.isTopLevel())
       requireExists("Program Sequence Pattern", db.selectCount().from(PROGRAM_SEQUENCE_PATTERN)

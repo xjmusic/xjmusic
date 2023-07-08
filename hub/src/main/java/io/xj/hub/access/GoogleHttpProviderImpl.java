@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 class GoogleHttpProviderImpl implements GoogleHttpProvider {
-  private final HttpTransport httpTransport;
+  final HttpTransport httpTransport;
 
   public GoogleHttpProviderImpl(
     HttpTransport httpTransport

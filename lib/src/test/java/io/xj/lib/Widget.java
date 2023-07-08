@@ -6,12 +6,12 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class Widget {
-  private UUID id;
-  private String name;
-  private UUID superwidgetId;
-  private WidgetState state;
-  private double position;
-  private LocalDateTime createdAt;
+  UUID id;
+  String name;
+  UUID superwidgetId;
+  WidgetState state;
+  double position;
+  LocalDateTime createdAt;
 
   public UUID getId() {
     return id;

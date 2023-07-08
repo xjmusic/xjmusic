@@ -24,9 +24,9 @@ import java.util.function.Supplier;
  */
 @Service
 public class EntityFactoryImpl implements EntityFactory {
-  private static final Logger log = LoggerFactory.getLogger(EntityFactoryImpl.class);
-  private static final List<String> IGNORE_ATTRIBUTES = List.of("id", "class");
-  private final JsonProvider jsonProvider;
+  static final Logger log = LoggerFactory.getLogger(EntityFactoryImpl.class);
+  static final List<String> IGNORE_ATTRIBUTES = List.of("id", "class");
+  final JsonProvider jsonProvider;
   Map<String, EntitySchema> schema = Maps.newConcurrentMap();
 
   @Autowired
@@ -185,7 +185,7 @@ public class EntityFactoryImpl implements EntityFactory {
    * @param message on failure
    * @param type    to ensure existence of
    */
-  private void ensureSchemaExists(Object message, String type) throws EntityException {
+  void ensureSchemaExists(Object message, String type) throws EntityException {
     if (!schema.containsKey(type))
       throw new EntityException(String.format("Cannot %s unknown type: %s", message, type));
   }

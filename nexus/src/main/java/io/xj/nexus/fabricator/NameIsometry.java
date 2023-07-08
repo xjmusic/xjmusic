@@ -9,7 +9,7 @@ import org.apache.commons.codec.language.DoubleMetaphone;
  Determine the isometry between a source and target group of Events
  */
 public class NameIsometry extends Isometry {
-  private static final double SIMILARITY_SCORE_MATCHING_NAME = 3;
+  static final double SIMILARITY_SCORE_MATCHING_NAME = 3;
 
   /**
    Instantiate a new NameIsometry of a group of source Events

@@ -22,15 +22,15 @@ import java.util.stream.Stream;
 
  @see MemeTaxonomy for how we parse categories of exclusive memes */
 public class MemeStack {
-  private final Set<String> memes;
-  private final MemeTaxonomy taxonomy;
+  final Set<String> memes;
+  final MemeTaxonomy taxonomy;
 
   /**
    Constructor from taxonomy and memes
 
    @param from from which to create stack
    */
-  private MemeStack(MemeTaxonomy taxonomy, Collection<String> from) {
+  MemeStack(MemeTaxonomy taxonomy, Collection<String> from) {
     this.taxonomy = taxonomy;
     memes = from.stream().map(Text::toMeme).collect(Collectors.toSet());
   }

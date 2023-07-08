@@ -21,7 +21,7 @@ import static io.xj.hub.Tables.*;
 
 @Service
 public class ProgramVoiceTrackManagerImpl extends HubPersistenceServiceImpl implements ProgramVoiceTrackManager {
-  private static final float DEFAULT_ORDER_VALUE = 1000.0f;
+  static final float DEFAULT_ORDER_VALUE = 1000.0f;
 
   public ProgramVoiceTrackManagerImpl(
     EntityFactory entityFactory,
@@ -120,7 +120,7 @@ public class ProgramVoiceTrackManagerImpl extends HubPersistenceServiceImpl impl
    * @param id     of entity to read
    * @throws ManagerException if none exists or no access
    */
-  private void requireModification(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+  void requireModification(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     if (access.isTopLevel())
       requireExists("Track",
         db.selectCount().from(PROGRAM_VOICE_TRACK)

@@ -828,7 +828,7 @@ class vorbis_look_psy {
     }
   }
 
-//	private float fromBARK( double z ) {
+//	float fromBARK( double z ) {
 //		return Double.valueOf( 102.f*(z)-2.f*Math.pow(z,2.f)+.4f*Math.pow(z,3.f)+Math.pow(1.46f,z)-1.f ).floatValue();
 //	}
 
@@ -1061,39 +1061,39 @@ class vorbis_look_psy {
     }
   }
 
-  private float toBARK(double z) {
+  float toBARK(double z) {
     return Double.valueOf(13.1f * Math.atan(.00074f * (z)) + 2.24f * Math.atan((z) * (z) * 1.85e-8f) + 1e-4f * (z)).floatValue();
   }
 
-  private float toOC(double z) {
+  float toOC(double z) {
     return Double.valueOf(Math.log(z) * 1.442695f - 5.965784f).floatValue();
   }
 
-  private float fromOC(double o) {
+  float fromOC(double o) {
     return Double.valueOf(Math.exp(((o) + 5.965784f) * .693147f)).floatValue();
   }
 
-  private void min_curve(float[] c, float[] c2) {
+  void min_curve(float[] c, float[] c2) {
 
     for (int i = 0; i < integer_constants.EHMER_MAX; i++)
       if (c2[i] < c[i])
         c[i] = c2[i];
   }
 
-  private void max_curve(float[] c, float[] c2) {
+  void max_curve(float[] c, float[] c2) {
 
     for (int i = 0; i < integer_constants.EHMER_MAX; i++)
       if (c2[i] > c[i])
         c[i] = c2[i];
   }
 
-  private void attenuate_curve(float[] c, float att) {
+  void attenuate_curve(float[] c, float att) {
 
     for (int i = 0; i < integer_constants.EHMER_MAX; i++)
       c[i] += att;
   }
 
-  private void setup_tone_curves(float[] curveatt_dB, float binHz, int n, float center_boost, float center_decay_rate) {
+  void setup_tone_curves(float[] curveatt_dB, float binHz, int n, float center_boost, float center_decay_rate) {
 
     int i, j, k, m;
     float[] ath = new float[integer_constants.EHMER_MAX];
@@ -1432,7 +1432,7 @@ class vorbis_look_psy {
     // } catch (Exception e) { e.printStackTrace(System.out); }
   }
 
-  private void seed_loop(float[][][] curves, float[] f, float[] flr, float[] seed, float specmax) {
+  void seed_loop(float[][][] curves, float[] f, float[] flr, float[] seed, float specmax) {
 
     int i;
     float dBoffset = vi.max_curve_dB - specmax;
@@ -1463,7 +1463,7 @@ class vorbis_look_psy {
   }
 
   // bleaugh, this is more complicated than it needs to be
-  private void max_seeds(float[] seed, float[] flr) {
+  void max_seeds(float[] seed, float[] flr) {
 
     int n_local = total_octave_lines;
     int linesper = eighth_octave_lines;

@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.Map;
 
 public class MemoryKvStore implements KvStore {
-  private final Map<String, String> store;
+  final Map<String, String> store;
 
   public MemoryKvStore() {
     store = Maps.newConcurrentMap();

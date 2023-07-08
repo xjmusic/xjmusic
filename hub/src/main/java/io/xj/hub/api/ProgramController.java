@@ -46,9 +46,9 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/1/programs")
 public class ProgramController extends HubJsonapiEndpoint {
-  private final ProgramSequenceBindingMemeManager programSequenceBindingMemeManager;
-  private final ProgramManager manager;
-  private final ProgramMemeManager programMemeManager;
+  final ProgramSequenceBindingMemeManager programSequenceBindingMemeManager;
+  final ProgramManager manager;
+  final ProgramMemeManager programMemeManager;
 
   /**
    * Constructor
@@ -228,7 +228,7 @@ public class ProgramController extends HubJsonapiEndpoint {
    *
    * @return Manager
    */
-  private ProgramManager manager() {
+  ProgramManager manager() {
     return manager;
   }
 }

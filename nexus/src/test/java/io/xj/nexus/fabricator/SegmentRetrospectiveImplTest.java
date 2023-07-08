@@ -52,20 +52,20 @@ import static org.junit.Assert.assertTrue;
 @RunWith(MockitoJUnitRunner.class)
 public class SegmentRetrospectiveImplTest {
   static int SEQUENCE_TOTAL_BEATS = 64;
-  private final UUID patternId = UUID.randomUUID();
+  final UUID patternId = UUID.randomUUID();
   @Mock
   public HubClient hubClient;
   @Mock
   public NotificationProvider notificationProvider;
-  private JsonProvider jsonProvider;
-  private FabricatorFactory fabricatorFactory;
-  private HubContent sourceMaterial;
-  private NexusEntityStore store;
-  private NexusIntegrationTestingFixtures fake;
-  private Segment segment0;
-  private Segment segment1;
-  private Segment segment3;
-  private Segment segment4;
+  JsonProvider jsonProvider;
+  FabricatorFactory fabricatorFactory;
+  HubContent sourceMaterial;
+  NexusEntityStore store;
+  NexusIntegrationTestingFixtures fake;
+  Segment segment0;
+  Segment segment1;
+  Segment segment3;
+  Segment segment4;
 
   @Before
   public void setUp() throws Exception {
@@ -101,7 +101,7 @@ public class SegmentRetrospectiveImplTest {
     segment4 = constructSegmentAndChoices(chain1, SegmentType.NEXTMACRO, 14, 0, fake.program3, fake.program3_sequence0_binding0, fake.program15, fake.program15_sequence0_binding0);
   }
 
-  private Segment constructSegmentAndChoices(Chain chain, SegmentType type, int offset, int delta, Program macro, ProgramSequenceBinding macroSB, Program main, ProgramSequenceBinding mainSB) throws NexusException {
+  Segment constructSegmentAndChoices(Chain chain, SegmentType type, int offset, int delta, Program macro, ProgramSequenceBinding macroSB, Program main, ProgramSequenceBinding mainSB) throws NexusException {
     var start = Instant.parse("2017-02-14T12:01:00.000001Z").plusSeconds((long) (SEQUENCE_TOTAL_BEATS * 0.5 * offset));
     var end = start.plusSeconds((long) (SEQUENCE_TOTAL_BEATS * 0.5));
     var segment = store.put(buildSegment(

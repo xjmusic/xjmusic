@@ -45,8 +45,8 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/1/instruments")
 public class InstrumentController extends HubJsonapiEndpoint {
-  private final InstrumentManager manager;
-  private final InstrumentMemeManager instrumentMemeManager;
+  final InstrumentManager manager;
+  final InstrumentMemeManager instrumentMemeManager;
 
   /**
    * Constructor
@@ -211,7 +211,7 @@ public class InstrumentController extends HubJsonapiEndpoint {
    *
    * @return Manager
    */
-  private InstrumentManager manager() {
+  InstrumentManager manager() {
     return manager;
   }
 }

@@ -24,7 +24,7 @@ public class RootTest {
    @param expectRemainingText expected
    @throws Exception on failure
    */
-  private void assertRoot(String text, PitchClass expectPitchClass, String expectRemainingText) throws Exception {
+  void assertRoot(String text, PitchClass expectPitchClass, String expectRemainingText) throws Exception {
     Root root = Root.of(text);
     assertEquals(expectPitchClass, root.getPitchClass());
     assertEquals(expectRemainingText, root.getRemainingText());

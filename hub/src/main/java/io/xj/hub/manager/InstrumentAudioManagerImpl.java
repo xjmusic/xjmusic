@@ -35,9 +35,9 @@ import static io.xj.hub.Tables.LIBRARY;
 
 @Service
 public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl implements InstrumentAudioManager {
-  private static final String DEFAULT_EVENT = "X";
-  private final InstrumentManager instrumentManager;
-  private final FileStoreProvider fileStoreProvider;
+  static final String DEFAULT_EVENT = "X";
+  final InstrumentManager instrumentManager;
+  final FileStoreProvider fileStoreProvider;
   // key special resources (e.g. upload policy)
   String KEY_UPLOAD_ACCESS_KEY = "awsAccessKeyId";
   String KEY_UPLOAD_POLICY = "uploadPolicy";
@@ -240,7 +240,7 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl implem
    * @param entity to validate
    * @throws ManagerException if parent does not exist
    */
-  private void requireAccessToParent(HubAccess access, InstrumentAudio entity) throws ManagerException {
+  void requireAccessToParent(HubAccess access, InstrumentAudio entity) throws ManagerException {
     instrumentManager.readOne(access, entity.getInstrumentId());
   }
 
@@ -253,7 +253,7 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl implem
    * @param id     of record to read
    * @return entity
    */
-  private InstrumentAudio readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+  InstrumentAudio readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     requireArtist(access);
     Record record;
     if (access.isTopLevel())

@@ -7,10 +7,10 @@ import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
 
 public abstract class EventEntity {
-  private Double duration;
-  private String tones;
-  private Double position;
-  private Double velocity;
+  Double duration;
+  String tones;
+  Double position;
+  Double velocity;
 
   /**
    Validate presence of required properties of any EventEntity

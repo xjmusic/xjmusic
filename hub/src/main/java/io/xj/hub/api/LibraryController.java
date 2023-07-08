@@ -37,7 +37,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/1/libraries")
 public class LibraryController extends HubJsonapiEndpoint {
-  private final LibraryManager manager;
+  final LibraryManager manager;
 
   /**
    * Constructor
@@ -147,7 +147,7 @@ public class LibraryController extends HubJsonapiEndpoint {
    *
    * @return Manager
    */
-  private LibraryManager manager() {
+  LibraryManager manager() {
     return manager;
   }
 }

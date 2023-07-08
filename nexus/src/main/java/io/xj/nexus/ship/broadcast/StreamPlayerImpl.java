@@ -18,11 +18,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class StreamPlayerImpl implements StreamPlayer {
-  private static final Logger LOG = LoggerFactory.getLogger(StreamPlayer.class);
-  private static final String THREAD_NAME = "StreamPlayer";
-  private SourceDataLine line;
-  private final ConcurrentLinkedQueue<ByteBuffer> queue;
-  private final AtomicBoolean running = new AtomicBoolean(true);
+  static final Logger LOG = LoggerFactory.getLogger(StreamPlayer.class);
+  static final String THREAD_NAME = "StreamPlayer";
+  SourceDataLine line;
+  final ConcurrentLinkedQueue<ByteBuffer> queue;
+  final AtomicBoolean running = new AtomicBoolean(true);
 
   public StreamPlayerImpl(
     AudioFormat format

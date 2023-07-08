@@ -29,7 +29,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/1/accounts")
 public class AccountController extends HubJsonapiEndpoint {
-  private final AccountManager manager;
+  final AccountManager manager;
 
   /**
    * Constructor
@@ -107,7 +107,7 @@ public class AccountController extends HubJsonapiEndpoint {
    *
    * @return Manager
    */
-  private AccountManager manager() {
+  AccountManager manager() {
     return manager;
   }
 }

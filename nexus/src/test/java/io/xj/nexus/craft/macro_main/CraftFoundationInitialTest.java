@@ -59,12 +59,12 @@ public class CraftFoundationInitialTest {
   public HubClient hubClient;
   @Mock
   public NotificationProvider notificationProvider;
-  private CraftFactory craftFactory;
-  private FabricatorFactory fabricatorFactory;
-  private HubContent sourceMaterial;
-  private NexusEntityStore store;
-  private NexusIntegrationTestingFixtures fake;
-  private Segment segment6;
+  CraftFactory craftFactory;
+  FabricatorFactory fabricatorFactory;
+  HubContent sourceMaterial;
+  NexusEntityStore store;
+  NexusIntegrationTestingFixtures fake;
+  Segment segment6;
 
   @Before
   public void setUp() throws Exception {

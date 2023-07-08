@@ -29,9 +29,9 @@ import java.util.stream.Collectors;
  * Transition-type Instrument https://www.pivotaltracker.com/story/show/180059746
  */
 public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCraft {
-  private final List<String> smallNames;
-  private final List<String> mediumNames;
-  private final List<String> largeNames;
+  final List<String> smallNames;
+  final List<String> mediumNames;
+  final List<String> largeNames;
 
   public TransitionCraftImpl(
     Fabricator fabricator
@@ -85,7 +85,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
    *
    * @return true if it is a big transition segment
    */
-  private boolean isBigTransitionSegment() throws NexusException {
+  boolean isBigTransitionSegment() throws NexusException {
     return switch (fabricator.getType()) {
       case PENDING, CONTINUE -> false;
       case INITIAL, NEXTMAIN, NEXTMACRO -> true;
@@ -99,7 +99,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
    *
    * @return true if it is a medium transition segment
    */
-  private boolean isMediumTransitionSegment() throws NexusException {
+  boolean isMediumTransitionSegment() throws NexusException {
     return switch (fabricator.getType()) {
       case PENDING, INITIAL, NEXTMAIN, NEXTMACRO -> false;
       case CONTINUE -> !fabricator.getCurrentMainSequence().orElseThrow().getId()
@@ -113,7 +113,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
    * @param instrumentId of percussion loop instrument to craft
    */
   @SuppressWarnings("DuplicatedCode")
-  private void craftTransition(UUID instrumentId) throws NexusException {
+  void craftTransition(UUID instrumentId) throws NexusException {
     var choice = new SegmentChoice();
     var instrument = fabricator.sourceMaterial().getInstrument(instrumentId)
       .orElseThrow(() -> new NexusException("Can't get Instrument Audio!"));
@@ -161,7 +161,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
    * @throws NexusException on failure
    */
   @SuppressWarnings("DuplicatedCode")
-  private void pickTransition(SegmentChoiceArrangement arrangement, InstrumentAudio audio, long startAtSegmentMicros, long lengthMicros, String name) throws NexusException {
+  void pickTransition(SegmentChoiceArrangement arrangement, InstrumentAudio audio, long startAtSegmentMicros, long lengthMicros, String name) throws NexusException {
     var pick = new SegmentChoiceArrangementPick();
     pick.setId(UUID.randomUUID());
     pick.setSegmentId(fabricator.getSegment().getId());
@@ -180,7 +180,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
    *
    * @return drum-type Instrument
    */
-  private Optional<InstrumentAudio> pickAudioForInstrument(Instrument instrument, List<String> names) {
+  Optional<InstrumentAudio> pickAudioForInstrument(Instrument instrument, List<String> names) {
     var previous =
       fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId()).stream()
         .filter(pick -> names.contains(Text.toMeme(pick.getEvent())))

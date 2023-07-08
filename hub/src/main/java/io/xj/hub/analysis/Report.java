@@ -28,28 +28,28 @@ import java.util.stream.Collectors;
  */
 @SuppressWarnings("DuplicatedCode")
 public abstract class Report {
-  private static final String TOP_ID = "top";
-  private static final String SCROLL_TO_TOP_MESSAGE = "scroll to top";
-  private static final String REPORT_HTML_RESOURCE_PATH = "analysis/report.html";
-  private static final String REPORT_HTML_PLACEHOLDER_TITLE = "{{title}}";
-  private static final String REPORT_HTML_PLACEHOLDER_BODY = "{{body}}";
-  private static final String title = "Content Analysis";
-  private static final String CELL_STATUS_GREEN_STYLE = "background-color:#141; color:#2f2; font-weight:900;";
-  private static final String CELL_STATUS_YELLOW_STYLE = "background-color:#441; color:#ff2; font-weight:900;";
-  private static final String CELL_STATUS_RED_STYLE = "background-color:#411; color:#f22; font-weight:900;";
-  private static final String CELL_STYLE = "vertical-align:top; padding-right:5px; padding-bottom:5px; padding-left:5px; border-left:2px solid #555; border-right:2px solid #555;";
-  private static final String CELL_HEADER_STYLE = String.format("%s %s", CELL_STYLE, "background-color: #666;");
-  private static final String UNORDERED_LIST_STYLE = "";
-  private static final String LIST_ITEM_STYLE = "";
-  private static final String P_STYLE = "margin-top:5px;";
-  private static final String ROW_STYLE = "border-bottom:2px solid #666;";
-  private static final String TABLE_STYLE = "";
-  private static final String H1_STYLE = "margin-top:10px;";
-  private static final String H2_STYLE = "margin-top:20px;";
-  private static final String USAGE_LINK_STYLE = "font-size:8pt; line-height:9pt; margin-right:4pt; white-space:nowrap;";
+  static final String TOP_ID = "top";
+  static final String SCROLL_TO_TOP_MESSAGE = "scroll to top";
+  static final String REPORT_HTML_RESOURCE_PATH = "analysis/report.html";
+  static final String REPORT_HTML_PLACEHOLDER_TITLE = "{{title}}";
+  static final String REPORT_HTML_PLACEHOLDER_BODY = "{{body}}";
+  static final String title = "Content Analysis";
+  static final String CELL_STATUS_GREEN_STYLE = "background-color:#141; color:#2f2; font-weight:900;";
+  static final String CELL_STATUS_YELLOW_STYLE = "background-color:#441; color:#ff2; font-weight:900;";
+  static final String CELL_STATUS_RED_STYLE = "background-color:#411; color:#f22; font-weight:900;";
+  static final String CELL_STYLE = "vertical-align:top; padding-right:5px; padding-bottom:5px; padding-left:5px; border-left:2px solid #555; border-right:2px solid #555;";
+  static final String CELL_HEADER_STYLE = String.format("%s %s", CELL_STYLE, "background-color: #666;");
+  static final String UNORDERED_LIST_STYLE = "";
+  static final String LIST_ITEM_STYLE = "";
+  static final String P_STYLE = "margin-top:5px;";
+  static final String ROW_STYLE = "border-bottom:2px solid #666;";
+  static final String TABLE_STYLE = "";
+  static final String H1_STYLE = "margin-top:10px;";
+  static final String H2_STYLE = "margin-top:20px;";
+  static final String USAGE_LINK_STYLE = "font-size:8pt; line-height:9pt; margin-right:4pt; white-space:nowrap;";
   protected final HubContent content;
   @Value("${app.base.url}")
-  private String appBaseUrl;
+  String appBaseUrl;
 
   /**
    * Create a comp from some Hub content
@@ -389,7 +389,7 @@ public abstract class Report {
     MainProgramChords("Main Chords"),
     Memes("Memes");
 
-    private final String name;
+    final String name;
 
     Type(String name) {
       this.name = name;

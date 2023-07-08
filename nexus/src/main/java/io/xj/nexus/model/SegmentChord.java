@@ -11,10 +11,10 @@ import java.util.UUID;
 
 public class SegmentChord {
 
-  private @Valid UUID id;
-  private @Valid UUID segmentId;
-  private @Valid Double position;
-  private @Valid String name;
+  @Valid UUID id;
+  @Valid UUID segmentId;
+  @Valid Double position;
+  @Valid String name;
 
   /**
    *
@@ -123,7 +123,7 @@ public class SegmentChord {
    * Convert the given object to string with each line indented by 4 spaces
    * (except the first line).
    */
-  private String toIndentedString(Object o) {
+  String toIndentedString(Object o) {
     if (o == null) {
       return "null";
     }

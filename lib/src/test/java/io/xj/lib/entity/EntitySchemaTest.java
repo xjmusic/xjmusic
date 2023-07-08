@@ -11,7 +11,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class EntitySchemaTest {
-  private EntitySchema subject;
+  EntitySchema subject;
 
   @Before
   public void setUp() {

@@ -258,7 +258,7 @@ public class InstrumentManagerImpl extends HubPersistenceServiceImpl implements 
    * @param access        control
    * @param instrumentIds to require access to
    */
-  private void requireRead(DSLContext db, HubAccess access, Collection<UUID> instrumentIds) throws ManagerException {
+  void requireRead(DSLContext db, HubAccess access, Collection<UUID> instrumentIds) throws ManagerException {
     if (!access.isTopLevel())
       for (UUID instrumentId : instrumentIds)
         try (
@@ -282,7 +282,7 @@ public class InstrumentManagerImpl extends HubPersistenceServiceImpl implements 
    * @return record
    * @throws ManagerException on failure
    */
-  private Instrument readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+  Instrument readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     requireRead(db, access, List.of(id));
     try (var selectInstrument = db.selectFrom(INSTRUMENT)) {
       return modelFrom(Instrument.class, selectInstrument
@@ -300,7 +300,7 @@ public class InstrumentManagerImpl extends HubPersistenceServiceImpl implements 
    * @param entity to validate
    * @throws ManagerException if parent does not exist
    */
-  private void requireParentExists(DSLContext db, HubAccess access, Instrument entity) throws ManagerException {
+  void requireParentExists(DSLContext db, HubAccess access, Instrument entity) throws ManagerException {
     try (var selectCount = db.selectCount()) {
       if (access.isTopLevel())
         requireExists("Library", selectCount.from(LIBRARY)

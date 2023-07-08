@@ -25,19 +25,19 @@ import static io.xj.lib.util.Files.getResourceFile;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DemoIT {
-  private static final long bpm = 121;
-  private static final Duration beat = Duration.ofMinutes(1).dividedBy(bpm);
-  private static final Duration step = beat.dividedBy(4);
-  private static final String filePrefix = "demo_source_audio/";
-  private static final String sourceFileSuffix = ".wav";
-  private static final DemoSource kick1 = new DemoSource(UUID.randomUUID(), "808/kick1");
-  private static final DemoSource kick2 = new DemoSource(UUID.randomUUID(), "808/kick2");
-  private static final DemoSource marac = new DemoSource(UUID.randomUUID(), "808/maracas");
-  private static final DemoSource snare = new DemoSource(UUID.randomUUID(), "808/snare");
-  private static final DemoSource lotom = new DemoSource(UUID.randomUUID(), "808/tom1");
-  private static final DemoSource clhat = new DemoSource(UUID.randomUUID(), "808/cl_hihat");
-  private static final DemoSource ding = new DemoSource(UUID.randomUUID(), "instrument7-audio9-24bit-88200hz");
-  private static final DemoSource[] sources = {
+  static final long bpm = 121;
+  static final Duration beat = Duration.ofMinutes(1).dividedBy(bpm);
+  static final Duration step = beat.dividedBy(4);
+  static final String filePrefix = "demo_source_audio/";
+  static final String sourceFileSuffix = ".wav";
+  static final DemoSource kick1 = new DemoSource(UUID.randomUUID(), "808/kick1");
+  static final DemoSource kick2 = new DemoSource(UUID.randomUUID(), "808/kick2");
+  static final DemoSource marac = new DemoSource(UUID.randomUUID(), "808/maracas");
+  static final DemoSource snare = new DemoSource(UUID.randomUUID(), "808/snare");
+  static final DemoSource lotom = new DemoSource(UUID.randomUUID(), "808/tom1");
+  static final DemoSource clhat = new DemoSource(UUID.randomUUID(), "808/cl_hihat");
+  static final DemoSource ding = new DemoSource(UUID.randomUUID(), "instrument7-audio9-24bit-88200hz");
+  static final DemoSource[] sources = {
     kick1,
     kick2,
     marac,
@@ -46,7 +46,7 @@ public class DemoIT {
     clhat,
     ding
   };
-  private static final DemoSource[] demoSequence = {
+  static final DemoSource[] demoSequence = {
     kick2,
     marac,
     clhat,
@@ -64,9 +64,9 @@ public class DemoIT {
     clhat,
     marac
   };
-  private final MixerFactory mixerFactory;
-  private static final String referenceAudioFilePrefix = "demo_reference_outputs/";
-  private static final int DEFAULT_BUS = 0;
+  final MixerFactory mixerFactory;
+  static final String referenceAudioFilePrefix = "demo_reference_outputs/";
+  static final int DEFAULT_BUS = 0;
 
   @Mock
   NotificationProvider notificationProvider;
@@ -87,7 +87,7 @@ public class DemoIT {
    * @throws Exception on failure
    */
   @SuppressWarnings("SameParameterValue")
-  private void assertMixOutputEqualsReferenceAudio(AudioFormat.Encoding encoding, int frameRate, int sampleBits, int channels, double seconds, String referenceName) throws Exception {
+  void assertMixOutputEqualsReferenceAudio(AudioFormat.Encoding encoding, int frameRate, int sampleBits, int channels, double seconds, String referenceName) throws Exception {
     String filename = io.xj.lib.util.Files.getUniqueTempFilename(referenceName);
     mixAndWriteOutput(encoding, frameRate, sampleBits, channels, seconds, filename);
     assertFileMatchesResourceFile(getReferenceAudioFilename(referenceName), filename);
@@ -104,7 +104,7 @@ public class DemoIT {
    * @param outputFilePath   file path to write output
    * @throws Exception on failure
    */
-  private void mixAndWriteOutput(AudioFormat.Encoding outputEncoding, int outputFrameRate, int outputSampleBits, int outputChannels, double outputSeconds, String outputFilePath) throws Exception {
+  void mixAndWriteOutput(AudioFormat.Encoding outputEncoding, int outputFrameRate, int outputSampleBits, int outputChannels, double outputSeconds, String outputFilePath) throws Exception {
     AudioFormat audioFormat = new AudioFormat(outputEncoding, outputFrameRate, outputSampleBits, outputChannels,
       (outputChannels * outputSampleBits / 8), outputFrameRate, false);
     AudioFileWriter audioFileWriter = new AudioFileWriterImpl(audioFormat);
@@ -140,7 +140,7 @@ public class DemoIT {
    * @param stepNum step
    * @return microseconds
    */
-  private static long atMicros(int stepNum) {
+  static long atMicros(int stepNum) {
     return step.multipliedBy(stepNum).toNanos() / 1000;
   }
 

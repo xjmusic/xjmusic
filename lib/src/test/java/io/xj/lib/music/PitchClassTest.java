@@ -62,7 +62,7 @@ public class PitchClassTest {
     assertEquals(0, PitchClass.None.delta(PitchClass.None));
   }
 
-  private void assertPitchClassOf(String name, PitchClass expectPitchClass, String expectStringSharp, String expectStringFlat) {
+  void assertPitchClassOf(String name, PitchClass expectPitchClass, String expectStringSharp, String expectStringFlat) {
     PitchClass pitchClass = PitchClass.of(name);
     assertEquals(expectPitchClass, pitchClass);
     assertEquals(expectStringSharp, pitchClass.toString(Sharp));

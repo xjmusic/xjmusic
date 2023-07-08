@@ -29,7 +29,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/1/program-voice-tracks")
 public class ProgramVoiceTrackController extends HubJsonapiEndpoint {
-  private final ProgramVoiceTrackManager manager;
+  final ProgramVoiceTrackManager manager;
 
   /**
    * Constructor
@@ -107,7 +107,7 @@ public class ProgramVoiceTrackController extends HubJsonapiEndpoint {
    *
    * @return Manager
    */
-  private ProgramVoiceTrackManager manager() {
+  ProgramVoiceTrackManager manager() {
     return manager;
   }
 

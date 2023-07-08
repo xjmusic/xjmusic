@@ -59,7 +59,7 @@ public class ProgramControllerTest {
   @Mock
   ProgramManager programManager;
   @Mock
-  private HubSqlStoreProvider sqlStoreProvider;
+  HubSqlStoreProvider sqlStoreProvider;
   @Mock
   ProgramMemeManager programMemeManager;
   @Mock
@@ -70,10 +70,10 @@ public class ProgramControllerTest {
   FileStoreProvider fileStoreProvider;
   @MockBean
   HttpClientProvider httpClientProvider;
-  private HubAccess access;
-  private ProgramController subject;
-  private Library library25;
-  private Library library1;
+  HubAccess access;
+  ProgramController subject;
+  Library library25;
+  Library library1;
 
   @BeforeEach
   public void setUp() throws AppException {

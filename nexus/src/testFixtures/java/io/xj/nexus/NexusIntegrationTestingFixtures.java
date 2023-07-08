@@ -94,9 +94,9 @@ import static io.xj.lib.util.Values.SECONDS_PER_MINUTE;
  * as they are about testing all resources.
  */
 public class NexusIntegrationTestingFixtures {
-  private static final Logger log = LoggerFactory.getLogger(NexusIntegrationTestingFixtures.class);
-  private static final double RANDOM_VALUE_FROM = 0.3;
-  private static final double RANDOM_VALUE_TO = 0.8;
+  static final Logger log = LoggerFactory.getLogger(NexusIntegrationTestingFixtures.class);
+  static final double RANDOM_VALUE_FROM = 0.3;
+  static final double RANDOM_VALUE_TO = 0.8;
 
   // These are fully exposed (no getters/setters) for ease of use in testing
   public Account account1;
@@ -1264,7 +1264,7 @@ public class NexusIntegrationTestingFixtures {
    * @param <N>    type of entity
    * @return entity that's been added
    */
-  private <N> N add(Collection<Object> to, N entity) {
+  <N> N add(Collection<Object> to, N entity) {
     to.add(entity);
     return entity;
   }

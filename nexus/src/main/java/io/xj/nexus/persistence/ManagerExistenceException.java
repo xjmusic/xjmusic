@@ -16,7 +16,7 @@ public class ManagerExistenceException extends Exception {
     super(String.format("%s %s", message(type, id), detail));
   }
 
-  private static String message(Class<?> type, String identifier) {
+  static String message(Class<?> type, String identifier) {
     return String.format("%s[%s] does not exist!", type.getSimpleName(), identifier);
   }
 }

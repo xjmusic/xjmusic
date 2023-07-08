@@ -74,12 +74,12 @@ import static org.junit.jupiter.api.Assertions.fail;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 public class ProgramManagerDbTest {
-  private ProgramManager subject;
-  private ProgramVoiceManager voiceManager;
-  private ProgramSequenceChordManager chordManager;
-  private ProgramSequenceChordVoicingManager voicingManager;
-  private HubIntegrationTest test;
-  private IntegrationTestingFixtures fake;
+  ProgramManager subject;
+  ProgramVoiceManager voiceManager;
+  ProgramSequenceChordManager chordManager;
+  ProgramSequenceChordVoicingManager voicingManager;
+  HubIntegrationTest test;
+  IntegrationTestingFixtures fake;
 
   @MockBean
   NotificationProvider notificationProvider;
@@ -387,7 +387,7 @@ public class ProgramManagerDbTest {
    * @param results to search within
    * @param <N>     type of entity
    */
-  private <N> void assertContains(Class<N> type, int total, Collection<Object> results) {
+  <N> void assertContains(Class<N> type, int total, Collection<Object> results) {
     assertEquals(total, results.stream().filter(r -> type.isAssignableFrom(r.getClass())).count(), String.format("Exactly %s count of %s class in results", total, type.getSimpleName()));
   }
 

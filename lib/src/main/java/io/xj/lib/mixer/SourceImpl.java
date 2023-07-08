@@ -33,17 +33,17 @@ import static io.xj.lib.util.Values.MICROS_PER_SECOND;
  * Fabrication should not completely fail because of one bad source audio https://www.pivotaltracker.com/story/show/182575665
  */
 class SourceImpl implements Source {
-  private static final Logger LOG = LoggerFactory.getLogger(SourceImpl.class);
-  private final @Nullable
+  static final Logger LOG = LoggerFactory.getLogger(SourceImpl.class);
+  final @Nullable
   AudioFormat audioFormat;
-  private final String absolutePath;
-  private final UUID audioId;
-  private final double lengthSeconds;
-  private final double microsPerFrame;
-  private final float frameRate;
-  private final int channels;
-  private final long frameLength;
-  private final long lengthMicros;
+  final String absolutePath;
+  final UUID audioId;
+  final double lengthSeconds;
+  final double microsPerFrame;
+  final float frameRate;
+  final int channels;
+  final long frameLength;
+  final long lengthMicros;
 
   public SourceImpl(
     NotificationProvider notification,

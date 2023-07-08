@@ -14,11 +14,11 @@ import java.util.stream.Collectors;
  * Chord search results (backend) must include all unique combinations of chord & voicing
  */
 public class ChordVoicingDeduper {
-  private final Map<UUID, ProgramVoice> voicesById;
-  private final Collection<ProgramSequenceChord> chords;
-  private final Collection<ProgramSequenceChordVoicing> voicings;
-  private static final String FINGERPRINT_SEPARATOR_MINOR = "|---|";
-  private static final String FINGERPRINT_SEPARATOR_MAJOR = "|-----|";
+  final Map<UUID, ProgramVoice> voicesById;
+  final Collection<ProgramSequenceChord> chords;
+  final Collection<ProgramSequenceChordVoicing> voicings;
+  static final String FINGERPRINT_SEPARATOR_MINOR = "|---|";
+  static final String FINGERPRINT_SEPARATOR_MAJOR = "|-----|";
 
   public ChordVoicingDeduper(
     Collection<ProgramVoice> voices,

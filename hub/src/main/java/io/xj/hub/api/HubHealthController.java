@@ -12,8 +12,8 @@ import java.sql.SQLException;
 
 @RestController
 public class HubHealthController {
-  private final HubSqlStoreProvider sqlStoreProvider;
-  private final PreviewNexusAdmin previewNexusAdmin;
+  final HubSqlStoreProvider sqlStoreProvider;
+  final PreviewNexusAdmin previewNexusAdmin;
 
   public HubHealthController(
     HubSqlStoreProvider sqlStoreProvider,

@@ -26,10 +26,10 @@ import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 
 public class SegmentsTest extends TestCase {
-  private final Account account = buildAccount("Test");
-  private final Template template = buildTemplate(account, "Test");
-  private final Chain chain = buildChain(account, "Test", ChainType.PRODUCTION, ChainState.FABRICATE, template);
-  private final Segment seg0 = buildSegment(
+  final Account account = buildAccount("Test");
+  final Template template = buildTemplate(account, "Test");
+  final Chain chain = buildChain(account, "Test", ChainType.PRODUCTION, ChainState.FABRICATE, template);
+  final Segment seg0 = buildSegment(
     chain,
     SegmentType.INITIAL,
     0,
@@ -41,7 +41,7 @@ public class SegmentsTest extends TestCase {
     120.0f,
     "chains-1-segments-9f7s89d8a7892",
     true);
-  private final Segment seg1 = buildSegment(
+  final Segment seg1 = buildSegment(
     chain,
     SegmentType.CONTINUE,
     1,
@@ -53,7 +53,7 @@ public class SegmentsTest extends TestCase {
     120.0f,
     "chains-1-segments-078aw34tiu5hga",
     true);
-  private final Segment seg2 = buildSegment(
+  final Segment seg2 = buildSegment(
     chain,
     SegmentType.NEXTMAIN,
     2,
@@ -65,7 +65,7 @@ public class SegmentsTest extends TestCase {
     120.0f,
     "chains-1-segments-jhz5sd4fgi786q",
     true);
-  private final Segment seg3 = buildSegment(
+  final Segment seg3 = buildSegment(
     chain,
     SegmentType.NEXTMAIN,
     3,

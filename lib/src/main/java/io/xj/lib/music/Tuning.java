@@ -16,22 +16,22 @@ import java.util.Objects;
  Reference: http://www.phy.mtu.edu/~suits/notefreqs.html
  */
 public class Tuning {
-  private static final double TWELFTH_ROOT_OF_TWO = StrictMath.pow(2.0d, 1.0d / 12.0d);
-  private static final double NATURAL_LOGARITHM_OF_TWELFTH_ROOT_OF_TWO = StrictMath.log(TWELFTH_ROOT_OF_TWO);
-  private static final double ROOT_PITCH_MINIMUM = 1.0d;
-  private static final double ROOT_PITCH_MAXIMUM = 100000.0d;
-  private static final int ROOT_OCTAVE_MINIMUM = 0;
-  private static final int ROOT_OCTAVE_MAXIMUM = 15;
-  private final Note rootNote;
-  private final Double rootPitch;
-  private final Map<Integer, Map<PitchClass, Double>> _notePitches = Maps.newHashMap();
-  private final Map<Double, Integer> _deltaFromRootPitch = Maps.newHashMap();
-  private final Map<Double, Note> _pitchNotes = Maps.newHashMap();
+  static final double TWELFTH_ROOT_OF_TWO = StrictMath.pow(2.0d, 1.0d / 12.0d);
+  static final double NATURAL_LOGARITHM_OF_TWELFTH_ROOT_OF_TWO = StrictMath.log(TWELFTH_ROOT_OF_TWO);
+  static final double ROOT_PITCH_MINIMUM = 1.0d;
+  static final double ROOT_PITCH_MAXIMUM = 100000.0d;
+  static final int ROOT_OCTAVE_MINIMUM = 0;
+  static final int ROOT_OCTAVE_MAXIMUM = 15;
+  final Note rootNote;
+  final Double rootPitch;
+  final Map<Integer, Map<PitchClass, Double>> _notePitches = Maps.newHashMap();
+  final Map<Double, Integer> _deltaFromRootPitch = Maps.newHashMap();
+  final Map<Double, Note> _pitchNotes = Maps.newHashMap();
 
   /**
-   private constructor
+   constructor
    */
-  private Tuning(Note rootNote, Double rootPitch) throws MusicalException {
+  Tuning(Note rootNote, Double rootPitch) throws MusicalException {
     this.rootNote = rootNote;
     this.rootPitch = rootPitch;
     validate();
@@ -112,7 +112,7 @@ public class Tuning {
    @param delta +/- semitones from root pitch
    @return pitch
    */
-  private Double pitchAtDelta(Integer delta) {
+  Double pitchAtDelta(Integer delta) {
     return rootPitch * StrictMath.pow(TWELFTH_ROOT_OF_TWO, delta);
   }
 
@@ -121,7 +121,7 @@ public class Tuning {
 
    @throws MusicalException if any properties are invalid
    */
-  private void validate() throws MusicalException {
+  void validate() throws MusicalException {
     if (Objects.isNull(rootNote))
       throw new MusicalException("Must specify a root note for tuning");
 

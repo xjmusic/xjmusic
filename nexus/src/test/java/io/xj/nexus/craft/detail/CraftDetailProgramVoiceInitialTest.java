@@ -61,13 +61,13 @@ public class CraftDetailProgramVoiceInitialTest {
   public HubClient hubClient;
   @Mock
   public NotificationProvider notificationProvider;
-  private Chain chain2;
-  private CraftFactory craftFactory;
-  private FabricatorFactory fabricatorFactory;
-  private HubContent sourceMaterial;
-  private NexusEntityStore store;
-  private NexusIntegrationTestingFixtures fake;
-  private Segment segment1;
+  Chain chain2;
+  CraftFactory craftFactory;
+  FabricatorFactory fabricatorFactory;
+  HubContent sourceMaterial;
+  NexusEntityStore store;
+  NexusIntegrationTestingFixtures fake;
+  Segment segment1;
 
   @Before
   public void setUp() throws Exception {
@@ -144,7 +144,7 @@ public class CraftDetailProgramVoiceInitialTest {
   /**
    * Insert fixture segment 6, including the detail choice only if specified
    */
-  private void insertSegments() throws NexusException {
+  void insertSegments() throws NexusException {
     // segment crafted
     Segment segment0 = store.put(buildSegment(
       chain2,

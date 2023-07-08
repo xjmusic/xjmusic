@@ -29,8 +29,8 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/1/analysis")
 public class AnalysisController extends HubJsonapiEndpoint {
-  private static final Logger LOG = LoggerFactory.getLogger(AnalysisController.class);
-  private final HubAnalysisFactory analysisFactory;
+  static final Logger LOG = LoggerFactory.getLogger(AnalysisController.class);
+  final HubAnalysisFactory analysisFactory;
 
   /**
    * Constructor

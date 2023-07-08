@@ -5,8 +5,8 @@ package io.xj.lib;
 import java.util.UUID;
 
 public class Superwidget {
-  private UUID id;
-  private String name;
+  UUID id;
+  String name;
 
   public UUID getId() {
     return id;

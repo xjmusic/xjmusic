@@ -28,7 +28,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/1/account-users")
 public class AccountUserController extends HubJsonapiEndpoint {
-  private final AccountUserManager manager;
+  final AccountUserManager manager;
 
   /**
    * Constructor
@@ -94,7 +94,7 @@ public class AccountUserController extends HubJsonapiEndpoint {
    *
    * @return Manager
    */
-  private AccountUserManager manager() {
+  AccountUserManager manager() {
     return manager;
   }
 

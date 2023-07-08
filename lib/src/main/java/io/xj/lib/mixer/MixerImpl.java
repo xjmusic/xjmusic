@@ -22,37 +22,37 @@ import static io.xj.lib.util.Values.NANOS_PER_SECOND;
 
 class MixerImpl implements Mixer {
   public static final int MAX_INT_LENGTH_ARRAY_SIZE = 2147483647;
-  private static final Logger LOG = LoggerFactory.getLogger(MixerImpl.class);
-  private static final int READ_BUFFER_BYTE_SIZE = 1024;
-  private static final int NORMALIZATION_GRAIN = 20;
-  private static final int COMPRESSION_GRAIN = 20;
-  private final float microsPerFrame;
-  private final float outputFrameRate;
-  private final int outputChannels;
-  private final int outputFrameSize;
-  private final Map<UUID, Source> sources = Maps.newConcurrentMap(); // concurrency required
-  private final Map<UUID, Put> activePuts = Maps.newConcurrentMap(); // concurrency required
-  private final MixerFactory factory;
-  private final MixerConfig config;
-  private final double compressToAmplitude;
-  private final double compressRatioMin;
-  private final double compressRatioMax;
-  private final int framesAhead;
-  private final int dspBufferSize;
-  private final int framesDecay;
-  private final Map<Integer, Double> busLevel = Maps.newConcurrentMap();
-  private final int framesPerMilli;
-  private final EnvelopeProvider envelope;
+  static final Logger LOG = LoggerFactory.getLogger(MixerImpl.class);
+  static final int READ_BUFFER_BYTE_SIZE = 1024;
+  static final int NORMALIZATION_GRAIN = 20;
+  static final int COMPRESSION_GRAIN = 20;
+  final float microsPerFrame;
+  final float outputFrameRate;
+  final int outputChannels;
+  final int outputFrameSize;
+  final Map<UUID, Source> sources = Maps.newConcurrentMap(); // concurrency required
+  final Map<UUID, Put> activePuts = Maps.newConcurrentMap(); // concurrency required
+  final MixerFactory factory;
+  final MixerConfig config;
+  final double compressToAmplitude;
+  final double compressRatioMin;
+  final double compressRatioMax;
+  final int framesAhead;
+  final int dspBufferSize;
+  final int framesDecay;
+  final Map<Integer, Double> busLevel = Maps.newConcurrentMap();
+  final int framesPerMilli;
+  final EnvelopeProvider envelope;
 
-  private final BytePipeline buffer;
-  private MixerState state = MixerState.Ready;
+  final BytePipeline buffer;
+  MixerState state = MixerState.Ready;
   /**
    * Note: these buffers can't be constructed until after the sources are Put, ergo defining the total buffer length.
    */
-  private final double[][][] busBuf; // buffer separated into busses like [bus][frame][channel]
-  private final double[][] outBuf; // final output buffer like [bus][frame][channel]
-  private final AudioFormat audioFormat;
-  private double compRatio = 0; // mixer effects are continuous between renders, so these ending values make their way back to the beginning of the next render
+  final double[][][] busBuf; // buffer separated into busses like [bus][frame][channel]
+  final double[][] outBuf; // final output buffer like [bus][frame][channel]
+  final AudioFormat audioFormat;
+  double compRatio = 0; // mixer effects are continuous between renders, so these ending values make their way back to the beginning of the next render
 
   /**
    * Instantiate a single Mix instance
@@ -164,7 +164,7 @@ class MixerImpl implements Mixer {
   /**
    * Zero all buffers
    */
-  private void clearBuffers() {
+  void clearBuffers() {
     for (int b = 0; b < busBuf.length; b++)
       for (int f = 0; f < busBuf[0].length; f++)
         for (int c = 0; c < busBuf[0][0].length; c++)
@@ -177,7 +177,7 @@ class MixerImpl implements Mixer {
   /**
    * Mix input buffers to output buffer
    */
-  private void mixOutputBus() {
+  void mixOutputBus() {
     double[] level = Stream.iterate(0, i -> i + 1).limit(busBuf.length).mapToDouble(i -> busLevel.getOrDefault(i, 1.0)).toArray();
     int b, f, c;
     for (b = 0; b < busBuf.length; b++)
@@ -230,7 +230,7 @@ class MixerImpl implements Mixer {
    * apply original sources to mixing buffer
    * addition of all sources into initial mixed source frames
    */
-  private void applySources() throws MixerException {
+  void applySources() throws MixerException {
     for (var source : sources.values()) applySource(source);
   }
 
@@ -239,7 +239,7 @@ class MixerImpl implements Mixer {
    *
    * @param source to apply
    */
-  private void applySource(Source source) throws MixerException {
+  void applySource(Source source) throws MixerException {
     if (source.getAudioFormat().isEmpty()) return;
     AudioFormat fmt = source.getAudioFormat().get();
 
@@ -332,7 +332,7 @@ class MixerImpl implements Mixer {
    * compression target uses a rate of change of rate of change
    * to maintain inertia over time, required to preserve audio signal
    */
-  private void applyFinalOutputCompressor() {
+  void applyFinalOutputCompressor() {
     // only set the comp ratio directly if it's never been set before, otherwise mixer effects are continuous between renders, so these ending values make their way back to the beginning of the next render
     if (0 == compRatio) {
       compRatio = computeCompressorTarget(outBuf, 0, framesAhead);
@@ -356,7 +356,7 @@ class MixerImpl implements Mixer {
    The lowpass filter ensures there are no screeching extra-high tones in the mix.
    The highpass filter ensures there are no distorting ultra-low tones in the mix.
    *
-  private void applyBandpass(double[][] buf) throws MixerException {
+  void applyBandpass(double[][] buf) throws MixerException {
     FrequencyRangeLimiter.filter(buf, outputFrameRate, dspBufferSize, (float) highpassThresholdHz, (float) lowpassThresholdHz);
   }
    */
@@ -364,7 +364,7 @@ class MixerImpl implements Mixer {
   /**
    * apply logarithmic dynamic range to mixing buffer
    */
-  private void applyLogarithmicDynamicRange() {
+  void applyLogarithmicDynamicRange() {
     for (int i = 0; i < outBuf.length; i++)
       outBuf[i] = MathUtil.logarithmicCompression(outBuf[i]);
   }
@@ -376,7 +376,7 @@ class MixerImpl implements Mixer {
    * normalize final buffer to normalization threshold https://www.pivotaltracker.com/story/show/154112129
    */
   @SuppressWarnings("unused")
-  private void applyNormalization() {
+  void applyNormalization() {
     double normRatio = Math.min(config.getNormalizationBoostThreshold(), config.getNormalizationCeiling() / MathUtil.maxAbs(outBuf, NORMALIZATION_GRAIN));
     for (int i = 0; i < outBuf.length; i++)
       for (int k = 0; k < outputChannels; k++)
@@ -388,7 +388,7 @@ class MixerImpl implements Mixer {
    *
    * @return target amplitude
    */
-  private double computeCompressorTarget(double[][] input, int iFr, int iTo) {
+  double computeCompressorTarget(double[][] input, int iFr, int iTo) {
     double currentAmplitude = MathUtil.maxAbs(input, iFr, iTo, COMPRESSION_GRAIN);
     return MathUtil.limit(compressRatioMin, compressRatioMax, compressToAmplitude / currentAmplitude);
   }

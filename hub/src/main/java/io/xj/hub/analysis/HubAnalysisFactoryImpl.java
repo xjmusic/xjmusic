@@ -16,7 +16,7 @@ import java.util.UUID;
  */
 @Service
 class HubAnalysisFactoryImpl implements HubAnalysisFactory {
-  private final HubIngestFactory hubIngestFactory;
+  final HubIngestFactory hubIngestFactory;
 
   public HubAnalysisFactoryImpl(HubIngestFactory hubIngestFactory) {
     this.hubIngestFactory = hubIngestFactory;

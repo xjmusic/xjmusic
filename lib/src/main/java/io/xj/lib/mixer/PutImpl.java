@@ -9,15 +9,15 @@ import java.util.UUID;
  * Put to represent a single audio source playing at a specific time in the future.
  */
 class PutImpl implements Put {
-  private String state;
-  private final UUID id;
-  private final UUID audioId;
-  private final double velocity;
-  private final int bus;
-  private final int attackMillis;
-  private final int releaseMillis;
-  private final long startAtMicros;
-  private final long stopAtMicros;
+  String state;
+  final UUID id;
+  final UUID audioId;
+  final double velocity;
+  final int bus;
+  final int attackMillis;
+  final int releaseMillis;
+  final long startAtMicros;
+  final long stopAtMicros;
 
   public PutImpl(
     UUID id,

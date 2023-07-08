@@ -34,9 +34,9 @@ import static io.xj.hub.Tables.TEMPLATE_PLAYBACK;
 
 @Service
 public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl implements TemplatePlaybackManager {
-  private final Logger LOG = LoggerFactory.getLogger(TemplatePlaybackManagerImpl.class);
-  private final PreviewNexusAdmin previewNexusAdmin;
-  private final long playbackExpireSeconds;
+  final Logger LOG = LoggerFactory.getLogger(TemplatePlaybackManagerImpl.class);
+  final PreviewNexusAdmin previewNexusAdmin;
+  final long playbackExpireSeconds;
 
   @Autowired
   public TemplatePlaybackManagerImpl(
@@ -229,7 +229,7 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl imple
    * @return list of template playbacks
    * @throws ManagerException on failure
    */
-  private Collection<TemplatePlayback> readAllForUser(HubAccess access) throws ManagerException {
+  Collection<TemplatePlayback> readAllForUser(HubAccess access) throws ManagerException {
     DSLContext db = sqlStoreProvider.getDSL();
 
     try (var selectTemplatePlayback = db.selectFrom(TEMPLATE_PLAYBACK)) {
@@ -248,7 +248,7 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl imple
    * @param templatePlaybackId of template playback
    * @throws ManagerException on failure
    */
-  private void doDestroy(UUID templatePlaybackId) throws ManagerException {
+  void doDestroy(UUID templatePlaybackId) throws ManagerException {
     DSLContext db = sqlStoreProvider.getDSL();
 
     try (var deleteTemplatePlayback = db.deleteFrom(TEMPLATE_PLAYBACK)) {
@@ -268,7 +268,7 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl imple
    * @param id     to read
    * @return record
    */
-  private @Nullable TemplatePlayback readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+  @Nullable TemplatePlayback readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     @Nullable Record playback;
     if (access.isTopLevel())
       try (var selectTemplatePlayback = db.selectFrom(TEMPLATE_PLAYBACK)) {

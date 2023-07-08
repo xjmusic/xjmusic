@@ -51,10 +51,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 public class ProgramVoiceManagerDbTest {
-  private ProgramVoiceManager subject;
-  private HubIntegrationTest test;
-  private IntegrationTestingFixtures fake;
-  private HubSqlStoreProvider sqlStoreProvider;
+  ProgramVoiceManager subject;
+  HubIntegrationTest test;
+  IntegrationTestingFixtures fake;
+  HubSqlStoreProvider sqlStoreProvider;
 
   @MockBean
   NotificationProvider notificationProvider;

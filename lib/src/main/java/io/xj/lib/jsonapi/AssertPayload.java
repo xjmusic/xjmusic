@@ -17,7 +17,7 @@ import static io.xj.lib.util.Assertion.*;
  Created by Charney Kaye on 2020/03/05
  */
 public class AssertPayload {
-  private final JsonapiPayload jsonapiPayload;
+  final JsonapiPayload jsonapiPayload;
 
   /**
    of instance of payload assertion utility object

@@ -11,8 +11,8 @@ import io.xj.lib.util.Values;
  although a ChordEntity only actually exists as a Segment ChordEntity, Pattern ChordEntity, etc.
  */
 public class ChordEntity {
-  private String name;
-  private Double position;
+  String name;
+  Double position;
 
   /**
    validation of common ChordEntity attributes

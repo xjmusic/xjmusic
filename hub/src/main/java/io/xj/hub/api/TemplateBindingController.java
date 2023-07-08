@@ -34,7 +34,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/1/template-bindings")
 public class TemplateBindingController extends HubJsonapiEndpoint {
-  private final TemplateBindingManager manager;
+  final TemplateBindingManager manager;
 
   /**
    * Constructor
@@ -145,7 +145,7 @@ public class TemplateBindingController extends HubJsonapiEndpoint {
    *
    * @return Manager
    */
-  private TemplateBindingManager manager() {
+  TemplateBindingManager manager() {
     return manager;
   }
 }

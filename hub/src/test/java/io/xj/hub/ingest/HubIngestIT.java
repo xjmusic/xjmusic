@@ -51,11 +51,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @SpringBootTest
 public class HubIngestIT {
 
-  private HubIngestFactory ingestFactory;
-  private HubIntegrationTest test;
-  private IntegrationTestingFixtures fake;
+  HubIngestFactory ingestFactory;
+  HubIntegrationTest test;
+  IntegrationTestingFixtures fake;
   @MockBean
-  private PreviewNexusAdmin previewNexusAdmin;
+  PreviewNexusAdmin previewNexusAdmin;
 
   @MockBean
   NotificationProvider notificationProvider;
@@ -69,7 +69,7 @@ public class HubIngestIT {
   @Autowired
   HubIntegrationTestFactory integrationTestFactory;
 
-  private static Map<String, Integer> classTally(Collection<Object> allEntities) {
+  static Map<String, Integer> classTally(Collection<Object> allEntities) {
     Map<String, Integer> out = Maps.newHashMap();
     allEntities.forEach(entity -> {
       String name = Text.getSimpleName(entity);

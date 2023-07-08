@@ -23,8 +23,8 @@ public class ProgramConfig {
       barBeats = 4
       doPatternRestartOnChord = false
       """;
-  private final Boolean doPatternRestartOnChord;
-  private final int barBeats;
+  final Boolean doPatternRestartOnChord;
+  final int barBeats;
 
   /**
    * Instantiate a Program configuration from a string of typesafe config.

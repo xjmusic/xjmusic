@@ -45,13 +45,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 public class ProgramSequenceChordVoicingManagerDbTest {
-  private ProgramSequenceChordVoicingManager subject;
+  ProgramSequenceChordVoicingManager subject;
 
-  private HubIntegrationTest test;
-  private IntegrationTestingFixtures fake;
+  HubIntegrationTest test;
+  IntegrationTestingFixtures fake;
 
-  private ProgramSequenceChord sequenceChord1a_0;
-  private ProgramSequenceChordVoicing sequenceChord1a_0_voicing0;
+  ProgramSequenceChord sequenceChord1a_0;
+  ProgramSequenceChordVoicing sequenceChord1a_0_voicing0;
 
   @MockBean
   NotificationProvider notificationProvider;

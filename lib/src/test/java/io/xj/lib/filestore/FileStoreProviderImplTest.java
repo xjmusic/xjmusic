@@ -13,7 +13,7 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(MockitoJUnitRunner.class)
 public class FileStoreProviderImplTest {
   @Mock
-  private FileStoreProvider fileStoreProvider;
+  FileStoreProvider fileStoreProvider;
 
 
   @Before

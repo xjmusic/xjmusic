@@ -47,11 +47,11 @@ public class CraftSegmentOutputEncoderTest {
   public HubClient hubClient;
   @Mock
   public NotificationProvider notificationProvider;
-  private CraftFactory craftFactory;
-  private FabricatorFactory fabricatorFactory;
-  private NexusEntityStore store;
-  private Segment segment6;
-  private HubContent sourceMaterial;
+  CraftFactory craftFactory;
+  FabricatorFactory fabricatorFactory;
+  NexusEntityStore store;
+  Segment segment6;
+  HubContent sourceMaterial;
 
   @Before
   public void setUp() throws Exception {

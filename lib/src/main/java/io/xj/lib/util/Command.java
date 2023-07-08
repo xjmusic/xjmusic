@@ -15,7 +15,7 @@ import static io.xj.lib.util.Text.formatMultiline;
 
 public enum Command {
   ;
-  private static final Logger LOG = LoggerFactory.getLogger(Command.class);
+  static final Logger LOG = LoggerFactory.getLogger(Command.class);
 
   /**
    Execute the given command

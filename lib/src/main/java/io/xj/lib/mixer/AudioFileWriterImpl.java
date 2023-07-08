@@ -22,12 +22,12 @@ import java.util.concurrent.atomic.AtomicReference;
 import static java.nio.file.Files.deleteIfExists;
 
 public class AudioFileWriterImpl implements AudioFileWriter {
-  private static final Logger LOG = LoggerFactory.getLogger(AudioFileWriterImpl.class);
-  private final AudioFormat format;
-  private FileOutputStream tempFile;
-  private final AtomicLong tempFileByteCount = new AtomicLong(0);
-  private final AtomicReference<String> tempFilePath = new AtomicReference<>("");
-  private final AtomicReference<String> outputPath = new AtomicReference<>("");
+  static final Logger LOG = LoggerFactory.getLogger(AudioFileWriterImpl.class);
+  final AudioFormat format;
+  FileOutputStream tempFile;
+  final AtomicLong tempFileByteCount = new AtomicLong(0);
+  final AtomicReference<String> tempFilePath = new AtomicReference<>("");
+  final AtomicReference<String> outputPath = new AtomicReference<>("");
 
   enum FileState {
     INITIAL,
@@ -36,7 +36,7 @@ public class AudioFileWriterImpl implements AudioFileWriter {
     DONE
   }
 
-  private final AtomicReference<FileState> fileState = new AtomicReference<>(FileState.INITIAL);
+  final AtomicReference<FileState> fileState = new AtomicReference<>(FileState.INITIAL);
 
   public AudioFileWriterImpl(
     AudioFormat format

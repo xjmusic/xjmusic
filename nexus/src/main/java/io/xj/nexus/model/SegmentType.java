@@ -20,7 +20,7 @@ public enum SegmentType {
 
   NEXTMACRO("NextMacro");
 
-  private String value;
+  String value;
 
   SegmentType(String value) {
     this.value = value;

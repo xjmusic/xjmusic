@@ -9,7 +9,7 @@ import java.net.URL;
  */
 public class InternalResource {
 
-  private File file;
+  File file;
 
   public InternalResource(String fileName) {
     ClassLoader classLoader = getClass().getClassLoader();

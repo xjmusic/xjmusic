@@ -94,48 +94,48 @@ import static io.xj.lib.util.Values.SECONDS_PER_MINUTE;
  * [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public class FabricatorImpl implements Fabricator {
-  private static final String KEY_VOICE_NOTE_TEMPLATE = "voice-%s_note-%s";
-  private static final String KEY_VOICE_TRACK_TEMPLATE = "voice-%s_track-%s";
-  private static final String NAME_SEPARATOR = "-";
-  private static final String UNKNOWN_KEY = "unknown";
-  private final Logger LOG = LoggerFactory.getLogger(FabricatorImpl.class);
-  private final Chain chain;
-  private final TemplateConfig templateConfig;
-  private final Collection<TemplateBinding> templateBindings;
-  private final HubContent sourceMaterial;
-  private final int workBufferAheadSeconds;
-  private final int workBufferBeforeSeconds;
-  private final JsonapiPayloadFactory jsonapiPayloadFactory;
-  private final JsonProvider jsonProvider;
-  private final Map<Double, Optional<SegmentChord>> chordAtPosition;
-  private final Map<InstrumentType, NoteRange> voicingNoteRange;
-  private final Map<SegmentChoice, ProgramSequence> sequenceForChoice;
-  private final Map<String, InstrumentAudio> preferredAudios;
-  private final Map<String, InstrumentConfig> instrumentConfigs;
-  private final Map<String, InstrumentConfig> pickInstrumentConfigs;
-  private final Map<String, Integer> rangeShiftOctave;
-  private final Map<String, Integer> targetShift;
-  private final Map<String, NoteRange> rangeForChoice;
-  private final Map<String, Optional<Note>> rootNotesByVoicingAndChord;
-  private final Map<UUID, Collection<ProgramSequenceChord>> completeChordsForProgramSequence;
-  private final Map<UUID, List<SegmentChoiceArrangementPick>> picksForChoice;
-  private final SegmentManager segmentManager;
-  private final SegmentRetrospective retrospective;
-  private final SegmentWorkbench workbench;
-  private final Set<UUID> boundInstrumentIds;
-  private final Set<UUID> boundProgramIds;
-  private final long startAtSystemNanoTime;
-  private SegmentType type;
+  static final String KEY_VOICE_NOTE_TEMPLATE = "voice-%s_note-%s";
+  static final String KEY_VOICE_TRACK_TEMPLATE = "voice-%s_track-%s";
+  static final String NAME_SEPARATOR = "-";
+  static final String UNKNOWN_KEY = "unknown";
+  final Logger LOG = LoggerFactory.getLogger(FabricatorImpl.class);
+  final Chain chain;
+  final TemplateConfig templateConfig;
+  final Collection<TemplateBinding> templateBindings;
+  final HubContent sourceMaterial;
+  final int workBufferAheadSeconds;
+  final int workBufferBeforeSeconds;
+  final JsonapiPayloadFactory jsonapiPayloadFactory;
+  final JsonProvider jsonProvider;
+  final Map<Double, Optional<SegmentChord>> chordAtPosition;
+  final Map<InstrumentType, NoteRange> voicingNoteRange;
+  final Map<SegmentChoice, ProgramSequence> sequenceForChoice;
+  final Map<String, InstrumentAudio> preferredAudios;
+  final Map<String, InstrumentConfig> instrumentConfigs;
+  final Map<String, InstrumentConfig> pickInstrumentConfigs;
+  final Map<String, Integer> rangeShiftOctave;
+  final Map<String, Integer> targetShift;
+  final Map<String, NoteRange> rangeForChoice;
+  final Map<String, Optional<Note>> rootNotesByVoicingAndChord;
+  final Map<UUID, Collection<ProgramSequenceChord>> completeChordsForProgramSequence;
+  final Map<UUID, List<SegmentChoiceArrangementPick>> picksForChoice;
+  final SegmentManager segmentManager;
+  final SegmentRetrospective retrospective;
+  final SegmentWorkbench workbench;
+  final Set<UUID> boundInstrumentIds;
+  final Set<UUID> boundProgramIds;
+  final long startAtSystemNanoTime;
+  SegmentType type;
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  private Optional<SegmentChoice> macroChoiceOfPreviousSegment;
+  Optional<SegmentChoice> macroChoiceOfPreviousSegment;
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  private Optional<SegmentChoice> mainChoiceOfPreviousSegment;
+  Optional<SegmentChoice> mainChoiceOfPreviousSegment;
 
   @Nullable
-  private Double microsPerBeat;
+  Double microsPerBeat;
 
   @Nullable
-  private Set<InstrumentType> distinctChordVoicingTypes;
+  Set<InstrumentType> distinctChordVoicingTypes;
 
   public FabricatorImpl(
     HubContent sourceMaterial,
@@ -652,7 +652,7 @@ public class FabricatorImpl implements Fabricator {
     return rangeForChoice.get(cacheKey);
   }
 
-  private NoteRange computeProgramRange(UUID programId, InstrumentType instrumentType) {
+  NoteRange computeProgramRange(UUID programId, InstrumentType instrumentType) {
     return NoteRange.ofStrings(
       sourceMaterial.getEvents(programId).stream()
         .filter(event -> sourceMaterial.getVoice(event).map(voice -> Objects.equals(voice.getType(), instrumentType)).orElse(false)
@@ -1032,7 +1032,7 @@ public class FabricatorImpl implements Fabricator {
    * @param targetRange to
    * @return lowest optimal range shift octaves
    */
-  private Integer computeLowestOptimalRangeShiftOctaves(NoteRange sourceRange, NoteRange targetRange) throws NexusException {
+  Integer computeLowestOptimalRangeShiftOctaves(NoteRange sourceRange, NoteRange targetRange) throws NexusException {
     var shiftOctave = 0; // search for optimal value
     var baselineDelta = 100; // optimal is the lowest possible integer zero or above
     for (var o = 10; o >= -10; o--) {
@@ -1052,7 +1052,7 @@ public class FabricatorImpl implements Fabricator {
    * @param segment for which to compute segment ship key
    * @return Segment ship key computed for the given chain and Segment
    */
-  private String computeShipKey(Chain chain, Segment segment) {
+  String computeShipKey(Chain chain, Segment segment) {
     String chainName = Strings.isNullOrEmpty(chain.getShipKey()) ? "chain" + NAME_SEPARATOR + chain.getId() : chain.getShipKey();
     String segmentName = String.valueOf(segment.getBeginAtChainMicros());
     return chainName + NAME_SEPARATOR + segmentName;
@@ -1064,7 +1064,7 @@ public class FabricatorImpl implements Fabricator {
    * @param message to format
    * @return formatted message with segmentId as prefix
    */
-  private String formatLog(String message) {
+  String formatLog(String message) {
     return String.format("[segId=%s] %s", workbench.getSegment().getId(), message);
   }
 
@@ -1075,7 +1075,7 @@ public class FabricatorImpl implements Fabricator {
    * @return metadata JSON
    * @throws NexusException on failure
    */
-  private String computeChainJson(Collection<Segment> segments) throws NexusException {
+  String computeChainJson(Collection<Segment> segments) throws NexusException {
     try {
       JsonapiPayload jsonapiPayload = new JsonapiPayload();
       jsonapiPayload.setDataOne(jsonapiPayloadFactory.toPayloadObject(chain));
@@ -1093,7 +1093,7 @@ public class FabricatorImpl implements Fabricator {
   /**
    * Ensure the current segment has a storage key; if not, add a storage key to this Segment
    */
-  private void ensureShipKey() {
+  void ensureShipKey() {
     if (Values.isEmpty(workbench.getSegment().getStorageKey()) || workbench.getSegment().getStorageKey().isEmpty()) {
       var seg = workbench.getSegment();
       seg.setStorageKey(computeShipKey(workbench.getChain(), workbench.getSegment()));
@@ -1107,7 +1107,7 @@ public class FabricatorImpl implements Fabricator {
    *
    * @return type of the current segment
    */
-  private SegmentType computeType() {
+  SegmentType computeType() {
     if (isInitialSegment())
       return SegmentType.INITIAL;
 
@@ -1132,7 +1132,7 @@ public class FabricatorImpl implements Fabricator {
    *
    * @return delta from previous segment
    */
-  private int getPreviousSegmentDelta() {
+  int getPreviousSegmentDelta() {
     return retrospective.getPreviousSegment()
       .map(Segment::getDelta)
       .orElse(0);
@@ -1143,7 +1143,7 @@ public class FabricatorImpl implements Fabricator {
    *
    * @return preferred instrument audio
    */
-  private Map<String, InstrumentAudio> computePreferredInstrumentAudio() {
+  Map<String, InstrumentAudio> computePreferredInstrumentAudio() {
     Map<String, InstrumentAudio> audios = Maps.newHashMap();
 
     retrospective.getPicks()
@@ -1160,7 +1160,7 @@ public class FabricatorImpl implements Fabricator {
    * @param choice for which to add memes
    * @return true if adding memes was successful
    */
-  private boolean addMemes(SegmentChoice choice) throws NexusException {
+  boolean addMemes(SegmentChoice choice) throws NexusException {
     Set<String> names = Sets.newHashSet();
 
     if (Objects.nonNull(choice.getProgramId()))

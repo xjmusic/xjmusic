@@ -27,16 +27,16 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class StreamEncoderImpl implements StreamEncoder {
-  private static final Logger LOG = LoggerFactory.getLogger(StreamEncoderImpl.class);
-  private final ConcurrentLinkedQueue<ByteBuffer> queue = new ConcurrentLinkedQueue<>();
-  private final FileStoreProvider fileStore;
-  private final PlaylistPublisher playlist;
-  private final String bucket;
-  private final String contentTypeSegment;
-  private final String playlistPath;
-  private final String tempFilePathPrefix;
-  private Process ffmpeg;
-  private final AtomicBoolean running = new AtomicBoolean(true);
+  static final Logger LOG = LoggerFactory.getLogger(StreamEncoderImpl.class);
+  final ConcurrentLinkedQueue<ByteBuffer> queue = new ConcurrentLinkedQueue<>();
+  final FileStoreProvider fileStore;
+  final PlaylistPublisher playlist;
+  final String bucket;
+  final String contentTypeSegment;
+  final String playlistPath;
+  final String tempFilePathPrefix;
+  Process ffmpeg;
+  final AtomicBoolean running = new AtomicBoolean(true);
 
   public StreamEncoderImpl(
     String shipKey,
@@ -162,7 +162,7 @@ public class StreamEncoderImpl implements StreamEncoder {
    * @param message to warn
    * @return false
    */
-  private boolean notHealthy(String message) {
+  boolean notHealthy(String message) {
     LOG.warn(message);
     return false;
   }
@@ -174,7 +174,7 @@ public class StreamEncoderImpl implements StreamEncoder {
    * @param contentType content-type
    * @throws FileStoreException on failure
    */
-  private void uploadMediaSegment(String key, String contentType) throws FileStoreException, ShipException {
+  void uploadMediaSegment(String key, String contentType) throws FileStoreException, ShipException {
     var path = String.format("%s%s", tempFilePathPrefix, key);
     fileStore.putS3ObjectFromTempFile(path, bucket, key, contentType, null);
     LOG.info("Shipped {}/{} ({})", bucket, key, contentType);

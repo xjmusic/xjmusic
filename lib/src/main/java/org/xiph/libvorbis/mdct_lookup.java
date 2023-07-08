@@ -79,7 +79,7 @@ class mdct_lookup {
   }
 
   // 8 point butterfly (in place, 4 register)
-  private void mdct_butterfly_8(float[] x, int off) {
+  void mdct_butterfly_8(float[] x, int off) {
 
     float r0 = x[off + 6] + x[off + 2];
     float r1 = x[off + 6] - x[off + 2];
@@ -103,7 +103,7 @@ class mdct_lookup {
   }
 
   // 16 point butterfly (in place, 4 register)
-  private void mdct_butterfly_16(float[] x, int off) {
+  void mdct_butterfly_16(float[] x, int off) {
 
     float r0 = x[off + 1] - x[off + 9];
     float r1 = x[off + 0] - x[off + 8];
@@ -139,7 +139,7 @@ class mdct_lookup {
   }
 
   // 32 point butterfly (in place, 4 register)
-  private void mdct_butterfly_32(float[] x, int off) {
+  void mdct_butterfly_32(float[] x, int off) {
 
     float r0 = x[off + 30] - x[off + 14];
     float r1 = x[off + 31] - x[off + 15];
@@ -203,7 +203,7 @@ class mdct_lookup {
   }
 
   // N point first stage butterfly (in place, 2 register)
-  private void mdct_butterfly_first(float[] T, float[] x, int off, int points) {
+  void mdct_butterfly_first(float[] T, float[] x, int off, int points) {
 
     // float *x1        = x          + points      - 8;
     int x1 = off + points - 8;
@@ -255,7 +255,7 @@ class mdct_lookup {
   }
 
   // N/stage point generic N stage butterfly (in place, 2 register)
-  private void mdct_butterfly_generic(float[] T, float[] x, int off, int points, int trigint) {
+  void mdct_butterfly_generic(float[] T, float[] x, int off, int points, int trigint) {
 
     // float *x1        = x          + points      - 8;
     int x1 = off + points - 8;
@@ -312,7 +312,7 @@ class mdct_lookup {
     // } while ( x2 >= x );
   }
 
-  private void mdct_butterflies(float[] x, int off, int points) {
+  void mdct_butterflies(float[] x, int off, int points) {
 
     float[] T = trig;
     int stages = log2n - 5;
@@ -331,7 +331,7 @@ class mdct_lookup {
       mdct_butterfly_32(x, off + j);
   }
 
-  private void mdct_bitreverse(float[] x) {
+  void mdct_bitreverse(float[] x) {
 
     // float *w0      = x;
     // float *w1      = x = w0+(n>>1);

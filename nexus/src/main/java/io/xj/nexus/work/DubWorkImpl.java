@@ -41,42 +41,40 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Service
 public class DubWorkImpl implements DubWork {
-  private static final Logger LOG = LoggerFactory.getLogger(DubWorkImpl.class);
-  private static final long INTERNAL_CYCLE_SLEEP_MILLIS = 50;
-  private static final long MICROS_PER_SECOND = 1000000L;
-  private static final int BITS_PER_BYTE = 8;
+  static final Logger LOG = LoggerFactory.getLogger(DubWorkImpl.class);
+  static final long INTERNAL_CYCLE_SLEEP_MILLIS = 50;
+  static final long MICROS_PER_SECOND = 1000000L;
+  static final int BITS_PER_BYTE = 8;
 
 
   @Nullable
-  private Mixer mixer;
-  private MultiStopwatch timer;
-  private WorkState state = WorkState.Initializing;
-  private final AtomicBoolean running = new AtomicBoolean(true);
-  private final CraftWork craftWork;
-  private final DubAudioCache dubAudioCache;
-  private final Map<InstrumentType, Integer> instrumentBusNumber = Maps.newConcurrentMap();
-  private final Map<UUID, ActiveAudio> mixerActiveAudio = Maps.newConcurrentMap();
-  private final MixerFactory mixerFactory;
-  private final NotificationProvider notification;
-  private final int mixerLengthSeconds;
-  private final long cycleMillis;
-  private final long mixerLengthMicros;
-  private long chunkFromChainMicros = 0; // dubbing is done up to this point
-  private long chunkToChainMicros = 0; // plan ahead one dub frame at a time
-  private long nextCycleAtSystemMillis = System.currentTimeMillis();
+  Mixer mixer;
+  MultiStopwatch timer;
+  WorkState state = WorkState.Initializing;
+  final AtomicBoolean running = new AtomicBoolean(true);
+  final CraftWork craftWork;
+  final DubAudioCache dubAudioCache;
+  final Map<InstrumentType, Integer> instrumentBusNumber = Maps.newConcurrentMap();
+  final Map<UUID, ActiveAudio> mixerActiveAudio = Maps.newConcurrentMap();
+  final MixerFactory mixerFactory;
+  final NotificationProvider notification;
+  final int mixerLengthSeconds;
+  final long cycleMillis;
+  final long mixerLengthMicros;
+  long chunkFromChainMicros = 0; // dubbing is done up to this point
+  long chunkToChainMicros = 0; // plan ahead one dub frame at a time
+  long nextCycleAtSystemMillis = System.currentTimeMillis();
   @Nullable
-  private Float mixerOutputMicrosecondsPerByte;
+  Float mixerOutputMicrosecondsPerByte;
 
-  @Autowired
   public DubWorkImpl(
     CraftWork craftWork,
     DubAudioCache dubAudioCache,
     MixerFactory mixerFactory,
     NotificationProvider notification,
-    @Value("${mixer.timeline.seconds}") int mixerSeconds,
-    @Value("${dub.cycle.millis}") long cycleMillis
+    int mixerSeconds,
+    long cycleMillis
   ) {
     this.craftWork = craftWork;
     this.dubAudioCache = dubAudioCache;
@@ -189,7 +187,7 @@ public class DubWorkImpl implements DubWork {
   /**
    * This is the internal cycle that's run indefinitely
    */
-  private void doWorkCycle() throws InterruptedException {
+  void doWorkCycle() throws InterruptedException {
     if (System.currentTimeMillis() < nextCycleAtSystemMillis) {
       Thread.sleep(INTERNAL_CYCLE_SLEEP_MILLIS);
       return;
@@ -239,7 +237,7 @@ public class DubWorkImpl implements DubWork {
     nextCycleAtSystemMillis = System.currentTimeMillis() + cycleMillis;
   }
 
-  private void doPlanFrame() {
+  void doPlanFrame() {
     if (!craftWork.isRunning()) {
       LOG.warn("Craft is not running; will abort.");
       finish();
@@ -258,7 +256,7 @@ public class DubWorkImpl implements DubWork {
    * <p>
    * Ensure mixer has continuity of its processes/effects, e.g. the compressor levels at the last frame of the last chunk are carried over to the first frame of the next chunk
    */
-  private void doDubFrame() {
+  void doDubFrame() {
     if (Objects.isNull(mixer)) return;
     var segments = craftWork.getSegmentsIfReady(chunkFromChainMicros, chunkToChainMicros);
     if (segments.isEmpty()) {
@@ -325,7 +323,7 @@ public class DubWorkImpl implements DubWork {
    *
    * @return mixer
    */
-  private Mixer mixerInit(TemplateConfig templateConfig) throws Exception {
+  Mixer mixerInit(TemplateConfig templateConfig) throws Exception {
     AudioFormat.Encoding encoding = AudioFormat.Encoding.PCM_SIGNED;
     int sampleBits = 16;
     int frameSize = templateConfig.getOutputChannels() * sampleBits / BITS_PER_BYTE;
@@ -357,7 +355,7 @@ public class DubWorkImpl implements DubWork {
    *
    * @param activeAudios to set up
    */
-  private void mixerSetAll(List<ActiveAudio> activeAudios) {
+  void mixerSetAll(List<ActiveAudio> activeAudios) {
     for (ActiveAudio active : activeAudios) {
       LOG.debug("----------> ADD @{} {} {}", (float) active.getStartAtMicros() / MICROS_PER_SECOND, active.getInstrument().getName(), active.getAudio().getName());
       mixerSetupTarget(active);
@@ -372,7 +370,7 @@ public class DubWorkImpl implements DubWork {
     }
   }
 
-  private final AtomicInteger computedBusNumber = new AtomicInteger(0);
+  final AtomicInteger computedBusNumber = new AtomicInteger(0);
 
   /**
    * Set playback for a pick
@@ -384,7 +382,7 @@ public class DubWorkImpl implements DubWork {
    *
    * @param active audio to setup
    */
-  private void mixerSetupTarget(ActiveAudio active) {
+  void mixerSetupTarget(ActiveAudio active) {
     if (Objects.isNull(mixer)) return;
     try {
       String key = active.getAudio().getWaveformKey();
@@ -413,7 +411,7 @@ public class DubWorkImpl implements DubWork {
    *
    * @param active audio to remove
    */
-  private void mixerRemoveTarget(ActiveAudio active) {
+  void mixerRemoveTarget(ActiveAudio active) {
     if (Objects.isNull(mixer)) return;
     mixer.del(active.getId());
   }
@@ -424,7 +422,7 @@ public class DubWorkImpl implements DubWork {
    * @param instrumentType for which to get bus number
    * @return bus number
    */
-  private int mixerGetBusNumber(InstrumentType instrumentType) {
+  int mixerGetBusNumber(InstrumentType instrumentType) {
     if (!instrumentBusNumber.containsKey(instrumentType))
       instrumentBusNumber.put(instrumentType, computedBusNumber.getAndIncrement());
     return instrumentBusNumber.get(instrumentType);
@@ -436,7 +434,7 @@ public class DubWorkImpl implements DubWork {
    * @param msgWhile phrased like "Doing work"
    * @param e        exception (optional)
    */
-  private void didFailWhile(String msgWhile, Exception e) {
+  void didFailWhile(String msgWhile, Exception e) {
     var msgCause = Strings.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
     LOG.error("Failed while {} because {}", msgWhile, msgCause, e);
 

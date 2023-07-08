@@ -15,13 +15,13 @@ import java.util.Objects;
 
 @Service
 public class LockProviderImpl implements LockProvider {
-  private static final Logger LOG = LoggerFactory.getLogger(LockProviderImpl.class);
-  private final FileStoreProvider fileStoreProvider;
-  private final LockGenerator lockGenerator;
-  private static final String CONTENT_TYPE = "text/plain";
-  private static final String CACHE_KEY_FMT = "%s/%s";
-  private static final String LOCK_FILE_FMT = "%s.lock";
-  private final Map<String, String> locks = Maps.newConcurrentMap();
+  static final Logger LOG = LoggerFactory.getLogger(LockProviderImpl.class);
+  final FileStoreProvider fileStoreProvider;
+  final LockGenerator lockGenerator;
+  static final String CONTENT_TYPE = "text/plain";
+  static final String CACHE_KEY_FMT = "%s/%s";
+  static final String LOCK_FILE_FMT = "%s.lock";
+  final Map<String, String> locks = Maps.newConcurrentMap();
 
   @Autowired
   public LockProviderImpl(
@@ -70,7 +70,7 @@ public class LockProviderImpl implements LockProvider {
    * @param key from which to compute key
    * @return computed cache key
    */
-  private String computeCacheKey(String bucket, String key) {
+  String computeCacheKey(String bucket, String key) {
     return String.format(CACHE_KEY_FMT, bucket, key);
   }
 }

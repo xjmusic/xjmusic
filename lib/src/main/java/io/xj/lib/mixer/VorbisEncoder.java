@@ -16,14 +16,14 @@ import java.io.IOException;
  Ops wants to ship Ogg/Vorbis format, in order avoid licensing issues, and leverage more mature open-source audio https://www.pivotaltracker.com/story/show/159449508
  */
 public class VorbisEncoder {
-  private static final Logger log = LoggerFactory.getLogger(VorbisEncoder.class);
-  private static final int VORBIS_ANALYSIS_BLOCK_FRAMES = 1024;
-  private final vorbis_dsp_state dspState;
-  private final vorbis_block block;
-  private final ogg_stream_state oggStreamState;
-  private final ogg_page page;
-  private final ogg_packet packet;
-  private final double[][] stream;
+  static final Logger log = LoggerFactory.getLogger(VorbisEncoder.class);
+  static final int VORBIS_ANALYSIS_BLOCK_FRAMES = 1024;
+  final vorbis_dsp_state dspState;
+  final vorbis_block block;
+  final ogg_stream_state oggStreamState;
+  final ogg_page page;
+  final ogg_packet packet;
+  final double[][] stream;
 
   /**
    Instantiate new Vorbis Encoder

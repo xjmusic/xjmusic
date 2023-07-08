@@ -60,11 +60,11 @@ public class CraftBackground_LayeredVoicesTest {
   public HubClient hubClient;
   @Mock
   public NotificationProvider notificationProvider;
-  private CraftFactory craftFactory;
-  private FabricatorFactory fabricatorFactory;
-  private HubContent sourceMaterial;
-  private NexusIntegrationTestingFixtures fake;
-  private Segment segment4;
+  CraftFactory craftFactory;
+  FabricatorFactory fabricatorFactory;
+  HubContent sourceMaterial;
+  NexusIntegrationTestingFixtures fake;
+  Segment segment4;
 
   @Before
   public void setUp() throws Exception {
@@ -166,7 +166,7 @@ public class CraftBackground_LayeredVoicesTest {
    *
    * @return list of all entities
    */
-  private Collection<Object> customFixtures() {
+  Collection<Object> customFixtures() {
     Collection<Object> entities = Lists.newArrayList();
 
     // Instrument "808"

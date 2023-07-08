@@ -10,7 +10,7 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 
 public class SegmentMetaTest {
-  private SegmentMeta subject;
+  SegmentMeta subject;
 
   @Before
   public void setUp() throws Exception {

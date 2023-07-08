@@ -14,16 +14,16 @@ public enum Accidental {
   Sharp,
   Flat;
 
-  private static final Pattern rgxSharpIn = Pattern.compile("[♯#]|major");
-  private static final Pattern rgxFlatIn = Pattern.compile("[♭b]");
-  private static final Pattern rgxSharpBegin = Pattern.compile("^[♯#]");
-  private static final Pattern rgxFlatBegin = Pattern.compile("^[♭b]");
-  private static final Pattern rgxSharpishIn = Pattern.compile("(M|maj|Major|major|aug)");
-  private static final Pattern rgxFlattishIn = Pattern.compile("([^a-z]|^)(m|min|Minor|minor|dim)");
-  private static final Pattern rgxSharp = Pattern.compile("[♯#]");
-  private static final Pattern rgxFlat = Pattern.compile("[♭b]");
-  private static final String EXPLICIT_SHARP = "s";
-  private static final String EXPLICIT_FLAT = "b";
+  static final Pattern rgxSharpIn = Pattern.compile("[♯#]|major");
+  static final Pattern rgxFlatIn = Pattern.compile("[♭b]");
+  static final Pattern rgxSharpBegin = Pattern.compile("^[♯#]");
+  static final Pattern rgxFlatBegin = Pattern.compile("^[♭b]");
+  static final Pattern rgxSharpishIn = Pattern.compile("(M|maj|Major|major|aug)");
+  static final Pattern rgxFlattishIn = Pattern.compile("([^a-z]|^)(m|min|Minor|minor|dim)");
+  static final Pattern rgxSharp = Pattern.compile("[♯#]");
+  static final Pattern rgxFlat = Pattern.compile("[♭b]");
+  static final String EXPLICIT_SHARP = "s";
+  static final String EXPLICIT_FLAT = "b";
 
   /**
    AdjSymbol the adjustment symbol (Sharp or Flat) for a given name (e.g. of a chord, scale or key)
@@ -56,7 +56,7 @@ public enum Accidental {
    @param matcher to count
    @return number of matches
    */
-  private static int countMatches(Matcher matcher) {
+  static int countMatches(Matcher matcher) {
     int count = 0;
     while (matcher.find())
       count++;

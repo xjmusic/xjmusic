@@ -37,7 +37,7 @@ public class FrequencyRangeLimiterTest {
    @param WAVELENGTH_B frames per cycle, wave B
    @return buffer of test audio data
    */
-  private double[][] testWave(int FRAMES, int CHANNELS, int WAVELENGTH_A, int WAVELENGTH_B) {
+  double[][] testWave(int FRAMES, int CHANNELS, int WAVELENGTH_A, int WAVELENGTH_B) {
     double[][] out = new double[FRAMES][CHANNELS];
     for (int i = 0; i < FRAMES; i++) {
       out[i][0] = StrictMath.sin(2 * pi * i / WAVELENGTH_A) + StrictMath.sin(2 * pi * i / WAVELENGTH_B);

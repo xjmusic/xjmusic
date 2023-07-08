@@ -9,7 +9,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class EnvelopeProviderTest {
-  private EnvelopeProvider subject;
+  EnvelopeProvider subject;
 
   @Before
   public void setup() {

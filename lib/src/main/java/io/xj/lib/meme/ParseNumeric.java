@@ -16,12 +16,12 @@ import java.util.regex.Pattern;
  Numeric memes with common letters and different integer prefix (e.g. 2STEP vs 4STEP) are known to be exclusive https://www.pivotaltracker.com/story/show/180125852
  */
 class ParseNumeric {
-  private static final Pattern rgx = Pattern.compile("^([0-9]+)(.+)$");
+  static final Pattern rgx = Pattern.compile("^([0-9]+)(.+)$");
   final String body;
   final Integer prefix;
   final boolean isValid;
 
-  private ParseNumeric(String raw) {
+  ParseNumeric(String raw) {
     Matcher matcher = rgx.matcher(raw);
 
     if (!matcher.find()) {

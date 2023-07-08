@@ -7,10 +7,10 @@ import org.slf4j.Logger;
 import java.io.*;
 
 public class StreamLogger implements Runnable {
-  private static final String THREAD_NAME = "ffmpeg";
-  private final Logger LOG;
-  private final InputStream _inputStream;
-  private final String name;
+  static final String THREAD_NAME = "ffmpeg";
+  final Logger LOG;
+  final InputStream _inputStream;
+  final String name;
 
   public StreamLogger(Logger LOG, InputStream is, String name) {
     this.LOG = LOG;

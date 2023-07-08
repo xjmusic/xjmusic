@@ -203,7 +203,7 @@ public class ProgramSequenceManagerImpl extends HubPersistenceServiceImpl implem
    * @param id     of entity to require modification access to
    * @throws ManagerException on invalid permissions
    */
-  private void requireModification(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+  void requireModification(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     requireArtist(access);
 
     if (access.isTopLevel())
@@ -227,7 +227,7 @@ public class ProgramSequenceManagerImpl extends HubPersistenceServiceImpl implem
    * @param entity to validate
    * @throws ManagerException if parent does not exist
    */
-  private void requireParentExists(DSLContext db, HubAccess access, ProgramSequence entity) throws ManagerException {
+  void requireParentExists(DSLContext db, HubAccess access, ProgramSequence entity) throws ManagerException {
     if (access.isTopLevel())
       requireExists("Program", db.selectCount().from(PROGRAM)
         .where(PROGRAM.ID.eq(entity.getProgramId()))
@@ -248,7 +248,7 @@ public class ProgramSequenceManagerImpl extends HubPersistenceServiceImpl implem
    * @param id     of entity to read
    * @return program sequence
    */
-  private ProgramSequence readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+  ProgramSequence readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     if (access.isTopLevel())
       return modelFrom(ProgramSequence.class,
         db.selectFrom(PROGRAM_SEQUENCE)

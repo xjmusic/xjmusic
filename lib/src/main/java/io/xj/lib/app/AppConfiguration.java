@@ -1,7 +1,7 @@
 package io.xj.lib.app;
 
 public class AppConfiguration {
-  private String name;
+  String name;
 
   public AppConfiguration(String name) {
     this.name = name;

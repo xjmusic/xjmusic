@@ -25,11 +25,11 @@ public class PayloadError {
   public static final String KEY_TITLE = "title";
   public static final String KEY_DETAIL = "detail";
   public static final String KEY_ID = "id";
-  private final Map<String, String> links = Maps.newHashMap();
-  private String code;
-  private String title;
-  private String detail;
-  private String id;
+  final Map<String, String> links = Maps.newHashMap();
+  String code;
+  String title;
+  String detail;
+  String id;
 
   /**
    Create a PayloadError of an exception

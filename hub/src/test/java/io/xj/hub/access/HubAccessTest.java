@@ -46,7 +46,7 @@ public class HubAccessTest {
   HttpClientProvider httpClientProvider;
 
   @MockBean
-  private HttpServletRequest req;
+  HttpServletRequest req;
 
   @Test
   public void matchRoles() {

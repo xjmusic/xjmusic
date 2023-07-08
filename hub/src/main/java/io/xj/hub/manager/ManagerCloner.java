@@ -23,11 +23,11 @@ import java.util.UUID;
  * of each successive cloning.
  */
 public class ManagerCloner<E> {
-  private static final Logger LOG = LoggerFactory.getLogger(ManagerCloner.class);
-  private final E clone;
-  private final Manager<?> anyManager;
-  private final Collection<Object> childClones = Lists.newArrayList();
-  private final Map<UUID, UUID> clonedIds = Maps.newConcurrentMap();
+  static final Logger LOG = LoggerFactory.getLogger(ManagerCloner.class);
+  final E clone;
+  final Manager<?> anyManager;
+  final Collection<Object> childClones = Lists.newArrayList();
+  final Map<UUID, UUID> clonedIds = Maps.newConcurrentMap();
 
   /**
    * Instantiates a ManagerCloner with a newly created entity,

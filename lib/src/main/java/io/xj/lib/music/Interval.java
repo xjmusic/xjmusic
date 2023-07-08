@@ -31,8 +31,8 @@ public enum Interval {
   I15(15),
   I16(15);
 
-  private static final List<Interval> allIntervals = ImmutableList.copyOf(Interval.values());
-  private final int value;
+  static final List<Interval> allIntervals = ImmutableList.copyOf(Interval.values());
+  final int value;
 
   Interval(int value) {
     this.value = value;

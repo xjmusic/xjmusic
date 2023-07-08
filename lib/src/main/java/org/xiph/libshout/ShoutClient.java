@@ -13,25 +13,25 @@ import java.util.Arrays;
 
 @SuppressWarnings({"unused", "HttpUrlsUsage"})
 public class ShoutClient {
-  private static final Logger LOG = LoggerFactory.getLogger(ShoutClient.class);
-  private final char[] base64table = new char[]{
+  static final Logger LOG = LoggerFactory.getLogger(ShoutClient.class);
+  final char[] base64table = new char[]{
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
     'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
     'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
     'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/',
   };
-  private Socket socket = null;
-  private OutputStream socketOutputStream = null;
-  private boolean connected;
-  private String mount = null;
-  private String host = null;
-  private int port = 0;
-  private String username = null;
-  private String password = null;
-  private String url = null;
-  private String genre = null;
-  private String title = null;
-  private String desc = null;
+  Socket socket = null;
+  OutputStream socketOutputStream = null;
+  boolean connected;
+  String mount = null;
+  String host = null;
+  int port = 0;
+  String username = null;
+  String password = null;
+  String url = null;
+  String genre = null;
+  String title = null;
+  String desc = null;
 
   public ShoutClient() {
 

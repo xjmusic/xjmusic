@@ -40,9 +40,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 public class ProgramMemeManagerDbTest {
-  private ProgramMemeManager testManager;
-  private HubIntegrationTest test;
-  private IntegrationTestingFixtures fake;
+  ProgramMemeManager testManager;
+  HubIntegrationTest test;
+  IntegrationTestingFixtures fake;
 
   @MockBean
   NotificationProvider notificationProvider;

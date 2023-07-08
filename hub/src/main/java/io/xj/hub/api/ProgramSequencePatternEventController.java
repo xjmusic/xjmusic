@@ -29,7 +29,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/1/program-sequence-pattern-events")
 public class ProgramSequencePatternEventController extends HubJsonapiEndpoint {
-  private final ProgramSequencePatternEventManager manager;
+  final ProgramSequencePatternEventManager manager;
 
   /**
    * Constructor
@@ -107,7 +107,7 @@ public class ProgramSequencePatternEventController extends HubJsonapiEndpoint {
    *
    * @return Manager
    */
-  private ProgramSequencePatternEventManager manager() {
+  ProgramSequencePatternEventManager manager() {
     return manager;
   }
 

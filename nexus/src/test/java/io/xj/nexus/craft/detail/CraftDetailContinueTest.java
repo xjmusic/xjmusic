@@ -59,13 +59,13 @@ public class CraftDetailContinueTest {
   public HubClient hubClient;
   @Mock
   public NotificationProvider notificationProvider;
-  private Chain chain1;
-  private CraftFactory craftFactory;
-  private FabricatorFactory fabricatorFactory;
-  private HubContent sourceMaterial;
-  private NexusEntityStore store;
-  private NexusIntegrationTestingFixtures fake;
-  private Segment segment4;
+  Chain chain1;
+  CraftFactory craftFactory;
+  FabricatorFactory fabricatorFactory;
+  HubContent sourceMaterial;
+  NexusEntityStore store;
+  NexusIntegrationTestingFixtures fake;
+  Segment segment4;
 
   @Before
   public void setUp() throws Exception {
@@ -162,7 +162,7 @@ public class CraftDetailContinueTest {
    *
    * @param excludeDetailChoiceForSegment3 if desired for the purpose of this test
    */
-  private void insertSegments3and4(boolean excludeDetailChoiceForSegment3) throws Exception {
+  void insertSegments3and4(boolean excludeDetailChoiceForSegment3) throws Exception {
     // segment just crafted
     Segment segment3 = store.put(buildSegment(chain1,
       SegmentType.CONTINUE,

@@ -30,7 +30,7 @@ public class vorbis_comment {
     add(comment.getBytes());
   }
 
-  private void add(byte[] comment) {
+  void add(byte[] comment) {
 
     byte[][] foo = new byte[comments + 2][];
     if (user_comments != null) {

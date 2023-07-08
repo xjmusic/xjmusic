@@ -15,7 +15,7 @@ import static org.junit.Assert.assertNotNull;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MixerFactoryTest {
-  private MixerFactory mixerFactory;
+  MixerFactory mixerFactory;
   @Mock
   NotificationProvider notificationProvider;
   @Mock

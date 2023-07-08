@@ -38,8 +38,8 @@ public class HubAnalysisTest {
   FileStoreProvider fileStoreProvider;
   @MockBean
   HttpClientProvider httpClientProvider;
-  private Template template;
-  private HubAccess access;
+  Template template;
+  HubAccess access;
 
   @BeforeEach
   public void setUp() throws Exception {

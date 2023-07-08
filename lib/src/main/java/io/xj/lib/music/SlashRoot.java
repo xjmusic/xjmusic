@@ -11,22 +11,22 @@ import java.util.regex.Pattern;
  Root can be the root of a Chord, Key or Scale.
  */
 public class SlashRoot {
-  private static final Pattern rgxSlashPost = Pattern.compile("[^/]*/([A-G♯#♭b]+)$");
-  private static final Pattern rgxSlashNote = Pattern.compile("/([A-G])$");
-  private static final Pattern rgxSlashNoteModified = Pattern.compile("/([A-G][♯#♭b])$");
-  private static final Pattern rgxSlashPre = Pattern.compile("^([^/]*)/");
-  private static final String SLASH = "/";
-  private static final String EMPTY = "";
-  private final PitchClass pitchClass;
-  private final String pre;
-  private final String post;
+  static final Pattern rgxSlashPost = Pattern.compile("[^/]*/([A-G♯#♭b]+)$");
+  static final Pattern rgxSlashNote = Pattern.compile("/([A-G])$");
+  static final Pattern rgxSlashNoteModified = Pattern.compile("/([A-G][♯#♭b])$");
+  static final Pattern rgxSlashPre = Pattern.compile("^([^/]*)/");
+  static final String SLASH = "/";
+  static final String EMPTY = "";
+  final PitchClass pitchClass;
+  final String pre;
+  final String post;
 
   /**
    Parse slash root string, using regular expressions
 
    @param name to parse slash root
    */
-  private SlashRoot(String name) {
+  SlashRoot(String name) {
     post = Text.match(rgxSlashPost, name).orElse(EMPTY);
     pre = Strings.isNullOrEmpty(post) ? name : Text.match(rgxSlashPre, name).orElse(EMPTY);
     pitchClass =

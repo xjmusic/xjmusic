@@ -12,23 +12,23 @@ import java.util.UUID;
 
 public class Segment {
 
-  private @Valid UUID id;
-  private @Valid UUID chainId;
-  private @Valid SegmentType type;
-  private @Valid SegmentState state;
-  private @Valid Long beginAtChainMicros; // Segment begin-at time in microseconds since beginning of chain
-  private @Nullable @Valid Long durationMicros;
-  private @Valid String key;
-  private @Valid Integer total;
-  private @Valid Long offset;
-  private @Valid Double density;
-  private @Valid Double tempo;
-  private @Valid String storageKey;
-  private @Valid Double waveformPreroll;
-  private @Valid Double waveformPostroll;
-  private @Valid Integer delta;
-  private @Valid String createdAt;
-  private @Valid String updatedAt;
+  @Valid UUID id;
+  @Valid UUID chainId;
+  @Valid SegmentType type;
+  @Valid SegmentState state;
+  @Valid Long beginAtChainMicros; // Segment begin-at time in microseconds since beginning of chain
+  @Nullable @Valid Long durationMicros;
+  @Valid String key;
+  @Valid Integer total;
+  @Valid Long offset;
+  @Valid Double density;
+  @Valid Double tempo;
+  @Valid String storageKey;
+  @Valid Double waveformPreroll;
+  @Valid Double waveformPostroll;
+  @Valid Integer delta;
+  @Valid String createdAt;
+  @Valid String updatedAt;
 
   /**
    *
@@ -401,7 +401,7 @@ public class Segment {
    * Convert the given object to string with each line indented by 4 spaces
    * (except the first line).
    */
-  private String toIndentedString(Object o) {
+  String toIndentedString(Object o) {
     if (o == null) {
       return "null";
     }

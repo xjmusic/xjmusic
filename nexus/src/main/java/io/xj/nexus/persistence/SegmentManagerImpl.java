@@ -388,30 +388,30 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
     }
   }
 
-  private void validateSegmentMessage(SegmentMessage record) throws ValueException {
+  void validateSegmentMessage(SegmentMessage record) throws ValueException {
     Values.require(record.getSegmentId(), "Segment ID");
     Values.require(record.getType(), "Type");
     MessageEntity.validate(record);
   }
 
-  private void validateSegmentMeta(SegmentMeta record) throws ValueException {
+  void validateSegmentMeta(SegmentMeta record) throws ValueException {
     Values.require(record.getSegmentId(), "Segment ID");
     Values.require(record.getKey(), "Key");
     Values.require(record.getValue(), "Value");
   }
 
-  private void validateSegmentMeme(SegmentMeme record) throws ValueException {
+  void validateSegmentMeme(SegmentMeme record) throws ValueException {
     Values.require(record.getSegmentId(), "Segment ID");
     Values.require(record.getName(), "Meme name");
     record.setName(Text.toMeme(record.getName()));
   }
 
-  private void validateSegmentChord(SegmentChord record) throws ValueException {
+  void validateSegmentChord(SegmentChord record) throws ValueException {
     Values.require(record.getSegmentId(), "Segment ID");
     ChordEntity.validate(record);
   }
 
-  private void validateSegmentChoiceArrangementPick(SegmentChoiceArrangementPick record) throws ValueException {
+  void validateSegmentChoiceArrangementPick(SegmentChoiceArrangementPick record) throws ValueException {
     Values.require(record.getSegmentId(), "Segment ID");
     Values.require(record.getSegmentChoiceArrangementId(), "Arrangement ID");
     Values.require(record.getProgramSequencePatternEventId(), "Pattern Event ID");
@@ -424,13 +424,13 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
     Values.require(record.getTones(), "Note");
   }
 
-  private void validateSegmentChoiceArrangement(SegmentChoiceArrangement record) throws ValueException {
+  void validateSegmentChoiceArrangement(SegmentChoiceArrangement record) throws ValueException {
     Values.require(record.getSegmentId(), "Segment ID");
     Values.require(record.getSegmentChoiceId(), "Choice ID");
     Values.require(record.getProgramSequencePatternId(), "Program Sequence Pattern ID");
   }
 
-  private void validateSegmentChoice(SegmentChoice record) throws ValueException {
+  void validateSegmentChoice(SegmentChoice record) throws ValueException {
     Values.require(record.getSegmentId(), "Segment ID");
     Values.require(record.getProgramId(), "Program ID");
     Values.require(record.getProgramType(), "Program Type");
@@ -439,7 +439,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
     if (Values.isUnset(record.getDeltaOut())) record.setDeltaOut(Segments.DELTA_UNLIMITED);
   }
 
-  private void validateSegment(Segment record) throws ValueException {
+  void validateSegment(Segment record) throws ValueException {
     Values.require(record.getChainId(), "Chain ID");
     Values.require(record.getOffset(), "Offset");
     if (Values.isEmpty(record.getWaveformPreroll())) record.setWaveformPreroll(0.0);

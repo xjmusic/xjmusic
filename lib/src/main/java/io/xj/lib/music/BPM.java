@@ -7,7 +7,7 @@ package io.xj.lib.music;
  */
 public class BPM {
 
-  private static final long NANOSECONDS_PER_SECOND = 1000000000;
+  static final long NANOSECONDS_PER_SECOND = 1000000000;
 
   /**
    Nanoseconds length of a given number of beats at a given Beats Per Minute.

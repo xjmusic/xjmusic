@@ -15,11 +15,11 @@ import java.util.regex.Pattern;
  Strong-meme like LEMONS! should always favor LEMONS https://www.pivotaltracker.com/story/show/180468772
  */
 class ParseStrong {
-  private static final Pattern rgx = Pattern.compile("^(.+)!$");
+  static final Pattern rgx = Pattern.compile("^(.+)!$");
   final String body;
   final boolean isValid;
 
-  private ParseStrong(String raw) {
+  ParseStrong(String raw) {
     Matcher matcher = rgx.matcher(raw);
 
     if (!matcher.find()) {

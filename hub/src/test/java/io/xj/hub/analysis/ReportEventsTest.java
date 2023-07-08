@@ -15,9 +15,9 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ReportEventsTest {
-  private ReportEvents subject;
-  private Program program2;
-  private Instrument instrument1;
+  ReportEvents subject;
+  Program program2;
+  Instrument instrument1;
 
   @BeforeEach
   public void setUp() throws Exception {

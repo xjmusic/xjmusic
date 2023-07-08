@@ -46,13 +46,13 @@ import static org.mockito.Mockito.verify;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 public class TemplatePlaybackManagerDbTest {
-  private TemplatePlaybackManager testManager;
-  private HubIntegrationTest test;
-  private IntegrationTestingFixtures fake;
-  private TemplatePlayback templatePlayback201;
+  TemplatePlaybackManager testManager;
+  HubIntegrationTest test;
+  IntegrationTestingFixtures fake;
+  TemplatePlayback templatePlayback201;
 
   @MockBean
-  private PreviewNexusAdmin previewNexusAdmin;
+  PreviewNexusAdmin previewNexusAdmin;
 
   @MockBean
   NotificationProvider notificationProvider;

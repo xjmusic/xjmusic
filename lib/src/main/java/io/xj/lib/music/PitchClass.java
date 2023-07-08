@@ -27,7 +27,7 @@ public enum PitchClass {
   /**
    Map of +1 semitone for each note
    */
-  private static final ImmutableMap<PitchClass, Step> stepUp = ImmutableMap.<PitchClass, Step>builder()
+  static final ImmutableMap<PitchClass, Step> stepUp = ImmutableMap.<PitchClass, Step>builder()
     .put(None, Step.to(None, 0))
     .put(C, Step.to(Cs, 0))
     .put(Cs, Step.to(D, 0))
@@ -45,7 +45,7 @@ public enum PitchClass {
   /**
    Map of -1 semitone for each note
    */
-  private static final ImmutableMap<PitchClass, Step> stepDown = ImmutableMap.<PitchClass, Step>builder()
+  static final ImmutableMap<PitchClass, Step> stepDown = ImmutableMap.<PitchClass, Step>builder()
     .put(None, Step.to(None, 0))
     .put(C, Step.to(B, -1))
     .put(Cs, Step.to(C, 0))
@@ -151,7 +151,7 @@ public enum PitchClass {
    @param inc  increment, +1 or -1 (else risk infinite loop)
    @return difference +/- semitones
    */
-  private static int deltaDirectional(PitchClass from, PitchClass to, int inc) {
+  static int deltaDirectional(PitchClass from, PitchClass to, int inc) {
     if (from == None)
       return 0;
 
@@ -186,7 +186,7 @@ public enum PitchClass {
    @param inc + semitones to transpose
    @return Note
    */
-  private Step stepUp(int inc) {
+  Step stepUp(int inc) {
     PitchClass newPitchClass = this;
     int newOctave = 0;
     for (int i = 0; i < inc; i++) {
@@ -203,7 +203,7 @@ public enum PitchClass {
    @param inc - semitones to transpose
    @return Note
    */
-  private Step stepDown(int inc) {
+  Step stepDown(int inc) {
     PitchClass newPitchClass = this;
     int newOctave = 0;
     for (int i = 0; i < inc; i++) {
@@ -248,7 +248,7 @@ public enum PitchClass {
    @param with adjustment symbol
    @return string of pitch class
    */
-  private String stringOf(PitchClass from, Accidental with) {
+  String stringOf(PitchClass from, Accidental with) {
     switch (this) {
       case C:
         return "C";
@@ -280,7 +280,7 @@ public enum PitchClass {
    @param from pitch class
    @return string adjusted with sharp
    */
-  private String stringSharpOf(PitchClass from) {
+  String stringSharpOf(PitchClass from) {
     switch (from) {
       case Cs:
         return "C#";
@@ -303,7 +303,7 @@ public enum PitchClass {
    @param from pitch class
    @return string adjusted with flat
    */
-  private String stringFlatOf(PitchClass from) {
+  String stringFlatOf(PitchClass from) {
     switch (from) {
       case Cs:
         return "Db";

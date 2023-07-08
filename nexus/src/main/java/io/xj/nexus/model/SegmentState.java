@@ -18,7 +18,7 @@ public enum SegmentState {
 
   FAILED("Failed");
 
-  private String value;
+  String value;
 
   SegmentState(String value) {
     this.value = value;

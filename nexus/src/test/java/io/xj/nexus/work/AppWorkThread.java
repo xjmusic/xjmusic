@@ -3,7 +3,7 @@
 package io.xj.nexus.work;
 
 public class AppWorkThread extends Thread {
-  private final CraftWork work;
+  final CraftWork work;
 
   public AppWorkThread(CraftWork work) {
     this.work = work;

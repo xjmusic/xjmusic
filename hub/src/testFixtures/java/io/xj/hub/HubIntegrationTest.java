@@ -37,14 +37,14 @@ import java.util.UUID;
  */
 public class HubIntegrationTest extends HubPersistenceServiceImpl {
   final Logger log = LoggerFactory.getLogger(HubIntegrationTest.class);
-  private final ApiUrlProvider apiUrlProvider;
-  private final HubKvStoreProvider kvStoreProvider;
-  private final GoogleProvider googleProvider;
-  private final HubAccessTokenGenerator accessTokenGenerator;
-  private final JsonapiPayloadFactory jsonapiPayloadFactory;
-  private final JsonapiResponseProvider jsonapiResponseProvider;
-  private final EntityStore entityStore;
-  private final JsonProvider jsonProvider;
+  final ApiUrlProvider apiUrlProvider;
+  final HubKvStoreProvider kvStoreProvider;
+  final GoogleProvider googleProvider;
+  final HubAccessTokenGenerator accessTokenGenerator;
+  final JsonapiPayloadFactory jsonapiPayloadFactory;
+  final JsonapiResponseProvider jsonapiResponseProvider;
+  final EntityStore entityStore;
+  final JsonProvider jsonProvider;
 
   /**
    * This should happen only once for a whole test suite

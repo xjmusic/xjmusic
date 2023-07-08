@@ -34,8 +34,8 @@ import static io.xj.hub.Tables.*;
 
 @Service
 public class HubPersistenceServiceImpl {
-  private static final Logger log = LoggerFactory.getLogger(HubPersistenceServiceImpl.class);
-  private static final String KEY_ID = "id";
+  static final Logger log = LoggerFactory.getLogger(HubPersistenceServiceImpl.class);
+  static final String KEY_ID = "id";
   protected final EntityFactory entityFactory;
   protected final HubSqlStoreProvider sqlStoreProvider;
   protected Map<Class<?>, Table<?>> tablesInSchemaConstructionOrder = ImmutableMap.<Class<?>, Table<?>>builder() // DELIBERATE ORDER
@@ -119,7 +119,7 @@ public class HubPersistenceServiceImpl {
     return records;
   }
 
-  private <R extends TableRecord<?>, N> void getEntities(N e, R record) throws ManagerException {
+  <R extends TableRecord<?>, N> void getEntities(N e, R record) throws ManagerException {
     try {
       UUID id = Entities.getId(e);
       if (Objects.nonNull(id))

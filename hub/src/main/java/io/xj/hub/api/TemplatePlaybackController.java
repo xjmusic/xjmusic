@@ -35,7 +35,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/1")
 public class TemplatePlaybackController extends HubJsonapiEndpoint {
-  private final TemplatePlaybackManager manager;
+  final TemplatePlaybackManager manager;
 
   /**
    * Constructor
@@ -168,7 +168,7 @@ public class TemplatePlaybackController extends HubJsonapiEndpoint {
    *
    * @return Manager
    */
-  private TemplatePlaybackManager manager() {
+  TemplatePlaybackManager manager() {
     return manager;
   }
 }

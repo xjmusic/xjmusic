@@ -14,19 +14,19 @@ import java.util.UUID;
 
 public class SegmentChoice   {
 
-  private @Valid UUID id;
-  private @Valid UUID segmentId;
-  private @Valid UUID programId;
-  private @Valid UUID programSequenceId;
-  private @Valid UUID programSequenceBindingId;
-  private @Valid UUID programVoiceId;
-  private @Valid UUID instrumentId;
-  private @Valid Integer deltaIn;
-  private @Valid Integer deltaOut;
-  private @Valid Boolean mute;
-  private @Valid InstrumentType instrumentType;
-  private @Valid InstrumentMode instrumentMode;
-  private @Valid ProgramType programType;
+  @Valid UUID id;
+  @Valid UUID segmentId;
+  @Valid UUID programId;
+  @Valid UUID programSequenceId;
+  @Valid UUID programSequenceBindingId;
+  @Valid UUID programVoiceId;
+  @Valid UUID instrumentId;
+  @Valid Integer deltaIn;
+  @Valid Integer deltaOut;
+  @Valid Boolean mute;
+  @Valid InstrumentType instrumentType;
+  @Valid InstrumentMode instrumentMode;
+  @Valid ProgramType programType;
 
   /**
    **/
@@ -290,7 +290,7 @@ public class SegmentChoice   {
    * Convert the given object to string with each line indented by 4 spaces
    * (except the first line).
    */
-  private String toIndentedString(Object o) {
+  String toIndentedString(Object o) {
     if (o == null) {
       return "null";
     }

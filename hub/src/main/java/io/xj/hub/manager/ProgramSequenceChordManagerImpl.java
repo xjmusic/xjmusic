@@ -29,7 +29,7 @@ import static io.xj.hub.Tables.*;
 @Service
 public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl implements ProgramSequenceChordManager {
 
-  private final ProgramVoiceManager programVoiceManager;
+  final ProgramVoiceManager programVoiceManager;
 
   public ProgramSequenceChordManagerImpl(
     EntityFactory entityFactory,
@@ -200,7 +200,7 @@ public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl i
    * @param libraryId for which to require access
    * @throws ManagerException if there is no access
    */
-  private void requireLibraryRead(DSLContext db, HubAccess access, UUID libraryId) throws ManagerException {
+  void requireLibraryRead(DSLContext db, HubAccess access, UUID libraryId) throws ManagerException {
     if (access.isTopLevel()) return;
     requireExists("Library", db.selectCount().from(LIBRARY)
       .where(LIBRARY.ID.eq(libraryId))
@@ -218,7 +218,7 @@ public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl i
    * @return chord
    * @throws ManagerException if there is no access
    */
-  private ProgramSequenceChord readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+  ProgramSequenceChord readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     if (access.isTopLevel())
       return modelFrom(ProgramSequenceChord.class,
         db.selectFrom(PROGRAM_SEQUENCE_CHORD)
@@ -244,7 +244,7 @@ public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl i
    * @return cloner
    * @throws ManagerException on failure
    */
-  private ManagerCloner<ProgramSequenceChord> clone(DSLContext db, HubAccess access, UUID cloneId, ProgramSequenceChord entity, List<InstrumentType> voicingTypes) throws ManagerException, ValueException, JsonapiException {
+  ManagerCloner<ProgramSequenceChord> clone(DSLContext db, HubAccess access, UUID cloneId, ProgramSequenceChord entity, List<InstrumentType> voicingTypes) throws ManagerException, ValueException, JsonapiException {
     requireArtist(access);
 
     ProgramSequenceChord from = readOne(db, access, cloneId);

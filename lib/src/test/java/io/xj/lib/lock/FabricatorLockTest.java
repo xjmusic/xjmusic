@@ -19,9 +19,9 @@ import static org.mockito.Mockito.when;
 public class FabricatorLockTest {
   LockProvider subject;
   @Mock
-  private LockGenerator lockGenerator;
+  LockGenerator lockGenerator;
   @Mock
-  private FileStoreProvider fileStoreProvider;
+  FileStoreProvider fileStoreProvider;
 
   @Before
   public void setUp() {

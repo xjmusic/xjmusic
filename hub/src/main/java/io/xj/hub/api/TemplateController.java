@@ -45,9 +45,9 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/1/templates")
 public class TemplateController extends HubJsonapiEndpoint {
-  private static final Logger LOG = LoggerFactory.getLogger(TemplateController.class);
-  private final TemplateManager manager;
-  private final TemplatePlaybackManager templatePlaybackManager;
+  static final Logger LOG = LoggerFactory.getLogger(TemplateController.class);
+  final TemplateManager manager;
+  final TemplatePlaybackManager templatePlaybackManager;
 
   /**
    * Constructor
@@ -263,7 +263,7 @@ public class TemplateController extends HubJsonapiEndpoint {
    *
    * @return Manager
    */
-  private TemplateManager manager() {
+  TemplateManager manager() {
     return manager;
   }
 }

@@ -18,7 +18,7 @@ import static org.junit.Assert.assertNotSame;
 
 @SpringBootTest
 public class HubLocalAccessTokenTest {
-  private HubAccessTokenGenerator hubAccessTokenGenerator;
+  HubAccessTokenGenerator hubAccessTokenGenerator;
 
   @MockBean
   NotificationProvider notificationProvider;

@@ -13,8 +13,8 @@ import static io.xj.lib.util.Values.MICROS_PER_SECOND;
 
 @Service
 public class ChunkFactoryImpl implements ChunkFactory {
-  private final String shipChunkAudioEncoder;
-  private final int targetDurationSeconds;
+  final String shipChunkAudioEncoder;
+  final int targetDurationSeconds;
 
   @Autowired
   public ChunkFactoryImpl(

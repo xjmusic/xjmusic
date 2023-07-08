@@ -11,9 +11,9 @@ import java.io.IOException;
 
 @Service
 public class DubAudioCacheItemFactoryImpl implements DubAudioCacheItemFactory {
-  private final HttpClientProvider httpClientProvider;
-  private final String audioFileBucket;
-  private final String audioBaseUrl;
+  final HttpClientProvider httpClientProvider;
+  final String audioFileBucket;
+  final String audioBaseUrl;
 
   @Autowired
   public DubAudioCacheItemFactoryImpl(HttpClientProvider httpClientProvider,

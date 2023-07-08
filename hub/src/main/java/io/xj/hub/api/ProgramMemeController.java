@@ -29,7 +29,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/1/program-memes")
 public class ProgramMemeController extends HubJsonapiEndpoint {
-  private final ProgramMemeManager manager;
+  final ProgramMemeManager manager;
 
   /**
    * Constructor
@@ -107,7 +107,7 @@ public class ProgramMemeController extends HubJsonapiEndpoint {
    *
    * @return Manager
    */
-  private ProgramMemeManager manager() {
+  ProgramMemeManager manager() {
     return manager;
   }
 

@@ -61,15 +61,15 @@ import static org.junit.Assert.assertEquals;
 @SuppressWarnings("ALL")
 @RunWith(MockitoJUnitRunner.class)
 public class MacroFromOverlappingMemeSequencesTest {
-  private static final int REPEAT_TIMES = 100;
+  static final int REPEAT_TIMES = 100;
   @Mock
   public HubClient hubClient;
   @Mock
   public ApiUrlProvider apiUrlProvider;
   @Mock
   public NotificationProvider notificationProvider;
-  private MacroMainCraftImpl subject;
-  private Program macro2a;
+  MacroMainCraftImpl subject;
+  Program macro2a;
 
   @Before
   public void setUp() throws Exception {

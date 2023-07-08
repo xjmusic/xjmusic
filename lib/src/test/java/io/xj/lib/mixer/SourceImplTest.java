@@ -30,13 +30,13 @@ public class SourceImplTest {
 
   MixerFactory mixerFactory;
 
-  private Source F32LSB_48kHz_Stereo;
-  private Source S16LSB_44100Hz_Mono;
-  private Source empty;
+  Source F32LSB_48kHz_Stereo;
+  Source S16LSB_44100Hz_Mono;
+  Source empty;
 
-  private final UUID audioId_F32LSB_48kHz_6ch = UUID.randomUUID();
-  private final UUID audioId_F32LSB_48kHz_Stereo = UUID.randomUUID();
-  private final UUID audioId_S16LSB_44100Hz_Mono = UUID.randomUUID();
+  final UUID audioId_F32LSB_48kHz_6ch = UUID.randomUUID();
+  final UUID audioId_F32LSB_48kHz_Stereo = UUID.randomUUID();
+  final UUID audioId_S16LSB_44100Hz_Mono = UUID.randomUUID();
 
   @Before
   public void setUp() throws Exception {

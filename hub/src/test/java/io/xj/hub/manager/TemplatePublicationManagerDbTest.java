@@ -38,10 +38,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 public class TemplatePublicationManagerDbTest {
-  private TemplatePublicationManager testManager;
-  private HubIntegrationTest test;
-  private IntegrationTestingFixtures fake;
-  private TemplatePublication templatePublication201;
+  TemplatePublicationManager testManager;
+  HubIntegrationTest test;
+  IntegrationTestingFixtures fake;
+  TemplatePublication templatePublication201;
 
   @MockBean
   NotificationProvider notificationProvider;

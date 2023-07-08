@@ -11,8 +11,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class TelemetryProviderImplTest {
-  private TelemetryProvider subject;
-  private final AppConfiguration config = new AppConfiguration("nexus");
+  TelemetryProvider subject;
+  final AppConfiguration config = new AppConfiguration("nexus");
 
   @Before
   public void setUp() throws IOException {

@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  */
 public enum Chains {
   ;
-  private static final String EXTENSION_SEPARATOR = ".";
+  static final String EXTENSION_SEPARATOR = ".";
 
   /**
    * Get the full key from a key

@@ -28,8 +28,8 @@ import java.util.stream.Collectors;
 public enum Segments {
   ;
   public static final int DELTA_UNLIMITED = -1;
-  private static final String EXTENSION_SEPARATOR = ".";
-  private static final String WAV_EXTENSION = "wav";
+  static final String EXTENSION_SEPARATOR = ".";
+  static final String WAV_EXTENSION = "wav";
 
   /**
    * Find first segment choice of a given type in a collection of segment choices

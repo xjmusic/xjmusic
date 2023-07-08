@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class HubMigrationImpl implements HubMigration {
-  private static final Logger log = LoggerFactory.getLogger(HubMigrationImpl.class);
-  private final HubSqlStoreProvider sqlStoreProvider;
+  static final Logger log = LoggerFactory.getLogger(HubMigrationImpl.class);
+  final HubSqlStoreProvider sqlStoreProvider;
 
   public HubMigrationImpl(HubSqlStoreProvider sqlStoreProvider) {
     this.sqlStoreProvider = sqlStoreProvider;
@@ -42,7 +42,7 @@ public class HubMigrationImpl implements HubMigration {
    *
    * @return Flyway instance
    */
-  private Flyway getFlyway() {
+  Flyway getFlyway() {
     Flyway flyway = Flyway.configure()
       .dataSource(sqlStoreProvider.getDataSource())
       .schemas(sqlStoreProvider.getSchemas())

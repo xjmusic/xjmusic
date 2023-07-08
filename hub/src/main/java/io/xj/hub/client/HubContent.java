@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  * Refactoring this class ala `HubContent` extends common `EntityStore` implementation https://www.pivotaltracker.com/story/show/173803936
  */
 public class HubContent {
-  private final Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>> store = Maps.newConcurrentMap();
+  final Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>> store = Maps.newConcurrentMap();
 
   public HubContent(
     Collection<?> entities
@@ -785,7 +785,7 @@ public class HubContent {
    * @param <E>  class
    * @return entity
    */
-  private <E> Optional<E> get(Class<E> type, UUID id) {
+  <E> Optional<E> get(Class<E> type, UUID id) {
     try {
       if (store.containsKey(type) && store.get(type).containsKey(id))
         //noinspection unchecked
@@ -805,7 +805,7 @@ public class HubContent {
    * @param <E>  class
    * @return entity
    */
-  private <E> Collection<E> getAll(Class<E> type) {
+  <E> Collection<E> getAll(Class<E> type) {
     if (store.containsKey(type))
       //noinspection unchecked
       return (Collection<E>) store.get(type).values();

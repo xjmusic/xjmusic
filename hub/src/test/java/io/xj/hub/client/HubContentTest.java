@@ -58,8 +58,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 public class HubContentTest {
-  private HubContent subject;
-  private ProgramSequencePatternEvent program702_pattern901_boomEvent;
+  HubContent subject;
+  ProgramSequencePatternEvent program702_pattern901_boomEvent;
 
   @MockBean
   NotificationProvider notificationProvider;

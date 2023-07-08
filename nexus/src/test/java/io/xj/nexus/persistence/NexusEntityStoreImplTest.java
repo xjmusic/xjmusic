@@ -49,8 +49,8 @@ import static org.junit.Assert.assertThrows;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NexusEntityStoreImplTest {
-  private NexusEntityStore subject;
-  private EntityFactory entityFactory;
+  NexusEntityStore subject;
+  EntityFactory entityFactory;
 
   @Before
   public void setUp() throws Exception {

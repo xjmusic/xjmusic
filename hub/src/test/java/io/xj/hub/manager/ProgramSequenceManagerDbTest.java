@@ -62,10 +62,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 public class ProgramSequenceManagerDbTest {
-  private ProgramSequenceManager testManager;
+  ProgramSequenceManager testManager;
 
-  private HubIntegrationTest test;
-  private IntegrationTestingFixtures fake;
+  HubIntegrationTest test;
+  IntegrationTestingFixtures fake;
 
   @MockBean
   NotificationProvider notificationProvider;

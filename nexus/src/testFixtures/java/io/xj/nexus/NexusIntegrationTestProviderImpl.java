@@ -10,7 +10,7 @@ import java.util.Collection;
 
 public class NexusIntegrationTestProviderImpl implements NexusIntegrationTestProvider {
   final Logger LOG = LoggerFactory.getLogger(NexusIntegrationTestProviderImpl.class);
-  private final NexusEntityStore store;
+  final NexusEntityStore store;
 
   /**
    Since this class is a singleton, the process here in its constructor

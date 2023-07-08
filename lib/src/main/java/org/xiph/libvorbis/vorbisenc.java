@@ -34,8 +34,8 @@ import org.xiph.libvorbis.vorbis_constants.integer_constants;
 
 public class vorbisenc {
 
-  private final ve_setup_data_template[] setup_list;
-  private vorbis_info vi;
+  final ve_setup_data_template[] setup_list;
+  vorbis_info vi;
 
 
   public vorbisenc() {
@@ -298,7 +298,7 @@ public class vorbisenc {
     return true;
   }
 
-  private boolean get_setup_template(int ch, int srate, float req, int q_or_bitrate) {
+  boolean get_setup_template(int ch, int srate, float req, int q_or_bitrate) {
 
     int i = 0, j;
     highlevel_encode_setup hi = vi.codec_setup.hi;
@@ -355,7 +355,7 @@ public class vorbisenc {
     return false;
   }
 
-  private boolean vorbis_encode_setup_setting(int channels, int rate) {
+  boolean vorbis_encode_setup_setting(int channels, int rate) {
 
     int i, is;
 
@@ -529,7 +529,7 @@ public class vorbisenc {
     return true;
   }
 
-  private void vorbis_encode_blocksize_setup(float s, int[] shortb, int[] longb) {
+  void vorbis_encode_blocksize_setup(float s, int[] shortb, int[] longb) {
 
     codec_setup_info ci = vi.codec_setup;
     int is = Float.valueOf(s).intValue();
@@ -540,7 +540,7 @@ public class vorbisenc {
     ci.blocksizes[1] = blocklong;
   }
 
-  private void vorbis_encode_floor_setup(float s, int block, static_codebook[][] books, vorbis_info_floor1[] in, int[] x) {
+  void vorbis_encode_floor_setup(float s, int block, static_codebook[][] books, vorbis_info_floor1[] in, int[] x) {
 
     int i, k;
     int is = Float.valueOf(s).intValue();
@@ -589,7 +589,7 @@ public class vorbisenc {
     ci.floors++;
   }
 
-  private void vorbis_encode_global_psych_setup(float s, vorbis_info_psy_global[] in, float[] x) {
+  void vorbis_encode_global_psych_setup(float s, vorbis_info_psy_global[] in, float[] x) {
 
     int i;
     int is = Float.valueOf(s).intValue();
@@ -617,7 +617,7 @@ public class vorbisenc {
     g.ampmax_att_per_sec = ci.hi.amplitude_track_dBpersec;
   }
 
-  private void vorbis_encode_global_stereo(highlevel_encode_setup hi, adj_stereo[] p) {
+  void vorbis_encode_global_stereo(highlevel_encode_setup hi, adj_stereo[] p) {
 
     float s = hi.stereo_point_setting;
     int i;
@@ -668,7 +668,7 @@ public class vorbisenc {
     }
   }
 
-  private void vorbis_encode_psyset_setup(float s, int[] nn_start, int[] nn_partition, float[] nn_thresh, int block) {
+  void vorbis_encode_psyset_setup(float s, int[] nn_start, int[] nn_partition, float[] nn_thresh, int block) {
 
     codec_setup_info ci = vi.codec_setup;
     highlevel_encode_setup hi = ci.hi;
@@ -705,7 +705,7 @@ public class vorbisenc {
     }
   }
 
-  private void vorbis_encode_tonemask_setup(float s, int block, att3[] att, int[] max, vp_adjblock[] in) {
+  void vorbis_encode_tonemask_setup(float s, int block, att3[] att, int[] max, vp_adjblock[] in) {
 
     int i;
     int is = Float.valueOf(s).intValue();
@@ -726,7 +726,7 @@ public class vorbisenc {
       p.toneatt[i] = Double.valueOf(in[is].block[i] * (1. - ds) + in[is + 1].block[i] * ds).floatValue();
   }
 
-  private void vorbis_encode_compand_setup(float s, int block, compandblock[] in, float[] x) {
+  void vorbis_encode_compand_setup(float s, int block, compandblock[] in, float[] x) {
 
     int i;
     int is = Float.valueOf(s).intValue();
@@ -747,7 +747,7 @@ public class vorbisenc {
       p.noisecompand[i] = Double.valueOf(in[is].data[i] * (1. - ds) + in[is + 1].data[i] * ds).floatValue();
   }
 
-  private void vorbis_encode_peak_setup(float s, int block, int[] suppress) {
+  void vorbis_encode_peak_setup(float s, int block, int[] suppress) {
 
     int is = Float.valueOf(s).intValue();
     float ds = s - is;
@@ -757,7 +757,7 @@ public class vorbisenc {
     p.tone_abs_limit = Double.valueOf(suppress[is] * (1. - ds) + suppress[is + 1] * ds).floatValue();
   }
 
-  private void vorbis_encode_noisebias_setup(float s, int block, int[] suppress, noise3[] in, noiseguard[] guard, float userbias) {
+  void vorbis_encode_noisebias_setup(float s, int block, int[] suppress, noise3[] in, noiseguard[] guard, float userbias) {
 
     int i, j;
     int is = Float.valueOf(s).intValue();
@@ -785,7 +785,7 @@ public class vorbisenc {
     }
   }
 
-  private void vorbis_encode_ath_setup(int block) {
+  void vorbis_encode_ath_setup(int block) {
 
     codec_setup_info ci = vi.codec_setup;
     vorbis_info_psy p = ci.psy_param[block];
@@ -794,7 +794,7 @@ public class vorbisenc {
     p.ath_maxatt = ci.hi.ath_absolute_dB;
   }
 
-  private int book_dup_or_new(codec_setup_info ci, static_codebook book) {
+  int book_dup_or_new(codec_setup_info ci, static_codebook book) {
 
     int i;
 
@@ -805,7 +805,7 @@ public class vorbisenc {
     return (ci.books++);
   }
 
-  private void vorbis_encode_residue_setup(int number, int block, vorbis_residue_template res) {
+  void vorbis_encode_residue_setup(int number, int block, vorbis_residue_template res) {
 
     codec_setup_info ci = vi.codec_setup;
     int i;
@@ -924,7 +924,7 @@ public class vorbisenc {
   }
 
   // we assume two maps in this encoder
-  private void vorbis_encode_map_n_res_setup(float s, vorbis_mapping_template[] maps) {
+  void vorbis_encode_map_n_res_setup(float s, vorbis_mapping_template[] maps) {
 
     codec_setup_info ci = vi.codec_setup;
     int i, j;
@@ -960,7 +960,7 @@ public class vorbisenc {
     }
   }
 
-  private float setting_to_approx_bitrate() {
+  float setting_to_approx_bitrate() {
 
     codec_setup_info ci = vi.codec_setup;
     highlevel_encode_setup hi = ci.hi;

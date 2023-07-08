@@ -63,15 +63,15 @@ public class CraftBackgroundProgramVoiceNextMainTest {
   public HubClient hubClient;
   @Mock
   public NotificationProvider notificationProvider;
-  private CraftFactory craftFactory;
-  private FabricatorFactory fabricatorFactory;
-  private NexusIntegrationTestingFixtures fake;
-  private Chain chain1;
-  private Segment segment4;
-  private NexusEntityStore store;
-  private InstrumentAudio audioKick;
-  private InstrumentAudio audioSnare;
-  private HubContent sourceMaterial;
+  CraftFactory craftFactory;
+  FabricatorFactory fabricatorFactory;
+  NexusIntegrationTestingFixtures fake;
+  Chain chain1;
+  Segment segment4;
+  NexusEntityStore store;
+  InstrumentAudio audioKick;
+  InstrumentAudio audioSnare;
+  HubContent sourceMaterial;
 
   @Before
   public void setUp() throws Exception {
@@ -137,7 +137,7 @@ public class CraftBackgroundProgramVoiceNextMainTest {
    *
    * @return list of all entities
    */
-  private Collection<Object> customFixtures() {
+  Collection<Object> customFixtures() {
     Collection<Object> entities = Lists.newArrayList();
 
     // Instrument "808"
@@ -196,7 +196,7 @@ public class CraftBackgroundProgramVoiceNextMainTest {
   /**
    * Insert fixture segments 3 and 4, including the background choice for segment 3 only if specified
    */
-  private void insertSegments3and4() throws NexusException {
+  void insertSegments3and4() throws NexusException {
     // segment just crafted
     // Testing entities for reference
     Segment segment3 = store.put(buildSegment(

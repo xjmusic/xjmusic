@@ -24,7 +24,7 @@ import java.util.UUID;
  */
 public class IntegrationTestingFixtures {
   public static final String TEST_TEMPLATE_CONFIG = "outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n";
-  private final HubIntegrationTest test;
+  final HubIntegrationTest test;
 
   // These are fully exposed (no getters/setters) for ease of use in testing
   public Account account1;

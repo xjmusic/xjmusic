@@ -19,7 +19,7 @@ import java.io.IOException;
 public class DubAudioCacheImpl implements DubAudioCache {
   final Logger log = LoggerFactory.getLogger(DubAudioCacheImpl.class);
   final String pathPrefix;
-  private final DubAudioCacheItemFactory dubAudioCacheItemFactory;
+  final DubAudioCacheItemFactory dubAudioCacheItemFactory;
 
   @Autowired
   public DubAudioCacheImpl(

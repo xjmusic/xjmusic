@@ -17,9 +17,6 @@ import io.xj.nexus.ship.broadcast.StreamEncoder;
 import io.xj.nexus.ship.broadcast.StreamPlayer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -32,53 +29,51 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static io.xj.lib.util.Values.MICROS_PER_MILLI;
 import static io.xj.lib.util.Values.MICROS_PER_SECOND;
 
-@Service
 public class ShipWorkImpl implements ShipWork {
-  private static final Logger LOG = LoggerFactory.getLogger(ShipWorkImpl.class);
-  private static final long INTERNAL_CYCLE_SLEEP_MILLIS = 50;
+  static final Logger LOG = LoggerFactory.getLogger(ShipWorkImpl.class);
+  static final long INTERNAL_CYCLE_SLEEP_MILLIS = 50;
 
   @Nullable
-  private AudioFileWriter fileWriter;
+  AudioFileWriter fileWriter;
   @Nullable
-  private OutputFile outputFile = null;
+  OutputFile outputFile = null;
   @Nullable
-  private StreamPlayer playback;
+  StreamPlayer playback;
   @Nullable
-  private StreamEncoder encoder;
-  private MultiStopwatch timer;
-  private WorkState state = WorkState.Initializing;
-  private final AtomicBoolean running = new AtomicBoolean(true);
-  private final BroadcastFactory broadcastFactory;
-  private final DubWork dubWork;
-  private final NotificationProvider notification;
-  private final OutputFileMode outputFileMode;
-  private final OutputMode outputMode;
-  private final String outputPathPrefix;
-  private final int cycleAudioBytes;
-  private final int outputFileNumberDigits;
-  private final int outputSeconds;
-  private final int pcmChunkSizeBytes;
-  private final int planAheadSeconds;
-  private final long cycleMillis;
-  private int outputFileNum = 0;
-  private long atChainMicros = 0;
-  private long nextCycleAtSystemMillis = System.currentTimeMillis();
-  private final long initializedAtSystemMillis = System.currentTimeMillis();
+  StreamEncoder encoder;
+  MultiStopwatch timer;
+  WorkState state = WorkState.Initializing;
+  final AtomicBoolean running = new AtomicBoolean(true);
+  final BroadcastFactory broadcastFactory;
+  final DubWork dubWork;
+  final NotificationProvider notification;
+  final OutputFileMode outputFileMode;
+  final OutputMode outputMode;
+  final String outputPathPrefix;
+  final int cycleAudioBytes;
+  final int outputFileNumberDigits;
+  final int outputSeconds;
+  final int pcmChunkSizeBytes;
+  final int planAheadSeconds;
+  final long cycleMillis;
+  int outputFileNum = 0;
+  long atChainMicros = 0;
+  long nextCycleAtSystemMillis = System.currentTimeMillis();
+  final long initializedAtSystemMillis = System.currentTimeMillis();
 
-  @Autowired
   public ShipWorkImpl(
     DubWork dubWork,
     NotificationProvider notification,
     BroadcastFactory broadcastFactory,
-    @Value("${output.mode}") String outputMode,
-    @Value("${output.file.mode}") String outputFileMode,
-    @Value("${output.seconds}") int outputSeconds,
-    @Value("${ship.cycle.millis}") long cycleMillis,
-    @Value("${ship.cycle.audio.bytes}") int cycleAudioBytes,
-    @Value("${ship.output.synchronous.plan.ahead.seconds}") int planAheadSeconds,
-    @Value("${output.path.prefix}") String outputPathPrefix,
-    @Value("${output.file.number.digits}") int outputFileNumberDigits,
-    @Value("${output.pcm.chunk.size.bytes}") int pcmChunkSizeBytes
+    String outputMode,
+    String outputFileMode,
+    int outputSeconds,
+    long cycleMillis,
+    int cycleAudioBytes,
+    int planAheadSeconds,
+    String outputPathPrefix,
+    int outputFileNumberDigits,
+    int pcmChunkSizeBytes
   ) {
     this.broadcastFactory = broadcastFactory;
     this.cycleAudioBytes = cycleAudioBytes;
@@ -149,7 +144,7 @@ public class ShipWorkImpl implements ShipWork {
   /**
    * Attempt to initialize the output method
    */
-  private void doInit() {
+  void doInit() {
     var audioFormat = dubWork.getAudioFormat();
     if (audioFormat.isEmpty()) {
       LOG.debug("Waiting for audio format to be available.");
@@ -183,7 +178,7 @@ public class ShipWorkImpl implements ShipWork {
   /**
    * Do the output
    */
-  private void doWork() throws InterruptedException, ShipException, IOException {
+  void doWork() throws InterruptedException, ShipException, IOException {
     if (dubWork.getMixerBuffer().isEmpty() || dubWork.getMixerOutputMicrosPerByte().isEmpty()) return;
     if (isAheadOfSync()) return;
     switch (outputMode) {
@@ -197,7 +192,7 @@ public class ShipWorkImpl implements ShipWork {
   /**
    * Called after initialization to start the work cycle
    */
-  private void doInitializedOK() {
+  void doInitializedOK() {
     if (0 < outputSeconds) {
       LOG.info("Will start in {} output mode and run {} seconds", outputMode, outputSeconds);
     } else {
@@ -211,7 +206,7 @@ public class ShipWorkImpl implements ShipWork {
    *
    * @return true if ahead of sync, false if not
    */
-  private boolean isAheadOfSync() {
+  boolean isAheadOfSync() {
     if (outputMode.isSync()) {
       var aheadSeconds = (float) (atChainMicros - MICROS_PER_MILLI * (System.currentTimeMillis() - initializedAtSystemMillis)) / MICROS_PER_SECOND;
       if (aheadSeconds > planAheadSeconds) {
@@ -225,7 +220,7 @@ public class ShipWorkImpl implements ShipWork {
   /**
    * Ship available bytes from the dub mixer buffer to the output method
    */
-  private void doShipOutputStream() throws IOException, ShipException {
+  void doShipOutputStream() throws IOException, ShipException {
     {
       if (Objects.isNull(encoder)) {
         didFailWhile("shipping bytes to local playback", new IllegalStateException("Player is null"));
@@ -244,7 +239,7 @@ public class ShipWorkImpl implements ShipWork {
   /**
    * Ship available bytes from the dub mixer buffer to the output method
    */
-  private void doShipOutputPlayback() throws IOException, ShipException {
+  void doShipOutputPlayback() throws IOException, ShipException {
     {
       if (Objects.isNull(playback)) {
         didFailWhile("shipping bytes to local playback", new IllegalStateException("Player is null"));
@@ -262,7 +257,7 @@ public class ShipWorkImpl implements ShipWork {
   /**
    * Ship available bytes from the dub mixer buffer to the output method
    */
-  private void doShipOutputFile() throws IOException {
+  void doShipOutputFile() throws IOException {
     if (Objects.isNull(fileWriter)) {
       LOG.debug("File writer is null, won't ship output file");
       return;
@@ -336,7 +331,7 @@ public class ShipWorkImpl implements ShipWork {
     }
   }
 
-  private void doShipOutputFileStartNext(Segment firstSegment) {
+  void doShipOutputFileStartNext(Segment firstSegment) {
     doShipOutputFileClose();
     outputFile = new OutputFile(firstSegment);
 
@@ -350,7 +345,7 @@ public class ShipWorkImpl implements ShipWork {
     LOG.info("Starting next output file {}", outputFile.getPath());
   }
 
-  private void doShipOutputFileClose() {
+  void doShipOutputFileClose() {
     if (Objects.requireNonNull(fileWriter).isWriting()) {
       try {
         fileWriter.close();
@@ -364,7 +359,7 @@ public class ShipWorkImpl implements ShipWork {
    * If a finite number of seconds was specified, check if we have shipped that many seconds
    * If we are shipped past the target seconds, exit
    */
-  private boolean shippedEnoughSeconds() {
+  boolean shippedEnoughSeconds() {
     var shippedSeconds = (float) atChainMicros / MICROS_PER_SECOND;
     if (0 == outputSeconds) {
       LOG.info("Shipped {} seconds", String.format("%.1f", shippedSeconds));
@@ -390,7 +385,7 @@ public class ShipWorkImpl implements ShipWork {
    * @param msgWhile phrased like "Doing work"
    * @param e        exception (optional)
    */
-  private void didFailWhile(String msgWhile, Exception e) {
+  void didFailWhile(String msgWhile, Exception e) {
     var msgCause = Strings.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
 
     LOG.error("Failed while {} because {}", msgWhile, msgCause, e);
@@ -413,8 +408,8 @@ public class ShipWorkImpl implements ShipWork {
    */
   class OutputFile {
 
-    private final List<Segment> segments;
-    private long toChainMicros;
+    final List<Segment> segments;
+    long toChainMicros;
 
     OutputFile(
       Segment firstSegment
@@ -449,7 +444,7 @@ public class ShipWorkImpl implements ShipWork {
         ".wav";
     }
 
-    private String getPathDescriptionIfRelevant() {
+    String getPathDescriptionIfRelevant() {
       switch (outputFileMode) {
         default -> {
           return "";

@@ -39,7 +39,7 @@ public class vorbis_dsp_state {
   }
 
 
-  private vorbis_look_floor1 floor1_look(vorbis_info_floor1 info) {
+  vorbis_look_floor1 floor1_look(vorbis_info_floor1 info) {
 
     int[] sortpointer = new int[integer_constants.VIF_POSIT + 2];
     vorbis_look_floor1 look = new vorbis_look_floor1();
@@ -128,7 +128,7 @@ public class vorbis_dsp_state {
   }
 
 
-  private vorbis_look_residue0 res0_look(vorbis_info_residue0 info) {
+  vorbis_look_residue0 res0_look(vorbis_info_residue0 info) {
 
     vorbis_look_residue0 look = new vorbis_look_residue0();
     codec_setup_info ci = vi.codec_setup;
@@ -205,7 +205,7 @@ public class vorbis_dsp_state {
   }
 
 
-  private boolean _vds_shared_init(boolean encp) {
+  boolean _vds_shared_init(boolean encp) {
 
     int i;
     codec_setup_info ci = vi.codec_setup;

@@ -89,86 +89,84 @@ import static io.xj.lib.filestore.FileStoreProvider.EXTENSION_JSON;
 import static io.xj.lib.util.Values.MICROS_PER_SECOND;
 import static io.xj.lib.util.Values.MILLIS_PER_SECOND;
 
-@Service
 public class CraftWorkImpl implements CraftWork {
-  private static final Logger LOG = LoggerFactory.getLogger(CraftWorkImpl.class);
-  private static final long INTERNAL_CYCLE_SLEEP_MILLIS = 50;
-  private final CraftFactory craftFactory;
-  private final EntityFactory entityFactory;
-  private final FabricatorFactory fabricatorFactory;
-  private final LockProvider lockProvider;
-  private final HttpClientProvider httpClientProvider;
-  private final HubClient hubClient;
-  private final HubClientAccess access = HubClientAccess.internal();
-  private final JsonProvider jsonProvider;
-  private final JsonapiPayloadFactory jsonapiPayloadFactory;
-  private final FileStoreProvider fileStore;
-  private HubContent chainSourceMaterial;
-  private Long chainNextIngestMillis = System.currentTimeMillis();
-  private final Measure.MeasureDouble METRIC_FABRICATED_AHEAD_SECONDS;
-  private final Measure.MeasureLong METRIC_SEGMENT_CREATED;
-  private final Measure.MeasureLong METRIC_SEGMENT_GC;
-  private final NexusEntityStore store;
-  private final NotificationProvider notification;
-  private final SegmentManager segmentManager;
-  private final TelemetryProvider telemetryProvider;
+  static final Logger LOG = LoggerFactory.getLogger(CraftWorkImpl.class);
+  static final long INTERNAL_CYCLE_SLEEP_MILLIS = 50;
+  final CraftFactory craftFactory;
+  final EntityFactory entityFactory;
+  final FabricatorFactory fabricatorFactory;
+  final LockProvider lockProvider;
+  final HttpClientProvider httpClientProvider;
+  final HubClient hubClient;
+  final HubClientAccess access = HubClientAccess.internal();
+  final JsonProvider jsonProvider;
+  final JsonapiPayloadFactory jsonapiPayloadFactory;
+  final FileStoreProvider fileStore;
+  HubContent chainSourceMaterial;
+  Long chainNextIngestMillis = System.currentTimeMillis();
+  final Measure.MeasureDouble METRIC_FABRICATED_AHEAD_SECONDS;
+  final Measure.MeasureLong METRIC_SEGMENT_CREATED;
+  final Measure.MeasureLong METRIC_SEGMENT_GC;
+  final NexusEntityStore store;
+  final NotificationProvider notification;
+  final SegmentManager segmentManager;
+  final TelemetryProvider telemetryProvider;
   @Value("${ship.base.url}")
-  private String shipBaseUrl;
+  String shipBaseUrl;
   @Value("${craft.janitor.enabled}")
-  private boolean janitorEnabled;
+  boolean janitorEnabled;
   @Value("${craft.medic.enabled}")
-  private boolean medicEnabled;
+  boolean medicEnabled;
   @Value("${craft.chain.threshold.fabricated.behind.seconds}")
-  private int chainThresholdFabricatedBehindSeconds;
+  int chainThresholdFabricatedBehindSeconds;
   @Value("${craft.cycle.millis}")
-  private int cycleMillis;
+  int cycleMillis;
   @Value("${craft.erase.segments.older.than.seconds}")
-  private int eraseSegmentsOlderThanSeconds;
+  int eraseSegmentsOlderThanSeconds;
   @Value("${craft.ignore.segments.older.than.seconds}")
-  private int ignoreSegmentsOlderThanSeconds;
+  int ignoreSegmentsOlderThanSeconds;
   @Value("${craft.ingest.cycle.seconds}")
-  private int ingestCycleSeconds;
+  int ingestCycleSeconds;
   @Value("${craft.janitor.cycle.seconds}")
-  private int janitorCycleSeconds;
+  int janitorCycleSeconds;
   @Value("${craft.sync.poll.seconds}")
-  private int syncPollSeconds;
+  int syncPollSeconds;
   @Value("${craft.async.poll.seconds}")
-  private int asyncPollSeconds;
+  int asyncPollSeconds;
   @Value("${craft.medic.cycle.seconds}")
-  private int medicCycleSeconds;
+  int medicCycleSeconds;
   @Value("${rehydration.ahead.threshold}")
-  private int rehydrateFabricatedAheadThreshold;
+  int rehydrateFabricatedAheadThreshold;
   @Value("${craft.health.cycle.staleness.threshold.seconds}")
-  private long healthCycleStalenessThresholdSeconds;
+  long healthCycleStalenessThresholdSeconds;
   @Value("${rehydration.enabled}")
-  private boolean isRehydrationEnabled;
+  boolean isRehydrationEnabled;
   @Value("${fabrication.preview.template.playback.id}")
   @Nullable
-  private UUID fabricationPreviewTemplatePlaybackId;
+  UUID fabricationPreviewTemplatePlaybackId;
   @Value("${ship.bucket}")
-  private String shipBucket;
-  private final OutputMode outputMode;
-  private long labPollNextSystemMillis;
-  private long yardPollNextSystemMillis;
-  private WorkState state = WorkState.Initializing;
-  private MultiStopwatch timer;
-  private final AtomicBoolean running = new AtomicBoolean(true);
-  private boolean chainFabricatedAhead = true;
-  private long nextCycleMillis = System.currentTimeMillis();
-  private long nextJanitorMillis = System.currentTimeMillis();
-  private long nextMedicMillis = System.currentTimeMillis();
-  private final PreviewNexusAdmin previewNexusAdmin;
-  private long atChainMicros = 0;
-  private final InputMode inputMode;
-  private final String inputTemplateKey;
-  private final String environment;
-  private final boolean isJsonOutputEnabled;
-  private final String tempFilePathPrefix;
-  private final Integer jsonExpiresInSeconds;
+  String shipBucket;
+  final OutputMode outputMode;
+  long labPollNextSystemMillis;
+  long yardPollNextSystemMillis;
+  WorkState state = WorkState.Initializing;
+  MultiStopwatch timer;
+  final AtomicBoolean running = new AtomicBoolean(true);
+  boolean chainFabricatedAhead = true;
+  long nextCycleMillis = System.currentTimeMillis();
+  long nextJanitorMillis = System.currentTimeMillis();
+  long nextMedicMillis = System.currentTimeMillis();
+  final PreviewNexusAdmin previewNexusAdmin;
+  long atChainMicros = 0;
+  final InputMode inputMode;
+  final String inputTemplateKey;
+  final String environment;
+  final boolean isJsonOutputEnabled;
+  final String tempFilePathPrefix;
+  final Integer jsonExpiresInSeconds;
   @Nullable
-  private UUID chainId;
+  UUID chainId;
 
-  @Autowired
   public CraftWorkImpl(
     CraftFactory craftFactory,
     EntityFactory entityFactory,
@@ -184,13 +182,13 @@ public class CraftWorkImpl implements CraftWork {
     PreviewNexusAdmin previewNexusAdmin,
     SegmentManager segmentManager,
     TelemetryProvider telemetryProvider,
-    @Value("${input.mode}") String inputMode,
-    @Value("${output.mode}") String outputMode,
-    @Value("${input.template.key}") String inputTemplateKey,
-    @Value("${environment}") String environment,
-    @Value("${output.json.enabled}") boolean isJsonOutputEnabled,
-    @Value("${temp.file.path.prefix}") String tempFilePathPrefix,
-    @Value("${json.expires.in.seconds}") int jsonExpiresInSeconds
+    String inputMode,
+    String outputMode,
+    String inputTemplateKey,
+    String environment,
+    boolean isJsonOutputEnabled,
+    String tempFilePathPrefix,
+    int jsonExpiresInSeconds
   ) {
     this.craftFactory = craftFactory;
     this.entityFactory = entityFactory;
@@ -448,7 +446,7 @@ public class CraftWorkImpl implements CraftWork {
   /**
    * This is the internal cycle that's run indefinitely
    */
-  private void runCycle() throws InterruptedException {
+  void runCycle() throws InterruptedException {
     if (System.currentTimeMillis() < nextCycleMillis) {
       Thread.sleep(INTERNAL_CYCLE_SLEEP_MILLIS);
       return;
@@ -494,7 +492,7 @@ public class CraftWorkImpl implements CraftWork {
   /**
    * Run all work when this Nexus is a sidecar to a hub, as in the Lab
    */
-  private void runPreview() {
+  void runPreview() {
     if (System.currentTimeMillis() > labPollNextSystemMillis) {
       state = WorkState.Loading;
       labPollNextSystemMillis = System.currentTimeMillis() + syncPollSeconds * MILLIS_PER_SECOND;
@@ -522,7 +520,7 @@ public class CraftWorkImpl implements CraftWork {
    * <p>
    * Nexus production fabrication from static source (without Hub) https://www.pivotaltracker.com/story/show/177020318
    */
-  private void loadYard() {
+  void loadYard() {
     try {
       chainSourceMaterial = hubClient.load(inputTemplateKey);
       chainSourceMaterial.setTemplateShipKey(inputTemplateKey);
@@ -541,7 +539,7 @@ public class CraftWorkImpl implements CraftWork {
   /**
    * Run all work when this Nexus is in production, as in the Nexus
    */
-  private void runYard() {
+  void runYard() {
     if (System.currentTimeMillis() > yardPollNextSystemMillis) {
       yardPollNextSystemMillis = System.currentTimeMillis() + asyncPollSeconds * MILLIS_PER_SECOND;
     }
@@ -561,7 +559,7 @@ public class CraftWorkImpl implements CraftWork {
   /**
    * Ingest Content from Hub
    */
-  private void ingestMaterialIfNecessary(Chain chain) {
+  void ingestMaterialIfNecessary(Chain chain) {
     if (System.currentTimeMillis() < chainNextIngestMillis) return;
     chainNextIngestMillis = System.currentTimeMillis() + ingestCycleSeconds * MILLIS_PER_SECOND;
     timer.section("Ingest");
@@ -582,7 +580,7 @@ public class CraftWorkImpl implements CraftWork {
    * <p>
    * Medic relies on precomputed  telemetry of fabrication latency https://www.pivotaltracker.com/story/show/177021797
    */
-  private void doMedic() {
+  void doMedic() {
     if (System.currentTimeMillis() < nextMedicMillis) return;
     nextMedicMillis = System.currentTimeMillis() + (medicCycleSeconds * MILLIS_PER_SECOND);
     timer.section("Medic");
@@ -728,7 +726,7 @@ public class CraftWorkImpl implements CraftWork {
     }
   }
 
-  private Optional<Segment> buildNextSegment(Chain target) throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException {
+  Optional<Segment> buildNextSegment(Chain target) throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException {
     // Get the last segment in the chain
     // If the chain had no last segment, it must be empty; return a template for its first segment
     var maybeLastSegmentInChain = segmentManager.readLastSegment(target.getId());
@@ -764,7 +762,7 @@ public class CraftWorkImpl implements CraftWork {
    * @param segment    fabricating
    * @throws NexusException on failure
    */
-  private void finishWork(Fabricator fabricator, Segment segment) throws NexusException {
+  void finishWork(Fabricator fabricator, Segment segment) throws NexusException {
     updateSegmentState(fabricator, segment, SegmentState.CRAFTING, SegmentState.CRAFTED);
     doWriteJsonOutputs(fabricator);
     LOG.debug("[segId={}] Worked for {} seconds", segment.getId(), String.format("%.2f", (float) fabricator.getElapsedMicros() / MICROS_PER_SECOND));
@@ -778,7 +776,7 @@ public class CraftWorkImpl implements CraftWork {
    * @throws NexusException on configuration failure
    * @throws NexusException on craft failure
    */
-  private Segment doCraftWork(Fabricator fabricator, Segment segment) throws NexusException {
+  Segment doCraftWork(Fabricator fabricator, Segment segment) throws NexusException {
     var updated = updateSegmentState(fabricator, segment, SegmentState.PLANNED, SegmentState.CRAFTING);
     craftFactory.macroMain(fabricator).doWork();
     craftFactory.beat(fabricator).doWork();
@@ -798,7 +796,7 @@ public class CraftWorkImpl implements CraftWork {
    * @param e             exception (optional)
    * @param logStackTrace whether to show the whole stack trace in logs
    */
-  private void didFailWhile(@Nullable String templateKey, String msgWhile, Exception e, boolean logStackTrace) {
+  void didFailWhile(@Nullable String templateKey, String msgWhile, Exception e, boolean logStackTrace) {
     var msgCause = Strings.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
 
     if (logStackTrace)
@@ -824,7 +822,7 @@ public class CraftWorkImpl implements CraftWork {
    * @return updated Segment
    * @throws NexusException if record is invalid
    */
-  private Segment updateSegmentState(Fabricator fabricator, Segment segment, SegmentState fromState, SegmentState toState) throws NexusException {
+  Segment updateSegmentState(Fabricator fabricator, Segment segment, SegmentState fromState, SegmentState toState) throws NexusException {
     if (fromState != segment.getState())
       throw new NexusException(String.format("Segment[%s] %s requires Segment must be in %s state.", segment.getId(), toState, fromState));
     var seg = fabricator.getSegment();
@@ -854,7 +852,7 @@ public class CraftWorkImpl implements CraftWork {
    *
    * @return list of IDs of Segments we ought to erase
    */
-  private Collection<UUID> getSegmentIdsToErase() throws NexusException {
+  Collection<UUID> getSegmentIdsToErase() throws NexusException {
     Long eraseBeforeChainMicros = atChainMicros - eraseSegmentsOlderThanSeconds * MICROS_PER_SECOND;
     Collection<UUID> segmentIds = Lists.newArrayList();
     for (UUID chainId : store.getAllChains().stream()
@@ -875,7 +873,7 @@ public class CraftWorkImpl implements CraftWork {
    *
    * @return true if all is well, false if something has failed
    */
-  private boolean maintainPreviewTemplate() {
+  boolean maintainPreviewTemplate() {
     Optional<TemplatePlayback> templatePlayback = readPreviewTemplatePlayback();
     if (templatePlayback.isEmpty()) {
       LOG.debug("No preview template playback found");
@@ -908,7 +906,7 @@ public class CraftWorkImpl implements CraftWork {
   /**
    * Self-destruct the Preview Template
    */
-  private void selfDestructPreviewTemplate() {
+  void selfDestructPreviewTemplate() {
     if (Objects.isNull(fabricationPreviewTemplatePlaybackId)) return;
     try {
       LOG.info("Will self-destruct stale TemplatePlayback[{}]", fabricationPreviewTemplatePlaybackId);
@@ -927,7 +925,7 @@ public class CraftWorkImpl implements CraftWork {
    * @param playback TemplatePlayback for which to get Template
    * @return preview Template
    */
-  private Optional<Template> readPreviewTemplate(TemplatePlayback playback) {
+  Optional<Template> readPreviewTemplate(TemplatePlayback playback) {
     try {
       return hubClient.readPreviewTemplate(playback.getTemplateId());
     } catch (HubClientException e) {
@@ -941,7 +939,7 @@ public class CraftWorkImpl implements CraftWork {
    *
    * @return preview TemplatePlayback
    */
-  private Optional<TemplatePlayback> readPreviewTemplatePlayback() {
+  Optional<TemplatePlayback> readPreviewTemplatePlayback() {
     if (Objects.isNull(fabricationPreviewTemplatePlaybackId)) return Optional.empty();
     try {
       return hubClient.readPreviewTemplatePlayback(fabricationPreviewTemplatePlaybackId);
@@ -957,7 +955,7 @@ public class CraftWorkImpl implements CraftWork {
    * <p>
    * Nexus with bootstrap chain rehydrates store on startup from shipped JSON files https://www.pivotaltracker.com/story/show/178718006
    */
-  private Optional<Chain> createChainForTemplate(Template template) {
+  Optional<Chain> createChainForTemplate(Template template) {
     var rehydrated = rehydrateTemplate(template);
     if (rehydrated.isPresent()) return rehydrated;
 
@@ -981,7 +979,7 @@ public class CraftWorkImpl implements CraftWork {
    * @param template from which to rehydrate
    * @return chain if the rehydration was successful
    */
-  private Optional<Chain> rehydrateTemplate(Template template) {
+  Optional<Chain> rehydrateTemplate(Template template) {
     if (!isRehydrationEnabled) return Optional.empty();
     if (outputMode.isLocal()) return Optional.empty();
     var success = new AtomicBoolean(true);
@@ -1104,7 +1102,7 @@ public class CraftWorkImpl implements CraftWork {
    *
    * @throws NexusException on error
    */
-  private void doWriteJsonOutputs(Fabricator fabricator) throws NexusException {
+  void doWriteJsonOutputs(Fabricator fabricator) throws NexusException {
     if (!isJsonOutputEnabled) return;
     writeJsonFile(
       fabricator.getSegmentJson(),
@@ -1123,7 +1121,7 @@ public class CraftWorkImpl implements CraftWork {
    * @param json     content
    * @param filename to write
    */
-  private void writeJsonFile(String json, String filename) {
+  void writeJsonFile(String json, String filename) {
     var bytes = json.getBytes();
     if (outputMode == OutputMode.HLS) {
       try {
@@ -1143,7 +1141,7 @@ public class CraftWorkImpl implements CraftWork {
     }
   }
 
-  private String computeTempFilePath(String filename) {
+  String computeTempFilePath(String filename) {
     return String.format("%s%s", tempFilePathPrefix, filename);
   }
 

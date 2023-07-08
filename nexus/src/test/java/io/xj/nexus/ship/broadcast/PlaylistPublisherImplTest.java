@@ -27,12 +27,12 @@ import static org.junit.Assert.assertTrue;
 @RunWith(MockitoJUnitRunner.class)
 public class PlaylistPublisherImplTest {
   // Under Test
-  private PlaylistPublisher playlistPublisher;
+  PlaylistPublisher playlistPublisher;
   @Mock
-  private FileStoreProvider fileStoreProvider;
+  FileStoreProvider fileStoreProvider;
   @Mock
   TelemetryProvider telemetryProvider;
-  private ChunkFactory chunkFactory;
+  ChunkFactory chunkFactory;
 
   @Before
   public void setUp() {

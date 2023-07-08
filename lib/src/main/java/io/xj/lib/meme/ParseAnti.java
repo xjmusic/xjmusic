@@ -16,11 +16,11 @@ import java.util.regex.Pattern;
  Artist can add !MEME values into Programs https://www.pivotaltracker.com/story/show/176474073
  */
 class ParseAnti {
-  private static final Pattern rgx = Pattern.compile("^!(.+)$");
+  static final Pattern rgx = Pattern.compile("^!(.+)$");
   final String body;
   final boolean isValid;
 
-  private ParseAnti(String raw) {
+  ParseAnti(String raw) {
     Matcher matcher = rgx.matcher(raw);
 
     if (!matcher.find()) {

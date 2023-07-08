@@ -58,13 +58,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 public class TemplateManagerDbTest {
-  private TemplateManager testManager;
-  private HubIntegrationTest test;
-  private IntegrationTestingFixtures fake;
-  private Template template2a;
-  private Template template1a;
-  private Template template1b;
-  private TemplatePlaybackManager templatePlaybackManager;
+  TemplateManager testManager;
+  HubIntegrationTest test;
+  IntegrationTestingFixtures fake;
+  Template template2a;
+  Template template1a;
+  Template template1b;
+  TemplatePlaybackManager templatePlaybackManager;
 
   @MockBean
   PreviewNexusAdmin previewNexusAdmin;

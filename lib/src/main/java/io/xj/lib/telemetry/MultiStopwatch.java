@@ -16,20 +16,20 @@ import java.util.stream.Collectors;
  */
 public class MultiStopwatch {
   public static final String STANDBY = "Standby";
-  private final Map<String, Double> sectionLapSeconds = Maps.newHashMap();
-  private final Map<String, Double> sectionTotalSeconds = Maps.newHashMap();
-  private final long startedMillis;
-  private String section;
-  private double lapTotalSeconds;
-  private long lapStartedMillis;
-  private long sectionStartedMillis;
+  final Map<String, Double> sectionLapSeconds = Maps.newHashMap();
+  final Map<String, Double> sectionTotalSeconds = Maps.newHashMap();
+  final long startedMillis;
+  String section;
+  double lapTotalSeconds;
+  long lapStartedMillis;
+  long sectionStartedMillis;
   @Nullable
-  private Double totalSeconds = null;
+  Double totalSeconds = null;
 
   /**
    Don't construct directly-- use MultiStopwatch.start()
    */
-  private MultiStopwatch() {
+  MultiStopwatch() {
     startedMillis = System.currentTimeMillis();
     section(STANDBY);
     lap();
@@ -132,7 +132,7 @@ public class MultiStopwatch {
    @param total number of seconds
    @return formatted seconds
    */
-  private String formatHoursMinutesFromSeconds(double total) {
+  String formatHoursMinutesFromSeconds(double total) {
     int days = (int) Math.floor(total / Values.SECONDS_PER_DAY);
     int hours = (int) Math.floor((total - days * Values.SECONDS_PER_DAY) / Values.SECONDS_PER_HOUR);
     int minutes = (int) Math.floor((total - days * Values.SECONDS_PER_DAY - hours * Values.SECONDS_PER_HOUR) / Values.SECONDS_PER_MINUTE);

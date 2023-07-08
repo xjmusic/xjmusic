@@ -5,7 +5,7 @@ package org.xiph.libshout;
 import java.nio.charset.StandardCharsets;
 
 public class Base64EncoderDecoder extends java.util.prefs.AbstractPreferences {
-  private final java.util.Hashtable encodedStore = new java.util.Hashtable();
+  final java.util.Hashtable encodedStore = new java.util.Hashtable();
 
   public Base64EncoderDecoder(java.util.prefs.AbstractPreferences prefs, java.lang.String string) {
     super(prefs, string);

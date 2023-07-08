@@ -20,8 +20,8 @@ import static org.junit.Assert.assertFalse;
  * Created by Charney Kaye on 2020/03/09
  */
 public class JsonapiPayloadSerializerTest {
-  private JsonapiPayloadFactory jsonapiPayloadFactory;
-  private EntityFactory entityFactory;
+  JsonapiPayloadFactory jsonapiPayloadFactory;
+  EntityFactory entityFactory;
 
   @Before
   public void setUp() {

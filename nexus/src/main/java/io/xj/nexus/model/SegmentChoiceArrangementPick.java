@@ -11,17 +11,17 @@ import java.util.UUID;
 
 public class SegmentChoiceArrangementPick {
 
-  private @Valid UUID id;
-  private @Valid UUID segmentId;
-  private @Valid UUID segmentChoiceArrangementId;
-  private @Valid UUID segmentChordVoicingId;
-  private @Valid UUID instrumentAudioId;
-  private @Valid UUID programSequencePatternEventId;
-  private @Valid Long startAtSegmentMicros;
-  private @Valid Long lengthMicros;
-  private @Valid Double amplitude;
-  private @Valid String tones;
-  private @Valid String event;
+  @Valid UUID id;
+  @Valid UUID segmentId;
+  @Valid UUID segmentChoiceArrangementId;
+  @Valid UUID segmentChordVoicingId;
+  @Valid UUID instrumentAudioId;
+  @Valid UUID programSequencePatternEventId;
+  @Valid Long startAtSegmentMicros;
+  @Valid Long lengthMicros;
+  @Valid Double amplitude;
+  @Valid String tones;
+  @Valid String event;
 
   /**
    *
@@ -271,7 +271,7 @@ public class SegmentChoiceArrangementPick {
    * Convert the given object to string with each line indented by 4 spaces
    * (except the first line).
    */
-  private String toIndentedString(Object o) {
+  String toIndentedString(Object o) {
     if (o == null) {
       return "null";
     }

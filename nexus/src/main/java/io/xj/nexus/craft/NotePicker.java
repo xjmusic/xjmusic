@@ -20,11 +20,11 @@ import java.util.UUID;
  In order to pick exactly one optimal voicing note for each of the source event notes.
  */
 public class NotePicker {
-  private final NoteRange targetRange;
-  private final Set<Note> voicingNotes;
-  private final boolean seekInversions;
-  private final SecureRandom random = new SecureRandom(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
-  private final NoteRange voicingRange;
+  final NoteRange targetRange;
+  final Set<Note> voicingNotes;
+  final boolean seekInversions;
+  final SecureRandom random = new SecureRandom(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
+  final NoteRange voicingRange;
 
   /**
    Build a NotePicker from the given optimal target range
@@ -79,7 +79,7 @@ public class NotePicker {
 
    @param picked to pick
    */
-  private Note removePicked(Note picked) {
+  Note removePicked(Note picked) {
     voicingNotes.remove(picked);
     return picked;
   }
@@ -91,7 +91,7 @@ public class NotePicker {
    @param range   towards which seeking will optimize
    @param options from which to select better notes
    */
-  private Note seekInversion(Note source, NoteRange range, Collection<Note> options) {
+  Note seekInversion(Note source, NoteRange range, Collection<Note> options) {
     if (!seekInversions) return source;
 
     if (range.getHigh().isPresent() && range.getHigh()
@@ -131,7 +131,7 @@ public class NotePicker {
    @param voicingNotes to pick from
    @return a random note from the voicing
    */
-  private Optional<Note> pickRandom(Collection<Note> voicingNotes) {
+  Optional<Note> pickRandom(Collection<Note> voicingNotes) {
     return MarbleBag.quickPick(voicingNotes
       .stream()
       .sorted(Comparator.comparing((s) -> random.nextFloat()))

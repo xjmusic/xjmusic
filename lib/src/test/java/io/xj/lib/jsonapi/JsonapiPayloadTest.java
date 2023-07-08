@@ -22,8 +22,8 @@ import static org.junit.Assert.*;
  * Created by Charney Kaye on 2020/03/09
  */
 public class JsonapiPayloadTest {
-  private JsonapiPayload subject;
-  private JsonapiPayloadFactory jsonapiPayloadFactory;
+  JsonapiPayload subject;
+  JsonapiPayloadFactory jsonapiPayloadFactory;
 
   @Before
   public void setUp() {

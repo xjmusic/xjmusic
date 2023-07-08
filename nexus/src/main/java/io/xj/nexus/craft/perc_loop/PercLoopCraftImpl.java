@@ -82,7 +82,7 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
    * @param after # of choices
    * @return required event name
    */
-  private List<String> computePreferredEvents(int after) {
+  List<String> computePreferredEvents(int after) {
     return switch (after) {
       case 0 -> fabricator.getTemplateConfig().getEventNamesLarge().stream()
         .map(Text::toEvent)
@@ -104,7 +104,7 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
    * @param audio for which to craft segment
    */
   @SuppressWarnings("DuplicatedCode")
-  private void craftPercLoop(InstrumentAudio audio) throws NexusException {
+  void craftPercLoop(InstrumentAudio audio) throws NexusException {
     var choice = new SegmentChoice();
     var instrument = fabricator.sourceMaterial().getInstrument(audio.getInstrumentId())
       .orElseThrow(() -> new NexusException("Can't get Instrument Audio!"));

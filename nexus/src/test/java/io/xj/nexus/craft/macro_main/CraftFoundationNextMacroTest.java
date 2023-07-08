@@ -51,7 +51,7 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CraftFoundationNextMacroTest {
-  private static final int TEST_REPEAT_ITERATIONS = 14;
+  static final int TEST_REPEAT_ITERATIONS = 14;
   @Mock
   public HubClient hubClient;
   @Mock

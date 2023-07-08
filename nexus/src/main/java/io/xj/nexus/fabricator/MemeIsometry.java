@@ -16,15 +16,15 @@ import java.util.List;
  Determine the isometry between a source and target group of Memes
  */
 public class MemeIsometry extends Isometry {
-  private static final String KEY_NAME = "name";
-  private final MemeStack stack;
+  static final String KEY_NAME = "name";
+  final MemeStack stack;
 
   /**
    Construct a meme isometry from source memes
 
    @param sourceMemes from which to construct isometry
    */
-  private MemeIsometry(MemeTaxonomy taxonomy, Collection<String> sourceMemes) {
+  MemeIsometry(MemeTaxonomy taxonomy, Collection<String> sourceMemes) {
     for (String meme : sourceMemes) add(Text.toMeme(meme));
     stack = MemeStack.from(taxonomy, getSources());
   }

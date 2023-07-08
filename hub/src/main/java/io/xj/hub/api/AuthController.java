@@ -38,12 +38,12 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/auth")
 public class AuthController extends HubJsonapiEndpoint {
-  private static final Logger LOG = LoggerFactory.getLogger(AuthController.class);
-  private final ApiUrlProvider apiUrlProvider;
-  private final GoogleProvider authGoogleProvider;
-  private final UserManager userManager;
-  private final String appPathUnauthorized;
-  private final String appPathWelcome;
+  static final Logger LOG = LoggerFactory.getLogger(AuthController.class);
+  final ApiUrlProvider apiUrlProvider;
+  final GoogleProvider authGoogleProvider;
+  final UserManager userManager;
+  final String appPathUnauthorized;
+  final String appPathWelcome;
 
   /**
    * Constructor
@@ -159,7 +159,7 @@ public class AuthController extends HubJsonapiEndpoint {
     }
   }
 
-  private void logAndSendInternalError(HttpServletResponse res, String message, Exception e) throws IOException {
+  void logAndSendInternalError(HttpServletResponse res, String message, Exception e) throws IOException {
     res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, String.format("%s\n%s", message, e.getMessage()));
     LOG.error(message, e);
   }

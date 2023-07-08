@@ -25,14 +25,14 @@ import java.util.stream.Stream;
  * Constellations report https://www.pivotaltracker.com/story/show/182861489
  */
 public class ReportConstellations extends Report {
-  private final Histogram macroHistogram;
-  private final Histogram mainHistogram;
-  private final Histogram beatProgramHistogram;
-  private final Histogram detailProgramHistogram;
-  private final Map<InstrumentType, Histogram> instrumentHistogram;
-  private final Map<ProgramType, Set<Program>> programsByType;
-  private final Map<InstrumentType, Set<Instrument>> instrumentsByType;
-  private final MemeTaxonomy taxonomy;
+  final Histogram macroHistogram;
+  final Histogram mainHistogram;
+  final Histogram beatProgramHistogram;
+  final Histogram detailProgramHistogram;
+  final Map<InstrumentType, Histogram> instrumentHistogram;
+  final Map<ProgramType, Set<Program>> programsByType;
+  final Map<InstrumentType, Set<Instrument>> instrumentsByType;
+  final MemeTaxonomy taxonomy;
 
   public ReportConstellations(HubContent content) throws HubClientException, ValueException {
     super(content);
@@ -110,7 +110,7 @@ public class ReportConstellations extends Report {
     ).toList();
   }
 
-  private Section sectionTaxonomy() {
+  Section sectionTaxonomy() {
     return new Section("taxonomy", "Template Taxonomy",
       taxonomy.getCategories().parallelStream()
         .sorted(Comparator.comparing(MemeTaxonomy.Category::getName))
@@ -124,7 +124,7 @@ public class ReportConstellations extends Report {
       List.of());
   }
 
-  private Section sectionMacroSummary() {
+  Section sectionMacroSummary() {
     return new Section("macro_meme_summary", "Macro Summary",
       macroHistogram.histogram.entrySet().parallelStream()
         .sorted((c1, c2) -> c2.getValue().total.compareTo(c1.getValue().total))
@@ -141,7 +141,7 @@ public class ReportConstellations extends Report {
       List.of());
   }
 
-  private Section sectionMainSummary() {
+  Section sectionMainSummary() {
     return new Section("main_meme_summary", "Main Summary",
       mainHistogram.histogram.entrySet().parallelStream()
         .sorted(Map.Entry.comparingByKey())
@@ -160,7 +160,7 @@ public class ReportConstellations extends Report {
       List.of());
   }
 
-  private Section sectionBeatProgramCoverage() {
+  Section sectionBeatProgramCoverage() {
     if (!programsByType.containsKey(ProgramType.Beat)) return Section.empty();
     var programs = programsByType.get(ProgramType.Beat).parallelStream()
       .sorted(Comparator.comparing(Program::getName))
@@ -177,7 +177,7 @@ public class ReportConstellations extends Report {
       List.of());
   }
 
-  private Section sectionInstrumentCoverage(InstrumentType instrumentType) {
+  Section sectionInstrumentCoverage(InstrumentType instrumentType) {
     if (!instrumentsByType.containsKey(instrumentType)) return Section.empty();
     var instruments = instrumentsByType.get(instrumentType).parallelStream()
       .sorted(Comparator.comparing(Instrument::getName))
@@ -196,7 +196,7 @@ public class ReportConstellations extends Report {
       List.of());
   }
 
-  private Section sectionDetailProgramCoverage(InstrumentType instrumentType) {
+  Section sectionDetailProgramCoverage(InstrumentType instrumentType) {
     if (!programsByType.containsKey(ProgramType.Detail)) return Section.empty();
     var programs = programsByType.get(ProgramType.Detail).parallelStream()
       .filter(p -> content.getVoices(p).parallelStream().anyMatch(v -> Objects.equals(instrumentType, v.getType())))

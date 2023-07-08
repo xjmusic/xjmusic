@@ -41,14 +41,14 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/1")
 public class TemplatePublicationController extends HubJsonapiEndpoint {
-  private final Logger LOG = LoggerFactory.getLogger(TemplatePublicationController.class);
-  private final FileStoreProvider fileStoreProvider;
-  private final TemplateManager templateManager;
-  private final TemplatePublicationManager manager;
-  private final HubIngestFactory ingestFactory;
-  private final int templatePublicationCacheExpireSeconds;
-  private final String audioBucket;
-  private final JsonProvider jsonProvider;
+  final Logger LOG = LoggerFactory.getLogger(TemplatePublicationController.class);
+  final FileStoreProvider fileStoreProvider;
+  final TemplateManager templateManager;
+  final TemplatePublicationManager manager;
+  final HubIngestFactory ingestFactory;
+  final int templatePublicationCacheExpireSeconds;
+  final String audioBucket;
+  final JsonProvider jsonProvider;
 
   /**
    * Constructor
@@ -148,7 +148,7 @@ public class TemplatePublicationController extends HubJsonapiEndpoint {
    *
    * @return Manager
    */
-  private TemplatePublicationManager manager() {
+  TemplatePublicationManager manager() {
     return manager;
   }
 }

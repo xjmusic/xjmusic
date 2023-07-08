@@ -17,7 +17,7 @@ import java.util.UUID;
 import static org.junit.Assert.*;
 
 public class EntityFactoryImplTest {
-  private EntityFactory subject;
+  EntityFactory subject;
 
   @Before
   public void setUp() {

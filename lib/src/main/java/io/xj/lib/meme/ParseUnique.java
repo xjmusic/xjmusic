@@ -16,11 +16,11 @@ import java.util.regex.Pattern;
  Artist can add `$MEME` so only one is chosen https://www.pivotaltracker.com/story/show/179078760
  */
 class ParseUnique {
-  private static final Pattern rgx = Pattern.compile("^\\$(.+)$");
+  static final Pattern rgx = Pattern.compile("^\\$(.+)$");
   final String body;
   final boolean isValid;
 
-  private ParseUnique(String raw) {
+  ParseUnique(String raw) {
     Matcher matcher = rgx.matcher(raw);
 
     if (!matcher.find()) {

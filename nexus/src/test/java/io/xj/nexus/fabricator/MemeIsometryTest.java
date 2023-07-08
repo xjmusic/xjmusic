@@ -13,7 +13,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 public class MemeIsometryTest {
-  private MemeIsometry subject;
+  MemeIsometry subject;
 
   @Test
   public void of_List() {

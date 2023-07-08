@@ -11,8 +11,8 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ChunkTest {
-  private static final String SHIP_KEY = "test63";
-  private Chunk subject;
+  static final String SHIP_KEY = "test63";
+  Chunk subject;
 
   @Before
   public void setUp() {

@@ -9,7 +9,7 @@ import java.util.Map;
 
 @Service
 public class EnvelopeProviderImpl implements EnvelopeProvider {
-  private final Map<Integer, Envelope> envelopes;
+  final Map<Integer, Envelope> envelopes;
 
   public EnvelopeProviderImpl() {
     this.envelopes =  Maps.newHashMap();

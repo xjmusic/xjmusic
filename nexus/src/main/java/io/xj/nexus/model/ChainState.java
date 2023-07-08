@@ -18,7 +18,7 @@ public enum ChainState {
 
   FAILED("Failed");
 
-  private final String value;
+  final String value;
 
   ChainState(String value) {
     this.value = value;

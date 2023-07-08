@@ -8,10 +8,10 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class Bar {
-  private static final int[] FACTORS_TO_TEST = new int[]{3, 4, 5, 7};
-  private int beats;
+  static final int[] FACTORS_TO_TEST = new int[]{3, 4, 5, 7};
+  int beats;
 
-  private Bar(Integer beats) {
+  Bar(Integer beats) {
     if (Objects.isNull(beats)) throw new MusicalException("Bar must have beats!");
     if (0 >= beats) throw new MusicalException("Bar must beats greater than zero!");
     this.beats = beats;

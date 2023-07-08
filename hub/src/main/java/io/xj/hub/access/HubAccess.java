@@ -21,21 +21,21 @@ import java.util.stream.Collectors;
 
 public class HubAccess {
   public static final String CONTEXT_KEY = "userAccess";
-  private static final UserRoleType[] topLevelRoles = {UserRoleType.Admin, UserRoleType.Internal};
+  static final UserRoleType[] topLevelRoles = {UserRoleType.Admin, UserRoleType.Internal};
 
   @JsonProperty("roleTypes")
-  private final Collection<UserRoleType> roleTypes = Lists.newArrayList();
+  final Collection<UserRoleType> roleTypes = Lists.newArrayList();
 
   @JsonProperty("accountIds")
-  private final Collection<UUID> accountIds = Lists.newArrayList();
+  final Collection<UUID> accountIds = Lists.newArrayList();
 
   @Nullable
   @JsonProperty("userId")
-  private UUID userId;
+  UUID userId;
 
   @Nullable
   @JsonProperty("userAuthId")
-  private UUID userAuthId;
+  UUID userAuthId;
 
   /**
    * Create an access control object of request context

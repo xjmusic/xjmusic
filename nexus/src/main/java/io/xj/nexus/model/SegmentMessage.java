@@ -11,10 +11,10 @@ import java.util.UUID;
 
 public class SegmentMessage   {
 
-  private @Valid UUID id;
-  private @Valid UUID segmentId;
-  private @Valid SegmentMessageType type;
-  private @Valid String body;
+  @Valid UUID id;
+  @Valid UUID segmentId;
+  @Valid SegmentMessageType type;
+  @Valid String body;
 
   /**
    **/
@@ -118,7 +118,7 @@ public class SegmentMessage   {
    * Convert the given object to string with each line indented by 4 spaces
    * (except the first line).
    */
-  private String toIndentedString(Object o) {
+  String toIndentedString(Object o) {
     if (o == null) {
       return "null";
     }

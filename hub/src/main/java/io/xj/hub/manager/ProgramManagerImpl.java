@@ -315,7 +315,7 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl implements Pro
    * @param access     control
    * @param programIds to require access to
    */
-  private void requireRead(DSLContext db, HubAccess access, Collection<UUID> programIds) throws ManagerException {
+  void requireRead(DSLContext db, HubAccess access, Collection<UUID> programIds) throws ManagerException {
     if (!access.isTopLevel())
       for (UUID programId : programIds)
         requireExists("Program", db.selectCount().from(PROGRAM)
@@ -335,7 +335,7 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl implements Pro
    * @return record
    * @throws ManagerException on failure
    */
-  private Program readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+  Program readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     if (access.isTopLevel())
       return modelFrom(Program.class,
         db.selectFrom(PROGRAM)
@@ -361,7 +361,7 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl implements Pro
    * @param entity to validate
    * @throws ManagerException if parent does not exist
    */
-  private void requireParentExists(DSLContext db, HubAccess access, Program entity) throws ManagerException {
+  void requireParentExists(DSLContext db, HubAccess access, Program entity) throws ManagerException {
     if (access.isTopLevel())
       requireExists("Library", db.selectCount().from(LIBRARY)
         .where(LIBRARY.ID.eq(entity.getLibraryId()))

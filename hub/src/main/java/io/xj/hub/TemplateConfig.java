@@ -97,65 +97,65 @@ public class TemplateConfig {
     vmResourceLimitCpu = 2.0
     vmResourceLimitMemoryGb = 6.0
     """;
-  private final AudioFormat.Encoding outputEncoding;
-  private final List<InstrumentType> detailLayerOrder;
-  private final List<InstrumentType> instrumentTypesForAudioLengthFinalization;
-  private final List<InstrumentType> instrumentTypesForInversionSeeking;
-  private final List<String> eventNamesLarge;
-  private final List<String> eventNamesMedium;
-  private final List<String> eventNamesSmall;
-  private final MemeTaxonomy memeTaxonomy;
-  private final String deltaArcBeatLayersToPrioritize;
-  private final boolean deltaArcEnabled;
-  private final boolean stickyBunEnabled;
-  private final double choiceMuteProbabilityInstrumentTypeBass;
-  private final double choiceMuteProbabilityInstrumentTypeDrum;
-  private final double choiceMuteProbabilityInstrumentTypeHook;
-  private final double choiceMuteProbabilityInstrumentTypeNoise;
-  private final double choiceMuteProbabilityInstrumentTypePad;
-  private final double choiceMuteProbabilityInstrumentTypePercussion;
-  private final double choiceMuteProbabilityInstrumentTypeStab;
-  private final double choiceMuteProbabilityInstrumentTypeSticky;
-  private final double choiceMuteProbabilityInstrumentTypeStripe;
-  private final double choiceMuteProbabilityInstrumentTypeSweep;
-  private final double densityCeiling;
-  private final double densityFloor;
-  private final double dubMasterVolumeInstrumentTypeBass;
-  private final double dubMasterVolumeInstrumentTypeDrum;
-  private final double dubMasterVolumeInstrumentTypeHook;
-  private final double dubMasterVolumeInstrumentTypeNoise;
-  private final double dubMasterVolumeInstrumentTypePad;
-  private final double dubMasterVolumeInstrumentTypePercussion;
-  private final double dubMasterVolumeInstrumentTypeStab;
-  private final double dubMasterVolumeInstrumentTypeSticky;
-  private final double dubMasterVolumeInstrumentTypeStripe;
-  private final double dubMasterVolumeInstrumentTypeSweep;
-  private final double mixerCompressAheadSeconds;
-  private final double mixerCompressDecaySeconds;
-  private final double mixerCompressRatioMax;
-  private final double mixerCompressRatioMin;
-  private final double mixerCompressToAmplitude;
-  private final double mixerNormalizationBoostThreshold;
-  private final double mixerNormalizationCeiling;
-  private final double vmResourceLimitCpu;
-  private final double vmResourceLimitMemoryGb;
-  private final int backgroundLayerMax;
-  private final int backgroundLayerMin;
-  private final int bufferAheadSeconds;
-  private final int bufferBeforeSeconds;
-  private final int deltaArcBeatLayersIncoming;
-  private final int deltaArcDetailLayersIncoming;
-  private final int mainProgramLengthMaxDelta;
-  private final int mixerDspBufferSize;
-  private final int mixerHighpassThresholdHz;
-  private final int mixerLowpassThresholdHz;
-  private final int outputChannels;
-  private final int outputFrameRate;
-  private final int outputSampleBits;
-  private final int percLoopLayerMax;
-  private final int percLoopLayerMin;
-  private final int transitionLayerMax;
-  private final int transitionLayerMin;
+  final AudioFormat.Encoding outputEncoding;
+  final List<InstrumentType> detailLayerOrder;
+  final List<InstrumentType> instrumentTypesForAudioLengthFinalization;
+  final List<InstrumentType> instrumentTypesForInversionSeeking;
+  final List<String> eventNamesLarge;
+  final List<String> eventNamesMedium;
+  final List<String> eventNamesSmall;
+  final MemeTaxonomy memeTaxonomy;
+  final String deltaArcBeatLayersToPrioritize;
+  final boolean deltaArcEnabled;
+  final boolean stickyBunEnabled;
+  final double choiceMuteProbabilityInstrumentTypeBass;
+  final double choiceMuteProbabilityInstrumentTypeDrum;
+  final double choiceMuteProbabilityInstrumentTypeHook;
+  final double choiceMuteProbabilityInstrumentTypeNoise;
+  final double choiceMuteProbabilityInstrumentTypePad;
+  final double choiceMuteProbabilityInstrumentTypePercussion;
+  final double choiceMuteProbabilityInstrumentTypeStab;
+  final double choiceMuteProbabilityInstrumentTypeSticky;
+  final double choiceMuteProbabilityInstrumentTypeStripe;
+  final double choiceMuteProbabilityInstrumentTypeSweep;
+  final double densityCeiling;
+  final double densityFloor;
+  final double dubMasterVolumeInstrumentTypeBass;
+  final double dubMasterVolumeInstrumentTypeDrum;
+  final double dubMasterVolumeInstrumentTypeHook;
+  final double dubMasterVolumeInstrumentTypeNoise;
+  final double dubMasterVolumeInstrumentTypePad;
+  final double dubMasterVolumeInstrumentTypePercussion;
+  final double dubMasterVolumeInstrumentTypeStab;
+  final double dubMasterVolumeInstrumentTypeSticky;
+  final double dubMasterVolumeInstrumentTypeStripe;
+  final double dubMasterVolumeInstrumentTypeSweep;
+  final double mixerCompressAheadSeconds;
+  final double mixerCompressDecaySeconds;
+  final double mixerCompressRatioMax;
+  final double mixerCompressRatioMin;
+  final double mixerCompressToAmplitude;
+  final double mixerNormalizationBoostThreshold;
+  final double mixerNormalizationCeiling;
+  final double vmResourceLimitCpu;
+  final double vmResourceLimitMemoryGb;
+  final int backgroundLayerMax;
+  final int backgroundLayerMin;
+  final int bufferAheadSeconds;
+  final int bufferBeforeSeconds;
+  final int deltaArcBeatLayersIncoming;
+  final int deltaArcDetailLayersIncoming;
+  final int mainProgramLengthMaxDelta;
+  final int mixerDspBufferSize;
+  final int mixerHighpassThresholdHz;
+  final int mixerLowpassThresholdHz;
+  final int outputChannels;
+  final int outputFrameRate;
+  final int outputSampleBits;
+  final int percLoopLayerMax;
+  final int percLoopLayerMin;
+  final int transitionLayerMax;
+  final int transitionLayerMin;
 
   /**
    * Get a template config from only the default config
@@ -251,7 +251,7 @@ public class TemplateConfig {
     }
   }
 
-  private <N> List<N> requireAtLeastOne(String description, List<N> values) throws ValueException {
+  <N> List<N> requireAtLeastOne(String description, List<N> values) throws ValueException {
     if (values.isEmpty())
       throw new ValueException(String.format("Template Config requires non-empty list for %s", description));
     return values;
@@ -323,7 +323,7 @@ public class TemplateConfig {
     return Text.formatMultiline(config.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(pair -> String.format("%s = %s", pair.getKey(), pair.getValue())).toArray());
   }
 
-  private String computeStringValueMemeTaxonomy() {
+  String computeStringValueMemeTaxonomy() {
     return String.format("[%s\n  ]", memeTaxonomy.getCategories().stream().map(category -> String.format("\n    {\n      \"memes\":[%s],\n      \"name\":%s\n    }", category.getMemes().stream().map(Text::doubleQuoted).collect(Collectors.joining(",")), Text.doubleQuoted(category.getName()))).collect(Collectors.joining(",")));
   }
 
@@ -333,7 +333,7 @@ public class TemplateConfig {
    * @param values to format
    * @return typesafe array of quoted values
    */
-  private <N> String formatTypesafeQuoted(List<N> values) {
+  <N> String formatTypesafeQuoted(List<N> values) {
     return String.format("[%s]", values.stream().map(N::toString).map(Text::doubleQuoted).collect(Collectors.joining(",")));
   }
 

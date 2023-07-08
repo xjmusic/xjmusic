@@ -11,14 +11,14 @@ import java.util.UUID;
 
 public class Chain {
 
-  private @Valid UUID id;
-  private @Valid UUID accountId;
-  private @Valid UUID templateId;
-  private @Valid ChainType type;
-  private @Valid ChainState state;
-  private @Valid String shipKey;
-  private @Valid String templateConfig;
-  private @Valid String name;
+  @Valid UUID id;
+  @Valid UUID accountId;
+  @Valid UUID templateId;
+  @Valid ChainType type;
+  @Valid ChainState state;
+  @Valid String shipKey;
+  @Valid String templateConfig;
+  @Valid String name;
 
   /**
    *
@@ -207,7 +207,7 @@ public class Chain {
    * Convert the given object to string with each line indented by 4 spaces
    * (except the first line).
    */
-  private String toIndentedString(Object o) {
+  String toIndentedString(Object o) {
     if (o == null) {
       return "null";
     }

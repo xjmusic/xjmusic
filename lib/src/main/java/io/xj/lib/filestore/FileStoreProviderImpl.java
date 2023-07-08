@@ -28,16 +28,16 @@ import static io.xj.lib.util.Values.NANOS_PER_SECOND;
 
 @Service
 class FileStoreProviderImpl implements FileStoreProvider {
-  private static final Logger log = LoggerFactory.getLogger(FileStoreProviderImpl.class);
+  static final Logger log = LoggerFactory.getLogger(FileStoreProviderImpl.class);
 
-  private final String awsDefaultRegion;
-  private final String audioUploadUrl;
-  private final String awsAccessKeyId;
-  private final String awsSecretKey;
-  private final String audioFileBucket;
-  private final int awsFileUploadExpireMinutes;
-  private final String fileUploadACL;
-  private final boolean active;
+  final String awsDefaultRegion;
+  final String audioUploadUrl;
+  final String awsAccessKeyId;
+  final String awsSecretKey;
+  final String audioFileBucket;
+  final int awsFileUploadExpireMinutes;
+  final String fileUploadACL;
+  final boolean active;
 
   @Autowired
   public FileStoreProviderImpl(
@@ -71,7 +71,7 @@ class FileStoreProviderImpl implements FileStoreProvider {
    *
    * @return S3 client
    */
-  private AmazonS3 s3Client() {
+  AmazonS3 s3Client() {
     BasicAWSCredentials credentials = new BasicAWSCredentials(awsAccessKeyId, awsSecretKey);
     return AmazonS3ClientBuilder.standard()
       .withRegion(awsDefaultRegion)

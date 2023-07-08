@@ -53,13 +53,13 @@ public class CraftPercLoopProgramVoiceInitialTest {
   public HubClient hubClient;
   @Mock
   public NotificationProvider notificationProvider;
-  private Chain chain2;
-  private CraftFactory craftFactory;
-  private FabricatorFactory fabricatorFactory;
-  private HubContent sourceMaterial;
-  private NexusEntityStore store;
-  private NexusIntegrationTestingFixtures fake;
-  private Segment segment0;
+  Chain chain2;
+  CraftFactory craftFactory;
+  FabricatorFactory fabricatorFactory;
+  HubContent sourceMaterial;
+  NexusEntityStore store;
+  NexusIntegrationTestingFixtures fake;
+  Segment segment0;
 
   @Before
   public void setUp() throws Exception {
@@ -144,7 +144,7 @@ public class CraftPercLoopProgramVoiceInitialTest {
   /**
    * Insert fixture segment 6, including the percLoop choice only if specified
    */
-  private void insertSegment() throws NexusException {
+  void insertSegment() throws NexusException {
     segment0 = store.put(buildSegment(
       chain2,
       0,

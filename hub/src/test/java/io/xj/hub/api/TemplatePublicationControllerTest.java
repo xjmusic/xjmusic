@@ -74,10 +74,10 @@ public class TemplatePublicationControllerTest {
   FileStoreProvider fileStoreProvider;
   @MockBean
   HttpClientProvider httpClientProvider;
-  private HubAccess access;
-  private TemplatePublicationController subject;
-  private Template template25;
-  private User user1;
+  HubAccess access;
+  TemplatePublicationController subject;
+  Template template25;
+  User user1;
 
   @BeforeEach
   public void setUp() throws AppException {

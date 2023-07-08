@@ -32,12 +32,12 @@ import static io.xj.lib.util.Text.UNDERSCORE;
  */
 @Service
 class TelemetryProviderImpl implements TelemetryProvider {
-  private static final Logger LOG = LoggerFactory.getLogger(TelemetryProviderImpl.class);
-  private static final StatsRecorder STATS_RECORDER = Stats.getStatsRecorder();
-  private static final String DEFAULT_SHIP_KEY = "lab";
-  private final String prefixA;
-  private final String prefixB;
-  private final boolean enabled;
+  static final Logger LOG = LoggerFactory.getLogger(TelemetryProviderImpl.class);
+  static final StatsRecorder STATS_RECORDER = Stats.getStatsRecorder();
+  static final String DEFAULT_SHIP_KEY = "lab";
+  final String prefixA;
+  final String prefixB;
+  final boolean enabled;
 
   @Autowired
   public TelemetryProviderImpl(

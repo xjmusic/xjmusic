@@ -23,8 +23,8 @@ import java.util.stream.Collectors;
  */
 @Service
 public class EntityStoreImpl implements EntityStore {
-  private static final Logger LOG = LoggerFactory.getLogger(EntityStoreImpl.class);
-  private final Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>> store = Maps.newConcurrentMap();
+  static final Logger LOG = LoggerFactory.getLogger(EntityStoreImpl.class);
+  final Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>> store = Maps.newConcurrentMap();
 
   @Override
   public <N> N put(N entity) throws EntityStoreException {

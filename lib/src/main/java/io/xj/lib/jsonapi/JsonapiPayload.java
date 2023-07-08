@@ -32,14 +32,14 @@ public class JsonapiPayload {
   public static final String KEY_LINKS = "links";
   public static final String KEY_ERRORS = "errors";
   public static final String KEY_SELF = "self";
-  private final Map<String, String> links = Maps.newHashMap();
-  private final Collection<JsonapiPayloadObject> dataMany = Lists.newArrayList();
-  private final Collection<PayloadError> errors = Lists.newArrayList();
-  private final Collection<JsonapiPayloadObject> included = Lists.newArrayList();
-  private PayloadDataType dataType = PayloadDataType.Ambiguous;
+  final Map<String, String> links = Maps.newHashMap();
+  final Collection<JsonapiPayloadObject> dataMany = Lists.newArrayList();
+  final Collection<PayloadError> errors = Lists.newArrayList();
+  final Collection<JsonapiPayloadObject> included = Lists.newArrayList();
+  PayloadDataType dataType = PayloadDataType.Ambiguous;
 
   @Nullable
-  private JsonapiPayloadObject dataOne;
+  JsonapiPayloadObject dataOne;
 
 
   /**

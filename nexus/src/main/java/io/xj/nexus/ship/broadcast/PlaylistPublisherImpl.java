@@ -45,33 +45,33 @@ import static io.xj.lib.util.Values.MICROS_PER_SECOND;
  */
 @Service
 public class PlaylistPublisherImpl implements PlaylistPublisher {
-  private static final Logger LOG = LoggerFactory.getLogger(PlaylistPublisherImpl.class);
-  private final AtomicLong maxSequenceNumber = new AtomicLong(0);
+  static final Logger LOG = LoggerFactory.getLogger(PlaylistPublisherImpl.class);
+  final AtomicLong maxSequenceNumber = new AtomicLong(0);
 
-  private final AtomicLong toChainMicros = new AtomicLong(0);
-  private final ChunkFactory chunkFactory;
-  private final DecimalFormat df;
-  private final FileStoreProvider fileStore;
-  private final HttpClientProvider httpClientProvider;
-  private final Map<Long/* mediaSequence */, Chunk> items = Maps.newConcurrentMap();
-  private final Measure.MeasureDouble HLS_PLAYLIST_AHEAD_SECONDS;
-  private final Measure.MeasureDouble HLS_PLAYLIST_SIZE;
-  private final Pattern rgxFilename = Pattern.compile("^([A-Za-z0-9_]*)-([0-9]*)\\.([A-Za-z0-9]*)");
-  private final Pattern rgxSecondsValue = Pattern.compile("#EXTINF:([0-9.]*)");
-  private final Predicate<? super String> isSegmentFilename;
-  private final String bucket;
-  private final String m3u8ContentType;
-  private final String m3u8Key;
-  private final String streamBaseUrl;
-  private final MediaSeqNumProvider mediaSeqNumProvider;
-  private final TelemetryProvider telemetryProvider;
-  private final AtomicBoolean running = new AtomicBoolean(true);
-  private final int chunkDurationSeconds;
-  private final int m3u8MaxAgeSeconds;
-  private final int m3u8ServerControlHoldBackSeconds;
+  final AtomicLong toChainMicros = new AtomicLong(0);
+  final ChunkFactory chunkFactory;
+  final DecimalFormat df;
+  final FileStoreProvider fileStore;
+  final HttpClientProvider httpClientProvider;
+  final Map<Long/* mediaSequence */, Chunk> items = Maps.newConcurrentMap();
+  final Measure.MeasureDouble HLS_PLAYLIST_AHEAD_SECONDS;
+  final Measure.MeasureDouble HLS_PLAYLIST_SIZE;
+  final Pattern rgxFilename = Pattern.compile("^([A-Za-z0-9_]*)-([0-9]*)\\.([A-Za-z0-9]*)");
+  final Pattern rgxSecondsValue = Pattern.compile("#EXTINF:([0-9.]*)");
+  final Predicate<? super String> isSegmentFilename;
+  final String bucket;
+  final String m3u8ContentType;
+  final String m3u8Key;
+  final String streamBaseUrl;
+  final MediaSeqNumProvider mediaSeqNumProvider;
+  final TelemetryProvider telemetryProvider;
+  final AtomicBoolean running = new AtomicBoolean(true);
+  final int chunkDurationSeconds;
+  final int m3u8MaxAgeSeconds;
+  final int m3u8ServerControlHoldBackSeconds;
 
   @Nullable
-  private final String m3u8KeyAlias;
+  final String m3u8KeyAlias;
 
   @Autowired
   public PlaylistPublisherImpl(
@@ -304,7 +304,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   /**
    * Recompute the max sequence number given current items
    */
-  private void recomputeMaxSequenceNumber() {
+  void recomputeMaxSequenceNumber() {
     maxSequenceNumber.set(items.keySet().stream().max(Long::compare).orElse(0L));
   }
 
@@ -314,7 +314,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
    * @param key for which to compute file key
    * @return file key
    */
-  private String computeM3u8Key(String key) {
+  String computeM3u8Key(String key) {
     return String.format("%s.m3u8", key);
   }
 }

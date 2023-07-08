@@ -172,7 +172,7 @@ public class TemplatePublicationManagerImpl extends HubPersistenceServiceImpl im
    @return record
    @throws ManagerException on failure
    */
-  private TemplatePublication readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+  TemplatePublication readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     if (access.isTopLevel())
       try (var S = db.selectFrom(TEMPLATE_PUBLICATION)) {
         return modelFrom(TemplatePublication.class, S

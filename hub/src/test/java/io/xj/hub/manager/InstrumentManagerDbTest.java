@@ -48,9 +48,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 public class InstrumentManagerDbTest {
-  private InstrumentManager subject;
-  private HubIntegrationTest test;
-  private IntegrationTestingFixtures fake;
+  InstrumentManager subject;
+  HubIntegrationTest test;
+  IntegrationTestingFixtures fake;
 
   @MockBean
   NotificationProvider notificationProvider;

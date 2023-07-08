@@ -37,7 +37,7 @@ public class codebook {
     valuelist = _book_unquantize(s, s.entries, null);
   }
 
-  private int[] _make_words(int[] l, int n, int sparsecount) {
+  int[] _make_words(int[] l, int n, int sparsecount) {
 
     int i, j, count = 0;
     int[] marker;    // ogg_uint32_t marker[33];
@@ -127,12 +127,12 @@ public class codebook {
     return r;
   }
 
-  private float ldexp(double value, long exp) {
+  float ldexp(double value, long exp) {
 
     return Double.valueOf(value * Math.pow(2, Long.valueOf(exp).intValue())).floatValue();
   }
 
-  private float _float32_unpack(int val) {
+  float _float32_unpack(int val) {
 
     double mant = val & 0x1fffff;
     int sign = val & 0x80000000;
@@ -144,7 +144,7 @@ public class codebook {
     return ldexp(mant, exp - (integer_constants.VQ_FMAN - 1) - integer_constants.VQ_FEXP_BIAS);
   }
 
-  private float[] _book_unquantize(static_codebook b, int n, int[] sparsemap) {
+  float[] _book_unquantize(static_codebook b, int n, int[] sparsemap) {
 
     int j, k, count = 0;
 

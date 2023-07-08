@@ -32,9 +32,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest
 public class HubAccessControlIT {
 
-  private static final int STRESS_TEST_ITERATIONS = 100;
+  static final int STRESS_TEST_ITERATIONS = 100;
   UserManager userManager;
-  private HubIntegrationTest test;
+  HubIntegrationTest test;
 
   @MockBean
   NotificationProvider notificationProvider;

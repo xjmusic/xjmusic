@@ -11,9 +11,9 @@ import java.util.logging.FileHandler;
 import java.util.logging.SimpleFormatter;
 
 public class HubAccessLogFilter {
-  private static LoggingFeature instance;
-  private final Logger LOG = LoggerFactory.getLogger(HubAccessLogFilter.class);
-  private final String pathToWriteAccessLog;
+  static LoggingFeature instance;
+  final Logger LOG = LoggerFactory.getLogger(HubAccessLogFilter.class);
+  final String pathToWriteAccessLog;
 
   public HubAccessLogFilter(String pathToWriteAccessLog) {
     this.pathToWriteAccessLog = pathToWriteAccessLog;
@@ -25,7 +25,7 @@ public class HubAccessLogFilter {
    * @param path to setup
    * @throws IOException on failure
    */
-  private static void setup(String path) throws IOException {
+  static void setup(String path) throws IOException {
     instance = new LoggingFeature(getLogger(path));
   }
 
@@ -36,7 +36,7 @@ public class HubAccessLogFilter {
    * @return Logger
    * @throws IOException when there is a problem opening the file for writing
    */
-  private static java.util.logging.Logger getLogger(String pathToWriteFile) throws IOException {
+  static java.util.logging.Logger getLogger(String pathToWriteFile) throws IOException {
     String name = "Jersey";
     java.util.logging.Logger logger = java.util.logging.Logger.getLogger(name);
     logger.setUseParentHandlers(false);

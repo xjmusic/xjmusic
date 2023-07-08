@@ -18,7 +18,7 @@ import java.util.Set;
  */
 public enum MemeConstellation {
   ;
-  private static final String CONSTELLATION_DELIMITER = "_";
+  static final String CONSTELLATION_DELIMITER = "_";
 
   /**
    @return unique constellation for this set of names

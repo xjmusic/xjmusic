@@ -78,9 +78,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 public class LibraryManagerDbTest {
-  private LibraryManager subject;
-  private HubIntegrationTest test;
-  private IntegrationTestingFixtures fake;
+  LibraryManager subject;
+  HubIntegrationTest test;
+  IntegrationTestingFixtures fake;
 
   @MockBean
   NotificationProvider notificationProvider;

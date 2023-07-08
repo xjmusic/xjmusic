@@ -34,10 +34,10 @@ import static org.junit.jupiter.api.Assertions.fail;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 public class AccountUserManagerDbTest {
-  private AccountUserManager testManager;
-  private AccountUser accountUser_1_2;
-  private HubIntegrationTest test;
-  private IntegrationTestingFixtures fake;
+  AccountUserManager testManager;
+  AccountUser accountUser_1_2;
+  HubIntegrationTest test;
+  IntegrationTestingFixtures fake;
 
   @MockBean
   NotificationProvider notificationProvider;

@@ -65,7 +65,7 @@ public class HookCraftImpl extends CraftImpl implements HookCraft {
    * @param audio      to craft
    * @throws NexusException on failure
    */
-  private void craftHook(Instrument instrument, InstrumentAudio audio) throws NexusException {
+  void craftHook(Instrument instrument, InstrumentAudio audio) throws NexusException {
     var choice = new SegmentChoice();
     choice.setId(UUID.randomUUID());
     choice.setSegmentId(fabricator.getSegment().getId());
@@ -109,7 +109,7 @@ public class HookCraftImpl extends CraftImpl implements HookCraft {
    * @param instrument of which to score available audios, and make a selection
    * @return matched new audio
    */
-  private Optional<InstrumentAudio> selectNewInstrumentAudio(
+  Optional<InstrumentAudio> selectNewInstrumentAudio(
     Instrument instrument
   ) {
     var bag = MarbleBag.empty();

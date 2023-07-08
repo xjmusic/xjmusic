@@ -16,8 +16,8 @@ import java.util.UUID;
 import static org.junit.Assert.*;
 
 public class JsonapiPayloadFactoryImplTest {
-  private JsonapiPayloadFactory subject;
-  private EntityFactory entityFactory;
+  JsonapiPayloadFactory subject;
+  EntityFactory entityFactory;
 
   @Before
   public void setUp() {

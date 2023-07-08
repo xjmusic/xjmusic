@@ -31,7 +31,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/1")
 public class UserController extends HubJsonapiEndpoint {
-  private final UserManager manager;
+  final UserManager manager;
 
   /**
    * Constructor
@@ -100,7 +100,7 @@ public class UserController extends HubJsonapiEndpoint {
    *
    * @return Manager
    */
-  private Manager<User> manager() {
+  Manager<User> manager() {
     return manager;
   }
 }

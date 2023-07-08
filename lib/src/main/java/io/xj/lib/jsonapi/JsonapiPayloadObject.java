@@ -28,11 +28,11 @@ public class JsonapiPayloadObject {
   public static final String KEY_ATTRIBUTES = "attributes";
   public static final String KEY_ID = "id";
   public static final String KEY_TYPE = "type";
-  private final Map<String, Object> attributes = Maps.newHashMap();
-  private final Map<String, String> links = Maps.newHashMap();
-  private final Map<String, JsonapiPayload> relationships = Maps.newHashMap();
-  private String type;
-  private String id;
+  final Map<String, Object> attributes = Maps.newHashMap();
+  final Map<String, String> links = Maps.newHashMap();
+  final Map<String, JsonapiPayload> relationships = Maps.newHashMap();
+  String type;
+  String id;
 
   /**
    Add a relationship object to this resource object

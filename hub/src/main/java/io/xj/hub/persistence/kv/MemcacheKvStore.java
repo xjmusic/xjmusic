@@ -13,9 +13,9 @@ import java.io.IOException;
 import java.util.Objects;
 
 public class MemcacheKvStore implements KvStore {
-  private static final Logger LOG = LoggerFactory.getLogger(MemcacheKvStore.class);
-  private final MemcachedClient memcachedClient;
-  private final int expirationSeconds;
+  static final Logger LOG = LoggerFactory.getLogger(MemcacheKvStore.class);
+  final MemcachedClient memcachedClient;
+  final int expirationSeconds;
 
   public MemcacheKvStore(String memcacheAddress, int expirationSeconds) throws IOException {
     memcachedClient = new MemcachedClient(AddrUtil.getAddresses(memcacheAddress));

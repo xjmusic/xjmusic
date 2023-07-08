@@ -56,13 +56,13 @@ public class CraftBeatNextMacroTest {
   public HubClient hubClient;
   @Mock
   public NotificationProvider notificationProvider;
-  private CraftFactory craftFactory;
-  private FabricatorFactory fabricatorFactory;
-  private NexusIntegrationTestingFixtures fake;
-  private Chain chain1;
-  private Segment segment4;
-  private NexusEntityStore store;
-  private HubContent sourceMaterial;
+  CraftFactory craftFactory;
+  FabricatorFactory fabricatorFactory;
+  NexusIntegrationTestingFixtures fake;
+  Chain chain1;
+  Segment segment4;
+  NexusEntityStore store;
+  HubContent sourceMaterial;
 
   @Before
   public void setUp() throws Exception {
@@ -155,7 +155,7 @@ public class CraftBeatNextMacroTest {
    *
    * @param excludeBeatChoiceForSegment3 if desired for the purpose of this test
    */
-  private void insertSegments3and4(boolean excludeBeatChoiceForSegment3) throws NexusException {
+  void insertSegments3and4(boolean excludeBeatChoiceForSegment3) throws NexusException {
     // Chain "Test Print #1" has this segment that was just crafted
     Segment segment3 = store.put(buildSegment(
       chain1,

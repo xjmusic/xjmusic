@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
  Choices should be random https://www.pivotaltracker.com/story/show/180669293
  */
 public class MarbleBagTest {
-  private static final Logger LOG = LoggerFactory.getLogger(MarbleBagTest.class);
+  static final Logger LOG = LoggerFactory.getLogger(MarbleBagTest.class);
   UUID frogId = UUID.randomUUID();
   UUID bearId = UUID.randomUUID();
   UUID zebraId = UUID.randomUUID();

@@ -42,14 +42,14 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 class SegmentWorkbenchImpl implements SegmentWorkbench {
-  private final Logger LOG = LoggerFactory.getLogger(SegmentWorkbenchImpl.class);
-  private final Chain chain;
-  private final SegmentManager segmentManager;
-  private final JsonapiPayloadFactory jsonapiPayloadFactory;
-  private final Map<String, Object> report = Maps.newConcurrentMap();
-  private final EntityStore benchStore;
-  private Segment segment;
-  private List<SegmentChord> segmentChords;
+  final Logger LOG = LoggerFactory.getLogger(SegmentWorkbenchImpl.class);
+  final Chain chain;
+  final SegmentManager segmentManager;
+  final JsonapiPayloadFactory jsonapiPayloadFactory;
+  final Map<String, Object> report = Maps.newConcurrentMap();
+  final EntityStore benchStore;
+  Segment segment;
+  List<SegmentChord> segmentChords;
 
   public SegmentWorkbenchImpl(
     Chain chain,
@@ -208,7 +208,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   /**
    * Returns the current report map as json, and clears the report, so it'll only be reported once
    */
-  private void sendReportToSegmentMessage() throws JsonapiException, NexusException {
+  void sendReportToSegmentMessage() throws JsonapiException, NexusException {
     String reported = jsonapiPayloadFactory.serialize(report);
     var msg = new SegmentMessage();
     msg.setId(UUID.randomUUID());
@@ -225,7 +225,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
    * @param meme to test for existence
    * @return true if a meme already exists with this name
    */
-  private boolean alreadyHasMeme(SegmentMeme meme) {
+  boolean alreadyHasMeme(SegmentMeme meme) {
     var name = Text.toMeme(meme.getName());
     return getSegmentMemes().stream().anyMatch(existing -> existing.getName().equals(name));
   }
@@ -235,7 +235,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
    *
    * @param key for which to erase all metas
    */
-  private void destroyExistingMeta(String key) {
+  void destroyExistingMeta(String key) {
     getSegmentMetas().stream().filter(meta -> Objects.equals(key, meta.getKey())).forEach(this::delete);
   }
 }

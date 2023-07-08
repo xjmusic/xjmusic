@@ -12,14 +12,14 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class ActiveAudio {
-  private final InstrumentConfig instrumentConfig;
+  final InstrumentConfig instrumentConfig;
   SegmentChoiceArrangementPick pick;
-  private final InstrumentAudio audio;
-  private final Long startAtMicros;
+  final InstrumentAudio audio;
+  final Long startAtMicros;
   @Nullable
-  private final Long stopAtMicros;
+  final Long stopAtMicros;
   MixerPickState state;
-  private final Instrument instrument;
+  final Instrument instrument;
 
   public ActiveAudio(SegmentChoiceArrangementPick pick, Instrument instrument, InstrumentAudio audio, Long startAtMicros, @Nullable Long stopAtMicros) {
     this.pick = pick;

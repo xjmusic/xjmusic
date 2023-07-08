@@ -15,9 +15,9 @@ import java.util.Objects;
 
 @Service
 public class HubSqlStoreProviderImpl implements HubSqlStoreProvider {
-  private static final Logger LOG = LoggerFactory.getLogger(HubSqlStoreProviderImpl.class);
-  private final HikariDataSource dataSource;
-  private final String schemas;
+  static final Logger LOG = LoggerFactory.getLogger(HubSqlStoreProviderImpl.class);
+  final HikariDataSource dataSource;
+  final String schemas;
 
   /**
    * Constructor

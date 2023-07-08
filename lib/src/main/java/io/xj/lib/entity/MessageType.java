@@ -16,7 +16,7 @@ public enum MessageType {
   Warning,
   Error;
 
-  private static final String TYPE_KEY = "type";
+  static final String TYPE_KEY = "type";
 
   /**
    cast string to enum

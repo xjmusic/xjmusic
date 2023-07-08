@@ -319,7 +319,7 @@ public class vorbis_block {
     return Double.valueOf(Math.sqrt(b * b + a * a)).floatValue();
   }
 
-  private static void SORT4(int o, float[] data, int offset, int[] n) {
+  static void SORT4(int o, float[] data, int offset, int[] n) {
 
     if (Math.abs(data[offset + o + 2]) >= Math.abs(data[offset + o + 3]))
       if (Math.abs(data[offset + o + 0]) >= Math.abs(data[offset + o + 1]))
@@ -1012,7 +1012,7 @@ public class vorbis_block {
     return output;
   }
 
-  private float[][] _vp_quantize_couple_memo(vorbis_info_psy_global g, vorbis_look_psy p, vorbis_info_mapping0 vi, float[][] mdct) {
+  float[][] _vp_quantize_couple_memo(vorbis_info_psy_global g, vorbis_look_psy p, vorbis_info_mapping0 vi, float[][] mdct) {
 
     int i, j;
     int n = p.n;
@@ -1035,7 +1035,7 @@ public class vorbis_block {
     return ret;
   }
 
-  private int[][] _vp_quantize_couple_sort(vorbis_look_psy p, vorbis_info_mapping0 vi, float[][] mags) {
+  int[][] _vp_quantize_couple_sort(vorbis_look_psy p, vorbis_info_mapping0 vi, float[][] mags) {
 
     if (p.vi.normal_point_p > 0) {
 
@@ -1076,7 +1076,7 @@ public class vorbis_block {
     return null;
   }
 
-  private void _vp_noise_normalize_sort(vorbis_look_psy p, float[] magnitudes, int[] sortedindex) {
+  void _vp_noise_normalize_sort(vorbis_look_psy p, float[] magnitudes, int[] sortedindex) {
 
     int j;
     int n = p.n;
@@ -1100,7 +1100,7 @@ public class vorbis_block {
     }
   }
 
-  private void hf_reduction(vorbis_info_psy_global g, vorbis_look_psy p, vorbis_info_mapping0 vi, float[][] mdct) {
+  void hf_reduction(vorbis_info_psy_global g, vorbis_look_psy p, vorbis_info_mapping0 vi, float[][] mdct) {
 
     int i, j;
     int n = p.n;
@@ -1115,7 +1115,7 @@ public class vorbis_block {
     }
   }
 
-  private void _vp_remove_floor(vorbis_look_psy p, float[] mdct, int[] codedflr, float[] residue, int sliding_lowpass) {
+  void _vp_remove_floor(vorbis_look_psy p, float[] mdct, int[] codedflr, float[] residue, int sliding_lowpass) {
 
     int i;
     int n = p.n;
@@ -1130,7 +1130,7 @@ public class vorbis_block {
       residue[i] = 0.f;
   }
 
-  private void _vp_noise_normalize(vorbis_look_psy p, float[] in, int out, int[] sortedindex) {
+  void _vp_noise_normalize(vorbis_look_psy p, float[] in, int out, int[] sortedindex) {
 
     // int flag = 0;
     int i;
@@ -1188,7 +1188,7 @@ public class vorbis_block {
       in[out + j] = (float) Math.rint(in[j]);
   }
 
-  private void _vp_couple(int blobno, vorbis_info_psy_global g, vorbis_look_psy p, vorbis_info_mapping0 vi,
+  void _vp_couple(int blobno, vorbis_info_psy_global g, vorbis_look_psy p, vorbis_info_mapping0 vi,
                           float[][] res, float[][] mag_memo, int[][] mag_sort, int[][] ifloor, int[] nonzero, int sliding_lowpass) {
 
     int i, j, k;
@@ -1281,7 +1281,7 @@ public class vorbis_block {
 
   // designed for stereo or other modes where the partition size is an
   // integer multiple of the number of channels encoded in the current submap
-  private int[][] _2class(vorbis_look_residue0 look, float[][] in, int in_offset, int ch) {
+  int[][] _2class(vorbis_look_residue0 look, float[][] in, int in_offset, int ch) {
 
     int i, j, k, l;
 
@@ -1327,7 +1327,7 @@ public class vorbis_block {
   }
 
 
-  private int[][] res2_class(vorbis_look_residue0 vl, float[][] in, int in_offset, int[] nonzero, int ch) {
+  int[][] res2_class(vorbis_look_residue0 vl, float[][] in, int in_offset, int[] nonzero, int ch) {
 
     int i, used = 0;
     for (i = 0; i < ch; i++)
@@ -1340,7 +1340,7 @@ public class vorbis_block {
   }
 
   // break an abstraction and copy some code for performance purposes
-  private int local_book_besterror(codebook book, float[] a, int a_off) {
+  int local_book_besterror(codebook book, float[] a, int a_off) {
 
     int dim = book.dim, i, k, o;
     int best = 0;
@@ -1410,7 +1410,7 @@ public class vorbis_block {
     return best;
   }
 
-  private int _encodepart(oggpack_buffer opb_local, float[] vec, int vec_off, int n, codebook book, int[] acc) {
+  int _encodepart(oggpack_buffer opb_local, float[] vec, int vec_off, int n, codebook book, int[] acc) {
 
     int i, bits = 0;
     int dim = book.dim;
@@ -1430,7 +1430,7 @@ public class vorbis_block {
     return bits;
   }
 
-  private boolean _01forward(oggpack_buffer opb_local, vorbis_look_residue0 look, float[] in, int ch, int[][] partword) {
+  boolean _01forward(oggpack_buffer opb_local, vorbis_look_residue0 look, float[] in, int ch, int[][] partword) {
 
     int i, j, k, s;  // long
     vorbis_info_residue0 info = look.info;
@@ -1509,7 +1509,7 @@ public class vorbis_block {
   }
 
   // res2 is slightly more different; all the channels are interleaved into a single vector and encoded.
-  private boolean res2_forward(oggpack_buffer opb_local, vorbis_look_residue0 vl, float[][] in, int in_offset, float[][] out, int[] nonzero, int ch, int[][] partword) {
+  boolean res2_forward(oggpack_buffer opb_local, vorbis_look_residue0 vl, float[][] in, int in_offset, float[][] out, int[] nonzero, int ch, int[][] partword) {
 
     int i, j, k;      // long
     int n = pcmend / 2;  // long

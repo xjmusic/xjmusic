@@ -15,7 +15,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(MockitoJUnitRunner.class)
 public class MediaSeqNumProviderTest {
   // Under Test
-  private MediaSeqNumProvider subject;
+  MediaSeqNumProvider subject;
 
   @Before
   public void setUp() {

@@ -25,7 +25,7 @@ import static org.junit.Assert.*;
  */
 public class EntitiesTest extends TestTemplate {
   Widget widget;
-  private EntityFactory subject;
+  EntityFactory subject;
 
   @Test
   public void toResourceBelongsTo() {

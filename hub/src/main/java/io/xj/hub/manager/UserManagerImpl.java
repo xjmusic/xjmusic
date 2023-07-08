@@ -51,17 +51,17 @@ import static io.xj.hub.Tables.USER_AUTH_TOKEN;
 
 @Service
 public class UserManagerImpl extends HubPersistenceServiceImpl implements UserManager {
-  private static final Logger LOG = LoggerFactory.getLogger(UserManagerImpl.class);
-  private final HubKvStoreProvider hubKvStoreProvider;
-  private final HubAccessTokenGenerator hubAccessTokenGenerator;
-  private final GoogleProvider googleProvider;
-  private final String sessionNamespace;
-  private final String tokenName;
-  private final String tokenDomain;
-  private final String tokenPath;
-  private final int tokenMaxAge;
-  private final Set<String> internalTokens;
-  private static final Logger log = LoggerFactory.getLogger(UserManagerImpl.class);
+  static final Logger LOG = LoggerFactory.getLogger(UserManagerImpl.class);
+  final HubKvStoreProvider hubKvStoreProvider;
+  final HubAccessTokenGenerator hubAccessTokenGenerator;
+  final GoogleProvider googleProvider;
+  final String sessionNamespace;
+  final String tokenName;
+  final String tokenDomain;
+  final String tokenPath;
+  final int tokenMaxAge;
+  final Set<String> internalTokens;
+  static final Logger log = LoggerFactory.getLogger(UserManagerImpl.class);
 
   @Autowired
   public UserManagerImpl(
@@ -103,7 +103,7 @@ public class UserManagerImpl extends HubPersistenceServiceImpl implements UserMa
    * @param db context
    * @return jOOQ select step
    */
-  private static SelectSelectStep<?> selectUser(DSLContext db) {
+  static SelectSelectStep<?> selectUser(DSLContext db) {
     return db.select(
       USER.ID,
       USER.NAME,
@@ -122,7 +122,7 @@ public class UserManagerImpl extends HubPersistenceServiceImpl implements UserMa
    * @param accessToken for user access to this system
    * @throws ManagerException if anything goes wrong
    */
-  private static void newUserAuthTokenRecord(DSLContext db, UUID userId, UUID userAuthId, String accessToken) throws ManagerException {
+  static void newUserAuthTokenRecord(DSLContext db, UUID userId, UUID userAuthId, String accessToken) throws ManagerException {
     try (var i = db.insertInto(USER_AUTH_TOKEN,
       USER_AUTH_TOKEN.USER_ID,
       USER_AUTH_TOKEN.USER_AUTH_ID,
@@ -158,7 +158,7 @@ public class UserManagerImpl extends HubPersistenceServiceImpl implements UserMa
    * @param email     to contact new user
    * @return new User record, including actual id
    */
-  private User newUser(DSLContext db, String name, String avatarUrl, String email) throws ManagerException {
+  User newUser(DSLContext db, String name, String avatarUrl, String email) throws ManagerException {
     try (var i = db.insertInto(USER, USER.NAME, USER.AVATAR_URL, USER.EMAIL)) {
       UserRecord user = i
         .values(name, avatarUrl, email)
@@ -180,7 +180,7 @@ public class UserManagerImpl extends HubPersistenceServiceImpl implements UserMa
    * @param userId of existing User.
    * @return collection of AccountUserRecord.
    */
-  private Collection<AccountUser> fetchAccounts(DSLContext db, UUID userId) throws ManagerException {
+  Collection<AccountUser> fetchAccounts(DSLContext db, UUID userId) throws ManagerException {
     try (var selectAccountUser = db.selectFrom(ACCOUNT_USER)) {
       return modelsFrom(AccountUser.class, selectAccountUser
         .where(ACCOUNT_USER.USER_ID.equal(userId))
@@ -196,7 +196,7 @@ public class UserManagerImpl extends HubPersistenceServiceImpl implements UserMa
    * @return user
    * @throws ManagerException on failure
    */
-  private User fetchUser(DSLContext db, UUID id) throws ManagerException {
+  User fetchUser(DSLContext db, UUID id) throws ManagerException {
     try (var selectUser = selectUser(db)) {
       return modelFrom(User.class, selectUser
         .from(USER)
@@ -215,7 +215,7 @@ public class UserManagerImpl extends HubPersistenceServiceImpl implements UserMa
    * @param externalAccount identifier in external system
    * @return UserAuth, or null
    */
-  private UserAuth readOneAuth(DSLContext db, UserAuthType authType, String externalAccount) throws ManagerException {
+  UserAuth readOneAuth(DSLContext db, UserAuthType authType, String externalAccount) throws ManagerException {
     try (var selectUserAuth = db.selectFrom(USER_AUTH)) {
       return modelFrom(UserAuth.class, selectUserAuth
         .where(USER_AUTH.TYPE.equal(authType))
@@ -236,7 +236,7 @@ public class UserManagerImpl extends HubPersistenceServiceImpl implements UserMa
    * @param externalRefreshToken for refreshing OAuth2 access
    * @return new UserAuth record, including actual id
    */
-  private UserAuth newUserAuth(DSLContext db, String userId, UserAuthType authType, String account, String externalAccessToken, String externalRefreshToken) throws ManagerException {
+  UserAuth newUserAuth(DSLContext db, String userId, UserAuthType authType, String account, String externalAccessToken, String externalRefreshToken) throws ManagerException {
     try (var i = db.insertInto(USER_AUTH, USER_AUTH.USER_ID, USER_AUTH.TYPE, USER_AUTH.EXTERNAL_ACCOUNT, USER_AUTH.EXTERNAL_ACCESS_TOKEN, USER_AUTH.EXTERNAL_REFRESH_TOKEN)) {
       UserAuthRecord userAuth = i
         .values(UUID.fromString(userId), authType, account, externalAccessToken, externalRefreshToken)
@@ -428,7 +428,7 @@ public class UserManagerImpl extends HubPersistenceServiceImpl implements UserMa
    *
    * @param userId to destroy all access tokens for.
    */
-  private void destroyAllTokens(DSLContext db, UUID userId) throws ManagerException {
+  void destroyAllTokens(DSLContext db, UUID userId) throws ManagerException {
     try (var selectUserAuthToken = db.selectFrom(USER_AUTH_TOKEN)) {
       Result<UserAuthTokenRecord> userAccessTokens = selectUserAuthToken
         .where(USER_AUTH_TOKEN.USER_ID.eq(userId))
@@ -445,7 +445,7 @@ public class UserManagerImpl extends HubPersistenceServiceImpl implements UserMa
    * @param db              context
    * @param userAccessToken record of user access token to destroy
    */
-  private void destroyToken(DSLContext db, UserAuthTokenRecord userAccessToken) throws ManagerException {
+  void destroyToken(DSLContext db, UserAuthTokenRecord userAccessToken) throws ManagerException {
     try (var d = db.deleteFrom(USER_AUTH_TOKEN)) {
       expire(userAccessToken.getAccessToken());
       d

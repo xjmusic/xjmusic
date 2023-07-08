@@ -14,7 +14,7 @@ import java.util.Map;
  Fabrication wrapper is a common foundation for all craft
  */
 public abstract class FabricationWrapperImpl {
-  private final Logger log = LoggerFactory.getLogger(FabricationWrapperImpl.class);
+  final Logger log = LoggerFactory.getLogger(FabricationWrapperImpl.class);
   protected Fabricator fabricator;
 
   /**

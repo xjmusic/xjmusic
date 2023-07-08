@@ -9,8 +9,8 @@ import io.xj.lib.music.Note;
  <p>
  */
 public class RankedNote {
-  private final Note note;
-  private final int delta;
+  final Note note;
+  final int delta;
 
   public RankedNote(
     Note note,

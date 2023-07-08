@@ -60,15 +60,15 @@ public class CraftTransitionProgramVoiceNextMacroTest {
   public HubClient hubClient;
   @Mock
   public NotificationProvider notificationProvider;
-  private Chain chain1;
-  private CraftFactory craftFactory;
-  private FabricatorFactory fabricatorFactory;
-  private HubContent sourceMaterial;
-  private InstrumentAudio audioKick;
-  private InstrumentAudio audioSnare;
-  private NexusEntityStore store;
-  private NexusIntegrationTestingFixtures fake;
-  private Segment segment4;
+  Chain chain1;
+  CraftFactory craftFactory;
+  FabricatorFactory fabricatorFactory;
+  HubContent sourceMaterial;
+  InstrumentAudio audioKick;
+  InstrumentAudio audioSnare;
+  NexusEntityStore store;
+  NexusIntegrationTestingFixtures fake;
+  Segment segment4;
 
   @Before
   public void setUp() throws Exception {
@@ -130,7 +130,7 @@ public class CraftTransitionProgramVoiceNextMacroTest {
    *
    * @return list of all entities
    */
-  private Collection<Object> customFixtures() {
+  Collection<Object> customFixtures() {
     Collection<Object> entities = Lists.newArrayList();
 
     // Instrument "808"
@@ -177,7 +177,7 @@ public class CraftTransitionProgramVoiceNextMacroTest {
    *
    * @param excludeTransitionChoiceForSegment3 if desired for the purpose of this test
    */
-  private void insertSegments3and4(boolean excludeTransitionChoiceForSegment3) throws NexusException {
+  void insertSegments3and4(boolean excludeTransitionChoiceForSegment3) throws NexusException {
     // Chain "Test Print #1" has this segment that was just crafted
     Segment segment3 = store.put(buildSegment(
       chain1,

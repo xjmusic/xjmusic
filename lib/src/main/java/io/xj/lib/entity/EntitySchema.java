@@ -14,11 +14,11 @@ import java.util.function.Supplier;
  Note that has-many relationships are updated after creation, when child entities are registered as belonging-to
  */
 public class EntitySchema {
-  private final String type;
-  private final Set<String> attributes;
-  private final Set<String> hasManyTypes;
-  private final Set<String> belongsToTypes;
-  private Supplier<?> creator;
+  final String type;
+  final Set<String> attributes;
+  final Set<String> hasManyTypes;
+  final Set<String> belongsToTypes;
+  Supplier<?> creator;
 
   /**
    Constructor initializes empty inner sets

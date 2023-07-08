@@ -24,9 +24,9 @@ import java.util.stream.Collectors;
  * to ingest any combination of Programs, Instruments, or Libraries (with their Programs and Instruments) https://www.pivotaltracker.com/story/show/154350346
  */
 class HubIngestImpl implements HubIngest {
-  private final HubAccess access;
-  private final EntityStore store;
-  private final JsonProvider jsonProvider;
+  final HubAccess access;
+  final EntityStore store;
+  final JsonProvider jsonProvider;
 
   public HubIngestImpl(
     EntityFactory entityFactory,
@@ -90,7 +90,7 @@ class HubIngestImpl implements HubIngest {
     return getAll(Program.class);
   }
 
-  private <N> Collection<N> getAll(Class<N> type) {
+  <N> Collection<N> getAll(Class<N> type) {
     return store.getAll(type);
   }
 
@@ -202,7 +202,7 @@ class HubIngestImpl implements HubIngest {
    * @return entity from map
    * @throws HubIngestException if no such entity exists
    */
-  private <N> N getOrThrow(Class<N> type, UUID id) throws HubIngestException {
+  <N> N getOrThrow(Class<N> type, UUID id) throws HubIngestException {
     return store.get(type, id)
       .orElseThrow(() -> new HubIngestException(String.format("No such %s[%s]",
         type.getSimpleName(), id)));

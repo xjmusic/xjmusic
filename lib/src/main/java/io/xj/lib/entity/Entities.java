@@ -26,8 +26,8 @@ import java.util.stream.Stream;
 public enum Entities {
   ;
   public static final String NAME_KEY = "name";
-  private static final String SIMPLE_NAME_OF_NULL = "null";
-  private static final String ID_KEY = "id";
+  static final String SIMPLE_NAME_OF_NULL = "null";
+  static final String ID_KEY = "id";
 
   /**
    * Get a value of a target object via getter method
