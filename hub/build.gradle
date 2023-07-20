@@ -47,8 +47,6 @@ dependencies {
   jooqGenerator 'org.postgresql:postgresql:42.2.27'
   // vendor
   compileOnly 'io.swagger:swagger-annotations:1.6.3'
-  implementation 'com.amazonaws:aws-java-sdk-secretsmanager:1.12.90'
-  implementation 'com.amazonaws:aws-java-sdk:1.12.411'
   implementation 'com.fasterxml.jackson.core:jackson-annotations:2.13.0'
   implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.0'
   implementation 'com.github.axet:TarsosDSP:2.4-1'
@@ -88,7 +86,6 @@ dependencies {
   implementation 'org.slf4j:slf4j-api:1.7.32'
   implementation "org.springframework.boot:spring-boot-starter-web:${rootProject.ext.springBootVersion}"
   implementation 'org.yaml:snakeyaml:1.33'
-  implementation 'software.amazon.awssdk:cloudwatch:2.17.61'
   testFixturesImplementation 'com.google.api-client:google-api-client:1.31.5'
   testFixturesImplementation 'com.google.apis:google-api-services-plus:v1-rev20190328-1.30.10'
   testFixturesImplementation "com.google.guava:guava:${rootProject.ext.guavaVersion}"

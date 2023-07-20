@@ -1,21 +1,22 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.notification;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.sns.AmazonSNS;
-import com.amazonaws.services.sns.AmazonSNSAsyncClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.sns.SnsAsyncClient;
+import software.amazon.awssdk.services.sns.model.PublishRequest;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
 
 /**
- Implementation of Amazon SNS publisher
+ * Implementation of Amazon SNS publisher
  */
 @Service
 public class NotificationProviderImpl implements NotificationProvider {
@@ -25,7 +26,7 @@ public class NotificationProviderImpl implements NotificationProvider {
   final String awsSecretKey;
 
   /**
-   Optional-- when null, no notifications are sent (as in testing)
+   * Optional-- when null, no notifications are sent (as in testing)
    */
   @Nullable
   final String topicArn;
@@ -55,15 +56,15 @@ public class NotificationProviderImpl implements NotificationProvider {
   }
 
   /**
-   Get an Amazon S3 client
-
-   @return S3 client
+   * Get an Amazon S3 client
+   *
+   * @return S3 client
    */
-  AmazonSNS snsClient() {
-    BasicAWSCredentials credentials = new BasicAWSCredentials(awsAccessKeyId, awsSecretKey);
-    return AmazonSNSAsyncClientBuilder.standard()
-      .withRegion(awsDefaultRegion)
-      .withCredentials(new AWSStaticCredentialsProvider(credentials))
+  SnsAsyncClient snsClient() {
+    AwsBasicCredentials awsCreds = AwsBasicCredentials.create(awsAccessKeyId, awsSecretKey);
+    return SnsAsyncClient.builder()
+      .region(Region.of(awsDefaultRegion))
+      .credentialsProvider(StaticCredentialsProvider.create(awsCreds))
       .build();
   }
 
@@ -71,7 +72,15 @@ public class NotificationProviderImpl implements NotificationProvider {
   public void publish(String subject, String message) {
     if (Objects.nonNull(topicArn))
       try {
-        snsClient().publish(topicArn, message, subject);
+        PublishRequest publishRequest = PublishRequest.builder()
+          .topicArn(topicArn)
+          .message(message)
+          .subject(subject)
+          .build();
+
+        try (var snsClient = snsClient()) {
+          snsClient.publish(publishRequest);
+        }
 
       } catch (Exception e) {
         LOG.error("Failed to publish SNS message", e);

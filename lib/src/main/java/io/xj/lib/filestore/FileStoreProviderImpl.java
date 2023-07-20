@@ -1,27 +1,30 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.filestore;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
+
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.core.sync.ResponseTransformer;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import javax.annotation.Nullable;
-import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import static io.xj.lib.util.Values.NANOS_PER_SECOND;
@@ -71,11 +74,12 @@ class FileStoreProviderImpl implements FileStoreProvider {
    *
    * @return S3 client
    */
-  AmazonS3 s3Client() {
-    BasicAWSCredentials credentials = new BasicAWSCredentials(awsAccessKeyId, awsSecretKey);
-    return AmazonS3ClientBuilder.standard()
-      .withRegion(awsDefaultRegion)
-      .withCredentials(new AWSStaticCredentialsProvider(credentials))
+  S3Client s3Client() {
+    AwsBasicCredentials awsCreds = AwsBasicCredentials.create(awsAccessKeyId, awsSecretKey);
+    StaticCredentialsProvider credentialsProvider = StaticCredentialsProvider.create(awsCreds);
+    return S3Client.builder()
+      .region(Region.of(awsDefaultRegion))
+      .credentialsProvider(credentialsProvider)
       .build();
   }
 
@@ -124,15 +128,29 @@ class FileStoreProviderImpl implements FileStoreProvider {
       long startedAt = System.nanoTime();
       log.debug("Will ship {} to {}/{}", filePath, bucket, key);
 
-      ObjectMetadata metadata = new ObjectMetadata();
-      metadata.setContentLength(Files.size(Path.of(filePath)));
-      metadata.setContentType(contentType);
+      Map<String, String> metadata = new HashMap<>();
+      Path path = Path.of(filePath);
+      metadata.put("Content-Length", String.valueOf(Files.size(path)));
+      metadata.put("Content-Type", contentType);
+
       if (Objects.nonNull(expiresInSeconds)) {
-        metadata.setExpirationTime(Date.from(Instant.now().plusSeconds(expiresInSeconds)));
-        metadata.setCacheControl(String.format("max-age=%d", expiresInSeconds));
+        metadata.put("Expires", Date.from(Instant.now().plusSeconds(expiresInSeconds)).toString());
+        metadata.put("Cache-Control", String.format("max-age=%d", expiresInSeconds));
       }
-      s3Client().putObject(new PutObjectRequest(bucket, key, new File(filePath)));
+
+      RequestBody requestBody = RequestBody.fromFile(path);
+
+      PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+        .bucket(bucket)
+        .key(key)
+        .metadata(metadata)
+        .build();
+
+      try (var s3Client = s3Client()) {
+        s3Client.putObject(putObjectRequest, requestBody);
+      }
       log.debug("Did ship {} to {}/{} OK in {}s", filePath, bucket, key, String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
+
     } catch (Exception e) {
       throw new FileStoreException("Failed to put S3 object", e);
     }
@@ -148,14 +166,27 @@ class FileStoreProviderImpl implements FileStoreProvider {
       long startedAt = System.nanoTime();
       log.debug("Will ship {} bytes of content to {}/{}", content.length(), bucket, key);
 
-      ObjectMetadata metadata = new ObjectMetadata();
-      metadata.setContentLength(content.length());
-      metadata.setContentType(contentType);
+      Map<String, String> metadata = new HashMap<>();
+      metadata.put("Content-Length", String.valueOf(content.length()));
+      metadata.put("Content-Type", contentType);
+
       if (Objects.nonNull(expiresInSeconds)) {
-        metadata.setExpirationTime(Date.from(Instant.now().plusSeconds(expiresInSeconds)));
-        metadata.setCacheControl(String.format("max-age=%d", expiresInSeconds));
+        metadata.put("Expires", Date.from(Instant.now().plusSeconds(expiresInSeconds)).toString());
+        metadata.put("Cache-Control", String.format("max-age=%d", expiresInSeconds));
       }
-      s3Client().putObject(new PutObjectRequest(bucket, key, new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)), metadata));
+
+      RequestBody requestBody = RequestBody.fromString(content, StandardCharsets.UTF_8);
+
+      PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+        .bucket(bucket)
+        .key(key)
+        .metadata(metadata)
+        .build();
+
+      try (var s3Client = s3Client()) {
+        s3Client.putObject(putObjectRequest, requestBody);
+      }
+
       log.debug("Did ship {} bytes to {}/{} OK in {}s", content.length(), bucket, key, String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
 
     } catch (Exception e) {
@@ -168,7 +199,15 @@ class FileStoreProviderImpl implements FileStoreProvider {
     if (!active) {
       throw new RuntimeException("FileStoreProvider is not active");
     }
-    return s3Client().getObjectAsString(bucket, key);
+    GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+      .bucket(bucket)
+      .key(key)
+      .build();
+
+    try (var s3Client = s3Client()) {
+      return s3Client.getObject(getObjectRequest,
+        ResponseTransformer.toBytes()).asUtf8String();
+    }
   }
 
 }
