@@ -3,7 +3,6 @@ package io.xj.nexus.dub;
 
 import com.google.common.base.Strings;
 import io.xj.lib.filestore.FileStoreException;
-import io.xj.lib.util.Files;
 import io.xj.nexus.NexusException;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -14,11 +13,12 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 
 @Service
 public class DubAudioCacheImpl implements DubAudioCache {
   final Logger log = LoggerFactory.getLogger(DubAudioCacheImpl.class);
-  final String pathPrefix;
+  String pathPrefix;
   final DubAudioCacheItemFactory dubAudioCacheItemFactory;
 
   @Autowired
@@ -27,11 +27,11 @@ public class DubAudioCacheImpl implements DubAudioCache {
     @Value("${audio.cache.file-prefix}") String audioCacheFilePrefix
   ) {
     this.dubAudioCacheItemFactory = dubAudioCacheItemFactory;
-    pathPrefix = 0 < audioCacheFilePrefix.length() ?
-      audioCacheFilePrefix :
-      Files.getTempFilePathPrefix() + "cache" + File.separator;
 
     try {
+      pathPrefix = 0 < audioCacheFilePrefix.length() ?
+        audioCacheFilePrefix :
+        Files.createTempDirectory("cache").toAbsolutePath().toString();
       // make directory for cache files
       File dir = new File(pathPrefix);
       if (!dir.exists()) {
@@ -40,13 +40,13 @@ public class DubAudioCacheImpl implements DubAudioCache {
       log.debug("Initialized audio cache directory: {}", pathPrefix);
 
     } catch (IOException e) {
-      log.error("Failed to initialize audio cache directory: {}", pathPrefix, e);
+      log.error("Failed to initialize audio cache directory", e);
     }
   }
 
   @Override
-  public String getAbsolutePath(String key) throws FileStoreException, IOException, NexusException {
+  public String load(String key, int targetFrameRate) throws FileStoreException, IOException, NexusException {
     if (Strings.isNullOrEmpty(key)) throw new FileStoreException("Can't load null or empty audio key!");
-    return dubAudioCacheItemFactory.load(key, String.format("%s%s", pathPrefix, key)).getAbsolutePath();
+    return dubAudioCacheItemFactory.load(pathPrefix, key, targetFrameRate).getAbsolutePath();
   }
 }

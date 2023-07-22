@@ -25,7 +25,7 @@ public class DubAudioCacheItemFactoryImpl implements DubAudioCacheItemFactory {
   }
 
   @Override
-  public DubAudioCacheItem load(String key, String path) throws IOException, FileStoreException, NexusException {
-    return new DubAudioCacheItem(audioBaseUrl, audioFileBucket, httpClientProvider, key, path);
+  public DubAudioCacheItem load(String cachePathPrefix, String waveformKey, int targetFrameRate) throws IOException, FileStoreException, NexusException {
+    return new DubAudioCacheItem(audioBaseUrl, audioFileBucket, httpClientProvider, waveformKey, cachePathPrefix, targetFrameRate);
   }
 }

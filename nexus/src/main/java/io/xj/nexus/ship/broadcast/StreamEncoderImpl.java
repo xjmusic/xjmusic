@@ -5,7 +5,7 @@ package io.xj.nexus.ship.broadcast;
 
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
-import io.xj.lib.util.Files;
+import io.xj.lib.util.FileUtil;
 import io.xj.lib.util.StreamLogger;
 import io.xj.lib.util.Values;
 import io.xj.nexus.ship.ShipException;
@@ -125,7 +125,7 @@ public class StreamEncoderImpl implements StreamEncoder {
         if (!new File(playlistPath).exists()) return;
 
         // parse ffmpeg .m3u8 content
-        var chunks = playlist.parseItems(Files.getFileContent(playlistPath));
+        var chunks = playlist.parseItems(FileUtil.getFileContent(playlistPath));
         for (var chunk : chunks)
           if (playlist.putNext(chunk)) {
             uploadMediaSegment(chunk.getFilename(), contentTypeSegment);

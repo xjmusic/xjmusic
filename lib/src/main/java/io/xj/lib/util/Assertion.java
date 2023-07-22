@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static io.xj.lib.util.Files.getResourceFile;
-import static io.xj.lib.util.Files.isFileSizeWithin;
+import static io.xj.lib.util.FileUtil.getResourceFile;
+import static io.xj.lib.util.FileUtil.isFileSizeWithin;
 
 /**
  Assertion utilities for testing Payload sent/received to/from a XJ Music REST JSON:API service

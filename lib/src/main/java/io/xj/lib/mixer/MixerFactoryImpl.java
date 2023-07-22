@@ -39,7 +39,7 @@ public class MixerFactoryImpl implements MixerFactory {
   }
 
   @Override
-  public Source createSource(UUID audioId, String absolutePath, String description) {
+  public Source createSource(UUID audioId, String absolutePath, String description, float frameRate) {
     return new SourceImpl(notification, audioId, absolutePath, description, environment);
   }
 }

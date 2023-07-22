@@ -357,31 +357,29 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     var avoidProgramId = fabricator.getPreviousMainChoice().map(SegmentChoice::getProgramId);
 
     // Phase 1: Directly Bound Programs, memes allowed, bonus for meme match, besides any that should be avoided
-    // Phase 3: Any Directly Bound Programs, memes allowed, bonus for meme match
     for (Program program : programsDirectlyBound(candidates)) {
       if (!iso.isAllowed(fabricator.sourceMaterial().getMemesAtBeginning(program))) continue;
       bag.add(1, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
-      bag.add(3, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
     }
 
     // Phase 2: All Published Programs, memes allowed, bonus for meme match, besides any that should be avoided
-    // Phase 4: Any Published Programs, memes allowed, bonus for meme match
-    for (Program program : programsPublished(candidates)) {
-      if (!iso.isAllowed(fabricator.sourceMaterial().getMemesAtBeginning(program))) continue;
+    // Phase 3: Any Published Programs, memes allowed, bonus for meme match
+    var published = programsPublished(candidates);
+    for (Program program : published) {
+      if (!iso.isAllowed(fabricator.sourceMaterial().getMemesAtBeginning(program))) {
+        continue;
+      }
       if (avoidProgramId.isEmpty() || !avoidProgramId.get().equals(program.getId()))
         bag.add(2, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
-      bag.add(4, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
-    }
-
-    // Phase 5: Literally Any Programs
-    for (Program program : candidates) {
-      if (iso.isAllowed(fabricator.sourceMaterial().getMemesAtBeginning(program)))
-        bag.add(5, program.getId());
+      else
+        bag.add(3, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
     }
 
     // if the bag is empty, problems
-    if (bag.isEmpty())
+    if (bag.isEmpty()) {
       throw new NexusException("Failed to choose any next main program. No candidates available!");
+    }
+
 
     // report and pick
     fabricator.putReport("mainChoice", bag.toString());

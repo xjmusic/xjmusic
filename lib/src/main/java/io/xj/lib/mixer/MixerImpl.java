@@ -122,7 +122,7 @@ class MixerImpl implements Mixer {
       return;
     }
 
-    Source source = factory.createSource(audioId, pathToFile, description);
+    Source source = factory.createSource(audioId, pathToFile, description, outputFrameRate);
     sources.put(audioId, source);
   }
 
@@ -243,8 +243,6 @@ class MixerImpl implements Mixer {
     if (source.getAudioFormat().isEmpty()) return;
     AudioFormat fmt = source.getAudioFormat().get();
 
-    int i; // iterating on frames
-    int tf, otf = -1; // target output buffer frame, and cache the old value in order to skip frames, init at -1 to force initial frame
     int ptf; // put target frame
     int b, p; // iterators: byte, put
     int tc; // iterators: source channel, target channel
@@ -261,10 +259,6 @@ class MixerImpl implements Mixer {
       srcPutSpan[p] = (int) ((srcPut[p].getStopAtMicros() - srcPut[p].getStartAtMicros()) / microsPerFrame);
     }
 
-    // ratio of target frame rate to source frame rate
-    // e.g. mixing from 96hz source to 48hz target = 0.5
-    var fr = outputFrameRate / source.getFrameRate();
-
     try (var fileInputStream = FileUtils.openInputStream(new File(source.getAbsolutePath())); var bufferedInputStream = new BufferedInputStream(fileInputStream); var audioInputStream = AudioSystem.getAudioInputStream(bufferedInputStream)) {
       var frameSize = fmt.getFrameSize();
       var channels = fmt.getChannels();
@@ -273,7 +267,7 @@ class MixerImpl implements Mixer {
       var expectBytes = audioInputStream.available();
 
       if (MAX_INT_LENGTH_ARRAY_SIZE == expectBytes)
-        throw new MixerException("loading audio steams longer than 2,147,483,647 frames (max. value of signed 32-bit integer) is not supported");
+        throw new MixerException("loading audio streams longer than 2,147,483,647 frames (max. value of signed 32-bit integer) is not supported");
 
       int expectFrames;
       if (expectBytes == source.getFrameLength()) {
@@ -294,7 +288,6 @@ class MixerImpl implements Mixer {
       byte[] readBuffer = new byte[READ_BUFFER_BYTE_SIZE];
       while (-1 != (numBytesReadToBuffer = audioInputStream.read(readBuffer))) {
         for (b = 0; b < numBytesReadToBuffer; b += frameSize) {
-          tf = (int) Math.floor(sf * fr); // compute the target frame (converted from source rate to target rate)
           // FUTURE: skip frame if unnecessary (source rate higher than target rate)
           for (tc = 0; tc < outputChannels; tc++) {
             System.arraycopy(readBuffer, b + (isStereo ? tc : 0) * sampleSize, sampleBuffer, 0, sampleSize);
@@ -305,14 +298,11 @@ class MixerImpl implements Mixer {
               else // release phase
                 ev = envelope.length(srcPut[p].getReleaseMillis() * framesPerMilli).out(sf - srcPutSpan[p], v * srcPut[p].getVelocity());
 
-              for (i = otf + 1; i <= tf; i++) {
-                ptf = srcPutFrom[p] + i;
-                if (ptf < 0 || ptf >= busBuf[0].length) continue;
-                busBuf[srcPut[p].getBus()][ptf][tc] += ev;
-              }
+              ptf = srcPutFrom[p] + sf;
+              if (ptf < 0 || ptf >= busBuf[0].length) continue;
+              busBuf[srcPut[p].getBus()][ptf][tc] += ev;
             }
           }
-          otf = tf;
           sf++;
         }
       }

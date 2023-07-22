@@ -24,7 +24,7 @@ import java.util.function.Supplier;
  */
 @Service
 public class EntityFactoryImpl implements EntityFactory {
-  static final Logger log = LoggerFactory.getLogger(EntityFactoryImpl.class);
+  static final Logger LOG = LoggerFactory.getLogger(EntityFactoryImpl.class);
   static final List<String> IGNORE_ATTRIBUTES = List.of("id", "class");
   final JsonProvider jsonProvider;
   Map<String, EntitySchema> schema = Maps.newConcurrentMap();
@@ -104,7 +104,7 @@ public class EntityFactoryImpl implements EntityFactory {
           Entities.get(target, method).ifPresentOrElse(value -> attributes.put(attributeName, value),
             () -> attributes.put(attributeName, null));
       } catch (Exception e) {
-        log.warn("Failed to transmogrify value create method {} create entity {}", method, target, e);
+        LOG.warn("Failed to transmogrify value create method {} create entity {}", method, target, e);
       }
     });
     return attributes;
@@ -116,7 +116,7 @@ public class EntityFactoryImpl implements EntityFactory {
       try {
         Entities.set(target, String.valueOf(name), attribute);
       } catch (EntityException e) {
-        log.error("Failed to set {}", attribute, e);
+        LOG.error("Failed to set {}", attribute, e);
       }
     });
   }
@@ -129,7 +129,7 @@ public class EntityFactoryImpl implements EntityFactory {
         if (tgtVal.isEmpty() || Values.isEmpty(tgtVal.get()))
           Entities.set(target, String.valueOf(name), value);
       } catch (EntityException e) {
-        log.error("Failed to set {}", value, e);
+        LOG.error("Failed to set {}", value, e);
       }
     });
   }

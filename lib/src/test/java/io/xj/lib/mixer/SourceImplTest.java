@@ -24,8 +24,6 @@ import static org.mockito.Mockito.verify;
 @RunWith(MockitoJUnitRunner.class)
 public class SourceImplTest {
   @Mock
-  EnvelopeProvider envelopeProvider;
-  @Mock
   NotificationProvider notificationProvider;
 
   MixerFactory mixerFactory;
@@ -46,20 +44,20 @@ public class SourceImplTest {
 
     F32LSB_48kHz_Stereo = mixerFactory.createSource(
       audioId_F32LSB_48kHz_Stereo,
-      new InternalResource("test_audio/F32LSB_48kHz_Stereo.wav").getFile().getAbsolutePath(), "test audio");
+      new InternalResource("test_audio/F32LSB_48kHz_Stereo.wav").getFile().getAbsolutePath(), "test audio", 48000);
 
     S16LSB_44100Hz_Mono = mixerFactory.createSource(
       audioId_S16LSB_44100Hz_Mono,
-      new InternalResource("test_audio/S16LSB_44100Hz_Mono.wav").getFile().getAbsolutePath(), "test audio");
+      new InternalResource("test_audio/S16LSB_44100Hz_Mono.wav").getFile().getAbsolutePath(), "test audio", 44100);
 
-    empty = mixerFactory.createSource(UUID.randomUUID(), "/does/not/exists", "will fail surely");
+    empty = mixerFactory.createSource(UUID.randomUUID(), "/does/not/exists", "will fail surely", 44100);
   }
 
   @Test
   public void unsupported_over2channels() throws IOException, SourceException, FormatException {
     mixerFactory.createSource(
       audioId_F32LSB_48kHz_6ch,
-      new InternalResource("test_audio/F32LSB_48kHz_6ch.wav").getFile().getAbsolutePath(), "test audio");
+      new InternalResource("test_audio/F32LSB_48kHz_6ch.wav").getFile().getAbsolutePath(), "test audio", 48000);
 
     verify(notificationProvider).publish(eq("Production-Chain Mix Source Failure"), eq("Failed to load source for Audio[" + audioId_F32LSB_48kHz_6ch + "] \"test audio\" because more than 2 input audio channels not allowed"));
   }
@@ -68,7 +66,7 @@ public class SourceImplTest {
   public void load24BitSourceAudio() throws Exception {
     assertNotNull(mixerFactory.createSource(
       audioId_F32LSB_48kHz_Stereo,
-      new InternalResource("test_audio/S24LSB_44100Hz_Stereo.wav").getFile().getAbsolutePath(), "test audio"));
+      new InternalResource("test_audio/S24LSB_44100Hz_Stereo.wav").getFile().getAbsolutePath(), "test audio", 44100));
   }
 
   @Test

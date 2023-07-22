@@ -17,11 +17,12 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.sound.sampled.AudioFormat;
+import java.nio.file.Files;
 import java.time.Duration;
 import java.util.UUID;
 
 import static io.xj.lib.util.Assertion.assertFileMatchesResourceFile;
-import static io.xj.lib.util.Files.getResourceFile;
+import static io.xj.lib.util.FileUtil.getResourceFile;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DemoIT {
@@ -88,7 +89,7 @@ public class DemoIT {
    */
   @SuppressWarnings("SameParameterValue")
   void assertMixOutputEqualsReferenceAudio(AudioFormat.Encoding encoding, int frameRate, int sampleBits, int channels, double seconds, String referenceName) throws Exception {
-    String filename = io.xj.lib.util.Files.getUniqueTempFilename(referenceName);
+    String filename = Files.createTempFile("demo-output", ".wav").toAbsolutePath().toString();
     mixAndWriteOutput(encoding, frameRate, sampleBits, channels, seconds, filename);
     assertFileMatchesResourceFile(getReferenceAudioFilename(referenceName), filename);
   }

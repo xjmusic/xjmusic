@@ -2,7 +2,7 @@
 
 package io.xj.lib.mixer;
 
-import io.xj.lib.util.Files;
+import io.xj.lib.util.FileUtil;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +15,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -49,7 +50,7 @@ public class AudioFileWriterImpl implements AudioFileWriter {
     this.outputPath.set(outputPath);
     tempFileByteCount.set(0);
     try {
-      tempFilePath.set(Files.getUniqueTempFilename("stream.pcm"));
+      tempFilePath.set(Files.createTempFile("file-output", ".pcm").toString());
       deleteIfExists(Path.of(tempFilePath.get()));
       tempFile = new FileOutputStream(tempFilePath.get(), true);
 

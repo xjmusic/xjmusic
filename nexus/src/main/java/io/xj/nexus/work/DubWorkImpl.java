@@ -24,9 +24,6 @@ import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import javax.sound.sampled.AudioFormat;
@@ -388,15 +385,14 @@ public class DubWorkImpl implements DubWork {
       String key = active.getAudio().getWaveformKey();
       if (Strings.isNullOrEmpty(key)) return;
       if (!mixer.hasLoadedSource(active.getAudio().getId())) {
-        mixer.loadSource(active.getAudio().getId(), dubAudioCache.getAbsolutePath(key), active.getAudio().getName());
+        mixer.loadSource(active.getAudio().getId(), dubAudioCache.load(key, (int) mixer.getAudioFormat().getFrameRate()), active.getAudio().getName());
       }
-      var stopAtMicros = active.getStopAtMicros().orElse(active.getStartAtMicros() + mixer.getSource(active.getAudio().getId()).getLengthMicros());
       mixer.put(
         active.getId(),
         active.getAudio().getId(),
         mixerGetBusNumber(active.getInstrument().getType()),
         active.getStartAtMicros(),
-        stopAtMicros,
+        active.getStopAtMicros().orElse(active.getStartAtMicros() + mixer.getSource(active.getAudio().getId()).getLengthMicros()),
         active.getPick().getAmplitude() * active.getAudioVolume(),
         active.getAttackMillis(),
         active.getReleaseMillis());

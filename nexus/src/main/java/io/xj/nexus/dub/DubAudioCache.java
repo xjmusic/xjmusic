@@ -9,15 +9,16 @@ import java.io.IOException;
 public interface DubAudioCache {
 
   /**
-   Get bytes of audio for a particular key
-   <p>
-   NO LONGER using Caffeine in-memory caching-- just caching on disk originally loading from S3
-   <p>
-   Advanced audio caching during fabrication https://www.pivotaltracker.com/story/show/176642679
-
-   @param key to retrieve
-   @return stream if cached; null if not
+   * Get bytes of audio for a particular key
+   * <p>
+   * NO LONGER using Caffeine in-memory caching-- just caching on disk originally loading from S3
+   * <p>
+   * Advanced audio caching during fabrication https://www.pivotaltracker.com/story/show/176642679
+   *
+   * @param key             to retrieve
+   * @param targetFrameRate to resample if necessary
+   * @return stream if cached; null if not
    */
-  String getAbsolutePath(String key) throws FileStoreException, IOException, NexusException;
+  String load(String key, int targetFrameRate) throws FileStoreException, IOException, NexusException;
 
 }
