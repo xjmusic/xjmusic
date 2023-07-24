@@ -1,8 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.telemetry;
 
-import io.opencensus.stats.Measure;
-
 /**
  Send telemetry to GCP https://www.pivotaltracker.com/story/show/180741969
  <p>
@@ -21,7 +19,7 @@ public interface TelemetryProvider {
    @param unit        of measure
    @return simple count view
    */
-  Measure.MeasureLong count(
+  TelemetryMeasureCount count(
     String name,
     String description,
     String unit
@@ -35,23 +33,23 @@ public interface TelemetryProvider {
    @param unit        of measure
    @return simple gauge view
    */
-  Measure.MeasureDouble gauge(String name, String description, String unit);
+  TelemetryMeasureGauge gauge(String name, String description, String unit);
 
   /**
-   Put a measure value, with a minimum of 0
+   Put a count measure value, with a minimum of 0
 
    @param measure to put
    @param value   to put
    */
-  void put(Measure.MeasureLong measure, Long value);
+  void put(TelemetryMeasureCount measure, Long value);
 
   /**
-   Put a measure value, with a minimum of 0
+   Put a gauge measure value, with a minimum of 0
 
    @param measure to put
    @param value   to put
    */
-  void put(Measure.MeasureDouble measure, Double value);
+  void put(TelemetryMeasureGauge measure, Double value);
 
   /**
    Prefix a name with "ship_app_" e.g. "coolair_nexus_xyz"

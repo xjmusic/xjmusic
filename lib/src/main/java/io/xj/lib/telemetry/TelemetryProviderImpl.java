@@ -2,12 +2,6 @@
 package io.xj.lib.telemetry;
 
 import com.google.api.client.util.Strings;
-import io.opencensus.exporter.stats.stackdriver.StackdriverStatsExporter;
-import io.opencensus.stats.Aggregation;
-import io.opencensus.stats.Measure;
-import io.opencensus.stats.Stats;
-import io.opencensus.stats.StatsRecorder;
-import io.opencensus.stats.View;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.util.Text;
 import org.slf4j.Logger;
@@ -15,8 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 import static io.xj.lib.util.Text.SPACE;
 import static io.xj.lib.util.Text.UNDERSCORE;
@@ -33,7 +25,6 @@ import static io.xj.lib.util.Text.UNDERSCORE;
 @Service
 class TelemetryProviderImpl implements TelemetryProvider {
   static final Logger LOG = LoggerFactory.getLogger(TelemetryProviderImpl.class);
-  static final StatsRecorder STATS_RECORDER = Stats.getStatsRecorder();
   static final String DEFAULT_SHIP_KEY = "lab";
   final String prefixA;
   final String prefixB;
@@ -57,63 +48,31 @@ class TelemetryProviderImpl implements TelemetryProvider {
       return;
     }
 
-    // Enable OpenCensus exporters to export metrics to Stackdriver Monitoring.
-    // Exporters use Application Default Credentials to authenticate.
-    // See https://developers.google.com/identity/protocols/application-default-credentials
-    // for more details.
-    try {
-      StackdriverStatsExporter.createAndRegister();
-    } catch (Exception e) {
-      LOG.warn("Exception while registering stack driver stats exporter", e);
-    }
+    // FUTURE: initialize telemetry sending mechanism
   }
 
   @Override
-  public void put(Measure.MeasureLong measure, Long value) {
+  public void put(TelemetryMeasureCount measure, Long value) {
     if (!enabled) return;
-    STATS_RECORDER.newMeasureMap().put(measure, Math.max(0, value)).record();
+    // FUTURE: send telemetry e.g. Math.max(0, value)
   }
 
   @Override
-  public void put(Measure.MeasureDouble measure, Double value) {
+  public void put(TelemetryMeasureGauge measure, Double value) {
     if (!enabled) return;
-    STATS_RECORDER.newMeasureMap().put(measure, Math.max(0, value)).record();
+    // FUTURE: send telemetry e.g. Math.max(0, value)
   }
 
   @Override
-  public Measure.MeasureLong count(String name, String desc, String unit) {
-    var measure = Measure.MeasureLong.create(prefixedLowerSnake(name), prefixedProperSpace(desc), unit);
-
-    // built the view
-    View view = View.create(View.Name.create(prefixedLowerSnake(name)),
-      prefixedProperSpace(desc),
-      measure,
-      Aggregation.Count.create(),
-      List.of());
-
-    // Register the view. It is imperative that this step exists,
-    // otherwise recorded metrics will be dropped and never exported.
-    Stats.getViewManager().registerView(view);
-
-    return measure;
+  public TelemetryMeasureCount count(String name, String desc, String unit) {
+    // FUTURE: create a count measure in our telemetry sending paradigm
+    return new TelemetryMeasureCount();
   }
 
   @Override
-  public Measure.MeasureDouble gauge(String name, String desc, String unit) {
-    var measure = Measure.MeasureDouble.create(prefixedLowerSnake(name), prefixedProperSpace(desc), unit);
-
-    // built the view
-    View view = View.create(View.Name.create(prefixedLowerSnake(name)),
-      prefixedProperSpace(desc),
-      measure,
-      Aggregation.LastValue.create(),
-      List.of());
-
-    // Register the view. It is imperative that this step exists,
-    // otherwise recorded metrics will be dropped and never exported.
-    Stats.getViewManager().registerView(view);
-
-    return measure;
+  public TelemetryMeasureGauge gauge(String name, String desc, String unit) {
+    // FUTURE: create a gauge measure in our telemetry sending paradigm
+    return new TelemetryMeasureGauge();
   }
 
   @Override
