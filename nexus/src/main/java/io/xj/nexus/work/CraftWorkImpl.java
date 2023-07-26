@@ -165,6 +165,8 @@ public class CraftWorkImpl implements CraftWork {
   final Integer jsonExpiresInSeconds;
   @Nullable
   UUID chainId;
+  @Nullable
+  private TemplateConfig templateConfig;
 
   public CraftWorkImpl(
     CraftFactory craftFactory,
@@ -256,6 +258,7 @@ public class CraftWorkImpl implements CraftWork {
   @Override
   public Optional<Chain> getChain() {
     try {
+      // when app boots up, we do not have a chain
       if (Objects.isNull(chainId)) {
         return Optional.empty();
       }
@@ -267,13 +270,15 @@ public class CraftWorkImpl implements CraftWork {
 
   @Override
   public Optional<TemplateConfig> getTemplateConfig() {
-    try {
-      var chain = getChain();
-      return chain.isPresent() ? Optional.of(new TemplateConfig(chain.get().getTemplateConfig())) : Optional.empty();
-    } catch (ValueException e) {
-      LOG.debug("Unable to retrieve template config because {}", e.getMessage());
-      return Optional.empty();
+    if (Objects.isNull(templateConfig)) {
+      try {
+        var chain = getChain();
+        templateConfig = chain.isPresent() ? (new TemplateConfig(chain.get().getTemplateConfig())) : null;
+      } catch (ValueException e) {
+        LOG.debug("Unable to retrieve template config because {}", e.getMessage());
+      }
     }
+    return Optional.ofNullable(templateConfig);
   }
 
   @Override
@@ -663,8 +668,9 @@ public class CraftWorkImpl implements CraftWork {
       double aheadSeconds = (double) ((fabricatedToChainMicros - atChainMicros) / MICROS_PER_SECOND);
       telemetryProvider.put(METRIC_FABRICATED_AHEAD_SECONDS, aheadSeconds);
 
-      var templateConfig = new TemplateConfig(target.getTemplateConfig());
-      if (aheadSeconds > templateConfig.getBufferAheadSeconds()) return;
+      var templateConfig = getTemplateConfig();
+      if (templateConfig.isEmpty()) return;
+      if (aheadSeconds > templateConfig.get().getBufferAheadSeconds()) return;
 
       timer.section("BuildNext");
       Optional<Segment> nextSegment = buildNextSegment(target);
