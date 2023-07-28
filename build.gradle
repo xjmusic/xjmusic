@@ -5,19 +5,21 @@ plugins {
   id 'application'
   id 'distribution'
   //
-  id 'com.commercehub.gradle.plugin.avro' version '0.9.1'
   id 'de.undercouch.download' version "4.0.4"
   id 'org.ajoberstar.grgit' version '4.1.0'
   //
   id "org.flywaydb.flyway" version "9.16.1" apply false
-  id 'com.google.cloud.tools.jib' version '3.2.1' apply false
+  id 'com.google.cloud.tools.jib' version '3.3.2' apply false
   id 'io.spring.dependency-management' version '1.0.15.RELEASE' apply false
   id 'nu.studer.jooq' version '6.0.1' apply false
   id 'org.springframework.boot' version '2.7.6' apply false
 }
 
 ext {
+  googleApiClientVersion = '2.2.0'
+  googleApiServicePlusVersion = 'v1-rev590-1.25.0'
   guavaVersion = '31.1-jre'
+  jacksonAnnotationsVersion = '2.15.2'
   springBootVersion = '2.7.6'
   springTestVersion = '5.3.24'
 }
@@ -51,8 +53,8 @@ subprojects {
   }
 
   java {
-    sourceCompatibility = JavaVersion.VERSION_16
-    targetCompatibility = JavaVersion.VERSION_16
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
   }
 }
 

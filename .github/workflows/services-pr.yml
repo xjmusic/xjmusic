@@ -38,6 +38,8 @@ jobs:
 
       - uses: burrunan/gradle-cache-action@v1
         name: Cache Gradle
+        with:
+          job-id: jdk17
 
       - name: Install and cache system packages
         uses: awalsh128/cache-apt-pkgs-action@latest
@@ -48,10 +50,10 @@ jobs:
       - name: Ensure Postgres started OK
         run: sudo docker start $(docker ps -a -q)
 
-      - name: Setup JDK 16
+      - name: Setup JDK 17
         uses: actions/setup-java@v1
         with:
-          java-version: 16
+          java-version: 17
           java-package: jdk
 
       - name: Create Postgres databases
