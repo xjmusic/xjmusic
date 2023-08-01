@@ -2,7 +2,7 @@
 
 package io.xj.hub.service;
 
-import com.google.api.client.util.Lists;
+import com.google.common.collect.Lists;
 import com.google.api.gax.rpc.ApiException;
 import com.google.cloud.logging.LogEntry;
 import com.google.cloud.logging.Logging;

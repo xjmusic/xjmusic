@@ -988,7 +988,7 @@ public class CraftWorkImpl implements CraftWork {
     if (!isRehydrationEnabled) return Optional.empty();
     if (outputMode.isLocal()) return Optional.empty();
     var success = new AtomicBoolean(true);
-    Collection<Object> entities = com.google.api.client.util.Lists.newArrayList();
+    Collection<Object> entities = com.google.common.collect.Lists.newArrayList();
     JsonapiPayload chainPayload;
     Chain chain;
 

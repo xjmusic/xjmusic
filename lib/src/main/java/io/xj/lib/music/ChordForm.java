@@ -1,6 +1,6 @@
 package io.xj.lib.music;
 
-import com.google.api.client.util.Strings;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 import java.util.List;

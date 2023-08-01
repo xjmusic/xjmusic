@@ -3,7 +3,7 @@
 package io.xj.hub.ingest;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.api.client.util.Lists;
+import com.google.common.collect.Lists;
 import io.xj.hub.tables.pojos.*;
 
 import java.util.Collection;

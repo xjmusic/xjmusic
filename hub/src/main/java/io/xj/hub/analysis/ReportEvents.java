@@ -1,6 +1,6 @@
 package io.xj.hub.analysis;
 
-import com.google.api.client.util.Maps;
+import com.google.common.collect.Maps;
 import com.google.api.client.util.Sets;
 import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.InstrumentType;

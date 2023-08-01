@@ -1,6 +1,6 @@
 package io.xj.lib.meme;
 
-import com.google.api.client.util.Strings;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import io.xj.lib.util.Text;
 

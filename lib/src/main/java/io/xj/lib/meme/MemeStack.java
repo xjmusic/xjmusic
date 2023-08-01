@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.meme;
 
-import com.google.api.client.util.Lists;
+import com.google.common.collect.Lists;
 import io.xj.lib.util.Text;
 
 import java.util.Collection;

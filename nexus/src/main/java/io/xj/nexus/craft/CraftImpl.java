@@ -2,8 +2,8 @@
 
 package io.xj.nexus.craft;
 
-import com.google.api.client.util.Lists;
-import com.google.api.client.util.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import io.xj.hub.client.HubClientException;

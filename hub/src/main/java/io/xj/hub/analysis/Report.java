@@ -2,7 +2,7 @@
 
 package io.xj.hub.analysis;
 
-import com.google.api.client.util.Maps;
+import com.google.common.collect.Maps;
 import com.google.api.client.util.Sets;
 import com.google.common.collect.Streams;
 import io.xj.hub.client.HubClientException;

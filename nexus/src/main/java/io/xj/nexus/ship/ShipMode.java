@@ -2,7 +2,7 @@
 
 package io.xj.nexus.ship;
 
-import com.google.api.client.util.Strings;
+import com.google.common.base.Strings;
 
 import java.util.Arrays;
 import java.util.Locale;

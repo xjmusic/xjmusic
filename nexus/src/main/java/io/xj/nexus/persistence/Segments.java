@@ -2,7 +2,7 @@
 
 package io.xj.nexus.persistence;
 
-import com.google.api.client.util.Lists;
+import com.google.common.collect.Lists;
 import com.google.common.base.Strings;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;

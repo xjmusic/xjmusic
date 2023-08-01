@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.telemetry;
 
-import com.google.api.client.util.Strings;
+import com.google.common.base.Strings;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.util.Text;
 import org.slf4j.Logger;

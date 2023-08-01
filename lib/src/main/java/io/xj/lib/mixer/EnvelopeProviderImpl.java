@@ -2,7 +2,7 @@
 
 package io.xj.lib.mixer;
 
-import com.google.api.client.util.Maps;
+import com.google.common.collect.Maps;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;

@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.persistence;
 
-import com.google.api.client.util.Strings;
+import com.google.common.base.Strings;
 import com.zaxxer.hikari.HikariDataSource;
 import io.xj.hub.manager.Manager;
 import org.jooq.DSLContext;

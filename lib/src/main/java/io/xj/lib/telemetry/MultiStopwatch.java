@@ -2,7 +2,7 @@
 
 package io.xj.lib.telemetry;
 
-import com.google.api.client.util.Maps;
+import com.google.common.collect.Maps;
 import io.xj.lib.util.Values;
 
 import javax.annotation.Nullable;
