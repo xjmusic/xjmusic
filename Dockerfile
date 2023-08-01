@@ -10,7 +10,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install software
 # Install C Build Tools
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install build-essential make
 
-# Install Java 17
+# Install JDK 17
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install openjdk-17-jdk
 
 # Install FFMPEG
