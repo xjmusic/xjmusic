@@ -1,4 +1,4 @@
-// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.manager;
 
 import io.xj.hub.HubTopology;
@@ -34,13 +34,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
-import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
-import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
-import static io.xj.hub.IntegrationTestingFixtures.buildTemplateBinding;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildAccount;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildLibrary;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplate;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplateBinding;
 import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildHubClientAccess;
+import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildHubClientAccess;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;

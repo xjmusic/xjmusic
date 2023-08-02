@@ -1,10 +1,10 @@
-// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.lib.util;
 
 import io.xj.lib.mixer.AudioSampleFormat;
 import io.xj.lib.mixer.FormatException;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import javax.sound.sampled.AudioFormat;
 import java.nio.ByteBuffer;
 import java.time.Instant;

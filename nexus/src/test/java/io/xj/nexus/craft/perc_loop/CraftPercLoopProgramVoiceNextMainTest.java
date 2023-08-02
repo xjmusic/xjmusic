@@ -1,4 +1,4 @@
-// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.craft.perc_loop;
 
 import io.xj.hub.HubTopology;
@@ -18,7 +18,7 @@ import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.NexusIntegrationTestingFixtures;
+import io.xj.test_fixtures.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.craft.CraftFactoryImpl;
@@ -48,14 +48,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.hub.IntegrationTestingFixtures.buildInstrument;
-import static io.xj.hub.IntegrationTestingFixtures.buildInstrumentAudio;
-import static io.xj.hub.IntegrationTestingFixtures.buildInstrumentMeme;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChord;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentMeme;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildInstrument;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildInstrumentAudio;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildInstrumentMeme;
+import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegment;
+import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChoice;
+import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChord;
+import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentMeme;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CraftPercLoopProgramVoiceNextMainTest {

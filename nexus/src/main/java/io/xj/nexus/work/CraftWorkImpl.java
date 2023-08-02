@@ -1,15 +1,10 @@
-// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.work;
 
 import io.xj.hub.TemplateConfig;
-import io.xj.nexus.hub_client.HubClient;
-import io.xj.nexus.hub_client.HubClientAccess;
-import io.xj.nexus.hub_client.HubClientException;
-import io.xj.hub.ingest.HubContent;
+import io.xj.hub.Templates;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.manager.Templates;
-import io.xj.hub.service.PreviewNexusAdmin;
-import io.xj.hub.service.ServiceException;
+import io.xj.hub.ingest.HubContent;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Program;
@@ -41,6 +36,9 @@ import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.fabricator.FabricationFatalException;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
+import io.xj.nexus.hub_client.HubClient;
+import io.xj.nexus.hub_client.HubClientAccess;
+import io.xj.nexus.hub_client.HubClientException;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.Segment;
@@ -61,12 +59,12 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -153,7 +151,6 @@ public class CraftWorkImpl implements CraftWork {
   long nextCycleMillis = System.currentTimeMillis();
   long nextJanitorMillis = System.currentTimeMillis();
   long nextMedicMillis = System.currentTimeMillis();
-  final PreviewNexusAdmin previewNexusAdmin;
   long atChainMicros = 0;
   final InputMode inputMode;
   final String inputTemplateKey;
@@ -178,7 +175,6 @@ public class CraftWorkImpl implements CraftWork {
     LockProvider lockProvider,
     NexusEntityStore store,
     NotificationProvider notification,
-    PreviewNexusAdmin previewNexusAdmin,
     SegmentManager segmentManager,
     TelemetryProvider telemetryProvider,
     String inputMode,
@@ -201,7 +197,6 @@ public class CraftWorkImpl implements CraftWork {
     this.segmentManager = segmentManager;
     this.store = store;
     this.telemetryProvider = telemetryProvider;
-    this.previewNexusAdmin = previewNexusAdmin;
     this.tempFilePathPrefix = tempFilePathPrefix;
     this.inputTemplateKey = inputTemplateKey;
     this.environment = environment;
@@ -880,14 +875,12 @@ public class CraftWorkImpl implements CraftWork {
     Optional<TemplatePlayback> templatePlayback = readPreviewTemplatePlayback();
     if (templatePlayback.isEmpty()) {
       LOG.debug("No preview template playback found");
-      selfDestructPreviewTemplate();
       return false;
     }
 
     Optional<Template> template = readPreviewTemplate(templatePlayback.get());
     if (template.isEmpty()) {
       LOG.debug("No preview template found");
-      selfDestructPreviewTemplate();
       return false;
     }
 
@@ -899,27 +892,10 @@ public class CraftWorkImpl implements CraftWork {
       }
     } catch (ManagerFatalException e) {
       LOG.error("Failed to start Chain(s) for playing Template(s) because {}", e.getMessage());
-      selfDestructPreviewTemplate();
       return false;
     }
 
     return true;
-  }
-
-  /**
-   * Self-destruct the Preview Template
-   */
-  void selfDestructPreviewTemplate() {
-    if (Objects.isNull(fabricationPreviewTemplatePlaybackId)) return;
-    try {
-      LOG.info("Will self-destruct stale TemplatePlayback[{}]", fabricationPreviewTemplatePlaybackId);
-      running.set(false);
-      var templatePlayback = new TemplatePlayback();
-      templatePlayback.setId(fabricationPreviewTemplatePlaybackId);
-      previewNexusAdmin.stopPreviewNexus(templatePlayback);
-    } catch (ServiceException e) {
-      LOG.error("Failed to self-destruct stale TemplatePlayback[{}] because {}", fabricationPreviewTemplatePlaybackId, e.getMessage());
-    }
   }
 
   /**

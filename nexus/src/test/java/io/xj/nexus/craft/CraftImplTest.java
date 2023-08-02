@@ -1,4 +1,4 @@
-// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 package io.xj.nexus.craft;
 
@@ -39,16 +39,16 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
-import static io.xj.hub.IntegrationTestingFixtures.buildInstrument;
-import static io.xj.hub.IntegrationTestingFixtures.buildInstrumentAudio;
-import static io.xj.hub.IntegrationTestingFixtures.buildInstrumentMeme;
-import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
-import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildAccount;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildInstrument;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildInstrumentAudio;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildInstrumentMeme;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildLibrary;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildProgram;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplate;
+import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegment;
+import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChoice;
 import static io.xj.nexus.persistence.Segments.DELTA_UNLIMITED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

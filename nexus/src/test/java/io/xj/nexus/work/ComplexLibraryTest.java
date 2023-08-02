@@ -1,11 +1,10 @@
-// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.work;
 
 import io.xj.hub.HubTopology;
 import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.hub.ingest.HubContent;
-import io.xj.hub.service.PreviewNexusAdmin;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
@@ -17,7 +16,7 @@ import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.lib.lock.LockProvider;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.TelemetryProvider;
-import io.xj.nexus.NexusIntegrationTestingFixtures;
+import io.xj.test_fixtures.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.craft.CraftFactoryImpl;
@@ -45,8 +44,8 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Objects;
 
-import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
-import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildAccount;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildLibrary;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -71,8 +70,6 @@ public class ComplexLibraryTest {
   public NotificationProvider notificationProvider;
   @Mock
   public TelemetryProvider telemetryProvider;
-  @Mock
-  PreviewNexusAdmin previewNexusAdmin;
   long startTime = System.currentTimeMillis();
   AppWorkThread workThread;
   SegmentManager segmentManager;
@@ -135,8 +132,7 @@ public class ComplexLibraryTest {
       lockProvider,
       store,
       notificationProvider,
-      previewNexusAdmin,
-      segmentManager,
+            segmentManager,
       telemetryProvider,
       "production",
       "playback",

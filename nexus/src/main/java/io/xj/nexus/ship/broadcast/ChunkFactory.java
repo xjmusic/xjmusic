@@ -1,8 +1,8 @@
-// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.ship.broadcast;
 
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189

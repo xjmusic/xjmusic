@@ -1,4 +1,4 @@
-// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 package io.xj.nexus.fabricator;
 
@@ -17,7 +17,7 @@ import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.lib.music.StickyBun;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.NexusIntegrationTestingFixtures;
+import io.xj.test_fixtures.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
@@ -42,9 +42,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentMeta;
+import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegment;
+import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChoice;
+import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentMeta;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;

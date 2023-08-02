@@ -1,4 +1,4 @@
-// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 package io.xj.nexus.fabricator;
 
@@ -18,7 +18,7 @@ import io.xj.lib.music.Note;
 import io.xj.lib.music.StickyBun;
 import io.xj.lib.util.ValueException;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.NexusIntegrationTestingFixtures;
+import io.xj.test_fixtures.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
@@ -52,25 +52,25 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
-import static io.xj.hub.IntegrationTestingFixtures.buildEvent;
-import static io.xj.hub.IntegrationTestingFixtures.buildPattern;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
-import static io.xj.hub.IntegrationTestingFixtures.buildSequence;
-import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
-import static io.xj.hub.IntegrationTestingFixtures.buildTemplateBinding;
-import static io.xj.hub.IntegrationTestingFixtures.buildTrack;
-import static io.xj.hub.IntegrationTestingFixtures.buildVoice;
-import static io.xj.hub.IntegrationTestingFixtures.buildVoicing;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildAccount;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildEvent;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildPattern;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildProgram;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildSequence;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplate;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplateBinding;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTrack;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildVoice;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildVoicing;
 import static io.xj.lib.music.NoteTest.assertNote;
 import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoiceArrangement;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoiceArrangementPick;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChord;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentMeta;
+import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegment;
+import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChoice;
+import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChoiceArrangement;
+import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChoiceArrangementPick;
+import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChord;
+import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentMeta;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

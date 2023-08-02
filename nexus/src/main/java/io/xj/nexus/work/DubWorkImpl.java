@@ -1,4 +1,4 @@
-// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.work;
 
 import io.xj.hub.TemplateConfig;
@@ -23,7 +23,7 @@ import io.xj.nexus.model.Segment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import javax.sound.sampled.AudioFormat;
 import java.io.IOException;
 import java.util.List;

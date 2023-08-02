@@ -1,52 +1,10 @@
-| Production                                                                                                                                                                     | Development                                                                                                                                                                   |
-|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [![Production CI](https://github.com/xjmusic/services/actions/workflows/services-prod.yml/badge.svg)](https://github.com/xjmusic/services/actions/workflows/services-prod.yml) | [![Development CI](https://github.com/xjmusic/services/actions/workflows/services-dev.yml/badge.svg)](https://github.com/xjmusic/services/actions/workflows/services-dev.yml) |
+| Continuous Integration                                                                                                                                                      |
+|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [![Continuous Integration](https://github.com/xjmusic/workstation/actions/workflows/main.yml/badge.svg)](https://github.com/xjmusic/workstation/actions/workflows/main.yml) |
 
-|              | GCP                                                                                                                                                                                 |
-|--------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| _Base Image_ | [![Base Image (GCP)](https://github.com/xjmusic/services/actions/workflows/services-base.yaml/badge.svg)](https://github.com/xjmusic/services/actions/workflows/services-base.yaml) |
+# XJ music workstation
 
-# XJ Music Backend (Java) Services
-
-*Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.*
-
-## Deployment
-
-CI builds & deploys the `prod` branch to Production, and `dev` to Development.
-
-# XJ service deployment on AWS and GCP
-
-### Connecting to Cloud SQL Postgres
-
-To obtain credentials for the Lab Postgres database, run:
-
-```shell
-gcloud secrets versions access latest --secret=xj-lab-postgres-username
-gcloud secrets versions access latest --secret=xj-lab-postgres-password
-```
-
-To proxy a local port to the Google Cloud SQL (Postgres) instance:
-
-```shell
-gcloud sql connect xj-lab-postgres --user=$lab_postgres_username --quiet
-```
-
-Use the `cloud-sql-proxy` utility to proxy a database connection to the Cloud SQL instance:
-
-```shell
-cloud-sql-proxy xj-vpc-host-prod:us-west1:xj-lab-postgres
-```
-
-And here's all the steps to connect to the locally proxied database:
-
-```shell
-PGUSERNAME=$(gcloud secrets versions access latest --secret=xj-lab-postgres-username)
-export PGPASSWORD=$(gcloud secrets versions access latest --secret=xj-lab-postgres-password)
-psql --host=127.0.0.1 --port=5432 --user=${PGUSERNAME} xj_dev
-```
-
-Note, when importing a SQL dump into a Cloud SQL instance be sure to use the proper user (there's an advanced user
-dropdown)
+*Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.*
 
 ## Art
 
@@ -61,7 +19,7 @@ the [XJ music User Guide](https://docs.google.com/document/d/1Jp1DT7jJ3Xn1pR5495
 ### Architecture
 
 Here's the general architecture of the XJ Music platform backend
-services. [(Download PDF)](art/XJLabStreamingSegmentsArchitecture.pdf)
+workstation. [(Download PDF)](art/XJLabStreamingSegmentsArchitecture.pdf)
 
 ![XJ Lab Streaming Segments Architecture](art/XJLabStreamingSegmentsArchitecture.svg)
 
@@ -95,12 +53,8 @@ services. [(Download PDF)](art/XJLabStreamingSegmentsArchitecture.pdf)
 
 ## Dependencies
 
-* Java 16
-* Gradle (6+ via SDKMAN!)
-
-## Service Ports
-
-Services expose pose 8080
+* Java 17
+* Gradle 8
 
 ## Chain Work
 
@@ -224,7 +178,7 @@ https://developers.google.com/+/web/samples/java
 
 Here's the official XJ Music Inc copyright Velocity template:
 
-    Copyright (c) 1999-${today.year}, XJ Music Inc. (https://xj.io) All Rights Reserved.
+    Copyright (c) 1999-${today.year}, XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 ## Troubleshooting the build
 

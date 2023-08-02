@@ -1,4 +1,4 @@
-// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 plugins {
   id 'java'
@@ -12,8 +12,9 @@ plugins {
   id 'com.google.cloud.tools.jib' version '3.3.2' apply false
   id 'io.spring.dependency-management' version '1.0.15.RELEASE' apply false
   id 'nu.studer.jooq' version '6.0.1' apply false
+  id 'org.openjfx.javafxplugin' version '0.0.13' apply false
   id 'org.springframework.boot' version '2.7.6' apply false
-}
+ }
 
 ext {
   googleApiClientVersion = '2.2.0'
@@ -21,6 +22,12 @@ ext {
   jacksonAnnotationsVersion = '2.15.2'
   springBootVersion = '2.7.6'
   springTestVersion = '5.3.24'
+  googleExclusion = {
+    exclude group: 'com.google'
+    exclude group: 'com.google.api-client'
+    exclude group: 'com.google.cloud'
+    exclude group: 'com.google.api.grpc'
+  }
 }
 
 allprojects {
@@ -49,11 +56,16 @@ subprojects {
     maven {
       url = 'https://oss.sonatype.org/content/repositories/releases'
     }
+    maven {
+      name = "TarsosDSP repository"
+      url = "https://mvn.0110.be/releases"
+    }
   }
 
   java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
+    modularity.inferModulePath = true
   }
 }
 

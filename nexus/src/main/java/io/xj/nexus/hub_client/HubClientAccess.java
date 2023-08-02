@@ -1,11 +1,11 @@
-// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.hub_client;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.xj.hub.enums.UserRoleType;
 import io.xj.lib.entity.Entities;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;

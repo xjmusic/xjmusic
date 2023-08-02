@@ -1,8 +1,7 @@
-// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 package io.xj.nexus;
 
-import ch.qos.logback.classic.LoggerContext;
 import io.xj.hub.HubTopology;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
@@ -24,8 +23,7 @@ import org.springframework.context.event.EventListener;
 @ComponentScan(
   basePackages = {
     "io.xj.lib",
-    "io.xj.hub.client",
-    "io.xj.hub.service",
+    "io.xj.hub",
     "io.xj.nexus",
   })
 public class NexusApplication {
@@ -55,14 +53,6 @@ public class NexusApplication {
 
   @EventListener(ApplicationStartedEvent.class)
   public void start() throws NexusException {
-    // Add context to logs
-    LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-    lc.setPackagingDataEnabled(true);
-    lc.putProperty("source", "java");
-    lc.putProperty("service", "nexus");
-    lc.putProperty("host", hostname);
-    lc.putProperty("env", environment);
-
     // Setup Entity topology
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);

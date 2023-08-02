@@ -1,9 +1,9 @@
-// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.lib.lock;
 
 import io.xj.lib.util.StringUtils;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * When Nexus reads a chain lock hash that does not match its own, that instance gracefully terminates itself (instead of writing anything)
