@@ -36,32 +36,19 @@ repositories {
 }
 
 dependencies {
-  implementation(project(":hub")) {
-    exclude group: 'com.google'
-    exclude group: 'com.google.api-client'
-    exclude group: 'com.google.cloud'
-  }
+  // hub
+  implementation(project(":hub"), rootProject.ext.googleExclusion)
+  testImplementation(testFixtures(project(":hub")), rootProject.ext.googleExclusion)
+  testFixturesImplementation(project(":hub"), rootProject.ext.googleExclusion)
+  testFixturesImplementation(testFixtures(project(":hub")), rootProject.ext.googleExclusion)
+  // lib
   implementation project(":lib")
-  testImplementation(testFixtures(project(":hub"))) {
-    exclude group: 'com.google'
-    exclude group: 'com.google.api-client'
-    exclude group: 'com.google.cloud'
-  }
-  testImplementation(testFixtures(project(":nexus")))
   testFixturesImplementation(project(":lib"))
-  testFixturesImplementation(project(":hub")) {
-    exclude group: 'com.google'
-    exclude group: 'com.google.api-client'
-    exclude group: 'com.google.cloud'
-  }
   testFixturesImplementation(project(":lib"))
-  testFixturesImplementation(testFixtures(project(":hub"))) {
-    exclude group: 'com.google'
-    exclude group: 'com.google.api-client'
-    exclude group: 'com.google.cloud'
-  }
   testImplementation(project(':lib').sourceSets.test.output)
-  //
+  // nexus
+  testImplementation(testFixtures(project(":nexus")))
+  // vendor
   implementation "com.fasterxml.jackson.core:jackson-annotations:${rootProject.ext.jacksonAnnotationsVersion}"
   implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:${rootProject.ext.jacksonAnnotationsVersion}"
   implementation "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:${rootProject.ext.jacksonAnnotationsVersion}"

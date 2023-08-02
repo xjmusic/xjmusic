@@ -1,0 +1,61 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+
+plugins {
+  id 'java'
+  id 'application'
+  //
+  id 'org.openjfx.javafxplugin'
+}
+
+group 'io.xj'
+version '1.0-SNAPSHOT'
+
+repositories {
+  mavenCentral()
+}
+
+ext {
+  junitVersion = '5.9.2'
+}
+
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
+tasks.withType(JavaCompile) {
+  options.encoding = 'UTF-8'
+}
+
+jar {
+  manifest {
+    attributes 'Main-Class': 'io.xj.workstation.WorkstationApplication'
+  }
+  from {
+    configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+  }
+}
+
+mainClassName = 'io.xj.workstation.WorkstationApplication'
+
+javafx {
+  version = '20.0.1'
+  modules = ['javafx.controls', 'javafx.fxml']
+}
+
+dependencies {
+  // hub
+  implementation(project(":hub"), rootProject.ext.googleExclusion)
+  testImplementation(testFixtures(project(":hub")), rootProject.ext.googleExclusion)
+  // lib
+  implementation project(":lib")
+  testImplementation(project(':lib').sourceSets.test.output)
+  // nexus
+  testImplementation(testFixtures(project(":nexus")))
+  implementation project(path: ':nexus')
+  // vendor
+  testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
+  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+}
+
+test {
+  useJUnitPlatform()
+}

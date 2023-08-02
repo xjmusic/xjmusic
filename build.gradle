@@ -12,6 +12,7 @@ plugins {
   id 'com.google.cloud.tools.jib' version '3.3.2' apply false
   id 'io.spring.dependency-management' version '1.0.15.RELEASE' apply false
   id 'nu.studer.jooq' version '6.0.1' apply false
+  id 'org.openjfx.javafxplugin' version '0.0.13' apply false
   id 'org.springframework.boot' version '2.7.6' apply false
 }
 
@@ -21,6 +22,12 @@ ext {
   jacksonAnnotationsVersion = '2.15.2'
   springBootVersion = '2.7.6'
   springTestVersion = '5.3.24'
+  googleExclusion = {
+    exclude group: 'com.google'
+    exclude group: 'com.google.api-client'
+    exclude group: 'com.google.cloud'
+    exclude group: 'com.google.api.grpc'
+  }
 }
 
 allprojects {

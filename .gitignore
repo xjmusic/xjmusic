@@ -46,3 +46,7 @@ data/
 
 # Bootstrap chains
 bootstrap-chains.json
+/hub/out/
+/lib/out/
+/nexus/out/
+/workstation/out/
