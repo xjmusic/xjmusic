@@ -2,7 +2,9 @@ package io.xj.lib.music;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class SlashRootTest {
 
@@ -23,7 +25,7 @@ public class SlashRootTest {
 
   @Test
   public void pre() {
-    assertEquals("",SlashRoot.of("/G").getPre());
+    assertEquals("", SlashRoot.of("/G").getPre());
     assertEquals("maj7", SlashRoot.pre("maj7"));
     assertEquals("m", SlashRoot.pre("m/Bb"));
     assertEquals("", SlashRoot.pre("/G"));
@@ -37,8 +39,8 @@ public class SlashRootTest {
 
 
   /**
-   XJ should correctly choose chords with tensions notated via slash and not confuse them with slash chords
-   https://www.pivotaltracker.com/story/show/183738228
+   * XJ should correctly choose chords with tensions notated via slash and not confuse them with slash chords
+   * https://www.pivotaltracker.com/story/show/183738228
    */
   @Test
   public void onlyNotes() {
@@ -61,21 +63,21 @@ public class SlashRootTest {
   }
 
   /**
-   XJ should correctly choose chords with tensions notated via slash and not confuse them with slash chords
-   https://www.pivotaltracker.com/story/show/183738228
+   * XJ should correctly choose chords with tensions notated via slash and not confuse them with slash chords
+   * https://www.pivotaltracker.com/story/show/183738228
    */
   @Test
   public void constructor_dontConfuseTensionWithSlash() {
     var tension = SlashRoot.of("C 7/9");
     assertEquals("C 7/9", tension.getPre());
-    assertEquals(PitchClass.None,tension.getPitchClass());
-    assertEquals("",tension.getPost());
+    assertEquals(PitchClass.None, tension.getPitchClass());
+    assertEquals("", tension.getPost());
   }
 
 
   /**
-   XJ should correctly choose chords with tensions notated via slash and not confuse them with slash chords
-   https://www.pivotaltracker.com/story/show/183738228
+   * XJ should correctly choose chords with tensions notated via slash and not confuse them with slash chords
+   * https://www.pivotaltracker.com/story/show/183738228
    */
   @Test
   public void isPresent_dontConfuseTensionWithSlash() {

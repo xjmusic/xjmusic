@@ -3,12 +3,11 @@ package io.xj.lib.app;
 
 
 import javax.annotation.security.PermitAll;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
 /**
- Health resource.
+ * Health resource.
  */
 @Path("healthz")
 public class TestAppHealthEndpoint {

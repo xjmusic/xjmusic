@@ -2,14 +2,11 @@
 
 package io.xj.nexus.persistence;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityStoreImpl;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
@@ -32,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -44,9 +42,9 @@ import java.util.stream.Collectors;
 public class NexusEntityStoreImpl implements NexusEntityStore {
   static final Logger LOG = LoggerFactory.getLogger(EntityStoreImpl.class);
   static final String SEGMENT_ID_ATTRIBUTE = Entities.toIdAttribute(Entities.toBelongsTo(Segment.class));
-  final Map<UUID/*ID*/, Chain> chainMap = Maps.newConcurrentMap();
-  final Map<UUID/*ID*/, Segment> segmentMap = Maps.newConcurrentMap();
-  final Map<UUID/*SegID*/, Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>>> store = Maps.newConcurrentMap();
+  final Map<UUID/*ID*/, Chain> chainMap = new ConcurrentHashMap<>();
+  final Map<UUID/*ID*/, Segment> segmentMap = new ConcurrentHashMap<>();
+  final Map<UUID/*SegID*/, Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>>> store = new ConcurrentHashMap<>();
   final EntityFactory entityFactory;
 
   @Autowired
@@ -124,7 +122,7 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   public <N> Collection<N> getAll(UUID segmentId, Class<N> type) throws NexusException {
     try {
       if (!store.containsKey(segmentId) || !store.get(segmentId).containsKey(type))
-        return ImmutableList.of();
+        return List.of();
       //noinspection unchecked
       return (Collection<N>) store.get(segmentId).get(type).values().stream()
         .filter(entity -> type.equals(entity.getClass()))
@@ -139,7 +137,7 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   public <N, B> Collection<N> getAll(UUID segmentId, Class<N> type, Class<B> belongsToType, Collection<UUID> belongsToIds) throws NexusException {
     try {
       if (!store.containsKey(segmentId) || !store.get(segmentId).containsKey(type))
-        return ImmutableList.of();
+        return List.of();
       //noinspection unchecked
       return (Collection<N>) store.get(segmentId).get(type).values().stream()
         .filter(entity -> Entities.isChild(entity, belongsToType, belongsToIds))
@@ -174,7 +172,7 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
     }
 
     // fail to store entity with unset id
-    if (!Values.isSet(id))
+    if (!ValueUtils.isSet(id))
       throw new NexusException(String.format("Can't store %s with null id",
         entity.getClass().getSimpleName()));
 
@@ -197,8 +195,8 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
           .orElseThrow(() -> new NexusException(String.format("Can't store %s without Segment ID!",
             entity.getClass().getSimpleName())));
         UUID segmentId = UUID.fromString(String.valueOf(segmentIdValue));
-        store.putIfAbsent(segmentId, Maps.newConcurrentMap());
-        store.get(segmentId).putIfAbsent(entity.getClass(), Maps.newConcurrentMap());
+        store.putIfAbsent(segmentId, new ConcurrentHashMap<>());
+        store.get(segmentId).putIfAbsent(entity.getClass(), new ConcurrentHashMap<>());
         store.get(segmentId).get(entity.getClass()).put(id, entity);
       } catch (EntityException e) {
         throw new NexusException(e);
@@ -224,7 +222,7 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
 
   @Override
   public List<SegmentChoiceArrangementPick> getPicks(List<Segment> segments) throws NexusException {
-    List<SegmentChoiceArrangementPick> picks = Lists.newArrayList();
+    List<SegmentChoiceArrangementPick> picks = new ArrayList<>();
     for (Segment segment : segments) {
       picks.addAll(getAll(segment.getId(), SegmentChoiceArrangementPick.class));
     }

@@ -1,9 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.craft;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.Set;
 import io.xj.hub.HubTopology;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.client.HubClient;
@@ -27,7 +25,7 @@ import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.lib.music.StickyBun;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.util.CSV;
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
@@ -51,20 +49,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
 import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
-import static io.xj.lib.util.Values.MICROS_PER_SECOND;
+import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
 import static org.junit.Assert.assertEquals;
 
@@ -75,7 +74,7 @@ import static org.junit.Assert.assertEquals;
 public class ArrangementTests extends YamlTest {
   static final String TEST_PATH_PREFIX = "/arrangements/";
   static final int REPEAT_EACH_TEST_TIMES = 7;
-  static final Set<InstrumentType> INSTRUMENT_TYPES_TO_TEST = ImmutableSet.of(
+  static final Set<InstrumentType> INSTRUMENT_TYPES_TO_TEST = Set.of(
     InstrumentType.Bass,
     InstrumentType.Pad,
     InstrumentType.Stab,
@@ -223,7 +222,7 @@ FUTURE goal
         loadAndPerformAssertions(data);
 
       } catch (Exception e) {
-        failures.add(String.format("[%s] Exception: %s", filename, Text.formatStackTrace(e)));
+        failures.add(String.format("[%s] Exception: %s", filename, StringUtils.formatStackTrace(e)));
       }
   }
 
@@ -254,16 +253,16 @@ FUTURE goal
     chain = store.put(NexusIntegrationTestingFixtures.buildChain(template1));
 
     // prepare list of all entities to return from Hub
-    content = Lists.newArrayList(template1, library1, mainProgram1);
+    content = new ArrayList<>(List.of(template1, library1, mainProgram1));
 
     // prepare maps with specific entities that will reference each other
-    instruments = Maps.newHashMap();
-    detailPrograms = Maps.newHashMap();
-    detailProgramVoices = Maps.newHashMap();
-    detailProgramSequences = Maps.newHashMap();
-    detailProgramSequencePatternEvents = Maps.newHashMap();
-    stickyBuns = Lists.newArrayList();
-    segmentChoices = Maps.newHashMap();
+    instruments = new HashMap<>();
+    detailPrograms = new HashMap<>();
+    detailProgramVoices = new HashMap<>();
+    detailProgramSequences = new HashMap<>();
+    detailProgramSequencePatternEvents = new HashMap<>();
+    stickyBuns = new ArrayList<>();
+    segmentChoices = new HashMap<>();
   }
 
   /**
@@ -328,7 +327,7 @@ FUTURE goal
         getStr(eObj, "tones"));
       content.add(event);
       if (!detailProgramSequencePatternEvents.containsKey(type)) {
-        detailProgramSequencePatternEvents.put(type, Lists.newArrayList());
+        detailProgramSequencePatternEvents.put(type, new ArrayList<>());
       }
       detailProgramSequencePatternEvents.get(type).add(event);
     }

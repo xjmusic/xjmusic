@@ -1,34 +1,33 @@
 package io.xj.lib.meme;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
-import io.xj.lib.util.Text;
+import java.util.Map;
+import io.xj.lib.util.StringUtils;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- TemplateConfig has Meme categories
- https://www.pivotaltracker.com/story/show/181801646
- <p>
- <p>
- A template configuration has a field called `memeTaxonomy` which defines the taxonomy of memes.
- <p>
- For example, this might look like
- <p>
- ```
- memeTaxonomy=CITY[CHICAGO,DENVER,PHILADELPHIA]
- ```
- <p>
- That would tell XJ about the existence of a meme category called City with values `CHICAGO`, `DENVER`, and `PHILADELPHIA`. And these would function as exclusion like numeric memes, e.g. after content having `CHICAGO` is chosen, we can choose nothing with `DENVER` or `PHILADELPHIA`.
+ * TemplateConfig has Meme categories
+ * https://www.pivotaltracker.com/story/show/181801646
+ * <p>
+ * <p>
+ * A template configuration has a field called `memeTaxonomy` which defines the taxonomy of memes.
+ * <p>
+ * For example, this might look like
+ * <p>
+ * ```
+ * memeTaxonomy=CITY[CHICAGO,DENVER,PHILADELPHIA]
+ * ```
+ * <p>
+ * That would tell XJ about the existence of a meme category called City with values `CHICAGO`, `DENVER`, and `PHILADELPHIA`. And these would function as exclusion like numeric memes, e.g. after content having `CHICAGO` is chosen, we can choose nothing with `DENVER` or `PHILADELPHIA`.
  */
 public class MemeTaxonomy {
   static final String CATEGORY_SEPARATOR = ";";
@@ -39,10 +38,10 @@ public class MemeTaxonomy {
   }
 
   MemeTaxonomy(@Nullable String raw) {
-    if (Strings.isNullOrEmpty(raw))
+    if (StringUtils.isNullOrEmpty(raw))
       categories = List.of();
     else
-      categories = Arrays.stream(raw.split(CATEGORY_SEPARATOR))
+      categories = Arrays.stream(Objects.requireNonNull(raw).split(CATEGORY_SEPARATOR))
         .map(Category::new)
         .filter(Category::hasMemes)
         .toList();
@@ -95,7 +94,7 @@ public class MemeTaxonomy {
   }
 
   public static class Category {
-    static final Pattern rgx = Pattern.compile("^([a-zA-Z\s]+)\\[([a-zA-Z,\s]+)]$");
+    static final Pattern rgx = Pattern.compile("^([a-zA-Z ]+)\\[([a-zA-Z, ]+)]$");
     static final String MEME_SEPARATOR = ",";
     static final String KEY_NAME = "name";
     static final String KEY_MEMES = "memes";
@@ -104,13 +103,13 @@ public class MemeTaxonomy {
     final List<String> memes;
 
     Category(@Nullable String raw) {
-      if (Strings.isNullOrEmpty(raw)) {
+      if (StringUtils.isNullOrEmpty(raw)) {
         name = DEFAULT_CATEGORY_NAME;
         memes = List.of();
         return;
       }
 
-      Matcher matcher = rgx.matcher(raw.trim());
+      Matcher matcher = rgx.matcher(Objects.requireNonNull(raw).trim());
 
       if (!matcher.find()) {
         name = DEFAULT_CATEGORY_NAME;
@@ -124,7 +123,7 @@ public class MemeTaxonomy {
         memes = List.of();
         return;
       }
-      name = sanitize(Text.toAlphabetical(pfx));
+      name = sanitize(StringUtils.toAlphabetical(pfx));
 
       String body = matcher.group(2);
       if (java.util.Objects.isNull(body) || body.length() == 0)
@@ -182,14 +181,14 @@ public class MemeTaxonomy {
     }
 
     public Map<String, Object> toMap() {
-      return ImmutableMap.of(
+      return Map.of(
         KEY_NAME, name,
         KEY_MEMES, memes
       );
     }
 
     String sanitize(String raw) {
-      return Text.toAlphabetical(raw.trim()).toUpperCase(Locale.ROOT);
+      return StringUtils.toAlphabetical(raw.trim()).toUpperCase(Locale.ROOT);
     }
   }
 }

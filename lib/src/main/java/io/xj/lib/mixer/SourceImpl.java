@@ -3,9 +3,9 @@ package io.xj.lib.mixer;
 
 
 import io.xj.lib.notification.NotificationProvider;
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 import io.xj.lib.util.ValueException;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +22,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-import static io.xj.lib.util.Values.MICROS_PER_SECOND;
+import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
 
 /**
  * models a single audio source
@@ -62,7 +62,7 @@ class SourceImpl implements Source {
     AudioFormat _audioFormat;
     this.absolutePath = absolutePath;
     this.audioId = audioId;
-    String envName = Text.toProper(environment);
+    String envName = StringUtils.toProper(environment);
 
     try (
       var fileInputStream = FileUtils.openInputStream(new File(absolutePath));
@@ -76,7 +76,7 @@ class SourceImpl implements Source {
       _lengthSeconds = (_frameLength + 0.0) / _frameRate;
       _lengthMicros = (long) (MICROS_PER_SECOND * _lengthSeconds);
       _microsPerFrame = MICROS_PER_SECOND / _frameRate;
-      Values.enforceMaxStereo(_channels);
+      ValueUtils.enforceMaxStereo(_channels);
       LOG.debug("Loaded absolutePath: {}, sourceId: {}, audioFormat: {}, channels: {}, frameRate: {}, frameLength: {}, lengthSeconds: {}, lengthMicros: {}, microsPerFrame: {}",
         absolutePath, audioId, _audioFormat, _channels, _frameRate, _frameLength, _lengthSeconds, _lengthMicros, _microsPerFrame);
 

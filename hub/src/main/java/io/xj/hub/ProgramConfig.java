@@ -1,15 +1,14 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
 import io.xj.hub.tables.pojos.Program;
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 import io.xj.lib.util.ValueException;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -55,7 +54,7 @@ public class ProgramConfig {
    */
   public ProgramConfig(String configText) throws ValueException {
     try {
-      Config config = Strings.isNullOrEmpty(configText) ?
+      Config config = StringUtils.isNullOrEmpty(configText) ?
         ConfigFactory.parseString(DEFAULT) :
         ConfigFactory.parseString(configText).withFallback(ConfigFactory.parseString(DEFAULT));
       barBeats = config.getInt("barBeats");
@@ -69,10 +68,10 @@ public class ProgramConfig {
   @SuppressWarnings("DuplicatedCode")
   @Override
   public String toString() {
-    Map<String, String> config = Maps.newHashMap();
+    Map<String, String> config = new HashMap<>();
     config.put("barBeats", String.valueOf(barBeats));
     config.put("doPatternRestartOnChord", doPatternRestartOnChord.toString());
-    return Text.formatMultiline(config.entrySet().stream()
+    return StringUtils.formatMultiline(config.entrySet().stream()
       .sorted(Map.Entry.comparingByKey())
       .map(pair -> String.format("%s = %s", pair.getKey(), pair.getValue()))
       .toArray());

@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.manager;
 
-import com.google.common.collect.ImmutableList;
 import io.xj.hub.HubIntegrationTest;
 import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
@@ -24,6 +23,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -108,7 +108,7 @@ public class InstrumentAudioManagerDbTest {
    */
   @Test
   public void create() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Artist");
     var inputData = buildInstrumentAudio(fake.instrument201, "maracas", null, 0.009f, 0.21f, 80.5f, 0.6f, "b 5a !nG", "X", 1.0f);
 
     var result = testManager.create(access, inputData);
@@ -125,7 +125,7 @@ public class InstrumentAudioManagerDbTest {
 
   @Test
   public void create_FailsWithoutInstrumentID() {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Artist");
     var inputData = buildInstrumentAudio(fake.instrument201, "maracas", "instrument" + File.separator + "percussion" + File.separator + "demo_source_audio/808" + File.separator + "maracas.wav", 0.009f, 0.21f, 80.5f);
     inputData.setInstrumentId(null);
 
@@ -139,7 +139,7 @@ public class InstrumentAudioManagerDbTest {
    */
   @Test
   public void create_SucceedsWithoutWaveformKey() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Artist");
     var inputData = buildInstrumentAudio(fake.instrument202, "maracas", null, 0.009f, 0.21f, 80.5f);
 
     var result = testManager.create(
@@ -153,7 +153,7 @@ public class InstrumentAudioManagerDbTest {
    */
   @Test
   public void clone_fromOriginal() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Artist");
     var inputData = buildInstrumentAudio(fake.instrument202, "cannons fifty nine", "fake.audio5.wav", 0.01f, 2.0f, 120.0f);
 
     var result = testManager.clone(access, fake.audio1.getId(), inputData);
@@ -172,7 +172,7 @@ public class InstrumentAudioManagerDbTest {
    */
   @Test
   public void clone_fromOriginal_noInputData() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Artist");
     var inputData = new InstrumentAudio();
     inputData.setName("Clone of thing");
 
@@ -189,7 +189,7 @@ public class InstrumentAudioManagerDbTest {
 
   @Test
   public void readOne() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Artist");
 
     var result = testManager.readOne(access, fake.audio1.getId());
 
@@ -233,7 +233,7 @@ public class InstrumentAudioManagerDbTest {
 
   @Test
   public void authorizeUpload() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Artist");
     when(fileStoreProvider.generateAudioUploadPolicy())
       .thenReturn(new S3UploadPolicy("MyId", "MySecret", "bucket-owner-is-awesome", "xj-audio-test", "", 5));
     when(fileStoreProvider.getUploadURL())
@@ -266,7 +266,7 @@ public class InstrumentAudioManagerDbTest {
   public void create_failsForExistingName() throws Exception {
     var a1 = test.insert(buildInstrumentAudio(fake.instrument202, "Test audio", "fake.audio5.wav", 0.01f, 2.0f, 120.0f));
     var a2 = test.insert(buildInstrumentAudio(fake.instrument202, "Test audio", "fake.audio5.wav", 0.01f, 2.0f, 120.0f));
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Artist");
     when(fileStoreProvider.generateAudioUploadPolicy())
       .thenReturn(new S3UploadPolicy("MyId", "MySecret", "bucket-owner-is-awesome", "xj-audio-test", "", 5));
     when(fileStoreProvider.getUploadURL())
@@ -287,25 +287,25 @@ public class InstrumentAudioManagerDbTest {
 
   @Test
   public void readMany() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Artist");
 
-    Collection<InstrumentAudio> result = testManager.readMany(access, ImmutableList.of(fake.instrument202.getId()));
+    Collection<InstrumentAudio> result = testManager.readMany(access, List.of(fake.instrument202.getId()));
 
     assertEquals(2L, result.size());
   }
 
   @Test
   public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(), "Artist");
 
-    Collection<InstrumentAudio> result = testManager.readMany(access, ImmutableList.of(fake.instrument202.getId()));
+    Collection<InstrumentAudio> result = testManager.readMany(access, List.of(fake.instrument202.getId()));
 
     assertEquals(0L, result.size());
   }
 
   @Test
   public void update_FailsWithoutInstrumentID() {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Artist");
     var inputData = buildInstrumentAudio(fake.instrument201, "maracas", "instrument" + File.separator + "percussion" + File.separator + "demo_source_audio/808" + File.separator + "maracas.wav", 0.009f, 0.21f, 80.5f);
     inputData.setInstrumentId(null);
 
@@ -316,7 +316,7 @@ public class InstrumentAudioManagerDbTest {
 
   @Test
   public void update_FailsUpdatingToNonexistentInstrument() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Artist");
     var inputData = new InstrumentAudio();
     inputData.setId(UUID.randomUUID());
     inputData.setInstrumentId(UUID.randomUUID());
@@ -339,7 +339,7 @@ public class InstrumentAudioManagerDbTest {
   // InstrumentAudio can be moved to a different Instrument https://www.pivotaltracker.com/story/show/162361785
   @Test
   public void update() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Artist");
     var inputData = buildInstrumentAudio(fake.instrument201, "maracas", "fake.audio5.wav", 0.009f, 0.21f, 80.5f);
 
     testManager.update(access, fake.audio1.getId(), inputData);
@@ -358,7 +358,7 @@ public class InstrumentAudioManagerDbTest {
 
   @Test
   public void destroy_failsIfNotInAccount() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(), "Artist");
 
     var e = assertThrows(ManagerException.class, () -> testManager.destroy(access, fake.audio1.getId()));
 
@@ -367,7 +367,7 @@ public class InstrumentAudioManagerDbTest {
 
   @Test
   public void destroy_SucceedsEvenWithChildren() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
 
     try {
       testManager.destroy(access, fake.audio1.getId());
@@ -491,7 +491,7 @@ fake.user2, fake.library1, ProgramType.Macro, ProgramState.Published, "epic conc
 
   @Test
   public void create() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(List.of(fake.account1), "Artist");
     AudioChord inputData = new AudioChord()
       .setPosition(4.0);
       .setName("G minor 7")
@@ -508,7 +508,7 @@ access, inputData);
 
   @Test(expected = CoreException.class)
   public void create_FailsWithoutAudioID() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(List.of(fake.account1), "Artist");
     AudioChord inputData = new AudioChord()
       .setPosition(4.0);
       .setName("G minor 7");
@@ -519,7 +519,7 @@ access, inputData);
 
   @Test(expected = CoreException.class)
   public void create_FailsWithoutName() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(List.of(fake.account1), "Artist");
     AudioChord inputData = new AudioChord()
       .setPosition(4.0);
       .setInstrumentAudioId(UUID.randomUUID());
@@ -530,7 +530,7 @@ access, inputData);
 
   @Test
   public void readOne() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(List.of(fake.account1), "Artist");
 
     AudioChord result = testManager.readOne(access, 1000L);
 
@@ -541,7 +541,7 @@ access, inputData);
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    HubAccess access = of(ImmutableList.of(of()), "Artist");
+    HubAccess access = of(List.of(of()), "Artist");
     failure.expect(CoreException.class);
     failure.expectMessage("does not exist");
 
@@ -550,18 +550,18 @@ access, inputData);
 
   @Test
   public void readMany() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(List.of(fake.account1), "Artist");
 
-    Collection<AudioChord> result = testManager.readMany(access, ImmutableList.of(fake.audio1.getId()));
+    Collection<AudioChord> result = testManager.readMany(access, List.of(fake.audio1.getId()));
 
     assertEquals(2, result.size());
   }
 
   @Test
   public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
-    HubAccess access = of(ImmutableList.of(of()), "Artist");
+    HubAccess access = of(List.of(of()), "Artist");
 
-    Collection<AudioChord> result = testManager.readMany(access, ImmutableList.of(fake.audio1.getId()));
+    Collection<AudioChord> result = testManager.readMany(access, List.of(fake.audio1.getId()));
 
     assertNotNull(result);
     assertEquals(0, result.size());
@@ -569,7 +569,7 @@ access, inputData);
 
   @Test(expected = CoreException.class)
   public void update_FailsWithoutAudioID() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(List.of(fake.account1), "Artist");
     AudioChord inputData = new AudioChord()
       .setPosition(4.0);
       .setName("G minor 7");
@@ -579,7 +579,7 @@ access, inputData);
 
   @Test(expected = CoreException.class)
   public void update_FailsWithoutName() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(List.of(fake.account1), "Artist");
     AudioChord inputData = new AudioChord()
       .setPosition(4.0);
       .setInstrumentAudioId(UUID.randomUUID());
@@ -589,7 +589,7 @@ access, inputData);
 
   @Test(expected = CoreException.class)
   public void update_FailsUpdatingToNonexistentAudio() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(List.of(fake.account1), "Artist");
     AudioChord inputData = new AudioChord()
       .setPosition(4.0);
       .setInstrumentAudioId(UUID.randomUUID())
@@ -609,7 +609,7 @@ access, inputData);
 
   @Test
   public void update() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(List.of(fake.account1), "Artist");
     AudioChord inputData = new AudioChord()
       .setInstrumentAudioId(UUID.randomUUID())
       .setName("POPPYCOCK");
@@ -628,7 +628,7 @@ access, inputData);
 
   @Test
   public void delete() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(List.of(fake.account1), "Artist");
 
     testManager.destroy(access, 1000L);
 
@@ -642,7 +642,7 @@ access, inputData);
 
   @Test(expected = CoreException.class)
   public void delete_failsIfNotInAccount() throws Exception {
-    HubAccess access = of(ImmutableList.of(account2), "Artist");
+    HubAccess access = of(List.of(account2), "Artist");
 
     testManager.destroy(access, 1000L);
   }
@@ -682,7 +682,7 @@ access, inputData);
 
   @Test
   public void create() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(List.of(fake.account1), "Artist");
     AudioEvent inputData = new AudioEvent()
       .setDuration(1.4);
       .setName("KICK");
@@ -698,7 +698,7 @@ access, inputData);
 
   @Test(expected = CoreException.class)
   public void create_FailsWithoutAudioID() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(List.of(fake.account1), "Artist");
     AudioEvent inputData = new AudioEvent()
       .setDuration(1.0);
       .setName("KICK");
@@ -713,7 +713,7 @@ access, inputData);
 
   @Test(expected = CoreException.class)
   public void create_FailsWithoutNote() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(List.of(fake.account1), "Artist");
     AudioEvent inputData = new AudioEvent()
       .setDuration(1.0);
       .setName("KICK");
@@ -728,7 +728,7 @@ access, inputData);
 
   @Test
   public void readOne() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(List.of(fake.account1), "Artist");
 
     AudioEvent result = testManager.readOne(access, 1003L);
 
@@ -745,7 +745,7 @@ access, inputData);
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    HubAccess access = of(ImmutableList.of(of()), "Artist");
+    HubAccess access = of(List.of(of()), "Artist");
     failure.expect(CoreException.class);
     failure.expectMessage("does not exist");
 
@@ -754,9 +754,9 @@ access, inputData);
 
   @Test
   public void readMany() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(List.of(fake.account1), "Artist");
 
-    Collection<AudioEvent> result = testManager.readMany(access, ImmutableList.of(fake.audio1.getId()));
+    Collection<AudioEvent> result = testManager.readMany(access, List.of(fake.audio1.getId()));
 
     assertNotNull(result);
     assertEquals(4L, result.size());
@@ -769,9 +769,9 @@ access, inputData);
 
   @Test
   public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
-    HubAccess access = of(ImmutableList.of(of()), "Artist");
+    HubAccess access = of(List.of(of()), "Artist");
 
-    Collection<AudioEvent> result = testManager.readMany(access, ImmutableList.of(fake.audio1.getId()));
+    Collection<AudioEvent> result = testManager.readMany(access, List.of(fake.audio1.getId()));
 
     assertNotNull(result);
     assertEquals(0L, result.size());
@@ -785,9 +785,9 @@ access, inputData);
     insertAudioEvent(51, 14.0, 1.0, "PUMP", "Ab", 0.1, 0.8);
     insertAudioEvent(51, 18, 1.0, "JAM", "C", 0.8, 1.0);
     insertAudioEvent(51, 20.0, 1.0, "DUNK", "G", 0.1, 0.8);
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(List.of(fake.account1), "Artist");
 
-    Collection<AudioEvent> result = testManager.readManyOfInstrument(access, ImmutableList.of(fake.audio1.getId()));
+    Collection<AudioEvent> result = testManager.readManyOfInstrument(access, List.of(fake.audio1.getId()));
 
     assertNotNull(result);
     assertEquals(8L, result.size());
@@ -813,9 +813,9 @@ access, inputData);
     insertAudioEvent(61, 3.0, 1.0, "ASS", "Ab", 0.1, 0.8);
     insertAudioEvent(61, 0, 1.0, "ASS", "C", 0.8, 1.0);
     insertAudioEvent(61, 1.0, 1.0, "ASS", "G", 0.1, 0.8);
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(List.of(fake.account1), "Artist");
 
-    Collection<AudioEvent> result = testManager.readManyOfInstrument(access, ImmutableList.of(fake.audio1.getId()));
+    Collection<AudioEvent> result = testManager.readManyOfInstrument(access, List.of(fake.audio1.getId()));
 
     assertNotNull(result);
     assertEquals(4L, result.size());
@@ -828,7 +828,7 @@ access, inputData);
 
   @Test(expected = CoreException.class)
   public void update_FailsWithoutAudioID() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(List.of(fake.account1), "Artist");
     AudioEvent inputData = new AudioEvent()
       .setDuration(1.0);
       .setName("KICK");
@@ -842,7 +842,7 @@ access, inputData);
 
   @Test(expected = CoreException.class)
   public void update_FailsWithoutNote() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(List.of(fake.account1), "Artist");
     AudioEvent inputData = new AudioEvent()
       .setDuration(1.0);
       .setName("KICK");
@@ -856,7 +856,7 @@ access, inputData);
 
   @Test(expected = CoreException.class)
   public void update_FailsUpdatingToNonexistentAudio() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(List.of(fake.account1), "Artist");
     AudioEvent inputData = new AudioEvent()
       .setDuration(1.0);
       .setName("SNARE");
@@ -880,7 +880,7 @@ access, inputData);
 
   @Test
   public void update() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(List.of(fake.account1), "Artist");
     AudioEvent inputData = new AudioEvent()
       .setDuration(1.2);
       .setName("POPPYCOCK");
@@ -906,7 +906,7 @@ access, inputData);
 
   @Test
   public void delete() throws Exception {
-    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(List.of(fake.account1), "Artist");
 
     testManager.destroy(access, 1000L);
 
@@ -920,7 +920,7 @@ access, inputData);
 
   @Test(expected = CoreException.class)
   public void delete_failsIfNotInAccount() throws Exception {
-    HubAccess access = of(ImmutableList.of(account2), "Artist");
+    HubAccess access = of(List.of(account2), "Artist");
 
     testManager.destroy(access, 1000L);
   }

@@ -2,9 +2,9 @@
 
 package io.xj.lib.mixer;
 
-import com.google.common.collect.Maps;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -12,7 +12,7 @@ public class EnvelopeProviderImpl implements EnvelopeProvider {
   final Map<Integer, Envelope> envelopes;
 
   public EnvelopeProviderImpl() {
-    this.envelopes =  Maps.newHashMap();
+    this.envelopes = new HashMap<>();
   }
 
   @Override

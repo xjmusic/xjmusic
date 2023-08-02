@@ -3,8 +3,6 @@ package io.xj.hub.access;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import io.xj.hub.Users;
 import io.xj.hub.enums.UserRoleType;
 import io.xj.hub.tables.pojos.Account;
@@ -16,7 +14,13 @@ import io.xj.lib.util.CSV;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class HubAccess {
@@ -24,10 +28,10 @@ public class HubAccess {
   static final UserRoleType[] topLevelRoles = {UserRoleType.Admin, UserRoleType.Internal};
 
   @JsonProperty("roleTypes")
-  final Collection<UserRoleType> roleTypes = Lists.newArrayList();
+  final Collection<UserRoleType> roleTypes = new ArrayList<>();
 
   @JsonProperty("accountIds")
-  final Collection<UUID> accountIds = Lists.newArrayList();
+  final Collection<UUID> accountIds = new ArrayList<>();
 
   @Nullable
   @JsonProperty("userId")
@@ -56,7 +60,7 @@ public class HubAccess {
    * @return access control
    */
   public static HubAccess internal() {
-    return new HubAccess().setRoleTypes(ImmutableList.of(UserRoleType.Internal));
+    return new HubAccess().setRoleTypes(List.of(UserRoleType.Internal));
   }
 
   /**
@@ -77,7 +81,7 @@ public class HubAccess {
    * @param rolesCSV for access
    * @return access control object
    */
-  public static HubAccess create(User user, UserAuth userAuth, ImmutableList<Account> accounts, String rolesCSV) {
+  public static HubAccess create(User user, UserAuth userAuth, List<Account> accounts, String rolesCSV) {
     return new HubAccess()
       .setUserId(user.getId())
       .setUserAuthId(userAuth.getId())
@@ -93,7 +97,7 @@ public class HubAccess {
    * @param rolesCSV for access
    * @return access control object
    */
-  public static HubAccess create(User user, ImmutableList<Account> accounts, String rolesCSV) {
+  public static HubAccess create(User user, List<Account> accounts, String rolesCSV) {
     return new HubAccess()
       .setUserId(user.getId())
       .setAccountIds(Entities.idsOf(accounts))
@@ -151,7 +155,7 @@ public class HubAccess {
    * @param accounts   for access
    * @return access control object
    */
-  public static HubAccess create(User user, UUID userAuthId, ImmutableList<Account> accounts) {
+  public static HubAccess create(User user, UUID userAuthId, List<Account> accounts) {
     return new HubAccess()
       .setUserId(user.getId())
       .setUserAuthId(userAuthId)
@@ -168,7 +172,7 @@ public class HubAccess {
    * @param rolesCSV   for access
    * @return access control object
    */
-  public static HubAccess create(UUID userId, UUID userAuthId, ImmutableList<Account> accounts, String rolesCSV) {
+  public static HubAccess create(UUID userId, UUID userAuthId, List<Account> accounts, String rolesCSV) {
     return new HubAccess()
       .setUserId(userId)
       .setUserAuthId(userAuthId)

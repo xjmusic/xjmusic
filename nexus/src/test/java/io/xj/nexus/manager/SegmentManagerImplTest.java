@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.manager;
 
-import com.google.common.collect.ImmutableList;
 import io.xj.hub.HubTopology;
 import io.xj.hub.client.HubClientAccess;
 import io.xj.hub.tables.pojos.Account;
@@ -31,6 +30,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -38,7 +38,7 @@ import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplateBinding;
-import static io.xj.lib.util.Values.MICROS_PER_SECOND;
+import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildHubClientAccess;
 import static org.junit.Assert.assertEquals;
@@ -296,7 +296,7 @@ public class SegmentManagerImplTest {
   @Test
   public void readMany() throws Exception {
 
-    Collection<Segment> result = testService.readMany(ImmutableList.of(chain3.getId()));
+    Collection<Segment> result = testService.readMany(List.of(chain3.getId()));
 
     assertNotNull(result);
     assertEquals(5L, result.size());
@@ -337,7 +337,7 @@ public class SegmentManagerImplTest {
         .key("C# minor 7 b9")
         .tempo(120.0));
 
-    Collection<Segment> result = testService.readMany(ImmutableList.of(chain5.getId()));
+    Collection<Segment> result = testService.readMany(List.of(chain5.getId()));
 
     assertNotNull(result);
     assertEquals(20L, result.size());

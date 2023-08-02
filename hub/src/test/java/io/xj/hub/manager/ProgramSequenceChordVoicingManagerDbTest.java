@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.manager;
 
-import com.google.common.collect.ImmutableList;
 import io.xj.hub.HubIntegrationTest;
 import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
@@ -24,6 +23,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -111,7 +111,7 @@ public class ProgramSequenceChordVoicingManagerDbTest {
 
   @Test
   public void create() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
     var entity = new ProgramSequenceChordVoicing();
     entity.setId(UUID.randomUUID());
     entity.setProgramId(fake.program3.getId());
@@ -176,7 +176,7 @@ public class ProgramSequenceChordVoicingManagerDbTest {
    */
   @Test
   public void create_cannotCreateAnotherForExistingChordAndVoice() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
     subject.create(access, buildProgramSequenceChordVoicing(fake.program3_chord1, fake.program1_voicePad, "C5, Eb5, G5"));
     var voicing1b = buildProgramSequenceChordVoicing(fake.program3_chord1, fake.program1_voicePad, "A4, C5, E5");
 
@@ -190,7 +190,7 @@ public class ProgramSequenceChordVoicingManagerDbTest {
    */
   @Test
   public void update() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
     sequenceChord1a_0_voicing0.setNotes("G1,G2,G3");
 
     subject.update(access, sequenceChord1a_0_voicing0.getId(), sequenceChord1a_0_voicing0);
@@ -214,7 +214,7 @@ public class ProgramSequenceChordVoicingManagerDbTest {
    */
   @Test
   public void update_cannotUpdateToTypeOfExistingChordAndVoice() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
     var voicing1a = buildProgramSequenceChordVoicing(fake.program3_chord1, fake.program1_voicePad, "C5, Eb5, G5");
     subject.create(access, voicing1a);
     ProgramSequenceChordVoicing voicing1b = subject.create(access, buildProgramSequenceChordVoicing(fake.program3_chord1, fake.program1_voiceBass, "A4, C5, E5"));
@@ -231,7 +231,7 @@ public class ProgramSequenceChordVoicingManagerDbTest {
    */
   @Test
   public void create_asArtist() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
     var inputData = new ProgramSequenceChordVoicing();
     inputData.setId(UUID.randomUUID());
     inputData.setProgramId(fake.program3.getId());
@@ -251,7 +251,7 @@ public class ProgramSequenceChordVoicingManagerDbTest {
 
   @Test
   public void readOne() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User, Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "User, Artist");
 
     var result = subject.readOne(access, sequenceChord1a_0_voicing0.getId());
 
@@ -265,7 +265,7 @@ public class ProgramSequenceChordVoicingManagerDbTest {
 
   @Test
   public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "User, Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(buildAccount("Testing")), "User, Artist");
 
     var e = assertThrows(ManagerException.class,
       () -> subject.readOne(access, sequenceChord1a_0_voicing0.getId()));
@@ -276,9 +276,9 @@ public class ProgramSequenceChordVoicingManagerDbTest {
 
   @Test
   public void readMany() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Admin");
 
-    Collection<ProgramSequenceChordVoicing> result = subject.readMany(access, ImmutableList.of(fake.program1.getId()));
+    Collection<ProgramSequenceChordVoicing> result = subject.readMany(access, List.of(fake.program1.getId()));
 
     assertEquals(2L, result.size());
     Iterator<ProgramSequenceChordVoicing> resultIt = result.iterator();
@@ -292,18 +292,18 @@ public class ProgramSequenceChordVoicingManagerDbTest {
    */
   @Test
   public void readMany_forChords() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Admin");
 
-    Collection<ProgramSequenceChordVoicing> result = subject.readManyForChords(access, ImmutableList.of(sequenceChord1a_0.getId()));
+    Collection<ProgramSequenceChordVoicing> result = subject.readManyForChords(access, List.of(sequenceChord1a_0.getId()));
 
     assertEquals(2L, result.size());
   }
 
   @Test
   public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "User, Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(buildAccount("Testing")), "User, Artist");
 
-    Collection<ProgramSequenceChordVoicing> result = subject.readMany(access, ImmutableList.of(fake.program1.getId()));
+    Collection<ProgramSequenceChordVoicing> result = subject.readMany(access, List.of(fake.program1.getId()));
 
     assertEquals(0L, result.size());
   }
@@ -311,7 +311,7 @@ public class ProgramSequenceChordVoicingManagerDbTest {
   @Test
   public void destroy_failsIfNotInAccount() throws Exception {
     fake.account2 = buildAccount("Testing");
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account2), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account2), "Artist");
 
     var e = assertThrows(ManagerException.class,
       () -> subject.destroy(access, sequenceChord1a_0_voicing0.getId()));

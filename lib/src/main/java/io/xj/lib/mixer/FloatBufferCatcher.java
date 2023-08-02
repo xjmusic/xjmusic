@@ -6,22 +6,22 @@ import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
 
 /**
- take the output of a TarsosDSP operation and writes in to a buffer.
+ * take the output of a TarsosDSP operation and writes in to a buffer.
  */
 public class FloatBufferCatcher implements AudioProcessor {
   final float[] output;
   int cursor;
 
   /**
-   Initialize the writer.@param format The format of the received bytes.@param output buffer to write to
+   * Initialize the writer.@param format The format of the received bytes.@param output buffer to write to
    */
   public FloatBufferCatcher(int outputLength) {
     output = new float[outputLength];
   }
 
   /**
-   @param audioEvent to process
-   @return true if
+   * @param audioEvent to process
+   * @return true if
    */
   @Override
   public boolean process(AudioEvent audioEvent) {
@@ -39,14 +39,14 @@ public class FloatBufferCatcher implements AudioProcessor {
   }
 
   /**
-   @return final output
+   * @return final output
    */
   public float[] getFloatBuffer() {
     return output;
   }
 
   /**
-   @return current cursor position
+   * @return current cursor position
    */
   public int getCursor() {
     return cursor;

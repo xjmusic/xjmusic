@@ -2,13 +2,13 @@
 package io.xj.hub.manager;
 
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +16,10 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.UUID;
 
-import static io.xj.hub.Tables.*;
+import static io.xj.hub.Tables.LIBRARY;
+import static io.xj.hub.Tables.PROGRAM;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_BINDING;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_BINDING_MEME;
 
 @Service
 public class ProgramSequenceBindingManagerImpl extends HubPersistenceServiceImpl implements ProgramSequenceBindingManager {
@@ -137,9 +140,9 @@ public class ProgramSequenceBindingManagerImpl extends HubPersistenceServiceImpl
    */
   public void validate(ProgramSequenceBinding record) throws ManagerException {
     try {
-      Values.require(record.getProgramId(), "Program ID");
-      Values.require(record.getProgramSequenceId(), "Sequence ID");
-      Values.require(record.getOffset(), "Offset");
+      ValueUtils.require(record.getProgramId(), "Program ID");
+      ValueUtils.require(record.getProgramSequenceId(), "Sequence ID");
+      ValueUtils.require(record.getOffset(), "Offset");
 
     } catch (ValueException e) {
       throw new ManagerException(e);

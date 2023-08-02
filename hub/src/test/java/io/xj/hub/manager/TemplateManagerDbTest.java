@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.manager;
 
-import com.google.common.collect.ImmutableList;
 import io.xj.hub.HubException;
 import io.xj.hub.HubIntegrationTest;
 import io.xj.hub.HubIntegrationTestFactory;
@@ -20,7 +19,6 @@ import io.xj.hub.tables.pojos.TemplatePlayback;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.notification.NotificationProvider;
-import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,6 +29,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -182,7 +181,7 @@ public class TemplateManagerDbTest {
    */
   @Test
   public void create_asEngineer() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Engineer");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Engineer");
     Template inputData = new Template();
     inputData.setName("coconuts");
     inputData.setAccountId(fake.account1.getId());
@@ -200,7 +199,7 @@ public class TemplateManagerDbTest {
    */
   @Test
   public void create_asEngineer_failsWithoutAccountAccess() {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "Engineer");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(buildAccount("Testing")), "Engineer");
     Template inputData = new Template();
     inputData.setName("coconuts");
     inputData.setAccountId(fake.account1.getId());
@@ -223,7 +222,7 @@ public class TemplateManagerDbTest {
 
   @Test
   public void clone_includeBindings() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
     var boundLibrary = buildLibrary(fake.account1, "Test Library");
     var boundProgram = buildProgram(boundLibrary, ProgramType.Main, ProgramState.Published, "Test", "C", 120.0f, 0.6f);
     var boundInstrument = buildInstrument(boundLibrary, InstrumentType.Bass, InstrumentMode.Event, InstrumentState.Published, "Test");
@@ -274,7 +273,7 @@ public class TemplateManagerDbTest {
    */
   @Test
   public void clone_alwaysPreviewWithNewShipKey() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
     Template inputData = new Template();
     inputData.setType(TemplateType.Production);
     inputData.setAccountId(fake.account1.getId());
@@ -295,7 +294,7 @@ public class TemplateManagerDbTest {
    */
   @Test
   public void clone_hasSpecifiedShipKey() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
     Template inputData = new Template();
     inputData.setType(TemplateType.Production);
     inputData.setShipKey("new2ship5key");
@@ -314,7 +313,7 @@ public class TemplateManagerDbTest {
 
   @Test
   public void readOne() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "User");
 
     Template result = testManager.readOne(access, template1b.getId());
 
@@ -326,7 +325,7 @@ public class TemplateManagerDbTest {
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(buildAccount("Testing")), "User");
 
     var e = assertThrows(ManagerException.class, () -> testManager.readOne(access, fake.account1.getId()));
     assertEquals("Record does not exist", e.getMessage());
@@ -334,9 +333,9 @@ public class TemplateManagerDbTest {
 
   @Test
   public void readMany() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "User");
 
-    Collection<Template> result = testManager.readMany(access, ImmutableList.of(fake.account1.getId()));
+    Collection<Template> result = testManager.readMany(access, List.of(fake.account1.getId()));
 
     assertEquals(2L, result.size());
     Iterator<Template> resultIt = result.iterator();
@@ -346,7 +345,7 @@ public class TemplateManagerDbTest {
 
   @Test
   public void readChildEntities() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1, fake.account2), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1, fake.account2), "User");
     test.insert(buildTemplateBinding(template1a, buildProgram(buildLibrary(buildAccount("Test"), "test"), ProgramType.Detail, ProgramState.Published, "test", "C", 120.0f, 06f)));
     test.insert(buildTemplatePlayback(template1a, buildUser("Test", "test@test.com", "test.jpg", "User")));
     var legacy = buildTemplatePlayback(template1a, buildUser("Test2", "test2@test.com", "test2.jpg", "User"));
@@ -360,9 +359,9 @@ public class TemplateManagerDbTest {
 
   @Test
   public void readMany_fromAllAccounts() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1, fake.account2), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1, fake.account2), "User");
 
-    Collection<Template> result = testManager.readMany(access, Lists.newArrayList());
+    Collection<Template> result = testManager.readMany(access, new ArrayList<>());
 
     assertEquals(4L, result.size());
     Iterator<Template> it = result.iterator();
@@ -374,9 +373,9 @@ public class TemplateManagerDbTest {
 
   @Test
   public void readMany_SeesNothingOutsideOfAccount() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(buildAccount("Testing")), "User");
 
-    Collection<Template> result = testManager.readMany(access, ImmutableList.of(fake.account1.getId()));
+    Collection<Template> result = testManager.readMany(access, List.of(fake.account1.getId()));
 
     assertEquals(0L, result.size());
   }
@@ -384,7 +383,7 @@ public class TemplateManagerDbTest {
 
   @Test
   public void readAllPlaying() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Admin");
     test.insert(buildTemplatePlayback(template1a, fake.user3));
     test.insert(buildTemplatePlayback(template1a, fake.user2));
 
@@ -395,7 +394,7 @@ public class TemplateManagerDbTest {
 
   @Test
   public void readAllPlaying_noneOlderThanThreshold() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Admin");
     test.insert(buildTemplatePlayback(template1a, fake.user2));
     var later = buildTemplatePlayback(template1a, fake.user3);
     later.setCreatedAt(Timestamp.from(Instant.now().minusSeconds(60 * 60 * 12)).toLocalDateTime());
@@ -488,7 +487,7 @@ public class TemplateManagerDbTest {
    */
   @Test
   public void update_asEngineer() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Engineer");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Engineer");
     Template inputData = new Template();
     inputData.setName("cannons");
     inputData.setAccountId(fake.account1.getId());
@@ -506,7 +505,7 @@ public class TemplateManagerDbTest {
    */
   @Test
   public void update_asEngineer_failsWithoutAccountAccess() {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "Engineer");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(buildAccount("Testing")), "Engineer");
     Template inputData = new Template();
     inputData.setName("cannons");
     inputData.setAccountId(fake.account1.getId());
@@ -607,7 +606,7 @@ public class TemplateManagerDbTest {
   public void delete_artistHasPermissionForPreviewTemplate() throws Exception {
     test.insert(buildTemplateBinding(template1b, buildProgram(buildLibrary(buildAccount("Test"), "test"), ProgramType.Detail, ProgramState.Published, "test", "C", 120.0f, 06f)));
     test.insert(buildTemplatePlayback(template1a, buildUser("Test", "test@test.com", "test.jpg", "User")));
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User,Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "User,Artist");
 
     testManager.destroy(access, template1a.getId());
 
@@ -623,7 +622,7 @@ public class TemplateManagerDbTest {
   @Test
   public void delete_artistCannotDeleteProductionTemplate() throws Exception {
     var productionTemplate = test.insert(buildTemplate(fake.account1, TemplateType.Production, "can't touch this", "no_touching"));
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User,Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "User,Artist");
 
     var e = assertThrows(ManagerException.class, () -> testManager.destroy(access, productionTemplate.getId()));
     assertEquals("top-level access is required", e.getMessage());
@@ -635,7 +634,7 @@ public class TemplateManagerDbTest {
    */
   @Test
   public void readOnePlayingForUser() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(fake.user2, List.of(fake.account1), "Admin");
     test.insert(buildTemplatePlayback(template1a, fake.user2));
 
     Optional<Template> result = testManager.readOnePlayingForUser(access, fake.user2.getId());
@@ -649,7 +648,7 @@ public class TemplateManagerDbTest {
    */
   @Test
   public void readOnePlayingForUser_noneIfNonePlaying() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(fake.user2, List.of(fake.account1), "Admin");
 
     Optional<Template> result = testManager.readOnePlayingForUser(access, fake.user2.getId());
 
@@ -662,7 +661,7 @@ public class TemplateManagerDbTest {
    */
   @Test
   public void readOnePlayingForUser_noneIfPlaybackExpired() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(fake.user2, List.of(fake.account1), "Admin");
     var playback = buildTemplatePlayback(template1a, fake.user2);
     playback.setCreatedAt(Timestamp.from(Instant.now().minusSeconds(60 * 60 * 24)).toLocalDateTime());
     test.insert(playback);

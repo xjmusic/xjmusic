@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.access;
 
-import com.google.common.collect.Lists;
 import io.xj.hub.HubIntegrationTest;
 import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.enums.UserAuthType;
@@ -21,7 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildUser;
@@ -91,7 +92,7 @@ public class HubAccessControlIT {
     UUID accountId = UUID.randomUUID();
     accountUser.setAccountId(accountId);
     // access control provider
-    Collection<AccountUser> accounts = Lists.newArrayList(accountUser);
+    Collection<AccountUser> accounts = new ArrayList<>(List.of(accountUser));
     String TEST_TOKEN = userManager.create(user, userAuth, accounts);
 
     // now stress test

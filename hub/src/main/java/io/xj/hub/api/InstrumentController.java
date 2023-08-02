@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.api;
 
-import com.google.common.collect.ImmutableList;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.manager.InstrumentManager;
@@ -87,7 +86,7 @@ public class InstrumentController extends HubJsonapiEndpoint {
 
       // how we source instruments depends on the query parameters
       if (Objects.nonNull(libraryId))
-        instruments = manager().readMany(access, ImmutableList.of(libraryId));
+        instruments = manager().readMany(access, List.of(libraryId));
       else if (Objects.nonNull(accountId))
         instruments = manager().readManyInAccount(access, accountId);
       else
@@ -166,7 +165,7 @@ public class InstrumentController extends HubJsonapiEndpoint {
       // optionally specify a CSV of included types to read
       if (Objects.nonNull(include)) {
         List<JsonapiPayloadObject> list = new ArrayList<>();
-        for (Object entity : manager().readChildEntities(access, ImmutableList.of(id), CSV.split(include))) {
+        for (Object entity : manager().readChildEntities(access, List.of(id), CSV.split(include))) {
           JsonapiPayloadObject jsonapiPayloadObject = payloadFactory.toPayloadObject(entity);
           list.add(jsonapiPayloadObject);
         }

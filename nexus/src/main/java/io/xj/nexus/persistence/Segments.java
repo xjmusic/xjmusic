@@ -2,12 +2,11 @@
 
 package io.xj.nexus.persistence;
 
-import com.google.common.collect.Lists;
-import com.google.common.base.Strings;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.lib.music.Note;
 import io.xj.lib.util.CSV;
+import io.xj.lib.util.StringUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
@@ -15,6 +14,7 @@ import io.xj.nexus.model.SegmentChordVoicing;
 import io.xj.nexus.model.SegmentState;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -65,7 +65,7 @@ public enum Segments {
    */
   public static String getIdentifier(@Nullable Segment segment) {
     if (Objects.isNull(segment)) return "N/A";
-    return Strings.isNullOrEmpty(segment.getStorageKey()) ? segment.getId().toString() : segment.getStorageKey();
+    return StringUtils.isNullOrEmpty(segment.getStorageKey()) ? segment.getId().toString() : segment.getStorageKey();
   }
 
 
@@ -154,7 +154,7 @@ public enum Segments {
    * @return description of choice
    */
   public static String describe(SegmentChoice choice) {
-    List<String> pieces = Lists.newArrayList();
+    List<String> pieces = new ArrayList<>();
     if (Objects.nonNull(choice.getInstrumentId())) pieces.add(String.format("instrument:%s", choice.getInstrumentId()));
     if (Objects.nonNull(choice.getInstrumentType()))
       pieces.add(String.format("instrumentType:%s", choice.getInstrumentType()));

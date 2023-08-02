@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 
-public class SegmentChordVoicing   {
+public class SegmentChordVoicing {
 
   @Valid UUID id;
   @Valid UUID segmentId;
@@ -18,6 +18,7 @@ public class SegmentChordVoicing   {
   @Valid String notes;
 
   /**
+   *
    **/
   public SegmentChordVoicing id(UUID id) {
     this.id = id;
@@ -29,11 +30,13 @@ public class SegmentChordVoicing   {
   public UUID getId() {
     return id;
   }
+
   public void setId(UUID id) {
     this.id = id;
   }
 
   /**
+   *
    **/
   public SegmentChordVoicing segmentId(UUID segmentId) {
     this.segmentId = segmentId;
@@ -45,11 +48,13 @@ public class SegmentChordVoicing   {
   public UUID getSegmentId() {
     return segmentId;
   }
+
   public void setSegmentId(UUID segmentId) {
     this.segmentId = segmentId;
   }
 
   /**
+   *
    **/
   public SegmentChordVoicing segmentChordId(UUID segmentChordId) {
     this.segmentChordId = segmentChordId;
@@ -61,11 +66,13 @@ public class SegmentChordVoicing   {
   public UUID getSegmentChordId() {
     return segmentChordId;
   }
+
   public void setSegmentChordId(UUID segmentChordId) {
     this.segmentChordId = segmentChordId;
   }
 
   /**
+   *
    **/
   public SegmentChordVoicing type(String type) {
     this.type = type;
@@ -77,11 +84,13 @@ public class SegmentChordVoicing   {
   public String getType() {
     return type;
   }
+
   public void setType(String type) {
     this.type = type;
   }
 
   /**
+   *
    **/
   public SegmentChordVoicing notes(String notes) {
     this.notes = notes;
@@ -93,6 +102,7 @@ public class SegmentChordVoicing   {
   public String getNotes() {
     return notes;
   }
+
   public void setNotes(String notes) {
     this.notes = notes;
   }
@@ -108,10 +118,10 @@ public class SegmentChordVoicing   {
     }
     SegmentChordVoicing segmentChordVoicing = (SegmentChordVoicing) o;
     return Objects.equals(this.id, segmentChordVoicing.id) &&
-        Objects.equals(this.segmentId, segmentChordVoicing.segmentId) &&
-        Objects.equals(this.segmentChordId, segmentChordVoicing.segmentChordId) &&
-        Objects.equals(this.type, segmentChordVoicing.type) &&
-        Objects.equals(this.notes, segmentChordVoicing.notes);
+      Objects.equals(this.segmentId, segmentChordVoicing.segmentId) &&
+      Objects.equals(this.segmentChordId, segmentChordVoicing.segmentChordId) &&
+      Objects.equals(this.type, segmentChordVoicing.type) &&
+      Objects.equals(this.notes, segmentChordVoicing.notes);
   }
 
   @Override

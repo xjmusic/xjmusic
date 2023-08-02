@@ -1,8 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.craft.macro_main;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Streams;
 import io.xj.hub.HubTopology;
 import io.xj.hub.client.HubClient;
 import io.xj.hub.client.HubContent;
@@ -43,12 +41,12 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static io.xj.lib.util.Assertion.assertSameItems;
-import static io.xj.lib.util.Values.MICROS_PER_SECOND;
-import static io.xj.lib.util.Values.SECONDS_PER_MINUTE;
+import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.lib.util.ValueUtils.SECONDS_PER_MINUTE;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static org.junit.Assert.assertEquals;
@@ -88,9 +86,7 @@ public class CraftFoundationInitialTest {
 
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
-    sourceMaterial = new HubContent(Streams.concat(
-      fake.setupFixtureB1().stream()
-    ).collect(Collectors.toList()));
+    sourceMaterial = new HubContent(fake.setupFixtureB1());
 
     // Chain "Print #2" has 1 initial planned segment
     Chain chain2 = store.put(buildChain(
@@ -128,10 +124,10 @@ public class CraftFoundationInitialTest {
     assertEquals(140.0, result.getTempo(), 0.01);
     // assert memes
     assertSameItems(
-      Lists.newArrayList("TROPICAL", "WILD", "OUTLOOK", "OPTIMISM"),
+      List.of("TROPICAL", "WILD", "OUTLOOK", "OPTIMISM"),
       Entities.namesOf(store.getAll(result.getId(), SegmentMeme.class)));
     // assert chords
-    assertSameItems(Lists.newArrayList("G", "Ab -"),
+    assertSameItems(List.of("G", "Ab -"),
       Entities.namesOf(store.getAll(result.getId(), SegmentChord.class)));
     // assert choices
     Collection<SegmentChoice> segmentChoices =

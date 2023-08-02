@@ -8,7 +8,7 @@ import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Service;
 
@@ -194,9 +194,9 @@ public class TemplateBindingManagerImpl extends HubPersistenceServiceImpl implem
    */
   public TemplateBinding validate(TemplateBinding builder) throws ManagerException {
     try {
-      Values.require(builder.getTemplateId(), "Template ID");
-      Values.require(builder.getType(), "Type");
-      Values.require(builder.getTargetId(), "Target ID");
+      ValueUtils.require(builder.getTemplateId(), "Template ID");
+      ValueUtils.require(builder.getType(), "Type");
+      ValueUtils.require(builder.getTargetId(), "Target ID");
 
       return builder;
 

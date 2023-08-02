@@ -6,7 +6,7 @@ import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Program;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.StringUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.CraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
@@ -19,18 +19,18 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- Detail craft for the current segment
- [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
+ * Detail craft for the current segment
+ * [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public class DetailCraftImpl extends CraftImpl implements DetailCraft {
-  public DetailCraftImpl( Fabricator fabricator) {
+  public DetailCraftImpl(Fabricator fabricator) {
     super(fabricator);
   }
 
   @Override
   public void doWork() throws NexusException {
     // Segments have intensity arcs; automate mixer layers in and out of each main program https://www.pivotaltracker.com/story/show/178240332
-    ChoiceIndexProvider choiceIndexProvider = (SegmentChoice choice) -> Values.stringOrDefault(choice.getInstrumentType(), choice.getId().toString());
+    ChoiceIndexProvider choiceIndexProvider = (SegmentChoice choice) -> StringUtils.stringOrDefault(choice.getInstrumentType(), choice.getId().toString());
     Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> Objects.equals(ProgramType.Detail, choice.getProgramType());
     precomputeDeltas(choiceFilter, choiceIndexProvider, fabricator.getTemplateConfig().getDetailLayerOrder().stream().map(InstrumentType::toString).collect(Collectors.toList()), List.of(), fabricator.getTemplateConfig().getDeltaArcDetailLayersIncoming());
 
@@ -75,7 +75,8 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
         case Chord -> craftChordParts(instrument.get());
 
         // As-yet Unsupported Modes
-        default -> fabricator.addWarningMessage(String.format("Cannot craft unsupported mode %s for Instrument[%s]", instrument.get().getMode(), instrument.get().getId()));
+        default ->
+          fabricator.addWarningMessage(String.format("Cannot craft unsupported mode %s for Instrument[%s]", instrument.get().getMode(), instrument.get().getId()));
       }
     }
 

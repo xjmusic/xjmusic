@@ -7,8 +7,8 @@ import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.music.Bar;
 import io.xj.lib.util.MarbleBag;
-import io.xj.lib.util.Text;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.StringUtils;
+import io.xj.lib.util.ValueUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.detail.DetailCraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
@@ -62,7 +62,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     fabricator.addInfoMessage(String.format("Targeting %d layers of transition", targetLayers));
 
     if (instrumentIds.size() > targetLayers)
-      instrumentIds = Values.withIdsRemoved(instrumentIds, instrumentIds.size() - targetLayers);
+      instrumentIds = ValueUtils.withIdsRemoved(instrumentIds, instrumentIds.size() - targetLayers);
 
     for (UUID id : instrumentIds) craftTransition(id);
 
@@ -183,7 +183,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
   Optional<InstrumentAudio> pickAudioForInstrument(Instrument instrument, List<String> names) {
     var previous =
       fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId()).stream()
-        .filter(pick -> names.contains(Text.toMeme(pick.getEvent())))
+        .filter(pick -> names.contains(StringUtils.toMeme(pick.getEvent())))
         .findAny();
 
     if (fabricator.getInstrumentConfig(instrument).isAudioSelectionPersistent() && previous.isPresent())
@@ -192,7 +192,7 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     var bag = MarbleBag.empty();
 
     for (InstrumentAudio audio : fabricator.sourceMaterial().getAudiosForInstrumentId(instrument.getId())
-      .stream().filter(instrumentAudio -> names.contains(Text.toMeme(instrumentAudio.getEvent()))).toList())
+      .stream().filter(instrumentAudio -> names.contains(StringUtils.toMeme(instrumentAudio.getEvent()))).toList())
       bag.add(1, audio.getId());
 
     if (bag.isEmpty()) return Optional.empty();

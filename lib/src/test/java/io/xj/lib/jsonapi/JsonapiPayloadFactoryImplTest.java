@@ -2,7 +2,6 @@
 
 package io.xj.lib.jsonapi;
 
-import com.google.common.collect.ImmutableList;
 import io.xj.lib.Widget;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityFactoryImpl;
@@ -11,9 +10,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 public class JsonapiPayloadFactoryImplTest {
   JsonapiPayloadFactory subject;
@@ -59,8 +61,8 @@ public class JsonapiPayloadFactoryImplTest {
   public void toMany_withIncluded() throws JsonapiException {
     entityFactory.register("Widget").createdBy(Widget::new).withAttribute("name");
     JsonapiPayload jsonapiPayload = subject.newJsonapiPayload();
-    jsonapiPayload.setDataMany(ImmutableList.of(subject.toPayloadObject(new Widget().setId(UUID.fromString("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7")).setName("Jams"))));
-    jsonapiPayload.setIncluded(ImmutableList.of(subject.toPayloadObject(new Widget().setId(UUID.fromString("9ec331cc-f987-4682-9975-f569949680a1")).setName("Stones"))));
+    jsonapiPayload.setDataMany(List.of(subject.toPayloadObject(new Widget().setId(UUID.fromString("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7")).setName("Jams"))));
+    jsonapiPayload.setIncluded(List.of(subject.toPayloadObject(new Widget().setId(UUID.fromString("9ec331cc-f987-4682-9975-f569949680a1")).setName("Stones"))));
 
     Collection<?> result = subject.toMany(jsonapiPayload);
 

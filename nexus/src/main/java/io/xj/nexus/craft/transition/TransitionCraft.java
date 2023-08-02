@@ -4,12 +4,12 @@ package io.xj.nexus.craft.transition;
 import io.xj.nexus.NexusException;
 
 /**
- Transition-type Instrument https://www.pivotaltracker.com/story/show/180059746
+ * Transition-type Instrument https://www.pivotaltracker.com/story/show/180059746
  */
 public interface TransitionCraft {
 
   /**
-   perform craft for the current segment
+   * perform craft for the current segment
    */
   void doWork() throws NexusException;
 

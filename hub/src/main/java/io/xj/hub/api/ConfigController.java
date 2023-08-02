@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.api;
 
-import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.ConfigFactory;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.InstrumentConfig;
@@ -20,7 +19,7 @@ import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadObject;
 import io.xj.lib.jsonapi.JsonapiResponseProvider;
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -31,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.security.PermitAll;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/config")
 public class ConfigController extends HubJsonapiEndpoint {
-    final Map<String, Object> configMap;
+  final Map<String, Object> configMap;
 
   /**
    * Constructor
@@ -63,25 +63,24 @@ public class ConfigController extends HubJsonapiEndpoint {
     String shipBaseUrl
   ) {
     super(sqlStoreProvider, response, payloadFactory, entityFactory);
-    var c = ImmutableMap.<String, Object>builder();
-    c.put("analysisTypes", Arrays.stream(Report.Type.values()).collect(Collectors.toMap(Report.Type::toString, Report.Type::getName)));
-    c.put("apiBaseUrl", appBaseUrl);
-    c.put("audioBaseUrl", audioBaseUrl);
-    c.put("streamBaseUrl", streamBaseUrl);
-    c.put("baseUrl", appBaseUrl);
-    c.put("choiceTypes", ProgramType.values());
-    c.put("defaultInstrumentConfig", Text.format(ConfigFactory.parseString(InstrumentConfig.DEFAULT)));
-    c.put("defaultProgramConfig", Text.format(ConfigFactory.parseString(ProgramConfig.DEFAULT)));
-    c.put("defaultTemplateConfig", Text.format(ConfigFactory.parseString(TemplateConfig.DEFAULT)));
-    c.put("instrumentStates", InstrumentState.values());
-    c.put("instrumentTypes", InstrumentType.values());
-    c.put("instrumentModes", InstrumentMode.values());
-    c.put("playerBaseUrl", playerBaseUrl);
-    c.put("programStates", ProgramState.values());
-    c.put("programTypes", ProgramType.values());
-    c.put("shipBaseUrl", shipBaseUrl);
-    c.put("templateTypes", TemplateType.values());
-    configMap = c.build();
+    configMap = new HashMap<>();
+    configMap.put("analysisTypes", Arrays.stream(Report.Type.values()).collect(Collectors.toMap(Report.Type::toString, Report.Type::getName)));
+    configMap.put("apiBaseUrl", appBaseUrl);
+    configMap.put("audioBaseUrl", audioBaseUrl);
+    configMap.put("streamBaseUrl", streamBaseUrl);
+    configMap.put("baseUrl", appBaseUrl);
+    configMap.put("choiceTypes", ProgramType.values());
+    configMap.put("defaultInstrumentConfig", StringUtils.format(ConfigFactory.parseString(InstrumentConfig.DEFAULT)));
+    configMap.put("defaultProgramConfig", StringUtils.format(ConfigFactory.parseString(ProgramConfig.DEFAULT)));
+    configMap.put("defaultTemplateConfig", StringUtils.format(ConfigFactory.parseString(TemplateConfig.DEFAULT)));
+    configMap.put("instrumentStates", InstrumentState.values());
+    configMap.put("instrumentTypes", InstrumentType.values());
+    configMap.put("instrumentModes", InstrumentMode.values());
+    configMap.put("playerBaseUrl", playerBaseUrl);
+    configMap.put("programStates", ProgramState.values());
+    configMap.put("programTypes", ProgramType.values());
+    configMap.put("shipBaseUrl", shipBaseUrl);
+    configMap.put("templateTypes", TemplateType.values());
   }
 
   /**

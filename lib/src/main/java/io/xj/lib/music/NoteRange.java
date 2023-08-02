@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- Represent a note range
+ * Represent a note range
  */
 public class NoteRange {
   static final String UNKNOWN = "Unknown";
@@ -70,11 +70,11 @@ public class NoteRange {
   }
 
   /**
-   Compute the median optimal range shift octaves
-
-   @param sourceRange from
-   @param targetRange to
-   @return median optimal range shift octaves
+   * Compute the median optimal range shift octaves
+   *
+   * @param sourceRange from
+   * @param targetRange to
+   * @return median optimal range shift octaves
    */
   public static Integer computeMedianOptimalRangeShiftOctaves(NoteRange sourceRange, NoteRange targetRange) throws MusicalException {
     if (sourceRange.getLow().isEmpty() || sourceRange.getHigh().isEmpty() || targetRange.getLow().isEmpty() || targetRange.getHigh().isEmpty())
@@ -159,10 +159,10 @@ public class NoteRange {
   }
 
   /**
-   Change the octave of a note such that it is within this range
-
-   @param note source
-   @return note moved to available octave
+   * Change the octave of a note such that it is within this range
+   *
+   * @param note source
+   * @return note moved to available octave
    */
   public Note toAvailableOctave(Note note) {
     if (Objects.isNull(low) || Objects.isNull(high)) return note;
@@ -184,10 +184,10 @@ public class NoteRange {
   }
 
   /**
-   Whether the given note is within this range
-
-   @param note to test
-   @return true if note is within this range
+   * Whether the given note is within this range
+   *
+   * @param note to test
+   * @return true if note is within this range
    */
   public boolean includes(Note note) {
     if (Objects.isNull(low) && Objects.isNull(high)) return false;

@@ -1,8 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.entity;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import io.xj.lib.Widget;
 import io.xj.lib.WidgetState;
 import io.xj.lib.json.JsonProviderImpl;
@@ -12,9 +11,13 @@ import org.junit.Test;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 public class EntityFactoryImplTest {
   EntityFactory subject;
@@ -29,28 +32,28 @@ public class EntityFactoryImplTest {
   public void register_returnsSameSchema_forExistingType() {
     subject.register("Widget").createdBy(Widget::new).belongsTo("OtherThing");
 
-    assertEquals(ImmutableSet.of("otherThing"), subject.register("widgets").getBelongsTo());
+    assertEquals(Set.of("otherThing"), subject.register("widgets").getBelongsTo());
   }
 
   @Test
   public void register_returnsSameSchema_forExistingTypeClass() {
     subject.register(Widget.class).createdBy(Widget::new).belongsTo("OtherThing");
 
-    assertEquals(ImmutableSet.of("otherThing"), subject.register(Widget.class).getBelongsTo());
+    assertEquals(Set.of("otherThing"), subject.register(Widget.class).getBelongsTo());
   }
 
   @Test
   public void register_returnsSameSchema_forExisting_TypeThenClass() {
     subject.register("Widget").createdBy(Widget::new).belongsTo("OtherThing");
 
-    assertEquals(ImmutableSet.of("otherThing"), subject.register(Widget.class).getBelongsTo());
+    assertEquals(Set.of("otherThing"), subject.register(Widget.class).getBelongsTo());
   }
 
   @Test
   public void register_returnsSameSchema_forExisting_ClassThenType() {
     subject.register(Widget.class).createdBy(Widget::new).belongsTo("OtherThing");
 
-    assertEquals(ImmutableSet.of("otherThing"), subject.register("Widget").getBelongsTo());
+    assertEquals(Set.of("otherThing"), subject.register("Widget").getBelongsTo());
   }
 
   @Test
@@ -64,7 +67,7 @@ public class EntityFactoryImplTest {
   public void register_withBelongsTo() throws EntityException {
     subject.register("Widget").belongsTo("FictionalEntity");
 
-    assertEquals(ImmutableSet.of("fictionalEntity"), subject.getBelongsTo("widgets"));
+    assertEquals(Set.of("fictionalEntity"), subject.getBelongsTo("widgets"));
   }
 
   @Test
@@ -72,10 +75,10 @@ public class EntityFactoryImplTest {
     subject.register("Widget");
     subject.register("FictionalEntity").withAttribute("name").belongsTo("superwidget").createdBy(Widget::new);
 
-    assertEquals(ImmutableSet.of("superwidget"),
+    assertEquals(Set.of("superwidget"),
       subject.getBelongsTo("fictional-entity"));
 
-    assertEquals(ImmutableSet.of("name"),
+    assertEquals(Set.of("name"),
       subject.getAttributes("fictional-entity"));
   }
 
@@ -83,7 +86,7 @@ public class EntityFactoryImplTest {
   public void register_withAttributes() throws EntityException {
     subject.register("FictionalEntity").withAttribute("name").createdBy(Widget::new);
 
-    assertEquals(ImmutableSet.of("name"), subject.getAttributes("fictional-entity"));
+    assertEquals(Set.of("name"), subject.getAttributes("fictional-entity"));
   }
 
   @Test
@@ -91,7 +94,7 @@ public class EntityFactoryImplTest {
     subject.register("OtherEntity");
     subject.register("FakeEntity").belongsTo("otherEntity").createdBy(Widget::new);
 
-    assertEquals(ImmutableSet.of("otherEntity"), subject.getBelongsTo("fake-entity"));
+    assertEquals(Set.of("otherEntity"), subject.getBelongsTo("fake-entity"));
   }
 
   @Test
@@ -113,7 +116,7 @@ public class EntityFactoryImplTest {
   public void getAttributes() throws EntityException {
     subject.register("FalseEntity").withAttribute("yarn").createdBy(Widget::new);
 
-    assertEquals(ImmutableSet.of("yarn"), subject.getAttributes("false-entity"));
+    assertEquals(Set.of("yarn"), subject.getAttributes("false-entity"));
   }
 
 
@@ -202,7 +205,7 @@ public class EntityFactoryImplTest {
       .setName("Ground")
       .setSuperwidgetId(UUID.randomUUID());
 
-    Collection<Widget> result = subject.cloneAll(ImmutableList.of(fromA, fromB));
+    Collection<Widget> result = subject.cloneAll(List.of(fromA, fromB));
 
     assertEquals(2, result.size());
     Iterator<Widget> resultIt = result.iterator();

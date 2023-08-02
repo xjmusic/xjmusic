@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.ingest;
 
-import com.google.common.collect.Maps;
 import io.xj.hub.HubIntegrationTest;
 import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
@@ -27,7 +26,7 @@ import io.xj.hub.service.PreviewNexusAdmin;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.notification.NotificationProvider;
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,6 +36,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -70,9 +70,9 @@ public class HubIngestIT {
   HubIntegrationTestFactory integrationTestFactory;
 
   static Map<String, Integer> classTally(Collection<Object> allEntities) {
-    Map<String, Integer> out = Maps.newHashMap();
+    Map<String, Integer> out = new HashMap<>();
     allEntities.forEach(entity -> {
-      String name = Text.getSimpleName(entity);
+      String name = StringUtils.getSimpleName(entity);
       out.put(name, out.containsKey(name) ? out.get(name) + 1 : 1);
     });
     return out;

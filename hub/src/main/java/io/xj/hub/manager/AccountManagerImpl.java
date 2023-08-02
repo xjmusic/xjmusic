@@ -3,15 +3,15 @@ package io.xj.hub.manager;
 
 import io.xj.hub.Tables;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.AccountUser;
 import io.xj.hub.tables.Library;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Service;
 
@@ -133,14 +133,14 @@ public class AccountManagerImpl extends HubPersistenceServiceImpl implements Acc
   }
 
   /**
-   Validate data
-
-   @param record to validate
-   @throws ManagerException if invalid
+   * Validate data
+   *
+   * @param record to validate
+   * @throws ManagerException if invalid
    */
   public void validate(Account record) throws ManagerException {
     try {
-      Values.require(record.getName(), "Account name");
+      ValueUtils.require(record.getName(), "Account name");
 
     } catch (ValueException e) {
       throw new ManagerException(e);

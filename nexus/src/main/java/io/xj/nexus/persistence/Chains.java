@@ -2,10 +2,10 @@
 
 package io.xj.nexus.persistence;
 
-import com.google.common.base.Strings;
 import io.xj.hub.enums.ContentBindingType;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.lib.util.StringUtils;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainType;
 import io.xj.nexus.model.Segment;
@@ -42,7 +42,7 @@ public enum Chains {
    */
   public static String getIdentifier(@Nullable Chain chain) {
     if (Objects.isNull(chain)) return "N/A";
-    return Strings.isNullOrEmpty(chain.getShipKey()) ? chain.getId().toString() : chain.getShipKey();
+    return StringUtils.isNullOrEmpty(chain.getShipKey()) ? chain.getId().toString() : chain.getShipKey();
   }
 
   /**
@@ -100,6 +100,6 @@ public enum Chains {
    * @return Chain base key
    */
   public static String computeBaseKey(Chain chain) {
-    return Strings.isNullOrEmpty(chain.getShipKey()) ? String.format("chain-%s", chain.getId()) : chain.getShipKey();
+    return StringUtils.isNullOrEmpty(chain.getShipKey()) ? String.format("chain-%s", chain.getId()) : chain.getShipKey();
   }
 }

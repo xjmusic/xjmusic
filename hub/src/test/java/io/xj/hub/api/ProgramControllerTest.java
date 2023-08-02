@@ -2,7 +2,6 @@
 
 package io.xj.hub.api;
 
-import com.google.common.collect.ImmutableList;
 import io.xj.hub.HubTopology;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.ProgramState;
@@ -39,6 +38,7 @@ import org.springframework.http.HttpStatus;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
@@ -85,7 +85,7 @@ public class ProgramControllerTest {
     JsonapiResponseProvider responseProvider = new JsonapiResponseProviderImpl(apiUrlProvider);
 
     var account1 = buildAccount("Testing");
-    access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(account1), "User,Artist");
+    access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(account1), "User,Artist");
     library25 = buildLibrary(account1, "Test 25");
     library1 = buildLibrary(account1, "Test 1");
     subject = new ProgramController(programManager, programSequenceBindingMemeManager, programMemeManager, sqlStoreProvider, responseProvider, payloadFactory, entityFactory);
@@ -112,17 +112,17 @@ public class ProgramControllerTest {
     program2.setKey("B");
     program2.setTempo(120.0f);
     program2.setDensity(0.6f);
-    Collection<Program> programs = ImmutableList.of(program1, program2);
-    when(programManager.readMany(same(access), eq(ImmutableList.of(library25.getId()))))
+    Collection<Program> programs = List.of(program1, program2);
+    when(programManager.readMany(same(access), eq(List.of(library25.getId()))))
       .thenReturn(programs);
 
     var result = subject.readMany(req, null, library25.getId(), false);
 
-    verify(programManager).readMany(same(access), eq(ImmutableList.of(library25.getId())));
+    verify(programManager).readMany(same(access), eq(List.of(library25.getId())));
     assertEquals(HttpStatus.OK, result.getStatusCode());
     assertTrue(result.hasBody());
     assertPayload(result.getBody())
-      .hasDataMany("programs", ImmutableList.of(program1.getId().toString(), program2.getId().toString()));
+      .hasDataMany("programs", List.of(program1.getId().toString(), program2.getId().toString()));
   }
 
   @Test

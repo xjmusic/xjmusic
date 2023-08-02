@@ -2,14 +2,14 @@
 package io.xj.hub.manager;
 
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.InstrumentMeme;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 import io.xj.lib.util.ValueException;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
@@ -54,11 +54,11 @@ public class InstrumentMemeManagerImpl extends HubPersistenceServiceImpl impleme
   @Nullable
   public Collection<InstrumentMeme> readMany(HubAccess access, Collection<UUID> parentIds) throws ManagerException {
     requireArtist(access);
-    try (var selectInstrumentMeme = sqlStoreProvider.getDSL().selectFrom(INSTRUMENT_MEME)){
-    return modelsFrom(InstrumentMeme.class,
-      selectInstrumentMeme
-        .where(INSTRUMENT_MEME.INSTRUMENT_ID.in(parentIds))
-        .fetch());
+    try (var selectInstrumentMeme = sqlStoreProvider.getDSL().selectFrom(INSTRUMENT_MEME)) {
+      return modelsFrom(InstrumentMeme.class,
+        selectInstrumentMeme
+          .where(INSTRUMENT_MEME.INSTRUMENT_ID.in(parentIds))
+          .fetch());
     } catch (Exception e) {
       throw new ManagerException(e);
     }
@@ -75,10 +75,10 @@ public class InstrumentMemeManagerImpl extends HubPersistenceServiceImpl impleme
   @Override
   public void destroy(HubAccess access, UUID id) throws ManagerException {
     requireArtist(access);
-    try (var deleteInstrumentMeme =sqlStoreProvider.getDSL().deleteFrom(INSTRUMENT_MEME)) {
-    deleteInstrumentMeme
-      .where(INSTRUMENT_MEME.ID.eq(id))
-      .execute();
+    try (var deleteInstrumentMeme = sqlStoreProvider.getDSL().deleteFrom(INSTRUMENT_MEME)) {
+      deleteInstrumentMeme
+        .where(INSTRUMENT_MEME.ID.eq(id))
+        .execute();
     } catch (Exception e) {
       throw new ManagerException(e);
     }
@@ -90,16 +90,16 @@ public class InstrumentMemeManagerImpl extends HubPersistenceServiceImpl impleme
   }
 
   /**
-   Validate data
-
-   @param record to validate
-   @throws ManagerException if invalid
+   * Validate data
+   *
+   * @param record to validate
+   * @throws ManagerException if invalid
    */
   public InstrumentMeme validate(InstrumentMeme record) throws ManagerException {
     try {
-      Values.require(record.getInstrumentId(), "Instrument ID");
-      Values.require(record.getName(), "Name");
-      record.setName(Text.toMeme(record.getName()));
+      ValueUtils.require(record.getInstrumentId(), "Instrument ID");
+      ValueUtils.require(record.getName(), "Name");
+      record.setName(StringUtils.toMeme(record.getName()));
       return record;
 
     } catch (ValueException e) {

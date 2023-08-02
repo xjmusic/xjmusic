@@ -2,14 +2,14 @@
 package io.xj.hub.manager;
 
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 import io.xj.lib.util.ValueException;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +18,9 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
 
-import static io.xj.hub.Tables.*;
+import static io.xj.hub.Tables.LIBRARY;
+import static io.xj.hub.Tables.PROGRAM;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_BINDING_MEME;
 
 @Service
 public class ProgramSequenceBindingMemeManagerImpl extends HubPersistenceServiceImpl implements ProgramSequenceBindingMemeManager {
@@ -123,9 +125,9 @@ public class ProgramSequenceBindingMemeManagerImpl extends HubPersistenceService
    */
   public ProgramSequenceBindingMeme validate(ProgramSequenceBindingMeme record) throws ManagerException {
     try {
-      Values.require(record.getProgramSequenceBindingId(), "ProgramSequenceBinding ID");
-      Values.require(record.getName(), "Name");
-      record.setName(Text.toMeme(record.getName()));
+      ValueUtils.require(record.getProgramSequenceBindingId(), "ProgramSequenceBinding ID");
+      ValueUtils.require(record.getName(), "Name");
+      record.setName(StringUtils.toMeme(record.getName()));
       return record;
 
     } catch (ValueException e) {

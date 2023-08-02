@@ -1,8 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.craft.macro_main;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Streams;
 import io.xj.hub.HubTopology;
 import io.xj.hub.client.HubClient;
 import io.xj.hub.client.HubContent;
@@ -36,7 +34,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.xj.lib.util.Assertion.assertSameItems;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
@@ -85,7 +85,7 @@ public class CraftSegmentPatternMemeTest {
 
       // Mock request via HubClient returns fake generated library of hub content
       NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();
-      HubContent sourceMaterial = new HubContent(Streams.concat(
+      HubContent sourceMaterial = new HubContent(Stream.concat(
         fake.setupFixtureB1().stream(),
         fake.setupFixtureB2().stream()
       ).collect(Collectors.toList()));
@@ -114,7 +114,7 @@ public class CraftSegmentPatternMemeTest {
 
       var result = store.getSegment(segment.getId()).orElseThrow();
       assertEquals(SegmentType.NEXTMACRO, result.getType());
-      assertSameItems(Lists.newArrayList("REGRET", "HINDSIGHT", "CHUNKY", "TANGY"),
+      assertSameItems(List.of("REGRET", "HINDSIGHT", "CHUNKY", "TANGY"),
         Entities.namesOf(store.getAll(result.getId(), SegmentMeme.class)));
     }
   }

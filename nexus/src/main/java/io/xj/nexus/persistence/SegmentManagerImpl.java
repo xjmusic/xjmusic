@@ -1,16 +1,15 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.persistence;
 
-import com.google.common.collect.Lists;
 import io.xj.hub.client.HubClientAccess;
 import io.xj.hub.enums.ProgramType;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.ChordEntity;
 import io.xj.lib.entity.common.MessageEntity;
 import io.xj.lib.util.CSV;
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 import io.xj.lib.util.ValueException;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
@@ -27,6 +26,7 @@ import io.xj.nexus.model.SegmentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -35,7 +35,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static io.xj.lib.util.Values.MICROS_PER_SECOND;
+import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
 
 /**
  * Nexus Managers are Singletons unless some other requirement changes that-- 'cuz here be cyclic dependencies...
@@ -61,7 +61,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
    * @throws ValueException if not in required states
    */
   public static void onlyAllowSegmentStateTransitions(SegmentState toState, SegmentState... allowedStates) throws ValueException {
-    List<String> allowedStateNames = Lists.newArrayList();
+    List<String> allowedStateNames = new ArrayList<>();
     for (SegmentState search : allowedStates) {
       allowedStateNames.add(search.toString());
       if (Objects.equals(search, toState)) {
@@ -203,7 +203,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   @Override
   public <N> Collection<N> readManySubEntities(Collection<UUID> segmentIds, Boolean includePicks) throws ManagerFatalException {
     try {
-      Collection<Object> entities = Lists.newArrayList();
+      Collection<Object> entities = new ArrayList<>();
       for (UUID sId : segmentIds) {
         entities.addAll(store.getAll(sId, SegmentChoice.class, Segment.class, segmentIds));
         entities.addAll(store.getAll(sId, SegmentChoiceArrangement.class, Segment.class, segmentIds));
@@ -236,7 +236,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   @Override
   public Collection<Segment> readMany(Collection<UUID> chainIds) throws ManagerFatalException {
     try {
-      Collection<Segment> segments = Lists.newArrayList();
+      Collection<Segment> segments = new ArrayList<>();
       for (UUID chainId : chainIds)
         store.getAllSegments(chainId)
           .stream()
@@ -253,7 +253,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   public Collection<Segment> readManyFromToOffset(UUID chainId, Long fromOffset, Long toOffset) throws ManagerFatalException {
     try {
       return 0 > toOffset ?
-        Lists.newArrayList() :
+        new ArrayList<>() :
         store.getAllSegments(chainId)
           .stream()
           .filter(s -> s.getOffset() >= fromOffset && s.getOffset() <= toOffset)
@@ -282,7 +282,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
 
       // fail if attempt to [#128] change chainId of a segment
       Object updateChainId = entity.getChainId();
-      if (Values.isSet(updateChainId) && !Objects.equals(updateChainId, existing.getChainId()))
+      if (ValueUtils.isSet(updateChainId) && !Objects.equals(updateChainId, existing.getChainId()))
         throw new ManagerValidationException("cannot change chainId create a segment");
 
       // Never change id
@@ -389,66 +389,66 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   void validateSegmentMessage(SegmentMessage record) throws ValueException {
-    Values.require(record.getSegmentId(), "Segment ID");
-    Values.require(record.getType(), "Type");
+    ValueUtils.require(record.getSegmentId(), "Segment ID");
+    ValueUtils.require(record.getType(), "Type");
     MessageEntity.validate(record);
   }
 
   void validateSegmentMeta(SegmentMeta record) throws ValueException {
-    Values.require(record.getSegmentId(), "Segment ID");
-    Values.require(record.getKey(), "Key");
-    Values.require(record.getValue(), "Value");
+    ValueUtils.require(record.getSegmentId(), "Segment ID");
+    ValueUtils.require(record.getKey(), "Key");
+    ValueUtils.require(record.getValue(), "Value");
   }
 
   void validateSegmentMeme(SegmentMeme record) throws ValueException {
-    Values.require(record.getSegmentId(), "Segment ID");
-    Values.require(record.getName(), "Meme name");
-    record.setName(Text.toMeme(record.getName()));
+    ValueUtils.require(record.getSegmentId(), "Segment ID");
+    ValueUtils.require(record.getName(), "Meme name");
+    record.setName(StringUtils.toMeme(record.getName()));
   }
 
   void validateSegmentChord(SegmentChord record) throws ValueException {
-    Values.require(record.getSegmentId(), "Segment ID");
+    ValueUtils.require(record.getSegmentId(), "Segment ID");
     ChordEntity.validate(record);
   }
 
   void validateSegmentChoiceArrangementPick(SegmentChoiceArrangementPick record) throws ValueException {
-    Values.require(record.getSegmentId(), "Segment ID");
-    Values.require(record.getSegmentChoiceArrangementId(), "Arrangement ID");
-    Values.require(record.getProgramSequencePatternEventId(), "Pattern Event ID");
-    Values.require(record.getInstrumentAudioId(), "Audio ID");
-    Values.require(record.getStartAtSegmentMicros(), "Start");
+    ValueUtils.require(record.getSegmentId(), "Segment ID");
+    ValueUtils.require(record.getSegmentChoiceArrangementId(), "Arrangement ID");
+    ValueUtils.require(record.getProgramSequencePatternEventId(), "Pattern Event ID");
+    ValueUtils.require(record.getInstrumentAudioId(), "Audio ID");
+    ValueUtils.require(record.getStartAtSegmentMicros(), "Start");
     if (Objects.nonNull(record.getLengthMicros()))
-      Values.requireMinimum(LENGTH_MINIMUM_MICROS, record.getLengthMicros(), "Length");
-    Values.require(record.getAmplitude(), "Amplitude");
-    Values.requireMinimum(AMPLITUDE_MINIMUM, record.getAmplitude(), "Amplitude");
-    Values.require(record.getTones(), "Note");
+      ValueUtils.requireMinimum(LENGTH_MINIMUM_MICROS, record.getLengthMicros(), "Length");
+    ValueUtils.require(record.getAmplitude(), "Amplitude");
+    ValueUtils.requireMinimum(AMPLITUDE_MINIMUM, record.getAmplitude(), "Amplitude");
+    ValueUtils.require(record.getTones(), "Note");
   }
 
   void validateSegmentChoiceArrangement(SegmentChoiceArrangement record) throws ValueException {
-    Values.require(record.getSegmentId(), "Segment ID");
-    Values.require(record.getSegmentChoiceId(), "Choice ID");
-    Values.require(record.getProgramSequencePatternId(), "Program Sequence Pattern ID");
+    ValueUtils.require(record.getSegmentId(), "Segment ID");
+    ValueUtils.require(record.getSegmentChoiceId(), "Choice ID");
+    ValueUtils.require(record.getProgramSequencePatternId(), "Program Sequence Pattern ID");
   }
 
   void validateSegmentChoice(SegmentChoice record) throws ValueException {
-    Values.require(record.getSegmentId(), "Segment ID");
-    Values.require(record.getProgramId(), "Program ID");
-    Values.require(record.getProgramType(), "Program Type");
-    Values.require(record.getInstrumentId(), "Instrument ID");
-    if (Values.isUnset(record.getDeltaIn())) record.setDeltaIn(Segments.DELTA_UNLIMITED);
-    if (Values.isUnset(record.getDeltaOut())) record.setDeltaOut(Segments.DELTA_UNLIMITED);
+    ValueUtils.require(record.getSegmentId(), "Segment ID");
+    ValueUtils.require(record.getProgramId(), "Program ID");
+    ValueUtils.require(record.getProgramType(), "Program Type");
+    ValueUtils.require(record.getInstrumentId(), "Instrument ID");
+    if (ValueUtils.isUnset(record.getDeltaIn())) record.setDeltaIn(Segments.DELTA_UNLIMITED);
+    if (ValueUtils.isUnset(record.getDeltaOut())) record.setDeltaOut(Segments.DELTA_UNLIMITED);
   }
 
   void validateSegment(Segment record) throws ValueException {
-    Values.require(record.getChainId(), "Chain ID");
-    Values.require(record.getOffset(), "Offset");
-    if (Values.isEmpty(record.getWaveformPreroll())) record.setWaveformPreroll(0.0);
-    if (Values.isEmpty(record.getWaveformPostroll())) record.setWaveformPostroll(0.0);
-    if (Values.isEmpty(record.getDelta())) record.setDelta(0);
-    Values.require(record.getType(), "Type");
-    Values.require(record.getState(), "State");
+    ValueUtils.require(record.getChainId(), "Chain ID");
+    ValueUtils.require(record.getOffset(), "Offset");
+    if (ValueUtils.isEmpty(record.getWaveformPreroll())) record.setWaveformPreroll(0.0);
+    if (ValueUtils.isEmpty(record.getWaveformPostroll())) record.setWaveformPostroll(0.0);
+    if (ValueUtils.isEmpty(record.getDelta())) record.setDelta(0);
+    ValueUtils.require(record.getType(), "Type");
+    ValueUtils.require(record.getState(), "State");
     if (!SegmentType.PENDING.equals(record.getType()))
-      Values.require(record.getBeginAtChainMicros(), "Begin-at");
+      ValueUtils.require(record.getBeginAtChainMicros(), "Begin-at");
   }
 
 }

@@ -4,7 +4,11 @@ import io.xj.hub.tables.pojos.ProgramSequenceChord;
 import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
 import io.xj.hub.tables.pojos.ProgramVoice;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**

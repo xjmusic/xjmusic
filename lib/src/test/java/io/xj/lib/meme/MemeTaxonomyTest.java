@@ -1,30 +1,32 @@
 package io.xj.lib.meme;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 import org.junit.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
- TemplateConfig has Meme categories
- https://www.pivotaltracker.com/story/show/181801646
- <p>
- A template configuration has a field called `memeTaxonomy` which defines the taxonomy of memes.
- <p>
- For example, this might look like
- <p>
- ```
- memeTaxonomy=CITY[CHICAGO,DENVER,PHILADELPHIA]
- ```
- <p>
- That would tell XJ about the existence of a meme category called City with values `CHICAGO`, `DENVER`, and `PHILADELPHIA`. And these would function as exclusion like numeric memes, e.g. after content having `CHICAGO` is chosen, we can choose nothing with `DENVER` or `PHILADELPHIA`.
+ * TemplateConfig has Meme categories
+ * https://www.pivotaltracker.com/story/show/181801646
+ * <p>
+ * A template configuration has a field called `memeTaxonomy` which defines the taxonomy of memes.
+ * <p>
+ * For example, this might look like
+ * <p>
+ * ```
+ * memeTaxonomy=CITY[CHICAGO,DENVER,PHILADELPHIA]
+ * ```
+ * <p>
+ * That would tell XJ about the existence of a meme category called City with values `CHICAGO`, `DENVER`, and `PHILADELPHIA`. And these would function as exclusion like numeric memes, e.g. after content having `CHICAGO` is chosen, we can choose nothing with `DENVER` or `PHILADELPHIA`.
  */
 public class MemeTaxonomyTest {
   @Test
   public void testDefaultCategoryName() {
-    var subject = MemeTaxonomy.fromList(List.of(ImmutableMap.of("memes", List.of("WINTER", "SPRING", "SUMMER", "FALL"))));
+    var subject = MemeTaxonomy.fromList(List.of(Map.of("memes", List.of("WINTER", "SPRING", "SUMMER", "FALL"))));
 
     assertEquals("CATEGORY", subject.getCategories().get(0).getName());
   }
@@ -39,21 +41,21 @@ public class MemeTaxonomyTest {
   @Test
   public void test_fromListOfMaps_toListOfMaps() {
     var subject = MemeTaxonomy.fromList(List.of(
-      ImmutableMap.of(
+      Map.of(
         "name", "CO111LOR",
         "memes", List.of("RED ", "GR333EEN", "BLUE#@")
       ),
-      ImmutableMap.of(
+      Map.of(
         "name", "SIZ$%@E",
         "memes", List.of("L44A&*(RGE", "MED$IUM", "SMA)(&&LL")
       )));
 
     assertEquals(List.of(
-      ImmutableMap.of(
+      Map.of(
         "name", "COLOR",
         "memes", List.of("RED", "GREEN", "BLUE")
       ),
-      ImmutableMap.of(
+      Map.of(
         "name", "SIZE",
         "memes", List.of("LARGE", "MEDIUM", "SMALL")
       )
@@ -95,7 +97,7 @@ public class MemeTaxonomyTest {
 
   @Test
   public void isAllowed_alreadyPresentFromTaxonomy() {
-    assertTrue(MemeTaxonomy.fromString("CITY[ABERDEEN,NAGOYA]").isAllowed(List.of("ABERDEEN","ABERDEEN")));
+    assertTrue(MemeTaxonomy.fromString("CITY[ABERDEEN,NAGOYA]").isAllowed(List.of("ABERDEEN", "ABERDEEN")));
   }
 
 

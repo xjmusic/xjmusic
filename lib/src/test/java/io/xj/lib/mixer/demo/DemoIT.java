@@ -22,7 +22,7 @@ import java.time.Duration;
 import java.util.UUID;
 
 import static io.xj.lib.util.Assertion.assertFileMatchesResourceFile;
-import static io.xj.lib.util.FileUtil.getResourceFile;
+import static io.xj.lib.util.FileUtils.getResourceFile;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DemoIT {

@@ -1,8 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.util;
 
-import com.google.common.collect.Lists;
-import com.google.common.base.Strings;
 import io.xj.lib.mixer.AudioSampleFormat;
 import io.xj.lib.mixer.FormatException;
 
@@ -13,16 +11,22 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public interface Values {
+public interface ValueUtils {
   double entityPositionDecimalPlaces = 2.0;
   double roundPositionMultiplier = StrictMath.pow(10.0, entityPositionDecimalPlaces);
   String K = "k";
-  String EMPTY = "";
   long MILLIS_PER_SECOND = 1000;
   long MICROS_PER_MILLI = 1000;
   long NANOS_PER_MICRO = 1000;
@@ -91,7 +95,7 @@ public interface Values {
    * @return true if it's an integer
    */
   static Boolean isInteger(String raw) {
-    return Text.isInteger.matcher(raw).matches();
+    return StringUtils.isInteger.matcher(raw).matches();
   }
 
   /**
@@ -160,7 +164,7 @@ public interface Values {
    * @throws ValueException if null
    */
   static <V> void requireNonZero(V value, String name) throws ValueException {
-    if (Values.isUnsetOrZero(value))
+    if (ValueUtils.isUnsetOrZero(value))
       throw new ValueException(String.format("Non-zero %s is required.", name));
   }
 
@@ -261,7 +265,7 @@ public interface Values {
    */
   static boolean isUnset(Object value) {
     if (Objects.isNull(value)) return true;
-    return Strings.isNullOrEmpty(String.valueOf(value));
+    return StringUtils.isNullOrEmpty(String.valueOf(value));
   }
 
   /**
@@ -280,27 +284,6 @@ public interface Values {
   }
 
   /**
-   * String representation of value, or pass through null as empty string
-   *
-   * @param value to parse
-   * @return string or empty
-   */
-  static String stringOrEmpty(@Nullable Object value) {
-    return stringOrDefault(value, EMPTY);
-  }
-
-  /**
-   * String representation of value, or pass through a default value
-   *
-   * @param value        to parse
-   * @param defaultValue to return if value is null
-   * @return string or default value
-   */
-  static String stringOrDefault(@Nullable Object value, String defaultValue) {
-    return Objects.nonNull(value) ? String.valueOf(value) : defaultValue;
-  }
-
-  /**
    * Get a UUID from the input string, or return null if the input is null or invalid
    *
    * @param id from which to compute uuid
@@ -308,9 +291,9 @@ public interface Values {
    */
   static @Nullable
   UUID uuidOrNull(@Nullable String id) {
-    if (Strings.isNullOrEmpty(id)) return null;
+    if (StringUtils.isNullOrEmpty(id)) return null;
     try {
-      return UUID.fromString(id);
+      return UUID.fromString(Objects.requireNonNull(id));
     } catch (Exception ignored) {
       return null;
     }
@@ -324,16 +307,6 @@ public interface Values {
    */
   static Long toEpochMicros(Instant of) {
     return of.toEpochMilli() * 1000 + of.getNano() / 1000;
-  }
-
-  /**
-   * Get an Instant from a long value of microseconds since epoch
-   *
-   * @param of microseconds since epoch
-   * @return Instant
-   */
-  static Instant fromEpochMicros(long of) {
-    return Instant.ofEpochMilli(of / 1000).plus(of % 1000, ChronoUnit.MICROS);
   }
 
   /**
@@ -366,7 +339,7 @@ public interface Values {
    */
   static List<String> randomFrom(Collection<String> from, int num) {
     if (0 == num || from.isEmpty()) return List.of();
-    var working = Lists.newArrayList(from);
+    var working = new ArrayList<>(from);
     while (num < working.size() && 0 < working.size())
       working.remove((int) TremendouslyRandom.zeroToLimit(working.size()));
     return working;
@@ -513,19 +486,20 @@ public interface Values {
     return list.subList(Math.min(list.size(), Math.max(0, list.size() - num)), list.size());
   }
 
-    /**
-     * Convert output values into a ByteBuffer
-     *
-     * @param fmt     to write
-     * @param samples [frame][channel] output to convert
-     * @return byte buffer of stream
-     */
-    static ByteBuffer byteBufferOf(AudioFormat fmt, double[][] samples) throws FormatException {
-      ByteBuffer outputBytes = ByteBuffer.allocate(samples.length * fmt.getFrameSize());
-      for (double[] sample : samples)
-        for (double v : sample)
-          outputBytes.put(AudioSampleFormat.toBytes(v, AudioSampleFormat.typeOfOutput(fmt)));
+  /**
+   * Convert output values into a ByteBuffer
+   *
+   * @param fmt     to write
+   * @param samples [frame][channel] output to convert
+   * @return byte buffer of stream
+   */
+  static ByteBuffer byteBufferOf(AudioFormat fmt, double[][] samples) throws FormatException {
+    ByteBuffer outputBytes = ByteBuffer.allocate(samples.length * fmt.getFrameSize());
+    for (double[] sample : samples)
+      for (double v : sample)
+        outputBytes.put(AudioSampleFormat.toBytes(v, AudioSampleFormat.typeOfOutput(fmt)));
 
-      return outputBytes;
-    }
+    return outputBytes;
+  }
+
 }

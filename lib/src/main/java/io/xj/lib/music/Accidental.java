@@ -5,9 +5,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- Expression of the "accidental notes" as either Sharps or Flats
- <p>
- Note has an adjustment symbol (Sharp or Flat) to render the "accidental notes for a given name (e.g. of a chord, scale or key)
+ * Expression of the "accidental notes" as either Sharps or Flats
+ * <p>
+ * Note has an adjustment symbol (Sharp or Flat) to render the "accidental notes for a given name (e.g. of a chord, scale or key)
  */
 public enum Accidental {
   None,
@@ -26,10 +26,10 @@ public enum Accidental {
   static final String EXPLICIT_FLAT = "b";
 
   /**
-   AdjSymbol the adjustment symbol (Sharp or Flat) for a given name (e.g. of a chord, scale or key)
-
-   @param name to get adjustment symbol of
-   @return adjustment symbol
+   * AdjSymbol the adjustment symbol (Sharp or Flat) for a given name (e.g. of a chord, scale or key)
+   *
+   * @param name to get adjustment symbol of
+   * @return adjustment symbol
    */
   public static Accidental of(CharSequence name) {
     int numSharps = countMatches(rgxSharpIn.matcher(name));
@@ -51,10 +51,10 @@ public enum Accidental {
   }
 
   /**
-   Count number of matches of a regex pattern matcher
-
-   @param matcher to count
-   @return number of matches
+   * Count number of matches of a regex pattern matcher
+   *
+   * @param matcher to count
+   * @return number of matches
    */
   static int countMatches(Matcher matcher) {
     int count = 0;
@@ -64,10 +64,10 @@ public enum Accidental {
   }
 
   /**
-   the adjustment symbol (Sharp or Flat) that begins a given name (e.g. the Root of a chord, scale or key)
-
-   @param name to get adjustment symbol from the beginning of
-   @return adjustment symbol
+   * the adjustment symbol (Sharp or Flat) that begins a given name (e.g. the Root of a chord, scale or key)
+   *
+   * @param name to get adjustment symbol from the beginning of
+   * @return adjustment symbol
    */
   public static Accidental firstOf(CharSequence name) {
     if (rgxSharpBegin.matcher(name).find())
@@ -79,9 +79,9 @@ public enum Accidental {
   }
 
   /**
-   Replace any accidentals with the explicit text "sharp" or "flat"
-
-   @param name within which to replace text
+   * Replace any accidentals with the explicit text "sharp" or "flat"
+   *
+   * @param name within which to replace text
    */
   public static String replaceWithExplicit(String name) {
     return rgxSharp.matcher(rgxFlat.matcher(name).replaceAll(EXPLICIT_FLAT)).replaceAll(EXPLICIT_SHARP);

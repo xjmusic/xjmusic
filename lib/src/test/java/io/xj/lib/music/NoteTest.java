@@ -2,16 +2,20 @@
 package io.xj.lib.music;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.ImmutableList;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class NoteTest {
 
@@ -117,7 +121,7 @@ public class NoteTest {
   public void compareTo() {
     assertEquals(
       "C1,D1,D#1,E1,F#1,C2,D2,D#2,E2,F#2,C3,D3,D#3,E3",
-      ImmutableList.of(Note.of("C1"),
+      List.of(Note.of("C1"),
           Note.of("F#1"),
           Note.of("E1"),
           Note.of("C3"),

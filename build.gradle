@@ -18,7 +18,6 @@ plugins {
 ext {
   googleApiClientVersion = '2.2.0'
   googleApiServicePlusVersion = 'v1-rev590-1.25.0'
-  guavaVersion = '31.1-jre'
   jacksonAnnotationsVersion = '2.15.2'
   springBootVersion = '2.7.6'
   springTestVersion = '5.3.24'

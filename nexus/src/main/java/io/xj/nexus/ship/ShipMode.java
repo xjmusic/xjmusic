@@ -2,7 +2,7 @@
 
 package io.xj.nexus.ship;
 
-import com.google.common.base.Strings;
+import io.xj.lib.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -21,7 +21,7 @@ public enum ShipMode {
 
   public boolean equals(String value) {
     return
-      !Strings.isNullOrEmpty(value) &&
+      !StringUtils.isNullOrEmpty(value) &&
         toString().toLowerCase(Locale.ROOT).equals(value.toLowerCase(Locale.ROOT));
   }
 }

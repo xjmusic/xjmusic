@@ -2,8 +2,7 @@
 
 package io.xj.lib.jsonapi;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 import io.xj.lib.Widget;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.JsonProviderImpl;
@@ -11,10 +10,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Payload test
@@ -54,7 +56,7 @@ public class JsonapiPayloadTest {
 
   @Test
   public void isEmpty_falseAfterSetDataEntities() throws JsonapiException {
-    assertFalse(jsonapiPayloadFactory.setDataEntities(subject, ImmutableList.of(new Widget()
+    assertFalse(jsonapiPayloadFactory.setDataEntities(subject, List.of(new Widget()
       .setId(UUID.randomUUID())
       .setName("Test")
     )).isEmpty());
@@ -67,12 +69,12 @@ public class JsonapiPayloadTest {
 
   @Test
   public void isEmpty_falseAfterSetData_many() {
-    assertFalse(subject.setDataMany(ImmutableList.of(new JsonapiPayloadObject())).isEmpty());
+    assertFalse(subject.setDataMany(List.of(new JsonapiPayloadObject())).isEmpty());
   }
 
   @Test
   public void setDataMany_setsTypeEvenWithEmptyList() {
-    assertEquals(PayloadDataType.Many, subject.setDataMany(ImmutableList.of()).getDataType());
+    assertEquals(PayloadDataType.Many, subject.setDataMany(List.of()).getDataType());
   }
 
   @Test
@@ -82,7 +84,7 @@ public class JsonapiPayloadTest {
 
   @Test
   public void isEmpty_falseAfterSetLinks() {
-    assertFalse(subject.setLinks(ImmutableMap.of("One", "1", "Two", "2")).isEmpty());
+    assertFalse(subject.setLinks(Map.of("One", "1", "Two", "2")).isEmpty());
   }
 
   @Test
@@ -97,7 +99,7 @@ public class JsonapiPayloadTest {
   @Test
   public void type_hasMany_afterSetDataEntities() throws JsonapiException {
     assertEquals(PayloadDataType.Many, jsonapiPayloadFactory.setDataEntities(subject,
-      ImmutableList.of(new Widget()
+      List.of(new Widget()
         .setId(UUID.randomUUID())
         .setName("Test")
       )).getDataType());
@@ -110,7 +112,7 @@ public class JsonapiPayloadTest {
 
   @Test
   public void type_hasMany_afterSetData_many() {
-    assertEquals(PayloadDataType.Many, subject.setDataMany(ImmutableList.of(new JsonapiPayloadObject())).getDataType());
+    assertEquals(PayloadDataType.Many, subject.setDataMany(List.of(new JsonapiPayloadObject())).getDataType());
   }
 
   @Test
@@ -130,7 +132,7 @@ public class JsonapiPayloadTest {
 
   @Test
   public void setIncluded() {
-    assertEquals(1, subject.setIncluded(ImmutableList.of(new JsonapiPayloadObject())).getIncluded().size());
+    assertEquals(1, subject.setIncluded(List.of(new JsonapiPayloadObject())).getIncluded().size());
   }
 
   @Test
@@ -140,7 +142,7 @@ public class JsonapiPayloadTest {
 
   @Test
   public void addAllToIncluded() {
-    assertEquals(2, subject.addAllToIncluded(ImmutableList.of(new JsonapiPayloadObject(), new JsonapiPayloadObject())).getIncluded().size());
+    assertEquals(2, subject.addAllToIncluded(List.of(new JsonapiPayloadObject(), new JsonapiPayloadObject())).getIncluded().size());
   }
 
   /**
@@ -180,7 +182,7 @@ public class JsonapiPayloadTest {
 
   @Test
   public void setDataEntities_empty_setsDataTypeToHasMany() throws JsonapiException {
-    jsonapiPayloadFactory.setDataEntities(subject, ImmutableList.of());
+    jsonapiPayloadFactory.setDataEntities(subject, List.of());
 
     assertEquals(PayloadDataType.Many, subject.getDataType());
   }

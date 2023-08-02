@@ -1,9 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.jsonapi;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
+import java.util.Map;
 import io.xj.lib.Superwidget;
 import io.xj.lib.Widget;
 import io.xj.lib.entity.EntityFactory;
@@ -15,12 +13,16 @@ import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import static io.xj.lib.jsonapi.AssertPayloadObject.assertPayloadObject;
 import static io.xj.lib.util.Assertion.assertSameItems;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Payload object test
@@ -70,7 +72,7 @@ public class JsonapiJsonapiPayloadObjectTest {
     jsonapiPayloadFactory.addIfRelated(subject, rel);
 
     assertPayloadObject(subject)
-      .hasMany(Widget.class, ImmutableList.of(widget2));
+      .hasMany(Widget.class, List.of(widget2));
   }
 
   @Test
@@ -99,7 +101,7 @@ public class JsonapiJsonapiPayloadObjectTest {
 
   @Test
   public void getAttributes_setAttributes() throws ValueException {
-    Map<String, Object> attr = ImmutableMap.of(
+    Map<String, Object> attr = Map.of(
       "kittens", "cute",
       "puppies", 5
     );
@@ -117,7 +119,7 @@ public class JsonapiJsonapiPayloadObjectTest {
 
   @Test
   public void getLinks_setLinks() throws ValueException {
-    Map<String, String> links = ImmutableMap.of(
+    Map<String, String> links = Map.of(
       "kittens", "https://kittens.com/",
       "puppies", "https://puppies.com/"
     );
@@ -139,7 +141,7 @@ public class JsonapiJsonapiPayloadObjectTest {
 
   @Test
   public void getRelationships_setRelationships() throws JsonapiException {
-    subject.setRelationships(ImmutableMap.of(
+    subject.setRelationships(Map.of(
       "parentEntity", jsonapiPayloadFactory.setDataEntity(jsonapiPayloadFactory.newJsonapiPayload(), new Widget()
         .setId(UUID.randomUUID())
         .setName("Test Widget")
@@ -167,7 +169,7 @@ public class JsonapiJsonapiPayloadObjectTest {
 
   @Test
   public void setAttributes_nullValueSetsNullValueInstance() throws ValueException {
-    Map<String, Object> attr = Maps.newHashMap();
+    Map<String, Object> attr = new HashMap<>();
     attr.put("kittens", "cute");
     attr.put("puppies", null);
     subject.setAttributes(attr);

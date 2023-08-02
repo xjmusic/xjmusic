@@ -2,11 +2,10 @@
 
 package io.xj.hub.api;
 
-import com.google.common.collect.ImmutableList;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessException;
-import io.xj.hub.service.PreviewNexusAdmin;
 import io.xj.hub.manager.UserManager;
+import io.xj.hub.service.PreviewNexusAdmin;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.lib.app.AppException;
 import io.xj.lib.filestore.FileStoreProvider;
@@ -25,6 +24,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -56,7 +56,7 @@ public class AuthControllerTest {
   @BeforeEach
   public void setUp() throws AppException {
     Account account1 = buildAccount("Testing");
-    access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(account1), "User,Artist");
+    access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(account1), "User,Artist");
   }
 
   @Test

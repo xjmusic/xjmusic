@@ -2,15 +2,12 @@
 
 package io.xj.nexus.ship.broadcast;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.telemetry.TelemetryMeasureGauge;
 import io.xj.lib.telemetry.TelemetryProvider;
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 import io.xj.nexus.ship.ShipException;
 import io.xj.nexus.ship.ShipMode;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -28,17 +25,19 @@ import java.io.IOException;
 import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import static io.xj.lib.util.Values.MICROS_PER_SECOND;
+import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
 
 /**
  * Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
@@ -53,7 +52,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   final DecimalFormat df;
   final FileStoreProvider fileStore;
   final HttpClientProvider httpClientProvider;
-  final Map<Long/* mediaSequence */, Chunk> items = Maps.newConcurrentMap();
+  final Map<Long/* mediaSequence */, Chunk> items = new ConcurrentHashMap<>();
   final TelemetryMeasureGauge HLS_PLAYLIST_AHEAD_SECONDS;
   final TelemetryMeasureGauge HLS_PLAYLIST_SIZE;
   final Pattern rgxFilename = Pattern.compile("^([A-Za-z0-9_]*)-([0-9]*)\\.([A-Za-z0-9]*)");
@@ -109,7 +108,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     // Computed
     this.isSegmentFilename = m -> m.endsWith(String.format(".%s", shipChunkAudioEncoder));
     this.m3u8Key = computeM3u8Key(shipKey);
-    this.m3u8KeyAlias = Strings.isNullOrEmpty(shipKeyAlias) ? String.valueOf(Optional.empty()) : Optional.of(shipKeyAlias).map(this::computeM3u8Key).orElse(null);
+    this.m3u8KeyAlias = StringUtils.isNullOrEmpty(shipKeyAlias) ? String.valueOf(Optional.empty()) : Optional.of(shipKeyAlias).map(this::computeM3u8Key).orElse(null);
 
     // Decimal format for writing seconds values in .m3u8 playlist line items
     df = new DecimalFormat("#.######");
@@ -218,12 +217,12 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     ).toList();
 
     // publish custom .m3u8 file
-    return Text.formatMultiline(m3u8FinalLines.toArray());
+    return StringUtils.formatMultiline(m3u8FinalLines.toArray());
   }
 
   @Override
   public List<Chunk> parseItems(String m3u8Content) throws ShipException {
-    List<Chunk> chunks = Lists.newArrayList();
+    List<Chunk> chunks = new ArrayList<>();
     Chunk item;
     String ext;
     String filename;
@@ -233,7 +232,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     long fromChainMicros;
 
     // read playlist file, then grab only the line pairs that are segment files
-    String[] m3u8Lines = Text.splitLines(m3u8Content);
+    String[] m3u8Lines = StringUtils.splitLines(m3u8Content);
     for (int i = 1; i < m3u8Lines.length; i++)
       if (isSegmentFilename.test(m3u8Lines[i])) {
         filename = m3u8Lines[i];

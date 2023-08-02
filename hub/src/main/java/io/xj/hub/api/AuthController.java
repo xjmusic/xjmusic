@@ -47,7 +47,6 @@ public class AuthController extends HubJsonapiEndpoint {
 
   /**
    * Constructor
-   *
    */
   @Autowired
   public AuthController(

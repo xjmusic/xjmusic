@@ -3,6 +3,7 @@ package io.xj.lib.mixer;
 
 
 import io.xj.lib.notification.NotificationProvider;
+import io.xj.lib.util.InternalResource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,7 +12,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.sound.sampled.AudioFormat;
-
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;

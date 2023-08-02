@@ -1,4 +1,3 @@
-
 #  This test aims to identify the root of the bug described in https://www.pivotaltracker.com/story/show/184343503.
 #  As it stands, XJ is choosing notes outside of the Main Program Voicing List in certain segments
 #

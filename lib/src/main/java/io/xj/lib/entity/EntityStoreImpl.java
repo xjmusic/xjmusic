@@ -1,18 +1,18 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.entity;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @Service
 public class EntityStoreImpl implements EntityStore {
   static final Logger LOG = LoggerFactory.getLogger(EntityStoreImpl.class);
-  final Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>> store = Maps.newConcurrentMap();
+  final Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>> store = new ConcurrentHashMap<>();
 
   @Override
   public <N> N put(N entity) throws EntityStoreException {
@@ -38,18 +38,18 @@ public class EntityStoreImpl implements EntityStore {
     }
 
     // fail to store entity with unset id
-    if (!Values.isSet(id))
+    if (!ValueUtils.isSet(id))
       throw new EntityStoreException(String.format("Can't store %s with null id",
         entity.getClass().getSimpleName()));
 
-    store.putIfAbsent(entity.getClass(), Maps.newConcurrentMap());
+    store.putIfAbsent(entity.getClass(), new ConcurrentHashMap<>());
     store.get(entity.getClass()).put(id, entity);
     return entity;
   }
 
   @Override
   public <N> Collection<N> putAll(Collection<N> entities) throws EntityStoreException {
-    Collection<N> results = Lists.newArrayList();
+    Collection<N> results = new ArrayList<>();
     for (N entity : entities) results.add(put(entity));
     return results;
   }
@@ -70,7 +70,7 @@ public class EntityStoreImpl implements EntityStore {
 
   @Override
   public <N> Collection<N> getAll(Class<N> type) {
-    if (!store.containsKey(type)) return ImmutableList.of();
+    if (!store.containsKey(type)) return List.of();
     //noinspection unchecked
     return (Collection<N>) store.get(type).values();
   }
@@ -78,7 +78,7 @@ public class EntityStoreImpl implements EntityStore {
   @Override
   public <N, B> Collection<N> getAll(Class<N> type, Class<B> belongsToType, Collection<UUID> belongsToIds) throws EntityStoreException {
     try {
-      if (!store.containsKey(type)) return ImmutableList.of();
+      if (!store.containsKey(type)) return List.of();
       //noinspection unchecked
       return (Collection<N>) store.get(type).values().stream()
         .filter(entity -> Entities.isChild(entity, belongsToType, belongsToIds))

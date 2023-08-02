@@ -2,16 +2,15 @@
 
 package io.xj.hub;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.lib.util.CSV;
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 import io.xj.lib.util.ValueException;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -70,21 +69,21 @@ public class InstrumentConfig {
    * e.g. will override values from the `instrument{...}` block of the top-level **default.conf**
    */
   public InstrumentConfig(String configText) {
-    Config config = Strings.isNullOrEmpty(configText) ? ConfigFactory.parseString(DEFAULT) : ConfigFactory.parseString(configText).withFallback(ConfigFactory.parseString(DEFAULT));
+    Config config = StringUtils.isNullOrEmpty(configText) ? ConfigFactory.parseString(DEFAULT) : ConfigFactory.parseString(configText).withFallback(ConfigFactory.parseString(DEFAULT));
     attackMillis = config.getInt("attackMillis");
     isAudioSelectionPersistent = config.getBoolean("isAudioSelectionPersistent");
     isMultiphonic = config.getBoolean("isMultiphonic");
     isOneShot = config.getBoolean("isOneShot");
     isOneShotCutoffEnabled = config.getBoolean("isOneShotCutoffEnabled");
     isTonal = config.getBoolean("isTonal");
-    oneShotObserveLengthOfEvents = config.getStringList("oneShotObserveLengthOfEvents").stream().map(Text::toMeme).collect(Collectors.toList());
+    oneShotObserveLengthOfEvents = config.getStringList("oneShotObserveLengthOfEvents").stream().map(StringUtils::toMeme).collect(Collectors.toList());
     releaseMillis = config.getInt("releaseMillis");
   }
 
   @SuppressWarnings("DuplicatedCode")
   @Override
   public String toString() {
-    Map<String, String> config = Maps.newHashMap();
+    Map<String, String> config = new HashMap<>();
     config.put("attackMillis", attackMillis.toString());
     config.put("isAudioSelectionPersistent", isAudioSelectionPersistent.toString());
     config.put("isMultiphonic", isMultiphonic.toString());
@@ -93,7 +92,7 @@ public class InstrumentConfig {
     config.put("isTonal", isTonal.toString());
     config.put("oneShotObserveLengthOfEvents", String.format("[%s]", CSV.join(oneShotObserveLengthOfEvents.stream().sorted().toList())));
     config.put("releaseMillis", releaseMillis.toString());
-    return Text.formatMultiline(config.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(pair -> String.format("%s = %s", pair.getKey(), pair.getValue())).toArray());
+    return StringUtils.formatMultiline(config.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(pair -> String.format("%s = %s", pair.getKey(), pair.getValue())).toArray());
   }
 
   /**

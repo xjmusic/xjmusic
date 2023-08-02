@@ -2,7 +2,6 @@
 
 package io.xj.nexus.manager;
 
-import com.google.common.collect.ImmutableList;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Template;
@@ -18,10 +17,11 @@ import io.xj.nexus.persistence.Segments;
 import junit.framework.TestCase;
 
 import java.util.Collection;
+import java.util.List;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
-import static io.xj.lib.util.Values.MICROS_PER_SECOND;
+import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 
@@ -77,7 +77,7 @@ public class SegmentsTest extends TestCase {
     120.0f,
     "chains-1-segments-j1hsk3dgu2yu2gyy",
     true);
-  Collection<Segment> segments = ImmutableList.of(seg0, seg1, seg2, seg3);
+  Collection<Segment> segments = List.of(seg0, seg1, seg2, seg3);
 
   public void setUp() throws Exception {
     super.setUp();
@@ -92,7 +92,7 @@ public class SegmentsTest extends TestCase {
     ch1.setDeltaIn(Segments.DELTA_UNLIMITED);
     ch1.setDeltaOut(Segments.DELTA_UNLIMITED);
     ch1.setProgramType(ProgramType.Macro);
-    assertEquals(ch0, Segments.findFirstOfType(ImmutableList.of(ch0, ch1), ProgramType.Main));
+    assertEquals(ch0, Segments.findFirstOfType(List.of(ch0, ch1), ProgramType.Main));
   }
 
   public void testGetIdentifier() {
@@ -108,7 +108,7 @@ public class SegmentsTest extends TestCase {
   }
 
   public void testGetDubbed() {
-    assertEquals(ImmutableList.of(seg0, seg1, seg2),
+    assertEquals(List.of(seg0, seg1, seg2),
       Segments.getCrafted(segments));
   }
 
@@ -117,8 +117,8 @@ public class SegmentsTest extends TestCase {
   }
 
   public void testIsSpanning() {
-    assertTrue(Segments.isSpanning(seg1, 32 * MICROS_PER_SECOND,32 * MICROS_PER_SECOND)); // true if exactly at beginning of segment
-    assertFalse(Segments.isSpanning(seg1, 64 * MICROS_PER_SECOND,64 * MICROS_PER_SECOND)); // false if exactly at end of segment
+    assertTrue(Segments.isSpanning(seg1, 32 * MICROS_PER_SECOND, 32 * MICROS_PER_SECOND)); // true if exactly at beginning of segment
+    assertFalse(Segments.isSpanning(seg1, 64 * MICROS_PER_SECOND, 64 * MICROS_PER_SECOND)); // false if exactly at end of segment
     assertFalse(Segments.isSpanning(seg1, 15 * MICROS_PER_SECOND, 30 * MICROS_PER_SECOND));
     assertTrue(Segments.isSpanning(seg1, 20 * MICROS_PER_SECOND, 36 * MICROS_PER_SECOND));
     assertTrue(Segments.isSpanning(seg1, 35 * MICROS_PER_SECOND, 52 * MICROS_PER_SECOND));

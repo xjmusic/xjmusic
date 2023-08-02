@@ -1,15 +1,15 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.manager;
 
-import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,14 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.xj.hub.Tables.*;
+import static io.xj.hub.Tables.LIBRARY;
+import static io.xj.hub.Tables.PROGRAM;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_BINDING;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_BINDING_MEME;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_CHORD;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_PATTERN;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_PATTERN_EVENT;
 import static io.xj.hub.tables.ProgramSequenceChordVoicing.PROGRAM_SEQUENCE_CHORD_VOICING;
 
 @Service
@@ -70,37 +77,37 @@ public class ProgramSequenceManagerImpl extends HubPersistenceServiceImpl implem
 
       // Clone ProgramSequenceChord belongs to ProgramSequence
       Map<UUID, UUID> clonedProgramSequenceChords = cloner.get().clone(db, PROGRAM_SEQUENCE_CHORD, PROGRAM_SEQUENCE_CHORD.ID,
-        ImmutableSet.of(PROGRAM_SEQUENCE_CHORD.PROGRAM_SEQUENCE_ID),
+        Set.of(PROGRAM_SEQUENCE_CHORD.PROGRAM_SEQUENCE_ID),
         PROGRAM_SEQUENCE_CHORD.PROGRAM_SEQUENCE_ID, cloneId, result.get().getId());
 
       // Clone ProgramSequenceChordMeme belongs to newly cloned ProgramSequenceChords
       for (UUID originalId : clonedProgramSequenceChords.keySet())
         cloner.get().clone(db, PROGRAM_SEQUENCE_CHORD_VOICING, PROGRAM_SEQUENCE_CHORD_VOICING.ID,
-          ImmutableSet.of(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID),
+          Set.of(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID),
           PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID,
           originalId, clonedProgramSequenceChords.get(originalId));
 
       // Clone ProgramSequenceBinding belongs to ProgramSequence
       Map<UUID, UUID> clonedProgramSequenceBindings = cloner.get().clone(db, PROGRAM_SEQUENCE_BINDING, PROGRAM_SEQUENCE_BINDING.ID,
-        ImmutableSet.of(PROGRAM_SEQUENCE_BINDING.PROGRAM_SEQUENCE_ID),
+        Set.of(PROGRAM_SEQUENCE_BINDING.PROGRAM_SEQUENCE_ID),
         PROGRAM_SEQUENCE_BINDING.PROGRAM_SEQUENCE_ID, cloneId, result.get().getId());
 
       // Clone ProgramSequenceBindingMeme belongs to newly cloned ProgramSequenceBindings
       for (UUID originalId : clonedProgramSequenceBindings.keySet())
         cloner.get().clone(db, PROGRAM_SEQUENCE_BINDING_MEME, PROGRAM_SEQUENCE_BINDING_MEME.ID,
-          ImmutableSet.of(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_SEQUENCE_BINDING_ID),
+          Set.of(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_SEQUENCE_BINDING_ID),
           PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_SEQUENCE_BINDING_ID,
           originalId, clonedProgramSequenceBindings.get(originalId));
 
       // Clone ProgramSequencePattern belongs to ProgramSequence and ProgramVoice
       Map<UUID, UUID> clonedProgramSequencePatterns = cloner.get().clone(db, PROGRAM_SEQUENCE_PATTERN, PROGRAM_SEQUENCE_PATTERN.ID,
-        ImmutableSet.of(PROGRAM_SEQUENCE_PATTERN.PROGRAM_SEQUENCE_ID, PROGRAM_SEQUENCE_PATTERN.PROGRAM_VOICE_ID),
+        Set.of(PROGRAM_SEQUENCE_PATTERN.PROGRAM_SEQUENCE_ID, PROGRAM_SEQUENCE_PATTERN.PROGRAM_VOICE_ID),
         PROGRAM_SEQUENCE_PATTERN.PROGRAM_SEQUENCE_ID, cloneId, result.get().getId());
 
       // Clone ProgramSequencePatternEvent belongs to newly cloned ProgramSequencePattern and ProgramVoiceTrack
       for (UUID originalId : clonedProgramSequencePatterns.keySet())
         cloner.get().clone(db, PROGRAM_SEQUENCE_PATTERN_EVENT, PROGRAM_SEQUENCE_PATTERN_EVENT.ID,
-          ImmutableSet.of(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_SEQUENCE_PATTERN_ID, PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_VOICE_TRACK_ID),
+          Set.of(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_SEQUENCE_PATTERN_ID, PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_VOICE_TRACK_ID),
           PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_SEQUENCE_PATTERN_ID,
           originalId, clonedProgramSequencePatterns.get(originalId));
 
@@ -272,11 +279,11 @@ public class ProgramSequenceManagerImpl extends HubPersistenceServiceImpl implem
    */
   public ProgramSequence validate(ProgramSequence record) throws ManagerException {
     try {
-      Values.require(record.getProgramId(), "Program ID");
-      Values.require(record.getName(), "Name");
-      Values.require(record.getKey(), "Key");
-      Values.require(record.getDensity(), "Density");
-      if (Values.isEmpty(record.getTotal())) record.setTotal((short) 0);
+      ValueUtils.require(record.getProgramId(), "Program ID");
+      ValueUtils.require(record.getName(), "Name");
+      ValueUtils.require(record.getKey(), "Key");
+      ValueUtils.require(record.getDensity(), "Density");
+      if (ValueUtils.isEmpty(record.getTotal())) record.setTotal((short) 0);
       return record;
 
     } catch (ValueException e) {

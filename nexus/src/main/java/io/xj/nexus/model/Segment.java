@@ -17,7 +17,8 @@ public class Segment {
   @Valid SegmentType type;
   @Valid SegmentState state;
   @Valid Long beginAtChainMicros; // Segment begin-at time in microseconds since beginning of chain
-  @Nullable @Valid Long durationMicros;
+  @Nullable
+  @Valid Long durationMicros;
   @Valid String key;
   @Valid Integer total;
   @Valid Long offset;

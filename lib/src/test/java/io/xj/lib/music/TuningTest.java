@@ -9,9 +9,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- [#255] Note pitch is calculated at 32-bit floating point precision, based on root note configured in environment parameters.
- <p>
- Reference: http://www.phy.mtu.edu/~suits/notefreqs.html
+ * [#255] Note pitch is calculated at 32-bit floating point precision, based on root note configured in environment parameters.
+ * <p>
+ * Reference: http://www.phy.mtu.edu/~suits/notefreqs.html
  */
 public class TuningTest {
   @Rule

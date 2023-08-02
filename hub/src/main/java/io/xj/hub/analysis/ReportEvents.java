@@ -1,15 +1,22 @@
 package io.xj.hub.analysis;
 
-import com.google.common.collect.Maps;
-import com.google.api.client.util.Sets;
 import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Program;
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -85,11 +92,11 @@ public class ReportEvents extends Report {
     Map<String, Map<String, EventCount>> histogram;
 
     public EventHistogram() {
-      histogram = Maps.newHashMap();
+      histogram = new HashMap<>();
     }
 
     public EventCount get(String type, String raw) {
-      var name = Text.toEvent(raw);
+      var name = StringUtils.toEvent(raw);
       if (!histogram.containsKey(type)) throw new RuntimeException(String.format("Unknown instrument type: %s", name));
       if (!histogram.get(type).containsKey(name)) throw new RuntimeException(String.format("Unknown event: %s", name));
       return histogram.get(type).get(name);
@@ -100,15 +107,15 @@ public class ReportEvents extends Report {
     }
 
     public void addInstrumentId(String type, String raw, UUID instrumentId) {
-      var name = Text.toEvent(raw);
-      if (!histogram.containsKey(type)) histogram.put(type, Maps.newHashMap());
+      var name = StringUtils.toEvent(raw);
+      if (!histogram.containsKey(type)) histogram.put(type, new HashMap<>());
       if (!histogram.get(type).containsKey(name)) histogram.get(type).put(name, new EventCount());
       histogram.get(type).get(name).addInstrumentId(instrumentId);
     }
 
     public void addProgramId(String type, String raw, UUID programId, boolean addEventsOnlyInProgram) {
-      var name = Text.toEvent(raw);
-      if (!histogram.containsKey(type)) histogram.put(type, Maps.newHashMap());
+      var name = StringUtils.toEvent(raw);
+      if (!histogram.containsKey(type)) histogram.put(type, new HashMap<>());
       if (!histogram.get(type).containsKey(name)) {
         if (!addEventsOnlyInProgram) return;
         histogram.get(type).put(name, new EventCount());
@@ -127,8 +134,8 @@ public class ReportEvents extends Report {
 
     public EventCount() {
       total = 0;
-      programIds = Sets.newHashSet();
-      instrumentIds = Sets.newHashSet();
+      programIds = new HashSet<>();
+      instrumentIds = new HashSet<>();
     }
 
     public Set<UUID> getProgramIds() {

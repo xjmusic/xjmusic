@@ -3,7 +3,7 @@ package io.xj.hub.persistence.kv;
 
 import io.xj.hub.persistence.HubPersistenceException;
 import io.xj.lib.entity.EntityFactory;
-import org.apache.logging.log4j.util.Strings;
+import io.xj.lib.util.ValueUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,7 +93,7 @@ public class HubKvStoreProviderImpl implements HubKvStoreProvider {
    * @return KV store
    */
   KvStore createStore(String memcacheAddress) {
-    if (!Strings.isEmpty(memcacheAddress)) {
+    if (!ValueUtils.isEmpty(memcacheAddress)) {
       try {
         return new MemcacheKvStore(memcacheAddress, memcacheExpirationSeconds);
       } catch (IOException e) {

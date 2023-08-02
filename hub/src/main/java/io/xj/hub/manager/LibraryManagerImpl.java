@@ -3,15 +3,15 @@ package io.xj.hub.manager;
 
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.UserRoleType;
-import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Service;
@@ -150,15 +150,15 @@ public class LibraryManagerImpl extends HubPersistenceServiceImpl implements Lib
   }
 
   /**
-   Validate a library record
-
-   @param record to validate
-   @throws ManagerException if invalid
+   * Validate a library record
+   *
+   * @param record to validate
+   * @throws ManagerException if invalid
    */
   public Library validate(Library record) throws ManagerException {
     try {
-      Values.require(record.getAccountId(), "Account ID");
-      Values.require(record.getName(), "Name");
+      ValueUtils.require(record.getAccountId(), "Account ID");
+      ValueUtils.require(record.getName(), "Name");
       return record;
 
     } catch (ValueException e) {

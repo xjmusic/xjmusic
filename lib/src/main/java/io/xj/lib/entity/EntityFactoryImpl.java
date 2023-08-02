@@ -3,10 +3,8 @@
 package io.xj.lib.entity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import io.xj.lib.json.JsonProvider;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +12,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 /**
@@ -27,7 +34,7 @@ public class EntityFactoryImpl implements EntityFactory {
   static final Logger LOG = LoggerFactory.getLogger(EntityFactoryImpl.class);
   static final List<String> IGNORE_ATTRIBUTES = List.of("id", "class");
   final JsonProvider jsonProvider;
-  Map<String, EntitySchema> schema = Maps.newConcurrentMap();
+  Map<String, EntitySchema> schema = new ConcurrentHashMap<>();
 
   @Autowired
   public EntityFactoryImpl(
@@ -92,7 +99,7 @@ public class EntityFactoryImpl implements EntityFactory {
 
   @Override
   public <N> Map<String, Object> getResourceAttributes(N target) {
-    Map<String, Object> attributes = Maps.newHashMap();
+    Map<String, Object> attributes = new HashMap<>();
     //noinspection unchecked
     ReflectionUtils.getAllMethods(target.getClass(),
       ReflectionUtils.withModifier(Modifier.PUBLIC),
@@ -126,7 +133,7 @@ public class EntityFactoryImpl implements EntityFactory {
     getResourceAttributes(source).forEach((Object name, Object value) -> {
       try {
         var tgtVal = Entities.get(target, String.valueOf(name));
-        if (tgtVal.isEmpty() || Values.isEmpty(tgtVal.get()))
+        if (tgtVal.isEmpty() || ValueUtils.isEmpty(tgtVal.get()))
           Entities.set(target, String.valueOf(name), value);
       } catch (EntityException e) {
         LOG.error("Failed to set {}", value, e);
@@ -151,7 +158,7 @@ public class EntityFactoryImpl implements EntityFactory {
 
   @Override
   public <N> Collection<N> cloneAll(Collection<N> entities) throws EntityException {
-    Collection<N> clones = Lists.newArrayList();
+    Collection<N> clones = new ArrayList<>();
     for (N entity : entities) clones.add(clone(entity));
     return clones;
   }

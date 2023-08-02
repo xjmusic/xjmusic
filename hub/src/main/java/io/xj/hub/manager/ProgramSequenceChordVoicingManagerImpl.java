@@ -1,28 +1,32 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.manager;
 
-import com.google.api.client.util.Sets;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.ProgramSequenceChord;
 import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static io.xj.hub.Tables.*;
+import static io.xj.hub.Tables.LIBRARY;
+import static io.xj.hub.Tables.PROGRAM;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_CHORD;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_CHORD_VOICING;
+import static io.xj.hub.Tables.PROGRAM_VOICE;
 
 @Service
 public class ProgramSequenceChordVoicingManagerImpl extends HubPersistenceServiceImpl implements ProgramSequenceChordVoicingManager {
@@ -116,7 +120,7 @@ public class ProgramSequenceChordVoicingManagerImpl extends HubPersistenceServic
         .fetch()).stream().map(ProgramVoice::getId)
       .filter((id) -> !existingVoicingVoiceIds.contains(id))
       .collect(Collectors.toSet());
-    Collection<ProgramSequenceChordVoicing> voicings = Sets.newHashSet();
+    Collection<ProgramSequenceChordVoicing> voicings = new HashSet<>();
     for (var voiceId : missingVoicingVoiceIds)
       voicings.add(createEmptyVoicing(db, chord.getProgramId(), voiceId, chord.getId()));
     return voicings;
@@ -137,7 +141,7 @@ public class ProgramSequenceChordVoicingManagerImpl extends HubPersistenceServic
         .fetch()).stream().map(ProgramSequenceChord::getId)
       .filter((id) -> !existingVoiceChordIds.contains(id))
       .collect(Collectors.toSet());
-    Collection<ProgramSequenceChordVoicing> voicings = Sets.newHashSet();
+    Collection<ProgramSequenceChordVoicing> voicings = new HashSet<>();
     for (var chordId : missingVoiceChordIds)
       voicings.add(createEmptyVoicing(db, voice.getProgramId(), voice.getId(), chordId));
     return voicings;
@@ -187,10 +191,10 @@ public class ProgramSequenceChordVoicingManagerImpl extends HubPersistenceServic
    */
   public void validate(ProgramSequenceChordVoicing record) throws ManagerException {
     try {
-      Values.require(record.getProgramId(), "Program ID");
-      Values.require(record.getProgramVoiceId(), "Program Voice ID");
-      Values.require(record.getProgramSequenceChordId(), "Sequence Chord ID");
-      Values.require(record.getNotes(), "Notes are required");
+      ValueUtils.require(record.getProgramId(), "Program ID");
+      ValueUtils.require(record.getProgramVoiceId(), "Program Voice ID");
+      ValueUtils.require(record.getProgramSequenceChordId(), "Sequence Chord ID");
+      ValueUtils.require(record.getNotes(), "Notes are required");
 
     } catch (ValueException e) {
       throw new ManagerException(e);

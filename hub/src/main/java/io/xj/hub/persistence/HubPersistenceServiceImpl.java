@@ -2,23 +2,67 @@
 
 package io.xj.hub.persistence;
 
-import com.google.common.base.CaseFormat;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.UserRoleType;
 import io.xj.hub.manager.ManagerException;
+import io.xj.hub.tables.pojos.Account;
+import io.xj.hub.tables.pojos.AccountUser;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.InstrumentMeme;
+import io.xj.hub.tables.pojos.Library;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramMeme;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
+import io.xj.hub.tables.pojos.ProgramSequenceChord;
+import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
+import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.hub.tables.pojos.TemplatePlayback;
+import io.xj.hub.tables.pojos.TemplatePublication;
 import io.xj.hub.tables.pojos.User;
-import io.xj.hub.tables.pojos.*;
-import io.xj.hub.tables.records.*;
+import io.xj.hub.tables.pojos.UserAuth;
+import io.xj.hub.tables.pojos.UserAuthToken;
+import io.xj.hub.tables.records.AccountRecord;
+import io.xj.hub.tables.records.AccountUserRecord;
+import io.xj.hub.tables.records.InstrumentAudioRecord;
+import io.xj.hub.tables.records.InstrumentMemeRecord;
+import io.xj.hub.tables.records.InstrumentRecord;
+import io.xj.hub.tables.records.LibraryRecord;
+import io.xj.hub.tables.records.ProgramMemeRecord;
+import io.xj.hub.tables.records.ProgramRecord;
+import io.xj.hub.tables.records.ProgramSequenceBindingMemeRecord;
+import io.xj.hub.tables.records.ProgramSequenceBindingRecord;
+import io.xj.hub.tables.records.ProgramSequenceChordRecord;
+import io.xj.hub.tables.records.ProgramSequenceChordVoicingRecord;
+import io.xj.hub.tables.records.ProgramSequencePatternEventRecord;
+import io.xj.hub.tables.records.ProgramSequencePatternRecord;
+import io.xj.hub.tables.records.ProgramSequenceRecord;
+import io.xj.hub.tables.records.ProgramVoiceRecord;
+import io.xj.hub.tables.records.ProgramVoiceTrackRecord;
+import io.xj.hub.tables.records.TemplateBindingRecord;
+import io.xj.hub.tables.records.TemplatePlaybackRecord;
+import io.xj.hub.tables.records.TemplatePublicationRecord;
+import io.xj.hub.tables.records.TemplateRecord;
+import io.xj.hub.tables.records.UserAuthRecord;
+import io.xj.hub.tables.records.UserAuthTokenRecord;
+import io.xj.hub.tables.records.UserRecord;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.util.Text;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.StringUtils;
+import io.xj.lib.util.ValueUtils;
+import org.jooq.DSLContext;
 import org.jooq.Record;
-import org.jooq.*;
+import org.jooq.Table;
+import org.jooq.TableRecord;
+import org.jooq.UpdatableRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -27,10 +71,41 @@ import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static io.xj.hub.Tables.*;
+import static io.xj.hub.Tables.ACCOUNT;
+import static io.xj.hub.Tables.ACCOUNT_USER;
+import static io.xj.hub.Tables.INSTRUMENT;
+import static io.xj.hub.Tables.INSTRUMENT_AUDIO;
+import static io.xj.hub.Tables.INSTRUMENT_MEME;
+import static io.xj.hub.Tables.LIBRARY;
+import static io.xj.hub.Tables.PROGRAM;
+import static io.xj.hub.Tables.PROGRAM_MEME;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_BINDING;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_BINDING_MEME;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_CHORD;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_CHORD_VOICING;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_PATTERN;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_PATTERN_EVENT;
+import static io.xj.hub.Tables.PROGRAM_VOICE;
+import static io.xj.hub.Tables.PROGRAM_VOICE_TRACK;
+import static io.xj.hub.Tables.TEMPLATE;
+import static io.xj.hub.Tables.TEMPLATE_BINDING;
+import static io.xj.hub.Tables.TEMPLATE_PLAYBACK;
+import static io.xj.hub.Tables.TEMPLATE_PUBLICATION;
+import static io.xj.hub.Tables.USER;
+import static io.xj.hub.Tables.USER_AUTH;
+import static io.xj.hub.Tables.USER_AUTH_TOKEN;
 
 @Service
 public class HubPersistenceServiceImpl {
@@ -38,85 +113,78 @@ public class HubPersistenceServiceImpl {
   static final String KEY_ID = "id";
   protected final EntityFactory entityFactory;
   protected final HubSqlStoreProvider sqlStoreProvider;
-  protected Map<Class<?>, Table<?>> tablesInSchemaConstructionOrder = ImmutableMap.<Class<?>, Table<?>>builder() // DELIBERATE ORDER
-    .put(io.xj.hub.tables.pojos.User.class, USER)
-    .put(UserAuth.class, USER_AUTH) // after user
-    .put(UserAuthToken.class, USER_AUTH_TOKEN) // after user
-    .put(Account.class, ACCOUNT) // after user
-    .put(AccountUser.class, ACCOUNT_USER) // after user
-    .put(Template.class, TEMPLATE) // after account
-    .put(TemplateBinding.class, TEMPLATE_BINDING) // after template
-    .put(TemplatePlayback.class, TEMPLATE_PLAYBACK) // after template
-    .put(TemplatePublication.class, TEMPLATE_PUBLICATION) // after template
-    .put(Library.class, LIBRARY) // after account
-    .put(Program.class, PROGRAM) // after library
-    .put(ProgramMeme.class, PROGRAM_MEME)
-    .put(ProgramVoice.class, PROGRAM_VOICE)
-    .put(ProgramVoiceTrack.class, PROGRAM_VOICE_TRACK)
-    .put(ProgramSequence.class, PROGRAM_SEQUENCE)
-    .put(ProgramSequenceBinding.class, PROGRAM_SEQUENCE_BINDING)
-    .put(ProgramSequenceBindingMeme.class, PROGRAM_SEQUENCE_BINDING_MEME)
-    .put(ProgramSequenceChord.class, PROGRAM_SEQUENCE_CHORD)
-    .put(ProgramSequenceChordVoicing.class, PROGRAM_SEQUENCE_CHORD_VOICING)
-    .put(ProgramSequencePattern.class, PROGRAM_SEQUENCE_PATTERN)
-    .put(ProgramSequencePatternEvent.class, PROGRAM_SEQUENCE_PATTERN_EVENT)
-    .put(Instrument.class, INSTRUMENT) // after library
-    .put(InstrumentAudio.class, INSTRUMENT_AUDIO)
-    .put(InstrumentMeme.class, INSTRUMENT_MEME)
-    .build();
-  protected Map<Class<? extends Record>, Class<?>> modelsForRecords = ImmutableMap.<Class<? extends Record>, Class<?>>builder()
-    .put(UserRecord.class, User.class)
-    .put(UserAuthRecord.class, UserAuth.class)
-    .put(UserAuthTokenRecord.class, UserAuthToken.class)
-    .put(AccountRecord.class, Account.class)
-    .put(AccountUserRecord.class, AccountUser.class)
-    .put(TemplateRecord.class, Template.class)
-    .put(TemplateBindingRecord.class, TemplateBinding.class)
-    .put(TemplatePlaybackRecord.class, TemplatePlayback.class)
-    .put(TemplatePublicationRecord.class, TemplatePublication.class)
-    .put(LibraryRecord.class, Library.class)
-    .put(ProgramRecord.class, Program.class)
-    .put(ProgramMemeRecord.class, ProgramMeme.class)
-    .put(ProgramVoiceRecord.class, ProgramVoice.class)
-    .put(ProgramVoiceTrackRecord.class, ProgramVoiceTrack.class)
-    .put(ProgramSequenceRecord.class, ProgramSequence.class)
-    .put(ProgramSequenceBindingRecord.class, ProgramSequenceBinding.class)
-    .put(ProgramSequenceBindingMemeRecord.class, ProgramSequenceBindingMeme.class)
-    .put(ProgramSequenceChordRecord.class, ProgramSequenceChord.class)
-    .put(ProgramSequenceChordVoicingRecord.class, ProgramSequenceChordVoicing.class)
-    .put(ProgramSequencePatternRecord.class, ProgramSequencePattern.class)
-    .put(ProgramSequencePatternEventRecord.class, ProgramSequencePatternEvent.class)
-    .put(InstrumentRecord.class, Instrument.class)
-    .put(InstrumentAudioRecord.class, InstrumentAudio.class)
-    .put(InstrumentMemeRecord.class, InstrumentMeme.class)
-    .build();
-  Collection<String> nullValueClasses = ImmutableList.of("Null", "JsonNull");
+  protected Collection<ClassSchemaPair> tablesInSchemaConstructionOrder = buildTablesInSchemaConstructionOrder();
+
+  protected Map<Class<? extends Record>, Class<?>> modelsForRecords = buildModelsForRecords();
+
+  private Map<Class<? extends Record>, Class<?>> buildModelsForRecords() {
+    Map<Class<? extends Record>, Class<?>> map = new HashMap<>();
+    map.put(UserRecord.class, User.class);
+    map.put(UserAuthRecord.class, UserAuth.class);
+    map.put(UserAuthTokenRecord.class, UserAuthToken.class);
+    map.put(AccountRecord.class, Account.class);
+    map.put(AccountUserRecord.class, AccountUser.class);
+    map.put(TemplateRecord.class, Template.class);
+    map.put(TemplateBindingRecord.class, TemplateBinding.class);
+    map.put(TemplatePlaybackRecord.class, TemplatePlayback.class);
+    map.put(TemplatePublicationRecord.class, TemplatePublication.class);
+    map.put(LibraryRecord.class, Library.class);
+    map.put(ProgramRecord.class, Program.class);
+    map.put(ProgramMemeRecord.class, ProgramMeme.class);
+    map.put(ProgramVoiceRecord.class, ProgramVoice.class);
+    map.put(ProgramVoiceTrackRecord.class, ProgramVoiceTrack.class);
+    map.put(ProgramSequenceRecord.class, ProgramSequence.class);
+    map.put(ProgramSequenceBindingRecord.class, ProgramSequenceBinding.class);
+    map.put(ProgramSequenceBindingMemeRecord.class, ProgramSequenceBindingMeme.class);
+    map.put(ProgramSequenceChordRecord.class, ProgramSequenceChord.class);
+    map.put(ProgramSequenceChordVoicingRecord.class, ProgramSequenceChordVoicing.class);
+    map.put(ProgramSequencePatternRecord.class, ProgramSequencePattern.class);
+    map.put(ProgramSequencePatternEventRecord.class, ProgramSequencePatternEvent.class);
+    map.put(InstrumentRecord.class, Instrument.class);
+    map.put(InstrumentAudioRecord.class, InstrumentAudio.class);
+    map.put(InstrumentMemeRecord.class, InstrumentMeme.class);
+    return map;
+  }
+
+  /**
+   * This is in a very DELIBERATE ORDER: the order in which the tables are created in the database.
+   *
+   * @return a map of the tables in the order in which they are created in the database.
+   */
+  static Collection<ClassSchemaPair> buildTablesInSchemaConstructionOrder() {
+    Collection<ClassSchemaPair> pairs = new ArrayList<>();
+    pairs.add(new ClassSchemaPair(io.xj.hub.tables.pojos.User.class, USER)); // first
+    pairs.add(new ClassSchemaPair(UserAuth.class, USER_AUTH)); // after user
+    pairs.add(new ClassSchemaPair(UserAuthToken.class, USER_AUTH_TOKEN)); // after user
+    pairs.add(new ClassSchemaPair(Account.class, ACCOUNT)); // after user
+    pairs.add(new ClassSchemaPair(AccountUser.class, ACCOUNT_USER)); // after user
+    pairs.add(new ClassSchemaPair(Template.class, TEMPLATE)); // after account
+    pairs.add(new ClassSchemaPair(TemplateBinding.class, TEMPLATE_BINDING)); // after template
+    pairs.add(new ClassSchemaPair(TemplatePlayback.class, TEMPLATE_PLAYBACK)); // after template
+    pairs.add(new ClassSchemaPair(TemplatePublication.class, TEMPLATE_PUBLICATION)); // after template
+    pairs.add(new ClassSchemaPair(Library.class, LIBRARY)); // after account
+    pairs.add(new ClassSchemaPair(Program.class, PROGRAM)); // after library
+    pairs.add(new ClassSchemaPair(ProgramMeme.class, PROGRAM_MEME));
+    pairs.add(new ClassSchemaPair(ProgramVoice.class, PROGRAM_VOICE));
+    pairs.add(new ClassSchemaPair(ProgramVoiceTrack.class, PROGRAM_VOICE_TRACK));
+    pairs.add(new ClassSchemaPair(ProgramSequence.class, PROGRAM_SEQUENCE));
+    pairs.add(new ClassSchemaPair(ProgramSequenceBinding.class, PROGRAM_SEQUENCE_BINDING));
+    pairs.add(new ClassSchemaPair(ProgramSequenceBindingMeme.class, PROGRAM_SEQUENCE_BINDING_MEME));
+    pairs.add(new ClassSchemaPair(ProgramSequenceChord.class, PROGRAM_SEQUENCE_CHORD));
+    pairs.add(new ClassSchemaPair(ProgramSequenceChordVoicing.class, PROGRAM_SEQUENCE_CHORD_VOICING));
+    pairs.add(new ClassSchemaPair(ProgramSequencePattern.class, PROGRAM_SEQUENCE_PATTERN));
+    pairs.add(new ClassSchemaPair(ProgramSequencePatternEvent.class, PROGRAM_SEQUENCE_PATTERN_EVENT));
+    pairs.add(new ClassSchemaPair(Instrument.class, INSTRUMENT)); // after library
+    pairs.add(new ClassSchemaPair(InstrumentAudio.class, INSTRUMENT_AUDIO));
+    pairs.add(new ClassSchemaPair(InstrumentMeme.class, INSTRUMENT_MEME));
+    return pairs;
+  }
+
+  Collection<String> nullValueClasses = List.of("Null", "JsonNull");
 
   public HubPersistenceServiceImpl(EntityFactory entityFactory, HubSqlStoreProvider sqlStoreProvider) {
     this.entityFactory = entityFactory;
     this.sqlStoreProvider = sqlStoreProvider;
-  }
-
-  /**
-   * Get a collection of records based ona collection of entities
-   *
-   * @param db       to make new records in
-   * @param table    to make new records in
-   * @param entities to source number of rows and their values for new records
-   * @param <R>      type of record (only one type in collection)
-   * @param <N>      type of entity (only one type in collection)
-   * @return collection of records
-   * @throws ManagerException on failure
-   */
-  protected <R extends TableRecord<?>, N> Collection<R> recordsFrom(DSLContext db, Table<?> table, Collection<N> entities) throws ManagerException {
-    Collection<R> records = Lists.newArrayList();
-    for (N e : entities) {
-      //noinspection unchecked
-      R record = (R) db.newRecord(table);
-      getEntities(e, record);
-      records.add(record);
-    }
-    return records;
   }
 
   <R extends TableRecord<?>, N> void getEntities(N e, R record) throws ManagerException {
@@ -135,7 +203,7 @@ public class HubPersistenceServiceImpl {
   }
 
   public <N, R extends Record> Collection<N> modelsFrom(Class<N> modelClass, Iterable<R> records) throws ManagerException {
-    Collection<N> models = Lists.newArrayList();
+    Collection<N> models = new ArrayList<>();
     for (R record : records) models.add(modelFrom(modelClass, record));
     return models;
   }
@@ -187,8 +255,8 @@ public class HubPersistenceServiceImpl {
 
     Map<String, Object> fieldValues = record.intoMap();
     for (Map.Entry<String, Object> field : fieldValues.entrySet())
-      if (Values.isNonNull(field.getValue())) try {
-        String attributeName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, field.getKey());
+      if (ValueUtils.isNonNull(field.getValue())) try {
+        String attributeName = StringUtils.snakeToUpperCamelCase(field.getKey());
         Entities.set(model, attributeName, field.getValue());
       } catch (Exception e) {
         log.error("Could not transmogrify key:{} val:{} because {}", field.getKey(), field.getValue(), e);
@@ -206,7 +274,7 @@ public class HubPersistenceServiceImpl {
    * @throws ManagerException on failure
    */
   protected <N> UpdatableRecord<?> recordFor(DSLContext db, N entity) throws ManagerException {
-    Table<?> table = tablesInSchemaConstructionOrder.get(entity.getClass());
+    Table<?> table = tablesInSchemaConstructionOrder.stream().filter((t) -> t.tableClass.equals(entity.getClass())).findFirst().orElseThrow().table;
     var raw = db.newRecord(table);
     UpdatableRecord<?> record = (UpdatableRecord<?>) raw;
 
@@ -303,7 +371,7 @@ public class HubPersistenceServiceImpl {
    * @throws ManagerException if something goes wrong.
    */
   protected <R extends Record> void requireNotExists(String message, Collection<R> result) throws ManagerException {
-    if (Values.isNonNull(result) && !result.isEmpty()) throw new ManagerException(message);
+    if (ValueUtils.isNonNull(result) && !result.isEmpty()) throw new ManagerException(message);
   }
 
   /**
@@ -326,7 +394,7 @@ public class HubPersistenceServiceImpl {
    * @throws ManagerException if not isNonNull
    */
   protected <R extends Record> void requireExists(String name, R record) throws ManagerException {
-    requireAny(name, "does not exist", Values.isNonNull(record));
+    requireAny(name, "does not exist", ValueUtils.isNonNull(record));
   }
 
   /**
@@ -337,7 +405,7 @@ public class HubPersistenceServiceImpl {
    * @throws ManagerException if not isNonNull
    */
   protected <E> void requireExists(String name, E entity) throws ManagerException {
-    requireAny(name, "does not exist", Values.isNonNull(entity));
+    requireAny(name, "does not exist", ValueUtils.isNonNull(entity));
   }
 
   /**
@@ -494,7 +562,7 @@ public class HubPersistenceServiceImpl {
           return Entities.get(target, method);
 
         } catch (EntityException e) {
-          throw new ManagerException(String.format("Failed to %s.%s(), reason: %s", Text.getSimpleName(target), getterName, e.getMessage()));
+          throw new ManagerException(String.format("Failed to %s.%s(), reason: %s", StringUtils.getSimpleName(target), getterName, e.getMessage()));
         }
 
     return Optional.empty();
@@ -521,13 +589,13 @@ public class HubPersistenceServiceImpl {
           return;
 
         } catch (EntityException e) {
-          throw new ManagerException(String.format("Failed to %s.%s(), reason: %s", Text.getSimpleName(target), setterName, e.getMessage()));
+          throw new ManagerException(String.format("Failed to %s.%s(), reason: %s", StringUtils.getSimpleName(target), setterName, e.getMessage()));
 
         } catch (IllegalAccessException e) {
-          throw new ManagerException(String.format("Could not access %s.%s(), reason: %s", Text.getSimpleName(target), setterName, e.getMessage()));
+          throw new ManagerException(String.format("Could not access %s.%s(), reason: %s", StringUtils.getSimpleName(target), setterName, e.getMessage()));
 
         } catch (InvocationTargetException e) {
-          throw new ManagerException(String.format("Cannot invoke target %s.%s(), reason: %s", Text.getSimpleName(target), setterName, e.getMessage()));
+          throw new ManagerException(String.format("Cannot invoke target %s.%s(), reason: %s", StringUtils.getSimpleName(target), setterName, e.getMessage()));
         }
 
     // no op if setter does not exist
@@ -545,7 +613,7 @@ public class HubPersistenceServiceImpl {
     if (Objects.nonNull(setter.getAnnotation(Nullable.class)))
       setter.invoke(null);
 
-    switch (Text.getSimpleName(setter.getParameterTypes()[0])) {
+    switch (StringUtils.getSimpleName(setter.getParameterTypes()[0])) {
       case "String" -> setter.invoke(target, (String) null);
       case "Float" -> setter.invoke(target, (Float) null);
       case "Short" -> setter.invoke(target, (Short) null);
@@ -556,4 +624,8 @@ public class HubPersistenceServiceImpl {
       }
     }
   }
+
+  public record ClassSchemaPair(Class<?> tableClass, Table<?> table) {
+  }
+
 }

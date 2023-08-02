@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.api;
 
-import com.google.common.collect.ImmutableList;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.manager.ManagerCloner;
@@ -155,7 +154,7 @@ public class TemplateController extends HubJsonapiEndpoint {
       // optionally specify a CSV of included types to read
       if (Objects.nonNull(include)) {
         List<JsonapiPayloadObject> list = new ArrayList<>();
-        for (Object included : manager().readChildEntities(access, ImmutableList.of(uuid), CSV.split(include)))
+        for (Object included : manager().readChildEntities(access, List.of(uuid), CSV.split(include)))
           list.add(payloadFactory.toPayloadObject(included));
         jsonapiPayload.setIncluded(list);
       }

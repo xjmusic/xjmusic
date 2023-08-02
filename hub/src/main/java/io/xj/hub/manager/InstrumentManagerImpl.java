@@ -1,8 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.manager;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
+import java.util.Set;
 import io.xj.hub.InstrumentConfig;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.InstrumentState;
@@ -16,16 +15,24 @@ import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.xj.hub.Tables.*;
+import static io.xj.hub.Tables.INSTRUMENT;
+import static io.xj.hub.Tables.INSTRUMENT_AUDIO;
+import static io.xj.hub.Tables.INSTRUMENT_MEME;
+import static io.xj.hub.Tables.LIBRARY;
 
 @Service
 public class InstrumentManagerImpl extends HubPersistenceServiceImpl implements InstrumentManager {
@@ -70,8 +77,8 @@ public class InstrumentManagerImpl extends HubPersistenceServiceImpl implements 
 
       var result = modelFrom(Instrument.class, executeCreate(db, INSTRUMENT, instrument));
       ManagerCloner<Instrument> cloner = new ManagerCloner<>(result, this);
-      cloner.clone(db, INSTRUMENT_MEME, INSTRUMENT_MEME.ID, ImmutableSet.of(), INSTRUMENT_MEME.INSTRUMENT_ID, cloneId, result.getId());
-      cloner.clone(db, INSTRUMENT_AUDIO, INSTRUMENT_AUDIO.ID, ImmutableSet.of(), INSTRUMENT_AUDIO.INSTRUMENT_ID, cloneId, result.getId());
+      cloner.clone(db, INSTRUMENT_MEME, INSTRUMENT_MEME.ID, Set.of(), INSTRUMENT_MEME.INSTRUMENT_ID, cloneId, result.getId());
+      cloner.clone(db, INSTRUMENT_AUDIO, INSTRUMENT_AUDIO.ID, Set.of(), INSTRUMENT_AUDIO.INSTRUMENT_ID, cloneId, result.getId());
       return cloner;
 
     } catch (EntityException e) {
@@ -166,7 +173,7 @@ public class InstrumentManagerImpl extends HubPersistenceServiceImpl implements 
 
     requireRead(db, access, instrumentIds);
 
-    Collection<Object> entities = Lists.newArrayList();
+    Collection<Object> entities = new ArrayList<>();
     try (var selectInstrument = db.selectFrom(INSTRUMENT)) {
       entities.addAll(modelsFrom(Instrument.class, selectInstrument.where(INSTRUMENT.ID.in(instrumentIds)).fetch()));
     }
@@ -186,7 +193,7 @@ public class InstrumentManagerImpl extends HubPersistenceServiceImpl implements 
 
     requireRead(db, access, instrumentIds);
 
-    Collection<Object> entities = Lists.newArrayList();
+    Collection<Object> entities = new ArrayList<>();
 
     // InstrumentMeme
     if (types.contains(Entities.toResourceType(InstrumentMeme.class)))
@@ -322,14 +329,14 @@ public class InstrumentManagerImpl extends HubPersistenceServiceImpl implements 
    */
   public Instrument validate(Instrument record) throws ManagerException {
     try {
-      Values.require(record.getLibraryId(), "Library ID");
-      Values.require(record.getName(), "Name");
-      Values.require(record.getType(), "Type");
-      Values.require(record.getType(), "Mode");
-      Values.require(record.getState(), "State");
+      ValueUtils.require(record.getLibraryId(), "Library ID");
+      ValueUtils.require(record.getName(), "Name");
+      ValueUtils.require(record.getType(), "Type");
+      ValueUtils.require(record.getType(), "Mode");
+      ValueUtils.require(record.getState(), "State");
 
       // overall volume parameter defaults to 1.0 https://www.pivotaltracker.com/story/show/179215413
-      if (Values.isUnsetOrZero(record.getVolume()))
+      if (ValueUtils.isUnsetOrZero(record.getVolume()))
         record.setVolume(1.0f);
 
       // validate TypeSafe chain config https://www.pivotaltracker.com/story/show/175347578

@@ -2,7 +2,7 @@
 package io.xj.lib.filestore;
 
 
-import com.google.common.base.Strings;
+import io.xj.lib.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static io.xj.lib.util.Values.NANOS_PER_SECOND;
+import static io.xj.lib.util.ValueUtils.NANOS_PER_SECOND;
 
 @Service
 class FileStoreProviderImpl implements FileStoreProvider {
@@ -59,7 +59,7 @@ class FileStoreProviderImpl implements FileStoreProvider {
     @Value("${aws.file.upload.acl}")
     String fileUploadACL
   ) {
-    active = !Strings.isNullOrEmpty(awsAccessKeyId) && !Strings.isNullOrEmpty(awsSecretKey);
+    active = !StringUtils.isNullOrEmpty(awsAccessKeyId) && !StringUtils.isNullOrEmpty(awsSecretKey);
     this.awsDefaultRegion = awsDefaultRegion;
     this.audioUploadUrl = audioUploadUrl;
     this.awsAccessKeyId = awsAccessKeyId;

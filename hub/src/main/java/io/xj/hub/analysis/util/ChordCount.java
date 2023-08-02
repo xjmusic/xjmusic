@@ -1,7 +1,6 @@
 package io.xj.hub.analysis.util;
 
-import com.google.api.client.util.Sets;
-
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -28,8 +27,8 @@ public class ChordCount {
 
   public ChordCount() {
     total = 0;
-    programIds = Sets.newHashSet();
-    instrumentIds = Sets.newHashSet();
+    programIds = new HashSet<>();
+    instrumentIds = new HashSet<>();
   }
 
   public void addProgramId(UUID programId) {

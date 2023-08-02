@@ -2,18 +2,17 @@
 
 package io.xj.lib.meme;
 
-import com.google.common.base.Objects;
-
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- Meme Matcher for Anti-Memes
- <p>
- Parse any meme to test if it's valid, and extract its features
- <p>
- Artist can add !MEME values into Programs https://www.pivotaltracker.com/story/show/176474073
+ * Meme Matcher for Anti-Memes
+ * <p>
+ * Parse any meme to test if it's valid, and extract its features
+ * <p>
+ * Artist can add !MEME values into Programs https://www.pivotaltracker.com/story/show/176474073
  */
 class ParseAnti {
   static final Pattern rgx = Pattern.compile("^!(.+)$");
@@ -43,8 +42,8 @@ class ParseAnti {
   }
 
   public boolean isViolatedBy(ParseAnti target) {
-    return (isValid && !target.isValid && Objects.equal(body, target.body)) ||
-      (!isValid && target.isValid && Objects.equal(body, target.body));
+    return (isValid && !target.isValid && Objects.equals(body, target.body)) ||
+      (!isValid && target.isValid && Objects.equals(body, target.body));
   }
 
   public boolean isAllowed(List<ParseAnti> memes) {

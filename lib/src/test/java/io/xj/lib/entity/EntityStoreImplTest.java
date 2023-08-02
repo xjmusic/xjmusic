@@ -2,7 +2,6 @@
 
 package io.xj.lib.entity;
 
-import com.google.common.collect.ImmutableList;
 import io.xj.lib.Superwidget;
 import io.xj.lib.Widget;
 import io.xj.lib.json.JsonProviderImpl;
@@ -11,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -70,9 +70,9 @@ public class EntityStoreImplTest {
       .setId(UUID.randomUUID())
       .setSuperwidgetId(widget3.getId())
       .setName("Test7_C");
-    assertEquals(5, subject.putAll(ImmutableList.of(widget2, widget3, widget2_widget0, widget3_widget0, widget3_widget1)).size());
+    assertEquals(5, subject.putAll(List.of(widget2, widget3, widget2_widget0, widget3_widget0, widget3_widget1)).size());
 
-    Collection<Widget> result = subject.getAll(Widget.class, Superwidget.class, ImmutableList.of(superwidget.getId()));
+    Collection<Widget> result = subject.getAll(Widget.class, Superwidget.class, List.of(superwidget.getId()));
     assertEquals(2, result.size());
   }
 

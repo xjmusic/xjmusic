@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.util;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class CSVTest {
   @Test
@@ -66,8 +67,13 @@ public class CSVTest {
 
   @Test
   public void from_keyValuePairs() {
-    assertEquals("one=1, two=2, three=3",
-      CSV.from(ImmutableMap.of("one", "1", "two", "2", "three", "3")));
+    var result = CSV.from(Map.of("one", "1", "two", "2", "three", "3"));
+
+    // can't use this because map has no guaranteed order: assertEquals("one=1, two=2, three=3");
+    assertEquals(21, result.length());
+    assertTrue(result.contains("one=1"));
+    assertTrue(result.contains("two=2"));
+    assertTrue(result.contains("three=3"));
   }
 
   @Test

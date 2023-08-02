@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
-import static io.xj.lib.util.Text.formatStackTrace;
+import static io.xj.lib.util.StringUtils.formatStackTrace;
 
 @Service
 public class JsonapiResponseProviderImpl implements JsonapiResponseProvider {

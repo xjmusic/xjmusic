@@ -1,8 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.access;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import io.xj.hub.enums.UserRoleType;
 import io.xj.hub.manager.UserManager;
 import io.xj.hub.manager.UserManagerImpl;
@@ -30,6 +29,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -98,8 +98,10 @@ public class HubRemoteAccessTokenTest {
     Assertions.assertNotNull(result);
     assertEquals(user.getId(), result.getUserId());
     assertEquals(userAuth.getId(), result.getUserAuthId());
-    assertArrayEquals(ImmutableList.of(UserRoleType.User, UserRoleType.Artist).toArray(), result.getRoleTypes().toArray());
-    assertArrayEquals(ImmutableSet.of(account1.getId(), account2.getId()).toArray(), result.getAccountIds().toArray());
+    assertTrue(result.getRoleTypes().contains(UserRoleType.User));
+    assertTrue(result.getRoleTypes().contains(UserRoleType.Artist));
+    assertTrue(result.getAccountIds().contains(account1.getId()));
+    assertTrue(result.getAccountIds().contains(account2.getId()));
   }
 
   @Test

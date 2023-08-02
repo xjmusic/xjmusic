@@ -2,8 +2,8 @@
 
 package io.xj.hub.manager;
 
-import com.google.common.base.Strings;
 import io.xj.hub.tables.pojos.Template;
+import io.xj.lib.util.StringUtils;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -22,6 +22,6 @@ public enum Templates {
    */
   public static String getIdentifier(@Nullable Template template) {
     if (Objects.isNull(template)) return "N/A";
-    return Strings.isNullOrEmpty(template.getShipKey()) ? template.getId().toString() : template.getShipKey();
+    return StringUtils.isNullOrEmpty(template.getShipKey()) ? template.getId().toString() : template.getShipKey();
   }
 }

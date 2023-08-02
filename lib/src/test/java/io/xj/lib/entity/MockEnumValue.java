@@ -3,7 +3,7 @@
 package io.xj.lib.entity;
 
 /**
- Mock enum value
+ * Mock enum value
  */
 enum MockEnumValue {
   Apples,

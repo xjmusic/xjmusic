@@ -1,9 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.craft.beat;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Streams;
 import io.xj.hub.HubTopology;
 import io.xj.hub.client.HubClient;
 import io.xj.hub.client.HubContent;
@@ -50,8 +47,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAudio;
 import static io.xj.hub.IntegrationTestingFixtures.buildEvent;
@@ -112,7 +112,7 @@ public class CraftBeat_LayeredVoicesTest {
 
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
-    sourceMaterial = new HubContent(Streams.concat(
+    sourceMaterial = new HubContent(Stream.concat(
       fake.setupFixtureB1().stream().filter(entity -> !Entities.isSame(entity, fake.program35) && !Entities.isChild(entity, fake.program35)),
       customFixtures().stream()
     ).collect(Collectors.toList()));
@@ -175,7 +175,7 @@ public class CraftBeat_LayeredVoicesTest {
     store.put(buildSegmentChoice(segment4, ProgramType.Macro, fake.program4_sequence0_binding0));
     store.put(buildSegmentChoice(segment4, ProgramType.Main, fake.program5_sequence1_binding0));
 
-    for (String memeName : ImmutableList.of("Cozy", "Classic", "Outlook", "Rosy"))
+    for (String memeName : List.of("Cozy", "Classic", "Outlook", "Rosy"))
       store.put(buildSegmentMeme(segment4, memeName));
 
     store.put(buildSegmentChord(segment4, 0.0, "A minor"));
@@ -189,7 +189,7 @@ public class CraftBeat_LayeredVoicesTest {
    * @return list of all entities
    */
   Collection<Object> customFixtures() {
-    Collection<Object> entities = Lists.newArrayList();
+    Collection<Object> entities = new ArrayList<>();
 
     // Instrument "808"
     Instrument instrument1 = Entities.add(entities, buildInstrument(fake.library2, InstrumentType.Drum, InstrumentMode.Event, InstrumentState.Published, "808 Drums"));

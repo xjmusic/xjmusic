@@ -1,8 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.dub;
 
-import com.google.common.base.Strings;
 import io.xj.lib.filestore.FileStoreException;
+import io.xj.lib.util.StringUtils;
 import io.xj.nexus.NexusException;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -46,7 +46,7 @@ public class DubAudioCacheImpl implements DubAudioCache {
 
   @Override
   public String load(String key, int targetFrameRate) throws FileStoreException, IOException, NexusException {
-    if (Strings.isNullOrEmpty(key)) throw new FileStoreException("Can't load null or empty audio key!");
+    if (StringUtils.isNullOrEmpty(key)) throw new FileStoreException("Can't load null or empty audio key!");
     return dubAudioCacheItemFactory.load(pathPrefix, key, targetFrameRate).getAbsolutePath();
   }
 }

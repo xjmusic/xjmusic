@@ -1189,7 +1189,7 @@ public class vorbis_block {
   }
 
   void _vp_couple(int blobno, vorbis_info_psy_global g, vorbis_look_psy p, vorbis_info_mapping0 vi,
-                          float[][] res, float[][] mag_memo, int[][] mag_sort, int[][] ifloor, int[] nonzero, int sliding_lowpass) {
+                  float[][] res, float[][] mag_memo, int[][] mag_sort, int[][] ifloor, int[] nonzero, int sliding_lowpass) {
 
     int i, j, k;
     int n = p.n;

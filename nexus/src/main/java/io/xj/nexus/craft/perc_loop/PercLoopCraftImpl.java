@@ -1,12 +1,11 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.craft.perc_loop;
 
-import com.google.common.collect.Lists;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.lib.util.Text;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.StringUtils;
+import io.xj.lib.util.ValueUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.beat.BeatCraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
@@ -15,6 +14,7 @@ import io.xj.nexus.model.SegmentChoiceArrangement;
 import io.xj.nexus.model.SegmentChoiceArrangementPick;
 import io.xj.nexus.model.SegmentType;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -45,7 +45,7 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
           .flatMap(instrument -> fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId()).stream())
           .map(SegmentChoiceArrangementPick::getInstrumentAudioId)
           .collect(Collectors.toSet())
-        : Lists.newArrayList();
+        : new ArrayList<>();
 
     int targetLayers = (int) Math.floor(
       fabricator.getTemplateConfig().getPercLoopLayerMin() +
@@ -56,7 +56,7 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
     fabricator.addInfoMessage(String.format("Targeting %d layers of percussion loop", targetLayers));
 
     if (audioIds.size() > targetLayers)
-      audioIds = Values.withIdsRemoved(audioIds, audioIds.size() - targetLayers);
+      audioIds = ValueUtils.withIdsRemoved(audioIds, audioIds.size() - targetLayers);
 
     else if (audioIds.size() < targetLayers)
       for (int i = 0; i < targetLayers - audioIds.size(); i++) {
@@ -85,15 +85,15 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
   List<String> computePreferredEvents(int after) {
     return switch (after) {
       case 0 -> fabricator.getTemplateConfig().getEventNamesLarge().stream()
-        .map(Text::toEvent)
+        .map(StringUtils::toEvent)
         .toList();
 
       case 1 -> fabricator.getTemplateConfig().getEventNamesMedium().stream()
-        .map(Text::toEvent)
+        .map(StringUtils::toEvent)
         .toList();
 
       default -> fabricator.getTemplateConfig().getEventNamesSmall().stream()
-        .map(Text::toEvent)
+        .map(StringUtils::toEvent)
         .toList();
     };
   }

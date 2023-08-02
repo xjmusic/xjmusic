@@ -3,7 +3,6 @@
 package io.xj.nexus.fabricator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.Streams;
 import io.xj.hub.HubTopology;
 import io.xj.hub.client.HubClient;
 import io.xj.hub.client.HubContent;
@@ -41,6 +40,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.time.Instant;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
@@ -87,7 +87,7 @@ public class SegmentRetrospectiveImplTest {
 
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
-    sourceMaterial = new HubContent(Streams.concat(
+    sourceMaterial = new HubContent(Stream.concat(
       fake.setupFixtureB1().stream(),
       fake.setupFixtureB2().stream()
     ).collect(Collectors.toList()));

@@ -1,8 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.craft.detail;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Streams;
 import io.xj.hub.HubTopology;
 import io.xj.hub.client.HubClient;
 import io.xj.hub.client.HubContent;
@@ -44,7 +42,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
@@ -89,10 +89,11 @@ public class CraftDetailNextMainTest {
 
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
-    sourceMaterial = new HubContent(Streams.concat(
-      fake.setupFixtureB1().stream(),
-      fake.setupFixtureB2().stream(),
-      fake.setupFixtureB3().stream(),
+    sourceMaterial = new HubContent(Stream.concat(
+      Stream.concat(
+        Stream.concat(fake.setupFixtureB1().stream(),
+          fake.setupFixtureB2().stream()),
+        fake.setupFixtureB3().stream()),
       fake.setupFixtureB4_DetailBass().stream()
     ).collect(Collectors.toList()));
 
@@ -216,7 +217,7 @@ public class CraftDetailNextMainTest {
       Segments.DELTA_UNLIMITED,
       fake.program15,
       fake.program15_sequence0_binding0));
-    for (String memeName : ImmutableList.of("Regret", "Sky", "Hindsight", "Tropical"))
+    for (String memeName : List.of("Regret", "Sky", "Hindsight", "Tropical"))
       store.put(buildSegmentMeme(segment4, memeName));
 
     SegmentChord chord0 = store.put(buildSegmentChord(segment4, 0.0, "G minor"));

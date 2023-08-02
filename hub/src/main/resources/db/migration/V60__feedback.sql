@@ -47,9 +47,9 @@ CREATE TABLE xj.feedback_template
 
 CREATE TABLE xj.feedback_program
 (
-  feedback_id UUID NOT NULL REFERENCES xj.feedback (id),
-  program_id  UUID NOT NULL REFERENCES xj.program (id),
-  program_sequence_id  UUID DEFAULT NULL REFERENCES xj.program_sequence (id),
+  feedback_id         UUID NOT NULL REFERENCES xj.feedback (id),
+  program_id          UUID NOT NULL REFERENCES xj.program (id),
+  program_sequence_id UUID DEFAULT NULL REFERENCES xj.program_sequence (id),
   PRIMARY KEY (feedback_id, program_id)
 );
 

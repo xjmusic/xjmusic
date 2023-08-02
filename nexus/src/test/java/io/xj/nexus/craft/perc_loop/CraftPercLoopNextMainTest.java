@@ -1,8 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.craft.perc_loop;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Streams;
 import io.xj.hub.HubTopology;
 import io.xj.hub.client.HubClient;
 import io.xj.hub.client.HubContent;
@@ -39,7 +37,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
@@ -82,9 +82,9 @@ public class CraftPercLoopNextMainTest {
 
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
-    sourceMaterial = new HubContent(Streams.concat(
-      fake.setupFixtureB1().stream(),
-      fake.setupFixtureB2().stream(),
+    sourceMaterial = new HubContent(Stream.concat(
+      Stream.concat(fake.setupFixtureB1().stream(),
+        fake.setupFixtureB2().stream()),
       fake.setupFixtureB3().stream()
     ).collect(Collectors.toList()));
 
@@ -94,7 +94,7 @@ public class CraftPercLoopNextMainTest {
       chain1,
       0,
       SegmentState.CRAFTED,
-            "D major",
+      "D major",
       64,
       0.73,
       120.0,
@@ -104,7 +104,7 @@ public class CraftPercLoopNextMainTest {
       chain1,
       1,
       SegmentState.CRAFTING,
-            "Db minor",
+      "Db minor",
       64,
       0.85,
       120.0,
@@ -135,7 +135,7 @@ public class CraftPercLoopNextMainTest {
       chain1,
       2,
       SegmentState.CRAFTED,
-            "F Major",
+      "F Major",
       64,
       0.30,
       120.0,
@@ -176,7 +176,7 @@ public class CraftPercLoopNextMainTest {
       Segments.DELTA_UNLIMITED,
       fake.program15,
       fake.program15_sequence0_binding0));
-    for (String memeName : ImmutableList.of("Regret", "Sky", "Hindsight", "Tropical")) {
+    for (String memeName : List.of("Regret", "Sky", "Hindsight", "Tropical")) {
       store.put(buildSegmentMeme(segment4, memeName));
     }
     store.put(buildSegmentChord(segment4, 0.0, "G minor"));

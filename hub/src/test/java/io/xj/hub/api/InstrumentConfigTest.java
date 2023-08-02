@@ -9,10 +9,13 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- Artist saves Instrument config, validate & combine with defaults. https://www.pivotaltracker.com/story/show/177355683
+ * Artist saves Instrument config, validate & combine with defaults. https://www.pivotaltracker.com/story/show/177355683
  */
 public class InstrumentConfigTest {
 
@@ -51,7 +54,7 @@ public class InstrumentConfigTest {
   }
 
   /**
-   Instruments have a config to play back as one-shots (ignore note-event lengths) https://www.pivotaltracker.com/story/show/178307432
+   * Instruments have a config to play back as one-shots (ignore note-event lengths) https://www.pivotaltracker.com/story/show/178307432
    */
   @Test
   public void isOneShot() throws ValueException {
@@ -61,7 +64,7 @@ public class InstrumentConfigTest {
   }
 
   /**
-   Instruments have a config to play back as one-shots (ignore note-event lengths) https://www.pivotaltracker.com/story/show/178307432
+   * Instruments have a config to play back as one-shots (ignore note-event lengths) https://www.pivotaltracker.com/story/show/178307432
    */
   @Test
   public void oneShotObserveLengthOfEvents() throws ValueException {
@@ -71,7 +74,7 @@ public class InstrumentConfigTest {
   }
 
   /**
-   InstrumentConfig to disable note cutoffs for one-shot instruments https://www.pivotaltracker.com/story/show/181211927
+   * InstrumentConfig to disable note cutoffs for one-shot instruments https://www.pivotaltracker.com/story/show/181211927
    */
   @Test
   public void isOneShotCutoffEnabled() throws ValueException {
@@ -81,7 +84,7 @@ public class InstrumentConfigTest {
   }
 
   /**
-   One-shot fadeout mode https://www.pivotaltracker.com/story/show/183385397
+   * One-shot fadeout mode https://www.pivotaltracker.com/story/show/183385397
    */
   @Test
   public void releaseMillis() throws ValueException {

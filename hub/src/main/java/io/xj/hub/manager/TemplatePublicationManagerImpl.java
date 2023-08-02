@@ -11,7 +11,7 @@ import io.xj.hub.tables.records.TemplatePublicationRecord;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
@@ -164,13 +164,13 @@ public class TemplatePublicationManagerImpl extends HubPersistenceServiceImpl im
   }
 
   /**
-   Read one record
-
-   @param db     DSL context
-   @param access control
-   @param id     to read
-   @return record
-   @throws ManagerException on failure
+   * Read one record
+   *
+   * @param db     DSL context
+   * @param access control
+   * @param id     to read
+   * @return record
+   * @throws ManagerException on failure
    */
   TemplatePublication readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     if (access.isTopLevel())
@@ -196,15 +196,15 @@ public class TemplatePublicationManagerImpl extends HubPersistenceServiceImpl im
   }
 
   /**
-   Validate data
-
-   @param builder to validate
-   @throws ManagerException if invalid
+   * Validate data
+   *
+   * @param builder to validate
+   * @throws ManagerException if invalid
    */
   public TemplatePublication validate(TemplatePublication builder) throws ManagerException {
     try {
-      Values.require(builder.getTemplateId(), "Template ID");
-      Values.require(builder.getUserId(), "User ID");
+      ValueUtils.require(builder.getTemplateId(), "Template ID");
+      ValueUtils.require(builder.getUserId(), "User ID");
 
       return builder;
 

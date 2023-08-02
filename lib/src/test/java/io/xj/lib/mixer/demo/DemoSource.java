@@ -4,5 +4,5 @@ package io.xj.lib.mixer.demo;
 
 import java.util.UUID;
 
-public record DemoSource (UUID id, String key) {
+public record DemoSource(UUID id, String key) {
 }

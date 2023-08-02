@@ -2,12 +2,6 @@
 package io.xj.nexus.fabricator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.google.common.collect.Streams;
 import io.xj.hub.InstrumentConfig;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.TemplateConfig;
@@ -46,9 +40,9 @@ import io.xj.lib.music.PitchClass;
 import io.xj.lib.music.StickyBun;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.MarbleBag;
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 import io.xj.lib.util.ValueException;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
@@ -77,6 +71,8 @@ import javax.sound.sampled.AudioFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -86,9 +82,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.lib.util.Values.MICROS_PER_SECOND;
-import static io.xj.lib.util.Values.NANOS_PER_MICRO;
-import static io.xj.lib.util.Values.SECONDS_PER_MINUTE;
+import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.lib.util.ValueUtils.NANOS_PER_MICRO;
+import static io.xj.lib.util.ValueUtils.SECONDS_PER_MINUTE;
 
 /**
  * [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
@@ -151,17 +147,17 @@ public class FabricatorImpl implements Fabricator {
     this.sourceMaterial = sourceMaterial;
 
     // caches
-    chordAtPosition = Maps.newHashMap();
-    completeChordsForProgramSequence = Maps.newHashMap();
-    instrumentConfigs = Maps.newHashMap();
-    pickInstrumentConfigs = Maps.newHashMap();
-    picksForChoice = Maps.newHashMap();
-    rangeForChoice = Maps.newHashMap();
-    rangeShiftOctave = Maps.newHashMap();
-    rootNotesByVoicingAndChord = Maps.newHashMap();
-    sequenceForChoice = Maps.newHashMap();
-    targetShift = Maps.newHashMap();
-    voicingNoteRange = Maps.newHashMap();
+    chordAtPosition = new HashMap<>();
+    completeChordsForProgramSequence = new HashMap<>();
+    instrumentConfigs = new HashMap<>();
+    pickInstrumentConfigs = new HashMap<>();
+    picksForChoice = new HashMap<>();
+    rangeForChoice = new HashMap<>();
+    rangeShiftOctave = new HashMap<>();
+    rootNotesByVoicingAndChord = new HashMap<>();
+    sequenceForChoice = new HashMap<>();
+    targetShift = new HashMap<>();
+    voicingNoteRange = new HashMap<>();
 
     // keep elapsed time based on system nano time
     startAtSystemNanoTime = System.nanoTime();
@@ -268,7 +264,7 @@ public class FabricatorImpl implements Fabricator {
   @Override
   public String getChainFullJson() throws NexusException {
     try {
-      return computeChainJson(segmentManager.readMany(ImmutableList.of(chain.getId())));
+      return computeChainJson(segmentManager.readMany(List.of(chain.getId())));
 
     } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException e) {
       throw new NexusException(e);
@@ -286,7 +282,7 @@ public class FabricatorImpl implements Fabricator {
       var beforeThresholdChainMicros = atChainMicros + workBufferAheadSeconds * MICROS_PER_SECOND;
       var afterThresholdChainMicros = atChainMicros - workBufferBeforeSeconds * MICROS_PER_SECOND;
       return computeChainJson(
-        segmentManager.readMany(ImmutableList.of(chain.getId())).stream()
+        segmentManager.readMany(List.of(chain.getId())).stream()
           .filter(segment ->
             segment.getBeginAtChainMicros() < beforeThresholdChainMicros
               && (Objects.nonNull(segment.getDurationMicros()) ? segment.getDurationMicros() : 0) > afterThresholdChainMicros)
@@ -454,9 +450,9 @@ public class FabricatorImpl implements Fabricator {
   @Override
   public Chord getKeyForChoice(SegmentChoice choice) throws NexusException {
     Optional<Program> program = getProgram(choice);
-    if (Values.isSet(choice.getProgramSequenceBindingId())) {
+    if (ValueUtils.isSet(choice.getProgramSequenceBindingId())) {
       var sequence = getSequence(choice);
-      if (sequence.isPresent() && !Strings.isNullOrEmpty(sequence.get().getKey()))
+      if (sequence.isPresent() && !StringUtils.isNullOrEmpty(sequence.get().getKey()))
         return Chord.of(sequence.get().getKey());
     }
 
@@ -528,7 +524,7 @@ public class FabricatorImpl implements Fabricator {
 
       var nextSequenceBinding = sourceMaterial().getBindingsAtOffset(previousMacroChoice.getProgramId(), previousSequenceBinding.getOffset() + 1);
 
-      return MemeIsometry.of(templateConfig.getMemeTaxonomy(), Streams.concat(sourceMaterial.getProgramMemes(previousMacroChoice.getProgramId()).stream().map(ProgramMeme::getName), nextSequenceBinding.stream().flatMap(programSequenceBinding -> sourceMaterial.getMemesForProgramSequenceBindingId(programSequenceBinding.getId()).stream().map(ProgramSequenceBindingMeme::getName))).collect(Collectors.toList()));
+      return MemeIsometry.of(templateConfig.getMemeTaxonomy(), Stream.concat(sourceMaterial.getProgramMemes(previousMacroChoice.getProgramId()).stream().map(ProgramMeme::getName), nextSequenceBinding.stream().flatMap(programSequenceBinding -> sourceMaterial.getMemesForProgramSequenceBindingId(programSequenceBinding.getId()).stream().map(ProgramSequenceBindingMeme::getName))).collect(Collectors.toList()));
 
     } catch (NexusException e) {
       LOG.warn("Could not get meme isometry of next sequence in previous macro", e);
@@ -543,7 +539,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public Integer getNextSequenceBindingOffset(SegmentChoice choice) {
-    if (Values.isEmpty(choice.getProgramSequenceBindingId())) return 0;
+    if (ValueUtils.isEmpty(choice.getProgramSequenceBindingId())) return 0;
 
     var sequenceBinding = sourceMaterial.getProgramSequenceBinding(choice.getProgramSequenceBindingId());
     Integer sequenceBindingOffset = getSequenceBindingOffsetForChoice(choice);
@@ -578,7 +574,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public Collection<InstrumentAudio> getPickedAudios() {
-    Collection<InstrumentAudio> audios = Lists.newArrayList();
+    Collection<InstrumentAudio> audios = new ArrayList<>();
     for (SegmentChoiceArrangementPick pick : workbench.getSegmentChoiceArrangementPicks())
       sourceMaterial.getInstrumentAudio(pick.getInstrumentAudioId()).ifPresent(audios::add);
     return audios;
@@ -626,8 +622,8 @@ public class FabricatorImpl implements Fabricator {
   @Override
   public Collection<ProgramSequenceChord> getProgramSequenceChords(ProgramSequence programSequence) {
     if (!completeChordsForProgramSequence.containsKey(programSequence.getId())) {
-      Map<Double, ProgramSequenceChord> chordForPosition = Maps.newHashMap();
-      Map<Double, Integer> validVoicingsForPosition = Maps.newHashMap();
+      Map<Double, ProgramSequenceChord> chordForPosition = new HashMap<>();
+      Map<Double, Integer> validVoicingsForPosition = new HashMap<>();
       for (ProgramSequenceChord chord : sourceMaterial.getChords(programSequence)) {
         int validVoicings = sourceMaterial.getVoicings(chord).stream().map(V -> CSV.split(V.getNotes()).size()).reduce(0, Integer::sum);
         if (!validVoicingsForPosition.containsKey(chord.getPosition()) || validVoicingsForPosition.get(chord.getPosition()) < validVoicings) {
@@ -847,7 +843,7 @@ public class FabricatorImpl implements Fabricator {
   public Optional<ProgramSequence> getSequence(SegmentChoice choice) {
     Optional<Program> program = getProgram(choice);
     if (program.isEmpty()) return Optional.empty();
-    if (Values.isSet(choice.getProgramSequenceBindingId())) {
+    if (ValueUtils.isSet(choice.getProgramSequenceBindingId())) {
       var sequenceBinding = sourceMaterial.getProgramSequenceBinding(choice.getProgramSequenceBindingId());
       if (sequenceBinding.isPresent())
         return sourceMaterial.getProgramSequence(sequenceBinding.get().getProgramSequenceId());
@@ -861,7 +857,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public Integer getSequenceBindingOffsetForChoice(SegmentChoice choice) {
-    if (Values.isEmpty(choice.getProgramSequenceBindingId())) return 0;
+    if (ValueUtils.isEmpty(choice.getProgramSequenceBindingId())) return 0;
     var sequenceBinding = sourceMaterial.getProgramSequenceBinding(choice.getProgramSequenceBindingId());
     return sequenceBinding.map(ProgramSequenceBinding::getOffset).orElse(0);
   }
@@ -873,7 +869,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public SegmentType getType() throws NexusException {
-    if (Values.isEmpty(type)) type = computeType();
+    if (ValueUtils.isEmpty(type)) type = computeType();
     return type;
   }
 
@@ -889,11 +885,11 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public boolean hasMoreSequenceBindingOffsets(SegmentChoice choice, int N) {
-    if (Values.isEmpty(choice.getProgramSequenceBindingId())) return false;
+    if (ValueUtils.isEmpty(choice.getProgramSequenceBindingId())) return false;
     var sequenceBinding = sourceMaterial.getProgramSequenceBinding(choice.getProgramSequenceBindingId());
 
     if (sequenceBinding.isEmpty()) return false;
-    List<Integer> avlOfs = ImmutableList.copyOf(sourceMaterial.getAvailableOffsets(sequenceBinding.get()));
+    List<Integer> avlOfs = List.copyOf(sourceMaterial.getAvailableOffsets(sequenceBinding.get()));
 
     // if we locate the target and still have two offsets remaining, result is true
     for (int i = 0; i < avlOfs.size(); i++)
@@ -1053,7 +1049,7 @@ public class FabricatorImpl implements Fabricator {
    * @return Segment ship key computed for the given chain and Segment
    */
   String computeShipKey(Chain chain, Segment segment) {
-    String chainName = Strings.isNullOrEmpty(chain.getShipKey()) ? "chain" + NAME_SEPARATOR + chain.getId() : chain.getShipKey();
+    String chainName = StringUtils.isNullOrEmpty(chain.getShipKey()) ? "chain" + NAME_SEPARATOR + chain.getId() : chain.getShipKey();
     String segmentName = String.valueOf(segment.getBeginAtChainMicros());
     return chainName + NAME_SEPARATOR + segmentName;
   }
@@ -1094,7 +1090,7 @@ public class FabricatorImpl implements Fabricator {
    * Ensure the current segment has a storage key; if not, add a storage key to this Segment
    */
   void ensureShipKey() {
-    if (Values.isEmpty(workbench.getSegment().getStorageKey()) || workbench.getSegment().getStorageKey().isEmpty()) {
+    if (ValueUtils.isEmpty(workbench.getSegment().getStorageKey()) || workbench.getSegment().getStorageKey().isEmpty()) {
       var seg = workbench.getSegment();
       seg.setStorageKey(computeShipKey(workbench.getChain(), workbench.getSegment()));
       workbench.setSegment(seg);
@@ -1144,7 +1140,7 @@ public class FabricatorImpl implements Fabricator {
    * @return preferred instrument audio
    */
   Map<String, InstrumentAudio> computePreferredInstrumentAudio() {
-    Map<String, InstrumentAudio> audios = Maps.newHashMap();
+    Map<String, InstrumentAudio> audios = new HashMap<>();
 
     retrospective.getPicks()
       .forEach(pick ->
@@ -1161,19 +1157,19 @@ public class FabricatorImpl implements Fabricator {
    * @return true if adding memes was successful
    */
   boolean addMemes(SegmentChoice choice) throws NexusException {
-    Set<String> names = Sets.newHashSet();
+    Set<String> names = new HashSet<>();
 
     if (Objects.nonNull(choice.getProgramId()))
       sourceMaterial().getMemesForProgramId(choice.getProgramId())
-        .forEach(meme -> names.add(Text.toMeme(meme.getName())));
+        .forEach(meme -> names.add(StringUtils.toMeme(meme.getName())));
 
     if (Objects.nonNull(choice.getProgramSequenceBindingId()))
       sourceMaterial().getMemesForProgramSequenceBindingId(choice.getProgramSequenceBindingId())
-        .forEach(meme -> names.add(Text.toMeme(meme.getName())));
+        .forEach(meme -> names.add(StringUtils.toMeme(meme.getName())));
 
     if (Objects.nonNull(choice.getInstrumentId()))
       sourceMaterial().getMemesForInstrumentId(choice.getInstrumentId())
-        .forEach(meme -> names.add(Text.toMeme(meme.getName())));
+        .forEach(meme -> names.add(StringUtils.toMeme(meme.getName())));
 
     var memeStack = MemeStack.from(templateConfig.getMemeTaxonomy(),
       getSegmentMemes().stream().map(SegmentMeme::getName).toList());

@@ -2,7 +2,7 @@
 
 package io.xj.lib.jsonapi;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 import io.xj.lib.Widget;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.JsonProviderImpl;
@@ -33,7 +33,7 @@ public class JsonapiPayloadErrorTest {
 
   @Test
   public void get_set_links() {
-    assertEquals(ImmutableMap.of("about", "https://about.com/"), subject.setAboutLink("https://about.com/").getLinks());
+    assertEquals(Map.of("about", "https://about.com/"), subject.setAboutLink("https://about.com/").getLinks());
   }
 
   @Test

@@ -10,16 +10,12 @@ ALTER TABLE xj.instrument_audio
 
 UPDATE xj.instrument_audio
 SET total_beats = 1
-WHERE instrument_id IN (
-  SELECT id
-  FROM xj.instrument
-  WHERE type != 'PercLoop'
-);
+WHERE instrument_id IN (SELECT id
+                        FROM xj.instrument
+                        WHERE type != 'PercLoop');
 
 UPDATE xj.instrument_audio
 SET total_beats = 4
-WHERE instrument_id IN (
-  SELECT id
-  FROM xj.instrument
-  WHERE type = 'PercLoop'
-);
+WHERE instrument_id IN (SELECT id
+                        FROM xj.instrument
+                        WHERE type = 'PercLoop');

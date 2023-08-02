@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.ingest;
 
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 
 public class HubIngestException extends Exception {
 
@@ -10,10 +10,10 @@ public class HubIngestException extends Exception {
   }
 
   public HubIngestException(String msg, Exception e) {
-    super(String.format("%s %s\n%s", msg, e.toString(), Text.formatStackTrace(e)));
+    super(String.format("%s %s\n%s", msg, e.toString(), StringUtils.formatStackTrace(e)));
   }
 
   public HubIngestException(Throwable targetException) {
-    super(String.format("%s\n%s", targetException.getMessage(), Text.formatStackTrace(targetException)));
+    super(String.format("%s\n%s", targetException.getMessage(), StringUtils.formatStackTrace(targetException)));
   }
 }

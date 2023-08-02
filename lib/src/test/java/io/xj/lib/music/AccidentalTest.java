@@ -3,7 +3,9 @@ package io.xj.lib.music;
 
 import org.junit.Test;
 
-import static io.xj.lib.music.Accidental.*;
+import static io.xj.lib.music.Accidental.Flat;
+import static io.xj.lib.music.Accidental.None;
+import static io.xj.lib.music.Accidental.Sharp;
 import static org.junit.Assert.assertEquals;
 
 public class AccidentalTest {

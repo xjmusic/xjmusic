@@ -2,25 +2,54 @@
 
 package io.xj.hub;
 
-import com.google.common.collect.Lists;
-import io.xj.hub.enums.*;
-import io.xj.hub.tables.pojos.*;
+import io.xj.hub.enums.ContentBindingType;
+import io.xj.hub.enums.InstrumentMode;
+import io.xj.hub.enums.InstrumentState;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramState;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.enums.TemplateType;
+import io.xj.hub.enums.UserAuthType;
+import io.xj.hub.tables.pojos.Account;
+import io.xj.hub.tables.pojos.AccountUser;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.InstrumentMeme;
+import io.xj.hub.tables.pojos.Library;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramMeme;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
+import io.xj.hub.tables.pojos.ProgramSequenceChord;
+import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
+import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.hub.tables.pojos.TemplatePlayback;
+import io.xj.hub.tables.pojos.TemplatePublication;
+import io.xj.hub.tables.pojos.User;
+import io.xj.hub.tables.pojos.UserAuth;
+import io.xj.hub.tables.pojos.UserAuthToken;
 import io.xj.lib.util.CSV;
 
 import javax.annotation.Nullable;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 /**
- Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
- <p>
- Testing the hypothesis that, while unit tests are all independent,
- integration tests ought to be as much about testing all features around a consensus model of the platform
- as they are about testing all resources.
+ * Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
+ * <p>
+ * Testing the hypothesis that, while unit tests are all independent,
+ * integration tests ought to be as much about testing all features around a consensus model of the platform
+ * as they are about testing all resources.
  */
 public class IntegrationTestingFixtures {
   public static final String TEST_TEMPLATE_CONFIG = "outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n";
@@ -100,7 +129,7 @@ public class IntegrationTestingFixtures {
   public HubContentFixtures content;
 
   /**
-   Create a new Integration Testing Fixtures instance by providing the integration test provider
+   * Create a new Integration Testing Fixtures instance by providing the integration test provider
    */
   public IntegrationTestingFixtures(HubIntegrationTest hubIntegrationTest) {
     test = hubIntegrationTest;
@@ -108,7 +137,7 @@ public class IntegrationTestingFixtures {
   }
 
   /**
-   Create a new Integration Testing Fixtures instance by providing the integration test provider and content fixtures
+   * Create a new Integration Testing Fixtures instance by providing the integration test provider and content fixtures
    */
   public IntegrationTestingFixtures(HubIntegrationTest hubIntegrationTest, HubContentFixtures content) {
     test = hubIntegrationTest;
@@ -116,7 +145,7 @@ public class IntegrationTestingFixtures {
   }
 
   public static Collection<Object> buildInstrumentWithAudios(Instrument instrument, String notes) {
-    List<Object> result = Lists.newArrayList(instrument);
+    List<Object> result = new ArrayList<>(List.of(instrument));
     for (String note : CSV.split(notes)) {
       var audio = buildAudio(instrument, String.format("%s-%s", instrument.getType().name(), note), note);
       result.add(audio);
@@ -449,9 +478,9 @@ public class IntegrationTestingFixtures {
   }
 
   /**
-   NOTE: it's crucial tht a test template configuration disable certain aleatory features,
-   e.g. `deltaArcEnabled = false` to disable choice delta randomness,
-   otherwise tests may sporadically fail.
+   * NOTE: it's crucial tht a test template configuration disable certain aleatory features,
+   * e.g. `deltaArcEnabled = false` to disable choice delta randomness,
+   * otherwise tests may sporadically fail.
    */
   public static Template buildTemplate(Account account1, TemplateType type, String name, String shipKey) {
     var template = new Template();
@@ -661,7 +690,7 @@ public class IntegrationTestingFixtures {
   }
 
   /**
-   Library of Content A (shared test fixture)
+   * Library of Content A (shared test fixture)
    */
   public void insertFixtureA() throws HubException {
     // account
@@ -751,7 +780,7 @@ public class IntegrationTestingFixtures {
   }
 
   /**
-   Library of Content B-1 (shared test fixture)
+   * Library of Content B-1 (shared test fixture)
    */
   public void insertFixtureB1() throws HubException {
     Collection<Object> entities = content.setupFixtureB1(true);
@@ -761,9 +790,9 @@ public class IntegrationTestingFixtures {
   }
 
   /**
-   Library of Content B-1 (shared test fixture)
-   <p>
-   Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
+   * Library of Content B-1 (shared test fixture)
+   * <p>
+   * Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
    */
   public void insertFixtureB2() throws HubException {
     Collection<Object> entities = content.setupFixtureB2();
@@ -773,18 +802,18 @@ public class IntegrationTestingFixtures {
   }
 
   /**
-   Library of Content B-3 (shared test fixture)
-   <p>
-   Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
-   <p>
-   memes bound to sequence-pattern because sequence-binding is not considered for beat sequences, beat sequence patterns do not have memes. https://www.pivotaltracker.com/story/show/163158036
-   <p>
-   Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (beat- and detail-type sequences) https://www.pivotaltracker.com/story/show/165954619
-   <p>
-   Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Beat or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment. https://www.pivotaltracker.com/story/show/153976073
-   + For this test, there's an Intro Pattern with all BLEEPS, multiple Loop Patterns with KICK and SNARE (2x each), and an Outro Pattern with all TOOTS.
-   <p>
-   Artist wants to of multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset. https://www.pivotaltracker.com/story/show/150279647
+   * Library of Content B-3 (shared test fixture)
+   * <p>
+   * Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
+   * <p>
+   * memes bound to sequence-pattern because sequence-binding is not considered for beat sequences, beat sequence patterns do not have memes. https://www.pivotaltracker.com/story/show/163158036
+   * <p>
+   * Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (beat- and detail-type sequences) https://www.pivotaltracker.com/story/show/165954619
+   * <p>
+   * Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Beat or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment. https://www.pivotaltracker.com/story/show/153976073
+   * + For this test, there's an Intro Pattern with all BLEEPS, multiple Loop Patterns with KICK and SNARE (2x each), and an Outro Pattern with all TOOTS.
+   * <p>
+   * Artist wants to of multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset. https://www.pivotaltracker.com/story/show/150279647
    */
   public void insertFixtureB3() throws HubException {
     Collection<Object> entities = content.setupFixtureB3();
@@ -794,9 +823,9 @@ public class IntegrationTestingFixtures {
   }
 
   /**
-   Library of Content B: Instruments (shared test fixture)
-   <p>
-   Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
+   * Library of Content B: Instruments (shared test fixture)
+   * <p>
+   * Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
    */
   public void insertFixtureB_Instruments() throws HubException {
     instrument201 = test.insert(buildInstrument(library2, InstrumentType.Drum, InstrumentMode.Event, InstrumentState.Published, "808 Drums"));

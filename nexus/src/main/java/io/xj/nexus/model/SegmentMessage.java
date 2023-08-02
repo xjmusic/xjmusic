@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 
-public class SegmentMessage   {
+public class SegmentMessage {
 
   @Valid UUID id;
   @Valid UUID segmentId;
@@ -17,6 +17,7 @@ public class SegmentMessage   {
   @Valid String body;
 
   /**
+   *
    **/
   public SegmentMessage id(UUID id) {
     this.id = id;
@@ -28,11 +29,13 @@ public class SegmentMessage   {
   public UUID getId() {
     return id;
   }
+
   public void setId(UUID id) {
     this.id = id;
   }
 
   /**
+   *
    **/
   public SegmentMessage segmentId(UUID segmentId) {
     this.segmentId = segmentId;
@@ -44,11 +47,13 @@ public class SegmentMessage   {
   public UUID getSegmentId() {
     return segmentId;
   }
+
   public void setSegmentId(UUID segmentId) {
     this.segmentId = segmentId;
   }
 
   /**
+   *
    **/
   public SegmentMessage type(SegmentMessageType type) {
     this.type = type;
@@ -60,11 +65,13 @@ public class SegmentMessage   {
   public SegmentMessageType getType() {
     return type;
   }
+
   public void setType(SegmentMessageType type) {
     this.type = type;
   }
 
   /**
+   *
    **/
   public SegmentMessage body(String body) {
     this.body = body;
@@ -76,6 +83,7 @@ public class SegmentMessage   {
   public String getBody() {
     return body;
   }
+
   public void setBody(String body) {
     this.body = body;
   }
@@ -91,9 +99,9 @@ public class SegmentMessage   {
     }
     SegmentMessage segmentMessage = (SegmentMessage) o;
     return Objects.equals(this.id, segmentMessage.id) &&
-        Objects.equals(this.segmentId, segmentMessage.segmentId) &&
-        Objects.equals(this.type, segmentMessage.type) &&
-        Objects.equals(this.body, segmentMessage.body);
+      Objects.equals(this.segmentId, segmentMessage.segmentId) &&
+      Objects.equals(this.type, segmentMessage.type) &&
+      Objects.equals(this.body, segmentMessage.body);
   }
 
   @Override

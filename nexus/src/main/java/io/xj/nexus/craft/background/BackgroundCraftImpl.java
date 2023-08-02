@@ -6,7 +6,7 @@ import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.util.MarbleBag;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.detail.DetailCraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
@@ -20,17 +20,17 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static io.xj.lib.util.Values.MICROS_PER_SECOND;
+import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
 
 /**
- Background craft for the current segment
- <p>
- Background-type Instrument https://www.pivotaltracker.com/story/show/180121388
+ * Background craft for the current segment
+ * <p>
+ * Background-type Instrument https://www.pivotaltracker.com/story/show/180121388
  */
 public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCraft {
 
   public BackgroundCraftImpl(
-     Fabricator fabricator
+    Fabricator fabricator
   ) {
     super(fabricator);
   }
@@ -49,7 +49,7 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
     fabricator.addInfoMessage(String.format("Targeting %d layers of background", targetLayers));
 
     if (instrumentIds.size() > targetLayers)
-      instrumentIds = Values.withIdsRemoved(instrumentIds, instrumentIds.size() - targetLayers);
+      instrumentIds = ValueUtils.withIdsRemoved(instrumentIds, instrumentIds.size() - targetLayers);
 
     for (UUID backgroundId : instrumentIds)
       craftBackground(backgroundId);
@@ -69,9 +69,9 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
   }
 
   /**
-   Craft percussion loop
-
-   @param instrumentId of percussion loop instrument to craft
+   * Craft percussion loop
+   *
+   * @param instrumentId of percussion loop instrument to craft
    */
   @SuppressWarnings("DuplicatedCode")
   void craftBackground(UUID instrumentId) throws NexusException {
@@ -108,11 +108,11 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
   }
 
   /**
-   Choose drum instrument
-   [#325] Possible to choose multiple instruments for different voices in the same program
-
-   @return drum-type Instrument
-   @param instrument for which to pick audio
+   * Choose drum instrument
+   * [#325] Possible to choose multiple instruments for different voices in the same program
+   *
+   * @param instrument for which to pick audio
+   * @return drum-type Instrument
    */
   Optional<InstrumentAudio> pickAudioForInstrument(Instrument instrument) {
     var arr = fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId());

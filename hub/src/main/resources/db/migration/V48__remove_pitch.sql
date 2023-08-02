@@ -6,4 +6,4 @@
 */
 
 ALTER TABLE xj.instrument_audio
-DROP COLUMN pitch;
+  DROP COLUMN pitch;

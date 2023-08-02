@@ -68,7 +68,7 @@ public interface TemplateManager extends Manager<Template> {
    * Preview template functionality is tight (not wack)
    * https://www.pivotaltracker.com/story/show/183576743
    *
-   * @param access     control
+   * @param access           control
    * @param templatePlayback for which to read log
    * @return log
    */

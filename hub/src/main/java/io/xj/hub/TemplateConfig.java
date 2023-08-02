@@ -2,8 +2,6 @@
 
 package io.xj.hub;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
@@ -11,10 +9,11 @@ import com.typesafe.config.ConfigValue;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.meme.MemeTaxonomy;
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 import io.xj.lib.util.ValueException;
 
 import javax.sound.sampled.AudioFormat;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -186,7 +185,7 @@ public class TemplateConfig {
    */
   public TemplateConfig(String configText) throws ValueException {
     try {
-      Config config = Strings.isNullOrEmpty(configText) ? ConfigFactory.parseString(DEFAULT) : ConfigFactory.parseString(configText).withFallback(ConfigFactory.parseString(DEFAULT));
+      Config config = StringUtils.isNullOrEmpty(configText) ? ConfigFactory.parseString(DEFAULT) : ConfigFactory.parseString(configText).withFallback(ConfigFactory.parseString(DEFAULT));
       backgroundLayerMax = config.getInt("backgroundLayerMax");
       backgroundLayerMin = config.getInt("backgroundLayerMin");
       bufferAheadSeconds = config.getInt("bufferAheadSeconds");
@@ -218,9 +217,9 @@ public class TemplateConfig {
       dubMasterVolumeInstrumentTypeSticky = config.getDouble("dubMasterVolumeInstrumentTypeSticky");
       dubMasterVolumeInstrumentTypeStripe = config.getDouble("dubMasterVolumeInstrumentTypeStripe");
       dubMasterVolumeInstrumentTypeSweep = config.getDouble("dubMasterVolumeInstrumentTypeSweep");
-      eventNamesLarge = requireAtLeastOne("eventNamesLarge", config.getStringList("eventNamesLarge").stream().map(Text::toMeme).toList());
-      eventNamesMedium = requireAtLeastOne("eventNamesMedium", config.getStringList("eventNamesMedium").stream().map(Text::toMeme).toList());
-      eventNamesSmall = requireAtLeastOne("eventNamesSmall", config.getStringList("eventNamesSmall").stream().map(Text::toMeme).toList());
+      eventNamesLarge = requireAtLeastOne("eventNamesLarge", config.getStringList("eventNamesLarge").stream().map(StringUtils::toMeme).toList());
+      eventNamesMedium = requireAtLeastOne("eventNamesMedium", config.getStringList("eventNamesMedium").stream().map(StringUtils::toMeme).toList());
+      eventNamesSmall = requireAtLeastOne("eventNamesSmall", config.getStringList("eventNamesSmall").stream().map(StringUtils::toMeme).toList());
       instrumentTypesForAudioLengthFinalization = requireAtLeastOne("instrumentTypesForAudioLengthFinalization", config.getStringList("instrumentTypesForAudioLengthFinalization").stream().map(InstrumentType::valueOf).toList());
       instrumentTypesForInversionSeeking = requireAtLeastOne("instrumentTypesForInversionSeeking", config.getStringList("instrumentTypesForInversionSeeking").stream().map(InstrumentType::valueOf).toList());
       mainProgramLengthMaxDelta = config.getInt("mainProgramLengthMaxDelta");
@@ -260,7 +259,7 @@ public class TemplateConfig {
   @SuppressWarnings("DuplicatedCode")
   @Override
   public String toString() {
-    Map<String, String> config = Maps.newHashMap();
+    Map<String, String> config = new HashMap<>();
     config.put("backgroundLayerMax", String.valueOf(backgroundLayerMax));
     config.put("backgroundLayerMin", String.valueOf(backgroundLayerMin));
     config.put("bufferAheadSeconds", String.valueOf(bufferAheadSeconds));
@@ -310,7 +309,7 @@ public class TemplateConfig {
     config.put("mixerNormalizationBoostThreshold", String.valueOf(mixerNormalizationBoostThreshold));
     config.put("mixerNormalizationCeiling", String.valueOf(mixerNormalizationCeiling));
     config.put("outputChannels", String.valueOf(outputChannels));
-    config.put("outputEncoding", Text.doubleQuoted(outputEncoding.toString()));
+    config.put("outputEncoding", StringUtils.doubleQuoted(outputEncoding.toString()));
     config.put("outputFrameRate", String.valueOf(outputFrameRate));
     config.put("outputSampleBits", String.valueOf(outputSampleBits));
     config.put("percLoopLayerMax", String.valueOf(percLoopLayerMax));
@@ -320,11 +319,11 @@ public class TemplateConfig {
     config.put("transitionLayerMin", String.valueOf(transitionLayerMin));
     config.put("vmResourceLimitCpu", String.valueOf(vmResourceLimitCpu));
     config.put("vmResourceLimitMemoryGb", String.valueOf(vmResourceLimitMemoryGb));
-    return Text.formatMultiline(config.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(pair -> String.format("%s = %s", pair.getKey(), pair.getValue())).toArray());
+    return StringUtils.formatMultiline(config.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(pair -> String.format("%s = %s", pair.getKey(), pair.getValue())).toArray());
   }
 
   String computeStringValueMemeTaxonomy() {
-    return String.format("[%s\n  ]", memeTaxonomy.getCategories().stream().map(category -> String.format("\n    {\n      \"memes\":[%s],\n      \"name\":%s\n    }", category.getMemes().stream().map(Text::doubleQuoted).collect(Collectors.joining(",")), Text.doubleQuoted(category.getName()))).collect(Collectors.joining(",")));
+    return String.format("[%s\n  ]", memeTaxonomy.getCategories().stream().map(category -> String.format("\n    {\n      \"memes\":[%s],\n      \"name\":%s\n    }", category.getMemes().stream().map(StringUtils::doubleQuoted).collect(Collectors.joining(",")), StringUtils.doubleQuoted(category.getName()))).collect(Collectors.joining(",")));
   }
 
   /**
@@ -334,7 +333,7 @@ public class TemplateConfig {
    * @return typesafe array of quoted values
    */
   <N> String formatTypesafeQuoted(List<N> values) {
-    return String.format("[%s]", values.stream().map(N::toString).map(Text::doubleQuoted).collect(Collectors.joining(",")));
+    return String.format("[%s]", values.stream().map(N::toString).map(StringUtils::doubleQuoted).collect(Collectors.joining(",")));
   }
 
   /**

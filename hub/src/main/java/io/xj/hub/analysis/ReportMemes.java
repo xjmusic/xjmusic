@@ -1,13 +1,18 @@
 package io.xj.hub.analysis;
 
-import com.google.common.collect.Maps;
-import com.google.api.client.util.Sets;
 import io.xj.hub.client.HubContent;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Program;
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -65,17 +70,17 @@ public class ReportMemes extends Report {
     Map<String, MemeCount> histogram;
 
     public MemeHistogram() {
-      histogram = Maps.newHashMap();
+      histogram = new HashMap<>();
     }
 
     public void addInstrumentId(String raw, UUID instrumentId) {
-      var name = Text.toMeme(raw);
+      var name = StringUtils.toMeme(raw);
       if (!histogram.containsKey(name)) histogram.put(name, new MemeCount());
       histogram.get(name).addInstrumentId(instrumentId);
     }
 
     public void addProgramId(String raw, UUID programId) {
-      var name = Text.toMeme(raw);
+      var name = StringUtils.toMeme(raw);
       if (!histogram.containsKey(name)) histogram.put(name, new MemeCount());
       histogram.get(name).addProgramId(programId);
     }
@@ -91,8 +96,8 @@ public class ReportMemes extends Report {
 
     public MemeCount() {
       total = 0;
-      programIds = Sets.newHashSet();
-      instrumentIds = Sets.newHashSet();
+      programIds = new HashSet<>();
+      instrumentIds = new HashSet<>();
     }
 
     public void addInstrumentId(UUID instrumentId) {

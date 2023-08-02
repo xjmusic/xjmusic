@@ -288,7 +288,6 @@ public class MixerConfig {
   }
 
 
-
   /**
    * @return the total number of buses
    */
@@ -327,18 +326,18 @@ public class MixerConfig {
 
   public String toString() {
     return "MixerConfig{" +
-        "outputFormat=" + outputFormat +
-        ", compressToAmplitude=" + compressToAmplitude +
-        ", compressAheadSeconds=" + compressAheadSeconds +
-        ", compressDecaySeconds=" + compressDecaySeconds +
-        ", compressRatioMax=" + compressRatioMax +
-        ", compressRatioMin=" + compressRatioMin +
-        ", normalizationCeiling=" + normalizationCeiling +
-        ", normalizationBoostThreshold=" + normalizationBoostThreshold +
-        ", dspBufferSize=" + dspBufferSize +
-        ", highpassThresholdHz=" + highpassThresholdHz +
-        ", lowpassThresholdHz=" + lowpassThresholdHz +
-        ", logPrefix='" + logPrefix + '\'' +
-        '}';
+      "outputFormat=" + outputFormat +
+      ", compressToAmplitude=" + compressToAmplitude +
+      ", compressAheadSeconds=" + compressAheadSeconds +
+      ", compressDecaySeconds=" + compressDecaySeconds +
+      ", compressRatioMax=" + compressRatioMax +
+      ", compressRatioMin=" + compressRatioMin +
+      ", normalizationCeiling=" + normalizationCeiling +
+      ", normalizationBoostThreshold=" + normalizationBoostThreshold +
+      ", dspBufferSize=" + dspBufferSize +
+      ", highpassThresholdHz=" + highpassThresholdHz +
+      ", lowpassThresholdHz=" + lowpassThresholdHz +
+      ", logPrefix='" + logPrefix + '\'' +
+      '}';
   }
 }

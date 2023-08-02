@@ -2,10 +2,8 @@
 
 package io.xj.lib.entity;
 
-import com.google.common.base.CaseFormat;
-import com.google.common.collect.Lists;
 import io.xj.lib.util.CSV;
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -14,7 +12,17 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -77,47 +85,28 @@ public enum Entities {
 
       Class<?> type = setter.getParameterTypes()[0];
       switch (getSimpleName(type).toLowerCase()) {
-
-        case "biginteger":
-          setter.invoke(target, new BigInteger(String.valueOf(value)));
-          break;
-
-        case "uuid":
-          setter.invoke(target, UUID.fromString(String.valueOf(value)));
-          break;
-
-        case "short":
-          setter.invoke(target, Short.valueOf(String.valueOf(value)));
-          break;
-
-        case "integer":
-        case "int":
-          setter.invoke(target, Integer.valueOf(String.valueOf(value)));
-          break;
-
-        case "long":
-          setter.invoke(target, Long.valueOf(String.valueOf(value)));
-          break;
-
-        case "instant":
+        case "biginteger" -> setter.invoke(target, new BigInteger(String.valueOf(value)));
+        case "uuid" -> setter.invoke(target, UUID.fromString(String.valueOf(value)));
+        case "short" -> setter.invoke(target, Short.valueOf(String.valueOf(value)));
+        case "integer", "int" -> setter.invoke(target, Integer.valueOf(String.valueOf(value)));
+        case "long" -> setter.invoke(target, Long.valueOf(String.valueOf(value)));
+        case "instant" -> {
           if (value.getClass().isAssignableFrom(Instant.class))
             setter.invoke(target, value);
           else if (value.getClass().isAssignableFrom(Timestamp.class))
             setter.invoke(target, ((Timestamp) value).toInstant());
           else
             setter.invoke(target, Instant.parse(String.valueOf(value)));
-          break;
-
-        case "timestamp":
+        }
+        case "timestamp" -> {
           if (value.getClass().isAssignableFrom(Timestamp.class))
             setter.invoke(target, value);
           else if (value.getClass().isAssignableFrom(Instant.class))
             setter.invoke(target, Timestamp.from((Instant) value));
           else
             setter.invoke(target, Timestamp.from(Instant.parse(String.valueOf(value))));
-          break;
-
-        case "date":
+        }
+        case "date" -> {
           if (value.getClass().isAssignableFrom(Date.class))
             setter.invoke(target, value);
           else if (value.getClass().isAssignableFrom(Instant.class))
@@ -126,9 +115,8 @@ public enum Entities {
             setter.invoke(target, Date.from(((Timestamp) value).toInstant()));
           else
             setter.invoke(target, Date.from(Instant.parse(String.valueOf(value))));
-          break;
-
-        case "localdatetime":
+        }
+        case "localdatetime" -> {
           if (value.getClass().isAssignableFrom(LocalDateTime.class))
             setter.invoke(target, value);
           else if (value.getClass().isAssignableFrom(Instant.class))
@@ -137,28 +125,18 @@ public enum Entities {
             setter.invoke(target, LocalDateTime.from(((Timestamp) value).toInstant()));
           else
             setter.invoke(target, LocalDateTime.parse(String.valueOf(value)));
-          break;
-
-        case "double":
-          setter.invoke(target, Double.valueOf(String.valueOf(value)));
-          break;
-
-        case "float":
-          setter.invoke(target, Float.valueOf(String.valueOf(value)));
-          break;
-
-        case "boolean":
-          setter.invoke(target, Boolean.valueOf(String.valueOf(value)));
-          break;
-
-        default:
+        }
+        case "double" -> setter.invoke(target, Double.valueOf(String.valueOf(value)));
+        case "float" -> setter.invoke(target, Float.valueOf(String.valueOf(value)));
+        case "boolean" -> setter.invoke(target, Boolean.valueOf(String.valueOf(value)));
+        default -> {
           if (type.isAssignableFrom(String.class))
             setter.invoke(target, String.valueOf(value));
           else if (type.isEnum())
             setter.invoke(target, enumValue(type, String.valueOf(value)));
           else
             setter.invoke(target, value);
-          break;
+        }
       }
 
     } catch (InvocationTargetException e) {
@@ -223,12 +201,11 @@ public enum Entities {
    * get Object ID
    *
    * @param target to get id from
-   * @return Object Id
+   * @return Object ID
    */
   public static <N> UUID getId(N target) throws EntityException {
     Optional<Object> id = get(target, ID_KEY);
-    if (id.isEmpty()) return null;
-    return UUID.fromString(String.valueOf(id.get()));
+    return id.map(o -> UUID.fromString(String.valueOf(o))).orElse(null);
   }
 
   /**
@@ -299,7 +276,7 @@ public enum Entities {
    * @return resource type of object
    */
   public static String toResourceType(Class<?> resource) {
-    return toResourceType(Text.getSimpleName(resource));
+    return toResourceType(StringUtils.getSimpleName(resource));
   }
 
   /**
@@ -312,13 +289,13 @@ public enum Entities {
    * @return conformed resource type
    */
   static String toResourceType(String type) {
-    return Text.toPlural(CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, type));
+    return StringUtils.toPlural(StringUtils.camelToKebabCase(type));
   }
 
   /**
    * To a thingId style attribute of an object
    *
-   * @param obj to add Id to
+   * @param obj to add ID to
    * @return id attribute of key
    */
   public static String toIdAttribute(Object obj) {
@@ -328,7 +305,7 @@ public enum Entities {
   /**
    * To a thingId style attribute of an object's class
    *
-   * @param key to add Id to
+   * @param key to add ID to
    * @return id attribute of key
    */
   public static String toIdAttribute(Class<?> key) {
@@ -338,7 +315,7 @@ public enum Entities {
   /**
    * To an thingId style attribute
    *
-   * @param key to add Id to
+   * @param key to add ID to
    * @return id attribute of key
    */
   public static String toIdAttribute(String key) {
@@ -381,7 +358,7 @@ public enum Entities {
    * @return conformed resource belongsTo
    */
   public static String toBelongsTo(String belongsTo) {
-    return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, Text.toSingular(belongsTo));
+    return StringUtils.firstLetterToLowerCase(StringUtils.toSingular(belongsTo));
   }
 
   /**
@@ -395,7 +372,7 @@ public enum Entities {
    * @return conformed resource hasMany
    */
   public static String toBelongsToFromType(String type) {
-    return CaseFormat.LOWER_HYPHEN.to(CaseFormat.LOWER_CAMEL, Text.toSingular(type));
+    return StringUtils.snakeToLowerCamelCase(StringUtils.toSingular(type));
   }
 
   /**
@@ -434,7 +411,7 @@ public enum Entities {
    * @return conformed resource hasMany
    */
   public static String toHasMany(String hasMany) {
-    return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, Text.toPlural(hasMany));
+    return StringUtils.firstLetterToLowerCase(StringUtils.toPlural(hasMany));
   }
 
   /**
@@ -448,7 +425,7 @@ public enum Entities {
    * @return conformed resource hasMany
    */
   public static String toHasManyFromType(String type) {
-    return CaseFormat.LOWER_HYPHEN.to(CaseFormat.LOWER_CAMEL, Text.toPlural(type));
+    return StringUtils.kebabToLowerCamelCase(StringUtils.toPlural(type));
   }
 
   /**
@@ -487,7 +464,7 @@ public enum Entities {
    * @return conformed resource type
    */
   public static String toType(String type) {
-    return Text.toPlural(CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, type));
+    return StringUtils.toPlural(StringUtils.camelToKebabCase(type));
   }
 
   /**
@@ -640,7 +617,7 @@ public enum Entities {
    * @return collection of ids
    */
   public static Collection<UUID> idsFromCSV(String csv) {
-    Collection<UUID> result = Lists.newArrayList();
+    Collection<UUID> result = new ArrayList<>();
 
     if (Objects.nonNull(csv) && !csv.isEmpty()) {
       result = CSV.split(csv).stream().map(UUID::fromString).distinct().collect(Collectors.toList());
@@ -746,5 +723,4 @@ public enum Entities {
   public static String csvOf(Collection<UUID> accountIds) {
     return CSV.join(accountIds.stream().map(UUID::toString).toList());
   }
-
 }

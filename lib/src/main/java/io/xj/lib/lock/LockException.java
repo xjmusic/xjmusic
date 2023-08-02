@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.lock;
 
-import com.google.common.base.Strings;
+import io.xj.lib.util.StringUtils;
 
 import javax.annotation.Nullable;
 
@@ -16,7 +16,7 @@ public class LockException extends Exception {
   }
 
   public LockException(@Nullable String msg, Exception e) {
-    super(String.format("%s%s\n%s", Strings.isNullOrEmpty(msg) ? "" : msg + " ", e.getMessage(), e));
+    super(String.format("%s%s\n%s", StringUtils.isNullOrEmpty(msg) ? "" : msg + " ", e.getMessage(), e));
     setStackTrace(e.getStackTrace());
   }
 

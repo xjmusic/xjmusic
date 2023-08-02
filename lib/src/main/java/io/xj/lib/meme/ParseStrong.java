@@ -8,11 +8,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- Meme Matcher for Strong-Memes
- <p>
- Parse any meme to test if it's valid, and extract its features
- <p>
- Strong-meme like LEMONS! should always favor LEMONS https://www.pivotaltracker.com/story/show/180468772
+ * Meme Matcher for Strong-Memes
+ * <p>
+ * Parse any meme to test if it's valid, and extract its features
+ * <p>
+ * Strong-meme like LEMONS! should always favor LEMONS https://www.pivotaltracker.com/story/show/180468772
  */
 class ParseStrong {
   static final Pattern rgx = Pattern.compile("^(.+)!$");

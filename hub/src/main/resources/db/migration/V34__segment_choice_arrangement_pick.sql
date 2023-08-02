@@ -3,7 +3,7 @@ CREATE TABLE xj.segment_choice_arrangement_pick
 (
   id                                UUID PRIMARY KEY  DEFAULT uuid_generate_v1mc(),
   segment_id                        UUID         NOT NULL REFERENCES xj.segment (id),
-  segment_choice_arrangement_id            UUID         NOT NULL REFERENCES xj.segment_choice_arrangement (id),
+  segment_choice_arrangement_id     UUID         NOT NULL REFERENCES xj.segment_choice_arrangement (id),
   instrument_audio_id               UUID         NOT NULL,
   program_sequence_pattern_event_id UUID         NOT NULL,
   start                             real         not null,

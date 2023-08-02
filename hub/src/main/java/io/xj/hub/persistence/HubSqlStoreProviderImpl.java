@@ -1,9 +1,9 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.persistence;
 
-import com.google.common.base.Strings;
 import com.zaxxer.hikari.HikariDataSource;
 import io.xj.hub.manager.Manager;
+import io.xj.lib.util.StringUtils;
 import org.jooq.DSLContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +36,7 @@ public class HubSqlStoreProviderImpl implements HubSqlStoreProvider {
   ) {
     this.schemas = schemas;
     String url;
-    if (Strings.isNullOrEmpty(gcpCloudSqlInstance)) {
+    if (StringUtils.isNullOrEmpty(gcpCloudSqlInstance)) {
       url = String.format("jdbc:postgresql://%s:%s/%s", postgresHost, postgresPort, postgresDatabase);
       LOG.info("Configured without GCP Cloud SQL instance, using host and port: {}", url);
     } else {

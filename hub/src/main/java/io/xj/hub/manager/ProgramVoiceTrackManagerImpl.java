@@ -2,14 +2,14 @@
 package io.xj.hub.manager;
 
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 import io.xj.lib.util.ValueException;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +17,11 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.UUID;
 
-import static io.xj.hub.Tables.*;
+import static io.xj.hub.Tables.LIBRARY;
+import static io.xj.hub.Tables.PROGRAM;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_PATTERN_EVENT;
+import static io.xj.hub.Tables.PROGRAM_VOICE;
+import static io.xj.hub.Tables.PROGRAM_VOICE_TRACK;
 
 @Service
 public class ProgramVoiceTrackManagerImpl extends HubPersistenceServiceImpl implements ProgramVoiceTrackManager {
@@ -145,11 +149,11 @@ public class ProgramVoiceTrackManagerImpl extends HubPersistenceServiceImpl impl
    */
   public ProgramVoiceTrack validate(ProgramVoiceTrack track) throws ManagerException {
     try {
-      if (Values.isEmpty(track.getOrder())) track.setOrder(DEFAULT_ORDER_VALUE);
-      Values.require(track.getProgramId(), "Program ID");
-      Values.require(track.getProgramVoiceId(), "Voice ID");
-      Values.require(track.getName(), "Name");
-      track.setName(Text.toEvent(track.getName()));
+      if (ValueUtils.isEmpty(track.getOrder())) track.setOrder(DEFAULT_ORDER_VALUE);
+      ValueUtils.require(track.getProgramId(), "Program ID");
+      ValueUtils.require(track.getProgramVoiceId(), "Voice ID");
+      ValueUtils.require(track.getName(), "Name");
+      track.setName(StringUtils.toEvent(track.getName()));
       return track;
 
     } catch (ValueException e) {

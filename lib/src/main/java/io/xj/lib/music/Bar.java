@@ -2,7 +2,7 @@
 
 package io.xj.lib.music;
 
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -22,8 +22,8 @@ public class Bar {
   }
 
   public int computeSubsectionBeats(int totalBeats) {
-    var subDiv = Values.subDiv(totalBeats, beats);
-    var factors = Values.factors(totalBeats, FACTORS_TO_TEST);
+    var subDiv = ValueUtils.subDiv(totalBeats, beats);
+    var factors = ValueUtils.factors(totalBeats, FACTORS_TO_TEST);
     var minFactor = Arrays.stream(factors).min().orElse(1);
     return Math.min(totalBeats, Math.max(beats * minFactor, beats * subDiv));
   }

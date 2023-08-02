@@ -1,8 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.fabricator;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.ImmutableList;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
@@ -29,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -51,7 +50,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   ) throws NexusException, FabricationFatalException {
     this.retroStore = new EntityStoreImpl();
 
-    segmentChords = Maps.newHashMap();
+    segmentChords = new HashMap<>();
 
     // begin by getting the previous segment
     // only can build retrospective if there is at least one previous segment
@@ -62,7 +61,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
       // the previous segment is the first one cached here. we may cache even further back segments below if found
       previousSegment = retroStore.put(segmentManager.readOneAtChainOffset(segment.getChainId(), segment.getOffset() - 1)
         .orElseThrow(() -> new ManagerExistenceException("No previous segment!")));
-      retroStore.putAll(segmentManager.readManySubEntities(ImmutableList.of(previousSegment.getId()), true));
+      retroStore.putAll(segmentManager.readManySubEntities(List.of(previousSegment.getId()), true));
 
       // previous segment must have a main choice to continue past here.
       SegmentChoice previousSegmentMainChoice = retroStore.getAll(SegmentChoice.class).stream()

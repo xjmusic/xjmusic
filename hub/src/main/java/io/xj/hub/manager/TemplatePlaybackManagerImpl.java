@@ -12,7 +12,7 @@ import io.xj.hub.tables.pojos.TemplatePlayback;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.slf4j.Logger;
@@ -268,7 +268,8 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl imple
    * @param id     to read
    * @return record
    */
-  @Nullable TemplatePlayback readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
+  @Nullable
+  TemplatePlayback readOne(DSLContext db, HubAccess access, UUID id) throws ManagerException {
     @Nullable Record playback;
     if (access.isTopLevel())
       try (var selectTemplatePlayback = db.selectFrom(TEMPLATE_PLAYBACK)) {
@@ -299,8 +300,8 @@ public class TemplatePlaybackManagerImpl extends HubPersistenceServiceImpl imple
    */
   public TemplatePlayback validate(TemplatePlayback builder) throws ManagerException {
     try {
-      Values.require(builder.getTemplateId(), "Template ID");
-      Values.require(builder.getUserId(), "User ID");
+      ValueUtils.require(builder.getTemplateId(), "Template ID");
+      ValueUtils.require(builder.getUserId(), "User ID");
 
       return builder;
 

@@ -1,8 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.access;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import io.xj.hub.enums.UserRoleType;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityFactoryImpl;
@@ -14,24 +13,17 @@ import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.lib.notification.NotificationProvider;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -86,7 +78,7 @@ public class HubAccessTest {
     var accountId = UUID.randomUUID();
     HubAccess access = HubAccess.create("User,Artist")
       .setUserId(userId)
-      .setAccountIds(ImmutableList.of(accountId));
+      .setAccountIds(List.of(accountId));
 
     assertEquals(String.format("{\"roleTypes\":[\"User\",\"Artist\"],\"accountIds\":[\"%s\"],\"userId\":\"%s\"}", accountId, userId), payloadFactory.serialize(access));
   }
@@ -97,9 +89,14 @@ public class HubAccessTest {
     UUID id2 = UUID.randomUUID();
     UUID id3 = UUID.randomUUID();
     HubAccess access = new HubAccess()
-      .setAccountIds(ImmutableSet.of(id1, id2, id3));
+      .setAccountIds(Set.of(id1, id2, id3));
 
-    assertArrayEquals(new UUID[]{id1, id2, id3}, access.getAccountIds().toArray());
+    var result = access.getAccountIds();
+
+    assertEquals(3, result.size());
+    assertTrue(result.contains(id1));
+    assertTrue(result.contains(id2));
+    assertTrue(result.contains(id3));
   }
 
   @Test
@@ -121,7 +118,7 @@ public class HubAccessTest {
     HubAccess access = HubAccess.create("User,Artist")
       .setUserId(UUID.randomUUID())
       .setUserAuthId(UUID.randomUUID())
-      .setAccountIds(ImmutableList.of(UUID.randomUUID()));
+      .setAccountIds(List.of(UUID.randomUUID()));
 
     assertTrue(access.isValid());
   }
@@ -143,7 +140,7 @@ public class HubAccessTest {
     HubAccess access = new HubAccess()
       .setUserId(UUID.randomUUID())
       .setUserAuthId(UUID.randomUUID())
-      .setAccountIds(ImmutableList.of(UUID.randomUUID()));
+      .setAccountIds(List.of(UUID.randomUUID()));
 
     assertFalse(access.isValid());
   }

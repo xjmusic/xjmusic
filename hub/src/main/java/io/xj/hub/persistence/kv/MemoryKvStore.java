@@ -2,17 +2,16 @@
 
 package io.xj.hub.persistence.kv;
 
-import com.google.common.collect.Maps;
-
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MemoryKvStore implements KvStore {
   final Map<String, String> store;
 
   public MemoryKvStore() {
-    store = Maps.newConcurrentMap();
+    store = new ConcurrentHashMap<>();
   }
 
   @Override

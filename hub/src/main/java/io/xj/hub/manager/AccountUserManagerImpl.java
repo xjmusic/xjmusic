@@ -2,13 +2,13 @@
 package io.xj.hub.manager;
 
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.AccountUser;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -102,15 +102,15 @@ public class AccountUserManagerImpl extends HubPersistenceServiceImpl implements
 
 
   /**
-   Validate data
-
-   @param record to validate
-   @throws ManagerException if invalid
+   * Validate data
+   *
+   * @param record to validate
+   * @throws ManagerException if invalid
    */
   public void validate(AccountUser record) throws ManagerException {
     try {
-      Values.require(record.getAccountId(), "Account ID");
-      Values.require(record.getUserId(), "User ID");
+      ValueUtils.require(record.getAccountId(), "Account ID");
+      ValueUtils.require(record.getUserId(), "User ID");
 
     } catch (ValueException e) {
       throw new ManagerException(e);

@@ -1,8 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.entity;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import io.xj.lib.Superwidget;
 import io.xj.lib.Widget;
 import io.xj.lib.json.JsonProviderImpl;
@@ -16,7 +15,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests for text utilities
@@ -191,7 +194,7 @@ public class EntitiesTest extends TestTemplate {
   @Test
   public void csvIdsOf() {
     assertEquals("4872f737-3526-4532-bb9f-358e3503db7e,333d6284-d7b9-4654-b79c-cafaf9330b6a",
-      Entities.csvIdsOf(ImmutableList.of(
+      Entities.csvIdsOf(List.of(
         new Widget().setId(UUID.fromString("4872f737-3526-4532-bb9f-358e3503db7e")),
         new Widget().setId(UUID.fromString("333d6284-d7b9-4654-b79c-cafaf9330b6a"))
       )));
@@ -199,11 +202,11 @@ public class EntitiesTest extends TestTemplate {
 
   @Test
   public void idsOf() {
-    assertEquals(ImmutableSet.of(
+    assertEquals(Set.of(
         UUID.fromString("4872f737-3526-4532-bb9f-358e3503db7e"),
         UUID.fromString("333d6284-d7b9-4654-b79c-cafaf9330b6a")
       ),
-      Entities.idsOf(ImmutableList.of(
+      Entities.idsOf(List.of(
         new Widget().setId(UUID.fromString("4872f737-3526-4532-bb9f-358e3503db7e")),
         new Widget().setId(UUID.fromString("333d6284-d7b9-4654-b79c-cafaf9330b6a"))
       )));
@@ -212,7 +215,7 @@ public class EntitiesTest extends TestTemplate {
   @Test
   public void csvOf() {
     assertEquals("4872f737-3526-4532-bb9f-358e3503db7e, 333d6284-d7b9-4654-b79c-cafaf9330b6a",
-      Entities.csvOf(ImmutableList.of(
+      Entities.csvOf(List.of(
         UUID.fromString("4872f737-3526-4532-bb9f-358e3503db7e"),
         UUID.fromString("333d6284-d7b9-4654-b79c-cafaf9330b6a")
       )));
@@ -221,7 +224,7 @@ public class EntitiesTest extends TestTemplate {
   @Test
   public void idsFromCSV() {
     assertEquals(
-      ImmutableList.of(
+      List.of(
         UUID.fromString("4872f737-3526-4532-bb9f-358e3503db7e"),
         UUID.fromString("333d6284-d7b9-4654-b79c-cafaf9330b6a")
       ),
@@ -250,7 +253,7 @@ public class EntitiesTest extends TestTemplate {
   @Test
   public void flatMapIds() {
     List<UUID> result =
-      ImmutableList.of(
+      List.of(
           new Widget().setId(UUID.fromString("4872f737-3526-4532-bb9f-358e3503db7e")),
           new Widget().setId(UUID.fromString("333d6284-d7b9-4654-b79c-cafaf9330b6a")),
           new Widget().setId(UUID.fromString("e23fb542-b0fc-4773-9848-772f64cbc5a4"))
@@ -259,7 +262,7 @@ public class EntitiesTest extends TestTemplate {
         .collect(Collectors.toList());
 
     assertEquals(
-      ImmutableList.of(
+      List.of(
         UUID.fromString("4872f737-3526-4532-bb9f-358e3503db7e"),
         UUID.fromString("333d6284-d7b9-4654-b79c-cafaf9330b6a"),
         UUID.fromString("e23fb542-b0fc-4773-9848-772f64cbc5a4")
@@ -269,14 +272,14 @@ public class EntitiesTest extends TestTemplate {
   @Test
   public void namesOf() {
     Collection<String> result =
-      Entities.namesOf(ImmutableList.of(
+      Entities.namesOf(List.of(
         new Widget().setName("Apples"),
         new Widget().setName("Bananas"),
         new Superwidget().setName("Chips")
       ));
 
     assertEquals(
-      ImmutableList.of(
+      List.of(
         "Apples",
         "Bananas",
         "Chips"

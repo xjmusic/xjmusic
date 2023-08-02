@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.service;
 
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 
 public class ServiceException extends Exception {
 
@@ -14,6 +14,6 @@ public class ServiceException extends Exception {
   }
 
   public ServiceException(Throwable targetException) {
-    super(String.format("%s\n%s", targetException.getMessage(), Text.formatStackTrace(targetException)));
+    super(String.format("%s\n%s", targetException.getMessage(), StringUtils.formatStackTrace(targetException)));
   }
 }

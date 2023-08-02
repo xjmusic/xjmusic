@@ -1,9 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.craft.beat;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Streams;
 import io.xj.hub.HubTopology;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.client.HubClient;
@@ -49,8 +46,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
@@ -97,9 +97,9 @@ public class CraftBeatProgramVoiceNextMacroTest {
 
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
-    sourceMaterial = new HubContent(Streams.concat(
-      fake.setupFixtureB1().stream(),
-      fake.setupFixtureB2().stream(),
+    sourceMaterial = new HubContent(Stream.concat(
+      Stream.concat(fake.setupFixtureB1().stream(),
+        fake.setupFixtureB2().stream()),
       customFixtures().stream()
     ).collect(Collectors.toList()));
 
@@ -137,7 +137,7 @@ public class CraftBeatProgramVoiceNextMacroTest {
    * @return list of all entities
    */
   Collection<Object> customFixtures() {
-    Collection<Object> entities = Lists.newArrayList();
+    Collection<Object> entities = new ArrayList<>();
 
     // Instrument "808"
     Instrument instrument1 = Entities.add(entities, IntegrationTestingFixtures.buildInstrument(fake.library2, InstrumentType.Drum, InstrumentMode.Event, InstrumentState.Published, "808 Drums"));
@@ -247,7 +247,7 @@ public class CraftBeatProgramVoiceNextMacroTest {
       Segments.DELTA_UNLIMITED,
       fake.program15,
       fake.program15_sequence0_binding0));
-    for (String memeName : ImmutableList.of("Hindsight", "Chunky", "Regret", "Tangy"))
+    for (String memeName : List.of("Hindsight", "Chunky", "Regret", "Tangy"))
       store.put(buildSegmentMeme(segment4, memeName));
     store.put(buildSegmentChord(segment4, 0.0, "F minor"));
     store.put(buildSegmentChord(segment4, 8.0, "Gb minor"));

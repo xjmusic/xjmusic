@@ -1,9 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.craft.background;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Streams;
 import io.xj.hub.HubTopology;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.client.HubClient;
@@ -47,8 +44,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
@@ -93,9 +93,9 @@ public class CraftBackgroundProgramVoiceContinueTest {
 
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
-    sourceMaterial = new HubContent(Streams.concat(
-      fake.setupFixtureB1().stream(),
-      fake.setupFixtureB2().stream(),
+    sourceMaterial = new HubContent(Stream.concat(
+      Stream.concat(fake.setupFixtureB1().stream(),
+        fake.setupFixtureB2().stream()),
       customFixtures().stream()
     ).collect(Collectors.toList()));
 
@@ -132,7 +132,7 @@ public class CraftBackgroundProgramVoiceContinueTest {
    * @return list of all entities
    */
   Collection<Object> customFixtures() {
-    Collection<Object> entities = Lists.newArrayList();
+    Collection<Object> entities = new ArrayList<>();
 
     // Instrument "808"
     Instrument instrument1 = Entities.add(entities, IntegrationTestingFixtures.buildInstrument(fake.library2, InstrumentType.Noise, InstrumentMode.Background, InstrumentState.Published, "Bongo Loop"));
@@ -212,7 +212,7 @@ public class CraftBackgroundProgramVoiceContinueTest {
       Segments.DELTA_UNLIMITED,
       fake.program5,
       fake.program5_sequence1_binding0));
-    for (String memeName : ImmutableList.of("Cozy", "Classic", "Outlook", "Rosy"))
+    for (String memeName : List.of("Cozy", "Classic", "Outlook", "Rosy"))
       store.put(buildSegmentMeme(segment4, memeName));
     store.put(buildSegmentChord(segment4, 0.0, "A minor"));
     store.put(buildSegmentChord(segment4, 8.0, "D Major"));

@@ -1,8 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.manager;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import io.xj.hub.HubIntegrationTest;
 import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
@@ -25,6 +24,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -113,7 +113,7 @@ public class ProgramSequencePatternManagerDbTest {
 
   @Test
   public void create() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
     var subject = new ProgramSequencePattern();
     subject.setId(UUID.randomUUID());
     subject.setTotal((short) 4);
@@ -137,7 +137,7 @@ public class ProgramSequencePatternManagerDbTest {
    */
   @Test
   public void cloneExisting() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
     var input = new ProgramSequencePattern();
     input.setId(UUID.randomUUID());
     input.setTotal((short) 4);
@@ -151,7 +151,7 @@ public class ProgramSequencePatternManagerDbTest {
     assertNotNull(result);
     assertEquals(2, result.getChildClones().size());
     assertEquals(2, Objects.requireNonNull(new ProgramSequencePatternEventManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider())
-        .readMany(HubAccess.internal(), ImmutableSet.of(result.getClone().getId())))
+        .readMany(HubAccess.internal(), Set.of(result.getClone().getId())))
       .size());
   }
 
@@ -163,7 +163,7 @@ public class ProgramSequencePatternManagerDbTest {
    */
   @Test
   public void cloneExisting_allModifications() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
     var input = new ProgramSequencePattern();
     input.setProgramId(fake.program3.getId());
     input.setProgramVoiceId(programVoice3.getId());
@@ -186,7 +186,7 @@ public class ProgramSequencePatternManagerDbTest {
    */
   @Test
   public void cloneExisting_noModifications() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
     var input = new ProgramSequencePattern();
 
     ManagerCloner<ProgramSequencePattern> result = subjectManager.clone(access, fake.program2_sequence1_pattern1.getId(), input);
@@ -205,7 +205,7 @@ public class ProgramSequencePatternManagerDbTest {
    */
   @Test
   public void create_asArtist() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
     var inputData = new ProgramSequencePattern();
     inputData.setId(UUID.randomUUID());
     inputData.setTotal((short) 4);
@@ -225,7 +225,7 @@ public class ProgramSequencePatternManagerDbTest {
 
   @Test
   public void readOne() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User, Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "User, Artist");
 
     var result = subjectManager.readOne(access, fake.program2_sequence1_pattern1.getId());
 
@@ -237,7 +237,7 @@ public class ProgramSequencePatternManagerDbTest {
 
   @Test
   public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "User, Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(buildAccount("Testing")), "User, Artist");
 
     var e = assertThrows(ManagerException.class, () -> subjectManager.readOne(access, fake.program2_sequence1_pattern1.getId()));
     assertTrue(e.getMessage().contains("does not exist"));
@@ -247,9 +247,9 @@ public class ProgramSequencePatternManagerDbTest {
 
   @Test
   public void readMany() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Admin");
 
-    Collection<ProgramSequencePattern> result = subjectManager.readMany(access, ImmutableList.of(fake.program1_sequence1.getId()));
+    Collection<ProgramSequencePattern> result = subjectManager.readMany(access, List.of(fake.program1_sequence1.getId()));
 
     assertEquals(1L, result.size());
     Iterator<ProgramSequencePattern> resultIt = result.iterator();
@@ -258,9 +258,9 @@ public class ProgramSequencePatternManagerDbTest {
 
   @Test
   public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "User, Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(buildAccount("Testing")), "User, Artist");
 
-    Collection<ProgramSequencePattern> result = subjectManager.readMany(access, ImmutableList.of(fake.program3_sequence1.getId()));
+    Collection<ProgramSequencePattern> result = subjectManager.readMany(access, List.of(fake.program3_sequence1.getId()));
 
     assertEquals(0L, result.size());
   }
@@ -278,7 +278,7 @@ public class ProgramSequencePatternManagerDbTest {
 
   @Test
   public void destroy_asArtist() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Artist");
     new ProgramSequencePatternEventManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider()).destroy(HubAccess.internal(), fake.program2_sequence1_pattern1_event0.getId());
     new ProgramSequencePatternEventManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider()).destroy(HubAccess.internal(), fake.program2_sequence1_pattern1_event1.getId());
 
@@ -295,7 +295,7 @@ public class ProgramSequencePatternManagerDbTest {
   @Test
   public void destroy_failsIfNotInAccount() throws Exception {
     fake.account2 = buildAccount("Testing");
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account2), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account2), "Artist");
     new ProgramSequencePatternEventManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider()).destroy(HubAccess.internal(), fake.program2_sequence1_pattern1_event0.getId());
     new ProgramSequencePatternEventManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider()).destroy(HubAccess.internal(), fake.program2_sequence1_pattern1_event1.getId());
 

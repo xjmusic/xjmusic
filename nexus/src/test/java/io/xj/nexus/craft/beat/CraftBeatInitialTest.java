@@ -1,8 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.craft.beat;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Streams;
 import io.xj.hub.HubTopology;
 import io.xj.hub.client.HubClient;
 import io.xj.hub.client.HubContent;
@@ -40,7 +38,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
@@ -82,9 +82,9 @@ public class CraftBeatInitialTest {
 
     // Mock request via HubClient returns fake generated library of hub content
     NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();
-    sourceMaterial = new HubContent(Streams.concat(
-      fake.setupFixtureB1().stream(),
-      fake.setupFixtureB2().stream(),
+    sourceMaterial = new HubContent(Stream.concat(
+      Stream.concat(fake.setupFixtureB1().stream(),
+        fake.setupFixtureB2().stream()),
       fake.setupFixtureB3().stream()
     ).collect(Collectors.toList()));
 
@@ -121,7 +121,7 @@ public class CraftBeatInitialTest {
       Segments.DELTA_UNLIMITED,
       fake.program5,
       fake.program5_sequence0_binding0));
-    for (String memeName : ImmutableList.of("Special", "Wild", "Pessimism", "Outlook"))
+    for (String memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
       store.put(NexusIntegrationTestingFixtures.buildSegmentMeme(segment6, memeName));
 
     store.put(NexusIntegrationTestingFixtures.buildSegmentChord(segment6, 0.0, "C minor"));

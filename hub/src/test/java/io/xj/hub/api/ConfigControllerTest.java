@@ -51,7 +51,7 @@ public class ConfigControllerTest {
     HubTopology.buildHubApiTopology(entityFactory);
     var payloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     subject = new ConfigController(sqlStoreProvider, responseProvider, payloadFactory, entityFactory,
-      "","","","","");
+      "", "", "", "", "");
   }
 
   /**

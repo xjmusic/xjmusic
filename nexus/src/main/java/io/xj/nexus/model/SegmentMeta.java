@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
+ * Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
  */
 public class SegmentMeta {
 
@@ -124,8 +124,8 @@ public class SegmentMeta {
   }
 
   /**
-   Convert the given object to string with each line indented by 4 spaces
-   (except the first line).
+   * Convert the given object to string with each line indented by 4 spaces
+   * (except the first line).
    */
   String toIndentedString(Object o) {
     if (o == null) {

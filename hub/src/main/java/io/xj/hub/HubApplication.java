@@ -1,13 +1,13 @@
 package io.xj.hub;
 
 import ch.qos.logback.classic.LoggerContext;
-import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubMigration;
 import io.xj.hub.persistence.HubPersistenceException;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.kv.HubKvStoreProvider;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +69,7 @@ public class HubApplication {
       hubMigration.migrate();
     } catch (HubPersistenceException e) {
       String platformRelease = platformEnvironment;
-      System.out.printf("Migrations failed! HubApp %s will not start. %s: %s\n%s%n", platformRelease, e.getClass().getSimpleName(), e.getMessage(), Text.formatStackTrace(e));
+      System.out.printf("Migrations failed! HubApp %s will not start. %s: %s\n%s%n", platformRelease, e.getClass().getSimpleName(), e.getMessage(), StringUtils.formatStackTrace(e));
       System.exit(1);
     }
 

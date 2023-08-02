@@ -1,22 +1,22 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub;
 
-import com.google.common.collect.ImmutableList;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.manager.Manager;
 import io.xj.hub.manager.ManagerException;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.JsonapiResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.JsonapiResponseProvider;
 import io.xj.lib.jsonapi.PayloadDataType;
 import org.springframework.http.ResponseEntity;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -132,7 +132,7 @@ public class HubJsonapiEndpoint extends HubPersistenceServiceImpl {
   public <N> ResponseEntity<JsonapiPayload> readMany(HttpServletRequest req, Manager<N> manager, UUID parentId) {
     if (Objects.isNull(parentId)) return responseProvider.notAcceptable("parent id is required");
 
-    return readMany(req, manager, ImmutableList.of(parentId));
+    return readMany(req, manager, List.of(parentId));
   }
 
   /**

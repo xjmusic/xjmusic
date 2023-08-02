@@ -2,7 +2,6 @@
 
 package io.xj.nexus.craft.macro_main;
 
-import com.google.common.collect.ImmutableList;
 import io.xj.hub.HubTopology;
 import io.xj.hub.client.HubClient;
 import io.xj.hub.client.HubContent;
@@ -39,6 +38,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.List;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
@@ -130,7 +131,7 @@ public class MacroFromOverlappingMemeSequencesTest {
     var macro2b_sequenceA_binding = buildBinding(macro2b_sequenceA, 0);
     var macro2b_sequenceA_bindingMeme = buildMeme(macro2b_sequenceA_binding, "Purple");
 
-    HubContent sourceMaterial = new HubContent(ImmutableList.of(
+    HubContent sourceMaterial = new HubContent(List.of(
       account1,
       library2,
       user2,

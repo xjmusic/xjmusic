@@ -2,8 +2,6 @@
 
 package io.xj.hub;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import io.xj.hub.access.GoogleProvider;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessTokenGenerator;
@@ -19,6 +17,7 @@ import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiResponseProvider;
+import io.xj.lib.util.CollectionUtils;
 import org.jooq.DSLContext;
 import org.jooq.Table;
 import org.slf4j.Logger;
@@ -99,12 +98,7 @@ public class HubIntegrationTest extends HubPersistenceServiceImpl {
    * Runs on program exit
    */
   public void shutdown() {
-//    try {
-//      sqlStoreProvider.shutdown();
-//    } catch (Exception e) {
-//      log.error("Failed to shutdown SQL connection", e);
-//    }
-//    log.debug("Did close master connection to integration database.");
+    // no op
   }
 
   /**
@@ -112,7 +106,7 @@ public class HubIntegrationTest extends HubPersistenceServiceImpl {
    */
   public void reset() throws HubException {
     try {
-      for (Table<?> table : Lists.reverse(ImmutableList.copyOf(tablesInSchemaConstructionOrder.values())))
+      for (Table<?> table : CollectionUtils.reverse(tablesInSchemaConstructionOrder.stream().map(ClassSchemaPair::table).toList()))
         reset(table);
 
       // Finally, all sessions
@@ -168,10 +162,6 @@ public class HubIntegrationTest extends HubPersistenceServiceImpl {
     return entityFactory;
   }
 
-  public EntityStore getEntityStore() {
-    return entityStore;
-  }
-
   public GoogleProvider getGoogleProvider() {
     return googleProvider;
   }
@@ -220,6 +210,7 @@ public class HubIntegrationTest extends HubPersistenceServiceImpl {
     // no op
     return entity;
   }
+
   public ApiUrlProvider getApiUrlProvider() {
     return apiUrlProvider;
   }

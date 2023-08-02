@@ -4,7 +4,7 @@ package io.xj.lib.entity.common;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.util.ValueException;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 
 public abstract class EventEntity {
   Double duration;
@@ -13,36 +13,36 @@ public abstract class EventEntity {
   Double velocity;
 
   /**
-   Validate presence of required properties of any EventEntity
-
-   @param event to validate
-   @throws ValueException if invalid
+   * Validate presence of required properties of any EventEntity
+   *
+   * @param event to validate
+   * @throws ValueException if invalid
    */
   public static void validate(Object event) throws ValueException {
     try {
-      Values.require(Entities.get(event, "duration"), "Duration");
-      Values.require(Entities.get(event, "tones"), "Tones");
-      Values.require(Entities.get(event, "position"), "Position");
-      Values.require(Entities.get(event, "velocity"), "Velocity");
+      ValueUtils.require(Entities.get(event, "duration"), "Duration");
+      ValueUtils.require(Entities.get(event, "tones"), "Tones");
+      ValueUtils.require(Entities.get(event, "position"), "Position");
+      ValueUtils.require(Entities.get(event, "velocity"), "Velocity");
     } catch (EntityException e) {
       throw new ValueException(e);
     }
   }
 
   /**
-   get Duration
-
-   @return Duration
+   * get Duration
+   *
+   * @return Duration
    */
   public Double getDuration() {
     return duration;
   }
 
   /**
-   set Duration of EventEntity
-
-   @param duration to set
-   @return this EventEntity (for chaining methods)
+   * set Duration of EventEntity
+   *
+   * @param duration to set
+   * @return this EventEntity (for chaining methods)
    */
   public EventEntity setDuration(Double duration) {
     this.duration = duration;
@@ -50,19 +50,19 @@ public abstract class EventEntity {
   }
 
   /**
-   get Note
-
-   @return Note
+   * get Note
+   *
+   * @return Note
    */
   public String getTones() {
     return tones;
   }
 
   /**
-   set Note of EventEntity
-
-   @param tones to set
-   @return this EventEntity (for chaining methods)
+   * set Note of EventEntity
+   *
+   * @param tones to set
+   * @return this EventEntity (for chaining methods)
    */
   public EventEntity setTones(String tones) {
     this.tones = tones;
@@ -70,19 +70,19 @@ public abstract class EventEntity {
   }
 
   /**
-   get Position
-
-   @return Position
+   * get Position
+   *
+   * @return Position
    */
   public Double getPosition() {
     return position;
   }
 
   /**
-   set Position of EventEntity
-
-   @param position to set
-   @return this EventEntity (for chaining methods)
+   * set Position of EventEntity
+   *
+   * @param position to set
+   * @return this EventEntity (for chaining methods)
    */
   public EventEntity setPosition(Double position) {
     this.position = position;
@@ -90,19 +90,19 @@ public abstract class EventEntity {
   }
 
   /**
-   get Velocity
-
-   @return Velocity
+   * get Velocity
+   *
+   * @return Velocity
    */
   public Double getVelocity() {
     return velocity;
   }
 
   /**
-   set Velocity of EventEntity
-
-   @param velocity to set
-   @return this EventEntity (for chaining methods)
+   * set Velocity of EventEntity
+   *
+   * @param velocity to set
+   * @return this EventEntity (for chaining methods)
    */
   public EventEntity setVelocity(Double velocity) {
     this.velocity = velocity;

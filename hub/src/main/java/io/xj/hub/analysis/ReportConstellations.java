@@ -1,8 +1,5 @@
 package io.xj.hub.analysis;
 
-import com.google.common.collect.Maps;
-import com.google.api.client.util.Sets;
-import com.google.common.collect.Streams;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.client.HubClientException;
 import io.xj.hub.client.HubContent;
@@ -15,9 +12,18 @@ import io.xj.lib.meme.MemeConstellation;
 import io.xj.lib.meme.MemeStack;
 import io.xj.lib.meme.MemeTaxonomy;
 import io.xj.lib.util.ValueException;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -51,7 +57,7 @@ public class ReportConstellations extends Report {
     // 3. For each main constellation, compute all possible programs and instruments that might be chosen to fulfill the meme stack and display them all in a table
     beatProgramHistogram = new Histogram();
     detailProgramHistogram = new Histogram();
-    instrumentHistogram = Maps.newHashMap();
+    instrumentHistogram = new HashMap<>();
     for (var mainConstellation : mainHistogram.histogram.keySet()) {
       stack = MemeStack.from(taxonomy, MemeConstellation.toNames(mainConstellation));
       //
@@ -79,18 +85,18 @@ public class ReportConstellations extends Report {
     }
 
     // 4a. Stash all program ids by type
-    programsByType = Maps.newHashMap();
+    programsByType = new HashMap<>();
     for (var program : content.getPrograms()) {
       if (!programsByType.containsKey(program.getType()))
-        programsByType.put(program.getType(), Sets.newHashSet());
+        programsByType.put(program.getType(), new HashSet<>());
       programsByType.get(program.getType()).add(program);
     }
 
     // 4b. Stash all instrument ids by type
-    instrumentsByType = Maps.newHashMap();
+    instrumentsByType = new HashMap<>();
     for (var instrument : content.getInstruments()) {
       if (!instrumentsByType.containsKey(instrument.getType()))
-        instrumentsByType.put(instrument.getType(), Sets.newHashSet());
+        instrumentsByType.put(instrument.getType(), new HashSet<>());
       instrumentsByType.get(instrument.getType()).add(instrument);
     }
   }
@@ -98,14 +104,14 @@ public class ReportConstellations extends Report {
   @SuppressWarnings("DuplicatedCode")
   @Override
   public List<Section> computeSections() {
-    return Streams.concat(
-      Stream.of(
-        sectionTaxonomy(),
-        sectionMacroSummary(),
-        sectionMainSummary(),
-        sectionBeatProgramCoverage()
-      ),
-      instrumentsByType.keySet().parallelStream().map(this::sectionInstrumentCoverage),
+    return Stream.concat(
+      Stream.concat(Stream.of(
+          sectionTaxonomy(),
+          sectionMacroSummary(),
+          sectionMainSummary(),
+          sectionBeatProgramCoverage()
+        ),
+        instrumentsByType.keySet().parallelStream().map(this::sectionInstrumentCoverage)),
       instrumentsByType.keySet().parallelStream().map(this::sectionDetailProgramCoverage)
     ).toList();
   }
@@ -153,8 +159,8 @@ public class ReportConstellations extends Report {
             .sorted(Comparator.comparing(Program::getName))
             .map(this::programRef)
             .collect(Collectors.joining("\n")),
-          Values.emptyZero(beatProgramHistogram.getIds(c.getKey()).size()),
-          Values.emptyZero(detailProgramHistogram.getIds(c.getKey()).size())
+          ValueUtils.emptyZero(beatProgramHistogram.getIds(c.getKey()).size()),
+          ValueUtils.emptyZero(detailProgramHistogram.getIds(c.getKey()).size())
         ))
         .toList(), List.of("Memes", "Main-Programs", "# Beat-Programs", "# Detail-Programs"),
       List.of());
@@ -168,11 +174,11 @@ public class ReportConstellations extends Report {
     return new Section("beat_programs", "Beat-program Coverage",
       mainHistogram.histogram.entrySet().parallelStream()
         .sorted(Map.Entry.comparingByKey())
-        .map(c -> Streams.concat(Stream.of(c.getKey()),
+        .map(c -> Stream.concat(Stream.of(c.getKey()),
           programs.parallelStream().map(program ->
             Section.checkboxValue(beatProgramHistogram.getIds(c.getKey()).contains(program.getId()))
           )).toList())
-        .toList(), Streams.concat(Stream.of("Memes"),
+        .toList(), Stream.concat(Stream.of("Memes"),
       programs.parallelStream().map(this::programRef)).toList(),
       List.of());
   }
@@ -187,11 +193,11 @@ public class ReportConstellations extends Report {
       String.format("%s Instrument coverage", instrumentType),
       mainHistogram.histogram.entrySet().parallelStream()
         .sorted(Map.Entry.comparingByKey())
-        .map(c -> Streams.concat(Stream.of(c.getKey()),
+        .map(c -> Stream.concat(Stream.of(c.getKey()),
           instruments.parallelStream().map(instrument ->
             Section.checkboxValue(instrumentHistogram.get(instrumentType).getIds(c.getKey()).contains(instrument.getId()))
           )).toList())
-        .toList(), Streams.concat(Stream.of("Memes"),
+        .toList(), Stream.concat(Stream.of("Memes"),
       instruments.parallelStream().map(this::instrumentRef)).toList(),
       List.of());
   }
@@ -207,11 +213,11 @@ public class ReportConstellations extends Report {
       String.format("%s DP coverage", instrumentType),
       mainHistogram.histogram.entrySet().parallelStream()
         .sorted(Map.Entry.comparingByKey())
-        .map(c -> Streams.concat(Stream.of(c.getKey()),
+        .map(c -> Stream.concat(Stream.of(c.getKey()),
           programs.parallelStream().map(program ->
             Section.checkboxValue(detailProgramHistogram.getIds(c.getKey()).contains(program.getId()))
           )).toList())
-        .toList(), Streams.concat(Stream.of("Memes"),
+        .toList(), Stream.concat(Stream.of("Memes"),
       programs.parallelStream().map(this::programRef)).toList(),
       List.of());
   }

@@ -3,12 +3,12 @@
 package io.xj.nexus.ship.broadcast;
 
 
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
 
-import static io.xj.lib.util.Values.MICROS_PER_SECOND;
+import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
 
 /**
  * An HTTP Live Streaming Media Chunk
@@ -54,11 +54,11 @@ public class Chunk {
   }
 
   public String getKey(int bitrate) {
-    return String.format("%s-%s-%d", shipKey, Values.k(bitrate), sequenceNumber);
+    return String.format("%s-%s-%d", shipKey, ValueUtils.k(bitrate), sequenceNumber);
   }
 
   public String getKeyTemplate(int bitrate) {
-    return String.format("%s-%s-%%d", shipKey, Values.k(bitrate));
+    return String.format("%s-%s-%%d", shipKey, ValueUtils.k(bitrate));
   }
 
   public Long getDurationMicros() {

@@ -7,7 +7,9 @@ import io.xj.hub.tables.pojos.Program;
 import io.xj.lib.util.ValueException;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Artist saves Program config, validate & combine with defaults. https://www.pivotaltracker.com/story/show/177355683

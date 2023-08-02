@@ -1,8 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.fabricator;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
 import io.xj.hub.enums.ProgramType;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
@@ -11,7 +9,7 @@ import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.entity.EntityStoreImpl;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
@@ -39,6 +37,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 class SegmentWorkbenchImpl implements SegmentWorkbench {
@@ -46,7 +45,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   final Chain chain;
   final SegmentManager segmentManager;
   final JsonapiPayloadFactory jsonapiPayloadFactory;
-  final Map<String, Object> report = Maps.newConcurrentMap();
+  final Map<String, Object> report = new ConcurrentHashMap<>();
   final EntityStore benchStore;
   Segment segment;
   List<SegmentChord> segmentChords;
@@ -65,7 +64,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
 
     // fetch all sub entities of all segments and store the results in the corresponding entity cache
     try {
-      benchStore.putAll(segmentManager.readManySubEntities(ImmutableList.of(segment.getId()), true));
+      benchStore.putAll(segmentManager.readManySubEntities(List.of(segment.getId()), true));
     } catch (ManagerFatalException | ManagerPrivilegeException | EntityStoreException e) {
       throw new NexusException("Failed to load Segment for Workbench!", e);
     }
@@ -226,7 +225,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
    * @return true if a meme already exists with this name
    */
   boolean alreadyHasMeme(SegmentMeme meme) {
-    var name = Text.toMeme(meme.getName());
+    var name = StringUtils.toMeme(meme.getName());
     return getSegmentMemes().stream().anyMatch(existing -> existing.getName().equals(name));
   }
 

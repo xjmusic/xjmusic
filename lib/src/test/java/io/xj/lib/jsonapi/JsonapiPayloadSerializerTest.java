@@ -1,8 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.jsonapi;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import io.xj.lib.Widget;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityFactoryImpl;
@@ -10,6 +9,7 @@ import io.xj.lib.json.JsonProviderImpl;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.Assert.assertFalse;
@@ -116,7 +116,7 @@ public class JsonapiPayloadSerializerTest {
       .setId(UUID.randomUUID())
       .setSuperwidgetId(widget1.getId())
       .setName("c");
-    JsonapiPayloadObject mainObj = jsonapiPayloadFactory.toPayloadObject(widget1, ImmutableSet.of(widget2, widget3));
+    JsonapiPayloadObject mainObj = jsonapiPayloadFactory.toPayloadObject(widget1, Set.of(widget2, widget3));
     JsonapiPayload jsonapiPayload = jsonapiPayloadFactory.newJsonapiPayload().setDataOne(mainObj);
     jsonapiPayloadFactory.addIncluded(jsonapiPayload, jsonapiPayloadFactory.toPayloadObject(widget2));
     jsonapiPayloadFactory.addIncluded(jsonapiPayload, jsonapiPayloadFactory.toPayloadObject(widget3));
@@ -125,7 +125,7 @@ public class JsonapiPayloadSerializerTest {
 
     JsonapiPayload resultJsonapiPayload = jsonapiPayloadFactory.deserialize(result);
     AssertPayload.assertPayload(resultJsonapiPayload)
-      .hasIncluded("widgets", ImmutableList.of(widget2, widget3))
+      .hasIncluded("widgets", List.of(widget2, widget3))
       .hasDataOne("widgets", widget1.getId().toString());
   }
 
@@ -141,16 +141,16 @@ public class JsonapiPayloadSerializerTest {
     Widget accountC = new Widget()
       .setId(UUID.randomUUID())
       .setName("Test Widget C");
-    jsonapiPayloadFactory.setDataEntities(jsonapiPayload, ImmutableList.of(accountA, accountB, accountC));
+    jsonapiPayloadFactory.setDataEntities(jsonapiPayload, List.of(accountA, accountB, accountC));
 
     String result = jsonapiPayloadFactory.serialize(jsonapiPayload);
 
     AssertPayload.assertPayload(jsonapiPayloadFactory.deserialize(result))
-      .hasDataMany("widgets", ImmutableList.of(
+      .hasDataMany("widgets", List.of(
         accountA.getId().toString(),
         accountB.getId().toString(),
         accountC.getId().toString()))
-      .hasIncluded("widgets", ImmutableList.of());
+      .hasIncluded("widgets", List.of());
   }
 
 }

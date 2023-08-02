@@ -3,14 +3,51 @@
 package io.xj.hub.analysis;
 
 import io.xj.hub.client.HubContent;
-import io.xj.hub.enums.*;
-import io.xj.hub.tables.pojos.*;
+import io.xj.hub.enums.InstrumentMode;
+import io.xj.hub.enums.InstrumentState;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramState;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.enums.TemplateType;
+import io.xj.hub.tables.pojos.Account;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.InstrumentMeme;
+import io.xj.hub.tables.pojos.Library;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramMeme;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
+import io.xj.hub.tables.pojos.ProgramSequenceChord;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
+import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplateBinding;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static io.xj.hub.IntegrationTestingFixtures.*;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrument;
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrumentAudio;
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrumentMeme;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramMeme;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequence;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceBinding;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceBindingMeme;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceChord;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequencePattern;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequencePatternEvent;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramVoice;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramVoiceTrack;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplateBinding;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

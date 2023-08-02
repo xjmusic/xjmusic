@@ -22,7 +22,7 @@ public interface HubIngestFactory {
    * @throws HubIngestException on failure to of target entities
    */
   HubIngest ingest(
-     HubAccess access,
-     UUID templateId
+    HubAccess access,
+    UUID templateId
   ) throws HubIngestException;
 }

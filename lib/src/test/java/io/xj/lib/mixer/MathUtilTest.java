@@ -2,9 +2,10 @@
 
 package io.xj.lib.mixer;
 
-import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.List;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -119,7 +120,7 @@ public class MathUtilTest {
 
   @Test
   public void avg_ListOfFloat() {
-    assertEquals(175.6, MathUtil.avg(ImmutableList.of(0.5F, 92.4F, 4.2F, 779.4F, 1.5F)), 0.0001);
+    assertEquals(175.6, MathUtil.avg(List.of(0.5F, 92.4F, 4.2F, 779.4F, 1.5F)), 0.0001);
   }
 
 }

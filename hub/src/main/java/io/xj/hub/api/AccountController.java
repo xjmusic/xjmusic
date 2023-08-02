@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.api;
 
-import com.google.common.collect.ImmutableList;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.manager.AccountManager;
 import io.xj.hub.persistence.HubSqlStoreProvider;
@@ -21,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -53,7 +53,7 @@ public class AccountController extends HubJsonapiEndpoint {
   @GetMapping
   @RolesAllowed(USER)
   public ResponseEntity<JsonapiPayload> readMany(HttpServletRequest req) {
-    return readMany(req, manager(), ImmutableList.of());
+    return readMany(req, manager(), List.of());
   }
 
   /**

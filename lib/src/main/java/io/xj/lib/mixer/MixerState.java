@@ -3,7 +3,7 @@
 package io.xj.lib.mixer;
 
 /**
- Mixer states
+ * Mixer states
  */
 public enum MixerState {
   Ready,

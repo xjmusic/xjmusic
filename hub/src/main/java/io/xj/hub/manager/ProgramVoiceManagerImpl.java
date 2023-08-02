@@ -9,7 +9,7 @@ import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +17,13 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.UUID;
 
-import static io.xj.hub.Tables.*;
+import static io.xj.hub.Tables.LIBRARY;
+import static io.xj.hub.Tables.PROGRAM;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_CHORD_VOICING;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_PATTERN;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_PATTERN_EVENT;
+import static io.xj.hub.Tables.PROGRAM_VOICE;
+import static io.xj.hub.Tables.PROGRAM_VOICE_TRACK;
 
 @Service
 public class ProgramVoiceManagerImpl extends HubPersistenceServiceImpl implements ProgramVoiceManager {
@@ -209,10 +215,10 @@ public class ProgramVoiceManagerImpl extends HubPersistenceServiceImpl implement
    */
   public ProgramVoice validate(ProgramVoice record) throws ManagerException {
     try {
-      if (Values.isEmpty(record.getOrder())) record.setOrder(DEFAULT_ORDER_VALUE);
-      Values.require(record.getProgramId(), "Program ID");
-      Values.require(record.getName(), "Name");
-      Values.require(record.getType(), "Type");
+      if (ValueUtils.isEmpty(record.getOrder())) record.setOrder(DEFAULT_ORDER_VALUE);
+      ValueUtils.require(record.getProgramId(), "Program ID");
+      ValueUtils.require(record.getName(), "Name");
+      ValueUtils.require(record.getType(), "Type");
       return record;
 
     } catch (ValueException e) {

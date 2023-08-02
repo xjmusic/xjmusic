@@ -6,10 +6,7 @@ import ch.qos.logback.classic.LoggerContext;
 import io.xj.hub.HubTopology;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.util.Text;
-import io.xj.nexus.work.CraftWork;
-import io.xj.nexus.work.DubWork;
-import io.xj.nexus.work.ShipWork;
+import io.xj.lib.util.StringUtils;
 import io.xj.nexus.work.WorkFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +19,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.event.EventListener;
-
-import java.util.Objects;
 
 @SpringBootApplication
 @ComponentScan(
@@ -76,10 +71,10 @@ public class NexusApplication {
   }
 
   void shutdown() {
-    LOG.info("{} will shutdown", Text.toProper(config.getName()));
+    LOG.info("{} will shutdown", StringUtils.toProper(config.getName()));
     Thread shutdown = new Thread(() -> {
       ((ConfigurableApplicationContext) context).close();
-      LOG.info("{} did finish work and shutdown OK", Text.toProper(config.getName()));
+      LOG.info("{} did finish work and shutdown OK", StringUtils.toProper(config.getName()));
     });
     shutdown.setDaemon(false);
     shutdown.start();

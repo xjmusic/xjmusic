@@ -3,6 +3,7 @@ package io.xj.lib.mixer;
 
 
 import io.xj.lib.notification.NotificationProvider;
+import io.xj.lib.util.InternalResource;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

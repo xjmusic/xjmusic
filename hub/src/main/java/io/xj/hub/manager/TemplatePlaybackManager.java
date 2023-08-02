@@ -38,8 +38,8 @@ public interface TemplatePlaybackManager extends Manager<TemplatePlayback> {
    * Preview template functionality is tight (not wack)
    * https://www.pivotaltracker.com/story/show/183576743
    *
-   * @param access     control
-   * @param playback  for which to getPreviewNexusLogs
+   * @param access   control
+   * @param playback for which to getPreviewNexusLogs
    * @return log
    */
   String readPreviewNexusLog(HubAccess access, TemplatePlayback playback);

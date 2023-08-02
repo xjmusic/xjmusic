@@ -2,8 +2,7 @@
 
 package io.xj.lib.music;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,7 +18,7 @@ public class NoteRangeTest {
 
   @Before
   public void setUp() {
-    subject = NoteRange.ofStrings(ImmutableList.of(
+    subject = NoteRange.ofStrings(List.of(
       "C3",
       "E3",
       "D4",
@@ -121,7 +120,7 @@ public class NoteRangeTest {
 
   @Test
   public void expand_byNotes() {
-    subject.expand(ImmutableSet.of(
+    subject.expand(Set.of(
       Note.of("G2"),
       Note.of("G6")
     ));
@@ -132,7 +131,7 @@ public class NoteRangeTest {
 
   @Test
   public void expandWithAnotherRange() {
-    subject.expand(NoteRange.ofStrings(ImmutableSet.of(
+    subject.expand(NoteRange.ofStrings(Set.of(
       "G2",
       "G6"
     )));

@@ -1,17 +1,16 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.telemetry;
 
-import com.google.common.base.Strings;
 import io.xj.lib.app.AppConfiguration;
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import static io.xj.lib.util.Text.SPACE;
-import static io.xj.lib.util.Text.UNDERSCORE;
+import static io.xj.lib.util.StringUtils.SPACE;
+import static io.xj.lib.util.StringUtils.UNDERSCORE;
 
 /**
  * Send telemetry to GCP https://www.pivotaltracker.com/story/show/180741969
@@ -38,14 +37,13 @@ class TelemetryProviderImpl implements TelemetryProvider {
     @Value("${telemetry.enabled:false}")
     Boolean isTelemetryEnabled
   ) {
-    prefixA = Strings.isNullOrEmpty(inputTemplateKey) ? DEFAULT_SHIP_KEY : inputTemplateKey;
+    prefixA = StringUtils.isNullOrEmpty(inputTemplateKey) ? DEFAULT_SHIP_KEY : inputTemplateKey;
     prefixB = config.getName();
 
     // Globally enable or disable telemetry recording
     enabled = isTelemetryEnabled;
     if (!enabled) {
       LOG.info("Will not send telemetry.");
-      return;
     }
 
     // FUTURE: initialize telemetry sending mechanism
@@ -53,14 +51,12 @@ class TelemetryProviderImpl implements TelemetryProvider {
 
   @Override
   public void put(TelemetryMeasureCount measure, Long value) {
-    if (!enabled) return;
-    // FUTURE: send telemetry e.g. Math.max(0, value)
+    // FUTURE: send telemetry e.g. Math.max(0, value) if enabled is true
   }
 
   @Override
   public void put(TelemetryMeasureGauge measure, Double value) {
-    if (!enabled) return;
-    // FUTURE: send telemetry e.g. Math.max(0, value)
+    // FUTURE: send telemetry e.g. Math.max(0, value) if enabled is true
   }
 
   @Override
@@ -78,18 +74,18 @@ class TelemetryProviderImpl implements TelemetryProvider {
   @Override
   public String prefixedLowerSnake(String name) {
     return String.join(UNDERSCORE,
-      Text.toLowerScored(prefixA),
-      Text.toLowerScored(prefixB),
-      Text.toLowerScored(name)
+      StringUtils.toLowerScored(prefixA),
+      StringUtils.toLowerScored(prefixB),
+      StringUtils.toLowerScored(name)
     );
   }
 
   @Override
   public String prefixedProperSpace(String desc) {
     return String.join(SPACE,
-      Text.toProper(prefixA),
-      Text.toProper(prefixB),
-      Text.toProper(desc)
+      StringUtils.toProper(prefixA),
+      StringUtils.toProper(prefixB),
+      StringUtils.toProper(desc)
     );
   }
 

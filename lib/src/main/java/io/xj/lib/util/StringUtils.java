@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.util;
 
-import com.google.common.base.Strings;
 import com.typesafe.config.Config;
 
 import javax.annotation.Nullable;
@@ -16,7 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public interface Text {
+public interface StringUtils {
   Pattern spaces = Pattern.compile(" +");
   Pattern underscores = Pattern.compile("_+");
   Pattern leadingScores = Pattern.compile("^_+");
@@ -499,7 +498,7 @@ public interface Text {
    * @return value, or empty quotes
    */
   static String orEmptyQuotes(@Nullable String value) {
-    return Strings.isNullOrEmpty(value) ? "\"\"" : value;
+    return isNullOrEmpty(value) ? "\"\"" : value;
   }
 
   /**
@@ -529,7 +528,7 @@ public interface Text {
    * @return value with incremented integer suffix
    */
   static String incrementIntegerSuffix(String value) {
-    if (Strings.isNullOrEmpty(value)) return "2";
+    if (isNullOrEmpty(value)) return "2";
     var m = integerSuffix.matcher(value);
     return String.format("%s%d",
       value.substring(0, value.length() - (m.matches() ? m.group(1).length() : 0)),
@@ -613,5 +612,134 @@ public interface Text {
    */
   static String zeroPadded(int value, int digits) {
     return String.format("%0" + digits + "d", value);
+  }
+
+  /**
+   * Whether a value is null or empty
+   *
+   * @param value to test
+   * @return true if non-null and non-empty
+   */
+  static boolean isNullOrEmpty(@Nullable String value) {
+    return Objects.isNull(value) || value.isEmpty();
+  }
+
+  /**
+   * String representation of value, or pass through null as empty string
+   *
+   * @param value to parse
+   * @return string or empty
+   */
+  static String stringOrEmpty(@Nullable Object value) {
+    return stringOrDefault(value, "");
+  }
+
+  /**
+   * String representation of value, or pass through a default value
+   *
+   * @param value        to parse
+   * @param defaultValue to return if value is null
+   * @return string or default value
+   */
+  static String stringOrDefault(@Nullable Object value, String defaultValue) {
+    return Objects.nonNull(value) ? String.valueOf(value) : defaultValue;
+  }
+
+  /**
+   * Convert snake_case to UpperCamelCase
+   *
+   * @param source snake_case text
+   * @return UpperCamelCase text
+   */
+  static String snakeToUpperCamelCase(String source) {
+    return Arrays.stream(source.split("_"))
+      .map(StringUtils::firstLetterToUpperCase)
+      .collect(Collectors.joining());
+  }
+
+  /**
+   * Convert snake_case to lowerCamelCase
+   *
+   * @param source snake_case text
+   * @return lowerCamelCase text
+   */
+  static String snakeToLowerCamelCase(String source) {
+    return firstLetterToLowerCase(snakeToUpperCamelCase(source));
+  }
+
+  /**
+   * Change the first letter of a string to lower case
+   *
+   * @param source text
+   * @return lowerCase text
+   */
+  static String firstLetterToLowerCase(String source) {
+    return source.substring(0, 1).toLowerCase() + source.substring(1);
+  }
+
+  /**
+   * Change the first letter of a string to upper case
+   *
+   * @param source text
+   * @return upperCase text
+   */
+  static String firstLetterToUpperCase(String source) {
+    return source.substring(0, 1).toUpperCase() + source.substring(1);
+  }
+
+  /**
+   * Convert CamelCase or camelCase to snake_case
+   *
+   * @param source CamelCase or camelCase text
+   * @return snake_case text
+   */
+  static String camelToSnakeCase(String source) {
+    return Arrays.stream(splitCamelCase(source))
+      .map(String::toLowerCase)
+      .collect(Collectors.joining("_"));
+  }
+
+  /**
+   * Convert kebab-case to lowerCamelCase
+   *
+   * @param source kebab-case text
+   * @return lowerCamelCase text
+   */
+  static String kebabToLowerCamelCase(String source) {
+    return firstLetterToLowerCase(kebabToUpperCamelCase(source));
+  }
+
+  /**
+   * Convert kebab-case to upperCamelCase
+   *
+   * @param source kebab-case text
+   * @return upperCamelCase text
+   */
+  static String kebabToUpperCamelCase(String source) {
+    return Arrays.stream(source.split("-"))
+      .map(StringUtils::firstLetterToUpperCase)
+      .collect(Collectors.joining());
+  }
+
+  /**
+   * Convert camelCase to kebab-case
+   *
+   * @param source camelCase text
+   * @return kebab-case text
+   */
+  static String camelToKebabCase(String source) {
+    return Arrays.stream(splitCamelCase(source))
+      .map(String::toLowerCase)
+      .collect(Collectors.joining("-"));
+  }
+
+  /**
+   * Split camelCase or CamelCase into words
+   *
+   * @param source camelCase or CamelCase text
+   * @return words
+   */
+  static String[] splitCamelCase(String source) {
+    return source.split("(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])");
   }
 }

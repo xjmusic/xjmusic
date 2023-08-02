@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.craft;
 
-import com.google.common.collect.Lists;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.lib.music.Accidental;
@@ -14,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
 
 /**
- XJ has a serviceable voicing algorithm https://www.pivotaltracker.com/story/show/176696738
+ * XJ has a serviceable voicing algorithm https://www.pivotaltracker.com/story/show/176696738
  */
 @RunWith(MockitoJUnitRunner.class)
 public class NotePickerTests extends YamlTest {
@@ -58,9 +58,9 @@ public class NotePickerTests extends YamlTest {
   }
 
   /**
-   Load the specified test YAML file and run it repeatedly.
-
-   @param filename of test YAML file
+   * Load the specified test YAML file and run it repeatedly.
+   *
+   * @param filename of test YAML file
    */
   void loadAndRunTest(String filename) {
     for (int i = 0; i < REPEAT_EACH_TEST_TIMES; i++)
@@ -72,7 +72,7 @@ public class NotePickerTests extends YamlTest {
         var eventNotes = loadSubject(data);
 
         // Execute note picking
-        List<Note> picked = Lists.newArrayList();
+        List<Note> picked = new ArrayList<>();
         for (var note : eventNotes) {
           picked.add(subject.pick(note));
         }
@@ -86,9 +86,9 @@ public class NotePickerTests extends YamlTest {
   }
 
   /**
-   Load the input section of the test YAML file
-
-   @param data YAML file wrapper
+   * Load the input section of the test YAML file
+   *
+   * @param data YAML file wrapper
    */
   List<Note> loadSubject(Map<?, ?> data) throws Exception {
     Map<?, ?> obj = (Map<?, ?>) data.get("input");

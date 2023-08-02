@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.manager;
 
-import com.google.common.collect.ImmutableList;
 import io.xj.hub.HubIntegrationTest;
 import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
@@ -27,7 +26,6 @@ import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.notification.NotificationProvider;
-import org.assertj.core.util.Lists;
 import org.jooq.exception.DataAccessException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,8 +35,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
@@ -141,7 +141,7 @@ public class LibraryManagerDbTest {
    */
   @Test
   public void create_asEngineer() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Engineer");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Engineer");
     Library inputData = new Library();
     inputData.setName("coconuts");
     inputData.setAccountId(fake.account1.getId());
@@ -158,7 +158,7 @@ public class LibraryManagerDbTest {
    */
   @Test
   public void create_asEngineer_failsWithoutAccountAccess() {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "Engineer");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(buildAccount("Testing")), "Engineer");
     Library inputData = new Library();
     inputData.setName("coconuts");
     inputData.setAccountId(fake.account1.getId());
@@ -347,7 +347,7 @@ public class LibraryManagerDbTest {
 
   @Test
   public void readOne() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "User");
 
     Library result = subject.readOne(access, fake.library1b.getId());
 
@@ -359,7 +359,7 @@ public class LibraryManagerDbTest {
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(buildAccount("Testing")), "User");
 
     var e = assertThrows(ManagerException.class, () -> subject.readOne(access, fake.account1.getId()));
 
@@ -368,9 +368,9 @@ public class LibraryManagerDbTest {
 
   @Test
   public void readMany() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "User");
 
-    Collection<Library> result = subject.readMany(access, ImmutableList.of(fake.account1.getId()));
+    Collection<Library> result = subject.readMany(access, List.of(fake.account1.getId()));
 
     assertEquals(2L, result.size());
     Iterator<Library> resultIt = result.iterator();
@@ -380,9 +380,9 @@ public class LibraryManagerDbTest {
 
   @Test
   public void readMany_fromAllAccounts() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1, fake.account2), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1, fake.account2), "User");
 
-    Collection<Library> result = subject.readMany(access, Lists.newArrayList());
+    Collection<Library> result = subject.readMany(access, new ArrayList<>());
 
     assertEquals(4L, result.size());
     Iterator<Library> it = result.iterator();
@@ -394,9 +394,9 @@ public class LibraryManagerDbTest {
 
   @Test
   public void readMany_SeesNothingOutsideOfAccount() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(buildAccount("Testing")), "User");
 
-    Collection<Library> result = subject.readMany(access, ImmutableList.of(fake.account1.getId()));
+    Collection<Library> result = subject.readMany(access, List.of(fake.account1.getId()));
 
     assertEquals(0L, result.size());
   }
@@ -443,7 +443,7 @@ public class LibraryManagerDbTest {
    */
   @Test
   public void update_asEngineer() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Engineer");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Engineer");
     Library inputData = new Library();
     inputData.setName("cannons");
     inputData.setAccountId(fake.account1.getId());
@@ -461,7 +461,7 @@ public class LibraryManagerDbTest {
    */
   @Test
   public void update_asEngineer_failsWithoutAccountAccess() {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "Engineer");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(buildAccount("Testing")), "Engineer");
     Library inputData = new Library();
     inputData.setName("cannons");
     inputData.setAccountId(fake.account1.getId());
@@ -528,7 +528,7 @@ public class LibraryManagerDbTest {
 
   @Test
   public void delete_artistCanDelete() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User,Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "User,Artist");
 
     subject.destroy(access, fake.library1a.getId());
 

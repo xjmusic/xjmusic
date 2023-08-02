@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.manager;
 
-import com.google.common.collect.ImmutableList;
 import io.xj.hub.HubIntegrationTest;
 import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
@@ -25,6 +24,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
@@ -115,7 +115,7 @@ public class ProgramVoiceManagerDbTest {
 
   @Test
   public void create() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
     var entity = new ProgramVoice();
     entity.setId(UUID.randomUUID());
     entity.setProgramId(fake.program3.getId());
@@ -148,7 +148,7 @@ public class ProgramVoiceManagerDbTest {
    */
   @Test
   public void create_asArtist() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
     var inputData = new ProgramVoice();
     inputData.setId(UUID.randomUUID());
     inputData.setProgramId(fake.program3.getId());
@@ -165,7 +165,7 @@ public class ProgramVoiceManagerDbTest {
 
   @Test
   public void readOne() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User, Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "User, Artist");
 
     var result = subject.readOne(access, fake.program702_voice1.getId());
 
@@ -177,7 +177,7 @@ public class ProgramVoiceManagerDbTest {
 
   @Test
   public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "User, Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(buildAccount("Testing")), "User, Artist");
 
     var e = assertThrows(ManagerException.class, () -> subject.readOne(access, fake.program702_voice1.getId()));
     assertEquals("Record does not exist", e.getMessage());
@@ -185,9 +185,9 @@ public class ProgramVoiceManagerDbTest {
 
   @Test
   public void readMany() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User, Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "User, Artist");
 
-    Collection<ProgramVoice> result = subject.readMany(access, ImmutableList.of(fake.program2.getId()));
+    Collection<ProgramVoice> result = subject.readMany(access, List.of(fake.program2.getId()));
 
     assertEquals(1L, result.size());
     Iterator<ProgramVoice> resultIt = result.iterator();
@@ -196,9 +196,9 @@ public class ProgramVoiceManagerDbTest {
 
   @Test
   public void readMany_seesNothingOutsideOfLibrary() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "User, Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(buildAccount("Testing")), "User, Artist");
 
-    Collection<ProgramVoice> result = subject.readMany(access, ImmutableList.of(fake.program2.getId()));
+    Collection<ProgramVoice> result = subject.readMany(access, List.of(fake.program2.getId()));
 
     assertEquals(0L, result.size());
   }
@@ -240,7 +240,7 @@ public class ProgramVoiceManagerDbTest {
 
   @Test
   public void destroy_asArtist() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Artist");
     new ProgramSequencePatternManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider()).destroy(HubAccess.internal(), fake.program2_sequence1_pattern1.getId());
     new ProgramVoiceTrackManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider()).destroy(HubAccess.internal(), fake.program2_voice1_track0.getId());
     new ProgramVoiceTrackManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider()).destroy(HubAccess.internal(), fake.program2_voice1_track1.getId());
@@ -257,7 +257,7 @@ public class ProgramVoiceManagerDbTest {
   @Test
   public void destroy_failsIfNotInAccount() throws Exception {
     fake.account2 = buildAccount("Testing");
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account2), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account2), "Artist");
     new ProgramSequencePatternManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider()).destroy(HubAccess.internal(), fake.program2_sequence1_pattern1.getId());
     new ProgramVoiceTrackManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider()).destroy(HubAccess.internal(), fake.program2_voice1_track0.getId());
     new ProgramVoiceTrackManagerImpl(test.getEntityFactory(), test.getSqlStoreProvider()).destroy(HubAccess.internal(), fake.program2_voice1_track1.getId());

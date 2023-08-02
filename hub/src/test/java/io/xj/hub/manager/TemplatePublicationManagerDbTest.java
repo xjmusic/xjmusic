@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.manager;
 
-import com.google.common.collect.ImmutableList;
 import io.xj.hub.HubIntegrationTest;
 import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
@@ -20,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
@@ -88,7 +88,7 @@ public class TemplatePublicationManagerDbTest {
 
   @Test
   public void create_alwaysTakesUserFromHubAccess() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
     TemplatePublication subject = buildTemplatePublication(fake.template1, fake.user3); // user will be overridden by hub access user id
 
     TemplatePublication result = testManager.create(access, subject);
@@ -100,7 +100,7 @@ public class TemplatePublicationManagerDbTest {
 
   @Test
   public void create_withoutSpecifyingUser() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
     TemplatePublication subject = new TemplatePublication();
     subject.setId(UUID.randomUUID());
     subject.setTemplateId(fake.template1.getId());
@@ -114,7 +114,7 @@ public class TemplatePublicationManagerDbTest {
 
   @Test
   public void create_cannotPublicationProductionChain() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
     var template5 = test.insert(buildTemplate(fake.account1, TemplateType.Preview, "test", UUID.randomUUID().toString()));
 
     TemplatePublication subject = buildTemplatePublication(template5, fake.user3); // user will be overridden by hub access user id
@@ -125,7 +125,7 @@ public class TemplatePublicationManagerDbTest {
 
   @Test
   public void update_notAllowed() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
     TemplatePublication subject = test.insert(buildTemplatePublication(fake.template1, fake.user2));
 
     assertThrows(ManagerException.class, () -> testManager.update(access, subject.getId(), subject));
@@ -136,7 +136,7 @@ public class TemplatePublicationManagerDbTest {
    */
   @Test
   public void create_archivesExistingForTemplate() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
 
     var priorPublication = test.insert(buildTemplatePublication(fake.template1, fake.user3));
     var subject = buildTemplatePublication(fake.template1, fake.user2);
@@ -148,7 +148,7 @@ public class TemplatePublicationManagerDbTest {
 
   @Test
   public void readOne() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "User");
 
     TemplatePublication result = testManager.readOne(access, templatePublication201.getId());
 
@@ -159,7 +159,7 @@ public class TemplatePublicationManagerDbTest {
 
   @Test
   public void readOneForUser() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
 
     var result = testManager.readOneForUser(access, fake.user2.getId());
 
@@ -170,7 +170,7 @@ public class TemplatePublicationManagerDbTest {
 
   @Test
   public void readOneForUser_justCreated() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
     test.insert(buildTemplatePublication(fake.template1, fake.user3));
 
     var result = testManager.readOneForUser(access, fake.user3.getId());
@@ -181,7 +181,7 @@ public class TemplatePublicationManagerDbTest {
 
   @Test
   public void readOne_FailsWhenUserIsNotInTemplate() {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(buildAccount("Testing")
     ), "User");
 
     var e = assertThrows(ManagerException.class, () -> testManager.readOne(access, templatePublication201.getId()));
@@ -192,28 +192,28 @@ public class TemplatePublicationManagerDbTest {
 
   @Test
   public void readMany() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Admin");
 
-    Collection<TemplatePublication> result = testManager.readMany(access, ImmutableList.of(fake.template1.getId()));
+    Collection<TemplatePublication> result = testManager.readMany(access, List.of(fake.template1.getId()));
 
     assertEquals(1L, result.size());
   }
 
   @Test
   public void readMany_seesAdditional() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Admin");
     test.insert(buildTemplatePublication(fake.template1, fake.user3));
 
-    Collection<TemplatePublication> result = testManager.readMany(access, ImmutableList.of(fake.template1.getId()));
+    Collection<TemplatePublication> result = testManager.readMany(access, List.of(fake.template1.getId()));
 
     assertEquals(2L, result.size());
   }
 
   @Test
   public void readMany_SeesNothingOutsideOfTemplate() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(buildAccount("Testing")), "User");
 
-    Collection<TemplatePublication> result = testManager.readMany(access, ImmutableList.of(fake.template1.getId()));
+    Collection<TemplatePublication> result = testManager.readMany(access, List.of(fake.template1.getId()));
 
     assertEquals(0L, result.size());
   }

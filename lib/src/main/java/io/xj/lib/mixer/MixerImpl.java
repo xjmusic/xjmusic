@@ -1,8 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.mixer;
 
-import com.google.common.collect.Maps;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,10 +14,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
-import static io.xj.lib.util.Values.MICROS_PER_SECOND;
-import static io.xj.lib.util.Values.NANOS_PER_SECOND;
+import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.lib.util.ValueUtils.NANOS_PER_SECOND;
 
 class MixerImpl implements Mixer {
   public static final int MAX_INT_LENGTH_ARRAY_SIZE = 2147483647;
@@ -30,8 +30,8 @@ class MixerImpl implements Mixer {
   final float outputFrameRate;
   final int outputChannels;
   final int outputFrameSize;
-  final Map<UUID, Source> sources = Maps.newConcurrentMap(); // concurrency required
-  final Map<UUID, Put> activePuts = Maps.newConcurrentMap(); // concurrency required
+  final Map<UUID, Source> sources = new ConcurrentHashMap<>(); // concurrency required
+  final Map<UUID, Put> activePuts = new ConcurrentHashMap<>(); // concurrency required
   final MixerFactory factory;
   final MixerConfig config;
   final double compressToAmplitude;
@@ -40,7 +40,7 @@ class MixerImpl implements Mixer {
   final int framesAhead;
   final int dspBufferSize;
   final int framesDecay;
-  final Map<Integer, Double> busLevel = Maps.newConcurrentMap();
+  final Map<Integer, Double> busLevel = new ConcurrentHashMap<>();
   final int framesPerMilli;
   final EnvelopeProvider envelope;
 
@@ -157,7 +157,7 @@ class MixerImpl implements Mixer {
     LOG.debug(config.getLogPrefix() + "Did mix {} seconds of output audio at {} Hz from {} instances of {} sources in {}s", config.getTotalSeconds(), outputFrameRate, activePuts.size(), sources.size(), String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
 
     // Write the output bytes to the shared buffer
-    buffer.produce(Values.byteBufferOf(audioFormat, outBuf).array());
+    buffer.produce(ValueUtils.byteBufferOf(audioFormat, outBuf).array());
     return config.getTotalSeconds();
   }
 

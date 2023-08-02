@@ -1,30 +1,51 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.manager;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
+import java.util.Set;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.ProgramState;
-import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
-import io.xj.hub.tables.pojos.*;
+import io.xj.hub.persistence.HubSqlStoreProvider;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramMeme;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
+import io.xj.hub.tables.pojos.ProgramSequenceChord;
+import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.xj.hub.Tables.*;
+import static io.xj.hub.Tables.LIBRARY;
+import static io.xj.hub.Tables.PROGRAM;
+import static io.xj.hub.Tables.PROGRAM_MEME;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_BINDING;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_BINDING_MEME;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_CHORD;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_CHORD_VOICING;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_PATTERN;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_PATTERN_EVENT;
+import static io.xj.hub.Tables.PROGRAM_VOICE;
+import static io.xj.hub.Tables.PROGRAM_VOICE_TRACK;
 
 @Service
 public class ProgramManagerImpl extends HubPersistenceServiceImpl implements ProgramManager {
@@ -70,47 +91,47 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl implements Pro
       var cloner = new ManagerCloner<>(result, this);
 
       // Clone ProgramMeme
-      cloner.clone(db, PROGRAM_MEME, PROGRAM_MEME.ID, ImmutableSet.of(), PROGRAM_MEME.PROGRAM_ID, cloneId, targetId);
+      cloner.clone(db, PROGRAM_MEME, PROGRAM_MEME.ID, Set.of(), PROGRAM_MEME.PROGRAM_ID, cloneId, targetId);
 
       // Clone ProgramVoice
-      cloner.clone(db, PROGRAM_VOICE, PROGRAM_VOICE.ID, ImmutableSet.of(), PROGRAM_VOICE.PROGRAM_ID, cloneId, targetId);
+      cloner.clone(db, PROGRAM_VOICE, PROGRAM_VOICE.ID, Set.of(), PROGRAM_VOICE.PROGRAM_ID, cloneId, targetId);
 
       // Clone ProgramVoiceTrack belongs to ProgramVoice
       cloner.clone(db, PROGRAM_VOICE_TRACK, PROGRAM_VOICE_TRACK.ID,
-        ImmutableSet.of(PROGRAM_VOICE_TRACK.PROGRAM_VOICE_ID),
+        Set.of(PROGRAM_VOICE_TRACK.PROGRAM_VOICE_ID),
         PROGRAM_VOICE_TRACK.PROGRAM_ID, cloneId, targetId);
 
       // Clone ProgramSequence
-      cloner.clone(db, PROGRAM_SEQUENCE, PROGRAM_SEQUENCE.ID, ImmutableSet.of(), PROGRAM_SEQUENCE.PROGRAM_ID, cloneId, targetId);
+      cloner.clone(db, PROGRAM_SEQUENCE, PROGRAM_SEQUENCE.ID, Set.of(), PROGRAM_SEQUENCE.PROGRAM_ID, cloneId, targetId);
 
       // Clone ProgramSequenceChord belongs to ProgramSequence
       cloner.clone(db, PROGRAM_SEQUENCE_CHORD, PROGRAM_SEQUENCE_CHORD.ID,
-        ImmutableSet.of(PROGRAM_SEQUENCE_CHORD.PROGRAM_SEQUENCE_ID),
+        Set.of(PROGRAM_SEQUENCE_CHORD.PROGRAM_SEQUENCE_ID),
         PROGRAM_SEQUENCE_CHORD.PROGRAM_ID, cloneId, targetId);
 
       // Clone ProgramSequenceChordVoiding belongs to ProgramSequenceChord
       cloner.clone(db, PROGRAM_SEQUENCE_CHORD_VOICING, PROGRAM_SEQUENCE_CHORD_VOICING.ID,
-        ImmutableSet.of(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID, PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_VOICE_ID),
+        Set.of(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID, PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_VOICE_ID),
         PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_ID, cloneId, targetId);
 
       // Clone ProgramSequenceBinding belongs to ProgramSequence
       cloner.clone(db, PROGRAM_SEQUENCE_BINDING, PROGRAM_SEQUENCE_BINDING.ID,
-        ImmutableSet.of(PROGRAM_SEQUENCE_BINDING.PROGRAM_SEQUENCE_ID),
+        Set.of(PROGRAM_SEQUENCE_BINDING.PROGRAM_SEQUENCE_ID),
         PROGRAM_SEQUENCE_BINDING.PROGRAM_ID, cloneId, targetId);
 
       // Clone ProgramSequenceBindingMeme belongs to ProgramSequenceBinding
       cloner.clone(db, PROGRAM_SEQUENCE_BINDING_MEME, PROGRAM_SEQUENCE_BINDING_MEME.ID,
-        ImmutableSet.of(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_SEQUENCE_BINDING_ID),
+        Set.of(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_SEQUENCE_BINDING_ID),
         PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID, cloneId, targetId);
 
       // Clone ProgramSequencePattern belongs to ProgramSequence and ProgramVoice
       cloner.clone(db, PROGRAM_SEQUENCE_PATTERN, PROGRAM_SEQUENCE_PATTERN.ID,
-        ImmutableSet.of(PROGRAM_SEQUENCE_PATTERN.PROGRAM_SEQUENCE_ID, PROGRAM_SEQUENCE_PATTERN.PROGRAM_VOICE_ID),
+        Set.of(PROGRAM_SEQUENCE_PATTERN.PROGRAM_SEQUENCE_ID, PROGRAM_SEQUENCE_PATTERN.PROGRAM_VOICE_ID),
         PROGRAM_SEQUENCE_PATTERN.PROGRAM_ID, cloneId, targetId);
 
       // Clone ProgramSequencePatternEvent belongs to ProgramSequencePattern and ProgramVoiceTrack
       cloner.clone(db, PROGRAM_SEQUENCE_PATTERN_EVENT, PROGRAM_SEQUENCE_PATTERN_EVENT.ID,
-        ImmutableSet.of(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_SEQUENCE_PATTERN_ID, PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_VOICE_TRACK_ID),
+        Set.of(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_SEQUENCE_PATTERN_ID, PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_VOICE_TRACK_ID),
         PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_ID, cloneId, targetId);
 
       return cloner;
@@ -150,7 +171,7 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl implements Pro
 
     requireRead(db, access, programIds);
 
-    Collection<Object> entities = Lists.newArrayList();
+    Collection<Object> entities = new ArrayList<>();
     entities.addAll(modelsFrom(Program.class, db.selectFrom(PROGRAM).where(PROGRAM.ID.in(programIds)).fetch()));
     entities.addAll(modelsFrom(ProgramSequencePatternEvent.class, db.selectFrom(PROGRAM_SEQUENCE_PATTERN_EVENT).where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_ID.in(programIds))));
     entities.addAll(modelsFrom(ProgramMeme.class, db.selectFrom(PROGRAM_MEME).where(PROGRAM_MEME.PROGRAM_ID.in(programIds))));
@@ -172,7 +193,7 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl implements Pro
 
     requireRead(db, access, programIds);
 
-    Collection<Object> entities = Lists.newArrayList();
+    Collection<Object> entities = new ArrayList<>();
 
     // ProgramSequencePatternEvent
     if (types.contains(Entities.toResourceType(ProgramSequencePatternEvent.class)))
@@ -382,12 +403,12 @@ public class ProgramManagerImpl extends HubPersistenceServiceImpl implements Pro
    */
   public Program validate(Program record) throws ManagerException {
     try {
-      Values.require(record.getLibraryId(), "Library ID");
-      Values.require(record.getName(), "Name");
-      Values.require(record.getKey(), "Key");
-      Values.requireNonZero(record.getTempo(), "Tempo");
-      Values.require(record.getType(), "Type");
-      Values.require(record.getState(), "State");
+      ValueUtils.require(record.getLibraryId(), "Library ID");
+      ValueUtils.require(record.getName(), "Name");
+      ValueUtils.require(record.getKey(), "Key");
+      ValueUtils.requireNonZero(record.getTempo(), "Tempo");
+      ValueUtils.require(record.getType(), "Type");
+      ValueUtils.require(record.getState(), "State");
 
       // validate TypeSafe chain config https://www.pivotaltracker.com/story/show/175347578
       // Artist saves Program, Instrument, or Template config, validate & combine with defaults. https://www.pivotaltracker.com/story/show/177129498

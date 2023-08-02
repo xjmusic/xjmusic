@@ -76,7 +76,7 @@ MovieBox:
                   avgBitRate: 128408
                   decoderSpecificInfo: null
                   configDescriptorDeadBytes:
-                  profileLevelIndicationDescriptors: []
+                  profileLevelIndicationDescriptors: [ ]
                   AudioSpecificConfig:
                     configBytes: 1190
                     audioObjectType: 2 (AAC LC)

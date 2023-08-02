@@ -7,13 +7,17 @@ import org.slf4j.LoggerFactory;
 import org.xiph.libogg.ogg_packet;
 import org.xiph.libogg.ogg_page;
 import org.xiph.libogg.ogg_stream_state;
-import org.xiph.libvorbis.*;
+import org.xiph.libvorbis.vorbis_block;
+import org.xiph.libvorbis.vorbis_comment;
+import org.xiph.libvorbis.vorbis_dsp_state;
+import org.xiph.libvorbis.vorbis_info;
+import org.xiph.libvorbis.vorbisenc;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
- Ops wants to ship Ogg/Vorbis format, in order avoid licensing issues, and leverage more mature open-source audio https://www.pivotaltracker.com/story/show/159449508
+ * Ops wants to ship Ogg/Vorbis format, in order avoid licensing issues, and leverage more mature open-source audio https://www.pivotaltracker.com/story/show/159449508
  */
 public class VorbisEncoder {
   static final Logger log = LoggerFactory.getLogger(VorbisEncoder.class);
@@ -26,10 +30,10 @@ public class VorbisEncoder {
   final double[][] stream;
 
   /**
-   Instantiate new Vorbis Encoder
-
-   @param stream    to encode
-   @param frameRate at which to encode audio
+   * Instantiate new Vorbis Encoder
+   *
+   * @param stream    to encode
+   * @param frameRate at which to encode audio
    */
   public VorbisEncoder(double[][] stream, int frameRate, float quality) {
     this.stream = stream;
@@ -77,9 +81,9 @@ public class VorbisEncoder {
   }
 
   /**
-   Encode OGG VorbisEncoder@param stream      input channels of floating point samples
-
-   @param output to write OGG Vorbis data
+   * Encode OGG VorbisEncoder@param stream      input channels of floating point samples
+   *
+   * @param output to write OGG Vorbis data
    */
   public void encode(FileOutputStream output) throws IOException {
     while (oggStreamState.ogg_stream_flush(page)) {

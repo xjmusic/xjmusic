@@ -21,8 +21,8 @@ public interface HubAnalysisFactory {
    * @throws HubAnalysisException on failure to of target entities
    */
   Report report(
-     HubAccess access,
-     UUID templateId,
-     Report.Type type
+    HubAccess access,
+    UUID templateId,
+    Report.Type type
   ) throws HubAnalysisException;
 }

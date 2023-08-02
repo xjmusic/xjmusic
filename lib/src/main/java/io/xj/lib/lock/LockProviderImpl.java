@@ -2,7 +2,6 @@
 
 package io.xj.lib.lock;
 
-import com.google.common.collect.Maps;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
 import org.slf4j.Logger;
@@ -12,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class LockProviderImpl implements LockProvider {
@@ -21,7 +21,7 @@ public class LockProviderImpl implements LockProvider {
   static final String CONTENT_TYPE = "text/plain";
   static final String CACHE_KEY_FMT = "%s/%s";
   static final String LOCK_FILE_FMT = "%s.lock";
-  final Map<String, String> locks = Maps.newConcurrentMap();
+  final Map<String, String> locks = new ConcurrentHashMap<>();
 
   @Autowired
   public LockProviderImpl(
@@ -66,8 +66,9 @@ public class LockProviderImpl implements LockProvider {
 
   /**
    * Compute the cache key for the given bucket and key.
+   *
    * @param bucket from which to compute key
-   * @param key from which to compute key
+   * @param key    from which to compute key
    * @return computed cache key
    */
   String computeCacheKey(String bucket, String key) {

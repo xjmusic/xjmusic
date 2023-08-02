@@ -2,14 +2,14 @@
 package io.xj.hub.manager;
 
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 import io.xj.lib.util.ValueException;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +17,9 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.UUID;
 
-import static io.xj.hub.Tables.*;
+import static io.xj.hub.Tables.LIBRARY;
+import static io.xj.hub.Tables.PROGRAM;
+import static io.xj.hub.Tables.PROGRAM_MEME;
 
 @Service
 public class ProgramMemeManagerImpl extends HubPersistenceServiceImpl implements ProgramMemeManager {
@@ -149,9 +151,9 @@ public class ProgramMemeManagerImpl extends HubPersistenceServiceImpl implements
    */
   public ProgramMeme validate(ProgramMeme record) throws ManagerException {
     try {
-      Values.require(record.getProgramId(), "Program ID");
-      Values.require(record.getName(), "Name");
-      record.setName(Text.toMeme(record.getName()));
+      ValueUtils.require(record.getProgramId(), "Program ID");
+      ValueUtils.require(record.getName(), "Name");
+      record.setName(StringUtils.toMeme(record.getName()));
       return record;
 
     } catch (ValueException e) {

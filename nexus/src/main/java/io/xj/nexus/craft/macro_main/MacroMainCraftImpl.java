@@ -9,7 +9,7 @@ import io.xj.hub.tables.pojos.ProgramSequenceChord;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.music.Chord;
 import io.xj.lib.util.MarbleBag;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.CraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
@@ -66,7 +66,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    * @return density
    */
   double computeSegmentDensity(Integer delta, @Nullable ProgramSequence macroSequence, @Nullable ProgramSequence mainSequence) throws NexusException {
-    return Values.limitDecimalPrecision(Values.interpolate(
+    return ValueUtils.limitDecimalPrecision(ValueUtils.interpolate(
       fabricator.getTemplateConfig().getDensityFloor(),
       fabricator.getTemplateConfig().getDensityCeiling(),
       (double) delta / fabricator.getTemplateConfig().getMainProgramLengthMaxDelta(),

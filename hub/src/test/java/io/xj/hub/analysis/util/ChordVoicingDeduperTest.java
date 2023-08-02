@@ -25,10 +25,10 @@ import static io.xj.hub.IntegrationTestingFixtures.buildProgramVoice;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- Chord Search while composing a main program
- https://www.pivotaltracker.com/story/show/178921705
- <p>
- Chord search results (backend) must include all unique combinations of chord & voicing
+ * Chord Search while composing a main program
+ * https://www.pivotaltracker.com/story/show/178921705
+ * <p>
+ * Chord search results (backend) must include all unique combinations of chord & voicing
  */
 @SuppressWarnings("FieldCanBeLocal")
 public class ChordVoicingDeduperTest {
@@ -57,7 +57,7 @@ public class ChordVoicingDeduperTest {
     account1 = buildAccount("bananas");
     library1 = buildLibrary(account1, "palm tree");
     program1 = buildProgram(library1, ProgramType.Main, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f);
-    voiceBass = buildProgramVoice(program1, InstrumentType.Bass,"Bass");
+    voiceBass = buildProgramVoice(program1, InstrumentType.Bass, "Bass");
     program1_sequence1 = buildProgramSequence(program1, 4, "Ants", 0.583f, "D minor");
 
     chord1 = buildProgramSequenceChord(program1_sequence1, 0.0f, "C major");

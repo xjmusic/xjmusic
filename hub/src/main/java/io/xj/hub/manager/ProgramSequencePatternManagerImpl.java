@@ -1,15 +1,15 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.manager;
 
-import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,11 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.xj.hub.Tables.*;
+import static io.xj.hub.Tables.LIBRARY;
+import static io.xj.hub.Tables.PROGRAM;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_PATTERN;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_PATTERN_EVENT;
 
 @Service
 public class ProgramSequencePatternManagerImpl extends HubPersistenceServiceImpl implements ProgramSequencePatternManager {
@@ -68,7 +72,7 @@ public class ProgramSequencePatternManagerImpl extends HubPersistenceServiceImpl
 
       // Clone ProgramSequencePatternEvent belongs to newly cloned ProgramSequencePattern and ProgramVoiceTrack
       cloner.get().clone(db, PROGRAM_SEQUENCE_PATTERN_EVENT, PROGRAM_SEQUENCE_PATTERN_EVENT.ID,
-        ImmutableSet.of(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_SEQUENCE_PATTERN_ID, PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_VOICE_TRACK_ID),
+        Set.of(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_SEQUENCE_PATTERN_ID, PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_VOICE_TRACK_ID),
         PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_SEQUENCE_PATTERN_ID,
         cloneId, result.get().getId());
 
@@ -210,11 +214,11 @@ public class ProgramSequencePatternManagerImpl extends HubPersistenceServiceImpl
    */
   public ProgramSequencePattern validate(ProgramSequencePattern record) throws ManagerException {
     try {
-      Values.require(record.getProgramId(), "Program ID");
-      Values.require(record.getProgramVoiceId(), "Voice ID");
-      Values.require(record.getProgramSequenceId(), "Sequence ID");
-      Values.require(record.getName(), "Name");
-      Values.require(record.getTotal(), "Total");
+      ValueUtils.require(record.getProgramId(), "Program ID");
+      ValueUtils.require(record.getProgramVoiceId(), "Voice ID");
+      ValueUtils.require(record.getProgramSequenceId(), "Sequence ID");
+      ValueUtils.require(record.getName(), "Name");
+      ValueUtils.require(record.getTotal(), "Total");
       return record;
 
     } catch (ValueException e) {

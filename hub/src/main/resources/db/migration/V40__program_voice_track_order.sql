@@ -7,11 +7,11 @@
 --
 
 ALTER TABLE xj.program_voice
-    ADD COLUMN "order" float DEFAULT 1000.0;
+  ADD COLUMN "order" float DEFAULT 1000.0;
 
 CREATE INDEX ON xj.program_voice ("order");
 
 ALTER TABLE xj.program_voice_track
-    ADD COLUMN "order" float DEFAULT 1000.0;
+  ADD COLUMN "order" float DEFAULT 1000.0;
 
 CREATE INDEX ON xj.program_voice_track ("order");

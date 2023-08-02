@@ -2,8 +2,6 @@
 
 package io.xj.hub.manager;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.jooq.DSLContext;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -11,10 +9,12 @@ import org.jooq.TableRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Utility to do a bunch of cloning,
@@ -26,8 +26,8 @@ public class ManagerCloner<E> {
   static final Logger LOG = LoggerFactory.getLogger(ManagerCloner.class);
   final E clone;
   final Manager<?> anyManager;
-  final Collection<Object> childClones = Lists.newArrayList();
-  final Map<UUID, UUID> clonedIds = Maps.newConcurrentMap();
+  final Collection<Object> childClones = new ArrayList<>();
+  final Map<UUID, UUID> clonedIds = new ConcurrentHashMap<>();
 
   /**
    * Instantiates a ManagerCloner with a newly created entity,
@@ -65,8 +65,8 @@ public class ManagerCloner<E> {
     UUID fromParentId,
     UUID toParentId
   ) throws ManagerException {
-    Collection<R> toInsert = Lists.newArrayList();
-    Map<UUID, UUID> newlyClonedIds = Maps.newConcurrentMap();
+    Collection<R> toInsert = new ArrayList<>();
+    Map<UUID, UUID> newlyClonedIds = new ConcurrentHashMap<>();
     try (var selectFromTable = db.selectFrom(table)) {
       selectFromTable
         .where(parentIdField.eq(fromParentId))

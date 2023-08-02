@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.manager;
 
-import com.google.common.collect.ImmutableList;
 import io.xj.hub.HubIntegrationTest;
 import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
@@ -13,7 +12,6 @@ import io.xj.hub.tables.pojos.UserAuthToken;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.notification.NotificationProvider;
-import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
@@ -157,7 +157,7 @@ public class UserManagerDbTest {
 
   @Test
   public void update() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin,User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Admin,User");
     User update = buildUser("Timmy", "timmy@email.com", "https://pictures.com/timmy.jpg", "User,Artist,Engineer,Admin");
 
     User result = subjectManager.update(access, fake.user2.getId(), update);
@@ -172,7 +172,7 @@ public class UserManagerDbTest {
 
   @Test
   public void readOne() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin,User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Admin,User");
 
     User result = subjectManager.readOne(access, fake.user2.getId());
 
@@ -188,7 +188,7 @@ public class UserManagerDbTest {
   public void readOne_inMultipleAccounts() throws Exception {
     fake.account2 = test.insert(buildAccount("too bananas"));
     test.insert(buildAccountUser(fake.account2, fake.user3));
-    HubAccess access = HubAccess.create(fake.user3, UUID.randomUUID(), ImmutableList.of(fake.account1, fake.account2));
+    HubAccess access = HubAccess.create(fake.user3, UUID.randomUUID(), List.of(fake.account1, fake.account2));
 
     User result = subjectManager.readOne(access, fake.user3.getId());
 
@@ -198,7 +198,7 @@ public class UserManagerDbTest {
 
   @Test
   public void readOne_UserCannotSeeUserWithoutCommonAccountMembership() {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "User");
 
     var e = assertThrows(ManagerException.class, () ->
       subjectManager.readOne(access, fake.user4.getId()));
@@ -208,7 +208,7 @@ public class UserManagerDbTest {
 
   @Test
   public void readOne_UserSeesAnotherUserWithCommonAccountMembership() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "User");
 
     User result = subjectManager.readOne(access, fake.user3.getId());
 
@@ -232,18 +232,18 @@ public class UserManagerDbTest {
 
   @Test
   public void readMany() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User,Admin");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "User,Admin");
 
-    Collection<User> result = subjectManager.readMany(access, Lists.newArrayList());
+    Collection<User> result = subjectManager.readMany(access, new ArrayList<>());
 
     assertEquals(3L, result.size());
   }
 
   @Test
   public void readMany_UserSeesSelfAndOtherUsersInSameAccount() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "User");
 
-    Collection<User> result = subjectManager.readMany(access, Lists.newArrayList());
+    Collection<User> result = subjectManager.readMany(access, new ArrayList<>());
 
     assertEquals(2L, result.size());
   }
@@ -253,7 +253,7 @@ public class UserManagerDbTest {
     // Bill is in no accounts
     HubAccess access = HubAccess.create(fake.user4, "User");
 
-    Collection<User> result = subjectManager.readMany(access, Lists.newArrayList());
+    Collection<User> result = subjectManager.readMany(access, new ArrayList<>());
 
     assertNotNull(result);
     assertEquals(1L, result.size());

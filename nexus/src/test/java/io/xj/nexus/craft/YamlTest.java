@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.craft;
 
-import com.google.common.collect.Sets;
 import io.xj.lib.music.Accidental;
 import io.xj.lib.music.Note;
 import org.junit.After;
@@ -11,6 +10,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.yaml.snakeyaml.Yaml;
 
 import javax.annotation.Nullable;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -21,7 +21,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- XJ has a serviceable voicing algorithm https://www.pivotaltracker.com/story/show/176696738
+ * XJ has a serviceable voicing algorithm https://www.pivotaltracker.com/story/show/176696738
  */
 @RunWith(MockitoJUnitRunner.class)
 public abstract class YamlTest {
@@ -29,11 +29,11 @@ public abstract class YamlTest {
 
   @Before
   public void prepareFailureCache() {
-    failures = Sets.newHashSet();
+    failures = new HashSet<>();
   }
 
   /**
-   The cache of failures is a Set in order to de-dupe between multiple runs of the same test
+   * The cache of failures is a Set in order to de-dupe between multiple runs of the same test
    */
   @After
   public void reportFailures() {

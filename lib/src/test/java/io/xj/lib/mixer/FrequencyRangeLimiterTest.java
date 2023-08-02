@@ -29,13 +29,13 @@ public class FrequencyRangeLimiterTest {
   }
 
   /**
-   Create a test wave
-
-   @param FRAMES       total
-   @param CHANNELS     breadth
-   @param WAVELENGTH_A frames per cycle, wave A
-   @param WAVELENGTH_B frames per cycle, wave B
-   @return buffer of test audio data
+   * Create a test wave
+   *
+   * @param FRAMES       total
+   * @param CHANNELS     breadth
+   * @param WAVELENGTH_A frames per cycle, wave A
+   * @param WAVELENGTH_B frames per cycle, wave B
+   * @return buffer of test audio data
    */
   double[][] testWave(int FRAMES, int CHANNELS, int WAVELENGTH_A, int WAVELENGTH_B) {
     double[][] out = new double[FRAMES][CHANNELS];

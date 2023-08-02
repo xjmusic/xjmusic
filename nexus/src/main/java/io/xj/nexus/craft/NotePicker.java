@@ -17,7 +17,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- In order to pick exactly one optimal voicing note for each of the source event notes.
+ * In order to pick exactly one optimal voicing note for each of the source event notes.
  */
 public class NotePicker {
   final NoteRange targetRange;
@@ -27,11 +27,11 @@ public class NotePicker {
   final NoteRange voicingRange;
 
   /**
-   Build a NotePicker from the given optimal target range
-
-   @param targetRange    optimally picks will be within
-   @param voicingNotes   to pick from, at most once each
-   @param seekInversions whether to seek inversions
+   * Build a NotePicker from the given optimal target range
+   *
+   * @param targetRange    optimally picks will be within
+   * @param voicingNotes   to pick from, at most once each
+   * @param seekInversions whether to seek inversions
    */
   public NotePicker(NoteRange targetRange, Collection<Note> voicingNotes, boolean seekInversions) {
     this.targetRange = NoteRange.copyOf(targetRange);
@@ -41,7 +41,7 @@ public class NotePicker {
   }
 
   /**
-   Pick all voicing notes for event notes
+   * Pick all voicing notes for event notes
    */
   public Note pick(Note eventNote) {
     var noteInAvailableOctave = voicingRange.toAvailableOctave(eventNote);
@@ -68,16 +68,16 @@ public class NotePicker {
   }
 
   /**
-   @return range of picked notes (updated after picking)
+   * @return range of picked notes (updated after picking)
    */
   public NoteRange getTargetRange() {
     return targetRange;
   }
 
   /**
-   Pick a note, adding it to picked notes and removing it from voicing notes
-
-   @param picked to pick
+   * Pick a note, adding it to picked notes and removing it from voicing notes
+   *
+   * @param picked to pick
    */
   Note removePicked(Note picked) {
     voicingNotes.remove(picked);
@@ -85,11 +85,11 @@ public class NotePicker {
   }
 
   /**
-   Seek the inversion of the given note that is best contained within the given range
-
-   @param source  for which to seek inversion
-   @param range   towards which seeking will optimize
-   @param options from which to select better notes
+   * Seek the inversion of the given note that is best contained within the given range
+   *
+   * @param source  for which to seek inversion
+   * @param range   towards which seeking will optimize
+   * @param options from which to select better notes
    */
   Note seekInversion(Note source, NoteRange range, Collection<Note> options) {
     if (!seekInversions) return source;
@@ -124,12 +124,12 @@ public class NotePicker {
   }
 
   /**
-   Pick a random instrument note from the available notes in the voicing
-   <p>
-   Artist writing detail program expects 'X' note value to result in random selection from available Voicings https://www.pivotaltracker.com/story/show/175947230
-
-   @param voicingNotes to pick from
-   @return a random note from the voicing
+   * Pick a random instrument note from the available notes in the voicing
+   * <p>
+   * Artist writing detail program expects 'X' note value to result in random selection from available Voicings https://www.pivotaltracker.com/story/show/175947230
+   *
+   * @param voicingNotes to pick from
+   * @return a random note from the voicing
    */
   Optional<Note> pickRandom(Collection<Note> voicingNotes) {
     return MarbleBag.quickPick(voicingNotes

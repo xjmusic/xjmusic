@@ -2,7 +2,6 @@
 
 package io.xj.hub.api;
 
-import com.google.common.collect.ImmutableList;
 import io.xj.hub.HubTopology;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.manager.ManagerException;
@@ -36,6 +35,7 @@ import org.springframework.http.HttpStatus;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -83,7 +83,7 @@ public class TemplatePlaybackControllerTest {
 
     Account account1 = buildAccount("Testing");
     user1 = buildUser("Joe", "joe@email.com", "joe.jpg", "User,Artist");
-    access = HubAccess.create(user1, UUID.randomUUID(), ImmutableList.of(account1));
+    access = HubAccess.create(user1, UUID.randomUUID(), List.of(account1));
     template25 = buildTemplate(account1, "Testing");
     template1 = buildTemplate(account1, "Testing");
     subject = new TemplatePlaybackController(templatePlaybackManager, sqlStoreProvider, responseProvider, payloadFactory, entityFactory);
@@ -94,17 +94,17 @@ public class TemplatePlaybackControllerTest {
     when(req.getAttribute(CONTEXT_KEY)).thenReturn(access);
     TemplatePlayback templatePlayback1 = buildTemplatePlayback(template25, user1);
     TemplatePlayback templatePlayback2 = buildTemplatePlayback(template25, user1);
-    Collection<TemplatePlayback> templatePlaybacks = ImmutableList.of(templatePlayback1, templatePlayback2);
-    when(templatePlaybackManager.readMany(same(access), eq(ImmutableList.of(template25.getId()))))
+    Collection<TemplatePlayback> templatePlaybacks = List.of(templatePlayback1, templatePlayback2);
+    when(templatePlaybackManager.readMany(same(access), eq(List.of(template25.getId()))))
       .thenReturn(templatePlaybacks);
 
     var result = subject.readManyForTemplate(req, template25.getId().toString());
 
-    verify(templatePlaybackManager).readMany(same(access), eq(ImmutableList.of(template25.getId())));
+    verify(templatePlaybackManager).readMany(same(access), eq(List.of(template25.getId())));
     assertEquals(HttpStatus.OK, result.getStatusCode());
     assertTrue(result.hasBody());
     assertPayload(result.getBody())
-      .hasDataMany("template-playbacks", ImmutableList.of(templatePlayback1.getId().toString(), templatePlayback2.getId().toString()));
+      .hasDataMany("template-playbacks", List.of(templatePlayback1.getId().toString(), templatePlayback2.getId().toString()));
   }
 
   @Test

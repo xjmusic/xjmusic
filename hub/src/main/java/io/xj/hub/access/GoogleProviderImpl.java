@@ -7,10 +7,13 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeToken
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleOAuthConstants;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
-import com.google.api.client.http.*;
+import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpRequestFactory;
+import com.google.api.client.http.HttpResponse;
+import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.plus.model.Person;
-import com.google.common.collect.ImmutableList;
 import io.xj.lib.json.ApiUrlProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,11 +23,12 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 
 @Service
 public class GoogleProviderImpl implements GoogleProvider {
   static final String CALLBACK_PATH = "auth/google/callback";
-  static final Collection<String> SCOPES = ImmutableList.of("profile", "email");
+  static final Collection<String> SCOPES = List.of("profile", "email");
   static final String API_PEOPLE_ENDPOINT = "https://www.googleapis.com/plus/v1/people/me";
   static final Logger LOG = LoggerFactory.getLogger(GoogleProviderImpl.class);
   final GoogleHttpProvider googleHttpProvider;
@@ -60,7 +64,7 @@ public class GoogleProviderImpl implements GoogleProvider {
   @Override
   public String getAuthCodeRequestUrl(String state) {
     return new AuthorizationCodeRequestUrl(GoogleOAuthConstants.AUTHORIZATION_SERVER_URL, clientId)
-      .setResponseTypes(ImmutableList.of("code"))
+      .setResponseTypes(List.of("code"))
       .setRedirectUri(getCallbackUrl())
       .setState(state)
       .setScopes(SCOPES)

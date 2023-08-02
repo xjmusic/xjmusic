@@ -3,8 +3,6 @@
 package io.xj.nexus.fabricator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Streams;
 import io.xj.hub.HubTopology;
 import io.xj.hub.client.HubClientException;
 import io.xj.hub.client.HubContent;
@@ -65,7 +63,7 @@ import static io.xj.hub.IntegrationTestingFixtures.buildTrack;
 import static io.xj.hub.IntegrationTestingFixtures.buildVoice;
 import static io.xj.hub.IntegrationTestingFixtures.buildVoicing;
 import static io.xj.lib.music.NoteTest.assertNote;
-import static io.xj.lib.util.Values.MICROS_PER_SECOND;
+import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
@@ -120,7 +118,7 @@ public class FabricatorImplTest {
 
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
-    sourceMaterial = new HubContent(Streams.concat(fake.setupFixtureB1().stream(), fake.setupFixtureB2().stream(), fake.setupFixtureB3().stream(), Stream.of(fake.template1, fake.templateBinding1)).collect(Collectors.toList()));
+    sourceMaterial = new HubContent(Stream.concat(Stream.concat(Stream.concat(fake.setupFixtureB1().stream(), fake.setupFixtureB2().stream()), fake.setupFixtureB3().stream()), Stream.of(fake.template1, fake.templateBinding1)).collect(Collectors.toList()));
 
     // Here's a basic setup that can be replaced for complex tests
     var chain = store.put(buildChain(fake.account1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE));
@@ -169,7 +167,7 @@ public class FabricatorImplTest {
     when(mockFabricatorFactory.loadRetrospective(any(), any())).thenReturn(mockRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any())).thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
-    when(mockSegmentWorkbench.getSegmentChoiceArrangementPicks()).thenReturn(ImmutableList.of(beatPick));
+    when(mockSegmentWorkbench.getSegmentChoiceArrangementPicks()).thenReturn(List.of(beatPick));
     subject = new FabricatorImpl(sourceMaterial, segment, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     Collection<SegmentChoiceArrangementPick> result = subject.getPicks();
@@ -186,7 +184,7 @@ public class FabricatorImplTest {
 
   @Test
   public void getDistinctChordVoicingTypes() throws Exception {
-    sourceMaterial = new HubContent(Streams.concat(fake.setupFixtureB1().stream(), fake.setupFixtureB2().stream(), fake.setupFixtureB3().stream(), Stream.of(buildVoicing(fake.program5_sequence0_chord0, fake.program5_voiceSticky, "G4, B4, D4"), buildVoicing(fake.program5_sequence0_chord0, fake.program5_voiceStripe, "F5"), buildVoicing(fake.program5_sequence0_chord0, fake.program5_voicePad, "(None)") // No voicing notes- doesn't count!
+    sourceMaterial = new HubContent(Stream.concat(Stream.concat(Stream.concat(fake.setupFixtureB1().stream(), fake.setupFixtureB2().stream()), fake.setupFixtureB3().stream()), Stream.of(buildVoicing(fake.program5_sequence0_chord0, fake.program5_voiceSticky, "G4, B4, D4"), buildVoicing(fake.program5_sequence0_chord0, fake.program5_voiceStripe, "F5"), buildVoicing(fake.program5_sequence0_chord0, fake.program5_voicePad, "(None)") // No voicing notes- doesn't count!
     )).collect(Collectors.toList()));
     var chain = store.put(buildChain(fake.account1, fake.template1, "test", ChainType.PRODUCTION, ChainState.FABRICATE));
     segment = store.put(buildSegment(chain, 0, SegmentState.CRAFTING, "F major", 8, 0.6, 120.0, "seg123"));
@@ -254,7 +252,7 @@ public class FabricatorImplTest {
     segment = store.put(buildSegment(chain, 2, SegmentState.CRAFTING, "G major", 8, 0.6, 240.0, "seg123"));
     when(mockFabricatorFactory.loadRetrospective(any(), any())).thenReturn(mockRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any())).thenReturn(mockSegmentWorkbench);
-    when(mockSegmentWorkbench.getSegmentChords()).thenReturn(ImmutableList.of(buildSegmentChord(segment, 0.0, "C"), buildSegmentChord(segment, 2.0, "F"), buildSegmentChord(segment, 5.5, "Gm")));
+    when(mockSegmentWorkbench.getSegmentChords()).thenReturn(List.of(buildSegmentChord(segment, 0.0, "C"), buildSegmentChord(segment, 2.0, "F"), buildSegmentChord(segment, 5.5, "Gm")));
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
     subject = new FabricatorImpl(sourceMaterial, segment, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
@@ -280,7 +278,7 @@ public class FabricatorImplTest {
     var track = buildTrack(voice);
     var sequence = buildSequence(program, 4);
     var pattern = buildPattern(sequence, voice, 4);
-    sourceMaterial = new HubContent(ImmutableList.of(program, voice, track, sequence, pattern, fake.template1, fake.templateBinding1, buildEvent(pattern, track, 0.0f, 1.0f, "C1"), buildEvent(pattern, track, 1.0f, 1.0f, "D2")));
+    sourceMaterial = new HubContent(List.of(program, voice, track, sequence, pattern, fake.template1, fake.templateBinding1, buildEvent(pattern, track, 0.0f, 1.0f, "C1"), buildEvent(pattern, track, 1.0f, 1.0f, "D2")));
     subject = new FabricatorImpl(sourceMaterial, segment, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     var result = subject.getProgramRange(program.getId(), InstrumentType.Bass);
@@ -301,7 +299,7 @@ public class FabricatorImplTest {
     var track = buildTrack(voice);
     var sequence = buildSequence(program, 4);
     var pattern = buildPattern(sequence, voice, 4);
-    sourceMaterial = new HubContent(ImmutableList.of(program, voice, track, sequence, pattern, buildEvent(pattern, track, 0.0f, 1.0f, "C1"), buildEvent(pattern, track, 1.0f, 1.0f, "X"), buildEvent(pattern, track, 2.0f, 1.0f, "D2"), fake.template1, fake.templateBinding1));
+    sourceMaterial = new HubContent(List.of(program, voice, track, sequence, pattern, buildEvent(pattern, track, 0.0f, 1.0f, "C1"), buildEvent(pattern, track, 1.0f, 1.0f, "X"), buildEvent(pattern, track, 2.0f, 1.0f, "D2"), fake.template1, fake.templateBinding1));
     subject = new FabricatorImpl(sourceMaterial, segment, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     var result = subject.getProgramRange(program.getId(), InstrumentType.Bass);
@@ -320,7 +318,7 @@ public class FabricatorImplTest {
     when(mockFabricatorFactory.loadRetrospective(any(), any())).thenReturn(mockRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any())).thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
-    sourceMaterial = new HubContent(ImmutableList.of(fake.program5_sequence0, fake.template1, fake.templateBinding1));
+    sourceMaterial = new HubContent(List.of(fake.program5_sequence0, fake.template1, fake.templateBinding1));
     subject = new FabricatorImpl(sourceMaterial, segment, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     var result = subject.getProgramSequence(choice);
@@ -338,7 +336,7 @@ public class FabricatorImplTest {
     when(mockFabricatorFactory.loadRetrospective(any(), any())).thenReturn(mockRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any())).thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
-    sourceMaterial = new HubContent(ImmutableList.of(fake.program5_sequence0, fake.program5_sequence0_binding0, fake.template1, fake.templateBinding1));
+    sourceMaterial = new HubContent(List.of(fake.program5_sequence0, fake.program5_sequence0_binding0, fake.template1, fake.templateBinding1));
     subject = new FabricatorImpl(sourceMaterial, segment, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory, jsonProvider);
 
     var result = subject.getProgramSequence(choice);

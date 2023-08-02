@@ -13,7 +13,6 @@ import io.xj.lib.meme.MemeStack;
 import io.xj.lib.meme.MemeTaxonomy;
 import io.xj.lib.music.Chord;
 import io.xj.lib.util.ValueException;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Arrays;
 import java.util.Collection;

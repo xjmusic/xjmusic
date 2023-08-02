@@ -1,19 +1,36 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.ingest;
 
-import com.google.common.collect.ImmutableList;
-
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.ContentBindingType;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.manager.*;
-import io.xj.hub.tables.pojos.*;
+import io.xj.hub.manager.InstrumentManager;
+import io.xj.hub.manager.ManagerException;
+import io.xj.hub.manager.ProgramManager;
+import io.xj.hub.manager.TemplateBindingManager;
+import io.xj.hub.manager.TemplateManager;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.InstrumentMeme;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramMeme;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
+import io.xj.hub.tables.pojos.ProgramSequenceChord;
+import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
+import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.json.JsonProvider;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 
 import java.util.Collection;
 import java.util.List;
@@ -43,7 +60,7 @@ class HubIngestImpl implements HubIngest {
     this.access = access;
     try {
       store.put(templateManager.readOne(access, templateId));
-      var bindings = store.putAll(templateBindingManager.readMany(access, ImmutableList.of(templateId)));
+      var bindings = store.putAll(templateBindingManager.readMany(access, List.of(templateId)));
       List<UUID> libraryIds = bindings.stream()
         .filter(b -> ContentBindingType.Library.equals(b.getType()))
         .map(TemplateBinding::getTargetId)
@@ -58,8 +75,8 @@ class HubIngestImpl implements HubIngest {
         .collect(Collectors.toList());
 
       // library ids -> program and instrument ids; disregard library ids after this
-      Values.put(programIds, programManager.readIdsInLibraries(access, libraryIds));
-      Values.put(instrumentIds, instrumentManager.readIdsInLibraries(access, libraryIds));
+      ValueUtils.put(programIds, programManager.readIdsInLibraries(access, libraryIds));
+      ValueUtils.put(instrumentIds, instrumentManager.readIdsInLibraries(access, libraryIds));
       libraryIds.clear();
 
       // ingest programs
@@ -120,7 +137,7 @@ class HubIngestImpl implements HubIngest {
 
   @Override
   public Collection<Object> getAllEntities() {
-    return ImmutableList.builder().addAll(store.getAll()).build();
+    return store.getAll();
   }
 
   @Override

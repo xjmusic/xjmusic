@@ -1,8 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.work;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Program;
@@ -16,7 +14,7 @@ import io.xj.lib.mixer.PutException;
 import io.xj.lib.mixer.SourceException;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.MultiStopwatch;
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.dub.DubAudioCache;
 import io.xj.nexus.mixer.ActiveAudio;
@@ -33,6 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -52,8 +51,8 @@ public class DubWorkImpl implements DubWork {
   final AtomicBoolean running = new AtomicBoolean(true);
   final CraftWork craftWork;
   final DubAudioCache dubAudioCache;
-  final Map<InstrumentType, Integer> instrumentBusNumber = Maps.newConcurrentMap();
-  final Map<UUID, ActiveAudio> mixerActiveAudio = Maps.newConcurrentMap();
+  final Map<InstrumentType, Integer> instrumentBusNumber = new ConcurrentHashMap<>();
+  final Map<UUID, ActiveAudio> mixerActiveAudio = new ConcurrentHashMap<>();
   final MixerFactory mixerFactory;
   final NotificationProvider notification;
   final int mixerLengthSeconds;
@@ -383,7 +382,7 @@ public class DubWorkImpl implements DubWork {
     if (Objects.isNull(mixer)) return;
     try {
       String key = active.getAudio().getWaveformKey();
-      if (Strings.isNullOrEmpty(key)) return;
+      if (StringUtils.isNullOrEmpty(key)) return;
       if (!mixer.hasLoadedSource(active.getAudio().getId())) {
         mixer.loadSource(active.getAudio().getId(), dubAudioCache.load(key, (int) mixer.getAudioFormat().getFrameRate()), active.getAudio().getName());
       }
@@ -431,12 +430,12 @@ public class DubWorkImpl implements DubWork {
    * @param e        exception (optional)
    */
   void didFailWhile(String msgWhile, Exception e) {
-    var msgCause = Strings.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
+    var msgCause = StringUtils.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
     LOG.error("Failed while {} because {}", msgWhile, msgCause, e);
 
     notification.publish(
       "Dub Failure",
-      String.format("Failed while %s because %s\n\n%s", msgWhile, msgCause, Text.formatStackTrace(e)));
+      String.format("Failed while %s because %s\n\n%s", msgWhile, msgCause, StringUtils.formatStackTrace(e)));
 
     state = WorkState.Failed;
     running.set(false);

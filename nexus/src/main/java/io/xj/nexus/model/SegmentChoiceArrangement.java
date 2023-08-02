@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 
-public class SegmentChoiceArrangement   {
+public class SegmentChoiceArrangement {
 
   @Valid UUID id;
   @Valid UUID segmentId;
@@ -17,6 +17,7 @@ public class SegmentChoiceArrangement   {
   @Valid UUID programSequencePatternId;
 
   /**
+   *
    **/
   public SegmentChoiceArrangement id(UUID id) {
     this.id = id;
@@ -28,11 +29,13 @@ public class SegmentChoiceArrangement   {
   public UUID getId() {
     return id;
   }
+
   public void setId(UUID id) {
     this.id = id;
   }
 
   /**
+   *
    **/
   public SegmentChoiceArrangement segmentId(UUID segmentId) {
     this.segmentId = segmentId;
@@ -44,11 +47,13 @@ public class SegmentChoiceArrangement   {
   public UUID getSegmentId() {
     return segmentId;
   }
+
   public void setSegmentId(UUID segmentId) {
     this.segmentId = segmentId;
   }
 
   /**
+   *
    **/
   public SegmentChoiceArrangement segmentChoiceId(UUID segmentChoiceId) {
     this.segmentChoiceId = segmentChoiceId;
@@ -60,11 +65,13 @@ public class SegmentChoiceArrangement   {
   public UUID getSegmentChoiceId() {
     return segmentChoiceId;
   }
+
   public void setSegmentChoiceId(UUID segmentChoiceId) {
     this.segmentChoiceId = segmentChoiceId;
   }
 
   /**
+   *
    **/
   public SegmentChoiceArrangement programSequencePatternId(UUID programSequencePatternId) {
     this.programSequencePatternId = programSequencePatternId;
@@ -76,6 +83,7 @@ public class SegmentChoiceArrangement   {
   public UUID getProgramSequencePatternId() {
     return programSequencePatternId;
   }
+
   public void setProgramSequencePatternId(UUID programSequencePatternId) {
     this.programSequencePatternId = programSequencePatternId;
   }
@@ -91,9 +99,9 @@ public class SegmentChoiceArrangement   {
     }
     SegmentChoiceArrangement segmentChoiceArrangement = (SegmentChoiceArrangement) o;
     return Objects.equals(this.id, segmentChoiceArrangement.id) &&
-        Objects.equals(this.segmentId, segmentChoiceArrangement.segmentId) &&
-        Objects.equals(this.segmentChoiceId, segmentChoiceArrangement.segmentChoiceId) &&
-        Objects.equals(this.programSequencePatternId, segmentChoiceArrangement.programSequencePatternId);
+      Objects.equals(this.segmentId, segmentChoiceArrangement.segmentId) &&
+      Objects.equals(this.segmentChoiceId, segmentChoiceArrangement.segmentChoiceId) &&
+      Objects.equals(this.programSequencePatternId, segmentChoiceArrangement.programSequencePatternId);
   }
 
   @Override

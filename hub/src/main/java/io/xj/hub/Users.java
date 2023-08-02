@@ -1,11 +1,11 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub;
 
-import com.google.common.collect.Lists;
 import io.xj.hub.enums.UserRoleType;
 import io.xj.lib.util.CSV;
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -20,10 +20,10 @@ public enum Users {
    * @return collection of ids
    */
   public static Collection<UserRoleType> userRoleTypesFromCsv(String csv) {
-    Collection<UserRoleType> result = Lists.newArrayList();
+    Collection<UserRoleType> result = new ArrayList<>();
 
     if (Objects.nonNull(csv) && !csv.isEmpty()) {
-      result = CSV.split(csv).stream().map(type -> UserRoleType.valueOf(Text.toProperSlug(type))).collect(Collectors.toList());
+      result = CSV.split(csv).stream().map(type -> UserRoleType.valueOf(StringUtils.toProperSlug(type))).collect(Collectors.toList());
     }
 
     return result;

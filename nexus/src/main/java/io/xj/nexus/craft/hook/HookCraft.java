@@ -4,14 +4,14 @@ package io.xj.nexus.craft.hook;
 import io.xj.nexus.NexusException;
 
 /**
- Hook-type instrument
- https://www.pivotaltracker.com/story/show/180416989
+ * Hook-type instrument
+ * https://www.pivotaltracker.com/story/show/180416989
  */
 public interface HookCraft {
 
   /**
-   Perform Hook-type craft for this segment
-   https://www.pivotaltracker.com/story/show/180416989
+   * Perform Hook-type craft for this segment
+   * https://www.pivotaltracker.com/story/show/180416989
    */
   void doWork() throws NexusException;
 

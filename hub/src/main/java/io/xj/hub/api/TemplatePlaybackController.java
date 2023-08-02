@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.api;
 
-import com.google.common.collect.ImmutableList;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.manager.ManagerException;
@@ -26,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -66,7 +66,7 @@ public class TemplatePlaybackController extends HubJsonapiEndpoint {
       Collection<TemplatePlayback> templatePlaybacks;
 
       // how we source templatePlaybacks depends on the query parameters
-      templatePlaybacks = manager().readMany(access, ImmutableList.of(UUID.fromString(templateId)));
+      templatePlaybacks = manager().readMany(access, List.of(UUID.fromString(templateId)));
 
       // add templatePlaybacks as plural data in payload
       for (TemplatePlayback templatePlayback : templatePlaybacks)

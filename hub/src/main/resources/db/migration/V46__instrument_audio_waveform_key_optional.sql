@@ -2,4 +2,4 @@
 
 
 ALTER TABLE xj.instrument_audio
-    ALTER COLUMN waveform_key DROP NOT NULL;
+  ALTER COLUMN waveform_key DROP NOT NULL;

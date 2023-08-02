@@ -2,7 +2,6 @@
 
 package io.xj.hub.api;
 
-import com.google.common.collect.ImmutableList;
 import io.xj.hub.HubTopology;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.manager.ManagerException;
@@ -87,7 +86,7 @@ public class TemplateControllerTest {
     JsonapiResponseProvider responseProvider = new JsonapiResponseProviderImpl(apiUrlProvider);
 
     account1 = buildAccount("Testing Account 1");
-    access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(account1), "User,Artist");
+    access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(account1), "User,Artist");
     account25 = buildAccount("Testing Account 25");
     subject = new TemplateController(entityFactory, sqlStoreProvider, responseProvider, payloadFactory, templateManager, templatePlaybackManager);
   }
@@ -97,17 +96,17 @@ public class TemplateControllerTest {
     when(req.getAttribute(CONTEXT_KEY)).thenReturn(access);
     Template template1 = buildTemplate(account25, "fonds", "ABC");
     Template template2 = buildTemplate(account25, "trunk", "DEF");
-    Collection<Template> templates = ImmutableList.of(template1, template2);
-    when(templateManager.readMany(same(access), eq(ImmutableList.of(account25.getId()))))
+    Collection<Template> templates = List.of(template1, template2);
+    when(templateManager.readMany(same(access), eq(List.of(account25.getId()))))
       .thenReturn(templates);
 
     var result = subject.readMany(req, account25.getId());
 
-    verify(templateManager).readMany(same(access), eq(ImmutableList.of(account25.getId())));
+    verify(templateManager).readMany(same(access), eq(List.of(account25.getId())));
     assertEquals(HttpStatus.OK, result.getStatusCode());
     assertTrue(result.hasBody());
     assertPayload(result.getBody())
-      .hasDataMany("templates", ImmutableList.of(template1.getId().toString(), template2.getId().toString()));
+      .hasDataMany("templates", List.of(template1.getId().toString(), template2.getId().toString()));
   }
 
   @Test
@@ -115,17 +114,17 @@ public class TemplateControllerTest {
     when(req.getAttribute(CONTEXT_KEY)).thenReturn(access);
     Template template1 = buildTemplate(account25, "fonds", "ABC");
     Template template2 = buildTemplate(account25, "trunk", "DEF");
-    Collection<Template> templates = ImmutableList.of(template1, template2);
-    when(templateManager.readMany(same(access), eq(ImmutableList.of(account25.getId()))))
+    Collection<Template> templates = List.of(template1, template2);
+    when(templateManager.readMany(same(access), eq(List.of(account25.getId()))))
       .thenReturn(templates);
 
     var result = subject.readMany(req, account25.getId());
 
-    verify(templateManager).readMany(same(access), eq(ImmutableList.of(account25.getId())));
+    verify(templateManager).readMany(same(access), eq(List.of(account25.getId())));
     assertEquals(HttpStatus.OK, result.getStatusCode());
     assertTrue(result.hasBody());
     assertPayload(result.getBody())
-      .hasDataMany("templates", ImmutableList.of(template1.getId().toString(), template2.getId().toString()));
+      .hasDataMany("templates", List.of(template1.getId().toString(), template2.getId().toString()));
   }
 
   @Test

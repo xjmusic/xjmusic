@@ -1,19 +1,18 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.music;
 
-import com.google.common.collect.Maps;
-
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 /**
- Provides exact pitch for any Note, in Hz.
- A `Tuning` instance is fixed to a given tuning of note A4, in Hz.
- Computations for notes at that tuning are cached in memory.
- <p>
- [#255] Note pitch is calculated at 32-bit floating point precision, based on root note configured in environment parameters.
- <p>
- Reference: http://www.phy.mtu.edu/~suits/notefreqs.html
+ * Provides exact pitch for any Note, in Hz.
+ * A `Tuning` instance is fixed to a given tuning of note A4, in Hz.
+ * Computations for notes at that tuning are cached in memory.
+ * <p>
+ * [#255] Note pitch is calculated at 32-bit floating point precision, based on root note configured in environment parameters.
+ * <p>
+ * Reference: http://www.phy.mtu.edu/~suits/notefreqs.html
  */
 public class Tuning {
   static final double TWELFTH_ROOT_OF_TWO = StrictMath.pow(2.0d, 1.0d / 12.0d);
@@ -24,12 +23,12 @@ public class Tuning {
   static final int ROOT_OCTAVE_MAXIMUM = 15;
   final Note rootNote;
   final Double rootPitch;
-  final Map<Integer, Map<PitchClass, Double>> _notePitches = Maps.newHashMap();
-  final Map<Double, Integer> _deltaFromRootPitch = Maps.newHashMap();
-  final Map<Double, Note> _pitchNotes = Maps.newHashMap();
+  final Map<Integer, Map<PitchClass, Double>> _notePitches = new HashMap<>();
+  final Map<Double, Integer> _deltaFromRootPitch = new HashMap<>();
+  final Map<Double, Note> _pitchNotes = new HashMap<>();
 
   /**
-   constructor
+   * constructor
    */
   Tuning(Note rootNote, Double rootPitch) throws MusicalException {
     this.rootNote = rootNote;
@@ -38,39 +37,39 @@ public class Tuning {
   }
 
   /**
-   A `Tuning` instance, fixed to a given tuning of note A4, in Hz.
-
-   @param a4 tuning of note A4, in Hz
-   @return a Tuning instance ready to provide exact pitch for any note, in Hz
+   * A `Tuning` instance, fixed to a given tuning of note A4, in Hz.
+   *
+   * @param a4 tuning of note A4, in Hz
+   * @return a Tuning instance ready to provide exact pitch for any note, in Hz
    */
   public static Tuning atA4(double a4) throws MusicalException {
     return new Tuning(Note.of("A4"), a4);
   }
 
   /**
-   A `Tuning` instance, fixed to a given tuning of note A4, in Hz.
-
-   @param note  to use as the root of the tuning
-   @param pitch of the root note
-   @return a Tuning instance ready to provide exact pitch for any note, in Hz
+   * A `Tuning` instance, fixed to a given tuning of note A4, in Hz.
+   *
+   * @param note  to use as the root of the tuning
+   * @param pitch of the root note
+   * @return a Tuning instance ready to provide exact pitch for any note, in Hz
    */
   public static Tuning at(Note note, Double pitch) throws MusicalException {
     return new Tuning(note, pitch);
   }
 
   /**
-   Pitch for any Note, in Hz
-   (caches results by octave and pitch class)
-
-   @param note to get pitch for
-   @return pitch of note, in Hz
+   * Pitch for any Note, in Hz
+   * (caches results by octave and pitch class)
+   *
+   * @param note to get pitch for
+   * @return pitch of note, in Hz
    */
   public double pitch(Note note) {
     Integer octave = note.getOctave();
     PitchClass pitchClass = note.getPitchClass();
 
     if (!_notePitches.containsKey(octave))
-      _notePitches.put(octave, Maps.newHashMap());
+      _notePitches.put(octave, new HashMap<>());
 
     if (!_notePitches.get(octave).containsKey(pitchClass))
       _notePitches.get(octave).put(pitchClass,
@@ -80,9 +79,9 @@ public class Tuning {
   }
 
   /**
-   Closest Note, for any pitch in Hz
-
-   @param pitch to get octave of
+   * Closest Note, for any pitch in Hz
+   *
+   * @param pitch to get octave of
    */
   public Note getTones(Double pitch) {
     if (!_pitchNotes.containsKey(pitch))
@@ -93,10 +92,10 @@ public class Tuning {
   }
 
   /**
-   delta, +/- semitones, from the root pitch to the target pitch
-
-   @param pitch to get delta of
-   @return delta +/- semitones
+   * delta, +/- semitones, from the root pitch to the target pitch
+   *
+   * @param pitch to get delta of
+   * @return delta +/- semitones
    */
   public Integer deltaFromRootPitch(Double pitch) {
     if (!_deltaFromRootPitch.containsKey(pitch))
@@ -107,19 +106,19 @@ public class Tuning {
   }
 
   /**
-   Pitch in Hz, for +/- semitones from known root pitch
-
-   @param delta +/- semitones from root pitch
-   @return pitch
+   * Pitch in Hz, for +/- semitones from known root pitch
+   *
+   * @param delta +/- semitones from root pitch
+   * @return pitch
    */
   Double pitchAtDelta(Integer delta) {
     return rootPitch * StrictMath.pow(TWELFTH_ROOT_OF_TWO, delta);
   }
 
   /**
-   validate after construction
-
-   @throws MusicalException if any properties are invalid
+   * validate after construction
+   *
+   * @throws MusicalException if any properties are invalid
    */
   void validate() throws MusicalException {
     if (Objects.isNull(rootNote))

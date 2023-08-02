@@ -1,11 +1,11 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.fabricator;
 
-import com.google.common.collect.ImmutableList;
 import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.lib.meme.MemeTaxonomy;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -17,7 +17,7 @@ public class MemeIsometryTest {
 
   @Test
   public void of_List() {
-    subject = MemeIsometry.of(MemeTaxonomy.empty(), ImmutableList.of(
+    subject = MemeIsometry.of(MemeTaxonomy.empty(), List.of(
       "Smooth",
       "Catlike"
     ));
@@ -27,7 +27,7 @@ public class MemeIsometryTest {
 
   @Test
   public void add() {
-    subject = MemeIsometry.of(MemeTaxonomy.empty(), ImmutableList.of(
+    subject = MemeIsometry.of(MemeTaxonomy.empty(), List.of(
       "Smooth"
     ));
     var meme = new ProgramMeme();
@@ -40,7 +40,7 @@ public class MemeIsometryTest {
 
   @Test
   public void doNotMutate() {
-    Set<String> subject = MemeIsometry.of(MemeTaxonomy.empty(), ImmutableList.of(
+    Set<String> subject = MemeIsometry.of(MemeTaxonomy.empty(), List.of(
       "Intensity",
       "Cool",
       "Dark"
@@ -51,27 +51,27 @@ public class MemeIsometryTest {
 
   @Test
   public void score() {
-    subject = MemeIsometry.of(MemeTaxonomy.empty(), ImmutableList.of(
+    subject = MemeIsometry.of(MemeTaxonomy.empty(), List.of(
       "Smooth",
       "Catlike"
     ));
 
-    assertEquals(1.0, subject.score(ImmutableList.of("Smooth")), 0.1);
-    assertEquals(1.0, subject.score(ImmutableList.of("Catlike")), 0.1);
-    assertEquals(2.0, subject.score(ImmutableList.of("Smooth", "Catlike")), 0.1);
+    assertEquals(1.0, subject.score(List.of("Smooth")), 0.1);
+    assertEquals(1.0, subject.score(List.of("Catlike")), 0.1);
+    assertEquals(2.0, subject.score(List.of("Smooth", "Catlike")), 0.1);
   }
 
   @Test
   public void score_eliminatesDuplicates() {
-    subject = MemeIsometry.of(MemeTaxonomy.empty(), ImmutableList.of(
+    subject = MemeIsometry.of(MemeTaxonomy.empty(), List.of(
       "Smooth",
       "Smooth",
       "Catlike"
     ));
 
-    assertEquals(1.0, subject.score(ImmutableList.of("Smooth")), 0.1);
-    assertEquals(1.0, subject.score(ImmutableList.of("Catlike")), 0.1);
-    assertEquals(2.0, subject.score(ImmutableList.of("Smooth", "Catlike")), 0.1);
+    assertEquals(1.0, subject.score(List.of("Smooth")), 0.1);
+    assertEquals(1.0, subject.score(List.of("Catlike")), 0.1);
+    assertEquals(2.0, subject.score(List.of("Smooth", "Catlike")), 0.1);
   }
 
 

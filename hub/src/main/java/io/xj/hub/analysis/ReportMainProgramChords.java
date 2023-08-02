@@ -1,12 +1,16 @@
 package io.xj.hub.analysis;
 
-import com.google.common.collect.Maps;
 import io.xj.hub.analysis.util.ChordCount;
 import io.xj.hub.client.HubContent;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.lib.music.Chord;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -55,7 +59,7 @@ public class ReportMainProgramChords extends Report {
     Map<String, ChordCount> histogram;
 
     public ChordHistogram() {
-      histogram = Maps.newHashMap();
+      histogram = new HashMap<>();
     }
 
     public void addProgramId(String raw, UUID programId) {

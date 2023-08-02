@@ -1,13 +1,11 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.work;
 
-import com.google.common.collect.Lists;
-import com.google.common.base.Strings;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.lib.mixer.AudioFileWriter;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.MultiStopwatch;
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.model.Segment;
@@ -20,14 +18,15 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static io.xj.lib.util.Values.MICROS_PER_MILLI;
-import static io.xj.lib.util.Values.MICROS_PER_SECOND;
+import static io.xj.lib.util.ValueUtils.MICROS_PER_MILLI;
+import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
 
 public class ShipWorkImpl implements ShipWork {
   static final Logger LOG = LoggerFactory.getLogger(ShipWorkImpl.class);
@@ -367,7 +366,7 @@ public class ShipWorkImpl implements ShipWork {
     }
 
     // Finite number-zero number of output seconds has been specified
-    LOG.info("Shipped {} seconds ({})", String.format("%.2f", shippedSeconds), Text.percentage(shippedSeconds / outputSeconds));
+    LOG.info("Shipped {} seconds ({})", String.format("%.2f", shippedSeconds), StringUtils.percentage(shippedSeconds / outputSeconds));
 
     // But leave if we have not yet shipped that many seconds
     if (shippedSeconds < outputSeconds) return false;
@@ -386,13 +385,13 @@ public class ShipWorkImpl implements ShipWork {
    * @param e        exception (optional)
    */
   void didFailWhile(String msgWhile, Exception e) {
-    var msgCause = Strings.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
+    var msgCause = StringUtils.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
 
     LOG.error("Failed while {} because {}", msgWhile, msgCause, e);
 
     notification.publish(
       "Ship Failure",
-      String.format("Failed while %s because %s\n\n%s", msgWhile, msgCause, Text.formatStackTrace(e)));
+      String.format("Failed while %s because %s\n\n%s", msgWhile, msgCause, StringUtils.formatStackTrace(e)));
 
     finish();
   }
@@ -414,7 +413,7 @@ public class ShipWorkImpl implements ShipWork {
     OutputFile(
       Segment firstSegment
     ) {
-      this.segments = Lists.newArrayList();
+      this.segments = new ArrayList<>();
       segments.add(firstSegment);
       this.toChainMicros = firstSegment.getBeginAtChainMicros() + Objects.requireNonNull(firstSegment.getDurationMicros());
     }
@@ -439,7 +438,7 @@ public class ShipWorkImpl implements ShipWork {
     public String getPath() {
       return outputPathPrefix +
         dubWork.getInputTemplateKey() +
-        "-" + Text.zeroPadded(outputFileNum++, outputFileNumberDigits) +
+        "-" + StringUtils.zeroPadded(outputFileNum++, outputFileNumberDigits) +
         getPathDescriptionIfRelevant() +
         ".wav";
     }
@@ -451,11 +450,11 @@ public class ShipWorkImpl implements ShipWork {
         }
         case MAIN -> {
           Optional<Program> mainProgram = dubWork.getMainProgram(getLastSegment());
-          return mainProgram.map(program -> "-" + Text.toLowerHyphenatedSlug(program.getName())).orElse("");
+          return mainProgram.map(program -> "-" + StringUtils.toLowerHyphenatedSlug(program.getName())).orElse("");
         }
         case MACRO -> {
           Optional<Program> macroProgram = dubWork.getMacroProgram(getLastSegment());
-          return macroProgram.map(program -> "-" + Text.toLowerHyphenatedSlug(program.getName())).orElse("");
+          return macroProgram.map(program -> "-" + StringUtils.toLowerHyphenatedSlug(program.getName())).orElse("");
         }
       }
     }

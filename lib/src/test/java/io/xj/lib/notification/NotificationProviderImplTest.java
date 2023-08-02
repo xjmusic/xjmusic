@@ -12,7 +12,7 @@ public class NotificationProviderImplTest {
 
   @Test
   public void instantiate() {
-    NotificationProvider subject = new NotificationProviderImpl("","","","");
+    NotificationProvider subject = new NotificationProviderImpl("", "", "", "");
 
     assertNotNull(subject);
   }

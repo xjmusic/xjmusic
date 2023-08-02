@@ -1,9 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.craft.perc_loop;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Streams;
 import io.xj.hub.HubTopology;
 import io.xj.hub.client.HubClient;
 import io.xj.hub.client.HubContent;
@@ -45,8 +42,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildInstrument;
 import static io.xj.hub.IntegrationTestingFixtures.buildInstrumentAudio;
@@ -95,9 +95,9 @@ public class CraftPercLoopProgramVoiceNextMainTest {
 
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
-    sourceMaterial = new HubContent(Streams.concat(
-      fake.setupFixtureB1().stream(),
-      fake.setupFixtureB2().stream(),
+    sourceMaterial = new HubContent(Stream.concat(
+      Stream.concat(fake.setupFixtureB1().stream(),
+        fake.setupFixtureB2().stream()),
       customFixtures().stream()
     ).collect(Collectors.toList()));
 
@@ -113,7 +113,7 @@ public class CraftPercLoopProgramVoiceNextMainTest {
       chain1,
       0,
       SegmentState.CRAFTED,
-            "D major",
+      "D major",
       64,
       0.73,
       120.0,
@@ -138,7 +138,7 @@ public class CraftPercLoopProgramVoiceNextMainTest {
    * @return list of all entities
    */
   Collection<Object> customFixtures() {
-    Collection<Object> entities = Lists.newArrayList();
+    Collection<Object> entities = new ArrayList<>();
 
     // Instrument "808"
     Instrument instrument1 = Entities.add(entities,
@@ -248,7 +248,7 @@ public class CraftPercLoopProgramVoiceNextMainTest {
       Segments.DELTA_UNLIMITED,
       fake.program15,
       fake.program15_sequence0_binding0));
-    for (String memeName : ImmutableList.of("Regret", "Sky", "Hindsight", "Tropical"))
+    for (String memeName : List.of("Regret", "Sky", "Hindsight", "Tropical"))
       store.put(buildSegmentMeme(segment4, memeName));
 
     store.put(buildSegmentChord(segment4, 0.0, "G minor"));

@@ -8,7 +8,7 @@ import javax.validation.Valid;
 import java.util.Objects;
 
 
-public class Error   {
+public class Error {
 
   @Valid String title;
   @Valid String detail;
@@ -26,6 +26,7 @@ public class Error   {
   public String getTitle() {
     return title;
   }
+
   public void setTitle(String title) {
     this.title = title;
   }
@@ -43,6 +44,7 @@ public class Error   {
   public String getDetail() {
     return detail;
   }
+
   public void setDetail(String detail) {
     this.detail = detail;
   }
@@ -58,7 +60,7 @@ public class Error   {
     }
     Error error = (Error) o;
     return Objects.equals(this.title, error.title) &&
-        Objects.equals(this.detail, error.detail);
+      Objects.equals(this.detail, error.detail);
   }
 
   @Override

@@ -6,8 +6,14 @@
 -- Refactor instrument type Percussive -> Drum
 --
 
-UPDATE xj.instrument SET type='Drum' WHERE type='Percussive';
+UPDATE xj.instrument
+SET type='Drum'
+WHERE type = 'Percussive';
 
-UPDATE xj.program_voice SET type='Drum' WHERE type='Percussive';
+UPDATE xj.program_voice
+SET type='Drum'
+WHERE type = 'Percussive';
 
-UPDATE xj.program_sequence_chord_voicing SET type='Drum' WHERE type='Percussive';
+UPDATE xj.program_sequence_chord_voicing
+SET type='Drum'
+WHERE type = 'Percussive';

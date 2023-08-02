@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.api;
 
-import com.google.common.collect.ImmutableList;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.manager.TemplateBindingManager;
@@ -26,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -61,14 +61,14 @@ public class TemplateBindingController extends HubJsonapiEndpoint {
   public ResponseEntity<JsonapiPayload> readMany(
     HttpServletRequest req,
     @RequestParam("templateId") String templateId
-    ) {
+  ) {
     try {
       HubAccess access = HubAccess.fromRequest(req);
       JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataType(PayloadDataType.Many);
       Collection<TemplateBinding> templateBindings;
 
       // how we source templateBindings depends on the query parameters
-      templateBindings = manager().readMany(access, ImmutableList.of(UUID.fromString(templateId)));
+      templateBindings = manager().readMany(access, List.of(UUID.fromString(templateId)));
 
       // add templateBindings as plural data in payload
       for (TemplateBinding templateBinding : templateBindings)

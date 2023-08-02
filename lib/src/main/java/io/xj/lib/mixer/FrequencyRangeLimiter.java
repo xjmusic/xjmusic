@@ -13,10 +13,10 @@ import java.io.ByteArrayInputStream;
 import java.util.Objects;
 
 /**
- Engineer wants high-pass and low-pass filters with gradual thresholds, in order to be optimally heard but not listened to. https://www.pivotaltracker.com/story/show/161670248
- FrequencyRangeLimiter utility performs DSP filter turn-key
- <p>
- Stores values in buffer[channel][frame] in order to be able to treat each channel as a single buffer for frequency range limiter
+ * Engineer wants high-pass and low-pass filters with gradual thresholds, in order to be optimally heard but not listened to. https://www.pivotaltracker.com/story/show/161670248
+ * FrequencyRangeLimiter utility performs DSP filter turn-key
+ * <p>
+ * Stores values in buffer[channel][frame] in order to be able to treat each channel as a single buffer for frequency range limiter
  */
 public class FrequencyRangeLimiter {
   final AudioDispatcher audioDispatcher;
@@ -24,12 +24,12 @@ public class FrequencyRangeLimiter {
   final float[] floatBuffer;
 
   /**
-   Construct a new frequency range limiter from a buffer of complex values@param buffer buffer[channel][frame] in order to be able to treat each channel as a single buffer for frequency range limiter to filter
-
-   @param sampleRate          of buffer, for computation of pitch
-   @param audioBufferSize     The size of the buffer defines how much samples are processed in one step. Common values are 1024,2048.
-   @param highpassThresholdHz frequency in Hz, above which to allow audio to pass
-   @param lowpassThresholdHz  frequency in Hz, below which to allow audio to pass
+   * Construct a new frequency range limiter from a buffer of complex values@param buffer buffer[channel][frame] in order to be able to treat each channel as a single buffer for frequency range limiter to filter
+   *
+   * @param sampleRate          of buffer, for computation of pitch
+   * @param audioBufferSize     The size of the buffer defines how much samples are processed in one step. Common values are 1024,2048.
+   * @param highpassThresholdHz frequency in Hz, above which to allow audio to pass
+   * @param lowpassThresholdHz  frequency in Hz, below which to allow audio to pass
    */
   FrequencyRangeLimiter(float[] floatBuffer, float sampleRate, int audioBufferSize, float highpassThresholdHz, float lowpassThresholdHz) {
     this.floatBuffer = floatBuffer;
@@ -50,15 +50,15 @@ public class FrequencyRangeLimiter {
   }
 
   /**
-   Filter a buffer of input audio
-   The stored buffer of complex values is buffer[channel][frame] in order to be able to treat each channel as a single buffer for frequency range limiter
-   The final result is pivoted and written back as double values to the original array
-
-   @param buffer              to filter
-   @param sampleRate          of buffer, for computation of pitch
-   @param audioBufferSize     The size of the buffer defines how much samples are processed in one step. Common values are 1024,2048.
-   @param highpassThresholdHz frequency in Hz, above which to allow audio to pass
-   @param lowpassThresholdHz  frequency in Hz, below which to allow audio to pass
+   * Filter a buffer of input audio
+   * The stored buffer of complex values is buffer[channel][frame] in order to be able to treat each channel as a single buffer for frequency range limiter
+   * The final result is pivoted and written back as double values to the original array
+   *
+   * @param buffer              to filter
+   * @param sampleRate          of buffer, for computation of pitch
+   * @param audioBufferSize     The size of the buffer defines how much samples are processed in one step. Common values are 1024,2048.
+   * @param highpassThresholdHz frequency in Hz, above which to allow audio to pass
+   * @param lowpassThresholdHz  frequency in Hz, below which to allow audio to pass
    */
   public static void filter(double[][] buffer, float sampleRate, int audioBufferSize, float highpassThresholdHz, float lowpassThresholdHz) throws MixerException {
     if (0 == buffer.length) return;
@@ -73,11 +73,11 @@ public class FrequencyRangeLimiter {
   }
 
   /**
-   Copy from an input multi-channel buffer of double values to a single-channel buffer of float values
-
-   @param fromBuffer to source channel from
-   @param toBuffer   to write values onto
-   @param channel    # of channel to extract
+   * Copy from an input multi-channel buffer of double values to a single-channel buffer of float values
+   *
+   * @param fromBuffer to source channel from
+   * @param toBuffer   to write values onto
+   * @param channel    # of channel to extract
    */
   static void copyToMulti(float[] fromBuffer, double[][] toBuffer, int channel) {
     int frames = fromBuffer.length;
@@ -86,11 +86,11 @@ public class FrequencyRangeLimiter {
   }
 
   /**
-   Copy from an input multi-channel buffer of double values to a single-channel buffer of float values
-
-   @param fromBuffer to extract channel from
-   @param toBuffer   to write values onto
-   @param channel    # of channel to extract
+   * Copy from an input multi-channel buffer of double values to a single-channel buffer of float values
+   *
+   * @param fromBuffer to extract channel from
+   * @param toBuffer   to write values onto
+   * @param channel    # of channel to extract
    */
   static void copyToSingle(double[][] fromBuffer, float[] toBuffer, int channel) {
     int frames = fromBuffer.length;
@@ -99,13 +99,13 @@ public class FrequencyRangeLimiter {
   }
 
   /**
-   Filter a single channel buffer of input audio
-
-   @param sampleRate          of buffer, for computation of pitch
-   @param audioBufferSize     The size of the buffer defines how much samples are processed in one step. Common values are 1024,2048.
-   @param highpassThresholdHz frequency in Hz, above which to allow audio to pass
-   @param lowpassThresholdHz  frequency in Hz, below which to allow audio to pass
-   @return samples[frame]
+   * Filter a single channel buffer of input audio
+   *
+   * @param sampleRate          of buffer, for computation of pitch
+   * @param audioBufferSize     The size of the buffer defines how much samples are processed in one step. Common values are 1024,2048.
+   * @param highpassThresholdHz frequency in Hz, above which to allow audio to pass
+   * @param lowpassThresholdHz  frequency in Hz, below which to allow audio to pass
+   * @return samples[frame]
    */
   static float[] filter(float[] buffer, float sampleRate, int audioBufferSize, float highpassThresholdHz, float lowpassThresholdHz) throws MixerException {
     FrequencyRangeLimiter filter = new FrequencyRangeLimiter(buffer, sampleRate, audioBufferSize, highpassThresholdHz, lowpassThresholdHz);
@@ -114,17 +114,17 @@ public class FrequencyRangeLimiter {
   }
 
   /**
-   Get the current buffer from the filter, probably for using the results of the frequency range limiter operation downstream
-
-   @return buffer of channel-
-   interlaced samples
+   * Get the current buffer from the filter, probably for using the results of the frequency range limiter operation downstream
+   *
+   * @return buffer of channel-
+   * interlaced samples
    */
   float[] getBuffer() {
     return floatBuffer;
   }
 
   /**
-   Process the filter.
+   * Process the filter.
    */
   void process() throws MixerException {
     audioDispatcher.run();

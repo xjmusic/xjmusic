@@ -4,8 +4,11 @@ package io.xj.hub.manager;
 import io.xj.hub.access.HubAccess;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
+import org.jooq.DSLContext;
 import org.jooq.Record;
-import org.jooq.*;
+import org.jooq.Record1;
+import org.jooq.Result;
+import org.jooq.SQLDialect;
 import org.jooq.conf.Settings;
 import org.jooq.impl.DSL;
 

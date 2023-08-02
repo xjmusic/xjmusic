@@ -2,7 +2,6 @@
 
 package io.xj.lib.music;
 
-import io.xj.lib.util.Values;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

@@ -2,7 +2,6 @@
 
 package io.xj.hub.service;
 
-import com.google.common.collect.Lists;
 import com.google.api.gax.rpc.ApiException;
 import com.google.cloud.logging.LogEntry;
 import com.google.cloud.logging.Logging;
@@ -25,7 +24,7 @@ import io.xj.hub.TemplateConfig;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplatePlayback;
 import io.xj.lib.util.ValueException;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import net.logstash.logback.encoder.org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +35,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -163,7 +163,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
     try {
       var serviceName = computeServiceName(playback);
 
-      List<String> lines = Lists.newArrayList();
+      List<String> lines = new ArrayList<>();
 
       Instant now = Instant.now();
       Instant before = now.minus(Duration.ofMinutes(logBackMinutes));
@@ -184,7 +184,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
         }
       }
 
-      return String.join("\n", Values.last(logTailLines, lines).stream().toList());
+      return String.join("\n", ValueUtils.last(logTailLines, lines).stream().toList());
     } catch (RuntimeException | InterruptedException | ExecutionException e) {
       LOG.error("Failed to get logs for preview nexus", e);
       return String.format("Failed to get logs for preview nexus: %s", e.getMessage());
@@ -341,7 +341,7 @@ public class PreviewNexusAdminImpl implements PreviewNexusAdmin {
    * @return string content
    */
   RevisionTemplate computeRevisionTemplate(Template template, TemplatePlayback playback) {
-    List<EnvVar> envVars = Lists.newArrayList();
+    List<EnvVar> envVars = new ArrayList<>();
 
     // Fabrication preview template ID
     envVars.add(EnvVar.newBuilder().setName("FABRICATION_PREVIEW_TEMPLATE_PLAYBACK_ID").setValue(playback.getId().toString()).build());

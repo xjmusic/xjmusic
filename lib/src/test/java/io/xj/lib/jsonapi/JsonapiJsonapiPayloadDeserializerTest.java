@@ -1,20 +1,15 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.jsonapi;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.io.CharStreams;
 import io.xj.lib.Widget;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.JsonProviderImpl;
+import io.xj.lib.util.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.net.URL;
-import java.util.Objects;
+import java.util.List;
 import java.util.UUID;
 
 import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
@@ -36,19 +31,19 @@ public class JsonapiJsonapiPayloadDeserializerTest {
 
   @Test
   public void deserializeOneIncludingEmbeddedEntities() throws IOException, JsonapiException {
-    JsonapiPayload result = jsonapiPayloadFactory.deserialize(readResourceFile("payload/deserializeOneIncludingEmbeddedEntities.json"));
+    JsonapiPayload result = jsonapiPayloadFactory.deserialize(FileUtils.readResourceFileAsString("payload/deserializeOneIncludingEmbeddedEntities.json"));
 
     assertPayload(result)
       .hasDataOne("widgets", "805cf759-4e94-4275-a82d-5255c9e69347")
       .belongsTo("Superwidget", "f94290f4-537c-4444-92e5-dc0b0df352e5")
-      .hasMany("WidgetSequence", ImmutableList.of(new Widget().setId(UUID.fromString("9b862c2f-192f-4041-b849-442a2ec50218"))));
+      .hasMany("WidgetSequence", List.of(new Widget().setId(UUID.fromString("9b862c2f-192f-4041-b849-442a2ec50218"))));
   }
 
   @Test
   public void deserializeOneWithRelationship() throws IOException, JsonapiException {
     JsonapiPayload result = null;
     try {
-      result = jsonapiPayloadFactory.deserialize(readResourceFile("payload/deserializeOneWithRelationship.json"));
+      result = jsonapiPayloadFactory.deserialize(FileUtils.readResourceFileAsString("payload/deserializeOneWithRelationship.json"));
     } catch (JsonapiException e) {
       e.printStackTrace();
     }
@@ -62,7 +57,7 @@ public class JsonapiJsonapiPayloadDeserializerTest {
   public void deserializeOne() throws IOException, JsonapiException {
     JsonapiPayload result = null;
     try {
-      result = jsonapiPayloadFactory.deserialize(readResourceFile("payload/deserializeOne.json"));
+      result = jsonapiPayloadFactory.deserialize(FileUtils.readResourceFileAsString("payload/deserializeOne.json"));
     } catch (JsonapiException e) {
       e.printStackTrace();
     }
@@ -75,7 +70,7 @@ public class JsonapiJsonapiPayloadDeserializerTest {
   public void deserializeErrors() throws IOException, JsonapiException {
     JsonapiPayload result = null;
     try {
-      result = jsonapiPayloadFactory.deserialize(readResourceFile("payload/deserializeErrors.json"));
+      result = jsonapiPayloadFactory.deserialize(FileUtils.readResourceFileAsString("payload/deserializeErrors.json"));
     } catch (JsonapiException e) {
       e.printStackTrace();
     }
@@ -88,7 +83,7 @@ public class JsonapiJsonapiPayloadDeserializerTest {
   public void deserializeOneWithNullAttributeValue() throws IOException, JsonapiException {
     JsonapiPayload result = null;
     try {
-      result = jsonapiPayloadFactory.deserialize(readResourceFile("payload/deserializeOneWithNullAttributeValue.json"));
+      result = jsonapiPayloadFactory.deserialize(FileUtils.readResourceFileAsString("payload/deserializeOneWithNullAttributeValue.json"));
     } catch (JsonapiException e) {
       e.printStackTrace();
     }
@@ -101,13 +96,13 @@ public class JsonapiJsonapiPayloadDeserializerTest {
   public void deserializeMany() throws IOException, JsonapiException {
     JsonapiPayload result = null;
     try {
-      result = jsonapiPayloadFactory.deserialize(readResourceFile("payload/deserializeMany.json"));
+      result = jsonapiPayloadFactory.deserialize(FileUtils.readResourceFileAsString("payload/deserializeMany.json"));
     } catch (JsonapiException e) {
       e.printStackTrace();
     }
 
     assertPayload(result)
-      .hasDataMany("widgets", ImmutableList.of("716f0033-e7fe-4242-b993-1f840e4a242f"));
+      .hasDataMany("widgets", List.of("716f0033-e7fe-4242-b993-1f840e4a242f"));
   }
 
   @Test
@@ -139,36 +134,4 @@ public class JsonapiJsonapiPayloadDeserializerTest {
     assertPayload(result)
       .hasDataOneEmpty();
   }
-
-  /**
-   * Read a file as a string of java resources
-   *
-   * @param filePath to get and read as string
-   * @return contents of file
-   * @throws FileNotFoundException if resource does not exist
-   */
-  String readResourceFile(String filePath) throws IOException {
-    File file = resourceFile(filePath);
-    String text;
-    try (final FileReader reader = new FileReader(file)) {
-      text = CharStreams.toString(reader);
-    }
-    return text;
-  }
-
-  /**
-   * get a file of java resources
-   *
-   * @param filePath to get
-   * @return File
-   * @throws FileNotFoundException if resource does not exist
-   */
-  File resourceFile(String filePath) throws FileNotFoundException {
-    ClassLoader classLoader = JsonapiJsonapiPayloadDeserializerTest.class.getClassLoader();
-    URL resource = classLoader.getResource(filePath);
-    if (Objects.isNull(resource))
-      throw new FileNotFoundException(String.format("Failed to load resource: %s", filePath));
-    return new File(resource.getFile());
-  }
-
 }

@@ -12,7 +12,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 
-public class SegmentChoice   {
+public class SegmentChoice {
 
   @Valid UUID id;
   @Valid UUID segmentId;
@@ -29,6 +29,7 @@ public class SegmentChoice   {
   @Valid ProgramType programType;
 
   /**
+   *
    **/
   public SegmentChoice id(UUID id) {
     this.id = id;
@@ -40,11 +41,13 @@ public class SegmentChoice   {
   public UUID getId() {
     return id;
   }
+
   public void setId(UUID id) {
     this.id = id;
   }
 
   /**
+   *
    **/
   public SegmentChoice segmentId(UUID segmentId) {
     this.segmentId = segmentId;
@@ -56,11 +59,13 @@ public class SegmentChoice   {
   public UUID getSegmentId() {
     return segmentId;
   }
+
   public void setSegmentId(UUID segmentId) {
     this.segmentId = segmentId;
   }
 
   /**
+   *
    **/
   public SegmentChoice programId(UUID programId) {
     this.programId = programId;
@@ -72,11 +77,13 @@ public class SegmentChoice   {
   public UUID getProgramId() {
     return programId;
   }
+
   public void setProgramId(UUID programId) {
     this.programId = programId;
   }
 
   /**
+   *
    **/
   public SegmentChoice programSequenceId(UUID programSequenceId) {
     this.programSequenceId = programSequenceId;
@@ -88,11 +95,13 @@ public class SegmentChoice   {
   public UUID getProgramSequenceId() {
     return programSequenceId;
   }
+
   public void setProgramSequenceId(UUID programSequenceId) {
     this.programSequenceId = programSequenceId;
   }
 
   /**
+   *
    **/
   public SegmentChoice programSequenceBindingId(UUID programSequenceBindingId) {
     this.programSequenceBindingId = programSequenceBindingId;
@@ -104,11 +113,13 @@ public class SegmentChoice   {
   public UUID getProgramSequenceBindingId() {
     return programSequenceBindingId;
   }
+
   public void setProgramSequenceBindingId(UUID programSequenceBindingId) {
     this.programSequenceBindingId = programSequenceBindingId;
   }
 
   /**
+   *
    **/
   public SegmentChoice programVoiceId(UUID programVoiceId) {
     this.programVoiceId = programVoiceId;
@@ -120,11 +131,13 @@ public class SegmentChoice   {
   public UUID getProgramVoiceId() {
     return programVoiceId;
   }
+
   public void setProgramVoiceId(UUID programVoiceId) {
     this.programVoiceId = programVoiceId;
   }
 
   /**
+   *
    **/
   public SegmentChoice instrumentId(UUID instrumentId) {
     this.instrumentId = instrumentId;
@@ -136,11 +149,13 @@ public class SegmentChoice   {
   public UUID getInstrumentId() {
     return instrumentId;
   }
+
   public void setInstrumentId(UUID instrumentId) {
     this.instrumentId = instrumentId;
   }
 
   /**
+   *
    **/
   public SegmentChoice deltaIn(Integer deltaIn) {
     this.deltaIn = deltaIn;
@@ -152,11 +167,13 @@ public class SegmentChoice   {
   public Integer getDeltaIn() {
     return deltaIn;
   }
+
   public void setDeltaIn(Integer deltaIn) {
     this.deltaIn = deltaIn;
   }
 
   /**
+   *
    **/
   public SegmentChoice deltaOut(Integer deltaOut) {
     this.deltaOut = deltaOut;
@@ -168,11 +185,13 @@ public class SegmentChoice   {
   public Integer getDeltaOut() {
     return deltaOut;
   }
+
   public void setDeltaOut(Integer deltaOut) {
     this.deltaOut = deltaOut;
   }
 
   /**
+   *
    **/
   public SegmentChoice mute(Boolean mute) {
     this.mute = mute;
@@ -184,11 +203,13 @@ public class SegmentChoice   {
   public Boolean getMute() {
     return mute;
   }
+
   public void setMute(Boolean mute) {
     this.mute = mute;
   }
 
   /**
+   *
    **/
   public SegmentChoice instrumentType(InstrumentType instrumentType) {
     this.instrumentType = instrumentType;
@@ -200,11 +221,13 @@ public class SegmentChoice   {
   public InstrumentType getInstrumentType() {
     return instrumentType;
   }
+
   public void setInstrumentType(InstrumentType instrumentType) {
     this.instrumentType = instrumentType;
   }
 
   /**
+   *
    **/
   public SegmentChoice instrumentMode(InstrumentMode instrumentMode) {
     this.instrumentMode = instrumentMode;
@@ -216,11 +239,13 @@ public class SegmentChoice   {
   public InstrumentMode getInstrumentMode() {
     return instrumentMode;
   }
+
   public void setInstrumentMode(InstrumentMode instrumentMode) {
     this.instrumentMode = instrumentMode;
   }
 
   /**
+   *
    **/
   public SegmentChoice programType(ProgramType programType) {
     this.programType = programType;
@@ -232,6 +257,7 @@ public class SegmentChoice   {
   public ProgramType getProgramType() {
     return programType;
   }
+
   public void setProgramType(ProgramType programType) {
     this.programType = programType;
   }
@@ -247,18 +273,18 @@ public class SegmentChoice   {
     }
     SegmentChoice segmentChoice = (SegmentChoice) o;
     return Objects.equals(this.id, segmentChoice.id) &&
-        Objects.equals(this.segmentId, segmentChoice.segmentId) &&
-        Objects.equals(this.programId, segmentChoice.programId) &&
-        Objects.equals(this.programSequenceId, segmentChoice.programSequenceId) &&
-        Objects.equals(this.programSequenceBindingId, segmentChoice.programSequenceBindingId) &&
-        Objects.equals(this.programVoiceId, segmentChoice.programVoiceId) &&
-        Objects.equals(this.instrumentId, segmentChoice.instrumentId) &&
-        Objects.equals(this.deltaIn, segmentChoice.deltaIn) &&
-        Objects.equals(this.deltaOut, segmentChoice.deltaOut) &&
-        Objects.equals(this.mute, segmentChoice.mute) &&
-        Objects.equals(this.instrumentType, segmentChoice.instrumentType) &&
-        Objects.equals(this.instrumentMode, segmentChoice.instrumentMode) &&
-        Objects.equals(this.programType, segmentChoice.programType);
+      Objects.equals(this.segmentId, segmentChoice.segmentId) &&
+      Objects.equals(this.programId, segmentChoice.programId) &&
+      Objects.equals(this.programSequenceId, segmentChoice.programSequenceId) &&
+      Objects.equals(this.programSequenceBindingId, segmentChoice.programSequenceBindingId) &&
+      Objects.equals(this.programVoiceId, segmentChoice.programVoiceId) &&
+      Objects.equals(this.instrumentId, segmentChoice.instrumentId) &&
+      Objects.equals(this.deltaIn, segmentChoice.deltaIn) &&
+      Objects.equals(this.deltaOut, segmentChoice.deltaOut) &&
+      Objects.equals(this.mute, segmentChoice.mute) &&
+      Objects.equals(this.instrumentType, segmentChoice.instrumentType) &&
+      Objects.equals(this.instrumentMode, segmentChoice.instrumentMode) &&
+      Objects.equals(this.programType, segmentChoice.programType);
   }
 
   @Override

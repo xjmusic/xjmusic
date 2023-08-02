@@ -1,13 +1,12 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.music;
 
-import com.google.common.base.Strings;
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 
 import java.util.Objects;
 
 /**
- Chord in a particular key
+ * Chord in a particular key
  */
 public class Chord implements Comparable<Chord> {
   public static final String NO_CHORD_NAME = "NC";
@@ -31,7 +30,7 @@ public class Chord implements Comparable<Chord> {
     }
 
     // store original name
-    var name = Text.stripExtraSpaces(input);
+    var name = StringUtils.stripExtraSpaces(input);
 
     // determine whether the name is "sharps" or "flats"
     accidental = Accidental.of(name);
@@ -43,7 +42,7 @@ public class Chord implements Comparable<Chord> {
     this.root = rooter.getPitchClass();
 
     // parse the description all together, before removing the slash root
-    var raw = Text.stripExtraSpaces(rooter.getRemainingText());
+    var raw = StringUtils.stripExtraSpaces(rooter.getRemainingText());
     var normalized = ChordForm.normalize(raw);
 
     // parse the slash root
@@ -55,81 +54,81 @@ public class Chord implements Comparable<Chord> {
   }
 
   /**
-   String expression of interval pitch group, original name
-
-   @return scale as string
+   * String expression of interval pitch group, original name
+   *
+   * @return scale as string
    */
   public String toString() {
     return getName();
   }
 
   /**
-   Delta to another Key calculated in +/- semitones
-
-   @param target key to calculate delta to
-   @return delta +/- semitones to another key
+   * Delta to another Key calculated in +/- semitones
+   *
+   * @param target key to calculate delta to
+   * @return delta +/- semitones to another key
    */
   public int delta(Chord target) {
     return root.delta(target.getRoot());
   }
 
   /**
-   Compute the name from the root pitch class and description
-
-   @return chord name
+   * Compute the name from the root pitch class and description
+   *
+   * @return chord name
    */
   public String getName() {
     return String.format("%s%s%s",
       root.toString(accidental),
-      Strings.isNullOrEmpty(description) ? "" : String.format(" %s", description),
+      StringUtils.isNullOrEmpty(description) ? "" : String.format(" %s", description),
       slashRoot.display(accidental));
   }
 
   /**
-   @return the chord root pitch class
+   * @return the chord root pitch class
    */
   public PitchClass getRoot() {
     return root;
   }
 
   /**
-   XJ understands the root of a slash chord https://www.pivotaltracker.com/story/show/176728338
+   * XJ understands the root of a slash chord https://www.pivotaltracker.com/story/show/176728338
    */
   public PitchClass getSlashRoot() {
     return PitchClass.None != slashRoot.getPitchClass() ? slashRoot.getPitchClass() : root;
   }
 
   /**
-   @return the chord adjustment symbol
+   * @return the chord adjustment symbol
    */
   public Accidental getAdjSymbol() {
     return accidental;
   }
 
   /**
-   Chord of a particular key, e.g. of("C minor 7")
-
-   @param name of Chord
-   @return new Chord
+   * Chord of a particular key, e.g. of("C minor 7")
+   *
+   * @param name of Chord
+   * @return new Chord
    */
   public static Chord of(String name) {
     return new Chord(name);
   }
 
   /**
-   Whether this is a No Chord instance
-
-   @return true if No Chord
+   * Whether this is a No Chord instance
+   *
+   * @return true if No Chord
    */
   public Boolean isNoChord() {
     return Objects.equals(root, PitchClass.None);
   }
 
   /**
-   Whether one chord equals another
-
-   @param other chord to test
-   @return true if equal
+   * Whether one chord equals another
+   *
+   * @param other chord to test
+   * @return true if equal
    */
   public boolean isSame(Chord other) {
     return Objects.equals(root, other.root)
@@ -138,28 +137,28 @@ public class Chord implements Comparable<Chord> {
   }
 
   /**
-   Whether one chord is acceptable as a substitute another
-
-   @param other chord to test
-   @return true if acceptable
+   * Whether one chord is acceptable as a substitute another
+   *
+   * @param other chord to test
+   * @return true if acceptable
    */
   public boolean isAcceptable(Chord other) {
     return Objects.equals(root, other.root) && Objects.equals(description, other.description);
   }
 
   /**
-   Whether this Chord is null
-
-   @return true if non-null
+   * Whether this Chord is null
+   *
+   * @return true if non-null
    */
   public boolean isPresent() {
     return Objects.nonNull(root);
   }
 
   /**
-   Get the description portion of the chord
-
-   @return description
+   * Get the description portion of the chord
+   *
+   * @return description
    */
   public String getDescription() {
     return description;

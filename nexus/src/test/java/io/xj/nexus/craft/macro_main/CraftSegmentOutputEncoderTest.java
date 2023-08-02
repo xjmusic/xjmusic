@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.craft.macro_main;
 
-import com.google.common.collect.Streams;
 import io.xj.hub.HubTopology;
 import io.xj.hub.client.HubClient;
 import io.xj.hub.client.HubContent;
@@ -36,6 +35,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
@@ -75,9 +75,7 @@ public class CraftSegmentOutputEncoderTest {
 
     // Mock request via HubClient returns fake generated library of hub content
     NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();
-    sourceMaterial = new HubContent(Streams.concat(
-      fake.setupFixtureB1().stream()
-    ).collect(Collectors.toList()));
+    sourceMaterial = new HubContent(fake.setupFixtureB1());
 
     // Chain "Print #2" has 1 initial planned segment
     Chain chain2 = store.put(buildChain(
@@ -91,7 +89,7 @@ public class CraftSegmentOutputEncoderTest {
       chain2,
       0,
       SegmentState.PLANNED,
-            "C",
+      "C",
       8,
       0.8,
       120.0,

@@ -40,7 +40,7 @@ import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequence;
 import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceBinding;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplateBinding;
-import static io.xj.lib.util.Values.MICROS_PER_SECOND;
+import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
@@ -209,14 +209,14 @@ public class NexusEntityStoreImplTest {
       ChainType.PRODUCTION,
       ChainState.FABRICATE,
       template,
-            "key123"));
+      "key123"));
     var chain3 = subject.put(buildChain(
       account1,
       "Test Print #3",
       ChainType.PRODUCTION,
       ChainState.FABRICATE,
       template,
-            "key123"));
+      "key123"));
     var program = buildProgram(ProgramType.Macro, "C", 120.0f, 0.6f);
     var programSequence = buildProgramSequence(program, 8, "Hay", 0.6f, "G");
     var programSequenceBinding = buildProgramSequenceBinding(programSequence, 0);

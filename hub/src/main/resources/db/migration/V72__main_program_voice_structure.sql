@@ -4,7 +4,6 @@
 -- https://www.pivotaltracker.com/story/show/182220689
 
 
-
 -- Part 1. alter sequence chord voicings to belong to program voice (null allowed)
 ALTER TABLE xj.program_sequence_chord_voicing
   ADD COLUMN program_voice_id UUID REFERENCES xj.program_voice (id);
@@ -47,11 +46,10 @@ $$
 $$ LANGUAGE plpgsql;
 
 
-
 -- Part 3. delete voicings that still have no program voice id
-DELETE FROM xj.program_sequence_chord_voicing
+DELETE
+FROM xj.program_sequence_chord_voicing
 WHERE program_voice_id IS NULL;
-
 
 
 -- Part 3. alter sequence chord voicings to have no type, and require belonging-to voice

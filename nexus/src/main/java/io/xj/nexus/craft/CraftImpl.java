@@ -2,10 +2,7 @@
 
 package io.xj.nexus.craft;
 
-import com.google.common.collect.Lists;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
+import java.util.Map;
 import io.xj.hub.client.HubClientException;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
@@ -27,9 +24,9 @@ import io.xj.lib.music.Note;
 import io.xj.lib.music.NoteRange;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.MarbleBag;
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 import io.xj.lib.util.TremendouslyRandom;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.fabricator.FabricationWrapperImpl;
 import io.xj.nexus.fabricator.Fabricator;
@@ -43,12 +40,13 @@ import io.xj.nexus.model.SegmentChordVoicing;
 import io.xj.nexus.model.SegmentType;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -63,8 +61,8 @@ import static io.xj.nexus.persistence.Segments.DELTA_UNLIMITED;
  * Arrangement of Segment Events is a common foundation for all craft
  */
 public class CraftImpl extends FabricationWrapperImpl {
-  final Map<String, Integer> deltaIns = Maps.newHashMap();
-  final Map<String, Integer> deltaOuts = Maps.newHashMap();
+  final Map<String, Integer> deltaIns = new HashMap<>();
+  final Map<String, Integer> deltaOuts = new HashMap<>();
   final List<InstrumentType> finalizeAudioLengthsForInstrumentTypes;
   ChoiceIndexProvider choiceIndexProvider = new DefaultChoiceIndexProvider();
 
@@ -246,7 +244,7 @@ public class CraftImpl extends FabricationWrapperImpl {
       pick.setInstrumentAudioId(audio.get().getId());
       pick.setStartAtSegmentMicros(startAtSegmentMicros);
       pick.setTones(section.chord.getName());
-      pick.setEvent(Text.toEvent(instrument.getType().toString()));
+      pick.setEvent(StringUtils.toEvent(instrument.getType().toString()));
       pick.setLengthMicros(lengthMicros);
       pick.setAmplitude(volRatio);
       fabricator.put(pick);
@@ -382,8 +380,8 @@ public class CraftImpl extends FabricationWrapperImpl {
 
         // Delta arcs can prioritize the presence of a layer by name, e.g. containing "kick" https://www.pivotaltracker.com/story/show/180242564
         // separate layers into primary and secondary, shuffle them separately, then concatenate
-        List<String> priLayers = Lists.newArrayList();
-        List<String> secLayers = Lists.newArrayList();
+        List<String> priLayers = new ArrayList<>();
+        List<String> secLayers = new ArrayList<>();
         layers.forEach(layer -> {
           var layerName = layer.toLowerCase(Locale.ROOT);
           if (layerPrioritizationSearches.stream().anyMatch(m -> layerName.contains(m.toLowerCase(Locale.ROOT))))
@@ -394,11 +392,11 @@ public class CraftImpl extends FabricationWrapperImpl {
         if (!priLayers.isEmpty()) fabricator.addInfoMessage(String.format("Prioritized %s", CSV.join(priLayers)));
         Collections.shuffle(secLayers);
         var orderedLayers = Stream.concat(priLayers.stream(), secLayers.stream()).toList();
-        var delta = Values.roundToNearest(deltaUnits, TremendouslyRandom.zeroToLimit(deltaUnits * 4) - deltaUnits * 2 * numLayersIncoming);
+        var delta = ValueUtils.roundToNearest(deltaUnits, TremendouslyRandom.zeroToLimit(deltaUnits * 4) - deltaUnits * 2 * numLayersIncoming);
         for (String orderedLayer : orderedLayers) {
           deltaIns.put(orderedLayer, delta > 0 ? delta : DELTA_UNLIMITED);
           deltaOuts.put(orderedLayer, DELTA_UNLIMITED); // all layers get delta out unlimited
-          delta += Values.roundToNearest(deltaUnits, TremendouslyRandom.zeroToLimit(deltaUnits * 5));
+          delta += ValueUtils.roundToNearest(deltaUnits, TremendouslyRandom.zeroToLimit(deltaUnits * 5));
         }
       }
 
@@ -682,7 +680,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     var notePicker = new NotePicker(optimalRange.shifted(dpEventRelativeOffsetWithinRangeSemitones), voicingNotes, fabricator.getTemplateConfig().getInstrumentTypesForInversionSeeking().contains(instrumentType));
 
     // Go through the notes in the event and pick a note from the voicing, either by note picker or by sticky bun
-    List<Note> pickedNotes = Lists.newArrayList();
+    List<Note> pickedNotes = new ArrayList<>();
     for (var i = 0; i < eventNotes.size(); i++) {
       var pickedNote = eventNotes.get(i).isAtonal() && bun.isPresent() ? bun.get().compute(voicingNotes, i) : notePicker.pick(eventNotes.get(i));
       pickedNotes.add(pickedNote);
@@ -811,7 +809,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    * @return matched new audio
    */
   Optional<InstrumentAudio> selectNewNoteEventInstrumentAudio(Instrument instrument, ProgramSequencePatternEvent event) throws NexusException {
-    Map<UUID, Integer> score = Maps.newHashMap();
+    Map<UUID, Integer> score = new HashMap<>();
 
     // add all audio to chooser
     fabricator.sourceMaterial().getAudios(instrument).forEach(a -> score.put(a.getId(), 0));
@@ -824,7 +822,7 @@ public class CraftImpl extends FabricationWrapperImpl {
         score.put(audio.getId(), 100);
 
     // final chosen audio event
-    var pickId = Values.getKeyOfHighestValue(score);
+    var pickId = ValueUtils.getKeyOfHighestValue(score);
     return pickId.isPresent() ? fabricator.sourceMaterial().getInstrumentAudio(pickId.get()) : Optional.empty();
   }
 
@@ -867,13 +865,13 @@ public class CraftImpl extends FabricationWrapperImpl {
     var instrumentAudios = fabricator.sourceMaterial().getAudios(instrument);
     var a = Note.of(note);
     var audio = MarbleBag.quickPick(instrumentAudios.stream().filter(candidate -> {
-      if (Objects.isNull(candidate) || Strings.isNullOrEmpty(candidate.getTones())) return false;
+      if (Objects.isNull(candidate) || StringUtils.isNullOrEmpty(candidate.getTones())) return false;
       var b = Note.of(candidate.getTones());
       return a.isAtonal() || b.isAtonal() || a.sameAs(b);
     }).toList());
 
     if (audio.isEmpty()) {
-      reportMissing(ImmutableMap.of("instrumentId", instrument.getId().toString(), "searchForNote", note, "availableNotes", CSV.from(instrumentAudios.stream().map(InstrumentAudio::getTones).map(Note::of).sorted(Note::compareTo).map(N -> N.toString(Accidental.Sharp)).collect(Collectors.toList()))));
+      reportMissing(Map.of("instrumentId", instrument.getId().toString(), "searchForNote", note, "availableNotes", CSV.from(instrumentAudios.stream().map(InstrumentAudio::getTones).map(Note::of).sorted(Note::compareTo).map(N -> N.toString(Accidental.Sharp)).collect(Collectors.toList()))));
       return Optional.empty();
     }
 

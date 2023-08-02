@@ -8,7 +8,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 
 /**
- Measures a series of named sections of time
+ * Measures a series of named sections of time
  */
 public class MultiStopwatchTest {
   MultiStopwatch subject;

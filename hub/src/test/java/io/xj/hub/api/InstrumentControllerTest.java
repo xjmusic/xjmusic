@@ -2,7 +2,6 @@
 
 package io.xj.hub.api;
 
-import com.google.common.collect.ImmutableList;
 import io.xj.hub.HubTopology;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.InstrumentMode;
@@ -86,7 +85,7 @@ public class InstrumentControllerTest {
     JsonapiResponseProvider responseProvider = new JsonapiResponseProviderImpl(apiUrlProvider);
 
     var account1 = buildAccount("Testing");
-    access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(account1), "User,Artist");
+    access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(account1), "User,Artist");
     library25 = buildLibrary(account1, "Test 25");
     library1 = buildLibrary(account1, "Test 1");
     subject = new InstrumentController(instrumentManager, instrumentMemeManager, sqlStoreProvider, responseProvider, payloadFactory, entityFactory);
@@ -109,17 +108,17 @@ public class InstrumentControllerTest {
     instrument2.setState(InstrumentState.Published);
     instrument2.setName("trunk");
     instrument2.setDensity(0.6f);
-    Collection<Instrument> instruments = ImmutableList.of(instrument1, instrument2);
-    when(instrumentManager.readMany(same(access), eq(ImmutableList.of(library25.getId()))))
+    Collection<Instrument> instruments = List.of(instrument1, instrument2);
+    when(instrumentManager.readMany(same(access), eq(List.of(library25.getId()))))
       .thenReturn(instruments);
 
     var result = subject.readMany(req, null, library25.getId(), false);
 
-    verify(instrumentManager).readMany(same(access), eq(ImmutableList.of(library25.getId())));
+    verify(instrumentManager).readMany(same(access), eq(List.of(library25.getId())));
     assertEquals(HttpStatus.OK, result.getStatusCode());
     assertTrue(result.hasBody());
     assertPayload(result.getBody())
-      .hasDataMany("instruments", ImmutableList.of(instrument1.getId().toString(), instrument2.getId().toString()));
+      .hasDataMany("instruments", List.of(instrument1.getId().toString(), instrument2.getId().toString()));
   }
 
   @Test

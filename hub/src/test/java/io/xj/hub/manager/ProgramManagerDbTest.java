@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.manager;
 
-import com.google.common.collect.ImmutableList;
 import io.xj.hub.HubIntegrationTest;
 import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
@@ -144,7 +143,7 @@ public class ProgramManagerDbTest {
 
   @Test
   public void create() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
     Program input = new Program();
     input.setKey("G minor 7");
     input.setLibraryId(fake.library2.getId());
@@ -170,7 +169,7 @@ public class ProgramManagerDbTest {
    */
   @Test
   public void create_asArtist() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
     Program input = new Program();
     input.setId(UUID.randomUUID());
     input.setKey("G minor 7");
@@ -196,7 +195,7 @@ public class ProgramManagerDbTest {
    */
   @Test
   public void clone_toLibraryInDifferentAccount() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1, fake.account2));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1, fake.account2));
     Program input = new Program();
     input.setLibraryId(fake.library3.getId());
     input.setName("porcupines");
@@ -213,7 +212,7 @@ public class ProgramManagerDbTest {
    */
   @Test
   public void clone_mainProgramIncludesChordVoicings() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1, fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1, fake.account1));
     var padVoice = test.insert(buildProgramVoice(fake.program1, InstrumentType.Pad, "Pad"));
     var padChord0 = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "D"));
     var padChord1 = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 1.0f, "Dbm"));
@@ -250,7 +249,7 @@ public class ProgramManagerDbTest {
    */
   @Test
   public void clone_fromOriginal() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
     Program input = new Program();
     input.setLibraryId(fake.library2.getId());
     input.setName("cannons fifty nine");
@@ -326,7 +325,7 @@ public class ProgramManagerDbTest {
 
   @Test
   public void readOne() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "User");
 
     Program result = subject.readOne(access, fake.program2.getId());
 
@@ -340,7 +339,7 @@ public class ProgramManagerDbTest {
 
   @Test
   public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(buildAccount("Testing")), "User");
 
     var e = assertThrows(ManagerException.class, () -> subject.readOne(access, fake.program1.getId()));
     assertEquals("Record does not exist", e.getMessage());
@@ -353,7 +352,7 @@ public class ProgramManagerDbTest {
    */
   @Test
   public void readManyWithChildEntities() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
 
     test.insert(buildProgramMeme(fake.program1, "cinnamon"));
     var voice = test.insert(buildProgramVoice(fake.program1, InstrumentType.Drum, "drums"));
@@ -363,7 +362,7 @@ public class ProgramManagerDbTest {
     var pattern = test.insert(buildProgramSequencePattern(fake.program1_sequence1, voice, 8, "jam"));
     test.insert(buildProgramSequencePatternEvent(pattern, track, 0.0f, 1.0f, "C", 1.0f));
 
-    Collection<Object> results = subject.readManyWithChildEntities(access, ImmutableList.of(fake.program1.getId()));
+    Collection<Object> results = subject.readManyWithChildEntities(access, List.of(fake.program1.getId()));
 
     assertEquals(12, results.size());
     assertContains(Program.class, 1, results);
@@ -393,16 +392,16 @@ public class ProgramManagerDbTest {
 
   @Test
   public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(buildAccount("Testing")), "User");
 
-    Collection<Program> result = subject.readMany(access, ImmutableList.of(fake.library1.getId()));
+    Collection<Program> result = subject.readMany(access, List.of(fake.library1.getId()));
 
     assertEquals(0L, result.size());
   }
 
   @Test
   public void update_FailsUpdatingToNonexistentLibrary() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "User");
     Program input = new Program();
     input.setId(UUID.randomUUID());
     input.setName("cannons");
@@ -422,7 +421,7 @@ public class ProgramManagerDbTest {
 
   @Test
   public void update_Name() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
     Program input = new Program();
     input.setId(fake.program1.getId());
     input.setDensity(1.0f);
@@ -448,7 +447,7 @@ public class ProgramManagerDbTest {
    */
   @Test
   public void update_artistCanAlwaysChangeType() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
     test.insert(buildProgramVoice(fake.program2, InstrumentType.Drum, "Drums"));
     Program input = new Program();
     input.setId(fake.program2.getId());
@@ -470,7 +469,7 @@ public class ProgramManagerDbTest {
   @Test
   public void update_Name_PreservesOriginalOwner() throws Exception {
     // John will edit a program originally belonging to Jenny
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
     Program input = new Program();
     input.setId(fake.program1.getId());
     input.setKey("G minor 7");
@@ -503,7 +502,7 @@ public class ProgramManagerDbTest {
 
   @Test
   public void destroy_asArtist() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Artist");
     fake.program35 = test.insert(buildProgram(fake.library2, ProgramType.Main, ProgramState.Published, "fonds", "C#", 120.0f, 0.6f));
 
     subject.destroy(access, fake.program35.getId());
@@ -516,7 +515,7 @@ public class ProgramManagerDbTest {
   @Test
   public void destroy_failsIfNotInAccount() throws Exception {
     fake.account2 = buildAccount("Testing");
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account2), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account2), "Artist");
 
     var e = assertThrows(ManagerException.class, () -> subject.destroy(access, fake.program1.getId()));
     assertEquals("Program belonging to you does not exist", e.getMessage());
@@ -540,7 +539,7 @@ public class ProgramManagerDbTest {
    */
   @Test
   public void destroy_succeedsWithInnerEntitiesButNoMemes() throws Exception {
-    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), ImmutableList.of(fake.account1));
+    HubAccess access = HubAccess.create(fake.user2, UUID.randomUUID(), List.of(fake.account1));
     Program program = test.insert(buildProgram(fake.library1, ProgramType.Main, ProgramState.Published, "fonds", "C#", 120.0f, 0.6f));
     var programSequence = test.insert(buildProgramSequence(program, 4, "Ants", 0.583f, "D minor"));
     test.insert(buildProgramSequenceBinding(programSequence, 0));
@@ -559,9 +558,9 @@ public class ProgramManagerDbTest {
 
   @Test
   public void readMany() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Admin");
 
-    Collection<Program> result = subject.readMany(access, ImmutableList.of(fake.library1.getId()));
+    Collection<Program> result = subject.readMany(access, List.of(fake.library1.getId()));
 
     assertEquals(2L, result.size());
     Iterator<Program> resultIt = result.iterator();

@@ -1,9 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.craft.beat;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Streams;
 import io.xj.hub.HubTopology;
 import io.xj.hub.client.HubClient;
 import io.xj.hub.client.HubContent;
@@ -46,8 +43,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildInstrument;
 import static io.xj.hub.IntegrationTestingFixtures.buildInstrumentAudio;
@@ -98,9 +98,9 @@ public class CraftBeatProgramVoiceNextMainTest {
 
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
-    sourceMaterial = new HubContent(Streams.concat(
-      fake.setupFixtureB1().stream(),
-      fake.setupFixtureB2().stream(),
+    sourceMaterial = new HubContent(Stream.concat(
+      Stream.concat(fake.setupFixtureB1().stream(),
+        fake.setupFixtureB2().stream()),
       customFixtures().stream()
     ).collect(Collectors.toList()));
 
@@ -116,7 +116,7 @@ public class CraftBeatProgramVoiceNextMainTest {
       chain1,
       0,
       SegmentState.CRAFTED,
-            "D major",
+      "D major",
       64,
       0.73,
       120.0,
@@ -126,7 +126,7 @@ public class CraftBeatProgramVoiceNextMainTest {
       chain1,
       1,
       SegmentState.CRAFTING,
-            "Db minor",
+      "Db minor",
       64,
       0.85f,
       120.0f,
@@ -140,7 +140,7 @@ public class CraftBeatProgramVoiceNextMainTest {
    * @return list of all entities
    */
   Collection<Object> customFixtures() {
-    Collection<Object> entities = Lists.newArrayList();
+    Collection<Object> entities = new ArrayList<>();
 
     // Instrument "808"
     Instrument instrument1 = Entities.add(entities, buildInstrument(
@@ -184,7 +184,7 @@ public class CraftBeatProgramVoiceNextMainTest {
 
     craftFactory.beat(fabricator).doWork();
 
-    assertNotNull(fabricator.getArrangements(ImmutableList.of(fabricator.getCurrentBeatChoice().orElseThrow())));
+    assertNotNull(fabricator.getArrangements(List.of(fabricator.getCurrentBeatChoice().orElseThrow())));
 
     // test vector for persist Audio pick in memory https://www.pivotaltracker.com/story/show/154014731
     int pickedKick = 0;
@@ -271,7 +271,7 @@ public class CraftBeatProgramVoiceNextMainTest {
       Segments.DELTA_UNLIMITED,
       fake.program15,
       fake.program15_sequence0_binding0));
-    for (String memeName : ImmutableList.of("Regret", "Sky", "Hindsight", "Tropical"))
+    for (String memeName : List.of("Regret", "Sky", "Hindsight", "Tropical"))
       store.put(buildSegmentMeme(segment4, memeName));
 
     store.put(buildSegmentChord(segment4, 0.0, "G minor"));

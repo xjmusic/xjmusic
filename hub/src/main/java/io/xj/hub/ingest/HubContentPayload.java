@@ -3,9 +3,24 @@
 package io.xj.hub.ingest;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.collect.Lists;
-import io.xj.hub.tables.pojos.*;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.InstrumentMeme;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramMeme;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
+import io.xj.hub.tables.pojos.ProgramSequenceChord;
+import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
+import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplateBinding;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -174,7 +189,7 @@ public class HubContentPayload {
 
   @JsonIgnore
   public Collection<Object> getAllEntities() {
-    List<Object> entities = Lists.newArrayList();
+    List<Object> entities = new ArrayList<>();
     entities.addAll(templates);
     entities.addAll(templateBindings);
     entities.addAll(instruments);

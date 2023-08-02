@@ -1,11 +1,10 @@
-
 | Production                                                                                                                                                                     | Development                                                                                                                                                                   |
 |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [![Production CI](https://github.com/xjmusic/services/actions/workflows/services-prod.yml/badge.svg)](https://github.com/xjmusic/services/actions/workflows/services-prod.yml) | [![Development CI](https://github.com/xjmusic/services/actions/workflows/services-dev.yml/badge.svg)](https://github.com/xjmusic/services/actions/workflows/services-dev.yml) |
 
-|                  | GCP                                                                                                                                                                                 |
-|------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| _Base Image_     | [![Base Image (GCP)](https://github.com/xjmusic/services/actions/workflows/services-base.yaml/badge.svg)](https://github.com/xjmusic/services/actions/workflows/services-base.yaml) |
+|              | GCP                                                                                                                                                                                 |
+|--------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| _Base Image_ | [![Base Image (GCP)](https://github.com/xjmusic/services/actions/workflows/services-base.yaml/badge.svg)](https://github.com/xjmusic/services/actions/workflows/services-base.yaml) |
 
 # XJ Music Backend (Java) Services
 
@@ -46,7 +45,8 @@ export PGPASSWORD=$(gcloud secrets versions access latest --secret=xj-lab-postgr
 psql --host=127.0.0.1 --port=5432 --user=${PGUSERNAME} xj_dev
 ```
 
-Note, when importing a SQL dump into a Cloud SQL instance be sure to use the proper user (there's an advanced user dropdown)
+Note, when importing a SQL dump into a Cloud SQL instance be sure to use the proper user (there's an advanced user
+dropdown)
 
 ## Art
 
@@ -55,12 +55,13 @@ See the **art/** folder. By Accessing the contents of that folder, you agree to 
 > Please only read these files on your machine and then delete. Please do Not email that file anywhere, or upload it to
 > any other servers. These files are confidential property of XJ Music Inc.
 
-See specifically, the [XJ music User Guide](https://docs.google.com/document/d/1Jp1DT7jJ3Xn1pR5495Yh4TeStTGanvuCF1du0uEUy1A/)
-
+See specifically,
+the [XJ music User Guide](https://docs.google.com/document/d/1Jp1DT7jJ3Xn1pR5495Yh4TeStTGanvuCF1du0uEUy1A/)
 
 ### Architecture
 
-Here's the general architecture of the XJ Music platform backend services. [(Download PDF)](art/XJLabStreamingSegmentsArchitecture.pdf)
+Here's the general architecture of the XJ Music platform backend
+services. [(Download PDF)](art/XJLabStreamingSegmentsArchitecture.pdf)
 
 ![XJ Lab Streaming Segments Architecture](art/XJLabStreamingSegmentsArchitecture.svg)
 
@@ -88,7 +89,8 @@ Here's the general architecture of the XJ Music platform backend services. [(Dow
   - Features are `feature/123-do-new-thing`
   - Bug Fixes are `bugfix/4567-should-do-this`
   - Hot Fixes are `hotfix/890-should-do-that`
-* `TODO` comments are used only in working branches. Upon completion of branch shipWork, any remaining `TODO` should be a
+* `TODO` comments are used only in working branches. Upon completion of branch shipWork, any remaining `TODO` should be
+  a
   new tracker issue.
 
 ## Dependencies
@@ -102,7 +104,8 @@ Services expose pose 8080
 
 ## Chain Work
 
-This term refers (in the **xj** universe) to a layer of shipWork performed on the Segments (sequentially, by their offset)
+This term refers (in the **xj** universe) to a layer of shipWork performed on the Segments (sequentially, by their
+offset)
 in a Chain.
 
 ## Getting Started
@@ -216,7 +219,6 @@ Connects to:
 ## Intro to Google OAuth2
 
 https://developers.google.com/+/web/samples/java
-
 
 ## IntelliJ IDEA
 

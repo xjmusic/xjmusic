@@ -1,9 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.manager;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
+import java.util.Set;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.TemplateType;
@@ -17,10 +15,10 @@ import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 import io.xj.lib.util.TremendouslyRandom;
 import io.xj.lib.util.ValueException;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
@@ -113,8 +112,8 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl implements Te
 
       // Lab cloned template is always Preview-type and has new ship key if unspecified https://www.pivotaltracker.com/story/show/181054239
       to.setType(TemplateType.Preview);
-      if (Strings.isNullOrEmpty(to.getShipKey()))
-        to.setShipKey(Text.incrementIntegerSuffix(from.getShipKey()));
+      if (StringUtils.isNullOrEmpty(to.getShipKey()))
+        to.setShipKey(StringUtils.incrementIntegerSuffix(from.getShipKey()));
 
       // Inherits state, type if none specified
       // When not set, clone inherits attribute values from original record
@@ -134,14 +133,14 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl implements Te
       // DON'T clone TemplatePlayback- they are ephemeral, an indicator of playback state, non-existent initially
 
       // Clone TemplateBinding
-      cloner.get().clone(db, TEMPLATE_BINDING, TEMPLATE_BINDING.ID, ImmutableSet.of(), TEMPLATE_BINDING.TEMPLATE_ID, rawCloneId, originalId);
+      cloner.get().clone(db, TEMPLATE_BINDING, TEMPLATE_BINDING.ID, Set.of(), TEMPLATE_BINDING.TEMPLATE_ID, rawCloneId, originalId);
     });
     return cloner.get();
   }
 
   @Override
   public Optional<Template> readOneByShipKey(HubAccess access, String rawShipKey) throws ManagerException {
-    String key = Text.toShipKey(rawShipKey);
+    String key = StringUtils.toShipKey(rawShipKey);
     if (access.isTopLevel())
       try (var selectFromTemplate = sqlStoreProvider.getDSL().selectFrom(TEMPLATE)) {
         return Optional.ofNullable(modelFrom(Template.class, selectFromTemplate
@@ -190,7 +189,7 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl implements Te
 
     requireRead(db, access, templateIds);
 
-    Collection<Object> entities = Lists.newArrayList();
+    Collection<Object> entities = new ArrayList<>();
 
     // TemplateBinding
     if (includeTypes.contains(Entities.toResourceType(TemplateBinding.class)))
@@ -361,14 +360,14 @@ public class TemplateManagerImpl extends HubPersistenceServiceImpl implements Te
    */
   Template validate(HubAccess access, Template record) throws ManagerException {
     try {
-      Values.require(record.getAccountId(), "Account ID");
-      Values.require(record.getName(), "Name");
+      ValueUtils.require(record.getAccountId(), "Account ID");
+      ValueUtils.require(record.getName(), "Name");
 
       // Generate a ship key if none is set
-      if (Strings.isNullOrEmpty(record.getShipKey()))
-        record.setShipKey(Text.toShipKey(TremendouslyRandom.generateShipKey(GENERATED_SHIP_KEY_LENGTH)));
+      if (StringUtils.isNullOrEmpty(record.getShipKey()))
+        record.setShipKey(StringUtils.toShipKey(TremendouslyRandom.generateShipKey(GENERATED_SHIP_KEY_LENGTH)));
       else
-        record.setShipKey(Text.toShipKey(record.getShipKey()));
+        record.setShipKey(StringUtils.toShipKey(record.getShipKey()));
 
       // Default to preview chain if no type specified
       if (Objects.isNull(record.getType()))

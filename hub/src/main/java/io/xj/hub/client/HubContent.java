@@ -1,18 +1,42 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.client;
 
-import com.google.common.collect.*;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.ingest.HubContentPayload;
-import io.xj.hub.tables.pojos.*;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.InstrumentMeme;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramMeme;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
+import io.xj.hub.tables.pojos.ProgramSequenceChord;
+import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
+import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.music.Note;
-import io.xj.lib.util.Text;
+import io.xj.lib.util.Multiset;
+import io.xj.lib.util.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -21,7 +45,7 @@ import java.util.stream.Collectors;
  * Refactoring this class ala `HubContent` extends common `EntityStore` implementation https://www.pivotaltracker.com/story/show/173803936
  */
 public class HubContent {
-  final Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>> store = Maps.newConcurrentMap();
+  final Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>> store = new ConcurrentHashMap<>();
 
   public HubContent(
     Collection<?> entities
@@ -116,7 +140,7 @@ public class HubContent {
       .map(ProgramSequenceBinding::getOffset)
       .min(Comparator.comparing(psbOffset -> Math.abs(psbOffset - offset)));
     if (actualOffset.isEmpty())
-      return ImmutableList.of();
+      return List.of();
     return getProgramSequenceBindings().stream()
       .filter(psb ->
         Objects.equals(psb.getProgramId(), programId) &&
@@ -350,7 +374,7 @@ public class HubContent {
    * @return collection of sequence memes
    */
   public Collection<String> getMemesAtBeginning(Program program) {
-    Map<String, Boolean> memes = Maps.newHashMap();
+    Map<String, Boolean> memes = new HashMap<>();
 
     // add sequence memes
     getMemesForProgramId(program.getId()).forEach((meme ->
@@ -733,7 +757,7 @@ public class HubContent {
    * @throws EntityException on failure
    */
   public HubContent put(Object entity) throws EntityException {
-    store.putIfAbsent(entity.getClass(), Maps.newConcurrentMap());
+    store.putIfAbsent(entity.getClass(), new ConcurrentHashMap<>());
     store.get(entity.getClass()).put(Entities.getId(entity), entity);
     return this;
   }
@@ -767,12 +791,16 @@ public class HubContent {
 
   @Override
   public String toString() {
-    Multiset<String> entityHistogram = ConcurrentHashMultiset.create();
+    Multiset<String> entityHistogram = new Multiset<>();
     store.values().stream()
       .flatMap(map -> map.values().stream()).toList()
-      .forEach((Object obj) -> entityHistogram.add(Text.getSimpleName(obj)));
-    List<String> descriptors = Lists.newArrayList();
-    Collection<String> names = Ordering.from(String.CASE_INSENSITIVE_ORDER).sortedCopy(entityHistogram.elementSet());
+      .forEach((Object obj) -> entityHistogram.add(StringUtils.getSimpleName(obj)));
+    List<String> descriptors = new ArrayList<>();
+
+    Collection<String> names = entityHistogram.elementSet().stream()
+      .sorted(String.CASE_INSENSITIVE_ORDER)
+      .toList();
+
     names.forEach((String name) -> descriptors.add(String.format("%d %s", entityHistogram.count(name), name)));
     return String.join(", ", descriptors);
   }
@@ -809,7 +837,7 @@ public class HubContent {
     if (store.containsKey(type))
       //noinspection unchecked
       return (Collection<E>) store.get(type).values();
-    return ImmutableList.of();
+    return List.of();
   }
 
   /**

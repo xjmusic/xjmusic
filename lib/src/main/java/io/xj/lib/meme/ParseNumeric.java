@@ -2,18 +2,17 @@
 
 package io.xj.lib.meme;
 
-import com.google.common.base.Objects;
-
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- Meme Matcher for Numeric Memes
- <p>
- Parse any meme to test if it's valid, and extract its features
- <p>
- Numeric memes with common letters and different integer prefix (e.g. 2STEP vs 4STEP) are known to be exclusive https://www.pivotaltracker.com/story/show/180125852
+ * Meme Matcher for Numeric Memes
+ * <p>
+ * Parse any meme to test if it's valid, and extract its features
+ * <p>
+ * Numeric memes with common letters and different integer prefix (e.g. 2STEP vs 4STEP) are known to be exclusive https://www.pivotaltracker.com/story/show/180125852
  */
 class ParseNumeric {
   static final Pattern rgx = Pattern.compile("^([0-9]+)(.+)$");
@@ -56,8 +55,8 @@ class ParseNumeric {
   public boolean isViolatedBy(ParseNumeric target) {
     return
       isValid && target.isValid
-        && Objects.equal(body, target.body)
-        && !Objects.equal(prefix, target.prefix);
+        && Objects.equals(body, target.body)
+        && !Objects.equals(prefix, target.prefix);
   }
 
   public boolean isAllowed(List<ParseNumeric> memes) {

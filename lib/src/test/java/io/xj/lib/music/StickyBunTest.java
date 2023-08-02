@@ -10,10 +10,9 @@ import java.util.UUID;
 
 import static io.xj.lib.music.NoteTest.assertNote;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
- Sticky buns v2 persisted for each randomly selected note in the series for any given event https://www.pivotaltracker.com/story/show/179153822
+ * Sticky buns v2 persisted for each randomly selected note in the series for any given event https://www.pivotaltracker.com/story/show/179153822
  */
 public class StickyBunTest {
   final UUID eventId = UUID.randomUUID();
@@ -33,7 +32,7 @@ public class StickyBunTest {
   }
 
   /**
-   super-key on program-sequence-event id, measuring delta from the first event seen in that event
+   * super-key on program-sequence-event id, measuring delta from the first event seen in that event
    */
   @Test
   public void getParentId() {
@@ -41,7 +40,7 @@ public class StickyBunTest {
   }
 
   /**
-   Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
+   * Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
    */
   @Test
   public void computeMetaKey() {
@@ -51,7 +50,7 @@ public class StickyBunTest {
   }
 
   /**
-   Replace any number of members of the set, when atonal, by computing the sticky bun
+   * Replace any number of members of the set, when atonal, by computing the sticky bun
    */
   @Test
   public void replaceAtonal() {
@@ -69,7 +68,7 @@ public class StickyBunTest {
   }
 
   /**
-   Pick one
+   * Pick one
    */
   @Test
   public void compute() {
@@ -84,7 +83,7 @@ public class StickyBunTest {
   }
 
   /**
-   Construct empty
+   * Construct empty
    */
   @Test
   public void constructEmpty() {

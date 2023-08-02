@@ -8,7 +8,8 @@ import java.io.IOException;
 public interface KvStore {
   void put(String key, String value);
 
-  @Nullable String get(String key);
+  @Nullable
+  String get(String key);
 
   void remove(String key);
 

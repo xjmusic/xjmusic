@@ -3,19 +3,17 @@ package io.xj.hub.manager;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.services.plus.model.Person;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import java.util.Set;
 import io.xj.hub.access.GoogleProvider;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessException;
 import io.xj.hub.access.HubAccessTokenGenerator;
 import io.xj.hub.enums.UserAuthType;
 import io.xj.hub.enums.UserRoleType;
-import io.xj.hub.persistence.kv.HubKvStoreProvider;
 import io.xj.hub.persistence.HubPersistenceException;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.persistence.HubSqlStoreProvider;
+import io.xj.hub.persistence.kv.HubKvStoreProvider;
 import io.xj.hub.tables.pojos.AccountUser;
 import io.xj.hub.tables.pojos.User;
 import io.xj.hub.tables.pojos.UserAuth;
@@ -26,7 +24,7 @@ import io.xj.hub.tables.records.UserRecord;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.ValueException;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import org.jooq.DSLContext;
 import org.jooq.Result;
 import org.jooq.SelectSelectStep;
@@ -38,9 +36,10 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.Cookie;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -93,7 +92,7 @@ public class UserManagerImpl extends HubPersistenceServiceImpl implements UserMa
     this.tokenPath = tokenPath;
     this.tokenMaxAge = tokenMaxAge;
 
-    internalTokens = ImmutableSet.of(ingestTokenValue);
+    internalTokens = Set.of(ingestTokenValue);
   }
 
   /**
@@ -268,7 +267,7 @@ public class UserManagerImpl extends HubPersistenceServiceImpl implements UserMa
       // no user exists; create one
       try {
         user = newUser(db, name, avatarUrl, email);
-        accounts = Lists.newArrayList();
+        accounts = new ArrayList<>();
         userAuth = newUserAuth(db, user.getId().toString(), authType, account, externalAccessToken, externalRefreshToken);
       } catch (Exception e) {
         throw new ManagerException(e);
@@ -364,7 +363,7 @@ public class UserManagerImpl extends HubPersistenceServiceImpl implements UserMa
     Collection<String> rawRoles = CSV.splitProperSlug(entity.getRoles());
 
     // First check all provided roles for validity.
-    Set<UserRoleType> validRoles = Sets.newHashSet();
+    Set<UserRoleType> validRoles = new HashSet<>();
     for (String checkRole : rawRoles)
       try {
         validRoles.add(UserRoleType.valueOf(checkRole));
@@ -465,7 +464,7 @@ public class UserManagerImpl extends HubPersistenceServiceImpl implements UserMa
    */
   public void validate(User record) throws ManagerException {
     try {
-      Values.require(record.getRoles(), "User roles");
+      ValueUtils.require(record.getRoles(), "User roles");
 
     } catch (ValueException e) {
       throw new ManagerException(e);

@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.api;
 
-import com.google.common.collect.ImmutableList;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.ingest.HubIngestFactory;
@@ -33,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -97,7 +97,7 @@ public class TemplatePublicationController extends HubJsonapiEndpoint {
       Collection<TemplatePublication> templatePublications;
 
       // how we source templatePublications depends on the query parameters
-      templatePublications = manager().readMany(access, ImmutableList.of(UUID.fromString(templateId)));
+      templatePublications = manager().readMany(access, List.of(UUID.fromString(templateId)));
 
       // add templatePublications as plural data in payload
       for (TemplatePublication templatePublication : templatePublications)

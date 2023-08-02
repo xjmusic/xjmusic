@@ -2,7 +2,6 @@
 
 package io.xj.hub;
 
-import com.google.common.collect.ImmutableList;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
@@ -52,11 +51,11 @@ import static io.xj.hub.IntegrationTestingFixtures.buildProgramVoiceTrack;
 import static io.xj.hub.IntegrationTestingFixtures.buildUser;
 
 /**
- Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
- <p>
- Testing the hypothesis that, while unit tests are all independent,
- integration tests ought be as much about testing all features around a consensus model of the platform
- as they are about testing all resources.
+ * Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
+ * <p>
+ * Testing the hypothesis that, while unit tests are all independent,
+ * integration tests ought be as much about testing all features around a consensus model of the platform
+ * as they are about testing all resources.
  */
 @SuppressWarnings("SameParameterValue")
 public class HubContentFixtures {
@@ -186,10 +185,10 @@ public class HubContentFixtures {
 
 
   /**
-   A whole library of mock content
-
-   @param returnParentEntities true if we only want to return the parent entities and library, in addition to the content
-   @return collection of entities
+   * A whole library of mock content
+   *
+   * @param returnParentEntities true if we only want to return the parent entities and library, in addition to the content
+   * @return collection of entities
    */
   public Collection<Object> setupFixtureB1(Boolean returnParentEntities) {
 
@@ -272,7 +271,7 @@ public class HubContentFixtures {
 
     // List of all parent entities including the library
     // ORDER IS IMPORTANT because this list will be used for real database inserts, so ordered from parent -> child
-    List<Object> parentEntities = ImmutableList.of(
+    List<Object> parentEntities = List.of(
       account1,
       library2,
       user2,
@@ -282,7 +281,7 @@ public class HubContentFixtures {
 
     // List of all entities in the library
     // ORDER IS IMPORTANT because this list will be used for real database inserts, so ordered from parent -> child
-    List<Object> libraryContent = ImmutableList.of(
+    List<Object> libraryContent = List.of(
       program35,
       program35_voice0,
       program35_voice0_track0,
@@ -339,9 +338,9 @@ public class HubContentFixtures {
   }
 
   /**
-   Library of Content B-2 (shared test fixture)
-   <p>
-   Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
+   * Library of Content B-2 (shared test fixture)
+   * <p>
+   * Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
    */
   public Collection<Object> setupFixtureB2() {
     // "Tangy, Chunky to Smooth" macro-program in house library
@@ -374,7 +373,7 @@ public class HubContentFixtures {
     program15_sequence1_binding0_meme1 = buildProgramSequenceBindingMeme(program15_sequence1_binding0, "Shame");
 
     // return them all
-    return ImmutableList.of(
+    return List.of(
       program3,
       program3_meme0,
       program3_sequence0,
@@ -400,18 +399,18 @@ public class HubContentFixtures {
   }
 
   /**
-   Library of Content B-3 (shared test fixture)
-   <p>
-   Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
-   <p>
-   memes bound to sequence-pattern because sequence-binding is not considered for beat sequences, beat sequence patterns do not have memes. https://www.pivotaltracker.com/story/show/163158036
-   <p>
-   Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (beat- and detail-type sequences) https://www.pivotaltracker.com/story/show/165954619
-   <p>
-   Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Beat or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment. https://www.pivotaltracker.com/story/show/153976073
-   + For this test, there's an Intro Pattern with all BLEEPS, multiple Loop Patterns with KICK and SNARE (2x each), and an Outro Pattern with all TOOTS.
-   <p>
-   Artist wants to of multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset. https://www.pivotaltracker.com/story/show/150279647
+   * Library of Content B-3 (shared test fixture)
+   * <p>
+   * Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
+   * <p>
+   * memes bound to sequence-pattern because sequence-binding is not considered for beat sequences, beat sequence patterns do not have memes. https://www.pivotaltracker.com/story/show/163158036
+   * <p>
+   * Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (beat- and detail-type sequences) https://www.pivotaltracker.com/story/show/165954619
+   * <p>
+   * Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Beat or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment. https://www.pivotaltracker.com/story/show/153976073
+   * + For this test, there's an Intro Pattern with all BLEEPS, multiple Loop Patterns with KICK and SNARE (2x each), and an Outro Pattern with all TOOTS.
+   * <p>
+   * Artist wants to of multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset. https://www.pivotaltracker.com/story/show/150279647
    */
   public Collection<Object> setupFixtureB3() {
     // A basic beat
@@ -471,7 +470,7 @@ public class HubContentFixtures {
     instrument8_audio8toot = buildInstrumentAudio(instrument8, "Toot", "askjdfjhk975898198017350afghjkjh.wav", 0.01f, 1.5f, 120.0f, 0.62f, "TOOT", "Eb", 1.0f);
 
     // return them all
-    return ImmutableList.of(
+    return List.of(
       program9,
       program9_meme0,
       program9_voice0,

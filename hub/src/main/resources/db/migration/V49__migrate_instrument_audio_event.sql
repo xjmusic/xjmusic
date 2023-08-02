@@ -6,9 +6,9 @@
 
 --- Add columns to Instrument Audio
 ALTER TABLE xj.instrument_audio
-    ADD COLUMN event  varchar(255) DEFAULT NULL,
-    ADD COLUMN volume real         DEFAULT NULL,
-    ADD COLUMN note   varchar(255) DEFAULT NULL;
+  ADD COLUMN event  varchar(255) DEFAULT NULL,
+  ADD COLUMN volume real         DEFAULT NULL,
+  ADD COLUMN note   varchar(255) DEFAULT NULL;
 
 --- Migrate content of instrument_audio_event records to new columns of instrument_audio
 UPDATE xj.instrument_audio

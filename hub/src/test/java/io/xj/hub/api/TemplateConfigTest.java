@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- Artist saves Template config, validate & combine with defaults. https://www.pivotaltracker.com/story/show/177355683
+ * Artist saves Template config, validate & combine with defaults. https://www.pivotaltracker.com/story/show/177355683
  */
 public class TemplateConfigTest {
 
@@ -35,7 +35,7 @@ public class TemplateConfigTest {
   public void defaultsToString() throws ValueException {
     var subject = new TemplateConfig(TemplateConfig.DEFAULT);
 
-    assertEquals(TemplateConfig.DEFAULT, subject.toString().replace(System.lineSeparator(),"\n"));
+    assertEquals(TemplateConfig.DEFAULT, subject.toString().replace(System.lineSeparator(), "\n"));
   }
 
   @Test

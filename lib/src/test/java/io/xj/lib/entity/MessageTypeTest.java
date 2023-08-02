@@ -2,31 +2,34 @@
 
 package io.xj.lib.entity;
 
-import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class MessageTypeTest {
 
   @Test
   public void mostSevere() {
-    assertEquals(MessageType.Debug, MessageType.mostSevere(ImmutableList.of(
+    assertEquals(MessageType.Debug, MessageType.mostSevere(List.of(
       MessageType.Debug,
       MessageType.Debug
     )));
-    assertEquals(MessageType.Info, MessageType.mostSevere(ImmutableList.of(
+    assertEquals(MessageType.Info, MessageType.mostSevere(List.of(
       MessageType.Debug,
       MessageType.Info,
       MessageType.Debug
     )));
-    assertEquals(MessageType.Warning, MessageType.mostSevere(ImmutableList.of(
+    assertEquals(MessageType.Warning, MessageType.mostSevere(List.of(
       MessageType.Debug,
       MessageType.Warning,
       MessageType.Info,
       MessageType.Debug
     )));
-    assertEquals(MessageType.Error, MessageType.mostSevere(ImmutableList.of(
+    assertEquals(MessageType.Error, MessageType.mostSevere(List.of(
       MessageType.Error,
       MessageType.Debug,
       MessageType.Info,

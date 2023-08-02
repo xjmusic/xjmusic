@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.manager;
 
-import com.google.common.collect.ImmutableList;
 import io.xj.hub.HubIntegrationTest;
 import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
@@ -19,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
@@ -141,7 +141,7 @@ public class AccountUserManagerDbTest {
 
   @Test
   public void readOne() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Artist");
 
     var result = testManager.readOne(access, accountUser_1_2.getId());
 
@@ -152,7 +152,7 @@ public class AccountUserManagerDbTest {
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(buildAccount("Testing")), "Artist");
     var e = assertThrows(ManagerException.class, () -> testManager.readOne(access, accountUser_1_2.getId()));
 
     assertEquals("Record does not exist", e.getMessage());
@@ -162,25 +162,25 @@ public class AccountUserManagerDbTest {
   public void readMany_Admin() throws Exception {
     HubAccess access = HubAccess.create("Admin");
 
-    Collection<AccountUser> result = testManager.readMany(access, ImmutableList.of(fake.account1.getId()));
+    Collection<AccountUser> result = testManager.readMany(access, List.of(fake.account1.getId()));
 
     assertEquals(2L, result.size());
   }
 
   @Test
   public void readMany_UserCanSeeInsideOwnAccount() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "User");
 
-    Collection<AccountUser> result = testManager.readMany(access, ImmutableList.of(fake.account1.getId()));
+    Collection<AccountUser> result = testManager.readMany(access, List.of(fake.account1.getId()));
 
     assertEquals(2L, result.size());
   }
 
   @Test
   public void readMany_SeesNothingOutsideOfAccount() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(buildAccount("Testing")), "Artist");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(buildAccount("Testing")), "Artist");
 
-    Collection<AccountUser> result = testManager.readMany(access, ImmutableList.of(fake.account1.getId()));
+    Collection<AccountUser> result = testManager.readMany(access, List.of(fake.account1.getId()));
 
     assertNotNull(result);
     assertEquals(0L, result.size());

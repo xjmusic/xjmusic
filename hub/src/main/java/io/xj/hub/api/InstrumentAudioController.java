@@ -1,8 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.api;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.manager.InstrumentAudioManager;
@@ -29,6 +27,7 @@ import javax.annotation.Nullable;
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -105,7 +104,7 @@ public class InstrumentAudioController extends HubJsonapiEndpoint {
 
 
     } catch (Exception e) {
-      return ResponseEntity.internalServerError().body(ImmutableMap.of("error", e.getMessage()));
+      return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
     }
   }
 
@@ -133,7 +132,7 @@ public class InstrumentAudioController extends HubJsonapiEndpoint {
   ) {
     try {
       JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataType(PayloadDataType.Many);
-      Collection<InstrumentAudio> instrumentAudios = manager.readMany(HubAccess.fromRequest(req), ImmutableList.of(UUID.fromString(instrumentId)));
+      Collection<InstrumentAudio> instrumentAudios = manager.readMany(HubAccess.fromRequest(req), List.of(UUID.fromString(instrumentId)));
 
       // add instrumentAudios as plural data in payload
       for (InstrumentAudio instrumentAudio : instrumentAudios)

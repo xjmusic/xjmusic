@@ -1,8 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.manager;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
 import io.xj.hub.persistence.HubSqlStoreProvider;
@@ -13,9 +11,9 @@ import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.filestore.S3UploadPolicy;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.music.Accidental;
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 import io.xj.lib.util.ValueException;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
@@ -26,6 +24,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.xj.hub.Tables.ACCOUNT;
@@ -98,7 +97,7 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl implem
     update(access, id, entity);
 
     // Authorize the upload
-    Map<String, String> uploadAuthorization = Maps.newConcurrentMap();
+    Map<String, String> uploadAuthorization = new ConcurrentHashMap<>();
     S3UploadPolicy uploadPolicy = fileStoreProvider.generateAudioUploadPolicy();
     uploadAuthorization.put(KEY_WAVEFORM_KEY, waveformKey);
     uploadAuthorization.put(KEY_UPLOAD_URL, fileStoreProvider.getUploadURL());
@@ -135,11 +134,11 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl implem
 
       return String.format("%s.%s",
         String.join("-",
-          Text.toAlphanumericHyphenated((String) fields.get(0)),
-          Text.toAlphanumericHyphenated((String) fields.get(1)),
-          Text.toAlphanumericHyphenated((String) fields.get(2)),
-          Text.toAlphanumericHyphenated(Accidental.replaceWithExplicit(instrumentAudio.getName())),
-          Text.toAlphanumericHyphenated(Accidental.replaceWithExplicit(instrumentAudio.getTones()))
+          StringUtils.toAlphanumericHyphenated((String) fields.get(0)),
+          StringUtils.toAlphanumericHyphenated((String) fields.get(1)),
+          StringUtils.toAlphanumericHyphenated((String) fields.get(2)),
+          StringUtils.toAlphanumericHyphenated(Accidental.replaceWithExplicit(instrumentAudio.getName())),
+          StringUtils.toAlphanumericHyphenated(Accidental.replaceWithExplicit(instrumentAudio.getTones()))
         ),
         extension);
 
@@ -186,7 +185,7 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl implem
 
     requireAccessToParent(access, audio);
 
-    if (Strings.isNullOrEmpty(audio.getWaveformKey()))
+    if (StringUtils.isNullOrEmpty(audio.getWaveformKey()))
       audio.setWaveformKey(readOne(db, access, id).getWaveformKey());
     executeUpdate(db, INSTRUMENT_AUDIO, id, audio);
 
@@ -290,7 +289,7 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl implem
    */
   public InstrumentAudio validate(InstrumentAudio builder) throws ManagerException {
     try {
-      Values.require(builder.getInstrumentId(), "Instrument ID");
+      ValueUtils.require(builder.getInstrumentId(), "Instrument ID");
 
       if (Objects.isNull(builder.getName()) || builder.getName().isEmpty())
         throw new ValueException("Name is required.");
@@ -298,21 +297,21 @@ public class InstrumentAudioManagerImpl extends HubPersistenceServiceImpl implem
       if (Objects.isNull(builder.getWaveformKey()) || builder.getWaveformKey().isEmpty())
         builder.setWaveformKey("");
 
-      if (Values.isEmpty(builder.getDensity()))
+      if (ValueUtils.isEmpty(builder.getDensity()))
         builder.setDensity(0.5f);
 
-      if (Values.isEmpty(builder.getTransientSeconds()))
+      if (ValueUtils.isEmpty(builder.getTransientSeconds()))
         builder.setTransientSeconds(0.0f);
 
-      if (Values.isEmpty(builder.getTotalBeats()))
+      if (ValueUtils.isEmpty(builder.getTotalBeats()))
         builder.setTotalBeats(1.0f);
 
-      Values.require(builder.getTempo(), "Tempo");
-      Values.requireNonZero(builder.getTempo(), "Tempo");
+      ValueUtils.require(builder.getTempo(), "Tempo");
+      ValueUtils.requireNonZero(builder.getTempo(), "Tempo");
 
       if (Objects.isNull(builder.getEvent()) || builder.getEvent().isEmpty())
         builder.setEvent(DEFAULT_EVENT);
-      builder.setEvent(Text.toEvent(builder.getEvent()));
+      builder.setEvent(StringUtils.toEvent(builder.getEvent()));
 
       return builder;
 

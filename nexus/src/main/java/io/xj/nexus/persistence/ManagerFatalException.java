@@ -2,7 +2,7 @@
 
 package io.xj.nexus.persistence;
 
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 
 public class ManagerFatalException extends Exception {
 
@@ -11,10 +11,10 @@ public class ManagerFatalException extends Exception {
   }
 
   public ManagerFatalException(String msg, Exception e) {
-    super(String.format("%s %s\n%s", msg, e.toString(), Text.formatStackTrace(e)));
+    super(String.format("%s %s\n%s", msg, e.toString(), StringUtils.formatStackTrace(e)));
   }
 
   public ManagerFatalException(Throwable targetException) {
-    super(String.format("%s\n%s", targetException.getMessage(), Text.formatStackTrace(targetException)));
+    super(String.format("%s\n%s", targetException.getMessage(), StringUtils.formatStackTrace(targetException)));
   }
 }

@@ -2,19 +2,23 @@
 package io.xj.hub.client;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import io.xj.hub.enums.UserRoleType;
 import io.xj.lib.entity.Entities;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 public class HubClientAccess {
   public static final String CONTEXT_KEY = "hub_access";
   static final UserRoleType[] topLevelRoles = {UserRoleType.Admin, UserRoleType.Internal};
-  final Collection<UserRoleType> roleTypes = Lists.newArrayList();
-  final Collection<UUID> accountIds = Lists.newArrayList();
+  final Collection<UserRoleType> roleTypes = new ArrayList<>();
+  final Collection<UUID> accountIds = new ArrayList<>();
   @Nullable
   String token = null;
   @Nullable
@@ -44,7 +48,7 @@ public class HubClientAccess {
    */
   public static HubClientAccess internal() {
     // FUTURE how does Hub plan on authenticating a request made with this "credential?"
-    return new HubClientAccess(ImmutableList.of(UserRoleType.Internal));
+    return new HubClientAccess(List.of(UserRoleType.Internal));
   }
 
   /**

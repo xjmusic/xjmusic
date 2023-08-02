@@ -2,9 +2,6 @@
 
 package io.xj.hub.analysis;
 
-import com.google.common.collect.Maps;
-import com.google.api.client.util.Sets;
-import com.google.common.collect.Streams;
 import io.xj.hub.client.HubClientException;
 import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.ProgramType;
@@ -14,14 +11,22 @@ import io.xj.lib.entity.Entities;
 import io.xj.lib.meme.MemeConstellation;
 import io.xj.lib.meme.MemeStack;
 import io.xj.lib.meme.MemeTaxonomy;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.time.Instant;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Template content Analysis https://www.pivotaltracker.com/story/show/161199945
@@ -65,7 +70,7 @@ public abstract class Report {
     Map<String, Count> histogram;
 
     public Histogram() {
-      histogram = Maps.newHashMap();
+      histogram = new HashMap<>();
     }
 
     public void addId(String key, UUID id) {
@@ -84,7 +89,7 @@ public abstract class Report {
 
       public Count() {
         total = 0;
-        ids = Sets.newHashSet();
+        ids = new HashSet<>();
       }
 
       public void addId(UUID programId) {
@@ -108,7 +113,7 @@ public abstract class Report {
       macroMemeNames = Entities.namesOf(content.getProgramMemes(macroProgram.getId()));
       for (var macroBinding : content.getSequenceBindingsForProgram(macroProgram.getId())) {
         macroBindingMemeNames = Entities.namesOf(content.getMemesForSequenceBinding(macroBinding.getId()));
-        var memeNames = Streams.concat(macroMemeNames.parallelStream(), macroBindingMemeNames.parallelStream()).collect(Collectors.toSet());
+        var memeNames = Stream.concat(macroMemeNames.parallelStream(), macroBindingMemeNames.parallelStream()).collect(Collectors.toSet());
         macroHistogram.addId(MemeStack.from(taxonomy, memeNames).getConstellation(), macroProgram.getId());
       }
     }
@@ -132,7 +137,7 @@ public abstract class Report {
         if (stack.isAllowed(mainMemes))
           for (var mainBinding : content.getSequenceBindingsForProgram(mainProgram.getId())) {
             mainBindingMemeNames = Entities.namesOf(content.getMemesForSequenceBinding(mainBinding.getId()));
-            var memeNames = Streams.concat(mainMemes.parallelStream(), mainBindingMemeNames.parallelStream()).collect(Collectors.toSet());
+            var memeNames = Stream.concat(mainMemes.parallelStream(), mainBindingMemeNames.parallelStream()).collect(Collectors.toSet());
             mainHistogram.addId(MemeStack.from(taxonomy, memeNames).getConstellation(), mainProgram.getId());
           }
       }
@@ -144,7 +149,7 @@ public abstract class Report {
    * Render HTML of timestamp
    */
   public static String renderTimestampHTML() {
-    return String.format("<div class=\"timestamp\">Analyzed %s</div>", Values.formatRfc1123UTC(Instant.now()));
+    return String.format("<div class=\"timestamp\">Analyzed %s</div>", ValueUtils.formatRfc1123UTC(Instant.now()));
   }
 
   /**

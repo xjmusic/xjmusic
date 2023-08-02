@@ -2,9 +2,6 @@
 
 package io.xj.nexus;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import io.xj.hub.LoremIpsum;
 import io.xj.hub.Users;
 import io.xj.hub.client.HubClientAccess;
@@ -36,7 +33,7 @@ import io.xj.hub.tables.pojos.User;
 import io.xj.hub.tables.pojos.UserAuth;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
-import io.xj.lib.util.Text;
+import io.xj.lib.util.StringUtils;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
@@ -54,8 +51,10 @@ import io.xj.nexus.persistence.Segments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -83,8 +82,8 @@ import static io.xj.hub.IntegrationTestingFixtures.buildTrack;
 import static io.xj.hub.IntegrationTestingFixtures.buildUser;
 import static io.xj.hub.IntegrationTestingFixtures.buildVoice;
 import static io.xj.hub.IntegrationTestingFixtures.buildVoicing;
-import static io.xj.lib.util.Values.MICROS_PER_SECOND;
-import static io.xj.lib.util.Values.SECONDS_PER_MINUTE;
+import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.lib.util.ValueUtils.SECONDS_PER_MINUTE;
 
 /**
  * Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
@@ -291,7 +290,7 @@ public class NexusIntegrationTestingFixtures {
    */
   protected static String[] listOfUniqueRandom(long N, String[] sourceItems) {
     long count = 0;
-    Collection<String> items = Lists.newArrayList();
+    Collection<String> items = new ArrayList<>();
     while (count < N) {
       String p = random(sourceItems);
       if (!items.contains(p)) {
@@ -350,14 +349,14 @@ public class NexusIntegrationTestingFixtures {
   }
 
   public static Chain buildChain(Account account, String name, ChainType type, ChainState state, Template template) {
-    return buildChain(account, name, type, state, template, Text.toShipKey(name));
+    return buildChain(account, name, type, state, template, StringUtils.toShipKey(name));
   }
 
   public static Chain buildChain(Account account, Template template, String name, ChainType type, ChainState state) {
-    return buildChain(account, name, type, state, template, Text.toShipKey(name));
+    return buildChain(account, name, type, state, template, StringUtils.toShipKey(name));
   }
 
-  public static Chain buildChain(Account account, String name, ChainType type, ChainState state, Template template, @Nullable String shipKey) {
+  public static Chain buildChain(Account account, String name, ChainType type, ChainState state, Template template, /*@Nullable*/ String shipKey) {
     var chain = new Chain();
     chain.setId(UUID.randomUUID());
     chain.setTemplateId(template.getId());
@@ -598,7 +597,7 @@ public class NexusIntegrationTestingFixtures {
    * @param rolesCSV for access
    * @return access control object
    */
-  public static HubClientAccess buildHubClientAccess(User user, UserAuth userAuth, ImmutableList<Account> accounts, String rolesCSV) {
+  public static HubClientAccess buildHubClientAccess(User user, UserAuth userAuth, List<Account> accounts, String rolesCSV) {
     return new HubClientAccess()
       .setUserId(user.getId())
       .setUserAuthId(userAuth.getId())
@@ -627,7 +626,7 @@ public class NexusIntegrationTestingFixtures {
    * @param rolesCSV for access
    * @return access control object
    */
-  public static HubClientAccess buildHubClientAccess(User user, ImmutableList<Account> accounts, String rolesCSV) {
+  public static HubClientAccess buildHubClientAccess(User user, List<Account> accounts, String rolesCSV) {
     return new HubClientAccess()
       .setUserId(user.getId())
       .setAccountIds(Entities.idsOf(accounts))
@@ -642,7 +641,7 @@ public class NexusIntegrationTestingFixtures {
    * @param accounts for access
    * @return access control object
    */
-  public static HubClientAccess buildHubClientAccess(User user, UserAuth userAuth, ImmutableList<Account> accounts) {
+  public static HubClientAccess buildHubClientAccess(User user, UserAuth userAuth, List<Account> accounts) {
     return new HubClientAccess()
       .setUserId(user.getId())
       .setUserAuthId(userAuth.getId())
@@ -656,7 +655,7 @@ public class NexusIntegrationTestingFixtures {
    * @param accounts for access
    * @return access control object
    */
-  public static HubClientAccess buildHubClientAccess(User user, ImmutableList<Account> accounts) {
+  public static HubClientAccess buildHubClientAccess(User user, List<Account> accounts) {
     return new HubClientAccess()
       .setUserId(user.getId())
       .setAccountIds(Entities.idsOf(accounts));
@@ -669,7 +668,7 @@ public class NexusIntegrationTestingFixtures {
    * @param rolesCSV for access
    * @return access control object
    */
-  public static HubClientAccess buildHubClientAccess(ImmutableList<Account> accounts, String rolesCSV) {
+  public static HubClientAccess buildHubClientAccess(List<Account> accounts, String rolesCSV) {
     return new HubClientAccess()
       .setAccountIds(Entities.idsOf(accounts))
       .setRoleTypes(Users.userRoleTypesFromCsv(rolesCSV));
@@ -780,7 +779,7 @@ public class NexusIntegrationTestingFixtures {
 
     // List of all parent entities including the library
     // ORDER IS IMPORTANT because this list will be used for real database entities, so ordered from parent -> child
-    return ImmutableList.of(
+    return List.of(
       account1,
       library2,
       user2,
@@ -884,7 +883,7 @@ public class NexusIntegrationTestingFixtures {
     program15_sequence1_binding0_meme1 = buildMeme(program15_sequence1_binding0, "Shame");
 
     // return them all
-    return ImmutableList.of(
+    return List.of(
       program3,
       program3_meme0,
       program3_sequence0,
@@ -987,7 +986,7 @@ public class NexusIntegrationTestingFixtures {
     instrument8_audio8toot = buildAudio(instrument8, "Toot", "askjdfjhk975898198017350afghjkjh.wav", 0.01f, 1.5f, 120.0f, 0.62f, "TOOT", "Ab", 0.8f);
 
     // return them all
-    return ImmutableList.of(
+    return List.of(
       program9,
       program9_meme0,
       program9_voice0,
@@ -1082,7 +1081,7 @@ public class NexusIntegrationTestingFixtures {
     instrument9_audio8 = buildAudio(instrument9, "bass", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.62f, "BLOOP", "Eb", 1.0f);
 
     // return them all
-    return ImmutableList.of(
+    return List.of(
       program10,
       program10_meme0,
       program10_voice0,
@@ -1121,7 +1120,7 @@ public class NexusIntegrationTestingFixtures {
    * @return entities
    */
   public Collection<Object> generatedFixture(int N) {
-    Collection<Object> entities = Lists.newArrayList();
+    Collection<Object> entities = new ArrayList<>();
 
     account1 = add(entities, buildAccount("Generated"));
     user1 = add(entities, buildUser("generated", "generated@email.com", "https://pictures.com/generated.gif", "Admin"));
@@ -1146,7 +1145,7 @@ public class NexusIntegrationTestingFixtures {
       add(entities, buildInstrumentMeme(instrument, minorMemeName));
       // audios of instrument
       for (int k = 0; k < N; k++)
-        add(entities, buildAudio(instrument, Text.toProper(percussiveNames[k]), String.format("%s.wav", Text.toLowerSlug(percussiveNames[k])), random(0, 0.05), random(0.25, 2), random(80, 120), 0.62f, percussiveNames[k], "X", random(0.8, 1)));
+        add(entities, buildAudio(instrument, StringUtils.toProper(percussiveNames[k]), String.format("%s.wav", StringUtils.toLowerSlug(percussiveNames[k])), random(0, 0.05), random(0.25, 2), random(80, 120), 0.62f, percussiveNames[k], "X", random(0.8, 1)));
       //
       log.debug("Generated Drum-type Instrument id={}, minorMeme={}, majorMeme={}", instrument.getId(), minorMemeName, majorMemeName);
     }
@@ -1177,7 +1176,6 @@ public class NexusIntegrationTestingFixtures {
       add(entities, buildProgramSequenceBindingMeme(binding0, majorMemeFromName));
       // to offset 1
       float densityTo = random(0.3, 0.9);
-      float tempoTo = random(803, 120);
       var sequence1 = add(entities, buildSequence(program, 0, String.format("Finish %s", majorMemeToName), densityTo, keyTo));
       var binding1 = add(entities, buildProgramSequenceBinding(sequence1, 1));
       add(entities, buildProgramSequenceBindingMeme(binding1, majorMemeToName));
@@ -1218,7 +1216,7 @@ public class NexusIntegrationTestingFixtures {
 
     // Generate N total Beat-type Sequences, each having N voices, and N*2 patterns comprised of N*8 events
     ProgramVoice[] voices = new ProgramVoice[N];
-    Map<String, ProgramVoiceTrack> trackMap = Maps.newHashMap();
+    Map<String, ProgramVoiceTrack> trackMap = new HashMap<>();
     for (int i = 0; i < N; i++) {
       String majorMemeName = majorMemeNames[i];
       float tempo = random(80, 120);

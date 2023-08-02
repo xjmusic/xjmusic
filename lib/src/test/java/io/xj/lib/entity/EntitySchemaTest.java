@@ -2,7 +2,7 @@
 
 package io.xj.lib.entity;
 
-import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import io.xj.lib.Widget;
 import org.junit.Assert;
 import org.junit.Before;
@@ -52,7 +52,7 @@ public class EntitySchemaTest {
 
   @Test
   public void withAttribute() {
-    assertEquals(ImmutableSet.of("weight", "dancingAbility", "overallFunkiness"),
+    assertEquals(Set.of("weight", "dancingAbility", "overallFunkiness"),
       subject
         .withAttribute("OverallFunkiness")
         .getAttributes());
@@ -60,7 +60,7 @@ public class EntitySchemaTest {
 
   @Test
   public void withAttributes() {
-    assertEquals(ImmutableSet.of("weight", "dancingAbility", "overallFunkiness", "debateAbility"),
+    assertEquals(Set.of("weight", "dancingAbility", "overallFunkiness", "debateAbility"),
       subject
         .withAttributes("overallFunkiness", "DebateAbility")
         .getAttributes());
@@ -68,12 +68,12 @@ public class EntitySchemaTest {
 
   @Test
   public void getAttributes() {
-    assertEquals(ImmutableSet.of("weight", "dancingAbility"), subject.getAttributes());
+    assertEquals(Set.of("weight", "dancingAbility"), subject.getAttributes());
   }
 
   @Test
   public void hasMany() {
-    assertEquals(ImmutableSet.of("talons", "tailFeathers", "eyeBalls"),
+    assertEquals(Set.of("talons", "tailFeathers", "eyeBalls"),
       subject
         .hasMany("EyeBall")
         .getHasMany());
@@ -81,7 +81,7 @@ public class EntitySchemaTest {
 
   @Test
   public void hasMany_plural() {
-    assertEquals(ImmutableSet.of("talons", "tailFeathers", "eyeBalls", "shoes"),
+    assertEquals(Set.of("talons", "tailFeathers", "eyeBalls", "shoes"),
       subject
         .hasMany("EyeBall", "Shoe")
         .getHasMany());
@@ -89,7 +89,7 @@ public class EntitySchemaTest {
 
   @Test
   public void hasMany_byClass() {
-    assertEquals(ImmutableSet.of("talons", "tailFeathers", "eyeBalls"),
+    assertEquals(Set.of("talons", "tailFeathers", "eyeBalls"),
       subject
         .hasMany(EyeBall.class)
         .getHasMany());
@@ -97,7 +97,7 @@ public class EntitySchemaTest {
 
   @Test
   public void hasMany_plural_byClass() {
-    assertEquals(ImmutableSet.of("talons", "tailFeathers", "eyeBalls", "shoes"),
+    assertEquals(Set.of("talons", "tailFeathers", "eyeBalls", "shoes"),
       subject
         .hasMany(EyeBall.class, Shoe.class)
         .getHasMany());
@@ -105,12 +105,12 @@ public class EntitySchemaTest {
 
   @Test
   public void getHasMany() {
-    assertEquals(ImmutableSet.of("talons", "tailFeathers"), subject.getHasMany());
+    assertEquals(Set.of("talons", "tailFeathers"), subject.getHasMany());
   }
 
   @Test
   public void belongsTo() {
-    assertEquals(ImmutableSet.of("barnyard", "localUnion", "city"),
+    assertEquals(Set.of("barnyard", "localUnion", "city"),
       subject
         .belongsTo("cities")
         .getBelongsTo());
@@ -118,7 +118,7 @@ public class EntitySchemaTest {
 
   @Test
   public void belongsTo_plural() {
-    assertEquals(ImmutableSet.of("barnyard", "localUnion", "city", "state"),
+    assertEquals(Set.of("barnyard", "localUnion", "city", "state"),
       subject
         .belongsTo("Cities", "States")
         .getBelongsTo());
@@ -126,7 +126,7 @@ public class EntitySchemaTest {
 
   @Test
   public void belongsTo_byClass() {
-    assertEquals(ImmutableSet.of("barnyard", "localUnion", "city"),
+    assertEquals(Set.of("barnyard", "localUnion", "city"),
       subject
         .belongsTo(City.class)
         .getBelongsTo());
@@ -134,7 +134,7 @@ public class EntitySchemaTest {
 
   @Test
   public void belongsTo_plural_byClass() {
-    assertEquals(ImmutableSet.of("barnyard", "localUnion", "city", "state"),
+    assertEquals(Set.of("barnyard", "localUnion", "city", "state"),
       subject
         .belongsTo(City.class, State.class)
         .getBelongsTo());
@@ -142,33 +142,33 @@ public class EntitySchemaTest {
 
   @Test
   public void getBelongsTo() {
-    assertEquals(ImmutableSet.of("barnyard", "localUnion"), subject.getBelongsTo());
+    assertEquals(Set.of("barnyard", "localUnion"), subject.getBelongsTo());
   }
 
 
   /**
-   To test defining relationships by class
+   * To test defining relationships by class
    */
   public static class EyeBall {
     // noop
   }
 
   /**
-   To test defining relationships by class
+   * To test defining relationships by class
    */
   public static class Shoe {
     // noop
   }
 
   /**
-   To test defining relationships by class
+   * To test defining relationships by class
    */
   public static class City {
     // noop
   }
 
   /**
-   To test defining relationships by class
+   * To test defining relationships by class
    */
   public static class State {
     // noop

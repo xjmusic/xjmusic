@@ -9,13 +9,14 @@ import java.util.Objects;
 import java.util.UUID;
 
 
-public class SegmentMeme   {
+public class SegmentMeme {
 
   @Valid UUID id;
   @Valid UUID segmentId;
   @Valid String name;
 
   /**
+   *
    **/
   public SegmentMeme id(UUID id) {
     this.id = id;
@@ -27,11 +28,13 @@ public class SegmentMeme   {
   public UUID getId() {
     return id;
   }
+
   public void setId(UUID id) {
     this.id = id;
   }
 
   /**
+   *
    **/
   public SegmentMeme segmentId(UUID segmentId) {
     this.segmentId = segmentId;
@@ -43,11 +46,13 @@ public class SegmentMeme   {
   public UUID getSegmentId() {
     return segmentId;
   }
+
   public void setSegmentId(UUID segmentId) {
     this.segmentId = segmentId;
   }
 
   /**
+   *
    **/
   public SegmentMeme name(String name) {
     this.name = name;
@@ -59,6 +64,7 @@ public class SegmentMeme   {
   public String getName() {
     return name;
   }
+
   public void setName(String name) {
     this.name = name;
   }
@@ -74,8 +80,8 @@ public class SegmentMeme   {
     }
     SegmentMeme segmentMeme = (SegmentMeme) o;
     return Objects.equals(this.id, segmentMeme.id) &&
-        Objects.equals(this.segmentId, segmentMeme.segmentId) &&
-        Objects.equals(this.name, segmentMeme.name);
+      Objects.equals(this.segmentId, segmentMeme.segmentId) &&
+      Objects.equals(this.name, segmentMeme.name);
   }
 
   @Override

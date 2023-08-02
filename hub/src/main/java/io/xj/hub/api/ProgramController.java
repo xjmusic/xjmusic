@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.api;
 
-import com.google.common.collect.ImmutableList;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.manager.ManagerCloner;
@@ -91,7 +90,7 @@ public class ProgramController extends HubJsonapiEndpoint {
 
       // how we source programs depends on the query parameters
       if (Objects.nonNull(libraryId))
-        programs = manager().readMany(access, ImmutableList.of(libraryId));
+        programs = manager().readMany(access, List.of(libraryId));
       else if (Objects.nonNull(accountId))
         programs = manager().readManyInAccount(access, accountId);
       else
@@ -176,7 +175,7 @@ public class ProgramController extends HubJsonapiEndpoint {
       // optionally specify a CSV of included types to read
       if (Objects.nonNull(include)) {
         List<JsonapiPayloadObject> list = new ArrayList<>();
-        for (Object entity : manager().readChildEntities(access, ImmutableList.of(id), CSV.split(include))) {
+        for (Object entity : manager().readChildEntities(access, List.of(id), CSV.split(include))) {
           JsonapiPayloadObject jsonapiPayloadObject = payloadFactory.toPayloadObject(entity);
           list.add(jsonapiPayloadObject);
         }

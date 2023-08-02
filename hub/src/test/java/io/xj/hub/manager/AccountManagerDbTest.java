@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.manager;
 
-import com.google.common.collect.ImmutableList;
 import io.xj.hub.HubIntegrationTest;
 import io.xj.hub.HubIntegrationTestFactory;
 import io.xj.hub.IntegrationTestingFixtures;
@@ -10,7 +9,6 @@ import io.xj.hub.tables.pojos.Account;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.notification.NotificationProvider;
-import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
@@ -76,7 +76,7 @@ public class AccountManagerDbTest {
 
   @Test
   public void readOne_asSetToModel() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "User");
 
     var result = subject.readOne(access, fake.account1.getId());
 
@@ -87,9 +87,9 @@ public class AccountManagerDbTest {
 
   @Test
   public void readMany() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "User");
 
-    Collection<Account> results = subject.readMany(access, Lists.newArrayList());
+    Collection<Account> results = subject.readMany(access, new ArrayList<>());
 
     assertNotNull(results);
     assertEquals(1L, results.size());
@@ -100,7 +100,7 @@ public class AccountManagerDbTest {
 
   @Test
   public void update() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Admin");
     var entity = new Account();
     entity.setId(UUID.randomUUID());
     entity.setName("jammers");
@@ -114,7 +114,7 @@ public class AccountManagerDbTest {
 
   @Test
   public void update_failsIfNotAdmin() {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "User");
     var entity = new Account();
     entity.setId(UUID.randomUUID());
     entity.setName("jammers");
@@ -126,7 +126,7 @@ public class AccountManagerDbTest {
 
   @Test
   public void delete() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Admin");
 
     subject.destroy(access, fake.account1.getId());
 
@@ -137,7 +137,7 @@ public class AccountManagerDbTest {
 
   @Test
   public void delete_failsIfNotAdmin() {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "User");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "User");
 
     var e = assertThrows(ManagerException.class,
       () -> subject.destroy(access, fake.account1.getId()));
@@ -146,7 +146,7 @@ public class AccountManagerDbTest {
 
   @Test
   public void delete_failsIfHasLibrary() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Admin");
     test.insert(buildLibrary(fake.account1, "Testing"));
 
     var e = assertThrows(ManagerException.class, () ->
@@ -156,7 +156,7 @@ public class AccountManagerDbTest {
 
   @Test
   public void delete_failsIfHasAccountUser() throws Exception {
-    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), ImmutableList.of(fake.account1), "Admin");
+    HubAccess access = HubAccess.create(UUID.randomUUID(), UUID.randomUUID(), List.of(fake.account1), "Admin");
     fake.user1 = test.insert(buildUser("jim",
       "jim@jim.com",
       "https://www.jim.com/jim.png",

@@ -2,14 +2,14 @@
 package io.xj.hub.manager;
 
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.EventEntity;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
@@ -86,9 +86,9 @@ public class ProgramSequencePatternEventManagerImpl extends HubPersistenceServic
    */
   public ProgramSequencePatternEvent validate(ProgramSequencePatternEvent builder) throws ManagerException {
     try {
-      Values.require(builder.getProgramId(), "Program ID");
-      Values.require(builder.getProgramSequencePatternId(), "Pattern ID");
-      Values.require(builder.getProgramVoiceTrackId(), "Track ID");
+      ValueUtils.require(builder.getProgramId(), "Program ID");
+      ValueUtils.require(builder.getProgramSequencePatternId(), "Pattern ID");
+      ValueUtils.require(builder.getProgramVoiceTrackId(), "Track ID");
       EventEntity.validate(builder);
       return builder;
 

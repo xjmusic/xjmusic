@@ -5,9 +5,9 @@ package io.xj.nexus.ship.broadcast;
 
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
-import io.xj.lib.util.FileUtil;
+import io.xj.lib.util.FileUtils;
 import io.xj.lib.util.StreamLogger;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import io.xj.nexus.ship.ShipException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,9 +68,9 @@ public class StreamEncoderImpl implements StreamEncoder {
         "-i", "pipe:0",
         "-ac", "2",
         "-c:a", shipChunkAudioEncoder,
-        "-b:a", Values.k(bitrate),
-        "-maxrate", Values.k(bitrate),
-        "-minrate", Values.k(bitrate),
+        "-b:a", ValueUtils.k(bitrate),
+        "-maxrate", ValueUtils.k(bitrate),
+        "-minrate", ValueUtils.k(bitrate),
         // HLS
         "-f", "hls",
         "-start_number", "0",
@@ -125,7 +125,7 @@ public class StreamEncoderImpl implements StreamEncoder {
         if (!new File(playlistPath).exists()) return;
 
         // parse ffmpeg .m3u8 content
-        var chunks = playlist.parseItems(FileUtil.getFileContent(playlistPath));
+        var chunks = playlist.parseItems(FileUtils.getFileContent(playlistPath));
         for (var chunk : chunks)
           if (playlist.putNext(chunk)) {
             uploadMediaSegment(chunk.getFilename(), contentTypeSegment);

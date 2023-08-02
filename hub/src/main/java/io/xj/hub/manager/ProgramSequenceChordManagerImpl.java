@@ -1,11 +1,10 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.manager;
 
-import com.google.common.base.Strings;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.persistence.HubPersistenceServiceImpl;
+import io.xj.hub.persistence.HubSqlStoreProvider;
 import io.xj.hub.tables.pojos.ProgramSequenceChord;
 import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
 import io.xj.hub.tables.pojos.ProgramVoice;
@@ -13,18 +12,27 @@ import io.xj.hub.tables.records.ProgramSequenceChordVoicingRecord;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.ChordEntity;
 import io.xj.lib.jsonapi.JsonapiException;
+import io.xj.lib.util.StringUtils;
 import io.xj.lib.util.ValueException;
-import io.xj.lib.util.Values;
+import io.xj.lib.util.ValueUtils;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import static io.xj.hub.Tables.*;
+import static io.xj.hub.Tables.LIBRARY;
+import static io.xj.hub.Tables.PROGRAM;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_CHORD;
+import static io.xj.hub.Tables.PROGRAM_SEQUENCE_CHORD_VOICING;
+import static io.xj.hub.Tables.PROGRAM_VOICE;
 
 @Service
 public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl implements ProgramSequenceChordManager {
@@ -101,7 +109,7 @@ public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl i
     DSLContext db = sqlStoreProvider.getDSL();
     requireArtist(access);
     requireLibraryRead(db, access, libraryId);
-    if (Strings.isNullOrEmpty(chordName))
+    if (StringUtils.isNullOrEmpty(chordName))
       throw new ManagerException("Search requires at least one character of text!");
 
     return modelsFrom(ProgramSequenceChord.class,
@@ -182,8 +190,8 @@ public class ProgramSequenceChordManagerImpl extends HubPersistenceServiceImpl i
    */
   public ProgramSequenceChord validate(ProgramSequenceChord record) throws ManagerException {
     try {
-      Values.require(record.getProgramId(), "Program ID");
-      Values.require(record.getProgramSequenceId(), "Sequence ID");
+      ValueUtils.require(record.getProgramId(), "Program ID");
+      ValueUtils.require(record.getProgramSequenceId(), "Sequence ID");
       ChordEntity.validate(record);
       return record;
 
