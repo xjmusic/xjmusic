@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.work;
 
-import io.xj.hub.client.HubClient;
+import io.xj.nexus.hub_client.HubClient;
 import io.xj.hub.service.PreviewNexusAdmin;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreProvider;

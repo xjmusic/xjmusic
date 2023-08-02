@@ -2,8 +2,7 @@
 package io.xj.hub.analysis;
 
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.client.HubClientException;
-import io.xj.hub.client.HubContent;
+import io.xj.hub.ingest.HubContent;
 import io.xj.hub.ingest.HubIngestException;
 import io.xj.hub.ingest.HubIngestFactory;
 import io.xj.lib.util.ValueException;
@@ -42,10 +41,8 @@ class HubAnalysisFactoryImpl implements HubAnalysisFactory {
 
     } catch (HubIngestException e) {
       throw new HubAnalysisException("Failed to ingest content", e);
-    } catch (HubClientException e) {
+    } catch (Exception e) {
       throw new HubAnalysisException("Failed to build content index", e);
-    } catch (ValueException e) {
-      throw new HubAnalysisException("Failed to parse value", e);
     }
   }
 }

@@ -1,7 +1,7 @@
 package io.xj.nexus.fabricator;
 
-import io.xj.hub.client.HubClientException;
-import io.xj.hub.client.HubContent;
+import io.xj.nexus.hub_client.HubClientException;
+import io.xj.hub.ingest.HubContent;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.ValueException;

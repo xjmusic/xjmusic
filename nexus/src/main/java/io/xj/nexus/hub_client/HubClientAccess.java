@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.hub.client;
+package io.xj.nexus.hub_client;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.xj.hub.enums.UserRoleType;

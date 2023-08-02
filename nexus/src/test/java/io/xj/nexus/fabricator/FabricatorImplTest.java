@@ -4,8 +4,8 @@ package io.xj.nexus.fabricator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.xj.hub.HubTopology;
-import io.xj.hub.client.HubClientException;
-import io.xj.hub.client.HubContent;
+import io.xj.nexus.hub_client.HubClientException;
+import io.xj.hub.ingest.HubContent;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Template;

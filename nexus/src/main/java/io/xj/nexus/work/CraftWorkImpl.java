@@ -2,10 +2,10 @@
 package io.xj.nexus.work;
 
 import io.xj.hub.TemplateConfig;
-import io.xj.hub.client.HubClient;
-import io.xj.hub.client.HubClientAccess;
-import io.xj.hub.client.HubClientException;
-import io.xj.hub.client.HubContent;
+import io.xj.nexus.hub_client.HubClient;
+import io.xj.nexus.hub_client.HubClientAccess;
+import io.xj.nexus.hub_client.HubClientException;
+import io.xj.hub.ingest.HubContent;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.manager.Templates;
 import io.xj.hub.service.PreviewNexusAdmin;
@@ -533,7 +533,7 @@ public class CraftWorkImpl implements CraftWork {
       LOG.debug("Ingested {} entities of source material", chainSourceMaterial.size());
       state = WorkState.Working;
 
-    } catch (HubClientException e) {
+    } catch (HubClientException | ValueException e) {
       didFailWhile(inputTemplateKey, "ingesting published source material", e, false);
     }
   }

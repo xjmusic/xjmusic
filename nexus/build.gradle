@@ -36,21 +36,35 @@ repositories {
 }
 
 dependencies {
-  implementation project(":hub")
+  implementation(project(":hub")) {
+    exclude group: 'com.google'
+    exclude group: 'com.google.api-client'
+    exclude group: 'com.google.cloud'
+  }
   implementation project(":lib")
-  testImplementation(testFixtures(project(":hub")))
+  testImplementation(testFixtures(project(":hub"))) {
+    exclude group: 'com.google'
+    exclude group: 'com.google.api-client'
+    exclude group: 'com.google.cloud'
+  }
   testImplementation(testFixtures(project(":nexus")))
   testFixturesImplementation(project(":lib"))
-  testFixturesImplementation(project(":hub"))
+  testFixturesImplementation(project(":hub")) {
+    exclude group: 'com.google'
+    exclude group: 'com.google.api-client'
+    exclude group: 'com.google.cloud'
+  }
   testFixturesImplementation(project(":lib"))
-  testFixturesImplementation(testFixtures(project(":hub")))
+  testFixturesImplementation(testFixtures(project(":hub"))) {
+    exclude group: 'com.google'
+    exclude group: 'com.google.api-client'
+    exclude group: 'com.google.cloud'
+  }
   testImplementation(project(':lib').sourceSets.test.output)
-  testImplementation(testFixtures(project(":hub")))
   //
   implementation "com.fasterxml.jackson.core:jackson-annotations:${rootProject.ext.jacksonAnnotationsVersion}"
   implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:${rootProject.ext.jacksonAnnotationsVersion}"
   implementation "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:${rootProject.ext.jacksonAnnotationsVersion}"
-  implementation "com.google.guava:guava:31.1-jre" // to resolve an incompatibility with transitive guava deps from other google libraries
   implementation "org.springframework.boot:spring-boot-starter-web:${rootProject.ext.springBootVersion}"
   implementation 'ch.qos.logback:logback-classic:1.2.6'
   implementation 'com.github.axet:TarsosDSP:2.4-1'
@@ -80,7 +94,6 @@ dependencies {
   testFixturesImplementation 'com.typesafe:config:1.4.1'
   testFixturesImplementation 'org.jooq:jooq:3.15.2'
   testFixturesImplementation 'org.slf4j:slf4j-api:1.7.32'
-  testImplementation "com.google.guava:guava:31.1-jre" // to resolve an incompatibility with transitive guava deps from other google libraries
   testImplementation "org.springframework.boot:spring-boot-starter-test:${rootProject.ext.springBootVersion}"
   testImplementation 'com.github.tomakehurst:wiremock-jre8:2.31.0'
   testImplementation 'junit:junit:4.13.2'

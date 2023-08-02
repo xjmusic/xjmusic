@@ -2,8 +2,8 @@
 package io.xj.nexus.craft.hook;
 
 import io.xj.hub.HubTopology;
-import io.xj.hub.client.HubClient;
-import io.xj.hub.client.HubContent;
+import io.xj.nexus.hub_client.HubClient;
+import io.xj.hub.ingest.HubContent;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.json.JsonProvider;

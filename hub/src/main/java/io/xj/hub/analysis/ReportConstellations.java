@@ -1,8 +1,7 @@
 package io.xj.hub.analysis;
 
 import io.xj.hub.TemplateConfig;
-import io.xj.hub.client.HubClientException;
-import io.xj.hub.client.HubContent;
+import io.xj.hub.ingest.HubContent;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Instrument;
@@ -40,7 +39,7 @@ public class ReportConstellations extends Report {
   final Map<InstrumentType, Set<Instrument>> instrumentsByType;
   final MemeTaxonomy taxonomy;
 
-  public ReportConstellations(HubContent content) throws HubClientException, ValueException {
+  public ReportConstellations(HubContent content) throws ValueException {
     super(content);
     Collection<String> memeNames;
     MemeStack stack;

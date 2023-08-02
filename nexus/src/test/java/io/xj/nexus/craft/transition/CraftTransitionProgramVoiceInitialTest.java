@@ -3,8 +3,8 @@ package io.xj.nexus.craft.transition;
 
 import io.xj.hub.HubTopology;
 import io.xj.hub.TemplateConfig;
-import io.xj.hub.client.HubClient;
-import io.xj.hub.client.HubContent;
+import io.xj.nexus.hub_client.HubClient;
+import io.xj.hub.ingest.HubContent;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.ApiUrlProvider;

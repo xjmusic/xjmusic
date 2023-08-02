@@ -2,9 +2,8 @@
 
 package io.xj.hub.analysis;
 
-import io.xj.hub.client.HubClientException;
-import io.xj.hub.client.HubContent;
 import io.xj.hub.enums.ProgramType;
+import io.xj.hub.ingest.HubContent;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.lib.entity.Entities;
@@ -309,7 +308,7 @@ public abstract class Report {
   /**
    * Render HTML
    */
-  public String renderHeaderHTML() throws HubClientException {
+  public String renderHeaderHTML() {
     return String.join(String.format("<A ID=\"%s\">", TOP_ID), "\n", H1(getType().getName(), "headline"), renderTimestampHTML());
   }
 
@@ -327,8 +326,6 @@ public abstract class Report {
     } catch (
       IOException e) {
       throw new HubAnalysisException("Failed to get report.html template!", e);
-    } catch (HubClientException e) {
-      throw new HubAnalysisException("Failed to analyze content!", e);
     }
   }
 

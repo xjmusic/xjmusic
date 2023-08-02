@@ -1,7 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-package io.xj.hub.client;
+package io.xj.nexus.hub_client;
 
+import io.xj.hub.ingest.HubContent;
 import io.xj.hub.ingest.HubContentPayload;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplatePlayback;
@@ -9,6 +10,7 @@ import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.util.ValueException;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -86,19 +88,19 @@ public class HubClientImpl implements HubClient {
       String json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
       return HubContent.from(jsonProvider.getMapper().readValue(json, HubContentPayload.class));
 
-    } catch (IOException e) {
+    } catch (ValueException | IOException e) {
       throw new HubClientException(e);
     }
   }
 
   @Override
   public Optional<Template> readPreviewTemplate(UUID templateId) throws HubClientException {
-    return getOneFromHub(Template.class, String.format(API_PATH_TEMPLATE_BY_ID_FORMAT, templateId));
+    return getOneFromHub(String.format(API_PATH_TEMPLATE_BY_ID_FORMAT, templateId));
   }
 
   @Override
   public Optional<TemplatePlayback> readPreviewTemplatePlayback(UUID templatePlaybackId) throws HubClientException {
-    return getOneFromHub(TemplatePlayback.class, String.format(API_PATH_TEMPLATE_PLAYBACK_BY_ID_FORMAT, templatePlaybackId));
+    return getOneFromHub(String.format(API_PATH_TEMPLATE_PLAYBACK_BY_ID_FORMAT, templatePlaybackId));
   }
 
   @Override
@@ -116,12 +118,12 @@ public class HubClientImpl implements HubClient {
       String json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
       return HubContent.from(jsonProvider.getMapper().readValue(json, HubContentPayload.class));
 
-    } catch (IOException e) {
+    } catch (IOException | ValueException e) {
       throw new HubClientException(e);
     }
   }
 
-  <N> Optional<N> getOneFromHub(Class<N> type, String path) throws HubClientException {
+  <N> Optional<N> getOneFromHub(String path) throws HubClientException {
     CloseableHttpClient client = httpClientProvider.getClient();
     var uri = buildURI(path);
     var request = buildGetRequest(uri, ingestTokenValue);

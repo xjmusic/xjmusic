@@ -15,8 +15,6 @@ import static io.xj.lib.util.StringUtils.UNDERSCORE;
 /**
  * Send telemetry to GCP https://www.pivotaltracker.com/story/show/180741969
  * <p>
- * SEE: https://cloud.google.com/monitoring/custom-metrics/open-census
- * <p>
  * NOTE: This provider automatically prefixes all telemetry:
  * - names with "ship_app_" e.g. "coolair_nexus_xyz"
  * - descriptions with "Ship App" e.g. "Coolair Nexus Xyz"

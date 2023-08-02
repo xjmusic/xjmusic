@@ -1,10 +1,9 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.hub.client;
+package io.xj.hub.ingest;
 
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.ingest.HubContentPayload;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.InstrumentMeme;
@@ -26,6 +25,7 @@ import io.xj.lib.entity.EntityException;
 import io.xj.lib.music.Note;
 import io.xj.lib.util.Multiset;
 import io.xj.lib.util.StringUtils;
+import io.xj.lib.util.ValueException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,13 +49,13 @@ public class HubContent {
 
   public HubContent(
     Collection<?> entities
-  ) throws HubClientException {
+  ) throws ValueException {
     try {
       for (Object entity : entities)
         put(entity);
 
     } catch (Exception e) {
-      throw new HubClientException(e);
+      throw new ValueException(e);
     }
   }
 
@@ -64,9 +64,9 @@ public class HubContent {
    *
    * @param payload from which to get content object
    * @return hub content
-   * @throws HubClientException on failure
+   * @throws ValueException on failure
    */
-  public static HubContent from(HubContentPayload payload) throws HubClientException {
+  public static HubContent from(HubContentPayload payload) throws ValueException {
     return new HubContent(payload.getAllEntities());
   }
 
@@ -139,13 +139,11 @@ public class HubContent {
     var actualOffset = candidates.stream()
       .map(ProgramSequenceBinding::getOffset)
       .min(Comparator.comparing(psbOffset -> Math.abs(psbOffset - offset)));
-    if (actualOffset.isEmpty())
-      return List.of();
-    return getProgramSequenceBindings().stream()
+    return actualOffset.map(integer -> getProgramSequenceBindings().stream()
       .filter(psb ->
         Objects.equals(psb.getProgramId(), programId) &&
-          Objects.equals(psb.getOffset(), actualOffset.get()))
-      .collect(Collectors.toList());
+          Objects.equals(psb.getOffset(), integer))
+      .collect(Collectors.toList())).orElseGet(List::of);
   }
 
   /**
@@ -309,14 +307,14 @@ public class HubContent {
    *
    * @param instrumentAudioId for which to get instrument type
    * @return instrument type
-   * @throws HubClientException on failure
+   * @throws ValueException on failure
    */
-  public InstrumentType getInstrumentTypeForAudioId(UUID instrumentAudioId) throws HubClientException {
+  public InstrumentType getInstrumentTypeForAudioId(UUID instrumentAudioId) throws ValueException {
     return getInstrument(
       getInstrumentAudio(instrumentAudioId)
-        .orElseThrow(() -> new HubClientException("Can't get Instrument Audio!"))
+        .orElseThrow(() -> new ValueException("Can't get Instrument Audio!"))
         .getInstrumentId())
-      .orElseThrow(() -> new HubClientException("Can't get Instrument!"))
+      .orElseThrow(() -> new ValueException("Can't get Instrument!"))
       .getType();
   }
 
@@ -325,12 +323,12 @@ public class HubContent {
    *
    * @param event for which to get instrument type
    * @return instrument type
-   * @throws HubClientException on failure
+   * @throws ValueException on failure
    */
-  public InstrumentType getInstrumentTypeForEvent(ProgramSequencePatternEvent event) throws HubClientException {
+  public InstrumentType getInstrumentTypeForEvent(ProgramSequencePatternEvent event) throws ValueException {
     return
       getVoice(event)
-        .orElseThrow(() -> new HubClientException("Can't get Program Voice!"))
+        .orElseThrow(() -> new ValueException("Can't get Program Voice!"))
         .getType();
   }
 
@@ -394,9 +392,9 @@ public class HubContent {
    * @param eventId for which to get pattern
    * @return pattern id
    */
-  public UUID getPatternIdForEventId(UUID eventId) throws HubClientException {
+  public UUID getPatternIdForEventId(UUID eventId) throws ValueException {
     return getProgramSequencePatternEvent(eventId)
-      .orElseThrow(() -> new HubClientException(String.format("content does not content ProgramSequencePatternEvent[%s]", eventId)))
+      .orElseThrow(() -> new ValueException(String.format("content does not content ProgramSequencePatternEvent[%s]", eventId)))
       .getProgramSequencePatternId();
   }
 
@@ -674,10 +672,10 @@ public class HubContent {
    * Get the template
    *
    * @return template
-   * @throws HubClientException on failure
+   * @throws ValueException on failure
    */
-  public Template getTemplate() throws HubClientException {
-    return getAll(Template.class).stream().findFirst().orElseThrow(() -> new HubClientException("Has no Template"));
+  public Template getTemplate() throws ValueException {
+    return getAll(Template.class).stream().findFirst().orElseThrow(() -> new ValueException("Has no Template"));
   }
 
   /**
@@ -766,15 +764,15 @@ public class HubContent {
    * Override the ship key of a template we found-- in case a template is shipped to a different
    *
    * @param shipKey new value
-   * @throws HubClientException on failure
+   * @throws ValueException on failure
    */
-  public void setTemplateShipKey(String shipKey) throws HubClientException {
+  public void setTemplateShipKey(String shipKey) throws ValueException {
     try {
       var template = getTemplate();
       template.setShipKey(shipKey);
       put(template);
-    } catch (EntityException e) {
-      throw new HubClientException(e);
+    } catch (EntityException | ValueException e) {
+      throw new ValueException(e);
     }
   }
 

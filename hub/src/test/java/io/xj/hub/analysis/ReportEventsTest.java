@@ -2,7 +2,7 @@
 
 package io.xj.hub.analysis;
 
-import io.xj.hub.client.HubContent;
+import io.xj.hub.ingest.HubContent;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;

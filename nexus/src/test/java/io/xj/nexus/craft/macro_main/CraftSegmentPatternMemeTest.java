@@ -2,8 +2,8 @@
 package io.xj.nexus.craft.macro_main;
 
 import io.xj.hub.HubTopology;
-import io.xj.hub.client.HubClient;
-import io.xj.hub.client.HubContent;
+import io.xj.nexus.hub_client.HubClient;
+import io.xj.hub.ingest.HubContent;
 import io.xj.hub.enums.ProgramType;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactoryImpl;

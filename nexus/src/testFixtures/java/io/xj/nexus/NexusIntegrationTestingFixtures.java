@@ -4,7 +4,7 @@ package io.xj.nexus;
 
 import io.xj.hub.LoremIpsum;
 import io.xj.hub.Users;
-import io.xj.hub.client.HubClientAccess;
+import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
@@ -701,7 +701,7 @@ public class NexusIntegrationTestingFixtures {
     template1 = buildTemplate(account1, "Test Template 1", "test1");
     templateBinding1 = buildTemplateBinding(template1, library2);
 
-    // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
+    // John has "user" and "admin" roles, belongs to account "bananas"
     user2 = buildUser("john", "john@email.com", "https://pictures.com/john.gif", "Admin");
 
     // Jenny has a "user" role and belongs to account "bananas"

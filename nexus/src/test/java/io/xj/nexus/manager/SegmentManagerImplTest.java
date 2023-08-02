@@ -2,7 +2,7 @@
 package io.xj.nexus.manager;
 
 import io.xj.hub.HubTopology;
-import io.xj.hub.client.HubClientAccess;
+import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Template;

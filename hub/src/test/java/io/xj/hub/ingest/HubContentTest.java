@@ -1,6 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-package io.xj.hub.client;
+package io.xj.hub.ingest;
 
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
@@ -27,6 +27,7 @@ import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.notification.NotificationProvider;
+import io.xj.lib.util.ValueException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -133,7 +134,7 @@ public class HubContentTest {
   }
 
   @Test
-  public void getInstrumentTypeForEvent() throws HubClientException {
+  public void getInstrumentTypeForEvent() throws ValueException {
     assertEquals(InstrumentType.Drum, subject.getInstrumentTypeForEvent(program702_pattern901_boomEvent));
   }
 

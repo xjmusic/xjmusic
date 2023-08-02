@@ -3,7 +3,7 @@
 package io.xj.nexus.craft;
 
 import java.util.Map;
-import io.xj.hub.client.HubClientException;
+import io.xj.nexus.hub_client.HubClientException;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;

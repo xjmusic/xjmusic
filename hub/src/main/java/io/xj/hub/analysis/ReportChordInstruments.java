@@ -1,8 +1,7 @@
 package io.xj.hub.analysis;
 
 import io.xj.hub.TemplateConfig;
-import io.xj.hub.client.HubClientException;
-import io.xj.hub.client.HubContent;
+import io.xj.hub.ingest.HubContent;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
@@ -28,7 +27,7 @@ public class ReportChordInstruments extends Report {
   final MemeTaxonomy taxonomy;
   final List<Instrument> chordInstruments;
 
-  public ReportChordInstruments(HubContent content) throws HubClientException, ValueException {
+  public ReportChordInstruments(HubContent content) throws ValueException {
     super(content);
 
     // Store the taxonomy
