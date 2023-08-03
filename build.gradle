@@ -12,7 +12,7 @@ plugins {
   id 'com.google.cloud.tools.jib' version '3.3.2' apply false
   id 'io.spring.dependency-management' version '1.0.15.RELEASE' apply false
   id 'nu.studer.jooq' version '6.0.1' apply false
-  id 'org.openjfx.javafxplugin' version '0.0.13' apply false
+  id 'org.openjfx.javafxplugin' version '0.0.14' apply false
   id 'org.springframework.boot' version '3.1.2' apply false // must match springBootVersion below
  }
 

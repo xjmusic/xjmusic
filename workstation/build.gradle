@@ -21,6 +21,7 @@ tasks.withType(JavaCompile) {
   options.encoding = 'UTF-8'
 }
 
+/*
 jar {
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
   manifest {
@@ -30,11 +31,12 @@ jar {
     configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
   }
 }
+*/
 
 mainClassName = 'io.xj.workstation.WorkstationApplication'
 
 javafx {
-  version = '20.0.1'
+  version = '17'
   modules = ['javafx.controls', 'javafx.fxml']
 }
 
