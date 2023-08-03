@@ -69,8 +69,12 @@ jobs:
             jib
         continue-on-error: false
 
-      - name:
+      - name: Extract distribution files
+        run: |
+          tar -xf workstation/build/distributions/workstation-1.0-SNAPSHOT.tar -C workstation/build/distributions/
+        continue-on-error: false
+
+      - name: Upload distribution artifact
         uses: actions/upload-artifact@v3
         with:
-          name: workstation
-          path: ./workstation/build/distributions/workstation-1.0-SNAPSHOT.zip
+          path: ./workstation/build/distributions/workstation-1.0-SNAPSHOT/
