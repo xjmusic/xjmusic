@@ -23,8 +23,13 @@ module workstation.lib.main {
   requires software.amazon.awssdk.services.sns;
   requires spring.beans;
   requires spring.context;
+  requires spring.core;
   requires spring.web;
   requires typesafe.config;
+
+  opens io.xj.lib.filestore to spring.core;
+  opens io.xj.lib.telemetry to spring.core;
+  opens io.xj.lib.analysis to spring.core;
 
   exports io.xj.hub.access;
   exports io.xj.hub.enums;
