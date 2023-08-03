@@ -28,7 +28,7 @@ jobs:
       - name: Install and cache system packages
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: ffmpeg gpac postgresql-client
+          packages: ffmpeg gpac
           version: 1.0
 
       - name: Setup JDK 17
