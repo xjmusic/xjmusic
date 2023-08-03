@@ -4,7 +4,6 @@ plugins {
   id 'java-library'
   //
   id "de.undercouch.download"
-  id "org.flywaydb.flyway"
   id 'io.spring.dependency-management'
   id 'nu.studer.jooq'
   id 'org.ajoberstar.grgit'
@@ -15,10 +14,6 @@ group = 'io.xj'
 version = '1.0'
 
 description = 'XJ music workstation'
-
-tasks.withType(JavaCompile) {
-  options.encoding = 'UTF-8'
-}
 
 apply plugin: 'java'
 
@@ -71,11 +66,14 @@ dependencies {
 
 jar {
   manifest {
-    attributes 'Main-Class': 'io.xj.lib.Main'
     attributes 'Automatic-Module-Name': 'aws.java.sdk.core'
     attributes 'Automatic-Module-Name': 'aws.java.sdk.s3'
     attributes 'Automatic-Module-Name': 'aws.java.sdk.sns'
   }
+}
+
+bootJar {
+  enabled = false
 }
 
 group = 'io.xj'
