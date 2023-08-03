@@ -1,4 +1,4 @@
-module io.xj.services.workstation.main {
+module io.xj.workstation.main {
   requires javafx.controls;
   requires javafx.fxml;
   requires javafx.graphics;

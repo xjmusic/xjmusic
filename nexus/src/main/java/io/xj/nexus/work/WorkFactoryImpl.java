@@ -2,7 +2,6 @@
 package io.xj.nexus.work;
 
 import io.xj.nexus.hub_client.HubClient;
-import io.xj.hub.service.PreviewNexusAdmin;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
@@ -44,7 +43,6 @@ public class WorkFactoryImpl implements WorkFactory {
   final MixerFactory mixerFactory;
   final NexusEntityStore store;
   final NotificationProvider notification;
-  final PreviewNexusAdmin previewNexusAdmin;
   final SegmentManager segmentManager;
   final TelemetryProvider telemetryProvider;
   final long dubCycleMillis;
@@ -90,7 +88,6 @@ public class WorkFactoryImpl implements WorkFactory {
     MixerFactory mixerFactory,
     NexusEntityStore store,
     NotificationProvider notification,
-    PreviewNexusAdmin previewNexusAdmin,
     SegmentManager segmentManager,
     TelemetryProvider telemetryProvider,
     @Value("${dub.cycle.millis}") long dubCycleMillis,
@@ -125,7 +122,6 @@ public class WorkFactoryImpl implements WorkFactory {
     this.mixerFactory = mixerFactory;
     this.store = store;
     this.notification = notification;
-    this.previewNexusAdmin = previewNexusAdmin;
     this.segmentManager = segmentManager;
     this.telemetryProvider = telemetryProvider;
     this.dubCycleMillis = dubCycleMillis;
@@ -161,7 +157,6 @@ public class WorkFactoryImpl implements WorkFactory {
       lockProvider,
       store,
       notification,
-      previewNexusAdmin,
       segmentManager,
       telemetryProvider,
       inputMode,

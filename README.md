@@ -1,10 +1,10 @@
-| Production                                                                                                                                                                     | Development                                                                                                                                                                   |
-|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [![Production CI](https://github.com/xjmusic/services/actions/workflows/services-prod.yml/badge.svg)](https://github.com/xjmusic/services/actions/workflows/services-prod.yml) | [![Development CI](https://github.com/xjmusic/services/actions/workflows/services-dev.yml/badge.svg)](https://github.com/xjmusic/services/actions/workflows/services-dev.yml) |
+| Production                                                                                                                                                                                 | Development                                                                                                                                                                               |
+|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [![Production CI](https://github.com/xjmusic/workstation/actions/workflows/workstation-prod.yml/badge.svg)](https://github.com/xjmusic/workstation/actions/workflows/workstation-prod.yml) | [![Development CI](https://github.com/xjmusic/workstation/actions/workflows/workstation-dev.yml/badge.svg)](https://github.com/xjmusic/workstation/actions/workflows/workstation-dev.yml) |
 
-|              | GCP                                                                                                                                                                                 |
-|--------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| _Base Image_ | [![Base Image (GCP)](https://github.com/xjmusic/services/actions/workflows/services-base.yaml/badge.svg)](https://github.com/xjmusic/services/actions/workflows/services-base.yaml) |
+|              | GCP                                                                                                                                                                                             |
+|--------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| _Base Image_ | [![Base Image (GCP)](https://github.com/xjmusic/workstation/actions/workflows/workstation-base.yaml/badge.svg)](https://github.com/xjmusic/workstation/actions/workflows/workstation-base.yaml) |
 
 # XJ Music Backend (Java) Services
 
@@ -61,7 +61,7 @@ the [XJ music User Guide](https://docs.google.com/document/d/1Jp1DT7jJ3Xn1pR5495
 ### Architecture
 
 Here's the general architecture of the XJ Music platform backend
-services. [(Download PDF)](art/XJLabStreamingSegmentsArchitecture.pdf)
+workstation. [(Download PDF)](art/XJLabStreamingSegmentsArchitecture.pdf)
 
 ![XJ Lab Streaming Segments Architecture](art/XJLabStreamingSegmentsArchitecture.svg)
 

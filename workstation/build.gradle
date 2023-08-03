@@ -38,9 +38,6 @@ javafx {
 }
 
 dependencies {
-  // hub
-  implementation(project(":hub"), rootProject.ext.googleExclusion)
-  testImplementation(testFixtures(project(":hub")), rootProject.ext.googleExclusion)
   // lib
   implementation project(":lib")
   testImplementation(project(':lib').sourceSets.test.output)

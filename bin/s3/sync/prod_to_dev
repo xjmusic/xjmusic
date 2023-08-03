@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-
-# Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-
-aws s3 sync s3://xj-prod-audio/ s3://xj-dev-audio/

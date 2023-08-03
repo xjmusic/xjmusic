@@ -6,9 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.security.PermitAll;
-import javax.ws.rs.GET;
-
 @RestController
 public class NexusHealthController {
   final WorkFactory workFactory;
@@ -19,8 +16,6 @@ public class NexusHealthController {
     this.workFactory = workFactory;
   }
 
-  @GET
-  @PermitAll
   @GetMapping("/healthz")
   public ResponseEntity<String> index() {
     if (!workFactory.isHealthy()) {

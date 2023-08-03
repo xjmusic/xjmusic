@@ -3,7 +3,6 @@ package io.xj.nexus.craft;
 
 import java.util.Set;
 import io.xj.hub.HubTopology;
-import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.nexus.hub_client.HubClient;
 import io.xj.hub.ingest.HubContent;
 import io.xj.hub.enums.InstrumentMode;
@@ -27,7 +26,7 @@ import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.StringUtils;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.NexusIntegrationTestingFixtures;
+import io.xj.test_fixtures.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
@@ -59,12 +58,20 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
-import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
-import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildAccount;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildDetailProgram;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildEvent;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildInstrument;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildInstrumentWithAudios;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildLibrary;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildPattern;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildProgram;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildSequence;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplate;
 import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTrack;
+import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildVoice;
+import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChoice;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -274,14 +281,14 @@ FUTURE goal
     Map<?, ?> obj = (Map<?, ?>) data.get(String.format("%sInstrument", type.toString().toLowerCase(Locale.ROOT)));
     if (Objects.isNull(obj)) return;
 
-    var instrument = IntegrationTestingFixtures.buildInstrument(
+    var instrument = buildInstrument(
       type,
       InstrumentMode.Event,
       getBool(obj, "isTonal"),
       getBool(obj, "isMultiphonic"));
     instruments.put(type, instrument);
 
-    content.addAll(IntegrationTestingFixtures.buildInstrumentWithAudios(
+    content.addAll(buildInstrumentWithAudios(
       instrument,
       getStr(obj, "notes")));
   }
@@ -296,32 +303,32 @@ FUTURE goal
     Map<?, ?> obj = (Map<?, ?>) data.get(String.format("%sDetailProgram", type.toString().toLowerCase(Locale.ROOT)));
     if (Objects.isNull(obj)) return;
 
-    var program = IntegrationTestingFixtures.buildDetailProgram(
+    var program = buildDetailProgram(
       getStr(obj, "key"),
       getBool(obj, "doPatternRestartOnChord"),
       String.format("%s Test", type));
     detailPrograms.put(type, program);
     content.add(program);
 
-    var voice = IntegrationTestingFixtures.buildVoice(program, type);
+    var voice = buildVoice(program, type);
     detailProgramVoices.put(type, voice);
     content.add(voice);
 
-    var track = IntegrationTestingFixtures.buildTrack(voice);
+    var track = buildTrack(voice);
     content.add(track);
 
     Map<?, ?> sObj = (Map<?, ?>) obj.get("sequence");
-    var sequence = IntegrationTestingFixtures.buildSequence(program, Objects.requireNonNull(getInt(sObj, "total")));
+    var sequence = buildSequence(program, Objects.requireNonNull(getInt(sObj, "total")));
     detailProgramSequences.put(type, sequence);
     content.add(sequence);
 
     Map<?, ?> pObj = (Map<?, ?>) sObj.get("pattern");
-    var pattern = IntegrationTestingFixtures.buildPattern(sequence, voice,
+    var pattern = buildPattern(sequence, voice,
       Objects.requireNonNull(getInt(pObj, "total")));
     content.add(pattern);
     //noinspection unchecked
     for (Map<?, ?> eObj : (List<Map<?, ?>>) pObj.get("events")) {
-      var event = IntegrationTestingFixtures.buildEvent(pattern, track,
+      var event = buildEvent(pattern, track,
         Objects.requireNonNull(getFloat(eObj, "position")),
         Objects.requireNonNull(getFloat(eObj, "duration")),
         getStr(eObj, "tones"));
