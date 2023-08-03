@@ -1,15 +1,17 @@
 module services.lib.main {
-  requires java.desktop;
-  requires java.prefs;
-  requires java.sql;
-  requires TarsosDSP;
+  requires TarsosDSP.core;
+  requires TarsosDSP.jvm;
   requires com.fasterxml.jackson.annotation;
   requires com.fasterxml.jackson.core;
   requires com.fasterxml.jackson.databind;
   requires com.fasterxml.jackson.datatype.jsr310;
+  requires java.desktop;
+  requires java.prefs;
+  requires java.sql;
   requires org.apache.commons.codec;
   requires org.apache.commons.io;
   requires org.apache.httpcomponents.httpclient;
+  requires org.jetbrains.annotations;
   requires org.reflections;
   requires org.slf4j;
   requires software.amazon.awssdk.auth;
