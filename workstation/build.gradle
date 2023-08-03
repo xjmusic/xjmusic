@@ -22,11 +22,12 @@ tasks.withType(JavaCompile) {
 }
 
 jar {
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
   manifest {
     attributes 'Main-Class': 'io.xj.workstation.WorkstationApplication'
   }
   from {
-    configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
   }
 }
 
