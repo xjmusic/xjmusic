@@ -54,11 +54,12 @@ jobs:
         run: .github/nothing_left_todo.sh
 
       - name: (GCP) Authenticate and setup Google Cloud SDK
-        uses: google-github-actions/setup-gcloud@v0.3.0
+        uses: 'google-github-actions/auth@v1'
         with:
-          service_account_key: ${{ secrets.GCP_CREDENTIALS }}
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
-          export_default_credentials: true
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
 
       - name: (GCP) Build & push Docker images
         run: |
