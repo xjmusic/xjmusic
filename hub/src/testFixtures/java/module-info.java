@@ -4,7 +4,6 @@ module services.hub.testFixtures {
   requires org.slf4j;
   requires spring.beans;
   requires spring.context;
-  requires wiremock.jre8.standalone;
   requires services.hub.main;
   requires services.lib.main;
 

@@ -10,10 +10,6 @@ plugins {
 group 'io.xj'
 version '1.0-SNAPSHOT'
 
-repositories {
-  mavenCentral()
-}
-
 ext {
   junitVersion = '5.9.2'
 }

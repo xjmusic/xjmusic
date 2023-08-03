@@ -31,7 +31,6 @@ module services.hub.main {
   requires spring.webmvc;
   requires spymemcached;
   requires typesafe.config;
-  requires wiremock.jre8.standalone;
   requires services.lib.main;
 
   exports io.xj.hub;

@@ -56,6 +56,10 @@ subprojects {
     maven {
       url = 'https://oss.sonatype.org/content/repositories/releases'
     }
+    maven {
+      name = "TarsosDSP repository"
+      url = "https://mvn.0110.be/releases"
+    }
   }
 
   java {

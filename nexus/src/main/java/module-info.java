@@ -18,7 +18,6 @@ module services.nexus.main {
   requires spring.boot.autoconfigure;
   requires spring.context;
   requires spring.web;
-  requires wiremock.jre8.standalone;
   requires services.hub.main;
   requires services.hub.testFixtures;
   requires services.lib.main;

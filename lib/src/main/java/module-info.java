@@ -24,7 +24,6 @@ module services.lib.main {
   requires spring.context;
   requires spring.web;
   requires typesafe.config;
-  requires wiremock.jre8.standalone;
 
   exports io.xj.lib.app;
   exports io.xj.lib.entity;
