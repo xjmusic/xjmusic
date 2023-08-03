@@ -39,7 +39,7 @@ import io.xj.nexus.model.SegmentChord;
 import io.xj.nexus.model.SegmentChordVoicing;
 import io.xj.nexus.model.SegmentType;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;

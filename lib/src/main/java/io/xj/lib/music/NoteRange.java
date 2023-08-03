@@ -2,7 +2,7 @@
 
 package io.xj.lib.music;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;

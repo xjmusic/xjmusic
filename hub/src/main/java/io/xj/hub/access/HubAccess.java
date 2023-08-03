@@ -12,7 +12,7 @@ import io.xj.hub.tables.pojos.UserAuth;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.util.CSV;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Arrays;

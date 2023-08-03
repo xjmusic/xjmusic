@@ -13,7 +13,7 @@ import io.xj.lib.jsonapi.JsonapiResponseProvider;
 import io.xj.lib.jsonapi.PayloadDataType;
 import org.springframework.http.ResponseEntity;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.List;

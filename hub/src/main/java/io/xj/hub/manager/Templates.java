@@ -5,7 +5,7 @@ package io.xj.hub.manager;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.util.StringUtils;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 /**

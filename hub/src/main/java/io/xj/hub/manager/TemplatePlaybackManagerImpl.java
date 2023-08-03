@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Collection;

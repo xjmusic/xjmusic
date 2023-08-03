@@ -3,7 +3,7 @@ package io.xj.nexus.ship;
 
 import io.xj.lib.util.StringUtils;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class ShipException extends Exception {
 

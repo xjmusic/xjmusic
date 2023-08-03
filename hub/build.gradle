@@ -28,6 +28,8 @@ tasks.withType(JavaCompile) {
   options.encoding = 'UTF-8'
 }
 
+
+
 apply plugin: "nu.studer.jooq"
 apply plugin: "org.flywaydb.flyway"
 apply plugin: 'java'
@@ -44,23 +46,25 @@ dependencies {
   testFixturesImplementation(project(":lib"))
   //
   // jOOq vendor
-  jooqGenerator 'org.postgresql:postgresql:42.2.27'
+  jooqGenerator 'org.postgresql:postgresql:42.5.4'
   // vendor
-  compileOnly 'io.swagger:swagger-annotations:1.6.3'
+  compileOnly 'io.swagger:swagger-annotations:1.6.8'
   implementation "com.fasterxml.jackson.core:jackson-annotations:${rootProject.ext.jacksonAnnotationsVersion}"
   implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${rootProject.ext.jacksonAnnotationsVersion}"
   implementation "com.google.api-client:google-api-client:${rootProject.ext.googleApiClientVersion}"
   implementation "com.google.apis:google-api-services-plus:${rootProject.ext.googleApiServicePlusVersion}"
   implementation "com.google.guava:guava:31.1-jre" // to resolve an incompatibility with transitive guava deps from other google libraries
   implementation "org.springframework.boot:spring-boot-starter-web:${rootProject.ext.springBootVersion}"
+  implementation 'ch.qos.logback:logback-classic:1.4.7'
   implementation 'com.github.axet:TarsosDSP:2.4-1'
   implementation 'com.github.rholder:snowball-stemmer:1.3.0.581.1'
+  implementation 'com.google.api.grpc:proto-google-cloud-run-v2:0.20.0'
   implementation 'com.google.cloud.sql:postgres-socket-factory:1.13.1'
   implementation 'com.google.cloud:google-cloud-core:2.21.1'
   implementation 'com.google.cloud:google-cloud-logging:3.15.7'
   implementation 'com.google.cloud:google-cloud-run:0.22.0'
-  implementation 'com.typesafe:config:1.4.1'
-  implementation 'com.zaxxer:HikariCP:5.0.0'
+  implementation 'com.typesafe:config:1.4.2'
+  implementation 'com.zaxxer:HikariCP:5.0.1'
   implementation 'commons-codec:commons-codec:1.15'
   implementation 'commons-io:commons-io:2.11.0'
   implementation 'io.confluent:rest-utils:5.4.0'
@@ -71,36 +75,45 @@ dependencies {
   implementation 'javax.cache:cache-api:1.1.1'
   implementation 'javax.servlet:javax.servlet-api:4.0.1'
   implementation 'javax.ws.rs:javax.ws.rs-api:2.1.1'
+  implementation 'javax.xml.bind:jaxb-api:2.4.0-b180830.0359'
   implementation 'me.xdrop:fuzzywuzzy:1.3.1'
-  implementation 'net.logstash.logback:logstash-logback-encoder:6.6'
+  implementation 'me.xdrop:fuzzywuzzy:1.4.0'
+  implementation 'net.logstash.logback:logstash-logback-encoder:7.3'
   implementation 'net.spy:spymemcached:2.12.3'
-  implementation 'org.apache.httpcomponents:httpclient:4.5.13'
-  implementation 'org.apache.httpcomponents:httpclient:4.5.13'
-  implementation 'org.apache.httpcomponents:httpcore:4.4.14'
+  implementation 'org.apache.httpcomponents:httpclient:4.5.14'
+  implementation 'org.apache.httpcomponents:httpcore:4.4.15'
   implementation 'org.flywaydb:flyway-core:9.16.0'
-  implementation 'org.jooq:jooq-codegen:3.15.2'
-  implementation 'org.jooq:jooq:3.15.2'
-  implementation 'org.json:json:20220924'
-  implementation 'org.mockito:mockito-core:4.0.0'
-  implementation 'org.postgresql:postgresql:42.2.27'
-  implementation 'org.reflections:reflections:0.10.1'
-  implementation 'org.slf4j:slf4j-api:1.7.32'
-  implementation 'org.yaml:snakeyaml:1.33'
+  implementation 'org.jooq:jooq-codegen:3.18.0'
+  implementation 'org.jooq:jooq:3.18.0'
+  implementation 'org.json:json:20230227'
+  implementation 'org.mockito:mockito-core:5.2.0'
+  implementation 'org.postgresql:postgresql:42.5.4'
+  implementation 'org.reflections:reflections:0.10.2'
+  implementation 'org.slf4j:slf4j-api:2.0.5'
+  implementation 'org.yaml:snakeyaml:2.0'
+  implementation("org.springframework.boot:spring-boot-starter-web:${rootProject.ext.springBootVersion}") {
+    exclude group: 'org.springframework', module: 'spring-aop'
+  }
   testFixturesImplementation "com.google.api-client:google-api-client:${rootProject.ext.googleApiClientVersion}"
   testFixturesImplementation "com.google.apis:google-api-services-plus:${rootProject.ext.googleApiServicePlusVersion}"
   testFixturesImplementation "com.google.guava:guava:31.1-jre" // to resolve an incompatibility with transitive guava deps from other google libraries
-  testFixturesImplementation "org.springframework.boot:spring-boot-starter-test:${rootProject.ext.springBootVersion}"
-  testFixturesImplementation 'com.typesafe:config:1.4.1'
-  testFixturesImplementation 'org.jooq:jooq:3.15.2'
-  testFixturesImplementation 'org.slf4j:slf4j-api:1.7.32'
-  testImplementation "org.springframework.boot:spring-boot-starter-test:${rootProject.ext.springBootVersion}"
+  testFixturesImplementation 'com.typesafe:config:1.4.2'
+  testFixturesImplementation 'javax.annotation:javax.annotation-api:1.3.2'
+  testFixturesImplementation 'org.jooq:jooq:3.18.0'
+  testFixturesImplementation 'org.slf4j:slf4j-api:2.0.5'
+  testFixturesImplementation("org.springframework.boot:spring-boot-starter-test:${rootProject.ext.springBootVersion}") {
+    exclude group: 'org.springframework', module: 'spring-aop'
+  }
+  testImplementation 'com.github.tomakehurst:wiremock-jre8:2.35.0'
   testImplementation 'junit:junit:4.13.2'
-  testImplementation 'org.assertj:assertj-core:3.21.0'
+  testImplementation 'org.assertj:assertj-core:3.24.2'
   testImplementation 'org.hamcrest:hamcrest-library:2.2'
-  testImplementation 'org.mockito:mockito-core:4.0.0'
-  testImplementation 'org.mockito:mockito-junit-jupiter:4.6.1'
+  testImplementation 'org.mockito:mockito-core:5.2.0'
+  testImplementation 'org.mockito:mockito-junit-jupiter:5.2.0'
+  testImplementation("org.springframework.boot:spring-boot-starter-test:${rootProject.ext.springBootVersion}") {
+    exclude group: 'org.springframework', module: 'spring-aop'
+  }
 }
-
 
 jooq {
   version = '3.15.1'  // default (can be omitted)
@@ -151,6 +164,7 @@ generateJooq.dependsOn(flywayMigrate)
 jar {
   manifest {
     attributes 'Main-Class': 'io.xj.hub.HubApplication'
+    attributes 'Automatic-Module-Name': 'google.cloud.logging'
   }
 }
 
@@ -164,6 +178,7 @@ allprojects {
   java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
+    modularity.inferModulePath = true
   }
 }
 

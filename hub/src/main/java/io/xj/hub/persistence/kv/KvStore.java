@@ -2,7 +2,7 @@
 
 package io.xj.hub.persistence.kv;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 
 public interface KvStore {

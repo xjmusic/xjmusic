@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;

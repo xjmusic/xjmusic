@@ -36,7 +36,7 @@ import io.xj.hub.tables.pojos.UserAuth;
 import io.xj.hub.tables.pojos.UserAuthToken;
 import io.xj.lib.util.CSV;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;

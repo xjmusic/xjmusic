@@ -3,7 +3,7 @@ package io.xj.hub.persistence.kv;
 
 import io.xj.hub.persistence.HubPersistenceException;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public interface HubKvStoreProvider {
 

@@ -13,7 +13,7 @@ import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChordVoicing;
 import io.xj.nexus.model.SegmentState;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;

@@ -10,7 +10,7 @@ import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainType;
 import io.xj.nexus.model.Segment;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;

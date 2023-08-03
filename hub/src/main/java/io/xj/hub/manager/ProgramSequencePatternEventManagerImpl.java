@@ -12,7 +12,7 @@ import io.xj.lib.util.ValueException;
 import io.xj.lib.util.ValueUtils;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.UUID;
 

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.StringUtils;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;

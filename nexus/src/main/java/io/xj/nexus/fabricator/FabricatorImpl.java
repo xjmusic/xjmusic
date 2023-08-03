@@ -66,7 +66,7 @@ import io.xj.nexus.persistence.Segments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import javax.sound.sampled.AudioFormat;
 import java.util.ArrayList;
 import java.util.Collection;
