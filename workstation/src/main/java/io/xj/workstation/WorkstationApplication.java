@@ -14,6 +14,7 @@ import org.springframework.context.annotation.ComponentScan;
     "io.xj.workstation",
   })
 public class WorkstationApplication {
+
   public static void main(String[] args) {
     Application.launch(WorkstationFxApplication.class, args);
   }

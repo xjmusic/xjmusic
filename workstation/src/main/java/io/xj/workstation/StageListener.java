@@ -1,5 +1,6 @@
-package io.xj.workstation.events;
+package io.xj.workstation;
 
+import io.xj.workstation.events.StageReadyEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import org.slf4j.Logger;
@@ -22,9 +23,10 @@ public class StageListener implements ApplicationListener<StageReadyEvent> {
 
   public StageListener(
     @Value("application.ui.title") String applicationTitle,
-    @Value("classpath:/main-window.fxml") Resource fxml,
+    @Value("classpath:/io/xj/workstation/main-window.fxml") Resource fxml,
     ApplicationContext ac
   ) {
+    LOG.info("StageListener created");
     this.applicationTitle = applicationTitle;
     this.fxml = fxml;
     this.ac = ac;
@@ -32,6 +34,7 @@ public class StageListener implements ApplicationListener<StageReadyEvent> {
 
   @Override
   public void onApplicationEvent(StageReadyEvent event) {
+    LOG.info("StageReadyEvent received");
     try {
       var primaryStage = event.getStage();
       FXMLLoader fxmlLoader = new FXMLLoader(fxml.getURL());

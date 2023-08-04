@@ -5,31 +5,51 @@ import javafx.application.Application;
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.stage.Stage;
+import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 
-public class WorkstationFxApplication extends Application {
+import java.util.Objects;
 
-  private ConfigurableApplicationContext context;
+public class WorkstationFxApplication extends Application {
+  static final Logger LOG = LoggerFactory.getLogger(WorkstationFxApplication.class);
+
+  @Nullable
+  private ConfigurableApplicationContext ac;
+
+  public WorkstationFxApplication() {
+  }
 
   @Override
   public void start(Stage primaryStage) {
-    context.publishEvent(new StageReadyEvent(primaryStage));
+    if (Objects.isNull(ac)) {
+      LOG.error("Cannot start without application context!");
+      return;
+    }
+    LOG.info("Will publish StageReadyEvent");
+    ac.publishEvent(new StageReadyEvent(primaryStage));
   }
 
   @Override
   public void stop() {
-    context.close();
+    if (Objects.isNull(ac)) {
+      LOG.error("Cannot stop without application context!");
+      return;
+    }
+    LOG.info("Will close application context");
+    ac.close();
     Platform.exit();
   }
 
   @Override
   public void init() {
-    context = new SpringApplicationBuilder()
+    ac = new SpringApplicationBuilder()
       .headless(false)
-      .sources(WorkstationFxApplication.class)
+      .sources(WorkstationApplication.class)
       .initializers(getInitializer())
       .run(getParameters().getRaw().toArray(new String[0]));
   }

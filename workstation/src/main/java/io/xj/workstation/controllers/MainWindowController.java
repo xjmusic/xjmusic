@@ -1,18 +1,18 @@
 package io.xj.workstation.controllers;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
+@Service
 public class MainWindowController {
   Logger LOG = LoggerFactory.getLogger(MainWindowController.class);
 
-    @FXML
-    private Label welcomeText;
-
-    @FXML
-    protected void onQuit() {
-        welcomeText.setText("Welcome to XJ music!");
-    }
+  @FXML
+  protected void onQuit() {
+    LOG.info("Will exit application");
+    Platform.exit();
+  }
 }
