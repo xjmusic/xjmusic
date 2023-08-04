@@ -1,16 +1,15 @@
-name: "Continuous Integration"
+name: "Build Distribution"
 
 on:
   push:
-    branches:
-      - main
+    tags: ['*']
 
 jobs:
   CI:
     env:
       CI_BOT_TOKEN: ${{ secrets.CI_BOT_TOKEN }}
       CI_BOT_USERNAME: ${{ secrets.CI_BOT_USERNAME }}
-    name: Continuous Integration
+    name: Build Distribution
     runs-on: ubuntu-22.04
     permissions: write-all
 
@@ -64,6 +63,7 @@ jobs:
           ./gradlew --info --no-daemon \
             -PjibFromImage=gcr.io/xj-vpc-host-prod/base:latest \
             -PjibToImageRegistry=gcr.io/xj-vpc-host-prod \
+            -PjibToTags=${{  github.ref_name }} \
             jib
         continue-on-error: false
 
@@ -71,19 +71,6 @@ jobs:
         run: |
           ./gradlew --info --no-daemon shadowJar
         continue-on-error: false
-
-      - name: Extract distribution files
-        run: |
-          mkdir -p workstation/build/distributions/workstation-dist/
-          tar -xf workstation/build/distributions/workstation-1.0-SNAPSHOT.tar -C workstation/build/distributions/workstation-dist/
-          mv workstation/build/distributions/workstation-dist/workstation-1.0-SNAPSHOT workstation/build/distributions/workstation-dist/xjmusic-workstation
-        continue-on-error: false
-
-      - name: Upload distribution artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: workstation-dist
-          path: ./workstation/build/distributions/workstation-dist/
 
       - name: Build App Installer Bundles
         uses: shannah/jdeploy@master

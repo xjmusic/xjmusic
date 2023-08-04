@@ -1,6 +1,6 @@
-| Continuous Integration                                                                                                                                                      |
-|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [![Continuous Integration](https://github.com/xjmusic/workstation/actions/workflows/main.yml/badge.svg)](https://github.com/xjmusic/workstation/actions/workflows/main.yml) |
+| Continuous Integration                                                                                                                                                            |
+|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [![Continuous Integration](https://github.com/xjmusic/workstation/actions/workflows/main_ci.yml/badge.svg)](https://github.com/xjmusic/workstation/actions/workflows/main_ci.yml) |
 
 # XJ music workstation
 
