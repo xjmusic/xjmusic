@@ -1,11 +1,13 @@
 {
-    "bin": {"xj-workstation": "jdeploy-bundle/jdeploy.js"},
+    "bin": {
+        "xj-workstation": "jdeploy-bundle/jdeploy.js"
+    },
     "author": "XJ Music Inc",
     "description": "XJ music pioneers the evolution of background audio with our innovative music engine enabling artists to compose new possibilities for streams, games, and spaces.\t",
     "main": "index.js",
     "preferGlobal": true,
     "repository": "",
-    "version": "0.5.1",
+    "version": "0.5.2",
     "jdeploy": {
         "jdk": true,
         "javaVersion": "17",
@@ -26,7 +28,11 @@
     },
     "license": "MIT",
     "name": "xjmusic-workstation",
-    "files": ["jdeploy-bundle"],
-    "scripts": {"test": "echo \"Error: no test specified\" && exit 1"},
+    "files": [
+        "jdeploy-bundle"
+    ],
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
     "homepage": "https://xjmusic.com/"
 }
