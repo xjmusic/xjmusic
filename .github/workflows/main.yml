@@ -77,4 +77,5 @@ jobs:
       - name: Upload distribution artifact
         uses: actions/upload-artifact@v3
         with:
+          name: workstation-dist
           path: ./workstation/build/distributions/workstation-1.0-SNAPSHOT/
