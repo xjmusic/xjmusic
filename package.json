@@ -25,7 +25,8 @@
         "shelljs": "^0.8.4"
     },
     "license": "MIT",
-    "name": "workstation",
+    "name": "xjmusic-workstation",
     "files": ["jdeploy-bundle"],
-    "scripts": {"test": "echo \"Error: no test specified\" && exit 1"}
+    "scripts": {"test": "echo \"Error: no test specified\" && exit 1"},
+    "homepage": "https://xjmusic.com/"
 }
