@@ -12,9 +12,7 @@ jobs:
       CI_BOT_USERNAME: ${{ secrets.CI_BOT_USERNAME }}
     name: Continuous Integration
     runs-on: ubuntu-22.04
-    permissions:
-      contents: 'read'
-      id-token: 'write'
+    permissions: write-all
 
     steps:
       - name: Checkout
