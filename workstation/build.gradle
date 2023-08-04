@@ -5,6 +5,7 @@ plugins {
   id 'application'
   //
   id 'org.openjfx.javafxplugin'
+  id 'com.github.johnrengelman.shadow'
 }
 
 group 'io.xj'
@@ -20,18 +21,6 @@ targetCompatibility = JavaVersion.VERSION_17
 tasks.withType(JavaCompile) {
   options.encoding = 'UTF-8'
 }
-
-/*
-jar {
-  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-  manifest {
-    attributes 'Main-Class': 'io.xj.workstation.WorkstationApplication'
-  }
-  from {
-    configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-  }
-}
-*/
 
 mainClassName = 'io.xj.workstation.WorkstationApplication'
 

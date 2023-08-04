@@ -69,6 +69,11 @@ jobs:
             jib
         continue-on-error: false
 
+      - name: Build shadowed JAR for distribution
+        run: |
+          ./gradlew --info --no-daemon shadowJar
+        continue-on-error: false
+
       - name: Extract distribution files
         run: |
           mkdir -p workstation/build/distributions/workstation-dist/

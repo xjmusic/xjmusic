@@ -13,7 +13,7 @@
             "xj",
             "xjmusic"
         ],
-        "jar": "nexus/build/libs/nexus-1.0-plain.jar",
+        "jar": "workstation/build/libs/workstation-1.0-SNAPSHOT-all.jar",
         "javafx": true,
         "title": "XJ music workstation"
     },
