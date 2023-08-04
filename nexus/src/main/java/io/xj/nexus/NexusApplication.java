@@ -72,7 +72,6 @@ public class NexusApplication {
 
   public static void main(String[] args) {
     SpringApplicationBuilder builder = new SpringApplicationBuilder(NexusApplication.class);
-    builder.headless(false);
     builder.run(args);
   }
 }
