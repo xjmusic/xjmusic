@@ -71,11 +71,19 @@ jobs:
 
       - name: Extract distribution files
         run: |
-          tar -xf workstation/build/distributions/workstation-1.0-SNAPSHOT.tar -C workstation/build/distributions/
+          mkdir -p workstation/build/distributions/workstation-dist/
+          tar -xf workstation/build/distributions/workstation-1.0-SNAPSHOT.tar -C workstation/build/distributions/workstation-dist/
+          mv workstation/build/distributions/workstation-dist/workstation-1.0-SNAPSHOT workstation/build/distributions/workstation-dist/xjmusic-workstation
         continue-on-error: false
 
       - name: Upload distribution artifact
         uses: actions/upload-artifact@v3
         with:
           name: workstation-dist
-          path: ./workstation/build/distributions/workstation-1.0-SNAPSHOT/
+          path: ./workstation/build/distributions/workstation-dist/
+
+      - name: Build App Installer Bundles
+        uses: shannah/jdeploy@master
+        with:
+          target_repository: xjmusic/workstation
+          github_token: ${{ github.token }}
