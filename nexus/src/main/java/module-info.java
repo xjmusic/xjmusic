@@ -17,6 +17,7 @@ module workstation.nexus.main {
   requires spring.boot;
   requires spring.context;
   requires spring.web;
+  //
   requires transitive workstation.lib.main;
 
   opens io.xj.nexus to spring.core;

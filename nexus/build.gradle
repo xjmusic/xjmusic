@@ -10,7 +10,6 @@ plugins {
   id 'de.undercouch.download'
   id 'io.spring.dependency-management'
   id 'org.ajoberstar.grgit'
-  id 'org.flywaydb.flyway'
   id 'org.springframework.boot'
 }
 

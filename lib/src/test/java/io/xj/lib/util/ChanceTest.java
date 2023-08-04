@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import static org.junit.Assert.assertEquals;
 
 public class ChanceTest {
-  Logger log = LoggerFactory.getLogger(ChanceTest.class);
+  Logger LOG = LoggerFactory.getLogger(ChanceTest.class);
 
   @Test
   public void around_NeverExceedsLimit() {
@@ -24,7 +24,7 @@ public class ChanceTest {
         ]++;
 
     for (int count = 0; 11 > count; count++)
-      log.debug("# create values between {} and {}: {}", count, count + 1, floorCounts[count]);
+      LOG.debug("# create values between {} and {}: {}", count, count + 1, floorCounts[count]);
 
     // Assert that no value has exceeded 10
     assertEquals(0L, floorCounts[10]);

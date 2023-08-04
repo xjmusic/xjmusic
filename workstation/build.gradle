@@ -4,7 +4,9 @@ plugins {
   id 'java'
   id 'application'
   //
+  id 'com.github.johnrengelman.shadow'
   id 'org.openjfx.javafxplugin'
+  id 'org.springframework.boot'
 }
 
 group 'io.xj'
@@ -21,23 +23,11 @@ tasks.withType(JavaCompile) {
   options.encoding = 'UTF-8'
 }
 
-/*
-jar {
-  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-  manifest {
-    attributes 'Main-Class': 'io.xj.workstation.WorkstationApplication'
-  }
-  from {
-    configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-  }
-}
-*/
-
 mainClassName = 'io.xj.workstation.WorkstationApplication'
 
 javafx {
-  version = '17'
-  modules = ['javafx.controls', 'javafx.fxml']
+  version = "${rootProject.ext.javaFxVersion}"
+  modules = ['javafx.base', 'javafx.controls', 'javafx.fxml', 'javafx.graphics']
 }
 
 dependencies {
@@ -46,8 +36,17 @@ dependencies {
   testImplementation(project(':lib').sourceSets.test.output)
   // nexus
   testImplementation(testFixtures(project(":nexus")))
-  implementation project(path: ':nexus')
+  implementation project(":nexus")
   // vendor
+  implementation "org.springframework.boot:spring-boot-starter-web:${rootProject.ext.springBootVersion}"
+  implementation 'org.jetbrains:annotations:24.0.1'
+  implementation "org.openjfx:javafx-base:${rootProject.ext.javaFxVersion}"
+  implementation "org.openjfx:javafx-controls:${rootProject.ext.javaFxVersion}"
+  implementation "org.openjfx:javafx-fxml:${rootProject.ext.javaFxVersion}"
+  implementation "org.openjfx:javafx-graphics:${rootProject.ext.javaFxVersion}"
+  implementation 'org.slf4j:log4j-over-slf4j:2.0.5'
+  implementation 'org.slf4j:slf4j-api:2.0.5'
+  testImplementation "org.springframework.boot:spring-boot-starter-test:${rootProject.ext.springBootVersion}"
   testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
   testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
 }

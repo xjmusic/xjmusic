@@ -5,7 +5,6 @@ plugins {
   //
   id "de.undercouch.download"
   id 'io.spring.dependency-management'
-  id 'nu.studer.jooq'
   id 'org.ajoberstar.grgit'
   id 'org.springframework.boot'
 }
