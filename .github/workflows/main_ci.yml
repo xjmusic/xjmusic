@@ -50,3 +50,30 @@ jobs:
 
       - name: Nothing left TODO
         run: .github/nothing_left_todo.sh
+
+      - name: (GCP) Authenticate and setup Google Cloud SDK
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
+
+      - name: (GCP) Build & push Docker images
+        run: |
+          ./gradlew --info --no-daemon \
+            -PjibFromImage=gcr.io/xj-vpc-host-prod/base:latest \
+            -PjibToImageRegistry=gcr.io/xj-vpc-host-prod \
+            jib
+        continue-on-error: false
+
+      - name: Build shadowed JAR for distribution
+        run: |
+          ./gradlew --info --no-daemon shadowJar
+        continue-on-error: false
+
+      - name: Build App Installer Bundles
+        uses: shannah/jdeploy@master
+        with:
+          target_repository: xjmusic/workstation
+          github_token: ${{ github.token }}
