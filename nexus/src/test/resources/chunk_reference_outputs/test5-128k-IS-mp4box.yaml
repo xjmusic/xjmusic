@@ -1,0 +1,115 @@
+MovieBox:
+  MovieHeaderBox:
+    creationTime: Thu Oct 21 21:09:19 PDT 2021
+    modificationTime: Thu Oct 21 21:09:19 PDT 2021
+    timescale: 600
+    duration: 0
+    rate: 1.0
+    volume: 1.0
+    matrix: Rotate 0°
+    nextTrackId: 2
+
+  UnknownBox:
+    type: iods
+
+  MovieExtendsBox:
+    MovieExtendsHeaderBox:
+    TrackExtendsBox:
+    UnknownBox:
+      type: trep
+
+
+  TrackBox:
+    TrackHeaderBox:
+      creationTime: Thu Oct 21 21:09:19 PDT 2021
+      modificationTime: Thu Oct 21 21:09:19 PDT 2021
+      trackId: 1
+      duration: 0
+      layer: 0
+      alternateGroup: 0
+      volume: 1.0
+      matrix: Rotate 0°
+      width: 0.0
+      height: 0.0
+
+    MediaBox:
+      MediaHeaderBox:
+        creationTime: Thu Oct 21 21:09:19 PDT 2021
+        modificationTime: Thu Oct 21 21:09:19 PDT 2021
+        timescale: 48000
+        duration: 0
+        language: und
+
+      HandlerBox:
+        handlerType: soun
+        name: "aac@GPAC0.5.2-DEV-revVersion: 0.5.2-426-gc5ad4e4+dfsg5-5"
+
+      MediaInformationBox:
+        SoundMediaHeaderBox:
+          balance: 0.0
+
+        DataInformationBox:
+          DataReferenceBox:
+            DataEntryUrlBox:
+
+
+        SampleTableBox:
+          SampleDescriptionBox:
+            AudioSampleEntry:
+              bytesPerSample: 0
+              bytesPerFrame: 0
+              bytesPerPacket: 0
+              samplesPerPacket: 0
+              packetSize: 0
+              compressionId: 0
+              soundVersion: 0
+              sampleRate: 48000
+              sampleSize: 16
+              channelCount: 2
+              ESDescriptorBox:
+                DecoderConfigDescriptor:
+                  objectTypeIndication: 64
+                  streamType: 5
+                  upStream: 0
+                  bufferSizeDB: 506
+                  maxBitRate: 132088
+                  avgBitRate: 128408
+                  decoderSpecificInfo: null
+                  configDescriptorDeadBytes:
+                  profileLevelIndicationDescriptors: [ ]
+                  AudioSpecificConfig:
+                    configBytes: 1190
+                    audioObjectType: 2 (AAC LC)
+                    samplingFrequencyIndex: 3 (48000)
+                    samplingFrequency: 0
+                    channelConfiguration: 2
+                    syncExtensionType: -1
+                    frameLengthFlag: 0
+                    dependsOnCoreCoder: 0
+                    coreCoderDelay: 0
+                    extensionFlag: 0
+                    layerNr: 0
+                    numOfSubFrame: 0
+                    layer_length: 0
+                    aacSectionDataResilienceFlag: false
+                    aacScalefactorDataResilienceFlag: false
+                    aacSpectralDataResilienceFlag: false
+                    extensionFlag3: 0
+
+          TimeToSampleBox:
+            entryCount: 0
+
+          SampleToChunkBox:
+            entryCount: 0
+
+          SampleSizeBox:
+            sampleSize: 0
+            sampleCount: 0
+
+          StaticChunkOffsetBox:
+            entryCount: 0
+
+
+
+
+

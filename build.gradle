@@ -1,14 +1,84 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
 plugins {
-    id "org.javamodularity.moduleplugin" version "1.8.9"
+  id 'java'
+  id 'application'
+  id 'distribution'
+  //
+  id "org.javamodularity.moduleplugin" version "1.8.9"
+  id 'de.undercouch.download' version "4.0.4"
+  id 'org.ajoberstar.grgit' version '4.1.0'
+  //
+  id 'com.google.cloud.tools.jib' version '3.3.2' apply false
+  id 'io.spring.dependency-management' version '1.0.15.RELEASE' apply false
+  id "org.beryx.jlink" version "2.24.1" apply false
+  id 'org.openjfx.javafxplugin' version '0.0.14' apply false
+  id 'org.panteleyev.jpackageplugin' version '1.5.2' apply false
+  id 'org.springframework.boot' version '3.1.2' apply false // must match springBootVersion below
 }
 
-version = "1.0.0"
+ext {
+  googleApiClientVersion = '2.2.0'
+  googleApiServicePlusVersion = 'v1-rev590-1.25.0'
+  jacksonAnnotationsVersion = '2.15.2'
+  javaFxVersion = '17.0.8'
+  junitVersion = '5.9.2'
+  springBootVersion = '3.1.2'
+  springTestVersion = '6.0.11'
+  googleExclusion = {
+    exclude group: 'com.google'
+    exclude group: 'com.google.api-client'
+    exclude group: 'com.google.cloud'
+    exclude group: 'com.google.api.grpc'
+  }
+}
+
+allprojects {
+  group = 'io.xj'
+  version = '0.5.3'
+
+  tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+  }
+}
 
 subprojects {
-    apply plugin: 'java-library'
-    apply plugin: 'org.javamodularity.moduleplugin'
+  apply plugin: 'java-library'
+  apply plugin: 'org.javamodularity.moduleplugin'
 
-    repositories {
-        mavenCentral()
+  repositories {
+    mavenCentral()
+    mavenLocal()
+    maven {
+      name = 'ajoberstar-backup'
+      url = 'https://ajoberstar.org/bintray-backup/'
     }
+    maven {
+      url = 'https://repo.maven.apache.org/maven2'
+    }
+    maven {
+      url = 'https://packages.confluent.io/maven/'
+    }
+    maven {
+      url = 'https://oss.sonatype.org/content/repositories/releases'
+    }
+    maven {
+      name = "TarsosDSP repository"
+      url = "https://mvn.0110.be/releases"
+    }
+  }
+
+  java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+    modularity.inferModulePath = true
+  }
+}
+
+if (!project.hasProperty("jibFromImage")) {
+  ext.jibFromImage = "localhost/base:latest"
+}
+
+if (!project.hasProperty("jibToImageRegistry")) {
+  ext.jibToImageRegistry = "localhost"
 }

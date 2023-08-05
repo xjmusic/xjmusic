@@ -1,0 +1,22 @@
+{
+  "data": {
+    "id": "17",
+    "type": "chains",
+    "relationships": {
+      "account": {
+        "data": {
+          "id": "25",
+          "type": "accounts"
+        }
+      }
+    },
+    "attributes": {
+      "stopAt": null,
+      "type": "Production",
+      "shipKey": "test_print",
+      "name": "Test Print #1",
+      "state": "Fabricate",
+      "startAt": "2014-08-12T12:17:02.527142Z"
+    }
+  }
+}

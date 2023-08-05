@@ -1,8 +1,11 @@
-rootProject.name = 'badass-jlink-example-javafx-multiproject'
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
+rootProject.name = 'workstation'
 
 String[] modules = [
-    'greeter-api',
-    'greeter-impl',
+    'hub_client',
+    'lib',
+    'nexus',
     'gui'
 ]
 
