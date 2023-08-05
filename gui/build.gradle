@@ -61,6 +61,7 @@ dependencies {
   implementation "org.openjfx:javafx-fxml:${rootProject.ext.javaFxVersion}"
   implementation "org.openjfx:javafx-graphics:${rootProject.ext.javaFxVersion}"
   implementation 'org.slf4j:log4j-over-slf4j:2.0.5'
+  implementation "org.jooq:jooq:${rootProject.ext.jooqVersion}"
   implementation 'org.slf4j:slf4j-api:2.0.5'
   testImplementation "org.springframework.boot:spring-boot-starter-test:${rootProject.ext.springBootVersion}"
   testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")

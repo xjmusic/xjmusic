@@ -811,11 +811,13 @@ public class HubContent {
    * @param <E>  class
    * @return entity
    */
+  @SuppressWarnings("unchecked")
   <E> Optional<E> get(Class<E> type, UUID id) {
     try {
-      if (store.containsKey(type) && store.get(type).containsKey(id))
-        //noinspection unchecked
+      if (store.containsKey(type) && store.get(type).containsKey(id)) {
         return Optional.of((E) store.get(type).get(id));
+      }
+
       // otherwise
       return Optional.empty();
 
@@ -831,9 +833,9 @@ public class HubContent {
    * @param <E>  class
    * @return entity
    */
+  @SuppressWarnings("unchecked")
   <E> Collection<E> getAll(Class<E> type) {
     if (store.containsKey(type))
-      //noinspection unchecked
       return (Collection<E>) store.get(type).values();
     return List.of();
   }

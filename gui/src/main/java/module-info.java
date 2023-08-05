@@ -4,6 +4,7 @@ module io.xj.workstation.main {
   requires javafx.fxml;
   requires javafx.graphics;
   requires org.jetbrains.annotations;
+  requires org.jooq;
   requires org.slf4j;
   requires spring.beans;
   requires spring.boot.autoconfigure;

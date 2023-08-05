@@ -1,4 +1,5 @@
-# directory names ending with / will be excluded from all IDEA modules (see ide.gradle)
+# Environment Variables
+/.env
 
 gradle-local.properties
 gpg/
@@ -23,3 +24,7 @@ out/
 
 hs_err_pid*
 _ignore*
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
+
