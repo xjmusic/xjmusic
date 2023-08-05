@@ -4,7 +4,7 @@ plugins {
   id 'java'
   id 'application'
   //
-  id "org.beryx.jlink"
+  id 'org.beryx.jlink'
   id 'org.openjfx.javafxplugin'
   id 'org.springframework.boot'
 }

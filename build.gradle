@@ -8,9 +8,9 @@ plugins {
   id 'de.undercouch.download' version "4.0.4"
   id 'org.ajoberstar.grgit' version '4.1.0'
   //
+  id "org.beryx.jlink" version "2.24.1" apply false
   id 'com.google.cloud.tools.jib' version '3.3.2' apply false
   id 'io.spring.dependency-management' version '1.0.15.RELEASE' apply false
-  id "org.beryx.jlink" version "2.24.1" apply false
   id 'org.openjfx.javafxplugin' version '0.0.14' apply false
   id 'org.panteleyev.jpackageplugin' version '1.5.2' apply false
   id 'org.springframework.boot' version '3.1.2' apply false // must match springBootVersion below
@@ -19,7 +19,7 @@ plugins {
 ext {
   jacksonAnnotationsVersion = '2.15.2'
   javaFxVersion = '17.0.8'
-  jooqVersion = '3.18.0'
+  jooqVersion = '3.18.5'
   junitVersion = '5.9.2'
   springBootVersion = '3.1.2'
   springTestVersion = '6.0.11'
