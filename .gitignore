@@ -1,52 +1,25 @@
-# Environment Variables
-/.env
+# directory names ending with / will be excluded from all IDEA modules (see ide.gradle)
 
-# Build artifacts
-target/
-*/target/
-classes/
-
-# container logs and data
-log/
-*/log/
-
-# IntelliJ
-*.iml
-.idea/
-
-# Node.js
-/node_modules/
-
-# Static site generation
-docs/public/
-
-# Gradle build files
-.gradle
+gradle-local.properties
+gpg/
+.gradle/
 build/
-*/build/
-/out/
-# Ignore Gradle GUI config
-gradle-app.setting
+*.class
+*.log
+*.settings.xml
 
-# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
-!gradle-wrapper.jar
+# Eclipse
+.classpath
+.project
+.settings/
+bin/
 
-# Cache of project
-.gradletasknamecache
+# IDEA
+*.iml
+*.ipr
+*.iws
+.idea/
+out/
 
-# Mac OS X
-.DS_Store
-
-# Kafka properties
-kafka.properties
-
-# Audio data
-data/
-*/data/
-
-# Bootstrap chains
-bootstrap-chains.json
-/hub/out/
-/lib/out/
-/nexus/out/
-/workstation/out/
+hs_err_pid*
+_ignore*
