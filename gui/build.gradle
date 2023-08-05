@@ -20,7 +20,7 @@ tasks.withType(JavaCompile) {
   options.encoding = 'UTF-8'
 }
 
-mainClassName = 'io.xj.workstation.WorkstationApplication'
+mainClassName = 'io.xj.gui.WorkstationApplication'
 
 javafx {
   version = "${rootProject.ext.javaFxVersion}"

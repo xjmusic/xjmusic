@@ -1,6 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.workstation;
+package io.xj.gui;
 
 import javafx.application.Application;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -11,7 +11,7 @@ import org.springframework.context.annotation.ComponentScan;
   basePackages = {
     "io.xj.lib",
     "io.xj.hub",
-    "io.xj.workstation",
+    "io.xj.gui",
   })
 public class WorkstationApplication {
 

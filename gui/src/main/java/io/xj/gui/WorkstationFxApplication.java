@@ -1,6 +1,6 @@
-package io.xj.workstation;
+package io.xj.gui;
 
-import io.xj.workstation.events.StageReadyEvent;
+import io.xj.gui.events.StageReadyEvent;
 import javafx.application.Application;
 import javafx.application.HostServices;
 import javafx.application.Platform;

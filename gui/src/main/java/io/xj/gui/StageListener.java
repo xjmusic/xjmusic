@@ -1,6 +1,6 @@
-package io.xj.workstation;
+package io.xj.gui;
 
-import io.xj.workstation.events.StageReadyEvent;
+import io.xj.gui.events.StageReadyEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import org.slf4j.Logger;
@@ -23,7 +23,7 @@ public class StageListener implements ApplicationListener<StageReadyEvent> {
 
   public StageListener(
     @Value("application.ui.title") String applicationTitle,
-    @Value("classpath:/io/xj/workstation/main-window.fxml") Resource fxml,
+    @Value("classpath:/io/xj/gui/main-window.fxml") Resource fxml,
     ApplicationContext ac
   ) {
     LOG.info("StageListener created");
