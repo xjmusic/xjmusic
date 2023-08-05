@@ -1,4 +1,4 @@
-package io.xj.workstation.controllers;
+package io.xj.gui.controllers;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;

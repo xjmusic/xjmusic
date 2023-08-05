@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
-package io.xj.workstation;
+package io.xj.gui;
 
 import io.xj.lib.util.StringUtils;
 import org.jetbrains.annotations.Nullable;

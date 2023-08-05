@@ -20,7 +20,7 @@ tasks.withType(JavaCompile) {
   options.encoding = 'UTF-8'
 }
 
-mainClassName = 'io.xj.workstation.WorkstationApplication'
+mainClassName = 'io.xj.gui.WorkstationApplication'
 
 javafx {
   version = "${rootProject.ext.javaFxVersion}"
@@ -43,7 +43,7 @@ tasks.jpackage {
   vendor = "io.xj"
   copyright = "Copyright (c) XJ Music Inc."
   runtimeImage = System.getProperty("java.home")
-    module = "io.xj.workstation/io.xj.workstation.main"
+    module = "io.xj.gui/io.xj.gui.main"
   def buildDirectory = new File("$buildDir/jmods")
   modulePaths = buildDirectory.listFiles().findAll { it.isFile() }.toList()
   destination = "$buildDir/dist"

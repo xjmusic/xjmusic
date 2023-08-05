@@ -1,4 +1,4 @@
-package io.xj.workstation.events;
+package io.xj.gui.events;
 
 import javafx.stage.Stage;
 import org.springframework.context.ApplicationEvent;

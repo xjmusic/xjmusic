@@ -1,6 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.workstation;
+package io.xj.gui;
 
 import io.xj.lib.app.AppConfiguration;
 import org.springframework.context.annotation.Bean;

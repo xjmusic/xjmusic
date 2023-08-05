@@ -4,4 +4,4 @@ rootProject.name = 'workstation'
 include(':hub_client')
 include(':lib')
 include(':nexus')
-include(':workstation')
+include(':gui')
