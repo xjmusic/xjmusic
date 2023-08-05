@@ -1,4 +1,4 @@
-package io.xj.lib.analysis.util;
+package io.xj.hub.analysis.util;
 
 import io.xj.hub.tables.pojos.ProgramSequenceChord;
 import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;

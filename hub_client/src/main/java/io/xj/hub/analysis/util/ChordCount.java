@@ -1,4 +1,4 @@
-package io.xj.lib.analysis.util;
+package io.xj.hub.analysis.util;
 
 import java.util.HashSet;
 import java.util.Set;

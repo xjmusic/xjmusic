@@ -1,6 +1,6 @@
-package io.xj.lib.analysis;
+package io.xj.hub.analysis;
 
-import io.xj.lib.analysis.util.ChordCount;
+import io.xj.hub.analysis.util.ChordCount;
 import io.xj.hub.ingest.HubContent;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.lib.music.Chord;

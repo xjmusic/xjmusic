@@ -7,10 +7,8 @@ plugins {
   id 'com.github.johnrengelman.shadow'
   id 'org.openjfx.javafxplugin'
   id 'org.springframework.boot'
+  id 'org.panteleyev.jpackageplugin'
 }
-
-group 'io.xj'
-version '1.0-SNAPSHOT'
 
 ext {
   junitVersion = '5.9.2'
@@ -30,10 +28,52 @@ javafx {
   modules = ['javafx.base', 'javafx.controls', 'javafx.fxml', 'javafx.graphics']
 }
 
+tasks.register('copyDependencies', Copy) {
+  from(configurations.runtimeClasspath).into("$buildDir/jmods")
+}
+
+tasks.register('copyJar', Copy) {
+  from(tasks.shadowJar).into("$buildDir/jmods")
+
+  dependsOn("shadowJar")
+}
+
+tasks.jpackage {
+  dependsOn("build", "copyDependencies", "copyJar")
+
+  appName = "XJ music workstation"
+  appVersion = project.version.toString()
+  vendor = "io.xj"
+  copyright = "Copyright (c) XJ Music Inc."
+  runtimeImage = System.getProperty("java.home")
+  module = "workstation/io.xj.workstation.WorkstationApplication"
+  def buildDirectory = new File("$buildDir/jmods")
+  modulePaths = buildDirectory.listFiles().findAll { it.isFile() }.toList()
+  destination = "$buildDir/dist"
+  javaOptions = ["-Dfile.encoding=UTF-8"]
+
+  mac {
+    icon = "icons/icon.icns"
+  }
+
+  linux {
+    icon = "icons/icon.png"
+  }
+
+  windows {
+    icon = "icons/icon.ico"
+    winMenu = true
+    winDirChooser = true
+  }
+}
+
 dependencies {
   // lib
   implementation project(":lib")
   testImplementation(project(':lib').sourceSets.test.output)
+  // hub_client
+  implementation project(":hub_client")
+  testImplementation(project(':hub_client').sourceSets.test.output)
   // nexus
   testImplementation(testFixtures(project(":nexus")))
   implementation project(":nexus")

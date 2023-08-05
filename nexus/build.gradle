@@ -28,10 +28,13 @@ dependencies {
   // lib
   implementation project(":lib")
   testImplementation project(path: ':lib')
-  testImplementation project(path: ':lib')
-  testImplementation project(path: ':lib')
   testFixturesImplementation(project(":lib"))
   testImplementation(project(':lib').sourceSets.test.output)
+  // hub_client
+  implementation project(":hub_client")
+  testImplementation project(path: ':hub_client')
+  testFixturesImplementation(project(":hub_client"))
+  testImplementation(project(':hub_client').sourceSets.test.output)
   // nexus
   testImplementation(testFixtures(project(":nexus")))
   // vendor

@@ -1,4 +1,4 @@
-package io.xj.lib.analysis;
+package io.xj.hub.analysis;
 
 import io.xj.hub.ingest.HubContent;
 import io.xj.hub.tables.pojos.Instrument;

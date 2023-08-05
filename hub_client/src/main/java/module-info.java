@@ -1,4 +1,4 @@
-module workstation.lib.main {
+module workstation.hub_client.main {
   requires TarsosDSP.core;
   requires TarsosDSP.jvm;
   requires com.fasterxml.jackson.annotation;
@@ -26,22 +26,18 @@ module workstation.lib.main {
   requires spring.core;
   requires spring.web;
   requires typesafe.config;
+  //
+  requires transitive workstation.lib.main;
 
-  opens io.xj.lib.filestore to spring.core;
-  opens io.xj.lib.telemetry to spring.core;
+  opens io.xj.hub.access to spring.core;
+  opens io.xj.hub.enums to spring.core;
+  opens io.xj.hub.ingest to spring.core;
+  opens io.xj.hub.tables.pojos to spring.core;
+  opens io.xj.hub to spring.core;
 
-  exports io.xj.lib.app;
-  exports io.xj.lib.entity.common;
-  exports io.xj.lib.entity;
-  exports io.xj.lib.filestore;
-  exports io.xj.lib.http;
-  exports io.xj.lib.json;
-  exports io.xj.lib.jsonapi;
-  exports io.xj.lib.lock;
-  exports io.xj.lib.meme;
-  exports io.xj.lib.mixer;
-  exports io.xj.lib.music;
-  exports io.xj.lib.notification;
-  exports io.xj.lib.telemetry;
-  exports io.xj.lib.util;
-}
+  exports io.xj.hub.access;
+  exports io.xj.hub.enums;
+  exports io.xj.hub.ingest;
+  exports io.xj.hub.tables.pojos;
+  exports io.xj.hub;
+ }

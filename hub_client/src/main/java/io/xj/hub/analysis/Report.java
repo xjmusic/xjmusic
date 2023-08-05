@@ -1,6 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.lib.analysis;
+package io.xj.hub.analysis;
 
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.ingest.HubContent;
