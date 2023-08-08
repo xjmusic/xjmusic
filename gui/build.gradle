@@ -63,16 +63,11 @@ dependencies {
   implementation "org.slf4j:log4j-over-slf4j:${rootProject.ext.slf4jVersion}"
   implementation "org.slf4j:slf4j-api:${rootProject.ext.slf4jVersion}"
   implementation 'org.yaml:snakeyaml:1.33'
-  implementation("org.springframework.boot:spring-boot-starter:${rootProject.ext.springBootVersion}") {
-    exclude group: 'org.springframework', module: 'spring-aop'
-  }
+  implementation "org.springframework.boot:spring-boot-starter:${rootProject.ext.springBootVersion}"
   implementation "org.openjfx:javafx-base:${rootProject.ext.javaFxVersion}"
   implementation "org.openjfx:javafx-controls:${rootProject.ext.javaFxVersion}"
   implementation "org.openjfx:javafx-fxml:${rootProject.ext.javaFxVersion}"
   implementation "org.openjfx:javafx-graphics:${rootProject.ext.javaFxVersion}"
-  testImplementation("org.springframework.boot:spring-boot-starter-test:${rootProject.ext.springBootVersion}") {
-    exclude group: "com.vaadin.external.google", module:"android-json"
-  }
   testImplementation "org.jooq:jooq:${rootProject.ext.jooqVersion}"
   testImplementation "org.junit.jupiter:junit-jupiter-api:${rootProject.ext.junitVersion}"
   testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${rootProject.ext.junitVersion}"
