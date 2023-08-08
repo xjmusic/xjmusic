@@ -4,7 +4,6 @@ package io.xj.nexus.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.validation.Valid;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -13,10 +12,10 @@ import java.util.UUID;
  */
 public class SegmentMeta {
 
-  @Valid UUID id;
-  @Valid UUID segmentId;
-  @Valid String key;
-  @Valid String value;
+  UUID id;
+  UUID segmentId;
+  String key;
+  String value;
 
   /**
    *

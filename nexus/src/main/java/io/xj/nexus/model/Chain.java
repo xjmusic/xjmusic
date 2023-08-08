@@ -4,21 +4,20 @@ package io.xj.nexus.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.validation.Valid;
 import java.util.Objects;
 import java.util.UUID;
 
 
 public class Chain {
 
-  @Valid UUID id;
-  @Valid UUID accountId;
-  @Valid UUID templateId;
-  @Valid ChainType type;
-  @Valid ChainState state;
-  @Valid String shipKey;
-  @Valid String templateConfig;
-  @Valid String name;
+  UUID id;
+  UUID accountId;
+  UUID templateId;
+  ChainType type;
+  ChainState state;
+  String shipKey;
+  String templateConfig;
+  String name;
 
   /**
    *

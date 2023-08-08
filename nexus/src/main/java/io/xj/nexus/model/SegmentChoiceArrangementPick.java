@@ -4,24 +4,23 @@ package io.xj.nexus.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.validation.Valid;
 import java.util.Objects;
 import java.util.UUID;
 
 
 public class SegmentChoiceArrangementPick {
 
-  @Valid UUID id;
-  @Valid UUID segmentId;
-  @Valid UUID segmentChoiceArrangementId;
-  @Valid UUID segmentChordVoicingId;
-  @Valid UUID instrumentAudioId;
-  @Valid UUID programSequencePatternEventId;
-  @Valid Long startAtSegmentMicros;
-  @Valid Long lengthMicros;
-  @Valid Double amplitude;
-  @Valid String tones;
-  @Valid String event;
+  UUID id;
+  UUID segmentId;
+  UUID segmentChoiceArrangementId;
+  UUID segmentChordVoicingId;
+  UUID instrumentAudioId;
+  UUID programSequencePatternEventId;
+  Long startAtSegmentMicros;
+  Long lengthMicros;
+  Double amplitude;
+  String tones;
+  String event;
 
   /**
    *

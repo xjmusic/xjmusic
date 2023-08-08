@@ -4,17 +4,16 @@ package io.xj.nexus.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.validation.Valid;
 import java.util.Objects;
 import java.util.UUID;
 
 
 public class SegmentMessage {
 
-  @Valid UUID id;
-  @Valid UUID segmentId;
-  @Valid SegmentMessageType type;
-  @Valid String body;
+  UUID id;
+  UUID segmentId;
+  SegmentMessageType type;
+  String body;
 
   /**
    *

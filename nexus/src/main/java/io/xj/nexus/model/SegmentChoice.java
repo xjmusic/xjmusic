@@ -7,26 +7,25 @@ import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 
-import javax.validation.Valid;
 import java.util.Objects;
 import java.util.UUID;
 
 
 public class SegmentChoice {
 
-  @Valid UUID id;
-  @Valid UUID segmentId;
-  @Valid UUID programId;
-  @Valid UUID programSequenceId;
-  @Valid UUID programSequenceBindingId;
-  @Valid UUID programVoiceId;
-  @Valid UUID instrumentId;
-  @Valid Integer deltaIn;
-  @Valid Integer deltaOut;
-  @Valid Boolean mute;
-  @Valid InstrumentType instrumentType;
-  @Valid InstrumentMode instrumentMode;
-  @Valid ProgramType programType;
+  UUID id;
+  UUID segmentId;
+  UUID programId;
+  UUID programSequenceId;
+  UUID programSequenceBindingId;
+  UUID programVoiceId;
+  UUID instrumentId;
+  Integer deltaIn;
+  Integer deltaOut;
+  Boolean mute;
+  InstrumentType instrumentType;
+  InstrumentMode instrumentMode;
+  ProgramType programType;
 
   /**
    *

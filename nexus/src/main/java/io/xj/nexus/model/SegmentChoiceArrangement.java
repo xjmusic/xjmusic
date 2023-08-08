@@ -4,17 +4,16 @@ package io.xj.nexus.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.validation.Valid;
 import java.util.Objects;
 import java.util.UUID;
 
 
 public class SegmentChoiceArrangement {
 
-  @Valid UUID id;
-  @Valid UUID segmentId;
-  @Valid UUID segmentChoiceId;
-  @Valid UUID programSequencePatternId;
+  UUID id;
+  UUID segmentId;
+  UUID segmentChoiceId;
+  UUID programSequencePatternId;
 
   /**
    *

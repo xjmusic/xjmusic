@@ -5,7 +5,6 @@ module workstation.nexus.main {
   requires com.fasterxml.jackson.core;
   requires com.fasterxml.jackson.databind;
   requires java.desktop;
-  requires java.validation;
   requires org.apache.commons.codec;
   requires org.apache.commons.io;
   requires org.apache.httpcomponents.httpclient;

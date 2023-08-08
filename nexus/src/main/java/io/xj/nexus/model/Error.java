@@ -4,14 +4,13 @@ package io.xj.nexus.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.validation.Valid;
 import java.util.Objects;
 
 
 public class Error {
 
-  @Valid String title;
-  @Valid String detail;
+  String title;
+  String detail;
 
   /**
    * A short, human-readable summary of the problem that SHOULD NOT change from occurrence to occurrence of the problem, except for purposes of localization.
