@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.lib.lock;
 
-import io.xj.lib.util.StringUtils;
+import io.xj.hub.util.StringUtils;
 
 import org.jetbrains.annotations.Nullable;
 

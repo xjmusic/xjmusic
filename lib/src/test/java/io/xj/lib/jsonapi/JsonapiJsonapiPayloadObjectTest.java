@@ -7,7 +7,7 @@ import io.xj.lib.Widget;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.JsonProviderImpl;
-import io.xj.lib.util.ValueException;
+import io.xj.hub.util.ValueException;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;

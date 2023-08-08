@@ -3,7 +3,7 @@ package io.xj.nexus.craft.beat;
 
 import io.xj.hub.HubTopology;
 import io.xj.nexus.hub_client.HubClient;
-import io.xj.hub.ingest.HubContent;
+import io.xj.hub.HubContent;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
@@ -13,7 +13,7 @@ import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramVoice;
-import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.json.JsonProvider;
@@ -113,7 +113,7 @@ public class CraftBeat_LayeredVoicesTest {
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
     sourceMaterial = new HubContent(Stream.concat(
-      fake.setupFixtureB1().stream().filter(entity -> !Entities.isSame(entity, fake.program35) && !Entities.isChild(entity, fake.program35)),
+      fake.setupFixtureB1().stream().filter(entity -> !EntityUtils.isSame(entity, fake.program35) && !EntityUtils.isChild(entity, fake.program35)),
       customFixtures().stream()
     ).collect(Collectors.toList()));
 
@@ -192,36 +192,36 @@ public class CraftBeat_LayeredVoicesTest {
     Collection<Object> entities = new ArrayList<>();
 
     // Instrument "808"
-    Instrument instrument1 = Entities.add(entities, buildInstrument(fake.library2, InstrumentType.Drum, InstrumentMode.Event, InstrumentState.Published, "808 Drums"));
-    Entities.add(entities, buildMeme(instrument1, "heavy"));
+    Instrument instrument1 = EntityUtils.add(entities, buildInstrument(fake.library2, InstrumentType.Drum, InstrumentMode.Event, InstrumentState.Published, "808 Drums"));
+    EntityUtils.add(entities, buildMeme(instrument1, "heavy"));
     //
-    audioKick = Entities.add(entities, buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.6f, "KICK", "Eb", 1.0f));
+    audioKick = EntityUtils.add(entities, buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.6f, "KICK", "Eb", 1.0f));
     //
-    audioSnare = Entities.add(entities, buildAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01f, 1.5f, 120.0f, 0.6f, "SNARE", "Ab", 1.0f));
+    audioSnare = EntityUtils.add(entities, buildAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01f, 1.5f, 120.0f, 0.6f, "SNARE", "Ab", 1.0f));
     //
-    audioHihat = Entities.add(entities, buildAudio(instrument1, "Hihat", "iop0803k1k2l3h5a3s2d3f4g.wav", 0.01f, 1.5f, 120.0f, 0.6f, "HIHAT", "Ab", 1.0f));
+    audioHihat = EntityUtils.add(entities, buildAudio(instrument1, "Hihat", "iop0803k1k2l3h5a3s2d3f4g.wav", 0.01f, 1.5f, 120.0f, 0.6f, "HIHAT", "Ab", 1.0f));
 
     // A basic beat from scratch with layered voices
-    program42 = Entities.add(entities, buildProgram(fake.library2, ProgramType.Beat, ProgramState.Published, "Basic Beat", "C", 121f, 0.6f));
-    Entities.add(entities, buildMeme(program42, "Basic"));
-    ProgramVoice program42_locomotion = Entities.add(entities, buildVoice(program42, InstrumentType.Drum, "Locomotion"));
-    ProgramVoice program42_kickSnare = Entities.add(entities, buildVoice(program42, InstrumentType.Drum, "BoomBap"));
-    var sequence35a = Entities.add(entities, buildSequence(program42, 16, "Base", 0.5f, "C"));
+    program42 = EntityUtils.add(entities, buildProgram(fake.library2, ProgramType.Beat, ProgramState.Published, "Basic Beat", "C", 121f, 0.6f));
+    EntityUtils.add(entities, buildMeme(program42, "Basic"));
+    ProgramVoice program42_locomotion = EntityUtils.add(entities, buildVoice(program42, InstrumentType.Drum, "Locomotion"));
+    ProgramVoice program42_kickSnare = EntityUtils.add(entities, buildVoice(program42, InstrumentType.Drum, "BoomBap"));
+    var sequence35a = EntityUtils.add(entities, buildSequence(program42, 16, "Base", 0.5f, "C"));
     //
-    var pattern35a1 = Entities.add(entities, buildPattern(sequence35a, program42_locomotion, 1, "Hi-hat"));
-    var trackHihat = Entities.add(entities, buildTrack(program42_locomotion, "HIHAT"));
-    Entities.add(entities, buildEvent(pattern35a1, trackHihat, 0.0f, 1.0f, "C2", 1.0f));
-    Entities.add(entities, buildEvent(pattern35a1, trackHihat, 0.25f, 1.0f, "G5", 0.4f));
-    Entities.add(entities, buildEvent(pattern35a1, trackHihat, 0.5f, 1.0f, "C2", 0.6f));
-    Entities.add(entities, buildEvent(pattern35a1, trackHihat, 0.75f, 1.0f, "C2", 0.3f));
+    var pattern35a1 = EntityUtils.add(entities, buildPattern(sequence35a, program42_locomotion, 1, "Hi-hat"));
+    var trackHihat = EntityUtils.add(entities, buildTrack(program42_locomotion, "HIHAT"));
+    EntityUtils.add(entities, buildEvent(pattern35a1, trackHihat, 0.0f, 1.0f, "C2", 1.0f));
+    EntityUtils.add(entities, buildEvent(pattern35a1, trackHihat, 0.25f, 1.0f, "G5", 0.4f));
+    EntityUtils.add(entities, buildEvent(pattern35a1, trackHihat, 0.5f, 1.0f, "C2", 0.6f));
+    EntityUtils.add(entities, buildEvent(pattern35a1, trackHihat, 0.75f, 1.0f, "C2", 0.3f));
     //
-    var pattern35a2 = Entities.add(entities, buildPattern(sequence35a, program42_kickSnare, 4, "Kick/Snare"));
-    var trackKick = Entities.add(entities, buildTrack(program42_kickSnare, "KICK"));
-    var trackSnare = Entities.add(entities, buildTrack(program42_kickSnare, "SNARE"));
-    Entities.add(entities, buildEvent(pattern35a2, trackKick, 0.0f, 1.0f, "B5", 0.9f));
-    Entities.add(entities, buildEvent(pattern35a2, trackSnare, 1.0f, 1.0f, "D2", 1.0f));
-    Entities.add(entities, buildEvent(pattern35a2, trackKick, 2.5f, 1.0f, "E4", 0.7f));
-    Entities.add(entities, buildEvent(pattern35a2, trackSnare, 3.0f, 1.0f, "c3", 0.5f));
+    var pattern35a2 = EntityUtils.add(entities, buildPattern(sequence35a, program42_kickSnare, 4, "Kick/Snare"));
+    var trackKick = EntityUtils.add(entities, buildTrack(program42_kickSnare, "KICK"));
+    var trackSnare = EntityUtils.add(entities, buildTrack(program42_kickSnare, "SNARE"));
+    EntityUtils.add(entities, buildEvent(pattern35a2, trackKick, 0.0f, 1.0f, "B5", 0.9f));
+    EntityUtils.add(entities, buildEvent(pattern35a2, trackSnare, 1.0f, 1.0f, "D2", 1.0f));
+    EntityUtils.add(entities, buildEvent(pattern35a2, trackKick, 2.5f, 1.0f, "E4", 0.7f));
+    EntityUtils.add(entities, buildEvent(pattern35a2, trackSnare, 3.0f, 1.0f, "c3", 0.5f));
 
     return entities;
   }

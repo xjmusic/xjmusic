@@ -3,7 +3,7 @@
 package io.xj.nexus.persistence;
 
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.util.ValueUtils;
+import io.xj.hub.util.ValueUtils;
 
 public abstract class ManagerImpl<E> implements Manager<E> {
   protected final EntityFactory entityFactory;

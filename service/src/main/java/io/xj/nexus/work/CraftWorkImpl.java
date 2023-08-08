@@ -4,14 +4,14 @@ package io.xj.nexus.work;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.Templates;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.ingest.HubContent;
+import io.xj.hub.HubContent;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.hub.tables.pojos.TemplatePlayback;
-import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreProvider;
@@ -27,8 +27,8 @@ import io.xj.lib.telemetry.MultiStopwatch;
 import io.xj.lib.telemetry.TelemetryMeasureCount;
 import io.xj.lib.telemetry.TelemetryMeasureGauge;
 import io.xj.lib.telemetry.TelemetryProvider;
-import io.xj.lib.util.StringUtils;
-import io.xj.lib.util.ValueException;
+import io.xj.hub.util.StringUtils;
+import io.xj.hub.util.ValueException;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.OutputMode;
@@ -854,11 +854,11 @@ public class CraftWorkImpl implements CraftWork {
     Long eraseBeforeChainMicros = atChainMicros - eraseSegmentsOlderThanSeconds * MICROS_PER_SECOND;
     Collection<UUID> segmentIds = new ArrayList<>();
     for (UUID chainId : store.getAllChains().stream()
-      .flatMap(Entities::flatMapIds).toList())
+      .flatMap(EntityUtils::flatMapIds).toList())
       store.getAllSegments(chainId)
         .stream()
         .filter(segment -> isBefore(segment, eraseBeforeChainMicros))
-        .flatMap(Entities::flatMapIds)
+        .flatMap(EntityUtils::flatMapIds)
         .forEach(segmentIds::add);
     return segmentIds;
   }
@@ -1054,7 +1054,7 @@ public class CraftWorkImpl implements CraftWork {
       var aheadSeconds =
         Math.floor(Chains.computeFabricatedToChainMicros(
           entities.stream()
-            .filter(e -> Entities.isType(e, Segment.class))
+            .filter(e -> EntityUtils.isType(e, Segment.class))
             .map(e -> (Segment) e)
             .collect(Collectors.toList())) - atChainMicros) / MICROS_PER_SECOND;
 

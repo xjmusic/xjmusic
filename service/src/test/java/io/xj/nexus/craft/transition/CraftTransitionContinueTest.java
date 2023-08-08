@@ -3,7 +3,7 @@ package io.xj.nexus.craft.transition;
 
 import io.xj.hub.HubTopology;
 import io.xj.nexus.hub_client.HubClient;
-import io.xj.hub.ingest.HubContent;
+import io.xj.hub.HubContent;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.lib.entity.EntityFactoryImpl;

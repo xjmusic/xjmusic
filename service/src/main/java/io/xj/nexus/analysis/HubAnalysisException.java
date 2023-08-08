@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.analysis;
 
-import io.xj.lib.util.StringUtils;
+import io.xj.hub.util.StringUtils;
 
 /**
  * Template content Analysis https://www.pivotaltracker.com/story/show/161199945

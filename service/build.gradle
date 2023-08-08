@@ -13,14 +13,7 @@ plugins {
   id 'org.springframework.boot'
 }
 
-group = 'io.xj'
-version = '1.0'
-sourceCompatibility = '17'
 description = 'XJ music workstation'
-
-tasks.withType(JavaCompile) {
-  options.encoding = 'UTF-8'
-}
 
 apply plugin: 'java'
 
@@ -31,7 +24,7 @@ dependencies {
   testImplementation(project(':lib').sourceSets.test.output)
   testImplementation(testFixtures(project(":service")))
   // private
-  implementation 'io.xj:models:0.5.15'
+  implementation "io.xj:models:${rootProject.ext.xjModelsVersion}"
   // vendor
   implementation "com.fasterxml.jackson.core:jackson-annotations:${rootProject.ext.jacksonAnnotationsVersion}"
   implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:${rootProject.ext.jacksonAnnotationsVersion}"
@@ -88,16 +81,6 @@ jar {
 
 application {
   mainClassName = 'io.xj.nexus.NexusApplication'
-}
-
-java {
-  sourceCompatibility = JavaVersion.VERSION_17
-  targetCompatibility = JavaVersion.VERSION_17
-  modularity.inferModulePath = true
-}
-
-tasks.withType(JavaCompile) {
-  options.encoding = 'UTF-8'
 }
 
 // Ship to multiple repositories https://www.pivotaltracker.com/story/show/180684409

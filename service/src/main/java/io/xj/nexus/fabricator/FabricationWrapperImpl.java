@@ -3,7 +3,7 @@
 package io.xj.nexus.fabricator;
 
 import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.lib.util.CSV;
+import io.xj.hub.util.CSV;
 import io.xj.nexus.NexusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

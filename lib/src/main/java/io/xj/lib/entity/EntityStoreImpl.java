@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.lib.entity;
 
-import io.xj.lib.util.ValueUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -31,7 +30,7 @@ public class EntityStoreImpl implements EntityStore {
     // fail to store entity without id
     UUID id;
     try {
-      id = Entities.getId(entity);
+      id = EntityUtils.getId(entity);
     } catch (EntityException e) {
       throw new EntityStoreException(String.format("Can't get id of %s-type entity",
         entity.getClass().getSimpleName()));
@@ -81,7 +80,7 @@ public class EntityStoreImpl implements EntityStore {
       if (!store.containsKey(type)) return List.of();
       //noinspection unchecked
       return (Collection<N>) store.get(type).values().stream()
-        .filter(entity -> Entities.isChild(entity, belongsToType, belongsToIds))
+        .filter(entity -> EntityUtils.isChild(entity, belongsToType, belongsToIds))
         .collect(Collectors.toList());
 
     } catch (Exception e) {

@@ -7,7 +7,7 @@ import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.telemetry.TelemetryMeasureGauge;
 import io.xj.lib.telemetry.TelemetryProvider;
-import io.xj.lib.util.StringUtils;
+import io.xj.hub.util.StringUtils;
 import io.xj.nexus.ship.ShipException;
 import io.xj.nexus.ship.ShipMode;
 import org.apache.http.client.methods.CloseableHttpResponse;

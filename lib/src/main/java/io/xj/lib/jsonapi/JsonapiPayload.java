@@ -4,7 +4,7 @@ package io.xj.lib.jsonapi;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.entity.EntityException;
 
 import org.jetbrains.annotations.Nullable;
@@ -404,7 +404,7 @@ public class JsonapiPayload {
       Collection<String> foundIds = new ArrayList<>();
       Collection<String> resourceIds = new ArrayList<>();
       for (N resource : resources) {
-        var resourceId = Entities.getId(resource);
+        var resourceId = EntityUtils.getId(resource);
         for (JsonapiPayloadObject jsonapiPayloadObject : included) {
           if (foundIds.contains(jsonapiPayloadObject.getId())) return false;
           if (!Objects.equals(resourceType, jsonapiPayloadObject.getType())) return false;

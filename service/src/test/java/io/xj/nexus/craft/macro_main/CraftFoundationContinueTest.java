@@ -3,9 +3,9 @@ package io.xj.nexus.craft.macro_main;
 
 import io.xj.hub.HubTopology;
 import io.xj.nexus.hub_client.HubClient;
-import io.xj.hub.ingest.HubContent;
+import io.xj.hub.HubContent;
 import io.xj.hub.enums.ProgramType;
-import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.json.JsonProvider;
@@ -173,10 +173,10 @@ public class CraftFoundationContinueTest {
     // assert memes
     assertSameItems(
       List.of("OUTLOOK", "TROPICAL", "COZY", "WILD", "PESSIMISM"),
-      Entities.namesOf(store.getAll(result.getId(), SegmentMeme.class)));
+      EntityUtils.namesOf(store.getAll(result.getId(), SegmentMeme.class)));
     // assert chords
     assertSameItems(List.of("Bb -", "C"),
-      Entities.namesOf(store.getAll(result.getId(), SegmentChord.class)));
+      EntityUtils.namesOf(store.getAll(result.getId(), SegmentChord.class)));
     // assert choices
     Collection<SegmentChoice> segmentChoices =
       store.getAll(result.getId(), SegmentChoice.class);

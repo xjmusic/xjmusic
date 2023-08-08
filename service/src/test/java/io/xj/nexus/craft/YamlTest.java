@@ -1,8 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.craft;
 
-import io.xj.lib.music.Accidental;
-import io.xj.lib.music.Note;
+import io.xj.hub.music.Accidental;
+import io.xj.hub.music.Note;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;

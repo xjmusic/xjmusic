@@ -2,7 +2,7 @@
 
 package io.xj.nexus.ship;
 
-import io.xj.lib.util.StringUtils;
+import io.xj.hub.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.Locale;

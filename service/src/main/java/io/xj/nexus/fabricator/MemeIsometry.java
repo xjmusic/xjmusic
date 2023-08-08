@@ -1,12 +1,12 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.fabricator;
 
-import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.entity.EntityException;
-import io.xj.lib.meme.Isometry;
-import io.xj.lib.meme.MemeStack;
-import io.xj.lib.meme.MemeTaxonomy;
-import io.xj.lib.util.StringUtils;
+import io.xj.hub.meme.Isometry;
+import io.xj.hub.meme.MemeStack;
+import io.xj.hub.meme.MemeTaxonomy;
+import io.xj.hub.util.StringUtils;
 
 import java.util.Collection;
 import java.util.List;
@@ -70,7 +70,7 @@ public class MemeIsometry extends Isometry {
    */
   public <R> void add(R meme) {
     try {
-      Entities.get(meme, KEY_NAME)
+      EntityUtils.get(meme, KEY_NAME)
         .ifPresent(name -> add(StringUtils.toMeme(String.valueOf(name))));
     } catch (EntityException ignored) {
     }

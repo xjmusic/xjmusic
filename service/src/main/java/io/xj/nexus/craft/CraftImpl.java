@@ -16,17 +16,17 @@ import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.hub.tables.pojos.ProgramVoice;
-import io.xj.lib.entity.Entities;
-import io.xj.lib.music.Accidental;
-import io.xj.lib.music.Bar;
-import io.xj.lib.music.Chord;
-import io.xj.lib.music.Note;
-import io.xj.lib.music.NoteRange;
-import io.xj.lib.util.CSV;
-import io.xj.lib.util.MarbleBag;
-import io.xj.lib.util.StringUtils;
-import io.xj.lib.util.TremendouslyRandom;
-import io.xj.lib.util.ValueUtils;
+import io.xj.lib.entity.EntityUtils;
+import io.xj.hub.music.Accidental;
+import io.xj.hub.music.Bar;
+import io.xj.hub.music.Chord;
+import io.xj.hub.music.Note;
+import io.xj.hub.music.NoteRange;
+import io.xj.hub.util.CSV;
+import io.xj.hub.util.MarbleBag;
+import io.xj.hub.util.StringUtils;
+import io.xj.hub.util.TremendouslyRandom;
+import io.xj.hub.util.ValueUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.fabricator.FabricationWrapperImpl;
 import io.xj.nexus.fabricator.Fabricator;
@@ -898,14 +898,14 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     // Phase 1: Directly Bound Programs
     for (Program program : programsDirectlyBound(candidates)) {
-      memes = Entities.namesOf(fabricator.sourceMaterial().getMemesForProgramId(program.getId()));
+      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesForProgramId(program.getId()));
       // FUTURE consider meme isometry, but for now, just use the meme stack
       if (iso.isAllowed(memes)) bag.add(1, program.getId(), 1 + iso.score(memes));
     }
 
     // Phase 2: All Published Programs
     for (Program program : programsPublished(candidates)) {
-      memes = Entities.namesOf(fabricator.sourceMaterial().getMemesForProgramId(program.getId()));
+      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesForProgramId(program.getId()));
       // FUTURE consider meme isometry, but for now, just use the meme stack
       if (iso.isAllowed(memes)) bag.add(2, program.getId(), 1 + iso.score(memes));
     }
@@ -943,13 +943,13 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     // Phase 1: Directly Bound Instruments
     for (Instrument instrument : instrumentsDirectlyBound(candidates)) {
-      memes = Entities.namesOf(fabricator.sourceMaterial().getMemesForInstrumentId(instrument.getId()));
+      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesForInstrumentId(instrument.getId()));
       if (iso.isAllowed(memes)) bag.add(1, instrument.getId(), 1 + iso.score(memes));
     }
 
     // Phase 2: All Published Instruments
     for (Instrument instrument : instrumentsPublished(candidates)) {
-      memes = Entities.namesOf(fabricator.sourceMaterial().getMemesForInstrumentId(instrument.getId()));
+      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesForInstrumentId(instrument.getId()));
       if (iso.isAllowed(memes)) bag.add(2, instrument.getId(), 1 + iso.score(memes));
     }
 
@@ -1001,14 +1001,14 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     // Phase 1: Directly Bound Audios (Preferred)
     for (InstrumentAudio audio : audiosDirectlyBound(candidates)) {
-      memes = Entities.namesOf(fabricator.sourceMaterial().getMemesForInstrumentId(audio.getInstrumentId()));
+      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesForInstrumentId(audio.getInstrumentId()));
       if (iso.isAllowed(memes))
         bag.add(preferredEvents.contains(audio.getEvent()) ? 1 : 3, audio.getId(), 1 + iso.score(memes));
     }
 
     // Phase 2: All Published Audios (Preferred)
     for (InstrumentAudio audio : audiosPublished(candidates)) {
-      memes = Entities.namesOf(fabricator.sourceMaterial().getMemesForInstrumentId(audio.getInstrumentId()));
+      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesForInstrumentId(audio.getInstrumentId()));
       if (iso.isAllowed(memes))
         bag.add(preferredEvents.contains(audio.getEvent()) ? 2 : 4, audio.getId(), 1 + iso.score(memes));
     }

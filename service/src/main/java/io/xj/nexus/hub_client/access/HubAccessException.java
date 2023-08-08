@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.hub_client.access;
 
-import io.xj.lib.util.StringUtils;
+import io.xj.hub.util.StringUtils;
 
 public class HubAccessException extends Exception {
 

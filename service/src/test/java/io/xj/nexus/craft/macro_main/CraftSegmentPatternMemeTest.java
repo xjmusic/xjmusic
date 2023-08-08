@@ -3,9 +3,9 @@ package io.xj.nexus.craft.macro_main;
 
 import io.xj.hub.HubTopology;
 import io.xj.nexus.hub_client.HubClient;
-import io.xj.hub.ingest.HubContent;
+import io.xj.hub.HubContent;
 import io.xj.hub.enums.ProgramType;
-import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.json.JsonProviderImpl;
@@ -115,7 +115,7 @@ public class CraftSegmentPatternMemeTest {
       var result = store.getSegment(segment.getId()).orElseThrow();
       assertEquals(SegmentType.NEXTMACRO, result.getType());
       assertSameItems(List.of("REGRET", "HINDSIGHT", "CHUNKY", "TANGY"),
-        Entities.namesOf(store.getAll(result.getId(), SegmentMeme.class)));
+        EntityUtils.namesOf(store.getAll(result.getId(), SegmentMeme.class)));
     }
   }
 }

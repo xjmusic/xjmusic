@@ -1,11 +1,11 @@
 package io.xj.nexus.analysis;
 
-import io.xj.hub.ingest.HubContent;
+import io.xj.hub.HubContent;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Program;
-import io.xj.lib.util.StringUtils;
+import io.xj.hub.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.Comparator;

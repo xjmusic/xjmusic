@@ -4,11 +4,11 @@ package io.xj.nexus.fabricator;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
-import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.entity.EntityStoreImpl;
-import io.xj.lib.util.MarbleBag;
+import io.xj.hub.util.MarbleBag;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
@@ -84,7 +84,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
         .collect(Collectors.toList());
 
       retroStore.putAll(previousMany);
-      retroStore.putAll(segmentManager.readManySubEntities(Entities.idsOf(previousMany), true));
+      retroStore.putAll(segmentManager.readManySubEntities(EntityUtils.idsOf(previousMany), true));
 
     } catch (ManagerExistenceException | ManagerFatalException | ManagerPrivilegeException | EntityStoreException e) {
       throw new NexusException(e);

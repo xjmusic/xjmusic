@@ -5,7 +5,7 @@ package io.xj.nexus;
 import io.xj.hub.HubTopology;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.util.StringUtils;
+import io.xj.hub.util.StringUtils;
 import io.xj.nexus.work.WorkFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

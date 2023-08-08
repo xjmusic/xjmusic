@@ -3,11 +3,11 @@ package io.xj.nexus.craft;
 
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.InstrumentType;
-import io.xj.lib.music.Accidental;
-import io.xj.lib.music.Note;
-import io.xj.lib.music.NoteRange;
-import io.xj.lib.util.CSV;
-import io.xj.lib.util.ValueException;
+import io.xj.hub.music.Accidental;
+import io.xj.hub.music.Note;
+import io.xj.hub.music.NoteRange;
+import io.xj.hub.util.CSV;
+import io.xj.hub.util.ValueException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;

@@ -3,13 +3,13 @@ package io.xj.nexus.craft.beat;
 
 import io.xj.hub.HubTopology;
 import io.xj.nexus.hub_client.HubClient;
-import io.xj.hub.ingest.HubContent;
+import io.xj.hub.HubContent;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.json.JsonProvider;
@@ -143,14 +143,14 @@ public class CraftBeatProgramVoiceNextMainTest {
     Collection<Object> entities = new ArrayList<>();
 
     // Instrument "808"
-    Instrument instrument1 = Entities.add(entities, buildInstrument(
+    Instrument instrument1 = EntityUtils.add(entities, buildInstrument(
       fake.library2,
       InstrumentType.Drum,
       InstrumentMode.Event, InstrumentState.Published,
       "808 Drums"));
-    Entities.add(entities, buildInstrumentMeme(instrument1, "heavy"));
+    EntityUtils.add(entities, buildInstrumentMeme(instrument1, "heavy"));
     //
-    audioKick = Entities.add(entities, buildInstrumentAudio(
+    audioKick = EntityUtils.add(entities, buildInstrumentAudio(
       instrument1,
       "Kick",
       "19801735098q47895897895782138975898.wav",
@@ -162,7 +162,7 @@ public class CraftBeatProgramVoiceNextMainTest {
       "Eb",
       1.0f));
     //
-    audioSnare = Entities.add(entities, buildInstrumentAudio(
+    audioSnare = EntityUtils.add(entities, buildInstrumentAudio(
       instrument1,
       "Snare",
       "a1g9f8u0k1v7f3e59o7j5e8s98.wav",

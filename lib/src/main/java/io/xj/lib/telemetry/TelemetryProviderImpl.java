@@ -2,7 +2,7 @@
 package io.xj.lib.telemetry;
 
 import io.xj.lib.app.AppConfiguration;
-import io.xj.lib.util.StringUtils;
+import io.xj.hub.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

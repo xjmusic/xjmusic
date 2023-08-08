@@ -19,7 +19,7 @@ module workstation.nexus.main {
   requires spring.web;
   //
   requires transitive workstation.lib.main;
-  requires transitive workstation.hub_client.main;
+  requires transitive models;
 
   opens io.xj.nexus to spring.core;
   opens io.xj.nexus.ship.broadcast to spring.beans;
@@ -33,4 +33,5 @@ module workstation.nexus.main {
   exports io.xj.nexus.model;
   exports io.xj.nexus.persistence;
   exports io.xj.nexus;
+  exports io.xj.nexus.hub_client.access;
 }

@@ -4,7 +4,7 @@ package io.xj.nexus.work;
 import io.xj.hub.HubTopology;
 import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.hub_client.HubClientAccess;
-import io.xj.hub.ingest.HubContent;
+import io.xj.hub.HubContent;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;

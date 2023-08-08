@@ -3,7 +3,7 @@
 package io.xj.lib.jsonapi;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +39,7 @@ public class PayloadError {
    */
   public static PayloadError of(Exception exception) {
     return new PayloadError()
-      .setCode(Entities.getSimpleName(exception))
+      .setCode(EntityUtils.getSimpleName(exception))
       .setTitle(exception.getMessage());
   }
 

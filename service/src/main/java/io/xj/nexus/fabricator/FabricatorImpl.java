@@ -6,7 +6,7 @@ import io.xj.hub.InstrumentConfig;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.TemplateConfig;
 import io.xj.nexus.hub_client.HubClientException;
-import io.xj.hub.ingest.HubContent;
+import io.xj.hub.HubContent;
 import io.xj.hub.enums.ContentBindingType;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
@@ -25,24 +25,24 @@ import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.hub.tables.pojos.TemplateBinding;
-import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.meme.MemeStack;
-import io.xj.lib.music.Accidental;
-import io.xj.lib.music.Chord;
-import io.xj.lib.music.Note;
-import io.xj.lib.music.NoteRange;
-import io.xj.lib.music.PitchClass;
-import io.xj.lib.music.StickyBun;
-import io.xj.lib.util.CSV;
-import io.xj.lib.util.MarbleBag;
-import io.xj.lib.util.StringUtils;
-import io.xj.lib.util.ValueException;
-import io.xj.lib.util.ValueUtils;
+import io.xj.hub.meme.MemeStack;
+import io.xj.hub.music.Accidental;
+import io.xj.hub.music.Chord;
+import io.xj.hub.music.Note;
+import io.xj.hub.music.NoteRange;
+import io.xj.hub.music.PitchClass;
+import io.xj.hub.music.StickyBun;
+import io.xj.hub.util.CSV;
+import io.xj.hub.util.MarbleBag;
+import io.xj.hub.util.StringUtils;
+import io.xj.hub.util.ValueException;
+import io.xj.hub.util.ValueUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
@@ -239,7 +239,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public Collection<SegmentChoiceArrangement> getArrangements(Collection<SegmentChoice> choices) {
-    Collection<UUID> choiceIds = Entities.idsOf(choices);
+    Collection<UUID> choiceIds = EntityUtils.idsOf(choices);
     return getArrangements().stream().filter(arrangement -> choiceIds.contains(arrangement.getSegmentChoiceId())).collect(Collectors.toList());
   }
 
@@ -534,7 +534,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public MemeIsometry getMemeIsometryOfSegment() {
-    return MemeIsometry.of(templateConfig.getMemeTaxonomy(), Entities.namesOf(workbench.getSegmentMemes()));
+    return MemeIsometry.of(templateConfig.getMemeTaxonomy(), EntityUtils.namesOf(workbench.getSegmentMemes()));
   }
 
   @Override

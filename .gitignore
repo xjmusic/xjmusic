@@ -1,7 +1,7 @@
 # Environment Variables
-/.env
-
+.env
 gradle-local.properties
+
 gpg/
 .gradle/
 build/

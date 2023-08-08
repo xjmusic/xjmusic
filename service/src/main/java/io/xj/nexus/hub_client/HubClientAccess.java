@@ -3,7 +3,7 @@ package io.xj.nexus.hub_client;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.xj.hub.enums.UserRoleType;
-import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityUtils;
 
 import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
@@ -133,7 +133,7 @@ public class HubClientAccess {
    */
   @JsonIgnore
   public String getAccounts() {
-    return Entities.csvOf(accountIds);
+    return EntityUtils.csvOf(accountIds);
   }
 
   /**
@@ -143,7 +143,7 @@ public class HubClientAccess {
    * @return user account types
    */
   public HubClientAccess setAccounts(String accountsCsv) {
-    setAccountIds(Entities.idsFromCSV(accountsCsv));
+    setAccountIds(EntityUtils.idsFromCSV(accountsCsv));
     return this;
   }
 

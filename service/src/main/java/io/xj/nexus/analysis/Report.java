@@ -3,14 +3,14 @@
 package io.xj.nexus.analysis;
 
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.ingest.HubContent;
+import io.xj.hub.HubContent;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Program;
-import io.xj.lib.entity.Entities;
-import io.xj.lib.meme.MemeConstellation;
-import io.xj.lib.meme.MemeStack;
-import io.xj.lib.meme.MemeTaxonomy;
-import io.xj.lib.util.ValueUtils;
+import io.xj.lib.entity.EntityUtils;
+import io.xj.hub.meme.MemeConstellation;
+import io.xj.hub.meme.MemeStack;
+import io.xj.hub.meme.MemeTaxonomy;
+import io.xj.hub.util.ValueUtils;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.BufferedInputStream;
@@ -109,9 +109,9 @@ public abstract class Report {
     Collection<String> macroBindingMemeNames;
     var macroHistogram = new ReportChordInstruments.Histogram();
     for (var macroProgram : content.getPrograms(ProgramType.Macro)) {
-      macroMemeNames = Entities.namesOf(content.getProgramMemes(macroProgram.getId()));
+      macroMemeNames = EntityUtils.namesOf(content.getProgramMemes(macroProgram.getId()));
       for (var macroBinding : content.getSequenceBindingsForProgram(macroProgram.getId())) {
-        macroBindingMemeNames = Entities.namesOf(content.getMemesForSequenceBinding(macroBinding.getId()));
+        macroBindingMemeNames = EntityUtils.namesOf(content.getMemesForSequenceBinding(macroBinding.getId()));
         var memeNames = Stream.concat(macroMemeNames.parallelStream(), macroBindingMemeNames.parallelStream()).collect(Collectors.toSet());
         macroHistogram.addId(MemeStack.from(taxonomy, memeNames).getConstellation(), macroProgram.getId());
       }
@@ -132,10 +132,10 @@ public abstract class Report {
     for (var macroConstellation : macroHistogram.histogram.keySet()) {
       var stack = MemeStack.from(taxonomy, MemeConstellation.toNames(macroConstellation));
       for (var mainProgram : content.getPrograms(ProgramType.Main)) {
-        var mainMemes = Entities.namesOf(content.getProgramMemes(mainProgram.getId()));
+        var mainMemes = EntityUtils.namesOf(content.getProgramMemes(mainProgram.getId()));
         if (stack.isAllowed(mainMemes))
           for (var mainBinding : content.getSequenceBindingsForProgram(mainProgram.getId())) {
-            mainBindingMemeNames = Entities.namesOf(content.getMemesForSequenceBinding(mainBinding.getId()));
+            mainBindingMemeNames = EntityUtils.namesOf(content.getMemesForSequenceBinding(mainBinding.getId()));
             var memeNames = Stream.concat(mainMemes.parallelStream(), mainBindingMemeNames.parallelStream()).collect(Collectors.toSet());
             mainHistogram.addId(MemeStack.from(taxonomy, memeNames).getConstellation(), mainProgram.getId());
           }

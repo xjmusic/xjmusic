@@ -3,7 +3,7 @@
 package io.xj.nexus.craft;
 
 import io.xj.hub.TemplateConfig;
-import io.xj.hub.ingest.HubContent;
+import io.xj.hub.HubContent;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
@@ -16,8 +16,8 @@ import io.xj.hub.tables.pojos.InstrumentMeme;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Template;
-import io.xj.lib.meme.MemeTaxonomy;
-import io.xj.lib.music.Chord;
+import io.xj.hub.meme.MemeTaxonomy;
+import io.xj.hub.music.Chord;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.MemeIsometry;

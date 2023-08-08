@@ -2,7 +2,7 @@
 
 package io.xj.nexus.craft;
 
-import io.xj.lib.music.Note;
+import io.xj.hub.music.Note;
 
 /**
  * Rank a Note based on its delta

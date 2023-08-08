@@ -1,17 +1,16 @@
 package io.xj.nexus.analysis;
 
+import io.xj.hub.HubContent;
 import io.xj.hub.TemplateConfig;
-import io.xj.hub.ingest.HubContent;
 import io.xj.hub.enums.InstrumentMode;
+import io.xj.hub.meme.MemeConstellation;
+import io.xj.hub.meme.MemeStack;
+import io.xj.hub.meme.MemeTaxonomy;
+import io.xj.hub.music.Chord;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.ProgramSequenceChord;
-import io.xj.lib.entity.Entities;
-import io.xj.lib.meme.MemeConstellation;
-import io.xj.lib.meme.MemeStack;
-import io.xj.lib.meme.MemeTaxonomy;
-import io.xj.lib.music.Chord;
-import io.xj.lib.util.ValueException;
+import io.xj.lib.entity.EntityUtils;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,7 +26,7 @@ public class ReportChordInstruments extends Report {
   final MemeTaxonomy taxonomy;
   final List<Instrument> chordInstruments;
 
-  public ReportChordInstruments(HubContent content) throws ValueException {
+  public ReportChordInstruments(HubContent content) throws Exception {
     super(content);
 
     // Store the taxonomy
@@ -61,7 +60,7 @@ public class ReportChordInstruments extends Report {
 
     var stack = MemeStack.from(taxonomy, MemeConstellation.toNames(mainConstellation));
     var instruments = chordInstruments.parallelStream()
-      .filter(instrument -> stack.isAllowed(Entities.namesOf(content.getInstrumentMemes(instrument.getId()))))
+      .filter(instrument -> stack.isAllowed(EntityUtils.namesOf(content.getInstrumentMemes(instrument.getId()))))
       .sorted(Comparator.comparing(Instrument::getName)).toList();
 
     if (instruments.isEmpty()) {

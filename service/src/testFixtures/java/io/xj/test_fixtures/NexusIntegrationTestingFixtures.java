@@ -30,9 +30,9 @@ import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.hub.tables.pojos.User;
 import io.xj.hub.tables.pojos.UserAuth;
-import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.entity.EntityException;
-import io.xj.lib.util.StringUtils;
+import io.xj.hub.util.StringUtils;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
@@ -600,7 +600,7 @@ public class NexusIntegrationTestingFixtures {
     return new HubClientAccess()
       .setUserId(user.getId())
       .setUserAuthId(userAuth.getId())
-      .setAccountIds(Entities.idsOf(accounts))
+      .setAccountIds(EntityUtils.idsOf(accounts))
       .setRoleTypes(Users.userRoleTypesFromCsv(rolesCSV));
   }
 
@@ -628,7 +628,7 @@ public class NexusIntegrationTestingFixtures {
   public static HubClientAccess buildHubClientAccess(User user, List<Account> accounts, String rolesCSV) {
     return new HubClientAccess()
       .setUserId(user.getId())
-      .setAccountIds(Entities.idsOf(accounts))
+      .setAccountIds(EntityUtils.idsOf(accounts))
       .setRoleTypes(Users.userRoleTypesFromCsv(rolesCSV));
   }
 
@@ -644,7 +644,7 @@ public class NexusIntegrationTestingFixtures {
     return new HubClientAccess()
       .setUserId(user.getId())
       .setUserAuthId(userAuth.getId())
-      .setAccountIds(Entities.idsOf(accounts));
+      .setAccountIds(EntityUtils.idsOf(accounts));
   }
 
   /**
@@ -657,7 +657,7 @@ public class NexusIntegrationTestingFixtures {
   public static HubClientAccess buildHubClientAccess(User user, List<Account> accounts) {
     return new HubClientAccess()
       .setUserId(user.getId())
-      .setAccountIds(Entities.idsOf(accounts));
+      .setAccountIds(EntityUtils.idsOf(accounts));
   }
 
   /**
@@ -669,7 +669,7 @@ public class NexusIntegrationTestingFixtures {
    */
   public static HubClientAccess buildHubClientAccess(List<Account> accounts, String rolesCSV) {
     return new HubClientAccess()
-      .setAccountIds(Entities.idsOf(accounts))
+      .setAccountIds(EntityUtils.idsOf(accounts))
       .setRoleTypes(Users.userRoleTypesFromCsv(rolesCSV));
   }
 

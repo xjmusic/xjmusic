@@ -4,7 +4,7 @@ package io.xj.lib.jsonapi;
 import io.xj.lib.Widget;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.JsonProviderImpl;
-import io.xj.lib.util.FileUtils;
+import io.xj.hub.util.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 

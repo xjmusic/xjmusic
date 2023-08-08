@@ -4,8 +4,8 @@ package io.xj.nexus.craft.background;
 import io.xj.hub.HubTopology;
 import io.xj.hub.TemplateConfig;
 import io.xj.nexus.hub_client.HubClient;
-import io.xj.hub.ingest.HubContent;
-import io.xj.lib.entity.Entities;
+import io.xj.hub.HubContent;
+import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.json.JsonProvider;
@@ -87,7 +87,7 @@ public class CraftBackgroundProgramVoiceInitialTest {
     sourceMaterial = new HubContent(Stream.concat(
         fake.setupFixtureB1().stream(),
         fake.setupFixtureB3().stream())
-      .filter(entity -> !Entities.isSame(entity, fake.program35) && !Entities.isChild(entity, fake.program35))
+      .filter(entity -> !EntityUtils.isSame(entity, fake.program35) && !EntityUtils.isChild(entity, fake.program35))
       .collect(Collectors.toList()));
 
     // Chain "Print #2" has 1 initial segment in crafting state - Foundation is complete

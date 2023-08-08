@@ -9,10 +9,7 @@ plugins {
   id 'org.springframework.boot'
 }
 
-group = 'io.xj'
-version = '1.0'
-
-description = 'XJ music workstation'
+description = 'XJ music workstation library'
 
 apply plugin: 'java'
 
@@ -73,18 +70,4 @@ jar {
 
 bootJar {
   enabled = false
-}
-
-group = 'io.xj'
-description = 'lib'
-version = '1.0'
-
-java {
-  sourceCompatibility = JavaVersion.VERSION_17
-  targetCompatibility = JavaVersion.VERSION_17
-  modularity.inferModulePath = true
-}
-
-tasks.withType(JavaCompile) {
-  options.encoding = 'UTF-8'
 }

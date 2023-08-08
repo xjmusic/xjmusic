@@ -2,7 +2,7 @@
 
 package io.xj.nexus.hub_client;
 
-import io.xj.hub.ingest.HubContent;
+import io.xj.hub.HubContent;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplatePlayback;
 

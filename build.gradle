@@ -23,14 +23,25 @@ ext {
   junitVersion = '5.9.2'
   springBootVersion = '3.1.2'
   springTestVersion = '6.0.11'
+  xjModelsVersion = '0.5.17'
+}
+
+Properties localProperties = new Properties()
+def localPropertiesFile = project.rootProject.file('gradle-local.properties')
+if (localPropertiesFile.exists()) {
+  localProperties.load(localPropertiesFile.newDataInputStream())
 }
 
 allprojects {
   group = 'io.xj'
-  version = '0.5.3'
 
-  tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
+  sourceCompatibility = JavaVersion.VERSION_17
+  targetCompatibility = JavaVersion.VERSION_17
+
+  tasks.withType(JavaCompile).tap {
+    configureEach {
+      options.encoding = 'UTF-8'
+    }
   }
 }
 
@@ -61,16 +72,10 @@ subprojects {
       name = "GitHubPackages"
       url = uri("https://maven.pkg.github.com/xjmusic/hub")
       credentials {
-        username = project.findProperty("gpr.user") ?: System.getenv("REPO_USERNAME")
-        password = project.findProperty("gpr.key") ?: System.getenv("REPO_TOKEN")
+        username = localProperties.getProperty('repo.username') ?: System.getenv("REPO_USERNAME")
+        password = localProperties.getProperty('repo.token') ?: System.getenv("REPO_TOKEN")
       }
     }
-  }
-
-  java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
-    modularity.inferModulePath = true
   }
 }
 

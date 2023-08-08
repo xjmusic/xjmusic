@@ -1,10 +1,10 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.lib.entity.common;
 
-import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.entity.EntityException;
-import io.xj.lib.util.ValueException;
-import io.xj.lib.util.ValueUtils;
+import io.xj.hub.util.ValueException;
+import io.xj.hub.util.ValueUtils;
 
 public abstract class EventEntity {
   Double duration;
@@ -20,10 +20,10 @@ public abstract class EventEntity {
    */
   public static void validate(Object event) throws ValueException {
     try {
-      ValueUtils.require(Entities.get(event, "duration"), "Duration");
-      ValueUtils.require(Entities.get(event, "tones"), "Tones");
-      ValueUtils.require(Entities.get(event, "position"), "Position");
-      ValueUtils.require(Entities.get(event, "velocity"), "Velocity");
+      ValueUtils.require(EntityUtils.get(event, "duration"), "Duration");
+      ValueUtils.require(EntityUtils.get(event, "tones"), "Tones");
+      ValueUtils.require(EntityUtils.get(event, "position"), "Position");
+      ValueUtils.require(EntityUtils.get(event, "velocity"), "Velocity");
     } catch (EntityException e) {
       throw new ValueException(e);
     }

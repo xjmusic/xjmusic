@@ -1,9 +1,9 @@
 package io.xj.nexus.analysis;
 
 import io.xj.nexus.analysis.util.ChordCount;
-import io.xj.hub.ingest.HubContent;
+import io.xj.hub.HubContent;
 import io.xj.hub.tables.pojos.Program;
-import io.xj.lib.music.Chord;
+import io.xj.hub.music.Chord;
 
 import java.util.Comparator;
 import java.util.HashMap;

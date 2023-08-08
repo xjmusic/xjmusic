@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.lib.jsonapi;
 
-import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.json.ApiUrlProvider;
 import org.slf4j.Logger;
@@ -72,7 +72,7 @@ public class JsonapiResponseProviderImpl implements JsonapiResponseProvider {
   @Override
   public ResponseEntity<JsonapiPayload> notFound(Object resource) {
     try {
-      return notFound(Entities.getType(resource), Entities.getId(resource));
+      return notFound(EntityUtils.getType(resource), EntityUtils.getId(resource));
 
     } catch (EntityException e) {
       log.error("Failed to even determine id of {} let alone find it", resource);

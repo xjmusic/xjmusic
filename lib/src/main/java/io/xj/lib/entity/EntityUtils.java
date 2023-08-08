@@ -2,8 +2,8 @@
 
 package io.xj.lib.entity;
 
-import io.xj.lib.util.CSV;
-import io.xj.lib.util.StringUtils;
+import io.xj.hub.util.CSV;
+import io.xj.hub.util.StringUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -31,7 +31,7 @@ import java.util.stream.Stream;
  * <p>
  * Created by Charney Kaye on 2020/03/05
  */
-public enum Entities {
+public enum EntityUtils {
   ;
   public static final String NAME_KEY = "name";
   static final String SIMPLE_NAME_OF_NULL = "null";
@@ -299,7 +299,7 @@ public enum Entities {
    * @return id attribute of key
    */
   public static String toIdAttribute(Object obj) {
-    return String.format("%sId", Entities.toBelongsTo(obj));
+    return String.format("%sId", EntityUtils.toBelongsTo(obj));
   }
 
   /**
@@ -309,7 +309,7 @@ public enum Entities {
    * @return id attribute of key
    */
   public static String toIdAttribute(Class<?> key) {
-    return String.format("%sId", Entities.toBelongsTo(key));
+    return String.format("%sId", EntityUtils.toBelongsTo(key));
   }
 
   /**
@@ -319,7 +319,7 @@ public enum Entities {
    * @return id attribute of key
    */
   public static String toIdAttribute(String key) {
-    return String.format("%sId", Entities.toBelongsTo(key));
+    return String.format("%sId", EntityUtils.toBelongsTo(key));
   }
 
   /**
@@ -332,7 +332,7 @@ public enum Entities {
    * @return resource belongsTo of object
    */
   public static String toBelongsTo(Object belongsTo) {
-    return toBelongsTo(Entities.getSimpleName(belongsTo));
+    return toBelongsTo(EntityUtils.getSimpleName(belongsTo));
   }
 
   /**
@@ -345,7 +345,7 @@ public enum Entities {
    * @return resource belongsTo of object
    */
   public static String toBelongsTo(Class<?> belongsTo) {
-    return toBelongsTo(Entities.getSimpleName(belongsTo));
+    return toBelongsTo(EntityUtils.getSimpleName(belongsTo));
   }
 
   /**
@@ -385,7 +385,7 @@ public enum Entities {
    * @return resource hasMany of object
    */
   public static String toHasMany(Class<?> resource) {
-    return toHasMany(Entities.getSimpleName(resource));
+    return toHasMany(EntityUtils.getSimpleName(resource));
   }
 
   /**
@@ -398,7 +398,7 @@ public enum Entities {
    * @return resource hasMany of object
    */
   public static String toHasMany(Object resource) {
-    return toHasMany(Entities.getSimpleName(resource));
+    return toHasMany(EntityUtils.getSimpleName(resource));
   }
 
   /**
@@ -438,7 +438,7 @@ public enum Entities {
    * @return resource type of object
    */
   public static String toType(Class<?> resource) {
-    return toType(Entities.getSimpleName(resource));
+    return toType(EntityUtils.getSimpleName(resource));
   }
 
   /**
@@ -451,7 +451,7 @@ public enum Entities {
    * @return resource type of object
    */
   public static String toType(Object resource) {
-    return toType(Entities.getSimpleName(resource));
+    return toType(EntityUtils.getSimpleName(resource));
   }
 
   /**
@@ -572,9 +572,9 @@ public enum Entities {
     Iterator<E> it = entities.iterator();
     StringBuilder result = new StringBuilder();
     try {
-      result.append(Entities.getId(it.next()));
+      result.append(EntityUtils.getId(it.next()));
       while (it.hasNext()) {
-        result.append(",").append(Entities.getId(it.next()));
+        result.append(",").append(EntityUtils.getId(it.next()));
       }
     } catch (EntityException e) {
       e.printStackTrace();
@@ -590,7 +590,7 @@ public enum Entities {
    */
   public static <N> Set<UUID> idsOf(Collection<N> entities) {
     return entities.stream()
-      .flatMap(Entities::flatMapIds)
+      .flatMap(EntityUtils::flatMapIds)
       .collect(Collectors.toSet());
   }
 
@@ -603,7 +603,7 @@ public enum Entities {
    */
   public static <N> Stream<UUID> flatMapIds(N n) {
     try {
-      return Stream.of(Entities.getId(n));
+      return Stream.of(EntityUtils.getId(n));
     } catch (EntityException e) {
       e.printStackTrace();
       return Stream.empty();
@@ -654,7 +654,7 @@ public enum Entities {
    */
   public static boolean isChild(Object child, Object parent) {
     try {
-      return isChild(child, parent.getClass(), Collections.singleton(Entities.getId(parent)));
+      return isChild(child, parent.getClass(), Collections.singleton(EntityUtils.getId(parent)));
     } catch (EntityException e) {
       return false;
     }
@@ -679,8 +679,8 @@ public enum Entities {
    */
   public static boolean isSame(Object a, Object b) {
     try {
-      return Objects.equals(Entities.getType(a), Entities.getType(b)) &&
-        Objects.equals(Entities.getId(a), Entities.getId(b));
+      return Objects.equals(EntityUtils.getType(a), EntityUtils.getType(b)) &&
+        Objects.equals(EntityUtils.getId(a), EntityUtils.getId(b));
     } catch (EntityException e) {
       return false;
     }

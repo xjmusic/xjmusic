@@ -1,9 +1,9 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.lib.jsonapi;
 
-import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.entity.EntityException;
-import io.xj.lib.util.ValueException;
+import io.xj.hub.util.ValueException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -118,7 +118,7 @@ public class AssertPayload {
       assertEquality("payload data type", PayloadDataType.One, jsonapiPayload.getDataType());
       Optional<JsonapiPayloadObject> dataOne = jsonapiPayload.getDataOne();
       assertTrue("has one data", dataOne.isPresent());
-      assertTrue(String.format("one data same as %s id=%s", Entities.toType(resource), Entities.getId(resource)), dataOne.orElseThrow().isSame(resource));
+      assertTrue(String.format("one data same as %s id=%s", EntityUtils.toType(resource), EntityUtils.getId(resource)), dataOne.orElseThrow().isSame(resource));
       return new AssertPayloadObject(dataOne.orElseThrow());
 
     } catch (EntityException | ValueException e) {
@@ -169,7 +169,7 @@ public class AssertPayload {
   public <N> AssertPayloadObject hasIncluded(N resource) throws JsonapiException {
     try {
       Optional<JsonapiPayloadObject> payloadObject = jsonapiPayload.getIncluded().stream().filter(obj -> obj.isSame(resource)).findFirst();
-      assertTrue(String.format("has included %s id=%s", Entities.toType(resource), Entities.getId(resource)), payloadObject.isPresent());
+      assertTrue(String.format("has included %s id=%s", EntityUtils.toType(resource), EntityUtils.getId(resource)), payloadObject.isPresent());
       assertTrue("payload object exists", payloadObject.isPresent());
       return new AssertPayloadObject(payloadObject.orElseThrow());
 
@@ -192,7 +192,7 @@ public class AssertPayload {
       Collection<String> foundIds = new ArrayList<>();
       Collection<String> resourceIds = new ArrayList<>();
       for (N resource : resources) {
-        var resourceId = Entities.getId(resource);
+        var resourceId = EntityUtils.getId(resource);
         if (Objects.nonNull(resourceId))
           resourceIds.add(resourceId.toString());
       }

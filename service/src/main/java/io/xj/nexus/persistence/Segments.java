@@ -4,9 +4,9 @@ package io.xj.nexus.persistence;
 
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
-import io.xj.lib.music.Note;
-import io.xj.lib.util.CSV;
-import io.xj.lib.util.StringUtils;
+import io.xj.hub.music.Note;
+import io.xj.hub.util.CSV;
+import io.xj.hub.util.StringUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;

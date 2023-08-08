@@ -1,9 +1,9 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.lib.entity;
 
-import io.xj.lib.util.CSV;
-import io.xj.lib.util.StringUtils;
-import io.xj.lib.util.ValueException;
+import io.xj.hub.util.CSV;
+import io.xj.hub.util.StringUtils;
+import io.xj.hub.util.ValueException;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -59,7 +59,7 @@ public enum MessageType {
   public static MessageType mostSevereType(Collection<?> messages) {
     return mostSevere(messages.stream().flatMap(e -> {
       try {
-        return Stream.of(MessageType.valueOf(String.valueOf(Entities.get(e, TYPE_KEY).orElseThrow())));
+        return Stream.of(MessageType.valueOf(String.valueOf(EntityUtils.get(e, TYPE_KEY).orElseThrow())));
       } catch (Exception ignore) {
         return Stream.empty();
       }

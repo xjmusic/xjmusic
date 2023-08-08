@@ -6,6 +6,23 @@
 
 *Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.*
 
+## Private Gradle (Maven) Package Repository
+
+In order to access the private package we publish to [GitHub Packages](https://github.com/xjmusic/hub/packages/1917788) at  you must authenticate with GitHub. To do so, you
+will need to create a personal access token with the `read:packages` scope. See the [GitHub documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry#authenticating-to-github-packages)
+
+Once you have created a personal access token, you can authenticate with the GitHub Packages registry by adding the
+token to a **gradle-local.properties** file you create in the root of this project.
+
+NOTE: the **gradle-local.properties** file is ***NOT*** checked in to Git because it contains a secret.
+
+Your **gradle-local.properties** file should look like this:
+
+```properties
+repo.username=my-username
+repo.token=ghp_hgjkag8879731hjJKJYKJ78798KJHsf78221
+```
+
 ## Art
 
 See the **art/** folder. By Accessing the contents of that folder, you agree to these terms:

@@ -1,17 +1,17 @@
 package io.xj.nexus.analysis;
 
 import io.xj.hub.TemplateConfig;
-import io.xj.hub.ingest.HubContent;
+import io.xj.hub.HubContent;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Program;
-import io.xj.lib.entity.Entities;
-import io.xj.lib.meme.MemeConstellation;
-import io.xj.lib.meme.MemeStack;
-import io.xj.lib.meme.MemeTaxonomy;
-import io.xj.lib.util.ValueException;
-import io.xj.lib.util.ValueUtils;
+import io.xj.lib.entity.EntityUtils;
+import io.xj.hub.meme.MemeConstellation;
+import io.xj.hub.meme.MemeStack;
+import io.xj.hub.meme.MemeTaxonomy;
+import io.xj.hub.util.ValueException;
+import io.xj.hub.util.ValueUtils;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -61,13 +61,13 @@ public class ReportConstellations extends Report {
       stack = MemeStack.from(taxonomy, MemeConstellation.toNames(mainConstellation));
       //
       for (var beatProgram : content.getPrograms(ProgramType.Beat)) {
-        memeNames = Entities.namesOf(content.getProgramMemes(beatProgram.getId()));
+        memeNames = EntityUtils.namesOf(content.getProgramMemes(beatProgram.getId()));
         if (stack.isAllowed(memeNames))
           beatProgramHistogram.addId(stack.getConstellation(), beatProgram.getId());
       }
       //
       for (var detailProgram : content.getPrograms(ProgramType.Detail)) {
-        memeNames = Entities.namesOf(content.getProgramMemes(detailProgram.getId()));
+        memeNames = EntityUtils.namesOf(content.getProgramMemes(detailProgram.getId()));
         if (stack.isAllowed(memeNames))
           detailProgramHistogram.addId(stack.getConstellation(), detailProgram.getId());
       }
@@ -76,7 +76,7 @@ public class ReportConstellations extends Report {
         if (!instrumentHistogram.containsKey(instrumentType))
           instrumentHistogram.put(instrumentType, new Histogram());
         for (var instrument : content.getInstruments().parallelStream().filter(instrument -> instrumentType.equals(instrument.getType())).collect(Collectors.toSet())) {
-          memeNames = Entities.namesOf(content.getInstrumentMemes(instrument.getId()));
+          memeNames = EntityUtils.namesOf(content.getInstrumentMemes(instrument.getId()));
           if (stack.isAllowed(memeNames))
             instrumentHistogram.get(instrumentType).addId(stack.getConstellation(), instrument.getId());
         }

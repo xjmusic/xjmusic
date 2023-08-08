@@ -2,7 +2,7 @@
 package io.xj.nexus.analysis;
 
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.ingest.HubContent;
+import io.xj.hub.HubContent;
 import org.springframework.stereotype.Service;
 
 /**

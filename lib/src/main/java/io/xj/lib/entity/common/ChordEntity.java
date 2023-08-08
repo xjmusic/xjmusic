@@ -1,10 +1,10 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.lib.entity.common;
 
-import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.entity.EntityException;
-import io.xj.lib.util.ValueException;
-import io.xj.lib.util.ValueUtils;
+import io.xj.hub.util.ValueException;
+import io.xj.hub.util.ValueUtils;
 
 /**
  * This represents common properties of all entities,
@@ -21,8 +21,8 @@ public class ChordEntity {
    */
   public static void validate(Object chord) throws ValueException {
     try {
-      ValueUtils.require(Entities.get(chord, "name"), "Name");
-      ValueUtils.require(Entities.get(chord, "position"), "Position");
+      ValueUtils.require(EntityUtils.get(chord, "name"), "Name");
+      ValueUtils.require(EntityUtils.get(chord, "position"), "Position");
     } catch (EntityException e) {
       throw new ValueException(e);
     }

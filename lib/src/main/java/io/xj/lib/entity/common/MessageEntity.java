@@ -1,11 +1,11 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.lib.entity.common;
 
-import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.MessageType;
-import io.xj.lib.util.ValueException;
-import io.xj.lib.util.ValueUtils;
+import io.xj.hub.util.ValueException;
+import io.xj.hub.util.ValueUtils;
 
 /**
  * POJO for persisting data in memory while performing business logic,
@@ -32,11 +32,11 @@ public abstract class MessageEntity {
    */
   public static void validate(Object message) throws ValueException {
     try {
-      ValueUtils.require(Entities.get(message, "type"), "Type");
-      String body = String.valueOf(Entities.get(message, "body").orElseThrow());
+      ValueUtils.require(EntityUtils.get(message, "type"), "Type");
+      String body = String.valueOf(EntityUtils.get(message, "body").orElseThrow());
       ValueUtils.require(body, "Body");
       if (BODY_LENGTH_LIMIT < body.length())
-        Entities.set(message, "body", body.substring(0, BODY_LENGTH_LIMIT - BODY_TRUNCATE_SUFFIX.length()) + BODY_TRUNCATE_SUFFIX);
+        EntityUtils.set(message, "body", body.substring(0, BODY_LENGTH_LIMIT - BODY_TRUNCATE_SUFFIX.length()) + BODY_TRUNCATE_SUFFIX);
 
     } catch (EntityException e) {
       throw new ValueException(e);
