@@ -3,19 +3,18 @@ name: Gradle Build
 on: [push, pull_request]
 
 jobs:
-  CI:
+  build:
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
     permissions: read-all
-    build:
-      runs-on: ${{ matrix.os }}
-      strategy:
-        matrix:
-          os: [ubuntu-latest, macOS-latest, windows-latest]
-          java: [ '14.0.2', '15.0.0' ]
-        fail-fast: false
-      name: ${{ matrix.os }} JDK ${{ matrix.java }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-latest, windows-latest]
+        java: [ '14.0.2', '15.0.0' ]
+      fail-fast: false
+    name: ${{ matrix.os }} JDK ${{ matrix.java }}
     steps:
 
       - name: Git checkout
