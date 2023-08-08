@@ -9,8 +9,6 @@ plugins {
   id 'org.springframework.boot'
 }
 
-mainClassName = 'io.xj.gui.WorkstationApplication'
-
 javafx {
   version = "${rootProject.ext.javaFxVersion}"
   modules = ['javafx.base', 'javafx.controls', 'javafx.fxml', 'javafx.graphics']
@@ -26,7 +24,7 @@ jlink {
     noConsole = true
   }
   jpackage {
-    if(os.windows) {
+    if (os.windows) {
       installerOptions = ['--win-per-user-install', '--win-dir-chooser', '--win-menu']
     }
   }
@@ -74,8 +72,14 @@ dependencies {
   testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${rootProject.ext.junitVersion}"
 }
 
-bootJar {
-  enabled = false
+jar {
+  manifest {
+    attributes 'Main-Class': 'io.xj.gui.WorkstationApplication'
+  }
+}
+
+application {
+  mainClassName = 'io.xj.gui.WorkstationApplication'
 }
 
 test {

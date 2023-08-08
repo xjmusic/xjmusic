@@ -46,6 +46,10 @@ bootJar {
   enabled = false
 }
 
+bootRun {
+  enabled = false
+}
+
 test {
   useJUnitPlatform()
 }
