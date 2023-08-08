@@ -122,12 +122,12 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
     fabricator.put(arrangement);
 
     // Start at zero and keep laying down perc loops until we're out of here
-    double segmentMicros = 0;
-    while (segmentMicros < fabricator.getSegment().getTotal()) {
+    double beats = 0;
+    while (beats < fabricator.getSegment().getTotal()) {
 
       // Pick attributes are expressed "rendered" as actual seconds
-      long startAtSegmentMicros = fabricator.getSegmentMicrosAtPosition(segmentMicros);
-      long lengthMicros = fabricator.getSegmentMicrosAtPosition(segmentMicros + audio.getTotalBeats()) - startAtSegmentMicros;
+      long startAtSegmentMicros = fabricator.getSegmentMicrosAtPosition(beats);
+      long lengthMicros = fabricator.getSegmentMicrosAtPosition(beats + audio.getTotalBeats()) - startAtSegmentMicros;
 
       // of pick
       var pick = new SegmentChoiceArrangementPick();
@@ -141,7 +141,7 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
       pick.setInstrumentAudioId(audio.getId());
       fabricator.put(pick);
 
-      segmentMicros += audio.getTotalBeats() * fabricator.getMicrosPerBeat();
+      beats += audio.getTotalBeats();
     }
   }
 }
