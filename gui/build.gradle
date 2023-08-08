@@ -57,7 +57,6 @@ dependencies {
   implementation 'commons-io:commons-io:2.11.0'
   implementation 'javax.activation:activation:1.1.1'
   implementation 'javax.cache:cache-api:1.1.1'
-  implementation 'javax.ws.rs:javax.ws.rs-api:2.1.1'
   implementation 'me.xdrop:fuzzywuzzy:1.4.0'
   implementation 'org.apache.httpcomponents:httpclient:4.5.14'
   implementation 'org.jetbrains:annotations:24.0.1'
