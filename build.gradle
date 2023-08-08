@@ -86,3 +86,7 @@ if (!project.hasProperty("jibFromImage")) {
 if (!project.hasProperty("jibToImageRegistry")) {
   ext.jibToImageRegistry = "localhost"
 }
+
+test {
+  useJUnitPlatform()
+}
