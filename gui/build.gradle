@@ -9,10 +9,6 @@ plugins {
   id 'org.springframework.boot'
 }
 
-ext {
-  junitVersion = '5.9.2'
-}
-
 mainClassName = 'io.xj.gui.WorkstationApplication'
 
 javafx {
@@ -45,7 +41,9 @@ dependencies {
   // private
   implementation "io.xj:models:${rootProject.ext.xjModelsVersion}"
   // vendor
-  implementation "org.springframework.boot:spring-boot-starter-web:${rootProject.ext.springBootVersion}"
+  implementation("org.springframework.boot:spring-boot-starter-web:${rootProject.ext.springBootVersion}") {
+    exclude group: 'org.springframework', module: 'spring-aop'
+  }
   implementation 'org.jetbrains:annotations:24.0.1'
   implementation "org.openjfx:javafx-base:${rootProject.ext.javaFxVersion}"
   implementation "org.openjfx:javafx-controls:${rootProject.ext.javaFxVersion}"
@@ -54,7 +52,9 @@ dependencies {
   implementation 'org.slf4j:log4j-over-slf4j:2.0.5'
   implementation "org.jooq:jooq:${rootProject.ext.jooqVersion}"
   implementation 'org.slf4j:slf4j-api:2.0.5'
-  testImplementation "org.springframework.boot:spring-boot-starter-test:${rootProject.ext.springBootVersion}"
-  testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
-  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+  testImplementation("org.springframework.boot:spring-boot-starter-test:${rootProject.ext.springBootVersion}") {
+    exclude group: "com.vaadin.external.google", module:"android-json"
+  }
+  testImplementation("org.junit.jupiter:junit-jupiter-api:${rootProject.ext.junitVersion}")
+  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${rootProject.ext.junitVersion}")
 }

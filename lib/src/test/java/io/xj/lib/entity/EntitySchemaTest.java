@@ -3,7 +3,6 @@
 package io.xj.lib.entity;
 
 import io.xj.lib.Widget;
-import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -41,7 +40,7 @@ public class EntitySchemaTest {
     );
 
     Widget created = (Widget) subject.getCreator().get();
-    Assert.assertEquals("ThisIsATest", created.getName());
+    assertEquals("ThisIsATest", created.getName());
   }
 
   @Test

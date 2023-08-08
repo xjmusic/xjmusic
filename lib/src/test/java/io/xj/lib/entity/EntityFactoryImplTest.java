@@ -4,7 +4,6 @@ package io.xj.lib.entity;
 import io.xj.lib.Widget;
 import io.xj.lib.WidgetState;
 import io.xj.lib.json.JsonProviderImpl;
-import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -131,9 +130,9 @@ public class EntityFactoryImplTest {
 
     Widget result = subject.clone(from);
 
-    Assert.assertEquals("Flight", result.getName());
-    Assert.assertEquals(from.getSuperwidgetId(), result.getSuperwidgetId());
-    Assert.assertEquals(from.getId(), result.getId());
+    assertEquals("Flight", result.getName());
+    assertEquals(from.getSuperwidgetId(), result.getSuperwidgetId());
+    assertEquals(from.getId(), result.getId());
     assertNotSame(result, from);
   }
 
@@ -149,9 +148,9 @@ public class EntityFactoryImplTest {
 
     Widget result = subject.clone(from);
 
-    Assert.assertEquals("Flight", result.getName());
-    Assert.assertEquals(from.getState(), result.getState());
-    Assert.assertEquals(from.getId(), result.getId());
+    assertEquals("Flight", result.getName());
+    assertEquals(from.getState(), result.getState());
+    assertEquals(from.getId(), result.getId());
     assertNotSame(result, from);
   }
 
@@ -176,7 +175,7 @@ public class EntityFactoryImplTest {
 
     Widget result = subject.clone(widget);
 
-    Assert.assertEquals(WidgetState.Published, result.getState());
+    assertEquals(WidgetState.Published, result.getState());
   }
 
   @Test
@@ -187,8 +186,8 @@ public class EntityFactoryImplTest {
 
     Widget result = subject.clone(from);
 
-    Assert.assertEquals("Flight", result.getName());
-    Assert.assertEquals(from.getId(), result.getId());
+    assertEquals("Flight", result.getName());
+    assertEquals(from.getId(), result.getId());
     assertNotSame(result, from);
   }
 
@@ -211,15 +210,15 @@ public class EntityFactoryImplTest {
     Iterator<Widget> resultIt = result.iterator();
     //
     Widget resultA = resultIt.next();
-    Assert.assertEquals("Air", resultA.getName());
-    Assert.assertEquals(fromA.getSuperwidgetId(), resultA.getSuperwidgetId());
-    Assert.assertEquals(fromA.getId(), resultA.getId());
+    assertEquals("Air", resultA.getName());
+    assertEquals(fromA.getSuperwidgetId(), resultA.getSuperwidgetId());
+    assertEquals(fromA.getId(), resultA.getId());
     assertNotSame(resultA, fromA);
     //
     Widget resultB = resultIt.next();
-    Assert.assertEquals("Ground", resultB.getName());
-    Assert.assertEquals(fromB.getSuperwidgetId(), resultB.getSuperwidgetId());
-    Assert.assertEquals(fromB.getId(), resultB.getId());
+    assertEquals("Ground", resultB.getName());
+    assertEquals(fromB.getSuperwidgetId(), resultB.getSuperwidgetId());
+    assertEquals(fromB.getId(), resultB.getId());
     assertNotSame(resultB, fromB);
   }
 

@@ -5,7 +5,6 @@ package io.xj.lib.entity;
 import io.xj.lib.Superwidget;
 import io.xj.lib.Widget;
 import io.xj.lib.json.JsonProviderImpl;
-import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -41,8 +40,8 @@ public class EntityStoreImplTest {
     subject.put(widget);
     Widget result = subject.get(Widget.class, widget.getId()).orElseThrow();
 
-    Assert.assertEquals(widget.getId(), result.getId());
-    Assert.assertEquals("bingo", result.getName());
+    assertEquals(widget.getId(), result.getId());
+    assertEquals("bingo", result.getName());
   }
 
   @Test

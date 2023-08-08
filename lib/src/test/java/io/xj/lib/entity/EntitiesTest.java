@@ -4,7 +4,6 @@ package io.xj.lib.entity;
 import io.xj.lib.Superwidget;
 import io.xj.lib.Widget;
 import io.xj.lib.json.JsonProviderImpl;
-import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -102,7 +101,7 @@ public class EntitiesTest extends TestTemplate {
 
     EntityUtils.set(widget5, "name", "Dave");
 
-    Assert.assertEquals("Dave", widget5.getName());
+    assertEquals("Dave", widget5.getName());
   }
 
   @Test
@@ -114,7 +113,7 @@ public class EntitiesTest extends TestTemplate {
 
     EntityUtils.set(widget5, "createdAt", input);
 
-    Assert.assertEquals(input, widget5.getCreatedAt());
+    assertEquals(input, widget5.getCreatedAt());
   }
 
   @Test
@@ -126,7 +125,7 @@ public class EntitiesTest extends TestTemplate {
 
     EntityUtils.set(widget5, "createdAt", input.toString());
 
-    Assert.assertEquals(input, widget5.getCreatedAt());
+    assertEquals(input, widget5.getCreatedAt());
   }
 
   @Test
@@ -139,7 +138,7 @@ public class EntitiesTest extends TestTemplate {
   public void setAllAttributes() throws EntityException {
     subject.setAllAttributes(widget, createWidget("Marv"));
 
-    Assert.assertEquals("Marv", widget.getName());
+    assertEquals("Marv", widget.getName());
   }
 
   @Test

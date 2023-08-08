@@ -31,7 +31,9 @@ dependencies {
   implementation "com.fasterxml.jackson.core:jackson-annotations:${rootProject.ext.jacksonAnnotationsVersion}"
   implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:${rootProject.ext.jacksonAnnotationsVersion}"
   implementation "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:${rootProject.ext.jacksonAnnotationsVersion}"
-  implementation "org.springframework.boot:spring-boot-starter-web:${rootProject.ext.springBootVersion}"
+  implementation("org.springframework.boot:spring-boot-starter-web:${rootProject.ext.springBootVersion}") {
+    exclude group: 'org.springframework', module: 'spring-aop'
+  }
   implementation 'com.github.axet:TarsosDSP:2.4-1'
   implementation 'com.github.rholder:snowball-stemmer:1.3.0.581.1'
   implementation 'com.github.trilarion:java-vorbis-support:1.2.1'
@@ -48,7 +50,6 @@ dependencies {
   implementation 'org.apache.httpcomponents:httpclient:4.5.14'
   implementation 'org.jetbrains:annotations:24.0.1'
   implementation "org.jooq:jooq:${rootProject.ext.jooqVersion}"
-  implementation 'org.json:json:20230227'
   implementation 'org.mp4parser:isoparser:1.9.41'
   implementation 'org.mp4parser:muxer:1.9.41'
   implementation 'org.mp4parser:streaming:1.9.41'
@@ -67,9 +68,10 @@ dependencies {
   testFixturesImplementation 'org.slf4j:slf4j-api:2.0.5'
   testFixturesImplementation 'org.jetbrains:annotations:24.0.1'
   testImplementation "org.springframework.boot:spring-boot-starter-test:${rootProject.ext.springBootVersion}"
-  testImplementation 'junit:junit:4.13.2'
+  testImplementation "org.junit.jupiter:junit-jupiter-engine:${rootProject.ext.jupiterVersion}"
+  testImplementation "org.junit.jupiter:junit-jupiter-api:${rootProject.ext.jupiterVersion}"
+  testImplementation "org.junit.jupiter:junit-jupiter-params:${rootProject.ext.jupiterVersion}"
   testImplementation 'org.jetbrains:annotations:24.0.1'
-  testImplementation 'org.assertj:assertj-core:3.24.2'
   testImplementation 'org.jetbrains:annotations:24.0.1'
   testImplementation 'org.hamcrest:hamcrest-library:2.2'
 }

@@ -4,7 +4,6 @@ package io.xj.lib.mixer;
 
 import io.xj.hub.util.InternalResource;
 import io.xj.lib.notification.NotificationProvider;
-import org.junit.After;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,10 +42,6 @@ public class MixerImplTest {
         new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
           48000, 32, 2, 8, 48000, false)
       ));
-  }
-
-  @After
-  public void tearDown() {
   }
 
   @Test

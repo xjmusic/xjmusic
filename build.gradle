@@ -21,10 +21,10 @@ ext {
   javaFxVersion = '17.0.8'
   jooqVersion = '3.18.5'
   junitVersion = '5.9.2'
+  jupiterVersion = '5.8.1'
   springBootVersion = '3.1.2'
   springTestVersion = '6.0.11'
   xjModelsVersion = '0.5.24'
-  jupiterVersion = '5.8.1'
 }
 
 Properties localProperties = new Properties()
