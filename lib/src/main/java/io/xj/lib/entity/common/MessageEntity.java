@@ -8,8 +8,7 @@ import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.entity.MessageType;
 
 /**
- * POJO for persisting data in memory while performing business logic,
- * or decoding messages received by JAX-RS resources.
+ * POJO for persisting data in memory while performing business logic, or encoding/decoding messages.
  * a.k.a. JSON input will be stored into an instance of this object
  * <p>
  * Business logic ought to be performed beginning with an instance of this object,
