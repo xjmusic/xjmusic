@@ -22,7 +22,7 @@ import io.xj.hub.music.Bar;
 import io.xj.hub.music.Chord;
 import io.xj.hub.music.Note;
 import io.xj.hub.music.NoteRange;
-import io.xj.hub.util.CSV;
+import io.xj.hub.util.CsvUtils;
 import io.xj.hub.util.MarbleBag;
 import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.TremendouslyRandom;
@@ -389,7 +389,7 @@ public class CraftImpl extends FabricationWrapperImpl {
           else secLayers.add(layer);
         });
         Collections.shuffle(priLayers);
-        if (!priLayers.isEmpty()) fabricator.addInfoMessage(String.format("Prioritized %s", CSV.join(priLayers)));
+        if (!priLayers.isEmpty()) fabricator.addInfoMessage(String.format("Prioritized %s", CsvUtils.join(priLayers)));
         Collections.shuffle(secLayers);
         var orderedLayers = Stream.concat(priLayers.stream(), secLayers.stream()).toList();
         var delta = ValueUtils.roundToNearest(deltaUnits, TremendouslyRandom.zeroToLimit(deltaUnits * 4) - deltaUnits * 2 * numLayersIncoming);
@@ -665,7 +665,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     var dpTransposeOctaveSemitones = 12 * fabricator.getProgramRangeShiftOctaves(instrumentType, dpRange.shifted(dpTransposeSemitones), voicingListRange);
 
     // Event notes are either interpreted from specific notes in dp, or via sticky bun from X notes in dp
-    List<Note> eventNotes = CSV.split(event.getTones()).stream().map(n -> Note.of(n).shift(dpTransposeSemitones + dpTransposeOctaveSemitones)).sorted().collect(Collectors.toList());
+    List<Note> eventNotes = CsvUtils.split(event.getTones()).stream().map(n -> Note.of(n).shift(dpTransposeSemitones + dpTransposeOctaveSemitones)).sorted().collect(Collectors.toList());
     var dpEventRelativeOffsetWithinRangeSemitones = dpRange.shifted(dpTransposeSemitones + dpTransposeOctaveSemitones).getDeltaSemitones(NoteRange.ofNotes(eventNotes));
     var dpEventRangeWithinWholeDP = NoteRange.ofNotes(eventNotes).shifted(dpEventRelativeOffsetWithinRangeSemitones);
 
@@ -871,7 +871,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     }).toList());
 
     if (audio.isEmpty()) {
-      reportMissing(Map.of("instrumentId", instrument.getId().toString(), "searchForNote", note, "availableNotes", CSV.from(instrumentAudios.stream().map(InstrumentAudio::getTones).map(Note::of).sorted(Note::compareTo).map(N -> N.toString(Accidental.Sharp)).collect(Collectors.toList()))));
+      reportMissing(Map.of("instrumentId", instrument.getId().toString(), "searchForNote", note, "availableNotes", CsvUtils.from(instrumentAudios.stream().map(InstrumentAudio::getTones).map(Note::of).sorted(Note::compareTo).map(N -> N.toString(Accidental.Sharp)).collect(Collectors.toList()))));
       return Optional.empty();
     }
 

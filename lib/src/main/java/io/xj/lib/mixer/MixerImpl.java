@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.lib.mixer;
 
-import io.xj.hub.util.ValueUtils;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,13 +11,14 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
-import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.lib.util.ValueUtils.NANOS_PER_SECOND;
+import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.hub.util.ValueUtils.NANOS_PER_SECOND;
 
 class MixerImpl implements Mixer {
   public static final int MAX_INT_LENGTH_ARRAY_SIZE = 2147483647;
@@ -157,7 +157,7 @@ class MixerImpl implements Mixer {
     LOG.debug(config.getLogPrefix() + "Did mix {} seconds of output audio at {} Hz from {} instances of {} sources in {}s", config.getTotalSeconds(), outputFrameRate, activePuts.size(), sources.size(), String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
 
     // Write the output bytes to the shared buffer
-    buffer.produce(ValueUtils.byteBufferOf(audioFormat, outBuf).array());
+    buffer.produce(byteBufferOf(audioFormat, outBuf).array());
     return config.getTotalSeconds();
   }
 
@@ -381,6 +381,22 @@ class MixerImpl implements Mixer {
   double computeCompressorTarget(double[][] input, int iFr, int iTo) {
     double currentAmplitude = MathUtil.maxAbs(input, iFr, iTo, COMPRESSION_GRAIN);
     return MathUtil.limit(compressRatioMin, compressRatioMax, compressToAmplitude / currentAmplitude);
+  }
+
+  /**
+   * Convert output values into a ByteBuffer
+   *
+   * @param fmt     to write
+   * @param samples [frame][channel] output to convert
+   * @return byte buffer of stream
+   */
+  static ByteBuffer byteBufferOf(AudioFormat fmt, double[][] samples) throws FormatException {
+    ByteBuffer outputBytes = ByteBuffer.allocate(samples.length * fmt.getFrameSize());
+    for (double[] sample : samples)
+      for (double v : sample)
+        outputBytes.put(AudioSampleFormat.toBytes(v, AudioSampleFormat.typeOfOutput(fmt)));
+
+    return outputBytes;
   }
 }
 

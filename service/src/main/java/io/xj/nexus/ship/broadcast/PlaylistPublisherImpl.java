@@ -37,7 +37,7 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 
 /**
  * Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189

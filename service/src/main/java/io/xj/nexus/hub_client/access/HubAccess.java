@@ -9,7 +9,7 @@ import io.xj.hub.tables.pojos.AccountUser;
 import io.xj.hub.tables.pojos.User;
 import io.xj.hub.tables.pojos.UserAuth;
 import io.xj.lib.entity.EntityUtils;
-import io.xj.hub.util.CSV;
+import io.xj.hub.util.CsvUtils;
 
 import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
@@ -145,7 +145,7 @@ public class HubAccess {
       .setUserId(user.getId())
       .setUserAuthId(userAuthId)
       .setAccountIds(EntityUtils.idsOf(accounts))
-      .setRoleTypes(CSV.split(user.getRoles()).stream().map(UserRoleType::valueOf).collect(Collectors.toList()));
+      .setRoleTypes(CsvUtils.split(user.getRoles()).stream().map(UserRoleType::valueOf).collect(Collectors.toList()));
   }
 
   /**
@@ -190,7 +190,7 @@ public class HubAccess {
       .setAccountIds(accountUsers.stream()
         .map(AccountUser::getAccountId)
         .collect(Collectors.toList()))
-      .setRoleTypes(CSV.split(userRoles).stream()
+      .setRoleTypes(CsvUtils.split(userRoles).stream()
         .map(UserRoleType::valueOf)
         .collect(Collectors.toList()));
   }

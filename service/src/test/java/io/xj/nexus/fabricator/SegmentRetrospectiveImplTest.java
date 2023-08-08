@@ -3,7 +3,6 @@
 package io.xj.nexus.fabricator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.xj.hub.HubTopology;
 import io.xj.nexus.hub_client.HubClient;
 import io.xj.hub.HubContent;
 import io.xj.hub.enums.ProgramType;
@@ -17,6 +16,7 @@ import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.hub.music.StickyBun;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.nexus.NexusException;
+import io.xj.nexus.hub_client.HubTopology;
 import io.xj.test_fixtures.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.model.Chain;

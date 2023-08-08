@@ -37,10 +37,13 @@ jlink {
 }
 
 dependencies {
+  // peers
   implementation project(":lib")
   implementation project(":service")
   testImplementation(project(':lib').sourceSets.test.output)
   testImplementation(testFixtures(project(":service")))
+  // private
+  implementation "io.xj:models:${rootProject.ext.xjModelsVersion}"
   // vendor
   implementation "org.springframework.boot:spring-boot-starter-web:${rootProject.ext.springBootVersion}"
   implementation 'org.jetbrains:annotations:24.0.1'

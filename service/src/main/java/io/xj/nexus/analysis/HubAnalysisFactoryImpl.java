@@ -1,8 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.analysis;
 
-import io.xj.hub.access.HubAccess;
 import io.xj.hub.HubContent;
+import io.xj.nexus.hub_client.access.HubAccess;
 import org.springframework.stereotype.Service;
 
 /**

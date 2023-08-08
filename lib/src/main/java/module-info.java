@@ -26,6 +26,7 @@ module workstation.lib.main {
   requires spring.core;
   requires spring.web;
   requires typesafe.config;
+  requires hub.models.main;
 
   opens io.xj.lib.filestore to spring.core;
   opens io.xj.lib.telemetry to spring.core;
@@ -38,10 +39,7 @@ module workstation.lib.main {
   exports io.xj.lib.json;
   exports io.xj.lib.jsonapi;
   exports io.xj.lib.lock;
-  exports io.xj.lib.meme;
   exports io.xj.lib.mixer;
-  exports io.xj.lib.music;
   exports io.xj.lib.notification;
   exports io.xj.lib.telemetry;
-  exports io.xj.lib.util;
 }

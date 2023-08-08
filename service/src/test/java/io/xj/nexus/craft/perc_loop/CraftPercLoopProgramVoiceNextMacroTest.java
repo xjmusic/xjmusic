@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.craft.perc_loop;
 
-import io.xj.hub.HubTopology;
+import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.hub_client.HubClient;
 import io.xj.hub.HubContent;
 import io.xj.hub.enums.InstrumentMode;

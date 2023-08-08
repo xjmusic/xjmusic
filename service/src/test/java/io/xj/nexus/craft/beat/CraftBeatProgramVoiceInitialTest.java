@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.craft.beat;
 
-import io.xj.hub.HubTopology;
+import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.hub_client.HubClient;
 import io.xj.hub.HubContent;
 import io.xj.lib.entity.EntityUtils;

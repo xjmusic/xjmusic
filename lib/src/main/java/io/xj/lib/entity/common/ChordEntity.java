@@ -89,8 +89,8 @@ public class ChordEntity {
    *
    * @return musical chord
    */
-  public io.xj.lib.music.Chord toMusical() {
-    return new io.xj.lib.music.Chord(name);
+  public io.xj.hub.music.Chord toMusical() {
+    return new io.xj.hub.music.Chord(name);
   }
 
   @Override

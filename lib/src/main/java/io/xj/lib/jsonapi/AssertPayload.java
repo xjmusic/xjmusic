@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static io.xj.lib.util.Assertion.assertEquality;
-import static io.xj.lib.util.Assertion.assertFalse;
-import static io.xj.lib.util.Assertion.assertTrue;
+import static io.xj.hub.util.Assertion.assertEquality;
+import static io.xj.hub.util.Assertion.assertFalse;
+import static io.xj.hub.util.Assertion.assertTrue;
 
 
 /**

@@ -2,8 +2,8 @@
 package io.xj.nexus.analysis;
 
 
-import io.xj.hub.access.HubAccess;
 import io.xj.hub.HubContent;
+import io.xj.nexus.hub_client.access.HubAccess;
 
 /**
  * Template content Analysis https://www.pivotaltracker.com/story/show/161199945

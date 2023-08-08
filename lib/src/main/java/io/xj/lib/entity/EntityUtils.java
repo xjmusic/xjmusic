@@ -2,7 +2,7 @@
 
 package io.xj.lib.entity;
 
-import io.xj.hub.util.CSV;
+import io.xj.hub.util.CsvUtils;
 import io.xj.hub.util.StringUtils;
 
 import java.lang.reflect.InvocationTargetException;
@@ -620,7 +620,7 @@ public enum EntityUtils {
     Collection<UUID> result = new ArrayList<>();
 
     if (Objects.nonNull(csv) && !csv.isEmpty()) {
-      result = CSV.split(csv).stream().map(UUID::fromString).distinct().collect(Collectors.toList());
+      result = CsvUtils.split(csv).stream().map(UUID::fromString).distinct().collect(Collectors.toList());
     }
 
     return result;
@@ -721,6 +721,6 @@ public enum EntityUtils {
    * @return CSV of uuids
    */
   public static String csvOf(Collection<UUID> accountIds) {
-    return CSV.join(accountIds.stream().map(UUID::toString).toList());
+    return CsvUtils.join(accountIds.stream().map(UUID::toString).toList());
   }
 }

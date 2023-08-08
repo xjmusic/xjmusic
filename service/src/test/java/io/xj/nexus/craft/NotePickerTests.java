@@ -6,7 +6,7 @@ import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.music.Accidental;
 import io.xj.hub.music.Note;
 import io.xj.hub.music.NoteRange;
-import io.xj.hub.util.CSV;
+import io.xj.hub.util.CsvUtils;
 import io.xj.hub.util.ValueException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -99,13 +99,13 @@ public class NotePickerTests extends YamlTest {
     var instrumentType =
       InstrumentType.valueOf(Objects.requireNonNull(getStr(obj, "instrumentType")));
 
-    var voicingNotes = CSV.split(Objects.requireNonNull(getStr(obj, "voicingNotes"))).stream()
+    var voicingNotes = CsvUtils.split(Objects.requireNonNull(getStr(obj, "voicingNotes"))).stream()
       .map(Note::of).collect(Collectors.toSet());
 
 
     subject = new NotePicker(range, voicingNotes, templateConfig.getInstrumentTypesForInversionSeeking().contains(instrumentType));
 
-    return CSV.split(Objects.requireNonNull(getStr(obj, "eventNotes"))).stream()
+    return CsvUtils.split(Objects.requireNonNull(getStr(obj, "eventNotes"))).stream()
       .map(Note::of).collect(Collectors.toList());
   }
 
@@ -134,7 +134,7 @@ public class NotePickerTests extends YamlTest {
 
     Optional.ofNullable(getStr(obj, "picks"))
       .ifPresent(picks -> assertSameNotes("Picks",
-        new HashSet<>(CSV.split(picks)),
+        new HashSet<>(CsvUtils.split(picks)),
         picked));
 
     Optional.ofNullable(getInt(obj, "count"))

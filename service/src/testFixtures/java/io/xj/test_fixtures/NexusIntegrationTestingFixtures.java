@@ -2,7 +2,6 @@
 
 package io.xj.test_fixtures;
 
-import io.xj.hub.Users;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
@@ -33,6 +32,7 @@ import io.xj.hub.tables.pojos.UserAuth;
 import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.entity.EntityException;
 import io.xj.hub.util.StringUtils;
+import io.xj.nexus.hub_client.access.Users;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
@@ -81,8 +81,8 @@ import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTrack;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildUser;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildVoice;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildVoicing;
-import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.lib.util.ValueUtils.SECONDS_PER_MINUTE;
+import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.hub.util.ValueUtils.SECONDS_PER_MINUTE;
 
 /**
  * Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673

@@ -8,7 +8,7 @@ import io.xj.hub.util.ValueUtils;
 import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
-import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 
 /**
  * An HTTP Live Streaming Media Chunk

@@ -2,7 +2,6 @@
 package io.xj.nexus.work;
 
 import io.xj.hub.TemplateConfig;
-import io.xj.hub.Templates;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.HubContent;
 import io.xj.hub.tables.pojos.Instrument;
@@ -55,6 +54,7 @@ import io.xj.nexus.persistence.ManagerValidationException;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.Segments;
+import io.xj.nexus.persistence.Templates;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.entity.ContentType;
@@ -81,8 +81,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.xj.lib.filestore.FileStoreProvider.EXTENSION_JSON;
-import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.lib.util.ValueUtils.MILLIS_PER_SECOND;
+import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.hub.util.ValueUtils.MILLIS_PER_SECOND;
 
 public class CraftWorkImpl implements CraftWork {
   static final Logger LOG = LoggerFactory.getLogger(CraftWorkImpl.class);
@@ -528,7 +528,7 @@ public class CraftWorkImpl implements CraftWork {
       LOG.debug("Ingested {} entities of source material", chainSourceMaterial.size());
       state = WorkState.Working;
 
-    } catch (HubClientException | ValueException e) {
+    } catch (Exception e) {
       didFailWhile(inputTemplateKey, "ingesting published source material", e, false);
     }
   }

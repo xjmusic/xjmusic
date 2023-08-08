@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static io.xj.lib.util.ValueUtils.NANOS_PER_SECOND;
+import static io.xj.hub.util.ValueUtils.NANOS_PER_SECOND;
 
 @Service
 class FileStoreProviderImpl implements FileStoreProvider {

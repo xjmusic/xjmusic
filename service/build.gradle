@@ -25,6 +25,8 @@ dependencies {
   testImplementation(testFixtures(project(":service")))
   // private
   implementation "io.xj:models:${rootProject.ext.xjModelsVersion}"
+  testImplementation "io.xj:models:${rootProject.ext.xjModelsVersion}"
+  testFixturesImplementation "io.xj:models:${rootProject.ext.xjModelsVersion}"
   // vendor
   implementation "com.fasterxml.jackson.core:jackson-annotations:${rootProject.ext.jacksonAnnotationsVersion}"
   implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:${rootProject.ext.jacksonAnnotationsVersion}"

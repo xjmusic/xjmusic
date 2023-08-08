@@ -3,7 +3,7 @@
 package io.xj.nexus.persistence;
 
 
-import io.xj.hub.HubTopology;
+import io.xj.nexus.hub_client.HubTopology;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.enums.TemplateType;
 import io.xj.hub.tables.pojos.Account;
@@ -40,7 +40,7 @@ import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildProgramSequ
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildProgramSequenceBinding;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplate;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplateBinding;
-import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChoice;

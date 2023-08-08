@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.craft.macro_main;
 
-import io.xj.hub.HubTopology;
+import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.hub_client.HubClient;
 import io.xj.hub.HubContent;
 import io.xj.hub.enums.ProgramType;
@@ -44,9 +44,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-import static io.xj.lib.util.Assertion.assertSameItems;
-import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.lib.util.ValueUtils.SECONDS_PER_MINUTE;
+import static io.xj.hub.util.Assertion.assertSameItems;
+import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.hub.util.ValueUtils.SECONDS_PER_MINUTE;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegment;
 import static org.junit.Assert.assertEquals;

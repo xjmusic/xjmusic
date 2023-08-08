@@ -2,15 +2,21 @@
 package io.xj.nexus.fabricator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.xj.hub.HubContent;
 import io.xj.hub.InstrumentConfig;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.TemplateConfig;
-import io.xj.nexus.hub_client.HubClientException;
-import io.xj.hub.HubContent;
 import io.xj.hub.enums.ContentBindingType;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
+import io.xj.hub.meme.MemeStack;
+import io.xj.hub.music.Accidental;
+import io.xj.hub.music.Chord;
+import io.xj.hub.music.Note;
+import io.xj.hub.music.NoteRange;
+import io.xj.hub.music.PitchClass;
+import io.xj.hub.music.StickyBun;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Program;
@@ -25,24 +31,17 @@ import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.hub.util.CsvUtils;
+import io.xj.hub.util.MarbleBag;
+import io.xj.hub.util.StringUtils;
+import io.xj.hub.util.ValueException;
+import io.xj.hub.util.ValueUtils;
 import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.hub.meme.MemeStack;
-import io.xj.hub.music.Accidental;
-import io.xj.hub.music.Chord;
-import io.xj.hub.music.Note;
-import io.xj.hub.music.NoteRange;
-import io.xj.hub.music.PitchClass;
-import io.xj.hub.music.StickyBun;
-import io.xj.hub.util.CSV;
-import io.xj.hub.util.MarbleBag;
-import io.xj.hub.util.StringUtils;
-import io.xj.hub.util.ValueException;
-import io.xj.hub.util.ValueUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
@@ -63,10 +62,10 @@ import io.xj.nexus.persistence.ManagerPrivilegeException;
 import io.xj.nexus.persistence.ManagerValidationException;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.Segments;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.jetbrains.annotations.Nullable;
 import javax.sound.sampled.AudioFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -82,9 +81,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.lib.util.ValueUtils.NANOS_PER_MICRO;
-import static io.xj.lib.util.ValueUtils.SECONDS_PER_MINUTE;
+import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.hub.util.ValueUtils.NANOS_PER_MICRO;
+import static io.xj.hub.util.ValueUtils.SECONDS_PER_MINUTE;
 
 /**
  * [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
@@ -140,7 +139,7 @@ public class FabricatorImpl implements Fabricator {
     SegmentManager segmentManager,
     JsonapiPayloadFactory jsonapiPayloadFactory,
     JsonProvider jsonProvider
-  ) throws NexusException, FabricationFatalException, ManagerFatalException, ValueException, HubClientException {
+  ) throws NexusException, FabricationFatalException, ManagerFatalException, ValueException {
     this.segmentManager = segmentManager;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     this.jsonProvider = jsonProvider;
@@ -168,7 +167,7 @@ public class FabricatorImpl implements Fabricator {
     templateBindings = sourceMaterial.getTemplateBindings();
     boundProgramIds = Chains.targetIdsOfType(templateBindings, ContentBindingType.Program);
     boundInstrumentIds = Chains.targetIdsOfType(templateBindings, ContentBindingType.Instrument);
-    LOG.debug("[segId={}] Chain {} configured with {} and bound to {} ", segment.getId(), chain.getId(), templateConfig, CSV.prettyFrom(templateBindings, "and"));
+    LOG.debug("[segId={}] Chain {} configured with {} and bound to {} ", segment.getId(), chain.getId(), templateConfig, CsvUtils.prettyFrom(templateBindings, "and"));
 
     // Buffer times from template
     workBufferAheadSeconds = templateConfig.getBufferAheadSeconds();
@@ -556,7 +555,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public Collection<String> getNotes(SegmentChordVoicing voicing) {
-    return new ArrayList<>(CSV.split(voicing.getNotes()));
+    return new ArrayList<>(CsvUtils.split(voicing.getNotes()));
   }
 
   @Override
@@ -625,7 +624,7 @@ public class FabricatorImpl implements Fabricator {
       Map<Double, ProgramSequenceChord> chordForPosition = new HashMap<>();
       Map<Double, Integer> validVoicingsForPosition = new HashMap<>();
       for (ProgramSequenceChord chord : sourceMaterial.getChords(programSequence)) {
-        int validVoicings = sourceMaterial.getVoicings(chord).stream().map(V -> CSV.split(V.getNotes()).size()).reduce(0, Integer::sum);
+        int validVoicings = sourceMaterial.getVoicings(chord).stream().map(V -> CsvUtils.split(V.getNotes()).size()).reduce(0, Integer::sum);
         if (!validVoicingsForPosition.containsKey(chord.getPosition()) || validVoicingsForPosition.get(chord.getPosition()) < validVoicings) {
           validVoicingsForPosition.put(chord.getPosition(), validVoicings);
           chordForPosition.put(chord.getPosition(), chord);
@@ -653,7 +652,7 @@ public class FabricatorImpl implements Fabricator {
       sourceMaterial.getEvents(programId).stream()
         .filter(event -> sourceMaterial.getVoice(event).map(voice -> Objects.equals(voice.getType(), instrumentType)).orElse(false)
           && !Objects.equals(Note.of(event.getTones()).getPitchClass(), PitchClass.None))
-        .flatMap(programSequencePatternEvent -> CSV.split(programSequencePatternEvent.getTones()).stream())
+        .flatMap(programSequencePatternEvent -> CsvUtils.split(programSequencePatternEvent.getTones()).stream())
         .collect(Collectors.toList()));
   }
 
@@ -735,7 +734,7 @@ public class FabricatorImpl implements Fabricator {
   @Override
   public Optional<Note> getRootNoteMidRange(String voicingNotes, Chord chord) {
     return rootNotesByVoicingAndChord.computeIfAbsent(String.format("%s_%s", voicingNotes, chord.getName()),
-      (String key) -> NoteRange.ofStrings(CSV.split(voicingNotes)).getNoteNearestMedian(chord.getSlashRoot()));
+      (String key) -> NoteRange.ofStrings(CsvUtils.split(voicingNotes)).getNoteNearestMedian(chord.getSlashRoot()));
   }
 
   @Override
@@ -768,7 +767,7 @@ public class FabricatorImpl implements Fabricator {
         addErrorMessage(String.format("Failed to deserialize previous segment meta value StickyBun JSON for Event[%s]", eventId));
       }
     }
-    var bun = new StickyBun(eventId, CSV.split(sourceMaterial.getProgramSequencePatternEvent(eventId).orElseThrow().getTones()).size());
+    var bun = new StickyBun(eventId, CsvUtils.split(sourceMaterial.getProgramSequencePatternEvent(eventId).orElseThrow().getTones()).size());
     try {
       putStickyBun(bun);
     } catch (NexusException e) {
@@ -1177,7 +1176,7 @@ public class FabricatorImpl implements Fabricator {
     if (!memeStack.isAllowed(names)) {
       addMessage(SegmentMessageType.ERROR, String.format("Refused to add Choice[%s] because adding Memes[%s] to MemeStack[%s] would result in an invalid meme stack theorem!",
         Segments.describe(choice),
-        CSV.join(names.stream().toList()),
+        CsvUtils.join(names.stream().toList()),
         memeStack.getConstellation()));
       return false;
     }

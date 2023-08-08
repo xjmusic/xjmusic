@@ -7,8 +7,8 @@ on:
 jobs:
   CI:
     env:
-      CI_BOT_TOKEN: ${{ secrets.CI_BOT_TOKEN }}
-      CI_BOT_USERNAME: ${{ secrets.CI_BOT_USERNAME }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_ACTOR: ${{ secrets.GITHUB_ACTOR }}
     name: Build Distribution
     runs-on: ubuntu-22.04
     permissions: write-all

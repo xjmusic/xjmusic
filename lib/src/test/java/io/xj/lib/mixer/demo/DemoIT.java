@@ -21,8 +21,8 @@ import java.nio.file.Files;
 import java.time.Duration;
 import java.util.UUID;
 
-import static io.xj.lib.util.Assertion.assertFileMatchesResourceFile;
-import static io.xj.lib.util.FileUtils.getResourceFile;
+import static io.xj.hub.util.Assertion.assertFileMatchesResourceFile;
+import static io.xj.hub.util.FileUtils.getResourceFile;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DemoIT {

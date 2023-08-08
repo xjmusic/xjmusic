@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.lib.entity;
 
-import io.xj.hub.util.CSV;
+import io.xj.hub.util.CsvUtils;
 import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueException;
 
@@ -32,7 +32,7 @@ public enum MessageType {
     try {
       return valueOf(StringUtils.toProperSlug(value));
     } catch (Exception e) {
-      throw new ValueException("'" + value + "' is not a valid type (" + CSV.joinEnum(values()) + ").", e);
+      throw new ValueException("'" + value + "' is not a valid type (" + CsvUtils.joinEnum(values()) + ").", e);
     }
   }
 

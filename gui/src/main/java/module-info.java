@@ -13,9 +13,9 @@ module io.xj.workstation.main {
   requires spring.core;
   requires spring.web;
 
+  requires transitive hub.models.main;
   requires transitive workstation.lib.main;
   requires transitive workstation.nexus.main;
-  requires transitive workstation.hub_client.main;
 
   opens io.xj.gui to javafx.graphics, javafx.base, javafx.fxml, javafx.controls, spring.beans, spring.core, spring.context;
   opens io.xj.gui.events to javafx.graphics, javafx.base, javafx.fxml, javafx.controls, spring.beans;

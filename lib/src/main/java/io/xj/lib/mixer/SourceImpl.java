@@ -22,7 +22,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 
 /**
  * models a single audio source

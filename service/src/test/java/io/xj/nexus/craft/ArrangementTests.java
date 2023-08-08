@@ -2,7 +2,7 @@
 package io.xj.nexus.craft;
 
 import java.util.Set;
-import io.xj.hub.HubTopology;
+import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.hub_client.HubClient;
 import io.xj.hub.HubContent;
 import io.xj.hub.enums.InstrumentMode;
@@ -23,7 +23,7 @@ import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.hub.music.StickyBun;
 import io.xj.lib.notification.NotificationProvider;
-import io.xj.hub.util.CSV;
+import io.xj.hub.util.CsvUtils;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.NexusException;
 import io.xj.test_fixtures.NexusIntegrationTestingFixtures;
@@ -68,7 +68,7 @@ import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildPattern;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildProgram;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildSequence;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplate;
-import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTrack;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildVoice;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChoice;
@@ -439,7 +439,7 @@ FUTURE goal
 
       if (Objects.nonNull(notes))
         assertSameNotes(String.format("Notes of %s", assertionName),
-          new HashSet<>(CSV.split(notes)), new HashSet<>(picks));
+          new HashSet<>(CsvUtils.split(notes)), new HashSet<>(picks));
     }
   }
 }

@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static io.xj.lib.jsonapi.AssertPayloadObject.assertPayloadObject;
-import static io.xj.lib.util.Assertion.assertSameItems;
+import static io.xj.hub.util.Assertion.assertSameItems;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

@@ -5,7 +5,7 @@ package io.xj.nexus.persistence;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.music.Note;
-import io.xj.hub.util.CSV;
+import io.xj.hub.util.CsvUtils;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Segment;
@@ -166,7 +166,7 @@ public enum Segments {
     if (Objects.nonNull(choice.getProgramType())) pieces.add(String.format("programType:%s", choice.getProgramType()));
     if (Objects.nonNull(choice.getProgramVoiceId()))
       pieces.add(String.format("programVoice:%s", choice.getProgramVoiceId()));
-    return CSV.join(pieces);
+    return CsvUtils.join(pieces);
   }
 
   public static long getEndAtChainMicros(Segment segment) {

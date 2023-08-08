@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import static io.xj.lib.util.StringUtils.SPACE;
-import static io.xj.lib.util.StringUtils.UNDERSCORE;
+import static io.xj.hub.util.StringUtils.SPACE;
+import static io.xj.hub.util.StringUtils.UNDERSCORE;
 
 /**
  * Send telemetry to GCP https://www.pivotaltracker.com/story/show/180741969

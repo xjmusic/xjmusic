@@ -3,7 +3,7 @@
 package io.xj.nexus.fabricator;
 
 import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.hub.util.CSV;
+import io.xj.hub.util.CsvUtils;
 import io.xj.nexus.NexusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +77,7 @@ public abstract class FabricationWrapperImpl {
    */
   protected void reportMissing(Map<String, String> traces) {
     try {
-      fabricator.addWarningMessage(String.format("%s not found! %s", InstrumentAudio.class.getSimpleName(), CSV.from(traces)));
+      fabricator.addWarningMessage(String.format("%s not found! %s", InstrumentAudio.class.getSimpleName(), CsvUtils.from(traces)));
 
     } catch (Exception e) {
       log.warn("Failed to create SegmentMessage", e);
