@@ -44,15 +44,10 @@ jlink {
 }
 
 dependencies {
-  // lib
   implementation project(":lib")
+  implementation project(":service")
   testImplementation(project(':lib').sourceSets.test.output)
-  // hub_client
-  implementation project(":hub_client")
-  testImplementation(project(':hub_client').sourceSets.test.output)
-  // nexus
-  testImplementation(testFixtures(project(":nexus")))
-  implementation project(":nexus")
+  testImplementation(testFixtures(project(":service")))
   // vendor
   implementation "org.springframework.boot:spring-boot-starter-web:${rootProject.ext.springBootVersion}"
   implementation 'org.jetbrains:annotations:24.0.1'

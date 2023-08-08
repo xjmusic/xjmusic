@@ -3,10 +3,9 @@
 rootProject.name = 'workstation'
 
 String[] modules = [
-    'hub_client',
+    'gui',
     'lib',
-    'nexus',
-    'gui'
+    'service',
 ]
 
 include modules

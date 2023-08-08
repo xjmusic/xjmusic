@@ -57,6 +57,14 @@ subprojects {
       name = "TarsosDSP repository"
       url = "https://mvn.0110.be/releases"
     }
+    maven {
+      name = "GitHubPackages"
+      url = uri("https://maven.pkg.github.com/xjmusic/hub")
+      credentials {
+        username = project.findProperty("gpr.user") ?: System.getenv("REPO_USERNAME")
+        password = project.findProperty("gpr.key") ?: System.getenv("REPO_TOKEN")
+      }
+    }
   }
 
   java {
