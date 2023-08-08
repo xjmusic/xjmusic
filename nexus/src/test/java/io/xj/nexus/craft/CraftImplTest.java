@@ -81,10 +81,8 @@ public class CraftImplTest {
 
     segment0 = buildSegment(chain1, SegmentType.INITIAL, 2, 128, SegmentState.CRAFTED, "D major", 64, 0.73, 120.0, "chains-1-segments-9f7s89d8a7892", true);
 
-    TemplateConfig templateConfig = new TemplateConfig(template1);
+    var templateConfig = new TemplateConfig(template1);
     when(fabricator.getTemplateConfig()).thenReturn(templateConfig);
-    when(fabricator.getSegment()).thenReturn(segment0);
-    when(fabricator.sourceMaterial()).thenReturn(sourceMaterial);
     subject = new CraftImpl(fabricator);
   }
 
@@ -97,6 +95,8 @@ public class CraftImplTest {
 
   @Test
   public void isIntroSegment() {
+    when(fabricator.getSegment()).thenReturn(segment0);
+
     assertTrue(subject.isIntroSegment(buildSegmentChoice(segment0, 132, 200, program1)));
     assertFalse(subject.isIntroSegment(buildSegmentChoice(segment0, 110, 200, program1)));
     assertFalse(subject.isIntroSegment(buildSegmentChoice(segment0, 200, 250, program1)));
@@ -118,6 +118,8 @@ public class CraftImplTest {
 
   @Test
   public void isOutroSegment() {
+    when(fabricator.getSegment()).thenReturn(segment0);
+
     assertTrue(subject.isOutroSegment(buildSegmentChoice(segment0, 20, 130, program1)));
     assertFalse(subject.isOutroSegment(buildSegmentChoice(segment0, 20, 100, program1)));
     assertFalse(subject.isOutroSegment(buildSegmentChoice(segment0, 20, 250, program1)));
@@ -125,6 +127,8 @@ public class CraftImplTest {
 
   @Test
   public void isSilentEntireSegment() {
+    when(fabricator.getSegment()).thenReturn(segment0);
+
     assertTrue(subject.isSilentEntireSegment(buildSegmentChoice(segment0, 12, 25, program1)));
     assertTrue(subject.isSilentEntireSegment(buildSegmentChoice(segment0, 200, 225, program1)));
     assertFalse(subject.isSilentEntireSegment(buildSegmentChoice(segment0, 50, 136, program1)));
@@ -134,6 +138,8 @@ public class CraftImplTest {
 
   @Test
   public void isActiveEntireSegment() {
+    when(fabricator.getSegment()).thenReturn(segment0);
+
     assertFalse(subject.isActiveEntireSegment(buildSegmentChoice(segment0, 12, 25, program1)));
     assertFalse(subject.isActiveEntireSegment(buildSegmentChoice(segment0, 200, 225, program1)));
     assertFalse(subject.isActiveEntireSegment(buildSegmentChoice(segment0, 50, 136, program1)));
@@ -160,6 +166,8 @@ public class CraftImplTest {
    */
   @Test
   public void chooseFreshInstrumentAudio() {
+    when(fabricator.sourceMaterial()).thenReturn(sourceMaterial);
+
     Account account1 = buildAccount("testing");
     Library library1 = buildLibrary(account1, "leaves");
     Instrument instrument1 = buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Event, InstrumentState.Published, "Loop 75 beats per minute");
@@ -188,6 +196,8 @@ public class CraftImplTest {
    */
   @Test
   public void selectNewChordPartInstrumentAudio_stripSpaces() {
+    when(fabricator.sourceMaterial()).thenReturn(sourceMaterial);
+
     selectNewChordPartInstrumentAudio(" G   major  ", "G-7", " G    major    ");
   }
 
@@ -198,6 +208,8 @@ public class CraftImplTest {
    */
   @Test
   public void selectNewChordPartInstrumentAudio_slashChordFluency() {
+    when(fabricator.sourceMaterial()).thenReturn(sourceMaterial);
+
     selectNewChordPartInstrumentAudio("Ab/C", "Eb/G", "Ab");
     selectNewChordPartInstrumentAudio("Ab", "Eb/G", "Ab/C");
   }
@@ -207,6 +219,8 @@ public class CraftImplTest {
    */
   @Test
   public void selectNewChordPartInstrumentAudio_chordSynonyms() {
+    when(fabricator.sourceMaterial()).thenReturn(sourceMaterial);
+
     selectNewChordPartInstrumentAudio("CMadd9", "Cm6", "C add9");
   }
 

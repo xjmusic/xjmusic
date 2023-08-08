@@ -27,21 +27,13 @@ import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.SegmentManagerImpl;
 import io.xj.test_fixtures.NexusIntegrationTestingFixtures;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.Objects;
 
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildAccount;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildLibrary;
@@ -57,14 +49,6 @@ public class ComplexLibraryTest {
   static final int MILLIS_PER_SECOND = 1000;
   @Mock
   public HubClient hubClient;
-  @Mock
-  public HttpClientProvider httpClientProvider;
-  @Mock
-  public CloseableHttpClient httpClient;
-  @Mock
-  public CloseableHttpResponse httpResponse;
-  @Mock
-  public HttpEntity httpResponseEntity;
   @Mock
   public NotificationProvider notificationProvider;
   @Mock
@@ -107,9 +91,6 @@ public class ComplexLibraryTest {
 
     // Mock request via HubClient returns fake generated library of hub content
     when(hubClient.load(any())).thenReturn(content);
-    when(httpClientProvider.getClient()).thenReturn(httpClient);
-    when(httpClient.execute(any())).thenReturn(httpResponse);
-    when(httpResponse.getEntity()).thenReturn(httpResponseEntity);
 
     // Dependencies
     ApiUrlProvider apiUrlProvider = new ApiUrlProvider("http://localhost:8080/");
@@ -143,10 +124,6 @@ public class ComplexLibraryTest {
 
   @Test
   public void fabricatesManySegments() throws Exception {
-    when(httpResponseEntity.getContent())
-      .thenAnswer((Answer<InputStream>) invocation -> new FileInputStream(Objects.requireNonNull(
-        ComplexLibraryTest.class.getClassLoader().getResource("source_audio/kick1.wav")).getFile()));
-
     // Start app, wait for work, stop app
     workThread.start();
     while (!hasSegmentsDubbedPastMinimumOffset() && isWithinTimeLimit())
