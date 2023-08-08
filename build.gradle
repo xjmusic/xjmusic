@@ -74,7 +74,7 @@ subprojects {
       name = "GitHubPackages"
       url = uri("https://maven.pkg.github.com/xjmusic/hub")
       credentials {
-        username = localProperties.getProperty('repo.username') ?: System.getenv("CI_BOT_TOKEN")
+        username = localProperties.getProperty('repo.username') ?: System.getenv("REPO_USERNAME")
         password = localProperties.getProperty('repo.token') ?: System.getenv("REPO_TOKEN")
       }
     }
