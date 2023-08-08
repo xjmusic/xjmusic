@@ -7,14 +7,15 @@ module workstation.gui.main {
   requires org.jooq;
   requires org.slf4j;
   requires spring.beans;
+  requires com.fasterxml.jackson.annotation;
   requires spring.boot.autoconfigure;
   requires spring.boot;
   requires spring.context;
   requires spring.core;
 
-  requires hub.models.main;
-  requires workstation.lib.main;
-  requires workstation.nexus.main;
+  requires transitive hub.models.main;
+  requires transitive workstation.lib.main;
+  requires transitive workstation.nexus.main;
 
   opens io.xj.gui to javafx.graphics, javafx.base, javafx.fxml, javafx.controls, spring.beans, spring.core, spring.context;
   opens io.xj.gui.events to javafx.graphics, javafx.base, javafx.fxml, javafx.controls, spring.beans;

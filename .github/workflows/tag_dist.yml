@@ -5,11 +5,11 @@ on:
     tags: ['*']
 
 jobs:
-  CI:
+  distribute_service:
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
-    name: Build Distribution
+    name: Distribute Service Container
     runs-on: ubuntu-22.04
     permissions: write-all
 
@@ -64,10 +64,72 @@ jobs:
             -PjibFromImage=gcr.io/xj-vpc-host-prod/base:latest \
             -PjibToImageRegistry=gcr.io/xj-vpc-host-prod \
             -PjibToTags=${{  github.ref_name }} \
-            jib
+            :service:jib
         continue-on-error: false
 
-      - name: Build for distribution via jpackage
-        run: |
-          ./gradlew --info --no-daemon jpackage
-        continue-on-error: false
+  distribute_gui:
+    name: Distribute ${{ matrix.os }} JDK ${{ matrix.java }}
+    env:
+      REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
+      REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
+    permissions: write-all
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-latest, windows-latest]
+        java: [ '17' ]
+      fail-fast: false
+    steps:
+
+      - name: Git checkout
+        uses: actions/checkout@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java }}
+
+      - name: Echo JAVA_HOME
+        run: echo $JAVA_HOME
+
+      - name: Verify Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v1
+
+      - name: Execute build
+        run: ./gradlew --info --stacktrace :gui:build
+
+      - name: Execute jlink
+        run: ./gradlew --info --stacktrace :gui:jlink
+
+      - name: Execute jpackage
+        run: ./gradlew --info --stacktrace :gui:jpackage
+
+      - name: Upload DMG as an artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: xjmusic-workstation-${{ matrix.os }}-jdk${{ matrix.java }}-dmg
+          path: gui/build/jpackage/*.dmg
+
+      - name: Upload EXE as an artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: xjmusic-workstation-${{ matrix.os }}-jdk${{ matrix.java }}-exe
+          path: gui/build/jpackage/*.exe
+
+      - name: Upload MSI as an artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: xjmusic-workstation-${{ matrix.os }}-jdk${{ matrix.java }}-msi
+          path: gui/build/jpackage/*.msi
+
+      - name: Upload DEB as an artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: xjmusic-workstation-${{ matrix.os }}-jdk${{ matrix.java }}-deb
+          path: gui/build/jpackage/*.deb
+
+      - name: Upload RPM as an artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: xjmusic-workstation-${{ matrix.os }}-jdk${{ matrix.java }}-rpm
+          path: gui/build/jpackage/*.rpm
