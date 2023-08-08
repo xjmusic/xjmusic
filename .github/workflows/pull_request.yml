@@ -13,6 +13,7 @@ jobs:
       GITHUB_ACTOR: ${{ secrets.GITHUB_ACTOR }}
     name: Gradle
     runs-on: ubuntu-latest
+    permissions: read-all
 
     steps:
       - name: Checkout
