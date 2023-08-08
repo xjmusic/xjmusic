@@ -46,7 +46,7 @@ import java.util.Objects;
 
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildAccount;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildLibrary;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 

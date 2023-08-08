@@ -10,7 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildAccount;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplate;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildChain;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
 public class MediaSeqNumProviderTest {

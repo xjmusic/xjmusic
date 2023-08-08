@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class FrequencyRangeLimiterTest {
   float pi = 3.14159265359F;
@@ -23,9 +23,11 @@ public class FrequencyRangeLimiterTest {
     FrequencyRangeLimiter.filter(bufferTest, SAMPLE_RATE, AUDIO_BUFFER_SIZE, 500.0F, 2000.0F);
     boolean identical = true;
     for (int i = 0; i < FRAMES; i++)
-      if (!Arrays.equals(bufferTest[i], bufferControl[i]))
+      if (!Arrays.equals(bufferTest[i], bufferControl[i])) {
         identical = false;
-    assertFalse("buffer is modified after filter operation", identical);
+        break;
+      }
+    assertFalse(identical);
   }
 
   /**

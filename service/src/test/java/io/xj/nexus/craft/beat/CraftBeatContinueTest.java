@@ -48,7 +48,7 @@ import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChoice;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChord;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentMeme;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftBeatContinueTest {

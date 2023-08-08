@@ -46,7 +46,7 @@ import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplate;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChoice;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftBeatInitialTest {

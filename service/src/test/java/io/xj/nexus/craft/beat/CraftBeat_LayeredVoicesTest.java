@@ -67,8 +67,8 @@ import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChoice;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChord;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentMeme;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * Beat fabrication composited of layered Patterns https://www.pivotaltracker.com/story/show/166481918

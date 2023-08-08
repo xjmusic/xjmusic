@@ -54,7 +54,7 @@ import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildUser;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChoice;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Choose next Macro program based on the memes of the last sequence from the previous Macro program https://www.pivotaltracker.com/story/show/176728582
@@ -198,7 +198,7 @@ public class MacroFromOverlappingMemeSequencesTest {
     // At 100 repetitions, false positive is 2^100:1 against
     for (int i = 0; i < REPEAT_TIMES; i++) {
       var result = subject.chooseNextMacroProgram().orElseThrow();
-      assertEquals(String.format("Run #%s OK", i), macro2a.getId(), result.getId());
+      assertEquals(macro2a.getId(), result.getId());
     }
   }
 }

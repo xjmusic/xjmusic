@@ -50,8 +50,8 @@ import static io.xj.hub.util.Assertion.assertSameItems;
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.hub.util.ValueUtils.SECONDS_PER_MINUTE;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegment;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftFoundationNextMainTest {

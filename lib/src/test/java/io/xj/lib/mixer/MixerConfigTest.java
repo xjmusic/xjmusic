@@ -2,18 +2,15 @@
 
 package io.xj.lib.mixer;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
 
 import javax.sound.sampled.AudioFormat;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class MixerConfigTest {
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
   MixerConfig config;
 
   @BeforeEach
@@ -25,25 +22,24 @@ public class MixerConfigTest {
 
   @Test
   public void getCompressAheadFrames() {
-    assertEquals("compute frames based on seconds", 72000, config.setCompressAheadSeconds(1.5).getCompressAheadFrames());
+    assertEquals(72000, config.setCompressAheadSeconds(1.5).getCompressAheadFrames());
   }
 
   @Test
   public void getCompressDecayFrames() {
-    assertEquals("compute frames based on seconds", 96000, config.setCompressDecaySeconds(2.0).getCompressDecayFrames());
+    assertEquals(96000, config.setCompressDecaySeconds(2.0).getCompressDecayFrames());
   }
 
   @Test
   public void getDSPBufferSize() throws MixerException {
-    assertEquals("frames per cycle of compressor computation", Integer.valueOf(1024), config.setDSPBufferSize(1024).getDSPBufferSize());
+    assertEquals(Integer.valueOf(1024), config.setDSPBufferSize(1024).getDSPBufferSize());
   }
 
   @Test
-  public void getDSPBufferSize_failsNotPowerOfTwo() throws MixerException {
-    failure.expect(MixerException.class);
-    failure.expectMessage("Compressor resolution frames must be a power of 2");
+  public void getDSPBufferSize_failsNotPowerOfTwo() {
+    var e = assertThrows(MixerException.class, () -> config.setDSPBufferSize(1023));
 
-    config.setDSPBufferSize(1023);
+    assertEquals("Compressor resolution frames must be a power of 2", e.getMessage());
   }
 
   @Test

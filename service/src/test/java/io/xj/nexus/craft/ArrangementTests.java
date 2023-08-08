@@ -72,7 +72,7 @@ import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplate;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTrack;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildVoice;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChoice;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * XJ has a serviceable voicing algorithm https://www.pivotaltracker.com/story/show/176696738
@@ -299,6 +299,7 @@ FUTURE goal
    * @param data YAML file wrapper
    * @param type of instrument to read
    */
+  @SuppressWarnings("unchecked")
   void loadDetailProgram(Map<?, ?> data, InstrumentType type) {
     Map<?, ?> obj = (Map<?, ?>) data.get(String.format("%sDetailProgram", type.toString().toLowerCase(Locale.ROOT)));
     if (Objects.isNull(obj)) return;
@@ -326,7 +327,6 @@ FUTURE goal
     var pattern = buildPattern(sequence, voice,
       Objects.requireNonNull(getInt(pObj, "total")));
     content.add(pattern);
-    //noinspection unchecked
     for (Map<?, ?> eObj : (List<Map<?, ?>>) pObj.get("events")) {
       var event = buildEvent(pattern, track,
         Objects.requireNonNull(getFloat(eObj, "position")),
@@ -345,6 +345,7 @@ FUTURE goal
    *
    * @param data YAML file wrapper
    */
+  @SuppressWarnings("unchecked")
   void loadSegment(Map<?, ?> data) throws NexusException {
     Map<?, ?> obj = (Map<?, ?>) data.get("segment");
 
@@ -355,7 +356,6 @@ FUTURE goal
       60)); // 60 BPM such that 1 beat = 1 second
 
     if (obj.containsKey("stickyBuns")) {
-      //noinspection unchecked
       for (Map<?, ?> sbObj : (List<Map<?, ?>>) obj.get("stickyBuns")) {
         var sbType = InstrumentType.valueOf(getStr(sbObj, "type"));
         var sbPosition = getFloat(sbObj, "position");
@@ -368,10 +368,9 @@ FUTURE goal
       }
     }
 
-    //noinspection unchecked
     for (Map<?, ?> cObj : (List<Map<?, ?>>) obj.get("chords")) {
       var chord = store.put(NexusIntegrationTestingFixtures.buildSegmentChord(segment,
-        getDouble(cObj, "position"),
+        getDouble(cObj),
         getStr(cObj, "name")));
       Map<?, ?> vObj = (Map<?, ?>) cObj.get("voicings");
       for (var instrumentType : instruments.keySet()) {
@@ -404,9 +403,9 @@ FUTURE goal
     for (var type : INSTRUMENT_TYPES_TO_TEST) loadAndPerformAssertions(obj, type);
   }
 
+  @SuppressWarnings("unchecked")
   void loadAndPerformAssertions(Map<?, ?> data, InstrumentType type) {
     @Nullable
-    @SuppressWarnings("unchecked")
     List<Map<?, ?>> objs = (List<Map<?, ?>>) data.get(type.toString().toLowerCase(Locale.ROOT));
     if (Objects.isNull(objs)) return;
 

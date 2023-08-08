@@ -21,7 +21,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * XJ has a serviceable voicing algorithm https://www.pivotaltracker.com/story/show/176696738

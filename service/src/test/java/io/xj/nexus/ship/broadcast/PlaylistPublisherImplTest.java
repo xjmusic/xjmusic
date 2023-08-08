@@ -19,10 +19,10 @@ import static io.xj.hub.util.FileUtils.getResourceFileContent;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildAccount;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplate;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildChain;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 public class PlaylistPublisherImplTest {

@@ -71,9 +71,9 @@ import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentCh
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChoiceArrangementPick;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChord;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentMeta;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;

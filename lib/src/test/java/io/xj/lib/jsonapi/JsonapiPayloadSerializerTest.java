@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * Payload serializer test

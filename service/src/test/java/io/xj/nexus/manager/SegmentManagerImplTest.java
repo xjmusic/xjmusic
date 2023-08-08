@@ -41,12 +41,12 @@ import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplate;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplateBinding;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildHubClientAccess;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(MockitoExtension.class)
 public class SegmentManagerImplTest {
@@ -522,7 +522,7 @@ public class SegmentManagerImplTest {
       testService.readOne(segment1.getId());
       fail();
     } catch (ManagerExistenceException e) {
-      assertTrue("Record should not exist", e.getMessage().contains("does not exist"));
+      assertTrue(e.getMessage().contains("does not exist"));
     }
   }
 
@@ -546,7 +546,7 @@ public class SegmentManagerImplTest {
       testService.readOne(segment1.getId());
       fail();
     } catch (ManagerExistenceException e) {
-      assertTrue("Record should not exist", e.getMessage().contains("does not exist"));
+      assertTrue(e.getMessage().contains("does not exist"));
     }
   }
 

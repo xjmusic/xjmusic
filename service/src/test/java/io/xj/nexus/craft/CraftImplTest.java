@@ -50,9 +50,9 @@ import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplate;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChoice;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.times;
@@ -230,8 +230,8 @@ public class CraftImplTest {
     for (var i = 0; i < TEST_REPEAT_TIMES; i++) {
       var result = subject.selectNewChordPartInstrumentAudio(instrument1, Chord.of(match));
 
-      assertTrue(String.format("Match a chord named %s", match), result.isPresent());
-      assertEquals(String.format("Match a chord named %s with %s not %s", match, expectThis, notThat), instrument1audio1.getId(), result.get().getId());
+      assertTrue(result.isPresent());
+      assertEquals(instrument1audio1.getId(), result.get().getId());
     }
   }
 

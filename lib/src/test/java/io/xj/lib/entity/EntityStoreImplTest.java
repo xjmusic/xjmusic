@@ -13,7 +13,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class EntityStoreImplTest {
   EntityStore subject;

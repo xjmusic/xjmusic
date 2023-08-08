@@ -41,7 +41,7 @@ import java.util.stream.Stream;
 import static io.xj.hub.util.Assertion.assertSameItems;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegment;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftSegmentPatternMemeTest {

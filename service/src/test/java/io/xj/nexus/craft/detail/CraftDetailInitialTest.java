@@ -51,8 +51,8 @@ import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentCh
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChord;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChordVoicing;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentMeme;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftDetailInitialTest {
