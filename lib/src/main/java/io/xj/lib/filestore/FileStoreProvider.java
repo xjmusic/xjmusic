@@ -4,60 +4,9 @@ package io.xj.lib.filestore;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Requires these typesafe configurations to be set:
- * - aws.defaultRegion
- * - aws.accessKeyID
- * - aws.secretKey
+ No-op stub for FileStoreProvider
  */
 public interface FileStoreProvider {
-  String EXTENSION_JSON = "json";
-
-  /**
-   * @return S3UploadPolicy for upload to AWS file storage (S3)
-   */
-  S3UploadPolicy generateAudioUploadPolicy() throws FileStoreException;
-
-  /**
-   * Get the URL to upload an object to AWS file storage (S3)
-   *
-   * @return full URL
-   */
-  String getUploadURL() throws FileStoreException;
-
-  /**
-   * Get the AWS Access Key ID
-   *
-   * @return key id
-   */
-  String getCredentialId() throws FileStoreException;
-
-  /**
-   * Get the AWS Access Key Secret
-   *
-   * @return key id
-   */
-  String getCredentialSecret() throws FileStoreException;
-
-  /**
-   * Get the AWS Bucket Name
-   *
-   * @return The name of the bucket in AWS file storage (S3)
-   */
-  String getAudioBucketName() throws FileStoreException;
-
-  /**
-   * Get the AWS upload policy expire time in minutes
-   *
-   * @return The number of minutes before the upload policy expires and is unable to be used.
-   */
-  int getAudioUploadExpireInMinutes() throws FileStoreException;
-
-  /**
-   * Get the AWS Access control list
-   *
-   * @return Access control list for upload to AWS file storage (S3)
-   */
-  String getAudioUploadACL() throws FileStoreException;
 
   /**
    * Put an object to S3 (from a temp file)
@@ -81,13 +30,4 @@ public interface FileStoreProvider {
    * @param expiresInSeconds seconds until cache should expire
    */
   void putS3ObjectFromString(String content, String bucket, String key, String contentType, @Nullable Integer expiresInSeconds) throws FileStoreException;
-
-  /**
-   * Get an object from S3
-   *
-   * @param bucket the bucket
-   * @param key    the key
-   * @return the object
-   */
-  String getS3Object(String bucket, String key);
 }

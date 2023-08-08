@@ -10,7 +10,6 @@ import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.lib.lock.LockProvider;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.nexus.NexusTopology;
@@ -58,13 +57,13 @@ public class ComplexLibraryTest {
   static final int MILLIS_PER_SECOND = 1000;
   @Mock
   public HubClient hubClient;
-  @Mock(lenient = true)
+  @Mock
   public HttpClientProvider httpClientProvider;
-  @Mock(lenient = true)
+  @Mock
   public CloseableHttpClient httpClient;
-  @Mock(lenient = true)
+  @Mock
   public CloseableHttpResponse httpResponse;
-  @Mock(lenient = true)
+  @Mock
   public HttpEntity httpResponseEntity;
   @Mock
   public NotificationProvider notificationProvider;
@@ -74,8 +73,6 @@ public class ComplexLibraryTest {
   AppWorkThread workThread;
   SegmentManager segmentManager;
   CraftWork work;
-  @Mock
-  LockProvider lockProvider;
   @Mock
   FileStoreProvider fileStoreProvider;
 
@@ -129,10 +126,9 @@ public class ComplexLibraryTest {
       hubClient,
       jsonapiPayloadFactory,
       jsonProvider,
-      lockProvider,
       store,
       notificationProvider,
-            segmentManager,
+      segmentManager,
       telemetryProvider,
       "production",
       "playback",

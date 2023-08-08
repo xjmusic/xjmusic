@@ -2,10 +2,7 @@
 package io.xj.lib.notification;
 
 /**
- * Requires these typesafe configurations to be set:
- * - aws.defaultRegion
- * - aws.accessKeyID
- * - aws.secretKey
+ * No-op stub for NotificationProvider
  */
 public interface NotificationProvider {
 

@@ -21,8 +21,6 @@ import io.xj.lib.json.JsonProvider;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.lock.LockException;
-import io.xj.lib.lock.LockProvider;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.MultiStopwatch;
 import io.xj.lib.telemetry.TelemetryMeasureCount;
@@ -82,15 +80,14 @@ import java.util.stream.Stream;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.hub.util.ValueUtils.MILLIS_PER_SECOND;
-import static io.xj.lib.filestore.FileStoreProvider.EXTENSION_JSON;
 
 public class CraftWorkImpl implements CraftWork {
   static final Logger LOG = LoggerFactory.getLogger(CraftWorkImpl.class);
+  static final String EXTENSION_JSON = "json";
   static final long INTERNAL_CYCLE_SLEEP_MILLIS = 50;
   final CraftFactory craftFactory;
   final EntityFactory entityFactory;
   final FabricatorFactory fabricatorFactory;
-  final LockProvider lockProvider;
   final HttpClientProvider httpClientProvider;
   final HubClient hubClient;
   final HubClientAccess access = HubClientAccess.internal();
@@ -172,7 +169,6 @@ public class CraftWorkImpl implements CraftWork {
     HubClient hubClient,
     JsonapiPayloadFactory jsonapiPayloadFactory,
     JsonProvider jsonProvider,
-    LockProvider lockProvider,
     NexusEntityStore store,
     NotificationProvider notification,
     SegmentManager segmentManager,
@@ -192,7 +188,6 @@ public class CraftWorkImpl implements CraftWork {
     this.hubClient = hubClient;
     this.jsonProvider = jsonProvider;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
-    this.lockProvider = lockProvider;
     this.notification = notification;
     this.segmentManager = segmentManager;
     this.store = store;
@@ -649,12 +644,6 @@ public class CraftWorkImpl implements CraftWork {
    */
   public void fabricateChain(Chain target) throws FabricationFatalException {
     try {
-      // On Preview Nexus start, generate a random hash key and write it to a lock file named after the ship key, next to the target chain output json-- e.g. **bump_deep.lock** is written next to the target chain output **bump_deep.json**
-      // https://www.pivotaltracker.com/story/show/185119448
-      if (inputMode == InputMode.PREVIEW) {
-        lockProvider.acquire(shipBucket, target.getShipKey());
-      }
-
       timer.section("ComputeAhead");
       var fabricatedToChainMicros = Chains.computeFabricatedToChainMicros(segmentManager.readMany(List.of(target.getId())));
 
@@ -687,12 +676,6 @@ public class CraftWorkImpl implements CraftWork {
       aheadSeconds = (float) (fabricatedToChainMicros - atChainMicros) / MICROS_PER_SECOND;
       telemetryProvider.put(METRIC_FABRICATED_AHEAD_SECONDS, aheadSeconds);
 
-      // Before writing a segment, Nexus reads the expected lock file and confirms that the hash has not changed.
-      // https://www.pivotaltracker.com/story/show/185119448
-      if (inputMode == InputMode.PREVIEW) {
-        lockProvider.check(shipBucket, target.getShipKey());
-      }
-
       finishWork(fabricator, segment);
 
       LOG.info("Fabricated Segment[offset={}] {}s long (ahead {}s)",
@@ -717,10 +700,6 @@ public class CraftWorkImpl implements CraftWork {
       );
 
       LOG.error("Failed to created Segment in Chain[{}] reason={}", Chains.getIdentifier(target), e.getMessage());
-
-    } catch (LockException e) {
-      LOG.error("Fabrication lock invalid for Chain[{}] reason={}", Chains.getIdentifier(target), e.getMessage());
-      running.set(false);
     }
   }
 
@@ -1085,13 +1064,13 @@ public class CraftWorkImpl implements CraftWork {
     if (!isJsonOutputEnabled) return;
     writeJsonFile(
       fabricator.getSegmentJson(),
-      Segments.getStorageFilename(fabricator.getSegment(), FileStoreProvider.EXTENSION_JSON));
+      Segments.getStorageFilename(fabricator.getSegment(), EXTENSION_JSON));
     writeJsonFile(
       fabricator.getChainFullJson(),
-      Chains.getShipKey(Chains.getFullKey(Chains.computeBaseKey(fabricator.getChain())), FileStoreProvider.EXTENSION_JSON));
+      Chains.getShipKey(Chains.getFullKey(Chains.computeBaseKey(fabricator.getChain())), EXTENSION_JSON));
     writeJsonFile(
       fabricator.getChainJson(atChainMicros),
-      Chains.getShipKey(Chains.computeBaseKey(fabricator.getChain()), FileStoreProvider.EXTENSION_JSON));
+      Chains.getShipKey(Chains.computeBaseKey(fabricator.getChain()), EXTENSION_JSON));
   }
 
   /**

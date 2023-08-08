@@ -54,9 +54,6 @@ dependencies {
   implementation 'org.slf4j:log4j-over-slf4j:2.0.5'
   implementation 'org.slf4j:slf4j-api:2.0.5'
   implementation 'org.yaml:snakeyaml:2.0'
-  implementation 'software.amazon.awssdk:cloudwatch'
-  implementation 'software.amazon.awssdk:secretsmanager'
-  implementation platform('software.amazon.awssdk:bom:2.20.56')
   implementation("org.springframework.boot:spring-boot-starter-web:${rootProject.ext.springBootVersion}") {
     exclude group: 'spring-boot-starter-web', module: 'spring-aop'
   }

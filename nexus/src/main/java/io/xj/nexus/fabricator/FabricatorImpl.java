@@ -272,7 +272,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public String getChainFullJsonOutputKey() {
-    return Chains.getShipKey(Chains.getFullKey(Chains.computeBaseKey(getChain())), FileStoreProvider.EXTENSION_JSON);
+    return Chains.getShipKey(Chains.getFullKey(Chains.computeBaseKey(getChain())), EXTENSION_JSON);
   }
 
   @Override
@@ -294,7 +294,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public String getChainJsonOutputKey() {
-    return Chains.getShipKey(Chains.computeBaseKey(getChain()), FileStoreProvider.EXTENSION_JSON);
+    return Chains.getShipKey(Chains.computeBaseKey(getChain()), EXTENSION_JSON);
   }
 
   @Override
@@ -825,7 +825,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public String getSegmentJsonOutputKey() {
-    return getSegmentShipKey(FileStoreProvider.EXTENSION_JSON);
+    return getSegmentShipKey(EXTENSION_JSON);
   }
 
   @Override

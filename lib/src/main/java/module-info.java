@@ -15,12 +15,6 @@ module workstation.lib.main {
   requires org.jooq;
   requires org.reflections;
   requires org.slf4j;
-  requires software.amazon.awssdk.auth;
-  requires software.amazon.awssdk.awscore;
-  requires software.amazon.awssdk.core;
-  requires software.amazon.awssdk.regions;
-  requires software.amazon.awssdk.services.s3;
-  requires software.amazon.awssdk.services.sns;
   requires spring.beans;
   requires spring.context;
   requires spring.core;
@@ -37,7 +31,6 @@ module workstation.lib.main {
   exports io.xj.lib.http;
   exports io.xj.lib.json;
   exports io.xj.lib.jsonapi;
-  exports io.xj.lib.lock;
   exports io.xj.lib.mixer;
   exports io.xj.lib.notification;
   exports io.xj.lib.telemetry;

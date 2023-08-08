@@ -49,9 +49,6 @@ dependencies {
   implementation 'org.slf4j:log4j-over-slf4j:2.0.5'
   implementation 'org.slf4j:slf4j-api:2.0.5'
   implementation 'org.yaml:snakeyaml:2.0'
-  implementation 'software.amazon.awssdk:cloudwatch'
-  implementation 'software.amazon.awssdk:secretsmanager'
-  implementation platform('software.amazon.awssdk:bom:2.20.56')
   testFixturesImplementation "org.jooq:jooq:${rootProject.ext.jooqVersion}"
   testFixturesImplementation 'com.typesafe:config:1.4.2'
   testFixturesImplementation 'org.jetbrains:annotations:24.0.1'
@@ -67,14 +64,6 @@ dependencies {
   testImplementation 'org.jetbrains:annotations:24.0.1'
   testImplementation 'org.mockito:mockito-junit-jupiter'
   testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${rootProject.ext.junitVersion}"
-}
-
-jar {
-  manifest {
-    attributes 'Automatic-Module-Name': 'aws.java.sdk.core'
-    attributes 'Automatic-Module-Name': 'aws.java.sdk.s3'
-    attributes 'Automatic-Module-Name': 'aws.java.sdk.sns'
-  }
 }
 
 bootJar {

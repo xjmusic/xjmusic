@@ -112,38 +112,6 @@ To clean, build, test and assemble artifacts for shipment:
 Login to the app using Google authentication. The redirect URL for local development
 is http://xj.io/auth/google/callback
 
-## Shipping final audio & JSON to Amazon S3
-
-Note that after an audio file is uploaded, it can be played back (on a GNU/Linux system) like:
-
-    curl https://s3.amazonaws.com/xj-dev-audio/62536d52-8600-4941-ac04-a72106079610-instrument-5-audio.wav | aplay
-
-Here are the public-facing Amazon CloudFront-backed URLs for audio files, and their respective Amazon S3 backing:
-
-* [https://audio.xj.io](https://audio.xj.io) is the production URL, backed
-  by [https://xj-prod-audio.s3.amazonaws.com](https://xj-prod-audio.s3.amazonaws.com)
-* [https://audio.stage.xj.io](https://audio.stage.xj.io) is the staging URL, backed
-  by [https://xj-stage-audio.s3.amazonaws.com](https://xj-stage-audio.s3.amazonaws.com)
-* [https://audio.dev.xj.io](https://audio.dev.xj.io) is the development URL, backed
-  by [https://xj-dev-audio.s3.amazonaws.com](https://xj-dev-audio.s3.amazonaws.com)
-
-**NOTE** that our CloudFront configuration defines two tiers of caching behavior:
-
-* Files containing NO hyphen will have a short TTL, e.g. **bump_chill.json** (this is the chain manifest that is
-  updated frequently)
-* Files containing a hyphen will have a long TTL, e.g. **bump_chill-000012598722847.ogg** (this is a segment file that
-  never changes)
-
-## Amazon S3
-
-Therefore, it is helpful to be able to sync the audio files from production into the dev environment.
-
-     aws sync s3://xj-prod-audio/ s3://xj-dev-audio/
-
-Note that in order to use that command, the source bucket (xj-prod-audio) must grant `s3:ListBucket` and `s3:GetObject`
-permission, and the target bucket (xj-dev-audio) must grant `s3:ListBucket` and `s3:PutObject` to the IAM user your AWS
-CLI is authenticated as.
-
 ## Library
 
 **Mixer** is a Java implementation of the Go project [go-mix](https://github.com/go-mix/mix).

@@ -36,12 +36,6 @@ dependencies {
   implementation 'org.slf4j:log4j-over-slf4j:1.7.32'
   implementation 'org.slf4j:slf4j-api:1.7.32'
   implementation 'org.yaml:snakeyaml:1.33'
-  implementation 'software.amazon.awssdk:cloudwatch'
-  implementation 'software.amazon.awssdk:cloudwatch:2.20.69'
-  implementation 'software.amazon.awssdk:s3'
-  implementation 'software.amazon.awssdk:secretsmanager'
-  implementation 'software.amazon.awssdk:sns'
-  implementation platform('software.amazon.awssdk:bom:2.20.56')
   implementation("org.springframework.boot:spring-boot-starter:${rootProject.ext.springBootVersion}") {
     exclude group: 'org.springframework', module: 'spring-aop'
   }
@@ -50,14 +44,6 @@ dependencies {
   testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${rootProject.ext.junitVersion}"
   testImplementation 'org.mockito:mockito-junit-jupiter'
   testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${rootProject.ext.junitVersion}"
-}
-
-jar {
-  manifest {
-    attributes 'Automatic-Module-Name': 'aws.java.sdk.core'
-    attributes 'Automatic-Module-Name': 'aws.java.sdk.s3'
-    attributes 'Automatic-Module-Name': 'aws.java.sdk.sns'
-  }
 }
 
 bootJar {
