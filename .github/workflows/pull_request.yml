@@ -9,8 +9,8 @@ on:
 jobs:
   PullRequest:
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      GITHUB_ACTOR: ${{ secrets.GITHUB_ACTOR }}
+      REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
+      REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
     name: Gradle
     runs-on: ubuntu-latest
     permissions: read-all
