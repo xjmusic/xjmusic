@@ -32,6 +32,10 @@ jlink {
   }
 }
 
+configurations {
+  implementation.exclude group: "commons-logging", module: "commons-logging"
+}
+
 dependencies {
   // peers
   implementation project(":lib")
