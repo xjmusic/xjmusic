@@ -23,7 +23,7 @@ public class StageListener implements ApplicationListener<StageReadyEvent> {
 
   public StageListener(
     @Value("${application.ui.title}") String applicationTitle,
-    @Value("classpath:/io/xj/gui/main-window.fxml") Resource fxml,
+    @Value("classpath:/views/main-window.fxml") Resource fxml,
     ApplicationContext ac
   ) {
     LOG.info("StageListener created");
