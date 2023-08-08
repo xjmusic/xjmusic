@@ -7,12 +7,12 @@ jobs:
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
-    permissions: read-all
+    permissions: write-all
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
-        java: [ '14.0.2', '15.0.0' ]
+        java: '17'
       fail-fast: false
     name: ${{ matrix.os }} JDK ${{ matrix.java }}
     steps:
