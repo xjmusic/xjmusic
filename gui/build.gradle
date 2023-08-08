@@ -35,9 +35,9 @@ jlink {
 dependencies {
   // peers
   implementation project(":lib")
-  implementation project(":service")
+  implementation project(":nexus")
   testImplementation(project(':lib').sourceSets.test.output)
-  testImplementation(testFixtures(project(":service")))
+  testImplementation(testFixtures(project(":nexus")))
   // private
   implementation "io.xj:models:${rootProject.ext.xjModelsVersion}"
   // vendor

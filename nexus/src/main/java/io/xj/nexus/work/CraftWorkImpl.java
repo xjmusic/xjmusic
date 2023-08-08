@@ -55,6 +55,7 @@ import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.Segments;
 import io.xj.nexus.persistence.Templates;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.entity.ContentType;
@@ -63,7 +64,6 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -972,7 +972,7 @@ public class CraftWorkImpl implements CraftWork {
     try (
       CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", shipBaseUrl, key)))
     ) {
-      if (!Objects.equals(HttpStatus.OK.value(), response.getStatusLine().getStatusCode())) {
+      if (!Objects.equals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode())) {
         LOG.debug("Failed to get previously fabricated chain for Template[{}] because {} {}", template.getShipKey(), response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
         return Optional.empty();
       }
@@ -1019,7 +1019,7 @@ public class CraftWorkImpl implements CraftWork {
           try (
             CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", shipBaseUrl, segmentShipKey)))
           ) {
-            if (!Objects.equals(HttpStatus.OK.value(), response.getStatusLine().getStatusCode())) {
+            if (!Objects.equals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode())) {
               LOG.error("Failed to get segment for Template[{}] because {} {}", template.getShipKey(), response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
               success.set(false);
               return;

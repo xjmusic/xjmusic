@@ -1,10 +1,12 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.nexus;
+package io.xj.workstation.service;
 
 import io.xj.hub.util.StringUtils;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.nexus.NexusException;
+import io.xj.nexus.NexusTopology;
 import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.work.WorkFactory;
 import org.slf4j.Logger;
@@ -26,8 +28,8 @@ import org.springframework.context.event.EventListener;
     "io.xj.hub",
     "io.xj.nexus",
   })
-public class NexusApplication {
-  final Logger LOG = LoggerFactory.getLogger(NexusApplication.class);
+public class WorkstationServiceApplication {
+  final Logger LOG = LoggerFactory.getLogger(WorkstationServiceApplication.class);
   final EntityFactory entityFactory;
   final AppConfiguration config;
   final WorkFactory workFactory;
@@ -39,7 +41,7 @@ public class NexusApplication {
   String environment;
 
   @Autowired
-  public NexusApplication(
+  public WorkstationServiceApplication(
     AppConfiguration config,
     ApplicationContext context,
     EntityFactory entityFactory,
@@ -71,7 +73,7 @@ public class NexusApplication {
   }
 
   public static void main(String[] args) {
-    SpringApplicationBuilder builder = new SpringApplicationBuilder(NexusApplication.class);
+    SpringApplicationBuilder builder = new SpringApplicationBuilder(WorkstationServiceApplication.class);
     builder.run(args);
   }
 }

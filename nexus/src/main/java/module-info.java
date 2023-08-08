@@ -1,4 +1,4 @@
-module workstation.service.main {
+module workstation.nexus.main {
   requires com.fasterxml.jackson.annotation;
   requires com.fasterxml.jackson.core;
   requires com.fasterxml.jackson.databind;
@@ -16,14 +16,21 @@ module workstation.service.main {
   requires spring.boot.autoconfigure;
   requires spring.boot;
   requires spring.context;
-  requires spring.web;
   //
   requires transitive workstation.lib.main;
-  requires transitive workstation.nexus.main;
   requires transitive hub.models.main;
 
-  opens io.xj.workstation.service to spring.core;
-  opens io.xj.workstation.service.api to spring.beans;
+  opens io.xj.nexus to spring.core;
+  opens io.xj.nexus.ship.broadcast to spring.beans;
+  opens io.xj.nexus.craft to spring.beans;
+  opens io.xj.nexus.dub to spring.beans;
+  opens io.xj.nexus.fabricator to spring.beans;
+  opens io.xj.nexus.work to spring.beans;
 
-  exports io.xj.workstation.service;
+  exports io.xj.nexus.hub_client;
+  exports io.xj.nexus.model;
+  exports io.xj.nexus.persistence;
+  exports io.xj.nexus;
+  exports io.xj.nexus.work;
+  exports io.xj.nexus.hub_client.access;
 }

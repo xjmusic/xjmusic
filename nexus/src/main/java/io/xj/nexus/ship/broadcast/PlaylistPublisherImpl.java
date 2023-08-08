@@ -10,6 +10,7 @@ import io.xj.lib.telemetry.TelemetryMeasureGauge;
 import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.nexus.ship.ShipException;
 import io.xj.nexus.ship.ShipMode;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -18,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -127,7 +127,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     try (
       CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", streamBaseUrl, m3u8Key)))
     ) {
-      if (!Objects.equals(HttpStatus.OK.value(), response.getStatusLine().getStatusCode())) {
+      if (!Objects.equals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode())) {
         LOG.warn("Failed to get previously-shipped playlist {} because {} {}", m3u8Key, response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
         return Optional.empty();
       }

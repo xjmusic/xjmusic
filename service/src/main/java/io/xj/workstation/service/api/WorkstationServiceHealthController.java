@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
-package io.xj.nexus.api;
+package io.xj.workstation.service.api;
 
 import io.xj.nexus.work.WorkFactory;
 import org.springframework.http.ResponseEntity;
@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class NexusHealthController {
+public class WorkstationServiceHealthController {
   final WorkFactory workFactory;
 
-  public NexusHealthController(
+  public WorkstationServiceHealthController(
     WorkFactory workFactory
   ) {
     this.workFactory = workFactory;
