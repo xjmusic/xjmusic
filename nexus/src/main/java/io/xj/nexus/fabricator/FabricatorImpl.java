@@ -91,6 +91,7 @@ import static io.xj.hub.util.ValueUtils.SECONDS_PER_MINUTE;
 public class FabricatorImpl implements Fabricator {
   static final String KEY_VOICE_NOTE_TEMPLATE = "voice-%s_note-%s";
   static final String KEY_VOICE_TRACK_TEMPLATE = "voice-%s_track-%s";
+  static final String EXTENSION_JSON = "json";
   static final String NAME_SEPARATOR = "-";
   static final String UNKNOWN_KEY = "unknown";
   final Logger LOG = LoggerFactory.getLogger(FabricatorImpl.class);
