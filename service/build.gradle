@@ -30,7 +30,6 @@ dependencies {
   // vendor
   implementation "com.fasterxml.jackson.core:jackson-annotations:${rootProject.ext.jacksonAnnotationsVersion}"
   implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:${rootProject.ext.jacksonAnnotationsVersion}"
-  implementation "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:${rootProject.ext.jacksonAnnotationsVersion}"
   implementation("org.springframework.boot:spring-boot-starter-web:${rootProject.ext.springBootVersion}") {
     exclude group: 'org.springframework', module: 'spring-aop'
   }
@@ -68,10 +67,9 @@ dependencies {
   testFixturesImplementation 'org.slf4j:slf4j-api:2.0.5'
   testFixturesImplementation 'org.jetbrains:annotations:24.0.1'
   testImplementation "org.springframework.boot:spring-boot-starter-test:${rootProject.ext.springBootVersion}"
-  testImplementation "org.junit.jupiter:junit-jupiter-engine:${rootProject.ext.jupiterVersion}"
-  testImplementation "org.junit.jupiter:junit-jupiter-api:${rootProject.ext.jupiterVersion}"
-  testImplementation "org.junit.jupiter:junit-jupiter-params:${rootProject.ext.jupiterVersion}"
-  testImplementation 'org.jetbrains:annotations:24.0.1'
+  testImplementation "org.junit.jupiter:junit-jupiter-api:${rootProject.ext.junitVersion}"
+  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${rootProject.ext.junitVersion}"
+  testImplementation 'org.mockito:mockito-junit-jupiter'
   testImplementation 'org.jetbrains:annotations:24.0.1'
   testImplementation 'org.hamcrest:hamcrest-library:2.2'
 }
@@ -94,3 +92,6 @@ jib {
   to.image = project.jibToImageRegistry + '/' + name
 }
 
+test {
+  useJUnitPlatform()
+}

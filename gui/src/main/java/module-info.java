@@ -1,4 +1,4 @@
-module io.xj.workstation.main {
+module workstation.gui.main {
   requires javafx.base;
   requires javafx.controls;
   requires javafx.fxml;

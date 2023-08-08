@@ -55,6 +55,11 @@ dependencies {
   testImplementation("org.springframework.boot:spring-boot-starter-test:${rootProject.ext.springBootVersion}") {
     exclude group: "com.vaadin.external.google", module:"android-json"
   }
-  testImplementation("org.junit.jupiter:junit-jupiter-api:${rootProject.ext.junitVersion}")
-  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${rootProject.ext.junitVersion}")
+  testImplementation "org.junit.jupiter:junit-jupiter-api:${rootProject.ext.junitVersion}"
+  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${rootProject.ext.junitVersion}"
+  testImplementation 'org.mockito:mockito-junit-jupiter'
+}
+
+test {
+  useJUnitPlatform()
 }

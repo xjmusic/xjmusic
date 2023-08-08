@@ -58,10 +58,9 @@ dependencies {
   testImplementation 'be.tarsos.dsp:jvm:2.5'
   testImplementation 'org.hamcrest:hamcrest-library:2.2'
   testImplementation 'org.jetbrains:annotations:24.0.1'
-  testImplementation "org.junit.jupiter:junit-jupiter-engine:${rootProject.ext.jupiterVersion}"
-  testImplementation "org.junit.jupiter:junit-jupiter-api:${rootProject.ext.jupiterVersion}"
-  testImplementation "org.junit.jupiter:junit-jupiter-params:${rootProject.ext.jupiterVersion}"
-  testCompileOnly 'org.mockito:mockito-junit-jupiter'
+  testImplementation "org.junit.jupiter:junit-jupiter-api:${rootProject.ext.junitVersion}"
+  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${rootProject.ext.junitVersion}"
+  testImplementation 'org.mockito:mockito-junit-jupiter'
 }
 
 jar {
@@ -74,4 +73,8 @@ jar {
 
 bootJar {
   enabled = false
+}
+
+test {
+  useJUnitPlatform()
 }
