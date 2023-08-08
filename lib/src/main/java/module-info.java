@@ -24,7 +24,6 @@ module workstation.lib.main {
   requires spring.beans;
   requires spring.context;
   requires spring.core;
-  requires spring.web;
   requires typesafe.config;
   requires hub.models.main;
 

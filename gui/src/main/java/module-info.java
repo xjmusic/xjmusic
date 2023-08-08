@@ -11,7 +11,6 @@ module workstation.gui.main {
   requires spring.boot;
   requires spring.context;
   requires spring.core;
-  requires spring.web;
 
   requires transitive hub.models.main;
   requires transitive workstation.lib.main;
