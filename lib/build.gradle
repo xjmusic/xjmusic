@@ -33,8 +33,8 @@ dependencies {
   implementation 'org.apache.httpcomponents:httpclient:4.5.14'
   implementation 'org.jetbrains:annotations:24.0.1'
   implementation 'org.reflections:reflections:0.10.1'
-  implementation 'org.slf4j:log4j-over-slf4j:1.7.32'
-  implementation 'org.slf4j:slf4j-api:1.7.32'
+  implementation "org.slf4j:log4j-over-slf4j:${rootProject.ext.slf4jVersion}"
+  implementation "org.slf4j:slf4j-api:${rootProject.ext.slf4jVersion}"
   implementation 'org.yaml:snakeyaml:1.33'
   implementation("org.springframework.boot:spring-boot-starter:${rootProject.ext.springBootVersion}") {
     exclude group: 'org.springframework', module: 'spring-aop'

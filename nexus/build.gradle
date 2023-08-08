@@ -46,13 +46,13 @@ dependencies {
   implementation 'org.mp4parser:muxer:1.9.41'
   implementation 'org.mp4parser:streaming:1.9.41'
   implementation 'org.reflections:reflections:0.10.2'
-  implementation 'org.slf4j:log4j-over-slf4j:2.0.5'
-  implementation 'org.slf4j:slf4j-api:2.0.5'
+  implementation "org.slf4j:log4j-over-slf4j:${rootProject.ext.slf4jVersion}"
+  implementation "org.slf4j:slf4j-api:${rootProject.ext.slf4jVersion}"
   implementation 'org.yaml:snakeyaml:2.0'
   testFixturesImplementation "org.jooq:jooq:${rootProject.ext.jooqVersion}"
   testFixturesImplementation 'com.typesafe:config:1.4.2'
   testFixturesImplementation 'org.jetbrains:annotations:24.0.1'
-  testFixturesImplementation 'org.slf4j:slf4j-api:2.0.5'
+  testFixturesImplementation "org.slf4j:slf4j-api:${rootProject.ext.slf4jVersion}"
   testImplementation "org.junit.jupiter:junit-jupiter-api:${rootProject.ext.junitVersion}"
   testImplementation "org.springframework.boot:spring-boot-starter-test:${rootProject.ext.springBootVersion}"
   testImplementation "org.springframework.boot:spring-boot-test:${rootProject.ext.springBootVersion}"

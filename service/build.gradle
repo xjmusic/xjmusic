@@ -51,8 +51,8 @@ dependencies {
   implementation 'org.mp4parser:muxer:1.9.41'
   implementation 'org.mp4parser:streaming:1.9.41'
   implementation 'org.reflections:reflections:0.10.2'
-  implementation 'org.slf4j:log4j-over-slf4j:2.0.5'
-  implementation 'org.slf4j:slf4j-api:2.0.5'
+  implementation "org.slf4j:log4j-over-slf4j:${rootProject.ext.slf4jVersion}"
+  implementation "org.slf4j:slf4j-api:${rootProject.ext.slf4jVersion}"
   implementation 'org.yaml:snakeyaml:2.0'
   implementation("org.springframework.boot:spring-boot-starter-web:${rootProject.ext.springBootVersion}") {
     exclude group: 'spring-boot-starter-web', module: 'spring-aop'
