@@ -2,14 +2,14 @@
 package io.xj.nexus.fabricator;
 
 import io.xj.hub.enums.ProgramType;
-import io.xj.lib.entity.EntityUtils;
+import io.xj.hub.util.StringUtils;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.entity.EntityStoreImpl;
+import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.hub.util.StringUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;

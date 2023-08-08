@@ -1,9 +1,9 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.lib.jsonapi;
 
-import io.xj.lib.entity.EntityUtils;
-import io.xj.lib.entity.EntityException;
 import io.xj.hub.util.ValueException;
+import io.xj.lib.entity.EntityException;
+import io.xj.lib.entity.EntityUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;

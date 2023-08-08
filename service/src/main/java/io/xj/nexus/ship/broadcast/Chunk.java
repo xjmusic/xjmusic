@@ -4,8 +4,8 @@ package io.xj.nexus.ship.broadcast;
 
 
 import io.xj.hub.util.ValueUtils;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.util.Objects;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;

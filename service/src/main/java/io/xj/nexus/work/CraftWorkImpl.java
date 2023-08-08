@@ -1,18 +1,20 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.work;
 
+import io.xj.hub.HubContent;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.HubContent;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.hub.tables.pojos.TemplatePlayback;
-import io.xj.lib.entity.EntityUtils;
+import io.xj.hub.util.StringUtils;
+import io.xj.hub.util.ValueException;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.json.JsonProvider;
@@ -26,8 +28,6 @@ import io.xj.lib.telemetry.MultiStopwatch;
 import io.xj.lib.telemetry.TelemetryMeasureCount;
 import io.xj.lib.telemetry.TelemetryMeasureGauge;
 import io.xj.lib.telemetry.TelemetryProvider;
-import io.xj.hub.util.StringUtils;
-import io.xj.hub.util.ValueException;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.OutputMode;
@@ -80,9 +80,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.lib.filestore.FileStoreProvider.EXTENSION_JSON;
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.hub.util.ValueUtils.MILLIS_PER_SECOND;
+import static io.xj.lib.filestore.FileStoreProvider.EXTENSION_JSON;
 
 public class CraftWorkImpl implements CraftWork {
   static final Logger LOG = LoggerFactory.getLogger(CraftWorkImpl.class);

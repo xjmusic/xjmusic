@@ -7,8 +7,8 @@ import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.JsonProviderImpl;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 
@@ -19,7 +19,7 @@ public class InstantSerDesTest {
   String subjectJson;
   EntityFactory entityFactory;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     var jsonProvider = new JsonProviderImpl();
     entityFactory = new EntityFactoryImpl(jsonProvider);

@@ -4,8 +4,8 @@ package io.xj.lib.jsonapi;
 
 import io.xj.lib.Widget;
 import io.xj.lib.json.ApiUrlProvider;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
@@ -18,7 +18,7 @@ import static org.junit.Assert.assertFalse;
 public class JsonapiResponseProviderImplTest {
   JsonapiResponseProvider subject;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     ApiUrlProvider apiUrlProvider = new ApiUrlProvider("");
     subject = new JsonapiResponseProviderImpl(apiUrlProvider);

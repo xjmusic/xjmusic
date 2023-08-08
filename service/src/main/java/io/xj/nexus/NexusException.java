@@ -2,7 +2,6 @@
 package io.xj.nexus;
 
 import io.xj.hub.util.StringUtils;
-
 import org.jetbrains.annotations.Nullable;
 
 public class NexusException extends Exception {

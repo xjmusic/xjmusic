@@ -8,11 +8,11 @@ import io.xj.hub.music.Note;
 import io.xj.hub.music.NoteRange;
 import io.xj.hub.util.CsvUtils;
 import io.xj.hub.util.ValueException;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
-
 import org.jetbrains.annotations.Nullable;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -26,7 +26,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * XJ has a serviceable voicing algorithm https://www.pivotaltracker.com/story/show/176696738
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class NotePickerTests extends YamlTest {
   static final int REPEAT_EACH_TEST_TIMES = 7;
   static final String TEST_PATH_PREFIX = "/picking/";

@@ -3,13 +3,13 @@ package io.xj.nexus.craft;
 
 import io.xj.hub.music.Accidental;
 import io.xj.hub.music.Note;
+import org.jetbrains.annotations.Nullable;
 import org.junit.After;
-import org.junit.Before;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.yaml.snakeyaml.Yaml;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -23,11 +23,11 @@ import static org.junit.Assert.assertNotNull;
 /**
  * XJ has a serviceable voicing algorithm https://www.pivotaltracker.com/story/show/176696738
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public abstract class YamlTest {
   protected Set<String> failures;
 
-  @Before
+  @BeforeEach
   public void prepareFailureCache() {
     failures = new HashSet<>();
   }

@@ -2,7 +2,6 @@
 package io.xj.lib.lock;
 
 import io.xj.hub.util.StringUtils;
-
 import org.jetbrains.annotations.Nullable;
 
 /**

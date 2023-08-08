@@ -3,8 +3,8 @@
 package io.xj.lib.entity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.xj.lib.json.JsonProvider;
 import io.xj.hub.util.ValueUtils;
+import io.xj.lib.json.JsonProvider;
 import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

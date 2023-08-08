@@ -3,8 +3,8 @@
 package io.xj.lib.telemetry;
 
 import io.xj.hub.util.ValueUtils;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;

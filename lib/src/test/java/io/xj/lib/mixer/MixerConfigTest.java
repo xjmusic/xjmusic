@@ -2,9 +2,9 @@
 
 package io.xj.lib.mixer;
 
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.ExpectedException;
 
 import javax.sound.sampled.AudioFormat;
@@ -16,7 +16,7 @@ public class MixerConfigTest {
   public ExpectedException failure = ExpectedException.none();
   MixerConfig config;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     config = new MixerConfig(
       new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,

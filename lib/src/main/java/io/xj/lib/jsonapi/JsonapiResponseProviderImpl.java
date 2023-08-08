@@ -1,8 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.lib.jsonapi;
 
-import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.entity.EntityException;
+import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.json.ApiUrlProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

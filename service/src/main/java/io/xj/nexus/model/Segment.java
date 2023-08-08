@@ -3,8 +3,8 @@
 package io.xj.nexus.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import org.jetbrains.annotations.Nullable;
+
 import javax.validation.Valid;
 import java.util.Objects;
 import java.util.UUID;

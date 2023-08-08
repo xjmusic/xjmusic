@@ -3,7 +3,7 @@
 package io.xj.nexus.persistence.exception;
 
 import io.xj.nexus.persistence.ManagerValidationException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 

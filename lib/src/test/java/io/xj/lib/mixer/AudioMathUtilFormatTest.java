@@ -1,12 +1,13 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.lib.mixer;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.sound.sampled.AudioFormat;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class AudioMathUtilFormatTest {
 
@@ -17,9 +18,9 @@ public class AudioMathUtilFormatTest {
         4000, 8, 1, 1, 4000, false)));
   }
 
-  @Test(expected = FormatException.class)
+  @Test
   public void typeOf_U8_unsupportedForOutput() throws Exception {
-    assertEquals(AudioSampleFormat.U8, AudioSampleFormat.typeOfOutput(
+    assertThrows(FormatException.class, () -> AudioSampleFormat.typeOfOutput(
       new AudioFormat(AudioFormat.Encoding.PCM_UNSIGNED,
         4000, 8, 1, 1, 4000, false)));
   }
@@ -38,9 +39,9 @@ public class AudioMathUtilFormatTest {
         22000, 16, 2, 4, 22000, false)));
   }
 
-  @Test(expected = FormatException.class)
+  @Test
   public void typeOf_U16LSB_unsupportedForOutput() throws Exception {
-    assertEquals(AudioSampleFormat.U16LSB, AudioSampleFormat.typeOfOutput(
+    assertThrows(FormatException.class, () -> AudioSampleFormat.typeOfOutput(
       new AudioFormat(AudioFormat.Encoding.PCM_UNSIGNED,
         22000, 16, 2, 4, 22000, false)));
   }
@@ -80,9 +81,9 @@ public class AudioMathUtilFormatTest {
         22000, 16, 2, 4, 22000, true)));
   }
 
-  @Test(expected = FormatException.class)
+  @Test
   public void typeOf_U16MSB_unsupportedForOutput() throws Exception {
-    assertEquals(AudioSampleFormat.U16MSB, AudioSampleFormat.typeOfOutput(
+    assertThrows(FormatException.class, () -> AudioSampleFormat.typeOfOutput(
       new AudioFormat(AudioFormat.Encoding.PCM_UNSIGNED,
         22000, 16, 2, 4, 22000, true)));
   }

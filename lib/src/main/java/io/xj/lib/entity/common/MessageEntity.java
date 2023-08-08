@@ -1,11 +1,11 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.lib.entity.common;
 
-import io.xj.lib.entity.EntityUtils;
-import io.xj.lib.entity.EntityException;
-import io.xj.lib.entity.MessageType;
 import io.xj.hub.util.ValueException;
 import io.xj.hub.util.ValueUtils;
+import io.xj.lib.entity.EntityException;
+import io.xj.lib.entity.EntityUtils;
+import io.xj.lib.entity.MessageType;
 
 /**
  * POJO for persisting data in memory while performing business logic,

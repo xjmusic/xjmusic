@@ -7,24 +7,24 @@ import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.http.HttpClientProviderImpl;
 import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.nexus.ship.ShipException;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 
+import static io.xj.hub.util.FileUtils.getResourceFileContent;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildAccount;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplate;
-import static io.xj.hub.util.FileUtils.getResourceFileContent;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildChain;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class PlaylistPublisherImplTest {
   // Under Test
   PlaylistPublisher playlistPublisher;
@@ -34,7 +34,7 @@ public class PlaylistPublisherImplTest {
   TelemetryProvider telemetryProvider;
   ChunkFactory chunkFactory;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     HttpClientProvider httpClientProvider = new HttpClientProviderImpl(1, 1);
     chunkFactory = new ChunkFactoryImpl("aac", 10);

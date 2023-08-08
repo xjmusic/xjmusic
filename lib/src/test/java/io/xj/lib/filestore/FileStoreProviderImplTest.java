@@ -1,22 +1,21 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.lib.filestore;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class FileStoreProviderImplTest {
   @Mock
   FileStoreProvider fileStoreProvider;
 
-
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     fileStoreProvider = new FileStoreProviderImpl(
       "", "https://s3.amazonaws.com/test-bucket/", "AKIALKSFDJKGIOURTJ7H", "jhfd897+jkhjHJJDKJF/908090JHKJJHhjhfg78h", "xj-dev-audio", 1, ""

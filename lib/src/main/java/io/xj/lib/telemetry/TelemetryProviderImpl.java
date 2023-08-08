@@ -1,8 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.lib.telemetry;
 
-import io.xj.lib.app.AppConfiguration;
 import io.xj.hub.util.StringUtils;
+import io.xj.lib.app.AppConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -2,25 +2,26 @@
 package io.xj.lib.mixer;
 
 
-import io.xj.lib.notification.NotificationProvider;
 import io.xj.hub.util.InternalResource;
+import io.xj.lib.notification.NotificationProvider;
 import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.sound.sampled.AudioFormat;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class MixerImplTest {
   @Mock
   NotificationProvider notificationProvider;
@@ -33,7 +34,7 @@ public class MixerImplTest {
   // FUTURE test compression settings
   // FUTURE test compression special getters for ahead/decay frames
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
     mixerFactory = new MixerFactoryImpl(envelopeProvider, notificationProvider, "production", 1000000);
@@ -48,34 +49,26 @@ public class MixerImplTest {
   public void tearDown() {
   }
 
-  @Test(expected = MixerException.class)
-  public void Mixer_unsupportedOutputChannel_moreThanStereo() throws Exception {
-    try {
-      mixerFactory.createMixer(
-        new MixerConfig(
-          new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
-            48000, 32, 4, 8, 48000, false)
-        ));
+  @Test
+  public void Mixer_unsupportedOutputChannel_moreThanStereo() {
+    var e = assertThrows(MixerException.class, () -> mixerFactory.createMixer(
+      new MixerConfig(
+        new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
+          48000, 32, 4, 8, 48000, false)
+      )));
 
-    } catch (Exception e) {
-      assertTrue(e.getCause().getMessage().contains("more than 2 output audio channels not allowed"));
-      throw e;
-    }
+    assertTrue(e.getCause().getMessage().contains("more than 2 output audio channels not allowed"));
   }
 
-  @Test(expected = MixerException.class)
-  public void Mixer_unsupportedOutputChannel_lessThanMono() throws Exception {
-    try {
-      mixerFactory.createMixer(
-        new MixerConfig(
-          new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
-            48000, 32, 0, 8, 48000, false)
-        ));
+  @Test
+  public void Mixer_unsupportedOutputChannel_lessThanMono() {
+    var e = assertThrows(MixerException.class, () -> mixerFactory.createMixer(
+      new MixerConfig(
+        new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
+          48000, 32, 0, 8, 48000, false)
+      )));
 
-    } catch (Exception e) {
-      assertTrue(e.getCause().getMessage().contains("less than 1 output audio channels not allowed"));
-      throw e;
-    }
+    assertTrue(e.getCause().getMessage().contains("less than 1 output audio channels not allowed"));
   }
 
   @Test

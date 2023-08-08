@@ -2,11 +2,11 @@
 
 package io.xj.nexus.persistence;
 
-import io.xj.lib.entity.EntityUtils;
+import io.xj.hub.util.ValueUtils;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityStoreImpl;
-import io.xj.hub.util.ValueUtils;
+import io.xj.lib.entity.EntityUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;

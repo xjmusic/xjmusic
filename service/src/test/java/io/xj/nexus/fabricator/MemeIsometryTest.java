@@ -1,9 +1,9 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.fabricator;
 
-import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.hub.meme.MemeTaxonomy;
-import org.junit.Test;
+import io.xj.hub.tables.pojos.ProgramMeme;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Set;

@@ -3,9 +3,9 @@
 package io.xj.nexus.fabricator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.xj.nexus.hub_client.HubClient;
 import io.xj.hub.HubContent;
 import io.xj.hub.enums.ProgramType;
+import io.xj.hub.music.StickyBun;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.lib.entity.EntityFactoryImpl;
@@ -13,12 +13,11 @@ import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.hub.music.StickyBun;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.hub_client.HubTopology;
-import io.xj.test_fixtures.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
+import io.xj.nexus.hub_client.HubClient;
+import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
@@ -31,11 +30,12 @@ import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManagerImpl;
 import io.xj.nexus.persistence.Segments;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import io.xj.test_fixtures.NexusIntegrationTestingFixtures;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -49,7 +49,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SegmentRetrospectiveImplTest {
   static int SEQUENCE_TOTAL_BEATS = 64;
   final UUID patternId = UUID.randomUUID();
@@ -67,7 +67,7 @@ public class SegmentRetrospectiveImplTest {
   Segment segment3;
   Segment segment4;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     store = new NexusEntityStoreImpl(entityFactory);

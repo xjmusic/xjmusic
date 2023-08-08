@@ -2,13 +2,15 @@
 
 package io.xj.nexus.craft;
 
-import io.xj.hub.TemplateConfig;
 import io.xj.hub.HubContent;
+import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
+import io.xj.hub.meme.MemeTaxonomy;
+import io.xj.hub.music.Chord;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
@@ -16,8 +18,6 @@ import io.xj.hub.tables.pojos.InstrumentMeme;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Template;
-import io.xj.hub.meme.MemeTaxonomy;
-import io.xj.hub.music.Chord;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.MemeIsometry;
@@ -28,17 +28,18 @@ import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static io.xj.nexus.persistence.Segments.DELTA_UNLIMITED;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildAccount;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildInstrument;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildInstrumentAudio;
@@ -49,7 +50,6 @@ import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplate;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChoice;
-import static io.xj.nexus.persistence.Segments.DELTA_UNLIMITED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -59,7 +59,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CraftImplTest {
   static final int TEST_REPEAT_TIMES = 20;
   @Mock
@@ -70,7 +70,7 @@ public class CraftImplTest {
   Segment segment0;
   Program program1;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     Account account1 = buildAccount("fish");
     Library library1 = buildLibrary(account1, "sea");

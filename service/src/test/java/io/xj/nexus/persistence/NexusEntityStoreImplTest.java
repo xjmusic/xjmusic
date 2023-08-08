@@ -3,7 +3,6 @@
 package io.xj.nexus.persistence;
 
 
-import io.xj.nexus.hub_client.HubTopology;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.enums.TemplateType;
 import io.xj.hub.tables.pojos.Account;
@@ -17,6 +16,7 @@ import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusTopology;
+import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
@@ -24,15 +24,16 @@ import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
 
+import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildAccount;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildLibrary;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildProgram;
@@ -40,19 +41,18 @@ import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildProgramSequ
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildProgramSequenceBinding;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplate;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplateBinding;
-import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChoice;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class NexusEntityStoreImplTest {
   NexusEntityStore subject;
   EntityFactory entityFactory;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     JsonProvider jsonProvider = new JsonProviderImpl();
     entityFactory = new EntityFactoryImpl(jsonProvider);

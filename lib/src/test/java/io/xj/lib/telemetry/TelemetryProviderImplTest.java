@@ -2,8 +2,8 @@
 package io.xj.lib.telemetry;
 
 import io.xj.lib.app.AppConfiguration;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
@@ -14,7 +14,7 @@ public class TelemetryProviderImplTest {
   TelemetryProvider subject;
   final AppConfiguration config = new AppConfiguration("nexus");
 
-  @Before
+  @BeforeEach
   public void setUp() throws IOException {
     subject = new TelemetryProviderImpl(config, "coolair", true);
   }

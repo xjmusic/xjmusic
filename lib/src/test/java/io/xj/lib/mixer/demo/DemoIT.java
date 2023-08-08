@@ -11,10 +11,10 @@ import io.xj.lib.mixer.MixerConfig;
 import io.xj.lib.mixer.MixerFactory;
 import io.xj.lib.mixer.MixerFactoryImpl;
 import io.xj.lib.notification.NotificationProvider;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.sound.sampled.AudioFormat;
 import java.nio.file.Files;
@@ -24,7 +24,7 @@ import java.util.UUID;
 import static io.xj.hub.util.Assertion.assertFileMatchesResourceFile;
 import static io.xj.hub.util.FileUtils.getResourceFile;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DemoIT {
   static final long bpm = 121;
   static final Duration beat = Duration.ofMinutes(1).dividedBy(bpm);

@@ -1,17 +1,17 @@
 package io.xj.nexus.analysis;
 
-import io.xj.hub.TemplateConfig;
 import io.xj.hub.HubContent;
+import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.Instrument;
-import io.xj.hub.tables.pojos.Program;
-import io.xj.lib.entity.EntityUtils;
 import io.xj.hub.meme.MemeConstellation;
 import io.xj.hub.meme.MemeStack;
 import io.xj.hub.meme.MemeTaxonomy;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.util.ValueException;
 import io.xj.hub.util.ValueUtils;
+import io.xj.lib.entity.EntityUtils;
 
 import java.util.Collection;
 import java.util.Comparator;

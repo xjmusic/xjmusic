@@ -9,8 +9,8 @@ import io.xj.hub.util.StringUtils;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainType;
 import io.xj.nexus.model.Segment;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;

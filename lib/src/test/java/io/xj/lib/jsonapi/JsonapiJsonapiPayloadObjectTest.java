@@ -1,15 +1,14 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.lib.jsonapi;
 
-import java.util.Map;
+import io.xj.hub.util.ValueException;
 import io.xj.lib.Superwidget;
 import io.xj.lib.Widget;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.JsonProviderImpl;
-import io.xj.hub.util.ValueException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
@@ -18,8 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static io.xj.lib.jsonapi.AssertPayloadObject.assertPayloadObject;
 import static io.xj.hub.util.Assertion.assertSameItems;
+import static io.xj.lib.jsonapi.AssertPayloadObject.assertPayloadObject;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -35,7 +34,7 @@ public class JsonapiJsonapiPayloadObjectTest {
   EntityFactory entityFactory;
   JsonapiPayloadObject subject;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     var jsonProvider = new JsonProviderImpl();
     entityFactory = new EntityFactoryImpl(jsonProvider);

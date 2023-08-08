@@ -45,9 +45,10 @@ dependencies {
   implementation 'software.amazon.awssdk:secretsmanager'
   implementation 'software.amazon.awssdk:sns'
   implementation platform('software.amazon.awssdk:bom:2.20.56')
-  implementation ("org.springframework.boot:spring-boot-starter-web:${rootProject.ext.springBootVersion}"){
+  implementation("org.springframework.boot:spring-boot-starter-web:${rootProject.ext.springBootVersion}") {
     exclude group: 'org.springframework', module: 'spring-aop'
   }
+  testImplementation "org.jooq:jooq:${rootProject.ext.jooqVersion}"
   testImplementation "org.springframework.boot:spring-boot-starter-test:${rootProject.ext.springBootVersion}"
   testImplementation "org.springframework.boot:spring-boot-test:${rootProject.ext.springBootVersion}"
   testImplementation "org.springframework:spring-context:${rootProject.ext.springTestVersion}"
@@ -58,8 +59,10 @@ dependencies {
   testImplementation 'org.assertj:assertj-core:3.21.0'
   testImplementation 'org.hamcrest:hamcrest-library:2.2'
   testImplementation 'org.jetbrains:annotations:24.0.1'
-  testImplementation "org.jooq:jooq:${rootProject.ext.jooqVersion}"
+  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+  testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
   testImplementation 'org.mockito:mockito-core:4.0.0'
+  implementation 'org.mockito:mockito-junit-jupiter:3.12.4'
 }
 
 jar {

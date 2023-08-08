@@ -3,7 +3,7 @@
 package io.xj.nexus.work;
 
 import io.xj.nexus.OutputMode;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
