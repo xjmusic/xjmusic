@@ -1,6 +1,6 @@
-package io.xj.gui;
+package io.xj.gui.events;
 
-import io.xj.gui.events.StageReadyEvent;
+import io.xj.gui.MainWindowScene;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import org.slf4j.Logger;
@@ -14,34 +14,39 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
-public class StageListener implements ApplicationListener<StageReadyEvent> {
-  static final Logger LOG = LoggerFactory.getLogger(StageListener.class);
+public class StageReadyListener implements ApplicationListener<StageReadyEvent> {
+  static final Logger LOG = LoggerFactory.getLogger(StageReadyListener.class);
   private final String applicationTitle;
-  private final Resource fxml;
+  private final Resource mainWindowFxml;
 
   private final ApplicationContext ac;
+  private final String darkTheme;
+  private final MainWindowScene mainWindowScene;
 
-  public StageListener(
+  public StageReadyListener(
     @Value("${application.ui.title}") String applicationTitle,
-    @Value("classpath:/views/main-window.fxml") Resource fxml,
+    @Value("classpath:/views/main-window.fxml") Resource mainWindowFxml,
+    @Value("${gui.theme.dark}") String darkTheme,
+    MainWindowScene mainWindowScene,
     ApplicationContext ac
   ) {
-    LOG.info("StageListener created");
+    this.darkTheme = darkTheme;
+    this.mainWindowScene = mainWindowScene;
     this.applicationTitle = applicationTitle;
-    this.fxml = fxml;
+    this.mainWindowFxml = mainWindowFxml;
     this.ac = ac;
   }
 
   @Override
   public void onApplicationEvent(StageReadyEvent event) {
-    LOG.info("StageReadyEvent received");
     try {
       var primaryStage = event.getStage();
-      FXMLLoader fxmlLoader = new FXMLLoader(fxml.getURL());
-      fxmlLoader.setControllerFactory(ac::getBean);
-      var scene = new Scene(fxmlLoader.load());
+      FXMLLoader mainWindowFxmlLoader = new FXMLLoader(mainWindowFxml.getURL());
+      mainWindowFxmlLoader.setControllerFactory(ac::getBean);
+      mainWindowScene.set(new Scene(mainWindowFxmlLoader.load()));
       primaryStage.setTitle(applicationTitle);
-      primaryStage.setScene(scene);
+      primaryStage.setScene(mainWindowScene.get());
+      mainWindowScene.get().getStylesheets().add(darkTheme);
       primaryStage.show();
 
     } catch (IOException e) {

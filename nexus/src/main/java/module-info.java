@@ -19,7 +19,7 @@ module workstation.nexus.main {
   requires spring.context;
   requires spring.core;
   //
-  requires transitive workstation.lib.main;
+  requires workstation.lib.main;
   requires transitive hub.models.main;
 
   opens io.xj.nexus to spring.core;

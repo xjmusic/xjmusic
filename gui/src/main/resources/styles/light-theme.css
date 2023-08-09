@@ -1,0 +1,5 @@
+/* from https://stackoverflow.com/questions/49159286/make-a-dark-mode-with-javafx */
+
+.root {
+  -fx-base: #c0c0c0;
+}

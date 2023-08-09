@@ -18,7 +18,7 @@ module workstation.lib.main {
   requires spring.context;
   requires spring.core;
   requires typesafe.config;
-  requires hub.models.main;
+  requires transitive hub.models.main;
 
   opens io.xj.lib.filestore to spring.core;
   opens io.xj.lib.telemetry to spring.core;

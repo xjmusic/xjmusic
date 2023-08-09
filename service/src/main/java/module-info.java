@@ -17,8 +17,8 @@ module workstation.service.main {
   requires spring.context;
   requires spring.web;
   //
-  requires transitive workstation.lib.main;
-  requires transitive workstation.nexus.main;
+  requires workstation.lib.main;
+  requires workstation.nexus.main;
   requires transitive hub.models.main;
 
   opens io.xj.workstation.service to spring.core;
