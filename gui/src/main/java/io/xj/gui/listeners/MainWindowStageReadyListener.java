@@ -1,6 +1,6 @@
 package io.xj.gui.listeners;
 
-import io.xj.gui.MainWindowScene;
+import io.xj.gui.controllers.MainWindowController;
 import io.xj.gui.events.StageReadyEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -20,21 +20,21 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
   private final String applicationTitle;
   private final Resource mainWindowFxml;
 
+  private final MainWindowController mainWindowController;
   private final ApplicationContext ac;
   private final String darkTheme;
-  private final MainWindowScene mainWindowScene;
 
   public MainWindowStageReadyListener(
     @Value("${application.ui.title}") String applicationTitle,
     @Value("classpath:/views/main-window.fxml") Resource mainWindowFxml,
     @Value("${gui.theme.dark}") String darkTheme,
-    MainWindowScene mainWindowScene,
+    MainWindowController mainWindowController,
     ApplicationContext ac
   ) {
     this.darkTheme = darkTheme;
-    this.mainWindowScene = mainWindowScene;
     this.applicationTitle = applicationTitle;
     this.mainWindowFxml = mainWindowFxml;
+    this.mainWindowController = mainWindowController;
     this.ac = ac;
   }
 
@@ -44,10 +44,10 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
       var primaryStage = event.getStage();
       FXMLLoader mainWindowFxmlLoader = new FXMLLoader(mainWindowFxml.getURL());
       mainWindowFxmlLoader.setControllerFactory(ac::getBean);
-      mainWindowScene.set(new Scene(mainWindowFxmlLoader.load()));
+      mainWindowController.setMainWindowScene(new Scene(mainWindowFxmlLoader.load()));
       primaryStage.setTitle(applicationTitle);
-      primaryStage.setScene(mainWindowScene.get());
-      mainWindowScene.get().getStylesheets().add(darkTheme);
+      primaryStage.setScene(mainWindowController.getMainWindowScene());
+      mainWindowController.onStageReady();
       primaryStage.show();
 
     } catch (IOException e) {
