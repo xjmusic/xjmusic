@@ -62,7 +62,7 @@ import io.xj.nexus.persistence.ManagerPrivilegeException;
 import io.xj.nexus.persistence.ManagerValidationException;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.Segments;
-import org.jetbrains.annotations.Nullable;
+import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

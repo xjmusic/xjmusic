@@ -2,7 +2,7 @@
 package io.xj.lib.filestore;
 
 
-import org.jetbrains.annotations.Nullable;
+import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

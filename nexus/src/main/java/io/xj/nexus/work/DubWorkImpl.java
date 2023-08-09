@@ -20,7 +20,7 @@ import io.xj.nexus.dub.DubAudioCache;
 import io.xj.nexus.mixer.ActiveAudio;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
-import org.jetbrains.annotations.Nullable;
+import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

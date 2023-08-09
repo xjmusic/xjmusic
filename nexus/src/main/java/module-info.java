@@ -9,7 +9,7 @@ module workstation.nexus.main {
   requires org.apache.commons.io;
   requires org.apache.httpcomponents.httpclient;
   requires org.apache.httpcomponents.httpcore;
-  requires org.jetbrains.annotations;
+  requires jakarta.annotation;
   requires me.xdrop.fuzzywuzzy;
   requires org.slf4j;
   requires spring.beans;

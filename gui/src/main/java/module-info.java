@@ -3,7 +3,7 @@ module workstation.gui.main {
   requires javafx.controls;
   requires javafx.fxml;
   requires javafx.graphics;
-  requires org.jetbrains.annotations;
+  requires jakarta.annotation;
   requires org.jooq;
   requires org.slf4j;
   requires spring.beans;

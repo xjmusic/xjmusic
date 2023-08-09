@@ -4,7 +4,7 @@ package io.xj.nexus.ship.broadcast;
 
 
 import io.xj.hub.util.ValueUtils;
-import org.jetbrains.annotations.Nullable;
+import jakarta.annotation.Nullable;
 
 import java.util.Objects;
 

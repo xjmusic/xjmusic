@@ -2,7 +2,8 @@
 package io.xj.gui;
 
 import io.xj.hub.util.StringUtils;
-import org.jetbrains.annotations.Nullable;
+import jakarta.annotation.Nullable;
+
 
 public class WorkstationException extends Exception {
 

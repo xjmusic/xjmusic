@@ -3,7 +3,7 @@ package io.xj.nexus.craft;
 
 import io.xj.hub.music.Accidental;
 import io.xj.hub.music.Note;
-import org.jetbrains.annotations.Nullable;
+import jakarta.annotation.Nullable;
 import org.junit.After;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;

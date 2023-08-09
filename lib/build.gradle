@@ -29,11 +29,9 @@ dependencies {
   implementation 'commons-io:commons-io:2.11.0'
   implementation 'me.xdrop:fuzzywuzzy:1.4.0'
   implementation 'org.apache.httpcomponents:httpclient:4.5.14'
-  implementation 'org.jetbrains:annotations:24.0.1'
   implementation 'org.reflections:reflections:0.10.1'
   implementation "org.slf4j:log4j-over-slf4j:${rootProject.ext.slf4jVersion}"
   implementation "org.slf4j:slf4j-api:${rootProject.ext.slf4jVersion}"
-  implementation 'org.yaml:snakeyaml:1.33'
   implementation "org.springframework.boot:spring-boot-starter:${rootProject.ext.springBootVersion}"
   testImplementation "org.jooq:jooq:${rootProject.ext.jooqVersion}"
   testImplementation "org.junit.jupiter:junit-jupiter-api:${rootProject.ext.junitVersion}"

@@ -37,7 +37,7 @@ import io.xj.nexus.model.SegmentChoiceArrangementPick;
 import io.xj.nexus.model.SegmentChord;
 import io.xj.nexus.model.SegmentChordVoicing;
 import io.xj.nexus.model.SegmentType;
-import org.jetbrains.annotations.Nullable;
+import jakarta.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;

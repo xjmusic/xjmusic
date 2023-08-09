@@ -16,7 +16,7 @@ import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.ship.broadcast.BroadcastFactory;
-import org.jetbrains.annotations.Nullable;
+import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

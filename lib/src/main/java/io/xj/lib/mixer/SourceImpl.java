@@ -7,7 +7,7 @@ import io.xj.hub.util.ValueException;
 import io.xj.hub.util.ValueUtils;
 import io.xj.lib.notification.NotificationProvider;
 import org.apache.commons.io.FileUtils;
-import org.jetbrains.annotations.Nullable;
+import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

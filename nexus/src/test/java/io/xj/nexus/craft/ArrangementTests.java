@@ -38,7 +38,7 @@ import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.SegmentManagerImpl;
 import io.xj.test_fixtures.NexusIntegrationTestingFixtures;
-import org.jetbrains.annotations.Nullable;
+import jakarta.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

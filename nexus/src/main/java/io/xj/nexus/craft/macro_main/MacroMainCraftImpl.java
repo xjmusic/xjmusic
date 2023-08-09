@@ -19,7 +19,7 @@ import io.xj.nexus.model.SegmentChord;
 import io.xj.nexus.model.SegmentChordVoicing;
 import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.Segments;
-import org.jetbrains.annotations.Nullable;
+import jakarta.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.List;

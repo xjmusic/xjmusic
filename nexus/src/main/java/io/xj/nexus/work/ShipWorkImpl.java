@@ -13,7 +13,7 @@ import io.xj.nexus.ship.ShipException;
 import io.xj.nexus.ship.broadcast.BroadcastFactory;
 import io.xj.nexus.ship.broadcast.StreamEncoder;
 import io.xj.nexus.ship.broadcast.StreamPlayer;
-import org.jetbrains.annotations.Nullable;
+import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -4,7 +4,7 @@ package io.xj.nexus.hub_client;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.xj.hub.enums.UserRoleType;
 import io.xj.lib.entity.EntityUtils;
-import org.jetbrains.annotations.Nullable;
+import jakarta.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;

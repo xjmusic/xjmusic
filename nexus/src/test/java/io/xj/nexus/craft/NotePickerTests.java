@@ -8,7 +8,7 @@ import io.xj.hub.music.Note;
 import io.xj.hub.music.NoteRange;
 import io.xj.hub.util.CsvUtils;
 import io.xj.hub.util.ValueException;
-import org.jetbrains.annotations.Nullable;
+import jakarta.annotation.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
