@@ -4,6 +4,7 @@ import io.xj.gui.controllers.MainWindowController;
 import io.xj.gui.events.StageReadyEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +13,8 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 @Component
@@ -22,16 +25,20 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
 
   private final MainWindowController mainWindowController;
   private final ApplicationContext ac;
-  private final String darkTheme;
+  private final Image appIcon;
 
   public MainWindowStageReadyListener(
     @Value("${application.ui.title}") String applicationTitle,
     @Value("classpath:/views/main-window.fxml") Resource mainWindowFxml,
-    @Value("${gui.theme.dark}") String darkTheme,
+    @Value("classpath:/icons/icon.png") Resource appIcon,
     MainWindowController mainWindowController,
     ApplicationContext ac
   ) {
-    this.darkTheme = darkTheme;
+    try {
+      this.appIcon = new Image(new BufferedInputStream(new FileInputStream(appIcon.getFile())));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
     this.applicationTitle = applicationTitle;
     this.mainWindowFxml = mainWindowFxml;
     this.mainWindowController = mainWindowController;
@@ -45,6 +52,7 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
       FXMLLoader mainWindowFxmlLoader = new FXMLLoader(mainWindowFxml.getURL());
       mainWindowFxmlLoader.setControllerFactory(ac::getBean);
       mainWindowController.setMainWindowScene(new Scene(mainWindowFxmlLoader.load()));
+      primaryStage.getIcons().add(appIcon);
       primaryStage.setTitle(applicationTitle);
       primaryStage.setScene(mainWindowController.getMainWindowScene());
       mainWindowController.onStageReady();

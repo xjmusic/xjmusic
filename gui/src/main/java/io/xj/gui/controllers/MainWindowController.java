@@ -6,7 +6,6 @@ import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 import jakarta.annotation.Nullable;
 import javafx.application.HostServices;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.CheckMenuItem;
@@ -15,6 +14,8 @@ import javafx.scene.control.TextField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 public class MainWindowController {
   Logger LOG = LoggerFactory.getLogger(MainWindowController.class);
   private final HostServices hostServices;
+  private final ConfigurableApplicationContext ac;
   private final String launchGuideUrl;
   private final String lightTheme;
   private final String darkTheme;
@@ -41,6 +43,7 @@ public class MainWindowController {
 
   public MainWindowController(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
+    ConfigurableApplicationContext ac,
     @Value("${gui.launch.guide.url}") String launchGuideUrl,
     @Value("${gui.theme.light}") String lightTheme,
     @Value("${gui.theme.dark}") String darkTheme,
@@ -48,6 +51,7 @@ public class MainWindowController {
     @Value("${environment.choices}") String environmentChoices
   ) {
     this.hostServices = hostServices;
+    this.ac = ac;
     this.launchGuideUrl = launchGuideUrl;
     this.lightTheme = lightTheme;
     this.darkTheme = darkTheme;
@@ -89,8 +93,9 @@ public class MainWindowController {
 
   @FXML
   protected void onQuit() {
-    LOG.info("Will exit application");
-    Platform.exit();
+    var exitCode = SpringApplication.exit(ac, () -> 0);
+    LOG.info("Will exit with code {}", exitCode);
+    System.exit(exitCode);
   }
 
   @FXML
