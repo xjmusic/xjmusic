@@ -18,6 +18,7 @@ ext.os = org.gradle.internal.os.OperatingSystem.current()
 jlink {
   imageZip = file("$buildDir/image-zip/xjmusic-workstation.zip")
   options = ['--bind-services', '--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+  addExtraDependencies 'javafx'
 
   launcher {
     name = 'xjmusic-workstation'
