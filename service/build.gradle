@@ -37,7 +37,6 @@ dependencies {
   implementation 'commons-io:commons-io:2.11.0'
   implementation 'me.xdrop:fuzzywuzzy:1.4.0'
   implementation 'org.apache.httpcomponents:httpclient:4.5.14'
-  implementation "org.jooq:jooq:${rootProject.ext.jooqVersion}"
   implementation 'org.mp4parser:isoparser:1.9.41'
   implementation 'org.mp4parser:muxer:1.9.41'
   implementation 'org.mp4parser:streaming:1.9.41'

@@ -12,7 +12,6 @@ module workstation.lib.main {
   requires org.apache.commons.io;
   requires org.apache.httpcomponents.httpclient;
   requires jakarta.annotation;
-  requires org.jooq;
   requires org.reflections;
   requires org.slf4j;
   requires spring.beans;

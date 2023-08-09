@@ -19,6 +19,9 @@ jlink {
   imageZip = file("$buildDir/image-zip/xjmusic-workstation.zip")
   options = ['--bind-services', '--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
   addExtraDependencies 'javafx'
+  addExtraDependencies 'jooq'
+  addExtraDependencies 'jackson'
+  addExtraDependencies 'slf4j'
 
   launcher {
     name = 'xjmusic-workstation'
@@ -43,21 +46,21 @@ dependencies {
   // private
   implementation "io.xj:models:${rootProject.ext.xjModelsVersion}"
   // vendor
+  implementation "org.jooq:jooq:${rootProject.ext.jooqVersion}"
+  implementation "org.openjfx:javafx-base:${rootProject.ext.javaFxVersion}"
+  implementation "org.openjfx:javafx-controls:${rootProject.ext.javaFxVersion}"
+  implementation "org.openjfx:javafx-fxml:${rootProject.ext.javaFxVersion}"
+  implementation "org.openjfx:javafx-graphics:${rootProject.ext.javaFxVersion}"
+  implementation "org.slf4j:log4j-over-slf4j:${rootProject.ext.slf4jVersion}"
+  implementation "org.slf4j:slf4j-api:${rootProject.ext.slf4jVersion}"
+  implementation "org.springframework.boot:spring-boot-starter:${rootProject.ext.springBootVersion}"
   implementation 'com.typesafe:config:1.4.2'
   implementation 'commons-codec:commons-codec:1.15'
   implementation 'commons-io:commons-io:2.11.0'
   implementation 'me.xdrop:fuzzywuzzy:1.4.0'
   implementation 'org.apache.httpcomponents:httpclient:4.5.14'
   implementation 'org.reflections:reflections:0.10.1'
-  implementation "org.slf4j:log4j-over-slf4j:${rootProject.ext.slf4jVersion}"
-  implementation "org.slf4j:slf4j-api:${rootProject.ext.slf4jVersion}"
-  implementation "org.springframework.boot:spring-boot-starter:${rootProject.ext.springBootVersion}"
-  implementation "org.openjfx:javafx-base:${rootProject.ext.javaFxVersion}"
-  implementation "org.openjfx:javafx-controls:${rootProject.ext.javaFxVersion}"
-  implementation "org.openjfx:javafx-fxml:${rootProject.ext.javaFxVersion}"
-  implementation "org.openjfx:javafx-graphics:${rootProject.ext.javaFxVersion}"
   testImplementation "org.junit.jupiter:junit-jupiter-api:${rootProject.ext.junitVersion}"
-  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${rootProject.ext.junitVersion}"
   testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${rootProject.ext.junitVersion}"
 }
 

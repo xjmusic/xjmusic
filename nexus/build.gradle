@@ -27,6 +27,8 @@ dependencies {
   implementation "com.fasterxml.jackson.core:jackson-annotations:${rootProject.ext.jacksonAnnotationsVersion}"
   implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:${rootProject.ext.jacksonAnnotationsVersion}"
   implementation "org.jooq:jooq:${rootProject.ext.jooqVersion}"
+  implementation "org.slf4j:log4j-over-slf4j:${rootProject.ext.slf4jVersion}"
+  implementation "org.slf4j:slf4j-api:${rootProject.ext.slf4jVersion}"
   implementation "org.springframework.boot:spring-boot-starter:${rootProject.ext.springBootVersion}"
   implementation 'be.tarsos.dsp:core:2.5'
   implementation 'be.tarsos.dsp:jvm:2.5'
@@ -40,12 +42,10 @@ dependencies {
   implementation 'org.mp4parser:muxer:1.9.41'
   implementation 'org.mp4parser:streaming:1.9.41'
   implementation 'org.reflections:reflections:0.10.2'
-  implementation "org.slf4j:log4j-over-slf4j:${rootProject.ext.slf4jVersion}"
-  implementation "org.slf4j:slf4j-api:${rootProject.ext.slf4jVersion}"
   testFixturesImplementation "org.jooq:jooq:${rootProject.ext.jooqVersion}"
-  testFixturesImplementation 'com.typesafe:config:1.4.2'
   testFixturesImplementation "org.slf4j:slf4j-api:${rootProject.ext.slf4jVersion}"
   testFixturesImplementation "org.springframework.boot:spring-boot-starter:${rootProject.ext.springBootVersion}"
+  testFixturesImplementation 'com.typesafe:config:1.4.2'
   testImplementation "org.junit.jupiter:junit-jupiter-api:${rootProject.ext.junitVersion}"
   testImplementation 'be.tarsos.dsp:core:2.5'
   testImplementation 'be.tarsos.dsp:jvm:2.5'

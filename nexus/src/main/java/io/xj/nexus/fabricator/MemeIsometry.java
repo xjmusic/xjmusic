@@ -30,8 +30,7 @@ public class MemeIsometry extends Isometry {
   }
 
   /**
-   * Instantiate a new MemeIsometry of a group of source Memes,
-   * as expressed in a Result of jOOQ records.
+   * Instantiate a new MemeIsometry of a group of source Memes
    *
    * @param taxonomy    context within which to measure isometry
    * @param sourceMemes to compare of
