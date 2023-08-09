@@ -10,6 +10,7 @@ import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,6 +82,8 @@ public class MainWindowController {
   protected ChoiceBox<String> choiceOutputMode;
   @FXML
   protected ChoiceBox<String> choiceOutputFileMode;
+  @FXML
+  protected TextArea textAreaLogs;
 
   @FXML
   private void toggleDarkTheme() {

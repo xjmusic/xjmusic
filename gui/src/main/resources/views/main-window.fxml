@@ -39,6 +39,7 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
@@ -47,7 +48,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.MainWindowController">
    <top>
-      <VBox prefHeight="719.0" prefWidth="640.0" BorderPane.alignment="CENTER">
+      <VBox prefHeight="479.0" prefWidth="640.0" BorderPane.alignment="CENTER">
         <children>
           <MenuBar VBox.vgrow="NEVER">
             <menus>
@@ -184,4 +185,7 @@
         </children>
       </VBox>
    </top>
+   <bottom>
+      <TextArea fx:id="textAreaLogs" prefHeight="285.0" prefWidth="640.0" BorderPane.alignment="CENTER" />
+   </bottom>
 </BorderPane>
