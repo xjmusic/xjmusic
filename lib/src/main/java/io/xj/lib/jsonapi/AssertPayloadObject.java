@@ -1,9 +1,9 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.lib.jsonapi;
 
-import io.xj.lib.entity.Entities;
+import io.xj.hub.util.ValueException;
 import io.xj.lib.entity.EntityException;
-import io.xj.lib.util.ValueException;
+import io.xj.lib.entity.EntityUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,7 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-import static io.xj.lib.util.Assertion.assertTrue;
+import static io.xj.hub.util.Assertion.assertTrue;
 
 /**
  * Assertion utilities for testing Payload sent/received to/from a XJ Music REST JSON:API service
@@ -50,10 +50,10 @@ public class AssertPayloadObject {
    * @throws JsonapiException if assertion fails
    */
   public AssertPayloadObject belongsTo(Class<?> type, String id) throws JsonapiException, ValueException {
-    String key = Entities.toBelongsTo(type);
+    String key = EntityUtils.toBelongsTo(type);
     assertTrue(String.format("Belongs to %s id=%s", type, id), jsonapiPayloadObject.getRelationships().containsKey(key));
     new AssertPayload(jsonapiPayloadObject.getRelationships().get(key))
-      .hasDataOne(Entities.toType(type), id);
+      .hasDataOne(EntityUtils.toType(type), id);
     return this;
   }
 
@@ -67,10 +67,10 @@ public class AssertPayloadObject {
    */
   public AssertPayloadObject belongsTo(String type, String id) throws JsonapiException {
     try {
-      String key = Entities.toBelongsTo(type);
+      String key = EntityUtils.toBelongsTo(type);
       assertTrue(String.format("Belongs to %s id=%s", type, id), jsonapiPayloadObject.getRelationships().containsKey(key));
       new AssertPayload(jsonapiPayloadObject.getRelationships().get(key))
-        .hasDataOne(Entities.toType(type), id);
+        .hasDataOne(EntityUtils.toType(type), id);
       return this;
 
     } catch (ValueException e) {
@@ -86,8 +86,8 @@ public class AssertPayloadObject {
    */
   public <N> AssertPayloadObject belongsTo(N resource) throws JsonapiException {
     try {
-      String key = Entities.toBelongsTo(resource);
-      assertTrue(String.format("Belongs to %s id=%s", Entities.toType(resource), Entities.getId(resource)), jsonapiPayloadObject.getRelationships().containsKey(key));
+      String key = EntityUtils.toBelongsTo(resource);
+      assertTrue(String.format("Belongs to %s id=%s", EntityUtils.toType(resource), EntityUtils.getId(resource)), jsonapiPayloadObject.getRelationships().containsKey(key));
       new AssertPayload(jsonapiPayloadObject.getRelationships().get(key))
         .hasDataOne(resource);
       return this;
@@ -105,7 +105,7 @@ public class AssertPayloadObject {
    * @return payloadObject assertion utility (for chaining methods)
    */
   public <N> AssertPayloadObject hasMany(Class<?> type, Collection<N> resources) throws JsonapiException {
-    return hasMany(Entities.toHasMany(type), resources);
+    return hasMany(EntityUtils.toHasMany(type), resources);
   }
 
   /**
@@ -117,16 +117,16 @@ public class AssertPayloadObject {
    */
   public <N> AssertPayloadObject hasMany(String type, Collection<N> resources) throws JsonapiException {
     try {
-      String key = Entities.toHasMany(type);
+      String key = EntityUtils.toHasMany(type);
       assertTrue(String.format("Has relationship %s", key), jsonapiPayloadObject.getRelationships().containsKey(key));
       List<String> list = new ArrayList<>();
       for (N resource : resources) {
-        var resourceId = Entities.getId(resource);
+        var resourceId = EntityUtils.getId(resource);
         if (Objects.nonNull(resourceId))
           list.add(resourceId.toString());
       }
       new AssertPayload(jsonapiPayloadObject.getRelationships().get(key))
-        .hasDataMany(Entities.toType(type), list);
+        .hasDataMany(EntityUtils.toType(type), list);
       return this;
 
     } catch (EntityException | ValueException e) {

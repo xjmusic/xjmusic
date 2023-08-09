@@ -5,8 +5,8 @@ package io.xj.nexus.craft.background;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.lib.util.MarbleBag;
-import io.xj.lib.util.ValueUtils;
+import io.xj.hub.util.MarbleBag;
+import io.xj.hub.util.ValueUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.detail.DetailCraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
@@ -20,7 +20,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 
 /**
  * Background craft for the current segment

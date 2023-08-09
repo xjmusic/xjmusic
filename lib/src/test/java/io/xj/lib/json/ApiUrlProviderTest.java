@@ -2,17 +2,15 @@
 
 package io.xj.lib.json;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest
 public class ApiUrlProviderTest {
   ApiUrlProvider subject;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     subject = new ApiUrlProvider("https://lab.test.xj.io/");
   }

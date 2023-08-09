@@ -1,25 +1,24 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.lib.entity;
 
-import java.util.Set;
 import io.xj.lib.Superwidget;
 import io.xj.lib.Widget;
 import io.xj.lib.json.JsonProviderImpl;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests for text utilities
@@ -32,58 +31,58 @@ public class EntitiesTest extends TestTemplate {
 
   @Test
   public void toResourceBelongsTo() {
-    assertEquals("entity", Entities.toBelongsTo("Entity"));
-    assertEquals("superwidgetWidget", Entities.toBelongsTo("SuperwidgetWidget"));
-    assertEquals("widget", Entities.toBelongsTo("widget"));
-    assertEquals("widget", Entities.toBelongsTo("widgets"));
-    assertEquals("widget", Entities.toBelongsTo(createWidget("Ding")));
-    assertEquals("widget", Entities.toBelongsTo(Widget.class));
-    assertEquals("superwidget", Entities.toBelongsTo("Superwidget"));
+    assertEquals("entity", EntityUtils.toBelongsTo("Entity"));
+    assertEquals("superwidgetWidget", EntityUtils.toBelongsTo("SuperwidgetWidget"));
+    assertEquals("widget", EntityUtils.toBelongsTo("widget"));
+    assertEquals("widget", EntityUtils.toBelongsTo("widgets"));
+    assertEquals("widget", EntityUtils.toBelongsTo(createWidget("Ding")));
+    assertEquals("widget", EntityUtils.toBelongsTo(Widget.class));
+    assertEquals("superwidget", EntityUtils.toBelongsTo("Superwidget"));
   }
 
   @Test
   public void toResourceHasMany() {
-    assertEquals("entities", Entities.toHasMany("Entity"));
-    assertEquals("superwidgetWidgets", Entities.toHasMany("SuperwidgetWidget"));
-    assertEquals("widgets", Entities.toHasMany("widget"));
-    assertEquals("widgets", Entities.toHasMany(createWidget("Ding")));
-    assertEquals("widgets", Entities.toHasMany(Widget.class));
-    assertEquals("superwidgets", Entities.toHasMany("Superwidget"));
+    assertEquals("entities", EntityUtils.toHasMany("Entity"));
+    assertEquals("superwidgetWidgets", EntityUtils.toHasMany("SuperwidgetWidget"));
+    assertEquals("widgets", EntityUtils.toHasMany("widget"));
+    assertEquals("widgets", EntityUtils.toHasMany(createWidget("Ding")));
+    assertEquals("widgets", EntityUtils.toHasMany(Widget.class));
+    assertEquals("superwidgets", EntityUtils.toHasMany("Superwidget"));
   }
 
   @Test
   public void toResourceHasManyFromType() {
-    assertEquals("entities", Entities.toHasManyFromType("entities"));
-    assertEquals("superwidgetWidgets", Entities.toHasManyFromType("superwidget-widgets"));
-    assertEquals("superwidgetWidgets", Entities.toHasManyFromType("superwidget-widget"));
-    assertEquals("superwidgets", Entities.toHasManyFromType("superwidget"));
-    assertEquals("superwidgets", Entities.toHasManyFromType("Superwidgets"));
+    assertEquals("entities", EntityUtils.toHasManyFromType("entities"));
+    assertEquals("superwidgetWidgets", EntityUtils.toHasManyFromType("superwidget-widgets"));
+    assertEquals("superwidgetWidgets", EntityUtils.toHasManyFromType("superwidget-widget"));
+    assertEquals("superwidgets", EntityUtils.toHasManyFromType("superwidget"));
+    assertEquals("superwidgets", EntityUtils.toHasManyFromType("Superwidgets"));
   }
 
   @Test
   public void toResourceType() {
-    assertEquals("entities", Entities.toType("Entity"));
-    assertEquals("superwidget-widgets", Entities.toType("SuperwidgetWidget"));
-    assertEquals("superwidget-widgets", Entities.toType("superwidgetWidget"));
-    assertEquals("superwidget-widgets", Entities.toType("superwidgetWidgets"));
-    assertEquals("widgets", Entities.toType(createWidget("Ding")));
-    assertEquals("widgets", Entities.toType(Widget.class));
-    assertEquals("superwidgets", Entities.toType("Superwidget"));
+    assertEquals("entities", EntityUtils.toType("Entity"));
+    assertEquals("superwidget-widgets", EntityUtils.toType("SuperwidgetWidget"));
+    assertEquals("superwidget-widgets", EntityUtils.toType("superwidgetWidget"));
+    assertEquals("superwidget-widgets", EntityUtils.toType("superwidgetWidgets"));
+    assertEquals("widgets", EntityUtils.toType(createWidget("Ding")));
+    assertEquals("widgets", EntityUtils.toType(Widget.class));
+    assertEquals("superwidgets", EntityUtils.toType("Superwidget"));
   }
 
   @Test
   public void toIdAttribute() {
-    assertEquals("bilgeWaterId", Entities.toIdAttribute("BilgeWater"));
-    assertEquals("widgetId", Entities.toIdAttribute(createWidget("Ding")));
-    assertEquals("widgetId", Entities.toIdAttribute(Widget.class));
+    assertEquals("bilgeWaterId", EntityUtils.toIdAttribute("BilgeWater"));
+    assertEquals("widgetId", EntityUtils.toIdAttribute(createWidget("Ding")));
+    assertEquals("widgetId", EntityUtils.toIdAttribute(Widget.class));
   }
 
   @Test
   public void toAttributeName() {
-    assertEquals("dancingAbility", Entities.toAttributeName("DancingAbility"));
+    assertEquals("dancingAbility", EntityUtils.toAttributeName("DancingAbility"));
   }
 
-  @Before
+  @BeforeEach
   public void setUp() {
     var jsonProvider = new JsonProviderImpl();
     subject = new EntityFactoryImpl(jsonProvider);
@@ -100,9 +99,9 @@ public class EntitiesTest extends TestTemplate {
       .setId(UUID.fromString("879802e8-5856-4b1f-8c7f-09fd7f4bcde6"))
       .setName("Marv");
 
-    Entities.set(widget5, "name", "Dave");
+    EntityUtils.set(widget5, "name", "Dave");
 
-    Assert.assertEquals("Dave", widget5.getName());
+    assertEquals("Dave", widget5.getName());
   }
 
   @Test
@@ -112,9 +111,9 @@ public class EntitiesTest extends TestTemplate {
       .setName("Marv");
     LocalDateTime input = LocalDateTime.parse("2020-03-09T12:34:56.789");
 
-    Entities.set(widget5, "createdAt", input);
+    EntityUtils.set(widget5, "createdAt", input);
 
-    Assert.assertEquals(input, widget5.getCreatedAt());
+    assertEquals(input, widget5.getCreatedAt());
   }
 
   @Test
@@ -124,14 +123,14 @@ public class EntitiesTest extends TestTemplate {
       .setName("Marv");
     LocalDateTime input = LocalDateTime.parse("2020-03-09T12:34:56.789");
 
-    Entities.set(widget5, "createdAt", input.toString());
+    EntityUtils.set(widget5, "createdAt", input.toString());
 
-    Assert.assertEquals(input, widget5.getCreatedAt());
+    assertEquals(input, widget5.getCreatedAt());
   }
 
   @Test
   public void set_nonexistentAttribute() {
-    var e = assertThrows(EntityException.class, () -> Entities.set(widget, "turnip", 4.2));
+    var e = assertThrows(EntityException.class, () -> EntityUtils.set(widget, "turnip", 4.2));
     assertEquals("Widget has no attribute 'turnip'", e.getMessage());
   }
 
@@ -139,24 +138,24 @@ public class EntitiesTest extends TestTemplate {
   public void setAllAttributes() throws EntityException {
     subject.setAllAttributes(widget, createWidget("Marv"));
 
-    Assert.assertEquals("Marv", widget.getName());
+    assertEquals("Marv", widget.getName());
   }
 
   @Test
   public void getResourceId() throws EntityException {
-    assertEquals(UUID.fromString("879802e8-5856-4b1f-8c7f-09fd7f4bcde6"), Entities.getId(widget));
+    assertEquals(UUID.fromString("879802e8-5856-4b1f-8c7f-09fd7f4bcde6"), EntityUtils.getId(widget));
   }
 
   @Test
   public void getResourceId_nullIfEntityHasNoId() throws EntityException {
-    assertNull(Entities.getId(new Object()));
+    assertNull(EntityUtils.getId(new Object()));
   }
 
   @Test
   public void set_willFailIfSetterAcceptsNoParameters() {
     Widget input = new Widget();
 
-    var e = assertThrows(EntityException.class, () -> Entities.set(input, "willFailBecauseAcceptsNoParameters", true));
+    var e = assertThrows(EntityException.class, () -> EntityUtils.set(input, "willFailBecauseAcceptsNoParameters", true));
     assertEquals("Widget has no attribute 'willFailBecauseAcceptsNoParameters'", e.getMessage());
   }
 
@@ -164,7 +163,7 @@ public class EntitiesTest extends TestTemplate {
   public void set_willFailIfSetterHasProtectedAccess() {
     Widget input = new Widget();
 
-    var e = assertThrows(EntityException.class, () -> Entities.set(input, "willFailBecauseNonexistent", "testing"));
+    var e = assertThrows(EntityException.class, () -> EntityUtils.set(input, "willFailBecauseNonexistent", "testing"));
     assertEquals("Widget has no attribute 'willFailBecauseNonexistent'", e.getMessage());
   }
 
@@ -173,7 +172,7 @@ public class EntitiesTest extends TestTemplate {
     Widget parent = createWidget("Parent");
     Widget child = createWidget(parent.getId(), "Child");
 
-    assertEquals(parent.getId(), Entities.getBelongsToId(child, "superwidget").orElseThrow());
+    assertEquals(parent.getId(), EntityUtils.getBelongsToId(child, "superwidget").orElseThrow());
   }
 
   @Test
@@ -181,20 +180,20 @@ public class EntitiesTest extends TestTemplate {
     Superwidget parent = new Superwidget()
       .setId(UUID.randomUUID());
 
-    assertTrue(Entities.isChild(
+    assertTrue(EntityUtils.isChild(
       new Widget()
         .setSuperwidgetId(parent.getId()),
       parent));
-    assertFalse(Entities.isChild(new Widget()
+    assertFalse(EntityUtils.isChild(new Widget()
       .setSuperwidgetId(UUID.randomUUID()), parent));
-    assertFalse(Entities.isChild(new Widget(), parent));
+    assertFalse(EntityUtils.isChild(new Widget(), parent));
   }
 
 
   @Test
   public void csvIdsOf() {
     assertEquals("4872f737-3526-4532-bb9f-358e3503db7e,333d6284-d7b9-4654-b79c-cafaf9330b6a",
-      Entities.csvIdsOf(List.of(
+      EntityUtils.csvIdsOf(List.of(
         new Widget().setId(UUID.fromString("4872f737-3526-4532-bb9f-358e3503db7e")),
         new Widget().setId(UUID.fromString("333d6284-d7b9-4654-b79c-cafaf9330b6a"))
       )));
@@ -206,7 +205,7 @@ public class EntitiesTest extends TestTemplate {
         UUID.fromString("4872f737-3526-4532-bb9f-358e3503db7e"),
         UUID.fromString("333d6284-d7b9-4654-b79c-cafaf9330b6a")
       ),
-      Entities.idsOf(List.of(
+      EntityUtils.idsOf(List.of(
         new Widget().setId(UUID.fromString("4872f737-3526-4532-bb9f-358e3503db7e")),
         new Widget().setId(UUID.fromString("333d6284-d7b9-4654-b79c-cafaf9330b6a"))
       )));
@@ -215,7 +214,7 @@ public class EntitiesTest extends TestTemplate {
   @Test
   public void csvOf() {
     assertEquals("4872f737-3526-4532-bb9f-358e3503db7e, 333d6284-d7b9-4654-b79c-cafaf9330b6a",
-      Entities.csvOf(List.of(
+      EntityUtils.csvOf(List.of(
         UUID.fromString("4872f737-3526-4532-bb9f-358e3503db7e"),
         UUID.fromString("333d6284-d7b9-4654-b79c-cafaf9330b6a")
       )));
@@ -228,7 +227,7 @@ public class EntitiesTest extends TestTemplate {
         UUID.fromString("4872f737-3526-4532-bb9f-358e3503db7e"),
         UUID.fromString("333d6284-d7b9-4654-b79c-cafaf9330b6a")
       ),
-      Entities.idsFromCSV("4872f737-3526-4532-bb9f-358e3503db7e,333d6284-d7b9-4654-b79c-cafaf9330b6a"));
+      EntityUtils.idsFromCSV("4872f737-3526-4532-bb9f-358e3503db7e,333d6284-d7b9-4654-b79c-cafaf9330b6a"));
   }
 
   @Test
@@ -236,9 +235,9 @@ public class EntitiesTest extends TestTemplate {
     Superwidget parent = new Superwidget()
       .setId(UUID.randomUUID());
 
-    assertTrue(Entities.isParent(parent, new Widget().setSuperwidgetId(parent.getId())));
-    assertFalse(Entities.isParent(parent, new Widget().setSuperwidgetId(UUID.randomUUID())));
-    assertFalse(Entities.isParent(parent, new Widget()));
+    assertTrue(EntityUtils.isParent(parent, new Widget().setSuperwidgetId(parent.getId())));
+    assertFalse(EntityUtils.isParent(parent, new Widget().setSuperwidgetId(UUID.randomUUID())));
+    assertFalse(EntityUtils.isParent(parent, new Widget()));
   }
 
   @Test
@@ -246,8 +245,8 @@ public class EntitiesTest extends TestTemplate {
     Widget x = new Widget()
       .setId(UUID.randomUUID());
 
-    assertTrue(Entities.isSame(x, new Widget().setId(x.getId())));
-    assertFalse(Entities.isSame(x, new Widget()));
+    assertTrue(EntityUtils.isSame(x, new Widget().setId(x.getId())));
+    assertFalse(EntityUtils.isSame(x, new Widget()));
   }
 
   @Test
@@ -258,7 +257,7 @@ public class EntitiesTest extends TestTemplate {
           new Widget().setId(UUID.fromString("333d6284-d7b9-4654-b79c-cafaf9330b6a")),
           new Widget().setId(UUID.fromString("e23fb542-b0fc-4773-9848-772f64cbc5a4"))
         ).stream()
-        .flatMap(Entities::flatMapIds)
+        .flatMap(EntityUtils::flatMapIds)
         .collect(Collectors.toList());
 
     assertEquals(
@@ -272,7 +271,7 @@ public class EntitiesTest extends TestTemplate {
   @Test
   public void namesOf() {
     Collection<String> result =
-      Entities.namesOf(List.of(
+      EntityUtils.namesOf(List.of(
         new Widget().setName("Apples"),
         new Widget().setName("Bananas"),
         new Superwidget().setName("Chips")

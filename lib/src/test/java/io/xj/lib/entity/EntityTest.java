@@ -3,13 +3,14 @@
 package io.xj.lib.entity;
 
 import io.xj.lib.Widget;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class EntityTest {
 
-  @Before
+  @BeforeEach
   public void setUp() {
   }
 
@@ -20,7 +21,7 @@ public class EntityTest {
    */
   @Test
   public void exactPosition() {
-    Assert.assertEquals(1.25179957, new Widget()
+    assertEquals(1.25179957, new Widget()
       .setPosition(1.25179957)
       .getPosition(), 0.0000001);
   }

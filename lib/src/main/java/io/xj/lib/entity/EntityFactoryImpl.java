@@ -3,8 +3,8 @@
 package io.xj.lib.entity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.xj.hub.util.ValueUtils;
 import io.xj.lib.json.JsonProvider;
-import io.xj.lib.util.ValueUtils;
 import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +45,7 @@ public class EntityFactoryImpl implements EntityFactory {
 
   @Override
   public EntitySchema register(String type) {
-    String key = Entities.toType(type);
+    String key = EntityUtils.toType(type);
     if (schema.containsKey(key)) return schema.get(key);
     EntitySchema entitySchema = EntitySchema.of(type);
     schema.put(key, entitySchema);
@@ -54,7 +54,7 @@ public class EntityFactoryImpl implements EntityFactory {
 
   @Override
   public EntitySchema register(Class<?> typeClass) {
-    String key = Entities.toType(typeClass);
+    String key = EntityUtils.toType(typeClass);
     if (schema.containsKey(key)) return schema.get(key);
     EntitySchema entitySchema = EntitySchema.of(typeClass);
     schema.put(key, entitySchema);
@@ -63,7 +63,7 @@ public class EntityFactoryImpl implements EntityFactory {
 
   @Override
   public <N> N getInstance(String type) throws EntityException {
-    String key = Entities.toType(type);
+    String key = EntityUtils.toType(type);
     ensureSchemaExists("get instance", key);
     @SuppressWarnings("unchecked") Supplier<N> creator = (Supplier<N>) schema.get(key).getCreator();
     if (Objects.isNull(creator))
@@ -73,26 +73,26 @@ public class EntityFactoryImpl implements EntityFactory {
 
   @Override
   public <N> N getInstance(Class<N> type) throws EntityException {
-    return getInstance(Entities.toType(type));
+    return getInstance(EntityUtils.toType(type));
   }
 
   @Override
   public Set<String> getBelongsTo(String type) throws EntityException {
-    String key = Entities.toType(type);
+    String key = EntityUtils.toType(type);
     ensureSchemaExists("get belongs-to type", key);
     return schema.get(key).getBelongsTo();
   }
 
   @Override
   public Set<String> getHasMany(String type) throws EntityException {
-    String key = Entities.toType(type);
+    String key = EntityUtils.toType(type);
     ensureSchemaExists("get has-many type", key);
     return schema.get(key).getHasMany();
   }
 
   @Override
   public Set<String> getAttributes(String type) throws EntityException {
-    String key = Entities.toType(type);
+    String key = EntityUtils.toType(type);
     ensureSchemaExists("get attribute", key);
     return schema.get(key).getAttributes();
   }
@@ -106,9 +106,9 @@ public class EntityFactoryImpl implements EntityFactory {
       ReflectionUtils.withPrefix("get"),
       ReflectionUtils.withParametersCount(0)).forEach(method -> {
       try {
-        String attributeName = Entities.toAttributeName(method);
+        String attributeName = EntityUtils.toAttributeName(method);
         if (!IGNORE_ATTRIBUTES.contains(attributeName))
-          Entities.get(target, method).ifPresentOrElse(value -> attributes.put(attributeName, value),
+          EntityUtils.get(target, method).ifPresentOrElse(value -> attributes.put(attributeName, value),
             () -> attributes.put(attributeName, null));
       } catch (Exception e) {
         LOG.warn("Failed to transmogrify value create method {} create entity {}", method, target, e);
@@ -121,7 +121,7 @@ public class EntityFactoryImpl implements EntityFactory {
   public <N> void setAllAttributes(N source, N target) {
     getResourceAttributes(source).forEach((Object name, Object attribute) -> {
       try {
-        Entities.set(target, String.valueOf(name), attribute);
+        EntityUtils.set(target, String.valueOf(name), attribute);
       } catch (EntityException e) {
         LOG.error("Failed to set {}", attribute, e);
       }
@@ -132,9 +132,9 @@ public class EntityFactoryImpl implements EntityFactory {
   public <N> void setAllEmptyAttributes(N source, N target) {
     getResourceAttributes(source).forEach((Object name, Object value) -> {
       try {
-        var tgtVal = Entities.get(target, String.valueOf(name));
+        var tgtVal = EntityUtils.get(target, String.valueOf(name));
         if (tgtVal.isEmpty() || ValueUtils.isEmpty(tgtVal.get()))
-          Entities.set(target, String.valueOf(name), value);
+          EntityUtils.set(target, String.valueOf(name), value);
       } catch (EntityException e) {
         LOG.error("Failed to set {}", value, e);
       }
@@ -145,12 +145,12 @@ public class EntityFactoryImpl implements EntityFactory {
   public <N> N clone(N from) throws EntityException {
     String className = from.getClass().getSimpleName();
     Object builder = getInstance(className);
-    Entities.setId(builder, Entities.getId(from));
+    EntityUtils.setId(builder, EntityUtils.getId(from));
     setAllAttributes(from, builder);
     for (String belongsTo : getBelongsTo(className)) {
-      Optional<UUID> belongsToId = Entities.getBelongsToId(from, belongsTo);
+      Optional<UUID> belongsToId = EntityUtils.getBelongsToId(from, belongsTo);
       if (belongsToId.isPresent())
-        Entities.set(builder, Entities.toIdAttribute(belongsTo), belongsToId.get());
+        EntityUtils.set(builder, EntityUtils.toIdAttribute(belongsTo), belongsToId.get());
     }
     //noinspection unchecked
     return (N) builder;

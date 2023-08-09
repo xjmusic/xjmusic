@@ -11,31 +11,18 @@ module workstation.lib.main {
   requires org.apache.commons.codec;
   requires org.apache.commons.io;
   requires org.apache.httpcomponents.httpclient;
-  requires org.jetbrains.annotations;
-  requires org.jooq;
+  requires jakarta.annotation;
   requires org.reflections;
   requires org.slf4j;
-  requires software.amazon.awssdk.auth;
-  requires software.amazon.awssdk.awscore;
-  requires software.amazon.awssdk.core;
-  requires software.amazon.awssdk.regions;
-  requires software.amazon.awssdk.services.s3;
-  requires software.amazon.awssdk.services.sns;
   requires spring.beans;
   requires spring.context;
   requires spring.core;
-  requires spring.web;
   requires typesafe.config;
+  requires transitive hub.models.main;
 
   opens io.xj.lib.filestore to spring.core;
   opens io.xj.lib.telemetry to spring.core;
-  opens io.xj.lib.analysis to spring.core;
 
-  exports io.xj.hub.access;
-  exports io.xj.hub.enums;
-  exports io.xj.hub.ingest;
-  exports io.xj.hub.tables.pojos;
-  exports io.xj.hub;
   exports io.xj.lib.app;
   exports io.xj.lib.entity.common;
   exports io.xj.lib.entity;
@@ -43,11 +30,7 @@ module workstation.lib.main {
   exports io.xj.lib.http;
   exports io.xj.lib.json;
   exports io.xj.lib.jsonapi;
-  exports io.xj.lib.lock;
-  exports io.xj.lib.meme;
   exports io.xj.lib.mixer;
-  exports io.xj.lib.music;
   exports io.xj.lib.notification;
   exports io.xj.lib.telemetry;
-  exports io.xj.lib.util;
 }

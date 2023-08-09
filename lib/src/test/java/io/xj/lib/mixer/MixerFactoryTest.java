@@ -3,17 +3,17 @@ package io.xj.lib.mixer;
 
 
 import io.xj.lib.notification.NotificationProvider;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.sound.sampled.AudioFormat;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class MixerFactoryTest {
   MixerFactory mixerFactory;
   @Mock
@@ -21,7 +21,7 @@ public class MixerFactoryTest {
   @Mock
   EnvelopeProvider envelopeProvider;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
     mixerFactory = new MixerFactoryImpl(envelopeProvider, notificationProvider, "production", 1000000);

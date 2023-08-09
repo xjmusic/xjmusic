@@ -1,6 +1,12 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 rootProject.name = 'workstation'
-include(':lib')
-include(':nexus')
-include(':workstation')
+
+String[] modules = [
+    'gui',
+    'lib',
+    'nexus',
+    'service',
+]
+
+include modules

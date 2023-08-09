@@ -2,9 +2,7 @@
 
 package io.xj.nexus.craft.macro_main;
 
-import io.xj.hub.HubTopology;
-import io.xj.nexus.hub_client.HubClient;
-import io.xj.hub.ingest.HubContent;
+import io.xj.hub.HubContent;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Account;
@@ -26,6 +24,8 @@ import io.xj.lib.notification.NotificationProvider;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
+import io.xj.nexus.hub_client.HubClient;
+import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
@@ -33,11 +33,11 @@ import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManagerImpl;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
@@ -54,13 +54,13 @@ import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildUser;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChoice;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Choose next Macro program based on the memes of the last sequence from the previous Macro program https://www.pivotaltracker.com/story/show/176728582
  */
 @SuppressWarnings("ALL")
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class MacroFromOverlappingMemeSequencesTest {
   static final int REPEAT_TIMES = 100;
   @Mock
@@ -72,7 +72,7 @@ public class MacroFromOverlappingMemeSequencesTest {
   MacroMainCraftImpl subject;
   Program macro2a;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     var jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
@@ -198,7 +198,7 @@ public class MacroFromOverlappingMemeSequencesTest {
     // At 100 repetitions, false positive is 2^100:1 against
     for (int i = 0; i < REPEAT_TIMES; i++) {
       var result = subject.chooseNextMacroProgram().orElseThrow();
-      assertEquals(String.format("Run #%s OK", i), macro2a.getId(), result.getId());
+      assertEquals(macro2a.getId(), result.getId());
     }
   }
 }

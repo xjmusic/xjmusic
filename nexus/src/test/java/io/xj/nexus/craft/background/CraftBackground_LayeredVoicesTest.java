@@ -1,29 +1,28 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.craft.background;
 
-import io.xj.hub.HubTopology;
-import io.xj.nexus.hub_client.HubClient;
-import io.xj.hub.ingest.HubContent;
+import io.xj.hub.HubContent;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Instrument;
-import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.lib.notification.NotificationProvider;
-import io.xj.test_fixtures.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.craft.CraftFactoryImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
+import io.xj.nexus.hub_client.HubClient;
+import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
@@ -33,12 +32,13 @@ import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.SegmentManagerImpl;
+import io.xj.test_fixtures.NexusIntegrationTestingFixtures;
 import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -55,7 +55,7 @@ import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegment;
 /**
  * Background fabrication composited of layered Patterns https://www.pivotaltracker.com/story/show/166481918
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CraftBackground_LayeredVoicesTest {
   @Mock
   public HubClient hubClient;
@@ -67,7 +67,7 @@ public class CraftBackground_LayeredVoicesTest {
   NexusIntegrationTestingFixtures fake;
   Segment segment4;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     JsonProvider jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
@@ -90,7 +90,7 @@ public class CraftBackground_LayeredVoicesTest {
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
     sourceMaterial = new HubContent(Stream.concat(
-      fake.setupFixtureB1().stream().filter(entity -> !Entities.isSame(entity, fake.program35) && !Entities.isChild(entity, fake.program35)),
+      fake.setupFixtureB1().stream().filter(entity -> !EntityUtils.isSame(entity, fake.program35) && !EntityUtils.isChild(entity, fake.program35)),
       customFixtures().stream()
     ).collect(Collectors.toList()));
 
@@ -171,14 +171,14 @@ public class CraftBackground_LayeredVoicesTest {
     Collection<Object> entities = new ArrayList<>();
 
     // Instrument "808"
-    Instrument instrument1 = Entities.add(entities, buildInstrument(fake.library2, InstrumentType.Noise, InstrumentMode.Background, InstrumentState.Published, "Bongo Loop"));
-    Entities.add(entities, buildMeme(instrument1, "heavy"));
+    Instrument instrument1 = EntityUtils.add(entities, buildInstrument(fake.library2, InstrumentType.Noise, InstrumentMode.Background, InstrumentState.Published, "Bongo Loop"));
+    EntityUtils.add(entities, buildMeme(instrument1, "heavy"));
     //
-    Entities.add(entities, buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.6f, "KICK", "Eb", 1.0f));
+    EntityUtils.add(entities, buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.6f, "KICK", "Eb", 1.0f));
     //
-    Entities.add(entities, buildAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01f, 1.5f, 120.0f, 0.6f, "SNARE", "Ab", 1.0f));
+    EntityUtils.add(entities, buildAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01f, 1.5f, 120.0f, 0.6f, "SNARE", "Ab", 1.0f));
     //
-    Entities.add(entities, buildAudio(instrument1, "Hihat", "iop0803k1k2l3h5a3s2d3f4g.wav", 0.01f, 1.5f, 120.0f, 0.6f, "HIHAT", "Ab", 1.0f));
+    EntityUtils.add(entities, buildAudio(instrument1, "Hihat", "iop0803k1k2l3h5a3s2d3f4g.wav", 0.01f, 1.5f, 120.0f, 0.6f, "HIHAT", "Ab", 1.0f));
 
     return entities;
   }

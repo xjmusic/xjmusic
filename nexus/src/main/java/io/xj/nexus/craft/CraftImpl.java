@@ -2,13 +2,16 @@
 
 package io.xj.nexus.craft;
 
-import java.util.Map;
-import io.xj.nexus.hub_client.HubClientException;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
+import io.xj.hub.music.Accidental;
+import io.xj.hub.music.Bar;
+import io.xj.hub.music.Chord;
+import io.xj.hub.music.Note;
+import io.xj.hub.music.NoteRange;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Program;
@@ -16,30 +19,26 @@ import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.hub.tables.pojos.ProgramVoice;
-import io.xj.lib.entity.Entities;
-import io.xj.lib.music.Accidental;
-import io.xj.lib.music.Bar;
-import io.xj.lib.music.Chord;
-import io.xj.lib.music.Note;
-import io.xj.lib.music.NoteRange;
-import io.xj.lib.util.CSV;
-import io.xj.lib.util.MarbleBag;
-import io.xj.lib.util.StringUtils;
-import io.xj.lib.util.TremendouslyRandom;
-import io.xj.lib.util.ValueUtils;
+import io.xj.hub.util.CsvUtils;
+import io.xj.hub.util.MarbleBag;
+import io.xj.hub.util.StringUtils;
+import io.xj.hub.util.TremendouslyRandom;
+import io.xj.hub.util.ValueUtils;
+import io.xj.lib.entity.EntityUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.fabricator.FabricationWrapperImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.MemeIsometry;
 import io.xj.nexus.fabricator.NameIsometry;
+import io.xj.nexus.hub_client.HubClientException;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangement;
 import io.xj.nexus.model.SegmentChoiceArrangementPick;
 import io.xj.nexus.model.SegmentChord;
 import io.xj.nexus.model.SegmentChordVoicing;
 import io.xj.nexus.model.SegmentType;
+import jakarta.annotation.Nullable;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -47,6 +46,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -389,7 +389,7 @@ public class CraftImpl extends FabricationWrapperImpl {
           else secLayers.add(layer);
         });
         Collections.shuffle(priLayers);
-        if (!priLayers.isEmpty()) fabricator.addInfoMessage(String.format("Prioritized %s", CSV.join(priLayers)));
+        if (!priLayers.isEmpty()) fabricator.addInfoMessage(String.format("Prioritized %s", CsvUtils.join(priLayers)));
         Collections.shuffle(secLayers);
         var orderedLayers = Stream.concat(priLayers.stream(), secLayers.stream()).toList();
         var delta = ValueUtils.roundToNearest(deltaUnits, TremendouslyRandom.zeroToLimit(deltaUnits * 4) - deltaUnits * 2 * numLayersIncoming);
@@ -665,7 +665,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     var dpTransposeOctaveSemitones = 12 * fabricator.getProgramRangeShiftOctaves(instrumentType, dpRange.shifted(dpTransposeSemitones), voicingListRange);
 
     // Event notes are either interpreted from specific notes in dp, or via sticky bun from X notes in dp
-    List<Note> eventNotes = CSV.split(event.getTones()).stream().map(n -> Note.of(n).shift(dpTransposeSemitones + dpTransposeOctaveSemitones)).sorted().collect(Collectors.toList());
+    List<Note> eventNotes = CsvUtils.split(event.getTones()).stream().map(n -> Note.of(n).shift(dpTransposeSemitones + dpTransposeOctaveSemitones)).sorted().collect(Collectors.toList());
     var dpEventRelativeOffsetWithinRangeSemitones = dpRange.shifted(dpTransposeSemitones + dpTransposeOctaveSemitones).getDeltaSemitones(NoteRange.ofNotes(eventNotes));
     var dpEventRangeWithinWholeDP = NoteRange.ofNotes(eventNotes).shifted(dpEventRelativeOffsetWithinRangeSemitones);
 
@@ -871,7 +871,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     }).toList());
 
     if (audio.isEmpty()) {
-      reportMissing(Map.of("instrumentId", instrument.getId().toString(), "searchForNote", note, "availableNotes", CSV.from(instrumentAudios.stream().map(InstrumentAudio::getTones).map(Note::of).sorted(Note::compareTo).map(N -> N.toString(Accidental.Sharp)).collect(Collectors.toList()))));
+      reportMissing(Map.of("instrumentId", instrument.getId().toString(), "searchForNote", note, "availableNotes", CsvUtils.from(instrumentAudios.stream().map(InstrumentAudio::getTones).map(Note::of).sorted(Note::compareTo).map(N -> N.toString(Accidental.Sharp)).collect(Collectors.toList()))));
       return Optional.empty();
     }
 
@@ -898,14 +898,14 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     // Phase 1: Directly Bound Programs
     for (Program program : programsDirectlyBound(candidates)) {
-      memes = Entities.namesOf(fabricator.sourceMaterial().getMemesForProgramId(program.getId()));
+      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesForProgramId(program.getId()));
       // FUTURE consider meme isometry, but for now, just use the meme stack
       if (iso.isAllowed(memes)) bag.add(1, program.getId(), 1 + iso.score(memes));
     }
 
     // Phase 2: All Published Programs
     for (Program program : programsPublished(candidates)) {
-      memes = Entities.namesOf(fabricator.sourceMaterial().getMemesForProgramId(program.getId()));
+      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesForProgramId(program.getId()));
       // FUTURE consider meme isometry, but for now, just use the meme stack
       if (iso.isAllowed(memes)) bag.add(2, program.getId(), 1 + iso.score(memes));
     }
@@ -943,13 +943,13 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     // Phase 1: Directly Bound Instruments
     for (Instrument instrument : instrumentsDirectlyBound(candidates)) {
-      memes = Entities.namesOf(fabricator.sourceMaterial().getMemesForInstrumentId(instrument.getId()));
+      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesForInstrumentId(instrument.getId()));
       if (iso.isAllowed(memes)) bag.add(1, instrument.getId(), 1 + iso.score(memes));
     }
 
     // Phase 2: All Published Instruments
     for (Instrument instrument : instrumentsPublished(candidates)) {
-      memes = Entities.namesOf(fabricator.sourceMaterial().getMemesForInstrumentId(instrument.getId()));
+      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesForInstrumentId(instrument.getId()));
       if (iso.isAllowed(memes)) bag.add(2, instrument.getId(), 1 + iso.score(memes));
     }
 
@@ -1001,14 +1001,14 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     // Phase 1: Directly Bound Audios (Preferred)
     for (InstrumentAudio audio : audiosDirectlyBound(candidates)) {
-      memes = Entities.namesOf(fabricator.sourceMaterial().getMemesForInstrumentId(audio.getInstrumentId()));
+      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesForInstrumentId(audio.getInstrumentId()));
       if (iso.isAllowed(memes))
         bag.add(preferredEvents.contains(audio.getEvent()) ? 1 : 3, audio.getId(), 1 + iso.score(memes));
     }
 
     // Phase 2: All Published Audios (Preferred)
     for (InstrumentAudio audio : audiosPublished(candidates)) {
-      memes = Entities.namesOf(fabricator.sourceMaterial().getMemesForInstrumentId(audio.getInstrumentId()));
+      memes = EntityUtils.namesOf(fabricator.sourceMaterial().getMemesForInstrumentId(audio.getInstrumentId()));
       if (iso.isAllowed(memes))
         bag.add(preferredEvents.contains(audio.getEvent()) ? 2 : 4, audio.getId(), 1 + iso.score(memes));
     }

@@ -22,7 +22,7 @@ public class EntitySchema {
    * Constructor initializes empty inner sets
    */
   EntitySchema(String type) {
-    this.type = Entities.toType(type);
+    this.type = EntityUtils.toType(type);
     attributes = new TreeSet<>();
     hasManyTypes = new TreeSet<>();
     belongsToTypes = new TreeSet<>();
@@ -111,7 +111,7 @@ public class EntitySchema {
    * @return this entity type schema (for chaining methods)
    */
   public EntitySchema withAttribute(String name) {
-    this.attributes.add(Entities.toAttributeName(name));
+    this.attributes.add(EntityUtils.toAttributeName(name));
     return this;
   }
 
@@ -133,7 +133,7 @@ public class EntitySchema {
    * @return this entity type schema (for chaining methods)
    */
   public EntitySchema hasMany(String typeName) {
-    this.hasManyTypes.add(Entities.toHasMany(typeName));
+    this.hasManyTypes.add(EntityUtils.toHasMany(typeName));
     return this;
   }
 
@@ -155,7 +155,7 @@ public class EntitySchema {
    * @return this entity type schema (for chaining methods)
    */
   public EntitySchema hasMany(Class<?> typeName) {
-    this.hasManyTypes.add(Entities.toHasMany(typeName));
+    this.hasManyTypes.add(EntityUtils.toHasMany(typeName));
     return this;
   }
 
@@ -177,7 +177,7 @@ public class EntitySchema {
    * @return this entity type schema (for chaining methods)
    */
   public EntitySchema belongsTo(String typeName) {
-    this.belongsToTypes.add(Entities.toBelongsTo(typeName));
+    this.belongsToTypes.add(EntityUtils.toBelongsTo(typeName));
     return this;
   }
 
@@ -199,7 +199,7 @@ public class EntitySchema {
    * @return this entity type schema (for chaining methods)
    */
   public EntitySchema belongsTo(Class<?> typeName) {
-    this.belongsToTypes.add(Entities.toBelongsTo(typeName));
+    this.belongsToTypes.add(EntityUtils.toBelongsTo(typeName));
     return this;
   }
 

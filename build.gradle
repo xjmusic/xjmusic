@@ -8,33 +8,42 @@ plugins {
   id 'de.undercouch.download' version "4.0.4"
   id 'org.ajoberstar.grgit' version '4.1.0'
   //
-  id 'com.github.johnrengelman.shadow' version '8.1.1' apply false
+  id "org.beryx.jlink" version "2.24.1" apply false
   id 'com.google.cloud.tools.jib' version '3.3.2' apply false
   id 'io.spring.dependency-management' version '1.0.15.RELEASE' apply false
   id 'org.openjfx.javafxplugin' version '0.0.14' apply false
+  id 'org.panteleyev.jpackageplugin' version '1.5.2' apply false
   id 'org.springframework.boot' version '3.1.2' apply false // must match springBootVersion below
- }
+}
 
 ext {
-  googleApiClientVersion = '2.2.0'
-  googleApiServicePlusVersion = 'v1-rev590-1.25.0'
-  jacksonAnnotationsVersion = '2.15.2'
+  jacksonAnnotationsVersion = '2.15.0'
   javaFxVersion = '17.0.8'
+  jooqVersion = '3.18.5'
+  junitVersion = '5.9.2'
+  jupiterVersion = '5.8.1'
+  slf4jVersion = '2.0.5'
   springBootVersion = '3.1.2'
   springTestVersion = '6.0.11'
-  googleExclusion = {
-    exclude group: 'com.google'
-    exclude group: 'com.google.api-client'
-    exclude group: 'com.google.cloud'
-    exclude group: 'com.google.api.grpc'
-  }
+  xjModelsVersion = '0.5.25'
+}
+
+Properties localProperties = new Properties()
+def localPropertiesFile = project.rootProject.file('gradle-local.properties')
+if (localPropertiesFile.exists()) {
+  localProperties.load(localPropertiesFile.newDataInputStream())
 }
 
 allprojects {
   group = 'io.xj'
 
-  tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
+  sourceCompatibility = JavaVersion.VERSION_17
+  targetCompatibility = JavaVersion.VERSION_17
+
+  tasks.withType(JavaCompile).tap {
+    configureEach {
+      options.encoding = 'UTF-8'
+    }
   }
 }
 
@@ -42,6 +51,7 @@ subprojects {
   apply plugin: 'java'
 
   repositories {
+    mavenCentral()
     mavenLocal()
     maven {
       name = 'ajoberstar-backup'
@@ -60,12 +70,14 @@ subprojects {
       name = "TarsosDSP repository"
       url = "https://mvn.0110.be/releases"
     }
-  }
-
-  java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
-    modularity.inferModulePath = true
+    maven {
+      name = "GitHubPackages"
+      url = uri("https://maven.pkg.github.com/xjmusic/hub")
+      credentials {
+        username = localProperties.getProperty('repo.username') ?: System.getenv("REPO_USERNAME")
+        password = localProperties.getProperty('repo.token') ?: System.getenv("REPO_TOKEN")
+      }
+    }
   }
 }
 

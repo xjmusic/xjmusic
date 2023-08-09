@@ -3,33 +3,32 @@
 package io.xj.nexus.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.annotation.Nullable;
 
-import org.jetbrains.annotations.Nullable;
-import javax.validation.Valid;
 import java.util.Objects;
 import java.util.UUID;
 
 
 public class Segment {
 
-  @Valid UUID id;
-  @Valid UUID chainId;
-  @Valid SegmentType type;
-  @Valid SegmentState state;
-  @Valid Long beginAtChainMicros; // Segment begin-at time in microseconds since beginning of chain
+  UUID id;
+  UUID chainId;
+  SegmentType type;
+  SegmentState state;
+  Long beginAtChainMicros; // Segment begin-at time in microseconds since beginning of chain
   @Nullable
-  @Valid Long durationMicros;
-  @Valid String key;
-  @Valid Integer total;
-  @Valid Long offset;
-  @Valid Double density;
-  @Valid Double tempo;
-  @Valid String storageKey;
-  @Valid Double waveformPreroll;
-  @Valid Double waveformPostroll;
-  @Valid Integer delta;
-  @Valid String createdAt;
-  @Valid String updatedAt;
+  Long durationMicros;
+  String key;
+  Integer total;
+  Long offset;
+  Double density;
+  Double tempo;
+  String storageKey;
+  Double waveformPreroll;
+  Double waveformPostroll;
+  Integer delta;
+  String createdAt;
+  String updatedAt;
 
   /**
    *

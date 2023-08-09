@@ -2,14 +2,14 @@
 
 package io.xj.nexus.ship.broadcast;
 
+import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
-import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 
 @Service
 public class ChunkFactoryImpl implements ChunkFactory {

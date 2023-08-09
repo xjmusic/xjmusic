@@ -3,23 +3,23 @@
 package io.xj.nexus.fabricator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.xj.hub.HubTopology;
-import io.xj.nexus.hub_client.HubClientException;
-import io.xj.hub.ingest.HubContent;
+import io.xj.hub.HubContent;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
+import io.xj.hub.music.Chord;
+import io.xj.hub.music.Note;
+import io.xj.hub.music.PitchClass;
+import io.xj.hub.music.StickyBun;
 import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.util.ValueException;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.music.Chord;
-import io.xj.lib.music.Note;
-import io.xj.lib.music.StickyBun;
-import io.xj.lib.util.ValueException;
 import io.xj.nexus.NexusException;
-import io.xj.test_fixtures.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
+import io.xj.nexus.hub_client.HubClientException;
+import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
 import io.xj.nexus.model.Segment;
@@ -36,13 +36,14 @@ import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.Segments;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import io.xj.test_fixtures.NexusIntegrationTestingFixtures;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collection;
 import java.util.List;
@@ -52,6 +53,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildAccount;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildEvent;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildPattern;
@@ -62,8 +64,6 @@ import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplateBin
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTrack;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildVoice;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildVoicing;
-import static io.xj.lib.music.NoteTest.assertNote;
-import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChoice;
@@ -71,9 +71,9 @@ import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentCh
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChoiceArrangementPick;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChord;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentMeta;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -83,7 +83,7 @@ import static org.mockito.Mockito.when;
 /**
  * FUTURE: Split the FabricatorImplTest into separate tests of the FabricatorImpl, SegmentWorkbenchImpl, SegmentRetrospectiveImpl, and IngestImpl https://www.pivotaltracker.com/story/show/170035559
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class FabricatorImplTest {
   static int SEQUENCE_TOTAL_BEATS = 64;
   @Mock
@@ -105,7 +105,7 @@ public class FabricatorImplTest {
   NexusIntegrationTestingFixtures fake;
   Segment segment;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
@@ -349,7 +349,9 @@ public class FabricatorImplTest {
    */
   @Test
   public void getRootNote() {
-    assertNote("C4", subject.getRootNoteMidRange("C3,E3,G3,A#3,C4,E4,G4", Chord.of("Cm")).orElseThrow());
+    var result = subject.getRootNoteMidRange("C3,E3,G3,A#3,C4,E4,G4", Chord.of("Cm")).orElseThrow();
+    assertEquals(PitchClass.C, result.getPitchClass());
+    assertEquals(4, result.getOctave().intValue());
   }
 
   /**

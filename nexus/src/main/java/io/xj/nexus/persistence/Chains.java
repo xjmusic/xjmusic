@@ -5,12 +5,12 @@ package io.xj.nexus.persistence;
 import io.xj.hub.enums.ContentBindingType;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
-import io.xj.lib.util.StringUtils;
+import io.xj.hub.util.StringUtils;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainType;
 import io.xj.nexus.model.Segment;
+import jakarta.annotation.Nullable;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;

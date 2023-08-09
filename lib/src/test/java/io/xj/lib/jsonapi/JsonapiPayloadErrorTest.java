@@ -2,20 +2,21 @@
 
 package io.xj.lib.jsonapi;
 
-import java.util.Map;
 import io.xj.lib.Widget;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.JsonProviderImpl;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JsonapiPayloadErrorTest {
   JsonapiPayloadFactory jsonapiPayloadFactory;
   PayloadError subject;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     var jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);

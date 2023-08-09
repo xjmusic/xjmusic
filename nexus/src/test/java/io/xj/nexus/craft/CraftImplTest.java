@@ -2,13 +2,15 @@
 
 package io.xj.nexus.craft;
 
+import io.xj.hub.HubContent;
 import io.xj.hub.TemplateConfig;
-import io.xj.hub.ingest.HubContent;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
+import io.xj.hub.meme.MemeTaxonomy;
+import io.xj.hub.music.Chord;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
@@ -16,8 +18,6 @@ import io.xj.hub.tables.pojos.InstrumentMeme;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Template;
-import io.xj.lib.meme.MemeTaxonomy;
-import io.xj.lib.music.Chord;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.MemeIsometry;
@@ -28,17 +28,18 @@ import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static io.xj.nexus.persistence.Segments.DELTA_UNLIMITED;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildAccount;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildInstrument;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildInstrumentAudio;
@@ -49,17 +50,16 @@ import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplate;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChoice;
-import static io.xj.nexus.persistence.Segments.DELTA_UNLIMITED;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CraftImplTest {
   static final int TEST_REPEAT_TIMES = 20;
   @Mock
@@ -70,7 +70,7 @@ public class CraftImplTest {
   Segment segment0;
   Program program1;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     Account account1 = buildAccount("fish");
     Library library1 = buildLibrary(account1, "sea");
@@ -81,10 +81,8 @@ public class CraftImplTest {
 
     segment0 = buildSegment(chain1, SegmentType.INITIAL, 2, 128, SegmentState.CRAFTED, "D major", 64, 0.73, 120.0, "chains-1-segments-9f7s89d8a7892", true);
 
-    TemplateConfig templateConfig = new TemplateConfig(template1);
+    var templateConfig = new TemplateConfig(template1);
     when(fabricator.getTemplateConfig()).thenReturn(templateConfig);
-    when(fabricator.getSegment()).thenReturn(segment0);
-    when(fabricator.sourceMaterial()).thenReturn(sourceMaterial);
     subject = new CraftImpl(fabricator);
   }
 
@@ -97,6 +95,8 @@ public class CraftImplTest {
 
   @Test
   public void isIntroSegment() {
+    when(fabricator.getSegment()).thenReturn(segment0);
+
     assertTrue(subject.isIntroSegment(buildSegmentChoice(segment0, 132, 200, program1)));
     assertFalse(subject.isIntroSegment(buildSegmentChoice(segment0, 110, 200, program1)));
     assertFalse(subject.isIntroSegment(buildSegmentChoice(segment0, 200, 250, program1)));
@@ -118,6 +118,8 @@ public class CraftImplTest {
 
   @Test
   public void isOutroSegment() {
+    when(fabricator.getSegment()).thenReturn(segment0);
+
     assertTrue(subject.isOutroSegment(buildSegmentChoice(segment0, 20, 130, program1)));
     assertFalse(subject.isOutroSegment(buildSegmentChoice(segment0, 20, 100, program1)));
     assertFalse(subject.isOutroSegment(buildSegmentChoice(segment0, 20, 250, program1)));
@@ -125,6 +127,8 @@ public class CraftImplTest {
 
   @Test
   public void isSilentEntireSegment() {
+    when(fabricator.getSegment()).thenReturn(segment0);
+
     assertTrue(subject.isSilentEntireSegment(buildSegmentChoice(segment0, 12, 25, program1)));
     assertTrue(subject.isSilentEntireSegment(buildSegmentChoice(segment0, 200, 225, program1)));
     assertFalse(subject.isSilentEntireSegment(buildSegmentChoice(segment0, 50, 136, program1)));
@@ -134,6 +138,8 @@ public class CraftImplTest {
 
   @Test
   public void isActiveEntireSegment() {
+    when(fabricator.getSegment()).thenReturn(segment0);
+
     assertFalse(subject.isActiveEntireSegment(buildSegmentChoice(segment0, 12, 25, program1)));
     assertFalse(subject.isActiveEntireSegment(buildSegmentChoice(segment0, 200, 225, program1)));
     assertFalse(subject.isActiveEntireSegment(buildSegmentChoice(segment0, 50, 136, program1)));
@@ -160,6 +166,8 @@ public class CraftImplTest {
    */
   @Test
   public void chooseFreshInstrumentAudio() {
+    when(fabricator.sourceMaterial()).thenReturn(sourceMaterial);
+
     Account account1 = buildAccount("testing");
     Library library1 = buildLibrary(account1, "leaves");
     Instrument instrument1 = buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Event, InstrumentState.Published, "Loop 75 beats per minute");
@@ -188,6 +196,8 @@ public class CraftImplTest {
    */
   @Test
   public void selectNewChordPartInstrumentAudio_stripSpaces() {
+    when(fabricator.sourceMaterial()).thenReturn(sourceMaterial);
+
     selectNewChordPartInstrumentAudio(" G   major  ", "G-7", " G    major    ");
   }
 
@@ -198,6 +208,8 @@ public class CraftImplTest {
    */
   @Test
   public void selectNewChordPartInstrumentAudio_slashChordFluency() {
+    when(fabricator.sourceMaterial()).thenReturn(sourceMaterial);
+
     selectNewChordPartInstrumentAudio("Ab/C", "Eb/G", "Ab");
     selectNewChordPartInstrumentAudio("Ab", "Eb/G", "Ab/C");
   }
@@ -207,6 +219,8 @@ public class CraftImplTest {
    */
   @Test
   public void selectNewChordPartInstrumentAudio_chordSynonyms() {
+    when(fabricator.sourceMaterial()).thenReturn(sourceMaterial);
+
     selectNewChordPartInstrumentAudio("CMadd9", "Cm6", "C add9");
   }
 
@@ -230,8 +244,8 @@ public class CraftImplTest {
     for (var i = 0; i < TEST_REPEAT_TIMES; i++) {
       var result = subject.selectNewChordPartInstrumentAudio(instrument1, Chord.of(match));
 
-      assertTrue(String.format("Match a chord named %s", match), result.isPresent());
-      assertEquals(String.format("Match a chord named %s with %s not %s", match, expectThis, notThat), instrument1audio1.getId(), result.get().getId());
+      assertTrue(result.isPresent());
+      assertEquals(instrument1audio1.getId(), result.get().getId());
     }
   }
 

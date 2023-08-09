@@ -2,10 +2,10 @@
 package io.xj.nexus.fabricator;
 
 
-import io.xj.nexus.hub_client.HubClientException;
-import io.xj.hub.ingest.HubContent;
-import io.xj.lib.util.ValueException;
+import io.xj.hub.HubContent;
+import io.xj.hub.util.ValueException;
 import io.xj.nexus.NexusException;
+import io.xj.nexus.hub_client.HubClientException;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.persistence.ManagerFatalException;

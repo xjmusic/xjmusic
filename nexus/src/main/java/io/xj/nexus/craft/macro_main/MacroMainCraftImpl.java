@@ -3,13 +3,13 @@ package io.xj.nexus.craft.macro_main;
 
 
 import io.xj.hub.enums.ProgramType;
+import io.xj.hub.music.Chord;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceChord;
+import io.xj.hub.util.MarbleBag;
+import io.xj.hub.util.ValueUtils;
 import io.xj.lib.json.ApiUrlProvider;
-import io.xj.lib.music.Chord;
-import io.xj.lib.util.MarbleBag;
-import io.xj.lib.util.ValueUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.CraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
@@ -19,8 +19,8 @@ import io.xj.nexus.model.SegmentChord;
 import io.xj.nexus.model.SegmentChordVoicing;
 import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.Segments;
+import jakarta.annotation.Nullable;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;

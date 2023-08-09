@@ -1,36 +1,34 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.craft;
 
-import java.util.Set;
-import io.xj.hub.HubTopology;
-import io.xj.nexus.hub_client.HubClient;
-import io.xj.hub.ingest.HubContent;
+import io.xj.hub.HubContent;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
+import io.xj.hub.music.StickyBun;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.util.CsvUtils;
+import io.xj.hub.util.StringUtils;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.lib.music.StickyBun;
 import io.xj.lib.notification.NotificationProvider;
-import io.xj.lib.util.CSV;
-import io.xj.lib.util.StringUtils;
 import io.xj.nexus.NexusException;
-import io.xj.test_fixtures.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
+import io.xj.nexus.hub_client.HubClient;
+import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
@@ -39,15 +37,16 @@ import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.SegmentManagerImpl;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import io.xj.test_fixtures.NexusIntegrationTestingFixtures;
+import jakarta.annotation.Nullable;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -56,8 +55,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
+import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildAccount;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildDetailProgram;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildEvent;
@@ -68,16 +69,15 @@ import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildPattern;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildProgram;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildSequence;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplate;
-import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTrack;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildVoice;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChoice;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * XJ has a serviceable voicing algorithm https://www.pivotaltracker.com/story/show/176696738
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ArrangementTests extends YamlTest {
   static final String TEST_PATH_PREFIX = "/arrangements/";
   static final int REPEAT_EACH_TEST_TIMES = 7;
@@ -189,7 +189,7 @@ FUTURE goal
     loadAndRunTest("arrangement_0_no_chord_sections.yaml");
   }
 
-  @Before
+  @BeforeEach
   public void setUp() throws AppException {
   }
 
@@ -299,6 +299,7 @@ FUTURE goal
    * @param data YAML file wrapper
    * @param type of instrument to read
    */
+  @SuppressWarnings("unchecked")
   void loadDetailProgram(Map<?, ?> data, InstrumentType type) {
     Map<?, ?> obj = (Map<?, ?>) data.get(String.format("%sDetailProgram", type.toString().toLowerCase(Locale.ROOT)));
     if (Objects.isNull(obj)) return;
@@ -326,7 +327,6 @@ FUTURE goal
     var pattern = buildPattern(sequence, voice,
       Objects.requireNonNull(getInt(pObj, "total")));
     content.add(pattern);
-    //noinspection unchecked
     for (Map<?, ?> eObj : (List<Map<?, ?>>) pObj.get("events")) {
       var event = buildEvent(pattern, track,
         Objects.requireNonNull(getFloat(eObj, "position")),
@@ -345,6 +345,7 @@ FUTURE goal
    *
    * @param data YAML file wrapper
    */
+  @SuppressWarnings("unchecked")
   void loadSegment(Map<?, ?> data) throws NexusException {
     Map<?, ?> obj = (Map<?, ?>) data.get("segment");
 
@@ -355,7 +356,6 @@ FUTURE goal
       60)); // 60 BPM such that 1 beat = 1 second
 
     if (obj.containsKey("stickyBuns")) {
-      //noinspection unchecked
       for (Map<?, ?> sbObj : (List<Map<?, ?>>) obj.get("stickyBuns")) {
         var sbType = InstrumentType.valueOf(getStr(sbObj, "type"));
         var sbPosition = getFloat(sbObj, "position");
@@ -368,10 +368,9 @@ FUTURE goal
       }
     }
 
-    //noinspection unchecked
     for (Map<?, ?> cObj : (List<Map<?, ?>>) obj.get("chords")) {
       var chord = store.put(NexusIntegrationTestingFixtures.buildSegmentChord(segment,
-        getDouble(cObj, "position"),
+        getDouble(cObj),
         getStr(cObj, "name")));
       Map<?, ?> vObj = (Map<?, ?>) cObj.get("voicings");
       for (var instrumentType : instruments.keySet()) {
@@ -404,9 +403,9 @@ FUTURE goal
     for (var type : INSTRUMENT_TYPES_TO_TEST) loadAndPerformAssertions(obj, type);
   }
 
+  @SuppressWarnings("unchecked")
   void loadAndPerformAssertions(Map<?, ?> data, InstrumentType type) {
     @Nullable
-    @SuppressWarnings("unchecked")
     List<Map<?, ?>> objs = (List<Map<?, ?>>) data.get(type.toString().toLowerCase(Locale.ROOT));
     if (Objects.isNull(objs)) return;
 
@@ -439,7 +438,7 @@ FUTURE goal
 
       if (Objects.nonNull(notes))
         assertSameNotes(String.format("Notes of %s", assertionName),
-          new HashSet<>(CSV.split(notes)), new HashSet<>(picks));
+          new HashSet<>(CsvUtils.split(notes)), new HashSet<>(picks));
     }
   }
 }

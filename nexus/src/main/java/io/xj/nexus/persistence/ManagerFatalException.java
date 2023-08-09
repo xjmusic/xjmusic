@@ -2,7 +2,7 @@
 
 package io.xj.nexus.persistence;
 
-import io.xj.lib.util.StringUtils;
+import io.xj.hub.util.StringUtils;
 
 public class ManagerFatalException extends Exception {
 

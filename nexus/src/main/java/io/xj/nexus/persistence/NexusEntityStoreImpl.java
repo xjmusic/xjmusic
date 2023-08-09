@@ -2,11 +2,11 @@
 
 package io.xj.nexus.persistence;
 
-import io.xj.lib.entity.Entities;
+import io.xj.hub.util.ValueUtils;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityStoreImpl;
-import io.xj.lib.util.ValueUtils;
+import io.xj.lib.entity.EntityUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 @Service
 public class NexusEntityStoreImpl implements NexusEntityStore {
   static final Logger LOG = LoggerFactory.getLogger(EntityStoreImpl.class);
-  static final String SEGMENT_ID_ATTRIBUTE = Entities.toIdAttribute(Entities.toBelongsTo(Segment.class));
+  static final String SEGMENT_ID_ATTRIBUTE = EntityUtils.toIdAttribute(EntityUtils.toBelongsTo(Segment.class));
   final Map<UUID/*ID*/, Chain> chainMap = new ConcurrentHashMap<>();
   final Map<UUID/*ID*/, Segment> segmentMap = new ConcurrentHashMap<>();
   final Map<UUID/*SegID*/, Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>>> store = new ConcurrentHashMap<>();
@@ -73,7 +73,7 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   public <N> void deleteAll(UUID segmentId, Class<N> type) throws NexusException {
     for (N entity : getAll(segmentId, type)) {
       try {
-        delete(segmentId, type, Entities.getId(entity));
+        delete(segmentId, type, EntityUtils.getId(entity));
       } catch (EntityException e) {
         throw new NexusException(e);
       }
@@ -140,7 +140,7 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
         return List.of();
       //noinspection unchecked
       return (Collection<N>) store.get(segmentId).get(type).values().stream()
-        .filter(entity -> Entities.isChild(entity, belongsToType, belongsToIds))
+        .filter(entity -> EntityUtils.isChild(entity, belongsToType, belongsToIds))
         .collect(Collectors.toList());
 
     } catch (Exception e) {
@@ -165,7 +165,7 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
     // fail to store entity without id
     UUID id;
     try {
-      id = Entities.getId(entity);
+      id = EntityUtils.getId(entity);
     } catch (EntityException e) {
       throw new NexusException(String.format("Can't get id of %s-type entity",
         entity.getClass().getSimpleName()));
@@ -191,7 +191,7 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
       entity instanceof SegmentChoiceArrangement ||
       entity instanceof SegmentChoiceArrangementPick)
       try {
-        var segmentIdValue = Entities.get(entity, SEGMENT_ID_ATTRIBUTE)
+        var segmentIdValue = EntityUtils.get(entity, SEGMENT_ID_ATTRIBUTE)
           .orElseThrow(() -> new NexusException(String.format("Can't store %s without Segment ID!",
             entity.getClass().getSimpleName())));
         UUID segmentId = UUID.fromString(String.valueOf(segmentIdValue));

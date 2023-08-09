@@ -1,16 +1,16 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.persistence;
 
-import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.hub.enums.ProgramType;
+import io.xj.hub.util.CsvUtils;
+import io.xj.hub.util.StringUtils;
+import io.xj.hub.util.ValueException;
+import io.xj.hub.util.ValueUtils;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.ChordEntity;
 import io.xj.lib.entity.common.MessageEntity;
-import io.xj.lib.util.CSV;
-import io.xj.lib.util.StringUtils;
-import io.xj.lib.util.ValueException;
-import io.xj.lib.util.ValueUtils;
 import io.xj.nexus.NexusException;
+import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
@@ -35,7 +35,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 
 /**
  * Nexus Managers are Singletons unless some other requirement changes that-- 'cuz here be cyclic dependencies...
@@ -69,7 +69,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
       }
     }
     throw new ValueException(String.format("transition to %s not in allowed (%s)",
-      toState, CSV.join(allowedStateNames)));
+      toState, CsvUtils.join(allowedStateNames)));
   }
 
   /**

@@ -1,15 +1,15 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.craft;
 
-import io.xj.lib.music.Accidental;
-import io.xj.lib.music.Note;
+import io.xj.hub.music.Accidental;
+import io.xj.hub.music.Note;
+import jakarta.annotation.Nullable;
 import org.junit.After;
-import org.junit.Before;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.yaml.snakeyaml.Yaml;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -17,17 +17,17 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * XJ has a serviceable voicing algorithm https://www.pivotaltracker.com/story/show/176696738
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public abstract class YamlTest {
   protected Set<String> failures;
 
-  @Before
+  @BeforeEach
   public void prepareFailureCache() {
     failures = new HashSet<>();
   }
@@ -43,14 +43,14 @@ public abstract class YamlTest {
     }
     System.out.println("\nFAILED");
     failures.stream().sorted().forEach(System.out::println);
-    assertEquals("There should be zero assertion failures", 0, failures.size());
+    assertEquals(0, failures.size());
   }
 
   protected Map<?, ?> loadYaml(String prefix, String filename) {
     Yaml yaml = new Yaml();
     Map<?, ?> data = yaml.load(getClass()
       .getResourceAsStream(String.format("%s%s", prefix, filename)));
-    assertNotNull("Read Test YAML file", data);
+    assertNotNull(data);
     return data;
   }
 
@@ -109,9 +109,9 @@ public abstract class YamlTest {
   }
 
   @Nullable
-  protected Double getDouble(Map<?, ?> obj, String key) {
-    if (Objects.isNull(obj.get(key))) return null;
-    return Double.valueOf(String.valueOf(obj.get(key)));
+  protected Double getDouble(Map<?, ?> obj) {
+    if (Objects.isNull(obj.get("position"))) return null;
+    return Double.valueOf(String.valueOf(obj.get("position")));
   }
 
   @Nullable

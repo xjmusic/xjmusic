@@ -8,8 +8,8 @@ on:
 jobs:
   CI:
     env:
-      CI_BOT_TOKEN: ${{ secrets.CI_BOT_TOKEN }}
-      CI_BOT_USERNAME: ${{ secrets.CI_BOT_USERNAME }}
+      REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
+      REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
     name: Continuous Integration
     runs-on: ubuntu-22.04
     permissions: write-all
@@ -67,13 +67,7 @@ jobs:
             jib
         continue-on-error: false
 
-      - name: Build shadowed JAR for distribution
+      - name: Build for distribution via jpackage
         run: |
-          ./gradlew --info --no-daemon shadowJar
+          ./gradlew --info --no-daemon jpackage
         continue-on-error: false
-
-      - name: Build App Installer Bundles
-        uses: shannah/jdeploy@master
-        with:
-          target_repository: xjmusic/workstation
-          github_token: ${{ github.token }}

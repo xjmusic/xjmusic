@@ -4,8 +4,8 @@ package io.xj.lib.jsonapi;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
+import io.xj.lib.entity.EntityUtils;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -190,7 +190,7 @@ public class JsonapiPayloadObject {
    * @return this PayloadObject (for chaining methods)
    */
   public JsonapiPayloadObject setType(String type) {
-    this.type = Entities.toType(type);
+    this.type = EntityUtils.toType(type);
     return this;
   }
 
@@ -201,7 +201,7 @@ public class JsonapiPayloadObject {
    * @return this PayloadObject (for chaining methods)
    */
   public JsonapiPayloadObject setType(Class<?> type) {
-    this.type = Entities.toType(type);
+    this.type = EntityUtils.toType(type);
     return this;
   }
 
@@ -226,8 +226,8 @@ public class JsonapiPayloadObject {
    */
   public <N> boolean isSame(N resource) {
     try {
-      if (!Objects.equals(getType(), Entities.toType(resource))) return false;
-      Optional<Object> id = Entities.get(resource, KEY_ID);
+      if (!Objects.equals(getType(), EntityUtils.toType(resource))) return false;
+      Optional<Object> id = EntityUtils.get(resource, KEY_ID);
       return id.isPresent() && Objects.equals(getId(), String.valueOf(id.get()));
     } catch (EntityException ignored) {
       return false;
@@ -264,9 +264,9 @@ public class JsonapiPayloadObject {
    * @return true if this payload object has the requested belongs-to relationship
    */
   public boolean belongsTo(Class<?> parentType, Collection<String> parentIds) {
-    String key = Entities.toBelongsTo(type);
+    String key = EntityUtils.toBelongsTo(type);
     return relationships.containsKey(key) &&
-      relationships.get(key).hasDataOne(Entities.toType(type), parentIds);
+      relationships.get(key).hasDataOne(EntityUtils.toType(type), parentIds);
   }
 
   /**
@@ -277,9 +277,9 @@ public class JsonapiPayloadObject {
    * @return true if this payload object has the requested belongs-to relationship
    */
   public boolean belongsTo(String type, String id) {
-    String key = Entities.toBelongsTo(type);
+    String key = EntityUtils.toBelongsTo(type);
     return relationships.containsKey(key) &&
-      relationships.get(key).hasDataOne(Entities.toType(type), id);
+      relationships.get(key).hasDataOne(EntityUtils.toType(type), id);
   }
 
   /**
@@ -290,9 +290,9 @@ public class JsonapiPayloadObject {
    */
   public <N> boolean belongsTo(N resource) {
     try {
-      var resourceId = Entities.getId(resource);
+      var resourceId = EntityUtils.getId(resource);
       if (Objects.isNull(resourceId)) return false;
-      return belongsTo(Entities.toType(resource), resourceId.toString());
+      return belongsTo(EntityUtils.toType(resource), resourceId.toString());
     } catch (EntityException e) {
       return false;
     }
@@ -318,15 +318,15 @@ public class JsonapiPayloadObject {
    */
   public <N> boolean hasMany(String type, Collection<N> resources) throws JsonapiException {
     try {
-      String key = Entities.toHasMany(type);
+      String key = EntityUtils.toHasMany(type);
       if (!relationships.containsKey(key)) return false;
       List<String> list = new ArrayList<>();
       for (N resource : resources) {
-        var resourceId = Entities.getId(resource);
+        var resourceId = EntityUtils.getId(resource);
         if (Objects.nonNull(resourceId))
           list.add(resourceId.toString());
       }
-      return relationships.get(key).hasDataMany(Entities.toType(type), list);
+      return relationships.get(key).hasDataMany(EntityUtils.toType(type), list);
     } catch (EntityException e) {
       throw new JsonapiException(e);
     }
@@ -339,7 +339,7 @@ public class JsonapiPayloadObject {
    * @return true if same type as provided
    */
   public boolean isType(Class<?> type) {
-    return this.type.equals(Entities.toType(type));
+    return this.type.equals(EntityUtils.toType(type));
   }
 
   /**

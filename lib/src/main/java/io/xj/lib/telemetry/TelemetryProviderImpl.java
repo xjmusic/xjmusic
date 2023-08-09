@@ -1,16 +1,16 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.lib.telemetry;
 
+import io.xj.hub.util.StringUtils;
 import io.xj.lib.app.AppConfiguration;
-import io.xj.lib.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import static io.xj.lib.util.StringUtils.SPACE;
-import static io.xj.lib.util.StringUtils.UNDERSCORE;
+import static io.xj.hub.util.StringUtils.SPACE;
+import static io.xj.hub.util.StringUtils.UNDERSCORE;
 
 /**
  * Send telemetry to GCP https://www.pivotaltracker.com/story/show/180741969

@@ -14,18 +14,21 @@ import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentState;
 import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.Segments;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.List;
 
+import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildAccount;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplate;
-import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegment;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class SegmentsTest extends TestCase {
+public class SegmentsTest {
   final Account account = buildAccount("Test");
   final Template template = buildTemplate(account, "Test");
   final Chain chain = buildChain(account, "Test", ChainType.PRODUCTION, ChainState.FABRICATE, template);
@@ -79,10 +82,7 @@ public class SegmentsTest extends TestCase {
     true);
   Collection<Segment> segments = List.of(seg0, seg1, seg2, seg3);
 
-  public void setUp() throws Exception {
-    super.setUp();
-  }
-
+  @Test
   public void testFindFirstOfType() throws NexusException {
     var ch0 = new SegmentChoice();
     ch0.setDeltaIn(Segments.DELTA_UNLIMITED);
@@ -95,27 +95,33 @@ public class SegmentsTest extends TestCase {
     assertEquals(ch0, Segments.findFirstOfType(List.of(ch0, ch1), ProgramType.Main));
   }
 
+  @Test
   public void testGetIdentifier() {
     assertEquals("chains-1-segments-9f7s89d8a7892", Segments.getIdentifier(seg0));
   }
 
+  @Test
   public void testGetLastDubbed() {
     assertEquals(seg2, Segments.getLastCrafted(segments).orElseThrow());
   }
 
+  @Test
   public void testGetLast() {
     assertEquals(seg3, Segments.getLast(segments).orElseThrow());
   }
 
+  @Test
   public void testGetDubbed() {
     assertEquals(List.of(seg0, seg1, seg2),
       Segments.getCrafted(segments));
   }
 
+  @Test
   public void testGetShipKey() {
     assertEquals("chains-1-segments-078aw34tiu5hga.wav", Segments.getStorageFilename(seg1));
   }
 
+  @Test
   public void testIsSpanning() {
     assertTrue(Segments.isSpanning(seg1, 32 * MICROS_PER_SECOND, 32 * MICROS_PER_SECOND)); // true if exactly at beginning of segment
     assertFalse(Segments.isSpanning(seg1, 64 * MICROS_PER_SECOND, 64 * MICROS_PER_SECOND)); // false if exactly at end of segment

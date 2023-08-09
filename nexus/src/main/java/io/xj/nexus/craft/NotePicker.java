@@ -2,10 +2,10 @@
 
 package io.xj.nexus.craft;
 
-import io.xj.lib.music.Note;
-import io.xj.lib.music.NoteRange;
-import io.xj.lib.music.PitchClass;
-import io.xj.lib.util.MarbleBag;
+import io.xj.hub.music.Note;
+import io.xj.hub.music.NoteRange;
+import io.xj.hub.music.PitchClass;
+import io.xj.hub.util.MarbleBag;
 
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;

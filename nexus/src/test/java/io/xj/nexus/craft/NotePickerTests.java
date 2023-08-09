@@ -3,16 +3,16 @@ package io.xj.nexus.craft;
 
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.InstrumentType;
-import io.xj.lib.music.Accidental;
-import io.xj.lib.music.Note;
-import io.xj.lib.music.NoteRange;
-import io.xj.lib.util.CSV;
-import io.xj.lib.util.ValueException;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import io.xj.hub.music.Accidental;
+import io.xj.hub.music.Note;
+import io.xj.hub.music.NoteRange;
+import io.xj.hub.util.CsvUtils;
+import io.xj.hub.util.ValueException;
+import jakarta.annotation.Nullable;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -21,12 +21,12 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * XJ has a serviceable voicing algorithm https://www.pivotaltracker.com/story/show/176696738
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class NotePickerTests extends YamlTest {
   static final int REPEAT_EACH_TEST_TIMES = 7;
   static final String TEST_PATH_PREFIX = "/picking/";
@@ -99,13 +99,13 @@ public class NotePickerTests extends YamlTest {
     var instrumentType =
       InstrumentType.valueOf(Objects.requireNonNull(getStr(obj, "instrumentType")));
 
-    var voicingNotes = CSV.split(Objects.requireNonNull(getStr(obj, "voicingNotes"))).stream()
+    var voicingNotes = CsvUtils.split(Objects.requireNonNull(getStr(obj, "voicingNotes"))).stream()
       .map(Note::of).collect(Collectors.toSet());
 
 
     subject = new NotePicker(range, voicingNotes, templateConfig.getInstrumentTypesForInversionSeeking().contains(instrumentType));
 
-    return CSV.split(Objects.requireNonNull(getStr(obj, "eventNotes"))).stream()
+    return CsvUtils.split(Objects.requireNonNull(getStr(obj, "eventNotes"))).stream()
       .map(Note::of).collect(Collectors.toList());
   }
 
@@ -134,7 +134,7 @@ public class NotePickerTests extends YamlTest {
 
     Optional.ofNullable(getStr(obj, "picks"))
       .ifPresent(picks -> assertSameNotes("Picks",
-        new HashSet<>(CSV.split(picks)),
+        new HashSet<>(CsvUtils.split(picks)),
         picked));
 
     Optional.ofNullable(getInt(obj, "count"))

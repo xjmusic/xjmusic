@@ -1,9 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus;
 
-import io.xj.lib.util.StringUtils;
-
-import org.jetbrains.annotations.Nullable;
+import io.xj.hub.util.StringUtils;
+import jakarta.annotation.Nullable;
 
 public class NexusException extends Exception {
 

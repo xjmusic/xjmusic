@@ -2,18 +2,19 @@
 
 package io.xj.lib.mixer;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class MathUtilTest {
   double[][] buf;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     buf = new double[][]{
       {-0.55183d, 0.63987d},
@@ -44,9 +45,9 @@ public class MathUtilTest {
     assertArrayEquals(new double[]{0.1973815149870411, 0.5045629484153814}, MathUtil.logarithmicCompression(new double[]{0.31937d, 0.81640d}), 0.001);
   }
 
-  @Test(expected = MixerException.class)
-  public void enforceMax_overTheLimit() throws MixerException {
-    MathUtil.enforceMax(25, "wedgies before going postal", 26);
+  @Test
+  public void enforceMax_overTheLimit() {
+    assertThrows(MixerException.class, () -> MathUtil.enforceMax(25, "wedgies before going postal", 26));
   }
 
   @Test
@@ -54,9 +55,9 @@ public class MathUtilTest {
     MathUtil.enforceMax(25, "wedgies before going postal", 25);
   }
 
-  @Test(expected = MixerException.class)
-  public void enforceMin_underTheLine() throws MixerException {
-    MathUtil.enforceMin(25, "tugs before jam", 24);
+  @Test
+  public void enforceMin_underTheLine() {
+    assertThrows(MixerException.class, () -> MathUtil.enforceMin(25, "tugs before jam", 24));
   }
 
   @Test

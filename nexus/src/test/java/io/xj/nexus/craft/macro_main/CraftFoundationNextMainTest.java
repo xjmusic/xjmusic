@@ -1,18 +1,15 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.craft.macro_main;
 
-import io.xj.hub.HubTopology;
-import io.xj.nexus.hub_client.HubClient;
-import io.xj.hub.ingest.HubContent;
+import io.xj.hub.HubContent;
 import io.xj.hub.enums.ProgramType;
-import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactoryImpl;
+import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.lib.notification.NotificationProvider;
-import io.xj.test_fixtures.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.craft.CraftFactoryImpl;
@@ -20,6 +17,8 @@ import io.xj.nexus.fabricator.FabricationFatalException;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
+import io.xj.nexus.hub_client.HubClient;
+import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.ChainState;
 import io.xj.nexus.model.ChainType;
@@ -33,12 +32,13 @@ import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManagerImpl;
 import io.xj.nexus.persistence.Segments;
+import io.xj.test_fixtures.NexusIntegrationTestingFixtures;
 import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collection;
 import java.util.List;
@@ -46,14 +46,14 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.lib.util.Assertion.assertSameItems;
-import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.lib.util.ValueUtils.SECONDS_PER_MINUTE;
+import static io.xj.hub.util.Assertion.assertSameItems;
+import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.hub.util.ValueUtils.SECONDS_PER_MINUTE;
 import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegment;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CraftFoundationNextMainTest {
   @Mock
   public HubClient hubClient;
@@ -67,7 +67,7 @@ public class CraftFoundationNextMainTest {
   NexusEntityStore store;
   HubContent sourceMaterial;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     var jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
@@ -155,10 +155,10 @@ public class CraftFoundationNextMainTest {
     assertEquals(140, result.getTempo(), 0.01);
     // assert memes
     assertSameItems(List.of("HINDSIGHT", "TROPICAL", "COZY", "WILD", "REGRET"),
-      Entities.namesOf(store.getAll(result.getId(), SegmentMeme.class)));
+      EntityUtils.namesOf(store.getAll(result.getId(), SegmentMeme.class)));
     // assert chords
     assertSameItems(List.of("G -", "Ab -"),
-      Entities.namesOf(store.getAll(result.getId(), SegmentChord.class)));
+      EntityUtils.namesOf(store.getAll(result.getId(), SegmentChord.class)));
     // assert choices
     Collection<SegmentChoice> segmentChoices =
       store.getAll(result.getId(), SegmentChoice.class);

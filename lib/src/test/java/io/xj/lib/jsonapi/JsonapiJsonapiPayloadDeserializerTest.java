@@ -1,12 +1,12 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.lib.jsonapi;
 
+import io.xj.hub.util.FileUtils;
 import io.xj.lib.Widget;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.json.JsonProviderImpl;
-import io.xj.lib.util.FileUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.List;
@@ -22,7 +22,7 @@ import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
 public class JsonapiJsonapiPayloadDeserializerTest {
   JsonapiPayloadFactory jsonapiPayloadFactory;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     var jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);

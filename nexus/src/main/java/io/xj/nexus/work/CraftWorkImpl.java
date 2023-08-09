@@ -1,34 +1,31 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.work;
 
+import io.xj.hub.HubContent;
 import io.xj.hub.TemplateConfig;
-import io.xj.hub.Templates;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.ingest.HubContent;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.hub.tables.pojos.TemplatePlayback;
-import io.xj.lib.entity.Entities;
+import io.xj.hub.util.StringUtils;
+import io.xj.hub.util.ValueException;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.lock.LockException;
-import io.xj.lib.lock.LockProvider;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.MultiStopwatch;
 import io.xj.lib.telemetry.TelemetryMeasureCount;
 import io.xj.lib.telemetry.TelemetryMeasureGauge;
 import io.xj.lib.telemetry.TelemetryProvider;
-import io.xj.lib.util.StringUtils;
-import io.xj.lib.util.ValueException;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.OutputMode;
@@ -55,15 +52,16 @@ import io.xj.nexus.persistence.ManagerValidationException;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.Segments;
+import io.xj.nexus.persistence.Templates;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.jetbrains.annotations.Nullable;
+import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -80,17 +78,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.lib.filestore.FileStoreProvider.EXTENSION_JSON;
-import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.lib.util.ValueUtils.MILLIS_PER_SECOND;
+import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.hub.util.ValueUtils.MILLIS_PER_SECOND;
 
 public class CraftWorkImpl implements CraftWork {
   static final Logger LOG = LoggerFactory.getLogger(CraftWorkImpl.class);
+  static final String EXTENSION_JSON = "json";
   static final long INTERNAL_CYCLE_SLEEP_MILLIS = 50;
   final CraftFactory craftFactory;
   final EntityFactory entityFactory;
   final FabricatorFactory fabricatorFactory;
-  final LockProvider lockProvider;
   final HttpClientProvider httpClientProvider;
   final HubClient hubClient;
   final HubClientAccess access = HubClientAccess.internal();
@@ -172,7 +169,6 @@ public class CraftWorkImpl implements CraftWork {
     HubClient hubClient,
     JsonapiPayloadFactory jsonapiPayloadFactory,
     JsonProvider jsonProvider,
-    LockProvider lockProvider,
     NexusEntityStore store,
     NotificationProvider notification,
     SegmentManager segmentManager,
@@ -192,7 +188,6 @@ public class CraftWorkImpl implements CraftWork {
     this.hubClient = hubClient;
     this.jsonProvider = jsonProvider;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
-    this.lockProvider = lockProvider;
     this.notification = notification;
     this.segmentManager = segmentManager;
     this.store = store;
@@ -528,7 +523,7 @@ public class CraftWorkImpl implements CraftWork {
       LOG.debug("Ingested {} entities of source material", chainSourceMaterial.size());
       state = WorkState.Working;
 
-    } catch (HubClientException | ValueException e) {
+    } catch (Exception e) {
       didFailWhile(inputTemplateKey, "ingesting published source material", e, false);
     }
   }
@@ -649,12 +644,6 @@ public class CraftWorkImpl implements CraftWork {
    */
   public void fabricateChain(Chain target) throws FabricationFatalException {
     try {
-      // On Preview Nexus start, generate a random hash key and write it to a lock file named after the ship key, next to the target chain output json-- e.g. **bump_deep.lock** is written next to the target chain output **bump_deep.json**
-      // https://www.pivotaltracker.com/story/show/185119448
-      if (inputMode == InputMode.PREVIEW) {
-        lockProvider.acquire(shipBucket, target.getShipKey());
-      }
-
       timer.section("ComputeAhead");
       var fabricatedToChainMicros = Chains.computeFabricatedToChainMicros(segmentManager.readMany(List.of(target.getId())));
 
@@ -687,12 +676,6 @@ public class CraftWorkImpl implements CraftWork {
       aheadSeconds = (float) (fabricatedToChainMicros - atChainMicros) / MICROS_PER_SECOND;
       telemetryProvider.put(METRIC_FABRICATED_AHEAD_SECONDS, aheadSeconds);
 
-      // Before writing a segment, Nexus reads the expected lock file and confirms that the hash has not changed.
-      // https://www.pivotaltracker.com/story/show/185119448
-      if (inputMode == InputMode.PREVIEW) {
-        lockProvider.check(shipBucket, target.getShipKey());
-      }
-
       finishWork(fabricator, segment);
 
       LOG.info("Fabricated Segment[offset={}] {}s long (ahead {}s)",
@@ -717,10 +700,6 @@ public class CraftWorkImpl implements CraftWork {
       );
 
       LOG.error("Failed to created Segment in Chain[{}] reason={}", Chains.getIdentifier(target), e.getMessage());
-
-    } catch (LockException e) {
-      LOG.error("Fabrication lock invalid for Chain[{}] reason={}", Chains.getIdentifier(target), e.getMessage());
-      running.set(false);
     }
   }
 
@@ -854,11 +833,11 @@ public class CraftWorkImpl implements CraftWork {
     Long eraseBeforeChainMicros = atChainMicros - eraseSegmentsOlderThanSeconds * MICROS_PER_SECOND;
     Collection<UUID> segmentIds = new ArrayList<>();
     for (UUID chainId : store.getAllChains().stream()
-      .flatMap(Entities::flatMapIds).toList())
+      .flatMap(EntityUtils::flatMapIds).toList())
       store.getAllSegments(chainId)
         .stream()
         .filter(segment -> isBefore(segment, eraseBeforeChainMicros))
-        .flatMap(Entities::flatMapIds)
+        .flatMap(EntityUtils::flatMapIds)
         .forEach(segmentIds::add);
     return segmentIds;
   }
@@ -972,7 +951,7 @@ public class CraftWorkImpl implements CraftWork {
     try (
       CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", shipBaseUrl, key)))
     ) {
-      if (!Objects.equals(HttpStatus.OK.value(), response.getStatusLine().getStatusCode())) {
+      if (!Objects.equals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode())) {
         LOG.debug("Failed to get previously fabricated chain for Template[{}] because {} {}", template.getShipKey(), response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
         return Optional.empty();
       }
@@ -1019,7 +998,7 @@ public class CraftWorkImpl implements CraftWork {
           try (
             CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", shipBaseUrl, segmentShipKey)))
           ) {
-            if (!Objects.equals(HttpStatus.OK.value(), response.getStatusLine().getStatusCode())) {
+            if (!Objects.equals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode())) {
               LOG.error("Failed to get segment for Template[{}] because {} {}", template.getShipKey(), response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
               success.set(false);
               return;
@@ -1054,7 +1033,7 @@ public class CraftWorkImpl implements CraftWork {
       var aheadSeconds =
         Math.floor(Chains.computeFabricatedToChainMicros(
           entities.stream()
-            .filter(e -> Entities.isType(e, Segment.class))
+            .filter(e -> EntityUtils.isType(e, Segment.class))
             .map(e -> (Segment) e)
             .collect(Collectors.toList())) - atChainMicros) / MICROS_PER_SECOND;
 
@@ -1085,13 +1064,13 @@ public class CraftWorkImpl implements CraftWork {
     if (!isJsonOutputEnabled) return;
     writeJsonFile(
       fabricator.getSegmentJson(),
-      Segments.getStorageFilename(fabricator.getSegment(), FileStoreProvider.EXTENSION_JSON));
+      Segments.getStorageFilename(fabricator.getSegment(), EXTENSION_JSON));
     writeJsonFile(
       fabricator.getChainFullJson(),
-      Chains.getShipKey(Chains.getFullKey(Chains.computeBaseKey(fabricator.getChain())), FileStoreProvider.EXTENSION_JSON));
+      Chains.getShipKey(Chains.getFullKey(Chains.computeBaseKey(fabricator.getChain())), EXTENSION_JSON));
     writeJsonFile(
       fabricator.getChainJson(atChainMicros),
-      Chains.getShipKey(Chains.computeBaseKey(fabricator.getChain()), FileStoreProvider.EXTENSION_JSON));
+      Chains.getShipKey(Chains.computeBaseKey(fabricator.getChain()), EXTENSION_JSON));
   }
 
   /**

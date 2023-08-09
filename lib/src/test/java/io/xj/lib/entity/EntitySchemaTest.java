@@ -2,18 +2,18 @@
 
 package io.xj.lib.entity;
 
-import java.util.Set;
 import io.xj.lib.Widget;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class EntitySchemaTest {
   EntitySchema subject;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     subject = EntitySchema.of("FunkyChicken")
       .createdBy(Widget::new)
@@ -40,7 +40,7 @@ public class EntitySchemaTest {
     );
 
     Widget created = (Widget) subject.getCreator().get();
-    Assert.assertEquals("ThisIsATest", created.getName());
+    assertEquals("ThisIsATest", created.getName());
   }
 
   @Test

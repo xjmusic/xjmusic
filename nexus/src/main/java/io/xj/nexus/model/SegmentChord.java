@@ -4,17 +4,16 @@ package io.xj.nexus.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.validation.Valid;
 import java.util.Objects;
 import java.util.UUID;
 
 
 public class SegmentChord {
 
-  @Valid UUID id;
-  @Valid UUID segmentId;
-  @Valid Double position;
-  @Valid String name;
+  UUID id;
+  UUID segmentId;
+  Double position;
+  String name;
 
   /**
    *

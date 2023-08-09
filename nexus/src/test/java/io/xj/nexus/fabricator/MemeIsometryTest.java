@@ -1,16 +1,16 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.fabricator;
 
+import io.xj.hub.meme.MemeTaxonomy;
 import io.xj.hub.tables.pojos.ProgramMeme;
-import io.xj.lib.meme.MemeTaxonomy;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MemeIsometryTest {
   MemeIsometry subject;

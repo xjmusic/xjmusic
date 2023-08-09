@@ -2,10 +2,10 @@
 
 package io.xj.lib.telemetry;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Measures a series of named sections of time
@@ -13,7 +13,7 @@ import static org.junit.Assert.assertTrue;
 public class MultiStopwatchTest {
   MultiStopwatch subject;
 
-  @Before
+  @BeforeEach
   public void start() {
     subject = MultiStopwatch.start();
   }

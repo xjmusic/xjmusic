@@ -1,10 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.work;
 
-import io.xj.hub.HubTopology;
-import io.xj.nexus.hub_client.HubClient;
-import io.xj.nexus.hub_client.HubClientAccess;
-import io.xj.hub.ingest.HubContent;
+import io.xj.hub.HubContent;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
@@ -13,14 +10,15 @@ import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.lib.lock.LockProvider;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.TelemetryProvider;
-import io.xj.test_fixtures.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.craft.CraftFactoryImpl;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
+import io.xj.nexus.hub_client.HubClient;
+import io.xj.nexus.hub_client.HubClientAccess;
+import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.persistence.ManagerExistenceException;
 import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.ManagerPrivilegeException;
@@ -28,29 +26,22 @@ import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.SegmentManagerImpl;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import io.xj.test_fixtures.NexusIntegrationTestingFixtures;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.Objects;
-
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildAccount;
 import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildLibrary;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ComplexLibraryTest {
   static final Logger LOG = LoggerFactory.getLogger(ComplexLibraryTest.class);
   static final int MARATHON_NUMBER_OF_SEGMENTS = 50;
@@ -58,14 +49,6 @@ public class ComplexLibraryTest {
   static final int MILLIS_PER_SECOND = 1000;
   @Mock
   public HubClient hubClient;
-  @Mock(lenient = true)
-  public HttpClientProvider httpClientProvider;
-  @Mock(lenient = true)
-  public CloseableHttpClient httpClient;
-  @Mock(lenient = true)
-  public CloseableHttpResponse httpResponse;
-  @Mock(lenient = true)
-  public HttpEntity httpResponseEntity;
   @Mock
   public NotificationProvider notificationProvider;
   @Mock
@@ -75,11 +58,9 @@ public class ComplexLibraryTest {
   SegmentManager segmentManager;
   CraftWork work;
   @Mock
-  LockProvider lockProvider;
-  @Mock
   FileStoreProvider fileStoreProvider;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();
     fake.account1 = buildAccount("fish");
@@ -110,9 +91,6 @@ public class ComplexLibraryTest {
 
     // Mock request via HubClient returns fake generated library of hub content
     when(hubClient.load(any())).thenReturn(content);
-    when(httpClientProvider.getClient()).thenReturn(httpClient);
-    when(httpClient.execute(any())).thenReturn(httpResponse);
-    when(httpResponse.getEntity()).thenReturn(httpResponseEntity);
 
     // Dependencies
     ApiUrlProvider apiUrlProvider = new ApiUrlProvider("http://localhost:8080/");
@@ -129,10 +107,9 @@ public class ComplexLibraryTest {
       hubClient,
       jsonapiPayloadFactory,
       jsonProvider,
-      lockProvider,
       store,
       notificationProvider,
-            segmentManager,
+      segmentManager,
       telemetryProvider,
       "production",
       "playback",
@@ -147,10 +124,6 @@ public class ComplexLibraryTest {
 
   @Test
   public void fabricatesManySegments() throws Exception {
-    when(httpResponseEntity.getContent())
-      .thenAnswer((Answer<InputStream>) invocation -> new FileInputStream(Objects.requireNonNull(
-        ComplexLibraryTest.class.getClassLoader().getResource("source_audio/kick1.wav")).getFile()));
-
     // Start app, wait for work, stop app
     workThread.start();
     while (!hasSegmentsDubbedPastMinimumOffset() && isWithinTimeLimit())

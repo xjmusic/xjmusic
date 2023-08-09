@@ -6,7 +6,7 @@ import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.lib.util.MarbleBag;
+import io.xj.hub.util.MarbleBag;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.CraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static io.xj.lib.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 
 public class HookCraftImpl extends CraftImpl implements HookCraft {
   public HookCraftImpl(

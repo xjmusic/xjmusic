@@ -34,8 +34,8 @@ import io.xj.hub.tables.pojos.TemplatePublication;
 import io.xj.hub.tables.pojos.User;
 import io.xj.hub.tables.pojos.UserAuth;
 import io.xj.hub.tables.pojos.UserAuthToken;
-import io.xj.lib.util.CSV;
-import org.jetbrains.annotations.Nullable;
+import io.xj.hub.util.CsvUtils;
+import jakarta.annotation.Nullable;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -129,7 +129,7 @@ public class HubIntegrationTestingFixtures {
 
   public static Collection<Object> buildInstrumentWithAudios(Instrument instrument, String notes) {
     List<Object> result = new ArrayList<>(List.of(instrument));
-    for (String note : CSV.split(notes)) {
+    for (String note : CsvUtils.split(notes)) {
       var audio = buildAudio(instrument, String.format("%s-%s", instrument.getType().name(), note), note);
       result.add(audio);
     }

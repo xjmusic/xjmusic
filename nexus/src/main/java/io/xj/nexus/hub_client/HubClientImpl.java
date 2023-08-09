@@ -2,16 +2,16 @@
 
 package io.xj.nexus.hub_client;
 
-import io.xj.hub.ingest.HubContent;
-import io.xj.hub.ingest.HubContentPayload;
+import io.xj.hub.HubContent;
+import io.xj.hub.HubContentPayload;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplatePlayback;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.util.ValueException;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -82,13 +81,13 @@ public class HubClientImpl implements HubClient {
       CloseableHttpResponse response = client.execute(buildGetRequest(uri, ingestTokenValue))
     ) {
       // return content if successful.
-      if (!Objects.equals(HttpStatus.OK.value(), response.getStatusLine().getStatusCode()))
+      if (!Objects.equals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode()))
         throw buildException(uri.toString(), response);
 
       String json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
       return HubContent.from(jsonProvider.getMapper().readValue(json, HubContentPayload.class));
 
-    } catch (ValueException | IOException e) {
+    } catch (Exception e) {
       throw new HubClientException(e);
     }
   }
@@ -112,13 +111,13 @@ public class HubClientImpl implements HubClient {
       CloseableHttpResponse response = client.execute(new HttpGet(url))
     ) {
       // return content if successful.
-      if (!Objects.equals(HttpStatus.OK.value(), response.getStatusLine().getStatusCode()))
+      if (!Objects.equals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode()))
         throw buildException(url, response);
 
       String json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
       return HubContent.from(jsonProvider.getMapper().readValue(json, HubContentPayload.class));
 
-    } catch (IOException | ValueException e) {
+    } catch (Exception e) {
       throw new HubClientException(e);
     }
   }
@@ -130,7 +129,7 @@ public class HubClientImpl implements HubClient {
     try (
       CloseableHttpResponse response = client.execute(request)
     ) {
-      if (!Objects.equals(HttpStatus.OK.value(), response.getStatusLine().getStatusCode()))
+      if (!Objects.equals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode()))
         throw buildException(uri.toString(), response);
 
       var json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());

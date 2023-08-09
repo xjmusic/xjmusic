@@ -1,52 +1,30 @@
 # Environment Variables
-/.env
+.env
+gradle-local.properties
 
-# Build artifacts
-target/
-*/target/
-classes/
-
-# container logs and data
-log/
-*/log/
-
-# IntelliJ
-*.iml
-.idea/
-
-# Node.js
-/node_modules/
-
-# Static site generation
-docs/public/
-
-# Gradle build files
-.gradle
+gpg/
+.gradle/
 build/
-*/build/
-/out/
-# Ignore Gradle GUI config
-gradle-app.setting
+*.class
+*.log
+*.settings.xml
+
+# Eclipse
+.classpath
+.project
+.settings/
+bin/
+
+# IDEA
+*.iml
+*.ipr
+*.iws
+.idea/
+out/
+
+hs_err_pid*
+_ignore*
 
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
 !gradle-wrapper.jar
 
-# Cache of project
-.gradletasknamecache
-
-# Mac OS X
-.DS_Store
-
-# Kafka properties
-kafka.properties
-
-# Audio data
-data/
-*/data/
-
-# Bootstrap chains
-bootstrap-chains.json
-/hub/out/
-/lib/out/
-/nexus/out/
-/workstation/out/

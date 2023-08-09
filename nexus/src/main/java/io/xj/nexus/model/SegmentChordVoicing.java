@@ -4,18 +4,17 @@ package io.xj.nexus.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.validation.Valid;
 import java.util.Objects;
 import java.util.UUID;
 
 
 public class SegmentChordVoicing {
 
-  @Valid UUID id;
-  @Valid UUID segmentId;
-  @Valid UUID segmentChordId;
-  @Valid String type;
-  @Valid String notes;
+  UUID id;
+  UUID segmentId;
+  UUID segmentChordId;
+  String type;
+  String notes;
 
   /**
    *

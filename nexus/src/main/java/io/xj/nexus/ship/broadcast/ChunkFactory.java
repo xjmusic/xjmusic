@@ -2,7 +2,7 @@
 package io.xj.nexus.ship.broadcast;
 
 
-import org.jetbrains.annotations.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
