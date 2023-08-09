@@ -38,13 +38,11 @@ dependencies {
   // peers
   implementation project(":lib")
   implementation project(":nexus")
-  testImplementation(project(':lib').sourceSets.test.output)
   testImplementation(testFixtures(project(":nexus")))
   // private
   implementation "io.xj:models:${rootProject.ext.xjModelsVersion}"
   // vendor
   implementation "com.fasterxml.jackson.core:jackson-annotations:${rootProject.ext.jacksonAnnotationsVersion}"
-  implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${rootProject.ext.jacksonAnnotationsVersion}"
   implementation "org.jooq:jooq:${rootProject.ext.jooqVersion}"
   implementation 'be.tarsos.dsp:core:2.5'
   implementation 'be.tarsos.dsp:jvm:2.5'
@@ -59,7 +57,6 @@ dependencies {
   implementation 'org.reflections:reflections:0.10.1'
   implementation "org.slf4j:log4j-over-slf4j:${rootProject.ext.slf4jVersion}"
   implementation "org.slf4j:slf4j-api:${rootProject.ext.slf4jVersion}"
-  implementation 'org.yaml:snakeyaml:1.33'
   implementation "org.springframework.boot:spring-boot-starter:${rootProject.ext.springBootVersion}"
   implementation "org.openjfx:javafx-base:${rootProject.ext.javaFxVersion}"
   implementation "org.openjfx:javafx-controls:${rootProject.ext.javaFxVersion}"
