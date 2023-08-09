@@ -4,10 +4,8 @@ module workstation.gui.main {
   requires javafx.fxml;
   requires javafx.graphics;
   requires jakarta.annotation;
-  requires org.jooq;
   requires org.slf4j;
   requires spring.beans;
-  requires com.fasterxml.jackson.annotation;
   requires spring.boot.autoconfigure;
   requires spring.boot;
   requires spring.context;
