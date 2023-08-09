@@ -5,6 +5,7 @@ import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.TextField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,7 +26,8 @@ public class MainWindowController {
     MainWindowScene mainWindowScene,
     @Value("${gui.launch.guide.url}") String launchGuideUrl,
     @Value("${gui.theme.light}") String lightTheme,
-    @Value("${gui.theme.dark}") String darkTheme
+    @Value("${gui.theme.dark}") String darkTheme,
+    @Value("${audio.base.url}") String audioBaseUrl
   ) {
     this.hostServices = hostServices;
     this.mainWindowScene = mainWindowScene;
@@ -36,6 +38,8 @@ public class MainWindowController {
 
   @FXML
   protected CheckMenuItem darkThemeCheck;
+  @FXML
+  protected TextField audioBaseUrl;
 
   @FXML
   private void toggleDarkTheme() {

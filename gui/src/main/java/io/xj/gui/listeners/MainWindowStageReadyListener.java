@@ -1,6 +1,7 @@
-package io.xj.gui.events;
+package io.xj.gui.listeners;
 
 import io.xj.gui.MainWindowScene;
+import io.xj.gui.events.StageReadyEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import org.slf4j.Logger;
@@ -14,8 +15,8 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
-public class StageReadyListener implements ApplicationListener<StageReadyEvent> {
-  static final Logger LOG = LoggerFactory.getLogger(StageReadyListener.class);
+public class MainWindowStageReadyListener implements ApplicationListener<StageReadyEvent> {
+  static final Logger LOG = LoggerFactory.getLogger(MainWindowStageReadyListener.class);
   private final String applicationTitle;
   private final Resource mainWindowFxml;
 
@@ -23,7 +24,7 @@ public class StageReadyListener implements ApplicationListener<StageReadyEvent> 
   private final String darkTheme;
   private final MainWindowScene mainWindowScene;
 
-  public StageReadyListener(
+  public MainWindowStageReadyListener(
     @Value("${application.ui.title}") String applicationTitle,
     @Value("classpath:/views/main-window.fxml") Resource mainWindowFxml,
     @Value("${gui.theme.dark}") String darkTheme,
