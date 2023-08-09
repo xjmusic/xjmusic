@@ -45,8 +45,8 @@ dependencies {
   testFixturesImplementation "org.jooq:jooq:${rootProject.ext.jooqVersion}"
   testFixturesImplementation 'com.typesafe:config:1.4.2'
   testFixturesImplementation "org.slf4j:slf4j-api:${rootProject.ext.slf4jVersion}"
+  testFixturesImplementation "org.springframework.boot:spring-boot-starter:${rootProject.ext.springBootVersion}"
   testImplementation "org.junit.jupiter:junit-jupiter-api:${rootProject.ext.junitVersion}"
-  testImplementation "org.springframework:spring-context:${rootProject.ext.springTestVersion}"
   testImplementation 'be.tarsos.dsp:core:2.5'
   testImplementation 'be.tarsos.dsp:jvm:2.5'
   testImplementation 'org.hamcrest:hamcrest-library:2.2'
