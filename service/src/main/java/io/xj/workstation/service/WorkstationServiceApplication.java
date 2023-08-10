@@ -3,7 +3,10 @@
 package io.xj.workstation.service;
 
 import io.xj.lib.entity.EntityFactory;
+import io.xj.nexus.InputMode;
 import io.xj.nexus.NexusTopology;
+import io.xj.nexus.OutputFileMode;
+import io.xj.nexus.OutputMode;
 import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.work.WorkFactory;
 import org.slf4j.Logger;
@@ -18,6 +21,8 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.event.EventListener;
 
+import java.util.Locale;
+
 @SpringBootApplication
 @ComponentScan(
   basePackages = {
@@ -30,19 +35,34 @@ public class WorkstationServiceApplication {
   final EntityFactory entityFactory;
   final WorkFactory workFactory;
   final ApplicationContext context;
-
-  @Value("${hostname}")
-  String hostname;
+  private final InputMode inputMode;
+  private final String inputTemplateKey;
+  private final OutputFileMode outputFileMode;
+  private final OutputMode outputMode;
+  private final String outputPathPrefix;
+  private final int outputSeconds;
 
   @Autowired
   public WorkstationServiceApplication(
     ApplicationContext context,
     EntityFactory entityFactory,
-    WorkFactory workFactory
+    WorkFactory workFactory,
+    @Value("${input.mode}") String inputMode,
+    @Value("${input.template.key}") String inputTemplateKey,
+    @Value("${output.file.mode}") String outputFileMode,
+    @Value("${output.mode}") String outputMode,
+    @Value("${output.path.prefix}") String outputPathPrefix,
+    @Value("${output.seconds}") int outputSeconds
   ) {
     this.entityFactory = entityFactory;
     this.workFactory = workFactory;
     this.context = context;
+    this.inputMode = InputMode.valueOf(inputMode.toUpperCase(Locale.ROOT));
+    this.inputTemplateKey = inputTemplateKey;
+    this.outputFileMode = OutputFileMode.valueOf(outputFileMode.toUpperCase(Locale.ROOT));
+    this.outputMode = OutputMode.valueOf(outputMode.toUpperCase(Locale.ROOT));
+    this.outputPathPrefix = outputPathPrefix;
+    this.outputSeconds = outputSeconds;
   }
 
   @EventListener(ApplicationStartedEvent.class)
@@ -51,7 +71,14 @@ public class WorkstationServiceApplication {
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
 
-    workFactory.start(this::shutdown);
+    workFactory.start(
+      inputMode,
+      inputTemplateKey,
+      outputFileMode,
+      outputMode,
+      outputPathPrefix,
+      outputSeconds, this::shutdown
+    );
   }
 
   void shutdown() {

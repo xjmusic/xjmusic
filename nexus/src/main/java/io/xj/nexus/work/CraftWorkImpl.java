@@ -53,12 +53,12 @@ import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.Segments;
 import io.xj.nexus.persistence.Templates;
+import jakarta.annotation.Nullable;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.CloseableHttpClient;
-import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -69,7 +69,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -172,8 +171,8 @@ public class CraftWorkImpl implements CraftWork {
     NotificationProvider notification,
     SegmentManager segmentManager,
     TelemetryProvider telemetryProvider,
-    String inputMode,
-    String outputMode,
+    InputMode inputMode,
+    OutputMode outputMode,
     String inputTemplateKey,
     boolean isJsonOutputEnabled,
     String tempFilePathPrefix,
@@ -197,8 +196,8 @@ public class CraftWorkImpl implements CraftWork {
 
     labPollNextSystemMillis = System.currentTimeMillis();
     yardPollNextSystemMillis = System.currentTimeMillis();
-    this.inputMode = InputMode.valueOf(inputMode.toUpperCase(Locale.ROOT));
-    this.outputMode = OutputMode.valueOf(outputMode.toUpperCase(Locale.ROOT));
+    this.inputMode = inputMode;
+    this.outputMode = outputMode;
 
     // Telemetry: # Segments Erased
     METRIC_FABRICATED_AHEAD_SECONDS = telemetryProvider.gauge("fabricated_ahead_seconds", "Fabricated Ahead Seconds", "s");

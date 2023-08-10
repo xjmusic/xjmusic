@@ -2,11 +2,23 @@
 
 package io.xj.nexus.work;
 
+import io.xj.nexus.InputMode;
+import io.xj.nexus.OutputFileMode;
+import io.xj.nexus.OutputMode;
+
 public interface WorkFactory {
   /**
    * Start work
    */
-  void start(Runnable onDone);
+  void start(
+    InputMode inputMode,
+    String inputTemplateKey,
+    OutputFileMode outputFileMode,
+    OutputMode outputMode,
+    String outputPathPrefix,
+    int outputSeconds,
+    Runnable onDone
+  );
 
   /**
    * Stop work

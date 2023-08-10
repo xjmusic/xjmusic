@@ -9,6 +9,9 @@ import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.mixer.MixerFactory;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.TelemetryProvider;
+import io.xj.nexus.InputMode;
+import io.xj.nexus.OutputFileMode;
+import io.xj.nexus.OutputMode;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.dub.DubAudioCache;
 import io.xj.nexus.fabricator.FabricatorFactory;
@@ -44,17 +47,11 @@ public class WorkFactoryImpl implements WorkFactory {
   final SegmentManager segmentManager;
   final TelemetryProvider telemetryProvider;
   final long dubCycleMillis;
-  final String inputMode;
-  final String inputTemplateKey;
   final int jsonExpiresInSeconds;
   final int mixerSeconds;
-  final String outputFileMode;
   final int outputFileNumberDigits;
   final boolean isJsonOutputEnabled;
-  final String outputMode;
-  final String outputPathPrefix;
   final int pcmChunkSizeBytes;
-  final int outputSeconds;
   final int cycleAudioBytes;
   final long shipCycleMillis;
   final int planAheadSeconds;
@@ -87,17 +84,11 @@ public class WorkFactoryImpl implements WorkFactory {
     SegmentManager segmentManager,
     TelemetryProvider telemetryProvider,
     @Value("${dub.cycle.millis}") long dubCycleMillis,
-    @Value("${input.mode}") String inputMode,
-    @Value("${input.template.key}") String inputTemplateKey,
     @Value("${json.expires.in.seconds}") int jsonExpiresInSeconds,
     @Value("${mixer.timeline.seconds}") int mixerSeconds,
-    @Value("${output.file.mode}") String outputFileMode,
     @Value("${output.file.number.digits}") int outputFileNumberDigits,
     @Value("${output.json.enabled}") boolean isJsonOutputEnabled,
-    @Value("${output.mode}") String outputMode,
-    @Value("${output.path.prefix}") String outputPathPrefix,
     @Value("${output.pcm.chunk.size.bytes}") int pcmChunkSizeBytes,
-    @Value("${output.seconds}") int outputSeconds,
     @Value("${ship.cycle.audio.bytes}") int cycleAudioBytes,
     @Value("${ship.cycle.millis}") long shipCycleMillis,
     @Value("${ship.output.synchronous.plan.ahead.seconds}") int planAheadSeconds,
@@ -119,17 +110,11 @@ public class WorkFactoryImpl implements WorkFactory {
     this.segmentManager = segmentManager;
     this.telemetryProvider = telemetryProvider;
     this.dubCycleMillis = dubCycleMillis;
-    this.inputMode = inputMode;
-    this.inputTemplateKey = inputTemplateKey;
     this.jsonExpiresInSeconds = jsonExpiresInSeconds;
     this.mixerSeconds = mixerSeconds;
-    this.outputFileMode = outputFileMode;
     this.outputFileNumberDigits = outputFileNumberDigits;
     this.isJsonOutputEnabled = isJsonOutputEnabled;
-    this.outputMode = outputMode;
-    this.outputPathPrefix = outputPathPrefix;
     this.pcmChunkSizeBytes = pcmChunkSizeBytes;
-    this.outputSeconds = outputSeconds;
     this.cycleAudioBytes = cycleAudioBytes;
     this.shipCycleMillis = shipCycleMillis;
     this.planAheadSeconds = planAheadSeconds;
@@ -137,7 +122,15 @@ public class WorkFactoryImpl implements WorkFactory {
   }
 
   @Override
-  public void start(Runnable onDone) {
+  public void start(
+    InputMode inputMode,
+    String inputTemplateKey,
+    OutputFileMode outputFileMode,
+    OutputMode outputMode,
+    String outputPathPrefix,
+    int outputSeconds,
+    Runnable onDone
+  ) {
     craftWork = new CraftWorkImpl(
       craftFactory,
       entityFactory,

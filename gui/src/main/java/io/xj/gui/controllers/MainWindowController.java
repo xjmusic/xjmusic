@@ -1,14 +1,18 @@
 package io.xj.gui.controllers;
 
+import io.xj.gui.WorkstationStatus;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
+import io.xj.nexus.work.WorkFactory;
 import jakarta.annotation.Nullable;
 import javafx.application.HostServices;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import org.slf4j.Logger;
@@ -19,34 +23,28 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 @Service
 public class MainWindowController {
+  private WorkstationStatus status;
   Logger LOG = LoggerFactory.getLogger(MainWindowController.class);
   private final HostServices hostServices;
   private final ConfigurableApplicationContext ac;
+  private final WorkFactory workFactory;
   private final String launchGuideUrl;
   private final String lightTheme;
   private final String darkTheme;
   private final String defaultOutputPathPrefix;
-  private final String defaultAudioBaseUrl;
-  private final Collection<String> inputModeChoices;
-  private final Collection<String> outputModeChoices;
-  private final Collection<String> outputFileModeChoices;
-  private final String defaultInputMode;
-  private final String defaultOutputMode;
-  private final String defaultOutputFileMode;
+  private final InputMode defaultInputMode;
+  private final OutputMode defaultOutputMode;
+  private final OutputFileMode defaultOutputFileMode;
   private final String defaultOutputSeconds;
   @Nullable
   private Scene mainWindowScene;
 
   public MainWindowController(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
-    @Value("${audio.base.url}") String defaultAudioBaseUrl,
     @Value("${gui.launch.guide.url}") String launchGuideUrl,
     @Value("${gui.theme.dark}") String darkTheme,
     @Value("${gui.theme.light}") String lightTheme,
@@ -54,28 +52,25 @@ public class MainWindowController {
     @Value("${output.file.mode}") String defaultOutputFileMode,
     @Value("${output.mode}") String defaultOutputMode,
     @Value("${output.seconds}") String defaultOutputSeconds,
-    ConfigurableApplicationContext ac
+    ConfigurableApplicationContext ac,
+    WorkFactory workFactory
   ) {
+    this.workFactory = workFactory;
+    status = WorkstationStatus.Ready;
     this.hostServices = hostServices;
     this.ac = ac;
     this.launchGuideUrl = launchGuideUrl;
     this.lightTheme = lightTheme;
     this.darkTheme = darkTheme;
-    this.defaultAudioBaseUrl = defaultAudioBaseUrl;
     this.defaultOutputSeconds = defaultOutputSeconds;
     this.defaultOutputPathPrefix = System.getProperty("user.home") + File.separator;
-    this.inputModeChoices = Arrays.stream(InputMode.values()).map(Enum::name).collect(Collectors.toList());
-    this.outputModeChoices = Arrays.stream(OutputMode.values()).map(Enum::name).collect(Collectors.toList());
-    this.outputFileModeChoices = Arrays.stream(OutputFileMode.values()).map(Enum::name).collect(Collectors.toList());
-    this.defaultInputMode = defaultInputMode.toUpperCase(Locale.ROOT);
-    this.defaultOutputMode = defaultOutputMode.toUpperCase(Locale.ROOT);
-    this.defaultOutputFileMode = defaultOutputFileMode.toUpperCase(Locale.ROOT);
+    this.defaultInputMode = InputMode.valueOf(defaultInputMode.toUpperCase(Locale.ROOT));
+    this.defaultOutputMode = OutputMode.valueOf(defaultOutputMode.toUpperCase(Locale.ROOT));
+    this.defaultOutputFileMode = OutputFileMode.valueOf(defaultOutputFileMode.toUpperCase(Locale.ROOT));
   }
 
   @FXML
   protected CheckMenuItem darkThemeCheck;
-  @FXML
-  protected TextField fieldAudioBaseUrl;
   @FXML
   protected TextField fieldInputTemplateKey;
   @FXML
@@ -83,13 +78,15 @@ public class MainWindowController {
   @FXML
   protected TextField fieldOutputSeconds;
   @FXML
-  protected ChoiceBox<String> choiceInputMode;
+  protected ChoiceBox<InputMode> choiceInputMode;
   @FXML
-  protected ChoiceBox<String> choiceOutputMode;
+  protected ChoiceBox<OutputMode> choiceOutputMode;
   @FXML
-  protected ChoiceBox<String> choiceOutputFileMode;
+  protected ChoiceBox<OutputFileMode> choiceOutputFileMode;
   @FXML
   protected TextArea textAreaLogs;
+  @FXML
+  protected Button buttonAction;
 
   @FXML
   private void toggleDarkTheme() {
@@ -108,19 +105,46 @@ public class MainWindowController {
   }
 
   @FXML
+  protected void onButtonActionPress() {
+    switch (status) {
+      case Ready -> onWorkStart();
+      case Working -> onWorkStop();
+      case Stopped, Done, Failed -> onWorkReset();
+    }
+  }
+
+  private void onWorkStart() {
+    onStatusUpdate(WorkstationStatus.Working);
+    workFactory.start(
+      choiceInputMode.getValue(),
+      fieldInputTemplateKey.getText(),
+      choiceOutputFileMode.getValue(),
+      choiceOutputMode.getValue(),
+      fieldOutputPathPrefix.getText(),
+      Integer.parseInt(fieldOutputSeconds.getText()),
+      this::onWorkDone
+    );
+  }
+
+  private void onWorkStop() {
+    onStatusUpdate(WorkstationStatus.Stopped);
+  }
+
+  private void onWorkDone() {
+    onStatusUpdate(WorkstationStatus.Done);
+  }
+
+  private void onWorkReset() {
+    onStatusUpdate(WorkstationStatus.Ready);
+  }
+
+  @FXML
+  protected Label labelStatus;
+
+  @FXML
   protected void onLaunchUserGuide() {
     LOG.info("Will launch user guide");
     hostServices.showDocument(launchGuideUrl);
-  }
-
-  private void enableDarkTheme() {
-    mainWindowScene.getStylesheets().remove(lightTheme);
-    mainWindowScene.getStylesheets().add(darkTheme);
-  }
-
-  private void disableDarkTheme() {
-    mainWindowScene.getStylesheets().remove(darkTheme);
-    mainWindowScene.getStylesheets().add(lightTheme);
   }
 
   public @Nullable Scene getMainWindowScene() {
@@ -133,14 +157,34 @@ public class MainWindowController {
 
   public void onStageReady() {
     enableDarkTheme();
+    onStatusUpdate(status);
     fieldOutputSeconds.setText(defaultOutputSeconds);
-    fieldAudioBaseUrl.setText(defaultAudioBaseUrl);
     fieldOutputPathPrefix.setText(defaultOutputPathPrefix);
-    choiceInputMode.getItems().setAll(inputModeChoices);
-    choiceOutputMode.getItems().setAll(outputModeChoices);
-    choiceOutputFileMode.getItems().setAll(outputFileModeChoices);
+    choiceInputMode.getItems().setAll(InputMode.values());
+    choiceOutputMode.getItems().setAll(OutputMode.values());
+    choiceOutputFileMode.getItems().setAll(OutputFileMode.values());
     choiceInputMode.setValue(defaultInputMode);
     choiceOutputMode.setValue(defaultOutputMode);
     choiceOutputFileMode.setValue(defaultOutputFileMode);
+  }
+
+  public void onStatusUpdate(WorkstationStatus status) {
+    this.status = status;
+    labelStatus.setText(status.toString());
+    switch (status) {
+      case Ready -> buttonAction.setText("Start");
+      case Working -> buttonAction.setText("Stop");
+      case Stopped, Done, Failed -> buttonAction.setText("Reset");
+    }
+  }
+
+  private void enableDarkTheme() {
+    mainWindowScene.getStylesheets().remove(lightTheme);
+    mainWindowScene.getStylesheets().add(darkTheme);
+  }
+
+  private void disableDarkTheme() {
+    mainWindowScene.getStylesheets().remove(darkTheme);
+    mainWindowScene.getStylesheets().add(lightTheme);
   }
 }
