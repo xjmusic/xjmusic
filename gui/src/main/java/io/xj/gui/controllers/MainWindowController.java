@@ -7,6 +7,7 @@ import io.xj.nexus.OutputMode;
 import io.xj.nexus.work.WorkFactory;
 import jakarta.annotation.Nullable;
 import javafx.application.HostServices;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -40,8 +41,12 @@ public class MainWindowController {
   private final OutputMode defaultOutputMode;
   private final OutputFileMode defaultOutputFileMode;
   private final String defaultOutputSeconds;
+
   @Nullable
   private Scene mainWindowScene;
+
+  @Nullable
+  private Thread workThread;
 
   public MainWindowController(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
@@ -114,20 +119,32 @@ public class MainWindowController {
   }
 
   private void onWorkStart() {
-    onStatusUpdate(WorkstationStatus.Working);
-    workFactory.start(
-      choiceInputMode.getValue(),
-      fieldInputTemplateKey.getText(),
-      choiceOutputFileMode.getValue(),
-      choiceOutputMode.getValue(),
-      fieldOutputPathPrefix.getText(),
-      Integer.parseInt(fieldOutputSeconds.getText()),
-      this::onWorkDone
-    );
+    Platform.runLater(() -> {
+      onStatusUpdate(WorkstationStatus.Working);
+      workThread = new Thread(() -> workFactory.start(
+        choiceInputMode.getValue(),
+        fieldInputTemplateKey.getText(),
+        choiceOutputFileMode.getValue(),
+        choiceOutputMode.getValue(),
+        fieldOutputPathPrefix.getText(),
+        Integer.parseInt(fieldOutputSeconds.getText()),
+        this::onWorkDone
+      ));
+      workThread.start();
+    });
   }
 
   private void onWorkStop() {
-    onStatusUpdate(WorkstationStatus.Stopped);
+    Platform.runLater(() -> {
+      onStatusUpdate(WorkstationStatus.Stopping);
+      workThread.interrupt();
+      try {
+        workThread.join();
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+      onStatusUpdate(WorkstationStatus.Stopped);
+    });
   }
 
   private void onWorkDone() {
@@ -172,9 +189,22 @@ public class MainWindowController {
     this.status = status;
     labelStatus.setText(status.toString());
     switch (status) {
-      case Ready -> buttonAction.setText("Start");
-      case Working -> buttonAction.setText("Stop");
-      case Stopped, Done, Failed -> buttonAction.setText("Reset");
+      case Ready -> {
+        buttonAction.setText("Start");
+        buttonAction.setDisable(false);
+      }
+      case Working -> {
+        buttonAction.setText("Stop");
+        buttonAction.setDisable(false);
+      }
+      case Stopping -> {
+        buttonAction.setText("Stopping");
+        buttonAction.setDisable(true);
+      }
+      case Stopped, Done, Failed -> {
+        buttonAction.setText("Reset");
+        buttonAction.setDisable(false);
+      }
     }
   }
 
