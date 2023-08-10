@@ -151,7 +151,6 @@ public class CraftWorkImpl implements CraftWork {
   long atChainMicros = 0;
   final InputMode inputMode;
   final String inputTemplateKey;
-  final String environment;
   final boolean isJsonOutputEnabled;
   final String tempFilePathPrefix;
   final Integer jsonExpiresInSeconds;
@@ -176,7 +175,6 @@ public class CraftWorkImpl implements CraftWork {
     String inputMode,
     String outputMode,
     String inputTemplateKey,
-    String environment,
     boolean isJsonOutputEnabled,
     String tempFilePathPrefix,
     int jsonExpiresInSeconds
@@ -194,7 +192,6 @@ public class CraftWorkImpl implements CraftWork {
     this.telemetryProvider = telemetryProvider;
     this.tempFilePathPrefix = tempFilePathPrefix;
     this.inputTemplateKey = inputTemplateKey;
-    this.environment = environment;
     this.isJsonOutputEnabled = isJsonOutputEnabled;
     this.jsonExpiresInSeconds = jsonExpiresInSeconds;
 
@@ -782,7 +779,7 @@ public class CraftWorkImpl implements CraftWork {
       LOG.error("Failed while {} because {}", msgWhile, msgCause);
 
     notification.publish(
-      StringUtils.isNullOrEmpty(templateKey) ? String.format("%s-Chain[%s] Work Failure", environment, templateKey) : String.format("%s-Chains Work Failure", environment),
+      StringUtils.isNullOrEmpty(templateKey) ? String.format("Chain[%s] Work Failure", templateKey) : "Chains Work Failure",
       String.format("Failed while %s because %s\n\n%s", msgWhile, msgCause, StringUtils.formatStackTrace(e)));
 
     state = WorkState.Failed;

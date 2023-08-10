@@ -2,7 +2,6 @@
 package io.xj.lib.mixer;
 
 
-import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueException;
 import io.xj.hub.util.ValueUtils;
 import io.xj.lib.notification.NotificationProvider;
@@ -10,7 +9,6 @@ import org.apache.commons.io.FileUtils;
 import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
@@ -49,9 +47,7 @@ class SourceImpl implements Source {
     NotificationProvider notification,
     UUID audioId,
     String absolutePath,
-    String description,
-    @Value("${environment}")
-    String environment
+    String description
   ) {
     double _microsPerFrame;
     long _lengthMicros;
@@ -62,7 +58,6 @@ class SourceImpl implements Source {
     AudioFormat _audioFormat;
     this.absolutePath = absolutePath;
     this.audioId = audioId;
-    String envName = StringUtils.toProper(environment);
 
     try (
       var fileInputStream = FileUtils.openInputStream(new File(absolutePath));
@@ -82,7 +77,7 @@ class SourceImpl implements Source {
 
     } catch (UnsupportedAudioFileException | IOException | ValueException e) {
       LOG.error("Failed to load source for Audio[{}] \"{}\" because {}", audioId, description, e.getMessage());
-      notification.publish(String.format("%s-Chain Mix Source Failure", envName), String.format("Failed to load source for Audio[%s] \"%s\" because %s", audioId, description, e.getMessage()));
+      notification.publish("Chain Mix Source Failure", String.format("Failed to load source for Audio[%s] \"%s\" because %s", audioId, description, e.getMessage()));
       _audioFormat = null;
       _channels = 0;
       _frameRate = 0;

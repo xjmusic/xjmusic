@@ -114,8 +114,7 @@ public class ComplexLibraryTest {
       "production",
       "playback",
       "complex_library_test",
-      "production",
-      false,
+            false,
       "/tmp",
       86400);
 

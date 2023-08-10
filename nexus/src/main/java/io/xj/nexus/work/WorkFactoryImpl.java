@@ -44,7 +44,6 @@ public class WorkFactoryImpl implements WorkFactory {
   final SegmentManager segmentManager;
   final TelemetryProvider telemetryProvider;
   final long dubCycleMillis;
-  final String environment;
   final String inputMode;
   final String inputTemplateKey;
   final int jsonExpiresInSeconds;
@@ -88,7 +87,6 @@ public class WorkFactoryImpl implements WorkFactory {
     SegmentManager segmentManager,
     TelemetryProvider telemetryProvider,
     @Value("${dub.cycle.millis}") long dubCycleMillis,
-    @Value("${environment}") String environment,
     @Value("${input.mode}") String inputMode,
     @Value("${input.template.key}") String inputTemplateKey,
     @Value("${json.expires.in.seconds}") int jsonExpiresInSeconds,
@@ -121,7 +119,6 @@ public class WorkFactoryImpl implements WorkFactory {
     this.segmentManager = segmentManager;
     this.telemetryProvider = telemetryProvider;
     this.dubCycleMillis = dubCycleMillis;
-    this.environment = environment;
     this.inputMode = inputMode;
     this.inputTemplateKey = inputTemplateKey;
     this.jsonExpiresInSeconds = jsonExpiresInSeconds;
@@ -157,7 +154,6 @@ public class WorkFactoryImpl implements WorkFactory {
       inputMode,
       outputMode,
       inputTemplateKey,
-      environment,
       isJsonOutputEnabled,
       tempFilePathPrefix,
       jsonExpiresInSeconds

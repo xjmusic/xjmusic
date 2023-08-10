@@ -36,7 +36,7 @@ public class MixerImplTest {
   @BeforeEach
   public void setUp() throws Exception {
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    mixerFactory = new MixerFactoryImpl(envelopeProvider, notificationProvider, "production", 1000000);
+    mixerFactory = new MixerFactoryImpl(envelopeProvider, notificationProvider, 1000000);
     testMixer = mixerFactory.createMixer(
       new MixerConfig(
         new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,

@@ -74,7 +74,7 @@ public class DemoIT {
 
   public DemoIT() {
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    this.mixerFactory = new MixerFactoryImpl(envelopeProvider, notificationProvider, "development", 1000000);
+    this.mixerFactory = new MixerFactoryImpl(envelopeProvider, notificationProvider, 1000000);
   }
 
   /**

@@ -2,10 +2,7 @@
 
 package io.xj.workstation.service;
 
-import io.xj.hub.util.StringUtils;
-import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.work.WorkFactory;
@@ -31,30 +28,25 @@ import org.springframework.context.event.EventListener;
 public class WorkstationServiceApplication {
   final Logger LOG = LoggerFactory.getLogger(WorkstationServiceApplication.class);
   final EntityFactory entityFactory;
-  final AppConfiguration config;
   final WorkFactory workFactory;
   final ApplicationContext context;
 
   @Value("${hostname}")
   String hostname;
-  @Value("${environment}")
-  String environment;
 
   @Autowired
   public WorkstationServiceApplication(
-    AppConfiguration config,
     ApplicationContext context,
     EntityFactory entityFactory,
     WorkFactory workFactory
   ) {
     this.entityFactory = entityFactory;
-    this.config = config;
     this.workFactory = workFactory;
     this.context = context;
   }
 
   @EventListener(ApplicationStartedEvent.class)
-  public void start() throws NexusException {
+  public void start() {
     // Setup Entity topology
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
@@ -63,10 +55,10 @@ public class WorkstationServiceApplication {
   }
 
   void shutdown() {
-    LOG.info("{} will shutdown", StringUtils.toProper(config.getName()));
+    LOG.info("will shutdown");
     Thread shutdown = new Thread(() -> {
       ((ConfigurableApplicationContext) context).close();
-      LOG.info("{} did finish work and shutdown OK", StringUtils.toProper(config.getName()));
+      LOG.info("did finish work and shutdown OK");
     });
     shutdown.setDaemon(false);
     shutdown.start();
