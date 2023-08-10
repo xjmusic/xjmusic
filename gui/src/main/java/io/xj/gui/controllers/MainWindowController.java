@@ -1,6 +1,5 @@
 package io.xj.gui.controllers;
 
-import io.xj.hub.util.CsvUtils;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
@@ -22,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,22 +34,27 @@ public class MainWindowController {
   private final String darkTheme;
   private final String defaultOutputPathPrefix;
   private final String defaultAudioBaseUrl;
-  private final Collection<String> environmentChoices;
   private final Collection<String> inputModeChoices;
   private final Collection<String> outputModeChoices;
   private final Collection<String> outputFileModeChoices;
-
+  private final String defaultInputMode;
+  private final String defaultOutputMode;
+  private final String defaultOutputFileMode;
+  private final String defaultOutputSeconds;
   @Nullable
   private Scene mainWindowScene;
 
   public MainWindowController(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
-    ConfigurableApplicationContext ac,
-    @Value("${gui.launch.guide.url}") String launchGuideUrl,
-    @Value("${gui.theme.light}") String lightTheme,
-    @Value("${gui.theme.dark}") String darkTheme,
     @Value("${audio.base.url}") String defaultAudioBaseUrl,
-    @Value("${environment.choices}") String environmentChoices
+    @Value("${gui.launch.guide.url}") String launchGuideUrl,
+    @Value("${gui.theme.dark}") String darkTheme,
+    @Value("${gui.theme.light}") String lightTheme,
+    @Value("${input.mode}") String defaultInputMode,
+    @Value("${output.file.mode}") String defaultOutputFileMode,
+    @Value("${output.mode}") String defaultOutputMode,
+    @Value("${output.seconds}") String defaultOutputSeconds,
+    ConfigurableApplicationContext ac
   ) {
     this.hostServices = hostServices;
     this.ac = ac;
@@ -57,11 +62,14 @@ public class MainWindowController {
     this.lightTheme = lightTheme;
     this.darkTheme = darkTheme;
     this.defaultAudioBaseUrl = defaultAudioBaseUrl;
+    this.defaultOutputSeconds = defaultOutputSeconds;
     this.defaultOutputPathPrefix = System.getProperty("user.home") + File.separator;
-    this.environmentChoices = CsvUtils.split(environmentChoices);
     this.inputModeChoices = Arrays.stream(InputMode.values()).map(Enum::name).collect(Collectors.toList());
     this.outputModeChoices = Arrays.stream(OutputMode.values()).map(Enum::name).collect(Collectors.toList());
     this.outputFileModeChoices = Arrays.stream(OutputFileMode.values()).map(Enum::name).collect(Collectors.toList());
+    this.defaultInputMode = defaultInputMode.toUpperCase(Locale.ROOT);
+    this.defaultOutputMode = defaultOutputMode.toUpperCase(Locale.ROOT);
+    this.defaultOutputFileMode = defaultOutputFileMode.toUpperCase(Locale.ROOT);
   }
 
   @FXML
@@ -74,8 +82,6 @@ public class MainWindowController {
   protected TextField fieldOutputPathPrefix;
   @FXML
   protected TextField fieldOutputSeconds;
-  @FXML
-  protected ChoiceBox<String> choiceEnvironment;
   @FXML
   protected ChoiceBox<String> choiceInputMode;
   @FXML
@@ -127,11 +133,14 @@ public class MainWindowController {
 
   public void onStageReady() {
     enableDarkTheme();
+    fieldOutputSeconds.setText(defaultOutputSeconds);
     fieldAudioBaseUrl.setText(defaultAudioBaseUrl);
     fieldOutputPathPrefix.setText(defaultOutputPathPrefix);
-    choiceEnvironment.getItems().setAll(environmentChoices);
     choiceInputMode.getItems().setAll(inputModeChoices);
     choiceOutputMode.getItems().setAll(outputModeChoices);
     choiceOutputFileMode.getItems().setAll(outputFileModeChoices);
+    choiceInputMode.setValue(defaultInputMode);
+    choiceOutputMode.setValue(defaultOutputMode);
+    choiceOutputFileMode.setValue(defaultOutputFileMode);
   }
 }

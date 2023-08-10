@@ -72,27 +72,13 @@
             <Pane prefHeight="16.0" prefWidth="640.0" />
             <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
                <children>
-                  <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0" text="Environment" textAlignment="RIGHT">
+                  <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0" text="Input Template Key" textAlignment="RIGHT">
                      <graphic>
                         <Pane prefHeight="100.0" prefWidth="15.0" />
                      </graphic>
                   </Label>
                   <Pane prefHeight="100.0" prefWidth="15.0" />
-                  <ChoiceBox fx:id="choiceEnvironment" prefHeight="25.0" prefWidth="401.0" />
-               </children>
-               <opaqueInsets>
-                  <Insets />
-               </opaqueInsets>
-            </HBox>
-            <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
-               <children>
-                  <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0" text="Audio Base URL" textAlignment="RIGHT">
-                     <graphic>
-                        <Pane prefHeight="100.0" prefWidth="15.0" />
-                     </graphic>
-                  </Label>
-                  <Pane prefHeight="100.0" prefWidth="15.0" />
-                  <TextField fx:id="fieldAudioBaseUrl" prefHeight="25.0" prefWidth="402.0" />
+                  <TextField fx:id="fieldInputTemplateKey" prefHeight="25.0" prefWidth="402.0" />
                </children>
                <opaqueInsets>
                   <Insets />
@@ -107,20 +93,6 @@
                   </Label>
                   <Pane prefHeight="100.0" prefWidth="15.0" />
                   <ChoiceBox fx:id="choiceInputMode" prefHeight="25.0" prefWidth="401.0" />
-               </children>
-               <opaqueInsets>
-                  <Insets />
-               </opaqueInsets>
-            </HBox>
-            <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
-               <children>
-                  <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0" text="Input Template Key" textAlignment="RIGHT">
-                     <graphic>
-                        <Pane prefHeight="100.0" prefWidth="15.0" />
-                     </graphic>
-                  </Label>
-                  <Pane prefHeight="100.0" prefWidth="15.0" />
-                  <TextField fx:id="fieldInputTemplateKey" prefHeight="25.0" prefWidth="402.0" />
                </children>
                <opaqueInsets>
                   <Insets />
@@ -156,6 +128,20 @@
             </HBox>
             <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
                <children>
+                  <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0" text="Output Seconds" textAlignment="RIGHT">
+                     <graphic>
+                        <Pane prefHeight="100.0" prefWidth="15.0" />
+                     </graphic>
+                  </Label>
+                  <Pane prefHeight="100.0" prefWidth="15.0" />
+                  <TextField fx:id="fieldOutputSeconds" prefHeight="25.0" prefWidth="402.0" />
+               </children>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
+               <children>
                   <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0" text="Output Path Prefix" textAlignment="RIGHT">
                      <graphic>
                         <Pane prefHeight="100.0" prefWidth="15.0" />
@@ -170,13 +156,13 @@
             </HBox>
             <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
                <children>
-                  <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0" text="Output Seconds" textAlignment="RIGHT">
+                  <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0" text="Audio Base URL" textAlignment="RIGHT">
                      <graphic>
                         <Pane prefHeight="100.0" prefWidth="15.0" />
                      </graphic>
                   </Label>
                   <Pane prefHeight="100.0" prefWidth="15.0" />
-                  <TextField fx:id="fieldOutputSeconds" prefHeight="25.0" prefWidth="402.0" />
+                  <TextField fx:id="fieldAudioBaseUrl" prefHeight="25.0" prefWidth="402.0" />
                </children>
                <opaqueInsets>
                   <Insets />
