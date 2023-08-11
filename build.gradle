@@ -18,7 +18,7 @@ plugins {
 
 ext {
   jacksonAnnotationsVersion = '2.15.0'
-  javaFxVersion = '17.0.8'
+  javaFxVersion = '18.0.2'
   jooqVersion = '3.18.5'
   junitVersion = '5.9.2'
   jupiterVersion = '5.8.1'
