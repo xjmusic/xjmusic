@@ -11,10 +11,11 @@ module workstation.gui.main {
   requires spring.boot;
   requires spring.context;
   requires spring.core;
-
+  requires reactor.blockhound;
   requires transitive hub.models.main;
   requires workstation.lib.main;
   requires workstation.nexus.main;
+  requires org.apache.logging.log4j;
 
   opens io.xj.gui to javafx.graphics, javafx.base, javafx.fxml, javafx.controls, spring.beans, spring.core, spring.context;
   opens io.xj.gui.controllers to javafx.graphics, javafx.base, javafx.fxml, javafx.controls, spring.beans;

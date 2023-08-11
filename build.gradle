@@ -37,8 +37,8 @@ if (localPropertiesFile.exists()) {
 allprojects {
   group = 'io.xj'
 
-  sourceCompatibility = JavaVersion.VERSION_17
-  targetCompatibility = JavaVersion.VERSION_17
+  sourceCompatibility = JavaVersion.VERSION_18
+  targetCompatibility = JavaVersion.VERSION_18
 
   tasks.withType(JavaCompile).tap {
     configureEach {
