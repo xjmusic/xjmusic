@@ -3,10 +3,12 @@
 plugins {
   id 'java'
   id 'application'
+  id 'maven-publish'
   //
   id 'org.beryx.jlink'
   id 'org.openjfx.javafxplugin'
   id 'org.springframework.boot'
+  id 'com.github.johnrengelman.shadow'
 }
 
 javafx {
@@ -33,6 +35,15 @@ jlink {
   }
 }
 
+// Publishing a Shadow JAR with the Maven-Publish Plugin
+publishing {
+  publications {
+    shadow(MavenPublication) { publication ->
+      project.shadow.component(publication)
+    }
+  }
+}
+
 configurations {
   implementation.exclude group: "commons-logging", module: "commons-logging"
   implementation.exclude group: 'com.google.code.findbugs', module: 'jsr305'
@@ -46,15 +57,15 @@ dependencies {
   // private
   implementation "io.xj:models:${rootProject.ext.xjModelsVersion}"
   // vendor
+  implementation "ch.qos.logback:logback-classic:${rootProject.ext.logbackVersion}"
+  implementation "ch.qos.logback:logback-core:${rootProject.ext.logbackVersion}"
   implementation "org.jooq:jooq:${rootProject.ext.jooqVersion}"
   implementation "org.openjfx:javafx-base:${rootProject.ext.javaFxVersion}"
   implementation "org.openjfx:javafx-controls:${rootProject.ext.javaFxVersion}"
   implementation "org.openjfx:javafx-fxml:${rootProject.ext.javaFxVersion}"
   implementation "org.openjfx:javafx-graphics:${rootProject.ext.javaFxVersion}"
-  implementation "org.springframework.boot:spring-boot-starter:${rootProject.ext.springBootVersion}"
   implementation "org.springframework.boot:spring-boot-starter-logging:${rootProject.ext.springBootVersion}"
-  implementation "ch.qos.logback:logback-core:${rootProject.ext.logbackVersion}"
-  implementation "ch.qos.logback:logback-classic:${rootProject.ext.logbackVersion}"
+  implementation "org.springframework.boot:spring-boot-starter:${rootProject.ext.springBootVersion}"
   implementation 'com.typesafe:config:1.4.2'
   implementation 'commons-codec:commons-codec:1.15'
   implementation 'commons-io:commons-io:2.11.0'

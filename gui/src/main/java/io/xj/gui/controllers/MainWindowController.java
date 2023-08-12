@@ -9,6 +9,7 @@ import io.xj.nexus.OutputMode;
 import io.xj.nexus.work.WorkConfiguration;
 import jakarta.annotation.Nullable;
 import javafx.application.HostServices;
+import javafx.application.Platform;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -151,9 +152,9 @@ public class MainWindowController {
   public void appendLogLine(String line) {
     if (Objects.nonNull(line) && Objects.nonNull(textAreaLogs))
       try {
-        textAreaLogs.appendText(line + "\n");
+        Platform.runLater(() -> textAreaLogs.appendText(line + "\n"));
       } catch (Exception e) {
-        var hello = e.getMessage();
+        // no op
       }
   }
 

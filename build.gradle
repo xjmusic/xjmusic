@@ -13,6 +13,7 @@ plugins {
   id 'io.spring.dependency-management' version '1.0.15.RELEASE' apply false
   id 'org.openjfx.javafxplugin' version '0.0.14' apply false
   id 'org.panteleyev.jpackageplugin' version '1.5.2' apply false
+  id 'com.github.johnrengelman.shadow' version '8.1.1' apply false
   id 'org.springframework.boot' version '3.1.2' apply false // must match springBootVersion below
 }
 
@@ -77,6 +78,14 @@ subprojects {
       credentials {
         username = localProperties.getProperty('repo.username') ?: System.getenv("REPO_USERNAME")
         password = localProperties.getProperty('repo.token') ?: System.getenv("REPO_TOKEN")
+      }
+    }
+    maven {
+      name = "GitHubPackages"
+      url = uri("https://maven.pkg.github.com/xjmusic/workstation")
+      credentials {
+        username = localProperties.getProperty("repo.username") ?: System.getenv("GITHUB_ACTOR")
+        password = localProperties.getProperty("repo.token") ?: System.getenv("GITHUB_TOKEN")
       }
     }
   }
