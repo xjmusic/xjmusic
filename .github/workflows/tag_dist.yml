@@ -92,8 +92,12 @@ jobs:
       - name: Get version from gradle.properties
         run: |
           VERSION=$(grep "version=" gradle.properties | sed -n -e 's/^.*version=//p')
-          echo "Version is $VERSION"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
+          if [ -z "${{ env.VERSION }}" ]; then
+            echo "Version number not found!"
+            exit 1
+          fi
+          echo "Version is $VERSION"
 
       - name: Verify Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
