@@ -1,5 +1,6 @@
 package io.xj.gui.controllers;
 
+import io.xj.gui.listeners.MainWindowLogAppender;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.FabricationStatus;
 import io.xj.nexus.InputMode;
@@ -8,6 +9,7 @@ import io.xj.nexus.OutputMode;
 import io.xj.nexus.work.WorkConfiguration;
 import jakarta.annotation.Nullable;
 import javafx.application.HostServices;
+import javafx.application.Platform;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -26,11 +28,12 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.Locale;
+import java.util.Objects;
 
 @Service
 public class MainWindowController {
-  private FabricationStatus status;
   Logger LOG = LoggerFactory.getLogger(MainWindowController.class);
+  private FabricationStatus status;
   private final HostServices hostServices;
   private final ConfigurableApplicationContext ac;
   private final FabricationService fabricationService;
@@ -70,6 +73,9 @@ public class MainWindowController {
     this.defaultInputMode = InputMode.valueOf(defaultInputMode.toUpperCase(Locale.ROOT));
     this.defaultOutputMode = OutputMode.valueOf(defaultOutputMode.toUpperCase(Locale.ROOT));
     this.defaultOutputFileMode = OutputFileMode.valueOf(defaultOutputFileMode.toUpperCase(Locale.ROOT));
+
+    // bind to the log appender
+    MainWindowLogAppender.LISTENER.set(this::appendLogLine);
   }
 
   @FXML
@@ -116,7 +122,7 @@ public class MainWindowController {
     }
   }
 
-  private void start() {
+  public void start() {
     onStatusUpdate(FabricationStatus.Starting);
     fabricationService.setConfiguration(new WorkConfiguration()
       .setInputMode(choiceInputMode.getValue())
@@ -133,16 +139,24 @@ public class MainWindowController {
     fabricationService.start();
   }
 
-  private void stop() {
+  public void stop() {
     onStatusUpdate(FabricationStatus.Cancelling);
     fabricationService.cancel();
   }
 
-  private void reset() {
+  public void reset() {
     onStatusUpdate(FabricationStatus.Resetting);
     fabricationService.reset();
   }
 
+  public void appendLogLine(String line) {
+    if (Objects.nonNull(line) && Objects.nonNull(textAreaLogs))
+      try {
+        Platform.runLater(() -> textAreaLogs.appendText(line + "\n"));
+      } catch (Exception e) {
+        // no op
+      }
+  }
 
   @FXML
   protected Label labelStatus;

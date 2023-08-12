@@ -1,0 +1,11 @@
+<configuration>
+  <!-- Define the custom appender -->
+  <appender name="MainWindowLogAppender" class="io.xj.gui.listeners.MainWindowLogAppender">
+    <!-- You can configure appender-specific properties here if needed -->
+  </appender>
+
+  <!-- Reference the custom appender -->
+  <root level="INFO">
+    <appender-ref ref="MainWindowLogAppender"/>
+  </root>
+</configuration>

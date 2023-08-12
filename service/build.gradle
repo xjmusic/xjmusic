@@ -41,8 +41,6 @@ dependencies {
   implementation 'org.mp4parser:muxer:1.9.41'
   implementation 'org.mp4parser:streaming:1.9.41'
   implementation 'org.reflections:reflections:0.10.2'
-  implementation "org.slf4j:log4j-over-slf4j:${rootProject.ext.slf4jVersion}"
-  implementation "org.slf4j:slf4j-api:${rootProject.ext.slf4jVersion}"
   testImplementation "org.junit.jupiter:junit-jupiter-api:${rootProject.ext.junitVersion}"
   testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${rootProject.ext.junitVersion}"
   testImplementation 'org.mockito:mockito-junit-jupiter'
