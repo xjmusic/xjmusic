@@ -29,8 +29,8 @@ import java.util.Locale;
 
 @Service
 public class MainWindowController {
-  private FabricationStatus status;
   Logger LOG = LoggerFactory.getLogger(MainWindowController.class);
+  private FabricationStatus status;
   private final HostServices hostServices;
   private final ConfigurableApplicationContext ac;
   private final FabricationService fabricationService;
@@ -116,7 +116,7 @@ public class MainWindowController {
     }
   }
 
-  private void start() {
+  public void start() {
     onStatusUpdate(FabricationStatus.Starting);
     fabricationService.setConfiguration(new WorkConfiguration()
       .setInputMode(choiceInputMode.getValue())
@@ -133,16 +133,19 @@ public class MainWindowController {
     fabricationService.start();
   }
 
-  private void stop() {
+  public void stop() {
     onStatusUpdate(FabricationStatus.Cancelling);
     fabricationService.cancel();
   }
 
-  private void reset() {
+  public void reset() {
     onStatusUpdate(FabricationStatus.Resetting);
     fabricationService.reset();
   }
 
+  public void appendLogLine(String line) {
+    textAreaLogs.appendText(line + "\n");
+  }
 
   @FXML
   protected Label labelStatus;

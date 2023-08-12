@@ -52,6 +52,9 @@ dependencies {
   implementation "org.openjfx:javafx-fxml:${rootProject.ext.javaFxVersion}"
   implementation "org.openjfx:javafx-graphics:${rootProject.ext.javaFxVersion}"
   implementation "org.springframework.boot:spring-boot-starter:${rootProject.ext.springBootVersion}"
+  implementation "org.springframework.boot:spring-boot-starter-logging:${rootProject.ext.springBootVersion}"
+  implementation "ch.qos.logback:logback-core:${rootProject.ext.logbackVersion}"
+  implementation "ch.qos.logback:logback-classic:${rootProject.ext.logbackVersion}"
   implementation 'com.typesafe:config:1.4.2'
   implementation 'commons-codec:commons-codec:1.15'
   implementation 'commons-io:commons-io:2.11.0'
@@ -59,14 +62,8 @@ dependencies {
   implementation 'me.xdrop:fuzzywuzzy:1.4.0'
   implementation 'org.apache.httpcomponents:httpclient:4.5.14'
   implementation 'org.reflections:reflections:0.10.1'
-  implementation("org.springframework.boot:spring-boot-starter-log4j2:${rootProject.ext.springBootVersion}")
   testImplementation "org.junit.jupiter:junit-jupiter-api:${rootProject.ext.junitVersion}"
   testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${rootProject.ext.junitVersion}"
-  modules {
-    module("org.springframework.boot:spring-boot-starter-logging") {
-      replacedBy("org.springframework.boot:spring-boot-starter-log4j2")
-    }
-  }
 }
 
 jar {
@@ -81,4 +78,8 @@ application {
 
 test {
   useJUnitPlatform()
+}
+
+repositories {
+  mavenCentral()
 }
