@@ -68,7 +68,7 @@ jobs:
         continue-on-error: false
 
   distribute_gui_shadow_jar:
-    name: Distribute GUI Shadow Jar
+    name: Distribute GUI shadow distribution
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
@@ -89,17 +89,26 @@ jobs:
       - name: Echo JAVA_HOME
         run: echo $JAVA_HOME
 
+      - name: Get version from gradle.properties
+        run: |
+          VERSION=$(grep "version=" gradle.properties | sed -n -e 's/^.*version=//p')
+          echo "Version is $VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
       - name: Verify Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
 
-      - name: Execute build of GUI Shadow Jar
-        run: ./gradlew --info --stacktrace :gui:shadowJar
+      - name: Execute build of GUI shadow zip
+        run: ./gradlew --info --stacktrace :gui:shadowDistZip
 
-      - name: Upload GUI Shadow JAR as an artifact
+      - name: Extract the contents of the shadow zip
+        run: unzip -o gui/build/distributions/gui-shadow-${VERSION}.zip -d gui/build/distributions/
+
+      - name: Upload GUI Shadow distribution as an artifact
         uses: actions/upload-artifact@v2
         with:
-          name: xjmusic-workstation-shadow-jar
-          path: gui/build/distributions/*.jar
+          name: xjmusic-workstation-shadow-dist
+          path: gui/build/distributions/gui-shadow-${VERSION}/
 
   distribute_gui:
     name: Distribute ${{ matrix.os }} JDK ${{ matrix.java }}
