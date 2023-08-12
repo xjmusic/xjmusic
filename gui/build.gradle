@@ -52,8 +52,6 @@ dependencies {
   implementation "org.openjfx:javafx-controls:${rootProject.ext.javaFxVersion}"
   implementation "org.openjfx:javafx-fxml:${rootProject.ext.javaFxVersion}"
   implementation "org.openjfx:javafx-graphics:${rootProject.ext.javaFxVersion}"
-  implementation "org.slf4j:log4j-over-slf4j:${rootProject.ext.slf4jVersion}"
-  implementation "org.slf4j:slf4j-api:${rootProject.ext.slf4jVersion}"
   implementation "org.springframework.boot:spring-boot-starter:${rootProject.ext.springBootVersion}"
   implementation("org.springframework.boot:spring-boot-starter-log4j2:${rootProject.ext.springBootVersion}")
   implementation 'com.typesafe:config:1.4.2'
