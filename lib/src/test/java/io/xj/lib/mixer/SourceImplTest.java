@@ -60,7 +60,7 @@ public class SourceImplTest {
       audioId_F32LSB_48kHz_6ch,
       new InternalResource("test_audio/F32LSB_48kHz_6ch.wav").getFile().getAbsolutePath(), "test audio", 48000);
 
-    verify(notificationProvider).publish(eq("Production-Chain Mix Source Failure"), eq("Failed to load source for Audio[" + audioId_F32LSB_48kHz_6ch + "] \"test audio\" because more than 2 input audio channels not allowed"));
+    verify(notificationProvider).publish(eq("Chain Mix Source Failure"), eq("Failed to load source for Audio[" + audioId_F32LSB_48kHz_6ch + "] \"test audio\" because more than 2 input audio channels not allowed"));
   }
 
   @Test
@@ -140,6 +140,6 @@ public class SourceImplTest {
   @Test
   public void empty() {
     assertTrue(empty.getAudioFormat().isEmpty());
-    verify(notificationProvider).publish(eq("Production-Chain Mix Source Failure"), any());
+    verify(notificationProvider).publish(eq("Chain Mix Source Failure"), any());
   }
 }
