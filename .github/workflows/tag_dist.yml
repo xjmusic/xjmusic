@@ -29,7 +29,7 @@ jobs:
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
-    name: Distribute Service Container
+    name: Service Container
     runs-on: ubuntu-22.04
     permissions: write-all
 
@@ -89,7 +89,7 @@ jobs:
 
   distribute_gui_shadow_jar:
     needs: version
-    name: Distribute GUI shadow distribution
+    name: GUI .jar [${{ matrix.os }}/JDK${{ matrix.java }}]
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
@@ -126,7 +126,8 @@ jobs:
           path: gui/build/distributions/gui-shadow-${{ needs.version.outputs.version }}/
 
   distribute_gui:
-    name: Distribute ${{ matrix.os }} JDK ${{ matrix.java }}
+    needs: version
+    name: GUI Installer [${{ matrix.os }}/JDK${{ matrix.java }}]
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
