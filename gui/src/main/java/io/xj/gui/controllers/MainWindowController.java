@@ -1,13 +1,14 @@
 package io.xj.gui.controllers;
 
-import io.xj.gui.WorkstationStatus;
+import io.xj.gui.services.FabricationService;
+import io.xj.gui.services.FabricationStatus;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
-import io.xj.nexus.work.WorkFactory;
+import io.xj.nexus.work.WorkConfiguration;
 import jakarta.annotation.Nullable;
 import javafx.application.HostServices;
-import javafx.application.Platform;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -28,11 +29,11 @@ import java.util.Locale;
 
 @Service
 public class MainWindowController {
-  private WorkstationStatus status;
+  private FabricationStatus status;
   Logger LOG = LoggerFactory.getLogger(MainWindowController.class);
   private final HostServices hostServices;
   private final ConfigurableApplicationContext ac;
-  private final WorkFactory workFactory;
+  private final FabricationService fabricationService;
   private final String launchGuideUrl;
   private final String lightTheme;
   private final String darkTheme;
@@ -45,9 +46,6 @@ public class MainWindowController {
   @Nullable
   private Scene mainWindowScene;
 
-  @Nullable
-  private Thread workThread;
-
   public MainWindowController(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
     @Value("${gui.launch.guide.url}") String launchGuideUrl,
@@ -58,10 +56,10 @@ public class MainWindowController {
     @Value("${output.mode}") String defaultOutputMode,
     @Value("${output.seconds}") String defaultOutputSeconds,
     ConfigurableApplicationContext ac,
-    WorkFactory workFactory
+    FabricationService fabricationService
   ) {
-    this.workFactory = workFactory;
-    status = WorkstationStatus.Ready;
+    this.fabricationService = fabricationService;
+    status = FabricationStatus.Ready;
     this.hostServices = hostServices;
     this.ac = ac;
     this.launchGuideUrl = launchGuideUrl;
@@ -112,48 +110,39 @@ public class MainWindowController {
   @FXML
   protected void onButtonActionPress() {
     switch (status) {
-      case Ready -> onWorkStart();
-      case Working -> onWorkStop();
-      case Stopped, Done, Failed -> onWorkReset();
+      case Ready -> start();
+      case Active -> stop();
+      case Cancelled, Done, Failed -> reset();
     }
   }
 
-  private void onWorkStart() {
-    Platform.runLater(() -> {
-      onStatusUpdate(WorkstationStatus.Working);
-      workThread = new Thread(() -> workFactory.start(
-        choiceInputMode.getValue(),
-        fieldInputTemplateKey.getText(),
-        choiceOutputFileMode.getValue(),
-        choiceOutputMode.getValue(),
-        fieldOutputPathPrefix.getText(),
-        Integer.parseInt(fieldOutputSeconds.getText()),
-        this::onWorkDone
-      ));
-      workThread.start();
-    });
+  private void start() {
+    onStatusUpdate(FabricationStatus.Starting);
+    fabricationService.setConfiguration(new WorkConfiguration()
+      .setInputMode(choiceInputMode.getValue())
+      .setInputTemplateKey(fieldInputTemplateKey.getText())
+      .setOutputFileMode(choiceOutputFileMode.getValue())
+      .setOutputMode(choiceOutputMode.getValue())
+      .setOutputPathPrefix(fieldOutputPathPrefix.getText())
+      .setOutputSeconds(Integer.parseInt(fieldOutputSeconds.getText())));
+    fabricationService.setOnReady((WorkerStateEvent ignored) -> onStatusUpdate(FabricationStatus.Ready));
+    fabricationService.setOnRunning((WorkerStateEvent ignored) -> onStatusUpdate(FabricationStatus.Active));
+    fabricationService.setOnSucceeded((WorkerStateEvent ignored) -> onStatusUpdate(FabricationStatus.Cancelled));
+    fabricationService.setOnCancelled((WorkerStateEvent ignored) -> onStatusUpdate(FabricationStatus.Done));
+    fabricationService.setOnFailed((WorkerStateEvent ignored) -> onStatusUpdate(FabricationStatus.Failed));
+    fabricationService.start();
   }
 
-  private void onWorkStop() {
-    Platform.runLater(() -> {
-      onStatusUpdate(WorkstationStatus.Stopping);
-      workThread.interrupt();
-      try {
-        workThread.join();
-      } catch (InterruptedException e) {
-        throw new RuntimeException(e);
-      }
-      onStatusUpdate(WorkstationStatus.Stopped);
-    });
+  private void stop() {
+    onStatusUpdate(FabricationStatus.Cancelling);
+    fabricationService.cancel();
   }
 
-  private void onWorkDone() {
-    onStatusUpdate(WorkstationStatus.Done);
+  private void reset() {
+    onStatusUpdate(FabricationStatus.Resetting);
+    fabricationService.reset();
   }
 
-  private void onWorkReset() {
-    onStatusUpdate(WorkstationStatus.Ready);
-  }
 
   @FXML
   protected Label labelStatus;
@@ -185,23 +174,21 @@ public class MainWindowController {
     choiceOutputFileMode.setValue(defaultOutputFileMode);
   }
 
-  public void onStatusUpdate(WorkstationStatus status) {
+  public void onStatusUpdate(FabricationStatus status) {
+    LOG.info("Status update: {} -> {}", this.status, status);
     this.status = status;
     labelStatus.setText(status.toString());
     switch (status) {
+      case Initializing, Starting, Cancelling, Resetting -> buttonAction.setDisable(true);
       case Ready -> {
         buttonAction.setText("Start");
         buttonAction.setDisable(false);
       }
-      case Working -> {
+      case Active -> {
         buttonAction.setText("Stop");
         buttonAction.setDisable(false);
       }
-      case Stopping -> {
-        buttonAction.setText("Stopping");
-        buttonAction.setDisable(true);
-      }
-      case Stopped, Done, Failed -> {
+      case Cancelled, Done, Failed -> {
         buttonAction.setText("Reset");
         buttonAction.setDisable(false);
       }

@@ -8,6 +8,7 @@ import io.xj.nexus.NexusTopology;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.hub_client.HubTopology;
+import io.xj.nexus.work.WorkConfiguration;
 import io.xj.nexus.work.WorkFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,14 +72,15 @@ public class WorkstationServiceApplication {
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
 
-    workFactory.start(
-      inputMode,
-      inputTemplateKey,
-      outputFileMode,
-      outputMode,
-      outputPathPrefix,
-      outputSeconds, this::shutdown
-    );
+    var configuration = new WorkConfiguration()
+      .setInputMode(inputMode)
+      .setInputTemplateKey(inputTemplateKey)
+      .setOutputFileMode(outputFileMode)
+      .setOutputMode(outputMode)
+      .setOutputPathPrefix(outputPathPrefix)
+      .setOutputSeconds(outputSeconds);
+
+    workFactory.start(configuration, this::shutdown);
   }
 
   void shutdown() {

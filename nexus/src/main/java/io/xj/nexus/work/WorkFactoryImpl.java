@@ -9,9 +9,6 @@ import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.mixer.MixerFactory;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.TelemetryProvider;
-import io.xj.nexus.InputMode;
-import io.xj.nexus.OutputFileMode;
-import io.xj.nexus.OutputMode;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.dub.DubAudioCache;
 import io.xj.nexus.fabricator.FabricatorFactory;
@@ -122,13 +119,8 @@ public class WorkFactoryImpl implements WorkFactory {
   }
 
   @Override
-  public void start(
-    InputMode inputMode,
-    String inputTemplateKey,
-    OutputFileMode outputFileMode,
-    OutputMode outputMode,
-    String outputPathPrefix,
-    int outputSeconds,
+  public boolean start(
+    WorkConfiguration configuration,
     Runnable onDone
   ) {
     craftWork = new CraftWorkImpl(
@@ -144,9 +136,9 @@ public class WorkFactoryImpl implements WorkFactory {
       notification,
       segmentManager,
       telemetryProvider,
-      inputMode,
-      outputMode,
-      inputTemplateKey,
+      configuration.getInputMode(),
+      configuration.getOutputMode(),
+      configuration.getInputTemplateKey(),
       isJsonOutputEnabled,
       tempFilePathPrefix,
       jsonExpiresInSeconds
@@ -163,13 +155,13 @@ public class WorkFactoryImpl implements WorkFactory {
       dubWork,
       notification,
       broadcastFactory,
-      outputMode,
-      outputFileMode,
-      outputSeconds,
+      configuration.getOutputMode(),
+      configuration.getOutputFileMode(),
+      configuration.getOutputSeconds(),
       shipCycleMillis,
       cycleAudioBytes,
       planAheadSeconds,
-      outputPathPrefix,
+      configuration.getOutputPathPrefix(),
       outputFileNumberDigits,
       pcmChunkSizeBytes
     );
@@ -192,9 +184,13 @@ public class WorkFactoryImpl implements WorkFactory {
 
     } catch (InterruptedException e) {
       LOG.info("Interrupted");
+      craftWork.finish();
+      dubWork.finish();
+      shipWork.finish();
     }
 
     onDone.run();
+    return true;
   }
 
   @Override
