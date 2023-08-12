@@ -87,9 +87,9 @@ jobs:
             :service:jib
         continue-on-error: false
 
-  distribute_gui_shadow_jar:
+  distribute_gui_jar:
     needs: version
-    name: Distribute GUI shadow distribution
+    name: Distribute GUI jar
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
@@ -113,17 +113,14 @@ jobs:
       - name: Verify Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
 
-      - name: Execute build of GUI shadow zip
-        run: ./gradlew --info --stacktrace :gui:shadowDistZip
+      - name: Execute build of GUI spring boot jar
+        run: ./gradlew --info --stacktrace :gui:bootJar
 
-      - name: Extract the contents of the shadow zip
-        run: unzip -o gui/build/distributions/gui-shadow-${{ needs.version.outputs.version }}.zip -d gui/build/distributions/
-
-      - name: Upload GUI Shadow distribution as an artifact
+      - name: Upload GUI spring boot jar as an artifact
         uses: actions/upload-artifact@v2
         with:
-          name: xjmusic-workstation-shadow-dist
-          path: gui/build/distributions/gui-shadow-${{ needs.version.outputs.version }}/
+          name: xjmusic-workstation-jar
+          path: gui/build/libs/gui-${{ needs.version.outputs.version }}.jar
 
   distribute_gui:
     name: Distribute ${{ matrix.os }} JDK ${{ matrix.java }}
