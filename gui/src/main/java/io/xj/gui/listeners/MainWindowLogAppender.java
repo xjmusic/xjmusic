@@ -2,21 +2,21 @@ package io.xj.gui.listeners;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
-import io.xj.gui.controllers.MainWindowController;
-import org.springframework.stereotype.Service;
 
-@Service
+import java.util.concurrent.atomic.AtomicReference;
+
 public class MainWindowLogAppender extends AppenderBase<ILoggingEvent> {
-  private final MainWindowController mainWindowController;
-  public MainWindowLogAppender(MainWindowController mainWindowController) {
-    this.mainWindowController = mainWindowController;
+  public static final AtomicReference<LogListener> LISTENER = new AtomicReference<>();
+
+  public interface LogListener {
+    void onLog(String message);
   }
 
   @Override
   protected void append(ILoggingEvent eventObject) {
     System.out.println(eventObject.toString());
-    mainWindowController.appendLogLine(eventObject.toString());
-    var hello = 123;// todo
-    // todo textArea.appendText(message + "\n");
+    if (LISTENER.get() != null) {
+      LISTENER.get().onLog(eventObject.toString());
+    }
   }
 }

@@ -1,5 +1,6 @@
 package io.xj.gui.controllers;
 
+import io.xj.gui.listeners.MainWindowLogAppender;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.FabricationStatus;
 import io.xj.nexus.InputMode;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.Locale;
+import java.util.Objects;
 
 @Service
 public class MainWindowController {
@@ -70,6 +72,9 @@ public class MainWindowController {
     this.defaultInputMode = InputMode.valueOf(defaultInputMode.toUpperCase(Locale.ROOT));
     this.defaultOutputMode = OutputMode.valueOf(defaultOutputMode.toUpperCase(Locale.ROOT));
     this.defaultOutputFileMode = OutputFileMode.valueOf(defaultOutputFileMode.toUpperCase(Locale.ROOT));
+
+    // bind to the log appender
+    MainWindowLogAppender.LISTENER.set(this::appendLogLine);
   }
 
   @FXML
@@ -144,7 +149,12 @@ public class MainWindowController {
   }
 
   public void appendLogLine(String line) {
-    textAreaLogs.appendText(line + "\n");
+    if (Objects.nonNull(line) && Objects.nonNull(textAreaLogs))
+      try {
+        textAreaLogs.appendText(line + "\n");
+      } catch (Exception e) {
+        var hello = e.getMessage();
+      }
   }
 
   @FXML
