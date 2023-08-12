@@ -12,7 +12,9 @@ import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.TelemetryProvider;
+import io.xj.nexus.InputMode;
 import io.xj.nexus.NexusTopology;
+import io.xj.nexus.OutputMode;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.craft.CraftFactoryImpl;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
@@ -111,11 +113,10 @@ public class ComplexLibraryTest {
       notificationProvider,
       segmentManager,
       telemetryProvider,
-      "production",
-      "playback",
+      InputMode.PRODUCTION,
+      OutputMode.PLAYBACK,
       "complex_library_test",
-      "production",
-      false,
+            false,
       "/tmp",
       86400);
 

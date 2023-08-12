@@ -6,7 +6,10 @@ public interface WorkFactory {
   /**
    * Start work
    */
-  void start(Runnable onDone);
+  boolean start(
+    WorkConfiguration configuration,
+    Runnable onDone
+  );
 
   /**
    * Stop work

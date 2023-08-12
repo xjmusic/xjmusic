@@ -106,12 +106,12 @@ dependencies {
 
 jar {
   manifest {
-    attributes 'Main-Class': 'io.xj.gui.WorkstationApplication'
+    attributes 'Main-Class': 'io.xj.gui.WorkstationGuiApplication'
   }
 }
 
 application {
-  mainClassName = 'io.xj.gui.WorkstationApplication'
+  mainClassName = 'io.xj.gui.WorkstationGuiApplication'
 }
 
 test {

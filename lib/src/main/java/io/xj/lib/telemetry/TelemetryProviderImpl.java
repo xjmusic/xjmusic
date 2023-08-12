@@ -2,7 +2,6 @@
 package io.xj.lib.telemetry;
 
 import io.xj.hub.util.StringUtils;
-import io.xj.lib.app.AppConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,19 +23,16 @@ class TelemetryProviderImpl implements TelemetryProvider {
   static final Logger LOG = LoggerFactory.getLogger(TelemetryProviderImpl.class);
   static final String DEFAULT_SHIP_KEY = "lab";
   final String prefixA;
-  final String prefixB;
   final boolean enabled;
 
   @Autowired
   public TelemetryProviderImpl(
-    AppConfiguration config,
     @Value("${input.template.key:}")
     String inputTemplateKey,
     @Value("${telemetry.enabled:false}")
     Boolean isTelemetryEnabled
   ) {
     prefixA = StringUtils.isNullOrEmpty(inputTemplateKey) ? DEFAULT_SHIP_KEY : inputTemplateKey;
-    prefixB = config.getName();
 
     // Globally enable or disable telemetry recording
     enabled = isTelemetryEnabled;
@@ -73,7 +69,6 @@ class TelemetryProviderImpl implements TelemetryProvider {
   public String prefixedLowerSnake(String name) {
     return String.join(UNDERSCORE,
       StringUtils.toLowerScored(prefixA),
-      StringUtils.toLowerScored(prefixB),
       StringUtils.toLowerScored(name)
     );
   }
@@ -82,7 +77,6 @@ class TelemetryProviderImpl implements TelemetryProvider {
   public String prefixedProperSpace(String desc) {
     return String.join(SPACE,
       StringUtils.toProper(prefixA),
-      StringUtils.toProper(prefixB),
       StringUtils.toProper(desc)
     );
   }

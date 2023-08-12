@@ -15,14 +15,11 @@ import org.springframework.context.support.GenericApplicationContext;
 
 import java.util.Objects;
 
-public class WorkstationFxApplication extends Application {
-  static final Logger LOG = LoggerFactory.getLogger(WorkstationFxApplication.class);
+public class WorkstationGuiFxApplication extends Application {
+  static final Logger LOG = LoggerFactory.getLogger(WorkstationGuiFxApplication.class);
 
   @Nullable
   private ConfigurableApplicationContext ac;
-
-  public WorkstationFxApplication() {
-  }
 
   @Override
   public void start(Stage primaryStage) {
@@ -49,7 +46,7 @@ public class WorkstationFxApplication extends Application {
   public void init() {
     ac = new SpringApplicationBuilder()
       .headless(false)
-      .sources(WorkstationApplication.class)
+      .sources(WorkstationGuiApplication.class)
       .initializers(getInitializer())
       .run(getParameters().getRaw().toArray(new String[0]));
   }
@@ -57,7 +54,7 @@ public class WorkstationFxApplication extends Application {
   private ApplicationContextInitializer<GenericApplicationContext> getInitializer() {
     return
       ac -> {
-        ac.registerBean(Application.class, () -> WorkstationFxApplication.this);
+        ac.registerBean(Application.class, () -> WorkstationGuiFxApplication.this);
         ac.registerBean(Parameters.class, this::getParameters);
         ac.registerBean(HostServices.class, this::getHostServices);
       };

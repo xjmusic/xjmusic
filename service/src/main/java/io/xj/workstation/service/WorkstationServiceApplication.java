@@ -2,12 +2,13 @@
 
 package io.xj.workstation.service;
 
-import io.xj.hub.util.StringUtils;
-import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.nexus.NexusException;
+import io.xj.nexus.InputMode;
 import io.xj.nexus.NexusTopology;
+import io.xj.nexus.OutputFileMode;
+import io.xj.nexus.OutputMode;
 import io.xj.nexus.hub_client.HubTopology;
+import io.xj.nexus.work.WorkConfiguration;
 import io.xj.nexus.work.WorkFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,8 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.event.EventListener;
 
+import java.util.Locale;
+
 @SpringBootApplication
 @ComponentScan(
   basePackages = {
@@ -31,42 +34,60 @@ import org.springframework.context.event.EventListener;
 public class WorkstationServiceApplication {
   final Logger LOG = LoggerFactory.getLogger(WorkstationServiceApplication.class);
   final EntityFactory entityFactory;
-  final AppConfiguration config;
   final WorkFactory workFactory;
   final ApplicationContext context;
-
-  @Value("${hostname}")
-  String hostname;
-  @Value("${environment}")
-  String environment;
+  private final InputMode inputMode;
+  private final String inputTemplateKey;
+  private final OutputFileMode outputFileMode;
+  private final OutputMode outputMode;
+  private final String outputPathPrefix;
+  private final int outputSeconds;
 
   @Autowired
   public WorkstationServiceApplication(
-    AppConfiguration config,
     ApplicationContext context,
     EntityFactory entityFactory,
-    WorkFactory workFactory
+    WorkFactory workFactory,
+    @Value("${input.mode}") String inputMode,
+    @Value("${input.template.key}") String inputTemplateKey,
+    @Value("${output.file.mode}") String outputFileMode,
+    @Value("${output.mode}") String outputMode,
+    @Value("${output.path.prefix}") String outputPathPrefix,
+    @Value("${output.seconds}") int outputSeconds
   ) {
     this.entityFactory = entityFactory;
-    this.config = config;
     this.workFactory = workFactory;
     this.context = context;
+    this.inputMode = InputMode.valueOf(inputMode.toUpperCase(Locale.ROOT));
+    this.inputTemplateKey = inputTemplateKey;
+    this.outputFileMode = OutputFileMode.valueOf(outputFileMode.toUpperCase(Locale.ROOT));
+    this.outputMode = OutputMode.valueOf(outputMode.toUpperCase(Locale.ROOT));
+    this.outputPathPrefix = outputPathPrefix;
+    this.outputSeconds = outputSeconds;
   }
 
   @EventListener(ApplicationStartedEvent.class)
-  public void start() throws NexusException {
+  public void start() {
     // Setup Entity topology
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
 
-    workFactory.start(this::shutdown);
+    var configuration = new WorkConfiguration()
+      .setInputMode(inputMode)
+      .setInputTemplateKey(inputTemplateKey)
+      .setOutputFileMode(outputFileMode)
+      .setOutputMode(outputMode)
+      .setOutputPathPrefix(outputPathPrefix)
+      .setOutputSeconds(outputSeconds);
+
+    workFactory.start(configuration, this::shutdown);
   }
 
   void shutdown() {
-    LOG.info("{} will shutdown", StringUtils.toProper(config.getName()));
+    LOG.info("will shutdown");
     Thread shutdown = new Thread(() -> {
       ((ConfigurableApplicationContext) context).close();
-      LOG.info("{} did finish work and shutdown OK", StringUtils.toProper(config.getName()));
+      LOG.info("did finish work and shutdown OK");
     });
     shutdown.setDaemon(false);
     shutdown.start();
