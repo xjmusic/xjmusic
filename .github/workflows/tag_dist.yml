@@ -100,16 +100,17 @@ jobs:
 
   distribute_gui_jar:
     needs: version
-    name: Distribute GUI .jar [JDK${{ matrix.java }}]
+    name: Distribute GUI .jar [${{ matrix.os }}/JDK${{ matrix.java }}]
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
       GITHUB_ACTOR: ${{ secrets.GITHUB_ACTOR }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     permissions: write-all
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os: [ubuntu-latest, macOS-latest, windows-latest]
         java: [ '18' ]
       fail-fast: false
     steps:
@@ -134,12 +135,12 @@ jobs:
       - name: Upload GUI spring boot jar as an artifact
         uses: actions/upload-artifact@v2
         with:
-          name: xjmusic-workstation-v${{ needs.version.outputs.version }}-bootJar
+          name: xjmusic-workstation-v${{ needs.version.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-jar
           path: gui/build/libs/gui-${{ needs.version.outputs.version }}.jar
 
   distribute_gui:
     needs: version
-    name: Distribute GUI [${{ matrix.os }}/JDK${{ matrix.java }}]
+    name: Distribute GUI Installer [${{ matrix.os }}/JDK${{ matrix.java }}]
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
