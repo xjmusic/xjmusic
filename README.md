@@ -65,12 +65,11 @@ workstation. [(Download PDF)](art/XJLabStreamingSegmentsArchitecture.pdf)
   - Bug Fixes are `bugfix/4567-should-do-this`
   - Hot Fixes are `hotfix/890-should-do-that`
 * `TODO` comments are used only in working branches. Upon completion of branch shipWork, any remaining `TODO` should be
-  a
-  new tracker issue.
+  a new tracker issue.
 
 ## Dependencies
 
-* Java 17
+* Java 18
 * Gradle 8
 
 ## Chain Work

@@ -20,7 +20,7 @@ jobs:
       - uses: burrunan/gradle-cache-action@v1
         name: Cache Gradle
         with:
-          job-id: jdk17
+          job-id: jdk18
 
       - name: Install and cache system packages
         uses: awalsh128/cache-apt-pkgs-action@latest
@@ -28,10 +28,10 @@ jobs:
           packages: ffmpeg gpac
           version: 1.0
 
-      - name: Setup JDK 17
+      - name: Setup JDK 18
         uses: actions/setup-java@v1
         with:
-          java-version: 17
+          java-version: 18
           java-package: jdk
 
       - uses: actions/cache@v2
@@ -39,9 +39,9 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle8-java17-${{ hashFiles('**/*.gradle*') }}
+          key: ${{ runner.os }}-gradle8-java18-${{ hashFiles('**/*.gradle*') }}
           restore-keys: |
-            ${{ runner.os }}-gradle8-java17-
+            ${{ runner.os }}-gradle8-java18-
 
       - name: Build & Run Tests
         run: "./gradlew --info --no-daemon build test"
@@ -77,7 +77,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
-        java: [ '17' ]
+        java: [ '18' ]
       fail-fast: false
     steps:
 
