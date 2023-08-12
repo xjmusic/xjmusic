@@ -130,7 +130,7 @@ jobs:
       - name: Upload GUI spring boot jar as an artifact
         uses: actions/upload-artifact@v2
         with:
-          name: xjmusic-workstation--v${{ needs.version.outputs.version }}-bootJar
+          name: xjmusic-workstation-v${{ needs.version.outputs.version }}-bootJar
           path: gui/build/libs/gui-${{ needs.version.outputs.version }}.jar
 
   distribute_gui:
