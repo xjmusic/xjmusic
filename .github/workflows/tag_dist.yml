@@ -100,7 +100,7 @@ jobs:
 
   distribute_gui_jar:
     needs: version
-    name: Distribute GUI jar
+    name: Distribute GUI .jar [JDK${{ matrix.java }}]
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
@@ -108,6 +108,10 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     permissions: write-all
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ '18' ]
+      fail-fast: false
     steps:
 
       - name: Git checkout
@@ -116,7 +120,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
-          java-version: 18
+          java-version: ${{ matrix.java }}
 
       - name: Echo JAVA_HOME
         run: echo $JAVA_HOME
