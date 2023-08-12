@@ -32,36 +32,149 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckMenuItem?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.SeparatorMenuItem?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.TextFlow?>
+<?import javafx.scene.text.Font?>
 
-<VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.MainWindowController">
-  <children>
-    <MenuBar VBox.vgrow="NEVER">
-      <menus>
-        <Menu mnemonicParsing="false" text="Workstation">
-          <items>
-            <MenuItem mnemonicParsing="false" onAction="#onLaunchUserGuide" text="User Guide" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" onAction="#onQuit" text="Quit" />
-          </items>
-        </Menu>
-            <Menu mnemonicParsing="false" text="View">
-              <items>
-                  <CheckMenuItem fx:id="darkThemeCheck" mnemonicParsing="false" onAction="#toggleDarkTheme" selected="true" text="Dark Theme" />
-              </items>
-            </Menu>
-      </menus>
-    </MenuBar>
-    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
-         <children>
-            <TextFlow prefHeight="370.0" prefWidth="640.0" />
-         </children></AnchorPane>
-  </children>
-</VBox>
+<BorderPane xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.MainWindowController">
+   <top>
+      <VBox prefHeight="386.0" prefWidth="640.0" BorderPane.alignment="CENTER">
+        <children>
+          <MenuBar VBox.vgrow="NEVER">
+            <menus>
+              <Menu mnemonicParsing="false" text="Workstation">
+                <items>
+                  <MenuItem mnemonicParsing="false" onAction="#onQuit" text="Exit" />
+                </items>
+              </Menu>
+                  <Menu mnemonicParsing="false" text="View">
+                    <items>
+                        <CheckMenuItem fx:id="darkThemeCheck" mnemonicParsing="false" onAction="#toggleDarkTheme" selected="true" text="Dark Theme" />
+                    </items>
+                  </Menu>
+                  <Menu mnemonicParsing="false" text="Help">
+                    <items>
+                  <MenuItem mnemonicParsing="false" onAction="#onLaunchUserGuide" text="User Guide" />
+                    </items>
+                  </Menu>
+            </menus>
+          </MenuBar>
+            <Pane prefHeight="16.0" prefWidth="640.0" />
+            <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
+               <children>
+                  <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0" text="Input Template Key" textAlignment="RIGHT">
+                     <graphic>
+                        <Pane prefHeight="100.0" prefWidth="15.0" />
+                     </graphic>
+                  </Label>
+                  <Pane prefHeight="100.0" prefWidth="15.0" />
+                  <TextField fx:id="fieldInputTemplateKey" prefHeight="25.0" prefWidth="402.0" />
+               </children>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
+               <children>
+                  <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0" text="Input Mode" textAlignment="RIGHT">
+                     <graphic>
+                        <Pane prefHeight="100.0" prefWidth="15.0" />
+                     </graphic>
+                  </Label>
+                  <Pane prefHeight="100.0" prefWidth="15.0" />
+                  <ChoiceBox fx:id="choiceInputMode" prefHeight="25.0" prefWidth="401.0" />
+               </children>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
+               <children>
+                  <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0" text="Output Mode" textAlignment="RIGHT">
+                     <graphic>
+                        <Pane prefHeight="100.0" prefWidth="15.0" />
+                     </graphic>
+                  </Label>
+                  <Pane prefHeight="100.0" prefWidth="15.0" />
+                  <ChoiceBox fx:id="choiceOutputMode" prefHeight="25.0" prefWidth="401.0" />
+               </children>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
+               <children>
+                  <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0" text="Output File Mode" textAlignment="RIGHT">
+                     <graphic>
+                        <Pane prefHeight="100.0" prefWidth="15.0" />
+                     </graphic>
+                  </Label>
+                  <Pane prefHeight="100.0" prefWidth="15.0" />
+                  <ChoiceBox fx:id="choiceOutputFileMode" prefHeight="25.0" prefWidth="401.0" />
+               </children>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
+               <children>
+                  <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0" text="Output Seconds" textAlignment="RIGHT">
+                     <graphic>
+                        <Pane prefHeight="100.0" prefWidth="15.0" />
+                     </graphic>
+                  </Label>
+                  <Pane prefHeight="100.0" prefWidth="15.0" />
+                  <TextField fx:id="fieldOutputSeconds" prefHeight="25.0" prefWidth="402.0" />
+               </children>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
+               <children>
+                  <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0" text="Output Path Prefix" textAlignment="RIGHT">
+                     <graphic>
+                        <Pane prefHeight="100.0" prefWidth="15.0" />
+                     </graphic>
+                  </Label>
+                  <Pane prefHeight="100.0" prefWidth="15.0" />
+                  <TextField fx:id="fieldOutputPathPrefix" prefHeight="25.0" prefWidth="402.0" />
+               </children>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" prefHeight="83.0" prefWidth="640.0">
+               <children>
+                  <Pane prefHeight="84.0" prefWidth="271.0" />
+                  <Label fx:id="labelStatus" alignment="CENTER" contentDisplay="CENTER" prefHeight="16.0" prefWidth="176.0" text="Ready" textAlignment="CENTER">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+                  <Button fx:id="buttonAction" mnemonicParsing="false" onAction="#onButtonActionPress" prefHeight="49.0" prefWidth="145.0" text="Action">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Button>
+               </children>
+            </HBox>
+        </children>
+      </VBox>
+   </top>
+   <bottom>
+      <TextArea fx:id="textAreaLogs" prefHeight="285.0" prefWidth="640.0" BorderPane.alignment="CENTER" />
+   </bottom>
+</BorderPane>

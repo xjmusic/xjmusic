@@ -24,7 +24,7 @@ public class MixerFactoryTest {
   @BeforeEach
   public void setUp() {
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    mixerFactory = new MixerFactoryImpl(envelopeProvider, notificationProvider, "production", 1000000);
+    mixerFactory = new MixerFactoryImpl(envelopeProvider, notificationProvider, 1000000);
   }
 
   @Test

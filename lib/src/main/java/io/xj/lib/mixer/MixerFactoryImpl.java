@@ -11,7 +11,6 @@ import java.util.UUID;
 public class MixerFactoryImpl implements MixerFactory {
   final EnvelopeProvider envelopeProvider;
   final NotificationProvider notification;
-  final String environment;
 
   int mixerOutputPipeSize;
 
@@ -19,12 +18,10 @@ public class MixerFactoryImpl implements MixerFactory {
   public MixerFactoryImpl(
     EnvelopeProvider envelopeProvider,
     NotificationProvider notification,
-    @Value("${environment}") String environment,
     @Value("${mixer.output.pipe.size}") int mixerOutputPipeSize
   ) {
     this.envelopeProvider = envelopeProvider;
     this.notification = notification;
-    this.environment = environment;
     this.mixerOutputPipeSize = mixerOutputPipeSize;
   }
 
@@ -40,6 +37,6 @@ public class MixerFactoryImpl implements MixerFactory {
 
   @Override
   public Source createSource(UUID audioId, String absolutePath, String description, float frameRate) {
-    return new SourceImpl(notification, audioId, absolutePath, description, environment);
+    return new SourceImpl(notification, audioId, absolutePath, description);
   }
 }

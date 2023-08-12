@@ -36,7 +36,7 @@ public class MixerImplTest {
   @BeforeEach
   public void setUp() throws Exception {
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    mixerFactory = new MixerFactoryImpl(envelopeProvider, notificationProvider, "production", 1000000);
+    mixerFactory = new MixerFactoryImpl(envelopeProvider, notificationProvider, 1000000);
     testMixer = mixerFactory.createMixer(
       new MixerConfig(
         new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
@@ -94,6 +94,6 @@ public class MixerImplTest {
     var audioId = UUID.randomUUID();
     testMixer.loadSource(audioId, internalResource.getFile().getAbsolutePath(), "test audio");
 
-    verify(notificationProvider).publish(eq("Production-Chain Mix Source Failure"), eq("Failed to load source for Audio[" + audioId + "] \"test audio\" because more than 2 input audio channels not allowed"));
+    verify(notificationProvider).publish(eq("Chain Mix Source Failure"), eq("Failed to load source for Audio[" + audioId + "] \"test audio\" because more than 2 input audio channels not allowed"));
   }
 }

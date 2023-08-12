@@ -22,7 +22,7 @@ jobs:
       - uses: burrunan/gradle-cache-action@v1
         name: Cache Gradle
         with:
-          job-id: jdk17
+          job-id: jdk18
 
       - name: Install and cache system packages
         uses: awalsh128/cache-apt-pkgs-action@latest
@@ -30,10 +30,10 @@ jobs:
           packages: ffmpeg gpac
           version: 1.0
 
-      - name: Setup JDK 17
+      - name: Setup JDK 18
         uses: actions/setup-java@v1
         with:
-          java-version: 17
+          java-version: 18
           java-package: jdk
 
       - name: Build & Run Tests

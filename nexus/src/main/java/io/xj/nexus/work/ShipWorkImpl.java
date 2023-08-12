@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -64,8 +63,8 @@ public class ShipWorkImpl implements ShipWork {
     DubWork dubWork,
     NotificationProvider notification,
     BroadcastFactory broadcastFactory,
-    String outputMode,
-    String outputFileMode,
+    OutputMode outputMode,
+    OutputFileMode outputFileMode,
     int outputSeconds,
     long cycleMillis,
     int cycleAudioBytes,
@@ -79,9 +78,9 @@ public class ShipWorkImpl implements ShipWork {
     this.cycleMillis = cycleMillis;
     this.dubWork = dubWork;
     this.notification = notification;
-    this.outputFileMode = OutputFileMode.valueOf(outputFileMode.toUpperCase(Locale.ROOT));
+    this.outputFileMode = outputFileMode;
     this.outputFileNumberDigits = outputFileNumberDigits;
-    this.outputMode = OutputMode.valueOf(outputMode.toUpperCase(Locale.ROOT));
+    this.outputMode = outputMode;
     this.outputPathPrefix = outputPathPrefix;
     this.outputSeconds = outputSeconds;
     this.pcmChunkSizeBytes = pcmChunkSizeBytes;
