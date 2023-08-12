@@ -5,6 +5,26 @@ on:
     tags: ['*']
 
 jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Get version from gradle.properties
+        id: get-version
+        run: |
+          VERSION=$(grep "version=" gradle.properties | sed -n -e 's/^.*version=//p')
+          if [ -z "$VERSION" ]; then
+            echo "Version number not found!"
+            exit 1
+          fi
+          echo "Version is $VERSION"
+          echo "version=$VERSION" >> $GITHUB_ENV
+          echo "::set-output name=version::$VERSION"
+
   distribute_service:
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
@@ -68,6 +88,7 @@ jobs:
         continue-on-error: false
 
   distribute_gui_shadow_jar:
+    needs: version
     name: Distribute GUI shadow distribution
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
@@ -89,16 +110,6 @@ jobs:
       - name: Echo JAVA_HOME
         run: echo $JAVA_HOME
 
-      - name: Get version from gradle.properties
-        run: |
-          VERSION=$(grep "version=" gradle.properties | sed -n -e 's/^.*version=//p')
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-          if [ -z "${{ env.VERSION }}" ]; then
-            echo "Version number not found!"
-            exit 1
-          fi
-          echo "Version is $VERSION"
-
       - name: Verify Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
 
@@ -106,13 +117,13 @@ jobs:
         run: ./gradlew --info --stacktrace :gui:shadowDistZip
 
       - name: Extract the contents of the shadow zip
-        run: unzip -o gui/build/distributions/gui-shadow-${VERSION}.zip -d gui/build/distributions/
+        run: unzip -o gui/build/distributions/gui-shadow-${{ needs.version.outputs.version }}.zip -d gui/build/distributions/
 
       - name: Upload GUI Shadow distribution as an artifact
         uses: actions/upload-artifact@v2
         with:
           name: xjmusic-workstation-shadow-dist
-          path: gui/build/distributions/gui-shadow-${VERSION}/
+          path: gui/build/distributions/gui-shadow-${{ needs.version.outputs.version }}/
 
   distribute_gui:
     name: Distribute ${{ matrix.os }} JDK ${{ matrix.java }}
