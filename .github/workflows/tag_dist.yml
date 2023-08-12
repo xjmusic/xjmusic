@@ -135,7 +135,7 @@ jobs:
 
   distribute_gui:
     needs: version
-    name: Distribute ${{ matrix.os }} JDK ${{ matrix.java }}
+    name: Distribute GUI [${{ matrix.os }}/JDK${{ matrix.java }}]
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
