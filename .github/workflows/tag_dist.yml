@@ -28,10 +28,10 @@ jobs:
 
       - name: Version number must match tag name
         run: |
-          BRANCH_NAME=${{ github.ref_name }}
+          TAG_NAME=${{ github.ref_name }}
           VERSION=${{ steps.get-version.outputs.version }}
-          if [ "$BRANCH_NAME" != "v$VERSION" ]; then
-            echo "Version number does not match branch name!"
+          if [ "$TAG_NAME" != "v$VERSION" ]; then
+            echo "gradle.properties version number '$VERSION' implies tag name 'v$VERSION' but instead found '$TAG_NAME'!"
             exit 1
           fi
 
