@@ -28,6 +28,7 @@ module workstation.nexus.main {
   opens io.xj.nexus.fabricator to spring.beans;
   opens io.xj.nexus.ship.broadcast to spring.beans;
   opens io.xj.nexus.work to spring.beans;
+  opens io.xj.nexus.analysis to spring.core;
 
   exports io.xj.nexus.craft;
   exports io.xj.nexus.dub;
