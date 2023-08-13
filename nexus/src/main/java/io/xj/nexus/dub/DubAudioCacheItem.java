@@ -136,9 +136,10 @@ public class DubAudioCacheItem {
 
   private static int getAudioFrameRate(String inputFile) {
     return FFprobe.atPath()
-      .setLogLevel(LogLevel.DEBUG)
       .setShowStreams(true)
       .setInput(inputFile)
+      .setShowData(false)
+      .setLogLevel(LogLevel.WARNING)
       .execute()
       .getStreams()
       .stream().map(Stream::getSampleRate).findFirst()
@@ -147,10 +148,10 @@ public class DubAudioCacheItem {
 
   private static void convertAudio(String inputFile, String outputFile, int targetFrameRate) {
     FFmpeg.atPath()
-      .setLogLevel(LogLevel.DEBUG)
       .addInput(UrlInput.fromUrl(inputFile))
       .addArguments("-ar", String.valueOf(targetFrameRate))
       .addOutput(UrlOutput.toUrl(outputFile))
+      .setLogLevel(LogLevel.WARNING)
       .execute();
   }
 
