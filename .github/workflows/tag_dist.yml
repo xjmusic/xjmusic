@@ -140,7 +140,6 @@ jobs:
           asset_name: xjmusic-workstation-v${{ needs.version.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-amd64.jar.zip
           tag: ${{ github.ref }}
           overwrite: true
-          body: "XJ workstation GUI JAR v${{ needs.version.outputs.version }} for ${{ matrix.os }}-jdk${{ matrix.java }}-amd64"
 
   distribute_gui_installer:
     needs: version
