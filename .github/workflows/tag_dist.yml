@@ -98,9 +98,9 @@ jobs:
             :service:jib
         continue-on-error: false
 
-  distribute_gui_boot:
+  distribute_gui_jar:
     needs: version
-    name: GUI Boot [${{ matrix.os }}-JDK${{ matrix.java }}]
+    name: GUI JAR [${{ matrix.os }}-JDK${{ matrix.java }}]
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
@@ -129,19 +129,16 @@ jobs:
       - name: Verify Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
 
-      - name: Execute spring boot distribution .zip
-        run: ./gradlew --info --stacktrace :gui:bootDistZip
-
-      - name: Extract boot distribution .zip
-        run: unzip -o gui/build/distributions/xjmusic-workstation-gui-${{ needs.version.outputs.version }}.zip -d gui/build/distributions/
+      - name: Execute spring boot distribution .jar
+        run: ./gradlew --info --stacktrace :gui:bootJar
 
       - name: Upload GUI spring boot jar as an artifact
         uses: actions/upload-artifact@v2
         with:
-          name: xjmusic-workstation-v${{ needs.version.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-dist
-          path: gui/build/distributions/xjmusic-workstation-gui-${{ needs.version.outputs.version }}/*
+          name: xjmusic-workstation-v${{ needs.version.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-jar
+          path: gui/build/distributions/xjmusic-workstation-gui-${{ needs.version.outputs.version }}.jar
 
-  distribute_gui:
+  distribute_gui_installer:
     needs: version
     name: GUI Installer [${{ matrix.os }}-JDK${{ matrix.java }}]
     env:

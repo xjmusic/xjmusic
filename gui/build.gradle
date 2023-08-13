@@ -76,10 +76,6 @@ bootJar {
   archiveBaseName = 'xjmusic-workstation-gui'
 }
 
-bootDistZip {
-  archiveBaseName = 'xjmusic-workstation-gui'
-}
-
 test {
   useJUnitPlatform()
 }
