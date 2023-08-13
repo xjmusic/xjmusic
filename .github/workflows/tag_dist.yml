@@ -98,9 +98,9 @@ jobs:
             :service:jib
         continue-on-error: false
 
-  distribute_gui_boot_dist:
+  distribute_gui_boot:
     needs: version
-    name: GUI distro [${{ matrix.os }}-JDK${{ matrix.java }}]
+    name: GUI Boot [${{ matrix.os }}-JDK${{ matrix.java }}]
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
