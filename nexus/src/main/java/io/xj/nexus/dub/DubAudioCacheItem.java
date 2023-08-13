@@ -1,7 +1,12 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.dub;
 
-
+import com.github.kokorin.jaffree.LogLevel;
+import com.github.kokorin.jaffree.ffmpeg.FFmpeg;
+import com.github.kokorin.jaffree.ffmpeg.UrlInput;
+import com.github.kokorin.jaffree.ffmpeg.UrlOutput;
+import com.github.kokorin.jaffree.ffprobe.FFprobe;
+import com.github.kokorin.jaffree.ffprobe.Stream;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.nexus.NexusException;
 import org.apache.commons.io.FileUtils;
@@ -12,11 +17,9 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -131,30 +134,24 @@ public class DubAudioCacheItem {
   }
 
 
-  private static int getAudioFrameRate(String inputFile) throws IOException {
-    ProcessBuilder processBuilder = new ProcessBuilder("ffprobe", "-v", "error", "-select_streams", "a:0",
-      "-show_entries", "stream=sample_rate", "-of", "default=noprint_wrappers=1:nokey=1", inputFile);
-    Process process = processBuilder.start();
-
-    try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-      String line = reader.readLine();
-      if (line != null) {
-        return Integer.parseInt(line.trim());
-      }
-    }
-
-    return -1; // Error occurred or frame rate not found
+  private static int getAudioFrameRate(String inputFile) {
+    return FFprobe.atPath()
+      .setLogLevel(LogLevel.DEBUG)
+      .setShowStreams(true)
+      .setInput(inputFile)
+      .execute()
+      .getStreams()
+      .stream().map(Stream::getSampleRate).findFirst()
+      .orElse(-1);
   }
 
-  private static void convertAudio(String inputFile, String outputFile, int targetFrameRate) throws IOException {
-    ProcessBuilder processBuilder = new ProcessBuilder("ffmpeg", "-i", inputFile, "-ar", String.valueOf(targetFrameRate), outputFile);
-    Process process = processBuilder.start();
-
-    try {
-      process.waitFor();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
+  private static void convertAudio(String inputFile, String outputFile, int targetFrameRate) {
+    FFmpeg.atPath()
+      .setLogLevel(LogLevel.DEBUG)
+      .addInput(UrlInput.fromUrl(inputFile))
+      .addArguments("-ar", String.valueOf(targetFrameRate))
+      .addOutput(UrlOutput.toUrl(outputFile))
+      .execute();
   }
 
 }

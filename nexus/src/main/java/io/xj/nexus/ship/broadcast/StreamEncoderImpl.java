@@ -3,24 +3,17 @@
 package io.xj.nexus.ship.broadcast;
 
 import io.xj.hub.util.FileUtils;
-import io.xj.hub.util.ValueUtils;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.nexus.ship.ShipException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -58,6 +51,10 @@ public class StreamEncoderImpl implements StreamEncoder {
 
     String m3u8Key = String.format("%s.m3u8", shipKey);
     playlistPath = String.format("%s%s", tempFilePathPrefix, m3u8Key);
+
+/*
+
+  FUTURE: implement all this using https://github.com/kokorin/Jaffree
 
     try {
       ProcessBuilder builder = new ProcessBuilder(List.of(
@@ -107,6 +104,7 @@ public class StreamEncoderImpl implements StreamEncoder {
     } finally {
       if (Objects.nonNull(ffmpeg)) ffmpeg.destroy();
     }
+*/
   }
 
   @Override
@@ -145,6 +143,7 @@ public class StreamEncoderImpl implements StreamEncoder {
   @Override
   public boolean isHealthy() {
     if (!running.get()) return notHealthy("Not Active!");
+    if (Objects.isNull(ffmpeg)) return notHealthy("No FFMPEG running!");
     if (!ffmpeg.isAlive()) return notHealthy("FFMPEG is not alive!");
     return true;
   }
@@ -154,7 +153,7 @@ public class StreamEncoderImpl implements StreamEncoder {
     playlist.setAtChainMicros(atChainMicros);
   }
 
-    /**
+  /**
    * Return false after logging a warning message
    *
    * @param message to warn

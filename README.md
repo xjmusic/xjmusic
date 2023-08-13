@@ -189,6 +189,10 @@ sudo chown -R $(id -u):$(id -g) .
 
 ## FFmpeg
 
+You'll need to have ffmpeg installed on your system. The XJ workstation uses it under the hood to inspect and convert audio files.
+
+We implement the https://github.com/kokorin/Jaffree library to interact with ffmpeg.
+
 ### Convert all WAV files in folder to MP3
 
 ```shell
