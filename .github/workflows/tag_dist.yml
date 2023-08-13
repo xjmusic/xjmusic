@@ -132,14 +132,11 @@ jobs:
       - name: Execute spring boot distribution .jar
         run: ./gradlew --info --stacktrace :gui:bootJar
 
-      - name: Compress JAR
-        run: zip -j gui/build/libs/xjmusic-workstation-gui-${{ needs.version.outputs.version }}.jar.zip gui/build/libs/xjmusic-workstation-gui-${{ needs.version.outputs.version }}.jar
-
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: gui/build/libs/xjmusic-workstation-gui-${{ needs.version.outputs.version }}.jar.zip
+          file: gui/build/dist/xjmusic-workstation-gui-${{ needs.version.outputs.version }}.zip
           asset_name: xjmusic-workstation-v${{ needs.version.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-amd64-jar
           tag: ${{ github.ref }}
           overwrite: true
