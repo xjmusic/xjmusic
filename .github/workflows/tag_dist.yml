@@ -100,7 +100,7 @@ jobs:
 
   distribute_gui_jar:
     needs: version
-    name: GUI .jar [${{ matrix.os }}/JDK${{ matrix.java }}]
+    name: GUI .jar [${{ matrix.os }}-JDK${{ matrix.java }}]
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
@@ -140,7 +140,7 @@ jobs:
 
   distribute_gui:
     needs: version
-    name: GUI Installer [${{ matrix.os }}/JDK${{ matrix.java }}]
+    name: GUI Installer [${{ matrix.os }}-JDK${{ matrix.java }}]
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
