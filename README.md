@@ -5,11 +5,11 @@
 
 XJ music pioneers the evolution of background audio with our innovative music engine enabling artists to compose new possibilities for streams, games, and spaces.
 
-[xjmusic.com](https://xjmusic.com)
+*Copyright (c) XJ Music Inc. All Rights Reserved.*
 
 [U.S. Patent 10,446,126](https://patents.google.com/patent/US10446126B1/)
 
-*Copyright (c) XJ Music Inc. All Rights Reserved.*
+[xjmusic.com](https://xjmusic.com)
 
 ## Private Gradle (Maven) Package Repository
 
