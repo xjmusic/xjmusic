@@ -15,7 +15,9 @@ javafx {
   modules = ['javafx.base', 'javafx.controls', 'javafx.fxml', 'javafx.graphics']
 }
 
-ext.os = org.gradle.internal.os.OperatingSystem.current()
+//noinspection GroovyAssignabilityCheck
+ext.os = org.gradle.internal.os.OperatingSystem.current() as org.gradle.internal.os.OperatingSystem
+
 jlink {
   // imageZip = file("$buildDir/image-zip/xjmusic-workstation.zip")
   // options = ['--bind-services', '--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
@@ -68,6 +70,15 @@ dependencies {
 }
 
 mainClassName = 'io.xj.gui.WorkstationGuiApplication'
+
+bootJar {
+  launchScript()
+  archiveBaseName = 'xjmusic-workstation-gui'
+}
+
+bootDistZip {
+  archiveBaseName = 'xjmusic-workstation-gui'
+}
 
 test {
   useJUnitPlatform()

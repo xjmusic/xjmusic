@@ -98,9 +98,9 @@ jobs:
             :service:jib
         continue-on-error: false
 
-  distribute_gui_jar:
+  distribute_gui_boot_dist:
     needs: version
-    name: GUI .jar [${{ matrix.os }}-JDK${{ matrix.java }}]
+    name: GUI distro [${{ matrix.os }}-JDK${{ matrix.java }}]
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
@@ -129,14 +129,17 @@ jobs:
       - name: Verify Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
 
-      - name: Execute build of GUI spring boot jar
-        run: ./gradlew --info --stacktrace :gui:bootJar
+      - name: Execute spring boot distribution .zip
+        run: ./gradlew --info --stacktrace :gui:bootDistZip
+
+      - name: Extract boot distribution .zip
+        run: unzip -o gui/build/distributions/xjmusic-workstation-gui-${{ needs.version.outputs.version }}.zip -d gui/build/distributions/
 
       - name: Upload GUI spring boot jar as an artifact
         uses: actions/upload-artifact@v2
         with:
-          name: xjmusic-workstation-v${{ needs.version.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-jar
-          path: gui/build/libs/gui-${{ needs.version.outputs.version }}.jar
+          name: xjmusic-workstation-v${{ needs.version.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-dist
+          path: gui/build/distributions/xjmusic-workstation-gui-${{ needs.version.outputs.version }}/*
 
   distribute_gui:
     needs: version
@@ -179,29 +182,29 @@ jobs:
       - name: Upload DMG as an artifact
         uses: actions/upload-artifact@v2
         with:
-          name: xjmusic-workstation-v${{ needs.version.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-dmg
+          name: xjmusic-workstation-v${{ needs.version.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer-dmg
           path: gui/build/jpackage/*.dmg
 
       - name: Upload EXE as an artifact
         uses: actions/upload-artifact@v2
         with:
-          name: xjmusic-workstation-v${{ needs.version.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-exe
+          name: xjmusic-workstation-v${{ needs.version.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer-exe
           path: gui/build/jpackage/*.exe
 
       - name: Upload MSI as an artifact
         uses: actions/upload-artifact@v2
         with:
-          name: xjmusic-workstation-v${{ needs.version.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-msi
+          name: xjmusic-workstation-v${{ needs.version.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer-msi
           path: gui/build/jpackage/*.msi
 
       - name: Upload DEB as an artifact
         uses: actions/upload-artifact@v2
         with:
-          name: xjmusic-workstation-v${{ needs.version.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-deb
+          name: xjmusic-workstation-v${{ needs.version.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer-deb
           path: gui/build/jpackage/*.deb
 
       - name: Upload RPM as an artifact
         uses: actions/upload-artifact@v2
         with:
-          name: xjmusic-workstation-v${{ needs.version.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-rpm
+          name: xjmusic-workstation-v${{ needs.version.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer-rpm
           path: gui/build/jpackage/*.rpm
