@@ -71,12 +71,12 @@ dependencies {
 
 mainClassName = 'io.xj.gui.WorkstationGuiApplication'
 
+//noinspection ConfigurationAvoidance
 task 'bootJarZip'(type: Zip) {
   dependsOn('bootJar')
   from "build/libs/"
   archiveBaseName = 'xjmusic-workstation-gui'
-  include '*'
-  include '*/*'
+  include "xjmusic-workstation-gui-${rootProject.version}.jar"
   destinationDirectory = file("$buildDir/dist")
 }
 
