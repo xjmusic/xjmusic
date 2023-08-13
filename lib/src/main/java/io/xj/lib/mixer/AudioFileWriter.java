@@ -26,7 +26,7 @@ public interface AudioFileWriter {
   /**
    * Close the writer and release resources
    */
-  void close() throws IOException;
+  void finish() throws IOException;
 
   /**
    * @return true if the writer is currently writing

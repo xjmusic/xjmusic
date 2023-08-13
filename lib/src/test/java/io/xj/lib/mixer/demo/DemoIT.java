@@ -132,7 +132,7 @@ public class DemoIT {
     // Write the demo file output
     audioFileWriter.open(outputFilePath);
     audioFileWriter.append(mixer.getBuffer().consume(mixer.getBuffer().getAvailableByteCount()));
-    audioFileWriter.close();
+    audioFileWriter.finish();
   }
 
   /**

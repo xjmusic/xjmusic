@@ -16,7 +16,7 @@ public class MainWindowLogAppender extends AppenderBase<ILoggingEvent> {
   protected void append(ILoggingEvent eventObject) {
     System.out.println(eventObject.toString());
     if (LISTENER.get() != null) {
-      LISTENER.get().onLog(eventObject.toString());
+      LISTENER.get().onLog(eventObject.getFormattedMessage());
     }
   }
 }

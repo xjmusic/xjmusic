@@ -19,5 +19,5 @@ public interface StreamPlayer {
   /**
    * Close the player and release resources
    */
-  void close();
+  void finish();
 }

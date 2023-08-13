@@ -78,7 +78,7 @@ public class AudioFileWriterImpl implements AudioFileWriter {
   }
 
   @Override
-  public void close() {
+  public void finish() {
     if (fileState.get() != FileState.WRITING) {
       throw new IllegalStateException("Stream is not open");
     }

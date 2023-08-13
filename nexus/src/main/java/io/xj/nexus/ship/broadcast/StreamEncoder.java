@@ -28,7 +28,7 @@ public interface StreamEncoder {
   /**
    * Close the encoder and release resources
    */
-  void close();
+  void finish();
 
   /**
    * Check if the ship encoder process is healthy

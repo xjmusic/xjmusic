@@ -27,7 +27,6 @@ public class StreamPlayerImpl implements StreamPlayer {
   public StreamPlayerImpl(
     AudioFormat format
   ) {
-
     queue = new ConcurrentLinkedQueue<>();
 
     try {
@@ -77,7 +76,7 @@ public class StreamPlayerImpl implements StreamPlayer {
   }
 
   @Override
-  public void close() {
+  public void finish() {
     if (Objects.nonNull(line))
       line.close();
     running.set(false);
