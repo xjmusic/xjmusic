@@ -147,7 +147,7 @@ public class DubAudioCacheItem {
   }
 
   private static void convertAudio(String inputFile, String outputFile, int targetFrameRate) throws IOException {
-    ProcessBuilder processBuilder = new ProcessBuilder("ffmpeg-failz", "-i", inputFile, "-ar", String.valueOf(targetFrameRate), outputFile); // todo fix this
+    ProcessBuilder processBuilder = new ProcessBuilder("ffmpeg", "-i", inputFile, "-ar", String.valueOf(targetFrameRate), outputFile);
     Process process = processBuilder.start();
 
     try {
