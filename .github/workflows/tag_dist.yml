@@ -130,7 +130,7 @@ jobs:
         uses: gradle/wrapper-validation-action@v1
 
       - name: Execute spring boot distribution .jar
-        run: ./gradlew --info --stacktrace :gui:bootJar
+        run: ./gradlew --info --stacktrace :gui:bootJarZip
 
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
