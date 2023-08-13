@@ -136,7 +136,7 @@ public class StreamEncoderImpl implements StreamEncoder {
   }
 
   @Override
-  public void close() {
+  public void finish() {
     if (Objects.nonNull(ffmpeg))
       ffmpeg.destroy();
     running.set(false);
@@ -154,7 +154,7 @@ public class StreamEncoderImpl implements StreamEncoder {
     playlist.setAtChainMicros(atChainMicros);
   }
 
-  /**
+    /**
    * Return false after logging a warning message
    *
    * @param message to warn
