@@ -397,7 +397,7 @@ public class DubWorkImpl implements DubWork {
         active.getReleaseMillis());
 
     } catch (FormatException | NexusException | FileStoreException | SourceException | IOException | PutException e) {
-      LOG.error("Failed to setup mixer target for {}", active, e);
+      LOG.error("Failed to setup mixer target for {} because {}", active, e.getCause().getMessage());
     }
   }
 
