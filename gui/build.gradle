@@ -72,6 +72,7 @@ dependencies {
 mainClassName = 'io.xj.gui.WorkstationGuiApplication'
 
 task 'bootJarZip'(type: Zip) {
+  dependsOn('bootJar')
   from "build/libs/"
   archiveBaseName = 'xjmusic-workstation-gui'
   include '*'
