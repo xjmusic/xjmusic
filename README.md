@@ -1,6 +1,5 @@
- [![Continuous Integration](https://github.com/xjmusic/workstation/actions/workflows/main_ci.yml/badge.svg)](https://github.com/xjmusic/workstation/actions/workflows/main_ci.yml)
- 
- [![Build Distribution](https://github.com/xjmusic/workstation/actions/workflows/tag_dist.yml/badge.svg)](https://github.com/xjmusic/workstation/actions/workflows/tag_dist.yml)
+[![Continuous Integration](https://github.com/xjmusic/workstation/actions/workflows/main_ci.yml/badge.svg)](https://github.com/xjmusic/workstation/actions/workflows/main_ci.yml)
+[![Build Distribution](https://github.com/xjmusic/workstation/actions/workflows/tag_dist.yml/badge.svg)](https://github.com/xjmusic/workstation/actions/workflows/tag_dist.yml)
 
 # XJ music workstation
 
