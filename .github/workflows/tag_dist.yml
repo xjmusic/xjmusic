@@ -6,6 +6,7 @@ on:
 
 jobs:
   version:
+    name: Version
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.get-version.outputs.version }}
@@ -25,7 +26,17 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_ENV
           echo "::set-output name=version::$VERSION"
 
+      - name: Version number must match tag name
+        run: |
+          TAG_NAME=${{ github.ref_name }}
+          VERSION=${{ steps.get-version.outputs.version }}
+          if [ "$TAG_NAME" != "v$VERSION" ]; then
+            echo "gradle.properties version number '$VERSION' implies tag name 'v$VERSION' but instead found '$TAG_NAME'!"
+            exit 1
+          fi
+
   distribute_service:
+    needs: version
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
@@ -83,11 +94,11 @@ jobs:
           ./gradlew --info --no-daemon \
             -PjibFromImage=gcr.io/xj-vpc-host-prod/base:latest \
             -PjibToImageRegistry=gcr.io/xj-vpc-host-prod \
-            -PjibToTags=${{  github.ref_name }} \
+            -PjibToTags=v${{ needs.version.outputs.version }} \
             :service:jib
         continue-on-error: false
 
-  distribute_gui_shadow_jar:
+  distribute_gui_jar:
     needs: version
     name: GUI .jar [${{ matrix.os }}/JDK${{ matrix.java }}]
     env:
@@ -96,7 +107,12 @@ jobs:
       GITHUB_ACTOR: ${{ secrets.GITHUB_ACTOR }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     permissions: write-all
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-latest, windows-latest]
+        java: [ '18' ]
+      fail-fast: false
     steps:
 
       - name: Git checkout
@@ -105,7 +121,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
-          java-version: 18
+          java-version: ${{ matrix.java }}
 
       - name: Echo JAVA_HOME
         run: echo $JAVA_HOME
@@ -113,17 +129,14 @@ jobs:
       - name: Verify Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
 
-      - name: Execute build of GUI shadow zip
-        run: ./gradlew --info --stacktrace :gui:shadowDistZip
+      - name: Execute build of GUI spring boot jar
+        run: ./gradlew --info --stacktrace :gui:bootJar
 
-      - name: Extract the contents of the shadow zip
-        run: unzip -o gui/build/distributions/gui-shadow-${{ needs.version.outputs.version }}.zip -d gui/build/distributions/
-
-      - name: Upload GUI Shadow distribution as an artifact
+      - name: Upload GUI spring boot jar as an artifact
         uses: actions/upload-artifact@v2
         with:
-          name: xjmusic-workstation-shadow-dist
-          path: gui/build/distributions/gui-shadow-${{ needs.version.outputs.version }}/
+          name: xjmusic-workstation-v${{ needs.version.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-jar
+          path: gui/build/libs/gui-${{ needs.version.outputs.version }}.jar
 
   distribute_gui:
     needs: version
@@ -166,29 +179,29 @@ jobs:
       - name: Upload DMG as an artifact
         uses: actions/upload-artifact@v2
         with:
-          name: xjmusic-workstation-${{ matrix.os }}-jdk${{ matrix.java }}-dmg
+          name: xjmusic-workstation-v${{ needs.version.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-dmg
           path: gui/build/jpackage/*.dmg
 
       - name: Upload EXE as an artifact
         uses: actions/upload-artifact@v2
         with:
-          name: xjmusic-workstation-${{ matrix.os }}-jdk${{ matrix.java }}-exe
+          name: xjmusic-workstation-v${{ needs.version.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-exe
           path: gui/build/jpackage/*.exe
 
       - name: Upload MSI as an artifact
         uses: actions/upload-artifact@v2
         with:
-          name: xjmusic-workstation-${{ matrix.os }}-jdk${{ matrix.java }}-msi
+          name: xjmusic-workstation-v${{ needs.version.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-msi
           path: gui/build/jpackage/*.msi
 
       - name: Upload DEB as an artifact
         uses: actions/upload-artifact@v2
         with:
-          name: xjmusic-workstation-${{ matrix.os }}-jdk${{ matrix.java }}-deb
+          name: xjmusic-workstation-v${{ needs.version.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-deb
           path: gui/build/jpackage/*.deb
 
       - name: Upload RPM as an artifact
         uses: actions/upload-artifact@v2
         with:
-          name: xjmusic-workstation-${{ matrix.os }}-jdk${{ matrix.java }}-rpm
+          name: xjmusic-workstation-v${{ needs.version.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-rpm
           path: gui/build/jpackage/*.rpm
