@@ -122,7 +122,7 @@ class MixerImpl implements Mixer {
       return;
     }
 
-    Source source = factory.createSource(audioId, pathToFile, description, outputFrameRate);
+    Source source = factory.createSource(audioId, pathToFile, description);
     sources.put(audioId, source);
   }
 

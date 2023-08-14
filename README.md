@@ -189,8 +189,6 @@ sudo chown -R $(id -u):$(id -g) .
 
 ## FFmpeg
 
-Instead of using ffmpeg on the command line, we use a bundled library https://github.com/bytedeco/javacv
-
 ### Convert all WAV files in folder to MP3
 
 ```shell
