@@ -2,9 +2,7 @@
 package io.xj.nexus.dub;
 
 import be.tarsos.dsp.AudioDispatcher;
-import be.tarsos.dsp.io.TarsosDSPAudioFormat;
 import be.tarsos.dsp.io.jvm.AudioDispatcherFactory;
-import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
 import be.tarsos.dsp.io.jvm.WaveformWriter;
 import be.tarsos.dsp.resample.RateTransposer;
 import io.xj.hub.util.StringUtils;
@@ -23,7 +21,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.BufferedInputStream;
@@ -34,8 +31,6 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
-
-import static javax.sound.sampled.AudioFormat.Encoding.PCM_FLOAT;
 
 @Service
 public class DubAudioCacheImpl implements DubAudioCache {
@@ -77,7 +72,7 @@ public class DubAudioCacheImpl implements DubAudioCache {
     if (StringUtils.isNullOrEmpty(waveformKey)) throw new FileStoreException("Can't load null or empty audio key!");
     var absolutePath = String.format("%s%s", pathPrefix, waveformKey);
     if (existsOnDisk(absolutePath)) {
-      return absolutePath;
+      Files.delete(Path.of(absolutePath));
     }
     CloseableHttpClient client = httpClientProvider.getClient();
     try (
@@ -119,8 +114,10 @@ public class DubAudioCacheImpl implements DubAudioCache {
     // Check if the audio file has the target frame rate
     int currentFrameRate = getAudioFrameRate(tempPath);
     if (currentFrameRate != targetFrameRate) {
+      LOG.debug("Will resample audio file from {} to {}", currentFrameRate, targetFrameRate);
       convertAudio(tempPath, targetPath, targetFrameRate);
     } else {
+      LOG.debug("Will move audio file from {} to {}", currentFrameRate, targetFrameRate);
       Files.move(Path.of(tempPath), Path.of(targetPath));
     }
   }
@@ -157,28 +154,22 @@ public class DubAudioCacheImpl implements DubAudioCache {
    */
   private static void convertAudio(String inputAudioFilePath, String outputAudioFilePath, int targetSampleRate) throws NexusException {
     try {
-      File sourceFile = new File(inputAudioFilePath);
-      File targetFile = new File(outputAudioFilePath);
-
-      AudioInputStream sourceStream = AudioSystem.getAudioInputStream(sourceFile);
-      AudioFormat sourceFormat = sourceStream.getFormat();
+      AudioFormat sourceFormat = AudioSystem.getAudioFileFormat(new File(inputAudioFilePath)).getFormat();
 
       float resampleRatio = targetSampleRate / sourceFormat.getSampleRate();
 
-      AudioFormat targetFormat = new AudioFormat(
-        PCM_FLOAT,
+      var targetFormat = new AudioFormat(
+        AudioFormat.Encoding.PCM_SIGNED,
         targetSampleRate,
-        32,
+        sourceFormat.getSampleSizeInBits(),
         sourceFormat.getChannels(),
-        sourceFormat.getChannels() * 4,
+        sourceFormat.getFrameSize(),
         targetSampleRate,
         false);
 
-      TarsosDSPAudioFormat tarsosTargetFormat = JVMAudioInputStream.toTarsosDSPFormat(targetFormat);
-
-      AudioDispatcher dispatcher = AudioDispatcherFactory.fromFile(sourceFile, 2048, 1024);
+      AudioDispatcher dispatcher = AudioDispatcherFactory.fromFile(new File(inputAudioFilePath), 2048, 1024);
       RateTransposer resampler = new RateTransposer(resampleRatio);
-      WaveformWriter writer = new WaveformWriter(tarsosTargetFormat, targetFile.getAbsolutePath());
+      WaveformWriter writer = new WaveformWriter(targetFormat, outputAudioFilePath);
 
       dispatcher.addAudioProcessor(resampler);
       dispatcher.addAudioProcessor(writer);
