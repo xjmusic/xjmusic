@@ -53,9 +53,6 @@ public class StreamEncoderImpl implements StreamEncoder {
     playlistPath = String.format("%s%s", tempFilePathPrefix, m3u8Key);
 
 /*
-
-  FUTURE: implement all this using humble-video
-
     try {
       ProcessBuilder builder = new ProcessBuilder(List.of(
         "ffmpeg",

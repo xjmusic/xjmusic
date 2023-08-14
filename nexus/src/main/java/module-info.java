@@ -4,15 +4,18 @@ module workstation.nexus.main {
   requires com.fasterxml.jackson.annotation;
   requires com.fasterxml.jackson.core;
   requires com.fasterxml.jackson.databind;
-  requires humble.video.all;
-  requires humble.video.noarch;
   requires jakarta.annotation;
   requires java.desktop;
+  requires javafx.graphics;
   requires me.xdrop.fuzzywuzzy;
   requires org.apache.commons.codec;
   requires org.apache.commons.io;
   requires org.apache.httpcomponents.httpclient;
   requires org.apache.httpcomponents.httpcore;
+  requires org.bytedeco.flandmark.platform;
+  requires org.bytedeco.flandmark;
+  requires org.bytedeco.javacv.platform;
+  requires org.bytedeco.javacv;
   requires org.jooq;
   requires org.slf4j;
   requires spring.beans;
@@ -23,6 +26,7 @@ module workstation.nexus.main {
   //
   requires workstation.lib.main;
   requires transitive hub.models.main;
+  requires org.bytedeco.ffmpeg;
 
   opens io.xj.nexus to spring.core;
   opens io.xj.nexus.craft to spring.beans;

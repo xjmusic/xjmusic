@@ -51,6 +51,11 @@ allprojects {
 subprojects {
   apply plugin: 'java'
 
+  configurations {
+    implementation.exclude group: "commons-logging", module: "commons-logging"
+    implementation.exclude group: 'com.google.code.findbugs', module: 'jsr305'
+  }
+
   repositories {
     mavenCentral()
     mavenLocal()

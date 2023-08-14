@@ -7,7 +7,13 @@ plugins {
   id "de.undercouch.download"
   id 'io.spring.dependency-management'
   id 'org.ajoberstar.grgit'
+  id 'org.openjfx.javafxplugin'
   id 'org.springframework.boot'
+}
+
+javafx {
+  version = "${rootProject.ext.javaFxVersion}"
+  modules = ['javafx.graphics']
 }
 
 description = 'XJ music workstation nexus'
@@ -27,6 +33,7 @@ dependencies {
   implementation "com.fasterxml.jackson.core:jackson-annotations:${rootProject.ext.jacksonAnnotationsVersion}"
   implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:${rootProject.ext.jacksonAnnotationsVersion}"
   implementation "org.jooq:jooq:${rootProject.ext.jooqVersion}"
+  implementation "org.openjfx:javafx-graphics:${rootProject.ext.javaFxVersion}"
   implementation "org.springframework.boot:spring-boot-starter:${rootProject.ext.springBootVersion}"
   implementation 'be.tarsos.dsp:core:2.5'
   implementation 'be.tarsos.dsp:jvm:2.5'
@@ -34,7 +41,10 @@ dependencies {
   implementation 'com.typesafe:config:1.4.2'
   implementation 'commons-codec:commons-codec:1.15'
   implementation 'commons-io:commons-io:2.11.0'
-  implementation 'io.humble:humble-video-all:0.3.0'
+  implementation 'org.bytedeco:javacv-platform:1.5.9'
+  implementation 'org.bytedeco:flandmark-platform:1.07-1.5.8' // Required by org.bytedco.javacv
+  implementation 'org.bytedeco:opencv-platform-gpu:4.7.0-1.5.9' //  Additional dependencies required to use CUDA and cuDNN
+  implementation 'org.bytedeco:ffmpeg-platform-gpl:6.0-1.5.9' // Optional GPL builds with (almost) everything enabled
   implementation 'me.xdrop:fuzzywuzzy:1.4.0'
   implementation 'org.apache.httpcomponents:httpclient:4.5.14'
   implementation 'org.mp4parser:isoparser:1.9.41'

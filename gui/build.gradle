@@ -36,11 +36,6 @@ jlink {
   }
 }
 
-configurations {
-  implementation.exclude group: "commons-logging", module: "commons-logging"
-  implementation.exclude group: 'com.google.code.findbugs', module: 'jsr305'
-}
-
 dependencies {
   // peers
   implementation project(":lib")
@@ -87,8 +82,4 @@ bootJar {
 
 test {
   useJUnitPlatform()
-}
-
-repositories {
-  mavenCentral()
 }
