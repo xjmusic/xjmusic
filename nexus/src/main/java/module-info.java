@@ -4,6 +4,8 @@ module workstation.nexus.main {
   requires com.fasterxml.jackson.annotation;
   requires com.fasterxml.jackson.core;
   requires com.fasterxml.jackson.databind;
+  requires humble.video.all;
+  requires humble.video.noarch;
   requires jakarta.annotation;
   requires java.desktop;
   requires me.xdrop.fuzzywuzzy;
@@ -18,7 +20,6 @@ module workstation.nexus.main {
   requires spring.boot;
   requires spring.context;
   requires spring.core;
-  requires humble.video.all;
   //
   requires workstation.lib.main;
   requires transitive hub.models.main;

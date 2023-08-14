@@ -1,19 +1,21 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.dub;
 
+import io.humble.video.Codec;
+import io.humble.video.Decoder;
+import io.humble.video.Demuxer;
+import io.humble.video.Encoder;
+import io.humble.video.MediaAudio;
+import io.humble.video.MediaAudioResampler;
+import io.humble.video.MediaDescriptor;
+import io.humble.video.MediaPacket;
+import io.humble.video.Muxer;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.nexus.NexusException;
+import jakarta.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
-
-import io.humble.video.Container;
-import io.humble.video.Decoder;
-import io.humble.video.Demuxer;
-import io.humble.video.DemuxerFormat;
-import io.humble.video.DemuxerStream;
-import io.humble.video.Global;
-import io.humble.video.KeyValueBag;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
@@ -35,7 +37,7 @@ import java.util.Objects;
  * Advanced audio caching during fabrication https://www.pivotaltracker.com/story/show/176642679
  */
 public class DubAudioCacheItem {
-  final Logger LOG = LoggerFactory.getLogger(DubAudioCacheItem.class);
+  final static Logger LOG = LoggerFactory.getLogger(DubAudioCacheItem.class);
   final String waveformKey;
   final String absolutePath;
   int size; // # of bytes
@@ -136,56 +138,115 @@ public class DubAudioCacheItem {
   }
 
 
-  private static int getAudioFrameRate(String inputFile) {
-
-    // Create a MediaReader object
+  private static int getAudioFrameRate(String inputFile) throws NexusException {
     final Demuxer demuxer = Demuxer.make();
     try {
-      demuxer.open(filename, null, false, true, null, null);
-
-      // Find the first audio stream and get its sample rate
+      demuxer.open(inputFile, null, false, true, null, null);
       int numStreams = demuxer.getNumStreams();
       for (int i = 0; i < numStreams; i++) {
         final Decoder codec = demuxer.getStream(i).getDecoder();
         if (codec != null && codec.getCodecType() == MediaDescriptor.Type.MEDIA_AUDIO) {
-          final AudioChannel.Layout layout = codec.getChannelLayout();
-          final int sampleRate = codec.getSampleRate();
-          System.out.println("Sample Rate: " + sampleRate);
-          break;
+          return codec.getSampleRate();
         }
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      LOG.error("Unable to get audio frame rate from file: {}", inputFile, e);
     } finally {
       if (demuxer != null) {
         try {
           demuxer.close();
-        } catch (InterruptedException e) {
-          e.printStackTrace();
+        } catch (InterruptedException | IOException e) {
+          LOG.error("Unable to close demuxer", e);
         }
       }
     }
-  }
-/*
-    return FFprobe.atPath()
-      .setShowStreams(true)
-      .setInput(inputFile)
-      .setShowData(false)
-      .setLogLevel(LogLevel.WARNING)
-      .execute()
-      .getStreams()
-      .stream().map(Stream::getSampleRate).findFirst()
-      .orElse(-1);
-*/
+    throw new NexusException(String.format("Unable to get audio frame rate from file: %s", inputFile));
   }
 
-  private static void convertAudio(String inputFile, String outputFile, int targetFrameRate) {
-    FFmpeg.atPath()
-      .addInput(UrlInput.fromUrl(inputFile))
-      .addArguments("-ar", String.valueOf(targetFrameRate))
-      .addOutput(UrlOutput.toUrl(outputFile))
-      .setLogLevel(LogLevel.WARNING)
-      .execute();
+  private static void convertAudio(String inputFile, String outputFile, int targetSampleRate) throws NexusException {
+    Demuxer demuxer = Demuxer.make();
+    Muxer muxer = Muxer.make(outputFile, null, null);
+    try {
+      demuxer.open(inputFile, null, false, true, null, null);
+      var decoder = getAudioStreamDecoder(demuxer);
+
+      @Nullable
+      Encoder encoder;
+
+      if (decoder.getCodecType() == MediaDescriptor.Type.MEDIA_AUDIO) {
+        // Create a resampler
+        MediaAudioResampler resampler = MediaAudioResampler.make(decoder.getChannelLayout(), targetSampleRate,
+          decoder.getSampleFormat(), decoder.getChannelLayout(), decoder.getSampleRate(),
+          decoder.getSampleFormat());
+
+        // Create an encoder for the output
+        encoder = Encoder.make(Codec.findEncodingCodec(decoder.getCodecID()));
+        encoder.setChannelLayout(decoder.getChannelLayout());
+        encoder.setSampleRate(targetSampleRate);
+        encoder.setSampleFormat(decoder.getSampleFormat());
+
+        // Open the encoder
+        encoder.open(null, null);
+
+        // Add the stream to the muxer
+        muxer.addNewStream(encoder);
+        muxer.open(null, null);
+
+        // Process the audio, resampling as we go
+        final MediaPacket packet = MediaPacket.make();
+        while (demuxer.read(packet) >= 0) {
+          final MediaAudio output = MediaAudio.make(
+            decoder.getFrameSize(),
+            decoder.getSampleRate(),
+            decoder.getChannels(),
+            decoder.getChannelLayout(),
+            decoder.getSampleFormat());
+          decoder.decodeAudio(output, packet, 0);
+
+          final MediaAudio resampledSamples = MediaAudio.make(output, false);
+          resampler.resample(resampledSamples, output);
+
+          do {
+            encoder.encode(packet, resampledSamples);
+            muxer.write(packet, false);
+          } while (packet.isComplete());
+        }
+
+        // Finish processing
+        do {
+          muxer.write(packet, true);
+        } while (packet.isComplete());
+      }
+
+    } catch (InterruptedException | IOException e) {
+      LOG.error("Unable to open demuxer", e);
+      throw new NexusException(String.format("Unable to open demuxer: %s", inputFile));
+    } finally {
+      if (muxer != null) {
+        muxer.close();
+      }
+      try {
+        demuxer.close();
+      } catch (InterruptedException | IOException e) {
+        LOG.error("Unable to close demuxer", e);
+      }
+    }
+  }
+
+  private static Decoder getAudioStreamDecoder(Demuxer demuxer) throws NexusException {
+    try {
+      int numStreams = demuxer.getNumStreams();
+      for (int i = 0; i < numStreams; i++) {
+        final Decoder decoder = demuxer.getStream(i).getDecoder();
+        if (decoder != null && decoder.getCodecType() == MediaDescriptor.Type.MEDIA_AUDIO) {
+          return decoder;
+        }
+      }
+    } catch (InterruptedException | IOException e) {
+      LOG.error("Unable to get audio stream decoder", e);
+      throw new NexusException("Unable to get audio stream decoder");
+    }
+    throw new NexusException("Unable to find audio stream in file");
   }
 
 }
