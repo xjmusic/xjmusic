@@ -54,7 +54,7 @@ public class StreamEncoderImpl implements StreamEncoder {
 
 /*
 
-  FUTURE: implement all this using https://github.com/kokorin/Jaffree
+  FUTURE: implement all this using humble-video
 
     try {
       ProcessBuilder builder = new ProcessBuilder(List.of(

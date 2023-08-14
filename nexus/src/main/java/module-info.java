@@ -18,7 +18,7 @@ module workstation.nexus.main {
   requires spring.boot;
   requires spring.context;
   requires spring.core;
-  requires com.github.kokorin.jaffree;
+  requires humble.video.all;
   //
   requires workstation.lib.main;
   requires transitive hub.models.main;

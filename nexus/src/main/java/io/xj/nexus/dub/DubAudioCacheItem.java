@@ -1,17 +1,19 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.dub;
 
-import com.github.kokorin.jaffree.LogLevel;
-import com.github.kokorin.jaffree.ffmpeg.FFmpeg;
-import com.github.kokorin.jaffree.ffmpeg.UrlInput;
-import com.github.kokorin.jaffree.ffmpeg.UrlOutput;
-import com.github.kokorin.jaffree.ffprobe.FFprobe;
-import com.github.kokorin.jaffree.ffprobe.Stream;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.nexus.NexusException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
+
+import io.humble.video.Container;
+import io.humble.video.Decoder;
+import io.humble.video.Demuxer;
+import io.humble.video.DemuxerFormat;
+import io.humble.video.DemuxerStream;
+import io.humble.video.Global;
+import io.humble.video.KeyValueBag;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
@@ -135,6 +137,36 @@ public class DubAudioCacheItem {
 
 
   private static int getAudioFrameRate(String inputFile) {
+
+    // Create a MediaReader object
+    final Demuxer demuxer = Demuxer.make();
+    try {
+      demuxer.open(filename, null, false, true, null, null);
+
+      // Find the first audio stream and get its sample rate
+      int numStreams = demuxer.getNumStreams();
+      for (int i = 0; i < numStreams; i++) {
+        final Decoder codec = demuxer.getStream(i).getDecoder();
+        if (codec != null && codec.getCodecType() == MediaDescriptor.Type.MEDIA_AUDIO) {
+          final AudioChannel.Layout layout = codec.getChannelLayout();
+          final int sampleRate = codec.getSampleRate();
+          System.out.println("Sample Rate: " + sampleRate);
+          break;
+        }
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    } finally {
+      if (demuxer != null) {
+        try {
+          demuxer.close();
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+  }
+/*
     return FFprobe.atPath()
       .setShowStreams(true)
       .setInput(inputFile)
@@ -144,6 +176,7 @@ public class DubAudioCacheItem {
       .getStreams()
       .stream().map(Stream::getSampleRate).findFirst()
       .orElse(-1);
+*/
   }
 
   private static void convertAudio(String inputFile, String outputFile, int targetFrameRate) {

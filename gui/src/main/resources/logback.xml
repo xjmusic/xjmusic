@@ -1,6 +1,4 @@
 <configuration>
-  <logger name="com.github.kokorin.jaffree.*" level="WARNING"/>
-
   <!-- Define the custom appender -->
   <appender name="MainWindowLogAppender" class="io.xj.gui.listeners.MainWindowLogAppender">
     <!-- You can configure appender-specific properties here if needed -->
