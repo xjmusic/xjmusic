@@ -37,7 +37,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.Instant;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -102,8 +101,6 @@ public class SegmentRetrospectiveImplTest {
   }
 
   Segment constructSegmentAndChoices(Chain chain, SegmentType type, int offset, int delta, Program macro, ProgramSequenceBinding macroSB, Program main, ProgramSequenceBinding mainSB) throws NexusException {
-    var start = Instant.parse("2017-02-14T12:01:00.000001Z").plusSeconds((long) (SEQUENCE_TOTAL_BEATS * 0.5 * offset));
-    var end = start.plusSeconds((long) (SEQUENCE_TOTAL_BEATS * 0.5));
     var segment = store.put(buildSegment(
       chain,
       type,
@@ -163,7 +160,7 @@ public class SegmentRetrospectiveImplTest {
   }
 
   /**
-   * Failure requiring a chain restart https://www.pivotaltracker.com/story/show/182131722
+   Failure requiring a chain restart https://www.pivotaltracker.com/story/show/182131722
    */
   @Test
   public void failureToReadMainChoiceIsFatal() throws NexusException {
@@ -177,7 +174,7 @@ public class SegmentRetrospectiveImplTest {
   }
 
   /**
-   * Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
+   Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
    */
   @Test
   public void getPreviousMeta() throws NexusException, FabricationFatalException, JsonProcessingException {

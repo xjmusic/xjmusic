@@ -39,12 +39,11 @@ dependencies {
   implementation 'com.typesafe:config:1.4.2'
   implementation 'commons-codec:commons-codec:1.15'
   implementation 'commons-io:commons-io:2.11.0'
-  implementation 'org.bytedeco:javacv-platform:1.5.9'
-  implementation 'org.bytedeco:flandmark-platform:1.07-1.5.8' // Required by org.bytedco.javacv
-  implementation 'org.bytedeco:opencv-platform-gpu:4.7.0-1.5.9' //  Additional dependencies required to use CUDA and cuDNN
-  implementation 'org.bytedeco:ffmpeg-platform-gpl:6.0-1.5.9' // Optional GPL builds with (almost) everything enabled
   implementation 'me.xdrop:fuzzywuzzy:1.4.0'
   implementation 'org.apache.httpcomponents:httpclient:4.5.14'
+  implementation 'org.bytedeco:ffmpeg-platform-gpl:6.0-1.5.9' // Optional GPL builds with (almost) everything enabled
+  implementation 'org.bytedeco:flandmark-platform:1.07-1.5.8' // Required by org.bytedco.javacv
+  implementation 'org.bytedeco:javacv-platform:1.5.9'
   implementation 'org.mp4parser:isoparser:1.9.41'
   implementation 'org.mp4parser:muxer:1.9.41'
   implementation 'org.mp4parser:streaming:1.9.41'
