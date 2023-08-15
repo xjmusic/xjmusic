@@ -31,7 +31,9 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 import static org.bytedeco.ffmpeg.global.avcodec.AV_CODEC_ID_PCM_S16LE;
+import static org.bytedeco.ffmpeg.global.avcodec.AV_CODEC_ID_PCM_S32LE;
 import static org.bytedeco.ffmpeg.global.avutil.AV_SAMPLE_FMT_S16;
+import static org.bytedeco.ffmpeg.global.avutil.AV_SAMPLE_FMT_S32;
 
 @Service
 public class DubAudioCacheImpl implements DubAudioCache {
@@ -158,14 +160,16 @@ public class DubAudioCacheImpl implements DubAudioCache {
       }
 
       try (FFmpegFrameRecorder output = new FFmpegFrameRecorder(outputAudioFilePath, input.getAudioChannels())) {
-        output.setSampleFormat(input.getSampleFormat());
-        output.setAudioCodec(input.getAudioCodec());
+        output.setSampleFormat(AV_SAMPLE_FMT_S32);
+        output.setAudioCodec(AV_CODEC_ID_PCM_S32LE);
         output.setSampleRate(targetSampleRate);
         output.start();
 
         Frame frame;
-        while ((frame = input.grabFrame(true, false, false, false)) != null) {
-          output.record(frame);
+        while ((frame = input.grabFrame(true, false, true, true)) != null) {
+          if (0<frame.samples.length && Objects.nonNull(frame.samples[0])) {
+            output.record(frame);
+          }
         }
 
         output.stop();
