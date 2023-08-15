@@ -1,6 +1,4 @@
 module workstation.lib.main {
-  requires TarsosDSP.core;
-  requires TarsosDSP.jvm;
   requires com.fasterxml.jackson.annotation;
   requires com.fasterxml.jackson.core;
   requires com.fasterxml.jackson.databind;

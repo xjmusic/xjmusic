@@ -25,7 +25,6 @@ ext {
   logbackVersion = '1.4.11'
   springBootVersion = '3.1.2'
   springTestVersion = '6.0.11'
-  tarsosDspVersion = '2.5'
   // private
   xjModelsVersion = '0.5.25'
 }
@@ -72,10 +71,6 @@ subprojects {
     }
     maven {
       url = 'https://oss.sonatype.org/content/repositories/releases'
-    }
-    maven {
-      name = "TarsosDSP repository"
-      url = "https://mvn.0110.be/releases"
     }
     maven {
       name = "GitHubPackages"

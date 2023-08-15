@@ -1,10 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.dub;
 
-import be.tarsos.dsp.AudioDispatcher;
-import be.tarsos.dsp.io.jvm.AudioDispatcherFactory;
-import be.tarsos.dsp.io.jvm.WaveformWriter;
-import be.tarsos.dsp.resample.RateTransposer;
 import io.xj.hub.util.StringUtils;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.http.HttpClientProvider;
@@ -14,6 +10,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.bytedeco.javacv.FFmpegFrameGrabber;
+import org.bytedeco.javacv.FFmpegFrameRecorder;
+import org.bytedeco.javacv.Frame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +22,6 @@ import org.springframework.stereotype.Service;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,6 +29,9 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
+
+import static org.bytedeco.ffmpeg.global.avcodec.AV_CODEC_ID_PCM_S16LE;
+import static org.bytedeco.ffmpeg.global.avutil.AV_SAMPLE_FMT_S16;
 
 @Service
 public class DubAudioCacheImpl implements DubAudioCache {
@@ -130,13 +131,9 @@ public class DubAudioCacheImpl implements DubAudioCache {
    @throws NexusException if unable to get frame rate
    */
   private static int getAudioFrameRate(String inputAudioFilePath) throws NexusException {
-    try (
-      var fileInputStream = FileUtils.openInputStream(new File(inputAudioFilePath));
-      var bufferedInputStream = new BufferedInputStream(fileInputStream);
-      var audioInputStream = AudioSystem.getAudioInputStream(bufferedInputStream)
-    ) {
-      var _audioFormat = audioInputStream.getFormat();
-      return (int) _audioFormat.getFrameRate();
+    try {
+      var audioFormat = AudioSystem.getAudioFileFormat(new File(inputAudioFilePath)).getFormat();
+      return (int) audioFormat.getFrameRate();
 
     } catch (UnsupportedAudioFileException | IOException e) {
       LOG.error("Unable to get audio frame rate from file: {}", inputAudioFilePath, e);
@@ -153,33 +150,35 @@ public class DubAudioCacheImpl implements DubAudioCache {
    @throws NexusException if unable to convert audio
    */
   private static void convertAudio(String inputAudioFilePath, String outputAudioFilePath, int targetSampleRate) throws NexusException {
-    try {
-      AudioFormat sourceFormat = AudioSystem.getAudioFileFormat(new File(inputAudioFilePath)).getFormat();
+    try (FFmpegFrameGrabber input = new FFmpegFrameGrabber(inputAudioFilePath)) {
 
-      float resampleRatio = targetSampleRate / sourceFormat.getSampleRate();
+      input.start();
+      if (input.getAudioChannels() <= 0) {
+        throw new NexusException("No audio channels found in the input file.");
+      }
 
-      var targetFormat = new AudioFormat(
-        AudioFormat.Encoding.PCM_SIGNED,
-        targetSampleRate,
-        sourceFormat.getSampleSizeInBits(),
-        sourceFormat.getChannels(),
-        sourceFormat.getFrameSize(),
-        targetSampleRate,
-        false);
+      try (FFmpegFrameRecorder output = new FFmpegFrameRecorder(outputAudioFilePath, input.getAudioChannels())) {
+        output.setSampleFormat(input.getSampleFormat());
+        output.setAudioCodec(input.getAudioCodec());
+        output.setSampleRate(targetSampleRate);
+        output.start();
 
-      AudioDispatcher dispatcher = AudioDispatcherFactory.fromFile(new File(inputAudioFilePath), 2048, 1024);
-      RateTransposer resampler = new RateTransposer(resampleRatio);
-      WaveformWriter writer = new WaveformWriter(targetFormat, outputAudioFilePath);
+        Frame frame;
+        while ((frame = input.grabFrame(true, false, false, false)) != null) {
+          output.record(frame);
+        }
 
-      dispatcher.addAudioProcessor(resampler);
-      dispatcher.addAudioProcessor(writer);
+        output.stop();
+        input.stop();
+        LOG.info("Did resample audio file {} ({}Hz -> {}Hz)", outputAudioFilePath, input.getSampleRate(), output.getSampleRate());
 
-      dispatcher.run();
-      LOG.info("Did resample audio file {} ({}Hz -> {}Hz)", outputAudioFilePath, sourceFormat.getSampleRate(), targetFormat.getSampleRate());
-
-    } catch (UnsupportedAudioFileException | IOException e) {
-      LOG.error("Unable to get audio frame rate from file: {}", inputAudioFilePath, e);
-      throw new NexusException(String.format("Unable to get audio frame rate from file: %s", inputAudioFilePath), e);
+      } catch (IOException e) {
+        LOG.error("Unable to resample audio file: {}", inputAudioFilePath, e);
+        throw new NexusException(String.format("Unable to resample audio file: %s", inputAudioFilePath));
+      }
+    } catch (IOException e) {
+      LOG.error("Unable to resample audio file: {}", inputAudioFilePath, e);
+      throw new NexusException(String.format("Unable to resample audio file: %s", inputAudioFilePath));
     }
   }
 }
