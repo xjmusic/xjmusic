@@ -2,7 +2,6 @@
 
 plugins {
   id 'java-library'
-  id 'java-test-fixtures'
   //
   id "de.undercouch.download"
   id 'io.spring.dependency-management'
@@ -22,13 +21,10 @@ apply plugin: 'java'
 
 dependencies {
   implementation project(":lib")
-  testFixturesImplementation(project(":lib"))
   testImplementation project(path: ':lib')
-  testImplementation(project(':lib').sourceSets.test.output)
   // private
   implementation "io.xj:models:${rootProject.ext.xjModelsVersion}"
   testImplementation "io.xj:models:${rootProject.ext.xjModelsVersion}"
-  testFixturesImplementation "io.xj:models:${rootProject.ext.xjModelsVersion}"
   // vendor
   implementation "com.fasterxml.jackson.core:jackson-annotations:${rootProject.ext.jacksonAnnotationsVersion}"
   implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:${rootProject.ext.jacksonAnnotationsVersion}"
@@ -48,9 +44,6 @@ dependencies {
   implementation 'org.mp4parser:muxer:1.9.41'
   implementation 'org.mp4parser:streaming:1.9.41'
   implementation 'org.reflections:reflections:0.10.2'
-  testFixturesImplementation "org.jooq:jooq:${rootProject.ext.jooqVersion}"
-  testFixturesImplementation "org.springframework.boot:spring-boot-starter:${rootProject.ext.springBootVersion}"
-  testFixturesImplementation 'com.typesafe:config:1.4.2'
   testImplementation "org.junit.jupiter:junit-jupiter-api:${rootProject.ext.junitVersion}"
   testImplementation 'org.hamcrest:hamcrest-library:2.2'
   testImplementation 'org.mockito:mockito-junit-jupiter'

@@ -29,7 +29,7 @@ import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.SegmentManagerImpl;
 import io.xj.nexus.persistence.Segments;
-import io.xj.test_fixtures.NexusIntegrationTestingFixtures;
+import io.xj.nexus.NexusIntegrationTestingFixtures;
 import org.junit.After;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,10 +42,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplate;
-import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildChain;
-import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChoice;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildTemplate;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(MockitoExtension.class)

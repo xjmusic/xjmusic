@@ -35,12 +35,12 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildAccount;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildLibrary;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplate;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplateBinding;
-import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildChain;
-import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildHubClientAccess;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildAccount;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildLibrary;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildTemplate;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildTemplateBinding;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildHubClientAccess;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;

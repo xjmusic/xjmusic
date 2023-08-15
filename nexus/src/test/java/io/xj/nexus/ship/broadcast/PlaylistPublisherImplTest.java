@@ -16,9 +16,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.IOException;
 
 import static io.xj.hub.util.FileUtils.getResourceFileContent;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildAccount;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplate;
-import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildAccount;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildTemplate;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;

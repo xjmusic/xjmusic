@@ -1,6 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.test_fixtures;
+package io.xj.nexus;
 
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentState;
@@ -60,29 +60,29 @@ import java.util.UUID;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.hub.util.ValueUtils.SECONDS_PER_MINUTE;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.TEST_TEMPLATE_CONFIG;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildAccount;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildAccountUser;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildAudio;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildBinding;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildChord;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildEvent;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildInstrument;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildInstrumentMeme;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildLibrary;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildMeme;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildPattern;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildProgram;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildProgramMeme;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildProgramSequenceBinding;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildProgramSequenceBindingMeme;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildSequence;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplate;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplateBinding;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTrack;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildUser;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildVoice;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildVoicing;
+import static io.xj.nexus.HubIntegrationTestingFixtures.TEST_TEMPLATE_CONFIG;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildAccount;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildAccountUser;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildAudio;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildBinding;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildChord;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildEvent;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildInstrument;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildInstrumentMeme;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildLibrary;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildMeme;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildPattern;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildProgram;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildProgramMeme;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildProgramSequenceBinding;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildProgramSequenceBindingMeme;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildSequence;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildTemplate;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildTemplateBinding;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildTrack;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildUser;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildVoice;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildVoicing;
 
 /**
  * Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673

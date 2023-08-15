@@ -32,7 +32,7 @@ import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.SegmentManagerImpl;
-import io.xj.test_fixtures.NexusIntegrationTestingFixtures;
+import io.xj.nexus.NexusIntegrationTestingFixtures;
 import org.junit.After;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,11 +46,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildAudio;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildInstrument;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildMeme;
-import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildChain;
-import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegment;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildAudio;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildInstrument;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildMeme;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 
 /**
  * Background fabrication composited of layered Patterns https://www.pivotaltracker.com/story/show/166481918

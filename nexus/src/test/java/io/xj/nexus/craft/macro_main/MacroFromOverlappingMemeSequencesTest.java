@@ -41,19 +41,19 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildAccount;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildAccountUser;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildBinding;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildLibrary;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildMeme;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildProgram;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildSequence;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplate;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildTemplateBinding;
-import static io.xj.test_fixtures.HubIntegrationTestingFixtures.buildUser;
-import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildChain;
-import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.test_fixtures.NexusIntegrationTestingFixtures.buildSegmentChoice;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildAccount;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildAccountUser;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildBinding;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildLibrary;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildMeme;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildProgram;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildSequence;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildTemplate;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildTemplateBinding;
+import static io.xj.nexus.HubIntegrationTestingFixtures.buildUser;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
