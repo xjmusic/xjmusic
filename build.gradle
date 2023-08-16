@@ -13,6 +13,7 @@ plugins {
   id 'io.spring.dependency-management' version '1.0.15.RELEASE' apply false
   id 'org.openjfx.javafxplugin' version '0.0.14' apply false
   id 'org.panteleyev.jpackageplugin' version '1.5.2' apply false
+  id 'org.bytedeco.gradle-javacpp-platform' version '1.5.9' apply false
   id 'org.springframework.boot' version '3.1.2' apply false // must match springBootVersion below
 }
 
@@ -51,6 +52,11 @@ allprojects {
 subprojects {
   apply plugin: 'java'
 
+  configurations {
+    implementation.exclude group: "commons-logging", module: "commons-logging"
+    implementation.exclude group: 'com.google.code.findbugs', module: 'jsr305'
+  }
+
   repositories {
     mavenCentral()
     mavenLocal()
@@ -66,10 +72,6 @@ subprojects {
     }
     maven {
       url = 'https://oss.sonatype.org/content/repositories/releases'
-    }
-    maven {
-      name = "TarsosDSP repository"
-      url = "https://mvn.0110.be/releases"
     }
     maven {
       name = "GitHubPackages"

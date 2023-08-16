@@ -1,16 +1,19 @@
 module workstation.nexus.main {
-  requires TarsosDSP.core;
-  requires TarsosDSP.jvm;
   requires com.fasterxml.jackson.annotation;
   requires com.fasterxml.jackson.core;
   requires com.fasterxml.jackson.databind;
   requires jakarta.annotation;
   requires java.desktop;
+  requires javafx.graphics;
   requires me.xdrop.fuzzywuzzy;
   requires org.apache.commons.codec;
   requires org.apache.commons.io;
   requires org.apache.httpcomponents.httpclient;
   requires org.apache.httpcomponents.httpcore;
+  requires org.bytedeco.flandmark.platform;
+  requires org.bytedeco.flandmark;
+  requires org.bytedeco.javacv.platform;
+  requires org.bytedeco.javacv;
   requires org.jooq;
   requires org.slf4j;
   requires spring.beans;
@@ -18,10 +21,10 @@ module workstation.nexus.main {
   requires spring.boot;
   requires spring.context;
   requires spring.core;
-  requires com.github.kokorin.jaffree;
   //
   requires workstation.lib.main;
   requires transitive hub.models.main;
+  requires org.bytedeco.ffmpeg;
 
   opens io.xj.nexus to spring.core;
   opens io.xj.nexus.craft to spring.beans;

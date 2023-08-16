@@ -1,6 +1,6 @@
 package io.xj.gui.controllers;
 
-import io.xj.gui.listeners.MainWindowLogAppender;
+import io.xj.gui.WorkstationLogAppender;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.FabricationStatus;
 import io.xj.nexus.InputMode;
@@ -75,7 +75,7 @@ public class MainWindowController {
     this.defaultOutputFileMode = OutputFileMode.valueOf(defaultOutputFileMode.toUpperCase(Locale.ROOT));
 
     // bind to the log appender
-    MainWindowLogAppender.LISTENER.set(this::appendLogLine);
+    WorkstationLogAppender.LISTENER.set(this::appendLogLine);
   }
 
   @FXML

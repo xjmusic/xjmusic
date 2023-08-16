@@ -1,6 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.test_fixtures;
+package io.xj.nexus;
 
 import io.xj.hub.enums.ContentBindingType;
 import io.xj.hub.enums.InstrumentMode;

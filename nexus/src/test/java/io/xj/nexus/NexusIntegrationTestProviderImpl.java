@@ -1,9 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
-package io.xj.test_fixtures;
+package io.xj.nexus;
 
 import io.xj.lib.entity.EntityFactory;
-import io.xj.nexus.NexusException;
-import io.xj.nexus.NexusTopology;
 import io.xj.nexus.persistence.NexusEntityStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

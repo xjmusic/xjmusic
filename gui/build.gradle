@@ -8,6 +8,7 @@ plugins {
   id 'org.beryx.jlink'
   id 'org.openjfx.javafxplugin'
   id 'org.springframework.boot'
+  id 'org.bytedeco.gradle-javacpp-platform'
 }
 
 javafx {
@@ -36,16 +37,10 @@ jlink {
   }
 }
 
-configurations {
-  implementation.exclude group: "commons-logging", module: "commons-logging"
-  implementation.exclude group: 'com.google.code.findbugs', module: 'jsr305'
-}
-
 dependencies {
   // peers
   implementation project(":lib")
   implementation project(":nexus")
-  testImplementation(testFixtures(project(":nexus")))
   // private
   implementation "io.xj:models:${rootProject.ext.xjModelsVersion}"
   // vendor
@@ -87,8 +82,4 @@ bootJar {
 
 test {
   useJUnitPlatform()
-}
-
-repositories {
-  mavenCentral()
 }

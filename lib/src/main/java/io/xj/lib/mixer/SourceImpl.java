@@ -76,7 +76,7 @@ class SourceImpl implements Source {
         absolutePath, audioId, _audioFormat, _channels, _frameRate, _frameLength, _lengthSeconds, _lengthMicros, _microsPerFrame);
 
     } catch (UnsupportedAudioFileException | IOException | ValueException e) {
-      LOG.error("Failed to load source for Audio[{}] \"{}\" because {}", audioId, description, e.getMessage());
+      LOG.error("Failed to load source for Audio[{}] \"{}\" from {} because {}", audioId, description, absolutePath, e.getMessage(), e);
       notification.publish("Chain Mix Source Failure", String.format("Failed to load source for Audio[%s] \"%s\" because %s", audioId, description, e.getMessage()));
       _audioFormat = null;
       _channels = 0;

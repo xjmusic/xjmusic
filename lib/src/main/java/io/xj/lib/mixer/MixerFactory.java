@@ -60,7 +60,6 @@ public interface MixerFactory {
    * @param audioId      by which to reference source
    * @param absolutePath from which to read audio file
    * @param description  in case of failure logs
-   * @param frameRate    to conform all audio
    * @return Source
    * @throws SourceException if something is wrong with the source audio
    * @throws FormatException on failure interpret format
@@ -69,7 +68,6 @@ public interface MixerFactory {
   Source createSource(
     UUID audioId,
     String absolutePath,
-    String description,
-    float frameRate
+    String description
   ) throws SourceException, FormatException, IOException;
 }
