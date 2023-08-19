@@ -1,5 +1,6 @@
 package io.xj.gui;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 
@@ -10,15 +11,15 @@ public class WorkstationLogAppender extends AppenderBase<ILoggingEvent> {
   public static final AtomicReference<LogListener> LISTENER = new AtomicReference<>();
 
   public interface LogListener {
-    void onLog(String message);
+    void onLog(Level level, String context, String message);
   }
 
   @Override
   protected void append(ILoggingEvent eventObject) {
     var message = formatMessage(eventObject);
-    System.out.println(message);
+    System.out.println("[" + eventObject.getLevel() + "] " + message);
     if (LISTENER.get() != null) {
-      LISTENER.get().onLog(message);
+      LISTENER.get().onLog(eventObject.getLevel(), eventObject.getLoggerName(), message);
     }
   }
 

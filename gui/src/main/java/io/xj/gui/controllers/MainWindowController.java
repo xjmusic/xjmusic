@@ -1,6 +1,5 @@
 package io.xj.gui.controllers;
 
-import io.xj.gui.WorkstationLogAppender;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.FabricationStatus;
 import io.xj.nexus.InputMode;
@@ -9,16 +8,11 @@ import io.xj.nexus.OutputMode;
 import io.xj.nexus.work.WorkConfiguration;
 import jakarta.annotation.Nullable;
 import javafx.application.HostServices;
-import javafx.application.Platform;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckMenuItem;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.layout.Pane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,11 +22,12 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.Locale;
-import java.util.Objects;
 
 @Service
 public class MainWindowController {
   Logger LOG = LoggerFactory.getLogger(MainWindowController.class);
+  private final static String LIGHT_THEME_STYLE_PATH = "styles/light-theme.css";
+  private final static String DARK_THEME_STYLE_PATH = "styles/dark-theme.css";
   private FabricationStatus status;
   private final HostServices hostServices;
   private final ConfigurableApplicationContext ac;
@@ -52,8 +47,6 @@ public class MainWindowController {
   public MainWindowController(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
     @Value("${gui.launch.guide.url}") String launchGuideUrl,
-    @Value("${gui.theme.dark}") String darkTheme,
-    @Value("${gui.theme.light}") String lightTheme,
     @Value("${input.mode}") String defaultInputMode,
     @Value("${output.file.mode}") String defaultOutputFileMode,
     @Value("${output.mode}") String defaultOutputMode,
@@ -66,16 +59,13 @@ public class MainWindowController {
     this.hostServices = hostServices;
     this.ac = ac;
     this.launchGuideUrl = launchGuideUrl;
-    this.lightTheme = lightTheme;
-    this.darkTheme = darkTheme;
+    this.lightTheme = LIGHT_THEME_STYLE_PATH;
+    this.darkTheme = DARK_THEME_STYLE_PATH;
     this.defaultOutputSeconds = defaultOutputSeconds;
     this.defaultOutputPathPrefix = System.getProperty("user.home") + File.separator;
     this.defaultInputMode = InputMode.valueOf(defaultInputMode.toUpperCase(Locale.ROOT));
     this.defaultOutputMode = OutputMode.valueOf(defaultOutputMode.toUpperCase(Locale.ROOT));
     this.defaultOutputFileMode = OutputFileMode.valueOf(defaultOutputFileMode.toUpperCase(Locale.ROOT));
-
-    // bind to the log appender
-    WorkstationLogAppender.LISTENER.set(this::appendLogLine);
   }
 
   @FXML
@@ -93,9 +83,9 @@ public class MainWindowController {
   @FXML
   protected ChoiceBox<OutputFileMode> choiceOutputFileMode;
   @FXML
-  protected TextArea textAreaLogs;
-  @FXML
   protected Button buttonAction;
+  @FXML
+  protected Pane bottomPane;
 
   @FXML
   private void toggleDarkTheme() {
@@ -149,15 +139,6 @@ public class MainWindowController {
     fabricationService.reset();
   }
 
-  public void appendLogLine(String line) {
-    if (Objects.nonNull(line) && Objects.nonNull(textAreaLogs))
-      try {
-        Platform.runLater(() -> textAreaLogs.appendText(line + "\n"));
-      } catch (Exception e) {
-        // no op
-      }
-  }
-
   @FXML
   protected Label labelStatus;
 
@@ -186,6 +167,9 @@ public class MainWindowController {
     choiceInputMode.setValue(defaultInputMode);
     choiceOutputMode.setValue(defaultOutputMode);
     choiceOutputFileMode.setValue(defaultOutputFileMode);
+    // Log View Pane
+    LogViewController logViewController = new LogViewController();
+    bottomPane.getChildren().add(logViewController.getLogView());
   }
 
   public void onStatusUpdate(FabricationStatus status) {

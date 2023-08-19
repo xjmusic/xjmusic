@@ -3,3 +3,28 @@
 .root {
   -fx-base: #c0c0c0;
 }
+
+.root {
+  -fx-padding: 10px;
+}
+
+.log-view .list-cell {
+  -fx-background-color: null;
+/ / removes alternating list gray cells .
+}
+
+.log-view .list-cell.debug {
+  -fx-text-fill: gray;
+}
+
+.log-view .list-cell.info {
+  -fx-text-fill: green;
+}
+
+.log-view .list-cell.warn {
+  -fx-text-fill: purple;
+}
+
+.log-view .list-cell.error {
+  -fx-text-fill: red;
+}

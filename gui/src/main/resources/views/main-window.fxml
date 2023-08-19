@@ -40,7 +40,7 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
@@ -48,7 +48,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane xmlns="http://javafx.com/javafx/18.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.MainWindowController">
+<BorderPane prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.MainWindowController">
    <top>
       <VBox prefHeight="386.0" prefWidth="640.0" BorderPane.alignment="CENTER">
         <children>
@@ -56,6 +56,8 @@
             <menus>
               <Menu mnemonicParsing="false" text="Workstation">
                 <items>
+                        <MenuItem mnemonicParsing="false" onAction="#onQuit" text="Connect to Lab" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem mnemonicParsing="false" onAction="#onQuit" text="Exit" />
                 </items>
               </Menu>
@@ -175,6 +177,6 @@
       </VBox>
    </top>
    <bottom>
-      <TextArea fx:id="textAreaLogs" prefHeight="285.0" prefWidth="640.0" BorderPane.alignment="CENTER" />
+      <Pane fx:id="bottomPane" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
    </bottom>
 </BorderPane>
