@@ -74,7 +74,7 @@ workstation. [(Download PDF)](art/XJLabStreamingSegmentsArchitecture.pdf)
 
 ## Dependencies
 
-* Java 18
+* Java 17
 * Gradle 8
 
 ## Chain Work
