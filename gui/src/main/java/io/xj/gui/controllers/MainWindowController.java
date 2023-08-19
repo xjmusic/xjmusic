@@ -148,6 +148,12 @@ public class MainWindowController {
     hostServices.showDocument(launchGuideUrl);
   }
 
+  @FXML
+  protected void onConnectToLab() {
+    LOG.info("Will connect to lab");
+    // TODO open connection to lab modal
+  }
+
   public @Nullable Scene getMainWindowScene() {
     return mainWindowScene;
   }
@@ -170,6 +176,7 @@ public class MainWindowController {
     // Log View Pane
     LogViewController logViewController = new LogViewController();
     bottomPane.getChildren().add(logViewController.getLogView());
+    bottomPane.getStyleClass().add("log-view");
   }
 
   public void onStatusUpdate(FabricationStatus status) {

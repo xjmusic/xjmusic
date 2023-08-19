@@ -56,7 +56,7 @@
             <menus>
               <Menu mnemonicParsing="false" text="Workstation">
                 <items>
-                        <MenuItem mnemonicParsing="false" onAction="#onQuit" text="Connect to Lab" />
+                        <MenuItem mnemonicParsing="false" onAction="#onConnectToLab" text="Connect to Lab" />
                         <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem mnemonicParsing="false" onAction="#onQuit" text="Exit" />
                 </items>
@@ -177,6 +177,6 @@
       </VBox>
    </top>
    <bottom>
-      <Pane fx:id="bottomPane" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+      <Pane fx:id="bottomPane" prefHeight="376.0" prefWidth="1024.0" style="-fx-background-color: #909090;" BorderPane.alignment="CENTER" />
    </bottom>
 </BorderPane>

@@ -2,14 +2,15 @@ package io.xj.gui.controllers;
 
 import ch.qos.logback.classic.Level;
 import io.xj.gui.WorkstationLogAppender;
-import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.beans.property.*;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
 import javafx.css.PseudoClass;
 import javafx.scene.Node;
 import javafx.scene.control.ListCell;
@@ -17,8 +18,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -29,8 +28,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 @Service
 public class LogViewController extends ListView<LogViewController.LogRecord> {
   private final Log log;
-  Logger LOG = LoggerFactory.getLogger(LogViewController.class);
-
   private final ObservableList<LogRecord> logItems = FXCollections.observableArrayList();
 
   private final Node logView;
@@ -41,14 +38,8 @@ public class LogViewController extends ListView<LogViewController.LogRecord> {
   private final static PseudoClass warn = PseudoClass.getPseudoClass("warn");
   private final static PseudoClass error = PseudoClass.getPseudoClass("error");
   private final BooleanProperty showTimestamp = new SimpleBooleanProperty(false);
-  private final ObjectProperty<Level> filterLevel = new SimpleObjectProperty<>(null);
   private final BooleanProperty tail = new SimpleBooleanProperty(false);
-  private final BooleanProperty paused = new SimpleBooleanProperty(false);
-  private final DoubleProperty refreshRate = new SimpleDoubleProperty(60);
-
-  public BooleanProperty pausedProperty() {
-    return paused;
-  }
+  private final DoubleProperty refreshRate = new SimpleDoubleProperty(1);
 
   public DoubleProperty refreshRateProperty() {
     return refreshRate;
@@ -85,35 +76,7 @@ public class LogViewController extends ListView<LogViewController.LogRecord> {
     logTransfer.setCycleCount(Timeline.INDEFINITE);
     logTransfer.rateProperty().bind(refreshRateProperty());
 
-    this.pausedProperty().addListener((observable, oldValue, newValue) -> {
-      if (newValue && logTransfer.getStatus() == Animation.Status.RUNNING) {
-        logTransfer.pause();
-      }
-
-      if (!newValue && logTransfer.getStatus() == Animation.Status.PAUSED && getParent() != null) {
-        logTransfer.play();
-      }
-    });
-
-    this.parentProperty().addListener((observable, oldValue, newValue) -> {
-      if (newValue == null) {
-        logTransfer.pause();
-      } else {
-        if (!paused.get()) {
-          logTransfer.play();
-        }
-      }
-    });
-
-    filterLevel.addListener((observable, oldValue, newValue) -> setItems(
-      new FilteredList<>(
-        logItems,
-        logRecord ->
-          logRecord.getLevel().toInt() >=
-            filterLevel.get().toInt()
-      )
-    ));
-    filterLevel.set(Level.ALL);
+    logTransfer.play();
 
     setCellFactory(param -> new ListCell<>() {
       {
@@ -134,12 +97,9 @@ public class LogViewController extends ListView<LogViewController.LogRecord> {
           return;
         }
 
-        String context =
-          (item.getContext() == null)
-            ? ""
-            : item.getContext() + " ";
+        setText((Objects.nonNull(item.context()) ? item.context() : "") + " " + item.message());
 
-        switch (item.getLevel().toInt()) {
+        switch (item.level().toInt()) {
           case Level.DEBUG_INT, Level.TRACE_INT, Level.ALL_INT -> pseudoClassStateChanged(debug, true);
           case Level.INFO_INT -> pseudoClassStateChanged(info, true);
           case Level.WARN_INT -> pseudoClassStateChanged(warn, true);
@@ -148,7 +108,6 @@ public class LogViewController extends ListView<LogViewController.LogRecord> {
       }
     });
   }
-
 
   public Node getLogView() {
     return logView;
@@ -162,7 +121,6 @@ public class LogViewController extends ListView<LogViewController.LogRecord> {
         // no op
       }
   }
-
 
   static class Log {
     private static final int MAX_LOG_ENTRIES = 1_000_000;
@@ -178,28 +136,6 @@ public class LogViewController extends ListView<LogViewController.LogRecord> {
     }
   }
 
-
-  static class LogRecord {
-    private final Level level;
-    private final String context;
-    private final String message;
-
-    public LogRecord(Level level, String context, String message) {
-      this.level = level;
-      this.context = context;
-      this.message = message;
-    }
-
-    public Level getLevel() {
-      return level;
-    }
-
-    public String getContext() {
-      return context;
-    }
-
-    public String getMessage() {
-      return message;
-    }
+  record LogRecord(Level level, String context, String message) {
   }
 }
