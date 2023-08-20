@@ -45,7 +45,7 @@ public class MainWindowController {
   private Scene mainWindowScene;
 
   @FXML
-  private LogViewerController logViewer;
+  private ListView<?> logViewer;
 
   public MainWindowController(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,

@@ -32,8 +32,7 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.ListView?>
 
 
-<VBox prefHeight="368.0" prefWidth="1024.0" styleClass="log-viewer" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.LogViewerController">
-</VBox>
+<ListView prefHeight="368.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.LogViewerController" />

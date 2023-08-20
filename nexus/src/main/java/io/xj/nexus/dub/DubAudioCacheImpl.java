@@ -174,7 +174,7 @@ public class DubAudioCacheImpl implements DubAudioCache {
 
         output.stop();
         input.stop();
-        LOG.info("Did resample audio file {} ({}Hz -> {}Hz)", outputAudioFilePath, input.getSampleRate(), output.getSampleRate());
+        LOG.info("Did resample audio file {} to {}Hz", outputAudioFilePath, output.getSampleRate());
 
       } catch (IOException e) {
         LOG.error("Unable to resample audio file: {}", inputAudioFilePath, e);
