@@ -12,11 +12,8 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.css.PseudoClass;
-import javafx.scene.Node;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import org.springframework.stereotype.Service;
 
@@ -26,11 +23,10 @@ import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 
 @Service
-public class LogViewController extends ListView<LogViewController.LogRecord> {
+public class LogViewerController extends ListView<LogViewerController.LogRecord> {
   private final Log log;
   private final ObservableList<LogRecord> logItems = FXCollections.observableArrayList();
 
-  private final Node logView;
 
   private static final int MAX_ENTRIES = 10_000;
   private final static PseudoClass debug = PseudoClass.getPseudoClass("debug");
@@ -46,16 +42,12 @@ public class LogViewController extends ListView<LogViewController.LogRecord> {
   }
 
 
-  public LogViewController(
+  public LogViewerController(
   ) {
-    logView = new VBox();
-    VBox.setVgrow(logView, Priority.ALWAYS);
     log = new Log();
 
     // bind to the log appender
     WorkstationLogAppender.LISTENER.set(this::appendLogLine);
-
-    logView.getStyleClass().add("log-view");
 
     Timeline logTransfer = new Timeline(
       new KeyFrame(
@@ -107,10 +99,6 @@ public class LogViewController extends ListView<LogViewController.LogRecord> {
         }
       }
     });
-  }
-
-  public Node getLogView() {
-    return logView;
   }
 
   public void appendLogLine(Level level, String context, String line) {

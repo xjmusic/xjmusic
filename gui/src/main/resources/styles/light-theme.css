@@ -4,26 +4,26 @@
   -fx-base: #c0c0c0;
 }
 
-.log-view .list-cell {
+.log-viewer .list-cell {
   -fx-background-color: null;
 }
 
-.log-view .list-cell.debug {
+.log-viewer .list-cell.debug {
   -fx-text-fill: gray;
 }
 
-.log-view .list-cell.info {
+.log-viewer .list-cell.info {
   -fx-text-fill: green;
 }
 
-.log-view .list-cell.warn {
+.log-viewer .list-cell.warn {
   -fx-text-fill: purple;
 }
 
-.log-view .list-cell.error {
+.log-viewer .list-cell.error {
   -fx-text-fill: red;
 }
 
-.log-view {
+.log-viewer {
   -fx-background-color: #404040;
 }

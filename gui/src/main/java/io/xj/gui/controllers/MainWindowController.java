@@ -44,6 +44,9 @@ public class MainWindowController {
   @Nullable
   private Scene mainWindowScene;
 
+  @FXML
+  private LogViewerController logViewer;
+
   public MainWindowController(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
     @Value("${gui.launch.guide.url}") String launchGuideUrl,
@@ -173,10 +176,6 @@ public class MainWindowController {
     choiceInputMode.setValue(defaultInputMode);
     choiceOutputMode.setValue(defaultOutputMode);
     choiceOutputFileMode.setValue(defaultOutputFileMode);
-    // Log View Pane
-    LogViewController logViewController = new LogViewController();
-    bottomPane.getChildren().add(logViewController.getLogView());
-    bottomPane.getStyleClass().add("log-view");
   }
 
   public void onStatusUpdate(FabricationStatus status) {
