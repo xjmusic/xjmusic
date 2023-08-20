@@ -20,7 +20,7 @@ XJ music pioneers the evolution of background audio with our innovative music en
 
 ### Private Gradle (Maven) Package Repository
 
-In order to access the private package we publish to [GitHub Packages](https://github.com/xjmusic/hub/packages/1917788) at  you must authenticate with GitHub. To do so, you
+In order to access the private `io.xj.models` package we publish to [github.com/xjmusic/hub](https://github.com/xjmusic/hub/packages/1917815), you must authenticate with GitHub using an account with read access to the **xjmusic/hub** repository. To do so, you
 will need to create a personal access token with the `read:packages` scope. See the [GitHub documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry#authenticating-to-github-packages)
 
 Once you have created a personal access token, you can authenticate with the GitHub Packages registry by adding the
@@ -87,6 +87,12 @@ the [XJ music User Guide](https://docs.google.com/document/d/1Jp1DT7jJ3Xn1pR5495
   from an Instrument," then:
   - DESCRIBE LIKE THIS: "I clicked the button labeled 'Turn;' I expected the Earth to turn; actually, it stood still."
   - NOT LIKE THIS: "I click the button and nothing happened."
+* Commits reference issues by id #.
+* Time is tracked against issues by id #.
+* Branches are named according to `git-flow` including issue id #, e.g.:
+  - Features are `feature/123-do-new-thing`
+  - Bug Fixes are `bugfix/4567-should-do-this`
+  - Hot Fixes are `hotfix/890-should-do-that`
 * `TODO` comments are used only in working branches. Upon completion of branch shipWork, any remaining `TODO` should be
   a new tracker issue.
 
