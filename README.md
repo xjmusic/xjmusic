@@ -87,12 +87,6 @@ the [XJ music User Guide](https://docs.google.com/document/d/1Jp1DT7jJ3Xn1pR5495
   from an Instrument," then:
   - DESCRIBE LIKE THIS: "I clicked the button labeled 'Turn;' I expected the Earth to turn; actually, it stood still."
   - NOT LIKE THIS: "I click the button and nothing happened."
-* Commits reference issues by id #.
-* Time is tracked against issues by id #.
-* Branches are named according to `git-flow` including issue id #, e.g.:
-  - Features are `feature/123-do-new-thing`
-  - Bug Fixes are `bugfix/4567-should-do-this`
-  - Hot Fixes are `hotfix/890-should-do-that`
 * `TODO` comments are used only in working branches. Upon completion of branch shipWork, any remaining `TODO` should be
   a new tracker issue.
 
