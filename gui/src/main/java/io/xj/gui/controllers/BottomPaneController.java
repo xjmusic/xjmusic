@@ -33,33 +33,8 @@ public class BottomPaneController extends VBox implements ReadyAfterBootControll
   private final static PseudoClass info = PseudoClass.getPseudoClass("info");
   private final static PseudoClass warn = PseudoClass.getPseudoClass("warn");
   private final static PseudoClass error = PseudoClass.getPseudoClass("error");
-  private final BooleanProperty showTimestamp = new SimpleBooleanProperty(false);
   private final BooleanProperty tail = new SimpleBooleanProperty(false);
   private final DoubleProperty refreshRate = new SimpleDoubleProperty(1);
-
-  public DoubleProperty refreshRateProperty() {
-    return refreshRate;
-  }
-
-  @FXML
-  protected ListView<BottomPaneController.LogRecord> logListView;
-
-  public BottomPaneController(
-  ) {
-    log = new Log();
-
-    // bind to the log appender
-    WorkstationLogAppender.LISTENER.set(this::appendLogLine);
-  }
-
-  public void appendLogLine(Level level, String context, String line) {
-    if (Objects.nonNull(line))
-      try {
-        Platform.runLater(() -> log.offer(new LogRecord(level, context, line)));
-      } catch (Exception e) {
-        // no op
-      }
-  }
 
   @Override
   public void onStageReady() {
@@ -81,14 +56,9 @@ public class BottomPaneController extends VBox implements ReadyAfterBootControll
     );
     logTransfer.setCycleCount(Timeline.INDEFINITE);
     logTransfer.rateProperty().bind(refreshRateProperty());
-
     logTransfer.play();
 
     logListView.setCellFactory(param -> new ListCell<>() {
-      {
-        showTimestamp.addListener(observable -> updateItem(this.getItem(), this.isEmpty()));
-      }
-
       @Override
       protected void updateItem(LogRecord item, boolean empty) {
         super.updateItem(item, empty);
@@ -113,6 +83,31 @@ public class BottomPaneController extends VBox implements ReadyAfterBootControll
         }
       }
     });
+    logListView.setItems(logItems);
+  }
+
+  public DoubleProperty refreshRateProperty() {
+    return refreshRate;
+  }
+
+  @FXML
+  protected ListView<BottomPaneController.LogRecord> logListView;
+
+  public BottomPaneController(
+  ) {
+    log = new Log();
+
+    // bind to the log appender
+    WorkstationLogAppender.LISTENER.set(this::appendLogLine);
+  }
+
+  public void appendLogLine(Level level, String context, String line) {
+    if (Objects.nonNull(line))
+      try {
+        Platform.runLater(() -> log.offer(new LogRecord(level, context, line)));
+      } catch (Exception e) {
+        // no op
+      }
   }
 
   static class Log {
