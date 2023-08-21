@@ -33,6 +33,11 @@
 -->
 
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="io.xj.gui.controllers.BottomPaneController">
+  <HBox/>
+  <ListView prefHeight="368.0" prefWidth="1024.0" fx:id="logListView"/>
+</VBox>
 
-
-<ListView prefHeight="368.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.LogViewerController" />

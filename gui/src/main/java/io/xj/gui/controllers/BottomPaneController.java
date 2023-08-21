@@ -12,8 +12,10 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.css.PseudoClass;
+import javafx.fxml.FXML;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import org.springframework.stereotype.Service;
 
@@ -23,11 +25,9 @@ import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 
 @Service
-public class LogViewerController extends ListView<LogViewerController.LogRecord> {
+public class BottomPaneController extends VBox implements ReadyAfterBootController {
   private final Log log;
   private final ObservableList<LogRecord> logItems = FXCollections.observableArrayList();
-
-
   private static final int MAX_ENTRIES = 10_000;
   private final static PseudoClass debug = PseudoClass.getPseudoClass("debug");
   private final static PseudoClass info = PseudoClass.getPseudoClass("info");
@@ -41,14 +41,28 @@ public class LogViewerController extends ListView<LogViewerController.LogRecord>
     return refreshRate;
   }
 
+  @FXML
+  protected ListView<BottomPaneController.LogRecord> logListView;
 
-  public LogViewerController(
+  public BottomPaneController(
   ) {
     log = new Log();
 
     // bind to the log appender
     WorkstationLogAppender.LISTENER.set(this::appendLogLine);
+  }
 
+  public void appendLogLine(Level level, String context, String line) {
+    if (Objects.nonNull(line))
+      try {
+        Platform.runLater(() -> log.offer(new LogRecord(level, context, line)));
+      } catch (Exception e) {
+        // no op
+      }
+  }
+
+  @Override
+  public void onStageReady() {
     Timeline logTransfer = new Timeline(
       new KeyFrame(
         Duration.seconds(1),
@@ -60,7 +74,7 @@ public class LogViewerController extends ListView<LogViewerController.LogRecord>
           }
 
           if (tail.get()) {
-            scrollTo(logItems.size());
+            logListView.scrollTo(logItems.size());
           }
         }
       )
@@ -70,7 +84,7 @@ public class LogViewerController extends ListView<LogViewerController.LogRecord>
 
     logTransfer.play();
 
-    setCellFactory(param -> new ListCell<>() {
+    logListView.setCellFactory(param -> new ListCell<>() {
       {
         showTimestamp.addListener(observable -> updateItem(this.getItem(), this.isEmpty()));
       }
@@ -99,15 +113,6 @@ public class LogViewerController extends ListView<LogViewerController.LogRecord>
         }
       }
     });
-  }
-
-  public void appendLogLine(Level level, String context, String line) {
-    if (Objects.nonNull(line))
-      try {
-        Platform.runLater(() -> log.offer(new LogRecord(level, context, line)));
-      } catch (Exception e) {
-        // no op
-      }
   }
 
   static class Log {

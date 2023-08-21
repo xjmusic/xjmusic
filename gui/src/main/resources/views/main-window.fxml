@@ -153,6 +153,6 @@
     </VBox>
   </top>
   <bottom>
-    <fx:include fx:id="logViewer" source="./log-viewer.fxml" />
+    <fx:include fx:id="bottomPane" source="bottom-pane.fxml" />
   </bottom>
 </BorderPane>
