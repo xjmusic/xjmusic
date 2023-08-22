@@ -1,5 +1,6 @@
 package io.xj.gui.listeners;
 
+import io.xj.gui.services.WorkstationIconService;
 import io.xj.gui.controllers.MainWindowController;
 import io.xj.gui.events.StageReadyEvent;
 import javafx.fxml.FXMLLoader;
@@ -13,34 +14,26 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
-import java.awt.*;
-import java.awt.Taskbar.Feature;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.List;
 
 @Component
 public class MainWindowStageReadyListener implements ApplicationListener<StageReadyEvent> {
   static final Logger LOG = LoggerFactory.getLogger(MainWindowStageReadyListener.class);
-  private static final String PATH_TO_ICON_ICNS = "/icons/icon.icns";
-  private static final String PATH_TO_ICON_ICO = "/icons/icon.ico";
-  private static final String PATH_TO_ICON_PNG = "/icons/icon.png";
-  private static final String PATH_TO_ICON_SVG = "/icons/icon.svg";
-  private final String applicationTitle;
   private final Resource mainWindowFxml;
   private final MainWindowController mainWindowController;
+  private final WorkstationIconService workstationIconService;
   private final ApplicationContext ac;
 
   public MainWindowStageReadyListener(
-    @Value("${application.ui.title}") String applicationTitle,
     @Value("classpath:/views/main-window.fxml") Resource mainWindowFxml,
     MainWindowController mainWindowController,
-    ApplicationContext ac
+    WorkstationIconService workstationIconService, ApplicationContext ac
   ) {
-    this.applicationTitle = applicationTitle;
     this.mainWindowFxml = mainWindowFxml;
     this.mainWindowController = mainWindowController;
+    this.workstationIconService = workstationIconService;
     this.ac = ac;
   }
 
@@ -51,24 +44,10 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
       FXMLLoader mainWindowFxmlLoader = new FXMLLoader(mainWindowFxml.getURL());
       mainWindowFxmlLoader.setControllerFactory(ac::getBean);
       mainWindowController.setMainWindowScene(new Scene(mainWindowFxmlLoader.load()));
-      primaryStage.getIcons().addAll(List.of(
-        new Image(PATH_TO_ICON_ICNS),
-        new Image(PATH_TO_ICON_ICO),
-        new Image(PATH_TO_ICON_PNG),
-        new Image(PATH_TO_ICON_SVG)
-      ));
-      if (Taskbar.isTaskbarSupported()) {
-        var taskbar = Taskbar.getTaskbar();
-
-        if (taskbar.isSupported(Feature.ICON_IMAGE)) {
-          final Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
-          var dockIcon = defaultToolkit.getImage(getClass().getResource(PATH_TO_ICON_PNG));
-          taskbar.setIconImage(dockIcon);
-        }
-      }
-
-      primaryStage.setTitle(applicationTitle);
       primaryStage.setScene(mainWindowController.getMainWindowScene());
+      workstationIconService.setup(primaryStage, null);
+      workstationIconService.setupTaskbar();
+
       mainWindowController.onStageReady();
       primaryStage.show();
 

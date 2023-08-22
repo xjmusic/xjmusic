@@ -47,8 +47,8 @@
     <!-- Show Logs Toggle Switch -->
     <ToggleButton fx:id="toggleShowLogs" onAction="#toggleShowLogs" text="Show Logs" />
 
-    <!-- Tail Logs Toggle Switch -->
-    <ToggleButton fx:id="toggleTailLogs" onAction="#toggleTailLogs" text="Tail Logs" />
+    <!-- Logs Auto-Scroll Toggle Switch -->
+    <ToggleButton fx:id="toggleTailLogs" onAction="#toggleTailLogs" text="Logs Auto-Scroll" />
       <opaqueInsets>
          <Insets />
       </opaqueInsets>

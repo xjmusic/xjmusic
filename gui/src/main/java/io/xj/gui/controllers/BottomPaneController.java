@@ -146,10 +146,12 @@ public class BottomPaneController extends VBox implements ReadyAfterBootControll
   private void updateLogsVisibility() {
     if (logsVisible.get()) {
       logListView.setVisible(true);
+      toggleTailLogs.setDisable(false);
       logListView.setMinHeight(LOG_LIST_VIEW_HEIGHT);
       logListView.setPrefHeight(LOG_LIST_VIEW_HEIGHT);
       logListView.setMaxHeight(LOG_LIST_VIEW_HEIGHT);
     } else {
+      toggleTailLogs.setDisable(true);
       logListView.setVisible(false);
       logListView.setMinHeight(0);
       logListView.setPrefHeight(0);

@@ -2,33 +2,32 @@ package io.xj.gui.controllers;
 
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.FabricationStatus;
-import io.xj.nexus.InputMode;
-import io.xj.nexus.OutputFileMode;
-import io.xj.nexus.OutputMode;
-import io.xj.nexus.work.WorkConfiguration;
+import io.xj.gui.services.WorkstationIconService;
 import jakarta.annotation.Nullable;
 import javafx.application.HostServices;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckMenuItem;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.util.Locale;
+import java.io.IOException;
 import java.util.Objects;
 
 @Service
 public class MainWindowController implements ReadyAfterBootController {
+  private static final String CONNECT_TO_LAB_WINDOW_NAME = "Connect to Lab";
   Logger LOG = LoggerFactory.getLogger(MainWindowController.class);
   private final static String LIGHT_THEME_STYLE_PATH = "styles/default-theme.css";
   private final static String DARK_THEME_STYLE_PATH = "styles/dark-theme.css";
@@ -40,13 +39,11 @@ public class MainWindowController implements ReadyAfterBootController {
   private final FabricationService fabricationService;
   private final BottomPaneController bottomPaneController;
   private final String launchGuideUrl;
-  private final String lightTheme;
+  private final String defaultTheme;
   private final String darkTheme;
-  private final String defaultOutputPathPrefix;
-  private final InputMode defaultInputMode;
-  private final OutputMode defaultOutputMode;
-  private final OutputFileMode defaultOutputFileMode;
-  private final String defaultOutputSeconds;
+  private final ModalLabConnectionController modalLabConnectionController;
+  private final Resource modalLabConnectionFxml;
+  private final WorkstationIconService workstationIconService;
   private FabricationStatus status;
 
   @Nullable
@@ -55,27 +52,24 @@ public class MainWindowController implements ReadyAfterBootController {
   public MainWindowController(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
     @Value("${gui.launch.guide.url}") String launchGuideUrl,
-    @Value("${input.mode}") String defaultInputMode,
-    @Value("${output.file.mode}") String defaultOutputFileMode,
-    @Value("${output.mode}") String defaultOutputMode,
-    @Value("${output.seconds}") String defaultOutputSeconds,
+    @Value("classpath:/views/modal-lab-connection.fxml") Resource modalLabConnectionFxml,
+    BottomPaneController bottomPaneController,
     ConfigurableApplicationContext ac,
     FabricationService fabricationService,
-    BottomPaneController bottomPaneController
+    ModalLabConnectionController modalLabConnectionController,
+    WorkstationIconService workstationIconService
   ) {
     this.fabricationService = fabricationService;
     this.bottomPaneController = bottomPaneController;
+    this.modalLabConnectionController = modalLabConnectionController;
+    this.modalLabConnectionFxml = modalLabConnectionFxml;
+    this.workstationIconService = workstationIconService;
     status = FabricationStatus.Ready;
     this.hostServices = hostServices;
     this.ac = ac;
     this.launchGuideUrl = launchGuideUrl;
-    this.lightTheme = LIGHT_THEME_STYLE_PATH;
+    this.defaultTheme = LIGHT_THEME_STYLE_PATH;
     this.darkTheme = DARK_THEME_STYLE_PATH;
-    this.defaultOutputSeconds = defaultOutputSeconds;
-    this.defaultOutputPathPrefix = System.getProperty("user.home") + File.separator;
-    this.defaultInputMode = InputMode.valueOf(defaultInputMode.toUpperCase(Locale.ROOT));
-    this.defaultOutputMode = OutputMode.valueOf(defaultOutputMode.toUpperCase(Locale.ROOT));
-    this.defaultOutputFileMode = OutputFileMode.valueOf(defaultOutputFileMode.toUpperCase(Locale.ROOT));
   }
 
   @FXML
@@ -83,33 +77,13 @@ public class MainWindowController implements ReadyAfterBootController {
   @FXML
   protected CheckMenuItem darkThemeCheck;
   @FXML
-  protected TextField fieldInputTemplateKey;
-  @FXML
-  protected TextField fieldOutputPathPrefix;
-  @FXML
-  protected TextField fieldOutputSeconds;
-  @FXML
-  protected ChoiceBox<InputMode> choiceInputMode;
-  @FXML
-  protected ChoiceBox<OutputMode> choiceOutputMode;
-  @FXML
-  protected ChoiceBox<OutputFileMode> choiceOutputFileMode;
-  @FXML
   protected Button buttonAction;
 
   @Override
   public void onStageReady() {
-    mainWindowScene.getStylesheets().add(lightTheme);
+    mainWindowScene.getStylesheets().add(defaultTheme);
     enableDarkTheme();
     onStatusUpdate(status);
-    fieldOutputSeconds.setText(defaultOutputSeconds);
-    fieldOutputPathPrefix.setText(defaultOutputPathPrefix);
-    choiceInputMode.getItems().setAll(InputMode.values());
-    choiceOutputMode.getItems().setAll(OutputMode.values());
-    choiceOutputFileMode.getItems().setAll(OutputFileMode.values());
-    choiceInputMode.setValue(defaultInputMode);
-    choiceOutputMode.setValue(defaultOutputMode);
-    choiceOutputFileMode.setValue(defaultOutputFileMode);
     bottomPaneController.onStageReady();
   }
 
@@ -140,13 +114,6 @@ public class MainWindowController implements ReadyAfterBootController {
 
   public void start() {
     onStatusUpdate(FabricationStatus.Starting);
-    fabricationService.setConfiguration(new WorkConfiguration()
-      .setInputMode(choiceInputMode.getValue())
-      .setInputTemplateKey(fieldInputTemplateKey.getText())
-      .setOutputFileMode(choiceOutputFileMode.getValue())
-      .setOutputMode(choiceOutputMode.getValue())
-      .setOutputPathPrefix(fieldOutputPathPrefix.getText())
-      .setOutputSeconds(Integer.parseInt(fieldOutputSeconds.getText())));
     fabricationService.setOnReady((WorkerStateEvent ignored) -> onStatusUpdate(FabricationStatus.Ready));
     fabricationService.setOnRunning((WorkerStateEvent ignored) -> onStatusUpdate(FabricationStatus.Active));
     fabricationService.setOnSucceeded((WorkerStateEvent ignored) -> onStatusUpdate(FabricationStatus.Done));
@@ -173,8 +140,30 @@ public class MainWindowController implements ReadyAfterBootController {
 
   @FXML
   protected void onConnectToLab() {
-    LOG.info("Will connect to lab");
-    // TODO open connection to lab modal
+    try {
+      // Load the FXML file
+      FXMLLoader loader = new FXMLLoader(modalLabConnectionFxml.getURL());
+      loader.setControllerFactory(ac::getBean);
+
+      // Create a new stage (window)
+      Stage stage = new Stage();
+      workstationIconService.setup(stage, CONNECT_TO_LAB_WINDOW_NAME);
+
+      Scene scene = new Scene(loader.load());
+      scene.getStylesheets().add(defaultTheme);
+      if (darkThemeCheck.isSelected()) {
+        scene.getStylesheets().add(darkTheme);
+      }
+
+
+      // Set the scene and show the stage
+      stage.setScene(scene);
+      stage.initModality(Modality.APPLICATION_MODAL); // make it a modal window
+      modalLabConnectionController.setConfiguration(fabricationService.getConfiguration());
+      stage.showAndWait();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   public @Nullable Scene getMainWindowScene() {

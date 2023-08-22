@@ -28,3 +28,7 @@
   -fx-background-color: #c0c0c0;
   -fx-padding: 5px;
 }
+
+.modal-container {
+  padding: 5px;
+}
