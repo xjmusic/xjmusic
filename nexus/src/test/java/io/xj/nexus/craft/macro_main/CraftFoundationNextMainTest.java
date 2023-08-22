@@ -33,7 +33,7 @@ import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManagerImpl;
 import io.xj.nexus.persistence.Segments;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -135,7 +135,7 @@ public class CraftFoundationNextMainTest {
     segment4 = store.put(buildSegment(chain1, 3, SegmentState.PLANNED, "C", 8, 0.8, 120, "chain-1-waveform-12345"));
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
 
   }
