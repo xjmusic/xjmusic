@@ -5,9 +5,6 @@ plugins {
   id 'application'
   id 'distribution'
   //
-  id 'de.undercouch.download' version "4.0.4"
-  id 'org.ajoberstar.grgit' version '4.1.0'
-  //
   id "org.beryx.jlink" version "2.24.1" apply false
   id 'com.google.cloud.tools.jib' version '3.3.2' apply false
   id 'io.spring.dependency-management' version '1.0.15.RELEASE' apply false
@@ -19,7 +16,7 @@ plugins {
 
 ext {
   jacksonAnnotationsVersion = '2.15.0'
-  javaFxVersion = '18.0.2'
+  javaFxVersion = '20.0.2'
   jooqVersion = '3.18.5'
   junitVersion = '5.9.2'
   jupiterVersion = '5.8.1'
@@ -39,8 +36,8 @@ if (localPropertiesFile.exists()) {
 allprojects {
   group = 'io.xj'
 
-  sourceCompatibility = JavaVersion.VERSION_18
-  targetCompatibility = JavaVersion.VERSION_18
+  sourceCompatibility = JavaVersion.VERSION_17
+  targetCompatibility = JavaVersion.VERSION_17
 
   tasks.withType(JavaCompile).tap {
     configureEach {
@@ -55,6 +52,12 @@ subprojects {
   configurations {
     implementation.exclude group: "commons-logging", module: "commons-logging"
     implementation.exclude group: 'com.google.code.findbugs', module: 'jsr305'
+  }
+
+  dependencies {
+    implementation 'org.bytedeco:ffmpeg-platform-gpl:6.0-1.5.9' // Optional GPL builds with (almost) everything enabled
+    implementation 'org.bytedeco:flandmark-platform:1.07-1.5.8' // Required by org.bytedeco.javacv
+    implementation 'org.bytedeco:javacv-platform:1.5.9'
   }
 
   repositories {

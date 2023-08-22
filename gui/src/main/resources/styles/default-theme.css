@@ -1,0 +1,30 @@
+/* from https://stackoverflow.com/questions/49159286/make-a-dark-mode-with-javafx */
+
+.root {
+  -fx-base: #c0c0c0;
+}
+
+.log-viewer {
+  -fx-background-color: #b0b0b0;
+}
+
+.log-viewer .list-cell.debug {
+  -fx-text-fill: gray;
+}
+
+.log-viewer .list-cell.info {
+  -fx-text-fill: green;
+}
+
+.log-viewer .list-cell.warn {
+  -fx-text-fill: purple;
+}
+
+.log-viewer .list-cell.error {
+  -fx-text-fill: red;
+}
+
+.bottom-pane-status-container {
+  -fx-background-color: #c0c0c0;
+  -fx-padding: 5px;
+}

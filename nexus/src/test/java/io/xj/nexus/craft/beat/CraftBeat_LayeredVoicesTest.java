@@ -40,7 +40,7 @@ import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.SegmentManagerImpl;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -226,7 +226,7 @@ public class CraftBeat_LayeredVoicesTest {
     return entities;
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
 
   }

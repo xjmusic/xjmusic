@@ -384,7 +384,15 @@ public class DubWorkImpl implements DubWork {
       String key = active.getAudio().getWaveformKey();
       if (StringUtils.isNullOrEmpty(key)) return;
       if (!mixer.hasLoadedSource(active.getAudio().getId())) {
-        mixer.loadSource(active.getAudio().getId(), dubAudioCache.load(key, (int) mixer.getAudioFormat().getFrameRate()), active.getAudio().getName());
+        mixer.loadSource(
+          active.getAudio().getId(),
+          dubAudioCache.load(
+            key,
+            (int) mixer.getAudioFormat().getFrameRate(),
+            mixer.getAudioFormat().getSampleSizeInBits(),
+            mixer.getAudioFormat().getChannels()),
+          active.getAudio().getName()
+        );
       }
       mixer.put(
         active.getId(),

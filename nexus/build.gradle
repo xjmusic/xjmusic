@@ -3,9 +3,7 @@
 plugins {
   id 'java-library'
   //
-  id "de.undercouch.download"
   id 'io.spring.dependency-management'
-  id 'org.ajoberstar.grgit'
   id 'org.openjfx.javafxplugin'
   id 'org.springframework.boot'
   id 'org.bytedeco.gradle-javacpp-platform'
@@ -42,12 +40,6 @@ dependencies {
   implementation 'commons-io:commons-io:2.11.0'
   implementation 'me.xdrop:fuzzywuzzy:1.4.0'
   implementation 'org.apache.httpcomponents:httpclient:4.5.14'
-  implementation 'org.bytedeco:ffmpeg-platform-gpl:6.0-1.5.9' // Optional GPL builds with (almost) everything enabled
-  implementation 'org.bytedeco:flandmark-platform:1.07-1.5.8' // Required by org.bytedeco.javacv
-  implementation 'org.bytedeco:javacv-platform:1.5.9'
-  implementation 'org.mp4parser:isoparser:1.9.41'
-  implementation 'org.mp4parser:muxer:1.9.41'
-  implementation 'org.mp4parser:streaming:1.9.41'
   implementation 'org.reflections:reflections:0.10.2'
   testImplementation "org.junit.jupiter:junit-jupiter-api:${rootProject.ext.junitVersion}"
   testImplementation 'org.hamcrest:hamcrest-library:2.2'

@@ -1,6 +1,5 @@
 package io.xj.gui.controllers;
 
-import io.xj.gui.WorkstationLogAppender;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.FabricationStatus;
 import io.xj.nexus.InputMode;
@@ -9,16 +8,14 @@ import io.xj.nexus.OutputMode;
 import io.xj.nexus.work.WorkConfiguration;
 import jakarta.annotation.Nullable;
 import javafx.application.HostServices;
-import javafx.application.Platform;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,12 +28,17 @@ import java.util.Locale;
 import java.util.Objects;
 
 @Service
-public class MainWindowController {
+public class MainWindowController implements ReadyAfterBootController {
   Logger LOG = LoggerFactory.getLogger(MainWindowController.class);
-  private FabricationStatus status;
+  private final static String LIGHT_THEME_STYLE_PATH = "styles/default-theme.css";
+  private final static String DARK_THEME_STYLE_PATH = "styles/dark-theme.css";
+  private final static String BUTTON_TEXT_START = "Start";
+  private final static String BUTTON_TEXT_STOP = "Stop";
+  private final static String BUTTON_TEXT_RESET = "Reset";
   private final HostServices hostServices;
   private final ConfigurableApplicationContext ac;
   private final FabricationService fabricationService;
+  private final BottomPaneController bottomPaneController;
   private final String launchGuideUrl;
   private final String lightTheme;
   private final String darkTheme;
@@ -45,6 +47,7 @@ public class MainWindowController {
   private final OutputMode defaultOutputMode;
   private final OutputFileMode defaultOutputFileMode;
   private final String defaultOutputSeconds;
+  private FabricationStatus status;
 
   @Nullable
   private Scene mainWindowScene;
@@ -52,32 +55,31 @@ public class MainWindowController {
   public MainWindowController(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
     @Value("${gui.launch.guide.url}") String launchGuideUrl,
-    @Value("${gui.theme.dark}") String darkTheme,
-    @Value("${gui.theme.light}") String lightTheme,
     @Value("${input.mode}") String defaultInputMode,
     @Value("${output.file.mode}") String defaultOutputFileMode,
     @Value("${output.mode}") String defaultOutputMode,
     @Value("${output.seconds}") String defaultOutputSeconds,
     ConfigurableApplicationContext ac,
-    FabricationService fabricationService
+    FabricationService fabricationService,
+    BottomPaneController bottomPaneController
   ) {
     this.fabricationService = fabricationService;
+    this.bottomPaneController = bottomPaneController;
     status = FabricationStatus.Ready;
     this.hostServices = hostServices;
     this.ac = ac;
     this.launchGuideUrl = launchGuideUrl;
-    this.lightTheme = lightTheme;
-    this.darkTheme = darkTheme;
+    this.lightTheme = LIGHT_THEME_STYLE_PATH;
+    this.darkTheme = DARK_THEME_STYLE_PATH;
     this.defaultOutputSeconds = defaultOutputSeconds;
     this.defaultOutputPathPrefix = System.getProperty("user.home") + File.separator;
     this.defaultInputMode = InputMode.valueOf(defaultInputMode.toUpperCase(Locale.ROOT));
     this.defaultOutputMode = OutputMode.valueOf(defaultOutputMode.toUpperCase(Locale.ROOT));
     this.defaultOutputFileMode = OutputFileMode.valueOf(defaultOutputFileMode.toUpperCase(Locale.ROOT));
-
-    // bind to the log appender
-    WorkstationLogAppender.LISTENER.set(this::appendLogLine);
   }
 
+  @FXML
+  public VBox bottomPane;
   @FXML
   protected CheckMenuItem darkThemeCheck;
   @FXML
@@ -93,9 +95,23 @@ public class MainWindowController {
   @FXML
   protected ChoiceBox<OutputFileMode> choiceOutputFileMode;
   @FXML
-  protected TextArea textAreaLogs;
-  @FXML
   protected Button buttonAction;
+
+  @Override
+  public void onStageReady() {
+    mainWindowScene.getStylesheets().add(lightTheme);
+    enableDarkTheme();
+    onStatusUpdate(status);
+    fieldOutputSeconds.setText(defaultOutputSeconds);
+    fieldOutputPathPrefix.setText(defaultOutputPathPrefix);
+    choiceInputMode.getItems().setAll(InputMode.values());
+    choiceOutputMode.getItems().setAll(OutputMode.values());
+    choiceOutputFileMode.getItems().setAll(OutputFileMode.values());
+    choiceInputMode.setValue(defaultInputMode);
+    choiceOutputMode.setValue(defaultOutputMode);
+    choiceOutputFileMode.setValue(defaultOutputFileMode);
+    bottomPaneController.onStageReady();
+  }
 
   @FXML
   private void toggleDarkTheme() {
@@ -149,73 +165,58 @@ public class MainWindowController {
     fabricationService.reset();
   }
 
-  public void appendLogLine(String line) {
-    if (Objects.nonNull(line) && Objects.nonNull(textAreaLogs))
-      try {
-        Platform.runLater(() -> textAreaLogs.appendText(line + "\n"));
-      } catch (Exception e) {
-        // no op
-      }
-  }
-
-  @FXML
-  protected Label labelStatus;
-
   @FXML
   protected void onLaunchUserGuide() {
     LOG.info("Will launch user guide");
     hostServices.showDocument(launchGuideUrl);
   }
 
+  @FXML
+  protected void onConnectToLab() {
+    LOG.info("Will connect to lab");
+    // TODO open connection to lab modal
+  }
+
   public @Nullable Scene getMainWindowScene() {
     return mainWindowScene;
   }
 
-  public void setMainWindowScene(Scene mainWindowScene) {
+  public void setMainWindowScene(@Nullable Scene mainWindowScene) {
     this.mainWindowScene = mainWindowScene;
-  }
-
-  public void onStageReady() {
-    enableDarkTheme();
-    onStatusUpdate(status);
-    fieldOutputSeconds.setText(defaultOutputSeconds);
-    fieldOutputPathPrefix.setText(defaultOutputPathPrefix);
-    choiceInputMode.getItems().setAll(InputMode.values());
-    choiceOutputMode.getItems().setAll(OutputMode.values());
-    choiceOutputFileMode.getItems().setAll(OutputFileMode.values());
-    choiceInputMode.setValue(defaultInputMode);
-    choiceOutputMode.setValue(defaultOutputMode);
-    choiceOutputFileMode.setValue(defaultOutputFileMode);
   }
 
   public void onStatusUpdate(FabricationStatus status) {
     LOG.info("Status update: {} -> {}", this.status, status);
     this.status = status;
-    labelStatus.setText(status.toString());
+    bottomPaneController.setStatusText(status.toString());
     switch (status) {
       case Initializing, Starting, Cancelling, Resetting -> buttonAction.setDisable(true);
       case Ready -> {
-        buttonAction.setText("Start");
+        buttonAction.setText(BUTTON_TEXT_START);
         buttonAction.setDisable(false);
       }
       case Active -> {
-        buttonAction.setText("Stop");
+        buttonAction.setText(BUTTON_TEXT_STOP);
         buttonAction.setDisable(false);
       }
       case Cancelled, Done, Failed -> {
-        buttonAction.setText("Reset");
+        buttonAction.setText(BUTTON_TEXT_RESET);
         buttonAction.setDisable(false);
       }
     }
   }
 
   private void enableDarkTheme() {
-    mainWindowScene.getStylesheets().remove(lightTheme);
-    mainWindowScene.getStylesheets().add(darkTheme);
+    if (Objects.nonNull(mainWindowScene)) {
+//      mainWindowScene.getStylesheets().remove(lightTheme);
+      mainWindowScene.getStylesheets().add(darkTheme);
+    }
   }
 
   private void disableDarkTheme() {
-    mainWindowScene.getStylesheets().remove(darkTheme);
-    mainWindowScene.getStylesheets().add(lightTheme);
+    if (Objects.nonNull(mainWindowScene)) {
+      mainWindowScene.getStylesheets().remove(darkTheme);
+//      mainWindowScene.getStylesheets().add(lightTheme);
+    }
   }
 }

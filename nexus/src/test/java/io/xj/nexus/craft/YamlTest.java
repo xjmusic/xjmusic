@@ -4,7 +4,7 @@ package io.xj.nexus.craft;
 import io.xj.hub.music.Accidental;
 import io.xj.hub.music.Note;
 import jakarta.annotation.Nullable;
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -35,7 +35,7 @@ public abstract class YamlTest {
   /**
    * The cache of failures is a Set in order to de-dupe between multiple runs of the same test
    */
-  @After
+  @AfterEach
   public void reportFailures() {
     if (0 == failures.size()) {
       System.out.println("\nAll assertions OK");

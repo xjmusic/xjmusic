@@ -14,7 +14,7 @@ import java.util.Map;
  * Fabrication wrapper is a common foundation for all craft
  */
 public abstract class FabricationWrapperImpl {
-  final Logger log = LoggerFactory.getLogger(FabricationWrapperImpl.class);
+  final Logger LOG = LoggerFactory.getLogger(FabricationWrapperImpl.class);
   protected Fabricator fabricator;
 
   /**
@@ -68,7 +68,7 @@ public abstract class FabricationWrapperImpl {
       fabricator.addWarningMessage(String.format("%s not found %s", type.getSimpleName(), detail));
 
     } catch (Exception e) {
-      log.warn("Failed to create SegmentMessage", e);
+      LOG.warn("Failed to create SegmentMessage", e);
     }
   }
 
@@ -80,7 +80,7 @@ public abstract class FabricationWrapperImpl {
       fabricator.addWarningMessage(String.format("%s not found! %s", InstrumentAudio.class.getSimpleName(), CsvUtils.from(traces)));
 
     } catch (Exception e) {
-      log.warn("Failed to create SegmentMessage", e);
+      LOG.warn("Failed to create SegmentMessage", e);
     }
   }
 }
