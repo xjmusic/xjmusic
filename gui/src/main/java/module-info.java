@@ -5,6 +5,11 @@ module workstation.gui.main {
   requires javafx.controls;
   requires javafx.fxml;
   requires javafx.graphics;
+  requires org.bytedeco.ffmpeg;
+  requires org.bytedeco.flandmark.platform;
+  requires org.bytedeco.flandmark;
+  requires org.bytedeco.javacv.platform;
+  requires org.bytedeco.javacv;
   requires org.jooq;
   requires org.slf4j;
   requires spring.beans;

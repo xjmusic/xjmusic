@@ -8,6 +8,7 @@ plugins {
   id 'com.google.cloud.tools.jib'
   id 'io.spring.dependency-management'
   id 'org.springframework.boot'
+  id 'org.bytedeco.gradle-javacpp-platform'
 }
 
 description = 'XJ music workstation'
