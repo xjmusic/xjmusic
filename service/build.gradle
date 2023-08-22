@@ -7,7 +7,6 @@ plugins {
   //
   id 'com.google.cloud.tools.jib'
   id 'io.spring.dependency-management'
-  id 'org.ajoberstar.grgit'
   id 'org.springframework.boot'
 }
 

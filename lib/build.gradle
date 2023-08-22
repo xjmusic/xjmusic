@@ -4,7 +4,6 @@ plugins {
   id 'java-library'
   //
   id 'io.spring.dependency-management'
-  id 'org.ajoberstar.grgit'
   id 'org.bytedeco.gradle-javacpp-platform'
   id 'org.springframework.boot'
 }
