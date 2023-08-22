@@ -14,8 +14,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,7 +30,7 @@ import java.util.Objects;
 @Service
 public class MainWindowController implements ReadyAfterBootController {
   Logger LOG = LoggerFactory.getLogger(MainWindowController.class);
-  private final static String LIGHT_THEME_STYLE_PATH = "styles/light-theme.css";
+  private final static String LIGHT_THEME_STYLE_PATH = "styles/default-theme.css";
   private final static String DARK_THEME_STYLE_PATH = "styles/dark-theme.css";
   private final static String BUTTON_TEXT_START = "Start";
   private final static String BUTTON_TEXT_STOP = "Stop";
@@ -79,6 +79,8 @@ public class MainWindowController implements ReadyAfterBootController {
   }
 
   @FXML
+  public VBox bottomPane;
+  @FXML
   protected CheckMenuItem darkThemeCheck;
   @FXML
   protected TextField fieldInputTemplateKey;
@@ -94,11 +96,10 @@ public class MainWindowController implements ReadyAfterBootController {
   protected ChoiceBox<OutputFileMode> choiceOutputFileMode;
   @FXML
   protected Button buttonAction;
-  @FXML
-  protected Label labelStatus;
 
   @Override
   public void onStageReady() {
+    mainWindowScene.getStylesheets().add(lightTheme);
     enableDarkTheme();
     onStatusUpdate(status);
     fieldOutputSeconds.setText(defaultOutputSeconds);
@@ -187,7 +188,7 @@ public class MainWindowController implements ReadyAfterBootController {
   public void onStatusUpdate(FabricationStatus status) {
     LOG.info("Status update: {} -> {}", this.status, status);
     this.status = status;
-    labelStatus.setText(status.toString());
+    bottomPaneController.setStatusText(status.toString());
     switch (status) {
       case Initializing, Starting, Cancelling, Resetting -> buttonAction.setDisable(true);
       case Ready -> {
@@ -207,7 +208,7 @@ public class MainWindowController implements ReadyAfterBootController {
 
   private void enableDarkTheme() {
     if (Objects.nonNull(mainWindowScene)) {
-      mainWindowScene.getStylesheets().remove(lightTheme);
+//      mainWindowScene.getStylesheets().remove(lightTheme);
       mainWindowScene.getStylesheets().add(darkTheme);
     }
   }
@@ -215,7 +216,7 @@ public class MainWindowController implements ReadyAfterBootController {
   private void disableDarkTheme() {
     if (Objects.nonNull(mainWindowScene)) {
       mainWindowScene.getStylesheets().remove(darkTheme);
-      mainWindowScene.getStylesheets().add(lightTheme);
+//      mainWindowScene.getStylesheets().add(lightTheme);
     }
   }
 }

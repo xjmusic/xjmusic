@@ -4,8 +4,8 @@
   -fx-base: #c0c0c0;
 }
 
-.log-viewer .list-cell {
-  -fx-background-color: null;
+.log-viewer {
+  -fx-background-color: #b0b0b0;
 }
 
 .log-viewer .list-cell.debug {
@@ -24,6 +24,7 @@
   -fx-text-fill: red;
 }
 
-.log-viewer {
-  -fx-background-color: #404040;
+.bottom-pane-status-container {
+  -fx-background-color: #c0c0c0;
+  -fx-padding: 5px;
 }

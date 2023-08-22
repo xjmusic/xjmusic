@@ -3,7 +3,7 @@
 .root {
   -fx-accent: #1e74c6;
   -fx-focus-color: -fx-accent;
-  -fx-base: #373e43;
+  -fx-base: #373737;
   -fx-control-inner-background: derive(-fx-base, 35%);
   -fx-control-inner-background-alt: -fx-control-inner-background ;
 }
@@ -69,5 +69,13 @@
 .table-row-cell{
   -fx-border-color: transparent;
   -fx-table-cell-border-color:transparent;
+}
+
+.bottom-pane-status-container {
+  -fx-background-color: #494949;
+}
+
+.log-viewer {
+  -fx-background-color: #393939;
 }
 

@@ -50,7 +50,7 @@
 
 <BorderPane prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.MainWindowController">
   <top>
-    <VBox prefHeight="400.0" prefWidth="1024.0" BorderPane.alignment="CENTER">
+    <VBox BorderPane.alignment="CENTER">
       <MenuBar VBox.vgrow="NEVER">
         <Menu mnemonicParsing="false" text="Workstation">
           <MenuItem mnemonicParsing="false" onAction="#onConnectToLab" text="Connect to Lab" />
@@ -139,11 +139,6 @@
       </HBox>
       <HBox alignment="CENTER_LEFT" prefHeight="83.0" prefWidth="640.0">
         <Pane prefHeight="84.0" prefWidth="271.0" />
-        <Label fx:id="labelStatus" alignment="CENTER" contentDisplay="CENTER" prefHeight="16.0" prefWidth="176.0" text="Ready" textAlignment="CENTER">
-          <font>
-            <Font size="18.0" />
-          </font>
-        </Label>
         <Button fx:id="buttonAction" mnemonicParsing="false" onAction="#onButtonActionPress" prefHeight="49.0" prefWidth="145.0" text="Action">
           <font>
             <Font name="System Bold" size="18.0" />
@@ -152,6 +147,9 @@
       </HBox>
     </VBox>
   </top>
+  <center>
+    <!--<fx:include fx:id="centerPane" source="center-pane.fxml" />-->
+  </center>
   <bottom>
     <fx:include fx:id="bottomPane" source="bottom-pane.fxml" />
   </bottom>
