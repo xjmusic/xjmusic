@@ -108,13 +108,13 @@ public class BottomPaneController extends VBox implements ReadyAfterBootControll
   }
 
   @FXML
-  public void toggleShowLogs(ActionEvent event) {
+  public void toggleShowLogs(ActionEvent ignored) {
     logsVisible.set(toggleShowLogs.isSelected());
     updateLogsVisibility();
   }
 
   @FXML
-  public void toggleTailLogs(ActionEvent event) {
+  public void toggleTailLogs(ActionEvent ignored) {
     logsTailing.set(toggleTailLogs.isSelected());
   }
 
