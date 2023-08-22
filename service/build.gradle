@@ -6,7 +6,6 @@ plugins {
   id 'distribution'
   //
   id 'com.google.cloud.tools.jib'
-  id 'de.undercouch.download'
   id 'io.spring.dependency-management'
   id 'org.ajoberstar.grgit'
   id 'org.springframework.boot'

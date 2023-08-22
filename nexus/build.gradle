@@ -3,7 +3,6 @@
 plugins {
   id 'java-library'
   //
-  id "de.undercouch.download"
   id 'io.spring.dependency-management'
   id 'org.ajoberstar.grgit'
   id 'org.openjfx.javafxplugin'
