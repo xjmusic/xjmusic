@@ -24,7 +24,7 @@ import java.util.Objects;
  * the JSON:API standard uses a data object for One record, and a data array for Many records.
  */
 public class JsonapiPayloadDeserializer extends StdDeserializer<JsonapiPayload> {
-  final Logger log = LoggerFactory.getLogger(JsonapiPayloadDeserializer.class);
+  final Logger LOG = LoggerFactory.getLogger(JsonapiPayloadDeserializer.class);
 
   public JsonapiPayloadDeserializer() {
     this(null);
@@ -50,7 +50,7 @@ public class JsonapiPayloadDeserializer extends StdDeserializer<JsonapiPayload> 
             try {
               jsonapiPayload.addData(dataNode.traverse(jp.getCodec()).readValueAs(JsonapiPayloadObject.class));
             } catch (IOException e) {
-              log.warn("Unable to add resource object create node!", e);
+              LOG.warn("Unable to add resource object create node!", e);
             }
           });
         }
@@ -60,7 +60,7 @@ public class JsonapiPayloadDeserializer extends StdDeserializer<JsonapiPayload> 
           try {
             jsonapiPayload.setDataOne(data.traverse(jp.getCodec()).readValueAs(JsonapiPayloadObject.class));
           } catch (IOException e) {
-            log.warn("Unable to set resource object create node!", e);
+            LOG.warn("Unable to set resource object create node!", e);
           }
         }
         //
@@ -68,7 +68,7 @@ public class JsonapiPayloadDeserializer extends StdDeserializer<JsonapiPayload> 
 
         //
         case BINARY, BOOLEAN, MISSING, NUMBER, POJO, STRING ->
-          log.warn("Unable to parse data create node type: {}", data.getNodeType());
+          LOG.warn("Unable to parse data create node type: {}", data.getNodeType());
       }
     else
       jsonapiPayload.setDataType(PayloadDataType.One);
@@ -79,7 +79,7 @@ public class JsonapiPayloadDeserializer extends StdDeserializer<JsonapiPayload> 
         try {
           jsonapiPayload.getIncluded().add(includeNode.traverse(jp.getCodec()).readValueAs(JsonapiPayloadObject.class));
         } catch (IOException e) {
-          log.warn("Unable to add included resource object create node!", e);
+          LOG.warn("Unable to add included resource object create node!", e);
         }
       });
 
@@ -90,7 +90,7 @@ public class JsonapiPayloadDeserializer extends StdDeserializer<JsonapiPayload> 
           //noinspection unchecked
           jsonapiPayload.getLinks().putAll(includeNode.traverse(jp.getCodec()).readValueAs(Map.class));
         } catch (IOException e) {
-          log.warn("Unable to put link create node!", e);
+          LOG.warn("Unable to put link create node!", e);
         }
       });
 
@@ -100,7 +100,7 @@ public class JsonapiPayloadDeserializer extends StdDeserializer<JsonapiPayload> 
         try {
           jsonapiPayload.getErrors().add(includeNode.traverse(jp.getCodec()).readValueAs(PayloadError.class));
         } catch (IOException e) {
-          log.warn("Unable to put error create node!", e);
+          LOG.warn("Unable to put error create node!", e);
         }
       });
 

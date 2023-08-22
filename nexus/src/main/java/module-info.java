@@ -22,7 +22,7 @@ module workstation.nexus.main {
   requires spring.context;
   requires spring.core;
   //
-  requires workstation.lib.main;
+  requires transitive workstation.lib.main;
   requires transitive hub.models.main;
   requires org.bytedeco.ffmpeg;
 

@@ -26,14 +26,14 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 @Service
 public class BottomPaneController extends VBox implements ReadyAfterBootController {
-  private final Log log;
+  private final LogQueue logQueue;
   private final ObservableList<LogRecord> logItems = FXCollections.observableArrayList();
   private static final int MAX_ENTRIES = 10_000;
   private final static PseudoClass debug = PseudoClass.getPseudoClass("debug");
   private final static PseudoClass info = PseudoClass.getPseudoClass("info");
   private final static PseudoClass warn = PseudoClass.getPseudoClass("warn");
   private final static PseudoClass error = PseudoClass.getPseudoClass("error");
-  private final BooleanProperty tail = new SimpleBooleanProperty(false);
+  private final BooleanProperty tail = new SimpleBooleanProperty(true);
   private final DoubleProperty refreshRate = new SimpleDoubleProperty(1);
 
   @Override
@@ -42,7 +42,7 @@ public class BottomPaneController extends VBox implements ReadyAfterBootControll
       new KeyFrame(
         Duration.seconds(1),
         event -> {
-          log.drainTo(logItems);
+          logQueue.drainTo(logItems);
 
           if (logItems.size() > MAX_ENTRIES) {
             logItems.remove(0, logItems.size() - MAX_ENTRIES);
@@ -95,7 +95,7 @@ public class BottomPaneController extends VBox implements ReadyAfterBootControll
 
   public BottomPaneController(
   ) {
-    log = new Log();
+    logQueue = new LogQueue();
 
     // bind to the log appender
     WorkstationLogAppender.LISTENER.set(this::appendLogLine);
@@ -104,23 +104,23 @@ public class BottomPaneController extends VBox implements ReadyAfterBootControll
   public void appendLogLine(Level level, String context, String line) {
     if (Objects.nonNull(line))
       try {
-        Platform.runLater(() -> log.offer(new LogRecord(level, context, line)));
+        Platform.runLater(() -> logQueue.offer(new LogRecord(level, context, line)));
       } catch (Exception e) {
         // no op
       }
   }
 
-  static class Log {
+  static class LogQueue {
     private static final int MAX_LOG_ENTRIES = 1_000_000;
 
-    private final BlockingDeque<LogRecord> log = new LinkedBlockingDeque<>(MAX_LOG_ENTRIES);
+    private final BlockingDeque<LogRecord> queue = new LinkedBlockingDeque<>(MAX_LOG_ENTRIES);
 
     public void drainTo(Collection<? super LogRecord> collection) {
-      log.drainTo(collection);
+      queue.drainTo(collection);
     }
 
     public void offer(LogRecord record) {
-      log.offer(record);
+      queue.offer(record);
     }
   }
 

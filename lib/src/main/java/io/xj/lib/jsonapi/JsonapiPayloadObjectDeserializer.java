@@ -23,7 +23,7 @@ import java.util.Objects;
  * the JSON:API standard uses a data object for One record, and a data array for Many records.
  */
 public class JsonapiPayloadObjectDeserializer extends StdDeserializer<JsonapiPayloadObject> {
-  final Logger log = LoggerFactory.getLogger(JsonapiPayloadObjectDeserializer.class);
+  final Logger LOG = LoggerFactory.getLogger(JsonapiPayloadObjectDeserializer.class);
 
   public JsonapiPayloadObjectDeserializer() {
     this(null);
@@ -54,7 +54,7 @@ public class JsonapiPayloadObjectDeserializer extends StdDeserializer<JsonapiPay
           //noinspection unchecked
           obj.getLinks().putAll(links.traverse(jp.getCodec()).readValueAs(Map.class));
         } catch (IOException e) {
-          log.warn("Unable to put link create node!", e);
+          LOG.warn("Unable to put link create node!", e);
         }
       });
 
@@ -65,7 +65,7 @@ public class JsonapiPayloadObjectDeserializer extends StdDeserializer<JsonapiPay
           //noinspection unchecked
           obj.getAttributes().putAll(attributes.traverse(jp.getCodec()).readValueAs(Map.class));
         } catch (IOException e) {
-          log.warn("Unable to put attribute create node!", e);
+          LOG.warn("Unable to put attribute create node!", e);
         }
       });
 

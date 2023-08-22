@@ -88,11 +88,11 @@ import static io.xj.nexus.HubIntegrationTestingFixtures.buildVoicing;
  * Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
  * <p>
  * Testing the hypothesis that, while unit tests are all independent,
- * integration tests ought be as much about testing all features around a consensus model of the platform
+ * integration tests ought to be as much about testing all features around a consensus model of the platform
  * as they are about testing all resources.
  */
 public class NexusIntegrationTestingFixtures {
-  static final Logger log = LoggerFactory.getLogger(NexusIntegrationTestingFixtures.class);
+  static final Logger LOG = LoggerFactory.getLogger(NexusIntegrationTestingFixtures.class);
   static final double RANDOM_VALUE_FROM = 0.3;
   static final double RANDOM_VALUE_TO = 0.8;
 
@@ -1146,13 +1146,13 @@ public class NexusIntegrationTestingFixtures {
       for (int k = 0; k < N; k++)
         add(entities, buildAudio(instrument, StringUtils.toProper(percussiveNames[k]), String.format("%s.wav", StringUtils.toLowerSlug(percussiveNames[k])), random(0, 0.05), random(0.25, 2), random(80, 120), 0.62f, percussiveNames[k], "X", random(0.8, 1)));
       //
-      log.debug("Generated Drum-type Instrument id={}, minorMeme={}, majorMeme={}", instrument.getId(), minorMemeName, majorMemeName);
+      LOG.debug("Generated Drum-type Instrument id={}, minorMeme={}, majorMeme={}", instrument.getId(), minorMemeName, majorMemeName);
     }
 
     // Generate Perc Loop Instruments
     for (int i = 0; i < N; i++) {
       Instrument instrument = add(entities, buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Loop, InstrumentState.Published, "Perc Loop"));
-      log.debug("Generated PercLoop-type Instrument id={}", instrument.getId());
+      LOG.debug("Generated PercLoop-type Instrument id={}", instrument.getId());
     }
 
     // Generate N*2 total Macro-type programs, each transitioning of one MemeEntity to another
@@ -1179,7 +1179,7 @@ public class NexusIntegrationTestingFixtures {
       var binding1 = add(entities, buildProgramSequenceBinding(sequence1, 1));
       add(entities, buildProgramSequenceBindingMeme(binding1, majorMemeToName));
       //
-      log.debug("Generated Macro-type Program id={}, minorMeme={}, majorMemeFrom={}, majorMemeTo={}", program.getId(), minorMemeName, majorMemeFromName, majorMemeToName);
+      LOG.debug("Generated Macro-type Program id={}, minorMeme={}, majorMemeFrom={}, majorMemeTo={}", program.getId(), minorMemeName, majorMemeFromName, majorMemeToName);
     }
 
     // Generate N*4 total Main-type Programs, each having N patterns comprised of ~N*2 chords, bound to N*4 sequence patterns
@@ -1210,7 +1210,7 @@ public class NexusIntegrationTestingFixtures {
         var binding = add(entities, buildProgramSequenceBinding(sequences[num], offset));
         add(entities, buildMeme(binding, random(minorMemeNames)));
       }
-      log.debug("Generated Main-type Program id={}, majorMeme={} with {} sequences bound {} times", program.getId(), majorMemeName, N, N << 2);
+      LOG.debug("Generated Main-type Program id={}, majorMeme={} with {} sequences bound {} times", program.getId(), majorMemeName, N, N << 2);
     }
 
     // Generate N total Beat-type Sequences, each having N voices, and N*2 patterns comprised of N*8 events
@@ -1247,7 +1247,7 @@ public class NexusIntegrationTestingFixtures {
           }
         }
       }
-      log.debug("Generated Beat-type Program id={}, majorMeme={} with {} patterns", program.getId(), majorMemeName, N);
+      LOG.debug("Generated Beat-type Program id={}, majorMeme={} with {} patterns", program.getId(), majorMemeName, N);
     }
 
     return entities;
