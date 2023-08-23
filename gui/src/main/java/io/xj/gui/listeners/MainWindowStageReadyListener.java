@@ -1,6 +1,6 @@
 package io.xj.gui.listeners;
 
-import io.xj.gui.services.WorkstationIconService;
+import io.xj.gui.WorkstationIcon;
 import io.xj.gui.controllers.MainWindowController;
 import io.xj.gui.events.StageReadyEvent;
 import javafx.fxml.FXMLLoader;
@@ -23,17 +23,15 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
   static final Logger LOG = LoggerFactory.getLogger(MainWindowStageReadyListener.class);
   private final Resource mainWindowFxml;
   private final MainWindowController mainWindowController;
-  private final WorkstationIconService workstationIconService;
   private final ApplicationContext ac;
 
   public MainWindowStageReadyListener(
     @Value("classpath:/views/main-window.fxml") Resource mainWindowFxml,
     MainWindowController mainWindowController,
-    WorkstationIconService workstationIconService, ApplicationContext ac
+    ApplicationContext ac
   ) {
     this.mainWindowFxml = mainWindowFxml;
     this.mainWindowController = mainWindowController;
-    this.workstationIconService = workstationIconService;
     this.ac = ac;
   }
 
@@ -45,8 +43,8 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
       mainWindowFxmlLoader.setControllerFactory(ac::getBean);
       mainWindowController.setMainWindowScene(new Scene(mainWindowFxmlLoader.load()));
       primaryStage.setScene(mainWindowController.getMainWindowScene());
-      workstationIconService.setup(primaryStage, null);
-      workstationIconService.setupTaskbar();
+      WorkstationIcon.setup(primaryStage, null);
+      WorkstationIcon.setupTaskbar();
 
       mainWindowController.onStageReady();
       primaryStage.show();

@@ -2,7 +2,7 @@ package io.xj.gui.controllers;
 
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.FabricationStatus;
-import io.xj.gui.services.WorkstationIconService;
+import io.xj.gui.WorkstationIcon;
 import jakarta.annotation.Nullable;
 import javafx.application.HostServices;
 import javafx.concurrent.WorkerStateEvent;
@@ -43,7 +43,6 @@ public class MainWindowController implements ReadyAfterBootController {
   private final String darkTheme;
   private final ModalLabConnectionController modalLabConnectionController;
   private final Resource modalLabConnectionFxml;
-  private final WorkstationIconService workstationIconService;
   private FabricationStatus status;
 
   @Nullable
@@ -56,14 +55,12 @@ public class MainWindowController implements ReadyAfterBootController {
     BottomPaneController bottomPaneController,
     ConfigurableApplicationContext ac,
     FabricationService fabricationService,
-    ModalLabConnectionController modalLabConnectionController,
-    WorkstationIconService workstationIconService
+    ModalLabConnectionController modalLabConnectionController
   ) {
     this.fabricationService = fabricationService;
     this.bottomPaneController = bottomPaneController;
     this.modalLabConnectionController = modalLabConnectionController;
     this.modalLabConnectionFxml = modalLabConnectionFxml;
-    this.workstationIconService = workstationIconService;
     status = FabricationStatus.Ready;
     this.hostServices = hostServices;
     this.ac = ac;
@@ -147,7 +144,7 @@ public class MainWindowController implements ReadyAfterBootController {
 
       // Create a new stage (window)
       Stage stage = new Stage();
-      workstationIconService.setup(stage, CONNECT_TO_LAB_WINDOW_NAME);
+      WorkstationIcon.setup(stage, CONNECT_TO_LAB_WINDOW_NAME);
 
       Scene scene = new Scene(loader.load());
       scene.getStylesheets().add(defaultTheme);
