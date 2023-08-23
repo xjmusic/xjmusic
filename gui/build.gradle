@@ -30,11 +30,6 @@ jlink {
     name = 'xjmusic-workstation'
     noConsole = true
   }
-  jpackage {
-    if (os.windows) {
-//      installerOptions = ['--win-per-user-install', '--win-dir-chooser', '--win-menu']
-    }
-  }
 }
 
 dependencies {
@@ -83,3 +78,98 @@ bootJar {
 test {
   useJUnitPlatform()
 }
+
+//declare the variables to be used
+def bundlePath = file('./installer/')
+def outputDir = file('../bundle/')
+def bundleScript = file('bin/build-package.sh')
+def packageType = "exe"
+def appIcon = 'xjmusic.ico'
+def mainJar = 'xjmusic-workstation-gui-0.5.48.jar'
+def publishedVersion = project.version
+def osName = System.getProperty('os.name').toLowerCase()
+def extraBundlerArguments = []
+
+//task that copy jar generated jar file from build path
+task copyJar(type:Copy,dependsOn: build){
+  println '\n Started Copying resources'
+  if (bundlePath.exists() && bundlePath.isDirectory()) {
+    bundlePath.deleteDir()
+    println "Previous Resource Bundle path folder deleted."
+  }
+
+  //delete the previous exe generated bundle
+  if (outputDir.exists() && outputDir.isDirectory()) {
+      outputDir.deleteDir()
+      println "Previous Generated app Bundle deleted ."
+  }
+
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+  from("build/libs"){
+    include '*.jar'
+    exclude '*plain.jar'
+  }
+
+  from("icons/windows/xjmusic.ico"){
+    include '*.ico'
+    exclude '*.bat' , '.gradle' , '.gitignore' , '*gradlew*'
+  }
+
+  into 'installer'
+
+  println '\nFinished Copying resources'
+}
+
+task beforeCreate(dependsOn: copyJar){
+  println '\nStarted platform-specific Icon assigning'
+
+  if (osName.contains("mac")) {
+    packageType = 'dmg'
+    appIcon = file('../icons/mac/xjmusic.icns')
+    if (!project.hasProperty("unsigned")) {
+      extraBundlerArguments = ['--mac-sign']
+    }
+  } else if (osName.contains('nix') || osName.contains('nux') || osName.contains('unix')) {
+    packageType = 'deb'
+    appIcon = file('../icons/linux/xjmusic.png')
+
+  } else if (osName.contains("win")) {
+    packageType = 'exe'
+    appIcon = '../icons/windows/xjmusic.ico'
+    bundleScript = file('bin/build-package.bat')
+  }
+
+  println '\nFinished Icon assigning'
+}
+
+task createBundle(type: Exec,dependsOn:beforeCreate) {
+  println('\nStarting Windows bundle creation')
+
+  if (osName.contains("win")) {
+    inputs.dir('bin')
+    inputs.dir('icons')
+    inputs.dir('installer')
+    workingDir 'installer'
+    commandLine 'cmd', '/c',
+      bundleScript,
+      packageType,
+      bundlePath,
+      outputDir,
+      mainJar,
+      publishedVersion,
+      appIcon
+  } else {
+    commandLine = ['sh',
+                   bundleScript,
+                   packageType,
+                   bundlePath,
+                   mainJar,
+                   publishedVersion,
+                   appIcon,
+                   *extraBundlerArguments
+    ]
+  }
+}
+
+
