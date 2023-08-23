@@ -52,6 +52,7 @@ dependencies {
   implementation "org.openjfx:javafx-fxml:${rootProject.ext.javaFxVersion}"
   implementation "org.openjfx:javafx-graphics:${rootProject.ext.javaFxVersion}"
   implementation "org.springframework.boot:spring-boot-starter-logging:${rootProject.ext.springBootVersion}"
+  implementation "org.springframework.boot:spring-boot-starter-webflux:${rootProject.ext.springBootVersion}"
   implementation "org.springframework.boot:spring-boot-starter:${rootProject.ext.springBootVersion}"
   implementation 'com.typesafe:config:1.4.2'
   implementation 'commons-codec:commons-codec:1.15'

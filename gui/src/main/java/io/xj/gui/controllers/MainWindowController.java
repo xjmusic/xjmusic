@@ -1,8 +1,8 @@
 package io.xj.gui.controllers;
 
+import io.xj.gui.WorkstationIcon;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.FabricationStatus;
-import io.xj.gui.WorkstationIcon;
 import jakarta.annotation.Nullable;
 import javafx.application.HostServices;
 import javafx.concurrent.WorkerStateEvent;
@@ -41,7 +41,6 @@ public class MainWindowController implements ReadyAfterBootController {
   private final String launchGuideUrl;
   private final String defaultTheme;
   private final String darkTheme;
-  private final ModalLabConnectionController modalLabConnectionController;
   private final Resource modalLabConnectionFxml;
   private FabricationStatus status;
 
@@ -54,12 +53,10 @@ public class MainWindowController implements ReadyAfterBootController {
     @Value("classpath:/views/modal-lab-connection.fxml") Resource modalLabConnectionFxml,
     BottomPaneController bottomPaneController,
     ConfigurableApplicationContext ac,
-    FabricationService fabricationService,
-    ModalLabConnectionController modalLabConnectionController
+    FabricationService fabricationService
   ) {
     this.fabricationService = fabricationService;
     this.bottomPaneController = bottomPaneController;
-    this.modalLabConnectionController = modalLabConnectionController;
     this.modalLabConnectionFxml = modalLabConnectionFxml;
     status = FabricationStatus.Ready;
     this.hostServices = hostServices;
@@ -156,7 +153,6 @@ public class MainWindowController implements ReadyAfterBootController {
       // Set the scene and show the stage
       stage.setScene(scene);
       stage.initModality(Modality.APPLICATION_MODAL); // make it a modal window
-      modalLabConnectionController.setConfiguration(fabricationService.getConfiguration());
       stage.showAndWait();
     } catch (IOException e) {
       e.printStackTrace();

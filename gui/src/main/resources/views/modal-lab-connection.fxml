@@ -14,83 +14,31 @@
         <Insets/>
       </opaqueInsets>
       <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0"
-             text="Input Template Key" textAlignment="RIGHT">
+             text="Lab URL" textAlignment="RIGHT">
         <graphic>
           <Pane prefHeight="100.0" prefWidth="15.0"/>
         </graphic>
       </Label>
       <Pane prefHeight="100.0" prefWidth="15.0"/>
-      <TextField fx:id="fieldInputTemplateKey" prefHeight="25.0" prefWidth="402.0"/>
+      <TextField fx:id="fieldHubUrl" prefHeight="25.0" prefWidth="402.0"/>
     </HBox>
     <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
       <opaqueInsets>
         <Insets/>
       </opaqueInsets>
-      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0" text="Input Mode"
+      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0" text="Access Token"
              textAlignment="RIGHT">
         <graphic>
           <Pane prefHeight="100.0" prefWidth="15.0"/>
         </graphic>
       </Label>
       <Pane prefHeight="100.0" prefWidth="15.0"/>
-      <ChoiceBox fx:id="choiceInputMode" prefHeight="25.0" prefWidth="401.0"/>
-    </HBox>
-    <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
-      <opaqueInsets>
-        <Insets/>
-      </opaqueInsets>
-      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0" text="Output Mode"
-             textAlignment="RIGHT">
-        <graphic>
-          <Pane prefHeight="100.0" prefWidth="15.0"/>
-        </graphic>
-      </Label>
-      <Pane prefHeight="100.0" prefWidth="15.0"/>
-      <ChoiceBox fx:id="choiceOutputMode" prefHeight="25.0" prefWidth="401.0"/>
-    </HBox>
-    <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
-      <opaqueInsets>
-        <Insets/>
-      </opaqueInsets>
-      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0"
-             text="Output File Mode" textAlignment="RIGHT">
-        <graphic>
-          <Pane prefHeight="100.0" prefWidth="15.0"/>
-        </graphic>
-      </Label>
-      <Pane prefHeight="100.0" prefWidth="15.0"/>
-      <ChoiceBox fx:id="choiceOutputFileMode" prefHeight="25.0" prefWidth="401.0"/>
-    </HBox>
-    <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
-      <opaqueInsets>
-        <Insets/>
-      </opaqueInsets>
-      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0"
-             text="Output Seconds" textAlignment="RIGHT">
-        <graphic>
-          <Pane prefHeight="100.0" prefWidth="15.0"/>
-        </graphic>
-      </Label>
-      <Pane prefHeight="100.0" prefWidth="15.0"/>
-      <TextField fx:id="fieldOutputSeconds" prefHeight="25.0" prefWidth="402.0"/>
-    </HBox>
-    <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
-      <opaqueInsets>
-        <Insets/>
-      </opaqueInsets>
-      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0"
-             text="Output Path Prefix" textAlignment="RIGHT">
-        <graphic>
-          <Pane prefHeight="100.0" prefWidth="15.0"/>
-        </graphic>
-      </Label>
-      <Pane prefHeight="100.0" prefWidth="15.0"/>
-      <TextField fx:id="fieldOutputPathPrefix" prefHeight="25.0" prefWidth="402.0"/>
+      <TextField fx:id="fieldHubAccessToken" prefHeight="25.0" prefWidth="401.0"/>
     </HBox>
   </VBox>
 
   <HBox spacing="10" alignment="CENTER_RIGHT">
+    <Button text="Connect" fx:id="connectButton" onAction="#handleConnect"/>
     <Button text="Cancel" fx:id="cancelButton" onAction="#handleCancel"/>
-    <Button text="Save" fx:id="saveButton" onAction="#handleSave"/>
   </HBox>
 </VBox>

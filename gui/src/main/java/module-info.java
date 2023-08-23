@@ -18,12 +18,16 @@ module workstation.gui.main {
   requires spring.boot;
   requires spring.context;
   requires spring.core;
+  requires spring.web;
+  requires spring.webflux;
+  requires spring.boot.starter.reactor.netty;
   requires ch.qos.logback.classic;
   requires ch.qos.logback.core;
 
   requires transitive hub.models.main;
   requires workstation.lib.main;
   requires workstation.nexus.main;
+  requires reactor.core;
 
   opens io.xj.gui.controllers to javafx.graphics, javafx.base, javafx.fxml, javafx.controls, spring.beans;
   opens io.xj.gui.events to javafx.base, javafx.controls, javafx.fxml, javafx.graphics, spring.beans, spring.context, spring.core;
