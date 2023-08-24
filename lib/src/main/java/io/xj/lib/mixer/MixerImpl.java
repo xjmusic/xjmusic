@@ -247,17 +247,25 @@ class MixerImpl implements Mixer {
     int b, p; // iterators: byte, put
     int tc; // iterators: source channel, target channel
     double v, ev; // a single sample value, and the enveloped value
-
     // steps to get requisite items stored plain arrays, for access speed
     var srcPutList = activePuts.values().stream().filter(put -> source.getAudioId().equals(put.getAudioId())).toList();
     Put[] srcPut = new Put[srcPutList.size()];
     int srcPutLength = srcPut.length;
     int[] srcPutSpan = new int[srcPutLength];
     int[] srcPutFrom = new int[srcPutLength];
+
+    double[] velocities = new double[srcPutLength];
+    int[] attackMillis = new int[srcPutLength];
+    int[] releaseMillis = new int[srcPutLength];
+
     for (p = 0; p < srcPutLength; p++) {
       srcPut[p] = srcPutList.get(p);
       srcPutFrom[p] = (int) (srcPut[p].getStartAtMicros() / microsPerFrame);
       srcPutSpan[p] = (int) ((srcPut[p].getStopAtMicros() - srcPut[p].getStartAtMicros()) / microsPerFrame);
+
+      velocities[p] = srcPut[p].getVelocity();
+      attackMillis[p] = srcPut[p].getAttackMillis();
+      releaseMillis[p] = srcPut[p].getReleaseMillis();
     }
 
     try (var fileInputStream = FileUtils.openInputStream(new File(source.getAbsolutePath())); var bufferedInputStream = new BufferedInputStream(fileInputStream); var audioInputStream = AudioSystem.getAudioInputStream(bufferedInputStream)) {
@@ -287,6 +295,7 @@ class MixerImpl implements Mixer {
       int numBytesReadToBuffer;
       byte[] sampleBuffer = new byte[source.getSampleSize()];
       byte[] readBuffer = new byte[READ_BUFFER_BYTE_SIZE];
+
       while (-1 != (numBytesReadToBuffer = audioInputStream.read(readBuffer))) {
         for (b = 0; b < numBytesReadToBuffer; b += frameSize) {
           // FUTURE: skip frame if unnecessary (source rate higher than target rate)
@@ -295,9 +304,9 @@ class MixerImpl implements Mixer {
             v = AudioSampleFormat.fromBytes(sampleBuffer, sampleFormat);
             for (p = 0; p < srcPutLength; p++) {
               if (sf < srcPutSpan[p]) // attack phase
-                ev = envelope.length(srcPut[p].getAttackMillis() * framesPerMilli).in(sf, v * srcPut[p].getVelocity());
+                ev = envelope.length(attackMillis[p] * framesPerMilli).in(sf, v * velocities[p]);
               else // release phase
-                ev = envelope.length(srcPut[p].getReleaseMillis() * framesPerMilli).out(sf - srcPutSpan[p], v * srcPut[p].getVelocity());
+                ev = envelope.length(releaseMillis[p] * framesPerMilli).out(sf - srcPutSpan[p], v * velocities[p]);
 
               ptf = srcPutFrom[p] + sf;
               if (ptf < 0 || ptf >= busBuf[0].length) continue;
