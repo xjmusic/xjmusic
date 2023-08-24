@@ -34,6 +34,14 @@ public class HubService {
     this.hubUrl.set(defaultHubBaseUrl);
     this.webClient = WebClient.builder().build();
     this.status.set(HubStatus.Ready);
+    status.addListener((observable, oldValue, newValue) -> {
+      if (!newValue.toString().endsWith("/")) {
+        this.hubUrl.set(this.hubUrl.getValue() + '/');
+      }
+      if (newValue == HubStatus.Unauthorized) {
+        this.hubAccessToken.set(null);
+      }
+    });
   }
 
   public void connect(String url, String accessToken) {

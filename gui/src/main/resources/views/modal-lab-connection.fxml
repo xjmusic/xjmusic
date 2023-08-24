@@ -23,6 +23,15 @@
       <Pane prefHeight="100.0" prefWidth="15.0" />
       <TextField fx:id="fieldHubUrl" prefHeight="25.0" prefWidth="402.0" />
     </HBox>
+    <HBox alignment="CENTER_LEFT" prefHeight="36.0" prefWidth="640.0">
+      <opaqueInsets>
+        <Insets />
+      </opaqueInsets>
+      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0" textAlignment="RIGHT">
+      </Label>
+      <Pane prefHeight="100.0" prefWidth="15.0" />
+      <Button onAction="#handleLaunchLabPreferences" text="Get Access Token" />
+    </HBox>
     <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
       <opaqueInsets>
         <Insets />
@@ -44,6 +53,6 @@
   </VBox>
 
   <HBox alignment="CENTER_RIGHT" spacing="10">
-    <Button fx:id="closeButton" onAction="#handleClose" text="Close" />
+    <Button fx:id="buttonClose" onAction="#handleClose" text="Close" />
   </HBox>
 </VBox>
