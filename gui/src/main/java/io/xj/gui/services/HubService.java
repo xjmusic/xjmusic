@@ -6,6 +6,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
@@ -27,9 +28,12 @@ public class HubService {
   @FXML
   private TextField fieldHubAccessToken;
 
-  public HubService() {
+  public HubService(
+    @Value("${hub.base.url}") String defaultHubBaseUrl
+  ) {
+    this.hubUrl.set(defaultHubBaseUrl);
     this.webClient = WebClient.builder().build();
-    this.status.set(HubStatus.Initializing);
+    this.status.set(HubStatus.Ready);
   }
 
   public void connect(String url, String accessToken) {

@@ -38,6 +38,7 @@ public class MainWindowController implements ReadyAfterBootController {
   private final ConfigurableApplicationContext ac;
   private final FabricationService fabricationService;
   private final BottomPaneController bottomPaneController;
+  private final ModalLabConnectionController modalLabConnectionController;
   private final String launchGuideUrl;
   private final String defaultTheme;
   private final String darkTheme;
@@ -52,12 +53,14 @@ public class MainWindowController implements ReadyAfterBootController {
     @Value("${gui.launch.guide.url}") String launchGuideUrl,
     @Value("classpath:/views/modal-lab-connection.fxml") Resource modalLabConnectionFxml,
     BottomPaneController bottomPaneController,
-    ConfigurableApplicationContext ac,
-    FabricationService fabricationService
-  ) {
+    ModalLabConnectionController modalLabConnectionController,
+    FabricationService fabricationService,
+    ConfigurableApplicationContext ac
+    ) {
     this.fabricationService = fabricationService;
     this.bottomPaneController = bottomPaneController;
     this.modalLabConnectionFxml = modalLabConnectionFxml;
+    this.modalLabConnectionController = modalLabConnectionController;
     status = FabricationStatus.Ready;
     this.hostServices = hostServices;
     this.ac = ac;
@@ -75,7 +78,9 @@ public class MainWindowController implements ReadyAfterBootController {
 
   @Override
   public void onStageReady() {
-    mainWindowScene.getStylesheets().add(defaultTheme);
+    if (Objects.nonNull(mainWindowScene)) {
+      mainWindowScene.getStylesheets().add(defaultTheme);
+    }
     enableDarkTheme();
     onStatusUpdate(status);
     bottomPaneController.onStageReady();
@@ -153,6 +158,7 @@ public class MainWindowController implements ReadyAfterBootController {
       // Set the scene and show the stage
       stage.setScene(scene);
       stage.initModality(Modality.APPLICATION_MODAL); // make it a modal window
+      modalLabConnectionController.onStageReady();
       stage.showAndWait();
     } catch (IOException e) {
       e.printStackTrace();

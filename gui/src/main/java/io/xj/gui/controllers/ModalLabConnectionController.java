@@ -4,45 +4,49 @@ package io.xj.gui.controllers;
 import io.xj.gui.services.HubService;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import org.springframework.beans.factory.annotation.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ModalLabConnectionController implements ReadyAfterBootController {
-  private final String defaultHubBaseUrl;
   private final HubService hubService;
   @FXML
   public Button connectButton;
   @FXML
-  public Button cancelButton;
+  public Button closeButton;
   @FXML
-  TextField fieldLabUrl;
+  TextField fieldHubUrl;
   @FXML
-  TextField fieldAccessToken;
+  PasswordField fieldHubAccessToken;
+  @FXML
+  Label labelStatus;
 
   public ModalLabConnectionController(
-    @Value("${hub.base.url}") String defaultHubBaseUrl,
     HubService hubService
   ) {
-    this.defaultHubBaseUrl = defaultHubBaseUrl;
     this.hubService = hubService;
   }
 
   @Override
   public void onStageReady() {
-    fieldLabUrl.setText(defaultHubBaseUrl);
+    fieldHubUrl.textProperty().bindBidirectional(hubService.hubUrlProperty());
+    fieldHubAccessToken.textProperty().bindBidirectional(hubService.hubAccessTokenProperty());
+    labelStatus.textProperty().bind(hubService.statusProperty().asString());
   }
 
   @FXML
-  private void handleCancel() {
+  private void handleClose() {
     closeStage();
   }
 
   @FXML
   private void handleConnect() {
-    closeStage();
+    // todo handle connect
   }
 
   private void closeStage() {
