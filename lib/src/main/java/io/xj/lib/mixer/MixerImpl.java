@@ -251,9 +251,10 @@ class MixerImpl implements Mixer {
     // steps to get requisite items stored plain arrays, for access speed
     var srcPutList = activePuts.values().stream().filter(put -> source.getAudioId().equals(put.getAudioId())).toList();
     Put[] srcPut = new Put[srcPutList.size()];
-    int[] srcPutSpan = new int[srcPut.length];
-    int[] srcPutFrom = new int[srcPut.length];
-    for (p = 0; p < srcPut.length; p++) {
+    int srcPutLength = srcPut.length;
+    int[] srcPutSpan = new int[srcPutLength];
+    int[] srcPutFrom = new int[srcPutLength];
+    for (p = 0; p < srcPutLength; p++) {
       srcPut[p] = srcPutList.get(p);
       srcPutFrom[p] = (int) (srcPut[p].getStartAtMicros() / microsPerFrame);
       srcPutSpan[p] = (int) ((srcPut[p].getStopAtMicros() - srcPut[p].getStartAtMicros()) / microsPerFrame);
@@ -292,7 +293,7 @@ class MixerImpl implements Mixer {
           for (tc = 0; tc < outputChannels; tc++) {
             System.arraycopy(readBuffer, b + (isStereo ? tc : 0) * sampleSize, sampleBuffer, 0, sampleSize);
             v = AudioSampleFormat.fromBytes(sampleBuffer, sampleFormat);
-            for (p = 0; p < srcPut.length; p++) {
+            for (p = 0; p < srcPutLength; p++) {
               if (sf < srcPutSpan[p]) // attack phase
                 ev = envelope.length(srcPut[p].getAttackMillis() * framesPerMilli).in(sf, v * srcPut[p].getVelocity());
               else // release phase
