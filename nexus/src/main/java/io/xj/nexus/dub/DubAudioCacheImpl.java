@@ -35,6 +35,7 @@ public class DubAudioCacheImpl implements DubAudioCache {
   final HttpClientProvider httpClientProvider;
   final String audioFileBucket;
   final String audioBaseUrl;
+  final CloseableHttpClient client;
 
   @Autowired
   public DubAudioCacheImpl(
@@ -44,6 +45,7 @@ public class DubAudioCacheImpl implements DubAudioCache {
     @Value("${audio.base.url}") String audioBaseUrl
   ) {
     this.httpClientProvider = httpClientProvider;
+    this.client = httpClientProvider.getClient();
     this.audioFileBucket = audioFileBucket;
     this.audioBaseUrl = audioBaseUrl;
 
@@ -70,9 +72,8 @@ public class DubAudioCacheImpl implements DubAudioCache {
     if (existsOnDisk(absolutePath)) {
       Files.delete(Path.of(absolutePath));
     }
-    CloseableHttpClient client = httpClientProvider.getClient();
     try (
-      CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", audioBaseUrl, waveformKey)))
+      CloseableHttpResponse response = this.client.execute(new HttpGet(String.format("%s%s", audioBaseUrl, waveformKey)))
     ) {
       writeFrom(response.getEntity().getContent(), targetFrameRate, targetSampleBits, targetChannels, absolutePath);
     } catch (IOException e) {
