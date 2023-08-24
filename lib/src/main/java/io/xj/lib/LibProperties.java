@@ -1,11 +1,11 @@
-package io.xj.gui;
+package io.xj.lib;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
 @Configuration
-@PropertySource("file:../../../../common.properties")
-public class WorkstationConfiguration {
+@PropertySource("classpath:application-lib.properties")
+public class LibProperties {
   // Configuration goes here
 }
 
