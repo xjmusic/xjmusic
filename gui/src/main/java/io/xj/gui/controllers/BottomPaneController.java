@@ -2,6 +2,7 @@ package io.xj.gui.controllers;
 
 import ch.qos.logback.classic.Level;
 import io.xj.gui.WorkstationLogAppender;
+import io.xj.gui.services.LabService;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -29,6 +30,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 @Service
 public class BottomPaneController extends VBox implements ReadyAfterBootController {
+  private final LabService labService;
   final LogQueue logQueue;
   final ObservableList<LogRecord> logItems = FXCollections.observableArrayList();
   static final int MAX_ENTRIES = 10_000;
@@ -42,7 +44,10 @@ public class BottomPaneController extends VBox implements ReadyAfterBootControll
   final DoubleProperty refreshRate = new SimpleDoubleProperty(1);
 
   @FXML
-  public Label labelStatus;
+  public Label labelLabStatus;
+
+  @FXML
+  public Label labelFabricationStatus;
 
   @FXML
   public ToggleButton toggleShowLogs;
@@ -53,8 +58,20 @@ public class BottomPaneController extends VBox implements ReadyAfterBootControll
   @FXML
   protected ListView<BottomPaneController.LogRecord> logListView;
 
+  public BottomPaneController(
+    LabService labService
+  ) {
+    this.labService = labService;
+    logQueue = new LogQueue();
+
+    // bind to the log appender
+    WorkstationLogAppender.LISTENER.set(this::appendLogLine);
+  }
+
   @Override
   public void onStageReady() {
+    labelLabStatus.textProperty().bind(labService.statusProperty().asString());
+
     Timeline logTransfer = new Timeline(
       new KeyFrame(
         Duration.seconds(1),
@@ -122,14 +139,6 @@ public class BottomPaneController extends VBox implements ReadyAfterBootControll
     return refreshRate;
   }
 
-  public BottomPaneController(
-  ) {
-    logQueue = new LogQueue();
-
-    // bind to the log appender
-    WorkstationLogAppender.LISTENER.set(this::appendLogLine);
-  }
-
   public void appendLogLine(Level level, String context, String line) {
     if (Objects.nonNull(line))
       try {
@@ -140,7 +149,7 @@ public class BottomPaneController extends VBox implements ReadyAfterBootControll
   }
 
   public void setStatusText(String status) {
-    labelStatus.setText(status);
+    labelFabricationStatus.setText(status);
   }
 
   void updateLogsVisibility() {
@@ -158,6 +167,7 @@ public class BottomPaneController extends VBox implements ReadyAfterBootControll
       logListView.setMaxHeight(0);
     }
   }
+
   static class LogQueue {
 
     static final int MAX_LOG_ENTRIES = 1_000_000;

@@ -46,20 +46,28 @@ public class ModalLabConnectionController implements ReadyAfterBootController {
   final Resource modalLabConnectionFxml;
   final LabService labService;
   final ThemeService themeService;
+
   @FXML
   public Button buttonClose;
+
   @FXML
   public Button buttonConnect;
+
   @FXML
   TextField fieldLabUrl;
+
   @FXML
   PasswordField fieldLabAccessToken;
+
   @FXML
   Label labelStatus;
+
   @FXML
   ImageView imageViewUserAvatar;
+
   @FXML
   Text textUserName;
+
   @FXML
   Text textUserEmail;
 

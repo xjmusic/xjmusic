@@ -79,8 +79,6 @@ public class LabService {
 
   public void disconnect() {
     this.status.set(LabStatus.Disconnected);
-    this.url.set(null);
-    this.accessToken.set(null);
     this.authenticatedUser.set(null);
   }
 
