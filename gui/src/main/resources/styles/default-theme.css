@@ -2,6 +2,12 @@
 
 .root {
   -fx-base: #c0c0c0;
+  -fx-background-color: #d0d0d0;
+}
+
+.menu-bar, .menu {
+  -fx-background-color: #e0e0e0;
+  -fx-border-color: transparent;
 }
 
 .log-viewer {
@@ -26,5 +32,4 @@
 
 .bottom-pane-status-container {
   -fx-background-color: #c0c0c0;
-  -fx-padding: 5px;
 }

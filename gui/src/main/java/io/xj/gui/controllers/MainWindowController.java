@@ -2,13 +2,13 @@ package io.xj.gui.controllers;
 
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.FabricationStatus;
+import io.xj.gui.services.ThemeService;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
-import io.xj.nexus.work.WorkConfiguration;
 import jakarta.annotation.Nullable;
 import javafx.application.HostServices;
-import javafx.concurrent.WorkerStateEvent;
+import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -23,103 +23,107 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 public class MainWindowController implements ReadyAfterBootController {
   Logger LOG = LoggerFactory.getLogger(MainWindowController.class);
-  private final static String LIGHT_THEME_STYLE_PATH = "styles/default-theme.css";
-  private final static String DARK_THEME_STYLE_PATH = "styles/dark-theme.css";
-  private final static String BUTTON_TEXT_START = "Start";
-  private final static String BUTTON_TEXT_STOP = "Stop";
-  private final static String BUTTON_TEXT_RESET = "Reset";
-  private final HostServices hostServices;
-  private final ConfigurableApplicationContext ac;
-  private final FabricationService fabricationService;
-  private final BottomPaneController bottomPaneController;
-  private final String launchGuideUrl;
-  private final String lightTheme;
-  private final String darkTheme;
-  private final String defaultOutputPathPrefix;
-  private final InputMode defaultInputMode;
-  private final OutputMode defaultOutputMode;
-  private final OutputFileMode defaultOutputFileMode;
-  private final String defaultOutputSeconds;
-  private FabricationStatus status;
+  static final List<FabricationStatus> BUTTON_ACTION_ACTIVE_IN_FABRICATION_STATES = Arrays.asList(
+    FabricationStatus.Standby,
+    FabricationStatus.Active,
+    FabricationStatus.Cancelled,
+    FabricationStatus.Done,
+    FabricationStatus.Failed
+  );
+  final static String BUTTON_TEXT_START = "Start";
+  final static String BUTTON_TEXT_STOP = "Stop";
+  final static String BUTTON_TEXT_RESET = "Reset";
+  final HostServices hostServices;
+  final ConfigurableApplicationContext ac;
+  final FabricationService fabricationService;
+  final BottomPaneController bottomPaneController;
+  final ModalLabConnectionController modalLabConnectionController;
+  final ThemeService themeService;
+  final String launchGuideUrl;
 
   @Nullable
-  private Scene mainWindowScene;
+  Scene mainWindowScene;
+
+  @FXML
+  TextField fieldInputTemplateKey;
+
+  @FXML
+  ChoiceBox<InputMode> choiceInputMode;
+
+  @FXML
+  ChoiceBox<OutputMode> choiceOutputMode;
+
+  @FXML
+  ChoiceBox<OutputFileMode> choiceOutputFileMode;
+
+  @FXML
+  TextField fieldOutputSeconds;
+
+  @FXML
+  TextField fieldOutputPathPrefix;
+
 
   public MainWindowController(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
     @Value("${gui.launch.guide.url}") String launchGuideUrl,
-    @Value("${input.mode}") String defaultInputMode,
-    @Value("${output.file.mode}") String defaultOutputFileMode,
-    @Value("${output.mode}") String defaultOutputMode,
-    @Value("${output.seconds}") String defaultOutputSeconds,
-    ConfigurableApplicationContext ac,
+    BottomPaneController bottomPaneController,
+    ModalLabConnectionController modalLabConnectionController,
     FabricationService fabricationService,
-    BottomPaneController bottomPaneController
+    ThemeService themeService,
+    ConfigurableApplicationContext ac
   ) {
     this.fabricationService = fabricationService;
     this.bottomPaneController = bottomPaneController;
-    status = FabricationStatus.Ready;
+    this.modalLabConnectionController = modalLabConnectionController;
+    this.themeService = themeService;
     this.hostServices = hostServices;
     this.ac = ac;
     this.launchGuideUrl = launchGuideUrl;
-    this.lightTheme = LIGHT_THEME_STYLE_PATH;
-    this.darkTheme = DARK_THEME_STYLE_PATH;
-    this.defaultOutputSeconds = defaultOutputSeconds;
-    this.defaultOutputPathPrefix = System.getProperty("user.home") + File.separator;
-    this.defaultInputMode = InputMode.valueOf(defaultInputMode.toUpperCase(Locale.ROOT));
-    this.defaultOutputMode = OutputMode.valueOf(defaultOutputMode.toUpperCase(Locale.ROOT));
-    this.defaultOutputFileMode = OutputFileMode.valueOf(defaultOutputFileMode.toUpperCase(Locale.ROOT));
   }
 
   @FXML
   public VBox bottomPane;
   @FXML
-  protected CheckMenuItem darkThemeCheck;
-  @FXML
-  protected TextField fieldInputTemplateKey;
-  @FXML
-  protected TextField fieldOutputPathPrefix;
-  @FXML
-  protected TextField fieldOutputSeconds;
-  @FXML
-  protected ChoiceBox<InputMode> choiceInputMode;
-  @FXML
-  protected ChoiceBox<OutputMode> choiceOutputMode;
-  @FXML
-  protected ChoiceBox<OutputFileMode> choiceOutputFileMode;
+  protected CheckMenuItem checkboxDarkTheme;
   @FXML
   protected Button buttonAction;
 
   @Override
   public void onStageReady() {
-    mainWindowScene.getStylesheets().add(lightTheme);
-    enableDarkTheme();
-    onStatusUpdate(status);
-    fieldOutputSeconds.setText(defaultOutputSeconds);
-    fieldOutputPathPrefix.setText(defaultOutputPathPrefix);
     choiceInputMode.getItems().setAll(InputMode.values());
     choiceOutputMode.getItems().setAll(OutputMode.values());
     choiceOutputFileMode.getItems().setAll(OutputFileMode.values());
-    choiceInputMode.setValue(defaultInputMode);
-    choiceOutputMode.setValue(defaultOutputMode);
-    choiceOutputFileMode.setValue(defaultOutputFileMode);
-    bottomPaneController.onStageReady();
-  }
 
-  @FXML
-  private void toggleDarkTheme() {
-    if (darkThemeCheck.isSelected()) {
-      enableDarkTheme();
-    } else {
-      disableDarkTheme();
-    }
+    fieldInputTemplateKey.textProperty().bindBidirectional(fabricationService.inputTemplateKeyProperty());
+      choiceInputMode.valueProperty().bindBidirectional(fabricationService.inputModeProperty());
+    choiceOutputMode.valueProperty().bindBidirectional(fabricationService.outputModeProperty());
+      choiceOutputFileMode.valueProperty().bindBidirectional(fabricationService.outputFileModeProperty());
+    fieldOutputSeconds.textProperty().bindBidirectional(fabricationService.outputSecondsProperty());
+      fieldOutputPathPrefix.textProperty().bindBidirectional(fabricationService.outputPathPrefixProperty());
+
+    themeService.setup(mainWindowScene);
+    themeService.isDarkThemeProperty().bind(checkboxDarkTheme.selectedProperty());
+    themeService.isDarkThemeProperty().addListener((observable, oldValue, newValue) -> themeService.setup(mainWindowScene));
+
+    buttonAction.disableProperty().bind(Bindings.createBooleanBinding(() ->
+        BUTTON_ACTION_ACTIVE_IN_FABRICATION_STATES.contains(fabricationService.statusProperty().get()),
+      fabricationService.statusProperty()).not());
+
+    buttonAction.textProperty().bind(Bindings.createStringBinding(() ->
+        switch (fabricationService.statusProperty().get()) {
+          case Starting, Standby -> BUTTON_TEXT_START;
+          case Active -> BUTTON_TEXT_STOP;
+          case Cancelled, Failed, Done -> BUTTON_TEXT_RESET;
+        },
+      fabricationService.statusProperty()));
+
+    bottomPaneController.onStageReady();
   }
 
   @FXML
@@ -131,37 +135,22 @@ public class MainWindowController implements ReadyAfterBootController {
 
   @FXML
   protected void onButtonActionPress() {
-    switch (status) {
-      case Ready -> start();
+    switch (fabricationService.statusProperty().get()) {
+      case Standby -> start();
       case Active -> stop();
       case Cancelled, Done, Failed -> reset();
     }
   }
 
   public void start() {
-    onStatusUpdate(FabricationStatus.Starting);
-    fabricationService.setConfiguration(new WorkConfiguration()
-      .setInputMode(choiceInputMode.getValue())
-      .setInputTemplateKey(fieldInputTemplateKey.getText())
-      .setOutputFileMode(choiceOutputFileMode.getValue())
-      .setOutputMode(choiceOutputMode.getValue())
-      .setOutputPathPrefix(fieldOutputPathPrefix.getText())
-      .setOutputSeconds(Integer.parseInt(fieldOutputSeconds.getText())));
-    fabricationService.setOnReady((WorkerStateEvent ignored) -> onStatusUpdate(FabricationStatus.Ready));
-    fabricationService.setOnRunning((WorkerStateEvent ignored) -> onStatusUpdate(FabricationStatus.Active));
-    fabricationService.setOnSucceeded((WorkerStateEvent ignored) -> onStatusUpdate(FabricationStatus.Done));
-    fabricationService.setOnCancelled((WorkerStateEvent ignored) -> onStatusUpdate(FabricationStatus.Cancelled));
-    fabricationService.setOnFailed((WorkerStateEvent ignored) -> onStatusUpdate(FabricationStatus.Failed));
     fabricationService.start();
   }
 
   public void stop() {
-    onStatusUpdate(FabricationStatus.Cancelling);
     fabricationService.cancel();
   }
 
   public void reset() {
-    onStatusUpdate(FabricationStatus.Resetting);
     fabricationService.reset();
   }
 
@@ -173,8 +162,7 @@ public class MainWindowController implements ReadyAfterBootController {
 
   @FXML
   protected void onConnectToLab() {
-    LOG.info("Will connect to lab");
-    // TODO open connection to lab modal
+    modalLabConnectionController.launchModal();
   }
 
   public @Nullable Scene getMainWindowScene() {
@@ -185,38 +173,4 @@ public class MainWindowController implements ReadyAfterBootController {
     this.mainWindowScene = mainWindowScene;
   }
 
-  public void onStatusUpdate(FabricationStatus status) {
-    LOG.info("Status update: {} -> {}", this.status, status);
-    this.status = status;
-    bottomPaneController.setStatusText(status.toString());
-    switch (status) {
-      case Initializing, Starting, Cancelling, Resetting -> buttonAction.setDisable(true);
-      case Ready -> {
-        buttonAction.setText(BUTTON_TEXT_START);
-        buttonAction.setDisable(false);
-      }
-      case Active -> {
-        buttonAction.setText(BUTTON_TEXT_STOP);
-        buttonAction.setDisable(false);
-      }
-      case Cancelled, Done, Failed -> {
-        buttonAction.setText(BUTTON_TEXT_RESET);
-        buttonAction.setDisable(false);
-      }
-    }
-  }
-
-  private void enableDarkTheme() {
-    if (Objects.nonNull(mainWindowScene)) {
-//      mainWindowScene.getStylesheets().remove(lightTheme);
-      mainWindowScene.getStylesheets().add(darkTheme);
-    }
-  }
-
-  private void disableDarkTheme() {
-    if (Objects.nonNull(mainWindowScene)) {
-      mainWindowScene.getStylesheets().remove(darkTheme);
-//      mainWindowScene.getStylesheets().add(lightTheme);
-    }
-  }
 }

@@ -58,7 +58,7 @@
           <MenuItem mnemonicParsing="false" onAction="#onQuit" text="Exit" />
         </Menu>
         <Menu mnemonicParsing="false" text="View">
-          <CheckMenuItem fx:id="darkThemeCheck" mnemonicParsing="false" onAction="#toggleDarkTheme" selected="true" text="Dark Theme" />
+          <CheckMenuItem fx:id="checkboxDarkTheme" mnemonicParsing="false" selected="true" text="Dark Theme" />
         </Menu>
         <Menu mnemonicParsing="false" text="Help">
           <MenuItem mnemonicParsing="false" onAction="#onLaunchUserGuide" text="User Guide" />

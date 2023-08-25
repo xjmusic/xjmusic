@@ -2,6 +2,7 @@ package io.xj.gui.controllers;
 
 import ch.qos.logback.classic.Level;
 import io.xj.gui.WorkstationLogAppender;
+import io.xj.gui.services.LabService;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -29,20 +30,24 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 @Service
 public class BottomPaneController extends VBox implements ReadyAfterBootController {
-  private final LogQueue logQueue;
-  private final ObservableList<LogRecord> logItems = FXCollections.observableArrayList();
-  private static final int MAX_ENTRIES = 10_000;
-  private static final int LOG_LIST_VIEW_HEIGHT = 368;
-  private final static PseudoClass debug = PseudoClass.getPseudoClass("debug");
-  private final static PseudoClass info = PseudoClass.getPseudoClass("info");
-  private final static PseudoClass warn = PseudoClass.getPseudoClass("warn");
-  private final static PseudoClass error = PseudoClass.getPseudoClass("error");
-  private final BooleanProperty logsTailing = new SimpleBooleanProperty(true);
-  private final BooleanProperty logsVisible = new SimpleBooleanProperty(false);
-  private final DoubleProperty refreshRate = new SimpleDoubleProperty(1);
+  private final LabService labService;
+  final LogQueue logQueue;
+  final ObservableList<LogRecord> logItems = FXCollections.observableArrayList();
+  static final int MAX_ENTRIES = 10_000;
+  static final int LOG_LIST_VIEW_HEIGHT = 368;
+  final static PseudoClass debug = PseudoClass.getPseudoClass("debug");
+  final static PseudoClass info = PseudoClass.getPseudoClass("info");
+  final static PseudoClass warn = PseudoClass.getPseudoClass("warn");
+  final static PseudoClass error = PseudoClass.getPseudoClass("error");
+  final BooleanProperty logsTailing = new SimpleBooleanProperty(true);
+  final BooleanProperty logsVisible = new SimpleBooleanProperty(false);
+  final DoubleProperty refreshRate = new SimpleDoubleProperty(1);
 
   @FXML
-  public Label labelStatus;
+  public Label labelLabStatus;
+
+  @FXML
+  public Label labelFabricationStatus;
 
   @FXML
   public ToggleButton toggleShowLogs;
@@ -53,8 +58,20 @@ public class BottomPaneController extends VBox implements ReadyAfterBootControll
   @FXML
   protected ListView<BottomPaneController.LogRecord> logListView;
 
+  public BottomPaneController(
+    LabService labService
+  ) {
+    this.labService = labService;
+    logQueue = new LogQueue();
+
+    // bind to the log appender
+    WorkstationLogAppender.LISTENER.set(this::appendLogLine);
+  }
+
   @Override
   public void onStageReady() {
+    labelLabStatus.textProperty().bind(labService.statusProperty().asString());
+
     Timeline logTransfer = new Timeline(
       new KeyFrame(
         Duration.seconds(1),
@@ -122,14 +139,6 @@ public class BottomPaneController extends VBox implements ReadyAfterBootControll
     return refreshRate;
   }
 
-  public BottomPaneController(
-  ) {
-    logQueue = new LogQueue();
-
-    // bind to the log appender
-    WorkstationLogAppender.LISTENER.set(this::appendLogLine);
-  }
-
   public void appendLogLine(Level level, String context, String line) {
     if (Objects.nonNull(line))
       try {
@@ -140,27 +149,30 @@ public class BottomPaneController extends VBox implements ReadyAfterBootControll
   }
 
   public void setStatusText(String status) {
-    labelStatus.setText(status);
+    labelFabricationStatus.setText(status);
   }
 
-  private void updateLogsVisibility() {
+  void updateLogsVisibility() {
     if (logsVisible.get()) {
       logListView.setVisible(true);
+      toggleTailLogs.setDisable(false);
       logListView.setMinHeight(LOG_LIST_VIEW_HEIGHT);
       logListView.setPrefHeight(LOG_LIST_VIEW_HEIGHT);
       logListView.setMaxHeight(LOG_LIST_VIEW_HEIGHT);
     } else {
+      toggleTailLogs.setDisable(true);
       logListView.setVisible(false);
       logListView.setMinHeight(0);
       logListView.setPrefHeight(0);
       logListView.setMaxHeight(0);
     }
   }
+
   static class LogQueue {
 
-    private static final int MAX_LOG_ENTRIES = 1_000_000;
+    static final int MAX_LOG_ENTRIES = 1_000_000;
 
-    private final BlockingDeque<LogRecord> queue = new LinkedBlockingDeque<>(MAX_LOG_ENTRIES);
+    final BlockingDeque<LogRecord> queue = new LinkedBlockingDeque<>(MAX_LOG_ENTRIES);
 
     public void drainTo(Collection<? super LogRecord> collection) {
       queue.drainTo(collection);

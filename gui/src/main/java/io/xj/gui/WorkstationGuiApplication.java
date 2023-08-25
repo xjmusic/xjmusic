@@ -21,7 +21,7 @@ import org.springframework.context.event.EventListener;
   })
 public class WorkstationGuiApplication {
 
-  private final EntityFactory entityFactory;
+  final EntityFactory entityFactory;
 
   public WorkstationGuiApplication(
     EntityFactory entityFactory
