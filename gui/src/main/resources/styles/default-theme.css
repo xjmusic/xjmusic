@@ -5,9 +5,13 @@
   -fx-background-color: #d0d0d0;
 }
 
-.menu-bar, .menu {
+.menu, .menu-bar, .menu, .menu-item, .menu-button, .context-menu {
   -fx-background-color: #e0e0e0;
   -fx-border-color: transparent;
+}
+
+.menu-item:hover, .menu-button:hover {
+  -fx-background-color: #c0c0c0;
 }
 
 .log-viewer {

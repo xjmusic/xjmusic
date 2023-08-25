@@ -14,6 +14,10 @@
   -fx-border-color: transparent;
 }
 
+.menu-item:hover, .menu-button:hover {
+  -fx-background-color: #474747;
+}
+
 .label {
   -fx-text-fill: lightgray;
 }
