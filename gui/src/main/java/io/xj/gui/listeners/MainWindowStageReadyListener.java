@@ -21,9 +21,9 @@ import java.io.IOException;
 @Component
 public class MainWindowStageReadyListener implements ApplicationListener<StageReadyEvent> {
   static final Logger LOG = LoggerFactory.getLogger(MainWindowStageReadyListener.class);
-  private final Resource mainWindowFxml;
-  private final MainWindowController mainWindowController;
-  private final ApplicationContext ac;
+  final Resource mainWindowFxml;
+  final MainWindowController mainWindowController;
+  final ApplicationContext ac;
 
   public MainWindowStageReadyListener(
     @Value("classpath:/views/main-window.fxml") Resource mainWindowFxml,
@@ -60,7 +60,7 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
    @param image The image resource
    @return The loaded image
    */
-  private Image loadImage(Resource image) {
+  Image loadImage(Resource image) {
     try {
       return new Image(new BufferedInputStream(new FileInputStream(image.getFile())));
     } catch (IOException e) {

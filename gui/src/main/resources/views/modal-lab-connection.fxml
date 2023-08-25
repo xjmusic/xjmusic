@@ -4,7 +4,9 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
@@ -41,7 +43,7 @@
       <Pane prefHeight="100.0" prefWidth="15.0" />
       <PasswordField fx:id="fieldLabAccessToken" prefHeight="25.0" prefWidth="401.0" />
     </HBox>
-    <HBox alignment="CENTER_LEFT" prefHeight="36.0" prefWidth="640.0">
+    <HBox alignment="CENTER_LEFT" prefHeight="43.0" prefWidth="640.0">
       <opaqueInsets>
         <Insets />
       </opaqueInsets>
@@ -50,6 +52,14 @@
       <Pane prefHeight="100.0" prefWidth="15.0" />
       <Button fx:id="buttonConnect" onAction="#handleConnect" text="Connect" />
     </HBox>
+      <Pane prefHeight="16.0" prefWidth="640.0" />
+      <Separator prefWidth="200.0" />
+      <Pane layoutX="10.0" layoutY="172.0" prefHeight="16.0" prefWidth="640.0" />
+      <HBox prefHeight="100.0" prefWidth="200.0">
+         <children>
+            <ImageView fx:id="imageViewUserAvatar" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+         </children>
+      </HBox>
   </VBox>
 
   <HBox alignment="CENTER_RIGHT" spacing="10">

@@ -16,9 +16,9 @@ import java.util.Locale;
 
 @org.springframework.stereotype.Service
 public class FabricationService extends Service<Boolean> {
-  private final WorkFactory workFactory;
+  final WorkFactory workFactory;
 
-  private final ObjectProperty<WorkConfiguration> configuration = new SimpleObjectProperty<>();
+  final ObjectProperty<WorkConfiguration> configuration = new SimpleObjectProperty<>();
 
   public FabricationService(
     @Value("${input.template.key}") String defaultInputTemplateKey,

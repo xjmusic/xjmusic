@@ -1,6 +1,7 @@
 package io.xj.gui.services;
 
 import io.xj.gui.controllers.MainWindowController;
+import io.xj.hub.tables.pojos.User;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -16,11 +17,13 @@ import reactor.core.publisher.Mono;
 
 @Service
 public class LabService {
-  Logger LOG = LoggerFactory.getLogger(MainWindowController.class);
-  private final WebClient webClient;
-  private final ObjectProperty<LabStatus> status = new SimpleObjectProperty<>(LabStatus.Initializing);
-  private final StringProperty url = new SimpleStringProperty();
-  private final StringProperty accessToken = new SimpleStringProperty();
+  Logger LOG = LoggerFactory.getLogger(LabService.class);
+  final WebClient webClient;
+  final ObjectProperty<LabStatus> status = new SimpleObjectProperty<>(LabStatus.Initializing);
+  final StringProperty url = new SimpleStringProperty();
+  final StringProperty accessToken = new SimpleStringProperty();
+
+  final ObjectProperty<User> authenticatedUser = new SimpleObjectProperty<>();
 
   public LabService(
     @Value("${lab.base.url}") String defaultLabBaseUrl
@@ -41,27 +44,24 @@ public class LabService {
     this.accessToken.set(accessToken.getValue());
     this.status.set(LabStatus.Connecting);
 
-    makeAuthenticatedRequest("api/2/users/me", HttpMethod.GET, Object.class)
+    makeAuthenticatedRequest("api/2/users/me", HttpMethod.GET, User.class)
       .subscribe(
-        response -> Platform.runLater(() -> this.onConnectionSuccess(response)),
+        (User user) -> Platform.runLater(() -> this.onConnectionSuccess(user)),
         error -> Platform.runLater(() -> this.onConnectionFailure(error)),
         () -> Platform.runLater(this::onConnectionChanged));
   }
 
-  private void onConnectionChanged() {
-    // todo idk
-//    if (this.status.getValue() == LabStatus.Authenticated) {
-//      this.status.set(LabStatus.Failed);
-//    }
+  void onConnectionChanged() {
+    // no op
   }
 
-  void onConnectionSuccess(Object response) {
-    var hello = 123;// todo: remove this line
+  void onConnectionSuccess(User user) {
+    this.authenticatedUser.set(user);
     this.status.set(LabStatus.Authenticated);
   }
 
   void onConnectionFailure(Throwable error) {
-    var hello = 123;// todo: remove this line
+    this.authenticatedUser.set(null);
     this.status.set(LabStatus.Failed);
   }
 
@@ -77,6 +77,7 @@ public class LabService {
     this.status.set(LabStatus.Disconnected);
     this.url.set(null);
     this.accessToken.set(null);
+    this.authenticatedUser.set(null);
   }
 
   public ObjectProperty<LabStatus> statusProperty() {

@@ -29,17 +29,17 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 @Service
 public class BottomPaneController extends VBox implements ReadyAfterBootController {
-  private final LogQueue logQueue;
-  private final ObservableList<LogRecord> logItems = FXCollections.observableArrayList();
-  private static final int MAX_ENTRIES = 10_000;
-  private static final int LOG_LIST_VIEW_HEIGHT = 368;
-  private final static PseudoClass debug = PseudoClass.getPseudoClass("debug");
-  private final static PseudoClass info = PseudoClass.getPseudoClass("info");
-  private final static PseudoClass warn = PseudoClass.getPseudoClass("warn");
-  private final static PseudoClass error = PseudoClass.getPseudoClass("error");
-  private final BooleanProperty logsTailing = new SimpleBooleanProperty(true);
-  private final BooleanProperty logsVisible = new SimpleBooleanProperty(false);
-  private final DoubleProperty refreshRate = new SimpleDoubleProperty(1);
+  final LogQueue logQueue;
+  final ObservableList<LogRecord> logItems = FXCollections.observableArrayList();
+  static final int MAX_ENTRIES = 10_000;
+  static final int LOG_LIST_VIEW_HEIGHT = 368;
+  final static PseudoClass debug = PseudoClass.getPseudoClass("debug");
+  final static PseudoClass info = PseudoClass.getPseudoClass("info");
+  final static PseudoClass warn = PseudoClass.getPseudoClass("warn");
+  final static PseudoClass error = PseudoClass.getPseudoClass("error");
+  final BooleanProperty logsTailing = new SimpleBooleanProperty(true);
+  final BooleanProperty logsVisible = new SimpleBooleanProperty(false);
+  final DoubleProperty refreshRate = new SimpleDoubleProperty(1);
 
   @FXML
   public Label labelStatus;
@@ -143,7 +143,7 @@ public class BottomPaneController extends VBox implements ReadyAfterBootControll
     labelStatus.setText(status);
   }
 
-  private void updateLogsVisibility() {
+  void updateLogsVisibility() {
     if (logsVisible.get()) {
       logListView.setVisible(true);
       toggleTailLogs.setDisable(false);
@@ -160,9 +160,9 @@ public class BottomPaneController extends VBox implements ReadyAfterBootControll
   }
   static class LogQueue {
 
-    private static final int MAX_LOG_ENTRIES = 1_000_000;
+    static final int MAX_LOG_ENTRIES = 1_000_000;
 
-    private final BlockingDeque<LogRecord> queue = new LinkedBlockingDeque<>(MAX_LOG_ENTRIES);
+    final BlockingDeque<LogRecord> queue = new LinkedBlockingDeque<>(MAX_LOG_ENTRIES);
 
     public void drainTo(Collection<? super LogRecord> collection) {
       queue.drainTo(collection);
