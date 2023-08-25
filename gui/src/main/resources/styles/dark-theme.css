@@ -1,11 +1,16 @@
 /* from https://stackoverflow.com/questions/49159286/make-a-dark-mode-with-javafx */
 
 .root {
-  -fx-accent: #1e74c6;
+  -fx-accent: #909090;
   -fx-focus-color: -fx-accent;
   -fx-base: #373737;
   -fx-control-inner-background: derive(-fx-base, 35%);
   -fx-control-inner-background-alt: -fx-control-inner-background;
+}
+
+.menu-bar {
+  -fx-background-color: #404040; /* You can replace this with any hex color value */
+  -fx-border-color: transparent;
 }
 
 .label {

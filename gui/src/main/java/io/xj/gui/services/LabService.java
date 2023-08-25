@@ -20,7 +20,7 @@ import java.util.Objects;
 public class LabService {
   Logger LOG = LoggerFactory.getLogger(LabService.class);
   final WebClient webClient;
-  final ObjectProperty<LabStatus> status = new SimpleObjectProperty<>(LabStatus.Initializing);
+  final ObjectProperty<LabStatus> status = new SimpleObjectProperty<>(LabStatus.Offline);
   final StringProperty url = new SimpleStringProperty();
   final StringProperty accessToken = new SimpleStringProperty();
 
@@ -31,7 +31,6 @@ public class LabService {
   ) {
     this.url.set(defaultLabBaseUrl);
     this.webClient = WebClient.builder().build();
-    this.status.set(LabStatus.Standby);
     url.addListener((observable, oldValue, newValue) -> {
       if (Objects.isNull(newValue)) {
         return;
@@ -65,6 +64,7 @@ public class LabService {
   }
 
   void onConnectionFailure(Throwable error) {
+    LOG.error("Failed to connect to lab!", error);
     this.authenticatedUser.set(null);
     this.status.set(LabStatus.Failed);
   }
@@ -78,7 +78,7 @@ public class LabService {
   }
 
   public void disconnect() {
-    this.status.set(LabStatus.Disconnected);
+    this.status.set(LabStatus.Offline);
     this.authenticatedUser.set(null);
   }
 

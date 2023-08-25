@@ -32,11 +32,10 @@ import java.util.Objects;
 @Service
 public class ModalLabConnectionController implements ReadyAfterBootController {
   static final List<LabStatus> BUTTON_CONNECT_ACTIVE_IN_LAB_STATES = Arrays.asList(
-    LabStatus.Standby,
     LabStatus.Authenticated,
     LabStatus.Unauthorized,
     LabStatus.Failed,
-    LabStatus.Disconnected
+    LabStatus.Offline
   );
   static final String CONNECT_TO_LAB_WINDOW_NAME = "Connect to Lab";
   static final String BUTTON_DISCONNECT_TEXT = "Disconnect";

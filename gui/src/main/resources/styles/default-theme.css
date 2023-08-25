@@ -4,6 +4,11 @@
   -fx-base: #c0c0c0;
 }
 
+.menu-bar {
+  -fx-background-color: #e0e0e0; /* You can replace this with any hex color value */
+  -fx-border-color: transparent;
+}
+
 .log-viewer {
   -fx-background-color: #b0b0b0;
 }
