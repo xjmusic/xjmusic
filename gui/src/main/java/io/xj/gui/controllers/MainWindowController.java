@@ -49,7 +49,7 @@ public class MainWindowController implements ReadyAfterBootController {
     this.bottomPaneController = bottomPaneController;
     this.modalLabConnectionController = modalLabConnectionController;
     this.themeService = themeService;
-    status = FabricationStatus.Ready;
+    status = FabricationStatus.Standby;
     this.hostServices = hostServices;
     this.ac = ac;
     this.launchGuideUrl = launchGuideUrl;
@@ -81,7 +81,7 @@ public class MainWindowController implements ReadyAfterBootController {
   @FXML
   protected void onButtonActionPress() {
     switch (status) {
-      case Ready -> start();
+      case Standby -> start();
       case Active -> stop();
       case Cancelled, Done, Failed -> reset();
     }
@@ -89,7 +89,7 @@ public class MainWindowController implements ReadyAfterBootController {
 
   public void start() {
     onStatusUpdate(FabricationStatus.Starting);
-    fabricationService.setOnReady((WorkerStateEvent ignored) -> onStatusUpdate(FabricationStatus.Ready));
+    fabricationService.setOnReady((WorkerStateEvent ignored) -> onStatusUpdate(FabricationStatus.Standby));
     fabricationService.setOnRunning((WorkerStateEvent ignored) -> onStatusUpdate(FabricationStatus.Active));
     fabricationService.setOnSucceeded((WorkerStateEvent ignored) -> onStatusUpdate(FabricationStatus.Done));
     fabricationService.setOnCancelled((WorkerStateEvent ignored) -> onStatusUpdate(FabricationStatus.Cancelled));
@@ -132,7 +132,7 @@ public class MainWindowController implements ReadyAfterBootController {
     bottomPaneController.setStatusText(status.toString());
     switch (status) {
       case Initializing, Starting, Cancelling, Resetting -> buttonAction.setDisable(true);
-      case Ready -> {
+      case Standby -> {
         buttonAction.setText(BUTTON_TEXT_START);
         buttonAction.setDisable(false);
       }

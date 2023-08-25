@@ -32,7 +32,7 @@ import java.util.Objects;
 @Service
 public class ModalLabConnectionController implements ReadyAfterBootController {
   static final List<LabStatus> BUTTON_CONNECT_ACTIVE_IN_LAB_STATES = Arrays.asList(
-    LabStatus.Ready,
+    LabStatus.Standby,
     LabStatus.Authenticated,
     LabStatus.Unauthorized,
     LabStatus.Failed,

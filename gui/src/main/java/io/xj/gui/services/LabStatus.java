@@ -2,7 +2,7 @@ package io.xj.gui.services;
 
 public enum LabStatus {
   Initializing,
-  Ready,
+  Standby,
   Connecting,
   Authenticated,
   Unauthorized,

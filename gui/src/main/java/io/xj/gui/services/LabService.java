@@ -31,7 +31,7 @@ public class LabService {
   ) {
     this.url.set(defaultLabBaseUrl);
     this.webClient = WebClient.builder().build();
-    this.status.set(LabStatus.Ready);
+    this.status.set(LabStatus.Standby);
     url.addListener((observable, oldValue, newValue) -> {
       if (Objects.isNull(newValue)) {
         return;

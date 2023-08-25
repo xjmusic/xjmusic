@@ -34,9 +34,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.*?>
 <VBox xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="io.xj.gui.controllers.BottomPaneController">
   <HBox alignment="CENTER" styleClass="bottom-pane-status-container"
@@ -52,7 +50,8 @@
       <HBox.hgrow>
         <Priority fx:constant="ALWAYS"/>
       </HBox.hgrow>
-      <Label fx:id="labelLabStatus" contentDisplay="CENTER" text="Initializing"/>
+      <Label text="Lab"/>
+      <Label fx:id="labelLabStatus" text="Initializing"/>
     </HBox>
     <HBox alignment="CENTER_RIGHT" spacing="10"
           xmlns:fx="http://javafx.com/fxml">
@@ -61,7 +60,8 @@
       </HBox.hgrow>
 
       <!-- Application Status Text -->
-      <Label fx:id="labelFabricationStatus" contentDisplay="CENTER" text="Initializing"/>
+      <Label text="Fabrication"/>
+      <Label fx:id="labelFabricationStatus" text="Initializing"/>
 
       <!-- Show Logs Toggle Switch -->
       <ToggleButton fx:id="toggleShowLogs" onAction="#toggleShowLogs" text="Show Logs"/>
