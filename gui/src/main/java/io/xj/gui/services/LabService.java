@@ -1,6 +1,5 @@
 package io.xj.gui.services;
 
-import io.xj.gui.controllers.MainWindowController;
 import io.xj.hub.tables.pojos.User;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
@@ -14,6 +13,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+
+import java.util.Objects;
 
 @Service
 public class LabService {
@@ -32,6 +33,9 @@ public class LabService {
     this.webClient = WebClient.builder().build();
     this.status.set(LabStatus.Ready);
     url.addListener((observable, oldValue, newValue) -> {
+      if (Objects.isNull(newValue)) {
+        return;
+      }
       if (!newValue.endsWith("/")) {
         this.url.set(this.url.getValue() + '/');
       }
@@ -91,4 +95,9 @@ public class LabService {
   public StringProperty accessTokenProperty() {
     return accessToken;
   }
+
+  public ObjectProperty<User> authenticatedUserProperty() {
+    return authenticatedUser;
+  }
+
 }

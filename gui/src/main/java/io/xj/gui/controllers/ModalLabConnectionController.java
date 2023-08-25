@@ -1,13 +1,12 @@
 package io.xj.gui.controllers;
 
-
 import io.xj.gui.WorkstationIcon;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.LabStatus;
 import io.xj.gui.services.ThemeService;
+import io.xj.hub.tables.pojos.User;
 import javafx.application.HostServices;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -15,7 +14,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class ModalLabConnectionController implements ReadyAfterBootController {
@@ -54,9 +56,12 @@ public class ModalLabConnectionController implements ReadyAfterBootController {
   PasswordField fieldLabAccessToken;
   @FXML
   Label labelStatus;
-
   @FXML
   ImageView imageViewUserAvatar;
+  @FXML
+  Text textUserName;
+  @FXML
+  Text textUserEmail;
 
   public ModalLabConnectionController(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
@@ -74,10 +79,32 @@ public class ModalLabConnectionController implements ReadyAfterBootController {
 
   @Override
   public void onStageReady() {
-    labService.statusProperty().addListener(new LabStatusChangeListener());
+    buttonConnect.disableProperty().bind(Bindings.createBooleanBinding(() ->
+        BUTTON_CONNECT_ACTIVE_IN_LAB_STATES.contains(labService.statusProperty().get()),
+      labService.statusProperty()).not());
+
+    buttonConnect.textProperty().bind(Bindings.createStringBinding(() ->
+        labService.statusProperty().get() == LabStatus.Authenticated ? BUTTON_DISCONNECT_TEXT : BUTTON_CONNECT_TEXT,
+      labService.statusProperty()));
+
     fieldLabUrl.textProperty().bindBidirectional(labService.urlProperty());
     fieldLabAccessToken.textProperty().bindBidirectional(labService.accessTokenProperty());
     labelStatus.textProperty().bind(labService.statusProperty().asString());
+
+    textUserName.textProperty().bind(Bindings.createStringBinding(() -> {
+      User user = labService.authenticatedUserProperty().get();
+      return Objects.nonNull(user) ? user.getName() : "";
+    }, labService.authenticatedUserProperty()));
+
+    textUserEmail.textProperty().bind(Bindings.createStringBinding(() -> {
+      User user = labService.authenticatedUserProperty().get();
+      return Objects.nonNull(user) ? user.getEmail() : "";
+    }, labService.authenticatedUserProperty()));
+
+    imageViewUserAvatar.imageProperty().bind(Bindings.createObjectBinding(() -> {
+      User user = labService.authenticatedUserProperty().get();
+      return Objects.nonNull(user) ? new Image(user.getAvatarUrl()) : null;
+    }, labService.authenticatedUserProperty()));
   }
 
   public void launchModal() {
@@ -119,14 +146,6 @@ public class ModalLabConnectionController implements ReadyAfterBootController {
       labService.disconnect();
     } else {
       labService.connect();
-    }
-  }
-
-  class LabStatusChangeListener implements ChangeListener<LabStatus> {
-    @Override
-    public void changed(ObservableValue<? extends LabStatus> observable, LabStatus ignored, LabStatus status) {
-      buttonConnect.setDisable(!BUTTON_CONNECT_ACTIVE_IN_LAB_STATES.contains(status));
-      buttonConnect.setText(status == LabStatus.Authenticated ? BUTTON_DISCONNECT_TEXT : BUTTON_CONNECT_TEXT);
     }
   }
 
