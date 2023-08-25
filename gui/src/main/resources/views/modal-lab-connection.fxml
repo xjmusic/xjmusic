@@ -21,7 +21,7 @@
       <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0" text="Lab URL" textAlignment="RIGHT">
       </Label>
       <Pane prefHeight="100.0" prefWidth="15.0" />
-      <TextField fx:id="fieldHubUrl" prefHeight="25.0" prefWidth="402.0" />
+      <TextField fx:id="fieldLabUrl" prefHeight="25.0" prefWidth="402.0" />
     </HBox>
     <HBox alignment="CENTER_LEFT" prefHeight="36.0" prefWidth="640.0">
       <opaqueInsets>
@@ -39,7 +39,7 @@
       <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0" text="Access Token" textAlignment="RIGHT">
       </Label>
       <Pane prefHeight="100.0" prefWidth="15.0" />
-      <PasswordField fx:id="fieldHubAccessToken" prefHeight="25.0" prefWidth="401.0" />
+      <PasswordField fx:id="fieldLabAccessToken" prefHeight="25.0" prefWidth="401.0" />
     </HBox>
     <HBox alignment="CENTER_LEFT" prefHeight="36.0" prefWidth="640.0">
       <opaqueInsets>
@@ -48,7 +48,7 @@
       <Label fx:id="labelStatus" alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0" text="Status" textAlignment="RIGHT">
       </Label>
       <Pane prefHeight="100.0" prefWidth="15.0" />
-      <Button fx:id="connectButton" onAction="#handleConnect" text="Connect" />
+      <Button fx:id="buttonConnect" onAction="#handleConnect" text="Connect" />
     </HBox>
   </VBox>
 

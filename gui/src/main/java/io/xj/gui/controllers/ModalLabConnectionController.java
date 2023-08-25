@@ -1,10 +1,11 @@
 package io.xj.gui.controllers;
 
 
-import io.xj.gui.services.HubService;
+import io.xj.gui.services.LabService;
+import io.xj.gui.services.LabStatus;
 import javafx.application.HostServices;
-import javafx.event.Event;
-import javafx.event.EventType;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -13,10 +14,22 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Service
 public class ModalLabConnectionController implements ReadyAfterBootController {
+  private static final List<LabStatus> BUTTON_CONNECT_ACTIVE_IN_LAB_STATES = Arrays.asList(
+    LabStatus.Ready,
+    LabStatus.Authenticated,
+    LabStatus.Unauthorized,
+    LabStatus.Failed,
+    LabStatus.Disconnected
+  );
+  private static final String BUTTON_DISCONNECT_TEXT = "Disconnect";
+  private static final String BUTTON_CONNECT_TEXT = "Connect";
   private final HostServices hostServices;
-  private final HubService hubService;
+  private final LabService labService;
   @FXML
   public Button connectButton;
   @FXML
@@ -24,43 +37,56 @@ public class ModalLabConnectionController implements ReadyAfterBootController {
   @FXML
   public Button buttonConnect;
   @FXML
-  TextField fieldHubUrl;
+  TextField fieldLabUrl;
   @FXML
-  PasswordField fieldHubAccessToken;
+  PasswordField fieldLabAccessToken;
   @FXML
   Label labelStatus;
 
   public ModalLabConnectionController(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
-    HubService hubService
+    LabService labService
   ) {
     this.hostServices = hostServices;
-    this.hubService = hubService;
+    this.labService = labService;
   }
 
   @Override
   public void onStageReady() {
-    fieldHubUrl.textProperty().bindBidirectional(hubService.hubUrlProperty());
-    fieldHubAccessToken.textProperty().bindBidirectional(hubService.hubAccessTokenProperty());
-    labelStatus.textProperty().bind(hubService.statusProperty().asString());
+    labService.statusProperty().addListener(new LabStatusChangeListener());
+    fieldLabUrl.textProperty().bindBidirectional(labService.urlProperty());
+    fieldLabAccessToken.textProperty().bindBidirectional(labService.accessTokenProperty());
+    labelStatus.textProperty().bind(labService.statusProperty().asString());
   }
 
   @FXML
-  private void handleClose() {
+  void handleClose() {
     closeStage();
   }
 
   @FXML
-  private void handleLaunchLabPreferences() {
-    hostServices.showDocument(hubService.hubUrlProperty().get() + "preferences");
+  void handleLaunchLabPreferences() {
+    hostServices.showDocument(labService.urlProperty().get() + "preferences");
   }
 
   @FXML
-  private void handleConnect() {
-    // todo handle connect
+  void handleConnect() {
+    if (labService.statusProperty().get() == LabStatus.Authenticated) {
+      labService.disconnect();
+    } else {
+      labService.connect();
+    }
   }
 
-  private void closeStage() {
+  class LabStatusChangeListener implements ChangeListener<LabStatus> {
+    @Override
+    public void changed(ObservableValue<? extends LabStatus> observable, LabStatus ignored, LabStatus status) {
+      buttonConnect.setDisable(!BUTTON_CONNECT_ACTIVE_IN_LAB_STATES.contains(status));
+      buttonConnect.setText(status == LabStatus.Authenticated ? BUTTON_DISCONNECT_TEXT : BUTTON_CONNECT_TEXT);
+    }
+  }
+
+  void closeStage() {
     Stage stage = (Stage) connectButton.getScene().getWindow();
     stage.close();
   }

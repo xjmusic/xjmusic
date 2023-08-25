@@ -1,6 +1,6 @@
 package io.xj.gui.services;
 
-public enum HubStatus {
+public enum LabStatus {
   Initializing,
   Ready,
   Connecting,

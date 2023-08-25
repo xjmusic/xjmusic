@@ -154,7 +154,6 @@ public class MainWindowController implements ReadyAfterBootController {
         scene.getStylesheets().add(darkTheme);
       }
 
-
       // Set the scene and show the stage
       stage.setScene(scene);
       stage.initModality(Modality.APPLICATION_MODAL); // make it a modal window
