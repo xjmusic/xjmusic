@@ -52,6 +52,12 @@ class MixerImpl implements Mixer {
   final double[][][] busBuf; // buffer separated into busses like [bus][frame][channel]
   final double[][] outBuf; // final output buffer like [bus][frame][channel]
   final AudioFormat audioFormat;
+  // these are used to avoid calling .length in the innermost loops
+  final int busBufLength; // busBuf[0].length
+  final int busBuf0Length; // busBuf[0][0].length
+  final int busBuf00Length; // busBuf[0][0][0].length
+  final int outBufLength; // outBuf[0].length
+  final int outBuf0Length; // outBuf[0][0].length
   double compRatio = 0; // mixer effects are continuous between renders, so these ending values make their way back to the beginning of the next render
 
   /**
@@ -88,7 +94,13 @@ class MixerImpl implements Mixer {
       microsPerFrame = MICROS_PER_SECOND / outputFrameRate;
       int totalFrames = (int) Math.floor(config.getTotalSeconds() * outputFrameRate);
       busBuf = new double[config.getTotalBuses()][totalFrames][outputChannels];
+
       outBuf = new double[totalFrames][outputChannels];
+      busBufLength = busBuf.length; 
+      busBuf0Length = busBuf[0].length;
+      busBuf00Length = busBuf[0][0].length;
+      outBufLength = outBuf.length;
+      outBuf0Length = outBuf[0].length;
       outputFrameSize = audioFormat.getFrameSize();
       int totalBytes = totalFrames * outputFrameSize;
       buffer = new BytePipeline(outputPipeSize);
@@ -138,7 +150,7 @@ class MixerImpl implements Mixer {
     // Initial mix steps are done on individual busses
     // Multi-bus output with individual normalization REF https://www.pivotaltracker.com/story/show/179081795
     applySources();
-    for (int b = 0; b < busBuf.length; b++)
+    for (int b = 0; b < busBufLength; b++)
       applyFinalOutputCompressor();
     mixOutputBus();
 
@@ -165,12 +177,12 @@ class MixerImpl implements Mixer {
    * Zero all buffers
    */
   void clearBuffers() {
-    for (int b = 0; b < busBuf.length; b++)
-      for (int f = 0; f < busBuf[0].length; f++)
-        for (int c = 0; c < busBuf[0][0].length; c++)
+    for (int b = 0; b < busBufLength; b++)
+      for (int f = 0; f < busBuf0Length; f++)
+        for (int c = 0; c < busBuf00Length; c++)
           busBuf[b][f][c] = 0.0;
-    for (int f = 0; f < outBuf.length; f++)
-      for (int c = 0; c < outBuf[0].length; c++)
+    for (int f = 0; f < outBufLength; f++)
+      for (int c = 0; c < outBuf0Length; c++)
         outBuf[f][c] = 0.0;
   }
 
@@ -178,13 +190,14 @@ class MixerImpl implements Mixer {
    * Mix input buffers to output buffer
    */
   void mixOutputBus() {
-    double[] level = Stream.iterate(0, i -> i + 1).limit(busBuf.length).mapToDouble(i -> busLevel.getOrDefault(i, 1.0)).toArray();
+    double[] level = Stream.iterate(0, i -> i + 1).limit(busBufLength).mapToDouble(i -> busLevel.getOrDefault(i, 1.0)).toArray();
     int b, f, c;
-    for (b = 0; b < busBuf.length; b++)
-      for (f = 0; f < busBuf[0].length; f++)
-        for (c = 0; c < busBuf[0][0].length; c++) {
-          if (b > level.length - 1) {
-            LOG.error(config.getLogPrefix() + "b > level.length - 1: " + b + " > " + (level.length - 1));
+    int levelLength = level.length;
+    for (b = 0; b < busBufLength; b++)
+      for (f = 0; f < busBuf0Length; f++)
+        for (c = 0; c < busBuf00Length; c++) {
+          if (b > levelLength - 1) {
+            LOG.error(config.getLogPrefix() + "b > level.length - 1: " + b + " > " + (levelLength - 1));
           }
           outBuf[f][c] += busBuf[b][f][c] * level[b];
         }
@@ -339,7 +352,7 @@ class MixerImpl implements Mixer {
     }
     double compRatioDelta = 0; // rate of change
     double targetCompRatio = compRatio;
-    for (int i = 0; i < outBuf.length; i++) {
+    for (int i = 0; i < outBufLength; i++) {
       if (0 == i % dspBufferSize) {
         targetCompRatio = computeCompressorTarget(outBuf, i, i + framesAhead);
       }
@@ -365,7 +378,7 @@ class MixerImpl implements Mixer {
    * apply logarithmic dynamic range to mixing buffer
    */
   void applyLogarithmicDynamicRange() {
-    for (int i = 0; i < outBuf.length; i++)
+    for (int i = 0; i < outBufLength; i++)
       outBuf[i] = MathUtil.logarithmicCompression(outBuf[i]);
   }
 
@@ -378,7 +391,7 @@ class MixerImpl implements Mixer {
   @SuppressWarnings("unused")
   void applyNormalization() {
     double normRatio = Math.min(config.getNormalizationBoostThreshold(), config.getNormalizationCeiling() / MathUtil.maxAbs(outBuf, NORMALIZATION_GRAIN));
-    for (int i = 0; i < outBuf.length; i++)
+    for (int i = 0; i < outBufLength; i++)
       for (int k = 0; k < outputChannels; k++)
         outBuf[i][k] *= normRatio;
   }
