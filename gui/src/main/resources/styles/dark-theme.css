@@ -6,10 +6,11 @@
   -fx-base: #373737;
   -fx-control-inner-background: derive(-fx-base, 35%);
   -fx-control-inner-background-alt: -fx-control-inner-background;
+  -fx-background-color: #404040;
 }
 
-.menu-bar {
-  -fx-background-color: #404040; /* You can replace this with any hex color value */
+.menu, .menu-bar, .menu, .menu-item, .menu-button, .context-menu {
+  -fx-background-color: #373737;
   -fx-border-color: transparent;
 }
 

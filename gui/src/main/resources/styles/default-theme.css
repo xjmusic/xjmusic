@@ -2,10 +2,11 @@
 
 .root {
   -fx-base: #c0c0c0;
+  -fx-background-color: #d0d0d0;
 }
 
-.menu-bar {
-  -fx-background-color: #e0e0e0; /* You can replace this with any hex color value */
+.menu-bar, .menu {
+  -fx-background-color: #e0e0e0;
   -fx-border-color: transparent;
 }
 

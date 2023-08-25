@@ -5,7 +5,7 @@ import io.xj.gui.controllers.MainWindowController;
 import io.xj.gui.events.StageReadyEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
+import javafx.stage.StageStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,8 +14,6 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 
 @Component
@@ -43,6 +41,7 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
       mainWindowFxmlLoader.setControllerFactory(ac::getBean);
       mainWindowController.setMainWindowScene(new Scene(mainWindowFxmlLoader.load()));
       primaryStage.setScene(mainWindowController.getMainWindowScene());
+      primaryStage.initStyle(StageStyle.DECORATED);
       WorkstationIcon.setup(primaryStage, null);
       WorkstationIcon.setupTaskbar();
 
@@ -51,20 +50,6 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
 
     } catch (IOException e) {
       LOG.error("Failed to set the scene on the primary stage!", e);
-    }
-  }
-
-  /**
-   Load an image from a resource
-
-   @param image The image resource
-   @return The loaded image
-   */
-  Image loadImage(Resource image) {
-    try {
-      return new Image(new BufferedInputStream(new FileInputStream(image.getFile())));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
     }
   }
 }

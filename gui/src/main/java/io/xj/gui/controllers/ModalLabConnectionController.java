@@ -19,6 +19,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
@@ -130,6 +131,7 @@ public class ModalLabConnectionController implements ReadyAfterBootController {
       // Set the scene and show the stage
       stage.setScene(scene);
       stage.initModality(Modality.APPLICATION_MODAL); // make it a modal window
+      stage.initStyle(StageStyle.UTILITY);
       onStageReady();
       stage.showAndWait();
     } catch (IOException e) {
