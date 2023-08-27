@@ -39,7 +39,7 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
   public void doWork() throws NexusException {
     List<SegmentChoice> previousChoices = fabricator.retrospective().getPreviousChoicesOfMode(InstrumentMode.Background);
     Collection<UUID> instrumentIds = previousChoices.stream().map(SegmentChoice::getInstrumentId).collect(Collectors.toList());
-
+    int instrumentIdsSize = instrumentIds.size();
     int targetLayers = (int) Math.floor(
       fabricator.getTemplateConfig().getBackgroundLayerMin() +
         fabricator.getSegment().getDensity() *
@@ -48,15 +48,15 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
 
     fabricator.addInfoMessage(String.format("Targeting %d layers of background", targetLayers));
 
-    if (instrumentIds.size() > targetLayers)
-      instrumentIds = ValueUtils.withIdsRemoved(instrumentIds, instrumentIds.size() - targetLayers);
+    if (instrumentIdsSize > targetLayers)
+      instrumentIds = ValueUtils.withIdsRemoved(instrumentIds, instrumentIdsSize - targetLayers);
 
     for (UUID backgroundId : instrumentIds)
       craftBackground(backgroundId);
 
     Optional<Instrument> chosen;
-    if (instrumentIds.size() < targetLayers)
-      for (int i = 0; i < targetLayers - instrumentIds.size(); i++) {
+    if (instrumentIdsSize < targetLayers)
+      for (int i = 0; i < targetLayers - instrumentIdsSize; i++) {
         chosen = chooseFreshInstrument(List.of(), List.of(InstrumentMode.Background), instrumentIds, null, List.of());
         if (chosen.isPresent()) {
           instrumentIds.add(chosen.get().getId());
