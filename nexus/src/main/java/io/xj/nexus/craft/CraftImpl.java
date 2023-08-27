@@ -434,17 +434,18 @@ public class CraftImpl extends FabricationWrapperImpl {
   List<Section> computeSections() {
     // guaranteed to be in order of position ascending
     SegmentChord[] chords = new SegmentChord[fabricator.getSegmentChords().size()];
+    int chordsLength = chords.length;
     var i = 0;
     for (var chord : fabricator.getSegmentChords()) {
       chords[i] = chord;
       i++;
     }
-    Section[] sections = new Section[chords.length];
-    for (i = 0; i < chords.length; i++) {
+    Section[] sections = new Section[chordsLength];
+    for (i = 0; i < chordsLength; i++) {
       sections[i] = new Section();
       sections[i].chord = chords[i];
       sections[i].fromPos = chords[i].getPosition();
-      sections[i].toPos = i < chords.length - 1 ? chords[i + 1].getPosition() : fabricator.getSegment().getTotal();
+      sections[i].toPos = i < chordsLength - 1 ? chords[i + 1].getPosition() : fabricator.getSegment().getTotal();
     }
     return Arrays.stream(sections).toList();
   }
@@ -669,6 +670,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     var dpEventRelativeOffsetWithinRangeSemitones = dpRange.shifted(dpTransposeSemitones + dpTransposeOctaveSemitones).getDeltaSemitones(NoteRange.ofNotes(eventNotes));
     var dpEventRangeWithinWholeDP = NoteRange.ofNotes(eventNotes).shifted(dpEventRelativeOffsetWithinRangeSemitones);
 
+    int eventNotesSize = eventNotes.size();
     if (optimalRange.isEmpty() && !dpEventRangeWithinWholeDP.isEmpty())
       optimalRange.expand(dpEventRangeWithinWholeDP);
 
@@ -681,7 +683,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
     // Go through the notes in the event and pick a note from the voicing, either by note picker or by sticky bun
     List<Note> pickedNotes = new ArrayList<>();
-    for (var i = 0; i < eventNotes.size(); i++) {
+    for (var i = 0; i < eventNotesSize; i++) {
       var pickedNote = eventNotes.get(i).isAtonal() && bun.isPresent() ? bun.get().compute(voicingNotes, i) : notePicker.pick(eventNotes.get(i));
       pickedNotes.add(pickedNote);
     }
