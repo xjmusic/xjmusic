@@ -31,6 +31,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 public class BottomPaneController extends VBox implements ReadyAfterBootController {
   private final LogQueue logQueue;
   private final ObservableList<LogRecord> logItems = FXCollections.observableArrayList();
+  private int logItemsSize = logItems.size();
   private static final int MAX_ENTRIES = 10_000;
   private static final int LOG_LIST_VIEW_HEIGHT = 368;
   private final static PseudoClass debug = PseudoClass.getPseudoClass("debug");
@@ -61,12 +62,12 @@ public class BottomPaneController extends VBox implements ReadyAfterBootControll
         event -> {
           logQueue.drainTo(logItems);
 
-          if (logItems.size() > MAX_ENTRIES) {
-            logItems.remove(0, logItems.size() - MAX_ENTRIES);
+          if (logItemsSize > MAX_ENTRIES) {
+            logItems.remove(0, logItemsSize - MAX_ENTRIES);
           }
 
           if (logsTailing.get()) {
-            logListView.scrollTo(logItems.size());
+            logListView.scrollTo(logItemsSize);
           }
         }
       )
