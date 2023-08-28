@@ -32,6 +32,8 @@ class MixerImpl implements Mixer {
   final int outputFrameSize;
   final Map<UUID, Source> sources = new ConcurrentHashMap<>(); // concurrency required
   final Map<UUID, Put> activePuts = new ConcurrentHashMap<>(); // concurrency required
+  private int sourcesSize = sources.size();
+  private int activePutsSize = sources.size();
   final MixerFactory factory;
   final MixerConfig config;
   final double compressToAmplitude;
@@ -144,7 +146,7 @@ class MixerImpl implements Mixer {
     state = MixerState.Mixing;
     long startedAt = System.nanoTime();
     clearBuffers();
-    LOG.debug(config.getLogPrefix() + "Will mix {} seconds of output audio at {} Hz frame rate from {} instances of {} sources", config.getTotalSeconds(), outputFrameRate, activePuts.size(), sources.size());
+    LOG.debug(config.getLogPrefix() + "Will mix {} seconds of output audio at {} Hz frame rate from {} instances of {} sources", config.getTotalSeconds(), outputFrameRate, activePutsSize, sourcesSize);
 
     // Start with original sources summed up verbatim
     // Initial mix steps are done on individual busses
@@ -166,7 +168,7 @@ class MixerImpl implements Mixer {
 
     //
     state = MixerState.Done;
-    LOG.debug(config.getLogPrefix() + "Did mix {} seconds of output audio at {} Hz from {} instances of {} sources in {}s", config.getTotalSeconds(), outputFrameRate, activePuts.size(), sources.size(), String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
+    LOG.debug(config.getLogPrefix() + "Did mix {} seconds of output audio at {} Hz from {} instances of {} sources in {}s", config.getTotalSeconds(), outputFrameRate, activePutsSize, sourcesSize, String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
 
     // Write the output bytes to the shared buffer
     buffer.produce(byteBufferOf(audioFormat, outBuf).array());
@@ -211,7 +213,7 @@ class MixerImpl implements Mixer {
 
   @Override
   public int getSourceCount() {
-    return sources.size();
+    return sourcesSize;
   }
 
   @Override

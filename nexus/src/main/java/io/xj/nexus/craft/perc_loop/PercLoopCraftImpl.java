@@ -61,7 +61,7 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
 
     else if (audioIdsSize < targetLayers)
       for (int i = 0; i < targetLayers - audioIdsSize; i++) {
-        Optional<InstrumentAudio> chosen = chooseFreshInstrumentAudio(List.of(InstrumentType.Percussion), List.of(InstrumentMode.Loop), audioIds, computePreferredEvents(audioIds.size()));
+        Optional<InstrumentAudio> chosen = chooseFreshInstrumentAudio(List.of(InstrumentType.Percussion), List.of(InstrumentMode.Loop), audioIds, computePreferredEvents(audioIdsSize));
         if (chosen.isPresent()) {
           audioIds.add(chosen.get().getId());
         }
