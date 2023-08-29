@@ -5,12 +5,12 @@ import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 
 public class WorkConfiguration {
-  private InputMode inputMode;
-  private String inputTemplateKey;
-  private OutputFileMode outputFileMode;
-  private OutputMode outputMode;
-  private String outputPathPrefix;
-  private int outputSeconds;
+  InputMode inputMode;
+  String inputTemplateKey;
+  OutputFileMode outputFileMode;
+  OutputMode outputMode;
+  String outputPathPrefix;
+  int outputSeconds;
 
   public InputMode getInputMode() {
     return inputMode;

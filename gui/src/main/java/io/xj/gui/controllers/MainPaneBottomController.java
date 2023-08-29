@@ -29,8 +29,8 @@ import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 
 @Service
-public class BottomPaneController extends VBox implements ReadyAfterBootController {
-  private final LabService labService;
+public class MainPaneBottomController extends VBox implements ReadyAfterBootController {
+  final LabService labService;
   final LogQueue logQueue;
   final ObservableList<LogRecord> logItems = FXCollections.observableArrayList();
   static final int MAX_ENTRIES = 10_000;
@@ -53,9 +53,9 @@ public class BottomPaneController extends VBox implements ReadyAfterBootControll
   public ToggleButton toggleTailLogs;
 
   @FXML
-  protected ListView<BottomPaneController.LogRecord> logListView;
+  protected ListView<MainPaneBottomController.LogRecord> logListView;
 
-  public BottomPaneController(
+  public MainPaneBottomController(
     LabService labService
   ) {
     this.labService = labService;

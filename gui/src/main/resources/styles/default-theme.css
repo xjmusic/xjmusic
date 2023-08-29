@@ -34,6 +34,10 @@
   -fx-text-fill: red;
 }
 
-.bottom-pane-status-container, .top-pane-status-container  {
+.bottom-pane-status-container {
   -fx-background-color: #c0c0c0;
+}
+
+.top-pane-status-container {
+  -fx-background-color: #c9c9c9;
 }

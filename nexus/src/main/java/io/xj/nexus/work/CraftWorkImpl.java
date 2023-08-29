@@ -156,7 +156,7 @@ public class CraftWorkImpl implements CraftWork {
   @Nullable
   UUID chainId;
   @Nullable
-  private TemplateConfig templateConfig;
+  TemplateConfig templateConfig;
 
   public CraftWorkImpl(
     CraftFactory craftFactory,

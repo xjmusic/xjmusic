@@ -34,14 +34,14 @@
 
 <?import javafx.scene.layout.BorderPane?>
 <BorderPane prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/20.0.1"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.MainWindowController">
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.MainController">
   <top>
-    <fx:include fx:id="topPane" source="top-pane.fxml"/>
+    <fx:include fx:id="topPane" source="main-pane-top.fxml"/>
   </top>
   <center>
     <!--<fx:include fx:id="centerPane" source="center-pane.fxml" />-->
   </center>
   <bottom>
-    <fx:include fx:id="bottomPane" source="bottom-pane.fxml"/>
+    <fx:include fx:id="bottomPane" source="main-pane-bottom.fxml"/>
   </bottom>
 </BorderPane>

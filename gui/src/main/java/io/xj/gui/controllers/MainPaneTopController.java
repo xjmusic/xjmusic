@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service
-public class TopPaneController extends VBox implements ReadyAfterBootController {
+public class MainPaneTopController extends VBox implements ReadyAfterBootController {
   static final List<FabricationStatus> BUTTON_ACTION_ACTIVE_IN_FABRICATION_STATES = Arrays.asList(
     FabricationStatus.Standby,
     FabricationStatus.Active,
@@ -32,6 +32,7 @@ public class TopPaneController extends VBox implements ReadyAfterBootController 
   final FabricationService fabricationService;
   static final int CONFIGURATION_VIEW_HEIGHT = 368;
   final BooleanProperty configVisible = new SimpleBooleanProperty(false);
+  MainMenuController mainMenuController;
 
   @FXML
   protected Button buttonAction;
@@ -63,10 +64,12 @@ public class TopPaneController extends VBox implements ReadyAfterBootController 
   @FXML
   TextField fieldOutputPathPrefix;
 
-  public TopPaneController(
-    FabricationService fabricationService
+  public MainPaneTopController(
+    FabricationService fabricationService,
+    MainMenuController mainMenuController
   ) {
     this.fabricationService = fabricationService;
+    this.mainMenuController = mainMenuController;
   }
 
   @Override
@@ -97,6 +100,8 @@ public class TopPaneController extends VBox implements ReadyAfterBootController 
     labelFabricationStatus.textProperty().bind(fabricationService.statusProperty().asString());
     toggleShowConfig.setSelected(configVisible.get());
     updateConfigVisibility();
+
+    mainMenuController.onStageReady();
   }
 
   @FXML

@@ -5,7 +5,6 @@ import javafx.application.HostServices;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.MenuBar;
-import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,8 +13,8 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Service;
 
 @Service
-public class MainWindowMenuController extends MenuBar implements ReadyAfterBootController {
-  Logger LOG = LoggerFactory.getLogger(MainWindowMenuController.class);
+public class MainMenuController extends MenuBar implements ReadyAfterBootController {
+  Logger LOG = LoggerFactory.getLogger(MainMenuController.class);
   final HostServices hostServices;
   final ConfigurableApplicationContext ac;
   final String launchGuideUrl;
@@ -25,7 +24,7 @@ public class MainWindowMenuController extends MenuBar implements ReadyAfterBootC
   @FXML
   protected CheckMenuItem checkboxDarkTheme;
 
-  public MainWindowMenuController(
+  public MainMenuController(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
     @Value("${gui.launch.guide.url}") String launchGuideUrl,
     ConfigurableApplicationContext ac,

@@ -37,7 +37,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <VBox xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="io.xj.gui.controllers.TopPaneController">
+      fx:controller="io.xj.gui.controllers.MainPaneTopController">
   <fx:include source="main-menu.fxml"/>
   <VBox BorderPane.alignment="CENTER" fx:id="configView">
     <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">

@@ -36,7 +36,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <VBox xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="io.xj.gui.controllers.BottomPaneController">
+      fx:controller="io.xj.gui.controllers.MainPaneBottomController">
   <HBox alignment="CENTER" styleClass="bottom-pane-status-container"
         xmlns:fx="http://javafx.com/fxml">
     <HBox.hgrow>

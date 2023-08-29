@@ -18,9 +18,9 @@ XJ music pioneers the evolution of background audio with our innovative music en
 * Java 17
 * Gradle 8
 
-### Private Gradle (Maven) Package Repository
+### Gradle (Maven) Package Repository
 
-In order to access the private `io.xj.models` package we publish to [github.com/xjmusic/hub](https://github.com/xjmusic/hub/packages/1917815), you must authenticate with GitHub using an account with read access to the **xjmusic/hub** repository. To do so, you
+In order to access the `io.xj.models` package we publish to [github.com/xjmusic/hub](https://github.com/xjmusic/hub/packages/1917815), you must authenticate with GitHub using an account with read access to the **xjmusic/hub** repository. To do so, you
 will need to create a personal access token with the `read:packages` scope. See the [GitHub documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry#authenticating-to-github-packages)
 
 Once you have created a personal access token, you can authenticate with the GitHub Packages registry by adding the

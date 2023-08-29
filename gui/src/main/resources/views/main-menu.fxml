@@ -35,7 +35,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.VBox?>
 <MenuBar VBox.vgrow="NEVER" xmlns="http://javafx.com/javafx/20.0.1"
-         xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.MainWindowMenuController">
+         xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.MainMenuController">
   <Menu mnemonicParsing="false" text="Workstation">
     <MenuItem mnemonicParsing="false" onAction="#onConnectToLab" text="Connect to Lab"/>
     <SeparatorMenuItem mnemonicParsing="false"/>
