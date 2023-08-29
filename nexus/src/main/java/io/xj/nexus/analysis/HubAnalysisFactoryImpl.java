@@ -6,7 +6,7 @@ import io.xj.nexus.hub_client.access.HubAccess;
 import org.springframework.stereotype.Service;
 
 /**
- * Template content Analysis https://www.pivotaltracker.com/story/show/161199945
+ Template content Analysis https://www.pivotaltracker.com/story/show/161199945
  */
 @Service
 class HubAnalysisFactoryImpl implements HubAnalysisFactory {
@@ -15,10 +15,10 @@ class HubAnalysisFactoryImpl implements HubAnalysisFactory {
   }
 
   /**
-   * Get the comp for the given type
-   *
-   * @param type of comp
-   * @return comp
+   Get the comp for the given type
+
+   @param type of comp
+   @return comp
    */
   public Report report(HubAccess access, HubContent content, Report.Type type) throws HubAnalysisException {
     try {

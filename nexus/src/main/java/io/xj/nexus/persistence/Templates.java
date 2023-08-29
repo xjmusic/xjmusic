@@ -10,10 +10,10 @@ import java.util.Objects;
 
 public class Templates {
   /**
-   * Get the identifier or a Template: ship key if available, else ID
-   *
-   * @param template to get identifier of
-   * @return ship key if available, else ID
+   Get the identifier or a Template: ship key if available, else ID
+
+   @param template to get identifier of
+   @return ship key if available, else ID
    */
   public static String getIdentifier(@Nullable Template template) {
     if (Objects.isNull(template)) return "N/A";

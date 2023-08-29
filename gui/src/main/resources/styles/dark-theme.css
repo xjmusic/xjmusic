@@ -102,3 +102,7 @@
 #fabricationConfigView {
   -fx-background-color: #393939;
 }
+
+.timeline-list-view {
+  -fx-background-color: #202020;
+}

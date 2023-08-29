@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
- * Gets or Sets SegmentType
+ Gets or Sets SegmentType
  */
 public enum SegmentType {
 

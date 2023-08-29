@@ -10,18 +10,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.yaml.snakeyaml.Yaml;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * XJ has a serviceable voicing algorithm https://www.pivotaltracker.com/story/show/176696738
+ XJ has a serviceable voicing algorithm https://www.pivotaltracker.com/story/show/176696738
  */
 @ExtendWith(MockitoExtension.class)
 public abstract class YamlTest {
@@ -33,7 +29,7 @@ public abstract class YamlTest {
   }
 
   /**
-   * The cache of failures is a Set in order to de-dupe between multiple runs of the same test
+   The cache of failures is a Set in order to de-dupe between multiple runs of the same test
    */
   @AfterEach
   public void reportFailures() {

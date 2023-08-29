@@ -59,11 +59,11 @@ public class HookCraftImpl extends CraftImpl implements HookCraft {
   }
 
   /**
-   * Craft hook loop
-   *
-   * @param instrument to craft
-   * @param audio      to craft
-   * @throws NexusException on failure
+   Craft hook loop
+
+   @param instrument to craft
+   @param audio      to craft
+   @throws NexusException on failure
    */
   void craftHook(Instrument instrument, InstrumentAudio audio) throws NexusException {
     var choice = new SegmentChoice();
@@ -104,10 +104,10 @@ public class HookCraftImpl extends CraftImpl implements HookCraft {
   }
 
   /**
-   * Select a new random instrument audio
-   *
-   * @param instrument of which to score available audios, and make a selection
-   * @return matched new audio
+   Select a new random instrument audio
+
+   @param instrument of which to score available audios, and make a selection
+   @return matched new audio
    */
   Optional<InstrumentAudio> selectNewInstrumentAudio(
     Instrument instrument

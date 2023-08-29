@@ -2,60 +2,22 @@
 
 package io.xj.nexus;
 
-import io.xj.hub.enums.InstrumentMode;
-import io.xj.hub.enums.InstrumentState;
-import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramState;
-import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.Account;
-import io.xj.hub.tables.pojos.AccountUser;
-import io.xj.hub.tables.pojos.Instrument;
-import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.hub.tables.pojos.InstrumentMeme;
-import io.xj.hub.tables.pojos.Library;
-import io.xj.hub.tables.pojos.Program;
-import io.xj.hub.tables.pojos.ProgramMeme;
-import io.xj.hub.tables.pojos.ProgramSequence;
-import io.xj.hub.tables.pojos.ProgramSequenceBinding;
-import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
-import io.xj.hub.tables.pojos.ProgramSequenceChord;
-import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
-import io.xj.hub.tables.pojos.ProgramSequencePattern;
-import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
-import io.xj.hub.tables.pojos.ProgramVoice;
-import io.xj.hub.tables.pojos.ProgramVoiceTrack;
-import io.xj.hub.tables.pojos.User;
+import io.xj.hub.enums.*;
+import io.xj.hub.tables.pojos.*;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildAccount;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildAccountUser;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildInstrument;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildInstrumentAudio;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildInstrumentMeme;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildLibrary;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildProgram;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildProgramMeme;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildProgramSequence;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildProgramSequenceBinding;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildProgramSequenceBindingMeme;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildProgramSequenceChord;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildProgramSequenceChordVoicing;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildProgramSequencePattern;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildProgramSequencePatternEvent;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildProgramVoice;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildProgramVoiceTrack;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildUser;
+import static io.xj.nexus.HubIntegrationTestingFixtures.*;
 
 /**
- * Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
- * <p>
- * Testing the hypothesis that, while unit tests are all independent,
- * integration tests ought be as much about testing all features around a consensus model of the platform
- * as they are about testing all resources.
+ Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
+ <p>
+ Testing the hypothesis that, while unit tests are all independent,
+ integration tests ought be as much about testing all features around a consensus model of the platform
+ as they are about testing all resources.
  */
 @SuppressWarnings("SameParameterValue")
 public class HubContentFixtures {
@@ -185,10 +147,10 @@ public class HubContentFixtures {
 
 
   /**
-   * A whole library of mock content
-   *
-   * @param returnParentEntities true if we only want to return the parent entities and library, in addition to the content
-   * @return collection of entities
+   A whole library of mock content
+
+   @param returnParentEntities true if we only want to return the parent entities and library, in addition to the content
+   @return collection of entities
    */
   public Collection<Object> setupFixtureB1(Boolean returnParentEntities) {
 
@@ -338,9 +300,9 @@ public class HubContentFixtures {
   }
 
   /**
-   * Library of Content B-2 (shared test fixture)
-   * <p>
-   * Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
+   Library of Content B-2 (shared test fixture)
+   <p>
+   Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
    */
   public Collection<Object> setupFixtureB2() {
     // "Tangy, Chunky to Smooth" macro-program in house library
@@ -399,18 +361,18 @@ public class HubContentFixtures {
   }
 
   /**
-   * Library of Content B-3 (shared test fixture)
-   * <p>
-   * Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
-   * <p>
-   * memes bound to sequence-pattern because sequence-binding is not considered for beat sequences, beat sequence patterns do not have memes. https://www.pivotaltracker.com/story/show/163158036
-   * <p>
-   * Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (beat- and detail-type sequences) https://www.pivotaltracker.com/story/show/165954619
-   * <p>
-   * Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Beat or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment. https://www.pivotaltracker.com/story/show/153976073
-   * + For this test, there's an Intro Pattern with all BLEEPS, multiple Loop Patterns with KICK and SNARE (2x each), and an Outro Pattern with all TOOTS.
-   * <p>
-   * Artist wants to of multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset. https://www.pivotaltracker.com/story/show/150279647
+   Library of Content B-3 (shared test fixture)
+   <p>
+   Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
+   <p>
+   memes bound to sequence-pattern because sequence-binding is not considered for beat sequences, beat sequence patterns do not have memes. https://www.pivotaltracker.com/story/show/163158036
+   <p>
+   Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (beat- and detail-type sequences) https://www.pivotaltracker.com/story/show/165954619
+   <p>
+   Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Beat or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment. https://www.pivotaltracker.com/story/show/153976073
+   + For this test, there's an Intro Pattern with all BLEEPS, multiple Loop Patterns with KICK and SNARE (2x each), and an Outro Pattern with all TOOTS.
+   <p>
+   Artist wants to of multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset. https://www.pivotaltracker.com/story/show/150279647
    */
   public Collection<Object> setupFixtureB3() {
     // A basic beat

@@ -45,6 +45,11 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     themeService.isDarkThemeProperty().bindBidirectional(checkboxDarkTheme.selectedProperty());
   }
 
+  @Override
+  public void onStageClose() {
+    // no op
+  }
+
   @FXML
   protected void onQuit() {
     var exitCode = SpringApplication.exit(ac, () -> 0);

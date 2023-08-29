@@ -13,18 +13,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * XJ has a serviceable voicing algorithm https://www.pivotaltracker.com/story/show/176696738
+ XJ has a serviceable voicing algorithm https://www.pivotaltracker.com/story/show/176696738
  */
 @ExtendWith(MockitoExtension.class)
 public class NotePickerTests extends YamlTest {
@@ -58,9 +53,9 @@ public class NotePickerTests extends YamlTest {
   }
 
   /**
-   * Load the specified test YAML file and run it repeatedly.
-   *
-   * @param filename of test YAML file
+   Load the specified test YAML file and run it repeatedly.
+
+   @param filename of test YAML file
    */
   void loadAndRunTest(String filename) {
     for (int i = 0; i < REPEAT_EACH_TEST_TIMES; i++)
@@ -86,9 +81,9 @@ public class NotePickerTests extends YamlTest {
   }
 
   /**
-   * Load the input section of the test YAML file
-   *
-   * @param data YAML file wrapper
+   Load the input section of the test YAML file
+
+   @param data YAML file wrapper
    */
   List<Note> loadSubject(Map<?, ?> data) throws Exception {
     Map<?, ?> obj = (Map<?, ?>) data.get("input");

@@ -5,6 +5,7 @@ package io.xj.gui.controllers;
 import ch.qos.logback.classic.Level;
 import io.xj.gui.WorkstationLogAppender;
 import io.xj.gui.services.LabService;
+import jakarta.annotation.Nullable;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -44,6 +45,9 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
   final BooleanProperty logsVisible = new SimpleBooleanProperty(false);
   final DoubleProperty refreshRate = new SimpleDoubleProperty(1);
 
+  @Nullable
+  private Timeline refresh;
+
   @FXML
   public Label labelLabStatus;
 
@@ -55,6 +59,7 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
 
   @FXML
   protected ListView<MainPaneBottomController.LogRecord> logListView;
+
 
   public MainPaneBottomController(
     LabService labService
@@ -70,7 +75,7 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
   public void onStageReady() {
     labelLabStatus.textProperty().bind(labService.statusProperty().map(Enum::toString).map((status) -> String.format("Lab %s", status)));
 
-    Timeline logTransfer = new Timeline(
+    refresh = new Timeline(
       new KeyFrame(
         Duration.seconds(1),
         event -> {
@@ -86,9 +91,9 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
         }
       )
     );
-    logTransfer.setCycleCount(Timeline.INDEFINITE);
-    logTransfer.rateProperty().bind(refreshRateProperty());
-    logTransfer.play();
+    refresh.setCycleCount(Timeline.INDEFINITE);
+    refresh.rateProperty().bind(refreshRateProperty());
+    refresh.play();
 
     logListView.setCellFactory(param -> new ListCell<>() {
       @Override
@@ -124,6 +129,13 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
     logListView.minHeightProperty().bind(logsVisible.map((v) -> v ? LOG_LIST_VIEW_HEIGHT : 0));
     logListView.prefHeightProperty().bind(logsVisible.map((v) -> v ? LOG_LIST_VIEW_HEIGHT : 0));
     logListView.maxHeightProperty().bind(logsVisible.map((v) -> v ? LOG_LIST_VIEW_HEIGHT : 0));
+  }
+
+  @Override
+  public void onStageClose() {
+    if (Objects.nonNull(refresh)) {
+      refresh.stop();
+    }
   }
 
   public DoubleProperty refreshRateProperty() {

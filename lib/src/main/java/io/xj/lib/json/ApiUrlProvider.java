@@ -9,7 +9,7 @@ import java.net.URI;
 import java.util.regex.Pattern;
 
 /**
- * Provider of URLs using the injected configuration and some custom formatting
+ Provider of URLs using the injected configuration and some custom formatting
  */
 @Service
 public class ApiUrlProvider {
@@ -23,27 +23,27 @@ public class ApiUrlProvider {
   }
 
   /**
-   * Get URI object for a path within the API
-   *
-   * @param path within API
-   * @return String
+   Get URI object for a path within the API
+
+   @param path within API
+   @return String
    */
   public URI getAppURI(String path) {
     return URI.create(getAppUrl(path));
   }
 
   /**
-   * @return app base URL
+   @return app base URL
    */
   public String getAppBaseUrl() {
     return appBaseUrl;
   }
 
   /**
-   * Get the URL for a path in the app
-   *
-   * @param path to get URL for
-   * @return RUL for given path
+   Get the URL for a path in the app
+
+   @param path to get URL for
+   @return RUL for given path
    */
   public String getAppUrl(String path) {
     return String.format("%s%s", appBaseUrl, stripLeadingSlash(path));

@@ -17,13 +17,7 @@ import io.xj.lib.json.JsonProviderImpl;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.hub_client.HubTopology;
-import io.xj.nexus.model.Chain;
-import io.xj.nexus.model.ChainState;
-import io.xj.nexus.model.ChainType;
-import io.xj.nexus.model.Segment;
-import io.xj.nexus.model.SegmentChoice;
-import io.xj.nexus.model.SegmentState;
-import io.xj.nexus.model.SegmentType;
+import io.xj.nexus.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,16 +28,8 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildAccount;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildLibrary;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildProgram;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildProgramSequence;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildProgramSequenceBinding;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildTemplate;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildTemplateBinding;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
+import static io.xj.nexus.HubIntegrationTestingFixtures.*;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -64,10 +50,10 @@ public class NexusEntityStoreImplTest {
   }
 
   /**
-   * This should ostensibly be a test inside the Entity library-- and it is, except for this bug that
-   * at the time of this writing, we couldn't isolate to that library, and are therefore reproducing it here.
-   *
-   * @throws EntityException on failure
+   This should ostensibly be a test inside the Entity library-- and it is, except for this bug that
+   at the time of this writing, we couldn't isolate to that library, and are therefore reproducing it here.
+
+   @throws EntityException on failure
    */
   @Test
   public void internal_entityFactoryClonesSegmentTypeOK() throws EntityException {

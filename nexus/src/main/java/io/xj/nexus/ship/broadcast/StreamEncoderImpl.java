@@ -151,10 +151,10 @@ public class StreamEncoderImpl implements StreamEncoder {
   }
 
   /**
-   * Return false after logging a warning message
-   *
-   * @param message to warn
-   * @return false
+   Return false after logging a warning message
+
+   @param message to warn
+   @return false
    */
   boolean notHealthy(String message) {
     LOG.warn(message);
@@ -162,11 +162,11 @@ public class StreamEncoderImpl implements StreamEncoder {
   }
 
   /**
-   * Stream a file from temp path to S3
-   *
-   * @param key         of file (in temp folder and on S3 target)
-   * @param contentType content-type
-   * @throws FileStoreException on failure
+   Stream a file from temp path to S3
+
+   @param key         of file (in temp folder and on S3 target)
+   @param contentType content-type
+   @throws FileStoreException on failure
    */
   void uploadMediaSegment(String key, String contentType) throws FileStoreException, ShipException {
     var path = String.format("%s%s", tempFilePathPrefix, key);

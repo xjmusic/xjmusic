@@ -11,34 +11,17 @@ import io.xj.lib.entity.common.ChordEntity;
 import io.xj.lib.entity.common.MessageEntity;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.hub_client.HubClientAccess;
-import io.xj.nexus.model.Chain;
-import io.xj.nexus.model.Segment;
-import io.xj.nexus.model.SegmentChoice;
-import io.xj.nexus.model.SegmentChoiceArrangement;
-import io.xj.nexus.model.SegmentChoiceArrangementPick;
-import io.xj.nexus.model.SegmentChord;
-import io.xj.nexus.model.SegmentChordVoicing;
-import io.xj.nexus.model.SegmentMeme;
-import io.xj.nexus.model.SegmentMessage;
-import io.xj.nexus.model.SegmentMeta;
-import io.xj.nexus.model.SegmentState;
-import io.xj.nexus.model.SegmentType;
+import io.xj.nexus.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 
 /**
- * Nexus Managers are Singletons unless some other requirement changes that-- 'cuz here be cyclic dependencies...
+ Nexus Managers are Singletons unless some other requirement changes that-- 'cuz here be cyclic dependencies...
  */
 @Service
 public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentManager {
@@ -54,11 +37,11 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   /**
-   * Require state is in an array of states
-   *
-   * @param toState       to check
-   * @param allowedStates required to be in
-   * @throws ValueException if not in required states
+   Require state is in an array of states
+
+   @param toState       to check
+   @param allowedStates required to be in
+   @throws ValueException if not in required states
    */
   public static void onlyAllowSegmentStateTransitions(SegmentState toState, SegmentState... allowedStates) throws ValueException {
     List<String> allowedStateNames = new ArrayList<>();
@@ -73,11 +56,11 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   /**
-   * Segment state transitions are protected, dependent on the state this segment is being transitioned of, and the intended state it is being transitioned to.
-   *
-   * @param fromState to protect transition of
-   * @param toState   to test transition to
-   * @throws ValueException on prohibited transition
+   Segment state transitions are protected, dependent on the state this segment is being transitioned of, and the intended state it is being transitioned to.
+
+   @param fromState to protect transition of
+   @param toState   to test transition to
+   @throws ValueException on prohibited transition
    */
   public static void protectSegmentStateTransition(SegmentState fromState, SegmentState toState) throws ValueException {
     switch (fromState) {
@@ -134,11 +117,25 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   @Override
+  public List<Segment> readAll(UUID chainId) {
+    try {
+      return store.getAllSegments(chainId)
+        .stream()
+        .sorted(Comparator.comparing(Segment::getOffset))
+        .toList();
+
+    } catch (NexusException e) {
+      return List.of();
+    }
+  }
+
+  @Override
   public List<Segment> readAllSpanning(UUID chainId, Long fromChainMicros, Long toChainMicros) {
     try {
       return store.getAllSegments(chainId)
         .stream()
         .filter(s -> Segments.isSpanning(s, fromChainMicros, toChainMicros))
+        .sorted(Comparator.comparing(Segment::getOffset))
         .toList();
 
     } catch (NexusException e) {
@@ -338,11 +335,6 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   @Override
-  public boolean exists(UUID id) {
-    return store.segmentExists(id);
-  }
-
-  @Override
   public Chain getChain(Segment segment) throws NexusException, ManagerFatalException {
     return store.getChain(segment.getChainId())
       .orElseThrow(() -> new ManagerFatalException("Segment #" + segment.getId() + " has no chain"));
@@ -359,10 +351,10 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   /**
-   * Validate a segment or child entity
-   *
-   * @param entity to validate
-   * @throws ManagerValidationException if invalid
+   Validate a segment or child entity
+
+   @param entity to validate
+   @throws ManagerValidationException if invalid
    */
   public void validate(Object entity) throws ManagerValidationException {
     try {

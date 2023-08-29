@@ -4,7 +4,7 @@ package io.xj.nexus.analysis;
 import io.xj.hub.util.StringUtils;
 
 /**
- * Template content Analysis https://www.pivotaltracker.com/story/show/161199945
+ Template content Analysis https://www.pivotaltracker.com/story/show/161199945
  */
 public class HubAnalysisException extends Exception {
 

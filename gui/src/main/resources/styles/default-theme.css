@@ -47,3 +47,7 @@
 #fabricationConfigView {
   -fx-background-color: #b0b0b0;
 }
+
+.timeline-list-view {
+  -fx-background-color: #e0e0e0;
+}

@@ -117,6 +117,11 @@ public class ModalLabConnectionController implements ReadyAfterBootController {
     }, labService.authenticatedUserProperty()));
   }
 
+  @Override
+  public void onStageClose() {
+    // no op
+  }
+
   public void launchModal() {
     try {
       // Load the FXML file
@@ -143,7 +148,9 @@ public class ModalLabConnectionController implements ReadyAfterBootController {
 
   @FXML
   void handleClose() {
-    closeStage();
+    Stage stage = (Stage) buttonConnect.getScene().getWindow();
+    stage.close();
+    onStageClose();
   }
 
   @FXML
@@ -158,10 +165,5 @@ public class ModalLabConnectionController implements ReadyAfterBootController {
     } else {
       labService.connect();
     }
-  }
-
-  void closeStage() {
-    Stage stage = (Stage) buttonConnect.getScene().getWindow();
-    stage.close();
   }
 }

@@ -7,16 +7,9 @@ import io.xj.lib.json.JsonProviderImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class EntityFactoryImplTest {
   EntityFactory subject;
@@ -156,10 +149,10 @@ public class EntityFactoryImplTest {
 
 
   /**
-   * This should ostensibly be a test inside the Entity superwidget-- and it is, except for this bug that
-   * at the time of this writing, we couldn't isolate to that superwidget, and are therefore reproducing it here.
-   *
-   * @throws EntityException on failure
+   This should ostensibly be a test inside the Entity superwidget-- and it is, except for this bug that
+   at the time of this writing, we couldn't isolate to that superwidget, and are therefore reproducing it here.
+
+   @throws EntityException on failure
    */
   @Test
   public void internal_entityFactoryClonesWidgetTypeOK() throws EntityException {

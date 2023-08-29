@@ -20,7 +20,6 @@ public class Chain {
   String name;
 
   /**
-   *
    **/
   public Chain id(UUID id) {
     this.id = id;
@@ -38,7 +37,6 @@ public class Chain {
   }
 
   /**
-   *
    **/
   public Chain accountId(UUID accountId) {
     this.accountId = accountId;
@@ -56,7 +54,6 @@ public class Chain {
   }
 
   /**
-   *
    **/
   public Chain templateId(UUID templateId) {
     this.templateId = templateId;
@@ -74,7 +71,6 @@ public class Chain {
   }
 
   /**
-   *
    **/
   public Chain type(ChainType type) {
     this.type = type;
@@ -92,7 +88,6 @@ public class Chain {
   }
 
   /**
-   *
    **/
   public Chain state(ChainState state) {
     this.state = state;
@@ -110,7 +105,6 @@ public class Chain {
   }
 
   /**
-   *
    **/
   public Chain shipKey(String shipKey) {
     this.shipKey = shipKey;
@@ -128,7 +122,6 @@ public class Chain {
   }
 
   /**
-   *
    **/
   public Chain templateConfig(String templateConfig) {
     this.templateConfig = templateConfig;
@@ -146,7 +139,6 @@ public class Chain {
   }
 
   /**
-   *
    **/
   public Chain name(String name) {
     this.name = name;
@@ -203,8 +195,8 @@ public class Chain {
   }
 
   /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
+   Convert the given object to string with each line indented by 4 spaces
+   (except the first line).
    */
   String toIndentedString(Object o) {
     if (o == null) {

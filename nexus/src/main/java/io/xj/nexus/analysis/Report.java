@@ -16,19 +16,12 @@ import org.springframework.beans.factory.annotation.Value;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.time.Instant;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Template content Analysis https://www.pivotaltracker.com/story/show/161199945
+ Template content Analysis https://www.pivotaltracker.com/story/show/161199945
  */
 @SuppressWarnings("DuplicatedCode")
 public abstract class Report {
@@ -56,14 +49,14 @@ public abstract class Report {
   String appBaseUrl;
 
   /**
-   * Create a comp from some Hub content
+   Create a comp from some Hub content
    */
   public Report(HubContent content) {
     this.content = content;
   }
 
   /**
-   * Representation of the construction of a histogram of usage of all constellations
+   Representation of the construction of a histogram of usage of all constellations
    */
   protected static class Histogram {
     Map<String, Count> histogram;
@@ -99,10 +92,10 @@ public abstract class Report {
   }
 
   /**
-   * Compute the macro histogram for a template
-   *
-   * @param taxonomy of template
-   * @return macro histogram for template
+   Compute the macro histogram for a template
+
+   @param taxonomy of template
+   @return macro histogram for template
    */
   protected Histogram computeMacroHistogram(MemeTaxonomy taxonomy) {
     Collection<String> macroMemeNames;
@@ -120,11 +113,11 @@ public abstract class Report {
   }
 
   /**
-   * Compute the main histogram for a template
-   *
-   * @param taxonomy       of template
-   * @param macroHistogram computed for template
-   * @return main histogram for template
+   Compute the main histogram for a template
+
+   @param taxonomy       of template
+   @param macroHistogram computed for template
+   @return main histogram for template
    */
   protected Histogram computeMainHistogram(MemeTaxonomy taxonomy, Histogram macroHistogram) {
     Collection<String> mainBindingMemeNames;
@@ -145,80 +138,80 @@ public abstract class Report {
   }
 
   /**
-   * Render HTML of timestamp
+   Render HTML of timestamp
    */
   public static String renderTimestampHTML() {
     return String.format("<div class=\"timestamp\">Analyzed %s</div>", ValueUtils.formatRfc1123UTC(Instant.now()));
   }
 
   /**
-   * Render an HTML h1 tag with style
-   *
-   * @param content inside h1 tag
-   * @param id      of tag
-   * @return h1 tag with style and content
+   Render an HTML h1 tag with style
+
+   @param content inside h1 tag
+   @param id      of tag
+   @return h1 tag with style and content
    */
   public static String H1(String content, String id) {
     return String.format("<H1 ID=\"%s\" STYLE=\"%s\">%s</H1>", id, H1_STYLE, content);
   }
 
   /**
-   * Render an HTML h2 tag with style
-   *
-   * @param content inside h2 tag
-   * @param id      of tag
-   * @return h2 tag with style and content
+   Render an HTML h2 tag with style
+
+   @param content inside h2 tag
+   @param id      of tag
+   @return h2 tag with style and content
    */
   public static String H2(String content, String id) {
     return String.format("<H2 ID=\"%s\" STYLE=\"%s\">%s</H2>", id, H2_STYLE, content);
   }
 
   /**
-   * Render an HTML table tag with style
-   *
-   * @param contents inside table tag
-   * @return table tag with style and content
+   Render an HTML table tag with style
+
+   @param contents inside table tag
+   @return table tag with style and content
    */
   public static String TABLE(String... contents) {
     return String.format("<TABLE STYLE=\"%s\">%s</TABLE>", TABLE_STYLE, String.join("\n", contents));
   }
 
   /**
-   * Render an HTML row tag with style
-   *
-   * @param contents inside row tag
-   * @return row tag with style and content
+   Render an HTML row tag with style
+
+   @param contents inside row tag
+   @return row tag with style and content
    */
   public static String TR(String... contents) {
     return String.format("<TR STYLE=\"%s\">%s</TR>", ROW_STYLE, String.join("\n", contents));
   }
 
   /**
-   * Render an HTML cell tag with optional header style
-   *
-   * @param header   whether to make this a header cell
-   * @param contents inside cell tag
-   * @return cell tag with style and content
+   Render an HTML cell tag with optional header style
+
+   @param header   whether to make this a header cell
+   @param contents inside cell tag
+   @return cell tag with style and content
    */
   public static String TD(Boolean header, String... contents) {
     return String.format("<TD STYLE=\"%s\">%s</TD>", header ? CELL_HEADER_STYLE : CELL_STYLE, String.join("\n", contents));
   }
 
   /**
-   * Render an HTML cell tag with style
-   *
-   * @param contents inside cell tag
-   * @return cell tag with style and content
+   Render an HTML cell tag with style
+
+   @param contents inside cell tag
+   @return cell tag with style and content
    */
   public static String TD(String... contents) {
     return TD(false, contents);
   }
 
   /**
-   * Render an HTML cell tag with header style
-   *
-   * @param contents inside cell tag
-   * @return cell tag with style and content
+   Render an HTML cell tag with header style
+
+   @param contents inside cell tag
+   @return cell tag with style and content
    */
   public static String headerTD(String... contents) {
     return TD(true, contents);
@@ -240,20 +233,20 @@ public abstract class Report {
   }
 
   /**
-   * Render an HTML cell tag with checkbox style
-   *
-   * @param value whether this cell is checked true (green checkbox)
-   * @return cell tag with style and content
+   Render an HTML cell tag with checkbox style
+
+   @param value whether this cell is checked true (green checkbox)
+   @return cell tag with style and content
    */
   public static String checkboxTD(Boolean value) {
     return statusTD(value ? CellStatus.GREEN : CellStatus.NA);
   }
 
   /**
-   * Render an HTML cell tag with checkbox style
-   *
-   * @param status of this cell
-   * @return cell tag with style and content
+   Render an HTML cell tag with checkbox style
+
+   @param status of this cell
+   @return cell tag with style and content
    */
   public static String statusTD(CellStatus status) {
     return switch (status) {
@@ -265,57 +258,57 @@ public abstract class Report {
   }
 
   /**
-   * Render an HTML unordered list tag with style
-   *
-   * @param contents inside unordered list tag
-   * @return unordered list tag with style and content
+   Render an HTML unordered list tag with style
+
+   @param contents inside unordered list tag
+   @return unordered list tag with style and content
    */
   public static String UL(String... contents) {
     return String.format("<UL STYLE=\"%s\">%s</UL>", UNORDERED_LIST_STYLE, String.join("\n", contents));
   }
 
   /**
-   * Render an HTML list item tag with style
-   *
-   * @param contents inside list item tag
-   * @return list item tag with style and content
+   Render an HTML list item tag with style
+
+   @param contents inside list item tag
+   @return list item tag with style and content
    */
   public static String LI(String... contents) {
     return String.format("<LI STYLE=\"%s\">%s</LI>", LIST_ITEM_STYLE, String.join("\n", contents));
   }
 
   /**
-   * Render an HTML paragraph tag with style
-   *
-   * @param content of paragraph
-   * @return paragraph tag with style and content
+   Render an HTML paragraph tag with style
+
+   @param content of paragraph
+   @return paragraph tag with style and content
    */
   public static String P(String content) {
     return String.format("<P STYLE=\"%s\">%s</P>", P_STYLE, content);
   }
 
   /**
-   * Render an HTML link
-   *
-   * @param href    to link
-   * @param content to display
-   * @return link to program
+   Render an HTML link
+
+   @param href    to link
+   @param content to display
+   @return link to program
    */
   protected static String A(Boolean launchBlank, String href, String content) {
     return String.format("<A STYLE=\"%s\" HREF=\"%s\" %s REL=\"noopener noreferrer\">%s</A>", USAGE_LINK_STYLE, href, launchBlank ? "TARGET=\"_blank\"" : "", content);
   }
 
   /**
-   * Render HTML
+   Render HTML
    */
   public String renderHeaderHTML() {
     return String.join(String.format("<A ID=\"%s\">", TOP_ID), "\n", H1(getType().getName(), "headline"), renderTimestampHTML());
   }
 
   /**
-   * Output this computation as HTML
-   *
-   * @return HTML representation
+   Output this computation as HTML
+
+   @return HTML representation
    */
   public String toHTML() throws HubAnalysisException {
     try {
@@ -330,10 +323,10 @@ public abstract class Report {
   }
 
   /**
-   * Render organized sections
-   *
-   * @param sections to render
-   * @return rendered sections prefaced by linked table of contents
+   Render organized sections
+
+   @param sections to render
+   @return rendered sections prefaced by linked table of contents
    */
   protected String sectionsToHTML(List<Section> sections) {
     return
@@ -348,41 +341,41 @@ public abstract class Report {
   }
 
   /**
-   * Each type of report replaces this function with its own inner content
-   *
-   * @return content HTML
+   Each type of report replaces this function with its own inner content
+
+   @return content HTML
    */
   public abstract List<Section> computeSections();
 
   /**
-   * Get the type of this comp
-   *
-   * @return comp type
+   Get the type of this comp
+
+   @return comp type
    */
   public abstract Type getType();
 
   /**
-   * Render an HTML link to a program
-   *
-   * @param program to link
-   * @return link to program
+   Render an HTML link to a program
+
+   @param program to link
+   @return link to program
    */
   protected String programRef(Program program) {
     return A(true, String.format("%s%s/%s", appBaseUrl, "programs", program.getId()), program.getName());
   }
 
   /**
-   * Render an HTML link to a instrument
-   *
-   * @param instrument to link
-   * @return link to instrument
+   Render an HTML link to a instrument
+
+   @param instrument to link
+   @return link to instrument
    */
   protected String instrumentRef(Instrument instrument) {
     return A(true, String.format("%s%s/%s", appBaseUrl, "instruments", instrument.getId()), instrument.getName());
   }
 
   /**
-   * Types of comps
+   Types of comps
    */
   public enum Type {
     ChordInstruments("Chord-mode Instruments"),
@@ -403,12 +396,12 @@ public abstract class Report {
   }
 
   /**
-   * Organized sections of content@param id                   of section
-   *
-   * @param name          of section
-   * @param rowColCells   row content
-   * @param columnHeaders headers for columns
-   * @param rowHeaders    headers for rows
+   Organized sections of content@param id                   of section
+
+   @param name          of section
+   @param rowColCells   row content
+   @param columnHeaders headers for columns
+   @param rowHeaders    headers for rows
    */
   protected record Section(String id, String name,
                            List<List<String>> rowColCells,

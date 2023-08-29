@@ -31,7 +31,6 @@ public class Segment {
   String updatedAt;
 
   /**
-   *
    **/
   public Segment id(UUID id) {
     this.id = id;
@@ -49,7 +48,6 @@ public class Segment {
   }
 
   /**
-   *
    **/
   public Segment chainId(UUID chainId) {
     this.chainId = chainId;
@@ -67,7 +65,6 @@ public class Segment {
   }
 
   /**
-   *
    **/
   public Segment type(SegmentType type) {
     this.type = type;
@@ -85,7 +82,6 @@ public class Segment {
   }
 
   /**
-   *
    **/
   public Segment state(SegmentState state) {
     this.state = state;
@@ -103,7 +99,7 @@ public class Segment {
   }
 
   /**
-   * Segment begin-at time in microseconds since beginning of chain
+   Segment begin-at time in microseconds since beginning of chain
    **/
   public Segment beginAtChainMicros(long chainMicros) {
     this.beginAtChainMicros = chainMicros;
@@ -121,7 +117,6 @@ public class Segment {
   }
 
   /**
-   *
    **/
   public Segment durationMicros(@Nullable Long micros) {
     this.durationMicros = micros;
@@ -140,7 +135,6 @@ public class Segment {
   }
 
   /**
-   *
    **/
   public Segment key(String key) {
     this.key = key;
@@ -158,7 +152,6 @@ public class Segment {
   }
 
   /**
-   *
    **/
   public Segment total(Integer total) {
     this.total = total;
@@ -176,7 +169,6 @@ public class Segment {
   }
 
   /**
-   *
    **/
   public Segment offset(Long offset) {
     this.offset = offset;
@@ -194,7 +186,6 @@ public class Segment {
   }
 
   /**
-   *
    **/
   public Segment density(Double density) {
     this.density = density;
@@ -212,7 +203,6 @@ public class Segment {
   }
 
   /**
-   *
    **/
   public Segment tempo(Double tempo) {
     this.tempo = tempo;
@@ -230,7 +220,6 @@ public class Segment {
   }
 
   /**
-   *
    **/
   public Segment storageKey(String storageKey) {
     this.storageKey = storageKey;
@@ -248,7 +237,6 @@ public class Segment {
   }
 
   /**
-   *
    **/
   public Segment waveformPreroll(Double waveformPreroll) {
     this.waveformPreroll = waveformPreroll;
@@ -266,7 +254,6 @@ public class Segment {
   }
 
   /**
-   *
    **/
   public Segment waveformPostroll(Double waveformPostroll) {
     this.waveformPostroll = waveformPostroll;
@@ -284,7 +271,6 @@ public class Segment {
   }
 
   /**
-   *
    **/
   public Segment delta(Integer delta) {
     this.delta = delta;
@@ -302,7 +288,6 @@ public class Segment {
   }
 
   /**
-   *
    **/
   public Segment createdAt(String createdAt) {
     this.createdAt = createdAt;
@@ -320,7 +305,6 @@ public class Segment {
   }
 
   /**
-   *
    **/
   public Segment updatedAt(String updatedAt) {
     this.updatedAt = updatedAt;
@@ -398,8 +382,8 @@ public class Segment {
   }
 
   /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
+   Convert the given object to string with each line indented by 4 spaces
+   (except the first line).
    */
   String toIndentedString(Object o) {
     if (o == null) {

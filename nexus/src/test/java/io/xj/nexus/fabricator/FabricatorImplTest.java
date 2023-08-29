@@ -17,26 +17,12 @@ import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.nexus.NexusException;
+import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.hub_client.HubClientException;
 import io.xj.nexus.hub_client.HubTopology;
-import io.xj.nexus.model.ChainState;
-import io.xj.nexus.model.ChainType;
-import io.xj.nexus.model.Segment;
-import io.xj.nexus.model.SegmentChoice;
-import io.xj.nexus.model.SegmentChoiceArrangement;
-import io.xj.nexus.model.SegmentChoiceArrangementPick;
-import io.xj.nexus.model.SegmentMeme;
-import io.xj.nexus.model.SegmentMeta;
-import io.xj.nexus.model.SegmentState;
-import io.xj.nexus.model.SegmentType;
-import io.xj.nexus.persistence.Chains;
-import io.xj.nexus.persistence.ManagerFatalException;
-import io.xj.nexus.persistence.NexusEntityStore;
-import io.xj.nexus.persistence.NexusEntityStoreImpl;
-import io.xj.nexus.persistence.SegmentManager;
-import io.xj.nexus.persistence.Segments;
-import io.xj.nexus.NexusIntegrationTestingFixtures;
+import io.xj.nexus.model.*;
+import io.xj.nexus.persistence.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,43 +31,20 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildAccount;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildEvent;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildPattern;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildProgram;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildSequence;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildTemplate;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildTemplateBinding;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildTrack;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildVoice;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildVoicing;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoiceArrangement;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoiceArrangementPick;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChord;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentMeta;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static io.xj.nexus.HubIntegrationTestingFixtures.*;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
- * FUTURE: Split the FabricatorImplTest into separate tests of the FabricatorImpl, SegmentWorkbenchImpl, SegmentRetrospectiveImpl, and IngestImpl https://www.pivotaltracker.com/story/show/170035559
+ FUTURE: Split the FabricatorImplTest into separate tests of the FabricatorImpl, SegmentWorkbenchImpl, SegmentRetrospectiveImpl, and IngestImpl https://www.pivotaltracker.com/story/show/170035559
  */
 @ExtendWith(MockitoExtension.class)
 public class FabricatorImplTest {
@@ -131,7 +94,7 @@ public class FabricatorImplTest {
   }
 
   /**
-   * Instrument has overall volume parameter https://www.pivotaltracker.com/story/show/179215413
+   Instrument has overall volume parameter https://www.pivotaltracker.com/story/show/179215413
    */
   @Test
   public void computeAudioVolume() throws Exception {
@@ -202,7 +165,7 @@ public class FabricatorImplTest {
 
 
   /**
-   * Choose next Macro program based on the memes of the last sequence from the previous Macro program https://www.pivotaltracker.com/story/show/176728582
+   Choose next Macro program based on the memes of the last sequence from the previous Macro program https://www.pivotaltracker.com/story/show/176728582
    */
   @Test
   public void getType() throws NexusException, ManagerFatalException, FabricationFatalException, ValueException, HubClientException {
@@ -345,7 +308,7 @@ public class FabricatorImplTest {
   }
 
   /**
-   * Sticky buns v2 use slash root when available https://www.pivotaltracker.com/story/show/179153822
+   Sticky buns v2 use slash root when available https://www.pivotaltracker.com/story/show/179153822
    */
   @Test
   public void getRootNote() {
@@ -355,7 +318,7 @@ public class FabricatorImplTest {
   }
 
   /**
-   * Should add meme from ALL program and instrument types! https://www.pivotaltracker.com/story/show/181336704
+   Should add meme from ALL program and instrument types! https://www.pivotaltracker.com/story/show/181336704
    */
   @Test
   public void put_addsMemesForChoice() throws NexusException {
@@ -375,9 +338,9 @@ public class FabricatorImplTest {
   }
 
   /**
-   * Unit test behavior of choosing an event for a note in a detail program
-   * <p>
-   * Sticky bun note choices should persist into following segments https://www.pivotaltracker.com/story/show/182132467
+   Unit test behavior of choosing an event for a note in a detail program
+   <p>
+   Sticky bun note choices should persist into following segments https://www.pivotaltracker.com/story/show/182132467
    */
   @Test
   public void getStickyBun_readMetaFromCurrentSegment() throws JsonProcessingException {
@@ -394,9 +357,9 @@ public class FabricatorImplTest {
   }
 
   /**
-   * Unit test behavior of choosing an event for a note in a detail program
-   * <p>
-   * Sticky bun note choices should persist into following segments https://www.pivotaltracker.com/story/show/182132467
+   Unit test behavior of choosing an event for a note in a detail program
+   <p>
+   Sticky bun note choices should persist into following segments https://www.pivotaltracker.com/story/show/182132467
    */
   @Test
   public void getStickyBun_readMetaFromPreviousSegment() throws JsonProcessingException {
@@ -413,9 +376,9 @@ public class FabricatorImplTest {
   }
 
   /**
-   * Unit test behavior of choosing a different events for a series of X notes in a detail program
-   * <p>
-   * Sticky bun note choices should persist into following segments https://www.pivotaltracker.com/story/show/182132467
+   Unit test behavior of choosing a different events for a series of X notes in a detail program
+   <p>
+   Sticky bun note choices should persist into following segments https://www.pivotaltracker.com/story/show/182132467
    */
   @Test
   public void getStickyBun_createForEvent() throws JsonProcessingException, NexusException {
@@ -431,9 +394,9 @@ public class FabricatorImplTest {
   }
 
   /**
-   * Unit test behavior of choosing an event for a note in a detail program
-   * <p>
-   * Sticky bun note choices should persist into following segments https://www.pivotaltracker.com/story/show/182132467
+   Unit test behavior of choosing an event for a note in a detail program
+   <p>
+   Sticky bun note choices should persist into following segments https://www.pivotaltracker.com/story/show/182132467
    */
   @Test
   public void getStickyBun_multipleEventsPickedSeparately() throws JsonProcessingException {

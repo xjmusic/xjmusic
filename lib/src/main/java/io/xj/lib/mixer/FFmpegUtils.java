@@ -17,14 +17,14 @@ public interface FFmpegUtils {
   Logger LOG = LoggerFactory.getLogger(FFmpegUtils.class);
 
   /**
-   * Convert the audio file to the target sample rate
-   *
-   * @param inputAudioFilePath  path to input audio file
-   * @param outputAudioFilePath path to output audio file
-   * @param targetSampleRate    target sample rate
-   * @param targetSampleBits    target sample bits
-   * @param targetChannels      target channels
-   * @throws RuntimeException if unable to convert audio
+   Convert the audio file to the target sample rate
+
+   @param inputAudioFilePath  path to input audio file
+   @param outputAudioFilePath path to output audio file
+   @param targetSampleRate    target sample rate
+   @param targetSampleBits    target sample bits
+   @param targetChannels      target channels
+   @throws RuntimeException if unable to convert audio
    */
   static void resampleAudio(String inputAudioFilePath, String outputAudioFilePath, int targetSampleRate, int targetSampleBits, int targetChannels) throws RuntimeException {
     try (FFmpegFrameGrabber input = new FFmpegFrameGrabber(inputAudioFilePath)) {

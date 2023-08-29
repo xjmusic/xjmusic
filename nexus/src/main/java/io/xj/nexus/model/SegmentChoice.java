@@ -28,7 +28,6 @@ public class SegmentChoice {
   ProgramType programType;
 
   /**
-   *
    **/
   public SegmentChoice id(UUID id) {
     this.id = id;
@@ -46,7 +45,6 @@ public class SegmentChoice {
   }
 
   /**
-   *
    **/
   public SegmentChoice segmentId(UUID segmentId) {
     this.segmentId = segmentId;
@@ -64,7 +62,6 @@ public class SegmentChoice {
   }
 
   /**
-   *
    **/
   public SegmentChoice programId(UUID programId) {
     this.programId = programId;
@@ -82,7 +79,6 @@ public class SegmentChoice {
   }
 
   /**
-   *
    **/
   public SegmentChoice programSequenceId(UUID programSequenceId) {
     this.programSequenceId = programSequenceId;
@@ -100,7 +96,6 @@ public class SegmentChoice {
   }
 
   /**
-   *
    **/
   public SegmentChoice programSequenceBindingId(UUID programSequenceBindingId) {
     this.programSequenceBindingId = programSequenceBindingId;
@@ -118,7 +113,6 @@ public class SegmentChoice {
   }
 
   /**
-   *
    **/
   public SegmentChoice programVoiceId(UUID programVoiceId) {
     this.programVoiceId = programVoiceId;
@@ -136,7 +130,6 @@ public class SegmentChoice {
   }
 
   /**
-   *
    **/
   public SegmentChoice instrumentId(UUID instrumentId) {
     this.instrumentId = instrumentId;
@@ -154,7 +147,6 @@ public class SegmentChoice {
   }
 
   /**
-   *
    **/
   public SegmentChoice deltaIn(Integer deltaIn) {
     this.deltaIn = deltaIn;
@@ -172,7 +164,6 @@ public class SegmentChoice {
   }
 
   /**
-   *
    **/
   public SegmentChoice deltaOut(Integer deltaOut) {
     this.deltaOut = deltaOut;
@@ -190,7 +181,6 @@ public class SegmentChoice {
   }
 
   /**
-   *
    **/
   public SegmentChoice mute(Boolean mute) {
     this.mute = mute;
@@ -208,7 +198,6 @@ public class SegmentChoice {
   }
 
   /**
-   *
    **/
   public SegmentChoice instrumentType(InstrumentType instrumentType) {
     this.instrumentType = instrumentType;
@@ -226,7 +215,6 @@ public class SegmentChoice {
   }
 
   /**
-   *
    **/
   public SegmentChoice instrumentMode(InstrumentMode instrumentMode) {
     this.instrumentMode = instrumentMode;
@@ -244,7 +232,6 @@ public class SegmentChoice {
   }
 
   /**
-   *
    **/
   public SegmentChoice programType(ProgramType programType) {
     this.programType = programType;
@@ -312,8 +299,8 @@ public class SegmentChoice {
   }
 
   /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
+   Convert the given object to string with each line indented by 4 spaces
+   (except the first line).
    */
   String toIndentedString(Object o) {
     if (o == null) {

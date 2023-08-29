@@ -2,20 +2,9 @@
 
 <!-- Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved. -->
 
-<?import javafx.scene.control.*?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.layout.VBox?>
-<MenuBar VBox.vgrow="NEVER" xmlns="http://javafx.com/javafx/20.0.1"
-         xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.MainMenuController">
-  <Menu mnemonicParsing="false" text="Workstation">
-    <MenuItem mnemonicParsing="false" onAction="#onConnectToLab" text="Connect to Lab"/>
-    <SeparatorMenuItem mnemonicParsing="false"/>
-    <MenuItem mnemonicParsing="false" onAction="#onQuit" text="Exit"/>
-  </Menu>
-  <Menu mnemonicParsing="false" text="View">
-    <CheckMenuItem fx:id="checkboxDarkTheme" mnemonicParsing="false" selected="true" text="Dark Theme"/>
-  </Menu>
-  <Menu mnemonicParsing="false" text="Help">
-    <MenuItem mnemonicParsing="false" onAction="#onLaunchUserGuide" text="User Guide"/>
-  </Menu>
-</MenuBar>
-
+<VBox xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="io.xj.gui.controllers.MainTimelineController" VBox.vgrow="ALWAYS">
+  <ListView fx:id="segmentListView" styleClass="timeline-list-view" VBox.vgrow="ALWAYS" maxHeight="999999" />
+</VBox>

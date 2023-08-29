@@ -15,9 +15,9 @@ import java.util.UUID;
 import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
 
 /**
- * Payload deserializer test
- * <p>
- * Created by Charney Kaye on 2020/03/09
+ Payload deserializer test
+ <p>
+ Created by Charney Kaye on 2020/03/09
  */
 public class JsonapiJsonapiPayloadDeserializerTest {
   JsonapiPayloadFactory jsonapiPayloadFactory;

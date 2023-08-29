@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Constellations report https://www.pivotaltracker.com/story/show/182861489
+ Constellations report https://www.pivotaltracker.com/story/show/182861489
  */
 public class ReportChordInstruments extends Report {
   final Histogram mainHistogram;

@@ -15,7 +15,6 @@ public class SegmentMeme {
   String name;
 
   /**
-   *
    **/
   public SegmentMeme id(UUID id) {
     this.id = id;
@@ -33,7 +32,6 @@ public class SegmentMeme {
   }
 
   /**
-   *
    **/
   public SegmentMeme segmentId(UUID segmentId) {
     this.segmentId = segmentId;
@@ -51,7 +49,6 @@ public class SegmentMeme {
   }
 
   /**
-   *
    **/
   public SegmentMeme name(String name) {
     this.name = name;
@@ -101,8 +98,8 @@ public class SegmentMeme {
   }
 
   /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
+   Convert the given object to string with each line indented by 4 spaces
+   (except the first line).
    */
   String toIndentedString(Object o) {
     if (o == null) {

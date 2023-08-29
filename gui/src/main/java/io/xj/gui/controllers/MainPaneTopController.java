@@ -101,6 +101,11 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     updateConfigVisibility();
   }
 
+  @Override
+  public void onStageClose() {
+    fabricationService.cancel();
+  }
+
   @FXML
   protected void onButtonActionPress() {
     switch (fabricationService.statusProperty().get()) {

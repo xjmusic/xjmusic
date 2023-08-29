@@ -41,6 +41,7 @@ public class WorkFactoryImpl implements WorkFactory {
   final MixerFactory mixerFactory;
   final NexusEntityStore store;
   final NotificationProvider notification;
+
   final SegmentManager segmentManager;
   final TelemetryProvider telemetryProvider;
   final long dubCycleMillis;
@@ -209,4 +210,28 @@ public class WorkFactoryImpl implements WorkFactory {
   public boolean isHealthy() {
     return getWorkState() != WorkState.Failed;
   }
+
+  @Override
+  public SegmentManager getSegmentManager() {
+    return segmentManager;
+  }
+
+  @Override
+  @Nullable
+  public CraftWork getCraftWork() {
+    return craftWork;
+  }
+
+  @Override
+  @Nullable
+  public DubWork getDubWork() {
+    return dubWork;
+  }
+
+  @Override
+  @Nullable
+  public ShipWork getShipWork() {
+    return shipWork;
+  }
+
 }

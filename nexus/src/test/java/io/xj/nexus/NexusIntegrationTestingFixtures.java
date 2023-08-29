@@ -2,94 +2,30 @@
 
 package io.xj.nexus;
 
-import io.xj.hub.enums.InstrumentMode;
-import io.xj.hub.enums.InstrumentState;
-import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramState;
-import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.Account;
-import io.xj.hub.tables.pojos.AccountUser;
-import io.xj.hub.tables.pojos.Instrument;
-import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.hub.tables.pojos.InstrumentMeme;
-import io.xj.hub.tables.pojos.Library;
-import io.xj.hub.tables.pojos.Program;
-import io.xj.hub.tables.pojos.ProgramMeme;
-import io.xj.hub.tables.pojos.ProgramSequence;
-import io.xj.hub.tables.pojos.ProgramSequenceBinding;
-import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
-import io.xj.hub.tables.pojos.ProgramSequenceChord;
-import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
-import io.xj.hub.tables.pojos.ProgramSequencePattern;
-import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
-import io.xj.hub.tables.pojos.ProgramVoice;
-import io.xj.hub.tables.pojos.ProgramVoiceTrack;
-import io.xj.hub.tables.pojos.Template;
-import io.xj.hub.tables.pojos.TemplateBinding;
-import io.xj.hub.tables.pojos.User;
-import io.xj.hub.tables.pojos.UserAuth;
+import io.xj.hub.enums.*;
+import io.xj.hub.tables.pojos.*;
 import io.xj.hub.util.StringUtils;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityUtils;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.hub_client.access.Users;
-import io.xj.nexus.model.Chain;
-import io.xj.nexus.model.ChainState;
-import io.xj.nexus.model.ChainType;
-import io.xj.nexus.model.Segment;
-import io.xj.nexus.model.SegmentChoice;
-import io.xj.nexus.model.SegmentChoiceArrangement;
-import io.xj.nexus.model.SegmentChoiceArrangementPick;
-import io.xj.nexus.model.SegmentChord;
-import io.xj.nexus.model.SegmentChordVoicing;
-import io.xj.nexus.model.SegmentMeme;
-import io.xj.nexus.model.SegmentMeta;
-import io.xj.nexus.model.SegmentState;
-import io.xj.nexus.model.SegmentType;
+import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.Segments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.hub.util.ValueUtils.SECONDS_PER_MINUTE;
-import static io.xj.nexus.HubIntegrationTestingFixtures.TEST_TEMPLATE_CONFIG;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildAccount;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildAccountUser;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildAudio;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildBinding;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildChord;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildEvent;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildInstrument;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildInstrumentMeme;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildLibrary;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildMeme;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildPattern;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildProgram;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildProgramMeme;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildProgramSequenceBinding;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildProgramSequenceBindingMeme;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildSequence;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildTemplate;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildTemplateBinding;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildTrack;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildUser;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildVoice;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildVoicing;
+import static io.xj.nexus.HubIntegrationTestingFixtures.*;
 
 /**
- * Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
- * <p>
- * Testing the hypothesis that, while unit tests are all independent,
- * integration tests ought to be as much about testing all features around a consensus model of the platform
- * as they are about testing all resources.
+ Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
+ <p>
+ Testing the hypothesis that, while unit tests are all independent,
+ integration tests ought to be as much about testing all features around a consensus model of the platform
+ as they are about testing all resources.
  */
 public class NexusIntegrationTestingFixtures {
   static final Logger LOG = LoggerFactory.getLogger(NexusIntegrationTestingFixtures.class);
@@ -267,10 +203,10 @@ public class NexusIntegrationTestingFixtures {
   public User user3;
 
   /**
-   * List of N random values
-   *
-   * @param N number of values
-   * @return array of values
+   List of N random values
+
+   @param N number of values
+   @return array of values
    */
   protected static Float[] listOfRandomValues(int N) {
     Float[] result = new Float[N];
@@ -281,11 +217,11 @@ public class NexusIntegrationTestingFixtures {
   }
 
   /**
-   * Create a N-magnitude list of unique Strings at random of a source list of Strings
-   *
-   * @param N           size of list
-   * @param sourceItems source Strings
-   * @return array of unique random Strings
+   Create a N-magnitude list of unique Strings at random of a source list of Strings
+
+   @param N           size of list
+   @param sourceItems source Strings
+   @return array of unique random Strings
    */
   protected static String[] listOfUniqueRandom(long N, String[] sourceItems) {
     long count = 0;
@@ -301,31 +237,31 @@ public class NexusIntegrationTestingFixtures {
   }
 
   /**
-   * Random value between A and B
-   *
-   * @param A floor
-   * @param B ceiling
-   * @return A <= value <= B
+   Random value between A and B
+
+   @param A floor
+   @param B ceiling
+   @return A <= value <= B
    */
   protected static Float random(double A, double B) {
     return (float) (A + StrictMath.random() * (B - A));
   }
 
   /**
-   * Get random String of array
-   *
-   * @param array to get String of
-   * @return random String
+   Get random String of array
+
+   @param array to get String of
+   @return random String
    */
   protected static String random(String[] array) {
     return array[(int) StrictMath.floor(StrictMath.random() * array.length)];
   }
 
   /**
-   * Get random long of array
-   *
-   * @param array to get long of
-   * @return random long
+   Get random long of array
+
+   @param array to get long of
+   @return random long
    */
   protected static Integer random(Integer[] array) {
     return array[(int) StrictMath.floor(StrictMath.random() * array.length)];
@@ -588,13 +524,13 @@ public class NexusIntegrationTestingFixtures {
   }
 
   /**
-   * Create a new HubAccess control object
-   *
-   * @param user     for access
-   * @param userAuth for access
-   * @param accounts for access
-   * @param rolesCSV for access
-   * @return access control object
+   Create a new HubAccess control object
+
+   @param user     for access
+   @param userAuth for access
+   @param accounts for access
+   @param rolesCSV for access
+   @return access control object
    */
   public static HubClientAccess buildHubClientAccess(User user, UserAuth userAuth, List<Account> accounts, String rolesCSV) {
     return new HubClientAccess()
@@ -605,11 +541,11 @@ public class NexusIntegrationTestingFixtures {
   }
 
   /**
-   * Create a new HubAccess control object
-   *
-   * @param user     for access
-   * @param rolesCSV for access
-   * @return access control object
+   Create a new HubAccess control object
+
+   @param user     for access
+   @param rolesCSV for access
+   @return access control object
    */
   public static HubClientAccess buildHubClientAccess(User user, String rolesCSV) {
     return new HubClientAccess()
@@ -618,12 +554,12 @@ public class NexusIntegrationTestingFixtures {
   }
 
   /**
-   * Create a new HubAccess control object
-   *
-   * @param user     for access
-   * @param accounts for access
-   * @param rolesCSV for access
-   * @return access control object
+   Create a new HubAccess control object
+
+   @param user     for access
+   @param accounts for access
+   @param rolesCSV for access
+   @return access control object
    */
   public static HubClientAccess buildHubClientAccess(User user, List<Account> accounts, String rolesCSV) {
     return new HubClientAccess()
@@ -633,12 +569,12 @@ public class NexusIntegrationTestingFixtures {
   }
 
   /**
-   * Create a new HubAccess control object
-   *
-   * @param user     for access
-   * @param userAuth for access
-   * @param accounts for access
-   * @return access control object
+   Create a new HubAccess control object
+
+   @param user     for access
+   @param userAuth for access
+   @param accounts for access
+   @return access control object
    */
   public static HubClientAccess buildHubClientAccess(User user, UserAuth userAuth, List<Account> accounts) {
     return new HubClientAccess()
@@ -648,11 +584,11 @@ public class NexusIntegrationTestingFixtures {
   }
 
   /**
-   * Create a new HubAccess control object
-   *
-   * @param user     for access
-   * @param accounts for access
-   * @return access control object
+   Create a new HubAccess control object
+
+   @param user     for access
+   @param accounts for access
+   @return access control object
    */
   public static HubClientAccess buildHubClientAccess(User user, List<Account> accounts) {
     return new HubClientAccess()
@@ -661,11 +597,11 @@ public class NexusIntegrationTestingFixtures {
   }
 
   /**
-   * Create a new HubAccess control object
-   *
-   * @param accounts for access
-   * @param rolesCSV for access
-   * @return access control object
+   Create a new HubAccess control object
+
+   @param accounts for access
+   @param rolesCSV for access
+   @return access control object
    */
   public static HubClientAccess buildHubClientAccess(List<Account> accounts, String rolesCSV) {
     return new HubClientAccess()
@@ -674,19 +610,19 @@ public class NexusIntegrationTestingFixtures {
   }
 
   /**
-   * Create a new HubAccess control object
-   *
-   * @param rolesCSV for access
-   * @return access control object
+   Create a new HubAccess control object
+
+   @param rolesCSV for access
+   @return access control object
    */
   public static HubClientAccess buildHubClientAccess(String rolesCSV) {
     return new HubClientAccess().setRoleTypes(Users.userRoleTypesFromCsv(rolesCSV));
   }
 
   /**
-   * A whole library of mock content
-   *
-   * @return collection of entities
+   A whole library of mock content
+
+   @return collection of entities
    */
   public Collection<Object> setupFixtureB1() throws EntityException {
 
@@ -842,9 +778,9 @@ public class NexusIntegrationTestingFixtures {
   }
 
   /**
-   * Library of Content B-2 (shared test fixture)
-   * <p>
-   * Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
+   Library of Content B-2 (shared test fixture)
+   <p>
+   Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
    */
   public Collection<Object> setupFixtureB2() {
     // "Tangy, Chunky to Smooth" macro-program in house library
@@ -913,18 +849,18 @@ public class NexusIntegrationTestingFixtures {
   }
 
   /**
-   * Library of Content B-3 (shared test fixture)
-   * <p>
-   * Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
-   * <p>
-   * memes bound to sequence-pattern because sequence-binding is not considered for beat sequences, beat sequence patterns do not have memes. https://www.pivotaltracker.com/story/show/163158036
-   * <p>
-   * Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (beat- and detail-type sequences) https://www.pivotaltracker.com/story/show/165954619
-   * <p>
-   * Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Beat or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment. https://www.pivotaltracker.com/story/show/153976073
-   * + For this test, there's an Intro Pattern with all BLEEPS, multiple Loop Patterns with KICK and SNARE (2x each), and an Outro Pattern with all TOOTS.
-   * <p>
-   * Artist wants to of multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset. https://www.pivotaltracker.com/story/show/150279647
+   Library of Content B-3 (shared test fixture)
+   <p>
+   Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
+   <p>
+   memes bound to sequence-pattern because sequence-binding is not considered for beat sequences, beat sequence patterns do not have memes. https://www.pivotaltracker.com/story/show/163158036
+   <p>
+   Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (beat- and detail-type sequences) https://www.pivotaltracker.com/story/show/165954619
+   <p>
+   Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Beat or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment. https://www.pivotaltracker.com/story/show/153976073
+   + For this test, there's an Intro Pattern with all BLEEPS, multiple Loop Patterns with KICK and SNARE (2x each), and an Outro Pattern with all TOOTS.
+   <p>
+   Artist wants to of multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset. https://www.pivotaltracker.com/story/show/150279647
    */
   public Collection<Object> setupFixtureB3() {
     // A basic beat
@@ -1036,9 +972,9 @@ public class NexusIntegrationTestingFixtures {
   }
 
   /**
-   * Library of Content B-4 (shared test fixture)
-   * <p>
-   * Detail Craft v1 https://www.pivotaltracker.com/story/show/154464276
+   Library of Content B-4 (shared test fixture)
+   <p>
+   Detail Craft v1 https://www.pivotaltracker.com/story/show/154464276
    */
   public Collection<Object> setupFixtureB4_DetailBass() {
     // A basic bass pattern
@@ -1113,10 +1049,10 @@ public class NexusIntegrationTestingFixtures {
   }
 
   /**
-   * Generate a Library comprising many related entities
-   *
-   * @param N magnitude of library to generate
-   * @return entities
+   Generate a Library comprising many related entities
+
+   @param N magnitude of library to generate
+   @return entities
    */
   public Collection<Object> generatedFixture(int N) {
     Collection<Object> entities = new ArrayList<>();
@@ -1254,12 +1190,12 @@ public class NexusIntegrationTestingFixtures {
   }
 
   /**
-   * Add an entity to a collection, then return that entity
-   *
-   * @param to     collection
-   * @param entity to add
-   * @param <N>    type of entity
-   * @return entity that's been added
+   Add an entity to a collection, then return that entity
+
+   @param to     collection
+   @param entity to add
+   @param <N>    type of entity
+   @return entity that's been added
    */
   <N> N add(Collection<Object> to, N entity) {
     to.add(entity);

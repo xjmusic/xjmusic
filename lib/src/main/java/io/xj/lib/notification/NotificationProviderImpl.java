@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Implementation of Amazon SNS publisher
+ Implementation of Amazon SNS publisher
  */
 @Service
 public class NotificationProviderImpl implements NotificationProvider {

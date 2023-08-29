@@ -16,7 +16,6 @@ public class SegmentChord {
   String name;
 
   /**
-   *
    **/
   public SegmentChord id(UUID id) {
     this.id = id;
@@ -34,7 +33,6 @@ public class SegmentChord {
   }
 
   /**
-   *
    **/
   public SegmentChord segmentId(UUID segmentId) {
     this.segmentId = segmentId;
@@ -52,7 +50,6 @@ public class SegmentChord {
   }
 
   /**
-   *
    **/
   public SegmentChord position(Double position) {
     this.position = position;
@@ -70,7 +67,6 @@ public class SegmentChord {
   }
 
   /**
-   *
    **/
   public SegmentChord name(String name) {
     this.name = name;
@@ -119,8 +115,8 @@ public class SegmentChord {
   }
 
   /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
+   Convert the given object to string with each line indented by 4 spaces
+   (except the first line).
    */
   String toIndentedString(Object o) {
     if (o == null) {

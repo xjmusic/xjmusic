@@ -13,7 +13,7 @@
     </VBox>
   </top>
   <center>
-    <fx:include fx:id="centerPane" source="main-timeline.fxml" />
+    <fx:include fx:id="mainTimeline" source="main-timeline.fxml"/>
   </center>
   <bottom>
     <fx:include fx:id="mainPaneBottom" source="main-pane-bottom.fxml"/>

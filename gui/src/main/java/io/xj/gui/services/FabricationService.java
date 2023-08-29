@@ -7,7 +7,10 @@ import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.work.WorkConfiguration;
 import io.xj.nexus.work.WorkFactory;
-import javafx.beans.property.*;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
@@ -96,5 +99,7 @@ public class FabricationService extends Service<Boolean> {
     return outputSeconds;
   }
 
-
+  public WorkFactory getWorkFactory() {
+    return workFactory;
+  }
 }

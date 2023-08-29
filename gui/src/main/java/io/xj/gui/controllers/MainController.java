@@ -17,7 +17,9 @@ public class MainController implements ReadyAfterBootController {
   final MainMenuController mainMenuController;
   final MainPaneBottomController mainPaneBottomController;
   final MainPaneTopController mainPaneTopController;
+  private final MainTimelineController mainTimelineController;
   final ThemeService themeService;
+
 
   @Nullable
   Scene mainWindowScene;
@@ -27,17 +29,24 @@ public class MainController implements ReadyAfterBootController {
     MainMenuController mainMenuController,
     MainPaneBottomController mainPaneBottomController,
     MainPaneTopController mainPaneTopController,
+    MainTimelineController mainTimelineController,
     ThemeService themeService
   ) {
     this.fabricationService = fabricationService;
     this.mainMenuController = mainMenuController;
     this.mainPaneBottomController = mainPaneBottomController;
     this.mainPaneTopController = mainPaneTopController;
+    this.mainTimelineController = mainTimelineController;
     this.themeService = themeService;
   }
 
+
+  @FXML
+  public VBox mainTimeline;
+
   @FXML
   public VBox mainPaneBottom;
+
   @FXML
   public VBox mainPaneTop;
 
@@ -52,6 +61,15 @@ public class MainController implements ReadyAfterBootController {
     mainMenuController.onStageReady();
     mainPaneBottomController.onStageReady();
     mainPaneTopController.onStageReady();
+    mainTimelineController.onStageReady();
+  }
+
+  @Override
+  public void onStageClose() {
+    mainMenuController.onStageClose();
+    mainPaneBottomController.onStageClose();
+    mainPaneTopController.onStageClose();
+    mainTimelineController.onStageClose();
   }
 
   public @Nullable Scene getMainWindowScene() {

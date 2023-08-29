@@ -10,33 +10,16 @@ import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.entity.EntityStoreImpl;
 import io.xj.lib.entity.EntityUtils;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.model.Segment;
-import io.xj.nexus.model.SegmentChoice;
-import io.xj.nexus.model.SegmentChoiceArrangement;
-import io.xj.nexus.model.SegmentChoiceArrangementPick;
-import io.xj.nexus.model.SegmentChord;
-import io.xj.nexus.model.SegmentMeta;
-import io.xj.nexus.persistence.ManagerExistenceException;
-import io.xj.nexus.persistence.ManagerFatalException;
-import io.xj.nexus.persistence.ManagerPrivilegeException;
-import io.xj.nexus.persistence.SegmentManager;
-import io.xj.nexus.persistence.Segments;
+import io.xj.nexus.model.*;
+import io.xj.nexus.persistence.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * The SegmentRetrospective is a delegate to look back on previous segments, read-only
+ The SegmentRetrospective is a delegate to look back on previous segments, read-only
  */
 class SegmentRetrospectiveImpl implements SegmentRetrospective {
   final Logger LOG = LoggerFactory.getLogger(SegmentRetrospectiveImpl.class);

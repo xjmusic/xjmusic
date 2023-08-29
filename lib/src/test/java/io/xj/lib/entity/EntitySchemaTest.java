@@ -147,28 +147,28 @@ public class EntitySchemaTest {
 
 
   /**
-   * To test defining relationships by class
+   To test defining relationships by class
    */
   public static class EyeBall {
     // noop
   }
 
   /**
-   * To test defining relationships by class
+   To test defining relationships by class
    */
   public static class Shoe {
     // noop
   }
 
   /**
-   * To test defining relationships by class
+   To test defining relationships by class
    */
   public static class City {
     // noop
   }
 
   /**
-   * To test defining relationships by class
+   To test defining relationships by class
    */
   public static class State {
     // noop
