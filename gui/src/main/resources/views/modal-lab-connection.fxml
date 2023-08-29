@@ -13,6 +13,8 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
+<!-- Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved. -->
+
 <VBox spacing="10" styleClass="modal-container" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.ModalLabConnectionController">
   <padding>
     <Insets bottom="15" left="15" right="15" top="15" /> <!-- Padding values -->
