@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.text.Text?>
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.MainTimelineSegmentController">
+  <!-- durationMicros -->
+  <HBox>
+    <Label text="Duration Micros:" />
+    <Text fx:id="durationMicrosText"/>
+  </HBox>
+
+  <!-- key -->
+  <HBox>
+    <Label text="Key:" />
+    <Text fx:id="keyText"/>
+  </HBox>
+
+  <!-- total -->
+  <HBox>
+    <Label text="Total:" />
+    <Text fx:id="totalText"/>
+  </HBox>
+
+  <!-- offset -->
+  <HBox>
+    <Label text="Offset:" />
+    <Text fx:id="offsetText"/>
+  </HBox>
+
+  <!-- density -->
+  <HBox>
+    <Label text="Density:" />
+    <Text fx:id="densityText"/>
+  </HBox>
+
+  <!-- tempo -->
+  <HBox>
+    <Label text="Tempo:" />
+    <Text fx:id="tempoText"/>
+  </HBox>
+
+  <!-- storageKey -->
+  <HBox>
+    <Label text="Storage Key:" />
+    <Text fx:id="storageKeyText"/>
+  </HBox>
+
+  <!-- waveformPreroll -->
+  <HBox>
+    <Label text="Waveform Preroll:" />
+    <Text fx:id="waveformPrerollText"/>
+  </HBox>
+
+  <!-- waveformPostroll -->
+  <HBox>
+    <Label text="Waveform Postroll:" />
+    <Text fx:id="waveformPostrollText"/>
+  </HBox>
+
+  <!-- delta -->
+  <HBox>
+    <Label text="Delta:" />
+    <Text fx:id="deltaText"/>
+  </HBox>
+
+  <!-- createdAt -->
+  <HBox>
+    <Label text="Created At:" />
+    <Text fx:id="createdAtText"/>
+  </HBox>
+
+  <!-- updatedAt -->
+  <HBox>
+    <Label text="Updated At:" />
+    <Text fx:id="updatedAtText"/>
+  </HBox>
+</VBox>

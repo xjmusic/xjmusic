@@ -253,14 +253,6 @@ public class Segment {
     this.waveformPreroll = waveformPreroll;
   }
 
-  /**
-   **/
-  public Segment waveformPostroll(Double waveformPostroll) {
-    this.waveformPostroll = waveformPostroll;
-    return this;
-  }
-
-
   @JsonProperty("waveformPostroll")
   public Double getWaveformPostroll() {
     return waveformPostroll;
@@ -287,40 +279,15 @@ public class Segment {
     this.delta = delta;
   }
 
-  /**
-   **/
-  public Segment createdAt(String createdAt) {
-    this.createdAt = createdAt;
-    return this;
-  }
-
-
   @JsonProperty("createdAt")
   public String getCreatedAt() {
     return createdAt;
   }
 
-  public void setCreatedAt(String createdAt) {
-    this.createdAt = createdAt;
-  }
-
-  /**
-   **/
-  public Segment updatedAt(String updatedAt) {
-    this.updatedAt = updatedAt;
-    return this;
-  }
-
-
   @JsonProperty("updatedAt")
   public String getUpdatedAt() {
     return updatedAt;
   }
-
-  public void setUpdatedAt(String updatedAt) {
-    this.updatedAt = updatedAt;
-  }
-
 
   @Override
   public boolean equals(Object o) {
@@ -357,28 +324,25 @@ public class Segment {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class Segment {\n");
-
-    sb.append("    id: ").append(toIndentedString(id)).append("\n");
-    sb.append("    chainId: ").append(toIndentedString(chainId)).append("\n");
-    sb.append("    type: ").append(toIndentedString(type)).append("\n");
-    sb.append("    state: ").append(toIndentedString(state)).append("\n");
-    sb.append("    beginAtChainMicros: ").append(toIndentedString(beginAtChainMicros)).append("\n");
-    sb.append("    durationMicros: ").append(toIndentedString(durationMicros)).append("\n");
-    sb.append("    key: ").append(toIndentedString(key)).append("\n");
-    sb.append("    total: ").append(toIndentedString(total)).append("\n");
-    sb.append("    offset: ").append(toIndentedString(offset)).append("\n");
-    sb.append("    density: ").append(toIndentedString(density)).append("\n");
-    sb.append("    tempo: ").append(toIndentedString(tempo)).append("\n");
-    sb.append("    storageKey: ").append(toIndentedString(storageKey)).append("\n");
-    sb.append("    waveformPreroll: ").append(toIndentedString(waveformPreroll)).append("\n");
-    sb.append("    waveformPostroll: ").append(toIndentedString(waveformPostroll)).append("\n");
-    sb.append("    delta: ").append(toIndentedString(delta)).append("\n");
-    sb.append("    createdAt: ").append(toIndentedString(createdAt)).append("\n");
-    sb.append("    updatedAt: ").append(toIndentedString(updatedAt)).append("\n");
-    sb.append("}");
-    return sb.toString();
+    return "class Segment {\n" +
+      "    id: " + toIndentedString(id) + "\n" +
+      "    chainId: " + toIndentedString(chainId) + "\n" +
+      "    type: " + toIndentedString(type) + "\n" +
+      "    state: " + toIndentedString(state) + "\n" +
+      "    beginAtChainMicros: " + toIndentedString(beginAtChainMicros) + "\n" +
+      "    durationMicros: " + toIndentedString(durationMicros) + "\n" +
+      "    key: " + toIndentedString(key) + "\n" +
+      "    total: " + toIndentedString(total) + "\n" +
+      "    offset: " + toIndentedString(offset) + "\n" +
+      "    density: " + toIndentedString(density) + "\n" +
+      "    tempo: " + toIndentedString(tempo) + "\n" +
+      "    storageKey: " + toIndentedString(storageKey) + "\n" +
+      "    waveformPreroll: " + toIndentedString(waveformPreroll) + "\n" +
+      "    waveformPostroll: " + toIndentedString(waveformPostroll) + "\n" +
+      "    delta: " + toIndentedString(delta) + "\n" +
+      "    createdAt: " + toIndentedString(createdAt) + "\n" +
+      "    updatedAt: " + toIndentedString(updatedAt) + "\n" +
+      "}";
   }
 
   /**
