@@ -38,8 +38,10 @@
 <?import javafx.scene.text.Font?>
 <VBox xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="io.xj.gui.controllers.MainPaneTopController">
-  <fx:include source="main-menu.fxml"/>
-  <VBox BorderPane.alignment="CENTER" fx:id="configView">
+  <VBox BorderPane.alignment="CENTER" fx:id="fabricationConfigView">
+    <VBox.vgrow>
+      <Priority fx:constant="ALWAYS"/>
+    </VBox.vgrow>
     <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
       <opaqueInsets>
         <Insets/>
@@ -136,8 +138,10 @@
         </font>
       </Button>
 
+      <!-- Show Config Toggle Switch -->
+      <ToggleButton fx:id="toggleShowConfig" onAction="#toggleShowConfig" text="☰"/>
+
       <!-- Fabrication Status Text -->
-      <Label text="Fabrication"/>
       <Label fx:id="labelFabricationStatus" text="Initializing"/>
 
     </HBox>
@@ -147,9 +151,7 @@
         <Priority fx:constant="ALWAYS"/>
       </HBox.hgrow>
 
-
-      <!-- Show Config Toggle Switch -->
-      <ToggleButton fx:id="toggleShowConfig" onAction="#toggleShowConfig" text="Show Config"/>
+      <!-- Future: right side of top pane status bar -->
 
     </HBox>
   </HBox>

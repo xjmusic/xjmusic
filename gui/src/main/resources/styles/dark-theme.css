@@ -96,3 +96,7 @@
 .user-email {
   -fx-fill: #ffffff;
 }
+
+#fabricationConfigView {
+  -fx-background-color: #393939;
+}

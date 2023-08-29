@@ -13,7 +13,6 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.css.PseudoClass;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -67,7 +66,7 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
 
   @Override
   public void onStageReady() {
-    labelLabStatus.textProperty().bind(labService.statusProperty().asString());
+    labelLabStatus.textProperty().bind(labService.statusProperty().map(Enum::toString).map((status) -> String.format("Lab %s", status)));
 
     Timeline logTransfer = new Timeline(
       new KeyFrame(
@@ -116,20 +115,13 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
     });
     logListView.setItems(logItems);
 
-    toggleTailLogs.setSelected(logsTailing.get());
-    toggleShowLogs.setSelected(logsVisible.get());
-    updateLogsVisibility();
-  }
-
-  @FXML
-  public void toggleShowLogs(ActionEvent ignored) {
-    logsVisible.set(toggleShowLogs.isSelected());
-    updateLogsVisibility();
-  }
-
-  @FXML
-  public void toggleTailLogs(ActionEvent ignored) {
-    logsTailing.set(toggleTailLogs.isSelected());
+    toggleTailLogs.selectedProperty().bindBidirectional(logsTailing);
+    toggleShowLogs.selectedProperty().bindBidirectional(logsVisible);
+    logListView.visibleProperty().bind(logsVisible);
+    toggleTailLogs.visibleProperty().bind(logsVisible);
+    logListView.minHeightProperty().bind(logsVisible.map((v) -> v ? LOG_LIST_VIEW_HEIGHT : 0));
+    logListView.prefHeightProperty().bind(logsVisible.map((v) -> v ? LOG_LIST_VIEW_HEIGHT : 0));
+    logListView.maxHeightProperty().bind(logsVisible.map((v) -> v ? LOG_LIST_VIEW_HEIGHT : 0));
   }
 
   public DoubleProperty refreshRateProperty() {
@@ -143,22 +135,6 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
       } catch (Exception e) {
         // no op
       }
-  }
-
-  void updateLogsVisibility() {
-    if (logsVisible.get()) {
-      logListView.setVisible(true);
-      toggleTailLogs.setDisable(false);
-      logListView.setMinHeight(LOG_LIST_VIEW_HEIGHT);
-      logListView.setPrefHeight(LOG_LIST_VIEW_HEIGHT);
-      logListView.setMaxHeight(LOG_LIST_VIEW_HEIGHT);
-    } else {
-      toggleTailLogs.setDisable(true);
-      logListView.setVisible(false);
-      logListView.setMinHeight(0);
-      logListView.setPrefHeight(0);
-      logListView.setMaxHeight(0);
-    }
   }
 
   static class LogQueue {

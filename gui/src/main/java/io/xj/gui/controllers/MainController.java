@@ -5,43 +5,51 @@ import io.xj.gui.services.ThemeService;
 import jakarta.annotation.Nullable;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
+import javafx.scene.control.MenuBar;
 import javafx.scene.layout.VBox;
 import org.springframework.stereotype.Service;
 
 @Service
 public class MainController implements ReadyAfterBootController {
   final FabricationService fabricationService;
-  final MainPaneTopController mainPaneTopController;
+  final MainMenuController mainMenuController;
   final MainPaneBottomController mainPaneBottomController;
+  final MainPaneTopController mainPaneTopController;
   final ThemeService themeService;
 
   @Nullable
   Scene mainWindowScene;
 
   public MainController(
-    MainPaneTopController mainPaneTopController,
-    MainPaneBottomController mainPaneBottomController,
     FabricationService fabricationService,
+    MainMenuController mainMenuController,
+    MainPaneBottomController mainPaneBottomController,
+    MainPaneTopController mainPaneTopController,
     ThemeService themeService
   ) {
-    this.mainPaneTopController = mainPaneTopController;
     this.fabricationService = fabricationService;
+    this.mainMenuController = mainMenuController;
     this.mainPaneBottomController = mainPaneBottomController;
+    this.mainPaneTopController = mainPaneTopController;
     this.themeService = themeService;
   }
 
   @FXML
-  public VBox bottomPane;
+  public VBox mainPaneBottom;
   @FXML
-  public VBox topPane;
+  public VBox mainPaneTop;
+
+  @FXML
+  public MenuBar mainMenu;
 
   @Override
   public void onStageReady() {
     themeService.setup(mainWindowScene);
     themeService.isDarkThemeProperty().addListener((observable, oldValue, newValue) -> themeService.setup(mainWindowScene));
 
-    mainPaneTopController.onStageReady();
+    mainMenuController.onStageReady();
     mainPaneBottomController.onStageReady();
+    mainPaneTopController.onStageReady();
   }
 
   public @Nullable Scene getMainWindowScene() {

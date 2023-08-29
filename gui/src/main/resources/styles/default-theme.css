@@ -41,3 +41,7 @@
 .top-pane-status-container {
   -fx-background-color: #c9c9c9;
 }
+
+#fabricationConfigView {
+  -fx-background-color: #b0b0b0;
+}
