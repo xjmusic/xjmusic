@@ -81,7 +81,7 @@
   -fx-table-cell-border-color: transparent;
 }
 
-.bottom-pane-status-container {
+.bottom-pane-status-container, .top-pane-status-container {
   -fx-background-color: #494949;
 }
 

@@ -47,9 +47,6 @@ public class BottomPaneController extends VBox implements ReadyAfterBootControll
   public Label labelLabStatus;
 
   @FXML
-  public Label labelFabricationStatus;
-
-  @FXML
   public ToggleButton toggleShowLogs;
 
   @FXML
@@ -146,10 +143,6 @@ public class BottomPaneController extends VBox implements ReadyAfterBootControll
       } catch (Exception e) {
         // no op
       }
-  }
-
-  public void setStatusText(String status) {
-    labelFabricationStatus.setText(status);
   }
 
   void updateLogsVisibility() {
