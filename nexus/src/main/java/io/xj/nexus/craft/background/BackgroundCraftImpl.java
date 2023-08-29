@@ -100,7 +100,7 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
     pick.setSegmentId(fabricator.getSegment().getId());
     pick.setSegmentChoiceArrangementId(arrangement.getId());
     pick.setStartAtSegmentMicros(0L);
-    pick.setLengthMicros((long) (fabricator.getTotalSegmentMicros() * MICROS_PER_SECOND));
+    pick.setLengthMicros(fabricator.getTotalSegmentMicros() * MICROS_PER_SECOND);
     pick.setAmplitude(1.0);
     pick.setEvent("BACKGROUND");
     pick.setInstrumentAudioId(audio.get().getId());

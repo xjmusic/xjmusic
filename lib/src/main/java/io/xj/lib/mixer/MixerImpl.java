@@ -32,8 +32,8 @@ class MixerImpl implements Mixer {
   final int outputFrameSize;
   final Map<UUID, Source> sources = new ConcurrentHashMap<>(); // concurrency required
   final Map<UUID, Put> activePuts = new ConcurrentHashMap<>(); // concurrency required
-  private int sourcesSize = sources.size();
-  private int activePutsSize = sources.size();
+  private final int sourcesSize = sources.size();
+  private final int activePutsSize = sources.size();
   final MixerFactory factory;
   final MixerConfig config;
   final double compressToAmplitude;

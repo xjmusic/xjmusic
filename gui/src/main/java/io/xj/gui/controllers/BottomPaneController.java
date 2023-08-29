@@ -33,7 +33,7 @@ public class BottomPaneController extends VBox implements ReadyAfterBootControll
   private final LabService labService;
   private final LogQueue logQueue;
   private final ObservableList<LogRecord> logItems = FXCollections.observableArrayList();
-  private int logItemsSize = logItems.size();
+  private final int logItemsSize = logItems.size();
   static final int MAX_ENTRIES = 10_000;
   static final int LOG_LIST_VIEW_HEIGHT = 368;
   final static PseudoClass debug = PseudoClass.getPseudoClass("debug");
