@@ -118,7 +118,7 @@ public class MainTimelineController extends VBox implements ReadyAfterBootContro
       }
     });
     segmentListView.setItems(segments);
-    segments.addListener((ListChangeListener<Segment>) c -> segments.sort(Comparator.comparing(Segment::getOffset)));
+    // todo sorting segments.addListener((ListChangeListener<Segment>) c -> segments.sort(Comparator.comparing(Segment::getOffset)));
   }
 
   @Override
