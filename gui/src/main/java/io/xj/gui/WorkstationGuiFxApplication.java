@@ -19,7 +19,7 @@ public class WorkstationGuiFxApplication extends Application {
   static final Logger LOG = LoggerFactory.getLogger(WorkstationGuiFxApplication.class);
 
   @Nullable
-  private ConfigurableApplicationContext ac;
+  ConfigurableApplicationContext ac;
 
   @Override
   public void start(Stage primaryStage) {
@@ -51,7 +51,7 @@ public class WorkstationGuiFxApplication extends Application {
       .run(getParameters().getRaw().toArray(new String[0]));
   }
 
-  private ApplicationContextInitializer<GenericApplicationContext> getInitializer() {
+  ApplicationContextInitializer<GenericApplicationContext> getInitializer() {
     return
       ac -> {
         ac.registerBean(Application.class, () -> WorkstationGuiFxApplication.this);

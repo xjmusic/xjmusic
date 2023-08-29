@@ -98,7 +98,7 @@ class MixerImpl implements Mixer {
       busBuf = new double[config.getTotalBuses()][totalFrames][outputChannels];
 
       outBuf = new double[totalFrames][outputChannels];
-      busBufLength = busBuf.length; 
+      busBufLength = busBuf.length;
       busBuf0Length = busBuf[0].length;
       busBuf00Length = busBuf[0][0].length;
       outBufLength = outBuf.length;

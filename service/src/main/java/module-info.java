@@ -1,4 +1,5 @@
 module workstation.service.main {
+  // vendor
   requires com.fasterxml.jackson.annotation;
   requires com.fasterxml.jackson.core;
   requires com.fasterxml.jackson.databind;
@@ -21,13 +22,13 @@ module workstation.service.main {
   requires spring.context;
   requires spring.core;
   requires spring.web;
-  //
-  requires workstation.lib.main;
-  requires workstation.nexus.main;
-  requires transitive hub.models.main;
 
+  // private
+  requires transitive hub.models.main;
+  requires transitive workstation.lib.main;
+  requires transitive workstation.nexus.main;
+
+  // open
   opens io.xj.workstation.service to spring.core;
   opens io.xj.workstation.service.api to spring.beans;
-
-  exports io.xj.workstation.service;
 }

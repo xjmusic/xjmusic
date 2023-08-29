@@ -1,4 +1,5 @@
 module workstation.nexus.main {
+  // vendor deps
   requires com.fasterxml.jackson.annotation;
   requires com.fasterxml.jackson.core;
   requires com.fasterxml.jackson.databind;
@@ -22,18 +23,21 @@ module workstation.nexus.main {
   requires spring.boot;
   requires spring.context;
   requires spring.core;
-  //
-  requires transitive workstation.lib.main;
-  requires transitive hub.models.main;
 
+  // private deps
+  requires transitive hub.models.main;
+  requires transitive workstation.lib.main;
+
+  // open
   opens io.xj.nexus to spring.core;
+  opens io.xj.nexus.analysis to spring.core;
   opens io.xj.nexus.craft to spring.beans;
   opens io.xj.nexus.dub to spring.beans;
   opens io.xj.nexus.fabricator to spring.beans;
   opens io.xj.nexus.ship.broadcast to spring.beans;
   opens io.xj.nexus.work to spring.beans;
-  opens io.xj.nexus.analysis to spring.core;
 
+  // export
   exports io.xj.nexus.craft;
   exports io.xj.nexus.dub;
   exports io.xj.nexus.fabricator;

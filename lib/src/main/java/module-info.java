@@ -1,4 +1,5 @@
 module workstation.lib.main {
+  // vendor
   requires com.fasterxml.jackson.annotation;
   requires com.fasterxml.jackson.core;
   requires com.fasterxml.jackson.databind;
@@ -22,11 +23,16 @@ module workstation.lib.main {
   requires spring.core;
   requires typesafe.config;
 
+  // private
   requires transitive hub.models.main;
 
+  // open
   opens io.xj.lib.filestore to spring.core;
   opens io.xj.lib.telemetry to spring.core;
+  opens io.xj.lib to spring.core;
 
+  // export
+  exports io.xj.lib;
   exports io.xj.lib.app;
   exports io.xj.lib.entity.common;
   exports io.xj.lib.entity;
