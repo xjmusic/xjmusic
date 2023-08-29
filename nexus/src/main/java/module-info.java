@@ -24,7 +24,7 @@ module workstation.nexus.main {
   requires spring.context;
   requires spring.core;
 
-  // private deps
+  // deps
   requires transitive hub.models.main;
   requires transitive workstation.lib.main;
 

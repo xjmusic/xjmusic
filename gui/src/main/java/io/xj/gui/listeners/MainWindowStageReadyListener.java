@@ -1,7 +1,7 @@
 package io.xj.gui.listeners;
 
 import io.xj.gui.WorkstationIcon;
-import io.xj.gui.controllers.MainWindowController;
+import io.xj.gui.controllers.MainController;
 import io.xj.gui.events.StageReadyEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -20,16 +20,16 @@ import java.io.IOException;
 public class MainWindowStageReadyListener implements ApplicationListener<StageReadyEvent> {
   static final Logger LOG = LoggerFactory.getLogger(MainWindowStageReadyListener.class);
   final Resource mainWindowFxml;
-  final MainWindowController mainWindowController;
+  final MainController mainController;
   final ApplicationContext ac;
 
   public MainWindowStageReadyListener(
-    @Value("classpath:/views/main-window.fxml") Resource mainWindowFxml,
-    MainWindowController mainWindowController,
+    @Value("classpath:/views/main.fxml") Resource mainWindowFxml,
+    MainController mainController,
     ApplicationContext ac
   ) {
     this.mainWindowFxml = mainWindowFxml;
-    this.mainWindowController = mainWindowController;
+    this.mainController = mainController;
     this.ac = ac;
   }
 
@@ -39,13 +39,13 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
       var primaryStage = event.getStage();
       FXMLLoader mainWindowFxmlLoader = new FXMLLoader(mainWindowFxml.getURL());
       mainWindowFxmlLoader.setControllerFactory(ac::getBean);
-      mainWindowController.setMainWindowScene(new Scene(mainWindowFxmlLoader.load()));
-      primaryStage.setScene(mainWindowController.getMainWindowScene());
+      mainController.setMainWindowScene(new Scene(mainWindowFxmlLoader.load()));
+      primaryStage.setScene(mainController.getMainWindowScene());
       primaryStage.initStyle(StageStyle.DECORATED);
       WorkstationIcon.setup(primaryStage, null);
       WorkstationIcon.setupTaskbar();
 
-      mainWindowController.onStageReady();
+      mainController.onStageReady();
       primaryStage.show();
 
     } catch (IOException e) {

@@ -130,7 +130,7 @@ public class DubAudioCacheImpl implements DubAudioCache {
    * @return frame rate of audio file
    * @throws NexusException if unable to get frame rate
    */
-  private static AudioFormat getAudioFormat(String inputAudioFilePath) throws NexusException {
+  static AudioFormat getAudioFormat(String inputAudioFilePath) throws NexusException {
     try {
       return AudioSystem.getAudioFileFormat(new File(inputAudioFilePath)).getFormat();
 
