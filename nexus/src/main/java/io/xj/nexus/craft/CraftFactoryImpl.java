@@ -1,3 +1,5 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
 package io.xj.nexus.craft;
 
 import io.xj.lib.json.ApiUrlProvider;

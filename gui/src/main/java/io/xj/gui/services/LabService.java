@@ -1,3 +1,5 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
 package io.xj.gui.services;
 
 import io.xj.hub.tables.pojos.User;
