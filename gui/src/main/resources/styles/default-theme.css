@@ -66,6 +66,7 @@
 }
 
 .main-timeline-segment .value {
+  -fx-font-size: 1.62em;
   -fx-font-weight: bold;
   -fx-fill: #000000;
 }

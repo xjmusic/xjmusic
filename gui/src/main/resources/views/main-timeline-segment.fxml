@@ -19,65 +19,34 @@
         </VBox>
       </children>
    </HBox>
-  <!-- durationMicros -->
-  <HBox>
-    <Label styleClass="label" text="Duration" />
-    <Text fx:id="durationMicrosText" styleClass="value" text="7.28s" />
-  </HBox>
-
-  <!-- key -->
-  <HBox>
-    <Label styleClass="label" text="Key" />
-    <Text fx:id="keyText" styleClass="value" />
-  </HBox>
-
-  <!-- total -->
-  <HBox>
-    <Label styleClass="label" text="Total" />
-    <Text fx:id="totalText" styleClass="value" />
-  </HBox>
-
-  <!-- density -->
-  <HBox>
-    <Label styleClass="label" text="Density" />
-    <Text fx:id="densityText" styleClass="value" />
-  </HBox>
-
-  <!-- tempo -->
-  <HBox>
-    <Label styleClass="label" text="Tempo" />
-    <Text fx:id="tempoText" styleClass="value" />
-  </HBox>
-
-  <!-- storageKey -->
-  <HBox>
-    <Label styleClass="label" text="Storage Key" />
-    <Text fx:id="storageKeyText" styleClass="value" />
-  </HBox>
-
-  <!-- waveformPreroll -->
-  <HBox>
-    <Label styleClass="label" text="Waveform Preroll" />
-    <Text fx:id="waveformPrerollText" styleClass="value" />
-  </HBox>
-
-                    <!-- waveformPostroll -->
-  <HBox>
-    <Label styleClass="label" text="Waveform Postroll" />
-    <Text fx:id="waveformPostrollText" styleClass="value" />
-  </HBox>
-
-  <!-- createdAt -->
-  <HBox>
-    <Label styleClass="label" text="Created At" />
-    <Text fx:id="createdAtText" styleClass="value" />
-  </HBox>
-
-  <!-- updatedAt -->
-  <HBox>
-    <Label styleClass="label" text="Updated At" />
-    <Text fx:id="updatedAtText" styleClass="value" />
-  </HBox>
+   <HBox prefHeight="100.0" prefWidth="200.0">
+      <children>
+         <VBox prefHeight="100.0" prefWidth="41.0">
+            <children>
+             <Label styleClass="label" text="Total" />
+             <Text fx:id="totalText" styleClass="value" text="16" />
+            </children>
+         </VBox>
+         <VBox prefHeight="100.0" prefWidth="55.0">
+            <children>
+             <Label styleClass="label" text="Density" />
+             <Text fx:id="densityText" styleClass="value" text="0.62" />
+            </children>
+         </VBox>
+         <VBox prefHeight="100.0" prefWidth="52.0">
+            <children>
+             <Label styleClass="label" text="Tempo" />
+             <Text fx:id="tempoText" styleClass="value" text="75" />
+            </children>
+         </VBox>
+         <VBox prefHeight="100.0" prefWidth="64.0">
+            <children>
+             <Label styleClass="label" text="Key" />
+             <Text fx:id="keyText" styleClass="value" text="C minor" />
+            </children>
+         </VBox>
+      </children>
+   </HBox>
    <padding>
       <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
    </padding>

@@ -27,9 +27,6 @@ public class MainTimelineSegmentController extends VBox implements ReadyAfterBoo
   Label labelType;
 
   @FXML
-  Text durationMicrosText;
-
-  @FXML
   Text keyText;
 
   @FXML
@@ -45,22 +42,7 @@ public class MainTimelineSegmentController extends VBox implements ReadyAfterBoo
   Text tempoText;
 
   @FXML
-  Text storageKeyText;
-
-  @FXML
-  Text waveformPrerollText;
-
-  @FXML
-  Text waveformPostrollText;
-
-  @FXML
   Text deltaText;
-
-  @FXML
-  Text createdAtText;
-
-  @FXML
-  Text updatedAtText;
 
   public MainTimelineSegmentController(FabricationService fabricationService) {
     this.fabricationService = fabricationService;
@@ -76,19 +58,13 @@ public class MainTimelineSegmentController extends VBox implements ReadyAfterBoo
 
   @Override
   public void onStageReady() {
-    createdAtText.textProperty().bind(segment.map(Segment::getCreatedAt));
     deltaText.textProperty().bind(segment.map(Segment::getDelta).map(Objects::toString));
     densityText.textProperty().bind(segment.map(s -> String.format("%.2f", s.getDensity())));
-    durationMicrosText.textProperty().bind(segment.map(s -> formatDurationMicros(s.getDurationMicros())));
     keyText.textProperty().bind(segment.map(Segment::getKey));
     labelType.textProperty().bind(segment.map(Segment::getType).map(Objects::toString));
     offsetText.textProperty().bind(segment.map(Segment::getOffset).map(Objects::toString));
-    storageKeyText.textProperty().bind(segment.map(Segment::getStorageKey));
-    tempoText.textProperty().bind(segment.map(s -> String.format("%.2f", s.getDensity())));
+    tempoText.textProperty().bind(segment.map(s -> formatMinDecimal(s.getTempo())));
     totalText.textProperty().bind(segment.map(s -> String.format("%d", s.getTotal())));
-    updatedAtText.textProperty().bind(segment.map(Segment::getUpdatedAt));
-    waveformPostrollText.textProperty().bind(segment.map(s -> String.format("%.2f", s.getDensity())));
-    waveformPrerollText.textProperty().bind(segment.map(s -> String.format("%.2f", s.getDensity())));
 
     // todo: choices source content from fabricationService
   }
@@ -96,5 +72,33 @@ public class MainTimelineSegmentController extends VBox implements ReadyAfterBoo
   @Override
   public void onStageClose() {
     // no op
+  }
+
+  public static String formatMinDecimal(@Nullable Double number) {
+    if (Objects.isNull(number)) {
+      return "N/A";
+    }
+    if (Math.floor(number) == number) {
+      return String.format("%.0f", number);  // No decimal places if it's an integer
+    } else {
+      String str = Double.toString(number);
+      int decimalPlaces = str.length() - str.indexOf('.') - 1;
+
+      // Remove trailing zeros
+      for (int i = 0; i < decimalPlaces; i++) {
+        if (str.endsWith("0")) {
+          str = str.substring(0, str.length() - 1);
+        } else {
+          break;
+        }
+      }
+
+      // Remove trailing decimal point if any
+      if (str.endsWith(".")) {
+        str = str.substring(0, str.length() - 1);
+      }
+
+      return str;
+    }
   }
 }
