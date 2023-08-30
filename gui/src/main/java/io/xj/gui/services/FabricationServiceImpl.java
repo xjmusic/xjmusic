@@ -2,10 +2,13 @@
 
 package io.xj.gui.services;
 
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.Program;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChord;
 import io.xj.nexus.model.SegmentMeme;
 import io.xj.nexus.persistence.ManagerFatalException;
@@ -24,9 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 @org.springframework.stereotype.Service
 public class FabricationServiceImpl extends Service<Boolean> implements FabricationService {
@@ -131,9 +132,28 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     }
   }
 
+  public Collection<SegmentChoice> getSegmentChoices(Segment segment) {
+    try {
+      return workFactory.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentChoice.class);
+    } catch (ManagerPrivilegeException | ManagerFatalException e) {
+      LOG.error("Failed to get segment choices", e);
+      return List.of();
+    }
+  }
+
   @Override
   public void reset() {
     super.reset();
     workFactory.reset();
+  }
+
+  @Override
+  public Optional<Program> getProgram(UUID programId) {
+    return workFactory.getSourceMaterial().getProgram(programId);
+  }
+
+  @Override
+  public Optional<Instrument> getInstrument(UUID instrumentId) {
+    return workFactory.getSourceMaterial().getInstrument(instrumentId);
   }
 }

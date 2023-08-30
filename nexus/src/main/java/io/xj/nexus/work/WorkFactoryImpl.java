@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.work;
 
+import io.xj.hub.HubContent;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
@@ -41,7 +42,6 @@ public class WorkFactoryImpl implements WorkFactory {
   final MixerFactory mixerFactory;
   final NexusEntityStore store;
   final NotificationProvider notification;
-
   final SegmentManager segmentManager;
   final TelemetryProvider telemetryProvider;
   final long dubCycleMillis;
@@ -240,6 +240,11 @@ public class WorkFactoryImpl implements WorkFactory {
     craftWork = null;
     dubWork = null;
     shipWork = null;
+  }
+
+  @Override
+  public HubContent getSourceMaterial() {
+    return craftWork.getSourceMaterial();
   }
 
 }

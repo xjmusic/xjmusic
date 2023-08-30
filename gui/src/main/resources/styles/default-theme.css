@@ -61,7 +61,9 @@
   -fx-background-color: #f0f0f0;
 }
 
-.main-timeline-segment .label {
+.main-timeline-segment .label,
+.main-timeline-segment .choice-program-type,
+.main-timeline-segment .choice-instrument-type {
   -fx-fill: #606060;
 }
 
@@ -69,6 +71,10 @@
   -fx-font-size: 1.62em;
   -fx-font-weight: bold;
   -fx-fill: #000000;
+}
+
+.main-timeline-segment .choice {
+  -fx-padding: 20px 0 0 0;
 }
 
 .main-timeline-segment .meme,
@@ -79,10 +85,14 @@
 }
 
 .main-timeline-segment .meme,
-.main-timeline-segment .chord-name {
+.main-timeline-segment .chord-name,
+.main-timeline-segment .choice-program-name,
+.main-timeline-segment .choice-instrument-name {
   -fx-fill: #000000;
 }
 
-.main-timeline-segment .chord-position {
+.main-timeline-segment .chord-position,
+.main-timeline-segment .choice-program-type,
+.main-timeline-segment .choice-instrument-type {
   -fx-fill: #404040;
 }

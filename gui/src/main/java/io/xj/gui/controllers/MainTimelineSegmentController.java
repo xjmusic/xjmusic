@@ -3,7 +3,10 @@
 package io.xj.gui.controllers;
 
 import io.xj.gui.services.FabricationService;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.Program;
 import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChord;
 import io.xj.nexus.model.SegmentMeme;
 import jakarta.annotation.Nullable;
@@ -26,11 +29,13 @@ import java.util.Objects;
  {@link io.xj.gui.controllers.MainTimelineController#cellFactory}
  */
 public class MainTimelineSegmentController extends VBox implements ReadyAfterBootController {
-  private static final double CHORD_POSITION_WIDTH = 32;
+  private static final int CHORD_POSITION_WIDTH = 32;
+  private static final int CHOICE_TYPE_WIDTH = 64;
   final SimpleObjectProperty<Segment> segment = new SimpleObjectProperty<>();
 
   final ObservableList<SegmentMeme> memes = FXCollections.observableArrayList();
   final ObservableList<SegmentChord> chords = FXCollections.observableArrayList();
+  final ObservableList<SegmentChoice> choices = FXCollections.observableArrayList();
   final FabricationService fabricationService;
 
   @FXML
@@ -60,6 +65,9 @@ public class MainTimelineSegmentController extends VBox implements ReadyAfterBoo
   @FXML
   VBox listChords;
 
+  @FXML
+  VBox listChoices;
+
   public MainTimelineSegmentController(FabricationService fabricationService) {
     this.fabricationService = fabricationService;
   }
@@ -74,6 +82,10 @@ public class MainTimelineSegmentController extends VBox implements ReadyAfterBoo
 
   public void setChords(Collection<SegmentChord> chords) {
     this.chords.setAll(chords);
+  }
+
+  public void setChoices(Collection<SegmentChoice> choices) {
+    this.choices.setAll(choices);
   }
 
   @Override
@@ -121,6 +133,46 @@ public class MainTimelineSegmentController extends VBox implements ReadyAfterBoo
             return box;
           })
           .toList()));
+
+    choices.addListener((ListChangeListener<SegmentChoice>) c ->
+      listChoices.getChildren().setAll(
+        c.getList()
+          .stream()
+          .sorted(Comparator.comparing(segmentChoice -> Objects.nonNull(segmentChoice.getInstrumentType()) ? segmentChoice.getInstrumentType().toString() : ""))
+          .sorted(Comparator.comparing(segmentChoice -> Objects.nonNull(segmentChoice.getProgramType()) ? segmentChoice.getProgramType().toString() : ""))
+          .map(choice -> {
+            var box = new VBox();
+            box.getStyleClass().add("choice");
+            if (Objects.nonNull(choice.getProgramType())) {
+              var programType = new Label();
+              programType.setText(choice.getProgramType().toString());
+              programType.setMinWidth(CHOICE_TYPE_WIDTH);
+              programType.getStyleClass().add("choice-program-type");
+              var programName = new Text();
+              programName.setText(fabricationService.getProgram(choice.getProgramId()).map(Program::getName).orElse("Unknown"));
+              programName.getStyleClass().add("choice-program-name");
+              var program = new HBox();
+              program.getChildren().add(programType);
+              program.getChildren().add(programName);
+              box.getChildren().add(program);
+            }
+            if (Objects.nonNull(choice.getInstrumentType())) {
+              var instrumentType = new Label();
+              instrumentType.setText(choice.getInstrumentType().toString());
+              instrumentType.setMinWidth(CHOICE_TYPE_WIDTH);
+              instrumentType.getStyleClass().add("choice-instrument-type");
+              var instrumentName = new Text();
+              instrumentName.setText(fabricationService.getInstrument(choice.getInstrumentId()).map(Instrument::getName).orElse("Unknown"));
+              instrumentName.getStyleClass().add("choice-instrument-name");
+              var instrument = new HBox();
+              instrument.getChildren().add(instrumentType);
+              instrument.getChildren().add(instrumentName);
+              box.getChildren().add(instrument);
+            }
+            return box;
+          })
+          .toList()
+      ));
   }
 
   @Override

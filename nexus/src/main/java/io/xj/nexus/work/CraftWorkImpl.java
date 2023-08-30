@@ -417,6 +417,11 @@ public class CraftWorkImpl implements CraftWork {
     return state == WorkState.Failed;
   }
 
+  @Override
+  public HubContent getSourceMaterial() {
+    return chainSourceMaterial;
+  }
+
   /**
    This is the internal cycle that's run indefinitely
    */

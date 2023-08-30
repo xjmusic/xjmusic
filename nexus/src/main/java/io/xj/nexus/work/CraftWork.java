@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.work;
 
+import io.xj.hub.HubContent;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
@@ -10,7 +11,6 @@ import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoiceArrangementPick;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -167,4 +167,9 @@ public interface CraftWork {
    @return true if failed
    */
   boolean isFailed();
+
+  /**
+   Get the source material
+   */
+  HubContent getSourceMaterial();
 }

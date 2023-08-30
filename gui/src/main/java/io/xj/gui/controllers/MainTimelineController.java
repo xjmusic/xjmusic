@@ -79,6 +79,7 @@ public class MainTimelineController extends VBox implements ReadyAfterBootContro
         cellController.setSegment(item);
         cellController.setMemes(fabricationService.getSegmentMemes(item));
         cellController.setChords(fabricationService.getSegmentChords(item));
+        cellController.setChoices(fabricationService.getSegmentChoices(item));
         cellCache.put(item.getId(), new SegmentCell(cellController, cellContent, item));
       }
       return cellCache.get(item.getId());

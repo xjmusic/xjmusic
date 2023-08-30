@@ -115,13 +115,17 @@
   -fx-background-color: #303030;
 }
 
-.main-timeline-segment .label {
+.main-timeline-segment .label,
+.main-timeline-segment .choice-program-type,
+.main-timeline-segment .choice-instrument-type {
   -fx-fill: #a0a0a0;
 }
 
 .main-timeline-segment .value,
 .main-timeline-segment .meme,
-.main-timeline-segment .chord-name {
+.main-timeline-segment .chord-name,
+.main-timeline-segment .choice-program-name,
+.main-timeline-segment .choice-instrument-name {
   -fx-fill: #ffffff;
 }
 

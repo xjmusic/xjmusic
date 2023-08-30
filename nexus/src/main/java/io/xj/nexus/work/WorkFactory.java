@@ -2,6 +2,7 @@
 
 package io.xj.nexus.work;
 
+import io.xj.hub.HubContent;
 import io.xj.nexus.persistence.SegmentManager;
 import jakarta.annotation.Nullable;
 
@@ -56,4 +57,6 @@ public interface WorkFactory {
    Reset the factory including the segment manager and its store
    */
   void reset();
+
+  HubContent getSourceMaterial();
 }
