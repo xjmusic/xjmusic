@@ -18,6 +18,8 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import javafx.util.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
@@ -28,6 +30,7 @@ import java.util.Objects;
 
 @Service
 public class MainTimelineController extends VBox implements ReadyAfterBootController {
+  static final Logger LOG = LoggerFactory.getLogger(MainTimelineController.class);
   final ConfigurableApplicationContext ac;
   final FabricationService fabricationService;
   final Integer refreshRateSeconds;
@@ -40,6 +43,39 @@ public class MainTimelineController extends VBox implements ReadyAfterBootContro
 
   @FXML
   protected ListView<Segment> segmentListView;
+  final Callback<ListView<Segment>, ListCell<Segment>> cellFactory = new Callback<>() {
+    @Override
+    public ListCell<Segment> call(ListView<Segment> param) {
+      return new ListCell<>() {
+        @Override
+        protected void updateItem(Segment item, boolean empty) {
+          super.updateItem(item, empty);
+
+          if (empty || item == null) {
+            setText(null);
+            setGraphic(null);
+          } else {
+            LOG.info("Will load FXML for Segment@{}", item.getOffset());
+            try {
+              FXMLLoader loader = new FXMLLoader(timelineSegmentFxml.getURL());
+              loader.setControllerFactory(this::createSegmentController);
+              Node cellContent = loader.load();
+              MainTimelineSegmentController cellController = loader.getController();
+              cellController.onStageReady();
+              cellController.setSegment(item);
+              setGraphic(cellContent);
+            } catch (IOException e) {
+              e.printStackTrace();
+            }
+          }
+        }
+
+        private MainTimelineSegmentController createSegmentController(Class<?> ignored) {
+          return new MainTimelineSegmentController(fabricationService);
+        }
+      };
+    }
+  };
 
 
   public MainTimelineController(
@@ -68,35 +104,7 @@ public class MainTimelineController extends VBox implements ReadyAfterBootContro
     refresh.setRate(refreshRateSeconds);
     refresh.play();
 
-    segmentListView.setCellFactory(new Callback<>() {
-      @Override
-      public ListCell<Segment> call(ListView<Segment> param) {
-        return new ListCell<>() {
-          @Override
-          protected void updateItem(Segment item, boolean empty) {
-            super.updateItem(item, empty);
-
-            if (empty || item == null) {
-              setText(null);
-              setGraphic(null);
-            } else {
-              try {
-                FXMLLoader loader = new FXMLLoader(timelineSegmentFxml.getURL());
-                // todo reconcile loader.setControllerFactory(ac::getBean);
-
-                Node cellContent = loader.load();
-                MainTimelineSegmentController cellController = loader.getController();
-                cellController.onStageReady();
-                cellController.setSegment(item);
-                setGraphic(cellContent);
-              } catch (IOException e) {
-                e.printStackTrace();
-              }
-            }
-          }
-        };
-      }
-    });
+    segmentListView.setCellFactory(cellFactory);
     segmentListView.setItems(segments);
   }
 

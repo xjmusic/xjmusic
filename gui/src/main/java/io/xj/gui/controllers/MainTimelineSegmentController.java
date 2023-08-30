@@ -2,6 +2,7 @@
 
 package io.xj.gui.controllers;
 
+import io.xj.gui.services.FabricationService;
 import io.xj.nexus.model.Segment;
 import jakarta.annotation.Nullable;
 import javafx.beans.property.SimpleObjectProperty;
@@ -14,8 +15,13 @@ import java.util.Objects;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 
+/**
+ NOT a Spring component/service -- this gets created by a custom controller factory in
+ {@link io.xj.gui.controllers.MainTimelineController#cellFactory}
+ */
 public class MainTimelineSegmentController extends VBox implements ReadyAfterBootController {
   final SimpleObjectProperty<Segment> segment = new SimpleObjectProperty<>();
+  final FabricationService fabricationService;
 
   @FXML
   Label labelType;
@@ -55,6 +61,10 @@ public class MainTimelineSegmentController extends VBox implements ReadyAfterBoo
 
   @FXML
   Text updatedAtText;
+
+  public MainTimelineSegmentController(FabricationService fabricationService) {
+    this.fabricationService = fabricationService;
+  }
 
   private String formatDurationMicros(@Nullable Long micros) {
     return Objects.nonNull(micros) ? String.format("%.2fs", (float) micros / MICROS_PER_SECOND) : "N/A";
