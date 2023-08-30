@@ -38,15 +38,16 @@ public class MainTimelineController extends VBox implements ReadyAfterBootContro
   final FabricationService fabricationService;
   final Integer refreshRateSeconds;
   final LabService labService;
-  final ObservableList<Segment> segments = FXCollections.observableArrayList();
   final Map<UUID, SegmentCell> cellCache = new HashMap<>();
   final Resource timelineSegmentFxml;
+  final ObservableList<Segment> segments = FXCollections.observableArrayList();
 
   @Nullable
   Timeline refresh;
 
   @FXML
   protected ListView<Segment> segmentListView;
+
   final Callback<ListView<Segment>, ListCell<Segment>> cellFactory = new Callback<>() {
     @Override
     public ListCell<Segment> call(ListView<Segment> param) {
@@ -76,6 +77,8 @@ public class MainTimelineController extends VBox implements ReadyAfterBootContro
         MainTimelineSegmentController cellController = loader.getController();
         cellController.onStageReady();
         cellController.setSegment(item);
+        cellController.setMemes(fabricationService.getSegmentMemes(item));
+        cellController.setChords(fabricationService.getSegmentChords(item));
         cellCache.put(item.getId(), new SegmentCell(cellController, cellContent, item));
       }
       return cellCache.get(item.getId());

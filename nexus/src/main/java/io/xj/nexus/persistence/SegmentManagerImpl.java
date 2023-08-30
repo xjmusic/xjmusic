@@ -221,6 +221,15 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   @Override
+  public <N> Collection<N> readManySubEntitiesOfType(UUID segmentId, Class<N> type) throws ManagerFatalException {
+    try {
+      return store.getAll(segmentId, type, Segment.class, List.of(segmentId));
+    } catch (NexusException e) {
+      throw new ManagerFatalException(e);
+    }
+  }
+
+  @Override
   public <N> void createAllSubEntities(Collection<N> entities) throws ManagerFatalException {
     try {
       store.putAll(entities);

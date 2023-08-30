@@ -155,7 +155,8 @@ public interface NexusEntityStore {
    @throws NexusException on failure to retrieve the requested key
    */
   <N, B> Collection<N> getAll(
-    UUID segmentId, Class<N> type,
+    UUID segmentId,
+    Class<N> type,
     Class<B> belongsToType,
     Collection<UUID> belongsToIds
   ) throws NexusException;

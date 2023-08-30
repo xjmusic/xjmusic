@@ -97,6 +97,19 @@ public interface SegmentManager extends Manager<Segment> {
   <N> Collection<N> readManySubEntities(Collection<UUID> segmentIds, Boolean includePicks) throws ManagerPrivilegeException, ManagerFatalException;
 
   /**
+   Fetch all sub-entities records for many parent segments by id
+
+   @param segmentId for which to fetch records
+   @param <N>       type of sub-entity
+   @return collection of all sub entities of these parent segments, of the given type
+   @throws ManagerFatalException     on failure
+   @throws ManagerFatalException     if the entity does not exist
+   @throws ManagerPrivilegeException if access is prohibited
+   */
+  <N> Collection<N> readManySubEntitiesOfType(UUID segmentId, Class<N> type) throws ManagerPrivilegeException, ManagerFatalException;
+
+
+  /**
    Create all sub-entities for a given segment
    does not actually check if all; these entities belong to the same sub-entity,
    this is a top-level access method only@param entities to of
