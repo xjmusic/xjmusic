@@ -53,7 +53,7 @@
 }
 
 .main-timeline .list-cell {
-  -fx-padding: 5px 10px 5px 0;
+  -fx-padding: 5px 2px 5px 5px;
   -fx-background-color: #e0e0e0;
 }
 
@@ -69,4 +69,20 @@
   -fx-font-size: 1.62em;
   -fx-font-weight: bold;
   -fx-fill: #000000;
+}
+
+.main-timeline-segment .meme,
+.main-timeline-segment .chord-name,
+.main-timeline-segment .chord-position {
+  -fx-font-size: 1.2em;
+  -fx-font-weight: bold;
+}
+
+.main-timeline-segment .meme,
+.main-timeline-segment .chord-name {
+  -fx-fill: #000000;
+}
+
+.main-timeline-segment .chord-position {
+  -fx-fill: #404040;
 }

@@ -51,4 +51,9 @@ public interface WorkFactory {
    */
   @Nullable
   ShipWork getShipWork();
+
+  /**
+   Reset the factory including the segment manager and its store
+   */
+  void reset();
 }

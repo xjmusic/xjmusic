@@ -119,6 +119,12 @@
   -fx-fill: #a0a0a0;
 }
 
-.main-timeline-segment .value {
+.main-timeline-segment .value,
+.main-timeline-segment .meme,
+.main-timeline-segment .chord-name {
   -fx-fill: #ffffff;
+}
+
+.main-timeline-segment .chord-position {
+  -fx-fill: #cccccc;
 }

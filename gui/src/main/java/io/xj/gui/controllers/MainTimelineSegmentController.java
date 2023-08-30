@@ -9,16 +9,16 @@ import io.xj.nexus.model.SegmentMeme;
 import jakarta.annotation.Nullable;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.util.Callback;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Objects;
 
 /**
@@ -26,8 +26,7 @@ import java.util.Objects;
  {@link io.xj.gui.controllers.MainTimelineController#cellFactory}
  */
 public class MainTimelineSegmentController extends VBox implements ReadyAfterBootController {
-  final static int MEME_CELL_HEIGHT = 24;
-  final static int CHORD_CELL_HEIGHT = 24;
+  private static final double CHORD_POSITION_WIDTH = 32;
   final SimpleObjectProperty<Segment> segment = new SimpleObjectProperty<>();
 
   final ObservableList<SegmentMeme> memes = FXCollections.observableArrayList();
@@ -56,46 +55,10 @@ public class MainTimelineSegmentController extends VBox implements ReadyAfterBoo
   Text deltaText;
 
   @FXML
-  ListView<SegmentMeme> listMemes;
-
-  final Callback<ListView<SegmentMeme>, ListCell<SegmentMeme>> listMemeCellFactory = new Callback<>() {
-    @Override
-    public ListCell<SegmentMeme> call(ListView<SegmentMeme> param) {
-      return new ListCell<>() {
-        @Override
-        protected void updateItem(SegmentMeme item, boolean empty) {
-          super.updateItem(item, empty);
-
-          if (empty || item == null) {
-            setGraphic(null);
-          } else {
-            // todo setGraphic(...);
-          }
-        }
-      };
-    }
-  };
+  VBox listMemes;
 
   @FXML
-  ListView<SegmentChord> listChords;
-
-  final Callback<ListView<SegmentChord>, ListCell<SegmentChord>> listChordCellFactory = new Callback<>() {
-    @Override
-    public ListCell<SegmentChord> call(ListView<SegmentChord> param) {
-      return new ListCell<>() {
-        @Override
-        protected void updateItem(SegmentChord item, boolean empty) {
-          super.updateItem(item, empty);
-
-          if (empty || item == null) {
-            setGraphic(null);
-          } else {
-            // todo setGraphic(...);
-          }
-        }
-      };
-    }
-  };
+  VBox listChords;
 
   public MainTimelineSegmentController(FabricationService fabricationService) {
     this.fabricationService = fabricationService;
@@ -123,17 +86,41 @@ public class MainTimelineSegmentController extends VBox implements ReadyAfterBoo
     tempoText.textProperty().bind(segment.map(s -> formatMinDecimal(s.getTempo())));
     totalText.textProperty().bind(segment.map(s -> String.format("%d", s.getTotal())));
 
-    listMemes.setCellFactory(listMemeCellFactory);
-    listMemes.setItems(memes);
-    listMemes.setFixedCellSize(MEME_CELL_HEIGHT);  // Replace with the height of your custom cell
-    listMemes.itemsProperty().addListener((observable, oldValue, newValue) ->
-      listMemes.setMinHeight(newValue.size() * MEME_CELL_HEIGHT + 2));
+    memes.addListener((ListChangeListener<SegmentMeme>) c ->
+      listMemes.getChildren().setAll(
+        c.getList()
+          .stream()
+          .sorted(Comparator.comparing(SegmentMeme::getName))
+          .map(meme -> {
+            var text = new Text();
+            text.setText(meme.getName());
+            text.getStyleClass().add("meme");
+            return text;
+          })
+          .toList()));
 
-    listChords.setCellFactory(listChordCellFactory);
-    listChords.setItems(chords);
-    listChords.setFixedCellSize(CHORD_CELL_HEIGHT);  // Replace with the height of your custom cell
-    listChords.itemsProperty().addListener((observable, oldValue, newValue) ->
-      listChords.setMinHeight(newValue.size() * CHORD_CELL_HEIGHT + 2));
+    chords.addListener((ListChangeListener<SegmentChord>) c ->
+      listChords.getChildren().setAll(
+        c.getList()
+          .stream()
+          .sorted(Comparator.comparing(SegmentChord::getPosition))
+          .map(chord -> {
+            // position
+            var position = new Label();
+            position.setText(formatMinDecimal(chord.getPosition()));
+            position.setMinWidth(CHORD_POSITION_WIDTH);
+            position.getStyleClass().add("chord-position");
+            // name
+            var name = new Text();
+            name.setText(chord.getName());
+            name.getStyleClass().add("chord-name");
+            // horizontal box
+            var box = new HBox();
+            box.getChildren().add(position);
+            box.getChildren().add(name);
+            return box;
+          })
+          .toList()));
   }
 
   @Override

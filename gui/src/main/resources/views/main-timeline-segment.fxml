@@ -6,41 +6,40 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<?import javafx.scene.control.ListView?>
-<VBox styleClass="main-timeline-segment" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.MainTimelineSegmentController">
-   <HBox prefHeight="100.0" prefWidth="200.0">
+<VBox prefHeight="320.0" minWidth="240.0" styleClass="main-timeline-segment" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.MainTimelineSegmentController">
+   <HBox prefHeight="60.0" minWidth="240.0">
       <children>
-        <VBox prefHeight="200.0" prefWidth="100.0">
+        <VBox prefHeight="200.0" minWidth="100.0">
           <Label styleClass="label" text="Offset" />
           <Text fx:id="offsetText" styleClass="value" text="2097" />
         </VBox>
-        <VBox layoutX="10.0" layoutY="10.0" prefHeight="200.0" prefWidth="100.0">
+        <VBox layoutX="10.0" layoutY="10.0" prefHeight="60.0" minWidth="100.0">
           <Label fx:id="labelType" styleClass="label" text="Type" />
           <Text fx:id="deltaText" styleClass="value" text="32" />
         </VBox>
       </children>
    </HBox>
-   <HBox prefHeight="100.0" prefWidth="200.0">
+   <HBox prefHeight="60.0" minWidth="240.0">
       <children>
-         <VBox prefHeight="100.0" prefWidth="41.0">
+         <VBox prefHeight="60.0" minWidth="60.0">
             <children>
              <Label styleClass="label" text="Total" />
              <Text fx:id="totalText" styleClass="value" text="16" />
             </children>
          </VBox>
-         <VBox prefHeight="100.0" prefWidth="55.0">
+         <VBox prefHeight="60.0" minWidth="60.0">
             <children>
              <Label styleClass="label" text="Density" />
              <Text fx:id="densityText" styleClass="value" text="0.62" />
             </children>
          </VBox>
-         <VBox prefHeight="100.0" prefWidth="52.0">
+         <VBox prefHeight="60.0" minWidth="60.0">
             <children>
              <Label styleClass="label" text="Tempo" />
              <Text fx:id="tempoText" styleClass="value" text="75" />
             </children>
          </VBox>
-         <VBox prefHeight="100.0" prefWidth="64.0">
+         <VBox prefHeight="60.0" minWidth="60.0">
             <children>
              <Label styleClass="label" text="Key" />
              <Text fx:id="keyText" styleClass="value" text="C minor" />
@@ -48,18 +47,18 @@
          </VBox>
       </children>
    </HBox>
-   <HBox layoutX="20.0" layoutY="120.0" prefHeight="100.0" prefWidth="200.0">
+   <HBox layoutX="20.0" layoutY="120.0" prefHeight="60.0" minWidth="240.0">
       <children>
-         <VBox prefHeight="100.0" prefWidth="91.0">
+         <VBox prefHeight="100.0" minWidth="120.0">
             <children>
                <Label styleClass="label" text="Memes" />
-               <ListView fx:id="listMemes" prefHeight="200.0" prefWidth="100.0" />
+               <VBox fx:id="listMemes" prefHeight="83.0" minWidth="121.0" />
             </children>
          </VBox>
-         <VBox prefHeight="100.0" prefWidth="107.0">
+         <VBox prefHeight="100.0" minWidth="120.0">
             <children>
                <Label styleClass="label" text="Chords" />
-               <ListView fx:id="listChords" prefHeight="200.0" prefWidth="100.0" />
+               <VBox fx:id="listChords" prefHeight="83.0" minWidth="125.0" />
             </children>
          </VBox>
       </children>

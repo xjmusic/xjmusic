@@ -130,4 +130,10 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
       return List.of();
     }
   }
+
+  @Override
+  public void reset() {
+    super.reset();
+    workFactory.reset();
+  }
 }

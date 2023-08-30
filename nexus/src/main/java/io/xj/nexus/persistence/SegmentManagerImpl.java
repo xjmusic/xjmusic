@@ -130,6 +130,15 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   @Override
+  public void reset() {
+    try {
+      store.deleteAll();
+    } catch (NexusException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
   public List<Segment> readAllSpanning(UUID chainId, Long fromChainMicros, Long toChainMicros) {
     try {
       return store.getAllSegments(chainId)

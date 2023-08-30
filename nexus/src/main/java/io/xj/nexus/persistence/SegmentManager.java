@@ -170,4 +170,9 @@ public interface SegmentManager extends Manager<Segment> {
    @return all segments for that chain
    */
   List<Segment> readAll(UUID chainId);
+
+  /**
+   Reset the store to its initial state
+   */
+  void reset();
 }

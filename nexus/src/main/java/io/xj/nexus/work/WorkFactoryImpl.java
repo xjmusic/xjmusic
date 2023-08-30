@@ -234,4 +234,12 @@ public class WorkFactoryImpl implements WorkFactory {
     return shipWork;
   }
 
+  @Override
+  public void reset() {
+    segmentManager.reset();
+    craftWork = null;
+    dubWork = null;
+    shipWork = null;
+  }
+
 }
