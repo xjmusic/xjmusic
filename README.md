@@ -47,9 +47,10 @@ This project is built with Gradle. To run the XJ music workstation, run:
 ./gradlew :gui:bootRun
 ```
 
-You should then see the JavaFX GUI start. In the field called "Input Template Key" type `slaps_lofi` and press the Start
-button. You should see logs appear in the GUI and then hear music playing after a few seconds. You can also try the
-template keys `space_binaural` or `space_flow`
+You should then see the JavaFX GUI open the main window.
+
+Press the hamburger menu next to the last button to open the fabrication configuration pane. In the field called "Input Template Key" you'll see the default value `slaps_lofi` but you can also try the
+values `space_binaural` or `space_flow`
 
 ## Architecture
 

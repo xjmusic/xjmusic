@@ -45,7 +45,7 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
   static final int MAX_ENTRIES = 10_000;
 
   @Nullable
-  private Timeline refresh;
+  Timeline refresh;
 
   @FXML
   public Label labelLabStatus;

@@ -26,7 +26,10 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 @Service
 public class MainTimelineController extends VBox implements ReadyAfterBootController {
@@ -36,6 +39,7 @@ public class MainTimelineController extends VBox implements ReadyAfterBootContro
   final Integer refreshRateSeconds;
   final LabService labService;
   final ObservableList<Segment> segments = FXCollections.observableArrayList();
+  final Map<UUID, SegmentCell> cellCache = new HashMap<>();
   final Resource timelineSegmentFxml;
 
   @Nullable
@@ -52,30 +56,34 @@ public class MainTimelineController extends VBox implements ReadyAfterBootContro
           super.updateItem(item, empty);
 
           if (empty || item == null) {
-            setText(null);
             setGraphic(null);
           } else {
-            LOG.info("Will load FXML for Segment@{}", item.getOffset());
-            try {
-              FXMLLoader loader = new FXMLLoader(timelineSegmentFxml.getURL());
-              loader.setControllerFactory(this::createSegmentController);
-              Node cellContent = loader.load();
-              MainTimelineSegmentController cellController = loader.getController();
-              cellController.onStageReady();
-              cellController.setSegment(item);
-              setGraphic(cellContent);
-            } catch (IOException e) {
-              e.printStackTrace();
-            }
+            var cell = getCachedCellContent(item);
+            setGraphic(cell.content);
           }
-        }
-
-        private MainTimelineSegmentController createSegmentController(Class<?> ignored) {
-          return new MainTimelineSegmentController(fabricationService);
         }
       };
     }
   };
+
+  SegmentCell getCachedCellContent(Segment item) {
+    try {
+      if (!cellCache.containsKey(item.getId())) {
+        LOG.info("Will load FXML for Segment@{}", item.getOffset());
+        FXMLLoader loader = new FXMLLoader(timelineSegmentFxml.getURL());
+        loader.setControllerFactory(this::createSegmentController);
+        Node cellContent = loader.load();
+        MainTimelineSegmentController cellController = loader.getController();
+        cellController.onStageReady();
+        cellController.setSegment(item);
+        cellCache.put(item.getId(), new SegmentCell(cellController, cellContent, item));
+      }
+      return cellCache.get(item.getId());
+
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
 
 
   public MainTimelineController(
@@ -118,7 +126,7 @@ public class MainTimelineController extends VBox implements ReadyAfterBootContro
   /**
    Called every second to update the segment list.
    */
-  private void updateSegmentList() {
+  void updateSegmentList() {
     if (Objects.isNull(fabricationService.getWorkFactory().getCraftWork())) {
       segments.clear();
       return;
@@ -132,4 +140,23 @@ public class MainTimelineController extends VBox implements ReadyAfterBootContro
     });
   }
 
+  MainTimelineSegmentController createSegmentController(Class<?> ignored) {
+    return new MainTimelineSegmentController(fabricationService);
+  }
+
+  private static class SegmentCell {
+    MainTimelineSegmentController controller;
+    Node content;
+    Segment segment;
+
+    public SegmentCell(
+      MainTimelineSegmentController controller,
+      Node content,
+      Segment segment
+    ) {
+      this.content = content;
+      this.controller = controller;
+      this.segment = segment;
+    }
+  }
 }

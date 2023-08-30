@@ -23,7 +23,7 @@ import java.io.IOException;
 public class MainWindowStageReadyListener implements ApplicationListener<StageReadyEvent> {
   static final Logger LOG = LoggerFactory.getLogger(MainWindowStageReadyListener.class);
   final Resource mainWindowFxml;
-  private final String debug;
+  final String debug;
   final MainController mainController;
   final ApplicationContext ac;
 

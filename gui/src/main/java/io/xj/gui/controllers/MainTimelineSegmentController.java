@@ -48,10 +48,6 @@ public class MainTimelineSegmentController extends VBox implements ReadyAfterBoo
     this.fabricationService = fabricationService;
   }
 
-  private String formatDurationMicros(@Nullable Long micros) {
-    return Objects.nonNull(micros) ? String.format("%.2fs", (float) micros / MICROS_PER_SECOND) : "N/A";
-  }
-
   public void setSegment(Segment segment) {
     this.segment.set(segment);
   }

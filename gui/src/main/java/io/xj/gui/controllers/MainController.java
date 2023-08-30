@@ -17,7 +17,7 @@ public class MainController implements ReadyAfterBootController {
   final MainMenuController mainMenuController;
   final MainPaneBottomController mainPaneBottomController;
   final MainPaneTopController mainPaneTopController;
-  private final MainTimelineController mainTimelineController;
+  final MainTimelineController mainTimelineController;
   final ThemeService themeService;
 
 
