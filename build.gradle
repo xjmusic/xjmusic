@@ -58,7 +58,6 @@ subprojects {
     implementation 'org.bytedeco:ffmpeg-platform-gpl:6.0-1.5.9' // Optional GPL builds with (almost) everything enabled
     implementation 'org.bytedeco:flandmark-platform:1.07-1.5.8' // Required by org.bytedeco.javacv
     implementation 'org.bytedeco:javacv-platform:1.5.9'
-    implementation 'org.bytedeco:opencv-platform:4.7.0-1.5.9'
   }
 
   repositories {

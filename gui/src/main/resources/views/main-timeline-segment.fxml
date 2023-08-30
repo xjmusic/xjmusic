@@ -1,82 +1,84 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
-<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.MainTimelineSegmentController">
+
+<VBox styleClass="main-timeline-segment" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.MainTimelineSegmentController">
+   <HBox prefHeight="100.0" prefWidth="200.0">
+      <children>
+        <VBox prefHeight="200.0" prefWidth="100.0">
+          <Label styleClass="label" text="Offset" />
+          <Text fx:id="offsetText" styleClass="value" text="2097" />
+        </VBox>
+        <VBox layoutX="10.0" layoutY="10.0" prefHeight="200.0" prefWidth="100.0">
+          <Label fx:id="labelType" styleClass="label" text="Type" />
+          <Text fx:id="deltaText" styleClass="value" text="32" />
+        </VBox>
+      </children>
+   </HBox>
   <!-- durationMicros -->
   <HBox>
-    <Label text="Duration Micros:" />
-    <Text fx:id="durationMicrosText"/>
+    <Label styleClass="label" text="Duration" />
+    <Text fx:id="durationMicrosText" styleClass="value" text="7.28s" />
   </HBox>
 
   <!-- key -->
   <HBox>
-    <Label text="Key:" />
-    <Text fx:id="keyText"/>
+    <Label styleClass="label" text="Key" />
+    <Text fx:id="keyText" styleClass="value" />
   </HBox>
 
   <!-- total -->
   <HBox>
-    <Label text="Total:" />
-    <Text fx:id="totalText"/>
-  </HBox>
-
-  <!-- offset -->
-  <HBox>
-    <Label text="Offset:" />
-    <Text fx:id="offsetText"/>
+    <Label styleClass="label" text="Total" />
+    <Text fx:id="totalText" styleClass="value" />
   </HBox>
 
   <!-- density -->
   <HBox>
-    <Label text="Density:" />
-    <Text fx:id="densityText"/>
+    <Label styleClass="label" text="Density" />
+    <Text fx:id="densityText" styleClass="value" />
   </HBox>
 
   <!-- tempo -->
   <HBox>
-    <Label text="Tempo:" />
-    <Text fx:id="tempoText"/>
+    <Label styleClass="label" text="Tempo" />
+    <Text fx:id="tempoText" styleClass="value" />
   </HBox>
 
   <!-- storageKey -->
   <HBox>
-    <Label text="Storage Key:" />
-    <Text fx:id="storageKeyText"/>
+    <Label styleClass="label" text="Storage Key" />
+    <Text fx:id="storageKeyText" styleClass="value" />
   </HBox>
 
   <!-- waveformPreroll -->
   <HBox>
-    <Label text="Waveform Preroll:" />
-    <Text fx:id="waveformPrerollText"/>
+    <Label styleClass="label" text="Waveform Preroll" />
+    <Text fx:id="waveformPrerollText" styleClass="value" />
   </HBox>
 
-  <!-- waveformPostroll -->
+                    <!-- waveformPostroll -->
   <HBox>
-    <Label text="Waveform Postroll:" />
-    <Text fx:id="waveformPostrollText"/>
-  </HBox>
-
-  <!-- delta -->
-  <HBox>
-    <Label text="Delta:" />
-    <Text fx:id="deltaText"/>
+    <Label styleClass="label" text="Waveform Postroll" />
+    <Text fx:id="waveformPostrollText" styleClass="value" />
   </HBox>
 
   <!-- createdAt -->
   <HBox>
-    <Label text="Created At:" />
-    <Text fx:id="createdAtText"/>
+    <Label styleClass="label" text="Created At" />
+    <Text fx:id="createdAtText" styleClass="value" />
   </HBox>
 
   <!-- updatedAt -->
   <HBox>
-    <Label text="Updated At:" />
-    <Text fx:id="updatedAtText"/>
+    <Label styleClass="label" text="Updated At" />
+    <Text fx:id="updatedAtText" styleClass="value" />
   </HBox>
+   <padding>
+      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+   </padding>
 </VBox>

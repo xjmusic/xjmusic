@@ -54,6 +54,7 @@ dependencies {
   implementation "org.springframework.boot:spring-boot-starter-logging:${rootProject.ext.springBootVersion}"
   implementation "org.springframework.boot:spring-boot-starter-webflux:${rootProject.ext.springBootVersion}"
   implementation "org.springframework.boot:spring-boot-starter:${rootProject.ext.springBootVersion}"
+  implementation 'com.tangorabox:component-inspector-fx:1.1.0'
   implementation 'com.typesafe:config:1.4.2'
   implementation 'commons-codec:commons-codec:1.15'
   implementation 'commons-io:commons-io:2.11.0'

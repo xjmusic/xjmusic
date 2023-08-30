@@ -103,6 +103,22 @@
   -fx-background-color: #393939;
 }
 
-.timeline-list-view {
+.main-timeline {
   -fx-background-color: #202020;
+}
+
+.main-timeline .list-cell {
+  -fx-background-color: #292929;
+}
+
+.main-timeline-segment {
+  -fx-background-color: #303030;
+}
+
+.main-timeline-segment .label {
+  -fx-fill: #a0a0a0;
+}
+
+.main-timeline-segment .value {
+  -fx-fill: #ffffff;
 }

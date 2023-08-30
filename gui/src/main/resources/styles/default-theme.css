@@ -48,6 +48,24 @@
   -fx-background-color: #b0b0b0;
 }
 
-.timeline-list-view {
+.main-timeline {
   -fx-background-color: #e0e0e0;
+}
+
+.main-timeline .list-cell {
+  -fx-padding: 5px 10px 5px 0;
+  -fx-background-color: #e0e0e0;
+}
+
+.main-timeline-segment {
+  -fx-background-color: #f0f0f0;
+}
+
+.main-timeline-segment .label {
+  -fx-fill: #606060;
+}
+
+.main-timeline-segment .value {
+  -fx-font-weight: bold;
+  -fx-fill: #000000;
 }

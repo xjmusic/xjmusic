@@ -6,6 +6,7 @@ import io.xj.nexus.model.Segment;
 import jakarta.annotation.Nullable;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
@@ -15,6 +16,9 @@ import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 
 public class MainTimelineSegmentController extends VBox implements ReadyAfterBootController {
   final SimpleObjectProperty<Segment> segment = new SimpleObjectProperty<>();
+
+  @FXML
+  Label labelType;
 
   @FXML
   Text durationMicrosText;
@@ -67,6 +71,7 @@ public class MainTimelineSegmentController extends VBox implements ReadyAfterBoo
     densityText.textProperty().bind(segment.map(s -> String.format("%.2f", s.getDensity())));
     durationMicrosText.textProperty().bind(segment.map(s -> formatDurationMicros(s.getDurationMicros())));
     keyText.textProperty().bind(segment.map(Segment::getKey));
+    labelType.textProperty().bind(segment.map(Segment::getType).map(Objects::toString));
     offsetText.textProperty().bind(segment.map(Segment::getOffset).map(Objects::toString));
     storageKeyText.textProperty().bind(segment.map(Segment::getStorageKey));
     tempoText.textProperty().bind(segment.map(s -> String.format("%.2f", s.getDensity())));
@@ -74,6 +79,8 @@ public class MainTimelineSegmentController extends VBox implements ReadyAfterBoo
     updatedAtText.textProperty().bind(segment.map(Segment::getUpdatedAt));
     waveformPostrollText.textProperty().bind(segment.map(s -> String.format("%.2f", s.getDensity())));
     waveformPrerollText.textProperty().bind(segment.map(s -> String.format("%.2f", s.getDensity())));
+
+    // todo: choices source content from fabricationService
   }
 
   @Override

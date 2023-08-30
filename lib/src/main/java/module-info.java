@@ -11,13 +11,11 @@ module workstation.lib.main {
   requires org.apache.commons.codec;
   requires org.apache.commons.io;
   requires org.apache.httpcomponents.httpclient;
-  requires org.bytedeco.ffmpeg.platform;
   requires org.bytedeco.ffmpeg;
   requires org.bytedeco.flandmark.platform;
   requires org.bytedeco.flandmark;
   requires org.bytedeco.javacv.platform;
   requires org.bytedeco.javacv;
-  requires org.bytedeco.opencv;
   requires org.reflections;
   requires org.slf4j;
   requires spring.beans;

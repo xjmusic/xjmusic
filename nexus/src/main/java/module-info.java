@@ -11,7 +11,6 @@ module workstation.nexus.main {
   requires org.apache.commons.io;
   requires org.apache.httpcomponents.httpclient;
   requires org.apache.httpcomponents.httpcore;
-  requires org.bytedeco.ffmpeg.platform;
   requires org.bytedeco.ffmpeg;
   requires org.bytedeco.flandmark.platform;
   requires org.bytedeco.flandmark;

@@ -10,9 +10,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.css.PseudoClass;
@@ -23,6 +21,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -32,18 +31,18 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 @Service
 public class MainPaneBottomController extends VBox implements ReadyAfterBootController {
+  final BooleanProperty logsTailing = new SimpleBooleanProperty(true);
+  final BooleanProperty logsVisible = new SimpleBooleanProperty(false);
+  final Integer refreshRateSeconds;
   final LabService labService;
   final LogQueue logQueue;
   final ObservableList<LogRecord> logItems = FXCollections.observableArrayList();
-  static final int MAX_ENTRIES = 10_000;
-  static final int LOG_LIST_VIEW_HEIGHT = 368;
   final static PseudoClass debug = PseudoClass.getPseudoClass("debug");
+  final static PseudoClass error = PseudoClass.getPseudoClass("error");
   final static PseudoClass info = PseudoClass.getPseudoClass("info");
   final static PseudoClass warn = PseudoClass.getPseudoClass("warn");
-  final static PseudoClass error = PseudoClass.getPseudoClass("error");
-  final BooleanProperty logsTailing = new SimpleBooleanProperty(true);
-  final BooleanProperty logsVisible = new SimpleBooleanProperty(false);
-  final DoubleProperty refreshRate = new SimpleDoubleProperty(1);
+  static final int LOG_LIST_VIEW_HEIGHT = 368;
+  static final int MAX_ENTRIES = 10_000;
 
   @Nullable
   private Timeline refresh;
@@ -62,8 +61,10 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
 
 
   public MainPaneBottomController(
+    @Value("${gui.logs.refresh.seconds}") Integer refreshRateSeconds,
     LabService labService
   ) {
+    this.refreshRateSeconds = refreshRateSeconds;
     this.labService = labService;
     logQueue = new LogQueue();
 
@@ -92,7 +93,7 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
       )
     );
     refresh.setCycleCount(Timeline.INDEFINITE);
-    refresh.rateProperty().bind(refreshRateProperty());
+    refresh.setRate(refreshRateSeconds);
     refresh.play();
 
     logListView.setCellFactory(param -> new ListCell<>() {
@@ -136,10 +137,6 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
     if (Objects.nonNull(refresh)) {
       refresh.stop();
     }
-  }
-
-  public DoubleProperty refreshRateProperty() {
-    return refreshRate;
   }
 
   public void appendLogLine(Level level, String context, String line) {

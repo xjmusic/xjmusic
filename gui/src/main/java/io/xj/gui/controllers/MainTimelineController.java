@@ -8,8 +8,6 @@ import io.xj.nexus.model.Segment;
 import jakarta.annotation.Nullable;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -21,6 +19,7 @@ import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import javafx.util.Duration;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
@@ -29,10 +28,12 @@ import java.util.Objects;
 
 @Service
 public class MainTimelineController extends VBox implements ReadyAfterBootController {
-  final Resource timelineSegmentFxml;
+  final ConfigurableApplicationContext ac;
   final FabricationService fabricationService;
+  final Integer refreshRateSeconds;
   final LabService labService;
-  final DoubleProperty refreshRate = new SimpleDoubleProperty(1);
+  final ObservableList<Segment> segments = FXCollections.observableArrayList();
+  final Resource timelineSegmentFxml;
 
   @Nullable
   Timeline refresh;
@@ -40,16 +41,19 @@ public class MainTimelineController extends VBox implements ReadyAfterBootContro
   @FXML
   protected ListView<Segment> segmentListView;
 
-  final ObservableList<Segment> segments = FXCollections.observableArrayList();
 
   public MainTimelineController(
     @Value("classpath:/views/main-timeline-segment.fxml") Resource timelineSegmentFxml,
+    @Value("${gui.timeline.refresh.seconds}") Integer refreshRateSeconds,
+    ConfigurableApplicationContext ac,
     FabricationService fabricationService,
     LabService labService
   ) {
     this.timelineSegmentFxml = timelineSegmentFxml;
+    this.ac = ac;
     this.fabricationService = fabricationService;
     this.labService = labService;
+    this.refreshRateSeconds = refreshRateSeconds;
   }
 
   @Override
@@ -61,7 +65,7 @@ public class MainTimelineController extends VBox implements ReadyAfterBootContro
       )
     );
     refresh.setCycleCount(Timeline.INDEFINITE);
-    refresh.rateProperty().bind(refreshRateProperty());
+    refresh.setRate(refreshRateSeconds);
     refresh.play();
 
     segmentListView.setCellFactory(new Callback<>() {
@@ -78,6 +82,8 @@ public class MainTimelineController extends VBox implements ReadyAfterBootContro
             } else {
               try {
                 FXMLLoader loader = new FXMLLoader(timelineSegmentFxml.getURL());
+                // todo reconcile loader.setControllerFactory(ac::getBean);
+
                 Node cellContent = loader.load();
                 MainTimelineSegmentController cellController = loader.getController();
                 cellController.onStageReady();
@@ -116,10 +122,6 @@ public class MainTimelineController extends VBox implements ReadyAfterBootContro
         segments.add(source);
       }
     });
-  }
-
-  public DoubleProperty refreshRateProperty() {
-    return refreshRate;
   }
 
 }
