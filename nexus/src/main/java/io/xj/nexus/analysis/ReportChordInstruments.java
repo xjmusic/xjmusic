@@ -63,9 +63,6 @@ public class ReportChordInstruments extends Report {
       .filter(instrument -> stack.isAllowed(EntityUtils.namesOf(content.getInstrumentMemes(instrument.getId()))))
       .sorted(Comparator.comparing(Instrument::getName)).toList();
 
-    int instrumentsSize = instruments.size();
-    int chordsSize = chords.size();
-
     if (instruments.isEmpty()) {
       return new Section(String.format("main-constellation-%s", mainConstellation),
         mainConstellation,
@@ -74,12 +71,12 @@ public class ReportChordInstruments extends Report {
         List.of("Missing"));
     }
 
-    String[][] rowCellData = new String[instrumentsSize][chordsSize];
+    String[][] rowCellData = new String[instruments.size()][chords.size()];
 
     Collection<Chord> instrumentChords;
-    for (int i = 0; i < instrumentsSize; i++) {
+    for (int i = 0; i < instruments.size(); i++) {
       instrumentChords = content.getInstrumentAudios(instruments.get(i).getId()).parallelStream().map(InstrumentAudio::getTones).map(Chord::of).toList();
-      for (int c = 0; c < chordsSize; c++) {
+      for (int c = 0; c < chords.size(); c++) {
         var chord = chords.get(c);
         if (instrumentChords.stream().anyMatch(instrumentChord -> instrumentChord.isSame(chord)))
           rowCellData[i][c] = CellSpecialValue.GREEN.toString();

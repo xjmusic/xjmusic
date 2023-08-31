@@ -33,7 +33,6 @@ public class BottomPaneController extends VBox implements ReadyAfterBootControll
   private final LabService labService;
   private final LogQueue logQueue;
   private final ObservableList<LogRecord> logItems = FXCollections.observableArrayList();
-  private final int logItemsSize = logItems.size();
   static final int MAX_ENTRIES = 10_000;
   static final int LOG_LIST_VIEW_HEIGHT = 368;
   final static PseudoClass debug = PseudoClass.getPseudoClass("debug");
@@ -79,12 +78,12 @@ public class BottomPaneController extends VBox implements ReadyAfterBootControll
         event -> {
           logQueue.drainTo(logItems);
 
-          if (logItemsSize > MAX_ENTRIES) {
-            logItems.remove(0, logItemsSize - MAX_ENTRIES);
+          if (logItems.size() > MAX_ENTRIES) {
+            logItems.remove(0, logItems.size() - MAX_ENTRIES);
           }
 
           if (logsTailing.get()) {
-            logListView.scrollTo(logItemsSize);
+            logListView.scrollTo(logItems.size());
           }
         }
       )

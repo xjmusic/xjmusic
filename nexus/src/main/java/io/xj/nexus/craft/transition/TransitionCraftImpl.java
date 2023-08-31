@@ -50,7 +50,6 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
     Collection<UUID> instrumentIds = previousChoices.stream()
       .map(SegmentChoice::getInstrumentId)
       .collect(Collectors.toList());
-    int instrumentIdsSize = instrumentIds.size();
     double targetDensity = isBigTransitionSegment() ? fabricator.getTemplateConfig().getDensityCeiling() : fabricator.getSegment().getDensity();
 
     int targetLayers = (int) Math.floor(
@@ -61,14 +60,14 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
 
     fabricator.addInfoMessage(String.format("Targeting %d layers of transition", targetLayers));
 
-    if (instrumentIdsSize > targetLayers)
-      instrumentIds = ValueUtils.withIdsRemoved(instrumentIds, instrumentIdsSize - targetLayers);
+    if (instrumentIds.size() > targetLayers)
+      instrumentIds = ValueUtils.withIdsRemoved(instrumentIds, instrumentIds.size() - targetLayers);
 
     for (UUID id : instrumentIds) craftTransition(id);
 
     Optional<Instrument> chosen;
-    if (instrumentIdsSize < targetLayers)
-      for (int i = 0; i < targetLayers - instrumentIdsSize; i++) {
+    if (instrumentIds.size() < targetLayers)
+      for (int i = 0; i < targetLayers - instrumentIds.size(); i++) {
         chosen = chooseFreshInstrument(List.of(), List.of(InstrumentMode.Transition), instrumentIds, null, List.of());
         if (chosen.isPresent()) {
           instrumentIds.add(chosen.get().getId());

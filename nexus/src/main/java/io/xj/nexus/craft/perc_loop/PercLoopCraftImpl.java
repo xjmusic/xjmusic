@@ -47,7 +47,6 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
           .collect(Collectors.toSet())
         : new ArrayList<>();
 
-    int audioIdsSize = audioIds.size();
     int targetLayers = (int) Math.floor(
       fabricator.getTemplateConfig().getPercLoopLayerMin() +
         fabricator.getSegment().getDensity() *
@@ -56,12 +55,12 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
 
     fabricator.addInfoMessage(String.format("Targeting %d layers of percussion loop", targetLayers));
 
-    if (audioIdsSize > targetLayers)
-      audioIds = ValueUtils.withIdsRemoved(audioIds, audioIdsSize - targetLayers);
+    if (audioIds.size() > targetLayers)
+      audioIds = ValueUtils.withIdsRemoved(audioIds, audioIds.size() - targetLayers);
 
-    else if (audioIdsSize < targetLayers)
-      for (int i = 0; i < targetLayers - audioIdsSize; i++) {
-        Optional<InstrumentAudio> chosen = chooseFreshInstrumentAudio(List.of(InstrumentType.Percussion), List.of(InstrumentMode.Loop), audioIds, computePreferredEvents(audioIdsSize));
+    else if (audioIds.size() < targetLayers)
+      for (int i = 0; i < targetLayers - audioIds.size(); i++) {
+        Optional<InstrumentAudio> chosen = chooseFreshInstrumentAudio(List.of(InstrumentType.Percussion), List.of(InstrumentMode.Loop), audioIds, computePreferredEvents(audioIds.size()));
         if (chosen.isPresent()) {
           audioIds.add(chosen.get().getId());
         }

@@ -52,7 +52,7 @@ public class AudioFileWriterImpl implements AudioFileWriter {
       tempFilePath.set(Files.createTempFile("file-output", ".pcm").toString());
       deleteIfExists(Path.of(tempFilePath.get()));
       tempFile = new FileOutputStream(tempFilePath.get(), true);
-
+      // can't we overwrite the file instead of deleting it?
 
     } catch (IOException e) {
       LOG.error("Failed to write bytes to output file!", e);

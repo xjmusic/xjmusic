@@ -414,7 +414,6 @@ public abstract class Report {
                            List<List<String>> rowColCells,
                            List<String> columnHeaders,
                            List<String> rowHeaders) {
-
     public static String checkboxValue(Boolean value) {
       return value ? CellSpecialValue.TRUE.toString() : CellSpecialValue.FALSE.toString();
     }
@@ -424,12 +423,10 @@ public abstract class Report {
     }
 
     public String render() {
-      int rowColCellsSize = rowColCells.size();
-      int rowHeadersSize = rowHeaders.size();
-      String[] rows = new String[rowColCellsSize];
-      for (int i = 0; i < rowColCellsSize; i++)
+      String[] rows = new String[rowColCells.size()];
+      for (int i = 0; i < rowColCells.size(); i++)
         rows[i] = TR(
-          rowHeaders.isEmpty() ? "" : headerTD(i < rowHeadersSize ? rowHeaders.get(i) : ""),
+          rowHeaders.isEmpty() ? "" : headerTD(i < rowHeaders.size() ? rowHeaders.get(i) : ""),
           rowColCells.get(i).parallelStream()
             .map(v -> {
               if (CellSpecialValue.TRUE.toString().equals(v)) return checkboxTD(true);

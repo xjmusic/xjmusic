@@ -71,13 +71,12 @@ public abstract class YamlTest {
     List<Note> expectedNotes = expected.stream()
       .map(Note::of)
       .sorted(Note::compareTo).toList();
-    int expectedNotesSize = expectedNotes.size();
     List<Note> actualNotes = actual.stream()
       .map(Note::of)
       .sorted(Note::compareTo).toList();
 
     // iterate through all notes and compare
-    for (int i = 0; i < expectedNotesSize; i++) {
+    for (int i = 0; i < expectedNotes.size(); i++) {
       if (!expectedNotes.get(i).sameAs(actualNotes.get(i))) {
         failures.add(String.format("%s — Expected: %s — Actual: %s", description,
           expectedNotes.stream()
