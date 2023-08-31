@@ -4,7 +4,6 @@ plugins {
   id 'java'
   id 'application'
   id 'distribution'
-  //
   id "org.beryx.jlink" version "2.24.1" apply false
   id 'com.google.cloud.tools.jib' version '3.3.2' apply false
   id 'io.spring.dependency-management' version '1.0.15.RELEASE' apply false
@@ -48,7 +47,6 @@ allprojects {
 
 subprojects {
   apply plugin: 'java'
-
   configurations {
     implementation.exclude group: "commons-logging", module: "commons-logging"
     implementation.exclude group: 'com.google.code.findbugs', module: 'jsr305'
@@ -92,6 +90,10 @@ subprojects {
         password = localProperties.getProperty("repo.token") ?: System.getenv("GITHUB_TOKEN")
       }
     }
+    //org.pantelev mvn repo link
+    maven {
+     url= uri("https://plugins.gradle.org/m2/")
+    }
   }
 }
 
@@ -102,3 +104,4 @@ if (!project.hasProperty("jibFromImage")) {
 if (!project.hasProperty("jibToImageRegistry")) {
   ext.jibToImageRegistry = "localhost"
 }
+

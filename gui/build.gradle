@@ -1,35 +1,14 @@
+import org.panteleyev.jpackage.ImageType
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 plugins {
   id 'java'
   id 'application'
   id 'maven-publish'
-  //
-  id 'org.beryx.jlink'
+  id 'org.panteleyev.jpackageplugin'
   id 'org.openjfx.javafxplugin'
   id 'org.springframework.boot'
   id 'org.bytedeco.gradle-javacpp-platform'
-}
-
-javafx {
-  version = "${rootProject.ext.javaFxVersion}"
-  modules = ['javafx.base', 'javafx.controls', 'javafx.fxml', 'javafx.graphics']
-}
-
-//noinspection GroovyAssignabilityCheck
-ext.os = org.gradle.internal.os.OperatingSystem.current() as org.gradle.internal.os.OperatingSystem
-
-jlink {
-  // imageZip = file("$buildDir/image-zip/xjmusic-workstation.zip")
-  // options = ['--bind-services', '--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
-  addExtraDependencies 'javafx'
-  addExtraDependencies 'jooq'
-  addExtraDependencies 'jackson'
-
-  launcher {
-    name = 'xjmusic-workstation'
-    noConsole = true
-  }
 }
 
 dependencies {
@@ -37,17 +16,17 @@ dependencies {
   implementation project(":lib")
   implementation project(":nexus")
   // private
-  implementation "io.xj:models:${rootProject.ext.xjModelsVersion}"
+  implementation "io.xj:models:${xjModelsVersion}"
   // vendor
-  implementation "ch.qos.logback:logback-classic:${rootProject.ext.logbackVersion}"
-  implementation "ch.qos.logback:logback-core:${rootProject.ext.logbackVersion}"
-  implementation "org.jooq:jooq:${rootProject.ext.jooqVersion}"
-  implementation "org.openjfx:javafx-base:${rootProject.ext.javaFxVersion}"
-  implementation "org.openjfx:javafx-controls:${rootProject.ext.javaFxVersion}"
-  implementation "org.openjfx:javafx-fxml:${rootProject.ext.javaFxVersion}"
-  implementation "org.openjfx:javafx-graphics:${rootProject.ext.javaFxVersion}"
-  implementation "org.springframework.boot:spring-boot-starter-logging:${rootProject.ext.springBootVersion}"
-  implementation "org.springframework.boot:spring-boot-starter:${rootProject.ext.springBootVersion}"
+  implementation "ch.qos.logback:logback-classic:$logbackVersion"
+  implementation "ch.qos.logback:logback-core:${logbackVersion}"
+  implementation "org.jooq:jooq:${jooqVersion}"
+  implementation "org.openjfx:javafx-base:${javaFxVersion}"
+  implementation "org.openjfx:javafx-controls:${javaFxVersion}"
+  implementation "org.openjfx:javafx-fxml:${javaFxVersion}"
+  implementation "org.openjfx:javafx-graphics:${javaFxVersion}"
+  implementation "org.springframework.boot:spring-boot-starter-logging:${springBootVersion}"
+  implementation "org.springframework.boot:spring-boot-starter:${springBootVersion}"
   implementation 'com.typesafe:config:1.4.2'
   implementation 'commons-codec:commons-codec:1.15'
   implementation 'commons-io:commons-io:2.11.0'
@@ -55,11 +34,29 @@ dependencies {
   implementation 'me.xdrop:fuzzywuzzy:1.4.0'
   implementation 'org.apache.httpcomponents:httpclient:4.5.14'
   implementation 'org.reflections:reflections:0.10.1'
-  testImplementation "org.junit.jupiter:junit-jupiter-api:${rootProject.ext.junitVersion}"
-  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${rootProject.ext.junitVersion}"
+  testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+  implementation 'org.apache.logging.log4j:log4j-api:3.0.0-alpha1'
+  implementation group: 'org.panteleyev.jpackageplugin', name: 'org.panteleyev.jpackageplugin.gradle.plugin', version: '1.5.2'
 }
 
-mainClassName = 'io.xj.gui.WorkstationGuiApplication'
+javafx {
+  version = javaFxVersion
+  modules = ['javafx.base', 'javafx.controls', 'javafx.fxml', 'javafx.graphics']
+}
+
+application {
+  mainModule = 'workstation.gui.main'
+  mainClass = 'io.xj.gui.WorkstationGuiApplication'
+}
+
+bootRun{
+  mainClass = 'io.xj.gui.WorkstationGuiApplication' // Specify the correct main class
+}
+
+//noinspection GroovyAssignabilityCheck
+ext.os = org.gradle.internal.os.OperatingSystem.current() as org.gradle.internal.os.OperatingSystem
+def currentOs = org.gradle.internal.os.OperatingSystem.current();
 
 //noinspection ConfigurationAvoidance
 task 'bootJarZip'(type: Zip) {
@@ -79,97 +76,78 @@ test {
   useJUnitPlatform()
 }
 
-//declare the variables to be used
-def bundlePath = file('./installer/')
-def outputDir = file('../bundle/')
-def bundleScript = file('bin/build-package.sh')
-def packageType = "exe"
-def appIcon = 'xjmusic.ico'
-def mainJar = 'xjmusic-workstation-gui-0.5.48.jar'
-def publishedVersion = project.version
-def osName = System.getProperty('os.name').toLowerCase()
-def extraBundlerArguments = []
+//copies the needed jar (complete fat jar) while skipping the gui-plain minimal jar file
+//and copies the icon resources for the needed platform
+tasks.register('copyResources', Copy) {
+  dependsOn("build")
 
-//task that copy jar generated jar file from build path
-task copyJar(type:Copy,dependsOn: build){
-  println '\n Started Copying resources'
-  if (bundlePath.exists() && bundlePath.isDirectory()) {
-    bundlePath.deleteDir()
-    println "Previous Resource Bundle path folder deleted."
+  def directoryPath = 'jpackage'
+  // Create the directory if it doesn't exist
+  file(directoryPath).mkdirs()
+
+  if (currentOs.isWindows()) {
+    from "$buildDir/libs"
+    exclude "*-plain.jar"
+    from "icons/windows"
+    into "jpackage"
+  } else if (currentOs.isMacOsX()) {
+    from "$buildDir/libs"
+    from "icons/mac"
+    exclude "*-plain.jar"
+    into "jpackage"
+  } else if (currentOs.isLinux()) {
+    from "$buildDir/libs"
+    from "icons/linux"
+    exclude "*-plain.jar"
+    into "jpackage"
   }
-
-  //delete the previous exe generated bundle
-  if (outputDir.exists() && outputDir.isDirectory()) {
-      outputDir.deleteDir()
-      println "Previous Generated app Bundle deleted ."
-  }
-
-  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-  from("build/libs"){
-    include '*.jar'
-    exclude '*plain.jar'
-  }
-
-  from("icons/windows/xjmusic.ico"){
-    include '*.ico'
-    exclude '*.bat' , '.gradle' , '.gitignore' , '*gradlew*'
-  }
-
-  into 'installer'
-
-  println '\nFinished Copying resources'
 }
 
-task beforeCreate(dependsOn: copyJar){
-  println '\nStarted platform-specific Icon assigning'
+//set the working directory
+def workingDir = file('jpackage/')
 
-  if (osName.contains("mac")) {
-    packageType = 'dmg'
-    appIcon = file('../icons/mac/xjmusic.icns')
-    if (!project.hasProperty("unsigned")) {
-      extraBundlerArguments = ['--mac-sign']
+jpackage{
+  dependsOn("copyResources")
+    type = ImageType.EXE
+    appName = "XJ music workstation"
+    appVersion = version.toString()
+    vendor = "XJMusic"
+    copyright = "Copyright (c) 2023 " + vendor
+    //take our input files from our working directory
+    input = workingDir.toString()
+    //set our main application jar
+    mainJar = tasks.bootJar.archiveFileName.get()
+    //output the installer in the working directory
+    destination = workingDir.toString()
+    //for the jlink options these are passed as default , so no need to add them :
+    // [--strip-native-commands --strip-debug --no-man-pages --no-header-files]
+    mac {
+      icon = "$workingDir/icons.icns"
     }
-  } else if (osName.contains('nix') || osName.contains('nux') || osName.contains('unix')) {
-    packageType = 'deb'
-    appIcon = file('../icons/linux/xjmusic.png')
-
-  } else if (osName.contains("win")) {
-    packageType = 'exe'
-    appIcon = '../icons/windows/xjmusic.ico'
-    bundleScript = file('bin/build-package.bat')
+    linux {
+      icon = "$workingDir/icons.png"
+    }
+    windows {
+      icon = "$workingDir/xjmusicapp.ico"
+      //add the app to start menu
+      winMenu = true
+      //allow the user to choose where to install our app
+      winDirChooser = true
+      //add our app to the desktop via a shortcut
+      winShortcut = true
+    }
   }
 
-  println '\nFinished Icon assigning'
-}
+//task to rename the final exe from the jpackage-given name
+tasks.register('renameExe') {
+  doLast {
+    def exeFileName = "XJ music workstation installer.exe" // Set the desired new name for your EXE file
 
-task createBundle(type: Exec,dependsOn:beforeCreate) {
-  println('\nStarting Windows bundle creation')
-
-  if (osName.contains("win")) {
-    inputs.dir('bin')
-    inputs.dir('icons')
-    inputs.dir('installer')
-    workingDir 'installer'
-    commandLine 'cmd', '/c',
-      bundleScript,
-      packageType,
-      bundlePath,
-      outputDir,
-      mainJar,
-      publishedVersion,
-      appIcon
-  } else {
-    commandLine = ['sh',
-                   bundleScript,
-                   packageType,
-                   bundlePath,
-                   mainJar,
-                   publishedVersion,
-                   appIcon,
-                   *extraBundlerArguments
-    ]
+    def exeFile = file("${workingDir}/${jpackage.getAppName()}-${jpackage.getAppVersion()}.exe")
+//    // Copy the EXE file with the new name to the target directory
+    exeFile.renameTo("${workingDir}/${exeFileName}")
   }
 }
+
 
 
