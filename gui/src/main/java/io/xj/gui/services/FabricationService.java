@@ -7,10 +7,7 @@ import io.xj.hub.tables.pojos.Program;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
-import io.xj.nexus.model.Segment;
-import io.xj.nexus.model.SegmentChoice;
-import io.xj.nexus.model.SegmentChord;
-import io.xj.nexus.model.SegmentMeme;
+import io.xj.nexus.model.*;
 import io.xj.nexus.work.WorkFactory;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
@@ -52,4 +49,8 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
   Optional<Program> getProgram(UUID programId);
 
   Optional<Instrument> getInstrument(UUID instrumentId);
+
+  Collection<SegmentChoiceArrangement> getArrangements(SegmentChoice choice);
+
+  Collection<SegmentChoiceArrangementPick> getPicks(SegmentChoiceArrangement arrangement);
 }

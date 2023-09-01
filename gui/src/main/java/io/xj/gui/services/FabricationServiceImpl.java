@@ -7,10 +7,7 @@ import io.xj.hub.tables.pojos.Program;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
-import io.xj.nexus.model.Segment;
-import io.xj.nexus.model.SegmentChoice;
-import io.xj.nexus.model.SegmentChord;
-import io.xj.nexus.model.SegmentMeme;
+import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.ManagerPrivilegeException;
 import io.xj.nexus.work.WorkConfiguration;
@@ -156,4 +153,27 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   public Optional<Instrument> getInstrument(UUID instrumentId) {
     return workFactory.getSourceMaterial().getInstrument(instrumentId);
   }
+
+  @Override
+  public Collection<SegmentChoiceArrangement> getArrangements(SegmentChoice choice) {
+    try {
+      return workFactory.getSegmentManager().readManySubEntitiesOfType(choice.getSegmentId(), SegmentChoiceArrangement.class)
+        .stream().filter(arrangement -> arrangement.getSegmentChoiceId().equals(choice.getId())).toList();
+    } catch (ManagerPrivilegeException | ManagerFatalException e) {
+      LOG.error("Failed to get segment choice arrangements", e);
+      return List.of();
+    }
+  }
+
+  @Override
+  public Collection<SegmentChoiceArrangementPick> getPicks(SegmentChoiceArrangement arrangement) {
+    try {
+      return workFactory.getSegmentManager().readManySubEntitiesOfType(arrangement.getSegmentId(), SegmentChoiceArrangementPick.class)
+        .stream().filter(pick -> pick.getSegmentChoiceArrangementId().equals(arrangement.getId())).toList();
+    } catch (ManagerPrivilegeException | ManagerFatalException e) {
+      LOG.error("Failed to get segment choice arrangement picks", e);
+      return List.of();
+    }
+  }
+
 }
