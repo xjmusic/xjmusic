@@ -165,7 +165,6 @@ class MixerImpl implements Mixer {
    * Zero all buffers
    */
 
-  // see this link https://stackoverflow.com/questions/9128737/fastest-way-to-set-all-values-of-an-array
   void clearBuffers() {
     for (double[][] busBuf2D : busBuf)
       for (double[] busBuf1D : busBuf2D)
@@ -178,17 +177,17 @@ class MixerImpl implements Mixer {
    * Mix input buffers to output buffer
    */
   void mixOutputBus() {
-    double[] level = Stream.iterate(0, i -> i + 1).limit(busBuf.length).mapToDouble(i -> busLevel.getOrDefault(i, 1.0)).toArray();
     int b, f, c;
-    for (b = 0; b < busBuf.length; b++)
+    for (b = 0; b < busBuf.length; b++){
+      double level = busLevel.getOrDefault(b, 1.0);
       for (f = 0; f < busBuf[0].length; f++)
         for (c = 0; c < busBuf[0][0].length; c++) {
-          if (b > level.length - 1) {
-            LOG.error(config.getLogPrefix() + "b > level.length - 1: " + b + " > " + (level.length - 1));
+          if (b > busBuf.length - 1) {
+            LOG.error(config.getLogPrefix() + "b > level.length - 1: " + b + " > " + (busBuf.length - 1));
           }
-          outBuf[f][c] += busBuf[b][f][c] * level[b];
+          outBuf[f][c] += busBuf[b][f][c] * level;
         }
-
+    }
   }
 
   @Override
