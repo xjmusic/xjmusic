@@ -126,7 +126,8 @@ jpackage{
     }
     linux {
       linuxShortcut=true
-//      runtimeImage ="/usr/lib/jvm/jdk-17-oracle-x64"
+      //use this if you prefer a different runtime from the system default
+      //runtimeImage ="/usr/lib/jvm/jdk-17-oracle-x64"
       linuxAppCategory="Audio"
       type = ImageType.DEB
       icon = "$workingDir/xjmusicapp.png"
