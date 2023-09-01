@@ -4,7 +4,6 @@ plugins {
   id 'java'
   id 'application'
   id 'distribution'
-  id "org.beryx.jlink" version "2.24.1" apply false
   id 'com.google.cloud.tools.jib' version '3.3.2' apply false
   id 'io.spring.dependency-management' version '1.0.15.RELEASE' apply false
   id 'org.openjfx.javafxplugin' version '0.0.14' apply false

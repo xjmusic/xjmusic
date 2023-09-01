@@ -55,7 +55,6 @@ bootRun{
 }
 
 //noinspection GroovyAssignabilityCheck
-ext.os = org.gradle.internal.os.OperatingSystem.current() as org.gradle.internal.os.OperatingSystem
 def currentOs = org.gradle.internal.os.OperatingSystem.current();
 
 //noinspection ConfigurationAvoidance
@@ -80,23 +79,24 @@ test {
 //and copies the icon resources for the needed platform
 tasks.register('copyResources', Copy) {
   dependsOn("build")
-
+  //clean the previous generated installer output files
+  delete("jpackage")
   def directoryPath = 'jpackage'
   // Create the directory if it doesn't exist
   file(directoryPath).mkdirs()
 
   if (currentOs.isWindows()) {
-    from "$buildDir/libs"
+from "$buildDir/libs"
     exclude "*-plain.jar"
     from "icons/windows"
     into "jpackage"
   } else if (currentOs.isMacOsX()) {
-    from "$buildDir/libs"
+from "$buildDir/libs"
     from "icons/mac"
     exclude "*-plain.jar"
     into "jpackage"
   } else if (currentOs.isLinux()) {
-    from "$buildDir/libs"
+from "$buildDir/libs"
     from "icons/linux"
     exclude "*-plain.jar"
     into "jpackage"
@@ -108,7 +108,6 @@ def workingDir = file('jpackage/')
 
 jpackage{
   dependsOn("copyResources")
-    type = ImageType.EXE
     appName = "XJ music workstation"
     appVersion = version.toString()
     vendor = "XJMusic"
@@ -122,12 +121,18 @@ jpackage{
     //for the jlink options these are passed as default , so no need to add them :
     // [--strip-native-commands --strip-debug --no-man-pages --no-header-files]
     mac {
-      icon = "$workingDir/icons.icns"
+      type = ImageType.DMG
+      icon = "$workingDir/xjmusicapp.icns"
     }
     linux {
-      icon = "$workingDir/icons.png"
+      linuxShortcut=true
+//      runtimeImage ="/usr/lib/jvm/jdk-17-oracle-x64"
+      linuxAppCategory="Audio"
+      type = ImageType.DEB
+      icon = "$workingDir/xjmusicapp.png"
     }
     windows {
+      type = ImageType.EXE
       icon = "$workingDir/xjmusicapp.ico"
       //add the app to start menu
       winMenu = true
@@ -136,16 +141,47 @@ jpackage{
       //add our app to the desktop via a shortcut
       winShortcut = true
     }
-  }
 
-//task to rename the final exe from the jpackage-given name
-tasks.register('renameExe') {
+  //rename the final installer package
+  def newPackageName = "XJ music workstation installer"
   doLast {
-    def exeFileName = "XJ music workstation installer.exe" // Set the desired new name for your EXE file
+    def osToExtensionMap = [
+      windows: 'exe',
+      macOsX: 'dmg',
+      linux: 'deb'
+    ]
+    def extension = osToExtensionMap[currentOs.name.toLowerCase()]
 
-    def exeFile = file("${workingDir}/${jpackage.getAppName()}-${jpackage.getAppVersion()}.exe")
-//    // Copy the EXE file with the new name to the target directory
-    exeFile.renameTo("${workingDir}/${exeFileName}")
+    if (extension) {
+      def newFileName = "${newPackageName}.${extension}"
+      def debFile = workingDir.listFiles().find { it.name.endsWith(".${extension}") }
+
+      if (debFile) {
+        debFile.renameTo(new File(debFile.parent, newFileName))
+      }
+    }
+  }
+}
+
+//task to rename the final ditribution package from the jpackage-given name
+task renamePackage {
+  def newPackageName = "XJ music workstation installer"
+  doLast {
+    def osToExtensionMap = [
+      windows: 'exe',
+      macOsX: 'dmg',
+      linux: 'deb'
+    ]
+    def extension = osToExtensionMap[currentOs.name.toLowerCase()]
+
+    if (extension) {
+      def newFileName = "${newPackageName}.${extension}"
+      def debFile = workingDir.listFiles().find { it.name.endsWith(".${extension}") }
+
+      if (debFile) {
+        debFile.renameTo(new File(debFile.parent, newFileName))
+      }
+    }
   }
 }
 
