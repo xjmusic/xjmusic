@@ -12,9 +12,11 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
@@ -165,13 +167,11 @@ class MixerImpl implements Mixer {
 
   // see this link https://stackoverflow.com/questions/9128737/fastest-way-to-set-all-values-of-an-array
   void clearBuffers() {
-    for (int b = 0; b < busBuf.length; b++)
-      for (int f = 0; f < busBuf[0].length; f++)
-        for (int c = 0; c < busBuf[0][0].length; c++)
-          busBuf[b][f][c] = 0.0;
-    for (int f = 0; f < outBuf.length; f++)
-      for (int c = 0; c < outBuf[0].length; c++)
-        outBuf[f][c] = 0.0;
+    for (double[][] busBuf2D : busBuf)
+      for (double[] busBuf1D : busBuf2D)
+        Arrays.fill(busBuf1D, 0.0);
+    for (double[] outBuf1D : outBuf)
+      Arrays.fill(outBuf1D, 0.0);
   }
 
   /**
@@ -338,7 +338,7 @@ class MixerImpl implements Mixer {
       compRatioDelta += MathUtil.delta(compRatioDelta, compRatioDeltaDelta) / dspBufferSize;
       compRatio += compRatioDelta;
       for (int k = 0; k < outputChannels; k++)
-        outBuf[i][k] *= compRatio; // might use .stream() method for faster array calculations
+        outBuf[i][k] *= compRatio;
     }
   }
 
