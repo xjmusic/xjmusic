@@ -55,7 +55,7 @@ bootRun{
 }
 
 //noinspection GroovyAssignabilityCheck
-def currentOs = org.gradle.internal.os.OperatingSystem.current();
+def currentOs = org.gradle.internal.os.OperatingSystem.current()
 
 //noinspection ConfigurationAvoidance
 task 'bootJarZip'(type: Zip) {
@@ -163,27 +163,6 @@ jpackage{
   }
 }
 
-//task to rename the final ditribution package from the jpackage-given name
-task renamePackage {
-  def newPackageName = "XJ music workstation installer"
-  doLast {
-    def osToExtensionMap = [
-      windows: 'exe',
-      macOsX: 'dmg',
-      linux: 'deb'
-    ]
-    def extension = osToExtensionMap[currentOs.name.toLowerCase()]
-
-    if (extension) {
-      def newFileName = "${newPackageName}.${extension}"
-      def debFile = workingDir.listFiles().find { it.name.endsWith(".${extension}") }
-
-      if (debFile) {
-        debFile.renameTo(new File(debFile.parent, newFileName))
-      }
-    }
-  }
-}
 
 
 
