@@ -24,23 +24,25 @@ public class WorkstationLogAppender extends AppenderBase<ILoggingEvent> {
     }
   }
 
-  private String formatMessage(ILoggingEvent eventObject) {
-    return String.format("[%s] %s %s",
+  String formatMessage(ILoggingEvent eventObject) {
+    return String.format("[%s:%s] %s",
       eventObject.getLevel(),
       Arrays.stream(eventObject.getCallerData()).findFirst().map(this::formatCaller).orElse("-"),
       eventObject.getFormattedMessage()
     ) + formatMessageCauseSuffix(eventObject);
   }
 
-  private String formatMessageCauseSuffix(ILoggingEvent eventObject) {
-    return (Objects.nonNull(eventObject.getThrowableProxy()) &&
-      Objects.nonNull(eventObject.getThrowableProxy().getCause()) &&
-      Objects.nonNull(eventObject.getThrowableProxy().getCause().getMessage())) ?
-      " (" + eventObject.getThrowableProxy().getCause().getMessage() + ")"
-      : "";
+  String formatMessageCauseSuffix(ILoggingEvent eventObject) {
+    if (Objects.isNull(eventObject.getThrowableProxy())) {
+      return "";
+    }
+    if (Objects.nonNull(eventObject.getThrowableProxy().getCause())) {
+      return " (" + eventObject.getThrowableProxy().getCause().getMessage() + ")";
+    }
+    return " (" + eventObject.getThrowableProxy().getMessage() + ")";
   }
 
-  private String formatCaller(StackTraceElement stackTraceElement) {
+  String formatCaller(StackTraceElement stackTraceElement) {
     return stackTraceElement.getClassName().replaceAll(".*\\.", "");
   }
 }

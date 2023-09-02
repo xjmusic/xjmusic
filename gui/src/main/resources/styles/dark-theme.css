@@ -1,14 +1,24 @@
 /* from https://stackoverflow.com/questions/49159286/make-a-dark-mode-with-javafx */
 
 .root {
-  -fx-accent: #1e74c6;
+  -fx-accent: #909090;
   -fx-focus-color: -fx-accent;
   -fx-base: #373737;
   -fx-control-inner-background: derive(-fx-base, 35%);
-  -fx-control-inner-background-alt: -fx-control-inner-background ;
+  -fx-control-inner-background-alt: -fx-control-inner-background;
+  -fx-background-color: #404040;
 }
 
-.label{
+.menu, .menu-bar, .menu, .menu-item, .menu-button, .context-menu {
+  -fx-background-color: #373737;
+  -fx-border-color: transparent;
+}
+
+.menu-item:hover, .menu-button:hover {
+  -fx-background-color: #474747;
+}
+
+.label {
   -fx-text-fill: lightgray;
 }
 
@@ -16,16 +26,16 @@
   -fx-prompt-text-fill: gray;
 }
 
-.titulo{
+.titulo {
   -fx-font-weight: bold;
   -fx-font-size: 18px;
 }
 
-.button{
+.button {
   -fx-focus-traversable: false;
 }
 
-.button:hover{
+.button:hover {
   -fx-text-fill: white;
 }
 
@@ -35,20 +45,20 @@
   -fx-border-width: 1px;
 }
 
-.scroll-bar{
-  -fx-background-color: derive(-fx-base,45%)
+.scroll-bar {
+  -fx-background-color: derive(-fx-base, 45%)
 }
 
 .button:default {
-  -fx-base: -fx-accent ;
+  -fx-base: -fx-accent;
 }
 
-.table-view{
+.table-view {
   /*-fx-background-color: derive(-fx-base, 10%);*/
   -fx-selection-bar-non-focused: derive(-fx-base, 50%);
 }
 
-.table-view .column-header .label{
+.table-view .column-header .label {
   -fx-alignment: CENTER_LEFT;
   -fx-font-weight: none;
 }
@@ -56,7 +66,7 @@
 .list-cell:even,
 .list-cell:odd,
 .table-row-cell:even,
-.table-row-cell:odd{
+.table-row-cell:odd {
   -fx-control-inner-background: derive(-fx-base, 15%);
 }
 
@@ -66,12 +76,12 @@
 }
 
 .list-cell,
-.table-row-cell{
+.table-row-cell {
   -fx-border-color: transparent;
-  -fx-table-cell-border-color:transparent;
+  -fx-table-cell-border-color: transparent;
 }
 
-.bottom-pane-status-container {
+.bottom-pane-status-container, .top-pane-status-container {
   -fx-background-color: #494949;
 }
 
@@ -79,3 +89,10 @@
   -fx-background-color: #393939;
 }
 
+.user-name {
+  -fx-fill: #ffffff;
+}
+
+.user-email {
+  -fx-fill: #ffffff;
+}

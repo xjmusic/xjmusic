@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  Copyright (c) 2015, 2019, Gluon and/or its affiliates.
+  All rights reserved. Use is subject to license terms.
+
+  This file is available and licensed under the following license:
+
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions
+  are met:
+
+  - Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+  - Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in
+    the documentation and/or other materials provided with the distribution.
+  - Neither the name of Oracle Corporation nor the names of its
+    contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<VBox xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="io.xj.gui.controllers.MainPaneTopController">
+  <fx:include source="main-menu.fxml"/>
+  <VBox BorderPane.alignment="CENTER" fx:id="configView">
+    <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
+      <opaqueInsets>
+        <Insets/>
+      </opaqueInsets>
+      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0"
+             text="Input Template Key" textAlignment="RIGHT">
+        <graphic>
+          <Pane prefHeight="100.0" prefWidth="15.0"/>
+        </graphic>
+      </Label>
+      <Pane prefHeight="100.0" prefWidth="15.0"/>
+      <TextField fx:id="fieldInputTemplateKey" prefHeight="25.0" prefWidth="402.0"/>
+    </HBox>
+    <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
+      <opaqueInsets>
+        <Insets/>
+      </opaqueInsets>
+      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0" text="Input Mode"
+             textAlignment="RIGHT">
+        <graphic>
+          <Pane prefHeight="100.0" prefWidth="15.0"/>
+        </graphic>
+      </Label>
+      <Pane prefHeight="100.0" prefWidth="15.0"/>
+      <ChoiceBox fx:id="choiceInputMode" prefHeight="25.0" prefWidth="401.0"/>
+    </HBox>
+    <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
+      <opaqueInsets>
+        <Insets/>
+      </opaqueInsets>
+      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0" text="Output Mode"
+             textAlignment="RIGHT">
+        <graphic>
+          <Pane prefHeight="100.0" prefWidth="15.0"/>
+        </graphic>
+      </Label>
+      <Pane prefHeight="100.0" prefWidth="15.0"/>
+      <ChoiceBox fx:id="choiceOutputMode" prefHeight="25.0" prefWidth="401.0"/>
+    </HBox>
+    <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
+      <opaqueInsets>
+        <Insets/>
+      </opaqueInsets>
+      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0"
+             text="Output File Mode" textAlignment="RIGHT">
+        <graphic>
+          <Pane prefHeight="100.0" prefWidth="15.0"/>
+        </graphic>
+      </Label>
+      <Pane prefHeight="100.0" prefWidth="15.0"/>
+      <ChoiceBox fx:id="choiceOutputFileMode" prefHeight="25.0" prefWidth="401.0"/>
+    </HBox>
+    <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
+      <opaqueInsets>
+        <Insets/>
+      </opaqueInsets>
+      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0"
+             text="Output Seconds" textAlignment="RIGHT">
+        <graphic>
+          <Pane prefHeight="100.0" prefWidth="15.0"/>
+        </graphic>
+      </Label>
+      <Pane prefHeight="100.0" prefWidth="15.0"/>
+      <TextField fx:id="fieldOutputSeconds" prefHeight="25.0" prefWidth="402.0"/>
+    </HBox>
+    <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
+      <opaqueInsets>
+        <Insets/>
+      </opaqueInsets>
+      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0"
+             text="Output Path Prefix" textAlignment="RIGHT">
+        <graphic>
+          <Pane prefHeight="100.0" prefWidth="15.0"/>
+        </graphic>
+      </Label>
+      <Pane prefHeight="100.0" prefWidth="15.0"/>
+      <TextField fx:id="fieldOutputPathPrefix" prefHeight="25.0" prefWidth="402.0"/>
+    </HBox>
+  </VBox>
+  <HBox alignment="CENTER" styleClass="top-pane-status-container"
+        xmlns:fx="http://javafx.com/fxml">
+    <HBox.hgrow>
+      <Priority fx:constant="ALWAYS"/>
+    </HBox.hgrow>
+    <padding>
+      <Insets top="6" left="9" right="9" bottom="6"/>
+    </padding>
+    <HBox alignment="CENTER_LEFT" spacing="9"
+          xmlns:fx="http://javafx.com/fxml">
+
+      <Button fx:id="buttonAction" mnemonicParsing="false" onAction="#onButtonActionPress" text="Action">
+        <font>
+          <Font name="System Bold"/>
+        </font>
+      </Button>
+
+      <!-- Fabrication Status Text -->
+      <Label text="Fabrication"/>
+      <Label fx:id="labelFabricationStatus" text="Initializing"/>
+
+    </HBox>
+    <HBox alignment="CENTER_RIGHT" spacing="10"
+          xmlns:fx="http://javafx.com/fxml">
+      <HBox.hgrow>
+        <Priority fx:constant="ALWAYS"/>
+      </HBox.hgrow>
+
+
+      <!-- Show Config Toggle Switch -->
+      <ToggleButton fx:id="toggleShowConfig" onAction="#toggleShowConfig" text="Show Config"/>
+
+    </HBox>
+  </HBox>
+</VBox>

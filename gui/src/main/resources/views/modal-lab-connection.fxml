@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<VBox spacing="10" styleClass="modal-container" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.ModalLabConnectionController">
+  <padding>
+    <Insets bottom="15" left="15" right="15" top="15" /> <!-- Padding values -->
+  </padding>
+  <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
+    <opaqueInsets>
+      <Insets />
+    </opaqueInsets>
+    <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0" text="Lab URL" textAlignment="RIGHT">
+    </Label>
+    <Pane prefHeight="100.0" prefWidth="15.0" />
+    <TextField fx:id="fieldLabUrl" prefHeight="25.0" prefWidth="275.0" />
+      <Pane layoutX="187.0" layoutY="10.0" prefHeight="100.0" prefWidth="15.0" />
+    <Button onAction="#handleLaunchLabPreferences" text="Get Access Token" />
+  </HBox>
+  <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
+    <opaqueInsets>
+      <Insets />
+    </opaqueInsets>
+    <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0" text="Access Token" textAlignment="RIGHT">
+    </Label>
+    <Pane prefHeight="100.0" prefWidth="15.0" />
+    <PasswordField fx:id="fieldLabAccessToken" prefHeight="25.0" prefWidth="401.0" />
+  </HBox>
+  <HBox alignment="CENTER_LEFT" prefHeight="43.0" prefWidth="640.0">
+    <opaqueInsets>
+      <Insets />
+    </opaqueInsets>
+    <Label fx:id="labelStatus" alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0" text="Status" textAlignment="RIGHT">
+    </Label>
+    <Pane prefHeight="100.0" prefWidth="15.0" />
+    <Button fx:id="buttonConnect" onAction="#handleConnect" text="Connect" />
+  </HBox>
+  <Pane prefHeight="7.0" prefWidth="640.0" />
+  <Separator prefWidth="200.0" />
+  <Pane layoutX="10.0" layoutY="172.0" prefHeight="9.0" prefWidth="640.0" />
+  <HBox prefHeight="50.0" prefWidth="640.0">
+    <children>
+      <Pane layoutX="160.0" layoutY="10.0" prefHeight="50.0" prefWidth="126.0" />
+      <ImageView fx:id="imageViewUserAvatar" fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true" />
+      <Pane prefHeight="150.0" prefWidth="23.0" />
+      <VBox prefHeight="50.0" prefWidth="172.0">
+        <children>
+          <Text fx:id="textUserName" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="user-name" wrappingWidth="316.80348777770996">
+            <font>
+              <Font name="System Bold" size="18.0" />
+            </font>
+          </Text>
+          <Text fx:id="textUserEmail" layoutX="10.0" layoutY="23.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="user-email" wrappingWidth="314.1368465423584">
+            <font>
+              <Font size="14.0" />
+            </font>
+          </Text>
+        </children>
+      </VBox>
+         <Pane layoutX="192.0" layoutY="10.0" prefHeight="50.0" prefWidth="17.0" />
+         <Button fx:id="buttonClose" onAction="#handleClose" prefHeight="25.0" prefWidth="56.0" text="OK" />
+    </children>
+  </HBox>
+</VBox>

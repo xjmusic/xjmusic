@@ -2,6 +2,16 @@
 
 .root {
   -fx-base: #c0c0c0;
+  -fx-background-color: #d0d0d0;
+}
+
+.menu, .menu-bar, .menu, .menu-item, .menu-button, .context-menu {
+  -fx-background-color: #e0e0e0;
+  -fx-border-color: transparent;
+}
+
+.menu-item:hover, .menu-button:hover {
+  -fx-background-color: #c0c0c0;
 }
 
 .log-viewer {
@@ -26,5 +36,8 @@
 
 .bottom-pane-status-container {
   -fx-background-color: #c0c0c0;
-  -fx-padding: 5px;
+}
+
+.top-pane-status-container {
+  -fx-background-color: #c9c9c9;
 }

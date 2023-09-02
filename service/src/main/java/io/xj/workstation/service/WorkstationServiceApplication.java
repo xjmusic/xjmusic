@@ -36,12 +36,12 @@ public class WorkstationServiceApplication {
   final EntityFactory entityFactory;
   final WorkFactory workFactory;
   final ApplicationContext context;
-  private final InputMode inputMode;
-  private final String inputTemplateKey;
-  private final OutputFileMode outputFileMode;
-  private final OutputMode outputMode;
-  private final String outputPathPrefix;
-  private final int outputSeconds;
+  final InputMode inputMode;
+  final String inputTemplateKey;
+  final OutputFileMode outputFileMode;
+  final OutputMode outputMode;
+  final String outputPathPrefix;
+  final int outputSeconds;
 
   @Autowired
   public WorkstationServiceApplication(
