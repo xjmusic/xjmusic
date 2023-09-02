@@ -336,8 +336,11 @@ class MixerImpl implements Mixer {
       double compRatioDeltaDelta = MathUtil.delta(compRatio, targetCompRatio) / framesDecay;
       compRatioDelta += MathUtil.delta(compRatioDelta, compRatioDeltaDelta) / dspBufferSize;
       compRatio += compRatioDelta;
-      for (int k = 0; k < outputChannels; k++)
-        outBuf[i][k] *= compRatio;
+      // useless to apply compression if ratio is 1
+      if (compRatio != 1) {
+        for (int k = 0; k < outputChannels; k++)
+          outBuf[i][k] *= compRatio;
+      }
     }
   }
 
