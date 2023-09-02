@@ -182,9 +182,6 @@ class MixerImpl implements Mixer {
       double level = busLevel.getOrDefault(b, 1.0);
       for (f = 0; f < busBuf[0].length; f++)
         for (c = 0; c < busBuf[0][0].length; c++) {
-          if (b > busBuf.length - 1) {
-            LOG.error(config.getLogPrefix() + "b > level.length - 1: " + b + " > " + (busBuf.length - 1));
-          }
           outBuf[f][c] += busBuf[b][f][c] * level;
         }
     }
