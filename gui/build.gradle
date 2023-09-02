@@ -124,6 +124,9 @@ jpackage{
     mac {
       type = ImageType.DMG
       icon = "$workingDir/xjmusicapp.icns"
+      macAppStore=false
+      macAppCategory="Audio"
+      macPackageIdentifier="io.xj.music.workstation"
     }
     linux {
       linuxShortcut=true
