@@ -148,9 +148,9 @@ jpackage{
   def newPackageName = "XJ music workstation installer"
   doLast {
     def osToExtensionMap = [
-      windows: 'exe',
-      macOsX: 'dmg',
-      linux: 'deb'
+      'windows': 'exe',
+      'mac os x': 'dmg',
+      'linux': 'deb'
     ]
     def extension = osToExtensionMap[currentOs.name.toLowerCase()]
 
