@@ -156,7 +156,10 @@ jpackage{
       'linux': 'deb'
     ]
     def extension = osToExtensionMap[currentOs.name.toLowerCase()]
-
+    if (currentOs.name.toLowerCase().contains("win")){
+      extension=
+        "exe"
+    }
     if (extension) {
       def newFileName = "${newPackageName}.${extension}"
       def debFile = workingDir.listFiles().find { it.name.endsWith(".${extension}") }
