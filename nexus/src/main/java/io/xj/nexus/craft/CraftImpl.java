@@ -438,6 +438,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     Section[] sections = new Section[fabricator.getSegmentChords().size()];
     for (var chord : fabricator.getSegmentChords()) {
       chords[i] = chord;
+      // sections use one more chord, so we need iterate with i - 1
       if (i > 0){
         sections[i - 1] = new Section();
         sections[i - 1].chord = chords[i - 1];
@@ -446,6 +447,7 @@ public class CraftImpl extends FabricationWrapperImpl {
       }
       i++;
     }
+    // setting the last section
     sections[i - 1] = new Section();
     sections[i - 1].chord = chords[i - 1];
     sections[i - 1].fromPos = chords[i - 1].getPosition();
