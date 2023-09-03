@@ -434,18 +434,23 @@ public class CraftImpl extends FabricationWrapperImpl {
   List<Section> computeSections() {
     // guaranteed to be in order of position ascending
     SegmentChord[] chords = new SegmentChord[fabricator.getSegmentChords().size()];
-    var i = 0;
+    int i = 0;
+    Section[] sections = new Section[fabricator.getSegmentChords().size()];
     for (var chord : fabricator.getSegmentChords()) {
       chords[i] = chord;
+      if (i > 0){
+        sections[i - 1] = new Section();
+        sections[i - 1].chord = chords[i - 1];
+        sections[i - 1].fromPos = chords[i - 1].getPosition();
+        sections[i - 1].toPos = (i - 1) < fabricator.getSegmentChords().size() - 1 ? chords[i].getPosition() : fabricator.getSegment().getTotal();
+      }
       i++;
     }
-    Section[] sections = new Section[chords.length];
-    for (i = 0; i < chords.length; i++) {
-      sections[i] = new Section();
-      sections[i].chord = chords[i];
-      sections[i].fromPos = chords[i].getPosition();
-      sections[i].toPos = i < chords.length - 1 ? chords[i + 1].getPosition() : fabricator.getSegment().getTotal();
-    }
+    sections[i - 1] = new Section();
+    sections[i - 1].chord = chords[i - 1];
+    sections[i - 1].fromPos = chords[i - 1].getPosition();
+    sections[i - 1].toPos = (i - 1) < fabricator.getSegmentChords().size() - 1 ? chords[i].getPosition() : fabricator.getSegment().getTotal();
+
     return Arrays.stream(sections).toList();
   }
 
