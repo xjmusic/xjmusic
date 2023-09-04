@@ -143,6 +143,7 @@ class MixerImpl implements Mixer {
       applyFinalOutputCompressor();
     mixOutputBus();
 
+
     // The dynamic range is forced into gentle logarithmic decay.
     // This alters the relative amplitudes from the previous step, implicitly normalizing them well below amplitude 1.0
     applyLogarithmicDynamicRange();
@@ -323,6 +324,7 @@ class MixerImpl implements Mixer {
     // only set the comp ratio directly if it's never been set before, otherwise mixer effects are continuous between renders, so these ending values make their way back to the beginning of the next render
     if (0 == compRatio) {
       compRatio = computeCompressorTarget(outBuf, 0, framesAhead);
+      System.out.println(outBuf.length);
     }
     double compRatioDelta = 0; // rate of change
     double targetCompRatio = compRatio;
@@ -330,10 +332,12 @@ class MixerImpl implements Mixer {
       if (0 == i % dspBufferSize) {
         targetCompRatio = computeCompressorTarget(outBuf, i, i + framesAhead);
       }
-      double compRatioDeltaDelta = MathUtil.delta(compRatio, targetCompRatio) / framesDecay;
-      compRatioDelta += MathUtil.delta(compRatioDelta, compRatioDeltaDelta) / dspBufferSize;
-      compRatio += compRatioDelta;
-      // useless to apply compression if ratio is 1
+      if (compRatio != compRatioDelta) {
+        double compRatioDeltaDelta = MathUtil.delta(compRatio, targetCompRatio) / framesDecay;
+        compRatioDelta += MathUtil.delta(compRatioDelta, compRatioDeltaDelta) / dspBufferSize;
+        compRatio += compRatioDelta;
+        // useless to apply compression if ratio is 1
+      }
       if (compRatio != 1) {
         for (int k = 0; k < outputChannels; k++)
           outBuf[i][k] *= compRatio;
