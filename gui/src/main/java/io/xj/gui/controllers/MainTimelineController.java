@@ -76,12 +76,15 @@ public class MainTimelineController extends VBox implements ReadyAfterBootContro
         Node cellContent = loader.load();
         MainTimelineSegmentController cellController = loader.getController();
         cellController.onStageReady();
-        cellController.setSegment(item);
         cellController.setMemes(fabricationService.getSegmentMemes(item));
         cellController.setChords(fabricationService.getSegmentChords(item));
         cellController.setChoices(fabricationService.getSegmentChoices(item));
-        cellCache.put(item.getId(), new SegmentCell(cellController, cellContent, item));
+        cellCache.put(item.getId(), new SegmentCell(cellController, cellContent));
       }
+
+      // Always refresh segment content of cell
+      cellCache.get(item.getId()).setSegment(item);
+
       return cellCache.get(item.getId());
 
     } catch (IOException e) {
@@ -148,19 +151,20 @@ public class MainTimelineController extends VBox implements ReadyAfterBootContro
     return new MainTimelineSegmentController(fabricationService);
   }
 
-  private static class SegmentCell {
-    MainTimelineSegmentController controller;
-    Node content;
-    Segment segment;
+  static class SegmentCell {
+    private final MainTimelineSegmentController controller;
+    private final Node content;
 
     public SegmentCell(
       MainTimelineSegmentController controller,
-      Node content,
-      Segment segment
+      Node content
     ) {
       this.content = content;
       this.controller = controller;
-      this.segment = segment;
+    }
+
+    public void setSegment(Segment segment) {
+      controller.setSegment(segment);
     }
   }
 }
