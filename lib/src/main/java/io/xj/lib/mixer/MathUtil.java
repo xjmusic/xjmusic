@@ -33,12 +33,9 @@ public interface MathUtil {
    * @return compressed frame
    */
   static double[] logarithmicCompression(double[] frame) {
-    int iL = frame.length;
-    double[] out = new double[iL];
-    for (int i = 0; i < iL; i++)
-      out[i] = logarithmicCompression(frame[i]);
-
-    return out;
+    for (int i = 0; i < frame.length; i++)
+      frame[i] = logarithmicCompression(frame[i]);
+    return frame;
   }
 
   /**
