@@ -115,14 +115,14 @@ public class CraftFoundationContinueTest {
     ));
     store.put(buildSegmentChoice(
       segment3,
-      Segments.DELTA_UNLIMITED,
-      Segments.DELTA_UNLIMITED,
+      SegmentUtils.DELTA_UNLIMITED,
+      SegmentUtils.DELTA_UNLIMITED,
       fake.program4,
       fake.program4_sequence1_binding0));
     store.put(buildSegmentChoice(
       segment3,
-      Segments.DELTA_UNLIMITED,
-      Segments.DELTA_UNLIMITED,
+      SegmentUtils.DELTA_UNLIMITED,
+      SegmentUtils.DELTA_UNLIMITED,
       fake.program5,
       fake.program5_sequence0_binding0));
 
@@ -167,11 +167,11 @@ public class CraftFoundationContinueTest {
     Collection<SegmentChoice> segmentChoices =
       store.getAll(result.getId(), SegmentChoice.class);
     // assert macro choice
-    SegmentChoice macroChoice = Segments.findFirstOfType(segmentChoices, ProgramType.Macro);
+    SegmentChoice macroChoice = SegmentUtils.findFirstOfType(segmentChoices, ProgramType.Macro);
     assertEquals(fake.program4_sequence1_binding0.getId(), macroChoice.getProgramSequenceBindingId());
     assertEquals(Integer.valueOf(1), fabricator.getSequenceBindingOffsetForChoice(macroChoice));
     // assert main choice
-    SegmentChoice mainChoice = Segments.findFirstOfType(segmentChoices, ProgramType.Main);
+    SegmentChoice mainChoice = SegmentUtils.findFirstOfType(segmentChoices, ProgramType.Main);
     assertEquals(fake.program5_sequence1_binding0.getId(), mainChoice.getProgramSequenceBindingId()); // next main sequence binding in same program as previous sequence
     assertEquals(Integer.valueOf(1), fabricator.getSequenceBindingOffsetForChoice(mainChoice));
   }

@@ -97,18 +97,18 @@ public class SegmentRetrospectiveImplTest {
       SEQUENCE_TOTAL_BEATS,
       0.73,
       120.0,
-      String.format("chains-%s-segments-%s", Chains.getIdentifier(chain), offset),
+      String.format("chains-%s-segments-%s", ChainUtils.getIdentifier(chain), offset),
       true));
     store.put(buildSegmentChoice(
       segment,
-      Segments.DELTA_UNLIMITED,
-      Segments.DELTA_UNLIMITED,
+      SegmentUtils.DELTA_UNLIMITED,
+      SegmentUtils.DELTA_UNLIMITED,
       macro,
       macroSB));
     store.put(buildSegmentChoice(
       segment,
-      Segments.DELTA_UNLIMITED,
-      Segments.DELTA_UNLIMITED,
+      SegmentUtils.DELTA_UNLIMITED,
+      SegmentUtils.DELTA_UNLIMITED,
       main,
       mainSB));
 

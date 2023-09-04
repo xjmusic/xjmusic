@@ -60,7 +60,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
               .orElse(false);
 
           } catch (ManagerFatalException e) {
-            LOG.warn("Failed to read choice for Segment[{}]!", Segments.getIdentifier(segment));
+            LOG.warn("Failed to read choice for Segment[{}]!", SegmentUtils.getIdentifier(segment));
             return false;
           }
         })

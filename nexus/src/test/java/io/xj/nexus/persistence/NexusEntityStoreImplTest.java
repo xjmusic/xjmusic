@@ -174,8 +174,8 @@ public class NexusEntityStoreImplTest {
     var choice = new SegmentChoice();
     choice.setId(UUID.randomUUID());
     choice.setProgramId(UUID.randomUUID());
-    choice.setDeltaIn(Segments.DELTA_UNLIMITED);
-    choice.setDeltaOut(Segments.DELTA_UNLIMITED);
+    choice.setDeltaIn(SegmentUtils.DELTA_UNLIMITED);
+    choice.setDeltaOut(SegmentUtils.DELTA_UNLIMITED);
     choice.setProgramSequenceBindingId(UUID.randomUUID());
     choice.setProgramType(ProgramType.Macro);
 
@@ -224,7 +224,7 @@ public class NexusEntityStoreImplTest {
       120.0,
       "chains-3-segments-9f7s89d8a7892.wav"
     ));
-    subject.put(buildSegmentChoice(chain3_segment0, Segments.DELTA_UNLIMITED, Segments.DELTA_UNLIMITED, program, programSequenceBinding));
+    subject.put(buildSegmentChoice(chain3_segment0, SegmentUtils.DELTA_UNLIMITED, SegmentUtils.DELTA_UNLIMITED, program, programSequenceBinding));
     // not in the above chain, won't be retrieved with it
     subject.put(buildSegment(chain3,
       0,

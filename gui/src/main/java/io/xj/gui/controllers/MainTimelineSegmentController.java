@@ -2,7 +2,6 @@
 
 package io.xj.gui.controllers;
 
-import io.xj.gui.WorkstationGuiFxApplication;
 import io.xj.gui.services.FabricationService;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
@@ -29,14 +28,13 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.xj.hub.util.StringUtils.formatStackTrace;
-import static io.xj.nexus.persistence.Segments.DELTA_UNLIMITED;
+import static io.xj.nexus.persistence.SegmentUtils.DELTA_UNLIMITED;
 
 /**
  NOT a Spring component/service -- this gets created by a custom controller factory in

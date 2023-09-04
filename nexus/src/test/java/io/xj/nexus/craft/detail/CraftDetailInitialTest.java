@@ -103,14 +103,14 @@ public class CraftDetailInitialTest {
       "chains-1-segments-9f7s89d8a7892.wav", true));
     store.put(buildSegmentChoice(
       segment6,
-      Segments.DELTA_UNLIMITED,
-      Segments.DELTA_UNLIMITED,
+      SegmentUtils.DELTA_UNLIMITED,
+      SegmentUtils.DELTA_UNLIMITED,
       fake.program4,
       fake.program4_sequence0_binding0));
     store.put(buildSegmentChoice(
       segment6,
-      Segments.DELTA_UNLIMITED,
-      Segments.DELTA_UNLIMITED,
+      SegmentUtils.DELTA_UNLIMITED,
+      SegmentUtils.DELTA_UNLIMITED,
       fake.program5,
       fake.program5_sequence0_binding0));
     for (String memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
@@ -134,7 +134,7 @@ public class CraftDetailInitialTest {
 
     // assert choice of detail-type sequence
     Collection<SegmentChoice> choices = store.getAll(segment6.getId(), SegmentChoice.class);
-    assertNotNull(Segments.findFirstOfType(choices, ProgramType.Detail));
+    assertNotNull(SegmentUtils.findFirstOfType(choices, ProgramType.Detail));
 
     // Detail Craft v1 -- segment chords voicings belong to chords and segments https://www.pivotaltracker.com/story/show/154464276
     Collection<SegmentChordVoicing> voicings = store.getAll(segment6.getId(), SegmentChordVoicing.class);

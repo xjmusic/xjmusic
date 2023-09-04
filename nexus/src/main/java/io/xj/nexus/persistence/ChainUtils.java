@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 /**
  Utilities for working with chains
  */
-public enum Chains {
+public enum ChainUtils {
   ;
   static final String EXTENSION_SEPARATOR = ".";
 
@@ -75,7 +75,7 @@ public enum Chains {
    @return fabricated-ahead seconds for this collection of Segments
    */
   public static Long computeFabricatedToChainMicros(Collection<Segment> segments) {
-    var lastDubbedSegment = Segments.getLastCrafted(segments);
+    var lastDubbedSegment = SegmentUtils.getLastCrafted(segments);
     return lastDubbedSegment.map(segment -> (Objects.nonNull(segment.getDurationMicros()) ? segment.getBeginAtChainMicros() + segment.getDurationMicros() : segment.getBeginAtChainMicros())).orElse(0L);
   }
 

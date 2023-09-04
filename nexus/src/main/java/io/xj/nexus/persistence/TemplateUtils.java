@@ -8,7 +8,7 @@ import jakarta.annotation.Nullable;
 
 import java.util.Objects;
 
-public class Templates {
+public class TemplateUtils {
   /**
    Get the identifier or a Template: ship key if available, else ID
 

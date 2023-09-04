@@ -114,8 +114,8 @@ public class FabricatorImpl implements Fabricator {
     chain = segmentManager.getChain(segment);
     templateConfig = new TemplateConfig(sourceMaterial.getTemplate());
     templateBindings = sourceMaterial.getTemplateBindings();
-    boundProgramIds = Chains.targetIdsOfType(templateBindings, ContentBindingType.Program);
-    boundInstrumentIds = Chains.targetIdsOfType(templateBindings, ContentBindingType.Instrument);
+    boundProgramIds = ChainUtils.targetIdsOfType(templateBindings, ContentBindingType.Program);
+    boundInstrumentIds = ChainUtils.targetIdsOfType(templateBindings, ContentBindingType.Instrument);
     LOG.debug("[segId={}] Chain {} configured with {} and bound to {} ", segment.getId(), chain.getId(), templateConfig, CsvUtils.prettyFrom(templateBindings, "and"));
 
     // Buffer times from template
@@ -221,7 +221,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public String getChainFullJsonOutputKey() {
-    return Chains.getShipKey(Chains.getFullKey(Chains.computeBaseKey(getChain())), EXTENSION_JSON);
+    return ChainUtils.getShipKey(ChainUtils.getFullKey(ChainUtils.computeBaseKey(getChain())), EXTENSION_JSON);
   }
 
   @Override
@@ -243,7 +243,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public String getChainJsonOutputKey() {
-    return Chains.getShipKey(Chains.computeBaseKey(getChain()), EXTENSION_JSON);
+    return ChainUtils.getShipKey(ChainUtils.computeBaseKey(getChain()), EXTENSION_JSON);
   }
 
   @Override
@@ -649,7 +649,7 @@ public class FabricatorImpl implements Fabricator {
   @Override
   public NoteRange getProgramVoicingNoteRange(InstrumentType type) {
     if (!voicingNoteRange.containsKey(type)) {
-      voicingNoteRange.put(type, NoteRange.ofStrings(workbench.getSegmentChordVoicings().stream().filter(Segments::containsAnyValidNotes).filter(segmentChordVoicing -> Objects.equals(segmentChordVoicing.getType(), type.toString())).flatMap(segmentChordVoicing -> getNotes(segmentChordVoicing).stream()).collect(Collectors.toList())));
+      voicingNoteRange.put(type, NoteRange.ofStrings(workbench.getSegmentChordVoicings().stream().filter(SegmentUtils::containsAnyValidNotes).filter(segmentChordVoicing -> Objects.equals(segmentChordVoicing.getType(), type.toString())).flatMap(segmentChordVoicing -> getNotes(segmentChordVoicing).stream()).collect(Collectors.toList())));
     }
 
     return voicingNoteRange.get(type);
@@ -779,12 +779,12 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public String getSegmentOutputWaveformKey() {
-    return Segments.getStorageFilename(getSegment());
+    return SegmentUtils.getStorageFilename(getSegment());
   }
 
   @Override
   public String getSegmentShipKey(String extension) {
-    return Segments.getStorageFilename(getSegment(), extension);
+    return SegmentUtils.getStorageFilename(getSegment(), extension);
   }
 
   @Override
@@ -825,7 +825,7 @@ public class FabricatorImpl implements Fabricator {
   public Optional<SegmentChordVoicing> getVoicing(SegmentChord chord, InstrumentType type) {
     Collection<SegmentChordVoicing> voicings = workbench.getSegmentChordVoicings();
     return MarbleBag.quickPick(voicings.stream()
-      .filter(Segments::containsAnyValidNotes)
+      .filter(SegmentUtils::containsAnyValidNotes)
       .filter(voicing -> Objects.equals(type.toString(), voicing.getType()))
       .filter(voicing -> Objects.equals(chord.getId(), voicing.getSegmentChordId()))
       .collect(Collectors.toList()));
@@ -1124,7 +1124,7 @@ public class FabricatorImpl implements Fabricator {
 
     if (!memeStack.isAllowed(names)) {
       addMessage(SegmentMessageType.ERROR, String.format("Refused to add Choice[%s] because adding Memes[%s] to MemeStack[%s] would result in an invalid meme stack theorem!",
-        Segments.describe(choice),
+        SegmentUtils.describe(choice),
         CsvUtils.join(names.stream().toList()),
         memeStack.getConstellation()));
       return false;

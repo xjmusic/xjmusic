@@ -5,7 +5,7 @@ package io.xj.gui.controllers;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
 import io.xj.nexus.model.Segment;
-import io.xj.nexus.persistence.Segments;
+import io.xj.nexus.persistence.SegmentUtils;
 import jakarta.annotation.Nullable;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -138,7 +138,7 @@ public class MainTimelineController extends VBox implements ReadyAfterBootContro
     // iterate through all in segments, and update if the updated at time has changed from the source matching that id
     for (var i = 0; i < segments.size(); i++) {
       var segment = segments.get(i);
-      var source = sources.stream().filter(s -> Segments.isSameButUpdated(segment, s)).findFirst();
+      var source = sources.stream().filter(s -> SegmentUtils.isSameButUpdated(segment, s)).findFirst();
       if (source.isPresent()) {
         segments.set(i, source.get());
       }

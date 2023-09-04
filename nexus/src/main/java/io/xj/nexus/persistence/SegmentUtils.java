@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 /**
  Utilities for working with segments
  */
-public enum Segments {
+public enum SegmentUtils {
   ;
   public static final int DELTA_UNLIMITED = -1;
   static final String EXTENSION_SEPARATOR = ".";

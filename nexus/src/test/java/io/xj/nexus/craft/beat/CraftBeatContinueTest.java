@@ -119,7 +119,7 @@ public class CraftBeatContinueTest {
     // assert choice of beat-type sequence
     Collection<SegmentChoice> segmentChoices =
       store.getAll(segment4.getId(), SegmentChoice.class);
-    assertNotNull(Segments.findFirstOfType(segmentChoices, ProgramType.Beat));
+    assertNotNull(SegmentUtils.findFirstOfType(segmentChoices, ProgramType.Beat));
   }
 
   /**
@@ -142,21 +142,21 @@ public class CraftBeatContinueTest {
       "chains-1-segments-9f7s89d8a7892.wav", true));
     store.put(buildSegmentChoice(
       segment3,
-      Segments.DELTA_UNLIMITED,
-      Segments.DELTA_UNLIMITED,
+      SegmentUtils.DELTA_UNLIMITED,
+      SegmentUtils.DELTA_UNLIMITED,
       fake.program4,
       fake.program4_sequence0_binding0));
     store.put(buildSegmentChoice(
       segment3,
-      Segments.DELTA_UNLIMITED,
-      Segments.DELTA_UNLIMITED,
+      SegmentUtils.DELTA_UNLIMITED,
+      SegmentUtils.DELTA_UNLIMITED,
       fake.program5,
       fake.program5_sequence0_binding0));
     if (!excludeBeatChoiceForSegment3)
       store.put(buildSegmentChoice(
         segment3,
-        Segments.DELTA_UNLIMITED,
-        Segments.DELTA_UNLIMITED,
+        SegmentUtils.DELTA_UNLIMITED,
+        SegmentUtils.DELTA_UNLIMITED,
         fake.program35));
 
     // segment crafting
@@ -173,14 +173,14 @@ public class CraftBeatContinueTest {
       "chains-1-segments-9f7s89d8a7892.wav", true));
     store.put(buildSegmentChoice(
       segment4,
-      Segments.DELTA_UNLIMITED,
-      Segments.DELTA_UNLIMITED,
+      SegmentUtils.DELTA_UNLIMITED,
+      SegmentUtils.DELTA_UNLIMITED,
       fake.program4,
       fake.program4_sequence0_binding0));
     store.put(buildSegmentChoice(
       segment4,
-      Segments.DELTA_UNLIMITED,
-      Segments.DELTA_UNLIMITED,
+      SegmentUtils.DELTA_UNLIMITED,
+      SegmentUtils.DELTA_UNLIMITED,
       fake.program5,
       fake.program5_sequence1_binding0));
     for (String memeName : List.of("Cozy", "Classic", "Outlook", "Rosy"))
@@ -198,6 +198,6 @@ public class CraftBeatContinueTest {
     // assert choice of beat-type sequence
     Collection<SegmentChoice> segmentChoices =
       store.getAll(segment4.getId(), SegmentChoice.class);
-    assertNotNull(Segments.findFirstOfType(segmentChoices, ProgramType.Beat));
+    assertNotNull(SegmentUtils.findFirstOfType(segmentChoices, ProgramType.Beat));
   }
 }

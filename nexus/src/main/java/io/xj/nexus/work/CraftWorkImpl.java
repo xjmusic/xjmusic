@@ -546,7 +546,7 @@ public class CraftWorkImpl implements CraftWork {
     try {
       // read the source material
       chainSourceMaterial = hubClient.ingest(access, chain.getTemplateId());
-      LOG.info("Ingested {} entities of source material for Chain[{}]", chainSourceMaterial.size(), Chains.getIdentifier(chain));
+      LOG.info("Ingested {} entities of source material for Chain[{}]", chainSourceMaterial.size(), ChainUtils.getIdentifier(chain));
 
     } catch (HubClientException e) {
       didFailWhile(chain.getShipKey(), "ingesting source material from Hub", e, false);
@@ -575,7 +575,7 @@ public class CraftWorkImpl implements CraftWork {
         chainFabricatedAhead = false;
         return;
       }
-      var aheadSeconds = (Segments.getEndAtChainMicros(lastCraftedSegment.get()) - atChainMicros) / MICROS_PER_SECOND;
+      var aheadSeconds = (SegmentUtils.getEndAtChainMicros(lastCraftedSegment.get()) - atChainMicros) / MICROS_PER_SECOND;
       if (aheadSeconds < chainThresholdFabricatedBehindSeconds) {
         LOG.debug("Fabrication is stalled, ahead {}s", aheadSeconds);
         chainFabricatedAhead = false;
@@ -632,7 +632,7 @@ public class CraftWorkImpl implements CraftWork {
   public void fabricateChain(Chain target) throws FabricationFatalException {
     try {
       timer.section("ComputeAhead");
-      var fabricatedToChainMicros = Chains.computeFabricatedToChainMicros(segmentManager.readMany(List.of(target.getId())));
+      var fabricatedToChainMicros = ChainUtils.computeFabricatedToChainMicros(segmentManager.readMany(List.of(target.getId())));
 
       double aheadSeconds = (double) ((fabricatedToChainMicros - atChainMicros) / MICROS_PER_SECOND);
       telemetryProvider.put(METRIC_FABRICATED_AHEAD_SECONDS, aheadSeconds);
@@ -676,17 +676,17 @@ public class CraftWorkImpl implements CraftWork {
       NexusException | ValueException | HubClientException e
     ) {
       var body = String.format("Failed to create Segment of Chain[%s] (%s) because %s\n\n%s",
-        Chains.getIdentifier(target),
+        ChainUtils.getIdentifier(target),
         target.getType(),
         e.getMessage(),
         StringUtils.formatStackTrace(e));
 
       notification.publish(String.format("%s-Chain[%s] Failure",
         target.getType(),
-        Chains.getIdentifier(target)), body
+        ChainUtils.getIdentifier(target)), body
       );
 
-      LOG.error("Failed to created Segment in Chain[{}] reason={}", Chains.getIdentifier(target), e.getMessage());
+      LOG.error("Failed to created Segment in Chain[{}] reason={}", ChainUtils.getIdentifier(target), e.getMessage());
     }
   }
 
@@ -853,7 +853,7 @@ public class CraftWorkImpl implements CraftWork {
     try {
       if (Objects.isNull(chainId)) {
         chainId = createChainForTemplate(template.get())
-          .orElseThrow(() -> new ManagerFatalException(String.format("Failed to create chain for Template[%s]", Templates.getIdentifier(template.get()))))
+          .orElseThrow(() -> new ManagerFatalException(String.format("Failed to create chain for Template[%s]", TemplateUtils.getIdentifier(template.get()))))
           .getId();
       }
     } catch (ManagerFatalException e) {
@@ -906,14 +906,14 @@ public class CraftWorkImpl implements CraftWork {
 
     // Only if rehydration was unsuccessful
     try {
-      LOG.info("Will bootstrap Template[{}]", Templates.getIdentifier(template));
-      var entity = Chains.fromTemplate(template);
+      LOG.info("Will bootstrap Template[{}]", TemplateUtils.getIdentifier(template));
+      var entity = ChainUtils.fromTemplate(template);
       entity.setState(ChainState.FABRICATE);
       entity.setId(UUID.randomUUID());
       return Optional.ofNullable(store.put(entity));
 
     } catch (NexusException e) {
-      LOG.error("Failed to bootstrap Template[{}] because {}", Templates.getIdentifier(template), e.getMessage());
+      LOG.error("Failed to bootstrap Template[{}] because {}", TemplateUtils.getIdentifier(template), e.getMessage());
       return Optional.empty();
     }
   }
@@ -932,7 +932,7 @@ public class CraftWorkImpl implements CraftWork {
     JsonapiPayload chainPayload;
     Chain chain;
 
-    String key = Chains.getShipKey(Chains.getFullKey(template.getShipKey()), EXTENSION_JSON);
+    String key = ChainUtils.getShipKey(ChainUtils.getFullKey(template.getShipKey()), EXTENSION_JSON);
 
     CloseableHttpClient client = httpClientProvider.getClient();
     try (
@@ -981,7 +981,7 @@ public class CraftWorkImpl implements CraftWork {
         .filter(seg -> SegmentState.CRAFTED.equals(seg.getState()))
         .filter(seg -> seg.getBeginAtChainMicros() > ignoreBeforeChainMicros)
         .forEach(segment -> {
-          var segmentShipKey = Segments.getStorageFilename(segment, EXTENSION_JSON);
+          var segmentShipKey = SegmentUtils.getStorageFilename(segment, EXTENSION_JSON);
           try (
             CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", shipBaseUrl, segmentShipKey)))
           ) {
@@ -1004,10 +1004,10 @@ public class CraftWorkImpl implements CraftWork {
                   success.set(false);
                 }
               });
-            LOG.info("Read Segment[{}] and {} child entities", Segments.getIdentifier(segment), childCount);
+            LOG.info("Read Segment[{}] and {} child entities", SegmentUtils.getIdentifier(segment), childCount);
 
           } catch (Exception e) {
-            LOG.error("Could not load Segment[{}] because {}", Segments.getIdentifier(segment), e.getMessage());
+            LOG.error("Could not load Segment[{}] because {}", SegmentUtils.getIdentifier(segment), e.getMessage());
             success.set(false);
           }
         });
@@ -1018,7 +1018,7 @@ public class CraftWorkImpl implements CraftWork {
       // Nexus with bootstrap won't rehydrate stale Chain
       // https://www.pivotaltracker.com/story/show/178727631
       var aheadSeconds =
-        Math.floor(Chains.computeFabricatedToChainMicros(
+        Math.floor(ChainUtils.computeFabricatedToChainMicros(
           entities.stream()
             .filter(e -> EntityUtils.isType(e, Segment.class))
             .map(e -> (Segment) e)
@@ -1026,14 +1026,14 @@ public class CraftWorkImpl implements CraftWork {
 
       if (aheadSeconds < rehydrateFabricatedAheadThreshold) {
         LOG.info("Will not rehydrate Chain[{}] fabricated ahead {}s (not > {}s)",
-          Chains.getIdentifier(chain), aheadSeconds, rehydrateFabricatedAheadThreshold);
+          ChainUtils.getIdentifier(chain), aheadSeconds, rehydrateFabricatedAheadThreshold);
         return Optional.empty();
       }
 
       // Okay to rehydrate
       store.putAll(entities);
       LOG.info("Rehydrated {} entities OK. Chain[{}] is fabricated ahead {}s (> {}s)",
-        entities.size(), Chains.getIdentifier(chain), aheadSeconds, rehydrateFabricatedAheadThreshold);
+        entities.size(), ChainUtils.getIdentifier(chain), aheadSeconds, rehydrateFabricatedAheadThreshold);
       return Optional.of(chain);
 
     } catch (NexusException e) {
@@ -1051,13 +1051,13 @@ public class CraftWorkImpl implements CraftWork {
     if (!isJsonOutputEnabled) return;
     writeJsonFile(
       fabricator.getSegmentJson(),
-      Segments.getStorageFilename(fabricator.getSegment(), EXTENSION_JSON));
+      SegmentUtils.getStorageFilename(fabricator.getSegment(), EXTENSION_JSON));
     writeJsonFile(
       fabricator.getChainFullJson(),
-      Chains.getShipKey(Chains.getFullKey(Chains.computeBaseKey(fabricator.getChain())), EXTENSION_JSON));
+      ChainUtils.getShipKey(ChainUtils.getFullKey(ChainUtils.computeBaseKey(fabricator.getChain())), EXTENSION_JSON));
     writeJsonFile(
       fabricator.getChainJson(atChainMicros),
-      Chains.getShipKey(Chains.computeBaseKey(fabricator.getChain()), EXTENSION_JSON));
+      ChainUtils.getShipKey(ChainUtils.computeBaseKey(fabricator.getChain()), EXTENSION_JSON));
   }
 
   /**

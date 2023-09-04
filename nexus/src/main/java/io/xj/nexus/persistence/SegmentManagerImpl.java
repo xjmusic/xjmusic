@@ -143,7 +143,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
     try {
       return store.getAllSegments(chainId)
         .stream()
-        .filter(s -> Segments.isSpanning(s, fromChainMicros, toChainMicros))
+        .filter(s -> SegmentUtils.isSpanning(s, fromChainMicros, toChainMicros))
         .sorted(Comparator.comparing(Segment::getOffset))
         .toList();
 
@@ -169,7 +169,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
     try {
       var segments = store.getAllSegments(chainId)
         .stream()
-        .filter(s -> Segments.isSpanning(s, chainMicros, chainMicros))
+        .filter(s -> SegmentUtils.isSpanning(s, chainMicros, chainMicros))
         .sorted(Comparator.comparing(Segment::getOffset))
         .toList();
       return segments.isEmpty() ? Optional.empty() : Optional.of(segments.get(segments.size() - 1));
@@ -330,7 +330,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   @Override
   public Optional<Segment> readLastCraftedSegment(HubClientAccess access, UUID chainId) throws ManagerFatalException {
     try {
-      return Segments.getLastCrafted(store.getAllSegments(chainId));
+      return SegmentUtils.getLastCrafted(store.getAllSegments(chainId));
 
     } catch (NexusException e) {
       throw new ManagerFatalException(e);
@@ -445,8 +445,8 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
     ValueUtils.require(record.getProgramId(), "Program ID");
     ValueUtils.require(record.getProgramType(), "Program Type");
     ValueUtils.require(record.getInstrumentId(), "Instrument ID");
-    if (ValueUtils.isUnset(record.getDeltaIn())) record.setDeltaIn(Segments.DELTA_UNLIMITED);
-    if (ValueUtils.isUnset(record.getDeltaOut())) record.setDeltaOut(Segments.DELTA_UNLIMITED);
+    if (ValueUtils.isUnset(record.getDeltaIn())) record.setDeltaIn(SegmentUtils.DELTA_UNLIMITED);
+    if (ValueUtils.isUnset(record.getDeltaOut())) record.setDeltaOut(SegmentUtils.DELTA_UNLIMITED);
   }
 
   void validateSegment(Segment record) throws ValueException {

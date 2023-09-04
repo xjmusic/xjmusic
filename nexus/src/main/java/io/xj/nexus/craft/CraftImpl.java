@@ -21,7 +21,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.nexus.persistence.Segments.DELTA_UNLIMITED;
+import static io.xj.nexus.persistence.SegmentUtils.DELTA_UNLIMITED;
 
 /**
  Arrangement of Segment Events is a common foundation for all craft

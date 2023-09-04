@@ -121,7 +121,7 @@ public class CraftBeatNextMacroTest {
     // assert choice of beat-type sequence
     Collection<SegmentChoice> segmentChoices =
       store.getAll(segment4.getId(), SegmentChoice.class);
-    assertNotNull(Segments.findFirstOfType(segmentChoices, ProgramType.Beat));
+    assertNotNull(SegmentUtils.findFirstOfType(segmentChoices, ProgramType.Beat));
   }
 
   @Test
@@ -134,7 +134,7 @@ public class CraftBeatNextMacroTest {
     // assert choice of beat-type sequence
     Collection<SegmentChoice> segmentChoices =
       store.getAll(segment4.getId(), SegmentChoice.class);
-    assertNotNull(Segments.findFirstOfType(segmentChoices, ProgramType.Beat));
+    assertNotNull(SegmentUtils.findFirstOfType(segmentChoices, ProgramType.Beat));
   }
 
   /**
@@ -157,21 +157,21 @@ public class CraftBeatNextMacroTest {
       "chains-1-segments-9f7s89d8a7892.wav", true));
     store.put(buildSegmentChoice(
       segment3,
-      Segments.DELTA_UNLIMITED,
-      Segments.DELTA_UNLIMITED,
+      SegmentUtils.DELTA_UNLIMITED,
+      SegmentUtils.DELTA_UNLIMITED,
       fake.program4,
       fake.program4_sequence2_binding0));
     store.put(buildSegmentChoice(
       segment3,
-      Segments.DELTA_UNLIMITED,
-      Segments.DELTA_UNLIMITED,
+      SegmentUtils.DELTA_UNLIMITED,
+      SegmentUtils.DELTA_UNLIMITED,
       fake.program5,
       fake.program5_sequence1_binding0));
     if (!excludeBeatChoiceForSegment3)
       store.put(buildSegmentChoice(
         segment3,
-        Segments.DELTA_UNLIMITED,
-        Segments.DELTA_UNLIMITED,
+        SegmentUtils.DELTA_UNLIMITED,
+        SegmentUtils.DELTA_UNLIMITED,
         fake.program35));
 
     // Chain "Test Print #1" has a segment in crafting state - Foundation is complete
@@ -188,14 +188,14 @@ public class CraftBeatNextMacroTest {
       "chains-1-segments-9f7s89d8a7892.wav", true));
     store.put(buildSegmentChoice(
       segment4,
-      Segments.DELTA_UNLIMITED,
-      Segments.DELTA_UNLIMITED,
+      SegmentUtils.DELTA_UNLIMITED,
+      SegmentUtils.DELTA_UNLIMITED,
       fake.program4,
       fake.program4_sequence0_binding0));
     store.put(buildSegmentChoice(
       segment4,
-      Segments.DELTA_UNLIMITED,
-      Segments.DELTA_UNLIMITED,
+      SegmentUtils.DELTA_UNLIMITED,
+      SegmentUtils.DELTA_UNLIMITED,
       fake.program15,
       fake.program15_sequence0_binding0));
     for (String memeName : List.of("Hindsight", "Chunky", "Regret", "Tangy"))

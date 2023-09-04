@@ -10,7 +10,7 @@ import io.xj.lib.entity.EntityUtils;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.hub_client.access.Users;
 import io.xj.nexus.model.*;
-import io.xj.nexus.persistence.Segments;
+import io.xj.nexus.persistence.SegmentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -362,8 +362,8 @@ public class NexusIntegrationTestingFixtures {
     var segmentChoice = new SegmentChoice();
     segmentChoice.setId(UUID.randomUUID());
     segmentChoice.setSegmentId(segment.getId());
-    segmentChoice.setDeltaIn(Segments.DELTA_UNLIMITED);
-    segmentChoice.setDeltaOut(Segments.DELTA_UNLIMITED);
+    segmentChoice.setDeltaIn(SegmentUtils.DELTA_UNLIMITED);
+    segmentChoice.setDeltaOut(SegmentUtils.DELTA_UNLIMITED);
     segmentChoice.setProgramId(programSequenceBinding.getProgramId());
     segmentChoice.setProgramSequenceBindingId(programSequenceBinding.getId());
     segmentChoice.setProgramType(programType);
@@ -374,8 +374,8 @@ public class NexusIntegrationTestingFixtures {
     var segmentChoice = new SegmentChoice();
     segmentChoice.setId(UUID.randomUUID());
     segmentChoice.setSegmentId(segment.getId());
-    segmentChoice.setDeltaIn(Segments.DELTA_UNLIMITED);
-    segmentChoice.setDeltaOut(Segments.DELTA_UNLIMITED);
+    segmentChoice.setDeltaIn(SegmentUtils.DELTA_UNLIMITED);
+    segmentChoice.setDeltaOut(SegmentUtils.DELTA_UNLIMITED);
     segmentChoice.setProgramId(programSequence.getProgramId());
     segmentChoice.setProgramSequenceId(programSequence.getId());
     segmentChoice.setProgramType(programType);
@@ -400,8 +400,8 @@ public class NexusIntegrationTestingFixtures {
     var segmentChoice = new SegmentChoice();
     segmentChoice.setId(UUID.randomUUID());
     segmentChoice.setSegmentId(segment.getId());
-    segmentChoice.setDeltaIn(Segments.DELTA_UNLIMITED);
-    segmentChoice.setDeltaOut(Segments.DELTA_UNLIMITED);
+    segmentChoice.setDeltaIn(SegmentUtils.DELTA_UNLIMITED);
+    segmentChoice.setDeltaOut(SegmentUtils.DELTA_UNLIMITED);
     segmentChoice.setProgramId(program.getId());
     segmentChoice.setProgramType(program.getType());
     return segmentChoice;
@@ -424,8 +424,8 @@ public class NexusIntegrationTestingFixtures {
     segmentChoice.setInstrumentType(instrument.getType());
     segmentChoice.setMute(false);
     segmentChoice.setInstrumentMode(instrument.getMode());
-    segmentChoice.setDeltaIn(Segments.DELTA_UNLIMITED);
-    segmentChoice.setDeltaOut(Segments.DELTA_UNLIMITED);
+    segmentChoice.setDeltaIn(SegmentUtils.DELTA_UNLIMITED);
+    segmentChoice.setDeltaOut(SegmentUtils.DELTA_UNLIMITED);
     segmentChoice.setSegmentId(segment.getId());
     segmentChoice.setProgramId(program.getId());
     segmentChoice.setProgramSequenceId(programSequence.getId());

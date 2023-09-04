@@ -7,7 +7,7 @@ import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.*;
-import io.xj.nexus.persistence.Segments;
+import io.xj.nexus.persistence.SegmentUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
@@ -20,7 +20,7 @@ import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class SegmentsTest {
+public class SegmentUtilsTest {
   final Account account = buildAccount("Test");
   final Template template = buildTemplate(account, "Test");
   final Chain chain = buildChain(account, "Test", ChainType.PRODUCTION, ChainState.FABRICATE, template);
@@ -77,50 +77,50 @@ public class SegmentsTest {
   @Test
   public void testFindFirstOfType() throws NexusException {
     var ch0 = new SegmentChoice();
-    ch0.setDeltaIn(Segments.DELTA_UNLIMITED);
-    ch0.setDeltaOut(Segments.DELTA_UNLIMITED);
+    ch0.setDeltaIn(SegmentUtils.DELTA_UNLIMITED);
+    ch0.setDeltaOut(SegmentUtils.DELTA_UNLIMITED);
     ch0.setProgramType(ProgramType.Main);
     var ch1 = new SegmentChoice();
-    ch1.setDeltaIn(Segments.DELTA_UNLIMITED);
-    ch1.setDeltaOut(Segments.DELTA_UNLIMITED);
+    ch1.setDeltaIn(SegmentUtils.DELTA_UNLIMITED);
+    ch1.setDeltaOut(SegmentUtils.DELTA_UNLIMITED);
     ch1.setProgramType(ProgramType.Macro);
-    assertEquals(ch0, Segments.findFirstOfType(List.of(ch0, ch1), ProgramType.Main));
+    assertEquals(ch0, SegmentUtils.findFirstOfType(List.of(ch0, ch1), ProgramType.Main));
   }
 
   @Test
   public void testGetIdentifier() {
-    assertEquals("chains-1-segments-9f7s89d8a7892", Segments.getIdentifier(seg0));
+    assertEquals("chains-1-segments-9f7s89d8a7892", SegmentUtils.getIdentifier(seg0));
   }
 
   @Test
   public void testGetLastDubbed() {
-    assertEquals(seg2, Segments.getLastCrafted(segments).orElseThrow());
+    assertEquals(seg2, SegmentUtils.getLastCrafted(segments).orElseThrow());
   }
 
   @Test
   public void testGetLast() {
-    assertEquals(seg3, Segments.getLast(segments).orElseThrow());
+    assertEquals(seg3, SegmentUtils.getLast(segments).orElseThrow());
   }
 
   @Test
   public void testGetDubbed() {
     assertEquals(List.of(seg0, seg1, seg2),
-      Segments.getCrafted(segments));
+      SegmentUtils.getCrafted(segments));
   }
 
   @Test
   public void testGetShipKey() {
-    assertEquals("chains-1-segments-078aw34tiu5hga.wav", Segments.getStorageFilename(seg1));
+    assertEquals("chains-1-segments-078aw34tiu5hga.wav", SegmentUtils.getStorageFilename(seg1));
   }
 
   @Test
   public void testIsSpanning() {
-    assertTrue(Segments.isSpanning(seg1, 32 * MICROS_PER_SECOND, 32 * MICROS_PER_SECOND)); // true if exactly at beginning of segment
-    assertFalse(Segments.isSpanning(seg1, 64 * MICROS_PER_SECOND, 64 * MICROS_PER_SECOND)); // false if exactly at end of segment
-    assertFalse(Segments.isSpanning(seg1, 15 * MICROS_PER_SECOND, 30 * MICROS_PER_SECOND));
-    assertTrue(Segments.isSpanning(seg1, 20 * MICROS_PER_SECOND, 36 * MICROS_PER_SECOND));
-    assertTrue(Segments.isSpanning(seg1, 35 * MICROS_PER_SECOND, 52 * MICROS_PER_SECOND));
-    assertTrue(Segments.isSpanning(seg1, 50 * MICROS_PER_SECOND, 67 * MICROS_PER_SECOND));
-    assertFalse(Segments.isSpanning(seg1, 66 * MICROS_PER_SECOND, 80 * MICROS_PER_SECOND));
+    assertTrue(SegmentUtils.isSpanning(seg1, 32 * MICROS_PER_SECOND, 32 * MICROS_PER_SECOND)); // true if exactly at beginning of segment
+    assertFalse(SegmentUtils.isSpanning(seg1, 64 * MICROS_PER_SECOND, 64 * MICROS_PER_SECOND)); // false if exactly at end of segment
+    assertFalse(SegmentUtils.isSpanning(seg1, 15 * MICROS_PER_SECOND, 30 * MICROS_PER_SECOND));
+    assertTrue(SegmentUtils.isSpanning(seg1, 20 * MICROS_PER_SECOND, 36 * MICROS_PER_SECOND));
+    assertTrue(SegmentUtils.isSpanning(seg1, 35 * MICROS_PER_SECOND, 52 * MICROS_PER_SECOND));
+    assertTrue(SegmentUtils.isSpanning(seg1, 50 * MICROS_PER_SECOND, 67 * MICROS_PER_SECOND));
+    assertFalse(SegmentUtils.isSpanning(seg1, 66 * MICROS_PER_SECOND, 80 * MICROS_PER_SECOND));
   }
 }
