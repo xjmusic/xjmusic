@@ -16,7 +16,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.ScrollPane;
 import javafx.util.Callback;
 import javafx.util.Duration;
 import org.slf4j.Logger;
@@ -33,7 +33,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Service
-public class MainTimelineController extends VBox implements ReadyAfterBootController {
+public class MainTimelineController extends ScrollPane implements ReadyAfterBootController {
   static final Logger LOG = LoggerFactory.getLogger(MainTimelineController.class);
   final ConfigurableApplicationContext ac;
   final FabricationService fabricationService;

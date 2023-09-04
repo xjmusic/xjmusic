@@ -12,7 +12,12 @@ import io.xj.lib.LabUrlProvider;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
-import io.xj.nexus.model.*;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangement;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.model.SegmentChord;
+import io.xj.nexus.model.SegmentMeme;
 import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.ManagerPrivilegeException;
 import io.xj.nexus.work.WorkConfiguration;
@@ -27,13 +32,18 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.scene.Node;
-import javafx.scene.text.Text;
+import javafx.scene.control.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
 @org.springframework.stereotype.Service
 public class FabricationServiceImpl extends Service<Boolean> implements FabricationService {
@@ -219,9 +229,9 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
 
     var programUrl = labUrlProvider.computeUrl(String.format("programs/%s", programId));
 
-    var text = new Text(computeProgramName(program.orElse(null), programSequence.orElse(null), programSequenceBinding.orElse(null)));
-    text.setOnTouchPressed(event -> hostServices.showDocument(programUrl));
-    return text;
+    var label = new Label(computeProgramName(program.orElse(null), programSequence.orElse(null), programSequenceBinding.orElse(null)));
+    label.setOnTouchPressed(event -> hostServices.showDocument(programUrl));
+    return label;
   }
 
   @Override
@@ -230,9 +240,9 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
 
     var programUrl = labUrlProvider.computeUrl(String.format("programs/%s", programVoice.orElseThrow().getProgramId()));
 
-    var text = new Text(programVoice.orElseThrow().getName());
-    text.setOnTouchPressed(event -> hostServices.showDocument(programUrl));
-    return text;
+    var label = new Label(programVoice.orElseThrow().getName());
+    label.setOnTouchPressed(event -> hostServices.showDocument(programUrl));
+    return label;
   }
 
   @Override
@@ -241,9 +251,9 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
 
     var instrumentUrl = labUrlProvider.computeUrl(String.format("instruments/%s", instrumentId));
 
-    var text = new Text(instrument.orElseThrow().getName());
-    text.setOnTouchPressed(event -> hostServices.showDocument(instrumentUrl));
-    return text;
+    var label = new Label(instrument.orElseThrow().getName());
+    label.setOnTouchPressed(event -> hostServices.showDocument(instrumentUrl));
+    return label;
   }
 
   @Override
@@ -252,9 +262,9 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
 
     var instrumentUrl = labUrlProvider.computeUrl(String.format("instruments/%s", instrumentAudio.orElseThrow().getInstrumentId()));
 
-    var text = new Text(instrumentAudio.orElseThrow().getName());
-    text.setOnTouchPressed(event -> hostServices.showDocument(instrumentUrl));
-    return text;
+    var label = new Label(instrumentAudio.orElseThrow().getName());
+    label.setOnTouchPressed(event -> hostServices.showDocument(instrumentUrl));
+    return label;
   }
 
 

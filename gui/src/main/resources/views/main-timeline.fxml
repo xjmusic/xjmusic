@@ -4,7 +4,9 @@
 
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.layout.VBox?>
-<VBox xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="io.xj.gui.controllers.MainTimelineController" VBox.vgrow="ALWAYS">
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.ScrollPane?>
+<ScrollPane xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="io.xj.gui.controllers.MainTimelineController" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS"  maxHeight="999999" >
   <ListView fx:id="segmentListView" styleClass="main-timeline" VBox.vgrow="ALWAYS" maxHeight="999999" orientation="HORIZONTAL" />
-</VBox>
+</ScrollPane>

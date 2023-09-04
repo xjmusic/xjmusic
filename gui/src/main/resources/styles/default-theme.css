@@ -96,3 +96,7 @@
 .main-timeline-segment .choice-instrument-type {
   -fx-fill: #404040;
 }
+
+.main-timeline-segment .choice-group {
+  -fx-padding: 20px 0 0 0;
+}

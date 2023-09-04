@@ -203,8 +203,8 @@ public class MainTimelineSegmentController extends VBox implements ReadyAfterBoo
     box.getStyleClass().add("choice-group-item");
 
     if ((Objects.nonNull(choice.getMute()) && choice.getMute()) ||
-      DELTA_UNLIMITED != choice.getDeltaIn() && segment.get().getDelta() < choice.getDeltaIn() ||
-      DELTA_UNLIMITED != choice.getDeltaOut() && segment.get().getDelta() > choice.getDeltaOut())
+      (Objects.nonNull(choice.getDeltaIn()) && DELTA_UNLIMITED != choice.getDeltaIn() && segment.get().getDelta() < choice.getDeltaIn()) ||
+      (Objects.nonNull(choice.getDeltaOut()) && DELTA_UNLIMITED != choice.getDeltaOut() && segment.get().getDelta() > choice.getDeltaOut()))
       box.getStyleClass().add("choice-group-item-muted");
 
     if (showProgram) {
@@ -281,7 +281,7 @@ public class MainTimelineSegmentController extends VBox implements ReadyAfterBoo
     return fabricationService.getArrangements(choice)
       .stream().flatMap(arrangement -> fabricationService.getPicks(arrangement).stream())
       .filter(pick -> Objects.nonNull(pick.getInstrumentAudioId()))
-      .collect(Collectors.toMap(SegmentChoiceArrangementPick::getInstrumentAudioId, pick -> pick))
+      .collect(Collectors.toMap(SegmentChoiceArrangementPick::getInstrumentAudioId, pick -> pick, (pick1, pick2) -> pick2))
       .values();
   }
 
