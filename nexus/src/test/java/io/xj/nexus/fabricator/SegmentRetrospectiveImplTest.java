@@ -101,14 +101,14 @@ public class SegmentRetrospectiveImplTest {
       true));
     store.put(buildSegmentChoice(
       segment,
-      SegmentUtils.DELTA_UNLIMITED,
-      SegmentUtils.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
       macro,
       macroSB));
     store.put(buildSegmentChoice(
       segment,
-      SegmentUtils.DELTA_UNLIMITED,
-      SegmentUtils.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
       main,
       mainSB));
 

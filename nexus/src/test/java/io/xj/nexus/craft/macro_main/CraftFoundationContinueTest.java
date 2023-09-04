@@ -115,14 +115,14 @@ public class CraftFoundationContinueTest {
     ));
     store.put(buildSegmentChoice(
       segment3,
-      SegmentUtils.DELTA_UNLIMITED,
-      SegmentUtils.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
       fake.program4,
       fake.program4_sequence1_binding0));
     store.put(buildSegmentChoice(
       segment3,
-      SegmentUtils.DELTA_UNLIMITED,
-      SegmentUtils.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
       fake.program5,
       fake.program5_sequence0_binding0));
 

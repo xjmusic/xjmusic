@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.xj.hub.util.StringUtils.formatStackTrace;
-import static io.xj.nexus.persistence.SegmentUtils.DELTA_UNLIMITED;
+import static io.xj.nexus.model.Segment.DELTA_UNLIMITED;
 
 /**
  NOT a Spring component/service -- this gets created by a custom controller factory in

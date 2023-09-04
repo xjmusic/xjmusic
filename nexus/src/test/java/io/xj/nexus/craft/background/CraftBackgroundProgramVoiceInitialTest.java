@@ -144,8 +144,8 @@ public class CraftBackgroundProgramVoiceInitialTest {
       130.0,
       "chains-1-segments-9f7s89d8a7892.wav"
     ));
-    store.put(buildSegmentChoice(segment0, SegmentUtils.DELTA_UNLIMITED, SegmentUtils.DELTA_UNLIMITED, fake.program4, fake.program4_sequence0_binding0));
-    store.put(buildSegmentChoice(segment0, SegmentUtils.DELTA_UNLIMITED, SegmentUtils.DELTA_UNLIMITED, fake.program5, fake.program5_sequence0_binding0));
+    store.put(buildSegmentChoice(segment0, Segment.DELTA_UNLIMITED, Segment.DELTA_UNLIMITED, fake.program4, fake.program4_sequence0_binding0));
+    store.put(buildSegmentChoice(segment0, Segment.DELTA_UNLIMITED, Segment.DELTA_UNLIMITED, fake.program5, fake.program5_sequence0_binding0));
     for (String memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
       store.put(buildSegmentMeme(segment0, memeName));
 

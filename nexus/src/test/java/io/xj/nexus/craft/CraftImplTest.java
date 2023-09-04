@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 
 import static io.xj.nexus.HubIntegrationTestingFixtures.*;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
-import static io.xj.nexus.persistence.SegmentUtils.DELTA_UNLIMITED;
+import static io.xj.nexus.model.Segment.DELTA_UNLIMITED;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;

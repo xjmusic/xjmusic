@@ -445,8 +445,8 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
     ValueUtils.require(record.getProgramId(), "Program ID");
     ValueUtils.require(record.getProgramType(), "Program Type");
     ValueUtils.require(record.getInstrumentId(), "Instrument ID");
-    if (ValueUtils.isUnset(record.getDeltaIn())) record.setDeltaIn(SegmentUtils.DELTA_UNLIMITED);
-    if (ValueUtils.isUnset(record.getDeltaOut())) record.setDeltaOut(SegmentUtils.DELTA_UNLIMITED);
+    if (ValueUtils.isUnset(record.getDeltaIn())) record.setDeltaIn(Segment.DELTA_UNLIMITED);
+    if (ValueUtils.isUnset(record.getDeltaOut())) record.setDeltaOut(Segment.DELTA_UNLIMITED);
   }
 
   void validateSegment(Segment record) throws ValueException {

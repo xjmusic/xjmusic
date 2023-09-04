@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
  */
 public enum ChainUtils {
   ;
-  static final String EXTENSION_SEPARATOR = ".";
 
   /**
    Get the full key from a key
@@ -65,7 +64,7 @@ public enum ChainUtils {
    @return chain ship key
    */
   public static String getShipKey(String chainKey, String extension) {
-    return String.format("%s%s%s", chainKey, EXTENSION_SEPARATOR, extension);
+    return String.format("%s%s%s", chainKey, Chain.EXTENSION_SEPARATOR, extension);
   }
 
   /**

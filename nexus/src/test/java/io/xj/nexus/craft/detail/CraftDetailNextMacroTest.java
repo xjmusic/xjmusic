@@ -161,21 +161,21 @@ public class CraftDetailNextMacroTest {
       true));
     store.put(buildSegmentChoice(
       segment3,
-      SegmentUtils.DELTA_UNLIMITED,
-      SegmentUtils.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
       fake.program4,
       fake.program4_sequence2_binding0));
     store.put(buildSegmentChoice(
       segment3,
-      SegmentUtils.DELTA_UNLIMITED,
-      SegmentUtils.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
       fake.program5,
       fake.program5_sequence1_binding0));
     if (!excludeDetailChoiceForSegment3)
       store.put(buildSegmentChoice(
         segment3,
-        SegmentUtils.DELTA_UNLIMITED,
-        SegmentUtils.DELTA_UNLIMITED,
+        Segment.DELTA_UNLIMITED,
+        Segment.DELTA_UNLIMITED,
         fake.program10));
 
     // Chain "Test Print #1" has a segment in crafting state - Foundation is complete
@@ -192,14 +192,14 @@ public class CraftDetailNextMacroTest {
       "chains-1-segments-9f7s89d8a7892.wav", true));
     store.put(buildSegmentChoice(
       segment4,
-      SegmentUtils.DELTA_UNLIMITED,
-      SegmentUtils.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
       fake.program3,
       fake.program4_sequence0_binding0));
     store.put(buildSegmentChoice(
       segment4,
-      SegmentUtils.DELTA_UNLIMITED,
-      SegmentUtils.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
       fake.program15,
       fake.program15_sequence0_binding0));
     for (String memeName : List.of("Hindsight", "Chunky", "Regret", "Tangy"))

@@ -77,12 +77,12 @@ public class SegmentUtilsTest {
   @Test
   public void testFindFirstOfType() throws NexusException {
     var ch0 = new SegmentChoice();
-    ch0.setDeltaIn(SegmentUtils.DELTA_UNLIMITED);
-    ch0.setDeltaOut(SegmentUtils.DELTA_UNLIMITED);
+    ch0.setDeltaIn(Segment.DELTA_UNLIMITED);
+    ch0.setDeltaOut(Segment.DELTA_UNLIMITED);
     ch0.setProgramType(ProgramType.Main);
     var ch1 = new SegmentChoice();
-    ch1.setDeltaIn(SegmentUtils.DELTA_UNLIMITED);
-    ch1.setDeltaOut(SegmentUtils.DELTA_UNLIMITED);
+    ch1.setDeltaIn(Segment.DELTA_UNLIMITED);
+    ch1.setDeltaOut(Segment.DELTA_UNLIMITED);
     ch1.setProgramType(ProgramType.Macro);
     assertEquals(ch0, SegmentUtils.findFirstOfType(List.of(ch0, ch1), ProgramType.Main));
   }

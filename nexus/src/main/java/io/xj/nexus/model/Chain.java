@@ -2,6 +2,7 @@
 
 package io.xj.nexus.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Objects;
@@ -9,7 +10,8 @@ import java.util.UUID;
 
 
 public class Chain {
-
+  @JsonIgnore
+  public static final String EXTENSION_SEPARATOR = ".";
   UUID id;
   UUID accountId;
   UUID templateId;

@@ -22,9 +22,6 @@ import java.util.stream.Collectors;
  */
 public enum SegmentUtils {
   ;
-  public static final int DELTA_UNLIMITED = -1;
-  static final String EXTENSION_SEPARATOR = ".";
-  static final String WAV_EXTENSION = "wav";
 
   /**
    Find first segment choice of a given type in a collection of segment choices
@@ -131,7 +128,7 @@ public enum SegmentUtils {
    @return segment ship key
    */
   public static String getStorageFilename(Segment segment, String extension) {
-    return String.format("%s%s%s", segment.getStorageKey(), EXTENSION_SEPARATOR, extension);
+    return String.format("%s%s%s", segment.getStorageKey(), Segment.EXTENSION_SEPARATOR, extension);
   }
 
   /**
@@ -141,7 +138,7 @@ public enum SegmentUtils {
    @return storage key for segment
    */
   public static String getStorageFilename(Segment segment) {
-    return getStorageFilename(segment, WAV_EXTENSION);
+    return getStorageFilename(segment, Segment.WAV_EXTENSION);
   }
 
   /**

@@ -14,11 +14,11 @@ import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.CraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.MemeIsometry;
+import io.xj.nexus.model.Segment;
 import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChord;
 import io.xj.nexus.model.SegmentChordVoicing;
 import io.xj.nexus.model.SegmentType;
-import io.xj.nexus.persistence.SegmentUtils;
 import jakarta.annotation.Nullable;
 
 import java.util.*;
@@ -116,8 +116,8 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     macroChoice.setSegmentId(fabricator.getSegment().getId());
     macroChoice.setProgramSequenceId(macroSequence.orElseThrow().getId());
     macroChoice.setProgramId(macroProgram.getId());
-    macroChoice.setDeltaIn(SegmentUtils.DELTA_UNLIMITED);
-    macroChoice.setDeltaOut(SegmentUtils.DELTA_UNLIMITED);
+    macroChoice.setDeltaIn(Segment.DELTA_UNLIMITED);
+    macroChoice.setDeltaOut(Segment.DELTA_UNLIMITED);
     macroChoice.setProgramType(ProgramType.Macro);
     macroChoice.setProgramSequenceBindingId(macroSequenceBinding.getId());
     fabricator.put(macroChoice);
@@ -142,8 +142,8 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     mainChoice.setId(UUID.randomUUID());
     mainChoice.setSegmentId(fabricator.getSegment().getId());
     mainChoice.setProgramId(mainProgram.getId());
-    mainChoice.setDeltaIn(SegmentUtils.DELTA_UNLIMITED);
-    mainChoice.setDeltaOut(SegmentUtils.DELTA_UNLIMITED);
+    mainChoice.setDeltaIn(Segment.DELTA_UNLIMITED);
+    mainChoice.setDeltaOut(Segment.DELTA_UNLIMITED);
     mainChoice.setProgramType(ProgramType.Main);
     mainChoice.setProgramSequenceBindingId(mainSequenceBinding.getId());
     fabricator.put(mainChoice);

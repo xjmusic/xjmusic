@@ -2,6 +2,7 @@
 
 package io.xj.nexus.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.annotation.Nullable;
 
@@ -10,7 +11,12 @@ import java.util.UUID;
 
 
 public class Segment {
-
+  @JsonIgnore
+  public static final int DELTA_UNLIMITED = -1;
+  @JsonIgnore
+  public static final String EXTENSION_SEPARATOR = ".";
+  @JsonIgnore
+  public static final String WAV_EXTENSION = "wav";
   UUID id;
   UUID chainId;
   SegmentType type;

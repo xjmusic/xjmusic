@@ -143,14 +143,14 @@ public class CraftDetailProgramVoiceInitialTest {
       "chains-1-segments-0970305977172.wav", true));
     store.put(buildSegmentChoice(
       segment0,
-      SegmentUtils.DELTA_UNLIMITED,
-      SegmentUtils.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
       fake.program4,
       fake.program4_sequence0_binding0));
     store.put(buildSegmentChoice(
       segment0,
-      SegmentUtils.DELTA_UNLIMITED,
-      SegmentUtils.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
       fake.program5,
       fake.program5_sequence0_binding0));
 
@@ -167,14 +167,14 @@ public class CraftDetailProgramVoiceInitialTest {
       "chains-1-segments-9f7s89d8a7892.wav", true));
     store.put(buildSegmentChoice(
       segment1,
-      SegmentUtils.DELTA_UNLIMITED,
-      SegmentUtils.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
       fake.program4,
       fake.program4_sequence0_binding0));
     store.put(buildSegmentChoice(
       segment1,
-      SegmentUtils.DELTA_UNLIMITED,
-      SegmentUtils.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
       fake.program5,
       fake.program5_sequence0_binding0));
     for (String memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
