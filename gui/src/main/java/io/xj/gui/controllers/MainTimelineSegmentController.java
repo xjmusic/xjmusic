@@ -105,6 +105,8 @@ public class MainTimelineSegmentController extends VBox implements ReadyAfterBoo
   @SuppressWarnings("DuplicatedCode")
   @Override
   public void onStageReady() {
+    // TODO: get rid of the timeline segment controller-- every time we need a segment, build it from scratch
+
     deltaText.textProperty().bind(segment.map(Segment::getDelta).map(Objects::toString));
     densityText.textProperty().bind(segment.map(s -> String.format("%.2f", s.getDensity())));
     keyText.textProperty().bind(segment.map(Segment::getKey));

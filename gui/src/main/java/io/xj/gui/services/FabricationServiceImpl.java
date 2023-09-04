@@ -32,6 +32,7 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.scene.Node;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -229,9 +230,9 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
 
     var programUrl = labUrlProvider.computeUrl(String.format("programs/%s", programId));
 
-    var label = new Label(computeProgramName(program.orElse(null), programSequence.orElse(null), programSequenceBinding.orElse(null)));
-    label.setOnTouchPressed(event -> hostServices.showDocument(programUrl));
-    return label;
+    var hyperlink = new Hyperlink(computeProgramName(program.orElse(null), programSequence.orElse(null), programSequenceBinding.orElse(null)));
+    hyperlink.setOnAction(event -> hostServices.showDocument(programUrl));
+    return hyperlink;
   }
 
   @Override
@@ -240,9 +241,9 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
 
     var programUrl = labUrlProvider.computeUrl(String.format("programs/%s", programVoice.orElseThrow().getProgramId()));
 
-    var label = new Label(programVoice.orElseThrow().getName());
-    label.setOnTouchPressed(event -> hostServices.showDocument(programUrl));
-    return label;
+    var hyperlink = new Hyperlink(programVoice.orElseThrow().getName());
+    hyperlink.setOnAction(event -> hostServices.showDocument(programUrl));
+    return hyperlink;
   }
 
   @Override
@@ -251,9 +252,9 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
 
     var instrumentUrl = labUrlProvider.computeUrl(String.format("instruments/%s", instrumentId));
 
-    var label = new Label(instrument.orElseThrow().getName());
-    label.setOnTouchPressed(event -> hostServices.showDocument(instrumentUrl));
-    return label;
+    var hyperlink = new Hyperlink(instrument.orElseThrow().getName());
+    hyperlink.setOnAction(event -> hostServices.showDocument(instrumentUrl));
+    return hyperlink;
   }
 
   @Override
@@ -262,9 +263,9 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
 
     var instrumentUrl = labUrlProvider.computeUrl(String.format("instruments/%s", instrumentAudio.orElseThrow().getInstrumentId()));
 
-    var label = new Label(instrumentAudio.orElseThrow().getName());
-    label.setOnTouchPressed(event -> hostServices.showDocument(instrumentUrl));
-    return label;
+    var hyperlink = new Hyperlink(instrumentAudio.orElseThrow().getName());
+    hyperlink.setOnAction(event -> hostServices.showDocument(instrumentUrl));
+    return hyperlink;
   }
 
 

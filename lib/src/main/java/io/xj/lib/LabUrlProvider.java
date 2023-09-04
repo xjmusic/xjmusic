@@ -13,13 +13,13 @@ import java.util.regex.Pattern;
  */
 @Service
 public class LabUrlProvider {
-  final String appBaseUrl;
+  final String labBaseUrl;
 
   static final Pattern rgxStripLeadingSlash = Pattern.compile("^/");
 
   @Autowired
-  public LabUrlProvider(@Value("${app.base.url}") String appBaseUrl) {
-    this.appBaseUrl = appBaseUrl;
+  public LabUrlProvider(@Value("${lab.base.url}") String labBaseUrl) {
+    this.labBaseUrl = labBaseUrl;
   }
 
   /**
@@ -39,6 +39,6 @@ public class LabUrlProvider {
    @return RUL for given path
    */
   public String computeUrl(String path) {
-    return String.format("%s%s", appBaseUrl, rgxStripLeadingSlash.matcher(path).replaceAll(""));
+    return String.format("%s%s", labBaseUrl, rgxStripLeadingSlash.matcher(path).replaceAll(""));
   }
 }

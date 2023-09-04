@@ -45,8 +45,8 @@ public abstract class Report {
   static final String H2_STYLE = "margin-top:20px;";
   static final String USAGE_LINK_STYLE = "font-size:8pt; line-height:9pt; margin-right:4pt; white-space:nowrap;";
   protected final HubContent content;
-  @Value("${app.base.url}")
-  String appBaseUrl;
+  @Value("${lab.base.url}")
+  String labBaseUrl;
 
   /**
    Create a comp from some Hub content
@@ -361,7 +361,7 @@ public abstract class Report {
    @return link to program
    */
   protected String programRef(Program program) {
-    return A(true, String.format("%s%s/%s", appBaseUrl, "programs", program.getId()), program.getName());
+    return A(true, String.format("%s%s/%s", labBaseUrl, "programs", program.getId()), program.getName());
   }
 
   /**
@@ -371,7 +371,7 @@ public abstract class Report {
    @return link to instrument
    */
   protected String instrumentRef(Instrument instrument) {
-    return A(true, String.format("%s%s/%s", appBaseUrl, "instruments", instrument.getId()), instrument.getName());
+    return A(true, String.format("%s%s/%s", labBaseUrl, "instruments", instrument.getId()), instrument.getName());
   }
 
   /**
