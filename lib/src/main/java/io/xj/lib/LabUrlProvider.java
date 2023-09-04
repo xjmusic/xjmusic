@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
-package io.xj.lib.json;
+package io.xj.lib;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,13 +12,13 @@ import java.util.regex.Pattern;
  Provider of URLs using the injected configuration and some custom formatting
  */
 @Service
-public class ApiUrlProvider {
+public class LabUrlProvider {
   final String appBaseUrl;
 
   static final Pattern rgxStripLeadingSlash = Pattern.compile("^/");
 
   @Autowired
-  public ApiUrlProvider(@Value("${app.base.url}") String appBaseUrl) {
+  public LabUrlProvider(@Value("${app.base.url}") String appBaseUrl) {
     this.appBaseUrl = appBaseUrl;
   }
 
@@ -28,15 +28,8 @@ public class ApiUrlProvider {
    @param path within API
    @return String
    */
-  public URI getAppURI(String path) {
-    return URI.create(getAppUrl(path));
-  }
-
-  /**
-   @return app base URL
-   */
-  public String getAppBaseUrl() {
-    return appBaseUrl;
+  public URI computeUri(String path) {
+    return URI.create(computeUrl(path));
   }
 
   /**
@@ -45,11 +38,7 @@ public class ApiUrlProvider {
    @param path to get URL for
    @return RUL for given path
    */
-  public String getAppUrl(String path) {
-    return String.format("%s%s", appBaseUrl, stripLeadingSlash(path));
-  }
-
-  static String stripLeadingSlash(String input) {
-    return rgxStripLeadingSlash.matcher(input).replaceAll("");
+  public String computeUrl(String path) {
+    return String.format("%s%s", appBaseUrl, rgxStripLeadingSlash.matcher(path).replaceAll(""));
   }
 }

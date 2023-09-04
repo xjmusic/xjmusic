@@ -5,6 +5,7 @@ package io.xj.gui.controllers;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
 import io.xj.nexus.model.Segment;
+import io.xj.nexus.persistence.Segments;
 import jakarta.annotation.Nullable;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -60,6 +61,7 @@ public class MainTimelineController extends VBox implements ReadyAfterBootContro
             setGraphic(null);
           } else {
             var cell = getCachedCellContent(item);
+            cell.setSegment(item);
             setGraphic(cell.content);
           }
         }
@@ -76,15 +78,8 @@ public class MainTimelineController extends VBox implements ReadyAfterBootContro
         Node cellContent = loader.load();
         MainTimelineSegmentController cellController = loader.getController();
         cellController.onStageReady();
-        cellController.setMemes(fabricationService.getSegmentMemes(item));
-        cellController.setChords(fabricationService.getSegmentChords(item));
-        cellController.setChoices(fabricationService.getSegmentChoices(item));
         cellCache.put(item.getId(), new SegmentCell(cellController, cellContent));
       }
-
-      // Always refresh segment content of cell
-      cellCache.get(item.getId()).setSegment(item);
-
       return cellCache.get(item.getId());
 
     } catch (IOException e) {
@@ -140,6 +135,14 @@ public class MainTimelineController extends VBox implements ReadyAfterBootContro
     }
     var sources = fabricationService.getWorkFactory().getCraftWork().getAllSegments();
     segments.removeIf(segment -> sources.stream().noneMatch(source -> source.getId().equals(segment.getId())));
+    // iterate through all in segments, and update if the updated at time has changed from the source matching that id
+    for (var i = 0; i < segments.size(); i++) {
+      var segment = segments.get(i);
+      var source = sources.stream().filter(s -> Segments.isSameButUpdated(segment, s)).findFirst();
+      if (source.isPresent()) {
+        segments.set(i, source.get());
+      }
+    }
     sources.forEach(source -> {
       if (segments.stream().noneMatch(segment -> segment.getId().equals(source.getId()))) {
         segments.add(source);
@@ -151,7 +154,7 @@ public class MainTimelineController extends VBox implements ReadyAfterBootContro
     return new MainTimelineSegmentController(fabricationService);
   }
 
-  static class SegmentCell {
+  class SegmentCell {
     private final MainTimelineSegmentController controller;
     private final Node content;
 
@@ -165,6 +168,9 @@ public class MainTimelineController extends VBox implements ReadyAfterBootContro
 
     public void setSegment(Segment segment) {
       controller.setSegment(segment);
+      controller.setMemes(fabricationService.getSegmentMemes(segment));
+      controller.setChords(fabricationService.getSegmentChords(segment));
+      controller.setChoices(fabricationService.getSegmentChoices(segment));
     }
   }
 }

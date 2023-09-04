@@ -5,7 +5,7 @@ import io.xj.hub.HubContent;
 import io.xj.hub.enums.ProgramType;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.entity.EntityUtils;
-import io.xj.lib.json.ApiUrlProvider;
+import io.xj.lib.LabUrlProvider;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
@@ -59,8 +59,8 @@ public class CraftFoundationNextMacroTest {
     for (int i = 0; i < TEST_REPEAT_ITERATIONS; i++) {
       JsonProvider jsonProvider = new JsonProviderImpl();
       var entityFactory = new EntityFactoryImpl(jsonProvider);
-      ApiUrlProvider apiUrlProvider = new ApiUrlProvider("");
-      var craftFactory = new CraftFactoryImpl(apiUrlProvider);
+      LabUrlProvider labUrlProvider = new LabUrlProvider("");
+      var craftFactory = new CraftFactoryImpl(labUrlProvider);
       HubTopology.buildHubApiTopology(entityFactory);
       NexusTopology.buildNexusApiTopology(entityFactory);
       JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);

@@ -3,7 +3,7 @@ package io.xj.nexus.craft.macro_main;
 
 import io.xj.hub.HubContent;
 import io.xj.lib.entity.EntityFactoryImpl;
-import io.xj.lib.json.ApiUrlProvider;
+import io.xj.lib.LabUrlProvider;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
@@ -49,8 +49,8 @@ public class CraftSegmentOutputEncoderTest {
   public void setUp() throws Exception {
     JsonProvider jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
-    ApiUrlProvider apiUrlProvider = new ApiUrlProvider("");
-    craftFactory = new CraftFactoryImpl(apiUrlProvider);
+    LabUrlProvider labUrlProvider = new LabUrlProvider("");
+    craftFactory = new CraftFactoryImpl(labUrlProvider);
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);

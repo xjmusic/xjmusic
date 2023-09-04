@@ -3,7 +3,12 @@
 package io.xj.gui.services;
 
 import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.lib.LabUrlProvider;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
@@ -12,6 +17,8 @@ import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.ManagerPrivilegeException;
 import io.xj.nexus.work.WorkConfiguration;
 import io.xj.nexus.work.WorkFactory;
+import jakarta.annotation.Nullable;
+import javafx.application.HostServices;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -19,6 +26,8 @@ import javafx.beans.property.StringProperty;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
+import javafx.scene.Node;
+import javafx.scene.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,7 +38,9 @@ import java.util.*;
 @org.springframework.stereotype.Service
 public class FabricationServiceImpl extends Service<Boolean> implements FabricationService {
   static final Logger LOG = LoggerFactory.getLogger(FabricationServiceImpl.class);
+  final HostServices hostServices;
   final WorkFactory workFactory;
+  final LabUrlProvider labUrlProvider;
 
   final ObjectProperty<FabricationStatus> status = new SimpleObjectProperty<>(FabricationStatus.Standby);
   final StringProperty inputTemplateKey = new SimpleStringProperty();
@@ -40,14 +51,18 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   final StringProperty outputSeconds = new SimpleStringProperty();
 
   public FabricationServiceImpl(
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
     @Value("${input.mode}") String defaultInputMode,
     @Value("${input.template.key}") String defaultInputTemplateKey,
     @Value("${output.file.mode}") String defaultOutputFileMode,
     @Value("${output.mode}") String defaultOutputMode,
     @Value("${output.seconds}") Integer defaultOutputSeconds,
-    WorkFactory workFactory
+    WorkFactory workFactory,
+    LabUrlProvider labUrlProvider
   ) {
+    this.hostServices = hostServices;
     this.workFactory = workFactory;
+    this.labUrlProvider = labUrlProvider;
     inputMode.set(InputMode.valueOf(defaultInputMode.toUpperCase(Locale.ROOT)));
     inputTemplateKey.set(defaultInputTemplateKey);
     outputFileMode.set(OutputFileMode.valueOf(defaultOutputFileMode.toUpperCase(Locale.ROOT)));
@@ -150,8 +165,28 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   }
 
   @Override
+  public Optional<ProgramVoice> getProgramVoice(UUID programVoiceId) {
+    return workFactory.getSourceMaterial().getProgramVoice(programVoiceId);
+  }
+
+  @Override
+  public Optional<ProgramSequence> getProgramSequence(UUID programSequenceId) {
+    return workFactory.getSourceMaterial().getProgramSequence(programSequenceId);
+  }
+
+  @Override
+  public Optional<ProgramSequenceBinding> getProgramSequenceBinding(UUID programSequenceBindingId) {
+    return workFactory.getSourceMaterial().getProgramSequenceBinding(programSequenceBindingId);
+  }
+
+  @Override
   public Optional<Instrument> getInstrument(UUID instrumentId) {
     return workFactory.getSourceMaterial().getInstrument(instrumentId);
+  }
+
+  @Override
+  public Optional<InstrumentAudio> getInstrumentAudio(UUID instrumentAudioId) {
+    return workFactory.getSourceMaterial().getInstrumentAudio(instrumentAudioId);
   }
 
   @Override
@@ -176,4 +211,58 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     }
   }
 
+  @Override
+  public Node computeProgramReferenceNode(UUID programId, @Nullable UUID programSequenceBindingId) {
+    var program = getProgram(programId);
+    Optional<ProgramSequenceBinding> programSequenceBinding = Objects.nonNull(programSequenceBindingId) ? getProgramSequenceBinding(programSequenceBindingId) : Optional.empty();
+    var programSequence = programSequenceBinding.map(ProgramSequenceBinding::getProgramSequenceId).flatMap(this::getProgramSequence);
+
+    var programUrl = labUrlProvider.computeUrl(String.format("programs/%s", programId));
+
+    var text = new Text(computeProgramName(program.orElse(null), programSequence.orElse(null), programSequenceBinding.orElse(null)));
+    text.setOnTouchPressed(event -> hostServices.showDocument(programUrl));
+    return text;
+  }
+
+  @Override
+  public Node computeProgramVoiceReferenceNode(UUID programVoiceId) {
+    var programVoice = getProgramVoice(programVoiceId);
+
+    var programUrl = labUrlProvider.computeUrl(String.format("programs/%s", programVoice.orElseThrow().getProgramId()));
+
+    var text = new Text(programVoice.orElseThrow().getName());
+    text.setOnTouchPressed(event -> hostServices.showDocument(programUrl));
+    return text;
+  }
+
+  @Override
+  public Node computeInstrumentReferenceNode(UUID instrumentId) {
+    var instrument = getInstrument(instrumentId);
+
+    var instrumentUrl = labUrlProvider.computeUrl(String.format("instruments/%s", instrumentId));
+
+    var text = new Text(instrument.orElseThrow().getName());
+    text.setOnTouchPressed(event -> hostServices.showDocument(instrumentUrl));
+    return text;
+  }
+
+  @Override
+  public Node computeInstrumentAudioReferenceNode(UUID instrumentAudioId) {
+    var instrumentAudio = getInstrumentAudio(instrumentAudioId);
+
+    var instrumentUrl = labUrlProvider.computeUrl(String.format("instruments/%s", instrumentAudio.orElseThrow().getInstrumentId()));
+
+    var text = new Text(instrumentAudio.orElseThrow().getName());
+    text.setOnTouchPressed(event -> hostServices.showDocument(instrumentUrl));
+    return text;
+  }
+
+
+  private String computeProgramName(@Nullable Program program, @Nullable ProgramSequence programSequence, @Nullable ProgramSequenceBinding programSequenceBinding) {
+    if (Objects.nonNull(program) && Objects.nonNull(programSequence) && Objects.nonNull(programSequenceBinding))
+      return String.format("%s @ %d (%s)", program.getName(), programSequenceBinding.getOffset(), programSequence.getName());
+    else if (Objects.nonNull(program))
+      return program.getName();
+    else return "Not Loaded";
+  }
 }

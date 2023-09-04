@@ -6,7 +6,7 @@ import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.http.HttpClientProviderImpl;
-import io.xj.lib.json.ApiUrlProvider;
+import io.xj.lib.LabUrlProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
@@ -89,8 +89,8 @@ public class ComplexLibraryTest {
     when(hubClient.load(any())).thenReturn(content);
 
     // Dependencies
-    ApiUrlProvider apiUrlProvider = new ApiUrlProvider("http://localhost:8080/");
-    CraftFactory craftFactory = new CraftFactoryImpl(apiUrlProvider);
+    LabUrlProvider labUrlProvider = new LabUrlProvider("http://localhost:8080/");
+    CraftFactory craftFactory = new CraftFactoryImpl(labUrlProvider);
     HttpClientProvider httpClientProvider = new HttpClientProviderImpl(1, 1);
 
     // work

@@ -3,16 +3,22 @@
 package io.xj.gui.services;
 
 import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.model.*;
 import io.xj.nexus.work.WorkFactory;
+import jakarta.annotation.Nullable;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.concurrent.Worker;
 import javafx.event.EventTarget;
+import javafx.scene.Node;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -48,9 +54,26 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
 
   Optional<Program> getProgram(UUID programId);
 
+  Optional<ProgramSequence> getProgramSequence(UUID programSequenceId);
+
+  Optional<ProgramVoice> getProgramVoice(UUID programVoiceId);
+
+  Optional<ProgramSequenceBinding> getProgramSequenceBinding(UUID programSequenceBindingId);
+
   Optional<Instrument> getInstrument(UUID instrumentId);
+
+  Optional<InstrumentAudio> getInstrumentAudio(UUID instrumentAudioId);
 
   Collection<SegmentChoiceArrangement> getArrangements(SegmentChoice choice);
 
   Collection<SegmentChoiceArrangementPick> getPicks(SegmentChoiceArrangement arrangement);
+
+  Node computeProgramReferenceNode(UUID programId, @Nullable UUID programSequenceBindingId);
+
+  Node computeProgramVoiceReferenceNode(UUID programVoiceId);
+
+  Node computeInstrumentReferenceNode(UUID instrumentId);
+
+  Node computeInstrumentAudioReferenceNode(UUID instrumentAudioId);
+
 }

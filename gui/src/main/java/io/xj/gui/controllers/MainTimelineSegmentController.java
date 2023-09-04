@@ -2,11 +2,16 @@
 
 package io.xj.gui.controllers;
 
+import io.xj.gui.WorkstationGuiFxApplication;
 import io.xj.gui.services.FabricationService;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
-import io.xj.nexus.model.*;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
+import io.xj.nexus.model.SegmentChoiceArrangementPick;
+import io.xj.nexus.model.SegmentChord;
+import io.xj.nexus.model.SegmentMeme;
 import jakarta.annotation.Nullable;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -18,20 +23,29 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static io.xj.hub.util.StringUtils.formatStackTrace;
+import static io.xj.nexus.persistence.Segments.DELTA_UNLIMITED;
 
 /**
  NOT a Spring component/service -- this gets created by a custom controller factory in
  {@link io.xj.gui.controllers.MainTimelineController#cellFactory}
  */
 public class MainTimelineSegmentController extends VBox implements ReadyAfterBootController {
+  static final Logger LOG = LoggerFactory.getLogger(MainTimelineSegmentController.class);
+
   private static final int CHORD_POSITION_WIDTH = 32;
-  private static final int CHOICE_TYPE_WIDTH = 64;
   final SimpleObjectProperty<Segment> segment = new SimpleObjectProperty<>();
   final ObservableList<SegmentMeme> memes = FXCollections.observableArrayList();
   final ObservableList<SegmentChord> chords = FXCollections.observableArrayList();
@@ -68,7 +82,9 @@ public class MainTimelineSegmentController extends VBox implements ReadyAfterBoo
   @FXML
   VBox listChoices;
 
-  public MainTimelineSegmentController(FabricationService fabricationService) {
+  public MainTimelineSegmentController(
+    FabricationService fabricationService
+  ) {
     this.fabricationService = fabricationService;
   }
 
@@ -99,9 +115,9 @@ public class MainTimelineSegmentController extends VBox implements ReadyAfterBoo
     tempoText.textProperty().bind(segment.map(s -> formatMinDecimal(s.getTempo())));
     totalText.textProperty().bind(segment.map(s -> String.format("%d", s.getTotal())));
 
-    memes.addListener((ListChangeListener<SegmentMeme>) c ->
+    memes.addListener((ListChangeListener<SegmentMeme>) updated ->
       listMemes.getChildren().setAll(
-        c.getList()
+        updated.getList()
           .stream()
           .sorted(Comparator.comparing(SegmentMeme::getName))
           .map(meme -> {
@@ -112,9 +128,9 @@ public class MainTimelineSegmentController extends VBox implements ReadyAfterBoo
           })
           .toList()));
 
-    chords.addListener((ListChangeListener<SegmentChord>) c ->
+    chords.addListener((ListChangeListener<SegmentChord>) updated ->
       listChords.getChildren().setAll(
-        c.getList()
+        updated.getList()
           .stream()
           .sorted(Comparator.comparing(SegmentChord::getPosition))
           .map(chord -> {
@@ -135,34 +151,39 @@ public class MainTimelineSegmentController extends VBox implements ReadyAfterBoo
           })
           .toList()));
 
-    choices.addListener((ListChangeListener<SegmentChoice>) c -> {
-        var macroChoices = c.getList().filtered((choice) -> ProgramType.Macro == choice.getProgramType());
-        var mainChoices = c.getList().filtered((choice) -> ProgramType.Main == choice.getProgramType());
-        var beatChoices = c.getList().filtered((choice) -> ProgramType.Beat == choice.getProgramType());
-        var detailChoices = c.getList().filtered((choice) -> ProgramType.Detail == choice.getProgramType());
-        var percLoopChoices = c.getList().filtered((choice) ->
-          InstrumentType.Percussion == choice.getInstrumentType() && InstrumentMode.Loop == choice.getInstrumentMode());
-        var hookChoices = c.getList().filtered((choice) -> InstrumentType.Hook == choice.getInstrumentType());
-        var transitionModeChoices = c.getList().filtered((choice) -> InstrumentMode.Transition == choice.getInstrumentMode());
-        var backgroundModeChoices = c.getList().filtered((choice) -> InstrumentMode.Background == choice.getInstrumentMode());
-        var chordModeChoices = c.getList().filtered((choice) -> InstrumentMode.Chord == choice.getInstrumentMode());
+    choices.addListener((ListChangeListener<SegmentChoice>) updated -> {
+        try {
+          var macroChoices = updated.getList().filtered((choice) -> ProgramType.Macro == choice.getProgramType());
+          var mainChoices = updated.getList().filtered((choice) -> ProgramType.Main == choice.getProgramType());
+          var beatChoices = updated.getList().filtered((choice) -> ProgramType.Beat == choice.getProgramType());
+          var detailChoices = updated.getList().filtered((choice) -> ProgramType.Detail == choice.getProgramType());
+          var percLoopChoices = updated.getList().filtered((choice) ->
+            InstrumentType.Percussion == choice.getInstrumentType() && InstrumentMode.Loop == choice.getInstrumentMode());
+          var hookChoices = updated.getList().filtered((choice) -> InstrumentType.Hook == choice.getInstrumentType());
+          var transitionModeChoices = updated.getList().filtered((choice) -> InstrumentMode.Transition == choice.getInstrumentMode());
+          var backgroundModeChoices = updated.getList().filtered((choice) -> InstrumentMode.Background == choice.getInstrumentMode());
+          var chordModeChoices = updated.getList().filtered((choice) -> InstrumentMode.Chord == choice.getInstrumentMode());
 
-        Collection<Node> nodes = new HashSet<>();
-        nodes.add(computeChoiceListNodes("Macro", macroChoices, false, false));
-        nodes.add(computeChoiceListNodes("Main", mainChoices, false, false));
-        nodes.add(computeChoiceListNodes("Beat", beatChoices, false, false));
-        nodes.add(computeChoiceListNodes("Detail", detailChoices, false, false));
-        nodes.add(computeChoiceListNodes("Perc Loop", percLoopChoices, false, false));
-        nodes.add(computeChoiceListNodes("Hook", hookChoices, false, false));
-        nodes.add(computeChoiceListNodes("Transition", transitionModeChoices, false, false));
-        nodes.add(computeChoiceListNodes("Background", backgroundModeChoices, false, false));
-        nodes.add(computeChoiceListNodes("Chord", chordModeChoices, false, false));
-        listChoices.getChildren().setAll(nodes);
+          Collection<Node> nodes = new ArrayList<>();
+          nodes.add(computeChoiceListNodes("Macro", macroChoices, true, false, false));
+          nodes.add(computeChoiceListNodes("Main", mainChoices, true, false, false));
+          nodes.add(computeChoiceListNodes("Beat", beatChoices, false, true, false)); // todo show special header with direct program reference
+          nodes.add(computeChoiceListNodes("Detail", detailChoices, true, false, false));
+          nodes.add(computeChoiceListNodes("Perc Loop", percLoopChoices, false, false, true));
+          nodes.add(computeChoiceListNodes("Hook", hookChoices, false, false, true));
+          nodes.add(computeChoiceListNodes("Transition", transitionModeChoices, false, false, true));
+          nodes.add(computeChoiceListNodes("Background", backgroundModeChoices, false, false, true));
+          nodes.add(computeChoiceListNodes("Chord", chordModeChoices, false, false, true));
+          listChoices.getChildren().setAll(nodes);
+
+        } catch (Exception e) {
+          LOG.error("Failed to update choices because {}!\n\n{}", e.getMessage(), formatStackTrace(e));
+        }
       }
     );
   }
 
-  private Node computeChoiceListNodes(String layerName, Collection<? extends SegmentChoice> choices, boolean showProgram, boolean showArrangementPicks) {
+  private Node computeChoiceListNodes(String layerName, Collection<? extends SegmentChoice> choices, boolean showProgram, boolean showProgramVoice, boolean showArrangementPicks) {
     var box = new VBox();
     box.getStyleClass().add("choice-group");
     // layer name
@@ -171,121 +192,86 @@ public class MainTimelineSegmentController extends VBox implements ReadyAfterBoo
     layerNameLabel.getStyleClass().add("choice-group-name");
     box.getChildren().add(layerNameLabel);
     // choices
+    var test = "bout to compute"; // todo remove this
     choices.forEach(choice -> {
-      var choiceListItem = computeChoiceListItem(choice, showProgram, showArrangementPicks);
+      var choiceListItem = computeChoiceListItemNode(choice, showProgram, showProgramVoice, showArrangementPicks);
       box.getChildren().add(choiceListItem);
     });
     return box;
   }
 
-  private Node computeChoiceListItem(SegmentChoice choice, boolean showProgram, boolean showArrangementPicks) {
+  private Node computeChoiceListItemNode(SegmentChoice choice, boolean showProgram, boolean showProgramVoice, boolean showArrangementPicks) {
     var box = new VBox();
     box.getStyleClass().add("choice-group-item");
 
+    if ((Objects.nonNull(choice.getMute()) && choice.getMute()) ||
+      DELTA_UNLIMITED != choice.getDeltaIn() && segment.get().getDelta() < choice.getDeltaIn() ||
+      DELTA_UNLIMITED != choice.getDeltaOut() && segment.get().getDelta() > choice.getDeltaOut())
+      box.getStyleClass().add("choice-group-item-muted");
 
-    /*
-    const SegmentChoice = function ({
-                                  showProgram,
-                                  showProgramVoice,
-                                  choice,
-                                  segment,
-                                }) {
-  function renderOptionalProgramReference() {
-    if (!showProgram) return [];
-    return <ProgramReference programId={choice.programId}
-                             programSequenceBindingId={choice.programSequenceBindingId}/>;
-  }
+    if (showProgram) {
+      box.getChildren().add(fabricationService.computeProgramReferenceNode(choice.getProgramId(), choice.getProgramSequenceBindingId()));
+    }
 
-  function renderOptionalInstrumentReference() {
-    if (!choice.instrumentId) return [];
-    return <InstrumentReference instrumentId={choice.instrumentId}/>;
-  }
+    if (showProgramVoice) {
+      box.getChildren().add(fabricationService.computeProgramVoiceReferenceNode(choice.getProgramVoiceId()));
+    }
 
-  function renderOptionalProgramVoiceReference() {
-    if (!showProgramVoice) return [];
-    if (!choice.programVoiceId) return [];
-    return <ProgramVoiceReference programVoiceId={choice.programVoiceId}/>;
-  }
-
-  function renderDeltaValue(value) {
-    if (-1 === value) return (<span>&infin;</span>);
-    return value;
-  }
-
-  function renderDelta() {
-    if ('Macro' === choice.programType || 'Main' === choice.programType) return null;
-    if (!choice.deltaIn && !choice.deltaOut) return null;
-    return (
-      <div className="delta">
-        <div className="delta-in">{renderDeltaValue(choice.deltaIn)}</div>
-        <div className="connector">&mdash;</div>
-        <div className="delta-out">{renderDeltaValue(choice.deltaOut)}</div>
-      </div>
-    );
-  }
-
-  function computeDeltaClass() {
-    if (choice.mute)
-      return 'partial-delta';
-    if (DELTA_UNLIMITED !== choice.deltaIn && segment.delta < choice.deltaIn)
-      return 'partial-delta';
-    if (DELTA_UNLIMITED !== choice.deltaOut && segment.delta > choice.deltaOut)
-      return 'partial-delta';
-    return '';
-  }
-
-  return (
-    <div key={choice.id} className={`segment-choice ${computeDeltaClass()}`}>
-      {renderOptionalProgramReference()}
-      {renderOptionalProgramVoiceReference()}
-      <div className="segment-choice-instrument">
-        {renderDelta()}
-        {renderOptionalInstrumentReference()}
-      </div>
-    </div>
-  );
-}
-     */
-
+    var instrumentBox = new VBox();
+    instrumentBox.getStyleClass().add("choice-instrument");
+    computeShowDeltaNode(choice).ifPresent(instrumentBox.getChildren()::add);
+    if (Objects.nonNull(choice.getInstrumentId())) {
+      instrumentBox.getChildren().add(fabricationService.computeInstrumentReferenceNode(choice.getInstrumentId()));
+    }
+    box.getChildren().add(instrumentBox);
 
     if (showArrangementPicks) {
-      box.getChildren().addAll(computeUniquePicks(choice).stream().map(this::computeChoiceListItemPick).toList());
+      box.getChildren().addAll(computeUniquePicks(choice).stream().flatMap(this::computeChoiceListItemPickNode).toList());
     }
-    
-    /*
 
-    if (Objects.nonNull(choice.getProgramType())) {
-      var programType = new Label();
-      programType.setText(choice.getProgramType().toString());
-      programType.setMinWidth(CHOICE_TYPE_WIDTH);
-      programType.getStyleClass().add("choice-program-type");
-      var programName = new Text();
-      programName.setText(fabricationService.getProgram(choice.getProgramId()).map(Program::getName).orElse("Unknown"));
-      programName.getStyleClass().add("choice-program-name");
-      var program = new HBox();
-      program.getChildren().add(programType);
-      program.getChildren().add(programName);
-      box.getChildren().add(program);
-    }
-    if (Objects.nonNull(choice.getInstrumentType())) {
-      var instrumentType = new Label();
-      instrumentType.setText(choice.getInstrumentType().toString());
-      instrumentType.setMinWidth(CHOICE_TYPE_WIDTH);
-      instrumentType.getStyleClass().add("choice-instrument-type");
-      var instrumentName = new Text();
-      instrumentName.setText(fabricationService.getInstrument(choice.getInstrumentId()).map(Instrument::getName).orElse("Unknown"));
-      instrumentName.getStyleClass().add("choice-instrument-name");
-      var instrument = new HBox();
-      instrument.getChildren().add(instrumentType);
-      instrument.getChildren().add(instrumentName);
-      box.getChildren().add(instrument);
-    }
-*/
+    var test2 = "hello"; //todo remove this
+
     return box;
   }
 
-  private Node computeChoiceListItemPick(SegmentChoiceArrangementPick pick) {
-    return null;
+  private Optional<Node> computeShowDeltaNode(SegmentChoice choice) {
+    if (ProgramType.Macro == choice.getProgramType() || ProgramType.Main == choice.getProgramType()) {
+      return Optional.empty();
+    }
+
+    if (Objects.isNull(choice.getDeltaIn()) && Objects.isNull(choice.getDeltaOut())) {
+      return Optional.empty();
+    }
+    var box = new HBox();
+    box.getStyleClass().add("delta");
+    if (Objects.nonNull(choice.getDeltaIn())) {
+      var deltaIn = new Text();
+      deltaIn.setText(computeChoiceDeltaValue(choice.getDeltaIn()));
+      deltaIn.getStyleClass().add("delta-in");
+      box.getChildren().add(deltaIn);
+    }
+    var connector = new Text();
+    connector.setText("-");
+    connector.getStyleClass().add("connector");
+    box.getChildren().add(connector);
+    if (Objects.nonNull(choice.getDeltaOut())) {
+      var deltaOut = new Text();
+      deltaOut.setText(computeChoiceDeltaValue(choice.getDeltaOut()));
+      deltaOut.getStyleClass().add("delta-out");
+      box.getChildren().add(deltaOut);
+    }
+    return Optional.of(box);
+  }
+
+  private String computeChoiceDeltaValue(Integer value) {
+    if (-1 == value) return "∞";
+    return Integer.toString(value);
+  }
+
+  private Stream<Node> computeChoiceListItemPickNode(SegmentChoiceArrangementPick pick) {
+    if (Objects.isNull(pick.getInstrumentAudioId()))
+      return Stream.empty();
+    return Stream.of(fabricationService.computeInstrumentAudioReferenceNode(pick.getInstrumentAudioId()));
   }
 
   /**

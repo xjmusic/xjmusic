@@ -2,6 +2,9 @@
 
 <configuration>
 
+  <conversionRule conversionWord="stack"
+                  converterClass="net.logstash.logback.stacktrace.ShortenedThrowableConverter" />
+
   <!-- Define the custom appender -->
   <appender name="MainWindowLogAppender" class="io.xj.gui.WorkstationLogAppender">
     <encoder>
