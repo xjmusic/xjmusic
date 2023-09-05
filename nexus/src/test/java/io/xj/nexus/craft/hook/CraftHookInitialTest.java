@@ -123,7 +123,7 @@ public class CraftHookInitialTest {
 
   @Test
   public void craftHookInitial() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6, 10, 5);
 
     craftFactory.hook(fabricator).doWork();
 

@@ -113,7 +113,7 @@ public class CraftPercLoopNextMacroTest {
   @Test
   public void craftPercLoopNextMacro() throws Exception {
     insertSegments3and4();
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 5);
 
     craftFactory.percLoop(fabricator).doWork();
 

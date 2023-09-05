@@ -142,8 +142,9 @@ public class WorkFactoryImpl implements WorkFactory {
       configuration.getInputTemplateKey(),
       isJsonOutputEnabled,
       tempFilePathPrefix,
-      jsonExpiresInSeconds
-    );
+      jsonExpiresInSeconds,
+      configuration.getBufferAheadSeconds(),
+      configuration.getBufferBeforeSeconds());
     dubWork = new DubWorkImpl(
       craftWork,
       dubAudioCache,

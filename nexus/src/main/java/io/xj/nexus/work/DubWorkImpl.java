@@ -312,8 +312,9 @@ public class DubWorkImpl implements DubWork {
   Mixer mixerInit(TemplateConfig templateConfig) throws Exception {
     AudioFormat.Encoding encoding = AudioFormat.Encoding.PCM_SIGNED;
     int sampleBits = 16;
-    int frameSize = templateConfig.getOutputChannels() * sampleBits / BITS_PER_BYTE;
-    AudioFormat audioFormat = new AudioFormat(encoding, templateConfig.getOutputFrameRate(), sampleBits, templateConfig.getOutputChannels(), frameSize, templateConfig.getOutputFrameRate(), false);
+    // TODO outputFrameRate and outputChannels from WorkConfiguration
+    int frameSize = outputChanels * sampleBits / BITS_PER_BYTE;
+    AudioFormat audioFormat = new AudioFormat(encoding, outputFrameRate, sampleBits, outputChannels, frameSize, outputFrameRate, false);
     MixerConfig config = new MixerConfig(audioFormat)
       .setTotalSeconds(mixerLengthSeconds)
       .setTotalBuses(InstrumentType.values().length)

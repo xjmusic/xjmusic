@@ -122,7 +122,7 @@ public class CraftBeatInitialTest {
 
   @Test
   public void craftBeatInitial() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6, 10, 5);
 
     craftFactory.beat(fabricator).doWork();
 

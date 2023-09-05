@@ -90,6 +90,34 @@
       <Pane prefHeight="100.0" prefWidth="15.0"/>
       <TextField fx:id="fieldOutputPathPrefix" prefHeight="25.0" prefWidth="402.0"/>
     </HBox>
+    <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
+      <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="320.0">
+        <opaqueInsets>
+          <Insets/>
+        </opaqueInsets>
+        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0"
+               text="Buffer Ahead Seconds" textAlignment="RIGHT">
+          <graphic>
+            <Pane prefHeight="100.0" prefWidth="15.0"/>
+          </graphic>
+        </Label>
+        <Pane prefHeight="100.0" prefWidth="15.0"/>
+        <TextField fx:id="fieldBufferAheadSeconds" prefHeight="25.0" prefWidth="402.0"/>
+      </HBox>
+      <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="320.0">
+        <opaqueInsets>
+          <Insets/>
+        </opaqueInsets>
+        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0"
+               text="Buffer Before Seconds" textAlignment="RIGHT">
+          <graphic>
+            <Pane prefHeight="100.0" prefWidth="15.0"/>
+          </graphic>
+        </Label>
+        <Pane prefHeight="100.0" prefWidth="15.0"/>
+        <TextField fx:id="fieldBufferBeforeSeconds" prefHeight="25.0" prefWidth="402.0"/>
+      </HBox>
+    </HBox>
   </VBox>
   <HBox alignment="CENTER" styleClass="top-pane-status-container"
         xmlns:fx="http://javafx.com/fxml">

@@ -181,7 +181,7 @@ public class CraftBackground_LayeredVoicesTest {
 
   @Test
   public void craftBackgroundVoiceContinue() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 5);
 
     craftFactory.background(fabricator).doWork();
 

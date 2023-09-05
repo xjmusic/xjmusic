@@ -21,7 +21,7 @@ import java.util.List;
 
 @Service
 public class MainPaneTopController extends VBox implements ReadyAfterBootController {
-  static final int FABRICATION_CONFIG_VIEW_HEIGHT = 300;
+  static final int FABRICATION_CONFIG_VIEW_HEIGHT = 360;
   static final List<FabricationStatus> BUTTON_ACTION_ACTIVE_IN_FABRICATION_STATES = Arrays.asList(
     FabricationStatus.Standby,
     FabricationStatus.Active,
@@ -65,6 +65,12 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   @FXML
   TextField fieldOutputPathPrefix;
 
+  @FXML
+  TextField fieldBufferAheadSeconds;
+
+  @FXML
+  TextField fieldBufferBeforeSeconds;
+
   public MainPaneTopController(
     FabricationService fabricationService
   ) {
@@ -95,6 +101,8 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     choiceOutputFileMode.valueProperty().bindBidirectional(fabricationService.outputFileModeProperty());
     fieldOutputSeconds.textProperty().bindBidirectional(fabricationService.outputSecondsProperty());
     fieldOutputPathPrefix.textProperty().bindBidirectional(fabricationService.outputPathPrefixProperty());
+    fieldBufferAheadSeconds.textProperty().bindBidirectional(fabricationService.bufferAheadSecondsProperty());
+    fieldBufferBeforeSeconds.textProperty().bindBidirectional(fabricationService.bufferBeforeSecondsProperty());
 
     labelFabricationStatus.textProperty().bind(fabricationService.statusProperty().map(Enum::toString).map((status) -> String.format("Fabrication %s", status)));
     toggleShowConfig.setSelected(configVisible.get());

@@ -114,7 +114,7 @@ public class CraftBackgroundContinueTest {
   @Test
   public void craftBackgroundContinue() throws Exception {
     insertSegments3and4(false);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 5);
 
 //    craftFactory.background(fabricator).doWork();
 //    // assert choice of background-type sequence
@@ -196,7 +196,7 @@ public class CraftBackgroundContinueTest {
   @Test
   public void craftBackgroundContinue_okEvenWithoutPreviousSegmentBackgroundChoice() throws Exception {
     insertSegments3and4(true);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 5);
     craftFactory.background(fabricator).doWork();
 
 /*

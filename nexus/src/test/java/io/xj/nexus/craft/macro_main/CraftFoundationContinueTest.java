@@ -142,7 +142,7 @@ public class CraftFoundationContinueTest {
    */
   @Test
   public void craftFoundationContinue() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 5);
 
     craftFactory.macroMain(fabricator).doWork();
 

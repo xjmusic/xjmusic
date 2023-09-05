@@ -123,7 +123,7 @@ public class CraftTransitionInitialTest {
 
   @Test
   public void craftTransitionInitial() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6, 10, 5);
 
     craftFactory.transition(fabricator).doWork();
 

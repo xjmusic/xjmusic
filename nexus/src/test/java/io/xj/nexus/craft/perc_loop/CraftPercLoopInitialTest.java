@@ -123,7 +123,7 @@ public class CraftPercLoopInitialTest {
 
   @Test
   public void craftPercLoopInitial() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6, 10, 5);
 
     craftFactory.percLoop(fabricator).doWork();
 

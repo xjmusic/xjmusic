@@ -47,6 +47,7 @@ public class FabricatorImpl implements Fabricator {
   final TemplateConfig templateConfig;
   final Collection<TemplateBinding> templateBindings;
   final HubContent sourceMaterial;
+  final int bufferAheadSeconds;
   final int workBufferAheadSeconds;
   final int workBufferBeforeSeconds;
   final JsonapiPayloadFactory jsonapiPayloadFactory;
@@ -87,12 +88,15 @@ public class FabricatorImpl implements Fabricator {
     FabricatorFactory fabricatorFactory,
     SegmentManager segmentManager,
     JsonapiPayloadFactory jsonapiPayloadFactory,
-    JsonProvider jsonProvider
+    JsonProvider jsonProvider,
+    int bufferAheadSeconds,
+    int bufferBeforeSeconds
   ) throws NexusException, FabricationFatalException, ManagerFatalException, ValueException {
     this.segmentManager = segmentManager;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     this.jsonProvider = jsonProvider;
     this.sourceMaterial = sourceMaterial;
+    this.bufferAheadSeconds = bufferAheadSeconds;
 
     // caches
     chordAtPosition = new HashMap<>();
@@ -119,8 +123,8 @@ public class FabricatorImpl implements Fabricator {
     LOG.debug("[segId={}] Chain {} configured with {} and bound to {} ", segment.getId(), chain.getId(), templateConfig, CsvUtils.prettyFrom(templateBindings, "and"));
 
     // Buffer times from template
-    workBufferAheadSeconds = templateConfig.getBufferAheadSeconds();
-    workBufferBeforeSeconds = templateConfig.getBufferBeforeSeconds();
+    workBufferAheadSeconds = bufferAheadSeconds;
+    workBufferBeforeSeconds = bufferBeforeSeconds;
 
     // set up the segment retrospective
     retrospective = fabricatorFactory.loadRetrospective(segment, sourceMaterial);
@@ -509,7 +513,8 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public AudioFormat getOutputAudioFormat() {
-    return new AudioFormat(computeOutputEncoding(), templateConfig.getOutputFrameRate(), computeOutputSampleBits(), templateConfig.getOutputChannels(), templateConfig.getOutputChannels() * templateConfig.getOutputSampleBits() / 8, templateConfig.getOutputFrameRate(), false);
+    // TODO outputFrameRate and outputChannels from WorkConfiguration
+    return new AudioFormat(computeOutputEncoding(), outputFrameRate, computeOutputSampleBits(), outputChannels, outputChannels * computeOutputSampleBits() / 8, outputFrameRate, false);
   }
 
   public Optional<SegmentChoice> getChoice(SegmentChoiceArrangement pick) {

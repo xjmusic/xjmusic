@@ -120,7 +120,7 @@ public class CraftFoundationNextMacroTest {
       // Chain "Test Print #1" has a planned segment
       Segment segment4 = store.put(buildSegment(chain1, 3, SegmentState.PLANNED, "C", 8, 0.8, 120, "chain-1-waveform-12345"));
 
-      Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4);
+      Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 5);
 
       craftFactory.macroMain(fabricator).doWork();
 
