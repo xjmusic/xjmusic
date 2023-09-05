@@ -15,7 +15,10 @@ public class Envelope {
    * Cached result of exponential envelope over N frames
    */
   public Envelope(Integer frames) {
-    exponential = IntStream.range(1, frames).mapToDouble(i -> Math.sin(HALF_PI * i / frames)).toArray();
+    exponential = new double[frames];
+    for (int i = 1; i < frames; i++) {
+      exponential[i] = Math.sin(HALF_PI * i / frames);
+    }
   }
 
   /**
