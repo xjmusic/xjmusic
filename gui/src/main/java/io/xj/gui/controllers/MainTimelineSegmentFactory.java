@@ -60,12 +60,12 @@ public class MainTimelineSegmentFactory {
       p1.setPrefWidth(SEGMENT_MIN_WIDTH);
       p1.setMinHeight(SEGMENT_PROPERTY_ROW_MIN_HEIGHT);
       p1.getChildren().add(computeLabeledPropertyNode(String.format("[%d]", segment.getOffset()), formatTimeFromMicros(segment.getBeginAtChainMicros()), SEGMENT_MIN_WIDTH / 2));
-      p1.getChildren().add(computeLabeledPropertyNode(segment.getType().toString(), String.format("+%d", segment.getDelta()), SEGMENT_MIN_WIDTH / 2));
+      p1.getChildren().add(computeLabeledPropertyNode(String.format("+%d", segment.getDelta()), segment.getType().toString(), SEGMENT_MIN_WIDTH / 2));
       //
       var p2 = new HBox();
       p2.setPrefWidth(SEGMENT_MIN_WIDTH);
       p2.setMinHeight(SEGMENT_PROPERTY_ROW_MIN_HEIGHT);
-      p2.getChildren().add(computeLabeledPropertyNode(formatTimeFromMicros(segment.getBeginAtChainMicros()), String.format("%d.", segment.getTotal()), SEGMENT_MIN_WIDTH / 4));
+      p2.getChildren().add(computeLabeledPropertyNode(String.format("%d beats", segment.getTotal()), formatTimeFromMicros(segment.getDurationMicros()), SEGMENT_MIN_WIDTH / 4));
       p2.getChildren().add(computeLabeledPropertyNode("Density", String.format("%.2f", segment.getDensity()), SEGMENT_MIN_WIDTH / 4));
       p2.getChildren().add(computeLabeledPropertyNode("Tempo", formatMinDecimal(segment.getTempo()), SEGMENT_MIN_WIDTH / 4));
       p2.getChildren().add(computeLabeledPropertyNode("Key", segment.getKey(), SEGMENT_MIN_WIDTH / 4));
@@ -113,16 +113,6 @@ public class MainTimelineSegmentFactory {
 
   @SuppressWarnings("SameParameterValue")
   Node computeLabeledPropertyNode(String label, String value, int minWidth) {
-    return computeLabeledPropertyNode(label, computeValueNode(value), minWidth);
-  }
-
-  @SuppressWarnings("SameParameterValue")
-  Node computeLabeledPropertyNode(String label, Integer value, int minWidth) {
-    return computeLabeledPropertyNode(label, computeValueNode(value), minWidth);
-  }
-
-  @SuppressWarnings("SameParameterValue")
-  Node computeLabeledPropertyNode(String label, Long value, int minWidth) {
     return computeLabeledPropertyNode(label, computeValueNode(value), minWidth);
   }
 
@@ -332,7 +322,11 @@ public class MainTimelineSegmentFactory {
    @param microseconds time in microseconds
    @return human-readable string like "5s", "4m7s", or "1h27m4s".
    */
-  String formatTimeFromMicros(long microseconds) {
+  String formatTimeFromMicros(@Nullable Long microseconds) {
+    if (Objects.isNull(microseconds)) {
+      return "N/A";
+    }
+
     // Round up to the nearest second
     long totalSeconds = (microseconds + 999999) / 1000000;
 
