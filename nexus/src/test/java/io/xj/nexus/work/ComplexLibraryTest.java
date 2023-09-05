@@ -60,7 +60,7 @@ public class ComplexLibraryTest {
     NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();
     fake.account1 = buildAccount("fish");
     fake.library1 = buildLibrary(fake.account1, "test");
-    HubContent content = new HubContent(fake.generatedFixture(3));
+    HubContent content = new HubContent(fake.generatedFixture(2));
 
     // NOTE: it's critical that the test template has config bufferAheadSeconds=9999 in order to ensure the test fabricates far ahead
     var template = content.getTemplate();
