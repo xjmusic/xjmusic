@@ -318,7 +318,6 @@ public class DubWorkImpl implements DubWork {
   Mixer mixerInit(TemplateConfig templateConfig) throws Exception {
     AudioFormat.Encoding encoding = AudioFormat.Encoding.PCM_SIGNED;
     int sampleBits = 16;
-    // TODO outputFrameRate and outputChannels from WorkConfiguration
     int frameSize = outputChannels * sampleBits / BITS_PER_BYTE;
     AudioFormat audioFormat = new AudioFormat(encoding, (float) outputFrameRate, sampleBits, outputChannels, frameSize, (float) outputFrameRate, false);
     MixerConfig config = new MixerConfig(audioFormat)

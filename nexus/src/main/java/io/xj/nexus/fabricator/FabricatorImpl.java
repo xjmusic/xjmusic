@@ -515,7 +515,6 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public AudioFormat getOutputAudioFormat() {
-    // TODO outputFrameRate and outputChannels from WorkConfiguration
     return new AudioFormat(computeOutputEncoding(), (float) outputFrameRate, computeOutputSampleBits(), outputChannels, outputChannels * computeOutputSampleBits() / 8, (float) outputFrameRate, false);
   }
 
