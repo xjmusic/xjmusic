@@ -17,8 +17,11 @@ public class EnvelopeProviderImpl implements EnvelopeProvider {
 
   @Override
   public Envelope length(Integer frames) {
-    if (!envelopes.containsKey(frames))
-      envelopes.put(frames, new Envelope(frames));
+    if (!envelopes.containsKey(frames)){
+      Envelope envelope = new Envelope(frames);
+      envelopes.put(frames, envelope);
+      return envelope;
+    }
     return envelopes.get(frames);
   }
 }
