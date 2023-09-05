@@ -110,7 +110,9 @@ public class ComplexLibraryTest {
       "complex_library_test",
       false,
       "/tmp",
-      86400);
+      86400,
+      10,
+      5, 48000.0, 2);
 
     workThread = new AppWorkThread(work);
   }

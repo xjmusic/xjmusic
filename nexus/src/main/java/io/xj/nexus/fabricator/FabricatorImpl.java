@@ -47,8 +47,10 @@ public class FabricatorImpl implements Fabricator {
   final TemplateConfig templateConfig;
   final Collection<TemplateBinding> templateBindings;
   final HubContent sourceMaterial;
-  final int workBufferAheadSeconds;
-  final int workBufferBeforeSeconds;
+  final int bufferAheadSeconds;
+  final int bufferBeforeSeconds;
+  final double outputFrameRate;
+  final int outputChannels;
   final JsonapiPayloadFactory jsonapiPayloadFactory;
   final JsonProvider jsonProvider;
   final Map<Double, Optional<SegmentChord>> chordAtPosition;
@@ -87,12 +89,20 @@ public class FabricatorImpl implements Fabricator {
     FabricatorFactory fabricatorFactory,
     SegmentManager segmentManager,
     JsonapiPayloadFactory jsonapiPayloadFactory,
-    JsonProvider jsonProvider
+    JsonProvider jsonProvider,
+    int bufferAheadSeconds,
+    int bufferBeforeSeconds,
+    double outputFrameRate,
+    int outputChannels
   ) throws NexusException, FabricationFatalException, ManagerFatalException, ValueException {
     this.segmentManager = segmentManager;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     this.jsonProvider = jsonProvider;
     this.sourceMaterial = sourceMaterial;
+    this.bufferAheadSeconds = bufferAheadSeconds;
+    this.bufferBeforeSeconds = bufferBeforeSeconds;
+    this.outputFrameRate = outputFrameRate;
+    this.outputChannels = outputChannels;
 
     // caches
     chordAtPosition = new HashMap<>();
@@ -117,10 +127,6 @@ public class FabricatorImpl implements Fabricator {
     boundProgramIds = ChainUtils.targetIdsOfType(templateBindings, ContentBindingType.Program);
     boundInstrumentIds = ChainUtils.targetIdsOfType(templateBindings, ContentBindingType.Instrument);
     LOG.debug("[segId={}] Chain {} configured with {} and bound to {} ", segment.getId(), chain.getId(), templateConfig, CsvUtils.prettyFrom(templateBindings, "and"));
-
-    // Buffer times from template
-    workBufferAheadSeconds = templateConfig.getBufferAheadSeconds();
-    workBufferBeforeSeconds = templateConfig.getBufferBeforeSeconds();
 
     // set up the segment retrospective
     retrospective = fabricatorFactory.loadRetrospective(segment, sourceMaterial);
@@ -227,8 +233,8 @@ public class FabricatorImpl implements Fabricator {
   @Override
   public String getChainJson(long atChainMicros) throws NexusException {
     try {
-      var beforeThresholdChainMicros = atChainMicros + workBufferAheadSeconds * MICROS_PER_SECOND;
-      var afterThresholdChainMicros = atChainMicros - workBufferBeforeSeconds * MICROS_PER_SECOND;
+      var beforeThresholdChainMicros = atChainMicros + bufferAheadSeconds * MICROS_PER_SECOND;
+      var afterThresholdChainMicros = atChainMicros - bufferBeforeSeconds * MICROS_PER_SECOND;
       return computeChainJson(
         segmentManager.readMany(List.of(chain.getId())).stream()
           .filter(segment ->
@@ -509,7 +515,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public AudioFormat getOutputAudioFormat() {
-    return new AudioFormat(computeOutputEncoding(), templateConfig.getOutputFrameRate(), computeOutputSampleBits(), templateConfig.getOutputChannels(), templateConfig.getOutputChannels() * templateConfig.getOutputSampleBits() / 8, templateConfig.getOutputFrameRate(), false);
+    return new AudioFormat(computeOutputEncoding(), (float) outputFrameRate, computeOutputSampleBits(), outputChannels, outputChannels * computeOutputSampleBits() / 8, (float) outputFrameRate, false);
   }
 
   public Optional<SegmentChoice> getChoice(SegmentChoiceArrangement pick) {

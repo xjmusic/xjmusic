@@ -33,6 +33,7 @@ import java.util.*;
 public class FabricationServiceImpl extends Service<Boolean> implements FabricationService {
   static final Logger LOG = LoggerFactory.getLogger(FabricationServiceImpl.class);
   final HostServices hostServices;
+  final Integer defaultBufferAheadSeconds;
   final WorkFactory workFactory;
   final LabService labService;
 
@@ -43,23 +44,37 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   final ObjectProperty<OutputFileMode> outputFileMode = new SimpleObjectProperty<>();
   final ObjectProperty<OutputMode> outputMode = new SimpleObjectProperty<>();
   final StringProperty outputSeconds = new SimpleStringProperty();
+  final StringProperty bufferAheadSeconds = new SimpleStringProperty();
+  final StringProperty bufferBeforeSeconds = new SimpleStringProperty();
+
+  final StringProperty outputFrameRate = new SimpleStringProperty();
+  final StringProperty outputChannels = new SimpleStringProperty();
 
   public FabricationServiceImpl(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
+    @Value("${buffer.ahead.seconds}") Integer defaultBufferAheadSeconds,
+    @Value("${buffer.before.seconds}") Integer defaultBufferBeforeSeconds,
     @Value("${input.mode}") String defaultInputMode,
     @Value("${input.template.key}") String defaultInputTemplateKey,
+    @Value("${output.channels}") int defaultOutputChannels,
     @Value("${output.file.mode}") String defaultOutputFileMode,
+    @Value("${output.frame.rate}") double defaultOutputFrameRate,
     @Value("${output.mode}") String defaultOutputMode,
     @Value("${output.seconds}") Integer defaultOutputSeconds,
     WorkFactory workFactory,
     LabService labService
   ) {
     this.hostServices = hostServices;
+    this.defaultBufferAheadSeconds = defaultBufferAheadSeconds;
     this.workFactory = workFactory;
     this.labService = labService;
+    bufferAheadSeconds.set(Integer.toString(defaultBufferAheadSeconds));
+    bufferBeforeSeconds.set(Integer.toString(defaultBufferBeforeSeconds));
     inputMode.set(InputMode.valueOf(defaultInputMode.toUpperCase(Locale.ROOT)));
     inputTemplateKey.set(defaultInputTemplateKey);
+    outputChannels.set(Integer.toString(defaultOutputChannels));
     outputFileMode.set(OutputFileMode.valueOf(defaultOutputFileMode.toUpperCase(Locale.ROOT)));
+    outputFrameRate.set(Double.toString(defaultOutputFrameRate));
     outputMode.set(OutputMode.valueOf(defaultOutputMode.toUpperCase(Locale.ROOT)));
     outputPathPrefix.set(System.getProperty("user.home") + File.separator);
     outputSeconds.set(Integer.toString(defaultOutputSeconds));
@@ -80,7 +95,11 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
           .setOutputFileMode(outputFileMode.get())
           .setOutputMode(outputMode.get())
           .setOutputPathPrefix(outputPathPrefix.get())
-          .setOutputSeconds(Integer.parseInt(outputSeconds.get()));
+          .setOutputSeconds(Integer.parseInt(outputSeconds.get()))
+          .setBufferAheadSeconds(Integer.parseInt(bufferAheadSeconds.get()))
+          .setBufferBeforeSeconds(Integer.parseInt(bufferBeforeSeconds.get()))
+          .setOutputFrameRate(Double.parseDouble(outputFrameRate.get()))
+          .setOutputChannels(Integer.parseInt(outputChannels.get()));
         return workFactory.start(configuration, () -> {
           // no op; the WorkFactory start method blocks, then we rely on the JavaFX Service hooks
         });
@@ -114,6 +133,26 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
 
   public StringProperty outputSecondsProperty() {
     return outputSeconds;
+  }
+
+  @Override
+  public StringProperty bufferAheadSecondsProperty() {
+    return bufferAheadSeconds;
+  }
+
+  @Override
+  public StringProperty bufferBeforeSecondsProperty() {
+    return bufferBeforeSeconds;
+  }
+
+  @Override
+  public StringProperty outputChannelsProperty() {
+    return outputChannels;
+  }
+
+  @Override
+  public StringProperty outputFrameRateProperty() {
+    return outputFrameRate;
   }
 
   public WorkFactory getWorkFactory() {

@@ -142,7 +142,11 @@ public class WorkFactoryImpl implements WorkFactory {
       configuration.getInputTemplateKey(),
       isJsonOutputEnabled,
       tempFilePathPrefix,
-      jsonExpiresInSeconds
+      jsonExpiresInSeconds,
+      configuration.getBufferAheadSeconds(),
+      configuration.getBufferBeforeSeconds(),
+      configuration.getOutputFrameRate(),
+      configuration.getOutputChannels()
     );
     dubWork = new DubWorkImpl(
       craftWork,
@@ -150,7 +154,9 @@ public class WorkFactoryImpl implements WorkFactory {
       mixerFactory,
       notification,
       mixerSeconds,
-      dubCycleMillis
+      dubCycleMillis,
+      configuration.getOutputFrameRate(),
+      configuration.getOutputChannels()
     );
     shipWork = new ShipWorkImpl(
       dubWork,

@@ -132,7 +132,7 @@ public class CraftFoundationNextMainTest {
 
   @Test
   public void craftFoundationNextMain() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 5, 48000.0, 2);
 
     craftFactory.macroMain(fabricator).doWork();
 
@@ -180,7 +180,7 @@ public class CraftFoundationNextMainTest {
     ));
 
     assertThrows(FabricationFatalException.class, () ->
-      fabricatorFactory.fabricate(sourceMaterial, segment5));
+      fabricatorFactory.fabricate(sourceMaterial, segment5, 10, 5, 48000.0, 2));
   }
 
 }

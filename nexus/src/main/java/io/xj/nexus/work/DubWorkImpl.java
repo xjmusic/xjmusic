@@ -53,6 +53,8 @@ public class DubWorkImpl implements DubWork {
   long nextCycleAtSystemMillis = System.currentTimeMillis();
   @Nullable
   Float mixerOutputMicrosecondsPerByte;
+  final int outputChannels;
+  final double outputFrameRate;
 
   public DubWorkImpl(
     CraftWork craftWork,
@@ -60,12 +62,16 @@ public class DubWorkImpl implements DubWork {
     MixerFactory mixerFactory,
     NotificationProvider notification,
     int mixerSeconds,
-    long cycleMillis
+    long cycleMillis,
+    double outputFrameRate,
+    int outputChannels
   ) {
     this.craftWork = craftWork;
     this.dubAudioCache = dubAudioCache;
     this.notification = notification;
     this.mixerLengthSeconds = mixerSeconds;
+    this.outputFrameRate = outputFrameRate;
+    this.outputChannels = outputChannels;
     this.mixerLengthMicros = mixerLengthSeconds * MICROS_PER_SECOND;
     this.mixerFactory = mixerFactory;
     this.cycleMillis = cycleMillis;
@@ -312,8 +318,8 @@ public class DubWorkImpl implements DubWork {
   Mixer mixerInit(TemplateConfig templateConfig) throws Exception {
     AudioFormat.Encoding encoding = AudioFormat.Encoding.PCM_SIGNED;
     int sampleBits = 16;
-    int frameSize = templateConfig.getOutputChannels() * sampleBits / BITS_PER_BYTE;
-    AudioFormat audioFormat = new AudioFormat(encoding, templateConfig.getOutputFrameRate(), sampleBits, templateConfig.getOutputChannels(), frameSize, templateConfig.getOutputFrameRate(), false);
+    int frameSize = outputChannels * sampleBits / BITS_PER_BYTE;
+    AudioFormat audioFormat = new AudioFormat(encoding, (float) outputFrameRate, sampleBits, outputChannels, frameSize, (float) outputFrameRate, false);
     MixerConfig config = new MixerConfig(audioFormat)
       .setTotalSeconds(mixerLengthSeconds)
       .setTotalBuses(InstrumentType.values().length)

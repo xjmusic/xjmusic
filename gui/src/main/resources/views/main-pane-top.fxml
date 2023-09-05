@@ -12,83 +12,152 @@
     <VBox.vgrow>
       <Priority fx:constant="ALWAYS"/>
     </VBox.vgrow>
-    <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
-      <opaqueInsets>
-        <Insets/>
-      </opaqueInsets>
-      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0"
-             text="Input Template Key" textAlignment="RIGHT">
-        <graphic>
-          <Pane prefHeight="100.0" prefWidth="15.0"/>
-        </graphic>
-      </Label>
-      <Pane prefHeight="100.0" prefWidth="15.0"/>
-      <TextField fx:id="fieldInputTemplateKey" prefHeight="25.0" prefWidth="402.0"/>
+    <HBox alignment="CENTER_LEFT">
+      <padding>
+        <Insets top="10"/>
+      </padding>
+      <VBox alignment="CENTER_LEFT" prefHeight="60.0">
+        <padding>
+          <Insets right="10" left="10"/>
+        </padding>
+        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
+               text="Input Template Key" textAlignment="RIGHT">
+          <graphic>
+            <Pane prefWidth="15.0"/>
+          </graphic>
+        </Label>
+        <Pane prefWidth="15.0"/>
+        <TextField fx:id="fieldInputTemplateKey"/>
+      </VBox>
+      <VBox alignment="CENTER_LEFT" prefHeight="60.0">
+        <padding>
+          <Insets right="10" left="10"/>
+        </padding>
+        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Input Mode"
+               textAlignment="RIGHT">
+          <graphic>
+            <Pane prefWidth="15.0"/>
+          </graphic>
+        </Label>
+        <Pane prefWidth="15.0"/>
+        <ChoiceBox fx:id="choiceInputMode" prefHeight="25.0"/>
+      </VBox>
     </HBox>
-    <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
-      <opaqueInsets>
-        <Insets/>
-      </opaqueInsets>
-      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0" text="Input Mode"
-             textAlignment="RIGHT">
-        <graphic>
-          <Pane prefHeight="100.0" prefWidth="15.0"/>
-        </graphic>
-      </Label>
-      <Pane prefHeight="100.0" prefWidth="15.0"/>
-      <ChoiceBox fx:id="choiceInputMode" prefHeight="25.0" prefWidth="401.0"/>
+
+    <HBox alignment="CENTER_LEFT">
+      <padding>
+        <Insets top="10"/>
+      </padding>
+
+      <VBox alignment="CENTER_LEFT" prefHeight="60.0">
+        <padding>
+          <Insets right="10" left="10"/>
+        </padding>
+        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Output Mode"
+               textAlignment="RIGHT">
+          <graphic>
+            <Pane prefWidth="15.0"/>
+          </graphic>
+        </Label>
+        <Pane prefWidth="15.0"/>
+        <ChoiceBox fx:id="choiceOutputMode" prefHeight="25.0"/>
+      </VBox>
+      <VBox alignment="CENTER_LEFT" prefHeight="41.0">
+        <padding>
+          <Insets right="10" left="10"/>
+        </padding>
+        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
+               text="Output File Mode" textAlignment="RIGHT">
+          <graphic>
+            <Pane prefWidth="15.0"/>
+          </graphic>
+        </Label>
+        <Pane prefWidth="15.0"/>
+        <ChoiceBox fx:id="choiceOutputFileMode" prefHeight="25.0"/>
+      </VBox>
+      <VBox alignment="CENTER_LEFT" prefHeight="60">
+        <padding>
+          <Insets right="10" left="10"/>
+        </padding>
+        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
+               text="Output Seconds" textAlignment="RIGHT">
+          <graphic>
+            <Pane prefWidth="15.0"/>
+          </graphic>
+        </Label>
+        <Pane prefWidth="15.0"/>
+        <TextField fx:id="fieldOutputSeconds" prefHeight="25.0"/>
+      </VBox>
+      <VBox alignment="CENTER_LEFT" prefHeight="41.0">
+        <padding>
+          <Insets right="10" left="10"/>
+        </padding>
+        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
+               text="Output Path Prefix" textAlignment="RIGHT">
+          <graphic>
+            <Pane prefWidth="15.0"/>
+          </graphic>
+        </Label>
+        <Pane prefWidth="15.0"/>
+        <TextField fx:id="fieldOutputPathPrefix" prefHeight="25.0"/>
+      </VBox>
     </HBox>
-    <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
-      <opaqueInsets>
-        <Insets/>
-      </opaqueInsets>
-      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0" text="Output Mode"
-             textAlignment="RIGHT">
-        <graphic>
-          <Pane prefHeight="100.0" prefWidth="15.0"/>
-        </graphic>
-      </Label>
-      <Pane prefHeight="100.0" prefWidth="15.0"/>
-      <ChoiceBox fx:id="choiceOutputMode" prefHeight="25.0" prefWidth="401.0"/>
-    </HBox>
-    <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
-      <opaqueInsets>
-        <Insets/>
-      </opaqueInsets>
-      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0"
-             text="Output File Mode" textAlignment="RIGHT">
-        <graphic>
-          <Pane prefHeight="100.0" prefWidth="15.0"/>
-        </graphic>
-      </Label>
-      <Pane prefHeight="100.0" prefWidth="15.0"/>
-      <ChoiceBox fx:id="choiceOutputFileMode" prefHeight="25.0" prefWidth="401.0"/>
-    </HBox>
-    <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
-      <opaqueInsets>
-        <Insets/>
-      </opaqueInsets>
-      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0"
-             text="Output Seconds" textAlignment="RIGHT">
-        <graphic>
-          <Pane prefHeight="100.0" prefWidth="15.0"/>
-        </graphic>
-      </Label>
-      <Pane prefHeight="100.0" prefWidth="15.0"/>
-      <TextField fx:id="fieldOutputSeconds" prefHeight="25.0" prefWidth="402.0"/>
-    </HBox>
-    <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
-      <opaqueInsets>
-        <Insets/>
-      </opaqueInsets>
-      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" prefHeight="42.0" prefWidth="177.0"
-             text="Output Path Prefix" textAlignment="RIGHT">
-        <graphic>
-          <Pane prefHeight="100.0" prefWidth="15.0"/>
-        </graphic>
-      </Label>
-      <Pane prefHeight="100.0" prefWidth="15.0"/>
-      <TextField fx:id="fieldOutputPathPrefix" prefHeight="25.0" prefWidth="402.0"/>
+    <HBox alignment="CENTER_LEFT" prefHeight="41.0">
+      <padding>
+        <Insets top="10"/>
+      </padding>
+      <VBox alignment="CENTER_LEFT">
+        <padding>
+          <Insets right="10" left="10"/>
+        </padding>
+        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
+               text="Buffer Ahead Seconds" textAlignment="RIGHT">
+          <graphic>
+            <Pane prefWidth="15.0"/>
+          </graphic>
+        </Label>
+        <Pane prefWidth="15.0"/>
+        <TextField fx:id="fieldBufferAheadSeconds" prefHeight="25.0"/>
+      </VBox>
+      <VBox alignment="CENTER_LEFT">
+        <padding>
+          <Insets right="10"/>
+        </padding>
+        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
+               text="Buffer Before Seconds" textAlignment="RIGHT">
+          <graphic>
+            <Pane prefWidth="15.0"/>
+          </graphic>
+        </Label>
+        <Pane prefWidth="15.0"/>
+        <TextField fx:id="fieldBufferBeforeSeconds" prefHeight="25.0"/>
+      </VBox>
+      <VBox alignment="CENTER_LEFT">
+        <padding>
+          <Insets right="10"/>
+        </padding>
+        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
+               text="Output Frame Rate" textAlignment="RIGHT">
+          <graphic>
+            <Pane prefWidth="15.0"/>
+          </graphic>
+        </Label>
+        <Pane prefWidth="15.0"/>
+        <TextField fx:id="fieldOutputFrameRate" prefHeight="25.0"/>
+      </VBox>
+      <VBox alignment="CENTER_LEFT">
+        <padding>
+          <Insets right="10"/>
+        </padding>
+        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
+               text="Output Channels" textAlignment="RIGHT">
+          <graphic>
+            <Pane prefWidth="15.0"/>
+          </graphic>
+        </Label>
+        <Pane prefWidth="15.0"/>
+        <TextField fx:id="fieldOutputChannels" prefHeight="25.0"/>
+      </VBox>
     </HBox>
   </VBox>
   <HBox alignment="CENTER" styleClass="top-pane-status-container"

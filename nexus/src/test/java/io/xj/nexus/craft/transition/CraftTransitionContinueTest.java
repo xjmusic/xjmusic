@@ -114,7 +114,7 @@ public class CraftTransitionContinueTest {
   @Test
   public void craftTransitionContinue() throws Exception {
     insertSegments3and4(false);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 5, 48000.0, 2);
 
 //    craftFactory.transition(fabricator).doWork();
 //    // assert choice of transition-type sequence
@@ -196,7 +196,7 @@ public class CraftTransitionContinueTest {
   @Test
   public void craftTransitionContinue_okEvenWithoutPreviousSegmentTransitionChoice() throws Exception {
     insertSegments3and4(true);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 5, 48000.0, 2);
     craftFactory.transition(fabricator).doWork();
 
 /*
