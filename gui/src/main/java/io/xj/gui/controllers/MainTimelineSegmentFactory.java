@@ -59,7 +59,7 @@ public class MainTimelineSegmentFactory {
       var p1 = new HBox();
       p1.setPrefWidth(SEGMENT_MIN_WIDTH);
       p1.setMinHeight(SEGMENT_PROPERTY_ROW_MIN_HEIGHT);
-      p1.getChildren().add(computeLabeledPropertyNode(String.format("#%d", segment.getOffset()), formatTimeFromMicros(segment.getBeginAtChainMicros()), SEGMENT_MIN_WIDTH / 2));
+      p1.getChildren().add(computeLabeledPropertyNode(String.format("[%d]", segment.getOffset()), formatTimeFromMicros(segment.getBeginAtChainMicros()), SEGMENT_MIN_WIDTH / 2));
       p1.getChildren().add(computeLabeledPropertyNode(segment.getType().toString(), String.format("+%d", segment.getDelta()), SEGMENT_MIN_WIDTH / 2));
       //
       var p2 = new HBox();
@@ -85,7 +85,7 @@ public class MainTimelineSegmentFactory {
       var choices = fabricationService.getSegmentChoices(segment);
       p4.getChildren().add(computeChoiceListNodes(segment, "Macro", choices.stream().filter((choice) -> ProgramType.Macro == choice.getProgramType()).toList(), true, false, false));
       p4.getChildren().add(computeChoiceListNodes(segment, "Main", choices.stream().filter((choice) -> ProgramType.Main == choice.getProgramType()).toList(), true, false, false));
-      p4.getChildren().add(computeChoiceListNodes(segment, "Beat", choices.stream().filter((choice) -> ProgramType.Beat == choice.getProgramType()).toList(), false, true, false)); // todo show special header with direct program reference
+      p4.getChildren().add(computeChoiceListNodes(segment, "Beat", choices.stream().filter((choice) -> ProgramType.Beat == choice.getProgramType()).toList(), false, true, false));
       p4.getChildren().add(computeChoiceListNodes(segment, "Detail", choices.stream().filter((choice) -> ProgramType.Detail == choice.getProgramType()).toList(), true, false, false));
       p4.getChildren().add(computeChoiceListNodes(segment, "Perc Loop", choices.stream().filter((choice) ->
         InstrumentType.Percussion == choice.getInstrumentType() && InstrumentMode.Loop == choice.getInstrumentMode()).toList(), false, false, true));
