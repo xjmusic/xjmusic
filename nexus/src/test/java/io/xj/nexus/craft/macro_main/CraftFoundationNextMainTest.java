@@ -5,7 +5,6 @@ import io.xj.hub.HubContent;
 import io.xj.hub.enums.ProgramType;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.entity.EntityUtils;
-import io.xj.lib.LabUrlProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
@@ -71,8 +70,7 @@ public class CraftFoundationNextMainTest {
       jsonapiPayloadFactory,
       jsonProvider
     );
-    LabUrlProvider labUrlProvider = new LabUrlProvider("");
-    craftFactory = new CraftFactoryImpl(labUrlProvider);
+    craftFactory = new CraftFactoryImpl();
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
 

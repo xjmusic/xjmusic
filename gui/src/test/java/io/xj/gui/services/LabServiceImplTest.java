@@ -1,18 +1,18 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.lib;
+package io.xj.gui.services;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class LabUrlProviderTest {
-  LabUrlProvider subject;
+public class LabServiceImplTest {
+  LabService subject;
 
   @BeforeEach
   public void setUp() {
-    subject = new LabUrlProvider("https://lab.test.xj.io/");
+    subject = new LabServiceImpl("https://lab.test.xj.io/");
   }
 
   @Test

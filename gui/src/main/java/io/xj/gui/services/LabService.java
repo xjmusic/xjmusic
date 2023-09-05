@@ -7,6 +7,7 @@ import javafx.scene.Node;
 import org.springframework.http.HttpMethod;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
 import java.util.UUID;
 
 public interface LabService {
@@ -24,9 +25,25 @@ public interface LabService {
 
   ObjectProperty<LabStatus> statusProperty();
 
-  StringProperty urlProperty();
+  StringProperty baseUrlProperty();
 
   StringProperty accessTokenProperty();
 
   ObjectProperty<User> authenticatedUserProperty();
+
+  /**
+   Get URI object for a path within the API
+
+   @param path within API
+   @return String
+   */
+  URI computeUri(String path);
+
+  /**
+   Get the URL for a path in the app
+
+   @param path to get URL for
+   @return RUL for given path
+   */
+  String computeUrl(String path);
 }

@@ -5,7 +5,6 @@ import io.xj.hub.HubContent;
 import io.xj.hub.enums.ProgramType;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.entity.EntityUtils;
-import io.xj.lib.LabUrlProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
@@ -59,8 +58,7 @@ public class CraftSegmentPatternMemeTest {
     for (int i = 1; i <= TEST_REPEAT_ITERATIONS; i++) {
       LOG.info("ATTEMPT NUMBER {}", i);
 
-      LabUrlProvider labUrlProvider = new LabUrlProvider("");
-      CraftFactory craftFactory = new CraftFactoryImpl(labUrlProvider);
+        CraftFactory craftFactory = new CraftFactoryImpl();
       var jsonProvider = new JsonProviderImpl();
       var entityFactory = new EntityFactoryImpl(jsonProvider);
       var store = new NexusEntityStoreImpl(entityFactory);

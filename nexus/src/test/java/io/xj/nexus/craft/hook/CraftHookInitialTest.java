@@ -3,7 +3,6 @@ package io.xj.nexus.craft.hook;
 
 import io.xj.hub.HubContent;
 import io.xj.lib.entity.EntityFactoryImpl;
-import io.xj.lib.LabUrlProvider;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
@@ -19,7 +18,10 @@ import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.model.*;
-import io.xj.nexus.persistence.*;
+import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.persistence.NexusEntityStoreImpl;
+import io.xj.nexus.persistence.SegmentManager;
+import io.xj.nexus.persistence.SegmentManagerImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,8 +52,7 @@ public class CraftHookInitialTest {
   public void setUp() throws Exception {
     JsonProvider jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
-    LabUrlProvider labUrlProvider = new LabUrlProvider("");
-    craftFactory = new CraftFactoryImpl(labUrlProvider);
+    craftFactory = new CraftFactoryImpl();
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);

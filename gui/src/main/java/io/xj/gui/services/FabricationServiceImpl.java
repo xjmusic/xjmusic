@@ -2,22 +2,11 @@
 
 package io.xj.gui.services;
 
-import io.xj.hub.tables.pojos.Instrument;
-import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.hub.tables.pojos.Program;
-import io.xj.hub.tables.pojos.ProgramSequence;
-import io.xj.hub.tables.pojos.ProgramSequenceBinding;
-import io.xj.hub.tables.pojos.ProgramVoice;
-import io.xj.lib.LabUrlProvider;
+import io.xj.hub.tables.pojos.*;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
-import io.xj.nexus.model.Segment;
-import io.xj.nexus.model.SegmentChoice;
-import io.xj.nexus.model.SegmentChoiceArrangement;
-import io.xj.nexus.model.SegmentChoiceArrangementPick;
-import io.xj.nexus.model.SegmentChord;
-import io.xj.nexus.model.SegmentMeme;
+import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.ManagerPrivilegeException;
 import io.xj.nexus.work.WorkConfiguration;
@@ -33,25 +22,19 @@ import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.scene.Node;
 import javafx.scene.control.Hyperlink;
-import javafx.scene.control.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @org.springframework.stereotype.Service
 public class FabricationServiceImpl extends Service<Boolean> implements FabricationService {
   static final Logger LOG = LoggerFactory.getLogger(FabricationServiceImpl.class);
   final HostServices hostServices;
   final WorkFactory workFactory;
-  final LabUrlProvider labUrlProvider;
+  private final LabService labService;
 
   final ObjectProperty<FabricationStatus> status = new SimpleObjectProperty<>(FabricationStatus.Standby);
   final StringProperty inputTemplateKey = new SimpleStringProperty();
@@ -69,11 +52,11 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     @Value("${output.mode}") String defaultOutputMode,
     @Value("${output.seconds}") Integer defaultOutputSeconds,
     WorkFactory workFactory,
-    LabUrlProvider labUrlProvider
+    LabService labService
   ) {
     this.hostServices = hostServices;
     this.workFactory = workFactory;
-    this.labUrlProvider = labUrlProvider;
+    this.labService = labService;
     inputMode.set(InputMode.valueOf(defaultInputMode.toUpperCase(Locale.ROOT)));
     inputTemplateKey.set(defaultInputTemplateKey);
     outputFileMode.set(OutputFileMode.valueOf(defaultOutputFileMode.toUpperCase(Locale.ROOT)));
@@ -228,7 +211,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     Optional<ProgramSequenceBinding> programSequenceBinding = Objects.nonNull(programSequenceBindingId) ? getProgramSequenceBinding(programSequenceBindingId) : Optional.empty();
     var programSequence = programSequenceBinding.map(ProgramSequenceBinding::getProgramSequenceId).flatMap(this::getProgramSequence);
 
-    var programUrl = labUrlProvider.computeUrl(String.format("programs/%s", programId));
+    var programUrl = labService.computeUrl(String.format("programs/%s", programId));
 
     var hyperlink = new Hyperlink(computeProgramName(program.orElse(null), programSequence.orElse(null), programSequenceBinding.orElse(null)));
     hyperlink.setOnAction(event -> hostServices.showDocument(programUrl));
@@ -239,7 +222,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   public Node computeProgramVoiceReferenceNode(UUID programVoiceId) {
     var programVoice = getProgramVoice(programVoiceId);
 
-    var programUrl = labUrlProvider.computeUrl(String.format("programs/%s", programVoice.orElseThrow().getProgramId()));
+    var programUrl = labService.computeUrl(String.format("programs/%s", programVoice.orElseThrow().getProgramId()));
 
     var hyperlink = new Hyperlink(programVoice.orElseThrow().getName());
     hyperlink.setOnAction(event -> hostServices.showDocument(programUrl));
@@ -250,7 +233,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   public Node computeInstrumentReferenceNode(UUID instrumentId) {
     var instrument = getInstrument(instrumentId);
 
-    var instrumentUrl = labUrlProvider.computeUrl(String.format("instruments/%s", instrumentId));
+    var instrumentUrl = labService.computeUrl(String.format("instruments/%s", instrumentId));
 
     var hyperlink = new Hyperlink(instrument.orElseThrow().getName());
     hyperlink.setOnAction(event -> hostServices.showDocument(instrumentUrl));
@@ -261,7 +244,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   public Node computeInstrumentAudioReferenceNode(UUID instrumentAudioId) {
     var instrumentAudio = getInstrumentAudio(instrumentAudioId);
 
-    var instrumentUrl = labUrlProvider.computeUrl(String.format("instruments/%s", instrumentAudio.orElseThrow().getInstrumentId()));
+    var instrumentUrl = labService.computeUrl(String.format("instruments/%s", instrumentAudio.orElseThrow().getInstrumentId()));
 
     var hyperlink = new Hyperlink(instrumentAudio.orElseThrow().getName());
     hyperlink.setOnAction(event -> hostServices.showDocument(instrumentUrl));
@@ -269,7 +252,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   }
 
 
-  private String computeProgramName(@Nullable Program program, @Nullable ProgramSequence programSequence, @Nullable ProgramSequenceBinding programSequenceBinding) {
+  String computeProgramName(@Nullable Program program, @Nullable ProgramSequence programSequence, @Nullable ProgramSequenceBinding programSequenceBinding) {
     if (Objects.nonNull(program) && Objects.nonNull(programSequence) && Objects.nonNull(programSequenceBinding))
       return String.format("%s @ %d (%s)", program.getName(), programSequenceBinding.getOffset(), programSequence.getName());
     else if (Objects.nonNull(program))

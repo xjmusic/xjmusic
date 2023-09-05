@@ -2,6 +2,7 @@
 
 package io.xj.gui.controllers;
 
+import io.xj.gui.listeners.NoSelectionModel;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
 import io.xj.nexus.model.Segment;
@@ -12,35 +13,24 @@ import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.util.Callback;
 import javafx.util.Duration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 
 @Service
 public class MainTimelineController extends ScrollPane implements ReadyAfterBootController {
-  static final Logger LOG = LoggerFactory.getLogger(MainTimelineController.class);
   final ConfigurableApplicationContext ac;
   final FabricationService fabricationService;
   final Integer refreshRateSeconds;
+  final MainTimelineSegmentFactory segmentFactory;
   final LabService labService;
-  final Map<UUID, SegmentCell> cellCache = new HashMap<>();
-  final Resource timelineSegmentFxml;
   final ObservableList<Segment> segments = FXCollections.observableArrayList();
 
   @Nullable
@@ -48,6 +38,20 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
 
   @FXML
   protected ListView<Segment> segmentListView;
+
+  public MainTimelineController(
+    @Value("${gui.timeline.refresh.seconds}") Integer refreshRateSeconds,
+    ConfigurableApplicationContext ac,
+    FabricationService fabricationService,
+    LabService labService,
+    MainTimelineSegmentFactory segmentFactory
+  ) {
+    this.ac = ac;
+    this.fabricationService = fabricationService;
+    this.labService = labService;
+    this.refreshRateSeconds = refreshRateSeconds;
+    this.segmentFactory = segmentFactory;
+  }
 
   final Callback<ListView<Segment>, ListCell<Segment>> cellFactory = new Callback<>() {
     @Override
@@ -60,47 +64,12 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
           if (empty || item == null) {
             setGraphic(null);
           } else {
-            var cell = getCachedCellContent(item);
-            cell.setSegment(item);
-            setGraphic(cell.content);
+            setGraphic(segmentFactory.computeSegmentNode(item));
           }
         }
       };
     }
   };
-
-  SegmentCell getCachedCellContent(Segment item) {
-    try {
-      if (!cellCache.containsKey(item.getId())) {
-        LOG.info("Will load FXML for Segment@{}", item.getOffset());
-        FXMLLoader loader = new FXMLLoader(timelineSegmentFxml.getURL());
-        loader.setControllerFactory(this::createSegmentController);
-        Node cellContent = loader.load();
-        MainTimelineSegmentController cellController = loader.getController();
-        cellController.onStageReady();
-        cellCache.put(item.getId(), new SegmentCell(cellController, cellContent));
-      }
-      return cellCache.get(item.getId());
-
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-
-  public MainTimelineController(
-    @Value("classpath:/views/main-timeline-segment.fxml") Resource timelineSegmentFxml,
-    @Value("${gui.timeline.refresh.seconds}") Integer refreshRateSeconds,
-    ConfigurableApplicationContext ac,
-    FabricationService fabricationService,
-    LabService labService
-  ) {
-    this.timelineSegmentFxml = timelineSegmentFxml;
-    this.ac = ac;
-    this.fabricationService = fabricationService;
-    this.labService = labService;
-    this.refreshRateSeconds = refreshRateSeconds;
-  }
 
   @Override
   public void onStageReady() {
@@ -114,6 +83,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     refresh.setRate(refreshRateSeconds);
     refresh.play();
 
+    segmentListView.setSelectionModel(new NoSelectionModel<>());
     segmentListView.setCellFactory(cellFactory);
     segmentListView.setItems(segments);
   }
@@ -148,29 +118,5 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
         segments.add(source);
       }
     });
-  }
-
-  MainTimelineSegmentController createSegmentController(Class<?> ignored) {
-    return new MainTimelineSegmentController(fabricationService);
-  }
-
-  class SegmentCell {
-    private final MainTimelineSegmentController controller;
-    private final Node content;
-
-    public SegmentCell(
-      MainTimelineSegmentController controller,
-      Node content
-    ) {
-      this.content = content;
-      this.controller = controller;
-    }
-
-    public void setSegment(Segment segment) {
-      controller.setSegment(segment);
-      controller.setMemes(fabricationService.getSegmentMemes(segment));
-      controller.setChords(fabricationService.getSegmentChords(segment));
-      controller.setChoices(fabricationService.getSegmentChoices(segment));
-    }
   }
 }

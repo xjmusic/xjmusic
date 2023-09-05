@@ -2,7 +2,6 @@
 
 package io.xj.nexus.craft;
 
-import io.xj.lib.LabUrlProvider;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.background.BackgroundCraft;
 import io.xj.nexus.craft.background.BackgroundCraftImpl;
@@ -24,13 +23,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class CraftFactoryImpl implements CraftFactory {
-  final LabUrlProvider labUrlProvider;
 
   @Autowired
-  public CraftFactoryImpl(
-    LabUrlProvider labUrlProvider
-  ) {
-    this.labUrlProvider = labUrlProvider;
+  public CraftFactoryImpl() {
   }
 
   @Override
@@ -55,7 +50,7 @@ public class CraftFactoryImpl implements CraftFactory {
 
   @Override
   public MacroMainCraft macroMain(Fabricator fabricator) {
-    return new MacroMainCraftImpl(fabricator, labUrlProvider);
+    return new MacroMainCraftImpl(fabricator);
   }
 
   @Override

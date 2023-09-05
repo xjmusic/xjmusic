@@ -97,7 +97,7 @@ public class ModalLabConnectionController implements ReadyAfterBootController {
         labService.statusProperty().get() == LabStatus.Authenticated ? BUTTON_DISCONNECT_TEXT : BUTTON_CONNECT_TEXT,
       labService.statusProperty()));
 
-    fieldLabUrl.textProperty().bindBidirectional(labService.urlProperty());
+    fieldLabUrl.textProperty().bindBidirectional(labService.baseUrlProperty());
     fieldLabAccessToken.textProperty().bindBidirectional(labService.accessTokenProperty());
     labelStatus.textProperty().bind(labService.statusProperty().asString());
 
@@ -155,7 +155,7 @@ public class ModalLabConnectionController implements ReadyAfterBootController {
 
   @FXML
   void handleLaunchLabPreferences() {
-    hostServices.showDocument(labService.urlProperty().get() + "preferences");
+    hostServices.showDocument(labService.baseUrlProperty().get() + "preferences");
   }
 
   @FXML

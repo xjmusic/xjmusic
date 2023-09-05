@@ -9,7 +9,6 @@ import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.entity.EntityUtils;
-import io.xj.lib.LabUrlProvider;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
@@ -71,8 +70,7 @@ public class CraftBeat_LayeredVoicesTest {
   public void setUp() throws Exception {
     JsonProvider jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
-    LabUrlProvider labUrlProvider = new LabUrlProvider("");
-    craftFactory = new CraftFactoryImpl(labUrlProvider);
+    craftFactory = new CraftFactoryImpl();
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);

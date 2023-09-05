@@ -9,16 +9,11 @@ import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceChord;
 import io.xj.hub.util.MarbleBag;
 import io.xj.hub.util.ValueUtils;
-import io.xj.lib.LabUrlProvider;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.CraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.MemeIsometry;
-import io.xj.nexus.model.Segment;
-import io.xj.nexus.model.SegmentChoice;
-import io.xj.nexus.model.SegmentChord;
-import io.xj.nexus.model.SegmentChordVoicing;
-import io.xj.nexus.model.SegmentType;
+import io.xj.nexus.model.*;
 import jakarta.annotation.Nullable;
 
 import java.util.*;
@@ -27,14 +22,11 @@ import java.util.*;
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
-  final LabUrlProvider labUrlProvider;
 
   public MacroMainCraftImpl(
-    Fabricator fabricator,
-    LabUrlProvider labUrlProvider
+    Fabricator fabricator
   ) {
     super(fabricator);
-    this.labUrlProvider = labUrlProvider;
   }
 
   /**
@@ -106,10 +98,10 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     Integer macroSequenceBindingOffset = computeMacroProgramSequenceBindingOffset();
     var macroSequenceBinding = fabricator.getRandomlySelectedSequenceBindingAtOffset(macroProgram, macroSequenceBindingOffset)
       .orElseThrow(() -> new NexusException(String.format(
-        "Unable to determine sequence binding offset for macro Program \"%s\" %s",
+        "Unable to determine sequence binding offset for Macro-Program[%s] %s",
         macroProgram.getName(),
-        labUrlProvider.computeUrl(String.format("/programs/%s", macroProgram.getId()))
-      )));
+        macroProgram.getId())
+      ));
     var macroSequence = fabricator.sourceMaterial().getProgramSequence(macroSequenceBinding);
     var macroChoice = new SegmentChoice();
     macroChoice.setId(UUID.randomUUID());
@@ -125,17 +117,17 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     // 2. Main
     Program mainProgram = chooseNextMainProgram()
       .orElseThrow(() -> new NexusException(String.format(
-        "Unable to choose main program based on macro Program \"%s\" at offset %s %s",
+        "Unable to choose main program based on Macro-Program[%s] at offset %s %s",
         macroProgram.getName(),
         macroSequenceBindingOffset,
-        labUrlProvider.computeUrl(String.format("/programs/%s", macroProgram.getId()))
-      )));
+        macroProgram.getId())
+      ));
     Integer mainSequenceBindingOffset = computeMainProgramSequenceBindingOffset();
     var mainSequenceBinding = fabricator.getRandomlySelectedSequenceBindingAtOffset(mainProgram, mainSequenceBindingOffset)
       .orElseThrow(() -> new NexusException(String.format(
-        "Unable to determine sequence binding offset for main Program \"%s\" %s",
+        "Unable to determine sequence binding offset for Main-Program[%s] %s",
         mainProgram.getName(),
-        labUrlProvider.computeUrl(String.format("/programs/%s", mainProgram.getId()))
+        mainProgram.getId()
       )));
     var mainSequence = fabricator.sourceMaterial().getProgramSequence(mainSequenceBinding);
     var mainChoice = new SegmentChoice();

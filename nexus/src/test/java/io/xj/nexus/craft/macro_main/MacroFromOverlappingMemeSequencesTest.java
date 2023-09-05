@@ -9,7 +9,6 @@ import io.xj.hub.tables.pojos.*;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreImpl;
-import io.xj.lib.LabUrlProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
@@ -43,8 +42,6 @@ public class MacroFromOverlappingMemeSequencesTest {
   static final int REPEAT_TIMES = 100;
   @Mock
   public HubClient hubClient;
-  @Mock
-  public LabUrlProvider labUrlProvider;
   @Mock
   public NotificationProvider notificationProvider;
   MacroMainCraftImpl subject;
@@ -167,7 +164,7 @@ public class MacroFromOverlappingMemeSequencesTest {
       "chains-1-segments-9f7s89d8a7892.wav"
     ));
 
-    subject = new MacroMainCraftImpl(fabricatorFactory.fabricate(sourceMaterial, segment2), labUrlProvider);
+    subject = new MacroMainCraftImpl(fabricatorFactory.fabricate(sourceMaterial, segment2));
   }
 
   @Test

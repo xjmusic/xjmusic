@@ -16,14 +16,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 @Service
 public class LabServiceImpl implements LabService {
   Logger LOG = LoggerFactory.getLogger(LabServiceImpl.class);
   final WebClient webClient;
   final ObjectProperty<LabStatus> status = new SimpleObjectProperty<>(LabStatus.Offline);
-  final StringProperty url = new SimpleStringProperty();
+  static final Pattern rgxStripLeadingSlash = Pattern.compile("^/");
+  final StringProperty baseUrl = new SimpleStringProperty();
   final StringProperty accessToken = new SimpleStringProperty();
 
   final ObjectProperty<User> authenticatedUser = new SimpleObjectProperty<>();
@@ -31,22 +34,22 @@ public class LabServiceImpl implements LabService {
   public LabServiceImpl(
     @Value("${lab.base.url}") String defaultLabBaseUrl
   ) {
-    this.url.set(defaultLabBaseUrl);
+    this.baseUrl.set(defaultLabBaseUrl);
     this.webClient = WebClient.builder().build();
-    url.addListener((observable, oldValue, newValue) -> {
+    baseUrl.addListener((observable, oldValue, newValue) -> {
       if (Objects.isNull(newValue)) {
         return;
       }
       if (!newValue.endsWith("/")) {
-        this.url.set(this.url.getValue() + '/');
+        this.baseUrl.set(this.baseUrl.getValue() + '/');
       }
-      LOG.info("Lab URL changed to: " + this.url.getValue());
+      LOG.info("Lab URL changed to: " + this.baseUrl.getValue());
     });
   }
 
   @Override
   public void connect() {
-    this.url.set(url.getValue());
+    this.baseUrl.set(baseUrl.getValue());
     this.accessToken.set(accessToken.getValue());
     this.status.set(LabStatus.Connecting);
 
@@ -78,7 +81,7 @@ public class LabServiceImpl implements LabService {
   @Override
   public <T> Mono<T> makeAuthenticatedRequest(String endpoint, HttpMethod method, Class<T> responseType) {
     return webClient.method(method)
-      .uri(url.getValue() + endpoint)
+      .uri(baseUrl.getValue() + endpoint)
       .cookie("access_token", accessToken.getValue())
       .retrieve()
       .bodyToMono(responseType);
@@ -96,8 +99,8 @@ public class LabServiceImpl implements LabService {
   }
 
   @Override
-  public StringProperty urlProperty() {
-    return url;
+  public StringProperty baseUrlProperty() {
+    return baseUrl;
   }
 
   @Override
@@ -108,5 +111,15 @@ public class LabServiceImpl implements LabService {
   @Override
   public ObjectProperty<User> authenticatedUserProperty() {
     return authenticatedUser;
+  }
+
+  @Override
+  public URI computeUri(String path) {
+    return URI.create(computeUrl(path));
+  }
+
+  @Override
+  public String computeUrl(String path) {
+    return String.format("%s%s", baseUrl.get(), rgxStripLeadingSlash.matcher(path).replaceAll(""));
   }
 }
