@@ -4,8 +4,10 @@ package io.xj.nexus.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.xj.hub.util.ValueUtils;
 import jakarta.annotation.Nullable;
 
+import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -35,6 +37,11 @@ public class Segment {
   Integer delta;
   String createdAt;
   String updatedAt;
+
+  public Segment() {
+    createdAt = computeAtNow();
+    updatedAt = computeAtNow();
+  }
 
   /**
    **/
@@ -295,6 +302,15 @@ public class Segment {
     return updatedAt;
   }
 
+  public Segment setUpdatedAt(String updatedAt) {
+    this.updatedAt = updatedAt;
+    return this;
+  }
+
+  public void setUpdatedNow() {
+    updatedAt = computeAtNow();
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -360,6 +376,10 @@ public class Segment {
       return "null";
     }
     return o.toString().replace("\n", "\n    ");
+  }
+
+  String computeAtNow() {
+    return ValueUtils.formatIso8601UTC(Instant.now());
   }
 }
 

@@ -34,7 +34,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   static final Logger LOG = LoggerFactory.getLogger(FabricationServiceImpl.class);
   final HostServices hostServices;
   final WorkFactory workFactory;
-  private final LabService labService;
+  final LabService labService;
 
   final ObjectProperty<FabricationStatus> status = new SimpleObjectProperty<>(FabricationStatus.Standby);
   final StringProperty inputTemplateKey = new SimpleStringProperty();

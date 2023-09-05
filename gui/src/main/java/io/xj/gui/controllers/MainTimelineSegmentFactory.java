@@ -112,17 +112,17 @@ public class MainTimelineSegmentFactory {
   }
 
   @SuppressWarnings("SameParameterValue")
-  private Node computeLabeledPropertyNode(String label, String value, int minWidth) {
+  Node computeLabeledPropertyNode(String label, String value, int minWidth) {
     return computeLabeledPropertyNode(label, computeValueNode(value), minWidth);
   }
 
   @SuppressWarnings("SameParameterValue")
-  private Node computeLabeledPropertyNode(String label, Integer value, int minWidth) {
+  Node computeLabeledPropertyNode(String label, Integer value, int minWidth) {
     return computeLabeledPropertyNode(label, computeValueNode(value), minWidth);
   }
 
   @SuppressWarnings("SameParameterValue")
-  private Node computeLabeledPropertyNode(String label, Long value, int minWidth) {
+  Node computeLabeledPropertyNode(String label, Long value, int minWidth) {
     return computeLabeledPropertyNode(label, computeValueNode(value), minWidth);
   }
 

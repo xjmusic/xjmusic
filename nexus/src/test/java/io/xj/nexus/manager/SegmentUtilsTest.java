@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.nexus.HubIntegrationTestingFixtures.buildAccount;
@@ -122,5 +123,33 @@ public class SegmentUtilsTest {
     assertTrue(SegmentUtils.isSpanning(seg1, 35 * MICROS_PER_SECOND, 52 * MICROS_PER_SECOND));
     assertTrue(SegmentUtils.isSpanning(seg1, 50 * MICROS_PER_SECOND, 67 * MICROS_PER_SECOND));
     assertFalse(SegmentUtils.isSpanning(seg1, 66 * MICROS_PER_SECOND, 80 * MICROS_PER_SECOND));
+  }
+
+  @Test
+  void isSameButUpdated() {
+    var s1 = createSameSegment("2014-08-12T12:17:02.527142Z", SegmentState.CRAFTED);
+    var s1_failed = createSameSegment("2014-08-12T12:17:02.527142Z", SegmentState.FAILED);
+    var s1_updated = createSameSegment("2014-09-09T09:09:09.999999Z", SegmentState.CRAFTED);
+    assertTrue(SegmentUtils.isSameButUpdated(s1, s1_updated));
+    assertTrue(SegmentUtils.isSameButUpdated(s1, s1_failed));
+    assertFalse(SegmentUtils.isSameButUpdated(s1, s1));
+    assertFalse(SegmentUtils.isSameButUpdated(s1, seg2));
+  }
+
+  Segment createSameSegment(String updatedAt, SegmentState state) {
+    final Segment s = buildSegment(
+      chain,
+      SegmentType.CONTINUE,
+      1,
+      1,
+      state,
+      "F Major",
+      64,
+      0.30f,
+      120.0f,
+      "chains-1-segments-078aw34tiu5hga",
+      true);
+    s.setId(UUID.fromString("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7"));
+    return s.setUpdatedAt(updatedAt);
   }
 }

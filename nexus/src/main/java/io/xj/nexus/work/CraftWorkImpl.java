@@ -791,6 +791,7 @@ public class CraftWorkImpl implements CraftWork {
       throw new NexusException(String.format("Segment[%s] %s requires Segment must be in %s state.", segment.getId(), toState, fromState));
     var seg = fabricator.getSegment();
     seg.setState(toState);
+    seg.setUpdatedNow();
     fabricator.putSegment(seg);
     LOG.debug("[segId={}] Segment transitioned to state {} OK", segment.getId(), toState);
     return fabricator.getSegment();
