@@ -1,16 +1,24 @@
-// Copyright (c) 1999-2022, XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 package io.xj.nexus.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.xj.hub.util.ValueUtils;
 import jakarta.annotation.Nullable;
 
+import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
 
 public class Segment {
-
+  @JsonIgnore
+  public static final int DELTA_UNLIMITED = -1;
+  @JsonIgnore
+  public static final String EXTENSION_SEPARATOR = ".";
+  @JsonIgnore
+  public static final String WAV_EXTENSION = "wav";
   UUID id;
   UUID chainId;
   SegmentType type;
@@ -30,8 +38,12 @@ public class Segment {
   String createdAt;
   String updatedAt;
 
+  public Segment() {
+    createdAt = computeAtNow();
+    updatedAt = computeAtNow();
+  }
+
   /**
-   *
    **/
   public Segment id(UUID id) {
     this.id = id;
@@ -49,7 +61,6 @@ public class Segment {
   }
 
   /**
-   *
    **/
   public Segment chainId(UUID chainId) {
     this.chainId = chainId;
@@ -67,7 +78,6 @@ public class Segment {
   }
 
   /**
-   *
    **/
   public Segment type(SegmentType type) {
     this.type = type;
@@ -85,7 +95,6 @@ public class Segment {
   }
 
   /**
-   *
    **/
   public Segment state(SegmentState state) {
     this.state = state;
@@ -103,7 +112,7 @@ public class Segment {
   }
 
   /**
-   * Segment begin-at time in microseconds since beginning of chain
+   Segment begin-at time in microseconds since beginning of chain
    **/
   public Segment beginAtChainMicros(long chainMicros) {
     this.beginAtChainMicros = chainMicros;
@@ -121,7 +130,6 @@ public class Segment {
   }
 
   /**
-   *
    **/
   public Segment durationMicros(@Nullable Long micros) {
     this.durationMicros = micros;
@@ -140,7 +148,6 @@ public class Segment {
   }
 
   /**
-   *
    **/
   public Segment key(String key) {
     this.key = key;
@@ -158,7 +165,6 @@ public class Segment {
   }
 
   /**
-   *
    **/
   public Segment total(Integer total) {
     this.total = total;
@@ -176,7 +182,6 @@ public class Segment {
   }
 
   /**
-   *
    **/
   public Segment offset(Long offset) {
     this.offset = offset;
@@ -194,7 +199,6 @@ public class Segment {
   }
 
   /**
-   *
    **/
   public Segment density(Double density) {
     this.density = density;
@@ -212,7 +216,6 @@ public class Segment {
   }
 
   /**
-   *
    **/
   public Segment tempo(Double tempo) {
     this.tempo = tempo;
@@ -230,7 +233,6 @@ public class Segment {
   }
 
   /**
-   *
    **/
   public Segment storageKey(String storageKey) {
     this.storageKey = storageKey;
@@ -248,7 +250,6 @@ public class Segment {
   }
 
   /**
-   *
    **/
   public Segment waveformPreroll(Double waveformPreroll) {
     this.waveformPreroll = waveformPreroll;
@@ -265,15 +266,6 @@ public class Segment {
     this.waveformPreroll = waveformPreroll;
   }
 
-  /**
-   *
-   **/
-  public Segment waveformPostroll(Double waveformPostroll) {
-    this.waveformPostroll = waveformPostroll;
-    return this;
-  }
-
-
   @JsonProperty("waveformPostroll")
   public Double getWaveformPostroll() {
     return waveformPostroll;
@@ -284,7 +276,6 @@ public class Segment {
   }
 
   /**
-   *
    **/
   public Segment delta(Integer delta) {
     this.delta = delta;
@@ -301,42 +292,24 @@ public class Segment {
     this.delta = delta;
   }
 
-  /**
-   *
-   **/
-  public Segment createdAt(String createdAt) {
-    this.createdAt = createdAt;
-    return this;
-  }
-
-
   @JsonProperty("createdAt")
   public String getCreatedAt() {
     return createdAt;
   }
-
-  public void setCreatedAt(String createdAt) {
-    this.createdAt = createdAt;
-  }
-
-  /**
-   *
-   **/
-  public Segment updatedAt(String updatedAt) {
-    this.updatedAt = updatedAt;
-    return this;
-  }
-
 
   @JsonProperty("updatedAt")
   public String getUpdatedAt() {
     return updatedAt;
   }
 
-  public void setUpdatedAt(String updatedAt) {
+  public Segment setUpdatedAt(String updatedAt) {
     this.updatedAt = updatedAt;
+    return this;
   }
 
+  public void setUpdatedNow() {
+    updatedAt = computeAtNow();
+  }
 
   @Override
   public boolean equals(Object o) {
@@ -373,39 +346,40 @@ public class Segment {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class Segment {\n");
-
-    sb.append("    id: ").append(toIndentedString(id)).append("\n");
-    sb.append("    chainId: ").append(toIndentedString(chainId)).append("\n");
-    sb.append("    type: ").append(toIndentedString(type)).append("\n");
-    sb.append("    state: ").append(toIndentedString(state)).append("\n");
-    sb.append("    beginAtChainMicros: ").append(toIndentedString(beginAtChainMicros)).append("\n");
-    sb.append("    durationMicros: ").append(toIndentedString(durationMicros)).append("\n");
-    sb.append("    key: ").append(toIndentedString(key)).append("\n");
-    sb.append("    total: ").append(toIndentedString(total)).append("\n");
-    sb.append("    offset: ").append(toIndentedString(offset)).append("\n");
-    sb.append("    density: ").append(toIndentedString(density)).append("\n");
-    sb.append("    tempo: ").append(toIndentedString(tempo)).append("\n");
-    sb.append("    storageKey: ").append(toIndentedString(storageKey)).append("\n");
-    sb.append("    waveformPreroll: ").append(toIndentedString(waveformPreroll)).append("\n");
-    sb.append("    waveformPostroll: ").append(toIndentedString(waveformPostroll)).append("\n");
-    sb.append("    delta: ").append(toIndentedString(delta)).append("\n");
-    sb.append("    createdAt: ").append(toIndentedString(createdAt)).append("\n");
-    sb.append("    updatedAt: ").append(toIndentedString(updatedAt)).append("\n");
-    sb.append("}");
-    return sb.toString();
+    return "class Segment {\n" +
+      "    id: " + toIndentedString(id) + "\n" +
+      "    chainId: " + toIndentedString(chainId) + "\n" +
+      "    type: " + toIndentedString(type) + "\n" +
+      "    state: " + toIndentedString(state) + "\n" +
+      "    beginAtChainMicros: " + toIndentedString(beginAtChainMicros) + "\n" +
+      "    durationMicros: " + toIndentedString(durationMicros) + "\n" +
+      "    key: " + toIndentedString(key) + "\n" +
+      "    total: " + toIndentedString(total) + "\n" +
+      "    offset: " + toIndentedString(offset) + "\n" +
+      "    density: " + toIndentedString(density) + "\n" +
+      "    tempo: " + toIndentedString(tempo) + "\n" +
+      "    storageKey: " + toIndentedString(storageKey) + "\n" +
+      "    waveformPreroll: " + toIndentedString(waveformPreroll) + "\n" +
+      "    waveformPostroll: " + toIndentedString(waveformPostroll) + "\n" +
+      "    delta: " + toIndentedString(delta) + "\n" +
+      "    createdAt: " + toIndentedString(createdAt) + "\n" +
+      "    updatedAt: " + toIndentedString(updatedAt) + "\n" +
+      "}";
   }
 
   /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
+   Convert the given object to string with each line indented by 4 spaces
+   (except the first line).
    */
   String toIndentedString(Object o) {
     if (o == null) {
       return "null";
     }
     return o.toString().replace("\n", "\n    ");
+  }
+
+  String computeAtNow() {
+    return ValueUtils.formatIso8601UTC(Instant.now());
   }
 }
 

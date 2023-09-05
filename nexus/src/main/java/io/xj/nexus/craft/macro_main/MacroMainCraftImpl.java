@@ -9,43 +9,31 @@ import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceChord;
 import io.xj.hub.util.MarbleBag;
 import io.xj.hub.util.ValueUtils;
-import io.xj.lib.json.ApiUrlProvider;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.CraftImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.MemeIsometry;
-import io.xj.nexus.model.SegmentChoice;
-import io.xj.nexus.model.SegmentChord;
-import io.xj.nexus.model.SegmentChordVoicing;
-import io.xj.nexus.model.SegmentType;
-import io.xj.nexus.persistence.Segments;
+import io.xj.nexus.model.*;
 import jakarta.annotation.Nullable;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 /**
- * [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
+ [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
-  final ApiUrlProvider apiUrlProvider;
 
   public MacroMainCraftImpl(
-    Fabricator fabricator,
-    ApiUrlProvider apiUrlProvider
+    Fabricator fabricator
   ) {
     super(fabricator);
-    this.apiUrlProvider = apiUrlProvider;
   }
 
   /**
-   * Compute the final key of the current segment key, the key of the current main program sequence
-   *
-   * @param mainSequence of which to compute key
-   * @return key
+   Compute the final key of the current segment key, the key of the current main program sequence
+
+   @param mainSequence of which to compute key
+   @return key
    */
   String computeSegmentKey(ProgramSequence mainSequence) {
     String mainKey = mainSequence.getKey();
@@ -55,15 +43,15 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   }
 
   /**
-   * Compute the final density of the current segment
-   * future: Segment Density = average of macro and main-sequence patterns
-   * <p>
-   * Segment is assigned a density during macro-main craft. It's going to be used to determine a target # of perc loops
-   * Percussion Loops Alpha https://www.pivotaltracker.com/story/show/179534065
-   *
-   * @param macroSequence of which to compute segment tempo
-   * @param mainSequence  of which to compute segment tempo
-   * @return density
+   Compute the final density of the current segment
+   future: Segment Density = average of macro and main-sequence patterns
+   <p>
+   Segment is assigned a density during macro-main craft. It's going to be used to determine a target # of perc loops
+   Percussion Loops Alpha https://www.pivotaltracker.com/story/show/179534065
+
+   @param macroSequence of which to compute segment tempo
+   @param mainSequence  of which to compute segment tempo
+   @return density
    */
   double computeSegmentDensity(Integer delta, @Nullable ProgramSequence macroSequence, @Nullable ProgramSequence mainSequence) throws NexusException {
     return ValueUtils.limitDecimalPrecision(ValueUtils.interpolate(
@@ -75,11 +63,11 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   }
 
   /**
-   * Compute the average density of the two given sequences
-   *
-   * @param macroSequence of which to compute segment tempo
-   * @param mainSequence  of which to compute segment tempo
-   * @return density
+   Compute the average density of the two given sequences
+
+   @param macroSequence of which to compute segment tempo
+   @param mainSequence  of which to compute segment tempo
+   @return density
    */
   Float computeDensity(@Nullable ProgramSequence macroSequence, @Nullable ProgramSequence mainSequence) throws NexusException {
     @Nullable Float macroDensity =
@@ -110,18 +98,18 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     Integer macroSequenceBindingOffset = computeMacroProgramSequenceBindingOffset();
     var macroSequenceBinding = fabricator.getRandomlySelectedSequenceBindingAtOffset(macroProgram, macroSequenceBindingOffset)
       .orElseThrow(() -> new NexusException(String.format(
-        "Unable to determine sequence binding offset for macro Program \"%s\" %s",
+        "Unable to determine sequence binding offset for Macro-Program[%s] %s",
         macroProgram.getName(),
-        apiUrlProvider.getAppUrl(String.format("/programs/%s", macroProgram.getId()))
-      )));
+        macroProgram.getId())
+      ));
     var macroSequence = fabricator.sourceMaterial().getProgramSequence(macroSequenceBinding);
     var macroChoice = new SegmentChoice();
     macroChoice.setId(UUID.randomUUID());
     macroChoice.setSegmentId(fabricator.getSegment().getId());
     macroChoice.setProgramSequenceId(macroSequence.orElseThrow().getId());
     macroChoice.setProgramId(macroProgram.getId());
-    macroChoice.setDeltaIn(Segments.DELTA_UNLIMITED);
-    macroChoice.setDeltaOut(Segments.DELTA_UNLIMITED);
+    macroChoice.setDeltaIn(Segment.DELTA_UNLIMITED);
+    macroChoice.setDeltaOut(Segment.DELTA_UNLIMITED);
     macroChoice.setProgramType(ProgramType.Macro);
     macroChoice.setProgramSequenceBindingId(macroSequenceBinding.getId());
     fabricator.put(macroChoice);
@@ -129,25 +117,25 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     // 2. Main
     Program mainProgram = chooseNextMainProgram()
       .orElseThrow(() -> new NexusException(String.format(
-        "Unable to choose main program based on macro Program \"%s\" at offset %s %s",
+        "Unable to choose main program based on Macro-Program[%s] at offset %s %s",
         macroProgram.getName(),
         macroSequenceBindingOffset,
-        apiUrlProvider.getAppUrl(String.format("/programs/%s", macroProgram.getId()))
-      )));
+        macroProgram.getId())
+      ));
     Integer mainSequenceBindingOffset = computeMainProgramSequenceBindingOffset();
     var mainSequenceBinding = fabricator.getRandomlySelectedSequenceBindingAtOffset(mainProgram, mainSequenceBindingOffset)
       .orElseThrow(() -> new NexusException(String.format(
-        "Unable to determine sequence binding offset for main Program \"%s\" %s",
+        "Unable to determine sequence binding offset for Main-Program[%s] %s",
         mainProgram.getName(),
-        apiUrlProvider.getAppUrl(String.format("/programs/%s", mainProgram.getId()))
+        mainProgram.getId()
       )));
     var mainSequence = fabricator.sourceMaterial().getProgramSequence(mainSequenceBinding);
     var mainChoice = new SegmentChoice();
     mainChoice.setId(UUID.randomUUID());
     mainChoice.setSegmentId(fabricator.getSegment().getId());
     mainChoice.setProgramId(mainProgram.getId());
-    mainChoice.setDeltaIn(Segments.DELTA_UNLIMITED);
-    mainChoice.setDeltaOut(Segments.DELTA_UNLIMITED);
+    mainChoice.setDeltaIn(Segment.DELTA_UNLIMITED);
+    mainChoice.setDeltaOut(Segment.DELTA_UNLIMITED);
     mainChoice.setProgramType(ProgramType.Main);
     mainChoice.setProgramSequenceBindingId(mainSequenceBinding.getId());
     fabricator.put(mainChoice);
@@ -208,9 +196,9 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   }
 
   /**
-   * compute the macroSequenceBindingOffset
-   *
-   * @return macroSequenceBindingOffset
+   compute the macroSequenceBindingOffset
+
+   @return macroSequenceBindingOffset
    */
   Integer computeMacroProgramSequenceBindingOffset() throws NexusException {
     var previousMacroChoice = fabricator.getMacroChoiceOfPreviousSegment();
@@ -226,9 +214,9 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   }
 
   /**
-   * compute the mainSequenceBindingOffset
-   *
-   * @return mainSequenceBindingOffset
+   compute the mainSequenceBindingOffset
+
+   @return mainSequenceBindingOffset
    */
   Integer computeMainProgramSequenceBindingOffset() throws NexusException {
     switch (fabricator.getType()) {
@@ -247,11 +235,11 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   }
 
   /**
-   * Choose program completely at random
-   *
-   * @param programs all from which to choose
-   * @param avoid    to avoid
-   * @return program
+   Choose program completely at random
+
+   @param programs all from which to choose
+   @param avoid    to avoid
+   @return program
    */
   public Optional<Program> chooseRandomProgram(Collection<Program> programs, List<UUID> avoid) {
     var bag = MarbleBag.empty();
@@ -283,9 +271,9 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   }
 
   /**
-   * will rank all possibilities, and choose the next macro program
-   *
-   * @return macro-type program
+   will rank all possibilities, and choose the next macro program
+
+   @return macro-type program
    */
   public Optional<Program> chooseNextMacroProgram() throws NexusException {
     var bag = MarbleBag.empty();
@@ -337,11 +325,11 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   }
 
   /**
-   * Choose main program
-   * <p>
-   * ONLY CHOOSES ONCE, then returns that choice every time
-   *
-   * @return main-type Program
+   Choose main program
+   <p>
+   ONLY CHOOSES ONCE, then returns that choice every time
+
+   @return main-type Program
    */
   protected Optional<Program> chooseNextMainProgram() throws NexusException {
     var bag = MarbleBag.empty();
@@ -387,11 +375,11 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   }
 
   /**
-   * Get Segment length, in nanoseconds
-   *
-   * @param mainSequence the end of which marks the end of the segment
-   * @return segment length, in nanoseconds
-   * @throws NexusException on failure
+   Get Segment length, in nanoseconds
+
+   @param mainSequence the end of which marks the end of the segment
+   @return segment length, in nanoseconds
+   @throws NexusException on failure
    */
   long segmentLengthMicros(ProgramSequence mainSequence) throws NexusException {
     return fabricator.getSegmentMicrosAtPosition(mainSequence.getTotal());

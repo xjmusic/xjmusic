@@ -1,3 +1,5 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
 package io.xj.nexus.analysis;
 
 import io.xj.hub.HubContent;
@@ -13,21 +15,12 @@ import io.xj.hub.util.ValueException;
 import io.xj.hub.util.ValueUtils;
 import io.xj.lib.entity.EntityUtils;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Constellations report https://www.pivotaltracker.com/story/show/182861489
+ Constellations report https://www.pivotaltracker.com/story/show/182861489
  */
 public class ReportConstellations extends Report {
   final Histogram macroHistogram;

@@ -14,10 +14,7 @@ import javax.sound.sampled.AudioFormat;
 import java.io.IOException;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -135,7 +132,7 @@ public class SourceImplTest {
   }
 
   /**
-   * Fabrication should not completely fail because of one bad source audio https://www.pivotaltracker.com/story/show/182575665
+   Fabrication should not completely fail because of one bad source audio https://www.pivotaltracker.com/story/show/182575665
    */
   @Test
   public void empty() {

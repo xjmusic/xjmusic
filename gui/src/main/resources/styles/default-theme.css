@@ -1,3 +1,5 @@
+/* Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved. */
+
 /* from https://stackoverflow.com/questions/49159286/make-a-dark-mode-with-javafx */
 
 .root {
@@ -40,4 +42,66 @@
 
 .top-pane-status-container {
   -fx-background-color: #c9c9c9;
+}
+
+#fabricationConfigView {
+  -fx-background-color: #b0b0b0;
+}
+
+.main-timeline {
+  -fx-background-color: #e0e0e0;
+}
+
+.main-timeline .list-cell {
+  -fx-padding: 5px 2px 5px 5px;
+  -fx-background-color: #e0e0e0;
+}
+
+.main-timeline-segment {
+  -fx-background-color: #f0f0f0;
+}
+
+.main-timeline-segment .label,
+.main-timeline-segment .choice-program-type,
+.main-timeline-segment .choice-instrument-type {
+  -fx-fill: #606060;
+}
+
+.main-timeline-segment .value {
+  -fx-font-size: 1.62em;
+  -fx-font-weight: bold;
+  -fx-fill: #000000;
+}
+
+.main-timeline-segment .choice {
+  -fx-padding: 20px 0 0 0;
+}
+
+.main-timeline-segment .meme,
+.main-timeline-segment .chord-name,
+.main-timeline-segment .chord-position {
+  -fx-font-size: 1.2em;
+  -fx-font-weight: bold;
+}
+
+.main-timeline-segment .meme,
+.main-timeline-segment .chord-name,
+.main-timeline-segment .choice-program-name,
+.main-timeline-segment .choice-instrument-name {
+  -fx-fill: #000000;
+}
+
+.main-timeline-segment .chord-position,
+.main-timeline-segment .delta,
+.main-timeline-segment .choice-program-type,
+.main-timeline-segment .choice-instrument-type {
+  -fx-fill: #404040;
+}
+
+.main-timeline-segment .choice-group {
+  -fx-padding: 20px 0 0 0;
+}
+
+.main-timeline-segment .choice-group-item-muted {
+  -fx-opacity: 0.35;
 }

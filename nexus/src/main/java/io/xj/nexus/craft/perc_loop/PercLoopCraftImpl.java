@@ -14,18 +14,14 @@ import io.xj.nexus.model.SegmentChoiceArrangement;
 import io.xj.nexus.model.SegmentChoiceArrangementPick;
 import io.xj.nexus.model.SegmentType;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Percussion-type Loop-mode craft for the current segment
- * [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
- * <p>
- * PercLoopCraftImpl extends DetailCraftImpl to leverage all detail craft enhancements https://www.pivotaltracker.com/story/show/176625174
+ Percussion-type Loop-mode craft for the current segment
+ [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
+ <p>
+ PercLoopCraftImpl extends DetailCraftImpl to leverage all detail craft enhancements https://www.pivotaltracker.com/story/show/176625174
  */
 public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
   public PercLoopCraftImpl(
@@ -76,11 +72,11 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
   }
 
   /**
-   * Percussion-type Loop-mode instrument audios are chosen in order of priority
-   * https://www.pivotaltracker.com/story/show/181262545
-   *
-   * @param after # of choices
-   * @return required event name
+   Percussion-type Loop-mode instrument audios are chosen in order of priority
+   https://www.pivotaltracker.com/story/show/181262545
+
+   @param after # of choices
+   @return required event name
    */
   List<String> computePreferredEvents(int after) {
     return switch (after) {
@@ -99,9 +95,9 @@ public class PercLoopCraftImpl extends BeatCraftImpl implements PercLoopCraft {
   }
 
   /**
-   * Craft percussion loop
-   *
-   * @param audio for which to craft segment
+   Craft percussion loop
+
+   @param audio for which to craft segment
    */
   @SuppressWarnings("DuplicatedCode")
   void craftPercLoop(InstrumentAudio audio) throws NexusException {

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Measures a series of named sections of time
+ Measures a series of named sections of time
  */
 public class MultiStopwatchTest {
   MultiStopwatch subject;

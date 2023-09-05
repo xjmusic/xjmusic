@@ -5,13 +5,13 @@ import io.xj.hub.HubContent;
 import io.xj.hub.TemplateConfig;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.entity.EntityUtils;
-import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.nexus.NexusException;
+import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.craft.CraftFactoryImpl;
@@ -20,17 +20,11 @@ import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.hub_client.HubTopology;
-import io.xj.nexus.model.Chain;
-import io.xj.nexus.model.ChainState;
-import io.xj.nexus.model.ChainType;
-import io.xj.nexus.model.Segment;
-import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.SegmentManagerImpl;
-import io.xj.nexus.persistence.Segments;
-import io.xj.nexus.NexusIntegrationTestingFixtures;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,10 +36,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChord;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentMeme;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftBackgroundProgramVoiceInitialTest {
@@ -65,8 +56,7 @@ public class CraftBackgroundProgramVoiceInitialTest {
   public void setUp() throws Exception {
     JsonProvider jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
-    ApiUrlProvider apiUrlProvider = new ApiUrlProvider("");
-    craftFactory = new CraftFactoryImpl(apiUrlProvider);
+    craftFactory = new CraftFactoryImpl();
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
@@ -142,7 +132,7 @@ public class CraftBackgroundProgramVoiceInitialTest {
   }
 
   /**
-   * Insert fixture segment 6, including the background choice only if specified
+   Insert fixture segment 6, including the background choice only if specified
    */
   void insertSegment() throws NexusException {
     segment0 = store.put(buildSegment(
@@ -155,8 +145,8 @@ public class CraftBackgroundProgramVoiceInitialTest {
       130.0,
       "chains-1-segments-9f7s89d8a7892.wav"
     ));
-    store.put(buildSegmentChoice(segment0, Segments.DELTA_UNLIMITED, Segments.DELTA_UNLIMITED, fake.program4, fake.program4_sequence0_binding0));
-    store.put(buildSegmentChoice(segment0, Segments.DELTA_UNLIMITED, Segments.DELTA_UNLIMITED, fake.program5, fake.program5_sequence0_binding0));
+    store.put(buildSegmentChoice(segment0, Segment.DELTA_UNLIMITED, Segment.DELTA_UNLIMITED, fake.program4, fake.program4_sequence0_binding0));
+    store.put(buildSegmentChoice(segment0, Segment.DELTA_UNLIMITED, Segment.DELTA_UNLIMITED, fake.program5, fake.program5_sequence0_binding0));
     for (String memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
       store.put(buildSegmentMeme(segment0, memeName));
 

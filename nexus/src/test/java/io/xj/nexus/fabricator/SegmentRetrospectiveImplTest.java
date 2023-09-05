@@ -15,22 +15,12 @@ import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.nexus.NexusException;
+import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.hub_client.HubTopology;
-import io.xj.nexus.model.Chain;
-import io.xj.nexus.model.ChainState;
-import io.xj.nexus.model.ChainType;
-import io.xj.nexus.model.Segment;
-import io.xj.nexus.model.SegmentChoice;
-import io.xj.nexus.model.SegmentState;
-import io.xj.nexus.model.SegmentType;
-import io.xj.nexus.persistence.Chains;
-import io.xj.nexus.persistence.NexusEntityStore;
-import io.xj.nexus.persistence.NexusEntityStoreImpl;
-import io.xj.nexus.persistence.SegmentManagerImpl;
-import io.xj.nexus.persistence.Segments;
-import io.xj.nexus.NexusIntegrationTestingFixtures;
+import io.xj.nexus.model.*;
+import io.xj.nexus.persistence.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,12 +31,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentMeta;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 public class SegmentRetrospectiveImplTest {
@@ -111,18 +97,18 @@ public class SegmentRetrospectiveImplTest {
       SEQUENCE_TOTAL_BEATS,
       0.73,
       120.0,
-      String.format("chains-%s-segments-%s", Chains.getIdentifier(chain), offset),
+      String.format("chains-%s-segments-%s", ChainUtils.getIdentifier(chain), offset),
       true));
     store.put(buildSegmentChoice(
       segment,
-      Segments.DELTA_UNLIMITED,
-      Segments.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
       macro,
       macroSB));
     store.put(buildSegmentChoice(
       segment,
-      Segments.DELTA_UNLIMITED,
-      Segments.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
       main,
       mainSB));
 

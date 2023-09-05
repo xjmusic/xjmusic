@@ -37,7 +37,7 @@ public class MixerFactoryTest {
   }
 
   /**
-   * [#339] Mix module should support Big-Endian audio files
+   [#339] Mix module should support Big-Endian audio files
    */
   @Test
   public void createMixerNotNull_supportBigEndian() throws Exception {

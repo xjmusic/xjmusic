@@ -11,42 +11,20 @@ import io.xj.lib.json.JsonProviderImpl;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.hub_client.HubTopology;
-import io.xj.nexus.model.Chain;
-import io.xj.nexus.model.ChainState;
-import io.xj.nexus.model.ChainType;
-import io.xj.nexus.model.Segment;
-import io.xj.nexus.model.SegmentState;
-import io.xj.nexus.model.SegmentType;
-import io.xj.nexus.persistence.ManagerExistenceException;
-import io.xj.nexus.persistence.ManagerValidationException;
-import io.xj.nexus.persistence.NexusEntityStore;
-import io.xj.nexus.persistence.NexusEntityStoreImpl;
-import io.xj.nexus.persistence.SegmentManager;
-import io.xj.nexus.persistence.SegmentManagerImpl;
+import io.xj.nexus.model.*;
+import io.xj.nexus.persistence.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildAccount;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildLibrary;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildTemplate;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildTemplateBinding;
+import static io.xj.nexus.HubIntegrationTestingFixtures.*;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildHubClientAccess;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 public class SegmentManagerImplTest {
@@ -161,7 +139,7 @@ public class SegmentManagerImplTest {
   }
 
   /**
-   * Segment waveform_key is set by fabricator (which knows the chain configuration) NOT on creation https://www.pivotaltracker.com/story/show/162361712
+   Segment waveform_key is set by fabricator (which knows the chain configuration) NOT on creation https://www.pivotaltracker.com/story/show/162361712
    */
   @Test
   public void create() throws Exception {
@@ -198,8 +176,8 @@ public class SegmentManagerImplTest {
   }
 
   /**
-   * Segment waveform_key is set by fabricator (which knows the chain configuration) NOT on creation https://www.pivotaltracker.com/story/show/162361712
-   * [#126] Segments are always readMany in PLANNED state
+   Segment waveform_key is set by fabricator (which knows the chain configuration) NOT on creation https://www.pivotaltracker.com/story/show/162361712
+   [#126] Segments are always readMany in PLANNED state
    */
   @Test
   public void create_alwaysInPlannedState() throws Exception {
@@ -319,7 +297,7 @@ public class SegmentManagerImplTest {
   }
 
   /**
-   * List of Segments returned should not be more than a dozen or so https://www.pivotaltracker.com/story/show/173806948
+   List of Segments returned should not be more than a dozen or so https://www.pivotaltracker.com/story/show/173806948
    */
   @Test
   public void readMany_hasNoLimit() throws Exception {
@@ -418,7 +396,7 @@ public class SegmentManagerImplTest {
   }
 
   /**
-   * persist Segment content as JSON, then read prior Segment JSON https://www.pivotaltracker.com/story/show/162361525
+   persist Segment content as JSON, then read prior Segment JSON https://www.pivotaltracker.com/story/show/162361525
    */
   @Test
   public void persistPriorSegmentContent() throws Exception {

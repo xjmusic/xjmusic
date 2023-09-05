@@ -18,27 +18,26 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- * Utilities for working with chains
+ Utilities for working with chains
  */
-public enum Chains {
+public enum ChainUtils {
   ;
-  static final String EXTENSION_SEPARATOR = ".";
 
   /**
-   * Get the full key from a key
-   *
-   * @param key of which to get full key
-   * @return full key
+   Get the full key from a key
+
+   @param key of which to get full key
+   @return full key
    */
   public static String getFullKey(String key) {
     return String.format("%s-full", key);
   }
 
   /**
-   * Get the identifier or a Chain: ship key if available, else ID
-   *
-   * @param chain to get identifier of
-   * @return ship key if available, else ID
+   Get the identifier or a Chain: ship key if available, else ID
+
+   @param chain to get identifier of
+   @return ship key if available, else ID
    */
   public static String getIdentifier(@Nullable Chain chain) {
     if (Objects.isNull(chain)) return "N/A";
@@ -46,11 +45,11 @@ public enum Chains {
   }
 
   /**
-   * Filter and map target ids of a specified type from a set of chain bindings
-   *
-   * @param chainBindings to filter and map from
-   * @param type          to include
-   * @return set of target ids of the specified type of chain binding targets
+   Filter and map target ids of a specified type from a set of chain bindings
+
+   @param chainBindings to filter and map from
+   @param type          to include
+   @return set of target ids of the specified type of chain binding targets
    */
   public static Set<UUID> targetIdsOfType(Collection<TemplateBinding> chainBindings, ContentBindingType type) {
     return chainBindings.stream().filter(templateBinding -> Objects.equals(templateBinding.getType(), type))
@@ -58,32 +57,32 @@ public enum Chains {
   }
 
   /**
-   * Get the ship key for a Chain
-   *
-   * @param chainKey  for which to get ship key
-   * @param extension of key
-   * @return chain ship key
+   Get the ship key for a Chain
+
+   @param chainKey  for which to get ship key
+   @param extension of key
+   @return chain ship key
    */
   public static String getShipKey(String chainKey, String extension) {
-    return String.format("%s%s%s", chainKey, EXTENSION_SEPARATOR, extension);
+    return String.format("%s%s%s", chainKey, Chain.EXTENSION_SEPARATOR, extension);
   }
 
   /**
-   * Compute the fabricated-ahead seconds for any collection of Segments
-   *
-   * @param segments for which to get fabricated-ahead seconds
-   * @return fabricated-ahead seconds for this collection of Segments
+   Compute the fabricated-ahead seconds for any collection of Segments
+
+   @param segments for which to get fabricated-ahead seconds
+   @return fabricated-ahead seconds for this collection of Segments
    */
   public static Long computeFabricatedToChainMicros(Collection<Segment> segments) {
-    var lastDubbedSegment = Segments.getLastCrafted(segments);
+    var lastDubbedSegment = SegmentUtils.getLastCrafted(segments);
     return lastDubbedSegment.map(segment -> (Objects.nonNull(segment.getDurationMicros()) ? segment.getBeginAtChainMicros() + segment.getDurationMicros() : segment.getBeginAtChainMicros())).orElse(0L);
   }
 
   /**
-   * Get a chain based on a template
-   *
-   * @param template from which to get chain
-   * @return chain from template
+   Get a chain based on a template
+
+   @param template from which to get chain
+   @return chain from template
    */
   public static Chain fromTemplate(Template template) {
     var chain = new Chain();
@@ -97,7 +96,7 @@ public enum Chains {
   }
 
   /**
-   * @return Chain base key
+   @return Chain base key
    */
   public static String computeBaseKey(Chain chain) {
     return StringUtils.isNullOrEmpty(chain.getShipKey()) ? String.format("chain-%s", chain.getId()) : chain.getShipKey();

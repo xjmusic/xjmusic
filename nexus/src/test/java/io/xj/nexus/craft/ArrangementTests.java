@@ -7,12 +7,7 @@ import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.music.StickyBun;
-import io.xj.hub.tables.pojos.Instrument;
-import io.xj.hub.tables.pojos.Program;
-import io.xj.hub.tables.pojos.ProgramSequence;
-import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
-import io.xj.hub.tables.pojos.ProgramVoice;
-import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.*;
 import io.xj.hub.util.CsvUtils;
 import io.xj.hub.util.StringUtils;
 import io.xj.lib.app.AppException;
@@ -23,6 +18,7 @@ import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.nexus.NexusException;
+import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
@@ -37,7 +33,6 @@ import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.SegmentManagerImpl;
-import io.xj.nexus.NexusIntegrationTestingFixtures;
 import jakarta.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,35 +42,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildAccount;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildDetailProgram;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildEvent;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildInstrument;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildInstrumentWithAudios;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildLibrary;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildPattern;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildProgram;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildSequence;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildTemplate;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildTrack;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildVoice;
+import static io.xj.nexus.HubIntegrationTestingFixtures.*;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * XJ has a serviceable voicing algorithm https://www.pivotaltracker.com/story/show/176696738
+ XJ has a serviceable voicing algorithm https://www.pivotaltracker.com/story/show/176696738
  */
 @ExtendWith(MockitoExtension.class)
 public class ArrangementTests extends YamlTest {
@@ -194,9 +169,9 @@ FUTURE goal
   }
 
   /**
-   * Load the specified test YAML file and run it repeatedly.
-   *
-   * @param filename of test YAML file
+   Load the specified test YAML file and run it repeatedly.
+
+   @param filename of test YAML file
    */
   void loadAndRunTest(String filename) {
     for (int i = 0; i < REPEAT_EACH_TEST_TIMES; i++)
@@ -234,7 +209,7 @@ FUTURE goal
   }
 
   /**
-   * Reset the resources before each repetition of each test
+   Reset the resources before each repetition of each test
    */
   void reset() throws Exception {
     JsonProvider jsonProvider = new JsonProviderImpl();
@@ -273,9 +248,9 @@ FUTURE goal
   }
 
   /**
-   * Load the instrument section of the test YAML file, for one type of Instrument@param data YAML file wrapper
-   *
-   * @param type of instrument to read
+   Load the instrument section of the test YAML file, for one type of Instrument@param data YAML file wrapper
+
+   @param type of instrument to read
    */
   void loadInstrument(Map<?, ?> data, InstrumentType type) {
     Map<?, ?> obj = (Map<?, ?>) data.get(String.format("%sInstrument", type.toString().toLowerCase(Locale.ROOT)));
@@ -294,10 +269,10 @@ FUTURE goal
   }
 
   /**
-   * Load the detail program section of the test YAML file, for one type of Instrument
-   *
-   * @param data YAML file wrapper
-   * @param type of instrument to read
+   Load the detail program section of the test YAML file, for one type of Instrument
+
+   @param data YAML file wrapper
+   @param type of instrument to read
    */
   @SuppressWarnings("unchecked")
   void loadDetailProgram(Map<?, ?> data, InstrumentType type) {
@@ -341,9 +316,9 @@ FUTURE goal
   }
 
   /**
-   * Load the segment section of the test YAML file
-   *
-   * @param data YAML file wrapper
+   Load the segment section of the test YAML file
+
+   @param data YAML file wrapper
    */
   @SuppressWarnings("unchecked")
   void loadSegment(Map<?, ?> data) throws NexusException {
@@ -393,8 +368,8 @@ FUTURE goal
   }
 
   /**
-   * Load the assertions of picks section after a test has run
-   * Load the instrument section of the test YAML file, for one type of Instrument@param data YAML file wrapper
+   Load the assertions of picks section after a test has run
+   Load the instrument section of the test YAML file, for one type of Instrument@param data YAML file wrapper
    */
   void loadAndPerformAssertions(Map<?, ?> data) {
     @Nullable

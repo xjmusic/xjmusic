@@ -11,9 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 public class PutImplTest {
@@ -130,7 +128,7 @@ public class PutImplTest {
   }
 
   /**
-   * One-shot fadeout mode https://www.pivotaltracker.com/story/show/183385397
+   One-shot fadeout mode https://www.pivotaltracker.com/story/show/183385397
    */
   @Test
   public void getReleaseMillis() {

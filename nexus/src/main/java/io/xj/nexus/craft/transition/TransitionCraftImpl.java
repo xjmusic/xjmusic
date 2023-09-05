@@ -24,9 +24,9 @@ import java.util.stream.Collectors;
 
 
 /**
- * Transition craft for the current segment
- * <p>
- * Transition-type Instrument https://www.pivotaltracker.com/story/show/180059746
+ Transition craft for the current segment
+ <p>
+ Transition-type Instrument https://www.pivotaltracker.com/story/show/180059746
  */
 public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCraft {
   final List<String> smallNames;
@@ -81,9 +81,9 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
   }
 
   /**
-   * Is this a big-transition segment? (next main or next macro)
-   *
-   * @return true if it is a big transition segment
+   Is this a big-transition segment? (next main or next macro)
+
+   @return true if it is a big transition segment
    */
   boolean isBigTransitionSegment() throws NexusException {
     return switch (fabricator.getType()) {
@@ -93,11 +93,11 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
   }
 
   /**
-   * Is this a medium-transition segment? (not the same sequence as the previous segment)
-   * <p>
-   * Transition craft uses Small (instead of Medium) when a sequence repeats for more than 1 segment https://www.pivotaltracker.com/story/show/180921714
-   *
-   * @return true if it is a medium transition segment
+   Is this a medium-transition segment? (not the same sequence as the previous segment)
+   <p>
+   Transition craft uses Small (instead of Medium) when a sequence repeats for more than 1 segment https://www.pivotaltracker.com/story/show/180921714
+
+   @return true if it is a medium transition segment
    */
   boolean isMediumTransitionSegment() throws NexusException {
     return switch (fabricator.getType()) {
@@ -108,9 +108,9 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
   }
 
   /**
-   * Craft percussion loop
-   *
-   * @param instrumentId of percussion loop instrument to craft
+   Craft percussion loop
+
+   @param instrumentId of percussion loop instrument to craft
    */
   @SuppressWarnings("DuplicatedCode")
   void craftTransition(UUID instrumentId) throws NexusException {
@@ -151,14 +151,14 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
   }
 
   /**
-   * Pci the transition
-   *
-   * @param arrangement          to pick
-   * @param audio                to pick
-   * @param startAtSegmentMicros to pick
-   * @param lengthMicros         to pick
-   * @param name                 to pick
-   * @throws NexusException on failure
+   Pci the transition
+
+   @param arrangement          to pick
+   @param audio                to pick
+   @param startAtSegmentMicros to pick
+   @param lengthMicros         to pick
+   @param name                 to pick
+   @throws NexusException on failure
    */
   @SuppressWarnings("DuplicatedCode")
   void pickTransition(SegmentChoiceArrangement arrangement, InstrumentAudio audio, long startAtSegmentMicros, long lengthMicros, String name) throws NexusException {
@@ -175,10 +175,10 @@ public class TransitionCraftImpl extends DetailCraftImpl implements TransitionCr
   }
 
   /**
-   * Choose drum instrument
-   * [#325] Possible to choose multiple instruments for different voices in the same program
-   *
-   * @return drum-type Instrument
+   Choose drum instrument
+   [#325] Possible to choose multiple instruments for different voices in the same program
+
+   @return drum-type Instrument
    */
   Optional<InstrumentAudio> pickAudioForInstrument(Instrument instrument, List<String> names) {
     var previous =

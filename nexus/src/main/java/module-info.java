@@ -38,6 +38,13 @@ module workstation.nexus.main {
   opens io.xj.nexus.work to spring.beans;
 
   // export
+  exports io.xj.nexus.craft.background;
+  exports io.xj.nexus.craft.beat;
+  exports io.xj.nexus.craft.detail;
+  exports io.xj.nexus.craft.hook;
+  exports io.xj.nexus.craft.macro_main;
+  exports io.xj.nexus.craft.perc_loop;
+  exports io.xj.nexus.craft.transition;
   exports io.xj.nexus.craft;
   exports io.xj.nexus.dub;
   exports io.xj.nexus.fabricator;

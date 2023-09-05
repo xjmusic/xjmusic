@@ -5,7 +5,7 @@ package io.xj.nexus;
 public enum LoremIpsum {
   ;
   /**
-   * List of colors
+   List of colors
    */
   public static final String[] COLORS = {
     "Amber",
@@ -89,7 +89,7 @@ public enum LoremIpsum {
     "Yellow"
   };
   /**
-   * List of variants
+   List of variants
    */
   public static final String[] VARIANTS = {
     "Light",
@@ -115,7 +115,7 @@ public enum LoremIpsum {
     "Tremendous"
   };
   /**
-   * List of variants
+   List of variants
    */
   public static final String[] PERCUSSIVE_NAMES = {
     "AGOGOHIGH",
@@ -167,7 +167,7 @@ public enum LoremIpsum {
     "WHISTLESHORT"
   };
   /**
-   * List of musical keys
+   List of musical keys
    */
   public static final String[] MUSICAL_CHORDS = {
     "A",
@@ -316,7 +316,7 @@ public enum LoremIpsum {
     "Abm/B"
   };
   /**
-   * List of musical keys
+   List of musical keys
    */
   public static final String[] MUSICAL_KEYS = {
     "A Major",
@@ -345,7 +345,7 @@ public enum LoremIpsum {
     "Ab minor"
   };
   /**
-   * List of possible Sequence totals
+   List of possible Sequence totals
    */
   public static final Integer[] SEQUENCE_TOTALS = {
     8,
@@ -353,7 +353,7 @@ public enum LoremIpsum {
     16
   };
   /**
-   * List of possible Pattern totals
+   List of possible Pattern totals
    */
   public static final Integer[] PATTERN_TOTALS = {
     1,
@@ -361,7 +361,7 @@ public enum LoremIpsum {
     4
   };
   /**
-   * List of elements
+   List of elements
    */
   public static final String[] ELEMENTS = {
     "Actinium",

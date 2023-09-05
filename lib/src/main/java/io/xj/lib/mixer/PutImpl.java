@@ -6,7 +6,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Put to represent a single audio source playing at a specific time in the future.
+ Put to represent a single audio source playing at a specific time in the future.
  */
 class PutImpl implements Put {
   String state;

@@ -4,12 +4,7 @@ package io.xj.nexus.work;
 import io.xj.hub.HubContent;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.Instrument;
-import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.hub.tables.pojos.Program;
-import io.xj.hub.tables.pojos.Template;
-import io.xj.hub.tables.pojos.TemplateBinding;
-import io.xj.hub.tables.pojos.TemplatePlayback;
+import io.xj.hub.tables.pojos.*;
 import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueException;
 import io.xj.lib.entity.EntityException;
@@ -36,23 +31,8 @@ import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.hub_client.HubClientException;
-import io.xj.nexus.model.Chain;
-import io.xj.nexus.model.ChainState;
-import io.xj.nexus.model.Segment;
-import io.xj.nexus.model.SegmentChoice;
-import io.xj.nexus.model.SegmentChoiceArrangement;
-import io.xj.nexus.model.SegmentChoiceArrangementPick;
-import io.xj.nexus.model.SegmentState;
-import io.xj.nexus.model.SegmentType;
-import io.xj.nexus.persistence.Chains;
-import io.xj.nexus.persistence.ManagerExistenceException;
-import io.xj.nexus.persistence.ManagerFatalException;
-import io.xj.nexus.persistence.ManagerPrivilegeException;
-import io.xj.nexus.persistence.ManagerValidationException;
-import io.xj.nexus.persistence.NexusEntityStore;
-import io.xj.nexus.persistence.SegmentManager;
-import io.xj.nexus.persistence.Segments;
-import io.xj.nexus.persistence.Templates;
+import io.xj.nexus.model.*;
+import io.xj.nexus.persistence.*;
 import jakarta.annotation.Nullable;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -66,12 +46,7 @@ import org.springframework.beans.factory.annotation.Value;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -266,6 +241,17 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   @Override
+  public List<Segment> getAllSegments() {
+    // require chain
+    var chain = getChain();
+    if (chain.isEmpty()) {
+      return List.of();
+    }
+
+    return segmentManager.readAll(chain.get().getId());
+  }
+
+  @Override
   public List<Segment> getSegmentsIfReady(Long planFromChainMicros, Long planToChainMicros) {
     // require chain
     var chain = getChain();
@@ -431,8 +417,13 @@ public class CraftWorkImpl implements CraftWork {
     return state == WorkState.Failed;
   }
 
+  @Override
+  public HubContent getSourceMaterial() {
+    return chainSourceMaterial;
+  }
+
   /**
-   * This is the internal cycle that's run indefinitely
+   This is the internal cycle that's run indefinitely
    */
   void runCycle() throws InterruptedException {
     if (System.currentTimeMillis() < nextCycleMillis) {
@@ -478,7 +469,7 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   /**
-   * Run all work when this Nexus is a sidecar to a hub, as in the Lab
+   Run all work when this Nexus is a sidecar to a hub, as in the Lab
    */
   void runPreview() {
     if (System.currentTimeMillis() > labPollNextSystemMillis) {
@@ -504,9 +495,9 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   /**
-   * Load static content to run nexus fabrication
-   * <p>
-   * Nexus production fabrication from static source (without Hub) https://www.pivotaltracker.com/story/show/177020318
+   Load static content to run nexus fabrication
+   <p>
+   Nexus production fabrication from static source (without Hub) https://www.pivotaltracker.com/story/show/177020318
    */
   void loadYard() {
     try {
@@ -525,7 +516,7 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   /**
-   * Run all work when this Nexus is in production, as in the Nexus
+   Run all work when this Nexus is in production, as in the Nexus
    */
   void runYard() {
     if (System.currentTimeMillis() > yardPollNextSystemMillis) {
@@ -545,7 +536,7 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   /**
-   * Ingest Content from Hub
+   Ingest Content from Hub
    */
   void ingestMaterialIfNecessary(Chain chain) {
     if (System.currentTimeMillis() < chainNextIngestMillis) return;
@@ -555,7 +546,7 @@ public class CraftWorkImpl implements CraftWork {
     try {
       // read the source material
       chainSourceMaterial = hubClient.ingest(access, chain.getTemplateId());
-      LOG.info("Ingested {} entities of source material for Chain[{}]", chainSourceMaterial.size(), Chains.getIdentifier(chain));
+      LOG.info("Ingested {} entities of source material for Chain[{}]", chainSourceMaterial.size(), ChainUtils.getIdentifier(chain));
 
     } catch (HubClientException e) {
       didFailWhile(chain.getShipKey(), "ingesting source material from Hub", e, false);
@@ -563,10 +554,10 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   /**
-   * Engineer wants platform heartbeat to check for any stale production chains in fabricate state, https://www.pivotaltracker.com/story/show/158897383
-   * and if found, send back a failure health check it in order to ensure the Chain remains in an operable state.
-   * <p>
-   * Medic relies on precomputed  telemetry of fabrication latency https://www.pivotaltracker.com/story/show/177021797
+   Engineer wants platform heartbeat to check for any stale production chains in fabricate state, https://www.pivotaltracker.com/story/show/158897383
+   and if found, send back a failure health check it in order to ensure the Chain remains in an operable state.
+   <p>
+   Medic relies on precomputed  telemetry of fabrication latency https://www.pivotaltracker.com/story/show/177021797
    */
   void doMedic() {
     if (System.currentTimeMillis() < nextMedicMillis) return;
@@ -584,7 +575,7 @@ public class CraftWorkImpl implements CraftWork {
         chainFabricatedAhead = false;
         return;
       }
-      var aheadSeconds = (Segments.getEndAtChainMicros(lastCraftedSegment.get()) - atChainMicros) / MICROS_PER_SECOND;
+      var aheadSeconds = (SegmentUtils.getEndAtChainMicros(lastCraftedSegment.get()) - atChainMicros) / MICROS_PER_SECOND;
       if (aheadSeconds < chainThresholdFabricatedBehindSeconds) {
         LOG.debug("Fabrication is stalled, ahead {}s", aheadSeconds);
         chainFabricatedAhead = false;
@@ -601,7 +592,7 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   /**
-   * Do the work-- this is called by the underlying WorkerImpl run() hook
+   Do the work-- this is called by the underlying WorkerImpl run() hook
    */
   protected void doJanitor() {
     if (System.currentTimeMillis() < nextJanitorMillis) return;
@@ -636,12 +627,12 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   /**
-   * Do the work-- this is called by the underlying WorkerImpl run() hook
+   Do the work-- this is called by the underlying WorkerImpl run() hook
    */
   public void fabricateChain(Chain target) throws FabricationFatalException {
     try {
       timer.section("ComputeAhead");
-      var fabricatedToChainMicros = Chains.computeFabricatedToChainMicros(segmentManager.readMany(List.of(target.getId())));
+      var fabricatedToChainMicros = ChainUtils.computeFabricatedToChainMicros(segmentManager.readMany(List.of(target.getId())));
 
       double aheadSeconds = (double) ((fabricatedToChainMicros - atChainMicros) / MICROS_PER_SECOND);
       telemetryProvider.put(METRIC_FABRICATED_AHEAD_SECONDS, aheadSeconds);
@@ -685,17 +676,17 @@ public class CraftWorkImpl implements CraftWork {
       NexusException | ValueException | HubClientException e
     ) {
       var body = String.format("Failed to create Segment of Chain[%s] (%s) because %s\n\n%s",
-        Chains.getIdentifier(target),
+        ChainUtils.getIdentifier(target),
         target.getType(),
         e.getMessage(),
         StringUtils.formatStackTrace(e));
 
       notification.publish(String.format("%s-Chain[%s] Failure",
         target.getType(),
-        Chains.getIdentifier(target)), body
+        ChainUtils.getIdentifier(target)), body
       );
 
-      LOG.error("Failed to created Segment in Chain[{}] reason={}", Chains.getIdentifier(target), e.getMessage());
+      LOG.error("Failed to created Segment in Chain[{}] reason={}", ChainUtils.getIdentifier(target), e.getMessage());
     }
   }
 
@@ -729,11 +720,11 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   /**
-   * Finish work on Segment
-   *
-   * @param fabricator to craft
-   * @param segment    fabricating
-   * @throws NexusException on failure
+   Finish work on Segment
+
+   @param fabricator to craft
+   @param segment    fabricating
+   @throws NexusException on failure
    */
   void finishWork(Fabricator fabricator, Segment segment) throws NexusException {
     updateSegmentState(fabricator, segment, SegmentState.CRAFTING, SegmentState.CRAFTED);
@@ -742,12 +733,12 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   /**
-   * Craft a Segment, or fail
-   *
-   * @param fabricator to craft
-   * @param segment    fabricating
-   * @throws NexusException on configuration failure
-   * @throws NexusException on craft failure
+   Craft a Segment, or fail
+
+   @param fabricator to craft
+   @param segment    fabricating
+   @throws NexusException on configuration failure
+   @throws NexusException on craft failure
    */
   Segment doCraftWork(Fabricator fabricator, Segment segment) throws NexusException {
     var updated = updateSegmentState(fabricator, segment, SegmentState.PLANNED, SegmentState.CRAFTING);
@@ -762,12 +753,12 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   /**
-   * Log and send notification of error that job failed while (message)
-   *
-   * @param templateKey   (optional) ship key
-   * @param msgWhile      phrased like "Doing work"
-   * @param e             exception (optional)
-   * @param logStackTrace whether to show the whole stack trace in logs
+   Log and send notification of error that job failed while (message)
+
+   @param templateKey   (optional) ship key
+   @param msgWhile      phrased like "Doing work"
+   @param e             exception (optional)
+   @param logStackTrace whether to show the whole stack trace in logs
    */
   void didFailWhile(@Nullable String templateKey, String msgWhile, Exception e, boolean logStackTrace) {
     var msgCause = StringUtils.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
@@ -787,19 +778,20 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   /**
-   * Update Segment to Working state
-   *
-   * @param fabricator to update
-   * @param fromState  of existing segment
-   * @param toState    of new segment
-   * @return updated Segment
-   * @throws NexusException if record is invalid
+   Update Segment to Working state
+
+   @param fabricator to update
+   @param fromState  of existing segment
+   @param toState    of new segment
+   @return updated Segment
+   @throws NexusException if record is invalid
    */
   Segment updateSegmentState(Fabricator fabricator, Segment segment, SegmentState fromState, SegmentState toState) throws NexusException {
     if (fromState != segment.getState())
       throw new NexusException(String.format("Segment[%s] %s requires Segment must be in %s state.", segment.getId(), toState, fromState));
     var seg = fabricator.getSegment();
     seg.setState(toState);
+    seg.setUpdatedNow();
     fabricator.putSegment(seg);
     LOG.debug("[segId={}] Segment transitioned to state {} OK", segment.getId(), toState);
     return fabricator.getSegment();
@@ -807,10 +799,10 @@ public class CraftWorkImpl implements CraftWork {
 
 
   /**
-   * Whether this Segment is before a given threshold, first by end-at if available, else begin-at
-   *
-   * @param eraseBeforeChainMicros threshold to filter before
-   * @return true if segment is before threshold
+   Whether this Segment is before a given threshold, first by end-at if available, else begin-at
+
+   @param eraseBeforeChainMicros threshold to filter before
+   @return true if segment is before threshold
    */
   protected boolean isBefore(Segment segment, Long eraseBeforeChainMicros) {
     if (Objects.nonNull(segment.getDurationMicros()))
@@ -821,9 +813,9 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   /**
-   * Get the IDs of all Segments that we ought to erase
-   *
-   * @return list of IDs of Segments we ought to erase
+   Get the IDs of all Segments that we ought to erase
+
+   @return list of IDs of Segments we ought to erase
    */
   Collection<UUID> getSegmentIdsToErase() throws NexusException {
     Long eraseBeforeChainMicros = atChainMicros - eraseSegmentsOlderThanSeconds * MICROS_PER_SECOND;
@@ -839,12 +831,12 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   /**
-   * Maintain a single preview template by id
-   * If we find no reason to perform work, we return false.
-   * Returning false ultimately gracefully terminates the instance
-   * https://www.pivotaltracker.com/story/show/185119448
-   *
-   * @return true if all is well, false if something has failed
+   Maintain a single preview template by id
+   If we find no reason to perform work, we return false.
+   Returning false ultimately gracefully terminates the instance
+   https://www.pivotaltracker.com/story/show/185119448
+
+   @return true if all is well, false if something has failed
    */
   boolean maintainPreviewTemplate() {
     Optional<TemplatePlayback> templatePlayback = readPreviewTemplatePlayback();
@@ -862,7 +854,7 @@ public class CraftWorkImpl implements CraftWork {
     try {
       if (Objects.isNull(chainId)) {
         chainId = createChainForTemplate(template.get())
-          .orElseThrow(() -> new ManagerFatalException(String.format("Failed to create chain for Template[%s]", Templates.getIdentifier(template.get()))))
+          .orElseThrow(() -> new ManagerFatalException(String.format("Failed to create chain for Template[%s]", TemplateUtils.getIdentifier(template.get()))))
           .getId();
       }
     } catch (ManagerFatalException e) {
@@ -874,10 +866,10 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   /**
-   * Read preview Template from Hub
-   *
-   * @param playback TemplatePlayback for which to get Template
-   * @return preview Template
+   Read preview Template from Hub
+
+   @param playback TemplatePlayback for which to get Template
+   @return preview Template
    */
   Optional<Template> readPreviewTemplate(TemplatePlayback playback) {
     try {
@@ -889,9 +881,9 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   /**
-   * Read preview TemplatePlayback from Hub
-   *
-   * @return preview TemplatePlayback
+   Read preview TemplatePlayback from Hub
+
+   @return preview TemplatePlayback
    */
   Optional<TemplatePlayback> readPreviewTemplatePlayback() {
     if (Objects.isNull(fabricationPreviewTemplatePlaybackId)) return Optional.empty();
@@ -904,10 +896,10 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   /**
-   * Bootstrap a chain from JSON chain bootstrap data,
-   * first rehydrating store from last shipped JSON matching this ship key.
-   * <p>
-   * Nexus with bootstrap chain rehydrates store on startup from shipped JSON files https://www.pivotaltracker.com/story/show/178718006
+   Bootstrap a chain from JSON chain bootstrap data,
+   first rehydrating store from last shipped JSON matching this ship key.
+   <p>
+   Nexus with bootstrap chain rehydrates store on startup from shipped JSON files https://www.pivotaltracker.com/story/show/178718006
    */
   Optional<Chain> createChainForTemplate(Template template) {
     var rehydrated = rehydrateTemplate(template);
@@ -915,23 +907,23 @@ public class CraftWorkImpl implements CraftWork {
 
     // Only if rehydration was unsuccessful
     try {
-      LOG.info("Will bootstrap Template[{}]", Templates.getIdentifier(template));
-      var entity = Chains.fromTemplate(template);
+      LOG.info("Will bootstrap Template[{}]", TemplateUtils.getIdentifier(template));
+      var entity = ChainUtils.fromTemplate(template);
       entity.setState(ChainState.FABRICATE);
       entity.setId(UUID.randomUUID());
       return Optional.ofNullable(store.put(entity));
 
     } catch (NexusException e) {
-      LOG.error("Failed to bootstrap Template[{}] because {}", Templates.getIdentifier(template), e.getMessage());
+      LOG.error("Failed to bootstrap Template[{}] because {}", TemplateUtils.getIdentifier(template), e.getMessage());
       return Optional.empty();
     }
   }
 
   /**
-   * Attempt to rehydrate the store from a bootstrap, and return true if successful, so we can skip other stuff
-   *
-   * @param template from which to rehydrate
-   * @return chain if the rehydration was successful
+   Attempt to rehydrate the store from a bootstrap, and return true if successful, so we can skip other stuff
+
+   @param template from which to rehydrate
+   @return chain if the rehydration was successful
    */
   Optional<Chain> rehydrateTemplate(Template template) {
     if (!isRehydrationEnabled) return Optional.empty();
@@ -941,7 +933,7 @@ public class CraftWorkImpl implements CraftWork {
     JsonapiPayload chainPayload;
     Chain chain;
 
-    String key = Chains.getShipKey(Chains.getFullKey(template.getShipKey()), EXTENSION_JSON);
+    String key = ChainUtils.getShipKey(ChainUtils.getFullKey(template.getShipKey()), EXTENSION_JSON);
 
     CloseableHttpClient client = httpClientProvider.getClient();
     try (
@@ -990,7 +982,7 @@ public class CraftWorkImpl implements CraftWork {
         .filter(seg -> SegmentState.CRAFTED.equals(seg.getState()))
         .filter(seg -> seg.getBeginAtChainMicros() > ignoreBeforeChainMicros)
         .forEach(segment -> {
-          var segmentShipKey = Segments.getStorageFilename(segment, EXTENSION_JSON);
+          var segmentShipKey = SegmentUtils.getStorageFilename(segment, EXTENSION_JSON);
           try (
             CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", shipBaseUrl, segmentShipKey)))
           ) {
@@ -1013,10 +1005,10 @@ public class CraftWorkImpl implements CraftWork {
                   success.set(false);
                 }
               });
-            LOG.info("Read Segment[{}] and {} child entities", Segments.getIdentifier(segment), childCount);
+            LOG.info("Read Segment[{}] and {} child entities", SegmentUtils.getIdentifier(segment), childCount);
 
           } catch (Exception e) {
-            LOG.error("Could not load Segment[{}] because {}", Segments.getIdentifier(segment), e.getMessage());
+            LOG.error("Could not load Segment[{}] because {}", SegmentUtils.getIdentifier(segment), e.getMessage());
             success.set(false);
           }
         });
@@ -1027,7 +1019,7 @@ public class CraftWorkImpl implements CraftWork {
       // Nexus with bootstrap won't rehydrate stale Chain
       // https://www.pivotaltracker.com/story/show/178727631
       var aheadSeconds =
-        Math.floor(Chains.computeFabricatedToChainMicros(
+        Math.floor(ChainUtils.computeFabricatedToChainMicros(
           entities.stream()
             .filter(e -> EntityUtils.isType(e, Segment.class))
             .map(e -> (Segment) e)
@@ -1035,14 +1027,14 @@ public class CraftWorkImpl implements CraftWork {
 
       if (aheadSeconds < rehydrateFabricatedAheadThreshold) {
         LOG.info("Will not rehydrate Chain[{}] fabricated ahead {}s (not > {}s)",
-          Chains.getIdentifier(chain), aheadSeconds, rehydrateFabricatedAheadThreshold);
+          ChainUtils.getIdentifier(chain), aheadSeconds, rehydrateFabricatedAheadThreshold);
         return Optional.empty();
       }
 
       // Okay to rehydrate
       store.putAll(entities);
       LOG.info("Rehydrated {} entities OK. Chain[{}] is fabricated ahead {}s (> {}s)",
-        entities.size(), Chains.getIdentifier(chain), aheadSeconds, rehydrateFabricatedAheadThreshold);
+        entities.size(), ChainUtils.getIdentifier(chain), aheadSeconds, rehydrateFabricatedAheadThreshold);
       return Optional.of(chain);
 
     } catch (NexusException e) {
@@ -1052,28 +1044,28 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   /**
-   * MasterDub implements Mixer module to write JSON outputs
-   *
-   * @throws NexusException on error
+   MasterDub implements Mixer module to write JSON outputs
+
+   @throws NexusException on error
    */
   void doWriteJsonOutputs(Fabricator fabricator) throws NexusException {
     if (!isJsonOutputEnabled) return;
     writeJsonFile(
       fabricator.getSegmentJson(),
-      Segments.getStorageFilename(fabricator.getSegment(), EXTENSION_JSON));
+      SegmentUtils.getStorageFilename(fabricator.getSegment(), EXTENSION_JSON));
     writeJsonFile(
       fabricator.getChainFullJson(),
-      Chains.getShipKey(Chains.getFullKey(Chains.computeBaseKey(fabricator.getChain())), EXTENSION_JSON));
+      ChainUtils.getShipKey(ChainUtils.getFullKey(ChainUtils.computeBaseKey(fabricator.getChain())), EXTENSION_JSON));
     writeJsonFile(
       fabricator.getChainJson(atChainMicros),
-      Chains.getShipKey(Chains.computeBaseKey(fabricator.getChain()), EXTENSION_JSON));
+      ChainUtils.getShipKey(ChainUtils.computeBaseKey(fabricator.getChain()), EXTENSION_JSON));
   }
 
   /**
-   * Write json content to file
-   *
-   * @param json     content
-   * @param filename to write
+   Write json content to file
+
+   @param json     content
+   @param filename to write
    */
   void writeJsonFile(String json, String filename) {
     var bytes = json.getBytes();

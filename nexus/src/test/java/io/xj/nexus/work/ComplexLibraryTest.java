@@ -6,13 +6,13 @@ import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.http.HttpClientProviderImpl;
-import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.nexus.InputMode;
+import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.craft.CraftFactory;
@@ -21,14 +21,7 @@ import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.hub_client.HubTopology;
-import io.xj.nexus.persistence.ManagerExistenceException;
-import io.xj.nexus.persistence.ManagerFatalException;
-import io.xj.nexus.persistence.ManagerPrivilegeException;
-import io.xj.nexus.persistence.NexusEntityStore;
-import io.xj.nexus.persistence.NexusEntityStoreImpl;
-import io.xj.nexus.persistence.SegmentManager;
-import io.xj.nexus.persistence.SegmentManagerImpl;
-import io.xj.nexus.NexusIntegrationTestingFixtures;
+import io.xj.nexus.persistence.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -95,8 +88,7 @@ public class ComplexLibraryTest {
     when(hubClient.load(any())).thenReturn(content);
 
     // Dependencies
-    ApiUrlProvider apiUrlProvider = new ApiUrlProvider("http://localhost:8080/");
-    CraftFactory craftFactory = new CraftFactoryImpl(apiUrlProvider);
+    CraftFactory craftFactory = new CraftFactoryImpl();
     HttpClientProvider httpClientProvider = new HttpClientProviderImpl(1, 1);
 
     // work
@@ -116,7 +108,7 @@ public class ComplexLibraryTest {
       InputMode.PRODUCTION,
       OutputMode.PLAYBACK,
       "complex_library_test",
-            false,
+      false,
       "/tmp",
       86400);
 
@@ -137,9 +129,9 @@ public class ComplexLibraryTest {
   }
 
   /**
-   * Whether this test is within the time limit
-   *
-   * @return true if within time limit
+   Whether this test is within the time limit
+
+   @return true if within time limit
    */
   boolean isWithinTimeLimit() {
     if (MAXIMUM_TEST_WAIT_SECONDS * MILLIS_PER_SECOND > System.currentTimeMillis() - startTime)
@@ -149,9 +141,9 @@ public class ComplexLibraryTest {
   }
 
   /**
-   * Does the specified chain contain at least N segments?
-   *
-   * @return true if it has at least N segments
+   Does the specified chain contain at least N segments?
+
+   @return true if it has at least N segments
    */
   boolean hasSegmentsDubbedPastMinimumOffset() {
     try {

@@ -5,18 +5,10 @@ package io.xj.nexus.craft.macro_main;
 import io.xj.hub.HubContent;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.Account;
-import io.xj.hub.tables.pojos.AccountUser;
-import io.xj.hub.tables.pojos.Library;
-import io.xj.hub.tables.pojos.Program;
-import io.xj.hub.tables.pojos.ProgramSequence;
-import io.xj.hub.tables.pojos.ProgramSequenceBinding;
-import io.xj.hub.tables.pojos.TemplateBinding;
-import io.xj.hub.tables.pojos.User;
+import io.xj.hub.tables.pojos.*;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreImpl;
-import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
@@ -26,11 +18,7 @@ import io.xj.nexus.NexusTopology;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.hub_client.HubTopology;
-import io.xj.nexus.model.Chain;
-import io.xj.nexus.model.ChainState;
-import io.xj.nexus.model.ChainType;
-import io.xj.nexus.model.Segment;
-import io.xj.nexus.model.SegmentState;
+import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManagerImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,23 +29,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildAccount;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildAccountUser;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildBinding;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildLibrary;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildMeme;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildProgram;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildSequence;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildTemplate;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildTemplateBinding;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildUser;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
+import static io.xj.nexus.HubIntegrationTestingFixtures.*;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Choose next Macro program based on the memes of the last sequence from the previous Macro program https://www.pivotaltracker.com/story/show/176728582
+ Choose next Macro program based on the memes of the last sequence from the previous Macro program https://www.pivotaltracker.com/story/show/176728582
  */
 @SuppressWarnings("ALL")
 @ExtendWith(MockitoExtension.class)
@@ -65,8 +42,6 @@ public class MacroFromOverlappingMemeSequencesTest {
   static final int REPEAT_TIMES = 100;
   @Mock
   public HubClient hubClient;
-  @Mock
-  public ApiUrlProvider apiUrlProvider;
   @Mock
   public NotificationProvider notificationProvider;
   MacroMainCraftImpl subject;
@@ -189,7 +164,7 @@ public class MacroFromOverlappingMemeSequencesTest {
       "chains-1-segments-9f7s89d8a7892.wav"
     ));
 
-    subject = new MacroMainCraftImpl(fabricatorFactory.fabricate(sourceMaterial, segment2), apiUrlProvider);
+    subject = new MacroMainCraftImpl(fabricatorFactory.fabricate(sourceMaterial, segment2));
   }
 
   @Test

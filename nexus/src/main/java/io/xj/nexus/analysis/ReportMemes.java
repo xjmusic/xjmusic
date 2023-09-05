@@ -1,3 +1,5 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
 package io.xj.nexus.analysis;
 
 import io.xj.hub.HubContent;
@@ -5,18 +7,11 @@ import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.util.StringUtils;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Template content Analysis https://www.pivotaltracker.com/story/show/161199945
+ Template content Analysis https://www.pivotaltracker.com/story/show/161199945
  */
 public class ReportMemes extends Report {
   final MemeHistogram memes;
@@ -64,7 +59,7 @@ public class ReportMemes extends Report {
   }
 
   /**
-   * Representation of the construction of a histogram of usage of all memes
+   Representation of the construction of a histogram of usage of all memes
    */
   static class MemeHistogram {
     Map<String, MemeCount> histogram;
@@ -87,7 +82,7 @@ public class ReportMemes extends Report {
   }
 
   /**
-   * Representation of the count of usages for one meme
+   Representation of the count of usages for one meme
    */
   static class MemeCount {
     Set<UUID> programIds;

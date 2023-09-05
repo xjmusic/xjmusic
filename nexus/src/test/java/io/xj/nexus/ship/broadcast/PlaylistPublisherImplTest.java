@@ -19,10 +19,7 @@ import static io.xj.hub.util.FileUtils.getResourceFileContent;
 import static io.xj.nexus.HubIntegrationTestingFixtures.buildAccount;
 import static io.xj.nexus.HubIntegrationTestingFixtures.buildTemplate;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 public class PlaylistPublisherImplTest {
@@ -56,7 +53,7 @@ public class PlaylistPublisherImplTest {
   }
 
   /**
-   * Second attempt returns false (already seen this item)
+   Second attempt returns false (already seen this item)
    */
   @Test
   public void put() throws ShipException {
