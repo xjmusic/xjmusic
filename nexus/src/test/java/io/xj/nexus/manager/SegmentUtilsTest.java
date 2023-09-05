@@ -150,6 +150,6 @@ public class SegmentUtilsTest {
       "chains-1-segments-078aw34tiu5hga",
       true);
     s.setId(UUID.fromString("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7"));
-    return s.setUpdatedAt(updatedAt);
+    return s.setCreatedAt(updatedAt).setUpdatedAt(updatedAt);
   }
 }

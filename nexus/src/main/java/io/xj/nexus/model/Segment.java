@@ -297,6 +297,11 @@ public class Segment {
     return createdAt;
   }
 
+  public Segment setCreatedAt(String createdAt) {
+    this.createdAt = createdAt;
+    return this;
+  }
+
   @JsonProperty("updatedAt")
   public String getUpdatedAt() {
     return updatedAt;
