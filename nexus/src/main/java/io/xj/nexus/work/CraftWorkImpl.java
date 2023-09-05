@@ -130,6 +130,9 @@ public class CraftWorkImpl implements CraftWork {
   final Integer jsonExpiresInSeconds;
   final int bufferAheadSeconds;
   final int bufferBeforeSeconds;
+  final double outputFrameRate;
+  final int outputChannels;
+
   @Nullable
   UUID chainId;
   @Nullable
@@ -155,7 +158,9 @@ public class CraftWorkImpl implements CraftWork {
     String tempFilePathPrefix,
     int jsonExpiresInSeconds,
     int bufferAheadSeconds,
-    int bufferBeforeSeconds
+    int bufferBeforeSeconds,
+    double outputFrameRate,
+    int outputChannels
   ) {
     this.craftFactory = craftFactory;
     this.entityFactory = entityFactory;
@@ -174,6 +179,8 @@ public class CraftWorkImpl implements CraftWork {
     this.jsonExpiresInSeconds = jsonExpiresInSeconds;
     this.bufferAheadSeconds = bufferAheadSeconds;
     this.bufferBeforeSeconds = bufferBeforeSeconds;
+    this.outputFrameRate = outputFrameRate;
+    this.outputChannels = outputChannels;
 
     labPollNextSystemMillis = System.currentTimeMillis();
     yardPollNextSystemMillis = System.currentTimeMillis();
@@ -650,7 +657,7 @@ public class CraftWorkImpl implements CraftWork {
       Fabricator fabricator;
       timer.section("Prepare");
       LOG.debug("[segId={}] will prepare fabricator", segment.getId());
-      fabricator = fabricatorFactory.fabricate(chainSourceMaterial, segment, bufferAheadSeconds, bufferBeforeSeconds);
+      fabricator = fabricatorFactory.fabricate(chainSourceMaterial, segment, bufferAheadSeconds, bufferBeforeSeconds, outputFrameRate, outputChannels);
 
       timer.section("Craft");
       LOG.debug("[segId={}] will do craft work", segment.getId());

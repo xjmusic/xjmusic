@@ -44,6 +44,10 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
 
   StringProperty bufferBeforeSecondsProperty();
 
+    StringProperty outputChannelsProperty();
+
+  StringProperty outputFrameRateProperty();
+
   WorkFactory getWorkFactory();
 
   Collection<SegmentMeme> getSegmentMemes(Segment segment);

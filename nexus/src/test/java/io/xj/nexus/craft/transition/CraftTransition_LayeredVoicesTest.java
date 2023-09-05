@@ -181,7 +181,7 @@ public class CraftTransition_LayeredVoicesTest {
 
   @Test
   public void craftTransitionVoiceContinue() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 5);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 5, 48000.0, 2);
 
     craftFactory.transition(fabricator).doWork();
 

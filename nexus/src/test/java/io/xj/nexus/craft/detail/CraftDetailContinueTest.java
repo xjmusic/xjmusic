@@ -118,7 +118,7 @@ public class CraftDetailContinueTest {
   @Test
   public void craftDetailContinue() throws Exception {
     insertSegments3and4(false);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 5);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 5, 48000.0, 2);
 
     craftFactory.detail(fabricator).doWork();
     // assert choice of detail-type sequence
@@ -130,7 +130,7 @@ public class CraftDetailContinueTest {
   @Test
   public void craftDetailContinue_okEvenWithoutPreviousSegmentDetailChoice() throws Exception {
     insertSegments3and4(true);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 5);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 5, 48000.0, 2);
     craftFactory.detail(fabricator).doWork();
 
     // assert choice of detail-type sequence

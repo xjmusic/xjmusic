@@ -16,6 +16,8 @@ public class WorkConfiguration {
 
   private int bufferAheadSeconds;
   private int bufferBeforeSeconds;
+  private double outputFrameRate;
+  private int outputChannels;
 
   public InputMode getInputMode() {
     return inputMode;
@@ -86,6 +88,24 @@ public class WorkConfiguration {
 
   public WorkConfiguration setBufferBeforeSeconds(int bufferBeforeSeconds) {
     this.bufferBeforeSeconds = bufferBeforeSeconds;
+    return this;
+  }
+
+  public double getOutputFrameRate() {
+    return outputFrameRate;
+  }
+
+  public WorkConfiguration setOutputFrameRate(double outputFrameRate) {
+    this.outputFrameRate = outputFrameRate;
+    return this;
+  }
+
+  public int getOutputChannels() {
+    return outputChannels;
+  }
+
+  public WorkConfiguration setOutputChannels(int outputChannels) {
+    this.outputChannels = outputChannels;
     return this;
   }
 }

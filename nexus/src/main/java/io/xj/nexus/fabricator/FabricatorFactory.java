@@ -25,6 +25,8 @@ public interface FabricatorFactory {
    @param segment             segment to be fabricated
    @param bufferAheadSeconds  how far ahead to buffer
    @param bufferBeforeSeconds how far before to buffer
+   @param outputFrameRate
+   @param outputChannels
    @return Fabricator
    @throws NexusException            on retry-able network or service failure
    @throws FabricationFatalException on failure requiring a chain restart https://www.pivotaltracker.com/story/show/182131722
@@ -33,8 +35,8 @@ public interface FabricatorFactory {
     HubContent sourceMaterial,
     Segment segment,
     int bufferAheadSeconds,
-    int bufferBeforeSeconds
-  ) throws NexusException, FabricationFatalException, ManagerFatalException, ValueException, HubClientException;
+    int bufferBeforeSeconds,
+    double outputFrameRate, int outputChannels) throws NexusException, FabricationFatalException, ManagerFatalException, ValueException, HubClientException;
 
   /**
    Create a retrospective to fabricate a particular segment

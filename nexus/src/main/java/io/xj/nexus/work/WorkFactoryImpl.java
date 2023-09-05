@@ -144,14 +144,19 @@ public class WorkFactoryImpl implements WorkFactory {
       tempFilePathPrefix,
       jsonExpiresInSeconds,
       configuration.getBufferAheadSeconds(),
-      configuration.getBufferBeforeSeconds());
+      configuration.getBufferBeforeSeconds(),
+      configuration.getOutputFrameRate(),
+      configuration.getOutputChannels()
+    );
     dubWork = new DubWorkImpl(
       craftWork,
       dubAudioCache,
       mixerFactory,
       notification,
       mixerSeconds,
-      dubCycleMillis
+      dubCycleMillis,
+      configuration.getOutputFrameRate(),
+      configuration.getOutputChannels()
     );
     shipWork = new ShipWorkImpl(
       dubWork,

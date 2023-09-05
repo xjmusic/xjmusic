@@ -111,7 +111,7 @@ public class CraftDetailProgramVoiceNextMacroTest {
   @Test
   public void craftDetailVoiceNextMacro() throws Exception {
     insertSegments3and4(true);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 5);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 5, 48000.0, 2);
 
     craftFactory.detail(fabricator).doWork();
 
@@ -134,7 +134,7 @@ public class CraftDetailProgramVoiceNextMacroTest {
   @Test
   public void craftDetailVoiceNextMacro_okIfNoDetailChoice() throws Exception {
     insertSegments3and4(false);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 5);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 5, 48000.0, 2);
 
     craftFactory.detail(fabricator).doWork();
   }

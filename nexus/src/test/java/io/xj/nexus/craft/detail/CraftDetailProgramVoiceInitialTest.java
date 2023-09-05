@@ -103,7 +103,7 @@ public class CraftDetailProgramVoiceInitialTest {
   public void craftDetailVoiceInitial() throws Exception {
     insertSegments();
 
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment1, 10, 5);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment1, 10, 5, 48000.0, 2);
 
     craftFactory.detail(fabricator).doWork();
 
@@ -121,7 +121,7 @@ public class CraftDetailProgramVoiceInitialTest {
   @Test
   public void craftDetailVoiceInitial_okWhenNoDetailChoice() throws Exception {
     insertSegments();
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment1, 10, 5);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment1, 10, 5, 48000.0, 2);
 
     craftFactory.detail(fabricator).doWork();
   }
