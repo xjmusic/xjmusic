@@ -10,11 +10,11 @@ import io.xj.lib.telemetry.TelemetryMeasureGauge;
 import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.nexus.ship.ShipException;
 import io.xj.nexus.ship.ShipMode;
+import jakarta.annotation.Nullable;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
-import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +25,7 @@ import java.io.IOException;
 import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -40,7 +36,7 @@ import java.util.stream.Stream;
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 
 /**
- * Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
+ Ship broadcast via HTTP Live Streaming https://www.pivotaltracker.com/story/show/179453189
  */
 @Service
 public class PlaylistPublisherImpl implements PlaylistPublisher {
@@ -301,17 +297,17 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   }
 
   /**
-   * Recompute the max sequence number given current items
+   Recompute the max sequence number given current items
    */
   void recomputeMaxSequenceNumber() {
     maxSequenceNumber.set(items.keySet().stream().max(Long::compare).orElse(0L));
   }
 
   /**
-   * Compute an M3U8 file key
-   *
-   * @param key for which to compute file key
-   * @return file key
+   Compute an M3U8 file key
+
+   @param key for which to compute file key
+   @return file key
    */
   String computeM3u8Key(String key) {
     return String.format("%s.m3u8", key);

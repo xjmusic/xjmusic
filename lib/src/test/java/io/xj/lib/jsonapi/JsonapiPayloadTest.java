@@ -14,14 +14,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Payload test
- * <p>
- * Created by Charney Kaye on 2020/03/09
+ Payload test
+ <p>
+ Created by Charney Kaye on 2020/03/09
  */
 public class JsonapiPayloadTest {
   JsonapiPayload subject;
@@ -146,9 +144,9 @@ public class JsonapiPayloadTest {
   }
 
   /**
-   * Serialize a payload comprising a Widget
-   *
-   * @throws JsonapiException on failure
+   Serialize a payload comprising a Widget
+
+   @throws JsonapiException on failure
    */
   @Test
   public void setDataOne_widget() throws JsonapiException {

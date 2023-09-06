@@ -18,14 +18,12 @@ import java.util.UUID;
 
 import static io.xj.hub.util.Assertion.assertSameItems;
 import static io.xj.lib.jsonapi.AssertPayloadObject.assertPayloadObject;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Payload object test
- * <p>
- * Created by Charney Kaye on 2020/03/09
+ Payload object test
+ <p>
+ Created by Charney Kaye on 2020/03/09
  */
 public class JsonapiJsonapiPayloadObjectTest {
   JsonapiPayloadFactory jsonapiPayloadFactory;

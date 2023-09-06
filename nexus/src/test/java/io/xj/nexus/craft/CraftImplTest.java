@@ -4,30 +4,14 @@ package io.xj.nexus.craft;
 
 import io.xj.hub.HubContent;
 import io.xj.hub.TemplateConfig;
-import io.xj.hub.enums.InstrumentMode;
-import io.xj.hub.enums.InstrumentState;
-import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramState;
-import io.xj.hub.enums.ProgramType;
+import io.xj.hub.enums.*;
 import io.xj.hub.meme.MemeTaxonomy;
 import io.xj.hub.music.Chord;
-import io.xj.hub.tables.pojos.Account;
-import io.xj.hub.tables.pojos.Instrument;
-import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.hub.tables.pojos.InstrumentMeme;
-import io.xj.hub.tables.pojos.Library;
-import io.xj.hub.tables.pojos.Program;
-import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.*;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.MemeIsometry;
-import io.xj.nexus.model.Chain;
-import io.xj.nexus.model.ChainState;
-import io.xj.nexus.model.ChainType;
-import io.xj.nexus.model.Segment;
-import io.xj.nexus.model.SegmentChoice;
-import io.xj.nexus.model.SegmentState;
-import io.xj.nexus.model.SegmentType;
+import io.xj.nexus.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,25 +23,13 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static io.xj.nexus.persistence.Segments.DELTA_UNLIMITED;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildAccount;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildInstrument;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildInstrumentAudio;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildInstrumentMeme;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildLibrary;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildProgram;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildTemplate;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static io.xj.nexus.HubIntegrationTestingFixtures.*;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
+import static io.xj.nexus.model.Segment.DELTA_UNLIMITED;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftImplTest {
@@ -161,8 +133,8 @@ public class CraftImplTest {
   }
 
   /**
-   * PercLoops are not adhering to "__BPM" memes
-   * https://www.pivotaltracker.com/story/show/181975131
+   PercLoops are not adhering to "__BPM" memes
+   https://www.pivotaltracker.com/story/show/181975131
    */
   @Test
   public void chooseFreshInstrumentAudio() {
@@ -192,7 +164,7 @@ public class CraftImplTest {
   }
 
   /**
-   * XJ Should choose the correct chord audio per Main Program chord https://www.pivotaltracker.com/story/show/183434438
+   XJ Should choose the correct chord audio per Main Program chord https://www.pivotaltracker.com/story/show/183434438
    */
   @Test
   public void selectNewChordPartInstrumentAudio_stripSpaces() {
@@ -202,9 +174,9 @@ public class CraftImplTest {
   }
 
   /**
-   * Chord-mode Instrument: Slash Chord Fluency
-   * https://www.pivotaltracker.com/story/show/182885209
-   * When the exact match is not present for an entire slash chord name, choose a chord matching the pre-slash name
+   Chord-mode Instrument: Slash Chord Fluency
+   https://www.pivotaltracker.com/story/show/182885209
+   When the exact match is not present for an entire slash chord name, choose a chord matching the pre-slash name
    */
   @Test
   public void selectNewChordPartInstrumentAudio_slashChordFluency() {
@@ -215,7 +187,7 @@ public class CraftImplTest {
   }
 
   /**
-   * Enhanced Synonymous Chord recognition https://www.pivotaltracker.com/story/show/182811126
+   Enhanced Synonymous Chord recognition https://www.pivotaltracker.com/story/show/182811126
    */
   @Test
   public void selectNewChordPartInstrumentAudio_chordSynonyms() {
@@ -225,11 +197,11 @@ public class CraftImplTest {
   }
 
   /**
-   * Do the subroutine of testing the new chord part instrument audio selection
-   *
-   * @param expectThis chord name
-   * @param notThat    chord name
-   * @param match      chord name
+   Do the subroutine of testing the new chord part instrument audio selection
+
+   @param expectThis chord name
+   @param notThat    chord name
+   @param match      chord name
    */
   void selectNewChordPartInstrumentAudio(String expectThis, String notThat, String match) {
     Account account1 = buildAccount("testing");

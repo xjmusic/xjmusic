@@ -1,15 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.lib.mixer.demo;
 
-import io.xj.lib.mixer.AudioFileWriter;
-import io.xj.lib.mixer.AudioFileWriterImpl;
-import io.xj.lib.mixer.EnvelopeProvider;
-import io.xj.lib.mixer.EnvelopeProviderImpl;
-import io.xj.lib.mixer.FormatException;
-import io.xj.lib.mixer.Mixer;
-import io.xj.lib.mixer.MixerConfig;
-import io.xj.lib.mixer.MixerFactory;
-import io.xj.lib.mixer.MixerFactoryImpl;
+import io.xj.lib.mixer.*;
 import io.xj.lib.notification.NotificationProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -78,14 +70,14 @@ public class DemoIT {
   }
 
   /**
-   * assert mix output equals reference audio
-   *
-   * @param encoding      encoding
-   * @param frameRate     frame rate
-   * @param sampleBits    sample bits
-   * @param channels      channels
-   * @param referenceName name
-   * @throws Exception on failure
+   assert mix output equals reference audio
+
+   @param encoding      encoding
+   @param frameRate     frame rate
+   @param sampleBits    sample bits
+   @param channels      channels
+   @param referenceName name
+   @throws Exception on failure
    */
   @SuppressWarnings("SameParameterValue")
   void assertMixOutputEqualsReferenceAudio(AudioFormat.Encoding encoding, int frameRate, int sampleBits, int channels, double seconds, String referenceName) throws Exception {
@@ -95,15 +87,15 @@ public class DemoIT {
   }
 
   /**
-   * Execute a mix and write output to file
-   *
-   * @param outputEncoding   encoding
-   * @param outputFrameRate  frame rate
-   * @param outputSampleBits bits per sample
-   * @param outputChannels   channels
-   * @param outputSeconds    seconds
-   * @param outputFilePath   file path to write output
-   * @throws Exception on failure
+   Execute a mix and write output to file
+
+   @param outputEncoding   encoding
+   @param outputFrameRate  frame rate
+   @param outputSampleBits bits per sample
+   @param outputChannels   channels
+   @param outputSeconds    seconds
+   @param outputFilePath   file path to write output
+   @throws Exception on failure
    */
   void mixAndWriteOutput(AudioFormat.Encoding outputEncoding, int outputFrameRate, int outputSampleBits, int outputChannels, double outputSeconds, String outputFilePath) throws Exception {
     AudioFormat audioFormat = new AudioFormat(outputEncoding, outputFrameRate, outputSampleBits, outputChannels,
@@ -136,30 +128,30 @@ public class DemoIT {
   }
 
   /**
-   * get microseconds at a particular loop # and step #
-   *
-   * @param stepNum step
-   * @return microseconds
+   get microseconds at a particular loop # and step #
+
+   @param stepNum step
+   @return microseconds
    */
   static long atMicros(int stepNum) {
     return step.multipliedBy(stepNum).toNanos() / 1000;
   }
 
   /**
-   * get reference audio filename
-   *
-   * @param referenceName within this filename
-   * @return filename
+   get reference audio filename
+
+   @param referenceName within this filename
+   @return filename
    */
   public static String getReferenceAudioFilename(String referenceName) {
     return referenceAudioFilePrefix + referenceName;
   }
 
   /**
-   * FLOATING-POINT OUTPUT IS NOT SUPPORTED.
-   * [#137] Support for floating-point output encoding.
-   *
-   * @throws FormatException to prevent confusion
+   FLOATING-POINT OUTPUT IS NOT SUPPORTED.
+   [#137] Support for floating-point output encoding.
+
+   @throws FormatException to prevent confusion
    */
   @Test
   public void demo_48000Hz_Signed_32bit_2ch() throws Exception {

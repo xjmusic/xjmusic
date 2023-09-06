@@ -153,7 +153,7 @@ public class ShipWorkImpl implements ShipWork {
   }
 
   /**
-   * Attempt to initialize the output method
+   Attempt to initialize the output method
    */
   void doInit() {
     var audioFormat = dubWork.getAudioFormat();
@@ -187,7 +187,7 @@ public class ShipWorkImpl implements ShipWork {
   }
 
   /**
-   * Do the output
+   Do the output
    */
   void doWork() throws InterruptedException, ShipException, IOException {
     if (dubWork.getMixerBuffer().isEmpty() || dubWork.getMixerOutputMicrosPerByte().isEmpty()) return;
@@ -201,7 +201,7 @@ public class ShipWorkImpl implements ShipWork {
 
 
   /**
-   * Called after initialization to start the work cycle
+   Called after initialization to start the work cycle
    */
   void doInitializedOK() {
     if (0 < outputSeconds) {
@@ -213,9 +213,9 @@ public class ShipWorkImpl implements ShipWork {
   }
 
   /**
-   * Whether the ship service is ahead of sync (e.g. in realtime playback mode)
-   *
-   * @return true if ahead of sync, false if not
+   Whether the ship service is ahead of sync (e.g. in realtime playback mode)
+
+   @return true if ahead of sync, false if not
    */
   boolean isAheadOfSync() {
     if (outputMode.isSync()) {
@@ -229,7 +229,7 @@ public class ShipWorkImpl implements ShipWork {
   }
 
   /**
-   * Ship available bytes from the dub mixer buffer to the output method
+   Ship available bytes from the dub mixer buffer to the output method
    */
   void doShipOutputStream() throws IOException, ShipException {
     {
@@ -248,7 +248,7 @@ public class ShipWorkImpl implements ShipWork {
   }
 
   /**
-   * Ship available bytes from the dub mixer buffer to the output method
+   Ship available bytes from the dub mixer buffer to the output method
    */
   void doShipOutputPlayback() throws IOException, ShipException {
     {
@@ -266,7 +266,7 @@ public class ShipWorkImpl implements ShipWork {
   }
 
   /**
-   * Ship available bytes from the dub mixer buffer to the output method
+   Ship available bytes from the dub mixer buffer to the output method
    */
   void doShipOutputFile() throws IOException {
     if (Objects.isNull(fileWriter)) {
@@ -367,8 +367,8 @@ public class ShipWorkImpl implements ShipWork {
   }
 
   /**
-   * If a finite number of seconds was specified, check if we have shipped that many seconds
-   * If we are shipped past the target seconds, exit
+   If a finite number of seconds was specified, check if we have shipped that many seconds
+   If we are shipped past the target seconds, exit
    */
   boolean shippedEnoughSeconds() {
     var shippedSeconds = (float) atChainMicros / MICROS_PER_SECOND;
@@ -391,10 +391,10 @@ public class ShipWorkImpl implements ShipWork {
   }
 
   /**
-   * Log and of segment message of error that job failed while (message)@param shipKey  (optional) ship key
-   *
-   * @param msgWhile phrased like "Doing work"
-   * @param e        exception (optional)
+   Log and of segment message of error that job failed while (message)@param shipKey  (optional) ship key
+
+   @param msgWhile phrased like "Doing work"
+   @param e        exception (optional)
    */
   void didFailWhile(String msgWhile, Exception e) {
     var msgCause = StringUtils.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
@@ -415,7 +415,7 @@ public class ShipWorkImpl implements ShipWork {
   }
 
   /**
-   * Output File
+   Output File
    */
   class OutputFile {
 

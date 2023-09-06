@@ -3,10 +3,10 @@
 rootProject.name = 'workstation'
 
 String[] modules = [
-    'gui',
-    'lib',
-    'nexus',
-    'service',
+  'gui',
+  'lib',
+  'nexus',
+  'service',
 ]
 
 include modules

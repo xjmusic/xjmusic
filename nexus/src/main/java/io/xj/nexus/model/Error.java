@@ -1,4 +1,4 @@
-// Copyright (c) 1999-2022, XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 package io.xj.nexus.model;
 
@@ -13,7 +13,7 @@ public class Error {
   String detail;
 
   /**
-   * A short, human-readable summary of the problem that SHOULD NOT change from occurrence to occurrence of the problem, except for purposes of localization.
+   A short, human-readable summary of the problem that SHOULD NOT change from occurrence to occurrence of the problem, except for purposes of localization.
    **/
   public Error title(String title) {
     this.title = title;
@@ -31,7 +31,7 @@ public class Error {
   }
 
   /**
-   * A human-readable explanation specific to this occurrence of the problem. Like title, this field’s value can be localized.
+   A human-readable explanation specific to this occurrence of the problem. Like title, this field’s value can be localized.
    **/
   public Error detail(String detail) {
     this.detail = detail;
@@ -79,8 +79,8 @@ public class Error {
   }
 
   /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
+   Convert the given object to string with each line indented by 4 spaces
+   (except the first line).
    */
   String toIndentedString(Object o) {
     if (o == null) {

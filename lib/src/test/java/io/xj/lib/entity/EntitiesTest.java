@@ -14,16 +14,12 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests for text utilities
- * <p>
- * Created by Charney Kaye on 2020/03/09
+ Tests for text utilities
+ <p>
+ Created by Charney Kaye on 2020/03/09
  */
 public class EntitiesTest extends TestTemplate {
   Widget widget;

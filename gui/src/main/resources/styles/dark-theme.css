@@ -1,3 +1,5 @@
+/* Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved. */
+
 /* from https://stackoverflow.com/questions/49159286/make-a-dark-mode-with-javafx */
 
 .root {
@@ -81,7 +83,7 @@
   -fx-table-cell-border-color: transparent;
 }
 
-.bottom-pane-status-container {
+.bottom-pane-status-container, .top-pane-status-container {
   -fx-background-color: #494949;
 }
 
@@ -95,4 +97,39 @@
 
 .user-email {
   -fx-fill: #ffffff;
+}
+
+#fabricationConfigView {
+  -fx-background-color: #393939;
+}
+
+.main-timeline {
+  -fx-background-color: #202020;
+}
+
+.main-timeline .list-cell {
+  -fx-background-color: #292929;
+}
+
+.main-timeline-segment {
+  -fx-background-color: #303030;
+}
+
+.main-timeline-segment .label,
+.main-timeline-segment .choice-program-type,
+.main-timeline-segment .choice-instrument-type {
+  -fx-fill: #a0a0a0;
+}
+
+.main-timeline-segment .value,
+.main-timeline-segment .delta,
+.main-timeline-segment .meme,
+.main-timeline-segment .chord-name,
+.main-timeline-segment .choice-program-name,
+.main-timeline-segment .choice-instrument-name {
+  -fx-fill: #ffffff;
+}
+
+.main-timeline-segment .chord-position {
+  -fx-fill: #cccccc;
 }

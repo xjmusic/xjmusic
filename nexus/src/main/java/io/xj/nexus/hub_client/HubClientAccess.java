@@ -6,13 +6,7 @@ import io.xj.hub.enums.UserRoleType;
 import io.xj.lib.entity.EntityUtils;
 import jakarta.annotation.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class HubClientAccess {
   public static final String CONTEXT_KEY = "hub_access";
@@ -27,24 +21,24 @@ public class HubClientAccess {
   UUID userAuthId = null;
 
   /**
-   * Construct an HubClientAccess model
+   Construct an HubClientAccess model
    */
   public HubClientAccess() {
   }
 
   /**
-   * of access with only role types, e.g. top level direct access
-   *
-   * @param userRoleTypes to grant
+   of access with only role types, e.g. top level direct access
+
+   @param userRoleTypes to grant
    */
   public HubClientAccess(Collection<UserRoleType> userRoleTypes) {
     roleTypes.addAll(userRoleTypes);
   }
 
   /**
-   * Create an access control object for an internal process with top-level access
-   *
-   * @return access control
+   Create an access control object for an internal process with top-level access
+
+   @return access control
    */
   public static HubClientAccess internal() {
     // FUTURE how does Hub plan on authenticating a request made with this "credential?"
@@ -52,9 +46,9 @@ public class HubClientAccess {
   }
 
   /**
-   * Create an access control object for an unauthenticated access
-   *
-   * @return access control
+   Create an access control object for an unauthenticated access
+
+   @return access control
    */
   public static HubClientAccess unauthenticated() {
     return new HubClientAccess();
@@ -62,10 +56,10 @@ public class HubClientAccess {
 
 
   /**
-   * Determine if user access roles match any of the given resource access roles.
-   *
-   * @param matchRoles of the resource to match.
-   * @return whether user access roles match resource access roles.
+   Determine if user access roles match any of the given resource access roles.
+
+   @param matchRoles of the resource to match.
+   @return whether user access roles match resource access roles.
    */
   @SafeVarargs
   public final <T> boolean isAllowed(T... matchRoles) {
@@ -73,9 +67,9 @@ public class HubClientAccess {
   }
 
   /**
-   * Get user ID of this access control
-   *
-   * @return id
+   Get user ID of this access control
+
+   @return id
    */
   public UUID getUserId() throws HubClientException {
     if (Objects.isNull(userId)) throw new HubClientException("HubAccess has no user");
@@ -83,10 +77,10 @@ public class HubClientAccess {
   }
 
   /**
-   * Set User Id
-   *
-   * @param userId to set
-   * @return this HubClientAccess (for chaining setters)
+   Set User Id
+
+   @param userId to set
+   @return this HubClientAccess (for chaining setters)
    */
   public HubClientAccess setUserId(@Nullable UUID userId) {
     this.userId = userId;
@@ -94,19 +88,19 @@ public class HubClientAccess {
   }
 
   /**
-   * Get Accounts
-   *
-   * @return array of account id
+   Get Accounts
+
+   @return array of account id
    */
   public Collection<UUID> getAccountIds() {
     return Collections.unmodifiableCollection(accountIds);
   }
 
   /**
-   * Set AccountIds
-   *
-   * @param accountIds to set
-   * @return this HubClientAccess (for chaining setters)
+   Set AccountIds
+
+   @param accountIds to set
+   @return this HubClientAccess (for chaining setters)
    */
   public HubClientAccess setAccountIds(Collection<UUID> accountIds) {
     this.accountIds.clear();
@@ -115,10 +109,10 @@ public class HubClientAccess {
   }
 
   /**
-   * Set RoleTypes
-   *
-   * @param roleTypes to set
-   * @return this HubClientAccess (for chaining setters)
+   Set RoleTypes
+
+   @param roleTypes to set
+   @return this HubClientAccess (for chaining setters)
    */
   public HubClientAccess setRoleTypes(Collection<UserRoleType> roleTypes) {
     this.roleTypes.clear();
@@ -127,9 +121,9 @@ public class HubClientAccess {
   }
 
   /**
-   * Get user account types as a CSV string
-   *
-   * @return user account types
+   Get user account types as a CSV string
+
+   @return user account types
    */
   @JsonIgnore
   public String getAccounts() {
@@ -137,10 +131,10 @@ public class HubClientAccess {
   }
 
   /**
-   * Set user account types by CSV string
-   *
-   * @param accountsCsv of user account types
-   * @return user account types
+   Set user account types by CSV string
+
+   @param accountsCsv of user account types
+   @return user account types
    */
   public HubClientAccess setAccounts(String accountsCsv) {
     setAccountIds(EntityUtils.idsFromCSV(accountsCsv));
@@ -148,10 +142,10 @@ public class HubClientAccess {
   }
 
   /**
-   * Set UserAuth ID
-   *
-   * @param userAuthId to set
-   * @return this HubClientAccess (for chaining setters)
+   Set UserAuth ID
+
+   @param userAuthId to set
+   @return this HubClientAccess (for chaining setters)
    */
   public HubClientAccess setUserAuthId(@Nullable UUID userAuthId) {
     this.userAuthId = userAuthId;
@@ -159,9 +153,9 @@ public class HubClientAccess {
   }
 
   /**
-   * Is Top Level?
-   *
-   * @return boolean
+   Is Top Level?
+
+   @return boolean
    */
   @JsonIgnore
   public Boolean isTopLevel() {
@@ -169,8 +163,8 @@ public class HubClientAccess {
   }
 
   /**
-   * Validation
-   * valid with no accounts, because User expects to login without having access to any accounts. https://www.pivotaltracker.com/story/show/154580129
+   Validation
+   valid with no accounts, because User expects to login without having access to any accounts. https://www.pivotaltracker.com/story/show/154580129
    */
   @JsonIgnore
   public boolean isValid() {
@@ -180,9 +174,9 @@ public class HubClientAccess {
   }
 
   /**
-   * Get the access token string
-   *
-   * @return access token string
+   Get the access token string
+
+   @return access token string
    */
   @Nullable
   public String getToken() {
@@ -190,10 +184,10 @@ public class HubClientAccess {
   }
 
   /**
-   * Set the access token string
-   *
-   * @param token to set
-   * @return this HubClientAccess (for chaining setters)
+   Set the access token string
+
+   @param token to set
+   @return this HubClientAccess (for chaining setters)
    */
   public HubClientAccess setToken(@Nullable String token) {
     this.token = token;

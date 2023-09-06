@@ -4,9 +4,9 @@ package io.xj.lib.mixer;
 import javax.sound.sampled.AudioFormat;
 
 /**
- * Configuration for mixer
- * <p>
- * Engineer wants final Segment audio mastered with a lookahead-attack compressor https://www.pivotaltracker.com/story/show/154112129
+ Configuration for mixer
+ <p>
+ Engineer wants final Segment audio mastered with a lookahead-attack compressor https://www.pivotaltracker.com/story/show/154112129
  */
 public class MixerConfig {
   int totalBuses = 8;
@@ -26,28 +26,28 @@ public class MixerConfig {
   double normalizationBoostThreshold = 1.38;
 
   /**
-   * Instantiate a new mixer configuration with format and length (and default compression settings)
-   *
-   * @param outputFormat set
+   Instantiate a new mixer configuration with format and length (and default compression settings)
+
+   @param outputFormat set
    */
   public MixerConfig(AudioFormat outputFormat) {
     this.outputFormat = outputFormat;
   }
 
   /**
-   * Get Log Prefix
-   *
-   * @return log prefix
+   Get Log Prefix
+
+   @return log prefix
    */
   public String getLogPrefix() {
     return logPrefix;
   }
 
   /**
-   * Set log prefix
-   *
-   * @param logPrefix to set
-   * @return this Mixer Config (for chaining methods)
+   Set log prefix
+
+   @param logPrefix to set
+   @return this Mixer Config (for chaining methods)
    */
   public MixerConfig setLogPrefix(String logPrefix) {
     this.logPrefix = logPrefix;
@@ -55,19 +55,19 @@ public class MixerConfig {
   }
 
   /**
-   * Get output format
-   *
-   * @return output format
+   Get output format
+
+   @return output format
    */
   public AudioFormat getOutputFormat() {
     return outputFormat;
   }
 
   /**
-   * Set output format
-   *
-   * @param outputFormat to set
-   * @return MixerConfig to chain setters
+   Set output format
+
+   @param outputFormat to set
+   @return MixerConfig to chain setters
    */
   public MixerConfig setOutputFormat(AudioFormat outputFormat) {
     this.outputFormat = outputFormat;
@@ -75,19 +75,19 @@ public class MixerConfig {
   }
 
   /**
-   * Get compress to amplitude
-   *
-   * @return compress to amplitude
+   Get compress to amplitude
+
+   @return compress to amplitude
    */
   public Double getCompressToAmplitude() {
     return compressToAmplitude;
   }
 
   /**
-   * Set compress to amplitude
-   *
-   * @param compressToAmplitude to set
-   * @return MixerConfig to chain setters
+   Set compress to amplitude
+
+   @param compressToAmplitude to set
+   @return MixerConfig to chain setters
    */
   public MixerConfig setCompressToAmplitude(Double compressToAmplitude) {
     this.compressToAmplitude = compressToAmplitude;
@@ -95,19 +95,19 @@ public class MixerConfig {
   }
 
   /**
-   * Get compress ahead seconds
-   *
-   * @return compress ahead seconds
+   Get compress ahead seconds
+
+   @return compress ahead seconds
    */
   public Double getCompressAheadSeconds() {
     return compressAheadSeconds;
   }
 
   /**
-   * Set compress ahead seconds
-   *
-   * @param compressAheadSeconds to set
-   * @return MixerConfig to chain setters
+   Set compress ahead seconds
+
+   @param compressAheadSeconds to set
+   @return MixerConfig to chain setters
    */
   public MixerConfig setCompressAheadSeconds(Double compressAheadSeconds) {
     this.compressAheadSeconds = compressAheadSeconds;
@@ -115,19 +115,19 @@ public class MixerConfig {
   }
 
   /**
-   * Get compress decay seconds
-   *
-   * @return compress decay seconds
+   Get compress decay seconds
+
+   @return compress decay seconds
    */
   public Double getCompressDecaySeconds() {
     return compressDecaySeconds;
   }
 
   /**
-   * Set compress decay seconds
-   *
-   * @param compressDecaySeconds to set
-   * @return MixerConfig to chain setters
+   Set compress decay seconds
+
+   @param compressDecaySeconds to set
+   @return MixerConfig to chain setters
    */
   public MixerConfig setCompressDecaySeconds(Double compressDecaySeconds) {
     this.compressDecaySeconds = compressDecaySeconds;
@@ -135,37 +135,37 @@ public class MixerConfig {
   }
 
   /**
-   * Get # of frames to look ahead during compression
-   *
-   * @return # frames ahead
+   Get # of frames to look ahead during compression
+
+   @return # frames ahead
    */
   public int getCompressAheadFrames() {
     return (int) Math.round(outputFormat.getFrameRate() * compressAheadSeconds);
   }
 
   /**
-   * Get # of frames to decay during compression
-   *
-   * @return # frames decay
+   Get # of frames to decay during compression
+
+   @return # frames decay
    */
   public int getCompressDecayFrames() {
     return (int) Math.round(outputFormat.getFrameRate() * compressDecaySeconds);
   }
 
   /**
-   * Get max ratio to multiply by amplitude during compression
-   *
-   * @return max ratio for compression
+   Get max ratio to multiply by amplitude during compression
+
+   @return max ratio for compression
    */
   public Double getCompressRatioMax() {
     return compressRatioMax;
   }
 
   /**
-   * Set max ratio to multiply by amplitude during compression
-   *
-   * @param compressRatioMax max ratio for compression
-   * @return MixerConfig to chain setters
+   Set max ratio to multiply by amplitude during compression
+
+   @param compressRatioMax max ratio for compression
+   @return MixerConfig to chain setters
    */
   public MixerConfig setCompressRatioMax(Double compressRatioMax) {
     this.compressRatioMax = compressRatioMax;
@@ -173,19 +173,19 @@ public class MixerConfig {
   }
 
   /**
-   * Get min ratio to multiply by amplitude during compression
-   *
-   * @return min ratio for compression
+   Get min ratio to multiply by amplitude during compression
+
+   @return min ratio for compression
    */
   public Double getCompressRatioMin() {
     return compressRatioMin;
   }
 
   /**
-   * Set min ratio to multiply by amplitude during compression
-   *
-   * @param compressRatioMin min ratio for compression
-   * @return MixerConfig to chain setters
+   Set min ratio to multiply by amplitude during compression
+
+   @param compressRatioMin min ratio for compression
+   @return MixerConfig to chain setters
    */
   public MixerConfig setCompressRatioMin(Double compressRatioMin) {
     this.compressRatioMin = compressRatioMin;
@@ -193,19 +193,19 @@ public class MixerConfig {
   }
 
   /**
-   * Get normalization max value
-   *
-   * @return normalization max value
+   Get normalization max value
+
+   @return normalization max value
    */
   public Double getNormalizationCeiling() {
     return normalizationCeiling;
   }
 
   /**
-   * Set normalization max value
-   *
-   * @param normalizationCeiling value
-   * @return MixerConfig to chain setters
+   Set normalization max value
+
+   @param normalizationCeiling value
+   @return MixerConfig to chain setters
    */
   public MixerConfig setNormalizationCeiling(Double normalizationCeiling) {
     this.normalizationCeiling = normalizationCeiling;
@@ -213,16 +213,16 @@ public class MixerConfig {
   }
 
   /**
-   * @return normalization boost threshold
+   @return normalization boost threshold
    */
   public Double getNormalizationBoostThreshold() {
     return normalizationBoostThreshold;
   }
 
   /**
-   * Set the normalization boost threshold
-   *
-   * @param normalizationBoostThreshold limit of how much to boost during normalization
+   Set the normalization boost threshold
+
+   @param normalizationBoostThreshold limit of how much to boost during normalization
    */
   public MixerConfig setNormalizationBoostThreshold(double normalizationBoostThreshold) {
     this.normalizationBoostThreshold = normalizationBoostThreshold;
@@ -230,20 +230,20 @@ public class MixerConfig {
   }
 
   /**
-   * Get how frequently compression will be recalculated, in terms of # of frames per cycle
-   * Note: MUST be a power of 2
-   *
-   * @return # seconds per compression cycle
+   Get how frequently compression will be recalculated, in terms of # of frames per cycle
+   Note: MUST be a power of 2
+
+   @return # seconds per compression cycle
    */
   public Integer getDSPBufferSize() {
     return dspBufferSize;
   }
 
   /**
-   * Set how frequently compression will be recalculated, in terms of # of seconds per cycle
-   *
-   * @param dspBufferSize value
-   * @return MixerConfig to chain setters
+   Set how frequently compression will be recalculated, in terms of # of seconds per cycle
+
+   @param dspBufferSize value
+   @return MixerConfig to chain setters
    */
   public MixerConfig setDSPBufferSize(Integer dspBufferSize) throws MixerException {
     if (!MathUtil.isPowerOfTwo(dspBufferSize)) {
@@ -256,15 +256,15 @@ public class MixerConfig {
 
 
   /**
-   * @return compressor highpass threshold in Hz
+   @return compressor highpass threshold in Hz
    */
   public double getHighpassThresholdHz() {
     return highpassThresholdHz;
   }
 
   /**
-   * @param highpassThresholdHz to set
-   * @return this, for chaining setters
+   @param highpassThresholdHz to set
+   @return this, for chaining setters
    */
   public MixerConfig setHighpassThresholdHz(double highpassThresholdHz) {
     this.highpassThresholdHz = highpassThresholdHz;
@@ -272,15 +272,15 @@ public class MixerConfig {
   }
 
   /**
-   * @return compressor lowpass threshold in Hz
+   @return compressor lowpass threshold in Hz
    */
   public double getLowpassThresholdHz() {
     return lowpassThresholdHz;
   }
 
   /**
-   * @param lowpassThresholdHz to set
-   * @return this, for chaining setters
+   @param lowpassThresholdHz to set
+   @return this, for chaining setters
    */
   public MixerConfig setLowpassThresholdHz(double lowpassThresholdHz) {
     this.lowpassThresholdHz = lowpassThresholdHz;
@@ -289,17 +289,17 @@ public class MixerConfig {
 
 
   /**
-   * @return the total number of buses
+   @return the total number of buses
    */
   public int getTotalBuses() {
     return totalBuses;
   }
 
   /**
-   * set the total number of buses
-   *
-   * @param totalBuses to set
-   * @return MixerConfig to chain setters
+   set the total number of buses
+
+   @param totalBuses to set
+   @return MixerConfig to chain setters
    */
   public MixerConfig setTotalBuses(int totalBuses) {
     this.totalBuses = totalBuses;
@@ -307,17 +307,17 @@ public class MixerConfig {
   }
 
   /**
-   * @return the total number of seconds
+   @return the total number of seconds
    */
   public double getTotalSeconds() {
     return totalSeconds;
   }
 
   /**
-   * set the total number of seconds
-   *
-   * @param totalSeconds to set
-   * @return MixerConfig to chain setters
+   set the total number of seconds
+
+   @param totalSeconds to set
+   @return MixerConfig to chain setters
    */
   public MixerConfig setTotalSeconds(double totalSeconds) {
     this.totalSeconds = totalSeconds;

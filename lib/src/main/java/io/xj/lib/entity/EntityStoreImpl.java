@@ -6,20 +6,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
- * Implementation of Object Store
- * <p>
- * XJ Lab Distributed Architecture https://www.pivotaltracker.com/story/show/171553408
- * Chains, ChainBindings, TemplateConfigs, Segments and all Segment content sub-entities persisted in JSON:API record stored keyed by chain or segment id in memory
+ Implementation of Object Store
+ <p>
+ XJ Lab Distributed Architecture https://www.pivotaltracker.com/story/show/171553408
+ Chains, ChainBindings, TemplateConfigs, Segments and all Segment content sub-entities persisted in JSON:API record stored keyed by chain or segment id in memory
  */
 @Service
 public class EntityStoreImpl implements EntityStore {

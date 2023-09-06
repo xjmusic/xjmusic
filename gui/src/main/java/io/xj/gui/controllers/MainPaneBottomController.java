@@ -1,19 +1,19 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
 package io.xj.gui.controllers;
 
 import ch.qos.logback.classic.Level;
 import io.xj.gui.WorkstationLogAppender;
 import io.xj.gui.services.LabService;
+import jakarta.annotation.Nullable;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.css.PseudoClass;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -21,6 +21,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -29,25 +30,25 @@ import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 
 @Service
-public class BottomPaneController extends VBox implements ReadyAfterBootController {
-  private final LabService labService;
-  private final LogQueue logQueue;
-  private final ObservableList<LogRecord> logItems = FXCollections.observableArrayList();
-  static final int MAX_ENTRIES = 10_000;
-  static final int LOG_LIST_VIEW_HEIGHT = 368;
-  final static PseudoClass debug = PseudoClass.getPseudoClass("debug");
-  final static PseudoClass info = PseudoClass.getPseudoClass("info");
-  final static PseudoClass warn = PseudoClass.getPseudoClass("warn");
-  final static PseudoClass error = PseudoClass.getPseudoClass("error");
+public class MainPaneBottomController extends VBox implements ReadyAfterBootController {
   final BooleanProperty logsTailing = new SimpleBooleanProperty(true);
   final BooleanProperty logsVisible = new SimpleBooleanProperty(false);
-  final DoubleProperty refreshRate = new SimpleDoubleProperty(1);
+  final Integer refreshRateSeconds;
+  final LabService labService;
+  private final LogQueue logQueue;
+  private final ObservableList<LogRecord> logItems = FXCollections.observableArrayList();
+  final static PseudoClass debug = PseudoClass.getPseudoClass("debug");
+  final static PseudoClass error = PseudoClass.getPseudoClass("error");
+  final static PseudoClass info = PseudoClass.getPseudoClass("info");
+  final static PseudoClass warn = PseudoClass.getPseudoClass("warn");
+  static final int LOG_LIST_VIEW_HEIGHT = 368;
+  static final int MAX_ENTRIES = 10_000;
+
+  @Nullable
+  Timeline refresh;
 
   @FXML
   public Label labelLabStatus;
-
-  @FXML
-  public Label labelFabricationStatus;
 
   @FXML
   public ToggleButton toggleShowLogs;
@@ -56,11 +57,14 @@ public class BottomPaneController extends VBox implements ReadyAfterBootControll
   public ToggleButton toggleTailLogs;
 
   @FXML
-  protected ListView<BottomPaneController.LogRecord> logListView;
+  protected ListView<MainPaneBottomController.LogRecord> logListView;
 
-  public BottomPaneController(
+
+  public MainPaneBottomController(
+    @Value("${gui.logs.refresh.seconds}") Integer refreshRateSeconds,
     LabService labService
   ) {
+    this.refreshRateSeconds = refreshRateSeconds;
     this.labService = labService;
     logQueue = new LogQueue();
 
@@ -70,9 +74,9 @@ public class BottomPaneController extends VBox implements ReadyAfterBootControll
 
   @Override
   public void onStageReady() {
-    labelLabStatus.textProperty().bind(labService.statusProperty().asString());
+    labelLabStatus.textProperty().bind(labService.statusProperty().map(Enum::toString).map((status) -> String.format("Lab %s", status)));
 
-    Timeline logTransfer = new Timeline(
+    refresh = new Timeline(
       new KeyFrame(
         Duration.seconds(1),
         event -> {
@@ -88,9 +92,9 @@ public class BottomPaneController extends VBox implements ReadyAfterBootControll
         }
       )
     );
-    logTransfer.setCycleCount(Timeline.INDEFINITE);
-    logTransfer.rateProperty().bind(refreshRateProperty());
-    logTransfer.play();
+    refresh.setCycleCount(Timeline.INDEFINITE);
+    refresh.setRate(refreshRateSeconds);
+    refresh.play();
 
     logListView.setCellFactory(param -> new ListCell<>() {
       @Override
@@ -119,24 +123,20 @@ public class BottomPaneController extends VBox implements ReadyAfterBootControll
     });
     logListView.setItems(logItems);
 
-    toggleTailLogs.setSelected(logsTailing.get());
-    toggleShowLogs.setSelected(logsVisible.get());
-    updateLogsVisibility();
+    toggleTailLogs.selectedProperty().bindBidirectional(logsTailing);
+    toggleShowLogs.selectedProperty().bindBidirectional(logsVisible);
+    logListView.visibleProperty().bind(logsVisible);
+    toggleTailLogs.visibleProperty().bind(logsVisible);
+    logListView.minHeightProperty().bind(logsVisible.map((v) -> v ? LOG_LIST_VIEW_HEIGHT : 0));
+    logListView.prefHeightProperty().bind(logsVisible.map((v) -> v ? LOG_LIST_VIEW_HEIGHT : 0));
+    logListView.maxHeightProperty().bind(logsVisible.map((v) -> v ? LOG_LIST_VIEW_HEIGHT : 0));
   }
 
-  @FXML
-  public void toggleShowLogs(ActionEvent ignored) {
-    logsVisible.set(toggleShowLogs.isSelected());
-    updateLogsVisibility();
-  }
-
-  @FXML
-  public void toggleTailLogs(ActionEvent ignored) {
-    logsTailing.set(toggleTailLogs.isSelected());
-  }
-
-  public DoubleProperty refreshRateProperty() {
-    return refreshRate;
+  @Override
+  public void onStageClose() {
+    if (Objects.nonNull(refresh)) {
+      refresh.stop();
+    }
   }
 
   public void appendLogLine(Level level, String context, String line) {
@@ -146,26 +146,6 @@ public class BottomPaneController extends VBox implements ReadyAfterBootControll
       } catch (Exception e) {
         // no op
       }
-  }
-
-  public void setStatusText(String status) {
-    labelFabricationStatus.setText(status);
-  }
-
-  void updateLogsVisibility() {
-    if (logsVisible.get()) {
-      logListView.setVisible(true);
-      toggleTailLogs.setDisable(false);
-      logListView.setMinHeight(LOG_LIST_VIEW_HEIGHT);
-      logListView.setPrefHeight(LOG_LIST_VIEW_HEIGHT);
-      logListView.setMaxHeight(LOG_LIST_VIEW_HEIGHT);
-    } else {
-      toggleTailLogs.setDisable(true);
-      logListView.setVisible(false);
-      logListView.setMinHeight(0);
-      logListView.setPrefHeight(0);
-      logListView.setMaxHeight(0);
-    }
   }
 
   static class LogQueue {

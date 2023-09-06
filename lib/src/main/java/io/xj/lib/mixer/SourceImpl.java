@@ -5,8 +5,8 @@ package io.xj.lib.mixer;
 import io.xj.hub.util.ValueException;
 import io.xj.hub.util.ValueUtils;
 import io.xj.lib.notification.NotificationProvider;
-import org.apache.commons.io.FileUtils;
 import jakarta.annotation.Nullable;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,12 +23,12 @@ import java.util.UUID;
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 
 /**
- * models a single audio source
- * stores a series of Samples in Channels across Time, for audio playback.
- * <p>
- * Dub mixes audio from disk (not memory) to avoid heap overflow https://www.pivotaltracker.com/story/show/180206211
- * <p>
- * Fabrication should not completely fail because of one bad source audio https://www.pivotaltracker.com/story/show/182575665
+ models a single audio source
+ stores a series of Samples in Channels across Time, for audio playback.
+ <p>
+ Dub mixes audio from disk (not memory) to avoid heap overflow https://www.pivotaltracker.com/story/show/180206211
+ <p>
+ Fabrication should not completely fail because of one bad source audio https://www.pivotaltracker.com/story/show/182575665
  */
 class SourceImpl implements Source {
   static final Logger LOG = LoggerFactory.getLogger(SourceImpl.class);

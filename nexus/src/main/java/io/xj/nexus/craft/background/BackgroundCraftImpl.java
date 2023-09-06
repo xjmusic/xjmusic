@@ -23,9 +23,9 @@ import java.util.stream.Collectors;
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 
 /**
- * Background craft for the current segment
- * <p>
- * Background-type Instrument https://www.pivotaltracker.com/story/show/180121388
+ Background craft for the current segment
+ <p>
+ Background-type Instrument https://www.pivotaltracker.com/story/show/180121388
  */
 public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCraft {
 
@@ -68,9 +68,9 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
   }
 
   /**
-   * Craft percussion loop
-   *
-   * @param instrumentId of percussion loop instrument to craft
+   Craft percussion loop
+
+   @param instrumentId of percussion loop instrument to craft
    */
   @SuppressWarnings("DuplicatedCode")
   void craftBackground(UUID instrumentId) throws NexusException {
@@ -107,11 +107,11 @@ public class BackgroundCraftImpl extends DetailCraftImpl implements BackgroundCr
   }
 
   /**
-   * Choose drum instrument
-   * [#325] Possible to choose multiple instruments for different voices in the same program
-   *
-   * @param instrument for which to pick audio
-   * @return drum-type Instrument
+   Choose drum instrument
+   [#325] Possible to choose multiple instruments for different voices in the same program
+
+   @param instrument for which to pick audio
+   @return drum-type Instrument
    */
   Optional<InstrumentAudio> pickAudioForInstrument(Instrument instrument) {
     var arr = fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId());

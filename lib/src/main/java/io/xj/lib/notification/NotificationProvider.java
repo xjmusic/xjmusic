@@ -2,13 +2,13 @@
 package io.xj.lib.notification;
 
 /**
- * No-op stub for NotificationProvider
+ No-op stub for NotificationProvider
  */
 public interface NotificationProvider {
 
   /**
-   * Publish a message on Amazon SNS
-   * Messages that result from Chain fabrication are persisted@param message  to publish@param subject of message https://www.pivotaltracker.com/story/show/173968289
+   Publish a message on Amazon SNS
+   Messages that result from Chain fabrication are persisted@param message  to publish@param subject of message https://www.pivotaltracker.com/story/show/173968289
    */
   void publish(String subject, String message);
 

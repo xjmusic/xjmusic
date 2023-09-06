@@ -2,38 +2,8 @@
 
 package io.xj.nexus;
 
-import io.xj.hub.enums.ContentBindingType;
-import io.xj.hub.enums.InstrumentMode;
-import io.xj.hub.enums.InstrumentState;
-import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramState;
-import io.xj.hub.enums.ProgramType;
-import io.xj.hub.enums.TemplateType;
-import io.xj.hub.enums.UserAuthType;
-import io.xj.hub.tables.pojos.Account;
-import io.xj.hub.tables.pojos.AccountUser;
-import io.xj.hub.tables.pojos.Instrument;
-import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.hub.tables.pojos.InstrumentMeme;
-import io.xj.hub.tables.pojos.Library;
-import io.xj.hub.tables.pojos.Program;
-import io.xj.hub.tables.pojos.ProgramMeme;
-import io.xj.hub.tables.pojos.ProgramSequence;
-import io.xj.hub.tables.pojos.ProgramSequenceBinding;
-import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
-import io.xj.hub.tables.pojos.ProgramSequenceChord;
-import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
-import io.xj.hub.tables.pojos.ProgramSequencePattern;
-import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
-import io.xj.hub.tables.pojos.ProgramVoice;
-import io.xj.hub.tables.pojos.ProgramVoiceTrack;
-import io.xj.hub.tables.pojos.Template;
-import io.xj.hub.tables.pojos.TemplateBinding;
-import io.xj.hub.tables.pojos.TemplatePlayback;
-import io.xj.hub.tables.pojos.TemplatePublication;
-import io.xj.hub.tables.pojos.User;
-import io.xj.hub.tables.pojos.UserAuth;
-import io.xj.hub.tables.pojos.UserAuthToken;
+import io.xj.hub.enums.*;
+import io.xj.hub.tables.pojos.*;
 import io.xj.hub.util.CsvUtils;
 import jakarta.annotation.Nullable;
 
@@ -45,11 +15,11 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
- * <p>
- * Testing the hypothesis that, while unit tests are all independent,
- * integration tests ought to be as much about testing all features around a consensus model of the platform
- * as they are about testing all resources.
+ Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
+ <p>
+ Testing the hypothesis that, while unit tests are all independent,
+ integration tests ought to be as much about testing all features around a consensus model of the platform
+ as they are about testing all resources.
  */
 public class HubIntegrationTestingFixtures {
   public static final String TEST_TEMPLATE_CONFIG = "outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n";
@@ -461,9 +431,9 @@ public class HubIntegrationTestingFixtures {
   }
 
   /**
-   * NOTE: it's crucial tht a test template configuration disable certain aleatory features,
-   * e.g. `deltaArcEnabled = false` to disable choice delta randomness,
-   * otherwise tests may sporadically fail.
+   NOTE: it's crucial tht a test template configuration disable certain aleatory features,
+   e.g. `deltaArcEnabled = false` to disable choice delta randomness,
+   otherwise tests may sporadically fail.
    */
   public static Template buildTemplate(Account account1, TemplateType type, String name, String shipKey) {
     var template = new Template();

@@ -2,9 +2,13 @@
 
 package io.xj.nexus.work;
 
+import io.xj.hub.HubContent;
+import io.xj.nexus.persistence.SegmentManager;
+import jakarta.annotation.Nullable;
+
 public interface WorkFactory {
   /**
-   * Start work
+   Start work
    */
   boolean start(
     WorkConfiguration configuration,
@@ -12,17 +16,47 @@ public interface WorkFactory {
   );
 
   /**
-   * Stop work
+   Stop work
    */
   void finish();
 
   /**
-   * Get work state
+   Get work state
    */
   WorkState getWorkState();
 
   /**
-   * Whether the factory is healthy
+   Whether the factory is healthy
    */
   boolean isHealthy();
+
+  /**
+   Get the segment manager
+   */
+  SegmentManager getSegmentManager();
+
+  /**
+   Get the craft work
+   */
+  @Nullable
+  CraftWork getCraftWork();
+
+  /**
+   Get the dub work
+   */
+  @Nullable
+  DubWork getDubWork();
+
+  /**
+   Get the ship work
+   */
+  @Nullable
+  ShipWork getShipWork();
+
+  /**
+   Reset the factory including the segment manager and its store
+   */
+  void reset();
+
+  HubContent getSourceMaterial();
 }

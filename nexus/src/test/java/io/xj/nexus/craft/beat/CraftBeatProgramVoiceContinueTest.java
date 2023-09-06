@@ -9,13 +9,13 @@ import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.entity.EntityUtils;
-import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.nexus.NexusException;
+import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.craft.CraftFactoryImpl;
@@ -24,20 +24,11 @@ import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.hub_client.HubTopology;
-import io.xj.nexus.model.Chain;
-import io.xj.nexus.model.ChainState;
-import io.xj.nexus.model.ChainType;
-import io.xj.nexus.model.Segment;
-import io.xj.nexus.model.SegmentChoice;
-import io.xj.nexus.model.SegmentChoiceArrangementPick;
-import io.xj.nexus.model.SegmentState;
-import io.xj.nexus.model.SegmentType;
+import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.SegmentManagerImpl;
-import io.xj.nexus.persistence.Segments;
-import io.xj.nexus.NexusIntegrationTestingFixtures;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,13 +42,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildAudio;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildInstrument;
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildMeme;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChord;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentMeme;
+import static io.xj.nexus.HubIntegrationTestingFixtures.*;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -81,8 +67,7 @@ public class CraftBeatProgramVoiceContinueTest {
   public void setUp() throws Exception {
     JsonProvider jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
-    ApiUrlProvider apiUrlProvider = new ApiUrlProvider("");
-    craftFactory = new CraftFactoryImpl(apiUrlProvider);
+    craftFactory = new CraftFactoryImpl();
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
@@ -133,9 +118,9 @@ public class CraftBeatProgramVoiceContinueTest {
   }
 
   /**
-   * Some custom fixtures for testing
-   *
-   * @return list of all entities
+   Some custom fixtures for testing
+
+   @return list of all entities
    */
   Collection<Object> customFixtures() {
     Collection<Object> entities = new ArrayList<>();
@@ -159,7 +144,7 @@ public class CraftBeatProgramVoiceContinueTest {
   @Test
   public void craftBeatVoiceContinue() throws Exception {
     insertSegments3and4(false);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 5, 48000.0, 2);
 
     craftFactory.beat(fabricator).doWork();
 
@@ -183,15 +168,15 @@ public class CraftBeatProgramVoiceContinueTest {
   @Test
   public void craftBeatVoiceContinue_okIfNoBeatChoice() throws Exception {
     insertSegments3and4(true);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 5, 48000.0, 2);
 
     craftFactory.beat(fabricator).doWork();
   }
 
   /**
-   * Insert fixture segments 3 and 4, including the beat choice for segment 3 only if specified
-   *
-   * @param excludeBeatChoiceForSegment3 if desired for the purpose of this test
+   Insert fixture segments 3 and 4, including the beat choice for segment 3 only if specified
+
+   @param excludeBeatChoiceForSegment3 if desired for the purpose of this test
    */
   void insertSegments3and4(boolean excludeBeatChoiceForSegment3) throws NexusException {
     // segment just crafted
@@ -209,21 +194,21 @@ public class CraftBeatProgramVoiceContinueTest {
       "chains-1-segments-9f7s89d8a7892.wav", true));
     store.put(buildSegmentChoice(
       segment3,
-      Segments.DELTA_UNLIMITED,
-      Segments.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
       fake.program4,
       fake.program4_sequence0_binding0));
     store.put(buildSegmentChoice(
       segment3,
-      Segments.DELTA_UNLIMITED,
-      Segments.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
       fake.program5,
       fake.program5_sequence0_binding0));
     if (!excludeBeatChoiceForSegment3)
       store.put(buildSegmentChoice(
         segment3,
-        Segments.DELTA_UNLIMITED,
-        Segments.DELTA_UNLIMITED,
+        Segment.DELTA_UNLIMITED,
+        Segment.DELTA_UNLIMITED,
         fake.program35));
 
     // segment crafting
@@ -240,14 +225,14 @@ public class CraftBeatProgramVoiceContinueTest {
       "chains-1-segments-9f7s89d8a7892.wav", true));
     store.put(buildSegmentChoice(
       segment4,
-      Segments.DELTA_UNLIMITED,
-      Segments.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
       fake.program4,
       fake.program4_sequence0_binding0));
     store.put(buildSegmentChoice(
       segment4,
-      Segments.DELTA_UNLIMITED,
-      Segments.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
+      Segment.DELTA_UNLIMITED,
       fake.program5,
       fake.program5_sequence1_binding0));
     for (String memeName : List.of("Cozy", "Classic", "Outlook", "Rosy"))

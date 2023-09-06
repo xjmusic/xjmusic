@@ -24,7 +24,7 @@ ext {
   springBootVersion = '3.1.2'
   springTestVersion = '6.0.11'
   // private
-  xjModelsVersion = '0.5.25'
+  xjModelsVersion = '0.5.26'
 }
 
 Properties localProperties = new Properties()
@@ -77,19 +77,11 @@ subprojects {
       url = 'https://oss.sonatype.org/content/repositories/releases'
     }
     maven {
-      name = "GitHubPackages"
+      name = "ReadPrivatePackages"
       url = uri("https://maven.pkg.github.com/xjmusic/hub")
       credentials {
         username = localProperties.getProperty('repo.username') ?: System.getenv("REPO_USERNAME")
         password = localProperties.getProperty('repo.token') ?: System.getenv("REPO_TOKEN")
-      }
-    }
-    maven {
-      name = "GitHubPackages"
-      url = uri("https://maven.pkg.github.com/xjmusic/workstation")
-      credentials {
-        username = localProperties.getProperty("repo.username") ?: System.getenv("GITHUB_ACTOR")
-        password = localProperties.getProperty("repo.token") ?: System.getenv("GITHUB_TOKEN")
       }
     }
   }

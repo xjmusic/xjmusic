@@ -1,7 +1,8 @@
-// Copyright (c) 1999-2022, XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 package io.xj.nexus.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Objects;
@@ -9,7 +10,8 @@ import java.util.UUID;
 
 
 public class Chain {
-
+  @JsonIgnore
+  public static final String EXTENSION_SEPARATOR = ".";
   UUID id;
   UUID accountId;
   UUID templateId;
@@ -20,7 +22,6 @@ public class Chain {
   String name;
 
   /**
-   *
    **/
   public Chain id(UUID id) {
     this.id = id;
@@ -38,7 +39,6 @@ public class Chain {
   }
 
   /**
-   *
    **/
   public Chain accountId(UUID accountId) {
     this.accountId = accountId;
@@ -56,7 +56,6 @@ public class Chain {
   }
 
   /**
-   *
    **/
   public Chain templateId(UUID templateId) {
     this.templateId = templateId;
@@ -74,7 +73,6 @@ public class Chain {
   }
 
   /**
-   *
    **/
   public Chain type(ChainType type) {
     this.type = type;
@@ -92,7 +90,6 @@ public class Chain {
   }
 
   /**
-   *
    **/
   public Chain state(ChainState state) {
     this.state = state;
@@ -110,7 +107,6 @@ public class Chain {
   }
 
   /**
-   *
    **/
   public Chain shipKey(String shipKey) {
     this.shipKey = shipKey;
@@ -128,7 +124,6 @@ public class Chain {
   }
 
   /**
-   *
    **/
   public Chain templateConfig(String templateConfig) {
     this.templateConfig = templateConfig;
@@ -146,7 +141,6 @@ public class Chain {
   }
 
   /**
-   *
    **/
   public Chain name(String name) {
     this.name = name;
@@ -203,8 +197,8 @@ public class Chain {
   }
 
   /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
+   Convert the given object to string with each line indented by 4 spaces
+   (except the first line).
    */
   String toIndentedString(Object o) {
     if (o == null) {

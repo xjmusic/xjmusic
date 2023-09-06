@@ -12,22 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 /**
- * Implementation of Entity Factory
- * <p>
- * Created by Charney Kaye on 2020/03/09
+ Implementation of Entity Factory
+ <p>
+ Created by Charney Kaye on 2020/03/09
  */
 @Service
 public class EntityFactoryImpl implements EntityFactory {
@@ -187,10 +179,10 @@ public class EntityFactoryImpl implements EntityFactory {
   }
 
   /**
-   * Ensure the given type exists in the inner schema, else add it
-   *
-   * @param message on failure
-   * @param type    to ensure existence of
+   Ensure the given type exists in the inner schema, else add it
+
+   @param message on failure
+   @param type    to ensure existence of
    */
   void ensureSchemaExists(Object message, String type) throws EntityException {
     if (!schema.containsKey(type))

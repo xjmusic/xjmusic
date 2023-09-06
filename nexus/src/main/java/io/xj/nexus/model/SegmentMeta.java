@@ -1,4 +1,4 @@
-// Copyright (c) 1999-2022, XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 package io.xj.nexus.model;
 
@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
+ Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://www.pivotaltracker.com/story/show/183135787
  */
 public class SegmentMeta {
 
@@ -18,7 +18,6 @@ public class SegmentMeta {
   String value;
 
   /**
-   *
    **/
   public SegmentMeta id(UUID id) {
     this.id = id;
@@ -36,7 +35,6 @@ public class SegmentMeta {
   }
 
   /**
-   *
    **/
   public SegmentMeta segmentId(UUID segmentId) {
     this.segmentId = segmentId;
@@ -54,7 +52,6 @@ public class SegmentMeta {
   }
 
   /**
-   *
    **/
   public SegmentMeta key(String key) {
     this.key = key;
@@ -72,7 +69,6 @@ public class SegmentMeta {
   }
 
   /**
-   *
    **/
   public SegmentMeta value(String value) {
     this.value = value;
@@ -123,8 +119,8 @@ public class SegmentMeta {
   }
 
   /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
+   Convert the given object to string with each line indented by 4 spaces
+   (except the first line).
    */
   String toIndentedString(Object o) {
     if (o == null) {

@@ -19,8 +19,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * Detail craft for the current segment
- * [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
+ Detail craft for the current segment
+ [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public class DetailCraftImpl extends CraftImpl implements DetailCraft {
   public DetailCraftImpl(Fabricator fabricator) {

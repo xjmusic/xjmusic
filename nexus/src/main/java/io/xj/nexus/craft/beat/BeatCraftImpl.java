@@ -19,10 +19,10 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * Beat craft for the current segment
- * [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
- * <p>
- * BeatCraftImpl extends DetailCraftImpl to leverage all detail craft enhancements https://www.pivotaltracker.com/story/show/176625174
+ Beat craft for the current segment
+ [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
+ <p>
+ BeatCraftImpl extends DetailCraftImpl to leverage all detail craft enhancements https://www.pivotaltracker.com/story/show/176625174
  */
 public class BeatCraftImpl extends DetailCraftImpl implements BeatCraft {
 

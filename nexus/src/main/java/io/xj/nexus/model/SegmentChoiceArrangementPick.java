@@ -1,4 +1,4 @@
-// Copyright (c) 1999-2022, XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 package io.xj.nexus.model;
 
@@ -23,7 +23,6 @@ public class SegmentChoiceArrangementPick {
   String event;
 
   /**
-   *
    **/
   public SegmentChoiceArrangementPick id(UUID id) {
     this.id = id;
@@ -41,7 +40,6 @@ public class SegmentChoiceArrangementPick {
   }
 
   /**
-   *
    **/
   public SegmentChoiceArrangementPick segmentId(UUID segmentId) {
     this.segmentId = segmentId;
@@ -59,7 +57,6 @@ public class SegmentChoiceArrangementPick {
   }
 
   /**
-   *
    **/
   public SegmentChoiceArrangementPick segmentChoiceArrangementId(UUID segmentChoiceArrangementId) {
     this.segmentChoiceArrangementId = segmentChoiceArrangementId;
@@ -77,7 +74,6 @@ public class SegmentChoiceArrangementPick {
   }
 
   /**
-   *
    **/
   public SegmentChoiceArrangementPick segmentChordVoicingId(UUID segmentChordVoicingId) {
     this.segmentChordVoicingId = segmentChordVoicingId;
@@ -95,7 +91,6 @@ public class SegmentChoiceArrangementPick {
   }
 
   /**
-   *
    **/
   public SegmentChoiceArrangementPick instrumentAudioId(UUID instrumentAudioId) {
     this.instrumentAudioId = instrumentAudioId;
@@ -113,7 +108,6 @@ public class SegmentChoiceArrangementPick {
   }
 
   /**
-   *
    **/
   public SegmentChoiceArrangementPick programSequencePatternEventId(UUID programSequencePatternEventId) {
     this.programSequencePatternEventId = programSequencePatternEventId;
@@ -131,7 +125,6 @@ public class SegmentChoiceArrangementPick {
   }
 
   /**
-   *
    **/
   public SegmentChoiceArrangementPick startAtSegmentMicros(Long segmentMicros) {
     this.startAtSegmentMicros = segmentMicros;
@@ -149,7 +142,6 @@ public class SegmentChoiceArrangementPick {
   }
 
   /**
-   *
    **/
   public SegmentChoiceArrangementPick lengthMicros(Long micros) {
     this.lengthMicros = micros;
@@ -167,7 +159,6 @@ public class SegmentChoiceArrangementPick {
   }
 
   /**
-   *
    **/
   public SegmentChoiceArrangementPick amplitude(Double amplitude) {
     this.amplitude = amplitude;
@@ -185,7 +176,6 @@ public class SegmentChoiceArrangementPick {
   }
 
   /**
-   *
    **/
   public SegmentChoiceArrangementPick tones(String tones) {
     this.tones = tones;
@@ -203,7 +193,6 @@ public class SegmentChoiceArrangementPick {
   }
 
   /**
-   *
    **/
   public SegmentChoiceArrangementPick event(String event) {
     this.event = event;
@@ -267,8 +256,8 @@ public class SegmentChoiceArrangementPick {
   }
 
   /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
+   Convert the given object to string with each line indented by 4 spaces
+   (except the first line).
    */
   String toIndentedString(Object o) {
     if (o == null) {

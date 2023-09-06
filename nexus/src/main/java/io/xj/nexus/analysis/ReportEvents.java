@@ -1,3 +1,5 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
 package io.xj.nexus.analysis;
 
 import io.xj.hub.HubContent;
@@ -7,20 +9,11 @@ import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.util.StringUtils;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Template content Analysis https://www.pivotaltracker.com/story/show/161199945
+ Template content Analysis https://www.pivotaltracker.com/story/show/161199945
  */
 public class ReportEvents extends Report {
   final EventHistogram eventHistogram;
@@ -77,16 +70,16 @@ public class ReportEvents extends Report {
   }
 
   /**
-   * Get the histogram
-   *
-   * @return event histogram
+   Get the histogram
+
+   @return event histogram
    */
   public EventHistogram getEventHistogram() {
     return eventHistogram;
   }
 
   /**
-   * Representation of the construction of a histogram of usage of all events
+   Representation of the construction of a histogram of usage of all events
    */
   public static class EventHistogram {
     Map<String, Map<String, EventCount>> histogram;
@@ -125,7 +118,7 @@ public class ReportEvents extends Report {
   }
 
   /**
-   * Representation of the count of usages for one event
+   Representation of the count of usages for one event
    */
   public static class EventCount {
     Set<UUID> programIds;

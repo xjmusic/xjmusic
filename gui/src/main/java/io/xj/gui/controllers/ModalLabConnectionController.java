@@ -1,3 +1,5 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
 package io.xj.gui.controllers;
 
 import io.xj.gui.WorkstationIcon;
@@ -95,7 +97,7 @@ public class ModalLabConnectionController implements ReadyAfterBootController {
         labService.statusProperty().get() == LabStatus.Authenticated ? BUTTON_DISCONNECT_TEXT : BUTTON_CONNECT_TEXT,
       labService.statusProperty()));
 
-    fieldLabUrl.textProperty().bindBidirectional(labService.urlProperty());
+    fieldLabUrl.textProperty().bindBidirectional(labService.baseUrlProperty());
     fieldLabAccessToken.textProperty().bindBidirectional(labService.accessTokenProperty());
     labelStatus.textProperty().bind(labService.statusProperty().asString());
 
@@ -113,6 +115,11 @@ public class ModalLabConnectionController implements ReadyAfterBootController {
       User user = labService.authenticatedUserProperty().get();
       return Objects.nonNull(user) ? new Image(user.getAvatarUrl()) : null;
     }, labService.authenticatedUserProperty()));
+  }
+
+  @Override
+  public void onStageClose() {
+    // no op
   }
 
   public void launchModal() {
@@ -141,12 +148,14 @@ public class ModalLabConnectionController implements ReadyAfterBootController {
 
   @FXML
   void handleClose() {
-    closeStage();
+    Stage stage = (Stage) buttonConnect.getScene().getWindow();
+    stage.close();
+    onStageClose();
   }
 
   @FXML
   void handleLaunchLabPreferences() {
-    hostServices.showDocument(labService.urlProperty().get() + "preferences");
+    hostServices.showDocument(labService.baseUrlProperty().get() + "preferences");
   }
 
   @FXML
@@ -156,10 +165,5 @@ public class ModalLabConnectionController implements ReadyAfterBootController {
     } else {
       labService.connect();
     }
-  }
-
-  void closeStage() {
-    Stage stage = (Stage) buttonConnect.getScene().getWindow();
-    stage.close();
   }
 }

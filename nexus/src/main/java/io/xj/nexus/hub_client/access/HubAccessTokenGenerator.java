@@ -2,13 +2,13 @@
 package io.xj.nexus.hub_client.access;
 
 /**
- * Generates access tokens
+ Generates access tokens
  */
 public interface HubAccessTokenGenerator {
   /**
-   * Generate a new access token
-   *
-   * @return new access token
+   Generate a new access token
+
+   @return new access token
    */
   String generate();
 }

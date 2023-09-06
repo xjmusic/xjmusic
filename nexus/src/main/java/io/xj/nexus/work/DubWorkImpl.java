@@ -6,13 +6,7 @@ import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.util.StringUtils;
 import io.xj.lib.filestore.FileStoreException;
-import io.xj.lib.mixer.BytePipeline;
-import io.xj.lib.mixer.FormatException;
-import io.xj.lib.mixer.Mixer;
-import io.xj.lib.mixer.MixerConfig;
-import io.xj.lib.mixer.MixerFactory;
-import io.xj.lib.mixer.PutException;
-import io.xj.lib.mixer.SourceException;
+import io.xj.lib.mixer.*;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.MultiStopwatch;
 import io.xj.nexus.NexusException;
@@ -26,11 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.sound.sampled.AudioFormat;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -63,6 +53,8 @@ public class DubWorkImpl implements DubWork {
   long nextCycleAtSystemMillis = System.currentTimeMillis();
   @Nullable
   Float mixerOutputMicrosecondsPerByte;
+  final int outputChannels;
+  final double outputFrameRate;
 
   public DubWorkImpl(
     CraftWork craftWork,
@@ -70,12 +62,16 @@ public class DubWorkImpl implements DubWork {
     MixerFactory mixerFactory,
     NotificationProvider notification,
     int mixerSeconds,
-    long cycleMillis
+    long cycleMillis,
+    double outputFrameRate,
+    int outputChannels
   ) {
     this.craftWork = craftWork;
     this.dubAudioCache = dubAudioCache;
     this.notification = notification;
     this.mixerLengthSeconds = mixerSeconds;
+    this.outputFrameRate = outputFrameRate;
+    this.outputChannels = outputChannels;
     this.mixerLengthMicros = mixerLengthSeconds * MICROS_PER_SECOND;
     this.mixerFactory = mixerFactory;
     this.cycleMillis = cycleMillis;
@@ -181,7 +177,7 @@ public class DubWorkImpl implements DubWork {
   }
 
   /**
-   * This is the internal cycle that's run indefinitely
+   This is the internal cycle that's run indefinitely
    */
   void doWorkCycle() throws InterruptedException {
     if (System.currentTimeMillis() < nextCycleAtSystemMillis) {
@@ -245,12 +241,12 @@ public class DubWorkImpl implements DubWork {
   }
 
   /**
-   * Do dub frame
-   * <p>
-   * instead of mixing to file, mix to memory (produce to a BytePipeline) and let ship work consume the buffer
-   * use the same mixer from chunk to chunk, only changing the active audios
-   * <p>
-   * Ensure mixer has continuity of its processes/effects, e.g. the compressor levels at the last frame of the last chunk are carried over to the first frame of the next chunk
+   Do dub frame
+   <p>
+   instead of mixing to file, mix to memory (produce to a BytePipeline) and let ship work consume the buffer
+   use the same mixer from chunk to chunk, only changing the active audios
+   <p>
+   Ensure mixer has continuity of its processes/effects, e.g. the compressor levels at the last frame of the last chunk are carried over to the first frame of the next chunk
    */
   void doDubFrame() {
     if (Objects.isNull(mixer)) return;
@@ -314,16 +310,16 @@ public class DubWorkImpl implements DubWork {
   }
 
   /**
-   * Get a mixer instance
-   * (caches instance)
-   *
-   * @return mixer
+   Get a mixer instance
+   (caches instance)
+
+   @return mixer
    */
   Mixer mixerInit(TemplateConfig templateConfig) throws Exception {
     AudioFormat.Encoding encoding = AudioFormat.Encoding.PCM_SIGNED;
     int sampleBits = 16;
-    int frameSize = templateConfig.getOutputChannels() * sampleBits / BITS_PER_BYTE;
-    AudioFormat audioFormat = new AudioFormat(encoding, templateConfig.getOutputFrameRate(), sampleBits, templateConfig.getOutputChannels(), frameSize, templateConfig.getOutputFrameRate(), false);
+    int frameSize = outputChannels * sampleBits / BITS_PER_BYTE;
+    AudioFormat audioFormat = new AudioFormat(encoding, (float) outputFrameRate, sampleBits, outputChannels, frameSize, (float) outputFrameRate, false);
     MixerConfig config = new MixerConfig(audioFormat)
       .setTotalSeconds(mixerLengthSeconds)
       .setTotalBuses(InstrumentType.values().length)
@@ -347,9 +343,9 @@ public class DubWorkImpl implements DubWork {
   }
 
   /**
-   * Mixer set all active audios, remove any that are no longer active
-   *
-   * @param activeAudios to set up
+   Mixer set all active audios, remove any that are no longer active
+
+   @param activeAudios to set up
    */
   void mixerSetAll(List<ActiveAudio> activeAudios) {
     for (ActiveAudio active : activeAudios) {
@@ -369,14 +365,14 @@ public class DubWorkImpl implements DubWork {
   final AtomicInteger computedBusNumber = new AtomicInteger(0);
 
   /**
-   * Set playback for a pick
-   * <p>
-   * [#341] Dub process takes into account the start offset of each audio, in order to ensure that it is mixed such that the hit is exactly on the meter
-   * Dubbed audio can begin before segment start https://www.pivotaltracker.com/story/show/165799913
-   * - During dub work, output audio includes the head start, and `waveform_preroll` value is persisted to segment
-   * Duration of events should include segment preroll https://www.pivotaltracker.com/story/show/171224848
-   *
-   * @param active audio to setup
+   Set playback for a pick
+   <p>
+   [#341] Dub process takes into account the start offset of each audio, in order to ensure that it is mixed such that the hit is exactly on the meter
+   Dubbed audio can begin before segment start https://www.pivotaltracker.com/story/show/165799913
+   - During dub work, output audio includes the head start, and `waveform_preroll` value is persisted to segment
+   Duration of events should include segment preroll https://www.pivotaltracker.com/story/show/171224848
+
+   @param active audio to setup
    */
   void mixerSetupTarget(ActiveAudio active) {
     if (Objects.isNull(mixer)) return;
@@ -410,9 +406,9 @@ public class DubWorkImpl implements DubWork {
   }
 
   /**
-   * Remove a source put from the mixer
-   *
-   * @param active audio to remove
+   Remove a source put from the mixer
+
+   @param active audio to remove
    */
   void mixerRemoveTarget(ActiveAudio active) {
     if (Objects.isNull(mixer)) return;
@@ -420,10 +416,10 @@ public class DubWorkImpl implements DubWork {
   }
 
   /**
-   * Assign a bus number to an instrument type, in no particular order
-   *
-   * @param instrumentType for which to get bus number
-   * @return bus number
+   Assign a bus number to an instrument type, in no particular order
+
+   @param instrumentType for which to get bus number
+   @return bus number
    */
   int mixerGetBusNumber(InstrumentType instrumentType) {
     if (!instrumentBusNumber.containsKey(instrumentType))
@@ -432,10 +428,10 @@ public class DubWorkImpl implements DubWork {
   }
 
   /**
-   * Log and of segment message of error that job failed while (message)@param shipKey  (optional) ship key
-   *
-   * @param msgWhile phrased like "Doing work"
-   * @param e        exception (optional)
+   Log and of segment message of error that job failed while (message)@param shipKey  (optional) ship key
+
+   @param msgWhile phrased like "Doing work"
+   @param e        exception (optional)
    */
   void didFailWhile(String msgWhile, Exception e) {
     var msgCause = StringUtils.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();

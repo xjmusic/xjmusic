@@ -6,16 +6,16 @@ import me.xdrop.fuzzywuzzy.FuzzySearch;
 import org.apache.commons.codec.language.DoubleMetaphone;
 
 /**
- * Determine the isometry between a source and target group of Events
+ Determine the isometry between a source and target group of Events
  */
 public class NameIsometry extends Isometry {
   static final double SIMILARITY_SCORE_MATCHING_NAME = 3;
 
   /**
-   * Instantiate a new NameIsometry of a group of source Events
-   *
-   * @param sourceNames to compare of
-   * @return NameIsometry ready for comparison to target Events
+   Instantiate a new NameIsometry of a group of source Events
+
+   @param sourceNames to compare of
+   @return NameIsometry ready for comparison to target Events
    */
   public static NameIsometry ofEvents(Iterable<String> sourceNames) {
     NameIsometry result = new NameIsometry();
@@ -24,11 +24,11 @@ public class NameIsometry extends Isometry {
   }
 
   /**
-   * [#252] Similarity between two events implements Double Metaphone phonetic similarity algorithm
-   *
-   * @param name1 to compare
-   * @param name2 to compare
-   * @return score
+   [#252] Similarity between two events implements Double Metaphone phonetic similarity algorithm
+
+   @param name1 to compare
+   @param name2 to compare
+   @return score
    */
   public static int similarity(String name1, String name2) {
     DoubleMetaphone dm = new DoubleMetaphone();
@@ -41,9 +41,9 @@ public class NameIsometry extends Isometry {
   }
 
   /**
-   * Add an event for isometry comparison
-   *
-   * @param source to add
+   Add an event for isometry comparison
+
+   @param source to add
    */
   public void add(String source) {
     addPhonetic(source);

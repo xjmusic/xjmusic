@@ -1,4 +1,4 @@
-// Copyright (c) 1999-2022, XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 package io.xj.nexus.model;
 
@@ -16,7 +16,6 @@ public class SegmentChoiceArrangement {
   UUID programSequencePatternId;
 
   /**
-   *
    **/
   public SegmentChoiceArrangement id(UUID id) {
     this.id = id;
@@ -34,7 +33,6 @@ public class SegmentChoiceArrangement {
   }
 
   /**
-   *
    **/
   public SegmentChoiceArrangement segmentId(UUID segmentId) {
     this.segmentId = segmentId;
@@ -52,7 +50,6 @@ public class SegmentChoiceArrangement {
   }
 
   /**
-   *
    **/
   public SegmentChoiceArrangement segmentChoiceId(UUID segmentChoiceId) {
     this.segmentChoiceId = segmentChoiceId;
@@ -70,7 +67,6 @@ public class SegmentChoiceArrangement {
   }
 
   /**
-   *
    **/
   public SegmentChoiceArrangement programSequencePatternId(UUID programSequencePatternId) {
     this.programSequencePatternId = programSequencePatternId;
@@ -122,8 +118,8 @@ public class SegmentChoiceArrangement {
   }
 
   /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
+   Convert the given object to string with each line indented by 4 spaces
+   (except the first line).
    */
   String toIndentedString(Object o) {
     if (o == null) {
