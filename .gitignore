@@ -15,12 +15,13 @@ build/
 .settings/
 bin/
 
-# IDEA
+# IDE
 *.iml
 *.ipr
 *.iws
 .idea/
 out/
+.vscode/
 
 hs_err_pid*
 _ignore*
