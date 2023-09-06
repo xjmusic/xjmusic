@@ -84,14 +84,6 @@ subprojects {
         password = localProperties.getProperty('repo.token') ?: System.getenv("REPO_TOKEN")
       }
     }
-    maven {
-      name = "PublishReleaseArtifact"
-      url = uri("https://maven.pkg.github.com/xjmusic/workstation")
-      credentials {
-        username = localProperties.getProperty("repo.username") ?: System.getenv("GITHUB_ACTOR")
-        password = localProperties.getProperty("repo.token") ?: System.getenv("GITHUB_TOKEN")
-      }
-    }
   }
 }
 
