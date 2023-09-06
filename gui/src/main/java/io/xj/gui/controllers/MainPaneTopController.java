@@ -21,7 +21,7 @@ import java.util.List;
 
 @Service
 public class MainPaneTopController extends VBox implements ReadyAfterBootController {
-  static final int FABRICATION_CONFIG_VIEW_HEIGHT = 220;
+  static final int FABRICATION_CONFIG_VIEW_HEIGHT = 160;
   static final List<FabricationStatus> BUTTON_ACTION_ACTIVE_IN_FABRICATION_STATES = Arrays.asList(
     FabricationStatus.Standby,
     FabricationStatus.Active,

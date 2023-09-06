@@ -42,6 +42,7 @@ public class ComplexLibraryTest {
   static final int MARATHON_NUMBER_OF_SEGMENTS = 50;
   static final int MAXIMUM_TEST_WAIT_SECONDS = 10 * MARATHON_NUMBER_OF_SEGMENTS;
   static final int MILLIS_PER_SECOND = 1000;
+  private static final int GENERATED_FIXTURE_COMPLEXITY = 3;
   @Mock
   public HubClient hubClient;
   @Mock
@@ -60,7 +61,7 @@ public class ComplexLibraryTest {
     NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();
     fake.account1 = buildAccount("fish");
     fake.library1 = buildLibrary(fake.account1, "test");
-    HubContent content = new HubContent(fake.generatedFixture(3));
+    HubContent content = new HubContent(fake.generatedFixture(GENERATED_FIXTURE_COMPLEXITY));
 
     // NOTE: it's critical that the test template has config bufferAheadSeconds=9999 in order to ensure the test fabricates far ahead
     var template = content.getTemplate();
@@ -111,8 +112,10 @@ public class ComplexLibraryTest {
       false,
       "/tmp",
       86400,
-      10,
-      5, 48000.0, 2);
+      999999,
+      5,
+      48000.0, 2
+    );
 
     workThread = new AppWorkThread(work);
   }

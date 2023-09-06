@@ -16,6 +16,7 @@
       <padding>
         <Insets top="10"/>
       </padding>
+
       <VBox alignment="CENTER_LEFT" prefHeight="60.0">
         <padding>
           <Insets right="10" left="10"/>
@@ -42,13 +43,6 @@
         <Pane prefWidth="15.0"/>
         <ChoiceBox fx:id="choiceInputMode" prefHeight="25.0"/>
       </VBox>
-    </HBox>
-
-    <HBox alignment="CENTER_LEFT">
-      <padding>
-        <Insets top="10"/>
-      </padding>
-
       <VBox alignment="CENTER_LEFT" prefHeight="60.0">
         <padding>
           <Insets right="10" left="10"/>
