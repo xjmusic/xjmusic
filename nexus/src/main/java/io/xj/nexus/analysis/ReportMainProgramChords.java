@@ -1,3 +1,5 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
 package io.xj.nexus.analysis;
 
 import io.xj.hub.HubContent;
@@ -5,16 +7,11 @@ import io.xj.hub.music.Chord;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.nexus.analysis.util.ChordCount;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Template content Analysis https://www.pivotaltracker.com/story/show/161199945
+ Template content Analysis https://www.pivotaltracker.com/story/show/161199945
  */
 public class ReportMainProgramChords extends Report {
   final ChordHistogram mainProgramChords;
@@ -53,7 +50,7 @@ public class ReportMainProgramChords extends Report {
   }
 
   /**
-   * Representation of the construction of a histogram of usage of all mainProgramChords
+   Representation of the construction of a histogram of usage of all mainProgramChords
    */
   static class ChordHistogram {
     Map<String, ChordCount> histogram;

@@ -13,8 +13,8 @@ public class NexusIntegrationTestProviderImpl implements NexusIntegrationTestPro
   final NexusEntityStore store;
 
   /**
-   * Since this class is a singleton, the process here in its constructor
-   * will happen only once for a whole test suite
+   Since this class is a singleton, the process here in its constructor
+   will happen only once for a whole test suite
    */
   NexusIntegrationTestProviderImpl(
     EntityFactory entityFactory,

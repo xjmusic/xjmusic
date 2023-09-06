@@ -15,9 +15,9 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
- * Payload serializer test
- * <p>
- * Created by Charney Kaye on 2020/03/09
+ Payload serializer test
+ <p>
+ Created by Charney Kaye on 2020/03/09
  */
 public class JsonapiPayloadSerializerTest {
   JsonapiPayloadFactory jsonapiPayloadFactory;
@@ -80,7 +80,7 @@ public class JsonapiPayloadSerializerTest {
   }
 
   /**
-   * JSON:API serializer must not include relationship payload where there is none https://www.pivotaltracker.com/story/show/175792528
+   JSON:API serializer must not include relationship payload where there is none https://www.pivotaltracker.com/story/show/175792528
    */
   @Test
   public void serializeOne_withBelongsTo_empty() throws JsonapiException {

@@ -21,10 +21,10 @@ public class FileStoreException extends Exception {
   }
 
   /**
-   * Format a stack trace in carriage-return-separated lines
-   *
-   * @param e exception to format the stack trace of
-   * @return formatted stack trace
+   Format a stack trace in carriage-return-separated lines
+
+   @param e exception to format the stack trace of
+   @return formatted stack trace
    */
   static String formatStackTrace(@Nullable Throwable e) {
     if (Objects.isNull(e)) return "";

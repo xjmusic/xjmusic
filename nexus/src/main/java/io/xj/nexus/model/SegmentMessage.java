@@ -1,4 +1,4 @@
-// Copyright (c) 1999-2022, XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 package io.xj.nexus.model;
 
@@ -16,7 +16,6 @@ public class SegmentMessage {
   String body;
 
   /**
-   *
    **/
   public SegmentMessage id(UUID id) {
     this.id = id;
@@ -34,7 +33,6 @@ public class SegmentMessage {
   }
 
   /**
-   *
    **/
   public SegmentMessage segmentId(UUID segmentId) {
     this.segmentId = segmentId;
@@ -52,7 +50,6 @@ public class SegmentMessage {
   }
 
   /**
-   *
    **/
   public SegmentMessage type(SegmentMessageType type) {
     this.type = type;
@@ -70,7 +67,6 @@ public class SegmentMessage {
   }
 
   /**
-   *
    **/
   public SegmentMessage body(String body) {
     this.body = body;
@@ -122,8 +118,8 @@ public class SegmentMessage {
   }
 
   /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
+   Convert the given object to string with each line indented by 4 spaces
+   (except the first line).
    */
   String toIndentedString(Object o) {
     if (o == null) {

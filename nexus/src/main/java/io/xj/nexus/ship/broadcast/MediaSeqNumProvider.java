@@ -20,10 +20,10 @@ public class MediaSeqNumProvider {
   }
 
   /**
-   * Get the media sequence number of a given time in milliseconds
-   *
-   * @param chainMicros for which to get media sequence number
-   * @return media sequence number
+   Get the media sequence number of a given time in milliseconds
+
+   @param chainMicros for which to get media sequence number
+   @return media sequence number
    */
   public int computeMediaSeqNum(long chainMicros) {
     return (int) (Math.floor((double) chainMicros / (MICROS_PER_SECOND * chunkDurationSeconds)));

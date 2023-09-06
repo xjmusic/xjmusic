@@ -3,40 +3,16 @@ package io.xj.nexus.fabricator;
 
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.util.StringUtils;
-import io.xj.lib.entity.EntityException;
-import io.xj.lib.entity.EntityStore;
-import io.xj.lib.entity.EntityStoreException;
-import io.xj.lib.entity.EntityStoreImpl;
-import io.xj.lib.entity.EntityUtils;
+import io.xj.lib.entity.*;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.model.Chain;
-import io.xj.nexus.model.Segment;
-import io.xj.nexus.model.SegmentChoice;
-import io.xj.nexus.model.SegmentChoiceArrangement;
-import io.xj.nexus.model.SegmentChoiceArrangementPick;
-import io.xj.nexus.model.SegmentChord;
-import io.xj.nexus.model.SegmentChordVoicing;
-import io.xj.nexus.model.SegmentMeme;
-import io.xj.nexus.model.SegmentMessage;
-import io.xj.nexus.model.SegmentMessageType;
-import io.xj.nexus.model.SegmentMeta;
-import io.xj.nexus.persistence.ManagerExistenceException;
-import io.xj.nexus.persistence.ManagerFatalException;
-import io.xj.nexus.persistence.ManagerPrivilegeException;
-import io.xj.nexus.persistence.ManagerValidationException;
-import io.xj.nexus.persistence.SegmentManager;
+import io.xj.nexus.model.*;
+import io.xj.nexus.persistence.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -205,7 +181,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   }
 
   /**
-   * Returns the current report map as json, and clears the report, so it'll only be reported once
+   Returns the current report map as json, and clears the report, so it'll only be reported once
    */
   void sendReportToSegmentMessage() throws JsonapiException, NexusException {
     String reported = jsonapiPayloadFactory.serialize(report);
@@ -219,10 +195,10 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   }
 
   /**
-   * Whether the workbench already has a meme of this name
-   *
-   * @param meme to test for existence
-   * @return true if a meme already exists with this name
+   Whether the workbench already has a meme of this name
+
+   @param meme to test for existence
+   @return true if a meme already exists with this name
    */
   boolean alreadyHasMeme(SegmentMeme meme) {
     var name = StringUtils.toMeme(meme.getName());
@@ -230,9 +206,9 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   }
 
   /**
-   * Segment meta overwrites existing meta with same key https://www.pivotaltracker.com/story/show/183135787
-   *
-   * @param key for which to erase all metas
+   Segment meta overwrites existing meta with same key https://www.pivotaltracker.com/story/show/183135787
+
+   @param key for which to erase all metas
    */
   void destroyExistingMeta(String key) {
     getSegmentMetas().stream().filter(meta -> Objects.equals(key, meta.getKey())).forEach(this::delete);

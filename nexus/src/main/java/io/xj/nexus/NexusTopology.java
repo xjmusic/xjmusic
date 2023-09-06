@@ -1,40 +1,22 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus;
 
-import io.xj.hub.tables.pojos.Account;
-import io.xj.hub.tables.pojos.Instrument;
-import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.hub.tables.pojos.Program;
-import io.xj.hub.tables.pojos.ProgramSequenceBinding;
-import io.xj.hub.tables.pojos.ProgramSequenceChord;
-import io.xj.hub.tables.pojos.ProgramSequencePattern;
-import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
-import io.xj.hub.tables.pojos.ProgramVoice;
-import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.*;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.nexus.model.Chain;
-import io.xj.nexus.model.Segment;
-import io.xj.nexus.model.SegmentChoice;
-import io.xj.nexus.model.SegmentChoiceArrangement;
-import io.xj.nexus.model.SegmentChoiceArrangementPick;
-import io.xj.nexus.model.SegmentChord;
-import io.xj.nexus.model.SegmentChordVoicing;
-import io.xj.nexus.model.SegmentMeme;
-import io.xj.nexus.model.SegmentMessage;
-import io.xj.nexus.model.SegmentMeta;
+import io.xj.nexus.model.*;
 
 /**
- * In the future, we will simplify JSON payload
- * deprecating this complex abstraction of JSON:API
- * in favor of plain POJO
+ In the future, we will simplify JSON payload
+ deprecating this complex abstraction of JSON:API
+ in favor of plain POJO
  */
 public enum NexusTopology {
   ;
 
   /**
-   * Given an entity factory, build the Hub REST API entity topology
-   *
-   * @param entityFactory to build topology on
+   Given an entity factory, build the Hub REST API entity topology
+
+   @param entityFactory to build topology on
    */
   public static void buildNexusApiTopology(EntityFactory entityFactory) {
     // Chain

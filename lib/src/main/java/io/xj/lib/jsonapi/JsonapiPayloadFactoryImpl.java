@@ -10,24 +10,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * Implementation of JSON:API
- * and a wrapper for all generic JSON ser/des
- * FUTURE: deprecate all JSON:API in favor of only generic JSON
- * <p>
- * Created by Charney Kaye on 2020/03/09
+ Implementation of JSON:API
+ and a wrapper for all generic JSON ser/des
+ FUTURE: deprecate all JSON:API in favor of only generic JSON
+ <p>
+ Created by Charney Kaye on 2020/03/09
  */
 @Service
 public class JsonapiPayloadFactoryImpl implements JsonapiPayloadFactory {
@@ -442,11 +436,11 @@ public class JsonapiPayloadFactoryImpl implements JsonapiPayloadFactory {
   }
 
   /**
-   * Require a payload to have one resource object of a specified type
-   *
-   * @param jsonapiPayload to inspect
-   * @param resourceType   to require a primary object of
-   * @throws JsonapiException if there exists NO primary object of the specified type
+   Require a payload to have one resource object of a specified type
+
+   @param jsonapiPayload to inspect
+   @param resourceType   to require a primary object of
+   @throws JsonapiException if there exists NO primary object of the specified type
    */
   JsonapiPayloadObject extractPrimaryObject(JsonapiPayload jsonapiPayload, String resourceType) throws JsonapiException {
     Optional<JsonapiPayloadObject> obj = jsonapiPayload.getDataOne();
@@ -458,11 +452,11 @@ public class JsonapiPayloadFactoryImpl implements JsonapiPayloadFactory {
   }
 
   /**
-   * Whether target resource belongs to the specified resource
-   *
-   * @param target   to test for parenthood
-   * @param resource to test whether target belongs to
-   * @return true if target belongs to the specified resource
+   Whether target resource belongs to the specified resource
+
+   @param target   to test for parenthood
+   @param resource to test whether target belongs to
+   @return true if target belongs to the specified resource
    */
   <N> boolean belongsTo(N target, N resource) {
     try {
@@ -474,9 +468,9 @@ public class JsonapiPayloadFactoryImpl implements JsonapiPayloadFactory {
   }
 
   /**
-   * get Entity ID
-   *
-   * @return Entity Id
+   get Entity ID
+
+   @return Entity Id
    */
   <N> String getResourceId(N target) throws JsonapiException {
     try {

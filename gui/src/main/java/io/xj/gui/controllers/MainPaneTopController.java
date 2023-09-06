@@ -1,3 +1,5 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
 package io.xj.gui.controllers;
 
 import io.xj.gui.services.FabricationService;
@@ -19,6 +21,7 @@ import java.util.List;
 
 @Service
 public class MainPaneTopController extends VBox implements ReadyAfterBootController {
+  static final int FABRICATION_CONFIG_VIEW_HEIGHT = 160;
   static final List<FabricationStatus> BUTTON_ACTION_ACTIVE_IN_FABRICATION_STATES = Arrays.asList(
     FabricationStatus.Standby,
     FabricationStatus.Active,
@@ -30,9 +33,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   final static String BUTTON_TEXT_STOP = "Stop";
   final static String BUTTON_TEXT_RESET = "Reset";
   final FabricationService fabricationService;
-  static final int CONFIGURATION_VIEW_HEIGHT = 368;
   final BooleanProperty configVisible = new SimpleBooleanProperty(false);
-  MainMenuController mainMenuController;
 
   @FXML
   protected Button buttonAction;
@@ -44,7 +45,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   public ToggleButton toggleShowConfig;
 
   @FXML
-  protected VBox configView;
+  protected VBox fabricationConfigView;
 
   @FXML
   TextField fieldInputTemplateKey;
@@ -64,12 +65,22 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   @FXML
   TextField fieldOutputPathPrefix;
 
+  @FXML
+  TextField fieldBufferAheadSeconds;
+
+  @FXML
+  TextField fieldBufferBeforeSeconds;
+
+  @FXML
+  TextField fieldOutputChannels;
+
+  @FXML
+  TextField fieldOutputFrameRate;
+
   public MainPaneTopController(
-    FabricationService fabricationService,
-    MainMenuController mainMenuController
+    FabricationService fabricationService
   ) {
     this.fabricationService = fabricationService;
-    this.mainMenuController = mainMenuController;
   }
 
   @Override
@@ -96,12 +107,19 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     choiceOutputFileMode.valueProperty().bindBidirectional(fabricationService.outputFileModeProperty());
     fieldOutputSeconds.textProperty().bindBidirectional(fabricationService.outputSecondsProperty());
     fieldOutputPathPrefix.textProperty().bindBidirectional(fabricationService.outputPathPrefixProperty());
+    fieldBufferAheadSeconds.textProperty().bindBidirectional(fabricationService.bufferAheadSecondsProperty());
+    fieldBufferBeforeSeconds.textProperty().bindBidirectional(fabricationService.bufferBeforeSecondsProperty());
+    fieldOutputChannels.textProperty().bindBidirectional(fabricationService.outputChannelsProperty());
+    fieldOutputFrameRate.textProperty().bindBidirectional(fabricationService.outputFrameRateProperty());
 
-    labelFabricationStatus.textProperty().bind(fabricationService.statusProperty().asString());
+    labelFabricationStatus.textProperty().bind(fabricationService.statusProperty().map(Enum::toString).map((status) -> String.format("Fabrication %s", status)));
     toggleShowConfig.setSelected(configVisible.get());
     updateConfigVisibility();
+  }
 
-    mainMenuController.onStageReady();
+  @Override
+  public void onStageClose() {
+    fabricationService.cancel();
   }
 
   @FXML
@@ -133,15 +151,15 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
   void updateConfigVisibility() {
     if (configVisible.get()) {
-      configView.setVisible(true);
-      configView.setMinHeight(CONFIGURATION_VIEW_HEIGHT);
-      configView.setPrefHeight(CONFIGURATION_VIEW_HEIGHT);
-      configView.setMaxHeight(CONFIGURATION_VIEW_HEIGHT);
+      fabricationConfigView.setVisible(true);
+      fabricationConfigView.setMinHeight(FABRICATION_CONFIG_VIEW_HEIGHT);
+      fabricationConfigView.setPrefHeight(FABRICATION_CONFIG_VIEW_HEIGHT);
+      fabricationConfigView.setMaxHeight(FABRICATION_CONFIG_VIEW_HEIGHT);
     } else {
-      configView.setVisible(false);
-      configView.setMinHeight(0);
-      configView.setPrefHeight(0);
-      configView.setMaxHeight(0);
+      fabricationConfigView.setVisible(false);
+      fabricationConfigView.setMinHeight(0);
+      fabricationConfigView.setPrefHeight(0);
+      fabricationConfigView.setMaxHeight(0);
     }
   }
 }

@@ -1,3 +1,5 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
 package io.xj.nexus.work;
 
 import io.xj.nexus.InputMode;
@@ -5,12 +7,17 @@ import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 
 public class WorkConfiguration {
-  InputMode inputMode;
-  String inputTemplateKey;
-  OutputFileMode outputFileMode;
-  OutputMode outputMode;
-  String outputPathPrefix;
-  int outputSeconds;
+  private InputMode inputMode;
+  private String inputTemplateKey;
+  private OutputFileMode outputFileMode;
+  private OutputMode outputMode;
+  private String outputPathPrefix;
+  private int outputSeconds;
+
+  private int bufferAheadSeconds;
+  private int bufferBeforeSeconds;
+  private double outputFrameRate;
+  private int outputChannels;
 
   public InputMode getInputMode() {
     return inputMode;
@@ -63,6 +70,42 @@ public class WorkConfiguration {
 
   public WorkConfiguration setOutputSeconds(int outputSeconds) {
     this.outputSeconds = outputSeconds;
+    return this;
+  }
+
+  public int getBufferAheadSeconds() {
+    return bufferAheadSeconds;
+  }
+
+  public WorkConfiguration setBufferAheadSeconds(int bufferAheadSeconds) {
+    this.bufferAheadSeconds = bufferAheadSeconds;
+    return this;
+  }
+
+  public int getBufferBeforeSeconds() {
+    return bufferBeforeSeconds;
+  }
+
+  public WorkConfiguration setBufferBeforeSeconds(int bufferBeforeSeconds) {
+    this.bufferBeforeSeconds = bufferBeforeSeconds;
+    return this;
+  }
+
+  public double getOutputFrameRate() {
+    return outputFrameRate;
+  }
+
+  public WorkConfiguration setOutputFrameRate(double outputFrameRate) {
+    this.outputFrameRate = outputFrameRate;
+    return this;
+  }
+
+  public int getOutputChannels() {
+    return outputChannels;
+  }
+
+  public WorkConfiguration setOutputChannels(int outputChannels) {
+    this.outputChannels = outputChannels;
     return this;
   }
 }

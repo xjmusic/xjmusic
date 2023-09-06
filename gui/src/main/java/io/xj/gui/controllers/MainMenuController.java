@@ -1,3 +1,5 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
 package io.xj.gui.controllers;
 
 import io.xj.gui.services.ThemeService;
@@ -41,6 +43,11 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   @Override
   public void onStageReady() {
     themeService.isDarkThemeProperty().bindBidirectional(checkboxDarkTheme.selectedProperty());
+  }
+
+  @Override
+  public void onStageClose() {
+    // no op
   }
 
   @FXML

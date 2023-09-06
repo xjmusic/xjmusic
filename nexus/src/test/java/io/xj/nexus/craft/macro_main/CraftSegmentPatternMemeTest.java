@@ -5,11 +5,11 @@ import io.xj.hub.HubContent;
 import io.xj.hub.enums.ProgramType;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.entity.EntityUtils;
-import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.lib.notification.NotificationProvider;
+import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.craft.CraftFactoryImpl;
@@ -17,16 +17,9 @@ import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.fabricator.FabricatorFactoryImpl;
 import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.hub_client.HubTopology;
-import io.xj.nexus.model.Chain;
-import io.xj.nexus.model.ChainState;
-import io.xj.nexus.model.ChainType;
-import io.xj.nexus.model.Segment;
-import io.xj.nexus.model.SegmentMeme;
-import io.xj.nexus.model.SegmentState;
-import io.xj.nexus.model.SegmentType;
+import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.NexusEntityStoreImpl;
 import io.xj.nexus.persistence.SegmentManagerImpl;
-import io.xj.nexus.NexusIntegrationTestingFixtures;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -54,19 +47,18 @@ public class CraftSegmentPatternMemeTest {
   public NotificationProvider notificationProvider;
 
   /**
-   * Test to ensure that the following Macro-Program is based on its first sequence-binding meme
-   * matching the last sequence-binding meme of the preceding Macro-Program
-   * <p>
-   * Segment memes expected to be taken directly of sequence_pattern binding https://www.pivotaltracker.com/story/show/165803886
-   * Macro program sequence should advance after each main program https://www.pivotaltracker.com/story/show/176728582
+   Test to ensure that the following Macro-Program is based on its first sequence-binding meme
+   matching the last sequence-binding meme of the preceding Macro-Program
+   <p>
+   Segment memes expected to be taken directly of sequence_pattern binding https://www.pivotaltracker.com/story/show/165803886
+   Macro program sequence should advance after each main program https://www.pivotaltracker.com/story/show/176728582
    */
   @Test
   public void craftSegment() throws Exception {
     for (int i = 1; i <= TEST_REPEAT_ITERATIONS; i++) {
       LOG.info("ATTEMPT NUMBER {}", i);
 
-      ApiUrlProvider apiUrlProvider = new ApiUrlProvider("");
-      CraftFactory craftFactory = new CraftFactoryImpl(apiUrlProvider);
+        CraftFactory craftFactory = new CraftFactoryImpl();
       var jsonProvider = new JsonProviderImpl();
       var entityFactory = new EntityFactoryImpl(jsonProvider);
       var store = new NexusEntityStoreImpl(entityFactory);
@@ -110,7 +102,7 @@ public class CraftSegmentPatternMemeTest {
       // Following Segment
       Segment segment = store.put(buildSegment(chain, 2, SegmentState.PLANNED, "C", 8, 0.8, 120, "chain-1-waveform-12345"));
 
-      craftFactory.macroMain(fabricatorFactory.fabricate(sourceMaterial, segment)).doWork();
+      craftFactory.macroMain(fabricatorFactory.fabricate(sourceMaterial, segment, 10, 5, 48000.0, 2)).doWork();
 
       var result = store.getSegment(segment.getId()).orElseThrow();
       assertEquals(SegmentType.NEXTMACRO, result.getType());

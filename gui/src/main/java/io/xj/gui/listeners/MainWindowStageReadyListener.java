@@ -1,5 +1,8 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
 package io.xj.gui.listeners;
 
+import com.tangorabox.componentinspector.fx.FXComponentInspectorHandler;
 import io.xj.gui.WorkstationIcon;
 import io.xj.gui.controllers.MainController;
 import io.xj.gui.events.StageReadyEvent;
@@ -20,15 +23,18 @@ import java.io.IOException;
 public class MainWindowStageReadyListener implements ApplicationListener<StageReadyEvent> {
   static final Logger LOG = LoggerFactory.getLogger(MainWindowStageReadyListener.class);
   final Resource mainWindowFxml;
+  final String debug;
   final MainController mainController;
   final ApplicationContext ac;
 
   public MainWindowStageReadyListener(
     @Value("classpath:/views/main.fxml") Resource mainWindowFxml,
+    @Value("${gui.debug}") String debug,
     MainController mainController,
     ApplicationContext ac
   ) {
     this.mainWindowFxml = mainWindowFxml;
+    this.debug = debug;
     this.mainController = mainController;
     this.ac = ac;
   }
@@ -47,6 +53,11 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
 
       mainController.onStageReady();
       primaryStage.show();
+
+      // See https://github.com/TangoraBox/ComponentInspector/
+      if (debug.equals("true")) {
+        FXComponentInspectorHandler.handleAll();
+      }
 
     } catch (IOException e) {
       LOG.error("Failed to set the scene on the primary stage!", e);

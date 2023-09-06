@@ -82,21 +82,21 @@ public class DubAudioCacheImpl implements DubAudioCache {
   }
 
   /**
-   * @return true if this dub audio cache item exists (as audio waveform data) on disk
+   @return true if this dub audio cache item exists (as audio waveform data) on disk
    */
   boolean existsOnDisk(String absolutePath) {
     return new File(absolutePath).exists();
   }
 
   /**
-   * write underlying cache data on disk, of stream
-   *
-   * @param sourceData       source bytes
-   * @param targetFrameRate  to resample if necessary
-   * @param targetSampleBits to resample if necessary
-   * @param targetChannels   to resample if necessary
-   * @param targetPath       write target path
-   * @throws IOException on failure
+   write underlying cache data on disk, of stream
+
+   @param sourceData       source bytes
+   @param targetFrameRate  to resample if necessary
+   @param targetSampleBits to resample if necessary
+   @param targetChannels   to resample if necessary
+   @param targetPath       write target path
+   @throws IOException on failure
    */
   public void writeFrom(InputStream sourceData, int targetFrameRate, int targetSampleBits, int targetChannels, String targetPath) throws IOException, NexusException {
     if (Objects.isNull(sourceData))
@@ -124,11 +124,11 @@ public class DubAudioCacheImpl implements DubAudioCache {
   }
 
   /**
-   * Get the frame rate of the audio file
-   *
-   * @param inputAudioFilePath path to audio file
-   * @return frame rate of audio file
-   * @throws NexusException if unable to get frame rate
+   Get the frame rate of the audio file
+
+   @param inputAudioFilePath path to audio file
+   @return frame rate of audio file
+   @throws NexusException if unable to get frame rate
    */
   static AudioFormat getAudioFormat(String inputAudioFilePath) throws NexusException {
     try {

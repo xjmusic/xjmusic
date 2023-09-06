@@ -9,11 +9,11 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import java.io.IOException;
 
 /**
- * Serializer for a Payload sent/received to/from a XJ Music REST JSON:API service
- * <p>
- * Payloads are serialized & deserialized with custom Jackson implementations.
- * Much of the complexity of serializing and deserializing stems of the fact that
- * the JSON:API standard uses a data object for One record, and a data array for Many records.
+ Serializer for a Payload sent/received to/from a XJ Music REST JSON:API service
+ <p>
+ Payloads are serialized & deserialized with custom Jackson implementations.
+ Much of the complexity of serializing and deserializing stems of the fact that
+ the JSON:API standard uses a data object for One record, and a data array for Many records.
  */
 public class JsonapiPayloadSerializer extends StdSerializer<JsonapiPayload> {
 

@@ -1,4 +1,4 @@
-// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.hub_client.access;
 
 import io.xj.hub.enums.UserRoleType;
@@ -14,10 +14,10 @@ public enum Users {
   ;
 
   /**
-   * extract a collection of ids of a string CSV
-   *
-   * @param csv to parse
-   * @return collection of ids
+   extract a collection of ids of a string CSV
+
+   @param csv to parse
+   @return collection of ids
    */
   public static Collection<UserRoleType> userRoleTypesFromCsv(String csv) {
     Collection<UserRoleType> result = new ArrayList<>();
@@ -30,10 +30,10 @@ public enum Users {
   }
 
   /**
-   * Get CSV of a collection of user role types
-   *
-   * @param roleTypes to get CSV of
-   * @return CSV of user role types
+   Get CSV of a collection of user role types
+
+   @param roleTypes to get CSV of
+   @return CSV of user role types
    */
   public static String csvOfUserRoleTypes(Collection<UserRoleType> roleTypes) {
     return CsvUtils.join(roleTypes.stream().map(Enum::toString).collect(Collectors.toList()));

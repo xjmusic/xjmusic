@@ -1,9 +1,10 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
 package io.xj.gui;
 
 import jakarta.annotation.Nullable;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import org.springframework.stereotype.Service;
 
 import java.awt.*;
 import java.util.List;

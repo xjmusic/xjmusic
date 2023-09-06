@@ -47,7 +47,7 @@ class MixerImpl implements Mixer {
   final BytePipeline buffer;
   MixerState state = MixerState.Ready;
   /**
-   * Note: these buffers can't be constructed until after the sources are Put, ergo defining the total buffer length.
+   Note: these buffers can't be constructed until after the sources are Put, ergo defining the total buffer length.
    */
   final double[][][] busBuf; // buffer separated into busses like [bus][frame][channel]
   final double[][] outBuf; // final output buffer like [bus][frame][channel]
@@ -55,12 +55,12 @@ class MixerImpl implements Mixer {
   double compRatio = 0; // mixer effects are continuous between renders, so these ending values make their way back to the beginning of the next render
 
   /**
-   * Instantiate a single Mix instance
-   *
-   * @param mixerConfig    configuration of mixer
-   * @param mixerFactory   factory to of new mixer
-   * @param outputPipeSize capacity of output buffer
-   * @throws MixerException on failure
+   Instantiate a single Mix instance
+
+   @param mixerConfig    configuration of mixer
+   @param mixerFactory   factory to of new mixer
+   @param outputPipeSize capacity of output buffer
+   @throws MixerException on failure
    */
   public MixerImpl(
     MixerConfig mixerConfig,
@@ -162,7 +162,7 @@ class MixerImpl implements Mixer {
   }
 
   /**
-   * Zero all buffers
+   Zero all buffers
    */
   void clearBuffers() {
     for (int b = 0; b < busBuf.length; b++)
@@ -175,7 +175,7 @@ class MixerImpl implements Mixer {
   }
 
   /**
-   * Mix input buffers to output buffer
+   Mix input buffers to output buffer
    */
   void mixOutputBus() {
     double[] level = Stream.iterate(0, i -> i + 1).limit(busBuf.length).mapToDouble(i -> busLevel.getOrDefault(i, 1.0)).toArray();
@@ -227,17 +227,17 @@ class MixerImpl implements Mixer {
   }
 
   /**
-   * apply original sources to mixing buffer
-   * addition of all sources into initial mixed source frames
+   apply original sources to mixing buffer
+   addition of all sources into initial mixed source frames
    */
   void applySources() throws MixerException {
     for (var source : sources.values()) applySource(source);
   }
 
   /**
-   * apply one source to the mixing buffer
-   *
-   * @param source to apply
+   apply one source to the mixing buffer
+
+   @param source to apply
    */
   void applySource(Source source) throws MixerException {
     if (source.getAudioFormat().isEmpty()) return;
@@ -251,10 +251,9 @@ class MixerImpl implements Mixer {
     // steps to get requisite items stored plain arrays, for access speed
     var srcPutList = activePuts.values().stream().filter(put -> source.getAudioId().equals(put.getAudioId())).toList();
     Put[] srcPut = new Put[srcPutList.size()];
-    int srcPutLength = srcPut.length;
-    int[] srcPutSpan = new int[srcPutLength];
-    int[] srcPutFrom = new int[srcPutLength];
-    for (p = 0; p < srcPutLength; p++) {
+    int[] srcPutSpan = new int[srcPut.length];
+    int[] srcPutFrom = new int[srcPut.length];
+    for (p = 0; p < srcPut.length; p++) {
       srcPut[p] = srcPutList.get(p);
       srcPutFrom[p] = (int) (srcPut[p].getStartAtMicros() / microsPerFrame);
       srcPutSpan[p] = (int) ((srcPut[p].getStopAtMicros() - srcPut[p].getStartAtMicros()) / microsPerFrame);
@@ -293,7 +292,7 @@ class MixerImpl implements Mixer {
           for (tc = 0; tc < outputChannels; tc++) {
             System.arraycopy(readBuffer, b + (isStereo ? tc : 0) * sampleSize, sampleBuffer, 0, sampleSize);
             v = AudioSampleFormat.fromBytes(sampleBuffer, sampleFormat);
-            for (p = 0; p < srcPutLength; p++) {
+            for (p = 0; p < srcPut.length; p++) {
               if (sf < srcPutSpan[p]) // attack phase
                 ev = envelope.length(srcPut[p].getAttackMillis() * framesPerMilli).in(sf, v * srcPut[p].getVelocity());
               else // release phase
@@ -313,15 +312,15 @@ class MixerImpl implements Mixer {
   }
 
   /**
-   * apply compressor to mixing buffer
-   * <p>
-   * lookahead-attack compressor compresses entire buffer towards target amplitude https://www.pivotaltracker.com/story/show/154112129
-   * <p>
-   * only each major cycle, compute the new target compression ratio,
-   * but modify the compression ratio *every* frame for max smoothness
-   * <p>
-   * compression target uses a rate of change of rate of change
-   * to maintain inertia over time, required to preserve audio signal
+   apply compressor to mixing buffer
+   <p>
+   lookahead-attack compressor compresses entire buffer towards target amplitude https://www.pivotaltracker.com/story/show/154112129
+   <p>
+   only each major cycle, compute the new target compression ratio,
+   but modify the compression ratio *every* frame for max smoothness
+   <p>
+   compression target uses a rate of change of rate of change
+   to maintain inertia over time, required to preserve audio signal
    */
   void applyFinalOutputCompressor() {
     // only set the comp ratio directly if it's never been set before, otherwise mixer effects are continuous between renders, so these ending values make their way back to the beginning of the next render
@@ -353,7 +352,7 @@ class MixerImpl implements Mixer {
    */
 
   /**
-   * apply logarithmic dynamic range to mixing buffer
+   apply logarithmic dynamic range to mixing buffer
    */
   void applyLogarithmicDynamicRange() {
     for (int i = 0; i < outBuf.length; i++)
@@ -361,10 +360,10 @@ class MixerImpl implements Mixer {
   }
 
   /**
-   * NO NORMALIZATION! See https://www.pivotaltracker.com/story/show/179257872
-   * <p>
-   * Previously: apply normalization to mixing buffer
-   * normalize final buffer to normalization threshold https://www.pivotaltracker.com/story/show/154112129
+   NO NORMALIZATION! See https://www.pivotaltracker.com/story/show/179257872
+   <p>
+   Previously: apply normalization to mixing buffer
+   normalize final buffer to normalization threshold https://www.pivotaltracker.com/story/show/154112129
    */
   @SuppressWarnings("unused")
   void applyNormalization() {
@@ -375,9 +374,9 @@ class MixerImpl implements Mixer {
   }
 
   /**
-   * lookahead-attack compressor compresses entire buffer towards target amplitude https://www.pivotaltracker.com/story/show/154112129
-   *
-   * @return target amplitude
+   lookahead-attack compressor compresses entire buffer towards target amplitude https://www.pivotaltracker.com/story/show/154112129
+
+   @return target amplitude
    */
   double computeCompressorTarget(double[][] input, int iFr, int iTo) {
     double currentAmplitude = MathUtil.maxAbs(input, iFr, iTo, COMPRESSION_GRAIN);
@@ -385,11 +384,11 @@ class MixerImpl implements Mixer {
   }
 
   /**
-   * Convert output values into a ByteBuffer
-   *
-   * @param fmt     to write
-   * @param samples [frame][channel] output to convert
-   * @return byte buffer of stream
+   Convert output values into a ByteBuffer
+
+   @param fmt     to write
+   @param samples [frame][channel] output to convert
+   @return byte buffer of stream
    */
   static ByteBuffer byteBufferOf(AudioFormat fmt, double[][] samples) throws FormatException {
     ByteBuffer outputBytes = ByteBuffer.allocate(samples.length * fmt.getFrameSize());

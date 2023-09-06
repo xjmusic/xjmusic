@@ -1,4 +1,9 @@
+<!-- Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved. -->
+
 <configuration>
+
+  <conversionRule conversionWord="stack"
+                  converterClass="net.logstash.logback.stacktrace.ShortenedThrowableConverter" />
 
   <!-- Define the custom appender -->
   <appender name="MainWindowLogAppender" class="io.xj.gui.WorkstationLogAppender">

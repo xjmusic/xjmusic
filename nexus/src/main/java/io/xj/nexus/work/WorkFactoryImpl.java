@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.work;
 
+import io.xj.hub.HubContent;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
@@ -141,7 +142,11 @@ public class WorkFactoryImpl implements WorkFactory {
       configuration.getInputTemplateKey(),
       isJsonOutputEnabled,
       tempFilePathPrefix,
-      jsonExpiresInSeconds
+      jsonExpiresInSeconds,
+      configuration.getBufferAheadSeconds(),
+      configuration.getBufferBeforeSeconds(),
+      configuration.getOutputFrameRate(),
+      configuration.getOutputChannels()
     );
     dubWork = new DubWorkImpl(
       craftWork,
@@ -149,7 +154,9 @@ public class WorkFactoryImpl implements WorkFactory {
       mixerFactory,
       notification,
       mixerSeconds,
-      dubCycleMillis
+      dubCycleMillis,
+      configuration.getOutputFrameRate(),
+      configuration.getOutputChannels()
     );
     shipWork = new ShipWorkImpl(
       dubWork,
@@ -209,4 +216,41 @@ public class WorkFactoryImpl implements WorkFactory {
   public boolean isHealthy() {
     return getWorkState() != WorkState.Failed;
   }
+
+  @Override
+  public SegmentManager getSegmentManager() {
+    return segmentManager;
+  }
+
+  @Override
+  @Nullable
+  public CraftWork getCraftWork() {
+    return craftWork;
+  }
+
+  @Override
+  @Nullable
+  public DubWork getDubWork() {
+    return dubWork;
+  }
+
+  @Override
+  @Nullable
+  public ShipWork getShipWork() {
+    return shipWork;
+  }
+
+  @Override
+  public void reset() {
+    segmentManager.reset();
+    craftWork = null;
+    dubWork = null;
+    shipWork = null;
+  }
+
+  @Override
+  public HubContent getSourceMaterial() {
+    return craftWork.getSourceMaterial();
+  }
+
 }

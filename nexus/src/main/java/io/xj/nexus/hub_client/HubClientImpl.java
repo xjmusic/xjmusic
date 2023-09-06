@@ -33,7 +33,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- * Implementation of a Hub Client for connecting to Hub and accessing contents
+ Implementation of a Hub Client for connecting to Hub and accessing contents
  */
 @Service
 public class HubClientImpl implements HubClient {
@@ -144,11 +144,11 @@ public class HubClientImpl implements HubClient {
   }
 
   /**
-   * Set the access token cookie header for a request to Hub
-   *
-   * @param uri              of request
-   * @param ingestTokenValue of request
-   * @return http request
+   Set the access token cookie header for a request to Hub
+
+   @param uri              of request
+   @param ingestTokenValue of request
+   @return http request
    */
   HttpGet buildGetRequest(URI uri, String ingestTokenValue) {
     var request = new HttpGet(uri);
@@ -157,11 +157,11 @@ public class HubClientImpl implements HubClient {
   }
 
   /**
-   * Build URI for specified API path
-   *
-   * @param path to build URI to
-   * @return URI for specified API path
-   * @throws HubClientException on failure to construct URI
+   Build URI for specified API path
+
+   @param path to build URI to
+   @return URI for specified API path
+   @throws HubClientException on failure to construct URI
    */
   URI buildURI(String path) throws HubClientException {
     try {
@@ -173,9 +173,9 @@ public class HubClientImpl implements HubClient {
   }
 
   /**
-   * Log a failure message and returns a throwable exception based on a response@param uri
-   *
-   * @param response to log and throw
+   Log a failure message and returns a throwable exception based on a response@param uri
+
+   @param response to log and throw
    */
   HubClientException buildException(String uri, CloseableHttpResponse response) throws HubClientException {
     // if we got here, it's a failure

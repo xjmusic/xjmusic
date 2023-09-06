@@ -1,3 +1,5 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
 package io.xj.nexus.fabricator;
 
 import io.xj.hub.HubContent;
@@ -31,8 +33,8 @@ public class FabricatorFactoryImpl implements FabricatorFactory {
   }
 
   @Override
-  public Fabricator fabricate(HubContent sourceMaterial, Segment segment) throws NexusException, FabricationFatalException, ManagerFatalException, ValueException, HubClientException {
-    return new FabricatorImpl(sourceMaterial, segment, this, segmentManager, jsonapiPayloadFactory, jsonProvider);
+  public Fabricator fabricate(HubContent sourceMaterial, Segment segment, int bufferAheadSeconds, int bufferBeforeSeconds, double outputFrameRate, int outputChannels) throws NexusException, FabricationFatalException, ManagerFatalException, ValueException, HubClientException {
+    return new FabricatorImpl(sourceMaterial, segment, this, segmentManager, jsonapiPayloadFactory, jsonProvider, bufferAheadSeconds, bufferBeforeSeconds, outputFrameRate, outputChannels);
   }
 
   @Override
