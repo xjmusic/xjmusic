@@ -35,8 +35,8 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
   final BooleanProperty logsVisible = new SimpleBooleanProperty(false);
   final Integer refreshRateSeconds;
   final LabService labService;
-  private final LogQueue logQueue;
-  private final ObservableList<LogRecord> logItems = FXCollections.observableArrayList();
+  final LogQueue logQueue;
+  final ObservableList<LogRecord> logItems = FXCollections.observableArrayList();
   final static PseudoClass debug = PseudoClass.getPseudoClass("debug");
   final static PseudoClass error = PseudoClass.getPseudoClass("error");
   final static PseudoClass info = PseudoClass.getPseudoClass("info");
