@@ -77,7 +77,7 @@ subprojects {
       url = 'https://oss.sonatype.org/content/repositories/releases'
     }
     maven {
-      name = "GitHubPackages"
+      name = "ReadPrivatePackages"
       url = uri("https://maven.pkg.github.com/xjmusic/hub")
       credentials {
         username = localProperties.getProperty('repo.username') ?: System.getenv("REPO_USERNAME")
@@ -85,7 +85,7 @@ subprojects {
       }
     }
     maven {
-      name = "GitHubPackages"
+      name = "PublishReleaseArtifact"
       url = uri("https://maven.pkg.github.com/xjmusic/workstation")
       credentials {
         username = localProperties.getProperty("repo.username") ?: System.getenv("GITHUB_ACTOR")

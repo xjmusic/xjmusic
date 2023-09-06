@@ -19,12 +19,6 @@ jobs:
         with:
           job-id: jdk17
 
-      - name: Install and cache system packages
-        uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          packages: ffmpeg gpac
-          version: 1.0
-
       - name: Setup JDK 17
         uses: actions/setup-java@v1
         with:
@@ -85,12 +79,6 @@ jobs:
         name: Cache Gradle
         with:
           job-id: jdk17
-
-      - name: Install and cache system packages
-        uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          packages: ffmpeg gpac
-          version: 1.0
 
       - name: Setup JDK 17
         uses: actions/setup-java@v1
