@@ -5,6 +5,7 @@ package io.xj.gui.controllers;
 import io.xj.gui.listeners.NoSelectionModel;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
+import io.xj.lib.util.CustomCollectors;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.persistence.SegmentUtils;
 import jakarta.annotation.Nullable;
@@ -22,10 +23,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Service
 public class MainTimelineController extends ScrollPane implements ReadyAfterBootController {
+  private static final int SHOW_LAST_N_SEGMENTS = 20;
   final ConfigurableApplicationContext ac;
   final FabricationService fabricationService;
   final Integer refreshRateSeconds;
@@ -103,7 +111,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
       segments.clear();
       return;
     }
-    var sources = fabricationService.getWorkFactory().getCraftWork().getAllSegments();
+    var sources = fabricationService.getWorkFactory().getCraftWork().getAllSegments().stream().collect(CustomCollectors.lastN(SHOW_LAST_N_SEGMENTS));
     segments.removeIf(segment -> sources.stream().noneMatch(source -> source.getId().equals(segment.getId())));
     // iterate through all in segments, and update if the updated at time has changed from the source matching that id
     for (var i = 0; i < segments.size(); i++) {
