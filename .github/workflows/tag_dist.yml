@@ -149,7 +149,7 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: gui/build/dist/xjmusic-workstation-gui-${{ needs.verify.outputs.version }}.zip
-          asset_name: xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-amd64.jar.zip
+          asset_name: xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}.jar.zip
           tag: ${{ github.ref }}
           overwrite: true
 
@@ -188,33 +188,47 @@ jobs:
       - name: Execute jpackage
         run: ./gradlew --info --stacktrace :gui:jpackage
 
-      - name: Upload DMG to release
+      - name: Compress DMG for macOS
+        if: runner.os == 'macOS'
+        run: |
+          zip -r xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer.dmg.zip gui/build/jpackage/xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg
+
+      - name: Upload DMG to release (macOS)
         if: runner.os == 'macOS'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: gui/build/jpackage/xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg
-          asset_name: xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer-dmg
+          file: xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer.dmg.zip
+          asset_name: xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer.dmg.zip
           tag: ${{ github.ref }}
           overwrite: true
 
-      - name: Upload EXE to release
+      - name: Compress EXE for Windows
+        if: runner.os == 'Windows'
+        run: |
+          Compress-Archive -Path gui/build/jpackage/xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.exe -DestinationPath xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer.exe.zip
+
+      - name: Upload EXE to release (Windows)
         if: runner.os == 'Windows'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: gui/build/jpackage/xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.exe
-          asset_name: xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer-exe
+          file: xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer.exe.zip
+          asset_name: xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer.exe.zip
           tag: ${{ github.ref }}
           overwrite: true
 
-      - name: Upload DEB to release
+      - name: Compress DEB for Linux
+        if: runner.os == 'Linux'
+        run: |
+          tar -czvf xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer.deb.tar.gz gui/build/jpackage/xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.deb
+
+      - name: Upload DEB to release (Linux)
         if: runner.os == 'Linux'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: gui/build/jpackage/xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.deb
-          asset_name: xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer-deb
+          file: xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer.deb.tar.gz
+          asset_name: xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer.deb.tar.gz
           tag: ${{ github.ref }}
           overwrite: true
-
