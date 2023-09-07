@@ -1,40 +1,15 @@
+import org.panteleyev.jpackage.ImageType
+
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 plugins {
   id 'java'
   id 'application'
   id 'maven-publish'
-  //
-  id 'org.beryx.jlink'
+  id 'org.panteleyev.jpackageplugin'
   id 'org.openjfx.javafxplugin'
   id 'org.springframework.boot'
   id 'org.bytedeco.gradle-javacpp-platform'
-}
-
-javafx {
-  version = "${rootProject.ext.javaFxVersion}"
-  modules = ['javafx.base', 'javafx.controls', 'javafx.fxml', 'javafx.graphics']
-}
-
-//noinspection GroovyAssignabilityCheck
-ext.os = org.gradle.internal.os.OperatingSystem.current() as org.gradle.internal.os.OperatingSystem
-
-jlink {
-  // imageZip = file("$buildDir/image-zip/xjmusic-workstation.zip")
-  // options = ['--bind-services', '--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
-  addExtraDependencies 'javafx'
-  addExtraDependencies 'jooq'
-  addExtraDependencies 'jackson'
-
-  launcher {
-    name = 'xjmusic-workstation'
-    noConsole = true
-  }
-  jpackage {
-    if (os.windows) {
-//      installerOptions = ['--win-per-user-install', '--win-dir-chooser', '--win-menu']
-    }
-  }
 }
 
 dependencies {
@@ -42,7 +17,7 @@ dependencies {
   implementation project(":lib")
   implementation project(":nexus")
   // private
-  implementation "io.xj:models:${rootProject.ext.xjModelsVersion}"
+  implementation "io.xj:models:${xjModelsVersion}"
   // vendor
   implementation "ch.qos.logback:logback-classic:${rootProject.ext.logbackVersion}"
   implementation "ch.qos.logback:logback-core:${rootProject.ext.logbackVersion}"
@@ -62,11 +37,28 @@ dependencies {
   implementation 'me.xdrop:fuzzywuzzy:1.4.0'
   implementation 'org.apache.httpcomponents:httpclient:4.5.14'
   implementation 'org.reflections:reflections:0.10.1'
-  testImplementation "org.junit.jupiter:junit-jupiter-api:${rootProject.ext.junitVersion}"
-  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${rootProject.ext.junitVersion}"
+  testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+  implementation 'org.apache.logging.log4j:log4j-api:3.0.0-alpha1'
+  implementation group: 'org.panteleyev.jpackageplugin', name: 'org.panteleyev.jpackageplugin.gradle.plugin', version: '1.5.2'
 }
 
-mainClassName = 'io.xj.gui.WorkstationGuiApplication'
+javafx {
+  version = javaFxVersion
+  modules = ['javafx.base', 'javafx.controls', 'javafx.fxml', 'javafx.graphics']
+}
+
+application {
+  mainModule = 'workstation.gui.main'
+  mainClass = 'io.xj.gui.WorkstationGuiApplication'
+}
+
+bootRun {
+  mainClass = 'io.xj.gui.WorkstationGuiApplication' // Specify the correct main class
+}
+
+//noinspection GroovyAssignabilityCheck
+def currentOs = org.gradle.internal.os.OperatingSystem.current()
 
 //noinspection ConfigurationAvoidance
 task 'bootJarZip'(type: Zip) {
@@ -85,3 +77,102 @@ bootJar {
 test {
   useJUnitPlatform()
 }
+
+//set the working directory
+def buildPath = "build/jpackage"
+def workingDir = file("${buildPath}/")
+
+//copies the needed jar (complete fat jar) while skipping the gui-plain minimal jar file
+//and copies the icon resources for the needed platform
+tasks.register('copyResources', Copy) {
+  dependsOn("build")
+  //clean the previous generated installer output files
+  delete(buildPath)
+  // Create the directory if it doesn't exist
+  file(buildPath).mkdirs()
+
+  if (currentOs.isWindows()) {
+    from "$buildDir/libs"
+    exclude "*-plain.jar"
+    from "icons/windows"
+    into buildPath
+  } else if (currentOs.isMacOsX()) {
+    from "$buildDir/libs"
+    from "icons/mac"
+    exclude "*-plain.jar"
+    into buildPath
+  } else if (currentOs.isLinux()) {
+    from "$buildDir/libs"
+    from "icons/linux"
+    exclude "*-plain.jar"
+    into buildPath
+  }
+}
+
+jpackage {
+  dependsOn("copyResources")
+  appName = "XJ music workstation"
+  appVersion = version.toString()
+  vendor = "XJMusic"
+  copyright = "Copyright (c) 2023 " + vendor
+  //take our input files from our working directory
+  input = workingDir.toString()
+  //set our main application jar
+  mainJar = tasks.bootJar.archiveFileName.get()
+  //output the installer in the working directory
+  destination = workingDir.toString()
+  //for the jlink options these are passed as default , so no need to add them :
+  // [--strip-native-commands --strip-debug --no-man-pages --no-header-files]
+  mac {
+    type = ImageType.DMG
+    icon = "$workingDir/xjmusicapp.icns"
+    macAppStore = false
+    macAppCategory = "Audio"
+    macPackageIdentifier = "io.xj.music.workstation"
+  }
+  linux {
+    linuxShortcut = true
+    //use this if you prefer a different runtime from the system default
+    //runtimeImage = "/path/to/preferred/jdk/"  example:: /usr/lib/jvm/jdk-17-oracle-x64"
+    linuxAppCategory = "Audio"
+    type = ImageType.DEB
+    icon = "$workingDir/xjmusicapp.png"
+  }
+  windows {
+    type = ImageType.EXE
+    icon = "$workingDir/xjmusicapp.ico"
+    //add the app to start menu
+    winMenu = true
+    //allow the user to choose where to install our app
+    winDirChooser = true
+    //add our app to the desktop via a shortcut
+    winShortcut = true
+  }
+
+  //rename the final installer package
+  def newPackageName = "xjmusic-workstation-v${rootProject.version}-installer"
+  doLast {
+    def osToExtensionMap = [
+      'windows' : 'exe',
+      'mac os x': 'dmg',
+      'linux'   : 'deb'
+    ]
+    def extension = osToExtensionMap[currentOs.name.toLowerCase()]
+    if (currentOs.name.toLowerCase().contains("win")) {
+      extension =
+        "exe"
+    }
+    if (extension) {
+      def newFileName = "${newPackageName}.${extension}"
+      def debFile = workingDir.listFiles().find { it.name.endsWith(".${extension}") }
+
+      if (debFile) {
+        debFile.renameTo(new File(debFile.parent, newFileName))
+      }
+    }
+  }
+}
+
+
+
+
