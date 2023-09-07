@@ -1,4 +1,5 @@
 import org.panteleyev.jpackage.ImageType
+
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 plugins {
@@ -52,7 +53,7 @@ application {
   mainClass = 'io.xj.gui.WorkstationGuiApplication'
 }
 
-bootRun{
+bootRun {
   mainClass = 'io.xj.gui.WorkstationGuiApplication' // Specify the correct main class
 }
 
@@ -77,88 +78,88 @@ test {
   useJUnitPlatform()
 }
 
+//set the working directory
+def buildPath = "build/jpackage"
+def workingDir = file("${buildPath}/")
+
 //copies the needed jar (complete fat jar) while skipping the gui-plain minimal jar file
 //and copies the icon resources for the needed platform
 tasks.register('copyResources', Copy) {
   dependsOn("build")
   //clean the previous generated installer output files
-  delete("jpackage")
-  def directoryPath = 'jpackage'
+  delete(buildPath)
   // Create the directory if it doesn't exist
-  file(directoryPath).mkdirs()
+  file(buildPath).mkdirs()
 
   if (currentOs.isWindows()) {
-from "$buildDir/libs"
+    from "$buildDir/libs"
     exclude "*-plain.jar"
     from "icons/windows"
-    into "jpackage"
+    into buildPath
   } else if (currentOs.isMacOsX()) {
-from "$buildDir/libs"
+    from "$buildDir/libs"
     from "icons/mac"
     exclude "*-plain.jar"
-    into "jpackage"
+    into buildPath
   } else if (currentOs.isLinux()) {
-from "$buildDir/libs"
+    from "$buildDir/libs"
     from "icons/linux"
     exclude "*-plain.jar"
-    into "jpackage"
+    into buildPath
   }
 }
 
-//set the working directory
-def workingDir = file('jpackage/')
-
-jpackage{
+jpackage {
   dependsOn("copyResources")
-    appName = "XJ music workstation"
-    appVersion = version.toString()
-    vendor = "XJMusic"
-    copyright = "Copyright (c) 2023 " + vendor
-    //take our input files from our working directory
-    input = workingDir.toString()
-    //set our main application jar
-    mainJar = tasks.bootJar.archiveFileName.get()
-    //output the installer in the working directory
-    destination = workingDir.toString()
-    //for the jlink options these are passed as default , so no need to add them :
-    // [--strip-native-commands --strip-debug --no-man-pages --no-header-files]
-    mac {
-      type = ImageType.DMG
-      icon = "$workingDir/xjmusicapp.icns"
-      macAppStore=false
-      macAppCategory="Audio"
-      macPackageIdentifier="io.xj.music.workstation"
-    }
-    linux {
-      linuxShortcut=true
-      //use this if you prefer a different runtime from the system default
-      //runtimeImage = "/path/to/preferred/jdk/"  example:: /usr/lib/jvm/jdk-17-oracle-x64"
-      linuxAppCategory="Audio"
-      type = ImageType.DEB
-      icon = "$workingDir/xjmusicapp.png"
-    }
-    windows {
-      type = ImageType.EXE
-      icon = "$workingDir/xjmusicapp.ico"
-      //add the app to start menu
-      winMenu = true
-      //allow the user to choose where to install our app
-      winDirChooser = true
-      //add our app to the desktop via a shortcut
-      winShortcut = true
-    }
+  appName = "XJ music workstation"
+  appVersion = version.toString()
+  vendor = "XJMusic"
+  copyright = "Copyright (c) 2023 " + vendor
+  //take our input files from our working directory
+  input = workingDir.toString()
+  //set our main application jar
+  mainJar = tasks.bootJar.archiveFileName.get()
+  //output the installer in the working directory
+  destination = workingDir.toString()
+  //for the jlink options these are passed as default , so no need to add them :
+  // [--strip-native-commands --strip-debug --no-man-pages --no-header-files]
+  mac {
+    type = ImageType.DMG
+    icon = "$workingDir/xjmusicapp.icns"
+    macAppStore = false
+    macAppCategory = "Audio"
+    macPackageIdentifier = "io.xj.music.workstation"
+  }
+  linux {
+    linuxShortcut = true
+    //use this if you prefer a different runtime from the system default
+    //runtimeImage = "/path/to/preferred/jdk/"  example:: /usr/lib/jvm/jdk-17-oracle-x64"
+    linuxAppCategory = "Audio"
+    type = ImageType.DEB
+    icon = "$workingDir/xjmusicapp.png"
+  }
+  windows {
+    type = ImageType.EXE
+    icon = "$workingDir/xjmusicapp.ico"
+    //add the app to start menu
+    winMenu = true
+    //allow the user to choose where to install our app
+    winDirChooser = true
+    //add our app to the desktop via a shortcut
+    winShortcut = true
+  }
 
   //rename the final installer package
-  def newPackageName = "XJ music workstation installer"
+  def newPackageName = "xjmusic-workstation-v${rootProject.version}-installer"
   doLast {
     def osToExtensionMap = [
-      'windows': 'exe',
+      'windows' : 'exe',
       'mac os x': 'dmg',
-      'linux': 'deb'
+      'linux'   : 'deb'
     ]
     def extension = osToExtensionMap[currentOs.name.toLowerCase()]
-    if (currentOs.name.toLowerCase().contains("win")){
-      extension=
+    if (currentOs.name.toLowerCase().contains("win")) {
+      extension =
         "exe"
     }
     if (extension) {

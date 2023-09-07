@@ -185,59 +185,36 @@ jobs:
       - name: Execute build
         run: ./gradlew --info --stacktrace :gui:build
 
-      - name: Execute jlink
-        run: ./gradlew --info --stacktrace :gui:jlink
-
       - name: Execute jpackage
         run: ./gradlew --info --stacktrace :gui:jpackage
 
-#      - name: Upload DMG to release
-#        uses: svenstaro/upload-release-action@v2
-#        with:
-#          repo_token: ${{ secrets.GITHUB_TOKEN }}
-#          file: gui/build/jpackage/xjmusic-workstation-gui-v${{ needs.verify.outputs.version }}.dmg
-#          asset_name: xjmusic-workstation-gui-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer-dmg
-#          tag: ${{ github.ref }}
-#          overwrite: true
-#          body: "XJ workstation GUI installer v${{ needs.verify.outputs.version }} for ${{ matrix.os }}-jdk${{ matrix.java }}-amd64 (dmg)"
-#
-#      - name: Upload EXE to release
-#        uses: svenstaro/upload-release-action@v2
-#        with:
-#          repo_token: ${{ secrets.GITHUB_TOKEN }}
-#          file: gui/build/jpackage/xjmusic-workstation-gui-v${{ needs.verify.outputs.version }}.exe
-#          asset_name: xjmusic-workstation-gui-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer-exe
-#          tag: ${{ github.ref }}
-#          overwrite: true
-#          body: "XJ workstation GUI installer v${{ needs.verify.outputs.version }} for ${{ matrix.os }}-jdk${{ matrix.java }}-amd64 (exe)"
-#
-#      - name: Upload MSI to release
-#        uses: svenstaro/upload-release-action@v2
-#        with:
-#          repo_token: ${{ secrets.GITHUB_TOKEN }}
-#          file: gui/build/jpackage/xjmusic-workstation-gui-v${{ needs.verify.outputs.version }}.msi
-#          asset_name: xjmusic-workstation-gui-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer-msi
-#          tag: ${{ github.ref }}
-#          overwrite: true
-#          body: "XJ workstation GUI installer v${{ needs.verify.outputs.version }} for ${{ matrix.os }}-jdk${{ matrix.java }}-amd64 (msi)"
-#
-#      - name: Upload DEB to release
-#        uses: svenstaro/upload-release-action@v2
-#        with:
-#          repo_token: ${{ secrets.GITHUB_TOKEN }}
-#          file: gui/build/jpackage/xjmusic-workstation-gui-v${{ needs.verify.outputs.version }}.deb
-#          asset_name: xjmusic-workstation-gui-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer-deb
-#          tag: ${{ github.ref }}
-#          overwrite: true
-#          body: "XJ workstation GUI installer v${{ needs.verify.outputs.version }} for ${{ matrix.os }}-jdk${{ matrix.java }}-amd64 (deb)"
-#
-#      - name: Upload RPM to release
-#        uses: svenstaro/upload-release-action@v2
-#        with:
-#          repo_token: ${{ secrets.GITHUB_TOKEN }}
-#          file: gui/build/jpackage/xjmusic-workstation-gui-v${{ needs.verify.outputs.version }}.rpm
-#          asset_name: xjmusic-workstation-gui-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer-rpm
-#          tag: ${{ github.ref }}
-#          overwrite: true
-#          body: "XJ workstation GUI installer v${{ needs.verify.outputs.version }} for ${{ matrix.os }}-jdk${{ matrix.java }}-amd64 (rpm)"
-#
+      - name: Upload DMG to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          if: runner.os == 'macOS'
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: gui/build/jpackage/xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg
+          asset_name: xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer-dmg
+          tag: ${{ github.ref }}
+          overwrite: true
+
+      - name: Upload EXE to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          if: runner.os == 'Windows'
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: gui/build/jpackage/xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.exe
+          asset_name: xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer-exe
+          tag: ${{ github.ref }}
+          overwrite: true
+
+      - name: Upload DEB to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          if: runner.os == 'Linux'
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: gui/build/jpackage/xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.deb
+          asset_name: xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer-deb
+          tag: ${{ github.ref }}
+          overwrite: true
+
