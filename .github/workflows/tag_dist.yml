@@ -189,9 +189,9 @@ jobs:
         run: ./gradlew --info --stacktrace :gui:jpackage
 
       - name: Upload DMG to release
+        if: runner.os == 'macOS'
         uses: svenstaro/upload-release-action@v2
         with:
-          if: runner.os == 'macOS'
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: gui/build/jpackage/xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg
           asset_name: xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer-dmg
@@ -199,9 +199,9 @@ jobs:
           overwrite: true
 
       - name: Upload EXE to release
+        if: runner.os == 'Windows'
         uses: svenstaro/upload-release-action@v2
         with:
-          if: runner.os == 'Windows'
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: gui/build/jpackage/xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.exe
           asset_name: xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer-exe
@@ -209,9 +209,9 @@ jobs:
           overwrite: true
 
       - name: Upload DEB to release
+        if: runner.os == 'Linux'
         uses: svenstaro/upload-release-action@v2
         with:
-          if: runner.os == 'Linux'
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: gui/build/jpackage/xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.deb
           asset_name: xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer-deb
