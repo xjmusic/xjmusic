@@ -114,7 +114,7 @@ jobs:
 
   distribute_gui_jar:
     needs: verify
-    name: GUI JAR [${{ runner.os }}-JDK${{ matrix.java }}]
+    name: GUI JAR [${{ matrix.os }}-JDK${{ matrix.java }}]
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
@@ -155,7 +155,7 @@ jobs:
 
   distribute_gui_installer:
     needs: verify
-    name: GUI Installer [${{ runner.os }}-JDK${{ matrix.java }}]
+    name: GUI Installer [${{ matrix.os }}-JDK${{ matrix.java }}]
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
