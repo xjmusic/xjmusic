@@ -43,4 +43,5 @@ module workstation.lib.main {
   exports io.xj.lib.mixer;
   exports io.xj.lib.notification;
   exports io.xj.lib.telemetry;
+  exports io.xj.lib.util;
 }
