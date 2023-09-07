@@ -191,7 +191,8 @@ jobs:
       - name: Compress DMG for macOS
         if: runner.os == 'macOS'
         run: |
-          zip -r xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer.dmg.zip gui/build/jpackage/xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg
+          cd gui/build/jpackage/
+          zip -r ../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer.dmg.zip xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg
 
       - name: Upload DMG to release (macOS)
         if: runner.os == 'macOS'
@@ -206,7 +207,8 @@ jobs:
       - name: Compress EXE for Windows
         if: runner.os == 'Windows'
         run: |
-          Compress-Archive -Path gui/build/jpackage/xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.exe -DestinationPath xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer.exe.zip
+          cd gui/build/jpackage/
+          Compress-Archive -Path xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.exe -DestinationPath ../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer.exe.zip
 
       - name: Upload EXE to release (Windows)
         if: runner.os == 'Windows'
@@ -221,7 +223,8 @@ jobs:
       - name: Compress DEB for Linux
         if: runner.os == 'Linux'
         run: |
-          tar -czvf xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer.deb.tar.gz gui/build/jpackage/xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.deb
+          cd gui/build/jpackage/
+          tar -czvf ../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ matrix.os }}-jdk${{ matrix.java }}-installer.deb.tar.gz xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.deb
 
       - name: Upload DEB to release (Linux)
         if: runner.os == 'Linux'
