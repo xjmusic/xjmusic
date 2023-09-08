@@ -66,8 +66,8 @@ public class MainTimelineSegmentFactory {
         computeSegmentSectionPropertiesNode(segment),
         computeSegmentSectionMemesChordsNode(segment),
         computeSegmentSectionChoicesNode(segment),
-        computeSegmentSectionMetasNode(segment),
-        computeSegmentSectionMessageListNode(segment));
+        computeSegmentSectionMessageListNode(segment),
+        computeSegmentSectionMetasNode(segment));
       return box;
 
     } catch (Exception e) {
@@ -439,6 +439,9 @@ public class MainTimelineSegmentFactory {
     // Round up to the nearest second
     long totalSeconds = (microseconds + 999999) / 1000000;
 
+    // Get fractional seconds
+    double fractionalSeconds = (microseconds % 1000000) / 1000000.0;
+
     // Calculate hours, minutes, and remaining seconds
     long hours = totalSeconds / 3600;
     long remainingSeconds = totalSeconds % 3600;
@@ -454,7 +457,11 @@ public class MainTimelineSegmentFactory {
       readableTime.append(minutes).append("m");
     }
     if (seconds > 0 || (hours == 0 && minutes == 0)) {
-      readableTime.append(seconds).append("s");
+      if (hours == 0 && minutes == 0) {
+        readableTime.append(String.format("%d.%d", seconds, (int) Math.floor(fractionalSeconds * 10))).append("s");
+      } else {
+        readableTime.append(seconds).append("s");
+      }
     }
 
     return readableTime.toString();
