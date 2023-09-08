@@ -92,6 +92,11 @@
   -fx-fill: #000000;
 }
 
+.main-timeline-segment .chord-position {
+  -fx-font-size: 0.8em;
+  -fx-font-weight: 300;
+}
+
 .main-timeline-segment .chord-position,
 .main-timeline-segment .delta {
   -fx-fill: #404040;

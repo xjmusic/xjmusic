@@ -39,7 +39,7 @@ public class MainTimelineSegmentFactory {
   static final Logger LOG = LoggerFactory.getLogger(MainTimelineSegmentFactory.class);
 
   static final int CHORD_POSITION_WIDTH = 32;
-  static final int SEGMENT_SECTION_VERTICAL_MARGIN = 20;
+  static final int SEGMENT_SECTION_VERTICAL_MARGIN = 30;
   final FabricationService fabricationService;
 
   public MainTimelineSegmentFactory(
@@ -98,7 +98,7 @@ public class MainTimelineSegmentFactory {
       .filter(message -> message.getType() == SegmentMessageType.ERROR)
       .map(this::computeSegmentSectionMessageNode)
       .toList());
-    return computeLabeledPropertyNode("Messages", col, SEGMENT_MIN_WIDTH, SEGMENT_SECTION_VERTICAL_MARGIN);
+    return computeLabeledPropertyNode("Messages", col, SEGMENT_MIN_WIDTH, SEGMENT_SECTION_VERTICAL_MARGIN * 2);
   }
 
   private Node computeSegmentSectionMessageNode(SegmentMessage message) {
