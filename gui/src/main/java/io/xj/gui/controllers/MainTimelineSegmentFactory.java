@@ -189,13 +189,13 @@ public class MainTimelineSegmentFactory {
     box.getChildren().add(layerNameLabel);
     // choices
     choices.forEach(choice -> {
-      var choiceListItem = computeChoiceListItemNode(segment, choice, showProgram, showProgramVoice, showArrangementPicks);
+      var choiceListItem = computeChoiceNode(segment, choice, showProgram, showProgramVoice, showArrangementPicks);
       box.getChildren().add(choiceListItem);
     });
     return box;
   }
 
-  Node computeChoiceListItemNode(Segment segment, SegmentChoice choice, boolean showProgram, boolean showProgramVoice, boolean showArrangementPicks) {
+  Node computeChoiceNode(Segment segment, SegmentChoice choice, boolean showProgram, boolean showProgramVoice, boolean showArrangementPicks) {
     var box = new VBox();
     box.getStyleClass().add("choice-group-item");
 
@@ -212,7 +212,7 @@ public class MainTimelineSegmentFactory {
       box.getChildren().add(fabricationService.computeProgramVoiceReferenceNode(choice.getProgramVoiceId()));
     }
 
-    var instrumentBox = new VBox();
+    var instrumentBox = new HBox();
     instrumentBox.getStyleClass().add("choice-instrument");
     computeShowDeltaNode(choice).ifPresent(instrumentBox.getChildren()::add);
     if (Objects.nonNull(choice.getInstrumentId())) {
@@ -353,170 +353,3 @@ public class MainTimelineSegmentFactory {
   }
 }
 
-/*
-
-From the original Lab web UI
-
-```javascript
-render() {
-    if ('past' === this.state.tense) return null
-
-    const macroChoices = this.props.choices.filter((choice) => 'Macro' === choice.programType);
-    const mainChoices = this.props.choices.filter((choice) => 'Main' === choice.programType);
-    const beatChoices = this.props.choices.filter((choice) => 'Beat' === choice.programType);
-
-    const detailChoices = this.props.choices.filter((choice) => 'Detail' === choice.programType);
-    const percLoopChoices = this.props.choices.filter((choice) => 'Percussion' === choice.instrumentType && 'Loop' === choice.instrumentMode);
-    const hookChoices = this.props.choices.filter((choice) => 'Hook' === choice.instrumentType);
-    const transitionModeChoices = this.props.choices.filter((choice) => 'Transition' === choice.instrumentMode);
-    const backgroundModeChoices = this.props.choices.filter((choice) => 'Background' === choice.instrumentMode);
-    const chordModeChoices = this.props.choices.filter((choice) => 'Chord' === choice.instrumentMode);
-
-    return (
-      <div className={`chain-timeline-segment ${this.state.tense}-tense`}>
-
-
-        <div className="property-row">
-          <div className="time property">{this.state.beginAtText}</div>
-          <div className="property">&nbsp;</div>
-          <div className="property">
-            <div className="key">Offset</div>
-            <div className="value">
-              {this.props.segment.offset}
-            </div>
-          </div>
-          <div className="property">
-            <div className="key">{this.props.segment.type}</div>
-            <div className="value">
-              {this.props.segment.delta}
-            </div>
-          </div>
-          <div className="property">
-            <div className="key">Audio</div>
-            <div className="value">
-              <a target="_blank"
-                 href={`${this.props.baseUrl}${this.props.segment.storageKey}.${this.props.segment.outputEncoder.toLowerCase()}`}>
-                <GetAppIcon/>
-              </a>
-            </div>
-          </div>
-        </div>
-
-
-        <div className="property-row">
-          <div className="property">
-            <div className="key">Total</div>
-            <div className="value">{this.props.segment.total}</div>
-          </div>
-          <div className="property">
-            <div className="key">Density</div>
-            <div className="value">{this.props.segment.density}</div>
-          </div>
-          <div className="property">
-            <div className="key">Tempo</div>
-            <div className="value">{this.props.segment.tempo}</div>
-          </div>
-          <div className="property">
-            <div className="key">Key</div>
-            <div className="value">{this.props.segment.key}</div>
-          </div>
-        </div>
-
-
-        <div className="property-row">
-          <div className="property">
-            <div className="key">Memes</div>
-            <div className="value">
-              {this.props.memes.map(meme =>
-                <div key={meme.id}
-                     className="meme">
-                  {meme.name}
-                </div>
-              )}
-            </div>
-          </div>
-          <div className="property triple">
-            <div className="key chord">
-              <div className="position">Chords</div>
-            </div>
-            <div className="value">
-              {this.props.chords.map(chord =>
-                <div key={chord.id}
-                     className="chord">
-                  <EntityPosition className="position" position={chord.position}/>
-                  <div className="name">{chord.name}</div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-
-        {this.renderChoices('Macro', macroChoices, true)}
-
-        {this.renderChoices('Main', mainChoices, true)}
-
-        <div className="property">
-          <div className="key">
-            <div className="position">Beat</div>
-          </div>
-          <div className="value">
-            {this.renderBeatProgramReference()}
-            {beatChoices.map(choice => {
-              return ([
-                <SegmentChoice segment={this.props.segment} showProgramVoice={true} key={choice.id} choice={choice}/>
-              ])
-            })}
-          </div>
-        </div>
-
-        {this.renderChoices('Detail', detailChoices, true)}
-
-        {this.renderChoices('PercLoop', percLoopChoices, false, true)}
-
-        {this.renderChoices('Hook', hookChoices, false, true)}
-
-        {this.renderChoices('Transition', transitionModeChoices, false, true)}
-
-        {this.renderChoices('Background', backgroundModeChoices, false, true)}
-
-        {this.renderChoices('Chord', chordModeChoices, false, true)}
-
-        {visibleIf(0 < this.props.metadatas.length,
-          () => (
-            <div className="property">
-              <div className="key">
-                <div className="position">Metadata</div>
-              </div>
-              <div className="value">
-                {this.props.metadatas
-                  .filter(message => message.type === 'Info')
-                  .map(message => <SegmentMessage key={message.id} message={message}/>)}
-              </div>
-            </div>
-          ))}
-
-        <div className="property">
-          <div className="key">
-            <div className="position">Messages</div>
-          </div>
-          <div className="value">
-            {this.props.messages
-              .filter(message => message.type === 'Info')
-              .map(message => <SegmentMessage key={message.id} message={message}/>)}
-            {this.props.messages
-              .filter(message => message.type === 'Warning')
-              .map(message => <SegmentMessage key={message.id} message={message}/>)}
-            {this.props.messages
-              .filter(message => message.type === 'Error')
-              .map(message => <SegmentMessage key={message.id} message={message}/>)}
-          </div>
-        </div>
-
-
-      </div>
-    )
-  }
-```
-
- */
