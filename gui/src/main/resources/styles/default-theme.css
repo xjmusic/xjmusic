@@ -50,6 +50,7 @@
 
 .main-timeline {
   -fx-background-color: #e0e0e0;
+  -fx-font-family: 'Roboto Mono';
 }
 
 .main-timeline .list-cell {
@@ -66,7 +67,7 @@
 }
 
 .main-timeline-segment .value {
-  -fx-font-size: 1.62em;
+  -fx-font-size: 1.4em;
   -fx-font-weight: bold;
   -fx-fill: #000000;
 }
