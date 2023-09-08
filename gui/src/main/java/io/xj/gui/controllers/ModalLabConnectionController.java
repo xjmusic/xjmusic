@@ -2,7 +2,6 @@
 
 package io.xj.gui.controllers;
 
-import io.xj.gui.WorkstationIcon;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.LabStatus;
 import io.xj.gui.services.ThemeService;
@@ -10,8 +9,6 @@ import io.xj.hub.tables.pojos.User;
 import javafx.application.HostServices;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -19,21 +16,18 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 @Service
-public class ModalLabConnectionController implements ReadyAfterBootController {
+public class ModalLabConnectionController extends ReadyAfterBootModalController {
   static final List<LabStatus> BUTTON_CONNECT_ACTIVE_IN_LAB_STATES = Arrays.asList(
     LabStatus.Authenticated,
     LabStatus.Unauthorized,
@@ -122,33 +116,9 @@ public class ModalLabConnectionController implements ReadyAfterBootController {
     // no op
   }
 
-  public void launchModal() {
-    try {
-      // Load the FXML file
-      FXMLLoader loader = new FXMLLoader(modalLabConnectionFxml.getURL());
-      loader.setControllerFactory(ac::getBean);
-
-      // Create a new stage (window)
-      Stage stage = new Stage();
-      WorkstationIcon.setup(stage, CONNECT_TO_LAB_WINDOW_NAME);
-
-      Scene scene = new Scene(loader.load());
-      themeService.setup(scene);
-
-      // Set the scene and show the stage
-      stage.setScene(scene);
-      stage.initModality(Modality.APPLICATION_MODAL); // make it a modal window
-      stage.initStyle(StageStyle.UTILITY);
-      onStageReady();
-      stage.showAndWait();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
   @FXML
   void handleClose() {
-    Stage stage = (Stage) buttonConnect.getScene().getWindow();
+    Stage stage = (Stage) buttonClose.getScene().getWindow();
     stage.close();
     onStageClose();
   }
@@ -165,5 +135,10 @@ public class ModalLabConnectionController implements ReadyAfterBootController {
     } else {
       labService.connect();
     }
+  }
+
+  @Override
+  void launchModal() {
+    doLaunchModal(ac, themeService, modalLabConnectionFxml, CONNECT_TO_LAB_WINDOW_NAME);
   }
 }

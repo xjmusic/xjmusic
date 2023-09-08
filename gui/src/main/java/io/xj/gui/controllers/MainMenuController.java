@@ -21,6 +21,7 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   final ConfigurableApplicationContext ac;
   final String launchGuideUrl;
   final ThemeService themeService;
+  final ModalAboutController modalAboutController;
   final ModalLabConnectionController modalLabConnectionController;
 
   @FXML
@@ -30,12 +31,14 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
     @Value("${gui.launch.guide.url}") String launchGuideUrl,
     ConfigurableApplicationContext ac,
+    ModalAboutController modalAboutController,
     ModalLabConnectionController modalLabConnectionController,
     ThemeService themeService
   ) {
-    this.hostServices = hostServices;
     this.ac = ac;
+    this.hostServices = hostServices;
     this.launchGuideUrl = launchGuideUrl;
+    this.modalAboutController = modalAboutController;
     this.modalLabConnectionController = modalLabConnectionController;
     this.themeService = themeService;
   }
@@ -61,6 +64,11 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   protected void onLaunchUserGuide() {
     LOG.info("Will launch user guide");
     hostServices.showDocument(launchGuideUrl);
+  }
+
+  @FXML
+  protected void onPressAbout() {
+    modalAboutController.launchModal();
   }
 
   @FXML

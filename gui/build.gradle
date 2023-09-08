@@ -69,6 +69,14 @@ task 'bootJarZip'(type: Zip) {
   destinationDirectory = file("$buildDir/dist")
 }
 
+tasks.register('generateVersionFile') {
+  doLast {
+    def file = new File(project.buildDir.path + '/resources/main/version.properties')
+    file.text = "version=${rootProject.version}"
+  }
+}
+processResources.dependsOn generateVersionFile
+
 bootJar {
   launchScript()
   archiveBaseName = 'xjmusic-workstation-gui'
