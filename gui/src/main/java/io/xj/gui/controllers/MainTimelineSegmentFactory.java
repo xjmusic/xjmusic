@@ -39,6 +39,7 @@ public class MainTimelineSegmentFactory {
   static final Logger LOG = LoggerFactory.getLogger(MainTimelineSegmentFactory.class);
 
   static final int CHORD_POSITION_WIDTH = 32;
+  static final int SEGMENT_SECTION_VERTICAL_MARGIN = 20;
   final FabricationService fabricationService;
 
   public MainTimelineSegmentFactory(
@@ -55,54 +56,18 @@ public class MainTimelineSegmentFactory {
    */
   public Node computeSegmentNode(Segment segment) {
     try {
-      //
-      var p1 = new HBox();
-      p1.setPrefWidth(SEGMENT_MIN_WIDTH);
-      p1.setMinHeight(SEGMENT_PROPERTY_ROW_MIN_HEIGHT);
-      p1.getChildren().add(computeLabeledPropertyNode(String.format("[%d]", segment.getOffset()), formatTimeFromMicros(segment.getBeginAtChainMicros()), SEGMENT_MIN_WIDTH / 2));
-      p1.getChildren().add(computeLabeledPropertyNode(String.format("+%d", segment.getDelta()), segment.getType().toString(), SEGMENT_MIN_WIDTH / 2));
-      //
-      var p2 = new HBox();
-      p2.setPrefWidth(SEGMENT_MIN_WIDTH);
-      p2.setMinHeight(SEGMENT_PROPERTY_ROW_MIN_HEIGHT);
-      p2.getChildren().add(computeLabeledPropertyNode(String.format("%d beats", segment.getTotal()), formatTimeFromMicros(segment.getDurationMicros()), SEGMENT_MIN_WIDTH / 4));
-      p2.getChildren().add(computeLabeledPropertyNode("Density", String.format("%.2f", segment.getDensity()), SEGMENT_MIN_WIDTH / 4));
-      p2.getChildren().add(computeLabeledPropertyNode("Tempo", formatMinDecimal(segment.getTempo()), SEGMENT_MIN_WIDTH / 4));
-      p2.getChildren().add(computeLabeledPropertyNode("Key", segment.getKey(), SEGMENT_MIN_WIDTH / 4));
-      //
-      var p3 = new HBox();
-      p3.setPrefWidth(SEGMENT_MIN_WIDTH);
-      p3.setMinHeight(SEGMENT_PROPERTY_ROW_MIN_HEIGHT);
-      p3.getChildren().add(computeLabeledPropertyNode("Memes", computeMemeListNode(segment), SEGMENT_MIN_WIDTH / 2));
-      p3.getChildren().add(computeLabeledPropertyNode("Chords", computeChordListNode(segment), SEGMENT_MIN_WIDTH / 2));
-      //
-      var p4 = new VBox();
-      p4.setPrefWidth(SEGMENT_MIN_WIDTH);
-      p4.setMinHeight(SEGMENT_PROPERTY_ROW_MIN_HEIGHT);
-      p4.setMaxHeight(Double.MAX_VALUE);
-      p4.setPadding(new Insets(20, 0, 0, 0));
-      VBox.setVgrow(p4, Priority.ALWAYS);
-      var choices = fabricationService.getSegmentChoices(segment);
-      p4.getChildren().add(computeChoiceListNodes(segment, "Macro", choices.stream().filter((choice) -> ProgramType.Macro == choice.getProgramType()).toList(), true, false, false));
-      p4.getChildren().add(computeChoiceListNodes(segment, "Main", choices.stream().filter((choice) -> ProgramType.Main == choice.getProgramType()).toList(), true, false, false));
-      p4.getChildren().add(computeChoiceListNodes(segment, "Beat", choices.stream().filter((choice) -> ProgramType.Beat == choice.getProgramType()).toList(), false, true, false));
-      p4.getChildren().add(computeChoiceListNodes(segment, "Detail", choices.stream().filter((choice) -> ProgramType.Detail == choice.getProgramType()).toList(), true, false, false));
-      p4.getChildren().add(computeChoiceListNodes(segment, "Perc Loop", choices.stream().filter((choice) ->
-        InstrumentType.Percussion == choice.getInstrumentType() && InstrumentMode.Loop == choice.getInstrumentMode()).toList(), false, false, true));
-      p4.getChildren().add(computeChoiceListNodes(segment, "Hook", choices.stream().filter((choice) -> InstrumentType.Hook == choice.getInstrumentType()).toList(), false, false, true));
-      p4.getChildren().add(computeChoiceListNodes(segment, "Transition", choices.stream().filter((choice) -> InstrumentMode.Transition == choice.getInstrumentMode()).toList(), false, false, true));
-      p4.getChildren().add(computeChoiceListNodes(segment, "Background", choices.stream().filter((choice) -> InstrumentMode.Background == choice.getInstrumentMode()).toList(), false, false, true));
-      p4.getChildren().add(computeChoiceListNodes(segment, "Chord", choices.stream().filter((choice) -> InstrumentMode.Chord == choice.getInstrumentMode()).toList(), false, false, true));
-      //
       var box = new VBox();
       box.getStyleClass().add("main-timeline-segment");
       box.setMaxHeight(Double.MAX_VALUE);
       box.setPadding(new Insets(10, 10, 10, 10));
       VBox.setVgrow(box, Priority.ALWAYS);
-      box.getChildren().add(p1);
-      box.getChildren().add(p2);
-      box.getChildren().add(p3);
-      box.getChildren().add(p4);
+      box.getChildren().addAll(
+        computeSegmentSectionHeaderNode(segment),
+        computeSegmentSectionPropertiesNode(segment),
+        computeSegmentSectionMemesChordsNode(segment),
+        computeSegmentSectionChoicesNode(segment),
+        computeSegmentSectionMetasNode(segment),
+        computeSegmentSectionMessageListNode(segment));
       return box;
 
     } catch (Exception e) {
@@ -111,9 +76,152 @@ public class MainTimelineSegmentFactory {
     }
   }
 
+  /**
+   Segment section: Messages
+   */
+  private Node computeSegmentSectionMessageListNode(Segment segment) {
+    var messages = fabricationService.getSegmentMessages(segment);
+    var col = new VBox();
+    col.setPadding(new Insets(0, 0, 0, 10));
+    // info
+    col.getChildren().addAll(messages.stream()
+      .filter(message -> message.getType() == SegmentMessageType.INFO)
+      .map(this::computeSegmentSectionMessageNode)
+      .toList());
+    // warning
+    col.getChildren().addAll(messages.stream()
+      .filter(message -> message.getType() == SegmentMessageType.WARNING)
+      .map(this::computeSegmentSectionMessageNode)
+      .toList());
+    // error
+    col.getChildren().addAll(messages.stream()
+      .filter(message -> message.getType() == SegmentMessageType.ERROR)
+      .map(this::computeSegmentSectionMessageNode)
+      .toList());
+    return computeLabeledPropertyNode("Messages", col, SEGMENT_MIN_WIDTH, SEGMENT_SECTION_VERTICAL_MARGIN);
+  }
+
+  private Node computeSegmentSectionMessageNode(SegmentMessage message) {
+    // type
+    var type = new Label();
+    type.getStyleClass().add("segment-message-type");
+    type.getStyleClass().add("segment-message-" + message.getType().toString().toLowerCase());
+    type.setPadding(new Insets(5, 0, 0, 0));
+    type.setWrapText(true);
+    type.setMaxWidth(SEGMENT_MIN_WIDTH - 20);
+    type.setText(message.getType().toString().toUpperCase());
+    // body
+    var body = new Text();
+    body.getStyleClass().add("segment-message-body");
+    body.setText(message.getBody());
+    body.setWrappingWidth(SEGMENT_MIN_WIDTH - 20);
+    // message
+    var box = new VBox();
+    box.getStyleClass().add("segment-message");
+    box.getChildren().add(type);
+    box.getChildren().add(body);
+    return box;
+  }
+
+  /**
+   Segment section: Metadatas
+   */
+  private Node computeSegmentSectionMetasNode(Segment segment) {
+    var metas = fabricationService.getSegmentMetas(segment);
+    var col = new VBox();
+    col.setPadding(new Insets(0, 0, 0, 10));
+    col.getChildren().addAll(metas.stream()
+      .map(this::computeSegmentSectionMetaNode)
+      .toList());
+    return computeLabeledPropertyNode("Metas", col, SEGMENT_MIN_WIDTH, SEGMENT_SECTION_VERTICAL_MARGIN);
+  }
+
+  private Node computeSegmentSectionMetaNode(SegmentMeta meta) {
+    // key
+    var key = new Label();
+    key.getStyleClass().add("segment-meta-key");
+    key.setPadding(new Insets(5, 0, 0, 0));
+    key.setWrapText(true);
+    key.setMaxWidth(SEGMENT_MIN_WIDTH - 20);
+    key.setText(meta.getKey());
+    // type
+    var value = new Text();
+    value.getStyleClass().add("segment-meta-value");
+    value.setText(meta.getValue());
+    value.setWrappingWidth(SEGMENT_MIN_WIDTH - 20);
+    // meta
+    var box = new VBox();
+    box.getStyleClass().add("segment-meta");
+    box.getChildren().add(key);
+    box.getChildren().add(value);
+    return box;
+  }
+
+  /**
+   Segment section: Choices
+   */
+  private Node computeSegmentSectionChoicesNode(Segment segment) {
+    var p4 = new VBox();
+    p4.setPrefWidth(SEGMENT_MIN_WIDTH);
+    p4.setMinHeight(SEGMENT_PROPERTY_ROW_MIN_HEIGHT);
+    p4.setMaxHeight(Double.MAX_VALUE);
+    p4.setPadding(new Insets(20, 0, 0, 0));
+    VBox.setVgrow(p4, Priority.ALWAYS);
+    var choices = fabricationService.getSegmentChoices(segment);
+    p4.getChildren().add(computeChoiceListNodes(segment, "Macro", choices.stream().filter((choice) -> ProgramType.Macro == choice.getProgramType()).toList(), true, false, false));
+    p4.getChildren().add(computeChoiceListNodes(segment, "Main", choices.stream().filter((choice) -> ProgramType.Main == choice.getProgramType()).toList(), true, false, false));
+    p4.getChildren().add(computeChoiceListNodes(segment, "Beat", choices.stream().filter((choice) -> ProgramType.Beat == choice.getProgramType()).toList(), false, true, false));
+    p4.getChildren().add(computeChoiceListNodes(segment, "Detail", choices.stream().filter((choice) -> ProgramType.Detail == choice.getProgramType()).toList(), true, false, false));
+    p4.getChildren().add(computeChoiceListNodes(segment, "Perc Loop", choices.stream().filter((choice) ->
+      InstrumentType.Percussion == choice.getInstrumentType() && InstrumentMode.Loop == choice.getInstrumentMode()).toList(), false, false, true));
+    p4.getChildren().add(computeChoiceListNodes(segment, "Hook", choices.stream().filter((choice) -> InstrumentType.Hook == choice.getInstrumentType()).toList(), false, false, true));
+    p4.getChildren().add(computeChoiceListNodes(segment, "Transition", choices.stream().filter((choice) -> InstrumentMode.Transition == choice.getInstrumentMode()).toList(), false, false, true));
+    p4.getChildren().add(computeChoiceListNodes(segment, "Background", choices.stream().filter((choice) -> InstrumentMode.Background == choice.getInstrumentMode()).toList(), false, false, true));
+    p4.getChildren().add(computeChoiceListNodes(segment, "Chord", choices.stream().filter((choice) -> InstrumentMode.Chord == choice.getInstrumentMode()).toList(), false, false, true));
+    return p4;
+  }
+
+  /**
+   Segment section: Memes, Chords
+   */
+  private Node computeSegmentSectionMemesChordsNode(Segment segment) {
+    var row = new HBox();
+    row.setPrefWidth(SEGMENT_MIN_WIDTH);
+    row.setMinHeight(SEGMENT_PROPERTY_ROW_MIN_HEIGHT);
+    row.getChildren().add(computeLabeledPropertyNode("Memes", computeMemeListNode(segment), SEGMENT_MIN_WIDTH / 2, 0));
+    row.getChildren().add(computeLabeledPropertyNode("Chords", computeChordListNode(segment), SEGMENT_MIN_WIDTH / 2, 0));
+    return row;
+  }
+
+  /**
+   Segment section: Beats, Density, Tempo, Key
+   */
+  private Node computeSegmentSectionPropertiesNode(Segment segment) {
+    var row = new HBox();
+    row.setPrefWidth(SEGMENT_MIN_WIDTH);
+    row.setMinHeight(SEGMENT_PROPERTY_ROW_MIN_HEIGHT);
+    row.getChildren().add(computeLabeledPropertyNode(String.format("%d beats", segment.getTotal()), formatTimeFromMicros(segment.getDurationMicros()), SEGMENT_MIN_WIDTH / 4));
+    row.getChildren().add(computeLabeledPropertyNode("Density", String.format("%.2f", segment.getDensity()), SEGMENT_MIN_WIDTH / 4));
+    row.getChildren().add(computeLabeledPropertyNode("Tempo", formatMinDecimal(segment.getTempo()), SEGMENT_MIN_WIDTH / 4));
+    row.getChildren().add(computeLabeledPropertyNode("Key", segment.getKey(), SEGMENT_MIN_WIDTH / 4));
+    return row;
+  }
+
+  /**
+   Segment section: offset, begin-at micros, delta, type
+   */
+  Node computeSegmentSectionHeaderNode(Segment segment) {
+    var row = new HBox();
+    row.setPrefWidth(SEGMENT_MIN_WIDTH);
+    row.setMinHeight(SEGMENT_PROPERTY_ROW_MIN_HEIGHT);
+    row.getChildren().add(computeLabeledPropertyNode(String.format("[%d]", segment.getOffset()), formatTimeFromMicros(segment.getBeginAtChainMicros()), SEGMENT_MIN_WIDTH / 2));
+    row.getChildren().add(computeLabeledPropertyNode(String.format("+%d", segment.getDelta()), segment.getType().toString(), SEGMENT_MIN_WIDTH / 2));
+    return row;
+  }
+
   @SuppressWarnings("SameParameterValue")
   Node computeLabeledPropertyNode(String label, String value, int minWidth) {
-    return computeLabeledPropertyNode(label, computeValueNode(value), minWidth);
+    return computeLabeledPropertyNode(label, computeValueNode(value), minWidth, 0);
   }
 
   Node computeChordListNode(Segment segment) {
@@ -166,17 +274,17 @@ public class MainTimelineSegmentFactory {
     return node;
   }
 
-  Node computeLabeledPropertyNode(Object label, Node child, int minWidth) {
+  Node computeLabeledPropertyNode(Object label, Node child, int minWidth, int topPadding) {
     var labelNode = new Label();
     labelNode.setText(Objects.toString(label));
     labelNode.setMinWidth(minWidth);
     labelNode.getStyleClass().add("label");
     //
-    var vbox = new VBox();
-    vbox.getChildren().add(labelNode);
-    vbox.getChildren().add(child);
-    vbox.setPadding(new Insets(0, 10, 0, 0));
-    return vbox;
+    var col = new VBox();
+    col.setPadding(new Insets(topPadding, 10, 0, 0));
+    col.getChildren().add(labelNode);
+    col.getChildren().add(child);
+    return col;
   }
 
   Node computeChoiceListNodes(Segment segment, String layerName, Collection<? extends SegmentChoice> choices, boolean showProgram, boolean showProgramVoice, boolean showArrangementPicks) {

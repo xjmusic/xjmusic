@@ -61,9 +61,7 @@
   -fx-background-color: #f0f0f0;
 }
 
-.main-timeline-segment .label,
-.main-timeline-segment .choice-program-type,
-.main-timeline-segment .choice-instrument-type {
+.main-timeline-segment .label {
   -fx-fill: #606060;
 }
 
@@ -89,16 +87,12 @@
 }
 
 .main-timeline-segment .meme,
-.main-timeline-segment .chord-name,
-.main-timeline-segment .choice-program-name,
-.main-timeline-segment .choice-instrument-name {
+.main-timeline-segment .chord-name {
   -fx-fill: #000000;
 }
 
 .main-timeline-segment .chord-position,
-.main-timeline-segment .delta,
-.main-timeline-segment .choice-program-type,
-.main-timeline-segment .choice-instrument-type {
+.main-timeline-segment .delta {
   -fx-fill: #404040;
 }
 
@@ -109,3 +103,32 @@
 .main-timeline-segment .choice-group-item-muted {
   -fx-opacity: 0.35;
 }
+
+.main-timeline-segment .segment-message-type {
+  -fx-font-size: 0.8em;
+}
+
+.main-timeline-segment .segment-message-body {
+  -fx-fill: #202020;
+}
+
+.main-timeline-segment .segment-message-info {
+  -fx-fill: #555555;
+}
+
+.main-timeline-segment .segment-message-warning {
+  -fx-fill: #aa6600;
+}
+
+.main-timeline-segment .segment-message-error {
+  -fx-fill: #990000;
+}
+
+.main-timeline-segment .segment-meta-key {
+  -fx-font-size: 0.8em;
+}
+
+.main-timeline-segment .segment-meta-value {
+  -fx-fill: #000000;
+}
+

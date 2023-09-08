@@ -245,6 +245,26 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   }
 
   @Override
+  public Collection<SegmentMessage> getSegmentMessages(Segment segment) {
+    try {
+      return workFactory.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentMessage.class);
+    } catch (ManagerPrivilegeException | ManagerFatalException e) {
+      LOG.error("Failed to get segment messages", e);
+      return List.of();
+    }
+  }
+
+  @Override
+  public Collection<SegmentMeta> getSegmentMetas(Segment segment) {
+    try {
+      return workFactory.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentMeta.class);
+    } catch (ManagerPrivilegeException | ManagerFatalException e) {
+      LOG.error("Failed to get segment metas", e);
+      return List.of();
+    }
+  }
+
+  @Override
   public Node computeProgramReferenceNode(UUID programId, @Nullable UUID programSequenceBindingId) {
     var program = getProgram(programId);
     Optional<ProgramSequenceBinding> programSequenceBinding = Objects.nonNull(programSequenceBindingId) ? getProgramSequenceBinding(programSequenceBindingId) : Optional.empty();

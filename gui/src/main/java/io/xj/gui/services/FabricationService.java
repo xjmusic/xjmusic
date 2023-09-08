@@ -76,6 +76,10 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
 
   Collection<SegmentChoiceArrangementPick> getPicks(SegmentChoiceArrangement arrangement);
 
+  Collection<SegmentMessage> getSegmentMessages(Segment segment);
+
+  Collection<SegmentMeta> getSegmentMetas(Segment segment);
+
   Node computeProgramReferenceNode(UUID programId, @Nullable UUID programSequenceBindingId);
 
   Node computeProgramVoiceReferenceNode(UUID programVoiceId);
@@ -83,5 +87,4 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
   Node computeInstrumentReferenceNode(UUID instrumentId);
 
   Node computeInstrumentAudioReferenceNode(UUID instrumentAudioId);
-
 }
