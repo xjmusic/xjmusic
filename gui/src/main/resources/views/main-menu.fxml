@@ -16,6 +16,8 @@
   </Menu>
   <Menu mnemonicParsing="false" text="Help">
     <MenuItem mnemonicParsing="false" onAction="#onLaunchUserGuide" text="User Guide"/>
+    <SeparatorMenuItem mnemonicParsing="false"/>
+    <MenuItem mnemonicParsing="false" onAction="#onPressAbout" text="About"/>
   </Menu>
 </MenuBar>
 

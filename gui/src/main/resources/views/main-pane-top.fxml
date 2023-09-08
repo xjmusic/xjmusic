@@ -61,7 +61,8 @@
           <Insets right="10" left="10"/>
         </padding>
         <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
-               text="Output File Mode" textAlignment="RIGHT">
+               text="Output File Mode" textAlignment="RIGHT"
+        fx:id="labelOutputFileMode">
           <graphic>
             <Pane prefWidth="15.0"/>
           </graphic>
@@ -74,7 +75,8 @@
           <Insets right="10" left="10"/>
         </padding>
         <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
-               text="Output Seconds" textAlignment="RIGHT">
+               text="Output File Seconds" textAlignment="RIGHT"
+        fx:id="labelOutputSeconds">
           <graphic>
             <Pane prefWidth="15.0"/>
           </graphic>
@@ -87,7 +89,8 @@
           <Insets right="10" left="10"/>
         </padding>
         <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
-               text="Output Path Prefix" textAlignment="RIGHT">
+               text="Output File Path Prefix" textAlignment="RIGHT"
+        fx:id="labelOutputPathPrefix">
           <graphic>
             <Pane prefWidth="15.0"/>
           </graphic>

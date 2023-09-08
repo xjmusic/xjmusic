@@ -60,10 +60,19 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   ChoiceBox<OutputFileMode> choiceOutputFileMode;
 
   @FXML
+  Label labelOutputFileMode;
+
+  @FXML
   TextField fieldOutputSeconds;
 
   @FXML
+  Label labelOutputSeconds;
+
+  @FXML
   TextField fieldOutputPathPrefix;
+
+  @FXML
+  Label labelOutputPathPrefix;
 
   @FXML
   TextField fieldBufferAheadSeconds;
@@ -97,23 +106,35 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
         },
       fabricationService.statusProperty()));
 
-    choiceInputMode.getItems().setAll(InputMode.values());
-    choiceOutputMode.getItems().setAll(OutputMode.values());
-    choiceOutputFileMode.getItems().setAll(OutputFileMode.values());
-
     fieldInputTemplateKey.textProperty().bindBidirectional(fabricationService.inputTemplateKeyProperty());
+    choiceInputMode.getItems().setAll(InputMode.values());
     choiceInputMode.valueProperty().bindBidirectional(fabricationService.inputModeProperty());
+
+    choiceOutputMode.getItems().setAll(OutputMode.values());
     choiceOutputMode.valueProperty().bindBidirectional(fabricationService.outputModeProperty());
+
+    choiceOutputFileMode.getItems().setAll(OutputFileMode.values());
     choiceOutputFileMode.valueProperty().bindBidirectional(fabricationService.outputFileModeProperty());
+    choiceOutputFileMode.disableProperty().bind(fabricationService.outputModeProperty().isEqualTo(OutputMode.FILE).not());
+    labelOutputFileMode.disableProperty().bind(fabricationService.outputModeProperty().isEqualTo(OutputMode.FILE).not());
+
     fieldOutputSeconds.textProperty().bindBidirectional(fabricationService.outputSecondsProperty());
+    fieldOutputSeconds.disableProperty().bind(fabricationService.outputModeProperty().isEqualTo(OutputMode.FILE).not());
+    labelOutputSeconds.disableProperty().bind(fabricationService.outputModeProperty().isEqualTo(OutputMode.FILE).not());
+
     fieldOutputPathPrefix.textProperty().bindBidirectional(fabricationService.outputPathPrefixProperty());
+    fieldOutputPathPrefix.disableProperty().bind(fabricationService.outputModeProperty().isEqualTo(OutputMode.FILE).not());
+    labelOutputPathPrefix.disableProperty().bind(fabricationService.outputModeProperty().isEqualTo(OutputMode.FILE).not());
+
     fieldBufferAheadSeconds.textProperty().bindBidirectional(fabricationService.bufferAheadSecondsProperty());
     fieldBufferBeforeSeconds.textProperty().bindBidirectional(fabricationService.bufferBeforeSecondsProperty());
-    fieldOutputChannels.textProperty().bindBidirectional(fabricationService.outputChannelsProperty());
     fieldOutputFrameRate.textProperty().bindBidirectional(fabricationService.outputFrameRateProperty());
+    fieldOutputChannels.textProperty().bindBidirectional(fabricationService.outputChannelsProperty());
 
     labelFabricationStatus.textProperty().bind(fabricationService.statusProperty().map(Enum::toString).map((status) -> String.format("Fabrication %s", status)));
+
     toggleShowConfig.setSelected(configVisible.get());
+
     updateConfigVisibility();
   }
 

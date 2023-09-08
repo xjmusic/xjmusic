@@ -115,21 +115,38 @@
   -fx-background-color: #303030;
 }
 
-.main-timeline-segment .label,
-.main-timeline-segment .choice-program-type,
-.main-timeline-segment .choice-instrument-type {
+.main-timeline-segment .label {
   -fx-fill: #a0a0a0;
 }
 
 .main-timeline-segment .value,
 .main-timeline-segment .delta,
 .main-timeline-segment .meme,
-.main-timeline-segment .chord-name,
-.main-timeline-segment .choice-program-name,
-.main-timeline-segment .choice-instrument-name {
+.main-timeline-segment .chord-name {
   -fx-fill: #ffffff;
 }
 
 .main-timeline-segment .chord-position {
   -fx-fill: #cccccc;
 }
+
+.main-timeline-segment .segment-message-body {
+  -fx-fill: #d0d0d0;
+}
+
+.main-timeline-segment .segment-message-info {
+  -fx-fill: #0099ff;
+}
+
+.main-timeline-segment .segment-message-warning {
+  -fx-fill: #ff9900;
+}
+
+.main-timeline-segment .segment-message-error {
+  -fx-fill: #ff6666;
+}
+
+.main-timeline-segment .segment-meta-value {
+  -fx-fill: #ffffff;
+}
+
