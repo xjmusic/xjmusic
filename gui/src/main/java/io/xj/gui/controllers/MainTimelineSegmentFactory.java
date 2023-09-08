@@ -126,7 +126,8 @@ public class MainTimelineSegmentFactory {
           // position
           var position = new Label();
           position.setText(formatMinDecimal(chord.getPosition()));
-          position.setMinWidth(CHORD_POSITION_WIDTH);
+          position.setPrefWidth(CHORD_POSITION_WIDTH);
+          position.setTextAlignment(javafx.scene.text.TextAlignment.RIGHT);
           position.getStyleClass().add("chord-position");
           // name
           var name = new Text();

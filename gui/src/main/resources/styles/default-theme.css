@@ -84,6 +84,10 @@
   -fx-font-weight: bold;
 }
 
+.main-timeline-segment .chord-name {
+  -fx-padding: 0 0 0 12px;
+}
+
 .main-timeline-segment .meme,
 .main-timeline-segment .chord-name,
 .main-timeline-segment .choice-program-name,
