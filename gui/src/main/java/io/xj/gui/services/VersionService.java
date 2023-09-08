@@ -11,7 +11,6 @@ import java.util.Properties;
 
 @Component
 public class VersionService {
-
   private String version;
 
   @PostConstruct
