@@ -69,13 +69,14 @@ task 'bootJarZip'(type: Zip) {
   destinationDirectory = file("$buildDir/dist")
 }
 
-tasks.register('generateVersionFile') {
-  doLast {
-    def file = new File(project.buildDir.path + '/resources/main/version.properties')
-    file.text = "version=${rootProject.version}"
-  }
+task generateVersionFile(type: Copy) {
+  from "src/main/resources"
+  into "$buildDir/classes/java/main"
+  include "version.template"
+  rename('version.template.properties', 'version.properties')
+  expand(version: rootProject.version)
 }
-processResources.dependsOn generateVersionFile
+compileJava.dependsOn generateVersionFile
 
 bootJar {
   launchScript()
