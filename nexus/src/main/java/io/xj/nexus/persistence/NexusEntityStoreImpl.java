@@ -141,6 +141,7 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
 
   @Override
   public Collection<Segment> getAllSegments(UUID chainId) {
+    // future: since we're going to keep track of a ton of segments, we need to get out of the multiple-chain business. We should only keep track of an ArrayList of segments, all sequential, such that we can take the last N segments of that array and know that we are good to go.
     return segmentMap.values().stream()
       .filter(segment -> chainId.equals(segment.getChainId()))
       .collect(Collectors.toList());
