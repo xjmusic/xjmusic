@@ -179,15 +179,6 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
     else return entity;
 
     return entity;
-/*
-// todo make sure we can go without cloning
-      try {
-      ...
-        return entityFactory.clone(entity);
-      } catch (EntityException e) {
-        throw new NexusException(e);
-      }
-*/
   }
 
   @Override
