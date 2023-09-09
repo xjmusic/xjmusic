@@ -283,7 +283,7 @@ public class CraftWorkImpl implements CraftWork {
     // if the end of the current segment is before the threshold, require next segment
     Optional<Segment> nextSegment = Optional.empty();
     if (Objects.nonNull(firstSegment.getDurationMicros()) && firstSegment.getBeginAtChainMicros() + firstSegment.getDurationMicros() < planToChainMicros + bufferAheadSeconds * MICROS_PER_SECOND) {
-      nextSegment = segmentManager.readOneAtChainOffset(chain.get().getId(), currentSegments.get(0).getId() + 1);
+      nextSegment = segmentManager.readOneAtChainOffset(currentSegments.get(0).getId() + 1);
       if (nextSegment.isEmpty() || Objects.isNull(nextSegment.get().getDurationMicros()) || !SegmentState.CRAFTED.equals(nextSegment.get().getState())) {
         return List.of();
       }
@@ -292,7 +292,7 @@ public class CraftWorkImpl implements CraftWork {
     // if the beginning of the current segment is after the threshold, require previous segment
     Optional<Segment> previousSegment = Optional.empty();
     if (Objects.nonNull(firstSegment.getDurationMicros()) && firstSegment.getBeginAtChainMicros() + firstSegment.getDurationMicros() < planToChainMicros + bufferAheadSeconds * MICROS_PER_SECOND && currentSegments.get(0).getId() > 0) {
-      previousSegment = segmentManager.readOneAtChainOffset(chain.get().getId(), currentSegments.get(0).getId() - 1);
+      previousSegment = segmentManager.readOneAtChainOffset(currentSegments.get(0).getId() - 1);
       if (previousSegment.isEmpty()) {
         return List.of();
       }
@@ -329,7 +329,7 @@ public class CraftWorkImpl implements CraftWork {
     }
 
     // require current segment in crafted state
-    var currentSegment = segmentManager.readOneAtChainOffset(chain.get().getId(), offset);
+    var currentSegment = segmentManager.readOneAtChainOffset(offset);
     if (currentSegment.isEmpty() || currentSegment.get().getState() != SegmentState.CRAFTED) {
       return Optional.empty();
     }
@@ -697,7 +697,7 @@ public class CraftWorkImpl implements CraftWork {
     var maybeLastSegmentInChain = segmentManager.readLastSegment();
     if (maybeLastSegmentInChain.isEmpty()) {
       var seg = new Segment();
-      seg.setId(123);
+      seg.setId(0);
       seg.setChainId(target.getId());
       seg.setBeginAtChainMicros(0L);
       seg.setDelta(0);
@@ -709,7 +709,7 @@ public class CraftWorkImpl implements CraftWork {
 
     // Build the template of the segment that follows the last known one
     var seg = new Segment();
-    seg.setId(456);
+    seg.setId(lastSegmentInChain.getId() + 1);
     seg.setChainId(target.getId());
     seg.setBeginAtChainMicros(lastSegmentInChain.getBeginAtChainMicros() + Objects.requireNonNull(lastSegmentInChain.getDurationMicros()));
     seg.setDelta(lastSegmentInChain.getDelta());

@@ -7,6 +7,7 @@ import io.xj.hub.enums.ProgramType;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.*;
+import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,9 +21,11 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   final Logger LOG = LoggerFactory.getLogger(SegmentRetrospectiveImpl.class);
   final List<List<SegmentChord>> segmentChords = new ArrayList<>();
   private final SegmentManager segmentManager;
-  List<Segment> retroSegments;
-  List<Integer> previousSegmentIds;
-  Segment previousSegment;
+  final List<Segment> retroSegments;
+  final List<Integer> previousSegmentIds;
+
+  @Nullable
+  final Segment previousSegment;
 
   public SegmentRetrospectiveImpl(
     Segment segment,
@@ -33,7 +36,12 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
     // begin by getting the previous segment
     // only can build retrospective if there is at least one previous segment
     // the previous segment is the first one cached here. we may cache even further back segments below if found
-    if (segment.getId() <= 0) return;
+    if (segment.getId() <= 0) {
+      retroSegments = List.of();
+      previousSegmentIds = List.of();
+      previousSegment = null;
+      return;
+    }
     try {
       // begin by getting the previous segment
       // the previous segment is the first one cached here. we may cache even further back segments below if found
@@ -99,6 +107,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   @Override
   public List<SegmentChoice> getPreviousChoicesOfMode(InstrumentMode instrumentMode) {
     try {
+      if (Objects.isNull(previousSegment)) return List.of();
       return segmentManager.readManySubEntitiesOfType(previousSegment.getId(), SegmentChoice.class).stream()
         .filter(c -> Objects.nonNull(c.getInstrumentMode())
           && c.getInstrumentMode().equals(instrumentMode))
@@ -112,6 +121,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   @Override
   public List<SegmentChoice> getPreviousChoicesOfTypeMode(InstrumentType instrumentType, InstrumentMode instrumentMode) {
     try {
+      if (Objects.isNull(previousSegment)) return List.of();
       return segmentManager.readManySubEntitiesOfType(previousSegment.getId(), SegmentChoice.class).stream()
         .filter(c -> Objects.nonNull(c.getInstrumentType())
           && c.getInstrumentType().equals(instrumentType)

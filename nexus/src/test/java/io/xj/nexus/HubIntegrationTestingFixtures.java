@@ -370,6 +370,7 @@ public class HubIntegrationTestingFixtures {
 
   public static ProgramSequenceBinding buildProgramSequenceBinding(ProgramSequence programSequence, int offset) {
     var programSequenceBinding = new ProgramSequenceBinding();
+    programSequenceBinding.setId(UUID.randomUUID());
     programSequenceBinding.setProgramId(programSequence.getProgramId());
     programSequenceBinding.setProgramSequenceId(programSequence.getId());
     programSequenceBinding.setOffset(offset);

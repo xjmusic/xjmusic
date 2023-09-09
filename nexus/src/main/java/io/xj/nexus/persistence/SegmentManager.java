@@ -9,7 +9,6 @@ import io.xj.nexus.model.*;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 public interface SegmentManager /* does not extend Manager<Segment> because it is special, id is an int (not UUID) */ {
 
@@ -62,11 +61,10 @@ public interface SegmentManager /* does not extend Manager<Segment> because it i
   /**
    Fetch id for the Segment in a Chain at a given offset, if present
 
-   @param chainId to fetch segment for
-   @param offset  to fetch segment at
+   @param offset to fetch segment at
    @return segment id
    */
-  Optional<Segment> readOneAtChainOffset(UUID chainId, int offset);
+  Optional<Segment> readOneAtChainOffset(int offset);
 
   /**
    Fetch one Segment by chainId and state, if present

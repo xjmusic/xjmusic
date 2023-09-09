@@ -211,7 +211,7 @@ public class NexusIntegrationTestingFixtures {
   }
 
   /**
-   Create a N-magnitude list of unique Strings at random of a source list of Strings
+   Create an N-magnitude list of unique Strings at random of a source list of Strings
 
    @param N           size of list
    @param sourceItems source Strings

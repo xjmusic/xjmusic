@@ -85,7 +85,7 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   @Override
   public Optional<Segment> getSegment(int id) throws NexusException {
     if (segmentArray.size() <= id) return Optional.empty();
-    return Optional.of(segmentArray.get(id));
+    return Optional.ofNullable(segmentArray.get(id));
   }
 
   @Override

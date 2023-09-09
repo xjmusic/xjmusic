@@ -79,14 +79,13 @@ public class SegmentManagerImpl implements SegmentManager {
   @Override
   public Segment create(Segment segment) throws ManagerPrivilegeException, ManagerFatalException, ManagerValidationException {
     try {
-      segment.setId(123);
       validate(segment);
 
       // [#126] Segments are always readMany in PLANNED state
       segment.setState(SegmentState.PLANNED);
 
       // create segment with Chain ID and offset are read-only, set at creation
-      if (readOneAtChainOffset(segment.getChainId(), segment.getId()).isPresent()) {
+      if (readOneAtChainOffset(segment.getId()).isPresent()) {
         throw new ManagerValidationException("Found Segment at same offset in Chain!");
       }
 
@@ -182,8 +181,9 @@ public class SegmentManagerImpl implements SegmentManager {
   }
 
   @Override
-  public Optional<Segment> readOneAtChainOffset(UUID chainId, int offset) {
+  public Optional<Segment> readOneAtChainOffset(int offset) {
     try {
+      if (store.getAllSegments().size() <= offset) return Optional.empty();
       return Optional.of(store.getAllSegments().get(offset));
     } catch (Exception e) {
       LOG.error("Failed to read Segment at offset " + offset, e);
