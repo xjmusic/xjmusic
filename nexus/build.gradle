@@ -2,6 +2,7 @@
 
 plugins {
   id 'java-library'
+  id 'java-test-fixtures'
   //
   id 'io.spring.dependency-management'
   id 'org.openjfx.javafxplugin'
@@ -25,9 +26,11 @@ apply plugin: 'java'
 dependencies {
   implementation project(":lib")
   testImplementation project(path: ':lib')
+  testFixturesImplementation project(path: ':lib')
   // private
   implementation "io.xj:models:${rootProject.ext.xjModelsVersion}"
   testImplementation "io.xj:models:${rootProject.ext.xjModelsVersion}"
+  testFixturesImplementation "io.xj:models:${rootProject.ext.xjModelsVersion}"
   // vendor
   implementation "com.fasterxml.jackson.core:jackson-annotations:${rootProject.ext.jacksonAnnotationsVersion}"
   implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:${rootProject.ext.jacksonAnnotationsVersion}"
@@ -41,6 +44,8 @@ dependencies {
   implementation 'me.xdrop:fuzzywuzzy:1.4.0'
   implementation 'org.apache.httpcomponents:httpclient:4.5.14'
   implementation 'org.reflections:reflections:0.10.2'
+  testFixturesImplementation "org.jooq:jooq:${rootProject.ext.jooqVersion}"
+  testFixturesImplementation "org.springframework.boot:spring-boot-starter:${rootProject.ext.springBootVersion}"
   testImplementation "org.junit.jupiter:junit-jupiter-api:${rootProject.ext.junitVersion}"
   testImplementation 'org.hamcrest:hamcrest-library:2.2'
   testImplementation 'org.mockito:mockito-junit-jupiter'

@@ -7,7 +7,7 @@ import java.util.Objects;
 
 public class SegmentOnTimeline {
   private final Segment segment;
-  private boolean active;
+  private final boolean active;
 
   public SegmentOnTimeline(Segment segment) {
     this.segment = segment;
@@ -16,7 +16,7 @@ public class SegmentOnTimeline {
 
   public SegmentOnTimeline(Segment segment, Long activeAtChainMicros) {
     this.segment = segment;
-    active = SegmentUtils.isSpanning(segment, activeAtChainMicros);
+    active = SegmentUtils.isIntersecting(segment, activeAtChainMicros);
   }
 
   public Segment getSegment() {
@@ -25,10 +25,6 @@ public class SegmentOnTimeline {
 
   public boolean isActive() {
     return active;
-  }
-
-  public void setActive(boolean active) {
-    this.active = active;
   }
 
   public boolean isSameButUpdated(SegmentOnTimeline other) {
