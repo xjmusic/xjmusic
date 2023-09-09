@@ -6,17 +6,19 @@ import io.xj.hub.util.CsvUtils;
 import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueException;
 import io.xj.hub.util.ValueUtils;
-import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.ChordEntity;
 import io.xj.lib.entity.common.MessageEntity;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 
@@ -24,16 +26,17 @@ import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
  Nexus Managers are Singletons unless some other requirement changes that-- 'cuz here be cyclic dependencies...
  */
 @Service
-public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentManager {
+public class SegmentManagerImpl implements SegmentManager {
+  static final Logger LOG = LoggerFactory.getLogger(SegmentManagerImpl.class);
   public static final Long LENGTH_MINIMUM_MICROS = MICROS_PER_SECOND;
   public static final Double AMPLITUDE_MINIMUM = 0.0;
+  private final NexusEntityStore store;
 
   @Autowired
   public SegmentManagerImpl(
-    EntityFactory entityFactory,
-    NexusEntityStore nexusEntityStore
+    NexusEntityStore store
   ) {
-    super(entityFactory, nexusEntityStore);
+    this.store = store;
   }
 
   /**
@@ -74,20 +77,19 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   @Override
-  public Segment create(Segment entity) throws ManagerPrivilegeException, ManagerFatalException, ManagerValidationException {
+  public Segment create(Segment segment) throws ManagerPrivilegeException, ManagerFatalException, ManagerValidationException {
     try {
-      entity.setId(UUID.randomUUID());
-      validate(entity);
+      validate(segment);
 
       // [#126] Segments are always readMany in PLANNED state
-      entity.setState(SegmentState.PLANNED);
+      segment.setState(SegmentState.PLANNED);
 
       // create segment with Chain ID and offset are read-only, set at creation
-      if (readOneAtChainOffset(entity.getChainId(), entity.getOffset()).isPresent()) {
+      if (readOneAtChainOffset(segment.getId()).isPresent()) {
         throw new ManagerValidationException("Found Segment at same offset in Chain!");
       }
 
-      return store.put(entity);
+      return store.put(segment);
 
     } catch (NexusException e) {
       throw new ManagerFatalException(e);
@@ -117,11 +119,11 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   @Override
-  public List<Segment> readAll(UUID chainId) {
+  public List<Segment> readAll() {
     try {
-      return store.getAllSegments(chainId)
+      return store.getAllSegments()
         .stream()
-        .sorted(Comparator.comparing(Segment::getOffset))
+        .sorted(Comparator.comparing(Segment::getId))
         .toList();
 
     } catch (NexusException e) {
@@ -139,12 +141,12 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   @Override
-  public List<Segment> readAllSpanning(UUID chainId, Long fromChainMicros, Long toChainMicros) {
+  public List<Segment> readAllSpanning(Long fromChainMicros, Long toChainMicros) {
     try {
-      return store.getAllSegments(chainId)
+      return store.getAllSegments()
         .stream()
         .filter(s -> SegmentUtils.isSpanning(s, fromChainMicros, toChainMicros))
-        .sorted(Comparator.comparing(Segment::getOffset))
+        .sorted(Comparator.comparing(Segment::getId))
         .toList();
 
     } catch (NexusException e) {
@@ -153,10 +155,10 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   @Override
-  public Segment readOne(UUID id) throws ManagerExistenceException, ManagerFatalException {
+  public Segment readOne(int segmentId) throws ManagerExistenceException, ManagerFatalException {
     try {
-      return store.getSegment(id)
-        .orElseThrow(() -> new ManagerExistenceException(Segment.class, id.toString()));
+      return store.getSegment(segmentId)
+        .orElseThrow(() -> new ManagerExistenceException(Segment.class, Integer.toString(segmentId)));
 
     } catch (NexusException e) {
       throw new ManagerFatalException(e);
@@ -165,12 +167,12 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
 
 
   @Override
-  public Optional<Segment> readOneAtChainMicros(UUID chainId, long chainMicros) {
+  public Optional<Segment> readOneAtChainMicros(long chainMicros) {
     try {
-      var segments = store.getAllSegments(chainId)
+      var segments = store.getAllSegments()
         .stream()
         .filter(s -> SegmentUtils.isSpanning(s, chainMicros, chainMicros))
-        .sorted(Comparator.comparing(Segment::getOffset))
+        .sorted(Comparator.comparing(Segment::getId))
         .toList();
       return segments.isEmpty() ? Optional.empty() : Optional.of(segments.get(segments.size() - 1));
     } catch (NexusException e) {
@@ -179,27 +181,25 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   @Override
-  public Optional<Segment> readOneAtChainOffset(UUID chainId, Long offset) {
+  public Optional<Segment> readOneAtChainOffset(int offset) {
     try {
-      return store.getAllSegments(chainId)
-        .stream()
-        .filter(s -> offset.equals(s.getOffset()))
-        .findFirst();
-
-    } catch (NexusException e) {
+      if (store.getAllSegments().size() <= offset) return Optional.empty();
+      return Optional.of(store.getAllSegments().get(offset));
+    } catch (Exception e) {
+      LOG.error("Failed to read Segment at offset " + offset, e);
       return Optional.empty();
     }
   }
 
-  public Segment readOneInState(HubClientAccess access, UUID chainId, SegmentState segmentState, Long segmentBeginBeforeChainMicros) throws ManagerFatalException, ManagerExistenceException {
+  public Segment readFirstInState(HubClientAccess access, SegmentState segmentState, Long segmentBeginBeforeChainMicros) throws ManagerFatalException, ManagerExistenceException {
     try {
-      return store.getAllSegments(chainId)
+      return store.getAllSegments()
         .stream()
-        .sorted(Comparator.comparing(Segment::getOffset))
+        .sorted(Comparator.comparing(Segment::getId))
         .filter(s -> segmentState.equals(s.getState()) &&
           segmentBeginBeforeChainMicros >= s.getBeginAtChainMicros())
         .findFirst()
-        .orElseThrow(() -> new ManagerExistenceException(String.format("Found no Segment[state=%s] in Chain[%s]!", segmentState, chainId)));
+        .orElseThrow(() -> new ManagerExistenceException(String.format("Found no Segment[state=%s]!", segmentState)));
 
     } catch (NexusException e) {
       throw new ManagerFatalException(e);
@@ -207,19 +207,19 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   @Override
-  public <N> Collection<N> readManySubEntities(Collection<UUID> segmentIds, Boolean includePicks) throws ManagerFatalException {
+  public <N> Collection<N> readManySubEntities(Collection<Integer> segmentIds, Boolean includePicks) throws ManagerFatalException {
     try {
       Collection<Object> entities = new ArrayList<>();
-      for (UUID sId : segmentIds) {
-        entities.addAll(store.getAll(sId, SegmentChoice.class, Segment.class, segmentIds));
-        entities.addAll(store.getAll(sId, SegmentChoiceArrangement.class, Segment.class, segmentIds));
-        entities.addAll(store.getAll(sId, SegmentChord.class, Segment.class, segmentIds));
-        entities.addAll(store.getAll(sId, SegmentChordVoicing.class, Segment.class, segmentIds));
-        entities.addAll(store.getAll(sId, SegmentMeme.class, Segment.class, segmentIds));
-        entities.addAll(store.getAll(sId, SegmentMessage.class, Segment.class, segmentIds));
-        entities.addAll(store.getAll(sId, SegmentMeta.class, Segment.class, segmentIds));
+      for (Integer sId : segmentIds) {
+        entities.addAll(store.getAll(sId, SegmentChoice.class));
+        entities.addAll(store.getAll(sId, SegmentChoiceArrangement.class));
+        entities.addAll(store.getAll(sId, SegmentChord.class));
+        entities.addAll(store.getAll(sId, SegmentChordVoicing.class));
+        entities.addAll(store.getAll(sId, SegmentMeme.class));
+        entities.addAll(store.getAll(sId, SegmentMessage.class));
+        entities.addAll(store.getAll(sId, SegmentMeta.class));
         if (includePicks)
-          entities.addAll(store.getAll(sId, SegmentChoiceArrangementPick.class, Segment.class, segmentIds));
+          entities.addAll(store.getAll(sId, SegmentChoiceArrangementPick.class));
       }
       //noinspection unchecked
       return (Collection<N>) entities;
@@ -230,12 +230,23 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   @Override
-  public <N> Collection<N> readManySubEntitiesOfType(UUID segmentId, Class<N> type) throws ManagerFatalException {
+  public <N> Collection<N> readManySubEntitiesOfType(int segmentId, Class<N> type) throws ManagerFatalException {
     try {
-      return store.getAll(segmentId, type, Segment.class, List.of(segmentId));
+      return store.getAll(segmentId, type);
     } catch (NexusException e) {
       throw new ManagerFatalException(e);
     }
+  }
+
+  @Override
+  public <N> Collection<N> readManySubEntitiesOfType(Collection<Integer> segmentIds, Class<N> type) {
+    return segmentIds.stream().flatMap(segmentId -> {
+      try {
+        return readManySubEntitiesOfType(segmentId, type).stream();
+      } catch (ManagerFatalException e) {
+        return Stream.empty();
+      }
+    }).toList();
   }
 
   @Override
@@ -249,30 +260,14 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   @Override
-  public Collection<Segment> readMany(Collection<UUID> chainIds) throws ManagerFatalException {
-    try {
-      Collection<Segment> segments = new ArrayList<>();
-      for (UUID chainId : chainIds)
-        store.getAllSegments(chainId)
-          .stream()
-          .sorted(Comparator.comparing(Segment::getOffset))
-          .forEach(segments::add);
-      return segments;
-
-    } catch (NexusException e) {
-      throw new ManagerFatalException(e);
-    }
-  }
-
-  @Override
-  public Collection<Segment> readManyFromToOffset(UUID chainId, Long fromOffset, Long toOffset) throws ManagerFatalException {
+  public Collection<Segment> readManyFromToOffset(Long fromOffset, Long toOffset) throws ManagerFatalException {
     try {
       return 0 > toOffset ?
         new ArrayList<>() :
-        store.getAllSegments(chainId)
+        store.getAllSegments()
           .stream()
-          .filter(s -> s.getOffset() >= fromOffset && s.getOffset() <= toOffset)
-          .sorted(Comparator.comparing(Segment::getOffset))
+          .filter(s -> s.getId() >= fromOffset && s.getId() <= toOffset)
+          .sorted(Comparator.comparing(Segment::getId))
           .collect(Collectors.toList());
 
     } catch (NexusException e) {
@@ -281,31 +276,31 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   @Override
-  public Segment update(UUID id, Segment entity) throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException, ManagerValidationException {
+  public Segment update(int segmentId, Segment segment) throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException, ManagerValidationException {
     try {
       // validate and cache to-state
-      validate(entity);
-      SegmentState toState = entity.getState();
+      validate(segment);
+      SegmentState toState = segment.getState();
 
       // fetch existing segment; further logic is based on its current state
-      Segment existing = store.getSegment(id)
-        .orElseThrow(() -> new ManagerExistenceException(Segment.class, id.toString()));
-      requireExists("Segment #" + id, existing);
+      Segment existing = store.getSegment(segmentId)
+        .orElseThrow(() -> new ManagerExistenceException(Segment.class, Integer.toString(segmentId)));
+      requireExists("Segment #" + segmentId, existing);
 
       // logic based on existing Segment State
       protectSegmentStateTransition(existing.getState(), toState);
 
       // fail if attempt to [#128] change chainId of a segment
-      Object updateChainId = entity.getChainId();
+      Object updateChainId = segment.getChainId();
       if (ValueUtils.isSet(updateChainId) && !Objects.equals(updateChainId, existing.getChainId()))
         throw new ManagerValidationException("cannot change chainId create a segment");
 
       // Never change id
-      entity.setId(id);
+      segment.setId(segmentId);
 
       // save segment
-      store.put(entity);
-      return entity;
+      store.put(segment);
+      return segment;
 
     } catch (NexusException e) {
       throw new ManagerFatalException(e);
@@ -316,11 +311,11 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   @Override
-  public Optional<Segment> readLastSegment(UUID chainId) throws ManagerFatalException {
+  public Optional<Segment> readLastSegment() throws ManagerFatalException {
     try {
-      return store.getAllSegments(chainId)
+      return store.getAllSegments()
         .stream()
-        .max(Comparator.comparing(Segment::getOffset));
+        .max(Comparator.comparing(Segment::getId));
 
     } catch (NexusException e) {
       throw new ManagerFatalException(e);
@@ -328,9 +323,9 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   @Override
-  public Optional<Segment> readLastCraftedSegment(HubClientAccess access, UUID chainId) throws ManagerFatalException {
+  public Optional<Segment> readLastCraftedSegment(HubClientAccess access) throws ManagerFatalException {
     try {
-      return SegmentUtils.getLastCrafted(store.getAllSegments(chainId));
+      return SegmentUtils.getLastCrafted(store.getAllSegments());
 
     } catch (NexusException e) {
       throw new ManagerFatalException(e);
@@ -338,7 +333,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   @Override
-  public Optional<SegmentChoice> readChoice(UUID segmentId, ProgramType programType) throws ManagerFatalException {
+  public Optional<SegmentChoice> readChoice(int segmentId, ProgramType programType) throws ManagerFatalException {
     try {
       return store.getAll(segmentId, SegmentChoice.class)
         .stream()
@@ -354,18 +349,8 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
 
   @Override
   public Chain getChain(Segment segment) throws NexusException, ManagerFatalException {
-    return store.getChain(segment.getChainId())
+    return store.getChain()
       .orElseThrow(() -> new ManagerFatalException("Segment #" + segment.getId() + " has no chain"));
-  }
-
-  @Override
-  public void destroy(UUID id) throws ManagerFatalException {
-    try {
-      store.deleteSegment(id);
-
-    } catch (NexusException e) {
-      throw new ManagerFatalException(e);
-    }
   }
 
   /**
@@ -451,7 +436,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
 
   void validateSegment(Segment record) throws ValueException {
     ValueUtils.require(record.getChainId(), "Chain ID");
-    ValueUtils.require(record.getOffset(), "Offset");
+    ValueUtils.require(record.getId(), "Offset");
     if (ValueUtils.isEmpty(record.getWaveformPreroll())) record.setWaveformPreroll(0.0);
     if (ValueUtils.isEmpty(record.getWaveformPostroll())) record.setWaveformPostroll(0.0);
     if (ValueUtils.isEmpty(record.getDelta())) record.setDelta(0);
@@ -461,4 +446,14 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
       ValueUtils.require(record.getBeginAtChainMicros(), "Begin-at");
   }
 
+  /**
+   Require that an entity is non-null
+
+   @param name   name of entity (for error message)
+   @param entity to require existence of
+   @throws ManagerExistenceException if not isNonNull
+   */
+  protected <E> void requireExists(String name, E entity) throws ManagerExistenceException {
+    if (!ValueUtils.isNonNull(entity)) throw new ManagerExistenceException(String.format("%s does not exist!", name));
+  }
 }

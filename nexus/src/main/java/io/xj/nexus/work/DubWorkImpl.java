@@ -162,7 +162,7 @@ public class DubWorkImpl implements DubWork {
   }
 
   @Override
-  public Optional<Segment> getSegmentAtOffset(long offset) {
+  public Optional<Segment> getSegmentAtOffset(int offset) {
     return craftWork.getSegmentAtOffset(offset);
   }
 
@@ -259,7 +259,7 @@ public class DubWorkImpl implements DubWork {
     try {
       var picks = craftWork.getPicks(segments);
       List<ActiveAudio> activeAudios = segments.stream().flatMap(segment ->
-        picks.stream().filter(pick -> pick.getSegmentId() == segment.getId()).flatMap(pick -> {
+        picks.stream().filter(pick -> Objects.equals(pick.getSegmentId(), segment.getId())).flatMap(pick -> {
           var audio = craftWork.getInstrumentAudio(pick);
           if (craftWork.isMuted(pick)) {
             LOG.debug("Skipping muted pick {}", pick.getId());

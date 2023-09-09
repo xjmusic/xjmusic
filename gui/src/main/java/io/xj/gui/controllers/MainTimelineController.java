@@ -7,6 +7,7 @@ import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
 import io.xj.lib.util.CustomCollectors;
 import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentType;
 import io.xj.nexus.persistence.SegmentUtils;
 import jakarta.annotation.Nullable;
 import javafx.animation.KeyFrame;
@@ -23,13 +24,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 @Service
 public class MainTimelineController extends ScrollPane implements ReadyAfterBootController {
@@ -111,17 +106,23 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
       segments.clear();
       return;
     }
-    var sources = fabricationService.getWorkFactory().getCraftWork().getAllSegments().stream().collect(CustomCollectors.lastN(SHOW_LAST_N_SEGMENTS));
-    segments.removeIf(segment -> sources.stream().noneMatch(source -> source.getId().equals(segment.getId())));
+
+    var outputSyncChainMicros = fabricationService.getWorkFactory().getOutputSyncChainMicros();
+    var currentSegments = fabricationService.getWorkFactory().getCraftWork().getAllSegments()
+      .stream()
+      .filter(s -> !Objects.equals(s.getType(), SegmentType.PENDING))
+      .collect(CustomCollectors.lastN(SHOW_LAST_N_SEGMENTS));
+
+    segments.removeIf(segment -> currentSegments.stream().noneMatch(source -> source.getId().equals(segment.getId())));
     // iterate through all in segments, and update if the updated at time has changed from the source matching that id
     for (var i = 0; i < segments.size(); i++) {
       var segment = segments.get(i);
-      var source = sources.stream().filter(s -> SegmentUtils.isSameButUpdated(segment, s)).findFirst();
+      var source = currentSegments.stream().filter(s -> SegmentUtils.isSameButUpdated(segment, s)).findFirst();
       if (source.isPresent()) {
         segments.set(i, source.get());
       }
     }
-    sources.forEach(source -> {
+    currentSegments.forEach(source -> {
       if (segments.stream().noneMatch(segment -> segment.getId().equals(source.getId()))) {
         segments.add(source);
       }

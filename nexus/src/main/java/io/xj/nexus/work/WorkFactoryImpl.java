@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
@@ -250,7 +251,12 @@ public class WorkFactoryImpl implements WorkFactory {
 
   @Override
   public HubContent getSourceMaterial() {
-    return craftWork.getSourceMaterial();
+    return Objects.requireNonNull(craftWork).getSourceMaterial();
+  }
+
+  @Override
+  public Optional<Long> getOutputSyncChainMicros() {
+    return Objects.nonNull(shipWork) ? shipWork.getOutputSyncChainMicros() : Optional.empty();
   }
 
 }

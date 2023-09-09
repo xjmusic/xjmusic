@@ -11,7 +11,7 @@ import java.util.UUID;
 public class SegmentChordVoicing {
 
   UUID id;
-  UUID segmentId;
+  Integer segmentId;
   UUID segmentChordId;
   String type;
   String notes;
@@ -35,18 +35,18 @@ public class SegmentChordVoicing {
 
   /**
    **/
-  public SegmentChordVoicing segmentId(UUID segmentId) {
+  public SegmentChordVoicing segmentId(Integer segmentId) {
     this.segmentId = segmentId;
     return this;
   }
 
 
   @JsonProperty("segmentId")
-  public UUID getSegmentId() {
+  public Integer getSegmentId() {
     return segmentId;
   }
 
-  public void setSegmentId(UUID segmentId) {
+  public void setSegmentId(Integer segmentId) {
     this.segmentId = segmentId;
   }
 

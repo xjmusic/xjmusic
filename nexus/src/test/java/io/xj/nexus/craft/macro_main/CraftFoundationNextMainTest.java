@@ -63,7 +63,7 @@ public class CraftFoundationNextMainTest {
     var jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     store = new NexusEntityStoreImpl(entityFactory);
-    var segmentManager = new SegmentManagerImpl(entityFactory, store);
+    var segmentManager = new SegmentManagerImpl(store);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     fabricatorFactory = new FabricatorFactoryImpl(
       segmentManager,

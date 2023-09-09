@@ -214,7 +214,7 @@ public class MainTimelineSegmentFactory {
     var row = new HBox();
     row.setPrefWidth(SEGMENT_MIN_WIDTH);
     row.setMinHeight(SEGMENT_PROPERTY_ROW_MIN_HEIGHT);
-    row.getChildren().add(computeLabeledPropertyNode(String.format("[%d]", segment.getOffset()), formatTimeFromMicros(segment.getBeginAtChainMicros()), SEGMENT_MIN_WIDTH / 2));
+    row.getChildren().add(computeLabeledPropertyNode(String.format("[%d]", segment.getId()), formatTimeFromMicros(segment.getBeginAtChainMicros()), SEGMENT_MIN_WIDTH / 2));
     row.getChildren().add(computeLabeledPropertyNode(String.format("+%d", segment.getDelta()), segment.getType().toString(), SEGMENT_MIN_WIDTH / 2));
     return row;
   }

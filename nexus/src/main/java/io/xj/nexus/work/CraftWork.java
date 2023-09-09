@@ -99,7 +99,7 @@ public interface CraftWork {
    @param offset of segment
    @return the segment at the given offset
    */
-  Optional<Segment> getSegmentAtOffset(long offset);
+  Optional<Segment> getSegmentAtOffset(int offset);
 
   /**
    Get the segments spanning the given time range, if they are ready- if not, return an empty list

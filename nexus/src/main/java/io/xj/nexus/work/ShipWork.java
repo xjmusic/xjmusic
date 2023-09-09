@@ -1,6 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.work;
 
+import java.util.Optional;
+
 /**
  THERE IS NO SPOON
  <p>
@@ -33,4 +35,10 @@ public interface ShipWork {
    @return next cycle nanos
    */
   boolean isHealthy();
+
+  /**
+   If the current work is realtime, e.g. playback or HLS, return the current chain micros
+   * @return chain micros if realtime, else empty
+   */
+  Optional<Long> getOutputSyncChainMicros();
 }

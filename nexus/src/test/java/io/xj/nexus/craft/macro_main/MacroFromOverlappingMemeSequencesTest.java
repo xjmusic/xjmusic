@@ -52,7 +52,7 @@ public class MacroFromOverlappingMemeSequencesTest {
     var jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     var store = new NexusEntityStoreImpl(entityFactory);
-    var segmentManager = new SegmentManagerImpl(entityFactory, store);
+    var segmentManager = new SegmentManagerImpl(store);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     EntityStore entityStore = new EntityStoreImpl();
     var fabricatorFactory = new FabricatorFactoryImpl(

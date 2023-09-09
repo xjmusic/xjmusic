@@ -33,7 +33,6 @@ public class NexusIntegrationTestingFixtures {
 
   // These are fully exposed (no getters/setters) for ease of use in testing
   public Account account1;
-  public Account account2;
   public AccountUser accountUser1a;
   public Instrument instrument8;
   public Instrument instrument9;
@@ -48,14 +47,10 @@ public class NexusIntegrationTestingFixtures {
   public Library library2;
   public Program program10;
   public Program program15;
-  public Program program1;
-  public Program program2;
   public Program program35;
   public Program program3;
   public Program program4;
   public Program program5;
-  public Program program6;
-  public Program program7;
   public Program program9;
   public ProgramMeme program10_meme0;
   public ProgramMeme program15_meme0;
@@ -216,7 +211,7 @@ public class NexusIntegrationTestingFixtures {
   }
 
   /**
-   Create a N-magnitude list of unique Strings at random of a source list of Strings
+   Create an N-magnitude list of unique Strings at random of a source list of Strings
 
    @param N           size of list
    @param sourceItems source Strings
@@ -306,7 +301,7 @@ public class NexusIntegrationTestingFixtures {
 
   public static Segment buildSegment() {
     var seg = new Segment();
-    seg.setId(UUID.randomUUID());
+    seg.setId(123);
     return seg;
   }
 
@@ -319,10 +314,9 @@ public class NexusIntegrationTestingFixtures {
 
   public static Segment buildSegment(Chain chain, SegmentType type, int offset, int delta, SegmentState state, String key, int total, double density, double tempo, String storageKey, boolean hasEndSet) {
     var segment = new Segment();
-    segment.setId(UUID.randomUUID());
     segment.setChainId(chain.getId());
     segment.setType(type);
-    segment.setOffset((long) offset);
+    segment.setId(offset);
     segment.setDelta(delta);
     segment.setState(state);
     segment.setBeginAtChainMicros((long) (offset * MICROS_PER_SECOND * total * SECONDS_PER_MINUTE / tempo));
@@ -506,19 +500,6 @@ public class NexusIntegrationTestingFixtures {
     pick.setAmplitude(Double.valueOf(event.getVelocity()));
     pick.setTones(event.getTones());
     pick.setEvent(pickEvent);
-    return pick;
-  }
-
-  public static SegmentChoiceArrangementPick buildSegmentChoiceArrangementPick(Segment segment, SegmentChoiceArrangement segmentChoiceArrangement, ProgramSequencePatternEvent event, InstrumentAudio instrumentAudio, String tones, String pickEvent) {
-    var pick = buildSegmentChoiceArrangementPick(segment, segmentChoiceArrangement, event, instrumentAudio, pickEvent);
-    pick.setTones(tones);
-    return pick;
-  }
-
-  public static SegmentChoiceArrangementPick buildSegmentChoiceArrangementPick(Segment segment, SegmentChoiceArrangement segmentChoiceArrangement, ProgramSequencePatternEvent event, InstrumentAudio instrumentAudio, String tones, Double start) {
-    var pick = buildSegmentChoiceArrangementPick(segment, segmentChoiceArrangement, event, instrumentAudio, tones);
-    pick.setTones(tones);
-    pick.setStartAtSegmentMicros((long) (start * MICROS_PER_SECOND / segment.getTempo()));
     return pick;
   }
 

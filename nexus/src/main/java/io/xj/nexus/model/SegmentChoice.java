@@ -14,7 +14,7 @@ import java.util.UUID;
 public class SegmentChoice {
 
   UUID id;
-  UUID segmentId;
+  Integer segmentId;
   UUID programId;
   UUID programSequenceId;
   UUID programSequenceBindingId;
@@ -46,18 +46,18 @@ public class SegmentChoice {
 
   /**
    **/
-  public SegmentChoice segmentId(UUID segmentId) {
+  public SegmentChoice segmentId(Integer segmentId) {
     this.segmentId = segmentId;
     return this;
   }
 
 
   @JsonProperty("segmentId")
-  public UUID getSegmentId() {
+  public Integer getSegmentId() {
     return segmentId;
   }
 
-  public void setSegmentId(UUID segmentId) {
+  public void setSegmentId(Integer segmentId) {
     this.segmentId = segmentId;
   }
 

@@ -47,6 +47,16 @@ public class NexusEntityStoreImplTest {
 
     // Instantiate the test subject and put the payload
     subject = new NexusEntityStoreImpl(entityFactory);
+
+    // add base fixtures
+    Account fakeAccount = buildAccount("fake");
+    subject.put(buildChain(
+      fakeAccount,
+      "Print #2",
+      ChainType.PRODUCTION,
+      ChainState.FABRICATE,
+      buildTemplate(fakeAccount, "Test")
+    ));
   }
 
   /**
@@ -70,9 +80,8 @@ public class NexusEntityStoreImplTest {
   public void put_get_Segment() throws NexusException {
     UUID chainId = UUID.randomUUID();
     Segment segment = new Segment();
-    segment.setId(UUID.randomUUID());
     segment.setChainId(chainId);
-    segment.setOffset(0L);
+    segment.setId(0);
     segment.setType(SegmentType.NEXTMACRO);
     segment.setState(SegmentState.CRAFTED);
     segment.beginAtChainMicros(0L);
@@ -88,7 +97,7 @@ public class NexusEntityStoreImplTest {
 
     assertEquals(segment.getId(), result.getId());
     assertEquals(chainId, result.getChainId());
-    assertEquals(Long.valueOf(0), result.getOffset());
+    assertEquals(0, result.getId());
     assertEquals(SegmentType.NEXTMACRO, result.getType());
     assertEquals(SegmentState.CRAFTED, result.getState());
     assertEquals(0, (long) result.getBeginAtChainMicros());
@@ -111,7 +120,7 @@ public class NexusEntityStoreImplTest {
     chain.shipKey("super");
 
     subject.put(chain);
-    var result = subject.getChain(chain.getId()).orElseThrow();
+    var result = subject.getChain().orElseThrow();
 
     assertEquals(chain.getId(), result.getId());
     assertEquals(accountId, result.getAccountId());
@@ -123,9 +132,8 @@ public class NexusEntityStoreImplTest {
   @Test
   public void put() throws NexusException {
     var segment = new Segment();
-    segment.setId(UUID.randomUUID());
     segment.setChainId(UUID.randomUUID());
-    segment.setOffset(0L);
+    segment.setId(0);
     segment.setState(SegmentState.CRAFTED);
     segment.beginAtChainMicros(0);
     segment.durationMicros(32 * MICROS_PER_SECOND);
@@ -151,22 +159,17 @@ public class NexusEntityStoreImplTest {
 
   @Test
   public void put_failsWithoutId() {
-    var seg = new Segment();
-    seg.setChainId(UUID.randomUUID());
-    seg.setOffset(0L);
-    seg.setState(SegmentState.CRAFTED);
-    seg.beginAtChainMicros(0);
-    seg.durationMicros(32 * MICROS_PER_SECOND);
-    seg.setKey("D Major");
-    seg.setTotal(64);
-    seg.setDensity(0.73);
-    seg.setTempo(120.0);
-    seg.storageKey("chains-1-segments-9f7s89d8a7892.wav");
+    var choice = new SegmentChoice();
+    choice.setProgramId(UUID.randomUUID());
+    choice.setDeltaIn(Segment.DELTA_UNLIMITED);
+    choice.setDeltaOut(Segment.DELTA_UNLIMITED);
+    choice.setProgramSequenceBindingId(UUID.randomUUID());
+    choice.setProgramType(ProgramType.Macro);
 
     var failure = assertThrows(NexusException.class,
-      () -> subject.put(seg));
+      () -> subject.put(choice));
 
-    assertEquals("Can't store Segment with null id", failure.getMessage());
+    assertEquals("Can't store SegmentChoice with null id", failure.getMessage());
   }
 
   @Test
@@ -189,13 +192,6 @@ public class NexusEntityStoreImplTest {
   public void putAll_getAll() throws NexusException {
     var account1 = buildAccount("fish");
     var template = buildTemplate(account1, "fishy");
-    var chain2 = subject.put(buildChain(
-      account1,
-      "Test Print #2",
-      ChainType.PRODUCTION,
-      ChainState.FABRICATE,
-      template,
-      "key123"));
     var chain3 = subject.put(buildChain(
       account1,
       "Test Print #3",
@@ -206,15 +202,6 @@ public class NexusEntityStoreImplTest {
     var program = buildProgram(ProgramType.Macro, "C", 120.0f, 0.6f);
     var programSequence = buildProgramSequence(program, 8, "Hay", 0.6f, "G");
     var programSequenceBinding = buildProgramSequenceBinding(programSequence, 0);
-    subject.put(buildSegment(chain2,
-      12,
-      SegmentState.CRAFTED,
-      "G minor",
-      32,
-      0.3,
-      10.0,
-      "chains-2-segments-8929f7sd8a789.wav"
-    ));
     Segment chain3_segment0 = subject.put(buildSegment(chain3,
       0,
       SegmentState.CRAFTED,
@@ -227,7 +214,7 @@ public class NexusEntityStoreImplTest {
     subject.put(buildSegmentChoice(chain3_segment0, Segment.DELTA_UNLIMITED, Segment.DELTA_UNLIMITED, program, programSequenceBinding));
     // not in the above chain, won't be retrieved with it
     subject.put(buildSegment(chain3,
-      0,
+      1,
       SegmentState.CRAFTED,
       "D Major",
       48,
@@ -236,7 +223,7 @@ public class NexusEntityStoreImplTest {
       "chains-3-segments-d8a78929f7s89.wav"
     ));
 
-    Collection<Segment> result = subject.getAllSegments(chain3.getId());
+    Collection<Segment> result = subject.getAllSegments();
     assertEquals(2, result.size());
     Collection<SegmentChoice> resultChoices = subject.getAll(chain3_segment0.getId(), SegmentChoice.class);
     assertEquals(1, resultChoices.size());

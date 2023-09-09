@@ -6,6 +6,8 @@ import io.xj.hub.HubContent;
 import io.xj.nexus.persistence.SegmentManager;
 import jakarta.annotation.Nullable;
 
+import java.util.Optional;
+
 public interface WorkFactory {
   /**
    Start work
@@ -59,4 +61,10 @@ public interface WorkFactory {
   void reset();
 
   HubContent getSourceMaterial();
+
+  /**
+   If the current work is realtime, e.g. playback or HLS, return the current chain micros
+   * @return chain micros if realtime, else empty
+   */
+  Optional<Long> getOutputSyncChainMicros();
 }

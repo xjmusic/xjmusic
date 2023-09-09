@@ -30,6 +30,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 import static io.xj.nexus.HubIntegrationTestingFixtures.buildAccount;
 import static io.xj.nexus.HubIntegrationTestingFixtures.buildLibrary;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -61,7 +63,8 @@ public class ComplexLibraryTest {
     NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();
     fake.account1 = buildAccount("fish");
     fake.library1 = buildLibrary(fake.account1, "test");
-    HubContent content = new HubContent(fake.generatedFixture(GENERATED_FIXTURE_COMPLEXITY));
+    var generatedFixtures = fake.generatedFixture(GENERATED_FIXTURE_COMPLEXITY);
+    HubContent content = new HubContent(generatedFixtures.stream().filter(Objects::nonNull).toList());
 
     // NOTE: it's critical that the test template has config bufferAheadSeconds=9999 in order to ensure the test fabricates far ahead
     var template = content.getTemplate();
@@ -72,7 +75,7 @@ public class ComplexLibraryTest {
     var jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     var store = new NexusEntityStoreImpl(entityFactory);
-    segmentManager = new SegmentManagerImpl(entityFactory, store);
+    segmentManager = new SegmentManagerImpl(store);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     var fabricatorFactory = new FabricatorFactoryImpl(
       segmentManager,
@@ -155,8 +158,8 @@ public class ComplexLibraryTest {
       var chain = work.getChain();
       if (chain.isEmpty())
         return false;
-      return segmentManager.readLastCraftedSegment(HubClientAccess.internal(), chain.get().getId())
-        .filter(value -> MARATHON_NUMBER_OF_SEGMENTS <= value.getOffset()).isPresent();
+      return segmentManager.readLastCraftedSegment(HubClientAccess.internal())
+        .filter(value -> MARATHON_NUMBER_OF_SEGMENTS <= value.getId()).isPresent();
 
     } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException ignored) {
       return false;

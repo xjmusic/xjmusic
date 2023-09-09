@@ -17,6 +17,7 @@ import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.text.html.Option;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -286,7 +287,7 @@ public class ShipWorkImpl implements ShipWork {
     } else { // Continue output file in progress, start next if needed, finish if done
       if (outputFile.getToChainMicros() - atChainMicros < pcmChunkSizeBytes * dubWork.getMixerOutputMicrosPerByte().orElseThrow()) { // check to see if we are at risk of getting stuck in this last pcm chunk of the segment-- this would never advance to the next segment/output file
         LOG.debug("Not enough space in current output file, will advance to next segment");
-        var nextOffset = segment.get().getOffset() + 1;
+        var nextOffset = segment.get().getId() + 1;
         segment = dubWork.getSegmentAtOffset(nextOffset);
         if (segment.isEmpty()) {
           LOG.debug("No segment available at chain offset {}", nextOffset);
@@ -412,6 +413,11 @@ public class ShipWorkImpl implements ShipWork {
   public boolean isHealthy() {
     // future check whether ship work is actually healthy
     return true;
+  }
+
+  @Override
+  public Optional<Long> getOutputSyncChainMicros() {
+    return outputMode.isSync() ? Optional.of(atChainMicros) : Optional.empty();
   }
 
   /**

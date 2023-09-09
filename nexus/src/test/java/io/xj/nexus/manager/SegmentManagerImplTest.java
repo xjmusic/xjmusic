@@ -18,7 +18,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Objects;
+import java.util.UUID;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.nexus.HubIntegrationTestingFixtures.*;
@@ -50,7 +53,7 @@ public class SegmentManagerImplTest {
     store.deleteAll();
 
     // test subject
-    testService = new SegmentManagerImpl(entityFactory, store);
+    testService = new SegmentManagerImpl(store);
 
     // Account "Testing" has a chain "Test Print #1"
     account1 = buildAccount("Testing");
@@ -67,9 +70,8 @@ public class SegmentManagerImplTest {
 
     // Chain "Test Print #1" has 5 sequential segments
     segment1 = store.put(new Segment()
-      .id(UUID.randomUUID())
+      .id(0)
       .chainId(chain3.getId())
-      .offset(0L)
       .delta(0)
       .type(SegmentType.INITIAL)
       .state(SegmentState.CRAFTED)
@@ -81,9 +83,8 @@ public class SegmentManagerImplTest {
       .beginAtChainMicros(0L)
       .durationMicros(32 * MICROS_PER_SECOND));
     segment2 = store.put(new Segment()
-      .id(UUID.randomUUID())
+      .id(1)
       .chainId(chain3.getId())
-      .offset(1L)
       .delta(64)
       .type(SegmentType.CONTINUE)
       .state(SegmentState.CRAFTING)
@@ -96,9 +97,8 @@ public class SegmentManagerImplTest {
       .waveformPreroll(1.523)
       .durationMicros(32 * MICROS_PER_SECOND));
     store.put(new Segment()
-      .id(UUID.randomUUID())
+      .id(2)
       .chainId(chain3.getId())
-      .offset(2L)
       .delta(256)
       .type(SegmentType.CONTINUE)
       .state(SegmentState.CRAFTED)
@@ -110,9 +110,8 @@ public class SegmentManagerImplTest {
       .beginAtChainMicros(2 * 32 * MICROS_PER_SECOND)
       .durationMicros(32 * MICROS_PER_SECOND));
     segment4 = store.put(new Segment()
-      .id(UUID.randomUUID())
+      .id(3)
       .chainId(chain3.getId())
-      .offset(3L)
       .state(SegmentState.CRAFTING)
       .key("E minor")
       .total(64)
@@ -124,10 +123,9 @@ public class SegmentManagerImplTest {
       .beginAtChainMicros(3 * 32 * MICROS_PER_SECOND)
       .durationMicros(32 * MICROS_PER_SECOND));
     segment5 = store.put(new Segment()
-      .id(UUID.randomUUID())
+      .id(4)
       .chainId(chain3.getId())
       .beginAtChainMicros(4 * 32 * MICROS_PER_SECOND)
-      .offset(4L)
       .delta(245)
       .type(SegmentType.CONTINUE)
       .state(SegmentState.PLANNED)
@@ -144,9 +142,8 @@ public class SegmentManagerImplTest {
   @Test
   public void create() throws Exception {
     Segment inputData = new Segment()
-      .id(UUID.randomUUID())
+      .id(5)
       .chainId(chain3.getId())
-      .offset(5L)
       .state(SegmentState.PLANNED)
       .delta(0)
       .type(SegmentType.CONTINUE)
@@ -163,7 +160,7 @@ public class SegmentManagerImplTest {
 
     assertNotNull(result);
     assertEquals(chain3.getId(), result.getChainId());
-    assertEquals(Long.valueOf(5), result.getOffset());
+    assertEquals(5, result.getId());
     assertEquals(SegmentState.PLANNED, result.getState());
     assertEquals(5 * 32 * MICROS_PER_SECOND, (long) result.getBeginAtChainMicros());
     assertEquals(32 * MICROS_PER_SECOND, (long) Objects.requireNonNull(result.getDurationMicros()));
@@ -182,9 +179,8 @@ public class SegmentManagerImplTest {
   @Test
   public void create_alwaysInPlannedState() throws Exception {
     Segment inputData = new Segment()
-      .id(UUID.randomUUID())
       .chainId(chain3.getId())
-      .offset(5L)
+      .id(5)
       .state(SegmentState.CRAFTING)
       .delta(0)
       .type(SegmentType.CONTINUE)
@@ -200,7 +196,7 @@ public class SegmentManagerImplTest {
 
     assertNotNull(result);
     assertEquals(chain3.getId(), result.getChainId());
-    assertEquals(Long.valueOf(5), result.getOffset());
+    assertEquals(5, result.getId());
     assertEquals(SegmentState.PLANNED, result.getState());
     assertEquals(5 * 32 * MICROS_PER_SECOND, (long) result.getBeginAtChainMicros());
     assertEquals(32 * MICROS_PER_SECOND, (long) Objects.requireNonNull(result.getDurationMicros()));
@@ -214,9 +210,8 @@ public class SegmentManagerImplTest {
   @Test
   public void create_FailsIfNotUniqueChainOffset() {
     Segment inputData = new Segment()
-      .id(UUID.randomUUID())
       .chainId(chain3.getId())
-      .offset(4L)
+      .id(4)
       .delta(0)
       .type(SegmentType.CONTINUE)
       .state(SegmentState.CRAFTING)
@@ -236,7 +231,7 @@ public class SegmentManagerImplTest {
   @Test
   public void create_FailsWithoutChainID() {
     Segment inputData = new Segment()
-      .offset(4L)
+      .id(4)
       .delta(0)
       .type(SegmentType.CONTINUE)
       .state(SegmentState.CRAFTING)
@@ -260,7 +255,7 @@ public class SegmentManagerImplTest {
     assertNotNull(result);
     assertEquals(segment2.getId(), result.getId());
     assertEquals(chain3.getId(), result.getChainId());
-    assertEquals(Long.valueOf(1L), result.getOffset());
+    assertEquals(1, result.getId());
     assertEquals(SegmentState.CRAFTING, result.getState());
     assertEquals(32 * MICROS_PER_SECOND, (long) result.getBeginAtChainMicros());
     assertEquals(32 * MICROS_PER_SECOND, (long) Objects.requireNonNull(result.getDurationMicros()));
@@ -272,9 +267,9 @@ public class SegmentManagerImplTest {
   }
 
   @Test
-  public void readMany() throws Exception {
+  public void readMany() {
 
-    Collection<Segment> result = testService.readMany(List.of(chain3.getId()));
+    Collection<Segment> result = testService.readAll();
 
     assertNotNull(result);
     assertEquals(5L, result.size());
@@ -304,9 +299,8 @@ public class SegmentManagerImplTest {
     Chain chain5 = store.put(buildChain(account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, "barnacles"));
     for (int i = 0; i < 20; i++)
       store.put(new Segment()
-        .id(UUID.randomUUID())
         .chainId(chain5.getId())
-        .offset(4L)
+        .id(i)
         .state(SegmentState.CRAFTING)
         .beginAtChainMicros(4 * 32 * MICROS_PER_SECOND)
         .durationMicros(32 * MICROS_PER_SECOND)
@@ -315,7 +309,7 @@ public class SegmentManagerImplTest {
         .key("C# minor 7 b9")
         .tempo(120.0));
 
-    Collection<Segment> result = testService.readMany(List.of(chain5.getId()));
+    Collection<Segment> result = testService.readAll();
 
     assertNotNull(result);
     assertEquals(20L, result.size());
@@ -323,7 +317,7 @@ public class SegmentManagerImplTest {
 
   @Test
   public void readManyFromToOffset() throws Exception {
-    Collection<Segment> result = testService.readManyFromToOffset(chain3.getId(), 2L, 3L);
+    Collection<Segment> result = testService.readManyFromToOffset(2L, 3L);
 
     assertEquals(2L, result.size());
     Iterator<Segment> it = result.iterator();
@@ -335,7 +329,7 @@ public class SegmentManagerImplTest {
 
   @Test
   public void readManyFromToOffset_acceptsNegativeOffsets_returnsEmptyCollection() throws Exception {
-    Collection<Segment> result = testService.readManyFromToOffset(chain3.getId(), -1L, -1L);
+    Collection<Segment> result = testService.readManyFromToOffset(-1L, -1L);
 
     assertEquals(0L, result.size());
   }
@@ -344,11 +338,11 @@ public class SegmentManagerImplTest {
   public void readOneInState() throws Exception {
     HubClientAccess access = buildHubClientAccess("Internal");
 
-    Segment result = testService.readOneInState(access, chain3.getId(), SegmentState.PLANNED, 4 * 32 * MICROS_PER_SECOND);
+    Segment result = testService.readFirstInState(access, SegmentState.PLANNED, 4 * 32 * MICROS_PER_SECOND);
 
     assertEquals(segment5.getId(), result.getId());
     assertEquals(chain3.getId(), result.getChainId());
-    assertEquals(Long.valueOf(4), result.getOffset());
+    assertEquals(4, result.getId());
     assertEquals(SegmentState.PLANNED, result.getState());
     assertEquals(4 * 32 * MICROS_PER_SECOND, (long) result.getBeginAtChainMicros());
     assertNull(result.getDurationMicros());
@@ -360,7 +354,7 @@ public class SegmentManagerImplTest {
     buildChain(account1, "Test Print #2", ChainType.PRODUCTION, ChainState.FABRICATE, template1, null);
 
     Exception thrown = assertThrows(ManagerExistenceException.class, () ->
-      testService.readOneInState(access, segment2.getId(), SegmentState.PLANNED, 2 * 32 * MICROS_PER_SECOND));
+      testService.readFirstInState(access, SegmentState.PLANNED, 2 * 32 * MICROS_PER_SECOND));
 
     assertTrue(thrown.getMessage().contains("Found no Segment"));
   }
@@ -368,9 +362,8 @@ public class SegmentManagerImplTest {
   @Test
   public void update() throws Exception {
     Segment inputData = new Segment()
-      .id(UUID.randomUUID())
+      .id(5)
       .chainId(chain3.getId())
-      .offset(5L)
       .state(SegmentState.CRAFTED)
       .delta(0)
       .type(SegmentType.CONTINUE)
@@ -401,11 +394,10 @@ public class SegmentManagerImplTest {
   @Test
   public void persistPriorSegmentContent() throws Exception {
     segment4 = store.put(new Segment()
-      .id(UUID.randomUUID())
+      .id(5)
       .type(SegmentType.CONTINUE)
       .delta(0)
       .chainId(chain3.getId())
-      .offset(5L)
       .state(SegmentState.CRAFTED)
       .beginAtChainMicros(4 * 32 * MICROS_PER_SECOND)
       .durationMicros(32 * MICROS_PER_SECOND)
@@ -424,9 +416,8 @@ public class SegmentManagerImplTest {
   @Test
   public void update_failsToTransitionFromDubbingToCrafting() {
     Segment inputData = new Segment()
-      .id(segment5.getId())
+      .id(4)
       .chainId(segment5.getChainId())
-      .offset(4L)
       .state(SegmentState.CRAFTED)
       .delta(0)
       .type(SegmentType.CONTINUE)
@@ -446,8 +437,7 @@ public class SegmentManagerImplTest {
   @Test
   public void update_FailsWithoutChainID() throws Exception {
     Segment inputData = store.put(new Segment()
-      .id(UUID.randomUUID())
-      .offset(4L)
+      .id(4)
       .state(SegmentState.CRAFTING)
       .delta(0)
       .type(SegmentType.CONTINUE)
@@ -467,9 +457,8 @@ public class SegmentManagerImplTest {
   @Test
   public void update_FailsToChangeChain() throws Exception {
     Segment inputData = new Segment()
-      .id(UUID.randomUUID())
+      .id(4)
       .chainId(UUID.randomUUID())
-      .offset(4L)
       .delta(0)
       .type(SegmentType.CONTINUE)
       .state(SegmentState.CRAFTING)
@@ -489,45 +478,4 @@ public class SegmentManagerImplTest {
     assertEquals("Db minor", result.getKey());
     assertEquals(chain3.getId(), result.getChainId());
   }
-
-  @Test
-  public void destroy() throws Exception {
-    // FUTURE use Mockito to provide content that would have been ingested from Hub, and assert results
-
-    testService.destroy(segment1.getId());
-
-    try {
-      testService.readOne(segment1.getId());
-      fail();
-    } catch (ManagerExistenceException e) {
-      assertTrue(e.getMessage().contains("does not exist"));
-    }
-  }
-
-  @Test
-  public void destroy_okRegardlessOfChainState() throws Exception {
-
-    testService.destroy(segment1.getId());
-  }
-
-  @Test
-  public void destroy_allChildEntities() throws Exception {
-
-    //
-    // Go!
-    testService.destroy(segment1.getId());
-    //
-    //
-
-    // Assert annihilation
-    try {
-      testService.readOne(segment1.getId());
-      fail();
-    } catch (ManagerExistenceException e) {
-      assertTrue(e.getMessage().contains("does not exist"));
-    }
-  }
-
-  // FUTURE test revert deletes all related entities
-
 }
