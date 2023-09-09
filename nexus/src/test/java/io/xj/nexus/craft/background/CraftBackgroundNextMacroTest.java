@@ -59,7 +59,7 @@ public class CraftBackgroundNextMacroTest {
     NexusTopology.buildNexusApiTopology(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     store = new NexusEntityStoreImpl(entityFactory);
-    SegmentManager segmentManager = new SegmentManagerImpl(entityFactory, store);
+    SegmentManager segmentManager = new SegmentManagerImpl(store);
     fabricatorFactory = new FabricatorFactoryImpl(
       segmentManager,
       jsonapiPayloadFactory,

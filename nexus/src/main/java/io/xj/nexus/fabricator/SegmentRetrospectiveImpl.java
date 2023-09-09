@@ -4,10 +4,6 @@ package io.xj.nexus.fabricator;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.util.MarbleBag;
-import io.xj.lib.entity.EntityStore;
-import io.xj.lib.entity.EntityStoreException;
-import io.xj.lib.entity.EntityStoreImpl;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.*;
@@ -22,15 +18,17 @@ import java.util.stream.Collectors;
  */
 class SegmentRetrospectiveImpl implements SegmentRetrospective {
   final Logger LOG = LoggerFactory.getLogger(SegmentRetrospectiveImpl.class);
-  final EntityStore retroStore;
   final List<List<SegmentChord>> segmentChords = new ArrayList<>();
+  private final SegmentManager segmentManager;
+  List<Segment> retroSegments;
+  List<Integer> previousSegmentIds;
   Segment previousSegment;
 
   public SegmentRetrospectiveImpl(
     Segment segment,
     SegmentManager segmentManager
   ) throws NexusException, FabricationFatalException {
-    this.retroStore = new EntityStoreImpl();
+    this.segmentManager = segmentManager;
 
     // begin by getting the previous segment
     // only can build retrospective if there is at least one previous segment
@@ -39,16 +37,15 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
     try {
       // begin by getting the previous segment
       // the previous segment is the first one cached here. we may cache even further back segments below if found
-      previousSegment = retroStore.put(segmentManager.readOne(segment.getId() - 1));
-      retroStore.putAll(segmentManager.readManySubEntities(List.of(previousSegment.getId()), true));
+      previousSegment = segmentManager.readOne(segment.getId() - 1);
 
       // previous segment must have a main choice to continue past here.
-      SegmentChoice previousSegmentMainChoice = retroStore.getAll(SegmentChoice.class).stream()
+      SegmentChoice previousSegmentMainChoice = segmentManager.readChoice(previousSegment.getId(), ProgramType.Main).stream()
         .filter(segmentChoice -> ProgramType.Main.equals(segmentChoice.getProgramType()))
         .findFirst()
         .orElseThrow(() -> new FabricationFatalException("Retrospective sees no main choice!"));
 
-      var previousMany = segmentManager.readMany(List.of(segment.getChainId())).stream()
+      retroSegments = segmentManager.readAll().stream()
         .filter(s -> {
           try {
             return segmentManager.readChoice(s.getId(), ProgramType.Main)
@@ -61,37 +58,30 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
           }
         })
         .collect(Collectors.toList());
+      previousSegmentIds = retroSegments.stream().map(Segment::getId).collect(Collectors.toList());
 
-      retroStore.putAll(previousMany);
-      retroStore.putAll(segmentManager.readManySubEntities(previousMany.stream().map(Segment::getId).toList(), true));
-
-    } catch (ManagerExistenceException | ManagerFatalException | ManagerPrivilegeException | EntityStoreException e) {
+    } catch (ManagerExistenceException | ManagerFatalException | ManagerPrivilegeException e) {
       throw new NexusException(e);
     }
   }
 
   @Override
   public Optional<SegmentChoice> getPreviousChoiceOfType(Segment segment, ProgramType programType) {
-    return
-      retroStore.getAll(SegmentChoice.class).stream()
-        .filter(c -> c.getSegmentId().equals(segment.getId())
-          && programType.equals(c.getProgramType()))
-        .findFirst();
-  }
-
-  @Override
-  public Optional<SegmentChoice> getPreviousChoiceOfType(Segment segment, UUID programVoiceId) {
-    return
-      retroStore.getAll(SegmentChoice.class).stream()
-        .filter(c -> Objects.nonNull(c.getProgramVoiceId())
-          && c.getSegmentId().equals(segment.getId())
-          && programVoiceId.equals(c.getProgramVoiceId()))
-        .findFirst();
+    try {
+      return
+        segmentManager.readChoice(segment.getId(), programType).stream()
+          .filter(c -> programType.equals(c.getProgramType()))
+          .findFirst();
+    } catch (ManagerFatalException e) {
+      LOG.error("Failed to read choice for Segment[{}]!", SegmentUtils.getIdentifier(segment));
+      return Optional.empty();
+    }
   }
 
   @Override
   public Collection<SegmentChoiceArrangementPick> getPicks() {
-    return new ArrayList<>(retroStore.getAll(SegmentChoiceArrangementPick.class));
+    // return new ArrayList<>(retroStore.getAll(SegmentChoiceArrangementPick.class));
+    return segmentManager.readManySubEntitiesOfType(previousSegmentIds, SegmentChoiceArrangementPick.class);
   }
 
   @Override
@@ -108,55 +98,54 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
 
   @Override
   public List<SegmentChoice> getPreviousChoicesOfMode(InstrumentMode instrumentMode) {
-    Optional<Segment> seg = getPreviousSegment();
-    return seg.map(segment -> retroStore.getAll(SegmentChoice.class).stream()
-      .filter(c -> c.getSegmentId().equals(segment.getId())
-        && Objects.nonNull(c.getInstrumentMode())
-        && c.getInstrumentMode().equals(instrumentMode))
-      .collect(Collectors.toList())).orElseGet(List::of);
+    try {
+      return segmentManager.readManySubEntitiesOfType(previousSegment.getId(), SegmentChoice.class).stream()
+        .filter(c -> Objects.nonNull(c.getInstrumentMode())
+          && c.getInstrumentMode().equals(instrumentMode))
+        .collect(Collectors.toList());
+    } catch (ManagerPrivilegeException | ManagerFatalException e) {
+      LOG.error("Failed to read choices for Segment[{}]!", SegmentUtils.getIdentifier(previousSegment));
+      return List.of();
+    }
   }
 
   @Override
   public List<SegmentChoice> getPreviousChoicesOfTypeMode(InstrumentType instrumentType, InstrumentMode instrumentMode) {
-    Optional<Segment> seg = getPreviousSegment();
-    return seg.map(segment -> retroStore.getAll(SegmentChoice.class).stream()
-      .filter(c -> c.getSegmentId().equals(segment.getId())
-        && Objects.nonNull(c.getInstrumentType())
-        && c.getInstrumentType().equals(instrumentType)
-        && c.getInstrumentMode().equals(instrumentMode))
-      .collect(Collectors.toList())).orElseGet(List::of);
+    try {
+      return segmentManager.readManySubEntitiesOfType(previousSegment.getId(), SegmentChoice.class).stream()
+        .filter(c -> Objects.nonNull(c.getInstrumentType())
+          && c.getInstrumentType().equals(instrumentType)
+          && Objects.nonNull(c.getInstrumentMode())
+          && c.getInstrumentMode().equals(instrumentMode))
+        .collect(Collectors.toList());
+    } catch (ManagerPrivilegeException | ManagerFatalException e) {
+      LOG.error("Failed to read choices for Segment[{}]!", SegmentUtils.getIdentifier(previousSegment));
+      return List.of();
+    }
   }
 
   @Override
   public Collection<Segment> getSegments() {
-    return retroStore.getAll(Segment.class);
-  }
-
-  @Override
-  public Optional<Segment> getSegment(int id) {
-    // todo what are we going to do about this retro store? it's not going to be able to handle the new segment
-    return MarbleBag.quickPick(retroStore.getAll(Segment.class).stream().filter(s -> Objects.equals(id, s.getId())).collect(Collectors.toList()));
+    return retroSegments;
   }
 
   @Override
   public Collection<SegmentChoice> getChoices() {
-    return retroStore.getAll(SegmentChoice.class);
+    return segmentManager.readManySubEntitiesOfType(previousSegmentIds, SegmentChoice.class);
   }
 
   @Override
   public Optional<SegmentChoice> getPreviousChoiceForInstrument(UUID instrumentId) {
-    Optional<Segment> seg = getPreviousSegment();
-    return seg.flatMap(segment -> retroStore.getAll(SegmentChoice.class).stream()
-      .filter(c -> c.getSegmentId().equals(segment.getId())
-        && Objects.nonNull(c.getInstrumentId())
+    return getChoices().stream()
+      .filter(c -> Objects.nonNull(c.getInstrumentId())
         && instrumentId.equals(c.getInstrumentId()))
-      .findFirst());
+      .findFirst();
   }
 
   @Override
   public List<SegmentChoiceArrangement> getPreviousArrangementsForInstrument(UUID instrumentId) {
     var choice = getPreviousChoiceForInstrument(instrumentId);
-    return choice.map(segmentChoice -> retroStore.getAll(SegmentChoiceArrangement.class).stream()
+    return choice.map(segmentChoice -> segmentManager.readManySubEntitiesOfType(previousSegmentIds, SegmentChoiceArrangement.class).stream()
       .filter(c -> c.getSegmentChoiceId().equals(segmentChoice.getId()))
       .collect(Collectors.toList())).orElseGet(List::of);
   }
@@ -167,10 +156,9 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
       .map(SegmentChoiceArrangement::getId)
       .collect(Collectors.toSet());
     if (arr.isEmpty()) return List.of();
-    return
-      retroStore.getAll(SegmentChoiceArrangementPick.class).stream()
-        .filter(c -> arr.contains(c.getSegmentChoiceArrangementId()))
-        .collect(Collectors.toList());
+    return segmentManager.readManySubEntitiesOfType(previousSegmentIds, SegmentChoiceArrangementPick.class).stream()
+      .filter(c -> arr.contains(c.getSegmentChoiceArrangementId()))
+      .collect(Collectors.toList());
   }
 
   @Override
@@ -180,32 +168,51 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
 
   @Override
   public Optional<SegmentMeta> getPreviousMeta(String key) {
-    return retroStore.getAll(SegmentMeta.class)
-      .stream().filter(meta -> Objects.equals(key, meta.getKey()))
+    return segmentManager.readManySubEntitiesOfType(previousSegmentIds, SegmentMeta.class).stream()
+      .filter(meta -> Objects.equals(key, meta.getKey()))
       .findAny();
   }
 
   @Override
   public SegmentChoiceArrangement getArrangement(SegmentChoiceArrangementPick pick) throws NexusException {
-    return retroStore.get(SegmentChoiceArrangement.class, pick.getSegmentChoiceArrangementId())
-      .orElseThrow(() -> new NexusException(String.format("Failed to get arrangement for SegmentChoiceArrangementPick[%s]", pick.getId())));
+    try {
+      return segmentManager.readManySubEntitiesOfType(pick.getSegmentId(), SegmentChoiceArrangement.class)
+        .stream()
+        .filter(arrangement -> Objects.equals(arrangement.getId(), pick.getSegmentChoiceArrangementId()))
+        .findFirst()
+        .orElseThrow(() -> new NexusException(String.format("Failed to get arrangement for SegmentChoiceArrangementPick[%s]", pick.getId())));
+    } catch (ManagerPrivilegeException | ManagerFatalException e) {
+      throw new NexusException(e);
+    }
   }
 
   @Override
   public SegmentChoice getChoice(SegmentChoiceArrangement arrangement) throws NexusException {
-    return retroStore.get(SegmentChoice.class, arrangement.getSegmentChoiceId())
-      .orElseThrow(() -> new NexusException(String.format("Failed to get choice for SegmentChoiceArrangement[%s]", arrangement.getId())));
+    try {
+      return segmentManager.readManySubEntitiesOfType(arrangement.getSegmentId(), SegmentChoice.class)
+        .stream()
+        .filter(choice -> Objects.equals(arrangement.getSegmentChoiceId(), choice.getId()))
+        .findFirst()
+        .orElseThrow(() -> new NexusException(String.format("Failed to get arrangement for SegmentChoiceArrangement[%s]", arrangement.getId())));
+    } catch (ManagerPrivilegeException | ManagerFatalException e) {
+      throw new NexusException(e);
+    }
   }
 
   @Override
   public List<SegmentChord> getSegmentChords(int segmentId) {
     if (segmentChords.size() <= segmentId) {
-      segmentChords.set(segmentId,
-        retroStore.getAll(SegmentChord.class)
-          .stream()
-          .filter(chord -> Objects.equals(segmentId, chord.getSegmentId()))
-          .sorted(Comparator.comparing((SegmentChord::getPosition)))
-          .collect(Collectors.toList()));
+      try {
+        segmentChords.set(segmentId,
+          segmentManager.readManySubEntitiesOfType(segmentId, SegmentChord.class)
+            .stream()
+            .sorted(Comparator.comparing((SegmentChord::getPosition)))
+            .collect(Collectors.toList())
+        );
+      } catch (ManagerPrivilegeException | ManagerFatalException e) {
+        LOG.error("Failed to read chords for Segment[{}]!", segmentId);
+        return List.of();
+      }
     }
 
     return segmentChords.get(segmentId);

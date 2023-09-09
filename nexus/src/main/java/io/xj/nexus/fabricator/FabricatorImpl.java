@@ -227,19 +227,14 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public String getChainJson(long atChainMicros) throws NexusException {
-    try {
-      var beforeThresholdChainMicros = atChainMicros + bufferAheadSeconds * MICROS_PER_SECOND;
-      var afterThresholdChainMicros = atChainMicros - bufferBeforeSeconds * MICROS_PER_SECOND;
-      return computeChainJson(
-        segmentManager.readMany(List.of(chain.getId())).stream()
-          .filter(segment ->
-            segment.getBeginAtChainMicros() < beforeThresholdChainMicros
-              && (Objects.nonNull(segment.getDurationMicros()) ? segment.getDurationMicros() : 0) > afterThresholdChainMicros)
-          .toList());
-
-    } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException e) {
-      throw new NexusException(e);
-    }
+    var beforeThresholdChainMicros = atChainMicros + bufferAheadSeconds * MICROS_PER_SECOND;
+    var afterThresholdChainMicros = atChainMicros - bufferBeforeSeconds * MICROS_PER_SECOND;
+    return computeChainJson(
+      segmentManager.readAll().stream()
+        .filter(segment ->
+          segment.getBeginAtChainMicros() < beforeThresholdChainMicros
+            && (Objects.nonNull(segment.getDurationMicros()) ? segment.getDurationMicros() : 0) > afterThresholdChainMicros)
+        .toList());
   }
 
   @Override

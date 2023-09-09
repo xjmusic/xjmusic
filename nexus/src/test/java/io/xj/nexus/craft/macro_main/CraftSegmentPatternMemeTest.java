@@ -62,7 +62,7 @@ public class CraftSegmentPatternMemeTest {
       var jsonProvider = new JsonProviderImpl();
       var entityFactory = new EntityFactoryImpl(jsonProvider);
       var store = new NexusEntityStoreImpl(entityFactory);
-      var segmentManager = new SegmentManagerImpl(entityFactory, store);
+      var segmentManager = new SegmentManagerImpl(store);
       JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
       FabricatorFactory fabricatorFactory = new FabricatorFactoryImpl(
         segmentManager,

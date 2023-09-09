@@ -72,7 +72,7 @@ public class ComplexLibraryTest {
     var jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     var store = new NexusEntityStoreImpl(entityFactory);
-    segmentManager = new SegmentManagerImpl(entityFactory, store);
+    segmentManager = new SegmentManagerImpl(store);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     var fabricatorFactory = new FabricatorFactoryImpl(
       segmentManager,
@@ -155,7 +155,7 @@ public class ComplexLibraryTest {
       var chain = work.getChain();
       if (chain.isEmpty())
         return false;
-      return segmentManager.readLastCraftedSegment(HubClientAccess.internal(), chain.get().getId())
+      return segmentManager.readLastCraftedSegment(HubClientAccess.internal())
         .filter(value -> MARATHON_NUMBER_OF_SEGMENTS <= value.getId()).isPresent();
 
     } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException ignored) {

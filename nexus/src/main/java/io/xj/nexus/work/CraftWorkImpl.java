@@ -571,7 +571,7 @@ public class CraftWorkImpl implements CraftWork {
     }
 
     try {
-      var lastCraftedSegment = segmentManager.readLastCraftedSegment(HubClientAccess.internal(), chainId);
+      var lastCraftedSegment = segmentManager.readLastCraftedSegment(HubClientAccess.internal());
       if (lastCraftedSegment.isEmpty()) {
         chainFabricatedAhead = false;
         return;
@@ -633,7 +633,7 @@ public class CraftWorkImpl implements CraftWork {
   public void fabricateChain(Chain target) throws FabricationFatalException {
     try {
       timer.section("ComputeAhead");
-      var fabricatedToChainMicros = ChainUtils.computeFabricatedToChainMicros(segmentManager.readMany(List.of(target.getId())));
+      var fabricatedToChainMicros = ChainUtils.computeFabricatedToChainMicros(segmentManager.readAll());
 
       double aheadSeconds = (double) ((fabricatedToChainMicros - atChainMicros) / MICROS_PER_SECOND);
       telemetryProvider.put(METRIC_FABRICATED_AHEAD_SECONDS, aheadSeconds);
@@ -694,7 +694,7 @@ public class CraftWorkImpl implements CraftWork {
   Optional<Segment> buildNextSegment(Chain target) throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException {
     // Get the last segment in the chain
     // If the chain had no last segment, it must be empty; return a template for its first segment
-    var maybeLastSegmentInChain = segmentManager.readLastSegment(target.getId());
+    var maybeLastSegmentInChain = segmentManager.readLastSegment();
     if (maybeLastSegmentInChain.isEmpty()) {
       var seg = new Segment();
       seg.setId(123);

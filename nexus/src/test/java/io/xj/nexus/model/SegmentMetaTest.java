@@ -16,7 +16,7 @@ public class SegmentMetaTest {
   public void setUp() throws Exception {
     subject = new SegmentMeta()
       .id(UUID.randomUUID())
-      .segmentId(UUID.randomUUID())
+      .segmentId(123)
       .key("testing")
       .value("123");
   }
@@ -30,7 +30,7 @@ public class SegmentMetaTest {
 
   @Test
   public void setSegmentId_getSegmentId() {
-    var newSegmentId = UUID.randomUUID();
+    var newSegmentId = 123;
     subject.setSegmentId(newSegmentId);
     assertEquals(newSegmentId, subject.getSegmentId());
   }

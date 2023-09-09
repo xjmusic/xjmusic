@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.nexus.HubIntegrationTestingFixtures.buildAccount;
@@ -149,7 +148,6 @@ public class SegmentUtilsTest {
       120.0f,
       "chains-1-segments-078aw34tiu5hga",
       true);
-    s.setId(UUID.fromString("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7"));
     return s.setCreatedAt(updatedAt).setUpdatedAt(updatedAt);
   }
 }

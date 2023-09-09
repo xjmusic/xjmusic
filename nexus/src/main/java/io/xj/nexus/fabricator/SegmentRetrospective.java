@@ -106,14 +106,6 @@ public interface SegmentRetrospective {
   Optional<SegmentChoice> getPreviousChoiceOfType(ProgramType type);
 
   /**
-   Get the choice of a given voice by id
-
-   @param programVoiceId of voice for which to get choice
-   @return choice of given type
-   */
-  Optional<SegmentChoice> getPreviousChoiceOfType(Segment segment, UUID programVoiceId);
-
-  /**
    Get the previous-segment choices of a given instrument mode
 
    @param instrumentMode for which to get previous-segment choices
@@ -154,13 +146,6 @@ public interface SegmentRetrospective {
    or the previous one (NextMain/NextMacro segments)
    */
   Collection<Segment> getSegments();
-
-  /**
-   Get a segment by id
-
-   @param id for which to get segment
-   */
-  Optional<Segment> getSegment(int id);
 
   /**
    Get all segment chords for the given segment id

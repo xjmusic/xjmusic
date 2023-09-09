@@ -72,7 +72,6 @@ public interface SegmentManager /* does not extend Manager<Segment> because it i
    Fetch one Segment by chainId and state, if present
 
    @param access                        control
-   @param chainId                       to find segment in
    @param segmentState                  segmentState to find segment in
    @param segmentBeginBeforeChainMicros ahead to look for segments
    @return Segment if found
@@ -80,7 +79,7 @@ public interface SegmentManager /* does not extend Manager<Segment> because it i
    @throws ManagerExistenceException if the entity does not exist
    @throws ManagerPrivilegeException if access is prohibited
    */
-  Segment readOneInState(HubClientAccess access, UUID chainId, SegmentState segmentState, Long segmentBeginBeforeChainMicros) throws ManagerFatalException, ManagerPrivilegeException, ManagerExistenceException;
+  Segment readFirstInState(HubClientAccess access, SegmentState segmentState, Long segmentBeginBeforeChainMicros) throws ManagerFatalException, ManagerPrivilegeException, ManagerExistenceException;
 
   /**
    Fetch all sub-entities records for many parent segments by id
@@ -95,7 +94,7 @@ public interface SegmentManager /* does not extend Manager<Segment> because it i
   <N> Collection<N> readManySubEntities(Collection<Integer> segmentIds, Boolean includePicks) throws ManagerPrivilegeException, ManagerFatalException;
 
   /**
-   Fetch all sub-entities records for many parent segments by id
+   Fetch all sub-entities records for a parent segments by id
 
    @param segmentId for which to fetch records
    @param <N>       type of sub-entity
@@ -104,8 +103,17 @@ public interface SegmentManager /* does not extend Manager<Segment> because it i
    @throws ManagerFatalException     if the entity does not exist
    @throws ManagerPrivilegeException if access is prohibited
    */
-  <N> Collection<N> readManySubEntitiesOfType(Integer segmentId, Class<N> type) throws ManagerPrivilegeException, ManagerFatalException;
+  <N> Collection<N> readManySubEntitiesOfType(int segmentId, Class<N> type) throws ManagerPrivilegeException, ManagerFatalException;
 
+
+  /**
+   Fetch all sub-entities records for many parent segments by ids
+
+   @param segmentIds for which to fetch records
+   @param <N>        type of sub-entity
+   @return collection of all sub entities of these parent segments, of the given type
+   */
+  <N> Collection<N> readManySubEntitiesOfType(Collection<Integer> segmentIds, Class<N> type);
 
   /**
    Create all sub-entities for a given segment
@@ -117,7 +125,6 @@ public interface SegmentManager /* does not extend Manager<Segment> because it i
   /**
    Read all Segments that are accessible, by Chain ID, starting and ending at particular offsets
 
-   @param chainId    to read all segments of
    @param fromOffset to read segments form
    @param toOffset   to read segments to
    @return array of segments as JSON
@@ -125,24 +132,22 @@ public interface SegmentManager /* does not extend Manager<Segment> because it i
    @throws ManagerExistenceException if the entity does not exist
    @throws ManagerPrivilegeException if access is prohibited
    */
-  Collection<Segment> readManyFromToOffset(UUID chainId, Long fromOffset, Long toOffset) throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException;
+  Collection<Segment> readManyFromToOffset(Long fromOffset, Long toOffset) throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException;
 
   /**
    Read the last segment in a Chain, Segments sorted by offset ascending
 
-   @param chainId of chain
    @return Last Segment in Chain
    */
-  Optional<Segment> readLastSegment(UUID chainId) throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException;
+  Optional<Segment> readLastSegment() throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException;
 
   /**
    Read the last dubbed-state segment in a Chain, Segments sorted by offset ascending
 
-   @param access  control
-   @param chainId of chain
+   @param access control
    @return Last Dubbed-state Segment in Chain
    */
-  Optional<Segment> readLastCraftedSegment(HubClientAccess access, UUID chainId) throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException;
+  Optional<Segment> readLastCraftedSegment(HubClientAccess access) throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException;
 
   /**
    Read a choice for a given segment id and program type
@@ -151,7 +156,7 @@ public interface SegmentManager /* does not extend Manager<Segment> because it i
    @param programType to get
    @return main choice
    */
-  Optional<SegmentChoice> readChoice(Integer segmentId, ProgramType programType) throws ManagerFatalException;
+  Optional<SegmentChoice> readChoice(int segmentId, ProgramType programType) throws ManagerFatalException;
 
   /**
    Get chain for segment
@@ -177,49 +182,39 @@ public interface SegmentManager /* does not extend Manager<Segment> because it i
   /**
    Create a new Record
 
-   @param entity for the new Record
+   @param segment for the new Record
    @return newly readMany record
    @throws ManagerFatalException on failure
    */
-  Segment create(Segment entity) throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, ManagerValidationException;
+  Segment create(Segment segment) throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, ManagerValidationException;
 
   /**
-   Delete a specified Entity@param access control
+   Delete a specified Entity
 
-   @param id of specific Entity to delete.
+   @param segmentId of specific Entity to delete.
    @throws ManagerFatalException     on failure
    @throws ManagerExistenceException if the entity does not exist
    @throws ManagerPrivilegeException if access is prohibited
    */
-  void destroy(int id) throws ManagerFatalException, ManagerPrivilegeException, ManagerExistenceException;
-
-  /**
-   Fetch many records for many parents by id, if accessible
-
-   @param parentIds to fetch records for.
-   @return collection of retrieved records
-   @throws ManagerFatalException     on failure
-   @throws ManagerPrivilegeException if access is prohibited
-   */
-  Collection<Segment> readMany(Collection<UUID> parentIds) throws ManagerFatalException, ManagerPrivilegeException, ManagerExistenceException;
+  void destroy(int segmentId) throws ManagerFatalException, ManagerPrivilegeException, ManagerExistenceException;
 
   /**
    Fetch one record  if accessible
 
-   @param id of record to fetch
+   @param segmentId of record to fetch
    @return retrieved record
    @throws ManagerPrivilegeException if access is prohibited
    */
-  Segment readOne(int id) throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException;
+  Segment readOne(int segmentId) throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException;
 
   /**
    Update a specified Entity
 
-   @param id     of specific Entity to update.
-   @param entity for the updated Entity.
+   @param segmentId of specific Entity to update.
+   @param segment   for the updated Entity.
    @throws ManagerFatalException     on failure
    @throws ManagerExistenceException if the entity does not exist
    @throws ManagerPrivilegeException if access is prohibited
    */
-  Segment update(int id, Segment entity) throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, ManagerValidationException;
+  Segment update(int segmentId, Segment segment) throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, ManagerValidationException;
 }

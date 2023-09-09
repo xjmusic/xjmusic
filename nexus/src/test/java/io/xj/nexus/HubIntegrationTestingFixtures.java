@@ -5,10 +5,7 @@ package io.xj.nexus;
 import io.xj.hub.enums.*;
 import io.xj.hub.tables.pojos.*;
 import io.xj.hub.util.CsvUtils;
-import jakarta.annotation.Nullable;
 
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -26,74 +23,12 @@ public class HubIntegrationTestingFixtures {
 
   // These are fully exposed (no getters/setters) for ease of use in testing
   public Account account1;
-  public Account account2;
-  public Instrument instrument201;
-  public Instrument instrument202;
-  public Instrument instrument251;
-  public Instrument instrument8;
-  public Instrument instrument9;
-  public InstrumentAudio audio1;
-  public InstrumentAudio audio2;
-  public InstrumentAudio audio401;
-  public InstrumentAudio audio8bleep;
-  public InstrumentAudio audio8kick;
-  public InstrumentAudio audio8snare;
-  public InstrumentAudio audio8toot;
-  public InstrumentAudio instrument201_audio402;
-  public Library library10000001;
-  public Library library10000002;
-  public Library library1;
-  public Library library1a;
-  public Library library1b;
   public Library library2;
-  public Library library2a;
-  public Library library2b;
-  public Library library3;
   public Program program15;
-  public Program program1;
-  public Program program2;
   public Program program35;
   public Program program3;
   public Program program4;
-  public Program program701;
-  public Program program702;
-  public Program program703;
-  public Program program751;
-  public Program program9;
-  public ProgramMeme program701_meme0;
-  public ProgramMeme programMeme1;
-  public ProgramMeme programMeme35;
-  public ProgramMeme programMeme3;
-  public ProgramSequence program1_sequence1;
-  public ProgramSequence program3_sequence1;
-  public ProgramSequence programSequence35;
-  public ProgramSequenceBinding program15_binding0;
-  public ProgramSequenceBinding program15_binding1;
-  public ProgramSequenceBinding program3_binding0;
-  public ProgramSequenceBinding program3_binding1;
-  public ProgramSequenceChord program3_chord1;
-  public ProgramSequencePattern program2_sequence1_pattern1;
-  public ProgramSequencePatternEvent program2_sequence1_pattern1_event0;
-  public ProgramSequencePatternEvent program2_sequence1_pattern1_event1;
-  public ProgramSequencePatternEvent program702_pattern901_boomEvent;
-  public ProgramVoice program1_voiceBass;
-  public ProgramVoice program1_voicePad;
-  public ProgramVoice program1_voiceSticky;
-  public ProgramVoice program1_voiceStripe;
-  public ProgramVoice program2_voice2;
-  public ProgramVoice program702_voice1;
-  public ProgramVoiceTrack program2_voice1_track0;
-  public ProgramVoiceTrack program2_voice1_track1;
   public Template template1;
-  public Template template2;
-  public TemplateBinding templateBinding1;
-  public User user101;
-  public User user1;
-  public User user2;
-  public User user3;
-  public User user4;
-  public User user53;
-  public User user5;
   //
   public HubContentFixtures content;
 
@@ -241,7 +176,7 @@ public class HubIntegrationTestingFixtures {
     var meme = new ProgramSequenceBindingMeme();
     meme.setId(UUID.randomUUID());
     meme.setProgramId(programSequenceBinding.getProgramId());
-    meme.setProgramSequenceBindingId(programSequenceBinding.getOffset());
+    meme.setProgramSequenceBindingId(programSequenceBinding.getId());
     meme.setName(name);
     return meme;
   }
@@ -344,33 +279,6 @@ public class HubIntegrationTestingFixtures {
     return instrumentMeme;
   }
 
-  public static TemplateBinding buildBinding(Template template, Program program) {
-    var binding = new TemplateBinding();
-    binding.setId(UUID.randomUUID());
-    binding.setTemplateId(template.getId());
-    binding.setTargetId(program.getId());
-    binding.setType(ContentBindingType.Program);
-    return binding;
-  }
-
-  public static TemplateBinding buildBinding(Template template, Instrument instrument) {
-    var binding = new TemplateBinding();
-    binding.setId(UUID.randomUUID());
-    binding.setTemplateId(template.getId());
-    binding.setTargetId(instrument.getId());
-    binding.setType(ContentBindingType.Instrument);
-    return binding;
-  }
-
-  public static TemplateBinding buildBinding(Template template, Library library) {
-    var binding = new TemplateBinding();
-    binding.setId(UUID.randomUUID());
-    binding.setTemplateId(template.getId());
-    binding.setTargetId(library.getId());
-    binding.setType(ContentBindingType.Library);
-    return binding;
-  }
-
   public static InstrumentAudio buildInstrumentAudio(Instrument instrument, String name, String waveformKey, float start, float length, float tempo, float density, String event, String tones, float volume) {
     var instrumentAudio = new InstrumentAudio();
     instrumentAudio.setId(UUID.randomUUID());
@@ -385,34 +293,6 @@ public class HubIntegrationTestingFixtures {
     instrumentAudio.setTones(tones);
     instrumentAudio.setEvent(event);
     return instrumentAudio;
-  }
-
-  public static InstrumentAudio buildInstrumentAudio(Instrument instrument, String name, float start, float length, float tempo) {
-    return buildInstrumentAudio(instrument, name, "key123", start, length, tempo);
-  }
-
-  public static InstrumentAudio buildInstrumentAudio(Instrument instrument, String name, @Nullable String waveformKey, float start, float length, float tempo) {
-    return buildInstrumentAudio(instrument, name, waveformKey, start, length, tempo, 0.6f, "X", "X", 1.0f);
-  }
-
-  public static UserAuth buildUserAuth(User user, UserAuthType type, String externalAccessToken, String externalRefreshToken, String externalAccount) {
-    var auth = new UserAuth();
-    auth.setId(UUID.randomUUID());
-    auth.setUserId(user.getId());
-    auth.setType(type);
-    auth.setExternalAccessToken(externalAccessToken);
-    auth.setExternalRefreshToken(externalRefreshToken);
-    auth.setExternalAccount(externalAccount);
-    return auth;
-  }
-
-  public static UserAuthToken buildUserAuthToken(UserAuth userAuth, String value) {
-    var token = new UserAuthToken();
-    token.setId(UUID.randomUUID());
-    token.setUserId(userAuth.getUserId());
-    token.setUserAuthId(userAuth.getId());
-    token.setAccessToken(value);
-    return token;
   }
 
   public static Library buildLibrary(Account account, String name) {
@@ -469,60 +349,6 @@ public class HubIntegrationTestingFixtures {
     return templateBinding;
   }
 
-  public static TemplateBinding buildTemplateBinding(Template template, Instrument instrument) {
-    var templateBinding = new TemplateBinding();
-    templateBinding.setId(UUID.randomUUID());
-    templateBinding.setType(ContentBindingType.Instrument);
-    templateBinding.setTargetId(instrument.getId());
-    templateBinding.setTemplateId(template.getId());
-    return templateBinding;
-  }
-
-  public static TemplateBinding buildTemplateBinding(Template template, Program program) {
-    var templateBinding = new TemplateBinding();
-    templateBinding.setId(UUID.randomUUID());
-    templateBinding.setType(ContentBindingType.Program);
-    templateBinding.setTargetId(program.getId());
-    templateBinding.setTemplateId(template.getId());
-    return templateBinding;
-  }
-
-  public static TemplatePlayback buildTemplatePlayback(Template template, User user) {
-    var templatePlayback = new TemplatePlayback();
-    templatePlayback.setId(UUID.randomUUID());
-    templatePlayback.setUserId(user.getId());
-    templatePlayback.setTemplateId(template.getId());
-    templatePlayback.setCreatedAt(Timestamp.from(Instant.now()).toLocalDateTime());
-    return templatePlayback;
-  }
-
-  public static TemplatePublication buildTemplatePublication(Template template, User user) {
-    var templatePublication = new TemplatePublication();
-    templatePublication.setId(UUID.randomUUID());
-    templatePublication.setUserId(user.getId());
-    templatePublication.setTemplateId(template.getId());
-    templatePublication.setCreatedAt(Timestamp.from(Instant.now()).toLocalDateTime());
-    return templatePublication;
-  }
-
-  public static Program buildProgram(Library library, ProgramType type, String name) {
-    return buildProgram(library, type, ProgramState.Published, name, "C", 120.0f, 0.62f);
-  }
-
-
-  public static Program buildProgram(Library library, ProgramType type, ProgramState state, String name, String key, Float tempo, Float density) {
-    var program = new Program();
-    program.setId(UUID.randomUUID());
-    program.setLibraryId(library.getId());
-    program.setType(type);
-    program.setState(state);
-    program.setName(name);
-    program.setKey(key);
-    program.setTempo(tempo);
-    program.setDensity(density);
-    return program;
-  }
-
   public static ProgramMeme buildProgramMeme(Program program, String name) {
     var programMeme = new ProgramMeme();
     programMeme.setId(UUID.randomUUID());
@@ -544,7 +370,6 @@ public class HubIntegrationTestingFixtures {
 
   public static ProgramSequenceBinding buildProgramSequenceBinding(ProgramSequence programSequence, int offset) {
     var programSequenceBinding = new ProgramSequenceBinding();
-    programSequenceBinding.setOffset(UUID.randomUUID());
     programSequenceBinding.setProgramId(programSequence.getProgramId());
     programSequenceBinding.setProgramSequenceId(programSequence.getId());
     programSequenceBinding.setOffset(offset);
@@ -555,7 +380,7 @@ public class HubIntegrationTestingFixtures {
     var programSequenceBindingMeme = new ProgramSequenceBindingMeme();
     programSequenceBindingMeme.setId(UUID.randomUUID());
     programSequenceBindingMeme.setProgramId(programSequenceBinding.getProgramId());
-    programSequenceBindingMeme.setProgramSequenceBindingId(programSequenceBinding.getOffset());
+    programSequenceBindingMeme.setProgramSequenceBindingId(programSequenceBinding.getId());
     programSequenceBindingMeme.setName(name);
     return programSequenceBindingMeme;
   }

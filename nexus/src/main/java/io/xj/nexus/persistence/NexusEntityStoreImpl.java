@@ -142,6 +142,9 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
       chain = (Chain) entity;
       return entity;
     } else if (entity instanceof Segment) {
+      while (segmentArray.size() <= ((Segment) entity).getId()) {
+        segmentArray.add(null);
+      }
       segmentArray.set(((Segment) entity).getId(), (Segment) entity);
       return entity;
     }
@@ -173,8 +176,8 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
           .orElseThrow(() -> new NexusException(String.format("Can't store %s without Segment ID!",
             entity.getClass().getSimpleName())));
         int segmentId = Integer.parseInt(String.valueOf(segmentIdValue));
-        if (store.size() <= segmentId) {
-          store.set(segmentId, new ConcurrentHashMap<>());
+        while (store.size() <= segmentId) {
+          store.add(new ConcurrentHashMap<>());
         }
         store.get(segmentId).putIfAbsent(entity.getClass(), new ConcurrentHashMap<>());
         store.get(segmentId).get(entity.getClass()).put(id, entity);
@@ -183,11 +186,16 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
       }
     else return entity;
 
-    try {
-      return entityFactory.clone(entity);
-    } catch (EntityException e) {
-      throw new NexusException(e);
-    }
+    return entity;
+/*
+// todo make sure we can go without cloning
+      try {
+      ...
+        return entityFactory.clone(entity);
+      } catch (EntityException e) {
+        throw new NexusException(e);
+      }
+*/
   }
 
   @Override

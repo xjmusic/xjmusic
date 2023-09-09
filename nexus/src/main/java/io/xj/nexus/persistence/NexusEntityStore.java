@@ -5,6 +5,7 @@ package io.xj.nexus.persistence;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
+import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangementPick;
 
 import java.util.Collection;

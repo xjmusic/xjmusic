@@ -56,7 +56,7 @@ public class SegmentRetrospectiveImplTest {
   public void setUp() throws Exception {
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     store = new NexusEntityStoreImpl(entityFactory);
-    var segmentManager = new SegmentManagerImpl(entityFactory, store);
+    var segmentManager = new SegmentManagerImpl(store);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     jsonProvider = new JsonProviderImpl();
     fabricatorFactory = new FabricatorFactoryImpl(

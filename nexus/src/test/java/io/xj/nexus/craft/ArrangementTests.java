@@ -215,7 +215,7 @@ FUTURE goal
     JsonProvider jsonProvider = new JsonProviderImpl();
     var entityFactory = new EntityFactoryImpl(jsonProvider);
     store = new NexusEntityStoreImpl(entityFactory);
-    SegmentManager segmentManager = new SegmentManagerImpl(entityFactory, store);
+    SegmentManager segmentManager = new SegmentManagerImpl(store);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     fabrication = new FabricatorFactoryImpl(
       segmentManager,

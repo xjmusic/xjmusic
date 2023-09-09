@@ -70,9 +70,8 @@ public class NexusEntityStoreImplTest {
   public void put_get_Segment() throws NexusException {
     UUID chainId = UUID.randomUUID();
     Segment segment = new Segment();
-    segment.setId(UUID.randomUUID());
     segment.setChainId(chainId);
-    segment.setOffset(0L);
+    segment.setId(0);
     segment.setType(SegmentType.NEXTMACRO);
     segment.setState(SegmentState.CRAFTED);
     segment.beginAtChainMicros(0L);
@@ -88,7 +87,7 @@ public class NexusEntityStoreImplTest {
 
     assertEquals(segment.getId(), result.getId());
     assertEquals(chainId, result.getChainId());
-    assertEquals(Long.valueOf(0), result.getId());
+    assertEquals(0, result.getId());
     assertEquals(SegmentType.NEXTMACRO, result.getType());
     assertEquals(SegmentState.CRAFTED, result.getState());
     assertEquals(0, (long) result.getBeginAtChainMicros());
@@ -123,9 +122,8 @@ public class NexusEntityStoreImplTest {
   @Test
   public void put() throws NexusException {
     var segment = new Segment();
-    segment.setId(UUID.randomUUID());
     segment.setChainId(UUID.randomUUID());
-    segment.setOffset(0L);
+    segment.setId(0);
     segment.setState(SegmentState.CRAFTED);
     segment.beginAtChainMicros(0);
     segment.durationMicros(32 * MICROS_PER_SECOND);
@@ -153,7 +151,7 @@ public class NexusEntityStoreImplTest {
   public void put_failsWithoutId() {
     var seg = new Segment();
     seg.setChainId(UUID.randomUUID());
-    seg.setOffset(0L);
+    seg.setId(0);
     seg.setState(SegmentState.CRAFTED);
     seg.beginAtChainMicros(0);
     seg.durationMicros(32 * MICROS_PER_SECOND);
@@ -236,7 +234,7 @@ public class NexusEntityStoreImplTest {
       "chains-3-segments-d8a78929f7s89.wav"
     ));
 
-    Collection<Segment> result = subject.getAllSegments(chain3.getId());
+    Collection<Segment> result = subject.getAllSegments();
     assertEquals(2, result.size());
     Collection<SegmentChoice> resultChoices = subject.getAll(chain3_segment0.getId(), SegmentChoice.class);
     assertEquals(1, resultChoices.size());
