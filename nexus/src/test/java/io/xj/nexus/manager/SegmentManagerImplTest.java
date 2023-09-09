@@ -300,7 +300,7 @@ public class SegmentManagerImplTest {
     for (int i = 0; i < 20; i++)
       store.put(new Segment()
         .chainId(chain5.getId())
-        .id(4)
+        .id(i)
         .state(SegmentState.CRAFTING)
         .beginAtChainMicros(4 * 32 * MICROS_PER_SECOND)
         .durationMicros(32 * MICROS_PER_SECOND)
@@ -478,45 +478,4 @@ public class SegmentManagerImplTest {
     assertEquals("Db minor", result.getKey());
     assertEquals(chain3.getId(), result.getChainId());
   }
-
-  @Test
-  public void destroy() throws Exception {
-    // FUTURE use Mockito to provide content that would have been ingested from Hub, and assert results
-
-    testService.destroy(segment1.getId());
-
-    try {
-      testService.readOne(segment1.getId());
-      fail();
-    } catch (ManagerExistenceException e) {
-      assertTrue(e.getMessage().contains("does not exist"));
-    }
-  }
-
-  @Test
-  public void destroy_okRegardlessOfChainState() throws Exception {
-
-    testService.destroy(segment1.getId());
-  }
-
-  @Test
-  public void destroy_allChildEntities() throws Exception {
-
-    //
-    // Go!
-    testService.destroy(segment1.getId());
-    //
-    //
-
-    // Assert annihilation
-    try {
-      testService.readOne(segment1.getId());
-      fail();
-    } catch (ManagerExistenceException e) {
-      assertTrue(e.getMessage().contains("does not exist"));
-    }
-  }
-
-  // FUTURE test revert deletes all related entities
-
 }

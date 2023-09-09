@@ -353,16 +353,6 @@ public class SegmentManagerImpl implements SegmentManager {
       .orElseThrow(() -> new ManagerFatalException("Segment #" + segment.getId() + " has no chain"));
   }
 
-  @Override
-  public void destroy(int segmentId) throws ManagerFatalException {
-    try {
-      store.deleteSegment(segmentId);
-
-    } catch (NexusException e) {
-      throw new ManagerFatalException(e);
-    }
-  }
-
   /**
    Validate a segment or child entity
 

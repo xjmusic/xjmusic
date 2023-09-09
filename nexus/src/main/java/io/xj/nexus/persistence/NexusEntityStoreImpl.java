@@ -42,17 +42,6 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   }
 
   @Override
-  public void deleteChain() {
-    chain = null;
-  }
-
-  @Override
-  public void deleteSegment(int id) {
-    store.remove(id);
-    segmentArray.remove(id);
-  }
-
-  @Override
   public <N> void delete(int segmentId, Class<N> type, UUID id) {
     if (store.size() > segmentId && store.get(segmentId).containsKey(type))
       store.get(segmentId).get(type).remove(id);
@@ -84,8 +73,7 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
 
   @Override
   public Optional<Segment> getSegment(int id) throws NexusException {
-    if (segmentArray.size() <= id) return Optional.empty();
-    return Optional.ofNullable(segmentArray.get(id));
+    return segmentArray.size() > id ? Optional.of(segmentArray.get(id)) : Optional.empty();
   }
 
   @Override
@@ -143,7 +131,11 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
       return entity;
     } else if (entity instanceof Segment) {
       while (segmentArray.size() <= ((Segment) entity).getId()) {
-        segmentArray.add(null);
+        segmentArray.add(new Segment()
+          .id(segmentArray.size())
+          .chainId(chain.getId())
+          .type(SegmentType.PENDING)
+          .state(SegmentState.PLANNED));
       }
       segmentArray.set(((Segment) entity).getId(), (Segment) entity);
       return entity;

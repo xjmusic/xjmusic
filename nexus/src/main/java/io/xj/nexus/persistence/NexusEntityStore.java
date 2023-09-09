@@ -5,7 +5,6 @@ package io.xj.nexus.persistence;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
-import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChoiceArrangementPick;
 
 import java.util.Collection;
@@ -39,18 +38,6 @@ public interface NexusEntityStore {
    @param entities to put into the store
    */
   <N> void putAll(Collection<N> entities) throws NexusException;
-
-  /**
-   Delete a Chain specified by id
-   */
-  void deleteChain() throws NexusException;
-
-  /**
-   Delete a Segment specified by id
-
-   @param id of Segment   to delete
-   */
-  void deleteSegment(int id) throws NexusException;
 
   /**
    Delete a Segment entity specified by partition (segment id), class and id

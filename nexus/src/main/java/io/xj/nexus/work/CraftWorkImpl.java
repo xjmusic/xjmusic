@@ -599,32 +599,6 @@ public class CraftWorkImpl implements CraftWork {
     if (System.currentTimeMillis() < nextJanitorMillis) return;
     nextJanitorMillis = System.currentTimeMillis() + (janitorCycleSeconds * MILLIS_PER_SECOND);
     timer.section("Janitor");
-
-    // Seek segments to erase
-    Collection<Integer> gcSegIds;
-    try {
-      gcSegIds = getSegmentIdsToErase();
-    } catch (NexusException e) {
-      didFailWhile(null, "checking for segments to erase", e, true);
-      return;
-    }
-
-    // Erase segments if necessary
-    if (gcSegIds.isEmpty())
-      LOG.debug("Found no segments to erase");
-    else
-      LOG.debug("Will garbage collect {} segments", gcSegIds.size());
-
-    for (Integer segmentId : gcSegIds) {
-      try {
-        segmentManager.destroy(segmentId);
-        LOG.debug("collected garbage Segment[{}]", segmentId);
-      } catch (ManagerFatalException | ManagerPrivilegeException | ManagerExistenceException e) {
-        LOG.warn("Error while destroying Segment[{}]", segmentId);
-      }
-    }
-
-    telemetryProvider.put(METRIC_SEGMENT_GC, (long) gcSegIds.size());
   }
 
   /**

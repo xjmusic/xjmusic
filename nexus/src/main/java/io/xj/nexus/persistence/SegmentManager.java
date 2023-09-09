@@ -187,16 +187,6 @@ public interface SegmentManager /* does not extend Manager<Segment> because it i
   Segment create(Segment segment) throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, ManagerValidationException;
 
   /**
-   Delete a specified Entity
-
-   @param segmentId of specific Entity to delete.
-   @throws ManagerFatalException     on failure
-   @throws ManagerExistenceException if the entity does not exist
-   @throws ManagerPrivilegeException if access is prohibited
-   */
-  void destroy(int segmentId) throws ManagerFatalException, ManagerPrivilegeException, ManagerExistenceException;
-
-  /**
    Fetch one record  if accessible
 
    @param segmentId of record to fetch
