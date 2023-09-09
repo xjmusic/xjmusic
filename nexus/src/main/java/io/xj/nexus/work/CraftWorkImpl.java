@@ -234,7 +234,7 @@ public class CraftWorkImpl implements CraftWork {
       if (Objects.isNull(chainId)) {
         return Optional.empty();
       }
-      return store.getChain(chainId);
+      return store.getChain();
     } catch (NexusException e) {
       return Optional.empty();
     }
@@ -605,7 +605,7 @@ public class CraftWorkImpl implements CraftWork {
     timer.section("Janitor");
 
     // Seek segments to erase
-    Collection<UUID> gcSegIds;
+    Collection<Integer> gcSegIds;
     try {
       gcSegIds = getSegmentIdsToErase();
     } catch (NexusException e) {
@@ -822,17 +822,13 @@ public class CraftWorkImpl implements CraftWork {
 
    @return list of IDs of Segments we ought to erase
    */
-  Collection<UUID> getSegmentIdsToErase() throws NexusException {
+  Collection<Integer> getSegmentIdsToErase() throws NexusException {
     Long eraseBeforeChainMicros = atChainMicros - eraseSegmentsOlderThanSeconds * MICROS_PER_SECOND;
-    Collection<UUID> segmentIds = new ArrayList<>();
-    for (UUID chainId : store.getAllChains().stream()
-      .flatMap(EntityUtils::flatMapIds).toList())
-      store.getAllSegments(chainId)
-        .stream()
-        .filter(segment -> isBefore(segment, eraseBeforeChainMicros))
-        .flatMap(EntityUtils::flatMapIds)
-        .forEach(segmentIds::add);
-    return segmentIds;
+    return store.getAllSegments()
+      .stream()
+      .filter(segment -> isBefore(segment, eraseBeforeChainMicros))
+      .map(Segment::getId)
+      .toList();
   }
 
   /**

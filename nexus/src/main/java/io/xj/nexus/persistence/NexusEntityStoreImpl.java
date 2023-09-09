@@ -9,6 +9,7 @@ import io.xj.lib.entity.EntityStoreImpl;
 import io.xj.lib.entity.EntityUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.*;
+import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +29,12 @@ import java.util.stream.Collectors;
 public class NexusEntityStoreImpl implements NexusEntityStore {
   static final Logger LOG = LoggerFactory.getLogger(EntityStoreImpl.class);
   static final String SEGMENT_ID_ATTRIBUTE = EntityUtils.toIdAttribute(EntityUtils.toBelongsTo(Segment.class));
-  final Map<UUID/*ID*/, Chain> chainMap = new ConcurrentHashMap<>();
-  final Map<UUID/*ID*/, Segment> segmentMap = new ConcurrentHashMap<>();
-  final Map<UUID/*SegID*/, Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>>> store = new ConcurrentHashMap<>();
+  final List<Segment> segmentArray = new ArrayList<>();
+  final List<Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>>> store = new ArrayList<>();
   final EntityFactory entityFactory;
+
+  @Nullable
+  Chain chain;
 
   @Autowired
   public NexusEntityStoreImpl(EntityFactory entityFactory) {
@@ -39,24 +42,24 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   }
 
   @Override
-  public void deleteChain(UUID id) {
-    chainMap.remove(id);
+  public void deleteChain() {
+    chain = null;
   }
 
   @Override
-  public void deleteSegment(UUID id) {
+  public void deleteSegment(int id) {
     store.remove(id);
-    segmentMap.remove(id);
+    segmentArray.remove(id);
   }
 
   @Override
-  public <N> void delete(UUID segmentId, Class<N> type, UUID id) {
-    if (store.containsKey(segmentId) && store.get(segmentId).containsKey(type))
+  public <N> void delete(int segmentId, Class<N> type, UUID id) {
+    if (store.size() > segmentId && store.get(segmentId).containsKey(type))
       store.get(segmentId).get(type).remove(id);
   }
 
   @Override
-  public <N> void deleteAll(UUID segmentId, Class<N> type) throws NexusException {
+  public <N> void deleteAll(Integer segmentId, Class<N> type) throws NexusException {
     for (N entity : getAll(segmentId, type)) {
       try {
         delete(segmentId, type, EntityUtils.getId(entity));
@@ -69,32 +72,26 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   @Override
   public void deleteAll() {
     store.clear();
-    segmentMap.clear();
-    chainMap.clear();
+    segmentArray.clear();
+    chain = null;
     LOG.debug("Did delete all records in store");
   }
 
   @Override
-  public Optional<Chain> getChain(UUID id) {
-    if (!chainMap.containsKey(id)) return Optional.empty();
-    return Optional.of(chainMap.get(id));
+  public Optional<Chain> getChain() {
+    return Optional.ofNullable(chain);
   }
 
   @Override
-  public Optional<Segment> getSegment(UUID id) throws NexusException {
-    if (!segmentMap.containsKey(id)) return Optional.empty();
-    return Optional.of(segmentMap.get(id));
+  public Optional<Segment> getSegment(int id) throws NexusException {
+    if (segmentArray.size() <= id) return Optional.empty();
+    return Optional.of(segmentArray.get(id));
   }
 
   @Override
-  public boolean segmentExists(UUID id) {
-    return segmentMap.containsKey(id);
-  }
-
-  @Override
-  public <N> Optional<N> get(UUID segmentId, Class<N> type, UUID id) throws NexusException {
+  public <N> Optional<N> get(int segmentId, Class<N> type, UUID id) throws NexusException {
     try {
-      if (!store.containsKey(segmentId) || !store.get(segmentId).containsKey(type))
+      if (store.size() <= segmentId || !store.get(segmentId).containsKey(type))
         if (!store.get(segmentId).get(type).containsKey(id)) return Optional.empty();
       //noinspection unchecked
       return (Optional<N>) Optional.ofNullable(store.get(segmentId).get(type).get(id));
@@ -105,9 +102,9 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   }
 
   @Override
-  public <N> Collection<N> getAll(UUID segmentId, Class<N> type) throws NexusException {
+  public <N> Collection<N> getAll(int segmentId, Class<N> type) throws NexusException {
     try {
-      if (!store.containsKey(segmentId) || !store.get(segmentId).containsKey(type))
+      if (store.size() <= segmentId || !store.get(segmentId).containsKey(type))
         return List.of();
       //noinspection unchecked
       return (Collection<N>) store.get(segmentId).get(type).values().stream()
@@ -120,9 +117,9 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   }
 
   @Override
-  public <N, B> Collection<N> getAll(UUID segmentId, Class<N> type, Class<B> belongsToType, Collection<UUID> belongsToIds) throws NexusException {
+  public <N, B> Collection<N> getAll(int segmentId, Class<N> type, Class<B> belongsToType, Collection<UUID> belongsToIds) throws NexusException {
     try {
-      if (!store.containsKey(segmentId) || !store.get(segmentId).containsKey(type))
+      if (store.size() <= segmentId || !store.get(segmentId).containsKey(type))
         return List.of();
       //noinspection unchecked
       return (Collection<N>) store.get(segmentId).get(type).values().stream()
@@ -135,20 +132,20 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   }
 
   @Override
-  public Collection<Chain> getAllChains() {
-    return new ArrayList<>(chainMap.values());
-  }
-
-  @Override
-  public Collection<Segment> getAllSegments(UUID chainId) {
-    // future: since we're going to keep track of a ton of segments, we need to get out of the multiple-chain business. We should only keep track of an ArrayList of segments, all sequential, such that we can take the last N segments of that array and know that we are good to go.
-    return segmentMap.values().stream()
-      .filter(segment -> chainId.equals(segment.getChainId()))
-      .collect(Collectors.toList());
+  public Collection<Segment> getAllSegments() {
+    return segmentArray;
   }
 
   @Override
   public <N> N put(N entity) throws NexusException {
+    if (entity instanceof Chain) {
+      chain = (Chain) entity;
+      return entity;
+    } else if (entity instanceof Segment) {
+      segmentArray.set(((Segment) entity).getId(), (Segment) entity);
+      return entity;
+    }
+
     // fail to store entity without id
     UUID id;
     try {
@@ -163,12 +160,6 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
       throw new NexusException(String.format("Can't store %s with null id",
         entity.getClass().getSimpleName()));
 
-    if (entity instanceof Chain)
-      chainMap.put(id, (Chain) entity);
-
-    else if (entity instanceof Segment)
-      segmentMap.put(id, (Segment) entity);
-
     else if (entity instanceof SegmentMeme ||
       entity instanceof SegmentChord ||
       entity instanceof SegmentChordVoicing ||
@@ -181,8 +172,10 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
         var segmentIdValue = EntityUtils.get(entity, SEGMENT_ID_ATTRIBUTE)
           .orElseThrow(() -> new NexusException(String.format("Can't store %s without Segment ID!",
             entity.getClass().getSimpleName())));
-        UUID segmentId = UUID.fromString(String.valueOf(segmentIdValue));
-        store.putIfAbsent(segmentId, new ConcurrentHashMap<>());
+        int segmentId = Integer.parseInt(String.valueOf(segmentIdValue));
+        if (store.size() <= segmentId) {
+          store.set(segmentId, new ConcurrentHashMap<>());
+        }
         store.get(segmentId).putIfAbsent(entity.getClass(), new ConcurrentHashMap<>());
         store.get(segmentId).get(entity.getClass()).put(id, entity);
       } catch (EntityException e) {

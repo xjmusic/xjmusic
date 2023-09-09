@@ -111,7 +111,7 @@ public class NexusEntityStoreImplTest {
     chain.shipKey("super");
 
     subject.put(chain);
-    var result = subject.getChain(chain.getId()).orElseThrow();
+    var result = subject.getChain().orElseThrow();
 
     assertEquals(chain.getId(), result.getId());
     assertEquals(accountId, result.getAccountId());

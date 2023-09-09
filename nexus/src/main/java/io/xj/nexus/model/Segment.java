@@ -19,7 +19,7 @@ public class Segment {
   public static final String EXTENSION_SEPARATOR = ".";
   @JsonIgnore
   public static final String WAV_EXTENSION = "wav";
-  UUID id;
+  Integer id;
   UUID chainId;
   SegmentType type;
   SegmentState state;
@@ -28,7 +28,6 @@ public class Segment {
   Long durationMicros;
   String key;
   Integer total;
-  Long offset;
   Double density;
   Double tempo;
   String storageKey;
@@ -45,18 +44,18 @@ public class Segment {
 
   /**
    **/
-  public Segment id(UUID id) {
+  public Segment id(Integer id) {
     this.id = id;
     return this;
   }
 
 
   @JsonProperty("id")
-  public UUID getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(UUID id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 
@@ -179,23 +178,6 @@ public class Segment {
 
   public void setTotal(Integer total) {
     this.total = total;
-  }
-
-  /**
-   **/
-  public Segment offset(Long offset) {
-    this.offset = offset;
-    return this;
-  }
-
-
-  @JsonProperty("offset")
-  public Long getOffset() {
-    return offset;
-  }
-
-  public void setOffset(Long offset) {
-    this.offset = offset;
   }
 
   /**
@@ -333,7 +315,6 @@ public class Segment {
       Objects.equals(this.durationMicros, segment.durationMicros) &&
       Objects.equals(this.key, segment.key) &&
       Objects.equals(this.total, segment.total) &&
-      Objects.equals(this.offset, segment.offset) &&
       Objects.equals(this.density, segment.density) &&
       Objects.equals(this.tempo, segment.tempo) &&
       Objects.equals(this.storageKey, segment.storageKey) &&
@@ -346,7 +327,7 @@ public class Segment {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, chainId, type, state, beginAtChainMicros, durationMicros, key, total, offset, density, tempo, storageKey, waveformPreroll, waveformPostroll, delta, createdAt, updatedAt);
+    return Objects.hash(id, chainId, type, state, beginAtChainMicros, durationMicros, key, total, density, tempo, storageKey, waveformPreroll, waveformPostroll, delta, createdAt, updatedAt);
   }
 
   @Override
@@ -360,7 +341,6 @@ public class Segment {
       "    durationMicros: " + toIndentedString(durationMicros) + "\n" +
       "    key: " + toIndentedString(key) + "\n" +
       "    total: " + toIndentedString(total) + "\n" +
-      "    offset: " + toIndentedString(offset) + "\n" +
       "    density: " + toIndentedString(density) + "\n" +
       "    tempo: " + toIndentedString(tempo) + "\n" +
       "    storageKey: " + toIndentedString(storageKey) + "\n" +

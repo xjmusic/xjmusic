@@ -76,7 +76,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   @Override
   public Segment create(Segment entity) throws ManagerPrivilegeException, ManagerFatalException, ManagerValidationException {
     try {
-      entity.setId(UUID.randomUUID());
+      entity.setId(123);
       validate(entity);
 
       // [#126] Segments are always readMany in PLANNED state
@@ -354,12 +354,12 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
 
   @Override
   public Chain getChain(Segment segment) throws NexusException, ManagerFatalException {
-    return store.getChain(segment.getChainId())
+    return store.getChain()
       .orElseThrow(() -> new ManagerFatalException("Segment #" + segment.getId() + " has no chain"));
   }
 
   @Override
-  public void destroy(UUID id) throws ManagerFatalException {
+  public void destroy(int id) throws ManagerFatalException {
     try {
       store.deleteSegment(id);
 

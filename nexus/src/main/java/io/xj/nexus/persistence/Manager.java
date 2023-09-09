@@ -30,7 +30,7 @@ public interface Manager<E> {
    @throws ManagerExistenceException if the entity does not exist
    @throws ManagerPrivilegeException if access is prohibited
    */
-  void destroy(UUID id) throws ManagerFatalException, ManagerPrivilegeException, ManagerExistenceException;
+  void destroy(int id) throws ManagerFatalException, ManagerPrivilegeException, ManagerExistenceException;
 
   /**
    Fetch many records for many parents by id, if accessible
