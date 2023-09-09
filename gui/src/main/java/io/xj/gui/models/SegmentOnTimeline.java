@@ -35,6 +35,10 @@ public class SegmentOnTimeline {
     if (!Objects.equals(this.getSegment().getState(), other.getSegment().getState()))
       return true;
 
+    // true if active has changed
+    if (!Objects.equals(this.isActive(), other.isActive()))
+      return true;
+
     // true if updated-at has changed
     return !Objects.equals(this.getSegment().getUpdatedAt(), other.getSegment().getUpdatedAt());
   }

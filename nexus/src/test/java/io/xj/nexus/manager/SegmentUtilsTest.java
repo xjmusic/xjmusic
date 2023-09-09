@@ -129,7 +129,7 @@ public class SegmentUtilsTest {
     assertTrue(SegmentUtils.isIntersecting(seg1, 32 * MICROS_PER_SECOND)); // true if exactly at beginning of segment
     assertFalse(SegmentUtils.isIntersecting(seg1, 64 * MICROS_PER_SECOND)); // false if exactly at end of segment
     assertFalse(SegmentUtils.isIntersecting(seg1, 15 * MICROS_PER_SECOND));
-    assertTrue(SegmentUtils.isIntersecting(seg1, 20 * MICROS_PER_SECOND));
+    assertFalse(SegmentUtils.isIntersecting(seg1, 20 * MICROS_PER_SECOND));
     assertTrue(SegmentUtils.isIntersecting(seg1, 35 * MICROS_PER_SECOND));
     assertTrue(SegmentUtils.isIntersecting(seg1, 50 * MICROS_PER_SECOND));
     assertFalse(SegmentUtils.isIntersecting(seg1, 66 * MICROS_PER_SECOND));

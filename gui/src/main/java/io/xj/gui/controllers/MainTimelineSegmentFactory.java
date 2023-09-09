@@ -59,6 +59,9 @@ public class MainTimelineSegmentFactory {
     try {
       var box = new VBox();
       box.getStyleClass().add("main-timeline-segment");
+      if (segment.isActive()) {
+        box.getStyleClass().add("active");
+      }
       box.setMaxHeight(Double.MAX_VALUE);
       box.setPadding(new Insets(10, 10, 10, 10));
       VBox.setVgrow(box, Priority.ALWAYS);
