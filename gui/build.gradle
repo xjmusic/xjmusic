@@ -16,6 +16,7 @@ dependencies {
   // peers
   implementation project(":lib")
   implementation project(":nexus")
+  testImplementation project(":nexus").sourceSets.test.output
   // private
   implementation "io.xj:models:${xjModelsVersion}"
   // vendor

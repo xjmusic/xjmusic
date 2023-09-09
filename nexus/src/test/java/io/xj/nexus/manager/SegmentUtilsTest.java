@@ -125,14 +125,14 @@ public class SegmentUtilsTest {
   }
 
   @Test
-  void isSameButUpdated() {
-    var s1 = createSameSegment("2014-08-12T12:17:02.527142Z", SegmentState.CRAFTED);
-    var s1_failed = createSameSegment("2014-08-12T12:17:02.527142Z", SegmentState.FAILED);
-    var s1_updated = createSameSegment("2014-09-09T09:09:09.999999Z", SegmentState.CRAFTED);
-    assertTrue(SegmentUtils.isSameButUpdated(s1, s1_updated));
-    assertTrue(SegmentUtils.isSameButUpdated(s1, s1_failed));
-    assertFalse(SegmentUtils.isSameButUpdated(s1, s1));
-    assertFalse(SegmentUtils.isSameButUpdated(s1, seg2));
+  public void testIsIntersecting() {
+    assertTrue(SegmentUtils.isIntersecting(seg1, 32 * MICROS_PER_SECOND)); // true if exactly at beginning of segment
+    assertFalse(SegmentUtils.isIntersecting(seg1, 64 * MICROS_PER_SECOND)); // false if exactly at end of segment
+    assertFalse(SegmentUtils.isIntersecting(seg1, 15 * MICROS_PER_SECOND));
+    assertTrue(SegmentUtils.isIntersecting(seg1, 20 * MICROS_PER_SECOND));
+    assertTrue(SegmentUtils.isIntersecting(seg1, 35 * MICROS_PER_SECOND));
+    assertTrue(SegmentUtils.isIntersecting(seg1, 50 * MICROS_PER_SECOND));
+    assertFalse(SegmentUtils.isIntersecting(seg1, 66 * MICROS_PER_SECOND));
   }
 
   Segment createSameSegment(String updatedAt, SegmentState state) {

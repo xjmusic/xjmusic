@@ -107,17 +107,30 @@ public enum SegmentUtils {
   }
 
   /**
-   Whether the segment is spanning a given time
+   Whether the segment is spanning a given time frame
 
    @param segment         to test
-   @param fromChainMicros to test
-   @param toChainMicros   to test
-   @return true if segment is spanning time
+   @param fromChainMicros to test frame from
+   @param toChainMicros   to test frame to
+   @return true if segment is spanning time frame
    */
   public static boolean isSpanning(Segment segment, Long fromChainMicros, Long toChainMicros) {
     return Objects.nonNull(segment.getDurationMicros()) &&
       segment.getBeginAtChainMicros() + segment.getDurationMicros() > fromChainMicros &&
       segment.getBeginAtChainMicros() <= toChainMicros;
+  }
+
+  /**
+   Whether the segment is intersecting a given time
+
+   @param segment         to test
+   @param atChainMicros   to test at
+   @return true if segment is spanning time
+   */
+  public static boolean isIntersecting(Segment segment, Long atChainMicros) {
+    return Objects.nonNull(segment.getDurationMicros()) &&
+      segment.getBeginAtChainMicros() + segment.getDurationMicros() > atChainMicros &&
+      segment.getBeginAtChainMicros() <= atChainMicros;
   }
 
   /**
@@ -163,17 +176,5 @@ public enum SegmentUtils {
 
   public static long getEndAtChainMicros(Segment segment) {
     return Objects.nonNull(segment.getDurationMicros()) ? segment.getBeginAtChainMicros() + segment.getDurationMicros() : segment.getBeginAtChainMicros();
-  }
-
-  public static boolean isSameButUpdated(Segment s1, Segment s2) {
-    if (!s1.getId().equals(s2.getId()))
-      return false;
-
-    // true if state has changed
-    if (!Objects.equals(s1.getState(), s2.getState()))
-      return true;
-
-    // true if updated-at has changed
-    return !Objects.equals(s1.getUpdatedAt(), s2.getUpdatedAt());
   }
 }

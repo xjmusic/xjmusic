@@ -125,12 +125,12 @@ public interface SegmentManager /* does not extend Manager<Segment> because it i
 
    @param fromOffset to read segments form
    @param toOffset   to read segments to
-   @return array of segments as JSON
    @throws ManagerFatalException     on failure
    @throws ManagerExistenceException if the entity does not exist
    @throws ManagerPrivilegeException if access is prohibited
+   @return list of segments as JSON
    */
-  Collection<Segment> readManyFromToOffset(Long fromOffset, Long toOffset) throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException;
+  List<Segment> readManyFromToOffset(int fromOffset, int toOffset) throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException;
 
   /**
    Read the last segment in a Chain, Segments sorted by offset ascending

@@ -2,11 +2,13 @@
 
 package io.xj.gui.services;
 
+import io.xj.gui.models.SegmentOnTimeline;
 import io.xj.hub.tables.pojos.*;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.model.*;
+import io.xj.nexus.persistence.ManagerExistenceException;
 import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.ManagerPrivilegeException;
 import io.xj.nexus.work.WorkConfiguration;
@@ -308,6 +310,21 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     var hyperlink = new Hyperlink(instrumentAudio.orElseThrow().getName());
     hyperlink.setOnAction(event -> hostServices.showDocument(instrumentUrl));
     return hyperlink;
+  }
+
+  @Override
+  public List<SegmentOnTimeline> getSegmentsOnTimeline(int startIndex, int total, @Nullable Long activeAtChainMicros) {
+    try {
+      return workFactory
+        .getSegmentManager()
+        .readManyFromToOffset(startIndex, startIndex + total)
+        .stream()
+        .map(s -> new SegmentOnTimeline(s, activeAtChainMicros))
+        .toList();
+    } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException e) {
+      LOG.error("Failed to get segments", e);
+      return List.of();
+    }
   }
 
 

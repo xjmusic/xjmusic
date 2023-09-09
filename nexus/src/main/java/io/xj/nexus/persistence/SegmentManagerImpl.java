@@ -260,15 +260,21 @@ public class SegmentManagerImpl implements SegmentManager {
   }
 
   @Override
-  public Collection<Segment> readManyFromToOffset(Long fromOffset, Long toOffset) throws ManagerFatalException {
+  public List<Segment> readManyFromToOffset(int fromOffset, int toOffset) throws ManagerFatalException {
     try {
-      return 0 > toOffset ?
-        new ArrayList<>() :
-        store.getAllSegments()
-          .stream()
-          .filter(s -> s.getId() >= fromOffset && s.getId() <= toOffset)
-          .sorted(Comparator.comparing(Segment::getId))
-          .collect(Collectors.toList());
+      if (store.getAllSegments().size() == 0
+        || toOffset < fromOffset
+        || fromOffset >= store.getAllSegments().size()
+        || fromOffset < 0)
+        return new ArrayList<>();
+
+      store.getAllSegments().subList(fromOffset, Math.min(store.getAllSegments().size() - 1, toOffset));
+
+      return store.getAllSegments()
+        .stream()
+        .filter(s -> s.getId() >= fromOffset && s.getId() <= toOffset)
+        .sorted(Comparator.comparing(Segment::getId))
+        .collect(Collectors.toList());
 
     } catch (NexusException e) {
       throw new ManagerFatalException(e);

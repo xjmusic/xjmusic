@@ -3,12 +3,9 @@
 package io.xj.gui.controllers;
 
 import io.xj.gui.listeners.NoSelectionModel;
+import io.xj.gui.models.SegmentOnTimeline;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
-import io.xj.lib.util.CustomCollectors;
-import io.xj.nexus.model.Segment;
-import io.xj.nexus.model.SegmentType;
-import io.xj.nexus.persistence.SegmentUtils;
 import jakarta.annotation.Nullable;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -34,13 +31,13 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   final Integer refreshRateSeconds;
   final MainTimelineSegmentFactory segmentFactory;
   final LabService labService;
-  final ObservableList<Segment> segments = FXCollections.observableArrayList();
+  final ObservableList<SegmentOnTimeline> segments = FXCollections.observableArrayList();
 
   @Nullable
   Timeline refresh;
 
   @FXML
-  protected ListView<Segment> segmentListView;
+  protected ListView<SegmentOnTimeline> segmentListView;
 
   public MainTimelineController(
     @Value("${gui.timeline.refresh.seconds}") Integer refreshRateSeconds,
@@ -56,12 +53,12 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     this.segmentFactory = segmentFactory;
   }
 
-  final Callback<ListView<Segment>, ListCell<Segment>> cellFactory = new Callback<>() {
+  final Callback<ListView<SegmentOnTimeline>, ListCell<SegmentOnTimeline>> cellFactory = new Callback<>() {
     @Override
-    public ListCell<Segment> call(ListView<Segment> param) {
+    public ListCell<SegmentOnTimeline> call(ListView<SegmentOnTimeline> param) {
       return new ListCell<>() {
         @Override
-        protected void updateItem(Segment item, boolean empty) {
+        protected void updateItem(SegmentOnTimeline item, boolean empty) {
           super.updateItem(item, empty);
 
           if (empty || item == null) {
@@ -108,24 +105,22 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     }
 
     var outputSyncChainMicros = fabricationService.getWorkFactory().getOutputSyncChainMicros();
-    var currentSegments = fabricationService.getWorkFactory().getCraftWork().getAllSegments()
-      .stream()
-      .filter(s -> !Objects.equals(s.getType(), SegmentType.PENDING))
-      .collect(CustomCollectors.lastN(SHOW_LAST_N_SEGMENTS));
+    var currentSegments = fabricationService.getSegmentsOnTimeline(0, SHOW_LAST_N_SEGMENTS, outputSyncChainMicros.orElse(null));
 
-    segments.removeIf(segment -> currentSegments.stream().noneMatch(source -> source.getId().equals(segment.getId())));
+    segments.removeIf(segment -> currentSegments.stream().noneMatch(source -> Objects.equals(source.getId(), segment.getId())));
     // iterate through all in segments, and update if the updated at time has changed from the source matching that id
     for (var i = 0; i < segments.size(); i++) {
       var segment = segments.get(i);
-      var source = currentSegments.stream().filter(s -> SegmentUtils.isSameButUpdated(segment, s)).findFirst();
+      var source = currentSegments.stream().filter(s -> s.isSameButUpdated(segment)).findFirst();
       if (source.isPresent()) {
         segments.set(i, source.get());
       }
     }
     currentSegments.forEach(source -> {
-      if (segments.stream().noneMatch(segment -> segment.getId().equals(source.getId()))) {
+      if (segments.stream().noneMatch(segment -> Objects.equals(segment.getId(), source.getId()))) {
         segments.add(source);
       }
     });
   }
+
 }

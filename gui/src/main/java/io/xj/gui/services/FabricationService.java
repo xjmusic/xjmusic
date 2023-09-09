@@ -2,6 +2,7 @@
 
 package io.xj.gui.services;
 
+import io.xj.gui.models.SegmentOnTimeline;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Program;
@@ -21,6 +22,7 @@ import javafx.event.EventTarget;
 import javafx.scene.Node;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -87,4 +89,6 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
   Node computeInstrumentReferenceNode(UUID instrumentId);
 
   Node computeInstrumentAudioReferenceNode(UUID instrumentAudioId);
+
+  List<SegmentOnTimeline> getSegmentsOnTimeline(int startIndex, int total, @Nullable Long activeAtChainMicros);
 }
