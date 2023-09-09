@@ -138,3 +138,10 @@
   -fx-fill: #000000;
 }
 
+.main-timeline-segment .segment-active-indicator {
+  -fx-background-color: transparent;
+}
+
+.main-timeline-segment .segment-active-indicator.active {
+  -fx-background-color: #17ef17;
+}

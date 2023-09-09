@@ -13,6 +13,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -36,6 +37,7 @@ import static io.xj.nexus.model.Segment.DELTA_UNLIMITED;
 @Service
 public class MainTimelineSegmentFactory {
   static final int SEGMENT_MIN_WIDTH = 240;
+  static final int SEGMENT_ACTIVE_INDICATOR_HEIGHT = 6;
   static final int SEGMENT_PROPERTY_ROW_MIN_HEIGHT = 60;
   static final Logger LOG = LoggerFactory.getLogger(MainTimelineSegmentFactory.class);
 
@@ -59,9 +61,6 @@ public class MainTimelineSegmentFactory {
     try {
       var box = new VBox();
       box.getStyleClass().add("main-timeline-segment");
-      if (segment.isActive()) {
-        box.getStyleClass().add("active");
-      }
       box.setMaxHeight(Double.MAX_VALUE);
       box.setPadding(new Insets(10, 10, 10, 10));
       VBox.setVgrow(box, Priority.ALWAYS);
@@ -128,7 +127,7 @@ public class MainTimelineSegmentFactory {
   }
 
   /**
-   Segment section: Metadatas
+   Segment section: Metas
    */
   private Node computeSegmentSectionMetasNode(SegmentOnTimeline segment) {
     var metas = fabricationService.getSegmentMetas(segment.getSegment());
@@ -215,12 +214,32 @@ public class MainTimelineSegmentFactory {
    Segment section: offset, begin-at micros, delta, type
    */
   Node computeSegmentSectionHeaderNode(SegmentOnTimeline segment) {
+    // position indicator
+    var activeIndicator = new Pane();
+    activeIndicator.setPrefWidth(SEGMENT_MIN_WIDTH);
+    activeIndicator.setMinHeight(SEGMENT_ACTIVE_INDICATOR_HEIGHT);
+    activeIndicator.setMaxHeight(SEGMENT_ACTIVE_INDICATOR_HEIGHT);
+    activeIndicator.getStyleClass().add("segment-active-indicator");
+    // TODO: instead of hard coding the active state, fx-bind this to a master node that is updated much more frequently
+    if (segment.isActive()) {
+      activeIndicator.getStyleClass().add("active");
+    }
+    var spacer = new Pane();
+    spacer.setPrefWidth(SEGMENT_MIN_WIDTH);
+    spacer.setMinHeight(SEGMENT_SECTION_VERTICAL_MARGIN);
+    spacer.setMaxHeight(SEGMENT_SECTION_VERTICAL_MARGIN);
+    // metadata
     var row = new HBox();
     row.setPrefWidth(SEGMENT_MIN_WIDTH);
     row.setMinHeight(SEGMENT_PROPERTY_ROW_MIN_HEIGHT);
     row.getChildren().add(computeLabeledPropertyNode(String.format("[%d]", segment.getSegment().getId()), formatTimeFromMicros(segment.getSegment().getBeginAtChainMicros()), SEGMENT_MIN_WIDTH / 2));
     row.getChildren().add(computeLabeledPropertyNode(String.format("+%d", segment.getSegment().getDelta()), segment.getSegment().getType().toString(), SEGMENT_MIN_WIDTH / 2));
-    return row;
+    // column
+    var col = new VBox();
+    col.getChildren().add(activeIndicator);
+    col.getChildren().add(spacer);
+    col.getChildren().add(row);
+    return col;
   }
 
   @SuppressWarnings("SameParameterValue")

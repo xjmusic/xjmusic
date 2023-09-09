@@ -17,7 +17,6 @@ import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.text.html.Option;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -417,6 +416,7 @@ public class ShipWorkImpl implements ShipWork {
 
   @Override
   public Optional<Long> getOutputSyncChainMicros() {
+    // TODO get the actual playback chain micros calculated from the audio playback system-- atChainMicros is for the buffer writing, which is ahead of the playback
     return outputMode.isSync() ? Optional.of(atChainMicros) : Optional.empty();
   }
 

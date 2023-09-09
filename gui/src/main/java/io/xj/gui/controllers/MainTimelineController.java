@@ -104,7 +104,10 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
       return;
     }
 
+    // TODO move the getOutputSyncChainMicros out of the segment factory loop and into its own more-frequent loop
+    // TODO instead of writing new objects to represent active/inactive, update the master node and let displays be reactive
     var outputSyncChainMicros = fabricationService.getWorkFactory().getOutputSyncChainMicros();
+
     var currentSegments = fabricationService.getSegmentsOnTimeline(0, SHOW_LAST_N_SEGMENTS, outputSyncChainMicros.orElse(null));
 
     segments.removeIf(segment -> currentSegments.stream().noneMatch(source -> Objects.equals(source.getId(), segment.getId())));

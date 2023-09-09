@@ -107,7 +107,8 @@ public enum SegmentUtils {
   }
 
   /**
-   Whether the segment is spanning a given time frame
+   Whether the segment is spanning a given time frame.
+   Inclusive of segment start time; exclusive of segment end time (different from SegmentUtils.isIntersecting)
 
    @param segment         to test
    @param fromChainMicros to test frame from
@@ -121,16 +122,18 @@ public enum SegmentUtils {
   }
 
   /**
-   Whether the segment is intersecting a given time
+   Whether the segment is intersecting a given time.
+   Exclusive of segment start time; inclusive of segment end time (different from SegmentUtils.isSpanning)
+   Designed so to return false when playback is at the exact beginning of the segment, ergo not actually begun playing.
 
-   @param segment         to test
-   @param atChainMicros   to test at
+   @param segment       to test
+   @param atChainMicros to test at
    @return true if segment is spanning time
    */
   public static boolean isIntersecting(Segment segment, Long atChainMicros) {
     return Objects.nonNull(segment.getDurationMicros()) &&
-      segment.getBeginAtChainMicros() + segment.getDurationMicros() > atChainMicros &&
-      segment.getBeginAtChainMicros() <= atChainMicros;
+      segment.getBeginAtChainMicros() + segment.getDurationMicros() >= atChainMicros &&
+      segment.getBeginAtChainMicros() < atChainMicros;
   }
 
   /**

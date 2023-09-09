@@ -113,6 +113,7 @@ public class SegmentUtilsTest {
     assertEquals("chains-1-segments-078aw34tiu5hga.wav", SegmentUtils.getStorageFilename(seg1));
   }
 
+  // Inclusive of segment start time; exclusive of segment end time (different from SegmentUtils.isIntersecting)
   @Test
   public void testIsSpanning() {
     assertTrue(SegmentUtils.isSpanning(seg1, 32 * MICROS_PER_SECOND, 32 * MICROS_PER_SECOND)); // true if exactly at beginning of segment
@@ -124,10 +125,11 @@ public class SegmentUtilsTest {
     assertFalse(SegmentUtils.isSpanning(seg1, 66 * MICROS_PER_SECOND, 80 * MICROS_PER_SECOND));
   }
 
+  // Exclusive of segment start time; inclusive of segment end time (different from SegmentUtils.isSpanning)
   @Test
   public void testIsIntersecting() {
-    assertTrue(SegmentUtils.isIntersecting(seg1, 32 * MICROS_PER_SECOND)); // true if exactly at beginning of segment
-    assertFalse(SegmentUtils.isIntersecting(seg1, 64 * MICROS_PER_SECOND)); // false if exactly at end of segment
+    assertFalse(SegmentUtils.isIntersecting(seg1, 32 * MICROS_PER_SECOND)); // false if exactly at beginning of segment
+    assertTrue(SegmentUtils.isIntersecting(seg1, 64 * MICROS_PER_SECOND)); // true if exactly at end of segment
     assertFalse(SegmentUtils.isIntersecting(seg1, 15 * MICROS_PER_SECOND));
     assertFalse(SegmentUtils.isIntersecting(seg1, 20 * MICROS_PER_SECOND));
     assertTrue(SegmentUtils.isIntersecting(seg1, 35 * MICROS_PER_SECOND));
