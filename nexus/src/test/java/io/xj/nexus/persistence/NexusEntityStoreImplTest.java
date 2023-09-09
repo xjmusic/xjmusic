@@ -88,7 +88,7 @@ public class NexusEntityStoreImplTest {
 
     assertEquals(segment.getId(), result.getId());
     assertEquals(chainId, result.getChainId());
-    assertEquals(Long.valueOf(0), result.getOffset());
+    assertEquals(Long.valueOf(0), result.getId());
     assertEquals(SegmentType.NEXTMACRO, result.getType());
     assertEquals(SegmentState.CRAFTED, result.getState());
     assertEquals(0, (long) result.getBeginAtChainMicros());

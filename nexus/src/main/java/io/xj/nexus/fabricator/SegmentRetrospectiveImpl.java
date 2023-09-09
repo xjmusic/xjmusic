@@ -38,11 +38,11 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
     // begin by getting the previous segment
     // only can build retrospective if there is at least one previous segment
     // the previous segment is the first one cached here. we may cache even further back segments below if found
-    if (segment.getOffset() <= 0) return;
+    if (segment.getId() <= 0) return;
     try {
       // begin by getting the previous segment
       // the previous segment is the first one cached here. we may cache even further back segments below if found
-      previousSegment = retroStore.put(segmentManager.readOneAtChainOffset(segment.getChainId(), segment.getOffset() - 1)
+      previousSegment = retroStore.put(segmentManager.readOneAtChainOffset(segment.getChainId(), segment.getId() - 1)
         .orElseThrow(() -> new ManagerExistenceException("No previous segment!")));
       retroStore.putAll(segmentManager.readManySubEntities(List.of(previousSegment.getId()), true));
 
@@ -201,7 +201,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public List<SegmentChord> getSegmentChords(UUID segmentId) {
+  public List<SegmentChord> getSegmentChords(Integer segmentId) {
     if (!segmentChords.containsKey(segmentId)) {
       segmentChords.put(segmentId,
         retroStore.getAll(SegmentChord.class)

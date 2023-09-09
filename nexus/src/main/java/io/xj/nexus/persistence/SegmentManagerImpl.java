@@ -12,6 +12,8 @@ import io.xj.lib.entity.common.MessageEntity;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +27,7 @@ import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
  */
 @Service
 public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentManager {
+  static final Logger LOG = LoggerFactory.getLogger(SegmentManagerImpl.class);
   public static final Long LENGTH_MINIMUM_MICROS = MICROS_PER_SECOND;
   public static final Double AMPLITUDE_MINIMUM = 0.0;
 
@@ -83,7 +86,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
       entity.setState(SegmentState.PLANNED);
 
       // create segment with Chain ID and offset are read-only, set at creation
-      if (readOneAtChainOffset(entity.getChainId(), entity.getOffset()).isPresent()) {
+      if (readOneAtChainOffset(entity.getChainId(), entity.getId()).isPresent()) {
         throw new ManagerValidationException("Found Segment at same offset in Chain!");
       }
 
@@ -121,7 +124,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
     try {
       return store.getAllSegments(chainId)
         .stream()
-        .sorted(Comparator.comparing(Segment::getOffset))
+        .sorted(Comparator.comparing(Segment::getId))
         .toList();
 
     } catch (NexusException e) {
@@ -144,7 +147,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
       return store.getAllSegments(chainId)
         .stream()
         .filter(s -> SegmentUtils.isSpanning(s, fromChainMicros, toChainMicros))
-        .sorted(Comparator.comparing(Segment::getOffset))
+        .sorted(Comparator.comparing(Segment::getId))
         .toList();
 
     } catch (NexusException e) {
@@ -170,7 +173,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
       var segments = store.getAllSegments(chainId)
         .stream()
         .filter(s -> SegmentUtils.isSpanning(s, chainMicros, chainMicros))
-        .sorted(Comparator.comparing(Segment::getOffset))
+        .sorted(Comparator.comparing(Segment::getId))
         .toList();
       return segments.isEmpty() ? Optional.empty() : Optional.of(segments.get(segments.size() - 1));
     } catch (NexusException e) {
@@ -179,14 +182,11 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   @Override
-  public Optional<Segment> readOneAtChainOffset(UUID chainId, Long offset) {
+  public Optional<Segment> readOneAtChainOffset(UUID chainId, int offset) {
     try {
-      return store.getAllSegments(chainId)
-        .stream()
-        .filter(s -> offset.equals(s.getOffset()))
-        .findFirst();
-
-    } catch (NexusException e) {
+      return Optional.of(store.getAllSegments().get(offset));
+    } catch (Exception e) {
+      LOG.error("Failed to read Segment at offset " + offset, e);
       return Optional.empty();
     }
   }
@@ -195,7 +195,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
     try {
       return store.getAllSegments(chainId)
         .stream()
-        .sorted(Comparator.comparing(Segment::getOffset))
+        .sorted(Comparator.comparing(Segment::getId))
         .filter(s -> segmentState.equals(s.getState()) &&
           segmentBeginBeforeChainMicros >= s.getBeginAtChainMicros())
         .findFirst()
@@ -230,7 +230,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   @Override
-  public <N> Collection<N> readManySubEntitiesOfType(UUID segmentId, Class<N> type) throws ManagerFatalException {
+  public <N> Collection<N> readManySubEntitiesOfType(Integer segmentId, Class<N> type) throws ManagerFatalException {
     try {
       return store.getAll(segmentId, type, Segment.class, List.of(segmentId));
     } catch (NexusException e) {
@@ -255,7 +255,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
       for (UUID chainId : chainIds)
         store.getAllSegments(chainId)
           .stream()
-          .sorted(Comparator.comparing(Segment::getOffset))
+          .sorted(Comparator.comparing(Segment::getId))
           .forEach(segments::add);
       return segments;
 
@@ -271,8 +271,8 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
         new ArrayList<>() :
         store.getAllSegments(chainId)
           .stream()
-          .filter(s -> s.getOffset() >= fromOffset && s.getOffset() <= toOffset)
-          .sorted(Comparator.comparing(Segment::getOffset))
+          .filter(s -> s.getId() >= fromOffset && s.getId() <= toOffset)
+          .sorted(Comparator.comparing(Segment::getId))
           .collect(Collectors.toList());
 
     } catch (NexusException e) {
@@ -320,7 +320,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
     try {
       return store.getAllSegments(chainId)
         .stream()
-        .max(Comparator.comparing(Segment::getOffset));
+        .max(Comparator.comparing(Segment::getId));
 
     } catch (NexusException e) {
       throw new ManagerFatalException(e);
@@ -338,7 +338,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   @Override
-  public Optional<SegmentChoice> readChoice(UUID segmentId, ProgramType programType) throws ManagerFatalException {
+  public Optional<SegmentChoice> readChoice(Integer segmentId, ProgramType programType) throws ManagerFatalException {
     try {
       return store.getAll(segmentId, SegmentChoice.class)
         .stream()
@@ -451,7 +451,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
 
   void validateSegment(Segment record) throws ValueException {
     ValueUtils.require(record.getChainId(), "Chain ID");
-    ValueUtils.require(record.getOffset(), "Offset");
+    ValueUtils.require(record.getId(), "Offset");
     if (ValueUtils.isEmpty(record.getWaveformPreroll())) record.setWaveformPreroll(0.0);
     if (ValueUtils.isEmpty(record.getWaveformPostroll())) record.setWaveformPostroll(0.0);
     if (ValueUtils.isEmpty(record.getDelta())) record.setDelta(0);

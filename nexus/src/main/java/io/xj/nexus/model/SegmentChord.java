@@ -11,7 +11,7 @@ import java.util.UUID;
 public class SegmentChord {
 
   UUID id;
-  UUID segmentId;
+  Integer segmentId;
   Double position;
   String name;
 
@@ -34,18 +34,18 @@ public class SegmentChord {
 
   /**
    **/
-  public SegmentChord segmentId(UUID segmentId) {
+  public SegmentChord segmentId(Integer segmentId) {
     this.segmentId = segmentId;
     return this;
   }
 
 
   @JsonProperty("segmentId")
-  public UUID getSegmentId() {
+  public Integer getSegmentId() {
     return segmentId;
   }
 
-  public void setSegmentId(UUID segmentId) {
+  public void setSegmentId(Integer segmentId) {
     this.segmentId = segmentId;
   }
 

@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface SegmentManager extends Manager<Segment> {
+public interface SegmentManager /* does not extend Manager<Segment> because it is special, id is an int (not UUID) */ {
 
   /**
    Create a Message in a given Segment
@@ -68,7 +68,7 @@ public interface SegmentManager extends Manager<Segment> {
    @param offset  to fetch segment at
    @return segment id
    */
-  Optional<Segment> readOneAtChainOffset(UUID chainId, Long offset);
+  Optional<Segment> readOneAtChainOffset(UUID chainId, int offset);
 
   /**
    Fetch one Segment by chainId and state, if present
@@ -106,7 +106,7 @@ public interface SegmentManager extends Manager<Segment> {
    @throws ManagerFatalException     if the entity does not exist
    @throws ManagerPrivilegeException if access is prohibited
    */
-  <N> Collection<N> readManySubEntitiesOfType(UUID segmentId, Class<N> type) throws ManagerPrivilegeException, ManagerFatalException;
+  <N> Collection<N> readManySubEntitiesOfType(Integer segmentId, Class<N> type) throws ManagerPrivilegeException, ManagerFatalException;
 
 
   /**
@@ -153,7 +153,7 @@ public interface SegmentManager extends Manager<Segment> {
    @param programType to get
    @return main choice
    */
-  Optional<SegmentChoice> readChoice(UUID segmentId, ProgramType programType) throws ManagerFatalException;
+  Optional<SegmentChoice> readChoice(Integer segmentId, ProgramType programType) throws ManagerFatalException;
 
   /**
    Get chain for segment
@@ -175,4 +175,54 @@ public interface SegmentManager extends Manager<Segment> {
    Reset the store to its initial state
    */
   void reset();
+
+
+  /**
+   Create a new Record
+
+   @param entity for the new Record
+   @return newly readMany record
+   @throws ManagerFatalException on failure
+   */
+  Segment create(Segment entity) throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, ManagerValidationException;
+
+  /**
+   Delete a specified Entity@param access control
+
+   @param id of specific Entity to delete.
+   @throws ManagerFatalException     on failure
+   @throws ManagerExistenceException if the entity does not exist
+   @throws ManagerPrivilegeException if access is prohibited
+   */
+  void destroy(int id) throws ManagerFatalException, ManagerPrivilegeException, ManagerExistenceException;
+
+  /**
+   Fetch many records for many parents by id, if accessible
+
+   @param parentIds to fetch records for.
+   @return collection of retrieved records
+   @throws ManagerFatalException     on failure
+   @throws ManagerPrivilegeException if access is prohibited
+   */
+  Collection<Segment> readMany(Collection<UUID> parentIds) throws ManagerFatalException, ManagerPrivilegeException, ManagerExistenceException;
+
+  /**
+   Fetch one record  if accessible
+
+   @param id of record to fetch
+   @return retrieved record
+   @throws ManagerPrivilegeException if access is prohibited
+   */
+  Segment readOne(UUID id) throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException;
+
+  /**
+   Update a specified Entity
+
+   @param id     of specific Entity to update.
+   @param entity for the updated Entity.
+   @throws ManagerFatalException     on failure
+   @throws ManagerExistenceException if the entity does not exist
+   @throws ManagerPrivilegeException if access is prohibited
+   */
+  Segment update(UUID id, Segment entity) throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, ManagerValidationException;
 }

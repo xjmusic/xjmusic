@@ -80,7 +80,7 @@ public enum SegmentUtils {
   public static Optional<Segment> getLast(Collection<Segment> segments) {
     return segments
       .stream()
-      .max(Comparator.comparing(Segment::getOffset));
+      .max(Comparator.comparing(Segment::getId));
   }
 
   /**

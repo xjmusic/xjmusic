@@ -156,7 +156,7 @@ public class ComplexLibraryTest {
       if (chain.isEmpty())
         return false;
       return segmentManager.readLastCraftedSegment(HubClientAccess.internal(), chain.get().getId())
-        .filter(value -> MARATHON_NUMBER_OF_SEGMENTS <= value.getOffset()).isPresent();
+        .filter(value -> MARATHON_NUMBER_OF_SEGMENTS <= value.getId()).isPresent();
 
     } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException ignored) {
       return false;

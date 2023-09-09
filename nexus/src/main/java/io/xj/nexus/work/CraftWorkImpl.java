@@ -230,10 +230,6 @@ public class CraftWorkImpl implements CraftWork {
   @Override
   public Optional<Chain> getChain() {
     try {
-      // when app boots up, we do not have a chain
-      if (Objects.isNull(chainId)) {
-        return Optional.empty();
-      }
       return store.getChain();
     } catch (NexusException e) {
       return Optional.empty();
@@ -287,7 +283,7 @@ public class CraftWorkImpl implements CraftWork {
     // if the end of the current segment is before the threshold, require next segment
     Optional<Segment> nextSegment = Optional.empty();
     if (Objects.nonNull(firstSegment.getDurationMicros()) && firstSegment.getBeginAtChainMicros() + firstSegment.getDurationMicros() < planToChainMicros + bufferAheadSeconds * MICROS_PER_SECOND) {
-      nextSegment = segmentManager.readOneAtChainOffset(chain.get().getId(), currentSegments.get(0).getOffset() + 1);
+      nextSegment = segmentManager.readOneAtChainOffset(chain.get().getId(), currentSegments.get(0).getId() + 1);
       if (nextSegment.isEmpty() || Objects.isNull(nextSegment.get().getDurationMicros()) || !SegmentState.CRAFTED.equals(nextSegment.get().getState())) {
         return List.of();
       }
@@ -295,8 +291,8 @@ public class CraftWorkImpl implements CraftWork {
 
     // if the beginning of the current segment is after the threshold, require previous segment
     Optional<Segment> previousSegment = Optional.empty();
-    if (Objects.nonNull(firstSegment.getDurationMicros()) && firstSegment.getBeginAtChainMicros() + firstSegment.getDurationMicros() < planToChainMicros + bufferAheadSeconds * MICROS_PER_SECOND && currentSegments.get(0).getOffset() > 0) {
-      previousSegment = segmentManager.readOneAtChainOffset(chain.get().getId(), currentSegments.get(0).getOffset() - 1);
+    if (Objects.nonNull(firstSegment.getDurationMicros()) && firstSegment.getBeginAtChainMicros() + firstSegment.getDurationMicros() < planToChainMicros + bufferAheadSeconds * MICROS_PER_SECOND && currentSegments.get(0).getId() > 0) {
+      previousSegment = segmentManager.readOneAtChainOffset(chain.get().getId(), currentSegments.get(0).getId() - 1);
       if (previousSegment.isEmpty()) {
         return List.of();
       }
@@ -325,7 +321,7 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   @Override
-  public Optional<Segment> getSegmentAtOffset(long offset) {
+  public Optional<Segment> getSegmentAtOffset(int offset) {
     // require chain
     var chain = getChain();
     if (chain.isEmpty()) {
@@ -619,7 +615,7 @@ public class CraftWorkImpl implements CraftWork {
     else
       LOG.debug("Will garbage collect {} segments", gcSegIds.size());
 
-    for (UUID segmentId : gcSegIds) {
+    for (Integer segmentId : gcSegIds) {
       try {
         segmentManager.destroy(segmentId);
         LOG.debug("collected garbage Segment[{}]", segmentId);
@@ -671,7 +667,7 @@ public class CraftWorkImpl implements CraftWork {
       finishWork(fabricator, segment);
 
       LOG.info("Fabricated Segment[offset={}] {}s long (ahead {}s)",
-        segment.getOffset(),
+        segment.getId(),
         String.format("%.1f", (float) (Objects.requireNonNull(segment.getDurationMicros()) / MICROS_PER_SECOND)),
         String.format("%.1f", aheadSeconds)
       );
@@ -701,10 +697,9 @@ public class CraftWorkImpl implements CraftWork {
     var maybeLastSegmentInChain = segmentManager.readLastSegment(target.getId());
     if (maybeLastSegmentInChain.isEmpty()) {
       var seg = new Segment();
-      seg.setId(UUID.randomUUID());
+      seg.setId(123);
       seg.setChainId(target.getId());
       seg.setBeginAtChainMicros(0L);
-      seg.setOffset(0L);
       seg.setDelta(0);
       seg.setType(SegmentType.PENDING);
       seg.setState(SegmentState.PLANNED);
@@ -714,10 +709,9 @@ public class CraftWorkImpl implements CraftWork {
 
     // Build the template of the segment that follows the last known one
     var seg = new Segment();
-    seg.setId(UUID.randomUUID());
+    seg.setId(456);
     seg.setChainId(target.getId());
     seg.setBeginAtChainMicros(lastSegmentInChain.getBeginAtChainMicros() + Objects.requireNonNull(lastSegmentInChain.getDurationMicros()));
-    seg.setOffset(lastSegmentInChain.getOffset() + 1);
     seg.setDelta(lastSegmentInChain.getDelta());
     seg.setType(SegmentType.PENDING);
     seg.setState(SegmentState.PLANNED);

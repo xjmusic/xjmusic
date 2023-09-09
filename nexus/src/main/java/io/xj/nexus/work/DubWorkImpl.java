@@ -162,7 +162,7 @@ public class DubWorkImpl implements DubWork {
   }
 
   @Override
-  public Optional<Segment> getSegmentAtOffset(long offset) {
+  public Optional<Segment> getSegmentAtOffset(int offset) {
     return craftWork.getSegmentAtOffset(offset);
   }
 

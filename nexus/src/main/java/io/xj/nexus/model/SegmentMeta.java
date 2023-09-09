@@ -13,7 +13,7 @@ import java.util.UUID;
 public class SegmentMeta {
 
   UUID id;
-  UUID segmentId;
+  Integer segmentId;
   String key;
   String value;
 
@@ -36,18 +36,18 @@ public class SegmentMeta {
 
   /**
    **/
-  public SegmentMeta segmentId(UUID segmentId) {
+  public SegmentMeta segmentId(Integer segmentId) {
     this.segmentId = segmentId;
     return this;
   }
 
 
   @JsonProperty("segmentId")
-  public UUID getSegmentId() {
+  public Integer getSegmentId() {
     return segmentId;
   }
 
-  public void setSegmentId(UUID segmentId) {
+  public void setSegmentId(Integer segmentId) {
     this.segmentId = segmentId;
   }
 

@@ -11,7 +11,7 @@ import java.util.UUID;
 public class SegmentMessage {
 
   UUID id;
-  UUID segmentId;
+  Integer segmentId;
   SegmentMessageType type;
   String body;
 
@@ -34,18 +34,18 @@ public class SegmentMessage {
 
   /**
    **/
-  public SegmentMessage segmentId(UUID segmentId) {
+  public SegmentMessage segmentId(Integer segmentId) {
     this.segmentId = segmentId;
     return this;
   }
 
 
   @JsonProperty("segmentId")
-  public UUID getSegmentId() {
+  public Integer getSegmentId() {
     return segmentId;
   }
 
-  public void setSegmentId(UUID segmentId) {
+  public void setSegmentId(Integer segmentId) {
     this.segmentId = segmentId;
   }
 

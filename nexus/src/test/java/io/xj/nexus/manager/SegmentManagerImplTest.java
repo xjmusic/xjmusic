@@ -163,7 +163,7 @@ public class SegmentManagerImplTest {
 
     assertNotNull(result);
     assertEquals(chain3.getId(), result.getChainId());
-    assertEquals(Long.valueOf(5), result.getOffset());
+    assertEquals(Long.valueOf(5), result.getId());
     assertEquals(SegmentState.PLANNED, result.getState());
     assertEquals(5 * 32 * MICROS_PER_SECOND, (long) result.getBeginAtChainMicros());
     assertEquals(32 * MICROS_PER_SECOND, (long) Objects.requireNonNull(result.getDurationMicros()));
@@ -200,7 +200,7 @@ public class SegmentManagerImplTest {
 
     assertNotNull(result);
     assertEquals(chain3.getId(), result.getChainId());
-    assertEquals(Long.valueOf(5), result.getOffset());
+    assertEquals(Long.valueOf(5), result.getId());
     assertEquals(SegmentState.PLANNED, result.getState());
     assertEquals(5 * 32 * MICROS_PER_SECOND, (long) result.getBeginAtChainMicros());
     assertEquals(32 * MICROS_PER_SECOND, (long) Objects.requireNonNull(result.getDurationMicros()));
@@ -260,7 +260,7 @@ public class SegmentManagerImplTest {
     assertNotNull(result);
     assertEquals(segment2.getId(), result.getId());
     assertEquals(chain3.getId(), result.getChainId());
-    assertEquals(Long.valueOf(1L), result.getOffset());
+    assertEquals(Long.valueOf(1L), result.getId());
     assertEquals(SegmentState.CRAFTING, result.getState());
     assertEquals(32 * MICROS_PER_SECOND, (long) result.getBeginAtChainMicros());
     assertEquals(32 * MICROS_PER_SECOND, (long) Objects.requireNonNull(result.getDurationMicros()));
@@ -348,7 +348,7 @@ public class SegmentManagerImplTest {
 
     assertEquals(segment5.getId(), result.getId());
     assertEquals(chain3.getId(), result.getChainId());
-    assertEquals(Long.valueOf(4), result.getOffset());
+    assertEquals(Long.valueOf(4), result.getId());
     assertEquals(SegmentState.PLANNED, result.getState());
     assertEquals(4 * 32 * MICROS_PER_SECOND, (long) result.getBeginAtChainMicros());
     assertNull(result.getDurationMicros());

@@ -96,7 +96,7 @@ public interface NexusEntityStore {
    @return collection of segments
    @throws NexusException on failure to retrieve the requested key
    */
-  Collection<Segment> getAllSegments() throws NexusException;
+  List<Segment> getAllSegments() throws NexusException;
 
   /**
    Get an entity by partition (segment id), type, and id from the record store

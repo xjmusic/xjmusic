@@ -120,7 +120,7 @@ public interface DubWork {
    @param offset the offset
    @return the segment, or empty if not yet available
    */
-  Optional<Segment> getSegmentAtOffset(long offset);
+  Optional<Segment> getSegmentAtOffset(int offset);
 
   /**
    Get the main program for the given segment

@@ -168,6 +168,6 @@ public interface SegmentRetrospective {
    @param segmentId for which to get chords
    @return chords
    */
-  List<SegmentChord> getSegmentChords(UUID segmentId);
+  List<SegmentChord> getSegmentChords(Integer segmentId);
 
 }

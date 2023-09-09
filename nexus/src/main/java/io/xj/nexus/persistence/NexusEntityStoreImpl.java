@@ -132,7 +132,7 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   }
 
   @Override
-  public Collection<Segment> getAllSegments() {
+  public List<Segment> getAllSegments() {
     return segmentArray;
   }
 
