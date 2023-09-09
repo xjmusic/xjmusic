@@ -364,7 +364,7 @@ public class NexusIntegrationTestingFixtures {
     segmentChoice.setDeltaIn(Segment.DELTA_UNLIMITED);
     segmentChoice.setDeltaOut(Segment.DELTA_UNLIMITED);
     segmentChoice.setProgramId(programSequenceBinding.getProgramId());
-    segmentChoice.setProgramSequenceBindingId(programSequenceBinding.getId());
+    segmentChoice.setProgramSequenceBindingId(programSequenceBinding.getOffset());
     segmentChoice.setProgramType(programType);
     return segmentChoice;
   }
@@ -434,7 +434,7 @@ public class NexusIntegrationTestingFixtures {
 
   public static SegmentChoice buildSegmentChoice(Segment segment, int deltaIn, int deltaOut, Program program, ProgramSequenceBinding programSequenceBinding) {
     var choice = buildSegmentChoice(segment, deltaIn, deltaOut, program);
-    choice.setProgramSequenceBindingId(programSequenceBinding.getId());
+    choice.setProgramSequenceBindingId(programSequenceBinding.getOffset());
     return choice;
   }
 

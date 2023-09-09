@@ -257,7 +257,7 @@ public class CraftWorkImpl implements CraftWork {
       return List.of();
     }
 
-    return segmentManager.readAll(chain.get().getId());
+    return segmentManager.readAll();
   }
 
   @Override
@@ -269,7 +269,7 @@ public class CraftWorkImpl implements CraftWork {
     }
 
     // require current segment with end-at time and crafted state
-    var currentSegments = segmentManager.readAllSpanning(chain.get().getId(), planFromChainMicros, planToChainMicros);
+    var currentSegments = segmentManager.readAllSpanning(planFromChainMicros, planToChainMicros);
     if (currentSegments.isEmpty() || currentSegments.stream().anyMatch(segment -> !SegmentState.CRAFTED.equals(segment.getState()))) {
       return List.of();
     }
@@ -313,7 +313,7 @@ public class CraftWorkImpl implements CraftWork {
     }
 
     // require current segment in crafted state
-    var currentSegment = segmentManager.readOneAtChainMicros(chain.get().getId(), chainMicros);
+    var currentSegment = segmentManager.readOneAtChainMicros(chainMicros);
     if (currentSegment.isEmpty() || currentSegment.get().getState() != SegmentState.CRAFTED) {
       return Optional.empty();
     }

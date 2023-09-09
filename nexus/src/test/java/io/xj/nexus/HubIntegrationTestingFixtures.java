@@ -241,7 +241,7 @@ public class HubIntegrationTestingFixtures {
     var meme = new ProgramSequenceBindingMeme();
     meme.setId(UUID.randomUUID());
     meme.setProgramId(programSequenceBinding.getProgramId());
-    meme.setProgramSequenceBindingId(programSequenceBinding.getId());
+    meme.setProgramSequenceBindingId(programSequenceBinding.getOffset());
     meme.setName(name);
     return meme;
   }
@@ -544,7 +544,7 @@ public class HubIntegrationTestingFixtures {
 
   public static ProgramSequenceBinding buildProgramSequenceBinding(ProgramSequence programSequence, int offset) {
     var programSequenceBinding = new ProgramSequenceBinding();
-    programSequenceBinding.setId(UUID.randomUUID());
+    programSequenceBinding.setOffset(UUID.randomUUID());
     programSequenceBinding.setProgramId(programSequence.getProgramId());
     programSequenceBinding.setProgramSequenceId(programSequence.getId());
     programSequenceBinding.setOffset(offset);
@@ -555,7 +555,7 @@ public class HubIntegrationTestingFixtures {
     var programSequenceBindingMeme = new ProgramSequenceBindingMeme();
     programSequenceBindingMeme.setId(UUID.randomUUID());
     programSequenceBindingMeme.setProgramId(programSequenceBinding.getProgramId());
-    programSequenceBindingMeme.setProgramSequenceBindingId(programSequenceBinding.getId());
+    programSequenceBindingMeme.setProgramSequenceBindingId(programSequenceBinding.getOffset());
     programSequenceBindingMeme.setName(name);
     return programSequenceBindingMeme;
   }

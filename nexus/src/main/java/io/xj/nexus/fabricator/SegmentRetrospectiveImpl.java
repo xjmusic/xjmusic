@@ -8,7 +8,6 @@ import io.xj.hub.util.MarbleBag;
 import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.entity.EntityStoreImpl;
-import io.xj.lib.entity.EntityUtils;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.*;
@@ -24,7 +23,7 @@ import java.util.stream.Collectors;
 class SegmentRetrospectiveImpl implements SegmentRetrospective {
   final Logger LOG = LoggerFactory.getLogger(SegmentRetrospectiveImpl.class);
   final EntityStore retroStore;
-  final Map<UUID, List<SegmentChord>> segmentChords;
+  final List<List<SegmentChord>> segmentChords = new ArrayList<>();
   Segment previousSegment;
 
   public SegmentRetrospectiveImpl(
@@ -33,8 +32,6 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   ) throws NexusException, FabricationFatalException {
     this.retroStore = new EntityStoreImpl();
 
-    segmentChords = new HashMap<>();
-
     // begin by getting the previous segment
     // only can build retrospective if there is at least one previous segment
     // the previous segment is the first one cached here. we may cache even further back segments below if found
@@ -42,8 +39,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
     try {
       // begin by getting the previous segment
       // the previous segment is the first one cached here. we may cache even further back segments below if found
-      previousSegment = retroStore.put(segmentManager.readOneAtChainOffset(segment.getChainId(), segment.getId() - 1)
-        .orElseThrow(() -> new ManagerExistenceException("No previous segment!")));
+      previousSegment = retroStore.put(segmentManager.readOne(segment.getId() - 1));
       retroStore.putAll(segmentManager.readManySubEntities(List.of(previousSegment.getId()), true));
 
       // previous segment must have a main choice to continue past here.
@@ -67,7 +63,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
         .collect(Collectors.toList());
 
       retroStore.putAll(previousMany);
-      retroStore.putAll(segmentManager.readManySubEntities(EntityUtils.idsOf(previousMany), true));
+      retroStore.putAll(segmentManager.readManySubEntities(previousMany.stream().map(Segment::getId).toList(), true));
 
     } catch (ManagerExistenceException | ManagerFatalException | ManagerPrivilegeException | EntityStoreException e) {
       throw new NexusException(e);
@@ -137,7 +133,8 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public Optional<Segment> getSegment(UUID id) {
+  public Optional<Segment> getSegment(int id) {
+    // todo what are we going to do about this retro store? it's not going to be able to handle the new segment
     return MarbleBag.quickPick(retroStore.getAll(Segment.class).stream().filter(s -> Objects.equals(id, s.getId())).collect(Collectors.toList()));
   }
 
@@ -201,9 +198,9 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public List<SegmentChord> getSegmentChords(Integer segmentId) {
-    if (!segmentChords.containsKey(segmentId)) {
-      segmentChords.put(segmentId,
+  public List<SegmentChord> getSegmentChords(int segmentId) {
+    if (segmentChords.size() <= segmentId) {
+      segmentChords.set(segmentId,
         retroStore.getAll(SegmentChord.class)
           .stream()
           .filter(chord -> Objects.equals(segmentId, chord.getSegmentId()))

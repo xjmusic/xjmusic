@@ -217,12 +217,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public String getChainFullJson() throws NexusException {
-    try {
-      return computeChainJson(segmentManager.readMany(List.of(chain.getId())));
-
-    } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException e) {
-      throw new NexusException(e);
-    }
+    return computeChainJson(segmentManager.readAll());
   }
 
   @Override
@@ -476,7 +471,7 @@ public class FabricatorImpl implements Fabricator {
       var previousMacroChoice = getMacroChoiceOfPreviousSegment().orElseThrow(NexusException::new);
       var previousSequenceBinding = sourceMaterial().getProgramSequenceBinding(previousMacroChoice.getProgramSequenceBindingId()).orElseThrow(NexusException::new);
 
-      var nextSequenceBinding = sourceMaterial().getBindingsAtOffset(previousMacroChoice.getProgramId(), previousSequenceBinding.getId() + 1);
+      var nextSequenceBinding = sourceMaterial().getBindingsAtOffset(previousMacroChoice.getProgramId(), previousSequenceBinding.getOffset() + 1);
 
       return MemeIsometry.of(templateConfig.getMemeTaxonomy(), Stream.concat(sourceMaterial.getProgramMemes(previousMacroChoice.getProgramId()).stream().map(ProgramMeme::getName), nextSequenceBinding.stream().flatMap(programSequenceBinding -> sourceMaterial.getMemesForProgramSequenceBindingId(programSequenceBinding.getId()).stream().map(ProgramSequenceBindingMeme::getName))).collect(Collectors.toList()));
 
@@ -813,7 +808,7 @@ public class FabricatorImpl implements Fabricator {
   public Integer getSequenceBindingOffsetForChoice(SegmentChoice choice) {
     if (ValueUtils.isEmpty(choice.getProgramSequenceBindingId())) return 0;
     var sequenceBinding = sourceMaterial.getProgramSequenceBinding(choice.getProgramSequenceBindingId());
-    return sequenceBinding.map(ProgramSequenceBinding::getId).orElse(0);
+    return sequenceBinding.map(ProgramSequenceBinding::getOffset).orElse(0);
   }
 
   @Override
@@ -847,7 +842,7 @@ public class FabricatorImpl implements Fabricator {
 
     // if we locate the target and still have two offsets remaining, result is true
     for (int i = 0; i < avlOfs.size(); i++)
-      if (Objects.equals(avlOfs.get(i), sequenceBinding.get().getId()) && i < avlOfs.size() - N) return true;
+      if (Objects.equals(avlOfs.get(i), sequenceBinding.get().getOffset()) && i < avlOfs.size() - N) return true;
 
     return false;
   }

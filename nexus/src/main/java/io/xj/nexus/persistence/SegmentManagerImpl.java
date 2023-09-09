@@ -120,7 +120,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   @Override
-  public List<Segment> readAll(UUID chainId) {
+  public List<Segment> readAll() {
     try {
       return store.getAllSegments(chainId)
         .stream()
@@ -142,7 +142,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   @Override
-  public List<Segment> readAllSpanning(UUID chainId, Long fromChainMicros, Long toChainMicros) {
+  public List<Segment> readAllSpanning(Long fromChainMicros, Long toChainMicros) {
     try {
       return store.getAllSegments(chainId)
         .stream()
@@ -156,7 +156,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   @Override
-  public Segment readOne(UUID id) throws ManagerExistenceException, ManagerFatalException {
+  public Segment readOne(int id) throws ManagerExistenceException, ManagerFatalException {
     try {
       return store.getSegment(id)
         .orElseThrow(() -> new ManagerExistenceException(Segment.class, id.toString()));
@@ -168,7 +168,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
 
 
   @Override
-  public Optional<Segment> readOneAtChainMicros(UUID chainId, long chainMicros) {
+  public Optional<Segment> readOneAtChainMicros(long chainMicros) {
     try {
       var segments = store.getAllSegments(chainId)
         .stream()
@@ -207,7 +207,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   @Override
-  public <N> Collection<N> readManySubEntities(Collection<UUID> segmentIds, Boolean includePicks) throws ManagerFatalException {
+  public <N> Collection<N> readManySubEntities(Collection<Integer> segmentIds, Boolean includePicks) throws ManagerFatalException {
     try {
       Collection<Object> entities = new ArrayList<>();
       for (UUID sId : segmentIds) {
@@ -281,7 +281,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   @Override
-  public Segment update(UUID id, Segment entity) throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException, ManagerValidationException {
+  public Segment update(int id, Segment entity) throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException, ManagerValidationException {
     try {
       // validate and cache to-state
       validate(entity);

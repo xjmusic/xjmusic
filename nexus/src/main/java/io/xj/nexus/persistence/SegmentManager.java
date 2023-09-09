@@ -42,12 +42,11 @@ public interface SegmentManager /* does not extend Manager<Segment> because it i
   /**
    Get the segments that span the given instant
 
-   @param chainId         for which to get segments
    @param fromChainMicros for which to get segments
    @param toChainMicros   for which to get segments
    @return segments that span the given instant, empty if none found
    */
-  List<Segment> readAllSpanning(UUID chainId, Long fromChainMicros, Long toChainMicros);
+  List<Segment> readAllSpanning(Long fromChainMicros, Long toChainMicros);
 
   /**
    Get the segment at the given chain microseconds, if it is ready
@@ -55,11 +54,10 @@ public interface SegmentManager /* does not extend Manager<Segment> because it i
    <p>
    Note this algorithm intends to get the latter segment when the lookup point is on the line between two segments
 
-   @param chainId     the chain id for which to get the segment
    @param chainMicros the chain microseconds for which to get the segment
    @return the segment at the given chain microseconds, or an empty optional if the segment is not ready
    */
-  Optional<Segment> readOneAtChainMicros(UUID chainId, long chainMicros);
+  Optional<Segment> readOneAtChainMicros(long chainMicros);
 
   /**
    Fetch id for the Segment in a Chain at a given offset, if present
@@ -94,7 +92,7 @@ public interface SegmentManager /* does not extend Manager<Segment> because it i
    @throws ManagerFatalException     if the entity does not exist
    @throws ManagerPrivilegeException if access is prohibited
    */
-  <N> Collection<N> readManySubEntities(Collection<UUID> segmentIds, Boolean includePicks) throws ManagerPrivilegeException, ManagerFatalException;
+  <N> Collection<N> readManySubEntities(Collection<Integer> segmentIds, Boolean includePicks) throws ManagerPrivilegeException, ManagerFatalException;
 
   /**
    Fetch all sub-entities records for many parent segments by id
@@ -166,10 +164,9 @@ public interface SegmentManager /* does not extend Manager<Segment> because it i
   /**
    Read all segments
 
-   @param chainId for which to get segments
    @return all segments for that chain
    */
-  List<Segment> readAll(UUID chainId);
+  List<Segment> readAll();
 
   /**
    Reset the store to its initial state
@@ -213,7 +210,7 @@ public interface SegmentManager /* does not extend Manager<Segment> because it i
    @return retrieved record
    @throws ManagerPrivilegeException if access is prohibited
    */
-  Segment readOne(UUID id) throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException;
+  Segment readOne(int id) throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException;
 
   /**
    Update a specified Entity
@@ -224,5 +221,5 @@ public interface SegmentManager /* does not extend Manager<Segment> because it i
    @throws ManagerExistenceException if the entity does not exist
    @throws ManagerPrivilegeException if access is prohibited
    */
-  Segment update(UUID id, Segment entity) throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, ManagerValidationException;
+  Segment update(int id, Segment entity) throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, ManagerValidationException;
 }

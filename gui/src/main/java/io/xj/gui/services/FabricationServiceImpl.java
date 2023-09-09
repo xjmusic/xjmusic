@@ -313,7 +313,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
 
   String computeProgramName(@Nullable Program program, @Nullable ProgramSequence programSequence, @Nullable ProgramSequenceBinding programSequenceBinding) {
     if (Objects.nonNull(program) && Objects.nonNull(programSequence) && Objects.nonNull(programSequenceBinding))
-      return String.format("%s @ %d (%s)", program.getName(), programSequenceBinding.getId(), programSequence.getName());
+      return String.format("%s @ %d (%s)", program.getName(), programSequenceBinding.getOffset(), programSequence.getName());
     else if (Objects.nonNull(program))
       return program.getName();
     else return "Not Loaded";
