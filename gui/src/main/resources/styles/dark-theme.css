@@ -151,7 +151,7 @@
 }
 
 .main-timeline-segment .segment-active-indicator {
-  -fx-background-color: #343434;
+  -fx-background-color: #2b2b2b;
 }
 
 .main-timeline-segment .segment-active-indicator.active {

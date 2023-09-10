@@ -250,7 +250,7 @@ public class ShipWorkImpl implements ShipWork {
   /**
    Ship available bytes from the dub mixer buffer to the output method
    */
-  void doShipOutputPlayback() throws IOException, ShipException {
+  void doShipOutputPlayback() throws IOException {
     {
       if (Objects.isNull(playback)) {
         didFailWhile("shipping bytes to local playback", new IllegalStateException("Player is null"));
@@ -416,8 +416,11 @@ public class ShipWorkImpl implements ShipWork {
 
   @Override
   public Optional<Long> getOutputSyncChainMicros() {
-    // TODO get the actual playback chain micros calculated from the audio playback system-- atChainMicros is for the buffer writing, which is ahead of the playback
-    return outputMode.isSync() ? Optional.of(atChainMicros) : Optional.empty();
+    return switch (outputMode) {
+      case PLAYBACK -> Objects.nonNull(playback) ? Optional.of(playback.getHeardAtChainMicros()) : Optional.empty();
+      case HLS -> Optional.empty(); // future: this will be the actual chain micros of the HLS output
+      case FILE -> Optional.empty();
+    };
   }
 
   /**

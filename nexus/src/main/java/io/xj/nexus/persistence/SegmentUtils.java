@@ -132,6 +132,7 @@ public enum SegmentUtils {
    */
   public static boolean isIntersecting(Segment segment, Long atChainMicros) {
     return Objects.nonNull(segment.getDurationMicros()) &&
+      Objects.nonNull(atChainMicros) &&
       segment.getBeginAtChainMicros() + segment.getDurationMicros() >= atChainMicros &&
       segment.getBeginAtChainMicros() < atChainMicros;
   }

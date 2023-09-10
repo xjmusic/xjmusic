@@ -78,4 +78,9 @@ public class StreamPlayerImpl implements StreamPlayer {
     running.set(false);
   }
 
+  @Override
+  public long getHeardAtChainMicros() {
+    return line.getMicrosecondPosition();
+  }
+
 }

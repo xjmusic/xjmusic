@@ -28,7 +28,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   private static final int SHOW_LAST_N_SEGMENTS = 20;
   final ConfigurableApplicationContext ac;
   final FabricationService fabricationService;
-  final Integer refreshRateSeconds;
+  final Integer refreshRateMillis;
   final MainTimelineSegmentFactory segmentFactory;
   final LabService labService;
   final ObservableList<SegmentOnTimeline> segments = FXCollections.observableArrayList();
@@ -40,7 +40,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   protected ListView<SegmentOnTimeline> segmentListView;
 
   public MainTimelineController(
-    @Value("${gui.timeline.refresh.seconds}") Integer refreshRateSeconds,
+    @Value("${gui.timeline.refresh.millis}") Integer refreshRateMillis,
     ConfigurableApplicationContext ac,
     FabricationService fabricationService,
     LabService labService,
@@ -49,7 +49,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     this.ac = ac;
     this.fabricationService = fabricationService;
     this.labService = labService;
-    this.refreshRateSeconds = refreshRateSeconds;
+    this.refreshRateMillis = refreshRateMillis;
     this.segmentFactory = segmentFactory;
   }
 
@@ -75,12 +75,12 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   public void onStageReady() {
     refresh = new Timeline(
       new KeyFrame(
-        Duration.seconds(1),
+        Duration.millis(refreshRateMillis),
         event -> updateSegmentList()
       )
     );
     refresh.setCycleCount(Timeline.INDEFINITE);
-    refresh.setRate(refreshRateSeconds);
+    refresh.setRate(1.0);
     refresh.play();
 
     segmentListView.setSelectionModel(new NoSelectionModel<>());
