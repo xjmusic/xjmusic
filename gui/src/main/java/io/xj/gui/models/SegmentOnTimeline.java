@@ -1,7 +1,6 @@
 package io.xj.gui.models;
 
 import io.xj.nexus.model.Segment;
-import io.xj.nexus.persistence.SegmentUtils;
 
 import java.util.Objects;
 
@@ -14,9 +13,9 @@ public class SegmentOnTimeline {
     active = false;
   }
 
-  public SegmentOnTimeline(Segment segment, Long activeAtChainMicros) {
+  public SegmentOnTimeline(Segment segment, boolean active) {
     this.segment = segment;
-    active = SegmentUtils.isIntersecting(segment, activeAtChainMicros);
+    this.active = active;
   }
 
   public Segment getSegment() {

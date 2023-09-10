@@ -128,28 +128,13 @@ public class SegmentUtilsTest {
   // Exclusive of segment start time; inclusive of segment end time (different from SegmentUtils.isSpanning)
   @Test
   public void testIsIntersecting() {
-    assertFalse(SegmentUtils.isIntersecting(seg1, 32 * MICROS_PER_SECOND)); // false if exactly at beginning of segment
-    assertTrue(SegmentUtils.isIntersecting(seg1, 64 * MICROS_PER_SECOND)); // true if exactly at end of segment
-    assertFalse(SegmentUtils.isIntersecting(seg1, 15 * MICROS_PER_SECOND));
-    assertFalse(SegmentUtils.isIntersecting(seg1, 20 * MICROS_PER_SECOND));
-    assertTrue(SegmentUtils.isIntersecting(seg1, 35 * MICROS_PER_SECOND));
-    assertTrue(SegmentUtils.isIntersecting(seg1, 50 * MICROS_PER_SECOND));
-    assertFalse(SegmentUtils.isIntersecting(seg1, 66 * MICROS_PER_SECOND));
-  }
-
-  Segment createSameSegment(String updatedAt, SegmentState state) {
-    final Segment s = buildSegment(
-      chain,
-      SegmentType.CONTINUE,
-      1,
-      1,
-      state,
-      "F Major",
-      64,
-      0.30f,
-      120.0f,
-      "chains-1-segments-078aw34tiu5hga",
-      true);
-    return s.setCreatedAt(updatedAt).setUpdatedAt(updatedAt);
+    assertFalse(SegmentUtils.isIntersecting(seg1, 15 * MICROS_PER_SECOND, 100L));
+    assertFalse(SegmentUtils.isIntersecting(seg1, 20 * MICROS_PER_SECOND, 100L));
+    assertTrue(SegmentUtils.isIntersecting(seg1, 35 * MICROS_PER_SECOND, 100L));
+    assertTrue(SegmentUtils.isIntersecting(seg1, 50 * MICROS_PER_SECOND, 100L));
+    assertFalse(SegmentUtils.isIntersecting(seg1, 65 * MICROS_PER_SECOND, 100L));
+    assertTrue(SegmentUtils.isIntersecting(seg1, 65 * MICROS_PER_SECOND, 2000000L)); // expanded threshold
+    assertTrue(SegmentUtils.isIntersecting(seg1, 32 * MICROS_PER_SECOND, 0L)); // true if exactly at beginning of segment when threshold is 0
+    assertFalse(SegmentUtils.isIntersecting(seg1, 64 * MICROS_PER_SECOND, 0L)); // false if exactly at end of segment when threshold is 0
   }
 }

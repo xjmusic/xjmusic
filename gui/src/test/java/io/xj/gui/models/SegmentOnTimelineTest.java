@@ -43,34 +43,34 @@ class SegmentOnTimelineTest {
 
   @Test
   void isActive_true() {
-    subject = new SegmentOnTimeline(segment, segment.getBeginAtChainMicros() + 100);
+    subject = new SegmentOnTimeline(segment, true);
     assertTrue(subject.isActive());
   }
 
   @Test
   void isActive_false() {
-    subject = new SegmentOnTimeline(segment, segment.getBeginAtChainMicros() - 100);
+    subject = new SegmentOnTimeline(segment, false);
     assertFalse(subject.isActive());
   }
 
   @Test
   void isSameButUpdated_falseIfIdentical() {
-    var s1 = new SegmentOnTimeline(segment, segment.getBeginAtChainMicros() + 100);
-    var s2 = new SegmentOnTimeline(segment, segment.getBeginAtChainMicros() + 100);
+    var s1 = new SegmentOnTimeline(segment, true);
+    var s2 = new SegmentOnTimeline(segment, true);
     assertFalse(s1.isSameButUpdated(s2));
   }
 
   @Test
   void isSameButUpdated_trueIfActivated() {
-    var s1 = new SegmentOnTimeline(segment, segment.getBeginAtChainMicros() - 100);
-    var s2 = new SegmentOnTimeline(segment, segment.getBeginAtChainMicros() + 100);
+    var s1 = new SegmentOnTimeline(segment, false);
+    var s2 = new SegmentOnTimeline(segment, true);
     assertTrue(s1.isSameButUpdated(s2));
   }
 
   @Test
   void isSameButUpdated_trueIfDeactivated() {
-    var s1 = new SegmentOnTimeline(segment, segment.getBeginAtChainMicros() + 100);
-    var s2 = new SegmentOnTimeline(segment, segment.getBeginAtChainMicros() - 100);
+    var s1 = new SegmentOnTimeline(segment, true);
+    var s2 = new SegmentOnTimeline(segment, false);
     assertTrue(s1.isSameButUpdated(s2));
   }
 

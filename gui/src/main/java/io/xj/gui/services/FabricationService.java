@@ -90,5 +90,5 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
 
   Node computeInstrumentAudioReferenceNode(UUID instrumentAudioId);
 
-  List<SegmentOnTimeline> getSegmentsOnTimeline(int startIndex, int total, @Nullable Long activeAtChainMicros);
+  List<SegmentOnTimeline> getSegmentsOnTimeline(int length, @Nullable Integer startIndex, @Nullable Long activeAtChainMicros, Long thresholdMicros);
 }

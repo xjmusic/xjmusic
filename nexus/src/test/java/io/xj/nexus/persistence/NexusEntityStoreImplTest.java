@@ -239,4 +239,48 @@ public class NexusEntityStoreImplTest {
     subject.put(templateBinding);
   }
 
+  @Test
+  public void getSegmentCount() throws NexusException {
+    var account1 = buildAccount("fish");
+    var template = buildTemplate(account1, "fishy");
+    var chain3 = subject.put(buildChain(
+      account1,
+      "Test Print #3",
+      ChainType.PRODUCTION,
+      ChainState.FABRICATE,
+      template,
+      "key123"));
+    subject.put(buildSegment(chain3,
+      0,
+      SegmentState.CRAFTED,
+      "D Major",
+      64,
+      0.73,
+      120.0,
+      "chains-3-segments-9f7s89d8a7892.wav"
+    ));
+    subject.put(buildSegment(chain3,
+      1,
+      SegmentState.CRAFTED,
+      "D Major",
+      64,
+      0.73,
+      120.0,
+      "chains-3-segments-9f7s89d8a7892.wav"
+    ));
+    subject.put(buildSegment(chain3,
+      2,
+      SegmentState.CRAFTED,
+      "D Major",
+      64,
+      0.73,
+      120.0,
+      "chains-3-segments-9f7s89d8a7892.wav"
+    ));
+
+    Integer result = subject.getSegmentCount();
+
+    assertEquals(3, result);
+  }
+
 }

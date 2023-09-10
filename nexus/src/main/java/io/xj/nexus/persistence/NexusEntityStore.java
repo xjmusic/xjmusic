@@ -130,17 +130,17 @@ public interface NexusEntityStore {
   ) throws NexusException;
 
   /**
-   Return the size of the store, in # of entities
-
-   @return size of store
-   */
-  int size();
-
-  /**
    Get all picks for the given segments
 
    @param segments for which to get picks
    @return picks
    */
   List<SegmentChoiceArrangementPick> getPicks(List<Segment> segments) throws NexusException;
+
+  /**
+   Get the total number of segments in the store
+
+   @return number of segments
+   */
+  Integer getSegmentCount();
 }

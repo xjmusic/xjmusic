@@ -108,7 +108,7 @@ public enum SegmentUtils {
 
   /**
    Whether the segment is spanning a given time frame.
-   Inclusive of segment start time; exclusive of segment end time (different from SegmentUtils.isIntersecting)
+   Inclusive of segment start time; exclusive of segment end time.
 
    @param segment         to test
    @param fromChainMicros to test frame from
@@ -123,18 +123,20 @@ public enum SegmentUtils {
 
   /**
    Whether the segment is intersecting a given time.
-   Exclusive of segment start time; inclusive of segment end time (different from SegmentUtils.isSpanning)
-   Designed so to return false when playback is at the exact beginning of the segment, ergo not actually begun playing.
+   Inclusive of segment start time; exclusive of segment end time.
+   Designed so to return true when within the threshold of being active (may true for multiple segments)
+   + return false when threshold is 0 and at the exact end of the segment (to avoid double-activation)
 
-   @param segment       to test
-   @param atChainMicros to test at
+   @param segment         to test
+   @param atChainMicros   to test at
+   @param thresholdMicros to test threshold
    @return true if segment is spanning time
    */
-  public static boolean isIntersecting(Segment segment, Long atChainMicros) {
+  public static boolean isIntersecting(Segment segment, Long atChainMicros, Long thresholdMicros) {
     return Objects.nonNull(segment.getDurationMicros()) &&
       Objects.nonNull(atChainMicros) &&
-      segment.getBeginAtChainMicros() + segment.getDurationMicros() >= atChainMicros &&
-      segment.getBeginAtChainMicros() < atChainMicros;
+      segment.getBeginAtChainMicros() + segment.getDurationMicros() + thresholdMicros > atChainMicros &&
+      segment.getBeginAtChainMicros() - thresholdMicros <= atChainMicros;
   }
 
   /**

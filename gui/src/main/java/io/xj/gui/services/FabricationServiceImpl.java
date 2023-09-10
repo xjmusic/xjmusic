@@ -11,6 +11,7 @@ import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.ManagerExistenceException;
 import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.ManagerPrivilegeException;
+import io.xj.nexus.persistence.SegmentUtils;
 import io.xj.nexus.work.WorkConfiguration;
 import io.xj.nexus.work.WorkFactory;
 import jakarta.annotation.Nullable;
@@ -313,13 +314,15 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   }
 
   @Override
-  public List<SegmentOnTimeline> getSegmentsOnTimeline(int startIndex, int total, @Nullable Long activeAtChainMicros) {
+  public List<SegmentOnTimeline> getSegmentsOnTimeline(int length, @Nullable Integer startIndex, @Nullable Long activeAtChainMicros, Long thresholdMicros) {
     try {
+      var from = Objects.nonNull(startIndex) ? startIndex : Math.max(0, workFactory.getSegmentManager().size() - length);
+      var to = Math.min(workFactory.getSegmentManager().size() - 1, from + length);
       return workFactory
         .getSegmentManager()
-        .readManyFromToOffset(startIndex, startIndex + total)
+        .readManyFromToOffset(from, to)
         .stream()
-        .map(s -> new SegmentOnTimeline(s, activeAtChainMicros))
+        .map(s -> new SegmentOnTimeline(s, true)) // todo active = SegmentUtils.isIntersecting(s, activeAtChainMicros, thresholdMicros)
         .toList();
     } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException e) {
       LOG.error("Failed to get segments", e);

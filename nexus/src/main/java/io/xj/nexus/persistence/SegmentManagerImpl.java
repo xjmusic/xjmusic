@@ -121,10 +121,7 @@ public class SegmentManagerImpl implements SegmentManager {
   @Override
   public List<Segment> readAll() {
     try {
-      return store.getAllSegments()
-        .stream()
-        .sorted(Comparator.comparing(Segment::getId))
-        .toList();
+      return store.getAllSegments();
 
     } catch (NexusException e) {
       return List.of();
@@ -314,6 +311,11 @@ public class SegmentManagerImpl implements SegmentManager {
     } catch (ValueException e) {
       throw new ManagerValidationException(e);
     }
+  }
+
+  @Override
+  public Integer size() {
+    return store.getSegmentCount();
   }
 
   @Override

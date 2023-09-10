@@ -9,6 +9,7 @@ import io.xj.gui.services.LabService;
 import jakarta.annotation.Nullable;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.beans.property.SimpleLongProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -26,30 +27,40 @@ import java.util.Objects;
 @Service
 public class MainTimelineController extends ScrollPane implements ReadyAfterBootController {
   private static final int SHOW_LAST_N_SEGMENTS = 20;
+  private static final Long MILLIS_PER_MICRO = 1000L;
+  private final Integer refreshSyncMillis;
   final ConfigurableApplicationContext ac;
   final FabricationService fabricationService;
-  final Integer refreshRateMillis;
-  final MainTimelineSegmentFactory segmentFactory;
   final LabService labService;
+  final MainTimelineSegmentFactory segmentFactory;
   final ObservableList<SegmentOnTimeline> segments = FXCollections.observableArrayList();
+  final double refreshTimelineMillis;
+  final long refreshTimelineMicros;
+  final SimpleLongProperty outputSyncChainMicros = new SimpleLongProperty(0L);
 
   @Nullable
-  Timeline refresh;
+  Timeline refreshTimeline;
+
+  @Nullable
+  Timeline refreshSync;
 
   @FXML
   protected ListView<SegmentOnTimeline> segmentListView;
 
   public MainTimelineController(
-    @Value("${gui.timeline.refresh.millis}") Integer refreshRateMillis,
+    @Value("${gui.refresh.timeline.millis}") Integer refreshTimelineMillis,
+    @Value("${gui.refresh.sync.millis}") Integer refreshSyncMillis,
     ConfigurableApplicationContext ac,
     FabricationService fabricationService,
     LabService labService,
     MainTimelineSegmentFactory segmentFactory
   ) {
+    this.refreshSyncMillis = refreshSyncMillis;
     this.ac = ac;
     this.fabricationService = fabricationService;
     this.labService = labService;
-    this.refreshRateMillis = refreshRateMillis;
+    this.refreshTimelineMicros = refreshTimelineMillis * MILLIS_PER_MICRO;
+    this.refreshTimelineMillis = refreshTimelineMillis;
     this.segmentFactory = segmentFactory;
   }
 
@@ -64,7 +75,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
           if (empty || item == null) {
             setGraphic(null);
           } else {
-            setGraphic(segmentFactory.computeSegmentNode(item));
+            setGraphic(segmentFactory.computeSegmentNode(item, outputSyncChainMicros));
           }
         }
       };
@@ -73,15 +84,25 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
 
   @Override
   public void onStageReady() {
-    refresh = new Timeline(
+    refreshTimeline = new Timeline(
       new KeyFrame(
-        Duration.millis(refreshRateMillis),
-        event -> updateSegmentList()
+        Duration.millis(refreshTimelineMillis),
+        event -> updateTimeline()
       )
     );
-    refresh.setCycleCount(Timeline.INDEFINITE);
-    refresh.setRate(1.0);
-    refresh.play();
+    refreshTimeline.setCycleCount(Timeline.INDEFINITE);
+    refreshTimeline.setRate(1.0);
+    refreshTimeline.play();
+
+    refreshSync = new Timeline(
+      new KeyFrame(
+        Duration.millis(refreshSyncMillis),
+        event -> updateSync()
+      )
+    );
+    refreshSync.setCycleCount(Timeline.INDEFINITE);
+    refreshSync.setRate(1.0);
+    refreshSync.play();
 
     segmentListView.setSelectionModel(new NoSelectionModel<>());
     segmentListView.setCellFactory(cellFactory);
@@ -90,25 +111,24 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
 
   @Override
   public void onStageClose() {
-    if (Objects.nonNull(refresh)) {
-      refresh.stop();
+    if (Objects.nonNull(refreshTimeline)) {
+      refreshTimeline.stop();
+    }
+    if (Objects.nonNull(refreshSync)) {
+      refreshSync.stop();
     }
   }
 
   /**
-   Called every second to update the segment list.
+   Called to update the timeline (segment list).
    */
-  void updateSegmentList() {
+  void updateTimeline() {
     if (Objects.isNull(fabricationService.getWorkFactory().getCraftWork())) {
       segments.clear();
       return;
     }
 
-    // TODO move the getOutputSyncChainMicros out of the segment factory loop and into its own more-frequent loop
-    // TODO instead of writing new objects to represent active/inactive, update the master node and let displays be reactive
-    var outputSyncChainMicros = fabricationService.getWorkFactory().getOutputSyncChainMicros();
-
-    var currentSegments = fabricationService.getSegmentsOnTimeline(0, SHOW_LAST_N_SEGMENTS, outputSyncChainMicros.orElse(null));
+    var currentSegments = fabricationService.getSegmentsOnTimeline(SHOW_LAST_N_SEGMENTS, null, outputSyncChainMicros.get(), refreshTimelineMicros * 2);
 
     segments.removeIf(segment -> currentSegments.stream().noneMatch(source -> Objects.equals(source.getId(), segment.getId())));
     // iterate through all in segments, and update if the updated at time has changed from the source matching that id
@@ -124,6 +144,13 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
         segments.add(source);
       }
     });
+  }
+
+  /**
+   Called frequently to update the sync (playback position indicator).
+   */
+  void updateSync() {
+    fabricationService.getWorkFactory().getOutputSyncChainMicros().ifPresent(outputSyncChainMicros::set);
   }
 
 }

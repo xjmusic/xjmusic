@@ -8,7 +8,10 @@ import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.nexus.model.*;
+import io.xj.nexus.persistence.SegmentUtils;
 import jakarta.annotation.Nullable;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleLongProperty;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -54,10 +57,11 @@ public class MainTimelineSegmentFactory {
   /**
    Every time we need a segment, build it from scratch
 
-   @param segment from which to compute JavaFX node
+   @param segment               from which to compute JavaFX node
+   @param outputSyncChainMicros to which to bind the output sync chain micros
    @return JavaFX node
    */
-  public Node computeSegmentNode(SegmentOnTimeline segment) {
+  public Node computeSegmentNode(SegmentOnTimeline segment, SimpleLongProperty outputSyncChainMicros) {
     try {
       var box = new VBox();
       box.getStyleClass().add("main-timeline-segment");
@@ -65,7 +69,7 @@ public class MainTimelineSegmentFactory {
       box.setPadding(new Insets(10, 10, 10, 10));
       VBox.setVgrow(box, Priority.ALWAYS);
       box.getChildren().addAll(
-        computeSegmentSectionHeaderNode(segment),
+        computeSegmentSectionHeaderNode(segment, outputSyncChainMicros),
         computeSegmentSectionPropertiesNode(segment),
         computeSegmentSectionMemesChordsNode(segment),
         computeSegmentSectionChoicesNode(segment),
@@ -213,16 +217,23 @@ public class MainTimelineSegmentFactory {
   /**
    Segment section: offset, begin-at micros, delta, type
    */
-  Node computeSegmentSectionHeaderNode(SegmentOnTimeline segment) {
+  Node computeSegmentSectionHeaderNode(SegmentOnTimeline segment, SimpleLongProperty outputSyncChainMicros) {
     // position indicator
     var activeIndicator = new Pane();
     activeIndicator.setPrefWidth(SEGMENT_MIN_WIDTH);
     activeIndicator.setMinHeight(SEGMENT_ACTIVE_INDICATOR_HEIGHT);
     activeIndicator.setMaxHeight(SEGMENT_ACTIVE_INDICATOR_HEIGHT);
     activeIndicator.getStyleClass().add("segment-active-indicator");
-    // TODO: instead of hard coding the active state, fx-bind this to a master node that is updated much more frequently
     if (segment.isActive()) {
-      activeIndicator.getStyleClass().add("active");
+      var active = new SimpleBooleanProperty(true);
+      active.bind(outputSyncChainMicros.map(sync -> SegmentUtils.isIntersecting(segment.getSegment(), sync.longValue(), 0L))); // why is this never triggering
+      active.addListener((observable, oldValue, newValue) -> {
+        if (newValue) {
+          activeIndicator.getStyleClass().add("active");
+        } else {
+          activeIndicator.getStyleClass().remove("active");
+        }
+      });
     }
     var spacer = new Pane();
     spacer.setPrefWidth(SEGMENT_MIN_WIDTH);
