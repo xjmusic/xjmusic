@@ -8,7 +8,6 @@ import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.nexus.model.*;
-import io.xj.nexus.persistence.SegmentUtils;
 import jakarta.annotation.Nullable;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleLongProperty;
@@ -225,8 +224,9 @@ public class MainTimelineSegmentFactory {
     activeIndicator.setMaxHeight(SEGMENT_ACTIVE_INDICATOR_HEIGHT);
     activeIndicator.getStyleClass().add("segment-active-indicator");
     if (segment.isActive()) {
-      var active = new SimpleBooleanProperty(true);
-      active.bind(outputSyncChainMicros.map(sync -> SegmentUtils.isIntersecting(segment.getSegment(), sync.longValue(), 0L))); // why is this never triggering
+      var beginAtChainMicros = segment.getBeginAtChainMicros();
+      var endAtChainMicros = segment.getEndAtChainMicros();
+      var active = new SimpleBooleanProperty(false);
       active.addListener((observable, oldValue, newValue) -> {
         if (newValue) {
           activeIndicator.getStyleClass().add("active");
@@ -234,6 +234,7 @@ public class MainTimelineSegmentFactory {
           activeIndicator.getStyleClass().remove("active");
         }
       });
+      active.bind(outputSyncChainMicros.map(sync -> beginAtChainMicros <= sync.longValue() && endAtChainMicros > sync.longValue()));
     }
     var spacer = new Pane();
     spacer.setPrefWidth(SEGMENT_MIN_WIDTH);

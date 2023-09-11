@@ -45,4 +45,12 @@ public class SegmentOnTimeline {
   public int getId() {
     return segment.getId();
   }
+
+  public long getBeginAtChainMicros() {
+    return segment.getBeginAtChainMicros();
+  }
+
+  public long getEndAtChainMicros() {
+    return Objects.nonNull(segment.getDurationMicros()) ? segment.getBeginAtChainMicros() + segment.getDurationMicros() : segment.getBeginAtChainMicros();
+  }
 }
