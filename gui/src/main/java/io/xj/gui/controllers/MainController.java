@@ -44,7 +44,7 @@ public class MainController implements ReadyAfterBootController {
 
 
   @FXML
-  public Pane mainTimeline;
+  public ScrollPane mainTimeline;
 
   @FXML
   public VBox mainPaneBottom;

@@ -12,10 +12,10 @@
       <Pane fx:id="segmentPositionPastRegion" styleClass="past-region" visible="false" prefHeight="8"/>
       <Pane fx:id="segmentPositionActiveRegion" styleClass="active-region" visible="false" prefHeight="8"/>
     </HBox>
-    <ListView fx:id="segmentListView" styleClass="main-timeline" orientation="HORIZONTAL">
+    <HBox fx:id="segmentListView" styleClass="main-timeline">
       <VBox.vgrow>
         <Priority fx:constant="ALWAYS"/>
       </VBox.vgrow>
-    </ListView>
+    </HBox>
   </VBox>
 </ScrollPane>

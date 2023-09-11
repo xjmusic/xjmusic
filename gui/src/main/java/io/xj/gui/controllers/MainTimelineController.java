@@ -2,7 +2,6 @@
 
 package io.xj.gui.controllers;
 
-import io.xj.gui.listeners.NoSelectionModel;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
 import io.xj.nexus.model.Segment;
@@ -15,23 +14,22 @@ import javafx.beans.property.SimpleLongProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.util.Callback;
 import javafx.util.Duration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.stream.Collectors;
 
-import static io.xj.gui.controllers.MainTimelineSegmentFactory.SEGMENT_MIN_WIDTH;
+import static io.xj.gui.controllers.MainTimelineSegmentFactory.SEGMENT_WIDTH;
 
 @Service
-public class MainTimelineController extends Pane implements ReadyAfterBootController {
+public class MainTimelineController extends ScrollPane implements ReadyAfterBootController {
+  private static final int NO_ID = -1;
   private static final int SHOW_LAST_N_SEGMENTS = 20;
   private static final Long MILLIS_PER_MICRO = 1000L;
   private final Integer refreshSyncMillis;
@@ -40,7 +38,7 @@ public class MainTimelineController extends Pane implements ReadyAfterBootContro
   final LabService labService;
   final MainTimelineSegmentFactory segmentFactory;
   final ObservableList<Segment> segments = FXCollections.observableArrayList();
-  final SimpleIntegerProperty outputSyncChainIndex = new SimpleIntegerProperty(-1);
+  final SimpleIntegerProperty outputSyncChainIndex = new SimpleIntegerProperty(NO_ID);
   final double refreshTimelineMillis;
   final long refreshTimelineMicros;
   final SimpleLongProperty outputSyncChainMicros = new SimpleLongProperty(0L);
@@ -55,7 +53,7 @@ public class MainTimelineController extends Pane implements ReadyAfterBootContro
   Pane segmentPositionPastRegion;
 
   @FXML
-  ListView<Segment> segmentListView;
+  HBox segmentListView;
 
   @Nullable
   Timeline refreshTimeline;
@@ -80,24 +78,6 @@ public class MainTimelineController extends Pane implements ReadyAfterBootContro
     this.segmentFactory = segmentFactory;
   }
 
-  final Callback<ListView<Segment>, ListCell<Segment>> cellFactory = new Callback<>() {
-    @Override
-    public ListCell<Segment> call(ListView<Segment> param) {
-      return new ListCell<>() {
-        @Override
-        protected void updateItem(Segment item, boolean empty) {
-          super.updateItem(item, empty);
-
-          if (empty || item == null) {
-            setGraphic(null);
-          } else {
-            setGraphic(segmentFactory.computeSegmentNode(item));
-          }
-        }
-      };
-    }
-  };
-
   @Override
   public void onStageReady() {
     refreshTimeline = new Timeline(
@@ -120,10 +100,6 @@ public class MainTimelineController extends Pane implements ReadyAfterBootContro
     refreshSync.setRate(1.0);
     refreshSync.play();
 
-    segmentListView.setSelectionModel(new NoSelectionModel<>());
-    segmentListView.setCellFactory(cellFactory);
-    segmentListView.setItems(segments);
-
     outputSyncChainIndex.bind(outputSyncChainMicros.map(micros -> {
       for (var i = 0; i < segments.size(); i++) {
         var segment = segments.get(i);
@@ -131,14 +107,14 @@ public class MainTimelineController extends Pane implements ReadyAfterBootContro
           return i;
         }
       }
-      return -1;
+      return NO_ID;
     }));
 
-    segmentPositionPastRegion.prefWidthProperty().bind(outputSyncChainIndex.multiply(SEGMENT_MIN_WIDTH));
-    segmentPositionPastRegion.visibleProperty().bind(outputSyncChainIndex.greaterThan(-1));
+    segmentPositionPastRegion.prefWidthProperty().bind(outputSyncChainIndex.multiply(SEGMENT_WIDTH));
+    segmentPositionPastRegion.visibleProperty().bind(outputSyncChainIndex.greaterThan(NO_ID));
 
-    segmentPositionActiveRegion.setPrefWidth(SEGMENT_MIN_WIDTH);
-    segmentPositionActiveRegion.visibleProperty().bind(outputSyncChainIndex.greaterThan(-1));
+    segmentPositionActiveRegion.setPrefWidth(SEGMENT_WIDTH);
+    segmentPositionActiveRegion.visibleProperty().bind(outputSyncChainIndex.greaterThan(NO_ID));
   }
 
   @Override
@@ -160,22 +136,46 @@ public class MainTimelineController extends Pane implements ReadyAfterBootContro
       return;
     }
 
-    var currentSegments = fabricationService.getSegments(SHOW_LAST_N_SEGMENTS, null, outputSyncChainMicros.get(), refreshTimelineMicros * 2);
-
-    segments.removeIf(segment -> currentSegments.stream().noneMatch(source -> Objects.equals(source.getId(), segment.getId())));
-    // iterate through all in segments, and update if the updated at time has changed from the source matching that id
-    for (var i = 0; i < segments.size(); i++) {
-      var segment = segments.get(i);
-      var source = currentSegments.stream().filter(s -> SegmentUtils.isSameButUpdated(s, segment)).findFirst();
-      if (source.isPresent()) {
-        segments.set(i, source.get());
-      }
+    // compute current first and last id
+    int firstId = NO_ID;
+    int lastId = NO_ID;
+    for (Segment s : segments) {
+      if (firstId == NO_ID || s.getId() < firstId) firstId = s.getId();
+      if (lastId == NO_ID || s.getId() > lastId) lastId = s.getId();
     }
-    currentSegments.forEach(source -> {
-      if (segments.stream().noneMatch(segment -> Objects.equals(segment.getId(), source.getId()))) {
-        segments.add(source);
+
+    // get updated segments and compute updated first and last id
+    var updatedSegments = fabricationService.getSegments(SHOW_LAST_N_SEGMENTS, null, outputSyncChainMicros.get(), refreshTimelineMicros * 2).stream().collect(Collectors.toMap(Segment::getId, s -> s));
+    int updatedFirstId = NO_ID;
+    int currentLastId = NO_ID;
+    for (Segment s : updatedSegments.values()) {
+      if (updatedFirstId == NO_ID || s.getId() < updatedFirstId) updatedFirstId = s.getId();
+      if (currentLastId == NO_ID || s.getId() > currentLastId) currentLastId = s.getId();
+    }
+
+    // Add current segments to end of list if their id is greater than the existing last id
+    for (Segment s : updatedSegments.values())
+      if (firstId == NO_ID || lastId == NO_ID || s.getId() > lastId) {
+        if (firstId == NO_ID || s.getId() < firstId) firstId = s.getId();
+        if (lastId == NO_ID || s.getId() > lastId) lastId = s.getId();
+        segments.add(s);
+        segmentListView.getChildren().add(segmentFactory.computeSegmentNode(s));
       }
-    });
+
+    // iterate through all in segments, and update if the updated at time has changed from the source matching that id
+    for (var i = 0; i < segments.size(); i++)
+      if (updatedSegments.containsKey(i)) {
+        segments.set(i, updatedSegments.get(i));
+        segmentListView.getChildren().set(i, segmentFactory.computeSegmentNode(updatedSegments.get(i)));
+      }
+
+    // remove segments from the beginning of the list if their id is less than the updated first id
+    for (var i = 0; i < segments.size(); i++)
+      if (segments.get(i).getId() < updatedFirstId) {
+        segments.remove(i);
+        segmentListView.getChildren().remove(i);
+        i--;
+      }
   }
 
   /**
