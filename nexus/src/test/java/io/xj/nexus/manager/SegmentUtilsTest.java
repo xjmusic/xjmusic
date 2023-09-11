@@ -137,4 +137,31 @@ public class SegmentUtilsTest {
     assertTrue(SegmentUtils.isIntersecting(seg1, 32 * MICROS_PER_SECOND, 0L)); // true if exactly at beginning of segment when threshold is 0
     assertFalse(SegmentUtils.isIntersecting(seg1, 64 * MICROS_PER_SECOND, 0L)); // false if exactly at end of segment when threshold is 0
   }
+
+  @Test
+  void isSameButUpdated() {
+    var s1 = createSameSegment("2014-08-12T12:17:02.527142Z", SegmentState.CRAFTED);
+    var s1_failed = createSameSegment("2014-08-12T12:17:02.527142Z", SegmentState.FAILED);
+    var s1_updated = createSameSegment("2014-09-09T09:09:09.999999Z", SegmentState.CRAFTED);
+    assertTrue(SegmentUtils.isSameButUpdated(s1, s1_updated));
+    assertTrue(SegmentUtils.isSameButUpdated(s1, s1_failed));
+    assertFalse(SegmentUtils.isSameButUpdated(s1, s1));
+    assertFalse(SegmentUtils.isSameButUpdated(s1, seg2));
+  }
+
+  Segment createSameSegment(String updatedAt, SegmentState state) {
+    final Segment s = buildSegment(
+      chain,
+      SegmentType.CONTINUE,
+      1,
+      1,
+      state,
+      "F Major",
+      64,
+      0.30f,
+      120.0f,
+      "chains-1-segments-078aw34tiu5hga",
+      true);
+    return s.setCreatedAt(updatedAt).setUpdatedAt(updatedAt);
+  }
 }

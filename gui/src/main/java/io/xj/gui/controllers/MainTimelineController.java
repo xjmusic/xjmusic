@@ -3,19 +3,24 @@
 package io.xj.gui.controllers;
 
 import io.xj.gui.listeners.NoSelectionModel;
-import io.xj.gui.models.SegmentOnTimeline;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.LabService;
+import io.xj.nexus.model.Segment;
+import io.xj.nexus.persistence.SegmentUtils;
 import jakarta.annotation.Nullable;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.util.Callback;
 import javafx.util.Duration;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +28,8 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+
+import static io.xj.gui.controllers.MainTimelineSegmentFactory.SEGMENT_MIN_WIDTH;
 
 @Service
 public class MainTimelineController extends ScrollPane implements ReadyAfterBootController {
@@ -33,19 +40,27 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   final FabricationService fabricationService;
   final LabService labService;
   final MainTimelineSegmentFactory segmentFactory;
-  final ObservableList<SegmentOnTimeline> segments = FXCollections.observableArrayList();
+  final ObservableList<Segment> segments = FXCollections.observableArrayList();
+  final SimpleIntegerProperty outputSyncChainIndex = new SimpleIntegerProperty(-1);
   final double refreshTimelineMillis;
   final long refreshTimelineMicros;
   final SimpleLongProperty outputSyncChainMicros = new SimpleLongProperty(0L);
+
+  @FXML
+  HBox segmentPositionRow;
+
+  @FXML
+  Pane segmentPositionIndicator;
+
+
+  @FXML
+  ListView<Segment> segmentListView;
 
   @Nullable
   Timeline refreshTimeline;
 
   @Nullable
   Timeline refreshSync;
-
-  @FXML
-  protected ListView<SegmentOnTimeline> segmentListView;
 
   public MainTimelineController(
     @Value("${gui.refresh.timeline.millis}") Integer refreshTimelineMillis,
@@ -64,18 +79,18 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     this.segmentFactory = segmentFactory;
   }
 
-  final Callback<ListView<SegmentOnTimeline>, ListCell<SegmentOnTimeline>> cellFactory = new Callback<>() {
+  final Callback<ListView<Segment>, ListCell<Segment>> cellFactory = new Callback<>() {
     @Override
-    public ListCell<SegmentOnTimeline> call(ListView<SegmentOnTimeline> param) {
+    public ListCell<Segment> call(ListView<Segment> param) {
       return new ListCell<>() {
         @Override
-        protected void updateItem(SegmentOnTimeline item, boolean empty) {
+        protected void updateItem(Segment item, boolean empty) {
           super.updateItem(item, empty);
 
           if (empty || item == null) {
             setGraphic(null);
           } else {
-            setGraphic(segmentFactory.computeSegmentNode(item, outputSyncChainMicros));
+            setGraphic(segmentFactory.computeSegmentNode(item));
           }
         }
       };
@@ -107,6 +122,22 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     segmentListView.setSelectionModel(new NoSelectionModel<>());
     segmentListView.setCellFactory(cellFactory);
     segmentListView.setItems(segments);
+
+    outputSyncChainIndex.bind(outputSyncChainMicros.map(micros -> {
+      for (var i = 0; i < segments.size(); i++) {
+        var segment = segments.get(i);
+        if (SegmentUtils.isIntersecting(segment, micros.longValue(), 0L)) {
+          return i;
+        }
+      }
+      return -1;
+    }));
+
+    segmentPositionRow.paddingProperty().bind(outputSyncChainIndex.multiply(SEGMENT_MIN_WIDTH)
+      .map(width -> new Insets(0, 0, 0, width.doubleValue())));
+
+    segmentPositionIndicator.setPrefWidth(SEGMENT_MIN_WIDTH);
+    // todo segmentPositionIndicator
   }
 
   @Override
@@ -128,13 +159,13 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
       return;
     }
 
-    var currentSegments = fabricationService.getSegmentsOnTimeline(SHOW_LAST_N_SEGMENTS, null, outputSyncChainMicros.get(), refreshTimelineMicros * 2);
+    var currentSegments = fabricationService.getSegments(SHOW_LAST_N_SEGMENTS, null, outputSyncChainMicros.get(), refreshTimelineMicros * 2);
 
     segments.removeIf(segment -> currentSegments.stream().noneMatch(source -> Objects.equals(source.getId(), segment.getId())));
     // iterate through all in segments, and update if the updated at time has changed from the source matching that id
     for (var i = 0; i < segments.size(); i++) {
       var segment = segments.get(i);
-      var source = currentSegments.stream().filter(s -> s.isSameButUpdated(segment)).findFirst();
+      var source = currentSegments.stream().filter(s -> SegmentUtils.isSameButUpdated(s, segment)).findFirst();
       if (source.isPresent()) {
         segments.set(i, source.get());
       }
@@ -152,5 +183,4 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   void updateSync() {
     fabricationService.getWorkFactory().getOutputSyncChainMicros().ifPresent(outputSyncChainMicros::set);
   }
-
 }

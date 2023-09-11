@@ -2,7 +2,6 @@
 
 package io.xj.gui.services;
 
-import io.xj.gui.models.SegmentOnTimeline;
 import io.xj.hub.tables.pojos.*;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.OutputFileMode;
@@ -11,7 +10,6 @@ import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.ManagerExistenceException;
 import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.ManagerPrivilegeException;
-import io.xj.nexus.persistence.SegmentUtils;
 import io.xj.nexus.work.WorkConfiguration;
 import io.xj.nexus.work.WorkFactory;
 import jakarta.annotation.Nullable;
@@ -314,16 +312,13 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   }
 
   @Override
-  public List<SegmentOnTimeline> getSegmentsOnTimeline(int length, @Nullable Integer startIndex, @Nullable Long activeAtChainMicros, Long thresholdMicros) {
+  public List<Segment> getSegments(int length, @Nullable Integer startIndex, @Nullable Long activeAtChainMicros, Long thresholdMicros) {
     try {
       var from = Objects.nonNull(startIndex) ? startIndex : Math.max(0, workFactory.getSegmentManager().size() - length);
       var to = Math.min(workFactory.getSegmentManager().size() - 1, from + length);
       return workFactory
         .getSegmentManager()
-        .readManyFromToOffset(from, to)
-        .stream()
-        .map(s -> new SegmentOnTimeline(s, true)) // todo active = SegmentUtils.isIntersecting(s, activeAtChainMicros, thresholdMicros)
-        .toList();
+        .readManyFromToOffset(from, to);
     } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException e) {
       LOG.error("Failed to get segments", e);
       return List.of();

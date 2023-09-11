@@ -317,7 +317,7 @@ public class SegmentManagerImplTest {
 
   @Test
   public void readManyFromToOffset() throws Exception {
-    Collection<Segment> result = testService.readManyFromToOffset(2, 3);
+  Collection<Segment> result = testService.readManyFromToOffset(2, 3);
 
     assertEquals(2L, result.size());
     Iterator<Segment> it = result.iterator();

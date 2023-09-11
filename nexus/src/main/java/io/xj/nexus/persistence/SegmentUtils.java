@@ -183,4 +183,17 @@ public enum SegmentUtils {
   public static long getEndAtChainMicros(Segment segment) {
     return Objects.nonNull(segment.getDurationMicros()) ? segment.getBeginAtChainMicros() + segment.getDurationMicros() : segment.getBeginAtChainMicros();
   }
+
+  public static boolean isSameButUpdated(Segment s1, Segment s2) {
+    if (!Objects.equals(s1.getId(), s2.getId()))
+      return false;
+
+    // true if state has changed
+    if (!Objects.equals(s1.getState(), s2.getState()))
+      return true;
+
+    // true if updated-at has changed
+    return !Objects.equals(s1.getUpdatedAt(), s2.getUpdatedAt());
+  }
+
 }

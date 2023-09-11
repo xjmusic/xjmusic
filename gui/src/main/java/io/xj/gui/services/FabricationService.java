@@ -2,7 +2,6 @@
 
 package io.xj.gui.services;
 
-import io.xj.gui.models.SegmentOnTimeline;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Program;
@@ -90,5 +89,5 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
 
   Node computeInstrumentAudioReferenceNode(UUID instrumentAudioId);
 
-  List<SegmentOnTimeline> getSegmentsOnTimeline(int length, @Nullable Integer startIndex, @Nullable Long activeAtChainMicros, Long thresholdMicros);
+  List<Segment> getSegments(int length, @Nullable Integer startIndex, @Nullable Long activeAtChainMicros, Long thresholdMicros);
 }

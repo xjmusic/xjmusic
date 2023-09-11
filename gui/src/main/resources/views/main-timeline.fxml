@@ -4,7 +4,15 @@
 
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
 <ScrollPane xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="io.xj.gui.controllers.MainTimelineController" fitToHeight="true" fitToWidth="true">
-  <ListView fx:id="segmentListView" styleClass="main-timeline" orientation="HORIZONTAL"/>
+  <VBox>
+    <HBox fx:id="segmentPositionRow" styleClass="timeline-position-indicator" maxHeight="8" minHeight="8">
+      <Pane fx:id="segmentPositionIndicator" styleClass="active-segment" visible="false" prefHeight="8"/>
+    </HBox>
+    <ListView fx:id="segmentListView" styleClass="main-timeline" orientation="HORIZONTAL"/>
+  </VBox>
 </ScrollPane>
