@@ -13,6 +13,7 @@ import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChordVoicing;
 import io.xj.nexus.model.SegmentState;
 import jakarta.annotation.Nullable;
+import javafx.collections.ObservableList;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -196,4 +197,11 @@ public enum SegmentUtils {
     return !Objects.equals(s1.getUpdatedAt(), s2.getUpdatedAt());
   }
 
+  public static long getDurationMinMicros(Collection<Segment> segments) {
+    long micros = 0;
+    for (Segment s : segments)
+      if (Objects.nonNull(s.getDurationMicros()) && (micros == 0 || s.getDurationMicros() < micros))
+        micros = s.getDurationMicros();
+    return micros;
+  }
 }

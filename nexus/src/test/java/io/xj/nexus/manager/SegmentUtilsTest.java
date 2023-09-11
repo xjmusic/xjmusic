@@ -164,4 +164,9 @@ public class SegmentUtilsTest {
       true);
     return s.setCreatedAt(updatedAt).setUpdatedAt(updatedAt);
   }
+
+  @Test
+  void testGetDurationMinMicros() {
+    assertEquals(32000000L, SegmentUtils.getDurationMinMicros(List.of(seg0, seg1, seg2, seg3)));
+  }
 }

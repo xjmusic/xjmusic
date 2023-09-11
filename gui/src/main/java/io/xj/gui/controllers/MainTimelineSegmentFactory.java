@@ -34,8 +34,9 @@ import static io.xj.nexus.model.Segment.DELTA_UNLIMITED;
  */
 @Service
 public class MainTimelineSegmentFactory {
-  public static final int SEGMENT_WIDTH = 320;
   static final int SEGMENT_PROPERTY_ROW_MIN_HEIGHT = 60;
+  static final int SEGMENT_CONTAINER_PADDING_VERTICAL = 10;
+  static final int SEGMENT_CONTAINER_PADDING_HORIZONTAL = 10;
   static final Logger LOG = LoggerFactory.getLogger(MainTimelineSegmentFactory.class);
 
   static final int CHORD_POSITION_WIDTH = 32;
@@ -51,23 +52,30 @@ public class MainTimelineSegmentFactory {
   /**
    Every time we need a segment, build it from scratch
 
-   @param segment from which to compute JavaFX node
+   @param segment        from which to compute JavaFX node
+   @param pixelsPerMicro pixels per microsecond
+   @param minWidth       minimum width of the segment
    @return JavaFX node
    */
-  public Node computeSegmentNode(Segment segment) {
+  public Node create(Segment segment, float pixelsPerMicro, int minWidth) {
+    // todo this should only get called when the segment needs to be completely re-rendered
     try {
+      int width = Objects.nonNull(segment.getDurationMicros()) ? (int) (pixelsPerMicro * segment.getDurationMicros()) : minWidth;
       var box = new VBox();
+      box.setMinWidth(width);
+      box.setMaxWidth(width);
       box.getStyleClass().add("main-timeline-segment");
       box.setMaxHeight(Double.MAX_VALUE);
-      box.setPadding(new Insets(10, 10, 10, 10));
+      box.setPadding(new Insets(SEGMENT_CONTAINER_PADDING_VERTICAL, SEGMENT_CONTAINER_PADDING_HORIZONTAL, SEGMENT_CONTAINER_PADDING_VERTICAL, SEGMENT_CONTAINER_PADDING_HORIZONTAL));
       VBox.setVgrow(box, Priority.ALWAYS);
+      int innerWidth = width - SEGMENT_CONTAINER_PADDING_HORIZONTAL * 2;
       box.getChildren().addAll(
-        computeSegmentSectionHeaderNode(segment),
-        computeSegmentSectionPropertiesNode(segment),
-        computeSegmentSectionMemesChordsNode(segment),
-        computeSegmentSectionChoicesNode(segment),
-        computeSegmentSectionMessageListNode(segment),
-        computeSegmentSectionMetasNode(segment));
+        computeSegmentSectionHeaderNode(segment, innerWidth),
+        computeSegmentSectionPropertiesNode(segment, innerWidth),
+        computeSegmentSectionMemesChordsNode(segment, innerWidth),
+        computeSegmentSectionChoicesNode(segment, innerWidth),
+        computeSegmentSectionMessageListNode(segment, innerWidth),
+        computeSegmentSectionMetasNode(segment, innerWidth));
       return box;
 
     } catch (Exception e) {
@@ -79,42 +87,42 @@ public class MainTimelineSegmentFactory {
   /**
    Segment section: Messages
    */
-  private Node computeSegmentSectionMessageListNode(Segment segment) {
+  private Node computeSegmentSectionMessageListNode(Segment segment, int width) {
     var messages = fabricationService.getSegmentMessages(segment);
     var col = new VBox();
     col.setPadding(new Insets(0, 0, 0, 10));
     // info
     col.getChildren().addAll(messages.stream()
       .filter(message -> message.getType() == SegmentMessageType.INFO)
-      .map(this::computeSegmentSectionMessageNode)
+      .map(m -> computeSegmentSectionMessageNode(m, width))
       .toList());
     // warning
     col.getChildren().addAll(messages.stream()
       .filter(message -> message.getType() == SegmentMessageType.WARNING)
-      .map(this::computeSegmentSectionMessageNode)
+      .map(m -> computeSegmentSectionMessageNode(m, width))
       .toList());
     // error
     col.getChildren().addAll(messages.stream()
       .filter(message -> message.getType() == SegmentMessageType.ERROR)
-      .map(this::computeSegmentSectionMessageNode)
+      .map(m -> computeSegmentSectionMessageNode(m, width))
       .toList());
-    return computeLabeledPropertyNode("Messages", col, SEGMENT_WIDTH, SEGMENT_SECTION_VERTICAL_MARGIN * 2);
+    return computeLabeledPropertyNode("Messages", col, width, SEGMENT_SECTION_VERTICAL_MARGIN * 2);
   }
 
-  private Node computeSegmentSectionMessageNode(SegmentMessage message) {
+  private Node computeSegmentSectionMessageNode(SegmentMessage message, int width) {
     // type
     var type = new Label();
     type.getStyleClass().add("segment-message-type");
     type.getStyleClass().add("segment-message-" + message.getType().toString().toLowerCase());
     type.setPadding(new Insets(5, 0, 0, 0));
     type.setWrapText(true);
-    type.setMaxWidth(SEGMENT_WIDTH - 20);
+    type.setMaxWidth(width - 20);
     type.setText(message.getType().toString().toUpperCase());
     // body
     var body = new Text();
     body.getStyleClass().add("segment-message-body");
     body.setText(message.getBody());
-    body.setWrappingWidth(SEGMENT_WIDTH - 20);
+    body.setWrappingWidth(width - 20);
     // message
     var box = new VBox();
     box.getStyleClass().add("segment-message");
@@ -126,29 +134,29 @@ public class MainTimelineSegmentFactory {
   /**
    Segment section: Metas
    */
-  private Node computeSegmentSectionMetasNode(Segment segment) {
+  private Node computeSegmentSectionMetasNode(Segment segment, int width) {
     var metas = fabricationService.getSegmentMetas(segment);
     var col = new VBox();
     col.setPadding(new Insets(0, 0, 0, 10));
     col.getChildren().addAll(metas.stream()
-      .map(this::computeSegmentSectionMetaNode)
+      .map(m -> computeSegmentSectionMetaNode(m, width))
       .toList());
-    return computeLabeledPropertyNode("Metas", col, SEGMENT_WIDTH, SEGMENT_SECTION_VERTICAL_MARGIN);
+    return computeLabeledPropertyNode("Metas", col, width, SEGMENT_SECTION_VERTICAL_MARGIN);
   }
 
-  private Node computeSegmentSectionMetaNode(SegmentMeta meta) {
+  private Node computeSegmentSectionMetaNode(SegmentMeta meta, int width) {
     // key
     var key = new Label();
     key.getStyleClass().add("segment-meta-key");
     key.setPadding(new Insets(5, 0, 0, 0));
     key.setWrapText(true);
-    key.setMaxWidth(SEGMENT_WIDTH - 20);
+    key.setMaxWidth(width - 20);
     key.setText(meta.getKey());
     // type
     var value = new Text();
     value.getStyleClass().add("segment-meta-value");
     value.setText(meta.getValue());
-    value.setWrappingWidth(SEGMENT_WIDTH - 20);
+    value.setWrappingWidth(width - 20);
     // meta
     var box = new VBox();
     box.getStyleClass().add("segment-meta");
@@ -160,9 +168,9 @@ public class MainTimelineSegmentFactory {
   /**
    Segment section: Choices
    */
-  private Node computeSegmentSectionChoicesNode(Segment segment) {
+  private Node computeSegmentSectionChoicesNode(Segment segment, int width) {
     var p4 = new VBox();
-    p4.setPrefWidth(SEGMENT_WIDTH);
+    p4.setPrefWidth(width);
     p4.setMinHeight(SEGMENT_PROPERTY_ROW_MIN_HEIGHT);
     p4.setMaxHeight(Double.MAX_VALUE);
     p4.setPadding(new Insets(20, 0, 0, 0));
@@ -184,38 +192,36 @@ public class MainTimelineSegmentFactory {
   /**
    Segment section: Memes, Chords
    */
-  private Node computeSegmentSectionMemesChordsNode(Segment segment) {
+  private Node computeSegmentSectionMemesChordsNode(Segment segment, int width) {
     var row = new HBox();
-    row.setPrefWidth(SEGMENT_WIDTH);
+    row.setPrefWidth(width);
     row.setMinHeight(SEGMENT_PROPERTY_ROW_MIN_HEIGHT);
-    row.getChildren().add(computeLabeledPropertyNode("Memes", computeMemeListNode(segment), SEGMENT_WIDTH / 2, 0));
-    row.getChildren().add(computeLabeledPropertyNode("Chords", computeChordListNode(segment), SEGMENT_WIDTH / 2, 0));
+    row.getChildren().add(computeLabeledPropertyNode("Memes", computeMemeListNode(segment), width / 2, 0));
+    row.getChildren().add(computeLabeledPropertyNode("Chords", computeChordListNode(segment), width / 2, 0));
     return row;
   }
 
   /**
    Segment section: Beats, Density, Tempo, Key
    */
-  private Node computeSegmentSectionPropertiesNode(Segment segment) {
+  private Node computeSegmentSectionPropertiesNode(Segment segment, int width) {
     var row = new HBox();
-    row.setPrefWidth(SEGMENT_WIDTH);
     row.setMinHeight(SEGMENT_PROPERTY_ROW_MIN_HEIGHT);
-    row.getChildren().add(computeLabeledPropertyNode(String.format("%d beats", segment.getTotal()), formatTimeFromMicros(segment.getDurationMicros()), SEGMENT_WIDTH / 4));
-    row.getChildren().add(computeLabeledPropertyNode("Density", String.format("%.2f", segment.getDensity()), SEGMENT_WIDTH / 4));
-    row.getChildren().add(computeLabeledPropertyNode("Tempo", formatMinDecimal(segment.getTempo()), SEGMENT_WIDTH / 4));
-    row.getChildren().add(computeLabeledPropertyNode("Key", segment.getKey(), SEGMENT_WIDTH / 4));
+    row.getChildren().add(computeLabeledPropertyNode(String.format("%d beats", segment.getTotal()), formatTimeFromMicros(segment.getDurationMicros()), width / 4));
+    row.getChildren().add(computeLabeledPropertyNode("Density", String.format("%.2f", segment.getDensity()), width / 4));
+    row.getChildren().add(computeLabeledPropertyNode("Tempo", formatMinDecimal(segment.getTempo()), width / 4));
+    row.getChildren().add(computeLabeledPropertyNode("Key", segment.getKey(), width / 4));
     return row;
   }
 
   /**
    Segment section: offset, begin-at micros, delta, type
    */
-  Node computeSegmentSectionHeaderNode(Segment segment) {
+  Node computeSegmentSectionHeaderNode(Segment segment, int width) {
     var row = new HBox();
-    row.setPrefWidth(SEGMENT_WIDTH);
     row.setMinHeight(SEGMENT_PROPERTY_ROW_MIN_HEIGHT);
-    row.getChildren().add(computeLabeledPropertyNode(String.format("[%d]", segment.getId()), formatTimeFromMicros(segment.getBeginAtChainMicros()), SEGMENT_WIDTH / 2));
-    row.getChildren().add(computeLabeledPropertyNode(String.format("+%d", segment.getDelta()), segment.getType().toString(), SEGMENT_WIDTH / 2));
+    row.getChildren().add(computeLabeledPropertyNode(String.format("[%d]", segment.getId()), formatTimeFromMicros(segment.getBeginAtChainMicros()), width / 2));
+    row.getChildren().add(computeLabeledPropertyNode(String.format("+%d", segment.getDelta()), segment.getType().toString(), width / 2));
     return row;
   }
 
