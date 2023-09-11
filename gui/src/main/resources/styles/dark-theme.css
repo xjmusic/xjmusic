@@ -154,6 +154,10 @@
   -fx-background-color: #2e2e2e;
 }
 
-.timeline-position-indicator .active-segment {
+.timeline-position-indicator .active-region {
   -fx-background-color: #17ef17;
+}
+
+.timeline-position-indicator .active-region {
+  -fx-background-color: rgba(23, 239, 23, 0.2);
 }

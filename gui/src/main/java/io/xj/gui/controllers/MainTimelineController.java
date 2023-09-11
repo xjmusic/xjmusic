@@ -15,7 +15,6 @@ import javafx.beans.property.SimpleLongProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
@@ -50,8 +49,10 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   HBox segmentPositionRow;
 
   @FXML
-  Pane segmentPositionIndicator;
+  Pane segmentPositionActiveRegion;
 
+  @FXML
+  Pane segmentPositionPastRegion;
 
   @FXML
   ListView<Segment> segmentListView;
@@ -133,11 +134,11 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
       return -1;
     }));
 
-    segmentPositionRow.paddingProperty().bind(outputSyncChainIndex.multiply(SEGMENT_MIN_WIDTH)
-      .map(width -> new Insets(0, 0, 0, width.doubleValue())));
+    segmentPositionPastRegion.prefWidthProperty().bind(outputSyncChainIndex.multiply(SEGMENT_MIN_WIDTH));
+    segmentPositionPastRegion.visibleProperty().bind(outputSyncChainIndex.greaterThan(-1));
 
-    segmentPositionIndicator.setPrefWidth(SEGMENT_MIN_WIDTH);
-    // todo segmentPositionIndicator
+    segmentPositionActiveRegion.setPrefWidth(SEGMENT_MIN_WIDTH);
+    segmentPositionActiveRegion.visibleProperty().bind(outputSyncChainIndex.greaterThan(-1));
   }
 
   @Override
