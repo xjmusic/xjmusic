@@ -9,6 +9,7 @@ import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +44,7 @@ public class MainController implements ReadyAfterBootController {
 
 
   @FXML
-  public ScrollPane mainTimeline;
+  public Pane mainTimeline;
 
   @FXML
   public VBox mainPaneBottom;

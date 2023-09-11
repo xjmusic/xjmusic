@@ -31,7 +31,7 @@ import java.util.Objects;
 import static io.xj.gui.controllers.MainTimelineSegmentFactory.SEGMENT_MIN_WIDTH;
 
 @Service
-public class MainTimelineController extends ScrollPane implements ReadyAfterBootController {
+public class MainTimelineController extends Pane implements ReadyAfterBootController {
   private static final int SHOW_LAST_N_SEGMENTS = 20;
   private static final Long MILLIS_PER_MICRO = 1000L;
   private final Integer refreshSyncMillis;
