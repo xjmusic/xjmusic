@@ -256,7 +256,7 @@ public class WorkFactoryImpl implements WorkFactory {
 
   @Override
   public Optional<Long> getShippedToChainMicros() {
-    return Objects.nonNull(shipWork) ? shipWork.getOutputSyncChainMicros() : Optional.empty();
+    return Objects.nonNull(shipWork) ? shipWork.getShippedToChainMicros() : Optional.empty();
   }
 
   @Override

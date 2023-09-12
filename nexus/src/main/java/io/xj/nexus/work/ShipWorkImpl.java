@@ -415,11 +415,11 @@ public class ShipWorkImpl implements ShipWork {
   }
 
   @Override
-  public Optional<Long> getOutputSyncChainMicros() {
+  public Optional<Long> getShippedToChainMicros() {
     return switch (outputMode) {
       case PLAYBACK -> Objects.nonNull(playback) ? Optional.of(playback.getHeardAtChainMicros()) : Optional.empty();
       case HLS -> Optional.empty(); // future: this will be the actual chain micros of the HLS output
-      case FILE -> Optional.empty();
+      case FILE -> Objects.nonNull(outputFile) ? Optional.of(outputFile.getToChainMicros()) : Optional.empty();
     };
   }
 

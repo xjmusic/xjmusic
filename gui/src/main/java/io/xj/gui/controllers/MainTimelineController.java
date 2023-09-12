@@ -208,10 +208,9 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
 
     if (shippedToChainMicros.isPresent() && 0 < shippedToChainMicros.get()) {
       timelinePastRegion.setWidth((shippedToChainMicros.get() - viewFromChainMicros) / microsPerPixel.get());
-      timelinePastRegion.setVisible(true);
       timelineActiveRegion.setVisible(true);
     } else {
-      timelinePastRegion.setVisible(false);
+      timelinePastRegion.setWidth(0);
       timelineActiveRegion.setVisible(false);
     }
 

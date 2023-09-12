@@ -40,5 +40,5 @@ public interface ShipWork {
    If the current work is realtime, e.g. playback or HLS, return the current chain micros
    * @return chain micros if realtime, else empty
    */
-  Optional<Long> getOutputSyncChainMicros();
+  Optional<Long> getShippedToChainMicros();
 }
