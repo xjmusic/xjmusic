@@ -103,7 +103,8 @@
   -fx-background-color: #393939;
 }
 
-.main-timeline {
+.main-timeline,
+.timeline-position-spacer {
   -fx-background-color: #202020;
 }
 
@@ -152,12 +153,4 @@
 
 .timeline-position-indicator {
   -fx-background-color: #2e2e2e;
-}
-
-.timeline-position-indicator .active-region {
-  -fx-background-color: #17ef17;
-}
-
-.timeline-position-indicator .active-region {
-  -fx-background-color: rgba(23, 239, 23, 0.2);
 }

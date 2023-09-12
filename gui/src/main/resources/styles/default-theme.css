@@ -48,8 +48,12 @@
   -fx-background-color: #b0b0b0;
 }
 
-.main-timeline {
+.main-timeline,
+.timeline-position-spacer {
   -fx-background-color: #e0e0e0;
+}
+
+.main-timeline {
   -fx-font-family: 'Roboto Mono';
 }
 
@@ -140,12 +144,4 @@
 
 .timeline-position-indicator {
   -fx-background-color: #eaeaea;
-}
-
-.timeline-position-indicator .active-region {
-  -fx-background-color: #17ef17;
-}
-
-.timeline-position-indicator .past-region {
-  -fx-background-color: rgba(23, 239, 23, 0.2);
 }

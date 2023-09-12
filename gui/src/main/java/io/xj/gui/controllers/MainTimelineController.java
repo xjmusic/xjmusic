@@ -10,14 +10,13 @@ import jakarta.annotation.Nullable;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.property.SimpleFloatProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleLongProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
+import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -28,30 +27,36 @@ import java.util.stream.Collectors;
 
 @Service
 public class MainTimelineController extends ScrollPane implements ReadyAfterBootController {
-  public static final float SEGMENT_MIN_WIDTH = 320.0f;
   private static final int NO_ID = -1;
-  private static final int SHOW_LAST_N_SEGMENTS = 20;
   private static final Long MILLIS_PER_MICRO = 1000L;
   private final Integer refreshSyncMillis;
+  private final Integer showMaxSegments;
+  private final Integer segmentMinWidth;
+  private final Integer segmentHorizontalSpacing;
+  private final Integer timelinePositionActiveRegionWidth;
   final ConfigurableApplicationContext ac;
   final FabricationService fabricationService;
   final LabService labService;
   final MainTimelineSegmentFactory segmentFactory;
   final ObservableList<Segment> segments = FXCollections.observableArrayList();
-  final SimpleIntegerProperty outputSyncChainIndex = new SimpleIntegerProperty(NO_ID);
   final double refreshTimelineMillis;
   final long refreshTimelineMicros;
-  final SimpleLongProperty outputSyncChainMicros = new SimpleLongProperty(0L);
   final SimpleFloatProperty microsPerPixel = new SimpleFloatProperty(0);
 
   @FXML
   HBox segmentPositionRow;
 
   @FXML
-  Pane segmentPositionActiveRegion;
+  Rectangle timelinePastRegion;
 
   @FXML
-  Pane segmentPositionPastRegion;
+  Rectangle timelineActiveRegion;
+
+  @FXML
+  Rectangle timelineCraftedRegion;
+
+  @FXML
+  Rectangle timelineDubbedRegion;
 
   @FXML
   HBox segmentListView;
@@ -63,20 +68,28 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   Timeline refreshSync;
 
   public MainTimelineController(
-    @Value("${gui.refresh.timeline.millis}") Integer refreshTimelineMillis,
-    @Value("${gui.refresh.sync.millis}") Integer refreshSyncMillis,
+    @Value("${gui.timeline.max.segments}") Integer showMaxSegments,
+    @Value("${gui.timeline.refresh.millis}") Integer refreshTimelineMillis,
+    @Value("${gui.timeline.segment.spacing.horizontal}") Integer segmentSpacingHorizontal,
+    @Value("${gui.timeline.segment.width.min}") Integer segmentWidthMin,
+    @Value("${gui.timeline.sync.refresh.millis}") Integer refreshSyncMillis,
+    @Value("${gui.timeline.position.active.region.width}") Integer timelinePositionActiveRegionWidth,
     ConfigurableApplicationContext ac,
     FabricationService fabricationService,
     LabService labService,
     MainTimelineSegmentFactory segmentFactory
   ) {
-    this.refreshSyncMillis = refreshSyncMillis;
     this.ac = ac;
     this.fabricationService = fabricationService;
     this.labService = labService;
+    this.segmentFactory = segmentFactory;
+    this.refreshSyncMillis = refreshSyncMillis;
     this.refreshTimelineMicros = refreshTimelineMillis * MILLIS_PER_MICRO;
     this.refreshTimelineMillis = refreshTimelineMillis;
-    this.segmentFactory = segmentFactory;
+    this.segmentHorizontalSpacing = segmentSpacingHorizontal;
+    this.segmentMinWidth = segmentWidthMin;
+    this.showMaxSegments = showMaxSegments;
+    this.timelinePositionActiveRegionWidth = timelinePositionActiveRegionWidth;
   }
 
   @Override
@@ -84,14 +97,16 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     refreshTimeline = new Timeline(
       new KeyFrame(
         Duration.millis(refreshTimelineMillis),
-        event -> updateTimeline()
+        event -> {
+          updateTimeline();
+          updateSync();
+        }
       )
     );
     refreshTimeline.setCycleCount(Timeline.INDEFINITE);
     refreshTimeline.setRate(1.0);
     refreshTimeline.play();
 
-/*
     refreshSync = new Timeline(
       new KeyFrame(
         Duration.millis(refreshSyncMillis),
@@ -102,35 +117,9 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     refreshSync.setRate(1.0);
     refreshSync.play();
 
-    outputSyncChainIndex.bind(outputSyncChainMicros.map(micros -> {
-      for (var i = 0; i < segments.size(); i++) {
-        var segment = segments.get(i);
-        if (SegmentUtils.isIntersecting(segment, micros.longValue(), 0L)) {
-          return i;
-        }
-      }
-      return NO_ID;
-    }));
-
-    segmentPositionPastRegion.prefWidthProperty().bind(outputSyncChainMicros.multiply(pixelsPerMicro));
-    segmentPositionPastRegion.visibleProperty().bind(outputSyncChainMicros.greaterThan(0));
-
-    DoubleBinding segmentPositionActiveRegionWidth = new DoubleBinding() {
-      {
-        super.bind(segments, outputSyncChainIndex, pixelsPerMicro);
-      }
-
-      @Override
-      protected double computeValue() {
-        if (segments.isEmpty() || outputSyncChainIndex.get() >= segments.size()) return SEGMENT_MIN_WIDTH;
-        var s = segments.get(outputSyncChainIndex.get());
-        if (Objects.isNull(s.getDurationMicros())) return SEGMENT_MIN_WIDTH;
-        return s.getDurationMicros() * pixelsPerMicro.get();
-      }
-    };
-    segmentPositionActiveRegion.prefWidthProperty().bind(segmentPositionActiveRegionWidth);
-    segmentPositionActiveRegion.visibleProperty().bind(outputSyncChainMicros.greaterThan(0));
-*/
+    timelineActiveRegion.setWidth(timelinePositionActiveRegionWidth);
+    segmentListView.setSpacing(segmentHorizontalSpacing);
+    segmentListView.setPadding(new Insets(0, segmentMinWidth, 0, segmentHorizontalSpacing));
   }
 
   @Override
@@ -154,7 +143,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     }
 
     // get updated segments and compute updated first id (to clean up segments before that id)
-    var updatedSegmentsById = fabricationService.getSegments(SHOW_LAST_N_SEGMENTS, null, outputSyncChainMicros.get(), refreshTimelineMicros * 2).stream().collect(Collectors.toMap(Segment::getId, s -> s));
+    var updatedSegmentsById = fabricationService.getSegments(showMaxSegments, null).stream().collect(Collectors.toMap(Segment::getId, s -> s));
     int updatedFirstId = NO_ID;
     for (Segment s : updatedSegmentsById.values()) {
       if (updatedFirstId == NO_ID || s.getId() < updatedFirstId) updatedFirstId = s.getId();
@@ -163,13 +152,13 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     // determine if the segment pixels-per-micro has changed, and we will re-render the whole list and return
     long updatedDurationMinMicros = SegmentUtils.getDurationMinMicros(updatedSegmentsById.values());
     if (updatedDurationMinMicros > 0) {
-      float updatedMicrosPerPixel = (float) updatedDurationMinMicros / SEGMENT_MIN_WIDTH;
+      float updatedMicrosPerPixel = (float) updatedDurationMinMicros / segmentMinWidth;
       if (updatedMicrosPerPixel != microsPerPixel.get()) {
         microsPerPixel.set(updatedMicrosPerPixel);
         segmentListView.getChildren().clear();
         for (Segment s : updatedSegmentsById.values()) {
           segments.add(s);
-          segmentListView.getChildren().add(segmentFactory.create(s, updatedMicrosPerPixel, (int) SEGMENT_MIN_WIDTH));
+          segmentListView.getChildren().add(segmentFactory.create(s, updatedMicrosPerPixel, segmentMinWidth, segmentHorizontalSpacing));
         }
         return;
       }
@@ -189,7 +178,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
         if (firstId == NO_ID || s.getId() < firstId) firstId = s.getId();
         if (lastId == NO_ID || s.getId() > lastId) lastId = s.getId();
         segments.add(s);
-        segmentListView.getChildren().add(segmentFactory.create(s, microsPerPixel.get(), (int) SEGMENT_MIN_WIDTH));
+        segmentListView.getChildren().add(segmentFactory.create(s, microsPerPixel.get(), segmentMinWidth, segmentHorizontalSpacing));
       }
 
     // remove segments from the beginning of the list if their id is less than the updated first id
@@ -204,7 +193,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     for (var i = 0; i < segments.size(); i++)
       if (updatedSegmentsById.containsKey(segments.get(i).getId()) && SegmentUtils.isSameButUpdated(segments.get(i), updatedSegmentsById.get(segments.get(i).getId()))) {
         segments.set(i, updatedSegmentsById.get(segments.get(i).getId()));
-        segmentListView.getChildren().set(i, segmentFactory.create(updatedSegmentsById.get(segments.get(i).getId()), microsPerPixel.get(), (int) SEGMENT_MIN_WIDTH));
+        segmentListView.getChildren().set(i, segmentFactory.create(updatedSegmentsById.get(segments.get(i).getId()), microsPerPixel.get(), segmentMinWidth, segmentHorizontalSpacing));
       }
   }
 
@@ -212,6 +201,32 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
    Called frequently to update the sync (playback position indicator).
    */
   void updateSync() {
-    fabricationService.getWorkFactory().getOutputSyncChainMicros().ifPresent(outputSyncChainMicros::set);
+    var viewFromChainMicros = segments.isEmpty() ? 0 : segments.get(0).getBeginAtChainMicros();
+    var shippedToChainMicros = fabricationService.getWorkFactory().getShippedToChainMicros();
+    var dubbedToChainMicros = fabricationService.getWorkFactory().getDubbedToChainMicros();
+    var craftedToChainMicros = fabricationService.getWorkFactory().getCraftedToChainMicros();
+
+    if (shippedToChainMicros.isPresent() && 0 < shippedToChainMicros.get()) {
+      timelinePastRegion.setWidth((shippedToChainMicros.get() - viewFromChainMicros) / microsPerPixel.get());
+      timelinePastRegion.setVisible(true);
+      timelineActiveRegion.setVisible(true);
+    } else {
+      timelinePastRegion.setVisible(false);
+      timelineActiveRegion.setVisible(false);
+    }
+
+    if (dubbedToChainMicros.isPresent() && 0 < dubbedToChainMicros.get()) {
+      timelineDubbedRegion.setWidth(
+        (dubbedToChainMicros.get() - shippedToChainMicros.orElse(viewFromChainMicros)) / microsPerPixel.get());
+    } else {
+      timelineDubbedRegion.setWidth(0);
+    }
+
+    if (craftedToChainMicros.isPresent() && 0 < craftedToChainMicros.get()) {
+      timelineCraftedRegion.setWidth(
+        (craftedToChainMicros.get() - dubbedToChainMicros.orElse(viewFromChainMicros)) / microsPerPixel.get());
+    } else {
+      timelineCraftedRegion.setWidth(0);
+    }
   }
 }

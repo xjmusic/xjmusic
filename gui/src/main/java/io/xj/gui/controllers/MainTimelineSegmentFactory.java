@@ -11,6 +11,7 @@ import jakarta.annotation.Nullable;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -55,11 +56,12 @@ public class MainTimelineSegmentFactory {
    @param segment        from which to compute JavaFX node
    @param microsPerPixel pixels per microsecond
    @param minWidth       minimum width of the segment
+   @param spacing        between segments
    @return JavaFX node
    */
-  public Node create(Segment segment, float microsPerPixel, int minWidth) {
+  public Node create(Segment segment, float microsPerPixel, int minWidth, int spacing) {
     try {
-      int width = Objects.nonNull(segment.getDurationMicros()) && 0 < microsPerPixel ? (int) (segment.getDurationMicros() / microsPerPixel) : minWidth;
+      int width = Objects.nonNull(segment.getDurationMicros()) && 0 < microsPerPixel ? (int) (segment.getDurationMicros() / microsPerPixel) - spacing : minWidth - spacing;
       var box = new VBox();
       box.setMinWidth(width);
       box.setMaxWidth(width);
@@ -67,7 +69,7 @@ public class MainTimelineSegmentFactory {
       box.setMaxHeight(Double.MAX_VALUE);
       box.setPadding(new Insets(SEGMENT_CONTAINER_PADDING_VERTICAL, SEGMENT_CONTAINER_PADDING_HORIZONTAL, SEGMENT_CONTAINER_PADDING_VERTICAL, SEGMENT_CONTAINER_PADDING_HORIZONTAL));
       VBox.setVgrow(box, Priority.ALWAYS);
-      int innerMinWidth = minWidth * 2;
+      int innerMinWidth = minWidth - SEGMENT_CONTAINER_PADDING_HORIZONTAL * 2;
       int innerFullWidth = width - SEGMENT_CONTAINER_PADDING_HORIZONTAL * 2;
       box.getChildren().addAll(
         computeSegmentSectionHeaderNode(segment, innerMinWidth),
@@ -106,7 +108,10 @@ public class MainTimelineSegmentFactory {
       .filter(message -> message.getType() == SegmentMessageType.ERROR)
       .map(m -> computeSegmentSectionMessageNode(m, width))
       .toList());
-    return computeLabeledPropertyNode("Messages", col, width, SEGMENT_SECTION_VERTICAL_MARGIN * 2);
+    //
+    var pane = new AnchorPane();
+    pane.getChildren().add(computeLabeledPropertyNode("Messages", col, width, SEGMENT_SECTION_VERTICAL_MARGIN * 2));
+    return pane;
   }
 
   private Node computeSegmentSectionMessageNode(SegmentMessage message, int width) {
@@ -141,7 +146,10 @@ public class MainTimelineSegmentFactory {
     col.getChildren().addAll(metas.stream()
       .map(m -> computeSegmentSectionMetaNode(m, width))
       .toList());
-    return computeLabeledPropertyNode("Metas", col, width, SEGMENT_SECTION_VERTICAL_MARGIN);
+    //
+    var pane = new AnchorPane();
+    pane.getChildren().add(computeLabeledPropertyNode("Metas", col, width, SEGMENT_SECTION_VERTICAL_MARGIN));
+    return pane;
   }
 
   private Node computeSegmentSectionMetaNode(SegmentMeta meta, int width) {
@@ -158,35 +166,41 @@ public class MainTimelineSegmentFactory {
     value.setText(meta.getValue());
     value.setWrappingWidth(width - 20);
     // meta
-    var box = new VBox();
-    box.getStyleClass().add("segment-meta");
-    box.getChildren().add(key);
-    box.getChildren().add(value);
-    return box;
+    var col = new VBox();
+    col.getStyleClass().add("segment-meta");
+    col.getChildren().add(key);
+    col.getChildren().add(value);
+    //
+    var pane = new AnchorPane();
+    pane.getChildren().add(col);
+    return pane;
   }
 
   /**
    Segment section: Choices
    */
   private Node computeSegmentSectionChoicesNode(Segment segment, int width) {
-    var p4 = new VBox();
-    p4.setPrefWidth(width);
-    p4.setMinHeight(SEGMENT_PROPERTY_ROW_MIN_HEIGHT);
-    p4.setMaxHeight(Double.MAX_VALUE);
-    p4.setPadding(new Insets(20, 0, 0, 0));
-    VBox.setVgrow(p4, Priority.ALWAYS);
+    var col = new VBox();
+    col.setPrefWidth(width);
+    col.setMinHeight(SEGMENT_PROPERTY_ROW_MIN_HEIGHT);
+    col.setMaxHeight(Double.MAX_VALUE);
+    col.setPadding(new Insets(20, 0, 0, 0));
+    VBox.setVgrow(col, Priority.ALWAYS);
     var choices = fabricationService.getSegmentChoices(segment);
-    p4.getChildren().add(computeChoiceListNodes(segment, "Macro", choices.stream().filter((choice) -> ProgramType.Macro == choice.getProgramType()).toList(), true, false, false));
-    p4.getChildren().add(computeChoiceListNodes(segment, "Main", choices.stream().filter((choice) -> ProgramType.Main == choice.getProgramType()).toList(), true, false, false));
-    p4.getChildren().add(computeChoiceListNodes(segment, "Beat", choices.stream().filter((choice) -> ProgramType.Beat == choice.getProgramType()).toList(), false, true, false));
-    p4.getChildren().add(computeChoiceListNodes(segment, "Detail", choices.stream().filter((choice) -> ProgramType.Detail == choice.getProgramType()).toList(), true, false, false));
-    p4.getChildren().add(computeChoiceListNodes(segment, "Perc Loop", choices.stream().filter((choice) ->
+    col.getChildren().add(computeChoiceListNodes(segment, "Macro", choices.stream().filter((choice) -> ProgramType.Macro == choice.getProgramType()).toList(), true, false, false));
+    col.getChildren().add(computeChoiceListNodes(segment, "Main", choices.stream().filter((choice) -> ProgramType.Main == choice.getProgramType()).toList(), true, false, false));
+    col.getChildren().add(computeChoiceListNodes(segment, "Beat", choices.stream().filter((choice) -> ProgramType.Beat == choice.getProgramType()).toList(), false, true, false));
+    col.getChildren().add(computeChoiceListNodes(segment, "Detail", choices.stream().filter((choice) -> ProgramType.Detail == choice.getProgramType()).toList(), true, false, false));
+    col.getChildren().add(computeChoiceListNodes(segment, "Perc Loop", choices.stream().filter((choice) ->
       InstrumentType.Percussion == choice.getInstrumentType() && InstrumentMode.Loop == choice.getInstrumentMode()).toList(), false, false, true));
-    p4.getChildren().add(computeChoiceListNodes(segment, "Hook", choices.stream().filter((choice) -> InstrumentType.Hook == choice.getInstrumentType()).toList(), false, false, true));
-    p4.getChildren().add(computeChoiceListNodes(segment, "Transition", choices.stream().filter((choice) -> InstrumentMode.Transition == choice.getInstrumentMode()).toList(), false, false, true));
-    p4.getChildren().add(computeChoiceListNodes(segment, "Background", choices.stream().filter((choice) -> InstrumentMode.Background == choice.getInstrumentMode()).toList(), false, false, true));
-    p4.getChildren().add(computeChoiceListNodes(segment, "Chord", choices.stream().filter((choice) -> InstrumentMode.Chord == choice.getInstrumentMode()).toList(), false, false, true));
-    return p4;
+    col.getChildren().add(computeChoiceListNodes(segment, "Hook", choices.stream().filter((choice) -> InstrumentType.Hook == choice.getInstrumentType()).toList(), false, false, true));
+    col.getChildren().add(computeChoiceListNodes(segment, "Transition", choices.stream().filter((choice) -> InstrumentMode.Transition == choice.getInstrumentMode()).toList(), false, false, true));
+    col.getChildren().add(computeChoiceListNodes(segment, "Background", choices.stream().filter((choice) -> InstrumentMode.Background == choice.getInstrumentMode()).toList(), false, false, true));
+    col.getChildren().add(computeChoiceListNodes(segment, "Chord", choices.stream().filter((choice) -> InstrumentMode.Chord == choice.getInstrumentMode()).toList(), false, false, true));
+    //
+    var pane = new AnchorPane();
+    pane.getChildren().add(col);
+    return pane;
   }
 
   /**
@@ -198,7 +212,10 @@ public class MainTimelineSegmentFactory {
     row.setMinHeight(SEGMENT_PROPERTY_ROW_MIN_HEIGHT);
     row.getChildren().add(computeLabeledPropertyNode("Memes", computeMemeListNode(segment), width / 2, 0));
     row.getChildren().add(computeLabeledPropertyNode("Chords", computeChordListNode(segment), width / 2, 0));
-    return row;
+    //
+    var pane = new AnchorPane();
+    pane.getChildren().add(row);
+    return pane;
   }
 
   /**
@@ -211,7 +228,10 @@ public class MainTimelineSegmentFactory {
     row.getChildren().add(computeLabeledPropertyNode("Density", String.format("%.2f", segment.getDensity()), width / 4));
     row.getChildren().add(computeLabeledPropertyNode("Tempo", formatMinDecimal(segment.getTempo()), width / 4));
     row.getChildren().add(computeLabeledPropertyNode("Key", segment.getKey(), width / 4));
-    return row;
+    //
+    var pane = new AnchorPane();
+    pane.getChildren().add(row);
+    return pane;
   }
 
   /**
@@ -222,7 +242,10 @@ public class MainTimelineSegmentFactory {
     row.setMinHeight(SEGMENT_PROPERTY_ROW_MIN_HEIGHT);
     row.getChildren().add(computeLabeledPropertyNode(String.format("[%d]", segment.getId()), formatTimeFromMicros(segment.getBeginAtChainMicros()), width / 2));
     row.getChildren().add(computeLabeledPropertyNode(String.format("+%d", segment.getDelta()), segment.getType().toString(), width / 2));
-    return row;
+    //
+    var pane = new AnchorPane();
+    pane.getChildren().add(row);
+    return pane;
   }
 
   @SuppressWarnings("SameParameterValue")
@@ -280,10 +303,11 @@ public class MainTimelineSegmentFactory {
     return node;
   }
 
-  Node computeLabeledPropertyNode(Object label, Node child, int minWidth, int topPadding) {
+  Node computeLabeledPropertyNode(Object label, Node child, int width, int topPadding) {
     var labelNode = new Label();
     labelNode.setText(Objects.toString(label));
-    labelNode.setMinWidth(minWidth);
+    labelNode.setMinWidth(width);
+    labelNode.setMaxWidth(width);
     labelNode.getStyleClass().add("label");
     //
     var col = new VBox();

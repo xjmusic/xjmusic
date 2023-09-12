@@ -312,7 +312,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   }
 
   @Override
-  public List<Segment> getSegments(int length, @Nullable Integer startIndex, @Nullable Long activeAtChainMicros, Long thresholdMicros) {
+  public List<Segment> getSegments(int length, @Nullable Integer startIndex) {
     try {
       var from = Objects.nonNull(startIndex) ? startIndex : Math.max(0, workFactory.getSegmentManager().size() - length);
       var to = Math.min(workFactory.getSegmentManager().size() - 1, from + length);
