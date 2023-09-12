@@ -4,12 +4,15 @@ package io.xj.gui.controllers;
 
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.FabricationStatus;
+import io.xj.gui.services.LabService;
+import io.xj.gui.services.LabStatus;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -21,7 +24,7 @@ import java.util.List;
 
 @Service
 public class MainPaneTopController extends VBox implements ReadyAfterBootController {
-  static final int FABRICATION_CONFIG_VIEW_HEIGHT = 160;
+  static final int FABRICATION_CONFIG_VIEW_HEIGHT = 240;
   static final List<FabricationStatus> BUTTON_ACTION_ACTIVE_IN_FABRICATION_STATES = Arrays.asList(
     FabricationStatus.Standby,
     FabricationStatus.Active,
@@ -33,6 +36,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   final static String BUTTON_TEXT_STOP = "Stop";
   final static String BUTTON_TEXT_RESET = "Reset";
   final FabricationService fabricationService;
+  final LabService labService;
   final BooleanProperty configVisible = new SimpleBooleanProperty(false);
 
   @FXML
@@ -87,9 +91,11 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   TextField fieldOutputFrameRate;
 
   public MainPaneTopController(
-    FabricationService fabricationService
+    FabricationService fabricationService,
+    LabService labService
   ) {
     this.fabricationService = fabricationService;
+    this.labService = labService;
   }
 
   @Override
@@ -107,7 +113,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
       fabricationService.statusProperty()));
 
     fieldInputTemplateKey.textProperty().bindBidirectional(fabricationService.inputTemplateKeyProperty());
-    choiceInputMode.getItems().setAll(InputMode.values());
+    // todo bind this to an intermediate list choiceInputMode.itemsProperty().bind(labService.statusProperty().map((status) -> status == LabStatus.Authenticated ? FXCollections.observableArrayList(InputMode.values()) : FXCollections.observableArrayList(InputMode.PRODUCTION)));
     choiceInputMode.valueProperty().bindBidirectional(fabricationService.inputModeProperty());
 
     choiceOutputMode.getItems().setAll(OutputMode.values());

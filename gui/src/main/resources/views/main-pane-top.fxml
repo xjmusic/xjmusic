@@ -12,24 +12,11 @@
     <VBox.vgrow>
       <Priority fx:constant="ALWAYS"/>
     </VBox.vgrow>
-    <HBox alignment="CENTER_LEFT">
-      <padding>
-        <Insets top="10"/>
-      </padding>
 
-      <VBox alignment="CENTER_LEFT" prefHeight="60.0">
-        <padding>
-          <Insets right="10" left="10"/>
-        </padding>
-        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
-               text="Input Template Key" textAlignment="RIGHT">
-          <graphic>
-            <Pane prefWidth="15.0"/>
-          </graphic>
-        </Label>
-        <Pane prefWidth="15.0"/>
-        <TextField fx:id="fieldInputTemplateKey"/>
-      </VBox>
+    <HBox alignment="CENTER_LEFT">
+    <padding>
+      <Insets top="10"/>
+    </padding>
       <VBox alignment="CENTER_LEFT" prefHeight="60.0">
         <padding>
           <Insets right="10" left="10"/>
@@ -43,6 +30,25 @@
         <Pane prefWidth="15.0"/>
         <ChoiceBox fx:id="choiceInputMode" prefHeight="25.0"/>
       </VBox>
+      <VBox alignment="CENTER_LEFT" prefHeight="60.0">
+        <padding>
+          <Insets right="10" left="10"/>
+        </padding>
+        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
+               text="Input Template Key" textAlignment="RIGHT">
+          <graphic>
+            <Pane prefWidth="15.0"/>
+          </graphic>
+        </Label>
+        <Pane prefWidth="15.0"/>
+        <TextField fx:id="fieldInputTemplateKey"/>
+      </VBox>
+    </HBox>
+
+    <HBox alignment="CENTER_LEFT">
+      <padding>
+        <Insets top="10"/>
+      </padding>
       <VBox alignment="CENTER_LEFT" prefHeight="60.0">
         <padding>
           <Insets right="10" left="10"/>
@@ -99,6 +105,7 @@
         <TextField fx:id="fieldOutputPathPrefix" prefHeight="25.0"/>
       </VBox>
     </HBox>
+
     <HBox alignment="CENTER_LEFT" prefHeight="41.0">
       <padding>
         <Insets top="10"/>
