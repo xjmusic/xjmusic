@@ -172,4 +172,11 @@ public interface CraftWork {
    Get the source material
    */
   HubContent getSourceMaterial();
+
+  /**
+   Get the crafted-to chain micros
+
+   @return the crafted-to chain micros
+   */
+  Optional<Long> getCraftedToChainMicros();
 }

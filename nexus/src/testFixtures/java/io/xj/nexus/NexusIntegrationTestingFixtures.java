@@ -5,6 +5,7 @@ package io.xj.nexus;
 import io.xj.hub.enums.*;
 import io.xj.hub.tables.pojos.*;
 import io.xj.hub.util.StringUtils;
+import io.xj.hub.util.ValueUtils;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityUtils;
 import io.xj.nexus.hub_client.HubClientAccess;
@@ -312,14 +313,14 @@ public class NexusIntegrationTestingFixtures {
   }
 
 
-  public static Segment buildSegment(Chain chain, SegmentType type, int offset, int delta, SegmentState state, String key, int total, double density, double tempo, String storageKey, boolean hasEndSet) {
+  public static Segment buildSegment(Chain chain, SegmentType type, int id, int delta, SegmentState state, String key, int total, double density, double tempo, String storageKey, boolean hasEndSet) {
     var segment = new Segment();
     segment.setChainId(chain.getId());
     segment.setType(type);
-    segment.setId(offset);
+    segment.setId(id);
     segment.setDelta(delta);
     segment.setState(state);
-    segment.setBeginAtChainMicros((long) (offset * MICROS_PER_SECOND * total * SECONDS_PER_MINUTE / tempo));
+    segment.setBeginAtChainMicros((long) (id * ValueUtils.MICROS_PER_SECOND * total * ValueUtils.SECONDS_PER_MINUTE / tempo));
     segment.setKey(key);
     segment.setTotal(total);
     segment.setDensity(density);
@@ -328,7 +329,7 @@ public class NexusIntegrationTestingFixtures {
     segment.setWaveformPreroll(0.0);
     segment.setWaveformPostroll(0.0);
 
-    var durationMicros = (long) (MICROS_PER_SECOND * total * SECONDS_PER_MINUTE / tempo);
+    var durationMicros = (long) (ValueUtils.MICROS_PER_SECOND * total * ValueUtils.SECONDS_PER_MINUTE / tempo);
     if (hasEndSet)
       segment.setDurationMicros(durationMicros);
 
@@ -495,8 +496,8 @@ public class NexusIntegrationTestingFixtures {
     pick.setSegmentChoiceArrangementId(segmentChoiceArrangement.getId());
     pick.setProgramSequencePatternEventId(event.getId());
     pick.setInstrumentAudioId(instrumentAudio.getId());
-    pick.setStartAtSegmentMicros((long) (event.getPosition() * MICROS_PER_SECOND / segment.getTempo()));
-    pick.setLengthMicros((long) (event.getDuration() * MICROS_PER_SECOND / segment.getTempo()));
+    pick.setStartAtSegmentMicros((long) (event.getPosition() * ValueUtils.MICROS_PER_SECOND / segment.getTempo()));
+    pick.setLengthMicros((long) (event.getDuration() * ValueUtils.MICROS_PER_SECOND / segment.getTempo()));
     pick.setAmplitude(Double.valueOf(event.getVelocity()));
     pick.setTones(event.getTones());
     pick.setEvent(pickEvent);
@@ -1124,7 +1125,7 @@ public class NexusIntegrationTestingFixtures {
       for (int offset = 0; offset < N << 2; offset++) {
         int num = (int) StrictMath.floor(StrictMath.random() * N);
         var binding = add(entities, buildProgramSequenceBinding(sequences[num], offset));
-        add(entities, buildMeme(binding, random(minorMemeNames)));
+        add(entities, HubIntegrationTestingFixtures.buildMeme(binding, random(minorMemeNames)));
       }
       LOG.debug("Generated Main-type Program id={}, majorMeme={} with {} sequences bound {} times", program.getId(), majorMemeName, N, N << 2);
     }

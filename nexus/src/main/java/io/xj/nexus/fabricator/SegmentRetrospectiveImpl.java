@@ -179,7 +179,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   @Override
   public Optional<SegmentMeta> getPreviousMeta(String key) {
     return segmentManager.readManySubEntitiesOfType(previousSegmentIds, SegmentMeta.class).stream()
-      .filter(meta -> Objects.equals(key, meta.getKey()))
+      .filter(m -> Objects.equals(key, m.getKey()))
       .findAny();
   }
 

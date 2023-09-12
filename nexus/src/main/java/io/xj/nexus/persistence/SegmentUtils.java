@@ -13,6 +13,7 @@ import io.xj.nexus.model.SegmentChoice;
 import io.xj.nexus.model.SegmentChordVoicing;
 import io.xj.nexus.model.SegmentState;
 import jakarta.annotation.Nullable;
+import javafx.collections.ObservableList;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -107,17 +108,36 @@ public enum SegmentUtils {
   }
 
   /**
-   Whether the segment is spanning a given time
+   Whether the segment is spanning a given time frame.
+   Inclusive of segment start time; exclusive of segment end time.
 
    @param segment         to test
-   @param fromChainMicros to test
-   @param toChainMicros   to test
-   @return true if segment is spanning time
+   @param fromChainMicros to test frame from
+   @param toChainMicros   to test frame to
+   @return true if segment is spanning time frame
    */
   public static boolean isSpanning(Segment segment, Long fromChainMicros, Long toChainMicros) {
     return Objects.nonNull(segment.getDurationMicros()) &&
       segment.getBeginAtChainMicros() + segment.getDurationMicros() > fromChainMicros &&
       segment.getBeginAtChainMicros() <= toChainMicros;
+  }
+
+  /**
+   Whether the segment is intersecting a given time.
+   Inclusive of segment start time; exclusive of segment end time.
+   Designed so to return true when within the threshold of being active (may true for multiple segments)
+   + return false when threshold is 0 and at the exact end of the segment (to avoid double-activation)
+
+   @param segment         to test
+   @param atChainMicros   to test at
+   @param thresholdMicros to test threshold
+   @return true if segment is spanning time
+   */
+  public static boolean isIntersecting(Segment segment, Long atChainMicros, Long thresholdMicros) {
+    return Objects.nonNull(segment.getDurationMicros()) &&
+      Objects.nonNull(atChainMicros) &&
+      segment.getBeginAtChainMicros() + segment.getDurationMicros() + thresholdMicros > atChainMicros &&
+      segment.getBeginAtChainMicros() - thresholdMicros <= atChainMicros;
   }
 
   /**
@@ -166,7 +186,7 @@ public enum SegmentUtils {
   }
 
   public static boolean isSameButUpdated(Segment s1, Segment s2) {
-    if (!s1.getId().equals(s2.getId()))
+    if (!Objects.equals(s1.getId(), s2.getId()))
       return false;
 
     // true if state has changed
@@ -175,5 +195,13 @@ public enum SegmentUtils {
 
     // true if updated-at has changed
     return !Objects.equals(s1.getUpdatedAt(), s2.getUpdatedAt());
+  }
+
+  public static long getDurationMinMicros(Collection<Segment> segments) {
+    long micros = 0;
+    for (Segment s : segments)
+      if (Objects.nonNull(s.getDurationMicros()) && (micros == 0 || s.getDurationMicros() < micros))
+        micros = s.getDurationMicros();
+    return micros;
   }
 }

@@ -103,7 +103,8 @@
   -fx-background-color: #393939;
 }
 
-.main-timeline {
+.main-timeline,
+.timeline-position-spacer {
   -fx-background-color: #202020;
 }
 
@@ -150,3 +151,6 @@
   -fx-fill: #ffffff;
 }
 
+.timeline-position-indicator {
+  -fx-background-color: #2e2e2e;
+}

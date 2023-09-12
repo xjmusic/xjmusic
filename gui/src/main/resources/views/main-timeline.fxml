@@ -2,9 +2,24 @@
 
 <!-- Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved. -->
 
-<?import javafx.scene.control.ListView?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Rectangle?>
 <ScrollPane xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="io.xj.gui.controllers.MainTimelineController" fitToHeight="true" fitToWidth="true">
-  <ListView fx:id="segmentListView" styleClass="main-timeline" orientation="HORIZONTAL"/>
+  <VBox>
+    <HBox fx:id="segmentPositionRow" styleClass="timeline-position-indicator" maxHeight="8" minHeight="8">
+      <Rectangle fx:id="timelinePastRegion" height="8" fill="#ffffff33"/>
+      <Rectangle fx:id="timelineActiveRegion" height="8" fill="#17EF17FF"/>
+      <Rectangle fx:id="timelineDubbedRegion" height="8" fill="#17EF1766"/>
+      <Rectangle fx:id="timelineCraftedRegion" height="8" fill="#EF511733"/>
+    </HBox>
+    <Pane minHeight="4" maxHeight="4" styleClass="timeline-position-spacer" />
+    <HBox fx:id="segmentListView" styleClass="main-timeline">
+      <VBox.vgrow>
+        <Priority fx:constant="ALWAYS"/>
+      </VBox.vgrow>
+    </HBox>
+  </VBox>
 </ScrollPane>

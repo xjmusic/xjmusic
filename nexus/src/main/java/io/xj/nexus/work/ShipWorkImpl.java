@@ -17,7 +17,6 @@ import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.text.html.Option;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -251,7 +250,7 @@ public class ShipWorkImpl implements ShipWork {
   /**
    Ship available bytes from the dub mixer buffer to the output method
    */
-  void doShipOutputPlayback() throws IOException, ShipException {
+  void doShipOutputPlayback() throws IOException {
     {
       if (Objects.isNull(playback)) {
         didFailWhile("shipping bytes to local playback", new IllegalStateException("Player is null"));
@@ -416,8 +415,12 @@ public class ShipWorkImpl implements ShipWork {
   }
 
   @Override
-  public Optional<Long> getOutputSyncChainMicros() {
-    return outputMode.isSync() ? Optional.of(atChainMicros) : Optional.empty();
+  public Optional<Long> getShippedToChainMicros() {
+    return switch (outputMode) {
+      case PLAYBACK -> Objects.nonNull(playback) ? Optional.of(playback.getHeardAtChainMicros()) : Optional.empty();
+      case HLS -> Optional.empty(); // future: this will be the actual chain micros of the HLS output
+      case FILE -> Objects.nonNull(outputFile) ? Optional.of(outputFile.getToChainMicros()) : Optional.empty();
+    };
   }
 
   /**

@@ -176,7 +176,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   @Override
   public Optional<SegmentMeta> getSegmentMeta(String key) {
     return benchStore.getAll(SegmentMeta.class)
-      .stream().filter(meta -> Objects.equals(key, meta.getKey()))
+      .stream().filter(m -> Objects.equals(key, m.getKey()))
       .findAny();
   }
 
@@ -211,6 +211,6 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
    @param key for which to erase all metas
    */
   void destroyExistingMeta(String key) {
-    getSegmentMetas().stream().filter(meta -> Objects.equals(key, meta.getKey())).forEach(this::delete);
+    getSegmentMetas().stream().filter(m -> Objects.equals(key, m.getKey())).forEach(this::delete);
   }
 }

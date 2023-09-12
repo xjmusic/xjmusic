@@ -60,11 +60,31 @@ public interface WorkFactory {
    */
   void reset();
 
+  /**
+   Get the Hub content source material
+
+   @return source material
+   */
   HubContent getSourceMaterial();
 
   /**
-   If the current work is realtime, e.g. playback or HLS, return the current chain micros
-   * @return chain micros if realtime, else empty
+   Return the current shipped-to chain micros
+
+   @return chain micros, else empty
    */
-  Optional<Long> getOutputSyncChainMicros();
+  Optional<Long> getShippedToChainMicros();
+
+  /**
+   Return the current crafted-to chain micros
+
+   @return chain micros, else empty
+   */
+  Optional<Long> getCraftedToChainMicros();
+
+  /**
+   Return the current dubbed-to sync chain micros
+
+   @return chain micros, else empty
+   */
+  Optional<Long> getDubbedToChainMicros();
 }

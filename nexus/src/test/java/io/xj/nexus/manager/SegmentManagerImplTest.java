@@ -317,7 +317,7 @@ public class SegmentManagerImplTest {
 
   @Test
   public void readManyFromToOffset() throws Exception {
-    Collection<Segment> result = testService.readManyFromToOffset(2L, 3L);
+  Collection<Segment> result = testService.readManyFromToOffset(2, 3);
 
     assertEquals(2L, result.size());
     Iterator<Segment> it = result.iterator();
@@ -329,9 +329,30 @@ public class SegmentManagerImplTest {
 
   @Test
   public void readManyFromToOffset_acceptsNegativeOffsets_returnsEmptyCollection() throws Exception {
-    Collection<Segment> result = testService.readManyFromToOffset(-1L, -1L);
+    Collection<Segment> result = testService.readManyFromToOffset(-1, -1);
 
     assertEquals(0L, result.size());
+  }
+
+  @Test
+  public void readManyFromToOffset_trimsIfEndOffsetOutOfBounds() throws Exception {
+    Collection<Segment> result = testService.readManyFromToOffset(2, 12);
+
+    assertEquals(3L, result.size());
+  }
+
+  @Test
+  public void readManyFromToOffset_onlyOneIfEndOffsetSameAsStart() throws Exception {
+    Collection<Segment> result = testService.readManyFromToOffset(2, 2);
+
+    assertEquals(1L, result.size());
+  }
+
+  @Test
+  public void readManyFromToOffset_emptyIfStartOffsetOutOfBounds() throws Exception {
+    Collection<Segment> result = testService.readManyFromToOffset(14, 17);
+
+    assertEquals(0, result.size());
   }
 
   @Test

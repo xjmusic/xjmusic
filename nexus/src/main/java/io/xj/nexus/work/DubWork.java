@@ -137,4 +137,12 @@ public interface DubWork {
    @return macro program or empty if not yet available
    */
   Optional<Program> getMacroProgram(Segment segment);
+
+
+  /**
+   Get the dubbed-to chain micros
+
+   @return chain micros if present, else empty
+   */
+  Optional<Long> getDubbedToChainMicros();
 }

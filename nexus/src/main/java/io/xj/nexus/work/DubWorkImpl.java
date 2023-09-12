@@ -176,6 +176,11 @@ public class DubWorkImpl implements DubWork {
     return craftWork.getMacroProgram(segment);
   }
 
+  @Override
+  public Optional<Long> getDubbedToChainMicros() {
+    return Optional.of(chunkToChainMicros);
+  }
+
   /**
    This is the internal cycle that's run indefinitely
    */

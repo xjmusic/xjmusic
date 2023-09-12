@@ -423,6 +423,16 @@ public class CraftWorkImpl implements CraftWork {
     return chainSourceMaterial;
   }
 
+  @Override
+  public Optional<Long> getCraftedToChainMicros() {
+    try {
+      return store.getAllSegments().stream().filter(segment -> SegmentState.CRAFTED.equals(segment.getState())).max(Comparator.comparing(Segment::getId)).map(SegmentUtils::getEndAtChainMicros);
+    } catch (NexusException e) {
+      LOG.error("Unable to get crafted-to chain micros because {}", e.getMessage());
+      return Optional.empty();
+    }
+  }
+
   /**
    This is the internal cycle that's run indefinitely
    */
@@ -770,34 +780,6 @@ public class CraftWorkImpl implements CraftWork {
     return fabricator.getSegment();
   }
 
-
-  /**
-   Whether this Segment is before a given threshold, first by end-at if available, else begin-at
-
-   @param eraseBeforeChainMicros threshold to filter before
-   @return true if segment is before threshold
-   */
-  protected boolean isBefore(Segment segment, Long eraseBeforeChainMicros) {
-    if (Objects.nonNull(segment.getDurationMicros()))
-      return segment.getBeginAtChainMicros() + segment.getDurationMicros() < eraseBeforeChainMicros;
-    if (Objects.nonNull(segment.getBeginAtChainMicros()))
-      return segment.getBeginAtChainMicros() < eraseBeforeChainMicros;
-    return false;
-  }
-
-  /**
-   Get the IDs of all Segments that we ought to erase
-
-   @return list of IDs of Segments we ought to erase
-   */
-  Collection<Integer> getSegmentIdsToErase() throws NexusException {
-    Long eraseBeforeChainMicros = atChainMicros - eraseSegmentsOlderThanSeconds * MICROS_PER_SECOND;
-    return store.getAllSegments()
-      .stream()
-      .filter(segment -> isBefore(segment, eraseBeforeChainMicros))
-      .map(Segment::getId)
-      .toList();
-  }
 
   /**
    Maintain a single preview template by id

@@ -113,6 +113,7 @@ public class SegmentUtilsTest {
     assertEquals("chains-1-segments-078aw34tiu5hga.wav", SegmentUtils.getStorageFilename(seg1));
   }
 
+  // Inclusive of segment start time; exclusive of segment end time (different from SegmentUtils.isIntersecting)
   @Test
   public void testIsSpanning() {
     assertTrue(SegmentUtils.isSpanning(seg1, 32 * MICROS_PER_SECOND, 32 * MICROS_PER_SECOND)); // true if exactly at beginning of segment
@@ -122,6 +123,19 @@ public class SegmentUtilsTest {
     assertTrue(SegmentUtils.isSpanning(seg1, 35 * MICROS_PER_SECOND, 52 * MICROS_PER_SECOND));
     assertTrue(SegmentUtils.isSpanning(seg1, 50 * MICROS_PER_SECOND, 67 * MICROS_PER_SECOND));
     assertFalse(SegmentUtils.isSpanning(seg1, 66 * MICROS_PER_SECOND, 80 * MICROS_PER_SECOND));
+  }
+
+  // Exclusive of segment start time; inclusive of segment end time (different from SegmentUtils.isSpanning)
+  @Test
+  public void testIsIntersecting() {
+    assertFalse(SegmentUtils.isIntersecting(seg1, 15 * MICROS_PER_SECOND, 100L));
+    assertFalse(SegmentUtils.isIntersecting(seg1, 20 * MICROS_PER_SECOND, 100L));
+    assertTrue(SegmentUtils.isIntersecting(seg1, 35 * MICROS_PER_SECOND, 100L));
+    assertTrue(SegmentUtils.isIntersecting(seg1, 50 * MICROS_PER_SECOND, 100L));
+    assertFalse(SegmentUtils.isIntersecting(seg1, 65 * MICROS_PER_SECOND, 100L));
+    assertTrue(SegmentUtils.isIntersecting(seg1, 65 * MICROS_PER_SECOND, 2000000L)); // expanded threshold
+    assertTrue(SegmentUtils.isIntersecting(seg1, 32 * MICROS_PER_SECOND, 0L)); // true if exactly at beginning of segment when threshold is 0
+    assertFalse(SegmentUtils.isIntersecting(seg1, 64 * MICROS_PER_SECOND, 0L)); // false if exactly at end of segment when threshold is 0
   }
 
   @Test
@@ -149,5 +163,10 @@ public class SegmentUtilsTest {
       "chains-1-segments-078aw34tiu5hga",
       true);
     return s.setCreatedAt(updatedAt).setUpdatedAt(updatedAt);
+  }
+
+  @Test
+  void testGetDurationMinMicros() {
+    assertEquals(32000000L, SegmentUtils.getDurationMinMicros(List.of(seg0, seg1, seg2, seg3)));
   }
 }

@@ -21,6 +21,7 @@ import javafx.event.EventTarget;
 import javafx.scene.Node;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -87,4 +88,6 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
   Node computeInstrumentReferenceNode(UUID instrumentId);
 
   Node computeInstrumentAudioReferenceNode(UUID instrumentAudioId);
+
+  List<Segment> getSegments(int length, @Nullable Integer startIndex);
 }

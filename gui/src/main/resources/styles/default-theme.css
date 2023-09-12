@@ -48,8 +48,12 @@
   -fx-background-color: #b0b0b0;
 }
 
-.main-timeline {
+.main-timeline,
+.timeline-position-spacer {
   -fx-background-color: #e0e0e0;
+}
+
+.main-timeline {
   -fx-font-family: 'Roboto Mono';
 }
 
@@ -138,3 +142,6 @@
   -fx-fill: #000000;
 }
 
+.timeline-position-indicator {
+  -fx-background-color: #eaeaea;
+}

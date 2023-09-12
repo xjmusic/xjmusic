@@ -187,16 +187,16 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   }
 
   @Override
-  public int size() {
-    return 0;
-  }
-
-  @Override
   public List<SegmentChoiceArrangementPick> getPicks(List<Segment> segments) throws NexusException {
     List<SegmentChoiceArrangementPick> picks = new ArrayList<>();
     for (Segment segment : segments) {
       picks.addAll(getAll(segment.getId(), SegmentChoiceArrangementPick.class));
     }
     return picks;
+  }
+
+  @Override
+  public Integer getSegmentCount() {
+    return segmentArray.size();
   }
 }
