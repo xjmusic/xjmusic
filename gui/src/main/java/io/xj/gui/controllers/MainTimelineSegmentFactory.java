@@ -53,14 +53,13 @@ public class MainTimelineSegmentFactory {
    Every time we need a segment, build it from scratch
 
    @param segment        from which to compute JavaFX node
-   @param pixelsPerMicro pixels per microsecond
+   @param microsPerPixel pixels per microsecond
    @param minWidth       minimum width of the segment
    @return JavaFX node
    */
-  public Node create(Segment segment, float pixelsPerMicro, int minWidth) {
-    // todo this should only get called when the segment needs to be completely re-rendered
+  public Node create(Segment segment, float microsPerPixel, int minWidth) {
     try {
-      int width = Objects.nonNull(segment.getDurationMicros()) ? (int) (pixelsPerMicro * segment.getDurationMicros()) : minWidth;
+      int width = Objects.nonNull(segment.getDurationMicros()) && 0 < microsPerPixel ? (int) (segment.getDurationMicros() / microsPerPixel) : minWidth;
       var box = new VBox();
       box.setMinWidth(width);
       box.setMaxWidth(width);
@@ -68,14 +67,15 @@ public class MainTimelineSegmentFactory {
       box.setMaxHeight(Double.MAX_VALUE);
       box.setPadding(new Insets(SEGMENT_CONTAINER_PADDING_VERTICAL, SEGMENT_CONTAINER_PADDING_HORIZONTAL, SEGMENT_CONTAINER_PADDING_VERTICAL, SEGMENT_CONTAINER_PADDING_HORIZONTAL));
       VBox.setVgrow(box, Priority.ALWAYS);
-      int innerWidth = width - SEGMENT_CONTAINER_PADDING_HORIZONTAL * 2;
+      int innerMinWidth = minWidth * 2;
+      int innerFullWidth = width - SEGMENT_CONTAINER_PADDING_HORIZONTAL * 2;
       box.getChildren().addAll(
-        computeSegmentSectionHeaderNode(segment, innerWidth),
-        computeSegmentSectionPropertiesNode(segment, innerWidth),
-        computeSegmentSectionMemesChordsNode(segment, innerWidth),
-        computeSegmentSectionChoicesNode(segment, innerWidth),
-        computeSegmentSectionMessageListNode(segment, innerWidth),
-        computeSegmentSectionMetasNode(segment, innerWidth));
+        computeSegmentSectionHeaderNode(segment, innerMinWidth),
+        computeSegmentSectionPropertiesNode(segment, innerMinWidth),
+        computeSegmentSectionMemesChordsNode(segment, innerMinWidth),
+        computeSegmentSectionChoicesNode(segment, innerFullWidth),
+        computeSegmentSectionMessageListNode(segment, innerFullWidth),
+        computeSegmentSectionMetasNode(segment, innerFullWidth));
       return box;
 
     } catch (Exception e) {
