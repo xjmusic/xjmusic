@@ -14,11 +14,9 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.css.PseudoClass;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.ToggleButton;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,9 +41,14 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
   final static PseudoClass warn = PseudoClass.getPseudoClass("warn");
   static final int LOG_LIST_VIEW_HEIGHT = 368;
   static final int MAX_ENTRIES = 10_000;
+  final ModalLabConnectionController modalLabConnectionController;
+
 
   @Nullable
   Timeline refresh;
+
+  @FXML
+  public Button buttonLab;
 
   @FXML
   public Label labelLabStatus;
@@ -62,10 +65,12 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
 
   public MainPaneBottomController(
     @Value("${gui.logs.refresh.seconds}") Integer refreshRateSeconds,
-    LabService labService
+    LabService labService,
+    ModalLabConnectionController modalLabConnectionController
   ) {
     this.refreshRateSeconds = refreshRateSeconds;
     this.labService = labService;
+    this.modalLabConnectionController = modalLabConnectionController;
     logQueue = new LogQueue();
 
     // bind to the log appender
@@ -74,7 +79,7 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
 
   @Override
   public void onStageReady() {
-    labelLabStatus.textProperty().bind(labService.statusProperty().map(Enum::toString).map((status) -> String.format("Lab %s", status)));
+    labelLabStatus.textProperty().bind(labService.statusProperty().map(Enum::toString));
 
     refresh = new Timeline(
       new KeyFrame(
@@ -146,6 +151,11 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
       } catch (Exception e) {
         // no op
       }
+  }
+
+  @FXML
+  public void handleButtonLabPressed(ActionEvent ignored) {
+    modalLabConnectionController.launchModal();
   }
 
   static class LogQueue {

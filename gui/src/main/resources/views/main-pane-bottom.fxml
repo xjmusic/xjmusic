@@ -7,6 +7,7 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
 <VBox xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="io.xj.gui.controllers.MainPaneBottomController">
   <HBox alignment="CENTER" styleClass="bottom-pane-status-container"
@@ -22,6 +23,7 @@
       <HBox.hgrow>
         <Priority fx:constant="ALWAYS"/>
       </HBox.hgrow>
+      <Button fx:id="buttonLab" onAction="#handleButtonLabPressed" text="Lab" />
       <Label fx:id="labelLabStatus" text="Initializing"/>
     </HBox>
     <HBox alignment="CENTER_RIGHT" spacing="10"

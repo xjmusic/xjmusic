@@ -77,41 +77,59 @@ public class CraftWorkImpl implements CraftWork {
   final NotificationProvider notification;
   final SegmentManager segmentManager;
   final TelemetryProvider telemetryProvider;
+
   @Value("${ship.base.url}")
   String shipBaseUrl;
+
   @Value("${craft.janitor.enabled}")
   boolean janitorEnabled;
+
   @Value("${craft.medic.enabled}")
   boolean medicEnabled;
+
   @Value("${craft.chain.threshold.fabricated.behind.seconds}")
   int chainThresholdFabricatedBehindSeconds;
+
   @Value("${craft.cycle.millis}")
   int cycleMillis;
+
   @Value("${craft.erase.segments.older.than.seconds}")
   int eraseSegmentsOlderThanSeconds;
+
   @Value("${craft.ignore.segments.older.than.seconds}")
   int ignoreSegmentsOlderThanSeconds;
+
   @Value("${craft.ingest.cycle.seconds}")
   int ingestCycleSeconds;
+
   @Value("${craft.janitor.cycle.seconds}")
   int janitorCycleSeconds;
+
   @Value("${craft.sync.poll.seconds}")
   int syncPollSeconds;
+
   @Value("${craft.async.poll.seconds}")
   int asyncPollSeconds;
+
   @Value("${craft.medic.cycle.seconds}")
   int medicCycleSeconds;
+
   @Value("${rehydration.ahead.threshold}")
   int rehydrateFabricatedAheadThreshold;
+
   @Value("${craft.health.cycle.staleness.threshold.seconds}")
   long healthCycleStalenessThresholdSeconds;
+
   @Value("${rehydration.enabled}")
   boolean isRehydrationEnabled;
+
   @Value("${fabrication.preview.template.playback.id}")
   @Nullable
-  UUID fabricationPreviewTemplatePlaybackId;
+  UUID fabricationPreviewTemplateId;
+
   @Value("${ship.bucket}")
   String shipBucket;
+
   final OutputMode outputMode;
   long labPollNextSystemMillis;
   long yardPollNextSystemMillis;
@@ -780,7 +798,6 @@ public class CraftWorkImpl implements CraftWork {
     return fabricator.getSegment();
   }
 
-
   /**
    Maintain a single preview template by id
    If we find no reason to perform work, we return false.
@@ -790,15 +807,9 @@ public class CraftWorkImpl implements CraftWork {
    @return true if all is well, false if something has failed
    */
   boolean maintainPreviewTemplate() {
-    Optional<TemplatePlayback> templatePlayback = readPreviewTemplatePlayback();
-    if (templatePlayback.isEmpty()) {
-      LOG.debug("No preview template playback found");
-      return false;
-    }
-
-    Optional<Template> template = readPreviewTemplate(templatePlayback.get());
+    Optional<Template> template = readPreviewTemplate();
     if (template.isEmpty()) {
-      LOG.debug("No preview template found");
+      LOG.debug("No preview template playback found");
       return false;
     }
 
@@ -819,29 +830,14 @@ public class CraftWorkImpl implements CraftWork {
   /**
    Read preview Template from Hub
 
-   @param playback TemplatePlayback for which to get Template
    @return preview Template
    */
-  Optional<Template> readPreviewTemplate(TemplatePlayback playback) {
+  Optional<Template> readPreviewTemplate() {
+    if (Objects.isNull(fabricationPreviewTemplateId)) return Optional.empty();
     try {
-      return hubClient.readPreviewTemplate(playback.getTemplateId());
+      return hubClient.readPreviewTemplate(fabricationPreviewTemplateId);
     } catch (HubClientException e) {
-      LOG.error("Failed to read preview Template[{}] from Hub because {}", playback.getTemplateId(), e.getMessage());
-      return Optional.empty();
-    }
-  }
-
-  /**
-   Read preview TemplatePlayback from Hub
-
-   @return preview TemplatePlayback
-   */
-  Optional<TemplatePlayback> readPreviewTemplatePlayback() {
-    if (Objects.isNull(fabricationPreviewTemplatePlaybackId)) return Optional.empty();
-    try {
-      return hubClient.readPreviewTemplatePlayback(fabricationPreviewTemplatePlaybackId);
-    } catch (HubClientException e) {
-      LOG.error("Failed to read preview TemplatePlayback[{}] from Hub because {}", fabricationPreviewTemplatePlaybackId, e.getMessage());
+      LOG.error("Failed to read preview Template[{}] from Hub because {}", fabricationPreviewTemplateId, e.getMessage());
       return Optional.empty();
     }
   }

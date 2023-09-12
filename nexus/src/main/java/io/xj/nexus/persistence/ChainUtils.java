@@ -7,7 +7,6 @@ import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.model.Chain;
-import io.xj.nexus.model.ChainType;
 import io.xj.nexus.model.Segment;
 import jakarta.annotation.Nullable;
 
@@ -90,7 +89,6 @@ public enum ChainUtils {
     chain.setTemplateConfig(template.getConfig());
     chain.setShipKey(template.getShipKey());
     chain.setAccountId(template.getAccountId());
-    chain.setType(ChainType.fromValue(template.getType().toString()));
     chain.setName(template.getName());
     return chain;
   }
