@@ -113,7 +113,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
       fabricationService.statusProperty()));
 
     fieldInputTemplateKey.textProperty().bindBidirectional(fabricationService.inputTemplateKeyProperty());
-    // todo bind this to an intermediate list choiceInputMode.itemsProperty().bind(labService.statusProperty().map((status) -> status == LabStatus.Authenticated ? FXCollections.observableArrayList(InputMode.values()) : FXCollections.observableArrayList(InputMode.PRODUCTION)));
+    choiceInputMode.itemsProperty().bind(fabricationService.inputModeChoicesProperty());
     choiceInputMode.valueProperty().bindBidirectional(fabricationService.inputModeProperty());
 
     choiceOutputMode.getItems().setAll(OutputMode.values());

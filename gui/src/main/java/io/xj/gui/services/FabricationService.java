@@ -16,6 +16,8 @@ import io.xj.nexus.work.WorkFactory;
 import jakarta.annotation.Nullable;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Worker;
 import javafx.event.EventTarget;
 import javafx.scene.Node;
@@ -90,4 +92,6 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
   Node computeInstrumentAudioReferenceNode(UUID instrumentAudioId);
 
   List<Segment> getSegments(int length, @Nullable Integer startIndex);
+
+  ObservableValue<ObservableList<InputMode>> inputModeChoicesProperty();
 }

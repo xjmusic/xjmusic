@@ -18,6 +18,9 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
@@ -50,12 +53,12 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
 
   final StringProperty outputFrameRate = new SimpleStringProperty();
   final StringProperty outputChannels = new SimpleStringProperty();
+  final ObservableValue<ObservableList<InputMode>> inputModeChoices = new SimpleObjectProperty<>(FXCollections.observableArrayList());
 
   public FabricationServiceImpl(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
     @Value("${buffer.ahead.seconds}") Integer defaultBufferAheadSeconds,
     @Value("${buffer.before.seconds}") Integer defaultBufferBeforeSeconds,
-    @Value("${input.mode}") String defaultInputMode,
     @Value("${input.template.key}") String defaultInputTemplateKey,
     @Value("${output.channels}") int defaultOutputChannels,
     @Value("${output.file.mode}") String defaultOutputFileMode,
@@ -71,7 +74,8 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     this.labService = labService;
     bufferAheadSeconds.set(Integer.toString(defaultBufferAheadSeconds));
     bufferBeforeSeconds.set(Integer.toString(defaultBufferBeforeSeconds));
-    inputMode.set(InputMode.valueOf(defaultInputMode.toUpperCase(Locale.ROOT)));
+    inputModeChoices.getValue().setAll(InputMode.PRODUCTION);
+    inputMode.set(InputMode.PRODUCTION);
     inputTemplateKey.set(defaultInputTemplateKey);
     outputChannels.set(Integer.toString(defaultOutputChannels));
     outputFileMode.set(OutputFileMode.valueOf(defaultOutputFileMode.toUpperCase(Locale.ROOT)));
@@ -85,6 +89,14 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     setOnRunning((WorkerStateEvent ignored) -> status.set(FabricationStatus.Active));
     setOnScheduled((WorkerStateEvent ignored) -> status.set(FabricationStatus.Starting));
     setOnSucceeded((WorkerStateEvent ignored) -> status.set(FabricationStatus.Done));
+    labService.statusProperty().addListener((observable, oldValue, newValue) -> {
+      if (newValue == LabStatus.Authenticated) {
+        inputModeChoices.getValue().setAll(InputMode.PRODUCTION, InputMode.PREVIEW);
+      } else {
+        inputModeChoices.getValue().setAll(InputMode.PRODUCTION);
+        inputMode.set(InputMode.PRODUCTION);
+      }
+    });
   }
 
   protected Task<Boolean> createTask() {
@@ -323,6 +335,11 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
       LOG.error("Failed to get segments", e);
       return List.of();
     }
+  }
+
+  @Override
+  public ObservableValue<ObservableList<InputMode>> inputModeChoicesProperty() {
+    return inputModeChoices;
   }
 
 
