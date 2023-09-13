@@ -116,7 +116,7 @@ class FabricationServiceImplTest {
 
     var segment3 = prepareSegmentManager(3);
     assertEquals("5.1", subject.formatPositionBarBeats(segment3, 12.0));
-    assertEquals("5.3½", subject.formatPositionBarBeats(segment3, 14.5));
+    assertEquals("5.3.5", subject.formatPositionBarBeats(segment3, 14.5));
   }
 
   private Segment prepareSegmentManager(int barBeats) throws ManagerFatalException {
