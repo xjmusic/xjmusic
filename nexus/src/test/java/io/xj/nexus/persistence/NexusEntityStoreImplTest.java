@@ -4,7 +4,6 @@ package io.xj.nexus.persistence;
 
 
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.enums.TemplateType;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Template;
@@ -30,13 +29,13 @@ import java.util.UUID;
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 import static io.xj.nexus.HubIntegrationTestingFixtures.*;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 public class NexusEntityStoreImplTest {
   NexusEntityStore subject;
   EntityFactory entityFactory;
+  private Chain fakeChain;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -50,13 +49,14 @@ public class NexusEntityStoreImplTest {
 
     // add base fixtures
     Account fakeAccount = buildAccount("fake");
-    subject.put(buildChain(
+    fakeChain = buildChain(
       fakeAccount,
       "Print #2",
       ChainType.PRODUCTION,
       ChainState.FABRICATE,
       buildTemplate(fakeAccount, "Test")
-    ));
+    );
+    subject.put(fakeChain);
   }
 
   /**
@@ -233,7 +233,7 @@ public class NexusEntityStoreImplTest {
   public void put_nonSegmentEntity() throws NexusException {
     Account account1 = buildAccount("testing");
     Library library1 = buildLibrary(account1, "leaves");
-    Template template = buildTemplate(buildAccount("Test"), TemplateType.Preview, "Test", "key123");
+    Template template = buildTemplate(buildAccount("Test"), "Test", "key123");
     TemplateBinding templateBinding = buildTemplateBinding(template, library1);
 
     subject.put(templateBinding);
@@ -241,16 +241,7 @@ public class NexusEntityStoreImplTest {
 
   @Test
   public void getSegmentCount() throws NexusException {
-    var account1 = buildAccount("fish");
-    var template = buildTemplate(account1, "fishy");
-    var chain3 = subject.put(buildChain(
-      account1,
-      "Test Print #3",
-      ChainType.PRODUCTION,
-      ChainState.FABRICATE,
-      template,
-      "key123"));
-    subject.put(buildSegment(chain3,
+    subject.put(buildSegment(fakeChain,
       0,
       SegmentState.CRAFTED,
       "D Major",
@@ -259,7 +250,7 @@ public class NexusEntityStoreImplTest {
       120.0,
       "chains-3-segments-9f7s89d8a7892.wav"
     ));
-    subject.put(buildSegment(chain3,
+    subject.put(buildSegment(fakeChain,
       1,
       SegmentState.CRAFTED,
       "D Major",
@@ -268,7 +259,7 @@ public class NexusEntityStoreImplTest {
       120.0,
       "chains-3-segments-9f7s89d8a7892.wav"
     ));
-    subject.put(buildSegment(chain3,
+    subject.put(buildSegment(fakeChain,
       2,
       SegmentState.CRAFTED,
       "D Major",
@@ -283,4 +274,21 @@ public class NexusEntityStoreImplTest {
     assertEquals(3, result);
   }
 
+
+  @Test
+  public void isSegmentsEmpty() throws NexusException {
+    assertTrue(subject.isSegmentsEmpty());
+
+    subject.put(buildSegment(fakeChain,
+      0,
+      SegmentState.CRAFTED,
+      "D Major",
+      64,
+      0.73,
+      120.0,
+      "chains-3-segments-9f7s89d8a7892.wav"
+    ));
+
+    assertFalse(subject.isSegmentsEmpty());
+  }
 }

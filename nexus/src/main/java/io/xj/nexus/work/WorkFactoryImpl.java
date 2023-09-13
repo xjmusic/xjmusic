@@ -224,24 +224,6 @@ public class WorkFactoryImpl implements WorkFactory {
   }
 
   @Override
-  @Nullable
-  public CraftWork getCraftWork() {
-    return craftWork;
-  }
-
-  @Override
-  @Nullable
-  public DubWork getDubWork() {
-    return dubWork;
-  }
-
-  @Override
-  @Nullable
-  public ShipWork getShipWork() {
-    return shipWork;
-  }
-
-  @Override
   public void reset() {
     segmentManager.reset();
     craftWork = null;

@@ -191,7 +191,7 @@ public class DubWorkImpl implements DubWork {
     }
 
     if (craftWork.isFailed()) {
-      LOG.warn("CraftWork failed, stopping");
+      LOG.warn("must stop since CraftWork has failed");
       finish();
     }
 

@@ -9,6 +9,7 @@ import io.xj.nexus.OutputMode;
 public class WorkConfiguration {
   private InputMode inputMode;
   private String inputTemplateKey;
+  private String inputTemplateId;
   private OutputFileMode outputFileMode;
   private OutputMode outputMode;
   private String outputPathPrefix;
@@ -25,6 +26,15 @@ public class WorkConfiguration {
 
   public WorkConfiguration setInputMode(InputMode inputMode) {
     this.inputMode = inputMode;
+    return this;
+  }
+
+  public String getInputTemplateId() {
+    return inputTemplateId;
+  }
+
+  public WorkConfiguration setInputTemplateId(String inputTemplateId) {
+    this.inputTemplateId = inputTemplateId;
     return this;
   }
 

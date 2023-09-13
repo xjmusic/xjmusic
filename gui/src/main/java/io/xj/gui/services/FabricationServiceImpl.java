@@ -6,6 +6,7 @@ import io.xj.hub.tables.pojos.*;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
+import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.ManagerExistenceException;
 import io.xj.nexus.persistence.ManagerFatalException;
@@ -18,9 +19,6 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
@@ -38,6 +36,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   static final Logger LOG = LoggerFactory.getLogger(FabricationServiceImpl.class);
   final HostServices hostServices;
   final Integer defaultBufferAheadSeconds;
+  private final HubClient hubClient;
   final WorkFactory workFactory;
   final LabService labService;
 
@@ -53,7 +52,6 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
 
   final StringProperty outputFrameRate = new SimpleStringProperty();
   final StringProperty outputChannels = new SimpleStringProperty();
-  final ObservableValue<ObservableList<InputMode>> inputModeChoices = new SimpleObjectProperty<>(FXCollections.observableArrayList());
 
   public FabricationServiceImpl(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
@@ -65,16 +63,17 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     @Value("${output.frame.rate}") double defaultOutputFrameRate,
     @Value("${output.mode}") String defaultOutputMode,
     @Value("${output.seconds}") Integer defaultOutputSeconds,
+    HubClient hubClient,
     WorkFactory workFactory,
     LabService labService
   ) {
     this.hostServices = hostServices;
     this.defaultBufferAheadSeconds = defaultBufferAheadSeconds;
+    this.hubClient = hubClient;
     this.workFactory = workFactory;
     this.labService = labService;
     bufferAheadSeconds.set(Integer.toString(defaultBufferAheadSeconds));
     bufferBeforeSeconds.set(Integer.toString(defaultBufferBeforeSeconds));
-    inputModeChoices.getValue().setAll(InputMode.PRODUCTION);
     inputMode.set(InputMode.PRODUCTION);
     inputTemplateKey.set(defaultInputTemplateKey);
     outputChannels.set(Integer.toString(defaultOutputChannels));
@@ -89,14 +88,6 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     setOnRunning((WorkerStateEvent ignored) -> status.set(FabricationStatus.Active));
     setOnScheduled((WorkerStateEvent ignored) -> status.set(FabricationStatus.Starting));
     setOnSucceeded((WorkerStateEvent ignored) -> status.set(FabricationStatus.Done));
-    labService.statusProperty().addListener((observable, oldValue, newValue) -> {
-      if (newValue == LabStatus.Authenticated) {
-        inputModeChoices.getValue().setAll(InputMode.PRODUCTION, InputMode.PREVIEW);
-      } else {
-        inputModeChoices.getValue().setAll(InputMode.PRODUCTION);
-        inputMode.set(InputMode.PRODUCTION);
-      }
-    });
   }
 
   protected Task<Boolean> createTask() {
@@ -113,6 +104,8 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
           .setBufferBeforeSeconds(Integer.parseInt(bufferBeforeSeconds.get()))
           .setOutputFrameRate(Double.parseDouble(outputFrameRate.get()))
           .setOutputChannels(Integer.parseInt(outputChannels.get()));
+        hubClient.setBaseUrl(labService.baseUrlProperty().getValue());
+        hubClient.setAccessToken(labService.accessTokenProperty().getValue());
         return workFactory.start(configuration, () -> {
           // no op; the WorkFactory start method blocks, then we rely on the JavaFX Service hooks
         });
@@ -338,8 +331,8 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   }
 
   @Override
-  public ObservableValue<ObservableList<InputMode>> inputModeChoicesProperty() {
-    return inputModeChoices;
+  public Boolean isEmpty() {
+    return workFactory.getSegmentManager().isEmpty();
   }
 
 

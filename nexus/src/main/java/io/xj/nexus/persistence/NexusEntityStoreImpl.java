@@ -199,4 +199,10 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   public Integer getSegmentCount() {
     return segmentArray.size();
   }
+
+  @Override
+  public Boolean isSegmentsEmpty() {
+    return segmentArray.isEmpty();
+  }
+
 }

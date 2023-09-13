@@ -44,4 +44,20 @@ public interface HubClient {
    @return hub content
    */
   HubContent load(String shipKey) throws HubClientException;
+
+  /**
+   Set the ingestion token value
+   Workstation can play template live from hub https://www.pivotaltracker.com/story/show/185913107
+
+   @param value to set
+   */
+  void setAccessToken(String value);
+
+  /**
+   Set the ingestion base URL
+   Workstation can play template live from hub https://www.pivotaltracker.com/story/show/185913107
+
+   @param url to set
+   */
+  void setBaseUrl(String url);
 }

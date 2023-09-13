@@ -4,7 +4,6 @@ package io.xj.nexus.work;
 
 import io.xj.hub.HubContent;
 import io.xj.nexus.persistence.SegmentManager;
-import jakarta.annotation.Nullable;
 
 import java.util.Optional;
 
@@ -36,24 +35,6 @@ public interface WorkFactory {
    Get the segment manager
    */
   SegmentManager getSegmentManager();
-
-  /**
-   Get the craft work
-   */
-  @Nullable
-  CraftWork getCraftWork();
-
-  /**
-   Get the dub work
-   */
-  @Nullable
-  DubWork getDubWork();
-
-  /**
-   Get the ship work
-   */
-  @Nullable
-  ShipWork getShipWork();
 
   /**
    Reset the factory including the segment manager and its store

@@ -40,16 +40,16 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   final BooleanProperty configVisible = new SimpleBooleanProperty(false);
 
   @FXML
-  protected Button buttonAction;
+  Button buttonAction;
 
   @FXML
-  public Label labelFabricationStatus;
+  Label labelFabricationStatus;
 
   @FXML
-  public ToggleButton toggleShowConfig;
+  ToggleButton toggleShowConfig;
 
   @FXML
-  protected VBox fabricationConfigView;
+  VBox fabricationConfigView;
 
   @FXML
   TextField fieldInputTemplateKey;
@@ -62,6 +62,9 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
   @FXML
   ChoiceBox<OutputFileMode> choiceOutputFileMode;
+
+  @FXML
+  Label labelInputMode;
 
   @FXML
   Label labelOutputFileMode;
@@ -112,9 +115,24 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
         },
       fabricationService.statusProperty()));
 
-    fieldInputTemplateKey.textProperty().bindBidirectional(fabricationService.inputTemplateKeyProperty());
-    choiceInputMode.itemsProperty().bind(fabricationService.inputModeChoicesProperty());
+    // Input mode is locked in PRODUCTION unless we are connected to a Lab
     choiceInputMode.valueProperty().bindBidirectional(fabricationService.inputModeProperty());
+    choiceInputMode.disableProperty().bind(labService.statusProperty().isEqualTo(LabStatus.Authenticated).not());
+    labelInputMode.disableProperty().bind(labService.statusProperty().isEqualTo(LabStatus.Authenticated).not());
+    choiceInputMode.setItems(FXCollections.observableArrayList(InputMode.PRODUCTION));
+    labService.statusProperty().addListener((observable, oldValue, newValue) -> {
+      if (newValue == LabStatus.Authenticated) {
+        if (choiceInputMode.getItems().size() == 1) {
+          choiceInputMode.getItems().add(InputMode.PREVIEW);
+        }
+      } else {
+        if (choiceInputMode.getItems().size() == 2) {
+          choiceInputMode.getItems().remove(1);
+        }
+        choiceInputMode.setValue(InputMode.PRODUCTION);
+      }
+    });
+    fieldInputTemplateKey.textProperty().bindBidirectional(fabricationService.inputTemplateKeyProperty());
 
     choiceOutputMode.getItems().setAll(OutputMode.values());
     choiceOutputMode.valueProperty().bindBidirectional(fabricationService.outputModeProperty());

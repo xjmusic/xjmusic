@@ -143,4 +143,11 @@ public interface NexusEntityStore {
    @return number of segments
    */
   Integer getSegmentCount();
+
+  /**
+   Whether the segment manager is completely empty
+
+   @return true if there are zero segments
+   */
+  Boolean isSegmentsEmpty();
 }

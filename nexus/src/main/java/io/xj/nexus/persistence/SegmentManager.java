@@ -212,4 +212,11 @@ public interface SegmentManager /* does not extend Manager<Segment> because it i
    @return number of segments
    */
   Integer size();
+
+  /**
+   Whether the segment manager is completely empty
+
+   @return true if there are zero segments
+   */
+  Boolean isEmpty();
 }

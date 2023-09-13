@@ -123,10 +123,6 @@ public class CraftWorkImpl implements CraftWork {
   @Value("${rehydration.enabled}")
   boolean isRehydrationEnabled;
 
-  @Value("${fabrication.preview.template.playback.id}")
-  @Nullable
-  UUID fabricationPreviewTemplateId;
-
   @Value("${ship.bucket}")
   String shipBucket;
 
@@ -506,8 +502,10 @@ public class CraftWorkImpl implements CraftWork {
       labPollNextSystemMillis = System.currentTimeMillis() + syncPollSeconds * MILLIS_PER_SECOND;
       if (maintainPreviewTemplate())
         state = WorkState.Working;
-      else
+      else {
+        LOG.error("Failed to maintain preview template!");
         state = WorkState.Failed;
+      }
     }
 
     // Fabricate active chain
@@ -809,7 +807,7 @@ public class CraftWorkImpl implements CraftWork {
   boolean maintainPreviewTemplate() {
     Optional<Template> template = readPreviewTemplate();
     if (template.isEmpty()) {
-      LOG.debug("No preview template playback found");
+      LOG.error("Failed to start Chain for Template because no preview template playback found!");
       return false;
     }
 
@@ -820,7 +818,7 @@ public class CraftWorkImpl implements CraftWork {
           .getId();
       }
     } catch (ManagerFatalException e) {
-      LOG.error("Failed to start Chain(s) for playing Template(s) because {}", e.getMessage());
+      LOG.error("Failed to start Chain for Template because {}", e.getMessage());
       return false;
     }
 
@@ -833,11 +831,19 @@ public class CraftWorkImpl implements CraftWork {
    @return preview Template
    */
   Optional<Template> readPreviewTemplate() {
-    if (Objects.isNull(fabricationPreviewTemplateId)) return Optional.empty();
+    if (Objects.isNull(inputTemplateKey)) return Optional.empty();
+    UUID id;
     try {
-      return hubClient.readPreviewTemplate(fabricationPreviewTemplateId);
+      id = UUID.fromString(inputTemplateKey);
+    } catch (IllegalArgumentException e) {
+      LOG.error("Failed to read preview Template[{}] from Hub because {} is not a valid UUID", inputTemplateKey, e.getMessage());
+      // FUTURE: raise an alert for this in the GUI
+      return Optional.empty();
+    }
+    try {
+      return hubClient.readPreviewTemplate(id);
     } catch (HubClientException e) {
-      LOG.error("Failed to read preview Template[{}] from Hub because {}", fabricationPreviewTemplateId, e.getMessage());
+      LOG.error("Failed to read preview Template[{}] from Hub because {}", id, e.getMessage());
       return Optional.empty();
     }
   }

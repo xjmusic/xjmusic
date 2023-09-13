@@ -2,12 +2,7 @@
 
 package io.xj.gui.services;
 
-import io.xj.hub.tables.pojos.Instrument;
-import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.hub.tables.pojos.Program;
-import io.xj.hub.tables.pojos.ProgramSequence;
-import io.xj.hub.tables.pojos.ProgramSequenceBinding;
-import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.*;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
@@ -16,8 +11,6 @@ import io.xj.nexus.work.WorkFactory;
 import jakarta.annotation.Nullable;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Worker;
 import javafx.event.EventTarget;
 import javafx.scene.Node;
@@ -47,7 +40,7 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
 
   StringProperty bufferBeforeSecondsProperty();
 
-    StringProperty outputChannelsProperty();
+  StringProperty outputChannelsProperty();
 
   StringProperty outputFrameRateProperty();
 
@@ -93,5 +86,5 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
 
   List<Segment> getSegments(int length, @Nullable Integer startIndex);
 
-  ObservableValue<ObservableList<InputMode>> inputModeChoicesProperty();
+  Boolean isEmpty();
 }
