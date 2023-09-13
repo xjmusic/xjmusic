@@ -81,9 +81,8 @@
 }
 
 .main-timeline-segment .meme,
-.main-timeline-segment .chord-name,
-.main-timeline-segment .chord-position {
-  -fx-font-size: 1.2em;
+.main-timeline-segment .chord-name {
+  -fx-font-size: 1.1em;
   -fx-font-weight: bold;
 }
 

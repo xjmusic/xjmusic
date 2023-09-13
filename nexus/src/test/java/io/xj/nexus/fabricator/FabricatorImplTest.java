@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.nexus.HubIntegrationTestingFixtures.*;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.*;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;

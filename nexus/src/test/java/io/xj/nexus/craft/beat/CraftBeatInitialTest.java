@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.nexus.HubIntegrationTestingFixtures.buildTemplate;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildTemplate;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 

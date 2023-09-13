@@ -18,6 +18,7 @@ ext {
   jooqVersion = '3.18.5'
   junitVersion = '5.9.2'
   jupiterVersion = '5.8.1'
+  jupiterMockitoVersion = '5.5.0'
   logbackVersion = '1.4.11'
   springBootVersion = '3.1.2'
   springTestVersion = '6.0.11'

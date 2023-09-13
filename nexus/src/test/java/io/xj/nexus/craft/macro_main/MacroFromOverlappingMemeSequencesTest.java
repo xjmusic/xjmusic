@@ -29,7 +29,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static io.xj.nexus.HubIntegrationTestingFixtures.*;
+import static io.xj.nexus.NexusHubIntegrationTestingFixtures.*;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

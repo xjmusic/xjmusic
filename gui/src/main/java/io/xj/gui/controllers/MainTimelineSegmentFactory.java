@@ -6,11 +6,12 @@ import io.xj.gui.services.FabricationService;
 import io.xj.hub.enums.InstrumentMode;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
+import io.xj.lib.util.FormatUtils;
 import io.xj.nexus.model.*;
-import jakarta.annotation.Nullable;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.OverrunStyle;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -40,7 +41,7 @@ public class MainTimelineSegmentFactory {
   static final int SEGMENT_CONTAINER_PADDING_HORIZONTAL = 10;
   static final Logger LOG = LoggerFactory.getLogger(MainTimelineSegmentFactory.class);
 
-  static final int CHORD_POSITION_WIDTH = 32;
+  static final int CHORD_POSITION_WIDTH = 42;
   static final int SEGMENT_SECTION_VERTICAL_MARGIN = 30;
   final FabricationService fabricationService;
 
@@ -210,8 +211,8 @@ public class MainTimelineSegmentFactory {
     var row = new HBox();
     row.setPrefWidth(width);
     row.setMinHeight(SEGMENT_PROPERTY_ROW_MIN_HEIGHT);
-    row.getChildren().add(computeLabeledPropertyNode("Memes", computeMemeListNode(segment), width / 2, 0));
-    row.getChildren().add(computeLabeledPropertyNode("Chords", computeChordListNode(segment), width / 2, 0));
+    row.getChildren().add(computeLabeledPropertyNode("Memes", computeMemeListNode(segment), (int) (width * 0.45), 0));
+    row.getChildren().add(computeLabeledPropertyNode("Chords", computeChordListNode(segment), (int) (width * 0.55), 0));
     //
     var pane = new AnchorPane();
     pane.getChildren().add(row);
@@ -224,9 +225,9 @@ public class MainTimelineSegmentFactory {
   private Node computeSegmentSectionPropertiesNode(Segment segment, int width) {
     var row = new HBox();
     row.setMinHeight(SEGMENT_PROPERTY_ROW_MIN_HEIGHT);
-    row.getChildren().add(computeLabeledPropertyNode(String.format("%d beats", segment.getTotal()), formatTimeFromMicros(segment.getDurationMicros()), width / 4));
+    row.getChildren().add(computeLabeledPropertyNode(fabricationService.formatTotalBars(segment, segment.getTotal()), FormatUtils.formatTimeFromMicros(segment.getDurationMicros()), width / 4));
     row.getChildren().add(computeLabeledPropertyNode("Density", String.format("%.2f", segment.getDensity()), width / 4));
-    row.getChildren().add(computeLabeledPropertyNode("Tempo", formatMinDecimal(segment.getTempo()), width / 4));
+    row.getChildren().add(computeLabeledPropertyNode("Tempo", FormatUtils.formatMinDecimal(segment.getTempo()), width / 4));
     row.getChildren().add(computeLabeledPropertyNode("Key", segment.getKey(), width / 4));
     //
     var pane = new AnchorPane();
@@ -240,7 +241,7 @@ public class MainTimelineSegmentFactory {
   Node computeSegmentSectionHeaderNode(Segment segment, int width) {
     var row = new HBox();
     row.setMinHeight(SEGMENT_PROPERTY_ROW_MIN_HEIGHT);
-    row.getChildren().add(computeLabeledPropertyNode(String.format("[%d]", segment.getId()), formatTimeFromMicros(segment.getBeginAtChainMicros()), width / 2));
+    row.getChildren().add(computeLabeledPropertyNode(String.format("[%d]", segment.getId()), FormatUtils.formatTimeFromMicros(segment.getBeginAtChainMicros()), width / 2));
     row.getChildren().add(computeLabeledPropertyNode(String.format("+%d", segment.getDelta()), segment.getType().toString(), width / 2));
     //
     var pane = new AnchorPane();
@@ -262,10 +263,11 @@ public class MainTimelineSegmentFactory {
         .map(chord -> {
           // position
           var position = new Label();
-          position.setText(formatMinDecimal(chord.getPosition()));
+          position.setText(fabricationService.formatPositionBarBeats(segment, chord.getPosition()));
           position.setPrefWidth(CHORD_POSITION_WIDTH);
           position.setTextAlignment(javafx.scene.text.TextAlignment.RIGHT);
           position.getStyleClass().add("chord-position");
+          position.setTextOverrun(OverrunStyle.CLIP);
           // name
           var name = new Text();
           name.setText(chord.getName());
@@ -421,80 +423,5 @@ public class MainTimelineSegmentFactory {
       .values();
   }
 
-  /**
-   Format a number to a human-readable string
-
-   @param number number to format
-   @return human-readable string like "5", "4.5", or "1.27".
-   */
-  public static String formatMinDecimal(@Nullable Double number) {
-    if (Objects.isNull(number)) {
-      return "N/A";
-    }
-    if (Math.floor(number) == number) {
-      return String.format("%.0f", number);  // No decimal places if it's an integer
-    } else {
-      String str = Double.toString(number);
-      int decimalPlaces = str.length() - str.indexOf('.') - 1;
-
-      // Remove trailing zeros
-      for (int i = 0; i < decimalPlaces; i++) {
-        if (str.endsWith("0")) {
-          str = str.substring(0, str.length() - 1);
-        } else {
-          break;
-        }
-      }
-
-      // Remove trailing decimal point if any
-      if (str.endsWith(".")) {
-        str = str.substring(0, str.length() - 1);
-      }
-
-      return str;
-    }
-  }
-
-  /**
-   Format a time in microseconds to a human-readable string
-
-   @param microseconds time in microseconds
-   @return human-readable string like "5s", "4m7s", or "1h27m4s".
-   */
-  String formatTimeFromMicros(@Nullable Long microseconds) {
-    if (Objects.isNull(microseconds)) {
-      return "N/A";
-    }
-
-    // Round up to the nearest second
-    long totalSeconds = (microseconds + 999999) / 1000000;
-
-    // Get fractional seconds
-    double fractionalSeconds = (microseconds % 1000000) / 1000000.0;
-
-    // Calculate hours, minutes, and remaining seconds
-    long hours = totalSeconds / 3600;
-    long remainingSeconds = totalSeconds % 3600;
-    long minutes = remainingSeconds / 60;
-    long seconds = remainingSeconds % 60;
-
-    // Build the readable string
-    StringBuilder readableTime = new StringBuilder();
-    if (hours > 0) {
-      readableTime.append(hours).append("h");
-    }
-    if (minutes > 0) {
-      readableTime.append(minutes).append("m");
-    }
-    if (seconds > 0 || (hours == 0 && minutes == 0)) {
-      if (hours == 0 && minutes == 0) {
-        readableTime.append(String.format("%d.%d", seconds, (int) Math.floor(fractionalSeconds * 10))).append("s");
-      } else {
-        readableTime.append(seconds).append("s");
-      }
-    }
-
-    return readableTime.toString();
-  }
 }
 
