@@ -87,4 +87,8 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
   List<Segment> getSegments(int length, @Nullable Integer startIndex);
 
   Boolean isEmpty();
+
+  String formatTotalBars(Segment segment, int beats);
+
+  String formatPositionBarBeats(Segment segment, double position);
 }

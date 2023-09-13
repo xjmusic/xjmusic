@@ -1,6 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-package io.xj.nexus;
+package io.xj.gui;
 
 import io.xj.hub.enums.*;
 import io.xj.hub.tables.pojos.*;
@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+
 /**
  Integration tests use shared scenario fixtures as much as possible https://www.pivotaltracker.com/story/show/165954673
  <p>
@@ -23,8 +24,8 @@ import java.util.*;
  integration tests ought to be as much about testing all features around a consensus model of the platform
  as they are about testing all resources.
  */
-public class NexusIntegrationTestingFixtures {
-  static final Logger LOG = LoggerFactory.getLogger(NexusIntegrationTestingFixtures.class);
+public class GuiIntegrationTestingFixtures {
+  static final Logger LOG = LoggerFactory.getLogger(GuiIntegrationTestingFixtures.class);
   static final double RANDOM_VALUE_FROM = 0.3;
   static final double RANDOM_VALUE_TO = 0.8;
 
@@ -290,7 +291,7 @@ public class NexusIntegrationTestingFixtures {
     chain.setName(name);
     chain.setType(type);
     chain.setState(state);
-    chain.setTemplateConfig(NexusHubIntegrationTestingFixtures.TEST_TEMPLATE_CONFIG);
+    chain.setTemplateConfig(GuiHubIntegrationTestingFixtures.TEST_TEMPLATE_CONFIG);
     if (Objects.nonNull(shipKey))
       chain.shipKey(shipKey);
     return chain;
@@ -604,90 +605,90 @@ public class NexusIntegrationTestingFixtures {
   public Collection<Object> setupFixtureB1() throws EntityException {
 
     // Account "bananas"
-    account1 = NexusHubIntegrationTestingFixtures.buildAccount("bananas");
+    account1 = GuiHubIntegrationTestingFixtures.buildAccount("bananas");
 
     // Library "house"
-    library2 = NexusHubIntegrationTestingFixtures.buildLibrary(account1, "house");
+    library2 = GuiHubIntegrationTestingFixtures.buildLibrary(account1, "house");
 
     // Template Binding to library 2
-    template1 = NexusHubIntegrationTestingFixtures.buildTemplate(account1, "Test Template 1", "test1");
-    templateBinding1 = NexusHubIntegrationTestingFixtures.buildTemplateBinding(template1, library2);
+    template1 = GuiHubIntegrationTestingFixtures.buildTemplate(account1, "Test Template 1", "test1");
+    templateBinding1 = GuiHubIntegrationTestingFixtures.buildTemplateBinding(template1, library2);
 
     // John has "user" and "admin" roles, belongs to account "bananas"
-    user2 = NexusHubIntegrationTestingFixtures.buildUser("john", "john@email.com", "https://pictures.com/john.gif", "Admin");
+    user2 = GuiHubIntegrationTestingFixtures.buildUser("john", "john@email.com", "https://pictures.com/john.gif", "Admin");
 
     // Jenny has a "user" role and belongs to account "bananas"
-    user3 = NexusHubIntegrationTestingFixtures.buildUser("jenny", "jenny@email.com", "https://pictures.com/jenny.gif", "User");
-    accountUser1a = NexusHubIntegrationTestingFixtures.buildAccountUser(account1, user3);
+    user3 = GuiHubIntegrationTestingFixtures.buildUser("jenny", "jenny@email.com", "https://pictures.com/jenny.gif", "User");
+    accountUser1a = GuiHubIntegrationTestingFixtures.buildAccountUser(account1, user3);
 
     // "Tropical, Wild to Cozy" macro-program in house library
-    program4 = NexusHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Macro, ProgramState.Published, "Tropical, Wild to Cozy", "C", 120.0f, 0.6f);
-    program4_meme0 = NexusHubIntegrationTestingFixtures.buildMeme(program4, "Tropical");
+    program4 = GuiHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Macro, ProgramState.Published, "Tropical, Wild to Cozy", "C", 120.0f, 0.6f);
+    program4_meme0 = GuiHubIntegrationTestingFixtures.buildMeme(program4, "Tropical");
     //
-    program4_sequence0 = NexusHubIntegrationTestingFixtures.buildSequence(program4, 0, "Start Wild", 0.6f, "C");
-    program4_sequence0_binding0 = NexusHubIntegrationTestingFixtures.buildBinding(program4_sequence0, 0);
-    program4_sequence0_binding0_meme0 = NexusHubIntegrationTestingFixtures.buildMeme(program4_sequence0_binding0, "Wild");
+    program4_sequence0 = GuiHubIntegrationTestingFixtures.buildSequence(program4, 0, "Start Wild", 0.6f, "C");
+    program4_sequence0_binding0 = GuiHubIntegrationTestingFixtures.buildBinding(program4_sequence0, 0);
+    program4_sequence0_binding0_meme0 = GuiHubIntegrationTestingFixtures.buildMeme(program4_sequence0_binding0, "Wild");
     //
-    program4_sequence1 = NexusHubIntegrationTestingFixtures.buildSequence(program4, 0, "Intermediate", 0.4f, "Bb minor");
-    program4_sequence1_binding0 = NexusHubIntegrationTestingFixtures.buildBinding(program4_sequence1, 1);
-    program4_sequence1_binding0_meme0 = NexusHubIntegrationTestingFixtures.buildMeme(program4_sequence1_binding0, "Cozy");
-    program4_sequence1_binding0_meme1 = NexusHubIntegrationTestingFixtures.buildMeme(program4_sequence1_binding0, "Wild");
+    program4_sequence1 = GuiHubIntegrationTestingFixtures.buildSequence(program4, 0, "Intermediate", 0.4f, "Bb minor");
+    program4_sequence1_binding0 = GuiHubIntegrationTestingFixtures.buildBinding(program4_sequence1, 1);
+    program4_sequence1_binding0_meme0 = GuiHubIntegrationTestingFixtures.buildMeme(program4_sequence1_binding0, "Cozy");
+    program4_sequence1_binding0_meme1 = GuiHubIntegrationTestingFixtures.buildMeme(program4_sequence1_binding0, "Wild");
     //
-    program4_sequence2 = NexusHubIntegrationTestingFixtures.buildSequence(program4, 0, "Finish Cozy", 0.4f, "Ab minor");
-    program4_sequence2_binding0 = NexusHubIntegrationTestingFixtures.buildBinding(program4_sequence2, 2);
-    program4_sequence2_binding0_meme0 = NexusHubIntegrationTestingFixtures.buildMeme(program4_sequence2_binding0, "Cozy");
+    program4_sequence2 = GuiHubIntegrationTestingFixtures.buildSequence(program4, 0, "Finish Cozy", 0.4f, "Ab minor");
+    program4_sequence2_binding0 = GuiHubIntegrationTestingFixtures.buildBinding(program4_sequence2, 2);
+    program4_sequence2_binding0_meme0 = GuiHubIntegrationTestingFixtures.buildMeme(program4_sequence2_binding0, "Cozy");
 
     // Main program
-    program5 = NexusHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Main, ProgramState.Published, "Main Jam", "C minor", 140, 0.6f);
-    program5_voiceBass = NexusHubIntegrationTestingFixtures.buildVoice(program5, InstrumentType.Bass, "Bass");
-    program5_voiceSticky = NexusHubIntegrationTestingFixtures.buildVoice(program5, InstrumentType.Sticky, "Sticky");
-    program5_voiceStripe = NexusHubIntegrationTestingFixtures.buildVoice(program5, InstrumentType.Stripe, "Stripe");
-    program5_voicePad = NexusHubIntegrationTestingFixtures.buildVoice(program5, InstrumentType.Pad, "Pad");
-    program5_meme0 = NexusHubIntegrationTestingFixtures.buildMeme(program5, "Outlook");
+    program5 = GuiHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Main, ProgramState.Published, "Main Jam", "C minor", 140, 0.6f);
+    program5_voiceBass = GuiHubIntegrationTestingFixtures.buildVoice(program5, InstrumentType.Bass, "Bass");
+    program5_voiceSticky = GuiHubIntegrationTestingFixtures.buildVoice(program5, InstrumentType.Sticky, "Sticky");
+    program5_voiceStripe = GuiHubIntegrationTestingFixtures.buildVoice(program5, InstrumentType.Stripe, "Stripe");
+    program5_voicePad = GuiHubIntegrationTestingFixtures.buildVoice(program5, InstrumentType.Pad, "Pad");
+    program5_meme0 = GuiHubIntegrationTestingFixtures.buildMeme(program5, "Outlook");
     //
-    program5_sequence0 = NexusHubIntegrationTestingFixtures.buildSequence(program5, 16, "Intro", 0.5f, "G major");
-    program5_sequence0_chord0 = NexusHubIntegrationTestingFixtures.buildChord(program5_sequence0, 0.0, "G major");
-    program5_sequence0_chord0_voicing = NexusHubIntegrationTestingFixtures.buildVoicing(program5_sequence0_chord0, program5_voiceBass, "G3, B3, D4");
-    program5_sequence0_chord1 = NexusHubIntegrationTestingFixtures.buildChord(program5_sequence0, 8.0, "Ab minor");
-    program5_sequence0_chord1_voicing = NexusHubIntegrationTestingFixtures.buildVoicing(program5_sequence0_chord1, program5_voiceBass, "Ab3, Db3, F4");
-    program5_sequence0_chord2 = NexusHubIntegrationTestingFixtures.buildChord(program5_sequence0, 75.0, "G-9"); // this ChordEntity should be ignored, because it's past the end of the main-pattern total https://www.pivotaltracker.com/story/show/154090557
-    program5_sequence0_chord2_voicing = NexusHubIntegrationTestingFixtures.buildVoicing(program5_sequence0_chord2, program5_voiceBass, "G3, Bb3, D4, A4");
-    program5_sequence0_binding0 = NexusHubIntegrationTestingFixtures.buildBinding(program5_sequence0, 0);
-    program5_sequence0_binding0_meme0 = NexusHubIntegrationTestingFixtures.buildMeme(program5_sequence0_binding0, "Optimism");
+    program5_sequence0 = GuiHubIntegrationTestingFixtures.buildSequence(program5, 16, "Intro", 0.5f, "G major");
+    program5_sequence0_chord0 = GuiHubIntegrationTestingFixtures.buildChord(program5_sequence0, 0.0, "G major");
+    program5_sequence0_chord0_voicing = GuiHubIntegrationTestingFixtures.buildVoicing(program5_sequence0_chord0, program5_voiceBass, "G3, B3, D4");
+    program5_sequence0_chord1 = GuiHubIntegrationTestingFixtures.buildChord(program5_sequence0, 8.0, "Ab minor");
+    program5_sequence0_chord1_voicing = GuiHubIntegrationTestingFixtures.buildVoicing(program5_sequence0_chord1, program5_voiceBass, "Ab3, Db3, F4");
+    program5_sequence0_chord2 = GuiHubIntegrationTestingFixtures.buildChord(program5_sequence0, 75.0, "G-9"); // this ChordEntity should be ignored, because it's past the end of the main-pattern total https://www.pivotaltracker.com/story/show/154090557
+    program5_sequence0_chord2_voicing = GuiHubIntegrationTestingFixtures.buildVoicing(program5_sequence0_chord2, program5_voiceBass, "G3, Bb3, D4, A4");
+    program5_sequence0_binding0 = GuiHubIntegrationTestingFixtures.buildBinding(program5_sequence0, 0);
+    program5_sequence0_binding0_meme0 = GuiHubIntegrationTestingFixtures.buildMeme(program5_sequence0_binding0, "Optimism");
     //
-    program5_sequence1 = NexusHubIntegrationTestingFixtures.buildSequence(program5, 32, "Drop", 0.5f, "G minor");
-    program5_sequence1_chord0 = NexusHubIntegrationTestingFixtures.buildChord(program5_sequence1, 0.0, "C major");
+    program5_sequence1 = GuiHubIntegrationTestingFixtures.buildSequence(program5, 32, "Drop", 0.5f, "G minor");
+    program5_sequence1_chord0 = GuiHubIntegrationTestingFixtures.buildChord(program5_sequence1, 0.0, "C major");
     //
-    program5_sequence1_chord0_voicing = NexusHubIntegrationTestingFixtures.buildVoicing(program5_sequence1_chord0, program5_voiceBass, "Ab3, Db3, F4");
-    program5_sequence1_chord1 = NexusHubIntegrationTestingFixtures.buildChord(program5_sequence1, 8.0, "Bb minor");
+    program5_sequence1_chord0_voicing = GuiHubIntegrationTestingFixtures.buildVoicing(program5_sequence1_chord0, program5_voiceBass, "Ab3, Db3, F4");
+    program5_sequence1_chord1 = GuiHubIntegrationTestingFixtures.buildChord(program5_sequence1, 8.0, "Bb minor");
     //
-    program5_sequence1_chord1_voicing = NexusHubIntegrationTestingFixtures.buildVoicing(program5_sequence1_chord1, program5_voiceBass, "Ab3, Db3, F4");
-    program5_sequence1_binding0 = NexusHubIntegrationTestingFixtures.buildBinding(program5_sequence1, 1);
-    program5_sequence1_binding0_meme0 = NexusHubIntegrationTestingFixtures.buildMeme(program5_sequence1_binding0, "Pessimism");
-    program5_sequence1_binding1 = NexusHubIntegrationTestingFixtures.buildBinding(program5_sequence1, 1);
-    program5_sequence1_binding1_meme0 = NexusHubIntegrationTestingFixtures.buildMeme(program5_sequence1_binding0, "Pessimism");
+    program5_sequence1_chord1_voicing = GuiHubIntegrationTestingFixtures.buildVoicing(program5_sequence1_chord1, program5_voiceBass, "Ab3, Db3, F4");
+    program5_sequence1_binding0 = GuiHubIntegrationTestingFixtures.buildBinding(program5_sequence1, 1);
+    program5_sequence1_binding0_meme0 = GuiHubIntegrationTestingFixtures.buildMeme(program5_sequence1_binding0, "Pessimism");
+    program5_sequence1_binding1 = GuiHubIntegrationTestingFixtures.buildBinding(program5_sequence1, 1);
+    program5_sequence1_binding1_meme0 = GuiHubIntegrationTestingFixtures.buildMeme(program5_sequence1_binding0, "Pessimism");
 
     // A basic beat
-    program35 = NexusHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Beat, ProgramState.Published, "Basic Beat", "C", 121, 0.6f);
-    program35_meme0 = NexusHubIntegrationTestingFixtures.buildMeme(program35, "Basic");
-    program35_voice0 = NexusHubIntegrationTestingFixtures.buildVoice(program35, InstrumentType.Drum, "Drums");
-    program35_voice0_track0 = NexusHubIntegrationTestingFixtures.buildTrack(program35_voice0, "CLOCK");
-    program35_voice0_track1 = NexusHubIntegrationTestingFixtures.buildTrack(program35_voice0, "SNORT");
-    program35_voice0_track2 = NexusHubIntegrationTestingFixtures.buildTrack(program35_voice0, "KICK");
-    program35_voice0_track3 = NexusHubIntegrationTestingFixtures.buildTrack(program35_voice0, "SNARL");
+    program35 = GuiHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Beat, ProgramState.Published, "Basic Beat", "C", 121, 0.6f);
+    program35_meme0 = GuiHubIntegrationTestingFixtures.buildMeme(program35, "Basic");
+    program35_voice0 = GuiHubIntegrationTestingFixtures.buildVoice(program35, InstrumentType.Drum, "Drums");
+    program35_voice0_track0 = GuiHubIntegrationTestingFixtures.buildTrack(program35_voice0, "CLOCK");
+    program35_voice0_track1 = GuiHubIntegrationTestingFixtures.buildTrack(program35_voice0, "SNORT");
+    program35_voice0_track2 = GuiHubIntegrationTestingFixtures.buildTrack(program35_voice0, "KICK");
+    program35_voice0_track3 = GuiHubIntegrationTestingFixtures.buildTrack(program35_voice0, "SNARL");
     //
-    program35_sequence0 = NexusHubIntegrationTestingFixtures.buildSequence(program35, 16, "Base", 0.5f, "C");
-    program35_sequence0_pattern0 = NexusHubIntegrationTestingFixtures.buildPattern(program35_sequence0, program35_voice0, 4, "Drop");
-    program35_sequence0_pattern0_event0 = NexusHubIntegrationTestingFixtures.buildEvent(program35_sequence0_pattern0, program35_voice0_track0, 0.0f, 1.0f, "C2", 1.0f);
-    program35_sequence0_pattern0_event1 = NexusHubIntegrationTestingFixtures.buildEvent(program35_sequence0_pattern0, program35_voice0_track1, 1.0f, 1.0f, "G5", 0.8f);
-    program35_sequence0_pattern0_event2 = NexusHubIntegrationTestingFixtures.buildEvent(program35_sequence0_pattern0, program35_voice0_track2, 2.5f, 1.0f, "C2", 0.6f);
-    program35_sequence0_pattern0_event3 = NexusHubIntegrationTestingFixtures.buildEvent(program35_sequence0_pattern0, program35_voice0_track3, 3.0f, 1.0f, "G5", 0.9f);
+    program35_sequence0 = GuiHubIntegrationTestingFixtures.buildSequence(program35, 16, "Base", 0.5f, "C");
+    program35_sequence0_pattern0 = GuiHubIntegrationTestingFixtures.buildPattern(program35_sequence0, program35_voice0, 4, "Drop");
+    program35_sequence0_pattern0_event0 = GuiHubIntegrationTestingFixtures.buildEvent(program35_sequence0_pattern0, program35_voice0_track0, 0.0f, 1.0f, "C2", 1.0f);
+    program35_sequence0_pattern0_event1 = GuiHubIntegrationTestingFixtures.buildEvent(program35_sequence0_pattern0, program35_voice0_track1, 1.0f, 1.0f, "G5", 0.8f);
+    program35_sequence0_pattern0_event2 = GuiHubIntegrationTestingFixtures.buildEvent(program35_sequence0_pattern0, program35_voice0_track2, 2.5f, 1.0f, "C2", 0.6f);
+    program35_sequence0_pattern0_event3 = GuiHubIntegrationTestingFixtures.buildEvent(program35_sequence0_pattern0, program35_voice0_track3, 3.0f, 1.0f, "G5", 0.9f);
     //
-    program35_sequence0_pattern1 = NexusHubIntegrationTestingFixtures.buildPattern(program35_sequence0, program35_voice0, 4, "Drop Alt");
-    program35_sequence0_pattern1_event0 = NexusHubIntegrationTestingFixtures.buildEvent(program35_sequence0_pattern1, program35_voice0_track0, 0.0f, 1.0f, "B5", 0.9f);
-    program35_sequence0_pattern1_event1 = NexusHubIntegrationTestingFixtures.buildEvent(program35_sequence0_pattern1, program35_voice0_track1, 1.0f, 1.0f, "D2", 1.0f);
-    program35_sequence0_pattern1_event2 = NexusHubIntegrationTestingFixtures.buildEvent(program35_sequence0_pattern1, program35_voice0_track2, 2.5f, 1.0f, "E4", 0.7f);
-    program35_sequence0_pattern1_event3 = NexusHubIntegrationTestingFixtures.buildEvent(program35_sequence0_pattern1, program35_voice0_track3, 3.0f, 1.0f, "c3", 0.5f);
+    program35_sequence0_pattern1 = GuiHubIntegrationTestingFixtures.buildPattern(program35_sequence0, program35_voice0, 4, "Drop Alt");
+    program35_sequence0_pattern1_event0 = GuiHubIntegrationTestingFixtures.buildEvent(program35_sequence0_pattern1, program35_voice0_track0, 0.0f, 1.0f, "B5", 0.9f);
+    program35_sequence0_pattern1_event1 = GuiHubIntegrationTestingFixtures.buildEvent(program35_sequence0_pattern1, program35_voice0_track1, 1.0f, 1.0f, "D2", 1.0f);
+    program35_sequence0_pattern1_event2 = GuiHubIntegrationTestingFixtures.buildEvent(program35_sequence0_pattern1, program35_voice0_track2, 2.5f, 1.0f, "E4", 0.7f);
+    program35_sequence0_pattern1_event3 = GuiHubIntegrationTestingFixtures.buildEvent(program35_sequence0_pattern1, program35_voice0_track3, 3.0f, 1.0f, "c3", 0.5f);
 
     // List of all parent entities including the library
     // ORDER IS IMPORTANT because this list will be used for real database entities, so ordered from parent -> child
@@ -761,38 +762,38 @@ public class NexusIntegrationTestingFixtures {
    */
   public Collection<Object> setupFixtureB2() {
     // "Tangy, Chunky to Smooth" macro-program in house library
-    program3 = NexusHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Macro, ProgramState.Published, "Tangy, Chunky to Smooth", "G minor", 120.0f, 0.6f);
-    program3_meme0 = NexusHubIntegrationTestingFixtures.buildMeme(program3, "Tangy");
+    program3 = GuiHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Macro, ProgramState.Published, "Tangy, Chunky to Smooth", "G minor", 120.0f, 0.6f);
+    program3_meme0 = GuiHubIntegrationTestingFixtures.buildMeme(program3, "Tangy");
     //
-    program3_sequence0 = NexusHubIntegrationTestingFixtures.buildSequence(program3, 0, "Start Chunky", 0.4f, "G minor");
-    program3_sequence0_binding0 = NexusHubIntegrationTestingFixtures.buildBinding(program3_sequence0, 0);
-    program3_sequence0_binding0_meme0 = NexusHubIntegrationTestingFixtures.buildMeme(program3_sequence0_binding0, "Chunky");
+    program3_sequence0 = GuiHubIntegrationTestingFixtures.buildSequence(program3, 0, "Start Chunky", 0.4f, "G minor");
+    program3_sequence0_binding0 = GuiHubIntegrationTestingFixtures.buildBinding(program3_sequence0, 0);
+    program3_sequence0_binding0_meme0 = GuiHubIntegrationTestingFixtures.buildMeme(program3_sequence0_binding0, "Chunky");
     //
-    program3_sequence1 = NexusHubIntegrationTestingFixtures.buildSequence(program3, 0, "Finish Smooth", 0.6f, "C");
-    program3_sequence1_binding0 = NexusHubIntegrationTestingFixtures.buildBinding(program3_sequence1, 1);
-    program3_sequence1_binding0_meme0 = NexusHubIntegrationTestingFixtures.buildMeme(program3_sequence1_binding0, "Smooth");
+    program3_sequence1 = GuiHubIntegrationTestingFixtures.buildSequence(program3, 0, "Finish Smooth", 0.6f, "C");
+    program3_sequence1_binding0 = GuiHubIntegrationTestingFixtures.buildBinding(program3_sequence1, 1);
+    program3_sequence1_binding0_meme0 = GuiHubIntegrationTestingFixtures.buildMeme(program3_sequence1_binding0, "Smooth");
 
     // Main program
-    program15 = NexusHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Main, ProgramState.Published, "Next Jam", "Db minor", 140, 0.6f);
-    program15_voiceBass = NexusHubIntegrationTestingFixtures.buildVoice(program5, InstrumentType.Bass, "Bass");
-    program15_meme0 = NexusHubIntegrationTestingFixtures.buildMeme(program15, "Hindsight");
+    program15 = GuiHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Main, ProgramState.Published, "Next Jam", "Db minor", 140, 0.6f);
+    program15_voiceBass = GuiHubIntegrationTestingFixtures.buildVoice(program5, InstrumentType.Bass, "Bass");
+    program15_meme0 = GuiHubIntegrationTestingFixtures.buildMeme(program15, "Hindsight");
     //
-    program15_sequence0 = NexusHubIntegrationTestingFixtures.buildSequence(program15, 16, "Intro", 0.5f, "G minor");
-    program15_sequence0_chord0 = NexusHubIntegrationTestingFixtures.buildChord(program15_sequence0, 0.0, "G minor");
-    program15_sequence0_chord0_voicing = NexusHubIntegrationTestingFixtures.buildVoicing(program15_sequence0_chord0, program15_voiceBass, "G3, Bb3, D4");
-    program15_sequence0_chord1 = NexusHubIntegrationTestingFixtures.buildChord(program15_sequence0, 8.0, "Ab minor");
-    program15_sequence0_chord1_voicing = NexusHubIntegrationTestingFixtures.buildVoicing(program15_sequence0_chord1, program15_voiceBass, "Ab3, C3, Eb4");
-    program15_sequence0_binding0 = NexusHubIntegrationTestingFixtures.buildBinding(program15_sequence0, 0);
-    program15_sequence0_binding0_meme0 = NexusHubIntegrationTestingFixtures.buildMeme(program15_sequence0_binding0, "Regret");
+    program15_sequence0 = GuiHubIntegrationTestingFixtures.buildSequence(program15, 16, "Intro", 0.5f, "G minor");
+    program15_sequence0_chord0 = GuiHubIntegrationTestingFixtures.buildChord(program15_sequence0, 0.0, "G minor");
+    program15_sequence0_chord0_voicing = GuiHubIntegrationTestingFixtures.buildVoicing(program15_sequence0_chord0, program15_voiceBass, "G3, Bb3, D4");
+    program15_sequence0_chord1 = GuiHubIntegrationTestingFixtures.buildChord(program15_sequence0, 8.0, "Ab minor");
+    program15_sequence0_chord1_voicing = GuiHubIntegrationTestingFixtures.buildVoicing(program15_sequence0_chord1, program15_voiceBass, "Ab3, C3, Eb4");
+    program15_sequence0_binding0 = GuiHubIntegrationTestingFixtures.buildBinding(program15_sequence0, 0);
+    program15_sequence0_binding0_meme0 = GuiHubIntegrationTestingFixtures.buildMeme(program15_sequence0_binding0, "Regret");
     //
-    program15_sequence1 = NexusHubIntegrationTestingFixtures.buildSequence(program15, 32, "Outro", 0.5f, "A major");
-    program15_sequence1_chord0 = NexusHubIntegrationTestingFixtures.buildChord(program15_sequence1, 0.0, "C major");
-    program15_sequence1_chord0_voicing = NexusHubIntegrationTestingFixtures.buildVoicing(program15_sequence0_chord0, program15_voiceBass, "E3, G3, C4");
-    program15_sequence1_chord1 = NexusHubIntegrationTestingFixtures.buildChord(program15_sequence1, 8.0, "Bb major");
-    program15_sequence1_chord1_voicing = NexusHubIntegrationTestingFixtures.buildVoicing(program15_sequence0_chord1, program15_voiceBass, "F3, Bb3, D4");
-    program15_sequence1_binding0 = NexusHubIntegrationTestingFixtures.buildBinding(program15_sequence1, 1);
-    program15_sequence1_binding0_meme0 = NexusHubIntegrationTestingFixtures.buildMeme(program15_sequence1_binding0, "Pride");
-    program15_sequence1_binding0_meme1 = NexusHubIntegrationTestingFixtures.buildMeme(program15_sequence1_binding0, "Shame");
+    program15_sequence1 = GuiHubIntegrationTestingFixtures.buildSequence(program15, 32, "Outro", 0.5f, "A major");
+    program15_sequence1_chord0 = GuiHubIntegrationTestingFixtures.buildChord(program15_sequence1, 0.0, "C major");
+    program15_sequence1_chord0_voicing = GuiHubIntegrationTestingFixtures.buildVoicing(program15_sequence0_chord0, program15_voiceBass, "E3, G3, C4");
+    program15_sequence1_chord1 = GuiHubIntegrationTestingFixtures.buildChord(program15_sequence1, 8.0, "Bb major");
+    program15_sequence1_chord1_voicing = GuiHubIntegrationTestingFixtures.buildVoicing(program15_sequence0_chord1, program15_voiceBass, "F3, Bb3, D4");
+    program15_sequence1_binding0 = GuiHubIntegrationTestingFixtures.buildBinding(program15_sequence1, 1);
+    program15_sequence1_binding0_meme0 = GuiHubIntegrationTestingFixtures.buildMeme(program15_sequence1_binding0, "Pride");
+    program15_sequence1_binding0_meme1 = GuiHubIntegrationTestingFixtures.buildMeme(program15_sequence1_binding0, "Shame");
 
     // return them all
     return List.of(
@@ -841,61 +842,61 @@ public class NexusIntegrationTestingFixtures {
    */
   public Collection<Object> setupFixtureB3() {
     // A basic beat
-    program9 = NexusHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Beat, ProgramState.Published, "Basic Beat", "C", 121, 0.6f);
-    program9_meme0 = NexusHubIntegrationTestingFixtures.buildMeme(program9, "Basic");
+    program9 = GuiHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Beat, ProgramState.Published, "Basic Beat", "C", 121, 0.6f);
+    program9_meme0 = GuiHubIntegrationTestingFixtures.buildMeme(program9, "Basic");
     //
-    program9_voice0 = NexusHubIntegrationTestingFixtures.buildVoice(program9, InstrumentType.Drum, "Drums");
-    program9_voice0_track0 = NexusHubIntegrationTestingFixtures.buildTrack(program9_voice0, "BLEEP");
-    program9_voice0_track1 = NexusHubIntegrationTestingFixtures.buildTrack(program9_voice0, "BLEIP");
-    program9_voice0_track2 = NexusHubIntegrationTestingFixtures.buildTrack(program9_voice0, "BLEAP");
-    program9_voice0_track3 = NexusHubIntegrationTestingFixtures.buildTrack(program9_voice0, "BLEEEP");
-    program9_voice0_track4 = NexusHubIntegrationTestingFixtures.buildTrack(program9_voice0, "CLOCK");
-    program9_voice0_track5 = NexusHubIntegrationTestingFixtures.buildTrack(program9_voice0, "SNORT");
-    program9_voice0_track6 = NexusHubIntegrationTestingFixtures.buildTrack(program9_voice0, "KICK");
-    program9_voice0_track7 = NexusHubIntegrationTestingFixtures.buildTrack(program9_voice0, "SNARL");
-    program9_voice0_track8 = NexusHubIntegrationTestingFixtures.buildTrack(program9_voice0, "KIICK");
-    program9_voice0_track9 = NexusHubIntegrationTestingFixtures.buildTrack(program9_voice0, "SNARR");
-    program9_voice0_track10 = NexusHubIntegrationTestingFixtures.buildTrack(program9_voice0, "KEICK");
-    program9_voice0_track11 = NexusHubIntegrationTestingFixtures.buildTrack(program9_voice0, "SNAER");
-    program9_voice0_track12 = NexusHubIntegrationTestingFixtures.buildTrack(program9_voice0, "TOOT");
-    program9_voice0_track13 = NexusHubIntegrationTestingFixtures.buildTrack(program9_voice0, "TOOOT");
-    program9_voice0_track14 = NexusHubIntegrationTestingFixtures.buildTrack(program9_voice0, "TOOTE");
-    program9_voice0_track15 = NexusHubIntegrationTestingFixtures.buildTrack(program9_voice0, "TOUT");
+    program9_voice0 = GuiHubIntegrationTestingFixtures.buildVoice(program9, InstrumentType.Drum, "Drums");
+    program9_voice0_track0 = GuiHubIntegrationTestingFixtures.buildTrack(program9_voice0, "BLEEP");
+    program9_voice0_track1 = GuiHubIntegrationTestingFixtures.buildTrack(program9_voice0, "BLEIP");
+    program9_voice0_track2 = GuiHubIntegrationTestingFixtures.buildTrack(program9_voice0, "BLEAP");
+    program9_voice0_track3 = GuiHubIntegrationTestingFixtures.buildTrack(program9_voice0, "BLEEEP");
+    program9_voice0_track4 = GuiHubIntegrationTestingFixtures.buildTrack(program9_voice0, "CLOCK");
+    program9_voice0_track5 = GuiHubIntegrationTestingFixtures.buildTrack(program9_voice0, "SNORT");
+    program9_voice0_track6 = GuiHubIntegrationTestingFixtures.buildTrack(program9_voice0, "KICK");
+    program9_voice0_track7 = GuiHubIntegrationTestingFixtures.buildTrack(program9_voice0, "SNARL");
+    program9_voice0_track8 = GuiHubIntegrationTestingFixtures.buildTrack(program9_voice0, "KIICK");
+    program9_voice0_track9 = GuiHubIntegrationTestingFixtures.buildTrack(program9_voice0, "SNARR");
+    program9_voice0_track10 = GuiHubIntegrationTestingFixtures.buildTrack(program9_voice0, "KEICK");
+    program9_voice0_track11 = GuiHubIntegrationTestingFixtures.buildTrack(program9_voice0, "SNAER");
+    program9_voice0_track12 = GuiHubIntegrationTestingFixtures.buildTrack(program9_voice0, "TOOT");
+    program9_voice0_track13 = GuiHubIntegrationTestingFixtures.buildTrack(program9_voice0, "TOOOT");
+    program9_voice0_track14 = GuiHubIntegrationTestingFixtures.buildTrack(program9_voice0, "TOOTE");
+    program9_voice0_track15 = GuiHubIntegrationTestingFixtures.buildTrack(program9_voice0, "TOUT");
     //
-    program9_sequence0 = NexusHubIntegrationTestingFixtures.buildSequence(program9, 16, "Base", 0.5f, "C");
+    program9_sequence0 = GuiHubIntegrationTestingFixtures.buildSequence(program9, 16, "Base", 0.5f, "C");
     //
-    program9_sequence0_pattern0 = NexusHubIntegrationTestingFixtures.buildPattern(program9_sequence0, program9_voice0, 4, "Intro");
-    program9_sequence0_pattern0_event0 = NexusHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern0, program9_voice0_track0, 0, 1, "C2", 1.0f);
-    program9_sequence0_pattern0_event1 = NexusHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern0, program9_voice0_track1, 1, 1, "G5", 0.8f);
-    program9_sequence0_pattern0_event2 = NexusHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern0, program9_voice0_track2, 2.5f, 1, "C2", 0.6f);
-    program9_sequence0_pattern0_event3 = NexusHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern0, program9_voice0_track3, 3, 1, "G5", 0.9f);
+    program9_sequence0_pattern0 = GuiHubIntegrationTestingFixtures.buildPattern(program9_sequence0, program9_voice0, 4, "Intro");
+    program9_sequence0_pattern0_event0 = GuiHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern0, program9_voice0_track0, 0, 1, "C2", 1.0f);
+    program9_sequence0_pattern0_event1 = GuiHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern0, program9_voice0_track1, 1, 1, "G5", 0.8f);
+    program9_sequence0_pattern0_event2 = GuiHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern0, program9_voice0_track2, 2.5f, 1, "C2", 0.6f);
+    program9_sequence0_pattern0_event3 = GuiHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern0, program9_voice0_track3, 3, 1, "G5", 0.9f);
     //
-    program9_sequence0_pattern1 = NexusHubIntegrationTestingFixtures.buildPattern(program9_sequence0, program9_voice0, 4, "Loop A");
-    program9_sequence0_pattern1_event0 = NexusHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern1, program9_voice0_track4, 0, 1, "C2", 1.0f);
-    program9_sequence0_pattern1_event1 = NexusHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern1, program9_voice0_track5, 1, 1, "G5", 0.8f);
-    program9_sequence0_pattern1_event2 = NexusHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern1, program9_voice0_track6, 2.5f, 1, "C2", 0.6f);
-    program9_sequence0_pattern1_event3 = NexusHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern1, program9_voice0_track7, 3, 1, "G5", 0.9f);
+    program9_sequence0_pattern1 = GuiHubIntegrationTestingFixtures.buildPattern(program9_sequence0, program9_voice0, 4, "Loop A");
+    program9_sequence0_pattern1_event0 = GuiHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern1, program9_voice0_track4, 0, 1, "C2", 1.0f);
+    program9_sequence0_pattern1_event1 = GuiHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern1, program9_voice0_track5, 1, 1, "G5", 0.8f);
+    program9_sequence0_pattern1_event2 = GuiHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern1, program9_voice0_track6, 2.5f, 1, "C2", 0.6f);
+    program9_sequence0_pattern1_event3 = GuiHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern1, program9_voice0_track7, 3, 1, "G5", 0.9f);
     //
-    program9_sequence0_pattern2 = NexusHubIntegrationTestingFixtures.buildPattern(program9_sequence0, program9_voice0, 4, "Loop B");
-    program9_sequence0_pattern2_event0 = NexusHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern2, program9_voice0_track8, 0, 1, "B5", 0.9f);
-    program9_sequence0_pattern2_event1 = NexusHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern2, program9_voice0_track9, 1, 1, "D2", 1.0f);
-    program9_sequence0_pattern2_event2 = NexusHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern2, program9_voice0_track10, 2.5f, 1, "E4", 0.7f);
-    program9_sequence0_pattern2_event3 = NexusHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern2, program9_voice0_track11, 3, 1, "C3", 0.5f);
+    program9_sequence0_pattern2 = GuiHubIntegrationTestingFixtures.buildPattern(program9_sequence0, program9_voice0, 4, "Loop B");
+    program9_sequence0_pattern2_event0 = GuiHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern2, program9_voice0_track8, 0, 1, "B5", 0.9f);
+    program9_sequence0_pattern2_event1 = GuiHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern2, program9_voice0_track9, 1, 1, "D2", 1.0f);
+    program9_sequence0_pattern2_event2 = GuiHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern2, program9_voice0_track10, 2.5f, 1, "E4", 0.7f);
+    program9_sequence0_pattern2_event3 = GuiHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern2, program9_voice0_track11, 3, 1, "C3", 0.5f);
     //
-    program9_sequence0_pattern3 = NexusHubIntegrationTestingFixtures.buildPattern(program9_sequence0, program9_voice0, 4, "Outro");
-    program9_sequence0_pattern3_event0 = NexusHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern3, program9_voice0_track12, 0, 1, "C2", 1.0f);
-    program9_sequence0_pattern3_event1 = NexusHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern3, program9_voice0_track13, 1, 1, "G5", 0.8f);
-    program9_sequence0_pattern3_event2 = NexusHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern3, program9_voice0_track14, 2.5f, 1, "C2", 0.6f);
-    program9_sequence0_pattern3_event3 = NexusHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern3, program9_voice0_track15, 3, 1, "G5", 0.9f);
+    program9_sequence0_pattern3 = GuiHubIntegrationTestingFixtures.buildPattern(program9_sequence0, program9_voice0, 4, "Outro");
+    program9_sequence0_pattern3_event0 = GuiHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern3, program9_voice0_track12, 0, 1, "C2", 1.0f);
+    program9_sequence0_pattern3_event1 = GuiHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern3, program9_voice0_track13, 1, 1, "G5", 0.8f);
+    program9_sequence0_pattern3_event2 = GuiHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern3, program9_voice0_track14, 2.5f, 1, "C2", 0.6f);
+    program9_sequence0_pattern3_event3 = GuiHubIntegrationTestingFixtures.buildEvent(program9_sequence0_pattern3, program9_voice0_track15, 3, 1, "G5", 0.9f);
 
     // Instrument "808"
-    instrument8 = NexusHubIntegrationTestingFixtures.buildInstrument(library2, InstrumentType.Drum, InstrumentMode.Event, InstrumentState.Published, "808 Drums");
+    instrument8 = GuiHubIntegrationTestingFixtures.buildInstrument(library2, InstrumentType.Drum, InstrumentMode.Event, InstrumentState.Published, "808 Drums");
     instrument8.setVolume(0.76f); // For testing: Instrument has overall volume parameter https://www.pivotaltracker.com/story/show/179215413
-    instrument8_meme0 = NexusHubIntegrationTestingFixtures.buildMeme(instrument8, "heavy");
-    instrument8_audio8kick = NexusHubIntegrationTestingFixtures.buildAudio(instrument8, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.62f, "KICK", "Eb", 1.0f);
-    instrument8_audio8snare = NexusHubIntegrationTestingFixtures.buildAudio(instrument8, "Snare", "975898198017350afghjkjhaskjdfjhk.wav", 0.01f, 1.5f, 120.0f, 0.62f, "SNARE", "Ab", 0.8f);
-    instrument8_audio8bleep = NexusHubIntegrationTestingFixtures.buildAudio(instrument8, "Bleep", "17350afghjkjhaskjdfjhk9758981980.wav", 0.01f, 1.5f, 120.0f, 0.62f, "BLEEP", "Ab", 0.8f);
-    instrument8_audio8toot = NexusHubIntegrationTestingFixtures.buildAudio(instrument8, "Toot", "askjdfjhk975898198017350afghjkjh.wav", 0.01f, 1.5f, 120.0f, 0.62f, "TOOT", "Ab", 0.8f);
+    instrument8_meme0 = GuiHubIntegrationTestingFixtures.buildMeme(instrument8, "heavy");
+    instrument8_audio8kick = GuiHubIntegrationTestingFixtures.buildAudio(instrument8, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.62f, "KICK", "Eb", 1.0f);
+    instrument8_audio8snare = GuiHubIntegrationTestingFixtures.buildAudio(instrument8, "Snare", "975898198017350afghjkjhaskjdfjhk.wav", 0.01f, 1.5f, 120.0f, 0.62f, "SNARE", "Ab", 0.8f);
+    instrument8_audio8bleep = GuiHubIntegrationTestingFixtures.buildAudio(instrument8, "Bleep", "17350afghjkjhaskjdfjhk9758981980.wav", 0.01f, 1.5f, 120.0f, 0.62f, "BLEEP", "Ab", 0.8f);
+    instrument8_audio8toot = GuiHubIntegrationTestingFixtures.buildAudio(instrument8, "Toot", "askjdfjhk975898198017350afghjkjh.wav", 0.01f, 1.5f, 120.0f, 0.62f, "TOOT", "Ab", 0.8f);
 
     // return them all
     return List.of(
@@ -955,42 +956,42 @@ public class NexusIntegrationTestingFixtures {
    */
   public Collection<Object> setupFixtureB4_DetailBass() {
     // A basic bass pattern
-    program10 = NexusHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Detail, ProgramState.Published, "Earth Bass Detail Pattern", "C", 121, 0.6f);
-    program10_meme0 = NexusHubIntegrationTestingFixtures.buildMeme(program10, "EARTH");
+    program10 = GuiHubIntegrationTestingFixtures.buildProgram(library2, ProgramType.Detail, ProgramState.Published, "Earth Bass Detail Pattern", "C", 121, 0.6f);
+    program10_meme0 = GuiHubIntegrationTestingFixtures.buildMeme(program10, "EARTH");
     //
-    program10_voice0 = NexusHubIntegrationTestingFixtures.buildVoice(program10, InstrumentType.Bass, "Dirty Bass");
-    program10_voice0_track0 = NexusHubIntegrationTestingFixtures.buildTrack(program10_voice0, "BUM");
+    program10_voice0 = GuiHubIntegrationTestingFixtures.buildVoice(program10, InstrumentType.Bass, "Dirty Bass");
+    program10_voice0_track0 = GuiHubIntegrationTestingFixtures.buildTrack(program10_voice0, "BUM");
     //
-    program10_sequence0 = NexusHubIntegrationTestingFixtures.buildSequence(program10, 16, "Simple Walk", 0.5f, "C");
+    program10_sequence0 = GuiHubIntegrationTestingFixtures.buildSequence(program10, 16, "Simple Walk", 0.5f, "C");
     //
-    program10_sequence0_pattern0 = NexusHubIntegrationTestingFixtures.buildPattern(program10_sequence0, program10_voice0, 4, "Intro");
-    program10_sequence0_pattern0_event0 = NexusHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern0, program10_voice0_track0, 0, 1, "C2", 1.0f);
-    program10_sequence0_pattern0_event1 = NexusHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern0, program10_voice0_track0, 1, 1, "G5", 0.8f);
-    program10_sequence0_pattern0_event2 = NexusHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern0, program10_voice0_track0, 2, 1, "C2", 0.6f);
-    program10_sequence0_pattern0_event3 = NexusHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern0, program10_voice0_track0, 3, 1, "G5", 0.9f);
+    program10_sequence0_pattern0 = GuiHubIntegrationTestingFixtures.buildPattern(program10_sequence0, program10_voice0, 4, "Intro");
+    program10_sequence0_pattern0_event0 = GuiHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern0, program10_voice0_track0, 0, 1, "C2", 1.0f);
+    program10_sequence0_pattern0_event1 = GuiHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern0, program10_voice0_track0, 1, 1, "G5", 0.8f);
+    program10_sequence0_pattern0_event2 = GuiHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern0, program10_voice0_track0, 2, 1, "C2", 0.6f);
+    program10_sequence0_pattern0_event3 = GuiHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern0, program10_voice0_track0, 3, 1, "G5", 0.9f);
     //
-    program10_sequence0_pattern1 = NexusHubIntegrationTestingFixtures.buildPattern(program10_sequence0, program10_voice0, 4, "Loop A");
-    program10_sequence0_pattern1_event0 = NexusHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern1, program10_voice0_track0, 0, 1, "C2", 1.0f);
-    program10_sequence0_pattern1_event1 = NexusHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern1, program10_voice0_track0, 1, 1, "G5", 0.8f);
-    program10_sequence0_pattern1_event2 = NexusHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern1, program10_voice0_track0, 2, 1, "C2", 0.6f);
-    program10_sequence0_pattern1_event3 = NexusHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern1, program10_voice0_track0, 3, 1, "G5", 0.9f);
+    program10_sequence0_pattern1 = GuiHubIntegrationTestingFixtures.buildPattern(program10_sequence0, program10_voice0, 4, "Loop A");
+    program10_sequence0_pattern1_event0 = GuiHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern1, program10_voice0_track0, 0, 1, "C2", 1.0f);
+    program10_sequence0_pattern1_event1 = GuiHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern1, program10_voice0_track0, 1, 1, "G5", 0.8f);
+    program10_sequence0_pattern1_event2 = GuiHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern1, program10_voice0_track0, 2, 1, "C2", 0.6f);
+    program10_sequence0_pattern1_event3 = GuiHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern1, program10_voice0_track0, 3, 1, "G5", 0.9f);
     //
-    program10_sequence0_pattern2 = NexusHubIntegrationTestingFixtures.buildPattern(program10_sequence0, program10_voice0, 4, "Loop B");
-    program10_sequence0_pattern2_event0 = NexusHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern2, program10_voice0_track0, 0, 1, "B5", 0.9f);
-    program10_sequence0_pattern2_event1 = NexusHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern2, program10_voice0_track0, 1, 1, "D2", 1.0f);
-    program10_sequence0_pattern2_event2 = NexusHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern2, program10_voice0_track0, 2, 1, "E4", 0.7f);
-    program10_sequence0_pattern2_event3 = NexusHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern2, program10_voice0_track0, 3, 1, "C3", 0.5f);
+    program10_sequence0_pattern2 = GuiHubIntegrationTestingFixtures.buildPattern(program10_sequence0, program10_voice0, 4, "Loop B");
+    program10_sequence0_pattern2_event0 = GuiHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern2, program10_voice0_track0, 0, 1, "B5", 0.9f);
+    program10_sequence0_pattern2_event1 = GuiHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern2, program10_voice0_track0, 1, 1, "D2", 1.0f);
+    program10_sequence0_pattern2_event2 = GuiHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern2, program10_voice0_track0, 2, 1, "E4", 0.7f);
+    program10_sequence0_pattern2_event3 = GuiHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern2, program10_voice0_track0, 3, 1, "C3", 0.5f);
     //
-    program10_sequence0_pattern3 = NexusHubIntegrationTestingFixtures.buildPattern(program10_sequence0, program10_voice0, 4, "Outro");
-    program10_sequence0_pattern3_event0 = NexusHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern3, program10_voice0_track0, 0, 1, "C2", 1.0f);
-    program10_sequence0_pattern3_event1 = NexusHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern3, program10_voice0_track0, 1, 1, "G5", 0.8f);
-    program10_sequence0_pattern3_event2 = NexusHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern3, program10_voice0_track0, 2, 1, "C2", 0.6f);
-    program10_sequence0_pattern3_event3 = NexusHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern3, program10_voice0_track0, 3, 1, "G5", 0.9f);
+    program10_sequence0_pattern3 = GuiHubIntegrationTestingFixtures.buildPattern(program10_sequence0, program10_voice0, 4, "Outro");
+    program10_sequence0_pattern3_event0 = GuiHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern3, program10_voice0_track0, 0, 1, "C2", 1.0f);
+    program10_sequence0_pattern3_event1 = GuiHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern3, program10_voice0_track0, 1, 1, "G5", 0.8f);
+    program10_sequence0_pattern3_event2 = GuiHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern3, program10_voice0_track0, 2, 1, "C2", 0.6f);
+    program10_sequence0_pattern3_event3 = GuiHubIntegrationTestingFixtures.buildEvent(program10_sequence0_pattern3, program10_voice0_track0, 3, 1, "G5", 0.9f);
 
     // Instrument "Bass"
-    instrument9 = NexusHubIntegrationTestingFixtures.buildInstrument(library2, InstrumentType.Bass, InstrumentMode.Event, InstrumentState.Published, "Bass");
-    instrument9_meme0 = NexusHubIntegrationTestingFixtures.buildMeme(instrument9, "heavy");
-    instrument9_audio8 = NexusHubIntegrationTestingFixtures.buildAudio(instrument9, "bass", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.62f, "BLOOP", "Eb", 1.0f);
+    instrument9 = GuiHubIntegrationTestingFixtures.buildInstrument(library2, InstrumentType.Bass, InstrumentMode.Event, InstrumentState.Published, "Bass");
+    instrument9_meme0 = GuiHubIntegrationTestingFixtures.buildMeme(instrument9, "heavy");
+    instrument9_audio8 = GuiHubIntegrationTestingFixtures.buildAudio(instrument9, "bass", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.62f, "BLOOP", "Eb", 1.0f);
 
     // return them all
     return List.of(
@@ -1034,13 +1035,13 @@ public class NexusIntegrationTestingFixtures {
   public Collection<Object> generatedFixture(int N) {
     Collection<Object> entities = new ArrayList<>();
 
-    account1 = add(entities, NexusHubIntegrationTestingFixtures.buildAccount("Generated"));
-    user1 = add(entities, NexusHubIntegrationTestingFixtures.buildUser("generated", "generated@email.com", "https://pictures.com/generated.gif", "Admin"));
-    library1 = add(entities, NexusHubIntegrationTestingFixtures.buildLibrary(account1, "generated"));
+    account1 = add(entities, GuiHubIntegrationTestingFixtures.buildAccount("Generated"));
+    user1 = add(entities, GuiHubIntegrationTestingFixtures.buildUser("generated", "generated@email.com", "https://pictures.com/generated.gif", "Admin"));
+    library1 = add(entities, GuiHubIntegrationTestingFixtures.buildLibrary(account1, "generated"));
 
-    template1 = NexusHubIntegrationTestingFixtures.buildTemplate(account1, "Complex Library Test", "complex");
+    template1 = GuiHubIntegrationTestingFixtures.buildTemplate(account1, "Complex Library Test", "complex");
     entities.add(template1);
-    entities.add(NexusHubIntegrationTestingFixtures.buildTemplateBinding(template1, library1));
+    entities.add(GuiHubIntegrationTestingFixtures.buildTemplateBinding(template1, library1));
 
     // Create a N-magnitude set of unique major memes
     String[] majorMemeNames = listOfUniqueRandom(N, LoremIpsum.COLORS);
@@ -1052,19 +1053,19 @@ public class NexusIntegrationTestingFixtures {
       String majorMemeName = majorMemeNames[i];
       String minorMemeName = random(minorMemeNames);
       //
-      Instrument instrument = add(entities, NexusHubIntegrationTestingFixtures.buildInstrument(library1, InstrumentType.Drum, InstrumentMode.Event, InstrumentState.Published, String.format("%s Drums", majorMemeName)));
-      add(entities, NexusHubIntegrationTestingFixtures.buildInstrumentMeme(instrument, majorMemeName));
-      add(entities, NexusHubIntegrationTestingFixtures.buildInstrumentMeme(instrument, minorMemeName));
+      Instrument instrument = add(entities, GuiHubIntegrationTestingFixtures.buildInstrument(library1, InstrumentType.Drum, InstrumentMode.Event, InstrumentState.Published, String.format("%s Drums", majorMemeName)));
+      add(entities, GuiHubIntegrationTestingFixtures.buildInstrumentMeme(instrument, majorMemeName));
+      add(entities, GuiHubIntegrationTestingFixtures.buildInstrumentMeme(instrument, minorMemeName));
       // audios of instrument
       for (int k = 0; k < N; k++)
-        add(entities, NexusHubIntegrationTestingFixtures.buildAudio(instrument, StringUtils.toProper(percussiveNames[k]), String.format("%s.wav", StringUtils.toLowerSlug(percussiveNames[k])), random(0, 0.05), random(0.25, 2), random(80, 120), 0.62f, percussiveNames[k], "X", random(0.8, 1)));
+        add(entities, GuiHubIntegrationTestingFixtures.buildAudio(instrument, StringUtils.toProper(percussiveNames[k]), String.format("%s.wav", StringUtils.toLowerSlug(percussiveNames[k])), random(0, 0.05), random(0.25, 2), random(80, 120), 0.62f, percussiveNames[k], "X", random(0.8, 1)));
       //
       LOG.debug("Generated Drum-type Instrument id={}, minorMeme={}, majorMeme={}", instrument.getId(), minorMemeName, majorMemeName);
     }
 
     // Generate Perc Loop Instruments
     for (int i = 0; i < N; i++) {
-      Instrument instrument = add(entities, NexusHubIntegrationTestingFixtures.buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Loop, InstrumentState.Published, "Perc Loop"));
+      Instrument instrument = add(entities, GuiHubIntegrationTestingFixtures.buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Loop, InstrumentState.Published, "Perc Loop"));
       LOG.debug("Generated PercLoop-type Instrument id={}", instrument.getId());
     }
 
@@ -1080,17 +1081,17 @@ public class NexusIntegrationTestingFixtures {
       float densityFrom = random(0.3, 0.9);
       float tempoFrom = random(80, 120);
       //
-      Program program = add(entities, NexusHubIntegrationTestingFixtures.buildProgram(library1, ProgramType.Macro, ProgramState.Published, String.format("%s, create %s to %s", minorMemeName, majorMemeFromName, majorMemeToName), keyFrom, tempoFrom, 0.6f));
-      add(entities, NexusHubIntegrationTestingFixtures.buildProgramMeme(program, minorMemeName));
+      Program program = add(entities, GuiHubIntegrationTestingFixtures.buildProgram(library1, ProgramType.Macro, ProgramState.Published, String.format("%s, create %s to %s", minorMemeName, majorMemeFromName, majorMemeToName), keyFrom, tempoFrom, 0.6f));
+      add(entities, GuiHubIntegrationTestingFixtures.buildProgramMeme(program, minorMemeName));
       // of offset 0
-      var sequence0 = add(entities, NexusHubIntegrationTestingFixtures.buildSequence(program, 0, String.format("Start %s", majorMemeFromName), densityFrom, keyFrom));
-      var binding0 = add(entities, NexusHubIntegrationTestingFixtures.buildProgramSequenceBinding(sequence0, 0));
-      add(entities, NexusHubIntegrationTestingFixtures.buildProgramSequenceBindingMeme(binding0, majorMemeFromName));
+      var sequence0 = add(entities, GuiHubIntegrationTestingFixtures.buildSequence(program, 0, String.format("Start %s", majorMemeFromName), densityFrom, keyFrom));
+      var binding0 = add(entities, GuiHubIntegrationTestingFixtures.buildProgramSequenceBinding(sequence0, 0));
+      add(entities, GuiHubIntegrationTestingFixtures.buildProgramSequenceBindingMeme(binding0, majorMemeFromName));
       // to offset 1
       float densityTo = random(0.3, 0.9);
-      var sequence1 = add(entities, NexusHubIntegrationTestingFixtures.buildSequence(program, 0, String.format("Finish %s", majorMemeToName), densityTo, keyTo));
-      var binding1 = add(entities, NexusHubIntegrationTestingFixtures.buildProgramSequenceBinding(sequence1, 1));
-      add(entities, NexusHubIntegrationTestingFixtures.buildProgramSequenceBindingMeme(binding1, majorMemeToName));
+      var sequence1 = add(entities, GuiHubIntegrationTestingFixtures.buildSequence(program, 0, String.format("Finish %s", majorMemeToName), densityTo, keyTo));
+      var binding1 = add(entities, GuiHubIntegrationTestingFixtures.buildProgramSequenceBinding(sequence1, 1));
+      add(entities, GuiHubIntegrationTestingFixtures.buildProgramSequenceBindingMeme(binding1, majorMemeToName));
       //
       LOG.debug("Generated Macro-type Program id={}, minorMeme={}, majorMemeFrom={}, majorMemeTo={}", program.getId(), minorMemeName, majorMemeFromName, majorMemeToName);
     }
@@ -1104,24 +1105,24 @@ public class NexusIntegrationTestingFixtures {
       Float[] subDensities = listOfRandomValues(N);
       float tempo = random(80, 120);
       //
-      Program program = add(entities, NexusHubIntegrationTestingFixtures.buildProgram(library1, ProgramType.Main, ProgramState.Published, String.format("%s: %s", majorMemeName, String.join(",", sequenceNames)), subKeys[0], tempo, 0.6f));
-      add(entities, NexusHubIntegrationTestingFixtures.buildProgramMeme(program, majorMemeName));
+      Program program = add(entities, GuiHubIntegrationTestingFixtures.buildProgram(library1, ProgramType.Main, ProgramState.Published, String.format("%s: %s", majorMemeName, String.join(",", sequenceNames)), subKeys[0], tempo, 0.6f));
+      add(entities, GuiHubIntegrationTestingFixtures.buildProgramMeme(program, majorMemeName));
       // sequences of program
       for (int iP = 0; iP < N; iP++) {
         Integer total = random(LoremIpsum.SEQUENCE_TOTALS);
-        sequences[iP] = add(entities, NexusHubIntegrationTestingFixtures.buildSequence(program, total, String.format("%s in %s", majorMemeName, sequenceNames[iP]), subDensities[iP], subKeys[iP]));
+        sequences[iP] = add(entities, GuiHubIntegrationTestingFixtures.buildSequence(program, total, String.format("%s in %s", majorMemeName, sequenceNames[iP]), subDensities[iP], subKeys[iP]));
         for (int iPC = 0; iPC < N << 2; iPC++) {
           // always use first chord, then use more chords with more density
           if (0 == iPC || StrictMath.random() < subDensities[iP]) {
-            add(entities, NexusHubIntegrationTestingFixtures.buildChord(sequences[iP], StrictMath.floor((float) iPC * total * 4 / N), random(LoremIpsum.MUSICAL_CHORDS)));
+            add(entities, GuiHubIntegrationTestingFixtures.buildChord(sequences[iP], StrictMath.floor((float) iPC * total * 4 / N), random(LoremIpsum.MUSICAL_CHORDS)));
           }
         }
       }
       // sequence sequence binding
       for (int offset = 0; offset < N << 2; offset++) {
         int num = (int) StrictMath.floor(StrictMath.random() * N);
-        var binding = add(entities, NexusHubIntegrationTestingFixtures.buildProgramSequenceBinding(sequences[num], offset));
-        add(entities, NexusHubIntegrationTestingFixtures.buildMeme(binding, random(minorMemeNames)));
+        var binding = add(entities, GuiHubIntegrationTestingFixtures.buildProgramSequenceBinding(sequences[num], offset));
+        add(entities, GuiHubIntegrationTestingFixtures.buildMeme(binding, random(minorMemeNames)));
       }
       LOG.debug("Generated Main-type Program id={}, majorMeme={} with {} sequences bound {} times", program.getId(), majorMemeName, N, N << 2);
     }
@@ -1135,28 +1136,28 @@ public class NexusIntegrationTestingFixtures {
       String key = random(LoremIpsum.MUSICAL_KEYS);
       float density = random(0.4, 0.9);
       //
-      Program program = add(entities, NexusHubIntegrationTestingFixtures.buildProgram(library1, ProgramType.Beat, ProgramState.Published, String.format("%s Beat", majorMemeName), key, tempo, 0.6f));
+      Program program = add(entities, GuiHubIntegrationTestingFixtures.buildProgram(library1, ProgramType.Beat, ProgramState.Published, String.format("%s Beat", majorMemeName), key, tempo, 0.6f));
       trackMap.clear();
-      add(entities, NexusHubIntegrationTestingFixtures.buildProgramMeme(program, majorMemeName));
+      add(entities, GuiHubIntegrationTestingFixtures.buildProgramMeme(program, majorMemeName));
       // voices of program
       for (int iV = 0; iV < N; iV++) {
-        voices[iV] = add(entities, NexusHubIntegrationTestingFixtures.buildVoice(program, InstrumentType.Drum, String.format("%s %s", majorMemeName, percussiveNames[iV])));
+        voices[iV] = add(entities, GuiHubIntegrationTestingFixtures.buildVoice(program, InstrumentType.Drum, String.format("%s %s", majorMemeName, percussiveNames[iV])));
       }
-      var sequenceBase = add(entities, NexusHubIntegrationTestingFixtures.buildSequence(program, random(LoremIpsum.SEQUENCE_TOTALS), "Base", density, key));
+      var sequenceBase = add(entities, GuiHubIntegrationTestingFixtures.buildSequence(program, random(LoremIpsum.SEQUENCE_TOTALS), "Base", density, key));
       // patterns of program
       for (int iP = 0; iP < N << 1; iP++) {
         Integer total = random(LoremIpsum.PATTERN_TOTALS);
         int num = (int) StrictMath.floor(StrictMath.random() * N);
 
         // first pattern is always a Loop (because that's required) then the rest at random
-        var pattern = add(entities, NexusHubIntegrationTestingFixtures.buildPattern(sequenceBase, voices[num], total, String.format("%s %s %s", majorMemeName, majorMemeName + " pattern", random(LoremIpsum.ELEMENTS))));
+        var pattern = add(entities, GuiHubIntegrationTestingFixtures.buildPattern(sequenceBase, voices[num], total, String.format("%s %s %s", majorMemeName, majorMemeName + " pattern", random(LoremIpsum.ELEMENTS))));
         for (int iPE = 0; iPE < N << 2; iPE++) {
           // always use first chord, then use more chords with more density
           if (0 == iPE || StrictMath.random() < density) {
             String name = percussiveNames[num];
             if (!trackMap.containsKey(name))
-              trackMap.put(name, add(entities, NexusHubIntegrationTestingFixtures.buildTrack(voices[num], name)));
-            add(entities, NexusHubIntegrationTestingFixtures.buildEvent(pattern, trackMap.get(name), (float) StrictMath.floor((double) iPE * total * 4 / N), random(0.25, 1.0), "X", random(0.4, 0.9)));
+              trackMap.put(name, add(entities, GuiHubIntegrationTestingFixtures.buildTrack(voices[num], name)));
+            add(entities, GuiHubIntegrationTestingFixtures.buildEvent(pattern, trackMap.get(name), (float) StrictMath.floor((double) iPE * total * 4 / N), random(0.25, 1.0), "X", random(0.4, 0.9)));
           }
         }
       }

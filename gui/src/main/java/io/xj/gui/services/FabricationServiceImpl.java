@@ -2,7 +2,11 @@
 
 package io.xj.gui.services;
 
+import io.xj.hub.ProgramConfig;
+import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.*;
+import io.xj.hub.util.ValueException;
+import io.xj.lib.util.FormatUtils;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
@@ -30,6 +34,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @org.springframework.stereotype.Service
 public class FabricationServiceImpl extends Service<Boolean> implements FabricationService {
@@ -39,7 +44,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   private final HubClient hubClient;
   final WorkFactory workFactory;
   final LabService labService;
-
+  final Map<Integer, Integer> segmentBarBeats = new ConcurrentHashMap<>();
   final ObjectProperty<FabricationStatus> status = new SimpleObjectProperty<>(FabricationStatus.Standby);
   final StringProperty inputTemplateKey = new SimpleStringProperty();
   final StringProperty outputPathPrefix = new SimpleStringProperty();
@@ -335,10 +340,60 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     return workFactory.getSegmentManager().isEmpty();
   }
 
+  @Override
+  public String formatTotalBars(Segment segment, int beats) {
+    return getBarBeats(segment)
+      .map(barBeats -> formatTotalBars((int) Math.floor((float) beats / barBeats),
+        FormatUtils.formatFractionalSuffix((float) (beats % barBeats) / barBeats)))
+      .orElse(String.format("%d beat%s", beats, beats == 1 ? "" : "s"));
+  }
+
+  @Override
+  public String formatPositionBarBeats(Segment segment, double position) {
+    return getBarBeats(segment)
+      .map(barBeats -> {
+        var bars = (int) Math.floor(position / barBeats);
+        var beats = (int) Math.floor(position % barBeats);
+        var remaining = beats > 0 ? position % barBeats % beats : 0;
+        return String.format("%d.%d%s", bars + 1, beats + 1, FormatUtils.formatDecimalSuffix(remaining));
+      })
+      .orElse(FormatUtils.formatMinDecimal(position));
+  }
+
+  private String formatTotalBars(int bars, String fraction) {
+    return String.format("%d%s bar%s", bars, fraction, bars == 1 ? "" : "s");
+  }
+
+  private Optional<Integer> getBarBeats(Segment segment) {
+    if (!segmentBarBeats.containsKey(segment.getId())) {
+      try {
+        var choice = workFactory.getSegmentManager().readChoice(segment.getId(), ProgramType.Main);
+        if (choice.isEmpty()) {
+          LOG.error("Failed to retrieve main program choice to determine beats for Segment[{}]", segment.getId());
+          return Optional.empty();
+        }
+
+        var program = workFactory.getSourceMaterial().getProgram(choice.get().getProgramId());
+        if (program.isEmpty()) {
+          LOG.error("Failed to retrieve main program to determine beats for Segment[{}]", segment.getId());
+          return Optional.empty();
+        }
+
+        var config = new ProgramConfig(program.get());
+        segmentBarBeats.put(segment.getId(), config.getBarBeats());
+
+      } catch (ManagerFatalException | ValueException e) {
+        LOG.error("Failed to format beats duration for Segment[{}]", segment.getId(), e);
+        return Optional.empty();
+      }
+    }
+    return Optional.of(segmentBarBeats.get(segment.getId()));
+  }
+
 
   String computeProgramName(@Nullable Program program, @Nullable ProgramSequence programSequence, @Nullable ProgramSequenceBinding programSequenceBinding) {
     if (Objects.nonNull(program) && Objects.nonNull(programSequence) && Objects.nonNull(programSequenceBinding))
-      return String.format("%s @ %d (%s)", program.getName(), programSequenceBinding.getOffset(), programSequence.getName());
+      return String.format("%s (%s)", program.getName(), programSequence.getName());
     else if (Objects.nonNull(program))
       return program.getName();
     else return "Not Loaded";

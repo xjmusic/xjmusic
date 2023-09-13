@@ -3,9 +3,10 @@ import org.panteleyev.jpackage.ImageType
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 plugins {
-  id 'java'
   id 'application'
+  id 'java'
   id 'maven-publish'
+  //
   id 'org.panteleyev.jpackageplugin'
   id 'org.openjfx.javafxplugin'
   id 'org.springframework.boot'
@@ -16,6 +17,10 @@ dependencies {
   // peers
   implementation project(":lib")
   implementation project(":nexus")
+  testImplementation project(path: ':lib')
+  testImplementation project(path: ':nexus')
+  testImplementation(project(':lib').sourceSets.test.output)
+  testImplementation(project(':nexus').sourceSets.test.output)
   // private
   implementation "io.xj:models:${xjModelsVersion}"
   // vendor
@@ -36,11 +41,12 @@ dependencies {
   implementation 'io.projectreactor.tools:blockhound:1.0.6.RELEASE'
   implementation 'me.xdrop:fuzzywuzzy:1.4.0'
   implementation 'org.apache.httpcomponents:httpclient:4.5.14'
-  implementation 'org.reflections:reflections:0.10.1'
-  testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
-  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
   implementation 'org.apache.logging.log4j:log4j-api:3.0.0-alpha1'
+  implementation 'org.reflections:reflections:0.10.1'
   implementation group: 'org.panteleyev.jpackageplugin', name: 'org.panteleyev.jpackageplugin.gradle.plugin', version: '1.5.2'
+  testImplementation "org.junit.jupiter:junit-jupiter-api:${rootProject.ext.junitVersion}"
+  testImplementation "org.mockito:mockito-junit-jupiter:${rootProject.ext.jupiterMockitoVersion}"
+  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${rootProject.ext.junitVersion}"
 }
 
 javafx {

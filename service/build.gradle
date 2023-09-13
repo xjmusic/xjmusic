@@ -16,6 +16,7 @@ description = 'XJ music workstation'
 apply plugin: 'java'
 
 dependencies {
+  // peers
   implementation project(":lib")
   testImplementation project(path: ':lib')
   testImplementation(project(':lib').sourceSets.test.output)
@@ -38,7 +39,7 @@ dependencies {
   implementation 'org.reflections:reflections:0.10.2'
   testImplementation "org.junit.jupiter:junit-jupiter-api:${rootProject.ext.junitVersion}"
   testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${rootProject.ext.junitVersion}"
-  testImplementation 'org.mockito:mockito-junit-jupiter'
+  testImplementation "org.mockito:mockito-junit-jupiter:${rootProject.ext.jupiterMockitoVersion}"
   testImplementation 'org.hamcrest:hamcrest-library:2.2'
 }
 
