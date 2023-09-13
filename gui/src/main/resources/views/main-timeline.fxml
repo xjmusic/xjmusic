@@ -13,7 +13,7 @@
       <Rectangle fx:id="timelinePastRegion" height="8" fill="#ffffff33"/>
       <Rectangle fx:id="timelineActiveRegion" height="8" fill="#17EF17FF"/>
       <Rectangle fx:id="timelineDubbedRegion" height="8" fill="#17EF1766"/>
-      <Rectangle fx:id="timelineCraftedRegion" height="8" fill="#EF511733"/>
+      <Rectangle fx:id="timelineCraftedRegion" height="8" fill="#00588066"/>
     </HBox>
     <Pane minHeight="4" maxHeight="4" styleClass="timeline-position-spacer" />
     <HBox fx:id="segmentListView" styleClass="main-timeline">

@@ -43,7 +43,6 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
   static final int MAX_ENTRIES = 10_000;
   final ModalLabConnectionController modalLabConnectionController;
 
-
   @Nullable
   Timeline refresh;
 
