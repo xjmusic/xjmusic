@@ -136,7 +136,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
    Called to update the timeline (segment list).
    */
   void updateTimeline() {
-    if (Objects.isNull(fabricationService.getWorkFactory().getCraftWork())) {
+    if (fabricationService.isEmpty()) {
       segments.clear();
       segmentListView.getChildren().clear();
       return;

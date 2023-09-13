@@ -4,12 +4,15 @@ package io.xj.gui.controllers;
 
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.FabricationStatus;
+import io.xj.gui.services.LabService;
+import io.xj.gui.services.LabStatus;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -21,7 +24,7 @@ import java.util.List;
 
 @Service
 public class MainPaneTopController extends VBox implements ReadyAfterBootController {
-  static final int FABRICATION_CONFIG_VIEW_HEIGHT = 160;
+  static final int FABRICATION_CONFIG_VIEW_HEIGHT = 240;
   static final List<FabricationStatus> BUTTON_ACTION_ACTIVE_IN_FABRICATION_STATES = Arrays.asList(
     FabricationStatus.Standby,
     FabricationStatus.Active,
@@ -33,19 +36,20 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   final static String BUTTON_TEXT_STOP = "Stop";
   final static String BUTTON_TEXT_RESET = "Reset";
   final FabricationService fabricationService;
+  final LabService labService;
   final BooleanProperty configVisible = new SimpleBooleanProperty(false);
 
   @FXML
-  protected Button buttonAction;
+  Button buttonAction;
 
   @FXML
-  public Label labelFabricationStatus;
+  Label labelFabricationStatus;
 
   @FXML
-  public ToggleButton toggleShowConfig;
+  ToggleButton toggleShowConfig;
 
   @FXML
-  protected VBox fabricationConfigView;
+  VBox fabricationConfigView;
 
   @FXML
   TextField fieldInputTemplateKey;
@@ -58,6 +62,9 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
   @FXML
   ChoiceBox<OutputFileMode> choiceOutputFileMode;
+
+  @FXML
+  Label labelInputMode;
 
   @FXML
   Label labelOutputFileMode;
@@ -87,9 +94,11 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   TextField fieldOutputFrameRate;
 
   public MainPaneTopController(
-    FabricationService fabricationService
+    FabricationService fabricationService,
+    LabService labService
   ) {
     this.fabricationService = fabricationService;
+    this.labService = labService;
   }
 
   @Override
@@ -106,9 +115,24 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
         },
       fabricationService.statusProperty()));
 
-    fieldInputTemplateKey.textProperty().bindBidirectional(fabricationService.inputTemplateKeyProperty());
-    choiceInputMode.getItems().setAll(InputMode.values());
+    // Input mode is locked in PRODUCTION unless we are connected to a Lab
     choiceInputMode.valueProperty().bindBidirectional(fabricationService.inputModeProperty());
+    choiceInputMode.disableProperty().bind(labService.statusProperty().isEqualTo(LabStatus.Authenticated).not());
+    labelInputMode.disableProperty().bind(labService.statusProperty().isEqualTo(LabStatus.Authenticated).not());
+    choiceInputMode.setItems(FXCollections.observableArrayList(InputMode.PRODUCTION));
+    labService.statusProperty().addListener((observable, oldValue, newValue) -> {
+      if (newValue == LabStatus.Authenticated) {
+        if (choiceInputMode.getItems().size() == 1) {
+          choiceInputMode.getItems().add(InputMode.PREVIEW);
+        }
+      } else {
+        if (choiceInputMode.getItems().size() == 2) {
+          choiceInputMode.getItems().remove(1);
+        }
+        choiceInputMode.setValue(InputMode.PRODUCTION);
+      }
+    });
+    fieldInputTemplateKey.textProperty().bindBidirectional(fabricationService.inputTemplateKeyProperty());
 
     choiceOutputMode.getItems().setAll(OutputMode.values());
     choiceOutputMode.valueProperty().bindBidirectional(fabricationService.outputModeProperty());

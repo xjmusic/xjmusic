@@ -5,7 +5,6 @@ package io.xj.nexus.hub_client;
 import io.xj.hub.HubContent;
 import io.xj.hub.HubContentPayload;
 import io.xj.hub.tables.pojos.Template;
-import io.xj.hub.tables.pojos.TemplatePlayback;
 import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiException;
@@ -33,44 +32,46 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- Implementation of a Hub Client for connecting to Hub and accessing contents
+ * Implementation of a Hub Client for connecting to Hub and accessing contents
  */
 @Service
 public class HubClientImpl implements HubClient {
   static final String API_PATH_INGEST_FORMAT = "api/1/ingest/%s";
   static final String API_PATH_TEMPLATE_BY_ID_FORMAT = "api/1/templates/%s";
-  static final String API_PATH_TEMPLATE_PLAYBACK_BY_ID_FORMAT = "api/1/template-playbacks/%s";
   static final String HEADER_COOKIE = "Cookie";
   final Logger LOG = LoggerFactory.getLogger(HubClientImpl.class);
-  final String ingestUrl;
   final String ingestTokenName;
   final HttpClientProvider httpClientProvider;
   final JsonProviderImpl jsonProvider;
   final JsonapiPayloadFactory jsonapiPayloadFactory;
-  final String ingestTokenValue;
   final String audioBaseUrl;
+
+  String accessToken;
+  String baseUrl;
 
   @Autowired
   public HubClientImpl(
     HttpClientProvider httpClientProvider,
     JsonProviderImpl jsonProvider,
     JsonapiPayloadFactory jsonapiPayloadFactory,
-    @Value("${ingest.url}") String ingestUrl,
+    @Value("${ingest.url}") String defaultIngestUrl,
     @Value("${ingest.token.name}") String ingestTokenName,
-    @Value("${ingest.token.value}") String ingestTokenValue,
+    @Value("${ingest.token.value}") String defaultIngestTokenValue,
     @Value("${audio.base.url}") String audioBaseUrl
   ) {
     this.httpClientProvider = httpClientProvider;
     this.jsonProvider = jsonProvider;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
 
-    this.ingestUrl = ingestUrl;
     this.ingestTokenName = ingestTokenName;
-    this.ingestTokenValue = ingestTokenValue;
     this.audioBaseUrl = audioBaseUrl;
 
-    String obscuredSecret = Arrays.stream(ingestTokenValue.split("")).map(c -> "*").collect(Collectors.joining());
-    LOG.info("Will connect to Hub at {} with token '{}' value '{}'", ingestUrl, ingestTokenName, obscuredSecret);
+    // These properties can be set after initialization
+    this.baseUrl = defaultIngestUrl;
+    this.accessToken = defaultIngestTokenValue;
+
+    String obscuredSecret = Arrays.stream(defaultIngestTokenValue.split("")).map(c -> "*").collect(Collectors.joining());
+    LOG.info("Will connect to Hub at {} with token '{}' value '{}'", defaultIngestUrl, ingestTokenName, obscuredSecret);
   }
 
   @Override
@@ -78,7 +79,7 @@ public class HubClientImpl implements HubClient {
     CloseableHttpClient client = httpClientProvider.getClient();
     var uri = buildURI(String.format(API_PATH_INGEST_FORMAT, templateId.toString()));
     try (
-      CloseableHttpResponse response = client.execute(buildGetRequest(uri, ingestTokenValue))
+      CloseableHttpResponse response = client.execute(buildGetRequest(uri, accessToken))
     ) {
       // return content if successful.
       if (!Objects.equals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode()))
@@ -95,11 +96,6 @@ public class HubClientImpl implements HubClient {
   @Override
   public Optional<Template> readPreviewTemplate(UUID templateId) throws HubClientException {
     return getOneFromHub(String.format(API_PATH_TEMPLATE_BY_ID_FORMAT, templateId));
-  }
-
-  @Override
-  public Optional<TemplatePlayback> readPreviewTemplatePlayback(UUID templatePlaybackId) throws HubClientException {
-    return getOneFromHub(String.format(API_PATH_TEMPLATE_PLAYBACK_BY_ID_FORMAT, templatePlaybackId));
   }
 
   @Override
@@ -122,10 +118,20 @@ public class HubClientImpl implements HubClient {
     }
   }
 
+  @Override
+  public void setAccessToken(String value) {
+    this.accessToken = value;
+  }
+
+  @Override
+  public void setBaseUrl(String url) {
+    this.baseUrl = url;
+  }
+
   <N> Optional<N> getOneFromHub(String path) throws HubClientException {
     CloseableHttpClient client = httpClientProvider.getClient();
     var uri = buildURI(path);
-    var request = buildGetRequest(uri, ingestTokenValue);
+    var request = buildGetRequest(uri, accessToken);
     try (
       CloseableHttpResponse response = client.execute(request)
     ) {
@@ -144,11 +150,11 @@ public class HubClientImpl implements HubClient {
   }
 
   /**
-   Set the access token cookie header for a request to Hub
-
-   @param uri              of request
-   @param ingestTokenValue of request
-   @return http request
+   * Set the access token cookie header for a request to Hub
+   *
+   * @param uri              of request
+   * @param ingestTokenValue of request
+   * @return http request
    */
   HttpGet buildGetRequest(URI uri, String ingestTokenValue) {
     var request = new HttpGet(uri);
@@ -157,15 +163,15 @@ public class HubClientImpl implements HubClient {
   }
 
   /**
-   Build URI for specified API path
-
-   @param path to build URI to
-   @return URI for specified API path
-   @throws HubClientException on failure to construct URI
+   * Build URI for specified API path
+   *
+   * @param path to build URI to
+   * @return URI for specified API path
+   * @throws HubClientException on failure to construct URI
    */
   URI buildURI(String path) throws HubClientException {
     try {
-      URIBuilder b = new URIBuilder(String.format("%s%s", ingestUrl, path));
+      URIBuilder b = new URIBuilder(String.format("%s%s", baseUrl, path));
       return b.build();
     } catch (URISyntaxException e) {
       throw new HubClientException("Failed to construct URI", e);
@@ -173,9 +179,9 @@ public class HubClientImpl implements HubClient {
   }
 
   /**
-   Log a failure message and returns a throwable exception based on a response@param uri
-
-   @param response to log and throw
+   * Log a failure message and returns a throwable exception based on a response@param uri
+   *
+   * @param response to log and throw
    */
   HubClientException buildException(String uri, CloseableHttpResponse response) throws HubClientException {
     // if we got here, it's a failure

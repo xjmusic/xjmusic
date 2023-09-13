@@ -315,29 +315,24 @@ public class HubIntegrationTestingFixtures {
    e.g. `deltaArcEnabled = false` to disable choice delta randomness,
    otherwise tests may sporadically fail.
    */
-  public static Template buildTemplate(Account account1, TemplateType type, String name, String shipKey) {
+  public static Template buildTemplate(Account account1, String name, String shipKey) {
     var template = new Template();
     template.setId(UUID.randomUUID());
     template.setShipKey(shipKey);
-    template.setType(type);
     template.setConfig(TEST_TEMPLATE_CONFIG);
     template.setAccountId(account1.getId());
     template.setName(name);
     return template;
   }
 
-  public static Template buildTemplate(Account account1, String name, String shipKey) {
-    return buildTemplate(account1, TemplateType.Preview, name, shipKey);
-  }
-
   public static Template buildTemplate(Account account1, String name, String shipKey, String config) {
-    var template = buildTemplate(account1, TemplateType.Preview, name, shipKey);
+    var template = buildTemplate(account1, name, shipKey);
     template.setConfig(config);
     return template;
   }
 
   public static Template buildTemplate(Account account1, String name) {
-    return buildTemplate(account1, TemplateType.Preview, name, String.format("%s123", name));
+    return buildTemplate(account1, name, String.format("%s123", name));
   }
 
   public static TemplateBinding buildTemplateBinding(Template template, Library library) {

@@ -318,7 +318,12 @@ public class SegmentManagerImpl implements SegmentManager {
     return store.getSegmentCount();
   }
 
-  @Override
+    @Override
+    public Boolean isEmpty() {
+        return store.isSegmentsEmpty();
+    }
+
+    @Override
   public Optional<Segment> readLastSegment() throws ManagerFatalException {
     try {
       return store.getAllSegments()

@@ -6,6 +6,7 @@ import io.xj.hub.tables.pojos.*;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
+import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.ManagerExistenceException;
 import io.xj.nexus.persistence.ManagerFatalException;
@@ -35,6 +36,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   static final Logger LOG = LoggerFactory.getLogger(FabricationServiceImpl.class);
   final HostServices hostServices;
   final Integer defaultBufferAheadSeconds;
+  private final HubClient hubClient;
   final WorkFactory workFactory;
   final LabService labService;
 
@@ -55,23 +57,24 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
     @Value("${buffer.ahead.seconds}") Integer defaultBufferAheadSeconds,
     @Value("${buffer.before.seconds}") Integer defaultBufferBeforeSeconds,
-    @Value("${input.mode}") String defaultInputMode,
     @Value("${input.template.key}") String defaultInputTemplateKey,
     @Value("${output.channels}") int defaultOutputChannels,
     @Value("${output.file.mode}") String defaultOutputFileMode,
     @Value("${output.frame.rate}") double defaultOutputFrameRate,
     @Value("${output.mode}") String defaultOutputMode,
     @Value("${output.seconds}") Integer defaultOutputSeconds,
+    HubClient hubClient,
     WorkFactory workFactory,
     LabService labService
   ) {
     this.hostServices = hostServices;
     this.defaultBufferAheadSeconds = defaultBufferAheadSeconds;
+    this.hubClient = hubClient;
     this.workFactory = workFactory;
     this.labService = labService;
     bufferAheadSeconds.set(Integer.toString(defaultBufferAheadSeconds));
     bufferBeforeSeconds.set(Integer.toString(defaultBufferBeforeSeconds));
-    inputMode.set(InputMode.valueOf(defaultInputMode.toUpperCase(Locale.ROOT)));
+    inputMode.set(InputMode.PRODUCTION);
     inputTemplateKey.set(defaultInputTemplateKey);
     outputChannels.set(Integer.toString(defaultOutputChannels));
     outputFileMode.set(OutputFileMode.valueOf(defaultOutputFileMode.toUpperCase(Locale.ROOT)));
@@ -101,6 +104,8 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
           .setBufferBeforeSeconds(Integer.parseInt(bufferBeforeSeconds.get()))
           .setOutputFrameRate(Double.parseDouble(outputFrameRate.get()))
           .setOutputChannels(Integer.parseInt(outputChannels.get()));
+        hubClient.setBaseUrl(labService.baseUrlProperty().getValue());
+        hubClient.setAccessToken(labService.accessTokenProperty().getValue());
         return workFactory.start(configuration, () -> {
           // no op; the WorkFactory start method blocks, then we rely on the JavaFX Service hooks
         });
@@ -323,6 +328,11 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
       LOG.error("Failed to get segments", e);
       return List.of();
     }
+  }
+
+  @Override
+  public Boolean isEmpty() {
+    return workFactory.getSegmentManager().isEmpty();
   }
 
 

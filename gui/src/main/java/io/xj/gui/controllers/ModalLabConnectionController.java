@@ -37,6 +37,7 @@ public class ModalLabConnectionController extends ReadyAfterBootModalController 
   static final String CONNECT_TO_LAB_WINDOW_NAME = "Connect to Lab";
   static final String BUTTON_DISCONNECT_TEXT = "Disconnect";
   static final String BUTTON_CONNECT_TEXT = "Connect";
+  private static final Integer USER_AVATAR_SIZE = 120;
   final ConfigurableApplicationContext ac;
   final HostServices hostServices;
   final Resource modalLabConnectionFxml;
@@ -107,8 +108,15 @@ public class ModalLabConnectionController extends ReadyAfterBootModalController 
 
     imageViewUserAvatar.imageProperty().bind(Bindings.createObjectBinding(() -> {
       User user = labService.authenticatedUserProperty().get();
-      return Objects.nonNull(user) ? new Image(user.getAvatarUrl()) : null;
+      return Objects.nonNull(user) ? new Image(computeHighResImageUrl(user)) : null;
     }, labService.authenticatedUserProperty()));
+  }
+
+  private String computeHighResImageUrl(User user) {
+    return user.getAvatarUrl()
+      .replace("=s50", String.format("=s%d", USER_AVATAR_SIZE))
+      .replace("/s50", String.format("/s%d", USER_AVATAR_SIZE))
+      .replace("sz=50", String.format("sz=%d", USER_AVATAR_SIZE));
   }
 
   @Override

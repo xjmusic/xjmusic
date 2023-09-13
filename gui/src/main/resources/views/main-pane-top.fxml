@@ -12,37 +12,43 @@
     <VBox.vgrow>
       <Priority fx:constant="ALWAYS"/>
     </VBox.vgrow>
+
     <HBox alignment="CENTER_LEFT">
       <padding>
         <Insets top="10"/>
       </padding>
-
       <VBox alignment="CENTER_LEFT" prefHeight="60.0">
         <padding>
           <Insets right="10" left="10"/>
         </padding>
         <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
-               text="Input Template Key" textAlignment="RIGHT">
+               text="Input Template ID" textAlignment="RIGHT">
           <graphic>
             <Pane prefWidth="15.0"/>
           </graphic>
         </Label>
         <Pane prefWidth="15.0"/>
-        <TextField fx:id="fieldInputTemplateKey"/>
+        <TextField fx:id="fieldInputTemplateKey" prefWidth="300"/>
       </VBox>
       <VBox alignment="CENTER_LEFT" prefHeight="60.0">
         <padding>
           <Insets right="10" left="10"/>
         </padding>
         <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Input Mode"
-               textAlignment="RIGHT">
+               textAlignment="RIGHT" fx:id="labelInputMode">
           <graphic>
             <Pane prefWidth="15.0"/>
           </graphic>
         </Label>
         <Pane prefWidth="15.0"/>
-        <ChoiceBox fx:id="choiceInputMode" prefHeight="25.0"/>
+        <ChoiceBox fx:id="choiceInputMode" prefWidth="120" prefHeight="25.0"/>
       </VBox>
+    </HBox>
+
+    <HBox alignment="CENTER_LEFT">
+      <padding>
+        <Insets top="10"/>
+      </padding>
       <VBox alignment="CENTER_LEFT" prefHeight="60.0">
         <padding>
           <Insets right="10" left="10"/>
@@ -62,7 +68,7 @@
         </padding>
         <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
                text="Output File Mode" textAlignment="RIGHT"
-        fx:id="labelOutputFileMode">
+               fx:id="labelOutputFileMode">
           <graphic>
             <Pane prefWidth="15.0"/>
           </graphic>
@@ -76,7 +82,7 @@
         </padding>
         <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
                text="Output File Seconds" textAlignment="RIGHT"
-        fx:id="labelOutputSeconds">
+               fx:id="labelOutputSeconds">
           <graphic>
             <Pane prefWidth="15.0"/>
           </graphic>
@@ -90,7 +96,7 @@
         </padding>
         <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
                text="Output File Path Prefix" textAlignment="RIGHT"
-        fx:id="labelOutputPathPrefix">
+               fx:id="labelOutputPathPrefix">
           <graphic>
             <Pane prefWidth="15.0"/>
           </graphic>
@@ -99,6 +105,7 @@
         <TextField fx:id="fieldOutputPathPrefix" prefHeight="25.0"/>
       </VBox>
     </HBox>
+
     <HBox alignment="CENTER_LEFT" prefHeight="41.0">
       <padding>
         <Insets top="10"/>

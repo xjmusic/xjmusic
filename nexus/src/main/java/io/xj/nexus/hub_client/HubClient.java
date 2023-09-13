@@ -4,7 +4,6 @@ package io.xj.nexus.hub_client;
 
 import io.xj.hub.HubContent;
 import io.xj.hub.tables.pojos.Template;
-import io.xj.hub.tables.pojos.TemplatePlayback;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -37,14 +36,6 @@ public interface HubClient {
   Optional<Template> readPreviewTemplate(UUID templateId) throws HubClientException;
 
   /**
-   Read preview template playback by ID
-
-   @param templatePlaybackId of template playback to read
-   @return Template
-   */
-  Optional<TemplatePlayback> readPreviewTemplatePlayback(UUID templatePlaybackId) throws HubClientException;
-
-  /**
    Load shipped content from a static file
    <p>
    Nexus production fabrication from static source (without Hub) https://www.pivotaltracker.com/story/show/177020318
@@ -53,4 +44,20 @@ public interface HubClient {
    @return hub content
    */
   HubContent load(String shipKey) throws HubClientException;
+
+  /**
+   Set the ingestion token value
+   Workstation can play template live from hub https://www.pivotaltracker.com/story/show/185913107
+
+   @param value to set
+   */
+  void setAccessToken(String value);
+
+  /**
+   Set the ingestion base URL
+   Workstation can play template live from hub https://www.pivotaltracker.com/story/show/185913107
+
+   @param url to set
+   */
+  void setBaseUrl(String url);
 }
