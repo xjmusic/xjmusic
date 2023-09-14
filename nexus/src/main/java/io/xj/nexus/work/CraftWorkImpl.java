@@ -105,9 +105,6 @@ public class CraftWorkImpl implements CraftWork {
   @Value("${craft.janitor.cycle.seconds}")
   int janitorCycleSeconds;
 
-  @Value("${craft.sync.poll.seconds}")
-  int syncPollSeconds;
-
   @Value("${craft.async.poll.seconds}")
   int asyncPollSeconds;
 
@@ -494,7 +491,7 @@ public class CraftWorkImpl implements CraftWork {
   void runPreview() {
     if (System.currentTimeMillis() > labPollNextSystemMillis) {
       state = WorkState.Loading;
-      labPollNextSystemMillis = System.currentTimeMillis() + syncPollSeconds * MILLIS_PER_SECOND;
+      labPollNextSystemMillis = System.currentTimeMillis() + craftAheadSeconds * MILLIS_PER_SECOND;
       if (maintainPreviewTemplate())
         state = WorkState.Working;
       else {

@@ -145,4 +145,11 @@ public interface DubWork {
    @return chain micros if present, else empty
    */
   Optional<Long> getDubbedToChainMicros();
+
+  /**
+   Set the now-at chain micros from downstream, for dub work to understand how far "ahead" it is
+
+   @param micros the now-at chain micros
+   */
+  void setNowAtToChainMicros(Long micros);
 }

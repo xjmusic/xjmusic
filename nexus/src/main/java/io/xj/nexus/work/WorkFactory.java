@@ -68,4 +68,11 @@ public interface WorkFactory {
    @return chain micros, else empty
    */
   Optional<Long> getCraftedToChainMicros();
+
+  /**
+   If the current work is realtime, e.g. playback or HLS, return the target chain micros
+
+   @return chain micros if realtime, else empty
+   */
+  Optional<Long> getShipTargetChainMicros();
 }

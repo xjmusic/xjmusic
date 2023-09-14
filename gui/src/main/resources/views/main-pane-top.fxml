@@ -13,14 +13,11 @@
       <Priority fx:constant="ALWAYS"/>
     </VBox.vgrow>
 
-    <HBox alignment="CENTER_LEFT">
+    <HBox alignment="CENTER_LEFT" spacing="10">
       <padding>
         <Insets top="10"/>
       </padding>
       <VBox alignment="CENTER_LEFT" prefHeight="60.0">
-        <padding>
-          <Insets right="10" left="10"/>
-        </padding>
         <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
                text="Input Template ID" textAlignment="RIGHT">
           <graphic>
@@ -31,9 +28,6 @@
         <TextField fx:id="fieldInputTemplateKey" prefWidth="300"/>
       </VBox>
       <VBox alignment="CENTER_LEFT" prefHeight="60.0">
-        <padding>
-          <Insets right="10" left="10"/>
-        </padding>
         <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Input Mode"
                textAlignment="RIGHT" fx:id="labelInputMode">
           <graphic>
@@ -47,7 +41,7 @@
 
     <HBox alignment="CENTER_LEFT">
       <padding>
-        <Insets top="10"/>
+        <Insets top="10" left="10" right="10"/>
       </padding>
       <VBox alignment="CENTER_LEFT" prefHeight="60.0">
         <padding>
@@ -108,8 +102,35 @@
 
     <HBox alignment="CENTER_LEFT" prefHeight="41.0">
       <padding>
-        <Insets top="10"/>
+        <Insets top="10" left="10" right="10"/>
       </padding>
+      <VBox alignment="CENTER_LEFT">
+        <padding>
+          <Insets right="10"/>
+        </padding>
+        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
+               text="Output Frame Rate" textAlignment="RIGHT">
+          <graphic>
+            <Pane prefWidth="15.0"/>
+          </graphic>
+        </Label>
+        <Pane prefWidth="15.0"/>
+        <TextField fx:id="fieldOutputFrameRate" prefHeight="25.0"/>
+      </VBox>
+      <VBox alignment="CENTER_LEFT">
+        <padding>
+          <Insets right="10"/>
+        </padding>
+        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
+               text="Output Channels" textAlignment="RIGHT">
+          <graphic>
+            <Pane prefWidth="15.0"/>
+          </graphic>
+        </Label>
+        <Pane prefWidth="15.0"/>
+        <TextField fx:id="fieldOutputChannels" prefHeight="25.0"/>
+      </VBox>
+      <Pane prefWidth="20" />
       <VBox alignment="CENTER_LEFT">
         <padding>
           <Insets right="10" left="10"/>
@@ -148,32 +169,6 @@
         </Label>
         <Pane prefWidth="15.0"/>
         <TextField fx:id="fieldShipAheadSeconds" prefHeight="25.0"/>
-      </VBox>
-      <VBox alignment="CENTER_LEFT">
-        <padding>
-          <Insets right="10"/>
-        </padding>
-        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
-               text="Output Frame Rate" textAlignment="RIGHT">
-          <graphic>
-            <Pane prefWidth="15.0"/>
-          </graphic>
-        </Label>
-        <Pane prefWidth="15.0"/>
-        <TextField fx:id="fieldOutputFrameRate" prefHeight="25.0"/>
-      </VBox>
-      <VBox alignment="CENTER_LEFT">
-        <padding>
-          <Insets right="10"/>
-        </padding>
-        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
-               text="Output Channels" textAlignment="RIGHT">
-          <graphic>
-            <Pane prefWidth="15.0"/>
-          </graphic>
-        </Label>
-        <Pane prefWidth="15.0"/>
-        <TextField fx:id="fieldOutputChannels" prefHeight="25.0"/>
       </VBox>
     </HBox>
   </VBox>

@@ -247,4 +247,9 @@ public class WorkFactoryImpl implements WorkFactory {
     return Objects.nonNull(craftWork) ? craftWork.getCraftedToChainMicros() : Optional.empty();
   }
 
+  @Override
+  public Optional<Long> getShipTargetChainMicros() {
+    return Objects.nonNull(shipWork) ? shipWork.getShipTargetChainMicros() : Optional.empty();
+  }
+
 }
