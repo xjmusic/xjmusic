@@ -32,8 +32,8 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class FabricationServiceImplTest {
-  Integer defaultBufferAheadSeconds = 5;
-  Integer defaultBufferBeforeSeconds = 5;
+  Integer defaultCraftAheadSeconds = 5;
+  Integer defaultDubAheadSeconds = 5;
   String defaultInputTemplateKey = "slaps_lofi";
   int defaultOutputChannels = 2;
   String defaultOutputFileMode = OutputFileMode.CONTINUOUS.toString();
@@ -73,8 +73,8 @@ class FabricationServiceImplTest {
     );
     subject = new FabricationServiceImpl(
       hostServices,
-      defaultBufferAheadSeconds,
-      defaultBufferBeforeSeconds,
+      defaultCraftAheadSeconds,
+      defaultDubAheadSeconds,
       defaultInputTemplateKey,
       defaultOutputChannels,
       defaultOutputFileMode,

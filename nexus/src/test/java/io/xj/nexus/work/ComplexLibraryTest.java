@@ -66,10 +66,9 @@ public class ComplexLibraryTest {
     var generatedFixtures = fake.generatedFixture(GENERATED_FIXTURE_COMPLEXITY);
     HubContent content = new HubContent(generatedFixtures.stream().filter(Objects::nonNull).toList());
 
-    // NOTE: it's critical that the test template has config bufferAheadSeconds=9999 in order to ensure the test fabricates far ahead
     var template = content.getTemplate();
     template.setShipKey("complex_library_test");
-    template.setConfig("bufferAheadSeconds=9999\noutputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n");
+    template.setConfig("outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n");
     content.put(template);
 
     var jsonProvider = new JsonProviderImpl();
@@ -116,7 +115,7 @@ public class ComplexLibraryTest {
       "/tmp",
       86400,
       999999,
-      5,
+      999999,
       48000.0, 2
     );
 

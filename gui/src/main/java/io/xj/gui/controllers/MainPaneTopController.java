@@ -82,10 +82,10 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   Label labelOutputPathPrefix;
 
   @FXML
-  TextField fieldBufferAheadSeconds;
+  TextField fieldCraftAheadSeconds;
 
   @FXML
-  TextField fieldBufferBeforeSeconds;
+  TextField fieldDubAheadSeconds;
 
   @FXML
   TextField fieldOutputChannels;
@@ -150,8 +150,8 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     fieldOutputPathPrefix.disableProperty().bind(fabricationService.outputModeProperty().isEqualTo(OutputMode.FILE).not());
     labelOutputPathPrefix.disableProperty().bind(fabricationService.outputModeProperty().isEqualTo(OutputMode.FILE).not());
 
-    fieldBufferAheadSeconds.textProperty().bindBidirectional(fabricationService.bufferAheadSecondsProperty());
-    fieldBufferBeforeSeconds.textProperty().bindBidirectional(fabricationService.bufferBeforeSecondsProperty());
+    fieldCraftAheadSeconds.textProperty().bindBidirectional(fabricationService.craftAheadSecondsProperty());
+    fieldDubAheadSeconds.textProperty().bindBidirectional(fabricationService.dubAheadSecondsProperty());
     fieldOutputFrameRate.textProperty().bindBidirectional(fabricationService.outputFrameRateProperty());
     fieldOutputChannels.textProperty().bindBidirectional(fabricationService.outputChannelsProperty());
 

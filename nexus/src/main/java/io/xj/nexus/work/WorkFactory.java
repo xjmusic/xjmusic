@@ -56,16 +56,16 @@ public interface WorkFactory {
   Optional<Long> getShippedToChainMicros();
 
   /**
-   Return the current crafted-to chain micros
-
-   @return chain micros, else empty
-   */
-  Optional<Long> getCraftedToChainMicros();
-
-  /**
    Return the current dubbed-to sync chain micros
 
    @return chain micros, else empty
    */
   Optional<Long> getDubbedToChainMicros();
+
+  /**
+   Return the current crafted-to chain micros
+
+   @return chain micros, else empty
+   */
+  Optional<Long> getCraftedToChainMicros();
 }

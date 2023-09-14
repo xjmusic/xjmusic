@@ -144,8 +144,8 @@ public class WorkFactoryImpl implements WorkFactory {
       isJsonOutputEnabled,
       tempFilePathPrefix,
       jsonExpiresInSeconds,
-      configuration.getBufferAheadSeconds(),
-      configuration.getBufferBeforeSeconds(),
+      configuration.getCraftAheadSeconds(),
+      configuration.getDubAheadSeconds(),
       configuration.getOutputFrameRate(),
       configuration.getOutputChannels()
     );
@@ -242,13 +242,13 @@ public class WorkFactoryImpl implements WorkFactory {
   }
 
   @Override
-  public Optional<Long> getCraftedToChainMicros() {
-    return Objects.nonNull(craftWork) ? craftWork.getCraftedToChainMicros() : Optional.empty();
+  public Optional<Long> getDubbedToChainMicros() {
+    return Objects.nonNull(dubWork) ? dubWork.getDubbedToChainMicros() : Optional.empty();
   }
 
   @Override
-  public Optional<Long> getDubbedToChainMicros() {
-    return Objects.nonNull(dubWork) ? dubWork.getDubbedToChainMicros() : Optional.empty();
+  public Optional<Long> getCraftedToChainMicros() {
+    return Objects.nonNull(craftWork) ? craftWork.getCraftedToChainMicros() : Optional.empty();
   }
 
 }

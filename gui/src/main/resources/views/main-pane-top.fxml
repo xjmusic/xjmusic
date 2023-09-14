@@ -121,7 +121,7 @@
           </graphic>
         </Label>
         <Pane prefWidth="15.0"/>
-        <TextField fx:id="fieldBufferAheadSeconds" prefHeight="25.0"/>
+        <TextField fx:id="fieldCraftAheadSeconds" prefHeight="25.0"/>
       </VBox>
       <VBox alignment="CENTER_LEFT">
         <padding>
@@ -134,7 +134,7 @@
           </graphic>
         </Label>
         <Pane prefWidth="15.0"/>
-        <TextField fx:id="fieldBufferBeforeSeconds" prefHeight="25.0"/>
+        <TextField fx:id="fieldDubAheadSeconds" prefHeight="25.0"/>
       </VBox>
       <VBox alignment="CENTER_LEFT">
         <padding>

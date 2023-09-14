@@ -40,7 +40,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class FabricationServiceImpl extends Service<Boolean> implements FabricationService {
   static final Logger LOG = LoggerFactory.getLogger(FabricationServiceImpl.class);
   final HostServices hostServices;
-  final Integer defaultBufferAheadSeconds;
   private final HubClient hubClient;
   final WorkFactory workFactory;
   final LabService labService;
@@ -52,16 +51,16 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   final ObjectProperty<OutputFileMode> outputFileMode = new SimpleObjectProperty<>();
   final ObjectProperty<OutputMode> outputMode = new SimpleObjectProperty<>();
   final StringProperty outputSeconds = new SimpleStringProperty();
-  final StringProperty bufferAheadSeconds = new SimpleStringProperty();
-  final StringProperty bufferBeforeSeconds = new SimpleStringProperty();
+  final StringProperty craftAheadSeconds = new SimpleStringProperty();
+  final StringProperty dubAheadSeconds = new SimpleStringProperty();
 
   final StringProperty outputFrameRate = new SimpleStringProperty();
   final StringProperty outputChannels = new SimpleStringProperty();
 
   public FabricationServiceImpl(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
-    @Value("${buffer.ahead.seconds}") Integer defaultBufferAheadSeconds,
-    @Value("${buffer.before.seconds}") Integer defaultBufferBeforeSeconds,
+    @Value("${craft.ahead.seconds}") Integer defaultCraftAheadSeconds,
+    @Value("${dub.ahead.seconds}") Integer defaultDubAheadSeconds,
     @Value("${input.template.key}") String defaultInputTemplateKey,
     @Value("${output.channels}") int defaultOutputChannels,
     @Value("${output.file.mode}") String defaultOutputFileMode,
@@ -73,12 +72,11 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     LabService labService
   ) {
     this.hostServices = hostServices;
-    this.defaultBufferAheadSeconds = defaultBufferAheadSeconds;
     this.hubClient = hubClient;
     this.workFactory = workFactory;
     this.labService = labService;
-    bufferAheadSeconds.set(Integer.toString(defaultBufferAheadSeconds));
-    bufferBeforeSeconds.set(Integer.toString(defaultBufferBeforeSeconds));
+    craftAheadSeconds.set(Integer.toString(defaultCraftAheadSeconds));
+    dubAheadSeconds.set(Integer.toString(defaultDubAheadSeconds));
     inputMode.set(InputMode.PRODUCTION);
     inputTemplateKey.set(defaultInputTemplateKey);
     outputChannels.set(Integer.toString(defaultOutputChannels));
@@ -105,8 +103,8 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
           .setOutputMode(outputMode.get())
           .setOutputPathPrefix(outputPathPrefix.get())
           .setOutputSeconds(Integer.parseInt(outputSeconds.get()))
-          .setBufferAheadSeconds(Integer.parseInt(bufferAheadSeconds.get()))
-          .setBufferBeforeSeconds(Integer.parseInt(bufferBeforeSeconds.get()))
+          .setCraftAheadSeconds(Integer.parseInt(craftAheadSeconds.get()))
+          .setDubAheadSeconds(Integer.parseInt(dubAheadSeconds.get()))
           .setOutputFrameRate(Double.parseDouble(outputFrameRate.get()))
           .setOutputChannels(Integer.parseInt(outputChannels.get()));
         hubClient.setBaseUrl(labService.baseUrlProperty().getValue());
@@ -147,13 +145,13 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   }
 
   @Override
-  public StringProperty bufferAheadSecondsProperty() {
-    return bufferAheadSeconds;
+  public StringProperty craftAheadSecondsProperty() {
+    return craftAheadSeconds;
   }
 
   @Override
-  public StringProperty bufferBeforeSecondsProperty() {
-    return bufferBeforeSeconds;
+  public StringProperty dubAheadSecondsProperty() {
+    return dubAheadSeconds;
   }
 
   @Override
