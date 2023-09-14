@@ -4,6 +4,8 @@ package io.xj.gui.controllers;
 
 import io.xj.gui.services.ThemeService;
 import javafx.application.HostServices;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.MenuBar;
@@ -17,6 +19,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class MainMenuController extends MenuBar implements ReadyAfterBootController {
   Logger LOG = LoggerFactory.getLogger(MainMenuController.class);
+  final BooleanProperty logsVisible = new SimpleBooleanProperty(false);
+  final BooleanProperty logsTailing = new SimpleBooleanProperty(true);
   final HostServices hostServices;
   final ConfigurableApplicationContext ac;
   final String launchGuideUrl;
@@ -26,6 +30,12 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
   @FXML
   protected CheckMenuItem checkboxDarkTheme;
+
+  @FXML
+  protected CheckMenuItem checkboxShowLogs;
+
+  @FXML
+  protected CheckMenuItem checkboxTailLogs;
 
   public MainMenuController(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
@@ -46,6 +56,9 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   @Override
   public void onStageReady() {
     themeService.isDarkThemeProperty().bindBidirectional(checkboxDarkTheme.selectedProperty());
+    logsVisible.bindBidirectional(checkboxShowLogs.selectedProperty());
+    logsTailing.bindBidirectional(checkboxTailLogs.selectedProperty());
+    checkboxTailLogs.disableProperty().bind(logsVisible.not());
   }
 
   @Override
@@ -76,4 +89,11 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     modalLabConnectionController.launchModal();
   }
 
+  public BooleanProperty logsTailingProperty() {
+    return logsTailing;
+  }
+
+  public BooleanProperty logsVisibleProperty() {
+    return logsVisible;
+  }
 }
