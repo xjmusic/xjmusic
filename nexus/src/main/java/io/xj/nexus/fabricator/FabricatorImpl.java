@@ -42,13 +42,13 @@ public class FabricatorImpl implements Fabricator {
   static final String EXTENSION_JSON = "json";
   static final String NAME_SEPARATOR = "-";
   static final String UNKNOWN_KEY = "unknown";
+  private static final long CHAIN_JSON_SHOW_EXTRA_SECONDS = 5;
   final Logger LOG = LoggerFactory.getLogger(FabricatorImpl.class);
   final Chain chain;
   final TemplateConfig templateConfig;
   final Collection<TemplateBinding> templateBindings;
   final HubContent sourceMaterial;
   final int craftAheadSeconds;
-  final int dubAheadSeconds;
   final double outputFrameRate;
   final int outputChannels;
   final JsonapiPayloadFactory jsonapiPayloadFactory;
@@ -91,7 +91,6 @@ public class FabricatorImpl implements Fabricator {
     JsonapiPayloadFactory jsonapiPayloadFactory,
     JsonProvider jsonProvider,
     int craftAheadSeconds,
-    int dubAheadSeconds,
     double outputFrameRate,
     int outputChannels
   ) throws NexusException, FabricationFatalException, ManagerFatalException, ValueException {
@@ -100,7 +99,6 @@ public class FabricatorImpl implements Fabricator {
     this.jsonProvider = jsonProvider;
     this.sourceMaterial = sourceMaterial;
     this.craftAheadSeconds = craftAheadSeconds;
-    this.dubAheadSeconds = dubAheadSeconds;
     this.outputFrameRate = outputFrameRate;
     this.outputChannels = outputChannels;
 
@@ -228,7 +226,7 @@ public class FabricatorImpl implements Fabricator {
   @Override
   public String getChainJson(long atChainMicros) throws NexusException {
     var beforeThresholdChainMicros = atChainMicros + craftAheadSeconds * MICROS_PER_SECOND;
-    var afterThresholdChainMicros = atChainMicros - dubAheadSeconds * MICROS_PER_SECOND;
+    var afterThresholdChainMicros = atChainMicros - CHAIN_JSON_SHOW_EXTRA_SECONDS * MICROS_PER_SECOND;
     return computeChainJson(
       segmentManager.readAll().stream()
         .filter(segment ->

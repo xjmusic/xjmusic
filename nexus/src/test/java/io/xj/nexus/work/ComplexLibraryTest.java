@@ -115,7 +115,6 @@ public class ComplexLibraryTest {
       "/tmp",
       86400,
       999999,
-      999999,
       48000.0, 2
     );
 

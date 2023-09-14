@@ -111,7 +111,7 @@ public class CraftBeatContinueTest {
   @Test
   public void craftBeatContinue() throws Exception {
     insertSegments3and4(false);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 5, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 48000.0, 2);
 
     craftFactory.beat(fabricator).doWork();
     // assert choice of beat-type sequence
@@ -190,7 +190,7 @@ public class CraftBeatContinueTest {
   @Test
   public void craftBeatContinue_okEvenWithoutPreviousSegmentBeatChoice() throws Exception {
     insertSegments3and4(true);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 5, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 48000.0, 2);
     craftFactory.beat(fabricator).doWork();
 
     // assert choice of beat-type sequence

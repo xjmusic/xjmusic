@@ -145,7 +145,6 @@ public class WorkFactoryImpl implements WorkFactory {
       tempFilePathPrefix,
       jsonExpiresInSeconds,
       configuration.getCraftAheadSeconds(),
-      configuration.getDubAheadSeconds(),
       configuration.getOutputFrameRate(),
       configuration.getOutputChannels()
     );

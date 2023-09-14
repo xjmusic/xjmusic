@@ -137,7 +137,7 @@ public class CraftHookProgramVoiceNextMacroTest {
   @Test
   public void craftHookVoiceNextMacro() throws Exception {
     insertSegments3and4(true);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 5, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 48000.0, 2);
 
     craftFactory.hook(fabricator).doWork();
 

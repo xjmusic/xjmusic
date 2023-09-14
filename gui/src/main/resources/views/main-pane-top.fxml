@@ -115,7 +115,7 @@
           <Insets right="10" left="10"/>
         </padding>
         <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
-               text="Buffer Ahead Seconds" textAlignment="RIGHT">
+               text="Craft Ahead Seconds" textAlignment="RIGHT">
           <graphic>
             <Pane prefWidth="15.0"/>
           </graphic>
@@ -128,7 +128,7 @@
           <Insets right="10"/>
         </padding>
         <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
-               text="Buffer Before Seconds" textAlignment="RIGHT">
+               text="Dub Ahead Seconds" textAlignment="RIGHT">
           <graphic>
             <Pane prefWidth="15.0"/>
           </graphic>

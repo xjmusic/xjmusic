@@ -143,7 +143,6 @@ public class CraftWorkImpl implements CraftWork {
   final String tempFilePathPrefix;
   final Integer jsonExpiresInSeconds;
   final int craftAheadSeconds;
-  final int dubAheadSeconds;
   final double outputFrameRate;
   final int outputChannels;
 
@@ -172,7 +171,6 @@ public class CraftWorkImpl implements CraftWork {
     String tempFilePathPrefix,
     int jsonExpiresInSeconds,
     int craftAheadSeconds,
-    int dubAheadSeconds,
     double outputFrameRate,
     int outputChannels
   ) {
@@ -192,7 +190,6 @@ public class CraftWorkImpl implements CraftWork {
     this.isJsonOutputEnabled = isJsonOutputEnabled;
     this.jsonExpiresInSeconds = jsonExpiresInSeconds;
     this.craftAheadSeconds = craftAheadSeconds;
-    this.dubAheadSeconds = dubAheadSeconds;
     this.outputFrameRate = outputFrameRate;
     this.outputChannels = outputChannels;
 
@@ -653,7 +650,7 @@ public class CraftWorkImpl implements CraftWork {
       Fabricator fabricator;
       timer.section("Prepare");
       LOG.debug("[segId={}] will prepare fabricator", segment.getId());
-      fabricator = fabricatorFactory.fabricate(chainSourceMaterial, segment, craftAheadSeconds, dubAheadSeconds, outputFrameRate, outputChannels);
+      fabricator = fabricatorFactory.fabricate(chainSourceMaterial, segment, craftAheadSeconds, outputFrameRate, outputChannels);
 
       timer.section("Craft");
       LOG.debug("[segId={}] will do craft work", segment.getId());
