@@ -2,42 +2,9 @@
 
 <!-- Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved. -->
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.ToggleButton?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.VBox?>
 <VBox xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="io.xj.gui.controllers.MainPaneBottomController">
-  <HBox alignment="CENTER" styleClass="bottom-pane-status-container"
-        xmlns:fx="http://javafx.com/fxml">
-    <HBox.hgrow>
-      <Priority fx:constant="ALWAYS"/>
-    </HBox.hgrow>
-    <padding>
-      <Insets bottom="6" left="9" right="9" top="6"/>
-    </padding>
-    <HBox alignment="CENTER_LEFT" spacing="9"
-          xmlns:fx="http://javafx.com/fxml">
-      <HBox.hgrow>
-        <Priority fx:constant="ALWAYS"/>
-      </HBox.hgrow>
-      <Button fx:id="buttonLab" onAction="#handleButtonLabPressed" text="Lab" />
-      <Label fx:id="labelLabStatus" text="Initializing"/>
-    </HBox>
-    <HBox alignment="CENTER_RIGHT" spacing="10"
-          xmlns:fx="http://javafx.com/fxml">
-      <HBox.hgrow>
-        <Priority fx:constant="ALWAYS"/>
-      </HBox.hgrow>
-
-      <!-- Logs Auto-Scroll Toggle Switch -->
-      <ToggleButton fx:id="toggleTailLogs" text="Auto-Scroll"/>
-
-      <!-- Show Logs Toggle Switch -->
-      <ToggleButton fx:id="toggleShowLogs" text="Logs"/>
-    </HBox>
-  </HBox>
   <ListView fx:id="logListView" prefHeight="400.0" prefWidth="769.0" styleClass="log-viewer"/>
 </VBox>

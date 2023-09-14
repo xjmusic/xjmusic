@@ -13,6 +13,9 @@
   </Menu>
   <Menu mnemonicParsing="false" text="View">
     <CheckMenuItem fx:id="checkboxDarkTheme" mnemonicParsing="false" selected="true" text="Dark Theme"/>
+    <SeparatorMenuItem mnemonicParsing="false"/>
+    <CheckMenuItem fx:id="checkboxShowLogs" mnemonicParsing="false" text="Show Logs"/>
+    <CheckMenuItem fx:id="checkboxTailLogs" mnemonicParsing="false" selected="true" text="Logs Auto-scroll" disable="true"/>
   </Menu>
   <Menu mnemonicParsing="false" text="Help">
     <MenuItem mnemonicParsing="false" onAction="#onLaunchUserGuide" text="User Guide"/>
