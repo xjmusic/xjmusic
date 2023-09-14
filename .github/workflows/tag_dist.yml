@@ -192,15 +192,15 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           cd gui/build/jpackage/
-          zip -r ../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ runner.os }}.dmg.zip xjmusic-workstation-v${{ needs.verify.outputs.version }}.dmg
+          zip -r ../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.dmg.zip xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.dmg
 
       - name: Upload DMG to release (macOS)
         if: runner.os == 'macOS'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ runner.os }}.dmg.zip
-          asset_name: xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ runner.os }}.dmg.zip
+          file: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.dmg.zip
+          asset_name: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.dmg.zip
           tag: ${{ github.ref }}
           overwrite: true
 
@@ -208,15 +208,15 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           cd gui/build/jpackage/
-          Compress-Archive -Path xjmusic-workstation-v${{ needs.verify.outputs.version }}.exe -DestinationPath ../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ runner.os }}.exe.zip
+          Compress-Archive -Path xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.exe -DestinationPath ../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.exe.zip
 
       - name: Upload EXE to release (Windows)
         if: runner.os == 'Windows'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ runner.os }}.exe.zip
-          asset_name: xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ runner.os }}.exe.zip
+          file: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.exe.zip
+          asset_name: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.exe.zip
           tag: ${{ github.ref }}
           overwrite: true
 
@@ -224,14 +224,14 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           cd gui/build/jpackage/
-          tar -czvf ../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ runner.os }}.deb.tar.gz xjmusic-workstation-v${{ needs.verify.outputs.version }}.deb
+          tar -czvf ../../../xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.deb.tar.gz xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer.deb
 
       - name: Upload DEB to release (Linux)
         if: runner.os == 'Linux'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ runner.os }}.deb.tar.gz
-          asset_name: xjmusic-workstation-v${{ needs.verify.outputs.version }}-${{ runner.os }}.deb.tar.gz
+          file: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.deb.tar.gz
+          asset_name: xjmusic-workstation-v${{ needs.verify.outputs.version }}-installer-${{ runner.os }}.deb.tar.gz
           tag: ${{ github.ref }}
           overwrite: true
