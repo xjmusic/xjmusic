@@ -194,7 +194,13 @@
         <Priority fx:constant="ALWAYS"/>
       </HBox.hgrow>
 
-      <!-- Future: right side of top pane status bar -->
+      <!-- Lab Connection Status Text -->
+      <Label fx:id="labelLabStatus" text="Initializing"/>
+
+      <!-- Lab Button -->
+      <Button fx:id="buttonLab" onAction="#handleButtonLabPressed" text="Lab" />
+
+
 
     </HBox>
   </HBox>

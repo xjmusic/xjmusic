@@ -36,6 +36,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   final static String BUTTON_TEXT_STOP = "Stop";
   final static String BUTTON_TEXT_RESET = "Reset";
   final FabricationService fabricationService;
+  final ModalLabConnectionController modalLabConnectionController;
   final LabService labService;
   final BooleanProperty configVisible = new SimpleBooleanProperty(false);
 
@@ -93,11 +94,18 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   @FXML
   TextField fieldOutputFrameRate;
 
+  @FXML
+  public Button buttonLab;
+
+  @FXML
+  public Label labelLabStatus;
+
   public MainPaneTopController(
     FabricationService fabricationService,
-    LabService labService
+    ModalLabConnectionController modalLabConnectionController, LabService labService
   ) {
     this.fabricationService = fabricationService;
+    this.modalLabConnectionController = modalLabConnectionController;
     this.labService = labService;
   }
 
@@ -159,6 +167,8 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
     toggleShowConfig.setSelected(configVisible.get());
 
+    labelLabStatus.textProperty().bind(labService.statusProperty().map(Enum::toString));
+
     updateConfigVisibility();
   }
 
@@ -192,6 +202,11 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   public void toggleShowConfig(ActionEvent ignored) {
     configVisible.set(toggleShowConfig.isSelected());
     updateConfigVisibility();
+  }
+
+  @FXML
+  public void handleButtonLabPressed(ActionEvent ignored) {
+    modalLabConnectionController.launchModal();
   }
 
   void updateConfigVisibility() {
