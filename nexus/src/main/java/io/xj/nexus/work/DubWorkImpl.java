@@ -55,6 +55,7 @@ public class DubWorkImpl implements DubWork {
   Float mixerOutputMicrosecondsPerByte;
   final int outputChannels;
   final double outputFrameRate;
+  final int dubAheadSeconds;
 
   public DubWorkImpl(
     CraftWork craftWork,
@@ -64,7 +65,8 @@ public class DubWorkImpl implements DubWork {
     int mixerSeconds,
     long cycleMillis,
     double outputFrameRate,
-    int outputChannels
+    int outputChannels,
+    int dubAheadSeconds
   ) {
     this.craftWork = craftWork;
     this.dubAudioCache = dubAudioCache;
@@ -72,6 +74,7 @@ public class DubWorkImpl implements DubWork {
     this.mixerLengthSeconds = mixerSeconds;
     this.outputFrameRate = outputFrameRate;
     this.outputChannels = outputChannels;
+    this.dubAheadSeconds = dubAheadSeconds;
     this.mixerLengthMicros = mixerLengthSeconds * MICROS_PER_SECOND;
     this.mixerFactory = mixerFactory;
     this.cycleMillis = cycleMillis;

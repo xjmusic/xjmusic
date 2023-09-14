@@ -89,6 +89,9 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   TextField fieldDubAheadSeconds;
 
   @FXML
+  TextField fieldShipAheadSeconds;
+
+  @FXML
   TextField fieldOutputChannels;
 
   @FXML
@@ -160,6 +163,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
     fieldCraftAheadSeconds.textProperty().bindBidirectional(fabricationService.craftAheadSecondsProperty());
     fieldDubAheadSeconds.textProperty().bindBidirectional(fabricationService.dubAheadSecondsProperty());
+    fieldShipAheadSeconds.textProperty().bindBidirectional(fabricationService.shipAheadSecondsProperty());
     fieldOutputFrameRate.textProperty().bindBidirectional(fabricationService.outputFrameRateProperty());
     fieldOutputChannels.textProperty().bindBidirectional(fabricationService.outputChannelsProperty());
 

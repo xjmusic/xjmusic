@@ -141,6 +141,19 @@
           <Insets right="10"/>
         </padding>
         <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
+               text="Ship Ahead Seconds" textAlignment="RIGHT">
+          <graphic>
+            <Pane prefWidth="15.0"/>
+          </graphic>
+        </Label>
+        <Pane prefWidth="15.0"/>
+        <TextField fx:id="fieldShipAheadSeconds" prefHeight="25.0"/>
+      </VBox>
+      <VBox alignment="CENTER_LEFT">
+        <padding>
+          <Insets right="10"/>
+        </padding>
+        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
                text="Output Frame Rate" textAlignment="RIGHT">
           <graphic>
             <Pane prefWidth="15.0"/>

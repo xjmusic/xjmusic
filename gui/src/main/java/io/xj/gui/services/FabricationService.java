@@ -40,6 +40,8 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
 
   StringProperty dubAheadSecondsProperty();
 
+  StringProperty shipAheadSecondsProperty();
+
   StringProperty outputChannelsProperty();
 
   StringProperty outputFrameRateProperty();

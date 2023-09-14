@@ -34,6 +34,7 @@ import static org.mockito.Mockito.when;
 class FabricationServiceImplTest {
   Integer defaultCraftAheadSeconds = 5;
   Integer defaultDubAheadSeconds = 5;
+  Integer defaultShipAheadSeconds = 5;
   String defaultInputTemplateKey = "slaps_lofi";
   int defaultOutputChannels = 2;
   String defaultOutputFileMode = OutputFileMode.CONTINUOUS.toString();
@@ -75,6 +76,7 @@ class FabricationServiceImplTest {
       hostServices,
       defaultCraftAheadSeconds,
       defaultDubAheadSeconds,
+      defaultShipAheadSeconds,
       defaultInputTemplateKey,
       defaultOutputChannels,
       defaultOutputFileMode,

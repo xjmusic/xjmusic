@@ -53,7 +53,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   final StringProperty outputSeconds = new SimpleStringProperty();
   final StringProperty craftAheadSeconds = new SimpleStringProperty();
   final StringProperty dubAheadSeconds = new SimpleStringProperty();
-
+  final StringProperty shipAheadSeconds = new SimpleStringProperty();
   final StringProperty outputFrameRate = new SimpleStringProperty();
   final StringProperty outputChannels = new SimpleStringProperty();
 
@@ -61,6 +61,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
     @Value("${craft.ahead.seconds}") Integer defaultCraftAheadSeconds,
     @Value("${dub.ahead.seconds}") Integer defaultDubAheadSeconds,
+    @Value("${ship.ahead.seconds}") Integer defaultShipAheadSeconds,
     @Value("${input.template.key}") String defaultInputTemplateKey,
     @Value("${output.channels}") int defaultOutputChannels,
     @Value("${output.file.mode}") String defaultOutputFileMode,
@@ -69,14 +70,14 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     @Value("${output.seconds}") Integer defaultOutputSeconds,
     HubClient hubClient,
     WorkFactory workFactory,
-    LabService labService
-  ) {
+    LabService labService) {
     this.hostServices = hostServices;
     this.hubClient = hubClient;
     this.workFactory = workFactory;
     this.labService = labService;
     craftAheadSeconds.set(Integer.toString(defaultCraftAheadSeconds));
     dubAheadSeconds.set(Integer.toString(defaultDubAheadSeconds));
+    shipAheadSeconds.set(Integer.toString(defaultShipAheadSeconds));
     inputMode.set(InputMode.PRODUCTION);
     inputTemplateKey.set(defaultInputTemplateKey);
     outputChannels.set(Integer.toString(defaultOutputChannels));
@@ -105,6 +106,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
           .setOutputSeconds(Integer.parseInt(outputSeconds.get()))
           .setCraftAheadSeconds(Integer.parseInt(craftAheadSeconds.get()))
           .setDubAheadSeconds(Integer.parseInt(dubAheadSeconds.get()))
+          .setShipAheadSeconds(Integer.parseInt(shipAheadSeconds.get()))
           .setOutputFrameRate(Double.parseDouble(outputFrameRate.get()))
           .setOutputChannels(Integer.parseInt(outputChannels.get()));
         hubClient.setBaseUrl(labService.baseUrlProperty().getValue());
@@ -152,6 +154,11 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   @Override
   public StringProperty dubAheadSecondsProperty() {
     return dubAheadSeconds;
+  }
+
+  @Override
+  public StringProperty shipAheadSecondsProperty() {
+    return shipAheadSeconds;
   }
 
   @Override

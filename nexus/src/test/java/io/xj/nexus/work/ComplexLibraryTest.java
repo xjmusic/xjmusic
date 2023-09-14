@@ -114,8 +114,7 @@ public class ComplexLibraryTest {
       false,
       "/tmp",
       86400,
-      999999,
-      48000.0, 2
+      48000.0, 2, 999999
     );
 
     workThread = new AppWorkThread(work);

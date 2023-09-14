@@ -68,10 +68,7 @@ public class ShipWorkImpl implements ShipWork {
     int outputSeconds,
     long cycleMillis,
     int cycleAudioBytes,
-    int planAheadSeconds,
-    String outputPathPrefix,
-    int outputFileNumberDigits,
-    int pcmChunkSizeBytes
+    String outputPathPrefix, int outputFileNumberDigits, int pcmChunkSizeBytes, int planAheadSeconds
   ) {
     this.broadcastFactory = broadcastFactory;
     this.cycleAudioBytes = cycleAudioBytes;

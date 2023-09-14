@@ -170,9 +170,7 @@ public class CraftWorkImpl implements CraftWork {
     boolean isJsonOutputEnabled,
     String tempFilePathPrefix,
     int jsonExpiresInSeconds,
-    int craftAheadSeconds,
-    double outputFrameRate,
-    int outputChannels
+    double outputFrameRate, int outputChannels, int craftAheadSeconds
   ) {
     this.craftFactory = craftFactory;
     this.entityFactory = entityFactory;

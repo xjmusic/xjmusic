@@ -53,7 +53,6 @@ public class WorkFactoryImpl implements WorkFactory {
   final int pcmChunkSizeBytes;
   final int cycleAudioBytes;
   final long shipCycleMillis;
-  final int planAheadSeconds;
   final String tempFilePathPrefix;
   final AtomicReference<WorkState> state = new AtomicReference<>(WorkState.Initializing);
 
@@ -90,7 +89,6 @@ public class WorkFactoryImpl implements WorkFactory {
     @Value("${output.pcm.chunk.size.bytes}") int pcmChunkSizeBytes,
     @Value("${ship.cycle.audio.bytes}") int cycleAudioBytes,
     @Value("${ship.cycle.millis}") long shipCycleMillis,
-    @Value("${ship.output.synchronous.plan.ahead.seconds}") int planAheadSeconds,
     @Value("${temp.file.path.prefix}") String tempFilePathPrefix
   ) {
     this.broadcastFactory = broadcastFactory;
@@ -116,7 +114,6 @@ public class WorkFactoryImpl implements WorkFactory {
     this.pcmChunkSizeBytes = pcmChunkSizeBytes;
     this.cycleAudioBytes = cycleAudioBytes;
     this.shipCycleMillis = shipCycleMillis;
-    this.planAheadSeconds = planAheadSeconds;
     this.tempFilePathPrefix = tempFilePathPrefix;
   }
 
@@ -144,9 +141,9 @@ public class WorkFactoryImpl implements WorkFactory {
       isJsonOutputEnabled,
       tempFilePathPrefix,
       jsonExpiresInSeconds,
-      configuration.getCraftAheadSeconds(),
       configuration.getOutputFrameRate(),
-      configuration.getOutputChannels()
+      configuration.getOutputChannels(),
+      configuration.getCraftAheadSeconds()
     );
     dubWork = new DubWorkImpl(
       craftWork,
@@ -156,8 +153,8 @@ public class WorkFactoryImpl implements WorkFactory {
       mixerSeconds,
       dubCycleMillis,
       configuration.getOutputFrameRate(),
-      configuration.getOutputChannels()
-    );
+      configuration.getOutputChannels(),
+      configuration.getDubAheadSeconds());
     shipWork = new ShipWorkImpl(
       dubWork,
       notification,
@@ -167,10 +164,10 @@ public class WorkFactoryImpl implements WorkFactory {
       configuration.getOutputSeconds(),
       shipCycleMillis,
       cycleAudioBytes,
-      planAheadSeconds,
       configuration.getOutputPathPrefix(),
       outputFileNumberDigits,
-      pcmChunkSizeBytes
+      pcmChunkSizeBytes,
+      configuration.getShipAheadSeconds()
     );
 
     LOG.info("Will start");

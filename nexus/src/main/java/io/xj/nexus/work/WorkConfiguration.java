@@ -17,6 +17,7 @@ public class WorkConfiguration {
 
   private int craftAheadSeconds;
   private int dubAheadSeconds;
+  private int shipAheadSeconds;
   private double outputFrameRate;
   private int outputChannels;
 
@@ -98,6 +99,15 @@ public class WorkConfiguration {
 
   public WorkConfiguration setDubAheadSeconds(int dubAheadSeconds) {
     this.dubAheadSeconds = dubAheadSeconds;
+    return this;
+  }
+
+  public int getShipAheadSeconds() {
+    return shipAheadSeconds;
+  }
+
+  public WorkConfiguration setShipAheadSeconds(int shipAheadSeconds) {
+    this.shipAheadSeconds = shipAheadSeconds;
     return this;
   }
 
