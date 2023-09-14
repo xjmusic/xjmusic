@@ -15,8 +15,9 @@ public class WorkConfiguration {
   private String outputPathPrefix;
   private int outputSeconds;
 
-  private int bufferAheadSeconds;
-  private int bufferBeforeSeconds;
+  private int craftAheadSeconds;
+  private int dubAheadSeconds;
+  private int shipAheadSeconds;
   private double outputFrameRate;
   private int outputChannels;
 
@@ -83,21 +84,30 @@ public class WorkConfiguration {
     return this;
   }
 
-  public int getBufferAheadSeconds() {
-    return bufferAheadSeconds;
+  public int getCraftAheadSeconds() {
+    return craftAheadSeconds;
   }
 
-  public WorkConfiguration setBufferAheadSeconds(int bufferAheadSeconds) {
-    this.bufferAheadSeconds = bufferAheadSeconds;
+  public WorkConfiguration setCraftAheadSeconds(int craftAheadSeconds) {
+    this.craftAheadSeconds = craftAheadSeconds;
     return this;
   }
 
-  public int getBufferBeforeSeconds() {
-    return bufferBeforeSeconds;
+  public int getDubAheadSeconds() {
+    return dubAheadSeconds;
   }
 
-  public WorkConfiguration setBufferBeforeSeconds(int bufferBeforeSeconds) {
-    this.bufferBeforeSeconds = bufferBeforeSeconds;
+  public WorkConfiguration setDubAheadSeconds(int dubAheadSeconds) {
+    this.dubAheadSeconds = dubAheadSeconds;
+    return this;
+  }
+
+  public int getShipAheadSeconds() {
+    return shipAheadSeconds;
+  }
+
+  public WorkConfiguration setShipAheadSeconds(int shipAheadSeconds) {
+    this.shipAheadSeconds = shipAheadSeconds;
     return this;
   }
 

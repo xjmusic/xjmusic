@@ -33,7 +33,6 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   private final Integer showMaxSegments;
   private final Integer segmentMinWidth;
   private final Integer segmentHorizontalSpacing;
-  private final Integer timelinePositionActiveRegionWidth;
   final ConfigurableApplicationContext ac;
   final FabricationService fabricationService;
   final LabService labService;
@@ -47,16 +46,16 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   HBox segmentPositionRow;
 
   @FXML
-  Rectangle timelinePastRegion;
+  Rectangle timelineRegion1Past;
 
   @FXML
-  Rectangle timelineActiveRegion;
+  Rectangle timelineRegion2Ship;
 
   @FXML
-  Rectangle timelineCraftedRegion;
+  Rectangle timelineRegion4Craft;
 
   @FXML
-  Rectangle timelineDubbedRegion;
+  Rectangle timelineRegion3Dub;
 
   @FXML
   HBox segmentListView;
@@ -73,7 +72,6 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     @Value("${gui.timeline.segment.spacing.horizontal}") Integer segmentSpacingHorizontal,
     @Value("${gui.timeline.segment.width.min}") Integer segmentWidthMin,
     @Value("${gui.timeline.sync.refresh.millis}") Integer refreshSyncMillis,
-    @Value("${gui.timeline.position.active.region.width}") Integer timelinePositionActiveRegionWidth,
     ConfigurableApplicationContext ac,
     FabricationService fabricationService,
     LabService labService,
@@ -89,7 +87,6 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     this.segmentHorizontalSpacing = segmentSpacingHorizontal;
     this.segmentMinWidth = segmentWidthMin;
     this.showMaxSegments = showMaxSegments;
-    this.timelinePositionActiveRegionWidth = timelinePositionActiveRegionWidth;
   }
 
   @Override
@@ -117,7 +114,6 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     refreshSync.setRate(1.0);
     refreshSync.play();
 
-    timelineActiveRegion.setWidth(timelinePositionActiveRegionWidth);
     segmentListView.setSpacing(segmentHorizontalSpacing);
     segmentListView.setPadding(new Insets(0, segmentMinWidth, 0, segmentHorizontalSpacing));
   }
@@ -201,31 +197,36 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
    Called frequently to update the sync (playback position indicator).
    */
   void updateSync() {
-    var viewFromChainMicros = segments.isEmpty() ? 0 : segments.get(0).getBeginAtChainMicros();
-    var shippedToChainMicros = fabricationService.getWorkFactory().getShippedToChainMicros();
-    var dubbedToChainMicros = fabricationService.getWorkFactory().getDubbedToChainMicros();
-    var craftedToChainMicros = fabricationService.getWorkFactory().getCraftedToChainMicros();
+    var m0 = segments.isEmpty() ? 0 : segments.get(0).getBeginAtChainMicros();
+    var m1 = fabricationService.getWorkFactory().getShippedToChainMicros();
+    var m2 = fabricationService.getWorkFactory().getShipTargetChainMicros();
+    var m3 = fabricationService.getWorkFactory().getDubbedToChainMicros();
+    var m4 = fabricationService.getWorkFactory().getCraftedToChainMicros();
 
-    if (shippedToChainMicros.isPresent() && 0 < shippedToChainMicros.get()) {
-      timelinePastRegion.setWidth((shippedToChainMicros.get() - viewFromChainMicros) / microsPerPixel.get());
-      timelineActiveRegion.setVisible(true);
+    if (m1.isPresent() && 0 < m1.get()) {
+      timelineRegion1Past.setWidth((m1.get() - m0) / microsPerPixel.get());
     } else {
-      timelinePastRegion.setWidth(0);
-      timelineActiveRegion.setVisible(false);
+      timelineRegion1Past.setWidth(0);
     }
 
-    if (dubbedToChainMicros.isPresent() && 0 < dubbedToChainMicros.get()) {
-      timelineDubbedRegion.setWidth(
-        (dubbedToChainMicros.get() - shippedToChainMicros.orElse(viewFromChainMicros)) / microsPerPixel.get());
+    if (m2.isPresent() && 0 < m2.get()) {
+      timelineRegion2Ship.setWidth((m2.get() - m1.orElse(m0)) / microsPerPixel.get());
     } else {
-      timelineDubbedRegion.setWidth(0);
+      timelineRegion2Ship.setWidth(0);
     }
 
-    if (craftedToChainMicros.isPresent() && 0 < craftedToChainMicros.get()) {
-      timelineCraftedRegion.setWidth(
-        (craftedToChainMicros.get() - dubbedToChainMicros.orElse(viewFromChainMicros)) / microsPerPixel.get());
+    if (m3.isPresent() && 0 < m3.get()) {
+      timelineRegion3Dub.setWidth(
+        (m3.get() - m2.orElse(m1.orElse(m0))) / microsPerPixel.get());
     } else {
-      timelineCraftedRegion.setWidth(0);
+      timelineRegion3Dub.setWidth(0);
+    }
+
+    if (m4.isPresent() && 0 < m4.get()) {
+      timelineRegion4Craft.setWidth(
+        (m4.get() - m3.orElse(m2.orElse(m1.orElse(m0)))) / microsPerPixel.get());
+    } else {
+      timelineRegion4Craft.setWidth(0);
     }
   }
 }

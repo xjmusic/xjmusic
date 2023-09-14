@@ -48,6 +48,7 @@ public class DubWorkImpl implements DubWork {
   final int mixerLengthSeconds;
   final long cycleMillis;
   final long mixerLengthMicros;
+  long nowAtChainMicros = 0; // Set from downstream, for dub work to understand how far "ahead" it is
   long chunkFromChainMicros = 0; // dubbing is done up to this point
   long chunkToChainMicros = 0; // plan ahead one dub frame at a time
   long nextCycleAtSystemMillis = System.currentTimeMillis();
@@ -55,6 +56,7 @@ public class DubWorkImpl implements DubWork {
   Float mixerOutputMicrosecondsPerByte;
   final int outputChannels;
   final double outputFrameRate;
+  final int dubAheadSeconds;
 
   public DubWorkImpl(
     CraftWork craftWork,
@@ -64,7 +66,8 @@ public class DubWorkImpl implements DubWork {
     int mixerSeconds,
     long cycleMillis,
     double outputFrameRate,
-    int outputChannels
+    int outputChannels,
+    int dubAheadSeconds
   ) {
     this.craftWork = craftWork;
     this.dubAudioCache = dubAudioCache;
@@ -72,6 +75,7 @@ public class DubWorkImpl implements DubWork {
     this.mixerLengthSeconds = mixerSeconds;
     this.outputFrameRate = outputFrameRate;
     this.outputChannels = outputChannels;
+    this.dubAheadSeconds = dubAheadSeconds;
     this.mixerLengthMicros = mixerLengthSeconds * MICROS_PER_SECOND;
     this.mixerFactory = mixerFactory;
     this.cycleMillis = cycleMillis;
@@ -181,6 +185,11 @@ public class DubWorkImpl implements DubWork {
     return Optional.of(chunkToChainMicros);
   }
 
+  @Override
+  public void setNowAtToChainMicros(Long micros) {
+    nowAtChainMicros = micros;
+  }
+
   /**
    This is the internal cycle that's run indefinitely
    */
@@ -238,6 +247,10 @@ public class DubWorkImpl implements DubWork {
     if (!craftWork.isRunning()) {
       LOG.warn("Craft is not running; will abort.");
       finish();
+      return;
+    }
+    if (chunkToChainMicros > nowAtChainMicros + (dubAheadSeconds * MICROS_PER_SECOND)) {
+      LOG.debug("Waiting to catch up with {} second dub-ahead", dubAheadSeconds);
       return;
     }
     chunkToChainMicros = chunkFromChainMicros + mixerLengthMicros;

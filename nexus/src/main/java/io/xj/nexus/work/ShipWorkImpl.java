@@ -24,7 +24,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static io.xj.hub.util.ValueUtils.MICROS_PER_MILLI;
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 
 public class ShipWorkImpl implements ShipWork {
@@ -52,10 +51,10 @@ public class ShipWorkImpl implements ShipWork {
   final int outputFileNumberDigits;
   final int outputSeconds;
   final int pcmChunkSizeBytes;
-  final int planAheadSeconds;
+  final int shipAheadSeconds;
   final long cycleMillis;
   int outputFileNum = 0;
-  long atChainMicros = 0;
+  long targetChainMicros = 0;
   long nextCycleAtSystemMillis = System.currentTimeMillis();
   final long initializedAtSystemMillis = System.currentTimeMillis();
 
@@ -68,10 +67,10 @@ public class ShipWorkImpl implements ShipWork {
     int outputSeconds,
     long cycleMillis,
     int cycleAudioBytes,
-    int planAheadSeconds,
     String outputPathPrefix,
     int outputFileNumberDigits,
-    int pcmChunkSizeBytes
+    int pcmChunkSizeBytes,
+    int shipAheadSeconds
   ) {
     this.broadcastFactory = broadcastFactory;
     this.cycleAudioBytes = cycleAudioBytes;
@@ -84,7 +83,7 @@ public class ShipWorkImpl implements ShipWork {
     this.outputPathPrefix = outputPathPrefix;
     this.outputSeconds = outputSeconds;
     this.pcmChunkSizeBytes = pcmChunkSizeBytes;
-    this.planAheadSeconds = planAheadSeconds;
+    this.shipAheadSeconds = shipAheadSeconds;
   }
 
   @Override
@@ -197,6 +196,7 @@ public class ShipWorkImpl implements ShipWork {
       case PLAYBACK -> doShipOutputPlayback();
       case FILE -> doShipOutputFile();
     }
+    getShippedToChainMicros().ifPresent(dubWork::setNowAtToChainMicros);
   }
 
 
@@ -218,9 +218,10 @@ public class ShipWorkImpl implements ShipWork {
    @return true if ahead of sync, false if not
    */
   boolean isAheadOfSync() {
-    if (outputMode.isSync()) {
-      var aheadSeconds = (float) (atChainMicros - MICROS_PER_MILLI * (System.currentTimeMillis() - initializedAtSystemMillis)) / MICROS_PER_SECOND;
-      if (aheadSeconds > planAheadSeconds) {
+    var shippedToChainMicros = getShippedToChainMicros();
+    if (outputMode.isSync() && shippedToChainMicros.isPresent()) {
+      var aheadSeconds = (float) (targetChainMicros - shippedToChainMicros.get()) / MICROS_PER_SECOND;
+      if (aheadSeconds > shipAheadSeconds) {
         LOG.debug("Ahead by {}s in synchronous output; will skip work", String.format("%.1f", aheadSeconds));
         return true;
       }
@@ -241,8 +242,8 @@ public class ShipWorkImpl implements ShipWork {
       if (availableBytes >= cycleAudioBytes) {
         LOG.debug("Shipping {} bytes to local playback", cycleAudioBytes);
         encoder.append(dubWork.getMixerBuffer().orElseThrow().consume(cycleAudioBytes));
-        atChainMicros = (long) (atChainMicros + cycleAudioBytes * dubWork.getMixerOutputMicrosPerByte().orElseThrow());
-        encoder.setPlaylistAtChainMicros(atChainMicros);
+        targetChainMicros = (long) (targetChainMicros + cycleAudioBytes * dubWork.getMixerOutputMicrosPerByte().orElseThrow());
+        encoder.setPlaylistAtChainMicros(targetChainMicros);
       }
     }
   }
@@ -260,7 +261,7 @@ public class ShipWorkImpl implements ShipWork {
       if (availableBytes >= cycleAudioBytes) {
         LOG.debug("Shipping {} bytes to local playback", cycleAudioBytes);
         playback.append(dubWork.getMixerBuffer().orElseThrow().consume(cycleAudioBytes));
-        atChainMicros = (long) (atChainMicros + cycleAudioBytes * dubWork.getMixerOutputMicrosPerByte().orElseThrow());
+        targetChainMicros = (long) (targetChainMicros + cycleAudioBytes * dubWork.getMixerOutputMicrosPerByte().orElseThrow());
       }
     }
   }
@@ -274,9 +275,9 @@ public class ShipWorkImpl implements ShipWork {
       return;
     }
     Optional<Segment> segment;
-    segment = dubWork.getSegmentAtChainMicros(atChainMicros); // first, get the segment exactly at the play head
+    segment = dubWork.getSegmentAtChainMicros(targetChainMicros); // first, get the segment exactly at the play head
     if (segment.isEmpty()) {
-      LOG.debug("No segment available at chain micros {}", atChainMicros);
+      LOG.debug("No segment available at chain micros {}", targetChainMicros);
       return;
     }
 
@@ -284,7 +285,7 @@ public class ShipWorkImpl implements ShipWork {
       doShipOutputFileStartNext(segment.get());
 
     } else { // Continue output file in progress, start next if needed, finish if done
-      if (outputFile.getToChainMicros() - atChainMicros < pcmChunkSizeBytes * dubWork.getMixerOutputMicrosPerByte().orElseThrow()) { // check to see if we are at risk of getting stuck in this last pcm chunk of the segment-- this would never advance to the next segment/output file
+      if (outputFile.getToChainMicros() - targetChainMicros < pcmChunkSizeBytes * dubWork.getMixerOutputMicrosPerByte().orElseThrow()) { // check to see if we are at risk of getting stuck in this last pcm chunk of the segment-- this would never advance to the next segment/output file
         LOG.debug("Not enough space in current output file, will advance to next segment");
         var nextOffset = segment.get().getId() + 1;
         segment = dubWork.getSegmentAtOffset(nextOffset);
@@ -327,7 +328,7 @@ public class ShipWorkImpl implements ShipWork {
       }
 
       int availableBytes = Math.min(dubWork.getMixerBuffer().orElseThrow().getAvailableByteCount(), cycleAudioBytes);
-      int currentFileMaxBytes = (int) ((outputFile.getToChainMicros() - atChainMicros) / dubWork.getMixerOutputMicrosPerByte().orElseThrow());
+      int currentFileMaxBytes = (int) ((outputFile.getToChainMicros() - targetChainMicros) / dubWork.getMixerOutputMicrosPerByte().orElseThrow());
       int shipBytes = (int) (pcmChunkSizeBytes * Math.floor((float) Math.min(availableBytes, currentFileMaxBytes) / pcmChunkSizeBytes)); // rounded down to a multiple of pcm chunk size bytes
       if (0 == shipBytes) {
         LOG.debug("Will not ship any bytes");
@@ -335,7 +336,7 @@ public class ShipWorkImpl implements ShipWork {
       }
       LOG.debug("Will ship {} bytes to local files", shipBytes);
       fileWriter.append(dubWork.getMixerBuffer().orElseThrow().consume(shipBytes));
-      atChainMicros = atChainMicros + (long) (shipBytes * dubWork.getMixerOutputMicrosPerByte().orElseThrow());
+      targetChainMicros = targetChainMicros + (long) (shipBytes * dubWork.getMixerOutputMicrosPerByte().orElseThrow());
       if (shippedEnoughSeconds()) {
         doShipOutputFileClose();
       }
@@ -371,7 +372,7 @@ public class ShipWorkImpl implements ShipWork {
    If we are shipped past the target seconds, exit
    */
   boolean shippedEnoughSeconds() {
-    var shippedSeconds = (float) atChainMicros / MICROS_PER_SECOND;
+    var shippedSeconds = (float) targetChainMicros / MICROS_PER_SECOND;
     if (0 == outputSeconds) {
       LOG.info("Shipped {} seconds", String.format("%.1f", shippedSeconds));
       return false;
@@ -422,6 +423,12 @@ public class ShipWorkImpl implements ShipWork {
       case FILE -> Objects.nonNull(outputFile) ? Optional.of(outputFile.getToChainMicros()) : Optional.empty();
     };
   }
+
+  @Override
+  public Optional<Long> getShipTargetChainMicros() {
+    return Optional.of(targetChainMicros);
+  }
+
 
   /**
    Output File

@@ -36,9 +36,11 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
 
   StringProperty outputSecondsProperty();
 
-  StringProperty bufferAheadSecondsProperty();
+  StringProperty craftAheadSecondsProperty();
 
-  StringProperty bufferBeforeSecondsProperty();
+  StringProperty dubAheadSecondsProperty();
+
+  StringProperty shipAheadSecondsProperty();
 
   StringProperty outputChannelsProperty();
 

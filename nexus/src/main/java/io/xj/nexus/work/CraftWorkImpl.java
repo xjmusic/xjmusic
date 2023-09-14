@@ -105,9 +105,6 @@ public class CraftWorkImpl implements CraftWork {
   @Value("${craft.janitor.cycle.seconds}")
   int janitorCycleSeconds;
 
-  @Value("${craft.sync.poll.seconds}")
-  int syncPollSeconds;
-
   @Value("${craft.async.poll.seconds}")
   int asyncPollSeconds;
 
@@ -142,8 +139,7 @@ public class CraftWorkImpl implements CraftWork {
   final boolean isJsonOutputEnabled;
   final String tempFilePathPrefix;
   final Integer jsonExpiresInSeconds;
-  final int bufferAheadSeconds;
-  final int bufferBeforeSeconds;
+  final int craftAheadSeconds;
   final double outputFrameRate;
   final int outputChannels;
 
@@ -171,10 +167,7 @@ public class CraftWorkImpl implements CraftWork {
     boolean isJsonOutputEnabled,
     String tempFilePathPrefix,
     int jsonExpiresInSeconds,
-    int bufferAheadSeconds,
-    int bufferBeforeSeconds,
-    double outputFrameRate,
-    int outputChannels
+    double outputFrameRate, int outputChannels, int craftAheadSeconds
   ) {
     this.craftFactory = craftFactory;
     this.entityFactory = entityFactory;
@@ -191,8 +184,7 @@ public class CraftWorkImpl implements CraftWork {
     this.inputTemplateKey = inputTemplateKey;
     this.isJsonOutputEnabled = isJsonOutputEnabled;
     this.jsonExpiresInSeconds = jsonExpiresInSeconds;
-    this.bufferAheadSeconds = bufferAheadSeconds;
-    this.bufferBeforeSeconds = bufferBeforeSeconds;
+    this.craftAheadSeconds = craftAheadSeconds;
     this.outputFrameRate = outputFrameRate;
     this.outputChannels = outputChannels;
 
@@ -296,7 +288,7 @@ public class CraftWorkImpl implements CraftWork {
 
     // if the end of the current segment is before the threshold, require next segment
     Optional<Segment> nextSegment = Optional.empty();
-    if (Objects.nonNull(firstSegment.getDurationMicros()) && firstSegment.getBeginAtChainMicros() + firstSegment.getDurationMicros() < planToChainMicros + bufferAheadSeconds * MICROS_PER_SECOND) {
+    if (Objects.nonNull(firstSegment.getDurationMicros()) && firstSegment.getBeginAtChainMicros() + firstSegment.getDurationMicros() < planToChainMicros + craftAheadSeconds * MICROS_PER_SECOND) {
       nextSegment = segmentManager.readOneAtChainOffset(currentSegments.get(0).getId() + 1);
       if (nextSegment.isEmpty() || Objects.isNull(nextSegment.get().getDurationMicros()) || !SegmentState.CRAFTED.equals(nextSegment.get().getState())) {
         return List.of();
@@ -305,7 +297,7 @@ public class CraftWorkImpl implements CraftWork {
 
     // if the beginning of the current segment is after the threshold, require previous segment
     Optional<Segment> previousSegment = Optional.empty();
-    if (Objects.nonNull(firstSegment.getDurationMicros()) && firstSegment.getBeginAtChainMicros() + firstSegment.getDurationMicros() < planToChainMicros + bufferAheadSeconds * MICROS_PER_SECOND && currentSegments.get(0).getId() > 0) {
+    if (Objects.nonNull(firstSegment.getDurationMicros()) && firstSegment.getBeginAtChainMicros() + firstSegment.getDurationMicros() < planToChainMicros + craftAheadSeconds * MICROS_PER_SECOND && currentSegments.get(0).getId() > 0) {
       previousSegment = segmentManager.readOneAtChainOffset(currentSegments.get(0).getId() - 1);
       if (previousSegment.isEmpty()) {
         return List.of();
@@ -499,7 +491,7 @@ public class CraftWorkImpl implements CraftWork {
   void runPreview() {
     if (System.currentTimeMillis() > labPollNextSystemMillis) {
       state = WorkState.Loading;
-      labPollNextSystemMillis = System.currentTimeMillis() + syncPollSeconds * MILLIS_PER_SECOND;
+      labPollNextSystemMillis = System.currentTimeMillis() + craftAheadSeconds * MILLIS_PER_SECOND;
       if (maintainPreviewTemplate())
         state = WorkState.Working;
       else {
@@ -640,7 +632,7 @@ public class CraftWorkImpl implements CraftWork {
 
       var templateConfig = getTemplateConfig();
       if (templateConfig.isEmpty()) return;
-      if (aheadSeconds > bufferAheadSeconds) return;
+      if (aheadSeconds > craftAheadSeconds) return;
 
       timer.section("BuildNext");
       Optional<Segment> nextSegment = buildNextSegment(target);
@@ -653,7 +645,7 @@ public class CraftWorkImpl implements CraftWork {
       Fabricator fabricator;
       timer.section("Prepare");
       LOG.debug("[segId={}] will prepare fabricator", segment.getId());
-      fabricator = fabricatorFactory.fabricate(chainSourceMaterial, segment, bufferAheadSeconds, bufferBeforeSeconds, outputFrameRate, outputChannels);
+      fabricator = fabricatorFactory.fabricate(chainSourceMaterial, segment, craftAheadSeconds, outputFrameRate, outputChannels);
 
       timer.section("Craft");
       LOG.debug("[segId={}] will do craft work", segment.getId());

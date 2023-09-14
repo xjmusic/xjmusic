@@ -142,7 +142,7 @@ public class CraftPercLoopProgramVoiceContinueTest {
   @Test
   public void craftPercLoopVoiceContinue_okIfNoPercLoopChoice() throws Exception {
     insertSegments3and4();
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 5, 48000.0, 2);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4, 10, 48000.0, 2);
 
     craftFactory.percLoop(fabricator).doWork();
   }

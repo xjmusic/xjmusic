@@ -56,6 +56,13 @@ public interface WorkFactory {
   Optional<Long> getShippedToChainMicros();
 
   /**
+   Return the current dubbed-to sync chain micros
+
+   @return chain micros, else empty
+   */
+  Optional<Long> getDubbedToChainMicros();
+
+  /**
    Return the current crafted-to chain micros
 
    @return chain micros, else empty
@@ -63,9 +70,9 @@ public interface WorkFactory {
   Optional<Long> getCraftedToChainMicros();
 
   /**
-   Return the current dubbed-to sync chain micros
+   If the current work is realtime, e.g. playback or HLS, return the target chain micros
 
-   @return chain micros, else empty
+   @return chain micros if realtime, else empty
    */
-  Optional<Long> getDubbedToChainMicros();
+  Optional<Long> getShipTargetChainMicros();
 }
