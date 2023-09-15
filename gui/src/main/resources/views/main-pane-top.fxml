@@ -15,7 +15,7 @@
 
     <HBox alignment="CENTER_LEFT" spacing="10">
       <padding>
-        <Insets top="10"/>
+        <Insets top="10" left="10" right="10"/>
       </padding>
       <VBox alignment="CENTER_LEFT" prefHeight="60.0">
         <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
@@ -39,14 +39,11 @@
       </VBox>
     </HBox>
 
-    <HBox alignment="CENTER_LEFT">
+    <HBox alignment="CENTER_LEFT" spacing="10">
       <padding>
         <Insets top="10" left="10" right="10"/>
       </padding>
       <VBox alignment="CENTER_LEFT" prefHeight="60.0">
-        <padding>
-          <Insets right="10" left="10"/>
-        </padding>
         <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Output Mode"
                textAlignment="RIGHT">
           <graphic>
@@ -57,9 +54,6 @@
         <ChoiceBox fx:id="choiceOutputMode" prefHeight="25.0"/>
       </VBox>
       <VBox alignment="CENTER_LEFT" prefHeight="41.0">
-        <padding>
-          <Insets right="10" left="10"/>
-        </padding>
         <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
                text="Output File Mode" textAlignment="RIGHT"
                fx:id="labelOutputFileMode">
@@ -71,9 +65,6 @@
         <ChoiceBox fx:id="choiceOutputFileMode" prefHeight="25.0"/>
       </VBox>
       <VBox alignment="CENTER_LEFT" prefHeight="60">
-        <padding>
-          <Insets right="10" left="10"/>
-        </padding>
         <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
                text="Output File Seconds" textAlignment="RIGHT"
                fx:id="labelOutputSeconds">
@@ -85,9 +76,6 @@
         <TextField fx:id="fieldOutputSeconds" prefHeight="25.0"/>
       </VBox>
       <VBox alignment="CENTER_LEFT" prefHeight="41.0">
-        <padding>
-          <Insets right="10" left="10"/>
-        </padding>
         <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
                text="Output File Path Prefix" textAlignment="RIGHT"
                fx:id="labelOutputPathPrefix">
@@ -100,14 +88,11 @@
       </VBox>
     </HBox>
 
-    <HBox alignment="CENTER_LEFT" prefHeight="41.0">
+    <HBox alignment="CENTER_LEFT" spacing="10" prefHeight="41.0">
       <padding>
         <Insets top="10" left="10" right="10"/>
       </padding>
       <VBox alignment="CENTER_LEFT">
-        <padding>
-          <Insets right="10"/>
-        </padding>
         <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
                text="Output Frame Rate" textAlignment="RIGHT">
           <graphic>
@@ -118,9 +103,6 @@
         <TextField fx:id="fieldOutputFrameRate" prefHeight="25.0"/>
       </VBox>
       <VBox alignment="CENTER_LEFT">
-        <padding>
-          <Insets right="10"/>
-        </padding>
         <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
                text="Output Channels" textAlignment="RIGHT">
           <graphic>
@@ -132,9 +114,6 @@
       </VBox>
       <Pane prefWidth="20" />
       <VBox alignment="CENTER_LEFT">
-        <padding>
-          <Insets right="10" left="10"/>
-        </padding>
         <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
                text="Craft Ahead Seconds" textAlignment="RIGHT">
           <graphic>
@@ -145,9 +124,6 @@
         <TextField fx:id="fieldCraftAheadSeconds" prefHeight="25.0"/>
       </VBox>
       <VBox alignment="CENTER_LEFT">
-        <padding>
-          <Insets right="10"/>
-        </padding>
         <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
                text="Dub Ahead Seconds" textAlignment="RIGHT">
           <graphic>
@@ -158,9 +134,6 @@
         <TextField fx:id="fieldDubAheadSeconds" prefHeight="25.0"/>
       </VBox>
       <VBox alignment="CENTER_LEFT">
-        <padding>
-          <Insets right="10"/>
-        </padding>
         <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
                text="Ship Ahead Seconds" textAlignment="RIGHT">
           <graphic>
