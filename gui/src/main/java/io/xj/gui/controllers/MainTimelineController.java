@@ -198,35 +198,13 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
    */
   void updateSync() {
     var m0 = segments.isEmpty() ? 0 : segments.get(0).getBeginAtChainMicros();
-    var m1 = fabricationService.getWorkFactory().getShippedToChainMicros();
-    var m2 = fabricationService.getWorkFactory().getShipTargetChainMicros();
-    var m3 = fabricationService.getWorkFactory().getDubbedToChainMicros();
-    var m4 = fabricationService.getWorkFactory().getCraftedToChainMicros();
-
-    if (m1.isPresent() && 0 < m1.get()) {
-      timelineRegion1Past.setWidth((m1.get() - m0) / microsPerPixel.get());
-    } else {
-      timelineRegion1Past.setWidth(0);
-    }
-
-    if (m2.isPresent() && 0 < m2.get()) {
-      timelineRegion2Ship.setWidth((m2.get() - m1.orElse(m0)) / microsPerPixel.get());
-    } else {
-      timelineRegion2Ship.setWidth(0);
-    }
-
-    if (m3.isPresent() && 0 < m3.get()) {
-      timelineRegion3Dub.setWidth(
-        (m3.get() - m2.orElse(m1.orElse(m0))) / microsPerPixel.get());
-    } else {
-      timelineRegion3Dub.setWidth(0);
-    }
-
-    if (m4.isPresent() && 0 < m4.get()) {
-      timelineRegion4Craft.setWidth(
-        (m4.get() - m3.orElse(m2.orElse(m1.orElse(m0)))) / microsPerPixel.get());
-    } else {
-      timelineRegion4Craft.setWidth(0);
-    }
+    var m1Past = fabricationService.getWorkFactory().getShippedToChainMicros().orElse(m0);
+    var m2Ship = fabricationService.getWorkFactory().getShipTargetChainMicros().orElse(m1Past);
+    var m3Craft = fabricationService.getWorkFactory().getDubbedToChainMicros().orElse(m2Ship);
+    var m4Dub = fabricationService.getWorkFactory().getCraftedToChainMicros().orElse(m3Craft);
+    timelineRegion1Past.setWidth((m1Past - m0) / microsPerPixel.get());
+    timelineRegion2Ship.setWidth((m2Ship - m1Past) / microsPerPixel.get());
+    timelineRegion3Dub.setWidth((m3Craft - m2Ship) / microsPerPixel.get());
+    timelineRegion4Craft.setWidth((m4Dub - m3Craft) / microsPerPixel.get());
   }
 }

@@ -47,7 +47,7 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
     @Value("classpath:/fonts/RobotoMono-SemiBoldItalic.ttf") Resource fontRobotoMonoSemiBoldItalic,
     @Value("classpath:/fonts/RobotoMono-Thin.ttf") Resource fontRobotoMonoThin,
     @Value("classpath:/fonts/RobotoMono-ThinItalic.ttf") Resource fontRobotoMonoThinItalic,
-    @Value("${gui.debug}") String debug,
+    @Value("${gui.debug:false}") String debug,
     MainController mainController,
     ApplicationContext ac
   ) {

@@ -346,23 +346,28 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   }
 
   @Override
-  public String formatTotalBars(Segment segment, int beats) {
-    return getBarBeats(segment)
+  public String formatTotalBars(Segment segment, @Nullable Integer beats) {
+    return Objects.nonNull(beats)
+      ? getBarBeats(segment)
       .map(barBeats -> formatTotalBars((int) Math.floor((float) beats / barBeats),
         FormatUtils.formatFractionalSuffix((float) (beats % barBeats) / barBeats)))
-      .orElse(String.format("%d beat%s", beats, beats == 1 ? "" : "s"));
+      .orElse(String.format("%d beat%s", beats, beats == 1 ? "" : "s"))
+      : "N/A";
   }
 
   @Override
-  public String formatPositionBarBeats(Segment segment, double position) {
-    return getBarBeats(segment)
-      .map(barBeats -> {
-        var bars = (int) Math.floor(position / barBeats);
-        var beats = (int) Math.floor(position % barBeats);
-        var remaining = beats > 0 ? position % barBeats % beats : 0;
-        return String.format("%d.%d%s", bars + 1, beats + 1, FormatUtils.formatDecimalSuffix(remaining));
-      })
-      .orElse(FormatUtils.formatMinDecimal(position));
+  public String formatPositionBarBeats(Segment segment, @Nullable Double position) {
+    return
+      Objects.nonNull(position) ?
+        getBarBeats(segment)
+          .map(barBeats -> {
+            var bars = (int) Math.floor(position / barBeats);
+            var beats = (int) Math.floor(position % barBeats);
+            var remaining = beats > 0 ? position % barBeats % beats : 0;
+            return String.format("%d.%d%s", bars + 1, beats + 1, FormatUtils.formatDecimalSuffix(remaining));
+          })
+          .orElse(FormatUtils.formatMinDecimal(position))
+        : "N/A";
   }
 
   private String formatTotalBars(int bars, String fraction) {

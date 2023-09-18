@@ -90,7 +90,7 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
 
   Boolean isEmpty();
 
-  String formatTotalBars(Segment segment, int beats);
+  String formatTotalBars(Segment segment, @Nullable Integer beats);
 
-  String formatPositionBarBeats(Segment segment, double position);
+  String formatPositionBarBeats(Segment segment, @Nullable Double position);
 }
