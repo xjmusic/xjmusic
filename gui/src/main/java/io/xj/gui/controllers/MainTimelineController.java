@@ -24,6 +24,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,6 +44,9 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   final double refreshTimelineMillis;
   final long refreshTimelineMicros;
   final SimpleFloatProperty microsPerPixel = new SimpleFloatProperty(0);
+
+  @FXML
+  public ScrollPane scrollpane;
 
   @FXML
   HBox segmentPositionRow;
@@ -216,6 +220,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     if (fabricationService.followPlaybackProperty().getValue()) {
       Platform.runLater(() -> {
         // TODO: Workstation in playback mode has button to auto-scroll timeline https://www.pivotaltracker.com/story/show/186046811
+        scrollpane.setHvalue(timelineRegion1Past.getWidth()/getWidth());
       });
     }
   }
