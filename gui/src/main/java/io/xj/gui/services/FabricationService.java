@@ -9,8 +9,10 @@ import io.xj.nexus.OutputMode;
 import io.xj.nexus.model.*;
 import io.xj.nexus.work.WorkFactory;
 import jakarta.annotation.Nullable;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.concurrent.Worker;
 import javafx.event.EventTarget;
 import javafx.scene.Node;
@@ -93,4 +95,10 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
   String formatTotalBars(Segment segment, @Nullable Integer beats);
 
   String formatPositionBarBeats(Segment segment, @Nullable Double position);
+
+  BooleanProperty followPlaybackProperty();
+
+  ObservableBooleanValue isOutputModeSync();
+
+  ObservableBooleanValue isStatusActive();
 }

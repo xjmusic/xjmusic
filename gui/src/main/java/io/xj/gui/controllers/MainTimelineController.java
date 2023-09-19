@@ -9,6 +9,7 @@ import io.xj.nexus.persistence.SegmentUtils;
 import jakarta.annotation.Nullable;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -33,6 +34,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   private final Integer showMaxSegments;
   private final Integer segmentMinWidth;
   private final Integer segmentHorizontalSpacing;
+  private final Integer autoScrollBehindPixels; // TODO used in configuration for Workstation in playback mode has button to auto-scroll timeline https://www.pivotaltracker.com/story/show/186046811
   final ConfigurableApplicationContext ac;
   final FabricationService fabricationService;
   final LabService labService;
@@ -72,6 +74,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     @Value("${gui.timeline.segment.spacing.horizontal}") Integer segmentSpacingHorizontal,
     @Value("${gui.timeline.segment.width.min}") Integer segmentWidthMin,
     @Value("${gui.timeline.sync.refresh.millis}") Integer refreshSyncMillis,
+    @Value("${gui.timeline.auto.scroll.behind.pixels}") Integer autoScrollBehindPixels,
     ConfigurableApplicationContext ac,
     FabricationService fabricationService,
     LabService labService,
@@ -87,6 +90,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     this.segmentHorizontalSpacing = segmentSpacingHorizontal;
     this.segmentMinWidth = segmentWidthMin;
     this.showMaxSegments = showMaxSegments;
+    this.autoScrollBehindPixels = autoScrollBehindPixels;
   }
 
   @Override
@@ -197,6 +201,9 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
    Called frequently to update the sync (playback position indicator).
    */
   void updateSync() {
+    if (!fabricationService.isStatusActive().get()) {
+      return;
+    }
     var m0 = segments.stream().findFirst().map(Segment::getBeginAtChainMicros).orElse(0L);
     var m1Past = fabricationService.getWorkFactory().getShippedToChainMicros().orElse(m0);
     var m2Ship = fabricationService.getWorkFactory().getShipTargetChainMicros().orElse(m1Past);
@@ -206,5 +213,10 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     timelineRegion2Ship.setWidth((m2Ship - m1Past) / microsPerPixel.get());
     timelineRegion3Dub.setWidth((m3Dub - m2Ship) / microsPerPixel.get());
     timelineRegion4Craft.setWidth((m4Craft - m3Dub) / microsPerPixel.get());
+    if (fabricationService.followPlaybackProperty().getValue()) {
+      Platform.runLater(() -> {
+        // TODO: Workstation in playback mode has button to auto-scroll timeline https://www.pivotaltracker.com/story/show/186046811
+      });
+    }
   }
 }

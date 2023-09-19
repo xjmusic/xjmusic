@@ -11,7 +11,7 @@ public enum OutputMode {
     return this == PLAYBACK || this == FILE;
   }
 
-  public boolean isSync() {
+  public Boolean isSync() {
     return this == HLS || this == PLAYBACK;
   }
 

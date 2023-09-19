@@ -20,25 +20,19 @@
     <HBox alignment="CENTER_LEFT" spacing="9"
           xmlns:fx="http://javafx.com/fxml">
 
-      <Button fx:id="buttonAction" mnemonicParsing="false" onAction="#onButtonActionPress" text="Action">
+      <Button fx:id="buttonAction" mnemonicParsing="false" onAction="#handleButtonActionPress" text="Action">
         <font>
           <Font name="System Bold"/>
         </font>
       </Button>
 
-      <Button onAction="#handleShowFabricationSettings">
+      <ToggleButton fx:id="buttonToggleFollowPlayback" onAction="#handleToggleFollowPlayback" text="Follow" />
+
+      <Button fx:id="buttonShowFabricationSettings" onAction="#handleShowFabricationSettings">
         <graphic>
           <SVGPath styleClass="hamburger-icon" content="M3 6h12v2h-12zM3 11h12v2h-12zM3 16h12v2h-12z"/>
         </graphic>
       </Button>
-
-      <!--
-            <ToggleButton fx:id="toggleFollowPlayback" onAction="#handleShowConfig">
-              <graphic>
-                <SVGPath styleClass="hamburger-icon" content="M3 6h12v2h-12zM3 11h12v2h-12zM3 16h12v2h-12z"/>
-              </graphic>
-            </ToggleButton>
-      -->
 
       <!-- Fabrication Status Text -->
       <Label fx:id="labelFabricationStatus" text="Initializing"/>

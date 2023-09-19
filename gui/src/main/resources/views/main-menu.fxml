@@ -6,7 +6,9 @@
 <?import javafx.scene.layout.VBox?>
 <MenuBar VBox.vgrow="NEVER" xmlns="http://javafx.com/javafx/20.0.1"
          xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.MainMenuController">
-  <Menu text="_Workstation">
+  <Menu text="_Fabrication">
+    <MenuItem fx:id="itemOpenFabricationSettings" onAction="#handleOpenFabricationSettings" text="_Settings"/>
+    <SeparatorMenuItem mnemonicParsing="false"/>
     <MenuItem onAction="#onQuit" text="E_xit"/>
   </Menu>
   <Menu text="_Lab">

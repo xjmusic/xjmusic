@@ -11,6 +11,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.VBox;
 import org.springframework.stereotype.Service;
 
@@ -35,16 +36,22 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   final LabService labService;
 
   @FXML
-  Button buttonAction;
+  protected Button buttonAction;
 
   @FXML
-  Label labelFabricationStatus;
+  protected Label labelFabricationStatus;
 
   @FXML
-  public Button buttonLab;
+  protected Button buttonLab;
 
   @FXML
-  public Label labelLabStatus;
+  protected ToggleButton buttonToggleFollowPlayback;
+
+  @FXML
+  protected Label labelLabStatus;
+
+  @FXML
+  protected Button buttonShowFabricationSettings;
 
   public MainPaneTopController(
     ModalFabricationSettingsController modalFabricationSettingsController,
@@ -63,6 +70,8 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     buttonAction.disableProperty().bind(Bindings.createBooleanBinding(this::isActionButtonActive, fabricationService.statusProperty()).not());
     buttonAction.textProperty().bind(Bindings.createStringBinding(this::computeActionButtonText, fabricationService.statusProperty()));
     fabricationService.statusProperty().addListener(this::handleFabricationStatusChange);
+    buttonToggleFollowPlayback.visibleProperty().bind(fabricationService.isOutputModeSync());
+    buttonShowFabricationSettings.disableProperty().bind(fabricationService.isStatusActive());
 
     labelFabricationStatus.textProperty().bind(fabricationService.statusProperty().map(Enum::toString).map((status) -> String.format("Fabrication %s", status)));
 
@@ -75,7 +84,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   }
 
   @FXML
-  protected void onButtonActionPress() {
+  protected void handleButtonActionPress() {
     switch (fabricationService.statusProperty().get()) {
       case Standby -> start();
       case Active -> stop();
@@ -98,6 +107,11 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   @FXML
   public void handleShowFabricationSettings(ActionEvent ignored) {
     modalFabricationSettingsController.launchModal();
+  }
+
+  @FXML
+  public void handleToggleFollowPlayback(ActionEvent ignored) {
+    buttonToggleFollowPlayback.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
   }
 
   @FXML
