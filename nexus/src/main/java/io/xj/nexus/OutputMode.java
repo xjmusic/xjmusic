@@ -7,15 +7,15 @@ public enum OutputMode {
   PLAYBACK,
   FILE;
 
-  public boolean isLocal() {
+  public Boolean isLocal() {
     return this == PLAYBACK || this == FILE;
   }
 
-  public boolean isSync() {
+  public Boolean isSync() {
     return this == HLS || this == PLAYBACK;
   }
 
-  public boolean isAsync() {
+  public Boolean isAsync() {
     return !this.isSync();
   }
 }
