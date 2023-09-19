@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 @Service
 public class WorkFactoryImpl implements WorkFactory {
@@ -120,7 +121,7 @@ public class WorkFactoryImpl implements WorkFactory {
   @Override
   public boolean start(
     WorkConfiguration configuration,
-    Runnable onDone
+    Consumer<Double> progressUpdateCallback, Runnable onDone
   ) {
     craftWork = new CraftWorkImpl(
       craftFactory,
@@ -167,7 +168,8 @@ public class WorkFactoryImpl implements WorkFactory {
       configuration.getOutputPathPrefix(),
       outputFileNumberDigits,
       pcmChunkSizeBytes,
-      configuration.getShipAheadSeconds()
+      configuration.getShipAheadSeconds(),
+      progressUpdateCallback
     );
 
     LOG.info("Will start");

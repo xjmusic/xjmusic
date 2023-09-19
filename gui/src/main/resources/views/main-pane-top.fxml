@@ -35,6 +35,8 @@
       <!-- Fabrication Status Text -->
       <Label fx:id="labelFabricationStatus" text="Initializing"/>
 
+      <ProgressBar fx:id="progressBarFabrication" prefWidth="100" progress="0.0"/>
+
     </HBox>
     <HBox alignment="CENTER_RIGHT" spacing="10"
           xmlns:fx="http://javafx.com/fxml">

@@ -80,7 +80,11 @@ public class WorkstationServiceApplication {
       .setOutputPathPrefix(outputPathPrefix)
       .setOutputSeconds(outputSeconds);
 
-    workFactory.start(configuration, this::shutdown);
+    workFactory.start(configuration, this::updateProgress, this::shutdown);
+  }
+
+  private void updateProgress(Double aDouble) {
+    // Future: telemetry
   }
 
   void shutdown() {
