@@ -11,8 +11,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.VBox;
 import org.springframework.stereotype.Service;
 
@@ -80,6 +80,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
       fabricationService.statusProperty()));
 
     fabricationService.statusProperty().addListener(this::handleFabricationStatusChange);
+    buttonToggleFollowPlayback.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
     buttonToggleFollowPlayback.visibleProperty().bind(fabricationService.isOutputModeSync());
     buttonShowFabricationSettings.disableProperty().bind(fabricationService.isStatusActive());
 
@@ -123,11 +124,6 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   @FXML
   public void handleShowFabricationSettings(ActionEvent ignored) {
     modalFabricationSettingsController.launchModal();
-  }
-
-  @FXML
-  public void handleToggleFollowPlayback(ActionEvent ignored) {
-    buttonToggleFollowPlayback.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
   }
 
   @FXML

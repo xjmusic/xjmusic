@@ -143,7 +143,7 @@
 }
 
 .toggle-button:selected {
-  -fx-background-color: #17EF1766;
+  -fx-background-color: #99999999;
 }
 
 .button-active {
