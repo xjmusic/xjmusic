@@ -219,15 +219,18 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
       var extraHorizontalPixels = Math.max(0, segmentListView.getWidth() - scrollpane.getWidth());
       var targetOffsetHorizontalPixels = Math.max(0, timelineRegion1Past.getWidth() - autoScrollBehindPixels);
 
-      // if we added or removed, jump to the target position minus our current velocity
-      if (added || removed) {
-        scrollpane.setHvalue((targetOffsetHorizontalPixels - ((MILLIS_PER_MICRO * refreshTimelineMillis) / microsPerPixel.get())) / extraHorizontalPixels);
+      if (fabricationService.isOutputModeSync().getValue()) {
+        // if we added or removed, jump to the target position minus our current velocity
+        if (added || removed) {
+          scrollpane.setHvalue((targetOffsetHorizontalPixels - ((MILLIS_PER_MICRO * refreshTimelineMillis) / microsPerPixel.get())) / extraHorizontalPixels);
+        }
+        KeyValue kv = new KeyValue(scrollpane.hvalueProperty(), targetOffsetHorizontalPixels / extraHorizontalPixels);
+        KeyFrame kf = new KeyFrame(Duration.millis(refreshTimelineMillis), kv);
+        scrollPaneAnimationTimeline.getKeyFrames().add(kf);
+        scrollPaneAnimationTimeline.play();
+      } else {
+        scrollpane.setHvalue(targetOffsetHorizontalPixels / extraHorizontalPixels);
       }
-      KeyValue kv = new KeyValue(scrollpane.hvalueProperty(), targetOffsetHorizontalPixels / extraHorizontalPixels);
-      KeyFrame kf = new KeyFrame(Duration.millis(refreshTimelineMillis), kv);
-      scrollPaneAnimationTimeline.getKeyFrames().add(kf);
-      scrollPaneAnimationTimeline.play();
-
     }
   }
 
