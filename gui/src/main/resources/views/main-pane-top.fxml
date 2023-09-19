@@ -26,6 +26,8 @@
         </font>
       </Button>
 
+      <ToggleButton fx:id="buttonToggleFollowPlayback" text="Follow" />
+
       <Button fx:id="buttonShowFabricationSettings" onAction="#handleShowFabricationSettings">
         <graphic>
           <SVGPath styleClass="hamburger-icon" content="M3 6h12v2h-12zM3 11h12v2h-12zM3 16h12v2h-12z"/>

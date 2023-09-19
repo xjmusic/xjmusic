@@ -8,6 +8,7 @@ import io.xj.nexus.model.Segment;
 import io.xj.nexus.persistence.SegmentUtils;
 import jakarta.annotation.Nullable;
 import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.collections.FXCollections;
@@ -33,6 +34,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   private final Integer showMaxSegments;
   private final Integer segmentMinWidth;
   private final Integer segmentHorizontalSpacing;
+  private final Integer autoScrollBehindPixels;
   final ConfigurableApplicationContext ac;
   final FabricationService fabricationService;
   final LabService labService;
@@ -41,6 +43,10 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   final double refreshTimelineMillis;
   final long refreshTimelineMicros;
   final SimpleFloatProperty microsPerPixel = new SimpleFloatProperty(0);
+  final Timeline scrollPaneAnimationTimeline = new Timeline();
+
+  @FXML
+  public ScrollPane scrollpane;
 
   @FXML
   HBox segmentPositionRow;
@@ -72,6 +78,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     @Value("${gui.timeline.segment.spacing.horizontal}") Integer segmentSpacingHorizontal,
     @Value("${gui.timeline.segment.width.min}") Integer segmentWidthMin,
     @Value("${gui.timeline.sync.refresh.millis}") Integer refreshSyncMillis,
+    @Value("${gui.timeline.auto.scroll.behind.pixels}") Integer autoScrollBehindPixels,
     ConfigurableApplicationContext ac,
     FabricationService fabricationService,
     LabService labService,
@@ -87,6 +94,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     this.segmentHorizontalSpacing = segmentSpacingHorizontal;
     this.segmentMinWidth = segmentWidthMin;
     this.showMaxSegments = showMaxSegments;
+    this.autoScrollBehindPixels = autoScrollBehindPixels;
   }
 
   @Override
@@ -138,6 +146,10 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
       return;
     }
 
+    // keep track of whether we added or removed any segments
+    boolean added = false;
+    boolean removed = false;
+
     // get updated segments and compute updated first id (to clean up segments before that id)
     var updatedSegmentsById = fabricationService.getSegments(showMaxSegments, null).stream().collect(Collectors.toMap(Segment::getId, s -> s));
     int updatedFirstId = NO_ID;
@@ -175,6 +187,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
         if (lastId == NO_ID || s.getId() > lastId) lastId = s.getId();
         segments.add(s);
         segmentListView.getChildren().add(segmentFactory.create(s, microsPerPixel.get(), segmentMinWidth, segmentHorizontalSpacing));
+        added = true;
       }
 
     // remove segments from the beginning of the list if their id is less than the updated first id
@@ -183,6 +196,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
         segments.remove(i);
         segmentListView.getChildren().remove(i);
         i--;
+        removed = true;
       }
 
     // iterate through all in segments, and update if the updated at time has changed from the source matching that id
@@ -191,13 +205,37 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
         segments.set(i, updatedSegmentsById.get(segments.get(i).getId()));
         segmentListView.getChildren().set(i, segmentFactory.create(updatedSegmentsById.get(segments.get(i).getId()), microsPerPixel.get(), segmentMinWidth, segmentHorizontalSpacing));
       }
+
+    // update the sync position before scrolling
+    updateSync();
+
+    // auto-scroll if enabled, animating to the scroll pane position
+    if (fabricationService.followPlaybackProperty().getValue() && 0 < segmentListView.getWidth() && 0 < microsPerPixel.get()) {
+      scrollPaneAnimationTimeline.stop();
+      scrollPaneAnimationTimeline.getKeyFrames().clear();
+
+      segmentListView.layout();
+      scrollpane.layout();
+      var extraHorizontalPixels = Math.max(0, segmentListView.getWidth() - scrollpane.getWidth());
+      var targetOffsetHorizontalPixels = Math.max(0, timelineRegion1Past.getWidth() - autoScrollBehindPixels);
+
+      // if we added or removed, jump to the target position minus our current velocity
+      if (added || removed) {
+        scrollpane.setHvalue((targetOffsetHorizontalPixels - ((MILLIS_PER_MICRO * refreshTimelineMillis) / microsPerPixel.get())) / extraHorizontalPixels);
+      }
+      KeyValue kv = new KeyValue(scrollpane.hvalueProperty(), targetOffsetHorizontalPixels / extraHorizontalPixels);
+      KeyFrame kf = new KeyFrame(Duration.millis(refreshTimelineMillis), kv);
+      scrollPaneAnimationTimeline.getKeyFrames().add(kf);
+      scrollPaneAnimationTimeline.play();
+
+    }
   }
 
   /**
    Called frequently to update the sync (playback position indicator).
    */
   void updateSync() {
-    if (!fabricationService.isStatusActive().get()) {
+    if (!fabricationService.isStatusActive().get() || 0 == microsPerPixel.get()) {
       return;
     }
     var m0 = segments.stream().findFirst().map(Segment::getBeginAtChainMicros).orElse(0L);
