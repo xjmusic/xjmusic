@@ -81,7 +81,6 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
     fabricationService.statusProperty().addListener(this::handleFabricationStatusChange);
     buttonToggleFollowPlayback.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
-    buttonToggleFollowPlayback.visibleProperty().bind(fabricationService.isOutputModeSync());
     buttonShowFabricationSettings.disableProperty().bind(fabricationService.isStatusActive());
 
     labelFabricationStatus.textProperty().bind(fabricationService.statusProperty().map(Enum::toString).map((status) -> String.format("Fabrication %s", status)));
