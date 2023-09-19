@@ -19,10 +19,9 @@ import io.xj.nexus.work.WorkConfiguration;
 import io.xj.nexus.work.WorkFactory;
 import jakarta.annotation.Nullable;
 import javafx.application.HostServices;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.*;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
@@ -56,6 +55,11 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   final StringProperty shipAheadSeconds = new SimpleStringProperty();
   final StringProperty outputFrameRate = new SimpleStringProperty();
   final StringProperty outputChannels = new SimpleStringProperty();
+  final ObservableBooleanValue outputModeSync = Bindings.createBooleanBinding(() ->
+    outputMode.get().isSync(), outputMode);
+  final ObservableBooleanValue statusActive =
+    Bindings.createBooleanBinding(() -> status.get() == FabricationStatus.Active, status);
+
 
   public FabricationServiceImpl(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
@@ -70,7 +74,8 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     @Value("${output.seconds}") Integer defaultOutputSeconds,
     HubClient hubClient,
     WorkFactory workFactory,
-    LabService labService) {
+    LabService labService
+  ) {
     this.hostServices = hostServices;
     this.hubClient = hubClient;
     this.workFactory = workFactory;
@@ -368,6 +373,16 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
           })
           .orElse(FormatUtils.formatMinDecimal(position))
         : "N/A";
+  }
+
+  @Override
+  public ObservableBooleanValue isOutputModeSync() {
+    return outputModeSync;
+  }
+
+  @Override
+  public ObservableBooleanValue isStatusActive() {
+    return statusActive;
   }
 
   private String formatTotalBars(int bars, String fraction) {

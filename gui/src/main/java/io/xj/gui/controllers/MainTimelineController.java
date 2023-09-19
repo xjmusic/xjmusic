@@ -197,6 +197,9 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
    Called frequently to update the sync (playback position indicator).
    */
   void updateSync() {
+    if (!fabricationService.isStatusActive().get()) {
+      return;
+    }
     var m0 = segments.stream().findFirst().map(Segment::getBeginAtChainMicros).orElse(0L);
     var m1Past = fabricationService.getWorkFactory().getShippedToChainMicros().orElse(m0);
     var m2Ship = fabricationService.getWorkFactory().getShipTargetChainMicros().orElse(m1Past);
