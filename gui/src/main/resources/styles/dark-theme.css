@@ -20,8 +20,12 @@
   -fx-background-color: #474747;
 }
 
-.check-menu-item {
+.check-menu-item, .check-menu-item:hover, .check-menu-item:armed, .check-menu-item:focused {
   -fx-focused-mark-color: lightgray;
+}
+
+.separator {
+  -fx-background-color: #3C3C3C;
 }
 
 .label {
@@ -103,10 +107,6 @@
   -fx-fill: #ffffff;
 }
 
-#fabricationConfigView {
-  -fx-background-color: #393939;
-}
-
 .main-timeline,
 .timeline-position-spacer {
   -fx-background-color: #202020;
@@ -158,3 +158,8 @@
 .timeline-position-indicator {
   -fx-background-color: #2e2e2e;
 }
+
+.hamburger-icon {
+  -fx-fill: #fff;
+}
+
