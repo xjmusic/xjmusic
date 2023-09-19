@@ -181,8 +181,6 @@
       <!-- Lab Button -->
       <Button fx:id="buttonLab" onAction="#handleButtonLabPressed" text="Lab" />
 
-
-
     </HBox>
   </HBox>
 </VBox>

@@ -9,7 +9,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 <VBox spacing="10" xmlns="http://javafx.com/javafx/20.0.1"
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.ModalLabConnectionController">
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.ModalLabAuthenticationController">
   <padding>
     <Insets bottom="15" left="15" right="15" top="15"/> <!-- Padding values -->
   </padding>
@@ -23,7 +23,7 @@
     <Pane prefHeight="100.0" prefWidth="15.0"/>
     <TextField fx:id="fieldLabUrl" prefHeight="25.0" prefWidth="275.0"/>
     <Pane layoutX="187.0" layoutY="10.0" prefHeight="100.0" prefWidth="15.0"/>
-    <Button onAction="#handleLaunchLabPreferences" text="Get Access Token"/>
+    <Button onAction="#handleLaunchLabPreferences" text="Get _Access Token"/>
   </HBox>
   <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="640.0">
     <opaqueInsets>
@@ -43,7 +43,7 @@
            text="Status" textAlignment="RIGHT">
     </Label>
     <Pane prefHeight="100.0" prefWidth="15.0"/>
-    <Button fx:id="buttonConnect" onAction="#handleConnect" text="Connect"/>
+    <Button fx:id="buttonConnect" onAction="#handleConnect" text="_Connect"/>
   </HBox>
   <Pane prefHeight="7.0" prefWidth="640.0"/>
   <Separator prefWidth="200.0"/>
@@ -67,6 +67,6 @@
       </Text>
     </VBox>
     <Pane layoutX="192.0" layoutY="10.0" prefHeight="50.0" prefWidth="17.0"/>
-    <Button fx:id="buttonClose" onAction="#handleClose" prefHeight="25.0" prefWidth="56.0" text="OK"/>
+    <Button fx:id="buttonClose" onAction="#handleClose" prefHeight="25.0" prefWidth="56.0" text="_OK"/>
   </HBox>
 </VBox>

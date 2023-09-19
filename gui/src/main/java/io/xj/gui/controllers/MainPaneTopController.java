@@ -36,7 +36,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   final static String BUTTON_TEXT_STOP = "Stop";
   final static String BUTTON_TEXT_RESET = "Reset";
   final FabricationService fabricationService;
-  final ModalLabConnectionController modalLabConnectionController;
+  final ModalLabAuthenticationController modalLabAuthenticationController;
   final LabService labService;
   final BooleanProperty configVisible = new SimpleBooleanProperty(false);
 
@@ -105,10 +105,11 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
   public MainPaneTopController(
     FabricationService fabricationService,
-    ModalLabConnectionController modalLabConnectionController, LabService labService
+    ModalLabAuthenticationController modalLabAuthenticationController,
+    LabService labService
   ) {
     this.fabricationService = fabricationService;
-    this.modalLabConnectionController = modalLabConnectionController;
+    this.modalLabAuthenticationController = modalLabAuthenticationController;
     this.labService = labService;
   }
 
@@ -210,7 +211,11 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
   @FXML
   public void handleButtonLabPressed(ActionEvent ignored) {
-    modalLabConnectionController.launchModal();
+    if (labService.isAuthenticated()) {
+      labService.launchInBrowser();
+    } else {
+      modalLabAuthenticationController.launchModal();
+    }
   }
 
   void updateConfigVisibility() {

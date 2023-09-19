@@ -5,7 +5,6 @@ package io.xj.gui.controllers;
 import io.xj.gui.services.LabService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.VersionService;
-import javafx.application.HostServices;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Service;
 public class ModalAboutController extends ReadyAfterBootModalController {
   static final String ABOUT_WINDOW_NAME = "About";
   final ConfigurableApplicationContext ac;
-  final HostServices hostServices;
   final Resource modalAboutFxml;
   final LabService labService;
   final ThemeService themeService;
@@ -33,7 +31,6 @@ public class ModalAboutController extends ReadyAfterBootModalController {
 
 
   public ModalAboutController(
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
     @Value("classpath:/views/modal-about.fxml") Resource modalAboutFxml,
     ConfigurableApplicationContext ac,
     LabService labService,
@@ -41,7 +38,6 @@ public class ModalAboutController extends ReadyAfterBootModalController {
     VersionService versionService
   ) {
     this.ac = ac;
-    this.hostServices = hostServices;
     this.modalAboutFxml = modalAboutFxml;
     this.labService = labService;
     this.themeService = themeService;

@@ -3,6 +3,7 @@
 package io.xj.gui.services;
 
 import io.xj.hub.tables.pojos.User;
+import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -22,6 +23,7 @@ import java.util.regex.Pattern;
 
 @Service
 public class LabServiceImpl implements LabService {
+  private final HostServices hostServices;
   Logger LOG = LoggerFactory.getLogger(LabServiceImpl.class);
   final WebClient webClient;
   final ObjectProperty<LabStatus> status = new SimpleObjectProperty<>(LabStatus.Offline);
@@ -32,8 +34,10 @@ public class LabServiceImpl implements LabService {
   final ObjectProperty<User> authenticatedUser = new SimpleObjectProperty<>();
 
   public LabServiceImpl(
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
     @Value("${lab.base.url}") String defaultLabBaseUrl
   ) {
+    this.hostServices = hostServices;
     this.baseUrl.set(defaultLabBaseUrl);
     this.webClient = WebClient.builder().build();
     baseUrl.addListener((observable, oldValue, newValue) -> {
@@ -121,5 +125,20 @@ public class LabServiceImpl implements LabService {
   @Override
   public String computeUrl(String path) {
     return String.format("%s%s", baseUrl.get(), rgxStripLeadingSlash.matcher(path).replaceAll(""));
+  }
+
+  @Override
+  public boolean isAuthenticated() {
+    return Objects.equals(status.get(), LabStatus.Authenticated);
+  }
+
+  @Override
+  public void launchPreferencesInBrowser() {
+    hostServices.showDocument(baseUrl.get() + "preferences");
+  }
+
+  @Override
+  public void launchInBrowser() {
+    hostServices.showDocument(baseUrl.get());
   }
 }
