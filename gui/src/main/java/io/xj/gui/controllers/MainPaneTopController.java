@@ -12,6 +12,7 @@ import io.xj.nexus.OutputMode;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -115,35 +116,16 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
   @Override
   public void onStageReady() {
-    buttonAction.disableProperty().bind(Bindings.createBooleanBinding(() ->
-        BUTTON_ACTION_ACTIVE_IN_FABRICATION_STATES.contains(fabricationService.statusProperty().get()),
-      fabricationService.statusProperty()).not());
-
-    buttonAction.textProperty().bind(Bindings.createStringBinding(() ->
-        switch (fabricationService.statusProperty().get()) {
-          case Starting, Standby -> BUTTON_TEXT_START;
-          case Active -> BUTTON_TEXT_STOP;
-          case Cancelled, Failed, Done -> BUTTON_TEXT_RESET;
-        },
-      fabricationService.statusProperty()));
+    buttonAction.disableProperty().bind(Bindings.createBooleanBinding(this::isActionButtonActive, fabricationService.statusProperty()).not());
+    buttonAction.textProperty().bind(Bindings.createStringBinding(this::computeActionButtonText, fabricationService.statusProperty()));
+    fabricationService.statusProperty().addListener(this::handleFabricationStatusChange);
 
     // Input mode is locked in PRODUCTION unless we are connected to a Lab
     choiceInputMode.valueProperty().bindBidirectional(fabricationService.inputModeProperty());
     choiceInputMode.disableProperty().bind(labService.statusProperty().isEqualTo(LabStatus.Authenticated).not());
     labelInputMode.disableProperty().bind(labService.statusProperty().isEqualTo(LabStatus.Authenticated).not());
     choiceInputMode.setItems(FXCollections.observableArrayList(InputMode.PRODUCTION));
-    labService.statusProperty().addListener((observable, oldValue, newValue) -> {
-      if (newValue == LabStatus.Authenticated) {
-        if (choiceInputMode.getItems().size() == 1) {
-          choiceInputMode.getItems().add(InputMode.PREVIEW);
-        }
-      } else {
-        if (choiceInputMode.getItems().size() == 2) {
-          choiceInputMode.getItems().remove(1);
-        }
-        choiceInputMode.setValue(InputMode.PRODUCTION);
-      }
-    });
+    labService.statusProperty().addListener(this::handleLabStatusChange);
     fieldInputTemplateKey.textProperty().bindBidirectional(fabricationService.inputTemplateKeyProperty());
 
     choiceOutputMode.getItems().setAll(OutputMode.values());
@@ -229,6 +211,38 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
       fabricationConfigView.setMinHeight(0);
       fabricationConfigView.setPrefHeight(0);
       fabricationConfigView.setMaxHeight(0);
+    }
+  }
+
+  private void handleFabricationStatusChange(ObservableValue<? extends FabricationStatus> observable, FabricationStatus oldValue, FabricationStatus newValue) {
+    switch (newValue) {
+      case Standby, Failed, Done, Cancelled -> buttonAction.getStyleClass().remove("button-active");
+      case Starting, Active -> buttonAction.getStyleClass().add("button-active");
+    }
+  }
+
+  private String computeActionButtonText() {
+    return switch (fabricationService.statusProperty().get()) {
+      case Starting, Standby -> BUTTON_TEXT_START;
+      case Active -> BUTTON_TEXT_STOP;
+      case Cancelled, Failed, Done -> BUTTON_TEXT_RESET;
+    };
+  }
+
+  private Boolean isActionButtonActive() {
+    return BUTTON_ACTION_ACTIVE_IN_FABRICATION_STATES.contains(fabricationService.statusProperty().get());
+  }
+
+  private void handleLabStatusChange(ObservableValue<? extends LabStatus> observable, LabStatus oldValue, LabStatus newValue) {
+    if (newValue == LabStatus.Authenticated) {
+      if (choiceInputMode.getItems().size() == 1) {
+        choiceInputMode.getItems().add(InputMode.PREVIEW);
+      }
+    } else {
+      if (choiceInputMode.getItems().size() == 2) {
+        choiceInputMode.getItems().remove(1);
+      }
+      choiceInputMode.setValue(InputMode.PRODUCTION);
     }
   }
 }

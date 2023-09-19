@@ -5,6 +5,7 @@
 .root {
   -fx-base: #c0c0c0;
   -fx-background-color: #d0d0d0;
+  -fx-font-family: 'Roboto';
 }
 
 .menu, .menu-bar, .menu, .menu-item, .menu-button, .context-menu {
@@ -139,4 +140,16 @@
 
 .timeline-position-indicator {
   -fx-background-color: #eaeaea;
+}
+
+.hamburger-icon {
+  -fx-fill: #000;
+}
+
+.toggle-button:selected {
+  -fx-background-color: #17EF1766;
+}
+
+.button-active {
+  -fx-background-color: #17EF1766;
 }
