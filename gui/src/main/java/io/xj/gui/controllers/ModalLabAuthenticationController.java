@@ -6,7 +6,6 @@ import io.xj.gui.services.LabService;
 import io.xj.gui.services.LabStatus;
 import io.xj.gui.services.ThemeService;
 import io.xj.hub.tables.pojos.User;
-import javafx.application.HostServices;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -27,20 +26,19 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-public class ModalLabConnectionController extends ReadyAfterBootModalController {
+public class ModalLabAuthenticationController extends ReadyAfterBootModalController {
   static final List<LabStatus> BUTTON_CONNECT_ACTIVE_IN_LAB_STATES = Arrays.asList(
     LabStatus.Authenticated,
     LabStatus.Unauthorized,
     LabStatus.Failed,
     LabStatus.Offline
   );
-  static final String CONNECT_TO_LAB_WINDOW_NAME = "Connect to Lab";
+  static final String CONNECT_TO_LAB_WINDOW_NAME = "Lab Authentication";
   static final String BUTTON_DISCONNECT_TEXT = "Disconnect";
   static final String BUTTON_CONNECT_TEXT = "Connect";
   private static final Integer USER_AVATAR_SIZE = 120;
   final ConfigurableApplicationContext ac;
-  final HostServices hostServices;
-  final Resource modalLabConnectionFxml;
+  final Resource modalLabAuthenticationFxml;
   final LabService labService;
   final ThemeService themeService;
 
@@ -68,16 +66,14 @@ public class ModalLabConnectionController extends ReadyAfterBootModalController 
   @FXML
   Text textUserEmail;
 
-  public ModalLabConnectionController(
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
-    @Value("classpath:/views/modal-lab-connection.fxml") Resource modalLabConnectionFxml,
+  public ModalLabAuthenticationController(
+    @Value("classpath:/views/modal-lab-authentication.fxml") Resource modalLabAuthenticationFxml,
     ConfigurableApplicationContext ac,
     LabService labService,
     ThemeService themeService
   ) {
     this.ac = ac;
-    this.hostServices = hostServices;
-    this.modalLabConnectionFxml = modalLabConnectionFxml;
+    this.modalLabAuthenticationFxml = modalLabAuthenticationFxml;
     this.labService = labService;
     this.themeService = themeService;
   }
@@ -133,7 +129,7 @@ public class ModalLabConnectionController extends ReadyAfterBootModalController 
 
   @FXML
   void handleLaunchLabPreferences() {
-    hostServices.showDocument(labService.baseUrlProperty().get() + "preferences");
+    labService.launchPreferencesInBrowser();
   }
 
   @FXML
@@ -147,6 +143,6 @@ public class ModalLabConnectionController extends ReadyAfterBootModalController 
 
   @Override
   void launchModal() {
-    doLaunchModal(ac, themeService, modalLabConnectionFxml, CONNECT_TO_LAB_WINDOW_NAME);
+    doLaunchModal(ac, themeService, modalLabAuthenticationFxml, CONNECT_TO_LAB_WINDOW_NAME);
   }
 }

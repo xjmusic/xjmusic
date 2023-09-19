@@ -3,12 +3,10 @@ package io.xj.gui.services;
 import io.xj.hub.tables.pojos.User;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
-import javafx.scene.Node;
 import org.springframework.http.HttpMethod;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
-import java.util.UUID;
 
 public interface LabService {
   void connect();
@@ -46,4 +44,21 @@ public interface LabService {
    @return RUL for given path
    */
   String computeUrl(String path);
+
+  /**
+   Get the URL for a path in the app
+
+   @return UUID for the lab
+   */
+  boolean isAuthenticated();
+
+  /**
+   Launch the lab preferences window in a browser
+   */
+  void launchPreferencesInBrowser();
+
+  /**
+    Launch the lab in a browser
+   */
+  void launchInBrowser();
 }

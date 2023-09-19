@@ -197,14 +197,14 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
    Called frequently to update the sync (playback position indicator).
    */
   void updateSync() {
-    var m0 = segments.isEmpty() ? 0 : segments.get(0).getBeginAtChainMicros();
+    var m0 = segments.stream().findFirst().map(Segment::getBeginAtChainMicros).orElse(0L);
     var m1Past = fabricationService.getWorkFactory().getShippedToChainMicros().orElse(m0);
     var m2Ship = fabricationService.getWorkFactory().getShipTargetChainMicros().orElse(m1Past);
-    var m3Craft = fabricationService.getWorkFactory().getDubbedToChainMicros().orElse(m2Ship);
-    var m4Dub = fabricationService.getWorkFactory().getCraftedToChainMicros().orElse(m3Craft);
+    var m3Dub = fabricationService.getWorkFactory().getDubbedToChainMicros().orElse(m2Ship);
+    var m4Craft = fabricationService.getWorkFactory().getCraftedToChainMicros().orElse(m3Dub);
     timelineRegion1Past.setWidth((m1Past - m0) / microsPerPixel.get());
     timelineRegion2Ship.setWidth((m2Ship - m1Past) / microsPerPixel.get());
-    timelineRegion3Dub.setWidth((m3Craft - m2Ship) / microsPerPixel.get());
-    timelineRegion4Craft.setWidth((m4Dub - m3Craft) / microsPerPixel.get());
+    timelineRegion3Dub.setWidth((m3Dub - m2Ship) / microsPerPixel.get());
+    timelineRegion4Craft.setWidth((m4Craft - m3Dub) / microsPerPixel.get());
   }
 }

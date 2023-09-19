@@ -6,21 +6,24 @@
 <?import javafx.scene.layout.VBox?>
 <MenuBar VBox.vgrow="NEVER" xmlns="http://javafx.com/javafx/20.0.1"
          xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.MainMenuController">
-  <Menu mnemonicParsing="false" text="Workstation">
-    <MenuItem mnemonicParsing="false" onAction="#onConnectToLab" text="Connect to Lab"/>
-    <SeparatorMenuItem mnemonicParsing="false"/>
-    <MenuItem mnemonicParsing="false" onAction="#onQuit" text="Exit"/>
+  <Menu text="_Workstation">
+    <MenuItem onAction="#onQuit" text="E_xit"/>
   </Menu>
-  <Menu mnemonicParsing="false" text="View">
-    <CheckMenuItem fx:id="checkboxDarkTheme" mnemonicParsing="false" selected="true" text="Dark Theme"/>
+  <Menu text="_Lab">
+    <MenuItem onAction="#handleLabAuthentication" text="_Authentication"/>
     <SeparatorMenuItem mnemonicParsing="false"/>
-    <CheckMenuItem fx:id="checkboxShowLogs" mnemonicParsing="false" text="Show Logs"/>
-    <CheckMenuItem fx:id="checkboxTailLogs" mnemonicParsing="false" selected="true" text="Logs Auto-scroll" disable="true"/>
+    <MenuItem onAction="#handleLabOpenInBrowser" text="_Open in Browser"/>
   </Menu>
-  <Menu mnemonicParsing="false" text="Help">
-    <MenuItem mnemonicParsing="false" onAction="#onLaunchUserGuide" text="User Guide"/>
+  <Menu text="_View">
+    <CheckMenuItem fx:id="checkboxDarkTheme" selected="true" text="_Dark Theme"/>
     <SeparatorMenuItem mnemonicParsing="false"/>
-    <MenuItem mnemonicParsing="false" onAction="#onPressAbout" text="About"/>
+    <CheckMenuItem fx:id="checkboxShowLogs" text="Show _Logs"/>
+    <CheckMenuItem fx:id="checkboxTailLogs" selected="true" text="Logs Auto-_scroll" disable="true"/>
+  </Menu>
+  <Menu text="_Help">
+    <MenuItem onAction="#onLaunchUserGuide" text="User _Guide"/>
+    <SeparatorMenuItem mnemonicParsing="false"/>
+    <MenuItem onAction="#onPressAbout" text="_About"/>
   </Menu>
 </MenuBar>
 

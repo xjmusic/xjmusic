@@ -2,8 +2,9 @@
 
 package io.xj.gui.controllers;
 
+import io.xj.gui.services.GuideService;
+import io.xj.gui.services.LabService;
 import io.xj.gui.services.ThemeService;
-import javafx.application.HostServices;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
@@ -11,7 +12,6 @@ import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.MenuBar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Service;
@@ -21,12 +21,12 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   Logger LOG = LoggerFactory.getLogger(MainMenuController.class);
   final BooleanProperty logsVisible = new SimpleBooleanProperty(false);
   final BooleanProperty logsTailing = new SimpleBooleanProperty(true);
-  final HostServices hostServices;
   final ConfigurableApplicationContext ac;
-  final String launchGuideUrl;
   final ThemeService themeService;
+  final GuideService guideService;
+  final LabService labService;
   final ModalAboutController modalAboutController;
-  final ModalLabConnectionController modalLabConnectionController;
+  final ModalLabAuthenticationController modalLabAuthenticationController;
 
   @FXML
   protected CheckMenuItem checkboxDarkTheme;
@@ -38,19 +38,19 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   protected CheckMenuItem checkboxTailLogs;
 
   public MainMenuController(
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
-    @Value("${gui.launch.guide.url}") String launchGuideUrl,
     ConfigurableApplicationContext ac,
     ModalAboutController modalAboutController,
-    ModalLabConnectionController modalLabConnectionController,
-    ThemeService themeService
+    ModalLabAuthenticationController modalLabAuthenticationController,
+    ThemeService themeService,
+    GuideService guideService,
+    LabService labService
   ) {
     this.ac = ac;
-    this.hostServices = hostServices;
-    this.launchGuideUrl = launchGuideUrl;
     this.modalAboutController = modalAboutController;
-    this.modalLabConnectionController = modalLabConnectionController;
+    this.modalLabAuthenticationController = modalLabAuthenticationController;
     this.themeService = themeService;
+    this.guideService = guideService;
+    this.labService = labService;
   }
 
   @Override
@@ -75,8 +75,7 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
   @FXML
   protected void onLaunchUserGuide() {
-    LOG.info("Will launch user guide");
-    hostServices.showDocument(launchGuideUrl);
+    guideService.launchGuideInBrowser();
   }
 
   @FXML
@@ -85,8 +84,13 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   }
 
   @FXML
-  protected void onConnectToLab() {
-    modalLabConnectionController.launchModal();
+  protected void handleLabAuthentication() {
+    modalLabAuthenticationController.launchModal();
+  }
+
+  @FXML
+  protected void handleLabOpenInBrowser() {
+    labService.launchInBrowser();
   }
 
   public BooleanProperty logsTailingProperty() {

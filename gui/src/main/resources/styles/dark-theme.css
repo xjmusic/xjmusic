@@ -16,8 +16,12 @@
   -fx-border-color: transparent;
 }
 
-.menu-item:hover, .menu-button:hover {
+.menu-item:hover, .menu-button:hover, .menu-button:focused, .menu-item:focused {
   -fx-background-color: #474747;
+}
+
+.check-menu-item {
+  -fx-focused-mark-color: lightgray;
 }
 
 .label {
