@@ -431,7 +431,10 @@ public class ShipWorkImpl implements ShipWork {
 
   @Override
   public Optional<Long> getShipTargetChainMicros() {
-    return Optional.of(targetChainMicros);
+    return switch (outputMode) {
+      case PLAYBACK, HLS -> Optional.of(targetChainMicros);
+      case FILE -> Objects.nonNull(outputFile) ? Optional.of(outputFile.getToChainMicros()) : Optional.empty();
+    };
   }
 
 
