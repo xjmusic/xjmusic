@@ -46,7 +46,7 @@ public class StreamPlayerImpl implements StreamPlayer {
           while (running.get()) {
             var bytes = queue.poll();
             if (Objects.isNull(bytes)) continue;
-            LOG.info("Playing next {} bytes", bytes.array().length);
+            LOG.debug("Playing next {} bytes", bytes.array().length);
             line.write(bytes.array(), 0, bytes.array().length);
           }
         } finally {
