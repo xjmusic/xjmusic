@@ -7,7 +7,7 @@ public enum OutputMode {
   PLAYBACK,
   FILE;
 
-  public boolean isLocal() {
+  public Boolean isLocal() {
     return this == PLAYBACK || this == FILE;
   }
 
@@ -15,7 +15,7 @@ public enum OutputMode {
     return this == HLS || this == PLAYBACK;
   }
 
-  public boolean isAsync() {
+  public Boolean isAsync() {
     return !this.isSync();
   }
 }
