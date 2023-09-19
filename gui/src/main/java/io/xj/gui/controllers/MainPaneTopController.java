@@ -12,6 +12,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.VBox;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +35,9 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   final ModalFabricationSettingsController modalFabricationSettingsController;
   final ModalLabAuthenticationController modalLabAuthenticationController;
   final LabService labService;
+
+  @FXML
+  protected ProgressBar progressBarFabrication;
 
   @FXML
   protected Button buttonAction;
@@ -67,8 +71,14 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
   @Override
   public void onStageReady() {
-    buttonAction.disableProperty().bind(Bindings.createBooleanBinding(this::isActionButtonActive, fabricationService.statusProperty()).not());
-    buttonAction.textProperty().bind(Bindings.createStringBinding(this::computeActionButtonText, fabricationService.statusProperty()));
+    buttonAction.disableProperty().bind(Bindings.createBooleanBinding(
+      () -> BUTTON_ACTION_ACTIVE_IN_FABRICATION_STATES.contains(fabricationService.statusProperty().get()),
+      fabricationService.statusProperty()).not());
+
+    buttonAction.textProperty().bind(Bindings.createStringBinding(
+      () -> computeActionButtonText(fabricationService.statusProperty().get()),
+      fabricationService.statusProperty()));
+
     fabricationService.statusProperty().addListener(this::handleFabricationStatusChange);
     buttonToggleFollowPlayback.visibleProperty().bind(fabricationService.isOutputModeSync());
     buttonShowFabricationSettings.disableProperty().bind(fabricationService.isStatusActive());
@@ -76,6 +86,12 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     labelFabricationStatus.textProperty().bind(fabricationService.statusProperty().map(Enum::toString).map((status) -> String.format("Fabrication %s", status)));
 
     labelLabStatus.textProperty().bind(labService.statusProperty().map(Enum::toString));
+
+    progressBarFabrication.visibleProperty().bind(Bindings.createBooleanBinding(
+      () -> fabricationService.isStatusActive().get() && fabricationService.isOutputModeFile().get(),
+      fabricationService.statusProperty(), fabricationService.isOutputModeFile()));
+
+    progressBarFabrication.progressProperty().bind(fabricationService.progressProperty());
   }
 
   @Override
@@ -130,15 +146,11 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     }
   }
 
-  private String computeActionButtonText() {
-    return switch (fabricationService.statusProperty().get()) {
+  private String computeActionButtonText(FabricationStatus status) {
+    return switch (status) {
       case Starting, Standby -> BUTTON_TEXT_START;
       case Active -> BUTTON_TEXT_STOP;
       case Cancelled, Failed, Done -> BUTTON_TEXT_RESET;
     };
-  }
-
-  private Boolean isActionButtonActive() {
-    return BUTTON_ACTION_ACTIVE_IN_FABRICATION_STATES.contains(fabricationService.statusProperty().get());
   }
 }

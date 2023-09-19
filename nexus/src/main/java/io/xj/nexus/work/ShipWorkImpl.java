@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
 
@@ -52,11 +53,11 @@ public class ShipWorkImpl implements ShipWork {
   final int outputSeconds;
   final int pcmChunkSizeBytes;
   final int shipAheadSeconds;
+  private final Consumer<Double> progressUpdateCallback;
   final long cycleMillis;
   int outputFileNum = 0;
   long targetChainMicros = 0;
   long nextCycleAtSystemMillis = System.currentTimeMillis();
-  final long initializedAtSystemMillis = System.currentTimeMillis();
 
   public ShipWorkImpl(
     DubWork dubWork,
@@ -70,7 +71,8 @@ public class ShipWorkImpl implements ShipWork {
     String outputPathPrefix,
     int outputFileNumberDigits,
     int pcmChunkSizeBytes,
-    int shipAheadSeconds
+    int shipAheadSeconds,
+    Consumer<Double> progressUpdateCallback
   ) {
     this.broadcastFactory = broadcastFactory;
     this.cycleAudioBytes = cycleAudioBytes;
@@ -84,6 +86,7 @@ public class ShipWorkImpl implements ShipWork {
     this.outputSeconds = outputSeconds;
     this.pcmChunkSizeBytes = pcmChunkSizeBytes;
     this.shipAheadSeconds = shipAheadSeconds;
+    this.progressUpdateCallback = progressUpdateCallback;
   }
 
   @Override
@@ -379,7 +382,9 @@ public class ShipWorkImpl implements ShipWork {
     }
 
     // Finite number-zero number of output seconds has been specified
-    LOG.info("Shipped {} seconds ({})", String.format("%.2f", shippedSeconds), StringUtils.percentage(shippedSeconds / outputSeconds));
+    var progress = shippedSeconds / outputSeconds;
+    progressUpdateCallback.accept((double) (shippedSeconds / outputSeconds));
+    LOG.info("Shipped {} seconds ({})", String.format("%.2f", shippedSeconds), StringUtils.percentage(progress));
 
     // But leave if we have not yet shipped that many seconds
     if (shippedSeconds < outputSeconds) return false;
@@ -426,7 +431,10 @@ public class ShipWorkImpl implements ShipWork {
 
   @Override
   public Optional<Long> getShipTargetChainMicros() {
-    return Optional.of(targetChainMicros);
+    return switch (outputMode) {
+      case PLAYBACK, HLS -> Optional.of(targetChainMicros);
+      case FILE -> Objects.nonNull(outputFile) ? Optional.of(outputFile.getToChainMicros()) : Optional.empty();
+    };
   }
 
 

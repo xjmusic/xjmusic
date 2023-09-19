@@ -20,7 +20,10 @@ import io.xj.nexus.work.WorkFactory;
 import jakarta.annotation.Nullable;
 import javafx.application.HostServices;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.*;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
@@ -58,6 +61,8 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   final BooleanProperty followPlayback = new SimpleBooleanProperty(true);
   final ObservableBooleanValue outputModeSync = Bindings.createBooleanBinding(() ->
     outputMode.get().isSync(), outputMode);
+  final ObservableBooleanValue outputModeFile = Bindings.createBooleanBinding(() ->
+    outputMode.get() == OutputMode.FILE, outputMode);
   final ObservableBooleanValue statusActive =
     Bindings.createBooleanBinding(() -> status.get() == FabricationStatus.Active, status);
 
@@ -117,9 +122,12 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
           .setOutputChannels(Integer.parseInt(outputChannels.get()));
         hubClient.setBaseUrl(labService.baseUrlProperty().getValue());
         hubClient.setAccessToken(labService.accessTokenProperty().getValue());
-        return workFactory.start(configuration, () -> {
-          // no op; the WorkFactory start method blocks, then we rely on the JavaFX Service hooks
-        });
+        return workFactory.start(
+          configuration,
+          (Double ratio) -> updateProgress(ratio, 1.0),
+          () -> {
+            // no op; the WorkFactory start method blocks, then we rely on the JavaFX Service hooks
+          });
       }
     };
   }
@@ -389,6 +397,11 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   @Override
   public ObservableBooleanValue isStatusActive() {
     return statusActive;
+  }
+
+  @Override
+  public ObservableBooleanValue isOutputModeFile() {
+    return outputModeFile;
   }
 
   private String formatTotalBars(int bars, String fraction) {

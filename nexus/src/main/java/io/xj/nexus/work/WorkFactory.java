@@ -6,6 +6,7 @@ import io.xj.hub.HubContent;
 import io.xj.nexus.persistence.SegmentManager;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public interface WorkFactory {
   /**
@@ -13,6 +14,7 @@ public interface WorkFactory {
    */
   boolean start(
     WorkConfiguration configuration,
+    Consumer<Double> progressUpdateCallback,
     Runnable onDone
   );
 

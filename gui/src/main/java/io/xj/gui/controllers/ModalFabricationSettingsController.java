@@ -9,7 +9,6 @@ import io.xj.gui.services.ThemeService;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -26,7 +25,7 @@ import org.springframework.stereotype.Service;
 public class ModalFabricationSettingsController extends ReadyAfterBootModalController {
 
   static final String FABRICATION_SERVICE_WINDOW_NAME = "Fabrication Settings";
-  private final Resource modalFabricationServiceFxml;
+  private final Resource modalFabricationSettingsFxml;
   private final ConfigurableApplicationContext ac;
   private final LabService labService;
   private final FabricationService fabricationService;
@@ -80,13 +79,13 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
   public Button buttonClose;
 
   public ModalFabricationSettingsController(
-    @Value("classpath:/views/modal-fabrication-settings.fxml") Resource modalFabricationServiceFxml,
+    @Value("classpath:/views/modal-fabrication-settings.fxml") Resource modalFabricationSettingsFxml,
     ConfigurableApplicationContext ac,
     LabService labService,
     FabricationService fabricationService,
     ThemeService themeService
   ) {
-    this.modalFabricationServiceFxml = modalFabricationServiceFxml;
+    this.modalFabricationSettingsFxml = modalFabricationSettingsFxml;
     this.ac = ac;
     this.labService = labService;
     this.fabricationService = fabricationService;
@@ -95,12 +94,9 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
 
   @Override
   public void onStageReady() {
-    // Input mode is locked in PRODUCTION unless we are connected to a Lab
-    labService.statusProperty().addListener(this::handleLabStatusChange);
     choiceInputMode.valueProperty().bindBidirectional(fabricationService.inputModeProperty());
     choiceInputMode.disableProperty().bind(labService.statusProperty().isEqualTo(LabStatus.Authenticated).not());
     labelInputMode.disableProperty().bind(labService.statusProperty().isEqualTo(LabStatus.Authenticated).not());
-    choiceInputMode.setItems(FXCollections.observableArrayList(InputMode.PRODUCTION));
     fieldInputTemplateKey.textProperty().bindBidirectional(fabricationService.inputTemplateKeyProperty());
 
     choiceOutputMode.getItems().setAll(OutputMode.values());
@@ -125,6 +121,13 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
     fieldOutputFrameRate.textProperty().bindBidirectional(fabricationService.outputFrameRateProperty());
     fieldOutputChannels.textProperty().bindBidirectional(fabricationService.outputChannelsProperty());
 
+    // Input mode is locked in PRODUCTION unless we are connected to a Lab
+    if (labService.isAuthenticated()) {
+      choiceInputMode.setItems(FXCollections.observableArrayList(InputMode.PREVIEW, InputMode.PRODUCTION));
+    } else {
+      choiceInputMode.setItems(FXCollections.observableArrayList(InputMode.PRODUCTION));
+      choiceInputMode.setValue(InputMode.PRODUCTION);
+    }
   }
 
   @Override
@@ -139,21 +142,8 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
     onStageClose();
   }
 
-  private void handleLabStatusChange(ObservableValue<? extends LabStatus> observable, LabStatus oldValue, LabStatus newValue) {
-    if (newValue == LabStatus.Authenticated) {
-      if (choiceInputMode.getItems().size() == 1) {
-        choiceInputMode.getItems().add(InputMode.PREVIEW);
-      }
-    } else {
-      if (choiceInputMode.getItems().size() == 2) {
-        choiceInputMode.getItems().remove(1);
-      }
-      choiceInputMode.setValue(InputMode.PRODUCTION);
-    }
-  }
-
   @Override
   void launchModal() {
-    doLaunchModal(ac, themeService, modalFabricationServiceFxml, FABRICATION_SERVICE_WINDOW_NAME);
+    doLaunchModal(ac, themeService, modalFabricationSettingsFxml, FABRICATION_SERVICE_WINDOW_NAME);
   }
 }
