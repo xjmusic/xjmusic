@@ -107,10 +107,6 @@
   -fx-fill: #ffffff;
 }
 
-#fabricationConfigView {
-  -fx-background-color: #393939;
-}
-
 .main-timeline,
 .timeline-position-spacer {
   -fx-background-color: #202020;

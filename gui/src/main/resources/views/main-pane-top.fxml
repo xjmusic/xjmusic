@@ -9,143 +9,6 @@
 <?import javafx.scene.text.Font?>
 <VBox xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="io.xj.gui.controllers.MainPaneTopController">
-  <VBox BorderPane.alignment="CENTER" fx:id="fabricationConfigView">
-    <VBox.vgrow>
-      <Priority fx:constant="ALWAYS"/>
-    </VBox.vgrow>
-
-    <HBox alignment="CENTER_LEFT" spacing="10">
-      <padding>
-        <Insets top="10" left="10" right="10"/>
-      </padding>
-      <VBox alignment="CENTER_LEFT" prefHeight="60.0">
-        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
-               text="Input Template ID" textAlignment="RIGHT">
-          <graphic>
-            <Pane prefWidth="15.0"/>
-          </graphic>
-        </Label>
-        <Pane prefWidth="15.0"/>
-        <TextField fx:id="fieldInputTemplateKey" prefWidth="300"/>
-      </VBox>
-      <VBox alignment="CENTER_LEFT" prefHeight="60.0">
-        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Input Mode"
-               textAlignment="RIGHT" fx:id="labelInputMode">
-          <graphic>
-            <Pane prefWidth="15.0"/>
-          </graphic>
-        </Label>
-        <Pane prefWidth="15.0"/>
-        <ChoiceBox fx:id="choiceInputMode" prefWidth="120" prefHeight="25.0"/>
-      </VBox>
-    </HBox>
-
-    <HBox alignment="CENTER_LEFT" spacing="10">
-      <padding>
-        <Insets top="10" left="10" right="10"/>
-      </padding>
-      <VBox alignment="CENTER_LEFT" prefHeight="60.0">
-        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Output Mode"
-               textAlignment="RIGHT">
-          <graphic>
-            <Pane prefWidth="15.0"/>
-          </graphic>
-        </Label>
-        <Pane prefWidth="15.0"/>
-        <ChoiceBox fx:id="choiceOutputMode" prefHeight="25.0"/>
-      </VBox>
-      <VBox alignment="CENTER_LEFT" prefHeight="41.0">
-        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
-               text="Output File Mode" textAlignment="RIGHT"
-               fx:id="labelOutputFileMode">
-          <graphic>
-            <Pane prefWidth="15.0"/>
-          </graphic>
-        </Label>
-        <Pane prefWidth="15.0"/>
-        <ChoiceBox fx:id="choiceOutputFileMode" prefHeight="25.0"/>
-      </VBox>
-      <VBox alignment="CENTER_LEFT" prefHeight="60">
-        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
-               text="Output File Seconds" textAlignment="RIGHT"
-               fx:id="labelOutputSeconds">
-          <graphic>
-            <Pane prefWidth="15.0"/>
-          </graphic>
-        </Label>
-        <Pane prefWidth="15.0"/>
-        <TextField fx:id="fieldOutputSeconds" prefHeight="25.0"/>
-      </VBox>
-      <VBox alignment="CENTER_LEFT" prefHeight="41.0">
-        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
-               text="Output File Path Prefix" textAlignment="RIGHT"
-               fx:id="labelOutputPathPrefix">
-          <graphic>
-            <Pane prefWidth="15.0"/>
-          </graphic>
-        </Label>
-        <Pane prefWidth="15.0"/>
-        <TextField fx:id="fieldOutputPathPrefix" prefHeight="25.0"/>
-      </VBox>
-    </HBox>
-
-    <HBox alignment="CENTER_LEFT" spacing="10" prefHeight="41.0">
-      <padding>
-        <Insets top="10" left="10" right="10"/>
-      </padding>
-      <VBox alignment="CENTER_LEFT">
-        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
-               text="Output Frame Rate" textAlignment="RIGHT">
-          <graphic>
-            <Pane prefWidth="15.0"/>
-          </graphic>
-        </Label>
-        <Pane prefWidth="15.0"/>
-        <TextField fx:id="fieldOutputFrameRate" prefHeight="25.0"/>
-      </VBox>
-      <VBox alignment="CENTER_LEFT">
-        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
-               text="Output Channels" textAlignment="RIGHT">
-          <graphic>
-            <Pane prefWidth="15.0"/>
-          </graphic>
-        </Label>
-        <Pane prefWidth="15.0"/>
-        <TextField fx:id="fieldOutputChannels" prefHeight="25.0"/>
-      </VBox>
-      <Pane prefWidth="20"/>
-      <VBox alignment="CENTER_LEFT">
-        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
-               text="Craft Ahead Seconds" textAlignment="RIGHT">
-          <graphic>
-            <Pane prefWidth="15.0"/>
-          </graphic>
-        </Label>
-        <Pane prefWidth="15.0"/>
-        <TextField fx:id="fieldCraftAheadSeconds" prefHeight="25.0"/>
-      </VBox>
-      <VBox alignment="CENTER_LEFT">
-        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
-               text="Dub Ahead Seconds" textAlignment="RIGHT">
-          <graphic>
-            <Pane prefWidth="15.0"/>
-          </graphic>
-        </Label>
-        <Pane prefWidth="15.0"/>
-        <TextField fx:id="fieldDubAheadSeconds" prefHeight="25.0"/>
-      </VBox>
-      <VBox alignment="CENTER_LEFT">
-        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
-               text="Ship Ahead Seconds" textAlignment="RIGHT">
-          <graphic>
-            <Pane prefWidth="15.0"/>
-          </graphic>
-        </Label>
-        <Pane prefWidth="15.0"/>
-        <TextField fx:id="fieldShipAheadSeconds" prefHeight="25.0"/>
-      </VBox>
-    </HBox>
-  </VBox>
   <HBox alignment="CENTER" styleClass="top-pane-status-container"
         xmlns:fx="http://javafx.com/fxml">
     <HBox.hgrow>
@@ -163,12 +26,19 @@
         </font>
       </Button>
 
-      <!-- Show Config Toggle Switch -->
-      <ToggleButton fx:id="toggleShowConfig" onAction="#toggleShowConfig">
+      <Button onAction="#handleShowFabricationSettings">
         <graphic>
           <SVGPath styleClass="hamburger-icon" content="M3 6h12v2h-12zM3 11h12v2h-12zM3 16h12v2h-12z"/>
         </graphic>
-      </ToggleButton>
+      </Button>
+
+      <!--
+            <ToggleButton fx:id="toggleFollowPlayback" onAction="#handleShowConfig">
+              <graphic>
+                <SVGPath styleClass="hamburger-icon" content="M3 6h12v2h-12zM3 11h12v2h-12zM3 16h12v2h-12z"/>
+              </graphic>
+            </ToggleButton>
+      -->
 
       <!-- Fabrication Status Text -->
       <Label fx:id="labelFabricationStatus" text="Initializing"/>
