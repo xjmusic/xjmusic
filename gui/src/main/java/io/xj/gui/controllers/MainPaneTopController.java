@@ -28,9 +28,6 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     FabricationStatus.Done,
     FabricationStatus.Failed
   );
-  final static String BUTTON_TEXT_START = "Start";
-  final static String BUTTON_TEXT_STOP = "Stop";
-  final static String BUTTON_TEXT_RESET = "Reset";
   final FabricationService fabricationService;
   final ModalFabricationSettingsController modalFabricationSettingsController;
   final ModalLabAuthenticationController modalLabAuthenticationController;
@@ -75,9 +72,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
       () -> BUTTON_ACTION_ACTIVE_IN_FABRICATION_STATES.contains(fabricationService.statusProperty().get()),
       fabricationService.statusProperty()).not());
 
-    buttonAction.textProperty().bind(Bindings.createStringBinding(
-      () -> computeActionButtonText(fabricationService.statusProperty().get()),
-      fabricationService.statusProperty()));
+    buttonAction.textProperty().bind(fabricationService.mainActionButtonTextProperty());
 
     fabricationService.statusProperty().addListener(this::handleFabricationStatusChange);
     buttonToggleFollowPlayback.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
@@ -101,23 +96,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
   @FXML
   protected void handleButtonActionPress() {
-    switch (fabricationService.statusProperty().get()) {
-      case Standby -> start();
-      case Active -> stop();
-      case Cancelled, Done, Failed -> reset();
-    }
-  }
-
-  public void start() {
-    fabricationService.start();
-  }
-
-  public void stop() {
-    fabricationService.cancel();
-  }
-
-  public void reset() {
-    fabricationService.reset();
+    fabricationService.handleMainAction();
   }
 
   @FXML
@@ -139,13 +118,5 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
       case Standby, Failed, Done, Cancelled -> buttonAction.getStyleClass().remove("button-active");
       case Starting, Active -> buttonAction.getStyleClass().add("button-active");
     }
-  }
-
-  private String computeActionButtonText(FabricationStatus status) {
-    return switch (status) {
-      case Starting, Standby -> BUTTON_TEXT_START;
-      case Active -> BUTTON_TEXT_STOP;
-      case Cancelled, Failed, Done -> BUTTON_TEXT_RESET;
-    };
   }
 }

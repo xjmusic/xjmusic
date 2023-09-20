@@ -3,24 +3,56 @@
 <!-- Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved. -->
 
 <?import javafx.scene.control.*?>
+<?import javafx.scene.input.*?>
 <?import javafx.scene.layout.VBox?>
 <MenuBar VBox.vgrow="NEVER" xmlns="http://javafx.com/javafx/20.0.1"
          xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.MainMenuController">
   <Menu text="_Fabrication">
-    <MenuItem fx:id="itemOpenFabricationSettings" onAction="#handleOpenFabricationSettings" text="_Settings"/>
+    <MenuItem fx:id="itemFabricationMainAction" onAction="#handleFabricationMainAction" text="_Start">
+      <accelerator>
+        <KeyCodeCombination code="SPACE" alt="UP" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
+      </accelerator>
+    </MenuItem>
+    <CheckMenuItem fx:id="checkboxFabricationFollow" text="_Follow">
+      <accelerator>
+        <KeyCodeCombination code="SPACE" alt="DOWN" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
+      </accelerator>
+    </CheckMenuItem>
+    <SeparatorMenuItem mnemonicParsing="false"/>
+    <MenuItem fx:id="itemOpenFabricationSettings" onAction="#handleOpenFabricationSettings" text="S_ettings">
+      <accelerator>
+        <KeyCodeCombination code="E" alt="UP" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
+      </accelerator>
+    </MenuItem>
     <SeparatorMenuItem mnemonicParsing="false"/>
     <MenuItem onAction="#onQuit" text="E_xit"/>
   </Menu>
   <Menu text="_Lab">
-    <MenuItem onAction="#handleLabAuthentication" text="_Authentication"/>
+    <MenuItem onAction="#handleLabAuthentication" text="_Authentication">
+      <accelerator>
+        <KeyCodeCombination code="L" alt="UP" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
+      </accelerator>
+    </MenuItem>
     <SeparatorMenuItem mnemonicParsing="false"/>
-    <MenuItem onAction="#handleLabOpenInBrowser" text="_Open in Browser"/>
+    <MenuItem onAction="#handleLabOpenInBrowser" text="_Open in Browser">
+      <accelerator>
+        <KeyCodeCombination code="L" alt="DOWN" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
+      </accelerator>
+    </MenuItem>
   </Menu>
   <Menu text="_View">
     <CheckMenuItem fx:id="checkboxDarkTheme" selected="true" text="_Dark Theme"/>
     <SeparatorMenuItem mnemonicParsing="false"/>
-    <CheckMenuItem fx:id="checkboxShowLogs" text="Show _Logs"/>
-    <CheckMenuItem fx:id="checkboxTailLogs" selected="true" text="Logs Auto-_scroll" disable="true"/>
+    <CheckMenuItem fx:id="checkboxShowLogs" text="Show _Logs">
+      <accelerator>
+        <KeyCodeCombination code="F2" alt="UP" control="UP" meta="UP" shift="UP" shortcut="UP"/>
+      </accelerator>
+    </CheckMenuItem>
+    <CheckMenuItem fx:id="checkboxTailLogs" selected="true" text="Logs Auto-_scroll" disable="true">
+      <accelerator>
+        <KeyCodeCombination code="F2" alt="UP" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
+      </accelerator>
+    </CheckMenuItem>
   </Menu>
   <Menu text="_Help">
     <MenuItem onAction="#onLaunchUserGuide" text="User _Guide"/>

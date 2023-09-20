@@ -13,6 +13,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableBooleanValue;
+import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
 import javafx.event.EventTarget;
 import javafx.scene.Node;
@@ -103,4 +104,18 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
   ObservableBooleanValue isStatusActive();
 
   ObservableBooleanValue isOutputModeFile();
+
+  /**
+   The fabrication service has a main action that can be triggered by the user. This action is
+   dependent on the current status of the service. For example, if the service is currently
+   {@link FabricationStatus#Standby}, then the main action will be to start the fabrication process.
+   */
+  void handleMainAction();
+
+  /**
+   The main action button text is dependent on the current status of the service. For example, if
+    the service is currently {@link FabricationStatus#Standby}, then the main action button text
+    will be "Start".
+   */
+  ObservableValue<String> mainActionButtonTextProperty();
 }

@@ -22,6 +22,7 @@ import javafx.application.HostServices;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableBooleanValue;
+import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
@@ -38,6 +39,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @org.springframework.stereotype.Service
 public class FabricationServiceImpl extends Service<Boolean> implements FabricationService {
   static final Logger LOG = LoggerFactory.getLogger(FabricationServiceImpl.class);
+  final static String BUTTON_TEXT_START = "Start";
+  final static String BUTTON_TEXT_STOP = "Stop";
+  final static String BUTTON_TEXT_RESET = "Reset";
   final HostServices hostServices;
   private final HubClient hubClient;
   final WorkFactory workFactory;
@@ -62,6 +66,12 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     outputMode.get() == OutputMode.FILE, outputMode);
   final ObservableBooleanValue statusActive =
     Bindings.createBooleanBinding(() -> status.get() == FabricationStatus.Active, status);
+  final ObservableValue<String> mainActionButtonText = Bindings.createStringBinding(() ->
+    switch (status.get()) {
+      case Starting, Standby -> BUTTON_TEXT_START;
+      case Active -> BUTTON_TEXT_STOP;
+      case Cancelled, Failed, Done -> BUTTON_TEXT_RESET;
+    }, status);
 
 
   public FabricationServiceImpl(
@@ -399,6 +409,20 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   @Override
   public ObservableBooleanValue isOutputModeFile() {
     return outputModeFile;
+  }
+
+  @Override
+  public void handleMainAction() {
+    switch (status.get()) {
+      case Standby -> start();
+      case Active -> cancel();
+      case Cancelled, Done, Failed -> reset();
+    }
+  }
+
+  @Override
+  public ObservableValue<String> mainActionButtonTextProperty() {
+    return mainActionButtonText;
   }
 
   private String formatTotalBars(int bars, String fraction) {
