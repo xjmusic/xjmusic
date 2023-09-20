@@ -8,6 +8,7 @@ import io.xj.gui.services.LabService;
 import io.xj.gui.services.ThemeService;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.MenuBar;
@@ -31,6 +32,12 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   private final ModalFabricationSettingsController modalFabricationSettingsController;
   final ModalAboutController modalAboutController;
   final ModalLabAuthenticationController modalLabAuthenticationController;
+
+  @FXML
+  protected MenuItem itemFabricationMainAction;
+
+  @FXML
+  protected CheckMenuItem checkboxFabricationFollow;
 
   @FXML
   protected MenuItem itemOpenFabricationSettings;
@@ -71,6 +78,8 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     logsTailing.bindBidirectional(checkboxTailLogs.selectedProperty());
     checkboxTailLogs.disableProperty().bind(logsVisible.not());
     itemOpenFabricationSettings.disableProperty().bind(fabricationService.isStatusActive());
+    itemFabricationMainAction.textProperty().bind(fabricationService.mainActionButtonTextProperty().map((s) -> String.format("_%s", s)));
+    checkboxFabricationFollow.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
   }
 
   @Override
@@ -116,5 +125,10 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
   public BooleanProperty logsVisibleProperty() {
     return logsVisible;
+  }
+
+  @FXML
+  public void handleFabricationMainAction(ActionEvent ignored) {
+    fabricationService.handleMainAction();
   }
 }
