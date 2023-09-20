@@ -111,9 +111,7 @@ public class DubAudioCacheImpl implements DubAudioCache {
 
     // Check if the audio file has the target frame rate
     var currentFormat = getAudioFormat(tempPath);
-    if (currentFormat.getFrameRate() != targetFrameRate
-      || currentFormat.getChannels() != targetChannels
-      || currentFormat.getSampleSizeInBits() != targetSampleBits) {
+    if (currentFormat.getFrameRate() != targetFrameRate) {
       LOG.debug("Will resample audio file to {}Hz {}-bit {}-channel", targetFrameRate, targetSampleBits, targetChannels);
       FFmpegUtils.resampleAudio(tempPath, targetPath, targetFrameRate, targetSampleBits, targetChannels);
     } else {
