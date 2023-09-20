@@ -241,7 +241,8 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     if (!fabricationService.isStatusActive().get() || 0 == microsPerPixel.get()) {
       return;
     }
-    var m0 = segments.stream().findFirst().map(Segment::getBeginAtChainMicros).orElse(0L);
+    var firstVisibleSegment = fabricationService.getSegments(showMaxSegments, null).stream().findFirst();
+    var m0 = firstVisibleSegment.map(Segment::getBeginAtChainMicros).orElse(0L);
     var m1Past = fabricationService.getWorkFactory().getShippedToChainMicros().orElse(m0);
     var m2Ship = fabricationService.getWorkFactory().getShipTargetChainMicros().orElse(m1Past);
     var m3Dub = fabricationService.getWorkFactory().getDubbedToChainMicros().orElse(m2Ship);
