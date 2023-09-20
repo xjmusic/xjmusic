@@ -141,7 +141,7 @@ jpackage {
   dependsOn("copyResources")
   appName = "XJ music workstation"
   appVersion = version.toString()
-  vendor = "XJMusic"
+  vendor = "XJ Music Inc"
   copyright = "Copyright (c) 2023 " + vendor
   //take our input files from our working directory
   input = workingDir.toString()
@@ -149,6 +149,8 @@ jpackage {
   mainJar = tasks.bootJar.archiveFileName.get()
   //output the installer in the working directory
   destination = workingDir.toString()
+  // future: resourceDir = workingDir.toString()
+  temp = "$buildDir/jpackage-temp"
   //for the jlink options these are passed as default , so no need to add them :
   // [--strip-native-commands --strip-debug --no-man-pages --no-header-files]
   mac {
