@@ -32,6 +32,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class FabricationServiceImplTest {
+  Integer defaultTimelineSegmentViewLimit = 10;
   Integer defaultCraftAheadSeconds = 5;
   Integer defaultDubAheadSeconds = 5;
   Integer defaultShipAheadSeconds = 5;
@@ -74,6 +75,7 @@ class FabricationServiceImplTest {
     );
     subject = new FabricationServiceImpl(
       hostServices,
+      defaultTimelineSegmentViewLimit,
       defaultCraftAheadSeconds,
       defaultDubAheadSeconds,
       defaultShipAheadSeconds,

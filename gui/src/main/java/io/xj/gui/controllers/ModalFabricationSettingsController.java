@@ -16,6 +16,7 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import javafx.util.converter.IntegerStringConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
@@ -30,6 +31,7 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
   private final LabService labService;
   private final FabricationService fabricationService;
   private final ThemeService themeService;
+
   @FXML
   TextField fieldInputTemplateKey;
 
@@ -76,6 +78,9 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
   TextField fieldOutputFrameRate;
 
   @FXML
+  TextField fieldTimelineSegmentViewLimit;
+
+  @FXML
   public Button buttonClose;
 
   public ModalFabricationSettingsController(
@@ -120,6 +125,8 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
     fieldShipAheadSeconds.textProperty().bindBidirectional(fabricationService.shipAheadSecondsProperty());
     fieldOutputFrameRate.textProperty().bindBidirectional(fabricationService.outputFrameRateProperty());
     fieldOutputChannels.textProperty().bindBidirectional(fabricationService.outputChannelsProperty());
+
+    fieldTimelineSegmentViewLimit.textProperty().bindBidirectional(fabricationService.timelineSegmentViewLimitProperty());
 
     // Input mode is locked in PRODUCTION unless we are connected to a Lab
     if (labService.isAuthenticated()) {

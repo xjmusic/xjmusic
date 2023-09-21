@@ -59,6 +59,9 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   final StringProperty shipAheadSeconds = new SimpleStringProperty();
   final StringProperty outputFrameRate = new SimpleStringProperty();
   final StringProperty outputChannels = new SimpleStringProperty();
+
+  final StringProperty timelineSegmentViewLimit = new SimpleStringProperty();
+  final IntegerProperty timelineSegmentViewLimitInteger = new SimpleIntegerProperty();
   final BooleanProperty followPlayback = new SimpleBooleanProperty(true);
   final ObservableBooleanValue outputModeSync = Bindings.createBooleanBinding(() ->
     outputMode.get().isSync(), outputMode);
@@ -76,6 +79,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
 
   public FabricationServiceImpl(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
+    @Value("${gui.timeline.max.segments}") int defaultTimelineSegmentViewLimit,
     @Value("${craft.ahead.seconds}") Integer defaultCraftAheadSeconds,
     @Value("${dub.ahead.seconds}") Integer defaultDubAheadSeconds,
     @Value("${ship.ahead.seconds}") Integer defaultShipAheadSeconds,
@@ -104,6 +108,8 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     outputMode.set(OutputMode.valueOf(defaultOutputMode.toUpperCase(Locale.ROOT)));
     outputPathPrefix.set(System.getProperty("user.home") + File.separator);
     outputSeconds.set(Integer.toString(defaultOutputSeconds));
+    timelineSegmentViewLimit.set(Integer.toString(defaultTimelineSegmentViewLimit));
+    timelineSegmentViewLimitInteger.bind(Bindings.createIntegerBinding(() -> Integer.parseInt(timelineSegmentViewLimit.get()), timelineSegmentViewLimit));
     setOnCancelled((WorkerStateEvent ignored) -> status.set(FabricationStatus.Cancelled));
     setOnFailed((WorkerStateEvent ignored) -> status.set(FabricationStatus.Failed));
     setOnReady((WorkerStateEvent ignored) -> status.set(FabricationStatus.Standby));
@@ -190,6 +196,11 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   @Override
   public StringProperty outputFrameRateProperty() {
     return outputFrameRate;
+  }
+
+  @Override
+  public StringProperty timelineSegmentViewLimitProperty() {
+    return timelineSegmentViewLimit;
   }
 
   public WorkFactory getWorkFactory() {
@@ -348,10 +359,10 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   }
 
   @Override
-  public List<Segment> getSegments(int length, @Nullable Integer startIndex) {
+  public List<Segment> getSegments(@Nullable Integer startIndex) {
     try {
-      var from = Objects.nonNull(startIndex) ? startIndex : Math.max(0, workFactory.getSegmentManager().size() - length);
-      var to = Math.min(workFactory.getSegmentManager().size() - 1, from + length);
+      var from = Objects.nonNull(startIndex) ? startIndex : Math.max(0, workFactory.getSegmentManager().size() - timelineSegmentViewLimitInteger.get());
+      var to = Math.min(workFactory.getSegmentManager().size() - 1, from + timelineSegmentViewLimitInteger.get());
       return workFactory
         .getSegmentManager()
         .readManyFromToOffset(from, to);

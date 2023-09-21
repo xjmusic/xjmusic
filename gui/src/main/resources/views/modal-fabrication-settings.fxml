@@ -18,14 +18,14 @@
     <Insets bottom="15" left="15" right="15" top="15" /> <!-- Padding values -->
   </padding>
 
-  <VBox BorderPane.alignment="CENTER">
+  <VBox BorderPane.alignment="CENTER" spacing="10">
     <VBox.vgrow>
       <Priority fx:constant="ALWAYS" />
     </VBox.vgrow>
 
-    <HBox alignment="CENTER_LEFT" spacing="10">
+    <HBox alignment="CENTER_LEFT" prefHeight="60" spacing="10">
       <padding>
-        <Insets left="10" right="10" top="10" />
+        <Insets left="10" right="10" />
       </padding>
       <VBox alignment="CENTER_LEFT" prefHeight="60.0">
         <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Input Template ID" textAlignment="RIGHT">
@@ -47,9 +47,9 @@
       </VBox>
     </HBox>
 
-    <HBox alignment="CENTER_LEFT" spacing="10">
+    <HBox alignment="CENTER_LEFT" prefHeight="60" spacing="10">
       <padding>
-        <Insets left="10" right="10" top="10" />
+        <Insets left="10" right="10" />
       </padding>
       <VBox alignment="CENTER_LEFT" prefHeight="60.0">
         <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Output Mode" textAlignment="RIGHT">
@@ -89,9 +89,9 @@
       </VBox>
     </HBox>
 
-    <HBox alignment="CENTER_LEFT" prefHeight="41.0" spacing="10">
+    <HBox alignment="CENTER_LEFT" prefHeight="60" spacing="10">
       <padding>
-        <Insets left="10" right="10" top="10" />
+        <Insets left="10" right="10" />
       </padding>
       <VBox alignment="CENTER_LEFT">
         <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Output Frame Rate" textAlignment="RIGHT">
@@ -138,6 +138,21 @@
         </Label>
         <Pane prefWidth="15.0" />
         <TextField fx:id="fieldShipAheadSeconds" prefHeight="25.0" />
+      </VBox>
+    </HBox>
+
+    <HBox alignment="CENTER_LEFT" prefHeight="60" spacing="10">
+      <padding>
+        <Insets left="10" right="10" />
+      </padding>
+      <VBox alignment="CENTER_LEFT">
+        <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Timeline Segment View Limit" textAlignment="RIGHT">
+          <graphic>
+            <Pane prefWidth="15.0" />
+          </graphic>
+        </Label>
+        <Pane prefWidth="15.0" />
+        <TextField fx:id="fieldTimelineSegmentViewLimit" prefHeight="25.0" />
       </VBox>
     </HBox>
   </VBox>

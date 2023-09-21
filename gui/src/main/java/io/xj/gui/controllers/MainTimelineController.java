@@ -31,7 +31,6 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   private static final int NO_ID = -1;
   private static final Long MILLIS_PER_MICRO = 1000L;
   private final Integer refreshSyncMillis;
-  private final Integer showMaxSegments;
   private final Integer segmentMinWidth;
   private final Integer segmentHorizontalSpacing;
   private final Integer autoScrollBehindPixels;
@@ -73,7 +72,6 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   Timeline refreshSync;
 
   public MainTimelineController(
-    @Value("${gui.timeline.max.segments}") Integer showMaxSegments,
     @Value("${gui.timeline.refresh.millis}") Integer refreshTimelineMillis,
     @Value("${gui.timeline.segment.spacing.horizontal}") Integer segmentSpacingHorizontal,
     @Value("${gui.timeline.segment.width.min}") Integer segmentWidthMin,
@@ -93,7 +91,6 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     this.refreshTimelineMillis = refreshTimelineMillis;
     this.segmentHorizontalSpacing = segmentSpacingHorizontal;
     this.segmentMinWidth = segmentWidthMin;
-    this.showMaxSegments = showMaxSegments;
     this.autoScrollBehindPixels = autoScrollBehindPixels;
   }
 
@@ -151,7 +148,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     boolean removed = false;
 
     // get updated segments and compute updated first id (to clean up segments before that id)
-    var updatedSegmentsById = fabricationService.getSegments(showMaxSegments, null).stream().collect(Collectors.toMap(Segment::getId, s -> s));
+    var updatedSegmentsById = fabricationService.getSegments(null).stream().collect(Collectors.toMap(Segment::getId, s -> s));
     int updatedFirstId = NO_ID;
     for (Segment s : updatedSegmentsById.values()) {
       if (updatedFirstId == NO_ID || s.getId() < updatedFirstId) updatedFirstId = s.getId();
@@ -241,7 +238,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     if (!fabricationService.isStatusActive().get() || 0 == microsPerPixel.get()) {
       return;
     }
-    var firstVisibleSegment = fabricationService.getSegments(showMaxSegments, null).stream().findFirst();
+    var firstVisibleSegment = fabricationService.getSegments(null).stream().findFirst();
     var m0 = firstVisibleSegment.map(Segment::getBeginAtChainMicros).orElse(0L);
     var m1Past = fabricationService.getWorkFactory().getShippedToChainMicros().orElse(m0);
     var m2Ship = fabricationService.getWorkFactory().getShipTargetChainMicros().orElse(m1Past);
