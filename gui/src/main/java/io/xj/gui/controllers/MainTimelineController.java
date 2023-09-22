@@ -201,6 +201,10 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
         }
     }
 
+    // Recompute the width of the timeline
+    segmentListView.layout();
+    scrollpane.layout();
+
     // update the sync position before scrolling
     updateSync();
 
@@ -209,8 +213,6 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
       scrollPaneAnimationTimeline.stop();
       scrollPaneAnimationTimeline.getKeyFrames().clear();
 
-      segmentListView.layout();
-      scrollpane.layout();
       var extraHorizontalPixels = Math.max(0, segmentListView.getWidth() - scrollpane.getWidth());
       var targetOffsetHorizontalPixels = Math.max(0, timelineRegion1Past.getWidth() - autoScrollBehindPixels);
 

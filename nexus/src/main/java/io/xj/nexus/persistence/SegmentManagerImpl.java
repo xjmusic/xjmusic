@@ -16,10 +16,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Stream;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.hub.util.ValueUtils.formatIso8601UTC;
 
 /**
  Nexus Managers are Singletons unless some other requirement changes that-- 'cuz here be cyclic dependencies...
@@ -293,6 +295,9 @@ public class SegmentManagerImpl implements SegmentManager {
 
       // Never change id
       segment.setId(segmentId);
+
+      // Updated at is always now
+      segment.setUpdatedAt(formatIso8601UTC(Instant.now()));
 
       // save segment
       store.put(segment);
