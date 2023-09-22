@@ -30,7 +30,6 @@ import java.util.Objects;
 public class MainTimelineController extends ScrollPane implements ReadyAfterBootController {
   private static final Long MILLIS_PER_MICRO = 1000L;
   private static final Integer NO_ID = -1;
-  private final Integer refreshSyncMillis;
   private final Integer segmentMinWidth;
   private final Integer segmentHorizontalSpacing;
   private final Integer autoScrollBehindPixels;
@@ -68,14 +67,10 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   @Nullable
   Timeline refreshTimeline;
 
-  @Nullable
-  Timeline refreshSync;
-
   public MainTimelineController(
     @Value("${gui.timeline.refresh.millis}") Integer refreshTimelineMillis,
     @Value("${gui.timeline.segment.spacing.horizontal}") Integer segmentSpacingHorizontal,
     @Value("${gui.timeline.segment.width.min}") Integer segmentWidthMin,
-    @Value("${gui.timeline.sync.refresh.millis}") Integer refreshSyncMillis,
     @Value("${gui.timeline.auto.scroll.behind.pixels}") Integer autoScrollBehindPixels,
     ConfigurableApplicationContext ac,
     FabricationService fabricationService,
@@ -86,7 +81,6 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     this.fabricationService = fabricationService;
     this.labService = labService;
     this.segmentFactory = segmentFactory;
-    this.refreshSyncMillis = refreshSyncMillis;
     this.refreshTimelineMicros = refreshTimelineMillis * MILLIS_PER_MICRO;
     this.refreshTimelineMillis = refreshTimelineMillis;
     this.segmentHorizontalSpacing = segmentSpacingHorizontal;
@@ -99,25 +93,12 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     refreshTimeline = new Timeline(
       new KeyFrame(
         Duration.millis(refreshTimelineMillis),
-        event -> {
-          updateTimeline();
-          updateSync();
-        }
+        event -> updateTimeline()
       )
     );
     refreshTimeline.setCycleCount(Timeline.INDEFINITE);
     refreshTimeline.setRate(1.0);
     refreshTimeline.play();
-
-    refreshSync = new Timeline(
-      new KeyFrame(
-        Duration.millis(refreshSyncMillis),
-        event -> updateSync()
-      )
-    );
-    refreshSync.setCycleCount(Timeline.INDEFINITE);
-    refreshSync.setRate(1.0);
-    refreshSync.play();
 
     segmentListView.setSpacing(segmentHorizontalSpacing);
     segmentListView.setPadding(new Insets(0, segmentMinWidth * 3, 0, segmentHorizontalSpacing));
@@ -127,9 +108,6 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   public void onStageClose() {
     if (Objects.nonNull(refreshTimeline)) {
       refreshTimeline.stop();
-    }
-    if (Objects.nonNull(refreshSync)) {
-      refreshSync.stop();
     }
   }
 
@@ -205,14 +183,12 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     segmentListView.layout();
     scrollpane.layout();
 
-    // update the sync position before scrolling
-    updateSync();
+    // Reset the animation timeline
+    scrollPaneAnimationTimeline.stop();
+    scrollPaneAnimationTimeline.getKeyFrames().clear();
 
     // auto-scroll if enabled, animating to the scroll pane position
     if (fabricationService.followPlaybackProperty().getValue() && 0 < segmentListView.getWidth() && 0 < microsPerPixel.get()) {
-      scrollPaneAnimationTimeline.stop();
-      scrollPaneAnimationTimeline.getKeyFrames().clear();
-
       var extraHorizontalPixels = Math.max(0, segmentListView.getWidth() - scrollpane.getWidth());
       var targetOffsetHorizontalPixels = Math.max(0, timelineRegion1Past.getWidth() - autoScrollBehindPixels);
 
@@ -223,29 +199,29 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
         }
         scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
           new KeyValue(scrollpane.hvalueProperty(), targetOffsetHorizontalPixels / extraHorizontalPixels)));
-        scrollPaneAnimationTimeline.play();
       } else {
         scrollpane.setHvalue(targetOffsetHorizontalPixels / extraHorizontalPixels);
       }
     }
-  }
 
-  /**
-   Called frequently to update the sync (playback position indicator).
-   */
-  void updateSync() {
-    if (!fabricationService.isStatusActive().get() || 0 == microsPerPixel.get()) {
-      return;
+    if (fabricationService.isStatusActive().get() && 0 < microsPerPixel.get()) {
+      var firstVisibleSegment = fabricationService.getSegments(null).stream().findFirst();
+      var m0 = firstVisibleSegment.map(Segment::getBeginAtChainMicros).orElse(0L);
+      var m1Past = fabricationService.getWorkFactory().getShippedToChainMicros().orElse(m0);
+      var m2Ship = fabricationService.getWorkFactory().getShipTargetChainMicros().orElse(m1Past);
+      var m3Dub = fabricationService.getWorkFactory().getDubbedToChainMicros().orElse(m2Ship);
+      var m4Craft = fabricationService.getWorkFactory().getCraftedToChainMicros().orElse(m3Dub);
+      scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
+        new KeyValue(timelineRegion1Past.widthProperty(), (m1Past - m0) / microsPerPixel.get())));
+      scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
+        new KeyValue(timelineRegion2Ship.widthProperty(), (m2Ship - m1Past) / microsPerPixel.get())));
+      scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
+        new KeyValue(timelineRegion3Dub.widthProperty(), (m3Dub - m2Ship) / microsPerPixel.get())));
+      scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
+        new KeyValue(timelineRegion4Craft.widthProperty(), (m4Craft - m3Dub) / microsPerPixel.get())));
     }
-    var firstVisibleSegment = fabricationService.getSegments(null).stream().findFirst();
-    var m0 = firstVisibleSegment.map(Segment::getBeginAtChainMicros).orElse(0L);
-    var m1Past = fabricationService.getWorkFactory().getShippedToChainMicros().orElse(m0);
-    var m2Ship = fabricationService.getWorkFactory().getShipTargetChainMicros().orElse(m1Past);
-    var m3Dub = fabricationService.getWorkFactory().getDubbedToChainMicros().orElse(m2Ship);
-    var m4Craft = fabricationService.getWorkFactory().getCraftedToChainMicros().orElse(m3Dub);
-    timelineRegion1Past.setWidth((m1Past - m0) / microsPerPixel.get());
-    timelineRegion2Ship.setWidth((m2Ship - m1Past) / microsPerPixel.get());
-    timelineRegion3Dub.setWidth((m3Dub - m2Ship) / microsPerPixel.get());
-    timelineRegion4Craft.setWidth((m4Craft - m3Dub) / microsPerPixel.get());
+
+    // play the next leg of the animation timeline
+    scrollPaneAnimationTimeline.play();
   }
 }
