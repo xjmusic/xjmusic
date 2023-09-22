@@ -10,6 +10,7 @@ import jakarta.annotation.Nullable;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -108,9 +109,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
 
   @Override
   public void onStageClose() {
-    if (Objects.nonNull(refreshTimeline)) {
-      refreshTimeline.stop();
-    }
+    stopTimelineAnimation();
   }
 
   /**
@@ -120,6 +119,11 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     if (fabricationService.isEmpty()) {
       segments.clear();
       segmentListView.getChildren().clear();
+      return;
+    }
+
+    // If we aren't active, none of the rest of this matters
+    if (!fabricationService.isStatusActive().getValue()) {
       return;
     }
 
@@ -134,6 +138,9 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
 
     // update the micros per pixel if it has changed
     float updatedMicrosPerPixel = (float) updatedDurationMinMicros / segmentMinWidth;
+    if (updatedMicrosPerPixel == 0) {
+      return;
+    }
     if (updatedMicrosPerPixel != microsPerPixel.get()) {
       microsPerPixel.set(updatedMicrosPerPixel);
       // clear the segments and segment list view -- see note below about why we are using this inefficient code
@@ -177,16 +184,48 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     segmentListView.layout();
     scrollpane.layout();
 
+    // Run the animation update later to wait for the layout to update
+    Platform.runLater(this::updateTimelineAnimation);
+  }
+
+  private void updateTimelineAnimation() {
     // Reset the animation timeline
     scrollPaneAnimationTimeline.stop();
     scrollPaneAnimationTimeline.getKeyFrames().clear();
 
+    var m0 = segments.stream().findFirst().map(Segment::getBeginAtChainMicros).orElse(0L);
+    var m1Past = fabricationService.getWorkFactory().getShippedToChainMicros().orElse(m0);
+    var m2Ship = fabricationService.getWorkFactory().getShipTargetChainMicros().orElse(m1Past);
+    var m3Dub = fabricationService.getWorkFactory().getDubbedToChainMicros().orElse(m2Ship);
+    var m4Craft = fabricationService.getWorkFactory().getCraftedToChainMicros().orElse(m3Dub);
+
+    // This gets re-used for the follow position as well as past timeline width
+    var pastTimelineWidth = (m1Past - m0) / microsPerPixel.get();
+
+    // like the scroll pane target position, the past region is always moving at a predictable rate,
+    // so we set its initial position as well as animation its target, which smooths over some
+    // jumpiness caused by adding or removing segments to the list.
+    timelineRegion1Past.setWidth(pastTimelineWidth - MILLIS_PER_MICRO * refreshTimelineMillis / microsPerPixel.get());
+    scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
+      new KeyValue(timelineRegion1Past.widthProperty(), pastTimelineWidth)));
+
+    // the rest of these widths are always animated
+    scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
+      new KeyValue(timelineRegion2Ship.widthProperty(), (m2Ship - m1Past) / microsPerPixel.get())));
+    scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
+      new KeyValue(timelineRegion3Dub.widthProperty(), (m3Dub - m2Ship) / microsPerPixel.get())));
+    scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
+      new KeyValue(timelineRegion4Craft.widthProperty(), (m4Craft - m3Dub) / microsPerPixel.get())));
+
     // auto-scroll if enabled, animating to the scroll pane position
-    if (fabricationService.followPlaybackProperty().getValue() && 0 < segmentListView.getWidth() && 0 < microsPerPixel.get()) {
+    if (fabricationService.followPlaybackProperty().getValue() && 0 < segmentListView.getWidth()) {
       var extraHorizontalPixels = Math.max(0, segmentListView.getWidth() - scrollpane.getWidth());
-      var targetOffsetHorizontalPixels = Math.max(0, timelineRegion1Past.getWidth() - autoScrollBehindPixels);
+      var targetOffsetHorizontalPixels = Math.max(0, pastTimelineWidth - autoScrollBehindPixels);
 
       if (fabricationService.isOutputModeSync().getValue()) {
+        // the scroll pane is always moving at a predictable rate,
+        // so we set its initial position as well as animation its target, which smooths over some
+        // jumpiness caused by adding or removing segments to the list.
         scrollpane.setHvalue((targetOffsetHorizontalPixels - ((MILLIS_PER_MICRO * refreshTimelineMillis) / microsPerPixel.get())) / extraHorizontalPixels);
         scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
           new KeyValue(scrollpane.hvalueProperty(), targetOffsetHorizontalPixels / extraHorizontalPixels)));
@@ -195,24 +234,13 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
       }
     }
 
-    if (fabricationService.isStatusActive().get() && 0 < microsPerPixel.get()) {
-      var firstVisibleSegment = fabricationService.getSegments(null).stream().findFirst();
-      var m0 = firstVisibleSegment.map(Segment::getBeginAtChainMicros).orElse(0L);
-      var m1Past = fabricationService.getWorkFactory().getShippedToChainMicros().orElse(m0);
-      var m2Ship = fabricationService.getWorkFactory().getShipTargetChainMicros().orElse(m1Past);
-      var m3Dub = fabricationService.getWorkFactory().getDubbedToChainMicros().orElse(m2Ship);
-      var m4Craft = fabricationService.getWorkFactory().getCraftedToChainMicros().orElse(m3Dub);
-      scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
-        new KeyValue(timelineRegion1Past.widthProperty(), (m1Past - m0) / microsPerPixel.get())));
-      scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
-        new KeyValue(timelineRegion2Ship.widthProperty(), (m2Ship - m1Past) / microsPerPixel.get())));
-      scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
-        new KeyValue(timelineRegion3Dub.widthProperty(), (m3Dub - m2Ship) / microsPerPixel.get())));
-      scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
-        new KeyValue(timelineRegion4Craft.widthProperty(), (m4Craft - m3Dub) / microsPerPixel.get())));
-    }
-
     // play the next leg of the animation timeline
     scrollPaneAnimationTimeline.play();
+  }
+
+  private void stopTimelineAnimation() {
+    if (Objects.nonNull(refreshTimeline)) {
+      refreshTimeline.stop();
+    }
   }
 }

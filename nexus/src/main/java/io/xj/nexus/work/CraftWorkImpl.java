@@ -658,7 +658,7 @@ public class CraftWorkImpl implements CraftWork {
 
       finishWork(fabricator, segment);
 
-      LOG.info("Fabricated Segment[offset={}] {}s long (ahead {}s)",
+      LOG.debug("Fabricated Segment[offset={}] {}s long (ahead {}s)",
         segment.getId(),
         String.format("%.1f", (float) (Objects.requireNonNull(segment.getDurationMicros()) / MICROS_PER_SECOND)),
         String.format("%.1f", aheadSeconds)
