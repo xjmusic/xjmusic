@@ -108,18 +108,24 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
 
   @Override
   public void onStageClose() {
-    if (Objects.nonNull(refreshTimeline)) {
-      refreshTimeline.stop();
-    }
+    stopTimelineAnimation();
   }
 
   /**
    Called to update the timeline (segment list).
    */
   void updateTimeline() {
+    // keep track of whether a segment has been removed, for special handling to avoid a bug whether the timeline status jumps back
+    boolean removed = false;
+
     if (fabricationService.isEmpty()) {
       segments.clear();
       segmentListView.getChildren().clear();
+      return;
+    }
+
+    // If we aren't active, none of the rest of this matters
+    if (!fabricationService.isStatusActive().getValue()) {
       return;
     }
 
@@ -153,6 +159,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
       while (segments.size() > 0 && segments.get(0).getId() < latestFirstId) {
         segments.remove(0);
         segmentListView.getChildren().remove(0);
+        removed = true;
       }
 
       // add current segments to end of list if their id is greater than the existing last id
@@ -187,6 +194,9 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
       var targetOffsetHorizontalPixels = Math.max(0, timelineRegion1Past.getWidth() - autoScrollBehindPixels);
 
       if (fabricationService.isOutputModeSync().getValue()) {
+        // the scroll pane is always moving at a predictable rate,
+        // so we set its initial position as well as animation its target, which smooths over some
+        // jumpiness caused by adding or removing segments to the list.
         scrollpane.setHvalue((targetOffsetHorizontalPixels - ((MILLIS_PER_MICRO * refreshTimelineMillis) / microsPerPixel.get())) / extraHorizontalPixels);
         scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
           new KeyValue(scrollpane.hvalueProperty(), targetOffsetHorizontalPixels / extraHorizontalPixels)));
@@ -195,15 +205,24 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
       }
     }
 
-    if (fabricationService.isStatusActive().get() && 0 < microsPerPixel.get()) {
-      var firstVisibleSegment = fabricationService.getSegments(null).stream().findFirst();
-      var m0 = firstVisibleSegment.map(Segment::getBeginAtChainMicros).orElse(0L);
+    if (0 < microsPerPixel.get()) {
+      var m0 = segments.stream().findFirst().map(Segment::getBeginAtChainMicros).orElse(0L);
       var m1Past = fabricationService.getWorkFactory().getShippedToChainMicros().orElse(m0);
       var m2Ship = fabricationService.getWorkFactory().getShipTargetChainMicros().orElse(m1Past);
       var m3Dub = fabricationService.getWorkFactory().getDubbedToChainMicros().orElse(m2Ship);
       var m4Craft = fabricationService.getWorkFactory().getCraftedToChainMicros().orElse(m3Dub);
+
+      // like the scroll pane target position, the past region is always moving at a predictable rate,
+      // so we set its initial position as well as animation its target, which smooths over some
+      // jumpiness caused by adding or removing segments to the list.
+      timelineRegion1Past.setWidth((m1Past - m0 - MILLIS_PER_MICRO * refreshTimelineMillis) / microsPerPixel.get());
       scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
         new KeyValue(timelineRegion1Past.widthProperty(), (m1Past - m0) / microsPerPixel.get())));
+      if (removed) {
+        var testing = 123; //todo remove this
+      }
+
+      // the rest of these widths are always animated
       scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
         new KeyValue(timelineRegion2Ship.widthProperty(), (m2Ship - m1Past) / microsPerPixel.get())));
       scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
@@ -214,5 +233,11 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
 
     // play the next leg of the animation timeline
     scrollPaneAnimationTimeline.play();
+  }
+
+  private void stopTimelineAnimation() {
+    if (Objects.nonNull(refreshTimeline)) {
+      refreshTimeline.stop();
+    }
   }
 }
