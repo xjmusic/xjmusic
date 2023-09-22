@@ -121,10 +121,6 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
       return;
     }
 
-    // keep track of whether we added or removed any segments
-    boolean added = false;
-    boolean removed = false;
-
     // get updated segments and compute updated first id (to clean up segments before that id)
     var latestSegments = fabricationService.getSegments(null);
 
@@ -145,8 +141,6 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
         segments.add(s);
         segmentListView.getChildren().add(segmentFactory.create(s, updatedMicrosPerPixel, segmentMinWidth, segmentHorizontalSpacing));
       }
-      added = true;
-      removed = true;
 
     } else {
       // if the micros per pixel has not changed, we will update the segments in place as efficiently as possible
@@ -157,7 +151,6 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
       while (segments.size() > 0 && segments.get(0).getId() < latestFirstId) {
         segments.remove(0);
         segmentListView.getChildren().remove(0);
-        removed = true;
       }
 
       // add current segments to end of list if their id is greater than the existing last id
@@ -166,7 +159,6 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
         if (latestSegment.getId() > currentLastId) {
           segments.add(latestSegment);
           segmentListView.getChildren().add(segmentFactory.create(latestSegment, microsPerPixel.get(), segmentMinWidth, segmentHorizontalSpacing));
-          added = true;
         }
       }
 
@@ -193,10 +185,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
       var targetOffsetHorizontalPixels = Math.max(0, timelineRegion1Past.getWidth() - autoScrollBehindPixels);
 
       if (fabricationService.isOutputModeSync().getValue()) {
-        // if we added or removed, jump to the target position minus our current velocity
-        if (added || removed) {
-          scrollpane.setHvalue((targetOffsetHorizontalPixels - ((MILLIS_PER_MICRO * refreshTimelineMillis) / microsPerPixel.get())) / extraHorizontalPixels);
-        }
+        scrollpane.setHvalue((targetOffsetHorizontalPixels - ((MILLIS_PER_MICRO * refreshTimelineMillis) / microsPerPixel.get())) / extraHorizontalPixels);
         scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
           new KeyValue(scrollpane.hvalueProperty(), targetOffsetHorizontalPixels / extraHorizontalPixels)));
       } else {
