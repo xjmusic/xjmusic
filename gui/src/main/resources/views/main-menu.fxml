@@ -8,16 +8,8 @@
 <MenuBar VBox.vgrow="NEVER" xmlns="http://javafx.com/javafx/20.0.1"
          xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.MainMenuController">
   <Menu text="_Fabrication">
-    <MenuItem fx:id="itemFabricationMainAction" onAction="#handleFabricationMainAction" text="_Start">
-      <accelerator>
-        <KeyCodeCombination code="SPACE" alt="UP" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
-      </accelerator>
-    </MenuItem>
-    <CheckMenuItem fx:id="checkboxFabricationFollow" text="_Follow">
-      <accelerator>
-        <KeyCodeCombination code="SPACE" alt="DOWN" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
-      </accelerator>
-    </CheckMenuItem>
+    <MenuItem fx:id="itemFabricationMainAction" onAction="#handleFabricationMainAction" text="_Start"/>
+    <CheckMenuItem fx:id="checkboxFabricationFollow" text="_Follow" />
     <SeparatorMenuItem mnemonicParsing="false"/>
     <MenuItem fx:id="itemOpenFabricationSettings" onAction="#handleOpenFabricationSettings" text="S_ettings">
       <accelerator>
