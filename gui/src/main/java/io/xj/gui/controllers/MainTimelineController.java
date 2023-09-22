@@ -160,66 +160,46 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     float updatedMicrosPerPixel = (float) updatedDurationMinMicros / segmentMinWidth;
     if (updatedMicrosPerPixel != microsPerPixel.get()) {
       microsPerPixel.set(updatedMicrosPerPixel);
-    }
-
-    // clear the segments and segment list view -- see note below about why we are using this inefficient code
-    segments.clear();
-    segmentListView.getChildren().clear();
-    for (Segment s : latestSegments) {
-      segments.add(s);
-      segmentListView.getChildren().add(segmentFactory.create(s, updatedMicrosPerPixel, segmentMinWidth, segmentHorizontalSpacing));
-    }
-
-/*
-
-FUTURE WORK: This is a work in progress.  The goal is to only update the segments that have changed.  This is
-             currently not working correctly, so for now we are re-rendering the whole list each time.
-
-    // determine if the segment pixels-per-micro has changed, and we will re-render the whole list and return
-    long updatedDurationMinMicros = SegmentUtils.getDurationMinMicros(latestSegments);
-    if (updatedDurationMinMicros > 0) {
-      float updatedMicrosPerPixel = (float) updatedDurationMinMicros / segmentMinWidth;
-      if (updatedMicrosPerPixel != microsPerPixel.get()) {
-        microsPerPixel.set(updatedMicrosPerPixel);
-        segmentListView.getChildren().clear();
-        for (Segment s : latestSegments) {
-          segments.add(s);
-          segmentListView.getChildren().add(segmentFactory.create(s, updatedMicrosPerPixel, segmentMinWidth, segmentHorizontalSpacing));
-        }
-        return;
-      }
-    }
-
-    // get the latest first and last ids of the current and latest segments
-    int latestFirstId = latestSegments.stream().min(Comparator.comparing(Segment::getId)).map(Segment::getId).orElse(NO_ID);
-    int firstId = segments.stream().min(Comparator.comparing(Segment::getId)).map(Segment::getId).orElse(NO_ID);
-    int lastId = segments.stream().max(Comparator.comparing(Segment::getId)).map(Segment::getId).orElse(NO_ID);
-
-    // Add current segments to end of list if their id is greater than the existing last id
-    for (Segment s : latestSegments)
-      if (firstId == NO_ID || lastId == NO_ID || s.getId() > lastId) {
-        if (firstId == NO_ID || s.getId() < firstId) firstId = s.getId();
-        if (lastId == NO_ID || s.getId() > lastId) lastId = s.getId();
+      // clear the segments and segment list view -- see note below about why we are using this inefficient code
+      segments.clear();
+      segmentListView.getChildren().clear();
+      for (Segment s : latestSegments) {
         segments.add(s);
-        segmentListView.getChildren().add(segmentFactory.create(s, microsPerPixel.get(), segmentMinWidth, segmentHorizontalSpacing));
-        added = true;
+        segmentListView.getChildren().add(segmentFactory.create(s, updatedMicrosPerPixel, segmentMinWidth, segmentHorizontalSpacing));
       }
-
-    // remove segments from the beginning of the list if their id is less than the updated first id
-    while (segments.size() > 0 && segments.get(0).getId() < latestFirstId) {
-      segments.remove(0);
-      segmentListView.getChildren().remove(0);
+      added = true;
       removed = true;
-    }
 
-    // iterate through all in segments, and update if the updated at time has changed from the source matching that id
-    var limit = Math.min(segments.size(), latestSegments.size());
-    for (var i = 0; i < limit; i++)
-      if (SegmentUtils.isSameButUpdated(segments.get(i), latestSegments.get(i))) {
-        segments.set(i, latestSegments.get(i));
-        segmentListView.getChildren().set(i, segmentFactory.create(latestSegments.get(i), microsPerPixel.get(), segmentMinWidth, segmentHorizontalSpacing));
+    } else {
+      // if the micros per pixel has not changed, we will update the segments in place as efficiently as possible
+      // get the latest first and last ids of the current and latest segments
+      int latestFirstId = latestSegments.stream().min(Comparator.comparing(Segment::getId)).map(Segment::getId).orElse(NO_ID);
+
+      // remove segments from the beginning of the list if their id is less than the updated first id
+      while (segments.size() > 0 && segments.get(0).getId() < latestFirstId) {
+        segments.remove(0);
+        segmentListView.getChildren().remove(0);
+        removed = true;
       }
-*/
+
+      // add current segments to end of list if their id is greater than the existing last id
+      int currentLastId = segments.stream().max(Comparator.comparing(Segment::getId)).map(Segment::getId).orElse(NO_ID);
+      for (Segment latestSegment : latestSegments) {
+        if (latestSegment.getId() > currentLastId) {
+          segments.add(latestSegment);
+          segmentListView.getChildren().add(segmentFactory.create(latestSegment, microsPerPixel.get(), segmentMinWidth, segmentHorizontalSpacing));
+          added = true;
+        }
+      }
+
+      // iterate through all in segments, and update if the updated at time has changed from the source matching that id
+      var limit = Math.min(segments.size(), latestSegments.size());
+      for (var i = 0; i < limit; i++)
+        if (SegmentUtils.isSameButUpdated(segments.get(i), latestSegments.get(i))) {
+          segments.set(i, latestSegments.get(i));
+          segmentListView.getChildren().set(i, segmentFactory.create(latestSegments.get(i), microsPerPixel.get(), segmentMinWidth, segmentHorizontalSpacing));
+        }
+    }
 
     // update the sync position before scrolling
     updateSync();
@@ -235,14 +215,8 @@ FUTURE WORK: This is a work in progress.  The goal is to only update the segment
       var targetOffsetHorizontalPixels = Math.max(0, timelineRegion1Past.getWidth() - autoScrollBehindPixels);
 
       if (fabricationService.isOutputModeSync().getValue()) {
-        // get the latest first and last ids of the current and latest segments
-        int latestFirstId = latestSegments.stream().min(Comparator.comparing(Segment::getId)).map(Segment::getId).orElse(NO_ID);
-        int latestLastId = latestSegments.stream().max(Comparator.comparing(Segment::getId)).map(Segment::getId).orElse(NO_ID);
-        int firstId = segments.stream().min(Comparator.comparing(Segment::getId)).map(Segment::getId).orElse(NO_ID);
-        int lastId = segments.stream().max(Comparator.comparing(Segment::getId)).map(Segment::getId).orElse(NO_ID);
-
         // if we added or removed, jump to the target position minus our current velocity
-        if (latestFirstId != firstId || latestLastId != lastId) {
+        if (added || removed) {
           scrollpane.setHvalue((targetOffsetHorizontalPixels - ((MILLIS_PER_MICRO * refreshTimelineMillis) / microsPerPixel.get())) / extraHorizontalPixels);
         }
         KeyValue kv = new KeyValue(scrollpane.hvalueProperty(), targetOffsetHorizontalPixels / extraHorizontalPixels);
