@@ -62,7 +62,7 @@ public class MainTimelineSegmentFactory {
    */
   public Node create(Segment segment, float microsPerPixel, int minWidth, int spacing) {
     try {
-      int width = Objects.nonNull(segment.getDurationMicros()) && 0 < microsPerPixel ? (int) (segment.getDurationMicros() / microsPerPixel) + 1 - spacing : minWidth +1 - spacing;
+      int width = Objects.nonNull(segment.getDurationMicros()) && 0 < microsPerPixel ? (int) (segment.getDurationMicros() / microsPerPixel) - spacing : minWidth - spacing;
       var box = new VBox();
       box.setMinWidth(width);
       box.setMaxWidth(width);

@@ -221,9 +221,8 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
         if (added || removed) {
           scrollpane.setHvalue((targetOffsetHorizontalPixels - ((MILLIS_PER_MICRO * refreshTimelineMillis) / microsPerPixel.get())) / extraHorizontalPixels);
         }
-        KeyValue kv = new KeyValue(scrollpane.hvalueProperty(), targetOffsetHorizontalPixels / extraHorizontalPixels);
-        KeyFrame kf = new KeyFrame(Duration.millis(refreshTimelineMillis), kv);
-        scrollPaneAnimationTimeline.getKeyFrames().add(kf);
+        scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
+          new KeyValue(scrollpane.hvalueProperty(), targetOffsetHorizontalPixels / extraHorizontalPixels)));
         scrollPaneAnimationTimeline.play();
       } else {
         scrollpane.setHvalue(targetOffsetHorizontalPixels / extraHorizontalPixels);
