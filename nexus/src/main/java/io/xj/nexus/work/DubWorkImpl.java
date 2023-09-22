@@ -320,7 +320,7 @@ public class DubWorkImpl implements DubWork {
       }
 
       chunkFromChainMicros = chunkToChainMicros;
-      LOG.info("Dubbed to {}", String.format("%.1f", chunkToChainMicros / (double) MICROS_PER_SECOND));
+      LOG.debug("Dubbed to {}", String.format("%.1f", chunkToChainMicros / (double) MICROS_PER_SECOND));
 
     } catch (Exception e) {
       didFailWhile("dubbing frame", e);
