@@ -16,11 +16,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
+import static io.xj.hub.util.ValueUtils.formatIso8601UTC;
 
 /**
  Nexus Managers are Singletons unless some other requirement changes that-- 'cuz here be cyclic dependencies...
@@ -265,13 +266,7 @@ public class SegmentManagerImpl implements SegmentManager {
         || fromOffset < 0)
         return new ArrayList<>();
 
-      store.getAllSegments().subList(fromOffset, Math.min(store.getAllSegments().size() - 1, toOffset));
-
-      return store.getAllSegments()
-        .stream()
-        .filter(s -> s.getId() >= fromOffset && s.getId() <= toOffset)
-        .sorted(Comparator.comparing(Segment::getId))
-        .collect(Collectors.toList());
+      return store.getAllSegments().subList(fromOffset, Math.min(store.getAllSegments().size(), toOffset + 1));
 
     } catch (NexusException e) {
       throw new ManagerFatalException(e);
@@ -301,6 +296,9 @@ public class SegmentManagerImpl implements SegmentManager {
       // Never change id
       segment.setId(segmentId);
 
+      // Updated at is always now
+      segment.setUpdatedAt(formatIso8601UTC(Instant.now()));
+
       // save segment
       store.put(segment);
       return segment;
@@ -318,12 +316,12 @@ public class SegmentManagerImpl implements SegmentManager {
     return store.getSegmentCount();
   }
 
-    @Override
-    public Boolean isEmpty() {
-        return store.isSegmentsEmpty();
-    }
+  @Override
+  public Boolean isEmpty() {
+    return store.isSegmentsEmpty();
+  }
 
-    @Override
+  @Override
   public Optional<Segment> readLastSegment() throws ManagerFatalException {
     try {
       return store.getAllSegments()

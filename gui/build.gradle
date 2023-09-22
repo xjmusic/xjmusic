@@ -114,7 +114,7 @@ def workingDir = file("${buildPath}/")
 //and copies the icon resources for the needed platform
 tasks.register('copyResources', Copy) {
   dependsOn("build")
-  //clean the previous generated installer output files
+  //clean the previous generated installer output files?
   delete(buildPath)
   // Create the directory if it doesn't exist
   file(buildPath).mkdirs()
@@ -202,7 +202,3 @@ jpackage {
     }
   }
 }
-
-
-
-

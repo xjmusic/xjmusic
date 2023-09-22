@@ -328,10 +328,16 @@ public class MainTimelineSegmentFactory {
     layerNameLabel.getStyleClass().add("choice-group-name");
     box.getChildren().add(layerNameLabel);
     // choices
-    choices.forEach(choice -> {
-      var choiceListItem = computeChoiceNode(segment, choice, showProgram, showProgramVoice, showArrangementPicks);
-      box.getChildren().add(choiceListItem);
-    });
+    choices
+      .stream()
+      .sorted(Comparator.comparing((c) ->
+        String.format("%s_%s",
+          Objects.nonNull(c.getInstrumentType()) ? c.getInstrumentType() : "",
+          Objects.nonNull(c.getProgramType()) ? c.getProgramType() : "")))
+      .forEach(choice -> {
+        var choiceListItem = computeChoiceNode(segment, choice, showProgram, showProgramVoice, showArrangementPicks);
+        box.getChildren().add(choiceListItem);
+      });
     return box;
   }
 
