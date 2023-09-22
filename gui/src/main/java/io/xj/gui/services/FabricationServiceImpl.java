@@ -361,11 +361,12 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   @Override
   public List<Segment> getSegments(@Nullable Integer startIndex) {
     try {
-      var from = Objects.nonNull(startIndex) ? startIndex : Math.max(0, workFactory.getSegmentManager().size() - timelineSegmentViewLimitInteger.get());
+      var from = Objects.nonNull(startIndex) ? startIndex : Math.max(0, workFactory.getSegmentManager().size() - timelineSegmentViewLimitInteger.get() - 1);
       var to = Math.min(workFactory.getSegmentManager().size() - 1, from + timelineSegmentViewLimitInteger.get());
       return workFactory
         .getSegmentManager()
         .readManyFromToOffset(from, to);
+
     } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException e) {
       LOG.error("Failed to get segments", e);
       return List.of();
