@@ -157,3 +157,7 @@
   -fx-fill: #000000;
   -fx-font-family: 'Roboto';
 }
+
+.demo-image {
+  -fx-cursor: hand;
+}

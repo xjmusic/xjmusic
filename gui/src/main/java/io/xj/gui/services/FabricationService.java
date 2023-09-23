@@ -122,4 +122,12 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
    will be "Start".
    */
   ObservableValue<String> mainActionButtonTextProperty();
+
+  /**
+   Play the demo for the given template key.
+
+   @param templateKey the template key to play
+   @param craftAheadSeconds the number of seconds to craft ahead of the current position
+   */
+  void handleDemoPlay(String templateKey, Integer craftAheadSeconds);
 }

@@ -30,49 +30,17 @@
       </FlowPane>
       <HBox spacing="10">
         <padding>
-          <Insets left="10" right="10"/>
+          <Insets left="30" right="30" bottom="30"/>
         </padding>
-        <ImageView preserveRatio="true" fx:id="demoSelectionBump" onMouseClicked="#handleDemoPlayBump">
+        <ImageView preserveRatio="true" fx:id="demoSelectionBump" onMouseClicked="#handleDemoPlayBump" styleClass="demo-image">
           <Image url="@/images/demo-bump.jpg"/>
         </ImageView>
-        <ImageView preserveRatio="true" fx:id="demoSelectionSlaps" onMouseClicked="#handleDemoPlaySlaps">
+        <ImageView preserveRatio="true" fx:id="demoSelectionSlaps" onMouseClicked="#handleDemoPlaySlaps" styleClass="demo-image">
           <Image url="@/images/demo-slaps.jpg"/>
         </ImageView>
-        <ImageView preserveRatio="true" fx:id="demoSelectionSpace" onMouseClicked="#handleDemoPlaySpace">
+        <ImageView preserveRatio="true" fx:id="demoSelectionSpace" onMouseClicked="#handleDemoPlaySpace" styleClass="demo-image">
           <Image url="@/images/demo-space.jpg"/>
         </ImageView>
-        <!--
-                <Button onAction="#handleDemoPlayBump" >
-                  <HBox.hgrow>
-                    <Priority fx:constant="ALWAYS"/>
-                  </HBox.hgrow>
-                  <graphic>
-                    <ImageView fx:id="demoSelectionBump">
-                      <Image url="@/images/demo-bump.jpg"/>
-                    </ImageView>
-                  </graphic>
-                </Button>
-                <Button onAction="#handleDemoPlaySlaps" >
-                  <HBox.hgrow>
-                    <Priority fx:constant="ALWAYS"/>
-                  </HBox.hgrow>
-                  <graphic>
-                    <ImageView fx:id="demoSelectionSlaps">
-                      <Image url="@/images/demo-slaps.jpg"/>
-                    </ImageView>
-                  </graphic>
-                </Button>
-                <Button onAction="#handleDemoPlaySpace"  >
-                  <HBox.hgrow>
-                    <Priority fx:constant="ALWAYS"/>
-                  </HBox.hgrow>
-                  <graphic>
-                    <ImageView fx:id="demoSelectionSpace">
-                      <Image url="@/images/demo-space.jpg"/>
-                    </ImageView>
-                  </graphic>
-                </Button>
-        -->
       </HBox>
     </VBox>
     <HBox fx:id="segmentListView" styleClass="main-timeline">

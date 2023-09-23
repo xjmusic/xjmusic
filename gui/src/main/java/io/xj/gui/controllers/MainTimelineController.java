@@ -37,6 +37,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   private static final Integer NO_ID = -1;
   private static final Double DEMO_BUTTON_HEIGHT_LEFTOVER = 168.0;
   private static final Double DEMO_BUTTON_SPACING = 10.0;
+  private static final Double DEMO_BUTTON_MARGIN = 30.0;
   private final Integer segmentMinWidth;
   private final Integer segmentHorizontalSpacing;
   private final Integer autoScrollBehindPixels;
@@ -127,16 +128,16 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     scrollPane.hbarPolicyProperty().bind(fabricationService.followPlaybackProperty().map(followPlayback -> followPlayback ? ScrollPane.ScrollBarPolicy.NEVER : ScrollPane.ScrollBarPolicy.AS_NEEDED));
 
     demoContainer.visibleProperty().bind(fabricationService.isStatusStandby());
+    demoContainer.managedProperty().bind(fabricationService.isStatusStandby());
     demoContainer.maxWidthProperty().bind(scrollPane.widthProperty());
-    demoContainer.maxHeightProperty().bind(fabricationService.isStatusStandby().map(isStandby -> isStandby ? Double.MAX_VALUE : 0.0));
     demoImageWidth.bind(scrollPane.heightProperty().subtract(DEMO_BUTTON_HEIGHT_LEFTOVER));
-    demoImageHeight.bind(scrollPane.widthProperty().subtract(DEMO_BUTTON_SPACING * 4).divide(3));
-//    demoSelectionBump.fitHeightProperty().bind(scrollPane.heightProperty().subtract(DEMO_BUTTON_HEIGHT_LEFTOVER));
-    demoSelectionBump.fitWidthProperty().bind(scrollPane.widthProperty().subtract(DEMO_BUTTON_SPACING * 4).divide(3));
-//    demoSelectionSlaps.fitHeightProperty().bind(scrollPane.heightProperty().subtract(DEMO_BUTTON_HEIGHT_LEFTOVER));
-    demoSelectionSlaps.fitWidthProperty().bind(scrollPane.widthProperty().subtract(DEMO_BUTTON_SPACING * 4).divide(3));
-//    demoSelectionSpace.fitHeightProperty().bind(scrollPane.heightProperty().subtract(DEMO_BUTTON_HEIGHT_LEFTOVER));
-    demoSelectionSpace.fitWidthProperty().bind(scrollPane.widthProperty().subtract(DEMO_BUTTON_SPACING * 4).divide(3));
+    demoImageHeight.bind(scrollPane.widthProperty().subtract(DEMO_BUTTON_SPACING * 2 + DEMO_BUTTON_MARGIN * 2).divide(3));
+    demoSelectionBump.fitHeightProperty().bind(demoImageHeight);
+    demoSelectionBump.fitWidthProperty().bind(demoImageWidth);
+    demoSelectionSlaps.fitHeightProperty().bind(demoImageHeight);
+    demoSelectionSlaps.fitWidthProperty().bind(demoImageWidth);
+    demoSelectionSpace.fitHeightProperty().bind(demoImageHeight);
+    demoSelectionSpace.fitWidthProperty().bind(demoImageWidth);
   }
 
   @Override
@@ -146,17 +147,17 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
 
   @FXML
   public void handleDemoPlayBump(MouseEvent ignored) {
-    // TODO play demo: Bump
+    fabricationService.handleDemoPlay("bump_deep", 60);
   }
 
   @FXML
   public void handleDemoPlaySlaps(MouseEvent ignored) {
-    // TODO play demo: Slaps
+    fabricationService.handleDemoPlay("slaps_lofi", 60);
   }
 
   @FXML
   public void handleDemoPlaySpace(MouseEvent ignored) {
-    // TODO play demo: Space
+    fabricationService.handleDemoPlay("space_flow", 300);
   }
 
   /**
