@@ -13,6 +13,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.input.KeyCombination;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -79,7 +80,29 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     checkboxTailLogs.disableProperty().bind(logsVisible.not());
     itemOpenFabricationSettings.disableProperty().bind(fabricationService.isStatusActive());
     itemFabricationMainAction.textProperty().bind(fabricationService.mainActionButtonTextProperty().map((s) -> String.format("_%s", s)));
+    itemFabricationMainAction.setAccelerator(computeMainActionButtonAccelerator());
     checkboxFabricationFollow.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
+    checkboxFabricationFollow.setAccelerator(computeFabricationFollowButtonAccelerator());
+  }
+
+  /**
+   Compute the accelerator for the main action button.
+   Depending on the platform, it will be either SHORTCUT+SPACE or SHORTCUT+B (on Mac because of conflict).
+
+   @return the accelerator
+   */
+  private KeyCombination computeMainActionButtonAccelerator() {
+    return KeyCombination.valueOf("SHORTCUT+" + (System.getProperty("os.name").toLowerCase().contains("mac") ? "B" : "SPACE"));
+  }
+
+  /**
+   Compute the accelerator for the fabricator follow toggle button.
+   Depending on the platform, it will be either SHORTCUT+ALT+SPACE or SHORTCUT+ALT+B (on Mac because of conflict).
+
+   @return the accelerator
+   */
+  private KeyCombination computeFabricationFollowButtonAccelerator() {
+    return KeyCombination.valueOf("SHORTCUT+ALT+" + (System.getProperty("os.name").toLowerCase().contains("mac") ? "B" : "SPACE"));
   }
 
   @Override
