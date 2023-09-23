@@ -43,6 +43,16 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   final static String BUTTON_TEXT_STOP = "Stop";
   final static String BUTTON_TEXT_RESET = "Reset";
   final HostServices hostServices;
+  private final int defaultTimelineSegmentViewLimit;
+  private final Integer defaultCraftAheadSeconds;
+  private final Integer defaultDubAheadSeconds;
+  private final Integer defaultShipAheadSeconds;
+  private final String defaultInputTemplateKey;
+  private final int defaultOutputChannels;
+  private final String defaultOutputFileMode;
+  private final double defaultOutputFrameRate;
+  private final String defaultOutputMode;
+  private final Integer defaultOutputSeconds;
   private final HubClient hubClient;
   final WorkFactory workFactory;
   final LabService labService;
@@ -69,6 +79,8 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     outputMode.get() == OutputMode.FILE, outputMode);
   final ObservableBooleanValue statusActive =
     Bindings.createBooleanBinding(() -> status.get() == FabricationStatus.Active, status);
+  final ObservableBooleanValue statusStandby =
+    Bindings.createBooleanBinding(() -> status.get() == FabricationStatus.Standby, status);
   final ObservableValue<String> mainActionButtonText = Bindings.createStringBinding(() ->
     switch (status.get()) {
       case Starting, Standby -> BUTTON_TEXT_START;
@@ -94,9 +106,31 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     LabService labService
   ) {
     this.hostServices = hostServices;
+    this.defaultTimelineSegmentViewLimit = defaultTimelineSegmentViewLimit;
+    this.defaultCraftAheadSeconds = defaultCraftAheadSeconds;
+    this.defaultDubAheadSeconds = defaultDubAheadSeconds;
+    this.defaultShipAheadSeconds = defaultShipAheadSeconds;
+    this.defaultInputTemplateKey = defaultInputTemplateKey;
+    this.defaultOutputChannels = defaultOutputChannels;
+    this.defaultOutputFileMode = defaultOutputFileMode;
+    this.defaultOutputFrameRate = defaultOutputFrameRate;
+    this.defaultOutputMode = defaultOutputMode;
+    this.defaultOutputSeconds = defaultOutputSeconds;
     this.hubClient = hubClient;
     this.workFactory = workFactory;
     this.labService = labService;
+
+    setAllDefaults();
+
+    setOnCancelled((WorkerStateEvent ignored) -> status.set(FabricationStatus.Cancelled));
+    setOnFailed((WorkerStateEvent ignored) -> status.set(FabricationStatus.Failed));
+    setOnReady((WorkerStateEvent ignored) -> status.set(FabricationStatus.Standby));
+    setOnRunning((WorkerStateEvent ignored) -> status.set(FabricationStatus.Active));
+    setOnScheduled((WorkerStateEvent ignored) -> status.set(FabricationStatus.Starting));
+    setOnSucceeded((WorkerStateEvent ignored) -> status.set(FabricationStatus.Done));
+  }
+
+  private void setAllDefaults() {
     craftAheadSeconds.set(Integer.toString(defaultCraftAheadSeconds));
     dubAheadSeconds.set(Integer.toString(defaultDubAheadSeconds));
     shipAheadSeconds.set(Integer.toString(defaultShipAheadSeconds));
@@ -110,12 +144,6 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     outputSeconds.set(Integer.toString(defaultOutputSeconds));
     timelineSegmentViewLimit.set(Integer.toString(defaultTimelineSegmentViewLimit));
     timelineSegmentViewLimitInteger.bind(Bindings.createIntegerBinding(() -> Integer.parseInt(timelineSegmentViewLimit.get()), timelineSegmentViewLimit));
-    setOnCancelled((WorkerStateEvent ignored) -> status.set(FabricationStatus.Cancelled));
-    setOnFailed((WorkerStateEvent ignored) -> status.set(FabricationStatus.Failed));
-    setOnReady((WorkerStateEvent ignored) -> status.set(FabricationStatus.Standby));
-    setOnRunning((WorkerStateEvent ignored) -> status.set(FabricationStatus.Active));
-    setOnScheduled((WorkerStateEvent ignored) -> status.set(FabricationStatus.Starting));
-    setOnSucceeded((WorkerStateEvent ignored) -> status.set(FabricationStatus.Done));
   }
 
   protected Task<Boolean> createTask() {
@@ -419,6 +447,11 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   }
 
   @Override
+  public ObservableBooleanValue isStatusStandby() {
+    return statusStandby;
+  }
+
+  @Override
   public ObservableBooleanValue isOutputModeFile() {
     return outputModeFile;
   }
@@ -435,6 +468,19 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   @Override
   public ObservableValue<String> mainActionButtonTextProperty() {
     return mainActionButtonText;
+  }
+
+  @Override
+  public void handleDemoPlay(String templateKey, Integer craftAheadSeconds) {
+    if (status.get() != FabricationStatus.Standby) {
+      LOG.error("Cannot play demo unless fabrication is in Standby status");
+      return;
+    }
+
+    setAllDefaults();
+    inputTemplateKey.set(templateKey);
+    this.craftAheadSeconds.set(craftAheadSeconds.toString());
+    start();
   }
 
   private String formatTotalBars(int bars, String fraction) {

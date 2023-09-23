@@ -42,6 +42,7 @@
 }
 
 .main-timeline,
+.demo-container,
 .timeline-position-spacer {
   -fx-background-color: #e0e0e0;
 }
@@ -148,4 +149,15 @@
 
 .button-active {
   -fx-background-color: #17EF1766;
+}
+
+.demo-title {
+  -fx-font-size: 2em;
+  -fx-font-weight: 300;
+  -fx-fill: #000000;
+  -fx-font-family: 'Roboto';
+}
+
+.demo-image {
+  -fx-cursor: hand;
 }

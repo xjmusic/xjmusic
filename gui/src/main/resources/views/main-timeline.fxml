@@ -2,25 +2,50 @@
 
 <!-- Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved. -->
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.Priority?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.Rectangle?>
-
-<ScrollPane fx:id="scrollpane" fitToHeight="true" fitToWidth="true" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.MainTimelineController">
+<?import javafx.scene.text.Text?>
+<ScrollPane fx:id="scrollPane" fitToHeight="true" fitToWidth="true" xmlns="http://javafx.com/javafx/20.0.1"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xj.gui.controllers.MainTimelineController">
   <VBox>
     <HBox fx:id="segmentPositionRow" maxHeight="8" minHeight="8" styleClass="timeline-position-indicator">
-      <Rectangle fx:id="timelineRegion1Past" fill="#17EF1720" height="8" />
-      <Rectangle fx:id="timelineRegion2Ship" fill="#17EF17FF" height="8" />
-      <Rectangle fx:id="timelineRegion3Dub" fill="#17EF1766" height="8" />
-      <Rectangle fx:id="timelineRegion4Craft" fill="#00588066" height="8" />
+      <Rectangle fx:id="timelineRegion1Past" fill="#17EF1720" height="8"/>
+      <Rectangle fx:id="timelineRegion2Ship" fill="#17EF17FF" height="8"/>
+      <Rectangle fx:id="timelineRegion3Dub" fill="#17EF1766" height="8"/>
+      <Rectangle fx:id="timelineRegion4Craft" fill="#00588066" height="8"/>
     </HBox>
-    <Pane maxHeight="4" minHeight="4" styleClass="timeline-position-spacer" />
+    <Pane maxHeight="4" minHeight="4" styleClass="timeline-position-spacer"/>
+    <VBox fx:id="demoContainer" styleClass="demo-container" spacing="10">
+      <VBox.vgrow>
+        <Priority fx:constant="ALWAYS"/>
+      </VBox.vgrow>
+      <FlowPane alignment="CENTER_LEFT" prefHeight="150">
+        <padding>
+          <Insets left="30"/>
+        </padding>
+        <Text styleClass="demo-title" text="To hear XJ right away, select one of our flagship channels:"/>
+      </FlowPane>
+      <HBox spacing="10">
+        <padding>
+          <Insets left="30" right="30" bottom="30"/>
+        </padding>
+        <ImageView preserveRatio="true" fx:id="demoSelectionBump" onMouseClicked="#handleDemoPlayBump" styleClass="demo-image">
+          <Image url="@/images/demo-bump.jpg"/>
+        </ImageView>
+        <ImageView preserveRatio="true" fx:id="demoSelectionSlaps" onMouseClicked="#handleDemoPlaySlaps" styleClass="demo-image">
+          <Image url="@/images/demo-slaps.jpg"/>
+        </ImageView>
+        <ImageView preserveRatio="true" fx:id="demoSelectionSpace" onMouseClicked="#handleDemoPlaySpace" styleClass="demo-image">
+          <Image url="@/images/demo-space.jpg"/>
+        </ImageView>
+      </HBox>
+    </VBox>
     <HBox fx:id="segmentListView" styleClass="main-timeline">
       <VBox.vgrow>
-        <Priority fx:constant="ALWAYS" />
+        <Priority fx:constant="ALWAYS"/>
       </VBox.vgrow>
     </HBox>
   </VBox>
