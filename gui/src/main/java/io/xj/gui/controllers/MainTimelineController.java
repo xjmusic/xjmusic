@@ -11,14 +11,15 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
@@ -34,7 +35,8 @@ import java.util.Objects;
 public class MainTimelineController extends ScrollPane implements ReadyAfterBootController {
   private static final Long MILLIS_PER_MICRO = 1000L;
   private static final Integer NO_ID = -1;
-  private static final Double DEMO_TITLE_CONTAINER_HEIGHT = 150.0;
+  private static final Double DEMO_BUTTON_HEIGHT_LEFTOVER = 168.0;
+  private static final Double DEMO_BUTTON_SPACING = 10.0;
   private final Integer segmentMinWidth;
   private final Integer segmentHorizontalSpacing;
   private final Integer autoScrollBehindPixels;
@@ -47,6 +49,8 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   final long refreshTimelineMicros;
   final SimpleFloatProperty microsPerPixel = new SimpleFloatProperty(0);
   final Timeline scrollPaneAnimationTimeline = new Timeline();
+  final SimpleDoubleProperty demoImageWidth = new SimpleDoubleProperty();
+  final SimpleDoubleProperty demoImageHeight = new SimpleDoubleProperty();
 
   @FXML
   ImageView demoSelectionBump;
@@ -125,12 +129,14 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     demoContainer.visibleProperty().bind(fabricationService.isStatusStandby());
     demoContainer.maxWidthProperty().bind(scrollPane.widthProperty());
     demoContainer.maxHeightProperty().bind(fabricationService.isStatusStandby().map(isStandby -> isStandby ? Double.MAX_VALUE : 0.0));
-    demoSelectionBump.fitHeightProperty().bind(demoContainer.heightProperty());
-    demoSelectionBump.fitWidthProperty().bind(demoContainer.widthProperty().divide(3));
-    demoSelectionSlaps.fitHeightProperty().bind(demoContainer.heightProperty());
-    demoSelectionSlaps.fitWidthProperty().bind(demoContainer.widthProperty().divide(3));
-    demoSelectionSpace.fitHeightProperty().bind(demoContainer.heightProperty());
-    demoSelectionSpace.fitWidthProperty().bind(demoContainer.widthProperty().divide(3));
+    demoImageWidth.bind(scrollPane.heightProperty().subtract(DEMO_BUTTON_HEIGHT_LEFTOVER));
+    demoImageHeight.bind(scrollPane.widthProperty().subtract(DEMO_BUTTON_SPACING * 4).divide(3));
+//    demoSelectionBump.fitHeightProperty().bind(scrollPane.heightProperty().subtract(DEMO_BUTTON_HEIGHT_LEFTOVER));
+    demoSelectionBump.fitWidthProperty().bind(scrollPane.widthProperty().subtract(DEMO_BUTTON_SPACING * 4).divide(3));
+//    demoSelectionSlaps.fitHeightProperty().bind(scrollPane.heightProperty().subtract(DEMO_BUTTON_HEIGHT_LEFTOVER));
+    demoSelectionSlaps.fitWidthProperty().bind(scrollPane.widthProperty().subtract(DEMO_BUTTON_SPACING * 4).divide(3));
+//    demoSelectionSpace.fitHeightProperty().bind(scrollPane.heightProperty().subtract(DEMO_BUTTON_HEIGHT_LEFTOVER));
+    demoSelectionSpace.fitWidthProperty().bind(scrollPane.widthProperty().subtract(DEMO_BUTTON_SPACING * 4).divide(3));
   }
 
   @Override
@@ -139,17 +145,17 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   }
 
   @FXML
-  public void handleDemoPlayBump(ActionEvent ignored) {
+  public void handleDemoPlayBump(MouseEvent ignored) {
     // TODO play demo: Bump
   }
 
   @FXML
-  public void handleDemoPlaySlaps(ActionEvent ignored) {
+  public void handleDemoPlaySlaps(MouseEvent ignored) {
     // TODO play demo: Slaps
   }
 
   @FXML
-  public void handleDemoPlaySpace(ActionEvent ignored) {
+  public void handleDemoPlaySpace(MouseEvent ignored) {
     // TODO play demo: Space
   }
 
@@ -284,5 +290,4 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
       refreshTimeline.stop();
     }
   }
-
 }

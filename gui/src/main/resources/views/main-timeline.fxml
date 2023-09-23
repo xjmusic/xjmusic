@@ -3,7 +3,6 @@
 <!-- Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved. -->
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
@@ -25,58 +24,55 @@
       </VBox.vgrow>
       <FlowPane alignment="CENTER_LEFT" prefHeight="150">
         <padding>
-          <Insets left="30"/> <!-- Padding values -->
+          <Insets left="30"/>
         </padding>
         <Text styleClass="demo-title" text="To hear XJ right away, select one of our flagship channels:"/>
       </FlowPane>
       <HBox spacing="10">
-        <VBox.vgrow>
-          <Priority fx:constant="ALWAYS"/>
-        </VBox.vgrow>
-        <HBox.hgrow>
-          <Priority fx:constant="ALWAYS"/>
-        </HBox.hgrow>
-        <ImageView fx:id="demoSelectionBump">
+        <padding>
+          <Insets left="10" right="10"/>
+        </padding>
+        <ImageView preserveRatio="true" fx:id="demoSelectionBump" onMouseClicked="#handleDemoPlayBump">
           <Image url="@/images/demo-bump.jpg"/>
         </ImageView>
-        <ImageView fx:id="demoSelectionSlaps">
+        <ImageView preserveRatio="true" fx:id="demoSelectionSlaps" onMouseClicked="#handleDemoPlaySlaps">
           <Image url="@/images/demo-slaps.jpg"/>
         </ImageView>
-        <ImageView fx:id="demoSelectionSpace">
+        <ImageView preserveRatio="true" fx:id="demoSelectionSpace" onMouseClicked="#handleDemoPlaySpace">
           <Image url="@/images/demo-space.jpg"/>
         </ImageView>
-<!--
-        <Button onAction="#handleDemoPlayBump" >
-          <HBox.hgrow>
-            <Priority fx:constant="ALWAYS"/>
-          </HBox.hgrow>
-          <graphic>
-            <ImageView fx:id="demoSelectionBump">
-              <Image url="@/images/demo-bump.jpg"/>
-            </ImageView>
-          </graphic>
-        </Button>
-        <Button onAction="#handleDemoPlaySlaps" >
-          <HBox.hgrow>
-            <Priority fx:constant="ALWAYS"/>
-          </HBox.hgrow>
-          <graphic>
-            <ImageView fx:id="demoSelectionSlaps">
-              <Image url="@/images/demo-slaps.jpg"/>
-            </ImageView>
-          </graphic>
-        </Button>
-        <Button onAction="#handleDemoPlaySpace"  >
-          <HBox.hgrow>
-            <Priority fx:constant="ALWAYS"/>
-          </HBox.hgrow>
-          <graphic>
-            <ImageView fx:id="demoSelectionSpace">
-              <Image url="@/images/demo-space.jpg"/>
-            </ImageView>
-          </graphic>
-        </Button>
--->
+        <!--
+                <Button onAction="#handleDemoPlayBump" >
+                  <HBox.hgrow>
+                    <Priority fx:constant="ALWAYS"/>
+                  </HBox.hgrow>
+                  <graphic>
+                    <ImageView fx:id="demoSelectionBump">
+                      <Image url="@/images/demo-bump.jpg"/>
+                    </ImageView>
+                  </graphic>
+                </Button>
+                <Button onAction="#handleDemoPlaySlaps" >
+                  <HBox.hgrow>
+                    <Priority fx:constant="ALWAYS"/>
+                  </HBox.hgrow>
+                  <graphic>
+                    <ImageView fx:id="demoSelectionSlaps">
+                      <Image url="@/images/demo-slaps.jpg"/>
+                    </ImageView>
+                  </graphic>
+                </Button>
+                <Button onAction="#handleDemoPlaySpace"  >
+                  <HBox.hgrow>
+                    <Priority fx:constant="ALWAYS"/>
+                  </HBox.hgrow>
+                  <graphic>
+                    <ImageView fx:id="demoSelectionSpace">
+                      <Image url="@/images/demo-space.jpg"/>
+                    </ImageView>
+                  </graphic>
+                </Button>
+        -->
       </HBox>
     </VBox>
     <HBox fx:id="segmentListView" styleClass="main-timeline">
