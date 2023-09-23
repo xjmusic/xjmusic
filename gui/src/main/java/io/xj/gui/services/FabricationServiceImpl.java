@@ -69,6 +69,8 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     outputMode.get() == OutputMode.FILE, outputMode);
   final ObservableBooleanValue statusActive =
     Bindings.createBooleanBinding(() -> status.get() == FabricationStatus.Active, status);
+  final ObservableBooleanValue statusStandby =
+    Bindings.createBooleanBinding(() -> status.get() == FabricationStatus.Standby, status);
   final ObservableValue<String> mainActionButtonText = Bindings.createStringBinding(() ->
     switch (status.get()) {
       case Starting, Standby -> BUTTON_TEXT_START;
@@ -416,6 +418,11 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   @Override
   public ObservableBooleanValue isStatusActive() {
     return statusActive;
+  }
+
+  @Override
+  public ObservableBooleanValue isStatusStandby() {
+    return statusStandby;
   }
 
   @Override

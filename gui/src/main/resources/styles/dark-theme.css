@@ -108,6 +108,7 @@
 }
 
 .main-timeline,
+.demo-container,
 .timeline-position-spacer {
   -fx-background-color: #202020;
 }
@@ -163,3 +164,6 @@
   -fx-fill: #fff;
 }
 
+.demo-title {
+  -fx-fill: #ffffff;
+}

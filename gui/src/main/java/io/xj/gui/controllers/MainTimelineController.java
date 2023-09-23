@@ -14,10 +14,13 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +34,7 @@ import java.util.Objects;
 public class MainTimelineController extends ScrollPane implements ReadyAfterBootController {
   private static final Long MILLIS_PER_MICRO = 1000L;
   private static final Integer NO_ID = -1;
+  private static final Double DEMO_TITLE_CONTAINER_HEIGHT = 150.0;
   private final Integer segmentMinWidth;
   private final Integer segmentHorizontalSpacing;
   private final Integer autoScrollBehindPixels;
@@ -45,7 +49,19 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   final Timeline scrollPaneAnimationTimeline = new Timeline();
 
   @FXML
-  public ScrollPane scrollpane;
+  ImageView demoSelectionBump;
+
+  @FXML
+  ImageView demoSelectionSlaps;
+
+  @FXML
+  ImageView demoSelectionSpace;
+
+  @FXML
+  ScrollPane scrollPane;
+
+  @FXML
+  VBox demoContainer;
 
   @FXML
   HBox segmentPositionRow;
@@ -104,12 +120,37 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     segmentListView.setSpacing(segmentHorizontalSpacing);
     segmentListView.setPadding(new Insets(0, segmentMinWidth * 3, 0, segmentHorizontalSpacing));
 
-    scrollpane.hbarPolicyProperty().bind(fabricationService.followPlaybackProperty().map(followPlayback -> followPlayback ? ScrollPane.ScrollBarPolicy.NEVER : ScrollPane.ScrollBarPolicy.AS_NEEDED));
+    scrollPane.hbarPolicyProperty().bind(fabricationService.followPlaybackProperty().map(followPlayback -> followPlayback ? ScrollPane.ScrollBarPolicy.NEVER : ScrollPane.ScrollBarPolicy.AS_NEEDED));
+
+    demoContainer.visibleProperty().bind(fabricationService.isStatusStandby());
+    demoContainer.maxWidthProperty().bind(scrollPane.widthProperty());
+    demoContainer.maxHeightProperty().bind(fabricationService.isStatusStandby().map(isStandby -> isStandby ? Double.MAX_VALUE : 0.0));
+    demoSelectionBump.fitHeightProperty().bind(demoContainer.heightProperty());
+    demoSelectionBump.fitWidthProperty().bind(demoContainer.widthProperty().divide(3));
+    demoSelectionSlaps.fitHeightProperty().bind(demoContainer.heightProperty());
+    demoSelectionSlaps.fitWidthProperty().bind(demoContainer.widthProperty().divide(3));
+    demoSelectionSpace.fitHeightProperty().bind(demoContainer.heightProperty());
+    demoSelectionSpace.fitWidthProperty().bind(demoContainer.widthProperty().divide(3));
   }
 
   @Override
   public void onStageClose() {
     stopTimelineAnimation();
+  }
+
+  @FXML
+  public void handleDemoPlayBump(ActionEvent ignored) {
+    // TODO play demo: Bump
+  }
+
+  @FXML
+  public void handleDemoPlaySlaps(ActionEvent ignored) {
+    // TODO play demo: Slaps
+  }
+
+  @FXML
+  public void handleDemoPlaySpace(ActionEvent ignored) {
+    // TODO play demo: Space
   }
 
   /**
@@ -182,7 +223,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
 
     // Recompute the width of the timeline
     segmentListView.layout();
-    scrollpane.layout();
+    scrollPane.layout();
 
     // Run the animation update later to wait for the layout to update
     Platform.runLater(this::updateTimelineAnimation);
@@ -219,18 +260,18 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
 
     // auto-scroll if enabled, animating to the scroll pane position
     if (fabricationService.followPlaybackProperty().getValue() && 0 < segmentListView.getWidth()) {
-      var extraHorizontalPixels = Math.max(0, segmentListView.getWidth() - scrollpane.getWidth());
+      var extraHorizontalPixels = Math.max(0, segmentListView.getWidth() - scrollPane.getWidth());
       var targetOffsetHorizontalPixels = Math.max(0, pastTimelineWidth - autoScrollBehindPixels);
 
       if (fabricationService.isOutputModeSync().getValue()) {
         // the scroll pane is always moving at a predictable rate,
         // so we set its initial position as well as animation its target, which smooths over some
         // jumpiness caused by adding or removing segments to the list.
-        scrollpane.setHvalue((targetOffsetHorizontalPixels - ((MILLIS_PER_MICRO * refreshTimelineMillis) / microsPerPixel.get())) / extraHorizontalPixels);
+        scrollPane.setHvalue((targetOffsetHorizontalPixels - ((MILLIS_PER_MICRO * refreshTimelineMillis) / microsPerPixel.get())) / extraHorizontalPixels);
         scrollPaneAnimationTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(refreshTimelineMillis),
-          new KeyValue(scrollpane.hvalueProperty(), targetOffsetHorizontalPixels / extraHorizontalPixels)));
+          new KeyValue(scrollPane.hvalueProperty(), targetOffsetHorizontalPixels / extraHorizontalPixels)));
       } else {
-        scrollpane.setHvalue(targetOffsetHorizontalPixels / extraHorizontalPixels);
+        scrollPane.setHvalue(targetOffsetHorizontalPixels / extraHorizontalPixels);
       }
     }
 
@@ -243,4 +284,5 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
       refreshTimeline.stop();
     }
   }
+
 }

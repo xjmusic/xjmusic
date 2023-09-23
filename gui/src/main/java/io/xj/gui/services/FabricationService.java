@@ -105,6 +105,8 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
 
   ObservableBooleanValue isStatusActive();
 
+  ObservableBooleanValue isStatusStandby();
+
   ObservableBooleanValue isOutputModeFile();
 
   /**
