@@ -219,4 +219,12 @@ public interface SegmentManager /* does not extend Manager<Segment> because it i
    @return true if there are zero segments
    */
   Boolean isEmpty();
+
+  /**
+   Get a hash of all the choices for the given segment
+
+   @param segment for which to get the choice hash
+   @return hash of all the ids of the choices for the given segment
+   */
+  String getChoiceHash(Segment segment);
 }

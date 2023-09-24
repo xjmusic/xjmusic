@@ -126,8 +126,16 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
   /**
    Play the demo for the given template key.
 
-   @param templateKey the template key to play
+   @param templateKey       the template key to play
    @param craftAheadSeconds the number of seconds to craft ahead of the current position
    */
   void handleDemoPlay(String templateKey, Integer craftAheadSeconds);
+
+  /**
+   Get a hash of all the choices for the given segment
+
+   @param segment for which to get the choice hash
+   @return hash of all the ids of the choices for the given segment
+   */
+  String getChoiceHash(Segment segment);
 }

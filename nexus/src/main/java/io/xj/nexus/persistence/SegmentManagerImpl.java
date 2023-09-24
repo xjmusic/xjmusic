@@ -6,6 +6,8 @@ import io.xj.hub.util.CsvUtils;
 import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueException;
 import io.xj.hub.util.ValueUtils;
+import io.xj.lib.entity.EntityException;
+import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.entity.common.ChordEntity;
 import io.xj.lib.entity.common.MessageEntity;
 import io.xj.nexus.NexusException;
@@ -17,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
@@ -320,6 +323,29 @@ public class SegmentManagerImpl implements SegmentManager {
   @Override
   public Boolean isEmpty() {
     return store.isSegmentsEmpty();
+  }
+
+  @Override
+  public String getChoiceHash(Segment segment) {
+    try {
+      return
+        readManySubEntities(Set.of(segment.getId()), false)
+          .stream()
+          .flatMap((entity) -> {
+            try {
+              return Stream.of(EntityUtils.getId(entity));
+            } catch (EntityException e) {
+              return Stream.empty();
+            }
+          })
+          .map(UUID::toString)
+          .sorted()
+          .collect(Collectors.joining("_"));
+
+    } catch (ManagerFatalException e) {
+      LOG.error("Failed to get choice hash for Segment #" + segment.getId(), e);
+      return String.format("%s_%d", segment.getChainId(), segment.getId());
+    }
   }
 
   @Override

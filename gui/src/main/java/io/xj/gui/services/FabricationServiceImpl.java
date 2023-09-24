@@ -483,6 +483,11 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     start();
   }
 
+  @Override
+  public String getChoiceHash(Segment segment) {
+    return workFactory.getSegmentManager().getChoiceHash(segment);
+  }
+
   private String formatTotalBars(int bars, String fraction) {
     return String.format("%d%s bar%s", bars, fraction, bars == 1 ? "" : "s");
   }
