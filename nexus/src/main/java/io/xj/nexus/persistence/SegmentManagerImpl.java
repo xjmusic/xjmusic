@@ -16,12 +16,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.*;
 import java.util.stream.Stream;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.hub.util.ValueUtils.formatIso8601UTC;
 
 /**
  Nexus Managers are Singletons unless some other requirement changes that-- 'cuz here be cyclic dependencies...
@@ -85,8 +83,11 @@ public class SegmentManagerImpl implements SegmentManager {
       // [#126] Segments are always readMany in PLANNED state
       segment.setState(SegmentState.PLANNED);
 
+      // Updated at is always now
+      segment.setUpdatedNow();
+
       // create segment with Chain ID and offset are read-only, set at creation
-      if (readOneAtChainOffset(segment.getId()).isPresent()) {
+      if (readOneById(segment.getId()).isPresent()) {
         throw new ManagerValidationException("Found Segment at same offset in Chain!");
       }
 
@@ -101,6 +102,7 @@ public class SegmentManagerImpl implements SegmentManager {
   public SegmentMessage create(HubClientAccess access, SegmentMessage entity) throws ManagerPrivilegeException, ManagerValidationException, ManagerFatalException {
     try {
       validate(entity);
+
       return store.put(entity);
 
     } catch (NexusException e) {
@@ -179,12 +181,11 @@ public class SegmentManagerImpl implements SegmentManager {
   }
 
   @Override
-  public Optional<Segment> readOneAtChainOffset(int offset) {
+  public Optional<Segment> readOneById(int id) {
     try {
-      if (store.getAllSegments().size() <= offset) return Optional.empty();
-      return Optional.of(store.getAllSegments().get(offset));
+      return store.getSegment(id);
     } catch (Exception e) {
-      LOG.error("Failed to read Segment at offset " + offset, e);
+      LOG.error("Failed to read Segment at offset " + id, e);
       return Optional.empty();
     }
   }
@@ -297,7 +298,7 @@ public class SegmentManagerImpl implements SegmentManager {
       segment.setId(segmentId);
 
       // Updated at is always now
-      segment.setUpdatedAt(formatIso8601UTC(Instant.now()));
+      segment.setUpdatedNow();
 
       // save segment
       store.put(segment);

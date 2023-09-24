@@ -10,7 +10,6 @@ import jakarta.annotation.Nullable;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.collections.FXCollections;
@@ -28,7 +27,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -45,7 +46,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   final FabricationService fabricationService;
   final LabService labService;
   final MainTimelineSegmentFactory segmentFactory;
-  final ObservableList<Segment> segments = FXCollections.observableArrayList();
+  final List<Segment> segments = new ArrayList<>();
   final double refreshTimelineMillis;
   final long refreshTimelineMicros;
   final SimpleFloatProperty microsPerPixel = new SimpleFloatProperty(0);
@@ -225,6 +226,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
         if (SegmentUtils.isSameButUpdated(segments.get(i), latestSegments.get(i))) {
           segments.set(i, latestSegments.get(i));
           segmentListView.getChildren().set(i, segmentFactory.create(latestSegments.get(i), microsPerPixel.get(), segmentMinWidth, segmentHorizontalSpacing));
+          var hello = 123;// todo remove
         }
     }
 
@@ -232,16 +234,11 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     segmentListView.layout();
     scrollPane.layout();
 
-    // Run the animation update later to wait for the layout to update
-    Platform.runLater(this::updateTimelineAnimation);
-  }
-
-  private void updateTimelineAnimation() {
     // Reset the animation timeline
     scrollPaneAnimationTimeline.stop();
     scrollPaneAnimationTimeline.getKeyFrames().clear();
 
-    var m0 = segments.stream().findFirst().map(Segment::getBeginAtChainMicros).orElse(0L);
+    var m0 = Math.max(0, segments.stream().findFirst().map(Segment::getBeginAtChainMicros).orElse(0L)- segmentHorizontalSpacing);
     var m1Past = fabricationService.getWorkFactory().getShippedToChainMicros().orElse(m0);
     var m2Ship = fabricationService.getWorkFactory().getShipTargetChainMicros().orElse(m1Past);
     var m3Dub = fabricationService.getWorkFactory().getDubbedToChainMicros().orElse(m2Ship);

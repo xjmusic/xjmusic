@@ -64,7 +64,7 @@ public interface SegmentManager /* does not extend Manager<Segment> because it i
    @param offset to fetch segment at
    @return segment id
    */
-  Optional<Segment> readOneAtChainOffset(int offset);
+  Optional<Segment> readOneById(int offset);
 
   /**
    Fetch one Segment by chainId and state, if present
