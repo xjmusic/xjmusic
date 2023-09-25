@@ -196,8 +196,11 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
       return;
     }
 
+    // get the current first index of the view
+    var viewStartIndex = Math.max(0, fabricationService.getSegmentAtShipOutput().map((s) -> s.getId() - 1).orElse(NO_ID));
+
     // get updated segments and compute updated first id (to clean up segments before that id)
-    var freshSegments = fabricationService.getSegments(null);
+    var freshSegments = fabricationService.getSegments(viewStartIndex);
 
     // determine if the segment pixels-per-micro has changed, and we will re-render the whole list and return
     long updatedDurationMinMicros = SegmentUtils.getDurationMinMicros(freshSegments);
@@ -262,9 +265,9 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     scrollPaneAnimationTimeline.getKeyFrames().clear();
 
     // marker 0 is the beginAtChainMicros of the first displayed segment
-    var m0 = ds.isEmpty() ? 0 : Math.max(0,
-      ds.keySet().stream().min(Comparator.comparingInt((id) -> id)).map(id ->
-        ds.get(id).getBeginAtChainMicros()).orElse(0L) - segmentHorizontalSpacing);
+    var m0 = ds.isEmpty() ? 0 :
+      ds.keySet().stream().min(Comparator.comparingInt((id) -> id))
+        .map(id -> ds.get(id).getBeginAtChainMicros()).orElse(0L) - segmentHorizontalSpacing;
 
     // other markers continue increasing from there
     var m1Past = fabricationService.getWorkFactory().getShippedToChainMicros().orElse(m0);

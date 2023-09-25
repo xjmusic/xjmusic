@@ -8,10 +8,8 @@ import io.xj.gui.services.LabService;
 import jakarta.annotation.Nullable;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.css.PseudoClass;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -31,10 +29,6 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
   final LabService labService;
   final LogQueue logQueue;
   final ObservableList<LogRecord> logItems = FXCollections.observableArrayList();
-  final static PseudoClass debug = PseudoClass.getPseudoClass("debug");
-  final static PseudoClass error = PseudoClass.getPseudoClass("error");
-  final static PseudoClass info = PseudoClass.getPseudoClass("info");
-  final static PseudoClass warn = PseudoClass.getPseudoClass("warn");
   static final int LOG_LIST_VIEW_HEIGHT = 368;
   static final int MAX_ENTRIES = 10_000;
   final MainMenuController mainMenuController;
@@ -87,11 +81,6 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
       protected void updateItem(LogRecord item, boolean empty) {
         super.updateItem(item, empty);
 
-        pseudoClassStateChanged(debug, false);
-        pseudoClassStateChanged(info, false);
-        pseudoClassStateChanged(warn, false);
-        pseudoClassStateChanged(error, false);
-
         if (item == null || empty) {
           setText(null);
           return;
@@ -99,12 +88,22 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
 
         setText((Objects.nonNull(item.context()) ? item.context() : "") + " " + item.message());
 
+        getStyleClass().removeAll("debug", "info", "warn", "error");
+        getStyleClass().add(item.level().toString().toLowerCase());
+
+
+/*
+        pseudoClassStateChanged(debug, false);
+        pseudoClassStateChanged(info, false);
+        pseudoClassStateChanged(warn, false);
+        pseudoClassStateChanged(error, false);
         switch (item.level().toInt()) {
           case Level.DEBUG_INT, Level.TRACE_INT, Level.ALL_INT -> pseudoClassStateChanged(debug, true);
           case Level.INFO_INT -> pseudoClassStateChanged(info, true);
           case Level.WARN_INT -> pseudoClassStateChanged(warn, true);
           case Level.ERROR_INT -> pseudoClassStateChanged(error, true);
         }
+*/
       }
     });
     logListView.setItems(logItems);
@@ -125,7 +124,7 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
   public void appendLogLine(Level level, String context, String line) {
     if (Objects.nonNull(line))
       try {
-        Platform.runLater(() -> logQueue.offer(new LogRecord(level, context, line)));
+        logQueue.offer(new LogRecord(level, context, line));
       } catch (Exception e) {
         // no op
       }

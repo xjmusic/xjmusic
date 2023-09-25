@@ -22,15 +22,15 @@
 }
 
 .log-viewer .list-cell.debug {
-  -fx-text-fill: gray;
+  -fx-text-fill: purple;
 }
 
 .log-viewer .list-cell.info {
-  -fx-text-fill: green;
+  -fx-text-fill: white;
 }
 
 .log-viewer .list-cell.warn {
-  -fx-text-fill: purple;
+  -fx-text-fill: orange;
 }
 
 .log-viewer .list-cell.error {

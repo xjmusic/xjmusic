@@ -138,4 +138,11 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
    @return hash of all the ids of the choices for the given segment
    */
   String getChoiceHash(Segment segment);
+
+  /**
+   Get the segment spanning the current ship output chain micros
+
+   @return the segment spanning the current ship output chain micros
+   */
+  Optional<Segment> getSegmentAtShipOutput();
 }
