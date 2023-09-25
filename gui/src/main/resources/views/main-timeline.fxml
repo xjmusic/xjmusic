@@ -22,9 +22,9 @@
       <VBox.vgrow>
         <Priority fx:constant="ALWAYS"/>
       </VBox.vgrow>
-      <FlowPane alignment="CENTER_LEFT" prefHeight="150">
+      <FlowPane alignment="BOTTOM_LEFT" prefHeight="120">
         <padding>
-          <Insets left="30"/>
+          <Insets left="30" bottom="30"/>
         </padding>
         <Text styleClass="demo-title" text="To hear XJ right away, select one of our flagship channels:"/>
       </FlowPane>
