@@ -3,6 +3,7 @@
 package io.xj.gui.controllers;
 
 import io.xj.gui.services.FabricationService;
+import io.xj.gui.services.FabricationStatus;
 import io.xj.gui.services.LabService;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.persistence.SegmentUtils;
@@ -136,13 +137,21 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     demoSelectionSpace.fitHeightProperty().bind(demoImageHeight);
     demoSelectionSpace.fitWidthProperty().bind(demoImageWidth);
 
-    fabricationService.isStatusActive().addListener((ignored1, ignored2, isActive) -> {
-      if (isActive) {
-        startTimelineAnimation();
-      } else {
-        stopTimelineAnimation();
-      }
-    });
+    fabricationService.statusProperty().addListener((ignored1, ignored2, status) -> handleUpdateFabricationStatus(status));
+  }
+
+  private void handleUpdateFabricationStatus(FabricationStatus status) {
+    if (Objects.equals(FabricationStatus.Active, status)) {
+      startTimelineAnimation();
+
+    } else if (Objects.equals(FabricationStatus.Standby, status)) {
+      stopTimelineAnimation();
+      ds.clear();
+      segmentListView.getChildren().clear();
+
+    } else {
+      stopTimelineAnimation();
+    }
   }
 
   @Override
