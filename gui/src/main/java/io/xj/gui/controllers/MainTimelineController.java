@@ -10,6 +10,7 @@ import jakarta.annotation.Nullable;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.fxml.FXML;
@@ -29,6 +30,7 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
@@ -41,11 +43,12 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   private final Integer segmentMinWidth;
   private final Integer segmentHorizontalSpacing;
   private final Integer autoScrollBehindPixels;
+  private final Integer segmentDisplayHashRecheckLimit;
   final ConfigurableApplicationContext ac;
   final FabricationService fabricationService;
   final LabService labService;
   final MainTimelineSegmentFactory segmentFactory;
-  final double refreshTimelineMillis;
+  final long refreshTimelineMillis;
   final long refreshTimelineMicros;
   final SimpleFloatProperty microsPerPixel = new SimpleFloatProperty(0);
   final Timeline scrollPaneAnimationTimeline = new Timeline();
@@ -93,6 +96,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
 
   public MainTimelineController(
     @Value("${gui.timeline.refresh.millis}") Integer refreshTimelineMillis,
+    @Value("${gui.timeline.segment.hash.recheck.limit}") Integer segmentDisplayHashRecheckLimit,
     @Value("${gui.timeline.segment.spacing.horizontal}") Integer segmentSpacingHorizontal,
     @Value("${gui.timeline.segment.width.min}") Integer segmentWidthMin,
     @Value("${gui.timeline.auto.scroll.behind.pixels}") Integer autoScrollBehindPixels,
@@ -102,28 +106,19 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     MainTimelineSegmentFactory segmentFactory
   ) {
     this.ac = ac;
+    this.autoScrollBehindPixels = autoScrollBehindPixels;
     this.fabricationService = fabricationService;
     this.labService = labService;
-    this.segmentFactory = segmentFactory;
     this.refreshTimelineMicros = refreshTimelineMillis * MILLIS_PER_MICRO;
     this.refreshTimelineMillis = refreshTimelineMillis;
+    this.segmentDisplayHashRecheckLimit = segmentDisplayHashRecheckLimit;
+    this.segmentFactory = segmentFactory;
     this.segmentHorizontalSpacing = segmentSpacingHorizontal;
     this.segmentMinWidth = segmentWidthMin;
-    this.autoScrollBehindPixels = autoScrollBehindPixels;
   }
 
   @Override
   public void onStageReady() {
-    refreshTimeline = new Timeline(
-      new KeyFrame(
-        Duration.millis(refreshTimelineMillis),
-        event -> updateTimeline()
-      )
-    );
-    refreshTimeline.setCycleCount(Timeline.INDEFINITE);
-    refreshTimeline.setRate(1.0);
-    refreshTimeline.play();
-
     segmentListView.setSpacing(segmentHorizontalSpacing);
     segmentListView.setPadding(new Insets(0, segmentMinWidth * 3, 0, segmentHorizontalSpacing));
 
@@ -140,6 +135,14 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     demoSelectionSlaps.fitWidthProperty().bind(demoImageWidth);
     demoSelectionSpace.fitHeightProperty().bind(demoImageHeight);
     demoSelectionSpace.fitWidthProperty().bind(demoImageWidth);
+
+    fabricationService.isStatusActive().addListener((ignored1, ignored2, isActive) -> {
+      if (isActive) {
+        startTimelineAnimation();
+      } else {
+        stopTimelineAnimation();
+      }
+    });
   }
 
   @Override
@@ -227,7 +230,6 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
         if (ds.get(i).isSameButUpdated(freshSegments.get(i))) {
           ds.get(i).update(freshSegments.get(i));
           segmentListView.getChildren().set(i, segmentFactory.create(freshSegments.get(i), microsPerPixel.get(), segmentMinWidth, segmentHorizontalSpacing));
-          var hello = 123;// todo remove
         }
     }
 
@@ -289,6 +291,18 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     scrollPaneAnimationTimeline.play();
   }
 
+  private void startTimelineAnimation() {
+    refreshTimeline = new Timeline(
+      new KeyFrame(
+        Duration.millis(refreshTimelineMillis),
+        event -> Platform.runLater(this::updateTimeline)
+      )
+    );
+    refreshTimeline.setCycleCount(Timeline.INDEFINITE);
+    refreshTimeline.setRate(1.0);
+    refreshTimeline.play();
+  }
+
   private void stopTimelineAnimation() {
     if (Objects.nonNull(refreshTimeline)) {
       refreshTimeline.stop();
@@ -298,6 +312,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   private class DisplayedSegment {
     private final AtomicReference<Segment> segment = new AtomicReference<>();
     private final AtomicReference<String> choiceHash = new AtomicReference<>();
+    private final AtomicInteger recheckCount = new AtomicInteger(0);
 
     DisplayedSegment(Segment segment) {
       this.segment.set(segment);
@@ -313,9 +328,14 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     }
 
     public boolean isSameButUpdated(Segment segment) {
+      if (!(recheckCount.getAndIncrement() < segmentDisplayHashRecheckLimit))
+        return false;
+
+      if (SegmentUtils.isSameButUpdated(this.segment.get(), segment))
+        return true;
+
       return
-        SegmentUtils.isSameButUpdated(this.segment.get(), segment)
-          || (!Objects.equals(this.choiceHash.get(), fabricationService.getChoiceHash(segment)));
+        !Objects.equals(this.choiceHash.get(), fabricationService.getChoiceHash(segment));
     }
 
     public void update(Segment segment) {
