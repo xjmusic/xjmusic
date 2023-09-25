@@ -90,20 +90,6 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
 
         getStyleClass().removeAll("debug", "info", "warn", "error");
         getStyleClass().add(item.level().toString().toLowerCase());
-
-
-/*
-        pseudoClassStateChanged(debug, false);
-        pseudoClassStateChanged(info, false);
-        pseudoClassStateChanged(warn, false);
-        pseudoClassStateChanged(error, false);
-        switch (item.level().toInt()) {
-          case Level.DEBUG_INT, Level.TRACE_INT, Level.ALL_INT -> pseudoClassStateChanged(debug, true);
-          case Level.INFO_INT -> pseudoClassStateChanged(info, true);
-          case Level.WARN_INT -> pseudoClassStateChanged(warn, true);
-          case Level.ERROR_INT -> pseudoClassStateChanged(error, true);
-        }
-*/
       }
     });
     logListView.setItems(logItems);
