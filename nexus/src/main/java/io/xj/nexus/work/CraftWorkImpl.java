@@ -289,7 +289,7 @@ public class CraftWorkImpl implements CraftWork {
     // if the end of the current segment is before the threshold, require next segment
     Optional<Segment> nextSegment = Optional.empty();
     if (Objects.nonNull(firstSegment.getDurationMicros()) && firstSegment.getBeginAtChainMicros() + firstSegment.getDurationMicros() < planToChainMicros + craftAheadSeconds * MICROS_PER_SECOND) {
-      nextSegment = segmentManager.readOneAtChainOffset(currentSegments.get(0).getId() + 1);
+      nextSegment = segmentManager.readOneById(currentSegments.get(0).getId() + 1);
       if (nextSegment.isEmpty() || Objects.isNull(nextSegment.get().getDurationMicros()) || !SegmentState.CRAFTED.equals(nextSegment.get().getState())) {
         return List.of();
       }
@@ -298,7 +298,7 @@ public class CraftWorkImpl implements CraftWork {
     // if the beginning of the current segment is after the threshold, require previous segment
     Optional<Segment> previousSegment = Optional.empty();
     if (Objects.nonNull(firstSegment.getDurationMicros()) && firstSegment.getBeginAtChainMicros() + firstSegment.getDurationMicros() < planToChainMicros + craftAheadSeconds * MICROS_PER_SECOND && currentSegments.get(0).getId() > 0) {
-      previousSegment = segmentManager.readOneAtChainOffset(currentSegments.get(0).getId() - 1);
+      previousSegment = segmentManager.readOneById(currentSegments.get(0).getId() - 1);
       if (previousSegment.isEmpty()) {
         return List.of();
       }
@@ -335,7 +335,7 @@ public class CraftWorkImpl implements CraftWork {
     }
 
     // require current segment in crafted state
-    var currentSegment = segmentManager.readOneAtChainOffset(offset);
+    var currentSegment = segmentManager.readOneById(offset);
     if (currentSegment.isEmpty() || currentSegment.get().getState() != SegmentState.CRAFTED) {
       return Optional.empty();
     }
@@ -782,7 +782,6 @@ public class CraftWorkImpl implements CraftWork {
       throw new NexusException(String.format("Segment[%s] %s requires Segment must be in %s state.", segment.getId(), toState, fromState));
     var seg = fabricator.getSegment();
     seg.setState(toState);
-    seg.setUpdatedNow();
     fabricator.putSegment(seg);
     LOG.debug("[segId={}] Segment transitioned to state {} OK", segment.getId(), toState);
     return fabricator.getSegment();

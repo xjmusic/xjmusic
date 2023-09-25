@@ -6,6 +6,8 @@ import io.xj.hub.util.CsvUtils;
 import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueException;
 import io.xj.hub.util.ValueUtils;
+import io.xj.lib.entity.EntityException;
+import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.entity.common.ChordEntity;
 import io.xj.lib.entity.common.MessageEntity;
 import io.xj.nexus.NexusException;
@@ -16,12 +18,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.xj.hub.util.ValueUtils.MICROS_PER_SECOND;
-import static io.xj.hub.util.ValueUtils.formatIso8601UTC;
 
 /**
  Nexus Managers are Singletons unless some other requirement changes that-- 'cuz here be cyclic dependencies...
@@ -85,8 +86,11 @@ public class SegmentManagerImpl implements SegmentManager {
       // [#126] Segments are always readMany in PLANNED state
       segment.setState(SegmentState.PLANNED);
 
+      // Updated at is always now
+      segment.setUpdatedNow();
+
       // create segment with Chain ID and offset are read-only, set at creation
-      if (readOneAtChainOffset(segment.getId()).isPresent()) {
+      if (readOneById(segment.getId()).isPresent()) {
         throw new ManagerValidationException("Found Segment at same offset in Chain!");
       }
 
@@ -101,6 +105,7 @@ public class SegmentManagerImpl implements SegmentManager {
   public SegmentMessage create(HubClientAccess access, SegmentMessage entity) throws ManagerPrivilegeException, ManagerValidationException, ManagerFatalException {
     try {
       validate(entity);
+
       return store.put(entity);
 
     } catch (NexusException e) {
@@ -179,12 +184,11 @@ public class SegmentManagerImpl implements SegmentManager {
   }
 
   @Override
-  public Optional<Segment> readOneAtChainOffset(int offset) {
+  public Optional<Segment> readOneById(int id) {
     try {
-      if (store.getAllSegments().size() <= offset) return Optional.empty();
-      return Optional.of(store.getAllSegments().get(offset));
+      return store.getSegment(id);
     } catch (Exception e) {
-      LOG.error("Failed to read Segment at offset " + offset, e);
+      LOG.error("Failed to read Segment at offset " + id, e);
       return Optional.empty();
     }
   }
@@ -266,7 +270,7 @@ public class SegmentManagerImpl implements SegmentManager {
         || fromOffset < 0)
         return new ArrayList<>();
 
-      return store.getAllSegments().subList(fromOffset, Math.min(store.getAllSegments().size(), toOffset + 1));
+      return new ArrayList<>(store.getAllSegments().subList(fromOffset, Math.min(store.getAllSegments().size(), toOffset + 1)));
 
     } catch (NexusException e) {
       throw new ManagerFatalException(e);
@@ -297,7 +301,7 @@ public class SegmentManagerImpl implements SegmentManager {
       segment.setId(segmentId);
 
       // Updated at is always now
-      segment.setUpdatedAt(formatIso8601UTC(Instant.now()));
+      segment.setUpdatedNow();
 
       // save segment
       store.put(segment);
@@ -319,6 +323,29 @@ public class SegmentManagerImpl implements SegmentManager {
   @Override
   public Boolean isEmpty() {
     return store.isSegmentsEmpty();
+  }
+
+  @Override
+  public String getChoiceHash(Segment segment) {
+    try {
+      return
+        readManySubEntities(Set.of(segment.getId()), false)
+          .stream()
+          .flatMap((entity) -> {
+            try {
+              return Stream.of(EntityUtils.getId(entity));
+            } catch (EntityException e) {
+              return Stream.empty();
+            }
+          })
+          .map(UUID::toString)
+          .sorted()
+          .collect(Collectors.joining("_"));
+
+    } catch (ManagerFatalException e) {
+      LOG.error("Failed to get choice hash for Segment #" + segment.getId(), e);
+      return String.format("%s_%d", segment.getChainId(), segment.getId());
+    }
   }
 
   @Override

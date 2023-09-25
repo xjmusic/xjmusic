@@ -64,7 +64,7 @@ public interface SegmentManager /* does not extend Manager<Segment> because it i
    @param offset to fetch segment at
    @return segment id
    */
-  Optional<Segment> readOneAtChainOffset(int offset);
+  Optional<Segment> readOneById(int offset);
 
   /**
    Fetch one Segment by chainId and state, if present
@@ -219,4 +219,12 @@ public interface SegmentManager /* does not extend Manager<Segment> because it i
    @return true if there are zero segments
    */
   Boolean isEmpty();
+
+  /**
+   Get a hash of all the choices for the given segment
+
+   @param segment for which to get the choice hash
+   @return hash of all the ids of the choices for the given segment
+   */
+  String getChoiceHash(Segment segment);
 }

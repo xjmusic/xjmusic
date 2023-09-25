@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -56,16 +57,23 @@ public class ThemeService {
     }
   }
 
+  /**
+   Fonts directory contains subdirectories with font files.
+   */
   public void setupFonts() {
     try {
-      String[] fontFiles = Objects.requireNonNull(fontsDirectory.getFile()).list();
-
-      if (fontFiles != null) {
-        for (String fontFile : fontFiles) {
-          Font.loadFont(fontsDirectory.createRelative(fontFile).getURL().toExternalForm(), DEFAULT_FONT_SIZE);
-          LOG.debug("Loaded font: {}", fontFile);
+      String[] fontFolders = Objects.requireNonNull(fontsDirectory.getFile()).list();
+      if (fontFolders != null) {
+        for (String fontDir : fontFolders) {
+          File[] fontFilesInDir = new File(fontsDirectory.getFile(), fontDir).listFiles();
+          if (fontFilesInDir != null) {
+            for (File fontFile : fontFilesInDir) {
+              Font.loadFont(fontFile.toURI().toString(), DEFAULT_FONT_SIZE);
+            }
+          }
         }
       }
+
     } catch (IOException e) {
       LOG.error("Failed to load fonts from directory: {}", fontsDirectory.getFilename(), e);
     }
