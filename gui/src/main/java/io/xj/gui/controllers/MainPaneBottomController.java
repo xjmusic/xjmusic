@@ -87,11 +87,6 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
       protected void updateItem(LogRecord item, boolean empty) {
         super.updateItem(item, empty);
 
-        pseudoClassStateChanged(debug, false);
-        pseudoClassStateChanged(info, false);
-        pseudoClassStateChanged(warn, false);
-        pseudoClassStateChanged(error, false);
-
         if (item == null || empty) {
           setText(null);
           return;
@@ -99,6 +94,10 @@ public class MainPaneBottomController extends VBox implements ReadyAfterBootCont
 
         setText((Objects.nonNull(item.context()) ? item.context() : "") + " " + item.message());
 
+        pseudoClassStateChanged(debug, false);
+        pseudoClassStateChanged(info, false);
+        pseudoClassStateChanged(warn, false);
+        pseudoClassStateChanged(error, false);
         switch (item.level().toInt()) {
           case Level.DEBUG_INT, Level.TRACE_INT, Level.ALL_INT -> pseudoClassStateChanged(debug, true);
           case Level.INFO_INT -> pseudoClassStateChanged(info, true);
