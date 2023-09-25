@@ -270,7 +270,7 @@ public class SegmentManagerImpl implements SegmentManager {
         || fromOffset < 0)
         return new ArrayList<>();
 
-      return store.getAllSegments().subList(fromOffset, Math.min(store.getAllSegments().size(), toOffset + 1));
+      return new ArrayList<>(store.getAllSegments().subList(fromOffset, Math.min(store.getAllSegments().size(), toOffset + 1)));
 
     } catch (NexusException e) {
       throw new ManagerFatalException(e);
