@@ -377,14 +377,14 @@ public class ShipWorkImpl implements ShipWork {
   boolean shippedEnoughSeconds() {
     var shippedSeconds = (float) targetChainMicros / MICROS_PER_SECOND;
     if (0 == outputSeconds) {
-      LOG.info("Shipped {} seconds", String.format("%.1f", shippedSeconds));
+      LOG.debug("Shipped {} seconds", String.format("%.1f", shippedSeconds));
       return false;
     }
 
     // Finite number-zero number of output seconds has been specified
     var progress = shippedSeconds / outputSeconds;
     progressUpdateCallback.accept((double) (shippedSeconds / outputSeconds));
-    LOG.info("Shipped {} seconds ({})", String.format("%.2f", shippedSeconds), StringUtils.percentage(progress));
+    LOG.debug("Shipped {} seconds ({})", String.format("%.2f", shippedSeconds), StringUtils.percentage(progress));
 
     // But leave if we have not yet shipped that many seconds
     if (shippedSeconds < outputSeconds) return false;
