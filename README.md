@@ -6,6 +6,10 @@
 XJ music pioneers the evolution of background audio with our innovative music engine enabling artists to compose new
 possibilities for streams, games, and spaces.
 
+![Opening Demo Flagship Masthead - XJ music workstation](art/xjmusic-workstation-screenshot-demo.png)
+
+![Live Fabrication Timeline - XJ music workstation](art/xjmusic-workstation-screenshot-fabrication.png)
+
 *Copyright (c) XJ Music Inc. All Rights Reserved.*
 
 [U.S. Patent 10,446,126](https://patents.google.com/patent/US10446126B1/)
