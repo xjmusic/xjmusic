@@ -148,6 +148,13 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
       stopTimelineAnimation();
       ds.clear();
       segmentListView.getChildren().clear();
+      timelineRegion1Past.setWidth(0);
+      timelineRegion2Ship.setWidth(0);
+      timelineRegion3Dub.setWidth(0);
+      timelineRegion4Craft.setWidth(0);
+      scrollPane.setHvalue(0);
+      segmentListView.layout();
+      scrollPane.layout();
 
     } else {
       stopTimelineAnimation();
