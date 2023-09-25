@@ -488,6 +488,13 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     return workFactory.getSegmentManager().getChoiceHash(segment);
   }
 
+  @Override
+  public Optional<Segment> getSegmentAtShipOutput() {
+    return
+      workFactory.getShippedToChainMicros().flatMap(chainMicros ->
+        workFactory.getSegmentManager().readOneAtChainMicros(chainMicros));
+  }
+
   private String formatTotalBars(int bars, String fraction) {
     return String.format("%d%s bar%s", bars, fraction, bars == 1 ? "" : "s");
   }

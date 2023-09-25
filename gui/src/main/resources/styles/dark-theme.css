@@ -73,13 +73,6 @@
   -fx-font-weight: none;
 }
 
-.list-cell:even,
-.list-cell:odd,
-.table-row-cell:even,
-.table-row-cell:odd {
-  -fx-control-inner-background: derive(-fx-base, 15%);
-}
-
 .list-cell:empty,
 .table-row-cell:empty {
   -fx-background-color: transparent;
@@ -95,8 +88,8 @@
   -fx-background-color: #494949;
 }
 
-.log-viewer {
-  -fx-background-color: #393939;
+.log-viewer .list-cell {
+  -fx-background-color: #191919;
 }
 
 .user-name {
@@ -111,10 +104,6 @@
 .demo-container,
 .timeline-position-spacer {
   -fx-background-color: #202020;
-}
-
-.main-timeline .list-cell {
-  -fx-background-color: #292929;
 }
 
 .main-timeline-segment {
