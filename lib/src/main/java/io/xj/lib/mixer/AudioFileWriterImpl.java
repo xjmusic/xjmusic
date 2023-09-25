@@ -85,6 +85,11 @@ public class AudioFileWriterImpl implements AudioFileWriter {
     try {
       this.fileState.set(FileState.CLOSING);
       tempFile.close();
+      if (tempFileByteCount.get() == 0) {
+        LOG.warn("Will not write zero-byte {}", outputPath.get());
+        return;
+      }
+
       File outputFile = new File(outputPath.get());
       var fileInputStream = FileUtils.openInputStream(new File(tempFilePath.get()));
       var bufferedInputStream = new BufferedInputStream(fileInputStream);
