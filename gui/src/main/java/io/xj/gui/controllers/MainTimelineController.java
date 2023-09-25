@@ -210,7 +210,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
       int freshFirstId = freshSegments.stream().min(Comparator.comparing(Segment::getId)).map(Segment::getId).orElse(NO_ID);
 
       // remove segments from the beginning of the list if their id is less than the updated first id
-      while ((ds.size() > 0) && (ds.get(0).getSegmentId() < freshFirstId)) {
+      while ((ds.size() > 0) && (ds.keySet().stream().min(Comparator.comparingInt((id) -> id)).orElse(NO_ID) < freshFirstId)) {
         ds.remove(0);
         segmentListView.getChildren().remove(0);
       }
