@@ -11,9 +11,9 @@ import jakarta.annotation.Nullable;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleFloatProperty;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.ScrollPane;
@@ -177,7 +177,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
   /**
    Called to update the timeline (segment list).
    */
-  void updateTimeline() {
+  void updateTimeline(ActionEvent ignored) {
     if (fabricationService.isEmpty()) {
       ds.clear();
       segmentListView.getChildren().clear();
@@ -219,8 +219,12 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
       int freshFirstId = freshSegments.stream().min(Comparator.comparing(Segment::getId)).map(Segment::getId).orElse(NO_ID);
 
       // remove segments from the beginning of the list if their id is less than the updated first id
-      while ((ds.size() > 0) && (ds.keySet().stream().min(Comparator.comparingInt((id) -> id)).orElse(NO_ID) < freshFirstId)) {
-        ds.remove(0);
+      int firstId;
+      while (ds.size() > 0) {
+        firstId = ds.keySet().stream().min(Comparator.comparingInt((id) -> id)).orElse(NO_ID);
+        if (NO_ID == firstId || firstId >= freshFirstId)
+          break;
+        ds.remove(firstId);
         segmentListView.getChildren().remove(0);
       }
 
@@ -304,7 +308,7 @@ public class MainTimelineController extends ScrollPane implements ReadyAfterBoot
     refreshTimeline = new Timeline(
       new KeyFrame(
         Duration.millis(refreshTimelineMillis),
-        event -> Platform.runLater(this::updateTimeline)
+        this::updateTimeline
       )
     );
     refreshTimeline.setCycleCount(Timeline.INDEFINITE);
