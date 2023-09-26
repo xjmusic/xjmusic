@@ -15,12 +15,13 @@ public interface DubAudioCache {
    <p>
    Advanced audio caching during fabrication https://www.pivotaltracker.com/story/show/176642679
 
+   @param audioBaseUrl     to retrieve from
    @param key              to retrieve
    @param targetFrameRate  to resample if necessary
-   @param targetSampleBits
-   @param targetChannels
+   @param targetSampleBits to resample if necessary
+   @param targetChannels   to resample if necessary
    @return stream if cached; null if not
    */
-  String load(String key, int targetFrameRate, int targetSampleBits, int targetChannels) throws FileStoreException, IOException, NexusException;
+  String load(String audioBaseUrl, String key, int targetFrameRate, int targetSampleBits, int targetChannels) throws FileStoreException, IOException, NexusException;
 
 }

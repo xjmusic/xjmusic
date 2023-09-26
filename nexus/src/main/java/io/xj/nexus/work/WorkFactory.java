@@ -2,6 +2,7 @@
 
 package io.xj.nexus.work;
 
+import io.xj.hub.HubConfiguration;
 import io.xj.hub.HubContent;
 import io.xj.nexus.persistence.SegmentManager;
 
@@ -13,7 +14,7 @@ public interface WorkFactory {
    Start work
    */
   boolean start(
-    WorkConfiguration configuration,
+    HubConfiguration hubConfiguration, WorkConfiguration configuration,
     Consumer<Double> progressUpdateCallback,
     Runnable onDone
   );

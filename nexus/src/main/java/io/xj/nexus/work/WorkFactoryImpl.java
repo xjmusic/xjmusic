@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.work;
 
+import io.xj.hub.HubConfiguration;
 import io.xj.hub.HubContent;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreProvider;
@@ -120,7 +121,8 @@ public class WorkFactoryImpl implements WorkFactory {
 
   @Override
   public boolean start(
-    WorkConfiguration configuration,
+    HubConfiguration hubConfig,
+    WorkConfiguration workConfig,
     Consumer<Double> progressUpdateCallback, Runnable onDone
   ) {
     craftWork = new CraftWorkImpl(
@@ -136,39 +138,40 @@ public class WorkFactoryImpl implements WorkFactory {
       notification,
       segmentManager,
       telemetryProvider,
-      configuration.getInputMode(),
-      configuration.getOutputMode(),
-      configuration.getInputTemplateKey(),
+      workConfig.getInputMode(),
+      workConfig.getOutputMode(),
+      workConfig.getInputTemplateKey(),
       isJsonOutputEnabled,
       tempFilePathPrefix,
       jsonExpiresInSeconds,
-      configuration.getOutputFrameRate(),
-      configuration.getOutputChannels(),
-      configuration.getCraftAheadSeconds()
+      workConfig.getOutputFrameRate(),
+      workConfig.getOutputChannels(),
+      workConfig.getCraftAheadSeconds()
     );
     dubWork = new DubWorkImpl(
       craftWork,
       dubAudioCache,
       mixerFactory,
       notification,
+      hubConfig.getAudioBaseUrl(),
       mixerSeconds,
       dubCycleMillis,
-      configuration.getOutputFrameRate(),
-      configuration.getOutputChannels(),
-      configuration.getDubAheadSeconds());
+      workConfig.getOutputFrameRate(),
+      workConfig.getOutputChannels(),
+      workConfig.getDubAheadSeconds());
     shipWork = new ShipWorkImpl(
       dubWork,
       notification,
       broadcastFactory,
-      configuration.getOutputMode(),
-      configuration.getOutputFileMode(),
-      configuration.getOutputSeconds(),
+      workConfig.getOutputMode(),
+      workConfig.getOutputFileMode(),
+      workConfig.getOutputSeconds(),
       shipCycleMillis,
       cycleAudioBytes,
-      configuration.getOutputPathPrefix(),
+      workConfig.getOutputPathPrefix(),
       outputFileNumberDigits,
       pcmChunkSizeBytes,
-      configuration.getShipAheadSeconds(),
+      workConfig.getShipAheadSeconds(),
       progressUpdateCallback
     );
 

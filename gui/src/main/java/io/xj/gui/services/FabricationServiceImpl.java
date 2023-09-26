@@ -164,7 +164,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
         hubClient.setBaseUrl(labService.baseUrlProperty().getValue());
         hubClient.setAccessToken(labService.accessTokenProperty().getValue());
         return workFactory.start(
-          configuration,
+          hubConfiguration, configuration,
           (Double ratio) -> updateProgress(ratio, 1.0),
           () -> {
             // no op; the WorkFactory start method blocks, then we rely on the JavaFX Service hooks

@@ -2,6 +2,7 @@
 
 package io.xj.workstation.service;
 
+import io.xj.hub.HubConfiguration;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.NexusTopology;
@@ -42,6 +43,11 @@ public class WorkstationServiceApplication {
   final OutputMode outputMode;
   final String outputPathPrefix;
   final int outputSeconds;
+  private final String ingestUrl;
+  private final String audioBaseUrl;
+  private final String labBaseUrl;
+  private final String shipBaseUrl;
+  private final String streamBaseUrl;
 
   @Autowired
   public WorkstationServiceApplication(
@@ -53,7 +59,12 @@ public class WorkstationServiceApplication {
     @Value("${output.file.mode}") String outputFileMode,
     @Value("${output.mode}") String outputMode,
     @Value("${output.path.prefix}") String outputPathPrefix,
-    @Value("${output.seconds}") int outputSeconds
+    @Value("${output.seconds}") int outputSeconds,
+    @Value("${ingest.url}") String ingestUrl,
+    @Value("${audio.base.url}") String audioBaseUrl,
+    @Value("${lab.base.url}") String labBaseUrl,
+    @Value("${ship.base.url}") String shipBaseUrl,
+    @Value("${stream.base.url}") String streamBaseUrl
   ) {
     this.entityFactory = entityFactory;
     this.workFactory = workFactory;
@@ -64,6 +75,11 @@ public class WorkstationServiceApplication {
     this.outputMode = OutputMode.valueOf(outputMode.toUpperCase(Locale.ROOT));
     this.outputPathPrefix = outputPathPrefix;
     this.outputSeconds = outputSeconds;
+    this.ingestUrl = ingestUrl;
+    this.audioBaseUrl = audioBaseUrl;
+    this.labBaseUrl = labBaseUrl;
+    this.shipBaseUrl = shipBaseUrl;
+    this.streamBaseUrl = streamBaseUrl;
   }
 
   @EventListener(ApplicationStartedEvent.class)
@@ -72,7 +88,7 @@ public class WorkstationServiceApplication {
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
 
-    var configuration = new WorkConfiguration()
+    var workConfig = new WorkConfiguration()
       .setInputMode(inputMode)
       .setInputTemplateKey(inputTemplateKey)
       .setOutputFileMode(outputFileMode)
@@ -80,7 +96,15 @@ public class WorkstationServiceApplication {
       .setOutputPathPrefix(outputPathPrefix)
       .setOutputSeconds(outputSeconds);
 
-    workFactory.start(configuration, this::updateProgress, this::shutdown);
+    var hubConfiguration = new HubConfiguration()
+      .setBaseUrl(labBaseUrl)
+      .setAudioBaseUrl(audioBaseUrl)
+      .setPlayerBaseUrl(streamBaseUrl)
+      .setShipBaseUrl(shipBaseUrl)
+      .setStreamBaseUrl(streamBaseUrl)
+      .setApiBaseUrl(ingestUrl);
+
+    workFactory.start(hubConfiguration, workConfig, this::updateProgress, this::shutdown);
   }
 
   private void updateProgress(Double aDouble) {

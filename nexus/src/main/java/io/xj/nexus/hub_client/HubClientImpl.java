@@ -18,7 +18,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -40,38 +39,20 @@ public class HubClientImpl implements HubClient {
   static final String API_PATH_TEMPLATE_BY_ID_FORMAT = "api/1/templates/%s";
   static final String HEADER_COOKIE = "Cookie";
   final Logger LOG = LoggerFactory.getLogger(HubClientImpl.class);
-  final String ingestTokenName;
   final HttpClientProvider httpClientProvider;
   final JsonProviderImpl jsonProvider;
   final JsonapiPayloadFactory jsonapiPayloadFactory;
-  final String audioBaseUrl;
 
-  String accessToken;
-  String baseUrl;
 
   @Autowired
   public HubClientImpl(
     HttpClientProvider httpClientProvider,
     JsonProviderImpl jsonProvider,
-    JsonapiPayloadFactory jsonapiPayloadFactory,
-    @Value("${ingest.url}") String defaultIngestUrl,
-    @Value("${ingest.token.name}") String ingestTokenName,
-    @Value("${ingest.token.value}") String defaultIngestTokenValue,
-    @Value("${audio.base.url}") String audioBaseUrl
+    JsonapiPayloadFactory jsonapiPayloadFactory
   ) {
     this.httpClientProvider = httpClientProvider;
     this.jsonProvider = jsonProvider;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
-
-    this.ingestTokenName = ingestTokenName;
-    this.audioBaseUrl = audioBaseUrl;
-
-    // These properties can be set after initialization
-    this.baseUrl = defaultIngestUrl;
-    this.accessToken = defaultIngestTokenValue;
-
-    String obscuredSecret = Arrays.stream(defaultIngestTokenValue.split("")).map(c -> "*").collect(Collectors.joining());
-    LOG.info("Will connect to Hub at {} with token '{}' value '{}'", defaultIngestUrl, ingestTokenName, obscuredSecret);
   }
 
   @Override
@@ -79,7 +60,7 @@ public class HubClientImpl implements HubClient {
     CloseableHttpClient client = httpClientProvider.getClient();
     var uri = buildURI(String.format(API_PATH_INGEST_FORMAT, templateId.toString()));
     try (
-      CloseableHttpResponse response = client.execute(buildGetRequest(uri, accessToken))
+      CloseableHttpResponse response = client.execute(buildGetRequest(uri, access.getToken()))
     ) {
       // return content if successful.
       if (!Objects.equals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode()))
