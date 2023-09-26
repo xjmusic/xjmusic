@@ -57,7 +57,6 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   final String bucket;
   final String m3u8ContentType;
   final String m3u8Key;
-  final String streamBaseUrl;
   final MediaSeqNumProvider mediaSeqNumProvider;
   final TelemetryProvider telemetryProvider;
   final AtomicBoolean running = new AtomicBoolean(true);
@@ -81,7 +80,6 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     @Value("${ship.m3u8.content.type}") String shipM3u8ContentType,
     @Value("${ship.m3u8.max.age.seconds}") int shipM3u8MaxAgeSeconds,
     @Value("${ship.m3u8.server.control.hold.back.extra.seconds}") int shipM3u8ServerControlHoldBackExtraSeconds,
-    @Value("${stream.base.url}") String streamBaseUrl,
     @Value("${ship.chunk.audio.encoder}") String shipChunkAudioEncoder,
     @Value("${input.template.key}") String shipKey,
     @Value("${input.template.key.alias}") String shipKeyAlias
@@ -99,7 +97,6 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     this.m3u8ContentType = shipM3u8ContentType;
     this.m3u8MaxAgeSeconds = shipM3u8MaxAgeSeconds;
     this.m3u8ServerControlHoldBackSeconds = 3 * this.chunkDurationSeconds + shipM3u8ServerControlHoldBackExtraSeconds;
-    this.streamBaseUrl = streamBaseUrl;
 
     // Computed
     this.isSegmentFilename = m -> m.endsWith(String.format(".%s", shipChunkAudioEncoder));
@@ -118,7 +115,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   }
 
   @Override
-  public Optional<Long> rehydrate(long initialSeqNum) {
+  public Optional<Long> rehydrate(String streamBaseUrl, long initialSeqNum) {
     CloseableHttpClient client = httpClientProvider.getClient();
     try (
       CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", streamBaseUrl, m3u8Key)))
@@ -279,11 +276,11 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   }
 
   @Override
-  public Optional<Long> start(long initialSeqNum) {
+  public Optional<Long> start(String streamBaseUrl, long initialSeqNum) {
     if (!running.get())
       return Optional.empty();
 
-    return rehydrate(initialSeqNum);
+    return rehydrate(streamBaseUrl, initialSeqNum);
   }
 
   @Override

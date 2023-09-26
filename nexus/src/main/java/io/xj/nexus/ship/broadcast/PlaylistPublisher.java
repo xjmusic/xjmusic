@@ -30,10 +30,11 @@ public interface PlaylistPublisher {
    <p>
    Ship rehydrates from last shipped .m3u8 playlist file https://www.pivotaltracker.com/story/show/180723357
 
+   @param streamBaseUrl of the stream
    @param initialSeqNum threshold .m3u8 playlist must be ahead of, else it will be considered stale
    @return max sequence number from rehydrated playlist, if found
    */
-  Optional<Long> rehydrate(long initialSeqNum);
+  Optional<Long> rehydrate(String streamBaseUrl, long initialSeqNum);
 
   /**
    Get the m3u8 playlist item for a given media sequence number
@@ -122,10 +123,11 @@ public interface PlaylistPublisher {
   /**
    Start the playlist publisher
 
+   @param streamBaseUrl of the stream
    @param initialSeqNum initial sequence number
    @return max sequence number from rehydrated playlist, if found
    */
-  Optional<Long> start(long initialSeqNum);
+  Optional<Long> start(String streamBaseUrl, long initialSeqNum);
 
   /**
    Set the target time in chain micros

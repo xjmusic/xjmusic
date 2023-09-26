@@ -20,7 +20,12 @@ public class LabServiceImplTest {
 
   @BeforeEach
   public void setUp() {
-    subject = new LabServiceImpl(hostServices, "https://lab.test.xj.io/");
+    subject = new LabServiceImpl(hostServices,
+      "https://lab.test.xj.io/",
+      "https://audio.test.xj.io/",
+      "https://ship.test.xj.io/",
+      "https://stream.test.xj.io/"
+    );
   }
 
   @Test

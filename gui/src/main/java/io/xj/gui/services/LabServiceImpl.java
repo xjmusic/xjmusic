@@ -33,11 +33,15 @@ public class LabServiceImpl implements LabService {
   final StringProperty accessToken = new SimpleStringProperty();
 
   final ObjectProperty<User> authenticatedUser = new SimpleObjectProperty<>();
-  final ObjectProperty<HubConfiguration> config = new SimpleObjectProperty<>();
+
+  final ObjectProperty<HubConfiguration> hubConfig = new SimpleObjectProperty<>();
 
   public LabServiceImpl(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
-    @Value("${lab.base.url}") String defaultLabBaseUrl
+    @Value("${lab.base.url}") String defaultLabBaseUrl,
+    @Value("${audio.base.url}") String audioBaseUrl,
+    @Value("${ship.base.url}") String shipBaseUrl,
+    @Value("${stream.base.url}") String streamBaseUrl
   ) {
     this.hostServices = hostServices;
     this.baseUrl.set(defaultLabBaseUrl);
@@ -51,6 +55,13 @@ public class LabServiceImpl implements LabService {
       }
       LOG.info("Lab URL changed to: " + this.baseUrl.getValue());
     });
+
+    this.hubConfig.set(new HubConfiguration()
+      .setApiBaseUrl(defaultLabBaseUrl)
+      .setAudioBaseUrl(audioBaseUrl)
+      .setBaseUrl(defaultLabBaseUrl)
+      .setShipBaseUrl(shipBaseUrl)
+      .setStreamBaseUrl(streamBaseUrl));
   }
 
   @Override
@@ -84,7 +95,7 @@ public class LabServiceImpl implements LabService {
 
   @Override
   public void onConfigurationSuccess(HubConfiguration config) {
-    this.config.set(config);
+    this.hubConfig.set(config);
     this.status.set(LabStatus.Authenticated);
   }
 
@@ -108,6 +119,11 @@ public class LabServiceImpl implements LabService {
   public void disconnect() {
     this.status.set(LabStatus.Offline);
     this.authenticatedUser.set(null);
+  }
+
+  @Override
+  public ObjectProperty<HubConfiguration> hubConfigProperty() {
+    return hubConfig;
   }
 
   @Override

@@ -4,13 +4,14 @@ package io.xj.gui.services;
 
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.enums.ProgramType;
+import io.xj.hub.enums.UserRoleType;
 import io.xj.hub.tables.pojos.*;
 import io.xj.hub.util.ValueException;
 import io.xj.lib.util.FormatUtils;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
-import io.xj.nexus.hub_client.HubClient;
+import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.ManagerExistenceException;
 import io.xj.nexus.persistence.ManagerFatalException;
@@ -53,7 +54,6 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   private final double defaultOutputFrameRate;
   private final String defaultOutputMode;
   private final Integer defaultOutputSeconds;
-  private final HubClient hubClient;
   final WorkFactory workFactory;
   final LabService labService;
   final Map<Integer, Integer> segmentBarBeats = new ConcurrentHashMap<>();
@@ -101,7 +101,6 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     @Value("${output.frame.rate}") double defaultOutputFrameRate,
     @Value("${output.mode}") String defaultOutputMode,
     @Value("${output.seconds}") Integer defaultOutputSeconds,
-    HubClient hubClient,
     WorkFactory workFactory,
     LabService labService
   ) {
@@ -116,7 +115,6 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     this.defaultOutputFrameRate = defaultOutputFrameRate;
     this.defaultOutputMode = defaultOutputMode;
     this.defaultOutputSeconds = defaultOutputSeconds;
-    this.hubClient = hubClient;
     this.workFactory = workFactory;
     this.labService = labService;
 
@@ -149,7 +147,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   protected Task<Boolean> createTask() {
     return new Task<>() {
       protected Boolean call() {
-        var configuration = new WorkConfiguration()
+        var workConfig = new WorkConfiguration()
           .setInputMode(inputMode.get())
           .setInputTemplateKey(inputTemplateKey.get())
           .setOutputFileMode(outputFileMode.get())
@@ -161,14 +159,19 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
           .setShipAheadSeconds(Integer.parseInt(shipAheadSeconds.get()))
           .setOutputFrameRate(Double.parseDouble(outputFrameRate.get()))
           .setOutputChannels(Integer.parseInt(outputChannels.get()));
-        hubClient.setBaseUrl(labService.baseUrlProperty().getValue());
-        hubClient.setAccessToken(labService.accessTokenProperty().getValue());
+
+        var hubConfig = labService.hubConfigProperty().get();
+
+        var hubAccess = new HubClientAccess()
+          .setRoleTypes(List.of(UserRoleType.Internal))
+          .setToken(labService.accessTokenProperty().get());
+
         return workFactory.start(
-          hubConfiguration, configuration,
+          workConfig,
+          hubConfig,
+          hubAccess,
           (Double ratio) -> updateProgress(ratio, 1.0),
-          () -> {
-            // no op; the WorkFactory start method blocks, then we rely on the JavaFX Service hooks
-          });
+          () -> updateProgress(1.0, 1.0));
       }
     };
   }

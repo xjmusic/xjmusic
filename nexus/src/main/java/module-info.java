@@ -30,7 +30,6 @@ module workstation.nexus.main {
 
   // open
   opens io.xj.nexus to spring.core;
-  opens io.xj.nexus.analysis to spring.core;
   opens io.xj.nexus.craft to spring.beans;
   opens io.xj.nexus.dub to spring.beans;
   opens io.xj.nexus.fabricator to spring.beans;
@@ -46,6 +45,7 @@ module workstation.nexus.main {
   exports io.xj.nexus.craft.perc_loop;
   exports io.xj.nexus.craft.transition;
   exports io.xj.nexus.craft;
+  exports io.xj.nexus.ship;
   exports io.xj.nexus.dub;
   exports io.xj.nexus.fabricator;
   exports io.xj.nexus.hub_client.access;

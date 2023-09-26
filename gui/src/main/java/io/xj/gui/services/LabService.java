@@ -24,7 +24,9 @@ public interface LabService {
 
   void disconnect();
 
-  ObjectProperty<LabStatus> statusProperty();
+    ObjectProperty<HubConfiguration> hubConfigProperty();
+
+    ObjectProperty<LabStatus> statusProperty();
 
   StringProperty baseUrlProperty();
 

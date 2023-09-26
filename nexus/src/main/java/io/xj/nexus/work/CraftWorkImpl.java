@@ -64,7 +64,7 @@ public class CraftWorkImpl implements CraftWork {
   final FabricatorFactory fabricatorFactory;
   final HttpClientProvider httpClientProvider;
   final HubClient hubClient;
-  final HubClientAccess access = HubClientAccess.internal();
+  final HubClientAccess access;
   final JsonProvider jsonProvider;
   final JsonapiPayloadFactory jsonapiPayloadFactory;
   final FileStoreProvider fileStore;
@@ -78,8 +78,6 @@ public class CraftWorkImpl implements CraftWork {
   final SegmentManager segmentManager;
   final TelemetryProvider telemetryProvider;
 
-  @Value("${ship.base.url}")
-  String shipBaseUrl;
 
   @Value("${craft.janitor.enabled}")
   boolean janitorEnabled;
@@ -142,6 +140,9 @@ public class CraftWorkImpl implements CraftWork {
   final int craftAheadSeconds;
   final double outputFrameRate;
   final int outputChannels;
+  final String audioBaseUrl;
+  final String hubBaseUrl;
+  final String shipBaseUrl;
 
   @Nullable
   UUID chainId;
@@ -161,13 +162,17 @@ public class CraftWorkImpl implements CraftWork {
     NotificationProvider notification,
     SegmentManager segmentManager,
     TelemetryProvider telemetryProvider,
-    InputMode inputMode,
+    HubClientAccess access,
+    String hubBaseUrl, String audioBaseUrl,
+    String shipBaseUrl, InputMode inputMode,
     OutputMode outputMode,
     String inputTemplateKey,
     boolean isJsonOutputEnabled,
     String tempFilePathPrefix,
     int jsonExpiresInSeconds,
-    double outputFrameRate, int outputChannels, int craftAheadSeconds
+    double outputFrameRate,
+    int outputChannels,
+    int craftAheadSeconds
   ) {
     this.craftFactory = craftFactory;
     this.entityFactory = entityFactory;
@@ -180,6 +185,10 @@ public class CraftWorkImpl implements CraftWork {
     this.segmentManager = segmentManager;
     this.store = store;
     this.telemetryProvider = telemetryProvider;
+    this.access = access;
+    this.hubBaseUrl = hubBaseUrl;
+    this.audioBaseUrl = audioBaseUrl;
+    this.shipBaseUrl = shipBaseUrl;
     this.tempFilePathPrefix = tempFilePathPrefix;
     this.inputTemplateKey = inputTemplateKey;
     this.isJsonOutputEnabled = isJsonOutputEnabled;
@@ -520,7 +529,7 @@ public class CraftWorkImpl implements CraftWork {
    */
   void loadYard() {
     try {
-      chainSourceMaterial = hubClient.load(inputTemplateKey);
+      chainSourceMaterial = hubClient.load(inputTemplateKey, audioBaseUrl);
       chainSourceMaterial.setTemplateShipKey(inputTemplateKey);
       chainId = createChainForTemplate(chainSourceMaterial.getTemplate())
         .orElseThrow(() -> new HubClientException(String.format("Failed to create chain for Template[%s]", inputTemplateKey)))
@@ -564,7 +573,7 @@ public class CraftWorkImpl implements CraftWork {
 
     try {
       // read the source material
-      chainSourceMaterial = hubClient.ingest(access, chain.getTemplateId());
+      chainSourceMaterial = hubClient.ingest(hubBaseUrl, access, chain.getTemplateId());
       LOG.info("Ingested {} entities of source material for Chain[{}]", chainSourceMaterial.size(), ChainUtils.getIdentifier(chain));
 
     } catch (HubClientException e) {
@@ -589,7 +598,7 @@ public class CraftWorkImpl implements CraftWork {
     }
 
     try {
-      var lastCraftedSegment = segmentManager.readLastCraftedSegment(HubClientAccess.internal());
+      var lastCraftedSegment = segmentManager.readLastCraftedSegment(access);
       if (lastCraftedSegment.isEmpty()) {
         chainFabricatedAhead = false;
         return;
@@ -832,7 +841,7 @@ public class CraftWorkImpl implements CraftWork {
       return Optional.empty();
     }
     try {
-      return hubClient.readPreviewTemplate(id);
+      return hubClient.readPreviewTemplate(hubBaseUrl, access.getToken(), id);
     } catch (HubClientException e) {
       LOG.error("Failed to read preview Template[{}] from Hub because {}", id, e.getMessage());
       return Optional.empty();

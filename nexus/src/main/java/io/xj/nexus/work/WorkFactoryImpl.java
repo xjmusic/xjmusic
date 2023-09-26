@@ -15,6 +15,7 @@ import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.dub.DubAudioCache;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.HubClient;
+import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.ship.broadcast.BroadcastFactory;
@@ -121,9 +122,11 @@ public class WorkFactoryImpl implements WorkFactory {
 
   @Override
   public boolean start(
-    HubConfiguration hubConfig,
     WorkConfiguration workConfig,
-    Consumer<Double> progressUpdateCallback, Runnable onDone
+    HubConfiguration hubConfig,
+    HubClientAccess hubAccess,
+    Consumer<Double> progressUpdateCallback,
+    Runnable onDone
   ) {
     craftWork = new CraftWorkImpl(
       craftFactory,
@@ -138,6 +141,10 @@ public class WorkFactoryImpl implements WorkFactory {
       notification,
       segmentManager,
       telemetryProvider,
+      hubAccess,
+      hubConfig.getBaseUrl(),
+      hubConfig.getAudioBaseUrl(),
+      hubConfig.getShipBaseUrl(),
       workConfig.getInputMode(),
       workConfig.getOutputMode(),
       workConfig.getInputTemplateKey(),
