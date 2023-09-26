@@ -2,6 +2,7 @@
 
 package io.xj.gui.services;
 
+import io.xj.hub.HubConfiguration;
 import io.xj.hub.tables.pojos.User;
 import javafx.application.HostServices;
 import javafx.application.Platform;
@@ -32,6 +33,7 @@ public class LabServiceImpl implements LabService {
   final StringProperty accessToken = new SimpleStringProperty();
 
   final ObjectProperty<User> authenticatedUser = new SimpleObjectProperty<>();
+  final ObjectProperty<HubConfiguration> config = new SimpleObjectProperty<>();
 
   public LabServiceImpl(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
@@ -72,6 +74,17 @@ public class LabServiceImpl implements LabService {
   @Override
   public void onConnectionSuccess(User user) {
     this.authenticatedUser.set(user);
+    this.status.set(LabStatus.Configuring);
+    makeAuthenticatedRequest("api/2/config", HttpMethod.GET, HubConfiguration.class)
+      .subscribe(
+        (HubConfiguration config) -> Platform.runLater(() -> this.onConfigurationSuccess(config)),
+        error -> Platform.runLater(() -> this.onConnectionFailure(error)),
+        () -> Platform.runLater(this::onConnectionChanged));
+  }
+
+  @Override
+  public void onConfigurationSuccess(HubConfiguration config) {
+    this.config.set(config);
     this.status.set(LabStatus.Authenticated);
   }
 
