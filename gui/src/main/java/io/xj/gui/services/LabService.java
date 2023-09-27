@@ -1,5 +1,6 @@
 package io.xj.gui.services;
 
+import io.xj.hub.HubConfiguration;
 import io.xj.hub.tables.pojos.User;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
@@ -15,13 +16,17 @@ public interface LabService {
 
   void onConnectionSuccess(User user);
 
+  void onConfigurationSuccess(HubConfiguration config);
+
   void onConnectionFailure(Throwable error);
 
   <T> Mono<T> makeAuthenticatedRequest(String endpoint, HttpMethod method, Class<T> responseType);
 
   void disconnect();
 
-  ObjectProperty<LabStatus> statusProperty();
+    ObjectProperty<HubConfiguration> hubConfigProperty();
+
+    ObjectProperty<LabStatus> statusProperty();
 
   StringProperty baseUrlProperty();
 

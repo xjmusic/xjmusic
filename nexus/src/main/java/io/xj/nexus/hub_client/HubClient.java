@@ -20,44 +20,32 @@ public interface HubClient {
    <p>
    HubAccess entity contains the token itself, such that one of these entities can also be used (e.g. by a HubClient) in order to make a request to a Hub API
 
+   @param baseUrl    of Hub
    @param access     control
    @param templateId to ingest
    @return HubClient comprising ingested entities, including all child sub-entities
    @throws HubClientException on failure to perform request
    */
-  HubContent ingest(HubClientAccess access, UUID templateId) throws HubClientException;
+  HubContent ingest(String baseUrl, HubClientAccess access, UUID templateId) throws HubClientException;
 
   /**
    Read preview template by ID
 
-   @param templateId of template to read
+   @param baseUrl     of Hub
+   @param accessToken to use for authentication
+   @param templateId  of template to read
    @return Template
    */
-  Optional<Template> readPreviewTemplate(UUID templateId) throws HubClientException;
+  Optional<Template> readPreviewTemplate(String baseUrl, String accessToken, UUID templateId) throws HubClientException;
 
   /**
    Load shipped content from a static file
    <p>
    Nexus production fabrication from static source (without Hub) https://www.pivotaltracker.com/story/show/177020318
 
-   @param shipKey to load
+   @param shipKey      to load
+   @param audioBaseUrl to use for audio
    @return hub content
    */
-  HubContent load(String shipKey) throws HubClientException;
-
-  /**
-   Set the ingestion token value
-   Workstation can play template live from hub https://www.pivotaltracker.com/story/show/185913107
-
-   @param value to set
-   */
-  void setAccessToken(String value);
-
-  /**
-   Set the ingestion base URL
-   Workstation can play template live from hub https://www.pivotaltracker.com/story/show/185913107
-
-   @param url to set
-   */
-  void setBaseUrl(String url);
+  HubContent load(String shipKey, String audioBaseUrl) throws HubClientException;
 }

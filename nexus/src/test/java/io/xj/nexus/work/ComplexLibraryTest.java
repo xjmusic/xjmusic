@@ -2,6 +2,7 @@
 package io.xj.nexus.work;
 
 import io.xj.hub.HubContent;
+import io.xj.hub.enums.UserRoleType;
 import io.xj.lib.entity.EntityFactoryImpl;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.http.HttpClientProvider;
@@ -30,12 +31,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Objects;
 
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildAccount;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildLibrary;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -45,6 +46,9 @@ public class ComplexLibraryTest {
   static final int MAXIMUM_TEST_WAIT_SECONDS = 10 * MARATHON_NUMBER_OF_SEGMENTS;
   static final int MILLIS_PER_SECOND = 1000;
   private static final int GENERATED_FIXTURE_COMPLEXITY = 3;
+  private final static String audioBaseUrl = "https://audio.xj.io/";
+  private final static String shipBaseUrl = "https://ship.xj.io/";
+  private final static String hubBaseUrl = "https://lab.xj.io/";
   @Mock
   public HubClient hubClient;
   @Mock
@@ -88,11 +92,14 @@ public class ComplexLibraryTest {
     test.deleteAll();
 
     // Mock request via HubClient returns fake generated library of hub content
-    when(hubClient.load(any())).thenReturn(content);
+    when(hubClient.load("complex_library_test", audioBaseUrl)).thenReturn(content);
 
     // Dependencies
     CraftFactory craftFactory = new CraftFactoryImpl();
     HttpClientProvider httpClientProvider = new HttpClientProviderImpl(1, 1);
+
+    // Access
+    var access = new HubClientAccess(List.of(UserRoleType.Internal));
 
     // work
     work = new CraftWorkImpl(
@@ -108,6 +115,10 @@ public class ComplexLibraryTest {
       notificationProvider,
       segmentManager,
       telemetryProvider,
+      access,
+      hubBaseUrl,
+      audioBaseUrl,
+      shipBaseUrl,
       InputMode.PRODUCTION,
       OutputMode.PLAYBACK,
       "complex_library_test",
@@ -155,7 +166,7 @@ public class ComplexLibraryTest {
       var chain = work.getChain();
       if (chain.isEmpty())
         return false;
-      return segmentManager.readLastCraftedSegment(HubClientAccess.internal())
+      return segmentManager.readLastCraftedSegment(new HubClientAccess(List.of(UserRoleType.Internal)))
         .filter(value -> MARATHON_NUMBER_OF_SEGMENTS <= value.getId()).isPresent();
 
     } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException ignored) {

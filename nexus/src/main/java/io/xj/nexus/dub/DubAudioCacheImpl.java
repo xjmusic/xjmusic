@@ -33,19 +33,13 @@ public class DubAudioCacheImpl implements DubAudioCache {
   final static Logger LOG = LoggerFactory.getLogger(DubAudioCacheImpl.class);
   String pathPrefix;
   final HttpClientProvider httpClientProvider;
-  final String audioFileBucket;
-  final String audioBaseUrl;
 
   @Autowired
   public DubAudioCacheImpl(
     @Value("${audio.cache.file-prefix}") String audioCacheFilePrefix,
-    HttpClientProvider httpClientProvider,
-    @Value("${audio.file.bucket}") String audioFileBucket,
-    @Value("${audio.base.url}") String audioBaseUrl
+    HttpClientProvider httpClientProvider
   ) {
     this.httpClientProvider = httpClientProvider;
-    this.audioFileBucket = audioFileBucket;
-    this.audioBaseUrl = audioBaseUrl;
 
     try {
       pathPrefix = 0 < audioCacheFilePrefix.length() ?
@@ -64,7 +58,7 @@ public class DubAudioCacheImpl implements DubAudioCache {
   }
 
   @Override
-  public String load(String waveformKey, int targetFrameRate, int targetSampleBits, int targetChannels) throws FileStoreException, IOException, NexusException {
+  public String load(String audioBaseUrl, String waveformKey, int targetFrameRate, int targetSampleBits, int targetChannels) throws FileStoreException, IOException, NexusException {
     if (StringUtils.isNullOrEmpty(waveformKey)) throw new FileStoreException("Can't load null or empty audio key!");
     var absolutePath = String.format("%s%s", pathPrefix, waveformKey);
     if (existsOnDisk(absolutePath)) {
@@ -76,7 +70,7 @@ public class DubAudioCacheImpl implements DubAudioCache {
     ) {
       writeFrom(response.getEntity().getContent(), targetFrameRate, targetSampleBits, targetChannels, absolutePath);
     } catch (IOException e) {
-      throw new NexusException(String.format("Dub audio cache failed to stream audio from s3://%s/%s", audioFileBucket, waveformKey), e);
+      throw new NexusException(String.format("Dub audio cache failed to stream audio from %s%s", audioBaseUrl, waveformKey), e);
     }
     return absolutePath;
   }

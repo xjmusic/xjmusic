@@ -57,12 +57,14 @@ public class DubWorkImpl implements DubWork {
   final int outputChannels;
   final double outputFrameRate;
   final int dubAheadSeconds;
+  final String audioBaseUrl;
 
   public DubWorkImpl(
     CraftWork craftWork,
     DubAudioCache dubAudioCache,
     MixerFactory mixerFactory,
     NotificationProvider notification,
+    String audioBaseUrl,
     int mixerSeconds,
     long cycleMillis,
     double outputFrameRate,
@@ -72,6 +74,7 @@ public class DubWorkImpl implements DubWork {
     this.craftWork = craftWork;
     this.dubAudioCache = dubAudioCache;
     this.notification = notification;
+    this.audioBaseUrl = audioBaseUrl;
     this.mixerLengthSeconds = mixerSeconds;
     this.outputFrameRate = outputFrameRate;
     this.outputChannels = outputChannels;
@@ -401,6 +404,7 @@ public class DubWorkImpl implements DubWork {
         mixer.loadSource(
           active.getAudio().getId(),
           dubAudioCache.load(
+            audioBaseUrl,
             key,
             (int) mixer.getAudioFormat().getFrameRate(),
             mixer.getAudioFormat().getSampleSizeInBits(),

@@ -8,7 +8,6 @@ import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
-import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.SegmentManager;
@@ -47,9 +46,6 @@ class FabricationServiceImplTest {
   HostServices hostServices;
 
   @Mock
-  HubClient hubClient;
-
-  @Mock
   WorkFactory workFactory;
 
   @Mock
@@ -85,7 +81,6 @@ class FabricationServiceImplTest {
       defaultOutputFrameRate,
       defaultOutputMode,
       defaultOutputSeconds,
-      hubClient,
       workFactory,
       labService
     );

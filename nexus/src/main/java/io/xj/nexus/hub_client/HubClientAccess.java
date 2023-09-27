@@ -9,7 +9,6 @@ import jakarta.annotation.Nullable;
 import java.util.*;
 
 public class HubClientAccess {
-  public static final String CONTEXT_KEY = "hub_access";
   static final UserRoleType[] topLevelRoles = {UserRoleType.Admin, UserRoleType.Internal};
   final Collection<UserRoleType> roleTypes = new ArrayList<>();
   final Collection<UUID> accountIds = new ArrayList<>();
@@ -31,29 +30,19 @@ public class HubClientAccess {
 
    @param userRoleTypes to grant
    */
-  public HubClientAccess(Collection<UserRoleType> userRoleTypes) {
+  public HubClientAccess(String token, Collection<UserRoleType> userRoleTypes) {
+    this.token = token;
     roleTypes.addAll(userRoleTypes);
   }
 
   /**
-   Create an access control object for an internal process with top-level access
+   of access with only role types, e.g. top level direct access
 
-   @return access control
+   @param userRoleTypes to grant
    */
-  public static HubClientAccess internal() {
-    // FUTURE how does Hub plan on authenticating a request made with this "credential?"
-    return new HubClientAccess(List.of(UserRoleType.Internal));
+  public HubClientAccess(Collection<UserRoleType> userRoleTypes) {
+    roleTypes.addAll(userRoleTypes);
   }
-
-  /**
-   Create an access control object for an unauthenticated access
-
-   @return access control
-   */
-  public static HubClientAccess unauthenticated() {
-    return new HubClientAccess();
-  }
-
 
   /**
    Determine if user access roles match any of the given resource access roles.

@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.nexus.work;
 
+import io.xj.hub.HubConfiguration;
 import io.xj.hub.HubContent;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreProvider;
@@ -14,6 +15,7 @@ import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.dub.DubAudioCache;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.HubClient;
+import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.ship.broadcast.BroadcastFactory;
@@ -120,8 +122,11 @@ public class WorkFactoryImpl implements WorkFactory {
 
   @Override
   public boolean start(
-    WorkConfiguration configuration,
-    Consumer<Double> progressUpdateCallback, Runnable onDone
+    WorkConfiguration workConfig,
+    HubConfiguration hubConfig,
+    HubClientAccess hubAccess,
+    Consumer<Double> progressUpdateCallback,
+    Runnable onDone
   ) {
     craftWork = new CraftWorkImpl(
       craftFactory,
@@ -136,39 +141,44 @@ public class WorkFactoryImpl implements WorkFactory {
       notification,
       segmentManager,
       telemetryProvider,
-      configuration.getInputMode(),
-      configuration.getOutputMode(),
-      configuration.getInputTemplateKey(),
+      hubAccess,
+      hubConfig.getBaseUrl(),
+      hubConfig.getAudioBaseUrl(),
+      hubConfig.getShipBaseUrl(),
+      workConfig.getInputMode(),
+      workConfig.getOutputMode(),
+      workConfig.getInputTemplateKey(),
       isJsonOutputEnabled,
       tempFilePathPrefix,
       jsonExpiresInSeconds,
-      configuration.getOutputFrameRate(),
-      configuration.getOutputChannels(),
-      configuration.getCraftAheadSeconds()
+      workConfig.getOutputFrameRate(),
+      workConfig.getOutputChannels(),
+      workConfig.getCraftAheadSeconds()
     );
     dubWork = new DubWorkImpl(
       craftWork,
       dubAudioCache,
       mixerFactory,
       notification,
+      hubConfig.getAudioBaseUrl(),
       mixerSeconds,
       dubCycleMillis,
-      configuration.getOutputFrameRate(),
-      configuration.getOutputChannels(),
-      configuration.getDubAheadSeconds());
+      workConfig.getOutputFrameRate(),
+      workConfig.getOutputChannels(),
+      workConfig.getDubAheadSeconds());
     shipWork = new ShipWorkImpl(
       dubWork,
       notification,
       broadcastFactory,
-      configuration.getOutputMode(),
-      configuration.getOutputFileMode(),
-      configuration.getOutputSeconds(),
+      workConfig.getOutputMode(),
+      workConfig.getOutputFileMode(),
+      workConfig.getOutputSeconds(),
       shipCycleMillis,
       cycleAudioBytes,
-      configuration.getOutputPathPrefix(),
+      workConfig.getOutputPathPrefix(),
       outputFileNumberDigits,
       pcmChunkSizeBytes,
-      configuration.getShipAheadSeconds(),
+      workConfig.getShipAheadSeconds(),
       progressUpdateCallback
     );
 

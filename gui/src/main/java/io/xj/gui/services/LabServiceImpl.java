@@ -2,6 +2,7 @@
 
 package io.xj.gui.services;
 
+import io.xj.hub.HubConfiguration;
 import io.xj.hub.tables.pojos.User;
 import javafx.application.HostServices;
 import javafx.application.Platform;
@@ -33,22 +34,41 @@ public class LabServiceImpl implements LabService {
 
   final ObjectProperty<User> authenticatedUser = new SimpleObjectProperty<>();
 
+  final ObjectProperty<HubConfiguration> hubConfig = new SimpleObjectProperty<>();
+
   public LabServiceImpl(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
-    @Value("${lab.base.url}") String defaultLabBaseUrl
+    @Value("${lab.base.url}") String defaultLabBaseUrl,
+    @Value("${audio.base.url}") String audioBaseUrl,
+    @Value("${ship.base.url}") String shipBaseUrl,
+    @Value("${stream.base.url}") String streamBaseUrl
   ) {
     this.hostServices = hostServices;
     this.baseUrl.set(defaultLabBaseUrl);
     this.webClient = WebClient.builder().build();
-    baseUrl.addListener((observable, oldValue, newValue) -> {
-      if (Objects.isNull(newValue)) {
+    baseUrl.addListener((ignored1, ignored2, value) -> {
+      if (Objects.isNull(value)) {
         return;
       }
-      if (!newValue.endsWith("/")) {
+      if (!value.endsWith("/")) {
         this.baseUrl.set(this.baseUrl.getValue() + '/');
       }
       LOG.info("Lab URL changed to: " + this.baseUrl.getValue());
     });
+
+    this.hubConfig.set(new HubConfiguration()
+      .setApiBaseUrl(defaultLabBaseUrl)
+      .setAudioBaseUrl(audioBaseUrl)
+      .setBaseUrl(defaultLabBaseUrl)
+      .setShipBaseUrl(shipBaseUrl)
+      .setStreamBaseUrl(streamBaseUrl));
+    this.hubConfig.addListener((ignored1, ignored2, value) ->
+      LOG.info("Lab configured: " +
+        "Base: " + value.getBaseUrl() + ", " +
+        "API: " + value.getApiBaseUrl() + ", " +
+        "Audio: " + value.getAudioBaseUrl() + ", " +
+        "Ship: " + value.getShipBaseUrl() + ", " +
+        "Stream: " + value.getStreamBaseUrl() + ", "));
   }
 
   @Override
@@ -72,6 +92,17 @@ public class LabServiceImpl implements LabService {
   @Override
   public void onConnectionSuccess(User user) {
     this.authenticatedUser.set(user);
+    this.status.set(LabStatus.Configuring);
+    makeAuthenticatedRequest("api/2/config", HttpMethod.GET, HubConfiguration.class)
+      .subscribe(
+        (HubConfiguration config) -> Platform.runLater(() -> this.onConfigurationSuccess(config)),
+        error -> Platform.runLater(() -> this.onConnectionFailure(error)),
+        () -> Platform.runLater(this::onConnectionChanged));
+  }
+
+  @Override
+  public void onConfigurationSuccess(HubConfiguration config) {
+    this.hubConfig.set(config);
     this.status.set(LabStatus.Authenticated);
   }
 
@@ -95,6 +126,11 @@ public class LabServiceImpl implements LabService {
   public void disconnect() {
     this.status.set(LabStatus.Offline);
     this.authenticatedUser.set(null);
+  }
+
+  @Override
+  public ObjectProperty<HubConfiguration> hubConfigProperty() {
+    return hubConfig;
   }
 
   @Override

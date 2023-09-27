@@ -2,11 +2,14 @@
 
 package io.xj.workstation.service;
 
+import io.xj.hub.HubConfiguration;
+import io.xj.hub.enums.UserRoleType;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
+import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.work.WorkConfiguration;
 import io.xj.nexus.work.WorkFactory;
@@ -22,6 +25,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.event.EventListener;
 
+import java.util.List;
 import java.util.Locale;
 
 @SpringBootApplication
@@ -42,6 +46,11 @@ public class WorkstationServiceApplication {
   final OutputMode outputMode;
   final String outputPathPrefix;
   final int outputSeconds;
+  private final String ingestToken;
+  private final String audioBaseUrl;
+  private final String labBaseUrl;
+  private final String shipBaseUrl;
+  private final String streamBaseUrl;
 
   @Autowired
   public WorkstationServiceApplication(
@@ -53,7 +62,12 @@ public class WorkstationServiceApplication {
     @Value("${output.file.mode}") String outputFileMode,
     @Value("${output.mode}") String outputMode,
     @Value("${output.path.prefix}") String outputPathPrefix,
-    @Value("${output.seconds}") int outputSeconds
+    @Value("${output.seconds}") int outputSeconds,
+    @Value("${ingest.token}") String ingestToken,
+    @Value("${audio.base.url}") String audioBaseUrl,
+    @Value("${lab.base.url}") String labBaseUrl,
+    @Value("${ship.base.url}") String shipBaseUrl,
+    @Value("${stream.base.url}") String streamBaseUrl
   ) {
     this.entityFactory = entityFactory;
     this.workFactory = workFactory;
@@ -64,6 +78,11 @@ public class WorkstationServiceApplication {
     this.outputMode = OutputMode.valueOf(outputMode.toUpperCase(Locale.ROOT));
     this.outputPathPrefix = outputPathPrefix;
     this.outputSeconds = outputSeconds;
+    this.ingestToken = ingestToken;
+    this.audioBaseUrl = audioBaseUrl;
+    this.labBaseUrl = labBaseUrl;
+    this.shipBaseUrl = shipBaseUrl;
+    this.streamBaseUrl = streamBaseUrl;
   }
 
   @EventListener(ApplicationStartedEvent.class)
@@ -72,7 +91,7 @@ public class WorkstationServiceApplication {
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
 
-    var configuration = new WorkConfiguration()
+    var workConfig = new WorkConfiguration()
       .setInputMode(inputMode)
       .setInputTemplateKey(inputTemplateKey)
       .setOutputFileMode(outputFileMode)
@@ -80,7 +99,19 @@ public class WorkstationServiceApplication {
       .setOutputPathPrefix(outputPathPrefix)
       .setOutputSeconds(outputSeconds);
 
-    workFactory.start(configuration, this::updateProgress, this::shutdown);
+    var hubConfig = new HubConfiguration()
+      .setApiBaseUrl(labBaseUrl)
+      .setAudioBaseUrl(audioBaseUrl)
+      .setBaseUrl(labBaseUrl)
+      .setPlayerBaseUrl(streamBaseUrl)
+      .setShipBaseUrl(shipBaseUrl)
+      .setStreamBaseUrl(streamBaseUrl);
+
+    var hubAccess = new HubClientAccess()
+      .setRoleTypes(List.of(UserRoleType.Internal))
+      .setToken(ingestToken);
+
+    workFactory.start(workConfig, hubConfig, hubAccess, this::updateProgress, this::shutdown);
   }
 
   private void updateProgress(Double aDouble) {
