@@ -46,11 +46,11 @@ public class LabServiceImpl implements LabService {
     this.hostServices = hostServices;
     this.baseUrl.set(defaultLabBaseUrl);
     this.webClient = WebClient.builder().build();
-    baseUrl.addListener((observable, oldValue, newValue) -> {
-      if (Objects.isNull(newValue)) {
+    baseUrl.addListener((ignored1, ignored2, value) -> {
+      if (Objects.isNull(value)) {
         return;
       }
-      if (!newValue.endsWith("/")) {
+      if (!value.endsWith("/")) {
         this.baseUrl.set(this.baseUrl.getValue() + '/');
       }
       LOG.info("Lab URL changed to: " + this.baseUrl.getValue());
@@ -62,6 +62,13 @@ public class LabServiceImpl implements LabService {
       .setBaseUrl(defaultLabBaseUrl)
       .setShipBaseUrl(shipBaseUrl)
       .setStreamBaseUrl(streamBaseUrl));
+    this.hubConfig.addListener((ignored1, ignored2, value) ->
+      LOG.info("Lab configured: " +
+        "Base: " + value.getBaseUrl() + ", " +
+        "API: " + value.getApiBaseUrl() + ", " +
+        "Audio: " + value.getAudioBaseUrl() + ", " +
+        "Ship: " + value.getShipBaseUrl() + ", " +
+        "Stream: " + value.getStreamBaseUrl() + ", "));
   }
 
   @Override
