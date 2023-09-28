@@ -78,7 +78,7 @@ public class AudioFileWriterImpl implements AudioFileWriter {
   }
 
   @Override
-  public void finish() {
+  public boolean finish() {
     if (fileState.get() != FileState.WRITING) {
       throw new IllegalStateException("Stream is not open");
     }
@@ -87,7 +87,7 @@ public class AudioFileWriterImpl implements AudioFileWriter {
       tempFile.close();
       if (tempFileByteCount.get() == 0) {
         LOG.warn("Will not write zero-byte {}", outputPath.get());
-        return;
+        return false;
       }
 
       File outputFile = new File(outputPath.get());
@@ -97,8 +97,11 @@ public class AudioFileWriterImpl implements AudioFileWriter {
       AudioSystem.write(ais, AudioFileFormat.Type.WAVE, outputFile);
       this.fileState.set(FileState.DONE);
       LOG.info("Did write {} bytes of PCM data to output WAV container {}", tempFileByteCount.get(), outputPath.get());
+      return true;
+
     } catch (IOException e) {
       LOG.error("Failed to close output file stream!", e);
+      return true;
     }
   }
 

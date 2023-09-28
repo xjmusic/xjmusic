@@ -25,8 +25,10 @@ public interface AudioFileWriter {
 
   /**
    Close the writer and release resources
+
+   @return true if the output file is non-empty
    */
-  void finish() throws IOException;
+  boolean finish() throws IOException;
 
   /**
    @return true if the writer is currently writing
