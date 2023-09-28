@@ -341,13 +341,17 @@ public class ShipWorkImpl implements ShipWork {
       fileWriter.append(dubWork.getMixerBuffer().orElseThrow().consume(shipBytes));
       targetChainMicros = targetChainMicros + (long) (shipBytes * dubWork.getMixerOutputMicrosPerByte().orElseThrow());
       if (shippedEnoughSeconds()) {
-        doShipOutputFileClose();
+        if (doShipOutputFileClose()) {
+          outputFileNum++;
+        }
       }
     }
   }
 
   void doShipOutputFileStartNext(Segment firstSegment) {
-    doShipOutputFileClose();
+    if (doShipOutputFileClose()) {
+      outputFileNum++;
+    }
     outputFile = new OutputFile(firstSegment);
 
     try {
@@ -360,14 +364,15 @@ public class ShipWorkImpl implements ShipWork {
     LOG.info("Starting next output file {}", outputFile.getPath());
   }
 
-  void doShipOutputFileClose() {
+  boolean doShipOutputFileClose() {
     if (Objects.requireNonNull(fileWriter).isWriting()) {
       try {
-        fileWriter.finish();
+        return fileWriter.finish();
       } catch (IOException e) {
         didFailWhile("closing file writer", e);
       }
     }
+    return false;
   }
 
   /**
@@ -474,7 +479,7 @@ public class ShipWorkImpl implements ShipWork {
     public String getPath() {
       return outputPathPrefix +
         dubWork.getInputTemplateKey() +
-        "-" + StringUtils.zeroPadded(outputFileNum++, outputFileNumberDigits) +
+        "-" + StringUtils.zeroPadded(outputFileNum, outputFileNumberDigits) +
         getPathDescriptionIfRelevant() +
         ".wav";
     }
