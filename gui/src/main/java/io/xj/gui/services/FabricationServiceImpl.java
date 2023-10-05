@@ -41,13 +41,13 @@ import java.util.prefs.Preferences;
 @org.springframework.stereotype.Service
 public class FabricationServiceImpl extends Service<Boolean> implements FabricationService {
   static final Logger LOG = LoggerFactory.getLogger(FabricationServiceImpl.class);
+  private static final String defaultPathPrefix = System.getProperty("user.home") + File.separator + "XJ music" + File.separator + "Documents" + File.separator;
   private final Preferences prefs = Preferences.userNodeForPackage(FabricationServiceImpl.class);
   final static String BUTTON_TEXT_START = "Start";
   final static String BUTTON_TEXT_STOP = "Stop";
   final static String BUTTON_TEXT_RESET = "Reset";
   final HostServices hostServices;
   private final String defaultContentStoragePathPrefix = computeDefaultPathPrefix("content");
-
   private final String defaultOutputPathPrefix = computeDefaultPathPrefix("output");
   private final int defaultTimelineSegmentViewLimit;
   private final Integer defaultCraftAheadSeconds;
@@ -155,7 +155,6 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     contentStoragePathPrefix.set(prefs.get("contentStoragePathPrefix", defaultContentStoragePathPrefix));
     craftAheadSeconds.set(prefs.get("craftAheadSeconds", Integer.toString(defaultCraftAheadSeconds)));
     dubAheadSeconds.set(prefs.get("dubAheadSeconds", Integer.toString(defaultDubAheadSeconds)));
-    shipAheadSeconds.set(prefs.get("shipAheadSeconds", Integer.toString(defaultShipAheadSeconds)));
     inputMode.set(InputMode.valueOf(prefs.get("inputMode", InputMode.PRODUCTION.name())));
     inputTemplateKey.set(prefs.get("inputTemplateKey", defaultInputTemplateKey));
     outputChannels.set(prefs.get("outputChannels", Integer.toString(defaultOutputChannels)));
@@ -164,6 +163,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     outputMode.set(OutputMode.valueOf(prefs.get("outputMode", defaultOutputMode.toUpperCase(Locale.ROOT))));
     outputPathPrefix.set(prefs.get("outputPathPrefix", defaultOutputPathPrefix));
     outputSeconds.set(prefs.get("outputSeconds", Integer.toString(defaultOutputSeconds)));
+    shipAheadSeconds.set(prefs.get("shipAheadSeconds", Integer.toString(defaultShipAheadSeconds)));
     timelineSegmentViewLimit.set(prefs.get("timelineSegmentViewLimit", Integer.toString(defaultTimelineSegmentViewLimit)));
   }
 
@@ -571,6 +571,6 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   }
 
   private static String computeDefaultPathPrefix(String category) {
-    return System.getProperty("user.home") + File.separator + "XJ music" + File.separator + category + File.separator;
+    return defaultPathPrefix + category + File.separator;
   }
 }
