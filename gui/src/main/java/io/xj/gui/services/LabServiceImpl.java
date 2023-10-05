@@ -4,6 +4,7 @@ package io.xj.gui.services;
 
 import io.xj.hub.HubConfiguration;
 import io.xj.hub.tables.pojos.User;
+import io.xj.hub.util.StringUtils;
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
@@ -14,18 +15,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
+import io.netty.resolver.DefaultAddressResolverGroup;
 
 import java.net.URI;
 import java.util.Objects;
+import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
 
 @Service
 public class LabServiceImpl implements LabService {
-  private final HostServices hostServices;
   Logger LOG = LoggerFactory.getLogger(LabServiceImpl.class);
+  private final Preferences prefs = Preferences.userNodeForPackage(LabServiceImpl.class);
+  private final HostServices hostServices;
   final WebClient webClient;
   final ObjectProperty<LabStatus> status = new SimpleObjectProperty<>(LabStatus.Offline);
   static final Pattern rgxStripLeadingSlash = Pattern.compile("^/");
@@ -44,9 +50,10 @@ public class LabServiceImpl implements LabService {
     @Value("${stream.base.url}") String streamBaseUrl
   ) {
     this.hostServices = hostServices;
-    this.baseUrl.set(defaultLabBaseUrl);
-    this.webClient = WebClient.builder().build();
-    baseUrl.addListener((ignored1, ignored2, value) -> {
+
+    baseUrl.set(prefs.get("baseUrl", defaultLabBaseUrl));
+    baseUrl.addListener((observable, prior, value) -> {
+      prefs.put("baseUrl", value);
       if (Objects.isNull(value)) {
         return;
       }
@@ -56,27 +63,37 @@ public class LabServiceImpl implements LabService {
       LOG.info("Lab URL changed to: " + this.baseUrl.getValue());
     });
 
-    this.hubConfig.set(new HubConfiguration()
+      HttpClient httpClient = HttpClient.create().resolver(DefaultAddressResolverGroup.INSTANCE);
+      webClient = WebClient.builder()
+        .clientConnector(new ReactorClientHttpConnector(httpClient))
+        .build();
+
+    hubConfig.set(new HubConfiguration()
       .setApiBaseUrl(defaultLabBaseUrl)
       .setAudioBaseUrl(audioBaseUrl)
       .setBaseUrl(defaultLabBaseUrl)
       .setShipBaseUrl(shipBaseUrl)
       .setStreamBaseUrl(streamBaseUrl));
-    this.hubConfig.addListener((ignored1, ignored2, value) ->
+    hubConfig.addListener((observable, prior, value) ->
       LOG.info("Lab configured: " +
         "Base: " + value.getBaseUrl() + ", " +
         "API: " + value.getApiBaseUrl() + ", " +
         "Audio: " + value.getAudioBaseUrl() + ", " +
         "Ship: " + value.getShipBaseUrl() + ", " +
         "Stream: " + value.getStreamBaseUrl() + ", "));
+
+    accessToken.addListener((observable, prior, value) -> prefs.put("accessToken", value));
+    var savedAccessToken = prefs.get("accessToken", null);
+    if (!StringUtils.isNullOrEmpty(savedAccessToken)) {
+      LOG.info("Found saved access token, connecting to lab...");
+      accessToken.set(savedAccessToken);
+      Platform.runLater(this::connect);
+    }
   }
 
   @Override
   public void connect() {
-    this.baseUrl.set(baseUrl.getValue());
-    this.accessToken.set(accessToken.getValue());
     this.status.set(LabStatus.Connecting);
-
     makeAuthenticatedRequest("api/2/users/me", HttpMethod.GET, User.class)
       .subscribe(
         (User user) -> Platform.runLater(() -> this.onConnectionSuccess(user)),
