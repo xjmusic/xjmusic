@@ -77,7 +77,6 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   final StringProperty outputChannels = new SimpleStringProperty();
 
   final StringProperty timelineSegmentViewLimit = new SimpleStringProperty();
-  final IntegerProperty timelineSegmentViewLimitInteger = new SimpleIntegerProperty();
   final BooleanProperty followPlayback = new SimpleBooleanProperty(true);
   final ObservableBooleanValue outputModeSync = Bindings.createBooleanBinding(() ->
     outputMode.get().isSync(), outputMode);
@@ -420,8 +419,9 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   @Override
   public List<Segment> getSegments(@Nullable Integer startIndex) {
     try {
-      var from = Objects.nonNull(startIndex) ? startIndex : Math.max(0, workFactory.getSegmentManager().size() - timelineSegmentViewLimitInteger.get() - 1);
-      var to = Math.min(workFactory.getSegmentManager().size() - 1, from + timelineSegmentViewLimitInteger.get());
+      var viewLimit = Integer.parseInt(timelineSegmentViewLimit.getValue());
+      var from = Objects.nonNull(startIndex) ? startIndex : Math.max(0, workFactory.getSegmentManager().size() - viewLimit - 1);
+      var to = Math.min(workFactory.getSegmentManager().size() - 1, from + viewLimit);
       return workFactory
         .getSegmentManager()
         .readManyFromToOffset(from, to);
