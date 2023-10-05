@@ -31,6 +31,9 @@ module workstation.gui.main {
   requires transitive workstation.lib.main;
   requires transitive workstation.nexus.main;
   requires component.inspector.fx;
+    requires java.prefs;
+  requires reactor.netty.http;
+  requires io.netty.resolver;
 
   // open
   opens io.xj.gui to ch.qos.logback.core, javafx.base, javafx.controls, javafx.fxml, javafx.graphics, spring.beans, spring.context, spring.core;

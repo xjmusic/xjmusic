@@ -9,6 +9,7 @@ import io.xj.hub.tables.pojos.*;
 import io.xj.hub.util.ValueException;
 import io.xj.lib.util.FormatUtils;
 import io.xj.nexus.InputMode;
+import java.util.prefs.Preferences;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.hub_client.HubClientAccess;
@@ -40,6 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @org.springframework.stereotype.Service
 public class FabricationServiceImpl extends Service<Boolean> implements FabricationService {
   static final Logger LOG = LoggerFactory.getLogger(FabricationServiceImpl.class);
+  private final Preferences prefs = Preferences.userNodeForPackage(FabricationServiceImpl.class);
   final static String BUTTON_TEXT_START = "Start";
   final static String BUTTON_TEXT_STOP = "Stop";
   final static String BUTTON_TEXT_RESET = "Reset";
@@ -118,7 +120,8 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     this.workFactory = workFactory;
     this.labService = labService;
 
-    setAllDefaults();
+    attachPreferenceListeners();
+    setAllFromPrefsOrDefaults();
 
     setOnCancelled((WorkerStateEvent ignored) -> status.set(FabricationStatus.Cancelled));
     setOnFailed((WorkerStateEvent ignored) -> status.set(FabricationStatus.Failed));
@@ -126,6 +129,36 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     setOnRunning((WorkerStateEvent ignored) -> status.set(FabricationStatus.Active));
     setOnScheduled((WorkerStateEvent ignored) -> status.set(FabricationStatus.Starting));
     setOnSucceeded((WorkerStateEvent ignored) -> status.set(FabricationStatus.Done));
+  }
+
+  private void attachPreferenceListeners() {
+    craftAheadSeconds.addListener((obs, oldValue, newValue) -> prefs.put("craftAheadSeconds", newValue));
+    dubAheadSeconds.addListener((obs, oldValue, newValue) -> prefs.put("dubAheadSeconds", newValue));
+    shipAheadSeconds.addListener((obs, oldValue, newValue) -> prefs.put("shipAheadSeconds", newValue));
+    inputMode.addListener((obs, oldValue, newValue) -> prefs.put("inputMode", newValue.name()));
+    inputTemplateKey.addListener((obs, oldValue, newValue) -> prefs.put("inputTemplateKey", newValue));
+    outputChannels.addListener((obs, oldValue, newValue) -> prefs.put("outputChannels", newValue));
+    outputFileMode.addListener((obs, oldValue, newValue) -> prefs.put("outputFileMode", newValue.name()));
+    outputFrameRate.addListener((obs, oldValue, newValue) -> prefs.put("outputFrameRate", newValue));
+    outputMode.addListener((obs, oldValue, newValue) -> prefs.put("outputMode", newValue.name()));
+    outputPathPrefix.addListener((obs, oldValue, newValue) -> prefs.put("outputPathPrefix", newValue));
+    outputSeconds.addListener((obs, oldValue, newValue) -> prefs.put("outputSeconds", newValue));
+    timelineSegmentViewLimit.addListener((obs, oldValue, newValue) -> prefs.put("timelineSegmentViewLimit", newValue));
+  }
+
+  private void setAllFromPrefsOrDefaults() {
+      craftAheadSeconds.set(prefs.get("craftAheadSeconds", Integer.toString(defaultCraftAheadSeconds)));
+      dubAheadSeconds.set(prefs.get("dubAheadSeconds", Integer.toString(defaultDubAheadSeconds)));
+      shipAheadSeconds.set(prefs.get("shipAheadSeconds", Integer.toString(defaultShipAheadSeconds)));
+      inputMode.set(InputMode.valueOf(prefs.get("inputMode", InputMode.PRODUCTION.name())));
+      inputTemplateKey.set(prefs.get("inputTemplateKey", defaultInputTemplateKey));
+      outputChannels.set(prefs.get("outputChannels", Integer.toString(defaultOutputChannels)));
+      outputFileMode.set(OutputFileMode.valueOf(prefs.get("outputFileMode", defaultOutputFileMode.toUpperCase(Locale.ROOT))));
+      outputFrameRate.set(prefs.get("outputFrameRate", Double.toString(defaultOutputFrameRate)));
+      outputMode.set(OutputMode.valueOf(prefs.get("outputMode", defaultOutputMode.toUpperCase(Locale.ROOT))));
+      outputPathPrefix.set(prefs.get("outputPathPrefix", System.getProperty("user.home") + File.separator));
+      outputSeconds.set(prefs.get("outputSeconds", Integer.toString(defaultOutputSeconds)));
+      timelineSegmentViewLimit.set(prefs.get("timelineSegmentViewLimit", Integer.toString(defaultTimelineSegmentViewLimit)));
   }
 
   private void setAllDefaults() {
