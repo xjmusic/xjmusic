@@ -16,7 +16,6 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import javafx.util.converter.IntegerStringConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
@@ -57,7 +56,13 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
   Label labelOutputSeconds;
 
   @FXML
+  TextField fieldContentStoragePathPrefix;
+
+  @FXML
   TextField fieldOutputPathPrefix;
+
+  @FXML
+  Label labelContentStoragePathPrefix;
 
   @FXML
   Label labelOutputPathPrefix;
@@ -119,6 +124,8 @@ public class ModalFabricationSettingsController extends ReadyAfterBootModalContr
     fieldOutputPathPrefix.textProperty().bindBidirectional(fabricationService.outputPathPrefixProperty());
     fieldOutputPathPrefix.disableProperty().bind(fabricationService.outputModeProperty().isEqualTo(OutputMode.FILE).not());
     labelOutputPathPrefix.disableProperty().bind(fabricationService.outputModeProperty().isEqualTo(OutputMode.FILE).not());
+
+    fieldContentStoragePathPrefix.textProperty().bindBidirectional(fabricationService.contentStoragePathPrefixProperty());
 
     fieldCraftAheadSeconds.textProperty().bindBidirectional(fabricationService.craftAheadSecondsProperty());
     fieldDubAheadSeconds.textProperty().bindBidirectional(fabricationService.dubAheadSecondsProperty());

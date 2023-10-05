@@ -145,6 +145,15 @@
       <padding>
         <Insets left="10" right="10" />
       </padding>
+      <VBox alignment="CENTER_LEFT" prefHeight="41.0">
+        <Label fx:id="labelContentStoragePathPrefix" alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Content Storage Path Prefix" textAlignment="RIGHT">
+          <graphic>
+            <Pane prefWidth="15.0" />
+          </graphic>
+        </Label>
+        <Pane prefWidth="15.0" />
+        <TextField fx:id="fieldContentStoragePathPrefix" prefHeight="25.0" prefWidth="300" />
+      </VBox>
       <VBox alignment="CENTER_LEFT">
         <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Timeline Segment View Limit" textAlignment="RIGHT">
           <graphic>

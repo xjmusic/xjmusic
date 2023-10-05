@@ -11,6 +11,7 @@ import io.xj.nexus.work.WorkFactory;
 import jakarta.annotation.Nullable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
@@ -29,6 +30,7 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
 
   StringProperty inputTemplateKeyProperty();
 
+  StringProperty contentStoragePathPrefixProperty();
   StringProperty outputPathPrefixProperty();
 
   ObjectProperty<InputMode> inputModeProperty();
@@ -145,4 +147,5 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
    @return the segment spanning the current ship output chain micros
    */
   Optional<Segment> getSegmentAtShipOutput();
+
 }

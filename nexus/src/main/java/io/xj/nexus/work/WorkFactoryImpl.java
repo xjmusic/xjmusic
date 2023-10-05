@@ -160,6 +160,7 @@ public class WorkFactoryImpl implements WorkFactory {
       dubAudioCache,
       mixerFactory,
       notification,
+      workConfig.getContentStoragePathPrefix(),
       hubConfig.getAudioBaseUrl(),
       mixerSeconds,
       dubCycleMillis,

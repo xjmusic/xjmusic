@@ -20,6 +20,7 @@ public class WorkConfiguration {
   private int shipAheadSeconds;
   private double outputFrameRate;
   private int outputChannels;
+  private String contentStoragePathPrefix;
 
   public InputMode getInputMode() {
     return inputMode;
@@ -126,6 +127,15 @@ public class WorkConfiguration {
 
   public WorkConfiguration setOutputChannels(int outputChannels) {
     this.outputChannels = outputChannels;
+    return this;
+  }
+
+  public String getContentStoragePathPrefix() {
+    return contentStoragePathPrefix;
+  }
+
+  public WorkConfiguration setContentStoragePathPrefix(String contentStoragePathPrefix) {
+    this.contentStoragePathPrefix = contentStoragePathPrefix;
     return this;
   }
 }
