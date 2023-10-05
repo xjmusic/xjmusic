@@ -87,7 +87,7 @@ public class LabServiceImpl implements LabService {
     if (!StringUtils.isNullOrEmpty(savedAccessToken)) {
       LOG.info("Found saved access token, connecting to lab...");
       accessToken.set(savedAccessToken);
-      Platform.runLater(this::connect);
+      this.connect();
     }
   }
 
