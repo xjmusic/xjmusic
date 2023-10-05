@@ -125,7 +125,7 @@ public class LabServiceImpl implements LabService {
 
   @Override
   public void onConnectionFailure(Throwable error) {
-    LOG.error("Failed to connect to lab! {} {}", error.getCause().getMessage(), error.getMessage());
+    LOG.error("Failed to connect to lab!", error);
     this.authenticatedUser.set(null);
     this.status.set(LabStatus.Failed);
   }
