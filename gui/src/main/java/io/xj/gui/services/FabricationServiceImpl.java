@@ -531,11 +531,6 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
         workFactory.getSegmentManager().readOneAtChainMicros(chainMicros));
   }
 
-  @Override
-  public void preload() {
-    // todo preload files
-  }
-
   private String formatTotalBars(int bars, String fraction) {
     return String.format("%d%s bar%s", bars, fraction, bars == 1 ? "" : "s");
   }

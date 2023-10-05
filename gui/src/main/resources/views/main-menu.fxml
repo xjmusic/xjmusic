@@ -16,6 +16,11 @@
         <KeyCodeCombination code="E" alt="UP" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
       </accelerator>
     </MenuItem>
+    <MenuItem fx:id="itemPreload" onAction="#handlePreload" text="S_ettings">
+      <accelerator>
+        <KeyCodeCombination code="P" alt="UP" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
+      </accelerator>
+    </MenuItem>
     <SeparatorMenuItem mnemonicParsing="false"/>
     <MenuItem onAction="#onQuit" text="E_xit"/>
   </Menu>

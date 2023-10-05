@@ -147,10 +147,4 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
    @return the segment spanning the current ship output chain micros
    */
   Optional<Segment> getSegmentAtShipOutput();
-
-  /**
-   Preload the template for the given template key
-   https://www.pivotaltracker.com/story/show/186046928
-   */
-  void preload();
 }

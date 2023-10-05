@@ -5,6 +5,7 @@ package io.xj.gui.controllers;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.FabricationStatus;
 import io.xj.gui.services.LabService;
+import io.xj.gui.services.PreloaderService;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -29,6 +30,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     FabricationStatus.Failed
   );
   final FabricationService fabricationService;
+  final PreloaderService preloaderService;
   final ModalFabricationSettingsController modalFabricationSettingsController;
   final ModalLabAuthenticationController modalLabAuthenticationController;
   final LabService labService;
@@ -55,18 +57,20 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   protected Button buttonShowFabricationSettings;
 
   @FXML
-  protected Button buttonPreloadTemplate;
+  protected Button buttonPreload;
 
   public MainPaneTopController(
+    FabricationService fabricationService,
+    LabService labService,
     ModalFabricationSettingsController modalFabricationSettingsController,
     ModalLabAuthenticationController modalLabAuthenticationController,
-    FabricationService fabricationService,
-    LabService labService
+    PreloaderService preloaderService
   ) {
-    this.modalFabricationSettingsController = modalFabricationSettingsController;
-    this.modalLabAuthenticationController = modalLabAuthenticationController;
     this.fabricationService = fabricationService;
     this.labService = labService;
+    this.modalFabricationSettingsController = modalFabricationSettingsController;
+    this.modalLabAuthenticationController = modalLabAuthenticationController;
+    this.preloaderService = preloaderService;
   }
 
   @Override
@@ -79,17 +83,37 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
     fabricationService.statusProperty().addListener(this::handleFabricationStatusChange);
     buttonToggleFollowPlayback.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
-    buttonShowFabricationSettings.disableProperty().bind(fabricationService.isStatusActive());
+
+    var fabricationIsActive = Bindings.createBooleanBinding(
+      () -> fabricationService.isStatusActive().get() || preloaderService.runningProperty().get(),
+      fabricationService.isStatusActive(), preloaderService.runningProperty());
+
+    buttonShowFabricationSettings.disableProperty().bind(fabricationIsActive);
+    buttonPreload.disableProperty().bind(fabricationIsActive);
 
     labelFabricationStatus.textProperty().bind(fabricationService.statusProperty().map(Enum::toString).map((status) -> String.format("Fabrication %s", status)));
 
     labelLabStatus.textProperty().bind(labService.statusProperty().map(Enum::toString));
 
-    progressBarFabrication.visibleProperty().bind(Bindings.createBooleanBinding(
+    var isFileOutputActive = Bindings.createBooleanBinding(
       () -> fabricationService.isStatusActive().get() && fabricationService.isOutputModeFile().get(),
-      fabricationService.statusProperty(), fabricationService.isOutputModeFile()));
+      fabricationService.statusProperty(), fabricationService.isOutputModeFile());
 
-    progressBarFabrication.progressProperty().bind(fabricationService.progressProperty());
+    progressBarFabrication.visibleProperty().bind(Bindings.createBooleanBinding(
+      () -> isFileOutputActive.get() || preloaderService.runningProperty().get(),
+      isFileOutputActive, preloaderService.runningProperty()));
+
+    progressBarFabrication.progressProperty().bind(Bindings.createDoubleBinding(
+      () -> {
+        if (preloaderService.runningProperty().get()) {
+          return preloaderService.progressProperty().get();
+        } else if (isFileOutputActive.get()) {
+          return fabricationService.progressProperty().get();
+        } else {
+          return 0.0;
+        }
+      },
+      isFileOutputActive, fabricationService.progressProperty(), preloaderService.runningProperty(), preloaderService.progressProperty()));
   }
 
   @Override
@@ -104,7 +128,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
 
   @FXML
   public void handlePreloadTemplate(ActionEvent ignored) {
-    fabricationService.preload();
+    preloaderService.resetAndStart();
   }
 
   @FXML
