@@ -148,4 +148,9 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
    */
   Optional<Segment> getSegmentAtShipOutput();
 
+  /**
+   Preload the template for the given template key
+   https://www.pivotaltracker.com/story/show/186046928
+   */
+  void preload();
 }

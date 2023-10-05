@@ -54,6 +54,9 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   @FXML
   protected Button buttonShowFabricationSettings;
 
+  @FXML
+  protected Button buttonPreloadTemplate;
+
   public MainPaneTopController(
     ModalFabricationSettingsController modalFabricationSettingsController,
     ModalLabAuthenticationController modalLabAuthenticationController,
@@ -97,6 +100,11 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   @FXML
   protected void handleButtonActionPress() {
     fabricationService.handleMainAction();
+  }
+
+  @FXML
+  public void handlePreloadTemplate(ActionEvent ignored) {
+    fabricationService.preload();
   }
 
   @FXML
