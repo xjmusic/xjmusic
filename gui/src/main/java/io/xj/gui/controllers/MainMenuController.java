@@ -3,7 +3,6 @@
 package io.xj.gui.controllers;
 
 import io.xj.gui.services.*;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
@@ -29,6 +28,7 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   final ThemeService themeService;
   final GuideService guideService;
   final LabService labService;
+  final UIStateService guiService;
   private final ModalFabricationSettingsController modalFabricationSettingsController;
   final ModalAboutController modalAboutController;
   final ModalLabAuthenticationController modalLabAuthenticationController;
@@ -63,7 +63,8 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     PreloaderService preloaderService,
     ThemeService themeService,
     GuideService guideService,
-    LabService labService
+    LabService labService,
+    UIStateService guiService
   ) {
     this.ac = ac;
     this.modalFabricationSettingsController = modalFabricationSettingsController;
@@ -74,38 +75,34 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     this.themeService = themeService;
     this.guideService = guideService;
     this.labService = labService;
+    this.guiService = guiService;
   }
 
   @Override
   public void onStageReady() {
-    themeService.isDarkThemeProperty().bindBidirectional(checkboxDarkTheme.selectedProperty());
-    logsVisible.bindBidirectional(checkboxShowLogs.selectedProperty());
-    logsTailing.bindBidirectional(checkboxTailLogs.selectedProperty());
-    checkboxTailLogs.disableProperty().bind(logsVisible.not());
-
-    itemOpenFabricationSettings.disableProperty().bind(Bindings.createBooleanBinding(
-      () -> fabricationService.isStatusActive().get() || preloaderService.runningProperty().get(),
-      fabricationService.isStatusActive(), preloaderService.runningProperty()));
-
-    itemPreload.disableProperty().bind(fabricationService.isStatusActive());
-    itemPreload.textProperty().bind(Bindings.createStringBinding(
-      () -> {
-        if (preloaderService.runningProperty().get())
-          return "Cancel";
-        else
-          return "Preload";
-      },
-      preloaderService.runningProperty()));
-
-    itemFabricationMainAction.textProperty().bind(fabricationService.mainActionButtonTextProperty().map((s) -> String.format("_%s", s)));
-    itemFabricationMainAction.setAccelerator(computeMainActionButtonAccelerator());
-    itemFabricationMainAction.disableProperty().bind(Bindings.createBooleanBinding(
-      () -> preloaderService.runningProperty().get() || fabricationService.statusProperty().get() != FabricationStatus.Starting,
-      fabricationService.statusProperty(), preloaderService.runningProperty()));
-
+    checkboxFabricationFollow.disableProperty().bind(preloaderService.runningProperty());
     checkboxFabricationFollow.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
     checkboxFabricationFollow.setAccelerator(computeFabricationFollowButtonAccelerator());
-    checkboxFabricationFollow.disableProperty().bind(preloaderService.runningProperty());
+
+    checkboxTailLogs.disableProperty().bind(logsVisible.not());
+
+    itemFabricationMainAction.disableProperty().bind(guiService.fabricationActionDisabledProperty());
+    itemFabricationMainAction.setAccelerator(computeMainActionButtonAccelerator());
+    itemFabricationMainAction.textProperty().bind(fabricationService.mainActionButtonTextProperty().map(this::addLeadingUnderscore));
+
+    itemOpenFabricationSettings.disableProperty().bind(guiService.fabricationSettingsDisabledProperty());
+
+    itemPreload.disableProperty().bind(fabricationService.isStatusActive());
+    itemPreload.textProperty().bind(preloaderService.actionTextProperty().map(this::addLeadingUnderscore));
+
+    logsTailing.bindBidirectional(checkboxTailLogs.selectedProperty());
+    logsVisible.bindBidirectional(checkboxShowLogs.selectedProperty());
+
+    themeService.isDarkThemeProperty().bindBidirectional(checkboxDarkTheme.selectedProperty());
+  }
+
+  private String addLeadingUnderscore(String s) {
+    return String.format("_%s", s);
   }
 
   /**

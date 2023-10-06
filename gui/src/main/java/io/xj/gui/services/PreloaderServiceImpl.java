@@ -5,6 +5,8 @@ package io.xj.gui.services;
 import io.xj.hub.HubContent;
 import io.xj.hub.util.StringUtils;
 import io.xj.nexus.dub.DubAudioCache;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.StringBinding;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import org.slf4j.Logger;
@@ -72,5 +74,17 @@ public class PreloaderServiceImpl extends Service<Boolean> implements PreloaderS
   public void resetAndStart() {
     reset();
     start();
+  }
+
+  @Override
+  public StringBinding actionTextProperty() {
+    return Bindings.createStringBinding(
+      () -> {
+        if (runningProperty().get())
+          return "Cancel";
+        else
+          return "Preload";
+      },
+      runningProperty());
   }
 }
