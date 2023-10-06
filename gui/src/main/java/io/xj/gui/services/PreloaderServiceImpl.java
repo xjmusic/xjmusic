@@ -14,6 +14,7 @@ public class PreloaderServiceImpl extends Service<Boolean> implements PreloaderS
 
   public PreloaderServiceImpl(
   ) {
+    // todo preloader uses a status enum
     // todo something: setOnCancelled((WorkerStateEvent ignored) -> status.set(FabricationStatus.Cancelled));
     // todo something: setOnFailed((WorkerStateEvent ignored) -> status.set(FabricationStatus.Failed));
     // todo something: setOnReady((WorkerStateEvent ignored) -> status.set(FabricationStatus.Standby));

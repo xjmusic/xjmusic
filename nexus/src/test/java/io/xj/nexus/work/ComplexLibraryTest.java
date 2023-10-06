@@ -33,6 +33,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.RunnableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildAccount;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildLibrary;
@@ -61,6 +65,9 @@ public class ComplexLibraryTest {
   CraftWork work;
   @Mock
   FileStoreProvider fileStoreProvider;
+
+  @Mock
+  RunnableFuture<HubContent> hubContentProvider;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -92,7 +99,7 @@ public class ComplexLibraryTest {
     test.deleteAll();
 
     // Mock request via HubClient returns fake generated library of hub content
-    when(hubClient.load("complex_library_test", audioBaseUrl)).thenReturn(content);
+    // todo mock runnable future when(hubClient.load("complex_library_test", audioBaseUrl)).thenReturn(content);
 
     // Dependencies
     CraftFactory craftFactory = new CraftFactoryImpl();
@@ -116,6 +123,7 @@ public class ComplexLibraryTest {
       segmentManager,
       telemetryProvider,
       access,
+      hubContentProvider,
       hubBaseUrl,
       audioBaseUrl,
       shipBaseUrl,

@@ -2,6 +2,7 @@
 
 package io.xj.gui.services;
 
+import io.xj.hub.HubContent;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.enums.UserRoleType;
@@ -11,7 +12,9 @@ import io.xj.lib.util.FormatUtils;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
+import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.hub_client.HubClientAccess;
+import io.xj.nexus.hub_client.HubContentProvider;
 import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.ManagerExistenceException;
 import io.xj.nexus.persistence.ManagerFatalException;
@@ -35,6 +38,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.prefs.Preferences;
 
@@ -60,6 +64,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   private final String defaultOutputMode;
   private final Integer defaultOutputSeconds;
   final WorkFactory workFactory;
+  final HubClient hubClient;
   final LabService labService;
   final Map<Integer, Integer> segmentBarBeats = new ConcurrentHashMap<>();
   final ObjectProperty<FabricationStatus> status = new SimpleObjectProperty<>(FabricationStatus.Standby);
@@ -107,6 +112,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     @Value("${output.mode}") String defaultOutputMode,
     @Value("${output.seconds}") Integer defaultOutputSeconds,
     WorkFactory workFactory,
+    HubClient hubClient,
     LabService labService
   ) {
     this.hostServices = hostServices;
@@ -121,6 +127,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     this.defaultOutputMode = defaultOutputMode;
     this.defaultOutputSeconds = defaultOutputSeconds;
     this.workFactory = workFactory;
+    this.hubClient = hubClient;
     this.labService = labService;
 
     attachPreferenceListeners();
@@ -189,10 +196,18 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
           .setRoleTypes(List.of(UserRoleType.Internal))
           .setToken(labService.accessTokenProperty().get());
 
+        var hubContentProvider = new HubContentProvider(
+          hubClient,
+          hubConfig,
+          hubAccess,
+          inputMode.get(),
+          inputTemplateKey.get());
+
         return workFactory.start(
           workConfig,
           hubConfig,
           hubAccess,
+          hubContentProvider,
           (Double ratio) -> updateProgress(ratio, 1.0),
           () -> updateProgress(1.0, 1.0));
       }

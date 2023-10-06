@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -125,6 +126,7 @@ public class WorkFactoryImpl implements WorkFactory {
     WorkConfiguration workConfig,
     HubConfiguration hubConfig,
     HubClientAccess hubAccess,
+    Callable<HubContent> hubContentProvider,
     Consumer<Double> progressUpdateCallback,
     Runnable onDone
   ) {
@@ -142,6 +144,7 @@ public class WorkFactoryImpl implements WorkFactory {
       segmentManager,
       telemetryProvider,
       hubAccess,
+      hubContentProvider,
       hubConfig.getBaseUrl(),
       hubConfig.getAudioBaseUrl(),
       hubConfig.getShipBaseUrl(),

@@ -47,6 +47,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -141,6 +142,7 @@ public class CraftWorkImpl implements CraftWork {
   final double outputFrameRate;
   final int outputChannels;
   final String audioBaseUrl;
+  final Callable<HubContent> hubContentProvider;
   final String hubBaseUrl;
   final String shipBaseUrl;
 
@@ -163,8 +165,11 @@ public class CraftWorkImpl implements CraftWork {
     SegmentManager segmentManager,
     TelemetryProvider telemetryProvider,
     HubClientAccess access,
-    String hubBaseUrl, String audioBaseUrl,
-    String shipBaseUrl, InputMode inputMode,
+    Callable<HubContent> hubContentProvider,
+    String hubBaseUrl,
+    String audioBaseUrl,
+    String shipBaseUrl,
+    InputMode inputMode,
     OutputMode outputMode,
     String inputTemplateKey,
     boolean isJsonOutputEnabled,
@@ -186,6 +191,7 @@ public class CraftWorkImpl implements CraftWork {
     this.store = store;
     this.telemetryProvider = telemetryProvider;
     this.access = access;
+    this.hubContentProvider = hubContentProvider;
     this.hubBaseUrl = hubBaseUrl;
     this.audioBaseUrl = audioBaseUrl;
     this.shipBaseUrl = shipBaseUrl;
@@ -529,8 +535,7 @@ public class CraftWorkImpl implements CraftWork {
    */
   void loadYard() {
     try {
-      chainSourceMaterial = hubClient.load(inputTemplateKey, audioBaseUrl);
-      chainSourceMaterial.setTemplateShipKey(inputTemplateKey);
+      chainSourceMaterial = hubContentProvider.call();
       chainId = createChainForTemplate(chainSourceMaterial.getTemplate())
         .orElseThrow(() -> new HubClientException(String.format("Failed to create chain for Template[%s]", inputTemplateKey)))
         .getId();
@@ -573,10 +578,10 @@ public class CraftWorkImpl implements CraftWork {
 
     try {
       // read the source material
-      chainSourceMaterial = hubClient.ingest(hubBaseUrl, access, chain.getTemplateId());
+      chainSourceMaterial = hubContentProvider.call();
       LOG.info("Ingested {} entities of source material for Chain[{}]", chainSourceMaterial.size(), ChainUtils.getIdentifier(chain));
 
-    } catch (HubClientException e) {
+    } catch (Exception e) {
       didFailWhile(chain.getShipKey(), "ingesting source material from Hub", e, false);
     }
   }

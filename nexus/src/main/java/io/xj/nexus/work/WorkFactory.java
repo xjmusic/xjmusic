@@ -8,6 +8,7 @@ import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.persistence.SegmentManager;
 
 import java.util.Optional;
+import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 public interface WorkFactory {
@@ -18,7 +19,7 @@ public interface WorkFactory {
     WorkConfiguration workConfig,
     HubConfiguration hubConfig,
     HubClientAccess hubAccess,
-    Consumer<Double> progressUpdateCallback,
+    Callable<HubContent> hubContentProvider, Consumer<Double> progressUpdateCallback,
     Runnable onDone
   );
 
