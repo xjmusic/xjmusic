@@ -1,7 +1,7 @@
 package io.xj.gui.services;
 
-import io.xj.lib.entity.EntityStore;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.value.ObservableValue;
 
@@ -14,30 +14,44 @@ import javafx.beans.value.ObservableValue;
  */
 public interface UIStateService {
   /**
-   Observable property of whether the fabrication settings should appear disabled
-
-   @return property that is true when the settings should appear disabled
-   */
-  BooleanBinding fabricationSettingsDisabledProperty();
-
-  /**
    Observable property of whether the fabrication action should appear disabled
 
-   @return property that is true when the fabrication action should appear disabled
+   @return observable true when the fabrication action should appear disabled
    */
   BooleanBinding fabricationActionDisabledProperty();
 
   /**
+   Observable property of whether the fabrication settings should appear disabled
+
+   @return observable true when the settings should appear disabled
+   */
+  BooleanBinding fabricationSettingsDisabledProperty();
+
+  /**
    Observable property of the fabrication status text
 
-   @return fabrication status text
+   @return observable fabrication status text
    */
   StringBinding fabricationStatusTextProperty();
 
   /**
+   Observable property of the fabrication progress
+
+   @return observable fabrication progress
+   */
+  DoubleBinding fabricationProgressProperty();
+
+  /**
+   Observable property of whether the progress bar should be visible
+
+   @return observable true if the progress bar should be visible
+   */
+  BooleanBinding fabricationProgressBarVisibleProperty();
+
+  /**
    Observable property of whether fabrication is active in file output mode
 
-   @return observable property
+   @return observable true if active in file output mode
    */
   BooleanBinding isFileOutputActiveProperty();
 }

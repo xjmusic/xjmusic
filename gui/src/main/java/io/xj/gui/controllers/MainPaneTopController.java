@@ -3,7 +3,6 @@
 package io.xj.gui.controllers;
 
 import io.xj.gui.services.*;
-import javafx.beans.binding.Bindings;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -68,35 +67,24 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     buttonAction.disableProperty().bind(uiStateService.fabricationActionDisabledProperty());
     buttonAction.textProperty().bind(fabricationService.mainActionButtonTextProperty());
 
-    labService.statusProperty().addListener(this::handleLabStatusChange);
-    fabricationService.statusProperty().addListener(this::handleFabricationStatusChange);
-    buttonToggleFollowPlayback.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
-    buttonToggleFollowPlayback.disableProperty().bind(preloaderService.runningProperty());
+    buttonPreload.disableProperty().bind(fabricationService.isStatusActive());
+    buttonPreload.textProperty().bind(preloaderService.actionTextProperty());
 
     buttonShowFabricationSettings.disableProperty().bind(uiStateService.fabricationSettingsDisabledProperty());
 
-    buttonPreload.disableProperty().bind(fabricationService.isStatusActive());
-    buttonPreload.textProperty().bind(preloaderService.actionTextProperty());
+    buttonToggleFollowPlayback.disableProperty().bind(preloaderService.runningProperty());
+    buttonToggleFollowPlayback.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
+
+    fabricationService.statusProperty().addListener(this::handleFabricationStatusChange);
+
+    labService.statusProperty().addListener(this::handleLabStatusChange);
 
     labelFabricationStatus.textProperty().bind(uiStateService.fabricationStatusTextProperty());
 
     labelLabStatus.textProperty().bind(labService.statusProperty().map(Enum::toString));
 
-    progressBarFabrication.visibleProperty().bind(Bindings.createBooleanBinding(
-      () -> isFileOutputActive.get() || preloaderService.runningProperty().get(),
-      isFileOutputActive, preloaderService.runningProperty()));
-
-    progressBarFabrication.progressProperty().bind(Bindings.createDoubleBinding(
-      () -> {
-        if (preloaderService.runningProperty().get()) {
-          return preloaderService.progressProperty().get();
-        } else if (uiStateService.isFileOutputActiveProperty().get()) {
-          return fabricationService.progressProperty().get();
-        } else {
-          return 0.0;
-        }
-      },
-      isFileOutputActive, fabricationService.progressProperty(), preloaderService.runningProperty(), preloaderService.progressProperty()));
+    progressBarFabrication.progressProperty().bind(uiStateService.fabricationProgressProperty());
+    progressBarFabrication.visibleProperty().bind(uiStateService.fabricationProgressBarVisibleProperty());
   }
 
   @Override
