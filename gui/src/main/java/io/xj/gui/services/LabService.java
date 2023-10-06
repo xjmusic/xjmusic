@@ -5,6 +5,7 @@ import io.xj.hub.tables.pojos.User;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
 import org.springframework.http.HttpMethod;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
@@ -18,7 +19,7 @@ public interface LabService {
 
   void onConfigurationSuccess(HubConfiguration config);
 
-  void onConnectionFailure(Throwable error);
+  void onConnectionFailure(WebClientResponseException error);
 
   <T> Mono<T> makeAuthenticatedRequest(String endpoint, HttpMethod method, Class<T> responseType);
 

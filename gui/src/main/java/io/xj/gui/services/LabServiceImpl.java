@@ -2,6 +2,7 @@
 
 package io.xj.gui.services;
 
+import io.netty.resolver.DefaultAddressResolverGroup;
 import io.xj.hub.HubConfiguration;
 import io.xj.hub.tables.pojos.User;
 import io.xj.hub.util.StringUtils;
@@ -18,14 +19,16 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
-import io.netty.resolver.DefaultAddressResolverGroup;
 
 import java.net.URI;
 import java.util.Objects;
 import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
+
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @Service
 public class LabServiceImpl implements LabService {
@@ -63,10 +66,10 @@ public class LabServiceImpl implements LabService {
       LOG.info("Lab URL changed to: " + this.baseUrl.getValue());
     });
 
-      HttpClient httpClient = HttpClient.create().resolver(DefaultAddressResolverGroup.INSTANCE);
-      webClient = WebClient.builder()
-        .clientConnector(new ReactorClientHttpConnector(httpClient))
-        .build();
+    HttpClient httpClient = HttpClient.create().resolver(DefaultAddressResolverGroup.INSTANCE);
+    webClient = WebClient.builder()
+      .clientConnector(new ReactorClientHttpConnector(httpClient))
+      .build();
 
     hubConfig.set(new HubConfiguration()
       .setApiBaseUrl(defaultLabBaseUrl)
@@ -97,7 +100,7 @@ public class LabServiceImpl implements LabService {
     makeAuthenticatedRequest("api/2/users/me", HttpMethod.GET, User.class)
       .subscribe(
         (User user) -> Platform.runLater(() -> this.onConnectionSuccess(user)),
-        error -> Platform.runLater(() -> this.onConnectionFailure(error)),
+        error -> Platform.runLater(() -> this.onConnectionFailure((WebClientResponseException) error)),
         () -> Platform.runLater(this::onConnectionChanged));
   }
 
@@ -113,7 +116,7 @@ public class LabServiceImpl implements LabService {
     makeAuthenticatedRequest("api/2/config", HttpMethod.GET, HubConfiguration.class)
       .subscribe(
         (HubConfiguration config) -> Platform.runLater(() -> this.onConfigurationSuccess(config)),
-        error -> Platform.runLater(() -> this.onConnectionFailure(error)),
+        error -> Platform.runLater(() -> this.onConnectionFailure((WebClientResponseException) error)),
         () -> Platform.runLater(this::onConnectionChanged));
   }
 
@@ -124,10 +127,15 @@ public class LabServiceImpl implements LabService {
   }
 
   @Override
-  public void onConnectionFailure(Throwable error) {
-    LOG.error("Failed to connect to lab!", error);
-    this.authenticatedUser.set(null);
-    this.status.set(LabStatus.Failed);
+  public void onConnectionFailure(WebClientResponseException error) {
+    if (Objects.equals(error.getStatusCode(), UNAUTHORIZED)) {
+      LOG.warn("Unauthorized for connection to lab!", error);
+      this.authenticatedUser.set(null);
+      this.status.set(LabStatus.Unauthorized);
+    } else {
+      LOG.error("Failed to connect to lab!", error);
+      this.status.set(LabStatus.Failed);
+    }
   }
 
   @Override
