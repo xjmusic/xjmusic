@@ -45,7 +45,7 @@ import java.util.prefs.Preferences;
 @org.springframework.stereotype.Service
 public class FabricationServiceImpl extends Service<Boolean> implements FabricationService {
   static final Logger LOG = LoggerFactory.getLogger(FabricationServiceImpl.class);
-  private static final String defaultPathPrefix = System.getProperty("user.home") + File.separator + "XJ music" + File.separator + "Documents" + File.separator;
+  private static final String defaultPathPrefix = System.getProperty("user.home") + File.separator + "Documents" + File.separator + "XJ music" + File.separator;
   private final Preferences prefs = Preferences.userNodeForPackage(FabricationServiceImpl.class);
   final static String BUTTON_TEXT_START = "Start";
   final static String BUTTON_TEXT_STOP = "Stop";
