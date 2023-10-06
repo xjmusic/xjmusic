@@ -2,6 +2,7 @@
 
 package io.xj.gui.services;
 
+import io.xj.hub.HubContent;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.enums.UserRoleType;
@@ -37,6 +38,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.prefs.Preferences;
 
@@ -171,75 +173,87 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     timelineSegmentViewLimit.set(prefs.get("timelineSegmentViewLimit", Integer.toString(defaultTimelineSegmentViewLimit)));
   }
 
+  @Override
   protected Task<Boolean> createTask() {
     return new Task<>() {
       protected Boolean call() {
-        var workConfig = new WorkConfiguration()
-          .setContentStoragePathPrefix(contentStoragePathPrefix.get())
-          .setCraftAheadSeconds(Integer.parseInt(craftAheadSeconds.get()))
-          .setDubAheadSeconds(Integer.parseInt(dubAheadSeconds.get()))
-          .setInputMode(inputMode.get())
-          .setInputTemplateKey(inputTemplateKey.get())
-          .setOutputChannels(Integer.parseInt(outputChannels.get()))
-          .setOutputFileMode(outputFileMode.get())
-          .setOutputFrameRate(Double.parseDouble(outputFrameRate.get()))
-          .setOutputMode(outputMode.get())
-          .setOutputPathPrefix(outputPathPrefix.get())
-          .setOutputSeconds(Integer.parseInt(outputSeconds.get()))
-          .setShipAheadSeconds(Integer.parseInt(shipAheadSeconds.get()));
-
-        var hubConfig = labService.hubConfigProperty().get();
-
-        var hubAccess = new HubClientAccess()
-          .setRoleTypes(List.of(UserRoleType.Internal))
-          .setToken(labService.accessTokenProperty().get());
-
-        var hubContentProvider = new HubContentProvider(
-          hubClient,
-          hubConfig,
-          hubAccess,
-          inputMode.get(),
-          inputTemplateKey.get());
-
         return workFactory.start(
-          workConfig,
-          hubConfig,
-          hubAccess,
-          hubContentProvider,
+          getWorkConfig(),
+          labService.hubConfigProperty().get(),
+          getHubContentProvider(),
           (Double ratio) -> updateProgress(ratio, 1.0),
           () -> updateProgress(1.0, 1.0));
       }
     };
   }
 
+  @Override
+  public Callable<HubContent> getHubContentProvider() {
+    var hubAccess = new HubClientAccess()
+      .setRoleTypes(List.of(UserRoleType.Internal))
+      .setToken(labService.accessTokenProperty().get());
+
+    return new HubContentProvider(
+      hubClient,
+      labService.hubConfigProperty().get(),
+      hubAccess,
+      inputMode.get(),
+      inputTemplateKey.get());
+  }
+
+  @Override
+  public WorkConfiguration getWorkConfig() {
+    return new WorkConfiguration()
+      .setContentStoragePathPrefix(contentStoragePathPrefix.get())
+      .setCraftAheadSeconds(Integer.parseInt(craftAheadSeconds.get()))
+      .setDubAheadSeconds(Integer.parseInt(dubAheadSeconds.get()))
+      .setInputMode(inputMode.get())
+      .setInputTemplateKey(inputTemplateKey.get())
+      .setOutputChannels(Integer.parseInt(outputChannels.get()))
+      .setOutputFileMode(outputFileMode.get())
+      .setOutputFrameRate(Double.parseDouble(outputFrameRate.get()))
+      .setOutputMode(outputMode.get())
+      .setOutputPathPrefix(outputPathPrefix.get())
+      .setOutputSeconds(Integer.parseInt(outputSeconds.get()))
+      .setShipAheadSeconds(Integer.parseInt(shipAheadSeconds.get()));
+  }
+
+  @Override
   public ObjectProperty<FabricationStatus> statusProperty() {
     return status;
   }
 
+  @Override
   public StringProperty inputTemplateKeyProperty() {
     return inputTemplateKey;
   }
 
+  @Override
   public StringProperty contentStoragePathPrefixProperty() {
     return contentStoragePathPrefix;
   }
 
+  @Override
   public StringProperty outputPathPrefixProperty() {
     return outputPathPrefix;
   }
 
+  @Override
   public ObjectProperty<InputMode> inputModeProperty() {
     return inputMode;
   }
 
+  @Override
   public ObjectProperty<OutputFileMode> outputFileModeProperty() {
     return outputFileMode;
   }
 
+  @Override
   public ObjectProperty<OutputMode> outputModeProperty() {
     return outputMode;
   }
 
+  @Override
   public StringProperty outputSecondsProperty() {
     return outputSeconds;
   }
@@ -274,10 +288,12 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     return timelineSegmentViewLimit;
   }
 
+  @Override
   public WorkFactory getWorkFactory() {
     return workFactory;
   }
 
+  @Override
   public Collection<SegmentMeme> getSegmentMemes(Segment segment) {
     try {
       return workFactory.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentMeme.class);
@@ -287,6 +303,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     }
   }
 
+  @Override
   public Collection<SegmentChord> getSegmentChords(Segment segment) {
     try {
       return workFactory.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentChord.class);
@@ -296,6 +313,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     }
   }
 
+  @Override
   public Collection<SegmentChoice> getSegmentChoices(Segment segment) {
     try {
       return workFactory.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentChoice.class);

@@ -2,44 +2,68 @@
 
 package io.xj.gui.services;
 
+import io.xj.hub.HubContent;
+import io.xj.hub.util.StringUtils;
+import io.xj.nexus.dub.DubAudioCache;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+
+import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
+
 @org.springframework.stereotype.Service
 public class PreloaderServiceImpl extends Service<Boolean> implements PreloaderService {
   static final Logger LOG = LoggerFactory.getLogger(PreloaderServiceImpl.class);
-  static final int TOTAL_SECONDS = 5;
+  private final LabService labService;
+  private final FabricationService fabricationService;
+  private final DubAudioCache dubAudioCache;
 
   public PreloaderServiceImpl(
+    LabService labService,
+    FabricationService fabricationService,
+    DubAudioCache dubAudioCache
   ) {
-    // todo preloader uses a status enum
-    // todo something: setOnCancelled((WorkerStateEvent ignored) -> status.set(FabricationStatus.Cancelled));
-    // todo something: setOnFailed((WorkerStateEvent ignored) -> status.set(FabricationStatus.Failed));
-    // todo something: setOnReady((WorkerStateEvent ignored) -> status.set(FabricationStatus.Standby));
-    // todo something: setOnRunning((WorkerStateEvent ignored) -> status.set(FabricationStatus.Active));
-    // todo something: setOnScheduled((WorkerStateEvent ignored) -> status.set(FabricationStatus.Starting));
-    // todo something: setOnSucceeded((WorkerStateEvent ignored) -> status.set(FabricationStatus.Done));
+    this.labService = labService;
+    this.fabricationService = fabricationService;
+    this.dubAudioCache = dubAudioCache;
   }
 
   protected Task<Boolean> createTask() {
     return new Task<>() {
       protected Boolean call() {
+        HubContent hubContent;
         try {
-          for (var i = 1; i < TOTAL_SECONDS; i++) {
-            Thread.sleep(1000);
-            updateProgress((float) i / TOTAL_SECONDS, 1.0);
-          }
-        } catch (InterruptedException e) {
-          LOG.warn("Interrupted", e);
+          hubContent = fabricationService.getHubContentProvider().call();
+        } catch (Exception e) {
+          LOG.warn("Failed to get hub content", e);
+          return false;
         }
-        // todo preload all audio, update progress, block until done
-// todo        (Double ratio) -> updateProgress(ratio, 1.0),
-// todo          () -> updateProgress(1.0, 1.0));
 
-        updateProgress(1.0, 1.0);
-        return false; // todo return actual success
+        try {
+          var audios = new ArrayList<>(hubContent.getInstrumentAudios());
+          for (var i = 1; i < audios.size(); i++) {
+            if (!StringUtils.isNullOrEmpty(audios.get(i).getWaveformKey()))
+              dubAudioCache.load(
+                fabricationService.contentStoragePathPrefixProperty().get(),
+                labService.hubConfigProperty().get().getAudioBaseUrl(),
+                audios.get(i).getInstrumentId(),
+                audios.get(i).getWaveformKey(),
+                (int) Double.parseDouble(fabricationService.outputFrameRateProperty().get()),
+                FIXED_SAMPLE_BITS,
+                (int) Double.parseDouble(fabricationService.outputChannelsProperty().get()));
+            updateProgress((float) i / audios.size(), 1.0);
+          }
+          updateProgress(1.0, 1.0);
+
+        } catch (Exception e) {
+          LOG.error("Failed to preload", e);
+          return false;
+        }
+
+        return true;
       }
     };
   }

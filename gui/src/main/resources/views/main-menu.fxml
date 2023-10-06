@@ -16,7 +16,7 @@
         <KeyCodeCombination code="E" alt="UP" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
       </accelerator>
     </MenuItem>
-    <MenuItem fx:id="itemPreload" onAction="#handlePreload" text="S_ettings">
+    <MenuItem fx:id="itemPreload" onAction="#handlePreload" text="_Preload">
       <accelerator>
         <KeyCodeCombination code="P" alt="UP" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
       </accelerator>

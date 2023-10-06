@@ -14,7 +14,6 @@ import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.dub.DubAudioCache;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.ship.broadcast.BroadcastFactory;
@@ -121,7 +120,6 @@ public class WorkFactoryImpl implements WorkFactory {
   public boolean start(
     WorkConfiguration workConfig,
     HubConfiguration hubConfig,
-    HubClientAccess hubAccess,
     Callable<HubContent> hubContentProvider,
     Consumer<Double> progressUpdateCallback,
     Runnable onDone
@@ -150,18 +148,7 @@ public class WorkFactoryImpl implements WorkFactory {
       workConfig.getOutputChannels(),
       workConfig.getCraftAheadSeconds()
     );
-    dubWork = new DubWorkImpl(
-      craftWork,
-      dubAudioCache,
-      mixerFactory,
-      notification,
-      workConfig.getContentStoragePathPrefix(),
-      hubConfig.getAudioBaseUrl(),
-      mixerSeconds,
-      dubCycleMillis,
-      workConfig.getOutputFrameRate(),
-      workConfig.getOutputChannels(),
-      workConfig.getDubAheadSeconds());
+    dubWork = dub(hubConfig, workConfig);
     shipWork = new ShipWorkImpl(
       dubWork,
       notification,
@@ -203,6 +190,22 @@ public class WorkFactoryImpl implements WorkFactory {
 
     onDone.run();
     return true;
+  }
+
+  @Override
+  public DubWork dub(HubConfiguration hubConfig, WorkConfiguration workConfig) {
+    return new DubWorkImpl(
+      craftWork,
+      dubAudioCache,
+      mixerFactory,
+      notification,
+      workConfig.getContentStoragePathPrefix(),
+      hubConfig.getAudioBaseUrl(),
+      mixerSeconds,
+      dubCycleMillis,
+      workConfig.getOutputFrameRate(),
+      workConfig.getOutputChannels(),
+      workConfig.getDubAheadSeconds());
   }
 
   @Override

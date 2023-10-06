@@ -83,17 +83,29 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     logsTailing.bindBidirectional(checkboxTailLogs.selectedProperty());
     checkboxTailLogs.disableProperty().bind(logsVisible.not());
 
-    var fabricationIsActive = Bindings.createBooleanBinding(
+    itemOpenFabricationSettings.disableProperty().bind(Bindings.createBooleanBinding(
       () -> fabricationService.isStatusActive().get() || preloaderService.runningProperty().get(),
-      fabricationService.isStatusActive(), preloaderService.runningProperty());
+      fabricationService.isStatusActive(), preloaderService.runningProperty()));
 
-    itemOpenFabricationSettings.disableProperty().bind(fabricationIsActive);
-    itemPreload.disableProperty().bind(fabricationIsActive);
+    itemPreload.disableProperty().bind(fabricationService.isStatusActive());
+    itemPreload.textProperty().bind(Bindings.createStringBinding(
+      () -> {
+        if (preloaderService.runningProperty().get())
+          return "Cancel";
+        else
+          return "Preload";
+      },
+      preloaderService.runningProperty()));
 
     itemFabricationMainAction.textProperty().bind(fabricationService.mainActionButtonTextProperty().map((s) -> String.format("_%s", s)));
     itemFabricationMainAction.setAccelerator(computeMainActionButtonAccelerator());
+    itemFabricationMainAction.disableProperty().bind(Bindings.createBooleanBinding(
+      () -> preloaderService.runningProperty().get() || fabricationService.statusProperty().get() != FabricationStatus.Starting,
+      fabricationService.statusProperty(), preloaderService.runningProperty()));
+
     checkboxFabricationFollow.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
     checkboxFabricationFollow.setAccelerator(computeFabricationFollowButtonAccelerator());
+    checkboxFabricationFollow.disableProperty().bind(preloaderService.runningProperty());
   }
 
   /**
@@ -155,7 +167,11 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
   @FXML
   protected void handlePreload() {
-    preloaderService.resetAndStart();
+    if (preloaderService.isRunning()) {
+      preloaderService.cancel();
+    } else {
+      preloaderService.resetAndStart();
+    }
   }
 
   public BooleanProperty logsTailingProperty() {

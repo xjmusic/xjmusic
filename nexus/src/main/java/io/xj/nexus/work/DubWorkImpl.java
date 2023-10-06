@@ -27,6 +27,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
+
 public class DubWorkImpl implements DubWork {
   static final Logger LOG = LoggerFactory.getLogger(DubWorkImpl.class);
   static final long INTERNAL_CYCLE_SLEEP_MILLIS = 50;
@@ -341,7 +343,7 @@ public class DubWorkImpl implements DubWork {
    */
   Mixer mixerInit(TemplateConfig templateConfig) throws Exception {
     AudioFormat.Encoding encoding = AudioFormat.Encoding.PCM_SIGNED;
-    int sampleBits = 16;
+    int sampleBits = FIXED_SAMPLE_BITS;
     int frameSize = outputChannels * sampleBits / BITS_PER_BYTE;
     AudioFormat audioFormat = new AudioFormat(encoding, (float) outputFrameRate, sampleBits, outputChannels, frameSize, (float) outputFrameRate, false);
     MixerConfig config = new MixerConfig(audioFormat)
@@ -398,7 +400,7 @@ public class DubWorkImpl implements DubWork {
 
    @param active audio to setup
    */
-  void mixerSetupTarget(ActiveAudio active) {
+  private void mixerSetupTarget(ActiveAudio active) {
     if (Objects.isNull(mixer)) return;
     try {
       String key = active.getAudio().getWaveformKey();

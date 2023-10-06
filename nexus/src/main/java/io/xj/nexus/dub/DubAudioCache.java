@@ -16,9 +16,9 @@ public interface DubAudioCache {
    <p>
    Advanced audio caching during fabrication https://www.pivotaltracker.com/story/show/176642679
 
-   @param contentStoragePathPrefix
+   @param contentStoragePathPrefix to retrieve from
    @param audioBaseUrl             to retrieve from
-   @param instrumentId
+   @param instrumentId             to retrieve
    @param key                      to retrieve
    @param targetFrameRate          to resample if necessary
    @param targetSampleBits         to resample if necessary

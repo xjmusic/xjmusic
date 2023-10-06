@@ -3,6 +3,7 @@ package io.xj.nexus.work;
 
 import io.xj.hub.tables.pojos.Program;
 import io.xj.lib.mixer.BytePipeline;
+import io.xj.nexus.mixer.ActiveAudio;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 
@@ -152,4 +153,5 @@ public interface DubWork {
    @param micros the now-at chain micros
    */
   void setNowAtToChainMicros(Long micros);
+
 }

@@ -17,18 +17,8 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.VBox;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
-
 @Service
 public class MainPaneTopController extends VBox implements ReadyAfterBootController {
-  static final List<FabricationStatus> BUTTON_ACTION_ACTIVE_IN_FABRICATION_STATES = Arrays.asList(
-    FabricationStatus.Standby,
-    FabricationStatus.Active,
-    FabricationStatus.Cancelled,
-    FabricationStatus.Done,
-    FabricationStatus.Failed
-  );
   final FabricationService fabricationService;
   final PreloaderService preloaderService;
   final ModalFabricationSettingsController modalFabricationSettingsController;
@@ -76,22 +66,37 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   @Override
   public void onStageReady() {
     buttonAction.disableProperty().bind(Bindings.createBooleanBinding(
-      () -> BUTTON_ACTION_ACTIVE_IN_FABRICATION_STATES.contains(fabricationService.statusProperty().get()),
-      fabricationService.statusProperty()).not());
-
+      () -> preloaderService.runningProperty().get() || fabricationService.statusProperty().get() != FabricationStatus.Starting,
+      fabricationService.statusProperty(), preloaderService.runningProperty()));
     buttonAction.textProperty().bind(fabricationService.mainActionButtonTextProperty());
 
     fabricationService.statusProperty().addListener(this::handleFabricationStatusChange);
     buttonToggleFollowPlayback.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
+    buttonToggleFollowPlayback.disableProperty().bind(preloaderService.runningProperty());
 
-    var fabricationIsActive = Bindings.createBooleanBinding(
+    buttonShowFabricationSettings.disableProperty().bind(Bindings.createBooleanBinding(
       () -> fabricationService.isStatusActive().get() || preloaderService.runningProperty().get(),
-      fabricationService.isStatusActive(), preloaderService.runningProperty());
+      fabricationService.isStatusActive(), preloaderService.runningProperty()));
 
-    buttonShowFabricationSettings.disableProperty().bind(fabricationIsActive);
-    buttonPreload.disableProperty().bind(fabricationIsActive);
+    buttonPreload.disableProperty().bind(fabricationService.isStatusActive());
+    buttonPreload.textProperty().bind(Bindings.createStringBinding(
+      () -> {
+        if (preloaderService.runningProperty().get())
+          return "Cancel";
+        else
+          return "Preload";
+      },
+      preloaderService.runningProperty()));
 
-    labelFabricationStatus.textProperty().bind(fabricationService.statusProperty().map(Enum::toString).map((status) -> String.format("Fabrication %s", status)));
+    labelFabricationStatus.textProperty().bind(Bindings.createStringBinding(
+      () -> {
+        if (preloaderService.runningProperty().get())
+          return "Preloading";
+        else
+          return String.format("Fabrication %s", fabricationService.statusProperty().get().toString());
+      },
+      fabricationService.statusProperty(), preloaderService.runningProperty()));
+
 
     labelLabStatus.textProperty().bind(labService.statusProperty().map(Enum::toString));
 
@@ -127,8 +132,12 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   }
 
   @FXML
-  public void handlePreloadTemplate(ActionEvent ignored) {
-    preloaderService.resetAndStart();
+  public void handlePreloadButtonPress(ActionEvent ignored) {
+    if (preloaderService.isRunning()) {
+      preloaderService.cancel();
+    } else {
+      preloaderService.resetAndStart();
+    }
   }
 
   @FXML
