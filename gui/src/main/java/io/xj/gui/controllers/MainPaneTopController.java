@@ -2,10 +2,7 @@
 
 package io.xj.gui.controllers;
 
-import io.xj.gui.services.FabricationService;
-import io.xj.gui.services.FabricationStatus;
-import io.xj.gui.services.LabService;
-import io.xj.gui.services.PreloaderService;
+import io.xj.gui.services.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -21,6 +18,7 @@ import org.springframework.stereotype.Service;
 public class MainPaneTopController extends VBox implements ReadyAfterBootController {
   final FabricationService fabricationService;
   final PreloaderService preloaderService;
+  final UIStateService uiStateService;
   final ModalFabricationSettingsController modalFabricationSettingsController;
   final ModalLabAuthenticationController modalLabAuthenticationController;
   final LabService labService;
@@ -54,55 +52,35 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     LabService labService,
     ModalFabricationSettingsController modalFabricationSettingsController,
     ModalLabAuthenticationController modalLabAuthenticationController,
-    PreloaderService preloaderService
+    PreloaderService preloaderService,
+    UIStateService uiStateService
   ) {
     this.fabricationService = fabricationService;
     this.labService = labService;
     this.modalFabricationSettingsController = modalFabricationSettingsController;
     this.modalLabAuthenticationController = modalLabAuthenticationController;
     this.preloaderService = preloaderService;
+    this.uiStateService = uiStateService;
   }
 
   @Override
   public void onStageReady() {
-    buttonAction.disableProperty().bind(Bindings.createBooleanBinding(
-      () -> preloaderService.runningProperty().get() || fabricationService.statusProperty().get() != FabricationStatus.Starting,
-      fabricationService.statusProperty(), preloaderService.runningProperty()));
+    buttonAction.disableProperty().bind(uiStateService.fabricationActionDisabledProperty());
     buttonAction.textProperty().bind(fabricationService.mainActionButtonTextProperty());
 
+    labService.statusProperty().addListener(this::handleLabStatusChange);
     fabricationService.statusProperty().addListener(this::handleFabricationStatusChange);
     buttonToggleFollowPlayback.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
     buttonToggleFollowPlayback.disableProperty().bind(preloaderService.runningProperty());
 
-    buttonShowFabricationSettings.disableProperty().bind(Bindings.createBooleanBinding(
-      () -> fabricationService.isStatusActive().get() || preloaderService.runningProperty().get(),
-      fabricationService.isStatusActive(), preloaderService.runningProperty()));
+    buttonShowFabricationSettings.disableProperty().bind(uiStateService.fabricationSettingsDisabledProperty());
 
     buttonPreload.disableProperty().bind(fabricationService.isStatusActive());
-    buttonPreload.textProperty().bind(Bindings.createStringBinding(
-      () -> {
-        if (preloaderService.runningProperty().get())
-          return "Cancel";
-        else
-          return "Preload";
-      },
-      preloaderService.runningProperty()));
+    buttonPreload.textProperty().bind(preloaderService.actionTextProperty());
 
-    labelFabricationStatus.textProperty().bind(Bindings.createStringBinding(
-      () -> {
-        if (preloaderService.runningProperty().get())
-          return "Preloading";
-        else
-          return String.format("Fabrication %s", fabricationService.statusProperty().get().toString());
-      },
-      fabricationService.statusProperty(), preloaderService.runningProperty()));
-
+    labelFabricationStatus.textProperty().bind(uiStateService.fabricationStatusTextProperty());
 
     labelLabStatus.textProperty().bind(labService.statusProperty().map(Enum::toString));
-
-    var isFileOutputActive = Bindings.createBooleanBinding(
-      () -> fabricationService.isStatusActive().get() && fabricationService.isOutputModeFile().get(),
-      fabricationService.statusProperty(), fabricationService.isOutputModeFile());
 
     progressBarFabrication.visibleProperty().bind(Bindings.createBooleanBinding(
       () -> isFileOutputActive.get() || preloaderService.runningProperty().get(),
@@ -112,7 +90,7 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
       () -> {
         if (preloaderService.runningProperty().get()) {
           return preloaderService.progressProperty().get();
-        } else if (isFileOutputActive.get()) {
+        } else if (uiStateService.isFileOutputActiveProperty().get()) {
           return fabricationService.progressProperty().get();
         } else {
           return 0.0;
@@ -154,10 +132,28 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
     }
   }
 
-  private void handleFabricationStatusChange(ObservableValue<? extends FabricationStatus> observable, FabricationStatus oldValue, FabricationStatus newValue) {
+  private void handleFabricationStatusChange(ObservableValue<? extends FabricationStatus> observable, FabricationStatus prior, FabricationStatus newValue) {
     switch (newValue) {
       case Standby, Failed, Done, Cancelled -> buttonAction.getStyleClass().remove("button-active");
       case Starting, Active -> buttonAction.getStyleClass().add("button-active");
+    }
+  }
+
+  private void handleLabStatusChange(ObservableValue<? extends LabStatus> observable, LabStatus prior, LabStatus newValue) {
+    switch (newValue) {
+      case Offline -> buttonLab.getStyleClass().removeAll("button-active", "button-pending", "button-failed");
+      case Connecting, Configuring -> {
+        buttonLab.getStyleClass().removeAll("button-active", "button-failed");
+        buttonLab.getStyleClass().add("button-pending");
+      }
+      case Authenticated -> {
+        buttonLab.getStyleClass().removeAll("button-pending", "button-failed");
+        buttonLab.getStyleClass().add("button-active");
+      }
+      case Unauthorized, Failed -> {
+        buttonLab.getStyleClass().removeAll("button-active", "button-pending");
+        buttonLab.getStyleClass().add("button-failed");
+      }
     }
   }
 }

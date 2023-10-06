@@ -148,7 +148,15 @@
 }
 
 .button-active {
-  -fx-background-color: #17EF1766;
+  -fx-background-color: rgba(0, 255, 0, 0.38);
+}
+
+.button-pending {
+  -fx-background-color: rgba(255, 128, 0, 0.38);
+}
+
+.button-failed {
+  -fx-background-color: rgba(255, 0, 0, 0.38);
 }
 
 .demo-title {

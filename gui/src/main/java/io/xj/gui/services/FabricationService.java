@@ -38,6 +38,7 @@ public interface FabricationService extends Worker<Boolean>, EventTarget {
   StringProperty inputTemplateKeyProperty();
 
   StringProperty contentStoragePathPrefixProperty();
+
   StringProperty outputPathPrefixProperty();
 
   ObjectProperty<InputMode> inputModeProperty();
