@@ -5,7 +5,6 @@ package io.xj.nexus.fabricator;
 import io.xj.hub.HubContent;
 import io.xj.hub.util.ValueException;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.hub_client.HubClientException;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.persistence.ManagerFatalException;
@@ -36,7 +35,7 @@ public interface FabricatorFactory {
     int craftAheadSeconds,
     double outputFrameRate,
     int outputChannels
-  ) throws NexusException, FabricationFatalException, ManagerFatalException, ValueException, HubClientException;
+  ) throws NexusException, FabricationFatalException, ManagerFatalException, ValueException;
 
   /**
    Create a retrospective to fabricate a particular segment

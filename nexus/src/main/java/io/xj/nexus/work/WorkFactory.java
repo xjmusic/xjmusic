@@ -4,6 +4,7 @@ package io.xj.nexus.work;
 
 import io.xj.hub.HubConfiguration;
 import io.xj.hub.HubContent;
+import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.persistence.SegmentManager;
 
@@ -19,7 +20,8 @@ public interface WorkFactory {
     WorkConfiguration workConfig,
     HubConfiguration hubConfig,
     HubClientAccess hubAccess,
-    Callable<HubContent> hubContentProvider, Consumer<Double> progressUpdateCallback,
+    Callable<HubContent> hubContentProvider,
+    Consumer<Double> progressUpdateCallback,
     Runnable onDone
   );
 

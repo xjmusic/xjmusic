@@ -162,8 +162,8 @@ public class DubWorkImpl implements DubWork {
   }
 
   @Override
-  public String getInputTemplateKey() {
-    return craftWork.getInputTemplateKey();
+  public String getTemplateKey() {
+    return craftWork.getTemplateKey();
   }
 
   @Override

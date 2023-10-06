@@ -104,7 +104,7 @@ public interface DubWork {
 
    @return the input template key
    */
-  String getInputTemplateKey();
+  String getTemplateKey();
 
   /**
    Get the segment at the given chain micros
