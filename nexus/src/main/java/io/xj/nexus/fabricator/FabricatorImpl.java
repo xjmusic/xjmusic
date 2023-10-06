@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.xj.hub.util.ValueUtils.*;
+import static io.xj.nexus.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
 
 /**
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
@@ -953,7 +954,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public int computeOutputSampleBits() {
-    return 16;
+    return FIXED_SAMPLE_BITS;
   }
 
   @Override

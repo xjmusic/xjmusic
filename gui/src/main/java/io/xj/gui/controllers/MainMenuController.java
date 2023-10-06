@@ -2,10 +2,8 @@
 
 package io.xj.gui.controllers;
 
-import io.xj.gui.services.FabricationService;
-import io.xj.gui.services.GuideService;
-import io.xj.gui.services.LabService;
-import io.xj.gui.services.ThemeService;
+import io.xj.gui.services.*;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
@@ -27,6 +25,7 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   final BooleanProperty logsTailing = new SimpleBooleanProperty(true);
   final ConfigurableApplicationContext ac;
   private final FabricationService fabricationService;
+  private final PreloaderService preloaderService;
   final ThemeService themeService;
   final GuideService guideService;
   final LabService labService;
@@ -44,6 +43,9 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   protected MenuItem itemOpenFabricationSettings;
 
   @FXML
+  protected MenuItem itemPreload;
+
+  @FXML
   protected CheckMenuItem checkboxDarkTheme;
 
   @FXML
@@ -58,6 +60,7 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     ModalAboutController modalAboutController,
     ModalLabAuthenticationController modalLabAuthenticationController,
     FabricationService fabricationService,
+    PreloaderService preloaderService,
     ThemeService themeService,
     GuideService guideService,
     LabService labService
@@ -67,6 +70,7 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     this.modalAboutController = modalAboutController;
     this.modalLabAuthenticationController = modalLabAuthenticationController;
     this.fabricationService = fabricationService;
+    this.preloaderService = preloaderService;
     this.themeService = themeService;
     this.guideService = guideService;
     this.labService = labService;
@@ -78,11 +82,30 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     logsVisible.bindBidirectional(checkboxShowLogs.selectedProperty());
     logsTailing.bindBidirectional(checkboxTailLogs.selectedProperty());
     checkboxTailLogs.disableProperty().bind(logsVisible.not());
-    itemOpenFabricationSettings.disableProperty().bind(fabricationService.isStatusActive());
+
+    itemOpenFabricationSettings.disableProperty().bind(Bindings.createBooleanBinding(
+      () -> fabricationService.isStatusActive().get() || preloaderService.runningProperty().get(),
+      fabricationService.isStatusActive(), preloaderService.runningProperty()));
+
+    itemPreload.disableProperty().bind(fabricationService.isStatusActive());
+    itemPreload.textProperty().bind(Bindings.createStringBinding(
+      () -> {
+        if (preloaderService.runningProperty().get())
+          return "Cancel";
+        else
+          return "Preload";
+      },
+      preloaderService.runningProperty()));
+
     itemFabricationMainAction.textProperty().bind(fabricationService.mainActionButtonTextProperty().map((s) -> String.format("_%s", s)));
     itemFabricationMainAction.setAccelerator(computeMainActionButtonAccelerator());
+    itemFabricationMainAction.disableProperty().bind(Bindings.createBooleanBinding(
+      () -> preloaderService.runningProperty().get() || fabricationService.statusProperty().get() != FabricationStatus.Starting,
+      fabricationService.statusProperty(), preloaderService.runningProperty()));
+
     checkboxFabricationFollow.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
     checkboxFabricationFollow.setAccelerator(computeFabricationFollowButtonAccelerator());
+    checkboxFabricationFollow.disableProperty().bind(preloaderService.runningProperty());
   }
 
   /**
@@ -140,6 +163,15 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   @FXML
   protected void handleOpenFabricationSettings() {
     modalFabricationSettingsController.launchModal();
+  }
+
+  @FXML
+  protected void handlePreload() {
+    if (preloaderService.isRunning()) {
+      preloaderService.cancel();
+    } else {
+      preloaderService.resetAndStart();
+    }
   }
 
   public BooleanProperty logsTailingProperty() {

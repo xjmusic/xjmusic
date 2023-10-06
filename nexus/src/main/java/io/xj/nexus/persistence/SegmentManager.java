@@ -142,10 +142,9 @@ public interface SegmentManager /* does not extend Manager<Segment> because it i
   /**
    Read the last dubbed-state segment in a Chain, Segments sorted by offset ascending
 
-   @param access control
    @return Last Dubbed-state Segment in Chain
    */
-  Optional<Segment> readLastCraftedSegment(HubClientAccess access) throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException;
+  Optional<Segment> readLastCraftedSegment() throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException;
 
   /**
    Read a choice for a given segment id and program type

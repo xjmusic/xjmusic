@@ -361,7 +361,7 @@ public class SegmentManagerImpl implements SegmentManager {
   }
 
   @Override
-  public Optional<Segment> readLastCraftedSegment(HubClientAccess access) throws ManagerFatalException {
+  public Optional<Segment> readLastCraftedSegment() throws ManagerFatalException {
     try {
       return SegmentUtils.getLastCrafted(store.getAllSegments());
 

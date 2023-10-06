@@ -2,15 +2,18 @@
 
 package io.xj.gui.services;
 
+import io.xj.hub.HubContent;
 import io.xj.hub.tables.pojos.*;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
 import io.xj.nexus.model.*;
+import io.xj.nexus.work.WorkConfiguration;
 import io.xj.nexus.work.WorkFactory;
 import jakarta.annotation.Nullable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
@@ -22,13 +25,19 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 
 public interface FabricationService extends Worker<Boolean>, EventTarget {
+
+  Callable<HubContent> getHubContentProvider();
+
+  WorkConfiguration getWorkConfig();
 
   ObjectProperty<FabricationStatus> statusProperty();
 
   StringProperty inputTemplateKeyProperty();
 
+  StringProperty contentStoragePathPrefixProperty();
   StringProperty outputPathPrefixProperty();
 
   ObjectProperty<InputMode> inputModeProperty();

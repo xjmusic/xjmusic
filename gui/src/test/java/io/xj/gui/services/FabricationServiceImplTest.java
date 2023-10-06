@@ -8,6 +8,7 @@ import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
+import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.ManagerFatalException;
 import io.xj.nexus.persistence.SegmentManager;
@@ -54,6 +55,9 @@ class FabricationServiceImplTest {
   @Mock
   private SegmentManager segmentManager;
 
+  @Mock
+  private HubClient hubClient;
+
   FabricationServiceImpl subject;
   private Chain chain;
   private final AtomicInteger offset = new AtomicInteger(0);
@@ -82,6 +86,7 @@ class FabricationServiceImplTest {
       defaultOutputMode,
       defaultOutputSeconds,
       workFactory,
+      hubClient,
       labService
     );
 

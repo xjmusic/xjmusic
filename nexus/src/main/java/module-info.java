@@ -51,6 +51,7 @@ module workstation.nexus.main {
   exports io.xj.nexus.hub_client.access;
   exports io.xj.nexus.hub_client;
   exports io.xj.nexus.model;
+  exports io.xj.nexus.mixer;
   exports io.xj.nexus.persistence;
   exports io.xj.nexus.ship.broadcast;
   exports io.xj.nexus.work;

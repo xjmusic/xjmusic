@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Callable;
 
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildAccount;
 import static io.xj.nexus.NexusHubIntegrationTestingFixtures.buildLibrary;
@@ -61,6 +62,9 @@ public class ComplexLibraryTest {
   CraftWork work;
   @Mock
   FileStoreProvider fileStoreProvider;
+
+  @Mock
+  Callable<HubContent> hubContentProvider;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -92,7 +96,7 @@ public class ComplexLibraryTest {
     test.deleteAll();
 
     // Mock request via HubClient returns fake generated library of hub content
-    when(hubClient.load("complex_library_test", audioBaseUrl)).thenReturn(content);
+    when(hubContentProvider.call()).thenReturn(content);
 
     // Dependencies
     CraftFactory craftFactory = new CraftFactoryImpl();
@@ -107,16 +111,13 @@ public class ComplexLibraryTest {
       entityFactory,
       fabricatorFactory,
       fileStoreProvider,
-      httpClientProvider,
-      hubClient,
       jsonapiPayloadFactory,
       jsonProvider,
       store,
       notificationProvider,
       segmentManager,
       telemetryProvider,
-      access,
-      hubBaseUrl,
+      hubContentProvider,
       audioBaseUrl,
       shipBaseUrl,
       InputMode.PRODUCTION,
@@ -166,7 +167,7 @@ public class ComplexLibraryTest {
       var chain = work.getChain();
       if (chain.isEmpty())
         return false;
-      return segmentManager.readLastCraftedSegment(new HubClientAccess(List.of(UserRoleType.Internal)))
+      return segmentManager.readLastCraftedSegment()
         .filter(value -> MARATHON_NUMBER_OF_SEGMENTS <= value.getId()).isPresent();
 
     } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException ignored) {

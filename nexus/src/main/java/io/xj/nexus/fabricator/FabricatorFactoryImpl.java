@@ -7,7 +7,6 @@ import io.xj.hub.util.ValueException;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.hub_client.HubClientException;
 import io.xj.nexus.model.Chain;
 import io.xj.nexus.model.Segment;
 import io.xj.nexus.persistence.ManagerFatalException;
@@ -33,7 +32,7 @@ public class FabricatorFactoryImpl implements FabricatorFactory {
   }
 
   @Override
-  public Fabricator fabricate(HubContent sourceMaterial, Segment segment, int craftAheadSeconds, double outputFrameRate, int outputChannels) throws NexusException, FabricationFatalException, ManagerFatalException, ValueException, HubClientException {
+  public Fabricator fabricate(HubContent sourceMaterial, Segment segment, int craftAheadSeconds, double outputFrameRate, int outputChannels) throws NexusException, FabricationFatalException, ManagerFatalException, ValueException {
     return new FabricatorImpl(sourceMaterial, segment, this, segmentManager, jsonapiPayloadFactory, jsonProvider, craftAheadSeconds, outputFrameRate, outputChannels);
   }
 

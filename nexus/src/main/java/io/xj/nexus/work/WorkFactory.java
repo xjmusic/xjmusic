@@ -4,10 +4,10 @@ package io.xj.nexus.work;
 
 import io.xj.hub.HubConfiguration;
 import io.xj.hub.HubContent;
-import io.xj.nexus.hub_client.HubClientAccess;
 import io.xj.nexus.persistence.SegmentManager;
 
 import java.util.Optional;
+import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 public interface WorkFactory {
@@ -17,10 +17,19 @@ public interface WorkFactory {
   boolean start(
     WorkConfiguration workConfig,
     HubConfiguration hubConfig,
-    HubClientAccess hubAccess,
+    Callable<HubContent> hubContentProvider,
     Consumer<Double> progressUpdateCallback,
     Runnable onDone
   );
+
+  /**
+   Get a dub work instance
+
+   @param hubConfig  hub config
+   @param workConfig work config
+   @return dub work instance
+   */
+  DubWork dub(HubConfiguration hubConfig, WorkConfiguration workConfig);
 
   /**
    Stop work

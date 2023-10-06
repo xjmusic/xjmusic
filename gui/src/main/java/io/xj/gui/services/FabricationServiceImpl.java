@@ -2,6 +2,7 @@
 
 package io.xj.gui.services;
 
+import io.xj.hub.HubContent;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.enums.UserRoleType;
@@ -9,10 +10,11 @@ import io.xj.hub.tables.pojos.*;
 import io.xj.hub.util.ValueException;
 import io.xj.lib.util.FormatUtils;
 import io.xj.nexus.InputMode;
-import java.util.prefs.Preferences;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
+import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.hub_client.HubClientAccess;
+import io.xj.nexus.hub_client.HubContentProvider;
 import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.ManagerExistenceException;
 import io.xj.nexus.persistence.ManagerFatalException;
@@ -36,16 +38,21 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.prefs.Preferences;
 
 @org.springframework.stereotype.Service
 public class FabricationServiceImpl extends Service<Boolean> implements FabricationService {
   static final Logger LOG = LoggerFactory.getLogger(FabricationServiceImpl.class);
+  private static final String defaultPathPrefix = System.getProperty("user.home") + File.separator + "XJ music" + File.separator + "Documents" + File.separator;
   private final Preferences prefs = Preferences.userNodeForPackage(FabricationServiceImpl.class);
   final static String BUTTON_TEXT_START = "Start";
   final static String BUTTON_TEXT_STOP = "Stop";
   final static String BUTTON_TEXT_RESET = "Reset";
   final HostServices hostServices;
+  private final String defaultContentStoragePathPrefix = computeDefaultPathPrefix("content");
+  private final String defaultOutputPathPrefix = computeDefaultPathPrefix("output");
   private final int defaultTimelineSegmentViewLimit;
   private final Integer defaultCraftAheadSeconds;
   private final Integer defaultDubAheadSeconds;
@@ -57,10 +64,12 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   private final String defaultOutputMode;
   private final Integer defaultOutputSeconds;
   final WorkFactory workFactory;
+  final HubClient hubClient;
   final LabService labService;
   final Map<Integer, Integer> segmentBarBeats = new ConcurrentHashMap<>();
   final ObjectProperty<FabricationStatus> status = new SimpleObjectProperty<>(FabricationStatus.Standby);
   final StringProperty inputTemplateKey = new SimpleStringProperty();
+  final StringProperty contentStoragePathPrefix = new SimpleStringProperty();
   final StringProperty outputPathPrefix = new SimpleStringProperty();
   final ObjectProperty<InputMode> inputMode = new SimpleObjectProperty<>();
   final ObjectProperty<OutputFileMode> outputFileMode = new SimpleObjectProperty<>();
@@ -73,7 +82,6 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   final StringProperty outputChannels = new SimpleStringProperty();
 
   final StringProperty timelineSegmentViewLimit = new SimpleStringProperty();
-  final IntegerProperty timelineSegmentViewLimitInteger = new SimpleIntegerProperty();
   final BooleanProperty followPlayback = new SimpleBooleanProperty(true);
   final ObservableBooleanValue outputModeSync = Bindings.createBooleanBinding(() ->
     outputMode.get().isSync(), outputMode);
@@ -104,6 +112,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     @Value("${output.mode}") String defaultOutputMode,
     @Value("${output.seconds}") Integer defaultOutputSeconds,
     WorkFactory workFactory,
+    HubClient hubClient,
     LabService labService
   ) {
     this.hostServices = hostServices;
@@ -118,6 +127,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     this.defaultOutputMode = defaultOutputMode;
     this.defaultOutputSeconds = defaultOutputSeconds;
     this.workFactory = workFactory;
+    this.hubClient = hubClient;
     this.labService = labService;
 
     attachPreferenceListeners();
@@ -132,107 +142,118 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   }
 
   private void attachPreferenceListeners() {
-    craftAheadSeconds.addListener((obs, oldValue, newValue) -> prefs.put("craftAheadSeconds", newValue));
-    dubAheadSeconds.addListener((obs, oldValue, newValue) -> prefs.put("dubAheadSeconds", newValue));
-    shipAheadSeconds.addListener((obs, oldValue, newValue) -> prefs.put("shipAheadSeconds", newValue));
-    inputMode.addListener((obs, oldValue, newValue) -> prefs.put("inputMode", newValue.name()));
-    inputTemplateKey.addListener((obs, oldValue, newValue) -> prefs.put("inputTemplateKey", newValue));
-    outputChannels.addListener((obs, oldValue, newValue) -> prefs.put("outputChannels", newValue));
-    outputFileMode.addListener((obs, oldValue, newValue) -> prefs.put("outputFileMode", newValue.name()));
-    outputFrameRate.addListener((obs, oldValue, newValue) -> prefs.put("outputFrameRate", newValue));
-    outputMode.addListener((obs, oldValue, newValue) -> prefs.put("outputMode", newValue.name()));
-    outputPathPrefix.addListener((obs, oldValue, newValue) -> prefs.put("outputPathPrefix", newValue));
-    outputSeconds.addListener((obs, oldValue, newValue) -> prefs.put("outputSeconds", newValue));
-    timelineSegmentViewLimit.addListener((obs, oldValue, newValue) -> prefs.put("timelineSegmentViewLimit", newValue));
+    contentStoragePathPrefix.addListener((o, ov, value) -> prefs.put("contentStoragePathPrefix", value));
+    craftAheadSeconds.addListener((o, ov, value) -> prefs.put("craftAheadSeconds", value));
+    dubAheadSeconds.addListener((o, ov, value) -> prefs.put("dubAheadSeconds", value));
+    inputMode.addListener((o, ov, value) -> prefs.put("inputMode", value.name()));
+    inputTemplateKey.addListener((o, ov, value) -> prefs.put("inputTemplateKey", value));
+    outputChannels.addListener((o, ov, value) -> prefs.put("outputChannels", value));
+    outputFileMode.addListener((o, ov, value) -> prefs.put("outputFileMode", value.name()));
+    outputFrameRate.addListener((o, ov, value) -> prefs.put("outputFrameRate", value));
+    outputMode.addListener((o, ov, value) -> prefs.put("outputMode", value.name()));
+    outputPathPrefix.addListener((o, ov, value) -> prefs.put("outputPathPrefix", value));
+    outputSeconds.addListener((o, ov, value) -> prefs.put("outputSeconds", value));
+    shipAheadSeconds.addListener((o, ov, value) -> prefs.put("shipAheadSeconds", value));
+    timelineSegmentViewLimit.addListener((o, ov, value) -> prefs.put("timelineSegmentViewLimit", value));
   }
 
   private void setAllFromPrefsOrDefaults() {
-      craftAheadSeconds.set(prefs.get("craftAheadSeconds", Integer.toString(defaultCraftAheadSeconds)));
-      dubAheadSeconds.set(prefs.get("dubAheadSeconds", Integer.toString(defaultDubAheadSeconds)));
-      shipAheadSeconds.set(prefs.get("shipAheadSeconds", Integer.toString(defaultShipAheadSeconds)));
-      inputMode.set(InputMode.valueOf(prefs.get("inputMode", InputMode.PRODUCTION.name())));
-      inputTemplateKey.set(prefs.get("inputTemplateKey", defaultInputTemplateKey));
-      outputChannels.set(prefs.get("outputChannels", Integer.toString(defaultOutputChannels)));
-      outputFileMode.set(OutputFileMode.valueOf(prefs.get("outputFileMode", defaultOutputFileMode.toUpperCase(Locale.ROOT))));
-      outputFrameRate.set(prefs.get("outputFrameRate", Double.toString(defaultOutputFrameRate)));
-      outputMode.set(OutputMode.valueOf(prefs.get("outputMode", defaultOutputMode.toUpperCase(Locale.ROOT))));
-      outputPathPrefix.set(prefs.get("outputPathPrefix", System.getProperty("user.home") + File.separator));
-      outputSeconds.set(prefs.get("outputSeconds", Integer.toString(defaultOutputSeconds)));
-      timelineSegmentViewLimit.set(prefs.get("timelineSegmentViewLimit", Integer.toString(defaultTimelineSegmentViewLimit)));
+    contentStoragePathPrefix.set(prefs.get("contentStoragePathPrefix", defaultContentStoragePathPrefix));
+    craftAheadSeconds.set(prefs.get("craftAheadSeconds", Integer.toString(defaultCraftAheadSeconds)));
+    dubAheadSeconds.set(prefs.get("dubAheadSeconds", Integer.toString(defaultDubAheadSeconds)));
+    inputMode.set(InputMode.valueOf(prefs.get("inputMode", InputMode.PRODUCTION.name())));
+    inputTemplateKey.set(prefs.get("inputTemplateKey", defaultInputTemplateKey));
+    outputChannels.set(prefs.get("outputChannels", Integer.toString(defaultOutputChannels)));
+    outputFileMode.set(OutputFileMode.valueOf(prefs.get("outputFileMode", defaultOutputFileMode.toUpperCase(Locale.ROOT))));
+    outputFrameRate.set(prefs.get("outputFrameRate", Double.toString(defaultOutputFrameRate)));
+    outputMode.set(OutputMode.valueOf(prefs.get("outputMode", defaultOutputMode.toUpperCase(Locale.ROOT))));
+    outputPathPrefix.set(prefs.get("outputPathPrefix", defaultOutputPathPrefix));
+    outputSeconds.set(prefs.get("outputSeconds", Integer.toString(defaultOutputSeconds)));
+    shipAheadSeconds.set(prefs.get("shipAheadSeconds", Integer.toString(defaultShipAheadSeconds)));
+    timelineSegmentViewLimit.set(prefs.get("timelineSegmentViewLimit", Integer.toString(defaultTimelineSegmentViewLimit)));
   }
 
-  private void setAllDefaults() {
-    craftAheadSeconds.set(Integer.toString(defaultCraftAheadSeconds));
-    dubAheadSeconds.set(Integer.toString(defaultDubAheadSeconds));
-    shipAheadSeconds.set(Integer.toString(defaultShipAheadSeconds));
-    inputMode.set(InputMode.PRODUCTION);
-    inputTemplateKey.set(defaultInputTemplateKey);
-    outputChannels.set(Integer.toString(defaultOutputChannels));
-    outputFileMode.set(OutputFileMode.valueOf(defaultOutputFileMode.toUpperCase(Locale.ROOT)));
-    outputFrameRate.set(Double.toString(defaultOutputFrameRate));
-    outputMode.set(OutputMode.valueOf(defaultOutputMode.toUpperCase(Locale.ROOT)));
-    outputPathPrefix.set(System.getProperty("user.home") + File.separator);
-    outputSeconds.set(Integer.toString(defaultOutputSeconds));
-    timelineSegmentViewLimit.set(Integer.toString(defaultTimelineSegmentViewLimit));
-    timelineSegmentViewLimitInteger.bind(Bindings.createIntegerBinding(() -> Integer.parseInt(timelineSegmentViewLimit.get()), timelineSegmentViewLimit));
-  }
-
+  @Override
   protected Task<Boolean> createTask() {
     return new Task<>() {
       protected Boolean call() {
-        var workConfig = new WorkConfiguration()
-          .setInputMode(inputMode.get())
-          .setInputTemplateKey(inputTemplateKey.get())
-          .setOutputFileMode(outputFileMode.get())
-          .setOutputMode(outputMode.get())
-          .setOutputPathPrefix(outputPathPrefix.get())
-          .setOutputSeconds(Integer.parseInt(outputSeconds.get()))
-          .setCraftAheadSeconds(Integer.parseInt(craftAheadSeconds.get()))
-          .setDubAheadSeconds(Integer.parseInt(dubAheadSeconds.get()))
-          .setShipAheadSeconds(Integer.parseInt(shipAheadSeconds.get()))
-          .setOutputFrameRate(Double.parseDouble(outputFrameRate.get()))
-          .setOutputChannels(Integer.parseInt(outputChannels.get()));
-
-        var hubConfig = labService.hubConfigProperty().get();
-
-        var hubAccess = new HubClientAccess()
-          .setRoleTypes(List.of(UserRoleType.Internal))
-          .setToken(labService.accessTokenProperty().get());
-
         return workFactory.start(
-          workConfig,
-          hubConfig,
-          hubAccess,
+          getWorkConfig(),
+          labService.hubConfigProperty().get(),
+          getHubContentProvider(),
           (Double ratio) -> updateProgress(ratio, 1.0),
           () -> updateProgress(1.0, 1.0));
       }
     };
   }
 
+  @Override
+  public Callable<HubContent> getHubContentProvider() {
+    var hubAccess = new HubClientAccess()
+      .setRoleTypes(List.of(UserRoleType.Internal))
+      .setToken(labService.accessTokenProperty().get());
+
+    return new HubContentProvider(
+      hubClient,
+      labService.hubConfigProperty().get(),
+      hubAccess,
+      inputMode.get(),
+      inputTemplateKey.get());
+  }
+
+  @Override
+  public WorkConfiguration getWorkConfig() {
+    return new WorkConfiguration()
+      .setContentStoragePathPrefix(contentStoragePathPrefix.get())
+      .setCraftAheadSeconds(Integer.parseInt(craftAheadSeconds.get()))
+      .setDubAheadSeconds(Integer.parseInt(dubAheadSeconds.get()))
+      .setInputMode(inputMode.get())
+      .setInputTemplateKey(inputTemplateKey.get())
+      .setOutputChannels(Integer.parseInt(outputChannels.get()))
+      .setOutputFileMode(outputFileMode.get())
+      .setOutputFrameRate(Double.parseDouble(outputFrameRate.get()))
+      .setOutputMode(outputMode.get())
+      .setOutputPathPrefix(outputPathPrefix.get())
+      .setOutputSeconds(Integer.parseInt(outputSeconds.get()))
+      .setShipAheadSeconds(Integer.parseInt(shipAheadSeconds.get()));
+  }
+
+  @Override
   public ObjectProperty<FabricationStatus> statusProperty() {
     return status;
   }
 
+  @Override
   public StringProperty inputTemplateKeyProperty() {
     return inputTemplateKey;
   }
 
+  @Override
+  public StringProperty contentStoragePathPrefixProperty() {
+    return contentStoragePathPrefix;
+  }
+
+  @Override
   public StringProperty outputPathPrefixProperty() {
     return outputPathPrefix;
   }
 
+  @Override
   public ObjectProperty<InputMode> inputModeProperty() {
     return inputMode;
   }
 
+  @Override
   public ObjectProperty<OutputFileMode> outputFileModeProperty() {
     return outputFileMode;
   }
 
+  @Override
   public ObjectProperty<OutputMode> outputModeProperty() {
     return outputMode;
   }
 
+  @Override
   public StringProperty outputSecondsProperty() {
     return outputSeconds;
   }
@@ -267,10 +288,12 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     return timelineSegmentViewLimit;
   }
 
+  @Override
   public WorkFactory getWorkFactory() {
     return workFactory;
   }
 
+  @Override
   public Collection<SegmentMeme> getSegmentMemes(Segment segment) {
     try {
       return workFactory.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentMeme.class);
@@ -280,6 +303,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     }
   }
 
+  @Override
   public Collection<SegmentChord> getSegmentChords(Segment segment) {
     try {
       return workFactory.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentChord.class);
@@ -289,6 +313,7 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     }
   }
 
+  @Override
   public Collection<SegmentChoice> getSegmentChoices(Segment segment) {
     try {
       return workFactory.getSegmentManager().readManySubEntitiesOfType(segment.getId(), SegmentChoice.class);
@@ -425,8 +450,9 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
   @Override
   public List<Segment> getSegments(@Nullable Integer startIndex) {
     try {
-      var from = Objects.nonNull(startIndex) ? startIndex : Math.max(0, workFactory.getSegmentManager().size() - timelineSegmentViewLimitInteger.get() - 1);
-      var to = Math.min(workFactory.getSegmentManager().size() - 1, from + timelineSegmentViewLimitInteger.get());
+      var viewLimit = Integer.parseInt(timelineSegmentViewLimit.getValue());
+      var from = Objects.nonNull(startIndex) ? startIndex : Math.max(0, workFactory.getSegmentManager().size() - viewLimit - 1);
+      var to = Math.min(workFactory.getSegmentManager().size() - 1, from + viewLimit);
       return workFactory
         .getSegmentManager()
         .readManyFromToOffset(from, to);
@@ -513,9 +539,14 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
       return;
     }
 
-    setAllDefaults();
-    inputTemplateKey.set(templateKey);
     this.craftAheadSeconds.set(craftAheadSeconds.toString());
+    dubAheadSeconds.set(Integer.toString(defaultDubAheadSeconds));
+    shipAheadSeconds.set(Integer.toString(defaultShipAheadSeconds));
+    inputMode.set(InputMode.PRODUCTION);
+    inputTemplateKey.set(templateKey);
+    outputFileMode.set(OutputFileMode.valueOf(defaultOutputFileMode.toUpperCase(Locale.ROOT)));
+    outputMode.set(OutputMode.valueOf(defaultOutputMode.toUpperCase(Locale.ROOT)));
+
     start();
   }
 
@@ -568,5 +599,9 @@ public class FabricationServiceImpl extends Service<Boolean> implements Fabricat
     else if (Objects.nonNull(program))
       return program.getName();
     else return "Not Loaded";
+  }
+
+  private static String computeDefaultPathPrefix(String category) {
+    return defaultPathPrefix + category + File.separator;
   }
 }

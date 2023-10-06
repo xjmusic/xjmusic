@@ -172,7 +172,7 @@ public class ShipWorkImpl implements ShipWork {
     switch (outputMode) {
       case HLS -> {
         LOG.info("Will initialize HLS output");
-        encoder = broadcastFactory.encoder(audioFormat.get(), dubWork.getInputTemplateKey());
+        encoder = broadcastFactory.encoder(audioFormat.get(), dubWork.getTemplateKey());
         doInitializedOK();
       }
       case PLAYBACK -> {
@@ -478,7 +478,7 @@ public class ShipWorkImpl implements ShipWork {
 
     public String getPath() {
       return outputPathPrefix +
-        dubWork.getInputTemplateKey() +
+        dubWork.getTemplateKey() +
         "-" + StringUtils.zeroPadded(outputFileNum, outputFileNumberDigits) +
         getPathDescriptionIfRelevant() +
         ".wav";

@@ -4,17 +4,15 @@ package io.xj.nexus.work;
 import io.xj.hub.HubContent;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.*;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.util.StringUtils;
 import io.xj.hub.util.ValueException;
-import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.EntityUtils;
 import io.xj.lib.filestore.FileStoreProvider;
-import io.xj.lib.http.HttpClientProvider;
 import io.xj.lib.json.JsonProvider;
-import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.MultiStopwatch;
@@ -28,27 +26,19 @@ import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.fabricator.FabricationFatalException;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.nexus.hub_client.HubClient;
-import io.xj.nexus.hub_client.HubClientAccess;
-import io.xj.nexus.hub_client.HubClientException;
 import io.xj.nexus.model.*;
 import io.xj.nexus.persistence.*;
 import jakarta.annotation.Nullable;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.entity.ContentType;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -62,13 +52,10 @@ public class CraftWorkImpl implements CraftWork {
   final CraftFactory craftFactory;
   final EntityFactory entityFactory;
   final FabricatorFactory fabricatorFactory;
-  final HttpClientProvider httpClientProvider;
-  final HubClient hubClient;
-  final HubClientAccess access;
   final JsonProvider jsonProvider;
   final JsonapiPayloadFactory jsonapiPayloadFactory;
   final FileStoreProvider fileStore;
-  HubContent chainSourceMaterial;
+  HubContent sourceMaterial;
   Long chainNextIngestMillis = System.currentTimeMillis();
   final TelemetryMeasureGauge METRIC_FABRICATED_AHEAD_SECONDS;
   final TelemetryMeasureCount METRIC_SEGMENT_CREATED;
@@ -109,14 +96,8 @@ public class CraftWorkImpl implements CraftWork {
   @Value("${craft.medic.cycle.seconds}")
   int medicCycleSeconds;
 
-  @Value("${rehydration.ahead.threshold}")
-  int rehydrateFabricatedAheadThreshold;
-
   @Value("${craft.health.cycle.staleness.threshold.seconds}")
   long healthCycleStalenessThresholdSeconds;
-
-  @Value("${rehydration.enabled}")
-  boolean isRehydrationEnabled;
 
   @Value("${ship.bucket}")
   String shipBucket;
@@ -141,7 +122,7 @@ public class CraftWorkImpl implements CraftWork {
   final double outputFrameRate;
   final int outputChannels;
   final String audioBaseUrl;
-  final String hubBaseUrl;
+  final Callable<HubContent> hubContentProvider;
   final String shipBaseUrl;
 
   @Nullable
@@ -154,19 +135,18 @@ public class CraftWorkImpl implements CraftWork {
     EntityFactory entityFactory,
     FabricatorFactory fabricatorFactory,
     FileStoreProvider fileStore,
-    HttpClientProvider httpClientProvider,
-    HubClient hubClient,
     JsonapiPayloadFactory jsonapiPayloadFactory,
     JsonProvider jsonProvider,
     NexusEntityStore store,
     NotificationProvider notification,
     SegmentManager segmentManager,
     TelemetryProvider telemetryProvider,
-    HubClientAccess access,
-    String hubBaseUrl, String audioBaseUrl,
-    String shipBaseUrl, InputMode inputMode,
+    Callable<HubContent> hubContentProvider,
+    String audioBaseUrl,
+    String shipBaseUrl,
+    InputMode inputMode,
     OutputMode outputMode,
-    String inputTemplateKey,
+    String templateKey,
     boolean isJsonOutputEnabled,
     String tempFilePathPrefix,
     int jsonExpiresInSeconds,
@@ -177,20 +157,17 @@ public class CraftWorkImpl implements CraftWork {
     this.craftFactory = craftFactory;
     this.entityFactory = entityFactory;
     this.fabricatorFactory = fabricatorFactory;
-    this.httpClientProvider = httpClientProvider;
-    this.hubClient = hubClient;
     this.jsonProvider = jsonProvider;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     this.notification = notification;
     this.segmentManager = segmentManager;
     this.store = store;
     this.telemetryProvider = telemetryProvider;
-    this.access = access;
-    this.hubBaseUrl = hubBaseUrl;
+    this.hubContentProvider = hubContentProvider;
     this.audioBaseUrl = audioBaseUrl;
     this.shipBaseUrl = shipBaseUrl;
     this.tempFilePathPrefix = tempFilePathPrefix;
-    this.inputTemplateKey = inputTemplateKey;
+    this.inputTemplateKey = templateKey;
     this.isJsonOutputEnabled = isJsonOutputEnabled;
     this.jsonExpiresInSeconds = jsonExpiresInSeconds;
     this.craftAheadSeconds = craftAheadSeconds;
@@ -358,16 +335,16 @@ public class CraftWorkImpl implements CraftWork {
 
   @Override
   public Optional<Instrument> getInstrument(InstrumentAudio audio) {
-    return chainSourceMaterial.getInstrument(audio.getInstrumentId());
+    return sourceMaterial.getInstrument(audio.getInstrumentId());
   }
 
   @Override
   public Optional<InstrumentAudio> getInstrumentAudio(SegmentChoiceArrangementPick pick) {
-    return chainSourceMaterial.getInstrumentAudio(pick.getInstrumentAudioId());
+    return sourceMaterial.getInstrumentAudio(pick.getInstrumentAudioId());
   }
 
   @Override
-  public String getInputTemplateKey() {
+  public String getTemplateKey() {
     return inputTemplateKey;
   }
 
@@ -403,7 +380,7 @@ public class CraftWorkImpl implements CraftWork {
       if (mainChoice.isEmpty()) {
         return Optional.empty();
       }
-      return chainSourceMaterial.getProgram(mainChoice.get().getProgramId());
+      return sourceMaterial.getProgram(mainChoice.get().getProgramId());
     } catch (NexusException e) {
       LOG.warn("Unable to get main program for segment[{}] because {}", segment.getId(), e.getMessage());
       return Optional.empty();
@@ -421,7 +398,7 @@ public class CraftWorkImpl implements CraftWork {
       if (macroChoice.isEmpty()) {
         return Optional.empty();
       }
-      return chainSourceMaterial.getProgram(macroChoice.get().getProgramId());
+      return sourceMaterial.getProgram(macroChoice.get().getProgramId());
     } catch (NexusException e) {
       LOG.warn("Unable to get main program for segment[{}] because {}", segment.getId(), e.getMessage());
       return Optional.empty();
@@ -435,7 +412,7 @@ public class CraftWorkImpl implements CraftWork {
 
   @Override
   public HubContent getSourceMaterial() {
-    return chainSourceMaterial;
+    return sourceMaterial;
   }
 
   @Override
@@ -498,15 +475,16 @@ public class CraftWorkImpl implements CraftWork {
    Run all work when this Nexus is a sidecar to a hub, as in the Lab
    */
   void runPreview() {
-    if (System.currentTimeMillis() > labPollNextSystemMillis) {
-      state = WorkState.Loading;
+    if (System.currentTimeMillis() < labPollNextSystemMillis) {
+      return;
+    } else {
       labPollNextSystemMillis = System.currentTimeMillis() + craftAheadSeconds * MILLIS_PER_SECOND;
-      if (maintainPreviewTemplate())
-        state = WorkState.Working;
-      else {
-        LOG.error("Failed to maintain preview template!");
-        state = WorkState.Failed;
-      }
+    }
+
+    ingestMaterialIfNecessary();
+    if (!maintainPreviewTemplate()) {
+      LOG.error("Failed to maintain preview template!");
+      state = WorkState.Failed;
     }
 
     // Fabricate active chain
@@ -514,10 +492,11 @@ public class CraftWorkImpl implements CraftWork {
     if (chain.isEmpty()) {
       return;
     }
-    ingestMaterialIfNecessary(chain.get());
+
     try {
       fabricateChain(chain.get());
-    } catch (FabricationFatalException e) {
+    } catch (
+      FabricationFatalException e) {
       didFailWhile(chain.get().getShipKey(), "fabricating", e, false);
     }
   }
@@ -529,13 +508,12 @@ public class CraftWorkImpl implements CraftWork {
    */
   void loadYard() {
     try {
-      chainSourceMaterial = hubClient.load(inputTemplateKey, audioBaseUrl);
-      chainSourceMaterial.setTemplateShipKey(inputTemplateKey);
-      chainId = createChainForTemplate(chainSourceMaterial.getTemplate())
-        .orElseThrow(() -> new HubClientException(String.format("Failed to create chain for Template[%s]", inputTemplateKey)))
+      sourceMaterial = hubContentProvider.call();
+      chainId = createChainForTemplate(sourceMaterial.getTemplate())
+        .orElseThrow(() -> new RuntimeException(String.format("Failed to create chain for Template[%s]", inputTemplateKey)))
         .getId();
 
-      LOG.debug("Ingested {} entities of source material", chainSourceMaterial.size());
+      LOG.debug("Ingested {} entities of source material", sourceMaterial.size());
       state = WorkState.Working;
 
     } catch (Exception e) {
@@ -566,18 +544,18 @@ public class CraftWorkImpl implements CraftWork {
   /**
    Ingest Content from Hub
    */
-  void ingestMaterialIfNecessary(Chain chain) {
+  void ingestMaterialIfNecessary() {
     if (System.currentTimeMillis() < chainNextIngestMillis) return;
     chainNextIngestMillis = System.currentTimeMillis() + ingestCycleSeconds * MILLIS_PER_SECOND;
     timer.section("Ingest");
 
     try {
       // read the source material
-      chainSourceMaterial = hubClient.ingest(hubBaseUrl, access, chain.getTemplateId());
-      LOG.info("Ingested {} entities of source material for Chain[{}]", chainSourceMaterial.size(), ChainUtils.getIdentifier(chain));
+      sourceMaterial = hubContentProvider.call();
+      LOG.info("Ingested {} entities of source material", sourceMaterial.size());
 
-    } catch (HubClientException e) {
-      didFailWhile(chain.getShipKey(), "ingesting source material from Hub", e, false);
+    } catch (Exception e) {
+      didFailWhile(inputTemplateKey, "ingesting source material from Hub", e, false);
     }
   }
 
@@ -598,7 +576,7 @@ public class CraftWorkImpl implements CraftWork {
     }
 
     try {
-      var lastCraftedSegment = segmentManager.readLastCraftedSegment(access);
+      var lastCraftedSegment = segmentManager.readLastCraftedSegment();
       if (lastCraftedSegment.isEmpty()) {
         chainFabricatedAhead = false;
         return;
@@ -654,7 +632,7 @@ public class CraftWorkImpl implements CraftWork {
       Fabricator fabricator;
       timer.section("Prepare");
       LOG.debug("[segId={}] will prepare fabricator", segment.getId());
-      fabricator = fabricatorFactory.fabricate(chainSourceMaterial, segment, craftAheadSeconds, outputFrameRate, outputChannels);
+      fabricator = fabricatorFactory.fabricate(sourceMaterial, segment, craftAheadSeconds, outputFrameRate, outputChannels);
 
       timer.section("Craft");
       LOG.debug("[segId={}] will do craft work", segment.getId());
@@ -675,7 +653,7 @@ public class CraftWorkImpl implements CraftWork {
 
     } catch (
       ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException | ManagerFatalException |
-      NexusException | ValueException | HubClientException e
+      NexusException | ValueException e
     ) {
       var body = String.format("Failed to create Segment of Chain[%s] (%s) because %s\n\n%s",
         ChainUtils.getIdentifier(target),
@@ -805,19 +783,13 @@ public class CraftWorkImpl implements CraftWork {
    @return true if all is well, false if something has failed
    */
   boolean maintainPreviewTemplate() {
-    Optional<Template> template = readPreviewTemplate();
-    if (template.isEmpty()) {
-      LOG.error("Failed to start Chain for Template because no preview template playback found!");
-      return false;
-    }
-
     try {
       if (Objects.isNull(chainId)) {
-        chainId = createChainForTemplate(template.get())
-          .orElseThrow(() -> new ManagerFatalException(String.format("Failed to create chain for Template[%s]", TemplateUtils.getIdentifier(template.get()))))
+        chainId = createChainForTemplate(sourceMaterial.getTemplate())
+          .orElseThrow(() -> new ManagerFatalException(String.format("Failed to create chain for Template[%s]", TemplateUtils.getIdentifier(sourceMaterial.getTemplate()))))
           .getId();
       }
-    } catch (ManagerFatalException e) {
+    } catch (Exception e) {
       LOG.error("Failed to start Chain for Template because {}", e.getMessage());
       return false;
     }
@@ -826,39 +798,9 @@ public class CraftWorkImpl implements CraftWork {
   }
 
   /**
-   Read preview Template from Hub
-
-   @return preview Template
-   */
-  Optional<Template> readPreviewTemplate() {
-    if (Objects.isNull(inputTemplateKey)) return Optional.empty();
-    UUID id;
-    try {
-      id = UUID.fromString(inputTemplateKey);
-    } catch (IllegalArgumentException e) {
-      LOG.error("Failed to read preview Template[{}] from Hub because {} is not a valid UUID", inputTemplateKey, e.getMessage());
-      // FUTURE: raise an alert for this in the GUI
-      return Optional.empty();
-    }
-    try {
-      return hubClient.readPreviewTemplate(hubBaseUrl, access.getToken(), id);
-    } catch (HubClientException e) {
-      LOG.error("Failed to read preview Template[{}] from Hub because {}", id, e.getMessage());
-      return Optional.empty();
-    }
-  }
-
-  /**
-   Bootstrap a chain from JSON chain bootstrap data,
-   first rehydrating store from last shipped JSON matching this ship key.
-   <p>
-   Nexus with bootstrap chain rehydrates store on startup from shipped JSON files https://www.pivotaltracker.com/story/show/178718006
+   Bootstrap a chain from JSON chain bootstrap data.
    */
   Optional<Chain> createChainForTemplate(Template template) {
-    var rehydrated = rehydrateTemplate(template);
-    if (rehydrated.isPresent()) return rehydrated;
-
-    // Only if rehydration was unsuccessful
     try {
       LOG.info("Will bootstrap Template[{}]", TemplateUtils.getIdentifier(template));
       var entity = ChainUtils.fromTemplate(template);
@@ -872,129 +814,6 @@ public class CraftWorkImpl implements CraftWork {
     }
   }
 
-  /**
-   Attempt to rehydrate the store from a bootstrap, and return true if successful, so we can skip other stuff
-
-   @param template from which to rehydrate
-   @return chain if the rehydration was successful
-   */
-  Optional<Chain> rehydrateTemplate(Template template) {
-    if (!isRehydrationEnabled) return Optional.empty();
-    if (outputMode.isLocal()) return Optional.empty();
-    var success = new AtomicBoolean(true);
-    Collection<Object> entities = new ArrayList<>();
-    JsonapiPayload chainPayload;
-    Chain chain;
-
-    String key = ChainUtils.getShipKey(ChainUtils.getFullKey(template.getShipKey()), EXTENSION_JSON);
-
-    CloseableHttpClient client = httpClientProvider.getClient();
-    try (
-      CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", shipBaseUrl, key)))
-    ) {
-      if (!Objects.equals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode())) {
-        LOG.debug("Failed to get previously fabricated chain for Template[{}] because {} {}", template.getShipKey(), response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
-        return Optional.empty();
-      }
-
-      LOG.debug("will check for last shipped data");
-      chainPayload = jsonProvider.getMapper().readValue(response.getEntity().getContent(), JsonapiPayload.class);
-      chain = jsonapiPayloadFactory.toOne(chainPayload);
-      entities.add(entityFactory.clone(chain));
-    } catch (JsonapiException | ClassCastException | IOException | EntityException e) {
-      LOG.error("Failed to rehydrate previously fabricated chain for Template[{}] because {}", template.getShipKey(), e.getMessage());
-      return Optional.empty();
-    }
-
-    try {
-      LOG.info("Will load Chain[{}] for ship key \"{}\"", chain.getId(), template.getShipKey());
-      chainPayload.getIncluded().stream()
-        .filter(po -> po.isType(TemplateBinding.class))
-        .forEach(templateBinding -> {
-          try {
-            entities.add(entityFactory.clone(jsonapiPayloadFactory.toOne(templateBinding)));
-          } catch (JsonapiException | EntityException | ClassCastException e) {
-            success.set(false);
-            LOG.error("Could not deserialize TemplateBinding from shipped Chain JSON because {}", e.getMessage());
-          }
-        });
-
-      Long ignoreBeforeChainMicros = atChainMicros - ignoreSegmentsOlderThanSeconds * MICROS_PER_SECOND;
-      //noinspection DuplicatedCode
-      chainPayload.getIncluded().parallelStream()
-        .filter(po -> po.isType(Segment.class))
-        .flatMap(po -> {
-          try {
-            return Stream.of((Segment) jsonapiPayloadFactory.toOne(po));
-          } catch (JsonapiException | ClassCastException e) {
-            LOG.error("Could not deserialize Segment from shipped Chain JSON because {}", e.getMessage());
-            success.set(false);
-            return Stream.empty();
-          }
-        })
-        .filter(seg -> SegmentState.CRAFTED.equals(seg.getState()))
-        .filter(seg -> seg.getBeginAtChainMicros() > ignoreBeforeChainMicros)
-        .forEach(segment -> {
-          var segmentShipKey = SegmentUtils.getStorageFilename(segment, EXTENSION_JSON);
-          try (
-            CloseableHttpResponse response = client.execute(new HttpGet(String.format("%s%s", shipBaseUrl, segmentShipKey)))
-          ) {
-            if (!Objects.equals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode())) {
-              LOG.error("Failed to get segment for Template[{}] because {} {}", template.getShipKey(), response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
-              success.set(false);
-              return;
-            }
-            var segmentPayload = jsonProvider.getMapper().readValue(response.getEntity().getContent(), JsonapiPayload.class);
-            AtomicInteger childCount = new AtomicInteger();
-            entities.add(entityFactory.clone(segment));
-            segmentPayload.getIncluded()
-              .forEach(po -> {
-                try {
-                  var entity = jsonapiPayloadFactory.toOne(po);
-                  entities.add(entity);
-                  childCount.getAndIncrement();
-                } catch (Exception e) {
-                  LOG.error("Could not deserialize Segment from shipped Chain JSON because {}", e.getMessage());
-                  success.set(false);
-                }
-              });
-            LOG.info("Read Segment[{}] and {} child entities", SegmentUtils.getIdentifier(segment), childCount);
-
-          } catch (Exception e) {
-            LOG.error("Could not load Segment[{}] because {}", SegmentUtils.getIdentifier(segment), e.getMessage());
-            success.set(false);
-          }
-        });
-
-      // Quit if anything failed up to here
-      if (!success.get()) return Optional.empty();
-
-      // Nexus with bootstrap won't rehydrate stale Chain
-      // https://www.pivotaltracker.com/story/show/178727631
-      var aheadSeconds =
-        Math.floor(ChainUtils.computeFabricatedToChainMicros(
-          entities.stream()
-            .filter(e -> EntityUtils.isType(e, Segment.class))
-            .map(e -> (Segment) e)
-            .collect(Collectors.toList())) - atChainMicros) / MICROS_PER_SECOND;
-
-      if (aheadSeconds < rehydrateFabricatedAheadThreshold) {
-        LOG.info("Will not rehydrate Chain[{}] fabricated ahead {}s (not > {}s)",
-          ChainUtils.getIdentifier(chain), aheadSeconds, rehydrateFabricatedAheadThreshold);
-        return Optional.empty();
-      }
-
-      // Okay to rehydrate
-      store.putAll(entities);
-      LOG.info("Rehydrated {} entities OK. Chain[{}] is fabricated ahead {}s (> {}s)",
-        entities.size(), ChainUtils.getIdentifier(chain), aheadSeconds, rehydrateFabricatedAheadThreshold);
-      return Optional.of(chain);
-
-    } catch (NexusException e) {
-      LOG.error("Failed to rehydrate store!", e);
-      return Optional.empty();
-    }
-  }
 
   /**
    MasterDub implements Mixer module to write JSON outputs

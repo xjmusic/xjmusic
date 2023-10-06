@@ -128,7 +128,7 @@ public interface CraftWork {
   /**
    @return the input template key
    */
-  String getInputTemplateKey();
+  String getTemplateKey();
 
   /**
    Check whether the given pick is muted (by its choice)

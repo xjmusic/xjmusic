@@ -3,13 +3,16 @@
 package io.xj.workstation.service;
 
 import io.xj.hub.HubConfiguration;
+import io.xj.hub.HubContent;
 import io.xj.hub.enums.UserRoleType;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.nexus.InputMode;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.OutputFileMode;
 import io.xj.nexus.OutputMode;
+import io.xj.nexus.hub_client.HubClient;
 import io.xj.nexus.hub_client.HubClientAccess;
+import io.xj.nexus.hub_client.HubContentProvider;
 import io.xj.nexus.hub_client.HubTopology;
 import io.xj.nexus.work.WorkConfiguration;
 import io.xj.nexus.work.WorkFactory;
@@ -27,6 +30,7 @@ import org.springframework.context.event.EventListener;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.Callable;
 
 @SpringBootApplication
 @ComponentScan(
@@ -40,6 +44,7 @@ public class WorkstationServiceApplication {
   final EntityFactory entityFactory;
   final WorkFactory workFactory;
   final ApplicationContext context;
+  private final HubClient hubClient;
   final InputMode inputMode;
   final String inputTemplateKey;
   final OutputFileMode outputFileMode;
@@ -57,6 +62,7 @@ public class WorkstationServiceApplication {
     ApplicationContext context,
     EntityFactory entityFactory,
     WorkFactory workFactory,
+    HubClient hubClient,
     @Value("${input.mode}") String inputMode,
     @Value("${input.template.key}") String inputTemplateKey,
     @Value("${output.file.mode}") String outputFileMode,
@@ -72,6 +78,7 @@ public class WorkstationServiceApplication {
     this.entityFactory = entityFactory;
     this.workFactory = workFactory;
     this.context = context;
+    this.hubClient = hubClient;
     this.inputMode = InputMode.valueOf(inputMode.toUpperCase(Locale.ROOT));
     this.inputTemplateKey = inputTemplateKey;
     this.outputFileMode = OutputFileMode.valueOf(outputFileMode.toUpperCase(Locale.ROOT));
@@ -111,7 +118,8 @@ public class WorkstationServiceApplication {
       .setRoleTypes(List.of(UserRoleType.Internal))
       .setToken(ingestToken);
 
-    workFactory.start(workConfig, hubConfig, hubAccess, this::updateProgress, this::shutdown);
+    Callable<HubContent> hubContentProvider = new HubContentProvider(hubClient, hubConfig, hubAccess, inputMode, workConfig.getInputTemplateKey());
+    workFactory.start(workConfig, hubConfig, hubContentProvider, this::updateProgress, this::shutdown);
   }
 
   private void updateProgress(Double aDouble) {

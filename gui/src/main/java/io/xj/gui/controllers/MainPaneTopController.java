@@ -5,6 +5,7 @@ package io.xj.gui.controllers;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.FabricationStatus;
 import io.xj.gui.services.LabService;
+import io.xj.gui.services.PreloaderService;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -16,19 +17,10 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.VBox;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
-
 @Service
 public class MainPaneTopController extends VBox implements ReadyAfterBootController {
-  static final List<FabricationStatus> BUTTON_ACTION_ACTIVE_IN_FABRICATION_STATES = Arrays.asList(
-    FabricationStatus.Standby,
-    FabricationStatus.Active,
-    FabricationStatus.Cancelled,
-    FabricationStatus.Done,
-    FabricationStatus.Failed
-  );
   final FabricationService fabricationService;
+  final PreloaderService preloaderService;
   final ModalFabricationSettingsController modalFabricationSettingsController;
   final ModalLabAuthenticationController modalLabAuthenticationController;
   final LabService labService;
@@ -54,39 +46,79 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   @FXML
   protected Button buttonShowFabricationSettings;
 
+  @FXML
+  protected Button buttonPreload;
+
   public MainPaneTopController(
+    FabricationService fabricationService,
+    LabService labService,
     ModalFabricationSettingsController modalFabricationSettingsController,
     ModalLabAuthenticationController modalLabAuthenticationController,
-    FabricationService fabricationService,
-    LabService labService
+    PreloaderService preloaderService
   ) {
-    this.modalFabricationSettingsController = modalFabricationSettingsController;
-    this.modalLabAuthenticationController = modalLabAuthenticationController;
     this.fabricationService = fabricationService;
     this.labService = labService;
+    this.modalFabricationSettingsController = modalFabricationSettingsController;
+    this.modalLabAuthenticationController = modalLabAuthenticationController;
+    this.preloaderService = preloaderService;
   }
 
   @Override
   public void onStageReady() {
     buttonAction.disableProperty().bind(Bindings.createBooleanBinding(
-      () -> BUTTON_ACTION_ACTIVE_IN_FABRICATION_STATES.contains(fabricationService.statusProperty().get()),
-      fabricationService.statusProperty()).not());
-
+      () -> preloaderService.runningProperty().get() || fabricationService.statusProperty().get() != FabricationStatus.Starting,
+      fabricationService.statusProperty(), preloaderService.runningProperty()));
     buttonAction.textProperty().bind(fabricationService.mainActionButtonTextProperty());
 
     fabricationService.statusProperty().addListener(this::handleFabricationStatusChange);
     buttonToggleFollowPlayback.selectedProperty().bindBidirectional(fabricationService.followPlaybackProperty());
-    buttonShowFabricationSettings.disableProperty().bind(fabricationService.isStatusActive());
+    buttonToggleFollowPlayback.disableProperty().bind(preloaderService.runningProperty());
 
-    labelFabricationStatus.textProperty().bind(fabricationService.statusProperty().map(Enum::toString).map((status) -> String.format("Fabrication %s", status)));
+    buttonShowFabricationSettings.disableProperty().bind(Bindings.createBooleanBinding(
+      () -> fabricationService.isStatusActive().get() || preloaderService.runningProperty().get(),
+      fabricationService.isStatusActive(), preloaderService.runningProperty()));
+
+    buttonPreload.disableProperty().bind(fabricationService.isStatusActive());
+    buttonPreload.textProperty().bind(Bindings.createStringBinding(
+      () -> {
+        if (preloaderService.runningProperty().get())
+          return "Cancel";
+        else
+          return "Preload";
+      },
+      preloaderService.runningProperty()));
+
+    labelFabricationStatus.textProperty().bind(Bindings.createStringBinding(
+      () -> {
+        if (preloaderService.runningProperty().get())
+          return "Preloading";
+        else
+          return String.format("Fabrication %s", fabricationService.statusProperty().get().toString());
+      },
+      fabricationService.statusProperty(), preloaderService.runningProperty()));
+
 
     labelLabStatus.textProperty().bind(labService.statusProperty().map(Enum::toString));
 
-    progressBarFabrication.visibleProperty().bind(Bindings.createBooleanBinding(
+    var isFileOutputActive = Bindings.createBooleanBinding(
       () -> fabricationService.isStatusActive().get() && fabricationService.isOutputModeFile().get(),
-      fabricationService.statusProperty(), fabricationService.isOutputModeFile()));
+      fabricationService.statusProperty(), fabricationService.isOutputModeFile());
 
-    progressBarFabrication.progressProperty().bind(fabricationService.progressProperty());
+    progressBarFabrication.visibleProperty().bind(Bindings.createBooleanBinding(
+      () -> isFileOutputActive.get() || preloaderService.runningProperty().get(),
+      isFileOutputActive, preloaderService.runningProperty()));
+
+    progressBarFabrication.progressProperty().bind(Bindings.createDoubleBinding(
+      () -> {
+        if (preloaderService.runningProperty().get()) {
+          return preloaderService.progressProperty().get();
+        } else if (isFileOutputActive.get()) {
+          return fabricationService.progressProperty().get();
+        } else {
+          return 0.0;
+        }
+      },
+      isFileOutputActive, fabricationService.progressProperty(), preloaderService.runningProperty(), preloaderService.progressProperty()));
   }
 
   @Override
@@ -97,6 +129,15 @@ public class MainPaneTopController extends VBox implements ReadyAfterBootControl
   @FXML
   protected void handleButtonActionPress() {
     fabricationService.handleMainAction();
+  }
+
+  @FXML
+  public void handlePreloadButtonPress(ActionEvent ignored) {
+    if (preloaderService.isRunning()) {
+      preloaderService.cancel();
+    } else {
+      preloaderService.resetAndStart();
+    }
   }
 
   @FXML

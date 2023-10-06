@@ -107,7 +107,7 @@ public interface Fabricator {
 
   /**
    Get a JSON:API payload of the entire result of Chain Fabrication
-   Including ALL segments-- this allows the chain to rehydrate from this output
+   Including ALL segments
 
    @return JSON:API payload of the entire result of Chain Fabrication
    */
@@ -115,7 +115,7 @@ public interface Fabricator {
 
   /**
    Returns the ship key concatenated with JSON as its file extension
-   Including ALL segments-- this allows the chain to rehydrate from this output
+   Including ALL segments
 
    @return Output Metadata Key
    */
