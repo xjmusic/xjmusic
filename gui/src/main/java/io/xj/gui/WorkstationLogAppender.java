@@ -12,13 +12,21 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class WorkstationLogAppender extends AppenderBase<ILoggingEvent> {
   public static final AtomicReference<LogListener> LISTENER = new AtomicReference<>();
+  public static final AtomicReference<Level> LEVEL = new AtomicReference<>(Level.INFO);
 
   public interface LogListener {
     void onLog(Level level, String context, String message);
   }
 
+  public static void setLevel(String value) {
+    LEVEL.set(Level.valueOf(value));
+  }
+
   @Override
   protected void append(ILoggingEvent eventObject) {
+    if (!eventObject.getLevel().isGreaterOrEqual(LEVEL.get())) {
+      return;
+    }
     var message = formatMessage(eventObject);
     System.out.println(message);
     if (LISTENER.get() != null) {

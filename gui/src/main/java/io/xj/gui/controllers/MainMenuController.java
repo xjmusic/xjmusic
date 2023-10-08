@@ -7,9 +7,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.CheckMenuItem;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCombination;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +18,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class MainMenuController extends MenuBar implements ReadyAfterBootController {
   Logger LOG = LoggerFactory.getLogger(MainMenuController.class);
+  final static String DEBUG = "DEBUG";
+  final static String INFO = "INFO";
+  final static String WARN = "WARN";
+  final static String ERROR = "ERROR";
+
   final BooleanProperty logsVisible = new SimpleBooleanProperty(false);
   final BooleanProperty logsTailing = new SimpleBooleanProperty(true);
   final ConfigurableApplicationContext ac;
@@ -54,6 +57,21 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
 
   @FXML
   protected CheckMenuItem checkboxTailLogs;
+
+  @FXML
+  RadioMenuItem logLevelDebug;
+
+  @FXML
+  RadioMenuItem logLevelInfo;
+
+  @FXML
+  RadioMenuItem logLevelWarn;
+
+  @FXML
+  RadioMenuItem logLevelError;
+
+  @FXML
+  ToggleGroup logLevelToggleGroup;
 
   public MainMenuController(
     ConfigurableApplicationContext ac,
@@ -102,30 +120,18 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
     logsVisible.bindBidirectional(checkboxShowLogs.selectedProperty());
 
     themeService.isDarkThemeProperty().bindBidirectional(checkboxDarkTheme.selectedProperty());
-  }
 
-  String addLeadingUnderscore(String s) {
-    return String.format("_%s", s);
-  }
-
-  /**
-   Compute the accelerator for the main action button.
-   Depending on the platform, it will be either SHORTCUT+SPACE or SHORTCUT+B (on Mac because of conflict).
-
-   @return the accelerator
-   */
-  KeyCombination computeMainActionButtonAccelerator() {
-    return KeyCombination.valueOf("SHORTCUT+" + (System.getProperty("os.name").toLowerCase().contains("mac") ? "B" : "SPACE"));
-  }
-
-  /**
-   Compute the accelerator for the fabricator follow toggle button.
-   Depending on the platform, it will be either SHORTCUT+ALT+SPACE or SHORTCUT+ALT+B (on Mac because of conflict).
-
-   @return the accelerator
-   */
-  KeyCombination computeFabricationFollowButtonAccelerator() {
-    return KeyCombination.valueOf("SHORTCUT+ALT+" + (System.getProperty("os.name").toLowerCase().contains("mac") ? "B" : "SPACE"));
+    logLevelToggleGroup = new ToggleGroup();
+    logLevelDebug.setToggleGroup(logLevelToggleGroup);
+    logLevelInfo.setToggleGroup(logLevelToggleGroup);
+    logLevelWarn.setToggleGroup(logLevelToggleGroup);
+    logLevelError.setToggleGroup(logLevelToggleGroup);
+    switch (uiStateService.logLevelProperty().get()) {
+      case DEBUG -> logLevelDebug.setSelected(true);
+      case INFO -> logLevelInfo.setSelected(true);
+      case WARN -> logLevelWarn.setSelected(true);
+      case ERROR -> logLevelError.setSelected(true);
+    }
   }
 
   @Override
@@ -185,5 +191,34 @@ public class MainMenuController extends MenuBar implements ReadyAfterBootControl
   @FXML
   public void handleFabricationMainAction(ActionEvent ignored) {
     fabricationService.handleMainAction();
+  }
+
+  @FXML
+  public void handleSetLogLevel(ActionEvent ignored) {
+    uiStateService.logLevelProperty().set(((RadioMenuItem) logLevelToggleGroup.getSelectedToggle()).getText());
+  }
+
+  String addLeadingUnderscore(String s) {
+    return String.format("_%s", s);
+  }
+
+  /**
+   Compute the accelerator for the main action button.
+   Depending on the platform, it will be either SHORTCUT+SPACE or SHORTCUT+B (on Mac because of conflict).
+
+   @return the accelerator
+   */
+  KeyCombination computeMainActionButtonAccelerator() {
+    return KeyCombination.valueOf("SHORTCUT+" + (System.getProperty("os.name").toLowerCase().contains("mac") ? "B" : "SPACE"));
+  }
+
+  /**
+   Compute the accelerator for the fabricator follow toggle button.
+   Depending on the platform, it will be either SHORTCUT+ALT+SPACE or SHORTCUT+ALT+B (on Mac because of conflict).
+
+   @return the accelerator
+   */
+  KeyCombination computeFabricationFollowButtonAccelerator() {
+    return KeyCombination.valueOf("SHORTCUT+ALT+" + (System.getProperty("os.name").toLowerCase().contains("mac") ? "B" : "SPACE"));
   }
 }

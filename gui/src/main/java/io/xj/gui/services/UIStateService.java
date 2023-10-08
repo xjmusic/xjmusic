@@ -4,7 +4,7 @@ import io.xj.gui.controllers.ReadyAfterBootController;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.StringBinding;
-import javafx.beans.value.ObservableValue;
+import javafx.beans.property.StringProperty;
 
 /**
  This is an intermediary to compute the state of the UI based on the state of the application.
@@ -55,4 +55,11 @@ public interface UIStateService extends ReadyAfterBootController {
    @return observable true if active in file output mode
    */
   BooleanBinding isFileOutputActiveProperty();
+
+  /**
+   Observable/settable property of the log level
+
+   @return observable/settable log level
+   */
+  StringProperty logLevelProperty();
 }
