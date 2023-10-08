@@ -58,7 +58,7 @@ public class UIStateServiceImpl implements UIStateService {
   public BooleanBinding fabricationActionDisabledProperty() {
     if (Objects.isNull(fabricationActionDisabled))
       fabricationActionDisabled = Bindings.createBooleanBinding(
-        () -> preloaderService.runningProperty().get() || fabricationService.statusProperty().get() != FabricationStatus.Starting,
+        () -> preloaderService.runningProperty().get() || fabricationService.statusProperty().get() == FabricationStatus.Starting,
 
         fabricationService.statusProperty(),
         preloaderService.runningProperty());
